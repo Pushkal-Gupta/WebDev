@@ -1,1 +1,253 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="icon"
+      href="https://png.pngtree.com/png-vector/20230120/ourmid/pngtree-quiz-logo-with-speech-bubble-symbols-png-image_6568572.png"
+      type="image/x-icon"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="../PG.html.js/main.html#">PG.Quiz</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarNavDropdown"
+          aria-controls="navbarNavDropdown"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" onclick="newQuizStart()">New Quiz</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" onclick="register()">Register</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+      <br />
+      <div id="showTime"></div>
+      <br />
+      <div id="divid1"></div>
+    </div>
+    <script>
+      //All the questions are stored in the array allQns
+      let allQns = [
+        {
+          qnTxt: "What is the capital of Karnataka",
+          options: ["Chennai", "Kolkatta", "Mumbai", "Bengaluru"],
+          answer: 3,
+        },
+        {
+          qnTxt: "What is the capital of Maharashtra",
+          options: ["Chennai", "Kolkatta", "Mumbai", "Bengaluru"],
+          answer: 2,
+        },
+        {
+          qnTxt: "What is the capital of Tamil Nadu",
+          options: ["Chennai", "Kolkatta", "Mumbai", "Bengaluru"],
+          answer: 0,
+        },
+        {
+          qnTxt: "What is the capital of Rajasthan",
+          options: ["Lucknow", "Jaipur", "New Delhi", "Ajmer"],
+          answer: 1,
+        },
+        {
+          qnTxt: "What is the capital of Uttar Pradesh",
+          options: ["Lucknow", "Kanpur", "New Delhi", "Varanasi"],
+          answer: 0,
+        },
+        {
+          qnTxt: "What is the capital of Kerala",
+          options: ["Chennai", "Coimbatore", "Thiruvananthapuram", "Madurai"],
+          answer: 2,
+        },
+        {
+          qnTxt: "What is the capital of Andhra Pradesh",
+          options: ["Chennai", "Hyderabad", "Vishakhapatnam", "Amaravati"],
+          answer: 3,
+        },
+        {
+          qnTxt: "What is the capital of West Bengal",
+          options: ["Chennai", "Kolkatta", "Mumbai", "Bengaluru"],
+          answer: 1,
+        },
+      ];
+      let score = 0; //maintains the score
+      let qnsAsked = []; //all the questions that have been asked
+      let qnsRemaining = []; //all the questions that have to be asked
+      let showAnswersId = 0; //maintains the number of answers that have been shown
+      let time = 0; // total time elapsed
+      let maxTime = 25; // to decide maximum time for quiz
+      let timer = null; // variable to hold the timer interval
 
+      //start of a new quiz
+      function newQuizStart() {
+        //initialize all the variables at the start of the quiz
+        score = 0;
+        qnsAsked = [];
+        qnsRemaining = [...allQns]; //makes a copy of the array
+        showAnswersId = 0;
+        time = -1;
+        timer = setInterval(updateTime, 1000);
+        updateTime();
+        askQuestion();
+      }
+
+      //show time
+      function updateTime() {
+        time++;
+        let element = document.getElementById("showTime");
+        let html =
+          "<h6>Remaining time : " + (maxTime - time) + " seconds </h6>";
+        element.innerHTML = html;
+        if (time >= maxTime) {
+          showTimeOver();
+        }
+      }
+      //ask a new quiz question
+      function askQuestion() {
+        let element = document.getElementById("divid1");
+        let html = "<h4>Question No. " + (qnsAsked.length + 1) + "</h4>";
+        //generate a random number for the next question to be asked
+        let r1 = Math.floor(Math.random() * qnsRemaining.length);
+        let qn = qnsRemaining[r1];
+        qnsAsked.push({ ...qn }); //qn is pushed into qnsAsked
+        qnsRemaining.splice(r1, 1); //qn is removed from qnsRemaining
+        html += "<h6>" + qn.qnTxt + "</h6>";
+        html += showOptions(qn.options);
+        html +=
+          "</br><button class='btn btn-primary' onclick='nextQuestion()'>Choose</button>";
+        element.innerHTML = html;
+      }
+
+      //shows all the options of the question asked
+      function showOptions(values) {
+        const arr = values.map((value, index) => {
+          return showAnOption("selOption", value);
+        });
+        let radioAll = "" + arr.join("") + "";
+        return radioAll;
+      }
+
+      //creates a radiobutton for an option
+      function showAnOption(name, value) {
+        let radio1 = "<div class='form-check form-check-inline'>";
+        radio1 =
+          radio1 +
+          "<input type='radio' class='form-check-input' name='" +
+          name +
+          "' value='" +
+          value +
+          "'>";
+        radio1 =
+          radio1 + "<label class='form-check-label'>" + value + "</label>";
+        radio1 = radio1 + "</div>";
+        return radio1;
+      }
+
+      //function called when the user clicks on the choose button.
+      function nextQuestion() {
+        let selAnswer = getSelectedOption();
+        let currQn = qnsAsked[qnsAsked.length - 1];
+        currQn.selAnswer = selAnswer;
+        if (selAnswer == currQn.options[currQn.answer]) {
+          score++;
+        }
+        if (qnsRemaining.length > 0)
+          //condition checking if there are more questions to ask
+          askQuestion();
+        else showResults();
+      }
+
+      //gets the value of the option selected by the user
+      function getSelectedOption() {
+        let rdValue = "";
+        let radios = document.getElementsByName("selOption");
+        for (var i = 0, length = radios.length; i < length; i++) {
+          if (radios[i].checked) {
+            rdValue = radios[i].value;
+          }
+        }
+        return rdValue;
+      }
+
+      //function called when time is over
+      function showTimeOver() {
+        clearTimer();
+        let element2 = document.getElementById("divid1");
+        let html =
+          "<h4>Time over. Click on the button below to see the answers.</h4>";
+        html +=
+          "</br><button class='btn btn-primary' onclick='showResults()'>Show Answers</button>";
+        element2.innerHTML = html;
+        qnsAsked = qnsAsked.concat(qnsRemaining);
+      }
+
+      //clear the timer
+      function clearTimer() {
+        let element1 = document.getElementById("showTime");
+        element1.innerHTML = "";
+        clearInterval(timer);
+      }
+
+      //main function to show all the answers after the quiz is over
+      function showResults() {
+        clearTimer();
+        let element = document.getElementById("divid1");
+        let html =
+          "<h4>Quiz Over. Your Score : " +
+          score +
+          " out of " +
+          allQns.length +
+          "</h4>";
+        let qn = qnsAsked[showAnswersId];
+        html += "<h6>" + qn.qnTxt + "</h6>";
+        let correct = false;
+        let correctTxt = "<span class='text-danger'>Wrong</span>";
+        if (!qn.selAnswer) {
+          qn.selAnswer = "";
+          correctTxt = "<span class='text-warning'>Not Attempted</span>";
+        } else if (qn.selAnswer == qn.options[qn.answer]) {
+          correct = true;
+          correctTxt = "<span class='text-success'>Correct</span>";
+        }
+        html +=
+          "<h6> Your Answer : " +
+          qn.selAnswer +
+          "&nbsp;&nbsp;" +
+          correctTxt +
+          "</h6>";
+        if (!correct)
+          html += "<h6> Correct Answer : " + qn.options[qn.answer] + "</h6>";
+        if (showAnswersId < qnsAsked.length - 1)
+          //condition checking is more answers to show
+          html +=
+            "</br><button class='btn btn-primary' onclick='showNextAnswer()'>Next Answer</button>";
+        element.innerHTML = html;
+      }
+
+      //function to show the next answer
+      function showNextAnswer() {
+        showAnswersId++;
+        showResults();
+      }
+    </script>
+  </body>
+</html>
