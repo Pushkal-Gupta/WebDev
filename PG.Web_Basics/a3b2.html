@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>International Yoga Day</title>
+    <link rel="stylesheet" href="a3b2.css" />
+    <script defer src="a3b2.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🧘‍♂️ International Yoga Day</h1>
+      <div class="slider-container">
+        <div class="slider">
+          <img src="yoga1.png" class="slide active" />
+          <img src="yoga2.png" class="slide" />
+          <img src="yoga3.png" class="slide" />
+        </div>
+        <button class="prev" onclick="prevSlide()">&#10094;</button>
+        <button class="next" onclick="nextSlide()">&#10095;</button>
+      </div>
+      <div
+        class="hidden-section"
+        onmouseover="showContent()"
+        onmouseout="hideContent()"
+      >
+        <p id="hover-text">Hover to see this hidden message!</p>
+      </div>
+      <h2>Register for the Event</h2>
+      <form id="event-form" onsubmit="handleSubmit(event)">
+        <div class="form-group">
+          <label for="name">Full Name:</label>
+          <input type="text" id="name" required />
+        </div>
+        <div class="form-group">
+          <label for="email">Email Address:</label>
+          <input type="email" id="email" required />
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone Number:</label>
+          <input type="tel" id="phone" required />
+        </div>
+        <div class="form-group">
+          <label>Choose Event Type:</label>
+          <div class="horizontal-group">
+            <label
+              ><input type="radio" name="event-type" value="Yoga" /> Yoga</label
+            >
+            <label
+              ><input type="radio" name="event-type" value="Meditate" />
+              Meditate</label
+            >
+            <label
+              ><input type="radio" name="event-type" value="Workshop" />
+              Workshop</label
+            >
+            <label
+              ><input type="radio" name="event-type" value="Talk" /> Talk</label
+            >
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Select Interests:</label>
+          <div class="horizontal-group">
+            <label
+              ><input type="checkbox" name="interests" value="Fitness" />
+              Fitness</label
+            >
+            <label
+              ><input type="checkbox" name="interests" value="Calm" />
+              Calm</label
+            >
+            <label
+              ><input type="checkbox" name="interests" value="Diet" />
+              Diet</label
+            >
+            <label
+              ><input type="checkbox" name="interests" value="Mind" />
+              Mind</label
+            >
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="password">Create/Generate Password:</label>
+          <div class="password-group">
+            <input type="text" id="password" />
+            <button type="button" onclick="generatePassword()">Generate</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="user-type">User Type:</label>
+          <select id="user-type">
+            <option value="" disabled selected>Select Type</option>
+            <option value="general">General</option>
+            <option value="employee">Govt Employee</option>
+            <option value="student">Student</option>
+          </select>
+        </div>
+
+        <button type="submit">Register</button>
+      </form>
+      <div id="display-data"></div>
+      <h2>Bill Generation</h2>
+      <p>Original Fee: ₹1000</p>
+      <button onclick="calculateBill()">Calculate Final Fee</button>
+      <p id="final-bill"></p>
+    </div>
+  </body>
+</html>

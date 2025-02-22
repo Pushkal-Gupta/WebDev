@@ -1,0 +1,194 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <script>
+            let count = -1;
+            let dispStr = "";
+            function rev() {
+                count *= -1;
+                let ele = document.getElementById("sw");
+                let dispOl = document.getElementById("dispOl");
+                if (count < 0) {
+                    ele.innerHTML = "<u>Weakness</u>";
+                    dispStr =
+                    "<li>Risk-Aversive Behaviour</li><li>Work-Life Balance</li><li>Self-criticism</li><li>Arts & Crafts</li>";
+                } else {
+                    ele.innerHTML = "<u>Strengths</u>";
+                    dispStr = "<li>Maths</li><li>Coding</li><li>Basketball</li><li>Chess</li>";
+                }
+                dispOl.innerHTML = dispStr;
+            }
+        </script>
+        <style>
+            body {
+            background-color: rgb(10, 10, 10);
+            margin: 0;
+            padding: 0;
+            font-family: "Open Sans", Arial, sans-serif;
+            line-height: 1.6;
+            color: cyan;
+            }
+            .h1 {
+            font-family: "Poppins", "Arial Black", Gadget, sans-serif;
+            font-size: 16px;
+            color: #ff6347;
+            text-align: center;
+            margin: 20px 0;
+            }
+            .h3 {
+            font-size: 12px;
+            text-align: center;
+            color: rgb(183, 0, 255);
+            }
+            .h2 {
+            font-size: 14px;
+            color: lightgreen;
+            text-align: center;
+            margin: 20px 0;
+            }
+            .p1-wrapper,
+            .p4-wrapper,
+            .p5-wrapper {
+            background-color: rgba(50, 50, 50, 0.8);
+            margin: 20px auto;
+            padding: 15px;
+            width: 70%;
+            border-radius: 5px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: clip;
+            }
+            .p1-wrapper {
+            background-color: rgba(255, 0, 0, 0.5);
+            }
+            .p4-wrapper {
+            background-color: darkgreen;
+            }
+            .p5-wrapper {
+            background-color: rgb(230, 0, 255, 0.5);
+            }
+            .p1-wrapper:hover,
+            .p4-wrapper:hover,
+            .p5-wrapper:hover {
+            white-space: wrap;
+            }
+            .p1 {
+            font-family: "Verdana", sans-serif;
+            font-size: 12px;
+            color: rgba(0, 255, 255, 0.8);
+            text-align: justify;
+            line-height: 1.8;
+            }
+            .p4 {
+            font-family: "Courier New", Courier, monospace;
+            font-size: 12px;
+            color: lightcoral;
+            text-align: justify;
+            line-height: 1.8;
+            }
+            .p5 {
+            font-family: "Georgia", serif;
+            font-size: 12px;
+            color: rgba(255, 255, 192, 0.9);
+            text-align: justify;
+            line-height: 1.8;
+            }
+            .btn1 {
+            background-color: rgb(11, 11, 11);
+            font-family: cursive;
+            font-size: 18px;
+            color: rgba(255, 200, 255, 1);
+            border: 1px solid rgb(10, 10, 10);
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            white-space: nowrap;
+            width: auto;
+            display: inline-block;
+            }
+            .btn1:hover {
+            color: rgba(0, 255, 255, 0.8);
+            text-transform: capitalize;
+            }
+            ol,
+            ul {
+            margin: 20px auto;
+            padding: 0;
+            list-style-position: inside;
+            width: 70%;
+            }
+            ol li,
+            ul li {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: rgba(50, 50, 50, 0.9);
+            border-radius: 5px;
+            color: rgba(255, 255, 255, 0.9);
+            transition: transform 0.2s ease, background-color 0.3s ease;
+            }
+            ol li:hover,
+            ul li:hover {
+            background-color: rgba(0, 255, 255, 0.3);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
+            }
+            .profile-img {
+            float: left;
+            margin-right: 20px;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px cyan;
+            }
+            #sw {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            font-size: 18px;
+            color: rgba(255, 200, 255, 1);
+            cursor: pointer;
+            }
+            .p2,
+            .p3 {
+            text-align: center;
+            }
+        </style>
+        <title>Home</title>
+    </head>
+    <body onload="rev()">
+        <h1 class="h1">Pushkal Gupta</h1>
+        <h3 class="h3"><i>If something is important enough you do it even if the odds are not in your favour</i></h3>
+        <div class="p1-wrapper">
+            <h2 class="h2"><b><u>Introduction</u></b></h2>
+            <p class="p1">
+                <img src="file:///Users/pushkalgupta/Desktop/VIT/Sem4/Web%20Dev/profile.png" alt="Pushkal Gupta Image" class="profile-img" onerror="this.onerror=null; this.src='https://www.w3schools.com/w3images/avatar3.png';">
+                Hello, I'm <strong>Pushkal Gupta</strong>, and I’m originally from Noida, Uttar Pradesh, India. Currently, I’m pursuing a degree in <b>Computer Science Engineering</b> with a specialization in <i>Internet of Things (IoT)</i> at VIT Vellore. Technology has always intrigued me, and I feel lucky to be on this journey where I get to learn and grow every day in the world of computing. There’s so much more to explore, and I’m excited to keep discovering.
+            </p>
+        </div>
+        <div class="p4-wrapper">
+            <h2 class="h2"><b><u>Academic Background</u></b></h2>
+            <p class="p4">
+                In high school, I studied <b>Physics</b>, <b>Chemistry</b>, <b>Mathematics</b>, and <strong>Computer Science</strong>, which laid a solid foundation for my interests. Over the years, I’ve developed a strong curiosity for <strong>neural networks</strong> and <strong>machine learning algorithms</strong>, and I’m eager to see how they can bring positive change to industries. Still, I remind myself that there’s always more to learn, and I strive to stay grounded and humble as I continue my exploration in these fields.
+            </p>
+        </div>
+        <div class="p5-wrapper">
+            <h2 class="h2"><b><u>Extra Curricular</u></b></h2>
+            <p class="p5">
+                Beyond academics, I try to keep a balance in life by pursuing activities that help me stay grounded. I enjoy playing <b>basketball</b> and solving <b>math problems</b>, which not only keep me active but also help me stay focused. I also love listening to songs, as they provide a sense of peace and inspiration. I believe that personal growth comes from a balance between hard work and enjoying the simple things in life.
+            </p>
+        </div>
+        <p class="p2">A few of my <button class = "btn1" id="sw" onclick="rev()"></button> are listed below
+        <ol id = "dispOl" class="p2">
+        </ol></p>
+        <p class="p3">A few of my hobbies are listed below
+        <ul class="p3">
+            <li>Video Games</li>
+            <li>Basketball</li>
+            <li>Cricket</li>
+            <li>Machine Learning</li>
+            <li>Chess</li>
+        </ul></p>
+    </body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        background-color: #000;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      table {
+        width: 90%;
+        height: 500px;
+        border: 2px solid #444;
+        margin: 30px auto;
+        background-color: #111;
+        color: #fff;
+        overflow: hidden;
+      }
+      td {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        text-align: center;
+        padding: 15px;
+        font-size: 18px;
+        width: 75px;
+        height: 25px;
+        background-color: #222;
+      }
+      td:hover {
+        background-color: #444;
+      }
+      table td {
+        text-align: center;
+        padding: 15px;
+      }
+      .quote {
+        text-align: center;
+        color: rgba(0, 255, 255);
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      .image {
+        width: 150px;
+        height: auto;
+      }
+      input[type="range"] {
+        width: 80%;
+        margin: 10px;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin: 10px;
+        font-size: 14px;
+        padding: 10px;
+        background-color: #333;
+        border-radius: 5px;
+        width: 200px;
+      }
+      form p.quote {
+        font-size: 14px;
+        margin-bottom: 10px;
+      }
+      form input[type="checkbox"] {
+        margin: 3px 0;
+      }
+      form input[type="submit"] {
+        margin-top: 10px;
+        padding: 5px 10px;
+        background-color: #00bcd4;
+        border: none;
+        color: #fff;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      form input[type="submit"]:hover {
+        background-color: #ff5722;
+      }
+      form label {
+        font-size: 12px;
+      }
+      form input[type="checkbox"] {
+        width: auto;
+        margin-right: 5px;
+      }
+      #checkbox-form {
+        width: 250px;
+        padding: 12px;
+      }
+      #checkbox-form p.quote {
+        font-size: 14px;
+        margin-bottom: 12px;
+      }
+      #poll-form {
+        width: 150px;
+        padding: 10px;
+      }
+      #poll-form p.quote {
+        font-size: 14px;
+        margin-bottom: 10px;
+      }
+      #poll-form input[type="radio"] {
+        margin: 3px 0;
+      }
+      #poll-form input[type="submit"] {
+        margin-top: 10px;
+        padding: 5px 10px;
+        background-color: #00bcd4;
+        border: none;
+        color: #fff;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      #poll-form input[type="submit"]:hover {
+        background-color: #ff5722;
+      }
+      #slider {
+        width: 80%;
+        margin-top: 10px;
+      }
+      #slider-value {
+        margin-left: 10px;
+        font-weight: bold;
+        color: #fff;
+      }
+      #countdown {
+        font-size: 20px;
+        color: #f80000;
+        font-weight: bold;
+      }
+      .extra {
+        background-color: #111;
+        border: none;
+        padding: 0;
+        width: 1px;
+        height: 1px;
+      }
+    </style>
+    <title>Table</title>
+  </head>
+  <body>
+    <table>
+      <tr>
+        <td rowspan="2" colspan="2">
+          <img
+            class="2x2"
+            src="file:///Users/pushkalgupta/Desktop/VIT/Sem4/Web%20Dev/profile.png"
+            alt="r1c1"
+          />
+        </td>
+        <td style="background-color: rgb(0, 0, 255)">r1c3</td>
+        <td rowspan="2"><p class="quote">r1c4 - I am capable of success</p></td>
+        <td rowspan="2" colspan="2">
+          <form id="checkbox-form">
+            <p class="quote">Which JavaScript concepts do you like?</p>
+            <label
+              ><input type="checkbox" name="concept" value="Variables" />
+              Variables</label
+            ><br />
+            <label
+              ><input type="checkbox" name="concept" value="Loops" />
+              Loops</label
+            ><br />
+            <label
+              ><input type="checkbox" name="concept" value="Functions" />
+              Functions</label
+            ><br />
+            <label
+              ><input type="checkbox" name="concept" value="Objects" />
+              Objects</label
+            ><br />
+            <input type="submit" value="Submit" />
+          </form>
+        </td>
+        <td class="extra"></td>
+      </tr>
+      <tr>
+        <td rowspan="2">
+          <a href="mailto:someone@example.com" target="_blank"
+            >r2c3-Email Hyperlink</a
+          >
+        </td>
+        <td class="extra"></td>
+      </tr>
+      <tr>
+        <td colspan="2"><a href="home.html" target="_blank">r3c1</a></td>
+        <td colspan="2">
+          <a href="https://www.google.com" target="_parent">
+            <img
+              class="image"
+              src="file:///Users/pushkalgupta/Desktop/VIT/Sem4/Web%20Dev/google.png"
+              alt="r3c4"
+            />
+          </a>
+        </td>
+        <td>
+          <label for="slider">Slider:</label>
+          <input
+            type="range"
+            id="slider"
+            name="slider"
+            min="0"
+            max="100"
+            value="50"
+          />
+          <span id="slider-value">50</span>
+        </td>
+        <td class="extra"></td>
+      </tr>
+      <tr>
+        <td style="background-color: rgb(0, 255, 0)">r4c1</td>
+        <td colspan="2" style="background-color: rgb(255, 0, 238)">r4c2</td>
+        <td rowspan="2">
+          <form id="poll-form">
+            <p class="quote">What's your favorite programming language?</p>
+            <input type="radio" name="language" value="Python" /> Python <br />
+            <input type="radio" name="language" value="Java" /> Java <br />
+            <input type="radio" name="language" value="C++" /> C++ <br />
+            <input type="radio" name="language" value="JavaScript" /> JavaScript
+            <br />
+            <input type="submit" value="Submit" />
+          </form>
+        </td>
+        <td colspan="2"><p id="countdown"></p></td>
+        <td class="extra"></td>
+      </tr>
+      <tr>
+        <td rowspan="2" colspan="2" style="background-color: rgb(255, 0, 0)">
+          r5c1
+        </td>
+        <td rowspan="2"><p class="quote">r5c3-I grow stronger every day</p></td>
+        <td rowspan="2" colspan="2">
+          <p class="quote">r5c5-I embrace new opportunities boldly</p>
+        </td>
+        <td class="extra"></td>
+      </tr>
+      <tr>
+        <td><p class="quote">r6c4-I trust my abilities fully</p></td>
+        <td class="extra"></td>
+      </tr>
+      <tr>
+        <td class="extra"></td>
+        <td class="extra"></td>
+        <td class="extra"></td>
+        <td class="extra"></td>
+        <td class="extra"></td>
+        <td class="extra"></td>
+        <td class="extra"></td>
+      </tr>
+    </table>
+    <script>
+      const countdownElement = document.getElementById("countdown");
+      const targetDate = new Date("Dec 31, 2024 23:59:59").getTime();
+      const countdown = setInterval(() => {
+        const now = new Date().getTime();
+        const distance = targetDate - now;
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor(
+          (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        );
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        countdownElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+        if (distance < 0) {
+          clearInterval(countdown);
+          countdownElement.innerHTML = "EXPIRED";
+        }
+      }, 1000);
+      const pollForm = document.getElementById("poll-form");
+      pollForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const selectedOption = document.querySelector(
+          'input[name="language"]:checked'
+        );
+        if (selectedOption) {
+          alert(`You selected: ${selectedOption.value}`);
+        } else {
+          alert("Please select an option!");
+        }
+      });
+      const slider = document.getElementById("slider");
+      const sliderValue = document.getElementById("slider-value");
+
+      slider.addEventListener("input", function () {
+        sliderValue.textContent = slider.value;
+      });
+      const checkboxForm = document.getElementById("checkbox-form");
+      checkboxForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const selectedImpacts = [];
+        document
+          .querySelectorAll('input[name="ai-impact"]:checked')
+          .forEach((checkbox) => {
+            selectedImpacts.push(checkbox.value);
+          });
+        if (selectedImpacts.length > 0) {
+          alert(`You selected: ${selectedImpacts.join(", ")}`);
+        } else {
+          alert("Please select at least one impact!");
+        }
+      });
+    </script>
+  </body>
+</html>

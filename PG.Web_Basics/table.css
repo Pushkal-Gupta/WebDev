@@ -1,0 +1,123 @@
+body {
+  background-color: #000;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+table {
+  border-collapse: collapse;
+  margin: 30px auto;
+  background-color: #111;
+  color: #fff;
+  overflow: hidden;
+}
+td {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: center;
+  padding: 15px;
+  font-size: 18px;
+  width: 75px;
+  height: 25px;
+  background-color: #222;
+}
+.extra {
+  background-color: #000;
+  color: #000;
+  border-color: #000;
+}
+.quote {
+  text-align: center;
+  color: rgba(0, 255, 255);
+  font-family: Arial, Helvetica, sans-serif;
+}
+.image {
+  width: 150px;
+  height: auto;
+}
+input[type="range"] {
+  width: 80%;
+  margin: 10px;
+}
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin: 10px;
+  font-size: 14px;
+  padding: 10px;
+  background-color: #333;
+  border-radius: 5px;
+  width: 200px;
+}
+form p.quote {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+form input[type="checkbox"] {
+  margin: 3px 0;
+}
+form input[type="submit"] {
+  margin-top: 10px;
+  padding: 5px 10px;
+  background-color: #00bcd4;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 12px;
+}
+form input[type="submit"]:hover {
+  background-color: #ff5722;
+}
+form label {
+  font-size: 12px;
+}
+form input[type="checkbox"] {
+  width: auto;
+  margin-right: 5px;
+}
+#checkbox-form {
+  width: 250px;
+  padding: 12px;
+}
+#checkbox-form p.quote {
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+#poll-form {
+  width: 150px;
+  padding: 10px;
+}
+#poll-form p.quote {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+#poll-form input[type="radio"] {
+  margin: 3px 0;
+}
+#poll-form input[type="submit"] {
+  margin-top: 10px;
+  padding: 5px 10px;
+  background-color: #00bcd4;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 12px;
+}
+#poll-form input[type="submit"]:hover {
+  background-color: #ff5722;
+}
+#slider {
+  width: 80%;
+  margin-top: 10px;
+}
+#slider-value {
+  margin-left: 10px;
+  font-weight: bold;
+  color: #fff;
+}
+#countdown {
+  font-size: 20px;
+  color: #f80000;
+  font-weight: bold;
+}

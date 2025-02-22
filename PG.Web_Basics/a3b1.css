@@ -1,0 +1,78 @@
+.signup-theme,
+.login-theme {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.signup-theme {
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+}
+
+.login-theme {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+}
+
+.container {
+  background: #ffffff;
+  padding: 20px 30px;
+  border-radius: 8px;
+  text-align: left;
+  width: 40%;
+  box-sizing: border-box;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.signup-btn {
+  background-color: green !important;
+  color: white !important;
+  border: none;
+  font-size: 16px;
+  transition: 0.3s ease;
+}
+
+.signup-btn:hover {
+  background-color: darkgreen !important;
+  box-shadow: 0px 0px 10px green;
+}
+
+.login-btn {
+  background-color: #4682b4 !important;
+  color: white !important;
+  border: none;
+  font-size: 16px;
+  transition: 0.3s ease;
+}
+
+.login-btn:hover {
+  background-color: #1e90ff !important;
+  box-shadow: 0px 0px 10px #1e90ff;
+}
+
+.input-group-text {
+  background: #4682b4;
+  color: white;
+}
+
+.link {
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s ease;
+}
+
+.signup-theme .link {
+  color: #ff4500;
+}
+
+.signup-theme .link:hover {
+  color: #ff6347;
+}
+
+.login-theme .link {
+  color: #00c3ff;
+}
+
+.login-theme .link:hover {
+  color: #1e90ff;
+}

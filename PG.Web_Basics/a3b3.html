@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Event Registration</title>
+    <link rel="stylesheet" href="a3b3.css" />
+    <script src="a3b3.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎉 Event Registration</h1>
+      <form id="event-form" onsubmit="validateEventForm(event)">
+        <div class="form-group">
+          <label for="name">Full Name:</label>
+          <input type="text" id="name" placeholder="Enter your name" required />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address:</label>
+          <input
+            type="email"
+            id="email"
+            placeholder="Enter your email"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone Number:</label>
+          <input
+            type="text"
+            id="phone"
+            placeholder="Enter your phone number"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Choose Event Type:</label>
+          <div class="radio-group">
+            <label
+              ><input type="radio" name="event-type" value="conference" />
+              Conference</label
+            >
+            <label
+              ><input type="radio" name="event-type" value="party" />
+              Party</label
+            >
+            <label
+              ><input type="radio" name="event-type" value="concert" />
+              Concert</label
+            >
+            <label
+              ><input type="radio" name="event-type" value="hackathon" />
+              Hackathon</label
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Select Interests:</label>
+          <div class="checkbox-group">
+            <label
+              ><input type="checkbox" name="interests" value="Tech" />
+              Tech</label
+            >
+            <label
+              ><input type="checkbox" name="interests" value="Business" />
+              Business</label
+            >
+            <label
+              ><input type="checkbox" name="interests" value="Music" />
+              Music</label
+            >
+            <label
+              ><input type="checkbox" name="interests" value="Gaming" />
+              Gaming</label
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Create Password:</label>
+          <input
+            type="password"
+            id="password"
+            placeholder="Enter password"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="confirm-password">Confirm Password:</label>
+          <input
+            type="password"
+            id="confirm-password"
+            placeholder="Confirm password"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="comments">Additional Comments:</label>
+          <textarea
+            id="comments"
+            placeholder="Any special requests?"
+            required
+          ></textarea>
+        </div>
+
+        <button type="submit">Register</button>
+      </form>
+    </div>
+  </body>
+</html>

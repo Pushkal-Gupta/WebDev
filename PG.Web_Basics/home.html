@@ -1,0 +1,46 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <link rel ="stylesheet" href="home.css">
+        <script>
+            let count = -1;
+            let dispStr = "";
+            function rev() {
+            count *= -1;
+            let ele = document.getElementById("sw");
+            let dispOl = document.getElementById("dispOl");
+            if (count < 0) {
+                ele.innerHTML = "<u>weakness</u>";
+                dispStr =
+                "<li>Risk-Aversive Behaviour</li><li>Work-Life Balance</li><li>Self-criticism</li><li>Arts & Crafts</li>";
+            } else {
+                ele.innerHTML = "<u>strengths</u>";
+                dispStr = "<li>Maths</li><li>Coding</li><li>Basketball</li><li>Chess</li>";
+            }
+            dispOl.innerHTML = dispStr;
+            }
+        </script>
+        <title>Home</title>
+    </head>
+    <body onload="rev()">
+        <h1 class="h1">Pushkal Gupta</h1>
+        <h3 class="h3"><i>If something is important enough you do it even if the odds are not in your favour</i></h3>
+        <p class="p1">
+        <img src="profile.png" alt="Pushkal Gupta Image" class="profile-img" onerror="this.onerror=null; this.src='https://www.w3schools.com/w3images/avatar3.png';">
+        Hello, I'm <strong>Pushkal Gupta</strong>, and I’m originally from Noida, Uttar Pradesh, India. Currently, I’m pursuing a degree in <b>Computer Science Engineering</b> with a specialization in <i>Internet of Things (IoT)</i> at VIT Vellore. Technology has always intrigued me, and I feel lucky to be on this journey where I get to learn and grow every day in the world of computing. There’s so much more to explore, and I’m excited to keep discovering.</p>
+        <p class="p4">In high school, I studied <b>Physics</b>, <b>Chemistry</b>, <b>Mathematics</b>, and <strong>Computer Science</strong>, which laid a solid foundation for my interests. Over the years, I’ve developed a strong curiosity for <strong>neural networks</strong> and <strong>machine learning algorithms</strong>, and I’m eager to see how they can bring positive change to industries. Still, I remind myself that there’s always more to learn, and I strive to stay grounded and humble as I continue my exploration in these fields.</p>
+        <p class="p5">Beyond academics, I try to keep a balance in life by pursuing activities that help me stay grounded. I enjoy playing <b>basketball</b> and solving <b>math problems</b>, which not only keep me active but also help me stay focused. I also love listening to songs, as they provide a sense of peace and inspiration. I believe that personal growth comes from a balance between hard work and enjoying the simple things in life.</p>
+        <p class="p2">A few of my <button class = "btn1" id="sw" onclick="rev()"></button> are listed below
+        <ol id = "dispOl" class="p2">
+        </ol></p>
+        <p class="p3">A few of my hobbies are listed below
+        <ul class="p3">
+            <li>Video Games</li>
+            <li>Basketball</li>
+            <li>Cricket</li>
+            <li>Machine Learning</li>
+            <li>Chess</li>
+        </ul></p>
+    </body>
+</html>

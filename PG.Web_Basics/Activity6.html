@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="Activity6.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://kit.fontawesome.com/1bc695496f.js"
+      crossorigin="anonymous"
+    ></script>
+    <title>Forms</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Sign Up</h1>
+      <p style="color: grey">Please fill in this form to create an account</p>
+      <hr />
+      <form action="Activity6a.html" method="get">
+      <div class="input-group mb-2">
+        <span class="input-group-text" id="username"
+          ><i class="fa-solid fa-user"></i></span>
+        <input type="text" class="form-control" placeholder="Username" />
+      </div>
+      <br>
+      <div class="input-group mb-2">
+        <span class="input-group-text" id="email"
+          ><i class="fa-solid fa-paper-plane"></i></span>
+        <input type="text" class="form-control" placeholder="Email Address" />
+      </div>
+      <br>
+      <div class="input-group mb-2">
+        <span class="input-group-text" id="pwd"
+          ><i class="fa-solid fa-lock"></i></span>
+        <input type="password" class="form-control" placeholder="Password" />
+        <div class="input-group-append">
+          <span class="input-group-text">
+            <i class="fa-solid fa-eye"></i>
+          </span>
+        </div>
+      </div>
+      <br>
+      <div class="input-group mb-2">
+        <span class="input-group-text" id="cnfrm-pwd"
+          ><i class="fa-solid fa-certificate"></i></span>
+        <input type="password" class="form-control" placeholder="Confirm Password"/>
+      </div>
+      <br>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox"id="t&c">
+        <label class="form-check-label">I accept the <b style="color: green;">Terms of User</b> & <b style="color: green;">Privacy Policy</b></label>
+      </div><br>
+      <button type="submit" class="btn" style="color: white;background-color: green;"><b>Sign Up</b></button></form>
+  </body>
+</html>
