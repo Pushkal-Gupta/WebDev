@@ -1,0 +1,108 @@
+body {
+  background-color: rgb(10, 10, 10);
+  margin: 0;
+  padding: 0;
+  font-family: "Open Sans", Arial, sans-serif;
+  line-height: 1.6;
+}
+.h1 {
+  font-family: "Poppins", "Arial Black", Gadget, sans-serif;
+  font-size: 40px;
+  color: #00ffff;
+  text-align: center;
+  margin: 20px 0;
+  text-shadow: 2px 2px 5px rgba(0, 255, 255, 0.5);
+}
+.h3 {
+  font-family: "Merriweather", Georgia, serif;
+  font-size: 22px;
+  color: #ffeb3b;
+  text-align: center;
+  font-style: italic;
+  margin-bottom: 30px;
+}
+.p1 {
+  font-family: "Roboto", sans-serif;
+  font-size: 20px;
+  color: rgba(0, 255, 255, 0.8);
+  margin: 20px auto;
+  text-align: center;
+  width: 70%;
+  line-height: 1.8;
+}
+.p2,
+.p3 {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 20px;
+  color: rgba(255, 192, 255, 0.9);
+  margin: 20px auto;
+  width: 70%;
+}
+.p3 {
+  font-family: "Times New Roman", serif;
+  color: rgba(255, 255, 192, 0.9);
+}
+.btn1 {
+  background-color: rgb(11, 11, 11);
+  font-family: cursive;
+  font-size: 18px;
+  color: rgba(255, 200, 255, 1);
+  border: 1px solid rgb(10, 10, 10);
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  white-space: nowrap;
+  width: auto;
+  display: inline-block;
+}
+.btn1:hover {
+  color: rgba(0, 255, 255, 0.8);
+  text-transform: capitalize;
+}
+ol,
+ul {
+  margin: 20px auto;
+  padding: 0;
+  list-style-position: inside;
+  width: 70%;
+}
+ol li,
+ul li {
+  margin: 10px 0;
+  padding: 10px;
+  background-color: rgba(50, 50, 50, 0.9);
+  border-radius: 5px;
+  color: rgba(255, 255, 255, 0.9);
+  transition: transform 0.2s ease, background-color 0.3s ease;
+}
+ol li:hover,
+ul li:hover {
+  background-color: rgba(0, 255, 255, 0.3);
+  color: white;
+  transform: scale(1.05);
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
+}
+.profile-img {
+  float: left;
+  margin-right: 20px;
+  width: 150px;
+  height: auto;
+  border-radius: 50%;
+}
+.p4 {
+  font-family: "Arial", sans-serif;
+  font-size: 20px;
+  color: rgba(255, 255, 192, 0.9);
+  margin: 20px auto;
+  text-align: center;
+  width: 70%;
+  line-height: 1.8;
+}
+.p5 {
+  font-family: "Georgia", serif;
+  font-size: 20px;
+  color: rgba(125, 204, 230, 0.9);
+  margin: 20px auto;
+  text-align: center;
+  width: 70%;
+  line-height: 1.8;
+}

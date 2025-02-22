@@ -1,0 +1,147 @@
+body {
+  font-family: "Poppins", sans-serif;
+  background: #0d0d0d;
+  color: #e0e0e0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container {
+  background: #1c1c1c;
+  padding: 25px 35px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 20px;
+  color: #00bcd4;
+}
+
+.form-group {
+  margin-bottom: 18px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  color: #66c2ff;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #444;
+  background: #252525;
+  color: white;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border 0.3s, box-shadow 0.3s;
+}
+
+input:focus,
+textarea:focus {
+  border-color: #00bcd4;
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+  outline: none;
+}
+
+.radio-group,
+.checkbox-group {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.radio-group label,
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #e0e0e0;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 8px 12px;
+  background: #252525;
+  border-radius: 6px;
+  transition: background 0.3s;
+}
+
+.radio-group label:hover,
+.checkbox-group label:hover {
+  background: #333;
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+  margin: 0;
+  transform: scale(1.2);
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+button:hover {
+  background: #0056b3;
+  transform: scale(1.05);
+}
+
+input:disabled,
+textarea:disabled {
+  background: #333;
+  color: #888;
+}
+
+* {
+  transition: all 0.3s ease-in-out;
+}
+
+input[type="email"],
+input[type="text"],
+input[type="tel"],
+input[type="password"],
+input[type="number"],
+textarea {
+  background-color: #222 !important;
+  color: white !important;
+  border: 1px solid #555;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #bbb;
+}
+
+select {
+  width: 100%;
+  padding: 12px;
+  background: #252525;
+  color: white;
+  border: 1px solid #444;
+  border-radius: 6px;
+}
+
+select:focus {
+  border-color: #00bcd4;
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+  outline: none;
+}

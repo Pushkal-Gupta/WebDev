@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="Activity6b.css" />
+    <title>Superhero Identity Form</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🦸 Superhero Identity Form</h1>
+      <form>
+        <div class="form-group">
+          <label for="username">Hero Name (Text Box):</label>
+          <input
+            type="text"
+            id="username"
+            placeholder="Enter your superhero name"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label>Choose Your Alignment (Radio Buttons):</label>
+          <div class="options">
+            <input
+              type="radio"
+              id="hero"
+              name="alignment"
+              value="hero"
+              required
+            />
+            <label for="hero">Hero</label>
+            <input type="radio" id="villain" name="alignment" value="villain" />
+            <label for="villain">Villain</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Select Your Abilities (Check Boxes):</label>
+          <div class="options">
+            <input
+              type="checkbox"
+              id="flight"
+              name="abilities"
+              value="flight"
+            />
+            <label for="flight">Flight</label>
+            <input
+              type="checkbox"
+              id="strength"
+              name="abilities"
+              value="strength"
+            />
+            <label for="strength">Super Strength</label>
+            <input
+              type="checkbox"
+              id="invisibility"
+              name="abilities"
+              value="invisibility"
+            />
+            <label for="invisibility">Invisibility</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="hq"
+            >Choose Your Headquarters (Scrolled Selection Box):</label
+          >
+          <select id="hq" name="hq" size="3" required>
+            <option value="batcave">Batcave</option>
+            <option value="fortress">Fortress of Solitude</option>
+            <option value="avengers">Avengers Tower</option>
+            <option value="asgard">Asgard</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="archenemy">Pick Your Arch Enemy (Option Box):</label>
+          <select id="archenemy" name="archenemy" required>
+            <option value="joker">The Joker</option>
+            <option value="loki">Loki</option>
+            <option value="thanos">Thanos</option>
+            <option value="lex">Lex Luthor</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="backstory">Write Your Backstory (TextArea Box):</label>
+          <textarea
+            id="backstory"
+            name="backstory"
+            rows="5"
+            placeholder="Tell us about your origin story..."
+            required
+          ></textarea>
+        </div>
+        <div class="form-group">
+          <label for="gadget">Favorite Gadget (Datalist):</label>
+          <input
+            list="gadgets"
+            id="gadget"
+            name="gadget"
+            placeholder="Select or type your gadget"
+          />
+          <datalist id="gadgets">
+            <option value="Batarang"></option>
+            <option value="Web Shooters"></option>
+            <option value="Mjolnir"></option>
+            <option value="Infinity Gauntlet"></option>
+          </datalist>
+        </div>
+        <fieldset>
+          <legend>Personal Information</legend>
+          <div class="form-group">
+            <label for="email">Email:</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="age">Age:</label>
+            <input
+              type="number"
+              id="age"
+              name="age"
+              min="10"
+              value="18"
+              max="100"
+              required
+            />
+          </div>
+        </fieldset>
+        <div class="form-group">
+          <label for="color">Choose Your Superpower Color:</label>
+          <input type="color" id="color" name="color" value="#ff0000" />
+        </div>
+        <button type="submit">Save My Identity</button>
+      </form>
+    </div>
+  </body>
+</html>

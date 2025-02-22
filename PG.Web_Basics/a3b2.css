@@ -1,0 +1,96 @@
+body {
+  font-family: "Poppins", sans-serif;
+  background: #101010;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+.container {
+  background: #1a1a1a;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+  max-width: 600px;
+}
+h1,
+h2 {
+  text-align: center;
+  color: #80ff80;
+}
+.form-group {
+  margin-bottom: 15px;
+}
+.horizontal-group {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+.horizontal-group label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+input,
+select {
+  width: 100%;
+  padding: 10px;
+  background: #252525;
+  color: white;
+  border: 1px solid #80ff80;
+}
+button {
+  background: #33cc33;
+  color: white;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+}
+button:hover {
+  background: #29a329;
+}
+.password-group {
+  display: flex;
+  gap: 10px;
+}
+.slider-container {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  overflow: hidden;
+  margin: auto;
+}
+.slider {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+.slide {
+  width: 100%;
+  display: none;
+}
+.slide.active {
+  display: block;
+}
+.prev,
+.next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 255, 0, 0.5);
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+}
+.prev {
+  left: 0;
+}
+.next {
+  right: 0;
+}
+.hidden-section {
+  text-align: center;
+  padding: 10px;
+  background: #204020;
+  display: none;
+}
