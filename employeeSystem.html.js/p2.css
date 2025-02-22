@@ -1,0 +1,92 @@
+.navbar-light .navbar-nav .nav-link {
+  color: #515151;
+  position: relative;
+  transition: color 0.3s;
+}
+.navbar-light .navbar-nav .nav-item {
+  margin-right: 5px; /* Adjust this value to increase or decrease the spacing */
+}
+.navbar-light .navbar-nav .nav-link::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 2px;
+  display: block;
+  margin-top: 5px;
+  right: 0;
+  background: black;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.navbar-light .navbar-nav .nav-link:hover {
+  color: black;
+}
+
+.navbar-light .navbar-nav .nav-link:hover::after {
+  width: 100%;
+  left: 0;
+  background: black;
+}
+.navbar-light .navbar-nav .nav-link.active {
+  color: #000000; /* Change this color to your desired active color */
+}
+.form-switch {
+  margin-top: 5px;
+}
+.form-switch .form-check-input {
+  height: 20px;
+  width: 40px;
+}
+.form-switch .form-check-input:focus {
+  border-color: rgba(0, 0, 0, 0.25);
+  outline: 0;
+  box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.2);
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba(0,0,0,0.25)'/></svg>");
+}
+.form-switch .form-check-input:checked {
+  background-color: #515151;
+  border-color: #515151;
+  border: none;
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba(255,255,255,1.0)'/></svg>");
+}
+
+:root {
+  --bg-color: #fff;
+  --text-color: #000;
+}
+
+[data-bs-theme="dark"] {
+  --bg-color: #333;
+  --text-color: #fff;
+}
+
+.body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.navbar {
+  background-color: var(--nav-bg-color); /* Set navbar background color */
+}
+.nav-items li a {
+  color: var(--nav-text-color);
+}
+
+/* Adjust button outline color based on theme */
+.btn-outline-dark {
+  border-color: #454a40;
+  color: #454a40;
+}
+
+.btn-outline-light {
+  border-color: #f8f9fa;
+  color: #f8f9fa;
+}
+
+/* Specific styles for radio buttons and checkboxes in dark mode */
+[data-bs-theme="dark"] .btn-check:checked + .btn-outline-light,
+[data-bs-theme="dark"] .btn-check:checked {
+  background-color: #dddddd; /* Background color when checked */
+  border-color: #dddddd; /* Border color when checked */
+  color: #343a40; /* Text color */
+}
