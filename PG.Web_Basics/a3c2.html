@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cactus Canvas - 23BCT0253</title>
+    <style>
+      body {
+        background-color: black;
+        text-align: center;
+      }
+      canvas {
+        display: block;
+        margin: 20px auto;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas" width="500" height="600"></canvas>
+    <script>
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+
+      function draw() {
+        ctx.fillStyle = "rgb(255, 228, 196)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "rgb(240, 255, 255)";
+        ctx.beginPath();
+        ctx.arc(250, 175, 100, Math.PI, 0);
+        ctx.fill();
+
+        ctx.fillStyle = "rgba(176, 196, 222, 0.8)";
+        ctx.beginPath();
+        ctx.arc(250, 200, 100, 0, Math.PI);
+        ctx.fill();
+
+        ctx.strokeStyle = "black";
+        for (let y = 280; y < 500; y += 20) {
+          ctx.beginPath();
+          ctx.moveTo(235, y);
+          ctx.lineTo(415, y);
+          ctx.stroke();
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(325, 300);
+        ctx.lineTo(250, 240);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(325, 300);
+        ctx.lineTo(280, 215);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(325, 300);
+        ctx.lineTo(325, 205);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(325, 300);
+        ctx.lineTo(375, 215);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(325, 300);
+        ctx.lineTo(400, 240);
+        ctx.stroke();
+
+        ctx.fillStyle = "rgb(60, 179, 113)";
+        ctx.beginPath();
+        ctx.roundRect(250, 225, 150, 400, [80, 80, 5, 5]);
+        ctx.fill();
+
+        ctx.fillStyle = "rgb(102, 205, 170)";
+        ctx.beginPath();
+        ctx.roundRect(300, 225, 50, 400, [25, 25, 0, 5]);
+        ctx.fill();
+
+        for (let y = 240; y < 500; y += 20) {
+          ctx.fillStyle = "black";
+          ctx.fillRect(325, y, 2, 2);
+        }
+
+        ctx.fillStyle = "rgb(32, 178, 170, 0.8)";
+        ctx.beginPath();
+        ctx.moveTo(100, 510);
+        ctx.lineTo(45, 400);
+        ctx.lineTo(200, 510);
+        ctx.fill();
+
+        ctx.fillStyle = "rgb(127, 255, 212, 0.8)";
+        ctx.beginPath();
+        ctx.moveTo(100, 510);
+        ctx.lineTo(120, 320);
+        ctx.lineTo(200, 510);
+        ctx.fill();
+
+        ctx.fillStyle = "rgb(32, 178, 170, 0.8)";
+        ctx.beginPath();
+        ctx.moveTo(100, 510);
+        ctx.lineTo(225, 350);
+        ctx.lineTo(200, 510);
+        ctx.fill();
+
+        ctx.fillStyle = "white";
+        ctx.beginPath();
+        ctx.arc(75, 430, 5, 0, 2 * Math.PI);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(90, 455, 5, 0, 2 * Math.PI);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(130, 375, 5, 0, 2 * Math.PI);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(120, 410, 5, 0, 2 * Math.PI);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(135, 450, 5, 0, 2 * Math.PI);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.ellipse(155, 485, 5, 5, 0, 0, 2 * Math.PI);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.ellipse(190, 460, 5, 5, 0, 0, 2 * Math.PI);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.ellipse(200, 400, 5, 5, 0, 0, 2 * Math.PI);
+        ctx.fill();
+
+        ctx.fillStyle = "rgb(240, 128, 128)";
+        ctx.beginPath();
+        ctx.moveTo(55, 500);
+        ctx.lineTo(450, 500);
+        ctx.lineTo(425, 600);
+        ctx.lineTo(85, 600);
+        ctx.fill();
+
+        ctx.fillStyle = "rgb(205, 92, 92)";
+        ctx.beginPath();
+        ctx.moveTo(375, 500);
+        ctx.lineTo(450, 500);
+        ctx.lineTo(425, 600);
+        ctx.lineTo(300, 600);
+        ctx.fill();
+      }
+      draw();
+    </script>
+  </body>
+</html>
