@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rock Paper Scissors</title>
+    <link rel="stylesheet" href="a3c1.css" />
+    <script defer src="a3c1.js"></script>
+  </head>
+  <body>
+    <h1 class="title">Rock Paper Scissors</h1>
+    <h3 class="subtitle">Choose your mode: Single or Two Players</h3>
+    <div class="mode-selection">
+      <button class="btn mode-btn" onclick="setMode('single')">
+        Single Player 🎮
+      </button>
+      <button class="btn mode-btn" onclick="setMode('two')">
+        Two Players 👥
+      </button>
+    </div>
+    <div id="game-area" class="game-container single-mode">
+      <div class="player-box">
+        <h2>Player 1</h2>
+        <button class="btn" onclick="playGame('rock', 1)">Rock 🪨</button>
+        <button class="btn" onclick="playGame('paper', 1)">Paper 📄</button>
+        <button class="btn" onclick="playGame('scissors', 1)">
+          Scissors ✂️
+        </button>
+        <p class="choice-text" id="player1-choice">You chose:</p>
+      </div>
+      <div id="player2-box" class="player-box hidden">
+        <h2>Player 2</h2>
+        <button class="btn" onclick="playGame('rock', 2)">Rock 🪨</button>
+        <button class="btn" onclick="playGame('paper', 2)">Paper 📄</button>
+        <button class="btn" onclick="playGame('scissors', 2)">
+          Scissors ✂️
+        </button>
+        <p class="choice-text" id="player2-choice">You chose:</p>
+      </div>
+    </div>
+    <div class="result-box">
+      <p class="result-text" id="result">Result:</p>
+      <div class="scoreboard">
+        <p class="score-text">Player 1: <span id="player1-score">0</span></p>
+        <p class="score-text" id="player2-score-box">
+          Player 2: <span id="player2-score">0</span>
+        </p>
+        <p class="score-text" id="computer-score-box">
+          Computer: <span id="computer-score">0</span>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

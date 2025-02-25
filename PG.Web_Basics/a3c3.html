@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register Number - 23BCT0253</title>
+    <link rel="stylesheet" href="a3c3.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h2>Register Number Validation</h2>
+      <form id="regForm">
+        <label for="degree">Degree:</label>
+        <input
+          type="text"
+          id="degree"
+          placeholder="e.g., BCE, BCT, BDS"
+          required
+        />
+        <label for="year">Year of Joining:</label>
+        <input type="text" id="year" placeholder="e.g., 23 or 2023" required />
+        <label for="courseType">Course Type:</label>
+        <select id="courseType" required>
+          <option value="">Select</option>
+          <option value="B">Bachelor</option>
+          <option value="M">Master</option>
+          <option value="P">PhD</option>
+        </select>
+        <label for="roll">Roll Number (Last 4 digits):</label>
+        <input type="text" id="roll" maxlength="4" pattern="\d{4}" required />
+
+        <label for="regNo">Register Number:</label>
+        <input type="text" id="regNo" maxlength="9" required />
+        <button type="button" onclick="validateRegNo()">Validate</button>
+      </form>
+      <p id="result"></p>
+    </div>
+    <script src="a3c3.js"></script>
+  </body>
+</html>
