@@ -43,6 +43,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
   </head>
   <body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <div id="customAlert" class="custom-alert">
       <p id="customAlertMessage"></p>
     </div>
@@ -52,6 +53,18 @@
       <div class="popup-buttons">
         <button class="confirm" onclick="handleConfirm()">OK</button>
         <button class="cancel" onclick="handleCancel()">Cancel</button>
+      </div>
+    </div>
+    <!-- For colour select with Computer -->
+    <div id="strengthOverlay" class="popup-overlay"></div>
+    <div id="strengthPopup" class="popup">
+      <h3>Select strength and colour</h3>
+      <div id="strengthSlider" class="slider"></div>
+      <p id="levelText">Stockfish level 4</p>
+      <div id="colourButtons" class="popup-buttons">
+        <button data-col="white">White</button>
+        <button data-col="white-black">Random</button>
+        <button data-col="black">Black</button>
       </div>
     </div>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">

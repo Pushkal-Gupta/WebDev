@@ -922,3 +922,107 @@ input[type="range"]::-webkit-slider-thumb {
   background-color: rgba(220, 53, 69, 0.7);
   color: white;
 }
+/* ─── Computer colour select ─────────────────────────────────────────────── */
+/* Slider grid for strength levels */
+.slider {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0.5rem 0;
+}
+.slider div {
+  padding: 0.4rem 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ccc;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  font-size: 0.9rem;
+}
+.slider div:last-child {
+  border-right: none;
+}
+.slider div.selected {
+  background: #33b3a6;
+  color: #fff;
+}
+.slider div:hover {
+  background: rgba(51, 179, 166, 0.8);
+  color: #fff;
+}
+
+/* Buttons inside the strength popup */
+.popup-buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 1rem;
+}
+.popup-buttons button {
+  flex: 1;
+  margin: 0 0.3rem;
+  padding: 0.6rem 0;
+  width: 90%;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: background 0.2s, transform 0.2s, color 0.2s;
+}
+.popup-buttons button:hover {
+  background: rgba(51, 179, 166, 0.8);
+  color: #fff;
+  transform: scale(1.05);
+}
+.popup-buttons button.selected {
+  background: #33b3a6;
+  color: #fff;
+  transform: scale(1.05);
+}
+
+/* Strength popup overlay */
+#strengthOverlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 999;
+  pointer-events: none;
+}
+#strengthOverlay.visible {
+  display: block;
+  pointer-events: all;
+}
+
+/* Strength popup box */
+#strengthPopup {
+  display: none;
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -30%);
+  width: 350px;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #ccffff;
+  border: 2px solid #aaffff;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+#strengthPopup.visible {
+  display: block;
+  opacity: 1;
+  pointer-events: all;
+}
