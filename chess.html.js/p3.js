@@ -27,6 +27,13 @@ function dataReload() {
     blendColors("#ffffff", clrYellow, 0.5),
     blendColors("#33b3a6", clrYellow, 0.5),
   ];
+  tabName = "";
+  flagComp = { comp: true, color: "white" };
+  stockLvl = 12;
+  oppNameValue = "Opponent";
+  oppDisableStr = " ";
+  originTabIndex = null;
+  undoCompBool = true;
   popUpCount = 0;
   time = "";
   navIconArr = [
@@ -235,8 +242,13 @@ function createNavbar() {
   });
 }
 function navActions(index) {
+  document
+    .querySelectorAll(".navbar-nav .nav-link")
+    .forEach((n) => n.classList.remove("active"));
+  document.getElementById("Navbar" + index).classList.add("active");
   makeLeftBar();
   makeRightBar();
+  tabName = navArr[index];
   if (index == 0) {
     time = "";
     document.getElementById("leftbar").innerHTML = "";
@@ -247,18 +259,29 @@ function navActions(index) {
       document.getElementById("leftbar").innerHTML = "";
       document.getElementById("rightbar").innerHTML = "";
     }
+    oppNameValue = "Opponent";
+    oppDisableStr = " ";
     makeStartBoard();
     makeBoard();
     makeRightBar();
     if (popUpCount === 0 && time != "") showPopup("Load New Theme?");
     popUpCount++;
-  } else {
+  } else if (index == 2) {
     if (time === "") {
       document.getElementById("leftbar").innerHTML = "";
       document.getElementById("rightbar").innerHTML = "";
     }
-    switchNavTab_LoadGame();
+    //switchNavTab_LoadGame();
     showCustomAlert("Under Maintenance");
+  } else if (index == 3) {
+    if (time === "") {
+      document.getElementById("leftbar").innerHTML = "";
+      document.getElementById("rightbar").innerHTML = "";
+    }
+    makeStartBoard();
+    makeBoard();
+    makeRightBar();
+    if (time != "") showStrengthPopup();
   }
 }
 function makeTimer() {
@@ -297,8 +320,12 @@ function btnTimeActions(index) {
   iconStr = iconStr.replace("'><i class", " justify-content-center'><i class");
   timeStr = iconStr + time + "</div>";
   document.getElementById("timeLimit").innerHTML = timeStr;
-  str =
-    "<br><button type='button' class='p-3 btn btn-light btn-block w-100 h-100 btn-confirm' onclick = switchNavTab_LoadGame()>Play Game</button>";
+  if (tabName === "Computer")
+    str =
+      "<br><button type='button' class='p-3 btn btn-light btn-block w-100 h-100 btn-confirm' onclick = switchNavTab_LoadComputer()>Play Game</button>";
+  else
+    str =
+      "<br><button type='button' class='p-3 btn btn-light btn-block w-100 h-100 btn-confirm' onclick = switchNavTab_LoadGame()>Play Game</button>";
   document.getElementById("info").innerHTML = str;
 }
 function makeCell(row, col) {
@@ -547,7 +574,14 @@ function confirmedTime() {
   ) {
     showCustomAlert("Please Select Time");
   } else {
-    switchNavTab_LoadGame();
+    if (originTabIndex !== null && originTabIndex >= 0) {
+      setActiveTab("Navbar" + originTabIndex);
+      navActions(originTabIndex);
+      originTabIndex = null;
+    } else {
+      // fallback to New Game
+      switchNavTab_LoadGame();
+    }
   }
 }
 function makeStartBoard() {
@@ -857,7 +891,11 @@ function makeRightBar() {
       "</table></div>";
   }
   let rightStr =
-    "<div class = 'containerRight'><div id = 'missingPieceWhite' class='missing-piece-top'></div><div class='btn-group-vertical w-100' role='group'><div class='btn-group' role='group'><input type='text' class='btn-name-right' id='opponentName' value='Opponent' placeholder='Opponent'><button class = 'p-3 btn btn-light btn-right w-100 h-100'>Timer</button></div><span class = 'color-line-top'></span>" +
+    "<div class = 'containerRight'><div id = 'missingPieceWhite' class='missing-piece-top'></div><div class='btn-group-vertical w-100' role='group'><div class='btn-group' role='group'><input type='text' class='btn-name-right' id='opponentName' value='" +
+    oppNameValue +
+    "' " +
+    oppDisableStr +
+    " placeholder='Opponent'><button class = 'p-3 btn btn-light btn-right w-100 h-100'>Timer</button></div><span class = 'color-line-top'></span>" +
     tableStr +
     "<span class = 'color-line-bottom'></span><div class='btn-group-vertical w-100' role='group'><div class='btn-group' role='group'><input type='text' class='btn-name-right' id='userName' value='You' placeholder='You'><button class = 'p-3 btn btn-light btn-right w-100 h-100'>Timer</button></div><div id = 'missingPieceBlack' class='missing-piece-bottom'></div></div></div>";
 
@@ -894,11 +932,27 @@ function rightBarMoveNumber(moveNum) {
 }
 
 //Board Logic
-function boardClickByUser(row, col) {
+async function boardClickByUser(row, col) {
   if (disableBoardForUser) return;
   userNewMoveClick = true;
   boardClick(row, col);
   userNewMoveClick = false;
+  let color = moveCount % 2 == 0 ? "white" : "black";
+  console.log(color, moveCount);
+  let compMove = "";
+  if (color == flagComp.color && flagComp.comp) {
+    currFen = convert2Fen(pgnStr).pop();
+    compMove = await getBestMove(currFen);
+    compRow = "8".charCodeAt(0) - compMove.charCodeAt(1);
+    compCol = compMove.charCodeAt(0) - "a".charCodeAt(0);
+    boardClick(compRow, compCol);
+    setTimeout(() => {}, 100);
+    compRow = "8".charCodeAt(0) - compMove.charCodeAt(3);
+    compCol = compMove.charCodeAt(2) - "a".charCodeAt(0);
+    boardClick(compRow, compCol);
+    undoCompBool = true;
+  }
+  console.log(compMove);
 }
 function boardClick(row, col) {
   //console.log(prevrow, prevcol, row, col);
@@ -1643,6 +1697,10 @@ function undoMove() {
   highlightPieceBool = false;
   makeBoard();
   highlightPieceBool = true;
+  if (flagComp.comp && undoCompBool) {
+    undoCompBool = false;
+    undoMove();
+  }
 }
 function redoMove() {
   if (virtualBoardStr != "") {
@@ -2640,6 +2698,67 @@ function flipBoard() {
   makeBoard();
 }
 
+//PGN to FEN
+function convert2Fen(pgn) {
+  let moves = pgn2Arr(pgn);
+  let startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+  let fens = [];
+  fens.push(startFen);
+  for (let i = 0; i < moves.length; i++) {
+    const chess = new Chess(fens[i]);
+    fens.push(addMove2Fen(chess, fens[i], moves[i]));
+  }
+  console.log(fens);
+  return fens;
+}
+function pgn2Arr(pgn) {
+  let moves = [];
+  let token = "";
+  for (let i = 0; i < pgn.length; i++) {
+    let char = pgn[i];
+    if (char === " ") {
+      if (token.length > 0) moves.push(token);
+      token = "";
+    } else if (char === ".") token = "";
+    else token += char;
+  }
+  if (token.length > 0) moves.push(token);
+  return moves;
+}
+function addMove2Fen(chess, fen, move) {
+  const result = chess.move(move, { sloppy: true });
+  if (result) {
+    let newFen = chess.fen();
+    return newFen;
+  } else {
+    return "Invalid move!";
+  }
+}
+
+//StockFish API Calls
+async function callStockAPI(fen, depth = stockLvl) {
+  const url = `https://stockfish.online/api/s/v2.php?fen=${encodeURIComponent(
+    fen
+  )}&depth=${depth}`;
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching Stockfish API:", error);
+    return null;
+  }
+}
+async function getBestMove(fen) {
+  const data = await callStockAPI(fen);
+  if (data && data.success) {
+    let bestmove = data.bestmove;
+    return bestmove.slice("bestmove ".length, "bestmove ".length + 4);
+  } else {
+    console.error("Invalid response from Stockfish API:", data);
+    return null;
+  }
+}
 //UI Building
 function makeDefaultColors() {
   clr1 = clrDefaultArr[0];
@@ -2706,39 +2825,32 @@ function updateBoxShadow() {
 function resetBoxShadow() {
   this.style.boxShadow = "none";
 }
-function switchNavTab_MakeTimer() {
+// Function to set a specific tab as active
+function setActiveTab(tabId) {
   // Get all the nav-links within the navbar
   const navLinks = document.querySelectorAll(".navbar-nav .nav-link");
-
-  // Function to set a specific tab as active
-  function setActiveTab(tabId) {
-    // Remove 'active' class from all nav-links
-    navLinks.forEach((link) => link.classList.remove("active"));
-
-    // Find the nav-link with the id matching the specified tabId and add 'active' class
-    const targetLink = document.getElementById(tabId);
-    if (targetLink) {
-      targetLink.classList.add("active");
-    }
+  // Remove 'active' class from all nav-links
+  navLinks.forEach((link) => link.classList.remove("active"));
+  // Find the nav-link with the id matching the specified tabId and add 'active' class
+  const targetLink = document.getElementById(tabId);
+  if (targetLink) {
+    targetLink.classList.add("active");
+  }
+}
+function switchNavTab_MakeTimer() {
+  if (originTabIndex === null) {
+    originTabIndex = navArr.indexOf(tabName);
   }
   setActiveTab("Navbar0");
   navActions(0);
 }
 function switchNavTab_LoadGame() {
-  // Get all the nav-links within the navbar
-  const navLinks = document.querySelectorAll(".navbar-nav .nav-link");
-  // Function to set a specific tab as active
-  function setActiveTab(tabId) {
-    // Remove 'active' class from all nav-links
-    navLinks.forEach((link) => link.classList.remove("active"));
-    // Find the nav-link with the id matching the specified tabId and add 'active' class
-    const targetLink = document.getElementById(tabId);
-    if (targetLink) {
-      targetLink.classList.add("active");
-    }
-  }
   setActiveTab("Navbar1");
   navActions(1);
+}
+function switchNavTab_LoadComputer() {
+  setActiveTab("Navbar3");
+  navActions(3);
 }
 function showPopup(message) {
   const popupOverlay = document.getElementById("popupOverlay");
@@ -2753,6 +2865,72 @@ function hidePopup() {
   const popup = document.getElementById("customPopup");
   popupOverlay.classList.remove("visible");
   popup.classList.remove("visible");
+}
+function showStrengthPopup() {
+  const overlay = document.getElementById("strengthOverlay");
+  const popup = document.getElementById("strengthPopup");
+  const slider = document.getElementById("strengthSlider");
+  const level = document.getElementById("levelText");
+  const btns = document.querySelectorAll("#colourButtons button");
+
+  // ── 1) build 1–8 slider, pre-select level 4 ────────────────────────────
+  slider.innerHTML = "";
+  for (let i = 1; i <= 8; i++) {
+    const seg = document.createElement("div");
+    seg.textContent = i;
+    if (i === 4) {
+      seg.classList.add("selected");
+      level.textContent = `Stockfish level ${i}`;
+      stockLvl = 7 + i;
+    }
+    seg.addEventListener("click", () => {
+      slider.querySelector(".selected").classList.remove("selected");
+      seg.classList.add("selected");
+      level.textContent = `Stockfish level ${i}`;
+      stockLvl = 7 + i;
+    });
+    slider.appendChild(seg);
+  }
+
+  // ── 2) wire up clicks to re-select, close popup, and set flagComp.color ──
+  btns.forEach((b) => {
+    b.onclick = () => {
+      // clear old
+      const prev = document.querySelector("#colourButtons .selected");
+      if (prev) prev.classList.remove("selected");
+
+      // mark new
+      b.classList.add("selected");
+      if (b.dataset.col == "white") flagComp.color = "black";
+      else if (b.dataset.col == "black") flagComp.color = "white";
+      else if (b.dataset.col == "white-black") {
+        const defaultColor = Math.random() < 0.5 ? "white" : "black";
+        flagComp.color = defaultColor;
+        if (flagComp.color === "white") b.dataset.col = "black";
+        else b.dataset.col = "white";
+      }
+      // close
+      hideStrengthPopup();
+
+      //Make Opponent name as Computer
+      let oppName = document.getElementById("opponentName");
+      oppName.value = "Computer";
+      oppName.disabled = true;
+      oppNameValue = "Computer";
+      oppDisableStr = " disabled ";
+
+      showCustomAlert("Your color is " + b.dataset.col);
+      if (flagComp.color === "white") boardClickByUser(4, 4);
+    };
+  });
+
+  // ── 3) finally, show it ──────────────────────────────────────────────────
+  overlay.classList.add("visible");
+  popup.classList.add("visible");
+}
+function hideStrengthPopup() {
+  document.getElementById("strengthOverlay").classList.remove("visible");
+  document.getElementById("strengthPopup").classList.remove("visible");
 }
 function handleConfirm() {
   themeLogoChange("rt2");
