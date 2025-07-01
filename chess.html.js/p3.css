@@ -956,11 +956,11 @@ input[type="range"]::-webkit-slider-thumb {
   border-right: none;
 }
 .slider div.selected {
-  background: #33b3a6;
+  background: #33b397;
   color: #fff;
 }
-.slider div:hover {
-  background: rgba(51, 179, 166, 0.8);
+.slider div:not(.selected):hover {
+  background: rgba(38, 133, 124, 0.6);
   color: #fff;
 }
 
