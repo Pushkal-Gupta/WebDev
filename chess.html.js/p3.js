@@ -209,6 +209,7 @@ function routineFunctionCalls() {
   makeDefaultUISettings1();
   makeDefaultUISettings2();
   createNavbar();
+  navActions(0);
 }
 
 //Basic UI
