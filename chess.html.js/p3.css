@@ -926,7 +926,7 @@ input[type="range"]::-webkit-slider-thumb {
 /* Slider grid for strength levels */
 .slider {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
+  grid-template-columns: repeat(10, 1fr);
   background: rgba(255, 255, 255, 0.2);
   border-radius: 4px;
   overflow: hidden;
@@ -1008,7 +1008,7 @@ input[type="range"]::-webkit-slider-thumb {
   top: 30%;
   left: 50%;
   transform: translate(-50%, -30%);
-  width: 350px;
+  width: 450px;
   padding: 20px;
   background-color: rgba(0, 0, 0, 0.7);
   color: #ccffff;
