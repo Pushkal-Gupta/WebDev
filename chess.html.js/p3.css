@@ -612,6 +612,14 @@ input[type="color"]:disabled {
   border: transparent;
   background-color: transparent;
 }
+
+/*Icon in Theme Control*/
+.btn-theme-block .scale-sliders-icon {
+  width: 40%;
+  height: 40%;
+  line-height: 1; /* no extra leading */
+}
+
 .btn-outline-light {
   display: flex;
   align-items: center;
