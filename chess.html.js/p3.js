@@ -28,8 +28,8 @@ function dataReload() {
     blendColors("#33b3a6", clrYellow, 0.5),
   ];
   tabName = "";
-  flagComp = { comp: true, color: "white" };
-  stockLvl = 12;
+  flagComp = { comp: false, color: "white" };
+  stockLvl = 4;
   oppNameValue = "Opponent";
   oppDisableStr = " ";
   originTabIndex = null;
@@ -259,6 +259,7 @@ function navActions(index) {
       document.getElementById("leftbar").innerHTML = "";
       document.getElementById("rightbar").innerHTML = "";
     }
+    flagComp.comp = false;
     oppNameValue = "Opponent";
     oppDisableStr = " ";
     makeStartBoard();
@@ -271,13 +272,14 @@ function navActions(index) {
       document.getElementById("leftbar").innerHTML = "";
       document.getElementById("rightbar").innerHTML = "";
     }
-    //switchNavTab_LoadGame();
     showCustomAlert("Under Maintenance");
   } else if (index == 3) {
     if (time === "") {
       document.getElementById("leftbar").innerHTML = "";
       document.getElementById("rightbar").innerHTML = "";
     }
+    flagComp.comp = true;
+    flagComp.color = "white";
     makeStartBoard();
     makeBoard();
     makeRightBar();
@@ -2875,19 +2877,21 @@ function showStrengthPopup() {
 
   // ── 1) build 1–8 slider, pre-select level 4 ────────────────────────────
   slider.innerHTML = "";
-  for (let i = 1; i <= 8; i++) {
+  for (let i = 1; i <= 10; i++) {
     const seg = document.createElement("div");
     seg.textContent = i;
     if (i === 4) {
       seg.classList.add("selected");
       level.textContent = `Stockfish level ${i}`;
-      stockLvl = 7 + i;
+      if (i < 5) stockLvl = i;
+      else stockLvl = (i - 2) * 2;
     }
     seg.addEventListener("click", () => {
       slider.querySelector(".selected").classList.remove("selected");
       seg.classList.add("selected");
       level.textContent = `Stockfish level ${i}`;
-      stockLvl = 7 + i;
+      if (i < 5) stockLvl = i;
+      else stockLvl = (i - 2) * 2;
     });
     slider.appendChild(seg);
   }
