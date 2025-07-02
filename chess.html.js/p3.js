@@ -2876,6 +2876,8 @@ function showStrengthPopup() {
   const level = document.getElementById("levelText");
   const btns = document.querySelectorAll("#colourButtons button");
 
+  btns.forEach((b) => b.classList.remove("selected"));
+
   // ── 1) build 1–8 slider, pre-select level 4 ────────────────────────────
   slider.innerHTML = "";
   for (let i = 1; i <= 10; i++) {
@@ -2898,6 +2900,7 @@ function showStrengthPopup() {
   }
 
   // ── 2) wire up clicks to re-select, close popup, and set flagComp.color ──
+  userCol = "";
   btns.forEach((b) => {
     b.onclick = () => {
       // clear old
@@ -2906,13 +2909,17 @@ function showStrengthPopup() {
 
       // mark new
       b.classList.add("selected");
-      if (b.dataset.col == "white") flagComp.color = "black";
-      else if (b.dataset.col == "black") flagComp.color = "white";
-      else if (b.dataset.col == "white-black") {
+      if (b.dataset.col == "white") {
+        flagComp.color = "black";
+        userCol = "White";
+      } else if (b.dataset.col == "black") {
+        flagComp.color = "white";
+        userCol = "Black";
+      } else if (b.dataset.col == "random") {
         const defaultColor = Math.random() < 0.5 ? "white" : "black";
         flagComp.color = defaultColor;
-        if (flagComp.color === "white") b.dataset.col = "black";
-        else b.dataset.col = "white";
+        if (flagComp.color === "white") userCol = "Black";
+        else userCol = "White";
       }
       // close
       hideStrengthPopup();
@@ -2924,7 +2931,8 @@ function showStrengthPopup() {
       oppNameValue = "Computer";
       oppDisableStr = " disabled ";
 
-      showCustomAlert("Your color is " + b.dataset.col);
+      showCustomAlert("Your color is " + userCol);
+
       if (flagComp.color === "white") boardClickByUser(4, 4);
     };
   });
