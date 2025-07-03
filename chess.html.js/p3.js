@@ -956,6 +956,7 @@ async function boardClickByUser(row, col) {
   if (color == flagComp.color && flagComp.comp) {
     currFen = convert2Fen(pgnStr).pop();
     compMove = await getBestMove(currFen);
+    if (!flagComp.comp) return;
     compRow = "8".charCodeAt(0) - compMove.charCodeAt(1);
     compCol = compMove.charCodeAt(0) - "a".charCodeAt(0);
     boardClick(compRow, compCol);
