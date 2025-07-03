@@ -1,16 +1,16 @@
 //Navbar Line Stay on Active Tab
-document.addEventListener("DOMContentLoaded", function () {
-  var navLinks = document.querySelectorAll(".navbar-nav .nav-link");
+// document.addEventListener("DOMContentLoaded", function () {
+//   var navLinks = document.querySelectorAll(".navbar-nav .nav-link");
 
-  navLinks.forEach(function (link) {
-    link.addEventListener("click", function () {
-      navLinks.forEach(function (nav) {
-        nav.classList.remove("active");
-      });
-      this.classList.add("active");
-    });
-  });
-});
+//   navLinks.forEach(function (link) {
+//     link.addEventListener("click", function () {
+//       navLinks.forEach(function (nav) {
+//         nav.classList.remove("active");
+//       });
+//       this.classList.add("active");
+//     });
+//   });
+// });
 
 //Data
 dataReload();
@@ -35,6 +35,9 @@ function dataReload() {
   originTabIndex = null;
   undoCompBool = true;
   popUpCount = 0;
+  gameStartBool = false;
+  handleBool = false;
+  storeNavIndex = null;
   time = "";
   navIconArr = [
     { icon: "fa-regular fa-hourglass-half", animation: "fa-shake" },
@@ -243,17 +246,22 @@ function createNavbar() {
   });
 }
 function navActions(index) {
+  storeNavIndex = index;
+  if (gameStartBool) {
+    showPopup("End this game?");
+    return;
+  }
+  if (!handleBool && time != "" && gameStartBool) return;
   document
     .querySelectorAll(".navbar-nav .nav-link")
     .forEach((n) => n.classList.remove("active"));
   document.getElementById("Navbar" + index).classList.add("active");
-  makeLeftBar();
-  makeRightBar();
   tabName = navArr[index];
   if (index == 0) {
     time = "";
     document.getElementById("leftbar").innerHTML = "";
     document.getElementById("rightbar").innerHTML = "";
+    gameStartBool = false;
     makeTimer();
   } else if (index == 1) {
     if (time === "") {
@@ -265,9 +273,10 @@ function navActions(index) {
     oppDisableStr = " ";
     makeStartBoard();
     makeBoard();
+    makeLeftBar();
     makeRightBar();
-    if (popUpCount === 0 && time != "") showPopup("Load New Theme?");
-    popUpCount++;
+    //if (popUpCount === 0 && time != "") showPopup("Load New Theme?");
+    //popUpCount++;
   } else if (index == 2) {
     if (time === "") {
       document.getElementById("leftbar").innerHTML = "";
@@ -283,6 +292,7 @@ function navActions(index) {
     flagComp.color = "white";
     makeStartBoard();
     makeBoard();
+    makeLeftBar();
     makeRightBar();
     if (time != "") showStrengthPopup();
   }
@@ -1054,6 +1064,7 @@ function boardClick(row, col) {
       if (Object.keys(temp).length != 0)
         pointUpdateCounter(temp.piece, temp.color);
       //if (document.getElementById("dd3").value === leftBarArr3[0]) showPGN();
+      gameStartBool = true;
     } else if (moveStartConditon(row, col)) {
       prevrow = row;
       prevcol = col;
@@ -2946,12 +2957,16 @@ function hideStrengthPopup() {
   document.getElementById("strengthPopup").classList.remove("visible");
 }
 function handleConfirm() {
-  themeLogoChange("rt2");
+  handleBool = true;
+  gameStartBool = false;
+  navActions(storeNavIndex);
+  //themeLogoChange("rt2");
   closeOptionsLeftDD();
   hidePopup();
 }
 function handleCancel() {
   hidePopup();
+  handleBool = false;
 }
 
 // Drag and Drop
