@@ -305,6 +305,7 @@ select {
   padding-left: 11%;
 }
 .color-line-top {
+  display: block; 
   height: 5px;
   border: none;
   background: linear-gradient(
@@ -333,6 +334,7 @@ select {
   width: 100%;
 }
 .color-line-bottom {
+  display: block; 
   height: 5px;
   border: none;
   background: linear-gradient(
@@ -831,12 +833,12 @@ input[type="range"]::-webkit-slider-thumb {
 .custom-alert {
   display: none;
   position: fixed;
-  top: 10%;
+  top: 5%;
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: rgba(0, 0, 0, 0.6);
   color: #ccffff;
-  padding: 20px;
+  padding: 5px;
   border: 1px solid #aaffff;
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -845,6 +847,7 @@ input[type="range"]::-webkit-slider-thumb {
   transition: opacity 0.5s;
   text-align: center;
   width: 300px;
+  max-width: 90vw;
 }
 .custom-alert p {
   margin: 0;
@@ -1266,3 +1269,330 @@ input[type="range"]::-webkit-slider-thumb {
   background-color: #555;
 }
 
+
+
+
+/* === Responsive Design for Mobile Devices === */
+@media (max-width: 850px) {
+  .containerFrame,
+  .containerFrame-virtual {
+    width: 100% !important;
+    margin-left: 0 !important;
+    position: relative !important;
+    padding: 1px !important;
+  }
+
+  .containerLeft,
+  .containerRight {
+    position: static !important;
+    width: 100% !important;
+    margin-top: 10px !important;
+  }
+
+  .left-menu-container,
+  .table-container {
+    max-height: none !important;
+    overflow-y: auto !important;
+  }
+
+  .btn,
+  .btn-block,
+  .btn-green,
+  .btn-confirm {
+    font-size: 16px !important;
+    padding: 10px !important;
+  }
+
+  .label-col-box {
+    height: 40px !important;
+  }
+
+  .abcd-label {
+    font-size: 12px !important;
+  }
+
+  .navbar-nav {
+    flex-direction: column !important;
+  }
+
+  .navbar-nav .nav-item {
+    margin-right: 0 !important;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 850px) {
+  html, body {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    height: auto !important;
+    display: block !important;
+  }
+
+  .containerFrame,
+  .containerLeft,
+  .containerRight {
+    position: static !important;
+    width: 100% !important;
+    margin: 1px auto !important;
+    float: none !important;
+    clear: both !important;
+  }
+
+  #display,
+  #leftbar,
+  #rightbar {
+    width: 100% !important;
+    position: static !important;
+    display: block !important;
+  }
+
+  #rightbar {
+    min-height: 100px;
+  }
+
+  .main-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn,
+  .btn-block,
+  .btn-green,
+  .btn-confirm {
+    font-size: 16px !important;
+    padding: 10px !important;
+  }
+
+  .cellBox {
+    width: 11.5vw !important;  /* 100 / 8 = 12.5 */
+    height: 11.5vw !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    box-sizing: content-box !important;
+  }
+
+  .label-col-box {
+    height: 40px !important;
+  }
+
+  .abcd-label {
+    font-size: 12px !important;
+  }
+
+  .navbar-nav {
+    flex-direction: column !important;
+  }
+
+  .navbar-nav .nav-item {
+    margin-right: 0 !important;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .cellBox img {
+    width: 85% !important;
+    height: 85% !important;
+    object-fit: contain !important;
+    display: block !important;
+    margin: auto !important;   
+  }
+
+  .draggable-element {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  #strengthPopup {
+    display: none;
+    position: fixed;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -30%);
+    width: 90vw; /* use viewport width */
+    max-width: 450px;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #ccffff;
+    border: 2px solid #aaffff;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    box-sizing: border-box;
+  }
+
+  #loginPopup {
+    display: none;
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    max-width: 450px;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #ccffff;
+    border: 2px solid #aaffff;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    box-sizing: border-box;
+  }
+  #logoutPopup {
+    display: none;
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 90vw;
+    width: 450px;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #ccffff;
+    border: 2px solid #aaffff;
+    border-radius: 5px;
+    text-align: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .game-over-popup {
+    width : 90vw;
+  }
+  #timerWhite, #timerBlack {
+  font-size: 24px !important;
+}
+}
+/*
+@media (min-width: 851px) and (max-width: 1024px){
+  .containerFrame {
+    width: 68%;
+    float: left;
+    position: static;
+    margin-left: 0;
+    box-sizing: border-box;
+  }
+
+  .containerRight {
+    float: right;
+    width: 30%;
+    position: static;
+    box-sizing: border-box;
+    padding-left: 2%;
+  }
+
+  .containerLeft {
+    width: 100%;
+    float: left;
+    position: static;
+  }
+  .cellBox {
+    width: 60px;
+    height: 60px;
+  }
+
+  .btn {
+    font-size: 18px;
+    padding: 12px;
+  }
+
+  .btn-group {
+    flex-wrap: wrap;
+  }
+
+  .btn-group .btn {
+    flex: 1 1 45%;
+    margin: 4px;
+  }
+}
+@media (min-width: 1025px) and (max-width: 1366px) {
+  .containerFrame {
+    width: 50%;
+    margin-left: 360px;
+    position: absolute;
+    padding-top: 15px;
+    z-index: 1;
+  }
+
+  .containerRight {
+    position: absolute;
+    top: 10px;
+    right: 0;
+    width: 26%;
+    margin-top: 60px;
+  }
+
+  .containerLeft {
+    position: absolute;
+    top: 10px;
+    left: 1px;
+    width: 26%;
+    margin-top: 60px;
+  }
+
+  .cellBox {
+    width: 80px;
+    height: 80px;
+  }
+
+  .btn {
+    font-size: 16px;
+    padding: 10px;
+  }
+
+  .btn-group {
+    flex-wrap: nowrap;
+  }
+}
+*/
+/*
+@media (width: 1024px) {
+  .containerFrame {
+    width: 58%;            
+    margin-left: 250px;   
+    position: absolute;
+    z-index: 1;
+  }
+
+  .containerRight {
+    width: 34%;
+    right: 0;
+    position: absolute;
+    margin-top: 60px;
+  }
+
+  .containerLeft {
+    width: 26%;
+    left: 1px;
+    position: absolute;
+    margin-top: 60px;
+  }
+
+  .cellBox {
+    width: 64px;
+    height: 64px;
+  }
+
+  .btn {
+    font-size: 16px;
+    padding: 10px;
+  }
+
+  .btn-group .btn {
+    flex: 1 1 48%;
+    margin: 4px;
+  }
+}
+*/

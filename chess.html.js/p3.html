@@ -32,7 +32,7 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="p3.css" />
+    <link rel="stylesheet" href="p3_responsive.css" />
     <script
       src="https://kit.fontawesome.com/1bc695496f.js"
       crossorigin="anonymous"
@@ -55,6 +55,15 @@
         <button class="cancel" onclick="handleCancel()">Cancel</button>
       </div>
     </div>
+    <!--For game over-->
+    <div class="game-over-popup" id="gameOverPopup">
+      <p id="gameOverMessage"></p>
+      <div class="popup-buttons">
+        <button class="confirm" onclick="handleConfirm()">OK</button>
+        <button class="cancel" onclick="handleCancel()">Cancel</button>
+        <button class="analyse" onclick="analyseGame()">Analyse</button>
+      </div>
+    </div>
     <!-- For colour select with Computer -->
     <div id="strengthOverlay" class="popup-overlay"></div>
     <div id="strengthPopup" class="popup">
@@ -67,6 +76,35 @@
         <button class="compPop" data-col="black">Black</button>
       </div>
     </div>
+    <!-- Combined Login/Signup Modal -->
+    <div id="loginOverlay" class="popup-overlay"></div>
+    <div id="loginPopup" class="popup">
+      <h3 id="popupTitle">Login to continue</h3>
+      <div class="login-fields">
+        <input type="text" id="loginUsername" placeholder="Username" />
+        <input type="password" id="loginPassword" placeholder="Password" />
+        <input type="password" id="signupConfirm" placeholder="Confirm Password" style="display: none;" />
+      </div>
+      <div class="popup-buttons">
+        <button class="loginBtn" onclick="submitLoginOrSignup()" id="mainActionBtn">Login</button>
+        <button class="loginBtn" onclick="hideLoginPopup()">Cancel</button>
+      </div>
+      <div class="login-links">
+        <span id="toggleText">Don't have an account?</span>
+        <a href="#" onclick="toggleSignup(true)" id="toggleLink">Sign Up</a>
+      </div>
+    </div>
+    <!-- Logout Modal -->
+    <div id="logoutOverlay" class="popup-overlay"></div>
+    <div id="logoutPopup" class="popup">
+      <h3>Confirm Logout</h3>
+      <p>Are you sure you want to logout?</p>
+      <div class="popup-buttons">
+        <button class="logoutBtn" onclick="confirmLogout()">Yes, Logout</button>
+        <button class="logoutBtn" onclick="hideLogoutPopup()">Cancel</button>
+      </div>
+    </div>
+
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container">
         <a class="navbar-brand" href="../PG.html.js/main.html#">PG.Chess</a>
