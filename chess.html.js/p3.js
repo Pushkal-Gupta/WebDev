@@ -14,6 +14,15 @@
 
 //Data
 dataReload();
+mobileResponsiveMaxWidth = 850;
+userInfo = JSON.parse(localStorage.getItem("userInfo"));
+timerData = [];
+userToken = userInfo ? userInfo.userToken : null;
+myAccountName = userInfo ? userInfo.myAccountName : null;
+navbarMyAccountNode = null;
+displayOnScreen = "";
+gameStoreId = -1;
+tabClickedByUser = "";
 function dataReload() {
   clrRed = "#ff0000";
   clrYellow = "#ffff00";
@@ -31,6 +40,7 @@ function dataReload() {
   flagComp = { comp: false, color: "white" };
   stockLvl = 4;
   oppNameValue = "Opponent";
+  youNameValue = "You(W)";
   oppDisableStr = " ";
   originTabIndex = null;
   undoCompBool = true;
@@ -44,11 +54,12 @@ function dataReload() {
     { icon: "fa-solid fa-folder-open", animation: "fa-bounce" },
     { icon: "fa-solid fa-pen-to-square", animation: "fa-fade" },
     { icon: "fa-solid fa-computer", animation: "fa-beat" },
+    { icon : "fa-solid fa-circle-user", animation: "fa-beat"}
   ];
   bodyImageURL = [
     "https://img.freepik.com/free-photo/abstract-fire-desktop-wallpaper-realistic-blazing-flame-image_53876-147448.jpg?size=626&ext=jpg&ga=GA1.1.1546980028.1719792000&semt=ais_user",
   ];
-  navArr = ["Time Limit", "New Game", "Analysis", "Computer"];
+  navArr = ["Time Limit", "New Game", "Analysis", "Computer", "My Account"];
   chessArr = [];
   temp = {};
   pointCountInitInit = {
@@ -66,18 +77,18 @@ function dataReload() {
     blackking: 1,
   };
   timeArr = [
-    "1 min",
-    "1|1",
-    "2|1",
-    "3 min",
-    "3|2",
-    "5 min",
-    "10 min",
-    "15|10",
-    "30 min",
-    "1 day",
-    "3 days",
-    "7 days",
+    {display:"1 min",total:60,incr:0},
+    {display:"1|1",total:60,incr:1},
+    {display:"2|1",total:120,incr:1},
+    {display:"3 min",total:180,incr:0},
+    {display:"3|2",total:180,incr:2},
+    {display:"5 min",total:300,incr:0},
+    {display:"10 min",total:600,incr:0},
+    {display:"15|10",total:900,incr:10},
+    {display:"30 min",total:1800,incr:0},
+    {display:"1 day",total:86400,incr:0},
+    {display:"3 days",total:259200,incr:0},
+    {display:"7 days",total:604800,incr:0},
   ];
   iconTimeArr = [
     "<div class='icon-label1'><i class='fa-solid fa-joint icon' style='color:#DAA520'></i>",
@@ -177,7 +188,7 @@ function dataReload() {
       { txt: "Change Previous Moves Color", icon: "fa-circle-arrow-left" },
       { txt: "Change Piece Type", icon: "fa-chess-pawn" },
       { txt: "Add Background Image", icon: "fa-image" },
-      { txt: "Show Column & Row", icon: "fa-eye" },
+      { txt: "Show Column & Row", icon: "fa-eye", notInMobile: true},
     ],
     [
       { txt: "Default", icon: "fa-user" },
@@ -207,6 +218,8 @@ function dataReload() {
 
 //Routine Function Calls
 routineFunctionCalls();
+testStockfishServer();
+testChessServer();
 function routineFunctionCalls() {
   defaultFunctionSettings();
   makeDefaultUISettings1();
@@ -226,16 +239,31 @@ function createNavbar() {
     a.className = "nav-link nav-item";
     a.href = "#";
     a.id = "Navbar" + index;
-    a.onclick = () => navActions(index);
+    //a.onclick = () => navActions(index);
+    a.onclick = () => {
+      navActions(index);
+      // Collapse the navbar (only if visible) This is for the hamburger on mobile
+      const navbarCollapse = document.querySelector(".navbar-collapse");
+      if (navbarCollapse.classList.contains("show")) {
+        const bsCollapse = new bootstrap.Collapse(navbarCollapse, {
+          toggle: true
+        });
+      }
+    };
 
     const icon = document.createElement("i");
     icon.className = navIconArr[index].icon;
 
     a.appendChild(icon);
-    a.appendChild(document.createTextNode(" " + ele));
+    let txtNode = document.createTextNode(" " + ele);
+    if (ele==="My Account"){
+      if (myAccountName)
+        txtNode = document.createTextNode(" " + myAccountName);
+      navbarMyAccountNode = txtNode; 
+    }
+    a.appendChild(txtNode);
     li.appendChild(a);
     navbar.appendChild(li);
-
     // Add event listeners for hover effect
     a.addEventListener("mouseover", () => {
       icon.classList.add(navIconArr[index].animation);
@@ -243,11 +271,45 @@ function createNavbar() {
     a.addEventListener("mouseout", () => {
       icon.classList.remove(navIconArr[index].animation);
     });
-  });
+  }); 
+}
+function updateMyAccountInNavbar(loginlogout=false){
+  console.log("updateMyAccountInNavbar::myAccountName=",myAccountName,"::time=",time);
+  if (myAccountName)
+    navbarMyAccountNode.textContent = myAccountName;
+  else
+    navbarMyAccountNode.textContent = "My Account";
+  if (!loginlogout) return;
+  if (time=="")
+    switchNavTab_MakeTimer();
+  else
+    switchNavTab_LoadGame();
+}
+function endCurrentGame(){
+  flagComp.comp = false;
+  oppNameValue = "Opponent(B)";
+  youNameValue = "You(W)";
+  oppDisableStr = " ";
+  makeStartBoard();
+  makeBoard();
+  timerData = [];
+  timerId = null;
+  gameStoreId = -1;
+  makeLeftBar();
+  makeRightBar();
 }
 function navActions(index) {
+  if (index===4){
+    navActionsMyAccount();
+    return;
+  }
   storeNavIndex = index;
-  if (gameStartBool) {
+  if (index===2 && !userToken){
+    showCustomAlert("Please login first");
+    return;
+  }
+  if (gameStartBool &&(index!=2 || userToken)) {
+    console.log(gameStartBool, index, userToken)
     showPopup("End this game?");
     return;
   }
@@ -262,28 +324,23 @@ function navActions(index) {
     document.getElementById("leftbar").innerHTML = "";
     document.getElementById("rightbar").innerHTML = "";
     gameStartBool = false;
+    clearMobileTimers();
     makeTimer();
   } else if (index == 1) {
     if (time === "") {
       document.getElementById("leftbar").innerHTML = "";
       document.getElementById("rightbar").innerHTML = "";
     }
-    flagComp.comp = false;
-    oppNameValue = "Opponent";
-    oppDisableStr = " ";
-    makeStartBoard();
-    makeBoard();
-    makeLeftBar();
-    makeRightBar();
+    displayOnScreen = navArr[1];
+    tabClickedByUser = navArr[1];
+    endCurrentGame();
     //if (popUpCount === 0 && time != "") showPopup("Load New Theme?");
     //popUpCount++;
-  } else if (index == 2) {
-    if (time === "") {
-      document.getElementById("leftbar").innerHTML = "";
-      document.getElementById("rightbar").innerHTML = "";
-    }
-    showCustomAlert("Under Maintenance");
-  } else if (index == 3) {
+  }
+  else if (index===2){
+    navActionsAnalysis();
+  }
+  else if (index == 3) {
     if (time === "") {
       document.getElementById("leftbar").innerHTML = "";
       document.getElementById("rightbar").innerHTML = "";
@@ -295,7 +352,26 @@ function navActions(index) {
     makeLeftBar();
     makeRightBar();
     if (time != "") showStrengthPopup();
+  } 
+}
+function navActionsAnalysis(){
+  /*
+  if (time === "" || userToken) {
+    document.getElementById("leftbar").innerHTML = "";
+    document.getElementById("rightbar").innerHTML = "";
+  }*/
+  if (userToken){
+    time = "";
+    timerId = null;
+    gameStartBool = false;
+    makeGamesPlayed();
   }
+}
+function navActionsMyAccount(){
+  if (userToken)
+    showLogoutPopup();
+  else
+    showLoginPopup();
 }
 function makeTimer() {
   selectedStr =
@@ -315,7 +391,7 @@ function makeTimer() {
       "<div class='col p-0 mb-2 mx-1 bg-transparent '><button type='button' class='p-3 btn btn-light btn-block w-100 h-100' onclick = btnTimeActions(" +
       index +
       ")>" +
-      ele +
+      ele.display +
       "</button></div>"
     );
   });
@@ -325,13 +401,18 @@ function makeTimer() {
     formArr.join("") +
     "</div><div class='col p-0 mb-2 mx-1 bg-transparent '><div id = 'info' class='row justify-content-center'></div></div>";
   document.getElementById("display").innerHTML = displayStr;
+  displayOnScreen = navArr[0];
+  tabClickedByUser = navArr[0];
+  const existingTimers = document.getElementById("timersOnlyContainer");
+  if (existingTimers) existingTimers.remove();
+
 }
 function btnTimeActions(index) {
   time = timeArr[index];
   index1 = Math.floor(index / 3);
   iconStr = iconTimeArr[index1];
   iconStr = iconStr.replace("'><i class", " justify-content-center'><i class");
-  timeStr = iconStr + time + "</div>";
+  timeStr = iconStr + time.display + "</div>";
   document.getElementById("timeLimit").innerHTML = timeStr;
   if (tabName === "Computer")
     str =
@@ -350,7 +431,7 @@ function makeCell(row, col) {
   if (col === 0) {
     labelStr = colRowBool
       ? "<div class = 'p-1 label-col-box'>" + (8 - row) + "</div>"
-      : "<div class = 'p-1 label-col-box'></div>";
+      : window.innerWidth > mobileResponsiveMaxWidth ? "<div class = 'p-1 label-col-box'></div>" : "";
   } else labelStr = "";
   num = showMovesArr.findIndex(function (ele) {
     return ele.row === row && ele.col === col;
@@ -738,7 +819,7 @@ function defaultFunctionSettings() {
   previousHighlightData = {};
   previousRightBarMoveNum = -1;
   disableBoardForUser = false;
-  if (!runningTestCases) console.clear();
+  //if (!runningTestCases) console.clear();
 }
 
 //Make LeftBar
@@ -793,7 +874,7 @@ function makeLeftDD(ele, index1, isOpen) {
 function makeLeftBarDDMenu(index1) {
   return leftBarArr[index1]
     .map(function (ele, index2) {
-      return (
+      let x = 
         "<button class='btn dd-menu-block btn-bd-secondary w-100 h-100' style='padding-left:36px' type='button' onclick='showOptionsLeftDD(" +
         index1 +
         "," +
@@ -804,8 +885,9 @@ function makeLeftBarDDMenu(index1) {
         "'></i>" +
         "&nbsp;&nbsp;" +
         ele.txt +
-        "</button>"
-      );
+        "</button>";
+      if (window.innerWidth <= mobileResponsiveMaxWidth && ele.notInMobile) return "";
+       else return x; 
     })
     .join("");
 }
@@ -891,36 +973,95 @@ function makeRightBar() {
         "</td></tr>"
       );
   });
-  let headStr = "";
-  headStr =
+  let headStr =
     "<thead>" +
-    "<div class='btn-group rounded-1' role='group'><button class = 'p-3 btn btn-light btn-right-block w-100 h-100' onclick = 'copyPGN()'><i class='fa-solid fa-copy'></i></button><button class = 'p-3 btn btn-light btn-right-block w-100 h-100' onclick = 'backwardFastPGN()'><i class='fa-solid fa-backward-fast'></i></button><button class = 'p-3 btn btn-light btn-right-block w-100 h-100' onclick = 'backwardStepPGN()'><i class='fa-solid fa-backward-step'></i></button><button class = 'p-3 btn btn-light btn-right-block w-100 h-100' onclick = 'forwardStepPGN()'><i class='fa-solid fa-forward-step'></i></button><button class = 'p-3 btn btn-light btn-right-block w-100 h-100' onclick = 'forwardFastPGN()'><i class='fa-solid fa-forward-fast'></i></button><button class = 'p-3 btn btn-light btn-right-block w-100 h-100' onclick = 'flipBoard()'><i class='fa-solid fa-rotate'></i></button></div>" +
+    "<div class='btn-group-vertical w-100' role='group'>" +
+    "<div class='btn-group rounded-1' role='group'>" +
+    "<button class='p-3 btn btn-light btn-right-block w-100 h-100' onclick='copyPGN()'><i class='fa-solid fa-copy'></i></button>" +
+    "<button class='p-3 btn btn-light btn-right-block w-100 h-100' onclick='backwardFastPGN()'><i class='fa-solid fa-backward-fast'></i></button>" +
+    "<button class='p-3 btn btn-light btn-right-block w-100 h-100' onclick='backwardStepPGN()'><i class='fa-solid fa-backward-step'></i></button>" +
+    "<button class='p-3 btn btn-light btn-right-block w-100 h-100' onclick='forwardStepPGN()'><i class='fa-solid fa-forward-step'></i></button>" +
+    "<button class='p-3 btn btn-light btn-right-block w-100 h-100' onclick='forwardFastPGN()'><i class='fa-solid fa-forward-fast'></i></button>" +
+    "<button class='p-3 btn btn-light btn-right-block w-100 h-100' onclick='flipBoard()'><i class='fa-solid fa-rotate'></i></button>" +
+    "</div>" +
+    "</div>" +
     "</thead>";
   if (rightPgnArr.length != 0) {
     tableStr =
       headStr +
-      "<div class = 'table-container'><table class = 'table-dark table-block'  id='showLeftBarMoves'>" +
+      "<div class='table-container'><table class='table-dark table-block' id='showLeftBarMoves'>" +
       tableArr.join("") +
       "</table></div>";
   }
+  let timerWhite = document.getElementById("timerWhite")?.innerHTML || convertTimeToDisplay(calcTimeLeft("white"));
+  let timerBlack = document.getElementById("timerBlack")?.innerHTML || convertTimeToDisplay(calcTimeLeft("black"));
+  let nameWhite = myAccountName ? myAccountName + "(W)" : youNameValue;
+  let nameBlack = oppNameValue;
+  if (flagComp.comp && flagComp.color === "white") {
+    nameWhite = oppNameValue;
+    nameBlack = myAccountName ? myAccountName + "(B)" : youNameValue;
+  }
+  const isMobile = window.innerWidth <= mobileResponsiveMaxWidth;
+  let timersHTMLBlack =`
+    <div id="timersOnlyContainerBlack" class='btn-group-vertical w-100' role='group'>
+      <div class='btn-group' role='group'>
+        <input type='text' class='btn-name-right' id='opponentName' value=${"&nbsp;&nbsp;"+nameBlack} ${oppDisableStr} placeholder='Opponent'>
+        <button class = 'p-3 btn btn-light btn-right w-100 h-100' id='timerBlack' >${timerBlack}</button>
+      </div>
+    </div>
+  `;
+  let timersHTMLWhite =`
+    <div id="timersOnlyContainerWhite" class='btn-group-vertical w-100' role='group'>
+      <div class='btn-group' role='group'>
+        <input type='text' class='btn-name-right' id='userName' value=${"&nbsp;&nbsp;"+nameWhite} placeholder='You'>
+        <button class = 'p-3 btn btn-light btn-right w-100 h-100' id='timerWhite' >${timerWhite}</button>
+      </div>
+    </div>
+  `;
   let rightStr =
-    "<div class = 'containerRight'><div id = 'missingPieceWhite' class='missing-piece-top'></div><div class='btn-group-vertical w-100' role='group'><div class='btn-group' role='group'><input type='text' class='btn-name-right' id='opponentName' value='" +
-    oppNameValue +
-    "' " +
-    oppDisableStr +
-    " placeholder='Opponent'><button class = 'p-3 btn btn-light btn-right w-100 h-100'>Timer</button></div><span class = 'color-line-top'></span>" +
-    tableStr +
-    "<span class = 'color-line-bottom'></span><div class='btn-group-vertical w-100' role='group'><div class='btn-group' role='group'><input type='text' class='btn-name-right' id='userName' value='You' placeholder='You'><button class = 'p-3 btn btn-light btn-right w-100 h-100'>Timer</button></div><div id = 'missingPieceBlack' class='missing-piece-bottom'></div></div></div>";
-
-  if (rightPgnArr && rightPgnArr.length > 1) {
+    `<div class='containerRight'>
+      <div id='missingPieceWhite' class='missing-piece-top'></div>
+      ${isMobile ? "" : timersHTMLBlack}
+      <span class='color-line-top'></span>
+      ${tableStr}
+      <span class='color-line-bottom'></span>
+      ${isMobile ? "" : timersHTMLWhite}
+      <div id='missingPieceBlack' class='missing-piece-bottom'></div>
+    </div>`;
+  const rightbar = document.getElementById("rightbar");
+  rightbar.innerHTML = rightStr;
+  const display = document.getElementById("display");
+  //const existingTimers = document.getElementById("timersOnlyContainer");
+  //if (existingTimers) existingTimers.remove();
+  clearMobileTimers();
+  console.log("tabClickedByUser:::",tabClickedByUser);
+  if (isMobile) {
+    if (tabClickedByUser===navArr[1]){
+      //if (display && !document.getElementById("timersOnlyContainer")) {
+      if (display && !document.getElementById("timersOnlyContainerBlack")) {
+        //console.log("Appending::: timersHTMLBlack+timersHTMLWhite");
+        //timersOnlyContainer = `<div id="timersOnlyContainer">${timersHTMLBlack} ${timersHTMLWhite}</div>`;
+        //display.insertAdjacentHTML("afterend", timersOnlyContainer);
+        display.insertAdjacentHTML("beforebegin", `<div id="timersOnlyContainerBlackMobile">${timersHTMLBlack}</div>`);
+        display.insertAdjacentHTML("afterend", `<div id="timersOnlyContainerWhiteMobile">${timersHTMLWhite}</div>`);
+      }
+    }
+  }
+  if (rightPgnArr.length > 1) {
     document.getElementById("showLeftBarMoves").innerHTML = tableArr.join("");
-  } else document.getElementById("rightbar").innerHTML = rightStr;
-  if (rightPgnArr.length != 0 && rightPgnArr.length != 1) {
+  }
+
+  // Scroll to bottom of move list
+  if (rightPgnArr.length !== 0 && rightPgnArr.length !== 1) {
     let tableContainer = document.querySelector(".table-container");
     tableContainer.scrollTop = tableContainer.scrollHeight;
     missingPiecesUpdate();
   }
   previousRightBarMoveNum = rightPgnArr.length - 1;
+}
+function clearMobileTimers(){
+  if (document.getElementById("timersOnlyContainerBlackMobile")) document.getElementById("timersOnlyContainerBlackMobile").remove(); 
+  if (document.getElementById("timersOnlyContainerWhiteMobile")) document.getElementById("timersOnlyContainerWhiteMobile").remove(); 
 }
 function rightBarMoveNumber(moveNum) {
   let element1 = document.getElementById(
@@ -944,29 +1085,145 @@ function rightBarMoveNumber(moveNum) {
   }
 }
 
+//Timer data
+function timerDataFn(isMoveStart) {
+  if (isMoveStart && timerData.length===moveCount){
+    timerData.push(Date.now());
+  }
+  else if (!isMoveStart && timerData.length===moveCount){
+    timerData.push(Date.now());
+  }
+  if (isMoveStart && timerData.length===1){
+    updateTimerDisplays();
+    timerId = startTimerTicking(updateTimerDisplays,300);
+  }
+}
+
+function startTimerTicking(updateDisplayFn,timeSlice) {
+  const timerTicker = setInterval(() => {
+    updateDisplayFn();
+  }, timeSlice);
+  return timerTicker;
+}
+function calcTimeLeft(color){
+  colorNum = color==="white" ? 0 : 1;
+  totalTime = 0;
+  if (colorNum===0)
+    totalTime = time.total + time.incr*(moveCount%2===0 ? moveCount/2 : (moveCount+1)/2);
+  else
+    totalTime = time.total + time.incr*(moveCount%2===0 ? moveCount/2 : (moveCount-1)/2);
+  timeUsedArr = [];
+  for (let i=1;i<timerData.length;i++){
+    timeUsedArr.push(timerData[i]-timerData[i-1]);
+  }
+  timeUsed = 0;
+  for (let i=colorNum;i<timeUsedArr.length;i=i+2)
+    timeUsed+=timeUsedArr[i];
+  currMoveTime = timerData.length>0 ? Date.now()-timerData[timerData.length-1] : 0;
+  if (moveCount%2===colorNum)
+    timeUsed = timeUsed + currMoveTime;
+  timeUsed = timeUsed/1000;
+  timeLeft = Math.trunc(totalTime-timeUsed);
+  return timeLeft;
+}
+
+function convertTimeToDisplay(timeLeft){
+  timeLeftMins = Math.trunc(timeLeft/60);
+  timeLeftSecs = timeLeft-60*timeLeftMins;
+  timeLeftSecs = timeLeftSecs<0 ? 0 : timeLeftSecs;
+  timeLeftStr = ""+timeLeftMins+":"+(timeLeftSecs>9 ? timeLeftSecs : "0"+timeLeftSecs);
+  return timeLeftStr;
+}
+
+function updateTimerDisplays(){
+  timerWhiteLeft = calcTimeLeft("white");
+  timerWhiteLeft = timerWhiteLeft ? timerWhiteLeft : 0;
+  timerBlackLeft = calcTimeLeft("black");
+  timerBlackLeft = timerBlackLeft ? timerBlackLeft : 0;
+  console.log("timerWhiteLeft::",timerWhiteLeft);
+  if (document.getElementById("timerWhite"))  {
+    document.getElementById("timerWhite").innerHTML = convertTimeToDisplay(timerWhiteLeft);
+    document.getElementById("timerBlack").innerHTML = convertTimeToDisplay(timerBlackLeft);
+  }
+  if (timerId &&(timerWhiteLeft<=0 || timerBlackLeft <=0)) {
+    if (timerId) clearInterval(timerId);
+    timerId = null;
+    showPopup("Time Over");
+  }
+}
+
+//Game over check
+function checkGameOver(){
+  if (prevrow !== -1 && prevcol !== -1)
+    return;
+  makePGN();
+  let isGameOver = true;
+  pgnStr = pgnStr.trim();
+  if (pgnStr[pgnStr.length-1]==='+'){
+    console.log("Check");
+    for (let row=0;row<8;row++){
+      for (let col=0;col<8;col++){
+        prevrow = row;
+        prevcol = col;
+        showValidMoves();
+        inCheckCondition(boardArr[row][col].color);
+        //console.log("showMovesArr:::",showMovesArr);
+        if (showMovesArr.length>0){
+          console.log("Found a move:::",row,col,showMovesArr);
+          isGameOver = false;
+          break;
+        }
+      }
+      if (!isGameOver)
+        break;
+    }
+    if (isGameOver){
+      let nameWhite = myAccountName ? myAccountName+"(W)" : youNameValue;
+      let nameBlack = oppNameValue;
+      if (flagComp.comp && flagComp.color ==="white") {
+        nameWhite = oppNameValue;
+        nameBlack = myAccountName ? myAccountName+"(B)" : youNameValue;
+      }
+      console.log("MoveCount=",moveCount," ",nameWhite," ",nameBlack);
+      let strName = moveCount%2===1 ? nameWhite : nameBlack;
+      let str = "Game over. Game won by "+strName;
+      showGameOverPopup(str);
+      //alert("Game is Over");
+    }
+  }
+  prevrow = -1;
+  prevcol = -1;
+}
+
 //Board Logic
 async function boardClickByUser(row, col) {
+  //console.log("boardClickByUser:::::");
   if (disableBoardForUser) return;
   userNewMoveClick = true;
+  timerDataFn(true);
   boardClick(row, col);
   userNewMoveClick = false;
   let color = moveCount % 2 == 0 ? "white" : "black";
-  console.log(color, moveCount);
-  let compMove = "";
+  //console.log(color, moveCount);
+  timerDataFn(false);
+  checkGameOver();
   if (color == flagComp.color && flagComp.comp) {
+    timerDataFn(true);
     currFen = convert2Fen(pgnStr).pop();
-    compMove = await getBestMove(currFen);
+    let compMove = await getBestMove(currFen);
     if (!flagComp.comp) return;
+    //console.log("Computer Move:::",color,moveCount,compMove);
     compRow = "8".charCodeAt(0) - compMove.charCodeAt(1);
     compCol = compMove.charCodeAt(0) - "a".charCodeAt(0);
     boardClick(compRow, compCol);
-    setTimeout(() => {}, 100);
+    setTimeout(() => {}, 50);
     compRow = "8".charCodeAt(0) - compMove.charCodeAt(3);
     compCol = compMove.charCodeAt(2) - "a".charCodeAt(0);
     boardClick(compRow, compCol);
     undoCompBool = true;
+    timerDataFn(false);
+    checkGameOver();
   }
-  console.log(compMove);
 }
 function boardClick(row, col) {
   //console.log(prevrow, prevcol, row, col);
@@ -1066,6 +1323,7 @@ function boardClick(row, col) {
         pointUpdateCounter(temp.piece, temp.color);
       //if (document.getElementById("dd3").value === leftBarArr3[0]) showPGN();
       gameStartBool = true;
+      storeGameData();
     } else if (moveStartConditon(row, col)) {
       prevrow = row;
       prevcol = col;
@@ -2723,7 +2981,6 @@ function convert2Fen(pgn) {
     const chess = new Chess(fens[i]);
     fens.push(addMove2Fen(chess, fens[i], moves[i]));
   }
-  console.log(fens);
   return fens;
 }
 function pgn2Arr(pgn) {
@@ -2751,27 +3008,79 @@ function addMove2Fen(chess, fen, move) {
 }
 
 //StockFish API Calls
-async function callStockAPI(fen, depth = stockLvl) {
-  const url = `https://stockfish.online/api/s/v2.php?fen=${encodeURIComponent(
+function testStockfishServer(){
+  console.log("calling testStockfishServer");
+  const url = "https://stockfishserver.onrender.com/test/basic";
+  fetch(url,{method: 'GET'});
+}
+
+async function callStockAPI(fen="", depth = stockLvl,options={}) {
+  const baseServer = "https://stockfishserver.onrender.com/best-move";
+  //const baseServer = "https://stockfish.online/api/s/v2.php";
+  //https://stockfishserver.onrender.com/best-move?fen=rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR%20w%20KQkq%20-%200%201&depth=5
+  const url = `${baseServer}?fen=${encodeURIComponent(
     fen
   )}&depth=${depth}`;
   try {
-    const response = await fetch(url);
+    const response = await fetch(url,{
+      method: 'GET',
+      signal: options.signal, 
+    });
     const data = await response.json();
     return data;
   } catch (error) {
     console.error("Error fetching Stockfish API:", error);
-    return null;
+    throw error;
+    //return null;
   }
 }
-async function getBestMove(fen) {
+async function getBestMoveOld(fen) {
   const data = await callStockAPI(fen);
   if (data && data.success) {
     let bestmove = data.bestmove;
     return bestmove.slice("bestmove ".length, "bestmove ".length + 4);
+  } else if (data && data.raw){
+    return data.bestMove
+  }
+  else{
+    console.error("Invalid response from Stockfish API:", data);
+    return null;
+  }
+}
+
+async function getBestMove(fen) {
+  showCustomAlert("Fetching computer's move",false);
+  const data = await getBestMoveWithRetry(fen);
+  if (data && data.success) {
+    hideCustomAlert();
+    let bestmove = data.bestmove;
+    return bestmove.slice("bestmove ".length, "bestmove ".length + 4);
+  } else if (data && data.raw){
+    hideCustomAlert();
+    return data.bestMove;
   } else {
     console.error("Invalid response from Stockfish API:", data);
     return null;
+  }
+}
+
+async function getBestMoveWithRetry(fen, timeout = 10000, maxRetries = 8, retryDelay = 10000) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    try {
+      const result = await callStockAPI(fen, stockLvl,{ signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (result)
+        return result; 
+    } catch (err) {
+      console.log("Error in stockfish API call, attempt num=",attempt);
+      clearTimeout(timeoutId);
+      if (attempt === maxRetries) {
+        throw err; 
+      }
+    }
+    await new Promise(res => setTimeout(res, retryDelay)); // Optional delay before retry    }
   }
 }
 //UI Building
@@ -2787,7 +3096,7 @@ function makeDefaultColors() {
 }
 function makeDefaultUISettings1() {
   makeDefaultColors();
-  colRowBoolInitial = true;
+  colRowBoolInitial = window.innerWidth > mobileResponsiveMaxWidth; //true;
   colRowBool = colRowBoolInitial;
   imagePath = baseImagePath + pieceImagePaths[0];
 }
@@ -2798,7 +3107,7 @@ function makeDefaultUISettings2() {
   highlightPieceBool = highlightPieceBoolInitial;
   highlightPreviousBoolInitial = true;
   highlightPreviousBool = highlightPreviousBoolInitial;
-  highlightDotRadiusInitial = 16;
+  highlightDotRadiusInitial = window.innerWidth > mobileResponsiveMaxWidth ? 16 : 10;
   highlightDotRadius = highlightDotRadiusInitial;
 }
 function hello(a, b) {
@@ -2819,7 +3128,7 @@ function blendColors(colorA, colorB, amount) {
     .padStart(2, "0");
   return "#" + r + g + b;
 }
-function showCustomAlert(message) {
+function showCustomAlert(message,hide=true) {
   const alertBox = document.getElementById("customAlert");
   const alertMessage = document.getElementById("customAlertMessage");
   alertMessage.textContent = message;
@@ -2827,12 +3136,17 @@ function showCustomAlert(message) {
   alertBox.style.opacity = 1; // Fade in
 
   // Hide the alert after 2 seconds
-  setTimeout(function () {
-    alertBox.style.opacity = 0; // Fade out
+  if (hide)
     setTimeout(function () {
-      alertBox.style.display = "none";
-    }, 500); // Wait for the fade out transition to complete
-  }, 1000); // Display duration
+      alertBox.style.opacity = 0; // Fade out
+      setTimeout(function () {
+        alertBox.style.display = "none";
+      }, 500); // Wait for the fade out transition to complete
+    }, 1000); // Display duration
+}
+function hideCustomAlert(){
+  const alertBox = document.getElementById("customAlert");
+  alertBox.style.display = "none";
 }
 function updateBoxShadow() {
   this.style.boxShadow = `0 0 1px 1px ${this.value}`;
@@ -2878,8 +3192,18 @@ function showPopup(message) {
 function hidePopup() {
   const popupOverlay = document.getElementById("popupOverlay");
   const popup = document.getElementById("customPopup");
+  const gameOverPopup = document.getElementById("gameOverPopup");
   popupOverlay.classList.remove("visible");
   popup.classList.remove("visible");
+  gameOverPopup.classList.remove("visible");
+}
+function showGameOverPopup(message){
+  const popupOverlay = document.getElementById("popupOverlay");
+  const popup = document.getElementById("gameOverPopup");
+  const popupMessage = document.getElementById("gameOverMessage");
+  popupMessage.textContent = message;
+  popupOverlay.classList.add("visible");
+  popup.classList.add("visible");
 }
 function showStrengthPopup() {
   const overlay = document.getElementById("strengthOverlay");
@@ -2935,16 +3259,14 @@ function showStrengthPopup() {
       }
       // close
       hideStrengthPopup();
-
-      //Make Opponent name as Computer
-      let oppName = document.getElementById("opponentName");
-      oppName.value = "Computer";
-      oppName.disabled = true;
-      oppNameValue = "Computer";
+      timerId = null;
+      timerData=[];
+      flagComp.color=="white" ? oppNameValue = "Computer(W)" : oppNameValue="Computer(B)";
+      flagComp.color=="white" ? youNameValue = "You(B)" : youNameValue="You(W)";
       oppDisableStr = " disabled ";
-
       showCustomAlert("Your color is " + userCol);
-
+      tabClickedByUser = navArr[1];
+      makeRightBar();
       if (flagComp.color === "white") boardClickByUser(4, 4);
     };
   });
@@ -2960,7 +3282,10 @@ function hideStrengthPopup() {
 function handleConfirm() {
   handleBool = true;
   gameStartBool = false;
-  navActions(storeNavIndex);
+  gameStoreId = -1;
+  tabClickedByUser = storeNavIndex;
+  endCurrentGame();
+  navActions(storeNavIndex); //to end the current game
   //themeLogoChange("rt2");
   closeOptionsLeftDD();
   hidePopup();
@@ -3150,6 +3475,24 @@ let testCases = [
     pgnStr:
       "1.b4 g5 2.b5 a5 3.bxa6 g4 4.h4 gxh3 5.axb7 hxg2 6.bxc8=N gxf1=N 7.Nb6 Ng3 8.Nc4 Nf5 9.Nc3 Nc6 10.Nf3 Nf6 11.Na4 Nd5 12.Nab2 Nf4 13.Nd3 Ne6 14.Nce5 Ned4 15.Nc4 Ne6 16.Nde5 Nfd4 17.Nd3 Nf5 18.Nfe5 Ncd4 19.Nf3 Nc6 20.c3 Ne3 21.Nfe5 Nc2+ 22.Kf1 N2d4 23.Nxd7 Nc2 24.Nce5 N6d4 25.Nxf7 Nc6 26.N7e5 N6d4 27.Nd7 Nc6 28.Nfe5 Ned4 29.Nf7 Ne6 30.N3e5 N2d4 31.Nd3 Nc2",
   },
+  { name: "/mateQueen",
+    pgnStr: "1.e4 e5 2.d4 d5 3.Bg5 Qxg5 4.f3 dxe4 5.Na3 exf3 6.c4 Bb4+ 7.Kf2 fxg2 8.Bxg2 Qf4+ 9.Bf3 Qh4+ 10.Ke3 exd4+ 11.Kd3 Bf5+ 12.Be4 Bxe4+ 13.Ke2 d3+ 14.Ke3 Qg3+ 15.Kd4 Nc6+ 16.Kxe4 Nf6+ 17.Kf5 Qe5+"
+  },
+  { name: "/matePawn",
+    pgnStr: "1.f4 e5 2.fxe5 d6 3.exd6 Bxd6 4.Nf3 Nf6 5.d4 Nc6 6.Bg5 h6 7.Bh4 g5 8.Bf2 Ne4 9.e3 g4 10.Bh4 gxf3 11.Bxd8 f2+ 12.Ke2 Bg4+ 13.Kd3 Nb4+ 14.Kxe4 f5+"
+  },
+  { name: "/mateRook",
+    pgnStr: "1.e4 e5 2.d4 d5 3.Bg5 Qxg5 4.f3 dxe4 5.Na3 exf3 6.c4 Bb4+ 7.Kf2 fxg2 8.Bxg2 Qf4+ 9.Bf3 Qh4+ 10.Ke3 exd4+ 11.Kd3 Bf5+ 12.Be4 Bxe4+ 13.Ke2 d3+ 14.Ke3 Qg3+ 15.Kd4 Nc6+ 16.Kxe4 Nf6+ 17.Kf5 O-O 18.b3 Rae8 19.h3 Re5+"
+  },  
+  { name: "/mateKnight",
+    pgnStr: "1.e4 e5 2.d4 d5 3.Bg5 Qxg5 4.f3 dxe4 5.Na3 exf3 6.c4 Bb4+ 7.Kf2 fxg2 8.Bxg2 Qf4+ 9.Bf3 Qh4+ 10.Ke3 exd4+ 11.Kd3 Bf5+ 12.Be4 Bxe4+ 13.Ke2 d3+ 14.Ke3 Qg3+ 15.Kd4 Nc6+ 16.Kxe4 Nf6+ 17.Kf5 O-O 18.b3 Rae8 19.h3 Nd4+"
+  },  
+  { name: "/mateBishop",
+    pgnStr: "1.e4 e5 2.d4 d5 3.Bg5 Qxg5 4.f3 dxe4 5.Na3 exf3 6.c4 Bb4+ 7.Kf2 fxg2 8.Bxg2 Qf4+ 9.Bf3 Qh4+ 10.Ke3 exd4+ 11.Kd3 Bf5+ 12.Be4 Bxe4+ 13.Ke2 d3+ 14.Ke3 Qg3+ 15.Kd4 Nc6+ 16.Kxe4 Nf6+ 17.Kf5 O-O 18.b3 Qh3+ 19.Kg5 Be7 20.b4 Nd5+"
+  },
+  { name: "/mateEnPassant",
+    pgnStr: "1.e4 e6 2.d4 d5 3.e5 c5 4.c3 cxd4 5.cxd4 Bb4+ 6.Nc3 Nc6 7.Nf3 Nge7 8.Bd3 O-O 9.Bxh7+ Kxh7 10.Ng5+ Kg6 11.h4 Nxd4 12.Qg4 f5 13.h5+ Kh6 14.Nxe6+ g5 15.hxg6+"
+  }
 ];
 function runTestCases(num) {
   let results = [];
@@ -3181,3 +3524,271 @@ function runOneTestCase(gameJSON) {
     pgnStr.trim() === gameJSON.pgnStr.trim() ? "Matched" : "Error";
   return testResult;
 }
+
+
+//Login and Signup
+let isSignupMode = false;
+
+function showLoginPopup() {
+  console.log("showLoginPopup");
+  isSignupMode = false;
+  updatePopupMode();
+  document.getElementById("loginOverlay").classList.add("visible");
+  document.getElementById("loginPopup").classList.add("visible");
+}
+
+function hideLoginPopup(loginlogout=false) {
+  document.getElementById("loginOverlay").classList.remove("visible");
+  document.getElementById("loginPopup").classList.remove("visible");
+  updateMyAccountInNavbar(loginlogout);
+}
+
+function toggleSignup(signup) {
+  isSignupMode = signup;
+  updatePopupMode();
+}
+
+function updatePopupMode() {
+  const title = document.getElementById("popupTitle");
+  const confirmInput = document.getElementById("signupConfirm");
+  const mainBtn = document.getElementById("mainActionBtn");
+  const toggleText = document.getElementById("toggleText");
+  const toggleLink = document.getElementById("toggleLink");
+  if (isSignupMode) {
+    title.textContent = "Create an account";
+    confirmInput.style.display = "block";
+    mainBtn.textContent = "Sign Up";
+    toggleText.textContent = "Already have an account?";
+    toggleLink.textContent = "Login";
+    toggleLink.setAttribute("onclick", "toggleSignup(false)");
+  } else {
+    title.textContent = "Login to continue";
+    confirmInput.style.display = "none";
+    mainBtn.textContent = "Login";
+    toggleText.textContent = "Don't have an account?";
+    toggleLink.textContent = "Sign Up";
+    toggleLink.setAttribute("onclick", "toggleSignup(true)");
+  }
+}
+
+async function submitLoginOrSignup() {
+  const username = document.getElementById("loginUsername").value.trim();
+  const password = document.getElementById("loginPassword").value.trim();
+  const confirm = document.getElementById("signupConfirm").value.trim();
+  if (!username || !password || (isSignupMode && !confirm)) {
+    showCustomAlert("Please fill out all required fields.");
+    return;
+  }
+  if (isSignupMode && password !== confirm) {
+    showCustomAlert("Passwords do not match.");
+    return;
+  }
+  let resData = null;
+  showCustomAlert("Communicating with the server",false);
+  if (isSignupMode)
+    resData = await callSignupAPI(username,password);
+  else
+    resData = await callLoginAPI(username,password);
+  if (resData && resData.success){
+    userToken = resData.token;
+    myAccountName = username;
+    localStorage.setItem('userInfo', JSON.stringify({userToken:userToken,myAccountName:myAccountName}));
+    document.getElementById("loginUsername").value = "";
+    document.getElementById("loginPassword").value = "";
+    document.getElementById("signupConfirm").value = "";
+    hideLoginPopup(true);
+  }
+}
+
+function showLogoutPopup() {
+  document.getElementById("logoutOverlay").classList.add("visible");
+  document.getElementById("logoutPopup").classList.add("visible");
+}
+
+function hideLogoutPopup() {
+  document.getElementById("logoutOverlay").classList.remove("visible");
+  document.getElementById("logoutPopup").classList.remove("visible");
+  updateMyAccountInNavbar();
+}
+
+function confirmLogout() {
+  userToken = null;
+  myAccountName = null;
+  localStorage.removeItem('userInfo');
+  hideLogoutPopup();
+  showCustomAlert("Logged out successfully!");
+  if (displayOnScreen===navArr[2])
+    navActions(0);
+}
+function testChessServer(){
+  console.log("calling testChessServer");
+  const url = "https://chessserver-w8ou.onrender.com/test/basic";
+  fetch(url,{method: 'GET'});
+}
+
+async function callLoginSignupAPI(subUrl,username,password){
+  const url = "https://chessserver-w8ou.onrender.com/api/"+subUrl;
+  const response = await fetch(url,{
+    method: 'POST',
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        username,
+        password
+      })  
+  });
+  return response;
+}
+
+async function callSignupAPI(username,password) {
+  try {
+    const response = await callLoginSignupAPI("signup",username,password);
+    const data = await response.json();
+    if (!response.ok) {
+      showCustomAlert("Signup failed.");
+      return data;
+    }
+    if (data.success){
+      showCustomAlert("User account created!");
+      hideLoginPopup(true);
+      return data;
+    }
+    else {
+      showCustomAlert(data.message);
+      return null;      
+    }
+  } catch (error) {
+    console.error("Error signing up new user:", error);
+    showCustomAlert("Something went wrong. Please try again.");
+    return null;
+  }
+}
+
+async function callLoginAPI(username,password) {
+  try {
+    const response = await callLoginSignupAPI("login",username,password);
+    const data = await response.json();
+    if (!response.ok) {
+      showCustomAlert("Login failed.");
+      return null;
+    }
+    if (data.success){
+      showCustomAlert(data.message);
+      hideLoginPopup(true);
+      return data;
+    }
+    else {
+      showCustomAlert(data.message);
+      return null;      
+    }
+  } catch (error) {
+    console.error("Error in login:", error);
+    showCustomAlert("Something went wrong. Please try again.");
+    return null;
+  }
+}
+async function storeGameData(){
+  if (!userToken)
+    return;
+  myColor = "white";
+  if (flagComp.comp && flagComp.color === "white")
+    myColor = "black";
+  oppComp = "Player Mode";
+  if (flagComp.comp) 
+    oppComp = "Computer Mode: Stockfish Level "+stockLvl;
+  gameDetails = {id : gameStoreId, color : myColor, computer: oppComp, timeWhite: 0, timeBlack:0, pgn:pgnStr};
+  data = await callStoreGameAPI(gameDetails);
+  if (data && data.success)
+    gameStoreId = data.gameId;
+}
+async function callStoreGameAPI(gameDetails) {
+  try {
+    const url = "https://chessserver-w8ou.onrender.com/api/postGame";
+    const authString = "Bearer " + (userToken ? userToken : "");
+    const response = await fetch(url,{
+      method: 'POST',
+      headers: {
+        "Authorization": authString,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+          gameDetails
+        })  
+    });
+    if (!response.ok)
+      return null;
+    const data = await response.json();
+    return data;
+  }
+  catch (error){
+    console.log("callStoreGameAPI:::",error);
+    return null;
+  }
+}
+
+async function getGamesPlayed() {
+  try {
+    const url = "https://chessserver-w8ou.onrender.com/api/getGames";
+    const authString = "Bearer " + (userToken ? userToken : "");
+    const response = await fetch(url,{
+      method: 'GET',
+      headers: {
+        "Authorization": authString,
+        "Content-Type": "application/json"
+      },
+    });
+    if (!response.ok)
+      return null;
+    const data = await response.json();
+    return data;
+  }
+  catch (error){
+    console.log("callStoreGameAPI:::",error);
+    return null;
+  }
+}
+function analyseGame(index){
+  showCustomAlert("Under maintenance");
+}
+async function makeGamesPlayed(gamesPlayed){
+  if (!userToken)
+    return;
+  showCustomAlert("Fetching from the server",false);
+  gamesPlayed = await getGamesPlayed();
+  hideCustomAlert();
+  if (!gamesPlayed){
+    showCustomAlert("Failed to fetch");
+    return;
+  }
+  tabClickedByUser = navArr[2];
+  clearMobileTimers();
+  document.getElementById("leftbar").innerHTML = "";
+  document.getElementById("rightbar").innerHTML = "";
+  gamePlayedStr =
+    "<div class='col p-0 mb-2 mx-1 bg-transparent '><div class='row justify-content-center'><span class='p-3 btn-green w-100 h-100'><span>Games Played</span></span></div></div>";
+  gameStr = "";
+  gamesPlayed.games.forEach(function (game, index) {
+    gameStr += `
+      <div class='games-history-card mb-3 text-start p-3'>
+        <div class='d-flex justify-content-between align-items-center mb-1'>
+          <div><strong>Game #${index + 1}</strong> (${game.color})&nbsp;&nbsp;${game.computer}</div>
+          <button class='btn btn-success btn-sm' onclick='analyseGame(${index})'>Analyse Game</button>
+        </div>
+        <div class='pgn-preview'>
+          <code>${game.pgn}</code>
+        </div>
+      </div>
+    `;
+  });
+  displayStr =
+    "<div class='containerFrame text-center'>" + 
+    gamePlayedStr +
+    "<div class='scroll-container'>" +
+    gameStr +
+    "</div></div></div>";
+  document.getElementById("display").innerHTML = displayStr;
+  displayOnScreen = navArr[2];
+}
+
+
