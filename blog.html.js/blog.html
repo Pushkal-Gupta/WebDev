@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pushkal Gupta Blog</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --mono: "Space Mono", monospace;
+        --serif: "Lora", serif;
+        --t: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* DARK: Chess Palette */
+      [data-theme="dark"] {
+        --bg: #030a0a;
+        --text-main: #ffffff;
+        --text-dim: #5c8582;
+        --accent: #00fff5;
+        --border: #0f2b29;
+        --hover-box: rgba(0, 255, 245, 0.04);
+      }
+
+      /* LIGHT: Editorial Palette */
+      [data-theme="light"] {
+        --bg: #f5f2ed;
+        --text-main: #1a1a1a;
+        --text-dim: #666666;
+        --accent: #008a7e;
+        --border: #e0ddd7;
+        --hover-box: rgba(0, 138, 126, 0.05);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: var(--bg);
+        color: var(--text-main);
+        font-family: var(--serif);
+        line-height: 1.7;
+        transition:
+          background var(--t),
+          color var(--t);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .container {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 0 2rem;
+      }
+      .hidden {
+        display: none;
+      }
+
+      /* --- Header --- */
+      header {
+        padding: 6rem 0 3rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .brand-link {
+        text-decoration: none;
+        font-family: var(--serif);
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--text-main);
+        letter-spacing: -0.02em;
+      }
+
+      /* --- Toggle --- */
+      .toggle-wrap {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        cursor: pointer;
+      }
+      .toggle-label {
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        color: var(--text-dim);
+        text-transform: uppercase;
+      }
+      .switch-base {
+        width: 34px;
+        height: 18px;
+        background: var(--border);
+        border-radius: 20px;
+        position: relative;
+      }
+      .switch-base::after {
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 14px;
+        height: 14px;
+        background: var(--text-dim);
+        border-radius: 50%;
+        transition: transform var(--t);
+      }
+      [data-theme="dark"] .switch-base {
+        background: var(--accent);
+      }
+      [data-theme="dark"] .switch-base::after {
+        transform: translateX(16px);
+        background: var(--bg);
+      }
+
+      .tagline {
+        font-family: var(--serif);
+        font-style: italic;
+        color: var(--text-dim);
+        font-size: 1.1rem;
+        margin-bottom: 4rem;
+      }
+
+      /* --- Feed (Chess Style Highlight) --- */
+      .feed-container {
+        margin-top: 2rem;
+      }
+
+      .feed-item {
+        display: grid;
+        grid-template-columns: 140px 1fr;
+        padding: 1.25rem 1rem;
+        border-bottom: 1px solid var(--border);
+        cursor: pointer;
+        transition: all var(--t);
+        margin: 0 -1rem; /* Allows highlight to bleed out slightly */
+        border-radius: 4px;
+      }
+
+      .post-date {
+        font-family: var(--mono);
+        font-size: 0.85rem;
+        color: var(--text-dim);
+        transition: color var(--t);
+      }
+
+      .post-title {
+        font-family: var(--serif);
+        font-size: 1.25rem;
+        color: var(--text-main);
+        transition: all var(--t);
+      }
+
+      /* The Box Highlight Animation */
+      .feed-item:hover {
+        background: var(--hover-box);
+        padding-left: 1.5rem; /* Slight slide in effect */
+      }
+
+      .feed-item:hover .post-title {
+        color: var(--accent);
+      }
+
+      /* --- Post Reader --- */
+      #post-view {
+        animation: fadeIn 0.4s ease;
+        padding-bottom: 8rem;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .back-nav {
+        margin: 2rem 0 3rem;
+      }
+      .back-btn {
+        font-family: var(--mono);
+        font-size: 0.8rem;
+        color: var(--text-dim);
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .back-btn:hover {
+        color: var(--accent);
+      }
+
+      .full-post-title {
+        font-family: var(--serif);
+        font-size: 2.8rem;
+        font-weight: 700;
+        line-height: 1.1;
+        margin-bottom: 3rem;
+        letter-spacing: -0.03em;
+      }
+
+      iframe {
+        width: 100%;
+        border: none;
+        min-height: 80vh;
+        background: transparent;
+      }
+
+      .footer-sig {
+        margin-top: 6rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border);
+        font-family: var(--serif);
+        font-weight: 700;
+        font-size: 1.5rem;
+      }
+
+      @media (max-width: 600px) {
+        .feed-item {
+          grid-template-columns: 1fr;
+          gap: 0.5rem;
+          padding: 1rem;
+          margin: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <a
+          href="https://pushkalgupta.com/PG.html.js/main.html#"
+          class="brand-link"
+          >Pushkal Gupta Blog</a
+        >
+        <div class="toggle-wrap" onclick="toggleTheme()">
+          <span class="toggle-label" id="mode-label">Dark</span>
+          <div class="switch-base"></div>
+        </div>
+      </header>
+
+      <main id="home-view">
+        <p class="tagline">
+          Exploring systems from first principles. Writing to understand things
+          clearly.
+        </p>
+        <div class="feed-container" id="post-list"></div>
+      </main>
+
+      <main id="post-view" class="hidden">
+        <div class="back-nav">
+          <span class="back-btn" onclick="showHome()">← INDEX</span>
+        </div>
+        <h2 id="p-title" class="full-post-title"></h2>
+        <div id="p-content"></div>
+        <div class="footer-sig">Pushkal Gupta</div>
+      </main>
+    </div>
+
+    <script>
+      const POSTS = [
+        {
+          date: "2026.03.24",
+          title: "The Architecture of Simple Systems",
+          file: "simple-systems.html",
+        },
+        {
+          date: "2026.02.10",
+          title: "First Principles Thinking",
+          file: "first-principles.html",
+        },
+      ];
+
+      function init() {
+        const list = document.getElementById("post-list");
+        const sorted = POSTS.sort(
+          (a, b) =>
+            new Date(b.date.replace(/\./g, "-")) -
+            new Date(a.date.replace(/\./g, "-")),
+        );
+        list.innerHTML = sorted
+          .map(
+            (p) => `
+            <div class="feed-item" onclick="loadPost('${p.date}')">
+                <div class="post-date">${p.date}</div>
+                <div class="post-title">${p.title}</div>
+            </div>
+        `,
+          )
+          .join("");
+      }
+
+      function loadPost(dateId) {
+        const p = POSTS.find((x) => x.date === dateId);
+        document.getElementById("home-view").classList.add("hidden");
+        document.getElementById("post-view").classList.remove("hidden");
+        document.getElementById("p-title").innerText = p.title;
+
+        const stage = document.getElementById("p-content");
+        stage.innerHTML = "";
+        const ifr = document.createElement("iframe");
+        ifr.src = p.file;
+
+        ifr.onload = function () {
+          try {
+            ifr.style.height =
+              ifr.contentWindow.document.body.scrollHeight + 50 + "px";
+          } catch (e) {
+            ifr.style.height = "80vh";
+          }
+        };
+        stage.appendChild(ifr);
+        window.scrollTo(0, 0);
+      }
+
+      function showHome() {
+        document.getElementById("home-view").classList.remove("hidden");
+        document.getElementById("post-view").classList.add("hidden");
+        window.scrollTo(0, 0);
+      }
+
+      function toggleTheme() {
+        const html = document.documentElement;
+        const isDark = html.getAttribute("data-theme") === "dark";
+        const target = isDark ? "light" : "dark";
+        html.setAttribute("data-theme", target);
+        document.getElementById("mode-label").innerText = isDark
+          ? "Light"
+          : "Dark";
+      }
+
+      init();
+    </script>
+  </body>
+</html>
