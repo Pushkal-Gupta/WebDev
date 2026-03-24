@@ -13,26 +13,25 @@
         --mono: "Space Mono", monospace;
         --serif: "Lora", serif;
         --t: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        --container-width: 900px;
       }
 
-      /* DARK: Chess Palette */
       [data-theme="dark"] {
         --bg: #030a0a;
         --text-main: #ffffff;
         --text-dim: #5c8582;
         --accent: #00fff5;
         --border: #0f2b29;
-        --hover-box: rgba(0, 255, 245, 0.04);
+        --hover-box: rgba(0, 255, 245, 0.06);
       }
 
-      /* LIGHT: Editorial Palette */
       [data-theme="light"] {
         --bg: #f5f2ed;
         --text-main: #1a1a1a;
         --text-dim: #666666;
         --accent: #008a7e;
         --border: #e0ddd7;
-        --hover-box: rgba(0, 138, 126, 0.05);
+        --hover-box: rgba(0, 138, 126, 0.07);
       }
 
       * {
@@ -53,17 +52,19 @@
       }
 
       .container {
-        max-width: 720px;
+        width: 90%;
+        max-width: var(--container-width);
         margin: 0 auto;
-        padding: 0 2rem;
+        padding: 0 1rem;
       }
+
       .hidden {
-        display: none;
+        display: none !important;
       }
 
       /* --- Header --- */
       header {
-        padding: 6rem 0 3rem;
+        padding: 6vw 0 3vw;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -72,13 +73,11 @@
       .brand-link {
         text-decoration: none;
         font-family: var(--serif);
-        font-size: 1.8rem;
+        font-size: clamp(1.4rem, 4vw, 2.2rem);
         font-weight: 700;
         color: var(--text-main);
-        letter-spacing: -0.02em;
       }
 
-      /* --- Toggle --- */
       .toggle-wrap {
         display: flex;
         align-items: center;
@@ -121,115 +120,98 @@
         font-family: var(--serif);
         font-style: italic;
         color: var(--text-dim);
-        font-size: 1.1rem;
-        margin-bottom: 4rem;
+        font-size: clamp(1rem, 2vw, 1.2rem);
+        margin-bottom: 5vw;
       }
 
-      /* --- Feed (Chess Style Highlight) --- */
-      .feed-container {
-        margin-top: 2rem;
-      }
-
+      /* --- Feed --- */
       .feed-item {
         display: grid;
-        grid-template-columns: 140px 1fr;
-        padding: 1.25rem 1rem;
+        grid-template-columns: 160px 1fr;
+        padding: 1.5rem 1.25rem;
         border-bottom: 1px solid var(--border);
         cursor: pointer;
         transition: all var(--t);
-        margin: 0 -1rem; /* Allows highlight to bleed out slightly */
-        border-radius: 4px;
+        margin: 0 -1.25rem;
+        border-radius: 6px;
       }
-
-      .post-date {
-        font-family: var(--mono);
-        font-size: 0.85rem;
-        color: var(--text-dim);
-        transition: color var(--t);
-      }
-
-      .post-title {
-        font-family: var(--serif);
-        font-size: 1.25rem;
-        color: var(--text-main);
-        transition: all var(--t);
-      }
-
-      /* The Box Highlight Animation */
       .feed-item:hover {
         background: var(--hover-box);
-        padding-left: 1.5rem; /* Slight slide in effect */
+        padding-left: 2rem;
       }
-
       .feed-item:hover .post-title {
         color: var(--accent);
       }
 
-      /* --- Post Reader --- */
-      #post-view {
-        animation: fadeIn 0.4s ease;
-        padding-bottom: 8rem;
+      .post-date {
+        font-family: var(--mono);
+        font-size: 0.9rem;
+        color: var(--text-dim);
       }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
+      .post-title {
+        font-family: var(--serif);
+        font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+        color: var(--text-main);
+        transition: all var(--t);
       }
 
-      .back-nav {
-        margin: 2rem 0 3rem;
+      /* --- Full Screen Reader --- */
+      #post-view {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: var(--bg);
+        z-index: 1000;
+        overflow-y: auto;
       }
-      .back-btn {
+
+      .reader-controls {
+        position: fixed;
+        top: 2rem;
+        left: 2rem;
+        z-index: 1001;
+      }
+
+      .close-btn {
         font-family: var(--mono);
         font-size: 0.8rem;
         color: var(--text-dim);
-        text-decoration: none;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        padding: 0.5rem 1rem;
         cursor: pointer;
+        text-transform: uppercase;
       }
-      .back-btn:hover {
+      .close-btn:hover {
         color: var(--accent);
-      }
-
-      .full-post-title {
-        font-family: var(--serif);
-        font-size: 2.8rem;
-        font-weight: 700;
-        line-height: 1.1;
-        margin-bottom: 3rem;
-        letter-spacing: -0.03em;
+        border-color: var(--accent);
       }
 
       iframe {
         width: 100%;
+        height: 100vh;
         border: none;
-        min-height: 80vh;
-        background: transparent;
-      }
-
-      .footer-sig {
-        margin-top: 6rem;
-        padding-top: 2rem;
-        border-top: 1px solid var(--border);
-        font-family: var(--serif);
-        font-weight: 700;
-        font-size: 1.5rem;
+        display: block;
       }
 
       @media (max-width: 600px) {
         .feed-item {
           grid-template-columns: 1fr;
-          gap: 0.5rem;
-          padding: 1rem;
+          gap: 0.4rem;
+          padding: 1.25rem 1rem;
           margin: 0;
+        }
+        .reader-controls {
+          top: 1rem;
+          left: 1rem;
         }
       }
     </style>
   </head>
   <body>
-    <div class="container">
+    <div class="container" id="main-ui">
       <header>
         <a
           href="https://pushkalgupta.com/PG.html.js/main.html#"
@@ -249,28 +231,29 @@
         </p>
         <div class="feed-container" id="post-list"></div>
       </main>
+    </div>
 
-      <main id="post-view" class="hidden">
-        <div class="back-nav">
-          <span class="back-btn" onclick="showHome()">← INDEX</span>
-        </div>
-        <h2 id="p-title" class="full-post-title"></h2>
-        <div id="p-content"></div>
-        <div class="footer-sig">Pushkal Gupta</div>
-      </main>
+    <div id="post-view" class="hidden">
+      <div class="reader-controls">
+        <button class="close-btn" onclick="showHome()">← Exit Article</button>
+      </div>
+      <div id="p-content"></div>
     </div>
 
     <script>
+      // --- POSTS CONFIGURATION ---
       const POSTS = [
         {
           date: "2026.03.24",
           title: "The Architecture of Simple Systems",
-          file: "simple-systems.html",
+          darkFile: "simple-systems-dark.html",
+          lightFile: "simple-systems-light.html",
         },
         {
           date: "2026.02.10",
           title: "First Principles Thinking",
-          file: "first-principles.html",
+          darkFile: "first-principles-dark.html",
+          lightFile: "first-principles-light.html",
         },
       ];
 
@@ -295,30 +278,25 @@
 
       function loadPost(dateId) {
         const p = POSTS.find((x) => x.date === dateId);
-        document.getElementById("home-view").classList.add("hidden");
+        const currentTheme =
+          document.documentElement.getAttribute("data-theme");
+        const fileToLoad = currentTheme === "dark" ? p.darkFile : p.lightFile;
+
+        document.getElementById("main-ui").classList.add("hidden");
         document.getElementById("post-view").classList.remove("hidden");
-        document.getElementById("p-title").innerText = p.title;
+        document.body.style.overflow = "hidden";
 
         const stage = document.getElementById("p-content");
         stage.innerHTML = "";
         const ifr = document.createElement("iframe");
-        ifr.src = p.file;
-
-        ifr.onload = function () {
-          try {
-            ifr.style.height =
-              ifr.contentWindow.document.body.scrollHeight + 50 + "px";
-          } catch (e) {
-            ifr.style.height = "80vh";
-          }
-        };
+        ifr.src = fileToLoad;
         stage.appendChild(ifr);
-        window.scrollTo(0, 0);
       }
 
       function showHome() {
-        document.getElementById("home-view").classList.remove("hidden");
+        document.getElementById("main-ui").classList.remove("hidden");
         document.getElementById("post-view").classList.add("hidden");
+        document.body.style.overflow = "auto";
         window.scrollTo(0, 0);
       }
 
