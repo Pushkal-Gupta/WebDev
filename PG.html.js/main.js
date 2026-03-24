@@ -314,17 +314,17 @@ function moreDetails(indexCheck) {
   displayEle.innerHTML = displayStr;
 }
 function goToSite(index) {
-  if (index === 0) {
+  if (index === 5) {
     window.location.href = "../PG.Quiz/Quiz.html";
-  } else if (index === 1) {
-    window.location.href = "../studentSystem.html.js/p1.html";
-  } else if (index === 2) {
-    window.location.href = "../employeeSystem.html.js/p2.html";
-  } else if (index === 3) {
-    window.location.href = "../PG.Web_Basics/index.html";
   } else if (index === 4) {
+    window.location.href = "../studentSystem.html.js/p1.html";
+  } else if (index === 3) {
+    window.location.href = "../employeeSystem.html.js/p2.html";
+  } else if (index === 2) {
+    window.location.href = "../PG.Web_Basics/index.html";
+  } else if (index === 1) {
     window.location.href = "../chess.html.js/p3.html#";
-  } else if (index === 5) {
+  } else if (index === 50) {
     window.location.href = "../PG.html.js/main.html#";
   }
 }
