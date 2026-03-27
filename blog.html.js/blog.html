@@ -2,315 +2,102 @@
 <html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
     <title>Pushkal Gupta Blog</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <style>
-      :root {
-        --mono: "Space Mono", monospace;
-        --serif: "Lora", serif;
-        --t: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        --container-width: 900px;
-      }
-
-      [data-theme="dark"] {
-        --bg: #030a0a;
-        --text-main: #ffffff;
-        --text-dim: #5c8582;
-        --accent: #00fff5;
-        --border: #0f2b29;
-        --hover-box: rgba(0, 255, 245, 0.06);
-      }
-
-      [data-theme="light"] {
-        --bg: #f5f2ed;
-        --text-main: #1a1a1a;
-        --text-dim: #666666;
-        --accent: #008a7e;
-        --border: #e0ddd7;
-        --hover-box: rgba(0, 138, 126, 0.07);
-      }
-
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-
-      body {
-        background-color: var(--bg);
-        color: var(--text-main);
-        font-family: var(--serif);
-        line-height: 1.7;
-        transition:
-          background var(--t),
-          color var(--t);
-        -webkit-font-smoothing: antialiased;
-      }
-
-      .container {
-        width: 90%;
-        max-width: var(--container-width);
-        margin: 0 auto;
-        padding: 0 1rem;
-      }
-
-      .hidden {
-        display: none !important;
-      }
-
-      /* --- Header --- */
-      header {
-        padding: 6vw 0 3vw;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .brand-link {
-        text-decoration: none;
-        font-family: var(--serif);
-        font-size: clamp(1.4rem, 4vw, 2.2rem);
-        font-weight: 700;
-        color: var(--text-main);
-      }
-
-      .toggle-wrap {
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-        cursor: pointer;
-      }
-      .toggle-label {
-        font-family: var(--mono);
-        font-size: 0.7rem;
-        color: var(--text-dim);
-        text-transform: uppercase;
-      }
-      .switch-base {
-        width: 34px;
-        height: 18px;
-        background: var(--border);
-        border-radius: 20px;
-        position: relative;
-      }
-      .switch-base::after {
-        content: "";
-        position: absolute;
-        top: 2px;
-        left: 2px;
-        width: 14px;
-        height: 14px;
-        background: var(--text-dim);
-        border-radius: 50%;
-        transition: transform var(--t);
-      }
-      [data-theme="dark"] .switch-base {
-        background: var(--accent);
-      }
-      [data-theme="dark"] .switch-base::after {
-        transform: translateX(16px);
-        background: var(--bg);
-      }
-
-      .tagline {
-        font-family: var(--serif);
-        font-style: italic;
-        color: var(--text-dim);
-        font-size: clamp(1rem, 2vw, 1.2rem);
-        margin-bottom: 5vw;
-      }
-
-      /* --- Feed --- */
-      .feed-item {
-        display: grid;
-        grid-template-columns: 160px 1fr;
-        padding: 1.5rem 1.25rem;
-        border-bottom: 1px solid var(--border);
-        cursor: pointer;
-        transition: all var(--t);
-        margin: 0 -1.25rem;
-        border-radius: 6px;
-      }
-      .feed-item:hover {
-        background: var(--hover-box);
-        padding-left: 2rem;
-      }
-      .feed-item:hover .post-title {
-        color: var(--accent);
-      }
-
-      .post-date {
-        font-family: var(--mono);
-        font-size: 0.9rem;
-        color: var(--text-dim);
-      }
-      .post-title {
-        font-family: var(--serif);
-        font-size: clamp(1.1rem, 2.5vw, 1.4rem);
-        color: var(--text-main);
-        transition: all var(--t);
-      }
-
-      /* --- Full Screen Reader --- */
-      #post-view {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: var(--bg);
-        z-index: 1000;
-        overflow-y: auto;
-      }
-
-      .reader-controls {
-        position: fixed;
-        top: 2rem;
-        left: 2rem;
-        z-index: 1001;
-      }
-
-      .close-btn {
-        font-family: var(--mono);
-        font-size: 0.8rem;
-        color: var(--text-dim);
-        background: var(--bg);
-        border: 1px solid var(--border);
-        padding: 0.5rem 1rem;
-        cursor: pointer;
-        text-transform: uppercase;
-      }
-      .close-btn:hover {
-        color: var(--accent);
-        border-color: var(--accent);
-      }
-
-      iframe {
-        width: 100%;
-        height: 100vh;
-        border: none;
-        display: block;
-      }
-
-      @media (max-width: 600px) {
-        .feed-item {
-          grid-template-columns: 1fr;
-          gap: 0.4rem;
-          padding: 1.25rem 1rem;
-          margin: 0;
-        }
-        .reader-controls {
-          top: 1rem;
-          left: 1rem;
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="blog.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body>
-    <div class="container" id="main-ui">
-      <header>
-        <a
-          href="https://pushkalgupta.com/PG.html.js/main.html#"
-          class="brand-link"
-          >Pushkal Gupta Blog</a
-        >
-        <div class="toggle-wrap" onclick="toggleTheme()">
-          <span class="toggle-label" id="mode-label">Dark</span>
-          <div class="switch-base"></div>
+    <header>
+      <div class="container">
+        <div class="nav-group">
+          <a
+            href="#"
+            onclick="
+              showHome();
+              return false;
+            "
+            class="brand-link"
+            >Pushkal Gupta Blog</a
+          >
+          <div class="header-right">
+            <div class="toggle-wrap" onclick="toggleTheme()">
+              <span class="toggle-label" id="mode-label">Dark</span>
+              <div class="switch-base"></div>
+            </div>
+            <button id="auth-btn" class="auth-btn" onclick="handleAuth()">
+              LOGIN
+            </button>
+          </div>
         </div>
-      </header>
+      </div>
+    </header>
 
+    <div class="container" id="main-ui">
       <main id="home-view">
         <p class="tagline">
           Exploring systems from first principles. Writing to understand things
           clearly.
         </p>
-        <div class="feed-container" id="post-list"></div>
+        <div id="post-list"></div>
       </main>
     </div>
 
     <div id="post-view" class="hidden">
-      <div class="reader-controls">
-        <button class="close-btn" onclick="showHome()">← Exit Article</button>
+      <div id="p-content"><div id="loader" class="hidden"></div></div>
+      <div class="container">
+        <div class="comments-section">
+          <div class="comment-count" id="c-count">0 Comments</div>
+          <div id="comment-input-area"></div>
+          <div id="comments-list" style="margin-top: 3rem"></div>
+        </div>
       </div>
-      <div id="p-content"></div>
     </div>
 
-    <script>
-      // --- POSTS CONFIGURATION ---
-      const POSTS = [
-        {
-          date: "2026.03.24",
-          title: "The Architecture of Simple Systems",
-          darkFile: "simple-systems-dark.html",
-          lightFile: "simple-systems-light.html",
-        },
-        {
-          date: "2026.02.10",
-          title: "First Principles Thinking",
-          darkFile: "first-principles-dark.html",
-          lightFile: "first-principles-light.html",
-        },
-      ];
+    <div id="auth-modal" class="hidden">
+      <div class="modal-content">
+        <h3 id="modal-title">Welcome Back</h3>
+        <button class="google-login-btn" onclick="loginWithGoogle()">
+          <img
+            src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+            alt="G"
+          />
+          Continue with Google
+        </button>
+        <div class="divider"><span>or use email</span></div>
+        <div id="email-fields">
+          <input type="email" id="auth-email" placeholder="Email address" />
+          <div id="password-container">
+            <input type="password" id="auth-password" placeholder="Password" />
+          </div>
+          <button
+            onclick="submitAuth()"
+            id="submit-auth-btn"
+            class="primary-btn"
+          >
+            Continue
+          </button>
+        </div>
+        <div class="modal-footer">
+          <p id="auth-switch-text">
+            New here?
+            <span onclick="setAuthMode('signup')">Create account</span>
+          </p>
+          <p id="forgot-password-link">
+            <span onclick="setAuthMode('reset')">Forgot password?</span>
+          </p>
+        </div>
+        <button onclick="closeAuthModal()" class="close-x">×</button>
+      </div>
+    </div>
 
-      function init() {
-        const list = document.getElementById("post-list");
-        const sorted = POSTS.sort(
-          (a, b) =>
-            new Date(b.date.replace(/\./g, "-")) -
-            new Date(a.date.replace(/\./g, "-")),
-        );
-        list.innerHTML = sorted
-          .map(
-            (p) => `
-            <div class="feed-item" onclick="loadPost('${p.date}')">
-                <div class="post-date">${p.date}</div>
-                <div class="post-title">${p.title}</div>
-            </div>
-        `,
-          )
-          .join("");
-      }
-
-      function loadPost(dateId) {
-        const p = POSTS.find((x) => x.date === dateId);
-        const currentTheme =
-          document.documentElement.getAttribute("data-theme");
-        const fileToLoad = currentTheme === "dark" ? p.darkFile : p.lightFile;
-
-        document.getElementById("main-ui").classList.add("hidden");
-        document.getElementById("post-view").classList.remove("hidden");
-        document.body.style.overflow = "hidden";
-
-        const stage = document.getElementById("p-content");
-        stage.innerHTML = "";
-        const ifr = document.createElement("iframe");
-        ifr.src = fileToLoad;
-        stage.appendChild(ifr);
-      }
-
-      function showHome() {
-        document.getElementById("main-ui").classList.remove("hidden");
-        document.getElementById("post-view").classList.add("hidden");
-        document.body.style.overflow = "auto";
-        window.scrollTo(0, 0);
-      }
-
-      function toggleTheme() {
-        const html = document.documentElement;
-        const isDark = html.getAttribute("data-theme") === "dark";
-        const target = isDark ? "light" : "dark";
-        html.setAttribute("data-theme", target);
-        document.getElementById("mode-label").innerText = isDark
-          ? "Light"
-          : "Dark";
-      }
-
-      init();
-    </script>
+    <script src="blog.js"></script>
   </body>
 </html>

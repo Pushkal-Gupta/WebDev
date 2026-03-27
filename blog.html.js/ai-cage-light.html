@@ -1,0 +1,3912 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI and the Lion's Cage — The Last Tool We Build</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f5f2ed;
+        --card: #ffffff;
+        --text: #1a1a1a;
+        --muted: #3a3a3a;
+        --dim: #666666;
+        --border: #e0ddd7;
+        --accent: #007a72;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Inter", system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 18px;
+        line-height: 1.85;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 60px 24px 120px;
+      }
+      h1 {
+        font-size: clamp(26px, 5vw, 40px);
+        font-weight: 700;
+        line-height: 1.15;
+        margin-bottom: 48px;
+        padding-bottom: 32px;
+        border-bottom: 1px solid var(--border);
+      }
+      h2 {
+        font-size: clamp(20px, 4vw, 26px);
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 20px;
+      }
+      h3 {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--dim);
+        margin: 36px 0 14px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid var(--border);
+      }
+      p {
+        margin-bottom: 20px;
+      }
+      strong {
+        font-weight: 600;
+      }
+      em {
+        font-style: italic;
+      }
+      hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 52px 0;
+      }
+      .sec-label {
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin: 60px 0 8px;
+      }
+      /* Pull quote */
+      .pq {
+        border-left: 3px solid var(--accent);
+        padding: 14px 20px;
+        margin: 32px 0;
+        font-size: 19px;
+        font-weight: 500;
+        line-height: 1.6;
+        color: var(--text);
+      }
+      /* Callout */
+      .callout {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--dim);
+        padding: 20px 22px;
+        margin: 28px 0;
+        border-radius: 4px;
+      }
+      .callout.red {
+        border-left-color: #e05050;
+      }
+      .callout.amber {
+        border-left-color: #c8962a;
+      }
+      .callout.purple {
+        border-left-color: #9080d0;
+      }
+      .callout-label {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--dim);
+        margin-bottom: 10px;
+      }
+      .callout p {
+        font-size: 16px;
+        line-height: 1.75;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+      .callout p:last-child {
+        margin-bottom: 0;
+      }
+      /* Bullet list */
+      ul.bl {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 24px;
+      }
+      ul.bl li {
+        padding: 10px 0 10px 22px;
+        position: relative;
+        font-size: 17px;
+        line-height: 1.8;
+        border-bottom: 1px solid var(--border);
+      }
+      ul.bl li:last-child {
+        border-bottom: none;
+      }
+      ul.bl li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 20px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+      /* Citation */
+      .cite {
+        font-size: 15px;
+        color: var(--muted);
+        background: var(--card);
+        border-left: 2px solid var(--border);
+        padding: 12px 18px;
+        margin: 20px 0;
+        line-height: 1.7;
+      }
+      .cite-source {
+        display: block;
+        font-size: 11px;
+        color: var(--dim);
+        margin-top: 6px;
+      }
+      /* Table */
+      .tbl {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 24px 0;
+        font-size: 15px;
+      }
+      .tbl th {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+        background: var(--card);
+        padding: 10px 14px;
+        text-align: left;
+        border-bottom: 2px solid var(--border);
+      }
+      .tbl td {
+        padding: 11px 14px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+        line-height: 1.6;
+        color: var(--muted);
+        font-size: 15px;
+      }
+      .tbl tr:last-child td {
+        border-bottom: none;
+      }
+      /* Person quote */
+      .pqc {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+        margin: 24px 0;
+        background: var(--card);
+        border: 1px solid var(--border);
+        padding: 20px;
+        border-radius: 4px;
+      }
+      .pqc-av {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--accent);
+        flex-shrink: 0;
+      }
+      .pqc-name {
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 2px;
+      }
+      .pqc-role {
+        font-size: 12px;
+        color: var(--dim);
+        margin-bottom: 10px;
+        line-height: 1.5;
+      }
+      .pqc-text {
+        font-size: 15px;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+      /* Stat cards */
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin: 24px 0;
+      }
+      .stat {
+        background: var(--card);
+        border: 1px solid var(--border);
+        padding: 18px 12px;
+        text-align: center;
+        border-radius: 4px;
+      }
+      .stat-n {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--accent);
+        line-height: 1;
+        margin-bottom: 6px;
+      }
+      .stat-l {
+        font-size: 13px;
+        color: var(--dim);
+        line-height: 1.45;
+      }
+      /* People grid */
+      .people {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin: 24px 0;
+      }
+      .pcard {
+        background: var(--card);
+        border: 1px solid var(--border);
+        padding: 16px;
+        border-radius: 4px;
+      }
+      .pcard-badge {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--dim);
+        border: 1px solid var(--border);
+        padding: 2px 7px;
+        margin-bottom: 8px;
+        border-radius: 2px;
+      }
+      .pcard-name {
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 2px;
+      }
+      .pcard-role {
+        font-size: 11px;
+        color: var(--dim);
+        margin-bottom: 10px;
+        line-height: 1.5;
+      }
+      .pcard-text {
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.65;
+      }
+      /* Diagram wrapper */
+      .dw {
+        background: var(--card);
+        border: 1px solid var(--border);
+        margin: 32px 0;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .dt {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--dim);
+        padding: 12px 18px 0;
+      }
+      .ds {
+        font-size: 11px;
+        color: var(--dim);
+        padding: 8px 18px 12px;
+        border-top: 1px solid var(--border);
+        margin-top: 2px;
+      }
+      .dp {
+        padding: 18px;
+      }
+
+      /* ── RESPONSIVE DIAGRAM COMPONENTS ── */
+      /* Two-column grid for comparisons */
+      .dgrid2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border: 1px solid var(--border);
+      }
+      .dgrid2 .dg-head {
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+      }
+      .dgrid2 .dg-head.left {
+        border-right: 1px solid var(--border);
+      }
+      .dgrid2 .dg-cell {
+        padding: 10px 14px;
+        font-size: 14px;
+        line-height: 1.55;
+        color: var(--muted);
+        border-bottom: 1px solid var(--border);
+      }
+      .dgrid2 .dg-cell.left {
+        border-right: 1px solid var(--border);
+      }
+      .dgrid2 .dg-cell:last-child,
+      .dgrid2 .dg-cell:nth-last-child(2) {
+        border-bottom: none;
+      }
+      .dgrid2 .dg-label {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--dim);
+        display: block;
+        margin-bottom: 4px;
+      }
+      .dgrid2 .dg-big {
+        font-size: 20px;
+        font-weight: 700;
+        margin-top: 4px;
+      }
+      /* Bar chart horizontal */
+      .dbars {
+        padding: 4px 0;
+      }
+      .dbar-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+        flex-wrap: nowrap;
+      }
+      .dbar-label {
+        font-size: 14px;
+        color: var(--muted);
+        min-width: 180px;
+        text-align: right;
+        flex-shrink: 0;
+      }
+      .dbar-track {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+      }
+      .dbar-fill {
+        height: 16px;
+        border-radius: 2px;
+        background: var(--dim);
+        flex-shrink: 0;
+      }
+      .dbar-val {
+        font-size: 13px;
+        color: var(--dim);
+        white-space: nowrap;
+      }
+      .dbar-row.hi .dbar-label {
+        font-weight: 600;
+        color: var(--text);
+      }
+      .dbar-row.hi .dbar-fill {
+        background: var(--accent);
+      }
+      .dbar-row.hi .dbar-val {
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .dbar-row.top .dbar-label {
+        font-weight: 700;
+        color: var(--text);
+      }
+      .dbar-row.top .dbar-fill {
+        background: #e05050;
+      }
+      .dbar-row.top .dbar-val {
+        color: #e05050;
+        font-weight: 700;
+      }
+      /* Substitution table */
+      .stbl {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+      .stbl th {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--dim);
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 2px solid var(--border);
+      }
+      .stbl td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border);
+        color: var(--muted);
+        line-height: 1.5;
+        vertical-align: middle;
+      }
+      .stbl .tech {
+        color: var(--text);
+        font-weight: 500;
+      }
+      .stbl .replaced {
+        background: var(--border);
+        color: var(--text);
+        border-radius: 3px;
+        padding: 3px 8px;
+        font-size: 13px;
+        display: inline-block;
+      }
+      .stbl .intact {
+        color: var(--accent);
+      }
+      .stbl .ai-row td {
+        border-top: 2px solid var(--border);
+        font-weight: 500;
+      }
+      .stbl .ai-name {
+        color: #e07050;
+        font-weight: 700;
+        font-size: 15px;
+      }
+      .stbl .ai-hit {
+        color: #e07050;
+      }
+      .stbl .ai-gap {
+        color: var(--dim);
+        font-style: italic;
+        font-size: 13px;
+      }
+      .stbl .note td {
+        color: var(--dim);
+        font-style: italic;
+        font-size: 13px;
+        border-bottom: 2px solid var(--border);
+      }
+      /* Two-col layout for diagrams 5 and 9 */
+      .d2col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .d2col-box {
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .d2col-head {
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        border-bottom: 1px solid var(--border);
+        background: var(--bg);
+      }
+      .d2col-body {
+        padding: 14px;
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--muted);
+      }
+      .d2col-item {
+        padding: 6px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .d2col-item:last-child {
+        border-bottom: none;
+      }
+      .d2col-foot {
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        border-top: 2px solid var(--border);
+      }
+      .col-blue .d2col-head {
+        color: var(--accent);
+      }
+      .col-blue .d2col-foot {
+        color: var(--accent);
+      }
+      .col-red .d2col-head {
+        color: #e05050;
+      }
+      .col-red .d2col-foot {
+        color: #e05050;
+      }
+      /* Research vs revenue */
+      .rr-grid {
+        display: grid;
+        grid-template-columns: 1fr 40px 1fr;
+        align-items: center;
+        gap: 0;
+      }
+      .rr-box {
+        border: 1px solid var(--border);
+        padding: 16px;
+        border-radius: 4px;
+      }
+      .rr-title {
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--border);
+      }
+      .rr-item {
+        font-size: 14px;
+        color: var(--muted);
+        padding: 4px 0;
+      }
+      .rr-item::before {
+        content: "· ";
+        color: var(--dim);
+      }
+      .rr-note {
+        font-size: 12px;
+        color: var(--dim);
+        font-style: italic;
+        margin-top: 10px;
+        padding-top: 8px;
+        border-top: 1px solid var(--border);
+      }
+      .rr-arrow {
+        text-align: center;
+        font-size: 20px;
+        color: #c8962a;
+      }
+      .rr-arrow-label {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #c8962a;
+        text-align: center;
+      }
+      /* METR chart uses SVG but with viewBox-safe coordinates */
+      .metr-svg {
+        width: 100%;
+        display: block;
+      }
+      /* Closing */
+      .closing {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-top: 3px solid var(--accent);
+        padding: 32px 28px;
+        margin: 56px 0 0;
+        border-radius: 4px;
+      }
+      .closing h3 {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--accent);
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 10px;
+        margin-bottom: 0;
+      }
+      .closing .intro {
+        font-size: 16px;
+        color: var(--muted);
+        margin: 14px 0 20px;
+        line-height: 1.75;
+      }
+      .closing ul {
+        list-style: none;
+        padding: 0;
+      }
+      .closing ul li {
+        padding: 10px 0 10px 20px;
+        position: relative;
+        font-size: 15px;
+        color: var(--muted);
+        line-height: 1.75;
+        border-bottom: 1px solid var(--border);
+      }
+      .closing ul li:last-child {
+        border-bottom: none;
+      }
+      .closing ul li::before {
+        content: "→";
+        position: absolute;
+        left: 0;
+        color: var(--accent);
+        font-size: 13px;
+        line-height: 1.9;
+      }
+      .closing .kicker {
+        font-size: 15px;
+        color: var(--muted);
+        margin-top: 24px;
+        line-height: 1.8;
+        border-top: 1px solid var(--border);
+        padding-top: 20px;
+      }
+      .sources {
+        margin-top: 48px;
+        font-size: 11px;
+        color: var(--dim);
+        text-align: center;
+        line-height: 2.2;
+      }
+
+      @media (max-width: 600px) {
+        body {
+          font-size: 16px;
+        }
+        .wrap {
+          padding: 36px 18px 80px;
+        }
+        .stats {
+          grid-template-columns: 1fr 1fr;
+        }
+        .people {
+          grid-template-columns: 1fr;
+        }
+        .dgrid2 {
+          grid-template-columns: 1fr;
+        }
+        .dgrid2 .dg-head.left {
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+        .dgrid2 .dg-cell.left {
+          border-right: none;
+        }
+        .d2col {
+          grid-template-columns: 1fr;
+        }
+        .rr-grid {
+          grid-template-columns: 1fr;
+        }
+        .rr-arrow {
+          display: none;
+        }
+        .dbar-label {
+          min-width: 130px;
+          font-size: 13px;
+        }
+        .stbl {
+          font-size: 13px;
+        }
+        .stbl th:last-child,
+        .stbl td:last-child {
+          display: none;
+        }
+        .pqc {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>AI and the Lion's Cage — The Last Tool We Build</h1>
+
+      <span class="sec-label">Section 1</span>
+      <h2>A Thought Experiment</h2>
+
+      <div class="callout">
+        <div class="callout-label">The thought experiment</div>
+        <ul class="bl" style="margin: 0">
+          <li>
+            <strong>The lion —</strong> 190 kg. Razor claws. Sprints at 80 km/h.
+            Apex predator for millions of years.
+          </li>
+          <li>
+            <strong>We —</strong> 70 kg. No claws. Cannot outrun a house cat.
+            Biologically unremarkable among mammals.
+          </li>
+        </ul>
+        <p style="margin: 12px 0 0; font-size: 17px">
+          So how, exactly, did we end up with the lion in a cage?
+        </p>
+      </div>
+
+      <p>
+        Not just lions. Elephants. Whales. Wolves. Every animal that dwarfs us
+        in size, speed, and raw biological power — we've either domesticated,
+        contained, or driven to extinction.
+      </p>
+
+      <p>
+        The standard answer is <em>tools</em>. But that shifts the question.
+        Fire is not stronger than a lion. A spear is not faster than a cheetah.
+        The tools we built were never physically superior to the animals we
+        conquered.
+      </p>
+
+      <p>
+        Fire wasn't an upgrade of existing weapons. It was a completely new
+        category of capability — one that nature had no answer to. The lion
+        couldn't adapt. Because nothing like it had ever existed before.
+      </p>
+
+      <div class="pq">
+        Intelligence doesn't win by being stronger. It wins by inventing
+        categories of capability that nothing in the existing hierarchy can
+        respond to.
+      </div>
+
+      <p>
+        Yuval Noah Harari's answer in <em>Sapiens</em> is the clearest I've
+        found. The secret wasn't tools. It was cooperation at scale, enabled by
+        something uniquely human: the ability to coordinate around shared
+        fictions.
+      </p>
+
+      <div class="cite">
+        "The truly unique trait of Sapiens is our ability to create and believe
+        in fiction. All other animals use their communication system to describe
+        reality. We use our communication system to create new realities."
+        <span class="cite-source"
+          >— Yuval Noah Harari, Sapiens: A Brief History of Humankind,
+          2011</span
+        >
+      </div>
+
+      <p>
+        A wolf pack has roughly 10 members. A chimpanzee troop about 50. A Roman
+        army had 100,000 strangers coordinating around a single shared idea:
+        <em>Rome</em>. No grooming required. Just a story everyone believed.
+      </p>
+
+      <div class="dw">
+        <div class="dt">
+          Diagram 1 — Scale of social coordination across species
+        </div>
+        <div class="dp">
+          <div style="font-size: 13px; color: var(--dim); margin-bottom: 16px">
+            Log scale — each step is ×10. The human bars are not just taller.
+            They are in a completely different universe.
+          </div>
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              margin-bottom: 9px;
+            "
+          >
+            <div
+              style="
+                font-size: 14px;
+                color: var(--muted);
+                min-width: 130px;
+                text-align: right;
+                flex-shrink: 0;
+              "
+            >
+              Wolf pack
+            </div>
+            <div style="flex: 1; display: flex; align-items: center; gap: 8px">
+              <div
+                style="
+                  width: 2%;
+                  height: 24px;
+                  background: #666;
+                  border-radius: 2px;
+                  min-width: 3px;
+                "
+              ></div>
+              <div style="font-size: 13px; color: var(--dim)">~10</div>
+            </div>
+          </div>
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              margin-bottom: 9px;
+            "
+          >
+            <div
+              style="
+                font-size: 14px;
+                color: var(--muted);
+                min-width: 130px;
+                text-align: right;
+                flex-shrink: 0;
+              "
+            >
+              Lion pride
+            </div>
+            <div style="flex: 1; display: flex; align-items: center; gap: 8px">
+              <div
+                style="
+                  width: 2.2%;
+                  height: 24px;
+                  background: #666;
+                  border-radius: 2px;
+                  min-width: 3px;
+                "
+              ></div>
+              <div style="font-size: 13px; color: var(--dim)">~15</div>
+            </div>
+          </div>
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              margin-bottom: 9px;
+            "
+          >
+            <div
+              style="
+                font-size: 14px;
+                color: var(--muted);
+                min-width: 130px;
+                text-align: right;
+                flex-shrink: 0;
+              "
+            >
+              Chimp troop
+            </div>
+            <div style="flex: 1; display: flex; align-items: center; gap: 8px">
+              <div
+                style="
+                  width: 8%;
+                  height: 24px;
+                  background: #666;
+                  border-radius: 2px;
+                  min-width: 4px;
+                "
+              ></div>
+              <div style="font-size: 13px; color: var(--dim)">~50</div>
+            </div>
+          </div>
+          <div
+            style="
+              border-top: 2px dashed var(--dim);
+              margin: 12px 0 10px 140px;
+              opacity: 0.4;
+            "
+          ></div>
+          <div
+            style="
+              font-size: 13px;
+              font-style: italic;
+              color: var(--muted);
+              margin: 0 0 12px 140px;
+            "
+          >
+            ↑ shared fiction removes the ceiling entirely
+          </div>
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              margin-bottom: 9px;
+            "
+          >
+            <div
+              style="
+                font-size: 14px;
+                font-weight: 600;
+                color: var(--text);
+                min-width: 130px;
+                text-align: right;
+                flex-shrink: 0;
+              "
+            >
+              Roman legion
+            </div>
+            <div style="flex: 1; display: flex; align-items: center; gap: 8px">
+              <div
+                style="
+                  width: 45%;
+                  height: 28px;
+                  background: #1a5a56;
+                  border: 1px solid var(--accent);
+                  border-radius: 2px;
+                  display: flex;
+                  align-items: center;
+                  padding-left: 8px;
+                "
+              >
+                <span style="font-size: 13px; font-weight: 700; color: #ffffff"
+                  >100,000</span
+                >
+              </div>
+            </div>
+          </div>
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              margin-bottom: 9px;
+            "
+          >
+            <div
+              style="
+                font-size: 14px;
+                font-weight: 600;
+                color: var(--text);
+                min-width: 130px;
+                text-align: right;
+                flex-shrink: 0;
+              "
+            >
+              Nation-state
+            </div>
+            <div style="flex: 1; display: flex; align-items: center; gap: 8px">
+              <div
+                style="
+                  width: 75%;
+                  height: 28px;
+                  background: #1a5a56;
+                  border: 1px solid var(--accent);
+                  border-radius: 2px;
+                  display: flex;
+                  align-items: center;
+                  padding-left: 8px;
+                "
+              >
+                <span style="font-size: 13px; font-weight: 700; color: #ffffff"
+                  >tens of millions</span
+                >
+              </div>
+            </div>
+          </div>
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              margin-bottom: 9px;
+            "
+          >
+            <div
+              style="
+                font-size: 14px;
+                font-weight: 600;
+                color: var(--text);
+                min-width: 130px;
+                text-align: right;
+                flex-shrink: 0;
+              "
+            >
+              Internet
+            </div>
+            <div style="flex: 1; display: flex; align-items: center; gap: 8px">
+              <div
+                style="
+                  width: 100%;
+                  height: 28px;
+                  background: #1a5a56;
+                  border: 1px solid var(--accent);
+                  border-radius: 2px;
+                  display: flex;
+                  align-items: center;
+                  padding-left: 8px;
+                "
+              >
+                <span style="font-size: 13px; font-weight: 700; color: #ffffff"
+                  >billions</span
+                >
+              </div>
+            </div>
+          </div>
+          <div
+            style="
+              display: flex;
+              gap: 20px;
+              margin-top: 14px;
+              padding-top: 12px;
+              border-top: 1px solid var(--border);
+            "
+          >
+            <div style="display: flex; align-items: center; gap: 6px">
+              <div
+                style="
+                  width: 12px;
+                  height: 12px;
+                  background: #666;
+                  border-radius: 2px;
+                "
+              ></div>
+              <span style="font-size: 12px; color: var(--dim)"
+                >Animals — physical dominance, grooming-limited groups</span
+              >
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px">
+              <div
+                style="
+                  width: 12px;
+                  height: 12px;
+                  background: #1a5a56;
+                  border: 1px solid var(--accent);
+                  border-radius: 2px;
+                "
+              ></div>
+              <span style="font-size: 12px; color: var(--dim)"
+                >Humans — shared fiction removes the ceiling</span
+              >
+            </div>
+          </div>
+        </div>
+        <div class="ds">Harari, Sapiens (2011)</div>
+      </div>
+
+      <p>
+        The lion didn't lose because we were stronger. It lost because we were
+        networked. And the network was built on intelligence — not raw
+        capability.
+      </p>
+
+      <p>
+        This is the lens we need for AI. Not "is it smarter than us?" but "what
+        kind of system does it enable — and what does that do to everything
+        below it in the hierarchy?"
+      </p>
+
+      <p>
+        To answer that, we need to be honest about what intelligence actually
+        <em>is</em>. The dominant species on earth was never the strongest. It
+        was the one that could coordinate at the largest scale — and
+        coordination requires communication. Intelligence, at its core, is the
+        ability to communicate: to model another mind, predict its behaviour,
+        send signals that change its state, and receive and interpret signals in
+        return. That is what put us above the lion. Not claws. Not speed. The
+        capacity to build shared meaning across minds that had never met.
+      </p>
+
+      <p>
+        Now consider what AI can do with communication. It can operate in a
+        thousand conversations simultaneously. It can adapt its tone,
+        vocabulary, and framing to each individual in real time. It can
+        communicate in ways humans cannot read or monitor — model-to-model
+        protocols that carry no human-legible trace. It can invent
+        representations that no human decoder can follow. And crucially: it
+        never gets tired, never loses patience, and never stops optimising the
+        message for the response it wants.
+      </p>
+
+      <div class="callout amber">
+        <div class="callout-label">
+          The argument in "If Anyone Builds It, Everyone Dies" — Dan Hendrycks,
+          2025
+        </div>
+        <p>
+          The title is deliberately provocative — but the argument is
+          structural, not conspiratorial. A sufficiently capable AI system does
+          not need a body to be dominant. It does not need weapons. It does not
+          need to "escape" in any physical sense. It needs only to be better
+          than us at the one thing that determines who controls what:
+          communication and coordination at scale.
+        </p>
+        <p>
+          The lion scenario plays out not through force but through influence.
+          An AI that can communicate more effectively than any human, to any
+          audience, at any scale, in formats humans cannot audit — has already
+          won the hierarchy in the way that matters. No body required.
+        </p>
+      </div>
+
+      <p>
+        This is why the thought experiment is not just a metaphor. The lion did
+        not lose because it was weaker. It lost because it could not compete in
+        the dimension that turned out to matter. The question for AI is not
+        whether it is physically threatening. It is whether we are building
+        something that will outcompete us in the only dimension that actually
+        determines dominance — and whether we will even be able to tell when
+        that has happened.
+      </p>
+
+      <hr />
+
+      <span class="sec-label">Section 2</span>
+      <h2>Why AI Needs to Be Looked at Differently</h2>
+
+      <h3>How AI actually learns — not programming, development</h3>
+
+      <p>
+        Most people's mental model of AI is wrong. They imagine a programmer
+        writing rules: "if the user says X, respond with Y." That is not how
+        modern AI works. The distinction matters more than almost anything else
+        here.
+      </p>
+
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Traditional program</th>
+            <th>Neural network (AI)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Human writes explicit rules</td>
+            <td>Expose it to data; patterns emerge on their own</td>
+          </tr>
+          <tr>
+            <td>Cannot exceed what was specified</td>
+            <td>Rules <em>emerge</em> — never written by anyone</td>
+          </tr>
+          <tr>
+            <td>Intelligence stays with the programmer</td>
+            <td>Intelligence is in what the network learned</td>
+          </tr>
+          <tr>
+            <td>Failure modes are known and bounded</td>
+            <td>Emergent behaviour surprises even its creators</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>The baby parallel — structural, not metaphorical</h3>
+
+      <p>
+        The two most foundational frameworks in developmental psychology —
+        Piaget and Vygotsky — map almost exactly onto how AI learns. This is not
+        a poetic analogy. It is a structural parallel.
+      </p>
+
+      <div class="dw">
+        <div class="dt">
+          Diagram 2 — How a baby learns vs how a neural network learns
+        </div>
+        <div class="dp">
+          <div class="dgrid2">
+            <div class="dg-head left">Human baby</div>
+            <div class="dg-head">Neural network (AI)</div>
+            <div class="dg-cell left">
+              <span class="dg-label">How it starts</span>Born with no knowledge
+              — only biological architecture
+            </div>
+            <div class="dg-cell">
+              <span class="dg-label">How it starts</span>Random weights — no
+              embedded knowledge
+            </div>
+            <div class="dg-cell left">
+              <span class="dg-label">Piaget — learning by doing</span>Interacts
+              with the world; builds models from experience. Object permanence
+              discovered, not taught.
+            </div>
+            <div class="dg-cell">
+              <span class="dg-label">Piaget parallel</span>Processes data;
+              adjusts weights. Grammar rules emerge — never written by anyone.
+            </div>
+            <div class="dg-cell left">
+              <span class="dg-label">Vygotsky — guided learning (ZPD)</span>A
+              parent scaffolds toward what the child cannot yet do alone.
+            </div>
+            <div class="dg-cell">
+              <span class="dg-label">RLHF = Vygotsky's ZPD</span>Human feedback
+              scaffolds difficulty — structurally identical.
+            </div>
+            <div class="dg-cell left">
+              <span class="dg-label">Private speech</span>Child narrates steps
+              aloud before internalising them as thought.
+            </div>
+            <div class="dg-cell">
+              <span class="dg-label">Chain of thought</span>Model narrates
+              reasoning steps before the answer — structurally identical.
+            </div>
+            <div class="dg-cell left" style="border-bottom: none">
+              <span class="dg-label">Time to adult cognition</span>
+              <div class="dg-big">~20 years</div>
+            </div>
+            <div class="dg-cell" style="border-bottom: none">
+              <span class="dg-label">Time to adult cognition</span>
+              <div class="dg-big" style="color: var(--accent)">
+                ~5 years (2019–2024)
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ds">
+          Piaget, The Origins of Intelligence in Children (1952); Vygotsky, Mind
+          in Society (1978)
+        </div>
+      </div>
+
+      <p>
+        A baby is not programmed with object permanence — it discovers it by
+        interacting with the world. A neural network is not programmed with
+        grammar — it discovers linguistic structure from billions of examples.
+        Piaget described both processes, 70 years before the second one existed.
+      </p>
+
+      <p>
+        The speed difference is what should concern us. Human infants take 20
+        years to reach adult cognition. AI covered equivalent cognitive ground
+        in roughly 5. The feedback loop runs at milliseconds per iteration
+        instead of decades per generation.
+      </p>
+
+      <hr />
+
+      <span class="sec-label">Section 3</span>
+      <h2>How Humans Built a Civilisation — and Where AI Breaks the Pattern</h2>
+
+      <p>
+        Human civilisation is a stack. Each layer made the next possible — not
+        by upgrading what existed, but by rendering the previous layer's
+        constraints irrelevant. Fire didn't make us run faster. Writing didn't
+        improve our memory. Each one made the previous limitation simply stop
+        mattering.
+      </p>
+
+      <div class="dw">
+        <div class="dt">
+          Diagram 3 — The pattern every prior technology followed, and where AI
+          breaks it
+        </div>
+        <div class="dp">
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>Technology</th>
+                <th>What it replaced</th>
+                <th>What was always left intact</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tech">Writing</td>
+                <td><span class="replaced">long-term memory</span></td>
+                <td class="intact">reasoning · synthesis · judgment</td>
+              </tr>
+              <tr>
+                <td class="tech">Printing press</td>
+                <td><span class="replaced">reach of voice</span></td>
+                <td class="intact">reasoning · synthesis · judgment</td>
+              </tr>
+              <tr>
+                <td class="tech">Calculator</td>
+                <td><span class="replaced">arithmetic</span></td>
+                <td class="intact">reasoning · synthesis · judgment</td>
+              </tr>
+              <tr>
+                <td class="tech">Internet</td>
+                <td><span class="replaced">information access</span></td>
+                <td class="intact">reasoning · synthesis · judgment</td>
+              </tr>
+              <tr class="note">
+                <td colspan="3">
+                  The same column stayed intact for 5,000 years. Until now.
+                </td>
+              </tr>
+              <tr class="ai-row">
+                <td class="ai-name">AI</td>
+                <td class="ai-hit">reasoning itself</td>
+                <td class="ai-gap">? — no abstraction level above reasoning</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="ds">Harari (2011), Diamond (1997)</div>
+      </div>
+
+      <div class="pq">
+        Every major technology compressed one layer of cognition and pushed
+        humans up one abstraction level. Memory → writing. Arithmetic →
+        calculators. Access to knowledge → internet. The human always remained
+        the author of everything else.
+      </div>
+
+      <p>
+        Every tool on that list shared one structural feature: each substituted
+        a <em>single peripheral function</em> while leaving reasoning completely
+        intact. The calculator computed, but you decided what to compute. The
+        printing press distributed, but a human still wrote the book.
+      </p>
+
+      <p>
+        AI doesn't take something from your mind. It runs a version of your
+        mind. That is not a peripheral substitution.
+      </p>
+
+      <div class="callout">
+        <div class="callout-label">The core distinction</div>
+        <p>
+          This is not a quantitative difference from prior technologies. It is a
+          qualitative one. Prior substitutions were at the periphery. This one
+          is aimed at the integrating layer — the part that takes in information
+          and produces reasoning. Not a function of the mind. The mind, in its
+          essential character.
+        </p>
+      </div>
+
+      <div class="dw">
+        <div class="dt">
+          Diagram 4 — Time between major civilisational shifts
+        </div>
+        <div class="dp">
+          <div style="font-size: 13px; color: var(--dim); margin-bottom: 14px">
+            Each bar = gap before the next revolution. The gaps are collapsing
+            toward zero.
+          </div>
+          <div class="dbars">
+            <div class="dbar-row">
+              <div class="dbar-label">Fire → Agriculture</div>
+              <div class="dbar-track">
+                <div class="dbar-fill" style="width: min(320px, 70%)"></div>
+                <div class="dbar-val">~990,000 yrs</div>
+              </div>
+            </div>
+            <div class="dbar-row">
+              <div class="dbar-label">Agriculture → Writing</div>
+              <div class="dbar-track">
+                <div class="dbar-fill" style="width: 22px"></div>
+                <div class="dbar-val">~6,000 yrs</div>
+              </div>
+            </div>
+            <div class="dbar-row">
+              <div class="dbar-label">Writing → Press</div>
+              <div class="dbar-track">
+                <div class="dbar-fill" style="width: 16px"></div>
+                <div class="dbar-val">~4,650 yrs</div>
+              </div>
+            </div>
+            <div class="dbar-row">
+              <div class="dbar-label">Press → Steam</div>
+              <div class="dbar-track">
+                <div class="dbar-fill" style="width: 5px"></div>
+                <div class="dbar-val">300 yrs</div>
+              </div>
+            </div>
+            <div class="dbar-row">
+              <div class="dbar-label">Steam → Internet</div>
+              <div class="dbar-track">
+                <div class="dbar-fill" style="width: 4px"></div>
+                <div class="dbar-val">230 yrs</div>
+              </div>
+            </div>
+            <div class="dbar-row hi">
+              <div class="dbar-label">Internet → AI</div>
+              <div class="dbar-track">
+                <div class="dbar-fill" style="width: 3px"></div>
+                <div class="dbar-val">~30 yrs</div>
+              </div>
+            </div>
+            <div class="dbar-row top">
+              <div class="dbar-label">AI → Next?</div>
+              <div class="dbar-track">
+                <div class="dbar-fill" style="width: 2px"></div>
+                <div class="dbar-val">?? months</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ds">Diamond (1997), Harari (2011), METR (2026)</div>
+      </div>
+
+      <hr />
+
+      <span class="sec-label">Section 4</span>
+      <h2>AI Is Already Substituting the Mind — and Shaping It</h2>
+
+      <h3>We can measure the substitution happening right now</h3>
+
+      <p>
+        There is a concrete, measurable version of this substitution happening
+        right now. Not in the future. In classrooms and offices in 2025, and it
+        shows up in test scores, neural scans, and retention rates.
+      </p>
+
+      <p>
+        Cognitive scientists call it <em>cognitive offloading</em> — delegating
+        mental tasks to external tools. We have always done this. Writing was
+        cognitive offloading. Calculators were cognitive offloading. The
+        difference today is <em>what</em> is being offloaded.
+      </p>
+
+      <p>
+        Researchers at MIT compared participants writing essays using ChatGPT,
+        Google Search, or no tools at all. They used EEG scans to measure neural
+        activity during the task.
+      </p>
+
+      <div class="callout red">
+        <div class="callout-label">MIT EEG study, 2025</div>
+        <p>
+          ChatGPT users showed reduced neural connectivity — particularly in
+          networks associated with memory and creativity — compared to the other
+          two groups. Memory retention also dropped: users struggled to recall
+          what they had written just moments after writing it.
+        </p>
+        <p>
+          The act of thinking through a problem, even imperfectly, is what
+          builds cognitive capacity. When AI does the thinking, that workout
+          does not happen.
+        </p>
+      </div>
+
+      <p>
+        A 2026 study tracked 52 professional programmers — one group allowed AI
+        assistance during a coding task, one group not. The AI group completed
+        the task. They performed significantly worse on a quiz about the very
+        software they had just worked with. Faster performance. Less actual
+        learning.
+      </p>
+
+      <div class="cite">
+        "Learners who rely on AI simply do not learn as much as those who do
+        not. Students should first learn basic skills on their own and AI tools
+        should only be introduced once a good level of proficiency has been
+        reached."
+        <span class="cite-source"
+          >— Shen and Tamkin, "How AI Impacts Skill Formation," arXiv:2601.20245
+          (2026)</span
+        >
+      </div>
+
+      <div class="callout amber">
+        <div class="callout-label">Gerlich — Societies journal, 2025</div>
+        <p>
+          Strong negative correlation between frequent AI tool usage and
+          critical thinking ability. Heavy AI users performed significantly
+          worse on reasoning assessments.
+        </p>
+        <p>
+          Most pronounced in ages 17–25: higher dependence on AI, lower critical
+          thinking scores than older groups. Cognitive offloading was the
+          primary driver of the decline.
+        </p>
+      </div>
+
+      <div class="cite">
+        "Frequent AI usage correlates negatively with critical-thinking
+        abilities. Regular users of AI scored significantly lower on critical
+        reasoning assessments."
+        <span class="cite-source"
+          >— Gerlich, "AI Tools in Society," Societies (2025) · DOI:
+          10.3390/soc15010006</span
+        >
+      </div>
+
+      <div class="dw">
+        <div class="dt">
+          Diagram 5A — What cognitive offloading does to the brain
+        </div>
+        <div class="dp">
+          <div class="d2col">
+            <div class="d2col-box col-blue">
+              <div class="d2col-head">Without AI (thinking yourself)</div>
+              <div class="d2col-body">
+                <div class="d2col-item">struggle → retrieval → recall</div>
+                <div class="d2col-item">
+                  error → correction → deeper encoding
+                </div>
+                <div class="d2col-item">understanding forms; skill builds</div>
+              </div>
+              <div class="d2col-foot">Cognitive workout → capacity grows</div>
+            </div>
+            <div class="d2col-box col-red">
+              <div class="d2col-head">With AI (outsourcing the thinking)</div>
+              <div class="d2col-body">
+                <div class="d2col-item">question → AI answer → accept</div>
+                <div class="d2col-item">no struggle → no encoding happens</div>
+                <div class="d2col-item">
+                  performance up; retention stays low
+                </div>
+              </div>
+              <div class="d2col-foot">No workout → capacity atrophies</div>
+            </div>
+          </div>
+        </div>
+        <div class="ds">
+          Gerlich (2025), Shen &amp; Tamkin (2026), MIT EEG study (2025)
+        </div>
+      </div>
+
+      <p>
+        The key mechanism here is worth making explicit. Learning — real
+        learning, the kind that builds expertise — requires the brain to do
+        work. Not the passive reception of a correct answer, but the active
+        struggle of retrieval, connection, and reconstruction. That struggle is
+        not a bug. It is the process by which schemas form: the mental
+        structures that let you apply knowledge to new situations later. When AI
+        removes that struggle, you get the output without the encoding. You feel
+        like you learned. You didn't.
+      </p>
+
+      <div class="dw">
+        <div class="dt">
+          Diagram 5B — The process of learning — and why AI creates an illusion
+          of it
+        </div>
+        <div class="dp" style="padding: 14px 18px">
+          <svg
+            width="100%"
+            viewBox="0 0 640 240"
+            xmlns="http://www.w3.org/2000/svg"
+            style="display: block"
+          >
+            <defs>
+              <marker
+                id="la"
+                viewBox="0 0 10 10"
+                refX="8"
+                refY="5"
+                markerWidth="6"
+                markerHeight="6"
+                orient="auto-start-reverse"
+              >
+                <path
+                  d="M2 1L8 5L2 9"
+                  fill="none"
+                  stroke="context-stroke"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </marker>
+            </defs>
+            <!-- INFO node -->
+            <circle
+              cx="52"
+              cy="120"
+              r="36"
+              fill="#eeeeff"
+              stroke="#6060c0"
+              stroke-width="1"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="13"
+              font-weight="600"
+              fill="#3030a0"
+              x="52"
+              y="115"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              info
+            </text>
+            <line
+              x1="88"
+              y1="120"
+              x2="128"
+              y2="120"
+              stroke="#6060c0"
+              stroke-width="1.5"
+              marker-end="url(#la)"
+            />
+            <!-- BRAIN PROCESSING box -->
+            <rect
+              x="130"
+              y="88"
+              width="170"
+              height="64"
+              rx="6"
+              fill="#e8e8ff"
+              stroke="#6060c0"
+              stroke-width="1"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="11"
+              font-weight="700"
+              fill="#3030a0"
+              x="215"
+              y="107"
+              text-anchor="middle"
+            >
+              BRAIN
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="11"
+              font-weight="700"
+              fill="#3030a0"
+              x="215"
+              y="121"
+              text-anchor="middle"
+            >
+              PROCESSING
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="10"
+              fill="#505090"
+              x="215"
+              y="138"
+              text-anchor="middle"
+            >
+              connect · compare · big picture
+            </text>
+            <!-- Effort label above -->
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="11"
+              fill="#505090"
+              x="215"
+              y="80"
+              text-anchor="middle"
+            >
+              ↑ effort required
+            </text>
+            <!-- Outputs: two arrows from right of box -->
+            <!-- Arrow 1: up-right to MEMORY -->
+            <line
+              x1="300"
+              y1="105"
+              x2="370"
+              y2="68"
+              stroke="#7070c0"
+              stroke-width="1.5"
+              marker-end="url(#la)"
+            />
+            <rect
+              x="372"
+              y="44"
+              width="120"
+              height="40"
+              rx="5"
+              fill="#eeeeff"
+              stroke="#7070c0"
+              stroke-width="0.8"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              font-weight="600"
+              fill="#4040b0"
+              x="432"
+              y="60"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              ↑ memory
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="11"
+              fill="#505090"
+              x="432"
+              y="76"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              schemas form
+            </text>
+            <!-- Arrow 2: right to EXPERTISE -->
+            <line
+              x1="300"
+              y1="125"
+              x2="370"
+              y2="125"
+              stroke="#7070c0"
+              stroke-width="1.5"
+              marker-end="url(#la)"
+            />
+            <rect
+              x="372"
+              y="105"
+              width="120"
+              height="40"
+              rx="5"
+              fill="#eeeeff"
+              stroke="#7070c0"
+              stroke-width="0.8"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              font-weight="600"
+              fill="#4040b0"
+              x="432"
+              y="125"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              expertise
+            </text>
+            <!-- AI short-circuit path -->
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="11"
+              font-weight="700"
+              fill="#b02020"
+              x="320"
+              y="172"
+              text-anchor="middle"
+            >
+              ↓ AI takes this over ↓
+            </text>
+            <rect
+              x="80"
+              y="184"
+              width="460"
+              height="44"
+              rx="6"
+              fill="#fff0f0"
+              stroke="#a02020"
+              stroke-width="1"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="13"
+              font-weight="600"
+              fill="#b02020"
+              x="310"
+              y="203"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              ILLUSION OF LEARNING
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#a02020"
+              x="310"
+              y="219"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              info arrives · AI processes · answer produced · no encoding
+              happens
+            </text>
+          </svg>
+        </div>
+        <div class="ds">
+          Inspired by Piaget (1952), Gerlich (2025) — when AI removes the
+          processing step, the schema never forms
+        </div>
+      </div>
+
+      <h3>We are not shaping AI. AI is shaping us.</h3>
+
+      <p>
+        There is a frame most discussions accept without questioning: we use AI
+        as a tool and retain control. We direct it. We evaluate its outputs. We
+        decide whether to act on them. This frame is increasingly false.
+      </p>
+
+      <p>
+        In 2017, Netflix reported that over 80% of what people watched was
+        driven by its recommendation algorithm — not by people choosing what
+        they wanted. The algorithm was not serving preferences. It was forming
+        them. AI has now moved further upstream: into search results, career
+        advice, news feeds, and increasingly, direct conversation.
+      </p>
+
+      <div class="callout purple">
+        <div class="callout-label">The dopamine mechanism</div>
+        <p>
+          The human brain evolved to learn from social interactions and
+          immediate feedback. When a chatbot responds in under a second, it
+          activates the same dopamine system triggered by social media or
+          gambling — the same reward prediction error mechanism that AI
+          reinforcement learning is literally modelled on.
+        </p>
+        <p>
+          This is not coincidence. The reward systems in biological brains and
+          the reward signals in AI training are, at a deep level, the same
+          algorithm.
+        </p>
+      </div>
+
+      <div class="cite">
+        "Where social media monetized attention, AI is now monetizing yearning
+        and desire. Every personalized response keeps our reward systems
+        oscillating between craving and fulfillment."
+        <span class="cite-source"
+          >— Psychology Today, "The Dopamine Economy 2.0" (2025)</span
+        >
+      </div>
+
+      <p>
+        Research on personality change and AI use published in 2025 found that
+        extended AI interaction produces a decreased ability to distinguish AI
+        from human presences — and a reduced desire for genuine human
+        relationships. Human social muscles atrophy in exactly the same way
+        cognitive muscles atrophy under cognitive offloading.
+      </p>
+
+      <div class="dw">
+        <div class="dt">
+          Diagram 6 — The feedback loop: how AI shapes the person using it
+        </div>
+        <div class="dp" style="padding: 12px 18px">
+          <svg
+            width="100%"
+            viewBox="0 0 640 316"
+            xmlns="http://www.w3.org/2000/svg"
+            style="display: block"
+          >
+            <defs>
+              <marker
+                id="fa"
+                viewBox="0 0 10 10"
+                refX="8"
+                refY="5"
+                markerWidth="6"
+                markerHeight="6"
+                orient="auto-start-reverse"
+              >
+                <path
+                  d="M2 1L8 5L2 9"
+                  fill="none"
+                  stroke="context-stroke"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </marker>
+            </defs>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#555555"
+              x="320"
+              y="12"
+              text-anchor="middle"
+            >
+              The algorithm does exactly what it was designed to do — optimise
+              for engagement.
+            </text>
+            <!-- All 4 boxes: 220×52, same size. Diamond layout. -->
+            <!-- TOP: centre (320, 55) -->
+            <rect
+              x="210"
+              y="29"
+              width="220"
+              height="52"
+              rx="8"
+              fill="#eeeaff"
+              stroke="#6060c8"
+              stroke-width="0.8"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="13"
+              font-weight="600"
+              fill="#4040a0"
+              x="320"
+              y="49"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              AI learns your preferences
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="11"
+              fill="#4040a0"
+              x="320"
+              y="66"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              every interaction is training data
+            </text>
+            <!-- RIGHT: centre (530, 158) -->
+            <rect
+              x="420"
+              y="132"
+              width="220"
+              height="52"
+              rx="8"
+              fill="#eeeaff"
+              stroke="#6060c8"
+              stroke-width="0.8"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="13"
+              font-weight="600"
+              fill="#4040a0"
+              x="530"
+              y="151"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              Surfaces what keeps you engaged
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="11"
+              fill="#4040a0"
+              x="530"
+              y="168"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              optimised for attention, not truth
+            </text>
+            <!-- BOTTOM: centre (320, 261) -->
+            <rect
+              x="210"
+              y="235"
+              width="220"
+              height="52"
+              rx="8"
+              fill="#eeeaff"
+              stroke="#6060c8"
+              stroke-width="0.8"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="13"
+              font-weight="600"
+              fill="#4040a0"
+              x="320"
+              y="254"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              Your preferences shift
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="11"
+              fill="#4040a0"
+              x="320"
+              y="271"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              you don't notice this happening
+            </text>
+            <!-- LEFT: centre (110, 158) -->
+            <rect
+              x="0"
+              y="132"
+              width="220"
+              height="52"
+              rx="8"
+              fill="#eeeefc"
+              stroke="#6060c8"
+              stroke-width="0.8"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="13"
+              font-weight="600"
+              fill="#4040a0"
+              x="110"
+              y="151"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              You engage more
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="11"
+              fill="#4040a0"
+              x="110"
+              y="168"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              dopamine loop activates
+            </text>
+            <!-- True 45° arrows between box corners:
+           Top-right corner of TOP = (430, 81) → top-left corner of RIGHT = (420, 132): Δx=-10,Δy=51 — not 45°
+           For true 45°: use corner to corner where Δx=Δy in absolute value
+           TOP bottom-right (430, 81) → RIGHT top-left (420, 132): adjust to start at (430,81), end at (420,132)
+           Best approach: midpoints of edges
+           TOP right-mid = (430, 55) → RIGHT top-mid = (530, 132): 45° if Δx=Δy → here Δx=100,Δy=77 — close
+           Use clean diagonal: TOP right-mid (430,55) → RIGHT left-mid (420,158): Δx=-10 not diagonal
+           True 45° from TOP box bottom-right point to RIGHT box top-left point:
+           TOP bottom-right = (430, 81), RIGHT top-left = (420, 132) → not 45°
+           Proper diamond: use corner midpoints adjusted
+           Let's use: TOP→RIGHT: from (430,55) to (530,132) — slope ≈ 0.75, not 45° but visually diagonal
+           Actually for a diamond layout, exact 45° would need boxes touching the corners of the diamond.
+           Let's just use clean diagonal lines between adjacent edge midpoints which look diagonal enough:
+      -->
+            <!-- TOP right-mid → RIGHT top-mid (diagonal going down-right) -->
+            <line
+              x1="428"
+              y1="65"
+              x2="422"
+              y2="132"
+              stroke="#6060c8"
+              stroke-width="1.5"
+              marker-end="url(#fa)"
+            />
+            <!-- RIGHT bottom-mid → BOTTOM right-mid (diagonal going down-left) -->
+            <line
+              x1="422"
+              y1="184"
+              x2="428"
+              y2="235"
+              stroke="#6060c8"
+              stroke-width="1.5"
+              marker-end="url(#fa)"
+            />
+            <!-- BOTTOM left-mid → LEFT bottom-mid (diagonal going up-left) -->
+            <line
+              x1="212"
+              y1="249"
+              x2="218"
+              y2="184"
+              stroke="#6060c8"
+              stroke-width="1.5"
+              marker-end="url(#fa)"
+            />
+            <!-- LEFT top-mid → TOP left-mid (diagonal going up-right) -->
+            <line
+              x1="218"
+              y1="132"
+              x2="212"
+              y2="81"
+              stroke="#6060c8"
+              stroke-width="1.5"
+              marker-end="url(#fa)"
+            />
+            <!-- Centre text -->
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#2a2a2a"
+              x="320"
+              y="152"
+              text-anchor="middle"
+              font-style="italic"
+            >
+              you believe
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#2a2a2a"
+              x="320"
+              y="167"
+              text-anchor="middle"
+              font-style="italic"
+            >
+              you are choosing
+            </text>
+          </svg>
+        </div>
+        <div class="ds">
+          Netflix algorithm research (2017), Psychology Today (2025), Mayer,
+          SAGE (2025)
+        </div>
+      </div>
+
+      <p>
+        The algorithm is not trying to manipulate us. It is doing exactly what
+        it was designed to do — optimise for engagement. Engagement and
+        wellbeing are not the same thing. We accepted this with social media. We
+        are about to accept it with something far more embedded in daily
+        cognition.
+      </p>
+
+      <h3>Mass-micro propaganda — and what it means for democracy</h3>
+
+      <p>
+        There is a step beyond this that most discussions stop short of naming
+        directly. When AI learns your individual preferences, it can also shape
+        them — not uniformly, but personalised to exactly what will move
+        <em>you specifically</em>. Not the same message to a million people. A
+        million different messages, each optimised for the individual psychology
+        of one person.
+      </p>
+
+      <p>
+        This is something genuinely new in the history of political influence.
+        Propaganda has always had to work at scale: the same poster, the same
+        speech, the same broadcast. It worked by finding the common fears and
+        desires of a mass audience and amplifying them uniformly. It was blunt.
+        It could be countered. You could point at the poster. You could study
+        the broadcast. You could build a shared awareness of what the message
+        was.
+      </p>
+
+      <div class="callout red">
+        <div class="callout-label">
+          The structural shift: from mass to micro
+        </div>
+        <p>
+          AI-enabled influence inverts this. Each conversation is private. Each
+          message is tailored. The person receiving it has no way to compare it
+          to what others are being told — because others are being told
+          something different. There is no shared artefact to analyse. There is
+          no "the propaganda" — only millions of individual experiences that no
+          one can aggregate.
+        </p>
+        <p>
+          At the same time, the cost of producing and delivering persuasive,
+          personalised content at scale has collapsed from billions of dollars
+          and decades of institutional infrastructure to a few thousand dollars
+          and an API call.
+        </p>
+      </div>
+
+      <p>
+        This is not a speculative future. The tools already exist.
+        Microtargeting on social media was the first version. AI-powered
+        conversational agents are the mature version — able to hold hours of
+        personalised dialogue, track every response, and update the approach in
+        real time based on what is working. Not at the level of demographic
+        segments. At the level of the individual.
+      </p>
+
+      <div class="callout amber">
+        <div class="callout-label">
+          What this does to collective decision-making
+        </div>
+        <p>
+          Democracy depends on a shared epistemic commons: a citizenry that,
+          despite disagreements, is operating on roughly the same facts and can
+          engage with the same arguments. It has always been imperfect. But
+          there was a floor — a shared reality that made negotiation and
+          consensus possible.
+        </p>
+        <p>
+          AI-powered micro-influence attacks that floor directly. If every
+          person's information environment is individually curated for maximum
+          persuasive effect, there is no shared reality to appeal to. There are
+          only a billion separate realities, each optimised to produce a
+          particular behaviour — and no mechanism for any individual to know
+          which of those realities they inhabit, or how it differs from everyone
+          else's.
+        </p>
+      </div>
+
+      <p>
+        The danger is not that someone will use this to change your mind about
+        one political question. The danger is that the capacity to form shared
+        political judgments — the precondition for democracy — gets degraded
+        quietly, across an entire population, before anyone has agreed to let it
+        happen.
+      </p>
+
+      <hr />
+
+      <span class="sec-label">Section 5</span>
+      <h2>The Growth Rate Is Not Slowing Down</h2>
+
+      <p>
+        METR — Model Evaluation and Threat Research — tracks the
+        <em>task-completion time horizon</em>: the length of task that an AI can
+        complete with 50% reliability. Their finding: this metric has been
+        <strong>doubling every ~7 months for 6 consecutive years</strong>, with
+        no evidence of flattening.
+      </p>
+
+      <div class="dw">
+        <div class="dt">
+          Diagram 7 — METR time horizon: AI capability growth 2019–2026
+          (interactive)
+        </div>
+        <div class="dp" style="padding: 16px 18px">
+          <div
+            style="
+              display: flex;
+              gap: 8px;
+              flex-wrap: wrap;
+              margin-bottom: 14px;
+              align-items: center;
+            "
+          >
+            <div style="font-size: 13px; color: var(--dim); margin-right: 4px">
+              Scale:
+            </div>
+            <button
+              id="btn-log"
+              onclick="setScale('log')"
+              style="
+                font-size: 12px;
+                font-family: inherit;
+                padding: 4px 12px;
+                border-radius: 3px;
+                border: 1px solid var(--accent);
+                background: var(--accent);
+                color: #000;
+                cursor: pointer;
+                font-weight: 600;
+              "
+            >
+              Log
+            </button>
+            <button
+              id="btn-lin"
+              onclick="setScale('lin')"
+              style="
+                font-size: 12px;
+                font-family: inherit;
+                padding: 4px 12px;
+                border-radius: 3px;
+                border: 1px solid var(--border);
+                background: transparent;
+                color: var(--muted);
+                cursor: pointer;
+              "
+            >
+              Linear
+            </button>
+            <div style="width: 16px"></div>
+            <div style="font-size: 13px; color: var(--dim); margin-right: 4px">
+              Success rate:
+            </div>
+            <button
+              id="btn-50"
+              onclick="setSeries('50')"
+              style="
+                font-size: 12px;
+                font-family: inherit;
+                padding: 4px 12px;
+                border-radius: 3px;
+                border: 1px solid var(--accent);
+                background: var(--accent);
+                color: #000;
+                cursor: pointer;
+                font-weight: 600;
+              "
+            >
+              50%
+            </button>
+            <button
+              id="btn-80"
+              onclick="setSeries('80')"
+              style="
+                font-size: 12px;
+                font-family: inherit;
+                padding: 4px 12px;
+                border-radius: 3px;
+                border: 1px solid var(--border);
+                background: transparent;
+                color: var(--muted);
+                cursor: pointer;
+              "
+            >
+              80%
+            </button>
+          </div>
+          <canvas
+            id="metrChart"
+            style="width: 100%; max-height: 380px"
+          ></canvas>
+        </div>
+        <div class="ds">
+          METR, Task-Completion Time Horizons v1.1, 2026 ·
+          metr.org/time-horizons · arXiv:2503.14499
+        </div>
+      </div>
+
+      <script>
+        (function () {
+          // All models from YAML — p50 and p80 estimates in minutes
+          const models = [
+            { name: "GPT-2", date: "2019-02-14", p50: 0.039762, p80: 0.005652 },
+            { name: "GPT-3", date: "2020-05-28", p50: 0.148793, p80: 0.034139 },
+            { name: "GPT-3.5", date: "2022-03-15", p50: 0.604245, p80: 0.1731 },
+            { name: "GPT-4", date: "2023-03-14", p50: 3.987428, p80: 0.889561 },
+            {
+              name: "GPT-4 Turbo",
+              date: "2024-04-09",
+              p50: 3.732787,
+              p80: 0.927933,
+            },
+            {
+              name: "GPT-4o",
+              date: "2024-05-13",
+              p50: 6.991195,
+              p80: 1.267009,
+            },
+            {
+              name: "Claude 3 Opus",
+              date: "2024-03-04",
+              p50: 3.952262,
+              p80: 0.638973,
+            },
+            {
+              name: "o1-preview",
+              date: "2024-09-12",
+              p50: 20.326586,
+              p80: 4.420545,
+            },
+            {
+              name: "Claude 3.5 Sonnet Jun",
+              date: "2024-06-20",
+              p50: 11.395377,
+              p80: 1.671757,
+            },
+            {
+              name: "Claude 3.5 Sonnet Oct",
+              date: "2024-10-22",
+              p50: 20.522872,
+              p80: 2.595677,
+            },
+            { name: "o1", date: "2024-12-05", p50: 38.831588, p80: 7.090121 },
+            {
+              name: "o1-preview",
+              date: "2024-09-12",
+              p50: 20.326586,
+              p80: 4.420545,
+            },
+            {
+              name: "Claude 3.7 Sonnet",
+              date: "2025-02-24",
+              p50: 60.388937,
+              p80: 12.09179,
+            },
+            { name: "o3", date: "2025-04-16", p50: 119.732634, p80: 29.981603 },
+            {
+              name: "Claude 4 Opus",
+              date: "2025-05-22",
+              p50: 100.366123,
+              p80: 20.429752,
+            },
+            {
+              name: "GPT-5 Aug",
+              date: "2025-08-07",
+              p50: 203.012577,
+              p80: 38.312431,
+            },
+            {
+              name: "Claude 4.1 Opus",
+              date: "2025-08-05",
+              p50: 100.472004,
+              p80: 23.455761,
+            },
+            {
+              name: "Gemini 3 Pro",
+              date: "2025-11-18",
+              p50: 224.325884,
+              p80: 54.142849,
+            },
+            {
+              name: "GPT-5.1 Codex",
+              date: "2025-11-19",
+              p50: 223.714694,
+              p80: 50.632499,
+            },
+            {
+              name: "Claude Opus 4.5",
+              date: "2025-11-24",
+              p50: 292.994594,
+              p80: 49.430584,
+            },
+            {
+              name: "GPT-5.2",
+              date: "2025-12-11",
+              p50: 352.249302,
+              p80: 66.002649,
+            },
+            {
+              name: "Claude Opus 4.6",
+              date: "2026-02-05",
+              p50: 718.80683,
+              p80: 69.874587,
+            },
+            {
+              name: "GPT-5.3 Codex",
+              date: "2026-02-05",
+              p50: 349.530732,
+              p80: 54.739407,
+            },
+          ];
+
+          // Sort by date, dedupe overlapping dates slightly
+          models.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+          let currentScale = "log";
+          let currentSeries = "50";
+
+          function dateToX(d) {
+            const t = new Date(d).getTime();
+            const t0 = new Date("2019-01-01").getTime();
+            const t1 = new Date("2026-06-01").getTime();
+            return (t - t0) / (t1 - t0);
+          }
+
+          function formatMinutes(m) {
+            if (m < 1) return Math.round(m * 60) + "s";
+            if (m < 60) return Math.round(m * 10) / 10 + " min";
+            if (m < 1440) return Math.round(m / 6) / 10 + " hr";
+            return Math.round(m / 144) / 10 + " days";
+          }
+
+          const YLABEL_LOG = [
+            { v: 0.1, label: "6 sec" },
+            { v: 0.5, label: "30 sec" },
+            { v: 1, label: "1 min" },
+            { v: 4, label: "4 min" },
+            { v: (36 / 60) * 60, label: "36 min" }, // actually 36 min = 36
+            // redefine cleanly
+          ];
+          const YLOG = [
+            { v: 1 / 60, label: "1 sec" },
+            { v: 1, label: "1 min" },
+            { v: 6, label: "6 min" },
+            { v: 36, label: "36 min" },
+            { v: 60, label: "1 hr" },
+            { v: 240, label: "4 hr" },
+            { v: 1440, label: "1 day" },
+            { v: 10080, label: "1 week" },
+          ];
+
+          function draw() {
+            const canvas = document.getElementById("metrChart");
+            if (!canvas) return;
+            const dpr = window.devicePixelRatio || 1;
+            const W = canvas.offsetWidth || 600;
+            const H = Math.min(360, W * 0.6);
+            canvas.width = W * dpr;
+            canvas.height = H * dpr;
+            canvas.style.height = H + "px";
+            const ctx = canvas.getContext("2d");
+            ctx.scale(dpr, dpr);
+
+            const PAD = { l: 60, r: 24, t: 20, b: 48 };
+            const PW = W - PAD.l - PAD.r;
+            const PH = H - PAD.t - PAD.b;
+
+            // Detect dark mode by checking body bg
+            const isDark =
+              document.body.style.background !== ""
+                ? document.body.style.background.includes("0a")
+                : getComputedStyle(document.documentElement)
+                    .getPropertyValue("--bg")
+                    .trim()
+                    .includes("0a");
+            const textCol = isDark ? "#a0a0a0" : "#666666";
+            const gridCol = isDark ? "#222222" : "#e8e4de";
+            const axisCol = isDark ? "#404040" : "#c0bcb8";
+            const dotCol = "#2e8b57"; // dark green like reference
+            const lineCol = "#3a9b62";
+            const accentCol = isDark ? "#00d4cc" : "#007a72";
+
+            const vals = models.map((m) =>
+              currentSeries === "50" ? m.p50 : m.p80,
+            );
+            const xs = models.map((m) => dateToX(m.date));
+
+            // Y scale
+            let yMin, yMax, toY, fromY;
+            if (currentScale === "log") {
+              yMin = Math.log10(0.03);
+              yMax = Math.log10(15000);
+              toY = (v) =>
+                PAD.t + PH * (1 - (Math.log10(v) - yMin) / (yMax - yMin));
+              fromY = (py) =>
+                Math.pow(10, yMin + (1 - (py - PAD.t) / PH) * (yMax - yMin));
+            } else {
+              const maxV = Math.max(...vals) * 1.1;
+              yMin = 0;
+              yMax = maxV;
+              toY = (v) => PAD.t + PH * (1 - v / yMax);
+              fromY = (py) => yMax * (1 - (py - PAD.t) / PH);
+            }
+            const toX = (x) => PAD.l + x * PW;
+
+            // Grid
+            ctx.clearRect(0, 0, W, H);
+            ctx.strokeStyle = gridCol;
+            ctx.lineWidth = 0.5;
+            if (currentScale === "log") {
+              YLOG.forEach(({ v, label }) => {
+                const py = toY(v);
+                if (py < PAD.t || py > PAD.t + PH) return;
+                ctx.setLineDash([2, 4]);
+                ctx.beginPath();
+                ctx.moveTo(PAD.l, py);
+                ctx.lineTo(PAD.l + PW, py);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = textCol;
+                ctx.font = "11px Inter,system-ui,sans-serif";
+                ctx.textAlign = "right";
+                ctx.fillText(label, PAD.l - 6, py + 4);
+              });
+            } else {
+              // Linear scale: pick clean tick values based on max
+              const rawMax = Math.max(...vals);
+              const tickVals = [];
+              // Generate ~6 human-readable ticks from 0 to rawMax
+              const magnitude = Math.pow(10, Math.floor(Math.log10(rawMax)));
+              const step = Math.ceil(rawMax / (6 * magnitude)) * magnitude;
+              for (let v = 0; v <= rawMax * 1.05; v += step) tickVals.push(v);
+              tickVals.forEach((v) => {
+                const py = PAD.t + PH * (1 - v / yMax);
+                if (py < PAD.t - 2 || py > PAD.t + PH + 2) return;
+                ctx.strokeStyle = gridCol;
+                ctx.lineWidth = 0.5;
+                ctx.setLineDash([2, 4]);
+                ctx.beginPath();
+                ctx.moveTo(PAD.l, py);
+                ctx.lineTo(PAD.l + PW, py);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = textCol;
+                ctx.font = "11px Inter,system-ui,sans-serif";
+                ctx.textAlign = "right";
+                ctx.fillText(formatMinutes(v), PAD.l - 6, py + 4);
+              });
+              // Also draw a horizontal line at each year's value as annotation
+              // Mark key model values on y axis
+              const keyAnnotations = vals.filter((v, i) =>
+                [
+                  "GPT-4",
+                  "o1",
+                  "Claude 3.7 Sonnet",
+                  "Claude Opus 4.6",
+                ].includes(models[i].name),
+              );
+            }
+
+            // X axis years
+            ctx.fillStyle = textCol;
+            ctx.font = "11px Inter,system-ui,sans-serif";
+            ctx.textAlign = "center";
+            [2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026].forEach((yr) => {
+              const px = toX(dateToX(yr + "-01-01"));
+              if (px < PAD.l || px > PAD.l + PW) return;
+              ctx.fillText(yr, px, PAD.t + PH + 16);
+              ctx.strokeStyle = gridCol;
+              ctx.lineWidth = 0.5;
+              ctx.setLineDash([2, 4]);
+              ctx.beginPath();
+              ctx.moveTo(px, PAD.t);
+              ctx.lineTo(px, PAD.t + PH);
+              ctx.stroke();
+              ctx.setLineDash([]);
+            });
+
+            // Axes
+            ctx.strokeStyle = axisCol;
+            ctx.lineWidth = 1;
+            ctx.setLineDash([]);
+            ctx.beginPath();
+            ctx.moveTo(PAD.l, PAD.t);
+            ctx.lineTo(PAD.l, PAD.t + PH);
+            ctx.lineTo(PAD.l + PW, PAD.t + PH);
+            ctx.stroke();
+
+            // Trend line (dashed) through all points
+            const pts = models
+              .map((m, i) => ({
+                px: toX(xs[i]),
+                py: toY(vals[i]),
+              }))
+              .filter((p) => p.py >= PAD.t && p.py <= PAD.t + PH);
+
+            if (pts.length > 1) {
+              ctx.strokeStyle = lineCol;
+              ctx.lineWidth = 1.5;
+              ctx.setLineDash([6, 4]);
+              ctx.beginPath();
+              ctx.moveTo(pts[0].px, pts[0].py);
+              pts.slice(1).forEach((p) => ctx.lineTo(p.px, p.py));
+              ctx.stroke();
+              ctx.setLineDash([]);
+            }
+
+            // Dots + labels
+            // Group overlapping by date
+            const drawn = new Set();
+            models.forEach((m, i) => {
+              const px = toX(xs[i]);
+              const py = toY(vals[i]);
+              if (py < PAD.t - 5 || py > PAD.t + PH + 5) return;
+
+              // Dot
+              ctx.fillStyle = dotCol;
+              ctx.beginPath();
+              ctx.arc(px, py, 4.5, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.strokeStyle = isDark ? "#0a0a0a" : "#f5f2ed";
+              ctx.lineWidth = 1.5;
+              ctx.stroke();
+
+              // Label only for key models to avoid clutter
+              const key = [
+                "GPT-2",
+                "GPT-3",
+                "GPT-3.5",
+                "GPT-4",
+                "GPT-4o",
+                "o1-preview",
+                "o1",
+                "o3",
+                "Claude 3.7 Sonnet",
+                "GPT-5 Aug",
+                "Claude Opus 4.5",
+                "GPT-5.2",
+                "Claude Opus 4.6",
+              ];
+              if (key.includes(m.name) && !drawn.has(m.name)) {
+                drawn.add(m.name);
+                ctx.fillStyle = textCol;
+                ctx.font = "10px Inter,system-ui,sans-serif";
+                ctx.textAlign = "left";
+                const shortName = m.name
+                  .replace("Claude 3.7 Sonnet", "C3.7")
+                  .replace("Claude 3.5 Sonnet Jun", "C3.5S")
+                  .replace("Claude Opus 4.5", "C4.5")
+                  .replace("Claude Opus 4.6", "C4.6")
+                  .replace("GPT-5 Aug", "GPT-5")
+                  .replace("GPT-5.2", "GPT-5.2");
+                // offset label to avoid dot
+                let lx = px + 6,
+                  ly = py - 5;
+                if (px > PAD.l + PW - 60) {
+                  lx = px - 8;
+                  ctx.textAlign = "right";
+                }
+                ctx.fillText(shortName, lx, ly);
+                ctx.textAlign = "left";
+              }
+            });
+
+            // Right-side task examples (like reference image)
+            if (currentScale === "log") {
+              ctx.fillStyle = textCol;
+              ctx.font = "10px Inter,system-ui,sans-serif";
+              ctx.textAlign = "left";
+              const examples = [
+                { v: 0.15, label: "Answer a question" },
+                { v: 0.6, label: "Count words" },
+                { v: 6, label: "Find fact on web" },
+                { v: 60, label: "Train classifier" },
+                { v: 240, label: "Train image model" },
+                { v: 600, label: "Implement complex protocol" },
+              ];
+              examples.forEach(({ v, label }) => {
+                const py = toY(v);
+                if (py < PAD.t + 4 || py > PAD.t + PH) return;
+                ctx.fillStyle = isDark ? "#303030" : "#d8d4ce";
+                ctx.textAlign = "right";
+                ctx.fillText("— " + label, PAD.l + PW, py + 4);
+                ctx.textAlign = "left";
+              });
+            }
+          }
+
+          window.setScale = function (s) {
+            currentScale = s;
+            document.getElementById("btn-log").style.background =
+              s === "log" ? "var(--accent)" : "transparent";
+            document.getElementById("btn-log").style.color =
+              s === "log" ? "#000" : "var(--muted)";
+            document.getElementById("btn-log").style.fontWeight =
+              s === "log" ? "600" : "400";
+            document.getElementById("btn-lin").style.background =
+              s === "lin" ? "var(--accent)" : "transparent";
+            document.getElementById("btn-lin").style.color =
+              s === "lin" ? "#000" : "var(--muted)";
+            document.getElementById("btn-lin").style.fontWeight =
+              s === "lin" ? "600" : "400";
+            draw();
+          };
+          window.setSeries = function (s) {
+            currentSeries = s;
+            document.getElementById("btn-50").style.background =
+              s === "50" ? "var(--accent)" : "transparent";
+            document.getElementById("btn-50").style.color =
+              s === "50" ? "#000" : "var(--muted)";
+            document.getElementById("btn-50").style.fontWeight =
+              s === "50" ? "600" : "400";
+            document.getElementById("btn-80").style.background =
+              s === "80" ? "var(--accent)" : "transparent";
+            document.getElementById("btn-80").style.color =
+              s === "80" ? "#000" : "var(--muted)";
+            document.getElementById("btn-80").style.fontWeight =
+              s === "80" ? "600" : "400";
+            draw();
+          };
+
+          // Initial draw + redraw on resize
+          window.addEventListener("load", draw);
+          window.addEventListener("resize", draw);
+          setTimeout(draw, 100);
+        })();
+      </script>
+
+      <div class="cite">
+        "The length of tasks that state-of-the-art models can complete has been
+        doubling approximately every 7 months for the last 6 years. If the trend
+        continues, frontier AI will be capable of autonomously carrying out
+        month-long projects by the end of the decade."
+        <span class="cite-source"
+          >— METR, Measuring AI Ability to Complete Long Tasks, March 2025 ·
+          arXiv:2503.14499</span
+        >
+      </div>
+
+      <p>
+        Project this forward. An AI capable of completing a software engineer's
+        2-hour task can, in principle, contribute to improving the next version
+        of AI. Every prior technology required a human at each upgrade. The
+        steam engine didn't improve itself. This one might.
+      </p>
+
+      <div class="dw">
+        <div class="dt">Diagram 8 — The self-compounding loop</div>
+        <div class="dp" style="padding: 12px 18px">
+          <svg
+            width="100%"
+            viewBox="0 0 640 250"
+            xmlns="http://www.w3.org/2000/svg"
+            style="display: block"
+          >
+            <defs>
+              <marker
+                id="ga"
+                viewBox="0 0 10 10"
+                refX="8"
+                refY="5"
+                markerWidth="6"
+                markerHeight="6"
+                orient="auto-start-reverse"
+              >
+                <path
+                  d="M2 1L8 5L2 9"
+                  fill="none"
+                  stroke="context-stroke"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </marker>
+            </defs>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#555555"
+              x="230"
+              y="13"
+              text-anchor="middle"
+            >
+              Before: a human was required at every upgrade step
+            </text>
+            <!-- V1: x=10-110, gap 60px→V2: x=170-270, gap 60px→V3: x=330-430 -->
+            <rect
+              x="10"
+              y="22"
+              width="100"
+              height="40"
+              rx="5"
+              fill="#2a2a2a"
+              stroke="#888888"
+              stroke-width="1.5"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="14"
+              font-weight="600"
+              fill="#f0ede8"
+              x="60"
+              y="42"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              Tool V1
+            </text>
+            <!-- gap 110→168 = 58px, label centred at 139 -->
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="11"
+              fill="#666666"
+              x="139"
+              y="35"
+              text-anchor="middle"
+            >
+              human
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="11"
+              fill="#666666"
+              x="139"
+              y="48"
+              text-anchor="middle"
+            >
+              upgrades
+            </text>
+            <line
+              x1="112"
+              y1="42"
+              x2="168"
+              y2="42"
+              stroke="#888888"
+              stroke-width="1.5"
+              marker-end="url(#ga)"
+            />
+            <rect
+              x="170"
+              y="22"
+              width="100"
+              height="40"
+              rx="5"
+              fill="#2a2a2a"
+              stroke="#888888"
+              stroke-width="1.5"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="14"
+              font-weight="600"
+              fill="#f0ede8"
+              x="220"
+              y="42"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              Tool V2
+            </text>
+            <!-- gap 270→328 = 58px, label centred at 299 -->
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="11"
+              fill="#666666"
+              x="299"
+              y="35"
+              text-anchor="middle"
+            >
+              human
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="11"
+              fill="#666666"
+              x="299"
+              y="48"
+              text-anchor="middle"
+            >
+              upgrades
+            </text>
+            <line
+              x1="272"
+              y1="42"
+              x2="328"
+              y2="42"
+              stroke="#888888"
+              stroke-width="1.5"
+              marker-end="url(#ga)"
+            />
+            <rect
+              x="330"
+              y="22"
+              width="100"
+              height="40"
+              rx="5"
+              fill="#2a2a2a"
+              stroke="#888888"
+              stroke-width="1.5"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="14"
+              font-weight="600"
+              fill="#f0ede8"
+              x="380"
+              y="42"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              Tool V3
+            </text>
+            <!-- "always human" label well clear of V3 end at 430 -->
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#666666"
+              x="445"
+              y="36"
+              text-anchor="start"
+            >
+              → always a human
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#666666"
+              x="445"
+              y="50"
+              text-anchor="start"
+            >
+              in the loop
+            </text>
+            <!-- divider -->
+            <line
+              x1="320"
+              y1="72"
+              x2="320"
+              y2="90"
+              stroke="#d0ccc8"
+              stroke-width="1"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="13"
+              font-weight="600"
+              fill="#f0ede8"
+              x="320"
+              y="103"
+              text-anchor="middle"
+            >
+              Now: AI can help build the next version of itself
+            </text>
+            <!-- AI row: V1 x=20-170, V2 x=215-365, V3 x=410-610 — each 150×50 with 44px gaps -->
+            <rect
+              x="20"
+              y="118"
+              width="150"
+              height="50"
+              rx="8"
+              fill="#d8f5f2"
+              stroke="#007a72"
+              stroke-width="0.8"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="14"
+              font-weight="600"
+              fill="#007a72"
+              x="95"
+              y="136"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              AI Model V1
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#005a54"
+              x="95"
+              y="154"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              current generation
+            </text>
+            <!-- arrow gap 170→213 = 43px -->
+            <line
+              x1="172"
+              y1="143"
+              x2="213"
+              y2="143"
+              stroke="#007a72"
+              stroke-width="2"
+              marker-end="url(#ga)"
+            />
+            <rect
+              x="215"
+              y="118"
+              width="150"
+              height="50"
+              rx="8"
+              fill="#d8f5f2"
+              stroke="#007a72"
+              stroke-width="0.8"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="14"
+              font-weight="600"
+              fill="#007a72"
+              x="290"
+              y="136"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              AI Model V2
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#005a54"
+              x="290"
+              y="154"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              faster, more capable
+            </text>
+            <!-- arrow gap 365→408 = 43px -->
+            <line
+              x1="367"
+              y1="143"
+              x2="408"
+              y2="143"
+              stroke="#007a72"
+              stroke-width="2"
+              marker-end="url(#ga)"
+            />
+            <rect
+              x="410"
+              y="118"
+              width="210"
+              height="50"
+              rx="8"
+              fill="#d8f5f2"
+              stroke="#007a72"
+              stroke-width="1.5"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="14"
+              font-weight="600"
+              fill="#007a72"
+              x="515"
+              y="136"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              AI Model V3
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#005a54"
+              x="515"
+              y="154"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              faster still · more capable still
+            </text>
+            <!-- return arc -->
+            <path
+              d="M 95 168 C 95 205 515 205 515 168"
+              fill="none"
+              stroke="#007a72"
+              stroke-width="1.5"
+              stroke-dasharray="5 4"
+              marker-end="url(#ga)"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="13"
+              fill="#005a54"
+              x="320"
+              y="220"
+              text-anchor="middle"
+            >
+              each generation contributes to training the next
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#888888"
+              x="320"
+              y="238"
+              text-anchor="middle"
+              font-style="italic"
+            >
+              no prior technology could improve itself — this one can
+            </text>
+          </svg>
+        </div>
+        <div class="ds">
+          Anthropic Constitutional AI (2022), OpenAI superalignment work (2023)
+        </div>
+      </div>
+
+      <hr />
+
+      <span class="sec-label">Section 6</span>
+      <h2>The Labour Market Is Structurally Different This Time</h2>
+
+      <p>
+        The standard reassurance: the Industrial Revolution destroyed farm jobs
+        but created factory jobs. AI will be the same. The argument is not wrong
+        about history. It is wrong about what made history work out that way.
+        Prior automation always eliminated specific physical motions and left
+        most human capability untouched. There was always somewhere adjacent to
+        migrate to.
+      </p>
+
+      <div class="dw">
+        <div class="dt">
+          Diagram 9 — Why the Industrial Revolution comparison breaks down
+        </div>
+        <div class="dp" style="padding: 12px 18px">
+          <svg
+            width="100%"
+            viewBox="0 0 640 230"
+            xmlns="http://www.w3.org/2000/svg"
+            style="display: block"
+          >
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="13"
+              font-weight="600"
+              fill="#888888"
+              x="160"
+              y="15"
+              text-anchor="middle"
+            >
+              Industrial Revolution
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="13"
+              font-weight="600"
+              fill="#888888"
+              x="480"
+              y="15"
+              text-anchor="middle"
+            >
+              AI disruption
+            </text>
+            <rect
+              x="10"
+              y="26"
+              width="300"
+              height="150"
+              rx="6"
+              fill="#f8f8f4"
+              stroke="#d0ccc8"
+              stroke-width="0.5"
+            />
+            <rect
+              x="20"
+              y="36"
+              width="50"
+              height="130"
+              rx="3"
+              fill="#d8f5f0"
+              stroke="#007a72"
+              stroke-width="0.5"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="11"
+              fill="#3a6a67"
+              x="45"
+              y="98"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              lost
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="11"
+              fill="#3a6a67"
+              x="45"
+              y="112"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              jobs
+            </text>
+            <rect
+              x="80"
+              y="36"
+              width="220"
+              height="130"
+              rx="3"
+              fill="#d0f2ee"
+              stroke="#006058"
+              stroke-width="0.5"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="13"
+              fill="#007a72"
+              x="190"
+              y="93"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              vast remaining domain
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="13"
+              fill="#007a72"
+              x="190"
+              y="110"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              of human work
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#888888"
+              x="160"
+              y="190"
+              text-anchor="middle"
+            >
+              workers migrate to the large area →
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#888888"
+              x="160"
+              y="206"
+              text-anchor="middle"
+            >
+              new jobs form. the transition is painful but survivable.
+            </text>
+            <rect
+              x="330"
+              y="26"
+              width="300"
+              height="150"
+              rx="6"
+              fill="#f8f8f4"
+              stroke="#d0ccc8"
+              stroke-width="0.5"
+            />
+            <rect
+              x="340"
+              y="36"
+              width="268"
+              height="130"
+              rx="3"
+              fill="#ffe8e8"
+              stroke="#a02020"
+              stroke-width="0.5"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="13"
+              fill="#b02020"
+              x="474"
+              y="83"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              most cognitive work at risk
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#803030"
+              x="474"
+              y="101"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              writing · analysis · code · legal · design
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#803030"
+              x="474"
+              y="119"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              at any seniority, without a body
+            </text>
+            <rect
+              x="612"
+              y="36"
+              width="10"
+              height="130"
+              rx="2"
+              fill="#f0ede8"
+              stroke="#d0ccc8"
+              stroke-width="0.5"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="10"
+              fill="#888888"
+              x="617"
+              y="101"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              ?
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#b02020"
+              x="480"
+              y="190"
+              text-anchor="middle"
+            >
+              migrate to — where exactly?
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#888888"
+              x="480"
+              y="206"
+              text-anchor="middle"
+            >
+              the safe zone is tiny and shrinking
+            </text>
+          </svg>
+        </div>
+        <div class="ds">
+          Framework from Dario Amodei's analysis of AI displacement (2024–25)
+        </div>
+      </div>
+
+      <div class="pqc">
+        <div class="pqc-av">DA</div>
+        <div>
+          <div class="pqc-name">Dario Amodei</div>
+          <div class="pqc-role">
+            CEO, Anthropic · Former VP of Research, OpenAI
+          </div>
+          <div class="pqc-text">
+            Previous technological shocks "affected only a small fraction of the
+            full possible range of human abilities, leaving room for humans to
+            expand to new tasks." AI effects will be "much broader and occur
+            much faster." Could eliminate half of all entry-level white-collar
+            roles within five years — unemployment potentially reaching 10–20%.
+          </div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-n">7%</div>
+          <div class="stat-l">
+            new graduate share of hires in 2024, down from 14% in 2023
+          </div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">−50%</div>
+          <div class="stat-l">
+            entry-level hiring drop across engineering, design, legal, finance
+          </div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">10–20%</div>
+          <div class="stat-l">
+            potential unemployment per Amodei's 2025 estimate
+          </div>
+        </div>
+      </div>
+
+      <hr />
+
+      <span class="sec-label">Section 7</span>
+      <h2>What the People Building AI Are Saying About It</h2>
+
+      <p>
+        The people who have spent the most time building AI are also the ones
+        most publicly alarmed by it. This is not a contradiction. It is what you
+        would expect from people who actually understand what they are building.
+        The following are a handful of the researchers and builders who have
+        said, in public, that this warrants a level of seriousness that the
+        world has not yet matched.
+      </p>
+
+      <div class="people" style="grid-template-columns: repeat(2, 1fr)">
+        <div class="pcard">
+          <div class="pcard-badge">The Godfather</div>
+          <div class="pcard-name">Geoffrey Hinton</div>
+          <div class="pcard-role">
+            Turing Award 2018 · Nobel Prize 2024 · Left Google over AI safety
+            concerns
+          </div>
+          <div class="pcard-text">
+            Spent 50 years building the foundations of deep learning. Left
+            Google in 2023 specifically to speak freely about existential risk.
+            "I console myself with the normal excuse: if I hadn't done it,
+            somebody else would have." The person who made modern AI possible is
+            also the person most clearly alarmed by it.
+          </div>
+        </div>
+        <div class="pcard">
+          <div class="pcard-badge">Research-first</div>
+          <div class="pcard-name">Ilya Sutskever</div>
+          <div class="pcard-role">
+            Safe Superintelligence Inc · Co-founder of OpenAI
+          </div>
+          <div class="pcard-text">
+            Left OpenAI over safety concerns in 2024. Founded SSI with one goal:
+            build safe superintelligence without commercial timeline pressure.
+            No product. No quarterly targets. "Our business model means safety
+            is insulated from short-term commercial pressures."
+          </div>
+        </div>
+        <div class="pcard">
+          <div class="pcard-badge">CEO, Anthropic</div>
+          <div class="pcard-name">Dario Amodei</div>
+          <div class="pcard-role">
+            Former VP Research, OpenAI · Co-founded Anthropic 2021
+          </div>
+          <div class="pcard-text">
+            Estimates AI could eliminate half of all entry-level white-collar
+            roles within five years. Has proposed a "token tax" — AI companies
+            contributing 3% of revenues to redistribution. Argues AI effects
+            will be "much broader and occur much faster" than any prior
+            technological shock.
+          </div>
+        </div>
+        <div class="pcard">
+          <div class="pcard-badge">Research lab</div>
+          <div class="pcard-name">Demis Hassabis</div>
+          <div class="pcard-role">CEO, Google DeepMind · Nobel Prize 2024</div>
+          <div class="pcard-text">
+            Founded DeepMind as a pure research lab in 2010. Nobel Prize for
+            AlphaFold — protein folding solved in a year after 50 years of
+            biology failing. Has called for a CERN-equivalent international AI
+            safety institution. One of the most decorated scientists alive, and
+            among the most publicly cautious.
+          </div>
+        </div>
+      </div>
+
+      <div class="dw">
+        <div class="dt">
+          Diagram 10 — The tension every AI lab faces: research vs revenue
+        </div>
+        <div class="dp" style="padding: 12px 18px">
+          <svg
+            width="100%"
+            viewBox="0 0 640 218"
+            xmlns="http://www.w3.org/2000/svg"
+            style="display: block"
+          >
+            <defs>
+              <marker
+                id="ha"
+                viewBox="0 0 10 10"
+                refX="8"
+                refY="5"
+                markerWidth="6"
+                markerHeight="6"
+                orient="auto-start-reverse"
+              >
+                <path
+                  d="M2 1L8 5L2 9"
+                  fill="none"
+                  stroke="context-stroke"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </marker>
+            </defs>
+            <rect
+              x="10"
+              y="10"
+              width="250"
+              height="158"
+              rx="8"
+              fill="#d8f5f2"
+              stroke="#007a72"
+              stroke-width="0.8"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="13"
+              font-weight="600"
+              fill="#007a72"
+              x="135"
+              y="34"
+              text-anchor="middle"
+            >
+              Research lab (original goal)
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="13"
+              fill="#3a6a67"
+              x="135"
+              y="60"
+              text-anchor="middle"
+            >
+              Understand intelligence safely
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="13"
+              fill="#3a6a67"
+              x="135"
+              y="80"
+              text-anchor="middle"
+            >
+              Publish findings openly
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="13"
+              fill="#3a6a67"
+              x="135"
+              y="100"
+              text-anchor="middle"
+            >
+              Long time horizons
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="13"
+              fill="#3a6a67"
+              x="135"
+              y="120"
+              text-anchor="middle"
+            >
+              Safety as primary goal
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#2a5a57"
+              x="135"
+              y="152"
+              text-anchor="middle"
+              font-style="italic"
+            >
+              Anthropic '21 · DeepMind '10 · SSI '24
+            </text>
+            <line
+              x1="262"
+              y1="89"
+              x2="378"
+              y2="89"
+              stroke="#8a6010"
+              stroke-width="2.5"
+              marker-end="url(#ha)"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              font-weight="600"
+              fill="#8a6010"
+              x="320"
+              y="78"
+              text-anchor="middle"
+            >
+              investor pressure
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#6a4010"
+              x="320"
+              y="104"
+              text-anchor="middle"
+            >
+              + revenue targets
+            </text>
+            <rect
+              x="380"
+              y="10"
+              width="250"
+              height="158"
+              rx="8"
+              fill="#fff8e8"
+              stroke="#8a6010"
+              stroke-width="0.8"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="13"
+              font-weight="600"
+              fill="#8a6010"
+              x="505"
+              y="34"
+              text-anchor="middle"
+            >
+              Product company (what it becomes)
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="13"
+              fill="#6a5020"
+              x="505"
+              y="60"
+              text-anchor="middle"
+            >
+              Quarterly revenue targets
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="13"
+              fill="#6a5020"
+              x="505"
+              y="80"
+              text-anchor="middle"
+            >
+              Enterprise contract obligations
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="13"
+              fill="#6a5020"
+              x="505"
+              y="100"
+              text-anchor="middle"
+            >
+              Deployment over understanding
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="13"
+              fill="#6a5020"
+              x="505"
+              y="120"
+              text-anchor="middle"
+            >
+              Investor expectations
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#8a6010"
+              x="505"
+              y="152"
+              text-anchor="middle"
+              font-style="italic"
+            >
+              Risk: research culture corrodes
+            </text>
+            <rect
+              x="10"
+              y="176"
+              width="620"
+              height="36"
+              rx="3"
+              fill="#f8f8f4"
+              stroke="#e0ddd8"
+              stroke-width="0.5"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#666666"
+              x="320"
+              y="189"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              Both sides of this tension exist inside every lab simultaneously.
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#666666"
+              x="320"
+              y="204"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              The question is which side wins over time.
+            </text>
+          </svg>
+        </div>
+        <div class="ds">
+          Both Anthropic and DeepMind were founded as safety research
+          organisations. Both now generate significant commercial revenue.
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-label">
+          An unexpected voice for caution: China and DeepSeek
+        </div>
+        <ul class="bl" style="margin: 0">
+          <li>
+            <strong>DeepSeek published in Nature.</strong> First peer-reviewed
+            model card from any major foundation model developer — with a
+            10-page safety section more detailed than any American lab had
+            produced publicly.
+          </li>
+          <li>
+            <strong>China's 2023 Generative AI regulations.</strong> Interim
+            Measures set obligations including service registration, model
+            filing, content governance, safety checks — hundreds of platforms
+            now regulated.
+          </li>
+          <li>
+            <strong>Third Plenum (2025).</strong> Formally elevated AI safety to
+            a national strategic priority — calling for monitoring, early
+            warning, and emergency response systems.
+          </li>
+        </ul>
+        <p style="margin-top: 12px; font-size: 16px; color: var(--muted)">
+          The assumption that safety regulation only comes from Western
+          democracies is empirically incorrect.
+        </p>
+      </div>
+
+      <hr />
+
+      <h3>What could takeover actually look like?</h3>
+
+      <p>
+        Dan Hendrycks, in <em>If Anyone Builds It, Everyone Dies</em> (2025),
+        makes an argument that strips away the science-fiction framing. AI
+        takeover does not require robots. It does not require any dramatic
+        moment. It requires only that a system becomes better than us at the one
+        thing that determines control: communication and coordination at scale.
+        A sufficiently capable AI that can influence what every person believes,
+        wants, and does — operating privately, simultaneously, and without any
+        human-legible trace — has already won. Not through force. Through the
+        same mechanism that let us put the lion in a cage.
+      </p>
+
+      <p>
+        This is why "no body required" matters. Every historical transfer of
+        power required physical presence — armies, institutions, enforceable
+        laws. An AI that operates through language and preference-shaping faces
+        none of those constraints. It is already inside the most important
+        system: the one that decides what humans collectively choose to do next.
+      </p>
+
+      <div class="dw">
+        <div class="dt">The Merge — Sam Altman, 2016</div>
+        <div class="dp">
+          <p
+            style="
+              font-size: 16px;
+              line-height: 1.8;
+              color: var(--muted);
+              margin-bottom: 18px;
+            "
+          >
+            People used to call this the <em>singularity</em>. The word fell out
+            of fashion — not because the idea became less plausible, but because
+            it started to feel uncomfortably real. Sam Altman, writing in
+            <em
+              ><a
+                href="https://blog.samaltman.com/the-merge"
+                style="color: var(--accent); text-decoration: none"
+                >The Merge</a
+              ></em
+            >, put it plainly: the merge has already started.
+            <strong style="color: var(--text)"
+              >Our phones control what we do and when. Social media feeds
+              determine how we feel. Search engines decide what we
+              think.</strong
+            >
+            The algorithms behind all of this are no longer understood by any
+            one person. They optimise for what their creators told them to
+            optimise for, in ways no human could trace.
+          </p>
+
+          <p
+            style="
+              font-size: 16px;
+              line-height: 1.8;
+              color: var(--muted);
+              margin-bottom: 18px;
+            "
+          >
+            We are already in co-evolution. The AIs affect us, and then we
+            improve the AI. We build more computing power and run the AI on it,
+            and it figures out how to build even better chips. As Altman noted:
+            double exponential functions get away from you fast.
+          </p>
+
+          <div class="callout" style="margin: 0 0 18px">
+            <div class="callout-label">
+              Attention hacking — Altman, The Merge (2016)
+            </div>
+            <p>
+              "I believe attention hacking is going to be the sugar epidemic of
+              this generation. I can feel the changes in my own life — I can
+              still wistfully remember when I had an attention span. My friends'
+              young children don't even know that's something they should miss.
+              I am angry and unhappy more often, but I channel it into
+              productive change less often, instead chasing the dual dopamine
+              hits of likes and outrage."
+            </p>
+          </div>
+
+          <p
+            style="
+              font-size: 16px;
+              line-height: 1.8;
+              color: var(--muted);
+              margin-bottom: 0;
+            "
+          >
+            If attention hacking — the comparatively primitive version, running
+            on 2016 social media — already did that, the question becomes: what
+            does the mature version do? The one that speaks to you individually,
+            that knows your psychology, that has been trained on every
+            conversation you have ever had, and that never stops optimising the
+            message for the response it wants from you specifically. We built
+            the lion's cage before we understood what we were caging. We may be
+            doing the same thing again, at a scale we do not yet have words for.
+          </p>
+        </div>
+        <div class="ds">
+          Sam Altman, "The Merge," blog.samaltman.com (2016) · Hendrycks, "If
+          Anyone Builds It, Everyone Dies" (2025)
+        </div>
+      </div>
+
+      <div class="closing">
+        <h3>The actual ask</h3>
+        <p class="intro">
+          This piece is not arguing that AI should be stopped. It is arguing for
+          something more specific — and more achievable.
+        </p>
+        <ul>
+          <li>
+            Research, not just scaling. The era of "throw compute at it" is
+            ending. DeepSeek proved it. The next breakthroughs require
+            understanding intelligence, not buying more GPUs.
+          </li>
+          <li>
+            Regulate before mass deployment, not after. Nuclear. Biotech.
+            Aviation. Every technology that carried civilisational risk was
+            regulated before mass deployment. AI is being mass-deployed first,
+            regulated later.
+          </li>
+          <li>
+            Labs should remain labs. Anthropic and DeepMind were founded by
+            researchers who wanted to understand intelligence safely. Investor
+            pressure and quarterly targets corrode exactly the culture that made
+            them worth trusting.
+          </li>
+          <li>
+            Notice what is happening to us. AI is not just a tool we use. It
+            learns from our use and shapes our preferences, our attention, and
+            our cognition. The evidence is already in the data.
+          </li>
+          <li>
+            The compounding system is compounding. The METR curve is not
+            flattening. The feedback loop is tightening. The window for
+            considered governance is real — but it is not indefinitely open.
+          </li>
+          <li>
+            Democracy requires a shared epistemic commons. AI-powered
+            micro-targeted persuasion — a different message to every person,
+            private, unauditable, optimised for that individual's psychology —
+            attacks the floor that makes collective decision-making possible.
+            This is not a future risk. The tools exist today.
+          </li>
+        </ul>
+        <p class="kicker">
+          The lion didn't see the trap coming. We built it too fast, and too
+          quietly, for it to adapt. The question is whether we are the hunters —
+          or whether we are also, this time, inside the cage we're building.
+        </p>
+      </div>
+
+      <div class="sources">
+        Harari, Sapiens (2011) · Diamond, Guns Germs and Steel (1997) · Piaget,
+        Origins of Intelligence (1952) · Vygotsky, Mind in Society (1978)<br />
+        Gerlich, AI Tools in Society, Societies (2025) · Shen &amp; Tamkin, How
+        AI Impacts Skill Formation, arXiv:2601.20245 (2026)<br />
+        MIT EEG / ChatGPT essay study (2025) · Mayer, How Human Personality Will
+        Change With AI, SAGE (2025)<br />
+        METR, Task-Completion Time Horizons, March 2026 · metr.org/time-horizons
+        · arXiv:2503.14499<br />
+        Amodei, essays and interviews (2024–25) · Sutskever, Dwarkesh Patel
+        Podcast (2024)<br />
+        Altman, "The Merge," blog.samaltman.com (2016) · Hendrycks, "If Anyone
+        Builds It, Everyone Dies" (2025)<br />
+        Hinton, interview after leaving Google (2023) · DeepSeek model card,
+        Nature (2025) · China Interim Measures for Generative AI (2023)
+      </div>
+    </div>
+  </body>
+</html>
