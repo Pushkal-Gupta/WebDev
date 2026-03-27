@@ -36,7 +36,7 @@ body {
 }
 body.is-reading-mode {
   overflow: hidden !important;
-} /* Fix: Double scroll */
+}
 .container {
   width: 90%;
   max-width: var(--container-width);
@@ -54,6 +54,12 @@ header {
   top: 0;
   background: var(--bg);
   z-index: 2000;
+}
+.nav-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 .brand-link {
   text-decoration: none;
@@ -85,10 +91,9 @@ header {
 .header-right {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 .auth-btn {
-  order: 2;
   font-family: var(--mono);
   font-size: 0.65rem;
   color: var(--accent);
@@ -99,7 +104,6 @@ header {
   border-radius: 3px;
 }
 .toggle-wrap {
-  order: 1;
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -191,6 +195,25 @@ iframe {
   height: 100%;
   border: none;
   display: block;
+}
+
+#loader {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  z-index: 10;
+}
+@keyframes spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
 }
 
 #auth-modal {
@@ -323,6 +346,7 @@ textarea {
   outline: none;
   resize: none;
   min-height: 80px;
+  font-family: var(--serif);
 }
 .btn-post {
   margin-top: 0.5rem;
