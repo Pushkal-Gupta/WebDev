@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI and the Lion's Cage — The Last Tool We Build</title>
+    <title>Why AI Is Different From Every Technology That Came Before</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
@@ -34,12 +34,12 @@
         -webkit-font-smoothing: antialiased;
       }
       .wrap {
-        max-width: 700px;
+        max-width: 860px;
         margin: 0 auto;
-        padding: 60px 24px 120px;
+        padding: 60px 40px 120px;
       }
       h1 {
-        font-size: clamp(26px, 5vw, 40px);
+        font-size: clamp(24px, 4.5vw, 44px);
         font-weight: 700;
         line-height: 1.15;
         margin-bottom: 48px;
@@ -661,17 +661,75 @@
         line-height: 2.2;
       }
 
-      @media (max-width: 600px) {
-        body {
-          font-size: 16px;
-        }
+      /* ── Tablet ── */
+      @media (max-width: 768px) {
         .wrap {
-          padding: 36px 18px 80px;
+          padding: 40px 24px 100px;
+        }
+        h2 {
+          font-size: clamp(18px, 3.5vw, 24px);
+        }
+        .people {
+          grid-template-columns: 1fr 1fr;
         }
         .stats {
           grid-template-columns: 1fr 1fr;
         }
+        .dgrid2 {
+          grid-template-columns: 1fr;
+        }
+        .dgrid2 .dg-head.left {
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+        .dgrid2 .dg-cell.left {
+          border-right: none;
+        }
+        .d2col {
+          grid-template-columns: 1fr;
+        }
+        .rr-grid {
+          grid-template-columns: 1fr;
+        }
+        .rr-arrow {
+          display: none;
+        }
+        .stbl th:last-child,
+        .stbl td:last-child {
+          display: none;
+        }
+        .pqc {
+          gap: 12px;
+        }
+        .dbar-label {
+          min-width: 160px;
+        }
+      }
+
+      /* ── Mobile ── */
+      @media (max-width: 480px) {
+        body {
+          font-size: 16px;
+          line-height: 1.75;
+        }
+        .wrap {
+          padding: 28px 16px 80px;
+        }
+        h1 {
+          margin-bottom: 32px;
+          padding-bottom: 24px;
+        }
+        h2 {
+          font-size: 20px;
+        }
+        .pq {
+          font-size: 17px;
+          padding: 12px 16px;
+        }
         .people {
+          grid-template-columns: 1fr;
+        }
+        .stats {
           grid-template-columns: 1fr;
         }
         .dgrid2 {
@@ -694,8 +752,8 @@
           display: none;
         }
         .dbar-label {
-          min-width: 130px;
-          font-size: 13px;
+          min-width: 110px;
+          font-size: 12px;
         }
         .stbl {
           font-size: 13px;
@@ -706,13 +764,35 @@
         }
         .pqc {
           flex-direction: column;
+          gap: 10px;
+        }
+        .pqc-av {
+          width: 34px;
+          height: 34px;
+          font-size: 11px;
+        }
+        .closing {
+          padding: 24px 18px;
+        }
+        .dp {
+          padding: 12px 14px !important;
+        }
+        .dt {
+          padding: 10px 14px 0;
+          font-size: 10px;
+        }
+        .ds {
+          padding: 6px 14px 10px;
+        }
+        svg {
+          overflow: visible;
         }
       }
     </style>
   </head>
   <body>
     <div class="wrap">
-      <h1>AI and the Lion's Cage — The Last Tool We Build</h1>
+      <h1>AI and the Lion's Cage — The Last Tool That Builds Itself</h1>
 
       <span class="sec-label">Section 1</span>
       <h2>A Thought Experiment</h2>
@@ -3896,8 +3976,8 @@
         Origins of Intelligence (1952) · Vygotsky, Mind in Society (1978)<br />
         Gerlich, AI Tools in Society, Societies (2025) · Shen &amp; Tamkin, How
         AI Impacts Skill Formation, arXiv:2601.20245 (2026)<br />
-        MIT EEG / ChatGPT essay study (2025) · Mayer, How Human Personality Will
-        Change With AI, SAGE (2025)<br />
+        MIT EEG study (2025) · Mayer, How Human Personality Will Change With AI,
+        SAGE (2025)<br />
         METR, Task-Completion Time Horizons, March 2026 · metr.org/time-horizons
         · arXiv:2503.14499<br />
         Amodei, essays and interviews (2024–25) · Sutskever, Dwarkesh Patel

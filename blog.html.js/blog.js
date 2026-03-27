@@ -23,7 +23,7 @@ const POSTS = [
 ];
 let currentActivePost = null;
 
-// --- Auth UI Logic ---
+// --- Auth logic ---
 function setAuthMode(mode) {
   currentAuthMode = mode;
   const title = document.getElementById("modal-title");
@@ -47,7 +47,6 @@ function setAuthMode(mode) {
     switchText.innerHTML = `New here? <span onclick="setAuthMode('signup')">Create account</span>`;
   }
 }
-
 async function handleAuth() {
   if (user) {
     await supabaseClient.auth.signOut();
@@ -59,20 +58,15 @@ async function handleAuth() {
 function closeAuthModal() {
   document.getElementById("auth-modal").classList.add("hidden");
 }
-
 async function submitAuth() {
   const email = document.getElementById("auth-email").value;
   const password = document.getElementById("auth-password").value;
   let res;
-  if (currentAuthMode === "signup") {
+  if (currentAuthMode === "signup")
     res = await supabaseClient.auth.signUp({ email, password });
-    if (!res.error) alert("Check your email for a confirmation link!");
-  } else if (currentAuthMode === "reset") {
+  else if (currentAuthMode === "reset")
     res = await supabaseClient.auth.resetPasswordForEmail(email);
-    if (!res.error) alert("Password reset link sent!");
-  } else {
-    res = await supabaseClient.auth.signInWithPassword({ email, password });
-  }
+  else res = await supabaseClient.auth.signInWithPassword({ email, password });
   if (res.error) alert(res.error.message);
   else if (currentAuthMode === "login") location.reload();
 }
@@ -80,7 +74,7 @@ async function loginWithGoogle() {
   await supabaseClient.auth.signInWithOAuth({ provider: "google" });
 }
 
-// --- App Logic ---
+// --- App logic ---
 async function checkUser() {
   const { data } = await supabaseClient.auth.getSession();
   user = data.session?.user;
@@ -88,11 +82,10 @@ async function checkUser() {
   renderInputArea();
   if (currentActivePost) fetchComments(currentActivePost.id);
 }
-
 function renderInputArea() {
   const area = document.getElementById("comment-input-area");
   if (!user) {
-    area.innerHTML = `<div class="login-msg">Please <span style="color:var(--accent);cursor:pointer;text-decoration:underline" onclick="handleAuth()">login</span> to join the discussion.</div>`;
+    area.innerHTML = `<div class="login-msg">Please <span style="color:var(--accent);cursor:pointer;text-decoration:underline" onclick="handleAuth()">login</span> to join.</div>`;
     return;
   }
   const avatar =
@@ -100,7 +93,6 @@ function renderInputArea() {
     `https://ui-avatars.com/api/?name=${user.email.split("@")[0]}&background=0f2b29&color=00fff5`;
   area.innerHTML = `<div class="comment-box-top"><div class="avatar-box"><img src="${avatar}"></div><div class="input-wrap"><textarea id="c-text" placeholder="Add a comment..."></textarea><button class="btn-post" onclick="postComment()">POST</button></div></div>`;
 }
-
 function init() {
   document.getElementById("post-list").innerHTML = POSTS.map(
     (p) =>
@@ -113,7 +105,7 @@ function loadPost(postId) {
   const p = POSTS.find((x) => x.id === postId);
   currentActivePost = p;
   const theme = document.documentElement.getAttribute("data-theme");
-  document.body.classList.add("is-reading-mode"); // Lock scroll
+  document.body.classList.add("is-reading-mode");
   const brand = document.querySelector(".brand-link");
   brand.classList.add("is-reading");
   brand.setAttribute("title", "Back to Index");
@@ -126,28 +118,47 @@ function loadPost(postId) {
 
 function toggleTheme() {
   const html = document.documentElement;
-  const target = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  const currentTheme = html.getAttribute("data-theme");
+  const target = currentTheme === "dark" ? "light" : "dark";
+
+  // 1. Update the main blog UI theme
   html.setAttribute("data-theme", target);
-  document.getElementById("mode-label").innerText =
-    target.charAt(0).toUpperCase() + target.slice(1);
+
+  const label = document.getElementById("mode-label");
+  if (label) {
+    label.innerText = target.charAt(0).toUpperCase() + target.slice(1);
+  }
+
+  // 2. Sync the iframe content if an article is open
   if (currentActivePost) {
     const ifr = document.getElementById("reader-frame");
     if (ifr && ifr.contentWindow) {
+      // Calculate current scroll percentage before the swap
       const doc = ifr.contentDocument || ifr.contentWindow.document;
       const scrollPos = ifr.contentWindow.pageYOffset;
       const maxScroll =
         doc.documentElement.scrollHeight - ifr.contentWindow.innerHeight;
       const scrollPercent = maxScroll > 0 ? scrollPos / maxScroll : 0;
-      document.getElementById("loader").classList.remove("hidden");
+
+      // Show loader while switching files
+      const loader = document.getElementById("loader");
+      if (loader) loader.classList.remove("hidden");
+
+      // Swap the iframe source to the matching theme file
       ifr.src =
         target === "dark"
           ? currentActivePost.darkFile
           : currentActivePost.lightFile;
+
+      // Restore scroll position once the new document is ready
       ifr.onload = () => {
-        document.getElementById("loader").classList.add("hidden");
+        if (loader) loader.classList.add("hidden");
+
+        // Wait a tiny bit for the browser to calculate the new document height
+        const newDoc = ifr.contentDocument || ifr.contentWindow.document;
         const newMaxScroll =
-          ifr.contentDocument.documentElement.scrollHeight -
-          ifr.contentWindow.innerHeight;
+          newDoc.documentElement.scrollHeight - ifr.contentWindow.innerHeight;
+
         ifr.contentWindow.scrollTo(0, scrollPercent * newMaxScroll);
       };
     }
@@ -165,29 +176,12 @@ async function fetchComments(pid) {
   document.getElementById("comments-list").innerHTML = (data || [])
     .map(
       (c) =>
-        `<div class="comment-item"><div class="avatar-box">?</div><div class="c-content"><span class="c-user">${c.author}</span><span class="c-meta">${new Date(c.created_at).toLocaleDateString()}</span><div class="c-body" id="body-${c.id}">${c.content}</div><div class="c-actions">${user && user.id === c.user_id ? `<span onclick="editComment('${c.id}')">Edit</span><span onclick="deleteComment('${c.id}')">Delete</span>` : ""}</div></div></div>`,
+        `<div class="comment-item"><div class="avatar-box">?</div><div class="c-content"><span class="c-user">${c.author}</span><span class="c-meta">${new Date(c.created_at).toLocaleDateString()}</span><div class="c-body">${c.content}</div></div></div>`,
     )
     .join("");
 }
-
-async function postComment() {
-  const text = document.getElementById("c-text").value;
-  if (!text || !user) return;
-  const authorName = user.user_metadata.full_name || user.email.split("@")[0];
-  await supabaseClient.from("comments").insert([
-    {
-      post_id: currentActivePost.id,
-      user_id: user.id,
-      author: authorName,
-      content: text,
-    },
-  ]);
-  document.getElementById("c-text").value = "";
-  fetchComments(currentActivePost.id);
-}
-
 function showHome() {
-  document.body.classList.remove("is-reading-mode"); // Unlock scroll
+  document.body.classList.remove("is-reading-mode");
   const brand = document.querySelector(".brand-link");
   brand.classList.remove("is-reading");
   brand.removeAttribute("title");
