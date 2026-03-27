@@ -4,8 +4,8 @@ siteArr = [
   {
     name: "PG.Blog",
     date: "24/03/2026",
-    rating: 4,
-    level: 4,
+    rating: 2,
+    level: 1,
     status: "In progress",
     bootstrapVersion: "None",
     fontAwesomeVersion: "None",
