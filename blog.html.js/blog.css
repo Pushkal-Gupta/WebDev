@@ -148,30 +148,42 @@ header {
   font-size: 1rem;
   margin: 1.5rem 0 2rem;
 }
+/* --- Content Section --- */
 .feed-item {
   display: grid;
   grid-template-columns: 140px 1fr;
-  padding: 1.2rem 1rem;
+  padding: 1.5rem 1.2rem; /* Increased padding for better click target */
   border-bottom: 1px solid var(--border);
   cursor: pointer;
   transition: all var(--t);
   margin: 0 -1rem;
-  border-radius: 6px;
+  border-radius: 8px;
   align-items: center;
+  background: transparent;
 }
+
+/* Hover state: cyan background tint and text color swap */
 .feed-item:hover {
-  background: var(--hover-box);
-  padding-left: 1.5rem;
+  background: var(--hover-box); /* This is the cyan tint */
+  padding-left: 1.8rem; /* Smooth slide-in effect */
 }
+
+/* Force the title to turn cyan on hover */
+.feed-item:hover .post-title {
+  color: var(--accent);
+}
+
 .post-date {
   font-family: var(--mono);
   font-size: 0.85rem;
   color: var(--text-dim);
 }
+
 .post-title {
   font-family: var(--serif);
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   color: var(--text-main);
+  transition: color var(--t);
 }
 
 #post-view {
