@@ -248,8 +248,8 @@ async function submitAuth() {
 
 async function submitOtp() {
   const token = document.getElementById("otp-input").value.trim();
-  if (!token || token.length < 6) {
-    alert("Please enter the full 6-digit code.");
+  if (!token || token.length < 8) {
+    alert("Please enter the full 8-digit code.");
     return;
   }
   const btn = document.getElementById("submit-otp-btn");
