@@ -228,19 +228,7 @@ iframe {
   }
 }
 
-#auth-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.85);
-  z-index: 3000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(4px);
-}
+/* overlay layout is on .modal-overlay — no rules needed here */
 .modal-content {
   background: var(--bg);
   border: 1px solid var(--border);
@@ -370,4 +358,200 @@ textarea {
   border-radius: 3px;
   float: right;
   font-weight: 600;
+}
+
+/* ── Modal overlay (shared by auth + account modals) ── */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+/* ── Account modal extras ── */
+.account-email {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin: 0.5rem 0 1.5rem;
+  word-break: break-all;
+}
+.section-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin: 1.5rem 0 0.8rem;
+  letter-spacing: 0.08em;
+}
+.oauth-note {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  text-align: center;
+  margin: 1rem 0;
+  font-style: italic;
+}
+.logout-btn {
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 0.9rem;
+  background: transparent;
+  color: #e05a5a;
+  border: 1px solid #e05a5a;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition:
+    background var(--t),
+    color var(--t);
+}
+.logout-btn:hover {
+  background: rgba(224, 90, 90, 0.1);
+}
+
+/* ── Comment layout ── */
+.comment-box-top {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 3rem;
+}
+.input-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.login-msg {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+}
+.login-msg span {
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+}
+.comment-item {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.comment-reply {
+  margin-top: 1rem;
+  margin-bottom: 0;
+}
+.c-content {
+  flex: 1;
+  min-width: 0;
+}
+.c-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.4rem;
+}
+.c-user {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-main);
+}
+.c-meta {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  font-family: var(--mono);
+}
+.edited-tag {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0.1rem 0.35rem;
+  font-family: var(--mono);
+  text-transform: uppercase;
+}
+.c-body {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--text-main);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.c-actions {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 0.5rem;
+}
+.c-action-btn {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  font-family: var(--mono);
+  cursor: pointer;
+  padding: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: color var(--t);
+}
+.c-action-btn:hover {
+  color: var(--accent);
+}
+
+/* ── Inline reply / edit forms ── */
+.inline-form {
+  margin-top: 0.8rem;
+}
+.inline-form textarea {
+  min-height: 70px;
+  font-size: 0.9rem;
+}
+.inline-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+.btn-post-sm {
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+  border-radius: 3px;
+  font-weight: 600;
+  font-size: 0.82rem;
+  font-family: var(--sans);
+}
+.btn-cancel {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+  border-radius: 3px;
+  font-size: 0.82rem;
+  font-family: var(--sans);
+  transition:
+    border-color var(--t),
+    color var(--t);
+}
+.btn-cancel:hover {
+  border-color: var(--text-dim);
+  color: var(--text-main);
+}
+
+/* ── Replies container ── */
+.replies-list {
+  margin-top: 1rem;
+  padding-left: 1rem;
+  border-left: 2px solid var(--border);
 }

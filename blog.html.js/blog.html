@@ -56,12 +56,13 @@
         <div class="comments-section">
           <div class="comment-count" id="c-count">0 Comments</div>
           <div id="comment-input-area"></div>
-          <div id="comments-list" style="margin-top: 3rem"></div>
+          <div id="comments-list"></div>
         </div>
       </div>
     </div>
 
-    <div id="auth-modal" class="hidden">
+    <!-- Auth Modal (login / signup / reset) -->
+    <div id="auth-modal" class="modal-overlay hidden">
       <div class="modal-content">
         <h3 id="modal-title">Welcome Back</h3>
         <button class="google-login-btn" onclick="loginWithGoogle()">
@@ -97,6 +98,39 @@
         <button onclick="closeAuthModal()" class="close-x">×</button>
       </div>
     </div>
+
+    <!-- Account Modal (for logged-in users) -->
+    <div id="account-modal" class="modal-overlay hidden">
+      <div class="modal-content">
+        <h3>Account</h3>
+        <p class="account-email" id="account-email-display"></p>
+
+        <div id="change-password-section">
+          <p class="section-label">Change Password</p>
+          <input type="password" id="new-password" placeholder="New password" />
+          <input
+            type="password"
+            id="confirm-password"
+            placeholder="Confirm new password"
+          />
+          <button
+            class="primary-btn"
+            id="change-pass-btn"
+            onclick="changePassword()"
+          >
+            Update Password
+          </button>
+        </div>
+
+        <p id="oauth-note" class="oauth-note hidden">
+          Signed in with Google — password change not available.
+        </p>
+
+        <button onclick="handleLogout()" class="logout-btn">Logout</button>
+        <button onclick="closeAccountModal()" class="close-x">×</button>
+      </div>
+    </div>
+
     <script src="blog.js"></script>
   </body>
 </html>
