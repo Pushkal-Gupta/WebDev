@@ -238,6 +238,9 @@ iframe {
   position: relative;
   font-family: var(--sans);
 }
+.modal-content h3 {
+  margin-bottom: 1.8rem;
+}
 .google-login-btn {
   width: 100%;
   padding: 0.75rem;
@@ -245,13 +248,25 @@ iframe {
   align-items: center;
   justify-content: center;
   gap: 0.8rem;
-  background: white;
-  color: #333;
-  border: none;
+  background: #f8f9fa;
+  color: #3c3c3c;
+  border: 1px solid #dadce0;
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
   margin-bottom: 1.5rem;
+  transition: background 0.15s, border-color 0.15s;
+}
+.google-login-btn:hover {
+  background: #f0f0f0;
+}
+[data-theme="dark"] .google-login-btn {
+  background: #2a2a2a;
+  color: #e8e8e8;
+  border-color: #444;
+}
+[data-theme="dark"] .google-login-btn:hover {
+  background: #333;
 }
 .google-login-btn img {
   width: 18px;
@@ -409,12 +424,16 @@ textarea {
   color: var(--text-dim);
   text-align: center;
   margin-bottom: 1.5rem;
-  line-height: 1.6;
+  line-height: 1.7;
 }
 .otp-hint strong {
-  color: var(--text-main);
-  font-family: var(--mono);
-  font-size: 0.82rem;
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--accent);
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  font-weight: 600;
+  word-break: break-all;
 }
 .otp-input {
   width: 100%;
@@ -529,18 +548,19 @@ textarea {
 }
 .c-action-btn {
   background: none;
-  border: none;
+  border: 1px solid var(--border);
   color: var(--text-dim);
-  font-size: 0.78rem;
-  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-family: var(--sans);
+  font-weight: 500;
   cursor: pointer;
-  padding: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  transition: color var(--t);
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  transition: color var(--t), border-color var(--t);
 }
 .c-action-btn:hover {
   color: var(--accent);
+  border-color: var(--accent);
 }
 
 /* ── Inline reply / edit forms ── */
