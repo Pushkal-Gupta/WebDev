@@ -8,14 +8,14 @@ let currentAuthMode = "login";
 const POSTS = [
   {
     id: "ai-cage",
-    date: "2026.03.27",
+    date: "03.27.2026",
     title: "AI and the Lion's Cage — The Last Tool We Build",
     darkFile: "ai-cage-dark.html",
     lightFile: "ai-cage-light.html",
   },
   {
     id: "upcoming",
-    date: "2026.xx.xx",
+    date: "xx.xx.2026",
     title: "How Data Reaches You(A first Principles Approach)",
     darkFile: "how-data-reaches-you-dark.html",
     lightFile: "how-data-reaches-you-light.html",
@@ -61,17 +61,36 @@ function closeAuthModal() {
 async function submitAuth() {
   const email = document.getElementById("auth-email").value;
   const password = document.getElementById("auth-password").value;
-  let res;
-  if (currentAuthMode === "signup")
-    res = await supabaseClient.auth.signUp({ email, password });
-  else if (currentAuthMode === "reset")
-    res = await supabaseClient.auth.resetPasswordForEmail(email);
-  else res = await supabaseClient.auth.signInWithPassword({ email, password });
-  if (res.error) alert(res.error.message);
-  else if (currentAuthMode === "login") location.reload();
-}
-async function loginWithGoogle() {
-  await supabaseClient.auth.signInWithOAuth({ provider: "google" });
+  const btn = document.getElementById("submit-auth-btn");
+
+  if (!email || (currentAuthMode !== "reset" && !password)) {
+    alert("Please enter both email and password.");
+    return;
+  }
+
+  btn.innerText = "Connecting..."; // Visual feedback
+
+  try {
+    let res;
+    if (currentAuthMode === "signup") {
+      res = await supabaseClient.auth.signUp({ email, password });
+      // If res.data.user exists but res.data.session is null, it means email is pending
+      if (!res.error)
+        alert("Check your inbox at " + email + " for a verification link!");
+    } else if (currentAuthMode === "reset") {
+      res = await supabaseClient.auth.resetPasswordForEmail(email);
+      if (!res.error) alert("Password reset link sent!");
+    } else {
+      res = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (!res.error) location.reload();
+    }
+
+    if (res && res.error) alert("Error: " + res.error.message);
+  } catch (err) {
+    alert("System error: " + err.message);
+  } finally {
+    btn.innerText = "Continue";
+  }
 }
 
 // --- App logic ---
