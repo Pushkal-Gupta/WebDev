@@ -61,40 +61,87 @@
       </div>
     </div>
 
-    <!-- Auth Modal (login / signup / reset) -->
+    <!-- Auth Modal (login / signup / reset / otp / new-password) -->
     <div id="auth-modal" class="modal-overlay hidden">
       <div class="modal-content">
         <h3 id="modal-title">Welcome Back</h3>
-        <button class="google-login-btn" onclick="loginWithGoogle()">
-          <img
-            src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-            alt="G"
-          />
-          Continue with Google
-        </button>
-        <div class="divider"><span>or use email</span></div>
-        <div id="email-fields">
+
+        <!-- Screen 1: normal login / signup / reset-email-request -->
+        <div id="screen-main">
+          <button class="google-login-btn" onclick="loginWithGoogle()">
+            <img
+              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+              alt="G"
+              width="18"
+              height="18"
+            />
+            Continue with Google
+          </button>
+          <div class="divider"><span>or use email</span></div>
           <input type="email" id="auth-email" placeholder="Email address" />
           <div id="password-container">
             <input type="password" id="auth-password" placeholder="Password" />
           </div>
-          <button
-            onclick="submitAuth()"
-            id="submit-auth-btn"
-            class="primary-btn"
-          >
+          <button onclick="submitAuth()" id="submit-auth-btn" class="primary-btn">
             Continue
           </button>
+          <div class="modal-footer">
+            <p id="auth-switch-text">
+              New here?
+              <span onclick="setAuthMode('signup')">Create account</span>
+            </p>
+            <p id="forgot-password-link">
+              <span onclick="setAuthMode('reset')">Forgot password?</span>
+            </p>
+          </div>
         </div>
-        <div class="modal-footer">
-          <p id="auth-switch-text">
-            New here?
-            <span onclick="setAuthMode('signup')">Create account</span>
+
+        <!-- Screen 2: OTP entry (after reset email sent) -->
+        <div id="screen-otp" class="hidden">
+          <p class="otp-hint">
+            Enter the 6-digit code sent to<br />
+            <strong id="otp-email-display"></strong>
           </p>
-          <p id="forgot-password-link">
-            <span onclick="setAuthMode('reset')">Forgot password?</span>
-          </p>
+          <input
+            type="text"
+            id="otp-input"
+            class="otp-input"
+            maxlength="6"
+            placeholder="000000"
+            autocomplete="one-time-code"
+            inputmode="numeric"
+          />
+          <button onclick="submitOtp()" id="submit-otp-btn" class="primary-btn">
+            Verify Code
+          </button>
+          <div class="modal-footer">
+            <p><span onclick="setAuthMode('reset')">Resend code</span></p>
+            <p><span onclick="setAuthMode('login')">Back to login</span></p>
+          </div>
         </div>
+
+        <!-- Screen 3: set new password (after OTP verified) -->
+        <div id="screen-new-pass" class="hidden">
+          <p class="otp-hint">Choose your new password</p>
+          <input
+            type="password"
+            id="reset-new-pass"
+            placeholder="New password"
+          />
+          <input
+            type="password"
+            id="reset-confirm-pass"
+            placeholder="Confirm new password"
+          />
+          <button
+            onclick="submitNewPassword()"
+            id="submit-newpass-btn"
+            class="primary-btn"
+          >
+            Set Password
+          </button>
+        </div>
+
         <button onclick="closeAuthModal()" class="close-x">×</button>
       </div>
     </div>

@@ -253,6 +253,11 @@ iframe {
   cursor: pointer;
   margin-bottom: 1.5rem;
 }
+.google-login-btn img {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
 .divider {
   display: flex;
   align-items: center;
@@ -398,6 +403,38 @@ textarea {
   margin: 1rem 0;
   font-style: italic;
 }
+/* ── OTP screen ── */
+.otp-hint {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  text-align: center;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+.otp-hint strong {
+  color: var(--text-main);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+}
+.otp-input {
+  width: 100%;
+  font-size: 2rem;
+  font-family: var(--mono);
+  text-align: center;
+  letter-spacing: 0.5rem;
+  padding: 0.6rem 0;
+  border: 2px solid var(--accent);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  box-sizing: border-box;
+}
+.otp-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 255, 245, 0.12);
+}
+
 .logout-btn {
   width: 100%;
   margin-top: 1.5rem;

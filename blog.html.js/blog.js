@@ -5,6 +5,7 @@ const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
 let user = null;
 let currentAuthMode = "login";
+let resetPendingEmail = "";
 const POSTS = [
   {
     id: "ai-cage",
@@ -139,12 +140,39 @@ async function loginWithGoogle() {
   if (error) alert("Google sign-in error: " + error.message);
 }
 
+function showScreen(name) {
+  ["screen-main", "screen-otp", "screen-new-pass"].forEach((id) => {
+    document.getElementById(id).classList.toggle("hidden", id !== name);
+  });
+}
+
 function setAuthMode(mode) {
   currentAuthMode = mode;
   const title = document.getElementById("modal-title");
   const passContainer = document.getElementById("password-container");
   const switchText = document.getElementById("auth-switch-text");
   const forgotLink = document.getElementById("forgot-password-link");
+
+  if (mode === "otp") {
+    title.innerText = "Check Your Email";
+    document.getElementById("otp-email-display").innerText = resetPendingEmail;
+    document.getElementById("otp-input").value = "";
+    showScreen("screen-otp");
+    setTimeout(() => document.getElementById("otp-input")?.focus(), 50);
+    return;
+  }
+
+  if (mode === "set-password") {
+    title.innerText = "New Password";
+    document.getElementById("reset-new-pass").value = "";
+    document.getElementById("reset-confirm-pass").value = "";
+    showScreen("screen-new-pass");
+    setTimeout(() => document.getElementById("reset-new-pass")?.focus(), 50);
+    return;
+  }
+
+  showScreen("screen-main");
+
   if (mode === "signup") {
     title.innerText = "Create Account";
     passContainer.classList.remove("hidden");
@@ -155,6 +183,7 @@ function setAuthMode(mode) {
     passContainer.classList.add("hidden");
     forgotLink.classList.add("hidden");
     switchText.innerHTML = `Remembered it? <span onclick="setAuthMode('login')">Login</span>`;
+    document.getElementById("auth-email").value = resetPendingEmail || "";
   } else {
     title.innerText = "Welcome Back";
     passContainer.classList.remove("hidden");
@@ -173,6 +202,7 @@ function handleAuth() {
 
 function closeAuthModal() {
   document.getElementById("auth-modal").classList.add("hidden");
+  setAuthMode("login");
 }
 
 async function submitAuth() {
@@ -195,10 +225,11 @@ async function submitAuth() {
       if (!res.error)
         alert("Check your inbox at " + email + " for a verification link!");
     } else if (currentAuthMode === "reset") {
-      res = await supabaseClient.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.href,
-      });
-      if (!res.error) alert("Password reset link sent to " + email);
+      res = await supabaseClient.auth.resetPasswordForEmail(email);
+      if (!res.error) {
+        resetPendingEmail = email;
+        setAuthMode("otp");
+      }
     } else {
       res = await supabaseClient.auth.signInWithPassword({ email, password });
       if (!res.error) {
@@ -212,6 +243,66 @@ async function submitAuth() {
   } finally {
     btn.innerText = "Continue";
     btn.disabled = false;
+  }
+}
+
+async function submitOtp() {
+  const token = document.getElementById("otp-input").value.trim();
+  if (!token || token.length < 6) {
+    alert("Please enter the full 6-digit code.");
+    return;
+  }
+  const btn = document.getElementById("submit-otp-btn");
+  btn.innerText = "Verifying...";
+  btn.disabled = true;
+
+  const { error } = await supabaseClient.auth.verifyOtp({
+    email: resetPendingEmail,
+    token,
+    type: "recovery",
+  });
+
+  if (error) {
+    alert("Invalid or expired code. " + error.message);
+    btn.innerText = "Verify Code";
+    btn.disabled = false;
+  } else {
+    // OTP accepted — user now has a session; let them set new password
+    setAuthMode("set-password");
+    btn.innerText = "Verify Code";
+    btn.disabled = false;
+  }
+}
+
+async function submitNewPassword() {
+  const newPass = document.getElementById("reset-new-pass").value;
+  const confirmPass = document.getElementById("reset-confirm-pass").value;
+
+  if (!newPass || newPass.length < 6) {
+    alert("Password must be at least 6 characters.");
+    return;
+  }
+  if (newPass !== confirmPass) {
+    alert("Passwords don't match.");
+    return;
+  }
+
+  const btn = document.getElementById("submit-newpass-btn");
+  btn.innerText = "Saving...";
+  btn.disabled = true;
+
+  const { error } = await supabaseClient.auth.updateUser({ password: newPass });
+
+  if (error) {
+    alert("Error: " + error.message);
+    btn.innerText = "Set Password";
+    btn.disabled = false;
+  } else {
+    resetPendingEmail = "";
+    closeAuthModal();
+    await checkUser();
+    // Small delay so the user sees the modal close before the alert
+    setTimeout(() => alert("Password updated! You are now logged in."), 200);
   }
 }
 
