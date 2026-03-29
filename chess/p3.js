@@ -19,6 +19,10 @@ mobileResponsiveMaxWidth = 850;
 const SB_URL = "https://ykpjmvoyatcrlqyqbgfu.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlrcGptdm95YXRjcmxxeXFiZ2Z1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNzgyNTEsImV4cCI6MjA4OTk1NDI1MX0.LgSbUHB93i5S61jp5d_0sAUWosZzDWWWv7jwoU6X-3Q";
 const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+// ─── Supabase chess DB (game storage) ────────────────────────────────────────
+const SB_CHESS_URL = "https://yzrhvdyvvplimcwfiorh.supabase.co";
+const SB_CHESS_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6cmh2ZHl2dnBsaW1jd2Zpb3JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0MjA1MDUsImV4cCI6MjA1ODk5NjUwNX0.JbICwrXR5q0r1NwY2AemVdm2D7GIkTz-JQEQaZNL1lM";
+const supabaseChessClient = supabase.createClient(SB_CHESS_URL, SB_CHESS_KEY);
 let _sbUser = null;
 timerData = [];
 userToken = null;
@@ -3672,47 +3676,52 @@ async function storeGameData(){
 }
 async function callStoreGameAPI(gameDetails) {
   try {
-    const url = "https://chessserver-w8ou.onrender.com/api/postGame";
-    const authString = "Bearer " + (userToken ? userToken : "");
-    const response = await fetch(url,{
-      method: 'POST',
-      headers: {
-        "Authorization": authString,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-          gameDetails
-        })  
-    });
-    if (!response.ok)
-      return null;
-    const data = await response.json();
-    return data;
-  }
-  catch (error){
-    console.log("callStoreGameAPI:::",error);
+    if (!_sbUser) return null;
+    const row = {
+      user_id: _sbUser.id,
+      color: gameDetails.color,
+      opponent: gameDetails.computer,
+      pgn: gameDetails.pgn,
+      timer_data: { timeWhite: gameDetails.timeWhite, timeBlack: gameDetails.timeBlack }
+    };
+    if (gameDetails.id && gameDetails.id !== -1) {
+      // update existing row
+      const { error } = await supabaseChessClient
+        .from('chess_games')
+        .update(row)
+        .eq('id', gameDetails.id);
+      if (error) { console.log("callStoreGameAPI update:", error); return null; }
+      return { success: true, gameId: gameDetails.id };
+    } else {
+      // insert new row
+      const { data, error } = await supabaseChessClient
+        .from('chess_games')
+        .insert(row)
+        .select('id')
+        .single();
+      if (error) { console.log("callStoreGameAPI insert:", error); return null; }
+      return { success: true, gameId: data.id };
+    }
+  } catch (error) {
+    console.log("callStoreGameAPI:::", error);
     return null;
   }
 }
 
 async function getGamesPlayed() {
   try {
-    const url = "https://chessserver-w8ou.onrender.com/api/getGames";
-    const authString = "Bearer " + (userToken ? userToken : "");
-    const response = await fetch(url,{
-      method: 'GET',
-      headers: {
-        "Authorization": authString,
-        "Content-Type": "application/json"
-      },
-    });
-    if (!response.ok)
-      return null;
-    const data = await response.json();
-    return data;
-  }
-  catch (error){
-    console.log("callStoreGameAPI:::",error);
+    if (!_sbUser) return null;
+    const { data, error } = await supabaseChessClient
+      .from('chess_games')
+      .select('color, opponent, pgn, timer_data, created_at')
+      .eq('user_id', _sbUser.id)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    if (error) { console.log("getGamesPlayed:", error); return null; }
+    // map to the shape makeGamesPlayed expects: { games: [{color, computer, pgn}] }
+    return { games: data.map(g => ({ color: g.color, computer: g.opponent, pgn: g.pgn })) };
+  } catch (error) {
+    console.log("getGamesPlayed:::", error);
     return null;
   }
 }
