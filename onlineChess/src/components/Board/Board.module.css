@@ -1,0 +1,32 @@
+.boardWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  width: min(560px, 90vw, calc(100vh - 160px));
+  height: min(560px, 90vw, calc(100vh - 160px));
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  flex-shrink: 0;
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 1.1rem;
+  text-align: center;
+  padding: 20px;
+  min-height: min(560px, 90vw, calc(100vh - 160px));
+  width: min(560px, 90vw, calc(100vh - 160px));
+}

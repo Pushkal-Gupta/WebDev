@@ -1,0 +1,31 @@
+.timer {
+  font-size: 1.6rem;
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+  padding: 6px 14px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: white;
+  min-width: 90px;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.active {
+  border-color: rgba(100, 255, 255, 0.5);
+  color: #ccffff;
+  background: rgba(100, 255, 255, 0.08);
+}
+
+.low {
+  border-color: rgba(255, 80, 80, 0.6);
+  color: #ff9999;
+  background: rgba(255, 80, 80, 0.1);
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}

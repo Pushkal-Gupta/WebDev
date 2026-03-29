@@ -1,0 +1,96 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  background: #111;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0 16px;
+  height: 54px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-shrink: 0;
+}
+
+.brand {
+  color: #ccffff;
+  font-size: 1.15rem;
+  font-weight: bold;
+  text-decoration: none;
+  margin-right: 24px;
+  white-space: nowrap;
+}
+
+.brand:hover {
+  color: white;
+}
+
+.navList {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 4px;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.navItem {}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  background: none;
+  border: none;
+  position: relative;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.navLink::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: #ccffff;
+  transition: width 0.3s ease, left 0.3s ease;
+}
+
+.navLink:hover {
+  color: #ccffff;
+}
+
+.navLink:hover::after,
+.navLink.active::after {
+  width: 80%;
+  left: 10%;
+}
+
+.navLink.active {
+  color: #ccffff;
+}
+
+.icon {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 700px) {
+  .navLink {
+    padding: 6px 8px;
+    font-size: 0.8rem;
+  }
+  .brand {
+    font-size: 1rem;
+    margin-right: 12px;
+  }
+}

@@ -1,0 +1,222 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #0a0a0a;
+  color: white;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  overflow: hidden;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 255, 255, 0.3);
+}
+
+/* Timer screen (time limit selection) */
+.time-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px;
+  overflow-y: auto;
+  background: rgba(0,0,0,0.3);
+}
+
+.time-screen h2 {
+  color: #ccffff;
+  margin-bottom: 20px;
+  font-size: 1.3rem;
+}
+
+.time-selected-btn {
+  width: 100%;
+  max-width: 360px;
+  padding: 14px;
+  background: rgba(100, 255, 255, 0.1);
+  border: 2px solid rgba(100, 255, 255, 0.35);
+  color: #ccffff;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: all 0.2s;
+  text-align: center;
+  font-weight: 500;
+}
+
+.time-selected-btn:hover {
+  background: rgba(100, 255, 255, 0.2);
+}
+
+.time-category {
+  width: 100%;
+  max-width: 360px;
+  margin-bottom: 16px;
+}
+
+.time-category-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.82rem;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.time-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.time-btn {
+  padding: 12px 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: white;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.time-btn:hover {
+  background: rgba(100, 255, 255, 0.12);
+  border-color: rgba(100, 255, 255, 0.35);
+  color: #ccffff;
+}
+
+.time-btn.selected {
+  background: rgba(100, 255, 255, 0.18);
+  border-color: rgba(100, 255, 255, 0.5);
+  color: #ccffff;
+}
+
+.play-btn {
+  width: 100%;
+  max-width: 360px;
+  padding: 14px;
+  background: rgba(100, 255, 255, 0.15);
+  border: 1px solid rgba(100, 255, 255, 0.4);
+  color: #ccffff;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: all 0.2s;
+  font-weight: 600;
+}
+
+.play-btn:hover {
+  background: rgba(100, 255, 255, 0.25);
+}
+
+/* Analysis screen */
+.analysis-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow-y: auto;
+  gap: 14px;
+}
+
+.analysis-screen h2 {
+  color: #ccffff;
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.game-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.game-card:hover {
+  background: rgba(100, 255, 255, 0.07);
+  border-color: rgba(100, 255, 255, 0.3);
+}
+
+.game-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.game-card-players {
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.game-card-meta {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.game-card-pgn {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.35);
+  font-family: monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 4px;
+}
+
+/* Game layout */
+.game-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.board-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  overflow: hidden;
+}
+
+/* App container */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
