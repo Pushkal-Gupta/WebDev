@@ -1,0 +1,231 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup {
+  background: #1a1a1a;
+  border: 1px solid rgba(100, 255, 255, 0.3);
+  border-radius: 10px;
+  padding: 24px 28px;
+  min-width: 300px;
+  max-width: 420px;
+  width: 90%;
+  color: white;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+  z-index: 1001;
+  position: relative;
+}
+
+.popup h3 {
+  color: #ccffff;
+  margin-bottom: 16px;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.popup p {
+  margin-bottom: 16px;
+  text-align: center;
+  color: #ccc;
+}
+
+.btnRow {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.btn {
+  padding: 8px 20px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+.btnConfirm {
+  background: rgba(100, 255, 255, 0.15);
+  color: #ccffff;
+  border: 1px solid rgba(100, 255, 255, 0.4);
+}
+
+.btnConfirm:hover {
+  background: rgba(100, 255, 255, 0.25);
+}
+
+.btnCancel {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btnCancel:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.btnDanger {
+  background: rgba(255, 80, 80, 0.15);
+  color: #ff8888;
+  border: 1px solid rgba(255, 80, 80, 0.4);
+}
+
+.btnDanger:hover {
+  background: rgba(255, 80, 80, 0.25);
+}
+
+.btnAnalyse {
+  background: rgba(80, 200, 80, 0.15);
+  color: #aaffaa;
+  border: 1px solid rgba(80, 200, 80, 0.4);
+}
+
+.btnAnalyse:hover {
+  background: rgba(80, 200, 80, 0.25);
+}
+
+/* Login modal fields */
+.loginFields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.loginFields input {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 10px 14px;
+  color: white;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.loginFields input:focus {
+  border-color: rgba(100, 255, 255, 0.5);
+}
+
+.loginFields input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.loginLinks {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+.loginLinks a {
+  color: #ccffff;
+  text-decoration: none;
+  margin-left: 6px;
+}
+
+.loginLinks a:hover {
+  text-decoration: underline;
+}
+
+/* Promotion popup */
+.promotionGrid {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin: 16px 0;
+}
+
+.promoBtn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.promoBtn:hover {
+  background: rgba(100, 255, 255, 0.2);
+  border-color: rgba(100, 255, 255, 0.5);
+}
+
+.promoBtn img {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+}
+
+/* Strength selector */
+.strengthSlider {
+  width: 100%;
+  margin: 16px 0 8px;
+  accent-color: #ccffff;
+}
+
+.levelText {
+  text-align: center;
+  color: #ccffff;
+  margin-bottom: 16px;
+  font-size: 1rem;
+}
+
+.colorBtns {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.colorBtns button {
+  padding: 8px 18px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.colorBtns button:hover {
+  background: rgba(100, 255, 255, 0.2);
+  border-color: rgba(100, 255, 255, 0.5);
+  color: #ccffff;
+}
+
+/* Custom alert */
+.customAlert {
+  position: fixed;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20, 20, 20, 0.95);
+  border: 1px solid rgba(100, 255, 255, 0.4);
+  color: #ccffff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  z-index: 2000;
+  font-size: 0.95rem;
+  pointer-events: none;
+  animation: fadeInOut 2s ease forwards;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+}
