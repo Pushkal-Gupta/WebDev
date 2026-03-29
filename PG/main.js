@@ -263,6 +263,14 @@ const PROJECTS = [
   },
   {
     featured: true,
+    name: "PG.Chess Online",
+    desc: "Real-time multiplayer chess with online rooms, live chat, AI engine, eval bar, and opening detection.",
+    date: "Mar 2026",
+    status: "update",
+    url: "../onlineChess/dist/index.html",
+  },
+  {
+    featured: true,
     name: "PG.Chess",
     desc: "Play chess against an AI or a friend. Pick your board style and piece set.",
     date: "Jun 2024",

@@ -3,10 +3,11 @@ import useAuthStore from '../../store/authStore';
 
 const NAV_ITEMS = [
   { label: 'Time Limit', icon: '⏳' },
-  { label: 'New Game', icon: '📂' },
-  { label: 'Analysis', icon: '✏️' },
-  { label: 'Computer', icon: '💻' },
-  { label: 'My Account', icon: '👤' },
+  { label: 'New Game',   icon: '📂' },
+  { label: 'Analysis',  icon: '✏️' },
+  { label: 'Computer',  icon: '💻' },
+  { label: 'Online',    icon: '🌐' },
+  { label: 'My Account',icon: '👤' },
 ];
 
 export default function Navbar({ activeTab, onTabClick }) {
@@ -17,7 +18,7 @@ export default function Navbar({ activeTab, onTabClick }) {
       <a className={styles.brand} href="../PG/main.html">PG.Chess</a>
       <ul className={styles.navList}>
         {NAV_ITEMS.map((item, index) => {
-          const label = index === 4 ? (username || 'My Account') : item.label;
+          const label = index === 5 ? (username || 'My Account') : item.label;
           return (
             <li key={index} className={styles.navItem}>
               <button

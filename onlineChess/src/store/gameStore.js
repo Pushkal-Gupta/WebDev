@@ -49,6 +49,8 @@ const initialState = {
   compColor: 'black', // color of computer
   compStrength: 4,
   compThinking: false,
+  isOnline: false,
+  onlineColor: 'white', // local player's color in online game
   pawnPromotion: null, // { from, to } pending promotion
   disableBoard: false,
   capturedByWhite: [], // pieces captured by white
@@ -102,8 +104,44 @@ const useGameStore = create((set, get) => ({
     });
   },
 
+  startOnlineGame: (timeControl, playerColor) => {
+    const chess = new Chess();
+    const total = timeControl ? timeControl.total : 0;
+    const isBlack = playerColor === 'black';
+    set({
+      chessInstance: chess,
+      boardState: buildBoardState(chess),
+      moveHistory: [],
+      currentMoveIndex: -1,
+      selectedSquare: null,
+      validMoves: [],
+      lastMove: null,
+      underCheck: null,
+      gameStarted: true,
+      gameOver: false,
+      gameOverMessage: '',
+      timeControl,
+      whiteTime: total,
+      blackTime: total,
+      activeColor: 'w',
+      timerRunning: !!timeControl,
+      timerData: [],
+      isComp: false,
+      isOnline: true,
+      onlineColor: playerColor,
+      compThinking: false,
+      pawnPromotion: null,
+      disableBoard: isBlack, // black waits for white to move first
+      capturedByWhite: [],
+      capturedByBlack: [],
+      flipped: isBlack,
+      oppName: 'Opponent',
+      youName: isBlack ? 'You (Black)' : 'You (White)',
+    });
+  },
+
   selectSquare: (row, col) => {
-    const { chessInstance, selectedSquare, validMoves, gameOver, disableBoard, activeColor, isComp, compColor, currentMoveIndex, moveHistory } = get();
+    const { chessInstance, selectedSquare, validMoves, gameOver, disableBoard, activeColor, isComp, compColor, isOnline, onlineColor, currentMoveIndex, moveHistory } = get();
     if (!chessInstance || gameOver || disableBoard) return;
 
     // If viewing history, don't allow moves
@@ -133,6 +171,15 @@ const useGameStore = create((set, get) => ({
     if (isComp) {
       const isCompTurn = (compColor === 'white' && turn === 'w') || (compColor === 'black' && turn === 'b');
       if (isCompTurn) {
+        set({ selectedSquare: null, validMoves: [] });
+        return;
+      }
+    }
+
+    // If playing online, can't move if it's opponent's turn
+    if (isOnline) {
+      const isMyTurn = (onlineColor === 'white' && turn === 'w') || (onlineColor === 'black' && turn === 'b');
+      if (!isMyTurn) {
         set({ selectedSquare: null, validMoves: [] });
         return;
       }

@@ -1,7 +1,8 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useMemo } from 'react';
 import styles from './RightSidebar.module.css';
 import useGameStore from '../../store/gameStore';
 import useThemeStore from '../../store/themeStore';
+import { getOpeningName } from '../../utils/evaluation';
 
 const PIECE_VALUES = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
 const PIECE_NAME_MAP = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' };
@@ -30,9 +31,19 @@ export default function RightSidebar({ onAlert }) {
   } = useGameStore();
 
   const { pieceSets, pieceSetIndex } = useThemeStore();
-  const imagePath = `/images/${pieceSets[pieceSetIndex].path}`;
+  const imagePath = `./images/${pieceSets[pieceSetIndex].path}`;
 
   const moveHistoryRef = useRef(null);
+
+  // Convert moveHistory (from/to as strings like 'e2') to row/col format for opening lookup
+  const openingName = useMemo(() => {
+    if (!moveHistory.length) return '';
+    const adapted = moveHistory.map(m => ({
+      from: { col: m.from.charCodeAt(0) - 97, row: 8 - parseInt(m.from[1]) },
+      to:   { col: m.to.charCodeAt(0) - 97,   row: 8 - parseInt(m.to[1]) },
+    }));
+    return getOpeningName(adapted);
+  }, [moveHistory]);
 
   // Auto-scroll move history
   useEffect(() => {
@@ -110,6 +121,11 @@ export default function RightSidebar({ onAlert }) {
           </div>
         )}
       </div>
+
+      {/* Opening name */}
+      {openingName && (
+        <div className={styles.openingName}>{openingName}</div>
+      )}
 
       {/* Move history */}
       <div className={styles.moveHistory} ref={moveHistoryRef}>
