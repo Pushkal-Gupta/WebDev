@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PG — Pushkal Gupta</title>
+    <link
+      rel="icon"
+      href="https://static.vecteezy.com/system/resources/previews/018/720/978/non_2x/parental-guidance-sign-on-transparent-background-free-png.png"
+      type="image/x-icon"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="main.css" />
+  </head>
+  <body>
+    <header>
+      <div class="pg-wrap">
+        <div class="nav-group">
+          <div class="nav-left"></div>
+          <a href="#" class="brand-link">Pushkal Gupta</a>
+          <div class="header-right">
+            <div class="toggle-wrap" onclick="toggleTheme()">
+              <span class="toggle-label" id="mode-label">Dark</span>
+              <div class="switch-base"></div>
+            </div>
+            <button id="auth-btn" class="auth-btn" onclick="handleAuth()">LOGIN</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div id="display"></div>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal-overlay hidden">
+      <div class="modal-content">
+        <h3 id="modal-title">Welcome Back</h3>
+
+        <div id="screen-main">
+          <button class="google-login-btn" onclick="loginWithGoogle()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G" width="18" height="18" />
+            Continue with Google
+          </button>
+          <div class="divider"><span>or use email</span></div>
+          <input type="email" id="auth-email" placeholder="Email address" />
+          <div id="password-container">
+            <input type="password" id="auth-password" placeholder="Password" />
+          </div>
+          <button onclick="submitAuth()" id="submit-auth-btn" class="primary-btn">Continue</button>
+          <div class="modal-footer-links">
+            <p id="auth-switch-text">
+              New here? <span onclick="setAuthMode('signup')">Create account</span>
+            </p>
+            <p id="forgot-password-link">
+              <span onclick="setAuthMode('reset')">Forgot password?</span>
+            </p>
+          </div>
+        </div>
+
+        <div id="screen-otp" class="hidden">
+          <p class="otp-hint">
+            Enter the 8-digit code sent to <strong id="otp-email-display"></strong>
+          </p>
+          <input type="text" id="otp-input" class="otp-input" maxlength="8"
+            placeholder="00000000" autocomplete="one-time-code" inputmode="numeric" />
+          <button onclick="submitOtp()" id="submit-otp-btn" class="primary-btn">Verify Code</button>
+          <div class="modal-footer-links">
+            <p><span onclick="setAuthMode('reset')">Resend code</span></p>
+            <p><span onclick="setAuthMode('login')">Back to login</span></p>
+          </div>
+        </div>
+
+        <div id="screen-new-pass" class="hidden">
+          <p class="otp-hint">Choose your new password</p>
+          <input type="password" id="reset-new-pass" placeholder="New password" />
+          <input type="password" id="reset-confirm-pass" placeholder="Confirm new password" />
+          <button onclick="submitNewPassword()" id="submit-newpass-btn" class="primary-btn">Set Password</button>
+        </div>
+
+        <button onclick="closeAuthModal()" class="close-x">×</button>
+      </div>
+    </div>
+
+    <!-- Account Modal -->
+    <div id="account-modal" class="modal-overlay hidden">
+      <div class="modal-content">
+        <h3>Account</h3>
+        <p class="account-email" id="account-email-display"></p>
+
+        <div id="change-password-section">
+          <p class="pw-section-label">Change Password</p>
+          <input type="password" id="new-password" placeholder="New password" />
+          <input type="password" id="confirm-password" placeholder="Confirm new password" />
+          <button class="primary-btn" id="change-pass-btn" onclick="changePassword()">Update Password</button>
+        </div>
+
+        <p id="oauth-note" class="oauth-note hidden">
+          Signed in with Google — password change not available.
+        </p>
+
+        <button onclick="handleLogout()" class="logout-btn">Logout</button>
+        <button onclick="closeAccountModal()" class="close-x">×</button>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="main.js"></script>
+  </body>
+</html>
