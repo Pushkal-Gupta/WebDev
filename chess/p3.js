@@ -15,10 +15,14 @@
 //Data
 dataReload();
 mobileResponsiveMaxWidth = 850;
-userInfo = JSON.parse(localStorage.getItem("userInfo"));
+// ─── Supabase (shared auth across all PG sites) ───────────────────────────────
+const SB_URL = "https://ykpjmvoyatcrlqyqbgfu.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlrcGptdm95YXRjcmxxeXFiZ2Z1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNzgyNTEsImV4cCI6MjA4OTk1NDI1MX0.LgSbUHB93i5S61jp5d_0sAUWosZzDWWWv7jwoU6X-3Q";
+const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+let _sbUser = null;
 timerData = [];
-userToken = userInfo ? userInfo.userToken : null;
-myAccountName = userInfo ? userInfo.myAccountName : null;
+userToken = null;
+myAccountName = null;
 navbarMyAccountNode = null;
 displayOnScreen = "";
 gameStoreId = -1;
@@ -3572,10 +3576,10 @@ function updatePopupMode() {
 }
 
 async function submitLoginOrSignup() {
-  const username = document.getElementById("loginUsername").value.trim();
+  const email = document.getElementById("loginUsername").value.trim();
   const password = document.getElementById("loginPassword").value.trim();
   const confirm = document.getElementById("signupConfirm").value.trim();
-  if (!username || !password || (isSignupMode && !confirm)) {
+  if (!email || !password || (isSignupMode && !confirm)) {
     showCustomAlert("Please fill out all required fields.");
     return;
   }
@@ -3583,21 +3587,29 @@ async function submitLoginOrSignup() {
     showCustomAlert("Passwords do not match.");
     return;
   }
-  let resData = null;
-  showCustomAlert("Communicating with the server",false);
-  if (isSignupMode)
-    resData = await callSignupAPI(username,password);
-  else
-    resData = await callLoginAPI(username,password);
-  if (resData && resData.success){
-    userToken = resData.token;
-    myAccountName = username;
-    localStorage.setItem('userInfo', JSON.stringify({userToken:userToken,myAccountName:myAccountName}));
-    document.getElementById("loginUsername").value = "";
-    document.getElementById("loginPassword").value = "";
-    document.getElementById("signupConfirm").value = "";
-    hideLoginPopup(true);
+
+  showCustomAlert("Connecting...", false);
+
+  let error;
+  if (isSignupMode) {
+    const res = await supabaseClient.auth.signUp({ email, password });
+    error = res.error;
+    if (!error) showCustomAlert("Check your inbox for a verification link!");
+  } else {
+    const res = await supabaseClient.auth.signInWithPassword({ email, password });
+    error = res.error;
+    if (!error) {
+      _sbUser = res.data.user;
+      userToken = res.data.session?.access_token || null;
+      myAccountName = _sbUser?.user_metadata?.full_name || email.split("@")[0];
+      document.getElementById("loginUsername").value = "";
+      document.getElementById("loginPassword").value = "";
+      document.getElementById("signupConfirm").value = "";
+      hideLoginPopup(true);
+      showCustomAlert("Logged in as " + myAccountName);
+    }
   }
+  if (error) showCustomAlert(error.message);
 }
 
 function showLogoutPopup() {
@@ -3611,83 +3623,39 @@ function hideLogoutPopup() {
   updateMyAccountInNavbar();
 }
 
-function confirmLogout() {
+async function confirmLogout() {
+  await supabaseClient.auth.signOut();
+  _sbUser = null;
   userToken = null;
   myAccountName = null;
-  localStorage.removeItem('userInfo');
   hideLogoutPopup();
   showCustomAlert("Logged out successfully!");
   if (displayOnScreen===navArr[2])
     navActions(0);
 }
-function testChessServer(){
-  console.log("calling testChessServer");
-  const url = "https://chessserver-w8ou.onrender.com/test/basic";
-  fetch(url,{method: 'GET'});
-}
+// ─── Supabase session init (runs once on page load) ───────────────────────────
+(async function initSupabaseAuth() {
+  const { data } = await supabaseClient.auth.getSession();
+  if (data.session) {
+    _sbUser = data.session.user;
+    userToken = data.session.access_token;
+    myAccountName = _sbUser?.user_metadata?.full_name || _sbUser?.email?.split("@")[0];
+    updateMyAccountInNavbar();
+  }
 
-async function callLoginSignupAPI(subUrl,username,password){
-  const url = "https://chessserver-w8ou.onrender.com/api/"+subUrl;
-  const response = await fetch(url,{
-    method: 'POST',
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-        username,
-        password
-      })  
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+      _sbUser = session.user;
+      userToken = session.access_token;
+      myAccountName = _sbUser?.user_metadata?.full_name || _sbUser?.email?.split("@")[0];
+    } else if (event === "SIGNED_OUT") {
+      _sbUser = null;
+      userToken = null;
+      myAccountName = null;
+    }
+    updateMyAccountInNavbar();
   });
-  return response;
-}
-
-async function callSignupAPI(username,password) {
-  try {
-    const response = await callLoginSignupAPI("signup",username,password);
-    const data = await response.json();
-    if (!response.ok) {
-      showCustomAlert("Signup failed.");
-      return data;
-    }
-    if (data.success){
-      showCustomAlert("User account created!");
-      hideLoginPopup(true);
-      return data;
-    }
-    else {
-      showCustomAlert(data.message);
-      return null;      
-    }
-  } catch (error) {
-    console.error("Error signing up new user:", error);
-    showCustomAlert("Something went wrong. Please try again.");
-    return null;
-  }
-}
-
-async function callLoginAPI(username,password) {
-  try {
-    const response = await callLoginSignupAPI("login",username,password);
-    const data = await response.json();
-    if (!response.ok) {
-      showCustomAlert("Login failed.");
-      return null;
-    }
-    if (data.success){
-      showCustomAlert(data.message);
-      hideLoginPopup(true);
-      return data;
-    }
-    else {
-      showCustomAlert(data.message);
-      return null;      
-    }
-  } catch (error) {
-    console.error("Error in login:", error);
-    showCustomAlert("Something went wrong. Please try again.");
-    return null;
-  }
-}
+})();
 async function storeGameData(){
   if (!userToken)
     return;
