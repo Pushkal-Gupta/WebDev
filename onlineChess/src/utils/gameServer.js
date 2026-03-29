@@ -1,35 +1,29 @@
-const GAME_SERVER = 'https://chessserver-w8ou.onrender.com/api';
+import { supabaseChess } from './supabase';
 
-export async function postGame(token, { color, opponent, timerData, pgnStr }) {
-  try {
-    const response = await fetch(`${GAME_SERVER}/postGame`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ color, opponent, timerData, pgnStr }),
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return await response.json();
-  } catch (err) {
-    console.error('postGame error:', err);
-    return null;
-  }
+// Game history stored in chess Supabase (yzrhvdyvvplimcwfiorh)
+// user_id is the ID from the auth Supabase session — stored as plain uuid, no RLS auth check
+
+export async function postGame(_token, { color, opponent, timerData, pgnStr, userId }) {
+  if (!userId) return null;
+  const { error } = await supabaseChess.from('chess_games').insert({
+    user_id: userId,
+    color,
+    opponent: opponent || 'Unknown',
+    pgn: pgnStr || '',
+    timer_data: timerData || [],
+  });
+  if (error) console.error('postGame error:', error);
+  return !error;
 }
 
-export async function getGames(token) {
-  try {
-    const response = await fetch(`${GAME_SERVER}/getGames`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return await response.json();
-  } catch (err) {
-    console.error('getGames error:', err);
-    return [];
-  }
+export async function getGames(userId) {
+  if (!userId) return [];
+  const { data, error } = await supabaseChess
+    .from('chess_games')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(50);
+  if (error) { console.error('getGames error:', error); return []; }
+  return (data || []).map(g => ({ ...g, pgnStr: g.pgn }));
 }

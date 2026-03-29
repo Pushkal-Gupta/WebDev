@@ -1,0 +1,231 @@
+.lobbyWrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.lobbyCard, .waitCard {
+  background: rgba(15, 15, 15, 0.97);
+  border: 1px solid rgba(100, 255, 255, 0.15);
+  border-radius: 14px;
+  padding: 32px 36px;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.lobbyTitle, .waitTitle {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #ccffff;
+  margin: 0;
+  text-align: center;
+}
+
+.lobbySub, .waitSub {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.4);
+  text-align: center;
+  margin: 0;
+}
+
+.lobbyUser {
+  color: #ccffff;
+  font-weight: 600;
+}
+
+.sectionLabel {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: -8px;
+}
+
+.timeGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.timeBtn {
+  padding: 8px 4px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.7);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.timeBtn:hover {
+  background: rgba(100,255,255,0.1);
+  border-color: rgba(100,255,255,0.3);
+  color: #ccffff;
+}
+
+.timeBtnSelected {
+  background: rgba(100,255,255,0.15);
+  border-color: rgba(100,255,255,0.5);
+  color: #ccffff;
+}
+
+.divider {
+  height: 1px;
+  background: rgba(255,255,255,0.07);
+  margin: 4px 0;
+}
+
+.createBtn {
+  width: 100%;
+  padding: 13px;
+  background: rgba(100,255,255,0.15);
+  border: 1px solid rgba(100,255,255,0.4);
+  color: #ccffff;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.createBtn:hover:not(:disabled) {
+  background: rgba(100,255,255,0.25);
+}
+
+.createBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.orRow {
+  text-align: center;
+  color: rgba(255,255,255,0.3);
+  font-size: 0.82rem;
+  position: relative;
+}
+
+.orRow span {
+  background: rgba(15,15,15,0.97);
+  padding: 0 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.orRow::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0; right: 0;
+  height: 1px;
+  background: rgba(255,255,255,0.07);
+}
+
+.joinRow {
+  display: flex;
+  gap: 8px;
+}
+
+.codeInput {
+  flex: 1;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 7px;
+  padding: 11px 14px;
+  color: white;
+  font-size: 1rem;
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  outline: none;
+  transition: border-color 0.2s;
+  text-transform: uppercase;
+}
+
+.codeInput:focus {
+  border-color: rgba(100,255,255,0.45);
+}
+
+.codeInput::placeholder {
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 0.05em;
+  font-weight: 400;
+}
+
+.joinBtn {
+  padding: 11px 20px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+  border-radius: 7px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.joinBtn:hover:not(:disabled) {
+  background: rgba(100,255,255,0.12);
+  border-color: rgba(100,255,255,0.35);
+  color: #ccffff;
+}
+
+.joinBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.error {
+  color: #ff9999;
+  font-size: 0.85rem;
+  text-align: center;
+  margin: 0;
+}
+
+/* Waiting card */
+.waitCard {
+  align-items: center;
+  gap: 20px;
+}
+
+.waitSpinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(100,255,255,0.15);
+  border-top-color: #ccffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.roomCodeBox {
+  background: rgba(100,255,255,0.08);
+  border: 2px solid rgba(100,255,255,0.4);
+  border-radius: 10px;
+  padding: 16px 32px;
+  font-size: 2rem;
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  color: #ccffff;
+  letter-spacing: 0.25em;
+  cursor: pointer;
+  user-select: all;
+}
+
+.cancelBtn {
+  padding: 8px 24px;
+  background: rgba(255,80,80,0.1);
+  border: 1px solid rgba(255,80,80,0.3);
+  color: #ff9999;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.cancelBtn:hover {
+  background: rgba(255,80,80,0.2);
+}

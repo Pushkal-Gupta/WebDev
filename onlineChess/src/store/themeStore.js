@@ -62,7 +62,7 @@ const useThemeStore = create((set, get) => ({
 
   get imagePath() {
     const { pieceSetIndex } = get();
-    return `/images/${PIECE_SETS[pieceSetIndex].path}`;
+    return `./images/${PIECE_SETS[pieceSetIndex].path}`;
   },
 
   setPieceSet: (index) => set({ pieceSetIndex: index }),

@@ -96,6 +96,17 @@
   margin: 0;
 }
 
+.openingName {
+  padding: 5px 12px;
+  font-size: 0.75rem;
+  color: rgba(100, 255, 255, 0.65);
+  font-style: italic;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .moveHistory {
   flex: 1;
   overflow-y: auto;

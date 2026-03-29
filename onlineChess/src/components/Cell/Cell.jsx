@@ -19,7 +19,7 @@ export default function Cell({ row, col, displayRow, displayCol, flipped }) {
 
   const { clr1, clr2, clr1c, clr2c, clr1p, clr2p, clr1x, clr2x, pieceSetIndex, pieceSets } = useThemeStore();
 
-  const imagePath = `/images/${pieceSets[pieceSetIndex].path}`;
+  const imagePath = `./images/${pieceSets[pieceSetIndex].path}`;
 
   const piece = boardState ? boardState[row][col] : null;
   const isLight = (row + col) % 2 === 0;
