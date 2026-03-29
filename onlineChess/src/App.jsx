@@ -88,11 +88,13 @@ export default function App() {
     isComp, compColor, compStrength, compThinking,
     setCompThinking, setDisableBoard,
     chessInstance, activeColor,
-    timerData, oppName,
+    timerData, oppName, youName,
     moveHistory, currentMoveIndex,
     importPgn,
     boardState, flipped,
     isOnline,
+    capturedByWhite, capturedByBlack,
+    whiteTime, blackTime, timerRunning, timeControl,
   } = useGameStore();
 
   const { pieceSets, pieceSetIndex } = useThemeStore();
@@ -429,6 +431,24 @@ export default function App() {
   const isOnlineGameActive = activeTab === 4 && isOnline && gameStarted;
   const isGameViewActive   = (activeTab === 1 || activeTab === 3 || isOnlineGameActive) && gameStarted;
 
+  // Player panel data (top = opponent perspective, bottom = you)
+  const _PVALS = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
+  const _mat = (arr) => arr.reduce((s, p) => s + (_PVALS[p.type] || 0), 0);
+  const whiteMat = _mat(capturedByWhite);
+  const blackMat = _mat(capturedByBlack);
+  const topColor    = flipped ? 'w' : 'b';
+  const bottomColor = flipped ? 'b' : 'w';
+  const topName     = flipped ? youName : oppName;
+  const bottomName  = flipped ? oppName : youName;
+  const topCaptured    = flipped ? capturedByWhite : capturedByBlack;
+  const bottomCaptured = flipped ? capturedByBlack : capturedByWhite;
+  const topAdv    = flipped ? (whiteMat - blackMat) : (blackMat - whiteMat);
+  const bottomAdv = flipped ? (blackMat - whiteMat) : (whiteMat - blackMat);
+  const topTime    = flipped ? whiteTime : blackTime;
+  const bottomTime = flipped ? blackTime : whiteTime;
+  const topActive    = activeColor === topColor;
+  const bottomActive = activeColor === bottomColor;
+
   const onlineOpponentName = onlineRoom
     ? (useGameStore.getState().onlineColor === 'white'
        ? (onlineRoom.guestName || 'Opponent')
@@ -548,30 +568,38 @@ export default function App() {
 
             {/* Board column */}
             <div className="board-column">
-              {/* Online controls bar */}
+              {/* Online status strip */}
               {isOnline && (
                 <div className="online-controls">
                   <span className={`online-dot ${isOnlineConnected ? 'online' : 'offline'}`} />
                   <span className="online-room-id">Room: {onlineRoom?.id}</span>
                   <div className="online-actions">
-                    <button className="online-btn hint-btn" onClick={handleGetHint} title="Get move hint">
-                      💡 Hint
-                    </button>
-                    <button className="online-btn resign-btn" onClick={handleOnlineResign}>
-                      🏳 Resign
-                    </button>
+                    <button className="online-btn hint-btn" onClick={handleGetHint}>💡 Hint</button>
+                    <button className="online-btn resign-btn" onClick={handleOnlineResign}>🏳 Resign</button>
                   </div>
                 </div>
               )}
-              {/* Hint button for local games */}
-              {!isOnline && activeTab === 1 && (
-                <div className="hint-bar">
-                  <button className="hint-bar-btn" onClick={handleGetHint}>💡 Hint</button>
-                </div>
-              )}
+
+              {/* Top player panel */}
+              <PlayerPanel
+                name={topName} colorCode={topColor}
+                time={topTime} timeActive={topActive} timerRunning={timerRunning}
+                captured={topCaptured} materialAdv={topAdv}
+                timeControl={timeControl} imagePath={imagePath}
+              />
+
               <div className="board-area">
                 <Board />
               </div>
+
+              {/* Bottom player panel */}
+              <PlayerPanel
+                name={bottomName} colorCode={bottomColor}
+                time={bottomTime} timeActive={bottomActive} timerRunning={timerRunning}
+                captured={bottomCaptured} materialAdv={bottomAdv}
+                timeControl={timeControl} imagePath={imagePath}
+                showHint={!isOnline} onHint={handleGetHint}
+              />
             </div>
 
             <RightSidebar onAlert={showAlert} />
@@ -638,57 +666,66 @@ export default function App() {
 }
 
 // ─── Home screen ─────────────────────────────────────────────────────────────
+const MODE_CARDS = [
+  {
+    key: 'online',
+    icon: '♟',
+    iconBg: 'rgba(0,255,245,0.08)',
+    title: 'Play Online',
+    desc: 'Challenge players worldwide. Create a room or join with a code.',
+    btnFn: 'onPlayOnline',
+    btnLabel: (user) => user ? 'Play Online' : 'Login & Play',
+  },
+  {
+    key: 'computer',
+    icon: '♛',
+    iconBg: 'rgba(180,120,255,0.1)',
+    title: 'vs Computer',
+    desc: 'Test your skills from beginner to Stockfish master (10 levels).',
+    btnFn: 'onPlayComputer',
+    btnLabel: () => 'Play Computer',
+  },
+  {
+    key: 'local',
+    icon: '♞',
+    iconBg: 'rgba(255,180,0,0.08)',
+    title: 'Pass & Play',
+    desc: 'Two players, one device. Full timers, move history, and analysis.',
+    btnFn: 'onPlayLocal',
+    btnLabel: () => 'Play Local',
+  },
+];
+
 function HomeScreen({ selectedTime, onSelectTime, onPlayLocal, onPlayComputer, onPlayOnline, user, highlight }) {
+  const handlers = { onPlayOnline, onPlayComputer, onPlayLocal };
   return (
     <div className="home-screen">
       {/* Hero */}
       <div className="home-hero">
+        <div className="home-hero-deco">♚</div>
         <h1 className="home-hero-title">Play <span>Chess</span></h1>
         <p className="home-hero-sub">
-          {user ? `Welcome back, ${user.email?.split('@')[0]}` : 'Choose a mode and start playing'}
+          {user ? `Welcome back, ${user.user_metadata?.full_name || user.email?.split('@')[0]}` : 'Pick a mode and start playing'}
         </p>
       </div>
 
       {/* Mode cards */}
       <div className="mode-grid">
-        <div
-          className="mode-card"
-          style={highlight === 'online' ? { borderColor: 'rgba(0,255,245,0.35)' } : {}}
-        >
-          <div className="mode-card-icon">🌐</div>
-          <div className="mode-card-title">Play Online</div>
-          <div className="mode-card-desc">
-            Challenge players worldwide. Create a room or join with a code. Real-time games with live chat.
+        {MODE_CARDS.map(card => (
+          <div
+            key={card.key}
+            className={`mode-card ${highlight === card.key ? 'mode-card-hl' : ''}`}
+          >
+            <div className="mode-card-icon-wrap" style={{ background: card.iconBg }}>
+              <span className="mode-card-icon">{card.icon}</span>
+            </div>
+            <div className="mode-card-title">{card.title}</div>
+            <div className="mode-card-desc">{card.desc}</div>
+            <button className="mode-card-btn" onClick={handlers[card.btnFn]}>
+              {card.btnLabel(user)}
+            </button>
           </div>
-          <button className="mode-card-btn" onClick={onPlayOnline}>
-            {user ? 'Play Online →' : 'Login to Play →'}
-          </button>
-        </div>
-
-        <div
-          className="mode-card"
-          style={highlight === 'computer' ? { borderColor: 'rgba(0,255,245,0.35)' } : {}}
-        >
-          <div className="mode-card-icon">🤖</div>
-          <div className="mode-card-title">vs Computer</div>
-          <div className="mode-card-desc">
-            Test your skills against the built-in AI engine (levels 1–6) or Stockfish (levels 7–10).
-          </div>
-          <button className="mode-card-btn" onClick={onPlayComputer}>
-            Play Computer →
-          </button>
-        </div>
-
-        <div className="mode-card">
-          <div className="mode-card-icon">👥</div>
-          <div className="mode-card-title">Local Game</div>
-          <div className="mode-card-desc">
-            Two players, one device. Pass and play with a friend. Full timers, move history, and analysis.
-          </div>
-          <button className="mode-card-btn" onClick={onPlayLocal}>
-            Play Local →
-          </button>
-        </div>
+        ))}
       </div>
 
       {/* Time control */}
@@ -697,7 +734,7 @@ function HomeScreen({ selectedTime, onSelectTime, onPlayLocal, onPlayComputer, o
           <span className="tc-header-label">Time Control</span>
           <div className="tc-header-line" />
           <span className="tc-selected-display">
-            {selectedTime ? `${selectedTime.display} selected` : 'none selected'}
+            {selectedTime ? selectedTime.display : 'none selected'}
           </span>
         </div>
         <div className="tc-rows">
@@ -718,6 +755,53 @@ function HomeScreen({ selectedTime, onSelectTime, onPlayLocal, onPlayComputer, o
             </div>
           ))}
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Player panel ─────────────────────────────────────────────────────────────
+const PP_PIECE_MAP = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' };
+function formatPPTime(s) {
+  if (s <= 0) return '0:00';
+  return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
+}
+
+function PlayerPanel({ name, colorCode, time, timeActive, timerRunning, captured, materialAdv, timeControl, imagePath, showHint, onHint }) {
+  const initial = (name || (colorCode === 'w' ? 'W' : 'B'))[0].toUpperCase();
+  const isLow   = timeActive && timerRunning && time <= 30;
+  const ticking = timeActive && timerRunning;
+
+  return (
+    <div className={`player-panel ${ticking ? 'player-panel-ticking' : ''}`}>
+      <div className="pp-left">
+        <div className={`pp-avatar pp-avatar-${colorCode}`}>{initial}</div>
+        <div className="pp-meta">
+          <span className="pp-name">{name || (colorCode === 'w' ? 'White' : 'Black')}</span>
+          {captured.length > 0 && (
+            <div className="pp-captures">
+              {captured.map((p, i) => (
+                <img
+                  key={i}
+                  src={`${imagePath}${PP_PIECE_MAP[p.type]}+${p.color === 'w' ? 'white' : 'black'}.png`}
+                  className="pp-cap-img"
+                  alt={p.type}
+                />
+              ))}
+              {materialAdv > 0 && <span className="pp-adv">+{materialAdv}</span>}
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="pp-right">
+        {showHint && (
+          <button className="pp-hint-btn" onClick={onHint} title="Get hint">💡</button>
+        )}
+        {timeControl && (
+          <div className={`pp-clock ${ticking ? 'pp-clock-active' : ''} ${isLow ? 'pp-clock-low' : ''}`}>
+            {formatPPTime(time)}
+          </div>
+        )}
       </div>
     </div>
   );
