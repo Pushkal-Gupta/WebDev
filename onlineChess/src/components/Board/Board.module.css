@@ -10,9 +10,10 @@
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
-  width: min(560px, 90vw, calc(100vh - 160px));
-  height: min(560px, 90vw, calc(100vh - 160px));
-  border: 2px solid rgba(255, 255, 255, 0.15);
+  /* 54px navbar + 2×52px panels + 38px online-controls + 24px padding */
+  width: min(520px, 88vw, calc(100vh - 220px));
+  height: min(520px, 88vw, calc(100vh - 220px));
+  border: 2px solid rgba(255, 255, 255, 0.12);
   border-radius: 4px;
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
