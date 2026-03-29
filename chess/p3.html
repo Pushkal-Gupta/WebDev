@@ -43,6 +43,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
   </head>
   <body>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <div id="customAlert" class="custom-alert">
       <p id="customAlertMessage"></p>
@@ -81,7 +82,7 @@
     <div id="loginPopup" class="popup">
       <h3 id="popupTitle">Login to continue</h3>
       <div class="login-fields">
-        <input type="text" id="loginUsername" placeholder="Username" />
+        <input type="email" id="loginUsername" placeholder="Email" />
         <input type="password" id="loginPassword" placeholder="Password" />
         <input type="password" id="signupConfirm" placeholder="Confirm Password" style="display: none;" />
       </div>
