@@ -444,12 +444,21 @@ export default function App() {
         {/* Left sidebar — shown during local games only (not online) */}
         {isGameViewActive && !isOnline && <LeftSidebar onAlert={showAlert} />}
 
-        {/* ── Tab 0: Time selection ── */}
+        {/* ── Tab 0: Home ── */}
         {activeTab === 0 && (
-          <TimeScreen
+          <HomeScreen
             selectedTime={selectedTime}
             onSelectTime={setSelectedTime}
-            onPlay={() => { if (!selectedTime) { showAlert('Please select a time control'); return; } executeTabSwitch(1); }}
+            onPlayLocal={() => {
+              if (!selectedTime) { showAlert('Pick a time control first'); return; }
+              executeTabSwitch(1);
+            }}
+            onPlayComputer={() => {
+              if (!selectedTime) { showAlert('Pick a time control first'); return; }
+              setShowStrength(true);
+            }}
+            onPlayOnline={() => executeTabSwitch(4)}
+            user={user}
           />
         )}
 
@@ -475,20 +484,23 @@ export default function App() {
           </div>
         )}
 
-        {/* ── Tab 3: Computer (no game yet) ── */}
+        {/* ── Tab 3: Computer (no game yet) → show home ── */}
         {activeTab === 3 && !gameStarted && (
-          <div className="time-screen">
-            <h2>Play vs Computer</h2>
-            <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: 16 }}>
-              Strengths 1–6 use the built-in AI engine (offline).<br />
-              Strengths 7–10 use Stockfish (requires internet).
-            </p>
-            <TimeScreen
-              selectedTime={selectedTime}
-              onSelectTime={setSelectedTime}
-              onPlay={() => { if (!selectedTime) { showAlert('Please select a time control'); return; } setShowStrength(true); }}
-            />
-          </div>
+          <HomeScreen
+            selectedTime={selectedTime}
+            onSelectTime={setSelectedTime}
+            onPlayLocal={() => {
+              if (!selectedTime) { showAlert('Pick a time control first'); return; }
+              executeTabSwitch(1);
+            }}
+            onPlayComputer={() => {
+              if (!selectedTime) { showAlert('Pick a time control first'); return; }
+              setShowStrength(true);
+            }}
+            onPlayOnline={() => executeTabSwitch(4)}
+            user={user}
+            highlight="computer"
+          />
         )}
 
         {/* ── Tab 4: Online lobby (no active game) ── */}
@@ -625,38 +637,91 @@ export default function App() {
   );
 }
 
-// ─── Time selection screen ────────────────────────────────────────────────────
-function TimeScreen({ selectedTime, onSelectTime, onPlay }) {
+// ─── Home screen ─────────────────────────────────────────────────────────────
+function HomeScreen({ selectedTime, onSelectTime, onPlayLocal, onPlayComputer, onPlayOnline, user, highlight }) {
   return (
-    <div className="time-screen">
-      <h2>Select Time Control</h2>
-      <div className="time-selected-btn">
-        {selectedTime ? `Selected: ${selectedTime.display}` : 'No time selected'}
+    <div className="home-screen">
+      {/* Hero */}
+      <div className="home-hero">
+        <h1 className="home-hero-title">Play <span>Chess</span></h1>
+        <p className="home-hero-sub">
+          {user ? `Welcome back, ${user.email?.split('@')[0]}` : 'Choose a mode and start playing'}
+        </p>
       </div>
-      {TIME_CONTROLS.map((cat) => (
-        <div key={cat.category} className="time-category">
-          <div className="time-category-label">{cat.category}</div>
-          <div className="time-grid">
-            {cat.controls.map((tc) => (
-              <button
-                key={tc.display}
-                className={`time-btn ${selectedTime?.display === tc.display ? 'selected' : ''}`}
-                onClick={() => onSelectTime(tc)}
-              >
-                {tc.display}
-              </button>
-            ))}
+
+      {/* Mode cards */}
+      <div className="mode-grid">
+        <div
+          className="mode-card"
+          style={highlight === 'online' ? { borderColor: 'rgba(0,255,245,0.35)' } : {}}
+        >
+          <div className="mode-card-icon">🌐</div>
+          <div className="mode-card-title">Play Online</div>
+          <div className="mode-card-desc">
+            Challenge players worldwide. Create a room or join with a code. Real-time games with live chat.
           </div>
+          <button className="mode-card-btn" onClick={onPlayOnline}>
+            {user ? 'Play Online →' : 'Login to Play →'}
+          </button>
         </div>
-      ))}
-      <button className="play-btn" onClick={onPlay} disabled={!selectedTime}>
-        Play Game
-      </button>
+
+        <div
+          className="mode-card"
+          style={highlight === 'computer' ? { borderColor: 'rgba(0,255,245,0.35)' } : {}}
+        >
+          <div className="mode-card-icon">🤖</div>
+          <div className="mode-card-title">vs Computer</div>
+          <div className="mode-card-desc">
+            Test your skills against the built-in AI engine (levels 1–6) or Stockfish (levels 7–10).
+          </div>
+          <button className="mode-card-btn" onClick={onPlayComputer}>
+            Play Computer →
+          </button>
+        </div>
+
+        <div className="mode-card">
+          <div className="mode-card-icon">👥</div>
+          <div className="mode-card-title">Local Game</div>
+          <div className="mode-card-desc">
+            Two players, one device. Pass and play with a friend. Full timers, move history, and analysis.
+          </div>
+          <button className="mode-card-btn" onClick={onPlayLocal}>
+            Play Local →
+          </button>
+        </div>
+      </div>
+
+      {/* Time control */}
+      <div className="tc-section">
+        <div className="tc-header">
+          <span className="tc-header-label">Time Control</span>
+          <div className="tc-header-line" />
+          <span className="tc-selected-display">
+            {selectedTime ? `${selectedTime.display} selected` : 'none selected'}
+          </span>
+        </div>
+        <div className="tc-rows">
+          {TIME_CONTROLS.map(cat => (
+            <div className="tc-row" key={cat.category}>
+              <span className="tc-cat">{cat.category}</span>
+              <div className="tc-chips">
+                {cat.controls.map(tc => (
+                  <button
+                    key={tc.display}
+                    className={`tc-chip ${selectedTime?.display === tc.display ? 'tc-selected' : ''}`}
+                    onClick={() => onSelectTime(tc)}
+                  >
+                    {tc.display}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
-
-export { TimeScreen };
 
 // ─── Account screen ───────────────────────────────────────────────────────────
 function AccountScreen({ onAlert, onLogout, onLoadGame }) {
