@@ -22,7 +22,7 @@ body {
 /* ─── App shell ────────────────────────────────────────────────────────────── */
 .app-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   height: 100vh;
   overflow: hidden;
 }
@@ -31,6 +31,13 @@ body {
   flex: 1;
   display: flex;
   overflow: hidden;
+  min-width: 0;
+}
+
+@media (max-width: 540px) {
+  .main-content {
+    padding-bottom: 56px;
+  }
 }
 
 /* ─── Home screen ──────────────────────────────────────────────────────────── */
