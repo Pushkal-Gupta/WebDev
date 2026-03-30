@@ -802,7 +802,7 @@ function PlayerPanel({ name, colorCode, time, timeActive, timerRunning, captured
               {captured.map((p, i) => (
                 <img
                   key={i}
-                  src={`${imagePath}${PP_PIECE_MAP[p.type]}+${p.color === 'w' ? 'white' : 'black'}.png`}
+                  src={`${imagePath}${PP_PIECE_MAP[p.type]}-${p.color === 'w' ? 'white' : 'black'}.png`}
                   className="pp-cap-img"
                   alt={p.type}
                 />
