@@ -1,46 +1,56 @@
 .navbar {
   display: flex;
   align-items: center;
-  background: rgba(3, 10, 10, 0.97);
-  border-bottom: 1px solid rgba(0, 255, 245, 0.08);
-  padding: 0 20px;
-  height: 54px;
+  background: rgba(2, 8, 8, 0.98);
+  border-bottom: 1px solid rgba(0, 255, 245, 0.07);
+  padding: 0 24px;
+  height: 52px;
   position: sticky;
   top: 0;
   z-index: 100;
   flex-shrink: 0;
-  gap: 20px;
+  gap: 24px;
 }
 
-.backLink {
-  color: rgba(255, 255, 255, 0.35);
-  font-size: 0.82rem;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: color 0.2s;
-  letter-spacing: 0.02em;
-  flex-shrink: 0;
-}
-
-.backLink:hover {
-  color: rgba(0, 255, 245, 0.8);
-}
-
+/* Brand — always points to portfolio; arrow slides in on hover */
 .brand {
   color: #00fff5;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   flex-shrink: 0;
   user-select: none;
+  text-decoration: none;
+  position: relative;
+  transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.brand::before {
+  content: "←";
+  position: absolute;
+  left: -22px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #00fff5;
+  opacity: 0;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 700;
+  font-size: 0.95rem;
+  pointer-events: none;
 }
 
 .brand:hover {
   color: white;
 }
 
+.brand:hover::before {
+  opacity: 1;
+  left: -18px;
+}
+
+/* Nav list */
 .navList {
   display: flex;
   list-style: none;
@@ -58,47 +68,48 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 7px 13px;
-  color: rgba(255, 255, 255, 0.55);
+  padding: 6px 12px;
+  color: rgba(255, 255, 255, 0.48);
   text-decoration: none;
   border-radius: 6px;
-  font-size: 0.85rem;
+  font-size: 0.83rem;
   cursor: pointer;
   background: none;
   border: none;
   position: relative;
-  transition: color 0.2s, background 0.2s;
+  transition: color 0.18s, background 0.18s;
   white-space: nowrap;
+  font-weight: 500;
 }
 
 .navLink:hover {
-  color: rgba(255, 255, 255, 0.9);
-  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .navLink.active {
   color: #00fff5;
-  background: rgba(0, 255, 245, 0.08);
+  background: rgba(0, 255, 245, 0.07);
 }
 
 .navLink.active::after {
   content: '';
   position: absolute;
   bottom: -1px;
-  left: 20%;
-  right: 20%;
+  left: 25%;
+  right: 25%;
   height: 2px;
   background: #00fff5;
   border-radius: 2px 2px 0 0;
+  box-shadow: 0 0 6px rgba(0, 255, 245, 0.5);
 }
 
 .icon {
-  font-size: 0.85rem;
-  opacity: 0.8;
+  font-size: 0.82rem;
+  opacity: 0.75;
 }
 
-@media (max-width: 760px) {
-  .backLink { display: none; }
-  .navLink  { padding: 6px 8px; font-size: 0.78rem; }
-  .icon     { display: none; }
+@media (max-width: 720px) {
+  .navLink { padding: 5px 7px; font-size: 0.75rem; }
+  .icon    { display: none; }
 }

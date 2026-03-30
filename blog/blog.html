@@ -20,10 +20,7 @@
         <div class="nav-group">
           <a
             href="#"
-            onclick="
-              showHome();
-              return false;
-            "
+            onclick="if(document.body.classList.contains('is-reading-mode')){showHome();}else{window.location.href='../PG/main.html';}return false;"
             class="brand-link"
             >Pushkal Gupta Blog</a
           >

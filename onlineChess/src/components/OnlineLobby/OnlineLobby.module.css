@@ -7,23 +7,25 @@
 }
 
 .lobbyCard, .waitCard {
-  background: rgba(15, 15, 15, 0.97);
-  border: 1px solid rgba(100, 255, 255, 0.15);
-  border-radius: 14px;
+  background: #0d1616;
+  border: 1px solid rgba(0, 255, 245, 0.12);
+  border-radius: 16px;
   padding: 32px 36px;
   width: 100%;
   max-width: 420px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
 }
 
 .lobbyTitle, .waitTitle {
-  font-size: 1.4rem;
+  font-size: 1.35rem;
   font-weight: 700;
-  color: #ccffff;
+  color: #00fff5;
   margin: 0;
   text-align: center;
+  letter-spacing: -0.02em;
 }
 
 .lobbySub, .waitSub {
