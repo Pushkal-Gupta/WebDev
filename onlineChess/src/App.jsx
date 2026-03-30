@@ -18,7 +18,8 @@ import useAuthStore from './store/authStore';
 import useThemeStore from './store/themeStore';
 import { getBestMove } from './utils/stockfish';
 import { postGame, getGames } from './utils/gameServer';
-import { evaluatePosition, evalToWhitePct, formatEval } from './utils/evaluation';
+import { getOpeningName } from './utils/evaluation';
+import { supabase } from './utils/supabase';
 import { getLocalBestMove, getSuggestion } from './utils/localAI';
 import { reviewGame } from './utils/reviewEngine';
 import {
@@ -27,39 +28,41 @@ import {
   endRoom, unsubscribe, sqToRowCol, rowColToSq,
 } from './utils/multiplayerService';
 
-// ─── Time control data ────────────────────────────────────────────────────────
-const TIME_CONTROLS = [
-  { category: 'Bullet', controls: [
-    { display: '1 min', total: 60,  incr: 0 },
-    { display: '1|1',   total: 60,  incr: 1 },
-  ]},
-  { category: 'Blitz', controls: [
-    { display: '2|1',   total: 120, incr: 1 },
-    { display: '3 min', total: 180, incr: 0 },
-    { display: '3|2',   total: 180, incr: 2 },
-  ]},
-  { category: 'Rapid', controls: [
-    { display: '5 min',  total: 300, incr: 0 },
-    { display: '10 min', total: 600, incr: 0 },
-    { display: '15|10',  total: 900, incr: 10 },
-  ]},
-  { category: 'Classical', controls: [
-    { display: '30 min', total: 1800, incr: 0 },
-  ]},
+// ─── Time presets ─────────────────────────────────────────────────────────────
+const TC_PRESETS = [
+  { display: '1+0',   total: 60,   incr: 0,  cat: 'Bullet',    delayType: 'none', delay: 0 },
+  { display: '1+1',   total: 60,   incr: 1,  cat: 'Bullet',    delayType: 'fischer', delay: 1 },
+  { display: '2+1',   total: 120,  incr: 1,  cat: 'Bullet',    delayType: 'fischer', delay: 1 },
+  { display: '3+0',   total: 180,  incr: 0,  cat: 'Blitz',     delayType: 'none', delay: 0 },
+  { display: '3+2',   total: 180,  incr: 2,  cat: 'Blitz',     delayType: 'fischer', delay: 2 },
+  { display: '5+0',   total: 300,  incr: 0,  cat: 'Blitz',     delayType: 'none', delay: 0 },
+  { display: '5+3',   total: 300,  incr: 3,  cat: 'Blitz',     delayType: 'fischer', delay: 3 },
+  { display: '10+0',  total: 600,  incr: 0,  cat: 'Rapid',     delayType: 'none', delay: 0 },
+  { display: '10+5',  total: 600,  incr: 5,  cat: 'Rapid',     delayType: 'fischer', delay: 5 },
+  { display: '15+10', total: 900,  incr: 10, cat: 'Rapid',     delayType: 'fischer', delay: 10 },
+  { display: '30+0',  total: 1800, incr: 0,  cat: 'Classical', delayType: 'none', delay: 0 },
+  { display: '30+20', total: 1800, incr: 20, cat: 'Classical', delayType: 'fischer', delay: 20 },
 ];
 
-const ONLINE_TIME_CONTROLS = [
-  { display: '1 min',  total: 60,  incr: 0 },
-  { display: '3 min',  total: 180, incr: 0 },
-  { display: '5 min',  total: 300, incr: 0 },
-  { display: '10 min', total: 600, incr: 0 },
-  { display: '15|10',  total: 900, incr: 10 },
+const ONLINE_TIME_CONTROLS = TC_PRESETS.filter(p => ['1+0','3+0','5+0','10+0','15+10'].includes(p.display));
+
+const DELAY_TYPES = [
+  { key: 'none',      label: 'No Delay' },
+  { key: 'fischer',   label: 'Fischer',      tip: 'Add seconds after each move' },
+  { key: 'bronstein', label: 'Bronstein',    tip: 'Recover time spent (up to max)' },
+  { key: 'simple',    label: 'Simple Delay', tip: 'Clock waits N sec before ticking' },
+];
+
+const MODES = [
+  { key: 'online',   icon: '♟', title: 'Play Online',   desc: 'Challenge players worldwide', iconBg: 'rgba(0,255,245,0.08)' },
+  { key: 'computer', icon: '♛', title: 'vs Computer',   desc: '10 difficulty levels',       iconBg: 'rgba(180,120,255,0.1)' },
+  { key: 'local',    icon: '♞', title: 'Pass & Play',   desc: 'Two players, one device',    iconBg: 'rgba(255,180,0,0.08)' },
 ];
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const [activeTab, setActiveTab]           = useState(0);
-  const [selectedTime, setSelectedTime]     = useState(null);
+  const [pendingTimeControl, setPendingTimeControl] = useState(null);
   const [showLogin, setShowLogin]           = useState(false);
   const [showLogout, setShowLogout]         = useState(false);
   const [showStrength, setShowStrength]     = useState(false);
@@ -102,11 +105,6 @@ export default function App() {
 
   const { pieceSets, pieceSetIndex } = useThemeStore();
   const imagePath = `./images/${pieceSets[pieceSetIndex].path}`;
-
-  // Eval bar
-  const evalScore = evaluatePosition(boardState);
-  const whitePct  = evalToWhitePct(evalScore);
-  const evalLabel = formatEval(evalScore);
 
   // ─── Init ──────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -380,15 +378,12 @@ export default function App() {
     if (index === 0) {
       initGame();
     } else if (index === 1) {
-      if (!selectedTime) { setActiveTab(0); showAlert('Please select a time control first'); return; }
       initGame();
-      startGame(selectedTime, false, 'black', 4);
     } else if (index === 2) {
       initGame();
       loadAnalysisGames();
     } else if (index === 3) {
-      if (!selectedTime) { setActiveTab(0); showAlert('Please select a time control first'); return; }
-      setShowStrength(true);
+      // Game setup happens from HomeScreen
     } else if (index === 4) {
       // Online tab — lobby shown by default, no initGame (don't reset mid-session)
     } else if (index === 5) {
@@ -413,7 +408,8 @@ export default function App() {
     let compCol = color;
     if (color === 'random') compCol = Math.random() < 0.5 ? 'white' : 'black';
     initGame();
-    startGame(selectedTime, true, compCol, strength);
+    startGame(pendingTimeControl, true, compCol, strength);
+    setPendingTimeControl(null);
     setActiveTab(3);
   };
 
@@ -485,18 +481,21 @@ export default function App() {
         {/* ── Tab 0: Home ── */}
         {activeTab === 0 && (
           <HomeScreen
-            selectedTime={selectedTime}
-            onSelectTime={setSelectedTime}
-            onPlayLocal={() => {
-              if (!selectedTime) { showAlert('Pick a time control first'); return; }
-              executeTabSwitch(1);
-            }}
-            onPlayComputer={() => {
-              if (!selectedTime) { showAlert('Pick a time control first'); return; }
-              setShowStrength(true);
-            }}
-            onPlayOnline={() => executeTabSwitch(4)}
             user={user}
+            onStart={(mode, tc) => {
+              if (mode === 'local') {
+                initGame();
+                startGame(tc, false, 'black', 4);
+                setActiveTab(1);
+              } else if (mode === 'computer') {
+                setPendingTimeControl(tc);
+                setShowStrength(true);
+              }
+            }}
+            onPlayOnline={() => {
+              if (!user) { setShowLogin(true); return; }
+              executeTabSwitch(4);
+            }}
           />
         )}
 
@@ -525,19 +524,12 @@ export default function App() {
         {/* ── Tab 3: Computer (no game yet) → show home ── */}
         {activeTab === 3 && !gameStarted && (
           <HomeScreen
-            selectedTime={selectedTime}
-            onSelectTime={setSelectedTime}
-            onPlayLocal={() => {
-              if (!selectedTime) { showAlert('Pick a time control first'); return; }
-              executeTabSwitch(1);
-            }}
-            onPlayComputer={() => {
-              if (!selectedTime) { showAlert('Pick a time control first'); return; }
-              setShowStrength(true);
-            }}
-            onPlayOnline={() => executeTabSwitch(4)}
             user={user}
-            highlight="computer"
+            onStart={(mode, tc) => {
+              if (mode === 'local') { initGame(); startGame(tc, false, 'black', 4); setActiveTab(1); }
+              else if (mode === 'computer') { setPendingTimeControl(tc); setShowStrength(true); }
+            }}
+            onPlayOnline={() => { if (!user) { setShowLogin(true); return; } executeTabSwitch(4); }}
           />
         )}
 
@@ -572,18 +564,6 @@ export default function App() {
         {/* ── Game view (New Game / Computer / Online) ── */}
         {isGameViewActive && (
           <div className="game-layout">
-            {/* Eval bar */}
-            <div className="eval-bar">
-              <span className="eval-score eval-score-black">
-                {evalScore < -15 ? formatEval(evalScore).replace('-', '') : ''}
-              </span>
-              <div className="eval-fill-black" style={{ height: `${flipped ? whitePct : 100 - whitePct}%` }} />
-              <div className="eval-fill-white" style={{ height: `${flipped ? 100 - whitePct : whitePct}%` }} />
-              <span className="eval-score eval-score-white">
-                {evalScore > 15 ? evalLabel : ''}
-              </span>
-            </div>
-
             {/* Board column */}
             <div className="board-column">
               {/* Online status strip */}
@@ -684,97 +664,156 @@ export default function App() {
   );
 }
 
-// ─── Home screen ─────────────────────────────────────────────────────────────
-const MODE_CARDS = [
-  {
-    key: 'online',
-    icon: '♟',
-    iconBg: 'rgba(0,255,245,0.08)',
-    title: 'Play Online',
-    desc: 'Challenge players worldwide. Create a room or join with a code.',
-    btnFn: 'onPlayOnline',
-    btnLabel: (user) => user ? 'Play Online' : 'Login & Play',
-  },
-  {
-    key: 'computer',
-    icon: '♛',
-    iconBg: 'rgba(180,120,255,0.1)',
-    title: 'vs Computer',
-    desc: 'Test your skills from beginner to Stockfish master (10 levels).',
-    btnFn: 'onPlayComputer',
-    btnLabel: () => 'Play Computer',
-  },
-  {
-    key: 'local',
-    icon: '♞',
-    iconBg: 'rgba(255,180,0,0.08)',
-    title: 'Pass & Play',
-    desc: 'Two players, one device. Full timers, move history, and analysis.',
-    btnFn: 'onPlayLocal',
-    btnLabel: () => 'Play Local',
-  },
-];
+// ─── Game Setup Panel ─────────────────────────────────────────────────────────
+function GameSetupPanel({ mode, user, onStart, onCancel }) {
+  const [selPreset, setSelPreset]     = useState(TC_PRESETS[4]); // 3+2 default
+  const [useCustom, setUseCustom]     = useState(false);
+  const [noTimer, setNoTimer]         = useState(false);
+  const [customMins, setCustomMins]   = useState(5);
+  const [customSecs, setCustomSecs]   = useState(0);
+  const [delayType, setDelayType]     = useState('fischer');
+  const [delayAmt, setDelayAmt]       = useState(2);
+  const [activeCat, setActiveCat]     = useState('Blitz');
 
-function HomeScreen({ selectedTime, onSelectTime, onPlayLocal, onPlayComputer, onPlayOnline, user, highlight }) {
-  const handlers = { onPlayOnline, onPlayComputer, onPlayLocal };
+  const cats = [...new Set(TC_PRESETS.map(p => p.cat))];
+
+  const buildTC = () => {
+    if (noTimer) return null;
+    if (useCustom) {
+      const total = customMins * 60 + customSecs;
+      if (total <= 0) return null;
+      const inc = delayType === 'fischer' ? delayAmt : 0;
+      return { display: `${customMins}:${String(customSecs).padStart(2,'0')}${inc ? '+'+inc : ''}`, total, incr: inc, delayType, delay: delayAmt };
+    }
+    if (!selPreset) return null;
+    const inc = delayType === 'fischer' ? delayAmt : selPreset.incr;
+    return { ...selPreset, incr: inc, delayType, delay: delayAmt };
+  };
+
+  const canStart = noTimer || useCustom || selPreset;
+  const modeLabel = { computer: 'vs Computer', local: 'Pass & Play', online: 'Online' }[mode];
+
+  return (
+    <div className="gs-panel">
+      <div className="gs-header">
+        <span className="gs-title">{modeLabel} — Setup</span>
+        <button className="gs-close" onClick={onCancel}>×</button>
+      </div>
+
+      <label className="gs-notimer-row">
+        <input type="checkbox" checked={noTimer} onChange={e => setNoTimer(e.target.checked)} />
+        <span>Untimed game</span>
+      </label>
+
+      {!noTimer && <>
+        <div className="gs-cats">
+          {cats.map(c => (
+            <button key={c} className={`gs-cat ${activeCat === c ? 'gs-cat-active' : ''}`} onClick={() => { setActiveCat(c); setUseCustom(false); }}>
+              {c}
+            </button>
+          ))}
+          <button className={`gs-cat ${useCustom ? 'gs-cat-active' : ''}`} onClick={() => setUseCustom(true)}>Custom</button>
+        </div>
+
+        {!useCustom && (
+          <div className="gs-presets">
+            {TC_PRESETS.filter(p => p.cat === activeCat).map(p => (
+              <button key={p.display}
+                className={`gs-preset ${selPreset?.display === p.display ? 'gs-preset-active' : ''}`}
+                onClick={() => setSelPreset(p)}
+              >
+                {p.display}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {useCustom && (
+          <div className="gs-custom-row">
+            <div className="gs-custom-field">
+              <label>Minutes</label>
+              <input type="number" min="0" max="180" value={customMins}
+                onChange={e => setCustomMins(Math.max(0, parseInt(e.target.value)||0))}
+                className="gs-num-input" />
+            </div>
+            <span className="gs-colon">:</span>
+            <div className="gs-custom-field">
+              <label>Seconds</label>
+              <input type="number" min="0" max="59" value={customSecs}
+                onChange={e => setCustomSecs(Math.min(59,Math.max(0,parseInt(e.target.value)||0)))}
+                className="gs-num-input" />
+            </div>
+          </div>
+        )}
+
+        <div className="gs-section-label">Time Control Type</div>
+        <div className="gs-delay-row">
+          {DELAY_TYPES.map(d => (
+            <button key={d.key} title={d.tip || ''}
+              className={`gs-delay-btn ${delayType === d.key ? 'gs-delay-active' : ''}`}
+              onClick={() => setDelayType(d.key)}>
+              {d.label}
+            </button>
+          ))}
+        </div>
+
+        {delayType !== 'none' && (
+          <div className="gs-delay-amt">
+            <span>{delayType === 'fischer' ? 'Increment' : 'Delay'} (sec):</span>
+            <input type="number" min="0" max="60" value={delayAmt}
+              onChange={e => setDelayAmt(Math.max(0, parseInt(e.target.value)||0))}
+              className="gs-num-input gs-num-small" />
+          </div>
+        )}
+      </>}
+
+      <button className="gs-start-btn" disabled={!canStart} onClick={() => canStart && onStart(buildTC())}>
+        Start Game
+      </button>
+    </div>
+  );
+}
+
+// ─── Home screen ─────────────────────────────────────────────────────────────
+function HomeScreen({ user, onStart, onPlayOnline }) {
+  const [selectedMode, setSelectedMode] = useState(null);
+
   return (
     <div className="home-screen">
-      {/* Hero */}
       <div className="home-hero">
         <div className="home-hero-deco">♚</div>
         <h1 className="home-hero-title">Play <span>Chess</span></h1>
         <p className="home-hero-sub">
-          {user ? `Welcome back, ${user.user_metadata?.full_name || user.email?.split('@')[0]}` : 'Pick a mode and start playing'}
+          {user ? `Welcome back, ${user.user_metadata?.full_name || user.email?.split('@')[0]}` : 'Pick a mode to get started'}
         </p>
       </div>
 
-      {/* Mode cards */}
       <div className="mode-grid">
-        {MODE_CARDS.map(card => (
-          <div
-            key={card.key}
-            className={`mode-card ${highlight === card.key ? 'mode-card-hl' : ''}`}
+        {MODES.map(m => (
+          <div key={m.key}
+            className={`mode-card ${selectedMode === m.key ? 'mode-card-hl' : ''}`}
+            onClick={() => {
+              if (m.key === 'online') { onPlayOnline(); return; }
+              setSelectedMode(selectedMode === m.key ? null : m.key);
+            }}
           >
-            <div className="mode-card-icon-wrap" style={{ background: card.iconBg }}>
-              <span className="mode-card-icon">{card.icon}</span>
+            <div className="mode-card-icon-wrap" style={{ background: m.iconBg }}>
+              <span className="mode-card-icon">{m.icon}</span>
             </div>
-            <div className="mode-card-title">{card.title}</div>
-            <div className="mode-card-desc">{card.desc}</div>
-            <button className="mode-card-btn" onClick={handlers[card.btnFn]}>
-              {card.btnLabel(user)}
-            </button>
+            <div className="mode-card-title">{m.title}</div>
+            <div className="mode-card-desc">{m.desc}</div>
           </div>
         ))}
       </div>
 
-      {/* Time control */}
-      <div className="tc-section">
-        <div className="tc-header">
-          <span className="tc-header-label">Time Control</span>
-          <div className="tc-header-line" />
-          <span className="tc-selected-display">
-            {selectedTime ? selectedTime.display : 'none selected'}
-          </span>
-        </div>
-        <div className="tc-rows">
-          {TIME_CONTROLS.map(cat => (
-            <div className="tc-row" key={cat.category}>
-              <span className="tc-cat">{cat.category}</span>
-              <div className="tc-chips">
-                {cat.controls.map(tc => (
-                  <button
-                    key={tc.display}
-                    className={`tc-chip ${selectedTime?.display === tc.display ? 'tc-selected' : ''}`}
-                    onClick={() => onSelectTime(tc)}
-                  >
-                    {tc.display}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      {selectedMode && (
+        <GameSetupPanel
+          mode={selectedMode}
+          user={user}
+          onStart={(tc) => onStart(selectedMode, tc)}
+          onCancel={() => setSelectedMode(null)}
+        />
+      )}
     </div>
   );
 }
@@ -797,19 +836,17 @@ function PlayerPanel({ name, colorCode, time, timeActive, timerRunning, captured
         <div className={`pp-avatar pp-avatar-${colorCode}`}>{initial}</div>
         <div className="pp-meta">
           <span className="pp-name">{name || (colorCode === 'w' ? 'White' : 'Black')}</span>
-          {captured.length > 0 && (
-            <div className="pp-captures">
-              {captured.map((p, i) => (
-                <img
-                  key={i}
-                  src={`${imagePath}${PP_PIECE_MAP[p.type]}-${p.color === 'w' ? 'white' : 'black'}.png`}
-                  className="pp-cap-img"
-                  alt={p.type}
-                />
-              ))}
-              {materialAdv > 0 && <span className="pp-adv">+{materialAdv}</span>}
-            </div>
-          )}
+          <div className="pp-captures">
+            {captured.map((p, i) => (
+              <img
+                key={i}
+                src={`${imagePath}${PP_PIECE_MAP[p.type]}-${p.color === 'w' ? 'white' : 'black'}.png`}
+                className="pp-cap-img"
+                alt={p.type}
+              />
+            ))}
+            {materialAdv > 0 && <span className="pp-adv">+{materialAdv}</span>}
+          </div>
         </div>
       </div>
       <div className="pp-right">
@@ -829,8 +866,12 @@ function PlayerPanel({ name, colorCode, time, timeActive, timerRunning, captured
 // ─── Account screen ───────────────────────────────────────────────────────────
 function AccountScreen({ onAlert, onLogout, onLoadGame }) {
   const { user, username, logout } = useAuthStore();
-  const [games, setGames]   = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { pieceSets, pieceSetIndex, setPieceSet, themes, themeIndex, applyTheme } = useThemeStore();
+  const [games, setGames]         = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [activeTab, setActiveTab] = useState('profile');
+  const [editName, setEditName]   = useState(username || '');
+  const [savingName, setSavingName] = useState(false);
 
   useEffect(() => {
     getGames(user?.id).then(g => { setGames(Array.isArray(g) ? g : []); setLoading(false); });
@@ -838,10 +879,25 @@ function AccountScreen({ onAlert, onLogout, onLoadGame }) {
 
   const wins   = games.filter(g => g.result === 'win').length;
   const losses = games.filter(g => g.result === 'loss').length;
+  const draws  = games.length - wins - losses;
 
   const formatDate = (iso) => {
     if (!iso) return '';
     return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  const handleSaveName = async () => {
+    if (!editName.trim()) return;
+    setSavingName(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ data: { full_name: editName.trim() } });
+      if (error) throw error;
+      onAlert('Display name updated!');
+    } catch (e) {
+      onAlert('Failed to update name: ' + e.message);
+    } finally {
+      setSavingName(false);
+    }
   };
 
   return (
@@ -856,43 +912,97 @@ function AccountScreen({ onAlert, onLogout, onLoadGame }) {
       </div>
 
       <div className="account-stats">
-        <div className="stat-box">
-          <div className="stat-value">{games.length}</div>
-          <div className="stat-label">Games</div>
-        </div>
-        <div className="stat-box">
-          <div className="stat-value" style={{ color: '#aaffaa' }}>{wins}</div>
-          <div className="stat-label">Wins</div>
-        </div>
-        <div className="stat-box">
-          <div className="stat-value" style={{ color: '#ff9999' }}>{losses}</div>
-          <div className="stat-label">Losses</div>
-        </div>
-        <div className="stat-box">
-          <div className="stat-value" style={{ color: '#ffdd99' }}>{games.length - wins - losses}</div>
-          <div className="stat-label">Draws</div>
-        </div>
+        <div className="stat-box"><div className="stat-value">{games.length}</div><div className="stat-label">Games</div></div>
+        <div className="stat-box"><div className="stat-value" style={{color:'#aaffaa'}}>{wins}</div><div className="stat-label">Wins</div></div>
+        <div className="stat-box"><div className="stat-value" style={{color:'#ff9999'}}>{losses}</div><div className="stat-label">Losses</div></div>
+        <div className="stat-box"><div className="stat-value" style={{color:'#ffdd99'}}>{draws}</div><div className="stat-label">Draws</div></div>
       </div>
 
-      <div className="account-games-title">Recent Games</div>
-      {loading && <p style={{ color: 'rgba(255,255,255,0.4)', padding: '0 20px' }}>Loading games…</p>}
-      {!loading && games.length === 0 && (
-        <p style={{ color: 'rgba(255,255,255,0.4)', padding: '0 20px' }}>No games yet. Play some to see them here.</p>
-      )}
-      <div className="account-games-list">
-        {games.map((game, i) => (
-          <div key={i} className="account-game-row" onClick={() => onLoadGame(game)}>
-            <div className="account-game-vs">
-              <span className={`game-color-badge ${game.color}`}>{game.color === 'white' ? 'W' : 'B'}</span>
-              vs {game.opponent || 'Unknown'}
-            </div>
-            <div className="account-game-meta">
-              {game.result && <span className={`game-result ${game.result}`}>{game.result}</span>}
-              <span className="game-date">{formatDate(game.created_at)}</span>
-            </div>
-          </div>
+      <div className="acct-tabs">
+        {['profile','appearance','games'].map(t => (
+          <button key={t} className={`acct-tab ${activeTab === t ? 'acct-tab-active' : ''}`} onClick={() => setActiveTab(t)}>
+            {t.charAt(0).toUpperCase() + t.slice(1)}
+          </button>
         ))}
       </div>
+
+      {activeTab === 'profile' && (
+        <div className="acct-section">
+          <div className="acct-field">
+            <label className="acct-label">Display Name</label>
+            <div className="acct-input-row">
+              <input className="acct-input" value={editName} onChange={e => setEditName(e.target.value)}
+                placeholder="Enter display name" maxLength={32} />
+              <button className="acct-save-btn" onClick={handleSaveName} disabled={savingName}>
+                {savingName ? 'Saving…' : 'Save'}
+              </button>
+            </div>
+          </div>
+          <div className="acct-field">
+            <label className="acct-label">Email</label>
+            <div className="acct-value-readonly">{user?.email}</div>
+          </div>
+          <div className="acct-field">
+            <label className="acct-label">Member since</label>
+            <div className="acct-value-readonly">{formatDate(user?.created_at)}</div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'appearance' && (
+        <div className="acct-section">
+          <div className="acct-field">
+            <label className="acct-label">Piece Set</label>
+            <div className="acct-piece-sets">
+              {pieceSets.map((ps, i) => (
+                <button key={ps.name}
+                  className={`acct-ps-btn ${pieceSetIndex === i ? 'acct-ps-active' : ''}`}
+                  onClick={() => setPieceSet(i)}>
+                  <img src={`./images/${ps.path}queen-white.png`} alt={ps.name} className="acct-ps-img" />
+                  <span>{ps.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="acct-field">
+            <label className="acct-label">Board Theme</label>
+            <div className="acct-themes">
+              {themes.map((th, i) => (
+                <button key={th.name}
+                  className={`acct-theme-btn ${themeIndex === i ? 'acct-theme-active' : ''}`}
+                  onClick={() => applyTheme(i)}>
+                  <div className="acct-theme-swatch">
+                    <div style={{background:th.clr1, width:'50%', height:'100%'}}/>
+                    <div style={{background:th.clr2, width:'50%', height:'100%'}}/>
+                  </div>
+                  <span>{th.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'games' && (
+        <div className="acct-section">
+          {loading && <p style={{color:'rgba(255,255,255,0.4)'}}>Loading games…</p>}
+          {!loading && games.length === 0 && <p style={{color:'rgba(255,255,255,0.4)'}}>No games yet.</p>}
+          <div className="account-games-list">
+            {games.map((game, i) => (
+              <div key={i} className="account-game-row" onClick={() => onLoadGame(game)}>
+                <div className="account-game-vs">
+                  <span className={`game-color-badge ${game.color}`}>{game.color === 'white' ? 'W' : 'B'}</span>
+                  vs {game.opponent || 'Unknown'}
+                </div>
+                <div className="account-game-meta">
+                  {game.result && <span className={`game-result ${game.result}`}>{game.result}</span>}
+                  <span className="game-date">{formatDate(game.created_at)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
