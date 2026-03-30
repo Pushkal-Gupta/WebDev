@@ -10,13 +10,16 @@
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
-  /* 54px navbar + 2×52px panels + 38px online-controls + 24px padding */
-  width: min(520px, 88vw, calc(100vh - 220px));
-  height: min(520px, 88vw, calc(100vh - 220px));
-  border: 2px solid rgba(255, 255, 255, 0.12);
-  border-radius: 4px;
+  /* 52px navbar + 2×54px panels + 12px padding */
+  width: min(520px, 88vw, calc(100vh - 200px));
+  height: min(520px, 88vw, calc(100vh - 200px));
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.5),
+    0 12px 40px rgba(0, 0, 0, 0.7),
+    0 4px 16px rgba(0, 0, 0, 0.5);
   flex-shrink: 0;
 }
 

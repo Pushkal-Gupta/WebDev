@@ -1596,3 +1596,30 @@ input[type="range"]::-webkit-slider-thumb {
   }
 }
 */
+
+/* ─── Navbar brand back-arrow animation ───────────────────────────────────── */
+.navbar-brand {
+  position: relative;
+  transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.navbar-brand::before {
+  content: "←";
+  position: absolute;
+  left: -22px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255,255,255,0.7);
+  opacity: 0;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 700;
+  font-size: 1rem;
+  pointer-events: none;
+}
+.navbar-brand:hover {
+  color: white !important;
+  opacity: 1 !important;
+}
+.navbar-brand:hover::before {
+  opacity: 1;
+  left: -18px;
+}
