@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import './App.css';
-import Navbar from './components/Navbar/Navbar';
+import LeftNav from './components/LeftNav/LeftNav';
 import Board from './components/Board/Board';
 import LeftSidebar from './components/LeftSidebar/LeftSidebar';
 import RightSidebar from './components/RightSidebar/RightSidebar';
@@ -20,6 +20,7 @@ import { getBestMove } from './utils/stockfish';
 import { postGame, getGames } from './utils/gameServer';
 import { evaluatePosition, evalToWhitePct, formatEval } from './utils/evaluation';
 import { getLocalBestMove, getSuggestion } from './utils/localAI';
+import { reviewGame } from './utils/reviewEngine';
 import {
   createRoom, joinRoom, subscribeToRoom,
   broadcastMove as bcastMove, broadcastChat, broadcastResign, broadcastJoin,
@@ -68,6 +69,8 @@ export default function App() {
   const [alertMsg, setAlertMsg]             = useState('');
   const [analysisGames, setAnalysisGames]   = useState([]);
   const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [reviewResults, setReviewResults]   = useState(null);
+  const [isReviewing, setIsReviewing]       = useState(false);
 
   // Online multiplayer state
   const onlineChannelRef      = useRef(null);
@@ -417,7 +420,22 @@ export default function App() {
   const handleGameOverNewGame = () => {
     if (isOnline) leaveOnlineGame();
     initGame();
+    setReviewResults(null);
     setActiveTab(0);
+  };
+
+  const handleReviewGame = async () => {
+    const history = useGameStore.getState().moveHistory;
+    if (!history.length) return;
+    useGameStore.setState({ gameOver: false });
+    setIsReviewing(true);
+    setReviewResults(null);
+    try {
+      const results = await reviewGame(history, () => {});
+      setReviewResults(results);
+    } finally {
+      setIsReviewing(false);
+    }
   };
 
   const handleAnalysisGameClick = (game) => {
@@ -458,7 +476,7 @@ export default function App() {
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="app-container">
-      <Navbar activeTab={activeTab} onTabClick={handleTabClick} />
+      <LeftNav activeTab={activeTab} onTabClick={handleTabClick} />
 
       <div className="main-content">
         {/* Left sidebar — shown during local games only (not online) */}
@@ -574,8 +592,8 @@ export default function App() {
                   <span className={`online-dot ${isOnlineConnected ? 'online' : 'offline'}`} />
                   <span className="online-room-id">Room: {onlineRoom?.id}</span>
                   <div className="online-actions">
-                    <button className="online-btn hint-btn" onClick={handleGetHint}>💡 Hint</button>
-                    <button className="online-btn resign-btn" onClick={handleOnlineResign}>🏳 Resign</button>
+                    <button className="online-btn hint-btn" onClick={handleGetHint}>Hint</button>
+                    <button className="online-btn resign-btn" onClick={handleOnlineResign}>Resign</button>
                   </div>
                 </div>
               )}
@@ -602,7 +620,7 @@ export default function App() {
               />
             </div>
 
-            <RightSidebar onAlert={showAlert} />
+            <RightSidebar onAlert={showAlert} reviewResults={reviewResults} isReviewing={isReviewing} />
           </div>
         )}
       </div>
@@ -635,6 +653,7 @@ export default function App() {
           onNewGame={handleGameOverNewGame}
           onCancel={() => useGameStore.setState({ gameOver: false })}
           onAnalyse={() => useGameStore.setState({ gameOver: false })}
+          onReview={handleReviewGame}
         />
       )}
 
@@ -795,7 +814,7 @@ function PlayerPanel({ name, colorCode, time, timeActive, timerRunning, captured
       </div>
       <div className="pp-right">
         {showHint && (
-          <button className="pp-hint-btn" onClick={onHint} title="Get hint">💡</button>
+          <button className="pp-hint-btn" onClick={onHint} title="Get hint">Hint</button>
         )}
         {timeControl && (
           <div className={`pp-clock ${ticking ? 'pp-clock-active' : ''} ${isLow ? 'pp-clock-low' : ''}`}>

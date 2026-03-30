@@ -129,6 +129,43 @@
   cursor: not-allowed;
 }
 
+/* Review bar */
+.reviewBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(0, 255, 245, 0.05);
+  border-bottom: 1px solid rgba(0, 255, 245, 0.12);
+  flex-shrink: 0;
+}
+
+.reviewLabel {
+  font-size: 0.72rem;
+  color: rgba(0, 255, 245, 0.7);
+  font-weight: 500;
+}
+
+.reviewSpinner {
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(0, 255, 245, 0.2);
+  border-top-color: #00fff5;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Move classification badge */
+.badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-left: 3px;
+  vertical-align: super;
+  line-height: 1;
+}
+
 @media (max-width: 900px) {
   .sidebar { width: 175px; min-width: 150px; }
 }
