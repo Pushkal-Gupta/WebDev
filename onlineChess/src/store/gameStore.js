@@ -57,6 +57,9 @@ const initialState = {
   capturedByBlack: [],
   oppName: 'Opponent',
   youName: 'You (White)',
+  turnStartWhite: 0,
+  turnStartBlack: 0,
+  delayRemaining: 0,
 };
 
 const useGameStore = create((set, get) => ({
@@ -68,6 +71,9 @@ const useGameStore = create((set, get) => ({
       ...initialState,
       chessInstance: chess,
       boardState: buildBoardState(chess),
+      turnStartWhite: 0,
+      turnStartBlack: 0,
+      delayRemaining: 0,
     });
   },
 
@@ -92,6 +98,9 @@ const useGameStore = create((set, get) => ({
       activeColor: 'w',
       timerRunning: !!timeControl,
       timerData: [],
+      turnStartWhite: total,
+      turnStartBlack: total,
+      delayRemaining: (timeControl?.delayType === 'simple' ? (timeControl?.delay || 0) : 0),
       isComp,
       compColor,
       compStrength,
@@ -126,6 +135,9 @@ const useGameStore = create((set, get) => ({
       activeColor: 'w',
       timerRunning: !!timeControl,
       timerData: [],
+      turnStartWhite: total,
+      turnStartBlack: total,
+      delayRemaining: (timeControl?.delayType === 'simple' ? (timeControl?.delay || 0) : 0),
       isComp: false,
       isOnline: true,
       onlineColor: playerColor,
@@ -240,12 +252,29 @@ const useGameStore = create((set, get) => ({
     }];
 
     // Increment time
+    const { turnStartWhite, turnStartBlack } = get();
     let newWhiteTime = whiteTime;
     let newBlackTime = blackTime;
-    if (timeControl && timeControl.incr) {
-      if (result.color === 'w') newWhiteTime += timeControl.incr;
-      else newBlackTime += timeControl.incr;
+    if (timeControl) {
+      const dt = timeControl.delayType || 'fischer';
+      const inc = timeControl.delay ?? timeControl.incr ?? 0;
+      if (dt === 'fischer' || (dt !== 'bronstein' && dt !== 'simple' && dt !== 'none' && timeControl.incr)) {
+        if (result.color === 'w') newWhiteTime += inc;
+        else newBlackTime += inc;
+      } else if (dt === 'bronstein' && inc > 0) {
+        if (result.color === 'w') {
+          const spent = Math.max(0, turnStartWhite - whiteTime);
+          newWhiteTime += Math.min(spent, inc);
+        } else {
+          const spent = Math.max(0, turnStartBlack - blackTime);
+          newBlackTime += Math.min(spent, inc);
+        }
+      }
+      // none and simple: no increment on move
     }
+    const newTurnStartWhite = result.color === 'b' ? newWhiteTime : turnStartWhite;
+    const newTurnStartBlack = result.color === 'w' ? newBlackTime : turnStartBlack;
+    const newDelayRemaining = timeControl?.delayType === 'simple' ? (timeControl?.delay || 0) : 0;
 
     // Build move history entry
     const newMove = {
@@ -285,6 +314,9 @@ const useGameStore = create((set, get) => ({
       whiteTime: newWhiteTime,
       blackTime: newBlackTime,
       timerData: newTimerData,
+      turnStartWhite: newTurnStartWhite,
+      turnStartBlack: newTurnStartBlack,
+      delayRemaining: newDelayRemaining,
       pawnPromotion: null,
       disableBoard: false,
       capturedByWhite: newCapturedByWhite,
@@ -332,24 +364,21 @@ const useGameStore = create((set, get) => ({
   },
 
   tickTimer: () => {
-    const { activeColor, whiteTime, blackTime, timerRunning, gameOver } = get();
+    const { activeColor, whiteTime, blackTime, timerRunning, gameOver, timeControl, delayRemaining } = get();
     if (!timerRunning || gameOver) return;
+    // Simple delay: hold clock for delay seconds at start of each turn
+    if (timeControl?.delayType === 'simple' && delayRemaining > 0) {
+      set({ delayRemaining: delayRemaining - 1 });
+      return;
+    }
     if (activeColor === 'w') {
       const newTime = whiteTime - 1;
-      if (newTime <= 0) {
-        set({ whiteTime: 0 });
-        get().timeExpired('w');
-      } else {
-        set({ whiteTime: newTime });
-      }
+      if (newTime <= 0) { set({ whiteTime: 0 }); get().timeExpired('w'); }
+      else set({ whiteTime: newTime });
     } else {
       const newTime = blackTime - 1;
-      if (newTime <= 0) {
-        set({ blackTime: 0 });
-        get().timeExpired('b');
-      } else {
-        set({ blackTime: newTime });
-      }
+      if (newTime <= 0) { set({ blackTime: 0 }); get().timeExpired('b'); }
+      else set({ blackTime: newTime });
     }
   },
 
