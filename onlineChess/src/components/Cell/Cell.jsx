@@ -104,7 +104,7 @@ export default function Cell({ row, col, displayRow, displayCol, flipped }) {
 
       {piece && (
         <img
-          src={`${imagePath}${PIECE_NAME_MAP[piece.type]}+${piece.color === 'w' ? 'white' : 'black'}.png`}
+          src={`${imagePath}${PIECE_NAME_MAP[piece.type]}-${piece.color === 'w' ? 'white' : 'black'}.png`}
           alt={`${piece.color}${piece.type}`}
           className={`${styles.piece} ${draggingThis ? styles.dragging : ''}`}
           draggable={canDrag}
