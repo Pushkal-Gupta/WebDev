@@ -70,7 +70,7 @@ header {
   position: relative;
   cursor: pointer;
 }
-.brand-link.is-reading::before {
+.brand-link::before {
   content: "←";
   position: absolute;
   left: -25px;
@@ -80,10 +80,10 @@ header {
   font-family: var(--mono);
   font-weight: 700;
 }
-.brand-link.is-reading:hover {
+.brand-link:hover {
   color: var(--accent) !important;
 }
-.brand-link.is-reading:hover::before {
+.brand-link:hover::before {
   opacity: 1;
   left: -20px;
 }

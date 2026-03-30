@@ -1,7 +1,8 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -9,24 +10,27 @@
 }
 
 .popup {
-  background: #1a1a1a;
-  border: 1px solid rgba(100, 255, 255, 0.3);
-  border-radius: 10px;
-  padding: 24px 28px;
+  background: #0d1616;
+  border: 1px solid rgba(0, 255, 245, 0.18);
+  border-radius: 14px;
+  padding: 26px 30px;
   min-width: 300px;
   max-width: 420px;
   width: 90%;
   color: white;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0,0,0,0.5);
   z-index: 1001;
   position: relative;
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
 .popup h3 {
-  color: #ccffff;
+  color: #00fff5;
   margin-bottom: 16px;
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   text-align: center;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .popup p {
