@@ -36,7 +36,9 @@ export default function Chat({ messages, onSend, opponentName, myName, isConnect
       {/* Toggle button */}
       {!open && (
         <button className={styles.chatToggle} onClick={handleOpen}>
-          💬
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M2 4a2 2 0 012-2h12a2 2 0 012 2v9a2 2 0 01-2 2H6l-4 3V4z"/>
+          </svg>
           {unread > 0 && <span className={styles.badge}>{unread}</span>}
         </button>
       )}
@@ -81,7 +83,7 @@ export default function Chat({ messages, onSend, opponentName, myName, isConnect
               onKeyDown={e => e.key === 'Enter' && handleSend()}
               maxLength={200}
             />
-            <button className={styles.sendBtn} onClick={handleSend}>➤</button>
+            <button className={styles.sendBtn} onClick={handleSend}>Send</button>
           </div>
         </div>
       )}

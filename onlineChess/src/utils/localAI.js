@@ -149,3 +149,45 @@ export function getSuggestion(fen) {
   if (!uci) return null;
   return { from: uci.slice(0, 2), to: uci.slice(2, 4) };
 }
+
+/**
+ * Like getLocalBestMove but also returns the minimax score.
+ * Used for game review to determine the best achievable eval.
+ */
+export function getLocalBestMoveWithScore(fen, depth = 2) {
+  const chess = new Chess(fen);
+  const allMoves = chess.moves({ verbose: true });
+  if (!allMoves.length) return { move: null, score: 0 };
+
+  const isMax = chess.turn() === 'w';
+  let bestMove = null;
+  let bestScore = isMax ? -Infinity : Infinity;
+
+  for (const move of orderMoves(allMoves)) {
+    chess.move(move);
+    const score = minimax(chess, Math.max(0, depth - 1), -Infinity, Infinity, !isMax);
+    chess.undo();
+    if ((isMax && score > bestScore) || (!isMax && score < bestScore)) {
+      bestScore = score;
+      bestMove = move;
+    }
+  }
+  return {
+    move: bestMove ? bestMove.from + bestMove.to + (bestMove.promotion || '') : null,
+    score: bestScore,
+  };
+}
+
+/**
+ * Get static/shallow eval of a position.
+ * Used for game review to score the position after a move was played.
+ */
+export function getPositionScore(fen, depth = 1) {
+  const chess = new Chess(fen);
+  if (chess.isGameOver()) {
+    if (chess.isCheckmate()) return chess.turn() === 'w' ? -99999 : 99999;
+    return 0;
+  }
+  const isMax = chess.turn() === 'w';
+  return minimax(chess, depth, -Infinity, Infinity, isMax);
+}

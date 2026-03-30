@@ -3,8 +3,9 @@ import styles from './RightSidebar.module.css';
 import useGameStore from '../../store/gameStore';
 import useThemeStore from '../../store/themeStore';
 import { getOpeningName } from '../../utils/evaluation';
+import { CLASSIFICATIONS } from '../../utils/reviewEngine';
 
-export default function RightSidebar({ onAlert }) {
+export default function RightSidebar({ onAlert, reviewResults, isReviewing }) {
   const {
     moveHistory, currentMoveIndex, goToMove,
     getPgn, gameStarted, flipped, setFlipped, undoMove,
@@ -39,6 +40,14 @@ export default function RightSidebar({ onAlert }) {
 
   return (
     <aside className={styles.sidebar}>
+      {/* Review progress bar */}
+      {isReviewing && (
+        <div className={styles.reviewBar}>
+          <span className={styles.reviewLabel}>Reviewing game...</span>
+          <div className={styles.reviewSpinner} />
+        </div>
+      )}
+
       {/* Move history */}
       <div className={styles.moveHistory} ref={moveHistoryRef} onScroll={() => {}}>
         {moveHistory.length === 0 ? (
@@ -46,23 +55,39 @@ export default function RightSidebar({ onAlert }) {
         ) : (
           <table className={styles.moveTable}>
             <tbody>
-              {moveRows.map((row) => (
-                <tr key={row.number} className={styles.moveRow}>
-                  <td className={styles.moveCellNum}>{row.number}.</td>
-                  <td
-                    className={`${styles.moveCell} ${currentMoveIndex === row.whiteIdx ? styles.moveCellActive : ''}`}
-                    onClick={() => { goToMove(row.whiteIdx); setTimeout(scrollToActive, 50); }}
-                  >
-                    {row.white?.san || ''}
-                  </td>
-                  <td
-                    className={`${styles.moveCell} ${row.black && currentMoveIndex === row.blackIdx ? styles.moveCellActive : ''}`}
-                    onClick={() => { row.black && goToMove(row.blackIdx); setTimeout(scrollToActive, 50); }}
-                  >
-                    {row.black?.san || ''}
-                  </td>
-                </tr>
-              ))}
+              {moveRows.map((row) => {
+                const wReview = reviewResults?.[row.whiteIdx];
+                const bReview = row.black ? reviewResults?.[row.blackIdx] : null;
+                const wClass  = wReview ? CLASSIFICATIONS[wReview.classification] : null;
+                const bClass  = bReview ? CLASSIFICATIONS[bReview.classification] : null;
+                return (
+                  <tr key={row.number} className={styles.moveRow}>
+                    <td className={styles.moveCellNum}>{row.number}.</td>
+                    <td
+                      className={`${styles.moveCell} ${currentMoveIndex === row.whiteIdx ? styles.moveCellActive : ''}`}
+                      onClick={() => { goToMove(row.whiteIdx); setTimeout(scrollToActive, 50); }}
+                    >
+                      {row.white?.san || ''}
+                      {wClass && (
+                        <span className={styles.badge} style={{ color: wClass.color }} title={wClass.label}>
+                          {wClass.symbol}
+                        </span>
+                      )}
+                    </td>
+                    <td
+                      className={`${styles.moveCell} ${row.black && currentMoveIndex === row.blackIdx ? styles.moveCellActive : ''}`}
+                      onClick={() => { row.black && goToMove(row.blackIdx); setTimeout(scrollToActive, 50); }}
+                    >
+                      {row.black?.san || ''}
+                      {bClass && (
+                        <span className={styles.badge} style={{ color: bClass.color }} title={bClass.label}>
+                          {bClass.symbol}
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}
