@@ -9,3 +9,35 @@ html, body, #root {
   height: 100%;
   width: 100%;
 }
+
+/*
+ * --cell-size: the one source of truth for board cell dimensions.
+ * Must always be an integer so 8 × --cell-size is exact — no fractional pixels,
+ * no flickering caused by layout shifts or repaints.
+ *
+ * Breakpoints account for the full chrome on each screen size:
+ *   ≥1100px  → LeftNav 200px + board 512px + RightSidebar 220px = 932px  ✓
+ *   900-1100 → LeftNav 200px + board 448px + RightSidebar 220px = 868px  ✓
+ *   700-900  → LeftNav  60px + board 384px + RightSidebar 180px = 624px  ✓
+ *   540-700  → LeftNav  60px + board 336px + RightSidebar  hidden = 396px ✓
+ *    <540    → bottom nav  + board 304px full-width                       ✓
+ */
+:root {
+  --cell-size: 56px;   /* 448px board — default (900-1100px range) */
+}
+
+@media (min-width: 1100px) {
+  :root { --cell-size: 64px; }   /* 512px board */
+}
+
+@media (max-width: 900px) {
+  :root { --cell-size: 48px; }   /* 384px board */
+}
+
+@media (max-width: 700px) {
+  :root { --cell-size: 42px; }   /* 336px board */
+}
+
+@media (max-width: 540px) {
+  :root { --cell-size: 38px; }   /* 304px board */
+}
