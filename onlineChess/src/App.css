@@ -1016,3 +1016,38 @@ body {
   .gs-panel { padding: 18px 20px; }
   .mode-card { cursor: pointer; }
 }
+
+/* ─── Responsive game layout ────────────────────────────────────────────────
+ * The board size itself snaps at CSS breakpoints via --cell-size in index.css.
+ * These rules handle layout reflow at each breakpoint.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── 700px: hide RightSidebar (board + panels fill width) ── */
+@media (max-width: 700px) {
+  .game-layout { flex-direction: column; overflow-y: auto; }
+
+  /* Stack board column full-width */
+  .board-column { flex: none; width: 100%; }
+
+  /* Board area: don't stretch vertically, just center board */
+  .board-area {
+    flex: none;
+    height: calc(8 * var(--cell-size));
+    padding: 4px 8px;
+  }
+
+  /* Player panels shrink slightly */
+  .player-panel { min-height: 46px; padding: 7px 12px; }
+  .pp-clock { font-size: 1.1rem; min-width: 60px; padding: 4px 8px; }
+  .pp-avatar { width: 30px; height: 30px; font-size: 0.78rem; }
+  .pp-name { max-width: 110px; }
+}
+
+/* ── 540px: bottom nav bar, compact everything ── */
+@media (max-width: 540px) {
+  .board-area { padding: 2px 4px; }
+  .player-panel { min-height: 42px; padding: 6px 10px; gap: 6px; }
+  .pp-clock { font-size: 1rem; min-width: 54px; padding: 3px 7px; }
+  .pp-avatar { width: 28px; height: 28px; }
+  .pp-hint-btn { padding: 3px 7px; font-size: 0.75rem; }
+}

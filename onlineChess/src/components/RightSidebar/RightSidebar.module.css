@@ -10,6 +10,10 @@
   overflow: hidden;
 }
 
+@media (max-width: 700px) {
+  .sidebar { display: none; }
+}
+
 /* Move history */
 .moveHistory {
   flex: 1;

@@ -7,20 +7,21 @@
 }
 
 .board {
+  /* Explicit fixed-pixel tracks — no fractional pixel division, no flicker */
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  grid-template-rows: repeat(8, 1fr);
-  /* 52px navbar + 2×54px panels + 12px padding */
-  width: min(520px, 88vw, calc(100vh - 200px));
-  height: min(520px, 88vw, calc(100vh - 200px));
+  grid-template-columns: repeat(8, var(--cell-size));
+  grid-template-rows:    repeat(8, var(--cell-size));
+  width:  calc(8 * var(--cell-size));
+  height: calc(8 * var(--cell-size));
+  flex-shrink: 0;
+
   border: 2px solid rgba(255, 255, 255, 0.1);
   border-radius: 3px;
   overflow: hidden;
   box-shadow:
-    0 0 0 1px rgba(0,0,0,0.5),
+    0 0 0 1px rgba(0, 0, 0, 0.5),
     0 12px 40px rgba(0, 0, 0, 0.7),
     0 4px 16px rgba(0, 0, 0, 0.5);
-  flex-shrink: 0;
 }
 
 .placeholder {
@@ -28,9 +29,9 @@
   align-items: center;
   justify-content: center;
   color: rgba(255, 255, 255, 0.3);
-  font-size: 1.1rem;
+  font-size: 1rem;
   text-align: center;
   padding: 20px;
-  min-height: min(560px, 90vw, calc(100vh - 160px));
-  width: min(560px, 90vw, calc(100vh - 160px));
+  width:  calc(8 * var(--cell-size));
+  height: calc(8 * var(--cell-size));
 }
