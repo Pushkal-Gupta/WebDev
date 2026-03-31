@@ -13,6 +13,7 @@ import ConfirmModal from './components/modals/ConfirmModal';
 import CustomAlert from './components/modals/CustomAlert';
 import OnlineLobby from './components/OnlineLobby/OnlineLobby';
 import Chat from './components/Chat/Chat';
+import AnalysisBoard from './components/AnalysisBoard/AnalysisBoard';
 import useGameStore from './store/gameStore';
 import useAuthStore from './store/authStore';
 import useThemeStore from './store/themeStore';
@@ -434,13 +435,6 @@ export default function App() {
     }
   };
 
-  const handleAnalysisGameClick = (game) => {
-    if (game.pgnStr) {
-      const ok = importPgn(game.pgnStr);
-      if (ok) { setActiveTab(1); showAlert('Game loaded for analysis'); }
-    }
-  };
-
   // ─── Computed ─────────────────────────────────────────────────────────────
   const isOnlineGameActive = activeTab === 4 && isOnline && gameStarted;
   const isGameViewActive   = (activeTab === 1 || activeTab === 3 || isOnlineGameActive) && gameStarted;
@@ -501,24 +495,7 @@ export default function App() {
 
         {/* ── Tab 2: Analysis ── */}
         {activeTab === 2 && (
-          <div className="analysis-screen">
-            <h2>Game Analysis</h2>
-            {analysisLoading && <p style={{ color: 'rgba(255,255,255,0.4)' }}>Loading games...</p>}
-            {!analysisLoading && analysisGames.length === 0 && (
-              <p style={{ color: 'rgba(255,255,255,0.4)' }}>No saved games. Play some to see them here.</p>
-            )}
-            {analysisGames.map((game, i) => (
-              <div key={i} className="game-card" onClick={() => handleAnalysisGameClick(game)}>
-                <div className="game-card-header">
-                  <span className="game-card-players">
-                    {game.color === 'white' ? 'You (W)' : 'You (B)'} vs {game.opponent || 'Opponent'}
-                  </span>
-                  <span className="game-card-meta">{game.color}</span>
-                </div>
-                <div className="game-card-pgn">{(game.pgnStr || '').slice(0, 80)}…</div>
-              </div>
-            ))}
-          </div>
+          <AnalysisBoard savedGames={analysisGames} gamesLoading={analysisLoading} />
         )}
 
         {/* ── Tab 3: Computer (no game yet) → show home ── */}
