@@ -227,7 +227,6 @@ function dataReload() {
 //Routine Function Calls
 routineFunctionCalls();
 testStockfishServer();
-testChessServer();
 function routineFunctionCalls() {
   defaultFunctionSettings();
   makeDefaultUISettings1();
