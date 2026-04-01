@@ -13,21 +13,38 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 14px;
+  padding: 9px 14px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   flex-shrink: 0;
 }
 
+.titleGroup {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
 .title {
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.65);
-  flex: 1;
+  white-space: nowrap;
+}
+
+.opening {
+  font-size: 0.65rem;
+  color: rgba(0, 255, 245, 0.45);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .headerActions {
   display: flex;
   gap: 5px;
+  flex-shrink: 0;
 }
 
 .backBtn,
@@ -38,7 +55,7 @@
   color: rgba(255, 255, 255, 0.55);
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   transition: all 0.15s;
   white-space: nowrap;
 }
@@ -53,6 +70,11 @@
 .headerBtn:disabled {
   opacity: 0.35;
   cursor: not-allowed;
+}
+
+.headerBtnDone {
+  border-color: rgba(61, 220, 132, 0.3) !important;
+  color: rgba(61, 220, 132, 0.7) !important;
 }
 
 /* ── PGN input area ── */
@@ -210,7 +232,7 @@
 }
 
 .evalBarBlack {
-  background: linear-gradient(to bottom, #222, #111);
+  background: linear-gradient(to bottom, #2a2a2a, #111);
   flex: 1;
 }
 
@@ -235,6 +257,64 @@
   overflow: hidden;
 }
 
+/* Player bar above/below board */
+.playerBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 10px;
+  flex-shrink: 0;
+  min-height: 30px;
+}
+
+.playerBarTop {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.playerBarBottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.playerInfo {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.playerDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.playerDotW {
+  background: #e8e8e8;
+  border: 1px solid rgba(255,255,255,0.4);
+}
+
+.playerDotB {
+  background: #333;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.playerName {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.playerAccuracy {
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
 .boardWrap {
   flex: 1;
   min-height: 0;
@@ -245,17 +325,61 @@
 /* Eval graph */
 .evalGraphWrap {
   flex-shrink: 0;
-  height: 52px;
+  height: 56px;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   overflow: hidden;
+  cursor: pointer;
 }
 
 .evalGraph {
   width: 100%;
   height: 100%;
-  cursor: pointer;
   display: block;
 }
+
+/* Review progress bar */
+.reviewBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: rgba(0, 255, 245, 0.04);
+  border-bottom: 1px solid rgba(0, 255, 245, 0.1);
+  flex-shrink: 0;
+}
+
+.reviewLabel {
+  font-size: 0.67rem;
+  color: rgba(0, 255, 245, 0.65);
+  white-space: nowrap;
+}
+
+.reviewProgressWrap {
+  flex: 1;
+  height: 3px;
+  background: rgba(0, 255, 245, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.reviewProgressFill {
+  height: 100%;
+  background: rgba(0, 255, 245, 0.6);
+  border-radius: 2px;
+  transition: width 0.2s ease;
+}
+
+.reviewSpinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(0, 255, 245, 0.18);
+  border-top-color: #00fff5;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* Nav row */
 .navRow {
@@ -268,7 +392,7 @@
 }
 
 .navBtn {
-  padding: 5px 11px;
+  padding: 5px 14px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.09);
   color: rgba(255, 255, 255, 0.55);
@@ -290,8 +414,8 @@
 }
 
 .kbdHint {
-  font-size: 0.6rem;
-  color: rgba(255, 255, 255, 0.18);
+  font-size: 0.58rem;
+  color: rgba(255, 255, 255, 0.16);
   text-align: center;
   padding-bottom: 3px;
   flex-shrink: 0;
@@ -317,7 +441,7 @@
 }
 
 .engineTitle {
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   font-weight: 700;
   color: rgba(0, 255, 245, 0.45);
   text-transform: uppercase;
@@ -351,8 +475,8 @@
   font-variant-numeric: tabular-nums;
 }
 
-.lineEvalPos { color: rgba(255, 255, 255, 0.7); }
-.lineEvalNeg { color: rgba(200, 100, 100, 0.85); }
+.lineEvalPos  { color: rgba(255, 255, 255, 0.75); }
+.lineEvalNeg  { color: rgba(220, 100, 100, 0.9); }
 .lineEvalNeut { color: rgba(255, 255, 255, 0.45); }
 
 .lineMove {
@@ -361,62 +485,96 @@
   font-weight: 500;
 }
 
-.lineContinuation {
-  font-size: 0.68rem;
-  color: rgba(255, 255, 255, 0.3);
+/* Accuracy section */
+.accuracySection {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-/* Review info bar */
-.reviewBar {
+.accuracySectionTitle {
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: rgba(0, 255, 245, 0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 2px;
+}
+
+.accRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.accLeft {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 6px 10px;
-  background: rgba(0, 255, 245, 0.04);
-  border-bottom: 1px solid rgba(0, 255, 245, 0.1);
+  gap: 6px;
   flex-shrink: 0;
 }
 
-.reviewLabel {
-  font-size: 0.68rem;
-  color: rgba(0, 255, 245, 0.65);
-}
-
-.reviewSpinner {
-  width: 12px;
-  height: 12px;
-  border: 2px solid rgba(0, 255, 245, 0.18);
-  border-top-color: #00fff5;
+.accDot {
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+.accDotW {
+  background: #e8e8e8;
+  border: 1px solid rgba(255,255,255,0.3);
+}
 
-/* Move accuracy summary */
-.accuracySummary {
+.accDotB {
+  background: #333;
+  border: 1px solid #555;
+}
+
+.accName {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60px;
+}
+
+.accRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.accPct {
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.accBadges {
   display: flex;
   gap: 4px;
-  padding: 6px 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   flex-wrap: wrap;
-  flex-shrink: 0;
+  justify-content: flex-end;
 }
 
-.accItem {
+.accBadge {
   display: flex;
   align-items: center;
-  gap: 3px;
-  font-size: 0.62rem;
+  gap: 2px;
+  font-size: 0.6rem;
 }
 
-.accSymbol {
-  font-weight: 800;
-  font-size: 0.7rem;
-}
-
-.accCount {
-  color: rgba(255, 255, 255, 0.4);
+.accBadgeCount {
+  color: rgba(255, 255, 255, 0.35);
 }
 
 /* Move list */
@@ -437,7 +595,7 @@
 }
 
 .moveNum {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   color: rgba(255, 255, 255, 0.2);
   padding: 4px 4px 4px 8px;
   text-align: right;
@@ -474,10 +632,12 @@
 
 /* ── Responsive ── */
 @media (max-width: 900px) {
-  .rightPanel { width: 170px; min-width: 140px; }
+  .rightPanel { width: 175px; min-width: 140px; }
+  .playerName { max-width: 90px; }
 }
 
 @media (max-width: 680px) {
   .rightPanel { display: none; }
   .evalBarWrap { width: 16px; }
+  .playerName { max-width: 80px; }
 }
