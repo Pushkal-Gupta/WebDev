@@ -41,6 +41,29 @@ const useAuthStore = create((set, get) => ({
     return data;
   },
 
+  loginWithGoogle: async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.href },
+    });
+    if (error) throw error;
+  },
+
+  resetPasswordForEmail: async (email) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    if (error) throw error;
+  },
+
+  verifyOtp: async (email, token) => {
+    const { error } = await supabase.auth.verifyOtp({ email, token, type: 'recovery' });
+    if (error) throw error;
+  },
+
+  updatePassword: async (newPass) => {
+    const { error } = await supabase.auth.updateUser({ password: newPass });
+    if (error) throw error;
+  },
+
   logout: async () => {
     await supabase.auth.signOut();
     set({ user: null, token: null, username: null });

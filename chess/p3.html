@@ -81,18 +81,61 @@
     <div id="loginOverlay" class="popup-overlay"></div>
     <div id="loginPopup" class="popup">
       <h3 id="popupTitle">Login to continue</h3>
-      <div class="login-fields">
-        <input type="email" id="loginUsername" placeholder="Email" />
-        <input type="password" id="loginPassword" placeholder="Password" />
-        <input type="password" id="signupConfirm" placeholder="Confirm Password" style="display: none;" />
+
+      <!-- Screen: main (login / signup / reset) -->
+      <div id="auth-screen-main">
+        <button class="google-login-btn" onclick="loginWithGoogle()">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G" width="16" height="16" />
+          Continue with Google
+        </button>
+        <div class="auth-divider"><span>or use email</span></div>
+        <div class="login-fields">
+          <input type="email" id="loginUsername" placeholder="Email" />
+          <div id="password-container">
+            <input type="password" id="loginPassword" placeholder="Password" />
+          </div>
+          <input type="password" id="signupConfirm" placeholder="Confirm Password" style="display: none;" />
+        </div>
+        <div class="popup-buttons">
+          <button class="loginBtn" onclick="submitLoginOrSignup()" id="mainActionBtn">Login</button>
+          <button class="loginBtn" onclick="hideLoginPopup()">Cancel</button>
+        </div>
+        <div class="login-links">
+          <span id="toggleText">Don't have an account?</span>
+          <a href="#" onclick="toggleSignup(true)" id="toggleLink">Sign Up</a>
+          <a href="#" id="forgotLink" onclick="setAuthMode('reset')">Forgot password?</a>
+          <a href="#" id="backToLoginLink" onclick="setAuthMode('login')" style="display:none;">Back to login</a>
+        </div>
       </div>
-      <div class="popup-buttons">
-        <button class="loginBtn" onclick="submitLoginOrSignup()" id="mainActionBtn">Login</button>
-        <button class="loginBtn" onclick="hideLoginPopup()">Cancel</button>
+
+      <!-- Screen: OTP verification -->
+      <div id="auth-screen-otp" style="display:none;">
+        <p class="auth-otp-hint">Enter the 8-digit code sent to <strong id="otpEmailDisplay"></strong></p>
+        <div class="login-fields">
+          <input type="text" id="otpInput" placeholder="00000000" maxlength="8"
+            inputmode="numeric" autocomplete="one-time-code" class="otp-input-field" />
+        </div>
+        <div class="popup-buttons">
+          <button class="loginBtn" onclick="submitOtp()" id="submitOtpBtn">Verify Code</button>
+          <button class="loginBtn" onclick="hideLoginPopup()">Cancel</button>
+        </div>
+        <div class="login-links">
+          <a href="#" onclick="setAuthMode('reset')">Resend code</a>
+          <a href="#" onclick="setAuthMode('login')">Back to login</a>
+        </div>
       </div>
-      <div class="login-links">
-        <span id="toggleText">Don't have an account?</span>
-        <a href="#" onclick="toggleSignup(true)" id="toggleLink">Sign Up</a>
+
+      <!-- Screen: new password -->
+      <div id="auth-screen-newpass" style="display:none;">
+        <p class="auth-otp-hint">Choose your new password</p>
+        <div class="login-fields">
+          <input type="password" id="newPassInput" placeholder="New password" />
+          <input type="password" id="newPassConfirm" placeholder="Confirm new password" />
+        </div>
+        <div class="popup-buttons">
+          <button class="loginBtn" onclick="submitNewPassword()" id="submitNewPassBtn">Set Password</button>
+          <button class="loginBtn" onclick="hideLoginPopup()">Cancel</button>
+        </div>
       </div>
     </div>
     <!-- Logout Modal -->

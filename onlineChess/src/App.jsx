@@ -113,6 +113,13 @@ export default function App() {
     initGame();
   }, []);
 
+  // ─── Timer tick (single interval — prevents double-decrement from two Timer components) ──
+  useEffect(() => {
+    if (!timerRunning) return;
+    const id = setInterval(() => useGameStore.getState().tickTimer(), 1000);
+    return () => clearInterval(id);
+  }, [timerRunning]);
+
   // ─── Computer AI (local for strength ≤6, Stockfish+fallback for ≥7) ───────
   useEffect(() => {
     if (!gameStarted || gameOver || !isComp || compThinking) return;
