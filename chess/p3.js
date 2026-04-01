@@ -3536,11 +3536,20 @@ function runOneTestCase(gameJSON) {
 
 //Login and Signup
 let isSignupMode = false;
+let authMode = "login"; // "login" | "signup" | "reset"
+let resetPendingEmail = "";
+
+function showAuthScreen(name) {
+  ["auth-screen-main", "auth-screen-otp", "auth-screen-newpass"].forEach(id => {
+    document.getElementById(id).style.display = id === name ? "" : "none";
+  });
+}
 
 function showLoginPopup() {
-  console.log("showLoginPopup");
+  authMode = "login";
   isSignupMode = false;
   updatePopupMode();
+  showAuthScreen("auth-screen-main");
   document.getElementById("loginOverlay").classList.add("visible");
   document.getElementById("loginPopup").classList.add("visible");
 }
@@ -3552,37 +3561,94 @@ function hideLoginPopup(loginlogout=false) {
 }
 
 function toggleSignup(signup) {
+  authMode = signup ? "signup" : "login";
   isSignupMode = signup;
+  showAuthScreen("auth-screen-main");
   updatePopupMode();
+}
+
+function setAuthMode(mode) {
+  authMode = mode;
+  isSignupMode = mode === "signup";
+  showAuthScreen("auth-screen-main");
+  updatePopupMode();
+  if (mode === "reset") {
+    const email = document.getElementById("loginUsername").value.trim();
+    if (email) resetPendingEmail = email;
+  }
 }
 
 function updatePopupMode() {
   const title = document.getElementById("popupTitle");
   const confirmInput = document.getElementById("signupConfirm");
+  const passContainer = document.getElementById("password-container");
   const mainBtn = document.getElementById("mainActionBtn");
   const toggleText = document.getElementById("toggleText");
   const toggleLink = document.getElementById("toggleLink");
-  if (isSignupMode) {
+  const forgotLink = document.getElementById("forgotLink");
+  const backToLoginLink = document.getElementById("backToLoginLink");
+
+  if (authMode === "signup") {
     title.textContent = "Create an account";
     confirmInput.style.display = "block";
+    passContainer.style.display = "";
     mainBtn.textContent = "Sign Up";
     toggleText.textContent = "Already have an account?";
     toggleLink.textContent = "Login";
     toggleLink.setAttribute("onclick", "toggleSignup(false)");
+    forgotLink.style.display = "none";
+    backToLoginLink.style.display = "none";
+  } else if (authMode === "reset") {
+    title.textContent = "Reset Password";
+    confirmInput.style.display = "none";
+    passContainer.style.display = "none";
+    mainBtn.textContent = "Send Code";
+    toggleText.textContent = "";
+    toggleLink.textContent = "";
+    forgotLink.style.display = "none";
+    backToLoginLink.style.display = "";
   } else {
     title.textContent = "Login to continue";
     confirmInput.style.display = "none";
+    passContainer.style.display = "";
     mainBtn.textContent = "Login";
     toggleText.textContent = "Don't have an account?";
     toggleLink.textContent = "Sign Up";
     toggleLink.setAttribute("onclick", "toggleSignup(true)");
+    forgotLink.style.display = "";
+    backToLoginLink.style.display = "none";
   }
+}
+
+async function loginWithGoogle() {
+  const { error } = await supabaseClient.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: window.location.href },
+  });
+  if (error) showCustomAlert("Google sign-in error: " + error.message);
 }
 
 async function submitLoginOrSignup() {
   const email = document.getElementById("loginUsername").value.trim();
   const password = document.getElementById("loginPassword").value.trim();
   const confirm = document.getElementById("signupConfirm").value.trim();
+
+  if (authMode === "reset") {
+    if (!email) { showCustomAlert("Please enter your email."); return; }
+    const btn = document.getElementById("mainActionBtn");
+    btn.textContent = "Sending...";
+    btn.disabled = true;
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
+    btn.textContent = "Send Code";
+    btn.disabled = false;
+    if (error) { showCustomAlert(error.message); return; }
+    resetPendingEmail = email;
+    document.getElementById("otpEmailDisplay").textContent = email;
+    document.getElementById("otpInput").value = "";
+    showAuthScreen("auth-screen-otp");
+    return;
+  }
+
   if (!email || !password || (isSignupMode && !confirm)) {
     showCustomAlert("Please fill out all required fields.");
     return;
@@ -3614,6 +3680,43 @@ async function submitLoginOrSignup() {
     }
   }
   if (error) showCustomAlert(error.message);
+}
+
+async function submitOtp() {
+  const token = document.getElementById("otpInput").value.trim();
+  if (!token || token.length < 6) { showCustomAlert("Please enter the full code."); return; }
+  const btn = document.getElementById("submitOtpBtn");
+  btn.textContent = "Verifying...";
+  btn.disabled = true;
+  const { error } = await supabaseClient.auth.verifyOtp({
+    email: resetPendingEmail,
+    token,
+    type: "recovery",
+  });
+  btn.textContent = "Verify Code";
+  btn.disabled = false;
+  if (error) { showCustomAlert("Invalid or expired code. " + error.message); return; }
+  document.getElementById("newPassInput").value = "";
+  document.getElementById("newPassConfirm").value = "";
+  showAuthScreen("auth-screen-newpass");
+  document.getElementById("popupTitle").textContent = "Set New Password";
+}
+
+async function submitNewPassword() {
+  const newPass = document.getElementById("newPassInput").value;
+  const confirmPass = document.getElementById("newPassConfirm").value;
+  if (!newPass || newPass.length < 6) { showCustomAlert("Password must be at least 6 characters."); return; }
+  if (newPass !== confirmPass) { showCustomAlert("Passwords don't match."); return; }
+  const btn = document.getElementById("submitNewPassBtn");
+  btn.textContent = "Saving...";
+  btn.disabled = true;
+  const { error } = await supabaseClient.auth.updateUser({ password: newPass });
+  btn.textContent = "Set Password";
+  btn.disabled = false;
+  if (error) { showCustomAlert("Error: " + error.message); return; }
+  resetPendingEmail = "";
+  hideLoginPopup(true);
+  showCustomAlert("Password updated! You are now logged in.");
 }
 
 function showLogoutPopup() {

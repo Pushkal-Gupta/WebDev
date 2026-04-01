@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import Board from '../Board/Board';
 import styles from './AnalysisBoard.module.css';
 import useGameStore from '../../store/gameStore';
-import useThemeStore from '../../store/themeStore';
 import { getPositionScore } from '../../utils/localAI';
 import { Chess } from 'chess.js';
 import { CLASSIFICATIONS, reviewGame } from '../../utils/reviewEngine';
@@ -12,7 +11,8 @@ import { CLASSIFICATIONS, reviewGame } from '../../utils/reviewEngine';
 function evalToWhitePct(score) {
   if (score > 9000) return 99;
   if (score < -9000) return 1;
-  return 50 + 50 * Math.tanh(score / 400);
+  const pct = 50 + 50 * Math.tanh(score / 400);
+  return Math.max(1, Math.min(99, pct));
 }
 
 function formatEval(score) {
@@ -42,11 +42,21 @@ function getTopMoves(fen, n = 3) {
   }
 }
 
-// Build accuracy summary counts from reviewResults
-function buildAccSummary(reviewResults) {
-  if (!reviewResults) return null;
+const ACC_WEIGHTS = { brilliant: 100, best: 100, good: 85, inaccuracy: 65, mistake: 40, blunder: 10 };
+
+function calcAccuracy(reviewResults, moveHistory, color) {
+  if (!reviewResults || !moveHistory.length) return null;
+  const playerResults = reviewResults.filter((_, i) => moveHistory[i]?.color === color);
+  if (!playerResults.length) return null;
+  const sum = playerResults.reduce((s, r) => s + (ACC_WEIGHTS[r.classification] ?? 50), 0);
+  return Math.round(sum / playerResults.length);
+}
+
+function buildPlayerCounts(reviewResults, moveHistory, color) {
+  if (!reviewResults) return {};
   const counts = {};
-  reviewResults.forEach(r => {
+  reviewResults.forEach((r, i) => {
+    if (moveHistory[i]?.color !== color) return;
     counts[r.classification] = (counts[r.classification] || 0) + 1;
   });
   return counts;
@@ -56,7 +66,7 @@ function buildAccSummary(reviewResults) {
 
 function EvalGraph({ data, currentIdx, onSeek }) {
   const W = 400;
-  const H = 52;
+  const H = 56;
   const pad = 1;
   const usableW = W - pad * 2;
   const usableH = H - pad * 2;
@@ -75,8 +85,13 @@ function EvalGraph({ data, currentIdx, onSeek }) {
     ? 'M ' + pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' L ')
     : null;
 
-  const fillD = pathD
-    ? `${pathD} L ${pts[pts.length - 1][0].toFixed(1)},${H} L ${pts[0][0].toFixed(1)},${H} Z`
+  // White area (above center)
+  const whiteFillD = pathD
+    ? `${pathD} L ${pts[pts.length - 1][0].toFixed(1)},${H / 2} L ${pts[0][0].toFixed(1)},${H / 2} Z`
+    : null;
+  // Black area (below center)
+  const blackFillD = pathD
+    ? `${pathD} L ${pts[pts.length - 1][0].toFixed(1)},${H / 2} L ${pts[0][0].toFixed(1)},${H / 2} Z`
     : null;
 
   const curX = currentIdx >= 0 && currentIdx < data.length
@@ -98,28 +113,82 @@ function EvalGraph({ data, currentIdx, onSeek }) {
       onClick={handleClick}
       title="Click to jump to that position"
     >
-      {/* BG halves */}
+      {/* Background */}
+      <rect x={0} y={0} width={W} height={H} fill="rgba(0,0,0,0.2)" />
+      {/* White region (upper half) */}
       <rect x={0} y={0} width={W} height={H / 2} fill="rgba(255,255,255,0.03)" />
-      <rect x={0} y={H / 2} width={W} height={H / 2} fill="rgba(0,0,0,0.12)" />
-      {/* Zero line */}
-      <line x1={0} y1={H / 2} x2={W} y2={H / 2} stroke="rgba(255,255,255,0.08)" strokeWidth={0.8} />
-      {/* Filled area */}
-      {fillD && <path d={fillD} fill="rgba(0,255,245,0.07)" />}
-      {/* Eval path */}
+      {/* Center line */}
+      <line x1={0} y1={H / 2} x2={W} y2={H / 2} stroke="rgba(255,255,255,0.12)" strokeWidth={0.8} />
+      {/* White advantage fill */}
+      {whiteFillD && (
+        <clipPath id="upperHalf">
+          <rect x={0} y={0} width={W} height={H / 2} />
+        </clipPath>
+      )}
+      {whiteFillD && <path d={whiteFillD} fill="rgba(230,230,230,0.18)" clipPath="url(#upperHalf)" />}
+      {/* Black advantage fill */}
+      {blackFillD && (
+        <clipPath id="lowerHalf">
+          <rect x={0} y={H / 2} width={W} height={H / 2} />
+        </clipPath>
+      )}
+      {blackFillD && <path d={blackFillD} fill="rgba(30,30,30,0.4)" clipPath="url(#lowerHalf)" />}
+      {/* Eval line */}
       {pathD && (
-        <path d={pathD} fill="none" stroke="rgba(0,255,245,0.65)" strokeWidth={1.5} strokeLinejoin="round" />
+        <path d={pathD} fill="none" stroke="rgba(0,255,245,0.7)" strokeWidth={1.5} strokeLinejoin="round" />
       )}
       {/* Current position marker */}
       {curX !== null && (
         <line
           x1={curX} y1={pad}
           x2={curX} y2={H - pad}
-          stroke="rgba(255,255,255,0.55)"
+          stroke="rgba(255,255,255,0.6)"
           strokeWidth={1}
           strokeDasharray="2 2"
         />
       )}
+      {/* Current position dot */}
+      {curX !== null && currentIdx >= 0 && currentIdx < data.length && (
+        <circle
+          cx={curX}
+          cy={evalToY(data[currentIdx])}
+          r={2.5}
+          fill="#00fff5"
+        />
+      )}
     </svg>
+  );
+}
+
+// ── Accuracy Bar ─────────────────────────────────────────────────────────────
+
+function AccuracyRow({ color, name, accuracy, counts }) {
+  const acc = accuracy ?? '—';
+  const accColor = accuracy >= 85 ? '#3ddc84' : accuracy >= 65 ? '#f0c94c' : '#e05555';
+  return (
+    <div className={styles.accRow}>
+      <div className={styles.accLeft}>
+        <span className={`${styles.accDot} ${color === 'w' ? styles.accDotW : styles.accDotB}`} />
+        <span className={styles.accName}>{name}</span>
+      </div>
+      <div className={styles.accRight}>
+        {accuracy !== null && (
+          <span className={styles.accPct} style={{ color: accColor }}>{acc}%</span>
+        )}
+        <div className={styles.accBadges}>
+          {Object.entries(CLASSIFICATIONS).map(([key, cls]) => {
+            const count = counts?.[key];
+            if (!count) return null;
+            return (
+              <span key={key} className={styles.accBadge} title={`${cls.label}: ${count}`}>
+                <span style={{ color: cls.color }}>{cls.symbol}</span>
+                <span className={styles.accBadgeCount}>{count}</span>
+              </span>
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -136,9 +205,12 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
   const [engineBusy, setEngineBusy]       = useState(false);
   const [reviewResults, setReviewResults] = useState(null);
   const [isReviewing, setIsReviewing]     = useState(false);
+  const [reviewProgress, setReviewProgress] = useState({ current: 0, total: 0 });
   const [pgnInput, setPgnInput]           = useState('');
   const [showPgnInput, setShowPgnInput]   = useState(false);
   const [gameLoaded, setGameLoaded]       = useState(false);
+  const [evalHistory, setEvalHistory]     = useState([]);   // white-relative score per move idx
+  const [pgnHeaders, setPgnHeaders]       = useState({});   // { White, Black, Event, Opening }
 
   const evalTimerRef = useRef(null);
   const moveListRef  = useRef(null);
@@ -148,7 +220,20 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
     if (gameLoaded) setDisableBoard(true);
   }, [gameLoaded, currentMoveIndex]);
 
-  // Compute engine lines when position changes
+  // Load PGN headers on game load
+  useEffect(() => {
+    if (!chessInstance || !gameLoaded) return;
+    try {
+      const h = chessInstance.header?.() || {};
+      setPgnHeaders(h);
+    } catch {
+      setPgnHeaders({});
+    }
+    // Reset eval history on new game
+    setEvalHistory([]);
+  }, [gameLoaded]);
+
+  // Compute engine lines + track eval history when position changes
   useEffect(() => {
     if (!chessInstance || !gameLoaded) return;
 
@@ -162,8 +247,19 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
           : chessInstance.fen();
 
         const lines = getTopMoves(fen, 3);
+        const evalScore = lines.length > 0 ? lines[0].score : getPositionScore(fen, 1);
+
         setEngineLines(lines);
-        setCurrentEval(lines.length > 0 ? lines[0].score : getPositionScore(fen, 1));
+        setCurrentEval(evalScore);
+
+        // Store eval at this index for the graph
+        if (currentMoveIndex >= 0) {
+          setEvalHistory(prev => {
+            const next = [...prev];
+            next[currentMoveIndex] = evalScore;
+            return next;
+          });
+        }
       } catch {
         // ignore
       } finally {
@@ -223,11 +319,15 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
     if (!moveHistory.length) return;
     setIsReviewing(true);
     setReviewResults(null);
+    setReviewProgress({ current: 0, total: moveHistory.length });
     try {
-      const results = await reviewGame(moveHistory, () => {});
+      const results = await reviewGame(moveHistory, (current, total) => {
+        setReviewProgress({ current, total });
+      });
       setReviewResults(results);
     } finally {
       setIsReviewing(false);
+      setReviewProgress({ current: 0, total: 0 });
     }
   };
 
@@ -236,6 +336,8 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
     setReviewResults(null);
     setEngineLines([]);
     setCurrentEval(0);
+    setEvalHistory([]);
+    setPgnHeaders({});
   };
 
   // ── Build move table ─────────────────────────────────────────────────────────
@@ -249,16 +351,44 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
     });
   }
 
-  // Eval graph data — white-relative score at each move
-  const evalGraph = reviewResults
-    ? reviewResults.map((r, i) => {
+  // Eval graph data — white-relative scores from evalHistory or reviewResults
+  const graphData = (() => {
+    if (reviewResults && reviewResults.length) {
+      return reviewResults.map((r, i) => {
         const isWhite = moveHistory[i]?.color === 'w';
         return isWhite ? r.playedScore : -r.playedScore;
-      })
-    : [];
+      });
+    }
+    // Live evals from navigation history
+    if (evalHistory.some(v => v !== undefined)) {
+      const out = [];
+      for (let i = 0; i < moveHistory.length; i++) {
+        if (evalHistory[i] !== undefined) out.push(evalHistory[i]);
+        else break; // stop at first gap
+      }
+      return out.length > 1 ? out : [];
+    }
+    return [];
+  })();
 
-  const whitePct  = evalToWhitePct(currentEval);
-  const accSummary = buildAccSummary(reviewResults);
+  const whitePct = evalToWhitePct(currentEval);
+
+  // Player data
+  const whitePlayerName = pgnHeaders.White || 'White';
+  const blackPlayerName = pgnHeaders.Black || 'Black';
+  const openingName     = pgnHeaders.Opening || pgnHeaders.ECO || null;
+
+  const topName    = flipped ? whitePlayerName : blackPlayerName;
+  const bottomName = flipped ? blackPlayerName : whitePlayerName;
+  const topColor   = flipped ? 'w' : 'b';
+  const botColor   = flipped ? 'b' : 'w';
+
+  const whiteAcc   = calcAccuracy(reviewResults, moveHistory, 'w');
+  const blackAcc   = calcAccuracy(reviewResults, moveHistory, 'b');
+  const topAcc     = topColor === 'w' ? whiteAcc : blackAcc;
+  const botAcc     = botColor === 'w' ? whiteAcc : blackAcc;
+  const whiteCounts = buildPlayerCounts(reviewResults, moveHistory, 'w');
+  const blackCounts = buildPlayerCounts(reviewResults, moveHistory, 'b');
 
   // ── Games list (no game loaded) ──────────────────────────────────────────────
 
@@ -318,15 +448,20 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
       {/* Header */}
       <div className={styles.header}>
         <button className={styles.backBtn} onClick={handleBackToGames}>← Games</button>
-        <span className={styles.title}>Analysis</span>
+        <div className={styles.titleGroup}>
+          <span className={styles.title}>Analysis</span>
+          {openingName && <span className={styles.opening}>{openingName}</span>}
+        </div>
         <div className={styles.headerActions}>
-          <button className={styles.headerBtn} onClick={() => setFlipped(!flipped)}>⇅ Flip</button>
+          <button className={styles.headerBtn} onClick={() => setFlipped(!flipped)}>⇅</button>
           <button
-            className={styles.headerBtn}
+            className={`${styles.headerBtn} ${reviewResults ? styles.headerBtnDone : ''}`}
             onClick={handleReview}
             disabled={isReviewing || !moveHistory.length}
           >
-            {isReviewing ? 'Reviewing…' : reviewResults ? '✓ Re-Review' : 'Review'}
+            {isReviewing
+              ? `${reviewProgress.current}/${reviewProgress.total}`
+              : reviewResults ? '✓ Re-review' : 'Review'}
           </button>
           <button className={styles.headerBtn} onClick={() => setShowPgnInput(v => !v)}>PGN</button>
         </div>
@@ -346,10 +481,18 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
         </div>
       )}
 
-      {/* Review progress */}
-      {isReviewing && (
+      {/* Review progress bar */}
+      {isReviewing && reviewProgress.total > 0 && (
         <div className={styles.reviewBar}>
-          <span className={styles.reviewLabel}>Analysing moves…</span>
+          <span className={styles.reviewLabel}>
+            Analysing… {reviewProgress.current}/{reviewProgress.total}
+          </span>
+          <div className={styles.reviewProgressWrap}>
+            <div
+              className={styles.reviewProgressFill}
+              style={{ width: `${(reviewProgress.current / reviewProgress.total) * 100}%` }}
+            />
+          </div>
           <div className={styles.reviewSpinner} />
         </div>
       )}
@@ -374,15 +517,47 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
 
         {/* ── Board column ── */}
         <div className={styles.boardColumn}>
+          {/* Top player */}
+          <div className={`${styles.playerBar} ${styles.playerBarTop}`}>
+            <div className={styles.playerInfo}>
+              <span className={`${styles.playerDot} ${topColor === 'w' ? styles.playerDotW : styles.playerDotB}`} />
+              <span className={styles.playerName}>{topName}</span>
+            </div>
+            {topAcc !== null && (
+              <span
+                className={styles.playerAccuracy}
+                style={{ color: topAcc >= 85 ? '#3ddc84' : topAcc >= 65 ? '#f0c94c' : '#e05555' }}
+              >
+                {topAcc}%
+              </span>
+            )}
+          </div>
+
           <div className={styles.boardWrap}>
             <Board />
           </div>
 
+          {/* Bottom player */}
+          <div className={`${styles.playerBar} ${styles.playerBarBottom}`}>
+            <div className={styles.playerInfo}>
+              <span className={`${styles.playerDot} ${botColor === 'w' ? styles.playerDotW : styles.playerDotB}`} />
+              <span className={styles.playerName}>{bottomName}</span>
+            </div>
+            {botAcc !== null && (
+              <span
+                className={styles.playerAccuracy}
+                style={{ color: botAcc >= 85 ? '#3ddc84' : botAcc >= 65 ? '#f0c94c' : '#e05555' }}
+              >
+                {botAcc}%
+              </span>
+            )}
+          </div>
+
           {/* Eval graph */}
-          {evalGraph.length > 1 && (
+          {graphData.length > 1 && (
             <div className={styles.evalGraphWrap}>
               <EvalGraph
-                data={evalGraph}
+                data={graphData}
                 currentIdx={currentMoveIndex}
                 onSeek={goToMove}
               />
@@ -422,19 +597,22 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
             )}
           </div>
 
-          {/* Accuracy summary */}
-          {accSummary && (
-            <div className={styles.accuracySummary}>
-              {Object.entries(CLASSIFICATIONS).map(([key, cls]) => {
-                const count = accSummary[key] || 0;
-                if (!count) return null;
-                return (
-                  <span key={key} className={styles.accItem} title={cls.label}>
-                    <span className={styles.accSymbol} style={{ color: cls.color }}>{cls.symbol}</span>
-                    <span className={styles.accCount}>{count}</span>
-                  </span>
-                );
-              })}
+          {/* Per-player accuracy (after review) */}
+          {reviewResults && (
+            <div className={styles.accuracySection}>
+              <div className={styles.accuracySectionTitle}>Accuracy</div>
+              <AccuracyRow
+                color={topColor}
+                name={topName}
+                accuracy={topColor === 'w' ? whiteAcc : blackAcc}
+                counts={topColor === 'w' ? whiteCounts : blackCounts}
+              />
+              <AccuracyRow
+                color={botColor}
+                name={bottomName}
+                accuracy={botColor === 'w' ? whiteAcc : blackAcc}
+                counts={botColor === 'w' ? whiteCounts : blackCounts}
+              />
             </div>
           )}
 

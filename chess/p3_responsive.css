@@ -1623,3 +1623,57 @@ input[type="range"]::-webkit-slider-thumb {
   opacity: 1;
   left: -18px;
 }
+/* ─── Auth: Google button, divider, OTP ──────────────────────────────────────── */
+.google-login-btn {
+  width: 100%;
+  padding: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ccc;
+  border: 1px solid rgba(170, 255, 255, 0.3);
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 0.8rem;
+  transition: background 0.2s, color 0.2s;
+}
+.google-login-btn:hover {
+  background: rgba(51, 179, 166, 0.25);
+  color: #fff;
+}
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0.4rem 0 0.6rem;
+  color: #888;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(170, 255, 255, 0.2);
+}
+.auth-otp-hint {
+  font-size: 0.85rem;
+  color: #aaa;
+  text-align: center;
+  margin-bottom: 0.8rem;
+  line-height: 1.5;
+}
+.auth-otp-hint strong {
+  color: #fff;
+}
+.otp-input-field {
+  text-align: center;
+  letter-spacing: 0.4em;
+  font-size: 1.3rem !important;
+}
