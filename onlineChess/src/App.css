@@ -45,132 +45,239 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
   overflow-y: auto;
-  padding: 52px 32px 72px;
+  padding: 0;
   background:
-    radial-gradient(ellipse 70% 40% at 50% 0%, rgba(0,255,245,0.05) 0%, transparent 100%),
+    radial-gradient(ellipse 80% 50% at 30% 0%, rgba(0,255,245,0.04) 0%, transparent 70%),
     #030a0a;
 }
 
+.home-layout {
+  display: flex;
+  flex-direction: row;
+  min-height: 100%;
+  align-items: stretch;
+}
+
+/* ── Left column ── */
+.home-left {
+  width: 380px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 48px 36px 40px;
+  border-right: 1px solid rgba(255,255,255,0.05);
+  background: rgba(0,0,0,0.12);
+}
+
 .home-hero {
-  text-align: center;
-  margin-bottom: 52px;
   position: relative;
+  margin-bottom: 36px;
 }
 
 .home-hero-deco {
-  font-size: 11rem;
+  font-size: 7rem;
   line-height: 1;
-  color: rgba(0,255,245,0.045);
+  color: rgba(0,255,245,0.04);
   position: absolute;
-  top: -28px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: -16px;
+  left: -8px;
   pointer-events: none;
   user-select: none;
   letter-spacing: -0.05em;
 }
 
 .home-hero-title {
-  font-size: 3.2rem;
+  font-size: 2.4rem;
   font-weight: 800;
   color: white;
-  margin: 0 0 12px;
+  margin: 0 0 8px;
   letter-spacing: -0.04em;
   position: relative;
-  line-height: 1.05;
+  line-height: 1.1;
 }
 
 .home-hero-title span {
   color: #00fff5;
-  text-shadow: 0 0 40px rgba(0,255,245,0.25);
+  text-shadow: 0 0 30px rgba(0,255,245,0.22);
 }
 
 .home-hero-sub {
-  font-size: 0.95rem;
-  color: rgba(255,255,255,0.38);
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.35);
   margin: 0;
   position: relative;
   font-weight: 400;
-  letter-spacing: 0.01em;
 }
 
-/* ── Mode cards ─────────────────────────────────────────────────────────────── */
-.mode-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  width: 100%;
-  max-width: 860px;
-  margin-bottom: 48px;
-}
-
-.mode-card {
-  background: rgba(255,255,255,0.022);
-  border: 1px solid rgba(255,255,255,0.075);
-  border-radius: 18px;
-  padding: 28px 24px 22px;
-  cursor: default;
-  transition: border-color 0.22s, background 0.22s, transform 0.2s, box-shadow 0.22s;
+/* ── Mode tabs ── */
+.home-mode-tabs {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  position: relative;
-  overflow: hidden;
+  gap: 8px;
 }
 
-.mode-card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 18px;
-  opacity: 0;
-  background: radial-gradient(ellipse at 30% 0%, rgba(0,255,245,0.06) 0%, transparent 65%);
-  transition: opacity 0.3s;
-  pointer-events: none;
+.home-mode-tab {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.18s;
+  text-align: left;
+  color: white;
+  font-family: inherit;
 }
 
-.mode-card:hover {
-  border-color: rgba(0,255,245,0.22);
-  background: rgba(0,255,245,0.028);
-  transform: translateY(-3px);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,255,245,0.08);
+.home-mode-tab:hover {
+  background: rgba(0,255,245,0.04);
+  border-color: rgba(0,255,245,0.18);
 }
 
-.mode-card:hover::after { opacity: 1; }
-
-.mode-card-hl {
-  border-color: rgba(0,255,245,0.28) !important;
-  background: rgba(0,255,245,0.03) !important;
+.home-mode-tab-active {
+  background: rgba(0,255,245,0.06) !important;
+  border-color: rgba(0,255,245,0.3) !important;
 }
 
-.mode-card-icon-wrap {
-  width: 46px; height: 46px;
-  border-radius: 13px;
-  display: flex; align-items: center; justify-content: center;
+.home-mode-tab-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 32px;
+  text-align: center;
+}
+
+.home-mode-tab-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.home-mode-tab-title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+}
+
+.home-mode-tab-desc {
+  font-size: 0.74rem;
+  color: rgba(255,255,255,0.38);
+}
+
+.home-mode-tab-arrow {
+  font-size: 1.2rem;
+  color: rgba(0,255,245,0.4);
   flex-shrink: 0;
 }
 
-.mode-card-icon {
-  font-size: 1.65rem;
+/* ── Right column ── */
+.home-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 36px;
+  min-width: 0;
+}
+
+/* Welcome panel (no mode selected) */
+.home-welcome-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 320px;
+  text-align: center;
+}
+
+.home-welcome-icon {
+  font-size: 4rem;
+  color: rgba(0,255,245,0.12);
   line-height: 1;
 }
 
-.mode-card-title {
-  font-size: 1.08rem;
-  font-weight: 700;
-  color: rgba(255,255,255,0.95);
-  letter-spacing: -0.015em;
-}
-
-.mode-card-desc {
-  font-size: 0.8rem;
-  color: rgba(255,255,255,0.4);
+.home-welcome-text {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.35);
   line-height: 1.6;
-  flex: 1;
 }
 
+.home-play-online-btn {
+  margin-top: 8px;
+  padding: 11px 28px;
+  background: rgba(0,255,245,0.1);
+  border: 1px solid rgba(0,255,245,0.3);
+  color: #00fff5;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: inherit;
+}
+
+.home-play-online-btn:hover {
+  background: rgba(0,255,245,0.18);
+  border-color: rgba(0,255,245,0.5);
+  box-shadow: 0 0 16px rgba(0,255,245,0.1);
+}
+
+/* ── Sign-in prompt (for protected tabs) ── */
+.sign-in-prompt {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: white;
+  text-align: center;
+  padding: 40px;
+}
+
+.sign-in-prompt-icon {
+  font-size: 3.5rem;
+  color: rgba(0,255,245,0.15);
+}
+
+.sign-in-prompt-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.75);
+}
+
+.sign-in-prompt-sub {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.32);
+  max-width: 280px;
+  line-height: 1.6;
+}
+
+.sign-in-prompt-btn {
+  margin-top: 6px;
+  padding: 10px 32px;
+  background: rgba(0,255,245,0.1);
+  border: 1px solid rgba(0,255,245,0.3);
+  color: #00fff5;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: inherit;
+}
+
+.sign-in-prompt-btn:hover {
+  background: rgba(0,255,245,0.18);
+  border-color: rgba(0,255,245,0.5);
+}
+
+/* Legacy mode-card classes (keep for compatibility) */
 .mode-card-btn {
   margin-top: 6px;
   width: 100%;
@@ -697,25 +804,32 @@ body {
 }
 
 /* ─── Responsive ──────────────────────────────────────────────────────────── */
-@media (max-width: 800px) {
-  .mode-grid { grid-template-columns: 1fr; max-width: 380px; gap: 10px; }
-  .home-hero-title { font-size: 2.2rem; }
-  .home-screen { padding: 36px 20px 52px; }
-  .home-hero-deco { font-size: 7rem; }
+@media (max-width: 860px) {
+  .home-layout { flex-direction: column; }
+  .home-left {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding: 32px 24px 24px;
+  }
+  .home-mode-tabs { flex-direction: row; flex-wrap: wrap; }
+  .home-mode-tab { flex: 1; min-width: 140px; }
+  .home-right { padding: 24px 20px 40px; justify-content: flex-start; }
   .pp-clock { font-size: 1.15rem; min-width: 66px; padding: 4px 10px; }
   .pp-name { max-width: 120px; }
 }
 
 @media (max-width: 540px) {
-  .mode-grid { max-width: 100%; }
+  .home-left { padding: 24px 16px 20px; }
+  .home-mode-tab { min-width: 120px; }
   .pp-avatar { width: 30px; height: 30px; font-size: 0.8rem; }
 }
 
 /* ─── Game Setup Panel ────────────────────────────────────────────────────── */
 .gs-panel {
   width: 100%;
-  max-width: 680px;
-  background: rgba(8, 16, 16, 0.98);
+  max-width: 520px;
+  background: rgba(8, 16, 16, 0.95);
   border: 1px solid rgba(0, 255, 245, 0.12);
   border-radius: 16px;
   padding: 24px 28px;

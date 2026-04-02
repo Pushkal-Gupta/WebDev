@@ -688,6 +688,14 @@ export default function App() {
         {activeTab === 8 && <FriendsPage />}
 
         {/* ── Tab 5: Account ── */}
+        {activeTab === 5 && !user && (
+          <div className="sign-in-prompt">
+            <div className="sign-in-prompt-icon">♟</div>
+            <div className="sign-in-prompt-title">Sign in to view your profile</div>
+            <div className="sign-in-prompt-sub">Track your ratings, review games, and connect with friends.</div>
+            <button className="sign-in-prompt-btn" onClick={() => setShowLogin(true)}>Sign In</button>
+          </div>
+        )}
         {activeTab === 5 && user && (
           <AccountScreen
             onAlert={showAlert}
@@ -918,43 +926,66 @@ function GameSetupPanel({ mode, user, onStart, onCancel }) {
 // ─── Home screen ─────────────────────────────────────────────────────────────
 function HomeScreen({ user, onStart, onPlayOnline }) {
   const [selectedMode, setSelectedMode] = useState(null);
+  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0];
 
   return (
     <div className="home-screen">
-      <div className="home-hero">
-        <div className="home-hero-deco">♚</div>
-        <h1 className="home-hero-title">Play <span>Chess</span></h1>
-        <p className="home-hero-sub">
-          {user ? `Welcome back, ${user.user_metadata?.full_name || user.email?.split('@')[0]}` : 'Pick a mode to get started'}
-        </p>
-      </div>
-
-      <div className="mode-grid">
-        {MODES.map(m => (
-          <div key={m.key}
-            className={`mode-card ${selectedMode === m.key ? 'mode-card-hl' : ''}`}
-            onClick={() => {
-              if (m.key === 'online') { onPlayOnline(); return; }
-              setSelectedMode(selectedMode === m.key ? null : m.key);
-            }}
-          >
-            <div className="mode-card-icon-wrap" style={{ background: m.iconBg }}>
-              <span className="mode-card-icon">{m.icon}</span>
-            </div>
-            <div className="mode-card-title">{m.title}</div>
-            <div className="mode-card-desc">{m.desc}</div>
+      <div className="home-layout">
+        {/* ── Left: hero + mode selector ── */}
+        <div className="home-left">
+          <div className="home-hero">
+            <div className="home-hero-deco">♚</div>
+            <h1 className="home-hero-title">Play <span>Chess</span></h1>
+            <p className="home-hero-sub">
+              {user ? `Welcome back, ${displayName}` : 'Sharpen your game'}
+            </p>
           </div>
-        ))}
-      </div>
 
-      {selectedMode && (
-        <GameSetupPanel
-          mode={selectedMode}
-          user={user}
-          onStart={(tc) => onStart(selectedMode, tc)}
-          onCancel={() => setSelectedMode(null)}
-        />
-      )}
+          <div className="home-mode-tabs">
+            {MODES.map(m => (
+              <button
+                key={m.key}
+                className={`home-mode-tab ${selectedMode === m.key ? 'home-mode-tab-active' : ''}`}
+                onClick={() => {
+                  if (m.key === 'online') { onPlayOnline(); return; }
+                  setSelectedMode(selectedMode === m.key ? null : m.key);
+                }}
+              >
+                <span className="home-mode-tab-icon">{m.icon}</span>
+                <span className="home-mode-tab-text">
+                  <span className="home-mode-tab-title">{m.title}</span>
+                  <span className="home-mode-tab-desc">{m.desc}</span>
+                </span>
+                {m.key !== 'online' && <span className="home-mode-tab-arrow">›</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Right: setup panel or welcome ── */}
+        <div className="home-right">
+          {selectedMode ? (
+            <GameSetupPanel
+              mode={selectedMode}
+              user={user}
+              onStart={(tc) => onStart(selectedMode, tc)}
+              onCancel={() => setSelectedMode(null)}
+            />
+          ) : (
+            <div className="home-welcome-panel">
+              <div className="home-welcome-icon">♟</div>
+              <div className="home-welcome-text">
+                {user
+                  ? 'Select a mode to start a game'
+                  : 'Choose a game mode on the left to get started'}
+              </div>
+              <button className="home-play-online-btn" onClick={onPlayOnline}>
+                Play Online Now
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
