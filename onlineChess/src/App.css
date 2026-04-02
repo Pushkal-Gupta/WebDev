@@ -672,6 +672,30 @@ body {
 
 .game-date { font-size: 0.75rem; color: rgba(255,255,255,0.28); }
 
+.game-opp { color: rgba(255,255,255,0.8); }
+
+.game-tc {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.05);
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+
+.game-result-win  { color: #88ffaa; background: rgba(60,200,80,0.1);   font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 7px; border-radius: 4px; }
+.game-result-loss { color: #ff9090; background: rgba(255,60,60,0.1);   font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 7px; border-radius: 4px; }
+.game-result-draw { color: #ffdd88; background: rgba(255,190,60,0.1); font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 7px; border-radius: 4px; }
+
+.game-rating-change { font-size: 0.78rem; font-weight: 600; }
+.game-rc-up   { color: #6fdc8c; }
+.game-rc-down { color: #ff7875; }
+
+.rating-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
 /* ─── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 800px) {
   .mode-grid { grid-template-columns: 1fr; max-width: 380px; gap: 10px; }

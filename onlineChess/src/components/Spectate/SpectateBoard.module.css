@@ -1,0 +1,145 @@
+.page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+
+.backBtn {
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.6);
+  border-radius: 6px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.backBtn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+
+.roomId {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.4);
+  flex: 1;
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+.flipBtn {
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.5);
+  border-radius: 6px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.flipBtn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  overflow: hidden;
+}
+
+/* ── Board ─────────────────────────────────────────────────────────────────── */
+
+.boardWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(8, var(--cell-size));
+  grid-template-rows:    repeat(8, var(--cell-size));
+  width:  calc(8 * var(--cell-size));
+  height: calc(8 * var(--cell-size));
+  flex-shrink: 0;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.5), 0 12px 40px rgba(0,0,0,0.7);
+}
+
+.cell {
+  position: relative;
+  width:  var(--cell-size);
+  height: var(--cell-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.piece {
+  width: 88%;
+  height: 88%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.rankLabel {
+  position: absolute;
+  top: 2px; left: 3px;
+  font-size: 0.6rem; font-weight: 700;
+  line-height: 1; pointer-events: none; user-select: none;
+}
+
+.fileLabel {
+  position: absolute;
+  bottom: 2px; right: 3px;
+  font-size: 0.6rem; font-weight: 700;
+  line-height: 1; pointer-events: none; user-select: none;
+}
+
+/* ── Player bars ───────────────────────────────────────────────────────────── */
+
+.playerBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: calc(8 * var(--cell-size));
+}
+
+.playerDot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.playerName {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.8);
+}
+
+/* ── Status ────────────────────────────────────────────────────────────────── */
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.82rem;
+}
+
+.statusTurn   { color: rgba(255,255,255,0.45); }
+.statusResign { color: #ff7875; font-weight: 600; }
+.moveCount    { color: rgba(255,255,255,0.2); font-size: 0.75rem; }
