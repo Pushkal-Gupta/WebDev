@@ -1,0 +1,327 @@
+.page {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  height: 100%;
+}
+
+/* ── Board column ── */
+.boardCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 8px;
+  position: relative;
+  min-width: 0;
+}
+
+.boardWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(8, var(--cell-size));
+  grid-template-rows:    repeat(8, var(--cell-size));
+  width:  calc(8 * var(--cell-size));
+  height: calc(8 * var(--cell-size));
+  flex-shrink: 0;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.5), 0 12px 40px rgba(0,0,0,0.7);
+}
+
+.cell {
+  position: relative;
+  width:  var(--cell-size);
+  height: var(--cell-size);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.piece {
+  width: 88%;
+  height: 88%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.dot {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.rankLabel, .fileLabel {
+  position: absolute;
+  font-size: 0.6rem;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+.rankLabel { top: 2px; left: 3px; }
+.fileLabel { bottom: 2px; right: 3px; }
+
+/* ── Player bars ── */
+.playerBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: calc(8 * var(--cell-size));
+  padding: 6px 10px;
+  border-radius: 5px;
+  background: rgba(255,255,255,0.025);
+  margin: 3px 0;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.playerBarActive {
+  background: rgba(0,255,245,0.04);
+}
+
+.playerLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pDotW { background: #e8e8e8; border: 1px solid rgba(255,255,255,0.4); }
+.pDotB { background: #2c2c2c; border: 1px solid rgba(255,255,255,0.15); }
+
+.pName {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.65);
+  font-weight: 500;
+}
+
+.pClock {
+  font-size: 1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255,255,255,0.4);
+  min-width: 52px;
+  text-align: right;
+}
+
+.pClockActive {
+  color: rgba(255,255,255,0.9);
+}
+
+.pClockLow {
+  color: #e05555;
+  animation: clockPulse 0.8s ease-in-out infinite;
+}
+
+@keyframes clockPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+/* ── Controls ── */
+.controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.resignBtn {
+  padding: 6px 16px;
+  background: rgba(220,60,60,0.1);
+  border: 1px solid rgba(220,60,60,0.3);
+  color: #e05555;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.15s;
+}
+
+.resignBtn:hover {
+  background: rgba(220,60,60,0.18);
+}
+
+/* ── Game over banner ── */
+.overBanner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(2,12,12,0.92);
+  border: 1px solid rgba(0,255,245,0.2);
+  border-radius: 12px;
+  padding: 28px 36px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 20;
+  backdrop-filter: blur(8px);
+}
+
+.overTitle {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.4);
+}
+
+.overResult {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.exitBtn {
+  padding: 9px 24px;
+  background: rgba(0,255,245,0.1);
+  border: 1px solid rgba(0,255,245,0.3);
+  color: #00fff5;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.15s;
+  margin-top: 4px;
+}
+
+.exitBtn:hover {
+  background: rgba(0,255,245,0.18);
+}
+
+/* ── Promotion overlay ── */
+.promoOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(2,12,12,0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 15;
+}
+
+.promoBox {
+  background: rgba(10,20,20,0.97);
+  border: 1px solid rgba(0,255,245,0.2);
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.promoTitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(0,255,245,0.6);
+}
+
+.promoBtn {
+  font-size: 2.5rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 8px;
+  padding: 6px 14px;
+  cursor: pointer;
+  color: #fff;
+  transition: all 0.1s;
+  width: 64px;
+}
+
+.promoBtn:hover {
+  background: rgba(0,255,245,0.08);
+  border-color: rgba(0,255,245,0.25);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 16px;
+  border-left: 1px solid rgba(255,255,255,0.07);
+  background: rgba(0,0,0,0.1);
+  gap: 10px;
+}
+
+.sideTitle {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(0,255,245,0.5);
+  margin-bottom: 4px;
+}
+
+.sideRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+}
+
+.sideLabel { color: rgba(255,255,255,0.35); }
+.sideVal   { color: rgba(255,255,255,0.75); font-weight: 600; }
+
+.checkBadge {
+  padding: 5px 10px;
+  background: rgba(220,60,60,0.12);
+  border: 1px solid rgba(220,60,60,0.3);
+  border-radius: 5px;
+  color: #e05555;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.sideSpacer { flex: 1; }
+
+.exitSideBtn {
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.09);
+  color: rgba(255,255,255,0.45);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.15s;
+}
+
+.exitSideBtn:hover {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.7);
+}
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .page { flex-direction: column; overflow-y: auto; }
+  .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; border-left: none; border-top: 1px solid rgba(255,255,255,0.07); padding: 10px 16px; }
+  .sideSpacer { display: none; }
+  .sideTitle { width: 100%; }
+}

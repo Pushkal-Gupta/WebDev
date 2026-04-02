@@ -1,0 +1,231 @@
+.wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 32px 24px 24px;
+  gap: 20px;
+  overflow-y: auto;
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ── Header ── */
+.header {
+  text-align: center;
+}
+
+.title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.sub {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.5;
+}
+
+/* ── Role selection ── */
+.roleRow {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.roleBtn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 10px;
+  cursor: pointer;
+  color: #fff;
+  transition: all 0.15s;
+}
+
+.roleBtn:hover {
+  background: rgba(0,255,245,0.06);
+  border-color: rgba(0,255,245,0.25);
+}
+
+.roleIcon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.roleName {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+}
+
+.roleDesc {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.38);
+  text-align: center;
+}
+
+/* ── Step header ── */
+.stepHeader {
+  text-align: center;
+  width: 100%;
+}
+
+.stepTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.stepSub {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.4);
+}
+
+/* ── QR box ── */
+.qrWrap {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(0,255,245,0.18);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Scan box ── */
+.scanBox {
+  width: 100%;
+  max-width: 320px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* ── Buttons ── */
+.scanBtn {
+  padding: 10px 24px;
+  background: rgba(0,255,245,0.08);
+  border: 1px solid rgba(0,255,245,0.28);
+  color: #00fff5;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.15s;
+}
+
+.scanBtn:hover {
+  background: rgba(0,255,245,0.14);
+}
+
+.nextBtn {
+  width: 100%;
+  padding: 11px 16px;
+  background: rgba(0,255,245,0.1);
+  border: 1px solid rgba(0,255,245,0.35);
+  color: #00fff5;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: all 0.15s;
+}
+
+.nextBtn:hover:not(:disabled) {
+  background: rgba(0,255,245,0.18);
+}
+
+.nextBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.copyBtn {
+  padding: 6px 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.5);
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.15s;
+}
+
+.copyBtn:hover {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.75);
+}
+
+/* ── Paste area ── */
+.pasteWrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pasteLabel {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.38);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.pasteArea {
+  width: 100%;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 6px;
+  color: rgba(255,255,255,0.7);
+  padding: 8px 10px;
+  font-size: 0.72rem;
+  font-family: monospace;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.pasteArea:focus {
+  border-color: rgba(0,255,245,0.25);
+}
+
+/* ── Status ── */
+.waitMsg {
+  font-size: 0.82rem;
+  color: rgba(0,255,245,0.55);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.55; }
+  50%       { opacity: 1; }
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(0,255,245,0.12);
+  border-top-color: rgba(0,255,245,0.7);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error {
+  font-size: 0.8rem;
+  color: #e05555;
+  text-align: center;
+  padding: 4px 0;
+}

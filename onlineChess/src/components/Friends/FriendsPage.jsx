@@ -63,7 +63,7 @@ function RequestsTab({ userId }) {
   const [acting, setActing] = useState(null);
 
   const friendNotifs = notifications.filter(
-    n => (n.type === 'friend_request' || n.type === 'friend_accepted') && !n.read
+    n => (n.type === 'friend_request' || n.type === 'friend_accepted') && !n.is_read
   );
 
   const handleAccept = async (req) => {
@@ -98,8 +98,8 @@ function RequestsTab({ userId }) {
             {notifications.slice(0, 8).map(n => (
               <div
                 key={n.id}
-                className={`${styles.notifRow} ${!n.read ? styles.notifUnread : ''}`}
-                onClick={() => !n.read && markRead(n.id)}
+                className={`${styles.notifRow} ${!n.is_read ? styles.notifUnread : ''}`}
+                onClick={() => !n.is_read && markRead(n.id)}
               >
                 <span className={styles.notifDot} />
                 <div className={styles.notifBody}>
@@ -282,7 +282,7 @@ export default function FriendsPage() {
   const [tab, setTab] = useState('friends');
 
   const friendNotifCount = notifications.filter(
-    n => (n.type === 'friend_request' || n.type === 'friend_accepted') && !n.read
+    n => (n.type === 'friend_request' || n.type === 'friend_accepted') && !n.is_read
   ).length;
 
   useEffect(() => {
