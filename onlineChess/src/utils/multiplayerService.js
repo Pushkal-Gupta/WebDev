@@ -78,8 +78,43 @@ export function subscribeToRoom(roomId, handlers = {}) {
   return channel;
 }
 
-export async function broadcastMove(channel, { from, to, promotion }) {
-  await channel.send({ type: 'broadcast', event: 'move', payload: { from, to, promotion } });
+export async function broadcastMove(channel, { from, to, promotion, fen }) {
+  await channel.send({ type: 'broadcast', event: 'move', payload: { from, to, promotion, fen } });
+}
+
+// Update the persisted FEN in chess_rooms (so spectators joining mid-game see current position)
+export async function updateRoomFen(roomId, fen) {
+  await supabaseChess.from('chess_rooms').update({
+    current_fen: fen,
+    last_move_at: new Date().toISOString(),
+  }).eq('id', roomId);
+}
+
+// Fetch all live public games for the spectate list
+export async function getPublicGames() {
+  const { data } = await supabaseChess
+    .from('chess_rooms')
+    .select('id, host_name, guest_name, time_control, current_fen, spectator_count, created_at, last_move_at')
+    .eq('status', 'playing')
+    .eq('is_public', true)
+    .order('last_move_at', { ascending: false, nullsFirst: false })
+    .limit(50);
+  return data || [];
+}
+
+// Subscribe as a spectator to a room's broadcast channel (read-only)
+export function subscribeAsSpectator(roomId, handlers = {}) {
+  const channel = supabaseChess.channel(`room:${roomId}`, {
+    config: { broadcast: { self: false } },
+  });
+
+  channel
+    .on('broadcast', { event: 'move' },   ({ payload }) => handlers.onMove?.(payload))
+    .on('broadcast', { event: 'resign' }, ({ payload }) => handlers.onResign?.(payload))
+    .on('broadcast', { event: 'chat' },   ({ payload }) => handlers.onChat?.(payload))
+    .subscribe();
+
+  return channel;
 }
 
 export async function broadcastChat(channel, { text, sender }) {

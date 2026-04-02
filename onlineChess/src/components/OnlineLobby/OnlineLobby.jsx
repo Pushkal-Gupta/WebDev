@@ -2,11 +2,22 @@ import { useState } from 'react';
 import styles from './OnlineLobby.module.css';
 import useAuthStore from '../../store/authStore';
 
-export default function OnlineLobby({ onCreateRoom, onJoinRoom, roomId, waitingForOpponent, onCancelWait, timeControls, selectedTime, onSelectTime }) {
+function formatElapsed(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return m > 0 ? `${m}:${String(sec).padStart(2, '0')}` : `0:${String(sec).padStart(2, '0')}`;
+}
+
+export default function OnlineLobby({
+  onCreateRoom, onJoinRoom, onFindGame, onCancelSearch,
+  roomId, waitingForOpponent, onCancelWait,
+  timeControls, selectedTime, onSelectTime,
+  isSearching, searchElapsed, userRating,
+}) {
   const { user, username } = useAuthStore();
-  const [joinCode, setJoinCode] = useState('');
+  const [joinCode, setJoinCode]   = useState('');
   const [joinError, setJoinError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading]     = useState(false);
 
   const handleCreate = async () => {
     setLoading(true);
@@ -22,6 +33,33 @@ export default function OnlineLobby({ onCreateRoom, onJoinRoom, roomId, waitingF
     setLoading(false);
   };
 
+  // ── Searching state ────────────────────────────────────────
+  if (isSearching) {
+    return (
+      <div className={styles.lobbyWrap}>
+        <div className={styles.waitCard}>
+          <div className={styles.waitSpinner} />
+          <h2 className={styles.waitTitle}>Finding opponent…</h2>
+          <p className={styles.waitSub}>
+            {selectedTime ? `${selectedTime.display} · ${selectedTime.cat}` : ''}&nbsp;
+          </p>
+          <div className={styles.searchTimer}>{formatElapsed(searchElapsed || 0)}</div>
+          {userRating != null && (
+            <p className={styles.waitSub}>Your rating: <span className={styles.ratingHighlight}>{userRating}</span></p>
+          )}
+          <p className={styles.expandNote}>
+            {(searchElapsed || 0) < 30 ? 'Matching ±200 rating' :
+             (searchElapsed || 0) < 60 ? 'Expanding to ±400…' :
+             (searchElapsed || 0) < 90 ? 'Expanding to ±800…' :
+             'Any opponent…'}
+          </p>
+          <button className={styles.cancelBtn} onClick={onCancelSearch}>Cancel</button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Waiting for manual room opponent ──────────────────────
   if (waitingForOpponent) {
     return (
       <div className={styles.lobbyWrap}>
@@ -36,11 +74,18 @@ export default function OnlineLobby({ onCreateRoom, onJoinRoom, roomId, waitingF
     );
   }
 
+  const canFindGame = !!selectedTime; // untimed games can't be auto-matched
+
   return (
     <div className={styles.lobbyWrap}>
       <div className={styles.lobbyCard}>
         <h2 className={styles.lobbyTitle}>Play Online</h2>
-        <p className={styles.lobbySub}>Logged in as <span className={styles.lobbyUser}>{username || user?.email}</span></p>
+        <p className={styles.lobbySub}>
+          Logged in as <span className={styles.lobbyUser}>{username || user?.email}</span>
+          {userRating != null && selectedTime && (
+            <span className={styles.lobbyRating}> · {selectedTime.cat} {userRating}</span>
+          )}
+        </p>
 
         {/* Time control picker */}
         <div className={styles.sectionLabel}>Time Control</div>
@@ -63,6 +108,19 @@ export default function OnlineLobby({ onCreateRoom, onJoinRoom, roomId, waitingF
         </div>
 
         <div className={styles.divider} />
+
+        {/* Find Game (auto-match) */}
+        <button
+          className={styles.findGameBtn}
+          onClick={() => canFindGame && onFindGame()}
+          disabled={!canFindGame || loading}
+          title={!canFindGame ? 'Select a time control to find a game' : ''}
+        >
+          Find Game
+          {!canFindGame && <span className={styles.findGameHint}> (select time control)</span>}
+        </button>
+
+        <div className={styles.orRow}><span>or play with a friend</span></div>
 
         {/* Create room */}
         <button

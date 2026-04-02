@@ -60,6 +60,10 @@ const initialState = {
   turnStartWhite: 0,
   turnStartBlack: 0,
   delayRemaining: 0,
+  // Rating / result tracking
+  gameResult: null,       // { winner: 'white'|'black'|'draw', reason: string }
+  gameCategory: null,     // 'bullet'|'blitz'|'rapid'|'classical' — derived from timeControl
+  onlineOpponentId: null, // opponent's auth user ID (set when online game starts)
 };
 
 const useGameStore = create((set, get) => ({
@@ -110,6 +114,9 @@ const useGameStore = create((set, get) => ({
       capturedByWhite: [],
       capturedByBlack: [],
       flipped: isComp && compColor === 'white',
+      gameResult: null,
+      gameCategory: timeControl?.cat?.toLowerCase() || null,
+      onlineOpponentId: null,
     });
   },
 
@@ -149,6 +156,9 @@ const useGameStore = create((set, get) => ({
       flipped: isBlack,
       oppName: 'Opponent',
       youName: isBlack ? 'You (Black)' : 'You (White)',
+      gameResult: null,
+      gameCategory: timeControl?.cat?.toLowerCase() || null,
+      onlineOpponentId: null,
     });
   },
 
@@ -339,17 +349,21 @@ const useGameStore = create((set, get) => ({
     if (!chessInstance) return;
 
     let message = '';
+    let gameResult = null;
     if (chessInstance.isCheckmate()) {
       const winner = chessInstance.turn() === 'w' ? 'Black' : 'White';
       message = `Checkmate! ${winner} wins!`;
+      gameResult = { winner: winner.toLowerCase(), reason: 'checkmate' };
     } else if (chessInstance.isStalemate()) {
       message = 'Stalemate! Draw.';
+      gameResult = { winner: 'draw', reason: 'stalemate' };
     } else if (chessInstance.isDraw()) {
       message = 'Draw!';
+      gameResult = { winner: 'draw', reason: 'draw' };
     }
 
     if (message) {
-      set({ gameOver: true, gameOverMessage: message, timerRunning: false, disableBoard: true });
+      set({ gameOver: true, gameOverMessage: message, timerRunning: false, disableBoard: true, gameResult });
     }
   },
 
@@ -360,6 +374,7 @@ const useGameStore = create((set, get) => ({
       gameOverMessage: `Time expired! ${winner} wins!`,
       timerRunning: false,
       disableBoard: true,
+      gameResult: { winner: winner.toLowerCase(), reason: 'timeout' },
     });
   },
 
@@ -525,6 +540,8 @@ const useGameStore = create((set, get) => ({
 
   setCompThinking: (val) => set({ compThinking: val }),
   setDisableBoard: (val) => set({ disableBoard: val }),
+  setGameResult: (val) => set({ gameResult: val }),
+  setOnlineOpponentId: (val) => set({ onlineOpponentId: val }),
   setFlipped: (val) => set({ flipped: val }),
   setShowLabels: (val) => set({ showLabels: val }),
   setHighlightLastMove: (val) => set({ highlightLastMove: val }),
