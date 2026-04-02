@@ -27,6 +27,9 @@ import LeaderboardPage from './components/Leaderboard/LeaderboardPage';
 import TournamentsPage from './components/Tournaments/TournamentsPage';
 import ClubsPage from './components/Clubs/ClubsPage';
 import useNotificationStore from './store/notificationStore';
+import P2PSetup from './components/P2PPlay/P2PSetup';
+import P2PGame from './components/P2PPlay/P2PGame';
+import { p2p } from './utils/p2pService';
 import useFriendStore from './store/friendStore';
 import { getBestMove } from './utils/stockfish';
 import { postGame, getGames } from './utils/gameServer';
@@ -87,6 +90,9 @@ export default function App() {
   const [reviewResults, setReviewResults]   = useState(null);
   const [isReviewing, setIsReviewing]       = useState(false);
   const [ratingDelta, setRatingDelta]       = useState(null);
+
+  // P2P state
+  const [p2pMyColor, setP2pMyColor] = useState(null); // 'w'|'b' — set when connected
 
   // Online multiplayer state
   const onlineChannelRef      = useRef(null);
@@ -716,6 +722,17 @@ export default function App() {
         {/* ── Tab 11: Leaderboard ── */}
         {activeTab === 11 && <LeaderboardPage />}
 
+        {/* ── Tab 12: P2P Nearby Play ── */}
+        {activeTab === 12 && !p2pMyColor && (
+          <P2PSetup onConnected={(color) => setP2pMyColor(color)} />
+        )}
+        {activeTab === 12 && p2pMyColor && (
+          <P2PGame
+            myColor={p2pMyColor}
+            onExit={() => { p2p.close(); setP2pMyColor(null); }}
+          />
+        )}
+
         {/* ── Tab 5: Account ── */}
         {activeTab === 5 && !user && (
           <div className="sign-in-prompt">
@@ -955,12 +972,12 @@ function GameSetupPanel({ mode, user, onStart, onCancel }) {
 // ─── Home screen ─────────────────────────────────────────────────────────────
 
 const QUICK_TCS = [
-  { display: '1+0',   cat: 'Bullet',    total: 60,   incr: 0,  catKey: 'bullet'    },
-  { display: '3+0',   cat: 'Blitz',     total: 180,  incr: 0,  catKey: 'blitz'     },
-  { display: '5+0',   cat: 'Blitz',     total: 300,  incr: 0,  catKey: 'blitz'     },
-  { display: '10+0',  cat: 'Rapid',     total: 600,  incr: 0,  catKey: 'rapid'     },
-  { display: '15+10', cat: 'Rapid',     total: 900,  incr: 10, catKey: 'rapid'     },
-  { display: '30+0',  cat: 'Classical', total: 1800, incr: 0,  catKey: 'classical' },
+  { display: '1+0',   cat: 'Bullet',    total: 60,   incr: 0,  catKey: 'bullet',    accent: '#fb923c' },
+  { display: '3+0',   cat: 'Blitz',     total: 180,  incr: 0,  catKey: 'blitz',     accent: '#00fff5' },
+  { display: '5+0',   cat: 'Blitz',     total: 300,  incr: 0,  catKey: 'blitz',     accent: '#00fff5' },
+  { display: '10+0',  cat: 'Rapid',     total: 600,  incr: 0,  catKey: 'rapid',     accent: '#34d399' },
+  { display: '15+10', cat: 'Rapid',     total: 900,  incr: 10, catKey: 'rapid',     accent: '#34d399' },
+  { display: '30+0',  cat: 'Classical', total: 1800, incr: 0,  catKey: 'classical', accent: '#a78bfa' },
 ];
 
 const FEATURE_CARDS = [
@@ -974,9 +991,19 @@ const FEATURE_CARDS = [
   { icon: '🫂', title: 'Friends',      desc: 'Connect & challenge',        tab: 8,  accent: '#4ade80' },
 ];
 
+const RATING_CATS = [
+  { key: 'blitz',     label: 'Blitz' },
+  { key: 'rapid',     label: 'Rapid' },
+  { key: 'bullet',    label: 'Bullet' },
+  { key: 'classical', label: 'Classical' },
+];
+
+// Default CTA fires blitz 5+0
+const DEFAULT_CTA_TC = QUICK_TCS[2]; // 5+0 Blitz
+
 function HomeScreen({ user, onStart, onPlayOnline, onTabClick, onQuickMatch }) {
   const [liveCount, setLiveCount] = useState(null);
-  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0];
+  const { myRatings } = useRatingStore();
 
   useEffect(() => {
     supabase
@@ -986,42 +1013,70 @@ function HomeScreen({ user, onStart, onPlayOnline, onTabClick, onQuickMatch }) {
       .then(({ count }) => setLiveCount(count ?? 0));
   }, []);
 
+  const ratingCats = user ? RATING_CATS.filter(c => myRatings[c.key]) : [];
+
   return (
     <div className="home-screen">
       <div className="home-body">
 
         {/* ── Hero ── */}
         <div className="home-hero-wrap">
-          <div className="home-king-deco">♚</div>
           <h1 className="home-title">
-            Play Chess.<br />
-            <span className="home-title-accent">Free.</span>{' '}
-            <span className="home-title-muted">No account needed.</span>
+            Play Chess.{' '}
+            <span className="home-title-accent">Free. Always.</span>
           </h1>
           <p className="home-tagline">
-            No ads. No paywalls. Open to everyone.
-            {liveCount !== null && (
+            No account needed · No ads · No paywalls
+          </p>
+
+          {/* Primary CTA */}
+          <button
+            className="home-cta-btn"
+            onClick={() => onQuickMatch(DEFAULT_CTA_TC)}
+          >
+            Play Now — Blitz 5+0
+          </button>
+
+          {/* Live badge */}
+          {liveCount !== null && (
+            <div className="home-live-row">
               <span className="home-live-badge">
                 <span className="home-live-dot" />
                 {liveCount} game{liveCount !== 1 ? 's' : ''} in progress
               </span>
-            )}
-          </p>
-          {user && (
-            <p className="home-welcome">Welcome back, <strong>{displayName}</strong></p>
+              {!user && (
+                <button className="home-login-link" onClick={() => onTabClick(5)}>
+                  Sign in for rated play →
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Rating bar — logged in users only */}
+          {ratingCats.length > 0 && (
+            <div className="home-rating-bar">
+              {ratingCats.map(c => {
+                const r = myRatings[c.key];
+                return (
+                  <div key={c.key} className="home-rating-chip">
+                    <span className="home-rating-chip-cat">{c.label}</span>
+                    <span className="home-rating-chip-val">{r.rating}</span>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
 
-        {/* ── Quick play ── */}
+        {/* ── Quick play TC grid ── */}
         <div className="home-section">
-          <div className="home-section-label">
-            Quick Play — Online Matchmaking
-          </div>
+          <div className="home-section-label">Quick Play — Online Matchmaking</div>
           <div className="home-tc-grid">
             {QUICK_TCS.map(tc => (
               <button
                 key={tc.display}
                 className="home-tc-btn"
+                style={{ '--tc-accent': tc.accent }}
                 onClick={() => onQuickMatch(tc)}
               >
                 <span className="home-tc-time">{tc.display}</span>
@@ -1033,15 +1088,9 @@ function HomeScreen({ user, onStart, onPlayOnline, onTabClick, onQuickMatch }) {
               <span className="home-tc-cat">All options</span>
             </button>
           </div>
-          {!user && (
-            <p className="home-login-hint">
-              Account required for rated matchmaking.{' '}
-              <button className="home-login-link" onClick={() => onTabClick(5)}>Sign in →</button>
-            </p>
-          )}
         </div>
 
-        {/* ── Pass & Play (no account needed) ── */}
+        {/* ── Local play ── */}
         <div className="home-section">
           <div className="home-section-label">Local Play — No account needed</div>
           <div className="home-local-row">
@@ -1057,6 +1106,13 @@ function HomeScreen({ user, onStart, onPlayOnline, onTabClick, onQuickMatch }) {
               <div>
                 <div className="home-local-title">vs Computer</div>
                 <div className="home-local-desc">10 difficulty levels, offline</div>
+              </div>
+            </button>
+            <button className="home-local-btn" onClick={() => onTabClick(12)}>
+              <span className="home-local-icon">📡</span>
+              <div>
+                <div className="home-local-title">Nearby P2P</div>
+                <div className="home-local-desc">QR handshake, no internet</div>
               </div>
             </button>
           </div>
@@ -1084,7 +1140,7 @@ function HomeScreen({ user, onStart, onPlayOnline, onTabClick, onQuickMatch }) {
           </div>
         </div>
 
-        {/* ── Footer badge ── */}
+        {/* ── Footer ── */}
         <div className="home-footer">
           <span className="home-footer-brand">♟ PG.Chess</span>
           <span className="home-footer-badge">Free · Open · No ads</span>

@@ -18,7 +18,7 @@ const useNotificationStore = create((set, get) => ({
       .limit(50);
 
     const notifs = data || [];
-    set({ notifications: notifs, unreadCount: notifs.filter(n => !n.read).length });
+    set({ notifications: notifs, unreadCount: notifs.filter(n => !n.is_read).length });
   },
 
   // ── Subscribe to new notifications via Realtime ───────────────────────────
@@ -34,7 +34,7 @@ const useNotificationStore = create((set, get) => ({
           const newNotif = payload.new;
           set(state => ({
             notifications: [newNotif, ...state.notifications],
-            unreadCount: state.unreadCount + 1,
+            unreadCount: state.unreadCount + (newNotif.is_read ? 0 : 1),
           }));
         }
       )
@@ -52,10 +52,10 @@ const useNotificationStore = create((set, get) => ({
 
   // ── Mark a single notification as read ───────────────────────────────────
   async markRead(notificationId) {
-    await supabase.from('notifications').update({ read: true }).eq('id', notificationId);
+    await supabase.from('notifications').update({ is_read: true }).eq('id', notificationId);
     set(state => ({
       notifications: state.notifications.map(n =>
-        n.id === notificationId ? { ...n, read: true } : n
+        n.id === notificationId ? { ...n, is_read: true } : n
       ),
       unreadCount: Math.max(0, state.unreadCount - 1),
     }));
@@ -63,10 +63,10 @@ const useNotificationStore = create((set, get) => ({
 
   // ── Mark all as read ──────────────────────────────────────────────────────
   async markAllRead(userId) {
-    await supabase.from('notifications').update({ read: true })
-      .eq('user_id', userId).eq('read', false);
+    await supabase.from('notifications').update({ is_read: true })
+      .eq('user_id', userId).eq('is_read', false);
     set(state => ({
-      notifications: state.notifications.map(n => ({ ...n, read: true })),
+      notifications: state.notifications.map(n => ({ ...n, is_read: true })),
       unreadCount: 0,
     }));
   },

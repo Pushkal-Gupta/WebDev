@@ -95,6 +95,14 @@ const LeaderboardSvg = () => (
   </svg>
 );
 
+const NearbySvg = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="10" cy="10" r="2.5"/>
+    <path d="M5.5 5.5a6.5 6.5 0 0 0 0 9M14.5 5.5a6.5 6.5 0 0 1 0 9"/>
+    <path d="M2.5 2.5a11.5 11.5 0 0 0 0 15M17.5 2.5a11.5 11.5 0 0 1 0 15"/>
+  </svg>
+);
+
 const AccountSvg = () => (
   <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
     <circle cx="10" cy="7" r="3.5"/>
@@ -124,6 +132,7 @@ export default function LeftNav({ activeTab, onTabClick, friendBadge }) {
         <NavItem icon={<ClubsSvg />}        label="Clubs"       active={activeTab === 9}  onClick={() => onTabClick(9)} />
         <NavItem icon={<TournamentSvg />}   label="Tournaments" active={activeTab === 10} onClick={() => onTabClick(10)} />
         <NavItem icon={<LeaderboardSvg />}  label="Leaderboard" active={activeTab === 11} onClick={() => onTabClick(11)} />
+        <NavItem icon={<NearbySvg />}        label="Nearby"      active={activeTab === 12} onClick={() => onTabClick(12)} />
       </ul>
 
       <div className={styles.bottom}>
