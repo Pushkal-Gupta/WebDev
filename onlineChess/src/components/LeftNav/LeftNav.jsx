@@ -1,14 +1,17 @@
 import styles from './LeftNav.module.css';
 import useAuthStore from '../../store/authStore';
 
-function NavItem({ icon, label, active, onClick }) {
+function NavItem({ icon, label, active, onClick, badge }) {
   return (
     <li>
       <button
         className={`${styles.item} ${active ? styles.itemActive : ''}`}
         onClick={onClick}
       >
-        <span className={styles.icon}>{icon}</span>
+        <span className={styles.iconWrap}>
+          {icon}
+          {badge > 0 && <span className={styles.badge}>{badge > 9 ? '9+' : badge}</span>}
+        </span>
         <span className={styles.label}>{label}</span>
       </button>
     </li>
@@ -53,6 +56,15 @@ const SpectateSvg = () => (
   </svg>
 );
 
+const FriendsSvg = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+    <circle cx="7.5" cy="6.5" r="2.5"/>
+    <path d="M2 17c0-3.04 2.46-5.5 5.5-5.5S13 13.96 13 17"/>
+    <path d="M14.5 10a2 2 0 100-4 2 2 0 000 4z"/>
+    <path d="M17.5 17c0-2.21-1.34-3.5-3-3.5"/>
+  </svg>
+);
+
 const PuzzleSvg = () => (
   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M8 3H5a2 2 0 00-2 2v3m5-5a2 2 0 014 0M8 3a2 2 0 014 0m0 0h3a2 2 0 012 2v3M3 8a2 2 0 000 4m0-4v4m0 0v3a2 2 0 002 2h3m-5-5a2 2 0 004 0m-4 0h4m0 0h3a2 2 0 002-2v-3m0 0a2 2 0 000-4m0 4v-4"/>
@@ -66,7 +78,7 @@ const AccountSvg = () => (
   </svg>
 );
 
-export default function LeftNav({ activeTab, onTabClick }) {
+export default function LeftNav({ activeTab, onTabClick, friendBadge }) {
   const { username, user } = useAuthStore();
   const accountLabel = username || (user ? user.email?.split('@')[0] : 'Login');
 
@@ -84,6 +96,7 @@ export default function LeftNav({ activeTab, onTabClick }) {
         <NavItem icon={<OnlineSvg />}   label="Online"   active={activeTab === 4}                    onClick={() => onTabClick(4)} />
         <NavItem icon={<PuzzleSvg />}   label="Puzzles"  active={activeTab === 6}                    onClick={() => onTabClick(6)} />
         <NavItem icon={<SpectateSvg />} label="Spectate" active={activeTab === 7}                    onClick={() => onTabClick(7)} />
+        <NavItem icon={<FriendsSvg />}  label="Friends"  active={activeTab === 8} badge={friendBadge} onClick={() => onTabClick(8)} />
       </ul>
 
       <div className={styles.bottom}>
