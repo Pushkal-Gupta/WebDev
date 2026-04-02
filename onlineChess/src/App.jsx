@@ -23,6 +23,9 @@ import RatingCard from './components/Profile/RatingCard';
 import PuzzlePage from './components/Puzzles/PuzzlePage';
 import SpectateList from './components/Spectate/SpectateList';
 import FriendsPage from './components/Friends/FriendsPage';
+import LeaderboardPage from './components/Leaderboard/LeaderboardPage';
+import TournamentsPage from './components/Tournaments/TournamentsPage';
+import ClubsPage from './components/Clubs/ClubsPage';
 import useNotificationStore from './store/notificationStore';
 import useFriendStore from './store/friendStore';
 import { getBestMove } from './utils/stockfish';
@@ -631,8 +634,15 @@ export default function App() {
                 setShowStrength(true);
               }
             }}
-            onPlayOnline={() => {
+            onPlayOnline={() => executeTabSwitch(4)}
+            onTabClick={handleTabClick}
+            onQuickMatch={(tc) => {
               if (!user) { setShowLogin(true); return; }
+              setOnlineTimeControl({
+                display: tc.display, cat: tc.cat,
+                total: tc.total, incr: tc.incr,
+                initialTime: tc.total, increment: tc.incr,
+              });
               executeTabSwitch(4);
             }}
           />
@@ -651,7 +661,17 @@ export default function App() {
               if (mode === 'local') { initGame(); startGame(tc, false, 'black', 4); setActiveTab(1); }
               else if (mode === 'computer') { setPendingTimeControl(tc); setShowStrength(true); }
             }}
-            onPlayOnline={() => { if (!user) { setShowLogin(true); return; } executeTabSwitch(4); }}
+            onPlayOnline={() => executeTabSwitch(4)}
+            onTabClick={handleTabClick}
+            onQuickMatch={(tc) => {
+              if (!user) { setShowLogin(true); return; }
+              setOnlineTimeControl({
+                display: tc.display, cat: tc.cat,
+                total: tc.total, incr: tc.incr,
+                initialTime: tc.total, increment: tc.incr,
+              });
+              executeTabSwitch(4);
+            }}
           />
         )}
 
@@ -686,6 +706,15 @@ export default function App() {
 
         {/* ── Tab 8: Friends ── */}
         {activeTab === 8 && <FriendsPage />}
+
+        {/* ── Tab 9: Clubs ── */}
+        {activeTab === 9 && <ClubsPage />}
+
+        {/* ── Tab 10: Tournaments ── */}
+        {activeTab === 10 && <TournamentsPage />}
+
+        {/* ── Tab 11: Leaderboard ── */}
+        {activeTab === 11 && <LeaderboardPage />}
 
         {/* ── Tab 5: Account ── */}
         {activeTab === 5 && !user && (
@@ -924,67 +953,143 @@ function GameSetupPanel({ mode, user, onStart, onCancel }) {
 }
 
 // ─── Home screen ─────────────────────────────────────────────────────────────
-function HomeScreen({ user, onStart, onPlayOnline }) {
-  const [selectedMode, setSelectedMode] = useState(null);
+
+const QUICK_TCS = [
+  { display: '1+0',   cat: 'Bullet',    total: 60,   incr: 0,  catKey: 'bullet'    },
+  { display: '3+0',   cat: 'Blitz',     total: 180,  incr: 0,  catKey: 'blitz'     },
+  { display: '5+0',   cat: 'Blitz',     total: 300,  incr: 0,  catKey: 'blitz'     },
+  { display: '10+0',  cat: 'Rapid',     total: 600,  incr: 0,  catKey: 'rapid'     },
+  { display: '15+10', cat: 'Rapid',     total: 900,  incr: 10, catKey: 'rapid'     },
+  { display: '30+0',  cat: 'Classical', total: 1800, incr: 0,  catKey: 'classical' },
+];
+
+const FEATURE_CARDS = [
+  { icon: '♟', title: 'vs Computer',  desc: '10 difficulty levels',       tab: 3,  accent: '#a78bfa' },
+  { icon: '⚡', title: 'Puzzles',      desc: 'Train your tactics',         tab: 6,  accent: '#fbbf24' },
+  { icon: '📊', title: 'Analysis',     desc: 'Review & explore games',     tab: 2,  accent: '#34d399' },
+  { icon: '🏆', title: 'Tournaments',  desc: 'Swiss & arena events',       tab: 10, accent: '#f97316' },
+  { icon: '🤝', title: 'Clubs',        desc: 'Join a chess community',     tab: 9,  accent: '#fb923c' },
+  { icon: '👁', title: 'Watch',        desc: 'Live games in progress',     tab: 7,  accent: '#38bdf8' },
+  { icon: '📈', title: 'Leaderboard',  desc: 'Top rated players',          tab: 11, accent: '#e879f9' },
+  { icon: '🫂', title: 'Friends',      desc: 'Connect & challenge',        tab: 8,  accent: '#4ade80' },
+];
+
+function HomeScreen({ user, onStart, onPlayOnline, onTabClick, onQuickMatch }) {
+  const [liveCount, setLiveCount] = useState(null);
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0];
+
+  useEffect(() => {
+    supabase
+      .from('chess_rooms')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'playing')
+      .then(({ count }) => setLiveCount(count ?? 0));
+  }, []);
 
   return (
     <div className="home-screen">
-      <div className="home-layout">
-        {/* ── Left: hero + mode selector ── */}
-        <div className="home-left">
-          <div className="home-hero">
-            <div className="home-hero-deco">♚</div>
-            <h1 className="home-hero-title">Play <span>Chess</span></h1>
-            <p className="home-hero-sub">
-              {user ? `Welcome back, ${displayName}` : 'Sharpen your game'}
-            </p>
-          </div>
+      <div className="home-body">
 
-          <div className="home-mode-tabs">
-            {MODES.map(m => (
+        {/* ── Hero ── */}
+        <div className="home-hero-wrap">
+          <div className="home-king-deco">♚</div>
+          <h1 className="home-title">
+            Play Chess.<br />
+            <span className="home-title-accent">Free.</span>{' '}
+            <span className="home-title-muted">No account needed.</span>
+          </h1>
+          <p className="home-tagline">
+            No ads. No paywalls. Open to everyone.
+            {liveCount !== null && (
+              <span className="home-live-badge">
+                <span className="home-live-dot" />
+                {liveCount} game{liveCount !== 1 ? 's' : ''} in progress
+              </span>
+            )}
+          </p>
+          {user && (
+            <p className="home-welcome">Welcome back, <strong>{displayName}</strong></p>
+          )}
+        </div>
+
+        {/* ── Quick play ── */}
+        <div className="home-section">
+          <div className="home-section-label">
+            Quick Play — Online Matchmaking
+          </div>
+          <div className="home-tc-grid">
+            {QUICK_TCS.map(tc => (
               <button
-                key={m.key}
-                className={`home-mode-tab ${selectedMode === m.key ? 'home-mode-tab-active' : ''}`}
-                onClick={() => {
-                  if (m.key === 'online') { onPlayOnline(); return; }
-                  setSelectedMode(selectedMode === m.key ? null : m.key);
-                }}
+                key={tc.display}
+                className="home-tc-btn"
+                onClick={() => onQuickMatch(tc)}
               >
-                <span className="home-mode-tab-icon">{m.icon}</span>
-                <span className="home-mode-tab-text">
-                  <span className="home-mode-tab-title">{m.title}</span>
-                  <span className="home-mode-tab-desc">{m.desc}</span>
-                </span>
-                {m.key !== 'online' && <span className="home-mode-tab-arrow">›</span>}
+                <span className="home-tc-time">{tc.display}</span>
+                <span className="home-tc-cat">{tc.cat}</span>
+              </button>
+            ))}
+            <button className="home-tc-btn home-tc-custom" onClick={onPlayOnline}>
+              <span className="home-tc-time">Custom</span>
+              <span className="home-tc-cat">All options</span>
+            </button>
+          </div>
+          {!user && (
+            <p className="home-login-hint">
+              Account required for rated matchmaking.{' '}
+              <button className="home-login-link" onClick={() => onTabClick(5)}>Sign in →</button>
+            </p>
+          )}
+        </div>
+
+        {/* ── Pass & Play (no account needed) ── */}
+        <div className="home-section">
+          <div className="home-section-label">Local Play — No account needed</div>
+          <div className="home-local-row">
+            <button className="home-local-btn" onClick={() => onStart('local', { initialTime: 300, increment: 0, noTimer: false })}>
+              <span className="home-local-icon">♞</span>
+              <div>
+                <div className="home-local-title">Pass &amp; Play</div>
+                <div className="home-local-desc">Two players, one device</div>
+              </div>
+            </button>
+            <button className="home-local-btn" onClick={() => onTabClick(3)}>
+              <span className="home-local-icon">♛</span>
+              <div>
+                <div className="home-local-title">vs Computer</div>
+                <div className="home-local-desc">10 difficulty levels, offline</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* ── Feature grid ── */}
+        <div className="home-section">
+          <div className="home-section-label">Explore</div>
+          <div className="home-feat-grid">
+            {FEATURE_CARDS.map(f => (
+              <button
+                key={f.tab}
+                className="home-feat-card"
+                style={{ '--feat-accent': f.accent }}
+                onClick={() => onTabClick(f.tab)}
+              >
+                <span className="home-feat-icon">{f.icon}</span>
+                <div className="home-feat-text">
+                  <div className="home-feat-title">{f.title}</div>
+                  <div className="home-feat-desc">{f.desc}</div>
+                </div>
+                <span className="home-feat-arrow">›</span>
               </button>
             ))}
           </div>
         </div>
 
-        {/* ── Right: setup panel or welcome ── */}
-        <div className="home-right">
-          {selectedMode ? (
-            <GameSetupPanel
-              mode={selectedMode}
-              user={user}
-              onStart={(tc) => onStart(selectedMode, tc)}
-              onCancel={() => setSelectedMode(null)}
-            />
-          ) : (
-            <div className="home-welcome-panel">
-              <div className="home-welcome-icon">♟</div>
-              <div className="home-welcome-text">
-                {user
-                  ? 'Select a mode to start a game'
-                  : 'Choose a game mode on the left to get started'}
-              </div>
-              <button className="home-play-online-btn" onClick={onPlayOnline}>
-                Play Online Now
-              </button>
-            </div>
-          )}
+        {/* ── Footer badge ── */}
+        <div className="home-footer">
+          <span className="home-footer-brand">♟ PG.Chess</span>
+          <span className="home-footer-badge">Free · Open · No ads</span>
         </div>
+
       </div>
     </div>
   );

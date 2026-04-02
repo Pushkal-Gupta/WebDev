@@ -196,7 +196,7 @@ function FindTab({ userId }) {
     setQuery(val);
     clearTimeout(debounceRef.current);
     if (!val.trim()) { clearSearch(); return; }
-    debounceRef.current = setTimeout(() => searchPlayers(val, userId), 300);
+    debounceRef.current = setTimeout(() => searchPlayers(val), 300);
   };
 
   const handleSend = async (targetId) => {

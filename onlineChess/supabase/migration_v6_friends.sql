@@ -157,19 +157,36 @@ CREATE TRIGGER trg_friend_accepted
   AFTER UPDATE ON friendships
   FOR EACH ROW EXECUTE FUNCTION notify_friend_accepted();
 
--- ─── 6. Player search view ────────────────────────────────────
--- A view avoids all RETURNS TABLE output-param name-collision issues.
--- user_ratings already has a public-read RLS policy so this is safe.
--- The client queries this view with .ilike() directly — no RPC needed.
-CREATE INDEX IF NOT EXISTS idx_user_ratings_username
-  ON user_ratings (username text_pattern_ops);
+-- ─── 6. Player search ────────────────────────────────────────
+-- Avoids RETURNS TABLE output-param shadowing by using FOR LOOP + RETURN NEXT
+-- with aliased columns that never share names with the output parameters.
+CREATE OR REPLACE FUNCTION search_players(p_query text, p_limit int DEFAULT 10)
+RETURNS TABLE (user_id uuid, username text, rating integer, games_played integer)
+LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_caller  uuid;
+  v_rec     record;
+BEGIN
+  v_caller := auth.uid();
 
-CREATE OR REPLACE VIEW player_search AS
-  SELECT DISTINCT ON (ur.user_id)
-    ur.user_id,
-    ur.username,
-    ur.rating,
-    ur.games_played
-  FROM user_ratings ur
-  WHERE ur.username IS NOT NULL
-  ORDER BY ur.user_id, ur.rating DESC;
+  FOR v_rec IN
+    SELECT DISTINCT ON (ur.user_id)
+      ur.user_id      AS col_uid,
+      ur.username     AS col_uname,
+      ur.rating       AS col_rating,
+      ur.games_played AS col_gp
+    FROM user_ratings ur
+    WHERE ur.username     ILIKE p_query || '%'
+      AND ur.user_id      IS DISTINCT FROM v_caller
+      AND ur.username     IS NOT NULL
+    ORDER BY ur.user_id, ur.rating DESC
+    LIMIT p_limit
+  LOOP
+    user_id      := v_rec.col_uid;
+    username     := v_rec.col_uname;
+    rating       := v_rec.col_rating;
+    games_played := v_rec.col_gp;
+    RETURN NEXT;
+  END LOOP;
+END;
+$$;
