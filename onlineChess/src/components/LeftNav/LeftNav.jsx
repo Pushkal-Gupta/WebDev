@@ -71,6 +71,30 @@ const PuzzleSvg = () => (
   </svg>
 );
 
+const ClubsSvg = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="10" cy="5" r="2.5"/>
+    <circle cx="4"  cy="14" r="2.5"/>
+    <circle cx="16" cy="14" r="2.5"/>
+    <path d="M10 7.5v2M7.2 12.8L8.5 9.5M12.8 12.8L11.5 9.5"/>
+  </svg>
+);
+
+const TournamentSvg = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 2h8v6a4 4 0 01-8 0V2z"/>
+    <path d="M6 5H3a1 1 0 000 2c0 1.1.9 2 2 2"/>
+    <path d="M14 5h3a1 1 0 010 2c0 1.1-.9 2-2 2"/>
+    <path d="M10 12v4M7 18h6"/>
+  </svg>
+);
+
+const LeaderboardSvg = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10 2l2.09 4.26L17 7.27l-3.5 3.41.83 4.82L10 13.27l-4.33 2.23.83-4.82L3 7.27l4.91-.71L10 2z"/>
+  </svg>
+);
+
 const AccountSvg = () => (
   <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
     <circle cx="10" cy="7" r="3.5"/>
@@ -96,7 +120,10 @@ export default function LeftNav({ activeTab, onTabClick, friendBadge }) {
         <NavItem icon={<OnlineSvg />}   label="Online"   active={activeTab === 4}                    onClick={() => onTabClick(4)} />
         <NavItem icon={<PuzzleSvg />}   label="Puzzles"  active={activeTab === 6}                    onClick={() => onTabClick(6)} />
         <NavItem icon={<SpectateSvg />} label="Spectate" active={activeTab === 7}                    onClick={() => onTabClick(7)} />
-        <NavItem icon={<FriendsSvg />}  label="Friends"  active={activeTab === 8} badge={friendBadge} onClick={() => onTabClick(8)} />
+        <NavItem icon={<FriendsSvg />}      label="Friends"     active={activeTab === 8} badge={friendBadge} onClick={() => onTabClick(8)} />
+        <NavItem icon={<ClubsSvg />}        label="Clubs"       active={activeTab === 9}  onClick={() => onTabClick(9)} />
+        <NavItem icon={<TournamentSvg />}   label="Tournaments" active={activeTab === 10} onClick={() => onTabClick(10)} />
+        <NavItem icon={<LeaderboardSvg />}  label="Leaderboard" active={activeTab === 11} onClick={() => onTabClick(11)} />
       </ul>
 
       <div className={styles.bottom}>
