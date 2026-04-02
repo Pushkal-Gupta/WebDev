@@ -120,6 +120,14 @@
 .feedbackSolved { color: #6fdc8c; }
 .feedbackFailed { color: #ff7875; }
 
+.emptyMsg {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.32);
+  text-align: center;
+  line-height: 1.6;
+  padding: 8px 4px;
+}
+
 /* ── Feedback flash ───────────────────────────────────────────────────────── */
 
 .flash {

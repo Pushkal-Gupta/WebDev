@@ -11,8 +11,7 @@ import { CLASSIFICATIONS, reviewGame } from '../../utils/reviewEngine';
 function evalToWhitePct(score) {
   if (score > 9000) return 99;
   if (score < -9000) return 1;
-  const pct = 50 + 50 * Math.tanh(score / 400);
-  return Math.max(1, Math.min(99, pct));
+  return Math.max(1, Math.min(99, 50 + 50 * Math.tanh(score / 400)));
 }
 
 function formatEval(score) {
@@ -21,7 +20,6 @@ function formatEval(score) {
   return (score >= 0 ? '+' : '') + (score / 100).toFixed(1);
 }
 
-// Returns top-n candidate moves with scores (shallow, single-ply look-ahead)
 function getTopMoves(fen, n = 3) {
   try {
     const chess = new Chess(fen);
@@ -30,32 +28,43 @@ function getTopMoves(fen, n = 3) {
     if (!moves.length) return [];
     const isMax = chess.turn() === 'w';
     const scored = moves.map(m => {
-      chess.move(m);
-      const score = getPositionScore(chess.fen(), 1);
-      chess.undo();
-      return { san: m.san, from: m.from, to: m.to, score };
+      chess.move(m); const score = getPositionScore(chess.fen(), 1); chess.undo();
+      return { san: m.san, score };
     });
     scored.sort((a, b) => isMax ? b.score - a.score : a.score - b.score);
     return scored.slice(0, n);
-  } catch {
-    return [];
-  }
+  } catch { return []; }
+}
+
+// Try loading PGN — attempts normalization if raw parse fails
+function tryLoadPgn(pgnStr) {
+  const chess = new Chess();
+  // Attempt 1: raw
+  try { chess.loadPgn(pgnStr); return chess; } catch {}
+  // Attempt 2: strip headers + normalize spaces around move numbers
+  try {
+    const stripped = pgnStr.replace(/\[.*?\]\s*/gs, '').trim();
+    const spaced   = stripped.replace(/(\d+)\./g, ' $1. ').replace(/\s+/g, ' ').trim();
+    chess.loadPgn(spaced);
+    return chess;
+  } catch {}
+  // Attempt 3: treat as FEN
+  try { const c = new Chess(pgnStr.trim()); return c; } catch {}
+  return null;
 }
 
 const ACC_WEIGHTS = { brilliant: 100, best: 100, good: 85, inaccuracy: 65, mistake: 40, blunder: 10 };
 
 function calcAccuracy(reviewResults, moveHistory, color) {
-  if (!reviewResults || !moveHistory.length) return null;
-  const playerResults = reviewResults.filter((_, i) => moveHistory[i]?.color === color);
-  if (!playerResults.length) return null;
-  const sum = playerResults.reduce((s, r) => s + (ACC_WEIGHTS[r.classification] ?? 50), 0);
-  return Math.round(sum / playerResults.length);
+  if (!reviewResults?.length) return null;
+  const results = reviewResults.filter((_, i) => moveHistory[i]?.color === color);
+  if (!results.length) return null;
+  return Math.round(results.reduce((s, r) => s + (ACC_WEIGHTS[r.classification] ?? 50), 0) / results.length);
 }
 
-function buildPlayerCounts(reviewResults, moveHistory, color) {
-  if (!reviewResults) return {};
+function buildCounts(reviewResults, moveHistory, color) {
   const counts = {};
-  reviewResults.forEach((r, i) => {
+  reviewResults?.forEach((r, i) => {
     if (moveHistory[i]?.color !== color) return;
     counts[r.classification] = (counts[r.classification] || 0) + 1;
   });
@@ -65,130 +74,35 @@ function buildPlayerCounts(reviewResults, moveHistory, color) {
 // ── Eval Graph ────────────────────────────────────────────────────────────────
 
 function EvalGraph({ data, currentIdx, onSeek }) {
-  const W = 400;
-  const H = 56;
-  const pad = 1;
-  const usableW = W - pad * 2;
-  const usableH = H - pad * 2;
-
-  const evalToY = (score) => {
-    const pct = evalToWhitePct(score) / 100;
-    return pad + usableH * (1 - pct);
+  const W = 400, H = 48, pad = 1;
+  const evalToY = s => pad + (H - pad * 2) * (1 - evalToWhitePct(s) / 100);
+  const pts = data.map((s, i) => [
+    data.length > 1 ? pad + (i / (data.length - 1)) * (W - pad * 2) : W / 2,
+    evalToY(s),
+  ]);
+  const pathD = pts.length > 1 ? 'M ' + pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' L ') : null;
+  const fillD = pathD ? `${pathD} L ${pts.at(-1)[0].toFixed(1)},${H / 2} L ${pts[0][0].toFixed(1)},${H / 2} Z` : null;
+  const curX  = currentIdx >= 0 && currentIdx < data.length ? pts[currentIdx][0] : null;
+  const handleClick = e => {
+    const r = e.currentTarget.getBoundingClientRect();
+    onSeek(Math.max(0, Math.min(data.length - 1, Math.round(((e.clientX - r.left) / r.width) * (data.length - 1)))));
   };
-
-  const pts = data.map((score, i) => {
-    const x = data.length > 1 ? pad + (i / (data.length - 1)) * usableW : W / 2;
-    return [x, evalToY(score)];
-  });
-
-  const pathD = pts.length > 1
-    ? 'M ' + pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' L ')
-    : null;
-
-  // White area (above center)
-  const whiteFillD = pathD
-    ? `${pathD} L ${pts[pts.length - 1][0].toFixed(1)},${H / 2} L ${pts[0][0].toFixed(1)},${H / 2} Z`
-    : null;
-  // Black area (below center)
-  const blackFillD = pathD
-    ? `${pathD} L ${pts[pts.length - 1][0].toFixed(1)},${H / 2} L ${pts[0][0].toFixed(1)},${H / 2} Z`
-    : null;
-
-  const curX = currentIdx >= 0 && currentIdx < data.length
-    ? pts[currentIdx][0]
-    : null;
-
-  const handleClick = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const ratio = (e.clientX - rect.left) / rect.width;
-    const idx = Math.round(ratio * (data.length - 1));
-    onSeek(Math.max(0, Math.min(data.length - 1, idx)));
-  };
-
   return (
-    <svg
-      className={styles.evalGraph}
-      viewBox={`0 0 ${W} ${H}`}
-      preserveAspectRatio="none"
-      onClick={handleClick}
-      title="Click to jump to that position"
-    >
-      {/* Background */}
-      <rect x={0} y={0} width={W} height={H} fill="rgba(0,0,0,0.2)" />
-      {/* White region (upper half) */}
-      <rect x={0} y={0} width={W} height={H / 2} fill="rgba(255,255,255,0.03)" />
-      {/* Center line */}
-      <line x1={0} y1={H / 2} x2={W} y2={H / 2} stroke="rgba(255,255,255,0.12)" strokeWidth={0.8} />
-      {/* White advantage fill */}
-      {whiteFillD && (
-        <clipPath id="upperHalf">
-          <rect x={0} y={0} width={W} height={H / 2} />
-        </clipPath>
+    <svg className={styles.evalGraph} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" onClick={handleClick}>
+      <rect x={0} y={0} width={W} height={H} fill="rgba(0,0,0,0.3)" />
+      <line x1={0} y1={H/2} x2={W} y2={H/2} stroke="rgba(255,255,255,0.1)" strokeWidth={0.8} />
+      {fillD && (
+        <>
+          <clipPath id="ug"><rect x={0} y={0} width={W} height={H/2} /></clipPath>
+          <clipPath id="lg"><rect x={0} y={H/2} width={W} height={H/2} /></clipPath>
+          <path d={fillD} fill="rgba(220,220,220,0.2)" clipPath="url(#ug)" />
+          <path d={fillD} fill="rgba(20,20,20,0.5)"   clipPath="url(#lg)" />
+        </>
       )}
-      {whiteFillD && <path d={whiteFillD} fill="rgba(230,230,230,0.18)" clipPath="url(#upperHalf)" />}
-      {/* Black advantage fill */}
-      {blackFillD && (
-        <clipPath id="lowerHalf">
-          <rect x={0} y={H / 2} width={W} height={H / 2} />
-        </clipPath>
-      )}
-      {blackFillD && <path d={blackFillD} fill="rgba(30,30,30,0.4)" clipPath="url(#lowerHalf)" />}
-      {/* Eval line */}
-      {pathD && (
-        <path d={pathD} fill="none" stroke="rgba(0,255,245,0.7)" strokeWidth={1.5} strokeLinejoin="round" />
-      )}
-      {/* Current position marker */}
-      {curX !== null && (
-        <line
-          x1={curX} y1={pad}
-          x2={curX} y2={H - pad}
-          stroke="rgba(255,255,255,0.6)"
-          strokeWidth={1}
-          strokeDasharray="2 2"
-        />
-      )}
-      {/* Current position dot */}
-      {curX !== null && currentIdx >= 0 && currentIdx < data.length && (
-        <circle
-          cx={curX}
-          cy={evalToY(data[currentIdx])}
-          r={2.5}
-          fill="#00fff5"
-        />
-      )}
+      {pathD && <path d={pathD} fill="none" stroke="rgba(0,255,245,0.65)" strokeWidth={1.5} strokeLinejoin="round" />}
+      {curX !== null && <line x1={curX} y1={pad} x2={curX} y2={H-pad} stroke="rgba(255,255,255,0.55)" strokeWidth={1} strokeDasharray="2 2" />}
+      {curX !== null && <circle cx={curX} cy={evalToY(data[currentIdx])} r={2.5} fill="#00fff5" />}
     </svg>
-  );
-}
-
-// ── Accuracy Bar ─────────────────────────────────────────────────────────────
-
-function AccuracyRow({ color, name, accuracy, counts }) {
-  const acc = accuracy ?? '—';
-  const accColor = accuracy >= 85 ? '#3ddc84' : accuracy >= 65 ? '#f0c94c' : '#e05555';
-  return (
-    <div className={styles.accRow}>
-      <div className={styles.accLeft}>
-        <span className={`${styles.accDot} ${color === 'w' ? styles.accDotW : styles.accDotB}`} />
-        <span className={styles.accName}>{name}</span>
-      </div>
-      <div className={styles.accRight}>
-        {accuracy !== null && (
-          <span className={styles.accPct} style={{ color: accColor }}>{acc}%</span>
-        )}
-        <div className={styles.accBadges}>
-          {Object.entries(CLASSIFICATIONS).map(([key, cls]) => {
-            const count = counts?.[key];
-            if (!count) return null;
-            return (
-              <span key={key} className={styles.accBadge} title={`${cls.label}: ${count}`}>
-                <span style={{ color: cls.color }}>{cls.symbol}</span>
-                <span className={styles.accBadgeCount}>{count}</span>
-              </span>
-            );
-          })}
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -200,334 +114,184 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
     chessInstance, importPgn, setDisableBoard, flipped, setFlipped,
   } = useGameStore();
 
-  const [currentEval, setCurrentEval]     = useState(0);
-  const [engineLines, setEngineLines]     = useState([]);
-  const [engineBusy, setEngineBusy]       = useState(false);
-  const [reviewResults, setReviewResults] = useState(null);
-  const [isReviewing, setIsReviewing]     = useState(false);
+  const [currentEval, setCurrentEval]       = useState(0);
+  const [engineLines, setEngineLines]       = useState([]);
+  const [engineBusy, setEngineBusy]         = useState(false);
+  const [reviewResults, setReviewResults]   = useState(null);
+  const [isReviewing, setIsReviewing]       = useState(false);
   const [reviewProgress, setReviewProgress] = useState({ current: 0, total: 0 });
-  const [pgnInput, setPgnInput]           = useState('');
-  const [showPgnInput, setShowPgnInput]   = useState(false);
-  const [gameLoaded, setGameLoaded]       = useState(false);
-  const [evalHistory, setEvalHistory]     = useState([]);   // white-relative score per move idx
-  const [pgnHeaders, setPgnHeaders]       = useState({});   // { White, Black, Event, Opening }
+  const [pgnInput, setPgnInput]             = useState('');
+  const [pgnError, setPgnError]             = useState('');
+  const [gameLoaded, setGameLoaded]         = useState(false);
+  const [evalHistory, setEvalHistory]       = useState([]);
+  const [pgnHeaders, setPgnHeaders]         = useState({});
 
   const evalTimerRef = useRef(null);
   const moveListRef  = useRef(null);
+  const fileRef      = useRef(null);
 
-  // Keep board non-interactive during analysis
-  useEffect(() => {
-    if (gameLoaded) setDisableBoard(true);
-  }, [gameLoaded, currentMoveIndex]);
+  useEffect(() => { if (gameLoaded) setDisableBoard(true); }, [gameLoaded, currentMoveIndex]);
 
-  // Load PGN headers on game load
   useEffect(() => {
     if (!chessInstance || !gameLoaded) return;
-    try {
-      const h = chessInstance.header?.() || {};
-      setPgnHeaders(h);
-    } catch {
-      setPgnHeaders({});
-    }
-    // Reset eval history on new game
+    try { setPgnHeaders(chessInstance.header?.() || {}); } catch { setPgnHeaders({}); }
     setEvalHistory([]);
   }, [gameLoaded]);
 
-  // Compute engine lines + track eval history when position changes
   useEffect(() => {
     if (!chessInstance || !gameLoaded) return;
-
-    if (evalTimerRef.current) clearTimeout(evalTimerRef.current);
+    clearTimeout(evalTimerRef.current);
     setEngineBusy(true);
-
     evalTimerRef.current = setTimeout(() => {
       try {
         const fen = currentMoveIndex >= 0 && moveHistory[currentMoveIndex]
-          ? moveHistory[currentMoveIndex].fen
-          : chessInstance.fen();
-
+          ? moveHistory[currentMoveIndex].fen : chessInstance.fen();
         const lines = getTopMoves(fen, 3);
-        const evalScore = lines.length > 0 ? lines[0].score : getPositionScore(fen, 1);
-
+        const ev    = lines.length > 0 ? lines[0].score : getPositionScore(fen, 1);
         setEngineLines(lines);
-        setCurrentEval(evalScore);
-
-        // Store eval at this index for the graph
+        setCurrentEval(ev);
         if (currentMoveIndex >= 0) {
-          setEvalHistory(prev => {
-            const next = [...prev];
-            next[currentMoveIndex] = evalScore;
-            return next;
-          });
+          setEvalHistory(prev => { const n = [...prev]; n[currentMoveIndex] = ev; return n; });
         }
-      } catch {
-        // ignore
-      } finally {
-        setEngineBusy(false);
-      }
+      } catch {} finally { setEngineBusy(false); }
     }, 200);
-
     return () => clearTimeout(evalTimerRef.current);
   }, [currentMoveIndex, gameLoaded, chessInstance]);
 
-  // Auto-scroll move list to active move
   useEffect(() => {
     if (!moveListRef.current) return;
-    const el = moveListRef.current.querySelector('[data-active="true"]');
-    if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    moveListRef.current.querySelector('[data-active="true"]')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }, [currentMoveIndex]);
 
-  // Keyboard navigation
   useEffect(() => {
     if (!gameLoaded) return;
-    const onKey = (e) => {
-      if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') return;
+    const onKey = e => {
+      if (['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)) return;
       if (e.key === 'ArrowLeft')  goToMove(currentMoveIndex - 1);
-      else if (e.key === 'ArrowRight') goToMove(currentMoveIndex + 1);
-      else if (e.key === 'ArrowUp')    goToMove(-1);
-      else if (e.key === 'ArrowDown')  goToMove(moveHistory.length - 1);
+      if (e.key === 'ArrowRight') goToMove(currentMoveIndex + 1);
+      if (e.key === 'ArrowUp')    goToMove(-1);
+      if (e.key === 'ArrowDown')  goToMove(moveHistory.length - 1);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [gameLoaded, currentMoveIndex, moveHistory.length]);
 
-  // ── Handlers ────────────────────────────────────────────────────────────────
+  // ── Handlers ─────────────────────────────────────────────────────────────────
 
-  const handleLoadPgn = () => {
-    if (!pgnInput.trim()) return;
-    const ok = importPgn(pgnInput.trim());
+  const doLoad = (pgnStr) => {
+    setPgnError('');
+    if (!pgnStr.trim()) { setPgnError('Paste a PGN or FEN first.'); return; }
+    // Try normalizing before passing to store's importPgn
+    const chess = tryLoadPgn(pgnStr);
+    if (!chess) { setPgnError('Could not parse PGN. Check the format and try again.'); return; }
+    // Re-export clean PGN so importPgn always gets valid input
+    const cleanPgn = chess.pgn() || pgnStr;
+    const ok = importPgn(cleanPgn || pgnStr);
     if (ok) {
       setGameLoaded(true);
       setReviewResults(null);
-      setShowPgnInput(false);
       setPgnInput('');
       setDisableBoard(true);
+    } else {
+      setPgnError('Failed to load game. Check PGN format.');
     }
   };
 
   const handleLoadGame = (game) => {
     if (!game.pgnStr) return;
-    const ok = importPgn(game.pgnStr);
-    if (ok) {
-      setGameLoaded(true);
-      setReviewResults(null);
-      setDisableBoard(true);
-    }
+    doLoad(game.pgnStr);
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = evt => { setPgnInput(evt.target.result); };
+    reader.readAsText(file);
+    e.target.value = '';
   };
 
   const handleReview = async () => {
     if (!moveHistory.length) return;
-    setIsReviewing(true);
-    setReviewResults(null);
+    setIsReviewing(true); setReviewResults(null);
     setReviewProgress({ current: 0, total: moveHistory.length });
     try {
-      const results = await reviewGame(moveHistory, (current, total) => {
-        setReviewProgress({ current, total });
-      });
+      const results = await reviewGame(moveHistory, (current, total) => setReviewProgress({ current, total }));
       setReviewResults(results);
-    } finally {
-      setIsReviewing(false);
-      setReviewProgress({ current: 0, total: 0 });
-    }
+    } finally { setIsReviewing(false); setReviewProgress({ current: 0, total: 0 }); }
   };
 
-  const handleBackToGames = () => {
-    setGameLoaded(false);
-    setReviewResults(null);
-    setEngineLines([]);
-    setCurrentEval(0);
-    setEvalHistory([]);
-    setPgnHeaders({});
+  const handleNewGame = () => {
+    setGameLoaded(false); setReviewResults(null);
+    setEngineLines([]); setCurrentEval(0);
+    setEvalHistory([]); setPgnHeaders({}); setPgnError('');
   };
 
-  // ── Build move table ─────────────────────────────────────────────────────────
+  // ── Derived ───────────────────────────────────────────────────────────────────
 
   const moveRows = [];
   for (let i = 0; i < moveHistory.length; i += 2) {
-    moveRows.push({
-      number:   Math.floor(i / 2) + 1,
-      white:    moveHistory[i],       whiteIdx: i,
-      black:    moveHistory[i + 1] || null, blackIdx: i + 1,
-    });
+    moveRows.push({ number: Math.floor(i/2)+1, white: moveHistory[i], whiteIdx: i, black: moveHistory[i+1]||null, blackIdx: i+1 });
   }
 
-  // Eval graph data — white-relative scores from evalHistory or reviewResults
   const graphData = (() => {
-    if (reviewResults && reviewResults.length) {
-      return reviewResults.map((r, i) => {
-        const isWhite = moveHistory[i]?.color === 'w';
-        return isWhite ? r.playedScore : -r.playedScore;
-      });
+    if (reviewResults?.length) {
+      return reviewResults.map((r, i) => moveHistory[i]?.color === 'w' ? r.playedScore : -r.playedScore);
     }
-    // Live evals from navigation history
     if (evalHistory.some(v => v !== undefined)) {
       const out = [];
       for (let i = 0; i < moveHistory.length; i++) {
-        if (evalHistory[i] !== undefined) out.push(evalHistory[i]);
-        else break; // stop at first gap
+        if (evalHistory[i] !== undefined) out.push(evalHistory[i]); else break;
       }
       return out.length > 1 ? out : [];
     }
     return [];
   })();
 
-  const whitePct = evalToWhitePct(currentEval);
+  const whitePct      = evalToWhitePct(currentEval);
+  const whiteAcc      = calcAccuracy(reviewResults, moveHistory, 'w');
+  const blackAcc      = calcAccuracy(reviewResults, moveHistory, 'b');
+  const whiteCounts   = buildCounts(reviewResults, moveHistory, 'w');
+  const blackCounts   = buildCounts(reviewResults, moveHistory, 'b');
+  const topName       = flipped ? (pgnHeaders.White || 'White') : (pgnHeaders.Black || 'Black');
+  const bottomName    = flipped ? (pgnHeaders.Black || 'Black') : (pgnHeaders.White || 'White');
+  const topColor      = flipped ? 'w' : 'b';
+  const botColor      = flipped ? 'b' : 'w';
+  const topAcc        = topColor === 'w' ? whiteAcc : blackAcc;
+  const botAcc        = botColor === 'w' ? whiteAcc : blackAcc;
+  const topCounts     = topColor === 'w' ? whiteCounts : blackCounts;
+  const botCounts     = botColor === 'w' ? whiteCounts : blackCounts;
+  const openingName   = pgnHeaders.Opening || pgnHeaders.ECO || null;
 
-  // Player data
-  const whitePlayerName = pgnHeaders.White || 'White';
-  const blackPlayerName = pgnHeaders.Black || 'Black';
-  const openingName     = pgnHeaders.Opening || pgnHeaders.ECO || null;
-
-  const topName    = flipped ? whitePlayerName : blackPlayerName;
-  const bottomName = flipped ? blackPlayerName : whitePlayerName;
-  const topColor   = flipped ? 'w' : 'b';
-  const botColor   = flipped ? 'b' : 'w';
-
-  const whiteAcc   = calcAccuracy(reviewResults, moveHistory, 'w');
-  const blackAcc   = calcAccuracy(reviewResults, moveHistory, 'b');
-  const topAcc     = topColor === 'w' ? whiteAcc : blackAcc;
-  const botAcc     = botColor === 'w' ? whiteAcc : blackAcc;
-  const whiteCounts = buildPlayerCounts(reviewResults, moveHistory, 'w');
-  const blackCounts = buildPlayerCounts(reviewResults, moveHistory, 'b');
-
-  // ── Games list (no game loaded) ──────────────────────────────────────────────
-
-  if (!gameLoaded) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <span className={styles.title}>Game Analysis</span>
-          <div className={styles.headerActions}>
-            <button className={styles.headerBtn} onClick={() => setShowPgnInput(v => !v)}>
-              {showPgnInput ? 'Cancel' : 'Load PGN'}
-            </button>
-          </div>
-        </div>
-
-        {showPgnInput && (
-          <div className={styles.pgnInputArea}>
-            <textarea
-              className={styles.pgnTextarea}
-              value={pgnInput}
-              onChange={e => setPgnInput(e.target.value)}
-              placeholder="Paste PGN here…"
-              rows={5}
-            />
-            <button className={styles.loadBtn} onClick={handleLoadPgn}>Analyse →</button>
-          </div>
-        )}
-
-        <div className={styles.gamesList}>
-          {gamesLoading && <p className={styles.empty}>Loading games…</p>}
-          {!gamesLoading && savedGames.length === 0 && !showPgnInput && (
-            <p className={styles.empty}>No saved games yet. Play some, or load a PGN above.</p>
-          )}
-          {savedGames.map((game, i) => (
-            <div key={i} className={styles.gameCard} onClick={() => handleLoadGame(game)}>
-              <div className={styles.gameCardTop}>
-                <span className={`${styles.colorDot} ${game.color === 'white' ? styles.white : styles.black}`} />
-                <span className={styles.gameVs}>
-                  {game.color === 'white' ? 'You (W)' : 'You (B)'} vs {game.opponent || 'Opponent'}
-                </span>
-                {game.result && (
-                  <span className={`${styles.resultBadge} ${styles[game.result]}`}>{game.result}</span>
-                )}
-              </div>
-              <div className={styles.gamePgn}>{(game.pgnStr || '').slice(0, 72)}…</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // ── Analysis view (game loaded) ──────────────────────────────────────────────
+  // ── Render ────────────────────────────────────────────────────────────────────
 
   return (
-    <div className={styles.container}>
-      {/* Header */}
-      <div className={styles.header}>
-        <button className={styles.backBtn} onClick={handleBackToGames}>← Games</button>
-        <div className={styles.titleGroup}>
-          <span className={styles.title}>Analysis</span>
-          {openingName && <span className={styles.opening}>{openingName}</span>}
-        </div>
-        <div className={styles.headerActions}>
-          <button className={styles.headerBtn} onClick={() => setFlipped(!flipped)}>⇅</button>
-          <button
-            className={`${styles.headerBtn} ${reviewResults ? styles.headerBtnDone : ''}`}
-            onClick={handleReview}
-            disabled={isReviewing || !moveHistory.length}
-          >
-            {isReviewing
-              ? `${reviewProgress.current}/${reviewProgress.total}`
-              : reviewResults ? '✓ Re-review' : 'Review'}
-          </button>
-          <button className={styles.headerBtn} onClick={() => setShowPgnInput(v => !v)}>PGN</button>
-        </div>
-      </div>
+    <div className={styles.page}>
 
-      {/* PGN import */}
-      {showPgnInput && (
-        <div className={styles.pgnInputArea}>
-          <textarea
-            className={styles.pgnTextarea}
-            value={pgnInput}
-            onChange={e => setPgnInput(e.target.value)}
-            placeholder="Paste PGN to load a new game…"
-            rows={4}
-          />
-          <button className={styles.loadBtn} onClick={handleLoadPgn}>Load</button>
-        </div>
-      )}
+      {/* ── Left: eval bar + board column ── */}
+      <div className={styles.leftCol}>
 
-      {/* Review progress bar */}
-      {isReviewing && reviewProgress.total > 0 && (
-        <div className={styles.reviewBar}>
-          <span className={styles.reviewLabel}>
-            Analysing… {reviewProgress.current}/{reviewProgress.total}
-          </span>
-          <div className={styles.reviewProgressWrap}>
-            <div
-              className={styles.reviewProgressFill}
-              style={{ width: `${(reviewProgress.current / reviewProgress.total) * 100}%` }}
-            />
-          </div>
-          <div className={styles.reviewSpinner} />
-        </div>
-      )}
-
-      {/* Main layout */}
-      <div className={styles.analysisLayout}>
-        {/* ── Eval bar ── */}
-        <div className={styles.evalBarWrap}>
-          <div className={styles.evalBarWhite} style={{ height: `${whitePct}%` }} />
-          <div className={styles.evalBarBlack} />
-          <span
-            className={styles.evalScore}
-            style={{
-              top:    whitePct >= 55 ? 'auto' : '4px',
-              bottom: whitePct >= 55 ? '4px'  : 'auto',
-              color:  whitePct >= 55 ? '#333' : '#bbb',
-            }}
-          >
-            {formatEval(currentEval)}
-          </span>
+        {/* Eval bar */}
+        <div className={styles.evalBar}>
+          <div className={styles.evalWhite} style={{ height: `${whitePct}%` }} />
+          <div className={styles.evalBlack} />
+          <span className={styles.evalScore} style={{
+            top: whitePct >= 55 ? 'auto' : '4px',
+            bottom: whitePct >= 55 ? '4px' : 'auto',
+            color: whitePct >= 55 ? '#333' : '#bbb',
+          }}>{formatEval(currentEval)}</span>
         </div>
 
-        {/* ── Board column ── */}
-        <div className={styles.boardColumn}>
+        {/* Board + player bars */}
+        <div className={styles.boardCol}>
           {/* Top player */}
-          <div className={`${styles.playerBar} ${styles.playerBarTop}`}>
-            <div className={styles.playerInfo}>
-              <span className={`${styles.playerDot} ${topColor === 'w' ? styles.playerDotW : styles.playerDotB}`} />
-              <span className={styles.playerName}>{topName}</span>
+          <div className={styles.playerBar}>
+            <div className={styles.playerLeft}>
+              <span className={`${styles.pDot} ${topColor === 'w' ? styles.pDotW : styles.pDotB}`} />
+              <span className={styles.pName}>{topName}</span>
             </div>
             {topAcc !== null && (
-              <span
-                className={styles.playerAccuracy}
-                style={{ color: topAcc >= 85 ? '#3ddc84' : topAcc >= 65 ? '#f0c94c' : '#e05555' }}
-              >
+              <span className={styles.pAcc} style={{ color: topAcc >= 85 ? '#3ddc84' : topAcc >= 65 ? '#f0c94c' : '#e05555' }}>
                 {topAcc}%
               </span>
             )}
@@ -538,16 +302,13 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
           </div>
 
           {/* Bottom player */}
-          <div className={`${styles.playerBar} ${styles.playerBarBottom}`}>
-            <div className={styles.playerInfo}>
-              <span className={`${styles.playerDot} ${botColor === 'w' ? styles.playerDotW : styles.playerDotB}`} />
-              <span className={styles.playerName}>{bottomName}</span>
+          <div className={styles.playerBar}>
+            <div className={styles.playerLeft}>
+              <span className={`${styles.pDot} ${botColor === 'w' ? styles.pDotW : styles.pDotB}`} />
+              <span className={styles.pName}>{bottomName}</span>
             </div>
             {botAcc !== null && (
-              <span
-                className={styles.playerAccuracy}
-                style={{ color: botAcc >= 85 ? '#3ddc84' : botAcc >= 65 ? '#f0c94c' : '#e05555' }}
-              >
+              <span className={styles.pAcc} style={{ color: botAcc >= 85 ? '#3ddc84' : botAcc >= 65 ? '#f0c94c' : '#e05555' }}>
                 {botAcc}%
               </span>
             )}
@@ -555,109 +316,186 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
 
           {/* Eval graph */}
           {graphData.length > 1 && (
-            <div className={styles.evalGraphWrap}>
-              <EvalGraph
-                data={graphData}
-                currentIdx={currentMoveIndex}
-                onSeek={goToMove}
-              />
+            <div className={styles.graphWrap}>
+              <EvalGraph data={graphData} currentIdx={currentMoveIndex} onSeek={goToMove} />
             </div>
           )}
 
-          {/* Navigation */}
-          <div className={styles.navRow}>
-            <button className={styles.navBtn} title="Start (↑)" onClick={() => goToMove(-1)}>⏮</button>
-            <button className={styles.navBtn} title="Prev (←)" onClick={() => goToMove(currentMoveIndex - 1)} disabled={currentMoveIndex < 0}>◀</button>
-            <button className={styles.navBtn} title="Next (→)" onClick={() => goToMove(currentMoveIndex + 1)} disabled={currentMoveIndex >= moveHistory.length - 1}>▶</button>
-            <button className={styles.navBtn} title="End (↓)" onClick={() => goToMove(moveHistory.length - 1)}>⏭</button>
-          </div>
-          <div className={styles.kbdHint}>← → arrow keys to navigate</div>
+          {/* Nav bar */}
+          {gameLoaded && (
+            <div className={styles.navRow}>
+              <button className={styles.navBtn} onClick={() => goToMove(-1)} title="Start">⏮</button>
+              <button className={styles.navBtn} onClick={() => goToMove(currentMoveIndex - 1)} disabled={currentMoveIndex < 0} title="Prev ←">◀</button>
+              <button className={styles.navBtn} onClick={() => goToMove(currentMoveIndex + 1)} disabled={currentMoveIndex >= moveHistory.length - 1} title="Next →">▶</button>
+              <button className={styles.navBtn} onClick={() => goToMove(moveHistory.length - 1)} title="End">⏭</button>
+            </div>
+          )}
         </div>
+      </div>
 
-        {/* ── Right panel ── */}
-        <div className={styles.rightPanel}>
-          {/* Engine lines */}
-          <div className={styles.enginePanel}>
-            <div className={styles.engineTitle}>Engine</div>
-            {engineBusy && <div className={styles.engineComputing}>Computing…</div>}
-            {!engineBusy && engineLines.map((line, i) => {
-              const evalClass = line.score > 20 ? styles.lineEvalPos
-                : line.score < -20 ? styles.lineEvalNeg
-                : styles.lineEvalNeut;
-              return (
-                <div key={i} className={styles.engineLine}>
-                  <span className={styles.lineRank}>{i + 1}.</span>
-                  <span className={`${styles.lineEval} ${evalClass}`}>{formatEval(line.score)}</span>
-                  <span className={styles.lineMove}>{line.san}</span>
-                </div>
-              );
-            })}
-            {!engineBusy && engineLines.length === 0 && (
-              <div className={styles.engineComputing}>Game over</div>
+      {/* ── Right: analysis panel ── */}
+      <div className={styles.panel}>
+
+        {/* Panel header */}
+        <div className={styles.panelHeader}>
+          <span className={styles.panelTitle}>Game Analysis</span>
+          <div className={styles.panelActions}>
+            {gameLoaded && (
+              <>
+                <button className={styles.iconBtn} onClick={() => setFlipped(f => !f)} title="Flip board">⇅</button>
+                <button
+                  className={`${styles.iconBtn} ${reviewResults ? styles.iconBtnDone : ''}`}
+                  onClick={handleReview}
+                  disabled={isReviewing || !moveHistory.length}
+                  title="Review game"
+                >
+                  {isReviewing ? `${reviewProgress.current}/${reviewProgress.total}` : '⟳'}
+                </button>
+                <button className={styles.iconBtn} onClick={handleNewGame} title="New analysis">✕</button>
+              </>
             )}
           </div>
-
-          {/* Per-player accuracy (after review) */}
-          {reviewResults && (
-            <div className={styles.accuracySection}>
-              <div className={styles.accuracySectionTitle}>Accuracy</div>
-              <AccuracyRow
-                color={topColor}
-                name={topName}
-                accuracy={topColor === 'w' ? whiteAcc : blackAcc}
-                counts={topColor === 'w' ? whiteCounts : blackCounts}
-              />
-              <AccuracyRow
-                color={botColor}
-                name={bottomName}
-                accuracy={botColor === 'w' ? whiteAcc : blackAcc}
-                counts={botColor === 'w' ? whiteCounts : blackCounts}
-              />
-            </div>
-          )}
-
-          {/* Move list */}
-          <div className={styles.moveList} ref={moveListRef}>
-            {moveRows.map(row => {
-              const wReview = reviewResults?.[row.whiteIdx];
-              const bReview = row.black ? reviewResults?.[row.blackIdx] : null;
-              const wClass  = wReview ? CLASSIFICATIONS[wReview.classification] : null;
-              const bClass  = bReview ? CLASSIFICATIONS[bReview.classification] : null;
-
-              return (
-                <div key={row.number} className={styles.moveRow}>
-                  <span className={styles.moveNum}>{row.number}.</span>
-
-                  <span
-                    data-active={currentMoveIndex === row.whiteIdx ? 'true' : 'false'}
-                    className={`${styles.moveCell} ${currentMoveIndex === row.whiteIdx ? styles.moveActive : ''}`}
-                    onClick={() => goToMove(row.whiteIdx)}
-                  >
-                    {row.white?.san || ''}
-                    {wClass && (
-                      <sup className={styles.moveBadge} style={{ color: wClass.color }} title={wClass.label}>
-                        {wClass.symbol}
-                      </sup>
-                    )}
-                  </span>
-
-                  <span
-                    data-active={row.black && currentMoveIndex === row.blackIdx ? 'true' : 'false'}
-                    className={`${styles.moveCell} ${row.black && currentMoveIndex === row.blackIdx ? styles.moveActive : ''}`}
-                    onClick={() => row.black && goToMove(row.blackIdx)}
-                  >
-                    {row.black?.san || ''}
-                    {bClass && (
-                      <sup className={styles.moveBadge} style={{ color: bClass.color }} title={bClass.label}>
-                        {bClass.symbol}
-                      </sup>
-                    )}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
         </div>
+
+        {/* Review progress */}
+        {isReviewing && (
+          <div className={styles.reviewProgress}>
+            <div className={styles.reviewBar} style={{ width: `${(reviewProgress.current / reviewProgress.total) * 100}%` }} />
+          </div>
+        )}
+
+        {/* ── Game loaded: engine + move list ── */}
+        {gameLoaded ? (
+          <>
+            {openingName && <div className={styles.opening}>{openingName}</div>}
+
+            {/* Engine */}
+            <div className={styles.section}>
+              <div className={styles.sectionLabel}>Engine</div>
+              {engineBusy
+                ? <div className={styles.dim}>Computing…</div>
+                : engineLines.length === 0
+                  ? <div className={styles.dim}>Game over</div>
+                  : engineLines.map((l, i) => (
+                    <div key={i} className={styles.engineLine}>
+                      <span className={styles.lineN}>{i+1}.</span>
+                      <span className={styles.lineEval} style={{ color: l.score > 20 ? '#e8e8e8' : l.score < -20 ? '#e05555' : 'rgba(255,255,255,0.45)' }}>
+                        {formatEval(l.score)}
+                      </span>
+                      <span className={styles.lineMove}>{l.san}</span>
+                    </div>
+                  ))
+              }
+            </div>
+
+            {/* Accuracy */}
+            {reviewResults && (
+              <div className={styles.section}>
+                <div className={styles.sectionLabel}>Accuracy</div>
+                {[{color: topColor, name: topName, acc: topAcc, counts: topCounts},
+                  {color: botColor, name: bottomName, acc: botAcc, counts: botCounts}].map(p => (
+                  <div key={p.color} className={styles.accRow}>
+                    <span className={`${styles.pDot} ${p.color === 'w' ? styles.pDotW : styles.pDotB}`} />
+                    <span className={styles.accName}>{p.name}</span>
+                    <span className={styles.accPct} style={{ color: p.acc >= 85 ? '#3ddc84' : p.acc >= 65 ? '#f0c94c' : '#e05555' }}>
+                      {p.acc !== null ? `${p.acc}%` : '—'}
+                    </span>
+                    <div className={styles.accBadges}>
+                      {Object.entries(CLASSIFICATIONS).map(([k, cls]) => {
+                        const n = p.counts?.[k]; if (!n) return null;
+                        return (
+                          <span key={k} className={styles.accBadge} title={`${cls.label}: ${n}`}>
+                            <span style={{ color: cls.color }}>{cls.symbol}</span>
+                            <span className={styles.badgeN}>{n}</span>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Move list */}
+            <div className={styles.moveList} ref={moveListRef}>
+              {moveRows.map(row => {
+                const wC = reviewResults?.[row.whiteIdx] ? CLASSIFICATIONS[reviewResults[row.whiteIdx].classification] : null;
+                const bC = row.black && reviewResults?.[row.blackIdx] ? CLASSIFICATIONS[reviewResults[row.blackIdx].classification] : null;
+                return (
+                  <div key={row.number} className={styles.moveRow}>
+                    <span className={styles.moveN}>{row.number}.</span>
+                    <span
+                      data-active={currentMoveIndex === row.whiteIdx ? 'true' : 'false'}
+                      className={`${styles.moveCell} ${currentMoveIndex === row.whiteIdx ? styles.moveActive : ''}`}
+                      onClick={() => goToMove(row.whiteIdx)}
+                    >
+                      {row.white?.san || ''}
+                      {wC && <sup className={styles.moveBadge} style={{ color: wC.color }}>{wC.symbol}</sup>}
+                    </span>
+                    <span
+                      data-active={row.black && currentMoveIndex === row.blackIdx ? 'true' : 'false'}
+                      className={`${styles.moveCell} ${row.black && currentMoveIndex === row.blackIdx ? styles.moveActive : ''}`}
+                      onClick={() => row.black && goToMove(row.blackIdx)}
+                    >
+                      {row.black?.san || ''}
+                      {bC && <sup className={styles.moveBadge} style={{ color: bC.color }}>{bC.symbol}</sup>}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        ) : (
+          <>
+            {/* ── No game: input area ── */}
+            <div className={styles.inputSection}>
+              <div className={styles.sectionLabel}>Load game from PGN</div>
+              <textarea
+                className={styles.pgnTextarea}
+                value={pgnInput}
+                onChange={e => { setPgnInput(e.target.value); setPgnError(''); }}
+                placeholder="Paste PGN or FEN here…"
+                rows={6}
+              />
+              {pgnError && <div className={styles.pgnError}>{pgnError}</div>}
+
+              {/* Hidden file input */}
+              <input ref={fileRef} type="file" accept=".pgn,.txt" style={{ display: 'none' }} onChange={handleFileUpload} />
+              <button className={styles.uploadBtn} onClick={() => fileRef.current?.click()}>
+                ↑ Upload PGN File
+              </button>
+              <button className={styles.analyseBtn} onClick={() => doLoad(pgnInput)}>
+                🔍 Analyse
+              </button>
+            </div>
+
+            {/* Saved games */}
+            {(gamesLoading || savedGames.length > 0) && (
+              <div className={styles.savedSection}>
+                <div className={styles.sectionLabel}>Recent Games</div>
+                {gamesLoading && <div className={styles.dim}>Loading…</div>}
+                <div className={styles.savedList}>
+                  {savedGames.map((g, i) => (
+                    <div key={i} className={styles.savedGame} onClick={() => handleLoadGame(g)}>
+                      <div className={styles.savedTop}>
+                        <span className={`${styles.pDot} ${g.color === 'white' ? styles.pDotW : styles.pDotB}`} />
+                        <span className={styles.savedVs}>
+                          {g.color === 'white' ? 'W' : 'B'} · {g.opponent || 'vs Opponent'}
+                        </span>
+                        {g.result && (
+                          <span className={`${styles.resBadge} ${styles['res_' + g.result]}`}>
+                            {g.result === 'draw' ? '½' : g.result === g.color ? 'W' : 'L'}
+                          </span>
+                        )}
+                      </div>
+                      <div className={styles.savedPgn}>{(g.pgnStr || '').slice(0, 60)}…</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );

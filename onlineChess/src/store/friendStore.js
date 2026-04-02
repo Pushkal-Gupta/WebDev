@@ -80,16 +80,21 @@ const useFriendStore = create((set, get) => ({
     await get().loadFriends(myUserId);
   },
 
-  // ── Search players by username prefix ─────────────────────────────────────
-  async searchPlayers(query) {
+  // ── Search players by username prefix (queries player_search view directly) ─
+  async searchPlayers(query, myUserId) {
     if (!query.trim()) { set({ searchResults: [] }); return; }
     set({ searchLoading: true });
 
-    const { data, error } = await supabase.rpc('search_players', {
-      p_query: query.trim().toLowerCase(),
-      p_limit: 10,
-    });
+    let q = supabase
+      .from('player_search')
+      .select('user_id, username, rating, games_played')
+      .ilike('username', `${query.trim()}%`)
+      .limit(10);
 
+    // Exclude self if userId provided
+    if (myUserId) q = q.neq('user_id', myUserId);
+
+    const { data, error } = await q;
     set({ searchResults: error ? [] : (data || []), searchLoading: false });
   },
 
