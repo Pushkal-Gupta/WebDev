@@ -46,6 +46,19 @@ const OnlineSvg = () => (
   </svg>
 );
 
+const SpectateSvg = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+    <path d="M1.5 10S4.5 4 10 4s8.5 6 8.5 6-3 6-8.5 6S1.5 10 1.5 10z"/>
+    <circle cx="10" cy="10" r="2.5"/>
+  </svg>
+);
+
+const PuzzleSvg = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M8 3H5a2 2 0 00-2 2v3m5-5a2 2 0 014 0M8 3a2 2 0 014 0m0 0h3a2 2 0 012 2v3M3 8a2 2 0 000 4m0-4v4m0 0v3a2 2 0 002 2h3m-5-5a2 2 0 004 0m-4 0h4m0 0h3a2 2 0 002-2v-3m0 0a2 2 0 000-4m0 4v-4"/>
+  </svg>
+);
+
 const AccountSvg = () => (
   <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
     <circle cx="10" cy="7" r="3.5"/>
@@ -69,6 +82,8 @@ export default function LeftNav({ activeTab, onTabClick }) {
         <NavItem icon={<AnalysisSvg />} label="Analysis" active={activeTab === 2}                    onClick={() => onTabClick(2)} />
         <NavItem icon={<ComputerSvg />} label="Computer" active={activeTab === 3}                    onClick={() => onTabClick(3)} />
         <NavItem icon={<OnlineSvg />}   label="Online"   active={activeTab === 4}                    onClick={() => onTabClick(4)} />
+        <NavItem icon={<PuzzleSvg />}   label="Puzzles"  active={activeTab === 6}                    onClick={() => onTabClick(6)} />
+        <NavItem icon={<SpectateSvg />} label="Spectate" active={activeTab === 7}                    onClick={() => onTabClick(7)} />
       </ul>
 
       <div className={styles.bottom}>

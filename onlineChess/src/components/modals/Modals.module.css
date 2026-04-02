@@ -210,6 +210,46 @@
   color: #ccffff;
 }
 
+/* Rating change row in GameOverModal */
+.ratingRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 4px 0 16px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.ratingOld {
+  color: #888;
+}
+
+.ratingArrow {
+  color: #555;
+  font-size: 0.85rem;
+}
+
+.ratingNew {
+  color: #ccffff;
+}
+
+.ratingDelta {
+  font-size: 0.95rem;
+  padding: 2px 7px;
+  border-radius: 5px;
+}
+
+.ratingUp {
+  color: #6fdc8c;
+  background: rgba(111, 220, 140, 0.12);
+}
+
+.ratingDown {
+  color: #ff7875;
+  background: rgba(255, 120, 117, 0.12);
+}
+
 /* Custom alert */
 .customAlert {
   position: fixed;

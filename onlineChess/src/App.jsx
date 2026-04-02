@@ -17,6 +17,11 @@ import AnalysisBoard from './components/AnalysisBoard/AnalysisBoard';
 import useGameStore from './store/gameStore';
 import useAuthStore from './store/authStore';
 import useThemeStore from './store/themeStore';
+import useRatingStore from './store/ratingStore';
+import useMatchmakingStore from './store/matchmakingStore';
+import RatingCard from './components/Profile/RatingCard';
+import PuzzlePage from './components/Puzzles/PuzzlePage';
+import SpectateList from './components/Spectate/SpectateList';
 import { getBestMove } from './utils/stockfish';
 import { postGame, getGames } from './utils/gameServer';
 import { getOpeningName } from './utils/evaluation';
@@ -26,7 +31,7 @@ import { reviewGame } from './utils/reviewEngine';
 import {
   createRoom, joinRoom, subscribeToRoom,
   broadcastMove as bcastMove, broadcastChat, broadcastResign, broadcastJoin,
-  endRoom, unsubscribe, sqToRowCol, rowColToSq,
+  endRoom, unsubscribe, sqToRowCol, rowColToSq, updateRoomFen,
 } from './utils/multiplayerService';
 
 // ─── Time presets ─────────────────────────────────────────────────────────────
@@ -75,6 +80,7 @@ export default function App() {
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [reviewResults, setReviewResults]   = useState(null);
   const [isReviewing, setIsReviewing]       = useState(false);
+  const [ratingDelta, setRatingDelta]       = useState(null);
 
   // Online multiplayer state
   const onlineChannelRef      = useRef(null);
@@ -102,9 +108,14 @@ export default function App() {
     isOnline,
     capturedByWhite, capturedByBlack,
     whiteTime, blackTime, timerRunning, timeControl,
+    gameResult, gameCategory, onlineOpponentId,
+    setGameResult, setOnlineOpponentId,
   } = useGameStore();
 
   const { pieceSets, pieceSetIndex } = useThemeStore();
+  const { updateOnlineGameRating, myRatings, loadRatings } = useRatingStore();
+  const { status: mmStatus, elapsedSeconds: mmElapsed,
+          joinQueue, cancelQueue: cancelMatchmaking, reset: resetMatchmaking } = useMatchmakingStore();
   const imagePath = `./images/${pieceSets[pieceSetIndex].path}`;
 
   // ─── Init ──────────────────────────────────────────────────────────────────
@@ -112,6 +123,11 @@ export default function App() {
     initAuth();
     initGame();
   }, []);
+
+  // ─── Load ratings when user logs in ────────────────────────────────────────
+  useEffect(() => {
+    if (user) loadRatings(user.id);
+  }, [user?.id]);
 
   // ─── Timer tick (single interval — prevents double-decrement from two Timer components) ──
   useEffect(() => {
@@ -186,7 +202,9 @@ export default function App() {
       ? lastMove.san.split('=')[1][0].toLowerCase()
       : undefined;
 
-    bcastMove(onlineChannelRef.current, { from, to, promotion });
+    const currentFen = useGameStore.getState().getFen();
+    bcastMove(onlineChannelRef.current, { from, to, promotion, fen: currentFen });
+    if (onlineRoom?.id) updateRoomFen(onlineRoom.id, currentFen).catch(() => {});
 
     // Disable board until opponent responds
     if (!state.gameOver) useGameStore.getState().setDisableBoard(true);
@@ -199,14 +217,79 @@ export default function App() {
     }
   }, [gameOver]);
 
-  // ─── Save game on end ─────────────────────────────────────────────────────
+  // ─── Save local/computer game on end ─────────────────────────────────────
   useEffect(() => {
     if (gameOver && user && moveHistory.length > 0 && !isOnline) {
       const pgn   = useGameStore.getState().getPgn();
       const color = isComp ? (compColor === 'white' ? 'black' : 'white') : 'white';
-      postGame(token, { color, opponent: oppName, timerData, pgnStr: pgn, userId: user.id }).catch(console.error);
+      const gr    = useGameStore.getState().gameResult;
+      postGame({
+        userId: user.id,
+        color,
+        opponent: oppName,
+        timerData,
+        pgnStr: pgn,
+        result: gr?.winner,
+        resultReason: gr?.reason,
+        category: gameCategory,
+        isRated: false,
+      }).catch(console.error);
     }
   }, [gameOver]);
+
+  // ─── Rate + save online game on end ──────────────────────────────────────
+  useEffect(() => {
+    if (!gameOver || !isOnline || !user) return;
+    const gr = useGameStore.getState().gameResult;
+    if (!gr) return;
+
+    const store   = useGameStore.getState();
+    const myColor = store.onlineColor;
+    const cat     = store.gameCategory;
+    const oppId   = store.onlineOpponentId;
+
+    let score;
+    if (gr.winner === 'draw') score = 0.5;
+    else score = gr.winner === myColor ? 1 : 0;
+
+    (async () => {
+      try {
+        const delta = await updateOnlineGameRating({
+          userId: user.id,
+          username: username || user.email,
+          opponentId: oppId,
+          score,
+          category: cat || 'blitz',
+        });
+        if (delta) setRatingDelta(delta);
+
+        // Save the game record
+        const pgn = store.getPgn();
+        await postGame({
+          userId: user.id,
+          color: myColor,
+          opponent: oppName,
+          timerData,
+          pgnStr: pgn,
+          result: gr.winner,
+          resultReason: gr.reason,
+          whiteUserId:    myColor === 'white' ? user.id : oppId,
+          blackUserId:    myColor === 'black' ? user.id : oppId,
+          whiteUsername:  myColor === 'white' ? (username || user.email) : oppName,
+          blackUsername:  myColor === 'black' ? (username || user.email) : oppName,
+          whiteRating:    myColor === 'white' ? delta?.oldRating    : delta?.opponentOldRating,
+          blackRating:    myColor === 'black' ? delta?.oldRating    : delta?.opponentOldRating,
+          whiteRatingChange: myColor === 'white' ? delta?.ratingChange : null,
+          blackRatingChange: myColor === 'black' ? delta?.ratingChange : null,
+          category: cat,
+          isRated: true,
+          timeControlDisplay: timeControl?.display,
+        });
+      } catch (e) {
+        console.error('Online game end error:', e);
+      }
+    })();
+  }, [gameOver, isOnline]);
 
   // ─── Helpers ──────────────────────────────────────────────────────────────
   const showAlert = (msg) => setAlertMsg(msg);
@@ -239,6 +322,7 @@ export default function App() {
       gameOverMessage: `${winner} wins! Opponent resigned.`,
       timerRunning: false,
       disableBoard: true,
+      gameResult: { winner: winner.toLowerCase(), reason: 'resign' },
     });
   };
 
@@ -262,6 +346,7 @@ export default function App() {
         const store = useGameStore.getState();
         store.startOnlineGame(onlineTimeControl, 'white');
         store.setOppName(payload.username || 'Opponent');
+        store.setOnlineOpponentId(payload.userId);
       },
       onMove:   onIncomingMove,
       onChat:   onIncomingChat,
@@ -289,6 +374,7 @@ export default function App() {
     const store = useGameStore.getState();
     store.startOnlineGame(room.time_control, myColor);
     store.setOppName(room.host_name || 'Opponent');
+    store.setOnlineOpponentId(room.host_id);
 
     await broadcastJoin(channel, { userId: user.id, username: username || user.email });
   };
@@ -305,12 +391,13 @@ export default function App() {
     if (!onlineChannelRef.current) return;
     await broadcastResign(onlineChannelRef.current, user.id);
     const myColor = useGameStore.getState().onlineColor;
-    const loser   = myColor === 'white' ? 'White' : 'Black';
+    const winner  = myColor === 'white' ? 'Black' : 'White'; // I resigned
     useGameStore.setState({
       gameOver: true,
-      gameOverMessage: `${loser === 'White' ? 'Black' : 'White'} wins! You resigned.`,
+      gameOverMessage: `${winner} wins! You resigned.`,
       timerRunning: false,
       disableBoard: true,
+      gameResult: { winner: winner.toLowerCase(), reason: 'resign' },
     });
   };
 
@@ -333,7 +420,44 @@ export default function App() {
     setWaitingForOpponent(false);
     setIsOnlineConnected(false);
     broadcastedMoveRef.current = -1;
+    resetMatchmaking();
     initGame();
+  };
+
+  // ─── Matchmaking handlers ─────────────────────────────────────────────────
+  const handleMatchFound = ({ roomId, opponentName, opponentId, yourColor, timeControl: matchedTC }) => {
+    const tc = matchedTC || onlineTimeControl;
+    setOnlineRoom({ id: roomId, status: 'playing', hostColor: yourColor === 'white' ? 'white' : 'black' });
+    setIsOnlineConnected(true);
+    broadcastedMoveRef.current = -1;
+    setChatMessages([]);
+
+    const channel = subscribeToRoom(roomId, {
+      onMove:   onIncomingMove,
+      onChat:   onIncomingChat,
+      onResign: onOpponentResign,
+    });
+    onlineChannelRef.current = channel;
+
+    const store = useGameStore.getState();
+    store.startOnlineGame(tc, yourColor);
+    store.setOppName(opponentName || 'Opponent');
+    store.setOnlineOpponentId(opponentId);
+  };
+
+  const handleFindGame = () => {
+    if (!user) { setShowLogin(true); return; }
+    if (!onlineTimeControl) { showAlert('Select a time control first.'); return; }
+    const cat     = onlineTimeControl.cat?.toLowerCase() || 'blitz';
+    const myRating = myRatings[cat]?.rating ?? 1500;
+    joinQueue(
+      { userId: user.id, username: username || user.email, rating: myRating, category: cat, timeControl: onlineTimeControl },
+      handleMatchFound,
+    );
+  };
+
+  const handleCancelSearch = async () => {
+    await cancelMatchmaking();
   };
 
   // ─── Tab navigation ───────────────────────────────────────────────────────
@@ -402,7 +526,7 @@ export default function App() {
   const loadAnalysisGames = async () => {
     setAnalysisLoading(true);
     try {
-      const games = await getGames(token);
+      const games = await getGames(user?.id);
       setAnalysisGames(Array.isArray(games) ? games : []);
     } catch (e) {
       console.error(e);
@@ -425,6 +549,7 @@ export default function App() {
     if (isOnline) leaveOnlineGame();
     initGame();
     setReviewResults(null);
+    setRatingDelta(null);
     setActiveTab(0);
   };
 
@@ -518,18 +643,33 @@ export default function App() {
         )}
 
         {/* ── Tab 4: Online lobby (no active game) ── */}
-        {activeTab === 4 && !isOnline && (
-          <OnlineLobby
-            onCreateRoom={handleCreateRoom}
-            onJoinRoom={handleJoinRoom}
-            roomId={onlineRoom?.id}
-            waitingForOpponent={waitingForOpponent}
-            onCancelWait={handleCancelWait}
-            timeControls={ONLINE_TIME_CONTROLS}
-            selectedTime={onlineTimeControl}
-            onSelectTime={setOnlineTimeControl}
-          />
-        )}
+        {activeTab === 4 && !isOnline && (() => {
+          const cat = onlineTimeControl?.cat?.toLowerCase();
+          const userRatingForCat = cat ? (myRatings[cat]?.rating ?? null) : null;
+          return (
+            <OnlineLobby
+              onCreateRoom={handleCreateRoom}
+              onJoinRoom={handleJoinRoom}
+              onFindGame={handleFindGame}
+              onCancelSearch={handleCancelSearch}
+              roomId={onlineRoom?.id}
+              waitingForOpponent={waitingForOpponent}
+              onCancelWait={handleCancelWait}
+              timeControls={ONLINE_TIME_CONTROLS}
+              selectedTime={onlineTimeControl}
+              onSelectTime={setOnlineTimeControl}
+              isSearching={mmStatus === 'searching'}
+              searchElapsed={mmElapsed}
+              userRating={userRatingForCat}
+            />
+          );
+        })()}
+
+        {/* ── Tab 6: Puzzles ── */}
+        {activeTab === 6 && <PuzzlePage />}
+
+        {/* ── Tab 7: Spectate ── */}
+        {activeTab === 7 && <SpectateList />}
 
         {/* ── Tab 5: Account ── */}
         {activeTab === 5 && user && (
@@ -614,9 +754,10 @@ export default function App() {
       {gameOver && gameOverMessage && (
         <GameOverModal
           message={gameOverMessage}
+          ratingDelta={ratingDelta}
           onNewGame={handleGameOverNewGame}
-          onCancel={() => useGameStore.setState({ gameOver: false })}
-          onAnalyse={() => useGameStore.setState({ gameOver: false })}
+          onCancel={() => { useGameStore.setState({ gameOver: false }); setRatingDelta(null); }}
+          onAnalyse={() => { useGameStore.setState({ gameOver: false }); setRatingDelta(null); }}
           onReview={handleReviewGame}
         />
       )}
@@ -847,27 +988,42 @@ function PlayerPanel({ name, colorCode, time, timeActive, timerRunning, captured
   );
 }
 
-// ─── Account screen ───────────────────────────────────────────────────────────
-function AccountScreen({ onAlert, onLogout, onLoadGame }) {
+// ─── Account / Profile screen ────────────────────────────────────────────────
+const RATING_CATEGORIES = ['bullet', 'blitz', 'rapid', 'classical'];
+
+function AccountScreen({ onAlert, onLoadGame }) {
   const { user, username, logout } = useAuthStore();
   const { pieceSets, pieceSetIndex, setPieceSet, themes, themeIndex, applyTheme } = useThemeStore();
-  const [games, setGames]         = useState([]);
-  const [loading, setLoading]     = useState(true);
-  const [activeTab, setActiveTab] = useState('profile');
-  const [editName, setEditName]   = useState(username || '');
+  const { myRatings, loadRatings } = useRatingStore();
+  const [games, setGames]           = useState([]);
+  const [gamesLoading, setGamesLoading] = useState(true);
+  const [activeTab, setActiveTab]   = useState('ratings');
+  const [editName, setEditName]     = useState(username || '');
   const [savingName, setSavingName] = useState(false);
 
   useEffect(() => {
-    getGames(user?.id).then(g => { setGames(Array.isArray(g) ? g : []); setLoading(false); });
-  }, []);
+    if (user?.id) {
+      loadRatings(user.id);
+      getGames(user.id).then(g => { setGames(Array.isArray(g) ? g : []); setGamesLoading(false); });
+    }
+  }, [user?.id]);
 
-  const wins   = games.filter(g => g.result === 'win').length;
-  const losses = games.filter(g => g.result === 'loss').length;
-  const draws  = games.length - wins - losses;
+  // Correct W/L/D: compare game.result ('white'|'black'|'draw') with game.color
+  const ratedGames = games.filter(g => g.result);
+  const wins  = ratedGames.filter(g => g.result === g.color).length;
+  const draws = ratedGames.filter(g => g.result === 'draw').length;
+  const losses = ratedGames.filter(g => g.result && g.result !== g.color && g.result !== 'draw').length;
 
   const formatDate = (iso) => {
     if (!iso) return '';
     return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  const getResultLabel = (game) => {
+    if (!game.result) return null;
+    if (game.result === 'draw') return { label: '½', cls: 'draw' };
+    if (game.result === game.color) return { label: 'Win', cls: 'win' };
+    return { label: 'Loss', cls: 'loss' };
   };
 
   const handleSaveName = async () => {
@@ -884,8 +1040,11 @@ function AccountScreen({ onAlert, onLogout, onLoadGame }) {
     }
   };
 
+  const totalGamesPlayed = RATING_CATEGORIES.reduce((sum, cat) => sum + (myRatings[cat]?.games_played || 0), 0);
+
   return (
     <div className="account-screen">
+      {/* ── Header ── */}
       <div className="account-header">
         <div className="account-avatar">{(username || user?.email || '?')[0].toUpperCase()}</div>
         <div className="account-info">
@@ -895,21 +1054,53 @@ function AccountScreen({ onAlert, onLogout, onLoadGame }) {
         <button className="account-logout-btn" onClick={async () => { await logout(); }}>Logout</button>
       </div>
 
+      {/* ── Overall stats ── */}
       <div className="account-stats">
-        <div className="stat-box"><div className="stat-value">{games.length}</div><div className="stat-label">Games</div></div>
-        <div className="stat-box"><div className="stat-value" style={{color:'#aaffaa'}}>{wins}</div><div className="stat-label">Wins</div></div>
-        <div className="stat-box"><div className="stat-value" style={{color:'#ff9999'}}>{losses}</div><div className="stat-label">Losses</div></div>
-        <div className="stat-box"><div className="stat-value" style={{color:'#ffdd99'}}>{draws}</div><div className="stat-label">Draws</div></div>
+        <div className="stat-box">
+          <div className="stat-value">{totalGamesPlayed || games.length}</div>
+          <div className="stat-label">Rated games</div>
+        </div>
+        <div className="stat-box">
+          <div className="stat-value" style={{color:'#6fdc8c'}}>{wins}</div>
+          <div className="stat-label">Wins</div>
+        </div>
+        <div className="stat-box">
+          <div className="stat-value" style={{color:'#ff7875'}}>{losses}</div>
+          <div className="stat-label">Losses</div>
+        </div>
+        <div className="stat-box">
+          <div className="stat-value" style={{color:'#ffd666'}}>{draws}</div>
+          <div className="stat-label">Draws</div>
+        </div>
       </div>
 
+      {/* ── Tabs ── */}
       <div className="acct-tabs">
-        {['profile','appearance','games'].map(t => (
+        {['ratings','profile','appearance','games'].map(t => (
           <button key={t} className={`acct-tab ${activeTab === t ? 'acct-tab-active' : ''}`} onClick={() => setActiveTab(t)}>
             {t.charAt(0).toUpperCase() + t.slice(1)}
           </button>
         ))}
       </div>
 
+      {/* ── Ratings tab ── */}
+      {activeTab === 'ratings' && (
+        <div className="acct-section">
+          <div className="acct-label" style={{marginBottom: 12}}>Glicko-2 Ratings</div>
+          <div className="rating-cards-grid">
+            {RATING_CATEGORIES.map(cat => (
+              <RatingCard key={cat} category={cat} data={myRatings[cat] || null} />
+            ))}
+          </div>
+          {totalGamesPlayed === 0 && (
+            <p style={{color:'rgba(255,255,255,0.35)', fontSize:'0.85rem', marginTop:16, textAlign:'center'}}>
+              Play rated online games to build your rating.
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* ── Profile tab ── */}
       {activeTab === 'profile' && (
         <div className="acct-section">
           <div className="acct-field">
@@ -933,6 +1124,7 @@ function AccountScreen({ onAlert, onLogout, onLoadGame }) {
         </div>
       )}
 
+      {/* ── Appearance tab ── */}
       {activeTab === 'appearance' && (
         <div className="acct-section">
           <div className="acct-field">
@@ -967,23 +1159,42 @@ function AccountScreen({ onAlert, onLogout, onLoadGame }) {
         </div>
       )}
 
+      {/* ── Games tab ── */}
       {activeTab === 'games' && (
         <div className="acct-section">
-          {loading && <p style={{color:'rgba(255,255,255,0.4)'}}>Loading games…</p>}
-          {!loading && games.length === 0 && <p style={{color:'rgba(255,255,255,0.4)'}}>No games yet.</p>}
+          {gamesLoading && <p style={{color:'rgba(255,255,255,0.4)'}}>Loading games…</p>}
+          {!gamesLoading && games.length === 0 && <p style={{color:'rgba(255,255,255,0.4)'}}>No games yet.</p>}
           <div className="account-games-list">
-            {games.map((game, i) => (
-              <div key={i} className="account-game-row" onClick={() => onLoadGame(game)}>
-                <div className="account-game-vs">
-                  <span className={`game-color-badge ${game.color}`}>{game.color === 'white' ? 'W' : 'B'}</span>
-                  vs {game.opponent || 'Unknown'}
+            {games.map((game, i) => {
+              const res = getResultLabel(game);
+              const rChange = game.color === 'white' ? game.white_rating_change
+                            : game.color === 'black' ? game.black_rating_change
+                            : null;
+              return (
+                <div key={i} className="account-game-row" onClick={() => onLoadGame(game)}>
+                  <div className="account-game-vs">
+                    <span className={`game-color-badge ${game.color}`}>
+                      {game.color === 'white' ? 'W' : 'B'}
+                    </span>
+                    <span className="game-opp">
+                      vs {game.opponent || (game.color === 'white' ? game.black_username : game.white_username) || 'Unknown'}
+                    </span>
+                    {game.time_control_display && (
+                      <span className="game-tc">{game.time_control_display}</span>
+                    )}
+                  </div>
+                  <div className="account-game-meta">
+                    {res && <span className={`game-result game-result-${res.cls}`}>{res.label}</span>}
+                    {rChange != null && (
+                      <span className={`game-rating-change ${rChange >= 0 ? 'game-rc-up' : 'game-rc-down'}`}>
+                        {rChange >= 0 ? '+' : ''}{rChange}
+                      </span>
+                    )}
+                    <span className="game-date">{formatDate(game.created_at)}</span>
+                  </div>
                 </div>
-                <div className="account-game-meta">
-                  {game.result && <span className={`game-result ${game.result}`}>{game.result}</span>}
-                  <span className="game-date">{formatDate(game.created_at)}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
