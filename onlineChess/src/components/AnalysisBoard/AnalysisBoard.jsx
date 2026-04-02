@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useId } from 'react';
 import Board from '../Board/Board';
 import styles from './AnalysisBoard.module.css';
 import useGameStore from '../../store/gameStore';
-import { getPositionScore } from '../../utils/localAI';
+import { getPositionScore, getLocalBestMoveWithScore } from '../../utils/localAI';
 import { Chess } from 'chess.js';
 import { CLASSIFICATIONS, reviewGame } from '../../utils/reviewEngine';
 
@@ -20,20 +20,62 @@ function formatEval(score) {
   return (score >= 0 ? '+' : '') + (score / 100).toFixed(1);
 }
 
-function getTopMoves(fen, n = 3) {
+// Build top-N engine lines with 3-move PV each (depth 2 eval + continuation)
+function getTopLines(fen, n = 3) {
   try {
     const chess = new Chess(fen);
     if (chess.isGameOver()) return [];
     const moves = chess.moves({ verbose: true });
     if (!moves.length) return [];
     const isMax = chess.turn() === 'w';
+
+    // Score all moves at depth 2 (good balance of speed/quality)
     const scored = moves.map(m => {
-      chess.move(m); const score = getPositionScore(chess.fen(), 1); chess.undo();
-      return { san: m.san, score };
+      chess.move(m);
+      const score = getPositionScore(chess.fen(), 2);
+      chess.undo();
+      return { move: m, score };
     });
     scored.sort((a, b) => isMax ? b.score - a.score : a.score - b.score);
-    return scored.slice(0, n);
+
+    // For top n, build 3-move continuation lines
+    return scored.slice(0, n).map(({ move, score }) => {
+      const lineChess = new Chess(fen);
+      lineChess.move(move);
+      const sanMoves = [move.san];
+
+      for (let d = 0; d < 2; d++) {
+        const { move: bestUci } = getLocalBestMoveWithScore(lineChess.fen(), 1);
+        if (!bestUci) break;
+        const result = lineChess.move({
+          from: bestUci.slice(0, 2),
+          to:   bestUci.slice(2, 4),
+          promotion: bestUci[4] || undefined,
+        });
+        if (!result) break;
+        sanMoves.push(result.san);
+      }
+
+      return { san: move.san, score, line: sanMoves };
+    });
   } catch { return []; }
+}
+
+// Fetch opening name from lichess opening explorer (free, no key needed)
+const _openingCache = new Map();
+async function fetchOpeningName(fen) {
+  if (_openingCache.has(fen)) return _openingCache.get(fen);
+  try {
+    const res = await fetch(
+      `https://explorer.lichess.ovh/opening?fen=${encodeURIComponent(fen)}`,
+      { signal: AbortSignal.timeout(3000) }
+    );
+    if (!res.ok) return null;
+    const json = await res.json();
+    const name = json?.opening?.name || null;
+    _openingCache.set(fen, name);
+    return name;
+  } catch { return null; }
 }
 
 // Try loading PGN — attempts normalization if raw parse fails
@@ -74,6 +116,7 @@ function buildCounts(reviewResults, moveHistory, color) {
 // ── Eval Graph ────────────────────────────────────────────────────────────────
 
 function EvalGraph({ data, currentIdx, onSeek }) {
+  const uid = useId().replace(/:/g, '');
   const W = 400, H = 48, pad = 1;
   const evalToY = s => pad + (H - pad * 2) * (1 - evalToWhitePct(s) / 100);
   const pts = data.map((s, i) => [
@@ -93,10 +136,10 @@ function EvalGraph({ data, currentIdx, onSeek }) {
       <line x1={0} y1={H/2} x2={W} y2={H/2} stroke="rgba(255,255,255,0.1)" strokeWidth={0.8} />
       {fillD && (
         <>
-          <clipPath id="ug"><rect x={0} y={0} width={W} height={H/2} /></clipPath>
-          <clipPath id="lg"><rect x={0} y={H/2} width={W} height={H/2} /></clipPath>
-          <path d={fillD} fill="rgba(220,220,220,0.2)" clipPath="url(#ug)" />
-          <path d={fillD} fill="rgba(20,20,20,0.5)"   clipPath="url(#lg)" />
+          <clipPath id={`ug${uid}`}><rect x={0} y={0} width={W} height={H/2} /></clipPath>
+          <clipPath id={`lg${uid}`}><rect x={0} y={H/2} width={W} height={H/2} /></clipPath>
+          <path d={fillD} fill="rgba(220,220,220,0.2)" clipPath={`url(#ug${uid})`} />
+          <path d={fillD} fill="rgba(20,20,20,0.5)"   clipPath={`url(#lg${uid})`} />
         </>
       )}
       {pathD && <path d={pathD} fill="none" stroke="rgba(0,255,245,0.65)" strokeWidth={1.5} strokeLinejoin="round" />}
@@ -125,6 +168,8 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
   const [gameLoaded, setGameLoaded]         = useState(false);
   const [evalHistory, setEvalHistory]       = useState([]);
   const [pgnHeaders, setPgnHeaders]         = useState({});
+  const [liveOpeningName, setLiveOpeningName] = useState(null);
+  const openingAbortRef = useRef(null);
 
   const evalTimerRef = useRef(null);
   const moveListRef  = useRef(null);
@@ -146,13 +191,19 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
       try {
         const fen = currentMoveIndex >= 0 && moveHistory[currentMoveIndex]
           ? moveHistory[currentMoveIndex].fen : chessInstance.fen();
-        const lines = getTopMoves(fen, 3);
-        const ev    = lines.length > 0 ? lines[0].score : getPositionScore(fen, 1);
+        const lines = getTopLines(fen, 3);
+        const ev    = lines.length > 0 ? lines[0].score : getPositionScore(fen, 2);
         setEngineLines(lines);
         setCurrentEval(ev);
         if (currentMoveIndex >= 0) {
           setEvalHistory(prev => { const n = [...prev]; n[currentMoveIndex] = ev; return n; });
         }
+
+        // Fetch opening name for current position (debounced, cached)
+        if (openingAbortRef.current) openingAbortRef.current.abort?.();
+        fetchOpeningName(fen).then(name => {
+          if (name) setLiveOpeningName(name);
+        });
       } catch {} finally { setEngineBusy(false); }
     }, 200);
     return () => clearTimeout(evalTimerRef.current);
@@ -225,6 +276,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
     setGameLoaded(false); setReviewResults(null);
     setEngineLines([]); setCurrentEval(0);
     setEvalHistory([]); setPgnHeaders({}); setPgnError('');
+    setLiveOpeningName(null);
   };
 
   // ── Derived ───────────────────────────────────────────────────────────────────
@@ -261,7 +313,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
   const botAcc        = botColor === 'w' ? whiteAcc : blackAcc;
   const topCounts     = topColor === 'w' ? whiteCounts : blackCounts;
   const botCounts     = botColor === 'w' ? whiteCounts : blackCounts;
-  const openingName   = pgnHeaders.Opening || pgnHeaders.ECO || null;
+  const openingName   = liveOpeningName || pgnHeaders.Opening || pgnHeaders.ECO || null;
 
   // ── Render ────────────────────────────────────────────────────────────────────
 
@@ -378,11 +430,16 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
                   ? <div className={styles.dim}>Game over</div>
                   : engineLines.map((l, i) => (
                     <div key={i} className={styles.engineLine}>
-                      <span className={styles.lineN}>{i+1}.</span>
                       <span className={styles.lineEval} style={{ color: l.score > 20 ? '#e8e8e8' : l.score < -20 ? '#e05555' : 'rgba(255,255,255,0.45)' }}>
                         {formatEval(l.score)}
                       </span>
-                      <span className={styles.lineMove}>{l.san}</span>
+                      <span className={styles.lineMove}>
+                        {l.line ? l.line.map((m, mi) => (
+                          <span key={mi} className={mi === 0 ? styles.lineMoveFirst : styles.lineMoveCont}>
+                            {m}{' '}
+                          </span>
+                        )) : l.san}
+                      </span>
                     </div>
                   ))
               }

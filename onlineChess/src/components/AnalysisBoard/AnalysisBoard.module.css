@@ -299,26 +299,36 @@
   display: flex;
   align-items: baseline;
   gap: 7px;
-  padding: 2px 0;
+  padding: 3px 0;
+  border-radius: 4px;
+  transition: background 0.1s;
 }
-
-.lineN {
-  font-size: 0.58rem;
-  color: rgba(255, 255, 255, 0.2);
-  min-width: 12px;
+.engineLine:hover {
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .lineEval {
   font-size: 0.75rem;
   font-weight: 700;
   min-width: 40px;
+  flex-shrink: 0;
   font-variant-numeric: tabular-nums;
 }
 
 .lineMove {
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.65);
   font-weight: 500;
+  line-height: 1.3;
+  flex: 1;
+  min-width: 0;
+}
+
+.lineMoveFirst {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.lineMoveCont {
+  color: rgba(255, 255, 255, 0.38);
 }
 
 /* Accuracy rows */
