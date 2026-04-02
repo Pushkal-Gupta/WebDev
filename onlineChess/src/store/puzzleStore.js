@@ -60,7 +60,7 @@ const usePuzzleStore = create((set, get) => ({
     }
 
     if (!puzzleRow) {
-      set({ status: 'idle' });
+      set({ status: 'empty' });
       return;
     }
 

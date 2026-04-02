@@ -166,9 +166,9 @@ export default function PuzzlePage() {
   const [lastMoveTo,   setLastMoveTo]   = useState(null);
   const [feedback,     setFeedback]     = useState(null); // 'correct'|'wrong'|null
 
-  // Load first puzzle on mount if none loaded
+  // Load first puzzle on mount if none loaded yet
   useEffect(() => {
-    if (status === 'idle') {
+    if (status === 'idle' || status === 'empty') {
       loadNextPuzzle(user?.id);
     }
   }, []); // eslint-disable-line
@@ -214,6 +214,7 @@ export default function PuzzlePage() {
           )}
           {status === 'loading' && <span className={styles.turnHint}>Loading puzzle…</span>}
           {status === 'idle'    && <span className={styles.turnHint}>Press "New Puzzle" to start</span>}
+          {status === 'empty'   && <span className={styles.turnHint}>No puzzles available</span>}
           {status === 'solved'  && <span className={styles.feedbackSolved}>Puzzle solved!</span>}
           {status === 'failed'  && <span className={styles.feedbackFailed}>Incorrect — try next</span>}
         </div>
@@ -308,6 +309,11 @@ export default function PuzzlePage() {
             >
               {status === 'loading' ? 'Loading…' : 'New Puzzle'}
             </button>
+          )}
+          {status === 'empty' && (
+            <div className={styles.emptyMsg}>
+              Puzzles aren't available yet. Check back soon or import the Lichess puzzle database.
+            </div>
           )}
         </div>
       </div>
