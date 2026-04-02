@@ -112,6 +112,31 @@
   opacity: 0.85;
 }
 
+/* Badge on nav icons (friend requests, notifications) */
+.iconWrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  opacity: 0.85;
+  position: relative;
+}
+
+.badge {
+  position: absolute;
+  top: -5px;
+  right: -7px;
+  background: #e53e3e;
+  color: #fff;
+  font-size: 0.58rem;
+  font-weight: 800;
+  border-radius: 10px;
+  padding: 1px 4px;
+  min-width: 14px;
+  text-align: center;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
 .label {
   white-space: nowrap;
   overflow: hidden;

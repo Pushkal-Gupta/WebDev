@@ -1,0 +1,290 @@
+.page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 32px;
+  overflow-y: auto;
+  gap: 0;
+  max-width: 600px;
+  align-self: flex-start;
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+/* ── Tabs ─────────────────────────────────────────────────────────────────── */
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  margin-bottom: 20px;
+}
+
+.tab {
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: rgba(255,255,255,0.4);
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: -1px;
+}
+.tab:hover { color: rgba(255,255,255,0.75); }
+.tabActive  { color: #00fff5 !important; border-bottom-color: #00fff5; }
+
+.tabBadge {
+  background: #e53e3e;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 1px 5px;
+  min-width: 16px;
+  text-align: center;
+}
+
+.content { flex: 1; }
+
+/* ── Common list/row styles ───────────────────────────────────────────────── */
+
+.empty {
+  color: rgba(255,255,255,0.3);
+  font-size: 0.88rem;
+  padding: 32px 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.emptyIcon {
+  font-size: 2.5rem;
+  opacity: 0.2;
+}
+
+.list { display: flex; flex-direction: column; gap: 6px; }
+
+.sectionLabel {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge {
+  background: #e53e3e;
+  color: #fff;
+  font-size: 0.65rem;
+  border-radius: 10px;
+  padding: 1px 5px;
+}
+
+/* ── Friend row ───────────────────────────────────────────────────────────── */
+
+.friendRow, .requestRow, .playerRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+.friendRow:hover, .requestRow:hover, .playerRow:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.1);
+}
+
+.friendAvatar, .requestAvatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: rgba(0,255,245,0.1);
+  border: 1px solid rgba(0,255,245,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem; font-weight: 700; color: #00fff5;
+  flex-shrink: 0;
+}
+
+.friendInfo { flex: 1; min-width: 0; }
+.friendName { font-size: 0.9rem; font-weight: 600; color: rgba(255,255,255,0.9); }
+.friendRating { font-size: 0.75rem; color: rgba(255,255,255,0.35); margin-top: 1px; }
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+
+.addBtn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(0,255,245,0.3);
+  background: rgba(0,255,245,0.06);
+  color: #00fff5;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.addBtn:hover:not(:disabled) { background: rgba(0,255,245,0.12); }
+.addBtn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.acceptBtn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: none;
+  background: rgba(60,200,80,0.15);
+  color: #6fdc8c;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.acceptBtn:hover:not(:disabled) { background: rgba(60,200,80,0.25); }
+.acceptBtn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.declineBtn, .cancelBtn, .dangerBtn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,70,70,0.2);
+  background: rgba(255,70,70,0.06);
+  color: rgba(255,120,120,0.8);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.declineBtn:hover:not(:disabled),
+.cancelBtn:hover:not(:disabled),
+.dangerBtn:hover:not(:disabled) { background: rgba(255,70,70,0.14); }
+.declineBtn:disabled, .cancelBtn:disabled, .dangerBtn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.requestActions { display: flex; gap: 6px; flex-shrink: 0; }
+.requestInfo { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+.requestAge { font-size: 0.72rem; color: rgba(255,255,255,0.25); margin-top: 1px; }
+
+.friendsBadge {
+  font-size: 0.75rem;
+  color: #6fdc8c;
+  background: rgba(60,200,80,0.1);
+  border-radius: 4px;
+  padding: 2px 8px;
+  flex-shrink: 0;
+}
+
+.incomingBadge {
+  font-size: 0.72rem;
+  color: rgba(255,190,60,0.9);
+  background: rgba(255,190,60,0.08);
+  border-radius: 4px;
+  padding: 2px 8px;
+  flex-shrink: 0;
+}
+
+/* ── Requests tab ─────────────────────────────────────────────────────────── */
+
+.requestsWrap { display: flex; flex-direction: column; gap: 12px; }
+
+.notifBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(255,193,7,0.08);
+  border: 1px solid rgba(255,193,7,0.2);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: rgba(255,220,100,0.9);
+}
+
+.markAllBtn {
+  background: none;
+  border: none;
+  color: rgba(255,220,100,0.7);
+  font-size: 0.78rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.markAllBtn:hover { color: #ffd666; }
+
+.notifSection { display: flex; flex-direction: column; gap: 6px; }
+
+.notifList { display: flex; flex-direction: column; gap: 4px; }
+
+.notifRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.notifRow:hover { background: rgba(255,255,255,0.04); }
+.notifUnread { background: rgba(0,255,245,0.03); border-left: 2px solid rgba(0,255,245,0.35); padding-left: 8px; }
+
+.notifDot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(0,255,245,0.5);
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+.notifRow:not(.notifUnread) .notifDot { background: transparent; }
+
+.notifBody { flex: 1; min-width: 0; }
+.notifTitle { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.85); }
+.notifText  { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
+.notifAge   { font-size: 0.72rem; color: rgba(255,255,255,0.2); flex-shrink: 0; }
+
+/* ── Find tab ─────────────────────────────────────────────────────────────── */
+
+.findWrap { display: flex; flex-direction: column; gap: 14px; }
+
+.searchBox {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 36px 10px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.searchInput::placeholder { color: rgba(255,255,255,0.25); }
+.searchInput:focus { border-color: rgba(0,255,245,0.35); }
+
+.searchSpinner {
+  position: absolute;
+  right: 12px;
+  color: rgba(255,255,255,0.3);
+  font-size: 1rem;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }

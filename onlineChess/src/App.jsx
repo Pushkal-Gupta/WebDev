@@ -22,6 +22,9 @@ import useMatchmakingStore from './store/matchmakingStore';
 import RatingCard from './components/Profile/RatingCard';
 import PuzzlePage from './components/Puzzles/PuzzlePage';
 import SpectateList from './components/Spectate/SpectateList';
+import FriendsPage from './components/Friends/FriendsPage';
+import useNotificationStore from './store/notificationStore';
+import useFriendStore from './store/friendStore';
 import { getBestMove } from './utils/stockfish';
 import { postGame, getGames } from './utils/gameServer';
 import { getOpeningName } from './utils/evaluation';
@@ -116,6 +119,9 @@ export default function App() {
   const { updateOnlineGameRating, myRatings, loadRatings } = useRatingStore();
   const { status: mmStatus, elapsedSeconds: mmElapsed,
           joinQueue, cancelQueue: cancelMatchmaking, reset: resetMatchmaking } = useMatchmakingStore();
+  const { loadNotifications, subscribe: subscribeNotifs,
+          unsubscribe: unsubscribeNotifs, unreadCount: notifUnread } = useNotificationStore();
+  const { loadFriends, incoming: friendRequests } = useFriendStore();
   const imagePath = `./images/${pieceSets[pieceSetIndex].path}`;
 
   // ─── Init ──────────────────────────────────────────────────────────────────
@@ -124,10 +130,17 @@ export default function App() {
     initGame();
   }, []);
 
-  // ─── Load ratings when user logs in ────────────────────────────────────────
+  // ─── Load ratings, notifications, friends when user logs in ───────────────
   useEffect(() => {
-    if (user) loadRatings(user.id);
-  }, [user?.id]);
+    if (user?.id) {
+      loadRatings(user.id);
+      loadNotifications(user.id);
+      subscribeNotifs(user.id);
+      loadFriends(user.id);
+    } else {
+      unsubscribeNotifs();
+    }
+  }, [user?.id]); // eslint-disable-line
 
   // ─── Timer tick (single interval — prevents double-decrement from two Timer components) ──
   useEffect(() => {
@@ -598,7 +611,7 @@ export default function App() {
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="app-container">
-      <LeftNav activeTab={activeTab} onTabClick={handleTabClick} />
+      <LeftNav activeTab={activeTab} onTabClick={handleTabClick} friendBadge={friendRequests.length + notifUnread} />
 
       <div className="main-content">
         {/* Left sidebar — shown during local games only (not online) */}
@@ -670,6 +683,9 @@ export default function App() {
 
         {/* ── Tab 7: Spectate ── */}
         {activeTab === 7 && <SpectateList />}
+
+        {/* ── Tab 8: Friends ── */}
+        {activeTab === 8 && <FriendsPage />}
 
         {/* ── Tab 5: Account ── */}
         {activeTab === 5 && user && (
