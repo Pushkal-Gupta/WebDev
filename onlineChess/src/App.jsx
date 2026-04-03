@@ -64,13 +64,6 @@ const TC_PRESETS = [
 
 const ONLINE_TIME_CONTROLS = TC_PRESETS.filter(p => ['1+0','3+0','5+0','10+0','15+10'].includes(p.display));
 
-const DELAY_TYPES = [
-  { key: 'none',      label: 'No Delay' },
-  { key: 'fischer',   label: 'Fischer',      tip: 'Add seconds after each move' },
-  { key: 'bronstein', label: 'Bronstein',    tip: 'Recover time spent (up to max)' },
-  { key: 'simple',    label: 'Simple Delay', tip: 'Clock waits N sec before ticking' },
-];
-
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const [activeTab, setActiveTab]           = useState(0);
@@ -253,7 +246,11 @@ export default function App() {
       : undefined;
 
     const currentFen = useGameStore.getState().getFen();
-    bcastMove(onlineChannelRef.current, { from, to, promotion, fen: currentFen });
+    bcastMove(onlineChannelRef.current, { from, to, promotion, fen: currentFen })
+      .catch(() => {
+        console.error('Failed to broadcast move');
+        useGameStore.getState().setDisableBoard(false);
+      });
     if (onlineRoom?.id) updateRoomFen(onlineRoom.id, currentFen).catch(() => {});
 
     // Disable board until opponent responds
@@ -368,7 +365,10 @@ export default function App() {
     const { col: fc, row: fr } = sqToRowCol(from);
     const { col: tc, row: tr } = sqToRowCol(to);
     useGameStore.getState().makeMove({ row: fr, col: fc }, { row: tr, col: tc }, promotion || null);
-    useGameStore.getState().setDisableBoard(false);
+    // Only re-enable board if game didn't just end (checkmate/stalemate sets disableBoard:true)
+    if (!useGameStore.getState().gameOver) {
+      useGameStore.getState().setDisableBoard(false);
+    }
   };
 
   const onIncomingChat = (payload) => {
@@ -454,33 +454,41 @@ export default function App() {
 
   const handleLocalResign = () => {
     if (!gameStarted || gameOver) return;
-    const state = useGameStore.getState();
-    // In computer mode, human is opposite of compColor; in pass-and-play, active player resigns
-    const myColor = state.isComp
-      ? (state.compColor === 'white' ? 'black' : 'white')
-      : (state.activeColor === 'w' ? 'white' : 'black');
-    const winner = myColor === 'white' ? 'Black' : 'White';
-    useGameStore.setState({
-      gameOver: true,
-      gameOverMessage: `${winner} wins! You resigned.`,
-      timerRunning: false,
-      disableBoard: true,
-      gameResult: { winner: winner.toLowerCase(), reason: 'resign' },
-    });
+    confirmActionRef.current = () => {
+      const state = useGameStore.getState();
+      // In computer mode, human is opposite of compColor; in pass-and-play, active player resigns
+      const myColor = state.isComp
+        ? (state.compColor === 'white' ? 'black' : 'white')
+        : (state.activeColor === 'w' ? 'white' : 'black');
+      const winner = myColor === 'white' ? 'Black' : 'White';
+      useGameStore.setState({
+        gameOver: true,
+        gameOverMessage: `${winner} wins! You resigned.`,
+        timerRunning: false,
+        disableBoard: true,
+        gameResult: { winner: winner.toLowerCase(), reason: 'resign' },
+      });
+    };
+    setConfirmMsg('Are you sure you want to resign?');
+    setShowConfirm(true);
   };
 
-  const handleOnlineResign = async () => {
+  const handleOnlineResign = () => {
     if (!onlineChannelRef.current) return;
-    await broadcastResign(onlineChannelRef.current, user.id);
-    const myColor = useGameStore.getState().onlineColor;
-    const winner  = myColor === 'white' ? 'Black' : 'White'; // I resigned
-    useGameStore.setState({
-      gameOver: true,
-      gameOverMessage: `${winner} wins! You resigned.`,
-      timerRunning: false,
-      disableBoard: true,
-      gameResult: { winner: winner.toLowerCase(), reason: 'resign' },
-    });
+    confirmActionRef.current = async () => {
+      await broadcastResign(onlineChannelRef.current, user.id);
+      const myColor = useGameStore.getState().onlineColor;
+      const winner  = myColor === 'white' ? 'Black' : 'White'; // I resigned
+      useGameStore.setState({
+        gameOver: true,
+        gameOverMessage: `${winner} wins! You resigned.`,
+        timerRunning: false,
+        disableBoard: true,
+        gameResult: { winner: winner.toLowerCase(), reason: 'resign' },
+      });
+    };
+    setConfirmMsg('Are you sure you want to resign?');
+    setShowConfirm(true);
   };
 
   // ─── Online undo handlers ─────────────────────────────────────────────────
@@ -995,7 +1003,7 @@ export default function App() {
             };
           })() : null}
           onNewGame={handleGameOverNewGame}
-          onCancel={() => { useGameStore.setState({ gameOver: false }); setRatingDelta(null); }}
+          onCancel={() => { useGameStore.setState({ gameOver: false }); setRatingDelta(null); setActiveTab(0); }}
           onAnalyse={() => { useGameStore.setState({ gameOver: false }); setRatingDelta(null); }}
           onReview={handleReviewGame}
         />
@@ -1004,7 +1012,7 @@ export default function App() {
       {showStrength && (
         <StrengthModal
           onSelect={handleStrengthSelect}
-          onCancel={() => { setShowStrength(false); if (activeTab === 3) setActiveTab(0); }}
+          onCancel={() => { setShowStrength(false); setPendingTimeControl(null); if (activeTab === 3) setActiveTab(0); }}
         />
       )}
 
@@ -1033,116 +1041,6 @@ export default function App() {
       )}
 
       {showLogout && <LogoutModal onClose={() => setShowLogout(false)} />}
-    </div>
-  );
-}
-
-// ─── Game Setup Panel ─────────────────────────────────────────────────────────
-function GameSetupPanel({ mode, user, onStart, onCancel }) {
-  const [selPreset, setSelPreset]     = useState(TC_PRESETS[4]); // 3+2 default
-  const [useCustom, setUseCustom]     = useState(false);
-  const [noTimer, setNoTimer]         = useState(false);
-  const [customMins, setCustomMins]   = useState(5);
-  const [customSecs, setCustomSecs]   = useState(0);
-  const [delayType, setDelayType]     = useState('fischer');
-  const [delayAmt, setDelayAmt]       = useState(2);
-  const [activeCat, setActiveCat]     = useState('Blitz');
-
-  const cats = [...new Set(TC_PRESETS.map(p => p.cat))];
-
-  const buildTC = () => {
-    if (noTimer) return null;
-    if (useCustom) {
-      const total = customMins * 60 + customSecs;
-      if (total <= 0) return null;
-      const inc = delayType === 'fischer' ? delayAmt : 0;
-      return { display: `${customMins}:${String(customSecs).padStart(2,'0')}${inc ? '+'+inc : ''}`, total, incr: inc, delayType, delay: delayAmt };
-    }
-    if (!selPreset) return null;
-    const inc = delayType === 'fischer' ? delayAmt : selPreset.incr;
-    return { ...selPreset, incr: inc, delayType, delay: delayAmt };
-  };
-
-  const canStart = noTimer || useCustom || selPreset;
-  const modeLabel = { computer: 'vs Computer', local: 'Pass & Play', online: 'Online' }[mode];
-
-  return (
-    <div className="gs-panel">
-      <div className="gs-header">
-        <span className="gs-title">{modeLabel} — Setup</span>
-        <button className="gs-close" onClick={onCancel}>×</button>
-      </div>
-
-      <label className="gs-notimer-row">
-        <input type="checkbox" checked={noTimer} onChange={e => setNoTimer(e.target.checked)} />
-        <span>Untimed game</span>
-      </label>
-
-      {!noTimer && <>
-        <div className="gs-cats">
-          {cats.map(c => (
-            <button key={c} className={`gs-cat ${activeCat === c ? 'gs-cat-active' : ''}`} onClick={() => { setActiveCat(c); setUseCustom(false); }}>
-              {c}
-            </button>
-          ))}
-          <button className={`gs-cat ${useCustom ? 'gs-cat-active' : ''}`} onClick={() => setUseCustom(true)}>Custom</button>
-        </div>
-
-        {!useCustom && (
-          <div className="gs-presets">
-            {TC_PRESETS.filter(p => p.cat === activeCat).map(p => (
-              <button key={p.display}
-                className={`gs-preset ${selPreset?.display === p.display ? 'gs-preset-active' : ''}`}
-                onClick={() => setSelPreset(p)}
-              >
-                {p.display}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {useCustom && (
-          <div className="gs-custom-row">
-            <div className="gs-custom-field">
-              <label>Minutes</label>
-              <input type="number" min="0" max="180" value={customMins}
-                onChange={e => setCustomMins(Math.max(0, parseInt(e.target.value)||0))}
-                className="gs-num-input" />
-            </div>
-            <span className="gs-colon">:</span>
-            <div className="gs-custom-field">
-              <label>Seconds</label>
-              <input type="number" min="0" max="59" value={customSecs}
-                onChange={e => setCustomSecs(Math.min(59,Math.max(0,parseInt(e.target.value)||0)))}
-                className="gs-num-input" />
-            </div>
-          </div>
-        )}
-
-        <div className="gs-section-label">Time Control Type</div>
-        <div className="gs-delay-row">
-          {DELAY_TYPES.map(d => (
-            <button key={d.key} title={d.tip || ''}
-              className={`gs-delay-btn ${delayType === d.key ? 'gs-delay-active' : ''}`}
-              onClick={() => setDelayType(d.key)}>
-              {d.label}
-            </button>
-          ))}
-        </div>
-
-        {delayType !== 'none' && (
-          <div className="gs-delay-amt">
-            <span>{delayType === 'fischer' ? 'Increment' : 'Delay'} (sec):</span>
-            <input type="number" min="0" max="60" value={delayAmt}
-              onChange={e => setDelayAmt(Math.max(0, parseInt(e.target.value)||0))}
-              className="gs-num-input gs-num-small" />
-          </div>
-        )}
-      </>}
-
-      <button className="gs-start-btn" disabled={!canStart} onClick={() => canStart && onStart(buildTC())}>
-        Start Game
-      </button>
     </div>
   );
 }
@@ -1277,14 +1175,14 @@ function HomeScreen({ user, onStart, onPlayOnline, onTabClick, onQuickMatch }) {
         <div className="home-section">
           <div className="home-section-label">Local Play — No account needed</div>
           <div className="home-local-row">
-            <button className="home-local-btn" onClick={() => onStart('local', { initialTime: 300, increment: 0, noTimer: false })}>
+            <button className="home-local-btn" onClick={() => onStart('local', null)}>
               <span className="home-local-icon">♞</span>
               <div>
                 <div className="home-local-title">Pass &amp; Play</div>
                 <div className="home-local-desc">Two players, one device</div>
               </div>
             </button>
-            <button className="home-local-btn" onClick={() => onTabClick(3)}>
+            <button className="home-local-btn" onClick={() => onStart('computer', null)}>
               <span className="home-local-icon">♛</span>
               <div>
                 <div className="home-local-title">vs Computer</div>
@@ -1349,7 +1247,7 @@ function PlayerPanel({ name, colorCode, time, timeActive, timerRunning, captured
       <div className="pp-left">
         <div className={`pp-avatar pp-avatar-${colorCode}`}>{initial}</div>
         <div className="pp-meta">
-          <span className="pp-name">{name || (colorCode === 'w' ? 'White' : 'Black')}</span>
+          <span className="pp-name" title={name || (colorCode === 'w' ? 'White' : 'Black')}>{name || (colorCode === 'w' ? 'White' : 'Black')}</span>
           <div className="pp-captures">
             {captured.map((p, i) => (
               <img
@@ -1367,10 +1265,12 @@ function PlayerPanel({ name, colorCode, time, timeActive, timerRunning, captured
         {showHint && (
           <button className="pp-hint-btn" onClick={onHint} title="Get hint">Hint</button>
         )}
-        {timeControl && (
+        {timeControl ? (
           <div className={`pp-clock ${ticking ? 'pp-clock-active' : ''} ${isLow ? 'pp-clock-low' : ''}`}>
             {formatPPTime(time)}
           </div>
+        ) : (
+          <div className="pp-clock pp-clock-untimed">Untimed</div>
         )}
       </div>
     </div>

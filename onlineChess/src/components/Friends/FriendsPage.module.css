@@ -52,7 +52,7 @@
 .tabActive  { color: var(--color-accent) !important; border-bottom-color: var(--color-accent); }
 
 .tabBadge {
-  background: #e53e3e;
+  background: var(--color-error);
   color: #fff;
   font-size: 0.65rem;
   font-weight: 700;
@@ -96,7 +96,7 @@
 }
 
 .badge {
-  background: #e53e3e;
+  background: var(--color-error);
   color: #fff;
   font-size: 0.65rem;
   border-radius: 10px;

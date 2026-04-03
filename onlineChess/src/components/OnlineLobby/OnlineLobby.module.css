@@ -180,7 +180,7 @@
 .joinBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .error {
-  color: #ff9999;
+  color: var(--color-error);
   font-size: 0.85rem;
   text-align: center;
   margin: 0;
@@ -288,4 +288,9 @@
   color: rgba(255,255,255,0.3);
   margin: -8px 0 0;
   text-align: center;
+}
+
+@media (max-width: 480px) {
+  .lobbyCard { padding: 18px 16px; }
+  .timeGrid { grid-template-columns: repeat(2, 1fr); }
 }

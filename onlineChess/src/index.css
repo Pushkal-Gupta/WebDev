@@ -72,3 +72,7 @@ html, body, #root {
 @media (max-width: 540px) {
   :root { --cell-size: 42px; }   /* 336px board */
 }
+
+@media (max-width: 400px) {
+  :root { --cell-size: 38px; }   /* 304px board */
+}

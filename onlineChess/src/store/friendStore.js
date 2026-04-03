@@ -14,46 +14,51 @@ const useFriendStore = create((set, get) => ({
     if (!userId) return;
     set({ loading: true });
 
-    const { data, error } = await supabase
-      .from('friendships')
-      .select('*')
-      .or(`user_id.eq.${userId},friend_id.eq.${userId}`);
+    try {
+      const { data, error } = await supabase
+        .from('friendships')
+        .select('*')
+        .or(`user_id.eq.${userId},friend_id.eq.${userId}`);
 
-    if (error || !data) { set({ loading: false }); return; }
+      if (error || !data) { set({ loading: false }); return; }
 
-    const accepted = data.filter(r => r.status === 'accepted');
-    const pending  = data.filter(r => r.status === 'pending');
+      const accepted = data.filter(r => r.status === 'accepted');
+      const pending  = data.filter(r => r.status === 'pending');
 
-    // Enrich accepted friendships with the other person's rating info
-    const friendIds = accepted.map(r => r.user_id === userId ? r.friend_id : r.user_id);
-    let ratingMap = {};
-    if (friendIds.length > 0) {
-      const { data: ratings } = await supabase
-        .from('user_ratings')
-        .select('user_id, username, rating, category')
-        .in('user_id', friendIds);
-      // Keep best rating per user (by category priority)
-      const priority = ['bullet','blitz','rapid','classical'];
-      (ratings || []).forEach(r => {
-        const existing = ratingMap[r.user_id];
-        if (!existing || priority.indexOf(r.category) < priority.indexOf(existing.category)) {
-          ratingMap[r.user_id] = r;
-        }
+      // Enrich accepted friendships with the other person's rating info
+      const friendIds = accepted.map(r => r.user_id === userId ? r.friend_id : r.user_id);
+      let ratingMap = {};
+      if (friendIds.length > 0) {
+        const { data: ratings } = await supabase
+          .from('user_ratings')
+          .select('user_id, username, rating, category')
+          .in('user_id', friendIds);
+        // Keep best rating per user (by category priority)
+        const priority = ['bullet','blitz','rapid','classical'];
+        (ratings || []).forEach(r => {
+          const existing = ratingMap[r.user_id];
+          if (!existing || priority.indexOf(r.category) < priority.indexOf(existing.category)) {
+            ratingMap[r.user_id] = r;
+          }
+        });
+      }
+
+      const friends = accepted.map(r => {
+        const otherId = r.user_id === userId ? r.friend_id : r.user_id;
+        const info = ratingMap[otherId] || {};
+        return { id: r.id, userId: otherId, username: info.username || 'Unknown', rating: info.rating || null, friendshipId: r.id };
       });
+
+      set({
+        friends,
+        incoming: pending.filter(r => r.friend_id === userId),
+        outgoing: pending.filter(r => r.user_id  === userId),
+        loading: false,
+      });
+    } catch (err) {
+      console.error('Failed to load friends:', err);
+      set({ loading: false });
     }
-
-    const friends = accepted.map(r => {
-      const otherId = r.user_id === userId ? r.friend_id : r.user_id;
-      const info = ratingMap[otherId] || {};
-      return { id: r.id, userId: otherId, username: info.username || 'Unknown', rating: info.rating || null, friendshipId: r.id };
-    });
-
-    set({
-      friends,
-      incoming: pending.filter(r => r.friend_id === userId),
-      outgoing: pending.filter(r => r.user_id  === userId),
-      loading: false,
-    });
   },
 
   // ── Send a friend request ──────────────────────────────────────────────────

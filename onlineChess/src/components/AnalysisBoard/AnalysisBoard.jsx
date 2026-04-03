@@ -306,7 +306,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
     setPgnError('');
     if (!pgnStr.trim()) { setPgnError('Paste a PGN or FEN first.'); return; }
     const chess = tryLoadPgn(pgnStr);
-    if (!chess) { setPgnError('Could not parse PGN. Check the format and try again.'); return; }
+    if (!chess) { setPgnError('Invalid PGN format. Paste the full game text including move numbers (e.g., 1. e4 e5 2. Nf3 Nc6...) or a valid FEN string.'); return; }
     const cleanPgn = chess.pgn() || pgnStr;
     const ok = importPgn(cleanPgn || pgnStr);
     if (ok) {
