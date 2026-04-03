@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 function blendColors(color1, color2, ratio) {
   const hex = (c) => parseInt(c, 16);
@@ -46,7 +47,7 @@ const THEMES = [
   },
 ];
 
-const useThemeStore = create((set, get) => ({
+const useThemeStore = create(persist((set, get) => ({
   pieceSets: PIECE_SETS,
   themes: THEMES,
   pieceSetIndex: 0,
@@ -91,6 +92,6 @@ const useThemeStore = create((set, get) => ({
       clr1x: theme.clr1x, clr2x: theme.clr2x,
     });
   },
-}));
+}), { name: 'chess-theme' }));
 
 export default useThemeStore;

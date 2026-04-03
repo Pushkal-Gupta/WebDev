@@ -40,6 +40,7 @@ import { reviewGame } from './utils/reviewEngine';
 import {
   createRoom, joinRoom, subscribeToRoom,
   broadcastMove as bcastMove, broadcastChat, broadcastResign, broadcastJoin,
+  broadcastUndoRequest, broadcastUndoResponse,
   endRoom, unsubscribe, sqToRowCol, rowColToSq, updateRoomFen,
 } from './utils/multiplayerService';
 
@@ -83,7 +84,12 @@ export default function App() {
   const [showStrength, setShowStrength]     = useState(false);
   const [showConfirm, setShowConfirm]       = useState(false);
   const [confirmMsg, setConfirmMsg]         = useState('');
-  const [confirmAction, setConfirmAction]   = useState(null);
+  const confirmActionRef                    = useRef(null); // use ref to avoid React functional-update quirks
+
+  // Online undo state
+  const [undoRequest, setUndoRequest]       = useState(null); // { playerColor, name } incoming request
+  const [undoPending, setUndoPending]       = useState(false); // outgoing request awaiting response
+  const undosUsedRef                        = useRef({ white: 0, black: 0 }); // max 2 per player
   const [alertMsg, setAlertMsg]             = useState('');
   const [analysisGames, setAnalysisGames]   = useState([]);
   const [analysisLoading, setAnalysisLoading] = useState(false);
@@ -115,7 +121,7 @@ export default function App() {
     chessInstance, activeColor,
     timerData, oppName, youName,
     moveHistory, currentMoveIndex,
-    importPgn,
+    importPgn, undoMove, undoTwoMoves,
     boardState, flipped,
     isOnline,
     capturedByWhite, capturedByBlack,
@@ -131,7 +137,8 @@ export default function App() {
   const { loadNotifications, subscribe: subscribeNotifs,
           unsubscribe: unsubscribeNotifs, unreadCount: notifUnread } = useNotificationStore();
   const { loadFriends, incoming: friendRequests } = useFriendStore();
-  const imagePath = `./images/${pieceSets[pieceSetIndex].path}`;
+  const safeIndex = Math.max(0, Math.min(pieceSetIndex ?? 0, pieceSets.length - 1));
+  const imagePath = `./images/${pieceSets[safeIndex].path}`;
 
   // ─── Init ──────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -198,7 +205,8 @@ export default function App() {
         setAlertMsg('Computer move error.');
       } finally {
         setCompThinking(false);
-        setDisableBoard(false);
+        // Only re-enable board if game didn't just end (checkGameOver sets disableBoard=true)
+        if (!useGameStore.getState().gameOver) setDisableBoard(false);
       }
     };
 
@@ -236,6 +244,14 @@ export default function App() {
   useEffect(() => {
     if (gameOver && isOnline && onlineRoom) {
       endRoom(onlineRoom.id).catch(console.error);
+      if (onlineChannelRef.current) {
+        unsubscribe(onlineChannelRef.current);
+        onlineChannelRef.current = null;
+      }
+      // Reset undo counters for next game
+      undosUsedRef.current = { white: 0, black: 0 };
+      setUndoRequest(null);
+      setUndoPending(false);
     }
   }, [gameOver]);
 
@@ -370,9 +386,11 @@ export default function App() {
         store.setOppName(payload.username || 'Opponent');
         store.setOnlineOpponentId(payload.userId);
       },
-      onMove:   onIncomingMove,
-      onChat:   onIncomingChat,
-      onResign: onOpponentResign,
+      onMove:         onIncomingMove,
+      onChat:         onIncomingChat,
+      onResign:       onOpponentResign,
+      onUndoRequest:  onIncomingUndoRequest,
+      onUndoResponse: onIncomingUndoResponse,
     });
     onlineChannelRef.current = channel;
   };
@@ -387,9 +405,11 @@ export default function App() {
     setChatMessages([]);
 
     const channel = subscribeToRoom(code.toUpperCase(), {
-      onMove:   onIncomingMove,
-      onChat:   onIncomingChat,
-      onResign: onOpponentResign,
+      onMove:         onIncomingMove,
+      onChat:         onIncomingChat,
+      onResign:       onOpponentResign,
+      onUndoRequest:  onIncomingUndoRequest,
+      onUndoResponse: onIncomingUndoResponse,
     });
     onlineChannelRef.current = channel;
 
@@ -423,6 +443,55 @@ export default function App() {
     });
   };
 
+  // ─── Online undo handlers ─────────────────────────────────────────────────
+  const handleRequestUndo = async () => {
+    if (!onlineChannelRef.current) return;
+    const myColor = useGameStore.getState().onlineColor; // 'white' | 'black'
+    const used    = undosUsedRef.current[myColor] || 0;
+    if (used >= 2) { showAlert('You have used all your undo requests (2 max).'); return; }
+    const history = useGameStore.getState().moveHistory;
+    if (history.length < 2) { showAlert('Not enough moves to undo.'); return; }
+    if (undoPending) { showAlert('Undo request already pending.'); return; }
+    undosUsedRef.current[myColor] = used + 1;
+    setUndoPending(true);
+    await broadcastUndoRequest(onlineChannelRef.current, {
+      userId: useAuthStore.getState().user?.id,
+      playerColor: myColor,
+    });
+  };
+
+  const onIncomingUndoRequest = (payload) => {
+    const myColor = useGameStore.getState().onlineColor;
+    if (payload.playerColor === myColor) return; // shouldn't happen but guard
+    setUndoRequest({ playerColor: payload.playerColor, name: useGameStore.getState().oppName });
+  };
+
+  const handleAcceptUndo = async () => {
+    setUndoRequest(null);
+    await broadcastUndoResponse(onlineChannelRef.current, { accepted: true, userId: useAuthStore.getState().user?.id });
+    useGameStore.getState().undoTwoMoves();
+    // Re-enable board for the player whose turn it is now
+    useGameStore.getState().setDisableBoard(false);
+  };
+
+  const handleRejectUndo = async () => {
+    setUndoRequest(null);
+    await broadcastUndoResponse(onlineChannelRef.current, { accepted: false, userId: useAuthStore.getState().user?.id });
+  };
+
+  const onIncomingUndoResponse = (payload) => {
+    setUndoPending(false);
+    if (payload.accepted) {
+      useGameStore.getState().undoTwoMoves();
+      useGameStore.getState().setDisableBoard(false);
+    } else {
+      showAlert('Undo request was declined by opponent.');
+      // Refund the undo token since it was rejected
+      const myColor = useGameStore.getState().onlineColor;
+      undosUsedRef.current[myColor] = Math.max(0, (undosUsedRef.current[myColor] || 0) - 1);
+    }
+  };
+
   const handleCancelWait = () => {
     setWaitingForOpponent(false);
     if (onlineRoom) endRoom(onlineRoom.id).catch(console.error);
@@ -441,7 +510,11 @@ export default function App() {
     setOnlineRoom(null);
     setWaitingForOpponent(false);
     setIsOnlineConnected(false);
+    setChatMessages([]);
     broadcastedMoveRef.current = -1;
+    undosUsedRef.current = { white: 0, black: 0 };
+    setUndoRequest(null);
+    setUndoPending(false);
     resetMatchmaking();
     initGame();
   };
@@ -449,15 +522,20 @@ export default function App() {
   // ─── Matchmaking handlers ─────────────────────────────────────────────────
   const handleMatchFound = ({ roomId, opponentName, opponentId, yourColor, timeControl: matchedTC }) => {
     const tc = matchedTC || onlineTimeControl;
+    broadcastedMoveRef.current = -1; // reset BEFORE subscribing/starting
+    undosUsedRef.current = { white: 0, black: 0 };
+    setChatMessages([]);
+    setUndoRequest(null);
+    setUndoPending(false);
     setOnlineRoom({ id: roomId, status: 'playing', hostColor: yourColor === 'white' ? 'white' : 'black' });
     setIsOnlineConnected(true);
-    broadcastedMoveRef.current = -1;
-    setChatMessages([]);
 
     const channel = subscribeToRoom(roomId, {
-      onMove:   onIncomingMove,
-      onChat:   onIncomingChat,
-      onResign: onOpponentResign,
+      onMove:         onIncomingMove,
+      onChat:         onIncomingChat,
+      onResign:       onOpponentResign,
+      onUndoRequest:  onIncomingUndoRequest,
+      onUndoResponse: onIncomingUndoResponse,
     });
     onlineChannelRef.current = channel;
 
@@ -489,7 +567,7 @@ export default function App() {
       if (!user) { setShowLogin(true); return; }
       if (gameStarted && !gameOver) {
         setConfirmMsg('End current game?');
-        setConfirmAction(() => () => executeTabSwitch(index));
+        confirmActionRef.current = () => executeTabSwitch(index);
         setShowConfirm(true);
       } else {
         executeTabSwitch(index);
@@ -502,10 +580,7 @@ export default function App() {
       if (!user) { setShowLogin(true); return; }
       if (gameStarted && !gameOver) {
         setConfirmMsg(isOnline ? 'Leave online game? (You will forfeit)' : 'End current game?');
-        setConfirmAction(() => () => {
-          if (isOnline) leaveOnlineGame();
-          executeTabSwitch(index);
-        });
+        confirmActionRef.current = () => { if (isOnline) leaveOnlineGame(); executeTabSwitch(index); };
         setShowConfirm(true);
       } else {
         executeTabSwitch(index);
@@ -516,10 +591,7 @@ export default function App() {
     if (gameStarted && !gameOver) {
       const msg = isOnline ? 'Leave online game? (You will forfeit)' : 'End current game?';
       setConfirmMsg(msg);
-      setConfirmAction(() => () => {
-        if (isOnline) leaveOnlineGame();
-        executeTabSwitch(index);
-      });
+      confirmActionRef.current = () => { if (isOnline) leaveOnlineGame(); executeTabSwitch(index); };
       setShowConfirm(true);
       return;
     }
@@ -529,6 +601,11 @@ export default function App() {
   const executeTabSwitch = (index) => {
     setShowConfirm(false);
     setActiveTab(index);
+    // Clean up P2P if leaving tab 12
+    if (index !== 12 && p2pMyColor) {
+      p2p.close();
+      setP2pMyColor(null);
+    }
     if (index === 0) {
       initGame();
     } else if (index === 1) {
@@ -541,7 +618,22 @@ export default function App() {
     } else if (index === 4) {
       // Online tab — lobby shown by default, no initGame (don't reset mid-session)
     } else if (index === 5) {
-      // Account screen
+      // Account screen — no extra init needed
+    } else if (index === 6) {
+      // Puzzles
+    } else if (index === 7) {
+      // Spectate
+    } else if (index === 8) {
+      // Friends
+    } else if (index === 9) {
+      // Clubs
+    } else if (index === 10) {
+      // Tournaments
+    } else if (index === 11) {
+      // Leaderboard
+    } else if (index === 12) {
+      // P2P — reset state so user always starts fresh from setup
+      if (p2pMyColor) { p2p.close(); setP2pMyColor(null); }
     }
   };
 
@@ -767,6 +859,14 @@ export default function App() {
                   <span className="online-room-id">Room: {onlineRoom?.id}</span>
                   <div className="online-actions">
                     <button className="online-btn hint-btn" onClick={handleGetHint}>Hint</button>
+                    <button
+                      className="online-btn undo-btn"
+                      onClick={handleRequestUndo}
+                      disabled={undoPending || undosUsedRef.current[useGameStore.getState().onlineColor] >= 2}
+                      title={undoPending ? 'Waiting for response…' : `Undo (${2 - (undosUsedRef.current[useGameStore.getState().onlineColor] || 0)} left)`}
+                    >
+                      {undoPending ? '↩ Pending…' : '↩ Undo'}
+                    </button>
                     <button className="online-btn resign-btn" onClick={handleOnlineResign}>Resign</button>
                   </div>
                 </div>
@@ -816,8 +916,13 @@ export default function App() {
       {showConfirm && (
         <ConfirmModal
           message={confirmMsg}
-          onConfirm={() => { setShowConfirm(false); if (confirmAction) confirmAction(); }}
-          onCancel={() => setShowConfirm(false)}
+          onConfirm={() => {
+            setShowConfirm(false);
+            const fn = confirmActionRef.current;
+            confirmActionRef.current = null;
+            fn?.();
+          }}
+          onCancel={() => { setShowConfirm(false); confirmActionRef.current = null; }}
         />
       )}
 
@@ -844,6 +949,15 @@ export default function App() {
           color={activeColor === 'w' ? 'white' : 'black'}
           imagePath={imagePath}
           onSelect={completePromotion}
+        />
+      )}
+
+      {/* Online undo request dialog */}
+      {undoRequest && (
+        <ConfirmModal
+          message={`${undoRequest.name} requests to undo the last 2 moves. Allow?`}
+          onConfirm={handleAcceptUndo}
+          onCancel={handleRejectUndo}
         />
       )}
 
@@ -1006,11 +1120,15 @@ function HomeScreen({ user, onStart, onPlayOnline, onTabClick, onQuickMatch }) {
   const { myRatings } = useRatingStore();
 
   useEffect(() => {
-    supabase
-      .from('chess_rooms')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'playing')
-      .then(({ count }) => setLiveCount(count ?? 0));
+    const fetchCount = () =>
+      supabase
+        .from('chess_rooms')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'playing')
+        .then(({ count }) => setLiveCount(count ?? 0));
+    fetchCount();
+    const id = setInterval(fetchCount, 30000); // refresh every 30 s
+    return () => clearInterval(id);
   }, []);
 
   const ratingCats = user ? RATING_CATS.filter(c => myRatings[c.key]) : [];

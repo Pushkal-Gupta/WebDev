@@ -5,6 +5,9 @@ import useGameStore from '../../store/gameStore';
 import { getPositionScore, getLocalBestMoveWithScore } from '../../utils/localAI';
 import { Chess } from 'chess.js';
 import { CLASSIFICATIONS, reviewGame } from '../../utils/reviewEngine';
+import { fetchChessComGames } from '../../utils/chessComService';
+import { fetchLichessGames } from '../../utils/lichessService';
+import BoardEditor from './BoardEditor';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -20,7 +23,6 @@ function formatEval(score) {
   return (score >= 0 ? '+' : '') + (score / 100).toFixed(1);
 }
 
-// Build top-N engine lines with 3-move PV each (depth 2 eval + continuation)
 function getTopLines(fen, n = 3) {
   try {
     const chess = new Chess(fen);
@@ -28,8 +30,6 @@ function getTopLines(fen, n = 3) {
     const moves = chess.moves({ verbose: true });
     if (!moves.length) return [];
     const isMax = chess.turn() === 'w';
-
-    // Score all moves at depth 2 (good balance of speed/quality)
     const scored = moves.map(m => {
       chess.move(m);
       const score = getPositionScore(chess.fen(), 2);
@@ -37,31 +37,25 @@ function getTopLines(fen, n = 3) {
       return { move: m, score };
     });
     scored.sort((a, b) => isMax ? b.score - a.score : a.score - b.score);
-
-    // For top n, build 3-move continuation lines
     return scored.slice(0, n).map(({ move, score }) => {
       const lineChess = new Chess(fen);
       lineChess.move(move);
       const sanMoves = [move.san];
-
       for (let d = 0; d < 2; d++) {
         const { move: bestUci } = getLocalBestMoveWithScore(lineChess.fen(), 1);
         if (!bestUci) break;
         const result = lineChess.move({
-          from: bestUci.slice(0, 2),
-          to:   bestUci.slice(2, 4),
+          from: bestUci.slice(0, 2), to: bestUci.slice(2, 4),
           promotion: bestUci[4] || undefined,
         });
         if (!result) break;
         sanMoves.push(result.san);
       }
-
       return { san: move.san, score, line: sanMoves };
     });
   } catch { return []; }
 }
 
-// Fetch opening name from lichess opening explorer (free, no key needed)
 const _openingCache = new Map();
 async function fetchOpeningName(fen) {
   if (_openingCache.has(fen)) return _openingCache.get(fen);
@@ -78,24 +72,23 @@ async function fetchOpeningName(fen) {
   } catch { return null; }
 }
 
-// Try loading PGN — attempts normalization if raw parse fails
 function tryLoadPgn(pgnStr) {
   const chess = new Chess();
-  // Attempt 1: raw
   try { chess.loadPgn(pgnStr); return chess; } catch {}
-  // Attempt 2: strip headers + normalize spaces around move numbers
   try {
     const stripped = pgnStr.replace(/\[.*?\]\s*/gs, '').trim();
     const spaced   = stripped.replace(/(\d+)\./g, ' $1. ').replace(/\s+/g, ' ').trim();
     chess.loadPgn(spaced);
     return chess;
   } catch {}
-  // Attempt 3: treat as FEN
-  try { const c = new Chess(pgnStr.trim()); return c; } catch {}
+  try { return new Chess(pgnStr.trim()); } catch {}
   return null;
 }
 
-const ACC_WEIGHTS = { brilliant: 100, best: 100, good: 85, inaccuracy: 65, mistake: 40, blunder: 10 };
+const ACC_WEIGHTS = {
+  brilliant: 100, critical: 95, best: 100, excellent: 85, okay: 70,
+  inaccuracy: 45, mistake: 20, blunder: 0, theory: 100,
+};
 
 function calcAccuracy(reviewResults, moveHistory, color) {
   if (!reviewResults?.length) return null;
@@ -113,11 +106,14 @@ function buildCounts(reviewResults, moveHistory, color) {
   return counts;
 }
 
+// Classification display order for the report table
+const CLASS_ORDER = ['brilliant', 'critical', 'best', 'excellent', 'okay', 'inaccuracy', 'mistake', 'blunder', 'theory'];
+
 // ── Eval Graph ────────────────────────────────────────────────────────────────
 
 function EvalGraph({ data, currentIdx, onSeek }) {
   const uid = useId().replace(/:/g, '');
-  const W = 400, H = 48, pad = 1;
+  const W = 500, H = 60, pad = 1;
   const evalToY = s => pad + (H - pad * 2) * (1 - evalToWhitePct(s) / 100);
   const pts = data.map((s, i) => [
     data.length > 1 ? pad + (i / (data.length - 1)) * (W - pad * 2) : W / 2,
@@ -126,26 +122,57 @@ function EvalGraph({ data, currentIdx, onSeek }) {
   const pathD = pts.length > 1 ? 'M ' + pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' L ') : null;
   const fillD = pathD ? `${pathD} L ${pts.at(-1)[0].toFixed(1)},${H / 2} L ${pts[0][0].toFixed(1)},${H / 2} Z` : null;
   const curX  = currentIdx >= 0 && currentIdx < data.length ? pts[currentIdx][0] : null;
+
+  // Find blunder/mistake positions for markers
+  const markers = [];
+  data.forEach((s, i) => {
+    if (i === 0) return;
+    const diff = Math.abs(s - data[i - 1]);
+    if (diff > 200) markers.push({ x: pts[i][0], y: pts[i][1], type: 'blunder' });
+    else if (diff > 100) markers.push({ x: pts[i][0], y: pts[i][1], type: 'mistake' });
+  });
+
   const handleClick = e => {
     const r = e.currentTarget.getBoundingClientRect();
     onSeek(Math.max(0, Math.min(data.length - 1, Math.round(((e.clientX - r.left) / r.width) * (data.length - 1)))));
   };
+
   return (
     <svg className={styles.evalGraph} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" onClick={handleClick}>
-      <rect x={0} y={0} width={W} height={H} fill="rgba(0,0,0,0.3)" />
-      <line x1={0} y1={H/2} x2={W} y2={H/2} stroke="rgba(255,255,255,0.1)" strokeWidth={0.8} />
+      <rect x={0} y={0} width={W} height={H} fill="rgba(0,0,0,0.35)" rx={4} />
+      <line x1={0} y1={H/2} x2={W} y2={H/2} stroke="rgba(255,255,255,0.08)" strokeWidth={0.5} />
       {fillD && (
         <>
           <clipPath id={`ug${uid}`}><rect x={0} y={0} width={W} height={H/2} /></clipPath>
           <clipPath id={`lg${uid}`}><rect x={0} y={H/2} width={W} height={H/2} /></clipPath>
-          <path d={fillD} fill="rgba(220,220,220,0.2)" clipPath={`url(#ug${uid})`} />
-          <path d={fillD} fill="rgba(20,20,20,0.5)"   clipPath={`url(#lg${uid})`} />
+          <path d={fillD} fill="rgba(255,255,255,0.12)" clipPath={`url(#ug${uid})`} />
+          <path d={fillD} fill="rgba(0,0,0,0.35)" clipPath={`url(#lg${uid})`} />
         </>
       )}
-      {pathD && <path d={pathD} fill="none" stroke="rgba(0,255,245,0.65)" strokeWidth={1.5} strokeLinejoin="round" />}
-      {curX !== null && <line x1={curX} y1={pad} x2={curX} y2={H-pad} stroke="rgba(255,255,255,0.55)" strokeWidth={1} strokeDasharray="2 2" />}
-      {curX !== null && <circle cx={curX} cy={evalToY(data[currentIdx])} r={2.5} fill="#00fff5" />}
+      {pathD && <path d={pathD} fill="none" stroke="rgba(0,255,245,0.55)" strokeWidth={1.5} strokeLinejoin="round" />}
+      {markers.map((m, i) => (
+        <circle key={i} cx={m.x} cy={m.y} r={2.5}
+          fill={m.type === 'blunder' ? '#cc3333' : '#e08c00'} opacity={0.7} />
+      ))}
+      {curX !== null && <line x1={curX} y1={pad} x2={curX} y2={H-pad} stroke="rgba(255,255,255,0.45)" strokeWidth={1} strokeDasharray="2 2" />}
+      {curX !== null && <circle cx={curX} cy={evalToY(data[currentIdx])} r={3} fill="#00fff5" stroke="rgba(0,0,0,0.3)" strokeWidth={1} />}
     </svg>
+  );
+}
+
+// ── Accuracy Bar ──────────────────────────────────────────────────────────────
+
+function AccuracyBar({ label, color, acc, dotClass }) {
+  const barColor = acc >= 85 ? '#3ddc84' : acc >= 65 ? '#f0c94c' : '#e05555';
+  return (
+    <div className={styles.accBarRow}>
+      <span className={`${styles.pDot} ${dotClass}`} />
+      <span className={styles.accBarLabel}>{label}</span>
+      <div className={styles.accBarTrack}>
+        <div className={styles.accBarFill} style={{ width: `${acc}%`, background: barColor }} />
+      </div>
+      <span className={styles.accBarPct} style={{ color: barColor }}>{acc}%</span>
+    </div>
   );
 }
 
@@ -157,6 +184,9 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
     chessInstance, importPgn, setDisableBoard, flipped, setFlipped,
   } = useGameStore();
 
+  // UI state
+  const [panelTab, setPanelTab]             = useState('report'); // report | analysis
+  const [importTab, setImportTab]           = useState('pgn');    // pgn | chesscom | lichess
   const [currentEval, setCurrentEval]       = useState(0);
   const [engineLines, setEngineLines]       = useState([]);
   const [engineBusy, setEngineBusy]         = useState(false);
@@ -169,8 +199,14 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
   const [evalHistory, setEvalHistory]       = useState([]);
   const [pgnHeaders, setPgnHeaders]         = useState({});
   const [liveOpeningName, setLiveOpeningName] = useState(null);
-  const openingAbortRef = useRef(null);
 
+  // External import state
+  const [externalUsername, setExternalUsername] = useState('');
+  const [externalGames, setExternalGames]     = useState([]);
+  const [externalLoading, setExternalLoading] = useState(false);
+  const [externalError, setExternalError]     = useState('');
+
+  const openingAbortRef = useRef(null);
   const evalTimerRef = useRef(null);
   const moveListRef  = useRef(null);
   const fileRef      = useRef(null);
@@ -198,12 +234,8 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
         if (currentMoveIndex >= 0) {
           setEvalHistory(prev => { const n = [...prev]; n[currentMoveIndex] = ev; return n; });
         }
-
-        // Fetch opening name for current position (debounced, cached)
         if (openingAbortRef.current) openingAbortRef.current.abort?.();
-        fetchOpeningName(fen).then(name => {
-          if (name) setLiveOpeningName(name);
-        });
+        fetchOpeningName(fen).then(name => { if (name) setLiveOpeningName(name); });
       } catch {} finally { setEngineBusy(false); }
     }, 200);
     return () => clearTimeout(evalTimerRef.current);
@@ -232,10 +264,8 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
   const doLoad = (pgnStr) => {
     setPgnError('');
     if (!pgnStr.trim()) { setPgnError('Paste a PGN or FEN first.'); return; }
-    // Try normalizing before passing to store's importPgn
     const chess = tryLoadPgn(pgnStr);
     if (!chess) { setPgnError('Could not parse PGN. Check the format and try again.'); return; }
-    // Re-export clean PGN so importPgn always gets valid input
     const cleanPgn = chess.pgn() || pgnStr;
     const ok = importPgn(cleanPgn || pgnStr);
     if (ok) {
@@ -243,6 +273,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
       setReviewResults(null);
       setPgnInput('');
       setDisableBoard(true);
+      setPanelTab('report');
     } else {
       setPgnError('Failed to load game. Check PGN format.');
     }
@@ -269,6 +300,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
     try {
       const results = await reviewGame(moveHistory, (current, total) => setReviewProgress({ current, total }));
       setReviewResults(results);
+      setPanelTab('report');
     } finally { setIsReviewing(false); setReviewProgress({ current: 0, total: 0 }); }
   };
 
@@ -276,7 +308,21 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
     setGameLoaded(false); setReviewResults(null);
     setEngineLines([]); setCurrentEval(0);
     setEvalHistory([]); setPgnHeaders({}); setPgnError('');
-    setLiveOpeningName(null);
+    setLiveOpeningName(null); setExternalGames([]); setExternalError('');
+  };
+
+  const handleFetchExternal = async () => {
+    if (!externalUsername.trim()) { setExternalError('Enter a username'); return; }
+    setExternalLoading(true); setExternalError(''); setExternalGames([]);
+    try {
+      const games = importTab === 'chesscom'
+        ? await fetchChessComGames(externalUsername, 20)
+        : await fetchLichessGames(externalUsername, 20);
+      if (!games.length) setExternalError('No games found');
+      else setExternalGames(games);
+    } catch (err) {
+      setExternalError(err.message || 'Failed to fetch games');
+    } finally { setExternalLoading(false); }
   };
 
   // ── Derived ───────────────────────────────────────────────────────────────────
@@ -311,9 +357,12 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
   const botColor      = flipped ? 'b' : 'w';
   const topAcc        = topColor === 'w' ? whiteAcc : blackAcc;
   const botAcc        = botColor === 'w' ? whiteAcc : blackAcc;
-  const topCounts     = topColor === 'w' ? whiteCounts : blackCounts;
-  const botCounts     = botColor === 'w' ? whiteCounts : blackCounts;
   const openingName   = liveOpeningName || pgnHeaders.Opening || pgnHeaders.ECO || null;
+
+  // Current move annotation
+  const curReview = reviewResults && currentMoveIndex >= 0 ? reviewResults[currentMoveIndex] : null;
+  const curClass  = curReview ? CLASSIFICATIONS[curReview.classification] : null;
+  const curMove   = currentMoveIndex >= 0 ? moveHistory[currentMoveIndex] : null;
 
   // ── Render ────────────────────────────────────────────────────────────────────
 
@@ -366,20 +415,13 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
             )}
           </div>
 
-          {/* Eval graph */}
-          {graphData.length > 1 && (
-            <div className={styles.graphWrap}>
-              <EvalGraph data={graphData} currentIdx={currentMoveIndex} onSeek={goToMove} />
-            </div>
-          )}
-
           {/* Nav bar */}
           {gameLoaded && (
             <div className={styles.navRow}>
-              <button className={styles.navBtn} onClick={() => goToMove(-1)} title="Start">⏮</button>
-              <button className={styles.navBtn} onClick={() => goToMove(currentMoveIndex - 1)} disabled={currentMoveIndex < 0} title="Prev ←">◀</button>
-              <button className={styles.navBtn} onClick={() => goToMove(currentMoveIndex + 1)} disabled={currentMoveIndex >= moveHistory.length - 1} title="Next →">▶</button>
-              <button className={styles.navBtn} onClick={() => goToMove(moveHistory.length - 1)} title="End">⏭</button>
+              <button className={styles.navBtn} onClick={() => goToMove(-1)} title="Start">|&#x25C0;</button>
+              <button className={styles.navBtn} onClick={() => goToMove(currentMoveIndex - 1)} disabled={currentMoveIndex < 0} title="Prev">&#x25C0;</button>
+              <button className={styles.navBtn} onClick={() => goToMove(currentMoveIndex + 1)} disabled={currentMoveIndex >= moveHistory.length - 1} title="Next">&#x25B6;</button>
+              <button className={styles.navBtn} onClick={() => goToMove(moveHistory.length - 1)} title="End">&#x25B6;|</button>
             </div>
           )}
         </div>
@@ -394,16 +436,16 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
           <div className={styles.panelActions}>
             {gameLoaded && (
               <>
-                <button className={styles.iconBtn} onClick={() => setFlipped(f => !f)} title="Flip board">⇅</button>
+                <button className={styles.iconBtn} onClick={() => setFlipped(f => !f)} title="Flip board">&#x21C5;</button>
                 <button
                   className={`${styles.iconBtn} ${reviewResults ? styles.iconBtnDone : ''}`}
                   onClick={handleReview}
                   disabled={isReviewing || !moveHistory.length}
                   title="Review game"
                 >
-                  {isReviewing ? `${reviewProgress.current}/${reviewProgress.total}` : '⟳'}
+                  {isReviewing ? `${reviewProgress.current}/${reviewProgress.total}` : '&#x27F3;'}
                 </button>
-                <button className={styles.iconBtn} onClick={handleNewGame} title="New analysis">✕</button>
+                <button className={styles.iconBtn} onClick={handleNewGame} title="New analysis">&#x2715;</button>
               </>
             )}
           </div>
@@ -416,121 +458,284 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
           </div>
         )}
 
-        {/* ── Game loaded: engine + move list ── */}
+        {/* ── Game loaded: tabs + content ── */}
         {gameLoaded ? (
           <>
-            {openingName && <div className={styles.opening}>{openingName}</div>}
-
-            {/* Engine */}
-            <div className={styles.section}>
-              <div className={styles.sectionLabel}>Engine</div>
-              {engineBusy
-                ? <div className={styles.dim}>Computing…</div>
-                : engineLines.length === 0
-                  ? <div className={styles.dim}>Game over</div>
-                  : engineLines.map((l, i) => (
-                    <div key={i} className={styles.engineLine}>
-                      <span className={styles.lineEval} style={{ color: l.score > 20 ? '#e8e8e8' : l.score < -20 ? '#e05555' : 'rgba(255,255,255,0.45)' }}>
-                        {formatEval(l.score)}
-                      </span>
-                      <span className={styles.lineMove}>
-                        {l.line ? l.line.map((m, mi) => (
-                          <span key={mi} className={mi === 0 ? styles.lineMoveFirst : styles.lineMoveCont}>
-                            {m}{' '}
-                          </span>
-                        )) : l.san}
-                      </span>
-                    </div>
-                  ))
-              }
+            {/* Tab switcher */}
+            <div className={styles.tabRow}>
+              <button className={`${styles.tab} ${panelTab === 'report' ? styles.tabActive : ''}`}
+                onClick={() => setPanelTab('report')}>Report</button>
+              <button className={`${styles.tab} ${panelTab === 'analysis' ? styles.tabActive : ''}`}
+                onClick={() => setPanelTab('analysis')}>Analysis</button>
             </div>
 
-            {/* Accuracy */}
-            {reviewResults && (
-              <div className={styles.section}>
-                <div className={styles.sectionLabel}>Accuracy</div>
-                {[{color: topColor, name: topName, acc: topAcc, counts: topCounts},
-                  {color: botColor, name: bottomName, acc: botAcc, counts: botCounts}].map(p => (
-                  <div key={p.color} className={styles.accRow}>
-                    <span className={`${styles.pDot} ${p.color === 'w' ? styles.pDotW : styles.pDotB}`} />
-                    <span className={styles.accName}>{p.name}</span>
-                    <span className={styles.accPct} style={{ color: p.acc >= 85 ? '#3ddc84' : p.acc >= 65 ? '#f0c94c' : '#e05555' }}>
-                      {p.acc !== null ? `${p.acc}%` : '—'}
-                    </span>
-                    <div className={styles.accBadges}>
-                      {Object.entries(CLASSIFICATIONS).map(([k, cls]) => {
-                        const n = p.counts?.[k]; if (!n) return null;
-                        return (
-                          <span key={k} className={styles.accBadge} title={`${cls.label}: ${n}`}>
-                            <span style={{ color: cls.color }}>{cls.symbol}</span>
-                            <span className={styles.badgeN}>{n}</span>
-                          </span>
-                        );
-                      })}
-                    </div>
+            {/* ── REPORT TAB ── */}
+            {panelTab === 'report' && (
+              <div className={styles.reportContent}>
+                {/* Eval graph */}
+                {graphData.length > 1 && (
+                  <div className={styles.graphWrap}>
+                    <EvalGraph data={graphData} currentIdx={currentMoveIndex} onSeek={goToMove} />
                   </div>
-                ))}
+                )}
+
+                {/* Accuracy bars */}
+                {reviewResults && (whiteAcc !== null || blackAcc !== null) && (
+                  <div className={styles.section}>
+                    <div className={styles.sectionLabel}>Accuracies</div>
+                    {whiteAcc !== null && (
+                      <AccuracyBar label={pgnHeaders.White || 'White'} acc={whiteAcc} dotClass={styles.pDotW} />
+                    )}
+                    {blackAcc !== null && (
+                      <AccuracyBar label={pgnHeaders.Black || 'Black'} acc={blackAcc} dotClass={styles.pDotB} />
+                    )}
+                  </div>
+                )}
+
+                {/* Classification table */}
+                {reviewResults && (
+                  <div className={styles.section}>
+                    <div className={styles.sectionLabel}>Move Classifications</div>
+                    <table className={styles.classTable}>
+                      <thead>
+                        <tr>
+                          <th></th>
+                          <th></th>
+                          <th className={styles.classColHead}>W</th>
+                          <th className={styles.classColHead}>B</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {CLASS_ORDER.map(key => {
+                          const cls = CLASSIFICATIONS[key];
+                          const wN = whiteCounts[key] || 0;
+                          const bN = blackCounts[key] || 0;
+                          if (wN === 0 && bN === 0) return null;
+                          return (
+                            <tr key={key} className={styles.classRow}>
+                              <td className={styles.classIcon} style={{ color: cls.color }}>{cls.icon}</td>
+                              <td className={styles.classLabel} style={{ color: cls.color }}>{cls.label}</td>
+                              <td className={styles.classCount}>{wN || '-'}</td>
+                              <td className={styles.classCount}>{bN || '-'}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {!reviewResults && !isReviewing && (
+                  <div className={styles.reviewPrompt}>
+                    <button className={styles.reviewBtn} onClick={handleReview} disabled={!moveHistory.length}>
+                      &#x27F3; Review Game
+                    </button>
+                    <p className={styles.reviewHint}>Analyse each move to see accuracy, classifications, and the evaluation graph.</p>
+                  </div>
+                )}
               </div>
             )}
 
-            {/* Move list */}
-            <div className={styles.moveList} ref={moveListRef}>
-              {moveRows.map(row => {
-                const wC = reviewResults?.[row.whiteIdx] ? CLASSIFICATIONS[reviewResults[row.whiteIdx].classification] : null;
-                const bC = row.black && reviewResults?.[row.blackIdx] ? CLASSIFICATIONS[reviewResults[row.blackIdx].classification] : null;
-                return (
-                  <div key={row.number} className={styles.moveRow}>
-                    <span className={styles.moveN}>{row.number}.</span>
-                    <span
-                      data-active={currentMoveIndex === row.whiteIdx ? 'true' : 'false'}
-                      className={`${styles.moveCell} ${currentMoveIndex === row.whiteIdx ? styles.moveActive : ''}`}
-                      onClick={() => goToMove(row.whiteIdx)}
-                    >
-                      {row.white?.san || ''}
-                      {wC && <sup className={styles.moveBadge} style={{ color: wC.color }}>{wC.symbol}</sup>}
-                    </span>
-                    <span
-                      data-active={row.black && currentMoveIndex === row.blackIdx ? 'true' : 'false'}
-                      className={`${styles.moveCell} ${row.black && currentMoveIndex === row.blackIdx ? styles.moveActive : ''}`}
-                      onClick={() => row.black && goToMove(row.blackIdx)}
-                    >
-                      {row.black?.san || ''}
-                      {bC && <sup className={styles.moveBadge} style={{ color: bC.color }}>{bC.symbol}</sup>}
-                    </span>
+            {/* ── ANALYSIS TAB ── */}
+            {panelTab === 'analysis' && (
+              <div className={styles.analysisContent}>
+                {/* Eval graph (compact in analysis tab too) */}
+                {graphData.length > 1 && (
+                  <div className={styles.graphWrapSmall}>
+                    <EvalGraph data={graphData} currentIdx={currentMoveIndex} onSeek={goToMove} />
                   </div>
-                );
-              })}
-            </div>
+                )}
+
+                {/* Engine lines */}
+                <div className={styles.section}>
+                  <div className={styles.engineHeader}>
+                    <span className={styles.sectionLabel}>Engine</span>
+                    <span className={styles.depthBadge}>D2</span>
+                  </div>
+                  {engineBusy
+                    ? <div className={styles.dim}>Computing...</div>
+                    : engineLines.length === 0
+                      ? <div className={styles.dim}>Game over</div>
+                      : engineLines.map((l, i) => (
+                        <div key={i} className={styles.engineLine}>
+                          <span className={styles.lineEval} style={{
+                            color: l.score > 20 ? '#e8e8e8' : l.score < -20 ? '#e05555' : 'rgba(255,255,255,0.45)'
+                          }}>
+                            {formatEval(l.score)}
+                          </span>
+                          <span className={styles.lineMove}>
+                            {l.line.map((m, mi) => (
+                              <span key={mi} className={mi === 0 ? styles.lineMoveFirst : styles.lineMoveCont}>
+                                {m}{' '}
+                              </span>
+                            ))}
+                          </span>
+                        </div>
+                      ))
+                  }
+                </div>
+
+                {/* Move annotation */}
+                {curReview && curClass && curMove && (
+                  <div className={styles.annotation} style={{ borderLeftColor: curClass.color }}>
+                    <div className={styles.annotIcon} style={{ background: curClass.bg, color: curClass.color }}>
+                      {curClass.icon}
+                    </div>
+                    <div className={styles.annotBody}>
+                      <div className={styles.annotTitle}>
+                        <strong>{curMove.san}</strong> is {curClass.label}
+                      </div>
+                      {curReview.bestMoveSan && curReview.bestMoveSan !== curMove.san && (
+                        <div className={styles.annotBest}>
+                          The best move was <strong>{curReview.bestMoveSan}</strong>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Opening */}
+                {openingName && <div className={styles.opening}>{openingName}</div>}
+
+                {/* Move list */}
+                <div className={styles.moveList} ref={moveListRef}>
+                  {moveRows.map(row => {
+                    const wR = reviewResults?.[row.whiteIdx];
+                    const bR = row.black ? reviewResults?.[row.blackIdx] : null;
+                    const wC = wR ? CLASSIFICATIONS[wR.classification] : null;
+                    const bC = bR ? CLASSIFICATIONS[bR.classification] : null;
+                    return (
+                      <div key={row.number} className={styles.moveRow}>
+                        <span className={styles.moveN}>{row.number}.</span>
+                        <span
+                          data-active={currentMoveIndex === row.whiteIdx ? 'true' : 'false'}
+                          className={`${styles.moveCell} ${currentMoveIndex === row.whiteIdx ? styles.moveActive : ''}`}
+                          onClick={() => goToMove(row.whiteIdx)}
+                        >
+                          {wC && <span className={styles.moveIcon} style={{ color: wC.color }}>{wC.icon}</span>}
+                          {row.white?.san || ''}
+                        </span>
+                        <span
+                          data-active={row.black && currentMoveIndex === row.blackIdx ? 'true' : 'false'}
+                          className={`${styles.moveCell} ${row.black && currentMoveIndex === row.blackIdx ? styles.moveActive : ''}`}
+                          onClick={() => row.black && goToMove(row.blackIdx)}
+                        >
+                          {bC && <span className={styles.moveIcon} style={{ color: bC.color }}>{bC.icon}</span>}
+                          {row.black?.san || ''}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </>
         ) : (
           <>
-            {/* ── No game: input area ── */}
-            <div className={styles.inputSection}>
-              <div className={styles.sectionLabel}>Load game from PGN</div>
-              <textarea
-                className={styles.pgnTextarea}
-                value={pgnInput}
-                onChange={e => { setPgnInput(e.target.value); setPgnError(''); }}
-                placeholder="Paste PGN or FEN here…"
-                rows={6}
-              />
-              {pgnError && <div className={styles.pgnError}>{pgnError}</div>}
-
-              {/* Hidden file input */}
-              <input ref={fileRef} type="file" accept=".pgn,.txt" style={{ display: 'none' }} onChange={handleFileUpload} />
-              <button className={styles.uploadBtn} onClick={() => fileRef.current?.click()}>
-                ↑ Upload PGN File
-              </button>
-              <button className={styles.analyseBtn} onClick={() => doLoad(pgnInput)}>
-                🔍 Analyse
-              </button>
+            {/* ── No game: import area ── */}
+            <div className={styles.importTabs}>
+              <button className={`${styles.importTab} ${importTab === 'pgn' ? styles.importTabActive : ''}`}
+                onClick={() => { setImportTab('pgn'); setExternalError(''); }}>PGN</button>
+              <button className={`${styles.importTab} ${importTab === 'chesscom' ? styles.importTabActive : ''}`}
+                onClick={() => { setImportTab('chesscom'); setExternalError(''); setPgnError(''); }}>Chess.com</button>
+              <button className={`${styles.importTab} ${importTab === 'lichess' ? styles.importTabActive : ''}`}
+                onClick={() => { setImportTab('lichess'); setExternalError(''); setPgnError(''); }}>Lichess</button>
+              <button className={`${styles.importTab} ${importTab === 'setup' ? styles.importTabActive : ''}`}
+                onClick={() => { setImportTab('setup'); setExternalError(''); setPgnError(''); }}>Setup</button>
             </div>
 
-            {/* Saved games */}
+            {/* PGN tab */}
+            {importTab === 'pgn' && (
+              <div className={styles.inputSection}>
+                <textarea
+                  className={styles.pgnTextarea}
+                  value={pgnInput}
+                  onChange={e => { setPgnInput(e.target.value); setPgnError(''); }}
+                  placeholder="Paste PGN or FEN here..."
+                  rows={8}
+                />
+                {pgnError && <div className={styles.pgnError}>{pgnError}</div>}
+                <input ref={fileRef} type="file" accept=".pgn,.txt" style={{ display: 'none' }} onChange={handleFileUpload} />
+                <div className={styles.importBtns}>
+                  <button className={styles.uploadBtn} onClick={() => fileRef.current?.click()}>
+                    Upload .pgn
+                  </button>
+                  <button className={styles.analyseBtn} onClick={() => doLoad(pgnInput)}>
+                    Analyse
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Chess.com / Lichess tab */}
+            {(importTab === 'chesscom' || importTab === 'lichess') && (
+              <div className={styles.inputSection}>
+                <div className={styles.externalHeader}>
+                  <span className={styles.externalLogo}>
+                    {importTab === 'chesscom' ? '♟' : '♞'}
+                  </span>
+                  <span className={styles.externalTitle}>
+                    {importTab === 'chesscom' ? 'Chess.com' : 'Lichess.org'}
+                  </span>
+                </div>
+                <div className={styles.externalRow}>
+                  <input
+                    className={styles.usernameInput}
+                    value={externalUsername}
+                    onChange={e => { setExternalUsername(e.target.value); setExternalError(''); }}
+                    placeholder="Enter username"
+                    onKeyDown={e => e.key === 'Enter' && handleFetchExternal()}
+                  />
+                  <button className={styles.fetchBtn} onClick={handleFetchExternal} disabled={externalLoading}>
+                    {externalLoading ? '...' : 'Fetch'}
+                  </button>
+                </div>
+                {externalError && <div className={styles.pgnError}>{externalError}</div>}
+                <p className={styles.externalHint}>Free, no login required. Uses the public API.</p>
+              </div>
+            )}
+
+            {/* Setup (board editor) tab */}
+            {importTab === 'setup' && (
+              <BoardEditor onAnalyse={(fen) => doLoad(fen)} />
+            )}
+
+            {/* External games list */}
+            {externalGames.length > 0 && (
+              <div className={styles.savedSection}>
+                <div className={styles.sectionLabel}>
+                  {externalGames.length} games found
+                </div>
+                <div className={styles.savedList}>
+                  {externalGames.map((g, i) => (
+                    <div key={i} className={styles.savedGame} onClick={() => handleLoadGame(g)}>
+                      <div className={styles.savedTop}>
+                        <span className={`${styles.pDot} ${g.color === 'white' ? styles.pDotW : styles.pDotB}`} />
+                        <span className={styles.savedVs}>
+                          {g.white} vs {g.black}
+                        </span>
+                        <span className={`${styles.resBadge} ${styles['res_' + g.result]}`}>
+                          {g.result === 'draw' ? '1/2' : g.result === 'win' ? 'W' : 'L'}
+                        </span>
+                      </div>
+                      <div className={styles.savedMeta}>
+                        {g.whiteRating && <span>{g.whiteRating}</span>}
+                        {g.whiteRating && g.blackRating && <span> vs </span>}
+                        {g.blackRating && <span>{g.blackRating}</span>}
+                        {g.timeControl && <span> · {g.timeControl}</span>}
+                        {g.opening && <span> · {g.opening}</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Saved games from Supabase */}
             {(gamesLoading || savedGames.length > 0) && (
               <div className={styles.savedSection}>
-                <div className={styles.sectionLabel}>Recent Games</div>
-                {gamesLoading && <div className={styles.dim}>Loading…</div>}
+                <div className={styles.sectionLabel}>Your Games</div>
+                {gamesLoading && <div className={styles.dim}>Loading...</div>}
                 <div className={styles.savedList}>
                   {savedGames.map((g, i) => (
                     <div key={i} className={styles.savedGame} onClick={() => handleLoadGame(g)}>
@@ -541,11 +746,11 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
                         </span>
                         {g.result && (
                           <span className={`${styles.resBadge} ${styles['res_' + g.result]}`}>
-                            {g.result === 'draw' ? '½' : g.result === g.color ? 'W' : 'L'}
+                            {g.result === 'draw' ? '1/2' : g.result === g.color ? 'W' : 'L'}
                           </span>
                         )}
                       </div>
-                      <div className={styles.savedPgn}>{(g.pgnStr || '').slice(0, 60)}…</div>
+                      <div className={styles.savedPgn}>{(g.pgnStr || '').slice(0, 60)}...</div>
                     </div>
                   ))}
                 </div>

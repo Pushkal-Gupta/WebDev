@@ -363,7 +363,7 @@ const useGameStore = create((set, get) => ({
     }
 
     if (message) {
-      set({ gameOver: true, gameOverMessage: message, timerRunning: false, disableBoard: true, gameResult });
+      set({ gameOver: true, gameOverMessage: message, timerRunning: false, disableBoard: true, gameResult, compThinking: false });
     }
   },
 
@@ -374,6 +374,7 @@ const useGameStore = create((set, get) => ({
       gameOverMessage: `Time expired! ${winner} wins!`,
       timerRunning: false,
       disableBoard: true,
+      compThinking: false,
       gameResult: { winner: winner.toLowerCase(), reason: 'timeout' },
     });
   },
@@ -397,15 +398,35 @@ const useGameStore = create((set, get) => ({
     }
   },
 
+  // Rebuild captured-pieces arrays by replaying a history slice from scratch
+  _rebuildCaptures: (history) => {
+    const tempChess = new Chess();
+    const capturedByWhite = [];
+    const capturedByBlack = [];
+    for (const move of history) {
+      const fromFile = String.fromCharCode('a'.charCodeAt(0) + move.from.col);
+      const fromRank = String(8 - move.from.row);
+      const toFile   = String.fromCharCode('a'.charCodeAt(0) + move.to.col);
+      const toRank   = String(8 - move.to.row);
+      const promotion = move.san.includes('=') ? move.san.split('=')[1][0].toLowerCase() : undefined;
+      const result = tempChess.move({ from: fromFile + fromRank, to: toFile + toRank, promotion });
+      if (result?.captured) {
+        const cp = { type: result.captured, color: result.color === 'w' ? 'b' : 'w' };
+        if (result.color === 'w') capturedByWhite.push(cp);
+        else capturedByBlack.push(cp);
+      }
+    }
+    return { capturedByWhite, capturedByBlack };
+  },
+
   undoMove: () => {
-    const { chessInstance, moveHistory, capturedByWhite, capturedByBlack } = get();
+    const { chessInstance, moveHistory } = get();
     if (!chessInstance || moveHistory.length === 0) return;
     chessInstance.undo();
     const newHistory = moveHistory.slice(0, -1);
 
-    // Rebuild captures from history
-    const newCapturedByWhite = capturedByWhite.slice(0, -0); // approximate
-    const newCapturedByBlack = capturedByBlack.slice(0, -0);
+    const { capturedByWhite: newCapturedByWhite, capturedByBlack: newCapturedByBlack } =
+      get()._rebuildCaptures(newHistory);
 
     const lastMove = newHistory.length > 0 ? {
       from: newHistory[newHistory.length - 1].from,
@@ -438,6 +459,53 @@ const useGameStore = create((set, get) => ({
       gameOver: false,
       gameOverMessage: '',
       disableBoard: false,
+      capturedByWhite: newCapturedByWhite,
+      capturedByBlack: newCapturedByBlack,
+    });
+  },
+
+  // Undo two half-moves (one for each player) — used for online undo-request approval
+  undoTwoMoves: () => {
+    const { chessInstance, moveHistory } = get();
+    if (!chessInstance || moveHistory.length < 2) return;
+    chessInstance.undo();
+    chessInstance.undo();
+    const newHistory = moveHistory.slice(0, -2);
+
+    const { capturedByWhite: newCapturedByWhite, capturedByBlack: newCapturedByBlack } =
+      get()._rebuildCaptures(newHistory);
+
+    const lastMove = newHistory.length > 0 ? {
+      from: newHistory[newHistory.length - 1].from,
+      to:   newHistory[newHistory.length - 1].to,
+    } : null;
+
+    let underCheck = null;
+    if (chessInstance.inCheck()) {
+      const turn = chessInstance.turn();
+      const board = chessInstance.board();
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const sq = board[r][c];
+          if (sq && sq.type === 'k' && sq.color === turn) underCheck = { row: r, col: c };
+        }
+      }
+    }
+
+    set({
+      boardState: buildBoardState(chessInstance),
+      moveHistory: newHistory,
+      currentMoveIndex: newHistory.length - 1,
+      selectedSquare: null,
+      validMoves: [],
+      lastMove,
+      underCheck,
+      activeColor: chessInstance.turn(),
+      gameOver: false,
+      gameOverMessage: '',
+      disableBoard: false,
+      capturedByWhite: newCapturedByWhite,
+      capturedByBlack: newCapturedByBlack,
     });
   },
 

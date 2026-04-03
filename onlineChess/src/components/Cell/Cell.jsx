@@ -19,7 +19,8 @@ export default function Cell({ row, col, displayRow, displayCol, flipped }) {
 
   const { clr1, clr2, clr1c, clr2c, clr1p, clr2p, clr1x, clr2x, pieceSetIndex, pieceSets } = useThemeStore();
 
-  const imagePath = `./images/${pieceSets[pieceSetIndex].path}`;
+  const safeIndex = Math.max(0, Math.min(pieceSetIndex ?? 0, pieceSets.length - 1));
+  const imagePath = `./images/${pieceSets[safeIndex].path}`;
 
   const piece = boardState ? boardState[row][col] : null;
   const isLight = (row + col) % 2 === 0;
@@ -61,10 +62,7 @@ export default function Cell({ row, col, displayRow, displayCol, flipped }) {
     const fromRow = parseInt(e.dataTransfer.getData('fromRow'));
     const fromCol = parseInt(e.dataTransfer.getData('fromCol'));
     if (fromRow === row && fromCol === col) return;
-    // First select the source to set validMoves
-    selectSquare(fromRow, fromCol);
-    // Then make the move
-    setTimeout(() => makeMove({ row: fromRow, col: fromCol }, { row, col }), 0);
+    makeMove({ row: fromRow, col: fromCol }, { row, col });
   };
 
   // Corner class
@@ -77,9 +75,8 @@ export default function Cell({ row, col, displayRow, displayCol, flipped }) {
   // Labels
   const showFileLabel = showLabels && displayRow === 7;
   const showRankLabel = showLabels && displayCol === 0;
-  const fileLabel = FILE_LABELS[flipped ? 7 - col : col];
+  const fileLabel = FILE_LABELS[col];
   const rankLabel = flipped ? row + 1 : 8 - row;
-  const labelColor = isLight ? (isLight ? clr2 : clr1) : (isLight ? clr1 : clr2);
 
   const canDrag = piece && gameStarted;
 

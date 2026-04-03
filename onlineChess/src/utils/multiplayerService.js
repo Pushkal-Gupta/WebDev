@@ -68,11 +68,13 @@ export function subscribeToRoom(roomId, handlers = {}) {
   });
 
   channel
-    .on('broadcast', { event: 'move' },   ({ payload }) => handlers.onMove?.(payload))
-    .on('broadcast', { event: 'chat' },   ({ payload }) => handlers.onChat?.(payload))
-    .on('broadcast', { event: 'resign' }, ({ payload }) => handlers.onResign?.(payload))
-    .on('broadcast', { event: 'join' },   ({ payload }) => handlers.onOpponentJoined?.(payload))
-    .on('broadcast', { event: 'draw' },   ({ payload }) => handlers.onDrawOffer?.(payload))
+    .on('broadcast', { event: 'move' },          ({ payload }) => handlers.onMove?.(payload))
+    .on('broadcast', { event: 'chat' },          ({ payload }) => handlers.onChat?.(payload))
+    .on('broadcast', { event: 'resign' },        ({ payload }) => handlers.onResign?.(payload))
+    .on('broadcast', { event: 'join' },          ({ payload }) => handlers.onOpponentJoined?.(payload))
+    .on('broadcast', { event: 'draw' },          ({ payload }) => handlers.onDrawOffer?.(payload))
+    .on('broadcast', { event: 'undo-request' },  ({ payload }) => handlers.onUndoRequest?.(payload))
+    .on('broadcast', { event: 'undo-response' }, ({ payload }) => handlers.onUndoResponse?.(payload))
     .subscribe();
 
   return channel;
@@ -131,6 +133,14 @@ export async function broadcastJoin(channel, { userId, username }) {
 
 export async function broadcastDrawOffer(channel, userId) {
   await channel.send({ type: 'broadcast', event: 'draw', payload: { userId } });
+}
+
+export async function broadcastUndoRequest(channel, { userId, playerColor }) {
+  await channel.send({ type: 'broadcast', event: 'undo-request', payload: { userId, playerColor } });
+}
+
+export async function broadcastUndoResponse(channel, { accepted, userId }) {
+  await channel.send({ type: 'broadcast', event: 'undo-response', payload: { accepted, userId } });
 }
 
 export function unsubscribe(channel) {
