@@ -14,7 +14,7 @@ export default function Cell({ row, col, displayRow, displayCol, flipped }) {
   const {
     boardState, selectedSquare, validMoves, lastMove, underCheck,
     selectSquare, makeMove, showLabels, showLegalDots, highlightLastMove,
-    highlightSelected, dotSize, gameStarted,
+    highlightSelected, dotSize, gameStarted, blindfoldMode,
   } = useGameStore();
 
   const { clr1, clr2, clr1c, clr2c, clr1p, clr2p, clr1x, clr2x, pieceSetIndex, pieceSets } = useThemeStore();
@@ -99,7 +99,7 @@ export default function Cell({ row, col, displayRow, displayCol, flipped }) {
         </span>
       )}
 
-      {piece && (
+      {piece && !blindfoldMode && (
         <img
           src={`${imagePath}${PIECE_NAME_MAP[piece.type]}-${piece.color === 'w' ? 'white' : 'black'}.png`}
           alt={`${piece.color}${piece.type}`}

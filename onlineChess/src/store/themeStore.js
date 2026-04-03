@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { setSoundEnabled, setSoundVolume } from '../utils/soundManager';
 
 function blendColors(color1, color2, ratio) {
   const hex = (c) => parseInt(c, 16);
@@ -60,6 +61,19 @@ const useThemeStore = create(persist((set, get) => ({
   clr2p: THEMES[0].clr2p,
   clr1x: THEMES[0].clr1x,
   clr2x: THEMES[0].clr2x,
+
+  soundEnabled: true,
+  soundVolume: 0.8,
+
+  setSoundEnabled: (enabled) => {
+    setSoundEnabled(enabled);
+    set({ soundEnabled: enabled });
+  },
+
+  setSoundVolume: (vol) => {
+    setSoundVolume(vol);
+    set({ soundVolume: vol });
+  },
 
   get imagePath() {
     const { pieceSetIndex } = get();

@@ -94,6 +94,37 @@
   border-radius: 3px;
 }
 
+/* ── Mode tabs ───────────────────────────────────────────────────────────── */
+
+.modeTabs {
+  display: flex;
+  gap: 2px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 10px;
+  padding: 3px;
+  margin-bottom: 4px;
+}
+
+.modeTab {
+  padding: 6px 18px;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.45);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.modeTab:hover { color: rgba(255,255,255,0.7); }
+
+.modeTabActive {
+  background: rgba(0,255,245,0.1);
+  color: #00fff5;
+  box-shadow: 0 0 8px rgba(0,255,245,0.15);
+}
+
 /* ── Turn indicator bar ───────────────────────────────────────────────────── */
 
 .turnBar {
@@ -135,11 +166,11 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 3rem;
+  font-size: 2.2rem;
   font-weight: 900;
   border-radius: 50%;
-  width: 80px;
-  height: 80px;
+  width: 70px;
+  height: 70px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -159,7 +190,7 @@
 /* ── Panel ────────────────────────────────────────────────────────────────── */
 
 .panel {
-  width: 260px;
+  width: 280px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -182,7 +213,7 @@
 }
 
 .streakBadge {
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: #ffd666;
   background: rgba(255,180,0,0.1);
@@ -329,6 +360,165 @@
 }
 
 .skipBtn:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.75); }
+
+/* ── Rush mode ────────────────────────────────────────────────────────────── */
+
+.rushSetup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  text-align: center;
+}
+
+.rushDesc {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.rushBtns {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.rushStartBtn {
+  flex: 1;
+  padding: 12px 10px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.rushStartBtn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.bestScore {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.35);
+  margin-top: 2px;
+}
+
+.rushHud {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+}
+
+.rushTimer {
+  text-align: center;
+}
+
+.rushClockVal {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.rushClockLow {
+  color: #ff4444;
+  animation: clockPulse 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes clockPulse {
+  from { opacity: 1; }
+  to   { opacity: 0.5; }
+}
+
+.rushClockLbl {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 2px;
+}
+
+.rushScoreBox {
+  text-align: center;
+  background: rgba(0,255,245,0.06);
+  border: 1px solid rgba(0,255,245,0.15);
+  border-radius: 12px;
+  padding: 12px 28px;
+}
+
+.rushScoreVal {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #00fff5;
+  line-height: 1;
+}
+
+.rushScoreLbl {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 3px;
+}
+
+.rushHeartsRow {
+  display: flex;
+  gap: 8px;
+  font-size: 1.6rem;
+}
+
+.rushHeart {
+  transition: all 0.3s;
+}
+
+.rushHeartFull {
+  color: #ff4444;
+  text-shadow: 0 0 8px rgba(255,68,68,0.4);
+}
+
+.rushHeartEmpty {
+  color: rgba(255,255,255,0.15);
+}
+
+/* ── Rush / Streak over ───────────────────────────────────────────────────── */
+
+.rushOverPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 0;
+}
+
+.rushOverTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.rushOverScore {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #00fff5;
+}
+
+.rushNewBest {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ffd666;
+  background: rgba(255,180,0,0.12);
+  border: 1px solid rgba(255,180,0,0.3);
+  border-radius: 20px;
+  padding: 3px 14px;
+  animation: flashPop 0.3s ease-out;
+}
 
 @media (max-width: 700px) {
   .page { flex-direction: column; overflow-y: auto; }

@@ -8,6 +8,8 @@ import { CLASSIFICATIONS, reviewGame } from '../../utils/reviewEngine';
 import { fetchChessComGames } from '../../utils/chessComService';
 import { fetchLichessGames } from '../../utils/lichessService';
 import BoardEditor from './BoardEditor';
+import OpeningExplorer from './OpeningExplorer';
+import { countPieces, fetchTablebase } from '../../utils/tablebaseService';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -200,6 +202,9 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
   const [pgnHeaders, setPgnHeaders]         = useState({});
   const [liveOpeningName, setLiveOpeningName] = useState(null);
 
+  // Tablebase state
+  const [tablebaseData, setTablebaseData] = useState(null);
+
   // External import state
   const [externalUsername, setExternalUsername] = useState('');
   const [externalGames, setExternalGames]     = useState([]);
@@ -235,10 +240,21 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
           setEvalHistory(prev => { const n = [...prev]; n[currentMoveIndex] = ev; return n; });
         }
         if (openingAbortRef.current) openingAbortRef.current.abort?.();
-        fetchOpeningName(fen).then(name => { if (name) setLiveOpeningName(name); });
-      } catch {} finally { setEngineBusy(false); }
+        fetchOpeningName(fen).then(name => { if (name) setLiveOpeningName(name); }).catch(err => console.error('Opening fetch error:', err));
+      } catch (err) { console.error('Engine eval error:', err); } finally { setEngineBusy(false); }
     }, 200);
     return () => clearTimeout(evalTimerRef.current);
+  }, [currentMoveIndex, gameLoaded, chessInstance]);
+
+  // Tablebase lookup for <=7 piece positions
+  useEffect(() => {
+    if (!chessInstance || !gameLoaded) { setTablebaseData(null); return; }
+    const fen = currentMoveIndex >= 0 && moveHistory[currentMoveIndex]
+      ? moveHistory[currentMoveIndex].fen : chessInstance.fen();
+    if (countPieces(fen) > 7) { setTablebaseData(null); return; }
+    let cancelled = false;
+    fetchTablebase(fen).then(result => { if (!cancelled) setTablebaseData(result); });
+    return () => { cancelled = true; };
   }, [currentMoveIndex, gameLoaded, chessInstance]);
 
   useEffect(() => {
@@ -289,6 +305,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
     if (!file) return;
     const reader = new FileReader();
     reader.onload = evt => { setPgnInput(evt.target.result); };
+    reader.onerror = () => { setPgnError('Failed to read file'); };
     reader.readAsText(file);
     e.target.value = '';
   };
@@ -467,6 +484,8 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
                 onClick={() => setPanelTab('report')}>Report</button>
               <button className={`${styles.tab} ${panelTab === 'analysis' ? styles.tabActive : ''}`}
                 onClick={() => setPanelTab('analysis')}>Analysis</button>
+              <button className={`${styles.tab} ${panelTab === 'explorer' ? styles.tabActive : ''}`}
+                onClick={() => setPanelTab('explorer')}>Explorer</button>
             </div>
 
             {/* ── REPORT TAB ── */}
@@ -575,6 +594,37 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
                   }
                 </div>
 
+                {/* Tablebase result */}
+                {tablebaseData && (
+                  <div className={styles.section}>
+                    <div className={styles.sectionLabel}>Tablebase</div>
+                    <div className={styles.tablebaseResult}>
+                      <span className={`${styles.tbCategory} ${styles['tb_' + tablebaseData.category]}`}>
+                        {tablebaseData.category === 'win' ? 'White wins' : tablebaseData.category === 'loss' ? 'Black wins' : tablebaseData.category === 'draw' ? 'Draw' : 'Unknown'}
+                      </span>
+                      {tablebaseData.dtm != null && (
+                        <span className={styles.tbDtm}>Mate in {Math.ceil(tablebaseData.dtm / 2)}</span>
+                      )}
+                      {tablebaseData.bestMove && (
+                        <span className={styles.tbBest}>Best: <strong>{tablebaseData.bestMove.san}</strong></span>
+                      )}
+                    </div>
+                    {tablebaseData.moves.length > 0 && (
+                      <div className={styles.tbMoves}>
+                        {tablebaseData.moves.map(m => (
+                          <div key={m.san} className={styles.tbMove}>
+                            <span className={styles.tbMoveSan}>{m.san}</span>
+                            <span className={`${styles.tbMoveCat} ${styles['tb_' + m.category]}`}>
+                              {m.category === 'win' ? 'Win' : m.category === 'loss' ? 'Loss' : m.category === 'draw' ? 'Draw' : '?'}
+                            </span>
+                            {m.dtz != null && <span className={styles.tbMoveDtz}>DTZ {m.dtz}</span>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Move annotation */}
                 {curReview && curClass && curMove && (
                   <div className={styles.annotation} style={{ borderLeftColor: curClass.color }}>
@@ -627,6 +677,32 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
                     );
                   })}
                 </div>
+              </div>
+            )}
+
+            {/* ── EXPLORER TAB ── */}
+            {panelTab === 'explorer' && (
+              <div className={styles.analysisContent}>
+                <OpeningExplorer
+                  fen={currentMoveIndex >= 0 && moveHistory[currentMoveIndex]
+                    ? moveHistory[currentMoveIndex].fen
+                    : chessInstance?.fen()}
+                  onPlayMove={(uci, san) => {
+                    if (currentMoveIndex < moveHistory.length - 1) return;
+                    // Only allow playing moves at the end of the line
+                    try {
+                      const chess = new Chess(
+                        currentMoveIndex >= 0 && moveHistory[currentMoveIndex]
+                          ? moveHistory[currentMoveIndex].fen
+                          : chessInstance?.fen()
+                      );
+                      const from = uci.slice(0, 2);
+                      const to = uci.slice(2, 4);
+                      const promo = uci[4] || undefined;
+                      chess.move({ from, to, promotion: promo });
+                    } catch {}
+                  }}
+                />
               </div>
             )}
           </>

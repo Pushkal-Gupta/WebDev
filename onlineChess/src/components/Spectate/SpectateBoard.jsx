@@ -83,6 +83,7 @@ export default function SpectateBoard({ room, onBack }) {
   useEffect(() => { fenRef.current = fen; }, [fen]);
 
   useEffect(() => {
+    if (!room?.id) return;
     channelRef.current = subscribeAsSpectator(room.id, {
       onMove({ from, to, fen: newFen }) {
         if (newFen) {
@@ -94,7 +95,7 @@ export default function SpectateBoard({ room, onBack }) {
             chess.load(fenRef.current);
             chess.move({ from, to });
             setFen(chess.fen());
-          } catch {}
+          } catch (err) { console.warn('Fallback move apply failed:', err); }
         }
         const { row: fr, col: fc } = sqToRowCol(from);
         const { row: tr, col: tc } = sqToRowCol(to);
@@ -103,13 +104,13 @@ export default function SpectateBoard({ room, onBack }) {
         setMoveCount(n => n + 1);
       },
       onResign({ userId }) {
-        const name = userId === room.host_id ? room.host_name : room.guest_name;
+        const name = userId === room?.host_id ? (room?.host_name) : (room?.guest_name);
         setResigned(name || 'A player');
       },
     });
 
     return () => unsubscribe(channelRef.current);
-  }, [room.id]); // eslint-disable-line
+  }, [room?.id]); // eslint-disable-line
 
   // Determine who's turn it is from FEN
   let turnLabel = '';

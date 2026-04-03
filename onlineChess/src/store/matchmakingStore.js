@@ -85,6 +85,8 @@ const useMatchmakingStore = create((set, get) => ({
 
   cancelQueue: async () => {
     const { queueId } = get();
+    // Clear poll timeout immediately to prevent race with _schedulePoll
+    if (_pollTimeoutId) { clearTimeout(_pollTimeoutId); _pollTimeoutId = null; }
     get()._cleanup();
     if (queueId) {
       await supabase.from('matchmaking_queue').delete().eq('id', queueId).catch(console.error);

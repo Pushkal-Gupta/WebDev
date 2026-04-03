@@ -260,7 +260,7 @@ function CopyBtn({ value }) {
     navigator.clipboard.writeText(value).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    });
+    }).catch(err => console.error('Copy failed:', err));
   };
   return (
     <button className={styles.copyBtn} onClick={copy}>
