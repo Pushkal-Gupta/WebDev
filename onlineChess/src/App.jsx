@@ -97,6 +97,7 @@ export default function App() {
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [reviewResults, setReviewResults]   = useState(null);
   const [isReviewing, setIsReviewing]       = useState(false);
+  const [pendingReviewPgn, setPendingReviewPgn] = useState(null);
   const [ratingDelta, setRatingDelta]       = useState(null);
 
   // P2P state
@@ -728,18 +729,14 @@ export default function App() {
     setActiveTab(0);
   };
 
-  const handleReviewGame = async () => {
-    const history = useGameStore.getState().moveHistory;
-    if (!history.length) return;
+  const handleReviewGame = () => {
+    const pgn = useGameStore.getState().getPgn();
+    if (!pgn) return;
+    // Close modal and navigate to Analysis tab with the PGN
     useGameStore.setState({ gameOver: false });
-    setIsReviewing(true);
-    setReviewResults(null);
-    try {
-      const results = await reviewGame(history, () => {});
-      setReviewResults(results);
-    } finally {
-      setIsReviewing(false);
-    }
+    setRatingDelta(null);
+    setPendingReviewPgn(pgn);
+    setActiveTab(2); // Analysis tab
   };
 
   // ─── Computed ─────────────────────────────────────────────────────────────
@@ -811,7 +808,7 @@ export default function App() {
 
         {/* ── Tab 2: Analysis ── */}
         {activeTab === 2 && (
-          <AnalysisBoard savedGames={analysisGames} gamesLoading={analysisLoading} />
+          <AnalysisBoard savedGames={analysisGames} gamesLoading={analysisLoading} pendingPgn={pendingReviewPgn} onPendingPgnConsumed={() => setPendingReviewPgn(null)} />
         )}
 
         {/* ── Tab 3: Computer Setup ── */}

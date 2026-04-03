@@ -200,7 +200,7 @@ function AccuracyBar({ label, color, acc, dotClass }) {
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
-export default function AnalysisBoard({ savedGames = [], gamesLoading = false }) {
+export default function AnalysisBoard({ savedGames = [], gamesLoading = false, pendingPgn = null, onPendingPgnConsumed = null }) {
   const {
     moveHistory, currentMoveIndex, goToMove,
     chessInstance, importPgn, setDisableBoard, flipped, setFlipped,
@@ -237,6 +237,31 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
   const fileRef      = useRef(null);
 
   useEffect(() => { if (gameLoaded) setDisableBoard(true); }, [gameLoaded, currentMoveIndex]);
+
+  // Auto-load PGN from post-game review and start analysis
+  useEffect(() => {
+    if (!pendingPgn) return;
+    const ok = importPgn(pendingPgn);
+    if (ok) {
+      setGameLoaded(true);
+      setReviewResults(null);
+      setPanelTab('report');
+      // Auto-start review after a brief delay to let the board render
+      setTimeout(async () => {
+        const history = useGameStore.getState().moveHistory;
+        if (!history.length) return;
+        setIsReviewing(true);
+        setReviewProgress({ current: 0, total: history.length });
+        try {
+          const results = await reviewGame(history, (cur, tot) => setReviewProgress({ current: cur, total: tot }));
+          setReviewResults(results);
+        } finally {
+          setIsReviewing(false);
+        }
+      }, 300);
+    }
+    if (onPendingPgnConsumed) onPendingPgnConsumed();
+  }, [pendingPgn]); // eslint-disable-line
 
   useEffect(() => {
     if (!chessInstance || !gameLoaded) return;
@@ -414,21 +439,8 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
   return (
     <div className={styles.page}>
 
-      {/* ── Left: eval bar + board column ── */}
+      {/* ── Left: board column ── */}
       <div className={styles.leftCol}>
-
-        {/* Eval bar */}
-        <div className={styles.evalBar}>
-          <div className={styles.evalWhite} style={{ height: `${whitePct}%` }} />
-          <div className={styles.evalBlack} />
-          <span className={styles.evalScore} style={{
-            top: whitePct >= 55 ? 'auto' : '4px',
-            bottom: whitePct >= 55 ? '4px' : 'auto',
-            color: whitePct >= 55 ? '#333' : '#bbb',
-          }}>{formatEval(currentEval)}</span>
-        </div>
-
-        {/* Board + player bars */}
         <div className={styles.boardCol}>
           {/* Top player */}
           <div className={styles.playerBar}>
@@ -443,8 +455,20 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
             )}
           </div>
 
-          <div className={styles.boardWrap}>
-            <Board />
+          {/* Eval bar + board row */}
+          <div className={styles.boardRow}>
+            <div className={styles.evalBar}>
+              <div className={styles.evalWhite} style={{ height: `${whitePct}%` }} />
+              <div className={styles.evalBlack} />
+              <span className={styles.evalScore} style={{
+                top: whitePct >= 55 ? 'auto' : '4px',
+                bottom: whitePct >= 55 ? '4px' : 'auto',
+                color: whitePct >= 55 ? '#333' : '#bbb',
+              }}>{formatEval(currentEval)}</span>
+            </div>
+            <div className={styles.boardWrap}>
+              <Board />
+            </div>
           </div>
 
           {/* Bottom player */}
