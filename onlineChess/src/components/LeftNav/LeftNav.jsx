@@ -112,6 +112,13 @@ const TrainingSvg = () => (
   </svg>
 );
 
+const SettingsSvg = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="10" cy="10" r="2.5"/>
+    <path d="M10 1.5v2M10 16.5v2M1.5 10h2M16.5 10h2M3.4 3.4l1.4 1.4M15.2 15.2l1.4 1.4M3.4 16.6l1.4-1.4M15.2 4.8l1.4-1.4"/>
+  </svg>
+);
+
 const AccountSvg = () => (
   <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
     <circle cx="10" cy="7" r="3.5"/>
@@ -147,6 +154,7 @@ export default function LeftNav({ activeTab, onTabClick, friendBadge }) {
 
       <div className={styles.bottom}>
         <ul className={styles.list}>
+          <NavItem icon={<SettingsSvg />} label="Settings" active={activeTab === 14} onClick={() => onTabClick(14)} />
           <NavItem icon={<AccountSvg />} label={accountLabel} active={activeTab === 5} onClick={() => onTabClick(5)} />
         </ul>
       </div>

@@ -31,6 +31,7 @@ import useNotificationStore from './store/notificationStore';
 import TrainingPage from './components/Training/CoordinateTrainer';
 import { getBotByStrength } from './data/bots';
 import ComputerSetup from './components/ComputerSetup/ComputerSetup';
+import SettingsPage from './components/Settings/SettingsPage';
 import P2PSetup from './components/P2PPlay/P2PSetup';
 import P2PGame from './components/P2PPlay/P2PGame';
 import { p2p } from './utils/p2pService';
@@ -69,7 +70,7 @@ const ONLINE_TIME_CONTROLS = TC_PRESETS.filter(p => ['1+0','3+0','5+0','10+0','1
 const PATH_TO_TAB = {
   '/': 0, '/play': 1, '/analysis': 2, '/computer': 3, '/online': 4,
   '/account': 5, '/puzzles': 6, '/spectate': 7, '/friends': 8,
-  '/clubs': 9, '/tournaments': 10, '/leaderboard': 11, '/p2p': 12, '/training': 13,
+  '/clubs': 9, '/tournaments': 10, '/leaderboard': 11, '/p2p': 12, '/training': 13, '/settings': 14,
 };
 const TAB_TO_PATH = Object.fromEntries(Object.entries(PATH_TO_TAB).map(([k, v]) => [v, k]));
 
@@ -867,6 +868,9 @@ export default function App() {
         {/* ── Tab 13: Training ── */}
         {activeTab === 13 && <TrainingPage />}
 
+        {/* ── Tab 14: Settings ── */}
+        {activeTab === 14 && <SettingsPage />}
+
         {/* ── Tab 12: P2P Nearby Play ── */}
         {activeTab === 12 && !p2pMyColor && (
           <P2PSetup onConnected={(color) => setP2pMyColor(color)} />
@@ -885,7 +889,6 @@ export default function App() {
             <div className="sign-in-prompt-title">Sign in to view your profile</div>
             <div className="sign-in-prompt-sub">Track your ratings, review games, and connect with friends.</div>
             <button className="sign-in-prompt-btn" onClick={() => setShowLogin(true)}>Sign In</button>
-            <GuestSettingsPanel />
           </div>
         )}
         {activeTab === 5 && user && (
@@ -1294,97 +1297,11 @@ function PlayerPanel({ name, colorCode, time, timeActive, timerRunning, captured
   );
 }
 
-// ─── Guest settings (no login required) ──────────────────────────────────────
-function GuestSettingsPanel() {
-  const { pieceSets, pieceSetIndex, setPieceSet, themes, themeIndex, applyTheme,
-    clr1, clr2, clr1c, clr1p, clr1x, setColor, resetDefault, soundEnabled, setSoundEnabled, soundVolume, setSoundVolume,
-  } = useThemeStore();
-  const { showLabels, setShowLabels, highlightLastMove, setHighlightLastMove,
-    highlightSelected, setHighlightSelected,
-    showLegalDots, setShowLegalDots, dotSize, setDotSize, blindfoldMode, setBlindfoldMode,
-  } = useGameStore();
-
-  return (
-    <div className="acct-section" style={{marginTop:24, width:'100%'}}>
-      <div className="acct-label" style={{fontSize:'0.85rem', color:'rgba(255,255,255,0.5)', marginBottom:8}}>Settings</div>
-      <div className="acct-field">
-        <label className="acct-label">Piece Set</label>
-        <div className="acct-piece-sets">
-          {pieceSets.map((ps, i) => (
-            <button key={ps.name} className={`acct-ps-btn ${pieceSetIndex === i ? 'acct-ps-active' : ''}`} onClick={() => setPieceSet(i)}>
-              <img src={`./images/${ps.path}queen-white.png`} alt={ps.name} className="acct-ps-img" /><span>{ps.name}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="acct-field">
-        <label className="acct-label">Board Theme</label>
-        <div className="acct-themes">
-          {themes.map((th, i) => (
-            <button key={th.name} className={`acct-theme-btn ${themeIndex === i ? 'acct-theme-active' : ''}`} onClick={() => applyTheme(i)}>
-              <div className="acct-theme-swatch"><div style={{background:th.clr1,width:'50%',height:'100%'}}/><div style={{background:th.clr2,width:'50%',height:'100%'}}/></div>
-              <span>{th.name}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="acct-field">
-        <label className="acct-label">Board Colors</label>
-        <div className="acct-color-grid">
-          <label className="acct-color-item"><span>Light Square</span><input type="color" value={clr1} onChange={e => setColor('clr1', e.target.value)} /></label>
-          <label className="acct-color-item"><span>Dark Square</span><input type="color" value={clr2} onChange={e => setColor('clr2', e.target.value)} /></label>
-          <label className="acct-color-item"><span>Highlight</span><input type="color" value={clr1x} onChange={e => { setColor('clr1x', e.target.value); setColor('clr2x', e.target.value); }} /></label>
-          <label className="acct-color-item"><span>Check</span><input type="color" value={clr1c} onChange={e => { setColor('clr1c', e.target.value); setColor('clr2c', e.target.value); }} /></label>
-          <label className="acct-color-item"><span>Last Move</span><input type="color" value={clr1p} onChange={e => { setColor('clr1p', e.target.value); setColor('clr2p', e.target.value); }} /></label>
-        </div>
-      </div>
-      <div className="acct-field">
-        <label className="acct-label">Display</label>
-        <div className="acct-toggle-list">
-          <label className="acct-toggle-row"><input type="checkbox" checked={showLabels} onChange={e => setShowLabels(e.target.checked)} /><span>Board Labels</span></label>
-          <label className="acct-toggle-row"><input type="checkbox" checked={highlightLastMove} onChange={e => setHighlightLastMove(e.target.checked)} /><span>Highlight Last Move</span></label>
-          <label className="acct-toggle-row"><input type="checkbox" checked={highlightSelected} onChange={e => setHighlightSelected(e.target.checked)} /><span>Highlight Selected</span></label>
-          <label className="acct-toggle-row"><input type="checkbox" checked={showLegalDots} onChange={e => setShowLegalDots(e.target.checked)} /><span>Legal Move Dots</span></label>
-          <label className="acct-toggle-row"><input type="checkbox" checked={blindfoldMode} onChange={e => setBlindfoldMode(e.target.checked)} /><span>Blindfold Mode</span></label>
-        </div>
-      </div>
-      {showLegalDots && (
-        <div className="acct-field">
-          <label className="acct-label">Dot Size: {dotSize}px</label>
-          <input type="range" min="4" max="28" value={dotSize} onChange={e => setDotSize(Number(e.target.value))} className="acct-range" />
-        </div>
-      )}
-      <div className="acct-field">
-        <label className="acct-label">Sound</label>
-        <div className="acct-toggle-list">
-          <label className="acct-toggle-row"><input type="checkbox" checked={soundEnabled} onChange={e => setSoundEnabled(e.target.checked)} /><span>Sound Effects</span></label>
-        </div>
-        {soundEnabled && (
-          <div style={{marginTop:8}}>
-            <label className="acct-label" style={{fontSize:'0.8rem'}}>Volume: {Math.round(soundVolume * 100)}%</label>
-            <input type="range" min="0" max="100" value={Math.round(soundVolume * 100)} onChange={e => setSoundVolume(Number(e.target.value) / 100)} className="acct-range" />
-          </div>
-        )}
-      </div>
-      <button className="acct-save-btn" style={{width:'100%'}} onClick={resetDefault}>Reset to Default</button>
-    </div>
-  );
-}
-
 // ─── Account / Profile screen ────────────────────────────────────────────────
 const RATING_CATEGORIES = ['bullet', 'blitz', 'rapid', 'classical'];
 
 function AccountScreen({ onAlert, onLoadGame }) {
   const { user, username, logout } = useAuthStore();
-  const { pieceSets, pieceSetIndex, setPieceSet, themes, themeIndex, applyTheme,
-    clr1, clr2, clr1c, clr2c, clr1p, clr2p, clr1x, clr2x,
-    setColor, resetDefault, soundEnabled, setSoundEnabled, soundVolume, setSoundVolume,
-  } = useThemeStore();
-  const {
-    showLabels, setShowLabels, highlightLastMove, setHighlightLastMove,
-    highlightSelected, setHighlightSelected, showLegalDots, setShowLegalDots,
-    dotSize, setDotSize, blindfoldMode, setBlindfoldMode,
-  } = useGameStore();
   const { myRatings, loadRatings } = useRatingStore();
   const [games, setGames]           = useState([]);
   const [gamesLoading, setGamesLoading] = useState(true);
@@ -1467,7 +1384,7 @@ function AccountScreen({ onAlert, onLoadGame }) {
 
       {/* ── Tabs ── */}
       <div className="acct-tabs">
-        {['ratings','profile','settings','games'].map(t => (
+        {['ratings','profile','games'].map(t => (
           <button key={t} className={`acct-tab ${activeTab === t ? 'acct-tab-active' : ''}`} onClick={() => setActiveTab(t)}>
             {t.charAt(0).toUpperCase() + t.slice(1)}
           </button>
@@ -1512,90 +1429,6 @@ function AccountScreen({ onAlert, onLoadGame }) {
             <label className="acct-label">Member since</label>
             <div className="acct-value-readonly">{formatDate(user?.created_at)}</div>
           </div>
-        </div>
-      )}
-
-      {/* ── Settings tab ── */}
-      {activeTab === 'settings' && (
-        <div className="acct-section">
-          {/* Board appearance */}
-          <div className="acct-field">
-            <label className="acct-label">Piece Set</label>
-            <div className="acct-piece-sets">
-              {pieceSets.map((ps, i) => (
-                <button key={ps.name}
-                  className={`acct-ps-btn ${pieceSetIndex === i ? 'acct-ps-active' : ''}`}
-                  onClick={() => setPieceSet(i)}>
-                  <img src={`./images/${ps.path}queen-white.png`} alt={ps.name} className="acct-ps-img" />
-                  <span>{ps.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="acct-field">
-            <label className="acct-label">Board Theme</label>
-            <div className="acct-themes">
-              {themes.map((th, i) => (
-                <button key={th.name}
-                  className={`acct-theme-btn ${themeIndex === i ? 'acct-theme-active' : ''}`}
-                  onClick={() => applyTheme(i)}>
-                  <div className="acct-theme-swatch">
-                    <div style={{background:th.clr1, width:'50%', height:'100%'}}/>
-                    <div style={{background:th.clr2, width:'50%', height:'100%'}}/>
-                  </div>
-                  <span>{th.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Board colors */}
-          <div className="acct-field">
-            <label className="acct-label">Board Colors</label>
-            <div className="acct-color-grid">
-              <label className="acct-color-item"><span>Light Square</span><input type="color" value={clr1} onChange={e => setColor('clr1', e.target.value)} /></label>
-              <label className="acct-color-item"><span>Dark Square</span><input type="color" value={clr2} onChange={e => setColor('clr2', e.target.value)} /></label>
-              <label className="acct-color-item"><span>Highlight</span><input type="color" value={clr1x} onChange={e => { setColor('clr1x', e.target.value); setColor('clr2x', e.target.value); }} /></label>
-              <label className="acct-color-item"><span>Check</span><input type="color" value={clr1c} onChange={e => { setColor('clr1c', e.target.value); setColor('clr2c', e.target.value); }} /></label>
-              <label className="acct-color-item"><span>Last Move</span><input type="color" value={clr1p} onChange={e => { setColor('clr1p', e.target.value); setColor('clr2p', e.target.value); }} /></label>
-            </div>
-          </div>
-
-          {/* Display toggles */}
-          <div className="acct-field">
-            <label className="acct-label">Display</label>
-            <div className="acct-toggle-list">
-              <label className="acct-toggle-row"><input type="checkbox" checked={showLabels} onChange={e => setShowLabels(e.target.checked)} /><span>Board Labels</span></label>
-              <label className="acct-toggle-row"><input type="checkbox" checked={highlightLastMove} onChange={e => setHighlightLastMove(e.target.checked)} /><span>Highlight Last Move</span></label>
-              <label className="acct-toggle-row"><input type="checkbox" checked={highlightSelected} onChange={e => setHighlightSelected(e.target.checked)} /><span>Highlight Selected</span></label>
-              <label className="acct-toggle-row"><input type="checkbox" checked={showLegalDots} onChange={e => setShowLegalDots(e.target.checked)} /><span>Legal Move Dots</span></label>
-              <label className="acct-toggle-row"><input type="checkbox" checked={blindfoldMode} onChange={e => setBlindfoldMode(e.target.checked)} /><span>Blindfold Mode</span></label>
-            </div>
-          </div>
-
-          {/* Dot size */}
-          {showLegalDots && (
-            <div className="acct-field">
-              <label className="acct-label">Dot Size: {dotSize}px</label>
-              <input type="range" min="4" max="28" value={dotSize} onChange={e => setDotSize(Number(e.target.value))} className="acct-range" />
-            </div>
-          )}
-
-          {/* Sound */}
-          <div className="acct-field">
-            <label className="acct-label">Sound</label>
-            <div className="acct-toggle-list">
-              <label className="acct-toggle-row"><input type="checkbox" checked={soundEnabled} onChange={e => setSoundEnabled(e.target.checked)} /><span>Sound Effects</span></label>
-            </div>
-            {soundEnabled && (
-              <div style={{marginTop:8}}>
-                <label className="acct-label" style={{fontSize:'0.8rem'}}>Volume: {Math.round(soundVolume * 100)}%</label>
-                <input type="range" min="0" max="100" value={Math.round(soundVolume * 100)} onChange={e => setSoundVolume(Number(e.target.value) / 100)} className="acct-range" />
-              </div>
-            )}
-          </div>
-
-          <button className="acct-save-btn" style={{marginTop:16, width:'100%'}} onClick={resetDefault}>Reset All to Default</button>
         </div>
       )}
 
