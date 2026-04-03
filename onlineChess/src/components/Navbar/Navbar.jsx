@@ -2,11 +2,11 @@ import styles from './Navbar.module.css';
 import useAuthStore from '../../store/authStore';
 
 const NAV_ITEMS = [
-  { label: 'New Game',  icon: '♟' },
-  { label: 'Analysis', icon: '✏' },
-  { label: 'Computer', icon: '⚙' },
-  { label: 'Online',   icon: '🌐' },
-  { label: 'Account',  icon: '◉' },
+  { label: 'New Game',  icon: 'NG' },
+  { label: 'Analysis', icon: 'An' },
+  { label: 'Computer', icon: 'AI' },
+  { label: 'Online',   icon: 'On' },
+  { label: 'Account',  icon: 'Ac' },
 ];
 
 export default function Navbar({ activeTab, onTabClick }) {

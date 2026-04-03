@@ -148,6 +148,8 @@ export default function PuzzlePage() {
     streakCount, streakActive, streakBestCount, startStreak,
     // Hint
     hintSquare, hintUsed, getHint, clearHint,
+    // Retry / Give Up
+    wrongAttempt, attempts, giveUp,
   } = usePuzzleStore();
 
   const [lastMoveFrom, setLastMoveFrom] = useState(null);
@@ -182,17 +184,12 @@ export default function PuzzlePage() {
         setTimeout(() => setFeedback(null), 400);
       }
     } else {
-      // Wrong move: clear highlights, show flash longer, auto-advance in rated mode
+      // Wrong move: clear highlights, show flash — user can retry
       setLastMoveFrom(null);
       setLastMoveTo(null);
       setFeedback('wrong');
-      setTimeout(() => {
-        setFeedback(null);
-        // Auto-load next puzzle after wrong move in rated mode
-        if (mode === 'rated') {
-          loadNextPuzzle(user?.id);
-        }
-      }, 1500);
+      setTimeout(() => setFeedback(null), 1200);
+      // Don't auto-advance — user can retry
     }
   }, [handlePlayerMove, user?.id, mode, loadNextPuzzle]);
 
@@ -250,6 +247,11 @@ export default function PuzzlePage() {
             <>
               <span className={`${styles.turnDot} ${playerColor === 'w' ? styles.dotW : styles.dotB}`} />
               <span>{playerColor === 'w' ? 'White' : 'Black'} to move</span>
+              {wrongAttempt && (
+                <span className={styles.feedbackFailed} style={{marginLeft: 8, fontSize: '0.85rem'}}>
+                  Incorrect -- try again ({attempts} {attempts === 1 ? 'attempt' : 'attempts'})
+                </span>
+              )}
             </>
           )}
           {status === 'loading' && <span className={styles.turnHint}>Loading puzzle...</span>}
@@ -344,7 +346,7 @@ export default function PuzzlePage() {
                   <button className={styles.hintBtn} onClick={getHint} disabled={hintUsed}>
                     {hintUsed ? 'Hint Used' : 'Hint (-rating)'}
                   </button>
-                  <button className={styles.skipBtn} onClick={handleNext}>Skip</button>
+                  <button className={styles.skipBtn} onClick={() => giveUp(user?.id)}>Give Up</button>
                 </>
               )}
               {(status === 'idle' || status === 'loading') && (

@@ -130,6 +130,7 @@ function PlayerBar({ name, color, time, active }) {
 // ── Main game ─────────────────────────────────────────────────────────────────
 
 export default function P2PGame({ myColor, onExit }) {
+  const { pieceSetIndex, pieceSets } = useThemeStore();
   const [chess]        = useState(() => new Chess());
   const [fen,          setFen]          = useState(chess.fen());
   const [status,       setStatus]       = useState('playing'); // 'playing'|'over'
@@ -282,11 +283,15 @@ export default function P2PGame({ myColor, onExit }) {
           <div className={styles.promoOverlay}>
             <div className={styles.promoBox}>
               <div className={styles.promoTitle}>Promote to</div>
-              {['q','r','b','n'].map(p => (
-                <button key={p} className={styles.promoBtn} onClick={() => handlePromotion(p)}>
-                  {p === 'q' ? '♛' : p === 'r' ? '♜' : p === 'b' ? '♝' : '♞'}
-                </button>
-              ))}
+              {['q','r','b','n'].map(p => {
+                const pName = { q: 'queen', r: 'rook', b: 'bishop', n: 'knight' }[p];
+                const promoColor = chess.turn() === 'w' ? 'white' : 'black';
+                return (
+                  <button key={p} className={styles.promoBtn} onClick={() => handlePromotion(p)}>
+                    <img src={`./images/${pieceSets[pieceSetIndex].path}${pName}-${promoColor}.png`} alt={pName} style={{width:40,height:40}} />
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}

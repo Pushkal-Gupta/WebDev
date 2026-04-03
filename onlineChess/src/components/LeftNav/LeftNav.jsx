@@ -126,7 +126,7 @@ export default function LeftNav({ activeTab, onTabClick, friendBadge }) {
   return (
     <aside className={styles.nav}>
       <button className={styles.logo} onClick={() => onTabClick(0)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
-        <span className={styles.logoIcon}>♟</span>
+        <span className={styles.logoIcon}>PG</span>
         <span className={styles.logoText}>PG.Chess</span>
       </button>
 

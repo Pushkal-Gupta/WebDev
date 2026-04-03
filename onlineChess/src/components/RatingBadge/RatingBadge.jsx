@@ -1,10 +1,10 @@
 import styles from './RatingBadge.module.css';
 
 const CATEGORY_ICONS = {
-  bullet:    '⚡',
-  blitz:     '🔥',
-  rapid:     '⏱',
-  classical: '♟',
+  bullet:    'Bu',
+  blitz:     'Bz',
+  rapid:     'Ra',
+  classical: 'Cl',
 };
 
 /**
@@ -13,7 +13,7 @@ const CATEGORY_ICONS = {
  */
 export default function RatingBadge({ rating, category, size = 'md' }) {
   const cat = (category || '').toLowerCase();
-  const icon = CATEGORY_ICONS[cat] || '♟';
+  const icon = CATEGORY_ICONS[cat] || 'Cl';
 
   return (
     <span className={`${styles.badge} ${styles[size]}`}>
