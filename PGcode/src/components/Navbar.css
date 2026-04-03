@@ -1,0 +1,60 @@
+/* Navbar Styles */
+.navbar-header {
+  padding: 1rem 2rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.theme-toggle {
+  cursor: pointer;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+}
+
+.navbar-user-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.navbar-user-email {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-family: var(--mono);
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .navbar-header {
+    padding: 0.8rem 1rem;
+  }
+  .navbar-user-email {
+    display: none; /* Hide email on mobile to save space */
+  }
+  .logout-btn span {
+    display: none; /* Hide text, only show icon */
+  }
+}

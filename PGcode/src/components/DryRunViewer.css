@@ -130,3 +130,22 @@
   color: var(--hard);
   background: rgba(255, 55, 95, 0.1);
 }
+
+@media (max-width: 768px) {
+  .dryRunHeader {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  
+  .interactiveQuestionPopup {
+    width: 95%;
+    padding: 1.5rem;
+  }
+  
+  .visualStateBox {
+    min-width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+  }
+}

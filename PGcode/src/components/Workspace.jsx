@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import Editor from '@monaco-editor/react';
 import { ArrowLeft, Play, Save, MonitorPlay, Code2 } from 'lucide-react';
 import DryRunViewer from './DryRunViewer';
+import '../styles/Workspace.css'; // Will create this layout file
 
 export default function Workspace({ session, theme }) {
   const { categoryId } = useParams();
@@ -20,7 +21,6 @@ export default function Workspace({ session, theme }) {
     async function fetchWorkspaceData() {
       if (!categoryId) return;
       try {
-        // Fetch topic
         const { data: topicData } = await supabase
           .from('PGcode_topics')
           .select('*')
@@ -28,7 +28,6 @@ export default function Workspace({ session, theme }) {
           .single();
         if (topicData) setTopic(topicData);
 
-        // Fetch problems
         const { data: qData } = await supabase
           .from('PGcode_problems')
           .select('*')
@@ -46,7 +45,6 @@ export default function Workspace({ session, theme }) {
     fetchWorkspaceData();
   }, [categoryId]);
 
-  // Fetch templates when problem changes
   useEffect(() => {
     async function fetchTemplates() {
       if (!activeProblem) return;
@@ -64,7 +62,6 @@ export default function Workspace({ session, theme }) {
     fetchTemplates();
   }, [activeProblem]);
 
-  // Set code content when lang or templates finish loading
   useEffect(() => {
     if (activeProblem) {
       setCodeContent(templates[activeLang] || '// Code template not found for this language');
@@ -72,58 +69,52 @@ export default function Workspace({ session, theme }) {
   }, [activeProblem, activeLang, templates]);
 
   if (!topic && problems.length === 0) {
-    return <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-main)', fontFamily: 'var(--mono)'}}>Loading Workspace... <Link to="/" style={{color: 'var(--accent)'}}>Go back</Link></div>;
+    return <div className="workspace-loading">Loading Workspace... <Link to="/" className="workspace-back">Go back</Link></div>;
   }
 
   return (
-    <div style={workspaceContainer}>
+    <div className="workspace-container">
       {/* Left Panel: Problem Context */}
-      <div style={leftPanel}>
-        <div style={panelHeader}>
-          <Link to="/" style={backLink}><ArrowLeft size={16} /> Roadmap</Link>
-          <h2 style={{ margin: 0, fontSize: '1.2rem', fontFamily: 'var(--mono)' }}>
+      <div className="workspace-left-panel">
+        <div className="workspace-panel-header">
+          <Link to="/" className="workspace-back"><ArrowLeft size={16} /> Roadmap</Link>
+          <h2 className="workspace-topic-title">
             {topic?.name || categoryId} Setup
           </h2>
         </div>
         
-        {/* Sub-nav for problems in this category */}
-        <div style={problemTabsRow}>
+        <div className="problem-tabs-row">
           {problems.map(prob => (
             <div 
               key={prob.id} 
-              style={{
-                ...probTabItem, 
-                borderBottomColor: activeProblem?.id === prob.id ? 'var(--accent)' : 'transparent',
-                color: activeProblem?.id === prob.id ? 'var(--accent)' : 'var(--text-dim)'
-              }}
+              className={`prob-tab-item ${activeProblem?.id === prob.id ? 'active' : ''}`}
               onClick={() => setActiveProblem(prob)}
             >
               {prob.name}
             </div>
           ))}
-          {problems.length === 0 && <div style={{padding: '0.5rem', color: 'var(--text-dim)', fontFamily: 'var(--mono)'}}>No problems mapped.</div>}
+          {problems.length === 0 && <div className="prob-tab-empty">No problems mapped.</div>}
         </div>
 
-        {/* Dynamic content for active problem */}
         {activeProblem && (
-          <div style={problemContent}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-               <h3 style={{ margin: 0, fontFamily: 'var(--sans)' }}>{activeProblem.name}</h3>
+          <div className="problem-content">
+            <div className="problem-header-row">
+               <h3>{activeProblem.name}</h3>
                <span className={`diff-badge diff-${activeProblem.difficulty?.toLowerCase()}`}>{activeProblem.difficulty}</span>
             </div>
 
-            <div dangerouslySetInnerHTML={{ __html: activeProblem.description }} style={{ marginBottom: '2rem', fontSize: '0.95rem' }} />
+            <div className="problem-description" dangerouslySetInnerHTML={{ __html: activeProblem.description }} />
 
             {activeProblem.solution_video_url && (
-              <div style={{...videoContainer, marginTop: '2rem'}}>
-                <iframe src={`https://www.youtube.com/embed/${activeProblem.solution_video_url}`} title="Video Solution" style={iframeStyle} allowFullScreen></iframe>
+              <div className="video-container">
+                <iframe src={`https://www.youtube.com/embed/${activeProblem.solution_video_url}`} title="Video Solution" className="video-iframe" allowFullScreen></iframe>
               </div>
             )}
             
             {activeProblem.hints && activeProblem.hints.length > 0 && (
-              <div style={{ marginTop: '2rem' }}>
-                <h4 style={{fontFamily: 'var(--sans)'}}>Hints</h4>
-                <ul style={{fontFamily: 'var(--sans)', color: 'var(--text-dim)', fontSize: '0.9rem'}}>
+              <div className="problem-hints">
+                <h4>Hints</h4>
+                <ul>
                   {activeProblem.hints.map((h, i) => <li key={i}>{h}</li>)}
                 </ul>
               </div>
@@ -133,17 +124,17 @@ export default function Workspace({ session, theme }) {
       </div>
 
       {/* Right Panel: Editor / Interactive Viewer */}
-      <div style={rightPanel}>
-        <div style={panelHeaderEditor}>
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+      <div className="workspace-right-panel">
+        <div className="panel-header-editor">
+          <div className="editor-mode-toggle">
             <button 
-              style={{...modeBtn, color: viewMode === 'code' ? 'var(--accent)' : 'var(--text-dim)'}}
+              className={`mode-btn ${viewMode === 'code' ? 'active' : ''}`}
               onClick={() => setViewMode('code')}
             >
               <Code2 size={16} /> Code
             </button>
             <button 
-              style={{...modeBtn, color: viewMode === 'visual' ? 'var(--accent)' : 'var(--text-dim)'}}
+              className={`mode-btn ${viewMode === 'visual' ? 'active' : ''}`}
               onClick={() => setViewMode('visual')}
             >
               <MonitorPlay size={16} /> Visual Dry Run
@@ -151,9 +142,9 @@ export default function Workspace({ session, theme }) {
           </div>
           
           {viewMode === 'code' && (
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <div className="editor-actions">
               <select 
-                style={selectStyle}
+                className="lang-select"
                 value={activeLang}
                 onChange={(e) => setActiveLang(e.target.value)}
               >
@@ -162,17 +153,17 @@ export default function Workspace({ session, theme }) {
                 <option value="java">Java</option>
               </select>
             
-              <button className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--card-bg)', color: 'var(--text-main)', border: '1px solid var(--border)' }}>
-                <Save size={14} /> Save
+              <button className="btn-primary save-btn">
+                <Save size={14} /> <span>Save</span>
               </button>
-              <button className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={() => alert('Validation coming soon!')}>
-                <Play size={14} /> Run
+              <button className="btn-primary run-btn" onClick={() => alert('Validation coming soon!')}>
+                <Play size={14} /> <span>Run</span>
               </button>
             </div>
           )}
         </div>
 
-        <div style={editorWrapper}>
+        <div className="editor-wrapper">
           {viewMode === 'code' ? (
             <Editor
               height="100%"
@@ -194,122 +185,3 @@ export default function Workspace({ session, theme }) {
     </div>
   );
 }
-
-// ─── Inline Styles ─────────────────────────
-const workspaceContainer = {
-  display: 'flex',
-  height: 'calc(100vh - 70px)',
-  width: '100%',
-  overflow: 'hidden'
-};
-
-const leftPanel = {
-  flex: 1,
-  borderRight: '1px solid var(--border)',
-  display: 'flex',
-  flexDirection: 'column',
-  background: 'var(--bg)',
-  overflowY: 'auto'
-};
-
-const panelHeader = {
-  padding: '1rem 1.5rem',
-  borderBottom: '1px solid var(--border)',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '0.5rem'
-};
-
-const backLink = {
-  color: 'var(--text-dim)',
-  textDecoration: 'none',
-  fontSize: '0.85rem',
-  fontFamily: 'var(--mono)',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.25rem'
-};
-
-const problemTabsRow = {
-  display: 'flex',
-  borderBottom: '1px solid var(--border)',
-  background: 'var(--card-bg)',
-  padding: '0 1rem',
-  overflowX: 'auto'
-};
-
-const probTabItem = {
-  padding: '0.75rem 1rem',
-  fontSize: '0.85rem',
-  fontFamily: 'var(--mono)',
-  cursor: 'pointer',
-  borderBottom: '2px solid transparent',
-  whiteSpace: 'nowrap'
-};
-
-const problemContent = {
-  padding: '1.5rem',
-  flex: 1
-};
-
-const videoContainer = {
-  position: 'relative',
-  paddingBottom: '56.25%',
-  height: 0,
-  borderRadius: '8px',
-  overflow: 'hidden',
-  boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
-};
-
-const iframeStyle = {
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  width: '100%',
-  height: '100%',
-  border: 'none'
-};
-
-const rightPanel = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  background: 'var(--bg)'
-};
-
-const panelHeaderEditor = {
-  padding: '0.5rem 1rem',
-  borderBottom: '1px solid var(--border)',
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  background: 'var(--card-bg)'
-};
-
-const modeBtn = {
-  background: 'none',
-  border: 'none',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.5rem',
-  fontFamily: 'var(--mono)',
-  fontSize: '0.9rem',
-  cursor: 'pointer',
-  padding: '0.5rem',
-  transition: 'color var(--t)'
-};
-
-const selectStyle = {
-  background: 'var(--bg)',
-  color: 'var(--text-main)',
-  border: '1px solid var(--border)',
-  padding: '0.4rem 0.8rem',
-  fontFamily: 'var(--mono)',
-  borderRadius: '4px',
-  outline: 'none'
-};
-
-const editorWrapper = {
-  flex: 1,
-  paddingTop: '0'
-};
