@@ -442,47 +442,66 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
       {/* ── Left: board column ── */}
       <div className={styles.leftCol}>
         <div className={styles.boardCol}>
-          {/* Top player */}
-          <div className={styles.playerBar}>
-            <div className={styles.playerLeft}>
-              <span className={`${styles.pDot} ${topColor === 'w' ? styles.pDotW : styles.pDotB}`} />
-              <span className={styles.pName}>{topName}</span>
-            </div>
-            {topAcc !== null && (
-              <span className={styles.pAcc} style={{ color: topAcc >= 85 ? '#3ddc84' : topAcc >= 65 ? '#f0c94c' : '#e05555' }}>
-                {topAcc}%
-              </span>
-            )}
-          </div>
+          {gameLoaded ? (
+            <>
+              {/* Top player */}
+              <div className={styles.playerBar}>
+                <div className={styles.playerLeft}>
+                  <span className={`${styles.pDot} ${topColor === 'w' ? styles.pDotW : styles.pDotB}`} />
+                  <span className={styles.pName}>{topName}</span>
+                </div>
+                {topAcc !== null && (
+                  <span className={styles.pAcc} style={{ color: topAcc >= 85 ? '#3ddc84' : topAcc >= 65 ? '#f0c94c' : '#e05555' }}>
+                    {topAcc}%
+                  </span>
+                )}
+              </div>
 
-          {/* Eval bar + board row */}
-          <div className={styles.boardRow}>
-            <div className={styles.evalBar}>
-              <div className={styles.evalWhite} style={{ height: `${whitePct}%` }} />
-              <div className={styles.evalBlack} />
-              <span className={styles.evalScore} style={{
-                top: whitePct >= 55 ? 'auto' : '4px',
-                bottom: whitePct >= 55 ? '4px' : 'auto',
-                color: whitePct >= 55 ? '#333' : '#bbb',
-              }}>{formatEval(currentEval)}</span>
-            </div>
-            <div className={styles.boardWrap}>
-              <Board />
-            </div>
-          </div>
+              {/* Eval bar + board row */}
+              <div className={styles.boardRow}>
+                <div className={styles.evalBar}>
+                  <div className={styles.evalWhite} style={{ height: `${whitePct}%` }} />
+                  <div className={styles.evalBlack} />
+                  <span className={styles.evalScore} style={{
+                    top: whitePct >= 55 ? 'auto' : '4px',
+                    bottom: whitePct >= 55 ? '4px' : 'auto',
+                    color: whitePct >= 55 ? '#333' : '#bbb',
+                  }}>{formatEval(currentEval)}</span>
+                </div>
+                <div className={styles.boardWrap}>
+                  <Board />
+                </div>
+              </div>
 
-          {/* Bottom player */}
-          <div className={styles.playerBar}>
-            <div className={styles.playerLeft}>
-              <span className={`${styles.pDot} ${botColor === 'w' ? styles.pDotW : styles.pDotB}`} />
-              <span className={styles.pName}>{bottomName}</span>
+              {/* Bottom player */}
+              <div className={styles.playerBar}>
+                <div className={styles.playerLeft}>
+                  <span className={`${styles.pDot} ${botColor === 'w' ? styles.pDotW : styles.pDotB}`} />
+                  <span className={styles.pName}>{bottomName}</span>
+                </div>
+                {botAcc !== null && (
+                  <span className={styles.pAcc} style={{ color: botAcc >= 85 ? '#3ddc84' : botAcc >= 65 ? '#f0c94c' : '#e05555' }}>
+                    {botAcc}%
+                  </span>
+                )}
+              </div>
+            </>
+          ) : (
+            /* Board placeholder when no game loaded */
+            <div className={styles.boardRow}>
+              <div className={styles.boardWrap}>
+                <div className={styles.boardPlaceholder}>
+                  <svg className={styles.boardPlaceholderIcon} width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="12" width="3" height="6" rx="1"/>
+                    <rect x="8" y="8" width="3" height="10" rx="1"/>
+                    <rect x="14" y="4" width="3" height="14" rx="1"/>
+                    <path d="M3.5 11.5l5-4.5 4 3 5-6" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className={styles.boardPlaceholderText}>Import a game from the panel to start analysis</span>
+                </div>
+              </div>
             </div>
-            {botAcc !== null && (
-              <span className={styles.pAcc} style={{ color: botAcc >= 85 ? '#3ddc84' : botAcc >= 65 ? '#f0c94c' : '#e05555' }}>
-                {botAcc}%
-              </span>
-            )}
-          </div>
+          )}
 
           {/* Nav bar */}
           {gameLoaded && (
@@ -497,7 +516,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
       </div>
 
       {/* ── Right: analysis panel ── */}
-      <div className={styles.panel}>
+      <div className={`${styles.panel} ${!gameLoaded ? styles.panelExpanded : ''}`}>
 
         {/* Panel header */}
         <div className={styles.panelHeader}>

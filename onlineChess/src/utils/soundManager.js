@@ -358,9 +358,11 @@ const sounds = {
 
 let _enabled = true;
 let _volume = 1.0;
+let _soundToggles = {};
 
 export function setSoundEnabled(enabled) { _enabled = enabled; }
 export function setSoundVolume(vol) { _volume = Math.max(0, Math.min(1, vol)); }
+export function setSoundToggles(toggles) { _soundToggles = toggles || {}; }
 
 /**
  * Play a chess sound effect.
@@ -368,6 +370,7 @@ export function setSoundVolume(vol) { _volume = Math.max(0, Math.min(1, vol)); }
  */
 export function playSound(name) {
   if (!_enabled || _volume <= 0) return;
+  if (_soundToggles[name] === false) return;
   const fn = sounds[name];
   if (fn) fn();
 }

@@ -127,8 +127,8 @@
 .boardRow {
   display: flex;
   flex-direction: row;
-  flex: 1;
-  min-height: 0;
+  flex: none;
+  height: calc(8 * var(--cell-size) + 4px);
   overflow: hidden;
 }
 
@@ -179,14 +179,50 @@
 
 /* ── Right panel ── */
 .panel {
-  width: 310px;
-  min-width: 240px;
+  width: 420px;
+  min-width: 320px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   border-left: 1px solid rgba(255, 255, 255, 0.07);
   background: rgba(0, 0, 0, 0.12);
   overflow: hidden;
+}
+
+/* When no game loaded, panel expands */
+.panelExpanded {
+  flex: 1;
+  width: auto;
+  min-width: 360px;
+  max-width: 560px;
+}
+
+/* Board placeholder when no game loaded */
+.boardPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: calc(8 * var(--cell-size));
+  height: calc(8 * var(--cell-size));
+  background: rgba(255, 255, 255, 0.02);
+  border: 2px dashed rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.boardPlaceholderIcon {
+  font-size: 2.4rem;
+  opacity: 0.3;
+  line-height: 1;
+}
+
+.boardPlaceholderText {
+  font-size: 0.82rem;
+  text-align: center;
+  max-width: 200px;
+  line-height: 1.5;
 }
 
 /* Panel header — blue gradient */
@@ -201,7 +237,7 @@
 }
 
 .panelTitle {
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: rgba(100, 180, 255, 0.9);
   text-transform: uppercase;
@@ -261,12 +297,12 @@
 
 .tab {
   flex: 1;
-  padding: 9px 0;
+  padding: 10px 0;
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
   color: rgba(255, 255, 255, 0.35);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -334,13 +370,13 @@
 
 /* ── Sections ── */
 .section {
-  padding: 10px 14px;
+  padding: 12px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   flex-shrink: 0;
 }
 
 .sectionLabel {
-  font-size: 0.6rem;
+  font-size: 0.68rem;
   font-weight: 700;
   color: rgba(100, 180, 255, 0.5);
   text-transform: uppercase;
@@ -592,15 +628,15 @@
 }
 
 .moveN {
-  font-size: 0.68rem;
+  font-size: 0.74rem;
   color: rgba(255, 255, 255, 0.18);
-  padding: 4px 4px 4px 10px;
+  padding: 5px 4px 5px 10px;
   text-align: right;
 }
 
 .moveCell {
-  padding: 4px 6px;
-  font-size: 0.78rem;
+  padding: 5px 8px;
+  font-size: 0.84rem;
   color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
   border-radius: 3px;
@@ -657,10 +693,10 @@
 
 /* ── Input section ── */
 .inputSection {
-  padding: 14px 14px;
+  padding: 18px 18px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   flex-shrink: 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
@@ -670,15 +706,15 @@
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: rgba(255, 255, 255, 0.75);
-  padding: 10px 12px;
+  padding: 12px 14px;
   border-radius: 6px;
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-family: monospace;
   resize: vertical;
   box-sizing: border-box;
   outline: none;
   transition: border-color 0.15s;
-  min-height: 120px;
+  min-height: 180px;
 }
 
 .pgnTextarea:focus { border-color: rgba(0, 255, 245, 0.25); }
@@ -715,13 +751,13 @@
 
 .analyseBtn {
   flex: 1;
-  padding: 8px 14px;
+  padding: 10px 16px;
   background: rgba(0, 255, 245, 0.1);
   border: 1px solid rgba(0, 255, 245, 0.3);
   color: var(--color-accent);
   border-radius: 5px;
   cursor: pointer;
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   font-weight: 600;
   transition: all 0.15s;
   text-align: center;
@@ -990,13 +1026,17 @@
 }
 
 /* ── Responsive ── */
+@media (max-width: 1100px) {
+  .panel { width: 360px; min-width: 280px; }
+}
+
 @media (max-width: 960px) {
-  .panel { width: 260px; min-width: 200px; }
+  .panel { width: 320px; min-width: 260px; }
   .pName { max-width: 140px; }
 }
 
 @media (max-width: 800px) {
-  .panel { width: 220px; min-width: 180px; }
+  .panel { width: 280px; min-width: 220px; }
   .evalBar { width: 14px; }
 }
 
@@ -1004,11 +1044,6 @@
   .page { flex-direction: column; overflow-y: auto; }
   .leftCol { flex: none; width: 100%; }
   .boardCol { flex: none; }
-  .boardRow {
-    flex: none;
-    height: calc(8 * var(--cell-size) + 4px);
-    min-height: calc(8 * var(--cell-size) + 4px);
-  }
   .boardWrap {
     flex: 1;
   }

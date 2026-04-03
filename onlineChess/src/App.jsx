@@ -37,6 +37,8 @@ import P2PGame from './components/P2PPlay/P2PGame';
 import { p2p } from './utils/p2pService';
 import useFriendStore from './store/friendStore';
 import { getBestMove } from './utils/stockfish';
+import usePrefsStore from './store/prefsStore';
+import { setSoundToggles } from './utils/soundManager';
 import { postGame, getGames } from './utils/gameServer';
 import { getOpeningName } from './utils/evaluation';
 import { supabase } from './utils/supabase';
@@ -167,6 +169,7 @@ export default function App() {
   const { loadNotifications, subscribe: subscribeNotifs,
           unsubscribe: unsubscribeNotifs, unreadCount: notifUnread } = useNotificationStore();
   const { loadFriends, incoming: friendRequests } = useFriendStore();
+  const showCapturedPref = usePrefsStore(s => s.showCaptured);
   const safeIndex = Math.max(0, Math.min(pieceSetIndex ?? 0, pieceSets.length - 1));
   const imagePath = `./images/${pieceSets[safeIndex].path}`;
 
@@ -175,6 +178,23 @@ export default function App() {
     initAuth();
     initGame();
   }, []);
+
+  // ─── Accessibility & sound toggles sync ──────────────────────────────────
+  const reducedMotion = usePrefsStore(s => s.reducedMotion);
+  const highContrast = usePrefsStore(s => s.highContrast);
+  const soundToggles = useThemeStore(s => s.soundToggles);
+
+  useEffect(() => {
+    document.body.dataset.reducedMotion = reducedMotion ? 'true' : 'false';
+  }, [reducedMotion]);
+
+  useEffect(() => {
+    document.body.dataset.highContrast = highContrast ? 'true' : 'false';
+  }, [highContrast]);
+
+  useEffect(() => {
+    setSoundToggles(soundToggles);
+  }, [soundToggles]);
 
   // ─── Load ratings, notifications, friends when user logs in ───────────────
   useEffect(() => {
@@ -940,6 +960,7 @@ export default function App() {
                 time={topTime} timeActive={topActive} timerRunning={timerRunning}
                 captured={topCaptured} materialAdv={topAdv}
                 timeControl={timeControl} imagePath={imagePath}
+                showCaptured={showCapturedPref}
               />
 
               <div className="board-area">
@@ -979,6 +1000,7 @@ export default function App() {
                 captured={bottomCaptured} materialAdv={bottomAdv}
                 timeControl={timeControl} imagePath={imagePath}
                 showHint={!isOnline} onHint={handleGetHint}
+                showCaptured={showCapturedPref}
               />
             </div>
 
@@ -1257,7 +1279,7 @@ const PP_PIECE_MAP = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen
 // Use shared time formatter
 import { formatTime as formatPPTime } from './utils/timeFormatter';
 
-function PlayerPanel({ name, colorCode, time, timeActive, timerRunning, captured, materialAdv, timeControl, imagePath, showHint, onHint }) {
+function PlayerPanel({ name, colorCode, time, timeActive, timerRunning, captured, materialAdv, timeControl, imagePath, showHint, onHint, showCaptured = true }) {
   const initial = (name || (colorCode === 'w' ? 'W' : 'B'))[0].toUpperCase();
   const isLow   = timeActive && timerRunning && time <= 30;
   const ticking = timeActive && timerRunning;
@@ -1268,17 +1290,19 @@ function PlayerPanel({ name, colorCode, time, timeActive, timerRunning, captured
         <div className={`pp-avatar pp-avatar-${colorCode}`}>{initial}</div>
         <div className="pp-meta">
           <span className="pp-name" title={name || (colorCode === 'w' ? 'White' : 'Black')}>{name || (colorCode === 'w' ? 'White' : 'Black')}</span>
-          <div className="pp-captures">
-            {captured.map((p, i) => (
-              <img
-                key={`${p.type}-${p.color}-${i}`}
-                src={`${imagePath}${PP_PIECE_MAP[p.type]}-${p.color === 'w' ? 'white' : 'black'}.png`}
-                className="pp-cap-img"
-                alt={p.type}
-              />
-            ))}
-            {materialAdv > 0 && <span className="pp-adv">+{materialAdv}</span>}
-          </div>
+          {showCaptured && (
+            <div className="pp-captures">
+              {captured.map((p, i) => (
+                <img
+                  key={`${p.type}-${p.color}-${i}`}
+                  src={`${imagePath}${PP_PIECE_MAP[p.type]}-${p.color === 'w' ? 'white' : 'black'}.png`}
+                  className="pp-cap-img"
+                  alt={p.type}
+                />
+              ))}
+              {materialAdv > 0 && <span className="pp-adv">+{materialAdv}</span>}
+            </div>
+          )}
         </div>
       </div>
       <div className="pp-right">
