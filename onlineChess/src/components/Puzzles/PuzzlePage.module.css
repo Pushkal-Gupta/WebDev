@@ -121,7 +121,7 @@
 
 .modeTabActive {
   background: rgba(0,255,245,0.1);
-  color: #00fff5;
+  color: var(--color-accent);
   box-shadow: 0 0 8px rgba(0,255,245,0.15);
 }
 
@@ -148,8 +148,8 @@
 .dotB { background: #222; border: 1px solid rgba(255,255,255,0.15); }
 
 .turnHint      { color: rgba(255,255,255,0.3); font-size: 0.82rem; }
-.feedbackSolved { color: #6fdc8c; }
-.feedbackFailed { color: #ff7875; }
+.feedbackSolved { color: var(--color-success); }
+.feedbackFailed { color: var(--color-error); }
 
 .emptyMsg {
   font-size: 0.78rem;
@@ -179,8 +179,8 @@
   animation: flashPop 0.3s ease-out;
 }
 
-.flashCorrect { color: #6fdc8c; background: rgba(60,200,80,0.15); }
-.flashWrong   { color: #ff7875; background: rgba(255,60,60,0.15); }
+.flashCorrect { color: var(--color-success); background: rgba(60,200,80,0.15); }
+.flashWrong   { color: var(--color-error); background: rgba(255,60,60,0.15); }
 
 @keyframes flashPop {
   from { opacity: 0; transform: translate(-50%,-50%) scale(0.5); }
@@ -241,7 +241,7 @@
 .ratingVal {
   font-size: 1.7rem;
   font-weight: 800;
-  color: #00fff5;
+  color: var(--color-accent);
   line-height: 1;
 }
 
@@ -258,8 +258,8 @@
   font-weight: 700;
 }
 
-.deltaUp   { color: #6fdc8c; }
-.deltaDown { color: #ff7875; }
+.deltaUp   { color: var(--color-success); }
+.deltaDown { color: var(--color-error); }
 
 /* ── Puzzle info ──────────────────────────────────────────────────────────── */
 
@@ -456,7 +456,7 @@
 .rushScoreVal {
   font-size: 2.5rem;
   font-weight: 900;
-  color: #00fff5;
+  color: var(--color-accent);
   line-height: 1;
 }
 
@@ -506,7 +506,7 @@
 .rushOverScore {
   font-size: 2rem;
   font-weight: 900;
-  color: #00fff5;
+  color: var(--color-accent);
 }
 
 .rushNewBest {

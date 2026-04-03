@@ -32,7 +32,7 @@
   padding: 9px 18px;
   background: rgba(0,255,245,0.1);
   border: 1px solid rgba(0,255,245,0.3);
-  color: #00fff5;
+  color: var(--color-accent);
   border-radius: 7px;
   cursor: pointer;
   font-size: 0.85rem;
@@ -69,7 +69,7 @@
 .tabActive {
   background: rgba(0,255,245,0.1) !important;
   border-color: rgba(0,255,245,0.35) !important;
-  color: #00fff5 !important;
+  color: var(--color-accent) !important;
 }
 .tabCount {
   background: rgba(0,255,245,0.15);
@@ -239,7 +239,7 @@
   font-size: 0.65rem;
   background: rgba(0,255,245,0.1);
   border: 1px solid rgba(0,255,245,0.25);
-  color: #00fff5;
+  color: var(--color-accent);
   border-radius: 4px;
   padding: 2px 7px;
 }
@@ -255,7 +255,7 @@
   padding: 9px 20px;
   background: rgba(0,255,245,0.1);
   border: 1px solid rgba(0,255,245,0.3);
-  color: #00fff5;
+  color: var(--color-accent);
   border-radius: 7px;
   cursor: pointer;
   font-size: 0.85rem;
@@ -356,7 +356,7 @@
   text-transform: capitalize;
 }
 .roleOwner { background: rgba(255,215,0,0.12); color: #ffd700; border: 1px solid rgba(255,215,0,0.25); }
-.roleAdmin  { background: rgba(0,255,245,0.1);  color: #00fff5; border: 1px solid rgba(0,255,245,0.25); }
+.roleAdmin  { background: rgba(0,255,245,0.1);  color: var(--color-accent); border: 1px solid rgba(0,255,245,0.25); }
 
 .youBadge {
   font-size: 0.6rem;
@@ -445,10 +445,10 @@
 .segActive {
   background: rgba(0,255,245,0.1) !important;
   border-color: rgba(0,255,245,0.3) !important;
-  color: #00fff5 !important;
+  color: var(--color-accent) !important;
 }
 
-.fieldErr { font-size: 0.75rem; color: #ff7875; padding: 4px 2px; }
+.fieldErr { font-size: 0.75rem; color: var(--color-error); padding: 4px 2px; }
 
 .createBtn {
   padding: 11px;

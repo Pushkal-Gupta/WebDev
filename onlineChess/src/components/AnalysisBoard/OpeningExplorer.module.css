@@ -29,7 +29,7 @@
 
 .dbBtnActive {
   background: rgba(0,255,245,0.08);
-  color: #00fff5;
+  color: var(--color-accent);
   border-color: rgba(0,255,245,0.3);
 }
 
@@ -138,7 +138,7 @@
   width: 52px;
   font-size: 0.82rem;
   font-weight: 700;
-  color: #00fff5;
+  color: var(--color-accent);
   flex-shrink: 0;
 }
 

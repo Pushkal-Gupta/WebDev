@@ -1,5 +1,5 @@
 .card {
-  border: 1px solid;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 16px;
   display: flex;
@@ -62,9 +62,9 @@
   margin-top: 4px;
 }
 
-.wins   { color: #6fdc8c; }
+.wins   { color: var(--color-success); }
 .draws  { color: rgba(255,255,255,0.5); }
-.losses { color: #ff7875; }
+.losses { color: var(--color-error); }
 .sep    { color: rgba(255,255,255,0.2); font-size: 0.7rem; }
 
 .games {

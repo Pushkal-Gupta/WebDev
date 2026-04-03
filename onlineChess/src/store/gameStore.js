@@ -187,7 +187,7 @@ const useGameStore = create((set, get) => ({
 
     // Can't select opponent's piece when it's your turn, or computer's turn
     if (!piece || piece.color !== turn) {
-      set({ selectedSquare: null, validMoves: [] });
+      set({ selectedSquare: null, validMoves: [], pawnPromotion: null });
       return;
     }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Chess } from 'chess.js';
 import styles from './PuzzlePage.module.css';
 import usePuzzleStore from '../../store/puzzleStore';
@@ -174,12 +174,14 @@ export default function PuzzlePage() {
   const [lastMoveTo,   setLastMoveTo]   = useState(null);
   const [feedback,     setFeedback]     = useState(null);
 
-  // Load first puzzle on mount for rated mode
+  // Load first puzzle on mount and when user changes
+  const initRef = useRef(false);
   useEffect(() => {
-    if (mode === 'rated' && (status === 'idle' || status === 'empty' || status === 'error')) {
+    if (mode === 'rated' && (status === 'idle' || status === 'empty' || status === 'error' || !initRef.current)) {
+      initRef.current = true;
       loadNextPuzzle(user?.id);
     }
-  }, [user?.id]); // eslint-disable-line
+  }, [user?.id, mode]); // eslint-disable-line
 
   // Cleanup rush timer on unmount
   useEffect(() => {

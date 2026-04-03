@@ -210,3 +210,15 @@
 .sendBtn:hover {
   background: rgba(100,255,255,0.25);
 }
+
+@media (max-width: 540px) {
+  .chatContainer {
+    bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    right: 8px;
+  }
+  .chatPanel {
+    width: calc(100vw - 24px);
+    max-width: 320px;
+    height: 320px;
+  }
+}

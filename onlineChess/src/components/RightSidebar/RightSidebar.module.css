@@ -53,7 +53,7 @@
 .moveCell:hover { color: white; }
 
 .moveCellActive {
-  color: #00fff5 !important;
+  color: var(--color-accent) !important;
   font-weight: 700;
   background: rgba(0, 255, 245, 0.08);
   border-radius: 4px;
@@ -91,7 +91,7 @@
 .navBtn:hover:not(:disabled) {
   background: rgba(0, 255, 245, 0.1);
   border-color: rgba(0, 255, 245, 0.3);
-  color: #00fff5;
+  color: var(--color-accent);
 }
 
 .navBtn:disabled {
@@ -154,7 +154,7 @@
   width: 13px;
   height: 13px;
   border: 2px solid rgba(0, 255, 245, 0.2);
-  border-top-color: #00fff5;
+  border-top-color: var(--color-accent);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }

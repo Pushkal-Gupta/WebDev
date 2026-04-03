@@ -50,7 +50,7 @@
 .tabActive {
   background: rgba(0,255,245,0.1) !important;
   border-color: rgba(0,255,245,0.35) !important;
-  color: #00fff5 !important;
+  color: var(--color-accent) !important;
 }
 
 /* ── Table wrapper ── */
@@ -171,7 +171,7 @@
   font-size: 0.6rem;
   background: rgba(0,255,245,0.12);
   border: 1px solid rgba(0,255,245,0.3);
-  color: #00fff5;
+  color: var(--color-accent);
   border-radius: 4px;
   padding: 1px 5px;
   flex-shrink: 0;
@@ -188,7 +188,7 @@
 .tdRating {
   text-align: right;
   font-weight: 700;
-  color: #00fff5 !important;
+  color: var(--color-accent) !important;
   font-variant-numeric: tabular-nums;
 }
 
@@ -212,8 +212,8 @@
   white-space: nowrap;
 }
 
-.wins   { color: #6fdc8c; font-weight: 600; }
-.losses { color: #ff7875; font-weight: 600; }
+.wins   { color: var(--color-success); font-weight: 600; }
+.losses { color: var(--color-error); font-weight: 600; }
 .draws  { color: rgba(255,255,255,0.45); }
 .sep    { color: rgba(255,255,255,0.2); margin: 0 3px; }
 
