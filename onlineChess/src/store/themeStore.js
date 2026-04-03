@@ -64,6 +64,10 @@ const useThemeStore = create(persist((set, get) => ({
 
   soundEnabled: true,
   soundVolume: 0.8,
+  soundToggles: {
+    move: true, capture: true, check: true, castle: true,
+    promote: true, gameStart: true, gameEnd: true, lowTime: true, illegal: true,
+  },
 
   setSoundEnabled: (enabled) => {
     setSoundEnabled(enabled);
@@ -74,6 +78,10 @@ const useThemeStore = create(persist((set, get) => ({
     setSoundVolume(vol);
     set({ soundVolume: vol });
   },
+
+  setSoundToggle: (name, enabled) => set(state => ({
+    soundToggles: { ...state.soundToggles, [name]: enabled },
+  })),
 
   get imagePath() {
     const { pieceSetIndex } = get();
@@ -104,6 +112,12 @@ const useThemeStore = create(persist((set, get) => ({
       clr1c: theme.clr1c, clr2c: theme.clr2c,
       clr1p: theme.clr1p, clr2p: theme.clr2p,
       clr1x: theme.clr1x, clr2x: theme.clr2x,
+      soundEnabled: true,
+      soundVolume: 0.8,
+      soundToggles: {
+        move: true, capture: true, check: true, castle: true,
+        promote: true, gameStart: true, gameEnd: true, lowTime: true, illegal: true,
+      },
     });
   },
 }), { name: 'chess-theme' }));
