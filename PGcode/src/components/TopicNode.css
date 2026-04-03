@@ -1,0 +1,90 @@
+.topic-node-container {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: var(--card-bg);
+  color: #fff;
+  border: 1px solid var(--border);
+  min-width: 160px;
+  text-align: center;
+  position: relative;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.topic-node-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.topic-node-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.topic-node-title {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.topic-node-subtitle {
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Base custom handles */
+.topic-node-container .handle {
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border: none;
+}
+
+/* Category Color Mappings */
+.topic-node-container.structures {
+  background: #115740; /* Dark Green */
+  border-color: #218c65;
+}
+
+.topic-node-container.algorithms {
+  background: #392d7d; /* Deep Purple */
+  border-color: #6353ca;
+}
+
+.topic-node-container.optimization {
+  background: #733116; /* Brown */
+  border-color: #a44822;
+}
+
+.topic-node-container.synthesis {
+  background: #3a3a3a; /* Dark Gray */
+  border-color: #666;
+}
+
+.topic-node-container.math {
+  background: #093f77; /* Dark Blue */
+  border-color: #176fc8;
+}
+
+.topic-node-container.default {
+  background: var(--card-bg);
+}
+
+/* Side label for groups like "FOUNDATION" floating to the left */
+.topic-group-label {
+  position: absolute;
+  left: -140px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  width: 100px;
+  text-align: right;
+  pointer-events: none;
+}
