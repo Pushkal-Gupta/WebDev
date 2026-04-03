@@ -55,7 +55,7 @@ export default function GameOverModal({ message, ratingDelta, botMessage, onNewG
         <div className={styles.btnRow}>
           <button className={`${styles.btn} ${styles.btnConfirm}`} onClick={onNewGame}>New Game</button>
           <button className={`${styles.btn} ${styles.btnAnalyse}`} onClick={onReview}>Review Game</button>
-          <button className={`${styles.btn} ${styles.btnCancel}`} onClick={onCancel}>Close</button>
+          <button className={`${styles.btn} ${styles.btnCancel}`} onClick={onCancel}>Main Menu</button>
         </div>
       </div>
     </div>

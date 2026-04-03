@@ -225,7 +225,7 @@
 
 .error {
   font-size: 0.8rem;
-  color: #e05555;
+  color: var(--color-error);
   text-align: center;
   padding: 4px 0;
 }

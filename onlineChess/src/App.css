@@ -1429,5 +1429,6 @@ body {
   .player-panel { min-height: 42px; padding: 6px 10px; gap: 6px; }
   .pp-clock { font-size: 1rem; min-width: 54px; padding: 3px 7px; }
   .pp-avatar { width: 28px; height: 28px; }
-  .pp-hint-btn { padding: 3px 7px; font-size: 0.75rem; }
+  .pp-hint-btn { padding: 3px 7px; font-size: 0.75rem; min-height: 36px; }
+  .online-btn { min-height: 36px; padding: 6px 10px; }
 }

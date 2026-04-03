@@ -23,11 +23,15 @@ function CreateClubModal({ onClose, onCreated }) {
       owner_id: user.id, is_public: isPublic,
     }).select().single();
     if (error) { setErr(error.message); setSaving(false); return; }
-    // Auto-join as owner
-    await supabase.from('club_members').insert({
-      club_id: data.id, user_id: user.id, username: username || user.email, role: 'owner',
-    });
-    onCreated(data);
+    try {
+      // Auto-join as owner
+      await supabase.from('club_members').insert({
+        club_id: data.id, user_id: user.id, username: username || user.email, role: 'owner',
+      });
+      onCreated(data);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
