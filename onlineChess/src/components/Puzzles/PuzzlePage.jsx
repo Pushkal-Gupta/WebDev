@@ -16,7 +16,8 @@ function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveT
   const [validMoves, setValidMoves] = useState([]);  // [{ row, col, uci }]
   const [chess]     = useState(() => new Chess());
 
-  const imagePath = `./images/${pieceSets[pieceSetIndex].path}`;
+  const safeIndex = Math.max(0, Math.min(pieceSetIndex ?? 0, pieceSets.length - 1));
+  const imagePath = `./images/${pieceSets[safeIndex].path}`;
   const flipped   = playerColor === 'b';
   const rows      = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
   const cols      = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
@@ -81,7 +82,7 @@ function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveT
 
             const showFileLabel = displayRow === 7;
             const showRankLabel = displayCol === 0;
-            const fileLabel = FILE_LABELS[flipped ? 7 - col : col];
+            const fileLabel = FILE_LABELS[col];
             const rankLabel = flipped ? row + 1 : 8 - row;
 
             return (
@@ -158,7 +159,7 @@ export default function PuzzlePage() {
   const { user } = useAuthStore();
   const {
     puzzle, currentFen, playerColor, status, streak,
-    userPuzzleRating, lastRatingChange,
+    userPuzzleRating, lastRatingChange, errorMsg,
     loadNextPuzzle, handlePlayerMove,
   } = usePuzzleStore();
 
@@ -166,12 +167,12 @@ export default function PuzzlePage() {
   const [lastMoveTo,   setLastMoveTo]   = useState(null);
   const [feedback,     setFeedback]     = useState(null); // 'correct'|'wrong'|null
 
-  // Load first puzzle on mount if none loaded yet
+  // Load first puzzle on mount or when user changes
   useEffect(() => {
-    if (status === 'idle' || status === 'empty') {
+    if (status === 'idle' || status === 'empty' || status === 'error') {
       loadNextPuzzle(user?.id);
     }
-  }, []); // eslint-disable-line
+  }, [user?.id]); // eslint-disable-line
 
   const onMove = useCallback(async (uci) => {
     setLastMoveFrom([rankToRow(uci[1]), fileToCol(uci[0])]);
@@ -215,6 +216,7 @@ export default function PuzzlePage() {
           {status === 'loading' && <span className={styles.turnHint}>Loading puzzle…</span>}
           {status === 'idle'    && <span className={styles.turnHint}>Press "New Puzzle" to start</span>}
           {status === 'empty'   && <span className={styles.turnHint}>No puzzles available</span>}
+          {status === 'error'   && <span className={styles.feedbackFailed}>{errorMsg || 'Error loading puzzle'}</span>}
           {status === 'solved'  && <span className={styles.feedbackSolved}>Puzzle solved!</span>}
           {status === 'failed'  && <span className={styles.feedbackFailed}>Incorrect — try next</span>}
         </div>
@@ -308,6 +310,11 @@ export default function PuzzlePage() {
               disabled={status === 'loading'}
             >
               {status === 'loading' ? 'Loading…' : 'New Puzzle'}
+            </button>
+          )}
+          {status === 'error' && (
+            <button className={styles.nextBtn} onClick={handleNext}>
+              Try Again
             </button>
           )}
           {status === 'empty' && (

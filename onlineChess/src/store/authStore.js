@@ -7,12 +7,18 @@ const useAuthStore = create((set, get) => ({
   username: null,
 
   init: async () => {
+    const deriveUsername = (user) =>
+      user.user_metadata?.display_name ||
+      user.user_metadata?.full_name ||
+      user.email?.split('@')[0] ||
+      user.email;
+
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
       set({
         user: session.user,
         token: session.access_token,
-        username: session.user.email?.split('@')[0] || session.user.email,
+        username: deriveUsername(session.user),
       });
     }
 
@@ -21,7 +27,7 @@ const useAuthStore = create((set, get) => ({
         set({
           user: session.user,
           token: session.access_token,
-          username: session.user.email?.split('@')[0] || session.user.email,
+          username: deriveUsername(session.user),
         });
       } else {
         set({ user: null, token: null, username: null });

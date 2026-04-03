@@ -944,6 +944,9 @@ body {
 
 .resign-btn { background: rgba(255,60,60,0.06); border-color: rgba(255,60,60,0.25); color: rgba(255,120,120,0.85); }
 .resign-btn:hover { background: rgba(255,60,60,0.14); }
+.undo-btn { background: rgba(255,180,0,0.06); border-color: rgba(255,180,0,0.2); color: rgba(255,200,80,0.85); }
+.undo-btn:hover:not(:disabled) { background: rgba(255,180,0,0.12); }
+.undo-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* ─── Account screen ──────────────────────────────────────────────────────── */
 .account-screen {
