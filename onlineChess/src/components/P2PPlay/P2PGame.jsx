@@ -3,38 +3,10 @@ import { Chess } from 'chess.js';
 import { p2p } from '../../utils/p2pService';
 import useThemeStore from '../../store/themeStore';
 import { formatTime } from '../../utils/timeFormatter';
+import { PIECE_NAME, FILE_LABELS, squareName, rankToRow, fileToCol, parseFen } from '../../utils/boardHelpers';
 import styles from './P2PGame.module.css';
 
-const PIECE_NAME = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' };
-const FILE_LABELS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 const INIT_TIME = 300; // 5 min each side by default
-
-// ── Helpers ────────────────────────────────────────────────────────────────────
-
-function squareName(row, col) {
-  return FILE_LABELS[col] + (8 - row);
-}
-
-function rankToRow(rankChar) { return 8 - parseInt(rankChar); }
-function fileToCol(fileChar)  { return FILE_LABELS.indexOf(fileChar); }
-
-function parseFen(fen) {
-  const board = Array.from({ length: 8 }, () => Array(8).fill(null));
-  const rows  = fen.split(' ')[0].split('/');
-  rows.forEach((row, r) => {
-    let c = 0;
-    for (const ch of row) {
-      if (/\d/.test(ch)) { c += parseInt(ch); }
-      else {
-        board[r][c] = { type: ch.toLowerCase(), color: ch === ch.toUpperCase() ? 'w' : 'b' };
-        c++;
-      }
-    }
-  });
-  return board;
-}
-
-// formatTime imported from shared utility
 
 // ── Inline board ──────────────────────────────────────────────────────────────
 
@@ -254,6 +226,7 @@ export default function P2PGame({ myColor, onExit }) {
         });
       }
     }, 1000);
+    timerRef.current = id;
     return () => clearInterval(id);
   }, [status, chess, endGame]);
 

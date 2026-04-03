@@ -13,6 +13,21 @@ function buildBoardState(chess) {
   return chess.board();
 }
 
+function findCheck(chess) {
+  if (!chess.inCheck()) return null;
+  const turn = chess.turn();
+  const board = chess.board();
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const sq = board[r][c];
+      if (sq && sq.type === 'k' && sq.color === turn) {
+        return { row: r, col: c };
+      }
+    }
+  }
+  return null;
+}
+
 function parseMoveToRowCol(move, flipped) {
   // move is like { from: 'e2', to: 'e4' }
   const fileToCol = (f) => f.charCodeAt(0) - 'a'.charCodeAt(0);
@@ -303,19 +318,7 @@ const useGameStore = create((set, get) => ({
     const newHistory = [...moveHistory, newMove];
 
     // Check state
-    let underCheck = null;
-    if (chessInstance.inCheck()) {
-      const turn = chessInstance.turn();
-      const board = chessInstance.board();
-      for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < 8; c++) {
-          const sq = board[r][c];
-          if (sq && sq.type === 'k' && sq.color === turn) {
-            underCheck = { row: r, col: c };
-          }
-        }
-      }
-    }
+    const underCheck = findCheck(chessInstance);
 
     set({
       boardState: buildBoardState(chessInstance),
@@ -373,6 +376,7 @@ const useGameStore = create((set, get) => ({
   },
 
   timeExpired: (color) => {
+    if (get().gameOver) return; // guard against double-call
     const winner = color === 'w' ? 'Black' : 'White';
     set({
       gameOver: true,
@@ -438,19 +442,7 @@ const useGameStore = create((set, get) => ({
       to: newHistory[newHistory.length - 1].to,
     } : null;
 
-    let underCheck = null;
-    if (chessInstance.inCheck()) {
-      const turn = chessInstance.turn();
-      const board = chessInstance.board();
-      for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < 8; c++) {
-          const sq = board[r][c];
-          if (sq && sq.type === 'k' && sq.color === turn) {
-            underCheck = { row: r, col: c };
-          }
-        }
-      }
-    }
+    const underCheck = findCheck(chessInstance);
 
     set({
       boardState: buildBoardState(chessInstance),
@@ -545,19 +537,7 @@ const useGameStore = create((set, get) => ({
       to: moveHistory[index].to,
     } : null;
 
-    let underCheck = null;
-    if (chess.inCheck()) {
-      const turn = chess.turn();
-      const board = chess.board();
-      for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < 8; c++) {
-          const sq = board[r][c];
-          if (sq && sq.type === 'k' && sq.color === turn) {
-            underCheck = { row: r, col: c };
-          }
-        }
-      }
-    }
+    const underCheck = findCheck(chess);
 
     set({
       boardState: buildBoardState(chess),
@@ -566,6 +546,7 @@ const useGameStore = create((set, get) => ({
       validMoves: [],
       lastMove,
       underCheck,
+      activeColor: chess.turn(),
     });
   },
 

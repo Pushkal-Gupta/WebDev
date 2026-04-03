@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { supabase } from '../utils/supabase';
 import { computeSwissPairings, applyRoundResults } from '../utils/swissPairing';
 
+let _tournamentChannel = null;
+
 const useTournamentStore = create((set, get) => ({
   tournaments:    [],   // list view (upcoming + active)
   activeTournament: null, // full detail { ...tournament, players, pairings }
@@ -179,7 +181,12 @@ const useTournamentStore = create((set, get) => ({
 
   // ── Subscribe to live updates for the active tournament ──────────────────
   subscribeToTournament(tournamentId) {
-    return supabase
+    // Clean up old subscription before creating new one
+    if (_tournamentChannel) {
+      supabase.removeChannel(_tournamentChannel);
+      _tournamentChannel = null;
+    }
+    _tournamentChannel = supabase
       .channel(`tournament:${tournamentId}`)
       .on('postgres_changes', {
         event: '*', schema: 'public', table: 'tournament_pairings',
@@ -194,6 +201,14 @@ const useTournamentStore = create((set, get) => ({
         filter: `id=eq.${tournamentId}`,
       }, () => get().loadTournament(tournamentId))
       .subscribe();
+    return _tournamentChannel;
+  },
+
+  unsubscribeFromTournament() {
+    if (_tournamentChannel) {
+      supabase.removeChannel(_tournamentChannel);
+      _tournamentChannel = null;
+    }
   },
 }));
 

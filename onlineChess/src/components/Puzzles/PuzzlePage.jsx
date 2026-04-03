@@ -4,13 +4,11 @@ import styles from './PuzzlePage.module.css';
 import usePuzzleStore from '../../store/puzzleStore';
 import useAuthStore from '../../store/authStore';
 import useThemeStore from '../../store/themeStore';
-
-const PIECE_NAME = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' };
-const FILE_LABELS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+import { PIECE_NAME, FILE_LABELS, squareName, rankToRow, fileToCol, parseFen } from '../../utils/boardHelpers';
 
 // ── Inline board that works from a raw FEN ─────────────────────────────────
 
-function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveTo }) {
+function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveTo, hintSquare }) {
   const { clr1, clr2, clr1p, clr2p, clr1x, clr2x, pieceSetIndex, pieceSets } = useThemeStore();
   const [selected, setSelected] = useState(null);
   const [validMoves, setValidMoves] = useState([]);
@@ -72,14 +70,18 @@ function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveT
             const isTarget = validMoves.some(m => m.row === row && m.col === col);
             const isLastFrom = lastMoveFrom && lastMoveFrom[0] === row && lastMoveFrom[1] === col;
             const isLastTo   = lastMoveTo   && lastMoveTo[0]   === row && lastMoveTo[1]   === col;
+            const isHintFrom = hintSquare && hintSquare.from === squareName(row, col);
+            const isHintTo   = hintSquare && hintSquare.to === squareName(row, col);
 
             let bg = isLight ? clr1 : clr2;
-            if (isSel) bg = isLight ? clr1x : clr2x;
+            if (isHintFrom) bg = 'rgba(255, 200, 0, 0.45)';
+            else if (isHintTo) bg = 'rgba(255, 200, 0, 0.25)';
+            else if (isSel) bg = isLight ? clr1x : clr2x;
             else if (isLastFrom || isLastTo) bg = isLight ? clr1p : clr2p;
 
             const showFileLabel = displayRow === 7;
             const showRankLabel = displayCol === 0;
-            const fileLabel = FILE_LABELS[col];
+            const fileLabel = FILE_LABELS[flipped ? 7 - col : col];
             const rankLabel = flipped ? row + 1 : 8 - row;
 
             return (
@@ -124,31 +126,7 @@ function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveT
   );
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────
-
-function squareName(row, col) {
-  return FILE_LABELS[col] + (8 - row);
-}
-function rankToRow(rankChar) { return 8 - parseInt(rankChar); }
-function fileToCol(fileChar) { return FILE_LABELS.indexOf(fileChar); }
-
-function parseFen(fen) {
-  if (!fen) return [];
-  const board = Array.from({ length: 8 }, () => Array(8).fill(null));
-  const rows = fen.split(' ')[0].split('/');
-  rows.forEach((rowStr, r) => {
-    let c = 0;
-    for (const ch of rowStr) {
-      if (isNaN(ch)) {
-        board[r][c] = { type: ch.toLowerCase(), color: ch === ch.toUpperCase() ? 'w' : 'b' };
-        c++;
-      } else {
-        c += parseInt(ch);
-      }
-    }
-  });
-  return board;
-}
+// Helpers imported from ../../utils/boardHelpers
 
 function formatClock(seconds) {
   const m = Math.floor(seconds / 60);
@@ -168,6 +146,8 @@ export default function PuzzlePage() {
     rushTimeLeft, rushScore, rushStrikes, rushActive, rushBestScore, startRush, stopRushTimer,
     // Streak
     streakCount, streakActive, streakBestCount, startStreak,
+    // Hint
+    hintSquare, hintUsed, getHint, clearHint,
   } = usePuzzleStore();
 
   const [lastMoveFrom, setLastMoveFrom] = useState(null);
@@ -189,6 +169,7 @@ export default function PuzzlePage() {
   }, []); // eslint-disable-line
 
   const onMove = useCallback(async (uci) => {
+    clearHint();
     setLastMoveFrom([rankToRow(uci[1]), fileToCol(uci[0])]);
     setLastMoveTo([rankToRow(uci[3]), fileToCol(uci[2])]);
 
@@ -283,6 +264,7 @@ export default function PuzzlePage() {
               status={status}
               lastMoveFrom={lastMoveFrom}
               lastMoveTo={lastMoveTo}
+              hintSquare={hintSquare}
             />
           : <div className={styles.emptyBoard} />
         }
@@ -346,7 +328,12 @@ export default function PuzzlePage() {
                 <button className={styles.nextBtn} onClick={handleNext}>Next Puzzle</button>
               )}
               {status === 'playing' && (
-                <button className={styles.skipBtn} onClick={handleNext}>Skip</button>
+                <>
+                  <button className={styles.hintBtn} onClick={getHint} disabled={hintUsed}>
+                    {hintUsed ? 'Hint Used' : 'Hint'}
+                  </button>
+                  <button className={styles.skipBtn} onClick={handleNext}>Skip</button>
+                </>
               )}
               {(status === 'idle' || status === 'loading') && (
                 <button className={styles.nextBtn} onClick={() => loadNextPuzzle(user?.id)} disabled={status === 'loading'}>
@@ -357,6 +344,9 @@ export default function PuzzlePage() {
                 <button className={styles.nextBtn} onClick={handleNext}>Try Again</button>
               )}
             </div>
+            {hintUsed && status === 'playing' && (
+              <div className={styles.hintNote}>Rating gain reduced when using hints</div>
+            )}
           </>
         )}
 

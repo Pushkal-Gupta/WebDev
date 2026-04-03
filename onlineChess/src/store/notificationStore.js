@@ -23,7 +23,12 @@ const useNotificationStore = create((set, get) => ({
 
   // ── Subscribe to new notifications via Realtime ───────────────────────────
   subscribe(userId) {
-    if (!userId || _realtimeChannel) return;
+    if (!userId) return;
+    // Remove old channel before creating new one (prevents stacking on resubscribe)
+    if (_realtimeChannel) {
+      supabase.removeChannel(_realtimeChannel);
+      _realtimeChannel = null;
+    }
 
     _realtimeChannel = supabase
       .channel(`notifications:${userId}`)

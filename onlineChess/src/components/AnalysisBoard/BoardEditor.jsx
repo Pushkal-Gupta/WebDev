@@ -1,36 +1,17 @@
 import { useState, useCallback } from 'react';
 import styles from './BoardEditor.module.css';
 import useThemeStore from '../../store/themeStore';
+import { PIECE_NAME, FILE_LABELS, parseFen as parseFenToBoard } from '../../utils/boardHelpers';
 
-const PIECE_NAME = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' };
-const FILE_LABELS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 const EMPTY_BOARD = Array.from({ length: 8 }, () => Array(8).fill(null));
 
-// All piece types for the palette
 const PALETTE_PIECES = [
   { type: 'k', color: 'w' }, { type: 'q', color: 'w' }, { type: 'r', color: 'w' },
   { type: 'b', color: 'w' }, { type: 'n', color: 'w' }, { type: 'p', color: 'w' },
   { type: 'k', color: 'b' }, { type: 'q', color: 'b' }, { type: 'r', color: 'b' },
   { type: 'b', color: 'b' }, { type: 'n', color: 'b' }, { type: 'p', color: 'b' },
 ];
-
-function parseFenToBoard(fen) {
-  const board = Array.from({ length: 8 }, () => Array(8).fill(null));
-  const rows = fen.split(' ')[0].split('/');
-  rows.forEach((rowStr, r) => {
-    let c = 0;
-    for (const ch of rowStr) {
-      if (isNaN(ch)) {
-        board[r][c] = { type: ch.toLowerCase(), color: ch === ch.toUpperCase() ? 'w' : 'b' };
-        c++;
-      } else {
-        c += parseInt(ch);
-      }
-    }
-  });
-  return board;
-}
 
 function boardToFen(board, turn, castling) {
   const rows = [];

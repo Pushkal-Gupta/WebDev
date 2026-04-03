@@ -1,13 +1,7 @@
 import { useEffect, useRef } from 'react';
 import useGameStore from '../../store/gameStore';
+import { formatTime } from '../../utils/timeFormatter';
 import styles from './Timer.module.css';
-
-function formatTime(seconds) {
-  if (seconds <= 0) return '0:00';
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m}:${s.toString().padStart(2, '0')}`;
-}
 
 export default function Timer({ color }) {
   const { whiteTime, blackTime, activeColor, timerRunning, tickTimer, timeControl } = useGameStore();

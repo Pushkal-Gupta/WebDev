@@ -1,8 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useAuthStore from '../../store/authStore';
 import styles from './Modals.module.css';
 
 export default function LoginModal({ onClose, onSuccess }) {
+  useEffect(() => {
+    const h = e => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, [onClose]);
   const [screen, setScreen]       = useState('main'); // 'main' | 'otp' | 'new-pass'
   const [mode, setMode]           = useState('login'); // 'login' | 'signup' | 'reset'
   const [email, setEmail]         = useState('');
@@ -62,6 +67,7 @@ export default function LoginModal({ onClose, onSuccess }) {
       await loginWithGoogle();
     } catch (e) {
       setError(e.message || 'Google sign-in failed');
+    } finally {
       setLoading(false);
     }
   };
@@ -102,7 +108,7 @@ export default function LoginModal({ onClose, onSuccess }) {
     mode === 'signup' ? 'Create Account' : mode === 'reset' ? 'Reset Password' : 'Login to Continue';
 
   return (
-    <div className={styles.overlay}>
+    <div className={styles.overlay} onClick={e => e.target === e.currentTarget && onClose()}>
       <div className={styles.popup}>
         <h3>{title}</h3>
 

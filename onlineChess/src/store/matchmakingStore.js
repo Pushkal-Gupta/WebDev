@@ -101,6 +101,7 @@ const useMatchmakingStore = create((set, get) => ({
 
   // ─── Internal ─────────────────────────────────────────────
   _schedulePoll: (params) => {
+    if (_pollTimeoutId) clearTimeout(_pollTimeoutId);
     _pollTimeoutId = setTimeout(async () => {
       if (get().status !== 'searching') return;
       await get()._pollOnce(params);

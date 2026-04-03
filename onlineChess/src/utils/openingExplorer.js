@@ -60,6 +60,7 @@ export async function fetchExplorerData(fen, db = 'lichess') {
       })),
     };
 
+    if (cache.size > 500) cache.delete(cache.keys().next().value);
     cache.set(key, result);
     return result;
   } catch (err) {

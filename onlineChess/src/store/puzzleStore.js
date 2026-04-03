@@ -21,14 +21,25 @@ function uciToMove(uci) {
 }
 
 function pickBuiltinPuzzle(targetRating) {
-  const candidates = BUILTIN_PUZZLES.filter(p =>
-    !_shownBuiltinIds.has(p.id) &&
-    Math.abs(p.rating - targetRating) <= 400
+  // Try narrow range first (±300), then widen to ±500, then all
+  for (const tolerance of [300, 500]) {
+    const candidates = BUILTIN_PUZZLES.filter(p =>
+      !_shownBuiltinIds.has(p.id) &&
+      Math.abs(p.rating - targetRating) <= tolerance
+    );
+    if (candidates.length > 0) {
+      const pick = candidates[Math.floor(Math.random() * candidates.length)];
+      _shownBuiltinIds.add(pick.id);
+      return pick;
+    }
+  }
+  // Fallback: closest available puzzles sorted by distance
+  _shownBuiltinIds.clear();
+  const sorted = [...BUILTIN_PUZZLES].sort((a, b) =>
+    Math.abs(a.rating - targetRating) - Math.abs(b.rating - targetRating)
   );
-  const pool = candidates.length > 0 ? candidates : BUILTIN_PUZZLES;
-  if (candidates.length === 0) _shownBuiltinIds.clear();
-  const pick = pool[Math.floor(Math.random() * pool.length)];
-  _shownBuiltinIds.add(pick.id);
+  const pick = sorted[Math.floor(Math.random() * Math.min(10, sorted.length))];
+  if (pick) _shownBuiltinIds.add(pick.id);
   return pick;
 }
 
@@ -51,9 +62,11 @@ const usePuzzleStore = create((set, get) => ({
   playerColor:      'w',    // which side the solver plays
   status:           'idle', // 'idle'|'loading'|'playing'|'solved'|'failed'|'error'
   streak:           0,
-  userPuzzleRating: null,
+  userPuzzleRating: JSON.parse(localStorage.getItem('puzzleRatingCache') || 'null'),
   lastRatingChange: null,
   errorMsg:         null,
+  hintSquare:       null,   // { from, to } — highlights the correct move's origin square
+  hintUsed:         false,  // whether hint was used for current puzzle
 
   // ── Mode state ──────────────────────────────────────────────────────────────
   mode:             'rated',  // 'rated'|'rush'|'streak'
@@ -87,7 +100,9 @@ const usePuzzleStore = create((set, get) => ({
       if (error && error.code !== 'PGRST116') {
         console.warn('Puzzle rating load error:', error.message);
       }
-      set({ userPuzzleRating: data || { ...DEFAULT_RATING } });
+      const rating = data || { ...DEFAULT_RATING };
+      set({ userPuzzleRating: rating });
+      try { localStorage.setItem('puzzleRatingCache', JSON.stringify(rating)); } catch {}
     } catch {
       set({ userPuzzleRating: { ...DEFAULT_RATING } });
     }
@@ -115,9 +130,13 @@ const usePuzzleStore = create((set, get) => ({
   // ── Rush mode ──────────────────────────────────────────────────────────────
   _rushIntervalId: null,
 
-  startRush(duration, userId) {
+  async startRush(duration, userId) {
     get().stopRushTimer();
     _shownBuiltinIds.clear();
+
+    // Load rating before starting so puzzles match user level
+    await get().loadUserPuzzleRating(userId);
+
     set({
       mode: 'rush',
       rushDuration: duration,
@@ -129,6 +148,7 @@ const usePuzzleStore = create((set, get) => ({
       puzzle: null,
       lastRatingChange: null,
       errorMsg: null,
+      hintUsed: false,
     });
 
     // Start countdown timer
@@ -170,8 +190,12 @@ const usePuzzleStore = create((set, get) => ({
   },
 
   // ── Streak mode ────────────────────────────────────────────────────────────
-  startStreak(userId) {
+  async startStreak(userId) {
     _shownBuiltinIds.clear();
+
+    // Load rating before starting so puzzles match user level
+    await get().loadUserPuzzleRating(userId);
+
     set({
       mode: 'streak',
       streakCount: 0,
@@ -181,6 +205,7 @@ const usePuzzleStore = create((set, get) => ({
       puzzle: null,
       lastRatingChange: null,
       errorMsg: null,
+      hintUsed: false,
     });
     get()._loadPuzzleForMode(userId);
   },
@@ -201,7 +226,7 @@ const usePuzzleStore = create((set, get) => ({
   // ── Generic puzzle loader for rush/streak modes ────────────────────────────
   _loadRetries: 0,
   async _loadPuzzleForMode(userId) {
-    set({ status: 'loading', puzzle: null, lastRatingChange: null, errorMsg: null });
+    set({ status: 'loading', puzzle: null, lastRatingChange: null, errorMsg: null, hintSquare: null, hintUsed: false });
 
     const { mode, streakDifficulty, userPuzzleRating } = get();
 
@@ -218,7 +243,7 @@ const usePuzzleStore = create((set, get) => ({
 
     // Try Supabase first
     try {
-      for (const window of [150, 300, 600, 9999]) {
+      for (const window of [150, 300, 500]) {
         const { data, error } = await supabase
           .from('puzzles')
           .select('id, fen, moves, rating, themes')
@@ -249,7 +274,7 @@ const usePuzzleStore = create((set, get) => ({
       return;
     }
 
-    const moves = puzzleRow.moves.split(' ').filter(Boolean);
+    const moves = (puzzleRow.moves || '').split(' ').filter(Boolean);
     if (moves.length < 1) {
       if (get()._loadRetries < 10) {
         set({ _loadRetries: get()._loadRetries + 1 });
@@ -310,14 +335,14 @@ const usePuzzleStore = create((set, get) => ({
 
   // ── Fetch next puzzle near user's rating (rated mode) ─────────────────────
   async loadNextPuzzle(userId) {
-    set({ status: 'loading', puzzle: null, lastRatingChange: null, errorMsg: null });
+    set({ status: 'loading', puzzle: null, lastRatingChange: null, errorMsg: null, hintSquare: null, hintUsed: false });
     await get().loadUserPuzzleRating(userId);
 
     const rating = get().userPuzzleRating?.rating || 1500;
     let puzzleRow = null;
 
     try {
-      for (const window of [150, 300, 600, 9999]) {
+      for (const window of [150, 300, 500]) {
         const { data, error } = await supabase
           .from('puzzles')
           .select('id, fen, moves, rating, themes')
@@ -346,7 +371,7 @@ const usePuzzleStore = create((set, get) => ({
       return;
     }
 
-    const moves = puzzleRow.moves.split(' ').filter(Boolean);
+    const moves = (puzzleRow.moves || '').split(' ').filter(Boolean);
     if (moves.length < 1) {
       console.warn('Puzzle has no moves:', puzzleRow.id);
       set({ status: 'error', errorMsg: 'Invalid puzzle data. Try again.' });
@@ -460,9 +485,10 @@ const usePuzzleStore = create((set, get) => ({
         setTimeout(() => get()._loadPuzzleForMode(userId), 300);
         return { correct: true, solved: true };
       }
-      // Rated mode
-      set({ status: 'solved', streak: streak + 1, currentFen: _chess.fen(), moveIndex: afterPlayerIdx });
-      if (userId) await get()._updatePuzzleRating(userId, true);
+      // Rated mode — hint used = half credit (score 0.5 instead of 1)
+      const hintWasUsed = get().hintUsed;
+      set({ status: 'solved', streak: hintWasUsed ? 0 : streak + 1, currentFen: _chess.fen(), moveIndex: afterPlayerIdx });
+      if (userId) await get()._updatePuzzleRating(userId, true, hintWasUsed);
       return { correct: true, solved: true };
     };
 
@@ -494,8 +520,9 @@ const usePuzzleStore = create((set, get) => ({
         setTimeout(() => get()._loadPuzzleForMode(userId), 300);
         return { correct: true, solved: true };
       }
-      set({ status: 'solved', streak: streak + 1, currentFen: _chess.fen(), moveIndex: afterOppIdx });
-      if (userId) await get()._updatePuzzleRating(userId, true);
+      const hintWasUsed2 = get().hintUsed;
+      set({ status: 'solved', streak: hintWasUsed2 ? 0 : streak + 1, currentFen: _chess.fen(), moveIndex: afterOppIdx });
+      if (userId) await get()._updatePuzzleRating(userId, true, hintWasUsed2);
       return { correct: true, solved: true };
     }
 
@@ -504,15 +531,18 @@ const usePuzzleStore = create((set, get) => ({
   },
 
   // ── Internal: update puzzle Glicko-2 rating ───────────────────────────────
-  async _updatePuzzleRating(userId, solved) {
+  async _updatePuzzleRating(userId, solved, hintUsed = false) {
     if (!userId) return;
     const cur = get().userPuzzleRating || { ...DEFAULT_RATING };
     const puzzleRating = get().puzzle?.rating || 1500;
 
+    // Hint used = half credit (0.5 score), so rating gain is reduced
+    const score = solved ? (hintUsed ? 0.5 : 1) : 0;
+
     const result = computeNewRating({
       rating: cur.rating, rd: cur.rd, volatility: cur.volatility,
       opponentRating: puzzleRating, opponentRd: 100,
-      score: solved ? 1 : 0,
+      score,
     });
 
     const updated = {
@@ -531,10 +561,27 @@ const usePuzzleStore = create((set, get) => ({
       console.warn('Failed to save puzzle rating:', err.message);
     }
 
+    const newRating = { ...cur, ...updated };
     set({
-      userPuzzleRating: { ...cur, ...updated },
+      userPuzzleRating: newRating,
       lastRatingChange: Math.round(result.rating) - cur.rating,
     });
+    try { localStorage.setItem('puzzleRatingCache', JSON.stringify(newRating)); } catch {}
+  },
+
+  // ── Hint: reveal the source square of the correct move ─────────────────────
+  getHint() {
+    const { puzzle, moveIndex, status } = get();
+    if (!puzzle || status !== 'playing') return;
+    if (moveIndex >= puzzle.moves.length) return;
+    const expected = puzzle.moves[moveIndex];
+    const from = expected.slice(0, 2);
+    const to   = expected.slice(2, 4);
+    set({ hintSquare: { from, to }, hintUsed: true });
+  },
+
+  clearHint() {
+    set({ hintSquare: null });
   },
 
   // ── Reset (go back to idle) ───────────────────────────────────────────────

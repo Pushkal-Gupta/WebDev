@@ -68,6 +68,7 @@ export async function fetchTablebase(fen) {
       moves,
     };
 
+    if (cache.size > 500) cache.delete(cache.keys().next().value);
     cache.set(fen, result);
     return result;
   } catch (err) {
