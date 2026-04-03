@@ -134,3 +134,19 @@
 .enterWorkspaceBtn:hover {
   opacity: 0.9;
 }
+
+@media (max-width: 768px) {
+  .topicModalContent {
+    width: 98%;
+    max-height: 95vh;
+    border-radius: 8px;
+  }
+  
+  .topicModalHeader {
+    padding: 1rem;
+  }
+  
+  .topicModalBody {
+    padding: 1rem;
+  }
+}
