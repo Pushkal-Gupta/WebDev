@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { 
   ReactFlow,
   Background, 
@@ -10,11 +10,14 @@ import 'reactflow/dist/style.css';
 import { initialNodes, initialEdges } from '../data/problems';
 import { supabase } from '../lib/supabase';
 import TopicModal from './TopicModal';
+import TopicNode from './TopicNode';
 
 export default function RoadmapView() {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
   const [selectedTopic, setSelectedTopic] = useState(null);
+
+  const nodeTypes = useMemo(() => ({ custom: TopicNode }), []);
 
   useEffect(() => {
     async function fetchRoadmap() {
@@ -32,15 +35,21 @@ export default function RoadmapView() {
         if (topicsData && topicsData.length > 0) {
           const dbNodes = topicsData.map(t => ({
             id: t.id,
-            type: 'default',
+            type: 'custom',
             position: { x: Number(t.position_x) || 0, y: Number(t.position_y) || 0 },
-            data: { label: t.name },
+            data: { 
+              label: t.name,
+              category: t.category,
+              group_name: t.group_name
+            },
             ...t // keep row data for topic modal
           }));
           const dbEdges = (edgesData || []).map(e => ({
             id: e.id,
             source: e.source,
-            target: e.target
+            target: e.target,
+            animated: true,
+            style: { stroke: 'rgba(255,255,255,0.2)' }
           }));
           setNodes(dbNodes);
           setEdges(dbEdges);
@@ -77,6 +86,7 @@ export default function RoadmapView() {
       <ReactFlow
         nodes={nodes}
         edges={edges}
+        nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={onNodeClick}
