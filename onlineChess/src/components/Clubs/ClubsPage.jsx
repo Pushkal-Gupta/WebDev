@@ -146,7 +146,7 @@ export default function ClubsPage() {
       <div className={styles.grid}>
         {displayed.map(c => (
           <button key={c.id} className={styles.card} onClick={() => setViewingId(c.id)}>
-            <div className={styles.cardAvatar}>{c.name[0].toUpperCase()}</div>
+            <div className={styles.cardAvatar}>{(c.name || '?')[0].toUpperCase()}</div>
             <div className={styles.cardBody}>
               <div className={styles.cardName}>{c.name}</div>
               {c.description && <div className={styles.cardDesc}>{c.description}</div>}

@@ -22,7 +22,7 @@
 .lobbyTitle, .waitTitle {
   font-size: 1.35rem;
   font-weight: 700;
-  color: #00fff5;
+  color: var(--color-accent);
   margin: 0;
   text-align: center;
   letter-spacing: -0.02em;

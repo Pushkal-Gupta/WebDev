@@ -199,6 +199,7 @@ const usePuzzleStore = create((set, get) => ({
   },
 
   // ── Generic puzzle loader for rush/streak modes ────────────────────────────
+  _loadRetries: 0,
   async _loadPuzzleForMode(userId) {
     set({ status: 'loading', puzzle: null, lastRatingChange: null, errorMsg: null });
 
@@ -249,25 +250,54 @@ const usePuzzleStore = create((set, get) => ({
     }
 
     const moves = puzzleRow.moves.split(' ').filter(Boolean);
-    if (moves.length < 2) {
-      // Skip bad puzzle, try again
-      get()._loadPuzzleForMode(userId);
+    if (moves.length < 1) {
+      if (get()._loadRetries < 10) {
+        set({ _loadRetries: get()._loadRetries + 1 });
+        get()._loadPuzzleForMode(userId);
+      } else {
+        set({ status: 'error', errorMsg: 'No valid puzzles found.', _loadRetries: 0 });
+      }
       return;
     }
 
     try {
       _chess = new Chess(puzzleRow.fen);
     } catch {
-      get()._loadPuzzleForMode(userId);
+      if (get()._loadRetries < 10) {
+        set({ _loadRetries: get()._loadRetries + 1 });
+        get()._loadPuzzleForMode(userId);
+      } else {
+        set({ status: 'error', errorMsg: 'Invalid puzzle data.', _loadRetries: 0 });
+      }
+      return;
+    }
+
+    // Single-move puzzles: player plays from the FEN position
+    if (moves.length === 1) {
+      set({ _loadRetries: 0 });
+      const playerColor = _chess.turn();
+      set({
+        puzzle:      { ...puzzleRow, moves },
+        moveIndex:   0,
+        currentFen:  _chess.fen(),
+        playerColor,
+        status:      'playing',
+      });
       return;
     }
 
     const firstMove = _chess.move(uciToMove(moves[0]));
     if (!firstMove) {
-      get()._loadPuzzleForMode(userId);
+      if (get()._loadRetries < 10) {
+        set({ _loadRetries: get()._loadRetries + 1 });
+        get()._loadPuzzleForMode(userId);
+      } else {
+        set({ status: 'error', errorMsg: 'Invalid puzzle moves.', _loadRetries: 0 });
+      }
       return;
     }
 
+    set({ _loadRetries: 0 });
     const playerColor = _chess.turn();
     set({
       puzzle:      { ...puzzleRow, moves },
@@ -317,8 +347,8 @@ const usePuzzleStore = create((set, get) => ({
     }
 
     const moves = puzzleRow.moves.split(' ').filter(Boolean);
-    if (moves.length < 2) {
-      console.warn('Puzzle has too few moves:', puzzleRow.id);
+    if (moves.length < 1) {
+      console.warn('Puzzle has no moves:', puzzleRow.id);
       set({ status: 'error', errorMsg: 'Invalid puzzle data. Try again.' });
       return;
     }
@@ -331,6 +361,20 @@ const usePuzzleStore = create((set, get) => ({
       return;
     }
 
+    // Single-move puzzles (mateIn1): player plays the only move from the FEN position
+    if (moves.length === 1) {
+      const playerColor = _chess.turn();
+      set({
+        puzzle:      { ...puzzleRow, moves },
+        moveIndex:   0,
+        currentFen:  _chess.fen(),
+        playerColor,
+        status:      'playing',
+      });
+      return;
+    }
+
+    // Standard puzzle: first move is opponent setup, then player responds
     const firstMove = _chess.move(uciToMove(moves[0]));
     if (!firstMove) {
       console.warn('Puzzle first move invalid:', moves[0]);

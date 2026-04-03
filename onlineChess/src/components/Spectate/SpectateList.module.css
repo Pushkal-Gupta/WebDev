@@ -126,4 +126,4 @@
   color: rgba(0,255,245,0.5);
   flex-shrink: 0;
 }
-.card:hover .watchLabel { color: #00fff5; }
+.card:hover .watchLabel { color: var(--color-accent); }

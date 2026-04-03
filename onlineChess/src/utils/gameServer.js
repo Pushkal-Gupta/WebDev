@@ -75,5 +75,12 @@ export async function getGames(userId) {
     .order('created_at', { ascending: false })
     .limit(50);
   if (error) { console.error('getGames error:', error); return []; }
-  return (data || []).map(g => ({ ...g, pgnStr: g.pgn }));
+  // Deduplicate: OR query can return the same game twice (user_id + white_user_id match)
+  const seen = new Set();
+  const unique = (data || []).filter(g => {
+    if (seen.has(g.id)) return false;
+    seen.add(g.id);
+    return true;
+  });
+  return unique.map(g => ({ ...g, pgnStr: g.pgn }));
 }

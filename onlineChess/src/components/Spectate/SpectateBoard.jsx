@@ -50,7 +50,7 @@ function ReadOnlyBoard({ fen, lastMoveFrom, lastMoveTo, flipped }) {
                 )}
                 {showFile && (
                   <span className={styles.fileLabel} style={{color: isLight ? clr2 : clr1}}>
-                    {FILE_LABELS[flipped ? 7 - col : col]}
+                    {FILE_LABELS[col]}
                   </span>
                 )}
                 {piece && (

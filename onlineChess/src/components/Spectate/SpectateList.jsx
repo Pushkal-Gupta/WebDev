@@ -55,16 +55,21 @@ export default function SpectateList() {
 
   const refresh = useCallback(async () => {
     setLoading(true);
-    const data = await getPublicGames();
-    setGames(data);
-    setLoading(false);
+    try {
+      const data = await getPublicGames();
+      setGames(data);
+    } catch (err) {
+      console.error('Failed to fetch public games:', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
     refresh();
-    const interval = setInterval(refresh, 10_000); // refresh every 10s
+    const interval = setInterval(refresh, 10_000);
     return () => clearInterval(interval);
-  }, [refresh]);
+  }, []); // eslint-disable-line — refresh is stable
 
   const handleWatch = useCallback(async (gameId) => {
     const room = await getRoom(gameId);

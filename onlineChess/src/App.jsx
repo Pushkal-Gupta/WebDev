@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import './App.css';
 import LeftNav from './components/LeftNav/LeftNav';
 import Board from './components/Board/Board';
@@ -28,6 +28,7 @@ import TournamentsPage from './components/Tournaments/TournamentsPage';
 import ClubsPage from './components/Clubs/ClubsPage';
 import useNotificationStore from './store/notificationStore';
 import TrainingPage from './components/Training/CoordinateTrainer';
+import { getBotByStrength } from './data/bots';
 import P2PSetup from './components/P2PPlay/P2PSetup';
 import P2PGame from './components/P2PPlay/P2PGame';
 import { p2p } from './utils/p2pService';
@@ -83,6 +84,7 @@ export default function App() {
   const [showLogin, setShowLogin]           = useState(false);
   const [showLogout, setShowLogout]         = useState(false);
   const [showStrength, setShowStrength]     = useState(false);
+  const [selectedBot, setSelectedBot]       = useState(null);
   const [showConfirm, setShowConfirm]       = useState(false);
   const [confirmMsg, setConfirmMsg]         = useState('');
   const confirmActionRef                    = useRef(null); // use ref to avoid React functional-update quirks
@@ -113,25 +115,48 @@ export default function App() {
   // ─── Stores ────────────────────────────────────────────────────────────────
   const { user, token, username, init: initAuth } = useAuthStore();
 
-  const {
-    gameStarted, gameOver, gameOverMessage,
-    startGame, startOnlineGame, init: initGame,
-    pawnPromotion, completePromotion,
-    isComp, compColor, compStrength, compThinking,
-    setCompThinking, setDisableBoard,
-    chessInstance, activeColor,
-    timerData, oppName, youName,
-    moveHistory, currentMoveIndex,
-    importPgn, undoMove, undoTwoMoves,
-    boardState, flipped,
-    isOnline,
-    capturedByWhite, capturedByBlack,
-    whiteTime, blackTime, timerRunning, timeControl,
-    gameResult, gameCategory, onlineOpponentId,
-    setGameResult, setOnlineOpponentId,
-  } = useGameStore();
+  // ── Game store selectors (subscribe only to what's needed) ──
+  const gameStarted = useGameStore(s => s.gameStarted);
+  const gameOver = useGameStore(s => s.gameOver);
+  const gameOverMessage = useGameStore(s => s.gameOverMessage);
+  const startGame = useGameStore(s => s.startGame);
+  const startOnlineGame = useGameStore(s => s.startOnlineGame);
+  const initGame = useGameStore(s => s.init);
+  const pawnPromotion = useGameStore(s => s.pawnPromotion);
+  const completePromotion = useGameStore(s => s.completePromotion);
+  const isComp = useGameStore(s => s.isComp);
+  const compColor = useGameStore(s => s.compColor);
+  const compStrength = useGameStore(s => s.compStrength);
+  const compThinking = useGameStore(s => s.compThinking);
+  const setCompThinking = useGameStore(s => s.setCompThinking);
+  const setDisableBoard = useGameStore(s => s.setDisableBoard);
+  const chessInstance = useGameStore(s => s.chessInstance);
+  const activeColor = useGameStore(s => s.activeColor);
+  const timerData = useGameStore(s => s.timerData);
+  const oppName = useGameStore(s => s.oppName);
+  const youName = useGameStore(s => s.youName);
+  const moveHistory = useGameStore(s => s.moveHistory);
+  const currentMoveIndex = useGameStore(s => s.currentMoveIndex);
+  const importPgn = useGameStore(s => s.importPgn);
+  const undoMove = useGameStore(s => s.undoMove);
+  const undoTwoMoves = useGameStore(s => s.undoTwoMoves);
+  const boardState = useGameStore(s => s.boardState);
+  const flipped = useGameStore(s => s.flipped);
+  const isOnline = useGameStore(s => s.isOnline);
+  const capturedByWhite = useGameStore(s => s.capturedByWhite);
+  const capturedByBlack = useGameStore(s => s.capturedByBlack);
+  const whiteTime = useGameStore(s => s.whiteTime);
+  const blackTime = useGameStore(s => s.blackTime);
+  const timerRunning = useGameStore(s => s.timerRunning);
+  const timeControl = useGameStore(s => s.timeControl);
+  const gameResult = useGameStore(s => s.gameResult);
+  const gameCategory = useGameStore(s => s.gameCategory);
+  const onlineOpponentId = useGameStore(s => s.onlineOpponentId);
+  const setGameResult = useGameStore(s => s.setGameResult);
+  const setOnlineOpponentId = useGameStore(s => s.setOnlineOpponentId);
 
-  const { pieceSets, pieceSetIndex } = useThemeStore();
+  const pieceSets = useThemeStore(s => s.pieceSets);
+  const pieceSetIndex = useThemeStore(s => s.pieceSetIndex);
   const { updateOnlineGameRating, myRatings, loadRatings } = useRatingStore();
   const { status: mmStatus, elapsedSeconds: mmElapsed,
           joinQueue, cancelQueue: cancelMatchmaking, reset: resetMatchmaking } = useMatchmakingStore();
@@ -213,7 +238,7 @@ export default function App() {
 
     const t = setTimeout(makeCompMove, 300);
     return () => clearTimeout(t);
-  }, [activeColor, gameStarted, gameOver, isComp, compColor, compThinking, currentMoveIndex]);
+  }, [activeColor, gameStarted, gameOver, isComp, compColor, compThinking, currentMoveIndex, chessInstance, moveHistory.length]);
 
   // ─── Online: broadcast local moves ────────────────────────────────────────
   useEffect(() => {
@@ -431,6 +456,19 @@ export default function App() {
     const msg    = { text, sender: myName, ts: Date.now() };
     setChatMessages(msgs => [...msgs, msg]);
     broadcastChat(onlineChannelRef.current, { text, sender: myName });
+  };
+
+  const handleLocalResign = () => {
+    if (!gameStarted || gameOver) return;
+    const myColor = flipped ? 'black' : 'white';
+    const winner = myColor === 'white' ? 'Black' : 'White';
+    useGameStore.setState({
+      gameOver: true,
+      gameOverMessage: `${winner} wins! You resigned.`,
+      timerRunning: false,
+      disableBoard: true,
+      gameResult: { winner: winner.toLowerCase(), reason: 'resign' },
+    });
   };
 
   const handleOnlineResign = async () => {
@@ -657,6 +695,7 @@ export default function App() {
     setShowStrength(false);
     let compCol = color;
     if (color === 'random') compCol = Math.random() < 0.5 ? 'white' : 'black';
+    setSelectedBot(getBotByStrength(strength));
     initGame();
     startGame(pendingTimeControl, true, compCol, strength);
     setPendingTimeControl(null);
@@ -691,13 +730,15 @@ export default function App() {
 
   // Player panel data (top = opponent perspective, bottom = you)
   const _PVALS = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
-  const _mat = (arr) => arr.reduce((s, p) => s + (_PVALS[p.type] || 0), 0);
-  const whiteMat = _mat(capturedByWhite);
-  const blackMat = _mat(capturedByBlack);
+  const { whiteMat, blackMat } = useMemo(() => {
+    const _mat = (arr) => arr.reduce((s, p) => s + (_PVALS[p.type] || 0), 0);
+    return { whiteMat: _mat(capturedByWhite), blackMat: _mat(capturedByBlack) };
+  }, [capturedByWhite, capturedByBlack]);
   const topColor    = flipped ? 'w' : 'b';
   const bottomColor = flipped ? 'b' : 'w';
-  const topName     = flipped ? youName : oppName;
-  const bottomName  = flipped ? oppName : youName;
+  const compDisplayName = isComp && selectedBot ? `${selectedBot.name} (${selectedBot.rating})` : oppName;
+  const topName     = flipped ? youName : compDisplayName;
+  const bottomName  = flipped ? compDisplayName : youName;
   const topCaptured    = flipped ? capturedByWhite : capturedByBlack;
   const bottomCaptured = flipped ? capturedByBlack : capturedByWhite;
   const topAdv    = flipped ? (whiteMat - blackMat) : (blackMat - whiteMat);
@@ -899,6 +940,13 @@ export default function App() {
                 timeControl={timeControl} imagePath={imagePath}
                 showHint={!isOnline} onHint={handleGetHint}
               />
+
+              {/* Resign button for local/computer modes */}
+              {!isOnline && gameStarted && !gameOver && (
+                <div className="local-controls">
+                  <button className="local-resign-btn" onClick={handleLocalResign}>Resign</button>
+                </div>
+              )}
             </div>
 
             <RightSidebar onAlert={showAlert} reviewResults={reviewResults} isReviewing={isReviewing} />
@@ -937,6 +985,17 @@ export default function App() {
         <GameOverModal
           message={gameOverMessage}
           ratingDelta={ratingDelta}
+          botMessage={isComp && selectedBot ? (() => {
+            const gr = useGameStore.getState().gameResult;
+            const playerWon = gr?.winner && gr.winner !== 'draw' && gr.winner !== compColor;
+            const isDraw = gr?.winner === 'draw';
+            return {
+              icon: selectedBot.icon,
+              color: selectedBot.color,
+              name: selectedBot.name,
+              text: playerWon ? selectedBot.winMsg : isDraw ? selectedBot.drawMsg : selectedBot.loseMsg,
+            };
+          })() : null}
           onNewGame={handleGameOverNewGame}
           onCancel={() => { useGameStore.setState({ gameOver: false }); setRatingDelta(null); }}
           onAnalyse={() => { useGameStore.setState({ gameOver: false }); setRatingDelta(null); }}
@@ -1279,10 +1338,8 @@ function HomeScreen({ user, onStart, onPlayOnline, onTabClick, onQuickMatch }) {
 
 // ─── Player panel ─────────────────────────────────────────────────────────────
 const PP_PIECE_MAP = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' };
-function formatPPTime(s) {
-  if (s <= 0) return '0:00';
-  return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
-}
+// Use shared time formatter
+import { formatTime as formatPPTime } from './utils/timeFormatter';
 
 function PlayerPanel({ name, colorCode, time, timeActive, timerRunning, captured, materialAdv, timeControl, imagePath, showHint, onHint }) {
   const initial = (name || (colorCode === 'w' ? 'W' : 'B'))[0].toUpperCase();

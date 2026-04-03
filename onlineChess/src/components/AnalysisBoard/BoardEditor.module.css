@@ -159,7 +159,7 @@
 }
 
 .castlingLabel input[type="checkbox"] {
-  accent-color: #00fff5;
+  accent-color: var(--color-accent);
   width: 12px;
   height: 12px;
 }
@@ -237,7 +237,7 @@
   padding: 10px 16px;
   background: rgba(0, 255, 245, 0.1);
   border: 1px solid rgba(0, 255, 245, 0.3);
-  color: #00fff5;
+  color: var(--color-accent);
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.82rem;

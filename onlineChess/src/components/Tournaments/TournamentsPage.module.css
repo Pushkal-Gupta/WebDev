@@ -32,7 +32,7 @@
   padding: 9px 18px;
   background: rgba(0,255,245,0.1);
   border: 1px solid rgba(0,255,245,0.3);
-  color: #00fff5;
+  color: var(--color-accent);
   border-radius: 7px;
   cursor: pointer;
   font-size: 0.85rem;
@@ -99,7 +99,7 @@
   letter-spacing: 0.06em;
 }
 .statusUpcoming { background: rgba(160,120,255,0.12); color: #c4aaff; border: 1px solid rgba(160,120,255,0.25); }
-.statusOpen     { background: rgba(0,255,245,0.1);   color: #00fff5; border: 1px solid rgba(0,255,245,0.25); }
+.statusOpen     { background: rgba(0,255,245,0.1);   color: var(--color-accent); border: 1px solid rgba(0,255,245,0.25); }
 .statusLive     { background: rgba(255,100,60,0.12); color: #ff8c69; border: 1px solid rgba(255,100,60,0.3); }
 .statusDone     { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.08); }
 
@@ -183,7 +183,7 @@
   padding: 9px 20px;
   background: rgba(0,255,245,0.1);
   border: 1px solid rgba(0,255,245,0.3);
-  color: #00fff5;
+  color: var(--color-accent);
   border-radius: 7px;
   cursor: pointer;
   font-size: 0.85rem;
@@ -244,7 +244,7 @@
 .dTabActive {
   background: rgba(0,255,245,0.1) !important;
   border-color: rgba(0,255,245,0.35) !important;
-  color: #00fff5 !important;
+  color: var(--color-accent) !important;
 }
 
 /* ── Shared table styles (reused from LeaderboardPage) ── */
@@ -302,14 +302,14 @@
   font-size: 0.6rem;
   background: rgba(0,255,245,0.12);
   border: 1px solid rgba(0,255,245,0.3);
-  color: #00fff5;
+  color: var(--color-accent);
   border-radius: 4px;
   padding: 1px 5px;
   flex-shrink: 0;
 }
 
-.wins   { color: #6fdc8c; font-weight: 600; }
-.losses { color: #ff7875; font-weight: 600; }
+.wins   { color: var(--color-success); font-weight: 600; }
+.losses { color: var(--color-error); font-weight: 600; }
 .draws  { color: rgba(255,255,255,0.45); }
 .sep    { color: rgba(255,255,255,0.2); margin: 0 3px; }
 
@@ -382,7 +382,7 @@
 .pBtn:hover:not(:disabled) {
   background: rgba(0,255,245,0.08);
   border-color: rgba(0,255,245,0.25);
-  color: #00fff5;
+  color: var(--color-accent);
 }
 .pBtn:disabled { opacity: 0.3; cursor: not-allowed; }
 
@@ -474,12 +474,12 @@
 .segActive {
   background: rgba(0,255,245,0.1) !important;
   border-color: rgba(0,255,245,0.3) !important;
-  color: #00fff5 !important;
+  color: var(--color-accent) !important;
 }
 
 .fieldErr {
   font-size: 0.75rem;
-  color: #ff7875;
+  color: var(--color-error);
   padding: 4px 2px;
 }
 

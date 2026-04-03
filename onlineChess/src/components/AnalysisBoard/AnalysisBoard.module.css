@@ -159,7 +159,7 @@
 .navBtn:hover:not(:disabled) {
   background: rgba(0, 255, 245, 0.09);
   border-color: rgba(0, 255, 245, 0.28);
-  color: #00fff5;
+  color: var(--color-accent);
 }
 
 .navBtn:disabled {
@@ -218,7 +218,7 @@
 .iconBtn:hover:not(:disabled) {
   background: rgba(0, 255, 245, 0.09);
   border-color: rgba(0, 255, 245, 0.28);
-  color: #00fff5;
+  color: var(--color-accent);
 }
 
 .iconBtn:disabled { opacity: 0.3; cursor: not-allowed; }
@@ -607,7 +607,7 @@
 }
 
 .moveActive {
-  color: #00fff5 !important;
+  color: var(--color-accent) !important;
   font-weight: 700;
   background: rgba(0, 255, 245, 0.08) !important;
 }
@@ -708,7 +708,7 @@
   padding: 8px 14px;
   background: rgba(0, 255, 245, 0.1);
   border: 1px solid rgba(0, 255, 245, 0.3);
-  color: #00fff5;
+  color: var(--color-accent);
   border-radius: 5px;
   cursor: pointer;
   font-size: 0.78rem;
@@ -766,7 +766,7 @@
   padding: 8px 16px;
   background: rgba(0, 255, 245, 0.1);
   border: 1px solid rgba(0, 255, 245, 0.3);
-  color: #00fff5;
+  color: var(--color-accent);
   border-radius: 5px;
   cursor: pointer;
   font-size: 0.75rem;
@@ -868,6 +868,46 @@
   text-overflow: ellipsis;
 }
 
+/* ── ELO Estimation ── */
+
+.eloEstRow {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: rgba(0, 255, 245, 0.04);
+  border: 1px solid rgba(0, 255, 245, 0.1);
+  border-radius: 8px;
+}
+
+.eloEstItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.eloEstLabel {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.eloEstVal {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-accent);
+}
+
+.eloEstHint {
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.2);
+  margin-left: auto;
+}
+
 /* ── Tablebase ── */
 
 .tablebaseResult {
@@ -883,9 +923,9 @@
   font-size: 0.85rem;
 }
 
-.tb_win  { color: #6fdc8c; }
-.tb_loss { color: #ff7875; }
-.tb_draw { color: #f0c94c; }
+.tb_win  { color: var(--color-success); }
+.tb_loss { color: var(--color-error); }
+.tb_draw { color: var(--color-warning); }
 .tb_unknown { color: rgba(255,255,255,0.4); }
 
 .tbDtm {
@@ -899,7 +939,7 @@
 }
 
 .tbBest strong {
-  color: #00fff5;
+  color: var(--color-accent);
 }
 
 .tbMoves {
@@ -941,17 +981,37 @@
 
 /* ── Responsive ── */
 @media (max-width: 960px) {
-  .panel { width: 260px; min-width: 220px; }
+  .panel { width: 260px; min-width: 200px; }
   .pName { max-width: 140px; }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 800px) {
   .panel { width: 220px; min-width: 180px; }
   .evalBar { width: 14px; }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 700px) {
   .page { flex-direction: column; }
-  .panel { width: 100%; border-left: none; border-top: 1px solid rgba(255, 255, 255, 0.07); max-height: 45vh; }
+  .leftCol { flex: none; width: 100%; }
+  .boardCol { flex: none; }
+  .boardWrap {
+    flex: none;
+    height: calc(8 * var(--cell-size) + 4px);
+    min-height: calc(8 * var(--cell-size) + 4px);
+  }
+  .panel {
+    width: 100%;
+    min-width: 0;
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    max-height: 45vh;
+    overflow-y: auto;
+  }
+  .evalBar { width: 14px; }
+}
+
+@media (max-width: 560px) {
   .evalBar { width: 12px; }
+  .playerBar { padding: 4px 6px; min-height: 26px; }
+  .navBtn { padding: 5px 14px; font-size: 0.75rem; }
 }
