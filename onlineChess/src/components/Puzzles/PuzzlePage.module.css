@@ -94,6 +94,44 @@
   border-radius: 3px;
 }
 
+.loadingBoard {
+  width:  calc(8 * var(--cell-size));
+  height: calc(8 * var(--cell-size));
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.loadingPulse {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 255, 245, 0.15);
+  border-top-color: rgba(0, 255, 245, 0.7);
+  animation: puzzleSpin 0.8s linear infinite;
+}
+
+@keyframes puzzleSpin {
+  to { transform: rotate(360deg); }
+}
+
+.loadingText {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.05em;
+  animation: puzzlePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes puzzlePulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
 /* ── Mode tabs ───────────────────────────────────────────────────────────── */
 
 .modeTabs {

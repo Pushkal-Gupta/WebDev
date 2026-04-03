@@ -270,7 +270,7 @@ export default function PuzzlePage() {
         {feedback === 'correct' && <div className={styles.flash + ' ' + styles.flashCorrect}>+1</div>}
         {feedback === 'wrong'   && <div className={styles.flash + ' ' + styles.flashWrong}>X</div>}
 
-        {currentFen
+        {currentFen && status !== 'loading'
           ? <PuzzleBoard
               fen={currentFen}
               playerColor={playerColor}
@@ -280,7 +280,14 @@ export default function PuzzlePage() {
               lastMoveTo={lastMoveTo}
               hintSquare={hintSquare}
             />
-          : <div className={styles.emptyBoard} />
+          : (
+            <div className={styles.loadingBoard}>
+              <div className={styles.loadingPulse} />
+              <div className={styles.loadingText}>
+                {status === 'loading' ? 'Analyzing position...' : 'Select a mode to begin'}
+              </div>
+            </div>
+          )
         }
       </div>
 
