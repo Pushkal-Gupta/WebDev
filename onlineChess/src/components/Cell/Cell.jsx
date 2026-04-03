@@ -1,4 +1,4 @@
-import { memo, useRef, useState, useCallback } from 'react';
+import { memo, useState, useCallback } from 'react';
 import styles from './Cell.module.css';
 import useGameStore from '../../store/gameStore';
 import useThemeStore from '../../store/themeStore';
@@ -90,7 +90,7 @@ const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, pie
   // Labels
   const showFileLabel = showLabels && displayRow === 7;
   const showRankLabel = showLabels && displayCol === 0;
-  const fileLabel = FILE_LABELS[col];
+  const fileLabel = FILE_LABELS[flipped ? 7 - col : col];
   const rankLabel = flipped ? row + 1 : 8 - row;
 
   const canDrag = piece && gameStarted;

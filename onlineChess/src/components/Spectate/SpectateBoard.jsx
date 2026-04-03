@@ -3,23 +3,7 @@ import { Chess } from 'chess.js';
 import styles from './SpectateBoard.module.css';
 import { subscribeAsSpectator, unsubscribe, sqToRowCol } from '../../utils/multiplayerService';
 import useThemeStore from '../../store/themeStore';
-
-const PIECE_NAME = { p:'pawn', n:'knight', b:'bishop', r:'rook', q:'queen', k:'king' };
-const FILE_LABELS = ['a','b','c','d','e','f','g','h'];
-
-function parseFen(fen) {
-  if (!fen) return [];
-  const board = Array.from({length:8}, () => Array(8).fill(null));
-  const rows = fen.split(' ')[0].split('/');
-  rows.forEach((rowStr, r) => {
-    let c = 0;
-    for (const ch of rowStr) {
-      if (isNaN(ch)) { board[r][c] = { type: ch.toLowerCase(), color: ch === ch.toUpperCase() ? 'w' : 'b' }; c++; }
-      else { c += parseInt(ch); }
-    }
-  });
-  return board;
-}
+import { PIECE_NAME, FILE_LABELS, parseFen } from '../../utils/boardHelpers';
 
 function ReadOnlyBoard({ fen, lastMoveFrom, lastMoveTo, flipped }) {
   const { clr1, clr2, clr1p, clr2p, pieceSetIndex, pieceSets } = useThemeStore();
@@ -50,7 +34,7 @@ function ReadOnlyBoard({ fen, lastMoveFrom, lastMoveTo, flipped }) {
                 )}
                 {showFile && (
                   <span className={styles.fileLabel} style={{color: isLight ? clr2 : clr1}}>
-                    {FILE_LABELS[col]}
+                    {FILE_LABELS[flipped ? 7 - col : col]}
                   </span>
                 )}
                 {piece && (

@@ -19,7 +19,7 @@ export default function PromotionModal({ color, imagePath, onSelect }) {
   }, [onSelect]);
 
   return (
-    <div className={styles.overlay}>
+    <div className={styles.overlay} onClick={e => e.target === e.currentTarget && onSelect('q')}>
       <div className={styles.popup} role="dialog" aria-label="Promote pawn">
         <h3>Promote Pawn</h3>
         <div className={styles.promotionGrid}>

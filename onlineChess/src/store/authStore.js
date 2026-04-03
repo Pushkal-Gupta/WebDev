@@ -1,12 +1,16 @@
 import { create } from 'zustand';
 import { supabase } from '../utils/supabase';
 
+let _authSub = null;
+
 const useAuthStore = create((set, get) => ({
   user: null,
   token: null,
   username: null,
 
   init: async () => {
+    if (_authSub) return; // already initialized — prevent duplicate listeners
+
     const deriveUsername = (user) =>
       user.user_metadata?.display_name ||
       user.user_metadata?.full_name ||
@@ -22,7 +26,7 @@ const useAuthStore = create((set, get) => ({
       });
     }
 
-    supabase.auth.onAuthStateChange((_event, session) => {
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
         set({
           user: session.user,
@@ -33,6 +37,7 @@ const useAuthStore = create((set, get) => ({
         set({ user: null, token: null, username: null });
       }
     });
+    _authSub = data.subscription;
   },
 
   login: async (email, password) => {

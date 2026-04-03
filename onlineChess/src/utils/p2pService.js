@@ -118,8 +118,12 @@ function _waitForIce() {
 
     if (_pc.iceGatheringState === 'complete') return done();
 
-    _pc.addEventListener('icegatheringstatechange', () => {
-      if (_pc.iceGatheringState === 'complete') done();
-    });
+    const iceHandler = () => {
+      if (_pc.iceGatheringState === 'complete') {
+        _pc.removeEventListener('icegatheringstatechange', iceHandler);
+        done();
+      }
+    };
+    _pc.addEventListener('icegatheringstatechange', iceHandler);
   });
 }

@@ -12,12 +12,16 @@ export default function ClubPage({ clubId, onBack }) {
   const [err, setErr]           = useState('');
 
   const load = async () => {
-    const [{ data: c }, { data: m }] = await Promise.all([
-      supabase.from('clubs').select('*').eq('id', clubId).single(),
-      supabase.from('club_members').select('*').eq('club_id', clubId).order('joined_at'),
-    ]);
-    setClub(c);
-    setMembers(m || []);
+    try {
+      const [{ data: c }, { data: m }] = await Promise.all([
+        supabase.from('clubs').select('*').eq('id', clubId).single(),
+        supabase.from('club_members').select('*').eq('club_id', clubId).order('joined_at'),
+      ]);
+      setClub(c);
+      setMembers(m || []);
+    } catch (e) {
+      setErr(e.message || 'Failed to load club');
+    }
     setLoading(false);
   };
 
@@ -47,6 +51,7 @@ export default function ClubPage({ clubId, onBack }) {
   };
 
   const handleLeave = async () => {
+    if (!user) return;
     setActing(true); setErr('');
     const { error } = await supabase.from('club_members')
       .delete().eq('club_id', clubId).eq('user_id', user.id);
@@ -55,7 +60,7 @@ export default function ClubPage({ clubId, onBack }) {
   };
 
   const handleKick = async (memberId) => {
-    if (!isOwner || memberId === user.id) return;
+    if (!isOwner || !user || memberId === user.id) return;
     await supabase.from('club_members').delete().eq('club_id', clubId).eq('user_id', memberId);
     await load();
   };
