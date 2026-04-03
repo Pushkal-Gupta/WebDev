@@ -271,8 +271,16 @@ const PROJECTS = [
   },
   {
     featured: true,
+    name: "PG.Code",
+    desc: "A collaborative SQL playground with live schema visualization, seed data, and an AI assistant.",
+    date: "Apr 2026",
+    status: "done",
+    url: "../PGcode/dist/index.html",
+  },
+  {
+    featured: false,
     name: "PG.Chess",
-    desc: "Play chess against an AI or a friend. Pick your board style and piece set.",
+    desc: "",
     date: "Jun 2024",
     status: "done",
     url: "../chess/p3.html",
