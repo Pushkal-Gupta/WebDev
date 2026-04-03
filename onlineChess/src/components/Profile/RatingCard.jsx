@@ -20,7 +20,7 @@ export default function RatingCard({ category, data }) {
   const clr  = COLORS[cat] || COLORS.classical;
   const r    = data ? { ...DEFAULT, ...data } : DEFAULT;
 
-  const provisional = r.rd > 110; // High RD = fewer games, less confident
+  const provisional = r.rd > 150; // High RD = fewer games, less confident
 
   return (
     <div className={styles.card} style={{ background: clr.bg, borderColor: clr.border }}>

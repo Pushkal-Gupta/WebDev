@@ -5,10 +5,10 @@ import useThemeStore from '../../store/themeStore';
 import { getOpeningName } from '../../utils/evaluation';
 import { CLASSIFICATIONS } from '../../utils/reviewEngine';
 
-export default function RightSidebar({ onAlert, reviewResults, isReviewing }) {
+export default function RightSidebar({ onAlert, reviewResults, isReviewing, isOnlineGame = false }) {
   const {
     moveHistory, currentMoveIndex, goToMove,
-    getPgn, gameStarted, flipped, setFlipped, undoMove,
+    getPgn, gameStarted, flipped, setFlipped, undoMove, isOnline,
   } = useGameStore();
 
   const { pieceSets, pieceSetIndex } = useThemeStore();
@@ -104,7 +104,9 @@ export default function RightSidebar({ onAlert, reviewResults, isReviewing }) {
       {/* Action row */}
       <div className={styles.actions}>
         <button className={styles.actionBtn} onClick={() => setFlipped(!flipped)} title="Flip board">⇅ Flip</button>
-        <button className={styles.actionBtn} onClick={undoMove} disabled={!gameStarted} title="Undo">↩ Undo</button>
+        {!isOnline && (
+          <button className={styles.actionBtn} onClick={undoMove} disabled={!gameStarted} title="Undo">↩ Undo</button>
+        )}
         <button className={styles.actionBtn} onClick={handleCopyPgn} title="Copy PGN">⎘ PGN</button>
       </div>
     </aside>
