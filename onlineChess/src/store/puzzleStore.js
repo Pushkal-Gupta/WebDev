@@ -270,7 +270,7 @@ const usePuzzleStore = create((set, get) => ({
     }
 
     if (!puzzleRow) {
-      set({ status: 'error', errorMsg: 'No puzzles available.' });
+      set({ status: 'error', errorMsg: 'No puzzles found near your rating. Try refreshing or changing mode.' });
       return;
     }
 
@@ -280,7 +280,7 @@ const usePuzzleStore = create((set, get) => ({
         set({ _loadRetries: get()._loadRetries + 1 });
         get()._loadPuzzleForMode(userId);
       } else {
-        set({ status: 'error', errorMsg: 'No valid puzzles found.', _loadRetries: 0 });
+        set({ status: 'error', errorMsg: 'No puzzles available. Check your connection and try again.', _loadRetries: 0 });
       }
       return;
     }
@@ -292,7 +292,8 @@ const usePuzzleStore = create((set, get) => ({
         set({ _loadRetries: get()._loadRetries + 1 });
         get()._loadPuzzleForMode(userId);
       } else {
-        set({ status: 'error', errorMsg: 'Invalid puzzle data.', _loadRetries: 0 });
+        set({ status: 'error', errorMsg: 'Invalid puzzle data. Skipping to next puzzle...', _loadRetries: 0 });
+        setTimeout(() => get()._loadPuzzleForMode(userId), 1000);
       }
       return;
     }
@@ -317,7 +318,8 @@ const usePuzzleStore = create((set, get) => ({
         set({ _loadRetries: get()._loadRetries + 1 });
         get()._loadPuzzleForMode(userId);
       } else {
-        set({ status: 'error', errorMsg: 'Invalid puzzle moves.', _loadRetries: 0 });
+        set({ status: 'error', errorMsg: 'Invalid puzzle moves. Skipping to next puzzle...', _loadRetries: 0 });
+        setTimeout(() => get()._loadPuzzleForMode(userId), 1000);
       }
       return;
     }
@@ -374,7 +376,8 @@ const usePuzzleStore = create((set, get) => ({
     const moves = (puzzleRow.moves || '').split(' ').filter(Boolean);
     if (moves.length < 1) {
       console.warn('Puzzle has no moves:', puzzleRow.id);
-      set({ status: 'error', errorMsg: 'Invalid puzzle data. Try again.' });
+      set({ status: 'error', errorMsg: 'Invalid puzzle data. Skipping to next puzzle...' });
+      setTimeout(() => get()._loadPuzzleForMode(userId), 1000);
       return;
     }
 
@@ -382,7 +385,8 @@ const usePuzzleStore = create((set, get) => ({
       _chess = new Chess(puzzleRow.fen);
     } catch {
       console.warn('Invalid puzzle FEN:', puzzleRow.fen);
-      set({ status: 'error', errorMsg: 'Invalid puzzle position. Try again.' });
+      set({ status: 'error', errorMsg: 'Invalid puzzle position. Loading another puzzle...' });
+      setTimeout(() => get()._loadPuzzleForMode(userId), 1000);
       return;
     }
 
@@ -403,7 +407,8 @@ const usePuzzleStore = create((set, get) => ({
     const firstMove = _chess.move(uciToMove(moves[0]));
     if (!firstMove) {
       console.warn('Puzzle first move invalid:', moves[0]);
-      set({ status: 'error', errorMsg: 'Invalid puzzle. Try again.' });
+      set({ status: 'error', errorMsg: 'Invalid puzzle position. Loading another puzzle...' });
+      setTimeout(() => get()._loadPuzzleForMode(userId), 1000);
       return;
     }
 
@@ -489,6 +494,12 @@ const usePuzzleStore = create((set, get) => ({
       const hintWasUsed = get().hintUsed;
       set({ status: 'solved', streak: hintWasUsed ? 0 : streak + 1, currentFen: _chess.fen(), moveIndex: afterPlayerIdx });
       if (userId) await get()._updatePuzzleRating(userId, true, hintWasUsed);
+      // Auto-advance in rated mode after delay
+      setTimeout(() => {
+        if (get().status === 'solved' && get().mode === 'rated') {
+          get().loadNextPuzzle(userId);
+        }
+      }, 1500);
       return { correct: true, solved: true };
     };
 
@@ -523,6 +534,12 @@ const usePuzzleStore = create((set, get) => ({
       const hintWasUsed2 = get().hintUsed;
       set({ status: 'solved', streak: hintWasUsed2 ? 0 : streak + 1, currentFen: _chess.fen(), moveIndex: afterOppIdx });
       if (userId) await get()._updatePuzzleRating(userId, true, hintWasUsed2);
+      // Auto-advance in rated mode after delay
+      setTimeout(() => {
+        if (get().status === 'solved' && get().mode === 'rated') {
+          get().loadNextPuzzle(userId);
+        }
+      }, 1500);
       return { correct: true, solved: true };
     }
 

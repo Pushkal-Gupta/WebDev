@@ -52,6 +52,7 @@ export default function SpectateList() {
   const [games, setGames]           = useState([]);
   const [loading, setLoading]       = useState(true);
   const [spectating, setSpectating] = useState(null); // room object
+  const [loadingId, setLoadingId]   = useState(null);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -72,8 +73,15 @@ export default function SpectateList() {
   }, []); // eslint-disable-line — refresh is stable
 
   const handleWatch = useCallback(async (gameId) => {
-    const room = await getRoom(gameId);
-    if (room) setSpectating(room);
+    setLoadingId(gameId);
+    try {
+      const room = await getRoom(gameId);
+      if (room) setSpectating(room);
+    } catch (err) {
+      console.error('Failed to load game:', err);
+    } finally {
+      setLoadingId(null);
+    }
   }, []);
 
   if (spectating) {
@@ -100,7 +108,7 @@ export default function SpectateList() {
 
       <div className={styles.grid}>
         {games.map(g => (
-          <button key={g.id} className={styles.card} onClick={() => handleWatch(g.id)}>
+          <button key={g.id} className={styles.card} onClick={() => handleWatch(g.id)} disabled={loadingId === g.id}>
             <FenThumbnail fen={g.current_fen} />
             <div className={styles.cardInfo}>
               <div className={styles.players}>
@@ -116,7 +124,7 @@ export default function SpectateList() {
                 <span className={styles.age}>{formatAgo(g.last_move_at || g.created_at)}</span>
               </div>
             </div>
-            <div className={styles.watchLabel}>Watch →</div>
+            <div className={styles.watchLabel}>{loadingId === g.id ? 'Loading…' : 'Watch →'}</div>
           </button>
         ))}
       </div>

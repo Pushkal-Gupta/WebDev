@@ -125,7 +125,7 @@
   position: absolute;
   top: -5px;
   right: -7px;
-  background: #e53e3e;
+  background: var(--color-error);
   color: #fff;
   font-size: 0.58rem;
   font-weight: 800;
@@ -185,9 +185,9 @@
   .nav::-webkit-scrollbar { display: none; }
   .logo      { display: none; }
   .list      { display: flex; flex-direction: row; padding: 0; flex-shrink: 0; }
-  .item      { flex-direction: column; gap: 2px; flex-shrink: 0; width: 60px; padding: 8px 4px; font-size: 0.58rem; }
+  .item      { flex-direction: column; gap: 2px; flex-shrink: 0; width: 60px; padding: 8px 4px; font-size: 0.58rem; min-height: 44px; }
   .icon      { width: 20px; height: 20px; }
-  .label     { display: block; font-size: 0.55rem; }
+  .label     { display: block; font-size: 0.65rem; }
   .bottom    { display: flex; border-top: none; border-left: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
   .itemActive::before { left: 20%; right: 20%; top: 0; bottom: auto; width: auto; height: 2px; border-radius: 0 0 2px 2px; }
 }

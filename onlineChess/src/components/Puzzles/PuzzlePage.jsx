@@ -177,15 +177,24 @@ export default function PuzzlePage() {
     if (result.correct) {
       setFeedback('correct');
       if (result.solved) {
-        setTimeout(() => setFeedback(null), 500);
+        setTimeout(() => setFeedback(null), 1200);
       } else {
         setTimeout(() => setFeedback(null), 400);
       }
     } else {
+      // Wrong move: clear highlights, show flash longer, auto-advance in rated mode
+      setLastMoveFrom(null);
+      setLastMoveTo(null);
       setFeedback('wrong');
-      setTimeout(() => setFeedback(null), 600);
+      setTimeout(() => {
+        setFeedback(null);
+        // Auto-load next puzzle after wrong move in rated mode
+        if (mode === 'rated') {
+          loadNextPuzzle(user?.id);
+        }
+      }, 1500);
     }
-  }, [handlePlayerMove, user?.id]);
+  }, [handlePlayerMove, user?.id, mode, loadNextPuzzle]);
 
   const handleNext = () => {
     setLastMoveFrom(null);
@@ -215,18 +224,21 @@ export default function PuzzlePage() {
           <button
             className={`${styles.modeTab} ${mode === 'rated' ? styles.modeTabActive : ''}`}
             onClick={() => handleModeChange('rated')}
+            title="Solve puzzles to improve your rating"
           >
             Rated
           </button>
           <button
             className={`${styles.modeTab} ${mode === 'rush' ? styles.modeTabActive : ''}`}
             onClick={() => handleModeChange('rush')}
+            title="Timed mode — 3 mistakes allowed"
           >
             Rush
           </button>
           <button
             className={`${styles.modeTab} ${mode === 'streak' ? styles.modeTabActive : ''}`}
             onClick={() => handleModeChange('streak')}
+            title="Increasing difficulty — one mistake ends it"
           >
             Streak
           </button>
@@ -282,7 +294,7 @@ export default function PuzzlePage() {
 
             <div className={styles.ratingRow}>
               <div className={styles.ratingBox}>
-                <div className={styles.ratingVal}>{puzzleRating}</div>
+                <div className={styles.ratingVal} title="Puzzle ratings range from 600-2400. Puzzles near your rating help you improve.">{puzzleRating}</div>
                 <div className={styles.ratingLbl}>Puzzle Rating</div>
               </div>
               {lastRatingChange != null && (
@@ -296,7 +308,7 @@ export default function PuzzlePage() {
               <div className={styles.puzzleInfo}>
                 <div className={styles.infoRow}>
                   <span className={styles.infoLabel}>Difficulty</span>
-                  <span className={styles.infoVal}>{puzzle.rating}</span>
+                  <span className={styles.infoVal} title="Difficulty rating of this puzzle">{puzzle.rating}</span>
                 </div>
                 {puzzle.themes?.length > 0 && (
                   <div className={styles.themes}>
@@ -330,7 +342,7 @@ export default function PuzzlePage() {
               {status === 'playing' && (
                 <>
                   <button className={styles.hintBtn} onClick={getHint} disabled={hintUsed}>
-                    {hintUsed ? 'Hint Used' : 'Hint'}
+                    {hintUsed ? 'Hint Used' : 'Hint (-rating)'}
                   </button>
                   <button className={styles.skipBtn} onClick={handleNext}>Skip</button>
                 </>

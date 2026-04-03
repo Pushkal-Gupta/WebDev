@@ -5,7 +5,7 @@ import useAuthStore from '../../store/authStore';
 import useRatingStore from '../../store/ratingStore';
 import TournamentDetail from './TournamentDetail';
 
-const STATUS_LABEL = { upcoming: 'Upcoming', registration: 'Open', active: 'Live', finished: 'Finished' };
+const STATUS_LABEL = { upcoming: 'Upcoming', registration: 'Registration Open', active: 'Live', finished: 'Finished' };
 const STATUS_CLS   = { upcoming: 'statusUpcoming', registration: 'statusOpen', active: 'statusLive', finished: 'statusDone' };
 const CAT_LABEL    = { bullet: 'Bullet', blitz: 'Blitz', rapid: 'Rapid', classical: 'Classical' };
 

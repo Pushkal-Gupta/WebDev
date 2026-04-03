@@ -284,3 +284,17 @@
   70% { opacity: 1; }
   100% { opacity: 0; }
 }
+
+@media (max-width: 420px) {
+  .popup {
+    min-width: auto;
+    padding: 18px 16px;
+    max-width: 92vw;
+  }
+  .btnRow {
+    flex-direction: column;
+  }
+  .btn {
+    width: 100%;
+  }
+}

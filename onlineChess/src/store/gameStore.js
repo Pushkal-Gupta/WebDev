@@ -2,6 +2,16 @@ import { create } from 'zustand';
 import { Chess } from 'chess.js';
 import { playSoundForMove, playSound } from '../utils/soundManager';
 
+// Persist display preferences to localStorage
+const PREFS_KEY = 'chess_display_prefs';
+function loadPrefs() {
+  try { return JSON.parse(localStorage.getItem(PREFS_KEY)) || {}; } catch { return {}; }
+}
+function savePrefs(prefs) {
+  try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch {}
+}
+const savedPrefs = loadPrefs();
+
 // chess.js piece type => image filename part
 const PIECE_NAME_MAP = {
   p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king',
@@ -50,12 +60,12 @@ const initialState = {
   gameOver: false,
   gameOverMessage: '',
   flipped: false,
-  showLabels: true,
-  highlightLastMove: true,
-  highlightSelected: true,
-  showLegalDots: true,
-  dotSize: 12,
-  blindfoldMode: false,
+  showLabels: savedPrefs.showLabels ?? true,
+  highlightLastMove: savedPrefs.highlightLastMove ?? true,
+  highlightSelected: savedPrefs.highlightSelected ?? true,
+  showLegalDots: savedPrefs.showLegalDots ?? true,
+  dotSize: savedPrefs.dotSize ?? 12,
+  blindfoldMode: savedPrefs.blindfoldMode ?? false,
   timeControl: null, // { display, total, incr }
   whiteTime: 0,
   blackTime: 0,
@@ -539,6 +549,11 @@ const useGameStore = create((set, get) => ({
 
     const underCheck = findCheck(chess);
 
+    // When navigating back to the latest move, sync chessInstance so
+    // selectSquare (which is unblocked at the latest position) uses
+    // a chess instance whose state matches the displayed board.
+    const isLatest = index === moveHistory.length - 1;
+
     set({
       boardState: buildBoardState(chess),
       currentMoveIndex: index,
@@ -547,6 +562,7 @@ const useGameStore = create((set, get) => ({
       lastMove,
       underCheck,
       activeColor: chess.turn(),
+      ...(isLatest ? { chessInstance: chess } : {}),
     });
   },
 
@@ -598,12 +614,12 @@ const useGameStore = create((set, get) => ({
   setGameResult: (val) => set({ gameResult: val }),
   setOnlineOpponentId: (val) => set({ onlineOpponentId: val }),
   setFlipped: (val) => set({ flipped: val }),
-  setShowLabels: (val) => set({ showLabels: val }),
-  setHighlightLastMove: (val) => set({ highlightLastMove: val }),
-  setHighlightSelected: (val) => set({ highlightSelected: val }),
-  setShowLegalDots: (val) => set({ showLegalDots: val }),
-  setDotSize: (val) => set({ dotSize: val }),
-  setBlindfoldMode: (val) => set({ blindfoldMode: val }),
+  setShowLabels: (val) => { set({ showLabels: val }); const p = loadPrefs(); p.showLabels = val; savePrefs(p); },
+  setHighlightLastMove: (val) => { set({ highlightLastMove: val }); const p = loadPrefs(); p.highlightLastMove = val; savePrefs(p); },
+  setHighlightSelected: (val) => { set({ highlightSelected: val }); const p = loadPrefs(); p.highlightSelected = val; savePrefs(p); },
+  setShowLegalDots: (val) => { set({ showLegalDots: val }); const p = loadPrefs(); p.showLegalDots = val; savePrefs(p); },
+  setDotSize: (val) => { set({ dotSize: val }); const p = loadPrefs(); p.dotSize = val; savePrefs(p); },
+  setBlindfoldMode: (val) => { set({ blindfoldMode: val }); const p = loadPrefs(); p.blindfoldMode = val; savePrefs(p); },
   setOppName: (val) => set({ oppName: val }),
   setYouName: (val) => set({ youName: val }),
   setTimerRunning: (val) => set({ timerRunning: val }),
