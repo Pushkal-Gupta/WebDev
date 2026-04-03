@@ -1,9 +1,14 @@
+import { memo, useMemo } from 'react';
 import styles from './Board.module.css';
 import Cell from '../Cell/Cell';
 import useGameStore from '../../store/gameStore';
 
-export default function Board() {
-  const { boardState, flipped, gameStarted } = useGameStore();
+const Board = memo(function Board() {
+  const boardState = useGameStore(s => s.boardState);
+  const flipped = useGameStore(s => s.flipped);
+
+  const rows = useMemo(() => flipped ? [7, 6, 5, 4, 3, 2, 1, 0] : [0, 1, 2, 3, 4, 5, 6, 7], [flipped]);
+  const cols = useMemo(() => flipped ? [7, 6, 5, 4, 3, 2, 1, 0] : [0, 1, 2, 3, 4, 5, 6, 7], [flipped]);
 
   if (!boardState) {
     return (
@@ -12,10 +17,6 @@ export default function Board() {
       </div>
     );
   }
-
-  // Build rows/cols arrays, optionally flipped
-  const rows = flipped ? [7, 6, 5, 4, 3, 2, 1, 0] : [0, 1, 2, 3, 4, 5, 6, 7];
-  const cols = flipped ? [7, 6, 5, 4, 3, 2, 1, 0] : [0, 1, 2, 3, 4, 5, 6, 7];
 
   return (
     <div className={styles.boardWrapper}>
@@ -29,10 +30,13 @@ export default function Board() {
               displayRow={displayRow}
               displayCol={displayCol}
               flipped={flipped}
+              piece={boardState[row][col]}
             />
           ))
         )}
       </div>
     </div>
   );
-}
+});
+
+export default Board;

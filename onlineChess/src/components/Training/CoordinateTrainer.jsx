@@ -85,12 +85,14 @@ function CoordMode({ mode }) {
     if (answer === correct) {
       setScore(s => s + 1);
       setFeedback('correct');
+      setTarget(randomSquare());
+      setTimeout(() => setFeedback(null), 200);
     } else {
       setWrong(w => w + 1);
       setFeedback('wrong');
+      // Don't advance — same square, let user see the mistake
+      setTimeout(() => setFeedback(null), 500);
     }
-    setTarget(randomSquare());
-    setTimeout(() => setFeedback(null), 200);
   }, [active, target]);
 
   const rows = [7,6,5,4,3,2,1,0];
@@ -296,7 +298,12 @@ function KnightVision() {
                   style={{ backgroundColor: bg }}
                   onClick={() => handleCellClick(sq)}
                 >
-                  {isKnight && <span className={styles.knightIcon}>&#9822;</span>}
+                  {isKnight && (
+                    <svg className={styles.knightIcon} width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M8 20h8M9 20v-3c0-1 .5-2 2-3l-2-1c-1-.5-1.5-1.5-1-3l1-2c.5-1 1.5-1.5 2.5-1h1c1 0 2 .5 2.5 1.5l.5 1.5c.3 1-.2 2-1 2.5l-1 .5"/>
+                      <circle cx="13" cy="7" r="1" fill="currentColor"/>
+                    </svg>
+                  )}
                   {file === 0 && <span className={styles.miniRank}>{RANKS[rank]}</span>}
                   {rank === 0 && <span className={styles.miniFile}>{FILES[file]}</span>}
                 </div>

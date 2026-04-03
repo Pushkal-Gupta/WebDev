@@ -198,7 +198,7 @@
   padding: 9px 24px;
   background: rgba(0,255,245,0.1);
   border: 1px solid rgba(0,255,245,0.3);
-  color: #00fff5;
+  color: var(--color-accent);
   border-radius: 7px;
   cursor: pointer;
   font-size: 0.85rem;

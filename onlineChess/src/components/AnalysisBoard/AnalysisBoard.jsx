@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useId } from 'react';
+import { useState, useEffect, useRef, useId, useMemo, memo } from 'react';
 import Board from '../Board/Board';
 import styles from './AnalysisBoard.module.css';
 import useGameStore from '../../store/gameStore';
@@ -25,7 +25,10 @@ function formatEval(score) {
   return (score >= 0 ? '+' : '') + (score / 100).toFixed(1);
 }
 
+const _topLinesCache = new Map();
 function getTopLines(fen, n = 3) {
+  const key = `${fen}:${n}`;
+  if (_topLinesCache.has(key)) return _topLinesCache.get(key);
   try {
     const chess = new Chess(fen);
     if (chess.isGameOver()) return [];
@@ -39,22 +42,29 @@ function getTopLines(fen, n = 3) {
       return { move: m, score };
     });
     scored.sort((a, b) => isMax ? b.score - a.score : a.score - b.score);
-    return scored.slice(0, n).map(({ move, score }) => {
+    const result = scored.slice(0, n).map(({ move, score }) => {
       const lineChess = new Chess(fen);
       lineChess.move(move);
       const sanMoves = [move.san];
       for (let d = 0; d < 2; d++) {
         const { move: bestUci } = getLocalBestMoveWithScore(lineChess.fen(), 1);
         if (!bestUci) break;
-        const result = lineChess.move({
+        const r = lineChess.move({
           from: bestUci.slice(0, 2), to: bestUci.slice(2, 4),
           promotion: bestUci[4] || undefined,
         });
-        if (!result) break;
-        sanMoves.push(result.san);
+        if (!r) break;
+        sanMoves.push(r.san);
       }
       return { san: move.san, score, line: sanMoves };
     });
+    // Cap cache at 200 entries
+    if (_topLinesCache.size > 200) {
+      const firstKey = _topLinesCache.keys().next().value;
+      _topLinesCache.delete(firstKey);
+    }
+    _topLinesCache.set(key, result);
+    return result;
   } catch { return []; }
 }
 
@@ -69,6 +79,10 @@ async function fetchOpeningName(fen) {
     if (!res.ok) return null;
     const json = await res.json();
     const name = json?.opening?.name || null;
+    if (_openingCache.size > 200) {
+      const firstKey = _openingCache.keys().next().value;
+      _openingCache.delete(firstKey);
+    }
     _openingCache.set(fen, name);
     return name;
   } catch { return null; }
@@ -99,6 +113,12 @@ function calcAccuracy(reviewResults, moveHistory, color) {
   return Math.round(results.reduce((s, r) => s + (ACC_WEIGHTS[r.classification] ?? 50), 0) / results.length);
 }
 
+function estimateElo(accuracy) {
+  if (accuracy == null) return null;
+  // Rough mapping: 30%~600, 50%~900, 65%~1200, 75%~1500, 85%~1800, 95%~2200
+  return Math.max(400, Math.min(2400, Math.round(400 + (accuracy / 100) * 1900)));
+}
+
 function buildCounts(reviewResults, moveHistory, color) {
   const counts = {};
   reviewResults?.forEach((r, i) => {
@@ -113,7 +133,7 @@ const CLASS_ORDER = ['brilliant', 'critical', 'best', 'excellent', 'okay', 'inac
 
 // ── Eval Graph ────────────────────────────────────────────────────────────────
 
-function EvalGraph({ data, currentIdx, onSeek }) {
+const EvalGraph = memo(function EvalGraph({ data, currentIdx, onSeek }) {
   const uid = useId().replace(/:/g, '');
   const W = 500, H = 60, pad = 1;
   const evalToY = s => pad + (H - pad * 2) * (1 - evalToWhitePct(s) / 100);
@@ -160,7 +180,7 @@ function EvalGraph({ data, currentIdx, onSeek }) {
       {curX !== null && <circle cx={curX} cy={evalToY(data[currentIdx])} r={3} fill="#00fff5" stroke="rgba(0,0,0,0.3)" strokeWidth={1} />}
     </svg>
   );
-}
+});
 
 // ── Accuracy Bar ──────────────────────────────────────────────────────────────
 
@@ -242,7 +262,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
         if (openingAbortRef.current) openingAbortRef.current.abort?.();
         fetchOpeningName(fen).then(name => { if (name) setLiveOpeningName(name); }).catch(err => console.error('Opening fetch error:', err));
       } catch (err) { console.error('Engine eval error:', err); } finally { setEngineBusy(false); }
-    }, 200);
+    }, 400);
     return () => clearTimeout(evalTimerRef.current);
   }, [currentMoveIndex, gameLoaded, chessInstance]);
 
@@ -342,14 +362,17 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
     } finally { setExternalLoading(false); }
   };
 
-  // ── Derived ───────────────────────────────────────────────────────────────────
+  // ── Derived (memoized) ─────────────────────────────────────────────────────
 
-  const moveRows = [];
-  for (let i = 0; i < moveHistory.length; i += 2) {
-    moveRows.push({ number: Math.floor(i/2)+1, white: moveHistory[i], whiteIdx: i, black: moveHistory[i+1]||null, blackIdx: i+1 });
-  }
+  const moveRows = useMemo(() => {
+    const rows = [];
+    for (let i = 0; i < moveHistory.length; i += 2) {
+      rows.push({ number: Math.floor(i/2)+1, white: moveHistory[i], whiteIdx: i, black: moveHistory[i+1]||null, blackIdx: i+1 });
+    }
+    return rows;
+  }, [moveHistory]);
 
-  const graphData = (() => {
+  const graphData = useMemo(() => {
     if (reviewResults?.length) {
       return reviewResults.map((r, i) => moveHistory[i]?.color === 'w' ? r.playedScore : -r.playedScore);
     }
@@ -361,13 +384,13 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
       return out.length > 1 ? out : [];
     }
     return [];
-  })();
+  }, [reviewResults, evalHistory, moveHistory]);
 
   const whitePct      = evalToWhitePct(currentEval);
-  const whiteAcc      = calcAccuracy(reviewResults, moveHistory, 'w');
-  const blackAcc      = calcAccuracy(reviewResults, moveHistory, 'b');
-  const whiteCounts   = buildCounts(reviewResults, moveHistory, 'w');
-  const blackCounts   = buildCounts(reviewResults, moveHistory, 'b');
+  const whiteAcc      = useMemo(() => calcAccuracy(reviewResults, moveHistory, 'w'), [reviewResults, moveHistory]);
+  const blackAcc      = useMemo(() => calcAccuracy(reviewResults, moveHistory, 'b'), [reviewResults, moveHistory]);
+  const whiteCounts   = useMemo(() => buildCounts(reviewResults, moveHistory, 'w'), [reviewResults, moveHistory]);
+  const blackCounts   = useMemo(() => buildCounts(reviewResults, moveHistory, 'b'), [reviewResults, moveHistory]);
   const topName       = flipped ? (pgnHeaders.White || 'White') : (pgnHeaders.Black || 'Black');
   const bottomName    = flipped ? (pgnHeaders.Black || 'Black') : (pgnHeaders.White || 'White');
   const topColor      = flipped ? 'w' : 'b';
@@ -498,7 +521,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
                   </div>
                 )}
 
-                {/* Accuracy bars */}
+                {/* Accuracy bars + ELO estimation */}
                 {reviewResults && (whiteAcc !== null || blackAcc !== null) && (
                   <div className={styles.section}>
                     <div className={styles.sectionLabel}>Accuracies</div>
@@ -507,6 +530,23 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
                     )}
                     {blackAcc !== null && (
                       <AccuracyBar label={pgnHeaders.Black || 'Black'} acc={blackAcc} dotClass={styles.pDotB} />
+                    )}
+                    {(whiteAcc !== null || blackAcc !== null) && (
+                      <div className={styles.eloEstRow}>
+                        {whiteAcc !== null && (
+                          <div className={styles.eloEstItem}>
+                            <span className={styles.eloEstLabel}>{pgnHeaders.White || 'White'}</span>
+                            <span className={styles.eloEstVal}>~{estimateElo(whiteAcc)}</span>
+                          </div>
+                        )}
+                        {blackAcc !== null && (
+                          <div className={styles.eloEstItem}>
+                            <span className={styles.eloEstLabel}>{pgnHeaders.Black || 'Black'}</span>
+                            <span className={styles.eloEstVal}>~{estimateElo(blackAcc)}</span>
+                          </div>
+                        )}
+                        <div className={styles.eloEstHint}>Estimated rating (this game)</div>
+                      </div>
                     )}
                   </div>
                 )}

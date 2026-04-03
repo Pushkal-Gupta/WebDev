@@ -119,12 +119,20 @@ export default function P2PSetup({ onConnected }) {
         </div>
         <div className={styles.roleRow}>
           <button className={styles.roleBtn} onClick={startHost}>
-            <span className={styles.roleIcon}>📡</span>
+            <span className={styles.roleIcon}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                <circle cx="12" cy="12" r="3"/><path d="M4.5 12a7.5 7.5 0 0115 0"/><path d="M1.5 12a10.5 10.5 0 0121 0"/>
+              </svg>
+            </span>
             <div className={styles.roleName}>New Game</div>
             <div className={styles.roleDesc}>Host &amp; share invite QR</div>
           </button>
           <button className={styles.roleBtn} onClick={() => { setRole('joiner'); setStep('joiner-scan'); }}>
-            <span className={styles.roleIcon}>📷</span>
+            <span className={styles.roleIcon}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/>
+              </svg>
+            </span>
             <div className={styles.roleName}>Join Game</div>
             <div className={styles.roleDesc}>Scan host&apos;s QR code</div>
           </button>
@@ -241,15 +249,39 @@ function StepHeader({ title, sub }) {
 }
 
 function QRBox({ sdp }) {
+  // SDP can be 2-4KB. If too large for QR, show copy-paste fallback.
+  const tooLarge = sdp.length > 2900;
   return (
     <div className={styles.qrWrap}>
-      <QRCodeSVG
-        value={sdp}
-        size={220}
-        level="L"
-        bgColor="transparent"
-        fgColor="#00fff5"
-      />
+      {tooLarge ? (
+        <div style={{
+          padding: '20px 16px',
+          textAlign: 'center',
+          color: 'rgba(255,255,255,0.5)',
+          fontSize: '0.82rem',
+          lineHeight: 1.5,
+        }}>
+          <div style={{ fontSize: '2rem', marginBottom: 8, opacity: 0.5 }}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <rect x="3" y="3" width="7" height="7" rx="1"/>
+              <rect x="14" y="3" width="7" height="7" rx="1"/>
+              <rect x="3" y="14" width="7" height="7" rx="1"/>
+              <rect x="14" y="14" width="3" height="3"/>
+              <rect x="18" y="18" width="3" height="3"/>
+            </svg>
+          </div>
+          SDP too large for QR code.<br/>
+          Use the <strong>Copy as text</strong> button below and paste on the other device.
+        </div>
+      ) : (
+        <QRCodeSVG
+          value={sdp}
+          size={220}
+          level="M"
+          bgColor="transparent"
+          fgColor="#00fff5"
+        />
+      )}
     </div>
   );
 }

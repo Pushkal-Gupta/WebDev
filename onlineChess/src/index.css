@@ -25,6 +25,28 @@ html, body, #root {
  */
 :root {
   --cell-size: 72px;   /* 576px board — default (900-1100px range) */
+
+  /* ── Semantic color system ── */
+  --color-accent: #00fff5;
+  --color-accent-rgb: 0, 255, 245;
+  --color-success: #6fdc8c;
+  --color-success-rgb: 111, 220, 140;
+  --color-error: #ff7875;
+  --color-error-rgb: 255, 120, 117;
+  --color-error-dark: #cc3333;
+  --color-warning: #f0c94c;
+  --color-warning-dark: #e08c00;
+
+  --color-bg-primary: #030a0a;
+  --color-bg-secondary: #0d1117;
+  --color-bg-surface: rgba(255, 255, 255, 0.03);
+  --color-border: rgba(255, 255, 255, 0.07);
+  --color-border-light: rgba(255, 255, 255, 0.12);
+
+  --color-text-primary: #ffffff;
+  --color-text-secondary: rgba(255, 255, 255, 0.55);
+  --color-text-muted: rgba(255, 255, 255, 0.35);
+  --color-text-dim: rgba(255, 255, 255, 0.2);
 }
 
 @media (min-width: 1100px) {

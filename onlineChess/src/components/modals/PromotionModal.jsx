@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import styles from './Modals.module.css';
 
 const PIECES = [
@@ -8,9 +9,18 @@ const PIECES = [
 ];
 
 export default function PromotionModal({ color, imagePath, onSelect }) {
+  // ESC defaults to queen promotion
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') onSelect('q');
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onSelect]);
+
   return (
     <div className={styles.overlay}>
-      <div className={styles.popup}>
+      <div className={styles.popup} role="dialog" aria-label="Promote pawn">
         <h3>Promote Pawn</h3>
         <div className={styles.promotionGrid}>
           {PIECES.map(({ type, label }) => {

@@ -26,7 +26,7 @@
   content: "←";
   position: absolute;
   left: -18px;
-  color: #00fff5;
+  color: var(--color-accent);
   opacity: 0;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 700;
@@ -44,7 +44,7 @@
 
 .logoIcon {
   font-size: 1.4rem;
-  color: #00fff5;
+  color: var(--color-accent);
   line-height: 1;
   flex-shrink: 0;
 }
@@ -52,7 +52,7 @@
 .logoText {
   font-size: 1rem;
   font-weight: 700;
-  color: #00fff5;
+  color: var(--color-accent);
   letter-spacing: 0.04em;
   transition: color 0.18s;
 }
@@ -89,7 +89,7 @@
 }
 
 .itemActive {
-  color: #00fff5 !important;
+  color: var(--color-accent) !important;
   background: rgba(0, 255, 245, 0.07) !important;
 }
 
@@ -100,7 +100,7 @@
   top: 20%;
   bottom: 20%;
   width: 3px;
-  background: #00fff5;
+  background: var(--color-accent);
   border-radius: 0 2px 2px 0;
   box-shadow: 0 0 8px rgba(0, 255, 245, 0.5);
 }
@@ -172,7 +172,8 @@
     right: 0;
     top: auto;
     width: 100%;
-    height: 56px;
+    height: calc(56px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     flex-direction: row;
     border-right: none;
     border-top: 1px solid rgba(0, 255, 245, 0.07);

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Chess } from 'chess.js';
 import { p2p } from '../../utils/p2pService';
 import useThemeStore from '../../store/themeStore';
+import { formatTime } from '../../utils/timeFormatter';
 import styles from './P2PGame.module.css';
 
 const PIECE_NAME = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' };
@@ -33,10 +34,7 @@ function parseFen(fen) {
   return board;
 }
 
-function formatTime(s) {
-  if (s <= 0) return '0:00';
-  return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
-}
+// formatTime imported from shared utility
 
 // ── Inline board ──────────────────────────────────────────────────────────────
 

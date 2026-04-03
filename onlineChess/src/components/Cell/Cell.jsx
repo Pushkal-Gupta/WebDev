@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { memo, useRef, useState, useCallback } from 'react';
 import styles from './Cell.module.css';
 import useGameStore from '../../store/gameStore';
 import useThemeStore from '../../store/themeStore';
@@ -8,21 +8,38 @@ const PIECE_NAME_MAP = {
 };
 const FILE_LABELS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
-export default function Cell({ row, col, displayRow, displayCol, flipped }) {
+const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, piece }) {
   const [draggingThis, setDraggingThis] = useState(false);
 
-  const {
-    boardState, selectedSquare, validMoves, lastMove, underCheck,
-    selectSquare, makeMove, showLabels, showLegalDots, highlightLastMove,
-    highlightSelected, dotSize, gameStarted, blindfoldMode,
-  } = useGameStore();
+  // Zustand selectors — only subscribe to what this Cell needs
+  const selectedSquare = useGameStore(s => s.selectedSquare);
+  const validMoves = useGameStore(s => s.validMoves);
+  const lastMove = useGameStore(s => s.lastMove);
+  const underCheck = useGameStore(s => s.underCheck);
+  const selectSquare = useGameStore(s => s.selectSquare);
+  const makeMove = useGameStore(s => s.makeMove);
+  const showLabels = useGameStore(s => s.showLabels);
+  const showLegalDots = useGameStore(s => s.showLegalDots);
+  const highlightLastMove = useGameStore(s => s.highlightLastMove);
+  const highlightSelected = useGameStore(s => s.highlightSelected);
+  const dotSize = useGameStore(s => s.dotSize);
+  const gameStarted = useGameStore(s => s.gameStarted);
+  const blindfoldMode = useGameStore(s => s.blindfoldMode);
 
-  const { clr1, clr2, clr1c, clr2c, clr1p, clr2p, clr1x, clr2x, pieceSetIndex, pieceSets } = useThemeStore();
+  const clr1 = useThemeStore(s => s.clr1);
+  const clr2 = useThemeStore(s => s.clr2);
+  const clr1c = useThemeStore(s => s.clr1c);
+  const clr2c = useThemeStore(s => s.clr2c);
+  const clr1p = useThemeStore(s => s.clr1p);
+  const clr2p = useThemeStore(s => s.clr2p);
+  const clr1x = useThemeStore(s => s.clr1x);
+  const clr2x = useThemeStore(s => s.clr2x);
+  const pieceSetIndex = useThemeStore(s => s.pieceSetIndex);
+  const pieceSets = useThemeStore(s => s.pieceSets);
 
   const safeIndex = Math.max(0, Math.min(pieceSetIndex ?? 0, pieceSets.length - 1));
   const imagePath = `./images/${pieceSets[safeIndex].path}`;
 
-  const piece = boardState ? boardState[row][col] : null;
   const isLight = (row + col) % 2 === 0;
 
   const isSelected = highlightSelected && selectedSquare && selectedSquare.row === row && selectedSquare.col === col;
@@ -36,34 +53,32 @@ export default function Cell({ row, col, displayRow, displayCol, flipped }) {
   else if (isSelected) bgColor = isLight ? clr1x : clr2x;
   else if (isLastMoveFrom || isLastMoveTo) bgColor = isLight ? clr1p : clr2p;
 
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     if (!gameStarted) return;
-    // If clicking a valid move destination
     const isValid = validMoves.some(m => m.row === row && m.col === col);
     if (isValid && selectedSquare) {
       makeMove(selectedSquare, { row, col });
     } else {
       selectSquare(row, col);
     }
-  };
+  }, [gameStarted, validMoves, selectedSquare, makeMove, selectSquare, row, col]);
 
-  const handleDragStart = (e) => {
+  const handleDragStart = useCallback((e) => {
     e.dataTransfer.setData('fromRow', row);
     e.dataTransfer.setData('fromCol', col);
     setDraggingThis(true);
-  };
+  }, [row, col]);
 
-  const handleDragEnd = () => setDraggingThis(false);
+  const handleDragEnd = useCallback(() => setDraggingThis(false), []);
+  const handleDragOver = useCallback((e) => e.preventDefault(), []);
 
-  const handleDragOver = (e) => e.preventDefault();
-
-  const handleDrop = (e) => {
+  const handleDrop = useCallback((e) => {
     e.preventDefault();
     const fromRow = parseInt(e.dataTransfer.getData('fromRow'));
     const fromCol = parseInt(e.dataTransfer.getData('fromCol'));
     if (fromRow === row && fromCol === col) return;
     makeMove({ row: fromRow, col: fromCol }, { row, col });
-  };
+  }, [makeMove, row, col]);
 
   // Corner class
   let cornerClass = '';
@@ -102,7 +117,7 @@ export default function Cell({ row, col, displayRow, displayCol, flipped }) {
       {piece && !blindfoldMode && (
         <img
           src={`${imagePath}${PIECE_NAME_MAP[piece.type]}-${piece.color === 'w' ? 'white' : 'black'}.png`}
-          alt={`${piece.color}${piece.type}`}
+          alt={`${piece.color === 'w' ? 'White' : 'Black'} ${PIECE_NAME_MAP[piece.type]}`}
           className={`${styles.piece} ${draggingThis ? styles.dragging : ''}`}
           draggable={canDrag}
           onDragStart={canDrag ? handleDragStart : undefined}
@@ -124,4 +139,6 @@ export default function Cell({ row, col, displayRow, displayCol, flipped }) {
       )}
     </div>
   );
-}
+});
+
+export default Cell;
