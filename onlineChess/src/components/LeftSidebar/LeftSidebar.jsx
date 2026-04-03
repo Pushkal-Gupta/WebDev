@@ -33,6 +33,7 @@ export default function LeftSidebar({ onAlert }) {
     showLegalDots, setShowLegalDots,
     dotSize, setDotSize,
     flipped, setFlipped,
+    blindfoldMode, setBlindfoldMode,
     undoMove, redoMove,
     getPgn, importPgn,
     gameStarted,
@@ -42,6 +43,7 @@ export default function LeftSidebar({ onAlert }) {
     clr1, clr2, clr1c, clr2c, clr1p, clr2p, clr1x, clr2x,
     setColor, applyTheme, resetDefault, themes, themeIndex,
     pieceSets, pieceSetIndex, setPieceSet,
+    soundEnabled, setSoundEnabled, soundVolume, setSoundVolume,
   } = useThemeStore();
 
   const [importText, setImportText] = useState('');
@@ -71,7 +73,7 @@ export default function LeftSidebar({ onAlert }) {
         <div className={styles.themeGrid}>
           {themes.map((t, i) => (
             <button
-              key={i}
+              key={t.name}
               className={`${styles.themeBtn} ${themeIndex === i ? styles.themeBtnActive : ''}`}
               onClick={() => applyTheme(i)}
             >
@@ -118,7 +120,7 @@ export default function LeftSidebar({ onAlert }) {
           onChange={(e) => setPieceSet(Number(e.target.value))}
         >
           {pieceSets.map((ps, i) => (
-            <option key={i} value={i}>{ps.name}</option>
+            <option key={ps.name} value={i}>{ps.name}</option>
           ))}
         </select>
 
@@ -131,6 +133,31 @@ export default function LeftSidebar({ onAlert }) {
           <span className={styles.label}>Flip Board</span>
           <Toggle checked={flipped} onChange={setFlipped} />
         </div>
+
+        <div className={styles.row}>
+          <span className={styles.label}>Blindfold Mode</span>
+          <Toggle checked={blindfoldMode} onChange={setBlindfoldMode} />
+        </div>
+
+        <div className={styles.row}>
+          <span className={styles.label}>Sound Effects</span>
+          <Toggle checked={soundEnabled} onChange={setSoundEnabled} />
+        </div>
+        {soundEnabled && (
+          <div>
+            <div className={styles.row}>
+              <span className={styles.label}>Volume: {Math.round(soundVolume * 100)}%</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={Math.round(soundVolume * 100)}
+              onChange={(e) => setSoundVolume(Number(e.target.value) / 100)}
+              className={styles.range}
+            />
+          </div>
+        )}
 
         <button className={styles.btn} onClick={resetDefault}>Reset to Default</button>
       </Section>

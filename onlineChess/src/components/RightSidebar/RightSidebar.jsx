@@ -76,7 +76,7 @@ export default function RightSidebar({ onAlert, reviewResults, isReviewing, isOn
                     </td>
                     <td
                       className={`${styles.moveCell} ${row.black && currentMoveIndex === row.blackIdx ? styles.moveCellActive : ''}`}
-                      onClick={() => { row.black && goToMove(row.blackIdx); setTimeout(scrollToActive, 50); }}
+                      onClick={() => { if (row.black) { goToMove(row.blackIdx); setTimeout(scrollToActive, 50); } }}
                     >
                       {row.black?.san || ''}
                       {bClass && (

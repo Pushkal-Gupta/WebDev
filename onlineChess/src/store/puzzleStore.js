@@ -21,14 +21,24 @@ function uciToMove(uci) {
 }
 
 function pickBuiltinPuzzle(targetRating) {
-  // Filter by rating window, exclude already shown
   const candidates = BUILTIN_PUZZLES.filter(p =>
     !_shownBuiltinIds.has(p.id) &&
     Math.abs(p.rating - targetRating) <= 400
   );
-  // If all shown or none match, reset and pick from all
   const pool = candidates.length > 0 ? candidates : BUILTIN_PUZZLES;
   if (candidates.length === 0) _shownBuiltinIds.clear();
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+  _shownBuiltinIds.add(pick.id);
+  return pick;
+}
+
+function pickBuiltinByDifficulty(minRating, maxRating) {
+  const candidates = BUILTIN_PUZZLES.filter(p =>
+    !_shownBuiltinIds.has(p.id) &&
+    p.rating >= minRating && p.rating <= maxRating
+  );
+  const pool = candidates.length > 0 ? candidates : BUILTIN_PUZZLES.filter(p => p.rating >= minRating && p.rating <= maxRating);
+  if (pool.length === 0) return pickBuiltinPuzzle((minRating + maxRating) / 2);
   const pick = pool[Math.floor(Math.random() * pool.length)];
   _shownBuiltinIds.add(pick.id);
   return pick;
@@ -42,8 +52,25 @@ const usePuzzleStore = create((set, get) => ({
   status:           'idle', // 'idle'|'loading'|'playing'|'solved'|'failed'|'error'
   streak:           0,
   userPuzzleRating: null,
-  lastRatingChange: null,   // number shown after solve/fail
+  lastRatingChange: null,
   errorMsg:         null,
+
+  // ── Mode state ──────────────────────────────────────────────────────────────
+  mode:             'rated',  // 'rated'|'rush'|'streak'
+
+  // Rush mode state
+  rushTimeLeft:     0,        // seconds remaining
+  rushScore:        0,        // puzzles solved in current rush
+  rushStrikes:      0,        // wrong answers (max 3)
+  rushDuration:     180,      // 3 min default (180s or 300s)
+  rushActive:       false,    // is rush timer running?
+  rushBestScore:    parseInt(localStorage.getItem('puzzleRushBest') || '0', 10),
+
+  // Streak mode state
+  streakCount:      0,        // current streak count
+  streakActive:     false,
+  streakBestCount:  parseInt(localStorage.getItem('puzzleStreakBest') || '0', 10),
+  streakDifficulty: 800,      // starting difficulty, ramps up
 
   // ── Load user's puzzle rating ──────────────────────────────────────────────
   async loadUserPuzzleRating(userId) {
@@ -58,7 +85,6 @@ const usePuzzleStore = create((set, get) => ({
         .eq('user_id', userId)
         .single();
       if (error && error.code !== 'PGRST116') {
-        // PGRST116 = no rows found, which is fine
         console.warn('Puzzle rating load error:', error.message);
       }
       set({ userPuzzleRating: data || { ...DEFAULT_RATING } });
@@ -67,7 +93,192 @@ const usePuzzleStore = create((set, get) => ({
     }
   },
 
-  // ── Fetch next puzzle near user's rating ──────────────────────────────────
+  // ── Set mode ──────────────────────────────────────────────────────────────
+  setMode(mode) {
+    get().stopRushTimer();
+    set({
+      mode,
+      status: 'idle',
+      puzzle: null,
+      currentFen: null,
+      rushActive: false,
+      streakActive: false,
+      rushScore: 0,
+      rushStrikes: 0,
+      streakCount: 0,
+      streakDifficulty: 800,
+      lastRatingChange: null,
+      errorMsg: null,
+    });
+  },
+
+  // ── Rush mode ──────────────────────────────────────────────────────────────
+  _rushIntervalId: null,
+
+  startRush(duration, userId) {
+    get().stopRushTimer();
+    _shownBuiltinIds.clear();
+    set({
+      mode: 'rush',
+      rushDuration: duration,
+      rushTimeLeft: duration,
+      rushScore: 0,
+      rushStrikes: 0,
+      rushActive: true,
+      status: 'loading',
+      puzzle: null,
+      lastRatingChange: null,
+      errorMsg: null,
+    });
+
+    // Start countdown timer
+    const intervalId = setInterval(() => {
+      const { rushTimeLeft, rushActive } = get();
+      if (!rushActive || rushTimeLeft <= 1) {
+        clearInterval(intervalId);
+        get()._endRush();
+        return;
+      }
+      set({ rushTimeLeft: rushTimeLeft - 1 });
+    }, 1000);
+    set({ _rushIntervalId: intervalId });
+
+    // Load first puzzle
+    get()._loadPuzzleForMode(userId);
+  },
+
+  stopRushTimer() {
+    const { _rushIntervalId } = get();
+    if (_rushIntervalId) {
+      clearInterval(_rushIntervalId);
+      set({ _rushIntervalId: null });
+    }
+  },
+
+  _endRush() {
+    get().stopRushTimer();
+    const { rushScore, rushBestScore } = get();
+    const newBest = Math.max(rushScore, rushBestScore);
+    if (newBest > rushBestScore) {
+      localStorage.setItem('puzzleRushBest', String(newBest));
+    }
+    set({
+      rushActive: false,
+      status: 'rush_over',
+      rushBestScore: newBest,
+    });
+  },
+
+  // ── Streak mode ────────────────────────────────────────────────────────────
+  startStreak(userId) {
+    _shownBuiltinIds.clear();
+    set({
+      mode: 'streak',
+      streakCount: 0,
+      streakActive: true,
+      streakDifficulty: 800,
+      status: 'loading',
+      puzzle: null,
+      lastRatingChange: null,
+      errorMsg: null,
+    });
+    get()._loadPuzzleForMode(userId);
+  },
+
+  _endStreak() {
+    const { streakCount, streakBestCount } = get();
+    const newBest = Math.max(streakCount, streakBestCount);
+    if (newBest > streakBestCount) {
+      localStorage.setItem('puzzleStreakBest', String(newBest));
+    }
+    set({
+      streakActive: false,
+      status: 'streak_over',
+      streakBestCount: newBest,
+    });
+  },
+
+  // ── Generic puzzle loader for rush/streak modes ────────────────────────────
+  async _loadPuzzleForMode(userId) {
+    set({ status: 'loading', puzzle: null, lastRatingChange: null, errorMsg: null });
+
+    const { mode, streakDifficulty, userPuzzleRating } = get();
+
+    let targetRating;
+    if (mode === 'rush') {
+      targetRating = userPuzzleRating?.rating || 1500;
+    } else if (mode === 'streak') {
+      targetRating = streakDifficulty;
+    } else {
+      targetRating = userPuzzleRating?.rating || 1500;
+    }
+
+    let puzzleRow = null;
+
+    // Try Supabase first
+    try {
+      for (const window of [150, 300, 600, 9999]) {
+        const { data, error } = await supabase
+          .from('puzzles')
+          .select('id, fen, moves, rating, themes')
+          .gte('rating', targetRating - window)
+          .lte('rating', targetRating + window)
+          .limit(20);
+        if (error) break;
+        if (data?.length) {
+          puzzleRow = data[Math.floor(Math.random() * data.length)];
+          break;
+        }
+      }
+    } catch {}
+
+    if (!puzzleRow) {
+      if (mode === 'streak') {
+        puzzleRow = pickBuiltinByDifficulty(
+          Math.max(600, targetRating - 200),
+          targetRating + 200
+        );
+      } else {
+        puzzleRow = pickBuiltinPuzzle(targetRating);
+      }
+    }
+
+    if (!puzzleRow) {
+      set({ status: 'error', errorMsg: 'No puzzles available.' });
+      return;
+    }
+
+    const moves = puzzleRow.moves.split(' ').filter(Boolean);
+    if (moves.length < 2) {
+      // Skip bad puzzle, try again
+      get()._loadPuzzleForMode(userId);
+      return;
+    }
+
+    try {
+      _chess = new Chess(puzzleRow.fen);
+    } catch {
+      get()._loadPuzzleForMode(userId);
+      return;
+    }
+
+    const firstMove = _chess.move(uciToMove(moves[0]));
+    if (!firstMove) {
+      get()._loadPuzzleForMode(userId);
+      return;
+    }
+
+    const playerColor = _chess.turn();
+    set({
+      puzzle:      { ...puzzleRow, moves },
+      moveIndex:   1,
+      currentFen:  _chess.fen(),
+      playerColor,
+      status:      'playing',
+    });
+  },
+
+  // ── Fetch next puzzle near user's rating (rated mode) ─────────────────────
   async loadNextPuzzle(userId) {
     set({ status: 'loading', puzzle: null, lastRatingChange: null, errorMsg: null });
     await get().loadUserPuzzleRating(userId);
@@ -75,7 +286,6 @@ const usePuzzleStore = create((set, get) => ({
     const rating = get().userPuzzleRating?.rating || 1500;
     let puzzleRow = null;
 
-    // Try Supabase first
     try {
       for (const window of [150, 300, 600, 9999]) {
         const { data, error } = await supabase
@@ -86,7 +296,7 @@ const usePuzzleStore = create((set, get) => ({
           .limit(20);
         if (error) {
           console.warn('Puzzle query error:', error.message);
-          break; // Fall through to built-in puzzles
+          break;
         }
         if (data?.length) {
           puzzleRow = data[Math.floor(Math.random() * data.length)];
@@ -97,7 +307,6 @@ const usePuzzleStore = create((set, get) => ({
       console.warn('Puzzle fetch failed:', err.message);
     }
 
-    // Fallback to built-in puzzles
     if (!puzzleRow) {
       puzzleRow = pickBuiltinPuzzle(rating);
     }
@@ -107,7 +316,6 @@ const usePuzzleStore = create((set, get) => ({
       return;
     }
 
-    // Parse and validate
     const moves = puzzleRow.moves.split(' ').filter(Boolean);
     if (moves.length < 2) {
       console.warn('Puzzle has too few moves:', puzzleRow.id);
@@ -123,7 +331,6 @@ const usePuzzleStore = create((set, get) => ({
       return;
     }
 
-    // Auto-play the first move (opponent's setup move)
     const firstMove = _chess.move(uciToMove(moves[0]));
     if (!firstMove) {
       console.warn('Puzzle first move invalid:', moves[0]);
@@ -142,15 +349,33 @@ const usePuzzleStore = create((set, get) => ({
     });
   },
 
-  // ── Player attempts a move (uciMove = "e2e4") ─────────────────────────────
+  // ── Player attempts a move ───────────────────────────────────────────────
   async handlePlayerMove(uciMove, userId) {
-    const { puzzle, moveIndex, streak, status } = get();
+    const { puzzle, moveIndex, streak, status, mode } = get();
     if (!puzzle || status !== 'playing') return { correct: false };
     if (moveIndex >= puzzle.moves.length) return { correct: false };
 
     const expected = puzzle.moves[moveIndex];
 
     if (uciMove !== expected) {
+      // Wrong move
+      if (mode === 'rush') {
+        const newStrikes = get().rushStrikes + 1;
+        set({ rushStrikes: newStrikes });
+        if (newStrikes >= 3) {
+          get()._endRush();
+          return { correct: false, rushOver: true };
+        }
+        // Load next puzzle in rush
+        set({ status: 'loading' });
+        setTimeout(() => get()._loadPuzzleForMode(userId), 400);
+        return { correct: false };
+      }
+      if (mode === 'streak') {
+        get()._endStreak();
+        return { correct: false, streakOver: true };
+      }
+      // Rated mode
       set({ status: 'failed', streak: 0 });
       if (userId) await get()._updatePuzzleRating(userId, false);
       return { correct: false };
@@ -159,39 +384,72 @@ const usePuzzleStore = create((set, get) => ({
     // Correct move — play it
     const moveResult = _chess.move(uciToMove(uciMove));
     if (!moveResult) {
+      if (mode === 'rush') {
+        const newStrikes = get().rushStrikes + 1;
+        set({ rushStrikes: newStrikes });
+        if (newStrikes >= 3) { get()._endRush(); return { correct: false, rushOver: true }; }
+        set({ status: 'loading' });
+        setTimeout(() => get()._loadPuzzleForMode(userId), 400);
+        return { correct: false };
+      }
+      if (mode === 'streak') { get()._endStreak(); return { correct: false, streakOver: true }; }
       set({ status: 'failed', streak: 0 });
       return { correct: false };
     }
 
     const afterPlayerIdx = moveIndex + 1;
 
-    // If that was the last move → solved
-    if (afterPlayerIdx >= puzzle.moves.length) {
+    // Check if puzzle is solved
+    const checkSolved = async () => {
+      if (mode === 'rush') {
+        const newScore = get().rushScore + 1;
+        set({ rushScore: newScore, currentFen: _chess.fen(), moveIndex: afterPlayerIdx });
+        // Auto-load next puzzle
+        setTimeout(() => get()._loadPuzzleForMode(userId), 300);
+        return { correct: true, solved: true };
+      }
+      if (mode === 'streak') {
+        const newCount = get().streakCount + 1;
+        const newDiff = get().streakDifficulty + 50; // ramp difficulty
+        set({ streakCount: newCount, streakDifficulty: newDiff, currentFen: _chess.fen(), moveIndex: afterPlayerIdx });
+        // Auto-load next puzzle
+        setTimeout(() => get()._loadPuzzleForMode(userId), 300);
+        return { correct: true, solved: true };
+      }
+      // Rated mode
       set({ status: 'solved', streak: streak + 1, currentFen: _chess.fen(), moveIndex: afterPlayerIdx });
       if (userId) await get()._updatePuzzleRating(userId, true);
       return { correct: true, solved: true };
+    };
+
+    // If that was the last move → solved
+    if (afterPlayerIdx >= puzzle.moves.length) {
+      return checkSolved();
     }
 
     // Opponent responds
     const oppUci = puzzle.moves[afterPlayerIdx];
-    if (!oppUci) {
-      set({ status: 'solved', streak: streak + 1, currentFen: _chess.fen(), moveIndex: afterPlayerIdx });
-      if (userId) await get()._updatePuzzleRating(userId, true);
-      return { correct: true, solved: true };
-    }
+    if (!oppUci) return checkSolved();
 
     const oppResult = _chess.move(uciToMove(oppUci));
-    if (!oppResult) {
-      // If opponent move fails, treat puzzle as solved
-      set({ status: 'solved', streak: streak + 1, currentFen: _chess.fen(), moveIndex: afterPlayerIdx });
-      if (userId) await get()._updatePuzzleRating(userId, true);
-      return { correct: true, solved: true };
-    }
+    if (!oppResult) return checkSolved();
 
     const afterOppIdx = afterPlayerIdx + 1;
 
-    // If there are no more player moves after the opponent response → solved
     if (afterOppIdx >= puzzle.moves.length) {
+      if (mode === 'rush') {
+        const newScore = get().rushScore + 1;
+        set({ rushScore: newScore, currentFen: _chess.fen(), moveIndex: afterOppIdx });
+        setTimeout(() => get()._loadPuzzleForMode(userId), 300);
+        return { correct: true, solved: true };
+      }
+      if (mode === 'streak') {
+        const newCount = get().streakCount + 1;
+        const newDiff = get().streakDifficulty + 50;
+        set({ streakCount: newCount, streakDifficulty: newDiff, currentFen: _chess.fen(), moveIndex: afterOppIdx });
+        setTimeout(() => get()._loadPuzzleForMode(userId), 300);
+        return { correct: true, solved: true };
+      }
       set({ status: 'solved', streak: streak + 1, currentFen: _chess.fen(), moveIndex: afterOppIdx });
       if (userId) await get()._updatePuzzleRating(userId, true);
       return { correct: true, solved: true };
@@ -237,7 +495,13 @@ const usePuzzleStore = create((set, get) => ({
 
   // ── Reset (go back to idle) ───────────────────────────────────────────────
   reset() {
-    set({ puzzle: null, moveIndex: 0, currentFen: null, status: 'idle', lastRatingChange: null, errorMsg: null });
+    get().stopRushTimer();
+    set({
+      puzzle: null, moveIndex: 0, currentFen: null, status: 'idle',
+      lastRatingChange: null, errorMsg: null,
+      rushActive: false, rushScore: 0, rushStrikes: 0,
+      streakActive: false, streakCount: 0,
+    });
   },
 }));
 

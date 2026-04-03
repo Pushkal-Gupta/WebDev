@@ -64,7 +64,7 @@ export default function Chat({ messages, onSend, opponentName, myName, isConnect
             {messages.map((msg, i) => {
               const isMe = msg.sender === myName;
               return (
-                <div key={i} className={`${styles.msgRow} ${isMe ? styles.msgMe : styles.msgThem}`}>
+                <div key={msg.ts ? `${msg.ts}-${i}` : i} className={`${styles.msgRow} ${isMe ? styles.msgMe : styles.msgThem}`}>
                   <div className={styles.bubble}>
                     <span className={styles.msgText}>{msg.text}</span>
                     <span className={styles.msgTime}>{formatTime(msg.ts)}</span>

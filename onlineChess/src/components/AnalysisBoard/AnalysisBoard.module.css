@@ -868,6 +868,77 @@
   text-overflow: ellipsis;
 }
 
+/* ── Tablebase ── */
+
+.tablebaseResult {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 6px 0;
+}
+
+.tbCategory {
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.tb_win  { color: #6fdc8c; }
+.tb_loss { color: #ff7875; }
+.tb_draw { color: #f0c94c; }
+.tb_unknown { color: rgba(255,255,255,0.4); }
+
+.tbDtm {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.5);
+}
+
+.tbBest {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.6);
+}
+
+.tbBest strong {
+  color: #00fff5;
+}
+
+.tbMoves {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
+}
+
+.tbMove {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 4px;
+  border-radius: 3px;
+  font-size: 0.78rem;
+}
+
+.tbMove:hover {
+  background: rgba(255,255,255,0.04);
+}
+
+.tbMoveSan {
+  font-weight: 700;
+  color: rgba(255,255,255,0.8);
+  width: 42px;
+}
+
+.tbMoveCat {
+  font-weight: 600;
+  font-size: 0.72rem;
+}
+
+.tbMoveDtz {
+  color: rgba(255,255,255,0.3);
+  font-size: 0.68rem;
+  margin-left: auto;
+}
+
 /* ── Responsive ── */
 @media (max-width: 960px) {
   .panel { width: 260px; min-width: 220px; }

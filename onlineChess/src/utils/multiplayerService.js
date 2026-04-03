@@ -86,6 +86,7 @@ export async function broadcastMove(channel, { from, to, promotion, fen }) {
 
 // Update the persisted FEN in chess_rooms (so spectators joining mid-game see current position)
 export async function updateRoomFen(roomId, fen) {
+  if (!roomId || !fen) return;
   await supabaseChess.from('chess_rooms').update({
     current_fen: fen,
     last_move_at: new Date().toISOString(),
