@@ -23,7 +23,7 @@ function formatAgo(dateStr) {
 
 // Tiny static board thumbnail from FEN
 function FenThumbnail({ fen }) {
-  const PIECE_CHARS = { K:'♔', Q:'♕', R:'♖', B:'♗', N:'♘', P:'♙', k:'♚', q:'♛', r:'♜', b:'♝', n:'♞', p:'♟' };
+  const PIECE_CHARS = { K:'K', Q:'Q', R:'R', B:'B', N:'N', P:'P', k:'k', q:'q', r:'r', b:'b', n:'n', p:'p' };
   try {
     const chess = new Chess(fen);
     const board = chess.board();
@@ -112,14 +112,14 @@ export default function SpectateList() {
             <FenThumbnail fen={g.current_fen} />
             <div className={styles.cardInfo}>
               <div className={styles.players}>
-                <span className={styles.white}>⬜ {g.host_name || 'Player'}</span>
+                <span className={styles.white}><span style={{display:'inline-block',width:10,height:10,background:'#fff',borderRadius:2,marginRight:4,verticalAlign:'middle'}}/>{g.host_name || 'Player'}</span>
                 <span className={styles.vs}>vs</span>
-                <span className={styles.black}>⬛ {g.guest_name || 'Player'}</span>
+                <span className={styles.black}><span style={{display:'inline-block',width:10,height:10,background:'#222',borderRadius:2,border:'1px solid #555',marginRight:4,verticalAlign:'middle'}}/>{g.guest_name || 'Player'}</span>
               </div>
               <div className={styles.meta}>
                 <span className={styles.tc}>{formatTC(g.time_control)}</span>
                 {g.spectator_count > 0 && (
-                  <span className={styles.specCount}>👁 {g.spectator_count}</span>
+                  <span className={styles.specCount}>{g.spectator_count} views</span>
                 )}
                 <span className={styles.age}>{formatAgo(g.last_move_at || g.created_at)}</span>
               </div>

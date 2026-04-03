@@ -67,6 +67,8 @@ const usePuzzleStore = create((set, get) => ({
   errorMsg:         null,
   hintSquare:       null,   // { from, to } — highlights the correct move's origin square
   hintUsed:         false,  // whether hint was used for current puzzle
+  wrongAttempt:     false,
+  attempts:         0,
 
   // ── Mode state ──────────────────────────────────────────────────────────────
   mode:             'rated',  // 'rated'|'rush'|'streak'
@@ -226,7 +228,7 @@ const usePuzzleStore = create((set, get) => ({
   // ── Generic puzzle loader for rush/streak modes ────────────────────────────
   _loadRetries: 0,
   async _loadPuzzleForMode(userId) {
-    set({ status: 'loading', puzzle: null, lastRatingChange: null, errorMsg: null, hintSquare: null, hintUsed: false });
+    set({ status: 'loading', puzzle: null, lastRatingChange: null, errorMsg: null, hintSquare: null, hintUsed: false, wrongAttempt: false, attempts: 0 });
 
     const { mode, streakDifficulty, userPuzzleRating } = get();
 
@@ -337,7 +339,7 @@ const usePuzzleStore = create((set, get) => ({
 
   // ── Fetch next puzzle near user's rating (rated mode) ─────────────────────
   async loadNextPuzzle(userId) {
-    set({ status: 'loading', puzzle: null, lastRatingChange: null, errorMsg: null, hintSquare: null, hintUsed: false });
+    set({ status: 'loading', puzzle: null, lastRatingChange: null, errorMsg: null, hintSquare: null, hintUsed: false, wrongAttempt: false, attempts: 0 });
     await get().loadUserPuzzleRating(userId);
 
     const rating = get().userPuzzleRating?.rating || 1500;
@@ -449,13 +451,13 @@ const usePuzzleStore = create((set, get) => ({
         get()._endStreak();
         return { correct: false, streakOver: true };
       }
-      // Rated mode
-      set({ status: 'failed', streak: 0 });
-      if (userId) await get()._updatePuzzleRating(userId, false);
-      return { correct: false };
+      // Rated mode — allow retry (don't penalize yet)
+      set({ wrongAttempt: true, attempts: get().attempts + 1 });
+      return { correct: false, canRetry: true };
     }
 
     // Correct move — play it
+    set({ wrongAttempt: false, attempts: 0 });
     const moveResult = _chess.move(uciToMove(uciMove));
     if (!moveResult) {
       if (mode === 'rush') {
@@ -494,12 +496,6 @@ const usePuzzleStore = create((set, get) => ({
       const hintWasUsed = get().hintUsed;
       set({ status: 'solved', streak: hintWasUsed ? 0 : streak + 1, currentFen: _chess.fen(), moveIndex: afterPlayerIdx });
       if (userId) await get()._updatePuzzleRating(userId, true, hintWasUsed);
-      // Auto-advance in rated mode after delay
-      setTimeout(() => {
-        if (get().status === 'solved' && get().mode === 'rated') {
-          get().loadNextPuzzle(userId);
-        }
-      }, 1500);
       return { correct: true, solved: true };
     };
 
@@ -534,17 +530,21 @@ const usePuzzleStore = create((set, get) => ({
       const hintWasUsed2 = get().hintUsed;
       set({ status: 'solved', streak: hintWasUsed2 ? 0 : streak + 1, currentFen: _chess.fen(), moveIndex: afterOppIdx });
       if (userId) await get()._updatePuzzleRating(userId, true, hintWasUsed2);
-      // Auto-advance in rated mode after delay
-      setTimeout(() => {
-        if (get().status === 'solved' && get().mode === 'rated') {
-          get().loadNextPuzzle(userId);
-        }
-      }, 1500);
       return { correct: true, solved: true };
     }
 
     set({ moveIndex: afterOppIdx, currentFen: _chess.fen(), status: 'playing' });
     return { correct: true, solved: false };
+  },
+
+  // ── Give up (Lichess-style) ─────────────────────────────────────────────
+  async giveUp(userId) {
+    const { puzzle, mode } = get();
+    if (!puzzle || (mode !== 'rated' && mode !== 'rush' && mode !== 'streak')) return;
+    set({ status: 'failed', streak: 0, wrongAttempt: false, attempts: 0 });
+    if (mode === 'rated' && userId) {
+      await get()._updatePuzzleRating(userId, false);
+    }
   },
 
   // ── Internal: update puzzle Glicko-2 rating ───────────────────────────────

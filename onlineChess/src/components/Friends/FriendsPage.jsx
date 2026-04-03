@@ -28,7 +28,7 @@ function FriendsTab({ userId }) {
   if (loading) return <div className={styles.empty}>Loading…</div>;
   if (!friends.length) return (
     <div className={styles.empty}>
-      <div className={styles.emptyIcon}>♟</div>
+      <div className={styles.emptyIcon}>Fr</div>
       <div>No friends yet. Use "Find Players" to connect with others.</div>
     </div>
   );

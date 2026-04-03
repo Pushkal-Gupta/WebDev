@@ -1,6 +1,6 @@
 import styles from './RatingCard.module.css';
 
-const ICONS  = { bullet: '⚡', blitz: '🔥', rapid: '⏱', classical: '♟' };
+const ICONS  = { bullet: 'Bu', blitz: 'Bz', rapid: 'Ra', classical: 'Cl' };
 const COLORS = {
   bullet:    { bg: 'rgba(255,200,0,0.08)',   border: 'rgba(255,200,0,0.25)',   text: '#ffd666' },
   blitz:     { bg: 'rgba(255,120,0,0.08)',   border: 'rgba(255,120,0,0.25)',   text: '#ff9966' },
@@ -16,7 +16,7 @@ const DEFAULT = { rating: 1500, rd: 350, games_played: 0, wins: 0, losses: 0, dr
  */
 export default function RatingCard({ category, data }) {
   const cat  = (category || 'blitz').toLowerCase();
-  const icon = ICONS[cat]  || '♟';
+  const icon = ICONS[cat]  || 'Cl';
   const clr  = COLORS[cat] || COLORS.classical;
   const r    = data ? { ...DEFAULT, ...data } : DEFAULT;
 
