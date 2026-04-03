@@ -71,12 +71,6 @@ const DELAY_TYPES = [
   { key: 'simple',    label: 'Simple Delay', tip: 'Clock waits N sec before ticking' },
 ];
 
-const MODES = [
-  { key: 'online',   icon: '♟', title: 'Play Online',   desc: 'Challenge players worldwide', iconBg: 'rgba(0,255,245,0.08)' },
-  { key: 'computer', icon: '♛', title: 'vs Computer',   desc: '10 difficulty levels',       iconBg: 'rgba(180,120,255,0.1)' },
-  { key: 'local',    icon: '♞', title: 'Pass & Play',   desc: 'Two players, one device',    iconBg: 'rgba(255,180,0,0.08)' },
-];
-
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const [activeTab, setActiveTab]           = useState(0);
@@ -238,7 +232,7 @@ export default function App() {
 
     const t = setTimeout(makeCompMove, 300);
     return () => clearTimeout(t);
-  }, [activeColor, gameStarted, gameOver, isComp, compColor, compThinking, currentMoveIndex, chessInstance, moveHistory.length]);
+  }, [activeColor, gameStarted, gameOver, isComp, compColor, compStrength, compThinking, currentMoveIndex, chessInstance, moveHistory.length]);
 
   // ─── Online: broadcast local moves ────────────────────────────────────────
   useEffect(() => {
@@ -460,7 +454,11 @@ export default function App() {
 
   const handleLocalResign = () => {
     if (!gameStarted || gameOver) return;
-    const myColor = flipped ? 'black' : 'white';
+    const state = useGameStore.getState();
+    // In computer mode, human is opposite of compColor; in pass-and-play, active player resigns
+    const myColor = state.isComp
+      ? (state.compColor === 'white' ? 'black' : 'white')
+      : (state.activeColor === 'w' ? 'white' : 'black');
     const winner = myColor === 'white' ? 'Black' : 'White';
     useGameStore.setState({
       gameOver: true,

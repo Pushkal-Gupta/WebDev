@@ -15,7 +15,7 @@ export default function Chat({ messages, onSend, opponentName, myName, isConnect
     if (!open && messages.length > 0) {
       setUnread(n => n + 1);
     }
-  }, [messages.length]);
+  }, [messages.length, open]);
 
   const handleOpen = () => { setOpen(true); setUnread(0); };
 

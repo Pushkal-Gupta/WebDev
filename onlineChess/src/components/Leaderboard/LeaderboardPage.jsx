@@ -44,6 +44,9 @@ export default function LeaderboardPage() {
         if (err) { setError(err.message); setLoading(false); return; }
         setRows(data || []);
         setLoading(false);
+      })
+      .catch(err => {
+        if (!cancelled) { setError(err.message || 'Network error'); setLoading(false); }
       });
 
     return () => { cancelled = true; };

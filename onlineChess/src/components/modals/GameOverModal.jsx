@@ -1,13 +1,15 @@
+import { useEffect } from 'react';
 import styles from './Modals.module.css';
 
-/**
- * @param {{ message, ratingDelta, botMessage, onNewGame, onCancel, onAnalyse, onReview }} props
- * ratingDelta: { oldRating, newRating, ratingChange } | null
- * botMessage: { avatar, name, text } | null  — shown when game was vs a bot
- */
-export default function GameOverModal({ message, ratingDelta, botMessage, onNewGame, onCancel, onAnalyse, onReview }) {
+export default function GameOverModal({ message, ratingDelta, botMessage, onNewGame, onCancel, onReview }) {
+  useEffect(() => {
+    const h = e => { if (e.key === 'Escape') onCancel(); };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, [onCancel]);
+
   return (
-    <div className={styles.overlay}>
+    <div className={styles.overlay} onClick={e => e.target === e.currentTarget && onCancel()}>
       <div className={styles.popup}>
         <h3>Game Over</h3>
         <p>{message}</p>

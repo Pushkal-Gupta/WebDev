@@ -96,6 +96,17 @@
   background: rgba(80, 200, 80, 0.25);
 }
 
+.btn:focus-visible {
+  outline: 2px solid rgba(100, 255, 255, 0.6);
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* Login modal fields */
 .loginFields {
   display: flex;

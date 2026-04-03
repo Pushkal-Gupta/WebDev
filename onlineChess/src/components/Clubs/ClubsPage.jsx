@@ -85,19 +85,23 @@ export default function ClubsPage() {
 
   const loadClubs = async () => {
     setLoading(true);
-    const [{ data: all }, { data: mine }] = await Promise.all([
-      supabase.from('clubs').select('*').eq('is_public', true).order('member_count', { ascending: false }).limit(50),
-      user?.id
-        ? supabase.from('club_members').select('club_id').eq('user_id', user.id)
-        : Promise.resolve({ data: [] }),
-    ]);
-    setClubs(all || []);
-    if (mine?.length) {
-      const ids = mine.map(m => m.club_id);
-      const { data: mc } = await supabase.from('clubs').select('*').in('id', ids);
-      setMyClubs(mc || []);
-    } else {
-      setMyClubs([]);
+    try {
+      const [{ data: all }, { data: mine }] = await Promise.all([
+        supabase.from('clubs').select('*').eq('is_public', true).order('member_count', { ascending: false }).limit(50),
+        user?.id
+          ? supabase.from('club_members').select('club_id').eq('user_id', user.id)
+          : Promise.resolve({ data: [] }),
+      ]);
+      setClubs(all || []);
+      if (mine?.length) {
+        const ids = mine.map(m => m.club_id);
+        const { data: mc } = await supabase.from('clubs').select('*').in('id', ids);
+        setMyClubs(mc || []);
+      } else {
+        setMyClubs([]);
+      }
+    } catch (e) {
+      console.error('Failed to load clubs:', e);
     }
     setLoading(false);
   };

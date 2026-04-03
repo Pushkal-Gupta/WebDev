@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './Modals.module.css';
 import BOTS from '../../data/bots';
 
@@ -15,13 +15,19 @@ function BotIcon({ bot, size = 36 }) {
 export default function StrengthModal({ onSelect, onCancel }) {
   const [selectedBot, setSelectedBot] = useState(null);
 
+  useEffect(() => {
+    const h = e => { if (e.key === 'Escape') onCancel(); };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, [onCancel]);
+
   const handlePlay = (color) => {
     if (!selectedBot) return;
     onSelect(selectedBot.strength, color);
   };
 
   return (
-    <div className={styles.overlay}>
+    <div className={styles.overlay} onClick={e => e.target === e.currentTarget && onCancel()}>
       <div className={styles.popup} style={{ maxWidth: 540, maxHeight: '85vh', overflow: 'auto' }}>
         <h3>Choose Your Opponent</h3>
 

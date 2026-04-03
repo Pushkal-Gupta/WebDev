@@ -273,7 +273,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
       ? moveHistory[currentMoveIndex].fen : chessInstance.fen();
     if (countPieces(fen) > 7) { setTablebaseData(null); return; }
     let cancelled = false;
-    fetchTablebase(fen).then(result => { if (!cancelled) setTablebaseData(result); });
+    fetchTablebase(fen).then(result => { if (!cancelled) setTablebaseData(result); }).catch(() => { if (!cancelled) setTablebaseData(null); });
     return () => { cancelled = true; };
   }, [currentMoveIndex, gameLoaded, chessInstance]);
 
@@ -282,18 +282,23 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
     moveListRef.current.querySelector('[data-active="true"]')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }, [currentMoveIndex]);
 
+  const moveIdxRef = useRef(currentMoveIndex);
+  const histLenRef = useRef(moveHistory.length);
+  moveIdxRef.current = currentMoveIndex;
+  histLenRef.current = moveHistory.length;
+
   useEffect(() => {
     if (!gameLoaded) return;
     const onKey = e => {
       if (['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)) return;
-      if (e.key === 'ArrowLeft')  goToMove(currentMoveIndex - 1);
-      if (e.key === 'ArrowRight') goToMove(currentMoveIndex + 1);
+      if (e.key === 'ArrowLeft')  goToMove(moveIdxRef.current - 1);
+      if (e.key === 'ArrowRight') goToMove(moveIdxRef.current + 1);
       if (e.key === 'ArrowUp')    goToMove(-1);
-      if (e.key === 'ArrowDown')  goToMove(moveHistory.length - 1);
+      if (e.key === 'ArrowDown')  goToMove(histLenRef.current - 1);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [gameLoaded, currentMoveIndex, moveHistory.length]);
+  }, [gameLoaded, goToMove]);
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
 

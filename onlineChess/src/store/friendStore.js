@@ -97,8 +97,8 @@ const useFriendStore = create((set, get) => ({
   getFriendshipStatus(targetUserId) {
     const { friends, incoming, outgoing } = get();
     if (friends.some(f => f.userId === targetUserId)) return 'friends';
-    if (incoming.some(r => r.user_id === targetUserId)) return 'incoming';
-    if (outgoing.some(r => r.friend_id === targetUserId)) return 'outgoing';
+    if (incoming.some(r => r.user_id === targetUserId)) return 'incoming';  // sender is user_id in incoming rows
+    if (outgoing.some(r => r.friend_id === targetUserId)) return 'outgoing'; // target is friend_id in outgoing rows
     return 'none';
   },
 
