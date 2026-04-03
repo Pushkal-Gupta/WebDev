@@ -2,6 +2,7 @@ import { memo, useState, useCallback } from 'react';
 import styles from './Cell.module.css';
 import useGameStore from '../../store/gameStore';
 import useThemeStore from '../../store/themeStore';
+import usePrefsStore from '../../store/prefsStore';
 
 const PIECE_NAME_MAP = {
   p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king',
@@ -25,6 +26,9 @@ const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, pie
   const dotSize = useGameStore(s => s.dotSize);
   const gameStarted = useGameStore(s => s.gameStarted);
   const blindfoldMode = useGameStore(s => s.blindfoldMode);
+
+  const pieceScale = usePrefsStore(s => s.pieceScale);
+  const animationSpeed = usePrefsStore(s => s.animationSpeed);
 
   const clr1 = useThemeStore(s => s.clr1);
   const clr2 = useThemeStore(s => s.clr2);
@@ -119,6 +123,11 @@ const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, pie
           src={`${imagePath}${PIECE_NAME_MAP[piece.type]}-${piece.color === 'w' ? 'white' : 'black'}.png`}
           alt={`${piece.color === 'w' ? 'White' : 'Black'} ${PIECE_NAME_MAP[piece.type]}`}
           className={`${styles.piece} ${draggingThis ? styles.dragging : ''}`}
+          style={{
+            transform: pieceScale !== 100 ? `scale(${pieceScale / 100})` : undefined,
+            transition: animationSpeed === 'none' ? 'none'
+              : `transform ${animationSpeed === 'fast' ? 80 : animationSpeed === 'slow' ? 300 : 150}ms ease`,
+          }}
           draggable={canDrag}
           onDragStart={canDrag ? handleDragStart : undefined}
           onDragEnd={canDrag ? handleDragEnd : undefined}

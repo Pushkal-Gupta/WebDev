@@ -77,3 +77,22 @@ html, body, #root {
 @media (max-width: 400px) {
   :root { --cell-size: 34px; }   /* 272px board */
 }
+
+/* ── Accessibility: Reduced Motion ── */
+[data-reduced-motion="true"] *,
+[data-reduced-motion="true"] *::before,
+[data-reduced-motion="true"] *::after {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+}
+
+/* ── Accessibility: High Contrast ── */
+[data-high-contrast="true"] {
+  --color-border: rgba(255, 255, 255, 0.25);
+  --color-border-light: rgba(255, 255, 255, 0.35);
+  --color-text-secondary: rgba(255, 255, 255, 0.75);
+  --color-text-muted: rgba(255, 255, 255, 0.55);
+  --color-text-dim: rgba(255, 255, 255, 0.4);
+}
