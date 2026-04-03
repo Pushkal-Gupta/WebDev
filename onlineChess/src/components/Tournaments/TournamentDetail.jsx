@@ -224,7 +224,7 @@ export default function TournamentDetail({ tournamentId, onBack }) {
 
                   return (
                     <div key={p.id} className={styles.pairingRow}>
-                      <span className={`${styles.pColor} ${styles.pWhite}`}>⬜</span>
+                      <span className={`${styles.pColor} ${styles.pWhite}`}><span style={{display:'inline-block',width:10,height:10,background:'#fff',borderRadius:2}}/></span>
                       <span className={styles.pName}>{white?.username || '?'}</span>
                       {p.result === 'white'  && <span className={styles.pResult} style={{color:'#6fdc8c'}}>1</span>}
                       {p.result === 'draw'   && <span className={styles.pResult} style={{color:'rgba(255,255,255,0.4)'}}>½</span>}
@@ -236,7 +236,7 @@ export default function TournamentDetail({ tournamentId, onBack }) {
                       {!p.result && p.black_user_id && <span className={styles.pResult} style={{color:'rgba(255,255,255,0.2)'}}>–</span>}
                       {p.result === 'white'  && <span className={styles.pResult} style={{color:'rgba(255,255,255,0.3)'}}>0</span>}
                       {p.black_user_id
-                        ? <span className={`${styles.pColor} ${styles.pBlack}`}>⬛</span>
+                        ? <span className={`${styles.pColor} ${styles.pBlack}`}><span style={{display:'inline-block',width:10,height:10,background:'#222',borderRadius:2,border:'1px solid #555'}}/></span>
                         : null
                       }
                       <span className={styles.pName}>{black ? black.username : (p.black_user_id ? '?' : '— bye')}</span>

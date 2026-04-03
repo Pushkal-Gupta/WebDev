@@ -15,16 +15,17 @@ html, body, #root {
  * Must always be an integer so 8 × --cell-size is exact — no fractional pixels.
  *
  * Breakpoints (board sizes):
- *   ≥1600px → 96px → 768px board
- *   ≥1300px → 88px → 704px board
- *   ≥1100px → 80px → 640px board
- *   900-1100 → 72px → 576px board
- *   700-900  → 62px → 496px board
- *   540-700  → 52px → 416px board
- *    <540    → 42px → 336px board
+ *   ≥1600px → 86px → 688px board
+ *   ≥1300px → 78px → 624px board
+ *   ≥1100px → 72px → 576px board
+ *   900-1100 → 64px → 512px board
+ *   700-900  → 56px → 448px board
+ *   540-700  → 46px → 368px board
+ *    <540    → 38px → 304px board
+ *    <400    → 34px → 272px board
  */
 :root {
-  --cell-size: 72px;   /* 576px board — default (900-1100px range) */
+  --cell-size: 64px;   /* 512px board — default (900-1100px range) */
 
   /* ── Semantic color system ── */
   --color-accent: #00fff5;
@@ -50,29 +51,29 @@ html, body, #root {
 }
 
 @media (min-width: 1100px) {
-  :root { --cell-size: 80px; }   /* 640px board */
+  :root { --cell-size: 72px; }   /* 576px board */
 }
 
 @media (min-width: 1300px) {
-  :root { --cell-size: 88px; }   /* 704px board */
+  :root { --cell-size: 78px; }   /* 624px board */
 }
 
 @media (min-width: 1600px) {
-  :root { --cell-size: 96px; }   /* 768px board */
+  :root { --cell-size: 86px; }   /* 688px board */
 }
 
 @media (max-width: 900px) {
-  :root { --cell-size: 62px; }   /* 496px board */
+  :root { --cell-size: 56px; }   /* 448px board */
 }
 
 @media (max-width: 700px) {
-  :root { --cell-size: 52px; }   /* 416px board */
+  :root { --cell-size: 46px; }   /* 368px board */
 }
 
 @media (max-width: 540px) {
-  :root { --cell-size: 42px; }   /* 336px board */
+  :root { --cell-size: 38px; }   /* 304px board */
 }
 
 @media (max-width: 400px) {
-  :root { --cell-size: 38px; }   /* 304px board */
+  :root { --cell-size: 34px; }   /* 272px board */
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './App.css';
 import LeftNav from './components/LeftNav/LeftNav';
 import Board from './components/Board/Board';
@@ -29,6 +30,7 @@ import ClubsPage from './components/Clubs/ClubsPage';
 import useNotificationStore from './store/notificationStore';
 import TrainingPage from './components/Training/CoordinateTrainer';
 import { getBotByStrength } from './data/bots';
+import ComputerSetup from './components/ComputerSetup/ComputerSetup';
 import P2PSetup from './components/P2PPlay/P2PSetup';
 import P2PGame from './components/P2PPlay/P2PGame';
 import { p2p } from './utils/p2pService';
@@ -64,9 +66,19 @@ const TC_PRESETS = [
 
 const ONLINE_TIME_CONTROLS = TC_PRESETS.filter(p => ['1+0','3+0','5+0','10+0','15+10'].includes(p.display));
 
+const PATH_TO_TAB = {
+  '/': 0, '/play': 1, '/analysis': 2, '/computer': 3, '/online': 4,
+  '/account': 5, '/puzzles': 6, '/spectate': 7, '/friends': 8,
+  '/clubs': 9, '/tournaments': 10, '/leaderboard': 11, '/p2p': 12, '/training': 13,
+};
+const TAB_TO_PATH = Object.fromEntries(Object.entries(PATH_TO_TAB).map(([k, v]) => [v, k]));
+
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [activeTab, setActiveTab]           = useState(0);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const activeTab = PATH_TO_TAB[location.pathname] ?? 0;
+  const setActiveTab = (tab) => navigate(TAB_TO_PATH[tab] || '/');
   const [pendingTimeControl, setPendingTimeControl] = useState(null);
   const [showLogin, setShowLogin]           = useState(false);
   const [showLogout, setShowLogout]         = useState(false);
@@ -802,26 +814,14 @@ export default function App() {
           <AnalysisBoard savedGames={analysisGames} gamesLoading={analysisLoading} />
         )}
 
-        {/* ── Tab 3: Computer (no game yet) → show home ── */}
+        {/* ── Tab 3: Computer Setup ── */}
         {activeTab === 3 && !gameStarted && (
-          <HomeScreen
-            user={user}
-            onStart={(mode, tc) => {
-              if (mode === 'local') { initGame(); startGame(tc, false, 'black', 4); setActiveTab(1); }
-              else if (mode === 'computer') { setPendingTimeControl(tc); setShowStrength(true); }
-            }}
-            onPlayOnline={() => executeTabSwitch(4)}
-            onTabClick={handleTabClick}
-            onQuickMatch={(tc) => {
-              if (!user) { setShowLogin(true); return; }
-              setOnlineTimeControl({
-                display: tc.display, cat: tc.cat,
-                total: tc.total, incr: tc.incr,
-                initialTime: tc.total, increment: tc.incr,
-              });
-              executeTabSwitch(4);
-            }}
-          />
+          <ComputerSetup onStart={(bot, tc, color) => {
+            setSelectedBot(bot);
+            initGame();
+            const compCol = color === 'random' ? (Math.random() < 0.5 ? 'white' : 'black') : color;
+            startGame(tc, true, compCol, bot.strength);
+          }} />
         )}
 
         {/* ── Tab 4: Online lobby (no active game) ── */}
@@ -882,10 +882,11 @@ export default function App() {
         {/* ── Tab 5: Account ── */}
         {activeTab === 5 && !user && (
           <div className="sign-in-prompt">
-            <div className="sign-in-prompt-icon">♟</div>
+            <div className="sign-in-prompt-icon icon-glow">PG</div>
             <div className="sign-in-prompt-title">Sign in to view your profile</div>
             <div className="sign-in-prompt-sub">Track your ratings, review games, and connect with friends.</div>
             <button className="sign-in-prompt-btn" onClick={() => setShowLogin(true)}>Sign In</button>
+            <GuestSettingsPanel />
           </div>
         )}
         {activeTab === 5 && user && (
@@ -1057,14 +1058,14 @@ const QUICK_TCS = [
 ];
 
 const FEATURE_CARDS = [
-  { icon: '♟', title: 'vs Computer',  desc: '10 difficulty levels',       tab: 3,  accent: '#a78bfa' },
-  { icon: '⚡', title: 'Puzzles',      desc: 'Train your tactics',         tab: 6,  accent: '#fbbf24' },
-  { icon: '📊', title: 'Analysis',     desc: 'Review & explore games',     tab: 2,  accent: '#34d399' },
-  { icon: '🏆', title: 'Tournaments',  desc: 'Swiss & arena events',       tab: 10, accent: '#f97316' },
-  { icon: '🤝', title: 'Clubs',        desc: 'Join a chess community',     tab: 9,  accent: '#fb923c' },
-  { icon: '👁', title: 'Watch',        desc: 'Live games in progress',     tab: 7,  accent: '#38bdf8' },
-  { icon: '📈', title: 'Leaderboard',  desc: 'Top rated players',          tab: 11, accent: '#e879f9' },
-  { icon: '🫂', title: 'Friends',      desc: 'Connect & challenge',        tab: 8,  accent: '#4ade80' },
+  { icon: 'AI', title: 'vs Computer',  desc: '10 difficulty levels',       tab: 3,  accent: '#a78bfa' },
+  { icon: 'Pz', title: 'Puzzles',      desc: 'Train your tactics',         tab: 6,  accent: '#fbbf24' },
+  { icon: 'An', title: 'Analysis',     desc: 'Review & explore games',     tab: 2,  accent: '#34d399' },
+  { icon: 'Tr', title: 'Tournaments',  desc: 'Swiss & arena events',       tab: 10, accent: '#f97316' },
+  { icon: 'Cl', title: 'Clubs',        desc: 'Join a chess community',     tab: 9,  accent: '#fb923c' },
+  { icon: 'Sp', title: 'Watch',        desc: 'Live games in progress',     tab: 7,  accent: '#38bdf8' },
+  { icon: 'Lb', title: 'Leaderboard',  desc: 'Top rated players',          tab: 11, accent: '#e879f9' },
+  { icon: 'Fr', title: 'Friends',      desc: 'Connect & challenge',        tab: 8,  accent: '#4ade80' },
 ];
 
 const RATING_CATS = [
@@ -1175,22 +1176,22 @@ function HomeScreen({ user, onStart, onPlayOnline, onTabClick, onQuickMatch }) {
         <div className="home-section">
           <div className="home-section-label">Local Play — No account needed</div>
           <div className="home-local-row">
-            <button className="home-local-btn" onClick={() => onStart('local', null)}>
-              <span className="home-local-icon">♞</span>
+            <button className="home-local-btn" onClick={() => onStart('local', { display: '10+0', total: 600, incr: 0, cat: 'Rapid', delayType: 'none', delay: 0 })}>
+              <span className="home-local-icon icon-glow">PP</span>
               <div>
                 <div className="home-local-title">Pass &amp; Play</div>
                 <div className="home-local-desc">Two players, one device</div>
               </div>
             </button>
-            <button className="home-local-btn" onClick={() => onStart('computer', null)}>
-              <span className="home-local-icon">♛</span>
+            <button className="home-local-btn" onClick={() => onTabClick(3)}>
+              <span className="home-local-icon icon-glow">AI</span>
               <div>
                 <div className="home-local-title">vs Computer</div>
                 <div className="home-local-desc">10 difficulty levels, offline</div>
               </div>
             </button>
             <button className="home-local-btn" onClick={() => onTabClick(12)}>
-              <span className="home-local-icon">📡</span>
+              <span className="home-local-icon icon-glow">P2</span>
               <div>
                 <div className="home-local-title">Nearby P2P</div>
                 <div className="home-local-desc">QR handshake, no internet</div>
@@ -1210,7 +1211,7 @@ function HomeScreen({ user, onStart, onPlayOnline, onTabClick, onQuickMatch }) {
                 style={{ '--feat-accent': f.accent }}
                 onClick={() => onTabClick(f.tab)}
               >
-                <span className="home-feat-icon">{f.icon}</span>
+                <span className="home-feat-icon icon-glow">{f.icon}</span>
                 <div className="home-feat-text">
                   <div className="home-feat-title">{f.title}</div>
                   <div className="home-feat-desc">{f.desc}</div>
@@ -1223,7 +1224,7 @@ function HomeScreen({ user, onStart, onPlayOnline, onTabClick, onQuickMatch }) {
 
         {/* ── Footer ── */}
         <div className="home-footer">
-          <span className="home-footer-brand">♟ PG.Chess</span>
+          <span className="home-footer-brand">PG.Chess</span>
           <span className="home-footer-badge">Free · Open · No ads</span>
         </div>
 
@@ -1277,12 +1278,76 @@ function PlayerPanel({ name, colorCode, time, timeActive, timerRunning, captured
   );
 }
 
+// ─── Guest settings (no login required) ──────────────────────────────────────
+function GuestSettingsPanel() {
+  const { pieceSets, pieceSetIndex, setPieceSet, themes, themeIndex, applyTheme,
+    clr1, clr2, setColor, resetDefault, soundEnabled, setSoundEnabled, soundVolume, setSoundVolume,
+  } = useThemeStore();
+  const { showLabels, setShowLabels, highlightLastMove, setHighlightLastMove,
+    showLegalDots, setShowLegalDots, dotSize, setDotSize, blindfoldMode, setBlindfoldMode,
+  } = useGameStore();
+
+  return (
+    <div className="acct-section" style={{marginTop:24, width:'100%'}}>
+      <div className="acct-label" style={{fontSize:'0.85rem', color:'rgba(255,255,255,0.5)', marginBottom:8}}>Settings (no account needed)</div>
+      <div className="acct-field">
+        <label className="acct-label">Piece Set</label>
+        <div className="acct-piece-sets">
+          {pieceSets.map((ps, i) => (
+            <button key={ps.name} className={`acct-ps-btn ${pieceSetIndex === i ? 'acct-ps-active' : ''}`} onClick={() => setPieceSet(i)}>
+              <img src={`./images/${ps.path}queen-white.png`} alt={ps.name} className="acct-ps-img" /><span>{ps.name}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="acct-field">
+        <label className="acct-label">Board Theme</label>
+        <div className="acct-themes">
+          {themes.map((th, i) => (
+            <button key={th.name} className={`acct-theme-btn ${themeIndex === i ? 'acct-theme-active' : ''}`} onClick={() => applyTheme(i)}>
+              <div className="acct-theme-swatch"><div style={{background:th.clr1,width:'50%',height:'100%'}}/><div style={{background:th.clr2,width:'50%',height:'100%'}}/></div>
+              <span>{th.name}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="acct-field">
+        <label className="acct-label">Display</label>
+        <div className="acct-toggle-list">
+          <label className="acct-toggle-row"><input type="checkbox" checked={showLabels} onChange={e => setShowLabels(e.target.checked)} /><span>Board Labels</span></label>
+          <label className="acct-toggle-row"><input type="checkbox" checked={highlightLastMove} onChange={e => setHighlightLastMove(e.target.checked)} /><span>Last Move Highlight</span></label>
+          <label className="acct-toggle-row"><input type="checkbox" checked={showLegalDots} onChange={e => setShowLegalDots(e.target.checked)} /><span>Legal Move Dots</span></label>
+          <label className="acct-toggle-row"><input type="checkbox" checked={blindfoldMode} onChange={e => setBlindfoldMode(e.target.checked)} /><span>Blindfold Mode</span></label>
+        </div>
+      </div>
+      <div className="acct-field">
+        <label className="acct-label">Sound</label>
+        <div className="acct-toggle-list">
+          <label className="acct-toggle-row"><input type="checkbox" checked={soundEnabled} onChange={e => setSoundEnabled(e.target.checked)} /><span>Sound Effects</span></label>
+        </div>
+        {soundEnabled && (
+          <input type="range" min="0" max="100" value={Math.round(soundVolume * 100)} onChange={e => setSoundVolume(Number(e.target.value) / 100)} className="acct-range" />
+        )}
+      </div>
+      <button className="acct-save-btn" style={{width:'100%'}} onClick={resetDefault}>Reset to Default</button>
+    </div>
+  );
+}
+
 // ─── Account / Profile screen ────────────────────────────────────────────────
 const RATING_CATEGORIES = ['bullet', 'blitz', 'rapid', 'classical'];
 
 function AccountScreen({ onAlert, onLoadGame }) {
   const { user, username, logout } = useAuthStore();
-  const { pieceSets, pieceSetIndex, setPieceSet, themes, themeIndex, applyTheme } = useThemeStore();
+  const { pieceSets, pieceSetIndex, setPieceSet, themes, themeIndex, applyTheme,
+    clr1, clr2, clr1c, clr2c, clr1p, clr2p, clr1x, clr2x,
+    setColor, resetDefault, soundEnabled, setSoundEnabled, soundVolume, setSoundVolume,
+  } = useThemeStore();
+  const {
+    showLabels, setShowLabels, highlightLastMove, setHighlightLastMove,
+    highlightSelected, setHighlightSelected, showLegalDots, setShowLegalDots,
+    dotSize, setDotSize, blindfoldMode, setBlindfoldMode,
+  } = useGameStore();
   const { myRatings, loadRatings } = useRatingStore();
   const [games, setGames]           = useState([]);
   const [gamesLoading, setGamesLoading] = useState(true);
@@ -1365,7 +1430,7 @@ function AccountScreen({ onAlert, onLoadGame }) {
 
       {/* ── Tabs ── */}
       <div className="acct-tabs">
-        {['ratings','profile','appearance','games'].map(t => (
+        {['ratings','profile','settings','games'].map(t => (
           <button key={t} className={`acct-tab ${activeTab === t ? 'acct-tab-active' : ''}`} onClick={() => setActiveTab(t)}>
             {t.charAt(0).toUpperCase() + t.slice(1)}
           </button>
@@ -1413,9 +1478,10 @@ function AccountScreen({ onAlert, onLoadGame }) {
         </div>
       )}
 
-      {/* ── Appearance tab ── */}
-      {activeTab === 'appearance' && (
+      {/* ── Settings tab ── */}
+      {activeTab === 'settings' && (
         <div className="acct-section">
+          {/* Board appearance */}
           <div className="acct-field">
             <label className="acct-label">Piece Set</label>
             <div className="acct-piece-sets">
@@ -1445,6 +1511,54 @@ function AccountScreen({ onAlert, onLoadGame }) {
               ))}
             </div>
           </div>
+
+          {/* Board colors */}
+          <div className="acct-field">
+            <label className="acct-label">Board Colors</label>
+            <div className="acct-color-grid">
+              <label className="acct-color-item"><span>Light Square</span><input type="color" value={clr1} onChange={e => setColor('clr1', e.target.value)} /></label>
+              <label className="acct-color-item"><span>Dark Square</span><input type="color" value={clr2} onChange={e => setColor('clr2', e.target.value)} /></label>
+              <label className="acct-color-item"><span>Highlight</span><input type="color" value={clr1x} onChange={e => { setColor('clr1x', e.target.value); setColor('clr2x', e.target.value); }} /></label>
+              <label className="acct-color-item"><span>Check</span><input type="color" value={clr1c} onChange={e => { setColor('clr1c', e.target.value); setColor('clr2c', e.target.value); }} /></label>
+              <label className="acct-color-item"><span>Last Move</span><input type="color" value={clr1p} onChange={e => { setColor('clr1p', e.target.value); setColor('clr2p', e.target.value); }} /></label>
+            </div>
+          </div>
+
+          {/* Display toggles */}
+          <div className="acct-field">
+            <label className="acct-label">Display</label>
+            <div className="acct-toggle-list">
+              <label className="acct-toggle-row"><input type="checkbox" checked={showLabels} onChange={e => setShowLabels(e.target.checked)} /><span>Board Labels</span></label>
+              <label className="acct-toggle-row"><input type="checkbox" checked={highlightLastMove} onChange={e => setHighlightLastMove(e.target.checked)} /><span>Highlight Last Move</span></label>
+              <label className="acct-toggle-row"><input type="checkbox" checked={highlightSelected} onChange={e => setHighlightSelected(e.target.checked)} /><span>Highlight Selected</span></label>
+              <label className="acct-toggle-row"><input type="checkbox" checked={showLegalDots} onChange={e => setShowLegalDots(e.target.checked)} /><span>Legal Move Dots</span></label>
+              <label className="acct-toggle-row"><input type="checkbox" checked={blindfoldMode} onChange={e => setBlindfoldMode(e.target.checked)} /><span>Blindfold Mode</span></label>
+            </div>
+          </div>
+
+          {/* Dot size */}
+          {showLegalDots && (
+            <div className="acct-field">
+              <label className="acct-label">Dot Size: {dotSize}px</label>
+              <input type="range" min="4" max="28" value={dotSize} onChange={e => setDotSize(Number(e.target.value))} className="acct-range" />
+            </div>
+          )}
+
+          {/* Sound */}
+          <div className="acct-field">
+            <label className="acct-label">Sound</label>
+            <div className="acct-toggle-list">
+              <label className="acct-toggle-row"><input type="checkbox" checked={soundEnabled} onChange={e => setSoundEnabled(e.target.checked)} /><span>Sound Effects</span></label>
+            </div>
+            {soundEnabled && (
+              <div style={{marginTop:8}}>
+                <label className="acct-label" style={{fontSize:'0.8rem'}}>Volume: {Math.round(soundVolume * 100)}%</label>
+                <input type="range" min="0" max="100" value={Math.round(soundVolume * 100)} onChange={e => setSoundVolume(Number(e.target.value) / 100)} className="acct-range" />
+              </div>
+            )}
+          </div>
+
+          <button className="acct-save-btn" style={{marginTop:16, width:'100%'}} onClick={resetDefault}>Reset All to Default</button>
         </div>
       )}
 

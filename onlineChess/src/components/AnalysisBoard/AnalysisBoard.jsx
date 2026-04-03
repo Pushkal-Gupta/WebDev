@@ -793,7 +793,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false })
               <div className={styles.inputSection}>
                 <div className={styles.externalHeader}>
                   <span className={styles.externalLogo}>
-                    {importTab === 'chesscom' ? '♟' : '♞'}
+                    {importTab === 'chesscom' ? 'CC' : 'Li'}
                   </span>
                   <span className={styles.externalTitle}>
                     {importTab === 'chesscom' ? 'Chess.com' : 'Lichess.org'}
