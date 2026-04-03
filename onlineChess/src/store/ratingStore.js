@@ -16,16 +16,24 @@ const DEFAULT_RATING = {
 const useRatingStore = create((set, get) => ({
   myRatings: {}, // { bullet: {...}, blitz: {...}, rapid: {...}, classical: {...} }
 
+  _loadingRatings: false,
   loadRatings: async (userId) => {
-    if (!userId) return;
-    const { data } = await supabase
-      .from('user_ratings')
-      .select('*')
-      .eq('user_id', userId);
-    if (data) {
-      const ratings = {};
-      data.forEach(r => { ratings[r.category] = r; });
-      set({ myRatings: ratings });
+    if (!userId || get()._loadingRatings) return;
+    set({ _loadingRatings: true });
+    try {
+      const { data } = await supabase
+        .from('user_ratings')
+        .select('*')
+        .eq('user_id', userId);
+      if (data) {
+        const ratings = {};
+        data.forEach(r => { ratings[r.category] = r; });
+        set({ myRatings: ratings });
+      }
+    } catch (err) {
+      console.error('Failed to load ratings:', err);
+    } finally {
+      set({ _loadingRatings: false });
     }
   },
 

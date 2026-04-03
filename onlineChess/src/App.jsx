@@ -27,6 +27,7 @@ import LeaderboardPage from './components/Leaderboard/LeaderboardPage';
 import TournamentsPage from './components/Tournaments/TournamentsPage';
 import ClubsPage from './components/Clubs/ClubsPage';
 import useNotificationStore from './store/notificationStore';
+import TrainingPage from './components/Training/CoordinateTrainer';
 import P2PSetup from './components/P2PPlay/P2PSetup';
 import P2PGame from './components/P2PPlay/P2PGame';
 import { p2p } from './utils/p2pService';
@@ -290,6 +291,7 @@ export default function App() {
     if (gr.winner === 'draw') score = 0.5;
     else score = gr.winner === myColor ? 1 : 0;
 
+    let cancelled = false;
     (async () => {
       try {
         const delta = await updateOnlineGameRating({
@@ -299,6 +301,7 @@ export default function App() {
           score,
           category: cat || 'blitz',
         });
+        if (cancelled) return;
         if (delta) setRatingDelta(delta);
 
         // Save the game record
@@ -327,6 +330,7 @@ export default function App() {
         console.error('Online game end error:', e);
       }
     })();
+    return () => { cancelled = true; };
   }, [gameOver, isOnline]);
 
   // ─── Helpers ──────────────────────────────────────────────────────────────
@@ -814,6 +818,9 @@ export default function App() {
         {/* ── Tab 11: Leaderboard ── */}
         {activeTab === 11 && <LeaderboardPage />}
 
+        {/* ── Tab 13: Training ── */}
+        {activeTab === 13 && <TrainingPage />}
+
         {/* ── Tab 12: P2P Nearby Play ── */}
         {activeTab === 12 && !p2pMyColor && (
           <P2PSetup onConnected={(color) => setP2pMyColor(color)} />
@@ -1125,7 +1132,8 @@ function HomeScreen({ user, onStart, onPlayOnline, onTabClick, onQuickMatch }) {
         .from('chess_rooms')
         .select('*', { count: 'exact', head: true })
         .eq('status', 'playing')
-        .then(({ count }) => setLiveCount(count ?? 0));
+        .then(({ count }) => setLiveCount(count ?? 0))
+        .catch(err => console.error('Failed to fetch live count:', err));
     fetchCount();
     const id = setInterval(fetchCount, 30000); // refresh every 30 s
     return () => clearInterval(id);
@@ -1290,7 +1298,7 @@ function PlayerPanel({ name, colorCode, time, timeActive, timerRunning, captured
           <div className="pp-captures">
             {captured.map((p, i) => (
               <img
-                key={i}
+                key={`${p.type}-${p.color}-${i}`}
                 src={`${imagePath}${PP_PIECE_MAP[p.type]}-${p.color === 'w' ? 'white' : 'black'}.png`}
                 className="pp-cap-img"
                 alt={p.type}
@@ -1330,7 +1338,7 @@ function AccountScreen({ onAlert, onLoadGame }) {
   useEffect(() => {
     if (user?.id) {
       loadRatings(user.id);
-      getGames(user.id).then(g => { setGames(Array.isArray(g) ? g : []); setGamesLoading(false); });
+      getGames(user.id).then(g => { setGames(Array.isArray(g) ? g : []); setGamesLoading(false); }).catch(err => { console.error('Failed to load games:', err); setGamesLoading(false); });
     }
   }, [user?.id]);
 

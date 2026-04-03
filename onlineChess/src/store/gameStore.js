@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { Chess } from 'chess.js';
+import { playSoundForMove, playSound } from '../utils/soundManager';
 
 // chess.js piece type => image filename part
 const PIECE_NAME_MAP = {
@@ -39,6 +40,7 @@ const initialState = {
   highlightSelected: true,
   showLegalDots: true,
   dotSize: 12,
+  blindfoldMode: false,
   timeControl: null, // { display, total, incr }
   whiteTime: 0,
   blackTime: 0,
@@ -245,6 +247,9 @@ const useGameStore = create((set, get) => ({
 
     const result = chessInstance.move(moveObj);
     if (!result) return false;
+
+    // Play sound effect
+    playSoundForMove(result, chessInstance);
 
     // Track captured pieces
     const newCapturedByWhite = [...capturedByWhite];
@@ -573,6 +578,7 @@ const useGameStore = create((set, get) => ({
     }
 
     const history = chess.history({ verbose: true });
+    if (history.length === 0) return true; // Valid PGN but no moves
     const newChess = new Chess();
     const moves = [];
 
@@ -616,6 +622,7 @@ const useGameStore = create((set, get) => ({
   setHighlightSelected: (val) => set({ highlightSelected: val }),
   setShowLegalDots: (val) => set({ showLegalDots: val }),
   setDotSize: (val) => set({ dotSize: val }),
+  setBlindfoldMode: (val) => set({ blindfoldMode: val }),
   setOppName: (val) => set({ oppName: val }),
   setYouName: (val) => set({ youName: val }),
   setTimerRunning: (val) => set({ timerRunning: val }),

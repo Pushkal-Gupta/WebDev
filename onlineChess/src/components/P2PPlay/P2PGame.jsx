@@ -173,48 +173,25 @@ export default function P2PGame({ myColor, onExit }) {
   const [promotion,    setPromotion]    = useState(null); // { uci } awaiting promo choice
 
   const timerRef = useRef(null);
+  const statusRef = useRef(status);
+  useEffect(() => { statusRef.current = status; }, [status]);
 
   const myTurn = status === 'playing' && chess.turn() === myColor;
   const interactive = myTurn && !promotion;
 
-  // ── Peer message handler ──────────────────────────────────────────────────
-  useEffect(() => {
-    p2p.on('message', (msg) => {
-      if (msg.type === 'move')       applyMove(msg.uci, false);
-      if (msg.type === 'resign')     endGame(myColor === 'w' ? 'You win — opponent resigned' : 'Opponent wins — you resigned');
-    });
-    p2p.on('close', () => {
-      if (status === 'playing') endGame('Opponent disconnected');
-    });
-    return () => { p2p.off('message'); p2p.off('close'); };
-  }, [status, myColor]);
-
-  // ── Clock tick ────────────────────────────────────────────────────────────
-  useEffect(() => {
-    if (status !== 'playing') { clearInterval(timerRef.current); return; }
-    timerRef.current = setInterval(() => {
-      if (chess.turn() === 'w') {
-        setWTime(t => {
-          if (t <= 1) { clearInterval(timerRef.current); endGame('Black wins on time'); return 0; }
-          return t - 1;
-        });
-      } else {
-        setBTime(t => {
-          if (t <= 1) { clearInterval(timerRef.current); endGame('White wins on time'); return 0; }
-          return t - 1;
-        });
-      }
-    }, 1000);
-    return () => clearInterval(timerRef.current);
-  }, [status, fen]);
+  const endGame = useCallback((msg) => {
+    clearInterval(timerRef.current);
+    setStatus('over');
+    setResult(msg);
+  }, []);
 
   // ── Move handling ─────────────────────────────────────────────────────────
   const applyMove = useCallback((uci, isMine) => {
     const from = uci.slice(0, 2);
     const to   = uci.slice(2, 4);
     const promo = uci[4] || undefined;
-    const result = chess.move({ from, to, promotion: promo });
-    if (!result) return false;
+    const moveResult = chess.move({ from, to, promotion: promo });
+    if (!moveResult) return false;
 
     setFen(chess.fen());
     setLastFrom([rankToRow(from[1]), fileToCol(from[0])]);
@@ -229,7 +206,7 @@ export default function P2PGame({ myColor, onExit }) {
 
     if (isMine) p2p.send({ type: 'move', uci });
     return true;
-  }, [chess]);
+  }, [chess, endGame]);
 
   const handleMyMove = useCallback((uci) => {
     // Check if pawn promotion
@@ -251,11 +228,36 @@ export default function P2PGame({ myColor, onExit }) {
     applyMove(uci, true);
   };
 
-  function endGame(msg) {
-    clearInterval(timerRef.current);
-    setStatus('over');
-    setResult(msg);
-  }
+  // ── Peer message handler ──────────────────────────────────────────────────
+  useEffect(() => {
+    p2p.on('message', (msg) => {
+      if (msg.type === 'move')       applyMove(msg.uci, false);
+      if (msg.type === 'resign')     endGame(myColor === 'w' ? 'You win — opponent resigned' : 'Opponent wins — you resigned');
+    });
+    p2p.on('close', () => {
+      if (statusRef.current === 'playing') endGame('Opponent disconnected');
+    });
+    return () => { p2p.off('message'); p2p.off('close'); };
+  }, [myColor, applyMove, endGame]);
+
+  // ── Clock tick ────────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (status !== 'playing') return;
+    const id = setInterval(() => {
+      if (chess.turn() === 'w') {
+        setWTime(t => {
+          if (t <= 1) { clearInterval(id); endGame('Black wins on time'); return 0; }
+          return t - 1;
+        });
+      } else {
+        setBTime(t => {
+          if (t <= 1) { clearInterval(id); endGame('White wins on time'); return 0; }
+          return t - 1;
+        });
+      }
+    }, 1000);
+    return () => clearInterval(id);
+  }, [status, chess, endGame]);
 
   function handleResign() {
     p2p.send({ type: 'resign' });
