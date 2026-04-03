@@ -1,0 +1,206 @@
+.page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px 24px 48px;
+}
+
+.title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 28px;
+}
+
+/* ── Section ── */
+.section {
+  margin-bottom: 28px;
+}
+
+.sectionTitle {
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.45);
+  margin: 0 0 12px;
+}
+
+/* ── Piece Set ── */
+.pieceGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pieceBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.6);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.pieceBtn:hover {
+  background: rgba(0,255,245,0.07);
+  border-color: rgba(0,255,245,0.25);
+  color: #ccffff;
+}
+.pieceBtnActive {
+  background: rgba(0,255,245,0.12) !important;
+  border-color: rgba(0,255,245,0.45) !important;
+  color: var(--color-accent) !important;
+}
+.pieceImg {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+/* ── Board Theme ── */
+.themeGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.themeBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.6);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.themeBtn:hover {
+  background: rgba(0,255,245,0.07);
+  border-color: rgba(0,255,245,0.2);
+  color: #ccffff;
+}
+.themeBtnActive {
+  background: rgba(0,255,245,0.1) !important;
+  border-color: rgba(0,255,245,0.45) !important;
+  color: var(--color-accent) !important;
+}
+.themeSwatch {
+  display: flex;
+  width: 48px;
+  height: 28px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+/* ── Board Colors ── */
+.colorGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.colorItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.colorItem span {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.6);
+}
+.colorItem input[type="color"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 32px;
+  height: 32px;
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  padding: 2px;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* ── Display Toggles ── */
+.toggleList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toggleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.toggleRow:hover {
+  background: rgba(255,255,255,0.07);
+}
+.toggleRow input[type="checkbox"] {
+  accent-color: var(--color-accent);
+  width: 16px;
+  height: 16px;
+}
+.toggleRow span {
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.75);
+}
+
+/* ── Range Fields ── */
+.rangeField {
+  margin-top: 10px;
+  padding: 0 10px;
+}
+
+.rangeLabel {
+  display: block;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 6px;
+}
+
+.range {
+  width: 100%;
+  accent-color: var(--color-accent);
+}
+
+/* ── Reset ── */
+.resetBtn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.65);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.resetBtn:hover {
+  background: rgba(255,80,80,0.1);
+  border-color: rgba(255,80,80,0.3);
+  color: #ff8888;
+}
+
+/* ── Mobile ── */
+@media (max-width: 540px) {
+  .page { padding: 20px 16px 40px; }
+  .title { font-size: 1.2rem; }
+  .pieceGrid, .themeGrid { gap: 8px; }
+  .colorGrid { flex-direction: column; }
+}
