@@ -139,7 +139,10 @@ export default function App() {
   const currentMoveIndex = useGameStore(s => s.currentMoveIndex);
   const importPgn = useGameStore(s => s.importPgn);
   const undoMove = useGameStore(s => s.undoMove);
+  const redoMove = useGameStore(s => s.redoMove);
   const undoTwoMoves = useGameStore(s => s.undoTwoMoves);
+  const setFlipped = useGameStore(s => s.setFlipped);
+  const getPgn = useGameStore(s => s.getPgn);
   const boardState = useGameStore(s => s.boardState);
   const flipped = useGameStore(s => s.flipped);
   const isOnline = useGameStore(s => s.isOnline);
@@ -775,8 +778,7 @@ export default function App() {
       <LeftNav activeTab={activeTab} onTabClick={handleTabClick} friendBadge={friendRequests.length + notifUnread} />
 
       <div className="main-content">
-        {/* Left sidebar — shown during local games only (not online) */}
-        {isGameViewActive && !isOnline && <LeftSidebar onAlert={showAlert} />}
+        {/* Left sidebar removed — controls moved to board-controls bar */}
 
         {/* ── Tab 0: Home ── */}
         {activeTab === 0 && (
@@ -917,9 +919,14 @@ export default function App() {
                       disabled={undoPending || undosUsedRef.current[useGameStore.getState().onlineColor] >= 2}
                       title={undoPending ? 'Waiting for response…' : `Undo (${2 - (undosUsedRef.current[useGameStore.getState().onlineColor] || 0)} left)`}
                     >
-                      {undoPending ? '↩ Pending…' : '↩ Undo'}
+                      {undoPending ? 'Pending…' : 'Undo'}
                     </button>
                     <button className="online-btn resign-btn" onClick={handleOnlineResign}>Resign</button>
+                    <button className="online-btn leave-btn" onClick={() => {
+                      confirmActionRef.current = () => { leaveOnlineGame(); initGame(); setActiveTab(0); };
+                      setConfirmMsg('Leave game? You will forfeit.');
+                      setShowConfirm(true);
+                    }}>Leave</button>
                   </div>
                 </div>
               )}
@@ -936,6 +943,32 @@ export default function App() {
                 <Board />
               </div>
 
+              {/* Board controls — flip, undo, redo, resign, copy PGN */}
+              <div className="board-controls">
+                <button className="board-ctrl-btn" onClick={() => setFlipped(!flipped)} title="Flip board">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+                </button>
+                <button className="board-ctrl-btn" onClick={undoMove} disabled={!gameStarted || gameOver} title="Undo">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 10h10a5 5 0 015 5v2M3 10l5-5M3 10l5 5"/></svg>
+                </button>
+                <button className="board-ctrl-btn" onClick={redoMove} disabled={!gameStarted || gameOver} title="Redo">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 10H11a5 5 0 00-5 5v2M21 10l-5-5M21 10l-5 5"/></svg>
+                </button>
+                {gameOver && (
+                  <button className="board-ctrl-btn" onClick={() => {
+                    const pgn = getPgn();
+                    if (pgn) navigator.clipboard.writeText(pgn).then(() => showAlert('PGN copied!'));
+                  }} title="Copy PGN">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                  </button>
+                )}
+                {!isOnline && gameStarted && !gameOver && (
+                  <button className="board-ctrl-btn board-ctrl-resign" onClick={handleLocalResign} title="Resign">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                  </button>
+                )}
+              </div>
+
               {/* Bottom player panel */}
               <PlayerPanel
                 name={bottomName} colorCode={bottomColor}
@@ -944,13 +977,6 @@ export default function App() {
                 timeControl={timeControl} imagePath={imagePath}
                 showHint={!isOnline} onHint={handleGetHint}
               />
-
-              {/* Resign button for local/computer modes */}
-              {!isOnline && gameStarted && !gameOver && (
-                <div className="local-controls">
-                  <button className="local-resign-btn" onClick={handleLocalResign}>Resign</button>
-                </div>
-              )}
             </div>
 
             <RightSidebar onAlert={showAlert} reviewResults={reviewResults} isReviewing={isReviewing} />
@@ -1101,33 +1127,19 @@ function HomeScreen({ user, onStart, onPlayOnline, onTabClick, onQuickMatch }) {
         {/* ── Hero ── */}
         <div className="home-hero-wrap">
           <h1 className="home-title">
-            Play Chess.{' '}
-            <span className="home-title-accent">Free. Always.</span>
+            PG<span className="home-title-accent">.Chess</span>
           </h1>
           <p className="home-tagline">
-            No account needed · No ads · No paywalls
+            Free · No ads · No paywalls
           </p>
 
-          {/* Primary CTA */}
-          <button
-            className="home-cta-btn"
-            onClick={() => onQuickMatch(DEFAULT_CTA_TC)}
-          >
-            Play Now — Blitz 5+0
-          </button>
-
           {/* Live badge */}
-          {liveCount !== null && (
+          {liveCount !== null && liveCount > 0 && (
             <div className="home-live-row">
               <span className="home-live-badge">
                 <span className="home-live-dot" />
-                {liveCount} game{liveCount !== 1 ? 's' : ''} in progress
+                {liveCount} live
               </span>
-              {!user && (
-                <button className="home-login-link" onClick={() => onTabClick(5)}>
-                  Sign in for rated play →
-                </button>
-              )}
             </div>
           )}
 
@@ -1145,11 +1157,56 @@ function HomeScreen({ user, onStart, onPlayOnline, onTabClick, onQuickMatch }) {
               })}
             </div>
           )}
+          {!user && (
+            <button className="home-login-link" onClick={() => onTabClick(5)}>
+              Sign in for rated play
+            </button>
+          )}
         </div>
 
-        {/* ── Quick play TC grid ── */}
+        {/* ── Play section — all game modes ── */}
         <div className="home-section">
-          <div className="home-section-label">Quick Play — Online Matchmaking</div>
+          <div className="home-section-label">Play</div>
+          <div className="home-play-grid">
+            {/* Primary CTA */}
+            <button className="home-play-card home-play-primary" onClick={() => onQuickMatch(DEFAULT_CTA_TC)}>
+              <div className="home-play-card-top">
+                <span className="home-play-card-icon icon-glow" style={{color:'#00fff5'}}>5+0</span>
+                <span className="home-play-card-badge">Blitz</span>
+              </div>
+              <div className="home-play-card-title">Quick Match</div>
+              <div className="home-play-card-desc">Play online now</div>
+            </button>
+
+            <button className="home-play-card" onClick={() => onTabClick(3)}>
+              <div className="home-play-card-top">
+                <span className="home-play-card-icon icon-glow" style={{color:'#a78bfa'}}>AI</span>
+              </div>
+              <div className="home-play-card-title">vs Computer</div>
+              <div className="home-play-card-desc">10 difficulty levels</div>
+            </button>
+
+            <button className="home-play-card" onClick={onPlayOnline}>
+              <div className="home-play-card-top">
+                <span className="home-play-card-icon icon-glow" style={{color:'#38bdf8'}}>ON</span>
+              </div>
+              <div className="home-play-card-title">Play Online</div>
+              <div className="home-play-card-desc">Custom time controls</div>
+            </button>
+
+            <button className="home-play-card" onClick={() => onStart('local', { display: '10+0', total: 600, incr: 0, cat: 'Rapid', delayType: 'none', delay: 0 })}>
+              <div className="home-play-card-top">
+                <span className="home-play-card-icon icon-glow" style={{color:'#34d399'}}>2P</span>
+              </div>
+              <div className="home-play-card-title">Pass and Play</div>
+              <div className="home-play-card-desc">Two players, one device</div>
+            </button>
+          </div>
+        </div>
+
+        {/* ── More time controls ── */}
+        <div className="home-section">
+          <div className="home-section-label">Online — Pick a Time Control</div>
           <div className="home-tc-grid">
             {QUICK_TCS.map(tc => (
               <button
@@ -1162,38 +1219,6 @@ function HomeScreen({ user, onStart, onPlayOnline, onTabClick, onQuickMatch }) {
                 <span className="home-tc-cat">{tc.cat}</span>
               </button>
             ))}
-            <button className="home-tc-btn home-tc-custom" onClick={onPlayOnline}>
-              <span className="home-tc-time">Custom</span>
-              <span className="home-tc-cat">All options</span>
-            </button>
-          </div>
-        </div>
-
-        {/* ── Local play ── */}
-        <div className="home-section">
-          <div className="home-section-label">Local Play — No account needed</div>
-          <div className="home-local-row">
-            <button className="home-local-btn" onClick={() => onStart('local', { display: '10+0', total: 600, incr: 0, cat: 'Rapid', delayType: 'none', delay: 0 })}>
-              <span className="home-local-icon icon-glow">PP</span>
-              <div>
-                <div className="home-local-title">Pass &amp; Play</div>
-                <div className="home-local-desc">Two players, one device</div>
-              </div>
-            </button>
-            <button className="home-local-btn" onClick={() => onTabClick(3)}>
-              <span className="home-local-icon icon-glow">AI</span>
-              <div>
-                <div className="home-local-title">vs Computer</div>
-                <div className="home-local-desc">10 difficulty levels, offline</div>
-              </div>
-            </button>
-            <button className="home-local-btn" onClick={() => onTabClick(12)}>
-              <span className="home-local-icon icon-glow">P2</span>
-              <div>
-                <div className="home-local-title">Nearby P2P</div>
-                <div className="home-local-desc">QR handshake, no internet</div>
-              </div>
-            </button>
           </div>
         </div>
 
@@ -1217,12 +1242,6 @@ function HomeScreen({ user, onStart, onPlayOnline, onTabClick, onQuickMatch }) {
               </button>
             ))}
           </div>
-        </div>
-
-        {/* ── Footer ── */}
-        <div className="home-footer">
-          <span className="home-footer-brand">PG.Chess</span>
-          <span className="home-footer-badge">Free · Open · No ads</span>
         </div>
 
       </div>
@@ -1278,15 +1297,16 @@ function PlayerPanel({ name, colorCode, time, timeActive, timerRunning, captured
 // ─── Guest settings (no login required) ──────────────────────────────────────
 function GuestSettingsPanel() {
   const { pieceSets, pieceSetIndex, setPieceSet, themes, themeIndex, applyTheme,
-    clr1, clr2, setColor, resetDefault, soundEnabled, setSoundEnabled, soundVolume, setSoundVolume,
+    clr1, clr2, clr1c, clr1p, clr1x, setColor, resetDefault, soundEnabled, setSoundEnabled, soundVolume, setSoundVolume,
   } = useThemeStore();
   const { showLabels, setShowLabels, highlightLastMove, setHighlightLastMove,
+    highlightSelected, setHighlightSelected,
     showLegalDots, setShowLegalDots, dotSize, setDotSize, blindfoldMode, setBlindfoldMode,
   } = useGameStore();
 
   return (
     <div className="acct-section" style={{marginTop:24, width:'100%'}}>
-      <div className="acct-label" style={{fontSize:'0.85rem', color:'rgba(255,255,255,0.5)', marginBottom:8}}>Settings (no account needed)</div>
+      <div className="acct-label" style={{fontSize:'0.85rem', color:'rgba(255,255,255,0.5)', marginBottom:8}}>Settings</div>
       <div className="acct-field">
         <label className="acct-label">Piece Set</label>
         <div className="acct-piece-sets">
@@ -1309,21 +1329,41 @@ function GuestSettingsPanel() {
         </div>
       </div>
       <div className="acct-field">
+        <label className="acct-label">Board Colors</label>
+        <div className="acct-color-grid">
+          <label className="acct-color-item"><span>Light Square</span><input type="color" value={clr1} onChange={e => setColor('clr1', e.target.value)} /></label>
+          <label className="acct-color-item"><span>Dark Square</span><input type="color" value={clr2} onChange={e => setColor('clr2', e.target.value)} /></label>
+          <label className="acct-color-item"><span>Highlight</span><input type="color" value={clr1x} onChange={e => { setColor('clr1x', e.target.value); setColor('clr2x', e.target.value); }} /></label>
+          <label className="acct-color-item"><span>Check</span><input type="color" value={clr1c} onChange={e => { setColor('clr1c', e.target.value); setColor('clr2c', e.target.value); }} /></label>
+          <label className="acct-color-item"><span>Last Move</span><input type="color" value={clr1p} onChange={e => { setColor('clr1p', e.target.value); setColor('clr2p', e.target.value); }} /></label>
+        </div>
+      </div>
+      <div className="acct-field">
         <label className="acct-label">Display</label>
         <div className="acct-toggle-list">
           <label className="acct-toggle-row"><input type="checkbox" checked={showLabels} onChange={e => setShowLabels(e.target.checked)} /><span>Board Labels</span></label>
-          <label className="acct-toggle-row"><input type="checkbox" checked={highlightLastMove} onChange={e => setHighlightLastMove(e.target.checked)} /><span>Last Move Highlight</span></label>
+          <label className="acct-toggle-row"><input type="checkbox" checked={highlightLastMove} onChange={e => setHighlightLastMove(e.target.checked)} /><span>Highlight Last Move</span></label>
+          <label className="acct-toggle-row"><input type="checkbox" checked={highlightSelected} onChange={e => setHighlightSelected(e.target.checked)} /><span>Highlight Selected</span></label>
           <label className="acct-toggle-row"><input type="checkbox" checked={showLegalDots} onChange={e => setShowLegalDots(e.target.checked)} /><span>Legal Move Dots</span></label>
           <label className="acct-toggle-row"><input type="checkbox" checked={blindfoldMode} onChange={e => setBlindfoldMode(e.target.checked)} /><span>Blindfold Mode</span></label>
         </div>
       </div>
+      {showLegalDots && (
+        <div className="acct-field">
+          <label className="acct-label">Dot Size: {dotSize}px</label>
+          <input type="range" min="4" max="28" value={dotSize} onChange={e => setDotSize(Number(e.target.value))} className="acct-range" />
+        </div>
+      )}
       <div className="acct-field">
         <label className="acct-label">Sound</label>
         <div className="acct-toggle-list">
           <label className="acct-toggle-row"><input type="checkbox" checked={soundEnabled} onChange={e => setSoundEnabled(e.target.checked)} /><span>Sound Effects</span></label>
         </div>
         {soundEnabled && (
-          <input type="range" min="0" max="100" value={Math.round(soundVolume * 100)} onChange={e => setSoundVolume(Number(e.target.value) / 100)} className="acct-range" />
+          <div style={{marginTop:8}}>
+            <label className="acct-label" style={{fontSize:'0.8rem'}}>Volume: {Math.round(soundVolume * 100)}%</label>
+            <input type="range" min="0" max="100" value={Math.round(soundVolume * 100)} onChange={e => setSoundVolume(Number(e.target.value) / 100)} className="acct-range" />
+          </div>
         )}
       </div>
       <button className="acct-save-btn" style={{width:'100%'}} onClick={resetDefault}>Reset to Default</button>
