@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Moon, Sun, LogOut } from 'lucide-react';
+import LoginModal from './LoginModal';
 
 export default function Navbar({ session, theme, toggleTheme }) {
+  const [showLogin, setShowLogin] = useState(false);
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
   };
@@ -29,12 +32,14 @@ export default function Navbar({ session, theme, toggleTheme }) {
               </button>
             </div>
           ) : (
-            <button className="btn-primary" onClick={() => {/* Will trigger auth modal */}}>
+            <button className="btn-primary" onClick={() => setShowLogin(true)}>
               LOGIN
             </button>
           )}
         </div>
       </div>
+      
+      {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
     </header>
   );
 }

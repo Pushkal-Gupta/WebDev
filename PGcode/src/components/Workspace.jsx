@@ -1,31 +1,78 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { problemsData } from '../data/problems';
+import { supabase } from '../lib/supabase';
 import Editor from '@monaco-editor/react';
-import { ArrowLeft, Play, Save } from 'lucide-react';
+import { ArrowLeft, Play, Save, MonitorPlay, Code2 } from 'lucide-react';
+import DryRunViewer from './DryRunViewer';
 
 export default function Workspace({ session, theme }) {
   const { categoryId } = useParams();
-  const category = problemsData[categoryId];
-  
-  const [activeProblem, setActiveProblem] = useState(
-    category && category.problems.length > 0 ? category.problems[0] : null
-  );
+  const [topic, setTopic] = useState(null);
+  const [problems, setProblems] = useState([]);
+  const [activeProblem, setActiveProblem] = useState(null);
   
   const [activeLang, setActiveLang] = useState('python');
   const [codeContent, setCodeContent] = useState('');
+  const [viewMode, setViewMode] = useState('code'); // 'code' | 'visual'
+  const [templates, setTemplates] = useState({});
 
-  // When switching problems or languages
-  React.useEffect(() => {
-    if (activeProblem && activeProblem.defaultCode[activeLang]) {
-      setCodeContent(activeProblem.defaultCode[activeLang]);
-    } else {
-      setCodeContent('// Code stub not available');
+  useEffect(() => {
+    async function fetchWorkspaceData() {
+      if (!categoryId) return;
+      try {
+        // Fetch topic
+        const { data: topicData } = await supabase
+          .from('PGcode_topics')
+          .select('*')
+          .eq('id', categoryId)
+          .single();
+        if (topicData) setTopic(topicData);
+
+        // Fetch problems
+        const { data: qData } = await supabase
+          .from('PGcode_problems')
+          .select('*')
+          .eq('topic_id', categoryId);
+        
+        if (qData && qData.length > 0) {
+          setProblems(qData);
+          setActiveProblem(qData[0]);
+        }
+
+      } catch (err) {
+        console.error("Error fetching workspace data:", err);
+      }
     }
-  }, [activeProblem, activeLang]);
+    fetchWorkspaceData();
+  }, [categoryId]);
 
-  if (!category) {
-    return <div style={{ padding: '2rem', textAlign: 'center' }}>Category not found. <Link to="/">Go back</Link></div>;
+  // Fetch templates when problem changes
+  useEffect(() => {
+    async function fetchTemplates() {
+      if (!activeProblem) return;
+      const { data } = await supabase
+        .from('PGcode_problem_templates')
+        .select('*')
+        .eq('problem_id', activeProblem.id);
+      
+      const tmplMap = {};
+      if (data) {
+        data.forEach(t => { tmplMap[t.language] = t.code; });
+      }
+      setTemplates(tmplMap);
+    }
+    fetchTemplates();
+  }, [activeProblem]);
+
+  // Set code content when lang or templates finish loading
+  useEffect(() => {
+    if (activeProblem) {
+      setCodeContent(templates[activeLang] || '// Code template not found for this language');
+    }
+  }, [activeProblem, activeLang, templates]);
+
+  if (!topic && problems.length === 0) {
+    return <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-main)', fontFamily: 'var(--mono)'}}>Loading Workspace... <Link to="/" style={{color: 'var(--accent)'}}>Go back</Link></div>;
   }
 
   return (
@@ -35,13 +82,13 @@ export default function Workspace({ session, theme }) {
         <div style={panelHeader}>
           <Link to="/" style={backLink}><ArrowLeft size={16} /> Roadmap</Link>
           <h2 style={{ margin: 0, fontSize: '1.2rem', fontFamily: 'var(--mono)' }}>
-            {category.name} Setup
+            {topic?.name || categoryId} Setup
           </h2>
         </div>
         
         {/* Sub-nav for problems in this category */}
         <div style={problemTabsRow}>
-          {category.problems.map(prob => (
+          {problems.map(prob => (
             <div 
               key={prob.id} 
               style={{
@@ -54,70 +101,94 @@ export default function Workspace({ session, theme }) {
               {prob.name}
             </div>
           ))}
-          {category.problems.length === 0 && <div style={{padding: '0.5rem', color: 'var(--text-dim)'}}>No problems in this category yet.</div>}
+          {problems.length === 0 && <div style={{padding: '0.5rem', color: 'var(--text-dim)', fontFamily: 'var(--mono)'}}>No problems mapped.</div>}
         </div>
 
         {/* Dynamic content for active problem */}
         {activeProblem && (
           <div style={problemContent}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-               <h3 style={{ margin: 0 }}>{activeProblem.name}</h3>
-               <span className={`diff-badge diff-${activeProblem.difficulty.toLowerCase()}`}>{activeProblem.difficulty}</span>
+               <h3 style={{ margin: 0, fontFamily: 'var(--sans)' }}>{activeProblem.name}</h3>
+               <span className={`diff-badge diff-${activeProblem.difficulty?.toLowerCase()}`}>{activeProblem.difficulty}</span>
             </div>
 
             <div dangerouslySetInnerHTML={{ __html: activeProblem.description }} style={{ marginBottom: '2rem', fontSize: '0.95rem' }} />
 
-            {activeProblem.videoEmbed && (
-              <div style={videoContainer}>
-                <iframe src={activeProblem.videoEmbed} title="Video Solution" style={iframeStyle} allowFullScreen></iframe>
+            {activeProblem.solution_video_url && (
+              <div style={{...videoContainer, marginTop: '2rem'}}>
+                <iframe src={`https://www.youtube.com/embed/${activeProblem.solution_video_url}`} title="Video Solution" style={iframeStyle} allowFullScreen></iframe>
+              </div>
+            )}
+            
+            {activeProblem.hints && activeProblem.hints.length > 0 && (
+              <div style={{ marginTop: '2rem' }}>
+                <h4 style={{fontFamily: 'var(--sans)'}}>Hints</h4>
+                <ul style={{fontFamily: 'var(--sans)', color: 'var(--text-dim)', fontSize: '0.9rem'}}>
+                  {activeProblem.hints.map((h, i) => <li key={i}>{h}</li>)}
+                </ul>
               </div>
             )}
           </div>
         )}
       </div>
 
-      {/* Right Panel: Editor */}
+      {/* Right Panel: Editor / Interactive Viewer */}
       <div style={rightPanel}>
         <div style={panelHeaderEditor}>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            {['python', 'java', 'javascript'].map(lang => (
-              <button 
-                key={lang}
-                style={{
-                  ...langBtn,
-                  background: activeLang === lang ? 'var(--hover-box)' : 'transparent',
-                  color: activeLang === lang ? 'var(--text-main)' : 'var(--text-dim)'
-                }}
-                onClick={() => setActiveLang(lang)}
-              >
-                {lang.toUpperCase()}
-              </button>
-            ))}
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <button 
+              style={{...modeBtn, color: viewMode === 'code' ? 'var(--accent)' : 'var(--text-dim)'}}
+              onClick={() => setViewMode('code')}
+            >
+              <Code2 size={16} /> Code
+            </button>
+            <button 
+              style={{...modeBtn, color: viewMode === 'visual' ? 'var(--accent)' : 'var(--text-dim)'}}
+              onClick={() => setViewMode('visual')}
+            >
+              <MonitorPlay size={16} /> Visual Dry Run
+            </button>
           </div>
           
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <button className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--card-bg)', color: 'var(--text-main)', border: '1px solid var(--border)' }}>
-              <Save size={14} /> Save
-            </button>
-            <button className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={() => alert('Code execution integration coming soon!')}>
-              <Play size={14} /> Run Code
-            </button>
-          </div>
+          {viewMode === 'code' && (
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <select 
+                style={selectStyle}
+                value={activeLang}
+                onChange={(e) => setActiveLang(e.target.value)}
+              >
+                <option value="python">Python</option>
+                <option value="javascript">JavaScript</option>
+                <option value="java">Java</option>
+              </select>
+            
+              <button className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--card-bg)', color: 'var(--text-main)', border: '1px solid var(--border)' }}>
+                <Save size={14} /> Save
+              </button>
+              <button className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={() => alert('Validation coming soon!')}>
+                <Play size={14} /> Run
+              </button>
+            </div>
+          )}
         </div>
 
         <div style={editorWrapper}>
-          <Editor
-            height="100%"
-            theme={theme === 'dark' ? 'vs-dark' : 'light'}
-            language={activeLang}
-            value={codeContent}
-            onChange={(val) => setCodeContent(val)}
-            options={{
-              minimap: { enabled: false },
-              fontSize: 14,
-              fontFamily: 'var(--mono)'
-            }}
-          />
+          {viewMode === 'code' ? (
+            <Editor
+              height="100%"
+              theme={theme === 'dark' ? 'vs-dark' : 'light'}
+              language={activeLang}
+              value={codeContent}
+              onChange={(val) => setCodeContent(val)}
+              options={{
+                minimap: { enabled: false },
+                fontSize: 14,
+                fontFamily: 'var(--mono)'
+              }}
+            />
+          ) : (
+            activeProblem ? <DryRunViewer problemId={activeProblem.id} /> : null
+          )}
         </div>
       </div>
     </div>
@@ -215,16 +286,30 @@ const panelHeaderEditor = {
   background: 'var(--card-bg)'
 };
 
-const langBtn = {
+const modeBtn = {
+  background: 'none',
   border: 'none',
-  padding: '0.4rem 0.8rem',
-  borderRadius: '4px',
-  fontSize: '0.8rem',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5rem',
+  fontFamily: 'var(--mono)',
+  fontSize: '0.9rem',
   cursor: 'pointer',
-  transition: 'all 0.2s'
+  padding: '0.5rem',
+  transition: 'color var(--t)'
+};
+
+const selectStyle = {
+  background: 'var(--bg)',
+  color: 'var(--text-main)',
+  border: '1px solid var(--border)',
+  padding: '0.4rem 0.8rem',
+  fontFamily: 'var(--mono)',
+  borderRadius: '4px',
+  outline: 'none'
 };
 
 const editorWrapper = {
   flex: 1,
-  paddingTop: '0.5rem'
+  paddingTop: '0'
 };

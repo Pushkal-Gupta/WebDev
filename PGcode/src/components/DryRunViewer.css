@@ -1,0 +1,132 @@
+.dryRunContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text-main);
+}
+
+.dryRunHeader {
+  padding: 1rem;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.timelineControls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.controlBtn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  padding: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--t);
+}
+
+.controlBtn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.controlBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.dryRunBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  padding: 2rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.visualStateBox {
+  background: var(--card-bg);
+  border: 1px solid var(--accent);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 255, 245, 0.05);
+  font-family: var(--mono);
+  font-size: 1.2rem;
+  text-align: center;
+  min-width: 300px;
+}
+
+.interactiveQuestionPopup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--card-bg);
+  border: 1px solid var(--accent);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+  width: 80%;
+  max-width: 500px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.questionText {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.optionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.optionBtn {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  padding: 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--sans);
+  transition: all var(--t);
+}
+
+.optionBtn:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+
+.feedbackText {
+  font-size: 0.9rem;
+  padding: 0.5rem;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.feedbackSuccess {
+  color: var(--easy);
+  background: rgba(0, 184, 163, 0.1);
+}
+
+.feedbackError {
+  color: var(--hard);
+  background: rgba(255, 55, 95, 0.1);
+}
