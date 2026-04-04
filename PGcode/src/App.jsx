@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import { supabase } from './lib/supabase';
 import Navbar from './components/Navbar';
 import RoadmapView from './components/RoadmapView';
@@ -38,12 +38,12 @@ export default function App() {
   };
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Navbar session={session} theme={theme} toggleTheme={toggleTheme} />
       <Routes>
         <Route path="/" element={<RoadmapView />} />
         <Route path="/category/:categoryId" element={<Workspace session={session} theme={theme} />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }

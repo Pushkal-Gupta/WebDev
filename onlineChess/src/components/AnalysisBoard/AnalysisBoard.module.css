@@ -1,7 +1,7 @@
 /* ── Root layout ── */
 .page {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   flex: 1;
   min-width: 0;
   min-height: 0;
@@ -11,15 +11,393 @@
   height: 100%;
 }
 
-/* ── Left column: board column ── */
-.leftCol {
+/* ══════════════════════════════════════════════════════════════════════════════
+   IMPORT CENTER — when no game loaded
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.importCenter {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 16px;
+}
+
+.importCard {
+  width: 100%;
+  max-width: 520px;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.importHeader {
+  padding: 24px 24px 16px;
+  text-align: center;
+}
+
+.importTitle {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: rgba(100, 180, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+
+.importSubtitle {
+  display: block;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   GAME LOADED — main analysis container
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.analysisMain {
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-width: 0;
+  overflow: hidden;
+}
+
+/* ── Top bar (tabs + actions) ── */
+.topBar {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.topActions {
+  display: flex;
+  gap: 4px;
+  padding: 0 12px;
+  flex-shrink: 0;
+}
+
+/* ── Tab switcher ── */
+.tabRow {
+  display: flex;
+  flex: 1;
+}
+
+.tab {
+  flex: 0;
+  padding: 12px 24px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.tab:hover { color: rgba(255, 255, 255, 0.6); }
+
+.tabActive {
+  color: rgba(100, 180, 255, 0.9) !important;
+  border-bottom-color: rgba(100, 180, 255, 0.7);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   REPORT TAB — chess.com style full-width centered report
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.reportScroll {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+  padding: 20px 16px 40px;
+}
+
+.reportScroll::-webkit-scrollbar { width: 4px; }
+.reportScroll::-webkit-scrollbar-track { background: transparent; }
+.reportScroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+.reportCenter {
+  width: 100%;
+  max-width: 540px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Score card (players + result) ── */
+.scoreCard {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 24px 20px 20px;
+  text-align: center;
+}
+
+.scoreCardAnimated {
+  animation: fadeSlideIn 0.5s ease both;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.scoreResult {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 16px;
+  letter-spacing: 0.1em;
+}
+
+.playersRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 24px;
+}
+
+.playerCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 100px;
+  flex: 1;
+  max-width: 160px;
+}
+
+.playerAvatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 4px;
+}
+
+.avatarDot {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+}
+
+.avatarDotW {
+  background: linear-gradient(135deg, #f0f0f0, #c4c4c4);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.avatarDotB {
+  background: linear-gradient(135deg, #3a3a3a, #1a1a1a);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.accValue {
+  font-size: 2rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.playerAccLabel {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.playerName {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.65);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+  margin-top: 2px;
+}
+
+.vsSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding-top: 24px;
+}
+
+.gameCharacter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.characterIcon {
+  font-size: 1.4rem;
+  opacity: 0.6;
+}
+
+.characterLabel {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.gameDescription {
+  margin-top: 12px;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.45);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* ── Report eval graph ── */
+.reportGraphWrap {
+  height: 80px;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* ── Report sections ── */
+.reportSection {
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  padding: 16px 20px;
+}
+
+/* ── Review prompt ── */
+.reviewPrompt {
+  padding: 40px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.reviewBtn {
+  padding: 14px 36px;
+  background: linear-gradient(135deg, rgba(0, 80, 200, 0.2), rgba(0, 180, 255, 0.12));
+  border: 1px solid rgba(100, 180, 255, 0.3);
+  color: rgba(100, 180, 255, 0.9);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.15s;
+}
+
+.reviewBtn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(0, 80, 200, 0.3), rgba(0, 180, 255, 0.2));
+  border-color: rgba(100, 180, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.reviewBtn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.reviewHint {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.2);
+  text-align: center;
+  max-width: 280px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Reviewing animation ── */
+.reviewingSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+}
+
+.reviewingSpinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(100, 180, 255, 0.15);
+  border-top-color: rgba(100, 180, 255, 0.8);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.reviewingText {
+  font-size: 0.82rem;
+  color: rgba(100, 180, 255, 0.7);
+  font-weight: 500;
+}
+
+/* Review progress */
+.reviewProgress {
+  height: 2px;
+  background: rgba(0, 100, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.reviewBar {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(0, 100, 255, 0.6), rgba(0, 180, 255, 0.8));
+  transition: width 0.2s ease;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   ANALYSIS / EXPLORER TAB — board + side panel
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.analysisLayout {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
   min-height: 0;
   overflow: hidden;
 }
+
+.analysisBoardSection {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.analysisPanel {
+  flex: 1;
+  min-width: 280px;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(0, 0, 0, 0.12);
+  overflow-y: auto;
+}
+
+.analysisPanel::-webkit-scrollbar { width: 3px; }
+.analysisPanel::-webkit-scrollbar-track { background: transparent; }
+.analysisPanel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 
 /* ── Eval bar ── */
 .evalBar {
@@ -60,14 +438,23 @@
   text-shadow: 0 0 3px rgba(0,0,0,0.5);
 }
 
-/* ── Board column ── */
-.boardCol {
+/* ── Board row ── */
+.boardRow {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex: none;
+  height: calc(8 * var(--cell-size) + 4px);
+  overflow: hidden;
+}
+
+.boardWrap {
   flex: 1;
-  min-width: 0;
   min-height: 0;
   overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ── Player bars ── */
@@ -80,8 +467,6 @@
   min-height: 30px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
-
-.playerBar + .boardWrap { border-top: none; }
 
 .playerLeft {
   display: flex;
@@ -123,26 +508,6 @@
   flex-shrink: 0;
 }
 
-/* ── Eval bar + board side-by-side row ── */
-.boardRow {
-  display: flex;
-  flex-direction: row;
-  flex: none;
-  height: calc(8 * var(--cell-size) + 4px);
-  overflow: hidden;
-}
-
-/* ── Board wrapper ── */
-.boardWrap {
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 /* ── Nav row ── */
 .navRow {
   display: flex;
@@ -177,78 +542,7 @@
   cursor: not-allowed;
 }
 
-/* ── Right panel ── */
-.panel {
-  width: 420px;
-  min-width: 320px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  border-left: 1px solid rgba(255, 255, 255, 0.07);
-  background: rgba(0, 0, 0, 0.12);
-  overflow: hidden;
-}
-
-/* When no game loaded, panel expands */
-.panelExpanded {
-  flex: 1;
-  width: auto;
-  min-width: 360px;
-  max-width: 560px;
-}
-
-/* Board placeholder when no game loaded */
-.boardPlaceholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: calc(8 * var(--cell-size));
-  height: calc(8 * var(--cell-size));
-  background: rgba(255, 255, 255, 0.02);
-  border: 2px dashed rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
-  gap: 12px;
-  color: rgba(255, 255, 255, 0.2);
-}
-
-.boardPlaceholderIcon {
-  font-size: 2.4rem;
-  opacity: 0.3;
-  line-height: 1;
-}
-
-.boardPlaceholderText {
-  font-size: 0.82rem;
-  text-align: center;
-  max-width: 200px;
-  line-height: 1.5;
-}
-
-/* Panel header — blue gradient */
-.panelHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 1px solid rgba(0, 100, 255, 0.15);
-  flex-shrink: 0;
-  background: linear-gradient(135deg, rgba(0, 80, 200, 0.15) 0%, rgba(0, 180, 255, 0.08) 100%);
-}
-
-.panelTitle {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: rgba(100, 180, 255, 0.9);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.panelActions {
-  display: flex;
-  gap: 4px;
-}
-
+/* ── Action buttons ── */
 .iconBtn {
   padding: 4px 8px;
   background: rgba(255, 255, 255, 0.04);
@@ -274,81 +568,13 @@
   color: rgba(61, 220, 132, 0.8) !important;
 }
 
-/* Review progress */
-.reviewProgress {
-  height: 2px;
-  background: rgba(0, 100, 255, 0.08);
-  flex-shrink: 0;
-}
-
-.reviewBar {
-  height: 100%;
-  background: linear-gradient(90deg, rgba(0, 100, 255, 0.6), rgba(0, 180, 255, 0.8));
-  transition: width 0.2s ease;
-}
-
-/* ── Tab switcher ── */
-.tabRow {
-  display: flex;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  flex-shrink: 0;
-  background: rgba(0, 0, 0, 0.1);
-}
-
-.tab {
-  flex: 1;
-  padding: 10px 0;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  color: rgba(255, 255, 255, 0.35);
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.tab:hover { color: rgba(255, 255, 255, 0.6); }
-
-.tabActive {
-  color: rgba(100, 180, 255, 0.9) !important;
-  border-bottom-color: rgba(100, 180, 255, 0.7);
-}
-
-/* ── Report content ── */
-.reportContent {
-  flex: 1;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.reportContent::-webkit-scrollbar { width: 3px; }
-.reportContent::-webkit-scrollbar-track { background: transparent; }
-.reportContent::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
-
-/* ── Analysis content ── */
-.analysisContent {
-  flex: 1;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.analysisContent::-webkit-scrollbar { width: 3px; }
-.analysisContent::-webkit-scrollbar-track { background: transparent; }
-.analysisContent::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
-
 /* ── Eval graph ── */
-.graphWrap {
-  flex-shrink: 0;
-  height: 64px;
-  padding: 6px 10px;
+.evalGraph {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 4px;
   overflow: hidden;
-  cursor: pointer;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .graphWrapSmall {
@@ -358,14 +584,6 @@
   overflow: hidden;
   cursor: pointer;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-}
-
-.evalGraph {
-  width: 100%;
-  height: 100%;
-  display: block;
-  border-radius: 4px;
-  overflow: hidden;
 }
 
 /* ── Sections ── */
@@ -399,9 +617,9 @@
 }
 
 .accBarLabel {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   color: rgba(255, 255, 255, 0.55);
-  width: 60px;
+  width: 70px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -410,103 +628,121 @@
 
 .accBarTrack {
   flex: 1;
-  height: 6px;
+  height: 8px;
   background: rgba(255, 255, 255, 0.06);
-  border-radius: 3px;
+  border-radius: 4px;
   overflow: hidden;
 }
 
 .accBarFill {
   height: 100%;
-  border-radius: 3px;
-  transition: width 0.6s ease;
+  border-radius: 4px;
+  transition: width 1s ease;
 }
 
 .accBarPct {
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  width: 36px;
+  width: 40px;
   text-align: right;
   flex-shrink: 0;
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Classification table ── */
+/* ── Classification table (chess.com style) ── */
 .classTable {
   width: 100%;
   border-collapse: collapse;
 }
 
 .classColHead {
-  font-size: 0.58rem;
-  color: rgba(255, 255, 255, 0.25);
+  font-size: 0.62rem;
+  color: rgba(255, 255, 255, 0.3);
   font-weight: 600;
   text-align: center;
-  padding: 2px 6px;
-  width: 28px;
+  padding: 4px 8px 8px;
+  width: 40px;
 }
 
 .classRow td {
-  padding: 3px 0;
+  padding: 6px 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.classRow:last-child td {
+  border-bottom: none;
+}
+
+.classCountW {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  width: 40px;
 }
 
 .classIcon {
-  width: 22px;
+  width: 28px;
   text-align: center;
-  font-size: 0.72rem;
+  font-size: 0.82rem;
 }
 
 .classLabel {
-  font-size: 0.72rem;
-  font-weight: 500;
-  padding-left: 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding-left: 6px;
 }
 
-.classCount {
+.classCountB {
   text-align: center;
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.85rem;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
-  width: 28px;
+  width: 40px;
 }
 
-/* ── Review prompt ── */
-.reviewPrompt {
-  padding: 24px 16px;
+/* ── ELO Estimation ── */
+.eloEstRow {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  background: rgba(0, 255, 245, 0.04);
+  border: 1px solid rgba(0, 255, 245, 0.1);
+  border-radius: 10px;
+}
+
+.eloEstItem {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  flex: 1;
-  justify-content: center;
+  gap: 2px;
 }
 
-.reviewBtn {
-  padding: 10px 24px;
-  background: linear-gradient(135deg, rgba(0, 80, 200, 0.15), rgba(0, 180, 255, 0.1));
-  border: 1px solid rgba(100, 180, 255, 0.3);
-  color: rgba(100, 180, 255, 0.9);
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 600;
-  transition: all 0.15s;
+.eloEstLabel {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.reviewBtn:hover:not(:disabled) {
-  background: linear-gradient(135deg, rgba(0, 80, 200, 0.25), rgba(0, 180, 255, 0.18));
-  border-color: rgba(100, 180, 255, 0.5);
+.eloEstVal {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--color-accent);
 }
 
-.reviewBtn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-.reviewHint {
-  font-size: 0.68rem;
+.eloEstHint {
+  font-size: 0.6rem;
   color: rgba(255, 255, 255, 0.2);
-  text-align: center;
-  max-width: 220px;
-  line-height: 1.5;
-  margin: 0;
+  margin-left: auto;
+}
+
+/* ── Opening text ── */
+.openingText {
+  font-size: 0.85rem;
+  color: rgba(100, 180, 255, 0.6);
 }
 
 /* ── Engine header ── */
@@ -597,7 +833,7 @@
   margin-top: 2px;
 }
 
-/* Opening name */
+/* Opening name in analysis tab */
 .opening {
   padding: 6px 14px;
   font-size: 0.7rem;
@@ -714,7 +950,7 @@
   box-sizing: border-box;
   outline: none;
   transition: border-color 0.15s;
-  min-height: 180px;
+  min-height: 160px;
 }
 
 .pgnTextarea:focus { border-color: rgba(0, 255, 245, 0.25); }
@@ -768,7 +1004,7 @@
   border-color: rgba(0, 255, 245, 0.5);
 }
 
-/* ── External (Chess.com / Lichess) import ── */
+/* ── External import ── */
 .externalHeader {
   display: flex;
   align-items: center;
@@ -805,7 +1041,6 @@
 }
 
 .usernameInput:focus { border-color: rgba(0, 255, 245, 0.3); }
-
 .usernameInput::placeholder { color: rgba(255, 255, 255, 0.2); }
 
 .fetchBtn {
@@ -834,7 +1069,7 @@
   margin: 0;
 }
 
-/* ── Saved games section ── */
+/* ── Saved games ── */
 .savedSection {
   flex: 1;
   overflow-y: auto;
@@ -914,48 +1149,7 @@
   text-overflow: ellipsis;
 }
 
-/* ── ELO Estimation ── */
-
-.eloEstRow {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-top: 8px;
-  padding: 8px 10px;
-  background: rgba(0, 255, 245, 0.04);
-  border: 1px solid rgba(0, 255, 245, 0.1);
-  border-radius: 8px;
-}
-
-.eloEstItem {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.eloEstLabel {
-  font-size: 0.65rem;
-  color: rgba(255, 255, 255, 0.35);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.eloEstVal {
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: var(--color-accent);
-}
-
-.eloEstHint {
-  font-size: 0.6rem;
-  color: rgba(255, 255, 255, 0.2);
-  margin-left: auto;
-}
-
 /* ── Tablebase ── */
-
 .tablebaseResult {
   display: flex;
   align-items: center;
@@ -1025,41 +1219,69 @@
   margin-left: auto;
 }
 
-/* ── Responsive ── */
-@media (max-width: 1100px) {
-  .panel { width: 360px; min-width: 280px; }
-}
+/* ══════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════════════════════════════════════ */
 
-@media (max-width: 960px) {
-  .panel { width: 320px; min-width: 260px; }
-  .pName { max-width: 140px; }
-}
-
-@media (max-width: 800px) {
-  .panel { width: 280px; min-width: 220px; }
-  .evalBar { width: 14px; }
+@media (max-width: 900px) {
+  .analysisPanel { min-width: 240px; max-width: 340px; }
+  .reportCenter { max-width: 460px; }
 }
 
 @media (max-width: 700px) {
-  .page { flex-direction: column; overflow-y: auto; }
-  .leftCol { flex: none; width: 100%; }
-  .boardCol { flex: none; }
-  .boardWrap {
-    flex: 1;
+  .analysisLayout {
+    flex-direction: column;
+    overflow-y: auto;
   }
-  .panel {
+
+  .analysisBoardSection {
+    flex: none;
+    width: 100%;
+  }
+
+  .analysisPanel {
     width: 100%;
     min-width: 0;
+    max-width: none;
     border-left: none;
     border-top: 1px solid rgba(255, 255, 255, 0.06);
     max-height: 40vh;
     overflow-y: auto;
   }
+
+  .playersRow {
+    gap: 12px;
+  }
+
+  .playerCard {
+    min-width: 80px;
+  }
+
+  .accValue {
+    font-size: 1.5rem;
+  }
+
+  .scoreResult {
+    font-size: 1.3rem;
+  }
+
   .evalBar { width: 14px; }
+  .tab { padding: 10px 16px; font-size: 0.75rem; }
 }
 
 @media (max-width: 560px) {
   .evalBar { width: 12px; }
   .playerBar { padding: 4px 6px; min-height: 26px; }
   .navBtn { padding: 5px 14px; font-size: 0.75rem; }
+  .tab { padding: 8px 12px; }
+
+  .importCenter { padding: 16px 8px; }
+  .importCard { border-radius: 8px; }
+  .importHeader { padding: 16px 16px 12px; }
+
+  .reportScroll { padding: 12px 8px 24px; }
+  .scoreCard { padding: 16px 12px 14px; }
+  .accValue { font-size: 1.3rem; }
+  .playerAvatar { width: 40px; height: 40px; }
+  .avatarDot { width: 18px; height: 18px; }
 }
