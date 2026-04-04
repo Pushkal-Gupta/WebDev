@@ -11,6 +11,27 @@ import BoardEditor from './BoardEditor';
 import OpeningExplorer from './OpeningExplorer';
 import { countPieces, fetchTablebase } from '../../utils/tablebaseService';
 
+// ── Persistence helpers ──────────────────────────────────────────────────────
+
+const ANALYSIS_STATE_KEY = 'chess_analysis_state';
+
+function saveAnalysisState(state) {
+  try {
+    localStorage.setItem(ANALYSIS_STATE_KEY, JSON.stringify(state));
+  } catch {}
+}
+
+function loadAnalysisState() {
+  try {
+    const raw = localStorage.getItem(ANALYSIS_STATE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function clearAnalysisState() {
+  try { localStorage.removeItem(ANALYSIS_STATE_KEY); } catch {}
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function evalToWhitePct(score) {
@@ -58,7 +79,6 @@ function getTopLines(fen, n = 3) {
       }
       return { san: move.san, score, line: sanMoves };
     });
-    // Cap cache at 200 entries
     if (_topLinesCache.size > 200) {
       const firstKey = _topLinesCache.keys().next().value;
       _topLinesCache.delete(firstKey);
@@ -115,7 +135,6 @@ function calcAccuracy(reviewResults, moveHistory, color) {
 
 function estimateElo(accuracy) {
   if (accuracy == null) return null;
-  // Rough mapping: 30%~600, 50%~900, 65%~1200, 75%~1500, 85%~1800, 95%~2200
   return Math.max(400, Math.min(2400, Math.round(400 + (accuracy / 100) * 1900)));
 }
 
@@ -128,14 +147,61 @@ function buildCounts(reviewResults, moveHistory, color) {
   return counts;
 }
 
-// Classification display order for the report table
 const CLASS_ORDER = ['brilliant', 'critical', 'best', 'excellent', 'okay', 'inaccuracy', 'mistake', 'blunder', 'theory'];
+
+// Game result description based on accuracy and outcome
+function getGameDescription(whiteAcc, blackAcc, pgnHeaders) {
+  const result = pgnHeaders?.Result;
+  const whiteName = pgnHeaders?.White || 'White';
+  const blackName = pgnHeaders?.Black || 'Black';
+
+  if (whiteAcc == null && blackAcc == null) return null;
+
+  const diff = (whiteAcc || 50) - (blackAcc || 50);
+  const absDiff = Math.abs(diff);
+
+  if (result === '1-0') {
+    if (absDiff > 20) return `${whiteName} dominated the game with superior play.`;
+    if (absDiff > 8) return `A competitive game where ${whiteName} found the better moves.`;
+    return `A close battle that could have gone either way \u2014 ${whiteName} held on.`;
+  }
+  if (result === '0-1') {
+    if (absDiff > 20) return `${blackName} dominated the game with superior play.`;
+    if (absDiff > 8) return `A competitive game where ${blackName} found the better moves.`;
+    return `A close battle that could have gone either way \u2014 ${blackName} held on.`;
+  }
+  if (result === '1/2-1/2') {
+    return 'An evenly matched game that ended in a draw.';
+  }
+
+  // Fallback for unknown result
+  if (absDiff < 5) return 'A closely contested game.';
+  if (diff > 0) return `${whiteName} had the edge in accuracy.`;
+  return `${blackName} had the edge in accuracy.`;
+}
+
+// Classify game character
+function getGameCharacter(reviewResults, moveHistory) {
+  if (!reviewResults?.length) return null;
+  let swings = 0;
+  let totalEvalDiff = 0;
+  for (let i = 1; i < reviewResults.length; i++) {
+    const diff = Math.abs(reviewResults[i].playedScore - reviewResults[i-1].playedScore);
+    totalEvalDiff += diff;
+    if (diff > 200) swings++;
+  }
+  const avgDiff = totalEvalDiff / reviewResults.length;
+  if (swings >= 4 || avgDiff > 150) return { label: 'WILD', icon: '\u265E' };
+  if (avgDiff < 30) return { label: 'STEADY', icon: '\u2694' };
+  if (avgDiff < 70) return { label: 'BALANCED', icon: '\u2696' };
+  return { label: 'SHARP', icon: '\u26A1' };
+}
 
 // ── Eval Graph ────────────────────────────────────────────────────────────────
 
-const EvalGraph = memo(function EvalGraph({ data, currentIdx, onSeek }) {
+const EvalGraph = memo(function EvalGraph({ data, currentIdx, onSeek, large }) {
   const uid = useId().replace(/:/g, '');
-  const W = 500, H = 60, pad = 1;
+  const W = 500, H = large ? 80 : 60, pad = 1;
   const evalToY = s => pad + (H - pad * 2) * (1 - evalToWhitePct(s) / 100);
   const pts = data.map((s, i) => [
     data.length > 1 ? pad + (i / (data.length - 1)) * (W - pad * 2) : W / 2,
@@ -145,7 +211,6 @@ const EvalGraph = memo(function EvalGraph({ data, currentIdx, onSeek }) {
   const fillD = pathD ? `${pathD} L ${pts.at(-1)[0].toFixed(1)},${H / 2} L ${pts[0][0].toFixed(1)},${H / 2} Z` : null;
   const curX  = currentIdx >= 0 && currentIdx < data.length ? pts[currentIdx][0] : null;
 
-  // Find blunder/mistake positions for markers
   const markers = [];
   data.forEach((s, i) => {
     if (i === 0) return;
@@ -167,13 +232,13 @@ const EvalGraph = memo(function EvalGraph({ data, currentIdx, onSeek }) {
         <>
           <clipPath id={`ug${uid}`}><rect x={0} y={0} width={W} height={H/2} /></clipPath>
           <clipPath id={`lg${uid}`}><rect x={0} y={H/2} width={W} height={H/2} /></clipPath>
-          <path d={fillD} fill="rgba(255,255,255,0.12)" clipPath={`url(#ug${uid})`} />
+          <path d={fillD} fill="rgba(255,255,255,0.15)" clipPath={`url(#ug${uid})`} />
           <path d={fillD} fill="rgba(0,0,0,0.35)" clipPath={`url(#lg${uid})`} />
         </>
       )}
       {pathD && <path d={pathD} fill="none" stroke="rgba(0,255,245,0.55)" strokeWidth={1.5} strokeLinejoin="round" />}
       {markers.map((m, i) => (
-        <circle key={i} cx={m.x} cy={m.y} r={2.5}
+        <circle key={i} cx={m.x} cy={m.y} r={large ? 3.5 : 2.5}
           fill={m.type === 'blunder' ? '#cc3333' : '#e08c00'} opacity={0.7} />
       ))}
       {curX !== null && <line x1={curX} y1={pad} x2={curX} y2={H-pad} stroke="rgba(255,255,255,0.45)" strokeWidth={1} strokeDasharray="2 2" />}
@@ -198,6 +263,33 @@ function AccuracyBar({ label, color, acc, dotClass }) {
   );
 }
 
+// ── Animated Accuracy Counter ─────────────────────────────────────────────────
+
+function AnimatedAccuracy({ value, color }) {
+  const [display, setDisplay] = useState(0);
+  const rafRef = useRef(null);
+  useEffect(() => {
+    if (value == null) return;
+    let start = null;
+    const duration = 1200;
+    const from = 0;
+    const to = value;
+    const step = (ts) => {
+      if (!start) start = ts;
+      const progress = Math.min((ts - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      setDisplay(Math.round(from + (to - from) * eased));
+      if (progress < 1) rafRef.current = requestAnimationFrame(step);
+    };
+    rafRef.current = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [value]);
+
+  if (value == null) return <span className={styles.accValue} style={{ color: 'rgba(255,255,255,0.3)' }}>--</span>;
+  const accColor = value >= 85 ? '#3ddc84' : value >= 65 ? '#f0c94c' : '#e05555';
+  return <span className={styles.accValue} style={{ color: accColor }}>{display}</span>;
+}
+
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export default function AnalysisBoard({ savedGames = [], gamesLoading = false, pendingPgn = null, onPendingPgnConsumed = null }) {
@@ -207,8 +299,8 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
   } = useGameStore();
 
   // UI state
-  const [panelTab, setPanelTab]             = useState('report'); // report | analysis
-  const [importTab, setImportTab]           = useState('pgn');    // pgn | chesscom | lichess
+  const [panelTab, setPanelTab]             = useState('report');
+  const [importTab, setImportTab]           = useState('pgn');
   const [currentEval, setCurrentEval]       = useState(0);
   const [engineLines, setEngineLines]       = useState([]);
   const [engineBusy, setEngineBusy]         = useState(false);
@@ -221,20 +313,58 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
   const [evalHistory, setEvalHistory]       = useState([]);
   const [pgnHeaders, setPgnHeaders]         = useState({});
   const [liveOpeningName, setLiveOpeningName] = useState(null);
-
-  // Tablebase state
-  const [tablebaseData, setTablebaseData] = useState(null);
-
-  // External import state
+  const [tablebaseData, setTablebaseData]   = useState(null);
   const [externalUsername, setExternalUsername] = useState('');
   const [externalGames, setExternalGames]     = useState([]);
   const [externalLoading, setExternalLoading] = useState(false);
   const [externalError, setExternalError]     = useState('');
+  // Track the PGN string that was loaded (for persistence)
+  const [loadedPgn, setLoadedPgn]           = useState(null);
+  // Animation states for report
+  const [reportAnimated, setReportAnimated] = useState(false);
 
   const openingAbortRef = useRef(null);
   const evalTimerRef = useRef(null);
   const moveListRef  = useRef(null);
   const fileRef      = useRef(null);
+  const restoredRef  = useRef(false);
+
+  // ── Restore state on mount ────────────────────────────────────────────────
+
+  useEffect(() => {
+    if (restoredRef.current) return;
+    restoredRef.current = true;
+    const saved = loadAnalysisState();
+    if (!saved?.pgn) return;
+    const ok = importPgn(saved.pgn);
+    if (!ok) { clearAnalysisState(); return; }
+    setLoadedPgn(saved.pgn);
+    setGameLoaded(true);
+    setDisableBoard(true);
+    if (saved.reviewResults) setReviewResults(saved.reviewResults);
+    if (saved.pgnHeaders) setPgnHeaders(saved.pgnHeaders);
+    if (saved.panelTab) setPanelTab(saved.panelTab);
+    if (saved.evalHistory) setEvalHistory(saved.evalHistory);
+    if (typeof saved.currentMoveIndex === 'number' && saved.currentMoveIndex >= 0) {
+      setTimeout(() => goToMove(saved.currentMoveIndex), 50);
+    }
+    // Skip animation on restore
+    if (saved.reviewResults) setReportAnimated(true);
+  }, []); // eslint-disable-line
+
+  // ── Persist state on changes ──────────────────────────────────────────────
+
+  useEffect(() => {
+    if (!gameLoaded || !loadedPgn) return;
+    saveAnalysisState({
+      pgn: loadedPgn,
+      reviewResults,
+      pgnHeaders,
+      panelTab,
+      evalHistory,
+      currentMoveIndex,
+    });
+  }, [gameLoaded, loadedPgn, reviewResults, pgnHeaders, panelTab, evalHistory, currentMoveIndex]);
 
   useEffect(() => { if (gameLoaded) setDisableBoard(true); }, [gameLoaded, currentMoveIndex]);
 
@@ -243,10 +373,11 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
     if (!pendingPgn) return;
     const ok = importPgn(pendingPgn);
     if (ok) {
+      setLoadedPgn(pendingPgn);
       setGameLoaded(true);
       setReviewResults(null);
       setPanelTab('report');
-      // Auto-start review after a brief delay to let the board render
+      setReportAnimated(false);
       setTimeout(async () => {
         const history = useGameStore.getState().moveHistory;
         if (!history.length) return;
@@ -255,6 +386,8 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
         try {
           const results = await reviewGame(history, (cur, tot) => setReviewProgress({ current: cur, total: tot }));
           setReviewResults(results);
+          setReportAnimated(false);
+          setTimeout(() => setReportAnimated(true), 50);
         } finally {
           setIsReviewing(false);
         }
@@ -291,7 +424,6 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
     return () => clearTimeout(evalTimerRef.current);
   }, [currentMoveIndex, gameLoaded, chessInstance]);
 
-  // Tablebase lookup for <=7 piece positions
   useEffect(() => {
     if (!chessInstance || !gameLoaded) { setTablebaseData(null); return; }
     const fen = currentMoveIndex >= 0 && moveHistory[currentMoveIndex]
@@ -335,11 +467,13 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
     const cleanPgn = chess.pgn() || pgnStr;
     const ok = importPgn(cleanPgn || pgnStr);
     if (ok) {
+      setLoadedPgn(cleanPgn || pgnStr);
       setGameLoaded(true);
       setReviewResults(null);
       setPgnInput('');
       setDisableBoard(true);
       setPanelTab('report');
+      setReportAnimated(false);
     } else {
       setPgnError('Failed to load game. Check PGN format.');
     }
@@ -364,10 +498,12 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
     if (!moveHistory.length) return;
     setIsReviewing(true); setReviewResults(null);
     setReviewProgress({ current: 0, total: moveHistory.length });
+    setReportAnimated(false);
     try {
       const results = await reviewGame(moveHistory, (current, total) => setReviewProgress({ current, total }));
       setReviewResults(results);
       setPanelTab('report');
+      setTimeout(() => setReportAnimated(true), 50);
     } finally { setIsReviewing(false); setReviewProgress({ current: 0, total: 0 }); }
   };
 
@@ -376,6 +512,8 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
     setEngineLines([]); setCurrentEval(0);
     setEvalHistory([]); setPgnHeaders({}); setPgnError('');
     setLiveOpeningName(null); setExternalGames([]); setExternalError('');
+    setLoadedPgn(null); setReportAnimated(false);
+    clearAnalysisState();
   };
 
   const handleFetchExternal = async () => {
@@ -429,127 +567,141 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
   const botAcc        = botColor === 'w' ? whiteAcc : blackAcc;
   const openingName   = liveOpeningName || pgnHeaders.Opening || pgnHeaders.ECO || null;
 
-  // Current move annotation
   const curReview = reviewResults && currentMoveIndex >= 0 ? reviewResults[currentMoveIndex] : null;
   const curClass  = curReview ? CLASSIFICATIONS[curReview.classification] : null;
   const curMove   = currentMoveIndex >= 0 ? moveHistory[currentMoveIndex] : null;
+
+  const gameCharacter = useMemo(() => getGameCharacter(reviewResults, moveHistory), [reviewResults, moveHistory]);
+  const gameDesc = useMemo(() => getGameDescription(whiteAcc, blackAcc, pgnHeaders), [whiteAcc, blackAcc, pgnHeaders]);
 
   // ── Render ────────────────────────────────────────────────────────────────────
 
   return (
     <div className={styles.page}>
-
-      {/* ── Left: board column ── */}
-      <div className={styles.leftCol}>
-        <div className={styles.boardCol}>
-          {gameLoaded ? (
-            <>
-              {/* Top player */}
-              <div className={styles.playerBar}>
-                <div className={styles.playerLeft}>
-                  <span className={`${styles.pDot} ${topColor === 'w' ? styles.pDotW : styles.pDotB}`} />
-                  <span className={styles.pName}>{topName}</span>
-                </div>
-                {topAcc !== null && (
-                  <span className={styles.pAcc} style={{ color: topAcc >= 85 ? '#3ddc84' : topAcc >= 65 ? '#f0c94c' : '#e05555' }}>
-                    {topAcc}%
-                  </span>
-                )}
-              </div>
-
-              {/* Eval bar + board row */}
-              <div className={styles.boardRow}>
-                <div className={styles.evalBar}>
-                  <div className={styles.evalWhite} style={{ height: `${whitePct}%` }} />
-                  <div className={styles.evalBlack} />
-                  <span className={styles.evalScore} style={{
-                    top: whitePct >= 55 ? 'auto' : '4px',
-                    bottom: whitePct >= 55 ? '4px' : 'auto',
-                    color: whitePct >= 55 ? '#333' : '#bbb',
-                  }}>{formatEval(currentEval)}</span>
-                </div>
-                <div className={styles.boardWrap}>
-                  <Board />
-                </div>
-              </div>
-
-              {/* Bottom player */}
-              <div className={styles.playerBar}>
-                <div className={styles.playerLeft}>
-                  <span className={`${styles.pDot} ${botColor === 'w' ? styles.pDotW : styles.pDotB}`} />
-                  <span className={styles.pName}>{bottomName}</span>
-                </div>
-                {botAcc !== null && (
-                  <span className={styles.pAcc} style={{ color: botAcc >= 85 ? '#3ddc84' : botAcc >= 65 ? '#f0c94c' : '#e05555' }}>
-                    {botAcc}%
-                  </span>
-                )}
-              </div>
-            </>
-          ) : (
-            /* Board placeholder when no game loaded */
-            <div className={styles.boardRow}>
-              <div className={styles.boardWrap}>
-                <div className={styles.boardPlaceholder}>
-                  <svg className={styles.boardPlaceholderIcon} width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="2" y="12" width="3" height="6" rx="1"/>
-                    <rect x="8" y="8" width="3" height="10" rx="1"/>
-                    <rect x="14" y="4" width="3" height="14" rx="1"/>
-                    <path d="M3.5 11.5l5-4.5 4 3 5-6" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  <span className={styles.boardPlaceholderText}>Import a game from the panel to start analysis</span>
-                </div>
-              </div>
+      {/* ── When no game loaded: centered import ── */}
+      {!gameLoaded && (
+        <div className={styles.importCenter}>
+          <div className={styles.importCard}>
+            <div className={styles.importHeader}>
+              <span className={styles.importTitle}>Game Analysis</span>
+              <span className={styles.importSubtitle}>Import a game to analyse</span>
             </div>
-          )}
 
-          {/* Nav bar */}
-          {gameLoaded && (
-            <div className={styles.navRow}>
-              <button className={styles.navBtn} onClick={() => goToMove(-1)} title="Start">|&#x25C0;</button>
-              <button className={styles.navBtn} onClick={() => goToMove(currentMoveIndex - 1)} disabled={currentMoveIndex < 0} title="Prev">&#x25C0;</button>
-              <button className={styles.navBtn} onClick={() => goToMove(currentMoveIndex + 1)} disabled={currentMoveIndex >= moveHistory.length - 1} title="Next">&#x25B6;</button>
-              <button className={styles.navBtn} onClick={() => goToMove(moveHistory.length - 1)} title="End">&#x25B6;|</button>
+            <div className={styles.importTabs}>
+              <button className={`${styles.importTab} ${importTab === 'pgn' ? styles.importTabActive : ''}`}
+                onClick={() => { setImportTab('pgn'); setExternalError(''); }}>PGN</button>
+              <button className={`${styles.importTab} ${importTab === 'chesscom' ? styles.importTabActive : ''}`}
+                onClick={() => { setImportTab('chesscom'); setExternalError(''); setPgnError(''); }}>Chess.com</button>
+              <button className={`${styles.importTab} ${importTab === 'lichess' ? styles.importTabActive : ''}`}
+                onClick={() => { setImportTab('lichess'); setExternalError(''); setPgnError(''); }}>Lichess</button>
+              <button className={`${styles.importTab} ${importTab === 'setup' ? styles.importTabActive : ''}`}
+                onClick={() => { setImportTab('setup'); setExternalError(''); setPgnError(''); }}>Setup</button>
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* ── Right: analysis panel ── */}
-      <div className={`${styles.panel} ${!gameLoaded ? styles.panelExpanded : ''}`}>
+            {importTab === 'pgn' && (
+              <div className={styles.inputSection}>
+                <textarea
+                  className={styles.pgnTextarea}
+                  value={pgnInput}
+                  onChange={e => { setPgnInput(e.target.value); setPgnError(''); }}
+                  placeholder="Paste PGN or FEN here..."
+                  rows={8}
+                />
+                {pgnError && <div className={styles.pgnError}>{pgnError}</div>}
+                <input ref={fileRef} type="file" accept=".pgn,.txt" style={{ display: 'none' }} onChange={handleFileUpload} />
+                <div className={styles.importBtns}>
+                  <button className={styles.uploadBtn} onClick={() => fileRef.current?.click()}>Upload .pgn</button>
+                  <button className={styles.analyseBtn} onClick={() => doLoad(pgnInput)}>Analyse</button>
+                </div>
+              </div>
+            )}
 
-        {/* Panel header */}
-        <div className={styles.panelHeader}>
-          <span className={styles.panelTitle}>Game Analysis</span>
-          <div className={styles.panelActions}>
-            {gameLoaded && (
-              <>
-                <button className={styles.iconBtn} onClick={() => setFlipped(f => !f)} title="Flip board">&#x21C5;</button>
-                <button
-                  className={`${styles.iconBtn} ${reviewResults ? styles.iconBtnDone : ''}`}
-                  onClick={handleReview}
-                  disabled={isReviewing || !moveHistory.length}
-                  title="Review game"
-                >
-                  {isReviewing ? `${reviewProgress.current}/${reviewProgress.total}` : '&#x27F3;'}
-                </button>
-                <button className={styles.iconBtn} onClick={handleNewGame} title="New analysis">&#x2715;</button>
-              </>
+            {(importTab === 'chesscom' || importTab === 'lichess') && (
+              <div className={styles.inputSection}>
+                <div className={styles.externalHeader}>
+                  <span className={styles.externalLogo}>{importTab === 'chesscom' ? 'CC' : 'Li'}</span>
+                  <span className={styles.externalTitle}>{importTab === 'chesscom' ? 'Chess.com' : 'Lichess.org'}</span>
+                </div>
+                <div className={styles.externalRow}>
+                  <input
+                    className={styles.usernameInput}
+                    value={externalUsername}
+                    onChange={e => { setExternalUsername(e.target.value); setExternalError(''); }}
+                    placeholder="Enter username"
+                    onKeyDown={e => e.key === 'Enter' && handleFetchExternal()}
+                  />
+                  <button className={styles.fetchBtn} onClick={handleFetchExternal} disabled={externalLoading}>
+                    {externalLoading ? '...' : 'Fetch'}
+                  </button>
+                </div>
+                {externalError && <div className={styles.pgnError}>{externalError}</div>}
+                <p className={styles.externalHint}>Free, no login required. Uses the public API.</p>
+              </div>
+            )}
+
+            {importTab === 'setup' && (
+              <BoardEditor onAnalyse={(fen) => doLoad(fen)} />
+            )}
+
+            {externalGames.length > 0 && (
+              <div className={styles.savedSection}>
+                <div className={styles.sectionLabel}>{externalGames.length} games found</div>
+                <div className={styles.savedList}>
+                  {externalGames.map((g, i) => (
+                    <div key={i} className={styles.savedGame} onClick={() => handleLoadGame(g)}>
+                      <div className={styles.savedTop}>
+                        <span className={`${styles.pDot} ${g.color === 'white' ? styles.pDotW : styles.pDotB}`} />
+                        <span className={styles.savedVs}>{g.white} vs {g.black}</span>
+                        <span className={`${styles.resBadge} ${styles['res_' + g.result]}`}>
+                          {g.result === 'draw' ? '1/2' : g.result === 'win' ? 'W' : 'L'}
+                        </span>
+                      </div>
+                      <div className={styles.savedMeta}>
+                        {g.whiteRating && <span>{g.whiteRating}</span>}
+                        {g.whiteRating && g.blackRating && <span> vs </span>}
+                        {g.blackRating && <span>{g.blackRating}</span>}
+                        {g.timeControl && <span> &middot; {g.timeControl}</span>}
+                        {g.opening && <span> &middot; {g.opening}</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {(gamesLoading || savedGames.length > 0) && (
+              <div className={styles.savedSection}>
+                <div className={styles.sectionLabel}>Your Games</div>
+                {gamesLoading && <div className={styles.dim}>Loading...</div>}
+                <div className={styles.savedList}>
+                  {savedGames.map((g, i) => (
+                    <div key={i} className={styles.savedGame} onClick={() => handleLoadGame(g)}>
+                      <div className={styles.savedTop}>
+                        <span className={`${styles.pDot} ${g.color === 'white' ? styles.pDotW : styles.pDotB}`} />
+                        <span className={styles.savedVs}>
+                          {g.color === 'white' ? 'W' : 'B'} &middot; {g.opponent || 'vs Opponent'}
+                        </span>
+                        {g.result && (
+                          <span className={`${styles.resBadge} ${styles['res_' + g.result]}`}>
+                            {g.result === 'draw' ? '1/2' : g.result === g.color ? 'W' : 'L'}
+                          </span>
+                        )}
+                      </div>
+                      <div className={styles.savedPgn}>{(g.pgnStr || '').slice(0, 60)}...</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
         </div>
+      )}
 
-        {/* Review progress */}
-        {isReviewing && (
-          <div className={styles.reviewProgress}>
-            <div className={styles.reviewBar} style={{ width: `${(reviewProgress.current / reviewProgress.total) * 100}%` }} />
-          </div>
-        )}
-
-        {/* ── Game loaded: tabs + content ── */}
-        {gameLoaded ? (
-          <>
-            {/* Tab switcher */}
+      {/* ── Game loaded ── */}
+      {gameLoaded && (
+        <div className={styles.analysisMain}>
+          {/* Top bar with tabs + actions */}
+          <div className={styles.topBar}>
             <div className={styles.tabRow}>
               <button className={`${styles.tab} ${panelTab === 'report' ? styles.tabActive : ''}`}
                 onClick={() => setPanelTab('report')}>Report</button>
@@ -558,57 +710,121 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
               <button className={`${styles.tab} ${panelTab === 'explorer' ? styles.tabActive : ''}`}
                 onClick={() => setPanelTab('explorer')}>Explorer</button>
             </div>
+            <div className={styles.topActions}>
+              <button className={styles.iconBtn} onClick={() => setFlipped(f => !f)} title="Flip board">&#x21C5;</button>
+              <button
+                className={`${styles.iconBtn} ${reviewResults ? styles.iconBtnDone : ''}`}
+                onClick={handleReview}
+                disabled={isReviewing || !moveHistory.length}
+                title="Review game"
+              >
+                {isReviewing ? `${reviewProgress.current}/${reviewProgress.total}` : '\u27F3'}
+              </button>
+              <button className={styles.iconBtn} onClick={handleNewGame} title="New analysis">&#x2715;</button>
+            </div>
+          </div>
 
-            {/* ── REPORT TAB ── */}
-            {panelTab === 'report' && (
-              <div className={styles.reportContent}>
+          {/* Review progress bar */}
+          {isReviewing && (
+            <div className={styles.reviewProgress}>
+              <div className={styles.reviewBar} style={{ width: `${(reviewProgress.current / reviewProgress.total) * 100}%` }} />
+            </div>
+          )}
+
+          {/* ── REPORT TAB: chess.com-style full report ── */}
+          {panelTab === 'report' && (
+            <div className={styles.reportScroll}>
+              <div className={styles.reportCenter}>
+                {/* Score card */}
+                <div className={`${styles.scoreCard} ${reportAnimated ? styles.scoreCardAnimated : ''}`}>
+                  {/* Result */}
+                  <div className={styles.scoreResult}>
+                    {pgnHeaders.Result || (moveHistory.length > 0 ? '*' : '')}
+                  </div>
+
+                  {/* Players row */}
+                  <div className={styles.playersRow}>
+                    <div className={styles.playerCard}>
+                      <div className={styles.playerAvatar}>
+                        <span className={`${styles.avatarDot} ${styles.avatarDotW}`} />
+                      </div>
+                      <AnimatedAccuracy value={whiteAcc} />
+                      <span className={styles.playerAccLabel}>Accuracy</span>
+                      <span className={styles.playerName}>{pgnHeaders.White || 'White'}</span>
+                    </div>
+
+                    <div className={styles.vsSection}>
+                      {gameCharacter && (
+                        <div className={styles.gameCharacter}>
+                          <span className={styles.characterIcon}>{gameCharacter.icon}</span>
+                          <span className={styles.characterLabel}>{gameCharacter.label}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className={styles.playerCard}>
+                      <div className={styles.playerAvatar}>
+                        <span className={`${styles.avatarDot} ${styles.avatarDotB}`} />
+                      </div>
+                      <AnimatedAccuracy value={blackAcc} />
+                      <span className={styles.playerAccLabel}>Accuracy</span>
+                      <span className={styles.playerName}>{pgnHeaders.Black || 'Black'}</span>
+                    </div>
+                  </div>
+
+                  {/* Game description */}
+                  {gameDesc && (
+                    <div className={styles.gameDescription}>{gameDesc}</div>
+                  )}
+                </div>
+
                 {/* Eval graph */}
                 {graphData.length > 1 && (
-                  <div className={styles.graphWrap}>
-                    <EvalGraph data={graphData} currentIdx={currentMoveIndex} onSeek={goToMove} />
+                  <div className={styles.reportGraphWrap}>
+                    <EvalGraph data={graphData} currentIdx={currentMoveIndex} onSeek={goToMove} large />
                   </div>
                 )}
 
-                {/* Accuracy bars + ELO estimation */}
+                {/* Accuracy bars */}
                 {reviewResults && (whiteAcc !== null || blackAcc !== null) && (
-                  <div className={styles.section}>
-                    <div className={styles.sectionLabel}>Accuracies</div>
+                  <div className={styles.reportSection}>
                     {whiteAcc !== null && (
                       <AccuracyBar label={pgnHeaders.White || 'White'} acc={whiteAcc} dotClass={styles.pDotW} />
                     )}
                     {blackAcc !== null && (
                       <AccuracyBar label={pgnHeaders.Black || 'Black'} acc={blackAcc} dotClass={styles.pDotB} />
                     )}
-                    {(whiteAcc !== null || blackAcc !== null) && (
-                      <div className={styles.eloEstRow}>
-                        {whiteAcc !== null && (
-                          <div className={styles.eloEstItem}>
-                            <span className={styles.eloEstLabel}>{pgnHeaders.White || 'White'}</span>
-                            <span className={styles.eloEstVal}>~{estimateElo(whiteAcc)}</span>
-                          </div>
-                        )}
-                        {blackAcc !== null && (
-                          <div className={styles.eloEstItem}>
-                            <span className={styles.eloEstLabel}>{pgnHeaders.Black || 'Black'}</span>
-                            <span className={styles.eloEstVal}>~{estimateElo(blackAcc)}</span>
-                          </div>
-                        )}
-                        <div className={styles.eloEstHint}>Estimated rating (this game)</div>
-                      </div>
-                    )}
                   </div>
                 )}
 
-                {/* Classification table */}
+                {/* ELO estimation */}
+                {reviewResults && (whiteAcc !== null || blackAcc !== null) && (
+                  <div className={styles.eloEstRow}>
+                    {whiteAcc !== null && (
+                      <div className={styles.eloEstItem}>
+                        <span className={styles.eloEstLabel}>{pgnHeaders.White || 'White'}</span>
+                        <span className={styles.eloEstVal}>~{estimateElo(whiteAcc)}</span>
+                      </div>
+                    )}
+                    {blackAcc !== null && (
+                      <div className={styles.eloEstItem}>
+                        <span className={styles.eloEstLabel}>{pgnHeaders.Black || 'Black'}</span>
+                        <span className={styles.eloEstVal}>~{estimateElo(blackAcc)}</span>
+                      </div>
+                    )}
+                    <div className={styles.eloEstHint}>Estimated rating (this game)</div>
+                  </div>
+                )}
+
+                {/* Classification table - chess.com style */}
                 {reviewResults && (
-                  <div className={styles.section}>
-                    <div className={styles.sectionLabel}>Move Classifications</div>
+                  <div className={styles.reportSection}>
                     <table className={styles.classTable}>
                       <thead>
                         <tr>
-                          <th></th>
-                          <th></th>
                           <th className={styles.classColHead}>W</th>
+                          <th></th>
+                          <th></th>
                           <th className={styles.classColHead}>B</th>
                         </tr>
                       </thead>
@@ -620,10 +836,10 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                           if (wN === 0 && bN === 0) return null;
                           return (
                             <tr key={key} className={styles.classRow}>
+                              <td className={styles.classCountW} style={{ color: wN > 0 ? cls.color : 'rgba(255,255,255,0.2)' }}>{wN}</td>
                               <td className={styles.classIcon} style={{ color: cls.color }}>{cls.icon}</td>
                               <td className={styles.classLabel} style={{ color: cls.color }}>{cls.label}</td>
-                              <td className={styles.classCount}>{wN || '-'}</td>
-                              <td className={styles.classCount}>{bN || '-'}</td>
+                              <td className={styles.classCountB} style={{ color: bN > 0 ? cls.color : 'rgba(255,255,255,0.2)' }}>{bN}</td>
                             </tr>
                           );
                         })}
@@ -632,6 +848,15 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                   </div>
                 )}
 
+                {/* Opening info */}
+                {openingName && (
+                  <div className={styles.reportSection}>
+                    <div className={styles.sectionLabel}>Opening</div>
+                    <div className={styles.openingText}>{openingName}</div>
+                  </div>
+                )}
+
+                {/* Review prompt if not reviewed */}
                 {!reviewResults && !isReviewing && (
                   <div className={styles.reviewPrompt}>
                     <button className={styles.reviewBtn} onClick={handleReview} disabled={!moveHistory.length}>
@@ -640,13 +865,76 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                     <p className={styles.reviewHint}>Analyse each move to see accuracy, classifications, and the evaluation graph.</p>
                   </div>
                 )}
-              </div>
-            )}
 
-            {/* ── ANALYSIS TAB ── */}
-            {panelTab === 'analysis' && (
-              <div className={styles.analysisContent}>
-                {/* Eval graph (compact in analysis tab too) */}
+                {/* Reviewing animation */}
+                {isReviewing && (
+                  <div className={styles.reviewingSection}>
+                    <div className={styles.reviewingSpinner} />
+                    <span className={styles.reviewingText}>Analysing moves... {reviewProgress.current}/{reviewProgress.total}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ── ANALYSIS TAB: board + engine ── */}
+          {panelTab === 'analysis' && (
+            <div className={styles.analysisLayout}>
+              <div className={styles.analysisBoardSection}>
+                {/* Top player */}
+                <div className={styles.playerBar}>
+                  <div className={styles.playerLeft}>
+                    <span className={`${styles.pDot} ${topColor === 'w' ? styles.pDotW : styles.pDotB}`} />
+                    <span className={styles.pName}>{topName}</span>
+                  </div>
+                  {topAcc !== null && (
+                    <span className={styles.pAcc} style={{ color: topAcc >= 85 ? '#3ddc84' : topAcc >= 65 ? '#f0c94c' : '#e05555' }}>
+                      {topAcc}%
+                    </span>
+                  )}
+                </div>
+
+                {/* Eval bar + board */}
+                <div className={styles.boardRow}>
+                  <div className={styles.evalBar}>
+                    <div className={styles.evalWhite} style={{ height: `${whitePct}%` }} />
+                    <div className={styles.evalBlack} />
+                    <span className={styles.evalScore} style={{
+                      top: whitePct >= 55 ? 'auto' : '4px',
+                      bottom: whitePct >= 55 ? '4px' : 'auto',
+                      color: whitePct >= 55 ? '#333' : '#bbb',
+                    }}>{formatEval(currentEval)}</span>
+                  </div>
+                  <div className={styles.boardWrap}>
+                    <Board />
+                  </div>
+                </div>
+
+                {/* Bottom player */}
+                <div className={styles.playerBar}>
+                  <div className={styles.playerLeft}>
+                    <span className={`${styles.pDot} ${botColor === 'w' ? styles.pDotW : styles.pDotB}`} />
+                    <span className={styles.pName}>{bottomName}</span>
+                  </div>
+                  {botAcc !== null && (
+                    <span className={styles.pAcc} style={{ color: botAcc >= 85 ? '#3ddc84' : botAcc >= 65 ? '#f0c94c' : '#e05555' }}>
+                      {botAcc}%
+                    </span>
+                  )}
+                </div>
+
+                {/* Nav */}
+                <div className={styles.navRow}>
+                  <button className={styles.navBtn} onClick={() => goToMove(-1)} title="Start">|&#x25C0;</button>
+                  <button className={styles.navBtn} onClick={() => goToMove(currentMoveIndex - 1)} disabled={currentMoveIndex < 0} title="Prev">&#x25C0;</button>
+                  <button className={styles.navBtn} onClick={() => goToMove(currentMoveIndex + 1)} disabled={currentMoveIndex >= moveHistory.length - 1} title="Next">&#x25B6;</button>
+                  <button className={styles.navBtn} onClick={() => goToMove(moveHistory.length - 1)} title="End">&#x25B6;|</button>
+                </div>
+              </div>
+
+              {/* Engine + move list panel */}
+              <div className={styles.analysisPanel}>
+                {/* Eval graph */}
                 {graphData.length > 1 && (
                   <div className={styles.graphWrapSmall}>
                     <EvalGraph data={graphData} currentIdx={currentMoveIndex} onSeek={goToMove} />
@@ -682,7 +970,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                   }
                 </div>
 
-                {/* Tablebase result */}
+                {/* Tablebase */}
                 {tablebaseData && (
                   <div className={styles.section}>
                     <div className={styles.sectionLabel}>Tablebase</div>
@@ -766,18 +1054,53 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                   })}
                 </div>
               </div>
-            )}
+            </div>
+          )}
 
-            {/* ── EXPLORER TAB ── */}
-            {panelTab === 'explorer' && (
-              <div className={styles.analysisContent}>
+          {/* ── EXPLORER TAB ── */}
+          {panelTab === 'explorer' && (
+            <div className={styles.analysisLayout}>
+              <div className={styles.analysisBoardSection}>
+                <div className={styles.playerBar}>
+                  <div className={styles.playerLeft}>
+                    <span className={`${styles.pDot} ${topColor === 'w' ? styles.pDotW : styles.pDotB}`} />
+                    <span className={styles.pName}>{topName}</span>
+                  </div>
+                </div>
+                <div className={styles.boardRow}>
+                  <div className={styles.evalBar}>
+                    <div className={styles.evalWhite} style={{ height: `${whitePct}%` }} />
+                    <div className={styles.evalBlack} />
+                    <span className={styles.evalScore} style={{
+                      top: whitePct >= 55 ? 'auto' : '4px',
+                      bottom: whitePct >= 55 ? '4px' : 'auto',
+                      color: whitePct >= 55 ? '#333' : '#bbb',
+                    }}>{formatEval(currentEval)}</span>
+                  </div>
+                  <div className={styles.boardWrap}>
+                    <Board />
+                  </div>
+                </div>
+                <div className={styles.playerBar}>
+                  <div className={styles.playerLeft}>
+                    <span className={`${styles.pDot} ${botColor === 'w' ? styles.pDotW : styles.pDotB}`} />
+                    <span className={styles.pName}>{bottomName}</span>
+                  </div>
+                </div>
+                <div className={styles.navRow}>
+                  <button className={styles.navBtn} onClick={() => goToMove(-1)} title="Start">|&#x25C0;</button>
+                  <button className={styles.navBtn} onClick={() => goToMove(currentMoveIndex - 1)} disabled={currentMoveIndex < 0} title="Prev">&#x25C0;</button>
+                  <button className={styles.navBtn} onClick={() => goToMove(currentMoveIndex + 1)} disabled={currentMoveIndex >= moveHistory.length - 1} title="Next">&#x25B6;</button>
+                  <button className={styles.navBtn} onClick={() => goToMove(moveHistory.length - 1)} title="End">&#x25B6;|</button>
+                </div>
+              </div>
+              <div className={styles.analysisPanel}>
                 <OpeningExplorer
                   fen={currentMoveIndex >= 0 && moveHistory[currentMoveIndex]
                     ? moveHistory[currentMoveIndex].fen
                     : chessInstance?.fen()}
                   onPlayMove={(uci, san) => {
                     if (currentMoveIndex < moveHistory.length - 1) return;
-                    // Only allow playing moves at the end of the line
                     try {
                       const chess = new Chess(
                         currentMoveIndex >= 0 && moveHistory[currentMoveIndex]
@@ -792,137 +1115,10 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                   }}
                 />
               </div>
-            )}
-          </>
-        ) : (
-          <>
-            {/* ── No game: import area ── */}
-            <div className={styles.importTabs}>
-              <button className={`${styles.importTab} ${importTab === 'pgn' ? styles.importTabActive : ''}`}
-                onClick={() => { setImportTab('pgn'); setExternalError(''); }}>PGN</button>
-              <button className={`${styles.importTab} ${importTab === 'chesscom' ? styles.importTabActive : ''}`}
-                onClick={() => { setImportTab('chesscom'); setExternalError(''); setPgnError(''); }}>Chess.com</button>
-              <button className={`${styles.importTab} ${importTab === 'lichess' ? styles.importTabActive : ''}`}
-                onClick={() => { setImportTab('lichess'); setExternalError(''); setPgnError(''); }}>Lichess</button>
-              <button className={`${styles.importTab} ${importTab === 'setup' ? styles.importTabActive : ''}`}
-                onClick={() => { setImportTab('setup'); setExternalError(''); setPgnError(''); }}>Setup</button>
             </div>
-
-            {/* PGN tab */}
-            {importTab === 'pgn' && (
-              <div className={styles.inputSection}>
-                <textarea
-                  className={styles.pgnTextarea}
-                  value={pgnInput}
-                  onChange={e => { setPgnInput(e.target.value); setPgnError(''); }}
-                  placeholder="Paste PGN or FEN here..."
-                  rows={8}
-                />
-                {pgnError && <div className={styles.pgnError}>{pgnError}</div>}
-                <input ref={fileRef} type="file" accept=".pgn,.txt" style={{ display: 'none' }} onChange={handleFileUpload} />
-                <div className={styles.importBtns}>
-                  <button className={styles.uploadBtn} onClick={() => fileRef.current?.click()}>
-                    Upload .pgn
-                  </button>
-                  <button className={styles.analyseBtn} onClick={() => doLoad(pgnInput)}>
-                    Analyse
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Chess.com / Lichess tab */}
-            {(importTab === 'chesscom' || importTab === 'lichess') && (
-              <div className={styles.inputSection}>
-                <div className={styles.externalHeader}>
-                  <span className={styles.externalLogo}>
-                    {importTab === 'chesscom' ? 'CC' : 'Li'}
-                  </span>
-                  <span className={styles.externalTitle}>
-                    {importTab === 'chesscom' ? 'Chess.com' : 'Lichess.org'}
-                  </span>
-                </div>
-                <div className={styles.externalRow}>
-                  <input
-                    className={styles.usernameInput}
-                    value={externalUsername}
-                    onChange={e => { setExternalUsername(e.target.value); setExternalError(''); }}
-                    placeholder="Enter username"
-                    onKeyDown={e => e.key === 'Enter' && handleFetchExternal()}
-                  />
-                  <button className={styles.fetchBtn} onClick={handleFetchExternal} disabled={externalLoading}>
-                    {externalLoading ? '...' : 'Fetch'}
-                  </button>
-                </div>
-                {externalError && <div className={styles.pgnError}>{externalError}</div>}
-                <p className={styles.externalHint}>Free, no login required. Uses the public API.</p>
-              </div>
-            )}
-
-            {/* Setup (board editor) tab */}
-            {importTab === 'setup' && (
-              <BoardEditor onAnalyse={(fen) => doLoad(fen)} />
-            )}
-
-            {/* External games list */}
-            {externalGames.length > 0 && (
-              <div className={styles.savedSection}>
-                <div className={styles.sectionLabel}>
-                  {externalGames.length} games found
-                </div>
-                <div className={styles.savedList}>
-                  {externalGames.map((g, i) => (
-                    <div key={i} className={styles.savedGame} onClick={() => handleLoadGame(g)}>
-                      <div className={styles.savedTop}>
-                        <span className={`${styles.pDot} ${g.color === 'white' ? styles.pDotW : styles.pDotB}`} />
-                        <span className={styles.savedVs}>
-                          {g.white} vs {g.black}
-                        </span>
-                        <span className={`${styles.resBadge} ${styles['res_' + g.result]}`}>
-                          {g.result === 'draw' ? '1/2' : g.result === 'win' ? 'W' : 'L'}
-                        </span>
-                      </div>
-                      <div className={styles.savedMeta}>
-                        {g.whiteRating && <span>{g.whiteRating}</span>}
-                        {g.whiteRating && g.blackRating && <span> vs </span>}
-                        {g.blackRating && <span>{g.blackRating}</span>}
-                        {g.timeControl && <span> · {g.timeControl}</span>}
-                        {g.opening && <span> · {g.opening}</span>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Saved games from Supabase */}
-            {(gamesLoading || savedGames.length > 0) && (
-              <div className={styles.savedSection}>
-                <div className={styles.sectionLabel}>Your Games</div>
-                {gamesLoading && <div className={styles.dim}>Loading...</div>}
-                <div className={styles.savedList}>
-                  {savedGames.map((g, i) => (
-                    <div key={i} className={styles.savedGame} onClick={() => handleLoadGame(g)}>
-                      <div className={styles.savedTop}>
-                        <span className={`${styles.pDot} ${g.color === 'white' ? styles.pDotW : styles.pDotB}`} />
-                        <span className={styles.savedVs}>
-                          {g.color === 'white' ? 'W' : 'B'} · {g.opponent || 'vs Opponent'}
-                        </span>
-                        {g.result && (
-                          <span className={`${styles.resBadge} ${styles['res_' + g.result]}`}>
-                            {g.result === 'draw' ? '1/2' : g.result === g.color ? 'W' : 'L'}
-                          </span>
-                        )}
-                      </div>
-                      <div className={styles.savedPgn}>{(g.pgnStr || '').slice(0, 60)}...</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
