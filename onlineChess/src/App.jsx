@@ -905,7 +905,14 @@ export default function App() {
         {/* ── Tab 5: Account ── */}
         {activeTab === 5 && !user && (
           <div className="sign-in-prompt">
-            <div className="sign-in-prompt-icon icon-glow">PG</div>
+            <div className="sign-in-prompt-icon icon-glow">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="5.5" r="3"/>
+                <path d="M9.5 8.5C9.5 8.5 8 11 8 13c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2 0-2-1.5-4.5-1.5-4.5H9.5z"/>
+                <path d="M7 17h10l1 3H6l1-3z"/>
+                <rect x="5" y="20.5" width="14" height="2" rx="0.5"/>
+              </svg>
+            </div>
             <div className="sign-in-prompt-title">Sign in to view your profile</div>
             <div className="sign-in-prompt-sub">Track your ratings, review games, and connect with friends.</div>
             <button className="sign-in-prompt-btn" onClick={() => setShowLogin(true)}>Sign In</button>
@@ -1152,7 +1159,12 @@ function HomeScreen({ user, onStart, onPlayOnline, onTabClick, onQuickMatch }) {
         {/* ── Hero ── */}
         <div className="home-hero-wrap">
           <h1 className="home-title">
-            PG<span className="home-title-accent">.Chess</span>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" style={{verticalAlign: 'middle', marginRight: '6px'}} xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="5.5" r="3"/>
+              <path d="M9.5 8.5C9.5 8.5 8 11 8 13c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2 0-2-1.5-4.5-1.5-4.5H9.5z"/>
+              <path d="M7 17h10l1 3H6l1-3z"/>
+              <rect x="5" y="20.5" width="14" height="2" rx="0.5"/>
+            </svg><span className="home-title-accent">Chess</span>
           </h1>
           <p className="home-tagline">
             Free · No ads · No paywalls
