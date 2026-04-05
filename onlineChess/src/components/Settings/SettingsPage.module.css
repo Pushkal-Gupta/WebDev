@@ -169,6 +169,47 @@
   margin-bottom: 8px;
 }
 
+/* ── Category Filter Tabs ── */
+.filterTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.filterTab {
+  padding: 5px 14px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.03);
+  color: rgba(255,255,255,0.5);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.filterTab:hover {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.8);
+}
+.filterTabActive {
+  background: rgba(0,255,245,0.1) !important;
+  border-color: rgba(0,255,245,0.35) !important;
+  color: var(--color-accent) !important;
+}
+
+/* ── Scrollable Grid Container ── */
+.scrollGrid {
+  max-height: 360px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.08) transparent;
+}
+
 /* ── Piece Set grid ── */
 .pieceGrid {
   display: flex;
