@@ -7,6 +7,7 @@ import { supabase } from '../../utils/supabase';
 import { playSound } from '../../utils/soundManager';
 import styles from './SettingsPage.module.css';
 
+/* ─── Constants ─── */
 const SOUND_LABELS = [
   { key: 'move', label: 'Move' },
   { key: 'capture', label: 'Capture' },
@@ -133,7 +134,98 @@ const COUNTRIES = [
   { code: 'VN', name: 'Vietnam' },
 ];
 
+/* ─── SVG Icons for sidebar ─── */
+const IconBoard = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <rect x="2" y="2" width="16" height="16" rx="2" />
+    <rect x="2" y="2" width="8" height="8" fill="currentColor" opacity="0.3" />
+    <rect x="10" y="10" width="8" height="8" fill="currentColor" opacity="0.3" />
+  </svg>
+);
+const IconDisplay = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" />
+    <circle cx="10" cy="10" r="3" />
+  </svg>
+);
+const IconSound = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <path d="M10 3L5 7H2v6h3l5 4V3z" fill="currentColor" opacity="0.2" />
+    <path d="M14 7.5a4 4 0 010 5" />
+    <path d="M16.5 5a8 8 0 010 10" />
+  </svg>
+);
+const IconGame = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <circle cx="10" cy="7" r="3" />
+    <path d="M7 10h6l1.5 7h-9L7 10z" fill="currentColor" opacity="0.2" />
+    <line x1="10" y1="12" x2="10" y2="15" />
+    <line x1="8.5" y1="13.5" x2="11.5" y2="13.5" />
+  </svg>
+);
+const IconClock = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <circle cx="10" cy="10" r="8" />
+    <path d="M10 5v5l3.5 3.5" strokeLinecap="round" />
+  </svg>
+);
+const IconProfile = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <circle cx="10" cy="7" r="4" />
+    <path d="M3 18c0-3.5 3.1-6.5 7-6.5s7 3 7 6.5" strokeLinecap="round" />
+  </svg>
+);
+const IconNotif = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <path d="M6 8a4 4 0 018 0c0 4 2 5 2 5H4s2-1 2-5z" />
+    <path d="M8.5 16a1.5 1.5 0 003 0" />
+  </svg>
+);
+const IconAccessibility = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <circle cx="10" cy="4.5" r="2" />
+    <path d="M4 8l6 1 6-1" strokeLinecap="round" />
+    <path d="M8 9l-1.5 8M12 9l1.5 8" strokeLinecap="round" />
+    <path d="M10 9v4" />
+  </svg>
+);
+
+const CATEGORIES = [
+  { id: 'board', label: 'Board & Pieces', icon: IconBoard },
+  { id: 'display', label: 'Display', icon: IconDisplay },
+  { id: 'sound', label: 'Sound', icon: IconSound },
+  { id: 'game', label: 'Game Behavior', icon: IconGame },
+  { id: 'clock', label: 'Clock', icon: IconClock },
+  { id: 'divider1', divider: true },
+  { id: 'profile', label: 'Profile', icon: IconProfile },
+  { id: 'notifications', label: 'Notifications', icon: IconNotif },
+  { id: 'divider2', divider: true },
+  { id: 'accessibility', label: 'Accessibility', icon: IconAccessibility },
+];
+
+/* ─── Toggle Switch component ─── */
+function Toggle({ checked, onChange, label, desc }) {
+  return (
+    <label className={styles.toggleRow}>
+      <input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)} />
+      <span className={`${styles.switch} ${checked ? styles.switchChecked : ''}`}>
+        <span className={styles.switchTrack} />
+        <span className={styles.switchThumb} />
+      </span>
+      <span className={styles.toggleInfo}>
+        <span className={styles.toggleLabel}>{label}</span>
+        {desc && <p className={styles.toggleDesc}>{desc}</p>}
+      </span>
+    </label>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   Main Component
+   ═══════════════════════════════════════════════════ */
 export default function SettingsPage() {
+  const [activeCategory, setActiveCategory] = useState('board');
+
   // Theme store
   const {
     pieceSets, pieceSetIndex, setPieceSet,
@@ -177,7 +269,7 @@ export default function SettingsPage() {
   // Auth
   const { user } = useAuthStore();
 
-  // Profile state (local, fetched from supabase)
+  // Profile state
   const [profileName, setProfileName] = useState('');
   const [profileBio, setProfileBio] = useState('');
   const [profileCountry, setProfileCountry] = useState('');
@@ -185,7 +277,6 @@ export default function SettingsPage() {
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileMsg, setProfileMsg] = useState('');
 
-  // Load profile from supabase
   useEffect(() => {
     if (!user?.id) return;
     setProfileLoading(true);
@@ -241,7 +332,6 @@ export default function SettingsPage() {
   const handleResetAll = useCallback(() => {
     resetTheme();
     resetPrefs();
-    // Reset gameStore display prefs
     setShowLabels(true);
     setHighlightLastMove(true);
     setHighlightSelected(true);
@@ -250,201 +340,195 @@ export default function SettingsPage() {
     setBlindfoldMode(false);
   }, [resetTheme, resetPrefs, setShowLabels, setHighlightLastMove, setHighlightSelected, setShowLegalDots, setDotSize, setBlindfoldMode]);
 
-  return (
-    <div className={styles.page}>
-      <h2 className={styles.title}>Settings</h2>
+  /* ─── Content renderers per category ─── */
 
-      {/* ════════ Section 1: Board & Pieces ════════ */}
-      <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>Board & Pieces</h3>
+  const renderBoard = () => (
+    <>
+      <div className={styles.sectionHeader}>
+        <span className={styles.sectionIcon}><IconBoard /></span>
+        <h2 className={styles.sectionTitle}>Board & Pieces</h2>
+      </div>
 
-        <div className={styles.field}>
-          <label className={styles.fieldLabel}>Piece Set</label>
-          <div className={styles.pieceGrid}>
-            {pieceSets.map((ps, i) => (
-              <button
-                key={ps.name}
-                className={`${styles.pieceBtn} ${pieceSetIndex === i ? styles.pieceBtnActive : ''}`}
-                onClick={() => setPieceSet(i)}
-              >
-                <img src={`./images/${ps.path}queen-white.png`} alt={ps.name} className={styles.pieceImg} />
-                <span>{ps.name}</span>
-              </button>
-            ))}
-          </div>
+      <div className={styles.subsection}>
+        <h4 className={styles.subsectionTitle}>Piece Set</h4>
+        <div className={styles.pieceGrid}>
+          {pieceSets.map((ps, i) => (
+            <button
+              key={ps.name}
+              className={`${styles.pieceBtn} ${pieceSetIndex === i ? styles.pieceBtnActive : ''}`}
+              onClick={() => setPieceSet(i)}
+            >
+              <img src={`./images/${ps.path}queen-white.png`} alt={ps.name} className={styles.pieceImg} />
+              <span>{ps.name}</span>
+            </button>
+          ))}
         </div>
+      </div>
 
-        <div className={styles.field}>
-          <label className={styles.fieldLabel}>Board Theme</label>
-          <div className={styles.themeGrid}>
-            {themes.map((th, i) => (
-              <button
-                key={th.name}
-                className={`${styles.themeBtn} ${themeIndex === i ? styles.themeBtnActive : ''}`}
-                onClick={() => applyTheme(i)}
-              >
-                <div className={styles.themeSwatch}>
-                  <div style={{ background: th.clr1, width: '50%', height: '100%' }} />
-                  <div style={{ background: th.clr2, width: '50%', height: '100%' }} />
-                </div>
-                <span>{th.name}</span>
-              </button>
-            ))}
-          </div>
+      <div className={styles.subsection}>
+        <h4 className={styles.subsectionTitle}>Board Theme</h4>
+        <div className={styles.themeGrid}>
+          {themes.map((th, i) => (
+            <button
+              key={th.name}
+              className={`${styles.themeBtn} ${themeIndex === i ? styles.themeBtnActive : ''}`}
+              onClick={() => applyTheme(i)}
+            >
+              <div className={styles.themeSwatch}>
+                <div style={{ background: th.clr1, width: '50%', height: '100%' }} />
+                <div style={{ background: th.clr2, width: '50%', height: '100%' }} />
+              </div>
+              <span>{th.name}</span>
+            </button>
+          ))}
         </div>
+      </div>
 
-        <div className={styles.field}>
-          <label className={styles.fieldLabel}>Board Colors</label>
-          <div className={styles.colorGrid}>
-            <label className={styles.colorItem}>
-              <span>Light Square</span>
-              <input type="color" value={clr1} onChange={e => setColor('clr1', e.target.value)} />
-            </label>
-            <label className={styles.colorItem}>
-              <span>Dark Square</span>
-              <input type="color" value={clr2} onChange={e => setColor('clr2', e.target.value)} />
-            </label>
-            <label className={styles.colorItem}>
-              <span>Highlight</span>
-              <input type="color" value={clr1x} onChange={e => { setColor('clr1x', e.target.value); setColor('clr2x', e.target.value); }} />
-            </label>
-            <label className={styles.colorItem}>
-              <span>Check</span>
-              <input type="color" value={clr1c} onChange={e => { setColor('clr1c', e.target.value); setColor('clr2c', e.target.value); }} />
-            </label>
-            <label className={styles.colorItem}>
-              <span>Last Move</span>
-              <input type="color" value={clr1p} onChange={e => { setColor('clr1p', e.target.value); setColor('clr2p', e.target.value); }} />
-            </label>
-          </div>
+      <div className={styles.subsection}>
+        <h4 className={styles.subsectionTitle}>Custom Board Colors</h4>
+        <div className={styles.colorGrid}>
+          <label className={styles.colorItem}>
+            <input type="color" value={clr1} onChange={e => setColor('clr1', e.target.value)} />
+            <span>Light Square</span>
+          </label>
+          <label className={styles.colorItem}>
+            <input type="color" value={clr2} onChange={e => setColor('clr2', e.target.value)} />
+            <span>Dark Square</span>
+          </label>
+          <label className={styles.colorItem}>
+            <input type="color" value={clr1x} onChange={e => { setColor('clr1x', e.target.value); setColor('clr2x', e.target.value); }} />
+            <span>Highlight</span>
+          </label>
+          <label className={styles.colorItem}>
+            <input type="color" value={clr1c} onChange={e => { setColor('clr1c', e.target.value); setColor('clr2c', e.target.value); }} />
+            <span>Check</span>
+          </label>
+          <label className={styles.colorItem}>
+            <input type="color" value={clr1p} onChange={e => { setColor('clr1p', e.target.value); setColor('clr2p', e.target.value); }} />
+            <span>Last Move</span>
+          </label>
         </div>
-      </section>
+      </div>
+    </>
+  );
 
-      {/* ════════ Section 2: Display ════════ */}
-      <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>Display</h3>
+  const renderDisplay = () => (
+    <>
+      <div className={styles.sectionHeader}>
+        <span className={styles.sectionIcon}><IconDisplay /></span>
+        <h2 className={styles.sectionTitle}>Display</h2>
+      </div>
+
+      <div className={styles.subsection}>
+        <h4 className={styles.subsectionTitle}>Board Display</h4>
         <div className={styles.toggleList}>
-          <label className={styles.toggleRow}>
-            <input type="checkbox" checked={showLabels} onChange={e => setShowLabels(e.target.checked)} />
-            <span>Board Labels</span>
-          </label>
-          <label className={styles.toggleRow}>
-            <input type="checkbox" checked={highlightLastMove} onChange={e => setHighlightLastMove(e.target.checked)} />
-            <span>Highlight Last Move</span>
-          </label>
-          <label className={styles.toggleRow}>
-            <input type="checkbox" checked={highlightSelected} onChange={e => setHighlightSelected(e.target.checked)} />
-            <span>Highlight Selected Square</span>
-          </label>
-          <label className={styles.toggleRow}>
-            <input type="checkbox" checked={showLegalDots} onChange={e => setShowLegalDots(e.target.checked)} />
-            <span>Legal Move Dots</span>
-          </label>
-          <label className={styles.toggleRow}>
-            <input type="checkbox" checked={blindfoldMode} onChange={e => setBlindfoldMode(e.target.checked)} />
-            <span>Blindfold Mode</span>
-          </label>
-          <label className={styles.toggleRow}>
-            <input type="checkbox" checked={showCaptured} onChange={e => setShowCaptured(e.target.checked)} />
-            <span>Show Captured Pieces</span>
-          </label>
+          <Toggle checked={showLabels} onChange={setShowLabels} label="Board Labels" desc="Show rank and file labels on the board" />
+          <Toggle checked={highlightLastMove} onChange={setHighlightLastMove} label="Highlight Last Move" desc="Highlight the squares of the most recent move" />
+          <Toggle checked={highlightSelected} onChange={setHighlightSelected} label="Highlight Selected Square" desc="Highlight the piece you've selected" />
+          <Toggle checked={showLegalDots} onChange={setShowLegalDots} label="Legal Move Dots" desc="Show dots on squares where the selected piece can move" />
+          <Toggle checked={showCaptured} onChange={setShowCaptured} label="Show Captured Pieces" desc="Display material difference above the board" />
+          <Toggle checked={blindfoldMode} onChange={setBlindfoldMode} label="Blindfold Mode" desc="Hide all pieces on the board for training" />
         </div>
-        {showLegalDots && (
+      </div>
+
+      {showLegalDots && (
+        <div className={styles.subsection}>
+          <h4 className={styles.subsectionTitle}>Dot Settings</h4>
           <div className={styles.rangeField}>
             <label className={styles.rangeLabel}>Dot Size: {dotSize}px</label>
             <input type="range" min="4" max="28" value={dotSize} onChange={e => setDotSize(Number(e.target.value))} className={styles.range} />
           </div>
-        )}
-      </section>
+        </div>
+      )}
+    </>
+  );
 
-      {/* ════════ Section 3: Sound ════════ */}
-      <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>Sound</h3>
+  const renderSound = () => (
+    <>
+      <div className={styles.sectionHeader}>
+        <span className={styles.sectionIcon}><IconSound /></span>
+        <h2 className={styles.sectionTitle}>Sound</h2>
+      </div>
+
+      <div className={styles.subsection}>
+        <h4 className={styles.subsectionTitle}>Master Controls</h4>
         <div className={styles.toggleList}>
-          <label className={styles.toggleRow}>
-            <input type="checkbox" checked={soundEnabled} onChange={e => setSoundEnabled(e.target.checked)} />
-            <span>Sound Effects</span>
-          </label>
+          <Toggle checked={soundEnabled} onChange={setSoundEnabled} label="Sound Effects" desc="Enable or disable all sound effects" />
         </div>
         {soundEnabled && (
-          <>
-            <div className={styles.rangeField}>
-              <label className={styles.rangeLabel}>Volume: {Math.round(soundVolume * 100)}%</label>
-              <input type="range" min="0" max="100" value={Math.round(soundVolume * 100)} onChange={e => setSoundVolume(Number(e.target.value) / 100)} className={styles.range} />
-            </div>
-            <div className={styles.field} style={{ marginTop: 12 }}>
-              <label className={styles.fieldLabel}>Individual Sounds</label>
-              <div className={styles.soundGrid}>
-                {SOUND_LABELS.map(({ key, label }) => (
-                  <div key={key} className={styles.soundRow}>
-                    <label className={styles.soundToggle}>
-                      <input
-                        type="checkbox"
-                        checked={soundToggles[key] !== false}
-                        onChange={e => setSoundToggle(key, e.target.checked)}
-                      />
-                      <span>{label}</span>
-                    </label>
-                    <button
-                      className={styles.testBtn}
-                      onClick={() => playSound(key)}
-                      title={`Preview ${label}`}
-                    >
-                      Test
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </>
+          <div className={styles.rangeField} style={{ marginTop: 12 }}>
+            <label className={styles.rangeLabel}>Master Volume: {Math.round(soundVolume * 100)}%</label>
+            <input type="range" min="0" max="100" value={Math.round(soundVolume * 100)} onChange={e => setSoundVolume(Number(e.target.value) / 100)} className={styles.range} />
+          </div>
         )}
-      </section>
+      </div>
 
-      {/* ════════ Section 4: Game Behavior ════════ */}
-      <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>Game Behavior</h3>
-        <div className={styles.toggleList}>
-          <label className={styles.toggleRow}>
-            <input type="checkbox" checked={autoQueen} onChange={e => setAutoQueen(e.target.checked)} />
-            <div>
-              <span>Auto-Queen</span>
-              <p className={styles.infoText}>Automatically promote to queen without showing the dialog</p>
-            </div>
-          </label>
-          <label className={styles.toggleRow}>
-            <input type="checkbox" checked={moveConfirmation} onChange={e => setMoveConfirmation(e.target.checked)} />
-            <div>
-              <span>Move Confirmation</span>
-              <p className={styles.infoText}>Show a confirm button before committing each move</p>
-            </div>
-          </label>
-          <label className={styles.toggleRow}>
-            <input type="checkbox" checked={enablePremoves} onChange={e => setEnablePremoves(e.target.checked)} />
-            <div>
-              <span>Premoves</span>
-              <p className={styles.infoText}>Queue your next move while waiting for your opponent (online games)</p>
-            </div>
-          </label>
+      {soundEnabled && (
+        <div className={styles.subsection}>
+          <h4 className={styles.subsectionTitle}>Individual Sounds</h4>
+          <div className={styles.soundGrid}>
+            {SOUND_LABELS.map(({ key, label }) => (
+              <div key={key} className={styles.soundRow}>
+                <label className={styles.soundToggle}>
+                  <input
+                    type="checkbox"
+                    checked={soundToggles[key] !== false}
+                    onChange={e => setSoundToggle(key, e.target.checked)}
+                  />
+                  <span>{label}</span>
+                </label>
+                <button className={styles.testBtn} onClick={() => playSound(key)} title={`Preview ${label}`}>
+                  Test
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className={styles.field} style={{ marginTop: 12 }}>
+      )}
+    </>
+  );
+
+  const renderGame = () => (
+    <>
+      <div className={styles.sectionHeader}>
+        <span className={styles.sectionIcon}><IconGame /></span>
+        <h2 className={styles.sectionTitle}>Game Behavior</h2>
+      </div>
+
+      <div className={styles.subsection}>
+        <h4 className={styles.subsectionTitle}>Move Settings</h4>
+        <div className={styles.toggleList}>
+          <Toggle checked={autoQueen} onChange={setAutoQueen} label="Auto-Queen" desc="Automatically promote to queen without showing the dialog" />
+          <Toggle checked={moveConfirmation} onChange={setMoveConfirmation} label="Move Confirmation" desc="Show a confirm button before committing each move" />
+          <Toggle checked={enablePremoves} onChange={setEnablePremoves} label="Premoves" desc="Queue your next move while waiting for your opponent" />
+        </div>
+      </div>
+
+      <div className={styles.subsection}>
+        <h4 className={styles.subsectionTitle}>Animation</h4>
+        <div className={styles.field}>
           <label className={styles.fieldLabel}>Animation Speed</label>
-          <select
-            className={styles.select}
-            value={animationSpeed}
-            onChange={e => setAnimationSpeed(e.target.value)}
-          >
+          <select className={styles.select} value={animationSpeed} onChange={e => setAnimationSpeed(e.target.value)}>
             {ANIMATION_OPTIONS.map(o => (
               <option key={o.value} value={o.value}>{o.label}</option>
             ))}
           </select>
         </div>
-      </section>
+      </div>
+    </>
+  );
 
-      {/* ════════ Section 5: Clock ════════ */}
-      <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>Clock</h3>
+  const renderClock = () => (
+    <>
+      <div className={styles.sectionHeader}>
+        <span className={styles.sectionIcon}><IconClock /></span>
+        <h2 className={styles.sectionTitle}>Clock</h2>
+      </div>
+
+      <div className={styles.subsection}>
+        <h4 className={styles.subsectionTitle}>Low-Time Warning</h4>
         <div className={styles.rangeField}>
-          <label className={styles.rangeLabel}>Low-Time Warning: {lowTimeThreshold}s</label>
+          <label className={styles.rangeLabel}>Warning Threshold: {lowTimeThreshold}s</label>
           <input
             type="range" min="10" max="60" step="5"
             value={lowTimeThreshold}
@@ -453,22 +537,26 @@ export default function SettingsPage() {
           />
           <p className={styles.infoText}>Clock turns red when time drops below this threshold</p>
         </div>
-        <div className={styles.toggleList} style={{ marginTop: 8 }}>
-          <label className={styles.toggleRow}>
-            <input type="checkbox" checked={lowTimeSound} onChange={e => setLowTimeSound(e.target.checked)} />
-            <span>Low-Time Sound Warning</span>
-          </label>
+        <div className={styles.toggleList} style={{ marginTop: 12 }}>
+          <Toggle checked={lowTimeSound} onChange={setLowTimeSound} label="Low-Time Sound Warning" desc="Play a warning sound when time is running low" />
         </div>
-      </section>
+      </div>
+    </>
+  );
 
-      {/* ════════ Section 6: Profile ════════ */}
-      <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>Profile</h3>
-        {!user ? (
-          <p className={styles.profileGuest}>Sign in to customize your profile.</p>
-        ) : profileLoading ? (
-          <p className={styles.infoText}>Loading profile...</p>
-        ) : (
+  const renderProfile = () => (
+    <>
+      <div className={styles.sectionHeader}>
+        <span className={styles.sectionIcon}><IconProfile /></span>
+        <h2 className={styles.sectionTitle}>Profile</h2>
+      </div>
+
+      {!user ? (
+        <p className={styles.profileGuest}>Sign in to customize your profile.</p>
+      ) : profileLoading ? (
+        <p className={styles.infoText}>Loading profile...</p>
+      ) : (
+        <div className={styles.subsection}>
           <div className={styles.profileForm}>
             <div className={styles.field}>
               <label className={styles.fieldLabel}>Display Name</label>
@@ -512,11 +600,7 @@ export default function SettingsPage() {
               </select>
             </div>
             <div className={styles.profileActions}>
-              <button
-                className={styles.saveBtn}
-                onClick={handleProfileSave}
-                disabled={profileSaving}
-              >
+              <button className={styles.saveBtn} onClick={handleProfileSave} disabled={profileSaving}>
                 {profileSaving ? 'Saving...' : 'Save Profile'}
               </button>
               {profileMsg && (
@@ -526,63 +610,53 @@ export default function SettingsPage() {
               )}
             </div>
           </div>
-        )}
-      </section>
-
-      {/* ════════ Section 7: Notifications ════════ */}
-      <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>Notifications</h3>
-        {!user ? (
-          <p className={styles.profileGuest}>Sign in to manage notification preferences.</p>
-        ) : (
-          <div className={styles.toggleList}>
-            <label className={styles.toggleRow}>
-              <input type="checkbox" checked={notifFriendRequests} onChange={e => setNotifFriendRequests(e.target.checked)} />
-              <span>Friend Requests</span>
-            </label>
-            <label className={styles.toggleRow}>
-              <input type="checkbox" checked={notifGameInvites} onChange={e => setNotifGameInvites(e.target.checked)} />
-              <span>Game Invites</span>
-            </label>
-            <label className={styles.toggleRow}>
-              <input type="checkbox" checked={notifTournaments} onChange={e => setNotifTournaments(e.target.checked)} />
-              <span>Tournament Updates</span>
-            </label>
-            <label className={styles.toggleRow}>
-              <input type="checkbox" checked={notifClubs} onChange={e => setNotifClubs(e.target.checked)} />
-              <span>Club Activity</span>
-            </label>
-            <label className={styles.toggleRow}>
-              <input type="checkbox" checked={browserNotifications} onChange={e => handleBrowserNotif(e.target.checked)} />
-              <div>
-                <span>Browser Notifications</span>
-                <p className={styles.infoText}>Show desktop notifications for game events</p>
-              </div>
-            </label>
-          </div>
-        )}
-      </section>
-
-      {/* ════════ Section 8: Accessibility ════════ */}
-      <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>Accessibility</h3>
-        <div className={styles.toggleList}>
-          <label className={styles.toggleRow}>
-            <input type="checkbox" checked={reducedMotion} onChange={e => setReducedMotion(e.target.checked)} />
-            <div>
-              <span>Reduced Motion</span>
-              <p className={styles.infoText}>Disable all animations and transitions</p>
-            </div>
-          </label>
-          <label className={styles.toggleRow}>
-            <input type="checkbox" checked={highContrast} onChange={e => setHighContrast(e.target.checked)} />
-            <div>
-              <span>High Contrast</span>
-              <p className={styles.infoText}>Increase border visibility and text contrast</p>
-            </div>
-          </label>
         </div>
-        <div className={styles.rangeField} style={{ marginTop: 8 }}>
+      )}
+    </>
+  );
+
+  const renderNotifications = () => (
+    <>
+      <div className={styles.sectionHeader}>
+        <span className={styles.sectionIcon}><IconNotif /></span>
+        <h2 className={styles.sectionTitle}>Notifications</h2>
+      </div>
+
+      {!user ? (
+        <p className={styles.profileGuest}>Sign in to manage notification preferences.</p>
+      ) : (
+        <div className={styles.subsection}>
+          <h4 className={styles.subsectionTitle}>Notification Preferences</h4>
+          <div className={styles.toggleList}>
+            <Toggle checked={notifFriendRequests} onChange={setNotifFriendRequests} label="Friend Requests" desc="Get notified when someone sends you a friend request" />
+            <Toggle checked={notifGameInvites} onChange={setNotifGameInvites} label="Game Invites" desc="Get notified when someone invites you to a game" />
+            <Toggle checked={notifTournaments} onChange={setNotifTournaments} label="Tournament Updates" desc="Receive updates about tournaments you're in" />
+            <Toggle checked={notifClubs} onChange={setNotifClubs} label="Club Activity" desc="Get notified about activity in your clubs" />
+            <Toggle checked={browserNotifications} onChange={handleBrowserNotif} label="Browser Notifications" desc="Show desktop notifications for game events" />
+          </div>
+        </div>
+      )}
+    </>
+  );
+
+  const renderAccessibility = () => (
+    <>
+      <div className={styles.sectionHeader}>
+        <span className={styles.sectionIcon}><IconAccessibility /></span>
+        <h2 className={styles.sectionTitle}>Accessibility</h2>
+      </div>
+
+      <div className={styles.subsection}>
+        <h4 className={styles.subsectionTitle}>Visual</h4>
+        <div className={styles.toggleList}>
+          <Toggle checked={reducedMotion} onChange={setReducedMotion} label="Reduced Motion" desc="Disable all animations and transitions" />
+          <Toggle checked={highContrast} onChange={setHighContrast} label="High Contrast" desc="Increase border visibility and text contrast" />
+        </div>
+      </div>
+
+      <div className={styles.subsection}>
+        <h4 className={styles.subsectionTitle}>Piece Size</h4>
+        <div className={styles.rangeField}>
           <label className={styles.rangeLabel}>Piece Scale: {pieceScale}%</label>
           <input
             type="range" min="100" max="130" step="5"
@@ -591,12 +665,61 @@ export default function SettingsPage() {
             className={styles.range}
           />
         </div>
-      </section>
+      </div>
 
-      {/* ════════ Reset ════════ */}
-      <button className={styles.resetBtn} onClick={handleResetAll}>
-        Reset All to Default
-      </button>
+      <div className={styles.subsection}>
+        <button className={styles.resetBtn} onClick={handleResetAll}>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+            <path d="M2 2v5h5" />
+            <path d="M2 7C3.5 3.5 6.5 2 9 2a6 6 0 11-5.6 8" />
+          </svg>
+          Reset All Settings to Default
+        </button>
+      </div>
+    </>
+  );
+
+  const contentMap = {
+    board: renderBoard,
+    display: renderDisplay,
+    sound: renderSound,
+    game: renderGame,
+    clock: renderClock,
+    profile: renderProfile,
+    notifications: renderNotifications,
+    accessibility: renderAccessibility,
+  };
+
+  return (
+    <div className={styles.page}>
+      {/* ── Sidebar ── */}
+      <nav className={styles.sidebar}>
+        <div className={styles.sidebarHeader}>Settings</div>
+        <ul className={styles.sidebarList}>
+          {CATEGORIES.map((cat) =>
+            cat.divider ? (
+              <li key={cat.id} className={styles.sidebarDivider} />
+            ) : (
+              <li key={cat.id}>
+                <button
+                  className={`${styles.sidebarItem} ${activeCategory === cat.id ? styles.sidebarItemActive : ''}`}
+                  onClick={() => setActiveCategory(cat.id)}
+                >
+                  <span className={styles.sidebarIcon}><cat.icon /></span>
+                  <span className={styles.sidebarLabel}>{cat.label}</span>
+                </button>
+              </li>
+            )
+          )}
+        </ul>
+      </nav>
+
+      {/* ── Content ── */}
+      <div className={styles.content}>
+        <div className={styles.contentInner}>
+          {contentMap[activeCategory]?.()}
+        </div>
+      </div>
     </div>
   );
 }

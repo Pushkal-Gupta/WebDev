@@ -1,6 +1,6 @@
 .sidebar {
-  width: 220px;
-  min-width: 180px;
+  width: 280px;
+  min-width: 220px;
   background: rgba(8, 14, 14, 0.98);
   border-left: 1px solid rgba(255, 255, 255, 0.07);
   display: flex;
@@ -171,5 +171,5 @@
 }
 
 @media (max-width: 900px) {
-  .sidebar { width: 175px; min-width: 150px; }
+  .sidebar { width: 220px; min-width: 180px; }
 }

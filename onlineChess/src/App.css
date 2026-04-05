@@ -531,6 +531,8 @@ body {
 .sign-in-prompt-icon {
   font-size: 3.5rem;
   color: rgba(0,255,245,0.15);
+  display: flex;
+  justify-content: center;
 }
 
 .sign-in-prompt-title {
