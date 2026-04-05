@@ -2,13 +2,16 @@
  * Bot personalities for "vs Computer" mode.
  * Each bot maps to a Stockfish strength level (1-10).
  * Icons are SVG path data rendered inline — no emoji.
+ * Bots are spaced every 200 rating from 200 to 2800.
  */
 
 // SVG icon components as path strings (rendered in a 24x24 viewBox)
 const ICONS = {
+  pawn:     '<path d="M12 2a3 3 0 00-3 3c0 1.1.6 2 1.5 2.6L9 10H7v2h10v-2h-2l-1.5-2.4A3 3 0 0015 5a3 3 0 00-3-3z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M7 14v2c0 1 1 3 5 5 4-2 5-4 5-5v-2H7z" fill="none" stroke="currentColor" stroke-width="1.5"/>',
   chick:    '<circle cx="12" cy="10" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="9" r="1" fill="currentColor"/><circle cx="14" cy="9" r="1" fill="currentColor"/><path d="M10 12c0 0 1 1.5 2 1.5s2-1.5 2-1.5" fill="none" stroke="currentColor" stroke-width="1"/><path d="M12 4V2M9 5L7 3M15 5l2-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
   flower:   '<circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.3"/><circle cx="12" cy="7" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="16.3" cy="9.5" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="14.7" cy="14.5" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="9.3" cy="14.5" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="7.7" cy="9.5" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/>',
   target:   '<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>',
+  compass:  '<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>',
   book:     '<path d="M4 19.5A2.5 2.5 0 016.5 17H20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M4 4.5A2.5 2.5 0 016.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15z" fill="none" stroke="currentColor" stroke-width="1.5"/>',
   bolt:     '<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
   crown:    '<path d="M2 20h20M4 20l1-12 5 4 2-8 2 8 5-4 1 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
@@ -16,9 +19,24 @@ const ICONS = {
   tophat:   '<ellipse cx="12" cy="18" rx="9" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="7" y="6" width="10" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M7 10h10" stroke="currentColor" stroke-width="1"/>',
   crystal:  '<path d="M12 2l8 8-8 12-8-12z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 10h16M12 2v20" stroke="currentColor" stroke-width="1" opacity="0.4"/>',
   cpu:      '<rect x="4" y="4" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+  diamond:  '<path d="M6 3h12l4 6-10 13L2 9z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M2 9h20M12 22L8 9l4-6 4 6z" fill="none" stroke="currentColor" stroke-width="1" opacity="0.4"/>',
+  brain:    '<path d="M12 2C9 2 7 4 7 6.5c0 1-.5 2-1.5 2.5C4 10 3 12 3 14c0 3 2.5 5.5 5.5 5.5.5 0 1 0 1.5-.1V22h4v-2.6c.5.1 1 .1 1.5.1C18.5 19.5 21 17 21 14c0-2-1-4-2.5-5 -1-.5-1.5-1.5-1.5-2.5C17 4 15 2 12 2z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 2v20M8 8c2 1 4 1 6 0M7.5 14c2-1 5-1 7 0" stroke="currentColor" stroke-width="1" opacity="0.4"/>',
 };
 
 const BOTS = [
+  {
+    id: 'patzer',
+    name: 'Patzer',
+    rating: 200,
+    strength: 1,
+    icon: ICONS.pawn,
+    color: '#a5d6a7',
+    tagline: 'What does the horsey do?',
+    description: 'An absolute beginner who barely knows the rules. Moves pieces at random and hangs everything.',
+    winMsg: 'Oh, I lost? I thought I was winning!',
+    loseMsg: 'Wait, I won?! Was that checkmate?',
+    drawMsg: 'Is the game over? What happened?',
+  },
   {
     id: 'nelson',
     name: 'Nelson',
@@ -35,7 +53,7 @@ const BOTS = [
   {
     id: 'elena',
     name: 'Elena',
-    rating: 650,
+    rating: 600,
     strength: 2,
     icon: ICONS.flower,
     color: '#e91e90',
@@ -48,7 +66,7 @@ const BOTS = [
   {
     id: 'omar',
     name: 'Omar',
-    rating: 900,
+    rating: 800,
     strength: 3,
     icon: ICONS.target,
     color: '#ff9800',
@@ -59,9 +77,22 @@ const BOTS = [
     drawMsg: 'Solid play from both sides.',
   },
   {
+    id: 'kira',
+    name: 'Kira',
+    rating: 1000,
+    strength: 3,
+    icon: ICONS.compass,
+    color: '#26c6da',
+    tagline: 'Finding my way.',
+    description: 'Starting to think a move ahead. Understands basic opening principles and simple tactics.',
+    winMsg: 'I need to study more openings!',
+    loseMsg: 'I saw that tactic three moves out!',
+    drawMsg: 'We both played carefully. Good game!',
+  },
+  {
     id: 'isabel',
     name: 'Isabel',
-    rating: 1100,
+    rating: 1200,
     strength: 4,
     icon: ICONS.book,
     color: '#2196f3',
@@ -74,7 +105,7 @@ const BOTS = [
   {
     id: 'frank',
     name: 'Frank',
-    rating: 1300,
+    rating: 1400,
     strength: 5,
     icon: ICONS.bolt,
     color: '#ffd600',
@@ -87,7 +118,7 @@ const BOTS = [
   {
     id: 'diana',
     name: 'Diana',
-    rating: 1500,
+    rating: 1600,
     strength: 6,
     icon: ICONS.crown,
     color: '#00fff5',
@@ -100,7 +131,7 @@ const BOTS = [
   {
     id: 'victor',
     name: 'Victor',
-    rating: 1700,
+    rating: 1800,
     strength: 7,
     icon: ICONS.castle,
     color: '#9c27b0',
@@ -113,7 +144,7 @@ const BOTS = [
   {
     id: 'maximilian',
     name: 'Maximilian',
-    rating: 1900,
+    rating: 2000,
     strength: 8,
     icon: ICONS.tophat,
     color: '#607d8b',
@@ -126,7 +157,7 @@ const BOTS = [
   {
     id: 'aria',
     name: 'Aria',
-    rating: 2100,
+    rating: 2200,
     strength: 9,
     icon: ICONS.crystal,
     color: '#e040fb',
@@ -148,6 +179,32 @@ const BOTS = [
     winMsg: 'Error in my evaluation function detected. Impressive.',
     loseMsg: 'Resistance is futile.',
     drawMsg: 'Stalemate detected. Clever defensive technique.',
+  },
+  {
+    id: 'magnus',
+    name: 'Magnus',
+    rating: 2600,
+    strength: 10,
+    icon: ICONS.diamond,
+    color: '#ffc107',
+    tagline: 'World champion caliber.',
+    description: 'Super grandmaster level. Finds brilliant moves in any position and punishes the slightest inaccuracy.',
+    winMsg: 'You played like a champion today.',
+    loseMsg: 'Brilliance is seeing what others miss.',
+    drawMsg: 'A game worthy of a world championship match.',
+  },
+  {
+    id: 'stockfish',
+    name: 'Stockfish',
+    rating: 2800,
+    strength: 10,
+    icon: ICONS.brain,
+    color: '#b388ff',
+    tagline: 'Beyond human limits.',
+    description: 'The ultimate challenge. Plays at superhuman strength with perfect calculation and evaluation.',
+    winMsg: 'Anomaly detected. Recalibrating evaluation...',
+    loseMsg: '0x0000: CHECKMATE. No escape vector found.',
+    drawMsg: 'Equilibrium reached. Draw probability: 100%.',
   },
 ];
 

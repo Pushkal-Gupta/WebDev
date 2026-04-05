@@ -229,6 +229,7 @@ export default function App() {
       const fen = chessInstance.fen();
       setCompThinking(true);
       setDisableBoard(true);
+      const thinkStart = Date.now();
       try {
         let bestMove;
         if ((compStrength || 4) <= 6) {
@@ -243,6 +244,11 @@ export default function App() {
           }
         }
         if (!bestMove || bestMove === '(none)') return;
+        // Simulate realistic thinking time so AI clock ticks
+        const elapsed = Date.now() - thinkStart;
+        const minThink = 1000 + ((compStrength || 4) * 200); // 1.2s – 3.0s
+        const remaining = Math.max(0, minThink - elapsed);
+        if (remaining > 0) await new Promise(r => setTimeout(r, remaining));
         const from = bestMove.slice(0, 2);
         const to   = bestMove.slice(2, 4);
         const promotion = bestMove.length === 5 ? bestMove[4] : undefined;

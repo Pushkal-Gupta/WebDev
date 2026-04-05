@@ -37,8 +37,8 @@ export default function PuzzlePage() {
     dailyPuzzle, dailySolved, loadDailyPuzzle,
     // Theme training
     selectedTheme, loadByTheme,
-    // Difficulty
-    difficultyLevel, loadByDifficulty,
+    // Setup move highlight
+    setupMoveFrom, setupMoveTo,
     // Solution review
     reviewMode, reviewIndex, solutionMoves, playerMoves,
     enterReviewMode, reviewStep, retryPuzzle,
@@ -76,10 +76,29 @@ export default function PuzzlePage() {
     }
   }, [user?.id, mode]); // eslint-disable-line
 
+  // Highlight the setup move (opponent's last move) when a new puzzle loads
+  useEffect(() => {
+    if (puzzle && status === 'playing' && setupMoveFrom && setupMoveTo) {
+      setLastMoveFrom(setupMoveFrom);
+      setLastMoveTo(setupMoveTo);
+    }
+  }, [puzzle?.id]); // eslint-disable-line
+
   // Cleanup rush timer on unmount
   useEffect(() => {
     return () => stopRushTimer();
   }, []); // eslint-disable-line
+
+  // Review step with sound
+  const doReviewStep = useCallback((dir) => {
+    const moveInfo = reviewStep(dir);
+    if (moveInfo && moveInfo.san) {
+      const san = moveInfo.san;
+      if (san.includes('#') || san.includes('+')) playSound('check');
+      else if (san.includes('x')) playSound('capture');
+      else playSound('move');
+    }
+  }, [reviewStep]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -87,11 +106,11 @@ export default function PuzzlePage() {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
       if (reviewMode) {
-        if (e.key === 'ArrowLeft') { e.preventDefault(); reviewStep(-1); }
-        if (e.key === 'ArrowRight') { e.preventDefault(); reviewStep(1); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); doReviewStep(-1); }
+        if (e.key === 'ArrowRight') { e.preventDefault(); doReviewStep(1); }
       }
       if (e.key === 'r' && (status === 'solved' || status === 'failed')) {
-        retryPuzzle();
+        handleRetry();
       }
       if (e.key === 'n' && (status === 'solved' || status === 'failed')) {
         handleNext();
@@ -99,7 +118,7 @@ export default function PuzzlePage() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [reviewMode, status]); // eslint-disable-line
+  }, [reviewMode, status, doReviewStep]); // eslint-disable-line
 
   const onMove = useCallback(async (uci) => {
     clearHint();
@@ -153,10 +172,6 @@ export default function PuzzlePage() {
     }
   };
 
-  const handleDifficultyChange = (level) => {
-    loadByDifficulty(level, user?.id);
-  };
-
   const handleShare = () => {
     if (!puzzle) return;
     const url = `${window.location.origin}${window.location.pathname}?puzzleId=${puzzle.id}`;
@@ -167,7 +182,7 @@ export default function PuzzlePage() {
   };
 
   const handleReviewJump = (index) => {
-    if (reviewMode) reviewStep(index - reviewIndex);
+    if (reviewMode) doReviewStep(index - reviewIndex);
   };
 
   const handleRetry = () => {
@@ -286,8 +301,8 @@ export default function PuzzlePage() {
                 <div className={styles.actions}>
                   {status === 'playing' && (
                     <>
-                      <button className={styles.hintBtn} onClick={getHint} disabled={hintUsed}>
-                        {hintUsed ? 'Hint Used' : 'Hint'}
+                      <button className={styles.hintBtn} onClick={getHint}>
+                        {hintUsed ? 'Hint (used)' : 'Hint'}
                       </button>
                       <button className={styles.skipBtn} onClick={() => giveUp(user?.id)}>Give Up</button>
                     </>
@@ -299,9 +314,9 @@ export default function PuzzlePage() {
                       </button>
                       {reviewMode && (
                         <div className={styles.reviewControls}>
-                          <button className={styles.reviewBtn} onClick={() => reviewStep(-1)} disabled={reviewIndex <= 0}>&#9664;</button>
+                          <button className={styles.reviewBtn} onClick={() => doReviewStep(-1)} disabled={reviewIndex <= 0}>&#9664;</button>
                           <span className={styles.reviewLabel}>{reviewIndex}/{solutionMoves.length}</span>
-                          <button className={styles.reviewBtn} onClick={() => reviewStep(1)} disabled={reviewIndex >= solutionMoves.length}>&#9654;</button>
+                          <button className={styles.reviewBtn} onClick={() => doReviewStep(1)} disabled={reviewIndex >= solutionMoves.length}>&#9654;</button>
                         </div>
                       )}
                       <button className={styles.skipBtn} onClick={handleRetry}>Retry</button>
@@ -354,18 +369,6 @@ export default function PuzzlePage() {
               </div>
             )}
 
-            {/* Difficulty selector */}
-            <div className={styles.difficultyRow}>
-              {['easy', 'medium', 'hard'].map(lvl => (
-                <button
-                  key={lvl}
-                  className={`${styles.diffBtn} ${styles[`diffBtn${lvl.charAt(0).toUpperCase() + lvl.slice(1)}`]} ${difficultyLevel === lvl ? styles.diffBtnActive : ''}`}
-                  onClick={() => handleDifficultyChange(lvl)}
-                >
-                  {lvl.charAt(0).toUpperCase() + lvl.slice(1)}
-                </button>
-              ))}
-            </div>
 
             <div className={styles.statsRow}>
               <div className={styles.statItem}>
@@ -394,17 +397,17 @@ export default function PuzzlePage() {
                   </button>
                   {reviewMode && (
                     <div className={styles.reviewControls}>
-                      <button className={styles.reviewBtn} onClick={() => reviewStep(-1)} disabled={reviewIndex <= 0}>&#9664;</button>
+                      <button className={styles.reviewBtn} onClick={() => doReviewStep(-1)} disabled={reviewIndex <= 0}>&#9664;</button>
                       <span className={styles.reviewLabel}>{reviewIndex}/{solutionMoves.length}</span>
-                      <button className={styles.reviewBtn} onClick={() => reviewStep(1)} disabled={reviewIndex >= solutionMoves.length}>&#9654;</button>
+                      <button className={styles.reviewBtn} onClick={() => doReviewStep(1)} disabled={reviewIndex >= solutionMoves.length}>&#9654;</button>
                     </div>
                   )}
                 </>
               )}
               {status === 'playing' && (
                 <>
-                  <button className={styles.hintBtn} onClick={getHint} disabled={hintUsed}>
-                    {hintUsed ? 'Hint Used' : 'Hint (-rating)'}
+                  <button className={styles.hintBtn} onClick={getHint}>
+                    {hintUsed ? 'Hint (used)' : 'Hint (-rating)'}
                   </button>
                   <button className={styles.skipBtn} onClick={() => giveUp(user?.id)}>Give Up</button>
                 </>
@@ -492,17 +495,17 @@ export default function PuzzlePage() {
                       </button>
                       {reviewMode && (
                         <div className={styles.reviewControls}>
-                          <button className={styles.reviewBtn} onClick={() => reviewStep(-1)} disabled={reviewIndex <= 0}>&#9664;</button>
+                          <button className={styles.reviewBtn} onClick={() => doReviewStep(-1)} disabled={reviewIndex <= 0}>&#9664;</button>
                           <span className={styles.reviewLabel}>{reviewIndex}/{solutionMoves.length}</span>
-                          <button className={styles.reviewBtn} onClick={() => reviewStep(1)} disabled={reviewIndex >= solutionMoves.length}>&#9654;</button>
+                          <button className={styles.reviewBtn} onClick={() => doReviewStep(1)} disabled={reviewIndex >= solutionMoves.length}>&#9654;</button>
                         </div>
                       )}
                     </>
                   )}
                   {status === 'playing' && (
                     <>
-                      <button className={styles.hintBtn} onClick={getHint} disabled={hintUsed}>
-                        {hintUsed ? 'Hint Used' : 'Hint'}
+                      <button className={styles.hintBtn} onClick={getHint}>
+                        {hintUsed ? 'Hint (used)' : 'Hint'}
                       </button>
                       <button className={styles.skipBtn} onClick={() => giveUp(user?.id)}>Give Up</button>
                     </>
