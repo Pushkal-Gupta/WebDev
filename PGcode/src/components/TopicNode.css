@@ -1,10 +1,11 @@
 .topic-node-container {
-  padding: 0.75rem 1rem 1rem; /* Extra padding bottom for the progress bar */
+  padding: 0.75rem 1.25rem;
   border-radius: 6px;
   background: var(--card-bg, #1e1e1e);
   color: #fff;
   border: 2px solid transparent;
-  min-width: 140px;
+  min-width: 180px;
+  max-width: 250px;
   text-align: center;
   position: relative;
   transition: all 0.2s ease;
@@ -24,11 +25,29 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 0.5rem;
 }
 
 .topic-node-title {
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.topic-node-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  justify-content: center;
+  margin-top: 0.25rem;
+}
+
+.topic-node-tag-pill {
+  font-size: 0.65rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ccc;
   white-space: nowrap;
 }
 
@@ -38,41 +57,51 @@
   background: #2a2a2a;
   border-color: #bb86fc; /* Purple */
 }
-.topic-node-container.structures .topic-node-progress-fill,
-.topic-node-container.default .topic-node-progress-fill {
-  background-color: #bb86fc;
+
+.topic-node-container.structures .topic-node-tag-pill,
+.topic-node-container.default .topic-node-tag-pill {
+  color: #bb86fc;
+  background: rgba(187, 134, 252, 0.15);
 }
 
 .topic-node-container.algorithms {
   background: #2a2a2a;
   border-color: #03dac6; /* Teal */
 }
-.topic-node-container.algorithms .topic-node-progress-fill {
-  background-color: #03dac6;
+
+.topic-node-container.algorithms .topic-node-tag-pill {
+  color: #03dac6;
+  background: rgba(3, 218, 198, 0.15);
 }
 
 .topic-node-container.optimization {
   background: #2a2a2a;
   border-color: #cf6679; /* Red/Pink */
 }
-.topic-node-container.optimization .topic-node-progress-fill {
-  background-color: #cf6679;
+
+.topic-node-container.optimization .topic-node-tag-pill {
+  color: #cf6679;
+  background: rgba(207, 102, 121, 0.15);
 }
 
 .topic-node-container.synthesis {
   background: #2a2a2a;
   border-color: #3700b3; /* Deep Purple */
 }
-.topic-node-container.synthesis .topic-node-progress-fill {
-  background-color: #3700b3;
+
+.topic-node-container.synthesis .topic-node-tag-pill {
+  color: #a78bfa;
+  background: rgba(167, 139, 250, 0.15);
 }
 
 .topic-node-container.math {
   background: #2a2a2a;
   border-color: #4a90e2; /* Blue */
 }
-.topic-node-container.math .topic-node-progress-fill {
-  background-color: #4a90e2;
+
+.topic-node-container.math .topic-node-tag-pill {
+  color: #4a90e2;
+  background: rgba(74, 144, 226, 0.15);
 }
 
 /* Base custom handles */
@@ -87,23 +116,5 @@
 
 .topic-node-container:hover .handle {
   opacity: 1;
-}
-
-/* Progress bar styling at the bottom */
-.topic-node-progress-bg {
-  position: absolute;
-  bottom: 6px;
-  left: 10px;
-  right: 10px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.topic-node-progress-fill {
-  height: 100%;
-  width: 30%; /* Default 30% fill to make it look active */
-  border-radius: 2px;
 }
 

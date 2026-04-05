@@ -4,7 +4,8 @@ import {
   Background, 
   Controls, 
   applyNodeChanges, 
-  applyEdgeChanges 
+  applyEdgeChanges,
+  MarkerType
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { initialNodes, initialEdges } from '../data/problems';
@@ -36,7 +37,7 @@ export default function RoadmapView() {
           const dbNodes = topicsData.map(t => ({
             id: t.id,
             type: 'custom',
-            position: { x: Number(t.position_x) || 0, y: Number(t.position_y) || 0 },
+            position: { x: (Number(t.position_x) || 0) * 1.5, y: (Number(t.position_y) || 0) * 1.2 },
             data: { 
               label: t.name,
               category: t.category,
@@ -49,19 +50,43 @@ export default function RoadmapView() {
             source: e.source,
             target: e.target,
             animated: true,
-            style: { stroke: 'rgba(255,255,255,0.2)' }
+            style: { stroke: 'rgba(255,255,255,0.5)', strokeWidth: 2 },
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              color: 'rgba(255,255,255,0.5)',
+            },
           }));
           setNodes(dbNodes);
           setEdges(dbEdges);
         } else {
           // Fallback to static if no data in DB yet
-          setNodes(initialNodes);
-          setEdges(initialEdges);
+          const initialNodesScaled = initialNodes.map(n => ({
+            ...n,
+            position: { x: n.position.x * 1.5, y: n.position.y * 1.2 }
+          }));
+          const initialEdgesStyled = initialEdges.map(e => ({
+            ...e,
+            animated: true,
+            style: { stroke: 'rgba(255,255,255,0.5)', strokeWidth: 2 },
+            markerEnd: { type: MarkerType.ArrowClosed, color: 'rgba(255,255,255,0.5)' }
+          }));
+          setNodes(initialNodesScaled);
+          setEdges(initialEdgesStyled);
         }
       } catch (err) {
         console.error("Error fetching roadmap from Supabase:", err);
-        setNodes(initialNodes);
-        setEdges(initialEdges);
+        const initialNodesScaled = initialNodes.map(n => ({
+          ...n,
+          position: { x: n.position.x * 1.5, y: n.position.y * 1.2 }
+        }));
+        const initialEdgesStyled = initialEdges.map(e => ({
+          ...e,
+          animated: true,
+          style: { stroke: 'rgba(255,255,255,0.5)', strokeWidth: 2 },
+          markerEnd: { type: MarkerType.ArrowClosed, color: 'rgba(255,255,255,0.5)' }
+        }));
+        setNodes(initialNodesScaled);
+        setEdges(initialEdgesStyled);
       }
     }
     fetchRoadmap();
