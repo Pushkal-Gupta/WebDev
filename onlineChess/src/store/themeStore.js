@@ -25,7 +25,7 @@ const useThemeStore = create(persist((set, get) => ({
   // ── New string-ID based selection ──
   pieceSetId: 'local-classic',
   boardThemeId: 'color-default',
-  soundThemeId: 'synth-default',
+  soundThemeId: 'cc-sound-default',
 
   // Board theme type (for Cell.jsx to know if it should be transparent)
   boardThemeType: 'color',
@@ -130,31 +130,33 @@ const useThemeStore = create(persist((set, get) => ({
       clr1x: theme.clr1x, clr2x: theme.clr2x,
       soundEnabled: true,
       soundVolume: 0.8,
-      soundThemeId: 'synth-default',
+      soundThemeId: 'cc-sound-default',
       soundToggles: {
         move: true, capture: true, check: true, castle: true,
         promote: true, gameStart: true, gameEnd: true, lowTime: true, illegal: true,
       },
     });
-    setSoundThemeInManager('synth-default');
+    setSoundThemeInManager('cc-sound-default');
   },
 }), {
   name: 'chess-theme',
   version: 2,
   migrate: (persisted, version) => {
     if (version < 2) {
-      // Map old numeric indices to new string IDs
       const localIds = ['local-classic', 'local-default', 'local-virtual', 'local-cartoon', 'local-wooden', 'local-wooden2'];
       const boardIds = ['color-default', 'color-chesscom', 'color-lichess'];
-      const oldSoundTheme = persisted.soundTheme || 'default';
       return {
         ...persisted,
         pieceSetId: localIds[persisted.pieceSetIndex ?? 0] || 'local-classic',
         boardThemeId: boardIds[persisted.themeIndex ?? 0] || 'color-default',
         boardThemeType: 'color',
         boardImageUrl: null,
-        soundThemeId: `synth-${oldSoundTheme}`,
+        soundThemeId: 'cc-sound-default',
       };
+    }
+    // Migrate synth themes to CDN default
+    if (persisted.soundThemeId?.startsWith('synth-')) {
+      return { ...persisted, soundThemeId: 'cc-sound-default' };
     }
     return persisted;
   },

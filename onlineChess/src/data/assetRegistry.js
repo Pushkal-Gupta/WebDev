@@ -35,7 +35,7 @@ const IMG_OVERLAYS = {
 // ═══════════════════════════════════════════════════
 const CC_PIECES = [
   'neo','classic','wood','bases','icy_sea','neo_wood','glass','game_room',
-  'alpha','marble','lolz','3d_chesskid','3d_staunton','3d_wood','3d_plastic',
+  'marble','lolz','3d_chesskid','3d_staunton','3d_wood','3d_plastic',
   'blindfold','modern','bubblegum','graffiti','light','tournament','metal',
   'gothic','dash','ocean','tigers','nature','neon','sky','book','condal',
   'newspaper','8_bit','cases','club','luca','maya','vintage',
@@ -56,70 +56,70 @@ function titleCase(s) {
     .replace(/Neo Wood/i, 'Neo Wood');
 }
 
+// Build merged + sorted list: local favorites first, then all CDN sorted alphabetically, then wooden at end
+const _cdnPieces = [
+  ...CC_PIECES.map(s => ({ id: `cc-${s}`, name: titleCase(s), source: 'chesscom', slug: s })),
+  ...LI_PIECES.map(s => ({ id: `li-${s}`, name: titleCase(s), source: 'lichess', slug: s })),
+].sort((a, b) => a.name.localeCompare(b.name));
+
 export const PIECE_SETS = [
-  // Local
-  { id: 'local-classic',  name: 'Classic',  source: 'local', path: 'piecesClassic/', category: 'Local' },
-  { id: 'local-default',  name: 'Default',  source: 'local', path: 'pieces/',        category: 'Local' },
-  { id: 'local-virtual',  name: 'Virtual',  source: 'local', path: 'piecesVirtual/', category: 'Local' },
-  { id: 'local-cartoon',  name: 'Cartoon',  source: 'local', path: 'piecesCartoon/', category: 'Local' },
-  { id: 'local-wooden',   name: 'Wooden',   source: 'local', path: 'piecesWooden/',  category: 'Local' },
-  { id: 'local-wooden2',  name: 'Wooden 2', source: 'local', path: 'piecesWooden2/', category: 'Local' },
-  // Chess.com
-  ...CC_PIECES.map(s => ({ id: `cc-${s}`, name: titleCase(s), source: 'chesscom', slug: s, category: 'Chess.com' })),
-  // Lichess
-  ...LI_PIECES.map(s => ({ id: `li-${s}`, name: titleCase(s), source: 'lichess', slug: s, category: 'Lichess' })),
+  // Local favorites
+  { id: 'local-classic',  name: 'Classic',  source: 'local', path: 'piecesClassic/' },
+  { id: 'local-default',  name: 'Default',  source: 'local', path: 'pieces/' },
+  { id: 'local-virtual',  name: 'Virtual',  source: 'local', path: 'piecesVirtual/' },
+  { id: 'local-cartoon',  name: 'Cartoon',  source: 'local', path: 'piecesCartoon/' },
+  // All CDN pieces merged and sorted alphabetically
+  ..._cdnPieces,
+  // Wooden at the end
+  { id: 'local-wooden',   name: 'Wooden',   source: 'local', path: 'piecesWooden/' },
+  { id: 'local-wooden2',  name: 'Wooden 2', source: 'local', path: 'piecesWooden2/' },
 ];
 
 // ═══════════════════════════════════════════════════
 // BOARD THEMES (54 total)
 // ═══════════════════════════════════════════════════
-export const BOARD_THEMES = [
-  // ── Existing color themes ──
-  {
-    id: 'color-default', name: 'Default', type: 'color', category: 'Classic',
-    ...deriveColors('#ffffff', '#33b3a6'),
-  },
-  {
-    id: 'color-chesscom', name: 'Chess.com', type: 'color', category: 'Classic',
-    clr1: '#EEEED2', clr2: '#769656',
-    clr1c: '#F98A75', clr2c: '#BE5F35', clr1p: '#F6F682', clr2p: '#BAC949', clr1x: '#BAC949', clr2x: '#FFFA5C',
-  },
-  {
-    id: 'color-lichess', name: 'Lichess', type: 'color', category: 'Classic',
-    clr1: '#F0D9B7', clr2: '#B58763',
-    clr1c: '#EA4334', clr2c: '#DB3423', clr1p: '#CFD17B', clr2p: '#ACA249', clr1x: '#87986A', clr2x: '#6A6F42',
-  },
-
-  // ── Lichess CSS color themes ──
-  { id: 'li-brown',         name: 'Brown',         type: 'color', category: 'Lichess', ...deriveColors('#f0d9b5', '#b58863') },
-  { id: 'li-blue',          name: 'Blue',          type: 'color', category: 'Lichess', ...deriveColors('#dee3e6', '#8ca2ad') },
-  { id: 'li-green',         name: 'Green',         type: 'color', category: 'Lichess', ...deriveColors('#ffffdd', '#86a666') },
-  { id: 'li-purple',        name: 'Purple',        type: 'color', category: 'Lichess', ...deriveColors('#9f90b0', '#7d4a8d') },
-  { id: 'li-ic',            name: 'IC',            type: 'color', category: 'Lichess', ...deriveColors('#ececec', '#c1c18e') },
-  { id: 'li-canvas',        name: 'Canvas',        type: 'color', category: 'Lichess', ...deriveColors('#d7c8a0', '#947a56') },
-  { id: 'li-newspaper',     name: 'Newspaper',     type: 'color', category: 'Lichess', ...deriveColors('#ffffff', '#cccccc') },
-  { id: 'li-green-plastic', name: 'Green Plastic', type: 'color', category: 'Lichess', ...deriveColors('#f2f9e0', '#5a9e42') },
-  { id: 'li-purple-diag',   name: 'Purple Diag',   type: 'color', category: 'Lichess', ...deriveColors('#e5daf0', '#957ab0') },
-  { id: 'li-pink',          name: 'Pink',          type: 'color', category: 'Lichess', ...deriveColors('#f0d8d8', '#c87e7e') },
-
-  // ── Chess.com image boards ──
+// Build merged image boards sorted alphabetically
+const _imageBoards = [
   ...['green','brown','blue','icy_sea','walnut','marble','tournament','bubblegum',
       'dark_wood','glass','lolz','red','purple','orange','tan','newspaper','metal',
       'parchment','neon','sky','8_bit','bases','sand','stone','translucent','burled_wood',
   ].map(s => ({
-    id: `cc-board-${s}`, name: titleCase(s), type: 'image', category: 'Chess.com',
+    id: `cc-board-${s}`, name: titleCase(s), type: 'image',
     imageUrl: `https://images.chesscomfiles.com/chess-themes/boards/${s}/150.png`,
     ...IMG_OVERLAYS,
   })),
-
-  // ── Lichess image boards ──
   ...['horsey','wood','wood2','wood3','wood4','maple','maple2','marble',
       'leather','blue2','blue3','blue-marble','grey','metal','olive',
   ].map(s => ({
-    id: `li-board-${s}`, name: titleCase(s), type: 'image', category: 'Lichess',
+    id: `li-board-${s}`, name: titleCase(s), type: 'image',
     imageUrl: `https://lichess1.org/assets/images/board/${s}.jpg`,
     ...IMG_OVERLAYS,
   })),
+].sort((a, b) => a.name.localeCompare(b.name));
+
+export const BOARD_THEMES = [
+  // Color themes first
+  { id: 'color-default', name: 'Default', type: 'color', ...deriveColors('#ffffff', '#33b3a6') },
+  { id: 'color-chesscom', name: 'Chess.com Green', type: 'color',
+    clr1: '#EEEED2', clr2: '#769656',
+    clr1c: '#F98A75', clr2c: '#BE5F35', clr1p: '#F6F682', clr2p: '#BAC949', clr1x: '#BAC949', clr2x: '#FFFA5C',
+  },
+  { id: 'color-lichess', name: 'Lichess Brown', type: 'color',
+    clr1: '#F0D9B7', clr2: '#B58763',
+    clr1c: '#EA4334', clr2c: '#DB3423', clr1p: '#CFD17B', clr2p: '#ACA249', clr1x: '#87986A', clr2x: '#6A6F42',
+  },
+  { id: 'li-blue',          name: 'Blue',          type: 'color', ...deriveColors('#dee3e6', '#8ca2ad') },
+  { id: 'li-brown',         name: 'Brown',         type: 'color', ...deriveColors('#f0d9b5', '#b58863') },
+  { id: 'li-canvas',        name: 'Canvas',        type: 'color', ...deriveColors('#d7c8a0', '#947a56') },
+  { id: 'li-green',         name: 'Green',         type: 'color', ...deriveColors('#ffffdd', '#86a666') },
+  { id: 'li-green-plastic', name: 'Green Plastic', type: 'color', ...deriveColors('#f2f9e0', '#5a9e42') },
+  { id: 'li-ic',            name: 'IC',            type: 'color', ...deriveColors('#ececec', '#c1c18e') },
+  { id: 'li-newspaper',     name: 'Newspaper',     type: 'color', ...deriveColors('#ffffff', '#cccccc') },
+  { id: 'li-pink',          name: 'Pink',          type: 'color', ...deriveColors('#f0d8d8', '#c87e7e') },
+  { id: 'li-purple',        name: 'Purple',        type: 'color', ...deriveColors('#9f90b0', '#7d4a8d') },
+  { id: 'li-purple-diag',   name: 'Purple Diag',   type: 'color', ...deriveColors('#e5daf0', '#957ab0') },
+  // Image themes sorted alphabetically
+  ..._imageBoards,
 ];
 
 // ═══════════════════════════════════════════════════
@@ -140,22 +140,13 @@ const LI_SOUND_MAP = {
 };
 
 export const SOUND_THEMES = [
-  // Synthesized
-  { id: 'synth-default', name: 'Default',  source: 'synth', key: 'default', category: 'Synthesized' },
-  { id: 'synth-marble',  name: 'Marble',   source: 'synth', key: 'marble',  category: 'Synthesized' },
-  { id: 'synth-wood',    name: 'Wood',     source: 'synth', key: 'wood',    category: 'Synthesized' },
-  { id: 'synth-metal',   name: 'Metal',    source: 'synth', key: 'metal',   category: 'Synthesized' },
-  { id: 'synth-glass',   name: 'Glass',    source: 'synth', key: 'glass',   category: 'Synthesized' },
-  { id: 'synth-retro',   name: 'Retro',    source: 'synth', key: 'retro',   category: 'Synthesized' },
-  // Chess.com CDN
   ...['default','marble','metal','nature','newspaper','silly','space','lolz','beat'].map(s => ({
-    id: `cc-sound-${s}`, name: titleCase(s), source: 'chesscom', slug: s, category: 'Chess.com',
+    id: `cc-sound-${s}`, name: titleCase(s), source: 'chesscom', slug: s,
   })),
-  // Lichess CDN
   ...['standard','piano','nes','sfx','futuristic','robot'].map(s => ({
-    id: `li-sound-${s}`, name: titleCase(s), source: 'lichess', slug: s, category: 'Lichess',
+    id: `li-sound-${s}`, name: titleCase(s), source: 'lichess', slug: s,
   })),
-];
+].sort((a, b) => a.name.localeCompare(b.name));
 
 // ═══════════════════════════════════════════════════
 // Lookup helpers
@@ -172,10 +163,6 @@ export function getSoundThemeById(id) {
   return SOUND_THEMES.find(s => s.id === id) || SOUND_THEMES[0];
 }
 
-export function getCategories(items) {
-  const cats = [...new Set(items.map(i => i.category))];
-  return cats;
-}
 
 /**
  * Build CDN URL for a specific sound event in a CDN theme.

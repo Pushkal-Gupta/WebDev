@@ -55,6 +55,39 @@ function pickBuiltinByDifficulty(minRating, maxRating) {
   return pick;
 }
 
+function pickBuiltinByTheme(theme, targetRating) {
+  const themeLower = theme.toLowerCase();
+  for (const tolerance of [300, 500]) {
+    const candidates = BUILTIN_PUZZLES.filter(p =>
+      !_shownBuiltinIds.has(p.id) &&
+      Math.abs(p.rating - targetRating) <= tolerance &&
+      p.themes && (
+        (Array.isArray(p.themes) && p.themes.some(t => t.toLowerCase() === themeLower)) ||
+        (typeof p.themes === 'string' && p.themes.toLowerCase().includes(themeLower))
+      )
+    );
+    if (candidates.length > 0) {
+      const pick = candidates[Math.floor(Math.random() * candidates.length)];
+      _shownBuiltinIds.add(pick.id);
+      return pick;
+    }
+  }
+  // Fallback: any theme match regardless of rating
+  const allTheme = BUILTIN_PUZZLES.filter(p =>
+    p.themes && (
+      (Array.isArray(p.themes) && p.themes.some(t => t.toLowerCase() === themeLower)) ||
+      (typeof p.themes === 'string' && p.themes.toLowerCase().includes(themeLower))
+    )
+  );
+  if (allTheme.length > 0) {
+    const pick = allTheme[Math.floor(Math.random() * allTheme.length)];
+    _shownBuiltinIds.add(pick.id);
+    return pick;
+  }
+  // Final fallback: any puzzle near rating
+  return pickBuiltinPuzzle(targetRating);
+}
+
 const usePuzzleStore = create((set, get) => ({
   puzzle:           null,   // { id, fen, moves: string[], rating, themes }
   moveIndex:        0,      // index of next expected move in puzzle.moves
@@ -71,7 +104,7 @@ const usePuzzleStore = create((set, get) => ({
   attempts:         0,
 
   // ── Mode state ──────────────────────────────────────────────────────────────
-  mode:             'rated',  // 'rated'|'rush'|'streak'
+  mode:             'rated',  // 'rated'|'rush'|'streak'|'daily'|'themes'
 
   // Rush mode state
   rushTimeLeft:     0,        // seconds remaining
@@ -86,6 +119,33 @@ const usePuzzleStore = create((set, get) => ({
   streakActive:     false,
   streakBestCount:  parseInt(localStorage.getItem('puzzleStreakBest') || '0', 10),
   streakDifficulty: 800,      // starting difficulty, ramps up
+
+  // ── Daily puzzle ────────────────────────────────────────────────────────────
+  dailyPuzzle:      null,
+  dailySolved:      false,
+
+  // ── Theme training ──────────────────────────────────────────────────────────
+  selectedTheme:    null,
+
+  // ── Difficulty ──────────────────────────────────────────────────────────────
+  difficultyLevel:  null,     // 'easy'|'medium'|'hard'|null
+
+  // ── Solution review ─────────────────────────────────────────────────────────
+  reviewMode:       false,
+  reviewIndex:      0,
+  solutionMoves:    [],       // [{uci, san, fen}]
+  playerMoves:      [],       // moves player actually made
+
+  // ── History ─────────────────────────────────────────────────────────────────
+  puzzleHistory:    [],
+  historyLoading:   false,
+
+  // ── Rating history for chart ────────────────────────────────────────────────
+  ratingHistory:        [],
+  ratingHistoryLoading: false,
+
+  // ── Timer for puzzle solve time tracking ────────────────────────────────────
+  puzzleStartTime:  null,
 
   // ── Load user's puzzle rating ──────────────────────────────────────────────
   async loadUserPuzzleRating(userId) {
@@ -126,6 +186,12 @@ const usePuzzleStore = create((set, get) => ({
       streakDifficulty: 800,
       lastRatingChange: null,
       errorMsg: null,
+      selectedTheme: null,
+      difficultyLevel: null,
+      reviewMode: false,
+      reviewIndex: 0,
+      solutionMoves: [],
+      playerMoves: [],
     });
   },
 
@@ -225,6 +291,76 @@ const usePuzzleStore = create((set, get) => ({
     });
   },
 
+  // ── Build solution line for review ────────────────────────────────────────
+  buildSolutionLine() {
+    const { puzzle } = get();
+    if (!puzzle || !puzzle.moves || puzzle.moves.length === 0) return;
+
+    const tmpChess = new Chess(puzzle.fen);
+    const solutionMoves = [];
+
+    for (const uci of puzzle.moves) {
+      const moveObj = uciToMove(uci);
+      const result = tmpChess.move(moveObj);
+      if (!result) break;
+      solutionMoves.push({
+        uci,
+        san: result.san,
+        fen: tmpChess.fen(),
+      });
+    }
+
+    set({ solutionMoves });
+  },
+
+  // ── Helper: initialize a puzzle row into play state ───────────────────────
+  _initPuzzle(puzzleRow) {
+    const moves = (puzzleRow.moves || '').split(' ').filter(Boolean);
+    if (moves.length < 1) return false;
+
+    try {
+      _chess = new Chess(puzzleRow.fen);
+    } catch {
+      return false;
+    }
+
+    // Single-move puzzles: player plays from the FEN position
+    if (moves.length === 1) {
+      const playerColor = _chess.turn();
+      set({
+        puzzle:      { ...puzzleRow, moves },
+        moveIndex:   0,
+        currentFen:  _chess.fen(),
+        playerColor,
+        status:      'playing',
+        playerMoves: [],
+        reviewMode:  false,
+        reviewIndex: 0,
+        puzzleStartTime: Date.now(),
+      });
+      get().buildSolutionLine();
+      return true;
+    }
+
+    const firstMove = _chess.move(uciToMove(moves[0]));
+    if (!firstMove) return false;
+
+    const playerColor = _chess.turn();
+    set({
+      puzzle:      { ...puzzleRow, moves },
+      moveIndex:   1,
+      currentFen:  _chess.fen(),
+      playerColor,
+      status:      'playing',
+      playerMoves: [],
+      reviewMode:  false,
+      reviewIndex: 0,
+      puzzleStartTime: Date.now(),
+    });
+    get().buildSolutionLine();
+    return true;
+  },
+
   // ── Generic puzzle loader for rush/streak modes ────────────────────────────
   _loadRetries: 0,
   async _loadPuzzleForMode(userId) {
@@ -310,7 +446,12 @@ const usePuzzleStore = create((set, get) => ({
         currentFen:  _chess.fen(),
         playerColor,
         status:      'playing',
+        playerMoves: [],
+        reviewMode:  false,
+        reviewIndex: 0,
+        puzzleStartTime: Date.now(),
       });
+      get().buildSolutionLine();
       return;
     }
 
@@ -334,7 +475,12 @@ const usePuzzleStore = create((set, get) => ({
       currentFen:  _chess.fen(),
       playerColor,
       status:      'playing',
+      playerMoves: [],
+      reviewMode:  false,
+      reviewIndex: 0,
+      puzzleStartTime: Date.now(),
     });
+    get().buildSolutionLine();
   },
 
   // ── Fetch next puzzle near user's rating (rated mode) ─────────────────────
@@ -401,7 +547,12 @@ const usePuzzleStore = create((set, get) => ({
         currentFen:  _chess.fen(),
         playerColor,
         status:      'playing',
+        playerMoves: [],
+        reviewMode:  false,
+        reviewIndex: 0,
+        puzzleStartTime: Date.now(),
       });
+      get().buildSolutionLine();
       return;
     }
 
@@ -422,7 +573,12 @@ const usePuzzleStore = create((set, get) => ({
       currentFen:  _chess.fen(),
       playerColor,
       status:      'playing',
+      playerMoves: [],
+      reviewMode:  false,
+      reviewIndex: 0,
+      puzzleStartTime: Date.now(),
     });
+    get().buildSolutionLine();
   },
 
   // ── Player attempts a move ───────────────────────────────────────────────
@@ -430,6 +586,9 @@ const usePuzzleStore = create((set, get) => ({
     const { puzzle, moveIndex, streak, status, mode } = get();
     if (!puzzle || status !== 'playing') return { correct: false };
     if (moveIndex >= puzzle.moves.length) return { correct: false };
+
+    // Track player moves
+    set({ playerMoves: [...get().playerMoves, uciMove] });
 
     const expected = puzzle.moves[moveIndex];
 
@@ -495,7 +654,12 @@ const usePuzzleStore = create((set, get) => ({
       // Rated mode — hint used = half credit (score 0.5 instead of 1)
       const hintWasUsed = get().hintUsed;
       set({ status: 'solved', streak: hintWasUsed ? 0 : streak + 1, currentFen: _chess.fen(), moveIndex: afterPlayerIdx });
-      if (userId) await get()._updatePuzzleRating(userId, true, hintWasUsed);
+      if (userId) {
+        const timeTaken = get().puzzleStartTime ? Math.round((Date.now() - get().puzzleStartTime) / 1000) : null;
+        await get()._updatePuzzleRating(userId, true, hintWasUsed);
+        const ratingChange = get().lastRatingChange;
+        await get().recordAttempt(userId, puzzle.id, true, timeTaken, ratingChange, puzzle.rating);
+      }
       return { correct: true, solved: true };
     };
 
@@ -529,7 +693,12 @@ const usePuzzleStore = create((set, get) => ({
       }
       const hintWasUsed2 = get().hintUsed;
       set({ status: 'solved', streak: hintWasUsed2 ? 0 : streak + 1, currentFen: _chess.fen(), moveIndex: afterOppIdx });
-      if (userId) await get()._updatePuzzleRating(userId, true, hintWasUsed2);
+      if (userId) {
+        const timeTaken = get().puzzleStartTime ? Math.round((Date.now() - get().puzzleStartTime) / 1000) : null;
+        await get()._updatePuzzleRating(userId, true, hintWasUsed2);
+        const ratingChange = get().lastRatingChange;
+        await get().recordAttempt(userId, puzzle.id, true, timeTaken, ratingChange, puzzle.rating);
+      }
       return { correct: true, solved: true };
     }
 
@@ -540,10 +709,12 @@ const usePuzzleStore = create((set, get) => ({
   // ── Give up (Lichess-style) ─────────────────────────────────────────────
   async giveUp(userId) {
     const { puzzle, mode } = get();
-    if (!puzzle || (mode !== 'rated' && mode !== 'rush' && mode !== 'streak')) return;
+    if (!puzzle || (mode !== 'rated' && mode !== 'rush' && mode !== 'streak' && mode !== 'daily' && mode !== 'themes')) return;
     set({ status: 'failed', streak: 0, wrongAttempt: false, attempts: 0 });
     if (mode === 'rated' && userId) {
+      const timeTaken = get().puzzleStartTime ? Math.round((Date.now() - get().puzzleStartTime) / 1000) : null;
       await get()._updatePuzzleRating(userId, false);
+      await get().recordAttempt(userId, puzzle.id, false, timeTaken, null, puzzle.rating);
     }
   },
 
@@ -584,6 +755,9 @@ const usePuzzleStore = create((set, get) => ({
       lastRatingChange: Math.round(result.rating) - cur.rating,
     });
     try { localStorage.setItem('puzzleRatingCache', JSON.stringify(newRating)); } catch {}
+
+    // Record rating history
+    await get().recordRatingHistory(userId, Math.round(result.rating));
   },
 
   // ── Hint: reveal the source square of the correct move ─────────────────────
@@ -601,6 +775,355 @@ const usePuzzleStore = create((set, get) => ({
     set({ hintSquare: null });
   },
 
+  // ── Daily puzzle ──────────────────────────────────────────────────────────
+  async loadDailyPuzzle(userId) {
+    set({ status: 'loading', puzzle: null, lastRatingChange: null, errorMsg: null, hintSquare: null, hintUsed: false, wrongAttempt: false, attempts: 0, dailySolved: false });
+
+    const today = new Date().toISOString().slice(0, 10);
+    let puzzleRow = null;
+
+    try {
+      const { data, error } = await supabase.rpc('get_daily_puzzle', { p_date: today });
+      if (error) {
+        console.warn('Daily puzzle RPC error:', error.message);
+      } else if (data) {
+        // RPC returns SETOF (array) — pick first result
+        puzzleRow = Array.isArray(data) ? data[0] : data;
+      }
+    } catch (err) {
+      console.warn('Daily puzzle fetch failed:', err.message);
+    }
+
+    if (!puzzleRow) {
+      set({ status: 'error', errorMsg: 'No daily puzzle available today. Try again later.' });
+      return;
+    }
+
+    // Check if already solved today
+    if (userId) {
+      try {
+        const { data: attemptData } = await supabase
+          .from('puzzle_attempts')
+          .select('solved')
+          .eq('user_id', userId)
+          .eq('puzzle_id', puzzleRow.id)
+          .maybeSingle();
+        if (attemptData?.solved) {
+          set({ dailySolved: true });
+        }
+      } catch {}
+    }
+
+    set({ dailyPuzzle: puzzleRow });
+
+    // Initialize the puzzle for play
+    const success = get()._initPuzzle(puzzleRow);
+    if (!success) {
+      set({ status: 'error', errorMsg: 'Invalid daily puzzle data.' });
+    }
+  },
+
+  // ── Theme-based puzzle loading ────────────────────────────────────────────
+  async loadByTheme(theme, userId) {
+    set({
+      selectedTheme: theme,
+      status: 'loading',
+      puzzle: null,
+      lastRatingChange: null,
+      errorMsg: null,
+      hintSquare: null,
+      hintUsed: false,
+      wrongAttempt: false,
+      attempts: 0,
+    });
+
+    await get().loadUserPuzzleRating(userId);
+    const rating = get().userPuzzleRating?.rating || 1500;
+
+    let puzzleRow = null;
+
+    // Try Supabase with progressively wider rating windows
+    try {
+      for (const window of [300, 500]) {
+        const { data, error } = await supabase
+          .from('puzzles')
+          .select('*')
+          .contains('themes', [theme])
+          .gte('rating', rating - window)
+          .lte('rating', rating + window)
+          .limit(20);
+        if (error) {
+          console.warn('Theme puzzle query error:', error.message);
+          break;
+        }
+        if (data?.length) {
+          puzzleRow = data[Math.floor(Math.random() * data.length)];
+          break;
+        }
+      }
+    } catch (err) {
+      console.warn('Theme puzzle fetch failed:', err.message);
+    }
+
+    // Fallback to builtin puzzles
+    if (!puzzleRow) {
+      puzzleRow = pickBuiltinByTheme(theme, rating);
+    }
+
+    if (!puzzleRow) {
+      set({ status: 'error', errorMsg: `No puzzles found for theme "${theme}". Try a different theme.` });
+      return;
+    }
+
+    const success = get()._initPuzzle(puzzleRow);
+    if (!success) {
+      set({ status: 'error', errorMsg: 'Invalid puzzle data. Try loading another puzzle.' });
+    }
+  },
+
+  // ── Difficulty-based puzzle loading ───────────────────────────────────────
+  async loadByDifficulty(level, userId) {
+    set({
+      difficultyLevel: level,
+      status: 'loading',
+      puzzle: null,
+      lastRatingChange: null,
+      errorMsg: null,
+      hintSquare: null,
+      hintUsed: false,
+      wrongAttempt: false,
+      attempts: 0,
+    });
+
+    await get().loadUserPuzzleRating(userId);
+    const userRating = get().userPuzzleRating?.rating || 1500;
+
+    let minRating, maxRating;
+    switch (level) {
+      case 'easy':
+        minRating = userRating - 400;
+        maxRating = userRating - 100;
+        break;
+      case 'medium':
+        minRating = userRating - 150;
+        maxRating = userRating + 150;
+        break;
+      case 'hard':
+        minRating = userRating + 100;
+        maxRating = userRating + 400;
+        break;
+      default:
+        minRating = userRating - 150;
+        maxRating = userRating + 150;
+    }
+
+    let puzzleRow = null;
+
+    try {
+      const { data, error } = await supabase
+        .from('puzzles')
+        .select('id, fen, moves, rating, themes')
+        .gte('rating', minRating)
+        .lte('rating', maxRating)
+        .limit(20);
+      if (!error && data?.length) {
+        puzzleRow = data[Math.floor(Math.random() * data.length)];
+      }
+    } catch (err) {
+      console.warn('Difficulty puzzle fetch failed:', err.message);
+    }
+
+    if (!puzzleRow) {
+      puzzleRow = pickBuiltinByDifficulty(minRating, maxRating);
+    }
+
+    if (!puzzleRow) {
+      set({ status: 'error', errorMsg: 'No puzzles found for this difficulty. Try a different level.' });
+      return;
+    }
+
+    const success = get()._initPuzzle(puzzleRow);
+    if (!success) {
+      set({ status: 'error', errorMsg: 'Invalid puzzle data. Try loading another puzzle.' });
+    }
+  },
+
+  // ── Solution review ───────────────────────────────────────────────────────
+  enterReviewMode() {
+    const { puzzle, solutionMoves } = get();
+    if (!puzzle || solutionMoves.length === 0) return;
+
+    // Compute the FEN after opponent's first move (or puzzle FEN for single-move puzzles)
+    let initialFen;
+    if (puzzle.moves.length === 1) {
+      initialFen = puzzle.fen;
+    } else {
+      // After first move = solutionMoves[0].fen (opponent's setup move)
+      initialFen = solutionMoves[0]?.fen || puzzle.fen;
+    }
+
+    set({
+      reviewMode: true,
+      reviewIndex: 0,
+      currentFen: initialFen,
+    });
+  },
+
+  reviewStep(direction) {
+    const { reviewIndex, solutionMoves, puzzle } = get();
+    if (!puzzle || solutionMoves.length === 0) return;
+
+    const newIndex = Math.max(0, Math.min(reviewIndex + direction, solutionMoves.length));
+
+    let fen;
+    if (newIndex === 0) {
+      // Show position after opponent's first move (or puzzle FEN for single-move)
+      if (puzzle.moves.length === 1) {
+        fen = puzzle.fen;
+      } else {
+        fen = solutionMoves[0]?.fen || puzzle.fen;
+      }
+    } else {
+      fen = solutionMoves[newIndex - 1]?.fen || puzzle.fen;
+    }
+
+    set({
+      reviewIndex: newIndex,
+      currentFen: fen,
+    });
+  },
+
+  // ── Retry puzzle ──────────────────────────────────────────────────────────
+  retryPuzzle() {
+    const { puzzle } = get();
+    if (!puzzle) return;
+
+    try {
+      _chess = new Chess(puzzle.fen);
+    } catch {
+      return;
+    }
+
+    // Single-move puzzles: start directly from puzzle FEN
+    if (puzzle.moves.length === 1) {
+      const playerColor = _chess.turn();
+      set({
+        moveIndex:   0,
+        currentFen:  _chess.fen(),
+        playerColor,
+        status:      'playing',
+        wrongAttempt: false,
+        attempts:    0,
+        hintSquare:  null,
+        hintUsed:    false,
+        playerMoves: [],
+      });
+      return;
+    }
+
+    // Replay opponent's first move
+    const firstMove = _chess.move(uciToMove(puzzle.moves[0]));
+    if (!firstMove) return;
+
+    const playerColor = _chess.turn();
+    set({
+      moveIndex:   1,
+      currentFen:  _chess.fen(),
+      playerColor,
+      status:      'playing',
+      wrongAttempt: false,
+      attempts:    0,
+      hintSquare:  null,
+      hintUsed:    false,
+      playerMoves: [],
+    });
+  },
+
+  // ── Puzzle history ────────────────────────────────────────────────────────
+  async loadPuzzleHistory(userId) {
+    if (!userId) return;
+    set({ historyLoading: true });
+
+    try {
+      const { data, error } = await supabase
+        .from('puzzle_attempts')
+        .select('*, puzzles(rating, themes)')
+        .eq('user_id', userId)
+        .order('attempted_at', { ascending: false })
+        .limit(50);
+
+      if (error) {
+        console.warn('Puzzle history load error:', error.message);
+        set({ puzzleHistory: [], historyLoading: false });
+        return;
+      }
+
+      set({ puzzleHistory: data || [], historyLoading: false });
+    } catch (err) {
+      console.warn('Puzzle history fetch failed:', err.message);
+      set({ puzzleHistory: [], historyLoading: false });
+    }
+  },
+
+  // ── Rating history for chart ──────────────────────────────────────────────
+  async loadRatingHistory(userId) {
+    if (!userId) return;
+    set({ ratingHistoryLoading: true });
+
+    try {
+      const { data, error } = await supabase
+        .from('puzzle_rating_history')
+        .select('*')
+        .eq('user_id', userId)
+        .order('recorded_at', { ascending: true })
+        .limit(200);
+
+      if (error) {
+        console.warn('Rating history load error:', error.message);
+        set({ ratingHistory: [], ratingHistoryLoading: false });
+        return;
+      }
+
+      set({ ratingHistory: data || [], ratingHistoryLoading: false });
+    } catch (err) {
+      console.warn('Rating history fetch failed:', err.message);
+      set({ ratingHistory: [], ratingHistoryLoading: false });
+    }
+  },
+
+  // ── Record a puzzle attempt ───────────────────────────────────────────────
+  async recordAttempt(userId, puzzleId, solved, timeTaken, ratingChange, puzzleRating) {
+    if (!userId || !puzzleId) return;
+
+    try {
+      await supabase.from('puzzle_attempts').upsert({
+        user_id: userId,
+        puzzle_id: puzzleId,
+        solved,
+        time_taken: timeTaken,
+        rating_change: ratingChange,
+        puzzle_rating: puzzleRating,
+        attempted_at: new Date().toISOString(),
+      }, { onConflict: 'user_id,puzzle_id' });
+    } catch (err) {
+      console.warn('Failed to record puzzle attempt:', err.message);
+    }
+  },
+
+  // ── Record rating history ─────────────────────────────────────────────────
+  async recordRatingHistory(userId, rating) {
+    if (!userId) return;
+
+    try {
+      await supabase.from('puzzle_rating_history').insert({
+        user_id: userId,
+        rating,
+      });
+    } catch (err) {
+      console.warn('Failed to record rating history:', err.message);
+    }
+  },
+
   // ── Reset (go back to idle) ───────────────────────────────────────────────
   reset() {
     get().stopRushTimer();
@@ -609,6 +1132,10 @@ const usePuzzleStore = create((set, get) => ({
       lastRatingChange: null, errorMsg: null,
       rushActive: false, rushScore: 0, rushStrikes: 0,
       streakActive: false, streakCount: 0,
+      dailyPuzzle: null, dailySolved: false,
+      selectedTheme: null, difficultyLevel: null,
+      reviewMode: false, reviewIndex: 0, solutionMoves: [], playerMoves: [],
+      puzzleStartTime: null,
     });
   },
 }));
