@@ -161,8 +161,6 @@ export default function App() {
   const setGameResult = useGameStore(s => s.setGameResult);
   const setOnlineOpponentId = useGameStore(s => s.setOnlineOpponentId);
 
-  const pieceSets = useThemeStore(s => s.pieceSets);
-  const pieceSetIndex = useThemeStore(s => s.pieceSetIndex);
   const { updateOnlineGameRating, myRatings, loadRatings } = useRatingStore();
   const { status: mmStatus, elapsedSeconds: mmElapsed,
           joinQueue, cancelQueue: cancelMatchmaking, reset: resetMatchmaking } = useMatchmakingStore();
@@ -170,8 +168,6 @@ export default function App() {
           unsubscribe: unsubscribeNotifs, unreadCount: notifUnread } = useNotificationStore();
   const { loadFriends, incoming: friendRequests } = useFriendStore();
   const showCapturedPref = usePrefsStore(s => s.showCaptured);
-  const safeIndex = Math.max(0, Math.min(pieceSetIndex ?? 0, pieceSets.length - 1));
-  const imagePath = `./images/${pieceSets[safeIndex].path}`;
 
   // ─── Init ──────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -183,7 +179,7 @@ export default function App() {
   const reducedMotion = usePrefsStore(s => s.reducedMotion);
   const highContrast = usePrefsStore(s => s.highContrast);
   const soundToggles = useThemeStore(s => s.soundToggles);
-  const soundTheme = useThemeStore(s => s.soundTheme);
+  const soundTheme = useThemeStore(s => s.soundThemeId);
 
   useEffect(() => {
     document.body.dataset.reducedMotion = reducedMotion ? 'true' : 'false';
@@ -971,7 +967,7 @@ export default function App() {
                 name={topName} colorCode={topColor}
                 time={topTime} timeActive={topActive} timerRunning={timerRunning}
                 captured={topCaptured} materialAdv={topAdv}
-                timeControl={timeControl} imagePath={imagePath}
+                timeControl={timeControl}
                 showCaptured={showCapturedPref}
               />
 
@@ -1010,7 +1006,7 @@ export default function App() {
                 name={bottomName} colorCode={bottomColor}
                 time={bottomTime} timeActive={bottomActive} timerRunning={timerRunning}
                 captured={bottomCaptured} materialAdv={bottomAdv}
-                timeControl={timeControl} imagePath={imagePath}
+                timeControl={timeControl}
                 showHint={!isOnline} onHint={handleGetHint}
                 showCaptured={showCapturedPref}
               />
@@ -1080,7 +1076,6 @@ export default function App() {
       {pawnPromotion && (
         <PromotionModal
           color={activeColor === 'w' ? 'white' : 'black'}
-          imagePath={imagePath}
           onSelect={completePromotion}
         />
       )}
@@ -1292,11 +1287,12 @@ function HomeScreen({ user, onStart, onPlayOnline, onTabClick, onQuickMatch }) {
 }
 
 // ─── Player panel ─────────────────────────────────────────────────────────────
-const PP_PIECE_MAP = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' };
 // Use shared time formatter
 import { formatTime as formatPPTime } from './utils/timeFormatter';
+import { usePieceResolver } from './utils/pieceResolver';
 
-function PlayerPanel({ name, colorCode, time, timeActive, timerRunning, captured, materialAdv, timeControl, imagePath, showHint, onHint, showCaptured = true }) {
+function PlayerPanel({ name, colorCode, time, timeActive, timerRunning, captured, materialAdv, timeControl, showHint, onHint, showCaptured = true }) {
+  const resolvePiece = usePieceResolver();
   const initial = (name || (colorCode === 'w' ? 'W' : 'B'))[0].toUpperCase();
   const isLow   = timeActive && timerRunning && time <= 30;
   const ticking = timeActive && timerRunning;
@@ -1312,7 +1308,7 @@ function PlayerPanel({ name, colorCode, time, timeActive, timerRunning, captured
               {captured.map((p, i) => (
                 <img
                   key={`${p.type}-${p.color}-${i}`}
-                  src={`${imagePath}${PP_PIECE_MAP[p.type]}-${p.color === 'w' ? 'white' : 'black'}.png`}
+                  src={resolvePiece(p.type, p.color)}
                   className="pp-cap-img"
                   alt={p.type}
                 />

@@ -345,56 +345,142 @@ function buildSoundsForTheme(cfg, vol) {
   };
 }
 
+/* ==========================================================
+   CDN Audio Backend — loads MP3s, caches as AudioBuffers
+   ========================================================== */
+
+import { getSoundThemeById, getSoundUrl } from '../data/assetRegistry';
+
+const _audioBufferCache = {}; // { [themeId]: { [soundName]: AudioBuffer } }
+const _loadingPromises = {};  // prevent duplicate fetches
+
+async function loadCdnBuffer(themeId, soundName) {
+  const cacheKey = `${themeId}:${soundName}`;
+  if (_audioBufferCache[themeId]?.[soundName]) return _audioBufferCache[themeId][soundName];
+  if (_loadingPromises[cacheKey]) return _loadingPromises[cacheKey];
+
+  const theme = getSoundThemeById(themeId);
+  const url = getSoundUrl(theme, soundName);
+  if (!url) return null;
+
+  _loadingPromises[cacheKey] = (async () => {
+    try {
+      const ctx = getCtx();
+      const res = await fetch(url, { mode: 'cors' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const arrayBuf = await res.arrayBuffer();
+      const audioBuf = await ctx.decodeAudioData(arrayBuf);
+      if (!_audioBufferCache[themeId]) _audioBufferCache[themeId] = {};
+      _audioBufferCache[themeId][soundName] = audioBuf;
+      return audioBuf;
+    } catch {
+      return null; // fallback to synth
+    } finally {
+      delete _loadingPromises[cacheKey];
+    }
+  })();
+
+  return _loadingPromises[cacheKey];
+}
+
+function playCdnBuffer(buffer) {
+  if (!buffer) return;
+  const ctx = getCtx();
+  const source = ctx.createBufferSource();
+  source.buffer = buffer;
+  const gain = ctx.createGain();
+  gain.gain.value = _volume;
+  source.connect(gain);
+  gain.connect(ctx.destination);
+  source.start(0);
+}
+
+/** Eagerly preload the most common sounds for a CDN theme. */
+function preloadCdnTheme(themeId) {
+  ['move', 'capture', 'check', 'castle'].forEach(s => loadCdnBuffer(themeId, s));
+}
+
 /* ---------- state ---------- */
 
 let _enabled = true;
 let _volume = 1.0;
 let _soundToggles = {};
-let _currentTheme = 'default';
-let _activeSounds = null;
+let _currentThemeId = 'synth-default';
+let _currentThemeSource = 'synth';
+let _currentSynthKey = 'default';
+let _activeSynthSounds = null;
 
-function getActiveSounds() {
-  if (!_activeSounds) {
-    _activeSounds = buildSoundsForTheme(SOUND_THEMES[_currentTheme] || SOUND_THEMES.default);
+function getActiveSynthSounds() {
+  if (!_activeSynthSounds) {
+    _activeSynthSounds = buildSoundsForTheme(SOUND_THEMES[_currentSynthKey] || SOUND_THEMES.default);
   }
-  return _activeSounds;
+  return _activeSynthSounds;
 }
 
 /* ---------- public API ---------- */
 
 export function setSoundEnabled(enabled) { _enabled = enabled; }
-export function setSoundVolume(vol) { _volume = Math.max(0, Math.min(1, vol)); _activeSounds = null; }
+export function setSoundVolume(vol) { _volume = Math.max(0, Math.min(1, vol)); _activeSynthSounds = null; }
 export function setSoundToggles(toggles) { _soundToggles = toggles || {}; }
 
-export function setSoundTheme(theme) {
-  _currentTheme = theme;
-  _activeSounds = null;
+export function setSoundTheme(themeId) {
+  _currentThemeId = themeId;
+  _activeSynthSounds = null;
+  const theme = getSoundThemeById(themeId);
+  _currentThemeSource = theme.source;
+  if (theme.source === 'synth') {
+    _currentSynthKey = theme.key;
+  } else {
+    preloadCdnTheme(themeId);
+  }
 }
 
-/** Get list of available sound themes for UI. */
-export function getSoundThemes() {
-  return Object.entries(SOUND_THEMES).map(([key, cfg]) => ({ key, label: cfg.label }));
-}
-
-/** Preview a theme by playing move -> capture -> check in sequence. */
-export function previewTheme(themeName) {
-  const cfg = SOUND_THEMES[themeName] || SOUND_THEMES.default;
-  const preview = buildSoundsForTheme(cfg, _volume);
-  preview.move();
-  setTimeout(() => preview.capture(), 280);
-  setTimeout(() => preview.check(), 560);
+/** Preview a theme by playing move → capture → check in sequence. */
+export function previewTheme(themeId) {
+  const theme = getSoundThemeById(themeId);
+  if (theme.source === 'synth') {
+    const cfg = SOUND_THEMES[theme.key] || SOUND_THEMES.default;
+    const preview = buildSoundsForTheme(cfg, _volume);
+    preview.move();
+    setTimeout(() => preview.capture(), 280);
+    setTimeout(() => preview.check(), 560);
+  } else {
+    // CDN preview: load and play sequentially
+    loadCdnBuffer(themeId, 'move').then(buf => { if (buf) playCdnBuffer(buf); });
+    setTimeout(() => loadCdnBuffer(themeId, 'capture').then(buf => { if (buf) playCdnBuffer(buf); }), 300);
+    setTimeout(() => loadCdnBuffer(themeId, 'check').then(buf => { if (buf) playCdnBuffer(buf); }), 600);
+  }
 }
 
 /**
  * Play a chess sound effect.
- * @param {'move'|'capture'|'check'|'castle'|'promote'|'gameStart'|'gameEnd'|'lowTime'|'illegal'} name
  */
 export function playSound(name) {
   if (!_enabled || _volume <= 0) return;
   if (_soundToggles[name] === false) return;
-  const sounds = getActiveSounds();
-  const fn = sounds[name];
-  if (fn) fn();
+
+  if (_currentThemeSource === 'synth') {
+    const sounds = getActiveSynthSounds();
+    const fn = sounds[name];
+    if (fn) fn();
+  } else {
+    // CDN theme: try cached buffer first, then async load
+    const cached = _audioBufferCache[_currentThemeId]?.[name];
+    if (cached) {
+      playCdnBuffer(cached);
+    } else {
+      // Async load + play, with synth fallback
+      loadCdnBuffer(_currentThemeId, name).then(buf => {
+        if (buf) {
+          playCdnBuffer(buf);
+        } else {
+          // Fallback to synth default
+          const fallback = buildSoundsForTheme(SOUND_THEMES.default);
+          fallback[name]?.();
+        }
+      });
+    }
+  }
 }
 
 /**

@@ -3,6 +3,7 @@ import styles from './Cell.module.css';
 import useGameStore from '../../store/gameStore';
 import useThemeStore from '../../store/themeStore';
 import usePrefsStore from '../../store/prefsStore';
+import { usePieceResolver, getFallbackUrl } from '../../utils/pieceResolver';
 
 const PIECE_NAME_MAP = {
   p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king',
@@ -38,11 +39,8 @@ const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, pie
   const clr2p = useThemeStore(s => s.clr2p);
   const clr1x = useThemeStore(s => s.clr1x);
   const clr2x = useThemeStore(s => s.clr2x);
-  const pieceSetIndex = useThemeStore(s => s.pieceSetIndex);
-  const pieceSets = useThemeStore(s => s.pieceSets);
-
-  const safeIndex = Math.max(0, Math.min(pieceSetIndex ?? 0, pieceSets.length - 1));
-  const imagePath = `./images/${pieceSets[safeIndex].path}`;
+  const boardThemeType = useThemeStore(s => s.boardThemeType);
+  const resolvePiece = usePieceResolver();
 
   const isLight = (row + col) % 2 === 0;
 
@@ -52,7 +50,8 @@ const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, pie
   const isLastMoveTo = highlightLastMove && lastMove && lastMove.to.row === row && lastMove.to.col === col;
   const isInCheck = underCheck && underCheck.row === row && underCheck.col === col;
 
-  let bgColor = isLight ? clr1 : clr2;
+  const isImageTheme = boardThemeType === 'image';
+  let bgColor = isImageTheme ? 'transparent' : (isLight ? clr1 : clr2);
   if (isInCheck) bgColor = isLight ? clr1c : clr2c;
   else if (isSelected) bgColor = isLight ? clr1x : clr2x;
   else if (isLastMoveFrom || isLastMoveTo) bgColor = isLight ? clr1p : clr2p;
@@ -120,8 +119,9 @@ const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, pie
 
       {piece && !blindfoldMode && (
         <img
-          src={`${imagePath}${PIECE_NAME_MAP[piece.type]}-${piece.color === 'w' ? 'white' : 'black'}.png`}
+          src={resolvePiece(piece.type, piece.color)}
           alt={`${piece.color === 'w' ? 'White' : 'Black'} ${PIECE_NAME_MAP[piece.type]}`}
+          onError={e => { e.target.onerror = null; e.target.src = getFallbackUrl(piece.type, piece.color); }}
           className={`${styles.piece} ${draggingThis ? styles.dragging : ''}`}
           style={{
             transform: pieceScale !== 100 ? `scale(${pieceScale / 100})` : undefined,

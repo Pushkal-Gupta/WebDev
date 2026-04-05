@@ -4,18 +4,18 @@ import styles from './PuzzlePage.module.css';
 import usePuzzleStore from '../../store/puzzleStore';
 import useAuthStore from '../../store/authStore';
 import useThemeStore from '../../store/themeStore';
+import { usePieceResolver, getFallbackUrl } from '../../utils/pieceResolver';
 import { PIECE_NAME, FILE_LABELS, squareName, rankToRow, fileToCol, parseFen } from '../../utils/boardHelpers';
 
 // ── Inline board that works from a raw FEN ─────────────────────────────────
 
 function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveTo, hintSquare }) {
-  const { clr1, clr2, clr1p, clr2p, clr1x, clr2x, pieceSetIndex, pieceSets } = useThemeStore();
+  const { clr1, clr2, clr1p, clr2p, clr1x, clr2x } = useThemeStore();
+  const resolvePiece = usePieceResolver();
   const [selected, setSelected] = useState(null);
   const [validMoves, setValidMoves] = useState([]);
   const [chess]     = useState(() => new Chess());
 
-  const safeIndex = Math.max(0, Math.min(pieceSetIndex ?? 0, pieceSets.length - 1));
-  const imagePath = `./images/${pieceSets[safeIndex].path}`;
   const flipped   = playerColor === 'b';
   const rows      = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
   const cols      = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
@@ -103,7 +103,8 @@ function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveT
                 )}
                 {piece && (
                   <img
-                    src={`${imagePath}${PIECE_NAME[piece.type]}-${piece.color === 'w' ? 'white' : 'black'}.png`}
+                    src={resolvePiece(piece.type, piece.color)}
+                    onError={e => { e.target.onerror = null; e.target.src = getFallbackUrl(piece.type, piece.color); }}
                     alt={piece.type}
                     className={styles.piece}
                     onClick={e => { e.stopPropagation(); handleCellClick(row, col); }}

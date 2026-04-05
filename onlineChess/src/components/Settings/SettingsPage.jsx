@@ -4,7 +4,10 @@ import useGameStore from '../../store/gameStore';
 import usePrefsStore from '../../store/prefsStore';
 import useAuthStore from '../../store/authStore';
 import { supabase } from '../../utils/supabase';
-import { playSound, getSoundThemes, previewTheme } from '../../utils/soundManager';
+import { playSound, previewTheme } from '../../utils/soundManager';
+import { PIECE_SETS, BOARD_THEMES, SOUND_THEMES, getCategories } from '../../data/assetRegistry';
+import { getPieceSetPreviewUrl, resolvePieceUrl } from '../../utils/pieceResolver';
+import { getPieceSetById } from '../../data/assetRegistry';
 import styles from './SettingsPage.module.css';
 
 /* ─── Constants ─── */
@@ -175,23 +178,30 @@ function Toggle({ checked, onChange, label, desc }) {
 }
 
 /* ─── Mini Board Preview ─── */
-function MiniBoard({ clr1, clr2, pieceSetPath, size = 80 }) {
+function MiniBoard({ theme, pieceSet, size = 80 }) {
   const cellSize = size / 4;
+  // piece positions: (type, color) tuples
   const layout = [
-    [null, null, 'bishop-white', null],
-    [null, 'pawn-black', null, 'pawn-white'],
-    ['pawn-white', null, 'knight-white', null],
-    [null, null, null, 'rook-white'],
+    [null, null, ['b','w'], null],
+    [null, ['p','b'], null, ['p','w']],
+    [['p','w'], null, ['n','w'], null],
+    [null, null, null, ['r','w']],
   ];
+  const isImage = theme?.type === 'image';
+  const boardStyle = isImage && theme.imageUrl
+    ? { backgroundImage: `url(${theme.imageUrl})`, backgroundSize: '100% 100%' }
+    : {};
+
   return (
-    <div style={{ width: size, height: size, display: 'grid', gridTemplateColumns: `repeat(4, ${cellSize}px)`, borderRadius: 6, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.12)' }}>
-      {layout.flat().map((piece, i) => {
+    <div style={{ width: size, height: size, display: 'grid', gridTemplateColumns: `repeat(4, ${cellSize}px)`, borderRadius: 6, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.12)', ...boardStyle }}>
+      {layout.flat().map((p, i) => {
         const row = Math.floor(i / 4);
         const col = i % 4;
         const isLight = (row + col) % 2 === 0;
+        const bg = isImage ? 'transparent' : (isLight ? (theme?.clr1 || '#fff') : (theme?.clr2 || '#33b3a6'));
         return (
-          <div key={i} style={{ width: cellSize, height: cellSize, background: isLight ? clr1 : clr2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {piece && <img src={`./images/${pieceSetPath}${piece}.png`} alt="" style={{ width: cellSize * 0.82, height: cellSize * 0.82, objectFit: 'contain' }} />}
+          <div key={i} style={{ width: cellSize, height: cellSize, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {p && pieceSet && <img src={resolvePieceUrl(p[0], p[1], pieceSet)} alt="" loading="lazy" style={{ width: cellSize * 0.82, height: cellSize * 0.82, objectFit: 'contain' }} />}
           </div>
         );
       })}
@@ -205,16 +215,21 @@ function MiniBoard({ clr1, clr2, pieceSetPath, size = 80 }) {
 export default function SettingsPage() {
   const [activeCategory, setActiveCategory] = useState('board');
 
+  const [pieceFilter, setPieceFilter] = useState('All');
+  const [boardFilter, setBoardFilter] = useState('All');
+
   // Theme store
   const {
-    pieceSets, pieceSetIndex, setPieceSet,
-    themes, themeIndex, applyTheme,
+    pieceSetId, setPieceSet,
+    boardThemeId, applyBoardTheme,
     clr1, clr2, clr1c, clr1p, clr1x,
     setColor, resetDefault: resetTheme,
     soundEnabled, setSoundEnabled, soundVolume, setSoundVolume,
-    soundTheme, setSoundTheme,
+    soundThemeId, setSoundTheme,
     soundToggles, setSoundToggle,
   } = useThemeStore();
+
+  const currentPieceSet = getPieceSetById(pieceSetId);
 
   // Game store
   const {
@@ -333,7 +348,11 @@ export default function SettingsPage() {
     setShowLegalDots(true); setDotSize(12); setBlindfoldMode(false);
   }, [resetTheme, resetPrefs, setShowLabels, setCoordinateDisplay, setHighlightLastMove, setHighlightSelected, setShowLegalDots, setDotSize, setBlindfoldMode]);
 
-  const soundThemeList = getSoundThemes();
+  const pieceCategories = ['All', ...getCategories(PIECE_SETS)];
+  const boardCategories = ['All', ...getCategories(BOARD_THEMES)];
+  const filteredPieces = pieceFilter === 'All' ? PIECE_SETS : PIECE_SETS.filter(p => p.category === pieceFilter);
+  const filteredBoards = boardFilter === 'All' ? BOARD_THEMES : BOARD_THEMES.filter(t => t.category === boardFilter);
+  const soundCategories = getCategories(SOUND_THEMES);
 
   /* ═══════════════════════════════════════════════════
      Section Renderers
@@ -349,25 +368,43 @@ export default function SettingsPage() {
 
       <div className={styles.subsection}>
         <h4 className={styles.subsectionTitle}>Piece Set</h4>
-        <div className={styles.pieceGrid}>
-          {pieceSets.map((ps, i) => (
-            <button key={ps.name} className={`${styles.pieceBtn} ${pieceSetIndex === i ? styles.pieceBtnActive : ''}`} onClick={() => setPieceSet(i)}>
-              <img src={`./images/${ps.path}queen-white.png`} alt={ps.name} className={styles.pieceImg} />
-              <span>{ps.name}</span>
+        <div className={styles.filterTabs}>
+          {pieceCategories.map(cat => (
+            <button key={cat} className={`${styles.filterTab} ${pieceFilter === cat ? styles.filterTabActive : ''}`} onClick={() => setPieceFilter(cat)}>
+              {cat}{cat !== 'All' ? ` (${PIECE_SETS.filter(p => p.category === cat).length})` : ''}
             </button>
           ))}
+        </div>
+        <div className={styles.scrollGrid}>
+          <div className={styles.pieceGrid}>
+            {filteredPieces.map(ps => (
+              <button key={ps.id} className={`${styles.pieceBtn} ${pieceSetId === ps.id ? styles.pieceBtnActive : ''}`} onClick={() => setPieceSet(ps.id)}>
+                <img src={getPieceSetPreviewUrl(ps)} alt={ps.name} className={styles.pieceImg} loading="lazy" onError={e => { e.target.onerror = null; e.target.style.opacity = '0.3'; }} />
+                <span>{ps.name}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       <div className={styles.subsection}>
         <h4 className={styles.subsectionTitle}>Board Theme</h4>
-        <div className={styles.themeGrid}>
-          {themes.map((th, i) => (
-            <button key={th.name} className={`${styles.themeBtn} ${themeIndex === i ? styles.themeBtnActive : ''}`} onClick={() => applyTheme(i)}>
-              <MiniBoard clr1={th.clr1} clr2={th.clr2} pieceSetPath={pieceSets[pieceSetIndex].path} size={80} />
-              <span>{th.name}</span>
+        <div className={styles.filterTabs}>
+          {boardCategories.map(cat => (
+            <button key={cat} className={`${styles.filterTab} ${boardFilter === cat ? styles.filterTabActive : ''}`} onClick={() => setBoardFilter(cat)}>
+              {cat}{cat !== 'All' ? ` (${BOARD_THEMES.filter(t => t.category === cat).length})` : ''}
             </button>
           ))}
+        </div>
+        <div className={styles.scrollGrid}>
+          <div className={styles.themeGrid}>
+            {filteredBoards.map(th => (
+              <button key={th.id} className={`${styles.themeBtn} ${boardThemeId === th.id ? styles.themeBtnActive : ''}`} onClick={() => applyBoardTheme(th.id)}>
+                <MiniBoard theme={th} pieceSet={currentPieceSet} size={80} />
+                <span>{th.name}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -491,10 +528,16 @@ export default function SettingsPage() {
           <div className={styles.subsection}>
             <h4 className={styles.subsectionTitle}>Sound Theme</h4>
             <div className={styles.soundThemeRow}>
-              <select className={styles.select} value={soundTheme} onChange={e => setSoundTheme(e.target.value)}>
-                {soundThemeList.map(t => (<option key={t.key} value={t.key}>{t.label}</option>))}
+              <select className={styles.select} value={soundThemeId} onChange={e => setSoundTheme(e.target.value)}>
+                {soundCategories.map(cat => (
+                  <optgroup key={cat} label={cat}>
+                    {SOUND_THEMES.filter(t => t.category === cat).map(t => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </optgroup>
+                ))}
               </select>
-              <button className={styles.previewBtn} onClick={() => previewTheme(soundTheme)} title="Preview theme">
+              <button className={styles.previewBtn} onClick={() => previewTheme(soundThemeId)} title="Preview theme">
                 <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8">
                   <path d="M10 3L5 7H2v6h3l5 4V3z" fill="currentColor" opacity="0.3" />
                   <path d="M14 7.5a4 4 0 010 5" />
@@ -727,10 +770,16 @@ export default function SettingsPage() {
           <div className={styles.field} style={{ marginTop: 10 }}>
             <label className={styles.fieldLabel}>Sound Theme</label>
             <div className={styles.soundThemeRow}>
-              <select className={styles.select} value={soundTheme} onChange={e => setSoundTheme(e.target.value)}>
-                {soundThemeList.map(t => (<option key={t.key} value={t.key}>{t.label}</option>))}
+              <select className={styles.select} value={soundThemeId} onChange={e => setSoundTheme(e.target.value)}>
+                {soundCategories.map(cat => (
+                  <optgroup key={cat} label={cat}>
+                    {SOUND_THEMES.filter(t => t.category === cat).map(t => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </optgroup>
+                ))}
               </select>
-              <button className={styles.previewBtn} onClick={() => previewTheme(soundTheme)} title="Preview">
+              <button className={styles.previewBtn} onClick={() => previewTheme(soundThemeId)} title="Preview">
                 <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M10 3L5 7H2v6h3l5 4V3z" fill="currentColor" opacity="0.3" /><path d="M14 7.5a4 4 0 010 5" /></svg>
               </button>
             </div>
