@@ -16,16 +16,20 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 24px 16px;
+  gap: 6px;
+  padding: 12px 16px;
   position: relative;
-  --cell-size: min(72px, calc((100vh - 180px) / 8));
+  overflow: hidden;
+  /* Account for: mode tabs ~40px + turn bar ~28px + progress 4px + move list ~120px + padding ~24px + gaps ~30px */
+  --cell-size: min(68px, calc((100vh - 280px) / 8));
 }
 
 .boardWrapper {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .board {
@@ -98,8 +102,8 @@
 }
 
 .loadingBoard {
-  width:  calc(8 * var(--cell-size));
-  height: calc(8 * var(--cell-size));
+  width:  calc(8 * var(--cell-size) + 4px);
+  height: calc(8 * var(--cell-size) + 4px);
   background: rgba(255,255,255,0.02);
   border: 1px solid rgba(255,255,255,0.07);
   border-radius: 3px;
@@ -671,7 +675,8 @@
 /* ── Progress bar ────────────────────────────────────────────────────────── */
 
 .progressBar {
-  width: calc(8 * var(--cell-size));
+  width: 100%;
+  max-width: calc(8 * var(--cell-size) + 4px);
   height: 4px;
   background: rgba(255,255,255,0.08);
   border-radius: 2px;
@@ -695,13 +700,13 @@
   gap: 2px;
   font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
   font-size: 0.8rem;
-  max-height: 120px;
+  max-height: 80px;
   overflow-y: auto;
-  padding: 8px;
+  padding: 6px 8px;
   background: rgba(255,255,255,0.02);
   border: 1px solid rgba(255,255,255,0.06);
   border-radius: 8px;
-  width: calc(8 * var(--cell-size));
+  width: calc(8 * var(--cell-size) + 4px);
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,0.1) transparent;
 }
