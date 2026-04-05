@@ -3,28 +3,19 @@ import { Handle, Position } from 'reactflow';
 import './TopicNode.css';
 
 export default function TopicNode({ data }) {
-  // Take the main title and parse the rest as tags
+  // Take only the main title
   const parts = (data.label || '').split('\n');
   const mainTitle = parts[0];
-  const tags = parts.length > 1 
-    ? parts.slice(1).join(',').split(',').map(t => t.trim()).filter(Boolean)
-    : [];
     
-  const categoryClass = data.category ? data.category.toLowerCase() : 'default';
+  // Use group_name for color coding as it matches the flowchart layers perfectly
+  const groupClass = data.group_name ? data.group_name.toLowerCase().replace(/\s+/g, '-') : 'default';
 
   return (
-    <div className={`topic-node-container ${categoryClass}`}>
+    <div className={`topic-node-container ${groupClass}`}>
       <Handle type="target" position={Position.Top} className="handle" />
       
       <div className="topic-node-content">
         <span className="topic-node-title">{mainTitle}</span>
-        {tags.length > 0 && (
-          <div className="topic-node-tags">
-            {tags.map((tag, i) => (
-              <span key={i} className="topic-node-tag-pill">{tag}</span>
-            ))}
-          </div>
-        )}
       </div>
 
       <Handle type="source" position={Position.Bottom} className="handle" />

@@ -34,6 +34,16 @@ export default function RoadmapView() {
         if (edgesError) throw edgesError;
 
         if (topicsData && topicsData.length > 0) {
+          const nodeMap = Object.fromEntries(topicsData.map(t => [t.id, t.group_name]));
+          const groupColors = {
+            'Foundation': '#4285f4',
+            'Structures': '#a142f4',
+            'Algorithms': '#34a853',
+            'Advanced': '#fbbc04',
+            'Optimization': '#ea4335',
+            'Expert': '#ea4335',
+            'Synthesis': '#9aa0a6'
+          };
           const dbNodes = topicsData.map(t => ({
             id: t.id,
             type: 'custom',
@@ -45,17 +55,21 @@ export default function RoadmapView() {
             },
             ...t // keep row data for topic modal
           }));
-          const dbEdges = (edgesData || []).map(e => ({
-            id: e.id,
-            source: e.source,
-            target: e.target,
-            animated: true,
-            style: { stroke: 'rgba(255,255,255,0.5)', strokeWidth: 2 },
-            markerEnd: {
-              type: MarkerType.ArrowClosed,
-              color: 'rgba(255,255,255,0.5)',
-            },
-          }));
+          const dbEdges = (edgesData || []).map(e => {
+            const color = groupColors[nodeMap[e.source]] || '#b0b8c4';
+            return {
+              id: e.id,
+              source: e.source,
+              target: e.target,
+              type: 'straight',
+              animated: false,
+              style: { stroke: color, strokeWidth: 1.5 },
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                color: color,
+              },
+            };
+          });
           setNodes(dbNodes);
           setEdges(dbEdges);
         } else {
@@ -66,9 +80,10 @@ export default function RoadmapView() {
           }));
           const initialEdgesStyled = initialEdges.map(e => ({
             ...e,
-            animated: true,
-            style: { stroke: 'rgba(255,255,255,0.5)', strokeWidth: 2 },
-            markerEnd: { type: MarkerType.ArrowClosed, color: 'rgba(255,255,255,0.5)' }
+            type: 'straight',
+            animated: false,
+            style: { stroke: '#b0b8c4', strokeWidth: 1.5 },
+            markerEnd: { type: MarkerType.ArrowClosed, color: '#b0b8c4' }
           }));
           setNodes(initialNodesScaled);
           setEdges(initialEdgesStyled);
@@ -81,9 +96,10 @@ export default function RoadmapView() {
         }));
         const initialEdgesStyled = initialEdges.map(e => ({
           ...e,
-          animated: true,
-          style: { stroke: 'rgba(255,255,255,0.5)', strokeWidth: 2 },
-          markerEnd: { type: MarkerType.ArrowClosed, color: 'rgba(255,255,255,0.5)' }
+          type: 'straight',
+          animated: false,
+          style: { stroke: '#b0b8c4', strokeWidth: 1.5 },
+          markerEnd: { type: MarkerType.ArrowClosed, color: '#b0b8c4' }
         }));
         setNodes(initialNodesScaled);
         setEdges(initialEdgesStyled);
@@ -107,7 +123,7 @@ export default function RoadmapView() {
   };
 
   return (
-    <div style={{ width: '100%', height: 'calc(100vh - 70px)' }}>
+    <div style={{ width: '100%', height: 'calc(100vh - 70px)', background: '#fafbfc' }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -118,7 +134,7 @@ export default function RoadmapView() {
         fitView
         attributionPosition="bottom-right"
       >
-        <Background color="var(--border)" gap={16} />
+        <Background color="#ddd" gap={16} />
         <Controls />
       </ReactFlow>
 

@@ -55,16 +55,124 @@
   justify-content: center;
 }
 
-.visualStateBox {
+.simulation-canvas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+}
+
+.sim-status {
+  padding: 1rem;
   background: var(--card-bg);
-  border: 1px solid var(--accent);
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 255, 245, 0.05);
-  font-family: var(--mono);
-  font-size: 1.2rem;
-  text-align: center;
+  border-left: 4px solid var(--accent);
+  color: var(--text-h);
+  font-family: var(--sans);
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
   min-width: 300px;
+  text-align: center;
+}
+
+.sim-array-container {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.sim-array-element {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.sim-array-element.active-pointer {
+  transform: translateY(-8px);
+}
+
+.sim-element-val {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 1.25rem;
+  font-weight: 600;
+  background: var(--card-bg);
+  color: var(--text-h);
+  transition: all 0.3s ease;
+}
+
+.active-pointer .sim-element-val {
+  border-color: var(--accent);
+  box-shadow: 0 0 15px var(--accent-bg);
+}
+
+.sim-element-idx {
+  margin-top: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.sim-pointer-indicator {
+  position: absolute;
+  bottom: -35px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--accent);
+  font-weight: bold;
+  animation: bounce 1s infinite alternate;
+}
+
+@keyframes bounce {
+  from { transform: translateY(0); }
+  to { transform: translateY(5px); }
+}
+
+.sim-hashset-container {
+  border: 2px dashed var(--border);
+  padding: 1.5rem;
+  border-radius: 12px;
+  min-width: 300px;
+  text-align: center;
+  background: rgba(0,0,0,0.02);
+}
+
+.sim-hashset-container h4 {
+  margin: 0 0 1rem 0;
+  font-family: var(--mono);
+  color: var(--text-dim);
+}
+
+.sim-hashset-elements {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  min-height: 40px;
+}
+
+.sim-hashset-val {
+  padding: 0.5rem 1rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-family: var(--mono);
+  font-weight: bold;
+}
+
+.empty-text {
+  color: var(--border);
+  font-style: italic;
 }
 
 .interactiveQuestionPopup {

@@ -1,22 +1,19 @@
 .topic-node-container {
-  padding: 0.75rem 1.25rem;
-  border-radius: 6px;
-  background: var(--card-bg, #1e1e1e);
-  color: #fff;
-  border: 2px solid transparent;
-  min-width: 180px;
-  max-width: 250px;
+  padding: 0.5rem 1rem;
+  border-radius: 2px;
+  background: #ffffff;
+  color: #202124;
+  border: 1.5px solid #ccc;
+  min-width: 140px;
+  max-width: 200px;
   text-align: center;
   position: relative;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   font-family: var(--sans, 'Inter', sans-serif);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .topic-node-container:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.5);
-  filter: brightness(1.1);
+  filter: brightness(0.95);
   cursor: pointer;
 }
 
@@ -25,96 +22,55 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 0.5rem;
 }
 
 .topic-node-title {
-  font-weight: 600;
-  font-size: 1rem;
+  font-weight: 500;
+  font-size: 0.85rem;
   line-height: 1.2;
 }
 
-.topic-node-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  justify-content: center;
-  margin-top: 0.25rem;
+/* Category Colors */
+.topic-node-container.foundation {
+  background: #e8f0fe;
+  border-color: #4285f4;
 }
 
-.topic-node-tag-pill {
-  font-size: 0.65rem;
-  padding: 0.15rem 0.4rem;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #ccc;
-  white-space: nowrap;
-}
-
-/* Category Colors for Neetcode-like Glow/Borders */
-.topic-node-container.structures,
-.topic-node-container.default {
-  background: #2a2a2a;
-  border-color: #bb86fc; /* Purple */
-}
-
-.topic-node-container.structures .topic-node-tag-pill,
-.topic-node-container.default .topic-node-tag-pill {
-  color: #bb86fc;
-  background: rgba(187, 134, 252, 0.15);
+.topic-node-container.structures {
+  background: #f3e8fd;
+  border-color: #a142f4;
 }
 
 .topic-node-container.algorithms {
-  background: #2a2a2a;
-  border-color: #03dac6; /* Teal */
+  background: #e6f4ea;
+  border-color: #34a853;
 }
 
-.topic-node-container.algorithms .topic-node-tag-pill {
-  color: #03dac6;
-  background: rgba(3, 218, 198, 0.15);
+.topic-node-container.advanced {
+  background: #fef7e0;
+  border-color: #fbbc04;
 }
 
 .topic-node-container.optimization {
-  background: #2a2a2a;
-  border-color: #cf6679; /* Red/Pink */
+  background: #fce8e6;
+  border-color: #ea4335;
 }
 
-.topic-node-container.optimization .topic-node-tag-pill {
-  color: #cf6679;
-  background: rgba(207, 102, 121, 0.15);
+.topic-node-container.expert {
+  background: #fce8e6;
+  border-color: #ea4335;
 }
 
 .topic-node-container.synthesis {
-  background: #2a2a2a;
-  border-color: #3700b3; /* Deep Purple */
+  background: #f1f3f4;
+  border-color: #9aa0a6;
 }
 
-.topic-node-container.synthesis .topic-node-tag-pill {
-  color: #a78bfa;
-  background: rgba(167, 139, 250, 0.15);
-}
-
-.topic-node-container.math {
-  background: #2a2a2a;
-  border-color: #4a90e2; /* Blue */
-}
-
-.topic-node-container.math .topic-node-tag-pill {
-  color: #4a90e2;
-  background: rgba(74, 144, 226, 0.15);
-}
-
-/* Base custom handles */
+/* Base custom handles - invisible usually */
 .topic-node-container .handle {
-  width: 6px;
-  height: 6px;
-  background: #ccc;
+  width: 4px;
+  height: 4px;
+  background: transparent;
   border: none;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.topic-node-container:hover .handle {
-  opacity: 1;
 }
 

@@ -116,17 +116,53 @@ export default function DryRunViewer({ problemId }) {
       </div>
       
       <div className="dryRunBody">
-        {/* Render simple generic state block if we have visual state data */}
-        <div className="visualStateBox">
-          <pre style={{ margin: 0, textAlign: 'left', fontSize: '0.9rem' }}>
-            {JSON.stringify(currentStep.visual_state_data, null, 2)}
-          </pre>
+        {/* Visual Engine Renderer */}
+        <div className="simulation-canvas">
+          {currentStep.visual_state_data?.status && (
+            <div className="sim-status">
+              {currentStep.visual_state_data.status}
+            </div>
+          )}
+
+          {currentStep.visual_state_data?.array && (
+             <div className="sim-array-container">
+               {currentStep.visual_state_data.array.map((val, idx) => {
+                 const isPointer = currentStep.visual_state_data.pointer === idx;
+                 return (
+                   <div key={idx} className={`sim-array-element ${isPointer ? 'active-pointer' : ''}`}>
+                     <div className="sim-element-val">{val}</div>
+                     <div className="sim-element-idx">{idx}</div>
+                     {isPointer && (
+                       <div className="sim-pointer-indicator">
+                          <span>↑</span>
+                          <span className="pointer-label">i</span>
+                       </div>
+                     )}
+                   </div>
+                 );
+               })}
+             </div>
+          )}
+
+          {currentStep.visual_state_data?.hashset !== undefined && (
+             <div className="sim-hashset-container">
+                <h4>Hash Set</h4>
+                <div className="sim-hashset-elements">
+                   {currentStep.visual_state_data.hashset.map((val, idx) => (
+                     <div key={idx} className="sim-hashset-val">{val}</div>
+                   ))}
+                   {currentStep.visual_state_data.hashset.length === 0 && (
+                     <span className="empty-text">Empty</span>
+                   )}
+                </div>
+             </div>
+          )}
         </div>
 
-        {/* Question Popover */}
+        {/* Interactive Check / Question Popover */}
         {activeQuestion && (
           <div className="interactiveQuestionPopup">
-            <h4 style={{ margin: 0, color: 'var(--accent)', fontFamily: 'var(--mono)'}}>Interactive Check</h4>
+            <h4 style={{ margin: 0, color: 'var(--accent)', fontFamily: 'var(--mono)'}}>Knowledge Check</h4>
             <div className="questionText">{activeQuestion.question_text}</div>
             
             {activeQuestion.options && activeQuestion.options.length > 0 && (
