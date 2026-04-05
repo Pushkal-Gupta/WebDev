@@ -1,16 +1,16 @@
 export const initialNodes = [
-  { id: "arrays", type: "default", position: { x: 250, y: 0 }, data: { label: "Arrays & Hashing" } },
-  { id: "two-pointers", type: "default", position: { x: 100, y: 100 }, data: { label: "Two Pointers" } },
-  { id: "stack", type: "default", position: { x: 400, y: 100 }, data: { label: "Stack" } },
-  { id: "binary-search", type: "default", position: { x: -50, y: 200 }, data: { label: "Binary Search" } },
-  { id: "sliding-window", type: "default", position: { x: 100, y: 200 }, data: { label: "Sliding Window" } },
-  { id: "linked-list", type: "default", position: { x: 250, y: 200 }, data: { label: "Linked List" } },
-  { id: "trees", type: "default", position: { x: 250, y: 300 }, data: { label: "Trees" } },
-  { id: "tries", type: "default", position: { x: 100, y: 400 }, data: { label: "Tries" } },
-  { id: "heap", type: "default", position: { x: 400, y: 400 }, data: { label: "Heap / Priority Queue" } },
-  { id: "backtracking", type: "default", position: { x: 250, y: 400 }, data: { label: "Backtracking" } },
-  { id: "graphs", type: "default", position: { x: 150, y: 500 }, data: { label: "Graphs" } },
-  { id: "1d-dp", type: "default", position: { x: 350, y: 500 }, data: { label: "1-D DP" } }
+  { id: "arrays", type: "custom", position: { x: 400, y: 0 }, data: { label: "Arrays & Hashing", category: 'structures' } },
+  { id: "two-pointers", type: "custom", position: { x: 200, y: 150 }, data: { label: "Two Pointers", category: 'algorithms' } },
+  { id: "stack", type: "custom", position: { x: 600, y: 150 }, data: { label: "Stack", category: 'structures' } },
+  { id: "binary-search", type: "custom", position: { x: 50, y: 300 }, data: { label: "Binary Search", category: 'algorithms' } },
+  { id: "sliding-window", type: "custom", position: { x: 350, y: 300 }, data: { label: "Sliding Window", category: 'algorithms' } },
+  { id: "linked-list", type: "custom", position: { x: 650, y: 300 }, data: { label: "Linked List", category: 'structures' } },
+  { id: "trees", type: "custom", position: { x: 400, y: 450 }, data: { label: "Trees", category: 'structures' } },
+  { id: "tries", type: "custom", position: { x: 200, y: 600 }, data: { label: "Tries", category: 'structures' } },
+  { id: "heap", type: "custom", position: { x: 600, y: 600 }, data: { label: "Heap / Priority Queue", category: 'structures' } },
+  { id: "backtracking", type: "custom", position: { x: 400, y: 600 }, data: { label: "Backtracking", category: 'optimization' } },
+  { id: "graphs", type: "custom", position: { x: 250, y: 750 }, data: { label: "Graphs", category: 'algorithms' } },
+  { id: "1d-dp", type: "custom", position: { x: 550, y: 750 }, data: { label: "1-D DP", category: 'optimization' } }
 ];
 
 export const initialEdges = [

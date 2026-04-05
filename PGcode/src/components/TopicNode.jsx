@@ -3,8 +3,8 @@ import { Handle, Position } from 'reactflow';
 import './TopicNode.css';
 
 export default function TopicNode({ data }) {
-  // Support the text breaking from DB ('Main Title\nSubtitle')
-  const [mainTitle, subTitle] = (data.label || '').split('\n');
+  // Take only the main title
+  const [mainTitle] = (data.label || '').split('\n');
   const categoryClass = data.category ? data.category.toLowerCase() : 'default';
 
   return (
@@ -13,15 +13,13 @@ export default function TopicNode({ data }) {
       
       <div className="topic-node-content">
         <span className="topic-node-title">{mainTitle}</span>
-        {subTitle && <span className="topic-node-subtitle">{subTitle}</span>}
+      </div>
+
+      <div className="topic-node-progress-bg">
+        <div className="topic-node-progress-fill"></div>
       </div>
 
       <Handle type="source" position={Position.Bottom} className="handle" />
-      
-      {/* Optional Side Label for Group/Phase (e.g., "Foundation") */}
-      {data.group_name && (
-        <div className="topic-group-label">{data.group_name}</div>
-      )}
     </div>
   );
 }
