@@ -274,7 +274,7 @@ const PROJECTS = [
     name: "PG.Code",
     desc: "A collaborative SQL playground with live schema visualization, seed data, and an AI assistant.",
     date: "Apr 2026",
-    status: "done",
+    status: "update",
     url: "../PGcode/dist/index.html",
   },
   {
