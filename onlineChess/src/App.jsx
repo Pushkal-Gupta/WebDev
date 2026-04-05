@@ -38,7 +38,7 @@ import { p2p } from './utils/p2pService';
 import useFriendStore from './store/friendStore';
 import { getBestMove } from './utils/stockfish';
 import usePrefsStore from './store/prefsStore';
-import { setSoundToggles } from './utils/soundManager';
+import { setSoundToggles, setSoundTheme as initSoundTheme } from './utils/soundManager';
 import { postGame, getGames } from './utils/gameServer';
 import { getOpeningName } from './utils/evaluation';
 import { supabase } from './utils/supabase';
@@ -183,6 +183,7 @@ export default function App() {
   const reducedMotion = usePrefsStore(s => s.reducedMotion);
   const highContrast = usePrefsStore(s => s.highContrast);
   const soundToggles = useThemeStore(s => s.soundToggles);
+  const soundTheme = useThemeStore(s => s.soundTheme);
 
   useEffect(() => {
     document.body.dataset.reducedMotion = reducedMotion ? 'true' : 'false';
@@ -195,6 +196,10 @@ export default function App() {
   useEffect(() => {
     setSoundToggles(soundToggles);
   }, [soundToggles]);
+
+  useEffect(() => {
+    initSoundTheme(soundTheme);
+  }, [soundTheme]);
 
   // ─── Load ratings, notifications, friends when user logs in ───────────────
   useEffect(() => {
