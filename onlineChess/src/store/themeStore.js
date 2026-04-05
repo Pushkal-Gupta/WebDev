@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { setSoundEnabled, setSoundVolume } from '../utils/soundManager';
+import { setSoundEnabled, setSoundVolume, setSoundTheme as setSoundThemeInManager } from '../utils/soundManager';
 
 function blendColors(color1, color2, ratio) {
   const hex = (c) => parseInt(c, 16);
@@ -64,9 +64,15 @@ const useThemeStore = create(persist((set, get) => ({
 
   soundEnabled: true,
   soundVolume: 0.8,
+  soundTheme: 'default',
   soundToggles: {
     move: true, capture: true, check: true, castle: true,
     promote: true, gameStart: true, gameEnd: true, lowTime: true, illegal: true,
+  },
+
+  setSoundTheme: (theme) => {
+    setSoundThemeInManager(theme);
+    set({ soundTheme: theme });
   },
 
   setSoundEnabled: (enabled) => {
@@ -114,11 +120,13 @@ const useThemeStore = create(persist((set, get) => ({
       clr1x: theme.clr1x, clr2x: theme.clr2x,
       soundEnabled: true,
       soundVolume: 0.8,
+      soundTheme: 'default',
       soundToggles: {
         move: true, capture: true, check: true, castle: true,
         promote: true, gameStart: true, gameEnd: true, lowTime: true, illegal: true,
       },
     });
+    setSoundThemeInManager('default');
   },
 }), { name: 'chess-theme' }));
 

@@ -39,7 +39,7 @@
 }
 
 .logo:hover .logoText {
-  color: white;
+  color: var(--color-accent);
 }
 
 .logo:hover .logoIcon {

@@ -132,7 +132,7 @@ export default function LeftNav({ activeTab, onTabClick, friendBadge }) {
 
   return (
     <aside className={styles.nav}>
-      <button className={styles.logo} onClick={() => onTabClick(0)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
+      <a className={styles.logo} href="https://pushkalgupta.com/PG/main.html" style={{ border: 'none', background: 'none', cursor: 'pointer', textDecoration: 'none' }}>
         <span className={styles.logoIcon}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
             <circle cx="12" cy="5.5" r="3"/>
@@ -141,8 +141,8 @@ export default function LeftNav({ activeTab, onTabClick, friendBadge }) {
             <rect x="5" y="20.5" width="14" height="2" rx="0.5"/>
           </svg>
         </span>
-        <span className={styles.logoText}>Chess</span>
-      </button>
+        <span className={styles.logoText}>PG.Chess</span>
+      </a>
 
       <ul className={styles.list}>
         <NavItem icon={<PlaySvg />}     label="Play"     active={activeTab === 0 || activeTab === 1} onClick={() => onTabClick(0)} />
