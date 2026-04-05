@@ -1,133 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Chess } from 'chess.js';
 import styles from './PuzzlePage.module.css';
+import PuzzleBoard from './PuzzleBoard';
+import MoveList from './MoveList';
+import ThemePicker from './ThemePicker';
+import DailyPuzzle from './DailyPuzzle';
+import PuzzleHistory from './PuzzleHistory';
+import RatingChart from './RatingChart';
 import usePuzzleStore from '../../store/puzzleStore';
 import useAuthStore from '../../store/authStore';
-import useThemeStore from '../../store/themeStore';
-import { usePieceResolver, getFallbackUrl } from '../../utils/pieceResolver';
-import { PIECE_NAME, FILE_LABELS, squareName, rankToRow, fileToCol, parseFen } from '../../utils/boardHelpers';
-
-// ── Inline board that works from a raw FEN ─────────────────────────────────
-
-function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveTo, hintSquare }) {
-  const { clr1, clr2, clr1p, clr2p, clr1x, clr2x } = useThemeStore();
-  const resolvePiece = usePieceResolver();
-  const [selected, setSelected] = useState(null);
-  const [validMoves, setValidMoves] = useState([]);
-  const [chess]     = useState(() => new Chess());
-
-  const flipped   = playerColor === 'b';
-  const rows      = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
-  const cols      = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
-  const interactive = status === 'playing';
-
-  useEffect(() => {
-    setSelected(null);
-    setValidMoves([]);
-  }, [fen]);
-
-  const handleCellClick = useCallback((row, col) => {
-    if (!interactive) return;
-    chess.load(fen);
-    const turn = chess.turn();
-    if (playerColor !== turn) return;
-
-    const sq = squareName(row, col);
-    const piece = chess.get(sq);
-
-    const target = validMoves.find(m => m.row === row && m.col === col);
-    if (target && selected) {
-      onMove(target.uci);
-      setSelected(null);
-      setValidMoves([]);
-      return;
-    }
-
-    if (piece && piece.color === playerColor) {
-      const moves = chess.moves({ square: sq, verbose: true });
-      setSelected({ row, col });
-      setValidMoves(moves.map(m => ({
-        row: rankToRow(m.to[1]),
-        col: fileToCol(m.to[0]),
-        uci: m.from + m.to + (m.promotion || ''),
-      })));
-    } else {
-      setSelected(null);
-      setValidMoves([]);
-    }
-  }, [fen, selected, validMoves, interactive, playerColor, onMove, chess]);
-
-  const board = parseFen(fen);
-
-  return (
-    <div className={styles.boardWrapper}>
-      <div className={styles.board}>
-        {rows.map((row, displayRow) =>
-          cols.map((col, displayCol) => {
-            const piece    = board[row]?.[col];
-            const isLight  = (row + col) % 2 === 0;
-            const isSel    = selected?.row === row && selected?.col === col;
-            const isTarget = validMoves.some(m => m.row === row && m.col === col);
-            const isLastFrom = lastMoveFrom && lastMoveFrom[0] === row && lastMoveFrom[1] === col;
-            const isLastTo   = lastMoveTo   && lastMoveTo[0]   === row && lastMoveTo[1]   === col;
-            const isHintFrom = hintSquare && hintSquare.from === squareName(row, col);
-            const isHintTo   = hintSquare && hintSquare.to === squareName(row, col);
-
-            let bg = isLight ? clr1 : clr2;
-            if (isHintFrom) bg = 'rgba(255, 200, 0, 0.45)';
-            else if (isHintTo) bg = 'rgba(255, 200, 0, 0.25)';
-            else if (isSel) bg = isLight ? clr1x : clr2x;
-            else if (isLastFrom || isLastTo) bg = isLight ? clr1p : clr2p;
-
-            const showFileLabel = displayRow === 7;
-            const showRankLabel = displayCol === 0;
-            const fileLabel = FILE_LABELS[flipped ? 7 - col : col];
-            const rankLabel = flipped ? row + 1 : 8 - row;
-
-            return (
-              <div
-                key={`${row}-${col}`}
-                className={styles.cell}
-                style={{ backgroundColor: bg }}
-                onClick={() => handleCellClick(row, col)}
-              >
-                {showRankLabel && (
-                  <span className={styles.rankLabel} style={{ color: isLight ? clr2 : clr1 }}>
-                    {rankLabel}
-                  </span>
-                )}
-                {showFileLabel && (
-                  <span className={styles.fileLabel} style={{ color: isLight ? clr2 : clr1 }}>
-                    {fileLabel}
-                  </span>
-                )}
-                {piece && (
-                  <img
-                    src={resolvePiece(piece.type, piece.color)}
-                    onError={e => { e.target.onerror = null; e.target.src = getFallbackUrl(piece.type, piece.color); }}
-                    alt={piece.type}
-                    className={styles.piece}
-                    onClick={e => { e.stopPropagation(); handleCellClick(row, col); }}
-                  />
-                )}
-                {isTarget && (
-                  <svg viewBox="0 0 80 80" className={styles.dot}>
-                    {piece
-                      ? <circle cx="40" cy="40" r="30" fill="rgba(255,100,100,0.35)" />
-                      : <circle cx="40" cy="40" r="18" fill="rgba(80,80,80,0.45)" />
-                    }
-                  </svg>
-                )}
-              </div>
-            );
-          })
-        )}
-      </div>
-    </div>
-  );
-}
-
-// Helpers imported from ../../utils/boardHelpers
+import { playSound } from '../../utils/soundManager';
+import { rankToRow, fileToCol } from '../../utils/boardHelpers';
 
 function formatClock(seconds) {
   const m = Math.floor(seconds / 60);
@@ -140,7 +22,7 @@ function formatClock(seconds) {
 export default function PuzzlePage() {
   const { user } = useAuthStore();
   const {
-    puzzle, currentFen, playerColor, status, streak, mode,
+    puzzle, currentFen, playerColor, status, streak, mode, moveIndex,
     userPuzzleRating, lastRatingChange, errorMsg,
     loadNextPuzzle, handlePlayerMove, setMode,
     // Rush
@@ -151,11 +33,24 @@ export default function PuzzlePage() {
     hintSquare, hintUsed, getHint, clearHint,
     // Retry / Give Up
     wrongAttempt, attempts, giveUp,
+    // Daily
+    dailyPuzzle, dailySolved, loadDailyPuzzle,
+    // Theme training
+    selectedTheme, loadByTheme,
+    // Difficulty
+    difficultyLevel, loadByDifficulty,
+    // Solution review
+    reviewMode, reviewIndex, solutionMoves, playerMoves,
+    enterReviewMode, reviewStep, retryPuzzle,
+    // History
+    puzzleHistory, historyLoading, loadPuzzleHistory,
+    ratingHistory, ratingHistoryLoading, loadRatingHistory,
   } = usePuzzleStore();
 
   const [lastMoveFrom, setLastMoveFrom] = useState(null);
   const [lastMoveTo,   setLastMoveTo]   = useState(null);
   const [feedback,     setFeedback]     = useState(null);
+  const [copied,       setCopied]       = useState(false);
 
   // Load first puzzle on mount and when user changes
   const initRef = useRef(false);
@@ -166,10 +61,45 @@ export default function PuzzlePage() {
     }
   }, [user?.id, mode]); // eslint-disable-line
 
+  // Load daily puzzle when switching to daily mode
+  useEffect(() => {
+    if (mode === 'daily' && !dailyPuzzle) {
+      loadDailyPuzzle(user?.id);
+    }
+  }, [mode]); // eslint-disable-line
+
+  // Load history and rating chart data when user is present
+  useEffect(() => {
+    if (user?.id && mode === 'rated') {
+      loadPuzzleHistory(user.id);
+      loadRatingHistory(user.id);
+    }
+  }, [user?.id, mode]); // eslint-disable-line
+
   // Cleanup rush timer on unmount
   useEffect(() => {
     return () => stopRushTimer();
   }, []); // eslint-disable-line
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      if (reviewMode) {
+        if (e.key === 'ArrowLeft') { e.preventDefault(); reviewStep(-1); }
+        if (e.key === 'ArrowRight') { e.preventDefault(); reviewStep(1); }
+      }
+      if (e.key === 'r' && (status === 'solved' || status === 'failed')) {
+        retryPuzzle();
+      }
+      if (e.key === 'n' && (status === 'solved' || status === 'failed')) {
+        handleNext();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [reviewMode, status]); // eslint-disable-line
 
   const onMove = useCallback(async (uci) => {
     clearHint();
@@ -178,6 +108,9 @@ export default function PuzzlePage() {
 
     const result = await handlePlayerMove(uci, user?.id);
     if (result.correct) {
+      // Play appropriate sound
+      if (uci.length > 4) playSound('promote');
+      else playSound('move');
       setFeedback('correct');
       if (result.solved) {
         setTimeout(() => setFeedback(null), 1200);
@@ -185,20 +118,23 @@ export default function PuzzlePage() {
         setTimeout(() => setFeedback(null), 400);
       }
     } else {
-      // Wrong move: clear highlights, show flash — user can retry
+      playSound('illegal');
       setLastMoveFrom(null);
       setLastMoveTo(null);
       setFeedback('wrong');
       setTimeout(() => setFeedback(null), 1200);
-      // Don't auto-advance — user can retry
     }
-  }, [handlePlayerMove, user?.id, mode, loadNextPuzzle]);
+  }, [handlePlayerMove, user?.id, clearHint]);
 
   const handleNext = () => {
     setLastMoveFrom(null);
     setLastMoveTo(null);
     setFeedback(null);
-    loadNextPuzzle(user?.id);
+    if (mode === 'themes' && selectedTheme) {
+      loadByTheme(selectedTheme, user?.id);
+    } else {
+      loadNextPuzzle(user?.id);
+    }
   };
 
   const handleModeChange = (newMode) => {
@@ -211,7 +147,42 @@ export default function PuzzlePage() {
     }
   };
 
+  const handleThemeSelect = (theme) => {
+    if (theme) {
+      loadByTheme(theme, user?.id);
+    }
+  };
+
+  const handleDifficultyChange = (level) => {
+    loadByDifficulty(level, user?.id);
+  };
+
+  const handleShare = () => {
+    if (!puzzle) return;
+    const url = `${window.location.origin}${window.location.pathname}?puzzleId=${puzzle.id}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  const handleReviewJump = (index) => {
+    if (reviewMode) reviewStep(index - reviewIndex);
+  };
+
+  const handleRetry = () => {
+    setLastMoveFrom(null);
+    setLastMoveTo(null);
+    setFeedback(null);
+    retryPuzzle();
+  };
+
   const puzzleRating = userPuzzleRating?.rating || 1500;
+  const totalMoves = puzzle?.moves?.length || 0;
+  const isFinished = status === 'solved' || status === 'failed';
+
+  // Determine board interactivity — not interactive during review
+  const boardStatus = reviewMode ? 'review' : status;
 
   return (
     <div className={styles.page}>
@@ -219,32 +190,20 @@ export default function PuzzlePage() {
       <div className={styles.boardCol}>
         {/* Mode tabs */}
         <div className={styles.modeTabs}>
-          <button
-            className={`${styles.modeTab} ${mode === 'rated' ? styles.modeTabActive : ''}`}
-            onClick={() => handleModeChange('rated')}
-            title="Solve puzzles to improve your rating"
-          >
-            Rated
-          </button>
-          <button
-            className={`${styles.modeTab} ${mode === 'rush' ? styles.modeTabActive : ''}`}
-            onClick={() => handleModeChange('rush')}
-            title="Timed mode — 3 mistakes allowed"
-          >
-            Rush
-          </button>
-          <button
-            className={`${styles.modeTab} ${mode === 'streak' ? styles.modeTabActive : ''}`}
-            onClick={() => handleModeChange('streak')}
-            title="Increasing difficulty — one mistake ends it"
-          >
-            Streak
-          </button>
+          {['daily', 'rated', 'themes', 'rush', 'streak'].map(m => (
+            <button
+              key={m}
+              className={`${styles.modeTab} ${mode === m ? styles.modeTabActive : ''}`}
+              onClick={() => handleModeChange(m)}
+            >
+              {m === 'daily' ? 'Daily' : m === 'rated' ? 'Rated' : m === 'themes' ? 'Themes' : m === 'rush' ? 'Rush' : 'Streak'}
+            </button>
+          ))}
         </div>
 
         {/* Turn indicator / status */}
         <div className={styles.turnBar}>
-          {status === 'playing' && (
+          {status === 'playing' && !reviewMode && (
             <>
               <span className={`${styles.turnDot} ${playerColor === 'w' ? styles.dotW : styles.dotB}`} />
               <span>{playerColor === 'w' ? 'White' : 'Black'} to move</span>
@@ -255,14 +214,17 @@ export default function PuzzlePage() {
               )}
             </>
           )}
+          {reviewMode && <span className={styles.turnHint}>Review mode (arrow keys to navigate)</span>}
           {status === 'loading' && <span className={styles.turnHint}>Loading puzzle...</span>}
           {status === 'idle' && mode === 'rated' && <span className={styles.turnHint}>Press "New Puzzle" to start</span>}
+          {status === 'idle' && mode === 'daily' && <span className={styles.turnHint}>Today's puzzle awaits</span>}
+          {status === 'idle' && mode === 'themes' && <span className={styles.turnHint}>Select a theme to begin</span>}
           {status === 'idle' && mode === 'rush' && <span className={styles.turnHint}>Choose a time and start!</span>}
           {status === 'idle' && mode === 'streak' && <span className={styles.turnHint}>Start your streak!</span>}
           {status === 'empty'  && <span className={styles.turnHint}>No puzzles available</span>}
           {status === 'error'  && <span className={styles.feedbackFailed}>{errorMsg || 'Error loading puzzle'}</span>}
-          {status === 'solved' && <span className={styles.feedbackSolved}>Puzzle solved!</span>}
-          {status === 'failed' && <span className={styles.feedbackFailed}>Incorrect -- try next</span>}
+          {status === 'solved' && !reviewMode && <span className={styles.feedbackSolved}>Puzzle solved!</span>}
+          {status === 'failed' && !reviewMode && <span className={styles.feedbackFailed}>Incorrect -- try next</span>}
           {status === 'rush_over' && <span className={styles.feedbackFailed}>Rush Over!</span>}
           {status === 'streak_over' && <span className={styles.feedbackFailed}>Streak Over!</span>}
         </div>
@@ -276,10 +238,12 @@ export default function PuzzlePage() {
               fen={currentFen}
               playerColor={playerColor}
               onMove={onMove}
-              status={status}
+              status={boardStatus}
               lastMoveFrom={lastMoveFrom}
               lastMoveTo={lastMoveTo}
               hintSquare={hintSquare}
+              moveIndex={moveIndex}
+              totalMoves={totalMoves}
             />
           : (
             <div className={styles.loadingBoard}>
@@ -290,10 +254,65 @@ export default function PuzzlePage() {
             </div>
           )
         }
+
+        {/* Move list below board */}
+        {puzzle && solutionMoves.length > 0 && (
+          <MoveList
+            solutionMoves={solutionMoves}
+            playerMoves={playerMoves}
+            moveIndex={moveIndex}
+            reviewMode={reviewMode}
+            reviewIndex={reviewIndex}
+            onReviewJump={handleReviewJump}
+            status={status}
+          />
+        )}
       </div>
 
       {/* ── Panel column ── */}
       <div className={styles.panel}>
+
+        {/* ── Daily mode panel ── */}
+        {mode === 'daily' && (
+          <>
+            <DailyPuzzle
+              dailyPuzzle={dailyPuzzle}
+              dailySolved={dailySolved}
+              onPlay={() => loadDailyPuzzle(user?.id)}
+              loading={status === 'loading'}
+            />
+            {puzzle && (status === 'playing' || isFinished) && (
+              <>
+                <div className={styles.actions}>
+                  {status === 'playing' && (
+                    <>
+                      <button className={styles.hintBtn} onClick={getHint} disabled={hintUsed}>
+                        {hintUsed ? 'Hint Used' : 'Hint'}
+                      </button>
+                      <button className={styles.skipBtn} onClick={() => giveUp(user?.id)}>Give Up</button>
+                    </>
+                  )}
+                  {isFinished && (
+                    <>
+                      <button className={styles.nextBtn} onClick={() => enterReviewMode()}>
+                        {reviewMode ? 'Reviewing...' : 'Review Solution'}
+                      </button>
+                      {reviewMode && (
+                        <div className={styles.reviewControls}>
+                          <button className={styles.reviewBtn} onClick={() => reviewStep(-1)} disabled={reviewIndex <= 0}>&#9664;</button>
+                          <span className={styles.reviewLabel}>{reviewIndex}/{solutionMoves.length}</span>
+                          <button className={styles.reviewBtn} onClick={() => reviewStep(1)} disabled={reviewIndex >= solutionMoves.length}>&#9654;</button>
+                        </div>
+                      )}
+                      <button className={styles.skipBtn} onClick={handleRetry}>Retry</button>
+                    </>
+                  )}
+                </div>
+              </>
+            )}
+          </>
+        )}
+
         {/* ── Rated mode panel ── */}
         {mode === 'rated' && (
           <>
@@ -304,7 +323,7 @@ export default function PuzzlePage() {
 
             <div className={styles.ratingRow}>
               <div className={styles.ratingBox}>
-                <div className={styles.ratingVal} title="Puzzle ratings range from 600-2400. Puzzles near your rating help you improve.">{puzzleRating}</div>
+                <div className={styles.ratingVal}>{puzzleRating}</div>
                 <div className={styles.ratingLbl}>Puzzle Rating</div>
               </div>
               {lastRatingChange != null && (
@@ -318,7 +337,7 @@ export default function PuzzlePage() {
               <div className={styles.puzzleInfo}>
                 <div className={styles.infoRow}>
                   <span className={styles.infoLabel}>Difficulty</span>
-                  <span className={styles.infoVal} title="Difficulty rating of this puzzle">{puzzle.rating}</span>
+                  <span className={styles.infoVal}>{puzzle.rating}</span>
                 </div>
                 {puzzle.themes?.length > 0 && (
                   <div className={styles.themes}>
@@ -327,8 +346,26 @@ export default function PuzzlePage() {
                     ))}
                   </div>
                 )}
+                {puzzle.opening_tags && (
+                  <span className={styles.openingTag}>
+                    {puzzle.opening_tags.replace(/_/g, ' ').split(' ').slice(0, 3).join(' ')}
+                  </span>
+                )}
               </div>
             )}
+
+            {/* Difficulty selector */}
+            <div className={styles.difficultyRow}>
+              {['easy', 'medium', 'hard'].map(lvl => (
+                <button
+                  key={lvl}
+                  className={`${styles.diffBtn} ${styles[`diffBtn${lvl.charAt(0).toUpperCase() + lvl.slice(1)}`]} ${difficultyLevel === lvl ? styles.diffBtnActive : ''}`}
+                  onClick={() => handleDifficultyChange(lvl)}
+                >
+                  {lvl.charAt(0).toUpperCase() + lvl.slice(1)}
+                </button>
+              ))}
+            </div>
 
             <div className={styles.statsRow}>
               <div className={styles.statItem}>
@@ -346,8 +383,23 @@ export default function PuzzlePage() {
             </div>
 
             <div className={styles.actions}>
-              {(status === 'solved' || status === 'failed') && (
-                <button className={styles.nextBtn} onClick={handleNext}>Next Puzzle</button>
+              {isFinished && (
+                <>
+                  <div className={styles.actionRow}>
+                    <button className={styles.nextBtn} onClick={handleNext}>Next Puzzle</button>
+                    <button className={styles.skipBtn} onClick={handleRetry}>Retry</button>
+                  </div>
+                  <button className={styles.skipBtn} onClick={() => enterReviewMode()}>
+                    {reviewMode ? 'Reviewing...' : 'Review Solution'}
+                  </button>
+                  {reviewMode && (
+                    <div className={styles.reviewControls}>
+                      <button className={styles.reviewBtn} onClick={() => reviewStep(-1)} disabled={reviewIndex <= 0}>&#9664;</button>
+                      <span className={styles.reviewLabel}>{reviewIndex}/{solutionMoves.length}</span>
+                      <button className={styles.reviewBtn} onClick={() => reviewStep(1)} disabled={reviewIndex >= solutionMoves.length}>&#9654;</button>
+                    </div>
+                  )}
+                </>
               )}
               {status === 'playing' && (
                 <>
@@ -366,8 +418,100 @@ export default function PuzzlePage() {
                 <button className={styles.nextBtn} onClick={handleNext}>Try Again</button>
               )}
             </div>
+
             {hintUsed && status === 'playing' && (
               <div className={styles.hintNote}>Rating gain reduced when using hints</div>
+            )}
+
+            {/* Share */}
+            {puzzle && (
+              <div style={{textAlign: 'center'}}>
+                <button className={styles.shareBtn} onClick={handleShare}>
+                  {copied ? <span className={styles.copiedToast}>Copied!</span> : 'Share Puzzle'}
+                </button>
+              </div>
+            )}
+
+            {/* Expandable sections */}
+            <PuzzleHistory
+              history={puzzleHistory}
+              loading={historyLoading}
+              onSelectPuzzle={() => {}}
+            />
+            <RatingChart
+              ratingHistory={ratingHistory}
+              loading={ratingHistoryLoading}
+            />
+          </>
+        )}
+
+        {/* ── Themes mode panel ── */}
+        {mode === 'themes' && (
+          <>
+            {!selectedTheme || status === 'idle' ? (
+              <ThemePicker
+                selectedTheme={selectedTheme}
+                onSelectTheme={handleThemeSelect}
+              />
+            ) : (
+              <>
+                <div className={styles.panelHeader}>
+                  <span className={styles.panelTitle}>
+                    {selectedTheme?.replace(/([A-Z])/g, ' $1').trim() || 'Theme Training'}
+                  </span>
+                  <button className={styles.shareBtn} onClick={() => setMode('themes')}>
+                    Change Theme
+                  </button>
+                </div>
+
+                {puzzle && (
+                  <div className={styles.puzzleInfo}>
+                    <div className={styles.infoRow}>
+                      <span className={styles.infoLabel}>Difficulty</span>
+                      <span className={styles.infoVal}>{puzzle.rating}</span>
+                    </div>
+                    {puzzle.themes?.length > 0 && (
+                      <div className={styles.themes}>
+                        {puzzle.themes.slice(0, 4).map(t => (
+                          <span key={t} className={styles.theme}>{t.replace(/([A-Z])/g, ' $1').trim()}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className={styles.actions}>
+                  {isFinished && (
+                    <>
+                      <div className={styles.actionRow}>
+                        <button className={styles.nextBtn} onClick={handleNext}>Next Puzzle</button>
+                        <button className={styles.skipBtn} onClick={handleRetry}>Retry</button>
+                      </div>
+                      <button className={styles.skipBtn} onClick={() => enterReviewMode()}>
+                        {reviewMode ? 'Reviewing...' : 'Review Solution'}
+                      </button>
+                      {reviewMode && (
+                        <div className={styles.reviewControls}>
+                          <button className={styles.reviewBtn} onClick={() => reviewStep(-1)} disabled={reviewIndex <= 0}>&#9664;</button>
+                          <span className={styles.reviewLabel}>{reviewIndex}/{solutionMoves.length}</span>
+                          <button className={styles.reviewBtn} onClick={() => reviewStep(1)} disabled={reviewIndex >= solutionMoves.length}>&#9654;</button>
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {status === 'playing' && (
+                    <>
+                      <button className={styles.hintBtn} onClick={getHint} disabled={hintUsed}>
+                        {hintUsed ? 'Hint Used' : 'Hint'}
+                      </button>
+                      <button className={styles.skipBtn} onClick={() => giveUp(user?.id)}>Give Up</button>
+                    </>
+                  )}
+                  {status === 'loading' && (
+                    <button className={styles.nextBtn} disabled>Loading...</button>
+                  )}
+                </div>
+              </>
             )}
           </>
         )}

@@ -405,8 +405,8 @@ function preloadCdnTheme(themeId) {
 let _enabled = true;
 let _volume = 1.0;
 let _soundToggles = {};
-let _currentThemeId = 'synth-default';
-let _currentThemeSource = 'synth';
+let _currentThemeId = 'cc-sound-default';
+let _currentThemeSource = 'chesscom';
 let _currentSynthKey = 'default';
 let _activeSynthSounds = null;
 
@@ -430,26 +430,15 @@ export function setSoundTheme(themeId) {
   _currentThemeSource = theme.source;
   if (theme.source === 'synth') {
     _currentSynthKey = theme.key;
-  } else {
-    preloadCdnTheme(themeId);
   }
+  preloadCdnTheme(themeId);
 }
 
 /** Preview a theme by playing move → capture → check in sequence. */
 export function previewTheme(themeId) {
-  const theme = getSoundThemeById(themeId);
-  if (theme.source === 'synth') {
-    const cfg = SOUND_THEMES[theme.key] || SOUND_THEMES.default;
-    const preview = buildSoundsForTheme(cfg, _volume);
-    preview.move();
-    setTimeout(() => preview.capture(), 280);
-    setTimeout(() => preview.check(), 560);
-  } else {
-    // CDN preview: load and play sequentially
-    loadCdnBuffer(themeId, 'move').then(buf => { if (buf) playCdnBuffer(buf); });
-    setTimeout(() => loadCdnBuffer(themeId, 'capture').then(buf => { if (buf) playCdnBuffer(buf); }), 300);
-    setTimeout(() => loadCdnBuffer(themeId, 'check').then(buf => { if (buf) playCdnBuffer(buf); }), 600);
-  }
+  loadCdnBuffer(themeId, 'move').then(buf => { if (buf) playCdnBuffer(buf); });
+  setTimeout(() => loadCdnBuffer(themeId, 'capture').then(buf => { if (buf) playCdnBuffer(buf); }), 300);
+  setTimeout(() => loadCdnBuffer(themeId, 'check').then(buf => { if (buf) playCdnBuffer(buf); }), 600);
 }
 
 /**
@@ -459,28 +448,24 @@ export function playSound(name) {
   if (!_enabled || _volume <= 0) return;
   if (_soundToggles[name] === false) return;
 
-  if (_currentThemeSource === 'synth') {
-    const sounds = getActiveSynthSounds();
-    const fn = sounds[name];
-    if (fn) fn();
-  } else {
-    // CDN theme: try cached buffer first, then async load
-    const cached = _audioBufferCache[_currentThemeId]?.[name];
-    if (cached) {
-      playCdnBuffer(cached);
-    } else {
-      // Async load + play, with synth fallback
-      loadCdnBuffer(_currentThemeId, name).then(buf => {
-        if (buf) {
-          playCdnBuffer(buf);
-        } else {
-          // Fallback to synth default
-          const fallback = buildSoundsForTheme(SOUND_THEMES.default);
-          fallback[name]?.();
-        }
-      });
-    }
+  // Try cached CDN buffer first (instant playback)
+  const cached = _audioBufferCache[_currentThemeId]?.[name];
+  if (cached) {
+    playCdnBuffer(cached);
+    return;
   }
+  // Async load from CDN + play, with synth fallback if CDN fails
+  loadCdnBuffer(_currentThemeId, name).then(buf => {
+    if (buf) {
+      playCdnBuffer(buf);
+    } else {
+      // Last-resort fallback to synth engine
+      try {
+        const fallback = buildSoundsForTheme(SOUND_THEMES.default);
+        fallback[name]?.();
+      } catch {}
+    }
+  });
 }
 
 /**

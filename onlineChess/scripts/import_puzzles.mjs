@@ -35,7 +35,7 @@ if (!SUPABASE_SERVICE_KEY) {
   process.exit(1);
 }
 
-const PUZZLE_LIMIT = parseInt(process.env.PUZZLE_LIMIT  || '50000');
+const PUZZLE_LIMIT = parseInt(process.env.PUZZLE_LIMIT  || '500000');
 const RATING_MIN   = parseInt(process.env.RATING_MIN    || '800');
 const RATING_MAX   = parseInt(process.env.RATING_MAX    || '2800');
 const BATCH_SIZE   = 500;
@@ -156,7 +156,7 @@ async function main() {
     const cols = line.split(',');
     if (cols.length < 8) continue;
 
-    const [puzzleId, fen, moves, ratingStr, , , , themes] = cols;
+    const [puzzleId, fen, moves, ratingStr, ratingDevStr, popStr, nbPlaysStr, themes, gameUrl, openingTags] = cols;
     const rating = parseInt(ratingStr);
 
     if (!puzzleId || !fen || !moves || isNaN(rating)) { skipped++; continue; }
@@ -164,7 +164,17 @@ async function main() {
 
     const themeArr = themes ? themes.trim().split(' ').filter(Boolean) : [];
 
-    batch.push({ id: puzzleId, fen, moves, rating, themes: themeArr });
+    batch.push({
+      id: puzzleId,
+      fen,
+      moves,
+      rating,
+      themes: themeArr,
+      rating_deviation: parseInt(ratingDevStr) || null,
+      popularity: parseInt(popStr) || null,
+      nb_plays: parseInt(nbPlaysStr) || null,
+      opening_tags: openingTags?.trim() || null,
+    });
 
     if (batch.length >= BATCH_SIZE) await flush();
   }
