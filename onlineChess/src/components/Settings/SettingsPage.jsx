@@ -5,7 +5,7 @@ import usePrefsStore from '../../store/prefsStore';
 import useAuthStore from '../../store/authStore';
 import { supabase } from '../../utils/supabase';
 import { playSound, previewTheme } from '../../utils/soundManager';
-import { PIECE_SETS, BOARD_THEMES, SOUND_THEMES, getCategories } from '../../data/assetRegistry';
+import { PIECE_SETS, BOARD_THEMES, SOUND_THEMES } from '../../data/assetRegistry';
 import { getPieceSetPreviewUrl, resolvePieceUrl } from '../../utils/pieceResolver';
 import { getPieceSetById } from '../../data/assetRegistry';
 import styles from './SettingsPage.module.css';
@@ -215,8 +215,6 @@ function MiniBoard({ theme, pieceSet, size = 80 }) {
 export default function SettingsPage() {
   const [activeCategory, setActiveCategory] = useState('board');
 
-  const [pieceFilter, setPieceFilter] = useState('All');
-  const [boardFilter, setBoardFilter] = useState('All');
 
   // Theme store
   const {
@@ -348,11 +346,6 @@ export default function SettingsPage() {
     setShowLegalDots(true); setDotSize(12); setBlindfoldMode(false);
   }, [resetTheme, resetPrefs, setShowLabels, setCoordinateDisplay, setHighlightLastMove, setHighlightSelected, setShowLegalDots, setDotSize, setBlindfoldMode]);
 
-  const pieceCategories = ['All', ...getCategories(PIECE_SETS)];
-  const boardCategories = ['All', ...getCategories(BOARD_THEMES)];
-  const filteredPieces = pieceFilter === 'All' ? PIECE_SETS : PIECE_SETS.filter(p => p.category === pieceFilter);
-  const filteredBoards = boardFilter === 'All' ? BOARD_THEMES : BOARD_THEMES.filter(t => t.category === boardFilter);
-  const soundCategories = getCategories(SOUND_THEMES);
 
   /* ═══════════════════════════════════════════════════
      Section Renderers
@@ -367,17 +360,10 @@ export default function SettingsPage() {
       <p className={styles.sectionDesc}>Customize the look and feel of your chess set.</p>
 
       <div className={styles.subsection}>
-        <h4 className={styles.subsectionTitle}>Piece Set</h4>
-        <div className={styles.filterTabs}>
-          {pieceCategories.map(cat => (
-            <button key={cat} className={`${styles.filterTab} ${pieceFilter === cat ? styles.filterTabActive : ''}`} onClick={() => setPieceFilter(cat)}>
-              {cat}{cat !== 'All' ? ` (${PIECE_SETS.filter(p => p.category === cat).length})` : ''}
-            </button>
-          ))}
-        </div>
+        <h4 className={styles.subsectionTitle}>Piece Set ({PIECE_SETS.length})</h4>
         <div className={styles.scrollGrid}>
           <div className={styles.pieceGrid}>
-            {filteredPieces.map(ps => (
+            {PIECE_SETS.map(ps => (
               <button key={ps.id} className={`${styles.pieceBtn} ${pieceSetId === ps.id ? styles.pieceBtnActive : ''}`} onClick={() => setPieceSet(ps.id)}>
                 <img src={getPieceSetPreviewUrl(ps)} alt={ps.name} className={styles.pieceImg} loading="lazy" onError={e => { e.target.onerror = null; e.target.style.opacity = '0.3'; }} />
                 <span>{ps.name}</span>
@@ -388,17 +374,10 @@ export default function SettingsPage() {
       </div>
 
       <div className={styles.subsection}>
-        <h4 className={styles.subsectionTitle}>Board Theme</h4>
-        <div className={styles.filterTabs}>
-          {boardCategories.map(cat => (
-            <button key={cat} className={`${styles.filterTab} ${boardFilter === cat ? styles.filterTabActive : ''}`} onClick={() => setBoardFilter(cat)}>
-              {cat}{cat !== 'All' ? ` (${BOARD_THEMES.filter(t => t.category === cat).length})` : ''}
-            </button>
-          ))}
-        </div>
+        <h4 className={styles.subsectionTitle}>Board Theme ({BOARD_THEMES.length})</h4>
         <div className={styles.scrollGrid}>
           <div className={styles.themeGrid}>
-            {filteredBoards.map(th => (
+            {BOARD_THEMES.map(th => (
               <button key={th.id} className={`${styles.themeBtn} ${boardThemeId === th.id ? styles.themeBtnActive : ''}`} onClick={() => applyBoardTheme(th.id)}>
                 <MiniBoard theme={th} pieceSet={currentPieceSet} size={80} />
                 <span>{th.name}</span>
@@ -529,12 +508,8 @@ export default function SettingsPage() {
             <h4 className={styles.subsectionTitle}>Sound Theme</h4>
             <div className={styles.soundThemeRow}>
               <select className={styles.select} value={soundThemeId} onChange={e => setSoundTheme(e.target.value)}>
-                {soundCategories.map(cat => (
-                  <optgroup key={cat} label={cat}>
-                    {SOUND_THEMES.filter(t => t.category === cat).map(t => (
-                      <option key={t.id} value={t.id}>{t.name}</option>
-                    ))}
-                  </optgroup>
+                {SOUND_THEMES.map(t => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
                 ))}
               </select>
               <button className={styles.previewBtn} onClick={() => previewTheme(soundThemeId)} title="Preview theme">
@@ -771,12 +746,8 @@ export default function SettingsPage() {
             <label className={styles.fieldLabel}>Sound Theme</label>
             <div className={styles.soundThemeRow}>
               <select className={styles.select} value={soundThemeId} onChange={e => setSoundTheme(e.target.value)}>
-                {soundCategories.map(cat => (
-                  <optgroup key={cat} label={cat}>
-                    {SOUND_THEMES.filter(t => t.category === cat).map(t => (
-                      <option key={t.id} value={t.id}>{t.name}</option>
-                    ))}
-                  </optgroup>
+                {SOUND_THEMES.map(t => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
                 ))}
               </select>
               <button className={styles.previewBtn} onClick={() => previewTheme(soundThemeId)} title="Preview">
