@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import styles from './BoardEditor.module.css';
 import useThemeStore from '../../store/themeStore';
+import { usePieceResolver, getFallbackUrl } from '../../utils/pieceResolver';
 import { PIECE_NAME, FILE_LABELS, parseFen as parseFenToBoard } from '../../utils/boardHelpers';
 
 const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
@@ -40,9 +41,8 @@ function boardToFen(board, turn, castling) {
 }
 
 export default function BoardEditor({ onAnalyse }) {
-  const { clr1, clr2, clr1x, clr2x, pieceSets, pieceSetIndex } = useThemeStore();
-  const safeIndex = Math.max(0, Math.min(pieceSetIndex ?? 0, pieceSets.length - 1));
-  const imagePath = `./images/${pieceSets[safeIndex].path}`;
+  const { clr1, clr2, clr1x, clr2x } = useThemeStore();
+  const resolvePiece = usePieceResolver();
 
   const [board, setBoard] = useState(() => parseFenToBoard(START_FEN));
   const [selectedPiece, setSelectedPiece] = useState(null); // { type, color } or 'eraser'
@@ -121,7 +121,8 @@ export default function BoardEditor({ onAnalyse }) {
               >
                 {piece && (
                   <img
-                    src={`${imagePath}${PIECE_NAME[piece.type]}-${piece.color === 'w' ? 'white' : 'black'}.png`}
+                    src={resolvePiece(piece.type, piece.color)}
+                    onError={e => { e.target.onerror = null; e.target.src = getFallbackUrl(piece.type, piece.color); }}
                     alt={`${piece.color}${piece.type}`}
                     className={styles.cellPiece}
                   />
@@ -142,7 +143,7 @@ export default function BoardEditor({ onAnalyse }) {
               className={`${styles.palettePiece} ${selectedPiece?.type === p.type && selectedPiece?.color === 'w' ? styles.palettePieceActive : ''}`}
               onClick={() => setSelectedPiece(selectedPiece?.type === p.type && selectedPiece?.color === p.color ? null : p)}
             >
-              <img src={`${imagePath}${PIECE_NAME[p.type]}-white.png`} alt={p.type} className={styles.paletteImg} />
+              <img src={resolvePiece(p.type, 'w')} onError={e => { e.target.onerror = null; e.target.src = getFallbackUrl(p.type, 'w'); }} alt={p.type} className={styles.paletteImg} />
             </div>
           ))}
         </div>
@@ -153,7 +154,7 @@ export default function BoardEditor({ onAnalyse }) {
               className={`${styles.palettePiece} ${selectedPiece?.type === p.type && selectedPiece?.color === 'b' ? styles.palettePieceActive : ''}`}
               onClick={() => setSelectedPiece(selectedPiece?.type === p.type && selectedPiece?.color === p.color ? null : p)}
             >
-              <img src={`${imagePath}${PIECE_NAME[p.type]}-black.png`} alt={p.type} className={styles.paletteImg} />
+              <img src={resolvePiece(p.type, 'b')} onError={e => { e.target.onerror = null; e.target.src = getFallbackUrl(p.type, 'b'); }} alt={p.type} className={styles.paletteImg} />
             </div>
           ))}
         </div>

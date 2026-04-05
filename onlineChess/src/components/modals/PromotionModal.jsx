@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import styles from './Modals.module.css';
+import { usePieceResolver } from '../../utils/pieceResolver';
 
 const PIECES = [
   { type: 'q', label: 'Queen' },
@@ -8,7 +9,10 @@ const PIECES = [
   { type: 'n', label: 'Knight' },
 ];
 
-export default function PromotionModal({ color, imagePath, onSelect }) {
+export default function PromotionModal({ color, onSelect }) {
+  const resolvePiece = usePieceResolver();
+  const colorLetter = color === 'white' ? 'w' : 'b';
+
   // ESC defaults to queen promotion
   useEffect(() => {
     const onKey = (e) => {
@@ -23,15 +27,11 @@ export default function PromotionModal({ color, imagePath, onSelect }) {
       <div className={styles.popup} role="dialog" aria-label="Promote pawn">
         <h3>Promote Pawn</h3>
         <div className={styles.promotionGrid}>
-          {PIECES.map(({ type, label }) => {
-            const pieceNames = { q: 'queen', r: 'rook', b: 'bishop', n: 'knight' };
-            const imgSrc = `${imagePath}${pieceNames[type]}-${color}.png`;
-            return (
-              <button key={type} className={styles.promoBtn} onClick={() => onSelect(type)} title={label}>
-                <img src={imgSrc} alt={label} />
-              </button>
-            );
-          })}
+          {PIECES.map(({ type, label }) => (
+            <button key={type} className={styles.promoBtn} onClick={() => onSelect(type)} title={label}>
+              <img src={resolvePiece(type, colorLetter)} alt={label} />
+            </button>
+          ))}
         </div>
       </div>
     </div>

@@ -3,11 +3,12 @@ import { Chess } from 'chess.js';
 import styles from './SpectateBoard.module.css';
 import { subscribeAsSpectator, unsubscribe, sqToRowCol } from '../../utils/multiplayerService';
 import useThemeStore from '../../store/themeStore';
+import { usePieceResolver, getFallbackUrl } from '../../utils/pieceResolver';
 import { PIECE_NAME, FILE_LABELS, parseFen } from '../../utils/boardHelpers';
 
 function ReadOnlyBoard({ fen, lastMoveFrom, lastMoveTo, flipped }) {
-  const { clr1, clr2, clr1p, clr2p, pieceSetIndex, pieceSets } = useThemeStore();
-  const imagePath = `./images/${pieceSets[pieceSetIndex].path}`;
+  const { clr1, clr2, clr1p, clr2p } = useThemeStore();
+  const resolvePiece = usePieceResolver();
   const rows = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
   const cols = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
   const board = parseFen(fen);
@@ -39,7 +40,8 @@ function ReadOnlyBoard({ fen, lastMoveFrom, lastMoveTo, flipped }) {
                 )}
                 {piece && (
                   <img
-                    src={`${imagePath}${PIECE_NAME[piece.type]}-${piece.color === 'w' ? 'white' : 'black'}.png`}
+                    src={resolvePiece(piece.type, piece.color)}
+                    onError={e => { e.target.onerror = null; e.target.src = getFallbackUrl(piece.type, piece.color); }}
                     alt={piece.type}
                     className={styles.piece}
                     draggable={false}

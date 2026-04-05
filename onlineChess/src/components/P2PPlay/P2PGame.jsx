@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Chess } from 'chess.js';
 import { p2p } from '../../utils/p2pService';
 import useThemeStore from '../../store/themeStore';
+import { usePieceResolver, getFallbackUrl } from '../../utils/pieceResolver';
 import { formatTime } from '../../utils/timeFormatter';
 import { PIECE_NAME, FILE_LABELS, squareName, rankToRow, fileToCol, parseFen } from '../../utils/boardHelpers';
 import styles from './P2PGame.module.css';
@@ -11,12 +12,12 @@ const INIT_TIME = 300; // 5 min each side by default
 // ── Inline board ──────────────────────────────────────────────────────────────
 
 function P2PBoard({ fen, myColor, interactive, onMove, lastFrom, lastTo }) {
-  const { clr1, clr2, clr1p, clr2p, clr1x, clr2x, pieceSetIndex, pieceSets } = useThemeStore();
+  const { clr1, clr2, clr1p, clr2p, clr1x, clr2x } = useThemeStore();
+  const resolvePiece = usePieceResolver();
   const [selected, setSelected] = useState(null);
   const [validMoves, setValidMoves] = useState([]);
   const [chess] = useState(() => new Chess());
 
-  const imagePath = `./images/${pieceSets[pieceSetIndex].path}`;
   const flipped   = myColor === 'b';
   const rows      = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
   const cols      = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
@@ -88,7 +89,8 @@ function P2PBoard({ fen, myColor, interactive, onMove, lastFrom, lastTo }) {
                 )}
                 {piece && (
                   <img
-                    src={`${imagePath}${PIECE_NAME[piece.type]}-${piece.color === 'w' ? 'white' : 'black'}.png`}
+                    src={resolvePiece(piece.type, piece.color)}
+                    onError={e => { e.target.onerror = null; e.target.src = getFallbackUrl(piece.type, piece.color); }}
                     className={styles.piece}
                     alt={piece.color + piece.type}
                   />
@@ -130,7 +132,7 @@ function PlayerBar({ name, color, time, active }) {
 // ── Main game ─────────────────────────────────────────────────────────────────
 
 export default function P2PGame({ myColor, onExit }) {
-  const { pieceSetIndex, pieceSets } = useThemeStore();
+  const resolvePieceMain = usePieceResolver();
   const [chess]        = useState(() => new Chess());
   const [fen,          setFen]          = useState(chess.fen());
   const [status,       setStatus]       = useState('playing'); // 'playing'|'over'
@@ -284,11 +286,10 @@ export default function P2PGame({ myColor, onExit }) {
             <div className={styles.promoBox}>
               <div className={styles.promoTitle}>Promote to</div>
               {['q','r','b','n'].map(p => {
-                const pName = { q: 'queen', r: 'rook', b: 'bishop', n: 'knight' }[p];
-                const promoColor = chess.turn() === 'w' ? 'white' : 'black';
+                const promoColor = chess.turn();
                 return (
                   <button key={p} className={styles.promoBtn} onClick={() => handlePromotion(p)}>
-                    <img src={`./images/${pieceSets[pieceSetIndex].path}${pName}-${promoColor}.png`} alt={pName} style={{width:40,height:40}} />
+                    <img src={resolvePieceMain(p, promoColor)} onError={e => { e.target.onerror = null; e.target.src = getFallbackUrl(p, promoColor); }} alt={p} style={{width:40,height:40}} />
                   </button>
                 );
               })}
