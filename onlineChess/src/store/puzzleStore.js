@@ -20,6 +20,15 @@ function uciToMove(uci) {
   };
 }
 
+function uciToCoords(uci) {
+  // "e2e4" → { from: [6, 4], to: [4, 4] } (row, col)
+  const fromCol = uci.charCodeAt(0) - 97;
+  const fromRow = 8 - parseInt(uci[1]);
+  const toCol   = uci.charCodeAt(2) - 97;
+  const toRow   = 8 - parseInt(uci[3]);
+  return { from: [fromRow, fromCol], to: [toRow, toCol] };
+}
+
 function pickBuiltinPuzzle(targetRating) {
   // Try narrow range first (±300), then widen to ±500, then all
   for (const tolerance of [300, 500]) {
@@ -99,9 +108,11 @@ const usePuzzleStore = create((set, get) => ({
   lastRatingChange: null,
   errorMsg:         null,
   hintSquare:       null,   // { from, to } — highlights the correct move's origin square
-  hintUsed:         false,  // whether hint was used for current puzzle
+  hintUsed:         false,  // whether hint was used for current puzzle (affects rating)
   wrongAttempt:     false,
   attempts:         0,
+  setupMoveFrom:    null,   // [row, col] of the setup move's origin (for highlighting)
+  setupMoveTo:      null,   // [row, col] of the setup move's destination
 
   // ── Mode state ──────────────────────────────────────────────────────────────
   mode:             'rated',  // 'rated'|'rush'|'streak'|'daily'|'themes'
@@ -150,7 +161,8 @@ const usePuzzleStore = create((set, get) => ({
   // ── Load user's puzzle rating ──────────────────────────────────────────────
   async loadUserPuzzleRating(userId) {
     if (!userId) {
-      set({ userPuzzleRating: { ...DEFAULT_RATING } });
+      // Only set default if we don't already have a cached rating
+      if (!get().userPuzzleRating) set({ userPuzzleRating: { ...DEFAULT_RATING } });
       return;
     }
     try {
@@ -160,13 +172,17 @@ const usePuzzleStore = create((set, get) => ({
         .eq('user_id', userId)
         .single();
       if (error && error.code !== 'PGRST116') {
+        // Network/server error — keep existing rating from cache, don't reset
         console.warn('Puzzle rating load error:', error.message);
+        if (!get().userPuzzleRating) set({ userPuzzleRating: { ...DEFAULT_RATING } });
+        return;
       }
       const rating = data || { ...DEFAULT_RATING };
       set({ userPuzzleRating: rating });
       try { localStorage.setItem('puzzleRatingCache', JSON.stringify(rating)); } catch {}
     } catch {
-      set({ userPuzzleRating: { ...DEFAULT_RATING } });
+      // Network failure — keep existing rating from cache, don't reset
+      if (!get().userPuzzleRating) set({ userPuzzleRating: { ...DEFAULT_RATING } });
     }
   },
 
@@ -337,11 +353,15 @@ const usePuzzleStore = create((set, get) => ({
         reviewMode:  false,
         reviewIndex: 0,
         puzzleStartTime: Date.now(),
+        setupMoveFrom: null,
+        setupMoveTo:   null,
       });
       get().buildSolutionLine();
       return true;
     }
 
+    // Multi-move: parse setup move coords BEFORE playing it
+    const setupCoords = uciToCoords(moves[0]);
     const firstMove = _chess.move(uciToMove(moves[0]));
     if (!firstMove) return false;
 
@@ -356,6 +376,8 @@ const usePuzzleStore = create((set, get) => ({
       reviewMode:  false,
       reviewIndex: 0,
       puzzleStartTime: Date.now(),
+      setupMoveFrom: setupCoords.from,
+      setupMoveTo:   setupCoords.to,
     });
     get().buildSolutionLine();
     return true;
@@ -450,11 +472,14 @@ const usePuzzleStore = create((set, get) => ({
         reviewMode:  false,
         reviewIndex: 0,
         puzzleStartTime: Date.now(),
+        setupMoveFrom: null,
+        setupMoveTo:   null,
       });
       get().buildSolutionLine();
       return;
     }
 
+    const setupCoords = uciToCoords(moves[0]);
     const firstMove = _chess.move(uciToMove(moves[0]));
     if (!firstMove) {
       if (get()._loadRetries < 10) {
@@ -479,6 +504,8 @@ const usePuzzleStore = create((set, get) => ({
       reviewMode:  false,
       reviewIndex: 0,
       puzzleStartTime: Date.now(),
+      setupMoveFrom: setupCoords.from,
+      setupMoveTo:   setupCoords.to,
     });
     get().buildSolutionLine();
   },
@@ -551,12 +578,15 @@ const usePuzzleStore = create((set, get) => ({
         reviewMode:  false,
         reviewIndex: 0,
         puzzleStartTime: Date.now(),
+        setupMoveFrom: null,
+        setupMoveTo:   null,
       });
       get().buildSolutionLine();
       return;
     }
 
     // Standard puzzle: first move is opponent setup, then player responds
+    const setupCoords = uciToCoords(moves[0]);
     const firstMove = _chess.move(uciToMove(moves[0]));
     if (!firstMove) {
       console.warn('Puzzle first move invalid:', moves[0]);
@@ -577,6 +607,8 @@ const usePuzzleStore = create((set, get) => ({
       reviewMode:  false,
       reviewIndex: 0,
       puzzleStartTime: Date.now(),
+      setupMoveFrom: setupCoords.from,
+      setupMoveTo:   setupCoords.to,
     });
     get().buildSolutionLine();
   },
@@ -760,7 +792,7 @@ const usePuzzleStore = create((set, get) => ({
     await get().recordRatingHistory(userId, Math.round(result.rating));
   },
 
-  // ── Hint: reveal the source square of the correct move ─────────────────────
+  // ── Hint: reveal the correct move's squares (unlimited, but penalizes rating) ──
   getHint() {
     const { puzzle, moveIndex, status } = get();
     if (!puzzle || status !== 'playing') return;
@@ -768,6 +800,7 @@ const usePuzzleStore = create((set, get) => ({
     const expected = puzzle.moves[moveIndex];
     const from = expected.slice(0, 2);
     const to   = expected.slice(2, 4);
+    // hintUsed stays true once set — affects rating calculation (0.5x credit)
     set({ hintSquare: { from, to }, hintUsed: true });
   },
 
@@ -953,44 +986,37 @@ const usePuzzleStore = create((set, get) => ({
     const { puzzle, solutionMoves } = get();
     if (!puzzle || solutionMoves.length === 0) return;
 
-    // Compute the FEN after opponent's first move (or puzzle FEN for single-move puzzles)
-    let initialFen;
-    if (puzzle.moves.length === 1) {
-      initialFen = puzzle.fen;
-    } else {
-      // After first move = solutionMoves[0].fen (opponent's setup move)
-      initialFen = solutionMoves[0]?.fen || puzzle.fen;
-    }
-
+    // Start review at the position BEFORE the puzzle (original FEN)
+    // so the first forward step shows the setup move
     set({
       reviewMode: true,
       reviewIndex: 0,
-      currentFen: initialFen,
+      currentFen: puzzle.fen,
     });
   },
 
   reviewStep(direction) {
     const { reviewIndex, solutionMoves, puzzle } = get();
-    if (!puzzle || solutionMoves.length === 0) return;
+    if (!puzzle || solutionMoves.length === 0) return null;
 
     const newIndex = Math.max(0, Math.min(reviewIndex + direction, solutionMoves.length));
+    if (newIndex === reviewIndex) return null;
 
     let fen;
     if (newIndex === 0) {
-      // Show position after opponent's first move (or puzzle FEN for single-move)
-      if (puzzle.moves.length === 1) {
-        fen = puzzle.fen;
-      } else {
-        fen = solutionMoves[0]?.fen || puzzle.fen;
-      }
+      // Index 0 = original puzzle FEN (before any moves)
+      fen = puzzle.fen;
     } else {
       fen = solutionMoves[newIndex - 1]?.fen || puzzle.fen;
     }
 
-    set({
-      reviewIndex: newIndex,
-      currentFen: fen,
-    });
+    set({ reviewIndex: newIndex, currentFen: fen });
+
+    // Return the move SAN so caller can play the appropriate sound
+    if (direction > 0 && newIndex > 0) {
+      return solutionMoves[newIndex - 1] || null;
+    }
+    return { san: '' }; // stepping back, no special sound
   },
 
   // ── Retry puzzle ──────────────────────────────────────────────────────────
@@ -1017,11 +1043,15 @@ const usePuzzleStore = create((set, get) => ({
         hintSquare:  null,
         hintUsed:    false,
         playerMoves: [],
+        reviewMode:  false,
+        setupMoveFrom: null,
+        setupMoveTo:   null,
       });
       return;
     }
 
     // Replay opponent's first move
+    const setupCoords = uciToCoords(puzzle.moves[0]);
     const firstMove = _chess.move(uciToMove(puzzle.moves[0]));
     if (!firstMove) return;
 
@@ -1036,6 +1066,9 @@ const usePuzzleStore = create((set, get) => ({
       hintSquare:  null,
       hintUsed:    false,
       playerMoves: [],
+      reviewMode:  false,
+      setupMoveFrom: setupCoords.from,
+      setupMoveTo:   setupCoords.to,
     });
   },
 
