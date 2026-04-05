@@ -1,90 +1,109 @@
 .topic-node-container {
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  background: var(--card-bg);
+  padding: 0.75rem 1rem 1rem; /* Extra padding bottom for the progress bar */
+  border-radius: 6px;
+  background: var(--card-bg, #1e1e1e);
   color: #fff;
-  border: 1px solid var(--border);
-  min-width: 160px;
+  border: 2px solid transparent;
+  min-width: 140px;
   text-align: center;
   position: relative;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  font-family: var(--sans, 'Inter', sans-serif);
 }
 
 .topic-node-container:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
-  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.5);
+  filter: brightness(1.1);
+  cursor: pointer;
 }
 
 .topic-node-content {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  justify-content: center;
+  align-items: center;
 }
 
 .topic-node-title {
-  font-family: var(--sans);
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
 }
 
-.topic-node-subtitle {
-  font-family: var(--sans);
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.7);
+/* Category Colors for Neetcode-like Glow/Borders */
+.topic-node-container.structures,
+.topic-node-container.default {
+  background: #2a2a2a;
+  border-color: #bb86fc; /* Purple */
+}
+.topic-node-container.structures .topic-node-progress-fill,
+.topic-node-container.default .topic-node-progress-fill {
+  background-color: #bb86fc;
+}
+
+.topic-node-container.algorithms {
+  background: #2a2a2a;
+  border-color: #03dac6; /* Teal */
+}
+.topic-node-container.algorithms .topic-node-progress-fill {
+  background-color: #03dac6;
+}
+
+.topic-node-container.optimization {
+  background: #2a2a2a;
+  border-color: #cf6679; /* Red/Pink */
+}
+.topic-node-container.optimization .topic-node-progress-fill {
+  background-color: #cf6679;
+}
+
+.topic-node-container.synthesis {
+  background: #2a2a2a;
+  border-color: #3700b3; /* Deep Purple */
+}
+.topic-node-container.synthesis .topic-node-progress-fill {
+  background-color: #3700b3;
+}
+
+.topic-node-container.math {
+  background: #2a2a2a;
+  border-color: #4a90e2; /* Blue */
+}
+.topic-node-container.math .topic-node-progress-fill {
+  background-color: #4a90e2;
 }
 
 /* Base custom handles */
 .topic-node-container .handle {
-  width: 8px;
-  height: 8px;
-  background: #fff;
+  width: 6px;
+  height: 6px;
+  background: #ccc;
   border: none;
+  opacity: 0;
+  transition: opacity 0.2s;
 }
 
-/* Category Color Mappings */
-.topic-node-container.structures {
-  background: #115740; /* Dark Green */
-  border-color: #218c65;
+.topic-node-container:hover .handle {
+  opacity: 1;
 }
 
-.topic-node-container.algorithms {
-  background: #392d7d; /* Deep Purple */
-  border-color: #6353ca;
-}
-
-.topic-node-container.optimization {
-  background: #733116; /* Brown */
-  border-color: #a44822;
-}
-
-.topic-node-container.synthesis {
-  background: #3a3a3a; /* Dark Gray */
-  border-color: #666;
-}
-
-.topic-node-container.math {
-  background: #093f77; /* Dark Blue */
-  border-color: #176fc8;
-}
-
-.topic-node-container.default {
-  background: var(--card-bg);
-}
-
-/* Side label for groups like "FOUNDATION" floating to the left */
-.topic-group-label {
+/* Progress bar styling at the bottom */
+.topic-node-progress-bg {
   position: absolute;
-  left: -140px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  width: 100px;
-  text-align: right;
-  pointer-events: none;
+  bottom: 6px;
+  left: 10px;
+  right: 10px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
 }
+
+.topic-node-progress-fill {
+  height: 100%;
+  width: 30%; /* Default 30% fill to make it look active */
+  border-radius: 2px;
+}
+
