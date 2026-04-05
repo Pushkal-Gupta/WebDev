@@ -77,8 +77,8 @@ function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveT
 
             const showFileLabel = displayRow === 7;
             const showRankLabel = displayCol === 0;
-            const fileLabel = FILE_LABELS[flipped ? 7 - col : col];
-            const rankLabel = flipped ? row + 1 : 8 - row;
+            const fileLabel = FILE_LABELS[col];
+            const rankLabel = 8 - row;
 
             return (
               <div
