@@ -45,11 +45,10 @@ const rigidGrid = {
   '2d-dp': { x: 300, y: 900 },
   'advanced-graphs': { x: 500, y: 900 },
 
-  // First-Order
-  'first-order': { x: 400, y: 1080 },
-  'math': { x: 200, y: 1260 },
-  'bit-manipulation': { x: 400, y: 1260 },
-  'geometry': { x: 600, y: 1260 }
+  // First-Order (Removing intermediate box, keeping layout level for math/bit/geo)
+  'math': { x: 200, y: 1080 },
+  'bit-manipulation': { x: 400, y: 1080 },
+  'geometry': { x: 600, y: 1080 }
 };
 
 const sideLabels = [
@@ -89,7 +88,10 @@ export default function RoadmapView() {
         };
 
         if (topicsData && topicsData.length > 0) {
-          const dbNodes = topicsData.map(t => ({
+          // Filter out the 'first-order' topic box as requested
+          const filteredTopics = topicsData.filter(t => t.id !== 'first-order');
+
+          const dbNodes = filteredTopics.map(t => ({
             id: t.id,
             type: 'custom',
             // FORCE RIGID POSITIONING
@@ -112,16 +114,34 @@ export default function RoadmapView() {
             selectable: false
           }));
 
-          const dbEdges = (edgesData || []).map(e => {
+          // Re-route logic: If source or target was 'first-order', bypass it
+          const filteredEdges = [];
+          (edgesData || []).forEach(e => {
+            if (e.source === 'first-order' || e.target === 'first-order') {
+               // Re-routing logic based on Image 3
+               if (e.source === '2d-dp' && e.target === 'first-order') {
+                  filteredEdges.push({ source: '2d-dp', target: 'math' });
+                  filteredEdges.push({ source: '2d-dp', target: 'bit-manipulation' });
+               } else if (e.source === 'advanced-graphs' && e.target === 'first-order') {
+                  filteredEdges.push({ source: 'advanced-graphs', target: 'bit-manipulation' });
+                  filteredEdges.push({ source: 'advanced-graphs', target: 'geometry' });
+               }
+               // Skip other edges involving first-order as they are bypassed
+               return;
+            }
+            filteredEdges.push(e);
+          });
+
+          const dbEdges = filteredEdges.map((e, idx) => {
             const sourceNode = topicsData.find(tn => tn.id === e.source);
             const color = sourceNode ? groupColors[sourceNode.group_name] : '#b0b8c4';
             return {
-              id: e.id,
+              id: `edge-${idx}-${e.source}-${e.target}`,
               source: e.source,
               target: e.target,
               type: 'straight',
               animated: false,
-              style: { stroke: color, strokeWidth: 2 },
+              style: { stroke: color, strokeWidth: 2, opacity: 0.6 },
               markerEnd: { type: MarkerType.ArrowClosed, color }
             };
           });
@@ -151,7 +171,7 @@ export default function RoadmapView() {
   };
 
   return (
-    <div style={{ width: '100%', height: 'calc(100vh - 70px)', background: '#fafbfc' }}>
+    <div style={{ width: '100%', height: 'calc(100vh - 70px)', background: 'var(--bg)' }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -163,7 +183,7 @@ export default function RoadmapView() {
         attributionPosition="bottom-right"
         minZoom={0.2}
       >
-        <Background color="#eee" gap={20} />
+        <Background color="var(--border)" gap={20} />
         <Controls />
       </ReactFlow>
 
