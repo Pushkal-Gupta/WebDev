@@ -13,96 +13,124 @@ import { supabase } from '../lib/supabase';
 import TopicModal from './TopicModal';
 import TopicNode from './TopicNode';
 
+// Rigid Grid Positions to enforce horizontal hierarchy
+const rigidGrid = {
+  // Foundation
+  'arrays': { x: 300, y: 0 },
+  'strings': { x: 500, y: 0 },
+
+  // Structures
+  'stack': { x: 0, y: 180 },
+  'queue': { x: 200, y: 180 },
+  'linkedlist': { x: 400, y: 180 },
+  'trees': { x: 600, y: 180 },
+  'tries': { x: 800, y: 180 },
+
+  // Algorithms
+  'two-pointers': { x: 200, y: 360 },
+  'binary-search': { x: 400, y: 360 },
+  'sliding-window': { x: 600, y: 360 },
+
+  // Advanced
+  'graphs': { x: 300, y: 540 },
+  'heap': { x: 500, y: 540 },
+
+  // Optimization
+  'dp': { x: 100, y: 720 },
+  'backtracking': { x: 300, y: 720 },
+  'greedy': { x: 500, y: 720 },
+  'intervals': { x: 700, y: 720 },
+
+  // Expert
+  '2d-dp': { x: 300, y: 900 },
+  'advanced-graphs': { x: 500, y: 900 },
+
+  // First-Order
+  'first-order': { x: 400, y: 1080 },
+  'math': { x: 200, y: 1260 },
+  'bit-manipulation': { x: 400, y: 1260 },
+  'geometry': { x: 600, y: 1260 }
+};
+
+const sideLabels = [
+  { id: 'lbl-foundation', label: 'FOUNDATION', y: 0 },
+  { id: 'lbl-structures', label: 'STRUCTURES', y: 180 },
+  { id: 'lbl-algorithms', label: 'ALGORITHMS', y: 360 },
+  { id: 'lbl-advanced', label: 'ADVANCED STRUCTURES', y: 540 },
+  { id: 'lbl-optimization', label: 'OPTIMIZATION', y: 720 },
+  { id: 'lbl-expert', label: 'EXPERT', y: 900 },
+  { id: 'lbl-synthesis', label: 'FIRST-ORDER THINKING', y: 1080 }
+];
+
 export default function RoadmapView() {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
   const [selectedTopic, setSelectedTopic] = useState(null);
 
-  const nodeTypes = useMemo(() => ({ custom: TopicNode }), []);
+  const nodeTypes = useMemo(() => ({ 
+    custom: TopicNode,
+    label: ({ data }) => <div className="side-label-node">{data.label}</div>
+  }), []);
 
   useEffect(() => {
     async function fetchRoadmap() {
       try {
-        const { data: topicsData, error: topicsError } = await supabase
-          .from('PGcode_topics')
-          .select('*');
-        if (topicsError) throw topicsError;
+        const { data: topicsData } = await supabase.from('PGcode_topics').select('*');
+        const { data: edgesData } = await supabase.from('PGcode_roadmap_edges').select('*');
 
-        const { data: edgesData, error: edgesError } = await supabase
-          .from('PGcode_roadmap_edges')
-          .select('*');
-        if (edgesError) throw edgesError;
+        const groupColors = {
+          'Foundation': '#4285f4',
+          'Structures': '#a142f4',
+          'Algorithms': '#34a853',
+          'Advanced': '#fbbc04',
+          'Optimization': '#ea4335',
+          'Expert': '#ea4335',
+          'Synthesis': '#9aa0a6'
+        };
 
         if (topicsData && topicsData.length > 0) {
-          const nodeMap = Object.fromEntries(topicsData.map(t => [t.id, t.group_name]));
-          const groupColors = {
-            'Foundation': '#4285f4',
-            'Structures': '#a142f4',
-            'Algorithms': '#34a853',
-            'Advanced': '#fbbc04',
-            'Optimization': '#ea4335',
-            'Expert': '#ea4335',
-            'Synthesis': '#9aa0a6'
-          };
           const dbNodes = topicsData.map(t => ({
             id: t.id,
             type: 'custom',
-            position: { x: (Number(t.position_x) || 0) * 1.5, y: (Number(t.position_y) || 0) * 1.2 },
+            // FORCE RIGID POSITIONING
+            position: rigidGrid[t.id] || { x: 0, y: 0 },
             data: { 
               label: t.name,
               category: t.category,
               group_name: t.group_name
             },
-            ...t // keep row data for topic modal
+            ...t
           }));
+
+          // Add Background Labels
+          const labelNodes = sideLabels.map(lbl => ({
+            id: lbl.id,
+            type: 'label',
+            position: { x: -250, y: lbl.y + 10 },
+            data: { label: lbl.label },
+            draggable: false,
+            selectable: false
+          }));
+
           const dbEdges = (edgesData || []).map(e => {
-            const color = groupColors[nodeMap[e.source]] || '#b0b8c4';
+            const sourceNode = topicsData.find(tn => tn.id === e.source);
+            const color = sourceNode ? groupColors[sourceNode.group_name] : '#b0b8c4';
             return {
               id: e.id,
               source: e.source,
               target: e.target,
               type: 'straight',
               animated: false,
-              style: { stroke: color, strokeWidth: 1.5 },
-              markerEnd: {
-                type: MarkerType.ArrowClosed,
-                color: color,
-              },
+              style: { stroke: color, strokeWidth: 2 },
+              markerEnd: { type: MarkerType.ArrowClosed, color }
             };
           });
-          setNodes(dbNodes);
+
+          setNodes([...labelNodes, ...dbNodes]);
           setEdges(dbEdges);
-        } else {
-          // Fallback to static if no data in DB yet
-          const initialNodesScaled = initialNodes.map(n => ({
-            ...n,
-            position: { x: n.position.x * 1.5, y: n.position.y * 1.2 }
-          }));
-          const initialEdgesStyled = initialEdges.map(e => ({
-            ...e,
-            type: 'straight',
-            animated: false,
-            style: { stroke: '#b0b8c4', strokeWidth: 1.5 },
-            markerEnd: { type: MarkerType.ArrowClosed, color: '#b0b8c4' }
-          }));
-          setNodes(initialNodesScaled);
-          setEdges(initialEdgesStyled);
         }
       } catch (err) {
-        console.error("Error fetching roadmap from Supabase:", err);
-        const initialNodesScaled = initialNodes.map(n => ({
-          ...n,
-          position: { x: n.position.x * 1.5, y: n.position.y * 1.2 }
-        }));
-        const initialEdgesStyled = initialEdges.map(e => ({
-          ...e,
-          type: 'straight',
-          animated: false,
-          style: { stroke: '#b0b8c4', strokeWidth: 1.5 },
-          markerEnd: { type: MarkerType.ArrowClosed, color: '#b0b8c4' }
-        }));
-        setNodes(initialNodesScaled);
-        setEdges(initialEdgesStyled);
+        console.error("Error fetching roadmap:", err);
       }
     }
     fetchRoadmap();
@@ -119,7 +147,7 @@ export default function RoadmapView() {
   );
 
   const onNodeClick = (event, node) => {
-    setSelectedTopic(node);
+    if (node.type === 'custom') setSelectedTopic(node);
   };
 
   return (
@@ -133,8 +161,9 @@ export default function RoadmapView() {
         onNodeClick={onNodeClick}
         fitView
         attributionPosition="bottom-right"
+        minZoom={0.2}
       >
-        <Background color="#ddd" gap={16} />
+        <Background color="#eee" gap={20} />
         <Controls />
       </ReactFlow>
 
@@ -147,3 +176,4 @@ export default function RoadmapView() {
     </div>
   );
 }
+
