@@ -149,6 +149,7 @@ export default function App() {
   const boardState = useGameStore(s => s.boardState);
   const flipped = useGameStore(s => s.flipped);
   const isOnline = useGameStore(s => s.isOnline);
+  const onlineColor = useGameStore(s => s.onlineColor);
   const capturedByWhite = useGameStore(s => s.capturedByWhite);
   const capturedByBlack = useGameStore(s => s.capturedByBlack);
   const whiteTime = useGameStore(s => s.whiteTime);
@@ -804,8 +805,12 @@ export default function App() {
   const topColor    = flipped ? 'w' : 'b';
   const bottomColor = flipped ? 'b' : 'w';
   const compDisplayName = isComp && selectedBot ? `${selectedBot.name} (${selectedBot.rating})` : oppName;
-  const topName     = flipped ? youName : compDisplayName;
-  const bottomName  = flipped ? compDisplayName : youName;
+  const playerColor = isComp ? (compColor === 'white' ? 'black' : 'white') :
+                      isOnline ? onlineColor : 'white';
+  const whiteName = playerColor === 'white' ? youName : compDisplayName;
+  const blackName = playerColor === 'black' ? youName : compDisplayName;
+  const topName     = flipped ? whiteName : blackName;
+  const bottomName  = flipped ? blackName : whiteName;
   const topCaptured    = flipped ? capturedByWhite : capturedByBlack;
   const bottomCaptured = flipped ? capturedByBlack : capturedByWhite;
   const topAdv    = flipped ? (whiteMat - blackMat) : (blackMat - whiteMat);

@@ -2,15 +2,11 @@ import { create } from 'zustand';
 import { Chess } from 'chess.js';
 import { supabase } from '../utils/supabase';
 import { computeNewRating } from '../utils/glicko2';
-import BUILTIN_PUZZLES from '../utils/builtinPuzzles';
 
 const DEFAULT_RATING = { rating: 1500, rd: 350, volatility: 0.06, games_played: 0, wins: 0, losses: 0 };
 
 // Module-level chess instance — not in Zustand state (avoids serialization)
 let _chess = new Chess();
-
-// Track which built-in puzzles have been shown this session to avoid repeats
-const _shownBuiltinIds = new Set();
 
 function uciToMove(uci) {
   return {
@@ -27,74 +23,6 @@ function uciToCoords(uci) {
   const toCol   = uci.charCodeAt(2) - 97;
   const toRow   = 8 - parseInt(uci[3]);
   return { from: [fromRow, fromCol], to: [toRow, toCol] };
-}
-
-function pickBuiltinPuzzle(targetRating) {
-  // Try narrow range first (±300), then widen to ±500, then all
-  for (const tolerance of [300, 500]) {
-    const candidates = BUILTIN_PUZZLES.filter(p =>
-      !_shownBuiltinIds.has(p.id) &&
-      Math.abs(p.rating - targetRating) <= tolerance
-    );
-    if (candidates.length > 0) {
-      const pick = candidates[Math.floor(Math.random() * candidates.length)];
-      _shownBuiltinIds.add(pick.id);
-      return pick;
-    }
-  }
-  // Fallback: closest available puzzles sorted by distance
-  _shownBuiltinIds.clear();
-  const sorted = [...BUILTIN_PUZZLES].sort((a, b) =>
-    Math.abs(a.rating - targetRating) - Math.abs(b.rating - targetRating)
-  );
-  const pick = sorted[Math.floor(Math.random() * Math.min(10, sorted.length))];
-  if (pick) _shownBuiltinIds.add(pick.id);
-  return pick;
-}
-
-function pickBuiltinByDifficulty(minRating, maxRating) {
-  const candidates = BUILTIN_PUZZLES.filter(p =>
-    !_shownBuiltinIds.has(p.id) &&
-    p.rating >= minRating && p.rating <= maxRating
-  );
-  const pool = candidates.length > 0 ? candidates : BUILTIN_PUZZLES.filter(p => p.rating >= minRating && p.rating <= maxRating);
-  if (pool.length === 0) return pickBuiltinPuzzle((minRating + maxRating) / 2);
-  const pick = pool[Math.floor(Math.random() * pool.length)];
-  _shownBuiltinIds.add(pick.id);
-  return pick;
-}
-
-function pickBuiltinByTheme(theme, targetRating) {
-  const themeLower = theme.toLowerCase();
-  for (const tolerance of [300, 500]) {
-    const candidates = BUILTIN_PUZZLES.filter(p =>
-      !_shownBuiltinIds.has(p.id) &&
-      Math.abs(p.rating - targetRating) <= tolerance &&
-      p.themes && (
-        (Array.isArray(p.themes) && p.themes.some(t => t.toLowerCase() === themeLower)) ||
-        (typeof p.themes === 'string' && p.themes.toLowerCase().includes(themeLower))
-      )
-    );
-    if (candidates.length > 0) {
-      const pick = candidates[Math.floor(Math.random() * candidates.length)];
-      _shownBuiltinIds.add(pick.id);
-      return pick;
-    }
-  }
-  // Fallback: any theme match regardless of rating
-  const allTheme = BUILTIN_PUZZLES.filter(p =>
-    p.themes && (
-      (Array.isArray(p.themes) && p.themes.some(t => t.toLowerCase() === themeLower)) ||
-      (typeof p.themes === 'string' && p.themes.toLowerCase().includes(themeLower))
-    )
-  );
-  if (allTheme.length > 0) {
-    const pick = allTheme[Math.floor(Math.random() * allTheme.length)];
-    _shownBuiltinIds.add(pick.id);
-    return pick;
-  }
-  // Final fallback: any puzzle near rating
-  return pickBuiltinPuzzle(targetRating);
 }
 
 const usePuzzleStore = create((set, get) => ({
@@ -424,17 +352,6 @@ const usePuzzleStore = create((set, get) => ({
     } catch {}
 
     if (!puzzleRow) {
-      if (mode === 'streak') {
-        puzzleRow = pickBuiltinByDifficulty(
-          Math.max(600, targetRating - 200),
-          targetRating + 200
-        );
-      } else {
-        puzzleRow = pickBuiltinPuzzle(targetRating);
-      }
-    }
-
-    if (!puzzleRow) {
       set({ status: 'error', errorMsg: 'No puzzles found near your rating. Try refreshing or changing mode.' });
       return;
     }
@@ -542,10 +459,6 @@ const usePuzzleStore = create((set, get) => ({
       }
     } catch (err) {
       console.warn('Puzzle fetch failed:', err.message);
-    }
-
-    if (!puzzleRow) {
-      puzzleRow = pickBuiltinPuzzle(rating);
     }
 
     if (!puzzleRow) {
@@ -903,11 +816,6 @@ const usePuzzleStore = create((set, get) => ({
       console.warn('Theme puzzle fetch failed:', err.message);
     }
 
-    // Fallback to builtin puzzles
-    if (!puzzleRow) {
-      puzzleRow = pickBuiltinByTheme(theme, rating);
-    }
-
     if (!puzzleRow) {
       set({ status: 'error', errorMsg: `No puzzles found for theme "${theme}". Try a different theme.` });
       return;
@@ -969,10 +877,6 @@ const usePuzzleStore = create((set, get) => ({
       }
     } catch (err) {
       console.warn('Difficulty puzzle fetch failed:', err.message);
-    }
-
-    if (!puzzleRow) {
-      puzzleRow = pickBuiltinByDifficulty(minRating, maxRating);
     }
 
     if (!puzzleRow) {

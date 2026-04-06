@@ -142,6 +142,7 @@ const useGameStore = create((set, get) => ({
       capturedByWhite: [],
       capturedByBlack: [],
       flipped: isComp && compColor === 'white',
+      youName: isComp ? (compColor === 'white' ? 'You (Black)' : 'You (White)') : 'You (White)',
       gameResult: null,
       gameCategory: timeControl?.cat?.toLowerCase() || null,
       onlineOpponentId: null,
@@ -643,8 +644,23 @@ const useGameStore = create((set, get) => ({
   setTimerRunning: (val) => set({ timerRunning: val }),
 
   getPgn: () => {
-    const { chessInstance } = get();
-    return chessInstance ? chessInstance.pgn() : '';
+    const { chessInstance, youName, oppName, isComp, compColor, isOnline, onlineColor } = get();
+    if (!chessInstance) return '';
+    let whiteName, blackName;
+    if (isComp) {
+      whiteName = compColor === 'white' ? (oppName || 'Computer') : (youName || 'You');
+      blackName = compColor === 'black' ? (oppName || 'Computer') : (youName || 'You');
+    } else if (isOnline) {
+      whiteName = onlineColor === 'white' ? (youName || 'You') : (oppName || 'Opponent');
+      blackName = onlineColor === 'black' ? (youName || 'You') : (oppName || 'Opponent');
+    } else {
+      whiteName = 'White';
+      blackName = 'Black';
+    }
+    whiteName = whiteName.replace(/\s*\((?:White|Black)\)\s*$/, '');
+    blackName = blackName.replace(/\s*\((?:White|Black)\)\s*$/, '');
+    chessInstance.header('White', whiteName, 'Black', blackName);
+    return chessInstance.pgn();
   },
 
   getFen: () => {
