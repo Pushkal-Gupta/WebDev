@@ -526,7 +526,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
   }, [reviewResults, evalHistory, moveHistory]);
 
   const whitePct      = evalToWhitePct(currentEval);
-  const displayPct    = flipped ? (100 - whitePct) : whitePct;
+  const displayPct    = whitePct;
   const whiteAcc      = useMemo(() => calcAccuracy(reviewResults, moveHistory, 'w'), [reviewResults, moveHistory]);
   const blackAcc      = useMemo(() => calcAccuracy(reviewResults, moveHistory, 'b'), [reviewResults, moveHistory]);
   const whiteCounts   = useMemo(() => buildCounts(reviewResults, moveHistory, 'w'), [reviewResults, moveHistory]);
@@ -895,13 +895,13 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
 
                 {/* Eval bar + board */}
                 <div className={styles.boardRow}>
-                  <div className={styles.evalBar}>
+                  <div className={styles.evalBar} style={{ flexDirection: flipped ? 'column' : 'column-reverse' }}>
                     <div className={styles.evalWhite} style={{ height: `${displayPct}%` }} />
                     <div className={styles.evalBlack} />
                     <span className={styles.evalScore} style={{
-                      top: displayPct >= 55 ? 'auto' : '4px',
-                      bottom: displayPct >= 55 ? '4px' : 'auto',
-                      color: displayPct >= 55 ? '#333' : '#bbb',
+                      top: flipped ? (displayPct >= 55 ? 'auto' : '4px') : (displayPct >= 55 ? '4px' : 'auto'),
+                      bottom: flipped ? (displayPct >= 55 ? '4px' : 'auto') : (displayPct >= 55 ? 'auto' : '4px'),
+                      color: flipped ? (displayPct >= 55 ? '#1a1a1a' : '#eee') : (displayPct >= 55 ? '#eee' : '#1a1a1a'),
                     }}>{formatEval(currentEval)}</span>
                   </div>
                   <div className={styles.boardWrap}>
@@ -1067,13 +1067,13 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                   </div>
                 </div>
                 <div className={styles.boardRow}>
-                  <div className={styles.evalBar}>
+                  <div className={styles.evalBar} style={{ flexDirection: flipped ? 'column' : 'column-reverse' }}>
                     <div className={styles.evalWhite} style={{ height: `${displayPct}%` }} />
                     <div className={styles.evalBlack} />
                     <span className={styles.evalScore} style={{
-                      top: displayPct >= 55 ? 'auto' : '4px',
-                      bottom: displayPct >= 55 ? '4px' : 'auto',
-                      color: displayPct >= 55 ? '#333' : '#bbb',
+                      top: flipped ? (displayPct >= 55 ? 'auto' : '4px') : (displayPct >= 55 ? '4px' : 'auto'),
+                      bottom: flipped ? (displayPct >= 55 ? '4px' : 'auto') : (displayPct >= 55 ? 'auto' : '4px'),
+                      color: flipped ? (displayPct >= 55 ? '#1a1a1a' : '#eee') : (displayPct >= 55 ? '#eee' : '#1a1a1a'),
                     }}>{formatEval(currentEval)}</span>
                   </div>
                   <div className={styles.boardWrap}>
