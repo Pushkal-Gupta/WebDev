@@ -3,9 +3,9 @@ import { Handle, Position } from 'reactflow';
 import './TopicNode.css';
 
 export default function TopicNode({ data }) {
-  // Take only the main title
-  const parts = (data.label || '').split('\n');
-  const mainTitle = parts[0];
+  // Handle literal '\n' escaping string from PostgreSQL as well as actual newlines
+  const parts = (data.label || '').split(/\\n|\n/);
+  const mainTitle = parts[0].trim();
     
   // Use group_name for color coding as it matches the flowchart layers perfectly
   const groupClass = data.group_name ? data.group_name.toLowerCase().replace(/\s+/g, '-') : 'default';
