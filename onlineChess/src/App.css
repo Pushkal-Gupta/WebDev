@@ -61,10 +61,10 @@ body {
 .home-body {
   max-width: 760px;
   margin: 0 auto;
-  padding: 56px 32px 80px;
+  padding: 32px 32px 48px;
   display: flex;
   flex-direction: column;
-  gap: 48px;
+  gap: 32px;
 }
 
 /* ── Hero ── */
@@ -384,15 +384,15 @@ body {
 /* ── Feature grid ── */
 .home-feat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
   gap: 8px;
 }
 
 .home-feat-card {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
+  gap: 10px;
+  padding: 12px 14px;
   background: rgba(255,255,255,0.02);
   border: 1px solid rgba(255,255,255,0.06);
   border-radius: 10px;
@@ -740,12 +740,14 @@ body {
 }
 
 .eval-bar {
-  width: 14px;
+  width: 18px;
   background: #0d1414;
   border-right: 1px solid rgba(255,255,255,0.04);
+  border-radius: 4px;
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
+  align-self: stretch;
 }
 
 .eval-fill-black {
@@ -795,11 +797,11 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 9px 16px;
+  padding: 7px 14px;
   flex-shrink: 0;
-  gap: 10px;
+  gap: 8px;
   transition: background 0.25s;
-  min-height: 54px;
+  min-height: 46px;
 }
 
 .player-panel-ticking {
@@ -1050,11 +1052,11 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 32px;
+  padding: 28px 32px;
   overflow-y: auto;
-  gap: 20px;
-  max-width: 640px;
-  align-self: flex-start;
+  gap: 16px;
+  max-width: 800px;
+  margin: 0 auto;
   width: 100%;
 }
 
@@ -1087,7 +1089,7 @@ body {
 }
 .account-logout-btn:hover { background: rgba(255,70,70,0.18); }
 
-.account-stats { display: flex; gap: 12px; }
+.account-stats { display: flex; gap: 8px; }
 
 .stat-box {
   flex: 1;
@@ -1163,14 +1165,14 @@ body {
 
 /* ─── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 860px) {
-  .home-body { padding: 36px 20px 60px; gap: 36px; }
+  .home-body { padding: 28px 20px 48px; gap: 28px; }
   .home-king-deco { font-size: 7rem; right: -8px; top: -16px; }
   .pp-clock { font-size: 1.15rem; min-width: 66px; padding: 4px 10px; }
   .pp-name { max-width: 120px; }
 }
 
 @media (max-width: 540px) {
-  .home-body { padding: 28px 16px 48px; gap: 28px; }
+  .home-body { padding: 20px 14px 32px; gap: 22px; }
   .home-tc-btn { min-width: 60px; padding: 12px 14px; max-width: none; }
   .home-local-row { flex-direction: column; }
   .home-feat-grid { grid-template-columns: 1fr 1fr; }
@@ -1455,7 +1457,7 @@ body {
  * These rules handle layout reflow at each breakpoint.
  * ─────────────────────────────────────────────────────────────────────────── */
 
-/* ── 700px: hide RightSidebar (board + panels fill width) ── */
+/* ── 700px: stack layout vertically, compact sidebar ── */
 @media (max-width: 700px) {
   .game-layout { flex-direction: column; overflow-y: auto; }
 
@@ -1465,15 +1467,21 @@ body {
   /* Board area: don't stretch vertically, just center board */
   .board-area {
     flex: none;
-    height: calc(8 * var(--cell-size));
-    padding: 4px 8px;
+    height: calc(8 * var(--cell-size) + 4px);
+    padding: 2px 4px;
   }
 
-  /* Player panels shrink slightly */
-  .player-panel { min-height: 46px; padding: 7px 12px; }
+  /* Hide eval bar on mobile — maximize board space */
+  .eval-bar { display: none; }
+
+  /* Player panels compact */
+  .player-panel { min-height: 40px; padding: 5px 10px; }
   .pp-clock { font-size: 1.1rem; min-width: 60px; padding: 4px 8px; }
-  .pp-avatar { width: 30px; height: 30px; font-size: 0.78rem; }
+  .pp-avatar { width: 28px; height: 28px; font-size: 0.78rem; }
   .pp-name { max-width: 110px; }
+
+  /* Board controls compact */
+  .board-controls { padding: 2px 8px; gap: 4px; }
 }
 
 /* ── 540px: bottom nav bar, compact everything ── */

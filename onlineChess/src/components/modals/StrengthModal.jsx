@@ -28,7 +28,7 @@ export default function StrengthModal({ onSelect, onCancel }) {
 
   return (
     <div className={styles.overlay} onClick={e => e.target === e.currentTarget && onCancel()}>
-      <div className={styles.popup} style={{ maxWidth: 540, maxHeight: '85vh', overflow: 'auto' }}>
+      <div className={styles.popup} style={{ maxWidth: 680, maxHeight: '85vh', overflow: 'auto' }}>
         <h3>Choose Your Opponent</h3>
 
         {/* Bot grid */}

@@ -40,7 +40,7 @@ import { getBestMove } from './utils/stockfish';
 import usePrefsStore from './store/prefsStore';
 import { setSoundToggles, setSoundTheme as initSoundTheme } from './utils/soundManager';
 import { postGame, getGames } from './utils/gameServer';
-import { getOpeningName } from './utils/evaluation';
+import { getOpeningName, evaluatePosition, evalToWhitePct, formatEval } from './utils/evaluation';
 import { supabase } from './utils/supabase';
 import { getLocalBestMove, getSuggestion } from './utils/localAI';
 import { reviewGame } from './utils/reviewEngine';
@@ -102,6 +102,7 @@ export default function App() {
   const [isReviewing, setIsReviewing]       = useState(false);
   const [pendingReviewPgn, setPendingReviewPgn] = useState(null);
   const [ratingDelta, setRatingDelta]       = useState(null);
+  const [gameEval, setGameEval]             = useState(0);
 
   // P2P state
   const [p2pMyColor, setP2pMyColor] = useState(null); // 'w'|'b' — set when connected
@@ -215,6 +216,12 @@ export default function App() {
     const id = setInterval(() => useGameStore.getState().tickTimer(), 1000);
     return () => clearInterval(id);
   }, [timerRunning]);
+
+  // ─── Live eval bar (static PST eval on each board change) ─────────────────
+  useEffect(() => {
+    if (!gameStarted || !chessInstance) { setGameEval(0); return; }
+    setGameEval(evaluatePosition(chessInstance.board()));
+  }, [boardState, gameStarted, chessInstance]);
 
   // ─── Computer AI (local for strength ≤6, Stockfish+fallback for ≥7) ───────
   useEffect(() => {
@@ -743,7 +750,7 @@ export default function App() {
 
   const handleStrengthSelect = (strength, color) => {
     setShowStrength(false);
-    let compCol = color;
+    let compCol = color === 'white' ? 'black' : 'white';
     if (color === 'random') compCol = Math.random() < 0.5 ? 'white' : 'black';
     setSelectedBot(getBotByStrength(strength));
     initGame();
@@ -793,6 +800,9 @@ export default function App() {
   const bottomTime = flipped ? blackTime : whiteTime;
   const topActive    = activeColor === topColor;
   const bottomActive = activeColor === bottomColor;
+  const evalWhitePct = evalToWhitePct(gameEval);
+  const evalDisplay  = formatEval(gameEval);
+  const evalBarPct   = flipped ? (100 - evalWhitePct) : evalWhitePct;
 
   const onlineOpponentName = onlineRoom
     ? (useGameStore.getState().onlineColor === 'white'
@@ -846,7 +856,7 @@ export default function App() {
           <ComputerSetup onStart={(bot, tc, color) => {
             setSelectedBot(bot);
             initGame();
-            const compCol = color === 'random' ? (Math.random() < 0.5 ? 'white' : 'black') : color;
+            const compCol = color === 'random' ? (Math.random() < 0.5 ? 'white' : 'black') : (color === 'white' ? 'black' : 'white');
             startGame(tc, true, compCol, bot.strength);
           }} />
         )}
@@ -978,6 +988,13 @@ export default function App() {
               />
 
               <div className="board-area">
+                <div className="eval-bar">
+                  <div className="eval-fill-black" style={{ height: `${100 - evalBarPct}%` }} />
+                  <div className="eval-fill-white" style={{ height: `${evalBarPct}%` }} />
+                  <span className={`eval-score ${evalBarPct >= 55 ? 'eval-score-white' : 'eval-score-black'}`}>
+                    {evalDisplay}
+                  </span>
+                </div>
                 <Board />
               </div>
 

@@ -29,8 +29,8 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
 }
 
 .botCard {
@@ -38,7 +38,7 @@
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  padding: 16px 10px 12px;
+  padding: 12px 8px 10px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   background: rgba(255, 255, 255, 0.02);
@@ -302,12 +302,42 @@
 @media (max-width: 700px) {
   .page {
     flex-direction: column;
-    padding: 16px 12px;
+    padding: 12px 10px;
     overflow-y: auto;
+    gap: 16px;
+  }
+
+  .sectionTitle {
+    font-size: 1rem;
+    margin: 0 0 10px;
   }
 
   .grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .botCard {
+    padding: 8px 6px 7px;
+    gap: 3px;
+    border-radius: 8px;
+  }
+
+  .botIcon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .botName {
+    font-size: 0.72rem;
+  }
+
+  .botRating {
+    font-size: 0.62rem;
+  }
+
+  .botTagline {
+    display: none;
   }
 
   .detailPanel {
@@ -315,10 +345,57 @@
     border-left: none;
     padding-left: 0;
     border-top: 1px solid rgba(255, 255, 255, 0.06);
-    padding-top: 16px;
+    padding-top: 12px;
+    gap: 10px;
+  }
+
+  .selectedHeader svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .selectedName {
+    font-size: 1.05rem;
+  }
+
+  .description {
+    font-size: 0.75rem;
+  }
+
+  .personality {
+    padding: 8px 10px;
   }
 
   .tcGrid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+
+  .tcBtn {
+    padding: 8px 4px;
+  }
+
+  .tcTime {
+    font-size: 0.82rem;
+  }
+
+  .colorBtns {
+    gap: 6px;
+  }
+
+  .colorBtn {
+    padding: 8px 10px;
+    font-size: 0.78rem;
+  }
+
+  .startBtn {
+    padding: 12px 20px;
+    font-size: 0.88rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

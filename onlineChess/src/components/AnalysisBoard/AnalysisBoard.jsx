@@ -555,6 +555,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
   }, [reviewResults, evalHistory, moveHistory]);
 
   const whitePct      = evalToWhitePct(currentEval);
+  const displayPct    = flipped ? (100 - whitePct) : whitePct;
   const whiteAcc      = useMemo(() => calcAccuracy(reviewResults, moveHistory, 'w'), [reviewResults, moveHistory]);
   const blackAcc      = useMemo(() => calcAccuracy(reviewResults, moveHistory, 'b'), [reviewResults, moveHistory]);
   const whiteCounts   = useMemo(() => buildCounts(reviewResults, moveHistory, 'w'), [reviewResults, moveHistory]);
@@ -897,12 +898,12 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                 {/* Eval bar + board */}
                 <div className={styles.boardRow}>
                   <div className={styles.evalBar}>
-                    <div className={styles.evalWhite} style={{ height: `${whitePct}%` }} />
+                    <div className={styles.evalWhite} style={{ height: `${displayPct}%` }} />
                     <div className={styles.evalBlack} />
                     <span className={styles.evalScore} style={{
-                      top: whitePct >= 55 ? 'auto' : '4px',
-                      bottom: whitePct >= 55 ? '4px' : 'auto',
-                      color: whitePct >= 55 ? '#333' : '#bbb',
+                      top: displayPct >= 55 ? 'auto' : '4px',
+                      bottom: displayPct >= 55 ? '4px' : 'auto',
+                      color: displayPct >= 55 ? '#333' : '#bbb',
                     }}>{formatEval(currentEval)}</span>
                   </div>
                   <div className={styles.boardWrap}>
@@ -1069,12 +1070,12 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                 </div>
                 <div className={styles.boardRow}>
                   <div className={styles.evalBar}>
-                    <div className={styles.evalWhite} style={{ height: `${whitePct}%` }} />
+                    <div className={styles.evalWhite} style={{ height: `${displayPct}%` }} />
                     <div className={styles.evalBlack} />
                     <span className={styles.evalScore} style={{
-                      top: whitePct >= 55 ? 'auto' : '4px',
-                      bottom: whitePct >= 55 ? '4px' : 'auto',
-                      color: whitePct >= 55 ? '#333' : '#bbb',
+                      top: displayPct >= 55 ? 'auto' : '4px',
+                      bottom: displayPct >= 55 ? '4px' : 'auto',
+                      color: displayPct >= 55 ? '#333' : '#bbb',
                     }}>{formatEval(currentEval)}</span>
                   </div>
                   <div className={styles.boardWrap}>
