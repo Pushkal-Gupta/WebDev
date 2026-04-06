@@ -79,8 +79,17 @@ export default function Workspace({ session, theme }) {
         <div className="workspace-panel-header">
           <Link to="/" className="workspace-back"><ArrowLeft size={16} /> Roadmap</Link>
           <h2 className="workspace-topic-title">
-            {topic?.name || categoryId} Setup
+            {(topic?.name || categoryId || '').split(/\\n|\n/)[0].trim()} Setup
           </h2>
+          {topic?.name && (topic.name.split(/\\n|\n/).length > 1) && (
+            <div style={{display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem'}}>
+              {topic.name.split(/\\n|\n/).slice(1).join(',').split(',').map(t => t.trim()).filter(Boolean).map((tag, i) => (
+                 <span key={i} style={{padding: '0.2rem 0.6rem', background: 'var(--accent-bg)', color: 'var(--accent)', borderRadius: '12px', fontSize: '0.8rem', fontFamily: 'var(--sans)'}}>
+                    {tag}
+                 </span>
+              ))}
+            </div>
+          )}
         </div>
         
         <div className="problem-tabs-row">
