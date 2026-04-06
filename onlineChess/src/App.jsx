@@ -40,7 +40,6 @@ import { getBestMove } from './utils/stockfish';
 import usePrefsStore from './store/prefsStore';
 import { setSoundToggles, setSoundTheme as initSoundTheme } from './utils/soundManager';
 import { postGame, getGames } from './utils/gameServer';
-import { getOpeningName, evaluatePosition, evalToWhitePct, formatEval } from './utils/evaluation';
 import { supabase } from './utils/supabase';
 import { getLocalBestMove, getSuggestion } from './utils/localAI';
 import { reviewGame } from './utils/reviewEngine';
@@ -102,7 +101,7 @@ export default function App() {
   const [isReviewing, setIsReviewing]       = useState(false);
   const [pendingReviewPgn, setPendingReviewPgn] = useState(null);
   const [ratingDelta, setRatingDelta]       = useState(null);
-  const [gameEval, setGameEval]             = useState(0);
+  // gameEval removed — eval bar only in analysis now
 
   // P2P state
   const [p2pMyColor, setP2pMyColor] = useState(null); // 'w'|'b' — set when connected
@@ -217,12 +216,6 @@ export default function App() {
     return () => clearInterval(id);
   }, [timerRunning]);
 
-  // ─── Live eval bar (static PST eval on each board change) ─────────────────
-  useEffect(() => {
-    if (!gameStarted || !chessInstance) { setGameEval(0); return; }
-    setGameEval(evaluatePosition(chessInstance.board()));
-  }, [boardState, gameStarted, chessInstance]);
-
   // ─── Computer AI (local for strength ≤6, Stockfish+fallback for ≥7) ───────
   useEffect(() => {
     if (!gameStarted || gameOver || !isComp || compThinking) return;
@@ -254,9 +247,12 @@ export default function App() {
           }
         }
         if (!bestMove || bestMove === '(none)') return;
-        // Simulate realistic thinking time so AI clock ticks
+        // Brief pause so the move feels natural (scaled to time control)
         const elapsed = Date.now() - thinkStart;
-        const minThink = 1000 + ((compStrength || 4) * 200); // 1.2s – 3.0s
+        const botTime = useGameStore.getState()[clockKey];
+        // Use at most 2% of remaining time, clamped between 0.3s and 1.5s
+        const maxThink = botTime != null ? Math.min(1500, Math.max(300, botTime * 20)) : 800;
+        const minThink = Math.min(maxThink, 300 + ((compStrength || 4) * 50)); // 0.35s – 0.8s
         const remaining = Math.max(0, minThink - elapsed);
         if (remaining > 0) await new Promise(r => setTimeout(r, remaining));
         const from = bestMove.slice(0, 2);
@@ -540,7 +536,7 @@ export default function App() {
   };
 
   const handleOnlineResign = () => {
-    if (!onlineChannelRef.current) return;
+    if (!onlineChannelRef.current || useGameStore.getState().gameOver) return;
     confirmActionRef.current = async () => {
       await broadcastResign(onlineChannelRef.current, user.id);
       const myColor = useGameStore.getState().onlineColor;
@@ -676,12 +672,15 @@ export default function App() {
 
   // ─── Tab navigation ───────────────────────────────────────────────────────
   const handleTabClick = (index) => {
+    // Skip if already on this tab and no active game to end
+    if (index === activeTab && (!gameStarted || gameOver)) return;
+
     // Account tab (5)
     if (index === 5) {
       if (!user) { setShowLogin(true); return; }
       if (gameStarted && !gameOver) {
         setConfirmMsg('End current game?');
-        confirmActionRef.current = () => executeTabSwitch(index);
+        confirmActionRef.current = () => { initGame(); executeTabSwitch(index); };
         setShowConfirm(true);
       } else {
         executeTabSwitch(index);
@@ -694,7 +693,7 @@ export default function App() {
       if (!user) { setShowLogin(true); return; }
       if (gameStarted && !gameOver) {
         setConfirmMsg(isOnline ? 'Leave online game? (You will forfeit)' : 'End current game?');
-        confirmActionRef.current = () => { if (isOnline) leaveOnlineGame(); executeTabSwitch(index); };
+        confirmActionRef.current = () => { if (isOnline) leaveOnlineGame(); initGame(); executeTabSwitch(index); };
         setShowConfirm(true);
       } else {
         executeTabSwitch(index);
@@ -705,7 +704,7 @@ export default function App() {
     if (gameStarted && !gameOver) {
       const msg = isOnline ? 'Leave online game? (You will forfeit)' : 'End current game?';
       setConfirmMsg(msg);
-      confirmActionRef.current = () => { if (isOnline) leaveOnlineGame(); executeTabSwitch(index); };
+      confirmActionRef.current = () => { if (isOnline) leaveOnlineGame(); initGame(); executeTabSwitch(index); };
       setShowConfirm(true);
       return;
     }
@@ -815,9 +814,7 @@ export default function App() {
   const bottomTime = flipped ? blackTime : whiteTime;
   const topActive    = activeColor === topColor;
   const bottomActive = activeColor === bottomColor;
-  const evalWhitePct = evalToWhitePct(gameEval);
-  const evalDisplay  = formatEval(gameEval);
-  const evalBarPct   = flipped ? (100 - evalWhitePct) : evalWhitePct;
+  // eval bar removed from game view — only in analysis
 
   const onlineOpponentName = onlineRoom
     ? (useGameStore.getState().onlineColor === 'white'
@@ -973,23 +970,25 @@ export default function App() {
                 <div className="online-controls">
                   <span className={`online-dot ${isOnlineConnected ? 'online' : 'offline'}`} />
                   <span className="online-room-id">Room: {onlineRoom?.id}</span>
-                  <div className="online-actions">
-                    <button className="online-btn hint-btn" onClick={handleGetHint}>Hint</button>
-                    <button
-                      className="online-btn undo-btn"
-                      onClick={handleRequestUndo}
-                      disabled={undoPending || undosUsedRef.current[useGameStore.getState().onlineColor] >= 2}
-                      title={undoPending ? 'Waiting for response…' : `Undo (${2 - (undosUsedRef.current[useGameStore.getState().onlineColor] || 0)} left)`}
-                    >
-                      {undoPending ? 'Pending…' : 'Undo'}
-                    </button>
-                    <button className="online-btn resign-btn" onClick={handleOnlineResign}>Resign</button>
-                    <button className="online-btn leave-btn" onClick={() => {
-                      confirmActionRef.current = () => { leaveOnlineGame(); initGame(); setActiveTab(0); };
-                      setConfirmMsg('Leave game? You will forfeit.');
-                      setShowConfirm(true);
-                    }}>Leave</button>
-                  </div>
+                  {!gameOver && (
+                    <div className="online-actions">
+                      <button className="online-btn hint-btn" onClick={handleGetHint}>Hint</button>
+                      <button
+                        className="online-btn undo-btn"
+                        onClick={handleRequestUndo}
+                        disabled={undoPending || undosUsedRef.current[useGameStore.getState().onlineColor] >= 2}
+                        title={undoPending ? 'Waiting for response…' : `Undo (${2 - (undosUsedRef.current[useGameStore.getState().onlineColor] || 0)} left)`}
+                      >
+                        {undoPending ? 'Pending…' : 'Undo'}
+                      </button>
+                      <button className="online-btn resign-btn" onClick={handleOnlineResign}>Resign</button>
+                      <button className="online-btn leave-btn" onClick={() => {
+                        confirmActionRef.current = () => { leaveOnlineGame(); initGame(); setActiveTab(0); };
+                        setConfirmMsg('Leave game? You will forfeit.');
+                        setShowConfirm(true);
+                      }}>Leave</button>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1003,13 +1002,6 @@ export default function App() {
               />
 
               <div className="board-area">
-                <div className="eval-bar">
-                  <div className="eval-fill-black" style={{ height: `${100 - evalBarPct}%` }} />
-                  <div className="eval-fill-white" style={{ height: `${evalBarPct}%` }} />
-                  <span className={`eval-score ${evalBarPct >= 55 ? 'eval-score-white' : 'eval-score-black'}`}>
-                    {evalDisplay}
-                  </span>
-                </div>
                 <Board />
               </div>
 
@@ -1099,7 +1091,7 @@ export default function App() {
           })() : null}
           onNewGame={handleGameOverNewGame}
           onCancel={() => { initGame(); setRatingDelta(null); setActiveTab(0); }}
-          onAnalyse={() => { useGameStore.setState({ gameOver: false }); setRatingDelta(null); }}
+          onAnalyse={() => { initGame(); setRatingDelta(null); }}
           onReview={handleReviewGame}
         />
       )}

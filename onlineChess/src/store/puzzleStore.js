@@ -177,9 +177,13 @@ const usePuzzleStore = create((set, get) => ({
         if (!get().userPuzzleRating) set({ userPuzzleRating: { ...DEFAULT_RATING } });
         return;
       }
-      const rating = data || { ...DEFAULT_RATING };
-      set({ userPuzzleRating: rating });
-      try { localStorage.setItem('puzzleRatingCache', JSON.stringify(rating)); } catch {}
+      if (!data) {
+        // No record in DB yet — keep cached rating, don't overwrite with default
+        if (!get().userPuzzleRating) set({ userPuzzleRating: { ...DEFAULT_RATING } });
+        return;
+      }
+      set({ userPuzzleRating: data });
+      try { localStorage.setItem('puzzleRatingCache', JSON.stringify(data)); } catch {}
     } catch {
       // Network failure — keep existing rating from cache, don't reset
       if (!get().userPuzzleRating) set({ userPuzzleRating: { ...DEFAULT_RATING } });
@@ -340,8 +344,9 @@ const usePuzzleStore = create((set, get) => ({
       return false;
     }
 
-    // Single-move puzzles: player plays from the FEN position
-    if (moves.length === 1) {
+    // Odd move count (including 1): no setup move — player plays from FEN directly
+    // Even move count: Lichess format — moves[0] is opponent's setup move
+    if (moves.length % 2 === 1) {
       const playerColor = _chess.turn();
       set({
         puzzle:      { ...puzzleRow, moves },
@@ -360,7 +365,7 @@ const usePuzzleStore = create((set, get) => ({
       return true;
     }
 
-    // Multi-move: parse setup move coords BEFORE playing it
+    // Even move count: play opponent's setup move first
     const setupCoords = uciToCoords(moves[0]);
     const firstMove = _chess.move(uciToMove(moves[0]));
     if (!firstMove) return false;
@@ -1030,8 +1035,8 @@ const usePuzzleStore = create((set, get) => ({
       return;
     }
 
-    // Single-move puzzles: start directly from puzzle FEN
-    if (puzzle.moves.length === 1) {
+    // Odd move count: no setup move — player plays from FEN
+    if (puzzle.moves.length % 2 === 1) {
       const playerColor = _chess.turn();
       set({
         moveIndex:   0,
@@ -1050,7 +1055,7 @@ const usePuzzleStore = create((set, get) => ({
       return;
     }
 
-    // Replay opponent's first move
+    // Even move count: replay opponent's setup move
     const setupCoords = uciToCoords(puzzle.moves[0]);
     const firstMove = _chess.move(uciToMove(puzzle.moves[0]));
     if (!firstMove) return;
