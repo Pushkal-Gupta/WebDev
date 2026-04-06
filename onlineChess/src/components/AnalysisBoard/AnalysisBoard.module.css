@@ -401,7 +401,7 @@
 
 /* ── Eval bar ── */
 .evalBar {
-  width: 20px;
+  width: 28px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -427,15 +427,15 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 0.65rem;
-  font-weight: 700;
+  font-size: 0.72rem;
+  font-weight: 800;
   pointer-events: none;
   letter-spacing: -0.02em;
   z-index: 2;
   white-space: nowrap;
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  text-shadow: 0 0 3px rgba(0,0,0,0.5);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.7), 0 0 8px rgba(0,0,0,0.4);
 }
 
 /* ── Board row ── */
@@ -1265,12 +1265,12 @@
     font-size: 1.3rem;
   }
 
-  .evalBar { width: 14px; }
+  .evalBar { width: 22px; }
   .tab { padding: 10px 16px; font-size: 0.75rem; }
 }
 
 @media (max-width: 560px) {
-  .evalBar { width: 12px; }
+  .evalBar { width: 18px; }
   .playerBar { padding: 4px 6px; min-height: 26px; }
   .navBtn { padding: 5px 14px; font-size: 0.75rem; }
   .tab { padding: 8px 12px; }
@@ -1284,4 +1284,76 @@
   .accValue { font-size: 1.3rem; }
   .playerAvatar { width: 40px; height: 40px; }
   .avatarDot { width: 18px; height: 18px; }
+}
+
+/* ── Pre-computation loading overlay ── */
+.precomputeOverlay {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #030a0a;
+  padding: 24px;
+}
+
+.precomputeCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 40px 48px;
+  border-radius: 16px;
+  background: rgba(0, 255, 245, 0.03);
+  border: 1px solid rgba(0, 255, 245, 0.1);
+  max-width: 360px;
+  width: 100%;
+}
+
+.precomputeChess {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.precomputeSpin {
+  animation: precomputePulse 2s ease-in-out infinite;
+}
+
+@keyframes precomputePulse {
+  0%, 100% { transform: scale(1); opacity: 0.7; filter: drop-shadow(0 0 8px rgba(0,255,245,0.3)); }
+  50% { transform: scale(1.08); opacity: 1; filter: drop-shadow(0 0 20px rgba(0,255,245,0.5)); }
+}
+
+.precomputeTitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: -0.01em;
+}
+
+.precomputeProgress {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #00fff5;
+  font-variant-numeric: tabular-nums;
+}
+
+.precomputeBarTrack {
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.precomputeBarFill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #00fff5, #00ccaa);
+  transition: width 0.3s ease;
+}
+
+.precomputeHint {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.35);
 }

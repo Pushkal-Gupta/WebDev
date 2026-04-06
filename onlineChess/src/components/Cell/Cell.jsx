@@ -77,11 +77,12 @@ const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, pie
 
   const handleDrop = useCallback((e) => {
     e.preventDefault();
+    if (!gameStarted) return;
     const fromRow = parseInt(e.dataTransfer.getData('fromRow'));
     const fromCol = parseInt(e.dataTransfer.getData('fromCol'));
     if (fromRow === row && fromCol === col) return;
     makeMove({ row: fromRow, col: fromCol }, { row, col });
-  }, [makeMove, row, col]);
+  }, [makeMove, row, col, gameStarted]);
 
   // Corner class
   let cornerClass = '';

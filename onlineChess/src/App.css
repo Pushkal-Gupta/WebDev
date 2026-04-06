@@ -740,10 +740,10 @@ body {
 }
 
 .eval-bar {
-  width: 18px;
-  background: #0d1414;
-  border-right: 1px solid rgba(255,255,255,0.04);
-  border-radius: 4px;
+  width: 28px;
+  background: #111;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  border-radius: 4px 0 0 4px;
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
@@ -752,27 +752,32 @@ body {
 
 .eval-fill-black {
   position: absolute; top: 0; left: 0; right: 0;
-  background: #1c2222;
+  background: linear-gradient(to bottom, #2a2a2a, #0a0a0a);
   transition: height 0.4s cubic-bezier(0.4,0,0.2,1);
 }
 
 .eval-fill-white {
   position: absolute; bottom: 0; left: 0; right: 0;
-  background: #d8e0e0;
+  background: linear-gradient(to bottom, #f0f0f0, #c4c4c4);
   transition: height 0.4s cubic-bezier(0.4,0,0.2,1);
 }
 
 .eval-score {
   position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 2;
-  font-size: 8px;
-  font-weight: 700;
+  font-size: 0.72rem;
+  font-weight: 800;
   writing-mode: vertical-rl;
+  text-orientation: mixed;
   font-family: 'Inter', monospace;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.7), 0 0 8px rgba(0,0,0,0.4);
+  letter-spacing: -0.02em;
 }
 
-.eval-score-white { bottom: 4px; color: rgba(0,0,0,0.45); }
-.eval-score-black { top: 4px; color: rgba(255,255,255,0.45); }
+.eval-score-white { bottom: 4px; color: #333; }
+.eval-score-black { top: 4px; color: #bbb; }
 
 .board-column {
   flex: 1;

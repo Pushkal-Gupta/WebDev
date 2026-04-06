@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useId, useMemo, memo } from 'react';
 import Board from '../Board/Board';
 import styles from './AnalysisBoard.module.css';
 import useGameStore from '../../store/gameStore';
-import { getPositionScore, getLocalBestMoveWithScore } from '../../utils/localAI';
+import { getTopLinesAsync, cancelPending, precomputeAll } from '../../utils/analysisEngine';
 import { Chess } from 'chess.js';
 import { CLASSIFICATIONS, reviewGame } from '../../utils/reviewEngine';
 import { fetchChessComGames } from '../../utils/chessComService';
@@ -44,48 +44,6 @@ function formatEval(score) {
   if (score > 9000) return 'M';
   if (score < -9000) return '-M';
   return (score >= 0 ? '+' : '') + (score / 100).toFixed(1);
-}
-
-const _topLinesCache = new Map();
-function getTopLines(fen, n = 3) {
-  const key = `${fen}:${n}`;
-  if (_topLinesCache.has(key)) return _topLinesCache.get(key);
-  try {
-    const chess = new Chess(fen);
-    if (chess.isGameOver()) return [];
-    const moves = chess.moves({ verbose: true });
-    if (!moves.length) return [];
-    const isMax = chess.turn() === 'w';
-    const scored = moves.map(m => {
-      chess.move(m);
-      const score = getPositionScore(chess.fen(), 2);
-      chess.undo();
-      return { move: m, score };
-    });
-    scored.sort((a, b) => isMax ? b.score - a.score : a.score - b.score);
-    const result = scored.slice(0, n).map(({ move, score }) => {
-      const lineChess = new Chess(fen);
-      lineChess.move(move);
-      const sanMoves = [move.san];
-      for (let d = 0; d < 2; d++) {
-        const { move: bestUci } = getLocalBestMoveWithScore(lineChess.fen(), 1);
-        if (!bestUci) break;
-        const r = lineChess.move({
-          from: bestUci.slice(0, 2), to: bestUci.slice(2, 4),
-          promotion: bestUci[4] || undefined,
-        });
-        if (!r) break;
-        sanMoves.push(r.san);
-      }
-      return { san: move.san, score, line: sanMoves };
-    });
-    if (_topLinesCache.size > 200) {
-      const firstKey = _topLinesCache.keys().next().value;
-      _topLinesCache.delete(firstKey);
-    }
-    _topLinesCache.set(key, result);
-    return result;
-  } catch { return []; }
 }
 
 const _openingCache = new Map();
@@ -295,7 +253,7 @@ function AnimatedAccuracy({ value, color }) {
 export default function AnalysisBoard({ savedGames = [], gamesLoading = false, pendingPgn = null, onPendingPgnConsumed = null }) {
   const {
     moveHistory, currentMoveIndex, goToMove,
-    chessInstance, importPgn, setDisableBoard, flipped, setFlipped,
+    chessInstance, importPgn, flipped, setFlipped,
   } = useGameStore();
 
   // UI state
@@ -322,6 +280,9 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
   const [loadedPgn, setLoadedPgn]           = useState(null);
   // Animation states for report
   const [reportAnimated, setReportAnimated] = useState(false);
+  // Pre-computation loading state
+  const [isPrecomputing, setIsPrecomputing] = useState(false);
+  const [precomputeProgress, setPrecomputeProgress] = useState({ current: 0, total: 0 });
 
   const openingAbortRef = useRef(null);
   const evalTimerRef = useRef(null);
@@ -340,7 +301,6 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
     if (!ok) { clearAnalysisState(); return; }
     setLoadedPgn(saved.pgn);
     setGameLoaded(true);
-    setDisableBoard(true);
     if (saved.reviewResults) setReviewResults(saved.reviewResults);
     if (saved.pgnHeaders) setPgnHeaders(saved.pgnHeaders);
     if (saved.panelTab) setPanelTab(saved.panelTab);
@@ -366,7 +326,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
     });
   }, [gameLoaded, loadedPgn, reviewResults, pgnHeaders, panelTab, evalHistory, currentMoveIndex]);
 
-  useEffect(() => { if (gameLoaded) setDisableBoard(true); }, [gameLoaded, currentMoveIndex]);
+  // Analysis mode: board is interactive — players can try alternative moves
 
   // Auto-load PGN from post-game review and start analysis
   useEffect(() => {
@@ -400,28 +360,40 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
     if (!chessInstance || !gameLoaded) return;
     try { setPgnHeaders(chessInstance.header?.() || {}); } catch { setPgnHeaders({}); }
     setEvalHistory([]);
+    // Pre-compute evaluations for all positions with progress
+    const fens = moveHistory.map(m => m.fen).filter(Boolean);
+    if (fens.length) {
+      setIsPrecomputing(true);
+      setPrecomputeProgress({ current: 0, total: fens.length });
+      precomputeAll(fens, 3, (cur, tot) => setPrecomputeProgress({ current: cur, total: tot }))
+        .then(() => setIsPrecomputing(false))
+        .catch(() => setIsPrecomputing(false));
+    }
   }, [gameLoaded]);
 
   useEffect(() => {
     if (!chessInstance || !gameLoaded) return;
     clearTimeout(evalTimerRef.current);
     setEngineBusy(true);
-    evalTimerRef.current = setTimeout(() => {
+    let cancelled = false;
+    evalTimerRef.current = setTimeout(async () => {
       try {
         const fen = currentMoveIndex >= 0 && moveHistory[currentMoveIndex]
           ? moveHistory[currentMoveIndex].fen : chessInstance.fen();
-        const lines = getTopLines(fen, 3);
-        const ev    = lines.length > 0 ? lines[0].score : getPositionScore(fen, 2);
+        const lines = await getTopLinesAsync(fen, 3);
+        if (cancelled) return;
+        const ev = lines.length > 0 ? lines[0].score : 0;
         setEngineLines(lines);
         setCurrentEval(ev);
         if (currentMoveIndex >= 0) {
           setEvalHistory(prev => { const n = [...prev]; n[currentMoveIndex] = ev; return n; });
         }
         if (openingAbortRef.current) openingAbortRef.current.abort?.();
-        fetchOpeningName(fen).then(name => { if (name) setLiveOpeningName(name); }).catch(err => console.error('Opening fetch error:', err));
-      } catch (err) { console.error('Engine eval error:', err); } finally { setEngineBusy(false); }
-    }, 400);
-    return () => clearTimeout(evalTimerRef.current);
+        fetchOpeningName(fen).then(name => { if (name && !cancelled) setLiveOpeningName(name); }).catch(err => console.error('Opening fetch error:', err));
+      } catch (err) { if (!cancelled) console.error('Engine eval error:', err); }
+      finally { if (!cancelled) setEngineBusy(false); }
+    }, 150);
+    return () => { cancelled = true; clearTimeout(evalTimerRef.current); cancelPending(); };
   }, [currentMoveIndex, gameLoaded, chessInstance]);
 
   useEffect(() => {
@@ -471,7 +443,6 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
       setGameLoaded(true);
       setReviewResults(null);
       setPgnInput('');
-      setDisableBoard(true);
       setPanelTab('report');
       setReportAnimated(false);
     } else {
@@ -698,8 +669,35 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
         </div>
       )}
 
+      {/* ── Pre-computing animation ── */}
+      {gameLoaded && isPrecomputing && (
+        <div className={styles.precomputeOverlay}>
+          <div className={styles.precomputeCard}>
+            <div className={styles.precomputeChess}>
+              <svg viewBox="0 0 45 45" width="64" height="64" className={styles.precomputeSpin}>
+                <g fill="none" fillRule="evenodd" stroke="#00fff5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22.5 11.63V6M20 8h5" strokeOpacity="0.9"/>
+                  <path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="#00fff5" fillOpacity="0.15"/>
+                  <path d="M12.5 37c5.5 3.5 14.5 3.5 20 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-2.5-7.5-12-10.5-16-4-3 6 6 10.5 6 10.5v7" fill="#00fff5" fillOpacity="0.1"/>
+                </g>
+              </svg>
+            </div>
+            <div className={styles.precomputeTitle}>Analysing Positions</div>
+            <div className={styles.precomputeProgress}>
+              {precomputeProgress.current} / {precomputeProgress.total} positions
+            </div>
+            <div className={styles.precomputeBarTrack}>
+              <div className={styles.precomputeBarFill} style={{
+                width: `${precomputeProgress.total ? (precomputeProgress.current / precomputeProgress.total) * 100 : 0}%`
+              }} />
+            </div>
+            <div className={styles.precomputeHint}>Computing engine evaluations...</div>
+          </div>
+        </div>
+      )}
+
       {/* ── Game loaded ── */}
-      {gameLoaded && (
+      {gameLoaded && !isPrecomputing && (
         <div className={styles.analysisMain}>
           {/* Top bar with tabs + actions */}
           <div className={styles.topBar}>
@@ -1100,19 +1098,20 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                   fen={currentMoveIndex >= 0 && moveHistory[currentMoveIndex]
                     ? moveHistory[currentMoveIndex].fen
                     : chessInstance?.fen()}
-                  onPlayMove={(uci, san) => {
-                    if (currentMoveIndex < moveHistory.length - 1) return;
-                    try {
-                      const chess = new Chess(
-                        currentMoveIndex >= 0 && moveHistory[currentMoveIndex]
-                          ? moveHistory[currentMoveIndex].fen
-                          : chessInstance?.fen()
-                      );
-                      const from = uci.slice(0, 2);
-                      const to = uci.slice(2, 4);
-                      const promo = uci[4] || undefined;
-                      chess.move({ from, to, promotion: promo });
-                    } catch {}
+                  onPlayMove={(uci) => {
+                    const from = uci.slice(0, 2);
+                    const to = uci.slice(2, 4);
+                    const promo = uci[4] || undefined;
+                    const fromRow = 8 - parseInt(from[1]);
+                    const fromCol = from.charCodeAt(0) - 97;
+                    const toRow = 8 - parseInt(to[1]);
+                    const toCol = to.charCodeAt(0) - 97;
+                    useGameStore.getState().makeMove(
+                      { row: fromRow, col: fromCol },
+                      { row: toRow, col: toCol },
+                      promo,
+                      true
+                    );
                   }}
                 />
               </div>

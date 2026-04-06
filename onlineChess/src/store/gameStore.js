@@ -248,9 +248,25 @@ const useGameStore = create((set, get) => ({
     set({ selectedSquare: { row, col }, validMoves: validMoveSquares });
   },
 
-  makeMove: (from, to, promotion = null) => {
+  makeMove: (from, to, promotion = null, _bypassValidation = false) => {
     const { chessInstance, moveHistory, timeControl, whiteTime, blackTime, activeColor, timerData, capturedByWhite, capturedByBlack } = get();
     if (!chessInstance) return false;
+
+    // Validate that the move is allowed (skip for engine/online incoming moves)
+    if (!_bypassValidation) {
+      const { gameOver, disableBoard, gameStarted, isComp, compColor, isOnline, onlineColor, currentMoveIndex: ci, moveHistory: mh } = get();
+      if (!gameStarted || gameOver || disableBoard) return false;
+      if (ci !== mh.length - 1 && mh.length > 0) return false;
+      const turn = chessInstance.turn();
+      if (isComp) {
+        const isCompTurn = (compColor === 'white' && turn === 'w') || (compColor === 'black' && turn === 'b');
+        if (isCompTurn) return false;
+      }
+      if (isOnline) {
+        const isMyTurn = (onlineColor === 'white' && turn === 'w') || (onlineColor === 'black' && turn === 'b');
+        if (!isMyTurn) return false;
+      }
+    }
 
     const fromFile = String.fromCharCode('a'.charCodeAt(0) + from.col);
     const fromRank = String(8 - from.row);
@@ -360,7 +376,7 @@ const useGameStore = create((set, get) => ({
   completePromotion: (piece) => {
     const { pawnPromotion } = get();
     if (!pawnPromotion) return;
-    get().makeMove(pawnPromotion.from, pawnPromotion.to, piece);
+    get().makeMove(pawnPromotion.from, pawnPromotion.to, piece, true);
   },
 
   checkGameOver: () => {
