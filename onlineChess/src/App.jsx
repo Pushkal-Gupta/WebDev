@@ -236,6 +236,9 @@ export default function App() {
       const fen = chessInstance.fen();
       setCompThinking(true);
       setDisableBoard(true);
+      const compIsWhite = compColor === 'white';
+      const clockKey = compIsWhite ? 'whiteTime' : 'blackTime';
+      const clockBefore = useGameStore.getState()[clockKey];
       const thinkStart = Date.now();
       try {
         let bestMove;
@@ -262,8 +265,20 @@ export default function App() {
         useGameStore.getState().makeMove(
           { row: 8 - parseInt(from[1]), col: from.charCodeAt(0) - 97 },
           { row: 8 - parseInt(to[1]),   col: to.charCodeAt(0) - 97 },
-          promotion
+          promotion,
+          true
         );
+        // Reconcile bot clock — setInterval may have missed ticks during sync computation
+        const totalElapsedSec = Math.round((Date.now() - thinkStart) / 1000);
+        const st = useGameStore.getState();
+        if (st.timeControl && !st.gameOver) {
+          const inc = st.timeControl.incr || 0;
+          const correctTime = Math.max(0, clockBefore - totalElapsedSec + inc);
+          if (st[clockKey] > correctTime) {
+            useGameStore.setState({ [clockKey]: correctTime });
+          }
+          if (correctTime <= 0) st.timeExpired(compIsWhite ? 'w' : 'b');
+        }
       } catch (e) {
         console.error('Computer move failed:', e);
         setAlertMsg('Computer move error.');
@@ -415,7 +430,7 @@ export default function App() {
     const { from, to, promotion } = payload;
     const { col: fc, row: fr } = sqToRowCol(from);
     const { col: tc, row: tr } = sqToRowCol(to);
-    useGameStore.getState().makeMove({ row: fr, col: fc }, { row: tr, col: tc }, promotion || null);
+    useGameStore.getState().makeMove({ row: fr, col: fc }, { row: tr, col: tc }, promotion || null, true);
     // Only re-enable board if game didn't just end (checkmate/stalemate sets disableBoard:true)
     if (!useGameStore.getState().gameOver) {
       useGameStore.getState().setDisableBoard(false);
@@ -771,7 +786,7 @@ export default function App() {
     const pgn = useGameStore.getState().getPgn();
     if (!pgn) return;
     // Close modal and navigate to Analysis tab with the PGN
-    useGameStore.setState({ gameOver: false });
+    initGame();
     setRatingDelta(null);
     setPendingReviewPgn(pgn);
     setActiveTab(2); // Analysis tab
@@ -1083,7 +1098,7 @@ export default function App() {
             };
           })() : null}
           onNewGame={handleGameOverNewGame}
-          onCancel={() => { useGameStore.setState({ gameOver: false }); setRatingDelta(null); setActiveTab(0); }}
+          onCancel={() => { initGame(); setRatingDelta(null); setActiveTab(0); }}
           onAnalyse={() => { useGameStore.setState({ gameOver: false }); setRatingDelta(null); }}
           onReview={handleReviewGame}
         />
