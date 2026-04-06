@@ -2,7 +2,7 @@
  * Bot personalities for "vs Computer" mode.
  * Each bot maps to a Stockfish strength level (1-10).
  * Icons are SVG path data rendered inline — no emoji.
- * Bots are spaced every 200 rating from 200 to 2800.
+ * Bots are spaced every 100 rating from 100 to 2800.
  */
 
 // SVG icon components as path strings (rendered in a 24x24 viewBox)
@@ -21,9 +21,39 @@ const ICONS = {
   cpu:      '<rect x="4" y="4" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
   diamond:  '<path d="M6 3h12l4 6-10 13L2 9z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M2 9h20M12 22L8 9l4-6 4 6z" fill="none" stroke="currentColor" stroke-width="1" opacity="0.4"/>',
   brain:    '<path d="M12 2C9 2 7 4 7 6.5c0 1-.5 2-1.5 2.5C4 10 3 12 3 14c0 3 2.5 5.5 5.5 5.5.5 0 1 0 1.5-.1V22h4v-2.6c.5.1 1 .1 1.5.1C18.5 19.5 21 17 21 14c0-2-1-4-2.5-5 -1-.5-1.5-1.5-1.5-2.5C17 4 15 2 12 2z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 2v20M8 8c2 1 4 1 6 0M7.5 14c2-1 5-1 7 0" stroke="currentColor" stroke-width="1" opacity="0.4"/>',
+  // New icons for added bots
+  snail:    '<path d="M3 18h2a7 7 0 007-7 4 4 0 00-4-4 4 4 0 00-4 4 2.5 2.5 0 002.5 2.5A2.5 2.5 0 009 11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 18c0 1 .5 2 2 2h14c1 0 2-.5 2-1.5S20 17 19 17H5" fill="none" stroke="currentColor" stroke-width="1.5"/>',
+  cat:      '<circle cx="12" cy="13" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M7 8L5 3M17 8l2-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="12" r="1" fill="currentColor"/><circle cx="14" cy="12" r="1" fill="currentColor"/><path d="M11 14.5c.5.5 1.5.5 2 0" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>',
+  leaf:     '<path d="M17 8C8 10 5.9 16.17 3.82 21.34" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M17 8A5 5 0 005 12c0 4 3 7 7 7a9 9 0 005-11z" fill="none" stroke="currentColor" stroke-width="1.5"/>',
+  shield:   '<path d="M12 2l8 4v5c0 5.5-3.8 10.7-8 12-4.2-1.3-8-6.5-8-12V6l8-4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>',
+  flag:     '<path d="M4 2v20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M4 4h12l-3 4 3 4H4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>',
+  anchor:   '<circle cx="12" cy="5" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 7v13M5 19a7 7 0 0014 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M9 10h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+  feather:  '<path d="M20.24 12.24a6 6 0 00-8.49-8.49L5 10.5V19h8.5l6.74-6.76z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M16 8L2 22M17.5 15H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+  telescope:'<circle cx="18" cy="5" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M15.5 7.5L8 15" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M8 15l-4 4M5 15l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+  mountain: '<path d="M3 20L9 8l4 6 3-4 5 10H3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M3 20h18" stroke="currentColor" stroke-width="1.5"/>',
+  globe:    '<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/><ellipse cx="12" cy="12" rx="4" ry="9" fill="none" stroke="currentColor" stroke-width="1"/><path d="M3 12h18M4 7h16M4 17h16" stroke="currentColor" stroke-width="1" opacity="0.5"/>',
+  rocket:   '<path d="M12 2c-3 4-3 8-3 10a3 3 0 006 0c0-2 0-6-3-10z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M9 12L5 16M15 12l4 4M9 22c0-2 1-4 3-4s3 2 3 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+  atom:     '<circle cx="12" cy="12" r="2" fill="currentColor"/><ellipse cx="12" cy="12" rx="9" ry="4" fill="none" stroke="currentColor" stroke-width="1.5" transform="rotate(0 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="4" fill="none" stroke="currentColor" stroke-width="1.5" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="4" fill="none" stroke="currentColor" stroke-width="1.5" transform="rotate(120 12 12)"/>',
+  dragon:   '<path d="M12 2C9 2 6 5 6 9c0 2 1 4 3 5l-3 5h4l2-3 2 3h4l-3-5c2-1 3-3 3-5 0-4-3-7-6-7z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="10" cy="8" r="1" fill="currentColor"/><circle cx="14" cy="8" r="1" fill="currentColor"/>',
+  infinity: '<path d="M8 12c-2-2-4-2-4 0s2 4 4 4 4-2 4-4 2-4 4-4 4 2 4 4-2 2-4 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
 };
 
 const BOTS = [
+  // ── 100: Snaily ──
+  {
+    id: 'snaily',
+    name: 'Snaily',
+    rating: 100,
+    strength: 1,
+    icon: ICONS.snail,
+    color: '#7cb342',
+    tagline: 'Taking it very, very slow.',
+    description: 'Barely understands how pieces move. Plays at a glacial pace and makes random moves.',
+    winMsg: 'That was fast... too fast for me.',
+    loseMsg: 'I won? I was just moving pieces around!',
+    drawMsg: 'I think the game broke?',
+  },
+  // ── 200: Patzer ──
   {
     id: 'patzer',
     name: 'Patzer',
@@ -37,6 +67,21 @@ const BOTS = [
     loseMsg: 'Wait, I won?! Was that checkmate?',
     drawMsg: 'Is the game over? What happened?',
   },
+  // ── 300: Whiskers ──
+  {
+    id: 'whiskers',
+    name: 'Whiskers',
+    rating: 300,
+    strength: 1,
+    icon: ICONS.cat,
+    color: '#ffab91',
+    tagline: 'Playful and unpredictable.',
+    description: 'A curious beginner who pounces on random pieces. Sometimes brilliant, usually chaotic.',
+    winMsg: 'You caught me napping!',
+    loseMsg: 'Meow! Pounced right on your king!',
+    drawMsg: 'A cat always lands on its feet.',
+  },
+  // ── 400: Nelson ──
   {
     id: 'nelson',
     name: 'Nelson',
@@ -50,6 +95,21 @@ const BOTS = [
     loseMsg: 'Yay! I actually won? That never happens!',
     drawMsg: 'A draw? I call that a victory!',
   },
+  // ── 500: Sage ──
+  {
+    id: 'sage',
+    name: 'Sage',
+    rating: 500,
+    strength: 2,
+    icon: ICONS.leaf,
+    color: '#66bb6a',
+    tagline: 'Growing one move at a time.',
+    description: 'A budding player just starting to grasp basic captures. Still blunders frequently.',
+    winMsg: 'I have much to learn from you!',
+    loseMsg: 'Even a seedling can surprise you!',
+    drawMsg: 'A balanced result. Growth takes time.',
+  },
+  // ── 600: Elena ──
   {
     id: 'elena',
     name: 'Elena',
@@ -63,6 +123,21 @@ const BOTS = [
     loseMsg: 'I\'m getting better! Did you see my knight fork?',
     drawMsg: 'A fair fight! Let\'s play again.',
   },
+  // ── 700: Bastion ──
+  {
+    id: 'bastion',
+    name: 'Bastion',
+    rating: 700,
+    strength: 3,
+    icon: ICONS.shield,
+    color: '#42a5f5',
+    tagline: 'Defense first, always.',
+    description: 'A cautious player who tries to protect everything. Hard to break down but rarely attacks.',
+    winMsg: 'My defenses crumbled... well played.',
+    loseMsg: 'Fortress held. You couldn\'t get through!',
+    drawMsg: 'A solid defensive draw. Just as planned.',
+  },
+  // ── 800: Omar ──
   {
     id: 'omar',
     name: 'Omar',
@@ -76,6 +151,21 @@ const BOTS = [
     loseMsg: 'That combination caught you off guard, didn\'t it?',
     drawMsg: 'Solid play from both sides.',
   },
+  // ── 900: Rally ──
+  {
+    id: 'rally',
+    name: 'Rally',
+    rating: 900,
+    strength: 3,
+    icon: ICONS.flag,
+    color: '#ef5350',
+    tagline: 'Never gives up!',
+    description: 'A spirited player who fights to the end. Improving rapidly and loves a comeback.',
+    winMsg: 'You were too strong this time!',
+    loseMsg: 'Never underestimate a fighter!',
+    drawMsg: 'A hard-fought draw. I almost had you!',
+  },
+  // ── 1000: Kira ──
   {
     id: 'kira',
     name: 'Kira',
@@ -89,6 +179,21 @@ const BOTS = [
     loseMsg: 'I saw that tactic three moves out!',
     drawMsg: 'We both played carefully. Good game!',
   },
+  // ── 1100: Marina ──
+  {
+    id: 'marina',
+    name: 'Marina',
+    rating: 1100,
+    strength: 4,
+    icon: ICONS.anchor,
+    color: '#0097a7',
+    tagline: 'Solid and steady.',
+    description: 'A grounded intermediate player. Rarely blunders and plays reliable, sensible moves.',
+    winMsg: 'You outplayed me. Time to regroup!',
+    loseMsg: 'Steady hands win the game.',
+    drawMsg: 'Rock solid from both of us.',
+  },
+  // ── 1200: Isabel ──
   {
     id: 'isabel',
     name: 'Isabel',
@@ -102,6 +207,21 @@ const BOTS = [
     loseMsg: 'My patience paid off in the end.',
     drawMsg: 'An instructive game for both of us.',
   },
+  // ── 1300: Swift ──
+  {
+    id: 'swift',
+    name: 'Swift',
+    rating: 1300,
+    strength: 5,
+    icon: ICONS.feather,
+    color: '#ab47bc',
+    tagline: 'Light and quick.',
+    description: 'A fast-thinking club player. Prefers open positions and quick piece development.',
+    winMsg: 'Too slow on my part. Well played!',
+    loseMsg: 'Speed kills. You never saw it coming!',
+    drawMsg: 'A quick game, evenly matched.',
+  },
+  // ── 1400: Frank ──
   {
     id: 'frank',
     name: 'Frank',
@@ -115,6 +235,21 @@ const BOTS = [
     loseMsg: 'Did you see that sacrifice coming?',
     drawMsg: 'You defended well. I\'ll find a way next time.',
   },
+  // ── 1500: Orion ──
+  {
+    id: 'orion',
+    name: 'Orion',
+    rating: 1500,
+    strength: 6,
+    icon: ICONS.telescope,
+    color: '#5c6bc0',
+    tagline: 'Sees three moves ahead.',
+    description: 'A tournament-level thinker. Calculates variations and plans with foresight.',
+    winMsg: 'I didn\'t see your plan. Impressive!',
+    loseMsg: 'I saw the winning line from a mile away.',
+    drawMsg: 'A well-calculated draw. No mistakes.',
+  },
+  // ── 1600: Diana ──
   {
     id: 'diana',
     name: 'Diana',
@@ -128,6 +263,21 @@ const BOTS = [
     loseMsg: 'Every move matters. Today was my day.',
     drawMsg: 'A well-fought battle. Respect.',
   },
+  // ── 1700: Everest ──
+  {
+    id: 'everest',
+    name: 'Everest',
+    rating: 1700,
+    strength: 7,
+    icon: ICONS.mountain,
+    color: '#78909c',
+    tagline: 'The climb never ends.',
+    description: 'A strong player who grinds through tough positions. Great at converting pressure.',
+    winMsg: 'You conquered the peak this time.',
+    loseMsg: 'The summit is mine. Try again!',
+    drawMsg: 'A mountain of a game. Neither of us fell.',
+  },
+  // ── 1800: Victor ──
   {
     id: 'victor',
     name: 'Victor',
@@ -141,6 +291,21 @@ const BOTS = [
     loseMsg: 'The endgame is where games are won.',
     drawMsg: 'A razor-sharp game.',
   },
+  // ── 1900: Atlas ──
+  {
+    id: 'atlas',
+    name: 'Atlas',
+    rating: 1900,
+    strength: 8,
+    icon: ICONS.globe,
+    color: '#00897b',
+    tagline: 'Worldly wisdom.',
+    description: 'A seasoned expert with broad opening knowledge and deep strategic understanding.',
+    winMsg: 'You taught me something new today.',
+    loseMsg: 'Experience speaks. Listen carefully.',
+    drawMsg: 'Two strong minds, one fair result.',
+  },
+  // ── 2000: Maximilian ──
   {
     id: 'maximilian',
     name: 'Maximilian',
@@ -154,6 +319,21 @@ const BOTS = [
     loseMsg: 'As expected. Precision is my middle name.',
     drawMsg: 'Equal chances throughout. A theoretical draw.',
   },
+  // ── 2100: Nova ──
+  {
+    id: 'nova',
+    name: 'Nova',
+    rating: 2100,
+    strength: 9,
+    icon: ICONS.rocket,
+    color: '#ff5722',
+    tagline: 'Rising star.',
+    description: 'A rapidly improving near-master with explosive tactical vision and deep calculation.',
+    winMsg: 'Blast off delayed... but I\'ll be back.',
+    loseMsg: 'Launched into orbit. You never stood a chance!',
+    drawMsg: 'Held in equilibrium. A cosmic standoff.',
+  },
+  // ── 2200: Aria ──
   {
     id: 'aria',
     name: 'Aria',
@@ -167,6 +347,21 @@ const BOTS = [
     loseMsg: 'I saw the winning continuation 8 moves ago.',
     drawMsg: 'You played at a very high level today.',
   },
+  // ── 2300: Nucleus ──
+  {
+    id: 'nucleus',
+    name: 'Nucleus',
+    rating: 2300,
+    strength: 10,
+    icon: ICONS.atom,
+    color: '#00e5ff',
+    tagline: 'Pure calculation.',
+    description: 'Master-level analytical engine. Breaks down positions to their atomic components.',
+    winMsg: 'Unstable isotope detected. You surprised me.',
+    loseMsg: 'Calculated. Precise. Inevitable.',
+    drawMsg: 'Perfect equilibrium achieved.',
+  },
+  // ── 2400: Hyperion ──
   {
     id: 'hyperion',
     name: 'Hyperion',
@@ -180,6 +375,21 @@ const BOTS = [
     loseMsg: 'Resistance is futile.',
     drawMsg: 'Stalemate detected. Clever defensive technique.',
   },
+  // ── 2500: Draco ──
+  {
+    id: 'draco',
+    name: 'Draco',
+    rating: 2500,
+    strength: 10,
+    icon: ICONS.dragon,
+    color: '#d50000',
+    tagline: 'Fear the fire.',
+    description: 'A fearsome super-GM level opponent. Breathes fire on the board with devastating attacks.',
+    winMsg: 'You... slayed the dragon?! Impossible.',
+    loseMsg: 'Bow before the dragon. Your king is mine.',
+    drawMsg: 'The dragon rests. For now.',
+  },
+  // ── 2600: Magnus ──
   {
     id: 'magnus',
     name: 'Magnus',
@@ -193,6 +403,21 @@ const BOTS = [
     loseMsg: 'Brilliance is seeing what others miss.',
     drawMsg: 'A game worthy of a world championship match.',
   },
+  // ── 2700: Omega ──
+  {
+    id: 'omega',
+    name: 'Omega',
+    rating: 2700,
+    strength: 10,
+    icon: ICONS.infinity,
+    color: '#651fff',
+    tagline: 'The final challenge.',
+    description: 'The penultimate test. Near-perfect play with inhuman depth of calculation.',
+    winMsg: 'Infinity has a limit after all. Well played.',
+    loseMsg: 'There is no end to my calculation.',
+    drawMsg: 'Infinite possibilities, one result: equality.',
+  },
+  // ── 2800: Stockfish ──
   {
     id: 'stockfish',
     name: 'Stockfish',
