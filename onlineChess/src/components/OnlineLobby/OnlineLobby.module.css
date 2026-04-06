@@ -10,9 +10,9 @@
   background: #0d1616;
   border: 1px solid rgba(0, 255, 245, 0.12);
   border-radius: 16px;
-  padding: 32px 36px;
+  padding: 24px 28px;
   width: 100%;
-  max-width: 420px;
+  max-width: 480px;
   display: flex;
   flex-direction: column;
   gap: 16px;
