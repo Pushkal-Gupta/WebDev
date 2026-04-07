@@ -8,57 +8,58 @@ import {
   MarkerType
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { initialNodes, initialEdges } from '../data/problems';
 import { supabase } from '../lib/supabase';
 import TopicModal from './TopicModal';
 import TopicNode from './TopicNode';
 
-// Rigid Grid Positions to enforce horizontal hierarchy
+// High-Density 7-Tier Hierarchy (Centered Symmetry)
 const rigidGrid = {
-  // Foundation
-  'arrays': { x: 300, y: 0 },
-  'strings': { x: 500, y: 0 },
+  // Tier 1: Foundation (Y: 0)
+  'arrays': { x: 250, y: 0 },
+  'strings': { x: 650, y: 0 },
 
-  // Structures
-  'stack': { x: 0, y: 180 },
-  'queue': { x: 200, y: 180 },
-  'linkedlist': { x: 400, y: 180 },
-  'trees': { x: 600, y: 180 },
-  'tries': { x: 800, y: 180 },
+  // Tier 2: Basic Structures (Y: 200)
+  'stack': { x: 100, y: 200 },
+  'queue': { x: 450, y: 200 },
+  'linkedlist': { x: 800, y: 200 },
 
-  // Algorithms
-  'two-pointers': { x: 200, y: 360 },
-  'binary-search': { x: 400, y: 360 },
-  'sliding-window': { x: 600, y: 360 },
+  // Tier 3: Algorithms (Y: 400)
+  'two-pointers': { x: 150, y: 400 },
+  'binary-search': { x: 450, y: 400 },
+  'sliding-window': { x: 750, y: 400 },
 
-  // Advanced
-  'graphs': { x: 300, y: 540 },
-  'heap': { x: 500, y: 540 },
+  // Tier 4: Advanced Structures (Y: 600)
+  'trees': { x: 100, y: 600 },
+  'tries': { x: 350, y: 600 },
+  'graphs': { x: 600, y: 600 },
+  'heap': { x: 850, y: 600 },
 
-  // Optimization
-  'dp': { x: 100, y: 720 },
-  'backtracking': { x: 300, y: 720 },
-  'greedy': { x: 500, y: 720 },
-  'intervals': { x: 700, y: 720 },
+  // Tier 5: Optimization (Y: 800)
+  // "Recursion can be an optimization of tree" -> Moved to Tie 5
+  'recursion': { x: 50, y: 800 },
+  'dp': { x: 250, y: 800 },
+  'backtracking': { x: 450, y: 800 },
+  'greedy': { x: 650, y: 800 },
+  'intervals': { x: 850, y: 800 },
 
-  // Expert
-  '2d-dp': { x: 300, y: 900 },
-  'advanced-graphs': { x: 500, y: 900 },
+  // Tier 6: Expert (Y: 1000)
+  '2d-dp': { x: 300, y: 1000 },
+  'advanced-graphs': { x: 650, y: 1000 },
 
-  // First-Order (Removing intermediate box, keeping layout level for math/bit/geo)
-  'math': { x: 200, y: 1080 },
-  'bit-manipulation': { x: 400, y: 1080 },
-  'geometry': { x: 600, y: 1080 }
+  // Tier 7: Synthesis (Y: 1200)
+  'math': { x: 150, y: 1200 },
+  'bit-manipulation': { x: 475, y: 1200 },
+  'geometry': { x: 800, y: 1200 }
 };
 
 const sideLabels = [
-  { id: 'lbl-foundation', label: 'FOUNDATION', y: 0 },
-  { id: 'lbl-structures', label: 'STRUCTURES', y: 180 },
-  { id: 'lbl-algorithms', label: 'ALGORITHMS', y: 360 },
-  { id: 'lbl-advanced', label: 'ADVANCED STRUCTURES', y: 540 },
-  { id: 'lbl-optimization', label: 'OPTIMIZATION', y: 720 },
-  { id: 'lbl-expert', label: 'EXPERT', y: 900 },
-  { id: 'lbl-synthesis', label: 'FIRST-ORDER THINKING', y: 1080 }
+  { id: 'lbl-1', label: 'FOUNDATION', y: 15 },
+  { id: 'lbl-2', label: 'LINEAR STRUCTURES', y: 215 },
+  { id: 'lbl-3', label: 'PATTERN DISCOVERY', y: 415 },
+  { id: 'lbl-4', label: 'HIERARCHICAL SYSTEMS', y: 615 },
+  { id: 'lbl-5', label: 'RECURSIVE OPTIMIZATION', y: 815 },
+  { id: 'lbl-6', label: 'EXPERT DESIGN', y: 1015 },
+  { id: 'lbl-7', label: 'MATHEMATICAL SYNTHESIS', y: 1215 }
 ];
 
 export default function RoadmapView() {
@@ -68,7 +69,11 @@ export default function RoadmapView() {
 
   const nodeTypes = useMemo(() => ({ 
     custom: TopicNode,
-    label: ({ data }) => <div className="side-label-node">{data.label}</div>
+    sectionHeader: ({ data }) => (
+      <div className="side-label-node brand" style={{ fontSize: '10px', color: 'var(--text-dim)', letterSpacing: '2px', opacity: 0.6 }}>
+        {data.label}
+      </div>
+    )
   }), []);
 
   useEffect(() => {
@@ -77,76 +82,93 @@ export default function RoadmapView() {
         const { data: topicsData } = await supabase.from('PGcode_topics').select('*');
         const { data: edgesData } = await supabase.from('PGcode_roadmap_edges').select('*');
 
-        const groupColors = {
-          'Foundation': '#4285f4',
-          'Structures': '#a142f4',
-          'Algorithms': '#34a853',
-          'Advanced': '#fbbc04',
-          'Optimization': '#ea4335',
-          'Expert': '#ea4335',
-          'Synthesis': '#9aa0a6'
-        };
-
         if (topicsData && topicsData.length > 0) {
-          // Filter out the 'first-order' topic box as requested
           const filteredTopics = topicsData.filter(t => t.id !== 'first-order');
 
           const dbNodes = filteredTopics.map(t => ({
             id: t.id,
             type: 'custom',
-            // FORCE RIGID POSITIONING
             position: rigidGrid[t.id] || { x: 0, y: 0 },
             data: { 
               label: t.name,
               category: t.category,
-              group_name: t.group_name
+              group_name: t.group_name,
+              id: t.id
             },
             ...t
           }));
 
-          // Add Background Labels
-          const labelNodes = sideLabels.map(lbl => ({
+          // Text-only Headers on the left
+          const headerNodes = sideLabels.map(lbl => ({
             id: lbl.id,
-            type: 'label',
-            position: { x: -250, y: lbl.y + 10 },
+            type: 'sectionHeader',
+            position: { x: -200, y: lbl.y },
             data: { label: lbl.label },
             draggable: false,
             selectable: false
           }));
 
-          // Re-route logic: If source or target was 'first-order', bypass it
-          const filteredEdges = [];
-          (edgesData || []).forEach(e => {
-            if (e.source === 'first-order' || e.target === 'first-order') {
-               // Re-routing logic based on Image 3
-               if (e.source === '2d-dp' && e.target === 'first-order') {
-                  filteredEdges.push({ source: '2d-dp', target: 'math' });
-                  filteredEdges.push({ source: '2d-dp', target: 'bit-manipulation' });
-               } else if (e.source === 'advanced-graphs' && e.target === 'first-order') {
-                  filteredEdges.push({ source: 'advanced-graphs', target: 'bit-manipulation' });
-                  filteredEdges.push({ source: 'advanced-graphs', target: 'geometry' });
-               }
-               // Skip other edges involving first-order as they are bypassed
-               return;
-            }
-            filteredEdges.push(e);
-          });
+          // Tier-based Orphan Protection (Ensures every node is reachable)
+          const tierGroups = {
+            1: ['arrays', 'strings'],
+            2: ['stack', 'queue', 'linkedlist'],
+            3: ['two-pointers', 'binary-search', 'sliding-window'],
+            4: ['trees', 'tries', 'graphs', 'heap'],
+            5: ['recursion', 'dp', 'backtracking', 'greedy', 'intervals'],
+            6: ['2d-dp', 'advanced-graphs'],
+            7: ['math', 'bit-manipulation', 'geometry']
+          };
 
-          const dbEdges = filteredEdges.map((e, idx) => {
-            const sourceNode = topicsData.find(tn => tn.id === e.source);
-            const color = sourceNode ? groupColors[sourceNode.group_name] : '#b0b8c4';
-            return {
-              id: `edge-${idx}-${e.source}-${e.target}`,
+          const dbEdges = (edgesData || [])
+            .filter(e => {
+              const sPos = rigidGrid[e.source];
+              const tPos = rigidGrid[e.target];
+              return sPos && tPos && sPos.y < tPos.y;
+            })
+            .map((e, idx) => ({
+              id: `edge-${idx}`,
               source: e.source,
               target: e.target,
-              type: 'straight',
+              type: 'default',
               animated: false,
-              style: { stroke: color, strokeWidth: 2, opacity: 0.6 },
-              markerEnd: { type: MarkerType.ArrowClosed, color }
-            };
-          });
+              style: { stroke: 'var(--accent)', strokeWidth: 1.5, opacity: 0.3 },
+              markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--accent)' }
+            }));
 
-          setNodes([...labelNodes, ...dbNodes]);
+          // Process tiers from top-to-bottom to fix 'orphans'
+          for (let t = 2; t <= 7; t++) {
+            const currentTierNodes = tierGroups[t];
+            const parentTierNodes = tierGroups[t - 1];
+
+            currentTierNodes.forEach(childId => {
+              // If node exists in filtered topics and has no incoming edge
+              if (filteredTopics.some(ft => ft.id === childId) && !dbEdges.some(e => e.target === childId)) {
+                // Find horizontally closest parent in the tier above
+                let closestParent = parentTierNodes[0];
+                let minDistance = Infinity;
+
+                parentTierNodes.forEach(parentId => {
+                  const dist = Math.abs((rigidGrid[parentId]?.x || 0) - (rigidGrid[childId]?.x || 0));
+                  if (dist < minDistance) {
+                    minDistance = dist;
+                    closestParent = parentId;
+                  }
+                });
+
+                // Inject the missing connection
+                dbEdges.push({
+                  id: `auto-edge-${closestParent}-${childId}`,
+                  source: closestParent,
+                  target: childId,
+                  type: 'default',
+                  style: { stroke: 'var(--accent)', strokeWidth: 1.5, opacity: 0.3 },
+                  markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--accent)' }
+                });
+              }
+            });
+          }
+
+          setNodes([...headerNodes, ...dbNodes]);
           setEdges(dbEdges);
         }
       } catch (err) {
@@ -181,9 +203,9 @@ export default function RoadmapView() {
         onNodeClick={onNodeClick}
         fitView
         attributionPosition="bottom-right"
-        minZoom={0.2}
+        minZoom={0.1}
       >
-        <Background color="var(--border)" gap={20} />
+        <Background color="var(--border)" gap={24} size={1} />
         <Controls />
       </ReactFlow>
 

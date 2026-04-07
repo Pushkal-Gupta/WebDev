@@ -7,8 +7,8 @@
 }
 
 .dryRunHeader {
-  padding: 1rem;
-  background: var(--card-bg);
+  padding: 0.8rem 1.5rem;
+  background: var(--surface);
   border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
@@ -24,9 +24,9 @@
 .controlBtn {
   background: none;
   border: 1px solid var(--border);
-  color: var(--text-main);
-  padding: 0.5rem;
-  border-radius: 4px;
+  color: var(--text-dim);
+  padding: 0.4rem;
+  border-radius: 3px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -64,14 +64,19 @@
 }
 
 .sim-status {
-  padding: 1rem;
-  background: var(--card-bg);
-  border-left: 4px solid var(--accent);
-  color: var(--text-h);
-  font-family: var(--sans);
-  border-radius: 4px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  min-width: 300px;
+  padding: 1.2rem;
+  background: var(--surface);
+  border-bottom: 2px solid var(--accent);
+  color: var(--text-main);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 0;
+  box-shadow: none;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  min-width: 320px;
   text-align: center;
 }
 
@@ -95,19 +100,19 @@
 }
 
 .sim-element-val {
-  width: 50px;
-  height: 50px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--border);
-  border-radius: 8px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
   font-family: var(--mono);
-  font-size: 1.25rem;
-  font-weight: 600;
-  background: var(--card-bg);
-  color: var(--text-h);
-  transition: all 0.3s ease;
+  font-size: 1.1rem;
+  font-weight: 700;
+  background: var(--surface);
+  color: var(--text-main);
+  transition: all var(--t);
 }
 
 .active-pointer .sim-element-val {
@@ -139,12 +144,12 @@
 }
 
 .sim-hashset-container {
-  border: 2px dashed var(--border);
+  border: 1px solid var(--border);
   padding: 1.5rem;
-  border-radius: 12px;
+  border-radius: 6px;
   min-width: 300px;
   text-align: center;
-  background: rgba(0,0,0,0.02);
+  background: var(--surface);
 }
 
 .sim-hashset-container h4 {
@@ -180,17 +185,17 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: var(--card-bg);
+  background: var(--bg);
   border: 1px solid var(--accent);
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-  width: 80%;
-  max-width: 500px;
-  z-index: 10;
+  padding: 2.5rem;
+  border-radius: 4px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.9);
+  width: 90%;
+  max-width: 480px;
+  z-index: 1000;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.8rem;
 }
 
 .questionText {

@@ -21,7 +21,8 @@
   height: calc(100vh - 70px);
   width: 100%;
   overflow: hidden;
-  flex-direction: row; /* Default layout */
+  flex-direction: row;
+  background: var(--bg);
 }
 
 .workspace-left-panel {
@@ -35,35 +36,43 @@
 }
 
 .workspace-panel-header {
-  padding: 1rem 1.5rem;
+  padding: 1.4rem 2rem;
   border-bottom: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.6rem;
+  background: var(--bg);
 }
 
 .workspace-topic-title {
   margin: 0;
-  font-size: 1.2rem;
-  font-family: var(--mono);
+  font-size: 1.15rem;
+  font-family: var(--serif);
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
 }
 
 .problem-tabs-row {
   display: flex;
   border-bottom: 1px solid var(--border);
-  background: var(--card-bg);
-  padding: 0 1rem;
+  background: var(--surface);
+  padding: 0 1.5rem;
   overflow-x: auto;
 }
 
 .prob-tab-item {
-  padding: 0.75rem 1rem;
-  font-size: 0.85rem;
+  padding: 0.8rem 1.2rem;
+  font-size: 0.65rem;
   font-family: var(--mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   cursor: pointer;
   border-bottom: 2px solid transparent;
   white-space: nowrap;
   color: var(--text-dim);
+  transition: color var(--t);
 }
 
 .prob-tab-item.active {
@@ -95,8 +104,11 @@
 }
 
 .problem-description {
-  margin-bottom: 2rem;
-  font-size: 0.95rem;
+  margin-bottom: 2.5rem;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--text-main);
+  font-family: var(--sans);
 }
 
 .video-container {
@@ -141,14 +153,14 @@
 }
 
 .panel-header-editor {
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.5rem;
   border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: var(--card-bg);
-  flex-wrap: wrap; /* Allows wrap on tiny screens */
-  gap: 0.5rem;
+  background: var(--surface);
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .editor-mode-toggle {
@@ -162,11 +174,14 @@
   border: none;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   font-family: var(--mono);
-  font-size: 0.9rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0.4rem 0;
   transition: color var(--t);
   color: var(--text-dim);
 }

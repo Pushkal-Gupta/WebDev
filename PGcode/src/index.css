@@ -109,3 +109,32 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* Roadmap Arrow Enhancements */
+.react-flow__edge-path {
+  filter: drop-shadow(0 0 3px rgba(148, 163, 184, 0.3));
+  transition: all 0.3s ease;
+}
+
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke: var(--accent) !important;
+  stroke-width: 3px !important;
+  filter: drop-shadow(0 0 5px var(--accent));
+}
+
+.react-flow__controls {
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.react-flow__controls-button {
+  background: var(--bg) !important;
+  fill: var(--text) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+.react-flow__controls-button:hover {
+  background: var(--accent-bg) !important;
+}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X, PlayCircle } from 'lucide-react';
+import { X, PlayCircle, Star, CheckCircle, ExternalLink, Video, FileText, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './TopicModal.css';
@@ -10,7 +10,6 @@ export default function TopicModal({ topic, onClose }) {
 
   useEffect(() => {
     async function loadProblems() {
-      // In case Supabase fails or data is not populated yet:
       try {
         const { data, error } = await supabase
           .from('PGcode_problems')
@@ -30,6 +29,16 @@ export default function TopicModal({ topic, onClose }) {
 
   if (!topic) return null;
 
+  // Split title and tags
+  const rawTitle = topic.data?.label || topic.name || '';
+  const [mainTitle, ...tagParts] = rawTitle.split('\\n');
+  const tags = tagParts.join(' ').split(',').map(t => t.trim()).filter(Boolean);
+
+  // Mock progress for UI
+  const completedCount = problems.filter(p => p.is_completed).length;
+  const totalCount = problems.length;
+  const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+
   return (
     <div className="topicModalOverlay" onClick={(e) => {
       if (e.target.className === 'topicModalOverlay') onClose();
@@ -37,53 +46,81 @@ export default function TopicModal({ topic, onClose }) {
       <div className="topicModalContent">
         
         <div className="topicModalHeader">
-          <h2>{topic.data?.label || topic.name}</h2>
+          <button className="backBtn" onClick={onClose}>
+            <ChevronLeft size={18} />
+            <span>Back</span>
+          </button>
+          
+          <div className="headerCenter">
+            <h2 className="modalMainTitle">{mainTitle}</h2>
+            <div className="progressFraction">({completedCount} / {totalCount})</div>
+            <div className="modalProgressBar">
+              <div className="modalProgressFill" style={{ width: `${progressPercent}%` }}></div>
+            </div>
+          </div>
+
           <button className="closeBtn" onClick={onClose}><X size={20} /></button>
         </div>
 
-        {/* Example statically resolving YouTube embed based on data if available, or fallback */}
-        {topic.topic_video_url ? (
-          <div className="videoContainer">
-            <iframe 
-              src={`https://www.youtube.com/embed/${topic.topic_video_url}`} 
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-              allowFullScreen
-            ></iframe>
-          </div>
-        ) : (
-          <div className="videoContainer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: 'var(--text-dim)'}}>
-            <PlayCircle size={48} style={{ marginBottom: '1rem'}} />
-            <p>No explanatory video found for this topic</p>
-          </div>
-        )}
-
         <div className="topicModalBody">
-          <div>
-            <h3 className="topicSectionTitle">Problems in this Topic</h3>
+          {tags.length > 0 && (
+            <div className="prerequisitesSection">
+              <span className="sectionLabel">Tags / Details</span>
+              <div className="tagList">
+                {tags.map((tag, i) => (
+                  <div key={i} className="topicTag">{tag}</div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="problemTableSection">
+            <div className="tableHeader">
+              <div className="col-status">Status</div>
+              <div className="col-star">Star</div>
+              <div className="col-problem">Problem</div>
+              <div className="col-diff">Difficulty</div>
+              <div className="col-sol">Solution</div>
+            </div>
+
             {loading ? (
-              <p style={{color: 'var(--text-dim)', fontFamily: 'var(--mono)'}}>Loading problems...</p>
-            ) : problems.length > 0 ? (
-              <div className="problemList">
+              <div className="loadingState">Loading patterns...</div>
+            ) : (
+              <div className="tableBody">
                 {problems.map(prob => (
-                  <div key={prob.id} className="problemRow">
-                    <div className="problemInfo">
-                      <span className="problemTitle">{prob.name}</span>
-                      <span className={`diff-badge diff-${prob.difficulty.toLowerCase()}`}>
-                        {prob.difficulty}
-                      </span>
+                  <div key={prob.id} className="tableRow">
+                    <div className="col-status">
+                      <CheckCircle size={18} className={prob.is_completed ? "status-done" : "status-todo"} />
+                    </div>
+                    <div className="col-star">
+                      <Star size={18} className={prob.is_starred ? "star-active" : "star-inactive"} />
+                    </div>
+                    <div className="col-problem">
+                      <Link to={`/category/${topic.id}/${prob.id}`} className="problemLink">
+                        {prob.name}
+                        <ExternalLink size={12} className="linkIcon" />
+                      </Link>
+                    </div>
+                    <div className={`col-diff diff-${prob.difficulty.toLowerCase()}`}>
+                      {prob.difficulty}
+                    </div>
+                    <div className="col-sol">
+                      <div className="solIcons">
+                        <Video size={16} title="Video Solution" />
+                        <FileText size={16} title="Code Template" />
+                      </div>
                     </div>
                   </div>
                 ))}
+                {problems.length === 0 && (
+                  <div className="emptyState">No problems added to this collection yet.</div>
+                )}
               </div>
-            ) : (
-              <p style={{color: 'var(--text-dim)', fontFamily: 'var(--mono)'}}>
-                Ready to dive in? Head to the workspace to start coding!
-              </p>
             )}
           </div>
-
+          
           <Link to={`/category/${topic.id}`} className="enterWorkspaceBtn">
-            ENTER WORKSPACE
+            ENTER INTERACTIVE WORKSPACE
           </Link>
         </div>
       </div>

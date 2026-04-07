@@ -1,36 +1,53 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap');
-
 :root {
-  --mono: 'Space Mono', monospace;
-  --serif: 'Lora', serif;
-  --sans: 'Inter', sans-serif;
+  --mono: "Space Mono", monospace;
+  --serif: "Lora", serif;
+  --sans: "Inter", sans-serif;
   --t: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  
+
+  /* Dark mode (default) */
   --bg: #030a0a;
+  --surface: #060e0e;
   --text-main: #ffffff;
   --text-dim: #4a7370;
   --accent: #00fff5;
   --border: #0f2b29;
   --card-bg: #060e0e;
   --hover-box: rgba(0, 255, 245, 0.04);
-  
-  --easy: #00b8a3;
-  --medium: #ffc01e;
-  --hard: #ff375f;
+
+  /* Status Colors (PG Standard) */
+  --easy: #4caf50;
+  --medium: #f0a500;
+  --hard: #ef4444;
+
+  /* Workspace Colors */
+  --blue: #3b82f6;
+  --blue-bg: #1a2540;
+  --blue-bar: #1e3a6e;
+  --violet: #8b5cf6;
+  --violet-bg: #1e1a34;
+  --violet-bar: #2d1f5e;
+  --green: #22c55e;
+  --green-bg: #0f2d1a;
+  --green-bar: #1a4a2a;
+  --orange: #f97316;
+  --orange-bg: #2d1a0a;
+  --orange-bar: #4a2a0e;
+  --red: #ef4444;
+  --red-bg: #2d0f0f;
+  --red-bar: #4a1a1a;
+  --yellow: #eab308;
+  --yellow-bg: #2d250a;
 }
 
 [data-theme="light"] {
   --bg: #f7f5f2;
+  --surface: #ffffff;
   --text-main: #111111;
   --text-dim: #999999;
   --accent: #007a70;
   --border: #dedbd5;
   --card-bg: #ffffff;
   --hover-box: rgba(0, 122, 112, 0.05);
-  
-  --easy: #008a7b;
-  --medium: #d49a00;
-  --hard: #cc2548;
 }
 
 body {
@@ -40,55 +57,14 @@ body {
   font-family: var(--sans);
   -webkit-font-smoothing: antialiased;
   transition: background var(--t), color var(--t);
-  line-height: 1.5;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-/* React Flow customizations */
-.react-flow__node {
-  border-radius: 8px;
-  background: var(--card-bg) !important;
-  border: 1px solid var(--border) !important;
-  color: var(--text-main) !important;
-  padding: 1rem 1.5rem !important;
-  width: 180px;
-  text-align: center;
-  font-family: var(--mono);
-  font-size: 0.9rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: all var(--t);
-}
-
-.react-flow__node:hover {
-  background: var(--hover-box) !important;
-  border-color: var(--accent) !important;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 255, 245, 0.1);
-}
-
-.react-flow__edge-path {
-  stroke: var(--border) !important;
-  stroke-width: 2 !important;
-}
-
-/* Typography styles */
-h1, h2, h3 {
-  font-family: var(--serif);
-  margin-top: 0;
+  line-height: 1.6;
 }
 
 .brand {
   font-family: var(--serif);
-  font-size: 1.25rem;
   font-weight: 600;
+  letter-spacing: -0.01em;
   color: var(--text-main);
-  text-decoration: none;
-}
-.brand span {
-  color: var(--accent);
 }
 
 /* Button & Link styles */
@@ -96,24 +72,39 @@ button {
   cursor: pointer;
   font-family: var(--mono);
 }
+
 .btn-primary {
   background: var(--accent);
-  color: #000;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  font-weight: bold;
-  transition: opacity var(--t);
-}
-.btn-primary:hover {
-  opacity: 0.8;
+  color: var(--bg);
+  border: 1px solid var(--accent);
+  padding: 0.38rem 0.8rem;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  transition: background var(--t), color var(--t), opacity var(--t);
 }
 
-.diff-badge {
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  padding: 0 4px;
+.btn-primary:hover {
+  opacity: 0.85;
 }
-.diff-easy { color: var(--easy); }
-.diff-medium { color: var(--medium); }
-.diff-hard { color: var(--hard); }
+
+.btn-outline {
+  background: none;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 0.38rem 0.8rem;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  transition: background var(--t), color var(--t);
+}
+
+.btn-outline:hover {
+  background: var(--accent);
+  color: var(--bg);
+}
+
