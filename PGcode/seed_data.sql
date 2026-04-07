@@ -23,9 +23,10 @@ VALUES
 ('linkedlist', 'Linked List\nSingly, doubly, fast-slow', 'Structures', 'Structures', '3OamzN90kPg', 400, 250),
 
 -- Algorithms
-('two-pointers', 'Two Pointers\nOpposite ends, same dir', 'Algorithms', 'Algorithms', '3OamzN90kPg', 600, 350),
-('binary-search', 'Binary Search\nSorted arrays, bounds', 'Algorithms', 'Algorithms', '3OamzN90kPg', 450, 450),
-('sliding-window', 'Sliding Window\nSubarray, substring', 'Algorithms', 'Algorithms', '3OamzN90kPg', 750, 450),
+('recursion', 'Recursion\nBase cases, stack', 'Algorithms', 'Algorithms', '3OamzN90kPg', 0, 350),
+('two-pointers', 'Two Pointers\nOpposite ends, same dir', 'Algorithms', 'Algorithms', '3OamzN90kPg', 200, 350),
+('binary-search', 'Binary Search\nSorted arrays, bounds', 'Algorithms', 'Algorithms', '3OamzN90kPg', 400, 350),
+('sliding-window', 'Sliding Window\nSubarray, substring', 'Algorithms', 'Algorithms', '3OamzN90kPg', 600, 350),
 
 -- Advanced
 ('trees', 'Trees\nBST, DFS, BFS, traversal', 'Advanced', 'Structures', '3OamzN90kPg', 200, 550),
@@ -47,7 +48,7 @@ VALUES
 ('first-order', 'First-order thinking\nPattern recognition', 'Synthesis', 'Synthesis', '3OamzN90kPg', 500, 1150),
 ('math', 'Math\nPrimes, GCD, modulo', 'Synthesis', 'Math', '3OamzN90kPg', 300, 1250),
 ('bit-manipulation', 'Bit Manipulation\nAND, OR, XOR tricks', 'Synthesis', 'Math', '3OamzN90kPg', 550, 1250),
-('geometry', 'Geo\nGeometry', 'Synthesis', 'Math', '3OamzN90kPg', 800, 1250)
+('geometry', 'Geometry\nCoordinate systems', 'Synthesis', 'Math', '3OamzN90kPg', 800, 1250)
 ON CONFLICT (id) DO NOTHING;
 
 -- 3. Map all roadmap edges
