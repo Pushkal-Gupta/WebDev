@@ -30,11 +30,13 @@ const topicMetadata = {
 export default function TopicNode({ data }) {
   const parts = (data.label || '').split(/\\n|\n/);
   const mainTitle = parts[0].trim();
-  
   const meta = topicMetadata[data.id] || { num: '??' };
+  
+  const { total = 0, completed = 0 } = data.progress || {};
+  const progressPercent = total > 0 ? (completed / total) * 100 : 0;
 
   return (
-    <div className="topic-node-container">
+    <div className="topic-node-container" id={`node-${data.id}`}>
       <Handle type="target" position={Position.Top} className="handle" />
       
       <div className="topic-node-content">
@@ -43,7 +45,10 @@ export default function TopicNode({ data }) {
            {meta.star && <span className="topic-node-star">★</span>}
         </div>
         <span className="topic-node-title">{mainTitle}</span>
-        <div className="topic-node-progress" />
+      </div>
+
+      <div className="topic-node-progress-container">
+        <div className="topic-node-progress-fill" style={{ width: `${progressPercent}%` }} />
       </div>
 
       <Handle type="source" position={Position.Bottom} className="handle" />

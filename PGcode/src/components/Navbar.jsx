@@ -14,15 +14,12 @@ export default function Navbar({ session, theme, toggleTheme }) {
       <div className="pg-wrap">
         <div className="navbar-group">
           <div className="nav-left">
-            <a href="https://pushkalgupta.com/PG/main.html" className="back-link">
-              <ArrowLeft size={16} />
-              <span>PG Online</span>
+            <a href="https://pushkalgupta.com/PG/main.html" className="pgcode-nav-link">
+              <ArrowLeft size={18} className="hover-arrow" />
+              <span className="brand-name">Pushkal Gupta</span>
+              <span className="brand-suffix">Code</span>
             </a>
           </div>
-          
-          <a href="#/" className="brand-link">
-            PG<span>Code</span>
-          </a>
           
           <div className="navbar-right">
             <div className="toggle-wrap" onClick={toggleTheme}>

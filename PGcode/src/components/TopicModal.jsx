@@ -1,12 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { X, PlayCircle, Star, CheckCircle, ExternalLink, Video, FileText, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './TopicModal.css';
 
+const difficultyOrder = { 'Easy': 0, 'Medium': 1, 'Hard': 2 };
+
 export default function TopicModal({ topic, onClose }) {
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [width, setWidth] = useState(parseInt(localStorage.getItem('pgcode_sidebar_width')) || 500);
+  const isResizing = useRef(false);
 
   useEffect(() => {
     async function loadProblems() {
@@ -17,7 +21,12 @@ export default function TopicModal({ topic, onClose }) {
           .eq('topic_id', topic.id);
         
         if (error) throw error;
-        setProblems(data || []);
+        
+        const sorted = data ? [...data].sort((a, b) => 
+          difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty]
+        ) : [];
+        
+        setProblems(sorted);
       } catch (err) {
         console.error("Error fetching problems:", err);
       } finally {
@@ -27,14 +36,35 @@ export default function TopicModal({ topic, onClose }) {
     loadProblems();
   }, [topic.id]);
 
+  const handleMouseDown = (e) => {
+    isResizing.current = true;
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    document.body.style.cursor = 'ew-resize';
+  };
+
+  const handleMouseMove = useCallback((e) => {
+    if (!isResizing.current) return;
+    const newWidth = window.innerWidth - e.clientX;
+    if (newWidth > 400 && newWidth < 900) {
+      setWidth(newWidth);
+    }
+  }, []);
+
+  const handleMouseUp = useCallback(() => {
+    isResizing.current = false;
+    localStorage.setItem('pgcode_sidebar_width', width);
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+    document.body.style.cursor = 'default';
+  }, [width, handleMouseMove]);
+
   if (!topic) return null;
 
-  // Split title and tags
   const rawTitle = topic.data?.label || topic.name || '';
   const [mainTitle, ...tagParts] = rawTitle.split('\\n');
   const tags = tagParts.join(' ').split(',').map(t => t.trim()).filter(Boolean);
 
-  // Mock progress for UI
   const completedCount = problems.filter(p => p.is_completed).length;
   const totalCount = problems.length;
   const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
@@ -43,7 +73,8 @@ export default function TopicModal({ topic, onClose }) {
     <div className="topicModalOverlay" onClick={(e) => {
       if (e.target.className === 'topicModalOverlay') onClose();
     }}>
-      <div className="topicModalContent">
+      <div className="topicModalContent" style={{ width: `${width}px` }}>
+        <div className="resize-handle" onMouseDown={handleMouseDown} />
         
         <div className="topicModalHeader">
           <button className="backBtn" onClick={onClose}>
@@ -113,7 +144,7 @@ export default function TopicModal({ topic, onClose }) {
                   </div>
                 ))}
                 {problems.length === 0 && (
-                  <div className="emptyState">No problems added to this collection yet.</div>
+                  <div className="emptyState">No problems added ... Yet.</div>
                 )}
               </div>
             )}
