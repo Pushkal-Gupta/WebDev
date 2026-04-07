@@ -92,6 +92,7 @@ const initialState = {
   gameResult: null,       // { winner: 'white'|'black'|'draw', reason: string }
   gameCategory: null,     // 'bullet'|'blitz'|'rapid'|'classical' — derived from timeControl
   onlineOpponentId: null, // opponent's auth user ID (set when online game starts)
+  premove: null,          // { from: {row,col}, to: {row,col}|null } — queued premove
 };
 
 const useGameStore = create((set, get) => ({
@@ -146,6 +147,7 @@ const useGameStore = create((set, get) => ({
       gameResult: null,
       gameCategory: timeControl?.cat?.toLowerCase() || null,
       onlineOpponentId: null,
+      premove: null,
     });
   },
 
@@ -188,19 +190,71 @@ const useGameStore = create((set, get) => ({
       gameResult: null,
       gameCategory: timeControl?.cat?.toLowerCase() || null,
       onlineOpponentId: null,
+      premove: null,
     });
   },
 
   selectSquare: (row, col) => {
-    const { chessInstance, selectedSquare, validMoves, gameOver, disableBoard, activeColor, isComp, compColor, isOnline, onlineColor, currentMoveIndex, moveHistory } = get();
-    if (!chessInstance || gameOver || disableBoard) return;
+    const { chessInstance, selectedSquare, validMoves, gameOver, disableBoard, activeColor, isComp, compColor, isOnline, onlineColor, currentMoveIndex, moveHistory, premove } = get();
+    if (!chessInstance || gameOver) return;
 
-    // If viewing history, don't allow moves
+    // If viewing history, don't allow moves or premoves
     if (currentMoveIndex !== moveHistory.length - 1 && moveHistory.length > 0) return;
 
     const file = String.fromCharCode('a'.charCodeAt(0) + col);
     const rank = String(8 - row);
     const square = file + rank;
+    const piece = chessInstance.get(square);
+    const turn = chessInstance.turn();
+
+    // Determine if it's the opponent's turn (premove mode)
+    let myColor = null;
+    let isOpponentTurn = false;
+    if (isComp) {
+      myColor = compColor === 'white' ? 'b' : 'w';
+      isOpponentTurn = turn !== myColor;
+    } else if (isOnline) {
+      myColor = onlineColor === 'white' ? 'w' : 'b';
+      isOpponentTurn = turn !== myColor;
+    }
+
+    // ── Premove mode: opponent's turn ──────────────────────────────────────────
+    if (isOpponentTurn && (isComp || isOnline)) {
+      const pmFrom = premove?.from;
+
+      if (pmFrom) {
+        // We have a premove source selected
+        if (pmFrom.row === row && pmFrom.col === col) {
+          // Clicked same source → deselect
+          set({ premove: null });
+          return;
+        }
+        if (piece && piece.color === myColor) {
+          // Clicked another own piece → change premove source
+          set({ premove: { from: { row, col }, to: null } });
+          return;
+        }
+        // Clicked a different square → set as premove destination
+        set({ premove: { from: pmFrom, to: { row, col } } });
+        return;
+      }
+
+      // No premove source yet
+      if (piece && piece.color === myColor) {
+        // Select own piece as premove source
+        set({ premove: { from: { row, col }, to: null } });
+      } else {
+        // Clear any existing premove
+        set({ premove: null });
+      }
+      return;
+    }
+
+    // ── Normal mode: player's turn ────────────────────────────────────────────
+    if (disableBoard) return;
+
+    // Clear premove when making a normal move
+    if (premove) set({ premove: null });
 
     // If clicking a valid move square
     const isValidMove = validMoves.some(m => m.row === row && m.col === col);
@@ -209,31 +263,10 @@ const useGameStore = create((set, get) => ({
       return;
     }
 
-    const piece = chessInstance.get(square);
-    const turn = chessInstance.turn();
-
-    // Can't select opponent's piece when it's your turn, or computer's turn
+    // Can't select opponent's piece
     if (!piece || piece.color !== turn) {
       set({ selectedSquare: null, validMoves: [], pawnPromotion: null });
       return;
-    }
-
-    // If playing vs computer, can't move if it's computer's turn
-    if (isComp) {
-      const isCompTurn = (compColor === 'white' && turn === 'w') || (compColor === 'black' && turn === 'b');
-      if (isCompTurn) {
-        set({ selectedSquare: null, validMoves: [] });
-        return;
-      }
-    }
-
-    // If playing online, can't move if it's opponent's turn
-    if (isOnline) {
-      const isMyTurn = (onlineColor === 'white' && turn === 'w') || (onlineColor === 'black' && turn === 'b');
-      if (!isMyTurn) {
-        set({ selectedSquare: null, validMoves: [] });
-        return;
-      }
     }
 
     const moves = chessInstance.moves({ square, verbose: true });
@@ -642,6 +675,20 @@ const useGameStore = create((set, get) => ({
 
   setCompThinking: (val) => set({ compThinking: val }),
   setDisableBoard: (val) => set({ disableBoard: val }),
+
+  // ── Premove ─────────────────────────────────────────────────────────────────
+  clearPremove: () => set({ premove: null }),
+
+  executePremove: () => {
+    const { premove, gameOver } = get();
+    if (!premove?.from || !premove?.to || gameOver) {
+      set({ premove: null });
+      return false;
+    }
+    const pm = premove;
+    set({ premove: null });
+    return get().makeMove(pm.from, pm.to);
+  },
   setGameResult: (val) => set({ gameResult: val }),
   setOnlineOpponentId: (val) => set({ onlineOpponentId: val }),
   setFlipped: (val) => set({ flipped: val }),

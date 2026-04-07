@@ -55,7 +55,17 @@ export function usePieceResolver() {
 
 /**
  * Get the fallback src for onError handlers.
+ * Falls back to a local piece set that matches the active source type,
+ * then to the default local pieces as a last resort.
  */
 export function getFallbackUrl(pieceType, color) {
-  return fallbackUrl(pieceType, color);
+  const pieceSetId = useThemeStore.getState().pieceSetId;
+  const pieceSet = getPieceSetById(pieceSetId);
+  // If the active set is local, the primary and fallback are the same path — use default local instead
+  if (pieceSet?.source === 'local') {
+    return fallbackUrl(pieceType, color);
+  }
+  // For CDN sets (chesscom, lichess), fall back to the user's active local style
+  // by trying the classic local set first
+  return `./images/piecesClassic/${PIECE_NAMES[pieceType]}-${color === 'w' ? 'white' : 'black'}.png`;
 }
