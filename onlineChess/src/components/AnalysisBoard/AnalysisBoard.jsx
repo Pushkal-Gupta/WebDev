@@ -296,7 +296,11 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
     if (restoredRef.current) return;
     restoredRef.current = true;
     const saved = loadAnalysisState();
-    if (!saved?.pgn) return;
+    if (!saved?.pgn) {
+      // No saved state — initialize board so moves can be played immediately
+      importPgn('');
+      return;
+    }
     const ok = importPgn(saved.pgn);
     if (!ok) { clearAnalysisState(); return; }
     setLoadedPgn(saved.pgn);
@@ -901,7 +905,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                     <span className={styles.evalScore} style={{
                       top: flipped ? (displayPct >= 55 ? 'auto' : '4px') : (displayPct >= 55 ? '4px' : 'auto'),
                       bottom: flipped ? (displayPct >= 55 ? '4px' : 'auto') : (displayPct >= 55 ? 'auto' : '4px'),
-                      color: flipped ? (displayPct >= 55 ? '#1a1a1a' : '#eee') : (displayPct >= 55 ? '#eee' : '#1a1a1a'),
+                      color: flipped ? (displayPct >= 55 ? '#000' : '#eee') : (displayPct >= 55 ? '#eee' : '#000'),
                     }}>{formatEval(currentEval)}</span>
                   </div>
                   <div className={styles.boardWrap}>
@@ -1073,7 +1077,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                     <span className={styles.evalScore} style={{
                       top: flipped ? (displayPct >= 55 ? 'auto' : '4px') : (displayPct >= 55 ? '4px' : 'auto'),
                       bottom: flipped ? (displayPct >= 55 ? '4px' : 'auto') : (displayPct >= 55 ? 'auto' : '4px'),
-                      color: flipped ? (displayPct >= 55 ? '#1a1a1a' : '#eee') : (displayPct >= 55 ? '#eee' : '#1a1a1a'),
+                      color: flipped ? (displayPct >= 55 ? '#000' : '#eee') : (displayPct >= 55 ? '#eee' : '#000'),
                     }}>{formatEval(currentEval)}</span>
                   </div>
                   <div className={styles.boardWrap}>

@@ -4,6 +4,7 @@ import styles from './PuzzlePage.module.css';
 import useThemeStore from '../../store/themeStore';
 import { usePieceResolver, getFallbackUrl } from '../../utils/pieceResolver';
 import { FILE_LABELS, squareName, rankToRow, fileToCol, parseFen } from '../../utils/boardHelpers';
+import PromotionModal from '../modals/PromotionModal';
 
 function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveTo, hintSquare, moveIndex, totalMoves }) {
   const { clr1, clr2, clr1p, clr2p, clr1x, clr2x } = useThemeStore();
@@ -11,6 +12,7 @@ function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveT
   const [selected, setSelected] = useState(null);
   const [validMoves, setValidMoves] = useState([]);
   const [chess]     = useState(() => new Chess());
+  const [pendingPromotion, setPendingPromotion] = useState(null);
 
   const flipped   = playerColor === 'b';
   const rows      = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
@@ -20,10 +22,11 @@ function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveT
   useEffect(() => {
     setSelected(null);
     setValidMoves([]);
+    setPendingPromotion(null);
   }, [fen]);
 
   const handleCellClick = useCallback((row, col) => {
-    if (!interactive) return;
+    if (!interactive || pendingPromotion) return;
     chess.load(fen);
     const turn = chess.turn();
     if (playerColor !== turn) return;
@@ -33,6 +36,13 @@ function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveT
 
     const target = validMoves.find(m => m.row === row && m.col === col);
     if (target && selected) {
+      // Check if this square has multiple promotion options
+      const promoMoves = validMoves.filter(m => m.row === row && m.col === col && m.uci.length === 5);
+      if (promoMoves.length > 1) {
+        // Show promotion chooser
+        setPendingPromotion({ moves: promoMoves, row, col });
+        return;
+      }
       onMove(target.uci);
       setSelected(null);
       setValidMoves([]);
@@ -51,7 +61,16 @@ function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveT
       setSelected(null);
       setValidMoves([]);
     }
-  }, [fen, selected, validMoves, interactive, playerColor, onMove, chess]);
+  }, [fen, selected, validMoves, interactive, playerColor, onMove, chess, pendingPromotion]);
+
+  const handlePromotionSelect = useCallback((piece) => {
+    if (!pendingPromotion) return;
+    const move = pendingPromotion.moves.find(m => m.uci.endsWith(piece));
+    if (move) onMove(move.uci);
+    setPendingPromotion(null);
+    setSelected(null);
+    setValidMoves([]);
+  }, [pendingPromotion, onMove]);
 
   const board = parseFen(fen);
 
@@ -122,6 +141,12 @@ function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveT
       <div className={styles.progressBar}>
         <div className={styles.progressFill} style={{ width: `${totalMoves > 0 ? (moveIndex / totalMoves) * 100 : 0}%` }} />
       </div>
+      {pendingPromotion && (
+        <PromotionModal
+          color={playerColor === 'w' ? 'white' : 'black'}
+          onSelect={handlePromotionSelect}
+        />
+      )}
     </div>
   );
 }
