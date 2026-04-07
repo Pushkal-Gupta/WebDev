@@ -27,6 +27,7 @@ const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, pie
   const dotSize = useGameStore(s => s.dotSize);
   const gameStarted = useGameStore(s => s.gameStarted);
   const blindfoldMode = useGameStore(s => s.blindfoldMode);
+  const premove = useGameStore(s => s.premove);
 
   const pieceScale = usePrefsStore(s => s.pieceScale);
   const animationSpeed = usePrefsStore(s => s.animationSpeed);
@@ -50,9 +51,14 @@ const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, pie
   const isLastMoveTo = highlightLastMove && lastMove && lastMove.to.row === row && lastMove.to.col === col;
   const isInCheck = underCheck && underCheck.row === row && underCheck.col === col;
 
+  // Premove highlights
+  const isPremoveFrom = premove?.from?.row === row && premove?.from?.col === col;
+  const isPremoveTo = premove?.to?.row === row && premove?.to?.col === col;
+
   const isImageTheme = boardThemeType === 'image';
   let bgColor = isImageTheme ? 'transparent' : (isLight ? clr1 : clr2);
-  if (isInCheck) bgColor = isLight ? clr1c : clr2c;
+  if (isPremoveFrom || isPremoveTo) bgColor = isLight ? 'rgba(11, 106, 148, 0.45)' : 'rgba(11, 106, 148, 0.55)';
+  else if (isInCheck) bgColor = isLight ? clr1c : clr2c;
   else if (isSelected) bgColor = isLight ? clr1x : clr2x;
   else if (isLastMoveFrom || isLastMoveTo) bgColor = isLight ? clr1p : clr2p;
 
@@ -70,7 +76,9 @@ const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, pie
     e.dataTransfer.setData('fromRow', row);
     e.dataTransfer.setData('fromCol', col);
     setDraggingThis(true);
-  }, [row, col]);
+    // Also select the square for premove source tracking
+    selectSquare(row, col);
+  }, [row, col, selectSquare]);
 
   const handleDragEnd = useCallback(() => setDraggingThis(false), []);
   const handleDragOver = useCallback((e) => e.preventDefault(), []);
@@ -81,8 +89,10 @@ const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, pie
     const fromRow = parseInt(e.dataTransfer.getData('fromRow'));
     const fromCol = parseInt(e.dataTransfer.getData('fromCol'));
     if (fromRow === row && fromCol === col) return;
-    makeMove({ row: fromRow, col: fromCol }, { row, col });
-  }, [makeMove, row, col, gameStarted]);
+    // Try normal move first; if it fails (e.g. opponent's turn), selectSquare handles premove
+    const ok = makeMove({ row: fromRow, col: fromCol }, { row, col });
+    if (!ok) selectSquare(row, col);
+  }, [makeMove, selectSquare, row, col, gameStarted]);
 
   // Corner class
   let cornerClass = '';
@@ -94,8 +104,8 @@ const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, pie
   // Labels
   const showFileLabel = showLabels && displayRow === 7;
   const showRankLabel = showLabels && displayCol === 0;
-  const fileLabel = FILE_LABELS[flipped ? 7 - col : col];
-  const rankLabel = flipped ? row + 1 : 8 - row;
+  const fileLabel = FILE_LABELS[col];
+  const rankLabel = 8 - row;
 
   const canDrag = piece && gameStarted;
 

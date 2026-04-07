@@ -282,7 +282,14 @@ export default function App() {
       } finally {
         setCompThinking(false);
         // Only re-enable board if game didn't just end (checkGameOver sets disableBoard=true)
-        if (!useGameStore.getState().gameOver) setDisableBoard(false);
+        if (!useGameStore.getState().gameOver) {
+          setDisableBoard(false);
+          // Execute premove if one was queued during computer's turn
+          const pm = useGameStore.getState().premove;
+          if (pm?.to) {
+            setTimeout(() => useGameStore.getState().executePremove(), 50);
+          }
+        }
       }
     };
 
@@ -431,6 +438,11 @@ export default function App() {
     // Only re-enable board if game didn't just end (checkmate/stalemate sets disableBoard:true)
     if (!useGameStore.getState().gameOver) {
       useGameStore.getState().setDisableBoard(false);
+      // Execute premove if one was queued
+      const pm = useGameStore.getState().premove;
+      if (pm?.to) {
+        setTimeout(() => useGameStore.getState().executePremove(), 50);
+      }
     }
   };
 
