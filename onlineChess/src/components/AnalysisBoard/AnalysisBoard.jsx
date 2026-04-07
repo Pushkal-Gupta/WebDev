@@ -289,6 +289,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
   const moveListRef  = useRef(null);
   const fileRef      = useRef(null);
   const restoredRef  = useRef(false);
+  const reviewAbortRef = useRef(null);
 
   // ── Restore state on mount ────────────────────────────────────────────────
 
@@ -469,17 +470,36 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
     e.target.value = '';
   };
 
+  const cancelReview = () => {
+    if (reviewAbortRef.current) {
+      reviewAbortRef.current.abort();
+      reviewAbortRef.current = null;
+    }
+    setIsReviewing(false);
+    setReviewProgress({ current: 0, total: 0 });
+  };
+
   const handleReview = async () => {
     if (!moveHistory.length) return;
+    // If already reviewing, cancel instead
+    if (isReviewing) { cancelReview(); return; }
+    const controller = new AbortController();
+    reviewAbortRef.current = controller;
     setIsReviewing(true); setReviewResults(null);
     setReviewProgress({ current: 0, total: moveHistory.length });
     setReportAnimated(false);
     try {
-      const results = await reviewGame(moveHistory, (current, total) => setReviewProgress({ current, total }));
-      setReviewResults(results);
-      setPanelTab('report');
-      setTimeout(() => setReportAnimated(true), 50);
-    } finally { setIsReviewing(false); setReviewProgress({ current: 0, total: 0 }); }
+      const results = await reviewGame(moveHistory, (current, total) => setReviewProgress({ current, total }), controller.signal);
+      if (!controller.signal.aborted) {
+        setReviewResults(results);
+        setPanelTab('report');
+        setTimeout(() => setReportAnimated(true), 50);
+      }
+    } finally {
+      setIsReviewing(false);
+      setReviewProgress({ current: 0, total: 0 });
+      reviewAbortRef.current = null;
+    }
   };
 
   const handleNewGame = () => {
@@ -678,7 +698,16 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
         <div className={styles.precomputeOverlay}>
           <div className={styles.precomputeCard}>
             <div className={styles.precomputeChess}>
-              <svg viewBox="0 0 45 45" width="64" height="64" className={styles.precomputeSpin}>
+              <svg viewBox="0 0 100 100" width="96" height="96" className={styles.precomputeRing}>
+                <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(0,255,245,0.08)" strokeWidth="3" />
+                <circle cx="50" cy="50" r="44" fill="none" stroke="#00fff5" strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeDasharray={`${2 * Math.PI * 44}`}
+                  strokeDashoffset={`${2 * Math.PI * 44 * (1 - (precomputeProgress.total ? precomputeProgress.current / precomputeProgress.total : 0))}`}
+                  style={{ transition: 'stroke-dashoffset 0.3s ease', transform: 'rotate(-90deg)', transformOrigin: '50% 50%' }}
+                />
+              </svg>
+              <svg viewBox="0 0 45 45" width="48" height="48" className={`${styles.precomputeSpin} ${styles.precomputeKingInner}`}>
                 <g fill="none" fillRule="evenodd" stroke="#00fff5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M22.5 11.63V6M20 8h5" strokeOpacity="0.9"/>
                   <path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="#00fff5" fillOpacity="0.15"/>
@@ -688,7 +717,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
             </div>
             <div className={styles.precomputeTitle}>Analysing Positions</div>
             <div className={styles.precomputeProgress}>
-              {precomputeProgress.current} / {precomputeProgress.total} positions
+              {Math.ceil(precomputeProgress.current / 2)} / {Math.ceil(precomputeProgress.total / 2)} moves
             </div>
             <div className={styles.precomputeBarTrack}>
               <div className={styles.precomputeBarFill} style={{
@@ -721,7 +750,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                 disabled={isReviewing || !moveHistory.length}
                 title="Review game"
               >
-                {isReviewing ? `${reviewProgress.current}/${reviewProgress.total}` : '\u27F3'}
+                {isReviewing ? `${Math.ceil(reviewProgress.current/2)}/${Math.ceil(reviewProgress.total/2)}` : '\u27F3'}
               </button>
               <button className={styles.iconBtn} onClick={handleNewGame} title="New analysis">&#x2715;</button>
             </div>
@@ -873,7 +902,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                 {isReviewing && (
                   <div className={styles.reviewingSection}>
                     <div className={styles.reviewingSpinner} />
-                    <span className={styles.reviewingText}>Analysing moves... {reviewProgress.current}/{reviewProgress.total}</span>
+                    <span className={styles.reviewingText}>Analysing moves... {Math.ceil(reviewProgress.current/2)}/{Math.ceil(reviewProgress.total/2)}</span>
                   </div>
                 )}
               </div>

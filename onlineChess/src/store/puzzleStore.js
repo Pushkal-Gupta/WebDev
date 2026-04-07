@@ -426,7 +426,7 @@ const usePuzzleStore = create((set, get) => ({
     let puzzleRow = null;
 
     try {
-      for (const window of [150, 300, 500]) {
+      for (const window of [150, 300, 500, 1000]) {
         const { data, error } = await supabase
           .from('puzzles')
           .select('id, fen, moves, rating, themes')
@@ -435,19 +435,24 @@ const usePuzzleStore = create((set, get) => ({
           .limit(20);
         if (error) {
           console.warn('Puzzle query error:', error.message);
-          break;
+          continue; // try wider window instead of giving up
         }
         if (data?.length) {
           puzzleRow = data[Math.floor(Math.random() * data.length)];
           break;
         }
       }
+      // Last resort: fetch any puzzle from the database
+      if (!puzzleRow) {
+        const { data } = await supabase.from('puzzles').select('id, fen, moves, rating, themes').limit(10);
+        if (data?.length) puzzleRow = data[Math.floor(Math.random() * data.length)];
+      }
     } catch (err) {
       console.warn('Puzzle fetch failed:', err.message);
     }
 
     if (!puzzleRow) {
-      set({ status: 'empty' });
+      set({ status: 'empty', errorMsg: 'No puzzles found. Check your connection and try again.' });
       return;
     }
 

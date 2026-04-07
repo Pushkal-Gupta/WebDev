@@ -13,10 +13,6 @@ export function squareName(row, col) {
 export function rankToRow(rankChar) { return 8 - parseInt(rankChar); }
 export function fileToCol(fileChar) { return FILE_LABELS.indexOf(fileChar); }
 
-/**
- * Parse a FEN string into an 8x8 board array.
- * Each cell is null or { type: 'p'|'n'|..., color: 'w'|'b' }.
- */
 export function uciToMove(uci) {
   return {
     from:      uci.slice(0, 2),
@@ -34,6 +30,10 @@ export function uciToCoords(uci) {
   return { from: [fromRow, fromCol], to: [toRow, toCol] };
 }
 
+/**
+ * Parse a FEN string into an 8x8 board array.
+ * Each cell is null or { type: 'p'|'n'|..., color: 'w'|'b' }.
+ */
 export function parseFen(fen) {
   if (!fen) return Array.from({ length: 8 }, () => Array(8).fill(null));
   const board = Array.from({ length: 8 }, () => Array(8).fill(null));

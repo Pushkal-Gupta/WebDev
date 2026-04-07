@@ -239,8 +239,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 10px 14px;
+  gap: 6px;
+  padding: 10px 8px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
@@ -250,6 +250,8 @@
   font-size: 0.82rem;
   font-weight: 600;
   transition: all 0.15s;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .colorBtn:hover {
@@ -269,6 +271,45 @@
   height: 16px;
   border-radius: 50%;
   flex-shrink: 0;
+}
+
+/* ─── Custom Time Input ──────────────────────────────────────────────────── */
+
+.customInputs {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.customLabel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.customInput {
+  width: 100%;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.customInput:focus {
+  border-color: rgba(0, 255, 245, 0.5);
 }
 
 /* ─── Start Button ────────────────────────────────────────────────────────── */

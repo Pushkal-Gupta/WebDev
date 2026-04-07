@@ -40,8 +40,11 @@ function uciToSan(fen, uci) {
 /**
  * Review all moves in a game.
  * Returns array of { classification, diff, bestScore, playedScore, bestMoveSan }
+ * @param {Array} moveHistory
+ * @param {function} onProgress - (current, total) callback
+ * @param {AbortSignal} [signal] - optional abort signal to cancel mid-review
  */
-export async function reviewGame(moveHistory, onProgress) {
+export async function reviewGame(moveHistory, onProgress, signal) {
   if (!moveHistory.length) return [];
   const results = [];
 
@@ -49,6 +52,7 @@ export async function reviewGame(moveHistory, onProgress) {
   let theoryStreak = 0;
 
   for (let i = 0; i < moveHistory.length; i++) {
+    if (signal?.aborted) return results; // return partial results on cancel
     const fenBefore = i === 0 ? START_FEN : moveHistory[i - 1].fen;
     const fenAfter  = moveHistory[i].fen;
     const isWhite   = moveHistory[i].color === 'w';
