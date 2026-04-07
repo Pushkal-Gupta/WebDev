@@ -353,15 +353,23 @@
 
 /* Review progress */
 .reviewProgress {
-  height: 2px;
-  background: rgba(0, 100, 255, 0.08);
+  height: 3px;
+  background: rgba(0, 255, 245, 0.06);
   flex-shrink: 0;
 }
 
 .reviewBar {
   height: 100%;
-  background: linear-gradient(90deg, rgba(0, 100, 255, 0.6), rgba(0, 180, 255, 0.8));
+  background: linear-gradient(90deg, #00ccaa, #00fff5, #00ccaa);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
   transition: width 0.2s ease;
+  box-shadow: 0 0 6px rgba(0, 255, 245, 0.25);
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
@@ -1314,6 +1322,25 @@
   justify-content: center;
 }
 
+.precomputeChess {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 96px;
+}
+
+.precomputeRing {
+  position: absolute;
+  inset: 0;
+  filter: drop-shadow(0 0 8px rgba(0, 255, 245, 0.3));
+}
+
+.precomputeKingInner {
+  position: absolute;
+}
+
 .precomputeSpin {
   animation: precomputePulse 2s ease-in-out infinite;
 }
@@ -1339,17 +1366,25 @@
 
 .precomputeBarTrack {
   width: 100%;
-  height: 4px;
-  border-radius: 2px;
+  height: 6px;
+  border-radius: 3px;
   background: rgba(255, 255, 255, 0.06);
   overflow: hidden;
 }
 
 .precomputeBarFill {
   height: 100%;
-  border-radius: 2px;
-  background: linear-gradient(90deg, #00fff5, #00ccaa);
+  border-radius: 3px;
+  background: linear-gradient(90deg, #00ccaa, #00fff5, #00ccaa);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
   transition: width 0.3s ease;
+  box-shadow: 0 0 8px rgba(0, 255, 245, 0.3);
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 .precomputeHint {

@@ -1027,7 +1027,7 @@ export default function App() {
                 <button className="board-ctrl-btn" onClick={() => setFlipped(!flipped)} title="Flip board">
                   <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
                 </button>
-                <button className="board-ctrl-btn" onClick={undoMove} disabled={!gameStarted || gameOver} title="Undo">
+                <button className="board-ctrl-btn" onClick={() => isComp ? undoTwoMoves() : undoMove()} disabled={!gameStarted || gameOver} title="Undo">
                   <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 10h10a5 5 0 015 5v2M3 10l5-5M3 10l5 5"/></svg>
                 </button>
                 <button className="board-ctrl-btn" onClick={redoMove} disabled={!gameStarted || gameOver} title="Redo">
