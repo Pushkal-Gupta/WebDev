@@ -43,6 +43,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<RoadmapView />} />
         <Route path="/category/:categoryId" element={<Workspace session={session} theme={theme} />} />
+        <Route path="/category/:categoryId/:problemId" element={<Workspace session={session} theme={theme} />} />
       </Routes>
     </HashRouter>
   );

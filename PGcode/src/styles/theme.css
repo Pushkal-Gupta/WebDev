@@ -42,12 +42,12 @@
 [data-theme="light"] {
   --bg: #f7f5f2;
   --surface: #ffffff;
-  --text-main: #111111;
-  --text-dim: #999999;
+  --text-main: #0a0a0a; /* Pure clinical black */
+  --text-dim: #5c5c5c; /* Darker for readability */
   --accent: #007a70;
-  --border: #dedbd5;
+  --border: #cac8c2; /* Stronger borders */
   --card-bg: #ffffff;
-  --hover-box: rgba(0, 122, 112, 0.05);
+  --hover-box: rgba(0, 122, 112, 0.08);
 }
 
 body {
@@ -57,7 +57,7 @@ body {
   font-family: var(--sans);
   -webkit-font-smoothing: antialiased;
   transition: background var(--t), color var(--t);
-  line-height: 1.6;
+  line-height: 1.7; /* Increased for clinical breathing */
 }
 
 .brand {

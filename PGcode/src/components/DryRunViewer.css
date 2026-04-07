@@ -92,11 +92,11 @@
   flex-direction: column;
   align-items: center;
   position: relative;
-  transition: transform 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sim-array-element.active-pointer {
-  transform: translateY(-8px);
+  transform: translateY(-12px) scale(1.05);
 }
 
 .sim-element-val {
@@ -117,7 +117,8 @@
 
 .active-pointer .sim-element-val {
   border-color: var(--accent);
-  box-shadow: 0 0 15px var(--accent-bg);
+  box-shadow: 0 0 20px rgba(0, 255, 245, 0.2);
+  background: rgba(0, 255, 245, 0.05);
 }
 
 .sim-element-idx {
@@ -168,11 +169,17 @@
 
 .sim-hashset-val {
   padding: 0.5rem 1rem;
-  background: var(--card-bg);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 20px;
   font-family: var(--mono);
   font-weight: bold;
+  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 .empty-text {

@@ -1,13 +1,13 @@
 .topic-node-container {
-  padding: 12px 18px;
-  border-radius: 2px;
-  min-width: 140px;
-  max-width: 180px;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  padding: 18px 26px 24px 26px; /* Slightly more padding for the larger text */
+  border-radius: 8px;
+  min-width: 200px;
+  max-width: 260px;
+  /* Clinical Monochromatic Cyan-tinted surface */
+  background: rgba(0, 255, 245, 0.08); 
+  border: 1px solid rgba(0, 255, 245, 0.2);
   color: var(--text-main);
   position: relative;
-  font-family: var(--sans);
   transition: all var(--t);
   cursor: pointer;
   display: flex;
@@ -15,12 +15,28 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
 }
 
 .topic-node-container:hover {
   border-color: var(--accent);
-  background: var(--hover-box);
-  transform: translateY(-2px);
+  background: rgba(0, 255, 245, 0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0, 255, 245, 0.15);
+}
+
+/* Light Mode Specificity - Higher Contrast */
+[data-theme="light"] .topic-node-container {
+  background: rgba(0, 122, 112, 0.08); /* Darker tint for light mode */
+  border: 1px solid rgba(0, 122, 112, 0.25); /* Stronger border */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .topic-node-container:hover {
+  border-color: var(--accent);
+  background: rgba(0, 122, 112, 0.14);
+  box-shadow: 0 8px 20px rgba(0, 122, 112, 0.15);
 }
 
 .topic-node-content {
@@ -28,8 +44,9 @@
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  gap: 4px;
+  gap: 10px;
   width: 100%;
+  margin-bottom: 8px;
 }
 
 .topic-node-header {
@@ -37,61 +54,57 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  margin-bottom: 2px;
 }
 
 .topic-node-num {
   font-family: var(--mono);
-  font-size: 8px;
+  font-size: 11px; /* Slightly bigger */
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-dim);
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  opacity: 0.8;
 }
 
 .topic-node-star {
   color: #f0a500;
-  font-size: 9px;
-  line-height: 1;
+  font-size: 13px;
 }
 
 .topic-node-title {
-  font-family: var(--mono);
+  font-family: var(--serif);
   font-weight: 700;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: 17px; /* APPROVED: Clinical bigger text */
+  letter-spacing: -0.01em;
   text-align: left;
   color: var(--text-main);
-  white-space: nowrap;
+  line-height: 1.25;
 }
 
-.topic-node-progress {
-  width: 100%;
-  height: 1px;
-  background: var(--border);
-  margin-top: 8px;
-  position: relative;
-  overflow: hidden;
-}
-
-.topic-node-progress::after {
-  content: "";
+/* Progress bar at the static bottom */
+.topic-node-progress-container {
   position: absolute;
-  top: 0; left: 0;
-  width: 0%;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 5px; /* Slightly thicker */
+  background: rgba(255, 255, 245, 0.05);
+}
+
+[data-theme="light"] .topic-node-progress-container {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.topic-node-progress-fill {
   height: 100%;
   background: var(--accent);
-  transition: width 0.4s ease;
-}
-
-.topic-node-container:hover .topic-node-progress::after {
-  width: 100%;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 10px var(--accent);
 }
 
 .topic-node-container .handle {
-  width: 1px;
-  height: 1px;
+  width: 0px;
+  height: 0px;
   background: none;
   border: none;
   opacity: 0;
