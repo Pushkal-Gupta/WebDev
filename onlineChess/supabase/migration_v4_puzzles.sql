@@ -14,6 +14,9 @@ CREATE TABLE IF NOT EXISTS puzzles (
 
 CREATE INDEX IF NOT EXISTS puzzles_rating_idx ON puzzles (rating);
 
+ALTER TABLE puzzles ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "puzzles_public_read" ON puzzles FOR SELECT USING (true);
+
 -- One row per user per puzzle (upsert on re-attempt)
 CREATE TABLE IF NOT EXISTS puzzle_attempts (
   user_id    uuid NOT NULL,
