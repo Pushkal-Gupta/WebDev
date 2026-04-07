@@ -2,28 +2,13 @@ import { create } from 'zustand';
 import { Chess } from 'chess.js';
 import { supabase } from '../utils/supabase';
 import { computeNewRating } from '../utils/glicko2';
+import { uciToMove, uciToCoords } from '../utils/boardHelpers';
 
 const DEFAULT_RATING = { rating: 1500, rd: 350, volatility: 0.06, games_played: 0, wins: 0, losses: 0 };
 
 // Module-level chess instance — not in Zustand state (avoids serialization)
 let _chess = new Chess();
-
-function uciToMove(uci) {
-  return {
-    from:      uci.slice(0, 2),
-    to:        uci.slice(2, 4),
-    promotion: uci[4] || undefined,
-  };
-}
-
-function uciToCoords(uci) {
-  // "e2e4" → { from: [6, 4], to: [4, 4] } (row, col)
-  const fromCol = uci.charCodeAt(0) - 97;
-  const fromRow = 8 - parseInt(uci[1]);
-  const toCol   = uci.charCodeAt(2) - 97;
-  const toRow   = 8 - parseInt(uci[3]);
-  return { from: [fromRow, fromCol], to: [toRow, toCol] };
-}
+const _shownBuiltinIds = new Set();
 
 const usePuzzleStore = create((set, get) => ({
   puzzle:           null,   // { id, fen, moves: string[], rating, themes }

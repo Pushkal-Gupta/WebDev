@@ -593,7 +593,20 @@ const useGameStore = create((set, get) => ({
     }
 
     const history = chess.history({ verbose: true });
-    if (history.length === 0) return true; // Valid PGN but no moves
+    if (history.length === 0) {
+      set({
+        chessInstance: chess,
+        boardState: buildBoardState(chess),
+        moveHistory: [],
+        currentMoveIndex: -1,
+        selectedSquare: null,
+        validMoves: [],
+        lastMove: null,
+        gameStarted: true,
+        gameOver: false,
+      });
+      return true;
+    }
     const newChess = new Chess();
     const moves = [];
 

@@ -772,11 +772,11 @@ body {
   writing-mode: vertical-rl;
   text-orientation: mixed;
   font-family: 'Inter', monospace;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.7), 0 0 8px rgba(0,0,0,0.4);
+  color: #000;
   letter-spacing: -0.02em;
 }
 
-.eval-score-white { bottom: 4px; color: #333; }
+.eval-score-white { bottom: 4px; color: #000; }
 .eval-score-black { top: 4px; color: #bbb; }
 
 .board-column {
