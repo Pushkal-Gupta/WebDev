@@ -132,6 +132,48 @@
   color: var(--accent);
 }
 
+/* ── Tab Bar ── */
+.modal-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  padding: 0 2rem;
+  gap: 0;
+}
+
+.modal-tab {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  padding: 0.9rem 1.2rem;
+  cursor: pointer;
+  position: relative;
+  transition: color var(--t);
+}
+
+.modal-tab:hover {
+  color: var(--text-main);
+}
+
+.modal-tab.active {
+  color: var(--accent);
+}
+
+.modal-tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+}
+
 .topicModalBody {
   flex: 1;
   overflow-y: auto;
@@ -179,12 +221,12 @@
 
 .tableHeader {
   display: grid;
-  grid-template-columns: 80px 60px 1fr 100px 100px;
-  padding: 1.2rem 1.5rem;
-  background: rgba(0,0,0,0.05);
+  grid-template-columns: 55px 45px 1fr 85px 80px;
+  padding: 1rem 1.2rem;
+  background: var(--hover-box);
   border-bottom: 1px solid var(--border);
   font-family: var(--mono);
-  font-size: 0.75rem; /* Scaled up */
+  font-size: 0.65rem;
   font-weight: 700;
   color: var(--text-dim);
   text-transform: uppercase;
@@ -193,8 +235,8 @@
 
 .tableRow {
   display: grid;
-  grid-template-columns: 80px 60px 1fr 100px 100px;
-  padding: 1.2rem 1.5rem; /* More vertical breathing */
+  grid-template-columns: 55px 45px 1fr 85px 80px;
+  padding: 1rem 1.2rem;
   border-bottom: 1px solid var(--border);
   align-items: center;
   transition: background var(--t);
@@ -241,13 +283,39 @@
 .status-done { color: var(--easy); }
 .status-todo { color: var(--text-dim); opacity: 0.3; }
 
-.star-active { color: #f0a500; }
+.star-active { color: var(--medium); }
 .star-inactive { color: var(--text-dim); opacity: 0.3; }
 
-.solIcons {
+.solveIcons {
   display: flex;
-  gap: 0.8rem;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.solve-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
   color: var(--text-dim);
+  text-decoration: none;
+  transition: all var(--t);
+  cursor: pointer;
+}
+
+.solve-platform:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--hover-box);
+}
+
+.solve-lc:hover {
+  border-color: var(--medium);
+  color: var(--medium);
+  background: rgba(240, 165, 0, 0.06);
 }
 
 .enterWorkspaceBtn {

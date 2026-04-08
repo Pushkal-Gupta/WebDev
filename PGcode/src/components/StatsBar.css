@@ -1,0 +1,58 @@
+/* ── Stats Bar (below header on roadmap) ── */
+.stats-bar {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 0.8rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stat-icon {
+  opacity: 0.7;
+}
+
+.stat-streak { color: var(--medium); }
+.stat-solved { color: var(--easy); }
+.stat-review { color: var(--accent); }
+.stat-confidence { color: var(--blue); }
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1;
+}
+
+.stat-label {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .stats-bar {
+    gap: 1rem;
+    padding: 0.6rem 1rem;
+    overflow-x: auto;
+  }
+
+  .stat-value {
+    font-size: 0.8rem;
+  }
+}

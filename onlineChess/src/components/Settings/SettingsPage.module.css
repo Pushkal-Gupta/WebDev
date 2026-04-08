@@ -871,6 +871,68 @@
    Responsive
    ═══════════════════════════════════════════════════ */
 
+/* ── Theme Mode Toggle ── */
+.themeModeRow {
+  display: flex;
+  gap: 8px;
+}
+.themeModeBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-light);
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.themeModeBtn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text-primary);
+}
+.themeModeBtnActive {
+  border-color: var(--color-accent);
+  background: rgba(var(--color-accent-rgb), 0.1);
+  color: var(--color-accent);
+}
+
+/* ── Background Picker ── */
+.bgGrid {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.bgSwatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 6px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.bgSwatch:hover { border-color: var(--color-border-light); }
+.bgSwatchActive { border-color: var(--color-accent); }
+.bgSwatchColor {
+  width: 44px;
+  height: 32px;
+  border-radius: 5px;
+  border: 1px solid var(--color-border-light);
+}
+.bgSwatchLabel {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+.bgSwatchActive .bgSwatchLabel { color: var(--color-accent); }
+
 /* Tablet: collapse sidebar to icons */
 @media (max-width: 900px) {
   .sidebar {

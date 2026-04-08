@@ -1,12 +1,12 @@
+/* ── Topic Node (Roadmap Card) ── */
 .topic-node-container {
-  padding: 16px 18px 20px 18px; /* Balanced clinical padding */
-  border-radius: 12px;
-  min-width: 220px;
-  max-width: 260px;
-  
-  /* Clinical Monochromatic Grounding */
+  padding: 20px 22px 24px 22px;
+  border-radius: 20px;
+  min-width: 240px;
+  max-width: 280px;
+
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border);
   color: var(--text-main);
   position: relative;
   transition: all var(--t);
@@ -14,19 +14,18 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
 }
 
 .topic-node-container:hover {
   border-color: var(--accent);
-  background: rgba(0, 255, 245, 0.05); /* Subtle cyan tint on hover */
-  transform: translateY(-5px);
+  background: var(--hover-box);
+  transform: translateY(-4px);
   box-shadow: 0 12px 30px rgba(0, 255, 245, 0.15);
 }
 
-/* Light Mode: NeetCode Style Visibility (SOLID) */
 [data-theme="light"] .topic-node-container {
-  background: #ffffff;
+  background: var(--surface);
   border: 1.5px solid var(--border);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
@@ -39,7 +38,7 @@
 .topic-node-content {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   width: 100%;
 }
 
@@ -52,29 +51,28 @@
 
 .topic-node-num {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.15em;
   color: var(--accent);
-  opacity: 1;
 }
 
 .topic-node-star {
-  color: #f0a500;
-  font-size: 13px;
+  color: var(--medium);
+  font-size: 14px;
 }
 
 .topic-node-title {
   font-family: var(--serif);
   font-weight: 700;
-  font-size: 18px; /* Goddamn bigger */
+  font-size: 22px;
   letter-spacing: -0.015em;
   color: var(--text-main);
   line-height: 1.25;
 }
 
-/* Progress Section - NeetCode Style */
+/* ── Progress ── */
 .topic-node-footer {
   margin-top: 10px;
   display: flex;
@@ -85,7 +83,7 @@
 
 .topic-node-stats {
   font-family: var(--mono);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: var(--text-dim);
   text-align: right;
@@ -104,12 +102,15 @@
   height: 100%;
   background: var(--accent);
   transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] .topic-node-progress-fill {
   box-shadow: 0 0 10px rgba(0, 255, 245, 0.5);
 }
 
 .topic-node-container .handle {
-  width: 0px;
-  height: 0px;
+  width: 0;
+  height: 0;
   background: none;
   border: none;
   opacity: 0;

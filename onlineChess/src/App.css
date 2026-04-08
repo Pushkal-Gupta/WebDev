@@ -14,8 +14,8 @@ html, body, #root {
 }
 
 body {
-  background: #030a0a;
-  color: white;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
@@ -51,7 +51,7 @@ body {
 .home-screen {
   flex: 1;
   overflow-y: auto;
-  background: #0d1117;
+  background: var(--color-bg-secondary);
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,0.1) transparent;
 }
@@ -736,7 +736,7 @@ body {
   flex: 1;
   overflow: hidden;
   align-items: stretch;
-  background: #030a0a;
+  background: var(--color-bg-primary);
 }
 
 .eval-bar {
@@ -784,7 +784,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: #030a0a;
+  background: var(--color-bg-primary);
 }
 
 .board-area {

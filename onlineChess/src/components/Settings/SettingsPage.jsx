@@ -225,6 +225,8 @@ export default function SettingsPage() {
     soundEnabled, setSoundEnabled, soundVolume, setSoundVolume,
     soundThemeId, setSoundTheme,
     soundToggles, setSoundToggle,
+    themeMode, setThemeMode,
+    bgTheme, setBgTheme,
   } = useThemeStore();
 
   const currentPieceSet = getPieceSetById(pieceSetId);
@@ -548,6 +550,14 @@ export default function SettingsPage() {
     </>
   );
 
+  const BG_OPTIONS = [
+    { id: 'default', label: 'Default', dark: '#030a0a', light: '#dcd4cb' },
+    { id: 'wood', label: 'Wood', dark: '#2b1f16', light: '#d4c4a8' },
+    { id: 'ocean', label: 'Ocean', dark: '#0a1628', light: '#c4d3e0' },
+    { id: 'forest', label: 'Forest', dark: '#081a0e', light: '#c4d8c6' },
+    { id: 'slate', label: 'Slate', dark: '#1a1a2e', light: '#d0cede' },
+  ];
+
   const renderInterface = () => (
     <>
       <div className={styles.sectionHeader}>
@@ -557,6 +567,44 @@ export default function SettingsPage() {
       <p className={styles.sectionDesc}>Customize your interface and display options.</p>
 
       <div className={styles.subsection}>
+        <h3 className={styles.subsectionTitle}>Theme</h3>
+        <div className={styles.themeModeRow}>
+          <button
+            className={`${styles.themeModeBtn} ${themeMode === 'dark' ? styles.themeModeBtnActive : ''}`}
+            onClick={() => setThemeMode('dark', user?.id)}
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+            Dark
+          </button>
+          <button
+            className={`${styles.themeModeBtn} ${themeMode === 'light' ? styles.themeModeBtnActive : ''}`}
+            onClick={() => setThemeMode('light', user?.id)}
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0-5a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V3a1 1 0 0 1 1-1zm0 18a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1zm9-9a1 1 0 0 1 0 2h-1a1 1 0 1 1 0-2h1zM4 11a1 1 0 0 1 0 2H3a1 1 0 1 1 0-2h1zm14.07-6.07a1 1 0 0 1 0 1.41l-.7.71a1 1 0 1 1-1.42-1.42l.71-.7a1 1 0 0 1 1.41 0zM7.05 16.95a1 1 0 0 1 0 1.41l-.7.71a1 1 0 1 1-1.42-1.42l.71-.7a1 1 0 0 1 1.41 0zm11.9 0a1 1 0 0 1-1.41 0l-.71-.7a1 1 0 1 1 1.42-1.42l.7.71a1 1 0 0 1 0 1.41zM7.05 7.05a1 1 0 0 1-1.41 0l-.71-.7a1 1 0 0 1 1.42-1.42l.7.71a1 1 0 0 1 0 1.41z"/></svg>
+            Light
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.subsection}>
+        <h3 className={styles.subsectionTitle}>Background</h3>
+        <div className={styles.bgGrid}>
+          {BG_OPTIONS.map(bg => (
+            <button
+              key={bg.id}
+              className={`${styles.bgSwatch} ${bgTheme === bg.id ? styles.bgSwatchActive : ''}`}
+              onClick={() => setBgTheme(bg.id, user?.id)}
+              title={bg.label}
+            >
+              <span className={styles.bgSwatchColor} style={{ background: themeMode === 'dark' ? bg.dark : bg.light }} />
+              <span className={styles.bgSwatchLabel}>{bg.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className={styles.subsection}>
+        <h3 className={styles.subsectionTitle}>Display</h3>
         <div className={styles.toggleList}>
           <Toggle checked={showRatings} onChange={setShowRatings} label="Show Player Ratings During Game" desc="Display player ratings next to usernames" />
           <Toggle checked={showCaptured} onChange={setShowCaptured} label="Show Captured Pieces" desc="Display material difference above the board" />

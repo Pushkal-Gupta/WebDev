@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { setSoundEnabled, setSoundVolume, setSoundTheme as setSoundThemeInManager } from '../utils/soundManager';
 import { PIECE_SETS, BOARD_THEMES, getPieceSetById, getBoardThemeById } from '../data/assetRegistry';
+import { supabase } from '../utils/supabase';
 
 // Old local piece sets for backward compat with consumers that still read pieceSets[index]
 const LEGACY_PIECE_SETS = [
@@ -42,6 +43,10 @@ const useThemeStore = create(persist((set, get) => ({
   themes: LEGACY_THEMES,
   pieceSetIndex: 0,
   themeIndex: 0,
+
+  // ── App theme mode & background ──
+  themeMode: 'dark',   // 'dark' | 'light'
+  bgTheme: 'default',  // 'default' | 'wood' | 'ocean' | 'forest' | 'slate'
 
   // ── Sound settings ──
   soundEnabled: true,
@@ -114,6 +119,37 @@ const useThemeStore = create(persist((set, get) => ({
     soundToggles: { ...state.soundToggles, [name]: enabled },
   })),
 
+  // ── Actions: App Theme Mode & Background ──
+  applyThemeToDOM: () => {
+    const { themeMode, bgTheme } = get();
+    const el = document.documentElement;
+    el.setAttribute('data-theme', themeMode);
+    if (bgTheme && bgTheme !== 'default') el.setAttribute('data-bg', bgTheme);
+    else el.removeAttribute('data-bg');
+  },
+
+  setThemeMode: (mode, userId) => {
+    set({ themeMode: mode });
+    get().applyThemeToDOM();
+    if (userId) supabase.from('user_profiles').update({ theme_mode: mode }).eq('user_id', userId).then();
+  },
+
+  setBgTheme: (bg, userId) => {
+    set({ bgTheme: bg });
+    get().applyThemeToDOM();
+    if (userId) supabase.from('user_profiles').update({ bg_theme: bg }).eq('user_id', userId).then();
+  },
+
+  loadThemeFromProfile: async (userId) => {
+    if (!userId) return;
+    const { data } = await supabase.from('user_profiles').select('theme_mode, bg_theme').eq('user_id', userId).single();
+    if (data) {
+      if (data.theme_mode) set({ themeMode: data.theme_mode });
+      if (data.bg_theme) set({ bgTheme: data.bg_theme });
+      get().applyThemeToDOM();
+    }
+  },
+
   // ── Reset ──
   resetDefault: () => {
     const theme = getBoardThemeById('color-default');
@@ -135,8 +171,11 @@ const useThemeStore = create(persist((set, get) => ({
         move: true, capture: true, check: true, castle: true,
         promote: true, gameStart: true, gameEnd: true, lowTime: true, illegal: true,
       },
+      themeMode: 'dark',
+      bgTheme: 'default',
     });
     setSoundThemeInManager('cc-sound-default');
+    get().applyThemeToDOM();
   },
 }), {
   name: 'chess-theme',

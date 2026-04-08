@@ -1,19 +1,19 @@
 .modalOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9000;
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(4px);
 }
 
 .modalContent {
   background: var(--bg);
   border: 1px solid var(--border);
   padding: 2.5rem;
-  border-radius: 4px;
+  border-radius: 12px;
   width: 360px;
   position: relative;
   display: flex;

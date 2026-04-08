@@ -174,6 +174,7 @@ export default function App() {
   useEffect(() => {
     initAuth();
     initGame();
+    useThemeStore.getState().applyThemeToDOM();
   }, []);
 
   // ─── Accessibility & sound toggles sync ──────────────────────────────────
@@ -183,11 +184,13 @@ export default function App() {
   const soundTheme = useThemeStore(s => s.soundThemeId);
 
   useEffect(() => {
-    document.body.dataset.reducedMotion = reducedMotion ? 'true' : 'false';
+    const el = document.documentElement;
+    el.dataset.reducedMotion = reducedMotion ? 'true' : 'false';
   }, [reducedMotion]);
 
   useEffect(() => {
-    document.body.dataset.highContrast = highContrast ? 'true' : 'false';
+    const el = document.documentElement;
+    el.dataset.highContrast = highContrast ? 'true' : 'false';
   }, [highContrast]);
 
   useEffect(() => {
@@ -205,6 +208,7 @@ export default function App() {
       loadNotifications(user.id);
       subscribeNotifs(user.id);
       loadFriends(user.id);
+      useThemeStore.getState().loadThemeFromProfile(user.id);
     } else {
       unsubscribeNotifs();
     }

@@ -1,4 +1,5 @@
-.dryRunContainer {
+/* ── DryRun Viewer (GFG-style) ── */
+.dryrun-container {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -8,235 +9,226 @@
   border: 1px solid var(--border);
 }
 
-.dryRunHeader {
+.dryrun-placeholder {
+  padding: 3rem;
+  text-align: center;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.85rem;
+}
+
+/* ── Title Bar ── */
+.dryrun-title {
   padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.dryrun-title strong {
+  color: var(--accent);
+}
+
+/* ── Canvas ── */
+.dryrun-canvas {
+  flex: 1;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  background: var(--surface);
+  justify-content: center;
+  padding: 2rem;
+  position: relative;
+  overflow: auto;
+  min-height: 300px;
 }
 
-.timelineControls {
+.dryrun-status {
+  position: absolute;
+  top: 1rem;
+  left: 1.5rem;
+  right: 1.5rem;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  color: var(--text-main);
+  line-height: 1.5;
+  padding: 0.6rem 0.8rem;
+  background: var(--hover-box);
+  border-radius: 6px;
+  border-left: 3px solid var(--accent);
+}
+
+.dryrun-visual {
   display: flex;
-  gap: 0.5rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  width: 100%;
+  max-width: 700px;
 }
 
-.controlBtn {
+/* ── Controls Bar ── */
+.dryrun-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.8rem 1.5rem;
+  border-top: 1px solid var(--border);
   background: var(--surface);
+}
+
+.ctrl-btn {
+  background: none;
   border: 1px solid var(--border);
   color: var(--text-main);
   padding: 0.5rem;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all var(--t);
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all var(--t);
 }
 
-.controlBtn:hover:not(:disabled) {
+.ctrl-btn:hover:not(:disabled) {
   border-color: var(--accent);
   color: var(--accent);
-  background: rgba(0, 255, 245, 0.05);
 }
 
-.controlBtn:disabled {
-  opacity: 0.3;
+.ctrl-btn:disabled {
+  opacity: 0.25;
   cursor: not-allowed;
 }
 
-.dryRunBody {
-  flex: 1;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  position: relative;
-  overflow-y: auto;
-}
-
-/* Visual Engine Style - GFG Illustration Vibe */
-.simulation-canvas {
-  background: rgba(0, 255, 245, 0.02);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 3rem;
-  min-height: 300px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3rem;
-  position: relative;
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.sim-status {
-  position: absolute;
-  top: 1.5rem;
-  left: 1.5rem;
-  font-family: var(--mono);
-  font-size: 0.8rem;
-  color: var(--accent);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  opacity: 0.8;
-}
-
-/* Array Visualization */
-.sim-array-container {
-  display: flex;
-  gap: 0.5rem;
-  padding-bottom: 2rem;
-}
-
-.sim-array-element {
-  width: 50px;
-  height: 50px;
-  border: 2px solid var(--border);
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  background: var(--surface);
-  font-family: var(--mono);
-  font-weight: 700;
-  font-size: 1.1rem;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: popIn 0.4s ease-out;
-}
-
-.sim-array-element.active-pointer {
+.ctrl-play {
+  background: var(--accent);
+  color: var(--bg);
   border-color: var(--accent);
-  background: rgba(0, 255, 245, 0.1);
-  box-shadow: 0 0 15px rgba(0, 255, 245, 0.2);
-  transform: scale(1.1);
+  padding: 0.55rem;
+  border-radius: 50%;
 }
 
-.sim-element-idx {
-  position: absolute;
-  bottom: -22px;
-  font-size: 0.7rem;
-  color: var(--text-dim);
+.ctrl-play:hover:not(:disabled) {
+  opacity: 0.85;
+  color: var(--bg);
 }
 
-.sim-pointer-indicator {
-  position: absolute;
-  top: 60px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: var(--accent);
-  animation: slideUp 0.3s ease-out;
-}
-
-.pointer-label {
-  font-size: 0.8rem;
-  font-weight: 800;
-}
-
-/* HashSet Visualization */
-.sim-hashset-container {
-  width: 100%;
-  max-width: 400px;
-  background: rgba(0,0,0,0.2);
-  border-radius: 8px;
-  padding: 1rem;
-  border: 1px dashed var(--border);
-}
-
-.sim-hashset-container h4 {
-  margin: 0 0 1rem 0;
+.step-counter {
   font-family: var(--mono);
   font-size: 0.75rem;
   color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  min-width: 50px;
+  text-align: center;
 }
 
-.sim-hashset-elements {
-  display: flex;
-  flex-wrap: wrap;
+.speed-select {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.3rem 0.4rem;
+  outline: none;
+  cursor: pointer;
+}
+
+/* ── Question Overlay ── */
+.dryrun-question {
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 0 1.5rem 1rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.3s ease;
+}
+
+.dryrun-question h4 {
+  margin: 0 0 0.8rem;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.question-text {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text-main);
+  margin-bottom: 1rem;
+}
+
+.question-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 0.6rem;
 }
 
-.sim-hashset-val {
-  background: var(--surface);
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  font-family: var(--mono);
-  font-size: 0.85rem;
-  font-weight: 700;
-  animation: scaleUp 0.3s ease-out;
-}
-
-/* Knowledge Check Popover */
-.interactiveQuestionPopup {
-  background: var(--surface);
-  border: 1px solid var(--accent);
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 10px 40px rgba(0, 255, 245, 0.15);
-  animation: popIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.questionText {
-  margin: 1rem 0;
-  font-size: 1rem;
-  line-height: 1.5;
-}
-
-.optionsList {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-}
-
-.optionBtn {
+.question-opt-btn {
   background: transparent;
   border: 1px solid var(--border);
   color: var(--text-main);
-  padding: 0.8rem;
+  padding: 0.7rem;
   border-radius: 6px;
   font-family: var(--sans);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   cursor: pointer;
   transition: all var(--t);
 }
 
-.optionBtn:hover {
+.question-opt-btn:hover {
   border-color: var(--accent);
-  background: rgba(0, 255, 245, 0.05);
+  background: var(--hover-box);
 }
 
-.feedbackText {
-  margin-top: 1rem;
-  padding: 0.8rem;
+.question-feedback {
+  margin-top: 0.8rem;
+  padding: 0.6rem;
   border-radius: 4px;
   font-family: var(--mono);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   text-align: center;
 }
 
-.feedbackSuccess { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
-.feedbackError { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.question-feedback.success {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--easy);
+}
 
-/* Animations */
+.question-feedback.error {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--hard);
+}
+
+/* ── Animations ── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @keyframes popIn {
-  from { opacity: 0; transform: scale(0.95); }
+  from { opacity: 0; transform: scale(0.92); }
   to { opacity: 1; transform: scale(1); }
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes scaleUp {
-  from { opacity: 0; transform: scale(0.5); }
-  to { opacity: 1; transform: scale(1); }
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .dryrun-canvas {
+    padding: 1rem;
+    min-height: 200px;
+  }
+
+  .question-options {
+    grid-template-columns: 1fr;
+  }
 }

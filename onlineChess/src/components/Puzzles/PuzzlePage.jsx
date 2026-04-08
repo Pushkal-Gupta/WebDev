@@ -51,6 +51,7 @@ export default function PuzzlePage() {
   const [lastMoveTo,   setLastMoveTo]   = useState(null);
   const [feedback,     setFeedback]     = useState(null);
   const [copied,       setCopied]       = useState(false);
+  const [showTags,     setShowTags]     = useState(false);
 
   // Load first puzzle on mount and when user changes
   const initRef = useRef(false);
@@ -355,11 +356,16 @@ export default function PuzzlePage() {
                   <span className={styles.infoVal}>{puzzle.rating}</span>
                 </div>
                 {puzzle.themes?.length > 0 && (
-                  <div className={styles.themes}>
-                    {puzzle.themes.slice(0, 4).map(t => (
-                      <span key={t} className={styles.theme}>{t.replace(/([A-Z])/g, ' $1').trim()}</span>
-                    ))}
-                  </div>
+                  showTags ? (
+                    <div className={styles.themes}>
+                      {puzzle.themes.slice(0, 4).map(t => (
+                        <span key={t} className={styles.theme}>{t.replace(/([A-Z])/g, ' $1').trim()}</span>
+                      ))}
+                      <button className={styles.tagToggle} onClick={() => setShowTags(false)} title="Hide tags">✕</button>
+                    </div>
+                  ) : (
+                    <button className={styles.showTagsBtn} onClick={() => setShowTags(true)}>Show Tags</button>
+                  )
                 )}
                 {puzzle.opening_tags && (
                   <span className={styles.openingTag}>
@@ -474,11 +480,16 @@ export default function PuzzlePage() {
                       <span className={styles.infoVal}>{puzzle.rating}</span>
                     </div>
                     {puzzle.themes?.length > 0 && (
-                      <div className={styles.themes}>
-                        {puzzle.themes.slice(0, 4).map(t => (
-                          <span key={t} className={styles.theme}>{t.replace(/([A-Z])/g, ' $1').trim()}</span>
-                        ))}
-                      </div>
+                      showTags ? (
+                        <div className={styles.themes}>
+                          {puzzle.themes.slice(0, 4).map(t => (
+                            <span key={t} className={styles.theme}>{t.replace(/([A-Z])/g, ' $1').trim()}</span>
+                          ))}
+                          <button className={styles.tagToggle} onClick={() => setShowTags(false)} title="Hide tags">✕</button>
+                        </div>
+                      ) : (
+                        <button className={styles.showTagsBtn} onClick={() => setShowTags(true)}>Show Tags</button>
+                      )
                     )}
                   </div>
                 )}

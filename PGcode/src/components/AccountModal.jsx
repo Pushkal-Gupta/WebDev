@@ -1,13 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { X } from 'lucide-react';
+import { X, Settings } from 'lucide-react';
+import SettingsModal from './SettingsModal';
 import './LoginModal.css';
 
 export default function AccountModal({ session, onClose }) {
+  const [showSettings, setShowSettings] = useState(false);
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     onClose();
   };
+
+  if (showSettings) {
+    return <SettingsModal session={session} onClose={() => setShowSettings(false)} />;
+  }
 
   return (
     <div className="modalOverlay" onClick={(e) => {
@@ -21,33 +28,56 @@ export default function AccountModal({ session, onClose }) {
         <div className="modalHeader">
           <h2>Account</h2>
         </div>
-        
-        <div className="modalBody" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <p className="accountEmail" style={{ fontFamily: 'var(--sans)', fontSize: '0.9rem', color: 'var(--text-main)', marginBottom: '0.5rem' }}>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+          <p style={{ fontFamily: 'var(--mono)', fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: '0.5rem', wordBreak: 'break-all' }}>
             {session?.user?.email}
           </p>
-          
-          <p className="oauthNote" style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontStyle: 'italic', marginBottom: '1.5rem', fontFamily: 'var(--sans)' }}>
-            Signed in with Google — password change not available.
-          </p>
-          
-          <button 
-            onClick={handleLogout}
-            className="logout-btn"
+
+          <button
+            onClick={() => setShowSettings(true)}
             style={{
+              width: '100%',
               padding: '0.7rem',
               background: 'none',
-              border: '1px solid #c0392b',
-              color: '#c0392b',
-              borderRadius: '4px',
+              border: '1px solid var(--border)',
+              color: 'var(--text-main)',
+              borderRadius: '6px',
               cursor: 'pointer',
               fontFamily: 'var(--mono)',
               fontSize: '0.7rem',
+              fontWeight: 700,
               letterSpacing: '0.05em',
-              transition: 'background var(--t)'
+              textTransform: 'uppercase',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              transition: 'all 0.2s',
             }}
           >
-            LOGOUT
+            <Settings size={14} /> Settings & Friends
+          </button>
+
+          <button
+            onClick={handleLogout}
+            style={{
+              width: '100%',
+              padding: '0.7rem',
+              background: 'none',
+              border: '1px solid #e05a5a',
+              color: '#e05a5a',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontFamily: 'var(--mono)',
+              fontSize: '0.7rem',
+              fontWeight: 700,
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase',
+              transition: 'background 0.2s',
+            }}
+          >
+            Logout
           </button>
         </div>
       </div>

@@ -1299,7 +1299,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #030a0a;
+  background: var(--color-bg-primary);
   padding: 24px;
 }
 

@@ -340,6 +340,30 @@
   padding: 2px 7px;
 }
 
+.showTagsBtn {
+  font-size: 0.75rem;
+  background: rgba(160,120,255,0.08);
+  border: 1px dashed rgba(160,120,255,0.25);
+  color: rgba(196,170,255,0.6);
+  border-radius: 4px;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.showTagsBtn:hover { color: #c4aaff; border-color: rgba(160,120,255,0.45); background: rgba(160,120,255,0.14); }
+
+.tagToggle {
+  background: none;
+  border: none;
+  color: rgba(196,170,255,0.4);
+  cursor: pointer;
+  font-size: 0.7rem;
+  padding: 2px 4px;
+  line-height: 1;
+  align-self: center;
+}
+.tagToggle:hover { color: #c4aaff; }
+
 /* ── Stats ────────────────────────────────────────────────────────────────── */
 
 .statsRow {

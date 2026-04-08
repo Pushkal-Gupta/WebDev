@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { X } from 'lucide-react';
 import './LoginModal.css';
 
 export default function LoginModal({ onClose }) {

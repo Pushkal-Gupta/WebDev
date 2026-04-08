@@ -103,6 +103,20 @@
   font-family: var(--sans);
 }
 
+.diff-badge {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.diff-easy { color: var(--easy); background: rgba(76, 175, 80, 0.1); }
+.diff-medium { color: var(--medium); background: rgba(240, 165, 0, 0.1); }
+.diff-hard { color: var(--hard); background: rgba(239, 68, 68, 0.1); }
+
 .problem-description {
   margin-bottom: 2.5rem;
   font-size: 0.9rem;
@@ -142,6 +156,185 @@
   font-family: var(--sans);
   color: var(--text-dim);
   font-size: 0.9rem;
+}
+
+/* ── Problem Actions ── */
+.problem-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 2rem;
+  align-items: center;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all var(--t);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-main);
+}
+
+.action-lc {
+  color: var(--medium);
+  border-color: var(--medium);
+}
+
+.action-lc:hover {
+  background: rgba(240, 165, 0, 0.08);
+}
+
+.action-mark {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.action-mark:hover {
+  background: var(--hover-box);
+}
+
+.action-done {
+  color: var(--easy);
+  border-color: var(--easy);
+  background: rgba(76, 175, 80, 0.08);
+}
+
+.review-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  padding: 0.3rem 0.6rem;
+  background: var(--hover-box);
+  border-radius: 4px;
+}
+
+/* ── Confidence Rating ── */
+.confidence-section {
+  margin-top: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.confidence-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.confidence-dots {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.confidence-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: none;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--t);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confidence-dot:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.confidence-dot.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.confidence-hint {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* ── Personal Notes ── */
+.notes-section {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.notes-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.notes-textarea {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.8rem;
+  color: var(--text-main);
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  resize: vertical;
+  outline: none;
+  transition: border-color var(--t);
+}
+
+.notes-textarea:focus {
+  border-color: var(--accent);
+}
+
+.notes-save {
+  align-self: flex-end;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  background: none;
+  border: 1px solid var(--accent);
+  padding: 0.35rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all var(--t);
+}
+
+.notes-save:hover {
+  background: var(--accent);
+  color: var(--bg);
 }
 
 /* Right Panel Styles */
