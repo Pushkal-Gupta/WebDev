@@ -33,6 +33,10 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
           filtered = filtered.filter(p =>
             p.roadmap_set === '200' || p.roadmap_set === 'both' || !p.roadmap_set
           );
+        } else if (roadmapMode === '300') {
+          filtered = filtered.filter(p =>
+            p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === 'both' || !p.roadmap_set
+          );
         }
 
         const sorted = [...filtered].sort((a, b) =>

@@ -18,6 +18,9 @@ export default function SidePanel({ session, roadmapMode, setRoadmapMode }) {
   const [calMonth, setCalMonth] = useState(now.getMonth());
 
   useEffect(() => {
+    // Reset immediately so ring doesn't show stale counts
+    setProgress({ easy: 0, easyTotal: 0, med: 0, medTotal: 0, hard: 0, hardTotal: 0, completed: 0, total: 0 });
+    setStreak({ current: 0, best: 0 });
     fetchProgress();
   }, [roadmapMode, session]);
 
@@ -29,7 +32,8 @@ export default function SidePanel({ session, roadmapMode, setRoadmapMode }) {
 
       const filtered = (problems || []).filter(p => {
         if (roadmapMode === '200') return p.roadmap_set === '200' || p.roadmap_set === 'both' || !p.roadmap_set;
-        return true;
+        if (roadmapMode === '300') return p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === 'both' || !p.roadmap_set;
+        return true; // PGcode 500 shows all
       });
 
       let easyTotal = 0, medTotal = 0, hardTotal = 0;
