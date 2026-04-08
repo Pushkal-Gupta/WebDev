@@ -680,14 +680,32 @@ const useGameStore = create((set, get) => ({
   clearPremove: () => set({ premove: null }),
 
   executePremove: () => {
-    const { premove, gameOver } = get();
-    if (!premove?.from || !premove?.to || gameOver) {
+    const { premove, gameOver, chessInstance, isComp, compColor, isOnline, onlineColor } = get();
+    if (!premove?.from || !premove?.to || gameOver || !chessInstance) {
       set({ premove: null });
       return false;
     }
+    // Verify it's the player's turn before executing
+    const turn = chessInstance.turn();
+    if (isComp) {
+      const isCompTurn = (compColor === 'white' && turn === 'w') || (compColor === 'black' && turn === 'b');
+      if (isCompTurn) { set({ premove: null }); return false; }
+    }
+    if (isOnline) {
+      const isMyTurn = (onlineColor === 'white' && turn === 'w') || (onlineColor === 'black' && turn === 'b');
+      if (!isMyTurn) { set({ premove: null }); return false; }
+    }
     const pm = premove;
-    set({ premove: null });
-    return get().makeMove(pm.from, pm.to);
+    // Ensure board is interactive and clear the premove
+    set({ premove: null, disableBoard: false });
+    // Check if this is a pawn promotion premove — auto-promote to queen
+    const fromFile = String.fromCharCode('a'.charCodeAt(0) + pm.from.col);
+    const fromRank = String(8 - pm.from.row);
+    const toRank = String(8 - pm.to.row);
+    const piece = chessInstance.get(fromFile + fromRank);
+    const needsPromo = piece && piece.type === 'p' &&
+      ((piece.color === 'w' && toRank === '8') || (piece.color === 'b' && toRank === '1'));
+    return get().makeMove(pm.from, pm.to, needsPromo ? 'q' : null);
   },
   setGameResult: (val) => set({ gameResult: val }),
   setOnlineOpponentId: (val) => set({ onlineOpponentId: val }),

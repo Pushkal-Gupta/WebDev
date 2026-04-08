@@ -66,7 +66,8 @@ const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, pie
     if (!gameStarted) return;
     const isValid = validMoves.some(m => m.row === row && m.col === col);
     if (isValid && selectedSquare) {
-      makeMove(selectedSquare, { row, col });
+      const ok = makeMove(selectedSquare, { row, col });
+      if (!ok) selectSquare(row, col);
     } else {
       selectSquare(row, col);
     }

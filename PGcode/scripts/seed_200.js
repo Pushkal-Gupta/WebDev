@@ -1,7 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = 'https://ykpjmvoyatcrlqyqbgfu.supabase.co';
-const SUPABASE_SERVICE_KEY = '***REDACTED_SERVICE_KEY***';
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://ykpjmvoyatcrlqyqbgfu.supabase.co';
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+if (!SUPABASE_SERVICE_KEY) {
+  console.error('ERROR: SUPABASE_SERVICE_KEY env var is required.');
+  console.error('Run: SUPABASE_SERVICE_KEY=your_key node scripts/seed_200.js');
+  process.exit(1);
+}
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
