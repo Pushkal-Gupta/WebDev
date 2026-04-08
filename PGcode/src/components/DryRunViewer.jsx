@@ -15,7 +15,8 @@ function detectType(data) {
   if (data.array) return 'array';
   if (data.nodes && data.edges && data.directed !== undefined) return 'graph';
   if (data.nodes && data.edges) return 'tree';
-  if (data.items) return data.type === 'queue' ? 'queue' : 'stack';
+  if (data.nodes && !data.edges) return 'linked-list';
+  if (data.items) return 'stack';
   if (data.entries) return 'hashmap';
   return 'array';
 }

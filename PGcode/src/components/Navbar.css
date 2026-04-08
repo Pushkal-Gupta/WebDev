@@ -6,7 +6,7 @@
   position: sticky;
   top: 0;
   background: var(--bg);
-  z-index: 2000;
+  z-index: 900;
   transition: background var(--t), border-color var(--t);
 }
 
@@ -74,7 +74,7 @@
 .header-right {
   display: flex;
   align-items: center;
-  gap: 1.2rem;
+  gap: 1.5rem;
 }
 
 /* ── Toggle (blog-identical) ── */
@@ -125,71 +125,6 @@
   background: var(--bg);
 }
 
-/* ── Roadmap Tabs ── */
-.roadmap-tabs {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  background: var(--hover-box);
-  border-radius: 6px;
-  padding: 3px;
-}
-
-.tab-btn {
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  background: none;
-  border: none;
-  padding: 0.35rem 0.75rem;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all var(--t);
-}
-
-.tab-btn:hover {
-  color: var(--text-main);
-}
-
-.tab-btn.active {
-  background: var(--accent);
-  color: var(--bg);
-}
-
-/* ── Overall Progress ── */
-.nav-progress {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.nav-progress-bar {
-  width: 60px;
-  height: 5px;
-  background: var(--border);
-  border-radius: 5px;
-  overflow: hidden;
-}
-
-.nav-progress-fill {
-  height: 100%;
-  background: var(--accent);
-  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 5px;
-}
-
-.nav-progress-text {
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  font-weight: 700;
-  color: var(--text-dim);
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-}
-
 /* ── Auth Button ── */
 .auth-btn {
   font-family: var(--mono);
@@ -214,23 +149,6 @@
 
 /* ── Mobile ── */
 @media (max-width: 768px) {
-  .nav-group {
-    flex-wrap: wrap;
-    gap: 0.6rem;
-  }
-
-  .nav-left {
-    order: 1;
-    flex: 1;
-  }
-
-  .header-right {
-    order: 2;
-    gap: 0.8rem;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-  }
-
   .toggle-label {
     display: none;
   }
@@ -241,13 +159,5 @@
 
   .pg-header {
     padding: 0.8rem 0;
-  }
-
-  .nav-progress-bar {
-    width: 40px;
-  }
-
-  .nav-progress-text {
-    font-size: 0.55rem;
   }
 }

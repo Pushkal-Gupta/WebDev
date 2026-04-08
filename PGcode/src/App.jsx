@@ -38,15 +38,11 @@ export default function App() {
 
   return (
     <HashRouter>
-      <Navbar
-        session={session}
-        theme={theme}
-        toggleTheme={toggleTheme}
-        roadmapMode={roadmapMode}
-        setRoadmapMode={setRoadmapMode}
-      />
+      <Navbar session={session} theme={theme} toggleTheme={toggleTheme} />
       <Routes>
-        <Route path="/" element={<RoadmapView roadmapMode={roadmapMode} session={session} />} />
+        <Route path="/" element={
+          <RoadmapView roadmapMode={roadmapMode} setRoadmapMode={setRoadmapMode} session={session} />
+        } />
         <Route path="/category/:categoryId" element={<Workspace session={session} theme={theme} roadmapMode={roadmapMode} />} />
         <Route path="/category/:categoryId/:problemId" element={<Workspace session={session} theme={theme} roadmapMode={roadmapMode} />} />
       </Routes>

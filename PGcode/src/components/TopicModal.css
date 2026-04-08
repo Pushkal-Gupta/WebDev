@@ -211,6 +211,20 @@
   transition: all var(--t);
 }
 
+/* ── Table Column Utilities ── */
+.col-status,
+.col-star,
+.col-solve {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tableBody {
+  display: flex;
+  flex-direction: column;
+}
+
 /* Problem TABLE Styles */
 .problemTableSection {
   background: var(--surface);

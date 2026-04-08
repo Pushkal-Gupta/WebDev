@@ -30,6 +30,11 @@
   text-align: left;
 }
 
+.socialAuthSection {
+  display: flex;
+  flex-direction: column;
+}
+
 .googleLoginBtn {
   width: 100%;
   padding: 0.75rem;
