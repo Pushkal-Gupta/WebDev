@@ -1,10 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { supabase } from './lib/supabase';
 import Navbar from './components/Navbar';
 import RoadmapView from './components/RoadmapView';
 import Workspace from './components/Workspace';
 import './styles/theme.css';
+
+function AppContent({ session, theme, toggleTheme, roadmapMode, setRoadmapMode }) {
+  const location = useLocation();
+  const isWorkspace = location.pathname.startsWith('/category');
+
+  return (
+    <>
+      <Navbar session={session} theme={theme} toggleTheme={toggleTheme} isWorkspace={isWorkspace} />
+      <Routes>
+        <Route path="/" element={
+          <RoadmapView roadmapMode={roadmapMode} setRoadmapMode={setRoadmapMode} session={session} />
+        } />
+        <Route path="/category/:categoryId" element={<Workspace session={session} theme={theme} roadmapMode={roadmapMode} />} />
+        <Route path="/category/:categoryId/:problemId" element={<Workspace session={session} theme={theme} roadmapMode={roadmapMode} />} />
+      </Routes>
+    </>
+  );
+}
 
 export default function App() {
   const [session, setSession] = useState(null);
@@ -38,14 +56,13 @@ export default function App() {
 
   return (
     <HashRouter>
-      <Navbar session={session} theme={theme} toggleTheme={toggleTheme} />
-      <Routes>
-        <Route path="/" element={
-          <RoadmapView roadmapMode={roadmapMode} setRoadmapMode={setRoadmapMode} session={session} />
-        } />
-        <Route path="/category/:categoryId" element={<Workspace session={session} theme={theme} roadmapMode={roadmapMode} />} />
-        <Route path="/category/:categoryId/:problemId" element={<Workspace session={session} theme={theme} roadmapMode={roadmapMode} />} />
-      </Routes>
+      <AppContent
+        session={session}
+        theme={theme}
+        toggleTheme={toggleTheme}
+        roadmapMode={roadmapMode}
+        setRoadmapMode={setRoadmapMode}
+      />
     </HashRouter>
   );
 }

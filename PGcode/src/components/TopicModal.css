@@ -361,3 +361,36 @@
   font-family: var(--mono);
   font-size: 0.9rem;
 }
+
+/* ── Light Mode Contrast Fixes ── */
+[data-theme="light"] .problemLink {
+  color: #1a1a1a;
+}
+
+[data-theme="light"] .tableHeader {
+  background: rgba(0, 138, 126, 0.04);
+  color: #555;
+}
+
+[data-theme="light"] .tableRow:hover {
+  background: rgba(0, 138, 126, 0.03);
+}
+
+[data-theme="light"] .modalMainTitle {
+  color: #111;
+}
+
+[data-theme="light"] .topicTag {
+  color: #333;
+  background: rgba(0, 138, 126, 0.04);
+  border-color: rgba(0, 138, 126, 0.12);
+}
+
+[data-theme="light"] .status-todo,
+[data-theme="light"] .star-inactive {
+  opacity: 0.5;
+}
+
+[data-theme="light"] .enterWorkspaceBtn {
+  box-shadow: 0 4px 20px rgba(0, 138, 126, 0.2);
+}

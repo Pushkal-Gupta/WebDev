@@ -156,6 +156,10 @@ export default function SidePanel({ session, roadmapMode, setRoadmapMode }) {
               onClick={() => { setRoadmapMode('300'); setDropdownOpen(false); }}>
               PGcode 300
             </button>
+            <button className={`sp-dropdown-item ${roadmapMode === '500' ? 'active' : ''}`}
+              onClick={() => { setRoadmapMode('500'); setDropdownOpen(false); }}>
+              PGcode 500
+            </button>
           </div>
         )}
       </div>
