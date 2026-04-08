@@ -179,12 +179,12 @@ const useThemeStore = create(persist((set, get) => ({
   },
 }), {
   name: 'chess-theme',
-  version: 2,
+  version: 3,
   migrate: (persisted, version) => {
     if (version < 2) {
       const localIds = ['local-classic', 'local-default', 'local-virtual', 'local-cartoon', 'local-wooden', 'local-wooden2'];
       const boardIds = ['color-default', 'color-chesscom', 'color-lichess'];
-      return {
+      persisted = {
         ...persisted,
         pieceSetId: localIds[persisted.pieceSetIndex ?? 0] || 'local-classic',
         boardThemeId: boardIds[persisted.themeIndex ?? 0] || 'color-default',
@@ -195,8 +195,18 @@ const useThemeStore = create(persist((set, get) => ({
     }
     // Migrate synth themes to CDN default
     if (persisted.soundThemeId?.startsWith('synth-')) {
-      return { ...persisted, soundThemeId: 'cc-sound-default' };
+      persisted = { ...persisted, soundThemeId: 'cc-sound-default' };
     }
+    // Fix transparent board: image theme with no URL → reset to color
+    if (persisted.boardThemeType === 'image' && !persisted.boardImageUrl) {
+      persisted.boardThemeType = 'color';
+    }
+    if (!persisted.boardThemeType) {
+      persisted.boardThemeType = 'color';
+    }
+    // Ensure new theme fields exist
+    if (!persisted.themeMode) persisted.themeMode = 'dark';
+    if (!persisted.bgTheme) persisted.bgTheme = 'default';
     return persisted;
   },
 }));

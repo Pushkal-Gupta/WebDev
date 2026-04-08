@@ -41,6 +41,7 @@ const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, pie
   const clr1x = useThemeStore(s => s.clr1x);
   const clr2x = useThemeStore(s => s.clr2x);
   const boardThemeType = useThemeStore(s => s.boardThemeType);
+  const boardImageUrl = useThemeStore(s => s.boardImageUrl);
   const resolvePiece = usePieceResolver();
 
   const isLight = (row + col) % 2 === 0;
@@ -55,7 +56,7 @@ const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, pie
   const isPremoveFrom = premove?.from?.row === row && premove?.from?.col === col;
   const isPremoveTo = premove?.to?.row === row && premove?.to?.col === col;
 
-  const isImageTheme = boardThemeType === 'image';
+  const isImageTheme = boardThemeType === 'image' && !!boardImageUrl;
   let bgColor = isImageTheme ? 'transparent' : (isLight ? clr1 : clr2);
   if (isPremoveFrom || isPremoveTo) bgColor = isLight ? 'rgba(11, 106, 148, 0.45)' : 'rgba(11, 106, 148, 0.55)';
   else if (isInCheck) bgColor = isLight ? clr1c : clr2c;
