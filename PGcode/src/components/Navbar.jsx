@@ -3,16 +3,18 @@ import LoginModal from './LoginModal';
 import AccountModal from './AccountModal';
 import './Navbar.css';
 
-export default function Navbar({ session, theme, toggleTheme }) {
+export default function Navbar({ session, theme, toggleTheme, isWorkspace }) {
   const [showLogin, setShowLogin] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
+
+  const brandHref = isWorkspace ? '#/' : 'https://pushkalgupta.com/PG/main.html';
 
   return (
     <header className="pg-header">
       <div className="pg-wrap">
         <div className="nav-group">
           <div className="nav-left">
-            <a href="https://pushkalgupta.com/PG/main.html" className="brand-link">
+            <a href={brandHref} className="brand-link">
               Pushkal Gupta <span className="brand-suffix">Code</span>
             </a>
           </div>
