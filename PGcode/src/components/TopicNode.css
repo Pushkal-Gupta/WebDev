@@ -1,52 +1,46 @@
 .topic-node-container {
-  padding: 18px 26px 24px 26px; /* Slightly more padding for the larger text */
-  border-radius: 8px;
-  min-width: 200px;
+  padding: 16px 18px 20px 18px; /* Balanced clinical padding */
+  border-radius: 12px;
+  min-width: 220px;
   max-width: 260px;
-  /* Clinical Monochromatic Cyan-tinted surface */
-  background: rgba(0, 255, 245, 0.08); 
-  border: 1px solid rgba(0, 255, 245, 0.2);
+  
+  /* Clinical Monochromatic Grounding */
+  background: var(--surface);
+  border: 1px solid var(--border);
   color: var(--text-main);
   position: relative;
   transition: all var(--t);
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
 .topic-node-container:hover {
   border-color: var(--accent);
-  background: rgba(0, 255, 245, 0.15);
+  background: rgba(0, 255, 245, 0.05); /* Subtle cyan tint on hover */
   transform: translateY(-5px);
   box-shadow: 0 12px 30px rgba(0, 255, 245, 0.15);
 }
 
-/* Light Mode Specificity - Higher Contrast */
+/* Light Mode: NeetCode Style Visibility (SOLID) */
 [data-theme="light"] .topic-node-container {
-  background: rgba(0, 122, 112, 0.08); /* Darker tint for light mode */
-  border: 1px solid rgba(0, 122, 112, 0.25); /* Stronger border */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  background: #ffffff;
+  border: 1.5px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 [data-theme="light"] .topic-node-container:hover {
   border-color: var(--accent);
-  background: rgba(0, 122, 112, 0.14);
-  box-shadow: 0 8px 20px rgba(0, 122, 112, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .topic-node-content {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
-  margin-bottom: 8px;
 }
 
 .topic-node-header {
@@ -58,12 +52,12 @@
 
 .topic-node-num {
   font-family: var(--mono);
-  font-size: 11px; /* Slightly bigger */
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.15em;
   color: var(--accent);
-  opacity: 0.8;
+  opacity: 1;
 }
 
 .topic-node-star {
@@ -74,32 +68,43 @@
 .topic-node-title {
   font-family: var(--serif);
   font-weight: 700;
-  font-size: 17px; /* APPROVED: Clinical bigger text */
-  letter-spacing: -0.01em;
-  text-align: left;
+  font-size: 18px; /* Goddamn bigger */
+  letter-spacing: -0.015em;
   color: var(--text-main);
   line-height: 1.25;
 }
 
-/* Progress bar at the static bottom */
-.topic-node-progress-container {
-  position: absolute;
-  bottom: 0;
-  left: 0;
+/* Progress Section - NeetCode Style */
+.topic-node-footer {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   width: 100%;
-  height: 5px; /* Slightly thicker */
-  background: rgba(255, 255, 245, 0.05);
 }
 
-[data-theme="light"] .topic-node-progress-container {
-  background: rgba(0, 0, 0, 0.05);
+.topic-node-stats {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-align: right;
+  letter-spacing: 0.05em;
+}
+
+.topic-node-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--border);
+  border-radius: 6px;
+  overflow: hidden;
 }
 
 .topic-node-progress-fill {
   height: 100%;
   background: var(--accent);
   transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 10px var(--accent);
+  box-shadow: 0 0 10px rgba(0, 255, 245, 0.5);
 }
 
 .topic-node-container .handle {
