@@ -28,11 +28,11 @@ export default function Navbar({ session, theme, toggleTheme }) {
             </div>
             
             {session ? (
-              <button className="btn-outline" onClick={() => setShowAccount(true)}>
+              <button className="btn-outline account-btn" onClick={() => setShowAccount(true)}>
                 ACCOUNT
               </button>
             ) : (
-              <button className="btn-outline" onClick={() => setShowLogin(true)}>
+              <button className="btn-outline login-btn" onClick={() => setShowLogin(true)}>
                 LOGIN
               </button>
             )}

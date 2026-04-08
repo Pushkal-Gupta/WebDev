@@ -45,10 +45,15 @@ export default function TopicNode({ data }) {
            {meta.star && <span className="topic-node-star">★</span>}
         </div>
         <span className="topic-node-title">{mainTitle}</span>
-      </div>
-
-      <div className="topic-node-progress-container">
-        <div className="topic-node-progress-fill" style={{ width: `${progressPercent}%` }} />
+        
+        <div className="topic-node-footer">
+          <div className="topic-node-stats">
+            {completed} / {total}
+          </div>
+          <div className="topic-node-progress-bar">
+            <div className="topic-node-progress-fill" style={{ width: `${progressPercent}%` }} />
+          </div>
+        </div>
       </div>
 
       <Handle type="source" position={Position.Bottom} className="handle" />

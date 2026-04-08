@@ -53,11 +53,11 @@
 
 .brand-suffix {
   color: var(--text-dim);
-  font-family: var(--mono);
-  font-weight: 400;
-  font-size: 0.9rem;
-  letter-spacing: -0.02em;
-  margin-left: 0.2rem;
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 1.4rem;
+  letter-spacing: -0.01em;
+  margin-left: 0.5rem;
   transition: color var(--t);
 }
 
@@ -75,32 +75,32 @@
   justify-self: end;
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 2.5rem; /* Grouped but breathable */
 }
 
 /* Toggle Switch */
 .toggle-wrap {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.8rem;
   cursor: pointer;
   user-select: none;
 }
 
 .toggle-label {
   font-family: var(--mono);
-  font-size: 0.58rem;
+  font-size: 0.65rem; /* Larger clinical text */
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  min-width: 35px;
+  letter-spacing: 0.1em;
+  min-width: 45px;
 }
 
 .switch-base {
-  width: 28px;
-  height: 14px;
+  width: 32px; /* Slightly bigger */
+  height: 16px;
   background: var(--border);
-  border-radius: 14px;
+  border-radius: 16px;
   position: relative;
   flex-shrink: 0;
   transition: background var(--t);
@@ -109,7 +109,7 @@
 .switch-base::after {
   content: "";
   position: absolute;
-  top: 2px; left: 2px;
+  top: 3px; left: 3px;
   width: 10px; height: 10px;
   background: var(--text-dim);
   border-radius: 50%;
@@ -121,7 +121,7 @@
 }
 
 [data-theme="dark"] .switch-base::after {
-  transform: translateX(14px);
+  transform: translateX(16px);
   background: var(--bg);
 }
 

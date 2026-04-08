@@ -52,13 +52,13 @@ const rigidGrid = {
 };
 
 const sideLabels = [
-  { id: 'lbl-1', label: 'FOUNDATION', y: 15 },
-  { id: 'lbl-2', label: 'LINEAR STRUCTURES', y: 265 },
-  { id: 'lbl-3', label: 'PATTERN DISCOVERY', y: 515 },
-  { id: 'lbl-4', label: 'HIERARCHICAL SYSTEMS', y: 765 },
-  { id: 'lbl-5', label: 'RECURSIVE OPTIMIZATION', y: 1015 },
-  { id: 'lbl-6', label: 'EXPERT DESIGN', y: 1265 },
-  { id: 'lbl-7', label: 'MATHEMATICAL SYNTHESIS', y: 1515 }
+  { id: 'lbl-1', label: 'FOUNDATION', y: 35 },
+  { id: 'lbl-2', label: 'LINEAR STRUCTURES', y: 335 },
+  { id: 'lbl-3', label: 'PATTERN DISCOVERY', y: 635 },
+  { id: 'lbl-4', label: 'HIERARCHICAL SYSTEMS', y: 935 },
+  { id: 'lbl-5', label: 'RECURSIVE OPTIMIZATION', y: 1235 },
+  { id: 'lbl-6', label: 'EXPERT DESIGN', y: 1535 },
+  { id: 'lbl-7', label: 'MATHEMATICAL SYNTHESIS', y: 1835 }
 ];
 
 export default function RoadmapView() {
@@ -70,7 +70,16 @@ export default function RoadmapView() {
   const nodeTypes = useMemo(() => ({ 
     custom: TopicNode,
     sectionHeader: ({ data }) => (
-      <div className="side-label-node brand" style={{ fontSize: '11px', color: 'var(--text-dim)', letterSpacing: '3px', opacity: 0.5, textTransform: 'uppercase' }}>
+      <div className="side-label-node brand" style={{ 
+        fontSize: '32px', 
+        fontWeight: '900', 
+        color: 'var(--text-main)', 
+        letterSpacing: '2px', 
+        opacity: 0.9, 
+        textTransform: 'uppercase',
+        textAlign: 'left',
+        width: '450px'
+      }}>
         {data.label}
       </div>
     )
@@ -81,7 +90,8 @@ export default function RoadmapView() {
       try {
         const { data: topicsData } = await supabase.from('PGcode_topics').select('*');
         const { data: edgesData } = await supabase.from('PGcode_roadmap_edges').select('*');
-        const { data: problemsData } = await supabase.from('PGcode_problems').select('id, topic_id, is_completed');
+        // Removing 'is_completed' for now as it's missing from the seeded problems
+        const { data: problemsData } = await supabase.from('PGcode_problems').select('id, topic_id');
 
         // Pre-calculate progress for all topics
         const progressMap = {};
@@ -89,7 +99,7 @@ export default function RoadmapView() {
           problemsData.forEach(p => {
             if (!progressMap[p.topic_id]) progressMap[p.topic_id] = { total: 0, completed: 0 };
             progressMap[p.topic_id].total++;
-            if (p.is_completed) progressMap[p.topic_id].completed++;
+            // p.is_completed is treated as false here automatically 
           });
         }
         setTopicProgress(progressMap);
@@ -102,17 +112,17 @@ export default function RoadmapView() {
             type: 'custom',
             position: rigidGrid[t.id] || { x: 0, y: 0 },
             data: { 
-              label: t.name,
+              label: t.id === 'geometry' ? 'Geometry' : t.name,
               id: t.id,
               progress: progressMap[t.id] || { total: 0, completed: 0 }
             }
           }));
 
-          // Text-only Headers on the left
+          // Text-only Headers on the far left
           const headerNodes = sideLabels.map(lbl => ({
             id: lbl.id,
             type: 'sectionHeader',
-            position: { x: -200, y: lbl.y },
+            position: { x: -500, y: lbl.y },
             data: { label: lbl.label },
             draggable: false,
             selectable: false
@@ -170,7 +180,7 @@ export default function RoadmapView() {
                    id: `auto-edge-${closestParent}-${childId}`,
                    source: closestParent,
                    target: childId,
-                   type: 'smoothstep',
+                   type: 'default',
                    style: { stroke: 'var(--accent)', strokeWidth: 1.5, opacity: 0.25 },
                    markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--accent)' }
                  });

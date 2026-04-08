@@ -46,7 +46,8 @@ export default function TopicModal({ topic, onClose }) {
   const handleMouseMove = useCallback((e) => {
     if (!isResizing.current) return;
     const newWidth = window.innerWidth - e.clientX;
-    if (newWidth > 400 && newWidth < 900) {
+    // Enforce 400px minimum width as per request
+    if (newWidth > 400 && newWidth < 950) {
       setWidth(newWidth);
     }
   }, []);
