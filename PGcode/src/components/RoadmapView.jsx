@@ -97,7 +97,10 @@ export default function RoadmapView({ roadmapMode, setRoadmapMode, session }) {
           if (roadmapMode === '200') {
             return p.roadmap_set === '200' || p.roadmap_set === 'both' || !p.roadmap_set;
           }
-          return true; // PGcode 300 shows all
+          if (roadmapMode === '300') {
+            return p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === 'both' || !p.roadmap_set;
+          }
+          return true; // PGcode 500 shows all
         });
 
         // Calculate progress per topic
