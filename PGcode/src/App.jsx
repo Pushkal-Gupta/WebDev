@@ -11,12 +11,11 @@ export default function App() {
   const [theme, setTheme] = useState(
     () => localStorage.getItem('pg-theme') || 'dark'
   );
+  const [roadmapMode, setRoadmapMode] = useState('200');
 
   useEffect(() => {
-    // Set initial custom data attribute for CSS vars
     document.documentElement.setAttribute('data-theme', theme);
-    
-    // Auth logic
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
     });
@@ -39,11 +38,17 @@ export default function App() {
 
   return (
     <HashRouter>
-      <Navbar session={session} theme={theme} toggleTheme={toggleTheme} />
+      <Navbar
+        session={session}
+        theme={theme}
+        toggleTheme={toggleTheme}
+        roadmapMode={roadmapMode}
+        setRoadmapMode={setRoadmapMode}
+      />
       <Routes>
-        <Route path="/" element={<RoadmapView />} />
-        <Route path="/category/:categoryId" element={<Workspace session={session} theme={theme} />} />
-        <Route path="/category/:categoryId/:problemId" element={<Workspace session={session} theme={theme} />} />
+        <Route path="/" element={<RoadmapView roadmapMode={roadmapMode} session={session} />} />
+        <Route path="/category/:categoryId" element={<Workspace session={session} theme={theme} roadmapMode={roadmapMode} />} />
+        <Route path="/category/:categoryId/:problemId" element={<Workspace session={session} theme={theme} roadmapMode={roadmapMode} />} />
       </Routes>
     </HashRouter>
   );

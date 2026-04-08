@@ -1,40 +1,78 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { SkipBack, SkipForward, Play, Pause } from 'lucide-react';
+import ArrayRenderer from './renderers/ArrayRenderer';
+import GraphRenderer from './renderers/GraphRenderer';
+import TreeRenderer from './renderers/TreeRenderer';
+import LinkedListRenderer from './renderers/LinkedListRenderer';
+import StackQueueRenderer from './renderers/StackQueueRenderer';
+import HashMapRenderer from './renderers/HashMapRenderer';
 import './DryRunViewer.css';
+
+function detectType(data) {
+  if (!data) return 'unknown';
+  if (data.type) return data.type;
+  if (data.array) return 'array';
+  if (data.nodes && data.edges && data.directed !== undefined) return 'graph';
+  if (data.nodes && data.edges) return 'tree';
+  if (data.items) return data.type === 'queue' ? 'queue' : 'stack';
+  if (data.entries) return 'hashmap';
+  return 'array';
+}
+
+function renderVisualState(data) {
+  if (!data) return null;
+  const type = detectType(data);
+
+  switch (type) {
+    case 'array':
+      return <ArrayRenderer data={data} />;
+    case 'graph':
+      return <GraphRenderer data={data} />;
+    case 'tree':
+      return <TreeRenderer data={data} />;
+    case 'linked-list':
+      return <LinkedListRenderer data={data} />;
+    case 'stack':
+    case 'queue':
+      return <StackQueueRenderer data={data} />;
+    case 'hashmap':
+      return <HashMapRenderer data={data} />;
+    default:
+      return <ArrayRenderer data={data} />;
+  }
+}
 
 export default function DryRunViewer({ problemId }) {
   const [steps, setSteps] = useState([]);
-  const [questions, setQuestions] = useState([]);
+  const [questions, setQuestions] = useState({});
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [activeQuestion, setActiveQuestion] = useState(null);
   const [feedback, setFeedback] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playSpeed, setPlaySpeed] = useState(1500);
+  const playRef = useRef(null);
 
   useEffect(() => {
     async function loadDryRunData() {
       setLoading(true);
       try {
-        // Fetch dry run steps
         const { data: stepData } = await supabase
           .from('PGcode_interactive_dry_runs')
           .select('*')
           .eq('problem_id', problemId)
           .order('step_number', { ascending: true });
 
-        // Fetch interactive questions
         const { data: qData } = await supabase
           .from('PGcode_interactive_questions')
           .select('*');
-        
+
         setSteps(stepData || []);
-        
-        // Map questions to standard
+
         const qMap = {};
         if (qData) {
-          qData.forEach(q => {
-            qMap[q.dry_run_step_id] = q;
-          });
+          qData.forEach(q => { qMap[q.dry_run_step_id] = q; });
         }
         setQuestions(qMap);
       } catch (err) {
@@ -43,21 +81,39 @@ export default function DryRunViewer({ problemId }) {
         setLoading(false);
       }
     }
-    
+
     if (problemId) {
       loadDryRunData();
       setCurrentStepIndex(0);
       setActiveQuestion(null);
       setFeedback(null);
+      setIsPlaying(false);
     }
   }, [problemId]);
 
-  // Handle advancing step and popping up question
+  // Auto-play
+  useEffect(() => {
+    if (isPlaying && !activeQuestion) {
+      playRef.current = setInterval(() => {
+        setCurrentStepIndex(prev => {
+          if (prev >= steps.length - 1) {
+            setIsPlaying(false);
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, playSpeed);
+    }
+    return () => clearInterval(playRef.current);
+  }, [isPlaying, playSpeed, steps.length, activeQuestion]);
+
+  // Question trigger on step change
   useEffect(() => {
     if (steps.length === 0) return;
     const currentStep = steps[currentStepIndex];
     if (currentStep && questions[currentStep.id]) {
       setActiveQuestion(questions[currentStep.id]);
+      setIsPlaying(false);
     } else {
       setActiveQuestion(null);
       setFeedback(null);
@@ -78,7 +134,7 @@ export default function DryRunViewer({ problemId }) {
 
   const answerQuestion = (option) => {
     if (option === activeQuestion.correct_answer) {
-      setFeedback({ type: 'success', text: activeQuestion.explanation || 'Correct! Proceeding...' });
+      setFeedback({ type: 'success', text: activeQuestion.explanation || 'Correct!' });
       setTimeout(() => {
         setActiveQuestion(null);
         setFeedback(null);
@@ -89,99 +145,98 @@ export default function DryRunViewer({ problemId }) {
   };
 
   if (loading) {
-    return <div style={{padding: '2rem', textAlign: 'center', color: 'var(--text-dim)', fontFamily: 'var(--mono)'}}>Loading Visualizer...</div>;
+    return <div className="dryrun-placeholder">Loading Visualizer...</div>;
   }
 
   if (steps.length === 0) {
-    return <div style={{padding: '2rem', textAlign: 'center', color: 'var(--text-dim)', fontFamily: 'var(--mono)'}}>No visual dry run available for this problem yet. Check the video solution!</div>;
+    return <div className="dryrun-placeholder">No visual dry run available for this problem yet.</div>;
   }
 
   const currentStep = steps[currentStepIndex];
 
   return (
-    <div className="dryRunContainer">
-      <div className="dryRunHeader">
-        <div style={{fontFamily: 'var(--mono)', fontSize: '0.9rem', color: 'var(--text-dim)'}}>
-          Step {currentStepIndex + 1} of {steps.length}: <strong style={{color: 'var(--accent)'}}>{currentStep.title}</strong>
-        </div>
-        
-        <div className="timelineControls">
-          <button className="controlBtn" onClick={handlePrev} disabled={currentStepIndex === 0 || activeQuestion}>
-            <SkipBack size={18} />
-          </button>
-          <button className="controlBtn" onClick={handleNext} disabled={currentStepIndex === steps.length - 1 || activeQuestion}>
-            <SkipForward size={18} />
-          </button>
+    <div className="dryrun-container">
+      {/* Title */}
+      <div className="dryrun-title">
+        <strong>{currentStep.title}</strong>
+      </div>
+
+      {/* Visualization Area */}
+      <div className="dryrun-canvas">
+        {currentStep.visual_state_data?.status && (
+          <div className="dryrun-status">{currentStep.visual_state_data.status}</div>
+        )}
+
+        <div className="dryrun-visual">
+          {renderVisualState(currentStep.visual_state_data)}
         </div>
       </div>
-      
-      <div className="dryRunBody">
-        {/* Visual Engine Renderer */}
-        <div className="simulation-canvas">
-          {currentStep.visual_state_data?.status && (
-            <div className="sim-status">
-              {currentStep.visual_state_data.status}
+
+      {/* Question Overlay */}
+      {activeQuestion && (
+        <div className="dryrun-question">
+          <h4>Knowledge Check</h4>
+          <p className="question-text">{activeQuestion.question_text}</p>
+
+          {activeQuestion.options?.length > 0 && (
+            <div className="question-options">
+              {activeQuestion.options.map((opt, i) => (
+                <button key={i} className="question-opt-btn" onClick={() => answerQuestion(opt)}>
+                  {opt}
+                </button>
+              ))}
             </div>
           )}
 
-          {currentStep.visual_state_data?.array && (
-             <div className="sim-array-container">
-               {currentStep.visual_state_data.array.map((val, idx) => {
-                 const isPointer = currentStep.visual_state_data.pointer === idx;
-                 return (
-                   <div key={idx} className={`sim-array-element ${isPointer ? 'active-pointer' : ''}`}>
-                     <div className="sim-element-val">{val}</div>
-                     <div className="sim-element-idx">{idx}</div>
-                     {isPointer && (
-                       <div className="sim-pointer-indicator">
-                          <span>↑</span>
-                          <span className="pointer-label">i</span>
-                       </div>
-                     )}
-                   </div>
-                 );
-               })}
-             </div>
-          )}
-
-          {currentStep.visual_state_data?.hashset !== undefined && (
-             <div className="sim-hashset-container">
-                <h4>Hash Set</h4>
-                <div className="sim-hashset-elements">
-                   {currentStep.visual_state_data.hashset.map((val, idx) => (
-                     <div key={idx} className="sim-hashset-val">{val}</div>
-                   ))}
-                   {currentStep.visual_state_data.hashset.length === 0 && (
-                     <span className="empty-text">Empty</span>
-                   )}
-                </div>
-             </div>
+          {feedback && (
+            <div className={`question-feedback ${feedback.type}`}>
+              {feedback.text}
+            </div>
           )}
         </div>
+      )}
 
-        {/* Interactive Check / Question Popover */}
-        {activeQuestion && (
-          <div className="interactiveQuestionPopup">
-            <h4 style={{ margin: 0, color: 'var(--accent)', fontFamily: 'var(--mono)'}}>Knowledge Check</h4>
-            <div className="questionText">{activeQuestion.question_text}</div>
-            
-            {activeQuestion.options && activeQuestion.options.length > 0 && (
-              <div className="optionsList">
-                {activeQuestion.options.map((opt, i) => (
-                  <button key={i} className="optionBtn" onClick={() => answerQuestion(opt)}>
-                    {opt}
-                  </button>
-                ))}
-              </div>
-            )}
-            
-            {feedback && (
-              <div className={`feedbackText ${feedback.type === 'success' ? 'feedbackSuccess' : 'feedbackError'}`}>
-                {feedback.text}
-              </div>
-            )}
-          </div>
-        )}
+      {/* Controls Bar (GFG-style bottom) */}
+      <div className="dryrun-controls">
+        <button
+          className="ctrl-btn"
+          onClick={handlePrev}
+          disabled={currentStepIndex === 0 || !!activeQuestion}
+          title="Previous"
+        >
+          <SkipBack size={18} />
+        </button>
+
+        <button
+          className="ctrl-btn ctrl-play"
+          onClick={() => setIsPlaying(!isPlaying)}
+          disabled={!!activeQuestion}
+          title={isPlaying ? 'Pause' : 'Play'}
+        >
+          {isPlaying ? <Pause size={20} /> : <Play size={20} />}
+        </button>
+
+        <button
+          className="ctrl-btn"
+          onClick={handleNext}
+          disabled={currentStepIndex === steps.length - 1 || !!activeQuestion}
+          title="Next"
+        >
+          <SkipForward size={18} />
+        </button>
+
+        <span className="step-counter">{currentStepIndex + 1} / {steps.length}</span>
+
+        <select
+          className="speed-select"
+          value={playSpeed}
+          onChange={e => setPlaySpeed(Number(e.target.value))}
+        >
+          <option value={2500}>0.5x</option>
+          <option value={1500}>1x</option>
+          <option value={800}>2x</option>
+          <option value={400}>4x</option>
+        </select>
       </div>
     </div>
   );

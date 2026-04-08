@@ -78,6 +78,69 @@ html, body, #root {
   :root { --cell-size: 34px; }   /* 272px board */
 }
 
+/* ── Light Mode ── */
+[data-theme="light"] {
+  --color-bg-primary: #dcd4cb;
+  --color-bg-secondary: #e8e2da;
+  --color-bg-surface: rgba(0, 0, 0, 0.045);
+  --color-border: rgba(0, 0, 0, 0.11);
+  --color-border-light: rgba(0, 0, 0, 0.16);
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: rgba(0, 0, 0, 0.58);
+  --color-text-muted: rgba(0, 0, 0, 0.38);
+  --color-text-dim: rgba(0, 0, 0, 0.22);
+  --color-accent: #009e98;
+  --color-accent-rgb: 0, 158, 152;
+  --color-error: #d32f2f;
+  --color-error-rgb: 211, 47, 47;
+  --color-error-dark: #b71c1c;
+  --color-success: #2e7d32;
+  --color-success-rgb: 46, 125, 50;
+  --color-warning: #c88400;
+  --color-warning-dark: #a86d00;
+}
+[data-theme="light"][data-high-contrast="true"] {
+  --color-border: rgba(0, 0, 0, 0.28);
+  --color-border-light: rgba(0, 0, 0, 0.38);
+  --color-text-secondary: rgba(0, 0, 0, 0.75);
+  --color-text-muted: rgba(0, 0, 0, 0.55);
+  --color-text-dim: rgba(0, 0, 0, 0.4);
+}
+
+/* ── Background Presets ── */
+[data-bg="wood"] {
+  --color-bg-primary: #2b1f16;
+  --color-bg-secondary: #3a2a1e;
+}
+[data-bg="wood"][data-theme="light"] {
+  --color-bg-primary: #d4c4a8;
+  --color-bg-secondary: #e0d4be;
+}
+[data-bg="ocean"] {
+  --color-bg-primary: #0a1628;
+  --color-bg-secondary: #111f33;
+}
+[data-bg="ocean"][data-theme="light"] {
+  --color-bg-primary: #c4d3e0;
+  --color-bg-secondary: #d2dfe8;
+}
+[data-bg="forest"] {
+  --color-bg-primary: #081a0e;
+  --color-bg-secondary: #0f2417;
+}
+[data-bg="forest"][data-theme="light"] {
+  --color-bg-primary: #c4d8c6;
+  --color-bg-secondary: #d2e4d4;
+}
+[data-bg="slate"] {
+  --color-bg-primary: #1a1a2e;
+  --color-bg-secondary: #22223a;
+}
+[data-bg="slate"][data-theme="light"] {
+  --color-bg-primary: #d0cede;
+  --color-bg-secondary: #dbd9e6;
+}
+
 /* ── Accessibility: Reduced Motion ── */
 [data-reduced-motion="true"] *,
 [data-reduced-motion="true"] *::before,

@@ -1,25 +1,26 @@
+/* ── Design Tokens (aligned with blog) ── */
 :root {
   --mono: "Space Mono", monospace;
   --serif: "Lora", serif;
   --sans: "Inter", sans-serif;
   --t: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Dark mode (default) */
+  /* Dark mode (default) — matches blog exactly */
   --bg: #030a0a;
-  --surface: #060e0e;
+  --surface: #061010;
   --text-main: #ffffff;
-  --text-dim: #4a7370;
+  --text-dim: #5c8582;
   --accent: #00fff5;
   --border: #0f2b29;
-  --card-bg: #060e0e;
-  --hover-box: rgba(0, 255, 245, 0.04);
+  --card-bg: #061010;
+  --hover-box: rgba(0, 255, 245, 0.05);
 
-  /* Status Colors (PG Standard) */
+  /* Status Colors */
   --easy: #4caf50;
   --medium: #f0a500;
   --hard: #ef4444;
 
-  /* Workspace Colors */
+  /* Workspace language accent colors */
   --blue: #3b82f6;
   --blue-bg: #1a2540;
   --blue-bar: #1e3a6e;
@@ -40,26 +41,57 @@
 }
 
 [data-theme="light"] {
-  --bg: #f7f5f2;
+  --bg: #f5f2ed;
   --surface: #ffffff;
-  --text-main: #0a0a0a; /* Pure clinical black */
-  --text-dim: #5c5c5c; /* Darker for readability */
-  --accent: #007a70;
-  --border: #cac8c2; /* Stronger borders */
+  --text-main: #1a1a1a;
+  --text-dim: #666666;
+  --accent: #008a7e;
+  --border: #e0ddd7;
   --card-bg: #ffffff;
-  --hover-box: rgba(0, 122, 112, 0.08);
+  --hover-box: rgba(0, 138, 126, 0.06);
+
+  /* Light mode workspace overrides */
+  --blue-bg: #e8f0fe;
+  --blue-bar: #b6d4fe;
+  --violet-bg: #ede9fe;
+  --violet-bar: #c4b5fd;
+  --green-bg: #dcfce7;
+  --green-bar: #86efac;
+  --orange-bg: #fff7ed;
+  --orange-bar: #fed7aa;
+  --red-bg: #fef2f2;
+  --red-bar: #fecaca;
+  --yellow-bg: #fefce8;
+}
+
+/* ── Global Reset & Base ── */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
   background-color: var(--bg);
   color: var(--text-main);
   font-family: var(--sans);
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   transition: background var(--t), color var(--t);
-  line-height: 1.7; /* Increased for clinical breathing */
 }
 
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ── Typography ── */
 .brand {
   font-family: var(--serif);
   font-weight: 600;
@@ -67,12 +99,12 @@ body {
   color: var(--text-main);
 }
 
-/* Button & Link styles */
 button {
   cursor: pointer;
   font-family: var(--mono);
 }
 
+/* ── Button Styles ── */
 .btn-primary {
   background: var(--accent);
   color: var(--bg);
@@ -107,4 +139,3 @@ button {
   background: var(--accent);
   color: var(--bg);
 }
-

@@ -1,32 +1,57 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { X, PlayCircle, Star, CheckCircle, ExternalLink, Video, FileText, ChevronLeft } from 'lucide-react';
+import { X, Star, CheckCircle, ExternalLink, Video, FileText, ChevronLeft, Code2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import LearningsSection from './LearningsSection';
 import './TopicModal.css';
 
 const difficultyOrder = { 'Easy': 0, 'Medium': 1, 'Hard': 2 };
 
-export default function TopicModal({ topic, onClose }) {
+export default function TopicModal({ topic, onClose, roadmapMode, session }) {
   const [problems, setProblems] = useState([]);
+  const [userProgress, setUserProgress] = useState({});
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('problems');
   const [width, setWidth] = useState(parseInt(localStorage.getItem('pgcode_sidebar_width')) || 500);
   const isResizing = useRef(false);
 
   useEffect(() => {
     async function loadProblems() {
       try {
-        const { data, error } = await supabase
+        let query = supabase
           .from('PGcode_problems')
           .select('*')
           .eq('topic_id', topic.id);
-        
+
+        const { data, error } = await query;
         if (error) throw error;
-        
-        const sorted = data ? [...data].sort((a, b) => 
+
+        // Filter by roadmap mode
+        let filtered = data || [];
+        if (roadmapMode === '200') {
+          filtered = filtered.filter(p =>
+            p.roadmap_set === '200' || p.roadmap_set === 'both' || !p.roadmap_set
+          );
+        }
+
+        const sorted = [...filtered].sort((a, b) =>
           difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty]
-        ) : [];
-        
+        );
         setProblems(sorted);
+
+        // Load user progress
+        if (session?.user) {
+          const { data: progress } = await supabase
+            .from('PGcode_user_progress')
+            .select('*')
+            .eq('user_id', session.user.id);
+
+          if (progress) {
+            const map = {};
+            progress.forEach(p => { map[p.problem_id] = p; });
+            setUserProgress(map);
+          }
+        }
       } catch (err) {
         console.error("Error fetching problems:", err);
       } finally {
@@ -34,9 +59,47 @@ export default function TopicModal({ topic, onClose }) {
       }
     }
     loadProblems();
-  }, [topic.id]);
+  }, [topic.id, roadmapMode, session]);
 
-  const handleMouseDown = (e) => {
+  const toggleComplete = async (problemId) => {
+    if (!session?.user) return;
+    const current = userProgress[problemId];
+    const newVal = !(current?.is_completed);
+
+    await supabase.from('PGcode_user_progress').upsert({
+      user_id: session.user.id,
+      problem_id: problemId,
+      is_completed: newVal,
+      is_starred: current?.is_starred || false,
+      updated_at: new Date().toISOString()
+    });
+
+    setUserProgress(prev => ({
+      ...prev,
+      [problemId]: { ...prev[problemId], is_completed: newVal }
+    }));
+  };
+
+  const toggleStar = async (problemId) => {
+    if (!session?.user) return;
+    const current = userProgress[problemId];
+    const newVal = !(current?.is_starred);
+
+    await supabase.from('PGcode_user_progress').upsert({
+      user_id: session.user.id,
+      problem_id: problemId,
+      is_starred: newVal,
+      is_completed: current?.is_completed || false,
+      updated_at: new Date().toISOString()
+    });
+
+    setUserProgress(prev => ({
+      ...prev,
+      [problemId]: { ...prev[problemId], is_starred: newVal }
+    }));
+  };
+
+  const handleMouseDown = () => {
     isResizing.current = true;
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
@@ -46,7 +109,6 @@ export default function TopicModal({ topic, onClose }) {
   const handleMouseMove = useCallback((e) => {
     if (!isResizing.current) return;
     const newWidth = window.innerWidth - e.clientX;
-    // Enforce 400px minimum width as per request
     if (newWidth > 400 && newWidth < 950) {
       setWidth(newWidth);
     }
@@ -63,10 +125,9 @@ export default function TopicModal({ topic, onClose }) {
   if (!topic) return null;
 
   const rawTitle = topic.data?.label || topic.name || '';
-  const [mainTitle, ...tagParts] = rawTitle.split('\\n');
-  const tags = tagParts.join(' ').split(',').map(t => t.trim()).filter(Boolean);
+  const [mainTitle] = rawTitle.split('\\n');
 
-  const completedCount = problems.filter(p => p.is_completed).length;
+  const completedCount = problems.filter(p => userProgress[p.id]?.is_completed).length;
   const totalCount = problems.length;
   const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
@@ -76,13 +137,13 @@ export default function TopicModal({ topic, onClose }) {
     }}>
       <div className="topicModalContent" style={{ width: `${width}px` }}>
         <div className="resize-handle" onMouseDown={handleMouseDown} />
-        
+
         <div className="topicModalHeader">
           <button className="backBtn" onClick={onClose}>
             <ChevronLeft size={18} />
             <span>Back</span>
           </button>
-          
+
           <div className="headerCenter">
             <h2 className="modalMainTitle">{mainTitle}</h2>
             <div className="progressFraction">({completedCount} / {totalCount})</div>
@@ -94,66 +155,98 @@ export default function TopicModal({ topic, onClose }) {
           <button className="closeBtn" onClick={onClose}><X size={20} /></button>
         </div>
 
+        {/* Tab Bar */}
+        <div className="modal-tabs">
+          <button
+            className={`modal-tab ${activeTab === 'problems' ? 'active' : ''}`}
+            onClick={() => setActiveTab('problems')}
+          >
+            Problems ({totalCount})
+          </button>
+          <button
+            className={`modal-tab ${activeTab === 'learnings' ? 'active' : ''}`}
+            onClick={() => setActiveTab('learnings')}
+          >
+            Learnings
+          </button>
+        </div>
+
         <div className="topicModalBody">
-          {tags.length > 0 && (
-            <div className="prerequisitesSection">
-              <span className="sectionLabel">Tags / Details</span>
-              <div className="tagList">
-                {tags.map((tag, i) => (
-                  <div key={i} className="topicTag">{tag}</div>
-                ))}
-              </div>
-            </div>
-          )}
+          {activeTab === 'problems' && (
+            <>
+              <div className="problemTableSection">
+                <div className="tableHeader">
+                  <div className="col-status">Status</div>
+                  <div className="col-star">Star</div>
+                  <div className="col-problem">Problem</div>
+                  <div className="col-diff">Difficulty</div>
+                  <div className="col-solve">Solve</div>
+                </div>
 
-          <div className="problemTableSection">
-            <div className="tableHeader">
-              <div className="col-status">Status</div>
-              <div className="col-star">Star</div>
-              <div className="col-problem">Problem</div>
-              <div className="col-diff">Difficulty</div>
-              <div className="col-sol">Solution</div>
-            </div>
-
-            {loading ? (
-              <div className="loadingState">Loading patterns...</div>
-            ) : (
-              <div className="tableBody">
-                {problems.map(prob => (
-                  <div key={prob.id} className="tableRow">
-                    <div className="col-status">
-                      <CheckCircle size={18} className={prob.is_completed ? "status-done" : "status-todo"} />
-                    </div>
-                    <div className="col-star">
-                      <Star size={18} className={prob.is_starred ? "star-active" : "star-inactive"} />
-                    </div>
-                    <div className="col-problem">
-                      <Link to={`/category/${topic.id}/${prob.id}`} className="problemLink">
-                        {prob.name}
-                        <ExternalLink size={12} className="linkIcon" />
-                      </Link>
-                    </div>
-                    <div className={`col-diff diff-${prob.difficulty.toLowerCase()}`}>
-                      {prob.difficulty}
-                    </div>
-                    <div className="col-sol">
-                      <div className="solIcons">
-                        <Video size={16} title="Video Solution" />
-                        <FileText size={16} title="Code Template" />
-                      </div>
-                    </div>
+                {loading ? (
+                  <div className="loadingState">Loading problems...</div>
+                ) : (
+                  <div className="tableBody">
+                    {problems.map(prob => {
+                      const progress = userProgress[prob.id] || {};
+                      return (
+                        <div key={prob.id} className="tableRow">
+                          <div className="col-status">
+                            <CheckCircle
+                              size={18}
+                              className={progress.is_completed ? "status-done" : "status-todo"}
+                              onClick={() => toggleComplete(prob.id)}
+                              style={{ cursor: session ? 'pointer' : 'default' }}
+                            />
+                          </div>
+                          <div className="col-star">
+                            <Star
+                              size={18}
+                              className={progress.is_starred ? "star-active" : "star-inactive"}
+                              onClick={() => toggleStar(prob.id)}
+                              style={{ cursor: session ? 'pointer' : 'default' }}
+                            />
+                          </div>
+                          <div className="col-problem">
+                            <Link to={`/category/${topic.id}/${prob.id}`} className="problemLink">
+                              {prob.name}
+                              <ExternalLink size={12} className="linkIcon" />
+                            </Link>
+                          </div>
+                          <div className={`col-diff diff-${prob.difficulty.toLowerCase()}`}>
+                            {prob.difficulty}
+                          </div>
+                          <div className="col-solve">
+                            <div className="solveIcons">
+                              <Link to={`/category/${topic.id}/${prob.id}`} className="solve-icon solve-platform" title="Solve on PGcode">
+                                <Code2 size={15} />
+                              </Link>
+                              {prob.leetcode_url && (
+                                <a href={prob.leetcode_url} target="_blank" rel="noopener noreferrer" className="solve-icon solve-lc" title="Solve on LeetCode">
+                                  <ExternalLink size={14} />
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {problems.length === 0 && (
+                      <div className="emptyState">No problems added yet.</div>
+                    )}
                   </div>
-                ))}
-                {problems.length === 0 && (
-                  <div className="emptyState">No problems added ... Yet.</div>
                 )}
               </div>
-            )}
-          </div>
-          
-          <Link to={`/category/${topic.id}`} className="enterWorkspaceBtn">
-            ENTER INTERACTIVE WORKSPACE
-          </Link>
+
+              <Link to={`/category/${topic.id}`} className="enterWorkspaceBtn">
+                ENTER INTERACTIVE WORKSPACE
+              </Link>
+            </>
+          )}
+
+          {activeTab === 'learnings' && (
+            <LearningsSection topicId={topic.id} />
+          )}
         </div>
       </div>
     </div>
