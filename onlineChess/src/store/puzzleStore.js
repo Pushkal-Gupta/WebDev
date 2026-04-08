@@ -622,14 +622,14 @@ const usePuzzleStore = create((set, get) => ({
         const newScore = get().rushScore + 1;
         set({ rushScore: newScore, currentFen: _chess.fen(), moveIndex: afterOppIdx });
         setTimeout(() => get()._loadPuzzleForMode(userId), 300);
-        return { correct: true, solved: true };
+        return { correct: true, solved: true, oppUci };
       }
       if (mode === 'streak') {
         const newCount = get().streakCount + 1;
         const newDiff = get().streakDifficulty + 50;
         set({ streakCount: newCount, streakDifficulty: newDiff, currentFen: _chess.fen(), moveIndex: afterOppIdx });
         setTimeout(() => get()._loadPuzzleForMode(userId), 300);
-        return { correct: true, solved: true };
+        return { correct: true, solved: true, oppUci };
       }
       const hintWasUsed2 = get().hintUsed;
       set({ status: 'solved', streak: hintWasUsed2 ? 0 : streak + 1, currentFen: _chess.fen(), moveIndex: afterOppIdx });
@@ -639,11 +639,11 @@ const usePuzzleStore = create((set, get) => ({
         const ratingChange = get().lastRatingChange;
         await get().recordAttempt(userId, puzzle.id, true, timeTaken, ratingChange, puzzle.rating);
       }
-      return { correct: true, solved: true };
+      return { correct: true, solved: true, oppUci };
     }
 
     set({ moveIndex: afterOppIdx, currentFen: _chess.fen(), status: 'playing' });
-    return { correct: true, solved: false };
+    return { correct: true, solved: false, oppUci };
   },
 
   // ── Give up (Lichess-style) ─────────────────────────────────────────────

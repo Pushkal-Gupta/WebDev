@@ -246,18 +246,23 @@ export default function App() {
         } else {
           // Stockfish for higher strengths, local AI as fallback
           try {
-            bestMove = await getBestMove(fen);
+            const botTimeMs = (useGameStore.getState()[clockKey] || 60) * 1000;
+            const apiTimeout = Math.min(10000, Math.max(2000, Math.round(botTimeMs * 0.4)));
+            const retries = botTimeMs < 10000 ? 1 : botTimeMs < 30000 ? 3 : 8;
+            bestMove = await getBestMove(fen, { timeoutMs: apiTimeout, maxRetries: retries });
           } catch {
             bestMove = getLocalBestMove(fen, compStrength || 8);
           }
         }
         if (!bestMove || bestMove === '(none)') return;
-        // Brief pause so the move feels natural (scaled to time control)
+        // Brief pause so the move feels natural (scaled to time control + remaining time)
         const elapsed = Date.now() - thinkStart;
         const botTime = useGameStore.getState()[clockKey];
-        // Use at most 2% of remaining time, clamped between 0.3s and 1.5s
-        const maxThink = botTime != null ? Math.min(1500, Math.max(300, botTime * 20)) : 800;
-        const minThink = Math.min(maxThink, 300 + ((compStrength || 4) * 50)); // 0.35s – 0.8s
+        const lowTime = botTime != null && botTime < 30;
+        const maxThink = lowTime
+          ? Math.min(200, Math.max(50, botTime * 5))
+          : botTime != null ? Math.min(1500, Math.max(300, botTime * 20)) : 800;
+        const minThink = Math.min(maxThink, (lowTime ? 50 : 300) + ((compStrength || 4) * (lowTime ? 10 : 50)));
         const remaining = Math.max(0, minThink - elapsed);
         if (remaining > 0) await new Promise(r => setTimeout(r, remaining));
         const from = bestMove.slice(0, 2);
@@ -269,15 +274,15 @@ export default function App() {
           promotion,
           true
         );
-        // Reconcile bot clock — setInterval may have missed ticks during sync computation
-        const totalElapsedSec = Math.round((Date.now() - thinkStart) / 1000);
+        // Deduct simulated think time (real clock is paused while compThinking)
         const st = useGameStore.getState();
         if (st.timeControl && !st.gameOver) {
           const inc = st.timeControl.incr || 0;
-          const correctTime = Math.max(0, clockBefore - totalElapsedSec + inc);
-          if (st[clockKey] > correctTime) {
-            useGameStore.setState({ [clockKey]: correctTime });
-          }
+          const remaining = st[clockKey];
+          // Simulated think time: 2-5% of remaining, clamped [1, 10] seconds
+          const simThink = Math.max(1, Math.min(10, Math.round(remaining * (0.02 + Math.random() * 0.03))));
+          const correctTime = Math.max(0, remaining - simThink + inc);
+          useGameStore.setState({ [clockKey]: correctTime });
           if (correctTime <= 0) st.timeExpired(compIsWhite ? 'w' : 'b');
         }
       } catch (e) {
@@ -297,7 +302,10 @@ export default function App() {
       }
     };
 
-    const t = setTimeout(makeCompMove, 300);
+    const clockKey2 = (compColor === 'white' ? 'whiteTime' : 'blackTime');
+    const bt = useGameStore.getState()[clockKey2] || 60;
+    const initDelay = bt < 30 ? 50 : bt < 120 ? 150 : 300;
+    const t = setTimeout(makeCompMove, initDelay);
     return () => clearTimeout(t);
   }, [activeColor, gameStarted, gameOver, isComp, compColor, compStrength, compThinking, currentMoveIndex, chessInstance, moveHistory.length]);
 
