@@ -53,21 +53,26 @@ export default function Workspace({ session, theme, roadmapMode }) {
       }
     }
     fetchWorkspaceData();
-  }, [categoryId]);
+  }, [categoryId, roadmapMode]);
 
   useEffect(() => {
     async function fetchTemplates() {
       if (!activeProblem) return;
-      const { data } = await supabase
-        .from('PGcode_problem_templates')
-        .select('*')
-        .eq('problem_id', activeProblem.id);
-      
-      const tmplMap = {};
-      if (data) {
-        data.forEach(t => { tmplMap[t.language] = t.code; });
+      try {
+        const { data, error } = await supabase
+          .from('PGcode_problem_templates')
+          .select('*')
+          .eq('problem_id', activeProblem.id);
+        if (error) throw error;
+        const tmplMap = {};
+        if (data) {
+          data.forEach(t => { tmplMap[t.language] = t.code; });
+        }
+        setTemplates(tmplMap);
+      } catch (err) {
+        console.error('Error fetching templates:', err);
+        setTemplates({});
       }
-      setTemplates(tmplMap);
     }
     fetchTemplates();
   }, [activeProblem]);
@@ -87,20 +92,25 @@ export default function Workspace({ session, theme, roadmapMode }) {
       return;
     }
     async function loadProgress() {
-      const { data } = await supabase
-        .from('PGcode_user_progress')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .eq('problem_id', activeProblem.id)
-        .single();
-      if (data) {
-        setUserProgress(data);
-        setNotes(data.notes || '');
-        setConfidence(data.confidence || 0);
-      } else {
+      try {
+        const { data } = await supabase
+          .from('PGcode_user_progress')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .eq('problem_id', activeProblem.id)
+          .single();
+        if (data) {
+          setUserProgress(data);
+          setNotes(data.notes || '');
+          setConfidence(data.confidence || 0);
+        } else {
+          setUserProgress(null);
+          setNotes('');
+          setConfidence(0);
+        }
+      } catch (err) {
+        console.error('Error loading progress:', err);
         setUserProgress(null);
-        setNotes('');
-        setConfidence(0);
       }
     }
     loadProgress();
@@ -115,7 +125,11 @@ export default function Workspace({ session, theme, roadmapMode }) {
       updated_at: now,
       ...updates,
     };
-    await supabase.from('PGcode_user_progress').upsert(payload);
+    const { error } = await supabase.from('PGcode_user_progress').upsert(payload);
+    if (error) {
+      console.error('Failed to save progress:', error);
+      return;
+    }
     setUserProgress(prev => ({ ...prev, ...payload }));
   };
 
@@ -302,7 +316,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
               <button className="btn-primary save-btn">
                 <Save size={14} /> <span>Save</span>
               </button>
-              <button className="btn-primary run-btn" onClick={() => alert('Validation coming soon!')}>
+              <button className="btn-primary run-btn" disabled title="Run validation coming soon">
                 <Play size={14} /> <span>Run</span>
               </button>
             </div>

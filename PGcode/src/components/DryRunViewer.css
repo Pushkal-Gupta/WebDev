@@ -45,10 +45,9 @@
 }
 
 .dryrun-status {
-  position: absolute;
-  top: 1rem;
-  left: 1.5rem;
-  right: 1.5rem;
+  position: relative;
+  margin-bottom: 1rem;
+  width: 100%;
   font-family: var(--sans);
   font-size: 0.9rem;
   color: var(--text-main);

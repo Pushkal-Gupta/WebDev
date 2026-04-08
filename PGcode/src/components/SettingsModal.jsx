@@ -4,7 +4,7 @@ import { X, UserPlus, Users, Check, Clock, Trash2 } from 'lucide-react';
 import './SettingsModal.css';
 
 export default function SettingsModal({ session, onClose }) {
-  const [activeTab, setActiveTab] = useState('friends');
+  const [activeTab, setActiveTab] = useState('profile');
   const [friendEmail, setFriendEmail] = useState('');
   const [friends, setFriends] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
@@ -19,102 +19,111 @@ export default function SettingsModal({ session, onClose }) {
   }, [session]);
 
   const loadProfile = async () => {
-    const { data } = await supabase
-      .from('PGcode_profiles')
-      .select('*')
-      .eq('user_id', session.user.id)
-      .single();
-
-    if (data) {
-      setDisplayName(data.display_name || '');
+    if (!session?.user) return;
+    try {
+      const { data } = await supabase
+        .from('PGcode_profiles')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .single();
+      if (data) {
+        setDisplayName(data.display_name || '');
+      }
+    } catch (err) {
+      // Profile may not exist yet
     }
   };
 
   const saveProfile = async () => {
-    await supabase.from('PGcode_profiles').upsert({
+    if (!session?.user) return;
+    const { error } = await supabase.from('PGcode_profiles').upsert({
       user_id: session.user.id,
       display_name: displayName,
     });
-    setMessage({ type: 'success', text: 'Profile saved!' });
+    if (error) {
+      setMessage({ type: 'error', text: 'Failed to save profile.' });
+    } else {
+      setMessage({ type: 'success', text: 'Profile saved!' });
+    }
     setTimeout(() => setMessage(null), 2000);
   };
 
   const loadFriends = async () => {
-    // Get accepted friends (where I'm the sender or receiver)
-    const { data: sent } = await supabase
-      .from('PGcode_friends')
-      .select('*, friend:friend_id(email:user_id)')
-      .eq('user_id', session.user.id)
-      .eq('status', 'accepted');
-
-    const { data: received } = await supabase
-      .from('PGcode_friends')
-      .select('*, sender:user_id(email:user_id)')
-      .eq('friend_id', session.user.id)
-      .eq('status', 'accepted');
-
-    const { data: pending } = await supabase
-      .from('PGcode_friends')
-      .select('*')
-      .eq('friend_id', session.user.id)
-      .eq('status', 'pending');
-
-    setFriends([...(sent || []), ...(received || [])]);
-    setPendingRequests(pending || []);
-
-    // Load friend progress (total solved counts)
-    const friendIds = [
-      ...(sent || []).map(f => f.friend_id),
-      ...(received || []).map(f => f.user_id),
-    ];
-
-    if (friendIds.length > 0) {
-      const { data: profiles } = await supabase
-        .from('PGcode_profiles')
+    if (!session?.user) return;
+    try {
+      const { data: sent } = await supabase
+        .from('PGcode_friends')
         .select('*')
-        .in('user_id', friendIds);
+        .eq('user_id', session.user.id)
+        .eq('status', 'accepted');
 
-      const map = {};
-      (profiles || []).forEach(p => { map[p.user_id] = p; });
-      setFriendProgress(map);
+      const { data: received } = await supabase
+        .from('PGcode_friends')
+        .select('*')
+        .eq('friend_id', session.user.id)
+        .eq('status', 'accepted');
+
+      const { data: pending } = await supabase
+        .from('PGcode_friends')
+        .select('*')
+        .eq('friend_id', session.user.id)
+        .eq('status', 'pending');
+
+      setFriends([...(sent || []), ...(received || [])]);
+      setPendingRequests(pending || []);
+
+      // Load friend profiles
+      const friendIds = [
+        ...(sent || []).map(f => f.friend_id),
+        ...(received || []).map(f => f.user_id),
+      ];
+
+      if (friendIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('PGcode_profiles')
+          .select('*')
+          .in('user_id', friendIds);
+
+        const map = {};
+        (profiles || []).forEach(p => { map[p.user_id] = p; });
+        setFriendProgress(map);
+      }
+    } catch (err) {
+      console.error('Error loading friends:', err);
     }
   };
 
   const sendFriendRequest = async () => {
-    if (!friendEmail.trim()) return;
-
-    // Look up the user by email - we need to search auth.users
-    // Since we can't query auth.users directly, we'll store the email as friend_id placeholder
-    // In practice, you'd need a profiles table lookup
-    setMessage({ type: 'info', text: `Friend request system requires user lookup. For now, share your profile link!` });
+    if (!friendEmail.trim() || !session?.user) return;
+    setMessage({ type: 'info', text: 'Friend request system requires user lookup. Share your profile link for now!' });
     setFriendEmail('');
     setTimeout(() => setMessage(null), 3000);
   };
 
   const acceptRequest = async (requestId) => {
-    await supabase
+    const { error } = await supabase
       .from('PGcode_friends')
       .update({ status: 'accepted' })
       .eq('id', requestId);
-    loadFriends();
+    if (!error) loadFriends();
   };
 
   const rejectRequest = async (requestId) => {
-    await supabase
+    const { error } = await supabase
       .from('PGcode_friends')
       .delete()
       .eq('id', requestId);
-    loadFriends();
+    if (!error) loadFriends();
   };
 
   return (
     <div className="settings-overlay" onClick={(e) => {
-      if (e.target.className === 'settings-overlay') onClose();
+      if (e.target === e.currentTarget) onClose();
     }}>
       <div className="settings-content">
         <div className="settings-header">
           <h2>Settings</h2>
-          <button className="closeBtn" onClick={onClose}><X size={20} /></button>
+          <button className="settings-close" onClick={onClose}><X size={20} /></button>
         </div>
 
         <div className="settings-tabs">
@@ -150,7 +159,6 @@ export default function SettingsModal({ session, onClose }) {
 
           {activeTab === 'friends' && (
             <div className="friends-section">
-              {/* Add Friend */}
               <div className="add-friend-row">
                 <input
                   type="email"
@@ -164,7 +172,6 @@ export default function SettingsModal({ session, onClose }) {
                 </button>
               </div>
 
-              {/* Pending Requests */}
               {pendingRequests.length > 0 && (
                 <div className="friend-group">
                   <span className="friend-group-label">
@@ -172,7 +179,7 @@ export default function SettingsModal({ session, onClose }) {
                   </span>
                   {pendingRequests.map(req => (
                     <div key={req.id} className="friend-item pending">
-                      <span className="friend-name">Request from user</span>
+                      <span className="friend-name">Friend request</span>
                       <div className="friend-actions">
                         <button className="friend-accept" onClick={() => acceptRequest(req.id)}>
                           <Check size={14} />
@@ -186,7 +193,6 @@ export default function SettingsModal({ session, onClose }) {
                 </div>
               )}
 
-              {/* Friends List */}
               <div className="friend-group">
                 <span className="friend-group-label">
                   <Users size={12} /> Friends ({friends.length})
@@ -202,7 +208,7 @@ export default function SettingsModal({ session, onClose }) {
                         <div className="friend-info">
                           <span className="friend-name">{profile?.display_name || 'User'}</span>
                           <span className="friend-stats">
-                            {profile?.total_solved || 0} solved · {profile?.current_streak || 0} day streak
+                            {profile?.total_solved || 0} solved
                           </span>
                         </div>
                       </div>

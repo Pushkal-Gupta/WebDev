@@ -18,16 +18,17 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
   useEffect(() => {
     async function loadProblems() {
       try {
-        let query = supabase
-          .from('PGcode_problems')
-          .select('*')
-          .eq('topic_id', topic.id);
+        // Parallel fetch: problems + user progress
+        const [problemsRes, progressRes] = await Promise.all([
+          supabase.from('PGcode_problems').select('*').eq('topic_id', topic.id),
+          session?.user
+            ? supabase.from('PGcode_user_progress').select('*').eq('user_id', session.user.id)
+            : Promise.resolve({ data: null }),
+        ]);
 
-        const { data, error } = await query;
-        if (error) throw error;
+        if (problemsRes.error) throw problemsRes.error;
 
-        // Filter by roadmap mode
-        let filtered = data || [];
+        let filtered = problemsRes.data || [];
         if (roadmapMode === '200') {
           filtered = filtered.filter(p =>
             p.roadmap_set === '200' || p.roadmap_set === 'both' || !p.roadmap_set
@@ -39,18 +40,10 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
         );
         setProblems(sorted);
 
-        // Load user progress
-        if (session?.user) {
-          const { data: progress } = await supabase
-            .from('PGcode_user_progress')
-            .select('*')
-            .eq('user_id', session.user.id);
-
-          if (progress) {
-            const map = {};
-            progress.forEach(p => { map[p.problem_id] = p; });
-            setUserProgress(map);
-          }
+        if (progressRes.data) {
+          const map = {};
+          progressRes.data.forEach(p => { map[p.problem_id] = p; });
+          setUserProgress(map);
         }
       } catch (err) {
         console.error("Error fetching problems:", err);
@@ -66,13 +59,15 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
     const current = userProgress[problemId];
     const newVal = !(current?.is_completed);
 
-    await supabase.from('PGcode_user_progress').upsert({
+    const { error } = await supabase.from('PGcode_user_progress').upsert({
       user_id: session.user.id,
       problem_id: problemId,
       is_completed: newVal,
-      is_starred: current?.is_starred || false,
+      is_starred: current?.is_starred ?? false,
       updated_at: new Date().toISOString()
     });
+
+    if (error) { console.error('Toggle complete failed:', error); return; }
 
     setUserProgress(prev => ({
       ...prev,
@@ -85,13 +80,15 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
     const current = userProgress[problemId];
     const newVal = !(current?.is_starred);
 
-    await supabase.from('PGcode_user_progress').upsert({
+    const { error } = await supabase.from('PGcode_user_progress').upsert({
       user_id: session.user.id,
       problem_id: problemId,
       is_starred: newVal,
-      is_completed: current?.is_completed || false,
+      is_completed: current?.is_completed ?? false,
       updated_at: new Date().toISOString()
     });
+
+    if (error) { console.error('Toggle star failed:', error); return; }
 
     setUserProgress(prev => ({
       ...prev,
@@ -133,7 +130,7 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
 
   return (
     <div className="topicModalOverlay" onClick={(e) => {
-      if (e.target.className === 'topicModalOverlay') onClose();
+      if (e.target === e.currentTarget) onClose();
     }}>
       <div className="topicModalContent" style={{ width: `${width}px` }}>
         <div className="resize-handle" onMouseDown={handleMouseDown} />

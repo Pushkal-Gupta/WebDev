@@ -18,7 +18,7 @@ export default function AccountModal({ session, onClose }) {
 
   return (
     <div className="modalOverlay" onClick={(e) => {
-      if (e.target.className === 'modalOverlay') onClose();
+      if (e.target === e.currentTarget) onClose();
     }}>
       <div className="modalContent">
         <button className="closeBtn" onClick={onClose} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-dim)', cursor: 'pointer' }}>

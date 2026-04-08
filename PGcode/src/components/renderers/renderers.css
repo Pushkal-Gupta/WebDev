@@ -168,7 +168,18 @@
   color: var(--text-main);
 }
 
+/* ─── HashMap Header Columns ─── */
+.hm-col-key,
+.hm-col-val {
+  display: inline;
+}
+
 /* ─── Graph Renderer ─── */
+.graph-node-group,
+.tree-node-group {
+  transition: transform 0.3s ease;
+}
+
 .graph-svg {
   width: 100%;
   max-height: 400px;
@@ -398,6 +409,15 @@
 .sq-item-front {
   border-color: var(--accent);
   background: rgba(0, 255, 245, 0.08);
+}
+
+.sq-item-back {
+  opacity: 0.7;
+}
+
+.sq-front,
+.sq-back {
+  white-space: nowrap;
 }
 
 .sq-empty {

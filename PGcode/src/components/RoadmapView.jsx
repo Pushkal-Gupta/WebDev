@@ -11,7 +11,7 @@ import 'reactflow/dist/style.css';
 import { supabase } from '../lib/supabase';
 import TopicModal from './TopicModal';
 import TopicNode from './TopicNode';
-import StatsBar from './StatsBar';
+import SidePanel from './SidePanel';
 
 const rigidGrid = {
   'arrays': { x: 300, y: 0 },
@@ -58,7 +58,7 @@ const tierGroups = {
   7: ['math', 'bit-manipulation', 'geometry']
 };
 
-export default function RoadmapView({ roadmapMode, session }) {
+export default function RoadmapView({ roadmapMode, setRoadmapMode, session }) {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
   const [selectedTopic, setSelectedTopic] = useState(null);
@@ -221,9 +221,8 @@ export default function RoadmapView({ roadmapMode, session }) {
   };
 
   return (
-    <div style={{ width: '100%', height: 'calc(100vh - 70px)', background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
-      <StatsBar session={session} />
-      <div style={{ flex: 1 }}>
+    <div style={{ width: '100%', height: 'calc(100vh - 60px)', background: 'var(--bg)', display: 'flex', flexDirection: 'row' }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -240,6 +239,8 @@ export default function RoadmapView({ roadmapMode, session }) {
       </ReactFlow>
 
       </div>
+
+      <SidePanel session={session} roadmapMode={roadmapMode} setRoadmapMode={setRoadmapMode} />
 
       {selectedTopic && (
         <TopicModal
