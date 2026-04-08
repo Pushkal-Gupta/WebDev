@@ -52,6 +52,7 @@ export default function PuzzlePage() {
   const [feedback,     setFeedback]     = useState(null);
   const [copied,       setCopied]       = useState(false);
   const [showTags,     setShowTags]     = useState(false);
+  const puzzleIdRef = useRef(null);
 
   // Load first puzzle on mount and when user changes
   const initRef = useRef(false);
@@ -79,11 +80,15 @@ export default function PuzzlePage() {
 
   // Highlight the setup move (opponent's last move) when a new puzzle loads
   useEffect(() => {
+    puzzleIdRef.current = puzzle?.id ?? null;
     if (puzzle && status === 'playing' && setupMoveFrom && setupMoveTo) {
       setLastMoveFrom(setupMoveFrom);
       setLastMoveTo(setupMoveTo);
+    } else if (status === 'loading') {
+      setLastMoveFrom(null);
+      setLastMoveTo(null);
     }
-  }, [puzzle?.id]); // eslint-disable-line
+  }, [puzzle?.id, status, setupMoveFrom, setupMoveTo]); // eslint-disable-line
 
   // Cleanup rush timer on unmount
   useEffect(() => {
@@ -132,6 +137,17 @@ export default function PuzzlePage() {
       if (uci.length > 4) playSound('promote');
       else playSound('move');
       setFeedback('correct');
+      // Update highlight to show the computer's response move
+      if (result.oppUci) {
+        const opp = result.oppUci;
+        const currentPid = puzzleIdRef.current;
+        setTimeout(() => {
+          if (puzzleIdRef.current !== currentPid) return; // puzzle changed (rush/streak)
+          setLastMoveFrom([rankToRow(opp[1]), fileToCol(opp[0])]);
+          setLastMoveTo([rankToRow(opp[3]), fileToCol(opp[2])]);
+          playSound('move');
+        }, 300);
+      }
       if (result.solved) {
         setTimeout(() => setFeedback(null), 1200);
       } else {
