@@ -26,7 +26,6 @@ const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, pie
   const highlightSelected = useGameStore(s => s.highlightSelected);
   const dotSize = useGameStore(s => s.dotSize);
   const gameStarted = useGameStore(s => s.gameStarted);
-  const blindfoldMode = useGameStore(s => s.blindfoldMode);
   const premove = useGameStore(s => s.premove);
 
   const pieceScale = usePrefsStore(s => s.pieceScale);
@@ -56,8 +55,9 @@ const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, pie
   const isPremoveFrom = premove?.from?.row === row && premove?.from?.col === col;
   const isPremoveTo = premove?.to?.row === row && premove?.to?.col === col;
 
-  const isImageTheme = boardThemeType === 'image' && !!boardImageUrl;
-  let bgColor = isImageTheme ? 'transparent' : (isLight ? clr1 : clr2);
+  const boardImageFailed = useThemeStore(s => s.boardImageFailed);
+  const isImageTheme = boardThemeType === 'image' && !!boardImageUrl && !boardImageFailed;
+  let bgColor = isImageTheme ? 'transparent' : (isLight ? (clr1 !== 'transparent' ? clr1 : '#EEEED2') : (clr2 !== 'transparent' ? clr2 : '#769656'));
   if (isPremoveFrom || isPremoveTo) bgColor = isLight ? 'rgba(11, 106, 148, 0.45)' : 'rgba(11, 106, 148, 0.55)';
   else if (isInCheck) bgColor = isLight ? clr1c : clr2c;
   else if (isSelected) bgColor = isLight ? clr1x : clr2x;
@@ -130,7 +130,7 @@ const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, pie
         </span>
       )}
 
-      {piece && !blindfoldMode && (
+      {piece && (
         <img
           src={resolvePiece(piece.type, piece.color)}
           alt={`${piece.color === 'w' ? 'White' : 'Black'} ${PIECE_NAME_MAP[piece.type]}`}

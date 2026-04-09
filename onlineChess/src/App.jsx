@@ -244,12 +244,9 @@ export default function App() {
           // Local AI — instant, offline, handles low difficulty well
           bestMove = getLocalBestMove(fen, compStrength || 4);
         } else {
-          // Stockfish for higher strengths, local AI as fallback
+          // Stockfish WASM for higher strengths, local AI as fallback
           try {
-            const botTimeMs = (useGameStore.getState()[clockKey] || 60) * 1000;
-            const apiTimeout = Math.min(10000, Math.max(2000, Math.round(botTimeMs * 0.4)));
-            const retries = botTimeMs < 10000 ? 1 : botTimeMs < 30000 ? 3 : 8;
-            bestMove = await getBestMove(fen, { timeoutMs: apiTimeout, maxRetries: retries });
+            bestMove = await getBestMove(fen, { strength: compStrength || 10 });
           } catch {
             bestMove = getLocalBestMove(fen, compStrength || 8);
           }

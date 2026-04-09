@@ -66,7 +66,6 @@ const initialState = {
   highlightSelected: savedPrefs.highlightSelected ?? true,
   showLegalDots: savedPrefs.showLegalDots ?? true,
   dotSize: savedPrefs.dotSize ?? 12,
-  blindfoldMode: savedPrefs.blindfoldMode ?? false,
   timeControl: null, // { display, total, incr }
   whiteTime: 0,
   blackTime: 0,
@@ -523,13 +522,13 @@ const useGameStore = create((set, get) => ({
     });
   },
 
-  // Undo two half-moves (one for each player) — used for online undo-request approval
+  // Undo two half-moves (one for each player) — used for computer undo and online undo-request
   undoTwoMoves: () => {
     const { chessInstance, moveHistory } = get();
-    if (!chessInstance || moveHistory.length < 2) return;
-    chessInstance.undo();
-    chessInstance.undo();
-    const newHistory = moveHistory.slice(0, -2);
+    if (!chessInstance || moveHistory.length === 0) return;
+    const count = moveHistory.length >= 2 ? 2 : 1;
+    for (let i = 0; i < count; i++) chessInstance.undo();
+    const newHistory = moveHistory.slice(0, -count);
 
     const { capturedByWhite: newCapturedByWhite, capturedByBlack: newCapturedByBlack } =
       get()._rebuildCaptures(newHistory);
@@ -717,7 +716,6 @@ const useGameStore = create((set, get) => ({
   setHighlightSelected: (val) => { set({ highlightSelected: val }); const p = loadPrefs(); p.highlightSelected = val; savePrefs(p); },
   setShowLegalDots: (val) => { set({ showLegalDots: val }); const p = loadPrefs(); p.showLegalDots = val; savePrefs(p); },
   setDotSize: (val) => { set({ dotSize: val }); const p = loadPrefs(); p.dotSize = val; savePrefs(p); },
-  setBlindfoldMode: (val) => { set({ blindfoldMode: val }); const p = loadPrefs(); p.blindfoldMode = val; savePrefs(p); },
   setOppName: (val) => set({ oppName: val }),
   setYouName: (val) => set({ youName: val }),
   setTimerRunning: (val) => set({ timerRunning: val }),

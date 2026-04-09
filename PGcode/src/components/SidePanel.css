@@ -1,7 +1,7 @@
 /* ── Right Side Panel (NeetCode-style) ── */
 .side-panel {
-  width: 320px;
-  min-width: 320px;
+  width: 360px;
+  min-width: 360px;
   border-left: 1px solid var(--border);
   background: var(--bg);
   overflow-y: auto;

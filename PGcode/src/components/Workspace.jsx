@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import Editor from '@monaco-editor/react';
-import { ArrowLeft, Play, Save, FileText, Lightbulb, MonitorPlay, ExternalLink, CheckCircle, RotateCcw, StickyNote } from 'lucide-react';
-import DryRunViewer from './DryRunViewer';
+import { ChevronLeft, ChevronUp, ChevronDown, Play, ExternalLink, CheckCircle, RotateCcw, Code2, FileText, Award, MessageSquare, TestTube, Lightbulb } from 'lucide-react';
+import SolutionView from './SolutionView';
 import '../styles/Workspace.css';
 
 export default function Workspace({ session, theme, roadmapMode }) {
@@ -19,401 +19,322 @@ export default function Workspace({ session, theme, roadmapMode }) {
   const [userProgress, setUserProgress] = useState(null);
   const [notes, setNotes] = useState('');
   const [confidence, setConfidence] = useState(0);
-  const [showNotes, setShowNotes] = useState(false);
-  const [saveMsg, setSaveMsg] = useState('');
-  const [runResult, setRunResult] = useState(null);
-  const [showTestCases, setShowTestCases] = useState(true);
+  const [showConsole, setShowConsole] = useState(false);
+  const [consoleOutput, setConsoleOutput] = useState('');
+  const [editorStatus, setEditorStatus] = useState('');
+  const [cursorPos, setCursorPos] = useState({ ln: 1, col: 1 });
+  const editorRef = useRef(null);
 
-  // Resizable divider
   const [leftWidth, setLeftWidth] = useState(
-    () => parseInt(localStorage.getItem('pgcode_split_width')) || 45
+    () => parseInt(localStorage.getItem('pgcode_split')) || 45
   );
 
   // Fetch topic + problems
   useEffect(() => {
-    async function fetchData() {
-      if (!categoryId) return;
+    if (!categoryId) return;
+    (async () => {
       try {
-        const { data: topicData } = await supabase
-          .from('PGcode_topics').select('*').eq('id', categoryId).single();
+        const { data: topicData } = await supabase.from('PGcode_topics').select('*').eq('id', categoryId).single();
         if (topicData) setTopic(topicData);
-
-        const { data: qData } = await supabase
-          .from('PGcode_problems').select('*').eq('topic_id', categoryId);
-
+        const { data: qData } = await supabase.from('PGcode_problems').select('*').eq('topic_id', categoryId);
         let filtered = qData || [];
-        if (roadmapMode === '200') {
-          filtered = filtered.filter(p =>
-            p.roadmap_set === '200' || p.roadmap_set === 'both' || !p.roadmap_set
-          );
-        } else if (roadmapMode === '300') {
-          filtered = filtered.filter(p =>
-            p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === 'both' || !p.roadmap_set
-          );
-        }
-
+        if (roadmapMode === '200') filtered = filtered.filter(p => p.roadmap_set === '200' || p.roadmap_set === 'both' || !p.roadmap_set);
+        else if (roadmapMode === '300') filtered = filtered.filter(p => p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === 'both' || !p.roadmap_set);
         if (filtered.length > 0) {
           setProblems(filtered);
-          // Auto-select from URL or first problem
-          if (problemId) {
-            const found = filtered.find(p => p.id === problemId);
-            setActiveProblem(found || filtered[0]);
-          } else {
-            setActiveProblem(filtered[0]);
-          }
+          setActiveProblem(problemId ? (filtered.find(p => p.id === problemId) || filtered[0]) : filtered[0]);
         }
-      } catch (err) {
-        console.error('Error fetching workspace data:', err);
-      }
-    }
-    fetchData();
+      } catch (err) { console.error(err); }
+    })();
   }, [categoryId, roadmapMode, problemId]);
 
-  // Fetch templates for active problem
+  // Fetch templates
   useEffect(() => {
     if (!activeProblem) return;
-    async function fetchTemplates() {
+    (async () => {
       try {
-        const { data } = await supabase
-          .from('PGcode_problem_templates').select('*').eq('problem_id', activeProblem.id);
-        const tmplMap = {};
-        if (data) data.forEach(t => { tmplMap[t.language] = t.code; });
-        setTemplates(tmplMap);
-      } catch (err) {
-        setTemplates({});
-      }
-    }
-    fetchTemplates();
+        const { data } = await supabase.from('PGcode_problem_templates').select('*').eq('problem_id', activeProblem.id);
+        const m = {};
+        if (data) data.forEach(t => { m[t.language] = t.code; });
+        setTemplates(m);
+      } catch { setTemplates({}); }
+    })();
   }, [activeProblem]);
 
-  // Set code content when language or problem changes
   useEffect(() => {
-    if (activeProblem) {
-      // Check if user has saved code for this language
-      if (userProgress?.last_code?.[activeLang]) {
-        setCodeContent(userProgress.last_code[activeLang]);
-      } else {
-        setCodeContent(templates[activeLang] || `# ${activeProblem.name}\n# Write your solution here\n`);
-      }
-    }
+    if (!activeProblem) return;
+    // Priority: localStorage (survives reload) > Supabase progress > template > default
+    const localKey = `pgcode_code_${activeProblem.id}_${activeLang}`;
+    const localCode = localStorage.getItem(localKey);
+    if (localCode) setCodeContent(localCode);
+    else if (userProgress?.last_code?.[activeLang]) setCodeContent(userProgress.last_code[activeLang]);
+    else setCodeContent(templates[activeLang] || `class Solution:\n    def solve(self, input):\n        # Write your solution here\n        pass`);
   }, [activeProblem, activeLang, templates, userProgress]);
 
-  // Load user progress
   useEffect(() => {
-    if (!activeProblem || !session?.user) {
-      setUserProgress(null); setNotes(''); setConfidence(0);
-      return;
-    }
-    async function loadProgress() {
+    if (!activeProblem || !session?.user) { setUserProgress(null); setNotes(''); setConfidence(0); return; }
+    (async () => {
       try {
-        const { data } = await supabase
-          .from('PGcode_user_progress').select('*')
-          .eq('user_id', session.user.id).eq('problem_id', activeProblem.id).single();
-        if (data) {
-          setUserProgress(data);
-          setNotes(data.notes || '');
-          setConfidence(data.confidence || 0);
-        } else {
-          setUserProgress(null); setNotes(''); setConfidence(0);
-        }
+        const { data } = await supabase.from('PGcode_user_progress').select('*').eq('user_id', session.user.id).eq('problem_id', activeProblem.id).single();
+        if (data) { setUserProgress(data); setNotes(data.notes || ''); setConfidence(data.confidence || 0); }
+        else { setUserProgress(null); setNotes(''); setConfidence(0); }
       } catch { setUserProgress(null); }
-    }
-    loadProgress();
+    })();
   }, [activeProblem, session]);
 
-  // Save progress helper
   const saveProgress = async (updates) => {
     if (!session?.user || !activeProblem) return;
-    const payload = {
-      user_id: session.user.id,
-      problem_id: activeProblem.id,
-      updated_at: new Date().toISOString(),
-      ...updates,
-    };
+    const payload = { user_id: session.user.id, problem_id: activeProblem.id, updated_at: new Date().toISOString(), ...updates };
     const { error } = await supabase.from('PGcode_user_progress').upsert(payload);
     if (!error) setUserProgress(prev => ({ ...prev, ...payload }));
   };
 
-  // Save code
   const handleSave = async () => {
-    if (!session?.user || !activeProblem) {
-      setSaveMsg('Login to save'); setTimeout(() => setSaveMsg(''), 2000); return;
-    }
+    if (!session?.user) { setEditorStatus('Login to save'); setTimeout(() => setEditorStatus(''), 2000); return; }
     const lastCode = { ...(userProgress?.last_code || {}), [activeLang]: codeContent };
     await saveProgress({ last_code: lastCode });
-    setSaveMsg('Saved!');
-    setTimeout(() => setSaveMsg(''), 2000);
+    if (activeProblem) localStorage.setItem(`pgcode_code_${activeProblem.id}_${activeLang}`, codeContent);
+    setEditorStatus('Saved'); setTimeout(() => setEditorStatus(''), 2000);
   };
 
-  // Simulated Run
   const handleRun = () => {
-    setShowTestCases(true);
-    const runtime = Math.floor(Math.random() * 50) + 2;
-    const memory = (Math.random() * 10 + 5).toFixed(1);
-    setRunResult({
-      status: 'simulated',
-      runtime: `${runtime} ms`,
-      memory: `${memory} MB`,
-      beat: `${Math.floor(Math.random() * 40) + 50}%`,
+    setShowConsole(true);
+    setLeftTab('testresult');
+    const runtime = Math.floor(Math.random() * 40) + 3;
+    setConsoleOutput(`Accepted\n\nRuntime: ${runtime} ms\nMemory: ${(Math.random() * 8 + 4).toFixed(1)} MB\n\n(Simulated — verify on LeetCode for real execution)`);
+  };
+
+  const handleSubmit = () => {
+    handleRun();
+    if (!session?.user) return;
+    saveProgress({
+      is_completed: true,
+      last_solved_at: new Date().toISOString(),
+      next_review_at: new Date(Date.now() + 3 * 86400000).toISOString(),
+      solve_count: (userProgress?.solve_count || 0) + 1,
     });
   };
 
-  // Mark complete
   const markComplete = () => {
     const newVal = !(userProgress?.is_completed);
-    const nextReview = newVal ? new Date(Date.now() + 3 * 86400000).toISOString() : null;
-    saveProgress({
-      is_completed: newVal,
-      last_solved_at: newVal ? new Date().toISOString() : null,
-      next_review_at: nextReview,
-      solve_count: (userProgress?.solve_count || 0) + (newVal ? 1 : 0),
-    });
+    saveProgress({ is_completed: newVal, last_solved_at: newVal ? new Date().toISOString() : null, next_review_at: newVal ? new Date(Date.now() + 3 * 86400000).toISOString() : null, solve_count: (userProgress?.solve_count || 0) + (newVal ? 1 : 0) });
   };
 
   const setAndSaveConfidence = (val) => {
     setConfidence(val);
-    const daysMap = { 1: 1, 2: 2, 3: 3, 4: 7, 5: 14 };
-    saveProgress({
-      confidence: val,
-      next_review_at: new Date(Date.now() + (daysMap[val] || 3) * 86400000).toISOString(),
+    const days = { 1: 1, 2: 2, 3: 3, 4: 7, 5: 14 };
+    saveProgress({ confidence: val, next_review_at: new Date(Date.now() + (days[val] || 3) * 86400000).toISOString() });
+  };
+
+  const saveNotes = () => { saveProgress({ notes }); setEditorStatus('Notes saved'); setTimeout(() => setEditorStatus(''), 2000); };
+
+  const handleEditorMount = (editor) => {
+    editorRef.current = editor;
+    editor.onDidChangeCursorPosition((e) => {
+      setCursorPos({ ln: e.position.lineNumber, col: e.position.column });
     });
   };
 
-  const saveNotes = () => { saveProgress({ notes }); setSaveMsg('Notes saved!'); setTimeout(() => setSaveMsg(''), 2000); };
-
-  // Resizable divider
   const handleDividerDrag = useCallback((e) => {
     e.preventDefault();
     const startX = e.clientX;
-    const startWidth = leftWidth;
-
-    const onMove = (moveEvent) => {
-      const container = document.querySelector('.workspace-main');
-      if (!container) return;
-      const delta = moveEvent.clientX - startX;
-      const pct = startWidth + (delta / container.offsetWidth) * 100;
+    const startW = leftWidth;
+    const onMove = (ev) => {
+      const c = document.querySelector('.ws-main');
+      if (!c) return;
+      const pct = startW + ((ev.clientX - startX) / c.offsetWidth) * 100;
       if (pct >= 25 && pct <= 70) setLeftWidth(pct);
     };
-
     const onUp = () => {
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
-      document.body.style.cursor = 'default';
-      localStorage.setItem('pgcode_split_width', Math.round(leftWidth));
+      document.body.style.cursor = '';
+      localStorage.setItem('pgcode_split', Math.round(leftWidth));
     };
-
     document.body.style.cursor = 'col-resize';
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
   }, [leftWidth]);
 
-  if (!topic && problems.length === 0) {
-    return <div className="ws-loading">Loading Workspace... <Link to="/">Go back</Link></div>;
-  }
+  if (!activeProblem) return <div className="ws-loading">Loading... <Link to="/">Back to Roadmap</Link></div>;
+
+  const displayName = activeProblem.name.replace(/Pattern #(\d+)/, 'Problem #$1').replace(/Challenge #(\d+)/, 'Problem #$1');
 
   return (
-    <div className="workspace-container">
-      {/* Top Bar */}
-      <div className="workspace-topbar">
-        <Link to="/" className="ws-back"><ArrowLeft size={16} /> Roadmap</Link>
-        <div className="ws-problem-info">
-          <h2 className="ws-title">{activeProblem?.name || topic?.name?.split(/\\n|\n/)[0]}</h2>
-          {activeProblem?.difficulty && (
-            <span className={`diff-badge diff-${activeProblem.difficulty.toLowerCase()}`}>
-              {activeProblem.difficulty}
-            </span>
-          )}
-        </div>
-        <div className="ws-prob-tabs">
-          {problems.map(prob => (
-            <button key={prob.id}
-              className={`ws-prob-tab ${activeProblem?.id === prob.id ? 'active' : ''}`}
-              onClick={() => setActiveProblem(prob)}>
-              {prob.name}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Main Split */}
-      <div className="workspace-main">
-        {/* Left Panel */}
+    <div className="ws-container">
+      <div className="ws-main">
+        {/* ═══ LEFT PANEL ═══ */}
         <div className="ws-left" style={{ width: `${leftWidth}%` }}>
+          <div className="ws-left-header">
+            <Link to="/" className="ws-back"><ChevronLeft size={14} /> Back</Link>
+          </div>
+
+          {/* LeetCode-style tabs */}
           <div className="ws-left-tabs">
-            <button className={`ws-ltab ${leftTab === 'description' ? 'active' : ''}`}
-              onClick={() => setLeftTab('description')}>
+            <button className={`ws-tab ${leftTab === 'description' ? 'active' : ''}`} onClick={() => setLeftTab('description')}>
               <FileText size={13} /> Description
             </button>
-            <button className={`ws-ltab ${leftTab === 'solution' ? 'active' : ''}`}
-              onClick={() => setLeftTab('solution')}>
+            <button className={`ws-tab ${leftTab === 'solution' ? 'active' : ''}`} onClick={() => setLeftTab('solution')}>
               <Lightbulb size={13} /> Solution
             </button>
-            <button className={`ws-ltab ${leftTab === 'dryrun' ? 'active' : ''}`}
-              onClick={() => setLeftTab('dryrun')}>
-              <MonitorPlay size={13} /> Visual Dry Run
+            <button className={`ws-tab ${leftTab === 'submissions' ? 'active' : ''}`} onClick={() => setLeftTab('submissions')}>
+              <Award size={13} /> Submissions
             </button>
+            <button className={`ws-tab ${leftTab === 'testcase' ? 'active' : ''}`} onClick={() => setLeftTab('testcase')}>
+              <TestTube size={13} /> Testcase
+            </button>
+            {consoleOutput && (
+              <button className={`ws-tab ${leftTab === 'testresult' ? 'active' : ''}`} onClick={() => setLeftTab('testresult')}>
+                Test Result
+              </button>
+            )}
           </div>
 
-          <div className={`ws-left-content ${leftTab === 'dryrun' ? 'ws-left-content-full' : ''}`}>
-            {leftTab === 'description' && activeProblem && (
-              <div className="ws-desc">
-                <div className="problem-description" dangerouslySetInnerHTML={{ __html: activeProblem.description }} />
+          <div className="ws-left-content">
+            {/* ── DESCRIPTION TAB ── */}
+            {leftTab === 'description' && (
+              <div className="ws-question">
+                <h1 className="ws-q-title">{displayName}</h1>
+                <div className="ws-q-tags">
+                  <span className={`ws-diff-badge ws-diff-${activeProblem.difficulty?.toLowerCase()}`}>{activeProblem.difficulty}</span>
+                  {topic?.category && <span className="ws-tag-pill">{topic.category}</span>}
+                  {activeProblem.hints?.length > 0 && <span className="ws-tag-pill ws-tag-hint">Hint</span>}
+                </div>
 
-                {activeProblem.hints?.length > 0 && (
-                  <details className="ws-hints">
-                    <summary>Hints ({activeProblem.hints.length})</summary>
-                    <ul>{activeProblem.hints.map((h, i) => <li key={i}>{h}</li>)}</ul>
+                <div className="ws-q-desc" dangerouslySetInnerHTML={{ __html: activeProblem.description }} />
+
+                {activeProblem.hints?.length > 0 && activeProblem.hints.map((hint, i) => (
+                  <details key={i} className="ws-expandable">
+                    <summary>Hint {i + 1}</summary>
+                    <p>{hint}</p>
                   </details>
+                ))}
+
+                {activeProblem.leetcode_url && (
+                  <a href={activeProblem.leetcode_url} target="_blank" rel="noopener noreferrer" className="ws-lc-link">
+                    <ExternalLink size={13} /> Solve on LeetCode
+                  </a>
                 )}
               </div>
             )}
 
-            {leftTab === 'solution' && activeProblem && (
+            {/* ── SOLUTION TAB ── */}
+            {leftTab === 'solution' && (
               <div className="ws-solution">
-                {activeProblem.solution_video_url ? (
-                  <div className="ws-video-wrap">
-                    <iframe
-                      src={`https://www.youtube.com/embed/${activeProblem.solution_video_url}`}
-                      title="Video Solution" allowFullScreen />
-                  </div>
-                ) : (
-                  <p className="ws-no-content">No video solution available yet.</p>
+                <SolutionView problem={activeProblem} />
+              </div>
+            )}
+
+            {/* ── SUBMISSIONS TAB ── */}
+            {leftTab === 'submissions' && (
+              <div className="ws-submissions">
+                <div className="ws-sub-actions">
+                  {session ? (
+                    <button className={`ws-sub-btn ${userProgress?.is_completed ? 'ws-sub-done' : ''}`} onClick={markComplete}>
+                      <CheckCircle size={15} /> {userProgress?.is_completed ? 'Completed' : 'Mark Complete'}
+                    </button>
+                  ) : (
+                    <p className="ws-empty-msg">Login to track progress</p>
+                  )}
+                  {userProgress?.next_review_at && (
+                    <span className="ws-sub-review"><RotateCcw size={12} /> Review: {new Date(userProgress.next_review_at).toLocaleDateString()}</span>
+                  )}
+                </div>
+                {session && (
+                  <>
+                    <div className="ws-sub-section">
+                      <span className="ws-sub-label">Confidence</span>
+                      <div className="ws-conf-dots">
+                        {[1,2,3,4,5].map(v => (
+                          <button key={v} className={`ws-conf-dot ${confidence >= v ? 'active' : ''}`}
+                            onClick={() => setAndSaveConfidence(v)} title={['Again','Hard','Good','Easy','Mastered'][v-1]}>{v}</button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="ws-sub-section">
+                      <span className="ws-sub-label">Personal Notes</span>
+                      <textarea className="ws-notes-ta" value={notes} onChange={e => setNotes(e.target.value)}
+                        placeholder="Your approach, edge cases, things to remember..." rows={5} />
+                      <button className="ws-notes-save" onClick={saveNotes}>Save Notes</button>
+                    </div>
+                  </>
                 )}
               </div>
             )}
 
-            {leftTab === 'dryrun' && activeProblem && (
-              <div className="ws-dryrun-wrap">
-                <DryRunViewer problemId={activeProblem.id} />
+            {/* ── TESTCASE TAB ── */}
+            {leftTab === 'testcase' && (
+              <div className="ws-testcase">
+                <div className="ws-tc-cases">
+                  <button className="ws-tc-case active">Case 1</button>
+                  <button className="ws-tc-case">Case 2</button>
+                  <button className="ws-tc-case">Case 3</button>
+                  <button className="ws-tc-case ws-tc-add">+</button>
+                </div>
+                <div className="ws-tc-fields">
+                  <div className="ws-tc-field">
+                    <label>nums =</label>
+                    <input type="text" defaultValue="[2,7,11,15]" className="ws-tc-input" />
+                  </div>
+                  <div className="ws-tc-field">
+                    <label>target =</label>
+                    <input type="text" defaultValue="9" className="ws-tc-input" />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── TEST RESULT TAB ── */}
+            {leftTab === 'testresult' && (
+              <div className="ws-testresult">
+                {consoleOutput ? (
+                  <pre className="ws-result-output">{consoleOutput}</pre>
+                ) : (
+                  <p className="ws-empty-msg">You must run your code first</p>
+                )}
               </div>
             )}
           </div>
         </div>
 
-        {/* Divider */}
+        {/* ═══ DIVIDER ═══ */}
         <div className="ws-divider" onMouseDown={handleDividerDrag} />
 
-        {/* Right Panel */}
+        {/* ═══ RIGHT PANEL ═══ */}
         <div className="ws-right" style={{ width: `${100 - leftWidth}%` }}>
-          <div className="ws-editor-toolbar">
-            <select className="ws-lang-select" value={activeLang}
-              onChange={(e) => setActiveLang(e.target.value)}>
-              <option value="python">Python</option>
+          <div className="ws-editor-header">
+            <div className="ws-editor-label"><Code2 size={14} /> Code</div>
+            <select className="ws-lang" value={activeLang} onChange={e => setActiveLang(e.target.value)}>
+              <option value="python">Python3</option>
               <option value="javascript">JavaScript</option>
               <option value="java">Java</option>
             </select>
-            <div className="ws-editor-actions">
-              <button className="ws-save-btn" onClick={handleSave}>
-                <Save size={13} /> {saveMsg || 'Save'}
-              </button>
-              <button className="ws-run-btn" onClick={handleRun}>
-                <Play size={13} /> Run
-              </button>
-            </div>
           </div>
 
           <div className="ws-editor-area">
-            <Editor
-              height="100%"
-              theme={theme === 'dark' ? 'vs-dark' : 'light'}
-              language={activeLang}
-              value={codeContent}
-              onChange={(val) => setCodeContent(val || '')}
-              options={{ minimap: { enabled: false }, fontSize: 14, fontFamily: '"Space Mono", monospace' }}
-            />
+            <Editor height="100%" theme={theme === 'dark' ? 'vs-dark' : 'light'}
+              language={activeLang} value={codeContent}
+              onChange={val => {
+                const code = val || '';
+                setCodeContent(code);
+                if (activeProblem) localStorage.setItem(`pgcode_code_${activeProblem.id}_${activeLang}`, code);
+              }}
+              onMount={handleEditorMount}
+              options={{ minimap: { enabled: false }, fontSize: 14, fontFamily: '"Space Mono", monospace', scrollBeyondLastLine: false }} />
           </div>
 
-          {/* Test Cases */}
-          {showTestCases && (
-            <div className="ws-testcases">
-              <div className="ws-tc-header">
-                <span className="ws-tc-title">
-                  {runResult ? (
-                    <span className="ws-tc-result">
-                      Simulated Run &mdash; Runtime: {runResult.runtime} &middot; Memory: {runResult.memory} &middot; Beats {runResult.beat}
-                    </span>
-                  ) : 'Test Cases'}
-                </span>
-                <button className="ws-tc-toggle" onClick={() => setShowTestCases(false)}>&times;</button>
-              </div>
-              <div className="ws-tc-body">
-                <div className="ws-tc-tabs">
-                  <button className="ws-tc-tab active">Case 1</button>
-                  <button className="ws-tc-tab">Case 2</button>
-                </div>
-                <div className="ws-tc-content">
-                  <div className="ws-tc-row">
-                    <span className="ws-tc-label">Input</span>
-                    <code className="ws-tc-value">nums = [2, 7, 11, 15], target = 9</code>
-                  </div>
-                  <div className="ws-tc-row">
-                    <span className="ws-tc-label">Expected</span>
-                    <code className="ws-tc-value">[0, 1]</code>
-                  </div>
-                  {runResult && (
-                    <div className="ws-tc-row ws-tc-output">
-                      <span className="ws-tc-label">Output</span>
-                      <code className="ws-tc-value">Simulated &mdash; verify on LeetCode</code>
-                    </div>
-                  )}
-                </div>
-              </div>
+          <div className="ws-editor-footer">
+            <div className="ws-footer-left">
+              <span className="ws-cursor-pos">Ln {cursorPos.ln}, Col {cursorPos.col}</span>
+              {editorStatus && <span className="ws-editor-status">{editorStatus}</span>}
             </div>
-          )}
-        </div>
-      </div>
-
-      {/* Bottom Bar */}
-      <div className="workspace-bottom">
-        <div className="wb-left">
-          {session && (
-            <button className={`wb-btn ${userProgress?.is_completed ? 'wb-done' : ''}`}
-              onClick={markComplete}>
-              <CheckCircle size={13} /> {userProgress?.is_completed ? 'Completed' : 'Mark Complete'}
-            </button>
-          )}
-          {activeProblem?.leetcode_url && (
-            <a href={activeProblem.leetcode_url} target="_blank" rel="noopener noreferrer" className="wb-btn wb-lc">
-              <ExternalLink size={13} /> LeetCode
-            </a>
-          )}
-          {userProgress?.next_review_at && (
-            <span className="wb-review"><RotateCcw size={11} /> {new Date(userProgress.next_review_at).toLocaleDateString()}</span>
-          )}
-        </div>
-
-        {session && (
-          <div className="wb-center">
-            {[1,2,3,4,5].map(val => (
-              <button key={val}
-                className={`wb-conf ${confidence >= val ? 'active' : ''}`}
-                onClick={() => setAndSaveConfidence(val)}
-                title={['Again','Hard','Good','Easy','Mastered'][val-1]}>
-                {val}
-              </button>
-            ))}
+            <div className="ws-footer-btns">
+              <button className="ws-run-btn" onClick={handleRun}>Run</button>
+              <button className="ws-submit-btn" onClick={handleSubmit}>Submit</button>
+            </div>
           </div>
-        )}
-
-        <div className="wb-right">
-          {session && (
-            <button className={`wb-btn ${showNotes ? 'wb-active' : ''}`}
-              onClick={() => setShowNotes(!showNotes)}>
-              <StickyNote size={13} /> Notes
-            </button>
-          )}
         </div>
       </div>
-
-      {/* Notes Drawer */}
-      {showNotes && session && (
-        <div className="ws-notes-drawer">
-          <textarea className="ws-notes-ta" value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Your approach, edge cases, things to remember..." rows={5} />
-          <button className="ws-notes-save" onClick={saveNotes}>Save Notes</button>
-        </div>
-      )}
     </div>
   );
 }

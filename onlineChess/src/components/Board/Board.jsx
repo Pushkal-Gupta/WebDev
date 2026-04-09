@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useEffect } from 'react';
 import styles from './Board.module.css';
 import Cell from '../Cell/Cell';
 import useGameStore from '../../store/gameStore';
@@ -12,6 +12,16 @@ const Board = memo(function Board() {
   const flipped = useGameStore(s => s.flipped);
   const boardThemeType = useThemeStore(s => s.boardThemeType);
   const boardImageUrl = useThemeStore(s => s.boardImageUrl);
+  const boardImageFailed = useThemeStore(s => s.boardImageFailed);
+
+  // Test board image URL — fall back to color theme if CDN fails
+  useEffect(() => {
+    if (boardThemeType !== 'image' || !boardImageUrl) return;
+    const img = new Image();
+    img.onload = () => useThemeStore.getState().setBoardImageFailed(false);
+    img.onerror = () => useThemeStore.getState().setBoardImageFailed(true);
+    img.src = boardImageUrl;
+  }, [boardImageUrl, boardThemeType]);
 
   const rows = flipped ? FLIPPED_ORDER : NORMAL_ORDER;
   const cols = flipped ? FLIPPED_ORDER : NORMAL_ORDER;
@@ -24,7 +34,7 @@ const Board = memo(function Board() {
     );
   }
 
-  const boardStyle = boardThemeType === 'image' && boardImageUrl
+  const boardStyle = boardThemeType === 'image' && boardImageUrl && !boardImageFailed
     ? { backgroundImage: `url(${boardImageUrl})`, backgroundSize: '25% 25%' }
     : undefined;
 

@@ -13,26 +13,40 @@ import TopicModal from './TopicModal';
 import TopicNode from './TopicNode';
 import SidePanel from './SidePanel';
 
+// Original 7-tier layout (horizontal levels preserved, nodes shifted within levels for clean arrows)
 const rigidGrid = {
+  // Tier 1: Foundation (Y: 0)
   'arrays': { x: 300, y: 0 },
   'strings': { x: 700, y: 0 },
+
+  // Tier 2: Linear Structures (Y: 300)
   'stack': { x: 100, y: 300 },
   'queue': { x: 500, y: 300 },
   'linkedlist': { x: 900, y: 300 },
+
+  // Tier 3: Pattern Discovery (Y: 600)
   'two-pointers': { x: 100, y: 600 },
-  'binary-search': { x: 500, y: 600 },
+  'binary-search': { x: 550, y: 600 },
   'sliding-window': { x: 900, y: 600 },
+
+  // Tier 4: Hierarchical Systems (Y: 900)
   'trees': { x: 0, y: 900 },
   'tries': { x: 350, y: 900 },
   'graphs': { x: 700, y: 900 },
   'heap': { x: 1050, y: 900 },
+
+  // Tier 5: Recursive Optimization (Y: 1200)
   'recursion': { x: -100, y: 1200 },
   'dp': { x: 200, y: 1200 },
   'backtracking': { x: 500, y: 1200 },
   'greedy': { x: 800, y: 1200 },
   'intervals': { x: 1100, y: 1200 },
+
+  // Tier 6: Expert Design (Y: 1500)
   '2d-dp': { x: 300, y: 1500 },
   'advanced-graphs': { x: 700, y: 1500 },
+
+  // Tier 7: Mathematical Synthesis (Y: 1800)
   'math': { x: 100, y: 1800 },
   'bit-manipulation': { x: 500, y: 1800 },
   'geometry': { x: 900, y: 1800 }
@@ -153,6 +167,7 @@ export default function RoadmapView({ roadmapMode, setRoadmapMode, session }) {
             selectable: false
           }));
 
+          // Bezier curves, only downward edges, muted styling
           const dbEdges = (edgesData || [])
             .filter(e => {
               const sPos = rigidGrid[e.source];
@@ -165,35 +180,31 @@ export default function RoadmapView({ roadmapMode, setRoadmapMode, session }) {
               target: e.target,
               type: 'default',
               animated: false,
-              style: { stroke: 'var(--accent)', strokeWidth: 1.5, opacity: 0.3 },
-              markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--accent)' }
+              style: { stroke: 'var(--text-dim)', strokeWidth: 1.5, opacity: 0.35 },
+              markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--text-dim)' }
             }));
 
-          // Orphan protection
+          // Orphan protection: connect nodes without incoming edges
           for (let t = 2; t <= 7; t++) {
             const currentTierNodes = tierGroups[t];
             const parentTierNodes = tierGroups[t - 1];
+            if (!currentTierNodes || !parentTierNodes) continue;
 
             currentTierNodes.forEach(childId => {
               if (filteredTopics.some(ft => ft.id === childId) && !dbEdges.some(e => e.target === childId)) {
                 let closestParent = parentTierNodes[0];
                 let minDistance = Infinity;
-
                 parentTierNodes.forEach(parentId => {
                   const dist = Math.abs((rigidGrid[parentId]?.x || 0) - (rigidGrid[childId]?.x || 0));
-                  if (dist < minDistance) {
-                    minDistance = dist;
-                    closestParent = parentId;
-                  }
+                  if (dist < minDistance) { minDistance = dist; closestParent = parentId; }
                 });
-
                 dbEdges.push({
                   id: `auto-edge-${closestParent}-${childId}`,
                   source: closestParent,
                   target: childId,
                   type: 'default',
-                  style: { stroke: 'var(--accent)', strokeWidth: 1.5, opacity: 0.25 },
-                  markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--accent)' }
+                  style: { stroke: 'var(--text-dim)', strokeWidth: 1.5, opacity: 0.2 },
+                  markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--text-dim)' }
                 });
               }
             });

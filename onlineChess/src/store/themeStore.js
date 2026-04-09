@@ -31,6 +31,7 @@ const useThemeStore = create(persist((set, get) => ({
   // Board theme type (for Cell.jsx to know if it should be transparent)
   boardThemeType: 'color',
   boardImageUrl: null,
+  boardImageFailed: false,
 
   // ── Active board colors (flat, for Cell.jsx backward compat) ──
   clr1: DEFAULT_BOARD.clr1, clr2: DEFAULT_BOARD.clr2,
@@ -79,6 +80,7 @@ const useThemeStore = create(persist((set, get) => ({
       boardThemeId: id,
       boardThemeType: theme.type,
       boardImageUrl: theme.imageUrl || null,
+      boardImageFailed: false,
       themeIndex: legacyIdx >= 0 ? legacyIdx : -1,
       clr1: theme.clr1 || 'transparent', clr2: theme.clr2 || 'transparent',
       clr1c: theme.clr1c, clr2c: theme.clr2c,
@@ -97,6 +99,7 @@ const useThemeStore = create(persist((set, get) => ({
     }
   },
 
+  setBoardImageFailed: (val) => set({ boardImageFailed: val }),
   setColor: (key, value) => set({ [key]: value }),
 
   // ── Actions: Sound ──
