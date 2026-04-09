@@ -239,7 +239,6 @@ export default function SettingsPage() {
     highlightSelected, setHighlightSelected,
     showLegalDots, setShowLegalDots,
     dotSize, setDotSize,
-    blindfoldMode, setBlindfoldMode,
   } = useGameStore();
 
   // Prefs store
@@ -418,7 +417,6 @@ export default function SettingsPage() {
           <Toggle checked={highlightLastMove} onChange={setHighlightLastMove} label="Highlight Last Move" desc="Highlight the squares of the most recent move" />
           <Toggle checked={highlightSelected} onChange={setHighlightSelected} label="Highlight Selected Square" desc="Highlight the piece you've selected" />
           <Toggle checked={showLegalDots} onChange={setShowLegalDots} label="Show Legal Moves" desc="Show dots on squares where the selected piece can move" />
-          <Toggle checked={blindfoldMode} onChange={setBlindfoldMode} label="Blindfold Mode" desc="Hide all pieces on the board for training" />
         </div>
         {showLegalDots && (
           <div className={styles.rangeField} style={{ marginTop: 10 }}>

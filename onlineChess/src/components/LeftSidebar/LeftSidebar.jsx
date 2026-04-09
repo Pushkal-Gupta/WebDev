@@ -4,9 +4,9 @@ import useGameStore from '../../store/gameStore';
 export default function LeftSidebar({ onAlert }) {
   const {
     flipped, setFlipped,
-    undoMove, redoMove,
+    undoMove, undoTwoMoves, redoMove,
     getPgn,
-    gameStarted, gameOver,
+    gameStarted, gameOver, isComp,
   } = useGameStore();
 
   const handleCopyPgn = () => {
@@ -21,7 +21,7 @@ export default function LeftSidebar({ onAlert }) {
         <button className={styles.btn} onClick={() => setFlipped(!flipped)} title="Flip board">
           Flip
         </button>
-        <button className={styles.btn} onClick={undoMove} disabled={!gameStarted} title="Undo">
+        <button className={styles.btn} onClick={() => isComp ? undoTwoMoves() : undoMove()} disabled={!gameStarted} title="Undo">
           Undo
         </button>
         <button className={styles.btn} onClick={redoMove} disabled={!gameStarted} title="Redo">

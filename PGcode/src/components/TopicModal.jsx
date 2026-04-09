@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { X, Star, CheckCircle, ExternalLink, Video, FileText, ChevronLeft, Code2 } from 'lucide-react';
+import React, { useEffect, useState, useRef } from 'react';
+import { X, Star, CheckCircle, ExternalLink, Video, FileText, ChevronLeft, Code2, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import LearningsSection from './LearningsSection';
@@ -12,7 +12,8 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
   const [userProgress, setUserProgress] = useState({});
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('problems');
-  const [width, setWidth] = useState(parseInt(localStorage.getItem('pgcode_sidebar_width')) || 500);
+  const [width, setWidth] = useState(parseInt(localStorage.getItem('pgcode_sidebar_width')) || 600);
+  const [solvePopup, setSolvePopup] = useState(null);
   const isResizing = useRef(false);
 
   useEffect(() => {
@@ -39,9 +40,13 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
           );
         }
 
-        const sorted = [...filtered].sort((a, b) =>
-          difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty]
-        );
+        const isGeneric = (name) => /Pattern #\d+|Challenge #\d+/.test(name);
+        const sorted = [...filtered].sort((a, b) => {
+          const ag = isGeneric(a.name) ? 1 : 0;
+          const bg = isGeneric(b.name) ? 1 : 0;
+          if (ag !== bg) return ag - bg;
+          return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
+        });
         setProblems(sorted);
 
         if (progressRes.data) {
@@ -59,7 +64,7 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
   }, [topic.id, roadmapMode, session]);
 
   const toggleComplete = async (problemId) => {
-    if (!session?.user) return;
+    if (!session?.user) { alert('Login to track progress'); return; }
     const current = userProgress[problemId];
     const newVal = !(current?.is_completed);
 
@@ -80,7 +85,7 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
   };
 
   const toggleStar = async (problemId) => {
-    if (!session?.user) return;
+    if (!session?.user) { alert('Login to star problems'); return; }
     const current = userProgress[problemId];
     const newVal = !(current?.is_starred);
 
@@ -100,28 +105,34 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
     }));
   };
 
-  const handleMouseDown = () => {
+  const handleMouseDown = (e) => {
+    e.preventDefault();
     isResizing.current = true;
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
     document.body.style.cursor = 'ew-resize';
+
+    const onMove = (ev) => {
+      if (!isResizing.current) return;
+      const newW = window.innerWidth - ev.clientX;
+      if (newW > 550 && newW < 950) setWidth(newW);
+    };
+
+    const onUp = () => {
+      isResizing.current = false;
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      document.body.style.cursor = '';
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
   };
 
-  const handleMouseMove = useCallback((e) => {
-    if (!isResizing.current) return;
-    const newWidth = window.innerWidth - e.clientX;
-    if (newWidth > 400 && newWidth < 950) {
-      setWidth(newWidth);
-    }
-  }, []);
-
-  const handleMouseUp = useCallback(() => {
-    isResizing.current = false;
-    localStorage.setItem('pgcode_sidebar_width', width);
-    document.removeEventListener('mousemove', handleMouseMove);
-    document.removeEventListener('mouseup', handleMouseUp);
-    document.body.style.cursor = 'default';
-  }, [width, handleMouseMove]);
+  useEffect(() => {
+    if (!solvePopup) return;
+    const close = () => setSolvePopup(null);
+    document.addEventListener('click', close);
+    return () => document.removeEventListener('click', close);
+  }, [solvePopup]);
 
   if (!topic) return null;
 
@@ -175,78 +186,97 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
         <div className="topicModalBody">
           {activeTab === 'problems' && (
             <>
-              <div className="problemTableSection">
-                <div className="tableHeader">
-                  <div className="col-status">Status</div>
-                  <div className="col-star">Star</div>
-                  <div className="col-problem">Problem</div>
-                  <div className="col-diff">Difficulty</div>
-                  <div className="col-solve">Solve</div>
-                </div>
+              <div className="problemsScrollArea">
+                <div className="problemTableSection">
+                  <div className="tableHeader">
+                    <div className="col-status">Status</div>
+                    <div className="col-star">Star</div>
+                    <div className="col-problem">Problem</div>
+                    <div className="col-diff">Difficulty</div>
+                    <div className="col-solve">Solution</div>
+                  </div>
 
-                {loading ? (
-                  <div className="loadingState">Loading problems...</div>
-                ) : (
-                  <div className="tableBody">
-                    {problems.map(prob => {
-                      const progress = userProgress[prob.id] || {};
-                      return (
-                        <div key={prob.id} className="tableRow">
-                          <div className="col-status">
-                            <CheckCircle
-                              size={18}
-                              className={progress.is_completed ? "status-done" : "status-todo"}
-                              onClick={() => toggleComplete(prob.id)}
-                              style={{ cursor: session ? 'pointer' : 'default' }}
-                            />
-                          </div>
-                          <div className="col-star">
-                            <Star
-                              size={18}
-                              className={progress.is_starred ? "star-active" : "star-inactive"}
-                              onClick={() => toggleStar(prob.id)}
-                              style={{ cursor: session ? 'pointer' : 'default' }}
-                            />
-                          </div>
-                          <div className="col-problem">
-                            <Link to={`/category/${topic.id}/${prob.id}`} className="problemLink">
-                              {prob.name}
-                              <ExternalLink size={12} className="linkIcon" />
-                            </Link>
-                          </div>
-                          <div className={`col-diff diff-${prob.difficulty.toLowerCase()}`}>
-                            {prob.difficulty}
-                          </div>
-                          <div className="col-solve">
-                            <div className="solveIcons">
-                              <Link to={`/category/${topic.id}/${prob.id}`} className="solve-icon solve-platform" title="Solve on PGcode">
-                                <Code2 size={15} />
-                              </Link>
-                              {prob.leetcode_url && (
-                                <a href={prob.leetcode_url} target="_blank" rel="noopener noreferrer" className="solve-icon solve-lc" title="Solve on LeetCode">
-                                  <ExternalLink size={14} />
-                                </a>
+                  {loading ? (
+                    <div className="loadingState">Loading problems...</div>
+                  ) : (
+                    <div className="tableBody">
+                      {problems.map(prob => {
+                        const progress = userProgress[prob.id] || {};
+                        const displayName = prob.name.replace(/Pattern #(\d+)/, 'Problem #$1').replace(/Challenge #(\d+)/, 'Problem #$1');
+                        return (
+                          <div key={prob.id} className="tableRow">
+                            <div className="col-status">
+                              <CheckCircle
+                                size={18}
+                                className={progress.is_completed ? "status-done" : "status-todo"}
+                                onClick={() => toggleComplete(prob.id)}
+                                style={{ cursor: session ? 'pointer' : 'default' }}
+                              />
+                            </div>
+                            <div className="col-star">
+                              <Star
+                                size={18}
+                                className={progress.is_starred ? "star-active" : "star-inactive"}
+                                onClick={() => toggleStar(prob.id)}
+                                style={{ cursor: session ? 'pointer' : 'default' }}
+                              />
+                            </div>
+                            <div className="col-problem">
+                              <span className="problemLink" style={{ cursor: 'pointer' }} onClick={() => setSolvePopup(solvePopup === prob.id ? null : prob.id)}>
+                                {displayName}
+                                <ChevronRight size={12} className="linkIcon" />
+                              </span>
+                              {solvePopup === prob.id && (
+                                <div className="solve-popup" onClick={e => e.stopPropagation()}>
+                                  <Link to={`/category/${topic.id}/${prob.id}`} className="solve-popup-option" onClick={() => setSolvePopup(null)}>
+                                    <Code2 size={14} /> Solve on PGcode
+                                  </Link>
+                                  {prob.leetcode_url && (
+                                    <a href={prob.leetcode_url} target="_blank" rel="noopener noreferrer" className="solve-popup-option" onClick={() => setSolvePopup(null)}>
+                                      <ExternalLink size={14} /> Solve on LeetCode
+                                    </a>
+                                  )}
+                                </div>
                               )}
                             </div>
+                            <div className={`col-diff diff-${prob.difficulty.toLowerCase()}`}>
+                              {prob.difficulty}
+                            </div>
+                            <div className="col-solve">
+                              <div className="solveIcons">
+                                <Link to={`/category/${topic.id}/${prob.id}`} className="solve-icon solve-platform" title="Solve on PGcode">
+                                  <Code2 size={15} />
+                                </Link>
+                                {prob.leetcode_url && (
+                                  <a href={prob.leetcode_url} target="_blank" rel="noopener noreferrer" className="solve-icon solve-lc" title="Solve on LeetCode">
+                                    <ExternalLink size={14} />
+                                  </a>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                    {problems.length === 0 && (
-                      <div className="emptyState">No problems added yet.</div>
-                    )}
-                  </div>
-                )}
+                        );
+                      })}
+                      {problems.length === 0 && (
+                        <div className="emptyState">No problems added yet.</div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <Link to={`/category/${topic.id}`} className="enterWorkspaceBtn">
-                ENTER INTERACTIVE WORKSPACE
-              </Link>
+              <div className="enterWorkspaceBtnWrap">
+                <Link to={`/category/${topic.id}`} className="enterWorkspaceBtn">
+                  ENTER INTERACTIVE WORKSPACE
+                </Link>
+              </div>
             </>
           )}
 
           {activeTab === 'learnings' && (
-            <LearningsSection topicId={topic.id} />
+            <div className="learningsScrollArea">
+              <LearningsSection topicId={topic.id} />
+            </div>
           )}
         </div>
       </div>

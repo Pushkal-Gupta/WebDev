@@ -1,0 +1,85 @@
+/* ═══ NeetCode-style Solution View ═══ */
+
+.sv-container { display: flex; flex-direction: column; gap: 1.5rem; }
+.sv-loading { padding: 2rem; text-align: center; color: var(--text-dim); font-family: var(--sans); font-size: 0.85rem; }
+
+.sv-problem-title {
+  font-family: var(--sans); font-size: 1.1rem; font-weight: 700;
+  color: var(--text-main); margin: 0;
+}
+
+.sv-section { display: flex; flex-direction: column; gap: 0.75rem; }
+.sv-section-title { font-family: var(--sans); font-size: 0.95rem; font-weight: 600; color: var(--text-main); margin: 0; }
+
+.sv-video-wrap { position: relative; padding-bottom: 56.25%; border-radius: 8px; overflow: hidden; }
+.sv-video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+
+/* ── Approach Card ── */
+.sv-approach {
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 1.3rem; display: flex; flex-direction: column; gap: 1rem;
+  background: var(--surface);
+}
+
+.sv-approach-title {
+  font-family: var(--sans); font-size: 1rem; font-weight: 700;
+  color: var(--accent); margin: 0;
+}
+
+.sv-subsection { display: flex; flex-direction: column; gap: 0.4rem; }
+
+.sv-subtitle {
+  font-family: var(--sans); font-size: 0.82rem; font-weight: 700;
+  color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.sv-text {
+  font-family: var(--sans); font-size: 0.85rem; line-height: 1.7;
+  color: var(--text-main); margin: 0;
+}
+
+.sv-algo-steps {
+  padding-left: 1.3rem; margin: 0;
+  font-family: var(--sans); font-size: 0.84rem; line-height: 1.8;
+  color: var(--text-main);
+}
+.sv-algo-steps li { margin-bottom: 0.2rem; }
+
+/* ── Code Block ── */
+.sv-code-header {
+  display: flex; gap: 0; border-bottom: 1px solid var(--border);
+  background: var(--bg); border-radius: 8px 8px 0 0;
+}
+
+.sv-lang-tab {
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.5rem 1rem; background: none; border: none;
+  color: var(--text-dim); cursor: pointer; position: relative;
+  transition: color var(--t);
+}
+.sv-lang-tab:hover { color: var(--text-main); }
+.sv-lang-tab.active { color: var(--accent); }
+.sv-lang-tab.active::after {
+  content: ""; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px; background: var(--accent);
+}
+
+.sv-code-block {
+  background: var(--bg); border: 1px solid var(--border);
+  border-top: none; border-radius: 0 0 8px 8px;
+  padding: 1rem; margin: 0; overflow-x: auto;
+  font-family: var(--mono); font-size: 0.8rem; line-height: 1.6;
+  color: var(--text-main); white-space: pre;
+}
+
+/* ── Complexity ── */
+.sv-complexity {
+  display: flex; gap: 1.5rem; padding: 0.6rem 0;
+  font-family: var(--mono); font-size: 0.78rem; color: var(--text-dim);
+}
+.sv-complexity strong { color: var(--text-main); }
+
+/* ── Light Mode ── */
+[data-theme="light"] .sv-approach { background: rgba(0, 138, 126, 0.03); }
+[data-theme="light"] .sv-code-block { background: #faf9f7; }

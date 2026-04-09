@@ -8,7 +8,7 @@ import { CLASSIFICATIONS } from '../../utils/reviewEngine';
 export default function RightSidebar({ onAlert, reviewResults, isReviewing, isOnlineGame = false }) {
   const {
     moveHistory, currentMoveIndex, goToMove,
-    getPgn, gameStarted, flipped, setFlipped, undoMove, isOnline,
+    getPgn, gameStarted, flipped, setFlipped, undoMove, undoTwoMoves, isComp, isOnline,
   } = useGameStore();
 
   const { pieceSets, pieceSetIndex } = useThemeStore();
@@ -105,7 +105,7 @@ export default function RightSidebar({ onAlert, reviewResults, isReviewing, isOn
       <div className={styles.actions}>
         <button className={styles.actionBtn} onClick={() => setFlipped(!flipped)} title="Flip board">⇅ Flip</button>
         {!isOnline && (
-          <button className={styles.actionBtn} onClick={undoMove} disabled={!gameStarted} title="Undo">↩ Undo</button>
+          <button className={styles.actionBtn} onClick={() => isComp ? undoTwoMoves() : undoMove()} disabled={!gameStarted} title="Undo">↩ Undo</button>
         )}
         <button className={styles.actionBtn} onClick={handleCopyPgn} title="Copy PGN">⎘ PGN</button>
       </div>
