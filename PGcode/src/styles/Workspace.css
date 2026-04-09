@@ -2,7 +2,7 @@
    PGcode Workspace — LeetCode Style
    ═══════════════════════════════════════ */
 
-.ws-container { height: calc(100vh - 60px); overflow: hidden; background: var(--bg); }
+.ws-container { height: calc(100dvh - 60px); overflow: hidden; background: var(--bg); }
 .ws-loading { padding: 3rem; text-align: center; color: var(--text-dim); font-family: var(--mono); }
 .ws-loading a { color: var(--accent); }
 .ws-main { display: flex; height: 100%; overflow: hidden; }
@@ -65,6 +65,24 @@
 .ws-expandable summary:hover { color: var(--text-main); }
 .ws-expandable p { padding: 0.7rem 1rem; font-family: var(--sans); font-size: 0.82rem; color: var(--text-dim); line-height: 1.6; margin: 0; }
 
+/* ── Constraints section ── */
+.ws-constraints { display: flex; flex-direction: column; gap: 0.3rem; padding: 0.8rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.ws-constraints-title { font-family: var(--sans); font-size: 0.82rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.3rem; }
+.ws-constraints ul { padding-left: 1.2rem; margin: 0; }
+.ws-constraints li { font-family: var(--mono); font-size: 0.78rem; color: var(--text-dim); line-height: 1.8; }
+.ws-constraints code { font-family: var(--mono); font-size: 0.78rem; padding: 0.05rem 0.3rem; background: var(--hover-box); border-radius: 3px; color: var(--accent); }
+
+/* ── Topics pills ── */
+.ws-topics-section { display: flex; flex-direction: column; gap: 0.4rem; }
+.ws-topics-label { font-family: var(--sans); font-size: 0.78rem; font-weight: 600; color: var(--text-dim); }
+.ws-topics-list { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.ws-topic-pill { font-family: var(--sans); font-size: 0.72rem; font-weight: 500; color: var(--accent); background: rgba(0,255,245,0.06); border: 1px solid rgba(0,255,245,0.15); padding: 0.2rem 0.6rem; border-radius: 12px; cursor: default; }
+
+/* ── Follow-up section ── */
+.ws-followup { padding: 0.7rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.ws-followup-label { font-family: var(--sans); font-size: 0.78rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.3rem; }
+.ws-followup p { font-family: var(--sans); font-size: 0.82rem; color: var(--text-dim); line-height: 1.6; margin: 0; }
+
 .ws-lc-link { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--text-dim); font-family: var(--sans); font-size: 0.78rem; text-decoration: none; padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 6px; transition: all var(--t); margin-top: 0.5rem; }
 .ws-lc-link:hover { border-color: var(--accent); color: var(--accent); }
 
@@ -106,9 +124,58 @@
 .ws-tc-input { width: 100%; padding: 0.6rem 0.8rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-family: var(--mono); font-size: 0.82rem; outline: none; }
 .ws-tc-input:focus { border-color: var(--accent); }
 
-/* ── Test Result Tab ── */
-.ws-testresult { padding: 0; }
+/* ── Test Result Tab (LeetCode-style) ── */
+.ws-testresult { padding: 0; display: flex; flex-direction: column; gap: 0; }
+
+.ws-result-status { padding: 0.8rem 0; font-family: var(--sans); font-size: 1.1rem; font-weight: 700; }
+.ws-result-status.accepted { color: #48c78e; }
+.ws-result-status.wrong-answer { color: #f87171; }
+.ws-result-status.error { color: #f5a623; }
+.ws-result-subtitle { font-family: var(--sans); font-size: 0.78rem; color: var(--text-dim); font-weight: 400; margin-left: 0.5rem; }
+
+/* Case tabs in test result */
+.ws-result-cases { display: flex; gap: 0.3rem; padding: 0.5rem 0; flex-wrap: wrap; }
+.ws-result-case { padding: 0.3rem 0.7rem; border-radius: 6px; font-family: var(--sans); font-size: 0.75rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text-dim); transition: all var(--t); display: flex; align-items: center; gap: 0.3rem; }
+.ws-result-case.active { background: var(--hover-box); color: var(--text-main); border-color: var(--text-dim); }
+.ws-result-case .case-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.ws-result-case .case-dot.pass { background: #48c78e; }
+.ws-result-case .case-dot.fail { background: #f87171; }
+
+/* Input/Output/Expected cards */
+.ws-result-section { display: flex; flex-direction: column; gap: 0.3rem; margin-top: 0.8rem; }
+.ws-result-label { font-family: var(--sans); font-size: 0.75rem; font-weight: 600; color: var(--text-dim); }
+.ws-result-value { padding: 0.6rem 0.8rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; font-family: var(--mono); font-size: 0.82rem; color: var(--text-main); line-height: 1.5; white-space: pre-wrap; }
+
+/* Submit result */
+.ws-submit-stats { display: flex; gap: 1.5rem; padding: 0.6rem 0; flex-wrap: wrap; }
+.ws-submit-stat { display: flex; flex-direction: column; gap: 0.15rem; }
+.ws-submit-stat-label { font-family: var(--sans); font-size: 0.72rem; color: var(--text-dim); }
+.ws-submit-stat-value { font-family: var(--mono); font-size: 0.88rem; font-weight: 700; color: var(--text-main); }
+
+/* Error output */
+.ws-result-error { padding: 0.7rem 0.9rem; background: rgba(248,113,113,0.06); border: 1px solid rgba(248,113,113,0.15); border-radius: 8px; font-family: var(--mono); font-size: 0.78rem; color: #f87171; line-height: 1.6; white-space: pre-wrap; margin-top: 0.5rem; }
+
+/* Progress bar during submit */
+.ws-submit-progress { margin-top: 0.5rem; }
+.ws-submit-progress-text { font-family: var(--sans); font-size: 0.78rem; color: var(--text-dim); margin-bottom: 0.3rem; }
+.ws-submit-progress-track { height: 6px; background: var(--hover-box); border-radius: 3px; overflow: hidden; }
+.ws-submit-progress-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.2s ease; }
+
+/* Legacy fallback */
 .ws-result-output { font-family: var(--mono); font-size: 0.8rem; color: #48c78e; line-height: 1.6; white-space: pre-wrap; margin: 0; }
+
+/* ── Submissions Tab (LeetCode-style history) ── */
+.ws-sub-history { display: flex; flex-direction: column; gap: 0; margin-top: 0.8rem; }
+.ws-sub-history-header { display: flex; padding: 0.5rem 0; border-bottom: 1px solid var(--border); gap: 0; }
+.ws-sub-history-header span { font-family: var(--sans); font-size: 0.7rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.ws-sub-history-row { display: flex; padding: 0.55rem 0; border-bottom: 1px solid var(--border); gap: 0; cursor: pointer; transition: background var(--t); align-items: center; }
+.ws-sub-history-row:hover { background: var(--hover-box); }
+.ws-sub-col-status { flex: 2; font-family: var(--sans); font-size: 0.78rem; font-weight: 600; }
+.ws-sub-col-status.accepted { color: #48c78e; }
+.ws-sub-col-status.failed { color: #f87171; }
+.ws-sub-col { flex: 1; font-family: var(--sans); font-size: 0.75rem; color: var(--text-dim); }
+.ws-sub-col-lang { flex: 1; }
+.ws-sub-col-time { flex: 1; }
 
 /* ═══ DIVIDER ═══ */
 .ws-divider { width: 1px; background: var(--border); position: relative; flex-shrink: 0; cursor: col-resize; }
@@ -125,17 +192,19 @@
 .ws-editor-area { flex: 1; min-height: 0; }
 
 /* ── Editor Footer ── */
-.ws-editor-footer { display: flex; align-items: center; justify-content: space-between; padding: 0.4rem 0.8rem; border-top: 1px solid var(--border); background: var(--surface); flex-shrink: 0; }
+.ws-editor-footer { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.8rem; border-top: 1px solid var(--border); background: var(--surface); flex-shrink: 0; min-height: 44px; }
 
 .ws-footer-left { display: flex; align-items: center; gap: 0.8rem; }
 .ws-cursor-pos { font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim); }
 .ws-editor-status { font-family: var(--mono); font-size: 0.7rem; color: #48c78e; }
 
-.ws-footer-btns { display: flex; gap: 0.5rem; }
-.ws-run-btn { padding: 0.35rem 1.1rem; border-radius: 6px; font-family: var(--sans); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all var(--t); background: none; border: 1px solid var(--border); color: var(--text-main); }
+.ws-footer-btns { display: flex; gap: 0.5rem; flex-shrink: 0; }
+.ws-run-btn { padding: 0.45rem 1.2rem; border-radius: 6px; font-family: var(--sans); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all var(--t); background: none; border: 1px solid var(--border); color: var(--text-main); }
 .ws-run-btn:hover { border-color: var(--text-main); }
-.ws-submit-btn { padding: 0.35rem 1.1rem; border-radius: 6px; font-family: var(--sans); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all var(--t); background: #48c78e; border: none; color: #fff; }
+.ws-run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.ws-submit-btn { padding: 0.45rem 1.2rem; border-radius: 6px; font-family: var(--sans); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all var(--t); background: #48c78e; border: none; color: #fff; }
 .ws-submit-btn:hover { background: #3ab07a; }
+.ws-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ── Console ── */
 .ws-console { border-top: 1px solid var(--border); max-height: 180px; overflow-y: auto; background: var(--surface); flex-shrink: 0; }

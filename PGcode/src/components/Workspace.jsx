@@ -28,6 +28,12 @@ export default function Workspace({ session, theme, roadmapMode }) {
   const [cursorPos, setCursorPos] = useState({ ln: 1, col: 1 });
   const [activeTestIdx, setActiveTestIdx] = useState(0);
   const [testInputs, setTestInputs] = useState([]);
+  // Structured test/submit result
+  const [runResult, setRunResult] = useState(null);
+  const [resultCaseIdx, setResultCaseIdx] = useState(0);
+  const [submitProgress, setSubmitProgress] = useState(null); // { current, total }
+  // Submission history (persisted to localStorage)
+  const [submissions, setSubmissions] = useState([]);
   const editorRef = useRef(null);
 
   const [leftWidth, setLeftWidth] = useState(
@@ -75,19 +81,36 @@ export default function Workspace({ session, theme, roadmapMode }) {
       setActiveTestIdx(0);
       setTestInputs([]);
     }
+    setRunResult(null);
+    setSubmitProgress(null);
+    // Load submission history
+    try {
+      const saved = JSON.parse(localStorage.getItem(`pgcode_subs_${activeProblem?.id}`) || '[]');
+      setSubmissions(saved);
+    } catch { setSubmissions([]); }
   }, [activeProblem?.id]);
 
   useEffect(() => {
     if (!activeProblem) return;
-    // Priority: localStorage > Supabase progress > DB template > generated template > fallback
     const localKey = `pgcode_code_${activeProblem.id}_${activeLang}`;
     const localCode = localStorage.getItem(localKey);
-    if (localCode) setCodeContent(localCode);
+    const hasMetadata = activeProblem.method_name && activeProblem.params;
+    const generated = hasMetadata ? generateTemplate(activeLang, activeProblem.method_name, activeProblem.params, activeProblem.return_type) : null;
+
+    // Detect stale generic templates from before metadata was added
+    const isStaleGeneric = localCode && (
+      localCode.includes('def solve(self, input)') ||
+      localCode.includes('var solve = function(input)') ||
+      localCode.includes('Object solve(')
+    );
+
+    // If metadata exists and localStorage has old generic template, clear it
+    if (isStaleGeneric && hasMetadata) localStorage.removeItem(localKey);
+
+    // Priority: localStorage (non-stale) > Supabase progress > generated > DB template > fallback
+    if (localCode && !isStaleGeneric) setCodeContent(localCode);
     else if (userProgress?.last_code?.[activeLang]) setCodeContent(userProgress.last_code[activeLang]);
-    else {
-      const generated = generateTemplate(activeLang, activeProblem.method_name, activeProblem.params, activeProblem.return_type);
-      setCodeContent(templates[activeLang] || generated || `class Solution:\n    def solve(self, input):\n        # Write your solution here\n        pass`);
-    }
+    else setCodeContent(generated || templates[activeLang] || `class Solution:\n    def solve(self, input):\n        # Write your solution here\n        pass`);
   }, [activeProblem, activeLang, templates, userProgress]);
 
   useEffect(() => {
@@ -116,10 +139,12 @@ export default function Workspace({ session, theme, roadmapMode }) {
     setEditorStatus('Saved'); setTimeout(() => setEditorStatus(''), 2000);
   };
 
+  const MAX_VISIBLE_CASES = 8;
+
   const handleRun = async () => {
-    setShowConsole(true);
     setLeftTab('testresult');
     setRunning(true);
+    setRunResult(null);
     setConsoleOutput('Running...');
 
     try {
@@ -132,10 +157,14 @@ export default function Workspace({ session, theme, roadmapMode }) {
       const result = await runCode(fullCode, activeLang, stdin);
 
       if (result.status !== 'success') {
-        const label = result.status === 'compile_error' ? 'Compile Error'
-          : result.status === 'time_limit' ? 'Time Limit Exceeded'
-          : 'Runtime Error';
-        setConsoleOutput(`${label}\n\n${result.output}`);
+        const statusMap = { compile_error: 'Compile Error', time_limit: 'Time Limit Exceeded', runtime_error: 'Runtime Error' };
+        setRunResult({
+          status: 'error',
+          statusText: statusMap[result.status] || 'Error',
+          error: result.output,
+          isSubmission: false,
+        });
+        setConsoleOutput('');
         return;
       }
 
@@ -143,18 +172,26 @@ export default function Workspace({ session, theme, roadmapMode }) {
       if (testCase && hasDriver) {
         const passed = compareOutput(result.output, testCase.expected);
         const params = activeProblem.params || [];
-        const inputDisplay = params.map((p, i) => `${p.name} = ${testInputs[i]}`).join('\n');
-        setConsoleOutput(
-          `${passed ? 'Accepted' : 'Wrong Answer'}\n\n` +
-          `Input:\n${inputDisplay}\n\n` +
-          `Output:\n${result.output.trim()}\n\n` +
-          `Expected:\n${testCase.expected}`
-        );
+        setRunResult({
+          status: passed ? 'accepted' : 'wrong_answer',
+          statusText: passed ? 'Accepted' : 'Wrong Answer',
+          cases: [{
+            passed,
+            input: params.map((p, i) => ({ name: p.name, value: testInputs[i] || '' })),
+            output: result.output.trim(),
+            expected: testCase.expected,
+          }],
+          activeCaseIdx: 0,
+          isSubmission: false,
+        });
+        setConsoleOutput('');
       } else {
         setConsoleOutput(result.output);
+        setRunResult(null);
       }
     } catch (err) {
-      setConsoleOutput(`Execution failed: ${err.message}`);
+      setRunResult({ status: 'error', statusText: 'Execution Failed', error: err.message, isSubmission: false });
+      setConsoleOutput('');
     } finally {
       setRunning(false);
     }
@@ -166,41 +203,82 @@ export default function Workspace({ session, theme, roadmapMode }) {
       return;
     }
 
-    setShowConsole(true);
     setLeftTab('testresult');
     setRunning(true);
-    setConsoleOutput('Running all test cases...');
+    setRunResult(null);
+    setConsoleOutput('');
+    const total = activeProblem.test_cases.length;
+    setSubmitProgress({ current: 0, total });
+
+    const startTime = Date.now();
 
     try {
       const fullCode = wrapWithDriver(codeContent, activeLang, activeProblem.method_name, activeProblem.params);
       const params = activeProblem.params || [];
+      const cases = [];
       let allPassed = true;
-      const lines = [];
+      let failIdx = -1;
 
-      for (let i = 0; i < activeProblem.test_cases.length; i++) {
+      for (let i = 0; i < total; i++) {
+        setSubmitProgress({ current: i + 1, total });
         const tc = activeProblem.test_cases[i];
         const stdin = buildStdin(tc.inputs);
         const result = await runCode(fullCode, activeLang, stdin);
 
         if (result.status !== 'success') {
           allPassed = false;
-          const inputDisplay = params.map((p, j) => `${p.name} = ${tc.inputs[j]}`).join(', ');
-          lines.push(`Case ${i + 1}: ${result.status === 'compile_error' ? 'Compile Error' : 'Runtime Error'}\n  Input: ${inputDisplay}\n  ${result.output.trim().split('\n')[0]}`);
+          failIdx = i;
+          const statusMap = { compile_error: 'Compile Error', time_limit: 'Time Limit Exceeded', runtime_error: 'Runtime Error' };
+          setRunResult({
+            status: 'error',
+            statusText: statusMap[result.status] || 'Error',
+            error: result.output,
+            failedCase: i + 1,
+            totalCases: total,
+            totalPassed: i,
+            isSubmission: true,
+          });
           break;
         }
 
         const passed = compareOutput(result.output, tc.expected);
+        cases.push({
+          passed,
+          input: params.map((p, j) => ({ name: p.name, value: tc.inputs[j] || '' })),
+          output: result.output.trim(),
+          expected: tc.expected,
+        });
+
         if (!passed) {
           allPassed = false;
-          const inputDisplay = params.map((p, j) => `${p.name} = ${tc.inputs[j]}`).join(', ');
-          lines.push(`Wrong Answer on Case ${i + 1}\n\nInput:\n${params.map((p, j) => `${p.name} = ${tc.inputs[j]}`).join('\n')}\n\nOutput:\n${result.output.trim()}\n\nExpected:\n${tc.expected}`);
+          failIdx = i;
+          setRunResult({
+            status: 'wrong_answer',
+            statusText: 'Wrong Answer',
+            cases: cases,
+            activeCaseIdx: i,
+            failedCase: i + 1,
+            totalCases: total,
+            totalPassed: i,
+            isSubmission: true,
+          });
           break;
         }
-        lines.push(`Case ${i + 1}: Passed`);
       }
 
+      const elapsed = Date.now() - startTime;
+
       if (allPassed) {
-        setConsoleOutput(`Accepted\n\n${activeProblem.test_cases.length}/${activeProblem.test_cases.length} test cases passed.\n\n${lines.join('\n')}`);
+        setRunResult({
+          status: 'accepted',
+          statusText: 'Accepted',
+          cases,
+          activeCaseIdx: 0,
+          totalCases: total,
+          totalPassed: total,
+          runtime: elapsed,
+          isSubmission: true,
+        });
         if (session?.user) {
           saveProgress({
             is_completed: true,
@@ -209,13 +287,26 @@ export default function Workspace({ session, theme, roadmapMode }) {
             solve_count: (userProgress?.solve_count || 0) + 1,
           });
         }
-      } else {
-        setConsoleOutput(lines.join('\n'));
       }
+
+      // Save submission to history
+      const sub = {
+        status: allPassed ? 'Accepted' : (failIdx >= 0 ? 'Wrong Answer' : 'Error'),
+        language: activeLang,
+        runtime: allPassed ? `${elapsed}ms` : 'N/A',
+        passed: allPassed ? total : (failIdx >= 0 ? failIdx : 0),
+        total,
+        date: new Date().toISOString(),
+      };
+      const newSubs = [sub, ...submissions].slice(0, 20);
+      setSubmissions(newSubs);
+      try { localStorage.setItem(`pgcode_subs_${activeProblem.id}`, JSON.stringify(newSubs)); } catch {}
+
     } catch (err) {
-      setConsoleOutput(`Execution failed: ${err.message}`);
+      setRunResult({ status: 'error', statusText: 'Execution Failed', error: err.message, isSubmission: true });
     } finally {
       setRunning(false);
+      setSubmitProgress(null);
     }
   };
 
@@ -302,11 +393,46 @@ export default function Workspace({ session, theme, roadmapMode }) {
                 <div className="ws-q-tags">
                   <span className={`ws-diff-badge ws-diff-${activeProblem.difficulty?.toLowerCase()}`}>{activeProblem.difficulty}</span>
                   {topic?.category && <span className="ws-tag-pill">{topic.category}</span>}
-                  {activeProblem.hints?.length > 0 && <span className="ws-tag-pill ws-tag-hint">Hint</span>}
                 </div>
 
                 <div className="ws-q-desc" dangerouslySetInnerHTML={{ __html: activeProblem.description }} />
 
+                {/* Constraints */}
+                {activeProblem.constraints && (
+                  <div className="ws-constraints">
+                    <div className="ws-constraints-title">Constraints:</div>
+                    <ul>
+                      {(Array.isArray(activeProblem.constraints)
+                        ? activeProblem.constraints
+                        : activeProblem.constraints.split('\n').filter(Boolean)
+                      ).map((c, i) => (
+                        <li key={i} dangerouslySetInnerHTML={{ __html: c.replace(/`([^`]+)`/g, '<code>$1</code>') }} />
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Follow-up */}
+                {activeProblem.follow_up && (
+                  <div className="ws-followup">
+                    <div className="ws-followup-label">Follow-up:</div>
+                    <p>{activeProblem.follow_up}</p>
+                  </div>
+                )}
+
+                {/* Topics */}
+                {(activeProblem.topics?.length > 0 || topic?.category) && (
+                  <details className="ws-expandable">
+                    <summary>Topics</summary>
+                    <div style={{ padding: '0.5rem 1rem', display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                      {(activeProblem.topics || [topic?.category]).filter(Boolean).map((t, i) => (
+                        <span key={i} className="ws-topic-pill">{t}</span>
+                      ))}
+                    </div>
+                  </details>
+                )}
+
+                {/* Hints */}
                 {activeProblem.hints?.length > 0 && activeProblem.hints.map((hint, i) => (
                   <details key={i} className="ws-expandable">
                     <summary>Hint {i + 1}</summary>
@@ -344,6 +470,36 @@ export default function Workspace({ session, theme, roadmapMode }) {
                     <span className="ws-sub-review"><RotateCcw size={12} /> Review: {new Date(userProgress.next_review_at).toLocaleDateString()}</span>
                   )}
                 </div>
+
+                {/* Submission history */}
+                {submissions.length > 0 && (
+                  <div className="ws-sub-history">
+                    <div className="ws-sub-history-header">
+                      <span className="ws-sub-col-status">Status</span>
+                      <span className="ws-sub-col ws-sub-col-lang">Language</span>
+                      <span className="ws-sub-col ws-sub-col-time">Runtime</span>
+                      <span className="ws-sub-col">Date</span>
+                    </div>
+                    {submissions.map((sub, i) => (
+                      <div key={i} className="ws-sub-history-row">
+                        <span className={`ws-sub-col-status ${sub.status === 'Accepted' ? 'accepted' : 'failed'}`}>
+                          {sub.status}
+                          <span style={{ fontWeight: 400, fontSize: '0.7rem', color: 'var(--text-dim)', marginLeft: '0.3rem' }}>
+                            {sub.passed}/{sub.total}
+                          </span>
+                        </span>
+                        <span className="ws-sub-col ws-sub-col-lang">{sub.language}</span>
+                        <span className="ws-sub-col ws-sub-col-time">{sub.runtime}</span>
+                        <span className="ws-sub-col">{new Date(sub.date).toLocaleDateString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {submissions.length === 0 && (
+                  <p className="ws-empty-msg" style={{ padding: '1rem 0' }}>No submissions yet. Submit your code to see results here.</p>
+                )}
+
                 {session && (
                   <>
                     <div className="ws-sub-section">
@@ -372,7 +528,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
                 {activeProblem.test_cases?.length > 0 ? (
                   <>
                     <div className="ws-tc-cases">
-                      {activeProblem.test_cases.map((tc, i) => (
+                      {activeProblem.test_cases.slice(0, MAX_VISIBLE_CASES).map((tc, i) => (
                         <button key={i} className={`ws-tc-case ${activeTestIdx === i ? 'active' : ''}`}
                           onClick={() => { setActiveTestIdx(i); setTestInputs([...tc.inputs]); }}>
                           Case {i + 1}
@@ -401,9 +557,96 @@ export default function Workspace({ session, theme, roadmapMode }) {
             {/* ── TEST RESULT TAB ── */}
             {leftTab === 'testresult' && (
               <div className="ws-testresult">
-                {consoleOutput ? (
+                {/* Submit progress */}
+                {running && submitProgress && (
+                  <div className="ws-submit-progress">
+                    <div className="ws-submit-progress-text">
+                      Running test case {submitProgress.current} / {submitProgress.total}...
+                    </div>
+                    <div className="ws-submit-progress-track">
+                      <div className="ws-submit-progress-fill" style={{ width: `${(submitProgress.current / submitProgress.total) * 100}%` }} />
+                    </div>
+                  </div>
+                )}
+
+                {/* Structured result */}
+                {runResult && (
+                  <>
+                    {/* Status header */}
+                    <div className={`ws-result-status ${runResult.status === 'accepted' ? 'accepted' : runResult.status === 'wrong_answer' ? 'wrong-answer' : 'error'}`}>
+                      {runResult.statusText}
+                      {runResult.isSubmission && runResult.totalCases && (
+                        <span className="ws-result-subtitle">
+                          {runResult.totalPassed}/{runResult.totalCases} testcases passed
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Submit stats */}
+                    {runResult.isSubmission && runResult.status === 'accepted' && runResult.runtime && (
+                      <div className="ws-submit-stats">
+                        <div className="ws-submit-stat">
+                          <span className="ws-submit-stat-label">Runtime</span>
+                          <span className="ws-submit-stat-value">{runResult.runtime}ms</span>
+                        </div>
+                        <div className="ws-submit-stat">
+                          <span className="ws-submit-stat-label">Language</span>
+                          <span className="ws-submit-stat-value">{activeLang}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Error output */}
+                    {runResult.error && (
+                      <div className="ws-result-error">{runResult.error}</div>
+                    )}
+
+                    {/* Case tabs + details */}
+                    {runResult.cases?.length > 0 && (
+                      <>
+                        <div className="ws-result-cases">
+                          {runResult.cases.map((c, i) => (
+                            <button key={i}
+                              className={`ws-result-case ${resultCaseIdx === i ? 'active' : ''}`}
+                              onClick={() => setResultCaseIdx(i)}>
+                              <span className={`case-dot ${c.passed ? 'pass' : 'fail'}`} />
+                              Case {i + 1}
+                            </button>
+                          ))}
+                        </div>
+
+                        {runResult.cases[resultCaseIdx] && (
+                          <>
+                            <div className="ws-result-section">
+                              <div className="ws-result-label">Input</div>
+                              <div className="ws-result-value">
+                                {runResult.cases[resultCaseIdx].input.map((inp, j) => (
+                                  <div key={j}>{inp.name} = {inp.value}</div>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="ws-result-section">
+                              <div className="ws-result-label">Output</div>
+                              <div className="ws-result-value">{runResult.cases[resultCaseIdx].output}</div>
+                            </div>
+                            <div className="ws-result-section">
+                              <div className="ws-result-label">Expected</div>
+                              <div className="ws-result-value">{runResult.cases[resultCaseIdx].expected}</div>
+                            </div>
+                          </>
+                        )}
+                      </>
+                    )}
+                  </>
+                )}
+
+                {/* Fallback for raw output */}
+                {!runResult && consoleOutput && (
                   <pre className="ws-result-output">{consoleOutput}</pre>
-                ) : (
+                )}
+
+                {/* Empty state */}
+                {!runResult && !consoleOutput && !running && (
                   <p className="ws-empty-msg">You must run your code first</p>
                 )}
               </div>
