@@ -832,7 +832,9 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
               >
                 {isReviewing ? `${Math.ceil(reviewProgress.current/2)}/${Math.ceil(reviewProgress.total/2)}` : '\u27F3'}
               </button>
-              <button className={styles.iconBtn} onClick={handleNewGame} title="New analysis">&#x2715;</button>
+              <button className={`${styles.iconBtn} ${styles.importBtn}`} onClick={handleNewGame} title="Import new game">
+                &#x2795; New
+              </button>
             </div>
           </div>
 
@@ -847,7 +849,8 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
           {panelTab === 'report' && (
             <div className={styles.reportScroll}>
               <div className={styles.reportCenter}>
-                {/* Score card */}
+                {/* Score card — only show when there's data to display */}
+                {(moveHistory.length > 0 || reviewResults) && (
                 <div className={`${styles.scoreCard} ${reportAnimated ? styles.scoreCardAnimated : ''}`}>
                   {/* Result */}
                   <div className={styles.scoreResult}>
@@ -889,6 +892,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                     <div className={styles.gameDescription}>{gameDesc}</div>
                   )}
                 </div>
+                )}
 
                 {/* Eval graph */}
                 {graphData.length > 1 && (
@@ -973,12 +977,125 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                 )}
 
                 {/* Review prompt if not reviewed */}
-                {!reviewResults && !isReviewing && (
+                {!reviewResults && !isReviewing && moveHistory.length > 0 && (
                   <div className={styles.reviewPrompt}>
-                    <button className={styles.reviewBtn} onClick={handleReview} disabled={!moveHistory.length}>
+                    <button className={styles.reviewBtn} onClick={handleReview}>
                       &#x27F3; Review Game
                     </button>
                     <p className={styles.reviewHint}>Analyse each move to see accuracy, classifications, and the evaluation graph.</p>
+                  </div>
+                )}
+
+                {/* Import options when no game to review */}
+                {!reviewResults && !isReviewing && moveHistory.length === 0 && (
+                  <div className={styles.inlineImport}>
+                    <div className={styles.inlineImportTitle}>Import a game to analyse</div>
+                    <div className={styles.importTabs}>
+                      <button className={`${styles.importTab} ${importTab === 'pgn' ? styles.importTabActive : ''}`}
+                        onClick={() => { setImportTab('pgn'); setExternalError(''); }}>PGN / FEN</button>
+                      <button className={`${styles.importTab} ${importTab === 'chesscom' ? styles.importTabActive : ''}`}
+                        onClick={() => { setImportTab('chesscom'); setExternalError(''); setPgnError(''); }}>Chess.com</button>
+                      <button className={`${styles.importTab} ${importTab === 'lichess' ? styles.importTabActive : ''}`}
+                        onClick={() => { setImportTab('lichess'); setExternalError(''); setPgnError(''); }}>Lichess</button>
+                      <button className={`${styles.importTab} ${importTab === 'setup' ? styles.importTabActive : ''}`}
+                        onClick={() => { setImportTab('setup'); setExternalError(''); setPgnError(''); }}>Setup</button>
+                    </div>
+
+                    {importTab === 'pgn' && (
+                      <div className={styles.inputSection}>
+                        <textarea
+                          className={styles.pgnTextarea}
+                          value={pgnInput}
+                          onChange={e => { setPgnInput(e.target.value); setPgnError(''); }}
+                          placeholder="Paste PGN or FEN here..."
+                          rows={6}
+                        />
+                        {pgnError && <div className={styles.pgnError}>{pgnError}</div>}
+                        <input ref={fileRef} type="file" accept=".pgn,.txt" style={{ display: 'none' }} onChange={handleFileUpload} />
+                        <div className={styles.importBtns}>
+                          <button className={styles.uploadBtn} onClick={() => fileRef.current?.click()}>Upload .pgn</button>
+                          <button className={styles.analyseBtn} onClick={() => doLoad(pgnInput)}>Analyse</button>
+                        </div>
+                      </div>
+                    )}
+
+                    {(importTab === 'chesscom' || importTab === 'lichess') && (
+                      <div className={styles.inputSection}>
+                        <div className={styles.externalHeader}>
+                          <span className={styles.externalLogo}>{importTab === 'chesscom' ? 'CC' : 'Li'}</span>
+                          <span className={styles.externalTitle}>{importTab === 'chesscom' ? 'Chess.com' : 'Lichess.org'}</span>
+                        </div>
+                        <div className={styles.externalRow}>
+                          <input
+                            className={styles.usernameInput}
+                            value={externalUsername}
+                            onChange={e => { setExternalUsername(e.target.value); setExternalError(''); }}
+                            placeholder="Enter username"
+                            onKeyDown={e => e.key === 'Enter' && handleFetchExternal()}
+                          />
+                          <button className={styles.fetchBtn} onClick={handleFetchExternal} disabled={externalLoading}>
+                            {externalLoading ? '...' : 'Fetch'}
+                          </button>
+                        </div>
+                        {externalError && <div className={styles.pgnError}>{externalError}</div>}
+                        <p className={styles.externalHint}>Free, no login required. Uses the public API.</p>
+                      </div>
+                    )}
+
+                    {importTab === 'setup' && (
+                      <BoardEditor onAnalyse={(fen) => doLoad(fen)} />
+                    )}
+
+                    {externalGames.length > 0 && (
+                      <div className={styles.savedSection}>
+                        <div className={styles.sectionLabel}>{externalGames.length} games found</div>
+                        <div className={styles.savedList}>
+                          {externalGames.map((g, i) => (
+                            <div key={i} className={styles.savedGame} onClick={() => handleLoadGame(g)}>
+                              <div className={styles.savedTop}>
+                                <span className={`${styles.pDot} ${g.color === 'white' ? styles.pDotW : styles.pDotB}`} />
+                                <span className={styles.savedVs}>{g.white} vs {g.black}</span>
+                                <span className={`${styles.resBadge} ${styles['res_' + g.result]}`}>
+                                  {g.result === 'draw' ? '1/2' : g.result === 'win' ? 'W' : 'L'}
+                                </span>
+                              </div>
+                              <div className={styles.savedMeta}>
+                                {g.whiteRating && <span>{g.whiteRating}</span>}
+                                {g.whiteRating && g.blackRating && <span> vs </span>}
+                                {g.blackRating && <span>{g.blackRating}</span>}
+                                {g.timeControl && <span> &middot; {g.timeControl}</span>}
+                                {g.opening && <span> &middot; {g.opening}</span>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {(gamesLoading || savedGames.length > 0) && (
+                      <div className={styles.savedSection}>
+                        <div className={styles.sectionLabel}>Your Games</div>
+                        {gamesLoading && <div className={styles.dim}>Loading...</div>}
+                        <div className={styles.savedList}>
+                          {savedGames.map((g, i) => (
+                            <div key={i} className={styles.savedGame} onClick={() => handleLoadGame(g)}>
+                              <div className={styles.savedTop}>
+                                <span className={`${styles.pDot} ${g.color === 'white' ? styles.pDotW : styles.pDotB}`} />
+                                <span className={styles.savedVs}>
+                                  {g.color === 'white' ? 'W' : 'B'} &middot; {g.opponent || 'vs Opponent'}
+                                </span>
+                                {g.result && (
+                                  <span className={`${styles.resBadge} ${styles['res_' + g.result]}`}>
+                                    {g.result === 'draw' ? '1/2' : g.result === g.color ? 'W' : 'L'}
+                                  </span>
+                                )}
+                              </div>
+                              <div className={styles.savedPgn}>{(g.pgnStr || '').slice(0, 60)}...</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
