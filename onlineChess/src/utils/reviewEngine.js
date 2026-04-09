@@ -91,7 +91,7 @@ export async function reviewGame(moveHistory, onProgress, signal) {
       san: moveHistory[i].san,
     });
 
-    onProgress?.(i + 1, moveHistory.length);
+    onProgress?.(i + 1, moveHistory.length, results);
     await new Promise(r => setTimeout(r, 0)); // yield to UI thread
   }
 

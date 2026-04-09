@@ -323,32 +323,64 @@
   margin: 0;
 }
 
-/* ── Reviewing animation ── */
+/* ── Reviewing animation (Chess.com-style) ── */
 .reviewingSection {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
   gap: 12px;
-  padding: 24px;
+  padding: 16px;
 }
 
-.reviewingSpinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(100, 180, 255, 0.15);
-  border-top-color: rgba(100, 180, 255, 0.8);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+.evalProgressCard {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  padding: 16px 18px 14px;
+}
+
+.evalProgressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.evalProgressTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.evalProgressPct {
+  font-size: 1rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.evalProgressTrack {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.evalProgressFill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #4a90d9, #5b9ee0);
+  transition: width 0.2s ease;
+  box-shadow: 0 0 8px rgba(74, 144, 217, 0.4);
+}
+
+.evalProgressHint {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.35);
+  margin: 0;
+  line-height: 1.5;
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
-}
-
-.reviewingText {
-  font-size: 0.82rem;
-  color: rgba(100, 180, 255, 0.7);
-  font-weight: 500;
 }
 
 /* Review progress */
@@ -576,12 +608,61 @@
 }
 
 /* ── Eval graph ── */
+.evalGraphContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
 .evalGraph {
   width: 100%;
   height: 100%;
   display: block;
   border-radius: 4px;
   overflow: hidden;
+}
+
+/* Graph tooltip */
+.graphTooltip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(30, 30, 30, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 5px 10px;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.tooltipIcon {
+  font-size: 1rem;
+  border-radius: 4px;
+  padding: 1px 3px;
+  line-height: 1;
+}
+
+.tooltipInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.tooltipEval {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.tooltipMove {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 500;
 }
 
 .graphWrapSmall {
@@ -613,6 +694,48 @@
   font-size: 0.72rem;
   color: rgba(255, 255, 255, 0.2);
   font-style: italic;
+}
+
+/* ── Accuracies card (Chess.com-style) ── */
+.accuraciesCard {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.accuraciesTitle {
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.75);
+  padding: 10px 0 8px;
+  letter-spacing: 0.02em;
+}
+
+.accuraciesRow {
+  display: flex;
+}
+
+.accuracyWhite {
+  flex: 1;
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 800;
+  padding: 12px 0 16px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #1a1a1a;
+  font-variant-numeric: tabular-nums;
+}
+
+.accuracyBlack {
+  flex: 1;
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 800;
+  padding: 12px 0 16px;
+  background: rgba(0, 0, 0, 0.7);
+  color: rgba(255, 255, 255, 0.92);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── Accuracy bars ── */

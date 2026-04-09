@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useId, useMemo, memo } from 'react';
+import { useState, useEffect, useRef, useId, useMemo, useCallback, memo } from 'react';
 import Board from '../Board/Board';
 import styles from './AnalysisBoard.module.css';
 import useGameStore from '../../store/gameStore';
@@ -155,10 +155,14 @@ function getGameCharacter(reviewResults, moveHistory) {
   return { label: 'SHARP', icon: '\u26A1' };
 }
 
-// ── Eval Graph ────────────────────────────────────────────────────────────────
+// ── Eval Graph (Chess.com-style with classification dots + tooltips) ──────────
 
-const EvalGraph = memo(function EvalGraph({ data, currentIdx, onSeek, large }) {
+const NOTABLE_CLASSES = new Set(['brilliant', 'critical', 'inaccuracy', 'mistake', 'blunder']);
+
+const EvalGraph = memo(function EvalGraph({ data, currentIdx, onSeek, large, reviewResults, moveHistory }) {
   const uid = useId().replace(/:/g, '');
+  const [hoverIdx, setHoverIdx] = useState(null);
+  const containerRef = useRef(null);
   const W = 500, H = large ? 80 : 60, pad = 1;
   const evalToY = s => pad + (H - pad * 2) * (1 - evalToWhitePct(s) / 100);
   const pts = data.map((s, i) => [
@@ -169,39 +173,100 @@ const EvalGraph = memo(function EvalGraph({ data, currentIdx, onSeek, large }) {
   const fillD = pathD ? `${pathD} L ${pts.at(-1)[0].toFixed(1)},${H / 2} L ${pts[0][0].toFixed(1)},${H / 2} Z` : null;
   const curX  = currentIdx >= 0 && currentIdx < data.length ? pts[currentIdx][0] : null;
 
-  const markers = [];
-  data.forEach((s, i) => {
-    if (i === 0) return;
-    const diff = Math.abs(s - data[i - 1]);
-    if (diff > 200) markers.push({ x: pts[i][0], y: pts[i][1], type: 'blunder' });
-    else if (diff > 100) markers.push({ x: pts[i][0], y: pts[i][1], type: 'mistake' });
-  });
+  // Classification markers from review results
+  const markers = useMemo(() => {
+    if (reviewResults?.length) {
+      return reviewResults.map((r, i) => {
+        if (i >= pts.length || !NOTABLE_CLASSES.has(r.classification)) return null;
+        return { x: pts[i][0], y: pts[i][1], cls: CLASSIFICATIONS[r.classification], idx: i };
+      }).filter(Boolean);
+    }
+    // Fallback to diff-based markers when no review results
+    const m = [];
+    data.forEach((s, i) => {
+      if (i === 0) return;
+      const diff = Math.abs(s - data[i - 1]);
+      if (diff > 200) m.push({ x: pts[i][0], y: pts[i][1], cls: CLASSIFICATIONS.blunder, idx: i });
+      else if (diff > 100) m.push({ x: pts[i][0], y: pts[i][1], cls: CLASSIFICATIONS.mistake, idx: i });
+    });
+    return m;
+  }, [reviewResults, data, pts]);
 
   const handleClick = e => {
     const r = e.currentTarget.getBoundingClientRect();
     onSeek(Math.max(0, Math.min(data.length - 1, Math.round(((e.clientX - r.left) / r.width) * (data.length - 1)))));
   };
 
+  const handleMouseMove = useCallback(e => {
+    const r = e.currentTarget.getBoundingClientRect();
+    const idx = Math.max(0, Math.min(data.length - 1, Math.round(((e.clientX - r.left) / r.width) * (data.length - 1))));
+    setHoverIdx(idx);
+  }, [data.length]);
+
+  const handleMouseLeave = useCallback(() => setHoverIdx(null), []);
+
+  // Tooltip data for hovered index
+  const tooltip = hoverIdx !== null && pts[hoverIdx] ? (() => {
+    const review = reviewResults?.[hoverIdx];
+    const cls = review ? CLASSIFICATIONS[review.classification] : null;
+    const move = moveHistory?.[hoverIdx];
+    const score = data[hoverIdx];
+    const xPct = (pts[hoverIdx][0] / W) * 100;
+    return { cls, move, score, xPct, review };
+  })() : null;
+
   return (
-    <svg className={styles.evalGraph} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" onClick={handleClick}>
-      <rect x={0} y={0} width={W} height={H} fill="rgba(0,0,0,0.35)" rx={4} />
-      <line x1={0} y1={H/2} x2={W} y2={H/2} stroke="rgba(255,255,255,0.08)" strokeWidth={0.5} />
-      {fillD && (
-        <>
-          <clipPath id={`ug${uid}`}><rect x={0} y={0} width={W} height={H/2} /></clipPath>
-          <clipPath id={`lg${uid}`}><rect x={0} y={H/2} width={W} height={H/2} /></clipPath>
-          <path d={fillD} fill="rgba(255,255,255,0.15)" clipPath={`url(#ug${uid})`} />
-          <path d={fillD} fill="rgba(0,0,0,0.35)" clipPath={`url(#lg${uid})`} />
-        </>
+    <div ref={containerRef} className={styles.evalGraphContainer}
+      onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}
+    >
+      <svg className={styles.evalGraph} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" onClick={handleClick}>
+        <rect x={0} y={0} width={W} height={H} fill="rgba(0,0,0,0.35)" rx={4} />
+        <line x1={0} y1={H/2} x2={W} y2={H/2} stroke="rgba(255,255,255,0.08)" strokeWidth={0.5} />
+        {fillD && (
+          <>
+            <clipPath id={`ug${uid}`}><rect x={0} y={0} width={W} height={H/2} /></clipPath>
+            <clipPath id={`lg${uid}`}><rect x={0} y={H/2} width={W} height={H/2} /></clipPath>
+            <path d={fillD} fill="rgba(255,255,255,0.15)" clipPath={`url(#ug${uid})`} />
+            <path d={fillD} fill="rgba(0,0,0,0.35)" clipPath={`url(#lg${uid})`} />
+          </>
+        )}
+        {pathD && <path d={pathD} fill="none" stroke="rgba(0,255,245,0.55)" strokeWidth={1.5} strokeLinejoin="round" />}
+        {markers.map((m, i) => (
+          <circle key={i} cx={m.x} cy={m.y} r={large ? 4 : 3}
+            fill={m.cls.color} opacity={0.85} stroke="rgba(0,0,0,0.4)" strokeWidth={0.5} />
+        ))}
+        {/* Hover cursor line */}
+        {hoverIdx !== null && pts[hoverIdx] && (
+          <>
+            <line x1={pts[hoverIdx][0]} y1={pad} x2={pts[hoverIdx][0]} y2={H-pad}
+              stroke="rgba(255,255,255,0.35)" strokeWidth={0.8} />
+            <circle cx={pts[hoverIdx][0]} cy={pts[hoverIdx][1]} r={3.5}
+              fill="#fff" stroke="rgba(0,0,0,0.4)" strokeWidth={1} />
+          </>
+        )}
+        {/* Current position cursor (when not hovering) */}
+        {hoverIdx === null && curX !== null && (
+          <>
+            <line x1={curX} y1={pad} x2={curX} y2={H-pad} stroke="rgba(255,255,255,0.45)" strokeWidth={1} strokeDasharray="2 2" />
+            <circle cx={curX} cy={evalToY(data[currentIdx])} r={3} fill="#00fff5" stroke="rgba(0,0,0,0.3)" strokeWidth={1} />
+          </>
+        )}
+      </svg>
+      {/* Tooltip */}
+      {tooltip && tooltip.cls && (
+        <div className={styles.graphTooltip} style={{
+          left: `${Math.max(8, Math.min(92, tooltip.xPct))}%`,
+        }}>
+          <span className={styles.tooltipIcon} style={{ background: tooltip.cls.bg, color: tooltip.cls.color }}>
+            {tooltip.cls.icon}
+          </span>
+          <div className={styles.tooltipInfo}>
+            <span className={styles.tooltipEval}>{formatEval(tooltip.score)}</span>
+            <span className={styles.tooltipMove}>{tooltip.move?.san || ''}</span>
+          </div>
+        </div>
       )}
-      {pathD && <path d={pathD} fill="none" stroke="rgba(0,255,245,0.55)" strokeWidth={1.5} strokeLinejoin="round" />}
-      {markers.map((m, i) => (
-        <circle key={i} cx={m.x} cy={m.y} r={large ? 3.5 : 2.5}
-          fill={m.type === 'blunder' ? '#cc3333' : '#e08c00'} opacity={0.7} />
-      ))}
-      {curX !== null && <line x1={curX} y1={pad} x2={curX} y2={H-pad} stroke="rgba(255,255,255,0.45)" strokeWidth={1} strokeDasharray="2 2" />}
-      {curX !== null && <circle cx={curX} cy={evalToY(data[currentIdx])} r={3} fill="#00fff5" stroke="rgba(0,0,0,0.3)" strokeWidth={1} />}
-    </svg>
+    </div>
   );
 });
 
@@ -265,6 +330,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
   const [reviewResults, setReviewResults]   = useState(null);
   const [isReviewing, setIsReviewing]       = useState(false);
   const [reviewProgress, setReviewProgress] = useState({ current: 0, total: 0 });
+  const [partialReviewData, setPartialReviewData] = useState([]);
   const [pgnInput, setPgnInput]             = useState('');
   const [pgnError, setPgnError]             = useState('');
   const [gameLoaded, setGameLoaded]         = useState(false);
@@ -347,10 +413,15 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
         const history = useGameStore.getState().moveHistory;
         if (!history.length) return;
         setIsReviewing(true);
+        setPartialReviewData([]);
         setReviewProgress({ current: 0, total: history.length });
         try {
-          const results = await reviewGame(history, (cur, tot) => setReviewProgress({ current: cur, total: tot }));
+          const results = await reviewGame(history, (cur, tot, partial) => {
+            setReviewProgress({ current: cur, total: tot });
+            setPartialReviewData([...partial]);
+          });
           setReviewResults(results);
+          setPartialReviewData([]);
           setReportAnimated(false);
           setTimeout(() => setReportAnimated(true), 50);
         } finally {
@@ -486,12 +557,17 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
     const controller = new AbortController();
     reviewAbortRef.current = controller;
     setIsReviewing(true); setReviewResults(null);
+    setPartialReviewData([]);
     setReviewProgress({ current: 0, total: moveHistory.length });
     setReportAnimated(false);
     try {
-      const results = await reviewGame(moveHistory, (current, total) => setReviewProgress({ current, total }), controller.signal);
+      const results = await reviewGame(moveHistory, (current, total, partial) => {
+        setReviewProgress({ current, total });
+        setPartialReviewData([...partial]);
+      }, controller.signal);
       if (!controller.signal.aborted) {
         setReviewResults(results);
+        setPartialReviewData([]);
         setPanelTab('report');
         setTimeout(() => setReportAnimated(true), 50);
       }
@@ -539,6 +615,10 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
     if (reviewResults?.length) {
       return reviewResults.map((r, i) => moveHistory[i]?.color === 'w' ? r.playedScore : -r.playedScore);
     }
+    // Show real-time graph during review
+    if (partialReviewData?.length > 1) {
+      return partialReviewData.map((r, i) => moveHistory[i]?.color === 'w' ? r.playedScore : -r.playedScore);
+    }
     if (evalHistory.some(v => v !== undefined)) {
       const out = [];
       for (let i = 0; i < moveHistory.length; i++) {
@@ -547,7 +627,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
       return out.length > 1 ? out : [];
     }
     return [];
-  }, [reviewResults, evalHistory, moveHistory]);
+  }, [reviewResults, partialReviewData, evalHistory, moveHistory]);
 
   const whitePct      = evalToWhitePct(currentEval);
   const displayPct    = whitePct;
@@ -813,19 +893,23 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                 {/* Eval graph */}
                 {graphData.length > 1 && (
                   <div className={styles.reportGraphWrap}>
-                    <EvalGraph data={graphData} currentIdx={currentMoveIndex} onSeek={goToMove} large />
+                    <EvalGraph data={graphData} currentIdx={currentMoveIndex} onSeek={goToMove} large
+                      reviewResults={reviewResults} moveHistory={moveHistory} />
                   </div>
                 )}
 
-                {/* Accuracy bars */}
+                {/* Accuracies — Chess.com-style side-by-side */}
                 {reviewResults && (whiteAcc !== null || blackAcc !== null) && (
-                  <div className={styles.reportSection}>
-                    {whiteAcc !== null && (
-                      <AccuracyBar label={pgnHeaders.White || 'White'} acc={whiteAcc} dotClass={styles.pDotW} />
-                    )}
-                    {blackAcc !== null && (
-                      <AccuracyBar label={pgnHeaders.Black || 'Black'} acc={blackAcc} dotClass={styles.pDotB} />
-                    )}
+                  <div className={styles.accuraciesCard}>
+                    <div className={styles.accuraciesTitle}>Accuracies</div>
+                    <div className={styles.accuraciesRow}>
+                      <div className={styles.accuracyWhite}>
+                        {whiteAcc !== null ? `${whiteAcc}%` : '--'}
+                      </div>
+                      <div className={styles.accuracyBlack}>
+                        {blackAcc !== null ? `${blackAcc}%` : '--'}
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -898,11 +982,33 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                   </div>
                 )}
 
-                {/* Reviewing animation */}
+                {/* Reviewing animation — Chess.com-style progress */}
                 {isReviewing && (
                   <div className={styles.reviewingSection}>
-                    <div className={styles.reviewingSpinner} />
-                    <span className={styles.reviewingText}>Analysing moves... {Math.ceil(reviewProgress.current/2)}/{Math.ceil(reviewProgress.total/2)}</span>
+                    <div className={styles.evalProgressCard}>
+                      <div className={styles.evalProgressHeader}>
+                        <span className={styles.evalProgressTitle}>Evaluating...</span>
+                        <span className={styles.evalProgressPct}>
+                          {reviewProgress.total ? ((reviewProgress.current / reviewProgress.total) * 100).toFixed(1) : '0.0'}%
+                        </span>
+                      </div>
+                      <div className={styles.evalProgressTrack}>
+                        <div className={styles.evalProgressFill} style={{
+                          width: `${reviewProgress.total ? (reviewProgress.current / reviewProgress.total) * 100 : 0}%`
+                        }} />
+                      </div>
+                      <p className={styles.evalProgressHint}>
+                        Analysing {Math.ceil(reviewProgress.current/2)} of {Math.ceil(reviewProgress.total/2)} moves...
+                      </p>
+                    </div>
+                    {/* Real-time graph building up during review */}
+                    {graphData.length > 1 && (
+                      <div className={styles.reportGraphWrap}>
+                        <EvalGraph data={graphData} currentIdx={-1} onSeek={() => {}} large
+                          reviewResults={partialReviewData.length ? partialReviewData : null}
+                          moveHistory={moveHistory} />
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -969,7 +1075,8 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                 {/* Eval graph */}
                 {graphData.length > 1 && (
                   <div className={styles.graphWrapSmall}>
-                    <EvalGraph data={graphData} currentIdx={currentMoveIndex} onSeek={goToMove} />
+                    <EvalGraph data={graphData} currentIdx={currentMoveIndex} onSeek={goToMove}
+                      reviewResults={reviewResults} moveHistory={moveHistory} />
                   </div>
                 )}
 
