@@ -4,11 +4,12 @@ import { supabase } from './lib/supabase';
 import Navbar from './components/Navbar';
 import RoadmapView from './components/RoadmapView';
 import Workspace from './components/Workspace';
+import SolutionPage from './components/SolutionPage';
 import './styles/theme.css';
 
 function AppContent({ session, theme, toggleTheme, roadmapMode, setRoadmapMode }) {
   const location = useLocation();
-  const isWorkspace = location.pathname.startsWith('/category');
+  const isWorkspace = location.pathname.startsWith('/category') || location.pathname.startsWith('/solution');
 
   return (
     <>
@@ -19,6 +20,7 @@ function AppContent({ session, theme, toggleTheme, roadmapMode, setRoadmapMode }
         } />
         <Route path="/category/:categoryId" element={<Workspace session={session} theme={theme} roadmapMode={roadmapMode} />} />
         <Route path="/category/:categoryId/:problemId" element={<Workspace session={session} theme={theme} roadmapMode={roadmapMode} />} />
+        <Route path="/solution/:problemId" element={<SolutionPage />} />
       </Routes>
     </>
   );

@@ -4,6 +4,8 @@ import { supabase } from '../lib/supabase';
 import Editor from '@monaco-editor/react';
 import { ChevronLeft, ChevronUp, ChevronDown, Play, ExternalLink, CheckCircle, RotateCcw, Code2, FileText, Award, MessageSquare, TestTube, Lightbulb } from 'lucide-react';
 import SolutionView from './SolutionView';
+import { runCode } from '../lib/codeRunner';
+import { generateTemplate, wrapWithDriver, buildStdin, compareOutput } from '../lib/driverCode';
 import '../styles/Workspace.css';
 
 export default function Workspace({ session, theme, roadmapMode }) {
@@ -21,8 +23,11 @@ export default function Workspace({ session, theme, roadmapMode }) {
   const [confidence, setConfidence] = useState(0);
   const [showConsole, setShowConsole] = useState(false);
   const [consoleOutput, setConsoleOutput] = useState('');
+  const [running, setRunning] = useState(false);
   const [editorStatus, setEditorStatus] = useState('');
   const [cursorPos, setCursorPos] = useState({ ln: 1, col: 1 });
+  const [activeTestIdx, setActiveTestIdx] = useState(0);
+  const [testInputs, setTestInputs] = useState([]);
   const editorRef = useRef(null);
 
   const [leftWidth, setLeftWidth] = useState(
@@ -61,14 +66,28 @@ export default function Workspace({ session, theme, roadmapMode }) {
     })();
   }, [activeProblem]);
 
+  // Initialize test case inputs when problem changes
+  useEffect(() => {
+    if (activeProblem?.test_cases?.length > 0) {
+      setActiveTestIdx(0);
+      setTestInputs([...activeProblem.test_cases[0].inputs]);
+    } else {
+      setActiveTestIdx(0);
+      setTestInputs([]);
+    }
+  }, [activeProblem?.id]);
+
   useEffect(() => {
     if (!activeProblem) return;
-    // Priority: localStorage (survives reload) > Supabase progress > template > default
+    // Priority: localStorage > Supabase progress > DB template > generated template > fallback
     const localKey = `pgcode_code_${activeProblem.id}_${activeLang}`;
     const localCode = localStorage.getItem(localKey);
     if (localCode) setCodeContent(localCode);
     else if (userProgress?.last_code?.[activeLang]) setCodeContent(userProgress.last_code[activeLang]);
-    else setCodeContent(templates[activeLang] || `class Solution:\n    def solve(self, input):\n        # Write your solution here\n        pass`);
+    else {
+      const generated = generateTemplate(activeLang, activeProblem.method_name, activeProblem.params, activeProblem.return_type);
+      setCodeContent(templates[activeLang] || generated || `class Solution:\n    def solve(self, input):\n        # Write your solution here\n        pass`);
+    }
   }, [activeProblem, activeLang, templates, userProgress]);
 
   useEffect(() => {
@@ -97,22 +116,107 @@ export default function Workspace({ session, theme, roadmapMode }) {
     setEditorStatus('Saved'); setTimeout(() => setEditorStatus(''), 2000);
   };
 
-  const handleRun = () => {
+  const handleRun = async () => {
     setShowConsole(true);
     setLeftTab('testresult');
-    const runtime = Math.floor(Math.random() * 40) + 3;
-    setConsoleOutput(`Accepted\n\nRuntime: ${runtime} ms\nMemory: ${(Math.random() * 8 + 4).toFixed(1)} MB\n\n(Simulated — verify on LeetCode for real execution)`);
+    setRunning(true);
+    setConsoleOutput('Running...');
+
+    try {
+      const hasDriver = activeProblem.method_name && activeProblem.params;
+      const fullCode = hasDriver
+        ? wrapWithDriver(codeContent, activeLang, activeProblem.method_name, activeProblem.params)
+        : codeContent;
+      const stdin = hasDriver ? buildStdin(testInputs) : '';
+
+      const result = await runCode(fullCode, activeLang, stdin);
+
+      if (result.status !== 'success') {
+        const label = result.status === 'compile_error' ? 'Compile Error'
+          : result.status === 'time_limit' ? 'Time Limit Exceeded'
+          : 'Runtime Error';
+        setConsoleOutput(`${label}\n\n${result.output}`);
+        return;
+      }
+
+      const testCase = activeProblem.test_cases?.[activeTestIdx];
+      if (testCase && hasDriver) {
+        const passed = compareOutput(result.output, testCase.expected);
+        const params = activeProblem.params || [];
+        const inputDisplay = params.map((p, i) => `${p.name} = ${testInputs[i]}`).join('\n');
+        setConsoleOutput(
+          `${passed ? 'Accepted' : 'Wrong Answer'}\n\n` +
+          `Input:\n${inputDisplay}\n\n` +
+          `Output:\n${result.output.trim()}\n\n` +
+          `Expected:\n${testCase.expected}`
+        );
+      } else {
+        setConsoleOutput(result.output);
+      }
+    } catch (err) {
+      setConsoleOutput(`Execution failed: ${err.message}`);
+    } finally {
+      setRunning(false);
+    }
   };
 
-  const handleSubmit = () => {
-    handleRun();
-    if (!session?.user) return;
-    saveProgress({
-      is_completed: true,
-      last_solved_at: new Date().toISOString(),
-      next_review_at: new Date(Date.now() + 3 * 86400000).toISOString(),
-      solve_count: (userProgress?.solve_count || 0) + 1,
-    });
+  const handleSubmit = async () => {
+    if (!activeProblem.test_cases?.length || !activeProblem.method_name) {
+      await handleRun();
+      return;
+    }
+
+    setShowConsole(true);
+    setLeftTab('testresult');
+    setRunning(true);
+    setConsoleOutput('Running all test cases...');
+
+    try {
+      const fullCode = wrapWithDriver(codeContent, activeLang, activeProblem.method_name, activeProblem.params);
+      const params = activeProblem.params || [];
+      let allPassed = true;
+      const lines = [];
+
+      for (let i = 0; i < activeProblem.test_cases.length; i++) {
+        const tc = activeProblem.test_cases[i];
+        const stdin = buildStdin(tc.inputs);
+        const result = await runCode(fullCode, activeLang, stdin);
+
+        if (result.status !== 'success') {
+          allPassed = false;
+          const inputDisplay = params.map((p, j) => `${p.name} = ${tc.inputs[j]}`).join(', ');
+          lines.push(`Case ${i + 1}: ${result.status === 'compile_error' ? 'Compile Error' : 'Runtime Error'}\n  Input: ${inputDisplay}\n  ${result.output.trim().split('\n')[0]}`);
+          break;
+        }
+
+        const passed = compareOutput(result.output, tc.expected);
+        if (!passed) {
+          allPassed = false;
+          const inputDisplay = params.map((p, j) => `${p.name} = ${tc.inputs[j]}`).join(', ');
+          lines.push(`Wrong Answer on Case ${i + 1}\n\nInput:\n${params.map((p, j) => `${p.name} = ${tc.inputs[j]}`).join('\n')}\n\nOutput:\n${result.output.trim()}\n\nExpected:\n${tc.expected}`);
+          break;
+        }
+        lines.push(`Case ${i + 1}: Passed`);
+      }
+
+      if (allPassed) {
+        setConsoleOutput(`Accepted\n\n${activeProblem.test_cases.length}/${activeProblem.test_cases.length} test cases passed.\n\n${lines.join('\n')}`);
+        if (session?.user) {
+          saveProgress({
+            is_completed: true,
+            last_solved_at: new Date().toISOString(),
+            next_review_at: new Date(Date.now() + 3 * 86400000).toISOString(),
+            solve_count: (userProgress?.solve_count || 0) + 1,
+          });
+        }
+      } else {
+        setConsoleOutput(lines.join('\n'));
+      }
+    } catch (err) {
+      setConsoleOutput(`Execution failed: ${err.message}`);
+    } finally {
+      setRunning(false);
+    }
   };
 
   const markComplete = () => {
@@ -265,22 +369,32 @@ export default function Workspace({ session, theme, roadmapMode }) {
             {/* ── TESTCASE TAB ── */}
             {leftTab === 'testcase' && (
               <div className="ws-testcase">
-                <div className="ws-tc-cases">
-                  <button className="ws-tc-case active">Case 1</button>
-                  <button className="ws-tc-case">Case 2</button>
-                  <button className="ws-tc-case">Case 3</button>
-                  <button className="ws-tc-case ws-tc-add">+</button>
-                </div>
-                <div className="ws-tc-fields">
-                  <div className="ws-tc-field">
-                    <label>nums =</label>
-                    <input type="text" defaultValue="[2,7,11,15]" className="ws-tc-input" />
-                  </div>
-                  <div className="ws-tc-field">
-                    <label>target =</label>
-                    <input type="text" defaultValue="9" className="ws-tc-input" />
-                  </div>
-                </div>
+                {activeProblem.test_cases?.length > 0 ? (
+                  <>
+                    <div className="ws-tc-cases">
+                      {activeProblem.test_cases.map((tc, i) => (
+                        <button key={i} className={`ws-tc-case ${activeTestIdx === i ? 'active' : ''}`}
+                          onClick={() => { setActiveTestIdx(i); setTestInputs([...tc.inputs]); }}>
+                          Case {i + 1}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="ws-tc-fields">
+                      {(activeProblem.params || []).map((param, i) => (
+                        <div key={i} className="ws-tc-field">
+                          <label>{param.name} =</label>
+                          <input type="text" value={testInputs[i] || ''} onChange={e => {
+                            const next = [...testInputs];
+                            next[i] = e.target.value;
+                            setTestInputs(next);
+                          }} className="ws-tc-input" />
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <p className="ws-empty-msg">No test cases available for this problem yet.</p>
+                )}
               </div>
             )}
 
@@ -329,8 +443,8 @@ export default function Workspace({ session, theme, roadmapMode }) {
               {editorStatus && <span className="ws-editor-status">{editorStatus}</span>}
             </div>
             <div className="ws-footer-btns">
-              <button className="ws-run-btn" onClick={handleRun}>Run</button>
-              <button className="ws-submit-btn" onClick={handleSubmit}>Submit</button>
+              <button className="ws-run-btn" onClick={handleRun} disabled={running}>{running ? 'Running...' : 'Run'}</button>
+              <button className="ws-submit-btn" onClick={handleSubmit} disabled={running}>Submit</button>
             </div>
           </div>
         </div>
