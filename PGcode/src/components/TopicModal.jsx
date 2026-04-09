@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { X, Star, CheckCircle, ExternalLink, Video, FileText, ChevronLeft, Code2, ChevronRight } from 'lucide-react';
+import { X, Star, CheckCircle, ExternalLink, Video, FileText, ChevronLeft, Code2, Lightbulb } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import LearningsSection from './LearningsSection';
@@ -12,8 +12,7 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
   const [userProgress, setUserProgress] = useState({});
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('problems');
-  const [width, setWidth] = useState(parseInt(localStorage.getItem('pgcode_sidebar_width')) || 600);
-  const [solvePopup, setSolvePopup] = useState(null);
+  const [width, setWidth] = useState(parseInt(localStorage.getItem('pgcode_sidebar_width')) || 700);
   const isResizing = useRef(false);
 
   useEffect(() => {
@@ -113,7 +112,7 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
     const onMove = (ev) => {
       if (!isResizing.current) return;
       const newW = window.innerWidth - ev.clientX;
-      if (newW > 550 && newW < 950) setWidth(newW);
+      if (newW > 600 && newW < 950) setWidth(newW);
     };
 
     const onUp = () => {
@@ -126,13 +125,6 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
   };
-
-  useEffect(() => {
-    if (!solvePopup) return;
-    const close = () => setSolvePopup(null);
-    document.addEventListener('click', close);
-    return () => document.removeEventListener('click', close);
-  }, [solvePopup]);
 
   if (!topic) return null;
 
@@ -192,8 +184,9 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
                     <div className="col-status">Status</div>
                     <div className="col-star">Star</div>
                     <div className="col-problem">Problem</div>
+                    <div className="col-solve">Solve</div>
                     <div className="col-diff">Difficulty</div>
-                    <div className="col-solve">Solution</div>
+                    <div className="col-solution">Solution</div>
                   </div>
 
                   {loading ? (
@@ -222,25 +215,7 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
                               />
                             </div>
                             <div className="col-problem">
-                              <span className="problemLink" style={{ cursor: 'pointer' }} onClick={() => setSolvePopup(solvePopup === prob.id ? null : prob.id)}>
-                                {displayName}
-                                <ChevronRight size={12} className="linkIcon" />
-                              </span>
-                              {solvePopup === prob.id && (
-                                <div className="solve-popup" onClick={e => e.stopPropagation()}>
-                                  <Link to={`/category/${topic.id}/${prob.id}`} className="solve-popup-option" onClick={() => setSolvePopup(null)}>
-                                    <Code2 size={14} /> Solve on PGcode
-                                  </Link>
-                                  {prob.leetcode_url && (
-                                    <a href={prob.leetcode_url} target="_blank" rel="noopener noreferrer" className="solve-popup-option" onClick={() => setSolvePopup(null)}>
-                                      <ExternalLink size={14} /> Solve on LeetCode
-                                    </a>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                            <div className={`col-diff diff-${prob.difficulty.toLowerCase()}`}>
-                              {prob.difficulty}
+                              <span className="problemName">{displayName}</span>
                             </div>
                             <div className="col-solve">
                               <div className="solveIcons">
@@ -253,6 +228,14 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
                                   </a>
                                 )}
                               </div>
+                            </div>
+                            <div className={`col-diff diff-${prob.difficulty.toLowerCase()}`}>
+                              {prob.difficulty}
+                            </div>
+                            <div className="col-solution">
+                              <Link to={`/solution/${prob.id}`} className="solution-link" title="View Solution">
+                                <Lightbulb size={15} />
+                              </Link>
                             </div>
                           </div>
                         );

@@ -1,0 +1,52 @@
+.solnpage {
+  height: calc(100vh - 60px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.solnpage-header {
+  padding: 0.8rem 2rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.solnpage-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--text-dim);
+  text-decoration: none;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: color var(--t);
+}
+
+.solnpage-back:hover {
+  color: var(--accent);
+}
+
+.solnpage-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.solnpage-loading,
+.solnpage-error {
+  padding: 3rem;
+  text-align: center;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.9rem;
+}
+
+.solnpage-error a {
+  color: var(--accent);
+}

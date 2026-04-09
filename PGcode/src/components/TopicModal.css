@@ -232,7 +232,8 @@
 /* ── Table Column Utilities ── */
 .col-status,
 .col-star,
-.col-solve {
+.col-solve,
+.col-solution {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -253,7 +254,8 @@
 
 .tableHeader {
   display: grid;
-  grid-template-columns: 55px 45px 1fr 85px 80px;
+  grid-template-columns: 55px 45px 1fr 90px 95px 75px;
+  column-gap: 6px;
   padding: 0.65rem 1rem;
   background: var(--hover-box);
   border-bottom: 1px solid var(--border);
@@ -267,7 +269,8 @@
 
 .tableRow {
   display: grid;
-  grid-template-columns: 55px 45px 1fr 85px 80px;
+  grid-template-columns: 55px 45px 1fr 90px 95px 75px;
+  column-gap: 6px;
   padding: 0.65rem 1rem;
   border-bottom: 1px solid var(--border);
   align-items: center;
@@ -281,59 +284,12 @@
 .col-problem {
   display: flex;
   align-items: center;
-  position: relative;
 }
 
-.solve-popup {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 20;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-  min-width: 180px;
-  padding: 0.35rem 0;
-  margin-top: 4px;
-}
-
-.solve-popup-option {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.55rem 1rem;
-  font-family: var(--sans);
-  font-size: 0.78rem;
-  font-weight: 500;
-  color: var(--text-main);
-  text-decoration: none;
-  transition: background var(--t), color var(--t);
-  cursor: pointer;
-}
-
-.solve-popup-option:hover {
-  background: var(--hover-box);
-  color: var(--accent);
-}
-
-.problemLink {
-  text-decoration: none;
+.problemName {
   color: var(--text-main);
   font-weight: 500;
   font-size: 0.82rem;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  transition: color var(--t);
-}
-
-.problemLink:hover {
-  color: var(--accent);
-}
-
-.linkIcon {
-  opacity: 0.5;
 }
 
 .col-diff {
@@ -384,6 +340,26 @@
   background: rgba(240, 165, 0, 0.06);
 }
 
+.solution-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: all var(--t);
+  cursor: pointer;
+}
+
+.solution-link:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--hover-box);
+}
+
 .enterWorkspaceBtn {
   display: block;
   width: 100%;
@@ -415,7 +391,7 @@
 }
 
 /* ── Light Mode Contrast Fixes ── */
-[data-theme="light"] .problemLink {
+[data-theme="light"] .problemName {
   color: #1a1a1a;
 }
 
