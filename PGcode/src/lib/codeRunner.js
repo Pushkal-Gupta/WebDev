@@ -1,27 +1,23 @@
-const PISTON_URL = 'https://emkc.org/api/v2/piston/execute';
+// Judge0 CE — free hosted code execution API
+const JUDGE0_URL = 'https://ce.judge0.com/submissions?base64_encoded=false&wait=true';
 
 const LANG_MAP = {
-  python: { language: 'python', version: '3.10.0' },
-  javascript: { language: 'javascript', version: '18.15.0' },
-  java: { language: 'java', version: '15.0.2' },
+  python:     { id: 71 },   // Python 3.8.1
+  javascript: { id: 63 },   // JavaScript (Node.js 12.14.0)
+  java:       { id: 62 },   // Java (OpenJDK 13.0.1)
 };
 
 export async function runCode(code, language, stdin = '') {
   const config = LANG_MAP[language];
   if (!config) throw new Error(`Unsupported language: ${language}`);
 
-  const response = await fetch(PISTON_URL, {
+  const response = await fetch(JUDGE0_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      language: config.language,
-      version: config.version,
-      files: [{ content: code }],
+      language_id: config.id,
+      source_code: code,
       stdin,
-      compile_timeout: 10000,
-      run_timeout: 5000,
-      compile_memory_limit: -1,
-      run_memory_limit: -1,
     }),
   });
 
@@ -29,22 +25,33 @@ export async function runCode(code, language, stdin = '') {
     throw new Error(`Execution service returned ${response.status}`);
   }
 
-  const result = await response.json();
+  const data = await response.json();
+  const statusId = data.status?.id;
 
-  if (result.compile && result.compile.code !== 0) {
+  // Status 6 = Compilation Error
+  if (statusId === 6) {
     return {
       status: 'compile_error',
-      output: result.compile.stderr || result.compile.output || 'Compilation failed',
+      output: data.compile_output || 'Compilation failed',
     };
   }
 
-  const run = result.run || {};
-  if (run.signal === 'SIGKILL') {
+  // Status 5 = Time Limit Exceeded
+  if (statusId === 5) {
     return { status: 'time_limit', output: 'Time Limit Exceeded (5s)' };
   }
-  if (run.code !== 0) {
-    return { status: 'runtime_error', output: run.stderr || run.output || 'Runtime error' };
+
+  // Status 3 = Accepted (successful run)
+  if (statusId === 3) {
+    return { status: 'success', output: data.stdout || '(No output)' };
   }
 
-  return { status: 'success', output: run.stdout || run.output || '(No output)' };
+  // Status 7-12 = Runtime errors (SIGSEGV, SIGXFSZ, SIGFPE, SIGABRT, NZEC, Other)
+  // Status 4 = Wrong Answer (but we handle comparison ourselves)
+  // Status 11 = Runtime Error (NZEC)
+  // Status 13 = Internal Error
+  return {
+    status: 'runtime_error',
+    output: data.stderr || data.compile_output || data.message || 'Runtime error',
+  };
 }
