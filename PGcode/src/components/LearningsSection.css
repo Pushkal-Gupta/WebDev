@@ -242,3 +242,20 @@
 [data-theme="light"] .concept-complexity {
   background: rgba(0, 138, 126, 0.04);
 }
+
+[data-theme="light"] .learnings-overview {
+  background: rgba(0, 138, 126, 0.04);
+  border-left-color: #008a7e;
+}
+
+[data-theme="light"] .overview-icon {
+  color: #008a7e;
+}
+
+[data-theme="light"] .keypoints-label {
+  color: #008a7e;
+}
+
+[data-theme="light"] .keypoints-list li {
+  color: #222;
+}

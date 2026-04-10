@@ -35,11 +35,19 @@ export default function LoginModal({ onClose }) {
 
     try {
       if (mode === 'signup') {
-        const { error } = await supabase.auth.signUp({ email, password });
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: window.location.origin + window.location.pathname },
+        });
         if (error) throw error;
         setError(null);
-        alert('Check your inbox at ' + email + ' for a verification link!');
-        setMode('login');
+        if (data?.session) {
+          onClose();
+        } else {
+          alert('Check your inbox at ' + email + ' for a verification link!');
+          setMode('login');
+        }
       } else if (mode === 'reset') {
         const { error } = await supabase.auth.resetPasswordForEmail(email);
         if (error) throw error;

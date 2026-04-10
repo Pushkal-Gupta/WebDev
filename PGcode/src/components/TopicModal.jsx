@@ -12,8 +12,21 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
   const [userProgress, setUserProgress] = useState({});
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('problems');
-  const [width, setWidth] = useState(parseInt(localStorage.getItem('pgcode_sidebar_width')) || 850);
+  const [width, setWidth] = useState(() => {
+    const stored = parseInt(localStorage.getItem('pgcode_sidebar_width'), 10);
+    const maxAllowed = Math.min(1200, window.innerWidth - 50);
+    if (isNaN(stored) || stored < 750) return Math.min(850, maxAllowed);
+    return Math.min(stored, maxAllowed);
+  });
   const isResizing = useRef(false);
+  const resizeCleanup = useRef(null);
+
+  // Cleanup any dangling resize listeners on unmount
+  useEffect(() => {
+    return () => {
+      if (resizeCleanup.current) resizeCleanup.current();
+    };
+  }, []);
 
   useEffect(() => {
     async function loadProblems() {
@@ -109,24 +122,30 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
     isResizing.current = true;
     document.body.style.cursor = 'ew-resize';
 
+    const maxWidth = Math.min(1200, window.innerWidth - 50);
+
     const onMove = (ev) => {
       if (!isResizing.current) return;
       const newW = window.innerWidth - ev.clientX;
-      if (newW > 750 && newW < 1200) {
+      if (newW > 750 && newW < maxWidth) {
         setWidth(newW);
-        localStorage.setItem('pgcode_sidebar_width', newW);
+        localStorage.setItem('pgcode_sidebar_width', String(newW));
       }
     };
 
-    const onUp = () => {
+    const cleanup = () => {
       isResizing.current = false;
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
       document.body.style.cursor = '';
+      resizeCleanup.current = null;
     };
+
+    const onUp = () => cleanup();
 
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
+    resizeCleanup.current = cleanup;
   };
 
   if (!topic) return null;

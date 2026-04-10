@@ -113,10 +113,27 @@
 
 /* ── Testcase Tab ── */
 .ws-testcase { display: flex; flex-direction: column; gap: 1rem; }
-.ws-tc-cases { display: flex; gap: 0.3rem; }
-.ws-tc-case { padding: 0.4rem 0.8rem; border-radius: 6px; font-family: var(--sans); font-size: 0.78rem; font-weight: 600; color: var(--text-dim); background: var(--surface); border: 1px solid var(--border); cursor: pointer; transition: all var(--t); }
-.ws-tc-case.active { background: var(--hover-box); color: var(--text-main); border-color: var(--text-dim); }
+.ws-tc-cases { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
+.ws-tc-case-wrap { display: inline-flex; align-items: stretch; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); background: var(--surface); transition: all var(--t); }
+.ws-tc-case-wrap.active { background: var(--hover-box); border-color: var(--text-dim); }
+.ws-tc-case { padding: 0.4rem 0.8rem; font-family: var(--sans); font-size: 0.78rem; font-weight: 600; color: var(--text-dim); background: none; border: none; cursor: pointer; transition: all var(--t); display: inline-flex; align-items: center; gap: 0.3rem; }
+.ws-tc-case.active { color: var(--text-main); }
 .ws-tc-case:hover { color: var(--text-main); }
+.ws-tc-case.pinned { color: var(--text-main); }
+.ws-tc-pin-icon { font-size: 0.7rem; }
+.ws-tc-unpin { padding: 0 0.5rem; background: none; border: none; border-left: 1px solid var(--border); color: var(--text-dim); font-size: 1rem; cursor: pointer; transition: all var(--t); }
+.ws-tc-unpin:hover { color: #ff6b6b; background: var(--hover-box); }
+.ws-tc-hidden-count { padding: 0.4rem 0.6rem; font-family: var(--mono); font-size: 0.72rem; color: var(--text-dim); font-style: italic; }
+
+/* Pin failed hidden case button in test result */
+.ws-pin-case-btn { margin: 0.6rem 0; padding: 0.5rem 1rem; background: var(--hover-box); border: 1px dashed var(--accent); border-radius: 6px; color: var(--accent); font-family: var(--sans); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all var(--t); }
+.ws-pin-case-btn:hover { background: var(--accent); color: var(--bg); border-style: solid; }
+
+/* Hidden badge on failed case tab */
+.ws-hidden-badge { margin-left: 0.4rem; padding: 0.1rem 0.4rem; border-radius: 3px; background: var(--border); color: var(--text-dim); font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* Success message when all hidden tests pass on submit */
+.ws-success-msg { margin: 1rem 0 0; font-family: var(--sans); font-size: 0.88rem; color: var(--text-main); line-height: 1.6; }
 .ws-tc-add { color: var(--text-dim); border-style: dashed; }
 .ws-tc-fields { display: flex; flex-direction: column; gap: 0.8rem; }
 .ws-tc-field { display: flex; flex-direction: column; gap: 0.3rem; }

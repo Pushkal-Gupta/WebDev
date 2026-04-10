@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
-import { SkipBack, SkipForward, Play, Pause } from 'lucide-react';
+import { SkipBack, SkipForward, Play, Pause, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import ArrayRenderer from './renderers/ArrayRenderer';
 import GraphRenderer from './renderers/GraphRenderer';
 import TreeRenderer from './renderers/TreeRenderer';
@@ -133,6 +133,16 @@ export default function DryRunViewer({ problemId }) {
     }
   };
 
+  const handleJumpStart = () => {
+    setIsPlaying(false);
+    setCurrentStepIndex(0);
+  };
+
+  const handleJumpEnd = () => {
+    setIsPlaying(false);
+    setCurrentStepIndex(steps.length - 1);
+  };
+
   const answerQuestion = (option) => {
     if (option === activeQuestion.correct_answer) {
       setFeedback({ type: 'success', text: activeQuestion.explanation || 'Correct!' });
@@ -201,6 +211,15 @@ export default function DryRunViewer({ problemId }) {
       <div className="dryrun-controls">
         <button
           className="ctrl-btn"
+          onClick={handleJumpStart}
+          disabled={currentStepIndex === 0 || !!activeQuestion}
+          title="Jump to start"
+        >
+          <ChevronsLeft size={18} />
+        </button>
+
+        <button
+          className="ctrl-btn"
           onClick={handlePrev}
           disabled={currentStepIndex === 0 || !!activeQuestion}
           title="Previous"
@@ -224,6 +243,15 @@ export default function DryRunViewer({ problemId }) {
           title="Next"
         >
           <SkipForward size={18} />
+        </button>
+
+        <button
+          className="ctrl-btn"
+          onClick={handleJumpEnd}
+          disabled={currentStepIndex === steps.length - 1 || !!activeQuestion}
+          title="Jump to end"
+        >
+          <ChevronsRight size={18} />
         </button>
 
         <span className="step-counter">{currentStepIndex + 1} / {steps.length}</span>
