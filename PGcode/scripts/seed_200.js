@@ -1,4 +1,11 @@
+// DEPRECATED: This script generates placeholder problems ("Arrays Pattern #1", etc.)
+// that are not real LeetCode problems. Real problems are authored by hand in
+// scripts/seed_real_200_pilot.sql (and successors). Do NOT run this script.
 import { createClient } from '@supabase/supabase-js';
+
+console.error('seed_200.js is deprecated. It only generates placeholder rows.');
+console.error('Use scripts/seed_real_200_pilot.sql instead.');
+process.exit(1);
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://ykpjmvoyatcrlqyqbgfu.supabase.co';
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
