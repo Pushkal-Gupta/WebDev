@@ -1037,6 +1037,8 @@ const usePuzzleStore = create((set, get) => ({
         puzzle_rating: puzzleRating,
         attempted_at: new Date().toISOString(),
       }, { onConflict: 'user_id,puzzle_id' });
+
+      await get().loadPuzzleHistory(userId);
     } catch (err) {
       console.warn('Failed to record puzzle attempt:', err.message);
     }
@@ -1051,6 +1053,8 @@ const usePuzzleStore = create((set, get) => ({
         user_id: userId,
         rating,
       });
+
+      await get().loadRatingHistory(userId);
     } catch (err) {
       console.warn('Failed to record rating history:', err.message);
     }

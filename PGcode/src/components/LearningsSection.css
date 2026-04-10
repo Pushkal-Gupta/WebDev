@@ -5,13 +5,6 @@
   gap: 1.5rem;
 }
 
-.learnings-intro {
-  font-family: var(--sans);
-  font-size: 0.9rem;
-  color: var(--text-dim);
-  line-height: 1.6;
-}
-
 .learnings-loading,
 .learnings-empty {
   padding: 3rem;
@@ -19,6 +12,129 @@
   color: var(--text-dim);
   font-family: var(--mono);
   font-size: 0.85rem;
+}
+
+/* ── Overview ── */
+.learnings-overview {
+  display: flex;
+  gap: 1rem;
+  padding: 1.2rem 1.4rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  border-left: 3px solid var(--accent);
+}
+
+.overview-icon {
+  flex-shrink: 0;
+  color: var(--accent);
+  margin-top: 2px;
+}
+
+.overview-text {
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  color: var(--text-main);
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* ── Concept Card ── */
+.concept-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.4rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.concept-title {
+  font-family: var(--sans);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.concept-content {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* ── Key Points ── */
+.concept-keypoints {
+  background: var(--hover-box);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  margin-top: 0.3rem;
+}
+
+.keypoints-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+}
+
+.keypoints-list {
+  margin: 0;
+  padding: 0 0 0 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.keypoints-list li {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+.keypoints-list li::marker {
+  color: var(--accent);
+}
+
+/* ── Complexity ── */
+.concept-complexity {
+  display: flex;
+  gap: 1.5rem;
+  padding: 0.7rem 1rem;
+  background: var(--hover-box);
+  border-radius: 6px;
+  flex-wrap: wrap;
+}
+
+.complexity-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.complexity-label {
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.complexity-value {
+  color: var(--text-main);
 }
 
 /* ── Video List ── */
@@ -31,7 +147,7 @@
 .video-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
   transition: border-color var(--t);
 }
@@ -97,7 +213,7 @@
 
 .video-title {
   font-family: var(--sans);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
   color: var(--text-main);
 }
@@ -108,4 +224,21 @@
   color: var(--text-dim);
   text-transform: uppercase;
   letter-spacing: 0.08em;
+}
+
+/* ── Light mode ── */
+[data-theme="light"] .concept-content {
+  color: #444;
+}
+
+[data-theme="light"] .overview-text {
+  color: #222;
+}
+
+[data-theme="light"] .concept-keypoints {
+  background: rgba(0, 138, 126, 0.04);
+}
+
+[data-theme="light"] .concept-complexity {
+  background: rgba(0, 138, 126, 0.04);
 }

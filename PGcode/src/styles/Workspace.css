@@ -199,10 +199,10 @@
 .ws-editor-status { font-family: var(--mono); font-size: 0.7rem; color: #48c78e; }
 
 .ws-footer-btns { display: flex; gap: 0.5rem; flex-shrink: 0; }
-.ws-run-btn { padding: 0.45rem 1.2rem; border-radius: 6px; font-family: var(--sans); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all var(--t); background: none; border: 1px solid var(--border); color: var(--text-main); }
+.ws-run-btn { padding: 0.55rem 1.6rem; border-radius: 6px; font-family: var(--sans); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all var(--t); background: none; border: 1px solid var(--border); color: var(--text-main); }
 .ws-run-btn:hover { border-color: var(--text-main); }
 .ws-run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.ws-submit-btn { padding: 0.45rem 1.2rem; border-radius: 6px; font-family: var(--sans); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all var(--t); background: #48c78e; border: none; color: #fff; }
+.ws-submit-btn { padding: 0.55rem 1.6rem; border-radius: 6px; font-family: var(--sans); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all var(--t); background: #48c78e; border: none; color: #fff; }
 .ws-submit-btn:hover { background: #3ab07a; }
 .ws-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
