@@ -304,7 +304,7 @@ const usePuzzleStore = create((set, get) => ({
   // ── Generic puzzle loader for rush/streak modes ────────────────────────────
   _loadRetries: 0,
   async _loadPuzzleForMode(userId) {
-    set({ status: 'loading', puzzle: null, lastRatingChange: null, errorMsg: null, hintSquare: null, hintUsed: false, wrongAttempt: false, attempts: 0 });
+    set({ status: 'loading', puzzle: null, lastRatingChange: null, errorMsg: null, hintSquare: null, hintUsed: false, wrongAttempt: false, attempts: 0, reviewMode: false, reviewIndex: 0, solutionMoves: [] });
 
     const { mode, streakDifficulty, userPuzzleRating } = get();
 
@@ -419,7 +419,7 @@ const usePuzzleStore = create((set, get) => ({
 
   // ── Fetch next puzzle near user's rating (rated mode) ─────────────────────
   async loadNextPuzzle(userId) {
-    set({ status: 'loading', puzzle: null, lastRatingChange: null, errorMsg: null, hintSquare: null, hintUsed: false, wrongAttempt: false, attempts: 0 });
+    set({ status: 'loading', puzzle: null, lastRatingChange: null, errorMsg: null, hintSquare: null, hintUsed: false, wrongAttempt: false, attempts: 0, reviewMode: false, reviewIndex: 0, solutionMoves: [] });
     await get().loadUserPuzzleRating(userId);
 
     const rating = get().userPuzzleRating?.rating || 1500;
@@ -664,8 +664,9 @@ const usePuzzleStore = create((set, get) => ({
     const cur = get().userPuzzleRating || { ...DEFAULT_RATING };
     const puzzleRating = get().puzzle?.rating || 1500;
 
-    // Hint used = half credit (0.5 score), so rating gain is reduced
-    const score = solved ? (hintUsed ? 0.5 : 1) : 0;
+    // Hint used = counted as a loss for rating purposes (strict penalty).
+    // Win counter still increments, but rating drops like a loss.
+    const score = solved ? (hintUsed ? 0 : 1) : 0;
 
     const result = computeNewRating({
       rating: cur.rating, rd: cur.rd, volatility: cur.volatility,
@@ -692,7 +693,7 @@ const usePuzzleStore = create((set, get) => ({
     const newRating = { ...cur, ...updated };
     set({
       userPuzzleRating: newRating,
-      lastRatingChange: Math.round(result.rating) - cur.rating,
+      lastRatingChange: updated.rating - cur.rating,
     });
     try { localStorage.setItem('puzzleRatingCache', JSON.stringify(newRating)); } catch {}
 
@@ -942,6 +943,8 @@ const usePuzzleStore = create((set, get) => ({
         hintUsed:    false,
         playerMoves: [],
         reviewMode:  false,
+        reviewIndex: 0,
+        puzzleStartTime: Date.now(),
         setupMoveFrom: null,
         setupMoveTo:   null,
       });
@@ -965,6 +968,8 @@ const usePuzzleStore = create((set, get) => ({
       hintUsed:    false,
       playerMoves: [],
       reviewMode:  false,
+      reviewIndex: 0,
+      puzzleStartTime: Date.now(),
       setupMoveFrom: setupCoords.from,
       setupMoveTo:   setupCoords.to,
     });
@@ -975,10 +980,15 @@ const usePuzzleStore = create((set, get) => ({
     if (!userId) return;
     set({ historyLoading: true });
 
+    // Important: do NOT use an implicit join (e.g. 'puzzles(rating, themes)').
+    // There is no foreign-key relationship declared in the schema between
+    // puzzle_attempts and puzzles, so the join makes the whole query fail
+    // and the Recent Puzzles list silently shows as empty. The puzzle_rating
+    // column on puzzle_attempts already carries the rating we need.
     try {
       const { data, error } = await supabase
         .from('puzzle_attempts')
-        .select('*, puzzles(rating, themes)')
+        .select('*')
         .eq('user_id', userId)
         .order('attempted_at', { ascending: false })
         .limit(50);

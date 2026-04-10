@@ -252,12 +252,10 @@ const useGameStore = create((set, get) => ({
     // ── Normal mode: player's turn ────────────────────────────────────────────
     if (disableBoard) return;
 
-    // Clear premove when making a normal move
-    if (premove) set({ premove: null });
-
     // If clicking a valid move square
     const isValidMove = validMoves.some(m => m.row === row && m.col === col);
     if (selectedSquare && isValidMove) {
+      if (premove) set({ premove: null });
       get().makeMove(selectedSquare, { row, col });
       return;
     }
@@ -516,6 +514,7 @@ const useGameStore = create((set, get) => ({
       activeColor: chessInstance.turn(),
       gameOver: false,
       gameOverMessage: '',
+      gameResult: null,
       disableBoard: false,
       capturedByWhite: newCapturedByWhite,
       capturedByBlack: newCapturedByBlack,

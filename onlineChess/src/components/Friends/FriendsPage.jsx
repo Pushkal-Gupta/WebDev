@@ -219,7 +219,10 @@ function FindTab({ userId }) {
     setActing(null);
   };
 
-  useEffect(() => () => clearSearch(), []); // eslint-disable-line
+  useEffect(() => () => {
+    clearTimeout(debounceRef.current);
+    clearSearch();
+  }, []); // eslint-disable-line
 
   return (
     <div className={styles.findWrap}>

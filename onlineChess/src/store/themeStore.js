@@ -134,13 +134,19 @@ const useThemeStore = create(persist((set, get) => ({
   setThemeMode: (mode, userId) => {
     set({ themeMode: mode });
     get().applyThemeToDOM();
-    if (userId) supabase.from('user_profiles').update({ theme_mode: mode }).eq('user_id', userId).then();
+    if (userId) {
+      supabase.from('user_profiles').update({ theme_mode: mode }).eq('user_id', userId)
+        .then(({ error }) => { if (error) console.warn('Theme save failed:', error.message); });
+    }
   },
 
   setBgTheme: (bg, userId) => {
     set({ bgTheme: bg });
     get().applyThemeToDOM();
-    if (userId) supabase.from('user_profiles').update({ bg_theme: bg }).eq('user_id', userId).then();
+    if (userId) {
+      supabase.from('user_profiles').update({ bg_theme: bg }).eq('user_id', userId)
+        .then(({ error }) => { if (error) console.warn('Bg theme save failed:', error.message); });
+    }
   },
 
   loadThemeFromProfile: async (userId) => {
