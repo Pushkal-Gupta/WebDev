@@ -252,14 +252,10 @@ export default function App() {
           }
         }
         if (!bestMove || bestMove === '(none)') return;
-        // Brief pause so the move feels natural (scaled to time control + remaining time)
+        // Tiny minimum so the move doesn't feel instantaneous, but never adds
+        // perceptible lag. Real "thinking" already happened in the engine.
         const elapsed = Date.now() - thinkStart;
-        const botTime = useGameStore.getState()[clockKey];
-        const lowTime = botTime != null && botTime < 30;
-        const maxThink = lowTime
-          ? Math.min(200, Math.max(50, botTime * 5))
-          : botTime != null ? Math.min(1500, Math.max(300, botTime * 20)) : 800;
-        const minThink = Math.min(maxThink, (lowTime ? 50 : 300) + ((compStrength || 4) * (lowTime ? 10 : 50)));
+        const minThink = 120;
         const remaining = Math.max(0, minThink - elapsed);
         if (remaining > 0) await new Promise(r => setTimeout(r, remaining));
         const from = bestMove.slice(0, 2);
@@ -483,23 +479,28 @@ export default function App() {
     broadcastedMoveRef.current = -1;
     setChatMessages([]);
 
-    const channel = subscribeToRoom(roomId, {
-      onOpponentJoined: (payload) => {
-        setWaitingForOpponent(false);
-        setOnlineRoom(r => ({ ...r, guestName: payload.username, status: 'playing' }));
-        setIsOnlineConnected(true);
-        const store = useGameStore.getState();
-        store.startOnlineGame(onlineTimeControl, 'white');
-        store.setOppName(payload.username || 'Opponent');
-        store.setOnlineOpponentId(payload.userId);
-      },
-      onMove:         onIncomingMove,
-      onChat:         onIncomingChat,
-      onResign:       onOpponentResign,
-      onUndoRequest:  onIncomingUndoRequest,
-      onUndoResponse: onIncomingUndoResponse,
-    });
-    onlineChannelRef.current = channel;
+    try {
+      const channel = await subscribeToRoom(roomId, {
+        onOpponentJoined: (payload) => {
+          setWaitingForOpponent(false);
+          setOnlineRoom(r => ({ ...r, guestName: payload.username, status: 'playing' }));
+          setIsOnlineConnected(true);
+          const store = useGameStore.getState();
+          store.startOnlineGame(onlineTimeControl, 'white');
+          store.setOppName(payload.username || 'Opponent');
+          store.setOnlineOpponentId(payload.userId);
+        },
+        onMove:         onIncomingMove,
+        onChat:         onIncomingChat,
+        onResign:       onOpponentResign,
+        onUndoRequest:  onIncomingUndoRequest,
+        onUndoResponse: onIncomingUndoResponse,
+      });
+      onlineChannelRef.current = channel;
+    } catch (err) {
+      showAlert('Could not connect to room. Please try again.');
+      setWaitingForOpponent(false);
+    }
   };
 
   const handleJoinRoom = async (code) => {
@@ -511,13 +512,20 @@ export default function App() {
     broadcastedMoveRef.current = -1;
     setChatMessages([]);
 
-    const channel = subscribeToRoom(code.toUpperCase(), {
-      onMove:         onIncomingMove,
-      onChat:         onIncomingChat,
-      onResign:       onOpponentResign,
-      onUndoRequest:  onIncomingUndoRequest,
-      onUndoResponse: onIncomingUndoResponse,
-    });
+    let channel;
+    try {
+      channel = await subscribeToRoom(code.toUpperCase(), {
+        onMove:         onIncomingMove,
+        onChat:         onIncomingChat,
+        onResign:       onOpponentResign,
+        onUndoRequest:  onIncomingUndoRequest,
+        onUndoResponse: onIncomingUndoResponse,
+      });
+    } catch (err) {
+      showAlert('Could not connect to room. Please try again.');
+      setIsOnlineConnected(false);
+      return;
+    }
     onlineChannelRef.current = channel;
 
     const store = useGameStore.getState();
@@ -525,6 +533,8 @@ export default function App() {
     store.setOppName(room.host_name || 'Opponent');
     store.setOnlineOpponentId(room.host_id);
 
+    // Critical: only broadcast join AFTER subscription is fully established,
+    // otherwise the host's onOpponentJoined handler may never fire.
     await broadcastJoin(channel, { userId: user.id, username: username || user.email });
   };
 
@@ -652,7 +662,7 @@ export default function App() {
   };
 
   // ─── Matchmaking handlers ─────────────────────────────────────────────────
-  const handleMatchFound = ({ roomId, opponentName, opponentId, yourColor, timeControl: matchedTC }) => {
+  const handleMatchFound = async ({ roomId, opponentName, opponentId, yourColor, timeControl: matchedTC }) => {
     const tc = matchedTC || onlineTimeControl;
     broadcastedMoveRef.current = -1; // reset BEFORE subscribing/starting
     undosUsedRef.current = { white: 0, black: 0 };
@@ -662,14 +672,20 @@ export default function App() {
     setOnlineRoom({ id: roomId, status: 'playing', hostColor: yourColor === 'white' ? 'white' : 'black' });
     setIsOnlineConnected(true);
 
-    const channel = subscribeToRoom(roomId, {
-      onMove:         onIncomingMove,
-      onChat:         onIncomingChat,
-      onResign:       onOpponentResign,
-      onUndoRequest:  onIncomingUndoRequest,
-      onUndoResponse: onIncomingUndoResponse,
-    });
-    onlineChannelRef.current = channel;
+    try {
+      const channel = await subscribeToRoom(roomId, {
+        onMove:         onIncomingMove,
+        onChat:         onIncomingChat,
+        onResign:       onOpponentResign,
+        onUndoRequest:  onIncomingUndoRequest,
+        onUndoResponse: onIncomingUndoResponse,
+      });
+      onlineChannelRef.current = channel;
+    } catch (err) {
+      showAlert('Could not connect to match. Please try again.');
+      setIsOnlineConnected(false);
+      return;
+    }
 
     const store = useGameStore.getState();
     store.startOnlineGame(tc, yourColor);

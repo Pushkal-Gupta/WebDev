@@ -1,12 +1,13 @@
 import { getStockfishMove } from './stockfishEngine';
 import { getLocalBestMove } from './localAI';
 
-// Map app strength (7-10) to Stockfish UCI parameters
+// Map app strength (7-10) to Stockfish UCI parameters.
+// Skill Level already enforces strength; movetime keeps responses snappy.
 const STRENGTH_MAP = {
-  7:  { skillLevel: 5,  depth: 8,  movetime: 500  },
-  8:  { skillLevel: 10, depth: 10, movetime: 800  },
-  9:  { skillLevel: 15, depth: 12, movetime: 1200 },
-  10: { skillLevel: 20, depth: 15, movetime: 2000 },
+  7:  { skillLevel: 5,  depth: 6,  movetime: 200 },
+  8:  { skillLevel: 10, depth: 8,  movetime: 350 },
+  9:  { skillLevel: 15, depth: 10, movetime: 500 },
+  10: { skillLevel: 20, depth: 12, movetime: 700 },
 };
 
 /**
