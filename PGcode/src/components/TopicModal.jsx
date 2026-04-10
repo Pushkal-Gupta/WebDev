@@ -13,10 +13,11 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('problems');
   const [width, setWidth] = useState(() => {
-    const stored = parseInt(localStorage.getItem('pgcode_sidebar_width'), 10);
     const maxAllowed = Math.min(1200, window.innerWidth - 50);
-    if (isNaN(stored) || stored < 750) return Math.min(850, maxAllowed);
-    return Math.min(stored, maxAllowed);
+    const half = Math.floor(window.innerWidth / 2);
+    const stored = parseInt(localStorage.getItem('pgcode_sidebar_width'), 10);
+    if (!isNaN(stored) && stored >= 750) return Math.min(stored, maxAllowed);
+    return Math.min(Math.max(half, 750), maxAllowed);
   });
   const isResizing = useRef(false);
   const resizeCleanup = useRef(null);
