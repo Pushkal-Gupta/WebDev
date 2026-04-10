@@ -229,7 +229,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
     setSubmitProgress({ current: 0, total });
 
     try {
-      const fullCode = wrapWithDriver(codeContent, activeLang, activeProblem.method_name, activeProblem.params);
+      const fullCode = wrapWithDriver(codeContent, activeLang, activeProblem.method_name, activeProblem.params, activeProblem.return_type);
       const params = activeProblem.params || [];
       const cases = [];
       let passedCount = 0;
@@ -317,7 +317,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
     const startTime = Date.now();
 
     try {
-      const fullCode = wrapWithDriver(codeContent, activeLang, activeProblem.method_name, activeProblem.params);
+      const fullCode = wrapWithDriver(codeContent, activeLang, activeProblem.method_name, activeProblem.params, activeProblem.return_type);
       const params = activeProblem.params || [];
       const cases = [];
       let allPassed = true;
@@ -736,51 +736,55 @@ export default function Workspace({ session, theme, roadmapMode }) {
                       <p className="ws-success-msg">You have successfully completed this problem!</p>
                     )}
 
-                    {/* Case tabs + details */}
-                    {runResult.cases?.length > 0 && (
-                      <>
-                        <div className="ws-result-cases">
-                          {runResult.cases.map((c, i) => (
-                            <button key={i}
-                              className={`ws-result-case ${resultCaseIdx === i ? 'active' : ''}`}
-                              onClick={() => setResultCaseIdx(i)}>
-                              <span className={`case-dot ${c.passed ? 'pass' : 'fail'}`} />
-                              Case {c.originalIdx !== undefined ? c.originalIdx + 1 : i + 1}
-                              {c.isHidden && <span className="ws-hidden-badge" title="Hidden test case">hidden</span>}
-                            </button>
-                          ))}
-                        </div>
-
-                        {runResult.cases[resultCaseIdx] && (
-                          <>
-                            {runResult.cases[resultCaseIdx].canPin && (
-                              <button
-                                className="ws-pin-case-btn"
-                                onClick={() => pinCase(runResult.cases[resultCaseIdx].originalIdx)}
-                                title="Add this hidden test case to your visible test cases">
-                                + Add to test cases
-                              </button>
-                            )}
-                            <div className="ws-result-section">
-                              <div className="ws-result-label">Input</div>
-                              <div className="ws-result-value">
-                                {runResult.cases[resultCaseIdx].input.map((inp, j) => (
-                                  <div key={j}>{inp.name} = {inp.value}</div>
-                                ))}
-                              </div>
-                            </div>
-                            <div className="ws-result-section">
-                              <div className="ws-result-label">Output</div>
-                              <div className="ws-result-value">{runResult.cases[resultCaseIdx].output}</div>
-                            </div>
-                            <div className="ws-result-section">
-                              <div className="ws-result-label">Expected</div>
-                              <div className="ws-result-value">{runResult.cases[resultCaseIdx].expected}</div>
-                            </div>
-                          </>
-                        )}
-                      </>
+                    {/* Case tabs — only shown for Run (not Submit). Submit shows only the failing case directly. */}
+                    {runResult.cases?.length > 0 && !runResult.isSubmission && (
+                      <div className="ws-result-cases">
+                        {runResult.cases.map((c, i) => (
+                          <button key={i}
+                            className={`ws-result-case ${resultCaseIdx === i ? 'active' : ''}`}
+                            onClick={() => setResultCaseIdx(i)}>
+                            <span className={`case-dot ${c.passed ? 'pass' : 'fail'}`} />
+                            Case {i + 1}
+                          </button>
+                        ))}
+                      </div>
                     )}
+
+                    {/* Case details — for Run, show selected case; for Submit, show the single failing case */}
+                    {runResult.cases?.length > 0 && (() => {
+                      const caseToShow = runResult.isSubmission
+                        ? runResult.cases[0]
+                        : runResult.cases[resultCaseIdx];
+                      if (!caseToShow) return null;
+                      return (
+                        <>
+                          {caseToShow.canPin && (
+                            <button
+                              className="ws-pin-case-btn"
+                              onClick={() => pinCase(caseToShow.originalIdx)}
+                              title="Add this hidden test case to your visible test cases">
+                              + Add to test cases
+                            </button>
+                          )}
+                          <div className="ws-result-section">
+                            <div className="ws-result-label">Input</div>
+                            <div className="ws-result-value">
+                              {caseToShow.input.map((inp, j) => (
+                                <div key={j}>{inp.name} = {inp.value}</div>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="ws-result-section">
+                            <div className="ws-result-label">Output</div>
+                            <div className="ws-result-value">{caseToShow.output}</div>
+                          </div>
+                          <div className="ws-result-section">
+                            <div className="ws-result-label">Expected</div>
+                            <div className="ws-result-value">{caseToShow.expected}</div>
+                          </div>
+                        </>
+                      );
+                    })()}
                   </>
                 )}
 

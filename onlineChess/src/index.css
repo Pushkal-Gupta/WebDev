@@ -78,6 +78,33 @@ html, body, #root {
   :root { --cell-size: 34px; }   /* 272px board */
 }
 
+/*
+ * ── Short-viewport overrides ──────────────────────────────────────
+ * Cap cell size when the viewport is vertically tight (small laptops,
+ * 1366×768 / 1280×720 / 1024×600, etc) so the 0th and 8th rows don't
+ * get clipped. These rules come last in source order, so they win
+ * over the width-based rules above whenever the viewport is short,
+ * regardless of how wide the screen is.
+ *
+ * Desktop users with tall monitors (≥900px) are unaffected — their
+ * board size is still driven entirely by width.
+ */
+@media (max-height: 900px) {
+  :root { --cell-size: 72px; }   /* 576px board — 1600×900 class */
+}
+
+@media (max-height: 820px) {
+  :root { --cell-size: 64px; }   /* 512px board — 1366×768 class */
+}
+
+@media (max-height: 720px) {
+  :root { --cell-size: 56px; }   /* 448px board — 1280×720 class */
+}
+
+@media (max-height: 640px) {
+  :root { --cell-size: 46px; }   /* 368px board — 1024×600 class */
+}
+
 /* ── Light Mode ── */
 [data-theme="light"] {
   --color-bg-primary: #dcd4cb;
