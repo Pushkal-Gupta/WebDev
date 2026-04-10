@@ -37,6 +37,18 @@ export default function Workspace({ session, theme, roadmapMode }) {
   const [submissions, setSubmissions] = useState([]);
   const editorRef = useRef(null);
 
+  // Lock page scroll while Workspace is mounted — only inner panes scroll.
+  useEffect(() => {
+    const prevHtml = document.documentElement.style.overflow;
+    const prevBody = document.body.style.overflow;
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.documentElement.style.overflow = prevHtml;
+      document.body.style.overflow = prevBody;
+    };
+  }, []);
+
   const [leftWidth, setLeftWidth] = useState(
     () => parseInt(localStorage.getItem('pgcode_split')) || 45
   );
