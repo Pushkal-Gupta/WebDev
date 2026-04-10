@@ -1,6 +1,6 @@
 import styles from './PuzzlePage.module.css';
 
-export default function DailyPuzzle({ dailyPuzzle, dailySolved, onPlay, loading }) {
+export default function DailyPuzzle({ dailyPuzzle, dailySolved, onPlay, loading, active }) {
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   });
@@ -53,7 +53,7 @@ export default function DailyPuzzle({ dailyPuzzle, dailySolved, onPlay, loading 
 
       {dailySolved ? (
         <div className={styles.dailySolvedBadge}>Solved</div>
-      ) : (
+      ) : active ? null : (
         <button className={styles.dailyPlayBtn} onClick={onPlay}>
           Play Daily Puzzle
         </button>

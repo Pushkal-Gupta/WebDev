@@ -322,6 +322,7 @@ export default function PuzzlePage() {
               dailySolved={dailySolved}
               onPlay={() => loadDailyPuzzle(user?.id)}
               loading={status === 'loading'}
+              active={!!puzzle && (status === 'playing' || isFinished)}
             />
             {puzzle && (status === 'playing' || isFinished) && (
               <>

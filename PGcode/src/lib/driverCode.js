@@ -231,10 +231,12 @@ function _fromTree(root) {
 }
 `;
 
-export function wrapWithDriver(userCode, language, methodName, params) {
+export function wrapWithDriver(userCode, language, methodName, params, returnType) {
   if (!methodName || !params) return userCode;
 
   const args = params.map(p => p.name).join(', ');
+  const retIsList = isListNodeType(returnType);
+  const retIsTree = isTreeNodeType(returnType);
 
   if (language === 'python') {
     const parsing = params.map((p, i) => {
@@ -242,6 +244,23 @@ export function wrapWithDriver(userCode, language, methodName, params) {
       if (isTreeNodeType(p.type)) return `${p.name} = _to_tree(json.loads(_lines[${i}]))`;
       return `${p.name} = json.loads(_lines[${i}])`;
     }).join('\n');
+
+    // Output block — use returnType to force correct serialization even when result is None
+    let outputBlock;
+    if (retIsList) {
+      outputBlock = 'print(json.dumps(_from_list(_result)))';
+    } else if (retIsTree) {
+      outputBlock = 'print(json.dumps(_from_tree(_result)))';
+    } else {
+      outputBlock = [
+        'if isinstance(_result, bool):',
+        '    print(str(_result).lower())',
+        'elif _result is None:',
+        '    print("null")',
+        'else:',
+        '    print(json.dumps(_result))',
+      ].join('\n');
+    }
 
     return [
       'import sys, json',
@@ -253,16 +272,7 @@ export function wrapWithDriver(userCode, language, methodName, params) {
       parsing,
       '_sol = Solution()',
       `_result = _sol.${methodName}(${args})`,
-      'if isinstance(_result, ListNode):',
-      '    print(json.dumps(_from_list(_result)))',
-      'elif isinstance(_result, TreeNode):',
-      '    print(json.dumps(_from_tree(_result)))',
-      'elif isinstance(_result, bool):',
-      '    print(str(_result).lower())',
-      'elif _result is None:',
-      '    print("null")',
-      'else:',
-      '    print(json.dumps(_result))',
+      outputBlock,
     ].join('\n');
   }
 
@@ -273,6 +283,16 @@ export function wrapWithDriver(userCode, language, methodName, params) {
       return `const ${p.name} = JSON.parse(_lines[${i}]);`;
     }).join('\n');
 
+    // Output block — use returnType to force correct serialization even when result is null
+    let outputBlock;
+    if (retIsList) {
+      outputBlock = 'console.log(JSON.stringify(_fromList(_result)));';
+    } else if (retIsTree) {
+      outputBlock = 'console.log(JSON.stringify(_fromTree(_result)));';
+    } else {
+      outputBlock = 'console.log(JSON.stringify(_result));';
+    }
+
     return [
       JS_HELPERS,
       userCode,
@@ -280,19 +300,13 @@ export function wrapWithDriver(userCode, language, methodName, params) {
       "const _lines = require('fs').readFileSync('/dev/stdin', 'utf8').trim().split('\\n');",
       parsing,
       `const _result = ${methodName}(${args});`,
-      'if (_result instanceof ListNode) {',
-      '    console.log(JSON.stringify(_fromList(_result)));',
-      '} else if (_result instanceof TreeNode) {',
-      '    console.log(JSON.stringify(_fromTree(_result)));',
-      '} else {',
-      '    console.log(JSON.stringify(_result));',
-      '}',
+      outputBlock,
     ].join('\n');
   }
 
   if (language === 'java') {
     // Java doesn't support ListNode/TreeNode types — fall back to raw user code for those
-    const hasNodeType = params.some(p => isListNodeType(p.type) || isTreeNodeType(p.type));
+    const hasNodeType = params.some(p => isListNodeType(p.type) || isTreeNodeType(p.type)) || retIsList || retIsTree;
     if (hasNodeType) return userCode;
 
     const javaParsing = params.map(p => {
@@ -313,10 +327,16 @@ export function wrapWithDriver(userCode, language, methodName, params) {
         `        String[] ${p.name} = _s_${p.name}.isEmpty() ? new String[0] : _s_${p.name}.split(",");`,
         `        for(int i=0;i<${p.name}.length;i++) ${p.name}[i]=${p.name}[i].trim().replace("\\"","");`,
       ].join('\n        ');
+      if (p.type === 'List[List[int]]') return [
+        line,
+        `        int[][] ${p.name} = _parseIntIntArr(_raw_${p.name});`,
+      ].join('\n        ');
+      if (p.type === 'List[List[str]]') return [
+        line,
+        `        String[][] ${p.name} = _parseStrStrArr(_raw_${p.name});`,
+      ].join('\n        ');
       return `${line}\n        // TODO: parse ${p.type}`;
     }).join('\n        ');
-
-    const resultPrint = generateJavaResultPrint(methodName, args);
 
     return [
       'import java.util.*;',
@@ -329,29 +349,121 @@ export function wrapWithDriver(userCode, language, methodName, params) {
       '        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));',
       `        ${javaParsing}`,
       '        Solution sol = new Solution();',
-      `        ${resultPrint}`,
+      `        Object _result = (Object) sol.${methodName}(${args});`,
+      '        System.out.println(_jsonify(_result));',
+      '    }',
+      '',
+      '    static int[][] _parseIntIntArr(String s) {',
+      '        if (s.length() < 2) return new int[0][];',
+      '        String inner = s.substring(1, s.length()-1);',
+      '        if (inner.isEmpty()) return new int[0][];',
+      '        List<int[]> rows = new ArrayList<>();',
+      '        int depth = 0, start = 0;',
+      '        for (int i = 0; i < inner.length(); i++) {',
+      '            char c = inner.charAt(i);',
+      '            if (c == \'[\') depth++;',
+      '            else if (c == \']\') {',
+      '                depth--;',
+      '                if (depth == 0) {',
+      '                    String row = inner.substring(start, i+1);',
+      '                    String ri = row.substring(1, row.length()-1);',
+      '                    if (ri.isEmpty()) rows.add(new int[0]);',
+      '                    else {',
+      '                        String[] parts = ri.split(",");',
+      '                        int[] arr = new int[parts.length];',
+      '                        for (int k = 0; k < parts.length; k++) arr[k] = Integer.parseInt(parts[k].trim());',
+      '                        rows.add(arr);',
+      '                    }',
+      '                    i++; // skip comma',
+      '                    start = i + 1;',
+      '                }',
+      '            }',
+      '        }',
+      '        return rows.toArray(new int[0][]);',
+      '    }',
+      '',
+      '    static String[][] _parseStrStrArr(String s) {',
+      '        if (s.length() < 2) return new String[0][];',
+      '        String inner = s.substring(1, s.length()-1);',
+      '        if (inner.isEmpty()) return new String[0][];',
+      '        List<String[]> rows = new ArrayList<>();',
+      '        int depth = 0, start = 0;',
+      '        for (int i = 0; i < inner.length(); i++) {',
+      '            char c = inner.charAt(i);',
+      '            if (c == \'[\') depth++;',
+      '            else if (c == \']\') {',
+      '                depth--;',
+      '                if (depth == 0) {',
+      '                    String row = inner.substring(start, i+1);',
+      '                    String ri = row.substring(1, row.length()-1);',
+      '                    if (ri.isEmpty()) rows.add(new String[0]);',
+      '                    else {',
+      '                        String[] parts = ri.split(",");',
+      '                        for (int k = 0; k < parts.length; k++) parts[k] = parts[k].trim().replace("\\"","");',
+      '                        rows.add(parts);',
+      '                    }',
+      '                    i++;',
+      '                    start = i + 1;',
+      '                }',
+      '            }',
+      '        }',
+      '        return rows.toArray(new String[0][]);',
+      '    }',
+      '',
+      '    static String _jsonify(Object o) {',
+      '        if (o == null) return "null";',
+      '        if (o instanceof Boolean || o instanceof Integer || o instanceof Long || o instanceof Double || o instanceof Float) return o.toString();',
+      '        if (o instanceof Character) return "\\"" + o + "\\"";',
+      '        if (o instanceof String) return "\\"" + o + "\\"";',
+      '        if (o instanceof int[]) {',
+      '            StringBuilder sb = new StringBuilder("[");',
+      '            int[] a = (int[]) o;',
+      '            for (int i = 0; i < a.length; i++) { if (i > 0) sb.append(","); sb.append(a[i]); }',
+      '            sb.append("]"); return sb.toString();',
+      '        }',
+      '        if (o instanceof long[]) {',
+      '            StringBuilder sb = new StringBuilder("[");',
+      '            long[] a = (long[]) o;',
+      '            for (int i = 0; i < a.length; i++) { if (i > 0) sb.append(","); sb.append(a[i]); }',
+      '            sb.append("]"); return sb.toString();',
+      '        }',
+      '        if (o instanceof boolean[]) {',
+      '            StringBuilder sb = new StringBuilder("[");',
+      '            boolean[] a = (boolean[]) o;',
+      '            for (int i = 0; i < a.length; i++) { if (i > 0) sb.append(","); sb.append(a[i]); }',
+      '            sb.append("]"); return sb.toString();',
+      '        }',
+      '        if (o instanceof int[][]) {',
+      '            StringBuilder sb = new StringBuilder("[");',
+      '            int[][] a = (int[][]) o;',
+      '            for (int i = 0; i < a.length; i++) { if (i > 0) sb.append(","); sb.append(_jsonify(a[i])); }',
+      '            sb.append("]"); return sb.toString();',
+      '        }',
+      '        if (o instanceof String[]) {',
+      '            StringBuilder sb = new StringBuilder("[");',
+      '            String[] a = (String[]) o;',
+      '            for (int i = 0; i < a.length; i++) { if (i > 0) sb.append(","); sb.append("\\"").append(a[i]).append("\\""); }',
+      '            sb.append("]"); return sb.toString();',
+      '        }',
+      '        if (o instanceof String[][]) {',
+      '            StringBuilder sb = new StringBuilder("[");',
+      '            String[][] a = (String[][]) o;',
+      '            for (int i = 0; i < a.length; i++) { if (i > 0) sb.append(","); sb.append(_jsonify(a[i])); }',
+      '            sb.append("]"); return sb.toString();',
+      '        }',
+      '        if (o instanceof java.util.List) {',
+      '            StringBuilder sb = new StringBuilder("[");',
+      '            java.util.List<?> l = (java.util.List<?>) o;',
+      '            for (int i = 0; i < l.size(); i++) { if (i > 0) sb.append(","); sb.append(_jsonify(l.get(i))); }',
+      '            sb.append("]"); return sb.toString();',
+      '        }',
+      '        return o.toString();',
       '    }',
       '}',
     ].join('\n');
   }
 
   return userCode;
-}
-
-function generateJavaResultPrint(methodName, args) {
-  // Generic: call method, convert to string
-  return [
-    `var _result = sol.${methodName}(${args});`,
-    'if (_result instanceof int[]) {',
-    '    StringBuilder sb = new StringBuilder("[");',
-    '    for(int i=0;i<((int[])_result).length;i++){if(i>0)sb.append(",");sb.append(((int[])_result)[i]);}',
-    '    sb.append("]"); System.out.println(sb);',
-    '} else if (_result instanceof boolean[]) {',
-    '    StringBuilder sb = new StringBuilder("[");',
-    '    for(int i=0;i<((boolean[])_result).length;i++){if(i>0)sb.append(",");sb.append(((boolean[])_result)[i]);}',
-    '    sb.append("]"); System.out.println(sb);',
-    '} else { System.out.println(_result); }',
-  ].join('\n        ');
 }
 
 // ─── Test case helpers ───
