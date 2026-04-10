@@ -356,6 +356,26 @@ const TOPIC_CONCEPTS = {
       },
     ],
   },
+  'first-order': {
+    overview: 'First-order thinking is the skill of recognizing which algorithmic pattern applies to a problem at first glance. Instead of memorizing solutions, you build intuition for the structural clues that map a problem to a technique.',
+    concepts: [
+      {
+        title: 'Pattern Recognition',
+        content: 'Every problem has signal words. "Sorted array" → binary search or two pointers. "Contiguous subarray" → sliding window or prefix sums. "Shortest path" → BFS for unweighted, Dijkstra for weighted. "All combinations" → backtracking. Training yourself to spot these clues reduces problem-solving time dramatically.',
+        keyPoints: ['Sorted input → binary search / two pointers', 'Subarray/substring → sliding window', 'All permutations/combinations → backtracking', 'Shortest path → BFS/Dijkstra', 'Optimal + overlapping subproblems → DP'],
+      },
+      {
+        title: 'Problem Decomposition',
+        content: 'Break complex problems into known subproblems. A problem asking for "K closest points" decomposes into (1) defining distance, (2) K-th smallest selection — which is a heap pattern. Training first-order thinking means building a mental library of atomic patterns and their combinations.',
+        keyPoints: ['Identify the core operation (search, sort, aggregate)', 'Map to known data structure (heap, trie, union-find)', 'Combine patterns for multi-step problems', 'Estimate complexity before coding'],
+      },
+      {
+        title: 'When Brute Force Is Enough',
+        content: 'Not every problem needs optimization. If n ≤ 20, O(2ⁿ) backtracking works. If n ≤ 500, O(n³) is feasible. If n ≤ 10⁵, you need O(n log n) or better. Reading the constraints first tells you the target complexity.',
+        keyPoints: ['n ≤ 20: exponential OK (bitmask, backtracking)', 'n ≤ 500: O(n³) feasible', 'n ≤ 10⁴: O(n²) feasible', 'n ≤ 10⁶: O(n log n) or O(n)', 'Read constraints before choosing approach'],
+      },
+    ],
+  },
   'geometry': {
     overview: 'Geometry problems in coding interviews involve coordinate math, distance calculations, and spatial reasoning. They require careful handling of floating point precision and edge cases.',
     concepts: [
@@ -374,6 +394,10 @@ export default function LearningsSection({ topicId }) {
   const [expandedId, setExpandedId] = useState(null);
 
   useEffect(() => {
+    // Reset expanded state when switching topics
+    setExpandedId(null);
+    setLoading(true);
+
     async function fetchVideos() {
       try {
         const { data, error } = await supabase

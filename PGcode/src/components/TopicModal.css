@@ -48,6 +48,16 @@
   to { transform: translateX(0); }
 }
 
+/* Mobile responsive: full width on small screens */
+@media (max-width: 820px) {
+  .topicModalContent {
+    width: 100% !important;
+  }
+  .resize-handle {
+    display: none;
+  }
+}
+
 .topicModalHeader {
   padding: 1.5rem 2rem;
   border-bottom: 1px solid var(--border);

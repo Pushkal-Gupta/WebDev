@@ -111,9 +111,19 @@ async function submitAuth() {
   try {
     let res;
     if (currentAuthMode === "signup") {
-      res = await supabaseClient.auth.signUp({ email, password });
-      if (!res.error)
-        alert("Check your inbox at " + email + " for a verification link!");
+      res = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: window.location.origin + window.location.pathname },
+      });
+      if (!res.error) {
+        if (res.data?.session) {
+          closeAuthModal();
+          await checkUser();
+        } else {
+          alert("Check your inbox at " + email + " for a verification link!");
+        }
+      }
     } else if (currentAuthMode === "reset") {
       res = await supabaseClient.auth.resetPasswordForEmail(email);
       if (!res.error) {
@@ -272,7 +282,7 @@ const PROJECTS = [
   {
     featured: true,
     name: "PG.Code",
-    desc: "A collaborative SQL playground with live schema visualization, seed data, and an AI assistant.",
+    desc: "Learn data structures and algorithms through a visual roadmap — solve coding problems, walk through step-by-step dry runs, and study worked solutions.",
     date: "Apr 2026",
     status: "update",
     url: "../PGcode/dist/index.html",

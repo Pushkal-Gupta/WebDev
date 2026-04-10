@@ -28,6 +28,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
   const [cursorPos, setCursorPos] = useState({ ln: 1, col: 1 });
   const [activeTestIdx, setActiveTestIdx] = useState(0);
   const [testInputs, setTestInputs] = useState([]);
+  const [pinnedCaseIndices, setPinnedCaseIndices] = useState([]);
   // Structured test/submit result
   const [runResult, setRunResult] = useState(null);
   const [resultCaseIdx, setResultCaseIdx] = useState(0);
@@ -82,12 +83,18 @@ export default function Workspace({ session, theme, roadmapMode }) {
       setTestInputs([]);
     }
     setRunResult(null);
+    setResultCaseIdx(0);
     setSubmitProgress(null);
     // Load submission history
     try {
       const saved = JSON.parse(localStorage.getItem(`pgcode_subs_${activeProblem?.id}`) || '[]');
       setSubmissions(saved);
     } catch { setSubmissions([]); }
+    // Load pinned test case indices
+    try {
+      const savedPinned = JSON.parse(localStorage.getItem(`pgcode_pinned_${activeProblem?.id}`) || '[]');
+      setPinnedCaseIndices(Array.isArray(savedPinned) ? savedPinned : []);
+    } catch { setPinnedCaseIndices([]); }
   }, [activeProblem?.id]);
 
   useEffect(() => {
@@ -139,7 +146,51 @@ export default function Workspace({ session, theme, roadmapMode }) {
     setEditorStatus('Saved'); setTimeout(() => setEditorStatus(''), 2000);
   };
 
-  const MAX_VISIBLE_CASES = 8;
+  const VISIBLE_DEFAULT_COUNT = 3;
+
+  // Compute visible test case indices: first 3 + any pinned
+  const visibleCaseIndices = React.useMemo(() => {
+    if (!activeProblem?.test_cases?.length) return [];
+    const total = activeProblem.test_cases.length;
+    const set = new Set();
+    for (let i = 0; i < Math.min(VISIBLE_DEFAULT_COUNT, total); i++) set.add(i);
+    pinnedCaseIndices.forEach(idx => { if (idx >= 0 && idx < total) set.add(idx); });
+    return Array.from(set).sort((a, b) => a - b);
+  }, [activeProblem?.test_cases, pinnedCaseIndices]);
+
+  const pinCase = (originalIdx) => {
+    setPinnedCaseIndices(prev => {
+      if (prev.includes(originalIdx)) return prev;
+      const next = [...prev, originalIdx].sort((a, b) => a - b);
+      try { localStorage.setItem(`pgcode_pinned_${activeProblem.id}`, JSON.stringify(next)); } catch {}
+      return next;
+    });
+    // Update runResult to remove canPin flag since case is now visible
+    setRunResult(prev => {
+      if (!prev?.cases) return prev;
+      return {
+        ...prev,
+        cases: prev.cases.map(c =>
+          c.originalIdx === originalIdx ? { ...c, canPin: false, isHidden: false } : c
+        ),
+      };
+    });
+  };
+
+  const unpinCase = (originalIdx) => {
+    setPinnedCaseIndices(prev => {
+      const next = prev.filter(i => i !== originalIdx);
+      try { localStorage.setItem(`pgcode_pinned_${activeProblem.id}`, JSON.stringify(next)); } catch {}
+      return next;
+    });
+    // If the unpinned case was currently selected, fall back to case 0
+    if (activeTestIdx === originalIdx) {
+      setActiveTestIdx(0);
+      if (activeProblem?.test_cases?.[0]) {
+        setTestInputs([...activeProblem.test_cases[0].inputs]);
+      }
+    }
+  };
 
   const handleRun = async () => {
     // Fall back to single raw execution for problems without driver metadata
@@ -147,6 +198,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
       setLeftTab('testresult');
       setRunning(true);
       setRunResult(null);
+      setResultCaseIdx(0);
       setConsoleOutput('Running...');
       try {
         const result = await runCode(codeContent, activeLang, '');
@@ -170,8 +222,10 @@ export default function Workspace({ session, theme, roadmapMode }) {
     setLeftTab('testresult');
     setRunning(true);
     setRunResult(null);
+    setResultCaseIdx(0);
     setConsoleOutput('');
-    const total = Math.min(activeProblem.test_cases.length, MAX_VISIBLE_CASES);
+    const indices = visibleCaseIndices;
+    const total = indices.length;
     setSubmitProgress({ current: 0, total });
 
     try {
@@ -183,7 +237,8 @@ export default function Workspace({ session, theme, roadmapMode }) {
 
       for (let i = 0; i < total; i++) {
         setSubmitProgress({ current: i + 1, total });
-        const tc = activeProblem.test_cases[i];
+        const originalIdx = indices[i];
+        const tc = activeProblem.test_cases[originalIdx];
         const stdin = buildStdin(tc.inputs);
         const result = await runCode(fullCode, activeLang, stdin);
 
@@ -205,6 +260,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
           if (firstFailIdx === -1) firstFailIdx = i;
           cases.push({
             passed: false,
+            originalIdx,
             input: params.map((p, j) => ({ name: p.name, value: tc.inputs[j] || '' })),
             output: result.output?.trim() || '(Error)',
             expected: tc.expected,
@@ -218,6 +274,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
 
         cases.push({
           passed,
+          originalIdx,
           input: params.map((p, j) => ({ name: p.name, value: tc.inputs[j] || '' })),
           output: result.output.trim(),
           expected: tc.expected,
@@ -252,6 +309,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
     setLeftTab('testresult');
     setRunning(true);
     setRunResult(null);
+    setResultCaseIdx(0);
     setConsoleOutput('');
     const total = activeProblem.test_cases.length;
     setSubmitProgress({ current: 0, total });
@@ -288,26 +346,31 @@ export default function Workspace({ session, theme, roadmapMode }) {
         }
 
         const passed = compareOutput(result.output, tc.expected);
-        cases.push({
-          passed,
-          input: params.map((p, j) => ({ name: p.name, value: tc.inputs[j] || '' })),
-          output: result.output.trim(),
-          expected: tc.expected,
-        });
 
         if (!passed) {
           allPassed = false;
           failIdx = i;
+          const isHidden = i >= VISIBLE_DEFAULT_COUNT && !pinnedCaseIndices.includes(i);
+          // Show only the failing case (NeetCode/LeetCode style)
           setRunResult({
             status: 'wrong_answer',
             statusText: 'Wrong Answer',
-            cases: cases,
-            activeCaseIdx: i,
+            cases: [{
+              passed: false,
+              originalIdx: i,
+              isHidden,
+              canPin: isHidden,
+              input: params.map((p, j) => ({ name: p.name, value: tc.inputs[j] || '' })),
+              output: result.output.trim(),
+              expected: tc.expected,
+            }],
+            activeCaseIdx: 0,
             failedCase: i + 1,
             totalCases: total,
             totalPassed: i,
             isSubmission: true,
           });
+          setResultCaseIdx(0);
           break;
         }
       }
@@ -318,8 +381,6 @@ export default function Workspace({ session, theme, roadmapMode }) {
         setRunResult({
           status: 'accepted',
           statusText: 'Accepted',
-          cases,
-          activeCaseIdx: 0,
           totalCases: total,
           totalPassed: total,
           runtime: elapsed,
@@ -574,12 +635,35 @@ export default function Workspace({ session, theme, roadmapMode }) {
                 {activeProblem.test_cases?.length > 0 ? (
                   <>
                     <div className="ws-tc-cases">
-                      {activeProblem.test_cases.slice(0, MAX_VISIBLE_CASES).map((tc, i) => (
-                        <button key={i} className={`ws-tc-case ${activeTestIdx === i ? 'active' : ''}`}
-                          onClick={() => { setActiveTestIdx(i); setTestInputs([...tc.inputs]); }}>
-                          Case {i + 1}
-                        </button>
-                      ))}
+                      {visibleCaseIndices.map((originalIdx, i) => {
+                        const isPinned = pinnedCaseIndices.includes(originalIdx);
+                        return (
+                          <div key={originalIdx} className={`ws-tc-case-wrap ${activeTestIdx === originalIdx ? 'active' : ''}`}>
+                            <button
+                              className={`ws-tc-case ${activeTestIdx === originalIdx ? 'active' : ''} ${isPinned ? 'pinned' : ''}`}
+                              onClick={() => {
+                                setActiveTestIdx(originalIdx);
+                                setTestInputs([...activeProblem.test_cases[originalIdx].inputs]);
+                              }}>
+                              {isPinned && <span className="ws-tc-pin-icon" title="Pinned">📌</span>}
+                              Case {i + 1}
+                            </button>
+                            {isPinned && (
+                              <button
+                                className="ws-tc-unpin"
+                                title="Remove pinned case"
+                                onClick={(e) => { e.stopPropagation(); unpinCase(originalIdx); }}>
+                                ×
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
+                      {activeProblem.test_cases.length > visibleCaseIndices.length && (
+                        <span className="ws-tc-hidden-count">
+                          + {activeProblem.test_cases.length - visibleCaseIndices.length} hidden
+                        </span>
+                      )}
                     </div>
                     <div className="ws-tc-fields">
                       {(activeProblem.params || []).map((param, i) => (
@@ -647,6 +731,11 @@ export default function Workspace({ session, theme, roadmapMode }) {
                       <div className="ws-result-error">{runResult.error}</div>
                     )}
 
+                    {/* Success message for accepted submit with no cases array */}
+                    {runResult.isSubmission && runResult.status === 'accepted' && !runResult.cases?.length && (
+                      <p className="ws-success-msg">You have successfully completed this problem!</p>
+                    )}
+
                     {/* Case tabs + details */}
                     {runResult.cases?.length > 0 && (
                       <>
@@ -656,13 +745,22 @@ export default function Workspace({ session, theme, roadmapMode }) {
                               className={`ws-result-case ${resultCaseIdx === i ? 'active' : ''}`}
                               onClick={() => setResultCaseIdx(i)}>
                               <span className={`case-dot ${c.passed ? 'pass' : 'fail'}`} />
-                              Case {i + 1}
+                              Case {c.originalIdx !== undefined ? c.originalIdx + 1 : i + 1}
+                              {c.isHidden && <span className="ws-hidden-badge" title="Hidden test case">hidden</span>}
                             </button>
                           ))}
                         </div>
 
                         {runResult.cases[resultCaseIdx] && (
                           <>
+                            {runResult.cases[resultCaseIdx].canPin && (
+                              <button
+                                className="ws-pin-case-btn"
+                                onClick={() => pinCase(runResult.cases[resultCaseIdx].originalIdx)}
+                                title="Add this hidden test case to your visible test cases">
+                                + Add to test cases
+                              </button>
+                            )}
                             <div className="ws-result-section">
                               <div className="ws-result-label">Input</div>
                               <div className="ws-result-value">
