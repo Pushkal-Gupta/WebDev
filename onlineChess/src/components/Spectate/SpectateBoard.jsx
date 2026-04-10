@@ -70,7 +70,8 @@ export default function SpectateBoard({ room, onBack }) {
 
   useEffect(() => {
     if (!room?.id) return;
-    channelRef.current = subscribeAsSpectator(room.id, {
+    let cancelled = false;
+    subscribeAsSpectator(room.id, {
       onMove({ from, to, fen: newFen }) {
         if (newFen) {
           setFen(newFen);
@@ -93,9 +94,20 @@ export default function SpectateBoard({ room, onBack }) {
         const name = userId === room?.host_id ? (room?.host_name) : (room?.guest_name);
         setResigned(name || 'A player');
       },
+    }).then((channel) => {
+      if (cancelled) {
+        unsubscribe(channel);
+        return;
+      }
+      channelRef.current = channel;
+    }).catch((err) => {
+      console.warn('Spectator subscribe failed:', err.message);
     });
 
-    return () => unsubscribe(channelRef.current);
+    return () => {
+      cancelled = true;
+      if (channelRef.current) unsubscribe(channelRef.current);
+    };
   }, [room?.id]); // eslint-disable-line
 
   // Determine who's turn it is from FEN

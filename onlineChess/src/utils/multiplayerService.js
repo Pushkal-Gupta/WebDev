@@ -128,10 +128,21 @@ export function subscribeAsSpectator(roomId, handlers = {}) {
   channel
     .on('broadcast', { event: 'move' },   ({ payload }) => handlers.onMove?.(payload))
     .on('broadcast', { event: 'resign' }, ({ payload }) => handlers.onResign?.(payload))
-    .on('broadcast', { event: 'chat' },   ({ payload }) => handlers.onChat?.(payload))
-    .subscribe();
+    .on('broadcast', { event: 'chat' },   ({ payload }) => handlers.onChat?.(payload));
 
-  return channel;
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    channel.subscribe((status) => {
+      if (settled) return;
+      if (status === 'SUBSCRIBED') {
+        settled = true;
+        resolve(channel);
+      } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+        settled = true;
+        reject(new Error(`Spectator subscribe failed: ${status}`));
+      }
+    });
+  });
 }
 
 export async function broadcastChat(channel, { text, sender }) {

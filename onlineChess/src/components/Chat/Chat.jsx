@@ -6,15 +6,20 @@ export default function Chat({ messages, onSend, opponentName, myName, isConnect
   const [open, setOpen] = useState(false);
   const [unread, setUnread] = useState(0);
   const listRef = useRef(null);
+  const seenCountRef = useRef(0);
 
-  // Auto-scroll on new messages
+  // Auto-scroll + track only NEW unread messages
   useEffect(() => {
     if (listRef.current) {
       listRef.current.scrollTop = listRef.current.scrollHeight;
     }
-    if (!open && messages.length > 0) {
-      setUnread(n => n + 1);
+    if (open) {
+      seenCountRef.current = messages.length;
+      return;
     }
+    const delta = messages.length - seenCountRef.current;
+    if (delta > 0) setUnread(u => u + delta);
+    seenCountRef.current = messages.length;
   }, [messages.length, open]);
 
   const handleOpen = () => { setOpen(true); setUnread(0); };

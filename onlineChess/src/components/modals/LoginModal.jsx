@@ -46,8 +46,13 @@ export default function LoginModal({ onClose, onSuccess }) {
     setLoading(true);
     try {
       if (mode === 'signup') {
-        await signup(email, password);
-        setError('Check your email for a verification link.');
+        const data = await signup(email, password);
+        if (data?.session) {
+          if (onSuccess) onSuccess();
+          onClose();
+        } else {
+          setError('Check your email for a verification link.');
+        }
       } else {
         await login(email, password);
         if (onSuccess) onSuccess();
