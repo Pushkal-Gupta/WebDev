@@ -9,10 +9,17 @@ let resetPendingEmail = "";
 const POSTS = [
   {
     id: "ai-cage",
-    date: "03.27.2026",
+    date: "13.03.2026",
     title: "AI and the Lion's Cage — The Last Tool We Build",
     darkFile: "ai-cage-dark.html",
     lightFile: "ai-cage-light.html",
+  },
+  {
+    id: "power",
+    date: "10.04.2026",
+    title: "The Architecture of Power — How Society Actually Works",
+    darkFile: "power-dark.html",
+    lightFile: "power-light.html",
   },
   {
     id: "upcoming",

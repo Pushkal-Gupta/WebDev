@@ -1,0 +1,207 @@
+-- Add metadata + test cases for 7 new tree/linked-list problems.
+-- Requires driver extension in src/lib/driverCode.js for ListNode/TreeNode types.
+-- Each problem has 24-25 test cases (programmatically verified).
+-- Problems already exist in PGcode_problems via seed_300_500.sql — this only UPDATEs metadata.
+
+-- 1. reverse-linked-list
+UPDATE "PGcode_problems" SET method_name = 'reverseList', params = '[{"name":"head","type":"Optional[ListNode]"}]'::jsonb, return_type = 'Optional[ListNode]', test_cases = '[
+  {"inputs":["[1,2,3,4,5]"],"expected":"[5,4,3,2,1]"},
+  {"inputs":["[1,2]"],"expected":"[2,1]"},
+  {"inputs":["[]"],"expected":"[]"},
+  {"inputs":["[1]"],"expected":"[1]"},
+  {"inputs":["[1,2,3]"],"expected":"[3,2,1]"},
+  {"inputs":["[5,4,3,2,1]"],"expected":"[1,2,3,4,5]"},
+  {"inputs":["[100]"],"expected":"[100]"},
+  {"inputs":["[-1,-2,-3]"],"expected":"[-3,-2,-1]"},
+  {"inputs":["[0,0,0]"],"expected":"[0,0,0]"},
+  {"inputs":["[1,2,3,4,5,6,7,8,9,10]"],"expected":"[10,9,8,7,6,5,4,3,2,1]"},
+  {"inputs":["[10]"],"expected":"[10]"},
+  {"inputs":["[-5,5]"],"expected":"[5,-5]"},
+  {"inputs":["[0]"],"expected":"[0]"},
+  {"inputs":["[1,1,1,1]"],"expected":"[1,1,1,1]"},
+  {"inputs":["[-100,100]"],"expected":"[100,-100]"},
+  {"inputs":["[7,8,9]"],"expected":"[9,8,7]"},
+  {"inputs":["[1,2,3,4]"],"expected":"[4,3,2,1]"},
+  {"inputs":["[10,20,30,40,50,60]"],"expected":"[60,50,40,30,20,10]"},
+  {"inputs":["[-1]"],"expected":"[-1]"},
+  {"inputs":["[42,43]"],"expected":"[43,42]"},
+  {"inputs":["[1000,2000,3000]"],"expected":"[3000,2000,1000]"},
+  {"inputs":["[5,4,3]"],"expected":"[3,4,5]"},
+  {"inputs":["[0,1,2,3]"],"expected":"[3,2,1,0]"},
+  {"inputs":["[9,8,7,6,5,4,3,2,1,0]"],"expected":"[0,1,2,3,4,5,6,7,8,9]"},
+  {"inputs":["[2,4,6,8]"],"expected":"[8,6,4,2]"}
+]'::jsonb WHERE id = 'reverse-linked-list';
+
+-- 2. merge-two-sorted
+UPDATE "PGcode_problems" SET method_name = 'mergeTwoLists', params = '[{"name":"list1","type":"Optional[ListNode]"},{"name":"list2","type":"Optional[ListNode]"}]'::jsonb, return_type = 'Optional[ListNode]', test_cases = '[
+  {"inputs":["[1,2,4]","[1,3,4]"],"expected":"[1,1,2,3,4,4]"},
+  {"inputs":["[]","[]"],"expected":"[]"},
+  {"inputs":["[]","[0]"],"expected":"[0]"},
+  {"inputs":["[1]","[]"],"expected":"[1]"},
+  {"inputs":["[1,3,5]","[2,4,6]"],"expected":"[1,2,3,4,5,6]"},
+  {"inputs":["[1,2,3]","[4,5,6]"],"expected":"[1,2,3,4,5,6]"},
+  {"inputs":["[4,5,6]","[1,2,3]"],"expected":"[1,2,3,4,5,6]"},
+  {"inputs":["[1]","[2]"],"expected":"[1,2]"},
+  {"inputs":["[2]","[1]"],"expected":"[1,2]"},
+  {"inputs":["[1,1,1]","[1,1,1]"],"expected":"[1,1,1,1,1,1]"},
+  {"inputs":["[-1,0,1]","[-2,2]"],"expected":"[-2,-1,0,1,2]"},
+  {"inputs":["[5]","[1,2,3,4]"],"expected":"[1,2,3,4,5]"},
+  {"inputs":["[1,5,10]","[2,3,4,6]"],"expected":"[1,2,3,4,5,6,10]"},
+  {"inputs":["[0]","[0]"],"expected":"[0,0]"},
+  {"inputs":["[]","[1]"],"expected":"[1]"},
+  {"inputs":["[1]","[1]"],"expected":"[1,1]"},
+  {"inputs":["[1,2]","[3,4]"],"expected":"[1,2,3,4]"},
+  {"inputs":["[1,4,7]","[2,5,8]"],"expected":"[1,2,4,5,7,8]"},
+  {"inputs":["[10]","[20]"],"expected":"[10,20]"},
+  {"inputs":["[-5,-3]","[-4,-2]"],"expected":"[-5,-4,-3,-2]"},
+  {"inputs":["[1,2,3,4,5]","[6,7,8,9,10]"],"expected":"[1,2,3,4,5,6,7,8,9,10]"},
+  {"inputs":["[100]","[1,2,3]"],"expected":"[1,2,3,100]"},
+  {"inputs":["[1,1,1]","[2,2,2]"],"expected":"[1,1,1,2,2,2]"},
+  {"inputs":["[-10,0,10]","[-5,5,15]"],"expected":"[-10,-5,0,5,10,15]"},
+  {"inputs":["[7,8]","[7,8]"],"expected":"[7,7,8,8]"}
+]'::jsonb WHERE id = 'merge-two-sorted';
+
+-- 3. invert-binary-tree
+UPDATE "PGcode_problems" SET method_name = 'invertTree', params = '[{"name":"root","type":"Optional[TreeNode]"}]'::jsonb, return_type = 'Optional[TreeNode]', test_cases = '[
+  {"inputs":["[4,2,7,1,3,6,9]"],"expected":"[4,7,2,9,6,3,1]"},
+  {"inputs":["[2,1,3]"],"expected":"[2,3,1]"},
+  {"inputs":["[]"],"expected":"[]"},
+  {"inputs":["[1]"],"expected":"[1]"},
+  {"inputs":["[1,2]"],"expected":"[1,null,2]"},
+  {"inputs":["[1,null,2]"],"expected":"[1,2]"},
+  {"inputs":["[1,2,3]"],"expected":"[1,3,2]"},
+  {"inputs":["[1,2,3,4,5,6,7]"],"expected":"[1,3,2,7,6,5,4]"},
+  {"inputs":["[1,2,3,4,5]"],"expected":"[1,3,2,null,null,5,4]"},
+  {"inputs":["[5,3,7,1,4,6,8]"],"expected":"[5,7,3,8,6,4,1]"},
+  {"inputs":["[10]"],"expected":"[10]"},
+  {"inputs":["[10,5,15]"],"expected":"[10,15,5]"},
+  {"inputs":["[1,null,2,null,3]"],"expected":"[1,2,null,3]"},
+  {"inputs":["[1,2,null,3]"],"expected":"[1,null,2,null,3]"},
+  {"inputs":["[1,null,2,3]"],"expected":"[1,2,null,null,3]"},
+  {"inputs":["[0,-1,1]"],"expected":"[0,1,-1]"},
+  {"inputs":["[100,50,150,25,75,125,175]"],"expected":"[100,150,50,175,125,75,25]"},
+  {"inputs":["[1,2,3,null,4,null,5]"],"expected":"[1,3,2,5,null,4]"},
+  {"inputs":["[8,3,10,1,6,null,14,null,null,4,7,13]"],"expected":"[8,10,3,14,null,6,1,null,13,7,4]"},
+  {"inputs":["[1,2,2,3,4,4,3]"],"expected":"[1,2,2,3,4,4,3]"},
+  {"inputs":["[6,2,8,0,4,7,9,null,null,3,5]"],"expected":"[6,8,2,9,7,4,0,null,null,null,null,5,3]"},
+  {"inputs":["[1,2,3,4,null,null,5,6]"],"expected":"[1,3,2,5,null,null,4,null,null,null,6]"},
+  {"inputs":["[5]"],"expected":"[5]"},
+  {"inputs":["[1,2,3,null,null,4,5]"],"expected":"[1,3,2,5,4]"},
+  {"inputs":["[50,30,70,20,40,60,80]"],"expected":"[50,70,30,80,60,40,20]"}
+]'::jsonb WHERE id = 'invert-binary-tree';
+
+-- 4. max-depth-binary-tree
+UPDATE "PGcode_problems" SET method_name = 'maxDepth', params = '[{"name":"root","type":"Optional[TreeNode]"}]'::jsonb, return_type = 'int', test_cases = '[
+  {"inputs":["[3,9,20,null,null,15,7]"],"expected":"3"},
+  {"inputs":["[1,null,2]"],"expected":"2"},
+  {"inputs":["[]"],"expected":"0"},
+  {"inputs":["[1]"],"expected":"1"},
+  {"inputs":["[1,2]"],"expected":"2"},
+  {"inputs":["[1,2,3]"],"expected":"2"},
+  {"inputs":["[1,2,3,4]"],"expected":"3"},
+  {"inputs":["[1,2,3,4,5,6,7]"],"expected":"3"},
+  {"inputs":["[1,2,3,4,5,6,7,8]"],"expected":"4"},
+  {"inputs":["[1,null,2,null,3,null,4,null,5]"],"expected":"5"},
+  {"inputs":["[1,null,2,null,3]"],"expected":"3"},
+  {"inputs":["[0]"],"expected":"1"},
+  {"inputs":["[5,4,8,11,null,13,4,7,2,null,null,null,1]"],"expected":"4"},
+  {"inputs":["[1,2,2,3,3,null,null,4,4]"],"expected":"4"},
+  {"inputs":["[10]"],"expected":"1"},
+  {"inputs":["[1,2]"],"expected":"2"},
+  {"inputs":["[1,null,2,null,3,null,4]"],"expected":"4"},
+  {"inputs":["[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]"],"expected":"4"},
+  {"inputs":["[-1,-2,-3]"],"expected":"2"},
+  {"inputs":["[1,2]"],"expected":"2"},
+  {"inputs":["[5,3,8,1,4,7,9]"],"expected":"3"},
+  {"inputs":["[2,1,3,null,null,null,4]"],"expected":"3"},
+  {"inputs":["[1,null,2,3]"],"expected":"3"},
+  {"inputs":["[1,2,null,3,null,4,null,5]"],"expected":"5"},
+  {"inputs":["[100,50]"],"expected":"2"}
+]'::jsonb WHERE id = 'max-depth-binary-tree';
+
+-- 5. same-tree
+UPDATE "PGcode_problems" SET method_name = 'isSameTree', params = '[{"name":"p","type":"Optional[TreeNode]"},{"name":"q","type":"Optional[TreeNode]"}]'::jsonb, return_type = 'bool', test_cases = '[
+  {"inputs":["[1,2,3]","[1,2,3]"],"expected":"true"},
+  {"inputs":["[1,2]","[1,null,2]"],"expected":"false"},
+  {"inputs":["[1,2,1]","[1,1,2]"],"expected":"false"},
+  {"inputs":["[]","[]"],"expected":"true"},
+  {"inputs":["[1]","[]"],"expected":"false"},
+  {"inputs":["[]","[1]"],"expected":"false"},
+  {"inputs":["[1]","[1]"],"expected":"true"},
+  {"inputs":["[1,2]","[1,2]"],"expected":"true"},
+  {"inputs":["[1,2,3]","[1,2,4]"],"expected":"false"},
+  {"inputs":["[1]","[2]"],"expected":"false"},
+  {"inputs":["[1,2,3,4,5]","[1,2,3,4,5]"],"expected":"true"},
+  {"inputs":["[1,2,3]","[1,3,2]"],"expected":"false"},
+  {"inputs":["[5,3,7]","[5,3,7]"],"expected":"true"},
+  {"inputs":["[5,3,7]","[5,7,3]"],"expected":"false"},
+  {"inputs":["[0]","[0]"],"expected":"true"},
+  {"inputs":["[-1]","[-1]"],"expected":"true"},
+  {"inputs":["[-1]","[1]"],"expected":"false"},
+  {"inputs":["[1,2,3,4]","[1,2,3,4]"],"expected":"true"},
+  {"inputs":["[1,null,2]","[1,null,2]"],"expected":"true"},
+  {"inputs":["[10,5,15,3,7]","[10,5,15,3,7]"],"expected":"true"},
+  {"inputs":["[1,2,3,null,4]","[1,2,3,null,4]"],"expected":"true"},
+  {"inputs":["[1,2]","[2,1]"],"expected":"false"},
+  {"inputs":["[1,1,1]","[1,1,1]"],"expected":"true"},
+  {"inputs":["[1,2,3,4,5,6,7]","[1,2,3,4,5,6,8]"],"expected":"false"},
+  {"inputs":["[1,2,3]","[1,2,3,4]"],"expected":"false"}
+]'::jsonb WHERE id = 'same-tree';
+
+-- 6. subtree-of-another
+UPDATE "PGcode_problems" SET method_name = 'isSubtree', params = '[{"name":"root","type":"Optional[TreeNode]"},{"name":"subRoot","type":"Optional[TreeNode]"}]'::jsonb, return_type = 'bool', test_cases = '[
+  {"inputs":["[3,4,5,1,2]","[4,1,2]"],"expected":"true"},
+  {"inputs":["[3,4,5,1,2,null,null,null,null,0]","[4,1,2]"],"expected":"false"},
+  {"inputs":["[1,1]","[1]"],"expected":"true"},
+  {"inputs":["[1,2,3]","[2]"],"expected":"true"},
+  {"inputs":["[1]","[1]"],"expected":"true"},
+  {"inputs":["[1]","[2]"],"expected":"false"},
+  {"inputs":["[4,1,2]","[4,1,2]"],"expected":"true"},
+  {"inputs":["[3,4,5,1,2]","[3,4,5,1,2]"],"expected":"true"},
+  {"inputs":["[1,2,3]","[1,2,3]"],"expected":"true"},
+  {"inputs":["[5,3,7,1,4,6,8]","[7,6,8]"],"expected":"true"},
+  {"inputs":["[5,3,7,1,4,6,8]","[3,1,4]"],"expected":"true"},
+  {"inputs":["[10]","[10]"],"expected":"true"},
+  {"inputs":["[1,2,3,4,5]","[2,4,5]"],"expected":"true"},
+  {"inputs":["[1,2,3,4,5]","[3]"],"expected":"true"},
+  {"inputs":["[1,2,3,4,5]","[5]"],"expected":"true"},
+  {"inputs":["[1,2,3]","[4]"],"expected":"false"},
+  {"inputs":["[2,1,3]","[2,1,3]"],"expected":"true"},
+  {"inputs":["[2,1,3]","[1]"],"expected":"true"},
+  {"inputs":["[2,1,3]","[3]"],"expected":"true"},
+  {"inputs":["[3,4,5,1,2]","[5]"],"expected":"true"},
+  {"inputs":["[3,4,5,1,2]","[4,1,2]"],"expected":"true"},
+  {"inputs":["[1,2]","[2]"],"expected":"true"},
+  {"inputs":["[1,2]","[1,2]"],"expected":"true"},
+  {"inputs":["[5,4,8,11,null,13,4,7,2]","[4,11,null,7,2]"],"expected":"true"}
+]'::jsonb WHERE id = 'subtree-of-another';
+
+-- 7. level-order-traversal
+UPDATE "PGcode_problems" SET method_name = 'levelOrder', params = '[{"name":"root","type":"Optional[TreeNode]"}]'::jsonb, return_type = 'List[List[int]]', test_cases = '[
+  {"inputs":["[3,9,20,null,null,15,7]"],"expected":"[[3],[9,20],[15,7]]"},
+  {"inputs":["[1]"],"expected":"[[1]]"},
+  {"inputs":["[]"],"expected":"[]"},
+  {"inputs":["[1,2,3]"],"expected":"[[1],[2,3]]"},
+  {"inputs":["[1,2,3,4,5,6,7]"],"expected":"[[1],[2,3],[4,5,6,7]]"},
+  {"inputs":["[1,null,2]"],"expected":"[[1],[2]]"},
+  {"inputs":["[1,2]"],"expected":"[[1],[2]]"},
+  {"inputs":["[1,2,3,4]"],"expected":"[[1],[2,3],[4]]"},
+  {"inputs":["[1,null,2,null,3]"],"expected":"[[1],[2],[3]]"},
+  {"inputs":["[5,3,7,1,4,6,8]"],"expected":"[[5],[3,7],[1,4,6,8]]"},
+  {"inputs":["[10]"],"expected":"[[10]]"},
+  {"inputs":["[1,2,2,3,4,4,3]"],"expected":"[[1],[2,2],[3,4,4,3]]"},
+  {"inputs":["[1,2,3,4,5]"],"expected":"[[1],[2,3],[4,5]]"},
+  {"inputs":["[1,2,3,null,4]"],"expected":"[[1],[2,3],[4]]"},
+  {"inputs":["[1,null,2,3]"],"expected":"[[1],[2],[3]]"},
+  {"inputs":["[0,-1,1]"],"expected":"[[0],[-1,1]]"},
+  {"inputs":["[100,50,150]"],"expected":"[[100],[50,150]]"},
+  {"inputs":["[1,2,3,4,5,6]"],"expected":"[[1],[2,3],[4,5,6]]"},
+  {"inputs":["[3,9,20]"],"expected":"[[3],[9,20]]"},
+  {"inputs":["[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]"],"expected":"[[1],[2,3],[4,5,6,7],[8,9,10,11,12,13,14,15]]"},
+  {"inputs":["[-1,0,-2,-3,-4]"],"expected":"[[-1],[0,-2],[-3,-4]]"},
+  {"inputs":["[7]"],"expected":"[[7]]"},
+  {"inputs":["[1,2,3,null,null,4,5]"],"expected":"[[1],[2,3],[4,5]]"},
+  {"inputs":["[5,4,8]"],"expected":"[[5],[4,8]]"},
+  {"inputs":["[2,1,3]"],"expected":"[[2],[1,3]]"}
+]'::jsonb WHERE id = 'level-order-traversal';
+

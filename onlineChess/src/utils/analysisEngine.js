@@ -47,6 +47,29 @@ export function getTopLinesAsync(fen, n = 3) {
 }
 
 /**
+ * Review a single move off the main thread.
+ * Returns { bestScore, bestUci, playedScore } with the same semantics as the
+ * prior synchronous reviewEngine calls. Cached per (fenBefore, fenAfter, depth).
+ */
+export function reviewMoveAsync(fenBefore, fenAfter, depth = 2) {
+  const key = `review:${fenBefore}:${fenAfter}:${depth}`;
+  if (cache.has(key)) return Promise.resolve(cache.get(key));
+
+  return new Promise((resolve) => {
+    const id = ++requestId;
+    pending.set(id, (result) => {
+      if (cache.size >= MAX_CACHE) {
+        const firstKey = cache.keys().next().value;
+        cache.delete(firstKey);
+      }
+      cache.set(key, result);
+      resolve(result);
+    });
+    getWorker().postMessage({ type: 'reviewMove', id, fenBefore, fenAfter, depth });
+  });
+}
+
+/**
  * Cancel all pending computations by terminating the worker.
  * A new worker is created lazily on the next request.
  */

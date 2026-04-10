@@ -1,5 +1,5 @@
 import { Chess } from 'chess.js';
-import { getLocalBestMoveWithScore, getPositionScore } from './localAI';
+import { reviewMoveAsync } from './analysisEngine';
 
 const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 const REVIEW_DEPTH = 2; // depth 2 is fast (~50ms per position) yet meaningful
@@ -57,10 +57,9 @@ export async function reviewGame(moveHistory, onProgress, signal) {
     const fenAfter  = moveHistory[i].fen;
     const isWhite   = moveHistory[i].color === 'w';
 
-    // Best achievable score from position before this move
-    const { score: bestScore, move: bestUci } = getLocalBestMoveWithScore(fenBefore, REVIEW_DEPTH);
-    // Score after the actual move played (opponent will respond optimally)
-    const playedScore = getPositionScore(fenAfter, REVIEW_DEPTH - 1);
+    // Off-main-thread evaluation via the analysis worker (with LRU cache).
+    // Same semantics as the prior synchronous calls — just not blocking the UI.
+    const { bestScore, bestUci, playedScore } = await reviewMoveAsync(fenBefore, fenAfter, REVIEW_DEPTH);
 
     const diff = isWhite
       ? playedScore - bestScore
@@ -92,7 +91,6 @@ export async function reviewGame(moveHistory, onProgress, signal) {
     });
 
     onProgress?.(i + 1, moveHistory.length, results);
-    await new Promise(r => setTimeout(r, 0)); // yield to UI thread
   }
 
   return results;
