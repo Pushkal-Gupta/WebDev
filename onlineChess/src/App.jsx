@@ -998,7 +998,6 @@ export default function App() {
                   <span className="online-room-id">Room: {onlineRoom?.id}</span>
                   {!gameOver && (
                     <div className="online-actions">
-                      <button className="online-btn hint-btn" onClick={handleGetHint}>Hint</button>
                       <button
                         className="online-btn undo-btn"
                         onClick={handleRequestUndo}

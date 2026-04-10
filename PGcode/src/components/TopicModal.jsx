@@ -12,7 +12,7 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
   const [userProgress, setUserProgress] = useState({});
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('problems');
-  const [width, setWidth] = useState(parseInt(localStorage.getItem('pgcode_sidebar_width')) || 750);
+  const [width, setWidth] = useState(parseInt(localStorage.getItem('pgcode_sidebar_width')) || 850);
   const isResizing = useRef(false);
 
   useEffect(() => {
@@ -112,7 +112,10 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
     const onMove = (ev) => {
       if (!isResizing.current) return;
       const newW = window.innerWidth - ev.clientX;
-      if (newW > 700 && newW < 950) setWidth(newW);
+      if (newW > 750 && newW < 1200) {
+        setWidth(newW);
+        localStorage.setItem('pgcode_sidebar_width', newW);
+      }
     };
 
     const onUp = () => {

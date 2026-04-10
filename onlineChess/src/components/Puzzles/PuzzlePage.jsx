@@ -88,6 +88,7 @@ export default function PuzzlePage() {
       setLastMoveFrom(null);
       setLastMoveTo(null);
     }
+    setShowTags(false);
   }, [puzzle?.id, status, setupMoveFrom, setupMoveTo]); // eslint-disable-line
 
   // Cleanup rush timer on unmount
@@ -166,6 +167,7 @@ export default function PuzzlePage() {
     setLastMoveFrom(null);
     setLastMoveTo(null);
     setFeedback(null);
+    setShowTags(false);
     if (mode === 'themes' && selectedTheme) {
       loadByTheme(selectedTheme, user?.id);
     } else {
@@ -177,6 +179,7 @@ export default function PuzzlePage() {
     setLastMoveFrom(null);
     setLastMoveTo(null);
     setFeedback(null);
+    setShowTags(false);
     setMode(newMode);
     if (newMode === 'rated') {
       loadNextPuzzle(user?.id);

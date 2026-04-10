@@ -142,58 +142,104 @@ export default function Workspace({ session, theme, roadmapMode }) {
   const MAX_VISIBLE_CASES = 8;
 
   const handleRun = async () => {
+    // Fall back to single raw execution for problems without driver metadata
+    if (!activeProblem.test_cases?.length || !activeProblem.method_name || !activeProblem.params) {
+      setLeftTab('testresult');
+      setRunning(true);
+      setRunResult(null);
+      setConsoleOutput('Running...');
+      try {
+        const result = await runCode(codeContent, activeLang, '');
+        if (result.status !== 'success') {
+          const statusMap = { compile_error: 'Compile Error', time_limit: 'Time Limit Exceeded', runtime_error: 'Runtime Error' };
+          setRunResult({ status: 'error', statusText: statusMap[result.status] || 'Error', error: result.output, isSubmission: false });
+          setConsoleOutput('');
+        } else {
+          setConsoleOutput(result.output);
+          setRunResult(null);
+        }
+      } catch (err) {
+        setRunResult({ status: 'error', statusText: 'Execution Failed', error: err.message, isSubmission: false });
+        setConsoleOutput('');
+      } finally {
+        setRunning(false);
+      }
+      return;
+    }
+
     setLeftTab('testresult');
     setRunning(true);
     setRunResult(null);
-    setConsoleOutput('Running...');
+    setConsoleOutput('');
+    const total = Math.min(activeProblem.test_cases.length, MAX_VISIBLE_CASES);
+    setSubmitProgress({ current: 0, total });
 
     try {
-      const hasDriver = activeProblem.method_name && activeProblem.params;
-      const fullCode = hasDriver
-        ? wrapWithDriver(codeContent, activeLang, activeProblem.method_name, activeProblem.params)
-        : codeContent;
-      const stdin = hasDriver ? buildStdin(testInputs) : '';
+      const fullCode = wrapWithDriver(codeContent, activeLang, activeProblem.method_name, activeProblem.params);
+      const params = activeProblem.params || [];
+      const cases = [];
+      let passedCount = 0;
+      let firstFailIdx = -1;
 
-      const result = await runCode(fullCode, activeLang, stdin);
+      for (let i = 0; i < total; i++) {
+        setSubmitProgress({ current: i + 1, total });
+        const tc = activeProblem.test_cases[i];
+        const stdin = buildStdin(tc.inputs);
+        const result = await runCode(fullCode, activeLang, stdin);
 
-      if (result.status !== 'success') {
-        const statusMap = { compile_error: 'Compile Error', time_limit: 'Time Limit Exceeded', runtime_error: 'Runtime Error' };
-        setRunResult({
-          status: 'error',
-          statusText: statusMap[result.status] || 'Error',
-          error: result.output,
-          isSubmission: false,
+        if (result.status !== 'success') {
+          // Compile error is code-level — will fail identically for all cases, so break early
+          if (result.status === 'compile_error') {
+            const statusMap = { compile_error: 'Compile Error', time_limit: 'Time Limit Exceeded', runtime_error: 'Runtime Error' };
+            setRunResult({
+              status: 'error',
+              statusText: statusMap[result.status] || 'Error',
+              error: result.output,
+              totalCases: total,
+              totalPassed: passedCount,
+              isSubmission: false,
+            });
+            return;
+          }
+          // Runtime error / TLE may be case-specific — record and continue
+          if (firstFailIdx === -1) firstFailIdx = i;
+          cases.push({
+            passed: false,
+            input: params.map((p, j) => ({ name: p.name, value: tc.inputs[j] || '' })),
+            output: result.output?.trim() || '(Error)',
+            expected: tc.expected,
+          });
+          continue;
+        }
+
+        const passed = compareOutput(result.output, tc.expected);
+        if (passed) passedCount++;
+        if (!passed && firstFailIdx === -1) firstFailIdx = i;
+
+        cases.push({
+          passed,
+          input: params.map((p, j) => ({ name: p.name, value: tc.inputs[j] || '' })),
+          output: result.output.trim(),
+          expected: tc.expected,
         });
-        setConsoleOutput('');
-        return;
       }
 
-      const testCase = activeProblem.test_cases?.[activeTestIdx];
-      if (testCase && hasDriver) {
-        const passed = compareOutput(result.output, testCase.expected);
-        const params = activeProblem.params || [];
-        setRunResult({
-          status: passed ? 'accepted' : 'wrong_answer',
-          statusText: passed ? 'Accepted' : 'Wrong Answer',
-          cases: [{
-            passed,
-            input: params.map((p, i) => ({ name: p.name, value: testInputs[i] || '' })),
-            output: result.output.trim(),
-            expected: testCase.expected,
-          }],
-          activeCaseIdx: 0,
-          isSubmission: false,
-        });
-        setConsoleOutput('');
-      } else {
-        setConsoleOutput(result.output);
-        setRunResult(null);
-      }
+      const allPassed = passedCount === total;
+      setRunResult({
+        status: allPassed ? 'accepted' : 'wrong_answer',
+        statusText: allPassed ? 'Accepted' : 'Wrong Answer',
+        cases,
+        activeCaseIdx: firstFailIdx >= 0 ? firstFailIdx : 0,
+        totalCases: total,
+        totalPassed: passedCount,
+        isSubmission: false,
+      });
+      setResultCaseIdx(firstFailIdx >= 0 ? firstFailIdx : 0);
     } catch (err) {
       setRunResult({ status: 'error', statusText: 'Execution Failed', error: err.message, isSubmission: false });
-      setConsoleOutput('');
     } finally {
       setRunning(false);
+      setSubmitProgress(null);
     }
   };
 
@@ -378,7 +424,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
             <button className={`ws-tab ${leftTab === 'testcase' ? 'active' : ''}`} onClick={() => setLeftTab('testcase')}>
               <TestTube size={13} /> Testcase
             </button>
-            {consoleOutput && (
+            {(consoleOutput || runResult || running) && (
               <button className={`ws-tab ${leftTab === 'testresult' ? 'active' : ''}`} onClick={() => setLeftTab('testresult')}>
                 Test Result
               </button>
@@ -575,7 +621,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
                     {/* Status header */}
                     <div className={`ws-result-status ${runResult.status === 'accepted' ? 'accepted' : runResult.status === 'wrong_answer' ? 'wrong-answer' : 'error'}`}>
                       {runResult.statusText}
-                      {runResult.isSubmission && runResult.totalCases && (
+                      {runResult.totalCases && (
                         <span className="ws-result-subtitle">
                           {runResult.totalPassed}/{runResult.totalCases} testcases passed
                         </span>
