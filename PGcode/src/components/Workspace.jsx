@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import Editor from '@monaco-editor/react';
@@ -38,14 +38,55 @@ export default function Workspace({ session, theme, roadmapMode }) {
   const editorRef = useRef(null);
 
   // Lock page scroll while Workspace is mounted — only inner panes scroll.
-  useEffect(() => {
-    const prevHtml = document.documentElement.style.overflow;
-    const prevBody = document.body.style.overflow;
+  // Measure the nav height at runtime and expose as --pg-nav-h so
+  // .ws-container can take exactly (100dvh - nav) regardless of theme/resize.
+  // useLayoutEffect so the measurement happens BEFORE first paint (no flicker).
+  useLayoutEffect(() => {
+    const root = document.getElementById('root');
+    const prev = {
+      htmlOverflow: document.documentElement.style.overflow,
+      htmlHeight: document.documentElement.style.height,
+      bodyOverflow: document.body.style.overflow,
+      bodyHeight: document.body.style.height,
+      rootHeight: root?.style.height,
+      rootMinHeight: root?.style.minHeight,
+      rootOverflow: root?.style.overflow,
+      navVar: document.documentElement.style.getPropertyValue('--pg-nav-h'),
+    };
     document.documentElement.style.overflow = 'hidden';
+    document.documentElement.style.height = '100dvh';
     document.body.style.overflow = 'hidden';
+    document.body.style.height = '100dvh';
+    if (root) {
+      root.style.height = '100dvh';
+      root.style.minHeight = '0';
+      root.style.overflow = 'hidden';
+    }
+
+    const measureNav = () => {
+      const nav = document.querySelector('.pg-header');
+      const h = nav ? Math.ceil(nav.getBoundingClientRect().height) : 0;
+      document.documentElement.style.setProperty('--pg-nav-h', `${h}px`);
+    };
+    measureNav();
+    const ro = new ResizeObserver(measureNav);
+    const nav = document.querySelector('.pg-header');
+    if (nav) ro.observe(nav);
+    window.addEventListener('resize', measureNav);
+
     return () => {
-      document.documentElement.style.overflow = prevHtml;
-      document.body.style.overflow = prevBody;
+      ro.disconnect();
+      window.removeEventListener('resize', measureNav);
+      document.documentElement.style.overflow = prev.htmlOverflow;
+      document.documentElement.style.height = prev.htmlHeight;
+      document.body.style.overflow = prev.bodyOverflow;
+      document.body.style.height = prev.bodyHeight;
+      if (root) {
+        root.style.height = prev.rootHeight;
+        root.style.minHeight = prev.rootMinHeight;
+        root.style.overflow = prev.rootOverflow;
+      }
+      document.documentElement.style.setProperty('--pg-nav-h', prev.navVar);
     };
   }, []);
 
