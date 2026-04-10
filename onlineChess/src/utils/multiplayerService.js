@@ -46,7 +46,7 @@ export async function joinRoom({ roomId, guestId, guestName }) {
   }).eq('id', code);
   if (error) throw new Error(error.message);
 
-  return room;
+  return { ...room, guest_id: guestId, guest_name: guestName, status: 'playing' };
 }
 
 export async function getRoom(roomId) {
@@ -74,10 +74,24 @@ export function subscribeToRoom(roomId, handlers = {}) {
     .on('broadcast', { event: 'join' },          ({ payload }) => handlers.onOpponentJoined?.(payload))
     .on('broadcast', { event: 'draw' },          ({ payload }) => handlers.onDrawOffer?.(payload))
     .on('broadcast', { event: 'undo-request' },  ({ payload }) => handlers.onUndoRequest?.(payload))
-    .on('broadcast', { event: 'undo-response' }, ({ payload }) => handlers.onUndoResponse?.(payload))
-    .subscribe();
+    .on('broadcast', { event: 'undo-response' }, ({ payload }) => handlers.onUndoResponse?.(payload));
 
-  return channel;
+  // Return a promise that resolves to the channel once the subscription is fully
+  // established. Without this, broadcasts can be sent/received before the
+  // channel is ready, causing the host to never see a friend's join event.
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    channel.subscribe((status) => {
+      if (settled) return;
+      if (status === 'SUBSCRIBED') {
+        settled = true;
+        resolve(channel);
+      } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+        settled = true;
+        reject(new Error(`Realtime subscribe failed: ${status}`));
+      }
+    });
+  });
 }
 
 export async function broadcastMove(channel, { from, to, promotion, fen }) {

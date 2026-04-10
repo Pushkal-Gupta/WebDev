@@ -911,11 +911,10 @@ const usePuzzleStore = create((set, get) => ({
 
     set({ reviewIndex: newIndex, currentFen: fen });
 
-    // Return the move SAN so caller can play the appropriate sound
-    if (direction > 0 && newIndex > 0) {
-      return solutionMoves[newIndex - 1] || null;
-    }
-    return { san: '' }; // stepping back, no special sound
+    // Always return the move that produced the *current* position (newIndex),
+    // so the caller can highlight it. For newIndex 0 there is no move.
+    if (newIndex === 0) return null;
+    return solutionMoves[newIndex - 1] || null;
   },
 
   // ── Retry puzzle ──────────────────────────────────────────────────────────

@@ -96,14 +96,21 @@ export default function PuzzlePage() {
     return () => stopRushTimer();
   }, []); // eslint-disable-line
 
-  // Review step with sound
+  // Review step with sound + move highlighting
   const doReviewStep = useCallback((dir) => {
     const moveInfo = reviewStep(dir);
-    if (moveInfo && moveInfo.san) {
-      const san = moveInfo.san;
+    if (moveInfo && moveInfo.uci) {
+      const uci = moveInfo.uci;
+      setLastMoveFrom([rankToRow(uci[1]), fileToCol(uci[0])]);
+      setLastMoveTo([rankToRow(uci[3]), fileToCol(uci[2])]);
+      const san = moveInfo.san || '';
       if (san.includes('#') || san.includes('+')) playSound('check');
       else if (san.includes('x')) playSound('capture');
       else playSound('move');
+    } else {
+      // Stepped to the start position — no move to highlight
+      setLastMoveFrom(null);
+      setLastMoveTo(null);
     }
   }, [reviewStep]);
 
@@ -329,7 +336,7 @@ export default function PuzzlePage() {
                   )}
                   {isFinished && (
                     <>
-                      <button className={styles.nextBtn} onClick={() => enterReviewMode()}>
+                      <button className={styles.nextBtn} onClick={() => { setLastMoveFrom(null); setLastMoveTo(null); enterReviewMode(); }}>
                         {reviewMode ? 'Reviewing...' : 'Review Solution'}
                       </button>
                       {reviewMode && (
@@ -417,7 +424,7 @@ export default function PuzzlePage() {
                     <button className={styles.nextBtn} onClick={handleNext}>Next Puzzle</button>
                     <button className={styles.skipBtn} onClick={handleRetry}>Retry</button>
                   </div>
-                  <button className={styles.skipBtn} onClick={() => enterReviewMode()}>
+                  <button className={styles.skipBtn} onClick={() => { setLastMoveFrom(null); setLastMoveTo(null); enterReviewMode(); }}>
                     {reviewMode ? 'Reviewing...' : 'Review Solution'}
                   </button>
                   {reviewMode && (
@@ -520,7 +527,7 @@ export default function PuzzlePage() {
                         <button className={styles.nextBtn} onClick={handleNext}>Next Puzzle</button>
                         <button className={styles.skipBtn} onClick={handleRetry}>Retry</button>
                       </div>
-                      <button className={styles.skipBtn} onClick={() => enterReviewMode()}>
+                      <button className={styles.skipBtn} onClick={() => { setLastMoveFrom(null); setLastMoveTo(null); enterReviewMode(); }}>
                         {reviewMode ? 'Reviewing...' : 'Review Solution'}
                       </button>
                       {reviewMode && (
