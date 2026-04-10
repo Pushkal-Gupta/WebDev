@@ -6,13 +6,21 @@ import { Chess } from 'chess.js';
 import { getPositionScore, getLocalBestMoveWithScore } from './localAI';
 
 self.onmessage = (e) => {
-  const { type, id, fen, n } = e.data;
+  const { type, id, fen, n, fenBefore, fenAfter, depth } = e.data;
   if (type === 'getTopLines') {
     try {
       const result = computeTopLines(fen, n);
       self.postMessage({ id, result });
     } catch (err) {
       self.postMessage({ id, result: [], error: err.message });
+    }
+  } else if (type === 'reviewMove') {
+    try {
+      const { score: bestScore, move: bestUci } = getLocalBestMoveWithScore(fenBefore, depth);
+      const playedScore = getPositionScore(fenAfter, Math.max(0, depth - 1));
+      self.postMessage({ id, result: { bestScore, bestUci, playedScore } });
+    } catch (err) {
+      self.postMessage({ id, result: null, error: err.message });
     }
   }
 };
