@@ -209,17 +209,17 @@
 .ws-editor-area { flex: 1; min-height: 0; }
 
 /* ── Editor Footer ── */
-.ws-editor-footer { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.8rem; border-top: 1px solid var(--border); background: var(--surface); flex-shrink: 0; min-height: 44px; }
+.ws-editor-footer { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border-top: 1px solid var(--border); background: var(--surface); flex-shrink: 0; min-height: 56px; }
 
 .ws-footer-left { display: flex; align-items: center; gap: 0.8rem; }
 .ws-cursor-pos { font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim); }
 .ws-editor-status { font-family: var(--mono); font-size: 0.7rem; color: #48c78e; }
 
-.ws-footer-btns { display: flex; gap: 0.5rem; flex-shrink: 0; }
-.ws-run-btn { padding: 0.55rem 1.6rem; border-radius: 6px; font-family: var(--sans); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all var(--t); background: none; border: 1px solid var(--border); color: var(--text-main); }
+.ws-footer-btns { display: flex; gap: 0.6rem; flex-shrink: 0; align-items: center; }
+.ws-run-btn { padding: 0.65rem 1.8rem; border-radius: 6px; font-family: var(--sans); font-size: 0.92rem; font-weight: 600; line-height: 1.2; cursor: pointer; transition: all var(--t); background: none; border: 1px solid var(--border); color: var(--text-main); }
 .ws-run-btn:hover { border-color: var(--text-main); }
 .ws-run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.ws-submit-btn { padding: 0.55rem 1.6rem; border-radius: 6px; font-family: var(--sans); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all var(--t); background: #48c78e; border: none; color: #fff; }
+.ws-submit-btn { padding: 0.65rem 1.8rem; border-radius: 6px; font-family: var(--sans); font-size: 0.92rem; font-weight: 600; line-height: 1.2; cursor: pointer; transition: all var(--t); background: #48c78e; border: none; color: #fff; }
 .ws-submit-btn:hover { background: #3ab07a; }
 .ws-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
