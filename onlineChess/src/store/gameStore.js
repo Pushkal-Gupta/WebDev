@@ -411,7 +411,8 @@ const useGameStore = create((set, get) => ({
   },
 
   checkGameOver: () => {
-    const { chessInstance } = get();
+    const { chessInstance, gameOver } = get();
+    if (gameOver) return;
     if (!chessInstance) return;
 
     let message = '';
@@ -447,9 +448,8 @@ const useGameStore = create((set, get) => ({
   },
 
   tickTimer: () => {
-    const { activeColor, whiteTime, blackTime, timerRunning, gameOver, timeControl, delayRemaining, isComp, compThinking } = get();
+    const { activeColor, whiteTime, blackTime, timerRunning, gameOver, timeControl, delayRemaining } = get();
     if (!timerRunning || gameOver) return;
-    if (isComp && compThinking) return; // Don't tick clock while computer is thinking
     // Simple delay: hold clock for delay seconds at start of each turn
     if (timeControl?.delayType === 'simple' && delayRemaining > 0) {
       set({ delayRemaining: delayRemaining - 1 });

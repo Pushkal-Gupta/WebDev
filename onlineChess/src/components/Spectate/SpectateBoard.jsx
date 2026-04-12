@@ -92,7 +92,7 @@ export default function SpectateBoard({ room, onBack }) {
       },
       onResign({ userId }) {
         const name = userId === room?.host_id ? (room?.host_name) : (room?.guest_name);
-        setResigned(name || 'A player');
+        setResigned(prev => prev || name || 'A player');
       },
     }).then((channel) => {
       if (cancelled) {

@@ -234,9 +234,6 @@ export default function App() {
       const fen = chessInstance.fen();
       setCompThinking(true);
       setDisableBoard(true);
-      const compIsWhite = compColor === 'white';
-      const clockKey = compIsWhite ? 'whiteTime' : 'blackTime';
-      const clockBefore = useGameStore.getState()[clockKey];
       const thinkStart = Date.now();
       try {
         let bestMove;
@@ -267,17 +264,6 @@ export default function App() {
           promotion,
           true
         );
-        // Deduct simulated think time (real clock is paused while compThinking)
-        const st = useGameStore.getState();
-        if (st.timeControl && !st.gameOver) {
-          const inc = st.timeControl.incr || 0;
-          const remaining = st[clockKey];
-          // Simulated think time: 2-5% of remaining, clamped [1, 10] seconds
-          const simThink = Math.max(1, Math.min(10, Math.round(remaining * (0.02 + Math.random() * 0.03))));
-          const correctTime = Math.max(0, remaining - simThink + inc);
-          useGameStore.setState({ [clockKey]: correctTime });
-          if (correctTime <= 0) st.timeExpired(compIsWhite ? 'w' : 'b');
-        }
       } catch (e) {
         console.error('Computer move failed:', e);
         setAlertMsg('Computer move error.');
@@ -456,6 +442,7 @@ export default function App() {
   };
 
   const onOpponentResign = () => {
+    if (useGameStore.getState().gameOver) return;
     const myColor = useGameStore.getState().onlineColor;
     const winner  = myColor === 'white' ? 'White' : 'Black';
     useGameStore.setState({
@@ -465,6 +452,10 @@ export default function App() {
       disableBoard: true,
       gameResult: { winner: winner.toLowerCase(), reason: 'resign' },
     });
+    if (onlineChannelRef.current) {
+      unsubscribe(onlineChannelRef.current);
+      onlineChannelRef.current = null;
+    }
   };
 
   const handleCreateRoom = async () => {
@@ -549,6 +540,7 @@ export default function App() {
   const handleLocalResign = () => {
     if (!gameStarted || gameOver) return;
     confirmActionRef.current = () => {
+      if (useGameStore.getState().gameOver) return;
       const state = useGameStore.getState();
       // In computer mode, human is opposite of compColor; in pass-and-play, active player resigns
       const myColor = state.isComp
@@ -570,6 +562,7 @@ export default function App() {
   const handleOnlineResign = () => {
     if (!onlineChannelRef.current || useGameStore.getState().gameOver) return;
     confirmActionRef.current = async () => {
+      if (useGameStore.getState().gameOver || !onlineChannelRef.current) return;
       await broadcastResign(onlineChannelRef.current, user.id);
       const myColor = useGameStore.getState().onlineColor;
       const winner  = myColor === 'white' ? 'Black' : 'White'; // I resigned

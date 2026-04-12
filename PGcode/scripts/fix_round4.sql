@@ -1,0 +1,7 @@
+-- Auto-regenerated expected outputs
+BEGIN;
+
+-- swim-in-water: 24 cases regenerated
+UPDATE public."PGcode_problems" SET test_cases = '[{"inputs":["[[0,2],[1,3]]"],"expected":"3"},{"inputs":["[[0]]"],"expected":"0"},{"inputs":["[[0,1,2,3,4],[24,23,22,21,5],[12,13,14,15,16],[11,17,18,19,20],[10,9,8,7,6]]"],"expected":"16"},{"inputs":["[[0,1],[2,3]]"],"expected":"3"},{"inputs":["[[0,1],[3,2]]"],"expected":"2"},{"inputs":["[[1,0],[2,3]]"],"expected":"3"},{"inputs":["[[0,1,2],[3,4,5],[6,7,8]]"],"expected":"8"},{"inputs":["[[0,2,1],[1,3,2],[2,4,3]]"],"expected":"3"},{"inputs":["[[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]]"],"expected":"15"},{"inputs":["[[3,2],[1,0]]"],"expected":"3"},{"inputs":["[[0,5],[5,1]]"],"expected":"5"},{"inputs":["[[0,1,2],[5,4,3],[6,7,8]]"],"expected":"8"},{"inputs":["[[0,3],[2,1]]"],"expected":"2"},{"inputs":["[[0,2,3],[1,4,5],[6,7,8]]"],"expected":"8"},{"inputs":["[[0,1],[1,0]]"],"expected":"1"},{"inputs":["[[0,2],[3,1]]"],"expected":"2"},{"inputs":["[[0,1,2,3,4]]"],"expected":"0"},{"inputs":["[[0,3],[1,2]]"],"expected":"2"},{"inputs":["[[0,2],[1,3]]"],"expected":"3"},{"inputs":["[[0,1],[3,2]]"],"expected":"2"},{"inputs":["[[0,1,2],[7,8,3],[6,5,4]]"],"expected":"4"},{"inputs":["[[0,1,3],[2,5,4],[6,7,8]]"],"expected":"8"},{"inputs":["[[7,34,16,12,15,0],[10,26,4,30,1,20],[28,27,33,35,3,8],[29,9,13,14,11,32],[31,21,23,24,19,18],[22,6,17,5,2,25]]"],"expected":"26"},{"inputs":["[[0,1],[2,3]]"],"expected":"3"}]'::jsonb WHERE id = 'swim-in-water';
+
+COMMIT;
