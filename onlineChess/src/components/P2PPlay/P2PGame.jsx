@@ -153,7 +153,9 @@ export default function P2PGame({ myColor, onExit }) {
   const interactive = myTurn && !promotion;
 
   const endGame = useCallback((msg) => {
+    if (statusRef.current === 'over') return;
     clearInterval(timerRef.current);
+    statusRef.current = 'over';
     setStatus('over');
     setResult(msg);
   }, []);

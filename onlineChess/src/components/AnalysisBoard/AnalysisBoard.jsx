@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useId, useMemo, useCallback, memo } from '
 import Board from '../Board/Board';
 import styles from './AnalysisBoard.module.css';
 import useGameStore from '../../store/gameStore';
-import { getTopLinesAsync, cancelPending, precomputeAll } from '../../utils/analysisEngine';
+import { getTopLinesAsync, cancelPending, precomputeProgressive } from '../../utils/analysisEngine';
 import { Chess } from 'chess.js';
 import { CLASSIFICATIONS, reviewGame } from '../../utils/reviewEngine';
 import { fetchChessComGames } from '../../utils/chessComService';
@@ -436,15 +436,33 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
     if (!chessInstance || !gameLoaded) return;
     try { setPgnHeaders(chessInstance.header?.() || {}); } catch { setPgnHeaders({}); }
     setEvalHistory([]);
-    // Pre-compute evaluations for all positions with progress
     const fens = moveHistory.map(m => m.fen).filter(Boolean);
-    if (fens.length) {
-      setIsPrecomputing(true);
-      setPrecomputeProgress({ current: 0, total: fens.length });
-      precomputeAll(fens, 3, (cur, tot) => setPrecomputeProgress({ current: cur, total: tot }))
-        .then(() => setIsPrecomputing(false))
-        .catch(() => setIsPrecomputing(false));
-    }
+    if (!fens.length) return;
+    setIsPrecomputing(true);
+    setPrecomputeProgress({ current: 0, total: fens.length, phase: 'shallow' });
+    const controller = new AbortController();
+    precomputeProgressive(fens, {
+      n: 3,
+      shallowDepth: 1,
+      deepDepth: 2,
+      signal: controller.signal,
+      onProgress(cur, tot, phase) {
+        setPrecomputeProgress({ current: cur, total: tot, phase });
+      },
+      onPositionDone(idx, _fen, result, phase) {
+        if (!result?.length) return;
+        const score = result[0].score;
+        setEvalHistory(prev => {
+          const next = [...prev];
+          if (phase === 'shallow' && next[idx] !== undefined) return prev;
+          next[idx] = score;
+          return next;
+        });
+      },
+    })
+      .then(() => setIsPrecomputing(false))
+      .catch(() => setIsPrecomputing(false));
+    return () => controller.abort();
   }, [gameLoaded]);
 
   useEffect(() => {

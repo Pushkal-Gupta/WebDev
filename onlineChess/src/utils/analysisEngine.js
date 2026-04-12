@@ -28,8 +28,8 @@ function getWorker() {
  * Get top N engine lines for a position (async, off main thread).
  * Results are cached — repeated calls for the same FEN return instantly.
  */
-export function getTopLinesAsync(fen, n = 3) {
-  const key = `${fen}:${n}`;
+export function getTopLinesAsync(fen, n = 3, depth = 2) {
+  const key = `${fen}:${n}:${depth}`;
   if (cache.has(key)) return Promise.resolve(cache.get(key));
 
   return new Promise((resolve) => {
@@ -42,7 +42,7 @@ export function getTopLinesAsync(fen, n = 3) {
       cache.set(key, result);
       resolve(result);
     });
-    getWorker().postMessage({ type: 'getTopLines', id, fen, n });
+    getWorker().postMessage({ type: 'getTopLines', id, fen, n, depth });
   });
 }
 
@@ -99,5 +99,37 @@ export async function precomputeAll(fens, n = 3, onProgress = null) {
     await getTopLinesAsync(fen, n);
     completed++;
     if (onProgress) onProgress(completed, total);
+  }
+}
+
+/**
+ * Progressive two-pass precompute: shallow pass first (fast), then deep pass.
+ * Each pass fires per-position callbacks so the UI can update incrementally.
+ * @param {string[]} fens
+ * @param {object} opts
+ * @returns {Promise<void>}
+ */
+export async function precomputeProgressive(fens, {
+  n = 3,
+  shallowDepth = 1,
+  deepDepth = 2,
+  onProgress = null,
+  onPositionDone = null,
+  signal = null,
+} = {}) {
+  const total = fens.length;
+  // Shallow pass — fast rough evals
+  for (let i = 0; i < total; i++) {
+    if (signal?.aborted) return;
+    const result = await getTopLinesAsync(fens[i], n, shallowDepth);
+    onPositionDone?.(i, fens[i], result, 'shallow');
+    onProgress?.(i + 1, total, 'shallow');
+  }
+  // Deep pass — refined evals
+  for (let i = 0; i < total; i++) {
+    if (signal?.aborted) return;
+    const result = await getTopLinesAsync(fens[i], n, deepDepth);
+    onPositionDone?.(i, fens[i], result, 'deep');
+    onProgress?.(i + 1, total, 'deep');
   }
 }

@@ -9,7 +9,7 @@ self.onmessage = (e) => {
   const { type, id, fen, n, fenBefore, fenAfter, depth } = e.data;
   if (type === 'getTopLines') {
     try {
-      const result = computeTopLines(fen, n);
+      const result = computeTopLines(fen, n, depth);
       self.postMessage({ id, result });
     } catch (err) {
       self.postMessage({ id, result: [], error: err.message });
@@ -25,7 +25,7 @@ self.onmessage = (e) => {
   }
 };
 
-function computeTopLines(fen, n = 3) {
+function computeTopLines(fen, n = 3, depth = 2) {
   const chess = new Chess(fen);
   if (chess.isGameOver()) return [];
   const moves = chess.moves({ verbose: true });
@@ -33,7 +33,7 @@ function computeTopLines(fen, n = 3) {
   const isMax = chess.turn() === 'w';
   const scored = moves.map(m => {
     chess.move(m);
-    const score = getPositionScore(chess.fen(), 2);
+    const score = getPositionScore(chess.fen(), depth);
     chess.undo();
     return { move: m, score };
   });

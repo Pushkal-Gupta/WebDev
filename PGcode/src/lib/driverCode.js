@@ -239,6 +239,33 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
   const retIsTree = isTreeNodeType(returnType);
 
   if (language === 'python') {
+    // Operations runner: design-class problems whose tests are [["ClassName"],[op,args...],...]
+    const isOps = params.length === 1 && params[0].name === 'operations'
+                  && params[0].type && params[0].type.startsWith('List[List');
+    if (isOps) {
+      return [
+        'import sys, json',
+        'from typing import List, Optional, Dict, Tuple, Set',
+        PY_HELPERS,
+        userCode,
+        '',
+        '_ops = json.loads(sys.stdin.read().strip())',
+        '_results = []',
+        '_instance = None',
+        'for _op in _ops:',
+        '    _name = _op[0]',
+        '    _args = _op[1:]',
+        '    if _instance is None:',
+        '        _cls = globals()[_name]',
+        '        _instance = _cls(*_args)',
+        '        _results.append(None)',
+        '    else:',
+        '        _ret = getattr(_instance, _name)(*_args)',
+        '        _results.append(_ret)',
+        'print(json.dumps(_results))',
+      ].join('\n');
+    }
+
     const parsing = params.map((p, i) => {
       if (isListNodeType(p.type)) return `${p.name} = _to_list(json.loads(_lines[${i}]))`;
       if (isTreeNodeType(p.type)) return `${p.name} = _to_tree(json.loads(_lines[${i}]))`;
