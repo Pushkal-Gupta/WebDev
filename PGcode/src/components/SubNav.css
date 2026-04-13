@@ -2,9 +2,6 @@
 .sub-nav {
   background: var(--bg);
   border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  z-index: 899;
 }
 
 .sub-nav-inner {

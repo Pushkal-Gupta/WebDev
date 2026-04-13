@@ -157,3 +157,120 @@ button {
 .skel-text-short { height: 14px; width: 35%; }
 .skel-circle { width: 18px; height: 18px; border-radius: 50%; }
 .skel-row-full { height: 42px; width: 100%; }
+
+/* ── Onboarding Hero ── */
+.onboarding-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2rem 2rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  animation: heroSlideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes heroSlideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.onboarding-content {
+  max-width: 720px;
+}
+
+.onboarding-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.3rem;
+}
+
+.onboarding-desc {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-bottom: 0.8rem;
+}
+
+.onboarding-desc strong {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.onboarding-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.onboarding-cta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: opacity var(--t);
+}
+
+.onboarding-cta:hover {
+  opacity: 0.85;
+}
+
+.onboarding-dismiss {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color var(--t);
+}
+
+.onboarding-dismiss:hover {
+  color: var(--text-main);
+}
+
+.onboarding-close {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.8rem;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 0.3rem;
+  border-radius: 4px;
+  transition: color var(--t);
+}
+
+.onboarding-close:hover {
+  color: var(--text-main);
+}
+
+@media (max-width: 768px) {
+  .onboarding-hero {
+    padding: 1rem;
+  }
+
+  .onboarding-title {
+    font-size: 1rem;
+  }
+
+  .onboarding-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

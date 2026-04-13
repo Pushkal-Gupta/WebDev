@@ -38,6 +38,12 @@ export default function Workspace({ session, theme, roadmapMode }) {
   const [submissions, setSubmissions] = useState([]);
   // Success animation
   const [showSuccess, setShowSuccess] = useState(false);
+  // Pattern breakdown for post-solve
+  const [similarProblems, setSimilarProblems] = useState([]);
+  // Solve timer
+  const [timerSeconds, setTimerSeconds] = useState(0);
+  const [timerPaused, setTimerPaused] = useState(false);
+  const timerRef = useRef(null);
   const editorRef = useRef(null);
 
   // Lock page scroll while Workspace is mounted — only inner panes scroll.
@@ -96,6 +102,27 @@ export default function Workspace({ session, theme, roadmapMode }) {
   const [leftWidth, setLeftWidth] = useState(
     () => parseInt(localStorage.getItem('pgcode_split')) || 45
   );
+
+  // Timer: tick every second when not paused
+  useEffect(() => {
+    timerRef.current = setInterval(() => {
+      if (!timerPaused) setTimerSeconds(s => s + 1);
+    }, 1000);
+    return () => clearInterval(timerRef.current);
+  }, [timerPaused]);
+
+  // Timer: pause on tab visibility change
+  useEffect(() => {
+    const handler = () => setTimerPaused(document.hidden);
+    document.addEventListener('visibilitychange', handler);
+    return () => document.removeEventListener('visibilitychange', handler);
+  }, []);
+
+  // Timer: reset when problem changes
+  useEffect(() => {
+    setTimerSeconds(0);
+    setTimerPaused(false);
+  }, [activeProblem?.id]);
 
   // Fetch topic + problems
   useEffect(() => {
@@ -445,6 +472,16 @@ export default function Workspace({ session, theme, roadmapMode }) {
         // Trigger success animation
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 2000);
+        // Fetch similar problems by tags
+        if (activeProblem?.tags?.length > 0) {
+          supabase
+            .from('PGcode_problems')
+            .select('id, name, topic_id, difficulty, tags')
+            .overlaps('tags', activeProblem.tags)
+            .neq('id', activeProblem.id)
+            .limit(5)
+            .then(({ data }) => setSimilarProblems(data || []));
+        }
         if (session?.user) {
           saveProgress({
             is_completed: true,
@@ -593,6 +630,9 @@ export default function Workspace({ session, theme, roadmapMode }) {
                 <div className="ws-q-tags">
                   <span className={`ws-diff-badge ws-diff-${activeProblem.difficulty?.toLowerCase()}`}>{activeProblem.difficulty}</span>
                   {topic?.category && <span className="ws-tag-pill">{topic.category}</span>}
+                  {(activeProblem.tags || []).map(t => (
+                    <span key={t} className="ws-tag-pill ws-tag-pattern">{t}</span>
+                  ))}
                 </div>
 
                 <div className="ws-q-desc" dangerouslySetInnerHTML={{ __html: activeProblem.description }} />
@@ -813,6 +853,10 @@ export default function Workspace({ session, theme, roadmapMode }) {
                           <span className="ws-submit-stat-value">{runResult.runtime}ms</span>
                         </div>
                         <div className="ws-submit-stat">
+                          <span className="ws-submit-stat-label">Solve Time</span>
+                          <span className="ws-submit-stat-value">{Math.floor(timerSeconds / 60)}m {timerSeconds % 60}s</span>
+                        </div>
+                        <div className="ws-submit-stat">
                           <span className="ws-submit-stat-label">Language</span>
                           <span className="ws-submit-stat-value">{activeLang}</span>
                         </div>
@@ -827,6 +871,31 @@ export default function Workspace({ session, theme, roadmapMode }) {
                     {/* Success message for accepted submit with no cases array */}
                     {runResult.isSubmission && runResult.status === 'accepted' && !runResult.cases?.length && (
                       <p className="ws-success-msg">You have successfully completed this problem!</p>
+                    )}
+
+                    {/* Pattern Breakdown — shown after accepted submission */}
+                    {runResult.isSubmission && runResult.status === 'accepted' && activeProblem?.tags?.length > 0 && (
+                      <div className="ws-pattern-breakdown">
+                        <div className="ws-pb-header">Pattern Breakdown</div>
+                        <div className="ws-pb-tags">
+                          {activeProblem.tags.map((t, i) => (
+                            <span key={t} className={`ws-pb-tag ${i === 0 ? 'primary' : ''}`}>
+                              {i === 0 ? 'Primary: ' : ''}{t}
+                            </span>
+                          ))}
+                        </div>
+                        {similarProblems.length > 0 && (
+                          <div className="ws-pb-similar">
+                            <div className="ws-pb-similar-label">Similar problems using these patterns:</div>
+                            {similarProblems.map(sp => (
+                              <Link key={sp.id} to={`/category/${sp.topic_id}/${sp.id}`} className="ws-pb-similar-item">
+                                <span className="ws-pb-similar-name">{sp.name}</span>
+                                <span className={`ws-pb-similar-diff ws-diff-${sp.difficulty?.toLowerCase()}`}>{sp.difficulty}</span>
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     )}
 
                     {/* Case tabs — only shown for Run (not Submit). Submit shows only the failing case directly. */}
@@ -902,11 +971,16 @@ export default function Workspace({ session, theme, roadmapMode }) {
         <div className="ws-right" style={{ width: `${100 - leftWidth}%` }}>
           <div className="ws-editor-header">
             <div className="ws-editor-label"><Code2 size={14} /> Code</div>
-            <select className="ws-lang" value={activeLang} onChange={e => setActiveLang(e.target.value)}>
-              <option value="python">Python3</option>
-              <option value="javascript">JavaScript</option>
-              <option value="java">Java</option>
-            </select>
+            <div className="ws-editor-header-right">
+              <span className={`ws-timer ${timerPaused ? 'paused' : ''}`} title={timerPaused ? 'Paused (tab hidden)' : 'Timer running'}>
+                {String(Math.floor(timerSeconds / 60)).padStart(2, '0')}:{String(timerSeconds % 60).padStart(2, '0')}
+              </span>
+              <select className="ws-lang" value={activeLang} onChange={e => setActiveLang(e.target.value)}>
+                <option value="python">Python3</option>
+                <option value="javascript">JavaScript</option>
+                <option value="java">Java</option>
+              </select>
+            </div>
           </div>
 
           <div className="ws-editor-area">
