@@ -2,9 +2,9 @@ import { useState, useEffect, useRef, useId, useMemo, useCallback, memo } from '
 import Board from '../Board/Board';
 import styles from './AnalysisBoard.module.css';
 import useGameStore from '../../store/gameStore';
-import { getTopLinesAsync, cancelPending, precomputeProgressive } from '../../utils/analysisEngine';
+import { getTopLinesAsync, cancelPending, analyzeGame, ANALYSIS_PASSES } from '../../utils/analysisEngine';
 import { Chess } from 'chess.js';
-import { CLASSIFICATIONS, reviewGame } from '../../utils/reviewEngine';
+import { CLASSIFICATIONS, classifyFromEvals } from '../../utils/reviewEngine';
 import { fetchChessComGames } from '../../utils/chessComService';
 import { fetchLichessGames } from '../../utils/lichessService';
 import BoardEditor from './BoardEditor';
@@ -329,7 +329,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
   const [engineBusy, setEngineBusy]         = useState(false);
   const [reviewResults, setReviewResults]   = useState(null);
   const [isReviewing, setIsReviewing]       = useState(false);
-  const [reviewProgress, setReviewProgress] = useState({ current: 0, total: 0 });
+  // reviewProgress is now handled via precomputeProgress (Stockfish 4-pass)
   const [partialReviewData, setPartialReviewData] = useState([]);
   const [pgnInput, setPgnInput]             = useState('');
   const [pgnError, setPgnError]             = useState('');
@@ -348,7 +348,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
   const [reportAnimated, setReportAnimated] = useState(false);
   // Pre-computation loading state
   const [isPrecomputing, setIsPrecomputing] = useState(false);
-  const [precomputeProgress, setPrecomputeProgress] = useState({ current: 0, total: 0 });
+  const [precomputeProgress, setPrecomputeProgress] = useState({ current: 0, total: 0, passIndex: 0, passLabel: '', totalPasses: ANALYSIS_PASSES.length });
 
   const openingAbortRef = useRef(null);
   const evalTimerRef = useRef(null);
@@ -399,7 +399,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
 
   // Analysis mode: board is interactive — players can try alternative moves
 
-  // Auto-load PGN from post-game review and start analysis
+  // Auto-load PGN from post-game review — 4-pass analysis auto-starts via [gameLoaded] effect
   useEffect(() => {
     if (!pendingPgn) return;
     const ok = importPgn(pendingPgn);
@@ -409,61 +409,78 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
       setReviewResults(null);
       setPanelTab('report');
       setReportAnimated(false);
-      setTimeout(async () => {
-        const history = useGameStore.getState().moveHistory;
-        if (!history.length) return;
-        setIsReviewing(true);
-        setPartialReviewData([]);
-        setReviewProgress({ current: 0, total: history.length });
-        try {
-          const results = await reviewGame(history, (cur, tot, partial) => {
-            setReviewProgress({ current: cur, total: tot });
-            setPartialReviewData([...partial]);
-          });
-          setReviewResults(results);
-          setPartialReviewData([]);
-          setReportAnimated(false);
-          setTimeout(() => setReportAnimated(true), 50);
-        } finally {
-          setIsReviewing(false);
-        }
-      }, 300);
     }
     if (onPendingPgnConsumed) onPendingPgnConsumed();
   }, [pendingPgn]); // eslint-disable-line
+
+  // Ref to hold the evolving evals map across passes (avoids stale closures)
+  const evalsMapRef = useRef(new Map());
 
   useEffect(() => {
     if (!chessInstance || !gameLoaded) return;
     try { setPgnHeaders(chessInstance.header?.() || {}); } catch { setPgnHeaders({}); }
     setEvalHistory([]);
-    const fens = moveHistory.map(m => m.fen).filter(Boolean);
-    if (!fens.length) return;
+    setReviewResults(null);
+    setPartialReviewData([]);
+
+    const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+    // Collect all unique FENs needed: starting pos + after each move
+    const allFens = [START_FEN, ...moveHistory.map(m => m.fen).filter(Boolean)];
+    const uniqueFens = [...new Set(allFens)];
+    if (uniqueFens.length < 2) return;
+
+    // Build index: which evalHistory slot each FEN maps to (after-move FENs)
+    const fenToMoveIdx = new Map();
+    moveHistory.forEach((m, i) => { if (m.fen) fenToMoveIdx.set(m.fen, i); });
+
+    evalsMapRef.current = new Map();
     setIsPrecomputing(true);
-    setPrecomputeProgress({ current: 0, total: fens.length, phase: 'shallow' });
+    setIsReviewing(true);
+    setPrecomputeProgress({ current: 0, total: uniqueFens.length, passIndex: 0, passLabel: ANALYSIS_PASSES[0].label, totalPasses: ANALYSIS_PASSES.length });
+
     const controller = new AbortController();
-    precomputeProgressive(fens, {
-      n: 3,
-      shallowDepth: 1,
-      deepDepth: 2,
+    reviewAbortRef.current = controller;
+
+    analyzeGame(uniqueFens, {
       signal: controller.signal,
-      onProgress(cur, tot, phase) {
-        setPrecomputeProgress({ current: cur, total: tot, phase });
+      onPassStart(passIndex, _depth, label) {
+        setPrecomputeProgress(prev => ({ ...prev, current: 0, passIndex, passLabel: label }));
       },
-      onPositionDone(idx, _fen, result, phase) {
-        if (!result?.length) return;
-        const score = result[0].score;
-        setEvalHistory(prev => {
-          const next = [...prev];
-          if (phase === 'shallow' && next[idx] !== undefined) return prev;
-          next[idx] = score;
-          return next;
-        });
+      onPositionDone(idx, fen, result, passIndex) {
+        evalsMapRef.current.set(fen, { score: result.score, bestMove: result.bestMove, depth: ANALYSIS_PASSES[passIndex].depth });
+        // Update eval chart for after-move FENs
+        const moveIdx = fenToMoveIdx.get(fen);
+        if (moveIdx !== undefined) {
+          setEvalHistory(prev => {
+            const next = [...prev];
+            next[moveIdx] = result.score;
+            return next;
+          });
+        }
+      },
+      onProgress(cur, tot, passIndex) {
+        setPrecomputeProgress(prev => ({ ...prev, current: cur, total: tot, passIndex }));
+      },
+      onPassDone(passIndex, evals) {
+        // Reclassify all moves with the latest evals
+        const history = useGameStore.getState().moveHistory;
+        const results = classifyFromEvals(history, evals);
+        if (results) {
+          setPartialReviewData([...results]);
+          setReviewResults(results);
+          if (passIndex === 0) {
+            setPanelTab('report');
+            setReportAnimated(false);
+            setTimeout(() => setReportAnimated(true), 50);
+          }
+        }
       },
     })
-      .then(() => setIsPrecomputing(false))
-      .catch(() => setIsPrecomputing(false));
+      .then(() => { setIsPrecomputing(false); setIsReviewing(false); })
+      .catch(() => { setIsPrecomputing(false); setIsReviewing(false); });
+
     return () => controller.abort();
-  }, [gameLoaded]);
+  }, [gameLoaded]); // eslint-disable-line
 
   useEffect(() => {
     if (!chessInstance || !gameLoaded) return;
@@ -565,35 +582,19 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
       reviewAbortRef.current = null;
     }
     setIsReviewing(false);
-    setReviewProgress({ current: 0, total: 0 });
+    setIsPrecomputing(false);
   };
 
-  const handleReview = async () => {
+  const handleReview = () => {
     if (!moveHistory.length) return;
-    // If already reviewing, cancel instead
-    if (isReviewing) { cancelReview(); return; }
-    const controller = new AbortController();
-    reviewAbortRef.current = controller;
-    setIsReviewing(true); setReviewResults(null);
+    if (isReviewing || isPrecomputing) { cancelReview(); return; }
+    // Re-trigger the 4-pass Stockfish analysis by toggling gameLoaded
+    setReviewResults(null);
     setPartialReviewData([]);
-    setReviewProgress({ current: 0, total: moveHistory.length });
+    setEvalHistory([]);
     setReportAnimated(false);
-    try {
-      const results = await reviewGame(moveHistory, (current, total, partial) => {
-        setReviewProgress({ current, total });
-        setPartialReviewData([...partial]);
-      }, controller.signal);
-      if (!controller.signal.aborted) {
-        setReviewResults(results);
-        setPartialReviewData([]);
-        setPanelTab('report');
-        setTimeout(() => setReportAnimated(true), 50);
-      }
-    } finally {
-      setIsReviewing(false);
-      setReviewProgress({ current: 0, total: 0 });
-      reviewAbortRef.current = null;
-    }
+    setGameLoaded(false);
+    setTimeout(() => setGameLoaded(true), 50);
   };
 
   const handleNewGame = () => {
@@ -791,44 +792,8 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
         </div>
       )}
 
-      {/* ── Pre-computing animation ── */}
-      {gameLoaded && isPrecomputing && (
-        <div className={styles.precomputeOverlay}>
-          <div className={styles.precomputeCard}>
-            <div className={styles.precomputeChess}>
-              <svg viewBox="0 0 100 100" width="96" height="96" className={styles.precomputeRing}>
-                <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(0,255,245,0.08)" strokeWidth="3" />
-                <circle cx="50" cy="50" r="44" fill="none" stroke="#00fff5" strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeDasharray={`${2 * Math.PI * 44}`}
-                  strokeDashoffset={`${2 * Math.PI * 44 * (1 - (precomputeProgress.total ? precomputeProgress.current / precomputeProgress.total : 0))}`}
-                  style={{ transition: 'stroke-dashoffset 0.3s ease', transform: 'rotate(-90deg)', transformOrigin: '50% 50%' }}
-                />
-              </svg>
-              <svg viewBox="0 0 45 45" width="48" height="48" className={`${styles.precomputeSpin} ${styles.precomputeKingInner}`}>
-                <g fill="none" fillRule="evenodd" stroke="#00fff5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22.5 11.63V6M20 8h5" strokeOpacity="0.9"/>
-                  <path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="#00fff5" fillOpacity="0.15"/>
-                  <path d="M12.5 37c5.5 3.5 14.5 3.5 20 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-2.5-7.5-12-10.5-16-4-3 6 6 10.5 6 10.5v7" fill="#00fff5" fillOpacity="0.1"/>
-                </g>
-              </svg>
-            </div>
-            <div className={styles.precomputeTitle}>Analysing Positions</div>
-            <div className={styles.precomputeProgress}>
-              {Math.ceil(precomputeProgress.current / 2)} / {Math.ceil(precomputeProgress.total / 2)} moves
-            </div>
-            <div className={styles.precomputeBarTrack}>
-              <div className={styles.precomputeBarFill} style={{
-                width: `${precomputeProgress.total ? (precomputeProgress.current / precomputeProgress.total) * 100 : 0}%`
-              }} />
-            </div>
-            <div className={styles.precomputeHint}>Computing engine evaluations...</div>
-          </div>
-        </div>
-      )}
-
       {/* ── Game loaded ── */}
-      {gameLoaded && !isPrecomputing && (
+      {gameLoaded && (
         <div className={styles.analysisMain}>
           {/* Top bar with tabs + actions */}
           <div className={styles.topBar}>
@@ -843,12 +808,12 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
             <div className={styles.topActions}>
               <button className={styles.iconBtn} onClick={() => setFlipped(f => !f)} title="Flip board">&#x21C5;</button>
               <button
-                className={`${styles.iconBtn} ${reviewResults ? styles.iconBtnDone : ''}`}
+                className={`${styles.iconBtn} ${reviewResults && !isPrecomputing ? styles.iconBtnDone : ''}`}
                 onClick={handleReview}
-                disabled={isReviewing || !moveHistory.length}
-                title="Review game"
+                disabled={!moveHistory.length}
+                title={isPrecomputing ? 'Cancel analysis' : 'Re-analyze game'}
               >
-                {isReviewing ? `${Math.ceil(reviewProgress.current/2)}/${Math.ceil(reviewProgress.total/2)}` : '\u27F3'}
+                {isPrecomputing ? '\u2716' : '\u27F3'}
               </button>
               <button className={`${styles.iconBtn} ${styles.importBtn}`} onClick={handleNewGame} title="Import new game">
                 &#x2795; New
@@ -856,10 +821,37 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
             </div>
           </div>
 
-          {/* Review progress bar */}
-          {isReviewing && (
-            <div className={styles.reviewProgress}>
-              <div className={styles.reviewBar} style={{ width: `${(reviewProgress.current / reviewProgress.total) * 100}%` }} />
+          {/* Inline evaluation progress card — 4-pass Stockfish */}
+          {isPrecomputing && (
+            <div className={styles.evalCard}>
+              <div className={styles.evalCardHeader}>
+                <span className={styles.evalCardTitle}>
+                  {precomputeProgress.passLabel || 'Evaluating...'}
+                </span>
+                <span className={styles.evalCardPct}>
+                  {(() => {
+                    const p = precomputeProgress;
+                    if (!p.total || !p.totalPasses) return '0.0';
+                    const passSlice = 100 / p.totalPasses;
+                    return (p.passIndex * passSlice + (p.current / p.total) * passSlice).toFixed(1);
+                  })()}%
+                </span>
+              </div>
+              <div className={styles.evalCardTrack}>
+                <div className={styles.evalCardFill} style={{
+                  width: (() => {
+                    const p = precomputeProgress;
+                    if (!p.total || !p.totalPasses) return '0%';
+                    const passSlice = 100 / p.totalPasses;
+                    return `${p.passIndex * passSlice + (p.current / p.total) * passSlice}%`;
+                  })()
+                }} />
+              </div>
+              <div className={styles.evalCardHint}>
+                {precomputeProgress.passIndex === 0
+                  ? 'Stockfish depth 12 — board is ready to use'
+                  : `Pass ${precomputeProgress.passIndex + 1} of ${precomputeProgress.totalPasses} — depth ${ANALYSIS_PASSES[precomputeProgress.passIndex]?.depth || '?'}`}
+              </div>
             </div>
           )}
 
@@ -995,12 +987,12 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                 )}
 
                 {/* Review prompt if not reviewed */}
-                {!reviewResults && !isReviewing && moveHistory.length > 0 && (
+                {!reviewResults && !isPrecomputing && !isReviewing && moveHistory.length > 0 && (
                   <div className={styles.reviewPrompt}>
                     <button className={styles.reviewBtn} onClick={handleReview}>
-                      &#x27F3; Review Game
+                      &#x27F3; Analyze Game
                     </button>
-                    <p className={styles.reviewHint}>Analyse each move to see accuracy, classifications, and the evaluation graph.</p>
+                    <p className={styles.reviewHint}>Run Stockfish analysis at depths 12-22 to see accuracy, classifications, and the evaluation graph.</p>
                   </div>
                 )}
 
@@ -1117,33 +1109,14 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                   </div>
                 )}
 
-                {/* Reviewing animation — Chess.com-style progress */}
-                {isReviewing && (
+                {/* Real-time graph building up during review */}
+                {isReviewing && graphData.length > 1 && (
                   <div className={styles.reviewingSection}>
-                    <div className={styles.evalProgressCard}>
-                      <div className={styles.evalProgressHeader}>
-                        <span className={styles.evalProgressTitle}>Evaluating...</span>
-                        <span className={styles.evalProgressPct}>
-                          {reviewProgress.total ? ((reviewProgress.current / reviewProgress.total) * 100).toFixed(1) : '0.0'}%
-                        </span>
-                      </div>
-                      <div className={styles.evalProgressTrack}>
-                        <div className={styles.evalProgressFill} style={{
-                          width: `${reviewProgress.total ? (reviewProgress.current / reviewProgress.total) * 100 : 0}%`
-                        }} />
-                      </div>
-                      <p className={styles.evalProgressHint}>
-                        Analysing {Math.ceil(reviewProgress.current/2)} of {Math.ceil(reviewProgress.total/2)} moves...
-                      </p>
+                    <div className={styles.reportGraphWrap}>
+                      <EvalGraph data={graphData} currentIdx={-1} onSeek={() => {}} large
+                        reviewResults={partialReviewData.length ? partialReviewData : null}
+                        moveHistory={moveHistory} />
                     </div>
-                    {/* Real-time graph building up during review */}
-                    {graphData.length > 1 && (
-                      <div className={styles.reportGraphWrap}>
-                        <EvalGraph data={graphData} currentIdx={-1} onSeek={() => {}} large
-                          reviewResults={partialReviewData.length ? partialReviewData : null}
-                          moveHistory={moveHistory} />
-                      </div>
-                    )}
                   </div>
                 )}
               </div>

@@ -10,6 +10,26 @@ let bestMoveResolve = null;
 let bestMoveReject = null;
 let bestMoveTimer = null;
 
+// Analysis state — captures the latest score from `info` lines before `bestmove`
+let lastInfoScore = null;  // { cp: number } or { mate: number }
+let lastInfoPv = null;     // PV string (first move = best move from info)
+
+function parseInfoLine(line) {
+  // Parse: info depth 15 seldepth 22 multipv 1 score cp -31 nodes ... pv e2e4 e7e5 ...
+  const scoreMatch = line.match(/\bscore (cp (-?\d+)|mate (-?\d+))/);
+  if (scoreMatch) {
+    if (scoreMatch[2] !== undefined) {
+      lastInfoScore = { cp: parseInt(scoreMatch[2]) };
+    } else if (scoreMatch[3] !== undefined) {
+      lastInfoScore = { mate: parseInt(scoreMatch[3]) };
+    }
+  }
+  const pvMatch = line.match(/\bpv (.+)$/);
+  if (pvMatch) {
+    lastInfoPv = pvMatch[1].trim();
+  }
+}
+
 function handleMessage(line) {
   if (typeof line !== 'string') return;
   if (line === 'uciok') {
@@ -17,6 +37,8 @@ function handleMessage(line) {
     if (readyResolve) { readyResolve(); readyResolve = null; }
   } else if (line === 'readyok') {
     if (readyResolve) { readyResolve(); readyResolve = null; }
+  } else if (line.startsWith('info') && line.includes('score')) {
+    parseInfoLine(line);
   } else if (line.startsWith('bestmove')) {
     const move = line.split(' ')[1];
     clearTimeout(bestMoveTimer);
@@ -85,6 +107,61 @@ export async function getStockfishMove(fen, { depth = 12, movetime, skillLevel }
   }
 
   return waitForBestMove();
+}
+
+/**
+ * Send `ucinewgame` + `isready` once at the start of an analysis session.
+ * Preserving the hash table across positions in the same game makes deeper depths faster.
+ */
+export async function analysisNewGame() {
+  const w = getWorker();
+  await waitForReady();
+  w.postMessage('setoption name Skill Level value 20');
+  w.postMessage('ucinewgame');
+  await waitForIsReady();
+}
+
+/**
+ * Analyze a single position with Stockfish at a given depth.
+ * Returns the best move, centipawn score (from white's POV), and mate-in if applicable.
+ * @param {string} fen
+ * @param {{ depth?: number }} opts
+ * @returns {Promise<{ bestMove: string, score: number, mateIn: number|null }>}
+ */
+export async function getStockfishAnalysis(fen, { depth = 12 } = {}) {
+  const w = getWorker();
+  await waitForReady();
+
+  // Reset info capture
+  lastInfoScore = null;
+  lastInfoPv = null;
+
+  w.postMessage(`position fen ${fen}`);
+  w.postMessage(`go depth ${depth}`);
+
+  // Timeout scales with depth — deep positions can take a while
+  const timeoutMs = Math.max(10000, depth * 2500);
+  const bestMove = await waitForBestMove(timeoutMs);
+
+  // Determine which side is to move for score normalization
+  const isBlackToMove = fen.split(' ')[1] === 'b';
+
+  let score = 0;
+  let mateIn = null;
+
+  if (lastInfoScore) {
+    if (lastInfoScore.cp !== undefined) {
+      score = lastInfoScore.cp;
+    } else if (lastInfoScore.mate !== undefined) {
+      mateIn = lastInfoScore.mate;
+      // Convert mate distance to large cp value (99999 scale)
+      score = lastInfoScore.mate > 0 ? 99999 : -99999;
+    }
+    // Stockfish reports from side-to-move's perspective; normalize to white's POV
+    if (isBlackToMove) score = -score;
+  }
+
+  return { bestMove, score, mateIn };
 }
 
 export function terminateEngine() {
