@@ -92,6 +92,7 @@ const initialState = {
   gameCategory: null,     // 'bullet'|'blitz'|'rapid'|'classical' — derived from timeControl
   onlineOpponentId: null, // opponent's auth user ID (set when online game starts)
   premove: null,          // { from: {row,col}, to: {row,col}|null } — queued premove
+  illegalMoveAt: 0,       // timestamp of last illegal move attempt (triggers shake)
 };
 
 const useGameStore = create((set, get) => ({
@@ -319,7 +320,14 @@ const useGameStore = create((set, get) => ({
     if (promotion) moveObj.promotion = promotion;
 
     const result = chessInstance.move(moveObj);
-    if (!result) return false;
+    if (!result) {
+      // Illegal move — trigger shake feedback + sound
+      if (!_bypassValidation) {
+        playSound('illegal');
+        set({ illegalMoveAt: Date.now() });
+      }
+      return false;
+    }
 
     // Play sound effect
     playSoundForMove(result, chessInstance);
@@ -447,20 +455,20 @@ const useGameStore = create((set, get) => ({
     });
   },
 
-  tickTimer: () => {
+  tickTimer: (deltaMs = 100) => {
     const { activeColor, whiteTime, blackTime, timerRunning, gameOver, timeControl, delayRemaining } = get();
     if (!timerRunning || gameOver) return;
-    // Simple delay: hold clock for delay seconds at start of each turn
+    // Simple delay: hold clock for delay period at start of each turn
     if (timeControl?.delayType === 'simple' && delayRemaining > 0) {
-      set({ delayRemaining: delayRemaining - 1 });
+      set({ delayRemaining: Math.max(0, delayRemaining - deltaMs) });
       return;
     }
     if (activeColor === 'w') {
-      const newTime = whiteTime - 1;
+      const newTime = whiteTime - deltaMs;
       if (newTime <= 0) { set({ whiteTime: 0 }); get().timeExpired('w'); }
       else set({ whiteTime: newTime });
     } else {
-      const newTime = blackTime - 1;
+      const newTime = blackTime - deltaMs;
       if (newTime <= 0) { set({ blackTime: 0 }); get().timeExpired('b'); }
       else set({ blackTime: newTime });
     }

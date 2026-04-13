@@ -10,7 +10,7 @@ const PIECE_NAME_MAP = {
 };
 const FILE_LABELS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
-const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, piece }) {
+const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, piece, hidePiece }) {
   const [draggingThis, setDraggingThis] = useState(false);
 
   // Zustand selectors — only subscribe to what this Cell needs
@@ -140,6 +140,7 @@ const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, pie
             transform: pieceScale !== 100 ? `scale(${pieceScale / 100})` : undefined,
             transition: animationSpeed === 'none' ? 'none'
               : `transform ${animationSpeed === 'fast' ? 80 : animationSpeed === 'slow' ? 300 : 150}ms ease`,
+            opacity: hidePiece ? 0 : undefined,
           }}
           draggable={canDrag}
           onDragStart={canDrag ? handleDragStart : undefined}

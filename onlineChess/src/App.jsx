@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './App.css';
 import LeftNav from './components/LeftNav/LeftNav';
@@ -12,37 +12,27 @@ import StrengthModal from './components/modals/StrengthModal';
 import PromotionModal from './components/modals/PromotionModal';
 import ConfirmModal from './components/modals/ConfirmModal';
 import CustomAlert from './components/modals/CustomAlert';
-import OnlineLobby from './components/OnlineLobby/OnlineLobby';
 import Chat from './components/Chat/Chat';
-import AnalysisBoard from './components/AnalysisBoard/AnalysisBoard';
 import useGameStore from './store/gameStore';
 import useAuthStore from './store/authStore';
 import useThemeStore from './store/themeStore';
 import useRatingStore from './store/ratingStore';
 import useMatchmakingStore from './store/matchmakingStore';
-import RatingCard from './components/Profile/RatingCard';
-import PuzzlePage from './components/Puzzles/PuzzlePage';
-import SpectateList from './components/Spectate/SpectateList';
-import FriendsPage from './components/Friends/FriendsPage';
-import LeaderboardPage from './components/Leaderboard/LeaderboardPage';
-import TournamentsPage from './components/Tournaments/TournamentsPage';
-import ClubsPage from './components/Clubs/ClubsPage';
 import useNotificationStore from './store/notificationStore';
-import TrainingPage from './components/Training/CoordinateTrainer';
 import { getBotByStrength } from './data/bots';
-import ComputerSetup from './components/ComputerSetup/ComputerSetup';
-import SettingsPage from './components/Settings/SettingsPage';
-import P2PSetup from './components/P2PPlay/P2PSetup';
-import P2PGame from './components/P2PPlay/P2PGame';
 import { p2p } from './utils/p2pService';
 import useFriendStore from './store/friendStore';
-import { getBestMove } from './utils/stockfish';
+// getBestMove moved to useComputerAI hook
 import usePrefsStore from './store/prefsStore';
 import { setSoundToggles, setSoundTheme as initSoundTheme } from './utils/soundManager';
 import { postGame, getGames } from './utils/gameServer';
 import { supabase } from './utils/supabase';
-import { getLocalBestMove, getSuggestion } from './utils/localAI';
+import { getSuggestion } from './utils/localAI';
 import { reviewGame } from './utils/reviewEngine';
+import useComputerAI from './hooks/useComputerAI';
+import useGameTimer from './hooks/useGameTimer';
+import { submitMove as serverSubmitMove } from './utils/serverMoveService';
+import { requestRatingUpdate } from './utils/serverRatingService';
 import {
   createRoom, joinRoom, subscribeToRoom,
   broadcastMove as bcastMove, broadcastChat, broadcastResign, broadcastJoin,
@@ -50,20 +40,37 @@ import {
   endRoom, unsubscribe, sqToRowCol, rowColToSq, updateRoomFen,
 } from './utils/multiplayerService';
 
+// ─── Lazy-loaded route components (code-split into separate chunks) ──────────
+const AnalysisBoard  = lazy(() => import('./components/AnalysisBoard/AnalysisBoard'));
+const PuzzlePage     = lazy(() => import('./components/Puzzles/PuzzlePage'));
+const OnlineLobby    = lazy(() => import('./components/OnlineLobby/OnlineLobby'));
+const SpectateList   = lazy(() => import('./components/Spectate/SpectateList'));
+const FriendsPage    = lazy(() => import('./components/Friends/FriendsPage'));
+const LeaderboardPage = lazy(() => import('./components/Leaderboard/LeaderboardPage'));
+const TournamentsPage = lazy(() => import('./components/Tournaments/TournamentsPage'));
+const ClubsPage      = lazy(() => import('./components/Clubs/ClubsPage'));
+const TrainingPage   = lazy(() => import('./components/Training/CoordinateTrainer'));
+const ComputerSetup  = lazy(() => import('./components/ComputerSetup/ComputerSetup'));
+const SettingsPage   = lazy(() => import('./components/Settings/SettingsPage'));
+const P2PSetup       = lazy(() => import('./components/P2PPlay/P2PSetup'));
+const P2PGame        = lazy(() => import('./components/P2PPlay/P2PGame'));
+const RatingCard     = lazy(() => import('./components/Profile/RatingCard'));
+
 // ─── Time presets ─────────────────────────────────────────────────────────────
+// Time presets — all values in MILLISECONDS
 const TC_PRESETS = [
-  { display: '1+0',   total: 60,   incr: 0,  cat: 'Bullet',    delayType: 'none', delay: 0 },
-  { display: '1+1',   total: 60,   incr: 1,  cat: 'Bullet',    delayType: 'fischer', delay: 1 },
-  { display: '2+1',   total: 120,  incr: 1,  cat: 'Bullet',    delayType: 'fischer', delay: 1 },
-  { display: '3+0',   total: 180,  incr: 0,  cat: 'Blitz',     delayType: 'none', delay: 0 },
-  { display: '3+2',   total: 180,  incr: 2,  cat: 'Blitz',     delayType: 'fischer', delay: 2 },
-  { display: '5+0',   total: 300,  incr: 0,  cat: 'Blitz',     delayType: 'none', delay: 0 },
-  { display: '5+3',   total: 300,  incr: 3,  cat: 'Blitz',     delayType: 'fischer', delay: 3 },
-  { display: '10+0',  total: 600,  incr: 0,  cat: 'Rapid',     delayType: 'none', delay: 0 },
-  { display: '10+5',  total: 600,  incr: 5,  cat: 'Rapid',     delayType: 'fischer', delay: 5 },
-  { display: '15+10', total: 900,  incr: 10, cat: 'Rapid',     delayType: 'fischer', delay: 10 },
-  { display: '30+0',  total: 1800, incr: 0,  cat: 'Classical', delayType: 'none', delay: 0 },
-  { display: '30+20', total: 1800, incr: 20, cat: 'Classical', delayType: 'fischer', delay: 20 },
+  { display: '1+0',   total: 60_000,    incr: 0,      cat: 'Bullet',    delayType: 'none', delay: 0 },
+  { display: '1+1',   total: 60_000,    incr: 1_000,  cat: 'Bullet',    delayType: 'fischer', delay: 1_000 },
+  { display: '2+1',   total: 120_000,   incr: 1_000,  cat: 'Bullet',    delayType: 'fischer', delay: 1_000 },
+  { display: '3+0',   total: 180_000,   incr: 0,      cat: 'Blitz',     delayType: 'none', delay: 0 },
+  { display: '3+2',   total: 180_000,   incr: 2_000,  cat: 'Blitz',     delayType: 'fischer', delay: 2_000 },
+  { display: '5+0',   total: 300_000,   incr: 0,      cat: 'Blitz',     delayType: 'none', delay: 0 },
+  { display: '5+3',   total: 300_000,   incr: 3_000,  cat: 'Blitz',     delayType: 'fischer', delay: 3_000 },
+  { display: '10+0',  total: 600_000,   incr: 0,      cat: 'Rapid',     delayType: 'none', delay: 0 },
+  { display: '10+5',  total: 600_000,   incr: 5_000,  cat: 'Rapid',     delayType: 'fischer', delay: 5_000 },
+  { display: '15+10', total: 900_000,   incr: 10_000, cat: 'Rapid',     delayType: 'fischer', delay: 10_000 },
+  { display: '30+0',  total: 1_800_000, incr: 0,      cat: 'Classical', delayType: 'none', delay: 0 },
+  { display: '30+20', total: 1_800_000, incr: 20_000, cat: 'Classical', delayType: 'fischer', delay: 20_000 },
 ];
 
 const ONLINE_TIME_CONTROLS = TC_PRESETS.filter(p => ['1+0','3+0','5+0','10+0','15+10'].includes(p.display));
@@ -130,9 +137,6 @@ export default function App() {
   const isComp = useGameStore(s => s.isComp);
   const compColor = useGameStore(s => s.compColor);
   const compStrength = useGameStore(s => s.compStrength);
-  const compThinking = useGameStore(s => s.compThinking);
-  const setCompThinking = useGameStore(s => s.setCompThinking);
-  const setDisableBoard = useGameStore(s => s.setDisableBoard);
   const chessInstance = useGameStore(s => s.chessInstance);
   const activeColor = useGameStore(s => s.activeColor);
   const timerData = useGameStore(s => s.timerData);
@@ -214,79 +218,11 @@ export default function App() {
     }
   }, [user?.id]); // eslint-disable-line
 
-  // ─── Timer tick (single interval — prevents double-decrement from two Timer components) ──
-  useEffect(() => {
-    if (!timerRunning) return;
-    const id = setInterval(() => useGameStore.getState().tickTimer(), 1000);
-    return () => clearInterval(id);
-  }, [timerRunning]);
+  // ─── Timer tick (extracted to hook) ──
+  useGameTimer();
 
-  // ─── Computer AI (local for strength ≤6, Stockfish+fallback for ≥7) ───────
-  useEffect(() => {
-    if (!gameStarted || gameOver || !isComp || compThinking) return;
-    const isCompTurn = (compColor === 'white' && activeColor === 'w') ||
-                       (compColor === 'black' && activeColor === 'b');
-    if (!isCompTurn) return;
-    if (currentMoveIndex !== moveHistory.length - 1) return;
-
-    const makeCompMove = async () => {
-      if (!chessInstance) return;
-      const fen = chessInstance.fen();
-      setCompThinking(true);
-      setDisableBoard(true);
-      const thinkStart = Date.now();
-      try {
-        let bestMove;
-        if ((compStrength || 4) <= 6) {
-          // Local AI — instant, offline, handles low difficulty well
-          bestMove = getLocalBestMove(fen, compStrength || 4);
-        } else {
-          // Stockfish WASM for higher strengths, local AI as fallback
-          try {
-            bestMove = await getBestMove(fen, { strength: compStrength || 10 });
-          } catch {
-            bestMove = getLocalBestMove(fen, compStrength || 8);
-          }
-        }
-        if (!bestMove || bestMove === '(none)') return;
-        // Tiny minimum so the move doesn't feel instantaneous, but never adds
-        // perceptible lag. Real "thinking" already happened in the engine.
-        const elapsed = Date.now() - thinkStart;
-        const minThink = 120;
-        const remaining = Math.max(0, minThink - elapsed);
-        if (remaining > 0) await new Promise(r => setTimeout(r, remaining));
-        const from = bestMove.slice(0, 2);
-        const to   = bestMove.slice(2, 4);
-        const promotion = bestMove.length === 5 ? bestMove[4] : undefined;
-        useGameStore.getState().makeMove(
-          { row: 8 - parseInt(from[1]), col: from.charCodeAt(0) - 97 },
-          { row: 8 - parseInt(to[1]),   col: to.charCodeAt(0) - 97 },
-          promotion,
-          true
-        );
-      } catch (e) {
-        console.error('Computer move failed:', e);
-        setAlertMsg('Computer move error.');
-      } finally {
-        setCompThinking(false);
-        // Only re-enable board if game didn't just end (checkGameOver sets disableBoard=true)
-        if (!useGameStore.getState().gameOver) {
-          setDisableBoard(false);
-          // Execute premove if one was queued during computer's turn
-          const pm = useGameStore.getState().premove;
-          if (pm?.to) {
-            setTimeout(() => useGameStore.getState().executePremove(), 50);
-          }
-        }
-      }
-    };
-
-    const clockKey2 = (compColor === 'white' ? 'whiteTime' : 'blackTime');
-    const bt = useGameStore.getState()[clockKey2] || 60;
-    const initDelay = bt < 30 ? 50 : bt < 120 ? 150 : 300;
-    const t = setTimeout(makeCompMove, initDelay);
-    return () => clearTimeout(t);
-  }, [activeColor, gameStarted, gameOver, isComp, compColor, compStrength, compThinking, currentMoveIndex, chessInstance, moveHistory.length]);
+  // ─── Computer AI (extracted to hook) ───────
+  useComputerAI(setAlertMsg);
 
   // ─── Online: broadcast local moves ────────────────────────────────────────
   useEffect(() => {
@@ -307,12 +243,28 @@ export default function App() {
       : undefined;
 
     const currentFen = useGameStore.getState().getFen();
-    bcastMove(onlineChannelRef.current, { from, to, promotion, fen: currentFen })
-      .catch(() => {
-        console.error('Failed to broadcast move');
-        useGameStore.getState().setDisableBoard(false);
-      });
-    if (onlineRoom?.id) updateRoomFen(onlineRoom.id, currentFen).catch(() => {});
+
+    // Submit to server for validation (server broadcasts to opponent)
+    // Also send legacy broadcast for backwards compatibility
+    if (onlineRoom?.id) {
+      serverSubmitMove({ roomId: onlineRoom.id, from, to, promotion })
+        .catch((err) => {
+          console.warn('Server validation failed, using direct broadcast:', err.message);
+          // Fallback: broadcast directly if Edge Function unavailable
+          bcastMove(onlineChannelRef.current, { from, to, promotion, fen: currentFen })
+            .catch(() => {
+              console.error('Failed to broadcast move');
+              useGameStore.getState().setDisableBoard(false);
+            });
+        });
+      updateRoomFen(onlineRoom.id, currentFen).catch(() => {});
+    } else {
+      bcastMove(onlineChannelRef.current, { from, to, promotion, fen: currentFen })
+        .catch(() => {
+          console.error('Failed to broadcast move');
+          useGameStore.getState().setDisableBoard(false);
+        });
+    }
 
     // Disable board until opponent responds
     if (!state.gameOver) useGameStore.getState().setDisableBoard(true);
@@ -371,13 +323,47 @@ export default function App() {
     let cancelled = false;
     (async () => {
       try {
-        const delta = await updateOnlineGameRating({
-          userId: user.id,
-          username: username || user.email,
-          opponentId: oppId,
-          score,
-          category: cat || 'blitz',
-        });
+        // Try server-side rating first (authoritative)
+        let delta = null;
+        if (onlineRoom?.id) {
+          try {
+            const serverResult = await requestRatingUpdate({
+              roomId: onlineRoom.id,
+              winner: gr.winner,
+              reason: gr.reason,
+            });
+            if (serverResult?.ok) {
+              const myData = myColor === 'white' ? serverResult.white : serverResult.black;
+              const oppData = myColor === 'white' ? serverResult.black : serverResult.white;
+              delta = {
+                oldRating: myData.oldRating,
+                newRating: myData.newRating,
+                ratingChange: myData.change,
+                opponentOldRating: oppData.oldRating,
+              };
+              // Reload ratings from server to stay in sync
+              loadRatings(user.id);
+            }
+          } catch (serverErr) {
+            console.warn('Server rating update failed, falling back to client-side:', serverErr.message);
+            // Fallback to client-side rating
+            delta = await updateOnlineGameRating({
+              userId: user.id,
+              username: username || user.email,
+              opponentId: oppId,
+              score,
+              category: cat || 'blitz',
+            });
+          }
+        } else {
+          delta = await updateOnlineGameRating({
+            userId: user.id,
+            username: username || user.email,
+            opponentId: oppId,
+            score,
+            category: cat || 'blitz',
+          });
+        }
         if (cancelled) return;
         if (delta) setRatingDelta(delta);
 
@@ -437,6 +423,39 @@ export default function App() {
     }
   };
 
+  // Handler for server-validated moves (from Edge Function broadcast)
+  const onValidatedMove = (payload) => {
+    const { from, to, promotion, whiteTimeMs, blackTimeMs, gameOver: serverGameOver, gameResult: serverResult } = payload;
+    const { col: fc, row: fr } = sqToRowCol(from);
+    const { col: tc, row: tr } = sqToRowCol(to);
+    useGameStore.getState().makeMove({ row: fr, col: fc }, { row: tr, col: tc }, promotion || null, true);
+
+    // Sync server-authoritative timers
+    if (whiteTimeMs != null) useGameStore.setState({ whiteTime: whiteTimeMs });
+    if (blackTimeMs != null) useGameStore.setState({ blackTime: blackTimeMs });
+
+    if (serverGameOver && serverResult) {
+      const winner = serverResult.winner === 'draw' ? 'Draw' : serverResult.winner === 'white' ? 'White' : 'Black';
+      const msg = serverResult.reason === 'checkmate' ? `Checkmate! ${winner} wins!`
+        : serverResult.reason === 'timeout' ? `Time expired! ${winner} wins!`
+        : serverResult.reason === 'stalemate' ? 'Stalemate! Draw.'
+        : `${winner} wins!`;
+      useGameStore.setState({
+        gameOver: true,
+        gameOverMessage: msg,
+        timerRunning: false,
+        disableBoard: true,
+        gameResult: serverResult,
+      });
+    } else if (!useGameStore.getState().gameOver) {
+      useGameStore.getState().setDisableBoard(false);
+      const pm = useGameStore.getState().premove;
+      if (pm?.to) {
+        setTimeout(() => useGameStore.getState().executePremove(), 50);
+      }
+    }
+  };
+
   const onIncomingChat = (payload) => {
     setChatMessages(msgs => [...msgs, payload]);
   };
@@ -482,6 +501,7 @@ export default function App() {
           store.setOnlineOpponentId(payload.userId);
         },
         onMove:         onIncomingMove,
+        onValidatedMove: onValidatedMove,
         onChat:         onIncomingChat,
         onResign:       onOpponentResign,
         onUndoRequest:  onIncomingUndoRequest,
@@ -507,6 +527,7 @@ export default function App() {
     try {
       channel = await subscribeToRoom(code.toUpperCase(), {
         onMove:         onIncomingMove,
+        onValidatedMove: onValidatedMove,
         onChat:         onIncomingChat,
         onResign:       onOpponentResign,
         onUndoRequest:  onIncomingUndoRequest,
@@ -668,6 +689,7 @@ export default function App() {
     try {
       const channel = await subscribeToRoom(roomId, {
         onMove:         onIncomingMove,
+        onValidatedMove: onValidatedMove,
         onChat:         onIncomingChat,
         onResign:       onOpponentResign,
         onUndoRequest:  onIncomingUndoRequest,
@@ -863,6 +885,7 @@ export default function App() {
       <LeftNav activeTab={activeTab} onTabClick={handleTabClick} friendBadge={friendRequests.length + notifUnread} />
 
       <div className="main-content">
+       <Suspense fallback={<div className="lazy-fallback"><div className="lazy-spinner" /></div>}>
         {/* Left sidebar removed — controls moved to board-controls bar */}
 
         {/* ── Tab 0: Home ── */}
@@ -1079,6 +1102,7 @@ export default function App() {
             <RightSidebar onAlert={showAlert} reviewResults={reviewResults} isReviewing={isReviewing} />
           </div>
         )}
+       </Suspense>
       </div>
 
       {/* Online chat — floating, shown during online game */}
@@ -1358,7 +1382,7 @@ import { usePieceResolver } from './utils/pieceResolver';
 function PlayerPanel({ name, colorCode, time, timeActive, timerRunning, captured, materialAdv, timeControl, showHint, onHint, showCaptured = true }) {
   const resolvePiece = usePieceResolver();
   const initial = (name || (colorCode === 'w' ? 'W' : 'B'))[0].toUpperCase();
-  const isLow   = timeActive && timerRunning && time <= 30;
+  const isLow   = timeActive && timerRunning && time <= 10_000;
   const ticking = timeActive && timerRunning;
 
   return (

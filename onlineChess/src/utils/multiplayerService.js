@@ -68,13 +68,14 @@ export function subscribeToRoom(roomId, handlers = {}) {
   });
 
   channel
-    .on('broadcast', { event: 'move' },          ({ payload }) => handlers.onMove?.(payload))
-    .on('broadcast', { event: 'chat' },          ({ payload }) => handlers.onChat?.(payload))
-    .on('broadcast', { event: 'resign' },        ({ payload }) => handlers.onResign?.(payload))
-    .on('broadcast', { event: 'join' },          ({ payload }) => handlers.onOpponentJoined?.(payload))
-    .on('broadcast', { event: 'draw' },          ({ payload }) => handlers.onDrawOffer?.(payload))
-    .on('broadcast', { event: 'undo-request' },  ({ payload }) => handlers.onUndoRequest?.(payload))
-    .on('broadcast', { event: 'undo-response' }, ({ payload }) => handlers.onUndoResponse?.(payload));
+    .on('broadcast', { event: 'move' },            ({ payload }) => handlers.onMove?.(payload))
+    .on('broadcast', { event: 'validated-move' },   ({ payload }) => handlers.onValidatedMove?.(payload))
+    .on('broadcast', { event: 'chat' },            ({ payload }) => handlers.onChat?.(payload))
+    .on('broadcast', { event: 'resign' },          ({ payload }) => handlers.onResign?.(payload))
+    .on('broadcast', { event: 'join' },            ({ payload }) => handlers.onOpponentJoined?.(payload))
+    .on('broadcast', { event: 'draw' },            ({ payload }) => handlers.onDrawOffer?.(payload))
+    .on('broadcast', { event: 'undo-request' },    ({ payload }) => handlers.onUndoRequest?.(payload))
+    .on('broadcast', { event: 'undo-response' },   ({ payload }) => handlers.onUndoResponse?.(payload));
 
   // Return a promise that resolves to the channel once the subscription is fully
   // established. Without this, broadcasts can be sent/received before the
