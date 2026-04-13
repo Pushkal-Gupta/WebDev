@@ -112,6 +112,21 @@ const TrainingSvg = () => (
   </svg>
 );
 
+const LessonsSvg = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2 3h6a2 2 0 012 2v12a1.5 1.5 0 00-1.5-1.5H2V3z"/>
+    <path d="M18 3h-6a2 2 0 00-2 2v12a1.5 1.5 0 011.5-1.5H18V3z"/>
+  </svg>
+);
+
+const CoachSvg = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10 2a5 5 0 015 5c0 2-1.5 3.5-3 4.5V14H8v-2.5C6.5 10.5 5 9 5 7a5 5 0 015-5z"/>
+    <path d="M8 14h4v2a2 2 0 01-4 0v-2z"/>
+    <path d="M8 18h4"/>
+  </svg>
+);
+
 const SettingsSvg = () => (
   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="10" cy="10" r="2.5"/>
@@ -155,6 +170,8 @@ export default function LeftNav({ activeTab, onTabClick, friendBadge }) {
         <NavItem icon={<ClubsSvg />}        label="Clubs"       active={activeTab === 9}  onClick={() => onTabClick(9)} />
         <NavItem icon={<TournamentSvg />}   label="Tournaments" active={activeTab === 10} onClick={() => onTabClick(10)} />
         <NavItem icon={<LeaderboardSvg />}  label="Leaderboard" active={activeTab === 11} onClick={() => onTabClick(11)} />
+        <NavItem icon={<LessonsSvg />}       label="Lessons"     active={activeTab === 15} onClick={() => onTabClick(15)} />
+        <NavItem icon={<CoachSvg />}         label="Coach"       active={activeTab === 16} onClick={() => onTabClick(16)} />
         <NavItem icon={<TrainingSvg />}      label="Training"    active={activeTab === 13} onClick={() => onTabClick(13)} />
         <NavItem icon={<NearbySvg />}        label="Nearby"      active={activeTab === 12} onClick={() => onTabClick(12)} />
       </ul>

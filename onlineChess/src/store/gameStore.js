@@ -600,6 +600,7 @@ const useGameStore = create((set, get) => ({
 
     // Reconstruct chess state at move index
     const chess = new Chess();
+    let lastResult = null;
     for (let i = 0; i <= index; i++) {
       const move = moveHistory[i];
       const fromFile = String.fromCharCode('a'.charCodeAt(0) + move.from.col);
@@ -608,22 +609,25 @@ const useGameStore = create((set, get) => ({
       const toRank = String(8 - move.to.row);
       const san = move.san;
       const promotion = san.includes('=') ? san.split('=')[1][0].toLowerCase() : undefined;
-      chess.move({ from: fromFile + fromRank, to: toFile + toRank, promotion });
+      lastResult = chess.move({ from: fromFile + fromRank, to: toFile + toRank, promotion });
     }
 
     // Play sound for the move being navigated to
-    if (index >= 0) {
-      const san = moveHistory[index].san;
+    if (index >= 0 && lastResult) {
       if (chess.inCheck()) playSound('check');
-      else if (san.includes('O-O')) playSound('castle');
-      else if (san.includes('=')) playSound('promote');
-      else if (san.includes('x')) playSound('capture');
+      else if (lastResult.san.includes('O-O')) playSound('castle');
+      else if (lastResult.san.includes('=')) playSound('promote');
+      else if (lastResult.captured) playSound('capture');
       else playSound('move');
     }
 
-    const lastMove = index >= 0 ? {
+    const lastMove = (index >= 0 && lastResult) ? {
       from: moveHistory[index].from,
       to: moveHistory[index].to,
+      pieceType: lastResult.piece,
+      pieceColor: lastResult.color,
+      flags: lastResult.flags || '',
+      san: lastResult.san,
     } : null;
 
     const underCheck = findCheck(chess);
