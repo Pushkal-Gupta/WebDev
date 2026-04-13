@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useId, useMemo, useCallback, memo } from '
 import Board from '../Board/Board';
 import styles from './AnalysisBoard.module.css';
 import useGameStore from '../../store/gameStore';
-import { getTopLinesAsync, cancelPending, analyzeGame, ANALYSIS_PASSES } from '../../utils/analysisEngine';
+import { getTopLinesAsync, analyzeGame, ANALYSIS_PASSES } from '../../utils/analysisEngine';
 import { Chess } from 'chess.js';
 import { CLASSIFICATIONS, classifyFromEvals } from '../../utils/reviewEngine';
 import { fetchChessComGames } from '../../utils/chessComService';
@@ -286,31 +286,56 @@ function AccuracyBar({ label, color, acc, dotClass }) {
   );
 }
 
-// ── Animated Accuracy Counter ─────────────────────────────────────────────────
+// ── Accuracy Ring Gauge (chess.com-style circular gauge) ─────────────────────
 
-function AnimatedAccuracy({ value, color }) {
+function AccuracyRing({ value, label, name, dotClass }) {
   const [display, setDisplay] = useState(0);
   const rafRef = useRef(null);
   useEffect(() => {
     if (value == null) return;
     let start = null;
     const duration = 1200;
-    const from = 0;
-    const to = value;
     const step = (ts) => {
       if (!start) start = ts;
       const progress = Math.min((ts - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-      setDisplay(Math.round(from + (to - from) * eased));
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(Math.round(eased * value));
       if (progress < 1) rafRef.current = requestAnimationFrame(step);
     };
     rafRef.current = requestAnimationFrame(step);
     return () => cancelAnimationFrame(rafRef.current);
   }, [value]);
 
-  if (value == null) return <span className={styles.accValue} style={{ color: 'rgba(255,255,255,0.3)' }}>--</span>;
-  const accColor = value >= 85 ? '#3ddc84' : value >= 65 ? '#f0c94c' : '#e05555';
-  return <span className={styles.accValue} style={{ color: accColor }}>{display}</span>;
+  const r = 38, cx = 44, cy = 44, circ = 2 * Math.PI * r;
+  const pct = value != null ? Math.min(100, Math.max(0, value)) : 0;
+  const offset = circ * (1 - pct / 100);
+  const ringColor = value == null ? 'rgba(255,255,255,0.1)' : value >= 85 ? '#3ddc84' : value >= 65 ? '#f0c94c' : '#e05555';
+
+  return (
+    <div className={styles.accRing}>
+      <svg viewBox="0 0 88 88" width="88" height="88">
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
+        {value != null && (
+          <circle cx={cx} cy={cy} r={r} fill="none" stroke={ringColor} strokeWidth="5"
+            strokeLinecap="round"
+            strokeDasharray={circ}
+            strokeDashoffset={offset}
+            style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1)', transform: 'rotate(-90deg)', transformOrigin: `${cx}px ${cy}px` }}
+          />
+        )}
+      </svg>
+      <div className={styles.accRingInner}>
+        <span className={styles.accRingValue} style={{ color: ringColor }}>
+          {value != null ? display : '--'}
+        </span>
+      </div>
+      <div className={styles.accRingLabel}>ACCURACY</div>
+      <div className={styles.accRingName}>
+        <span className={`${styles.accRingDot} ${dotClass}`} />
+        {name}
+      </div>
+    </div>
+  );
 }
 
 // ── Main Component ────────────────────────────────────────────────────────────
@@ -485,6 +510,12 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
   useEffect(() => {
     if (!chessInstance || !gameLoaded) return;
     clearTimeout(evalTimerRef.current);
+
+    // If Stockfish already evaluated this position (from 4-pass analysis), use that immediately
+    if (currentMoveIndex >= 0 && evalHistory[currentMoveIndex] !== undefined) {
+      setCurrentEval(evalHistory[currentMoveIndex]);
+    }
+
     setEngineBusy(true);
     let cancelled = false;
     evalTimerRef.current = setTimeout(async () => {
@@ -495,17 +526,17 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
         if (cancelled) return;
         const ev = lines.length > 0 ? lines[0].score : 0;
         setEngineLines(lines);
-        setCurrentEval(ev);
-        if (currentMoveIndex >= 0) {
-          setEvalHistory(prev => { const n = [...prev]; n[currentMoveIndex] = ev; return n; });
+        // Only update currentEval from minimax if Stockfish hasn't provided a value
+        if (evalHistory[currentMoveIndex] === undefined) {
+          setCurrentEval(ev);
         }
         if (openingAbortRef.current) openingAbortRef.current.abort?.();
         fetchOpeningName(fen).then(name => { if (name && !cancelled) setLiveOpeningName(name); }).catch(err => console.error('Opening fetch error:', err));
       } catch (err) { if (!cancelled) console.error('Engine eval error:', err); }
       finally { if (!cancelled) setEngineBusy(false); }
     }, 150);
-    return () => { cancelled = true; clearTimeout(evalTimerRef.current); cancelPending(); };
-  }, [currentMoveIndex, gameLoaded, chessInstance]);
+    return () => { cancelled = true; clearTimeout(evalTimerRef.current); };
+  }, [currentMoveIndex, gameLoaded, chessInstance, evalHistory]);
 
   useEffect(() => {
     if (!chessInstance || !gameLoaded) { setTablebaseData(null); return; }
@@ -859,52 +890,44 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
           {panelTab === 'report' && (
             <div className={styles.reportScroll}>
               <div className={styles.reportCenter}>
-                {/* Score card — only show when there's data to display */}
+                {/* ── Result banner ── */}
                 {(moveHistory.length > 0 || reviewResults) && (
-                <div className={`${styles.scoreCard} ${reportAnimated ? styles.scoreCardAnimated : ''}`}>
-                  {/* Result */}
-                  <div className={styles.scoreResult}>
-                    {pgnHeaders.Result || (moveHistory.length > 0 ? '*' : '')}
+                  <div className={styles.resultBanner}>
+                    <span className={styles.resultText}>
+                      {pgnHeaders.Result || (moveHistory.length > 0 ? '*' : '')}
+                    </span>
+                    {openingName && <span className={styles.resultOpening}>{openingName}</span>}
                   </div>
-
-                  {/* Players row */}
-                  <div className={styles.playersRow}>
-                    <div className={styles.playerCard}>
-                      <div className={styles.playerAvatar}>
-                        <span className={`${styles.avatarDot} ${styles.avatarDotW}`} />
-                      </div>
-                      <AnimatedAccuracy value={whiteAcc} />
-                      <span className={styles.playerAccLabel}>Accuracy</span>
-                      <span className={styles.playerName}>{pgnHeaders.White || 'White'}</span>
-                    </div>
-
-                    <div className={styles.vsSection}>
-                      {gameCharacter && (
-                        <div className={styles.gameCharacter}>
-                          <span className={styles.characterIcon}>{gameCharacter.icon}</span>
-                          <span className={styles.characterLabel}>{gameCharacter.label}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className={styles.playerCard}>
-                      <div className={styles.playerAvatar}>
-                        <span className={`${styles.avatarDot} ${styles.avatarDotB}`} />
-                      </div>
-                      <AnimatedAccuracy value={blackAcc} />
-                      <span className={styles.playerAccLabel}>Accuracy</span>
-                      <span className={styles.playerName}>{pgnHeaders.Black || 'Black'}</span>
-                    </div>
-                  </div>
-
-                  {/* Game description */}
-                  {gameDesc && (
-                    <div className={styles.gameDescription}>{gameDesc}</div>
-                  )}
-                </div>
                 )}
 
-                {/* Eval graph */}
+                {/* ── Accuracy rings ── */}
+                {(moveHistory.length > 0 || reviewResults) && (
+                  <div className={`${styles.accSection} ${reportAnimated ? styles.scoreCardAnimated : ''}`}>
+                    <AccuracyRing
+                      value={whiteAcc}
+                      name={pgnHeaders.White || 'White'}
+                      dotClass={styles.accDotW}
+                    />
+                    <div className={styles.accCenter}>
+                      {gameCharacter && (
+                        <>
+                          <span className={styles.accCenterIcon}>{gameCharacter.icon}</span>
+                          <span className={styles.accCenterLabel}>{gameCharacter.label}</span>
+                        </>
+                      )}
+                    </div>
+                    <AccuracyRing
+                      value={blackAcc}
+                      name={pgnHeaders.Black || 'Black'}
+                      dotClass={styles.accDotB}
+                    />
+                  </div>
+                )}
+
+                {/* ── Game description ── */}
+                {gameDesc && <div className={styles.gameDescription}>{gameDesc}</div>}
+
+                {/* ── Eval graph ── */}
                 {graphData.length > 1 && (
                   <div className={styles.reportGraphWrap}>
                     <EvalGraph data={graphData} currentIdx={currentMoveIndex} onSeek={goToMove} large
@@ -912,49 +935,35 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                   </div>
                 )}
 
-                {/* Accuracies — Chess.com-style side-by-side */}
+                {/* ── Rating estimation ── */}
                 {reviewResults && (whiteAcc !== null || blackAcc !== null) && (
-                  <div className={styles.accuraciesCard}>
-                    <div className={styles.accuraciesTitle}>Accuracies</div>
-                    <div className={styles.accuraciesRow}>
-                      <div className={styles.accuracyWhite}>
-                        {whiteAcc !== null ? `${whiteAcc}%` : '--'}
-                      </div>
-                      <div className={styles.accuracyBlack}>
-                        {blackAcc !== null ? `${blackAcc}%` : '--'}
-                      </div>
+                  <div className={styles.eloCard}>
+                    <div className={styles.eloCardRow}>
+                      {whiteAcc !== null && (
+                        <div className={styles.eloItem}>
+                          <span className={styles.eloItemLabel}>{pgnHeaders.White || 'WHITE'}</span>
+                          <span className={styles.eloItemVal}>~{estimateElo(whiteAcc)}</span>
+                        </div>
+                      )}
+                      {blackAcc !== null && (
+                        <div className={styles.eloItem}>
+                          <span className={styles.eloItemLabel}>{pgnHeaders.Black || 'BLACK'}</span>
+                          <span className={styles.eloItemVal}>~{estimateElo(blackAcc)}</span>
+                        </div>
+                      )}
                     </div>
+                    <div className={styles.eloHint}>Estimated rating (this game)</div>
                   </div>
                 )}
 
-                {/* ELO estimation */}
-                {reviewResults && (whiteAcc !== null || blackAcc !== null) && (
-                  <div className={styles.eloEstRow}>
-                    {whiteAcc !== null && (
-                      <div className={styles.eloEstItem}>
-                        <span className={styles.eloEstLabel}>{pgnHeaders.White || 'White'}</span>
-                        <span className={styles.eloEstVal}>~{estimateElo(whiteAcc)}</span>
-                      </div>
-                    )}
-                    {blackAcc !== null && (
-                      <div className={styles.eloEstItem}>
-                        <span className={styles.eloEstLabel}>{pgnHeaders.Black || 'Black'}</span>
-                        <span className={styles.eloEstVal}>~{estimateElo(blackAcc)}</span>
-                      </div>
-                    )}
-                    <div className={styles.eloEstHint}>Estimated rating (this game)</div>
-                  </div>
-                )}
-
-                {/* Classification table - chess.com style */}
+                {/* ── Classification breakdown ── */}
                 {reviewResults && (
-                  <div className={styles.reportSection}>
+                  <div className={styles.classCard}>
                     <table className={styles.classTable}>
                       <thead>
                         <tr>
                           <th className={styles.classColHead}>W</th>
-                          <th></th>
-                          <th></th>
+                          <th colSpan="2"></th>
                           <th className={styles.classColHead}>B</th>
                         </tr>
                       </thead>
@@ -966,23 +975,15 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                           if (wN === 0 && bN === 0) return null;
                           return (
                             <tr key={key} className={styles.classRow}>
-                              <td className={styles.classCountW} style={{ color: wN > 0 ? cls.color : 'rgba(255,255,255,0.2)' }}>{wN}</td>
-                              <td className={styles.classIcon} style={{ color: cls.color }}>{cls.icon}</td>
+                              <td className={styles.classCountW} style={{ color: wN > 0 ? cls.color : 'rgba(255,255,255,0.15)' }}>{wN}</td>
+                              <td className={styles.classIcon} style={{ color: cls.color }}>{cls.symbol}</td>
                               <td className={styles.classLabel} style={{ color: cls.color }}>{cls.label}</td>
-                              <td className={styles.classCountB} style={{ color: bN > 0 ? cls.color : 'rgba(255,255,255,0.2)' }}>{bN}</td>
+                              <td className={styles.classCountB} style={{ color: bN > 0 ? cls.color : 'rgba(255,255,255,0.15)' }}>{bN}</td>
                             </tr>
                           );
                         })}
                       </tbody>
                     </table>
-                  </div>
-                )}
-
-                {/* Opening info */}
-                {openingName && (
-                  <div className={styles.reportSection}>
-                    <div className={styles.sectionLabel}>Opening</div>
-                    <div className={styles.openingText}>{openingName}</div>
                   </div>
                 )}
 
