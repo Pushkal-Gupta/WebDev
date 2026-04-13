@@ -10,7 +10,7 @@ export default function Timer({ color }) {
 
   if (!timeControl) return null;
 
-  const isLow = time <= 30 && time > 0;
+  const isLow = time <= 10_000 && time > 0;
 
   return (
     <div className={`${styles.timer} ${isActive ? styles.active : ''} ${isLow && isActive ? styles.low : ''}`}>

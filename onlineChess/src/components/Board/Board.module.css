@@ -34,6 +34,48 @@
   z-index: 5;
 }
 
+/* ── Illegal move shake ── */
+.shake {
+  animation: boardShake 0.3s ease-out;
+}
+
+@keyframes boardShake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-4px); }
+  30% { transform: translateX(4px); }
+  45% { transform: translateX(-3px); }
+  60% { transform: translateX(3px); }
+  75% { transform: translateX(-1px); }
+  90% { transform: translateX(1px); }
+}
+
+/* ── Move animation overlay ── */
+.moveAnimation {
+  position: absolute;
+  z-index: 10;
+  pointer-events: none;
+  animation: pieceSlide var(--anim-duration, 150ms) ease-out forwards;
+}
+
+@keyframes pieceSlide {
+  from {
+    left: var(--anim-from-left);
+    top: var(--anim-from-top);
+  }
+  to {
+    left: var(--anim-to-left);
+    top: var(--anim-to-top);
+  }
+}
+
+.moveAnimPiece {
+  width: 88%;
+  height: 88%;
+  object-fit: contain;
+  display: block;
+  margin: 6% auto;
+}
+
 .placeholder {
   display: flex;
   align-items: center;

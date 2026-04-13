@@ -1,25 +1,35 @@
 /**
  * Shared time formatting utility — single source of truth for clock display.
- * Used by PlayerPanel, P2PGame, Timer, and any other timer display.
+ * All times are in MILLISECONDS throughout the app.
  */
 
 /**
- * Format seconds into M:SS display string.
- * @param {number} seconds
- * @returns {string} e.g. "5:30", "0:05", "0:00"
+ * Format milliseconds into clock display string.
+ * - Above 10 s:  "M:SS"
+ * - At or below 10 s:  "S.t" (tenths)
+ * @param {number} ms  Time remaining in milliseconds
+ * @returns {string} e.g. "5:30", "0:05", "9.3", "0.0"
  */
-export function formatTime(seconds) {
-  if (seconds <= 0) return '0:00';
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
+export function formatTime(ms) {
+  if (ms <= 0) return '0.0';
+  const totalSeconds = ms / 1000;
+  if (totalSeconds <= 10) {
+    // Show tenths: "9.3", "4.1", "0.5"
+    const s = Math.floor(totalSeconds);
+    const tenths = Math.floor((ms % 1000) / 100);
+    return `${s}.${tenths}`;
+  }
+  // Show M:SS
+  const m = Math.floor(totalSeconds / 60);
+  const s = Math.floor(totalSeconds % 60);
   return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
 /**
- * Check if time is in low-time warning zone.
- * @param {number} seconds
+ * Check if time is in low-time warning zone (10 seconds).
+ * @param {number} ms  Time remaining in milliseconds
  * @returns {boolean}
  */
-export function isLowTime(seconds) {
-  return seconds > 0 && seconds <= 30;
+export function isLowTime(ms) {
+  return ms > 0 && ms <= 10_000;
 }

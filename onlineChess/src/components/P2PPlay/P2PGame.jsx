@@ -7,7 +7,7 @@ import { formatTime } from '../../utils/timeFormatter';
 import { PIECE_NAME, FILE_LABELS, squareName, rankToRow, fileToCol, parseFen } from '../../utils/boardHelpers';
 import styles from './P2PGame.module.css';
 
-const INIT_TIME = 300; // 5 min each side by default
+const INIT_TIME = 300_000; // 5 min each side in milliseconds
 
 // ── Inline board ──────────────────────────────────────────────────────────────
 
@@ -115,7 +115,7 @@ function P2PBoard({ fen, myColor, interactive, onMove, lastFrom, lastTo }) {
 // ── Player bar ─────────────────────────────────────────────────────────────────
 
 function PlayerBar({ name, color, time, active }) {
-  const isLow = active && time <= 30;
+  const isLow = active && time <= 10_000;
   return (
     <div className={`${styles.playerBar} ${active ? styles.playerBarActive : ''}`}>
       <div className={styles.playerLeft}>
@@ -215,22 +215,26 @@ export default function P2PGame({ myColor, onExit }) {
     return () => { p2p.off('message'); p2p.off('close'); };
   }, [myColor, applyMove, endGame]);
 
-  // ── Clock tick ────────────────────────────────────────────────────────────
+  // ── Clock tick (100ms for millisecond precision) ──────────────────────────
   useEffect(() => {
     if (status !== 'playing') return;
+    let lastTick = performance.now();
     const id = setInterval(() => {
+      const now = performance.now();
+      const delta = Math.round(now - lastTick);
+      lastTick = now;
       if (chess.turn() === 'w') {
         setWTime(t => {
-          if (t <= 1) { clearInterval(id); endGame('Black wins on time'); return 0; }
-          return t - 1;
+          if (t <= delta) { clearInterval(id); endGame('Black wins on time'); return 0; }
+          return t - delta;
         });
       } else {
         setBTime(t => {
-          if (t <= 1) { clearInterval(id); endGame('White wins on time'); return 0; }
-          return t - 1;
+          if (t <= delta) { clearInterval(id); endGame('White wins on time'); return 0; }
+          return t - delta;
         });
       }
-    }, 1000);
+    }, 100);
     timerRef.current = id;
     return () => clearInterval(id);
   }, [status, chess, endGame]);
