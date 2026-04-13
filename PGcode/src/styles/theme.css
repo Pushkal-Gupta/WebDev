@@ -139,3 +139,21 @@ button {
   background: var(--accent);
   color: var(--bg);
 }
+
+/* ── Skeleton Loading ── */
+.skel {
+  background: linear-gradient(90deg, var(--surface) 25%, var(--border) 50%, var(--surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skel-text { height: 14px; width: 60%; }
+.skel-text-short { height: 14px; width: 35%; }
+.skel-circle { width: 18px; height: 18px; border-radius: 50%; }
+.skel-row-full { height: 42px; width: 100%; }

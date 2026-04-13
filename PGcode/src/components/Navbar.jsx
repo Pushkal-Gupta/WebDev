@@ -7,7 +7,7 @@ export default function Navbar({ session, theme, toggleTheme, isWorkspace }) {
   const [showLogin, setShowLogin] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
 
-  const brandHref = isWorkspace ? '#/' : 'https://pushkalgupta.com/PG/main.html';
+  const brandHref = '#/';
 
   return (
     <header className="pg-header">

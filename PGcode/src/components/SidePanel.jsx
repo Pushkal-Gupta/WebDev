@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { ChevronDown, Settings, RotateCcw, HelpCircle, Flame, Trophy } from 'lucide-react';
+import { ChevronDown, Settings, RotateCcw, HelpCircle, Flame, Trophy, Play } from 'lucide-react';
 import './SidePanel.css';
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -11,6 +12,7 @@ export default function SidePanel({ session, roadmapMode, setRoadmapMode }) {
   const [progress, setProgress] = useState({ easy: 0, easyTotal: 0, med: 0, medTotal: 0, hard: 0, hardTotal: 0, completed: 0, total: 0 });
   const [streak, setStreak] = useState({ current: 0, best: 0 });
   const [solveDates, setSolveDates] = useState(new Set());
+  const [recentProblems, setRecentProblems] = useState([]);
 
   // Calendar state
   const now = new Date();
@@ -78,6 +80,29 @@ export default function SidePanel({ session, roadmapMode, setRoadmapMode }) {
 
         if (profile) {
           setStreak({ current: profile.current_streak || 0, best: profile.longest_streak || 0 });
+        }
+
+        // Fetch recent problems for "Continue" section
+        const { data: recentProg } = await supabase
+          .from('PGcode_user_progress')
+          .select('problem_id, updated_at')
+          .eq('user_id', session.user.id)
+          .order('updated_at', { ascending: false })
+          .limit(3);
+
+        if (recentProg && recentProg.length > 0) {
+          const recentIds = recentProg.map(r => r.problem_id);
+          const { data: recentData } = await supabase
+            .from('PGcode_problems')
+            .select('id, name, topic_id, difficulty')
+            .in('id', recentIds);
+
+          if (recentData) {
+            // Preserve order from progress query
+            const map = {};
+            recentData.forEach(p => { map[p.id] = p; });
+            setRecentProblems(recentIds.map(id => map[id]).filter(Boolean));
+          }
         }
       }
 
@@ -167,6 +192,21 @@ export default function SidePanel({ session, roadmapMode, setRoadmapMode }) {
           </div>
         )}
       </div>
+
+      {/* Continue Where You Left Off */}
+      {session?.user && recentProblems.length > 0 && (
+        <div className="sp-continue">
+          <div className="sp-continue-title">
+            <Play size={12} /> Continue
+          </div>
+          {recentProblems.map(p => (
+            <Link key={p.id} to={`/category/${p.topic_id}/${p.id}`} className="sp-continue-item">
+              <span className="sp-continue-name">{p.name}</span>
+              <span className={`sp-continue-diff sp-${p.difficulty?.toLowerCase()}`}>{p.difficulty}</span>
+            </Link>
+          ))}
+        </div>
+      )}
 
       {/* Calendar */}
       <div className="sp-calendar">

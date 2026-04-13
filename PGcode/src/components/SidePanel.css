@@ -171,6 +171,69 @@
   background: var(--hover-box);
 }
 
+/* ── Continue Where You Left Off ── */
+.sp-continue {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sp-continue-title {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.15rem;
+}
+
+.sp-continue-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.5rem;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background var(--t);
+}
+
+.sp-continue-item:hover {
+  background: var(--hover-box);
+}
+
+.sp-continue-name {
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.sp-continue-diff {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.sp-continue-diff.sp-easy { color: var(--easy); }
+.sp-continue-diff.sp-medium { color: var(--medium); }
+.sp-continue-diff.sp-hard { color: var(--hard); }
+
 /* ── Calendar ── */
 .sp-calendar {
   background: var(--surface);

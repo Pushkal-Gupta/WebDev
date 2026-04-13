@@ -214,7 +214,16 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
                   </div>
 
                   {loading ? (
-                    <div className="loadingState">Loading problems...</div>
+                    <div className="skeleton-list">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <div key={i} className="skeleton-row">
+                          <div className="skel skel-circle" />
+                          <div className="skel skel-circle" />
+                          <div className="skel skel-text" style={{ width: `${55 + Math.random() * 25}%` }} />
+                          <div className="skel skel-text-short" />
+                        </div>
+                      ))}
+                    </div>
                   ) : (
                     <div className="tableBody">
                       {problems.map(prob => {

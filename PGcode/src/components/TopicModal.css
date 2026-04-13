@@ -400,6 +400,22 @@
   font-size: 0.9rem;
 }
 
+/* ── Skeleton Loading ── */
+.skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.5rem 0;
+}
+
+.skeleton-row {
+  display: grid;
+  grid-template-columns: 28px 28px 1fr 60px;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.5rem 0.4rem;
+}
+
 /* ── Light Mode Contrast Fixes ── */
 [data-theme="light"] .problemName {
   color: #1a1a1a;

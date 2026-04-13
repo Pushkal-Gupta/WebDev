@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import Editor from '@monaco-editor/react';
-import { ChevronLeft, ChevronUp, ChevronDown, Play, ExternalLink, CheckCircle, RotateCcw, Code2, FileText, Award, MessageSquare, TestTube, Lightbulb } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Play, ExternalLink, CheckCircle, RotateCcw, Code2, FileText, Award, MessageSquare, TestTube, Lightbulb } from 'lucide-react';
 import SolutionView from './SolutionView';
 import { runCode } from '../lib/codeRunner';
 import { generateTemplate, wrapWithDriver, buildStdin, compareOutput } from '../lib/driverCode';
@@ -10,6 +10,7 @@ import '../styles/Workspace.css';
 
 export default function Workspace({ session, theme, roadmapMode }) {
   const { categoryId, problemId } = useParams();
+  const navigate = useNavigate();
   const [topic, setTopic] = useState(null);
   const [problems, setProblems] = useState([]);
   const [activeProblem, setActiveProblem] = useState(null);
@@ -35,6 +36,8 @@ export default function Workspace({ session, theme, roadmapMode }) {
   const [submitProgress, setSubmitProgress] = useState(null); // { current, total }
   // Submission history (persisted to localStorage)
   const [submissions, setSubmissions] = useState([]);
+  // Success animation
+  const [showSuccess, setShowSuccess] = useState(false);
   const editorRef = useRef(null);
 
   // Lock page scroll while Workspace is mounted — only inner panes scroll.
@@ -439,6 +442,9 @@ export default function Workspace({ session, theme, roadmapMode }) {
           runtime: elapsed,
           isSubmission: true,
         });
+        // Trigger success animation
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 2000);
         if (session?.user) {
           saveProgress({
             is_completed: true,
@@ -517,11 +523,45 @@ export default function Workspace({ session, theme, roadmapMode }) {
 
   return (
     <div className="ws-container">
+      {showSuccess && (
+        <div className="ws-success-overlay">
+          <div className="ws-success-flash">
+            <CheckCircle size={32} />
+            <span>Accepted</span>
+          </div>
+        </div>
+      )}
       <div className="ws-main">
         {/* ═══ LEFT PANEL ═══ */}
         <div className="ws-left" style={{ width: `${leftWidth}%` }}>
           <div className="ws-left-header">
             <Link to="/" className="ws-back"><ChevronLeft size={14} /> Back</Link>
+            {problems.length > 1 && (() => {
+              const currentIdx = problems.findIndex(p => p.id === activeProblem?.id);
+              const prevProblem = currentIdx > 0 ? problems[currentIdx - 1] : null;
+              const nextProblem = currentIdx < problems.length - 1 ? problems[currentIdx + 1] : null;
+              return (
+                <div className="ws-nav-arrows">
+                  <button
+                    className="ws-nav-btn"
+                    disabled={!prevProblem}
+                    onClick={() => prevProblem && navigate(`/category/${categoryId}/${prevProblem.id}`)}
+                    title={prevProblem ? prevProblem.name : 'No previous problem'}
+                  >
+                    <ChevronLeft size={14} />
+                  </button>
+                  <span className="ws-nav-count">{currentIdx + 1}/{problems.length}</span>
+                  <button
+                    className="ws-nav-btn"
+                    disabled={!nextProblem}
+                    onClick={() => nextProblem && navigate(`/category/${categoryId}/${nextProblem.id}`)}
+                    title={nextProblem ? nextProblem.name : 'No next problem'}
+                  >
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+              );
+            })()}
           </div>
 
           {/* LeetCode-style tabs */}
