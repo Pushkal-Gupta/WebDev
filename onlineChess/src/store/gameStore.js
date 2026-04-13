@@ -232,18 +232,18 @@ const useGameStore = create((set, get) => ({
         }
         if (piece && piece.color === myColor) {
           // Clicked another own piece → change premove source
-          set({ premove: { from: { row, col }, to: null } });
+          set({ premove: { from: { row, col }, to: null, piece: { type: piece.type, color: piece.color } } });
           return;
         }
         // Clicked a different square → set as premove destination
-        set({ premove: { from: pmFrom, to: { row, col } } });
+        set({ premove: { ...get().premove, from: pmFrom, to: { row, col } } });
         return;
       }
 
       // No premove source yet
       if (piece && piece.color === myColor) {
-        // Select own piece as premove source
-        set({ premove: { from: { row, col }, to: null } });
+        // Select own piece as premove source (store piece info for ghost rendering)
+        set({ premove: { from: { row, col }, to: null, piece: { type: piece.type, color: piece.color } } });
       } else {
         // Clear any existing premove
         set({ premove: null });
