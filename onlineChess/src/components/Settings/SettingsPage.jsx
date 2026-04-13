@@ -344,8 +344,8 @@ export default function SettingsPage() {
     resetTheme(); resetPrefs();
     setShowLabels(true); setCoordinateDisplay('inside');
     setHighlightLastMove(true); setHighlightSelected(true);
-    setShowLegalDots(true); setDotSize(12); setBlindfoldMode(false);
-  }, [resetTheme, resetPrefs, setShowLabels, setCoordinateDisplay, setHighlightLastMove, setHighlightSelected, setShowLegalDots, setDotSize, setBlindfoldMode]);
+    setShowLegalDots(true); setDotSize(12);
+  }, [resetTheme, resetPrefs, setShowLabels, setCoordinateDisplay, setHighlightLastMove, setHighlightSelected, setShowLegalDots, setDotSize]);
 
 
   /* ═══════════════════════════════════════════════════

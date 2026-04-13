@@ -25,14 +25,15 @@ const useFriendStore = create((set, get) => ({
       const accepted = data.filter(r => r.status === 'accepted');
       const pending  = data.filter(r => r.status === 'pending');
 
-      // Enrich accepted friendships with the other person's rating info
-      const friendIds = accepted.map(r => r.user_id === userId ? r.friend_id : r.user_id);
+      // Collect ALL other-user IDs (accepted + pending) to enrich in one query
+      const allOtherIds = data.map(r => r.user_id === userId ? r.friend_id : r.user_id);
+      const uniqueIds = [...new Set(allOtherIds)];
       let ratingMap = {};
-      if (friendIds.length > 0) {
+      if (uniqueIds.length > 0) {
         const { data: ratings } = await supabase
           .from('user_ratings')
           .select('user_id, username, rating, category')
-          .in('user_id', friendIds);
+          .in('user_id', uniqueIds);
         // Keep best rating per user (by category priority)
         const priority = ['bullet','blitz','rapid','classical'];
         (ratings || []).forEach(r => {
@@ -43,16 +44,21 @@ const useFriendStore = create((set, get) => ({
         });
       }
 
-      const friends = accepted.map(r => {
+      const enrichRow = (r) => {
         const otherId = r.user_id === userId ? r.friend_id : r.user_id;
         const info = ratingMap[otherId] || {};
-        return { id: r.id, userId: otherId, username: info.username || 'Unknown', rating: info.rating || null, friendshipId: r.id };
+        return { ...r, otherId, otherUsername: info.username || null, otherRating: info.rating || null };
+      };
+
+      const friends = accepted.map(r => {
+        const enriched = enrichRow(r);
+        return { id: r.id, userId: enriched.otherId, username: enriched.otherUsername || 'Unknown', rating: enriched.otherRating, friendshipId: r.id };
       });
 
       set({
         friends,
-        incoming: pending.filter(r => r.friend_id === userId),
-        outgoing: pending.filter(r => r.user_id  === userId),
+        incoming: pending.filter(r => r.friend_id === userId).map(enrichRow),
+        outgoing: pending.filter(r => r.user_id  === userId).map(enrichRow),
         loading: false,
       });
     } catch (err) {
