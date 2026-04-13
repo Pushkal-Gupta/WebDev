@@ -1,0 +1,70 @@
+.page { flex: 1; display: flex; flex-direction: column; padding: 16px; overflow-y: auto; max-width: 850px; margin: 0 auto; width: 100%; }
+.pageHeader { margin-bottom: 16px; }
+.pageTitle { font-size: 1.3rem; font-weight: 800; color: #fff; }
+.pageDesc { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+/* Color selector */
+.colorRow { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+.colorBtn { display: flex; align-items: center; gap: 6px; padding: 7px 16px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: transparent; color: rgba(255,255,255,0.5); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.colorBtn:hover { color: #fff; }
+.colorBtnActive { background: rgba(0,255,245,0.08); color: var(--color-accent); border-color: rgba(0,255,245,0.3); }
+.colorDot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.drillDueBtn { margin-left: auto; padding: 7px 16px; border: 1px solid rgba(0,255,245,0.25); border-radius: 8px; background: rgba(0,255,245,0.08); color: var(--color-accent); font-size: 0.78rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+.dueBadge { background: var(--color-accent); color: #000; font-size: 0.6rem; font-weight: 800; padding: 1px 6px; border-radius: 8px; }
+
+/* Opening grid */
+.openingGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.openingCard { padding: 16px; border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; background: rgba(255,255,255,0.02); display: flex; flex-direction: column; gap: 8px; }
+.openingCard:hover { border-color: rgba(0,255,245,0.15); }
+.openingTop { display: flex; align-items: baseline; gap: 8px; }
+.openingEco { font-size: 0.6rem; font-weight: 700; color: var(--color-accent); background: rgba(0,255,245,0.1); padding: 2px 6px; border-radius: 4px; }
+.openingName { font-size: 0.95rem; font-weight: 700; color: #fff; }
+.openingDesc { font-size: 0.72rem; color: rgba(255,255,255,0.45); line-height: 1.35; }
+.openingIdeas { display: flex; flex-wrap: wrap; gap: 4px; }
+.ideaChip { font-size: 0.6rem; padding: 2px 8px; border-radius: 4px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.5); }
+.openingMeta { display: flex; gap: 10px; font-size: 0.65rem; color: rgba(255,255,255,0.3); }
+.dueTag { color: #f0c94c; }
+.openingActions { display: flex; gap: 6px; }
+.drillBtn { padding: 6px 14px; border: none; border-radius: 6px; background: linear-gradient(135deg, rgba(0,255,245,0.15), rgba(0,200,230,0.15)); border: 1px solid rgba(0,255,245,0.25); color: var(--color-accent); font-size: 0.75rem; font-weight: 700; cursor: pointer; }
+.drillBtn:hover { background: linear-gradient(135deg, rgba(0,255,245,0.2), rgba(0,200,230,0.2)); }
+
+/* Drill page */
+.drillPage { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 16px; overflow-y: auto; gap: 12px; }
+.drillHeader { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 500px; }
+.drillTitle { flex: 1; font-size: 1rem; font-weight: 700; color: #fff; }
+.drillScore { font-size: 0.82rem; color: var(--color-accent); font-weight: 700; }
+.backBtn { padding: 6px 12px; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; background: transparent; color: rgba(255,255,255,0.5); font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+.backBtn:hover { color: #fff; }
+.progressBar { height: 3px; width: 100%; max-width: 500px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+.progressFill { height: 100%; background: var(--color-accent); transition: width 0.3s; }
+
+/* Board */
+.board { display: grid; grid-template-columns: repeat(8, 52px); grid-template-rows: repeat(8, 52px); border: 2px solid rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+.cell { width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+.cell:hover { filter: brightness(1.1); }
+.pieceImg { width: 85%; height: 85%; object-fit: contain; pointer-events: none; }
+
+/* Move list */
+.moveList { display: flex; flex-wrap: wrap; gap: 4px; max-width: 420px; padding: 6px 0; }
+.moveSan { font-size: 0.78rem; color: rgba(255,255,255,0.7); font-weight: 600; }
+.moveNum { color: rgba(255,255,255,0.3); margin-right: 2px; }
+
+/* Feedback */
+.feedbackOk { font-size: 0.82rem; font-weight: 700; color: #3ddc84; }
+.feedbackBad { font-size: 0.82rem; font-weight: 700; color: #ff7875; }
+.hintBtn { padding: 5px 14px; border: 1px solid rgba(240,201,76,0.3); border-radius: 6px; background: rgba(240,201,76,0.08); color: #f0c94c; font-size: 0.72rem; font-weight: 600; cursor: pointer; }
+.hintText { font-size: 0.78rem; color: #f0c94c; font-style: italic; text-align: center; }
+
+/* Line complete */
+.lineComplete { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px; }
+.lineCompleteTitle { font-size: 1rem; font-weight: 700; color: #3ddc84; }
+.lineCompleteScore { font-size: 0.78rem; color: rgba(255,255,255,0.5); }
+.nextBtn { padding: 8px 20px; border: none; border-radius: 8px; background: linear-gradient(135deg, #00c9a7, #00a0e9); color: #fff; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
+
+.empty { text-align: center; padding: 32px; color: rgba(255,255,255,0.3); font-size: 0.82rem; }
+
+@media (max-width: 500px) {
+  .board { grid-template-columns: repeat(8, 40px); grid-template-rows: repeat(8, 40px); }
+  .cell { width: 40px; height: 40px; }
+  .openingGrid { grid-template-columns: 1fr; }
+}
