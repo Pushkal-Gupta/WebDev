@@ -2,18 +2,19 @@ import { useState } from 'react';
 import styles from './ComputerSetup.module.css';
 import BOTS from '../../data/bots';
 
+// All time values in MILLISECONDS
 const TC_OPTIONS = [
-  { display: '1+0',   total: 60,   incr: 0,  cat: 'Bullet',    delayType: 'none', delay: 0 },
-  { display: '1+1',   total: 60,   incr: 1,  cat: 'Bullet',    delayType: 'fischer', delay: 1 },
-  { display: '2+1',   total: 120,  incr: 1,  cat: 'Bullet',    delayType: 'fischer', delay: 1 },
-  { display: '3+0',   total: 180,  incr: 0,  cat: 'Blitz',     delayType: 'none', delay: 0 },
-  { display: '3+2',   total: 180,  incr: 2,  cat: 'Blitz',     delayType: 'fischer', delay: 2 },
-  { display: '5+0',   total: 300,  incr: 0,  cat: 'Blitz',     delayType: 'none', delay: 0 },
-  { display: '5+3',   total: 300,  incr: 3,  cat: 'Blitz',     delayType: 'fischer', delay: 3 },
-  { display: '10+0',  total: 600,  incr: 0,  cat: 'Rapid',     delayType: 'none', delay: 0 },
-  { display: '10+5',  total: 600,  incr: 5,  cat: 'Rapid',     delayType: 'fischer', delay: 5 },
-  { display: '15+10', total: 900,  incr: 10, cat: 'Rapid',     delayType: 'fischer', delay: 10 },
-  { display: '30+0',  total: 1800, incr: 0,  cat: 'Classical',  delayType: 'none', delay: 0 },
+  { display: '1+0',   total: 60_000,    incr: 0,      cat: 'Bullet',    delayType: 'none', delay: 0 },
+  { display: '1+1',   total: 60_000,    incr: 1_000,  cat: 'Bullet',    delayType: 'fischer', delay: 1_000 },
+  { display: '2+1',   total: 120_000,   incr: 1_000,  cat: 'Bullet',    delayType: 'fischer', delay: 1_000 },
+  { display: '3+0',   total: 180_000,   incr: 0,      cat: 'Blitz',     delayType: 'none', delay: 0 },
+  { display: '3+2',   total: 180_000,   incr: 2_000,  cat: 'Blitz',     delayType: 'fischer', delay: 2_000 },
+  { display: '5+0',   total: 300_000,   incr: 0,      cat: 'Blitz',     delayType: 'none', delay: 0 },
+  { display: '5+3',   total: 300_000,   incr: 3_000,  cat: 'Blitz',     delayType: 'fischer', delay: 3_000 },
+  { display: '10+0',  total: 600_000,   incr: 0,      cat: 'Rapid',     delayType: 'none', delay: 0 },
+  { display: '10+5',  total: 600_000,   incr: 5_000,  cat: 'Rapid',     delayType: 'fischer', delay: 5_000 },
+  { display: '15+10', total: 900_000,   incr: 10_000, cat: 'Rapid',     delayType: 'fischer', delay: 10_000 },
+  { display: '30+0',  total: 1_800_000, incr: 0,      cat: 'Classical',  delayType: 'none', delay: 0 },
 ];
 
 function getCategory(minutes) {
@@ -40,11 +41,11 @@ export default function ComputerSetup({ onStart }) {
       const inc = Math.max(0, Math.min(60, Number(customIncrement) || 0));
       const tc = {
         display: `${mins}+${inc}`,
-        total: Math.round(mins * 60),
-        incr: inc,
+        total: Math.round(mins * 60_000),
+        incr: inc * 1_000,
         cat: getCategory(mins),
         delayType: inc > 0 ? 'fischer' : 'none',
-        delay: inc,
+        delay: inc * 1_000,
       };
       onStart(selectedBot, tc, playerColor);
     } else {

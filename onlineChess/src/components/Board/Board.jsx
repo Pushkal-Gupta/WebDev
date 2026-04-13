@@ -13,6 +13,7 @@ const Board = memo(function Board({ arrows, badges }) {
   const boardState = useGameStore(s => s.boardState);
   const flipped = useGameStore(s => s.flipped);
   const lastMove = useGameStore(s => s.lastMove);
+  const lastMoveIsNew = useGameStore(s => s.lastMoveIsNew);
   const boardThemeType = useThemeStore(s => s.boardThemeType);
   const boardImageUrl = useThemeStore(s => s.boardImageUrl);
   const boardImageFailed = useThemeStore(s => s.boardImageFailed);
@@ -21,7 +22,6 @@ const Board = memo(function Board({ arrows, badges }) {
 
   // ── Move animation state ──────────────────────────────────────────────────
   const [animating, setAnimating] = useState(null); // { piece, fromRow, fromCol, toRow, toCol }
-  const prevLastMoveRef = useRef(null);
   const boardRef = useRef(null);
 
   // ── Illegal move shake ────────────────────────────────────────────────────
@@ -36,13 +36,9 @@ const Board = memo(function Board({ arrows, badges }) {
 
   useEffect(() => {
     if (animationSpeed === 'none') return;
-    const prev = prevLastMoveRef.current;
-    prevLastMoveRef.current = lastMove;
-
-    // Only animate if lastMove actually changed (new move was made)
+    // Only animate actual new moves, not undo/history navigation
+    if (!lastMoveIsNew) return;
     if (!lastMove || !boardState) return;
-    if (prev && prev.from.row === lastMove.from.row && prev.from.col === lastMove.from.col
-             && prev.to.row === lastMove.to.row && prev.to.col === lastMove.to.col) return;
 
     // Get the piece that just moved (it's now at the destination)
     const piece = boardState[lastMove.to.row]?.[lastMove.to.col];
@@ -61,7 +57,7 @@ const Board = memo(function Board({ arrows, badges }) {
 
     const timer = setTimeout(() => setAnimating(null), durationMs + 10);
     return () => clearTimeout(timer);
-  }, [lastMove, boardState, animationSpeed]);
+  }, [lastMove, lastMoveIsNew, boardState, animationSpeed]);
 
   // Test board image URL — fall back to color theme if CDN fails
   useEffect(() => {
