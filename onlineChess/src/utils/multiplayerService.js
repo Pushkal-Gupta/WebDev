@@ -1,6 +1,6 @@
 /**
  * Online multiplayer service — Supabase Realtime Broadcast
- * Uses chess Supabase (yzrhvdyvvplimcwfiorh) for room persistence.
+ * Uses the main Supabase project for room persistence.
  * Realtime channels handle all move/chat sync — no extra server needed.
  */
 
@@ -25,6 +25,8 @@ export async function createRoom({ hostId, hostName, timeControl }) {
     status: 'waiting',
     current_fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
     pgn: '',
+    white_time_ms: timeControl?.total || null,
+    black_time_ms: timeControl?.total || null,
   });
   if (error) throw new Error(error.message);
   return id;

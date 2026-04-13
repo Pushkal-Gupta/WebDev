@@ -159,6 +159,8 @@ const useMatchmakingStore = create((set, get) => ({
         status:      'playing',
         current_fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         pgn:         '',
+        white_time_ms: timeControl?.total || null,
+        black_time_ms: timeControl?.total || null,
       });
       if (roomErr) { console.error('Room creation error:', roomErr); return; }
 

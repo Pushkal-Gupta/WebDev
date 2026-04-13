@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Chess } from 'chess.js';
 import { p2p } from '../../utils/p2pService';
 import useThemeStore from '../../store/themeStore';
+import usePrefsStore from '../../store/prefsStore';
 import { usePieceResolver, getFallbackUrl } from '../../utils/pieceResolver';
 import { formatTime } from '../../utils/timeFormatter';
 import { PIECE_NAME, FILE_LABELS, squareName, rankToRow, fileToCol, parseFen } from '../../utils/boardHelpers';
@@ -115,7 +116,8 @@ function P2PBoard({ fen, myColor, interactive, onMove, lastFrom, lastTo }) {
 // ── Player bar ─────────────────────────────────────────────────────────────────
 
 function PlayerBar({ name, color, time, active }) {
-  const isLow = active && time <= 10_000;
+  const lowTimeThreshold = usePrefsStore(s => s.lowTimeThreshold);
+  const isLow = active && time <= (lowTimeThreshold * 1000);
   return (
     <div className={`${styles.playerBar} ${active ? styles.playerBarActive : ''}`}>
       <div className={styles.playerLeft}>

@@ -393,7 +393,13 @@ const useGameStore = create((set, get) => ({
       currentMoveIndex: newHistory.length - 1,
       selectedSquare: null,
       validMoves: [],
-      lastMove: { from, to },
+      lastMove: {
+        from, to,
+        pieceType: piece?.type || result.piece,  // source piece type (before promotion)
+        pieceColor: result.color,
+        flags: result.flags || '',               // 'k'=kingside castle, 'q'=queenside, 'e'=en passant, 'p'=promotion
+        san: result.san,
+      },
       lastMoveIsNew: true,
       underCheck,
       activeColor: chessInstance.turn(),
@@ -588,8 +594,9 @@ const useGameStore = create((set, get) => ({
   },
 
   goToMove: (index) => {
-    const { moveHistory } = get();
+    const { moveHistory, currentMoveIndex: prevIdx } = get();
     if (index < -1 || index >= moveHistory.length) return;
+    if (index === prevIdx) return; // no-op if already there
 
     // Reconstruct chess state at move index
     const chess = new Chess();
@@ -599,10 +606,19 @@ const useGameStore = create((set, get) => ({
       const fromRank = String(8 - move.from.row);
       const toFile = String.fromCharCode('a'.charCodeAt(0) + move.to.col);
       const toRank = String(8 - move.to.row);
-      // Get san to extract promotion if any
       const san = move.san;
       const promotion = san.includes('=') ? san.split('=')[1][0].toLowerCase() : undefined;
       chess.move({ from: fromFile + fromRank, to: toFile + toRank, promotion });
+    }
+
+    // Play sound for the move being navigated to
+    if (index >= 0) {
+      const san = moveHistory[index].san;
+      if (chess.inCheck()) playSound('check');
+      else if (san.includes('O-O')) playSound('castle');
+      else if (san.includes('=')) playSound('promote');
+      else if (san.includes('x')) playSound('capture');
+      else playSound('move');
     }
 
     const lastMove = index >= 0 ? {
@@ -612,9 +628,6 @@ const useGameStore = create((set, get) => ({
 
     const underCheck = findCheck(chess);
 
-    // When navigating back to the latest move, sync chessInstance so
-    // selectSquare (which is unblocked at the latest position) uses
-    // a chess instance whose state matches the displayed board.
     const isLatest = index === moveHistory.length - 1;
 
     set({

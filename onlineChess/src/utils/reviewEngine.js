@@ -5,15 +5,15 @@ const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 const REVIEW_DEPTH = 2; // depth 2 is fast (~50ms per position) yet meaningful
 
 export const CLASSIFICATIONS = {
-  brilliant:  { symbol: '!!', label: 'Brilliant',  color: '#00b5ff', bg: 'rgba(0,181,255,0.15)',  icon: '💡' },
-  critical:   { symbol: '!',  label: 'Critical',   color: '#ff6b35', bg: 'rgba(255,107,53,0.15)',  icon: '❗' },
-  best:       { symbol: '★',  label: 'Best',       color: '#3ddc84', bg: 'rgba(61,220,132,0.15)',  icon: '⭐' },
-  excellent:  { symbol: '👍', label: 'Excellent',  color: '#81c343', bg: 'rgba(129,195,67,0.15)',  icon: '👍' },
-  okay:       { symbol: '✓',  label: 'Okay',       color: '#4ab37c', bg: 'rgba(74,179,124,0.15)', icon: '✓'  },
-  inaccuracy: { symbol: '?!', label: 'Inaccuracy', color: '#f0c94c', bg: 'rgba(240,201,76,0.15)',  icon: '⁉'  },
-  mistake:    { symbol: '?',  label: 'Mistake',    color: '#e08c00', bg: 'rgba(224,140,0,0.15)',   icon: '❓' },
-  blunder:    { symbol: '??', label: 'Blunder',    color: '#cc3333', bg: 'rgba(204,51,51,0.15)',   icon: '❌' },
-  theory:     { symbol: '📖', label: 'Theory',     color: '#8e7c5e', bg: 'rgba(142,124,94,0.15)',  icon: '📖' },
+  brilliant:  { symbol: '!!', label: 'Brilliant',  color: '#00b5ff', bg: 'rgba(0,181,255,0.15)',  icon: '!!' },
+  critical:   { symbol: '!',  label: 'Critical',   color: '#ff6b35', bg: 'rgba(255,107,53,0.15)',  icon: '!'  },
+  best:       { symbol: '\u2605', label: 'Best',    color: '#3ddc84', bg: 'rgba(61,220,132,0.15)',  icon: '\u2605' },
+  excellent:  { symbol: '\u2713', label: 'Excellent', color: '#81c343', bg: 'rgba(129,195,67,0.15)', icon: '\u2713' },
+  okay:       { symbol: '\u223C', label: 'Okay',    color: '#4ab37c', bg: 'rgba(74,179,124,0.15)', icon: '\u223C' },
+  inaccuracy: { symbol: '?!', label: 'Inaccuracy', color: '#f0c94c', bg: 'rgba(240,201,76,0.15)',  icon: '?!' },
+  mistake:    { symbol: '?',  label: 'Mistake',    color: '#e08c00', bg: 'rgba(224,140,0,0.15)',   icon: '?'  },
+  blunder:    { symbol: '??', label: 'Blunder',    color: '#cc3333', bg: 'rgba(204,51,51,0.15)',   icon: '??' },
+  theory:     { symbol: '\u2261', label: 'Theory',  color: '#8e7c5e', bg: 'rgba(142,124,94,0.15)', icon: '\u2261' },
 };
 
 export function classifyMove(diff, isTheory = false) {

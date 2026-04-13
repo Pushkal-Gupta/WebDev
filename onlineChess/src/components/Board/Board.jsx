@@ -21,7 +21,8 @@ const Board = memo(function Board({ arrows, badges }) {
   const resolvePiece = usePieceResolver();
 
   // ── Move animation state ──────────────────────────────────────────────────
-  const [animating, setAnimating] = useState(null); // { piece, fromRow, fromCol, toRow, toCol }
+  // animating: { pieces: [{ type, color, fromRow, fromCol, toRow, toCol }], hideSquares: [{row,col}], duration }
+  const [animating, setAnimating] = useState(null);
   const boardRef = useRef(null);
 
   // ── Illegal move shake ────────────────────────────────────────────────────
@@ -36,25 +37,49 @@ const Board = memo(function Board({ arrows, badges }) {
 
   useEffect(() => {
     if (animationSpeed === 'none') return;
-    // Only animate actual new moves, not undo/history navigation
     if (!lastMoveIsNew) return;
     if (!lastMove || !boardState) return;
 
-    // Get the piece that just moved (it's now at the destination)
-    const piece = boardState[lastMove.to.row]?.[lastMove.to.col];
-    if (!piece) return;
-
     const durationMs = animationSpeed === 'fast' ? 80 : animationSpeed === 'slow' ? 300 : 150;
+    const flags = lastMove.flags || '';
+    const color = lastMove.pieceColor || 'w';
+    const pieces = [];
+    const hideSquares = [];
 
-    setAnimating({
-      piece,
+    // Use source piece type for promotion (show pawn sliding, not queen)
+    const pieceType = lastMove.pieceType || boardState[lastMove.to.row]?.[lastMove.to.col]?.type || 'p';
+
+    // Main piece animation
+    pieces.push({
+      type: pieceType,
+      color,
       fromRow: lastMove.from.row,
       fromCol: lastMove.from.col,
       toRow: lastMove.to.row,
       toCol: lastMove.to.col,
-      duration: durationMs,
     });
+    hideSquares.push({ row: lastMove.to.row, col: lastMove.to.col });
 
+    // Castling: also animate the rook
+    if (flags.includes('k')) {
+      // Kingside castle — rook moves from h-file to f-file
+      const rookRow = lastMove.from.row;
+      pieces.push({ type: 'r', color, fromRow: rookRow, fromCol: 7, toRow: rookRow, toCol: 5 });
+      hideSquares.push({ row: rookRow, col: 5 });
+    } else if (flags.includes('q')) {
+      // Queenside castle — rook moves from a-file to d-file
+      const rookRow = lastMove.from.row;
+      pieces.push({ type: 'r', color, fromRow: rookRow, fromCol: 0, toRow: rookRow, toCol: 3 });
+      hideSquares.push({ row: rookRow, col: 3 });
+    }
+
+    // En passant: hide the captured pawn's square
+    if (flags.includes('e')) {
+      // Captured pawn is on the same column as destination, same row as source
+      hideSquares.push({ row: lastMove.from.row, col: lastMove.to.col });
+    }
+
+    setAnimating({ pieces, hideSquares, duration: durationMs });
     const timer = setTimeout(() => setAnimating(null), durationMs + 10);
     return () => clearTimeout(timer);
   }, [lastMove, lastMoveIsNew, boardState, animationSpeed]);
@@ -92,47 +117,41 @@ const Board = memo(function Board({ arrows, badges }) {
 
   const hasOverlays = (arrows?.length > 0) || (badges?.length > 0);
 
-  // Compute animation overlay position (percentage-based for responsiveness)
+  // Compute animation overlays (one per animated piece)
   let animOverlay = null;
   if (animating) {
-    const { piece, fromRow, fromCol, toRow, toCol, duration } = animating;
-    const fromDisplayRow = flipped ? 7 - fromRow : fromRow;
-    const fromDisplayCol = flipped ? 7 - fromCol : fromCol;
-    const toDisplayRow = flipped ? 7 - toRow : toRow;
-    const toDisplayCol = flipped ? 7 - toCol : toCol;
+    animOverlay = animating.pieces.map((p, i) => {
+      const fromDisplayRow = flipped ? 7 - p.fromRow : p.fromRow;
+      const fromDisplayCol = flipped ? 7 - p.fromCol : p.fromCol;
+      const toDisplayRow = flipped ? 7 - p.toRow : p.toRow;
+      const toDisplayCol = flipped ? 7 - p.toCol : p.toCol;
 
-    // Start position (percentage of board)
-    const startLeft = `${fromDisplayCol * 12.5}%`;
-    const startTop  = `${fromDisplayRow * 12.5}%`;
-    const endLeft   = `${toDisplayCol * 12.5}%`;
-    const endTop    = `${toDisplayRow * 12.5}%`;
-
-    animOverlay = (
-      <div
-        className={styles.moveAnimation}
-        style={{
-          '--anim-from-left': startLeft,
-          '--anim-from-top': startTop,
-          '--anim-to-left': endLeft,
-          '--anim-to-top': endTop,
-          '--anim-duration': `${duration}ms`,
-          width: '12.5%',
-          height: '12.5%',
-        }}
-      >
-        <img
-          src={resolvePiece(piece.type, piece.color)}
-          alt=""
-          className={styles.moveAnimPiece}
-        />
-      </div>
-    );
+      return (
+        <div
+          key={`anim-${i}`}
+          className={styles.moveAnimation}
+          style={{
+            '--anim-from-left': `${fromDisplayCol * 12.5}%`,
+            '--anim-from-top': `${fromDisplayRow * 12.5}%`,
+            '--anim-to-left': `${toDisplayCol * 12.5}%`,
+            '--anim-to-top': `${toDisplayRow * 12.5}%`,
+            '--anim-duration': `${animating.duration}ms`,
+            width: '12.5%',
+            height: '12.5%',
+          }}
+        >
+          <img
+            src={resolvePiece(p.type, p.color)}
+            alt=""
+            className={styles.moveAnimPiece}
+          />
+        </div>
+      );
+    });
   }
 
-  // Hide piece at destination during animation
-  const hideSquare = animating
-    ? { row: animating.toRow, col: animating.toCol }
-    : null;
+  // Hide pieces at destination squares during animation (+ en passant captured pawn)
+  const hideSquares = animating ? animating.hideSquares : null;
 
   return (
     <div className={styles.boardWrapper}>
@@ -147,7 +166,7 @@ const Board = memo(function Board({ arrows, badges }) {
               displayCol={displayCol}
               flipped={flipped}
               piece={boardState[row][col]}
-              hidePiece={hideSquare && hideSquare.row === row && hideSquare.col === col}
+              hidePiece={hideSquares?.some(sq => sq.row === row && sq.col === col)}
             />
           ))
         )}

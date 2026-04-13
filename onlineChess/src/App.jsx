@@ -1381,8 +1381,9 @@ import { usePieceResolver } from './utils/pieceResolver';
 
 function PlayerPanel({ name, colorCode, time, timeActive, timerRunning, captured, materialAdv, timeControl, showHint, onHint, showCaptured = true }) {
   const resolvePiece = usePieceResolver();
+  const lowTimeThreshold = usePrefsStore(s => s.lowTimeThreshold);
   const initial = (name || (colorCode === 'w' ? 'W' : 'B'))[0].toUpperCase();
-  const isLow   = timeActive && timerRunning && time <= 10_000;
+  const isLow   = timeActive && timerRunning && time <= (lowTimeThreshold * 1000);
   const ticking = timeActive && timerRunning;
 
   return (

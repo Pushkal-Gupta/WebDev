@@ -223,6 +223,8 @@ Deno.serve(async (req) => {
       },
     });
 
+    // Small delay to ensure broadcast flushes before channel teardown
+    await new Promise(r => setTimeout(r, 150));
     supabase.removeChannel(channel);
 
     return new Response(
