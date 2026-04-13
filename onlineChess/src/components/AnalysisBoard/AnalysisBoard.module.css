@@ -154,13 +154,34 @@
   gap: 16px;
 }
 
-/* ── Score card (players + result) ── */
-.scoreCard {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
-  padding: 24px 20px 20px;
+/* ── Result banner ── */
+.resultBanner {
   text-align: center;
+  padding: 10px 0 2px;
+}
+
+.resultText {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.1em;
+}
+
+.resultOpening {
+  display: block;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.35);
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* ── Accuracy rings section ── */
+.accSection {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 0 4px;
 }
 
 .scoreCardAnimated {
@@ -172,119 +193,107 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-.scoreResult {
-  font-size: 1.6rem;
-  font-weight: 900;
-  color: rgba(255, 255, 255, 0.85);
-  margin-bottom: 16px;
-  letter-spacing: 0.1em;
-}
-
-.playersRow {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 24px;
-}
-
-.playerCard {
+.accRing {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  min-width: 100px;
   flex: 1;
-  max-width: 160px;
+  max-width: 140px;
+  position: relative;
 }
 
-.playerAvatar {
-  width: 52px;
-  height: 52px;
-  border-radius: 8px;
+.accRing svg {
+  display: block;
+}
+
+.accRingInner {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 88px;
+  height: 88px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.04);
-  border: 2px solid rgba(255, 255, 255, 0.08);
-  margin-bottom: 4px;
 }
 
-.avatarDot {
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-}
-
-.avatarDotW {
-  background: linear-gradient(135deg, #f0f0f0, #c4c4c4);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.avatarDotB {
-  background: linear-gradient(135deg, #3a3a3a, #1a1a1a);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.accValue {
-  font-size: 2rem;
+.accRingValue {
+  font-size: 1.7rem;
   font-weight: 900;
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
 
-.playerAccLabel {
-  font-size: 0.65rem;
-  color: rgba(255, 255, 255, 0.35);
+.accRingLabel {
+  font-size: 0.58rem;
+  color: rgba(255, 255, 255, 0.3);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.playerName {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.65);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 140px;
+  letter-spacing: 0.08em;
   margin-top: 2px;
 }
 
-.vsSection {
+.accRingName {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.accRingDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.accDotW {
+  background: linear-gradient(135deg, #f0f0f0, #c4c4c4);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.accDotB {
+  background: linear-gradient(135deg, #3a3a3a, #1a1a1a);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.accCenter {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
   padding-top: 24px;
-}
-
-.gameCharacter {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   gap: 2px;
+  min-width: 44px;
 }
 
-.characterIcon {
-  font-size: 1.4rem;
-  opacity: 0.6;
+.accCenterIcon {
+  font-size: 1.2rem;
+  opacity: 0.5;
 }
 
-.characterLabel {
-  font-size: 0.65rem;
+.accCenterLabel {
+  font-size: 0.58rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.35);
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
 
 .gameDescription {
-  margin-top: 12px;
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.45);
+  text-align: center;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.4);
   font-style: italic;
   line-height: 1.5;
+  padding: 0 12px;
 }
 
 /* ── Report eval graph ── */
@@ -445,16 +454,8 @@
 .evalCardFill {
   height: 100%;
   border-radius: 3px;
-  background: linear-gradient(90deg, #00ccaa, #00fff5, #00ccaa);
-  background-size: 200% 100%;
-  animation: evalShimmer 1.5s ease-in-out infinite;
-  transition: width 0.3s ease;
-  box-shadow: 0 0 6px rgba(0, 255, 245, 0.25);
-}
-
-@keyframes evalShimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  background: #00ccaa;
+  transition: width 0.4s ease;
 }
 
 .evalCardHint {
@@ -763,46 +764,46 @@
   font-style: italic;
 }
 
-/* ── Accuracies card (Chess.com-style) ── */
-.accuraciesCard {
-  background: rgba(255, 255, 255, 0.04);
+/* ── ELO estimation card ── */
+.eloCard {
+  background: rgba(0, 255, 245, 0.03);
+  border: 1px solid rgba(0, 255, 245, 0.08);
   border-radius: 10px;
-  overflow: hidden;
+  padding: 12px 16px 10px;
 }
 
-.accuraciesTitle {
-  text-align: center;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.75);
-  padding: 10px 0 8px;
-  letter-spacing: 0.02em;
-}
-
-.accuraciesRow {
+.eloCardRow {
   display: flex;
+  gap: 24px;
+  justify-content: center;
 }
 
-.accuracyWhite {
-  flex: 1;
-  text-align: center;
-  font-size: 1.6rem;
+.eloItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.eloItemLabel {
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.eloItemVal {
+  font-size: 1.2rem;
   font-weight: 800;
-  padding: 12px 0 16px;
-  background: rgba(255, 255, 255, 0.92);
-  color: #1a1a1a;
+  color: #00fff5;
   font-variant-numeric: tabular-nums;
 }
 
-.accuracyBlack {
-  flex: 1;
+.eloHint {
   text-align: center;
-  font-size: 1.6rem;
-  font-weight: 800;
-  padding: 12px 0 16px;
-  background: rgba(0, 0, 0, 0.7);
-  color: rgba(255, 255, 255, 0.92);
-  font-variant-numeric: tabular-nums;
+  font-size: 0.62rem;
+  color: rgba(255, 255, 255, 0.2);
+  margin-top: 6px;
 }
 
 /* ── Accuracy bars ── */
@@ -846,7 +847,14 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Classification table (chess.com style) ── */
+/* ── Classification card ── */
+.classCard {
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
 .classTable {
   width: 100%;
   border-collapse: collapse;
@@ -898,17 +906,7 @@
   width: 40px;
 }
 
-/* ── ELO Estimation ── */
-.eloEstRow {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  flex-wrap: wrap;
-  padding: 12px 16px;
-  background: rgba(0, 255, 245, 0.04);
-  border: 1px solid rgba(0, 255, 245, 0.1);
-  border-radius: 10px;
-}
+/* Old ELO estimation — replaced by .eloCard */
 
 .eloEstItem {
   display: flex;
@@ -1446,20 +1444,22 @@
     overflow-y: auto;
   }
 
-  .playersRow {
-    gap: 12px;
+  .accSection {
+    gap: 8px;
   }
 
-  .playerCard {
-    min-width: 80px;
-  }
-
-  .accValue {
-    font-size: 1.5rem;
-  }
-
-  .scoreResult {
+  .accRingValue {
     font-size: 1.3rem;
+  }
+
+  .accRing svg {
+    width: 72px;
+    height: 72px;
+  }
+
+  .accRingInner {
+    width: 72px;
+    height: 72px;
   }
 
   .evalBar { width: 22px; }
@@ -1477,10 +1477,7 @@
   .importHeader { padding: 16px 16px 12px; }
 
   .reportScroll { padding: 12px 8px 24px; }
-  .scoreCard { padding: 16px 12px 14px; }
-  .accValue { font-size: 1.3rem; }
-  .playerAvatar { width: 40px; height: 40px; }
-  .avatarDot { width: 18px; height: 18px; }
+  .accRingValue { font-size: 1.2rem; }
 }
 
 /* Old precompute overlay removed — replaced by inline .evalCard */
