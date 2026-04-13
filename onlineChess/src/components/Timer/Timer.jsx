@@ -4,7 +4,11 @@ import { formatTime } from '../../utils/timeFormatter';
 import styles from './Timer.module.css';
 
 export default function Timer({ color }) {
-  const { whiteTime, blackTime, activeColor, timerRunning, timeControl } = useGameStore();
+  const whiteTime = useGameStore(s => s.whiteTime);
+  const blackTime = useGameStore(s => s.blackTime);
+  const activeColor = useGameStore(s => s.activeColor);
+  const timerRunning = useGameStore(s => s.timerRunning);
+  const timeControl = useGameStore(s => s.timeControl);
   const lowTimeThreshold = usePrefsStore(s => s.lowTimeThreshold);
 
   const time = color === 'w' ? whiteTime : blackTime;
