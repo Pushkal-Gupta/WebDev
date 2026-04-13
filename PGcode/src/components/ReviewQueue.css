@@ -1,0 +1,276 @@
+/* ── Review Queue Page ── */
+.rq-container {
+  width: 94%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 0 3rem;
+  min-height: calc(100vh - 120px);
+}
+
+/* ── Header ── */
+.rq-header {
+  margin-bottom: 2rem;
+}
+
+.rq-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.4rem;
+}
+
+.rq-title {
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.rq-badge {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  background: var(--accent);
+  color: var(--bg);
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+  letter-spacing: 0.03em;
+}
+
+.rq-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+/* ── Sections ── */
+.rq-section {
+  margin-bottom: 1.5rem;
+}
+
+.rq-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  margin-bottom: 0.7rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.rq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+/* ── Review Card ── */
+.rq-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all var(--t);
+  cursor: pointer;
+}
+
+.rq-card:hover {
+  border-color: var(--accent);
+  background: var(--hover-box);
+  transform: translateY(-1px);
+}
+
+.rq-card-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.rq-card-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rq-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+}
+
+.rq-card-diff {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.rq-diff-easy { color: var(--easy); }
+.rq-diff-medium { color: var(--medium); }
+.rq-diff-hard { color: var(--hard); }
+
+.rq-card-topic {
+  color: var(--text-dim);
+}
+
+.rq-card-overdue {
+  color: var(--hard);
+  font-weight: 600;
+}
+
+.rq-card-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.rq-card-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+}
+
+.rq-card-confidence {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.rq-card-solved {
+  color: var(--text-dim);
+}
+
+.rq-card-last {
+  color: var(--text-dim);
+}
+
+.rq-card-arrow {
+  color: var(--text-dim);
+  transition: color var(--t), transform var(--t);
+}
+
+.rq-card:hover .rq-card-arrow {
+  color: var(--accent);
+  transform: translateX(2px);
+}
+
+/* ── Empty / All Done ── */
+.rq-all-done,
+.rq-empty-auth {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 4rem 1rem;
+  text-align: center;
+}
+
+.rq-done-icon {
+  color: var(--easy);
+  opacity: 0.6;
+}
+
+.rq-empty-icon {
+  color: var(--text-dim);
+  opacity: 0.3;
+}
+
+.rq-all-done h2,
+.rq-empty-auth h2 {
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.rq-all-done p,
+.rq-empty-auth p {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+.rq-cta {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--bg);
+  background: var(--accent);
+  padding: 0.45rem 1rem;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: opacity var(--t);
+}
+
+.rq-cta:hover {
+  opacity: 0.85;
+}
+
+/* ── Skeleton ── */
+.rq-skeleton-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.skel {
+  background: linear-gradient(90deg, var(--surface) 25%, var(--border) 50%, var(--surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+.skel-title {
+  width: 200px;
+  height: 28px;
+  margin-bottom: 1rem;
+}
+
+.skel-row {
+  width: 100%;
+  height: 58px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .rq-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .rq-card-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .rq-card-stats {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+}
