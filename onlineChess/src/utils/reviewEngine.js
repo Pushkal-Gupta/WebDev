@@ -28,6 +28,25 @@ export function classifyMove(diff, isTheory = false) {
   return 'blunder';
 }
 
+/**
+ * Generate a natural-language explanation for a move classification.
+ */
+export function explainMove(classification, bestMoveSan, playedSan) {
+  const best = bestMoveSan || 'the engine suggestion';
+  switch (classification) {
+    case 'brilliant':  return 'An exceptional move! A strong sacrifice that improves your position.';
+    case 'critical':   return `A critical moment in the game. ${best} was the key move to find.`;
+    case 'best':       return 'This was the engine\'s top choice. Well played.';
+    case 'excellent':  return 'A very strong move — nearly equal to the best option.';
+    case 'okay':       return 'A reasonable move, though a slightly better option existed.';
+    case 'inaccuracy': return `A slight slip. ${best} was more precise here.`;
+    case 'mistake':    return `This move weakens your position. ${best} was significantly stronger.`;
+    case 'blunder':    return `A serious error that loses material or decisive advantage. ${best} was much better.`;
+    case 'theory':     return 'Standard opening theory — a well-known move in this position.';
+    default:           return '';
+  }
+}
+
 // Convert UCI move to SAN in a given FEN position
 function uciToSan(fen, uci) {
   try {
@@ -35,6 +54,68 @@ function uciToSan(fen, uci) {
     const result = chess.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci[4] });
     return result?.san || uci;
   } catch { return uci; }
+}
+
+/**
+ * Compute per-phase accuracy (opening / middlegame / endgame).
+ * Returns { opening: { white, black }, middlegame: { white, black }, endgame: { white, black } }
+ */
+const PHASE_ACC_WEIGHTS = {
+  brilliant: 100, critical: 90, best: 100, excellent: 90, okay: 65,
+  inaccuracy: 40, mistake: 15, blunder: 0, theory: 85,
+};
+
+function countPiecesFromFen(fen) {
+  const board = fen.split(' ')[0];
+  return (board.match(/[pnbrqkPNBRQK]/g) || []).length;
+}
+
+export function classifyPhases(moveHistory, reviewResults) {
+  if (!reviewResults?.length || !moveHistory?.length) return null;
+
+  // Determine phase boundaries
+  let openingEnd = 0;
+  let endgameStart = moveHistory.length;
+
+  // Opening: first 10 half-moves or until theory streak ends
+  for (let i = 0; i < Math.min(20, reviewResults.length); i++) {
+    if (reviewResults[i]?.classification === 'theory') {
+      openingEnd = i + 1;
+    } else if (i < 10) {
+      openingEnd = Math.max(openingEnd, i + 1);
+    } else {
+      break;
+    }
+  }
+  if (openingEnd < 6) openingEnd = Math.min(10, reviewResults.length);
+
+  // Endgame: when total pieces ≤ 10
+  for (let i = reviewResults.length - 1; i >= openingEnd; i--) {
+    if (moveHistory[i]?.fen && countPiecesFromFen(moveHistory[i].fen) <= 10) {
+      endgameStart = i;
+    } else {
+      break;
+    }
+  }
+  if (endgameStart <= openingEnd) endgameStart = reviewResults.length;
+
+  function phaseAcc(startIdx, endIdx, color) {
+    const moves = [];
+    for (let i = startIdx; i < endIdx && i < reviewResults.length; i++) {
+      if (!reviewResults[i] || moveHistory[i]?.color !== color) continue;
+      moves.push(reviewResults[i]);
+    }
+    if (!moves.length) return null;
+    return Math.round(moves.reduce((s, r) => s + (PHASE_ACC_WEIGHTS[r.classification] ?? 50), 0) / moves.length);
+  }
+
+  return {
+    opening: { white: phaseAcc(0, openingEnd, 'w'), black: phaseAcc(0, openingEnd, 'b') },
+    middlegame: { white: phaseAcc(openingEnd, endgameStart, 'w'), black: phaseAcc(openingEnd, endgameStart, 'b') },
+    endgame: endgameStart < reviewResults.length
+      ? { white: phaseAcc(endgameStart, reviewResults.length, 'w'), black: phaseAcc(endgameStart, reviewResults.length, 'b') }
+      : null,
+  };
 }
 
 /**

@@ -4,7 +4,7 @@ import styles from './AnalysisBoard.module.css';
 import useGameStore from '../../store/gameStore';
 import { getTopLinesAsync, analyzeGame, ANALYSIS_PASSES } from '../../utils/analysisEngine';
 import { Chess } from 'chess.js';
-import { CLASSIFICATIONS, classifyFromEvals } from '../../utils/reviewEngine';
+import { CLASSIFICATIONS, classifyFromEvals, explainMove, classifyPhases } from '../../utils/reviewEngine';
 import { fetchChessComGames } from '../../utils/chessComService';
 import { fetchLichessGames } from '../../utils/lichessService';
 import BoardEditor from './BoardEditor';
@@ -699,6 +699,59 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
 
   const gameCharacter = useMemo(() => getGameCharacter(reviewResults, moveHistory), [reviewResults, moveHistory]);
   const gameDesc = useMemo(() => getGameDescription(whiteAcc, blackAcc, pgnHeaders), [whiteAcc, blackAcc, pgnHeaders]);
+  const phaseGrades = useMemo(() => classifyPhases(moveHistory, reviewResults), [moveHistory, reviewResults]);
+
+  // Key moment navigation
+  const KEY_CLASSES = useMemo(() => new Set(['brilliant', 'critical', 'inaccuracy', 'mistake', 'blunder']), []);
+  const goToNextKey = useCallback(() => {
+    if (!reviewResults) return;
+    for (let i = currentMoveIndex + 1; i < reviewResults.length; i++) {
+      if (reviewResults[i] && KEY_CLASSES.has(reviewResults[i].classification)) { goToMove(i); return; }
+    }
+  }, [reviewResults, currentMoveIndex, goToMove, KEY_CLASSES]);
+  const goToPrevKey = useCallback(() => {
+    if (!reviewResults) return;
+    for (let i = currentMoveIndex - 1; i >= 0; i--) {
+      if (reviewResults[i] && KEY_CLASSES.has(reviewResults[i].classification)) { goToMove(i); return; }
+    }
+  }, [reviewResults, currentMoveIndex, goToMove, KEY_CLASSES]);
+
+  // ── Board overlay arrows + badges ──
+  const { boardArrows, boardBadges } = useMemo(() => {
+    const arrows = [];
+    const badges = [];
+    if (!curReview || !curMove) return { boardArrows: arrows, boardBadges: badges };
+    const cls = CLASSIFICATIONS[curReview.classification];
+
+    // Played move arrow (red/orange for bad moves)
+    if (['mistake', 'blunder', 'inaccuracy'].includes(curReview.classification)) {
+      arrows.push({ from: curMove.from, to: curMove.to, color: cls.color });
+    }
+
+    // Best move arrow (green) — parse UCI string to row/col
+    if (curReview.bestMoveSan && curReview.classification !== 'best' && curReview.classification !== 'excellent' && curReview.classification !== 'theory') {
+      const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+      const fenBefore = currentMoveIndex === 0 ? START_FEN : moveHistory[currentMoveIndex - 1]?.fen;
+      if (fenBefore) {
+        try {
+          const tempChess = new Chess(fenBefore);
+          const mv = tempChess.move(curReview.bestMoveSan);
+          if (mv) {
+            const bFrom = { row: 8 - parseInt(mv.from[1]), col: mv.from.charCodeAt(0) - 97 };
+            const bTo = { row: 8 - parseInt(mv.to[1]), col: mv.to.charCodeAt(0) - 97 };
+            arrows.push({ from: bFrom, to: bTo, color: '#3ddc84' });
+          }
+        } catch {}
+      }
+    }
+
+    // Badge on destination square of played move
+    if (cls && curReview.classification !== 'okay' && curReview.classification !== 'theory') {
+      badges.push({ row: curMove.to.row, col: curMove.to.col, symbol: cls.symbol, color: cls.color });
+    }
+
+    return { boardArrows: arrows, boardBadges: badges };
+  }, [curReview, curMove, currentMoveIndex, moveHistory]);
 
   // ── Render ────────────────────────────────────────────────────────────────────
 
@@ -937,22 +990,43 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
 
                 {/* ── Rating estimation ── */}
                 {reviewResults && (whiteAcc !== null || blackAcc !== null) && (
-                  <div className={styles.eloCard}>
-                    <div className={styles.eloCardRow}>
-                      {whiteAcc !== null && (
-                        <div className={styles.eloItem}>
-                          <span className={styles.eloItemLabel}>{pgnHeaders.White || 'WHITE'}</span>
-                          <span className={styles.eloItemVal}>~{estimateElo(whiteAcc)}</span>
-                        </div>
-                      )}
-                      {blackAcc !== null && (
-                        <div className={styles.eloItem}>
-                          <span className={styles.eloItemLabel}>{pgnHeaders.Black || 'BLACK'}</span>
-                          <span className={styles.eloItemVal}>~{estimateElo(blackAcc)}</span>
-                        </div>
-                      )}
+                  <div className={styles.eloSection}>
+                    <div className={styles.eloSectionTitle}>Estimated Rating</div>
+                    <div className={styles.eloCards}>
+                      {whiteAcc !== null && (() => {
+                        const elo = estimateElo(whiteAcc);
+                        const tier = elo >= 2000 ? 'master' : elo >= 1500 ? 'expert' : elo >= 1000 ? 'club' : 'beginner';
+                        return (
+                          <div className={`${styles.eloPlayerCard} ${styles[`eloTier_${tier}`]}`}>
+                            <div className={styles.eloPlayerHeader}>
+                              <span className={`${styles.eloPlayerDot} ${styles.eloPlayerDotW}`} />
+                              <span className={styles.eloPlayerName}>{pgnHeaders.White || 'White'}</span>
+                            </div>
+                            <div className={styles.eloPlayerRating}>~{elo}</div>
+                            <div className={styles.eloPlayerBar}>
+                              <div className={styles.eloPlayerBarFill} style={{ width: `${Math.min(100, Math.max(5, ((elo - 400) / 2000) * 100))}%` }} />
+                            </div>
+                          </div>
+                        );
+                      })()}
+                      {blackAcc !== null && (() => {
+                        const elo = estimateElo(blackAcc);
+                        const tier = elo >= 2000 ? 'master' : elo >= 1500 ? 'expert' : elo >= 1000 ? 'club' : 'beginner';
+                        return (
+                          <div className={`${styles.eloPlayerCard} ${styles[`eloTier_${tier}`]}`}>
+                            <div className={styles.eloPlayerHeader}>
+                              <span className={`${styles.eloPlayerDot} ${styles.eloPlayerDotB}`} />
+                              <span className={styles.eloPlayerName}>{pgnHeaders.Black || 'Black'}</span>
+                            </div>
+                            <div className={styles.eloPlayerRating}>~{elo}</div>
+                            <div className={styles.eloPlayerBar}>
+                              <div className={styles.eloPlayerBarFill} style={{ width: `${Math.min(100, Math.max(5, ((elo - 400) / 2000) * 100))}%` }} />
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
-                    <div className={styles.eloHint}>Estimated rating (this game)</div>
+                    <div className={styles.eloFootnote}>Based on accuracy this game</div>
                   </div>
                 )}
 
@@ -984,6 +1058,47 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                         })}
                       </tbody>
                     </table>
+                  </div>
+                )}
+
+                {/* Phase grades */}
+                {phaseGrades && (
+                  <div className={styles.phaseCard}>
+                    <div className={styles.phaseSectionTitle}>Performance by Phase</div>
+                    <div className={styles.phaseGrid}>
+                      <div />
+                      <div className={styles.phaseColHead}>Opening</div>
+                      <div className={styles.phaseColHead}>Middle</div>
+                      {phaseGrades.endgame && <div className={styles.phaseColHead}>Endgame</div>}
+                      <div className={styles.phaseRowLabel}>
+                        <span className={`${styles.accRingDot} ${styles.accDotW}`} />
+                        {pgnHeaders.White || 'White'}
+                      </div>
+                      {['opening', 'middlegame', 'endgame'].map(p => {
+                        if (p === 'endgame' && !phaseGrades.endgame) return null;
+                        const v = phaseGrades[p]?.white;
+                        return (
+                          <div key={`w-${p}`} className={styles.phaseCell}
+                            style={{ color: v == null ? 'rgba(255,255,255,0.2)' : v >= 85 ? '#3ddc84' : v >= 65 ? '#f0c94c' : '#e05555' }}>
+                            {v != null ? `${v}%` : '--'}
+                          </div>
+                        );
+                      })}
+                      <div className={styles.phaseRowLabel}>
+                        <span className={`${styles.accRingDot} ${styles.accDotB}`} />
+                        {pgnHeaders.Black || 'Black'}
+                      </div>
+                      {['opening', 'middlegame', 'endgame'].map(p => {
+                        if (p === 'endgame' && !phaseGrades.endgame) return null;
+                        const v = phaseGrades[p]?.black;
+                        return (
+                          <div key={`b-${p}`} className={styles.phaseCell}
+                            style={{ color: v == null ? 'rgba(255,255,255,0.2)' : v >= 85 ? '#3ddc84' : v >= 65 ? '#f0c94c' : '#e05555' }}>
+                            {v != null ? `${v}%` : '--'}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
 
@@ -1153,7 +1268,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                     }}>{formatEval(currentEval)}</span>
                   </div>
                   <div className={styles.boardWrap}>
-                    <Board />
+                    <Board arrows={boardArrows} badges={boardBadges} />
                   </div>
                 </div>
 
@@ -1176,6 +1291,13 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                   <button className={styles.navBtn} onClick={() => goToMove(currentMoveIndex - 1)} disabled={currentMoveIndex < 0} title="Prev">&#x25C0;</button>
                   <button className={styles.navBtn} onClick={() => goToMove(currentMoveIndex + 1)} disabled={currentMoveIndex >= moveHistory.length - 1} title="Next">&#x25B6;</button>
                   <button className={styles.navBtn} onClick={() => goToMove(moveHistory.length - 1)} title="End">&#x25B6;|</button>
+                  {reviewResults && (
+                    <>
+                      <span className={styles.navSep} />
+                      <button className={styles.keyBtn} onClick={goToPrevKey} title="Previous key moment">&#x25C0;&#x26A1;</button>
+                      <button className={styles.keyBtn} onClick={goToNextKey} title="Next key moment">&#x26A1;&#x25B6;</button>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -1249,22 +1371,28 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                   </div>
                 )}
 
-                {/* Move annotation */}
+                {/* Move annotation card */}
                 {curReview && curClass && curMove && (
-                  <div className={styles.annotation} style={{ borderLeftColor: curClass.color }}>
-                    <div className={styles.annotIcon} style={{ background: curClass.bg, color: curClass.color }}>
-                      {curClass.icon}
+                  <div className={styles.annotationCard}>
+                    <div className={styles.annotationHeader}>
+                      <span className={styles.annotationBadge} style={{ background: curClass.bg, color: curClass.color }}>
+                        {curClass.symbol} {curClass.label}
+                      </span>
+                      <span className={styles.annotationEval}>
+                        {formatEval(curReview.bestScore)} → {formatEval(curReview.playedScore)}
+                      </span>
                     </div>
-                    <div className={styles.annotBody}>
-                      <div className={styles.annotTitle}>
-                        <strong>{curMove.san}</strong> is {curClass.label}
+                    <div className={styles.annotationMove}>
+                      <strong>{curMove.san}</strong>
+                    </div>
+                    <p className={styles.annotationText}>
+                      {explainMove(curReview.classification, curReview.bestMoveSan, curMove.san)}
+                    </p>
+                    {curReview.bestMoveSan && curReview.bestMoveSan !== curMove.san && (
+                      <div className={styles.annotationBest}>
+                        Best move: <strong>{curReview.bestMoveSan}</strong>
                       </div>
-                      {curReview.bestMoveSan && curReview.bestMoveSan !== curMove.san && (
-                        <div className={styles.annotBest}>
-                          The best move was <strong>{curReview.bestMoveSan}</strong>
-                        </div>
-                      )}
-                    </div>
+                    )}
                   </div>
                 )}
 
@@ -1326,7 +1454,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                     }}>{formatEval(currentEval)}</span>
                   </div>
                   <div className={styles.boardWrap}>
-                    <Board />
+                    <Board arrows={boardArrows} badges={boardBadges} />
                   </div>
                 </div>
                 <div className={styles.playerBar}>
@@ -1340,6 +1468,13 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                   <button className={styles.navBtn} onClick={() => goToMove(currentMoveIndex - 1)} disabled={currentMoveIndex < 0} title="Prev">&#x25C0;</button>
                   <button className={styles.navBtn} onClick={() => goToMove(currentMoveIndex + 1)} disabled={currentMoveIndex >= moveHistory.length - 1} title="Next">&#x25B6;</button>
                   <button className={styles.navBtn} onClick={() => goToMove(moveHistory.length - 1)} title="End">&#x25B6;|</button>
+                  {reviewResults && (
+                    <>
+                      <span className={styles.navSep} />
+                      <button className={styles.keyBtn} onClick={goToPrevKey} title="Previous key moment">&#x25C0;&#x26A1;</button>
+                      <button className={styles.keyBtn} onClick={goToNextKey} title="Next key moment">&#x26A1;&#x25B6;</button>
+                    </>
+                  )}
                 </div>
               </div>
               <div className={styles.analysisPanel}>

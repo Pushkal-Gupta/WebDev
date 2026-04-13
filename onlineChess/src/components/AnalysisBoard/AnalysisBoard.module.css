@@ -641,6 +641,31 @@
   cursor: not-allowed;
 }
 
+.navSep {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 2px;
+}
+
+.keyBtn {
+  padding: 6px 10px;
+  background: rgba(255, 165, 0, 0.06);
+  border: 1px solid rgba(255, 165, 0, 0.15);
+  color: rgba(255, 165, 0, 0.7);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  transition: all 0.15s;
+  line-height: 1;
+}
+
+.keyBtn:hover {
+  background: rgba(255, 165, 0, 0.12);
+  border-color: rgba(255, 165, 0, 0.3);
+  color: #ffa500;
+}
+
 /* ── Action buttons ── */
 .iconBtn {
   padding: 6px 10px;
@@ -764,46 +789,112 @@
   font-style: italic;
 }
 
-/* ── ELO estimation card ── */
-.eloCard {
-  background: rgba(0, 255, 245, 0.03);
-  border: 1px solid rgba(0, 255, 245, 0.08);
-  border-radius: 10px;
-  padding: 12px 16px 10px;
-}
-
-.eloCardRow {
-  display: flex;
-  gap: 24px;
-  justify-content: center;
-}
-
-.eloItem {
+/* ── ELO estimation section ── */
+.eloSection {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 2px;
+  gap: 8px;
 }
 
-.eloItemLabel {
-  font-size: 0.6rem;
-  color: rgba(255, 255, 255, 0.35);
+.eloSectionTitle {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.4);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  padding-left: 2px;
 }
 
-.eloItemVal {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: #00fff5;
+.eloCards {
+  display: flex;
+  gap: 8px;
+}
+
+.eloPlayerCard {
+  flex: 1;
+  padding: 12px 14px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: border-color 0.3s;
+}
+
+.eloPlayerHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.eloPlayerDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.eloPlayerDotW {
+  background: linear-gradient(135deg, #f0f0f0, #c4c4c4);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.eloPlayerDotB {
+  background: linear-gradient(135deg, #3a3a3a, #1a1a1a);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.eloPlayerName {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.eloPlayerRating {
+  font-size: 1.6rem;
+  font-weight: 900;
   font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  margin-bottom: 8px;
 }
 
-.eloHint {
+.eloPlayerBar {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.eloPlayerBarFill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 1s ease;
+}
+
+/* Tier colors */
+.eloTier_beginner { border-color: rgba(224, 85, 85, 0.2); }
+.eloTier_beginner .eloPlayerRating { color: #e05555; }
+.eloTier_beginner .eloPlayerBarFill { background: #e05555; }
+
+.eloTier_club { border-color: rgba(240, 201, 76, 0.2); }
+.eloTier_club .eloPlayerRating { color: #f0c94c; }
+.eloTier_club .eloPlayerBarFill { background: #f0c94c; }
+
+.eloTier_expert { border-color: rgba(0, 255, 245, 0.15); }
+.eloTier_expert .eloPlayerRating { color: #00fff5; }
+.eloTier_expert .eloPlayerBarFill { background: #00fff5; }
+
+.eloTier_master { border-color: rgba(160, 100, 255, 0.2); }
+.eloTier_master .eloPlayerRating { color: #a064ff; }
+.eloTier_master .eloPlayerBarFill { background: linear-gradient(90deg, #a064ff, #e040fb); }
+
+.eloFootnote {
   text-align: center;
-  font-size: 0.62rem;
-  color: rgba(255, 255, 255, 0.2);
-  margin-top: 6px;
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.18);
+  font-style: italic;
 }
 
 /* ── Accuracy bars ── */
@@ -906,6 +997,57 @@
   width: 40px;
 }
 
+/* ── Phase grades ── */
+.phaseCard {
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  padding: 14px 16px 12px;
+}
+
+.phaseSectionTitle {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+
+.phaseGrid {
+  display: grid;
+  grid-template-columns: auto repeat(3, 1fr);
+  gap: 4px 12px;
+  align-items: center;
+}
+
+.phaseColHead {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.3);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.phaseRowLabel {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
+  padding: 4px 0;
+}
+
+.phaseCell {
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  padding: 4px 0;
+}
+
 /* Old ELO estimation — replaced by .eloCard */
 
 .eloEstItem {
@@ -988,44 +1130,54 @@
 .lineMoveFirst { color: rgba(255, 255, 255, 0.85); }
 .lineMoveCont  { color: rgba(255, 255, 255, 0.35); }
 
-/* ── Move annotation ── */
-.annotation {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
+/* ── Move annotation card ── */
+.annotationCard {
   padding: 10px 14px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  border-left: 3px solid transparent;
   flex-shrink: 0;
-  background: rgba(0, 0, 0, 0.08);
+  background: rgba(0, 0, 0, 0.1);
 }
 
-.annotIcon {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
+.annotationHeader {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  flex-shrink: 0;
+  justify-content: space-between;
+  margin-bottom: 6px;
 }
 
-.annotBody {
-  flex: 1;
-  min-width: 0;
+.annotationBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
-.annotTitle {
-  font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.75);
-  line-height: 1.4;
-}
-
-.annotBest {
-  font-size: 0.7rem;
+.annotationEval {
+  font-size: 0.68rem;
   color: rgba(255, 255, 255, 0.35);
-  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.annotationMove {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 4px;
+}
+
+.annotationText {
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.45;
+  margin: 0 0 4px;
+}
+
+.annotationBest {
+  font-size: 0.72rem;
+  color: #3ddc84;
+  font-weight: 600;
 }
 
 /* Opening name in analysis tab */
