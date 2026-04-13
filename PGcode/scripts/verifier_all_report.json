@@ -1,0 +1,24 @@
+{
+  "counts": {
+    "python": {
+      "ok": 200,
+      "fail": 0,
+      "skip": 0
+    },
+    "javascript": {
+      "ok": 200,
+      "fail": 0,
+      "skip": 0
+    },
+    "java": {
+      "ok": 169,
+      "fail": 0,
+      "skip": 31
+    }
+  },
+  "failures": {
+    "python": [],
+    "javascript": [],
+    "java": []
+  }
+}

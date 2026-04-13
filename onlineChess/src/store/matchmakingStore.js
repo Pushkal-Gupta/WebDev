@@ -143,12 +143,16 @@ const useMatchmakingStore = create((set, get) => ({
       });
       if (claimErr || !claimed) return; // Race lost — wait for next poll
 
+      // Randomize color assignment so neither player is systematically favored
+      const hostColor = Math.random() < 0.5 ? 'white' : 'black';
+      const guestColor = hostColor === 'white' ? 'black' : 'white';
+
       // Create the chess room (status: 'playing', both players already known)
       const { error: roomErr } = await supabase.from('chess_rooms').insert({
         id:          roomId,
         host_id:     userId,
         host_name:   username,
-        host_color:  'white',
+        host_color:  hostColor,
         guest_id:    opponent.user_id,
         guest_name:  opponent.username,
         time_control: timeControl,
@@ -163,16 +167,16 @@ const useMatchmakingStore = create((set, get) => ({
         roomId,
         opponentName: username,
         opponentId:   userId,
-        yourColor:    'black',
+        yourColor:    guestColor,
         timeControl,
       });
 
-      // Handle locally (we are white)
+      // Handle locally
       get()._onMatchReceived({
         roomId,
         opponentName: opponent.username,
         opponentId:   opponent.user_id,
-        yourColor:    'white',
+        yourColor:    hostColor,
         timeControl,
       });
     } catch (e) {
