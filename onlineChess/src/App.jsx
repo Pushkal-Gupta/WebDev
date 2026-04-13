@@ -49,16 +49,12 @@ const FriendsPage    = lazy(() => import('./components/Friends/FriendsPage'));
 const LeaderboardPage = lazy(() => import('./components/Leaderboard/LeaderboardPage'));
 const TournamentsPage = lazy(() => import('./components/Tournaments/TournamentsPage'));
 const ClubsPage      = lazy(() => import('./components/Clubs/ClubsPage'));
-const TrainingPage   = lazy(() => import('./components/Training/CoordinateTrainer'));
+const TrainingHub    = lazy(() => import('./components/Training/TrainingHub'));
 const ComputerSetup  = lazy(() => import('./components/ComputerSetup/ComputerSetup'));
 const SettingsPage   = lazy(() => import('./components/Settings/SettingsPage'));
 const P2PSetup       = lazy(() => import('./components/P2PPlay/P2PSetup'));
 const P2PGame        = lazy(() => import('./components/P2PPlay/P2PGame'));
 const RatingCard     = lazy(() => import('./components/Profile/RatingCard'));
-const LessonsPage    = lazy(() => import('./components/Lessons/LessonsPage'));
-const CoachPanel     = lazy(() => import('./components/Coach/CoachPanel'));
-const OpeningTrainer = lazy(() => import('./components/OpeningTrainer/OpeningTrainer'));
-const EndgameTrainer = lazy(() => import('./components/EndgameTrainer/EndgameTrainer'));
 
 // ─── Time presets ─────────────────────────────────────────────────────────────
 // Time presets — all values in MILLISECONDS
@@ -82,7 +78,7 @@ const ONLINE_TIME_CONTROLS = TC_PRESETS.filter(p => ['1+0','3+0','5+0','10+0','1
 const PATH_TO_TAB = {
   '/': 0, '/play': 1, '/analysis': 2, '/computer': 3, '/online': 4,
   '/account': 5, '/puzzles': 6, '/spectate': 7, '/friends': 8,
-  '/clubs': 9, '/tournaments': 10, '/leaderboard': 11, '/p2p': 12, '/training': 13, '/settings': 14, '/lessons': 15, '/coach': 16, '/openings': 17, '/endgames': 18,
+  '/clubs': 9, '/tournaments': 10, '/leaderboard': 11, '/p2p': 12, '/training': 13, '/settings': 14,
 };
 const TAB_TO_PATH = Object.fromEntries(Object.entries(PATH_TO_TAB).map(([k, v]) => [v, k]));
 
@@ -976,23 +972,11 @@ export default function App() {
         {/* ── Tab 11: Leaderboard ── */}
         {activeTab === 11 && <LeaderboardPage />}
 
-        {/* ── Tab 13: Training ── */}
-        {activeTab === 13 && <TrainingPage />}
+        {/* ── Tab 13: Training (Lessons, Coach, Openings, Endgames, Basics) ── */}
+        {activeTab === 13 && <TrainingHub />}
 
         {/* ── Tab 14: Settings ── */}
         {activeTab === 14 && <SettingsPage />}
-
-        {/* ── Tab 15: Lessons ── */}
-        {activeTab === 15 && <LessonsPage />}
-
-        {/* ── Tab 16: Coach ── */}
-        {activeTab === 16 && <CoachPanel />}
-
-        {/* ── Tab 17: Opening Trainer ── */}
-        {activeTab === 17 && <OpeningTrainer />}
-
-        {/* ── Tab 18: Endgame Trainer ── */}
-        {activeTab === 18 && <EndgameTrainer />}
 
         {/* ── Tab 12: P2P Nearby Play ── */}
         {activeTab === 12 && !p2pMyColor && (

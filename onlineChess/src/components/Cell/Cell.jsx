@@ -140,12 +140,26 @@ const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, pie
             transform: pieceScale !== 100 ? `scale(${pieceScale / 100})` : undefined,
             transition: animationSpeed === 'none' ? 'none'
               : `transform ${animationSpeed === 'fast' ? 80 : animationSpeed === 'slow' ? 300 : 150}ms ease`,
-            opacity: hidePiece ? 0 : undefined,
+            opacity: hidePiece ? 0 : isPremoveFrom ? 0.35 : undefined,
           }}
           draggable={canDrag}
           onDragStart={canDrag ? handleDragStart : undefined}
           onDragEnd={canDrag ? handleDragEnd : undefined}
           onClick={(e) => { e.stopPropagation(); handleClick(); }}
+        />
+      )}
+
+      {/* Ghost piece at premove destination */}
+      {isPremoveTo && premove?.piece && (
+        <img
+          src={resolvePiece(premove.piece.type, premove.piece.color)}
+          alt=""
+          className={styles.piece}
+          style={{
+            transform: pieceScale !== 100 ? `scale(${pieceScale / 100})` : undefined,
+            opacity: 0.35,
+            pointerEvents: 'none',
+          }}
         />
       )}
 

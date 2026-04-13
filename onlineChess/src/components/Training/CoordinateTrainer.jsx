@@ -194,11 +194,10 @@ function CoordMode({ mode }) {
               colOrder.map(file => {
                 const sq = FILES[file] + RANKS[rank];
                 const isLight = (file + rank) % 2 !== 0;
-                const isTarget = active && sq === target;
                 return (
                   <div
                     key={sq}
-                    className={`${styles.miniCell} ${isTarget ? styles.miniCellTarget : ''}`}
+                    className={styles.miniCell}
                     style={{ backgroundColor: isLight ? clr1 : clr2 }}
                     onClick={() => handleCellClick(sq)}
                   >
