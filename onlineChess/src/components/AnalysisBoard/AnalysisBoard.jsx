@@ -47,12 +47,17 @@ function formatEval(score) {
 }
 
 const _openingCache = new Map();
+const _ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlrcGptdm95YXRjcmxxeXFiZ2Z1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNzgyNTEsImV4cCI6MjA4OTk1NDI1MX0.LgSbUHB93i5S61jp5d_0sAUWosZzDWWWv7jwoU6X-3Q';
 async function fetchOpeningName(fen) {
   if (_openingCache.has(fen)) return _openingCache.get(fen);
   try {
+    const params = new URLSearchParams({ fen, db: 'masters' });
     const res = await fetch(
-      `https://explorer.lichess.ovh/opening?fen=${encodeURIComponent(fen)}`,
-      { signal: AbortSignal.timeout(3000) }
+      `https://ykpjmvoyatcrlqyqbgfu.supabase.co/functions/v1/opening-explorer?${params}`,
+      {
+        headers: { Accept: 'application/json', apikey: _ANON_KEY, Authorization: `Bearer ${_ANON_KEY}` },
+        signal: AbortSignal.timeout(5000),
+      }
     );
     if (!res.ok) return null;
     const json = await res.json();
