@@ -1,6 +1,6 @@
 # Verifier report
 
-- **Passing:** 97
+- **Passing:** 200
 - **Failing:** 0
 - **Skipped (no python solution / no tests):** 0
 
