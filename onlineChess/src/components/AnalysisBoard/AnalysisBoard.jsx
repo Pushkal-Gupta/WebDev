@@ -1065,7 +1065,9 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                 {phaseGrades && (
                   <div className={styles.phaseCard}>
                     <div className={styles.phaseSectionTitle}>Performance by Phase</div>
-                    <div className={styles.phaseGrid}>
+                    <div className={styles.phaseGrid} style={{
+                      gridTemplateColumns: phaseGrades.endgame ? 'auto repeat(3, 1fr)' : 'auto repeat(2, 1fr)',
+                    }}>
                       <div />
                       <div className={styles.phaseColHead}>Opening</div>
                       <div className={styles.phaseColHead}>Middle</div>
@@ -1264,7 +1266,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                     <span className={styles.evalScore} style={{
                       top: flipped ? (displayPct >= 55 ? 'auto' : '4px') : (displayPct >= 55 ? '4px' : 'auto'),
                       bottom: flipped ? (displayPct >= 55 ? '4px' : 'auto') : (displayPct >= 55 ? 'auto' : '4px'),
-                      color: flipped ? (displayPct >= 55 ? '#000' : '#eee') : (displayPct >= 55 ? '#eee' : '#000'),
+                      color: displayPct >= 55 ? '#111' : '#eee',
                     }}>{formatEval(currentEval)}</span>
                   </div>
                   <div className={styles.boardWrap}>
@@ -1450,7 +1452,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                     <span className={styles.evalScore} style={{
                       top: flipped ? (displayPct >= 55 ? 'auto' : '4px') : (displayPct >= 55 ? '4px' : 'auto'),
                       bottom: flipped ? (displayPct >= 55 ? '4px' : 'auto') : (displayPct >= 55 ? 'auto' : '4px'),
-                      color: flipped ? (displayPct >= 55 ? '#000' : '#eee') : (displayPct >= 55 ? '#eee' : '#000'),
+                      color: displayPct >= 55 ? '#111' : '#eee',
                     }}>{formatEval(currentEval)}</span>
                   </div>
                   <div className={styles.boardWrap}>

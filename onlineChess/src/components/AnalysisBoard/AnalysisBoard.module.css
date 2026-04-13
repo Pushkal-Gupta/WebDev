@@ -1016,6 +1016,7 @@
 
 .phaseGrid {
   display: grid;
+  /* grid-template-columns set inline based on whether endgame exists */
   grid-template-columns: auto repeat(3, 1fr);
   gap: 4px 12px;
   align-items: center;

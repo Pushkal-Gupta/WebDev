@@ -86,6 +86,16 @@ export default function OpeningExplorer({ fen, onPlayMove }) {
 
       {loading && <div className={styles.loading}>Loading explorer...</div>}
 
+      {!loading && !data && fen && (
+        <div className={styles.empty}>
+          Explorer data unavailable. The Lichess Explorer API may require authentication.
+          <br /><br />
+          <span style={{ fontSize: '0.7rem', opacity: 0.5 }}>
+            Try refreshing, or check back later.
+          </span>
+        </div>
+      )}
+
       {!loading && data && data.moves.length === 0 && (
         <div className={styles.empty}>No games found in this position.</div>
       )}
