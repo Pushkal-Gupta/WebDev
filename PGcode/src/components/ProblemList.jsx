@@ -26,7 +26,7 @@ export default function ProblemList({ session, roadmapMode }) {
       setLoading(true);
       try {
         const [problemsRes, topicsRes, progressRes] = await Promise.all([
-          supabase.from('PGcode_problems').select('id, name, topic_id, difficulty, roadmap_set, leetcode_url, tags'),
+          supabase.from('PGcode_problems').select('id, name, topic_id, difficulty, roadmap_set, leetcode_url'),
           supabase.from('PGcode_topics').select('id, name').neq('id', 'first-order'),
           session?.user
             ? supabase.from('PGcode_user_progress').select('problem_id, is_completed, is_starred').eq('user_id', session.user.id)
@@ -62,6 +62,7 @@ export default function ProblemList({ session, roadmapMode }) {
     return map;
   }, [topics]);
 
+  // Tags will be available after running migrate_add_tags.sql
   const allTags = useMemo(() => {
     const tagSet = new Set();
     problems.forEach(p => (p.tags || []).forEach(t => tagSet.add(t)));
@@ -115,7 +116,6 @@ export default function ProblemList({ session, roadmapMode }) {
       if (topicFilter !== 'all' && p.topic_id !== topicFilter) return false;
       if (!diffFilter.has(p.difficulty)) return false;
       if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
-      if (tagFilter !== 'all' && !(p.tags || []).includes(tagFilter)) return false;
 
       const prog = userProgress[p.id];
       if (statusFilter === 'solved' && !prog?.is_completed) return false;
@@ -202,13 +202,6 @@ export default function ProblemList({ session, roadmapMode }) {
             <option value="starred">Starred</option>
           </select>
 
-          {allTags.length > 0 && (
-            <select className="pl-select" value={tagFilter} onChange={e => setTagFilter(e.target.value)}>
-              <option value="all">All Patterns</option>
-              {allTags.map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
-          )}
-
           <select className="pl-select pl-sort" value={sortBy} onChange={e => setSortBy(e.target.value)}>
             <option value="topic">Sort: Topic</option>
             <option value="difficulty">Sort: Difficulty</option>
@@ -223,7 +216,6 @@ export default function ProblemList({ session, roadmapMode }) {
           <div className="pl-col-status"></div>
           <div className="pl-col-name">Problem</div>
           <div className="pl-col-topic">Topic</div>
-          <div className="pl-col-tags">Patterns</div>
           <div className="pl-col-diff">Difficulty</div>
           <div className="pl-col-actions"></div>
         </div>
@@ -256,11 +248,6 @@ export default function ProblemList({ session, roadmapMode }) {
                 <div className="pl-col-topic">
                   <span className="pl-topic-badge">{topicNameMap[p.topic_id] || p.topic_id}</span>
                 </div>
-                <div className="pl-col-tags">
-                  {(p.tags || []).slice(0, 2).map(t => (
-                    <span key={t} className="pl-tag-pill" onClick={() => setTagFilter(t)}>{t}</span>
-                  ))}
-                </div>
                 <div className={`pl-col-diff pl-diff-${p.difficulty.toLowerCase()}`}>
                   {p.difficulty}
                 </div>
@@ -285,7 +272,7 @@ export default function ProblemList({ session, roadmapMode }) {
             <div className="pl-empty">
               <Search size={32} className="pl-empty-icon" />
               <p>No problems match your filters.</p>
-              <button className="pl-clear-btn" onClick={() => { setSearch(''); setTopicFilter('all'); setDiffFilter(new Set(DIFFICULTIES)); setStatusFilter('all'); setTagFilter('all'); }}>
+              <button className="pl-clear-btn" onClick={() => { setSearch(''); setTopicFilter('all'); setDiffFilter(new Set(DIFFICULTIES)); setStatusFilter('all'); }}>
                 Clear Filters
               </button>
             </div>

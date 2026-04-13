@@ -9,7 +9,6 @@ import {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { supabase } from '../lib/supabase';
-import { X, ArrowRight } from 'lucide-react';
 import TopicModal from './TopicModal';
 import TopicNode from './TopicNode';
 import SidePanel from './SidePanel';
@@ -78,14 +77,6 @@ export default function RoadmapView({ roadmapMode, setRoadmapMode, session }) {
   const [edges, setEdges] = useState([]);
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [topicProgress, setTopicProgress] = useState({});
-  const [showOnboarding, setShowOnboarding] = useState(
-    () => !localStorage.getItem('pgcode_onboarded')
-  );
-
-  const dismissOnboarding = () => {
-    setShowOnboarding(false);
-    localStorage.setItem('pgcode_onboarded', '1');
-  };
 
   const nodeTypes = useMemo(() => ({
     custom: TopicNode,
@@ -244,30 +235,7 @@ export default function RoadmapView({ roadmapMode, setRoadmapMode, session }) {
   };
 
   return (
-    <div style={{ width: '100%', height: 'calc(100vh - 100px)', background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
-      {showOnboarding && (
-        <div className="onboarding-hero">
-          <div className="onboarding-content">
-            <h2 className="onboarding-title">Master DSA from Scratch to Interview-Ready</h2>
-            <p className="onboarding-desc">
-              PGcode is a curated learning system -- not a problem dump. Start with <strong>PGcode 200</strong> to learn every pattern,
-              then progress to <strong>300</strong> and <strong>500</strong> for interview mastery.
-            </p>
-            <div className="onboarding-actions">
-              <button className="onboarding-cta" onClick={() => {
-                dismissOnboarding();
-                const arraysNode = nodes.find(n => n.id === 'arrays');
-                if (arraysNode) setSelectedTopic(arraysNode);
-              }}>
-                Start with Arrays <ArrowRight size={14} />
-              </button>
-              <button className="onboarding-dismiss" onClick={dismissOnboarding}>I know my way around</button>
-            </div>
-          </div>
-          <button className="onboarding-close" onClick={dismissOnboarding}><X size={16} /></button>
-        </div>
-      )}
-      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'row' }}>
+    <div style={{ width: '100%', height: 'calc(100vh - 100px)', background: 'var(--bg)', display: 'flex', flexDirection: 'row' }}>
       <div style={{ flex: 1, minWidth: 0 }}>
       <ReactFlow
         nodes={nodes}
@@ -287,7 +255,6 @@ export default function RoadmapView({ roadmapMode, setRoadmapMode, session }) {
       </div>
 
       <SidePanel session={session} roadmapMode={roadmapMode} setRoadmapMode={setRoadmapMode} />
-      </div>
 
       {selectedTopic && (
         <TopicModal

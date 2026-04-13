@@ -472,15 +472,18 @@ export default function Workspace({ session, theme, roadmapMode }) {
         // Trigger success animation
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 2000);
-        // Fetch similar problems by tags
+        // Fetch similar problems by tags (requires migrate_add_tags.sql)
         if (activeProblem?.tags?.length > 0) {
           supabase
             .from('PGcode_problems')
-            .select('id, name, topic_id, difficulty, tags')
+            .select('id, name, topic_id, difficulty')
             .overlaps('tags', activeProblem.tags)
             .neq('id', activeProblem.id)
             .limit(5)
-            .then(({ data }) => setSimilarProblems(data || []));
+            .then(({ data }) => setSimilarProblems(data || []))
+            .catch(() => setSimilarProblems([]));
+        } else {
+          setSimilarProblems([]);
         }
         if (session?.user) {
           saveProgress({
@@ -630,9 +633,6 @@ export default function Workspace({ session, theme, roadmapMode }) {
                 <div className="ws-q-tags">
                   <span className={`ws-diff-badge ws-diff-${activeProblem.difficulty?.toLowerCase()}`}>{activeProblem.difficulty}</span>
                   {topic?.category && <span className="ws-tag-pill">{topic.category}</span>}
-                  {(activeProblem.tags || []).map(t => (
-                    <span key={t} className="ws-tag-pill ws-tag-pattern">{t}</span>
-                  ))}
                 </div>
 
                 <div className="ws-q-desc" dangerouslySetInnerHTML={{ __html: activeProblem.description }} />
