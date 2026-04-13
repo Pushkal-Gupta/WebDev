@@ -127,9 +127,10 @@ export function subscribeAsSpectator(roomId, handlers = {}) {
   });
 
   channel
-    .on('broadcast', { event: 'move' },   ({ payload }) => handlers.onMove?.(payload))
-    .on('broadcast', { event: 'resign' }, ({ payload }) => handlers.onResign?.(payload))
-    .on('broadcast', { event: 'chat' },   ({ payload }) => handlers.onChat?.(payload));
+    .on('broadcast', { event: 'move' },           ({ payload }) => handlers.onMove?.(payload))
+    .on('broadcast', { event: 'validated-move' },  ({ payload }) => handlers.onMove?.(payload))
+    .on('broadcast', { event: 'resign' },         ({ payload }) => handlers.onResign?.(payload))
+    .on('broadcast', { event: 'chat' },           ({ payload }) => handlers.onChat?.(payload));
 
   return new Promise((resolve, reject) => {
     let settled = false;

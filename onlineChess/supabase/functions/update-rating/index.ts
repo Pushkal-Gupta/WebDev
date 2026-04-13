@@ -136,8 +136,17 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Prevent double-rating (check if result already set)
-    if (room.result) {
+    // Prevent double-rating: atomically claim the room by setting result
+    // Only proceed if result is still null (first caller wins)
+    const { data: claimData, error: claimErr } = await supabase
+      .from("chess_rooms")
+      .update({ result: { winner, reason }, status: "finished" })
+      .eq("id", room_id)
+      .is("result", null)
+      .select("id");
+
+    if (claimErr || !claimData?.length) {
+      // Another request already set the result — skip rating update
       return new Response(JSON.stringify({ error: "Rating already updated", ok: false }), {
         status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -212,11 +221,7 @@ Deno.serve(async (req) => {
       last_game_at: new Date().toISOString(),
     }, { onConflict: "user_id,category" });
 
-    // Mark room as rated
-    await supabase.from("chess_rooms").update({
-      result: { winner, reason },
-      status: "finished",
-    }).eq("id", room_id);
+    // Room already marked as rated in the atomic claim above
 
     return new Response(JSON.stringify({
       ok: true,

@@ -1192,12 +1192,12 @@ export default function App() {
 // ─── Home screen ─────────────────────────────────────────────────────────────
 
 const QUICK_TCS = [
-  { display: '1+0',   cat: 'Bullet',    total: 60,   incr: 0,  catKey: 'bullet',    accent: '#fb923c' },
-  { display: '3+0',   cat: 'Blitz',     total: 180,  incr: 0,  catKey: 'blitz',     accent: '#00fff5' },
-  { display: '5+0',   cat: 'Blitz',     total: 300,  incr: 0,  catKey: 'blitz',     accent: '#00fff5' },
-  { display: '10+0',  cat: 'Rapid',     total: 600,  incr: 0,  catKey: 'rapid',     accent: '#34d399' },
-  { display: '15+10', cat: 'Rapid',     total: 900,  incr: 10, catKey: 'rapid',     accent: '#34d399' },
-  { display: '30+0',  cat: 'Classical', total: 1800, incr: 0,  catKey: 'classical', accent: '#a78bfa' },
+  { display: '1+0',   cat: 'Bullet',    total: 60_000,    incr: 0,      catKey: 'bullet',    accent: '#fb923c' },
+  { display: '3+0',   cat: 'Blitz',     total: 180_000,   incr: 0,      catKey: 'blitz',     accent: '#00fff5' },
+  { display: '5+0',   cat: 'Blitz',     total: 300_000,   incr: 0,      catKey: 'blitz',     accent: '#00fff5' },
+  { display: '10+0',  cat: 'Rapid',     total: 600_000,   incr: 0,      catKey: 'rapid',     accent: '#34d399' },
+  { display: '15+10', cat: 'Rapid',     total: 900_000,   incr: 10_000, catKey: 'rapid',     accent: '#34d399' },
+  { display: '30+0',  cat: 'Classical', total: 1_800_000, incr: 0,      catKey: 'classical', accent: '#a78bfa' },
 ];
 
 const FEATURE_CARDS = [
@@ -1319,7 +1319,7 @@ function HomeScreen({ user, onStart, onPlayOnline, onTabClick, onQuickMatch }) {
               <div className="home-play-card-desc">Custom time controls</div>
             </button>
 
-            <button className="home-play-card" onClick={() => onStart('local', { display: '10+0', total: 600, incr: 0, cat: 'Rapid', delayType: 'none', delay: 0 })}>
+            <button className="home-play-card" onClick={() => onStart('local', { display: '10+0', total: 600_000, incr: 0, cat: 'Rapid', delayType: 'none', delay: 0 })}>
               <div className="home-play-card-top">
                 <span className="home-play-card-icon icon-glow" style={{color:'#34d399'}}>2P</span>
               </div>

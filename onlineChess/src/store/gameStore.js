@@ -93,6 +93,7 @@ const initialState = {
   onlineOpponentId: null, // opponent's auth user ID (set when online game starts)
   premove: null,          // { from: {row,col}, to: {row,col}|null } — queued premove
   illegalMoveAt: 0,       // timestamp of last illegal move attempt (triggers shake)
+  lastMoveIsNew: false,   // true only when a real move was made (not undo/navigation)
 };
 
 const useGameStore = create((set, get) => ({
@@ -393,6 +394,7 @@ const useGameStore = create((set, get) => ({
       selectedSquare: null,
       validMoves: [],
       lastMove: { from, to },
+      lastMoveIsNew: true,
       underCheck,
       activeColor: chessInstance.turn(),
       whiteTime: newWhiteTime,
@@ -518,6 +520,7 @@ const useGameStore = create((set, get) => ({
       selectedSquare: null,
       validMoves: [],
       lastMove,
+      lastMoveIsNew: false,
       underCheck,
       activeColor: chessInstance.turn(),
       gameOver: false,
@@ -564,10 +567,12 @@ const useGameStore = create((set, get) => ({
       selectedSquare: null,
       validMoves: [],
       lastMove,
+      lastMoveIsNew: false,
       underCheck,
       activeColor: chessInstance.turn(),
       gameOver: false,
       gameOverMessage: '',
+      gameResult: null,
       disableBoard: false,
       capturedByWhite: newCapturedByWhite,
       capturedByBlack: newCapturedByBlack,
@@ -618,6 +623,7 @@ const useGameStore = create((set, get) => ({
       selectedSquare: null,
       validMoves: [],
       lastMove,
+      lastMoveIsNew: false,
       underCheck,
       activeColor: chess.turn(),
       ...(isLatest ? { chessInstance: chess } : {}),

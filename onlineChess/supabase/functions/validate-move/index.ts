@@ -143,12 +143,14 @@ Deno.serve(async (req) => {
       // Deduct elapsed time from the player who just moved
       const elapsed = serverTimestamp - lastMoveAt;
       if (playerTurnCode === "w") {
-        whiteTimeMs = Math.max(0, whiteTimeMs - elapsed);
-        // Fischer increment
-        if (tc.incr) whiteTimeMs += tc.incr;
+        whiteTimeMs = whiteTimeMs - elapsed;
+        // Fischer increment — only add if player still has time
+        if (whiteTimeMs > 0 && tc.incr) whiteTimeMs += tc.incr;
+        whiteTimeMs = Math.max(0, whiteTimeMs);
       } else {
-        blackTimeMs = Math.max(0, blackTimeMs - elapsed);
-        if (tc.incr) blackTimeMs += tc.incr;
+        blackTimeMs = blackTimeMs - elapsed;
+        if (blackTimeMs > 0 && tc.incr) blackTimeMs += tc.incr;
+        blackTimeMs = Math.max(0, blackTimeMs);
       }
     }
 
