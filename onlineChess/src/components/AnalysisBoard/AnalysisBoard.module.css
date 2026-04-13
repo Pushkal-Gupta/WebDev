@@ -403,25 +403,64 @@
   to { transform: rotate(360deg); }
 }
 
-/* Review progress */
-.reviewProgress {
-  height: 3px;
-  background: rgba(0, 255, 245, 0.06);
+/* Inline evaluation progress card */
+.evalCard {
+  margin: 8px 12px 4px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(0, 255, 245, 0.03);
+  border: 1px solid rgba(0, 255, 245, 0.1);
   flex-shrink: 0;
 }
 
-.reviewBar {
+.evalCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+
+.evalCardTitle {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.evalCardPct {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #00fff5;
+  font-variant-numeric: tabular-nums;
+}
+
+.evalCardTrack {
+  width: 100%;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+
+.evalCardFill {
   height: 100%;
+  border-radius: 3px;
   background: linear-gradient(90deg, #00ccaa, #00fff5, #00ccaa);
   background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
-  transition: width 0.2s ease;
+  animation: evalShimmer 1.5s ease-in-out infinite;
+  transition: width 0.3s ease;
   box-shadow: 0 0 6px rgba(0, 255, 245, 0.25);
 }
 
-@keyframes shimmer {
+@keyframes evalShimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+.evalCardHint {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.35);
+  line-height: 1.3;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
@@ -1444,101 +1483,4 @@
   .avatarDot { width: 18px; height: 18px; }
 }
 
-/* ── Pre-computation loading overlay ── */
-.precomputeOverlay {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-bg-primary);
-  padding: 24px;
-}
-
-.precomputeCard {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  padding: 40px 48px;
-  border-radius: 16px;
-  background: rgba(0, 255, 245, 0.03);
-  border: 1px solid rgba(0, 255, 245, 0.1);
-  max-width: 360px;
-  width: 100%;
-}
-
-.precomputeChess {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.precomputeChess {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 96px;
-  height: 96px;
-}
-
-.precomputeRing {
-  position: absolute;
-  inset: 0;
-  filter: drop-shadow(0 0 8px rgba(0, 255, 245, 0.3));
-}
-
-.precomputeKingInner {
-  position: absolute;
-}
-
-.precomputeSpin {
-  animation: precomputePulse 2s ease-in-out infinite;
-}
-
-@keyframes precomputePulse {
-  0%, 100% { transform: scale(1); opacity: 0.7; filter: drop-shadow(0 0 8px rgba(0,255,245,0.3)); }
-  50% { transform: scale(1.08); opacity: 1; filter: drop-shadow(0 0 20px rgba(0,255,245,0.5)); }
-}
-
-.precomputeTitle {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.85);
-  letter-spacing: -0.01em;
-}
-
-.precomputeProgress {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: #00fff5;
-  font-variant-numeric: tabular-nums;
-}
-
-.precomputeBarTrack {
-  width: 100%;
-  height: 6px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.06);
-  overflow: hidden;
-}
-
-.precomputeBarFill {
-  height: 100%;
-  border-radius: 3px;
-  background: linear-gradient(90deg, #00ccaa, #00fff5, #00ccaa);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
-  transition: width 0.3s ease;
-  box-shadow: 0 0 8px rgba(0, 255, 245, 0.3);
-}
-
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-.precomputeHint {
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.35);
-}
+/* Old precompute overlay removed — replaced by inline .evalCard */

@@ -38,34 +38,40 @@ function uciToSan(fen, uci) {
 }
 
 /**
- * Review all moves in a game.
- * Returns array of { classification, diff, bestScore, playedScore, bestMoveSan }
+ * Classify all moves in a game from pre-computed Stockfish evaluations.
+ * Returns same shape as old reviewGame: array of { classification, diff, bestScore, playedScore, bestMoveSan, san }
  * @param {Array} moveHistory
- * @param {function} onProgress - (current, total) callback
- * @param {AbortSignal} [signal] - optional abort signal to cancel mid-review
+ * @param {Map<string, { score: number, bestMove: string }>} evals - FEN → eval data
+ * @returns {Array|null} results array, or null if insufficient evals
  */
-export async function reviewGame(moveHistory, onProgress, signal) {
-  if (!moveHistory.length) return [];
+export function classifyFromEvals(moveHistory, evals) {
+  if (!moveHistory.length || !evals.size) return null;
   const results = [];
-
-  // Simple theory detection: first 10 moves where the best move matches what was played
   let theoryStreak = 0;
 
   for (let i = 0; i < moveHistory.length; i++) {
-    if (signal?.aborted) return results; // return partial results on cancel
     const fenBefore = i === 0 ? START_FEN : moveHistory[i - 1].fen;
     const fenAfter  = moveHistory[i].fen;
     const isWhite   = moveHistory[i].color === 'w';
 
-    // Off-main-thread evaluation via the analysis worker (with LRU cache).
-    // Same semantics as the prior synchronous calls — just not blocking the UI.
-    const { bestScore, bestUci, playedScore } = await reviewMoveAsync(fenBefore, fenAfter, REVIEW_DEPTH);
+    const evalBefore = evals.get(fenBefore);
+    const evalAfter  = evals.get(fenAfter);
 
+    if (!evalBefore || !evalAfter) {
+      results.push(null); // not yet evaluated
+      continue;
+    }
+
+    const bestScore   = evalBefore.score;
+    const playedScore = evalAfter.score;
+    const bestUci     = evalBefore.bestMove;
+
+    // Diff from the moving side's perspective
     const diff = isWhite
       ? playedScore - bestScore
       : bestScore - playedScore;
 
-    // Detect opening theory: first 10 moves, if played = best move consider it theory
+    // Detect opening theory
     const playedUci = (() => {
       try {
         const fromFile = String.fromCharCode('a'.charCodeAt(0) + moveHistory[i].from.col);
@@ -89,7 +95,48 @@ export async function reviewGame(moveHistory, onProgress, signal) {
       bestMoveSan,
       san: moveHistory[i].san,
     });
+  }
 
+  return results;
+}
+
+/**
+ * Review all moves in a game (legacy — uses local minimax worker).
+ * Kept for fallback. Prefer classifyFromEvals with Stockfish progressive analysis.
+ */
+export async function reviewGame(moveHistory, onProgress, signal) {
+  if (!moveHistory.length) return [];
+  const results = [];
+  let theoryStreak = 0;
+
+  for (let i = 0; i < moveHistory.length; i++) {
+    if (signal?.aborted) return results;
+    const fenBefore = i === 0 ? START_FEN : moveHistory[i - 1].fen;
+    const fenAfter  = moveHistory[i].fen;
+    const isWhite   = moveHistory[i].color === 'w';
+
+    const { bestScore, bestUci, playedScore } = await reviewMoveAsync(fenBefore, fenAfter, REVIEW_DEPTH);
+
+    const diff = isWhite
+      ? playedScore - bestScore
+      : bestScore - playedScore;
+
+    const playedUci = (() => {
+      try {
+        const fromFile = String.fromCharCode('a'.charCodeAt(0) + moveHistory[i].from.col);
+        const fromRank = String(8 - moveHistory[i].from.row);
+        const toFile   = String.fromCharCode('a'.charCodeAt(0) + moveHistory[i].to.col);
+        const toRank   = String(8 - moveHistory[i].to.row);
+        return fromFile + fromRank + toFile + toRank;
+      } catch { return ''; }
+    })();
+    const isTheory = i < 12 && theoryStreak === i && bestUci === playedUci;
+    if (isTheory) theoryStreak++;
+
+    const classification = classifyMove(diff, isTheory);
+    const bestMoveSan = bestUci ? uciToSan(fenBefore, bestUci) : null;
+
+    results.push({ classification, diff, bestScore, playedScore, bestMoveSan, san: moveHistory[i].san });
     onProgress?.(i + 1, moveHistory.length, results);
   }
 

@@ -3,6 +3,8 @@
  * Provides async API with LRU caching and cancellation support.
  */
 
+import { getStockfishAnalysis, analysisNewGame } from './stockfishEngine';
+
 let worker = null;
 let requestId = 0;
 const pending = new Map();
@@ -103,33 +105,61 @@ export async function precomputeAll(fens, n = 3, onProgress = null) {
 }
 
 /**
- * Progressive two-pass precompute: shallow pass first (fast), then deep pass.
- * Each pass fires per-position callbacks so the UI can update incrementally.
- * @param {string[]} fens
+ * Four-pass progressive Stockfish analysis.
+ * Each pass evaluates all positions at increasing depth, updating the UI between positions.
+ *
+ * Pass depths and target timings (for ~38 move / ~39 FEN game):
+ *   Pass 0: depth 12 → ~15-30s   (quick usable results)
+ *   Pass 1: depth 15 → ~45s-1min (solid classifications)
+ *   Pass 2: depth 18 → ~1-2min   (near-final accuracy)
+ *   Pass 3: depth 22 → ~3-5min   (chess.com-grade depth)
+ *
+ * @param {string[]} fens - All unique FENs to evaluate
  * @param {object} opts
- * @returns {Promise<void>}
+ * @returns {Promise<Map<string, { score: number, bestMove: string, depth: number }>>}
  */
-export async function precomputeProgressive(fens, {
-  n = 3,
-  shallowDepth = 1,
-  deepDepth = 2,
-  onProgress = null,
+
+export const ANALYSIS_PASSES = [
+  { depth: 12, label: 'Quick scan' },
+  { depth: 15, label: 'Refining' },
+  { depth: 18, label: 'Deep analysis' },
+  { depth: 22, label: 'Full depth' },
+];
+
+export async function analyzeGame(fens, {
   onPositionDone = null,
+  onPassStart = null,
+  onPassDone = null,
+  onProgress = null,
   signal = null,
 } = {}) {
-  const total = fens.length;
-  // Shallow pass — fast rough evals
-  for (let i = 0; i < total; i++) {
-    if (signal?.aborted) return;
-    const result = await getTopLinesAsync(fens[i], n, shallowDepth);
-    onPositionDone?.(i, fens[i], result, 'shallow');
-    onProgress?.(i + 1, total, 'shallow');
+  await analysisNewGame();
+  const evals = new Map();
+
+  for (let p = 0; p < ANALYSIS_PASSES.length; p++) {
+    if (signal?.aborted) return evals;
+    const { depth, label } = ANALYSIS_PASSES[p];
+    onPassStart?.(p, depth, label);
+
+    for (let i = 0; i < fens.length; i++) {
+      if (signal?.aborted) return evals;
+      const fen = fens[i];
+      const existing = evals.get(fen);
+      if (existing && existing.depth >= depth) {
+        onProgress?.(i + 1, fens.length, p);
+        continue;
+      }
+      try {
+        const result = await getStockfishAnalysis(fen, { depth });
+        evals.set(fen, { score: result.score, bestMove: result.bestMove, depth });
+        onPositionDone?.(i, fen, result, p);
+      } catch (err) {
+        // Timeout or error — skip this position at this depth, keep previous eval
+        console.warn(`Stockfish analysis failed for position ${i} at depth ${depth}:`, err.message);
+      }
+      onProgress?.(i + 1, fens.length, p);
+    }
+    onPassDone?.(p, evals);
   }
-  // Deep pass — refined evals
-  for (let i = 0; i < total; i++) {
-    if (signal?.aborted) return;
-    const result = await getTopLinesAsync(fens[i], n, deepDepth);
-    onPositionDone?.(i, fens[i], result, 'deep');
-    onProgress?.(i + 1, total, 'deep');
-  }
+  return evals;
 }
