@@ -14,10 +14,10 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
   const [activeTab, setActiveTab] = useState('problems');
   const [width, setWidth] = useState(() => {
     const maxAllowed = window.innerWidth - 60;
-    const preferred = Math.floor(window.innerWidth * 0.92);
-    const minFloor = Math.min(1500, maxAllowed);
+    const preferred = Math.floor(window.innerWidth * 0.5);
+    const minFloor = Math.min(600, maxAllowed);
     const stored = parseInt(localStorage.getItem('pgcode_sidebar_width'), 10);
-    if (!isNaN(stored) && stored >= minFloor) return Math.min(stored, maxAllowed);
+    if (!isNaN(stored) && stored >= minFloor && stored <= maxAllowed) return stored;
     return Math.min(Math.max(preferred, minFloor), maxAllowed);
   });
   const isResizing = useRef(false);
@@ -129,7 +129,7 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
     const onMove = (ev) => {
       if (!isResizing.current) return;
       const newW = window.innerWidth - ev.clientX;
-      if (newW > 1500 && newW < maxWidth) {
+      if (newW > 400 && newW < maxWidth) {
         setWidth(newW);
         localStorage.setItem('pgcode_sidebar_width', String(newW));
       }
