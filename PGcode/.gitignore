@@ -1,8 +1,7 @@
 # Dependencies
 node_modules/
 
-# Build output
-dist/
+# Build output (dist/ is tracked for deployment)
 dist-ssr/
 
 # Environment variables (secrets — NEVER commit these)

@@ -126,10 +126,10 @@ function RequestsTab({ userId }) {
           <div key={req.id} className={styles.requestRow}>
             <div className={styles.requestInfo}>
               <div className={styles.requestAvatar}>
-                {(req.data?.from_username || '?')[0].toUpperCase()}
+                {(req.otherUsername || '?')[0].toUpperCase()}
               </div>
               <div>
-                <div className={styles.friendName}>{req.data?.from_username || 'Unknown'}</div>
+                <div className={styles.friendName}>{req.otherUsername || 'Unknown'}</div>
                 <div className={styles.requestAge}>{timeAgo(req.created_at)}</div>
               </div>
             </div>
@@ -161,9 +161,11 @@ function RequestsTab({ userId }) {
             {outgoing.map(req => (
               <div key={req.id} className={styles.requestRow}>
                 <div className={styles.requestInfo}>
-                  <div className={styles.requestAvatar}>?</div>
+                  <div className={styles.requestAvatar}>
+                    {(req.otherUsername || '?')[0].toUpperCase()}
+                  </div>
                   <div>
-                    <div className={styles.friendName}>Pending…</div>
+                    <div className={styles.friendName}>{req.otherUsername || 'Pending...'}</div>
                     <div className={styles.requestAge}>{timeAgo(req.created_at)}</div>
                   </div>
                 </div>
