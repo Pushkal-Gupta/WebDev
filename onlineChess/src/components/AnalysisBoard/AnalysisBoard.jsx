@@ -174,8 +174,23 @@ const EvalGraph = memo(function EvalGraph({ data, currentIdx, onSeek, large, rev
     data.length > 1 ? pad + (i / (data.length - 1)) * (W - pad * 2) : W / 2,
     evalToY(s),
   ]);
-  const pathD = pts.length > 1 ? 'M ' + pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' L ') : null;
-  const fillD = pathD ? `${pathD} L ${pts.at(-1)[0].toFixed(1)},${H / 2} L ${pts[0][0].toFixed(1)},${H / 2} Z` : null;
+  // Smooth curve using Catmull-Rom → Bezier for a gentler line than straight segments.
+  const pathD = pts.length > 1 ? (() => {
+    let d = `M ${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i - 1] || pts[i];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = pts[i + 2] || p2;
+      const cp1x = p1[0] + (p2[0] - p0[0]) / 6;
+      const cp1y = p1[1] + (p2[1] - p0[1]) / 6;
+      const cp2x = p2[0] - (p3[0] - p1[0]) / 6;
+      const cp2y = p2[1] - (p3[1] - p1[1]) / 6;
+      d += ` C ${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
+    }
+    return d;
+  })() : null;
+  const fillD = pathD ? `${pathD} L ${pts.at(-1)[0].toFixed(1)},${H} L ${pts[0][0].toFixed(1)},${H} Z` : null;
   const curX  = currentIdx >= 0 && currentIdx < data.length ? pts[currentIdx][0] : null;
 
   // Classification markers from review results
@@ -225,17 +240,16 @@ const EvalGraph = memo(function EvalGraph({ data, currentIdx, onSeek, large, rev
       onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}
     >
       <svg className={styles.evalGraph} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" onClick={handleClick}>
+        <defs>
+          <linearGradient id={`ag${uid}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="rgba(0,255,245,0.22)" />
+            <stop offset="100%" stopColor="rgba(0,255,245,0)" />
+          </linearGradient>
+        </defs>
         <rect x={0} y={0} width={W} height={H} fill="rgba(0,0,0,0.35)" rx={4} />
-        <line x1={0} y1={H/2} x2={W} y2={H/2} stroke="rgba(255,255,255,0.08)" strokeWidth={0.5} />
-        {fillD && (
-          <>
-            <clipPath id={`ug${uid}`}><rect x={0} y={0} width={W} height={H/2} /></clipPath>
-            <clipPath id={`lg${uid}`}><rect x={0} y={H/2} width={W} height={H/2} /></clipPath>
-            <path d={fillD} fill="rgba(255,255,255,0.15)" clipPath={`url(#ug${uid})`} />
-            <path d={fillD} fill="rgba(0,0,0,0.35)" clipPath={`url(#lg${uid})`} />
-          </>
-        )}
-        {pathD && <path d={pathD} fill="none" stroke="rgba(0,255,245,0.55)" strokeWidth={1.5} strokeLinejoin="round" />}
+        <line x1={0} y1={H/2} x2={W} y2={H/2} stroke="rgba(255,255,255,0.06)" strokeWidth={0.5} strokeDasharray="2 3" />
+        {fillD && <path d={fillD} fill={`url(#ag${uid})`} />}
+        {pathD && <path d={pathD} fill="none" stroke="rgba(0,255,245,0.7)" strokeWidth={1.75} strokeLinejoin="round" strokeLinecap="round" />}
         {markers.map((m, i) => (
           <circle key={i} cx={m.x} cy={m.y} r={large ? 4 : 3}
             fill={m.cls.color} opacity={0.85} stroke="rgba(0,0,0,0.4)" strokeWidth={0.5} />
@@ -521,6 +535,14 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
       setCurrentEval(evalHistory[currentMoveIndex]);
     }
 
+    // Don't compute engine lines while the full-game analysis is running;
+    // Stockfish is busy with the review passes. Surface "Computing..." instead.
+    if (isPrecomputing) {
+      setEngineLines([]);
+      setEngineBusy(true);
+      return;
+    }
+
     setEngineBusy(true);
     let cancelled = false;
     evalTimerRef.current = setTimeout(async () => {
@@ -541,7 +563,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
       finally { if (!cancelled) setEngineBusy(false); }
     }, 150);
     return () => { cancelled = true; clearTimeout(evalTimerRef.current); };
-  }, [currentMoveIndex, gameLoaded, chessInstance, evalHistory]);
+  }, [currentMoveIndex, gameLoaded, chessInstance, evalHistory, isPrecomputing]);
 
   useEffect(() => {
     if (!chessInstance || !gameLoaded) { setTablebaseData(null); return; }
@@ -1272,6 +1294,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                       top: flipped ? (displayPct >= 55 ? 'auto' : '4px') : (displayPct >= 55 ? '4px' : 'auto'),
                       bottom: flipped ? (displayPct >= 55 ? '4px' : 'auto') : (displayPct >= 55 ? 'auto' : '4px'),
                       color: displayPct >= 55 ? '#111' : '#eee',
+                      textShadow: displayPct >= 55 ? '0 1px 1px rgba(255,255,255,0.5)' : '0 1px 2px rgba(0,0,0,0.6)',
                     }}>{formatEval(currentEval)}</span>
                   </div>
                   <div className={styles.boardWrap}>
@@ -1322,9 +1345,11 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                 <div className={styles.section}>
                   <div className={styles.engineHeader}>
                     <span className={styles.sectionLabel}>Engine</span>
-                    <span className={styles.depthBadge}>D2</span>
+                    {!isPrecomputing && !engineBusy && engineLines.length > 0 && (
+                      <span className={styles.depthBadge}>D2</span>
+                    )}
                   </div>
-                  {engineBusy
+                  {isPrecomputing || engineBusy
                     ? <div className={styles.dim}>Computing...</div>
                     : engineLines.length === 0
                       ? <div className={styles.dim}>Game over</div>
@@ -1458,6 +1483,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                       top: flipped ? (displayPct >= 55 ? 'auto' : '4px') : (displayPct >= 55 ? '4px' : 'auto'),
                       bottom: flipped ? (displayPct >= 55 ? '4px' : 'auto') : (displayPct >= 55 ? 'auto' : '4px'),
                       color: displayPct >= 55 ? '#111' : '#eee',
+                      textShadow: displayPct >= 55 ? '0 1px 1px rgba(255,255,255,0.5)' : '0 1px 2px rgba(0,0,0,0.6)',
                     }}>{formatEval(currentEval)}</span>
                   </div>
                   <div className={styles.boardWrap}>
