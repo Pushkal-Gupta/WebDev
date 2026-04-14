@@ -1,5 +1,5 @@
 import React from 'react';
-import './renderers.css';
+import './Renderers.css';
 
 export default function StackQueueRenderer({ data }) {
   const { type = 'stack', items = [], operation } = data;

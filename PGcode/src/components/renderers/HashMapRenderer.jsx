@@ -1,5 +1,5 @@
 import React from 'react';
-import './renderers.css';
+import './Renderers.css';
 
 const stateStyles = {
   default: {},

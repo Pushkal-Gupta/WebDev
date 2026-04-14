@@ -8,7 +8,7 @@ import { writeFileSync } from 'node:fs';
 
 const TARGETS = process.argv.slice(2);
 if (!TARGETS.length) {
-  console.error('Usage: node scripts/regen_expected.mjs <problem-id> [<problem-id>...]');
+  console.error('Usage: node scripts/verify-03-regen-expected.mjs <problem-id> [<problem-id>...]');
   process.exit(1);
 }
 
@@ -109,5 +109,5 @@ for (const p of rows) {
 }
 out.push('COMMIT;');
 
-writeFileSync('scripts/fix_round4.sql', out.join('\n') + '\n');
-console.error('Wrote scripts/fix_round4.sql');
+writeFileSync('scripts/fix-04-round4.sql', out.join('\n') + '\n');
+console.error('Wrote scripts/fix-04-round4.sql');

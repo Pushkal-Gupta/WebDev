@@ -1,7 +1,7 @@
 -- Seed Learning Videos — Topic-specific DSA videos
 -- Sources: NeetCode, William Fiset, Greg Hogg, freeCodeCamp
 
--- Create table if not exists (also in migrate_v2.sql, but safe to re-run)
+-- Create table if not exists (also in migrate-01-v2-progress-friends.sql, but safe to re-run)
 CREATE TABLE IF NOT EXISTS public."PGcode_topic_videos" (
   id SERIAL PRIMARY KEY,
   topic_id TEXT REFERENCES public."PGcode_topics"(id) ON DELETE CASCADE,

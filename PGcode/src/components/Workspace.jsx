@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Play, ExternalLink, 
 import SolutionView from './SolutionView';
 import { runCode } from '../lib/codeRunner';
 import { generateTemplate, wrapWithDriver, buildStdin, compareOutput } from '../lib/driverCode';
-import '../styles/Workspace.css';
+import '../styles/workspace.css';
 
 export default function Workspace({ session, theme, roadmapMode }) {
   const { categoryId, problemId } = useParams();
