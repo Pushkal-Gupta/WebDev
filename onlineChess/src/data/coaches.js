@@ -3,7 +3,8 @@
  * One coach for now; shape mirrors bots.js so the same UI components can render both.
  */
 
-const COACH_ICON = '<path d="M10 2a5 5 0 015 5c0 2-1.5 3.5-3 4.5V14H8v-2.5C6.5 10.5 5 9 5 7a5 5 0 015-5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 14h4v2a2 2 0 01-4 0v-2z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 18h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>';
+// Graduation-cap icon on a chess board base — a clearer "coach / mentor" mark.
+const COACH_ICON = '<path d="M2 9l10-4 10 4-10 4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M6 10.8V15c0 1.5 2.7 2.8 6 2.8s6-1.3 6-2.8v-4.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 9v5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="21" cy="15" r="1.2" fill="currentColor"/>';
 
 const COACHES = [
   {
