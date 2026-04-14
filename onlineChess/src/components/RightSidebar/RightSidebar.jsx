@@ -1,7 +1,6 @@
 import { useRef, useState, useMemo, useEffect } from 'react';
 import styles from './RightSidebar.module.css';
 import useGameStore from '../../store/gameStore';
-import useThemeStore from '../../store/themeStore';
 import { getOpeningName } from '../../utils/evaluation';
 import { CLASSIFICATIONS } from '../../utils/reviewEngine';
 import BotChatCard from '../BotChatCard/BotChatCard';
@@ -127,7 +126,6 @@ export default function RightSidebar({ onAlert, reviewResults, isReviewing, isOn
     capturedByWhite, capturedByBlack,
   } = useGameStore();
 
-  const { pieceSets, pieceSetIndex } = useThemeStore();
   const moveHistoryRef = useRef(null);
 
   const showBotChat   = isComp && !isCoachGame && !isOnline && !isOnlineGame;

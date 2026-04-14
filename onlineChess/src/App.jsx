@@ -92,6 +92,7 @@ export default function App() {
   const setActiveTab = (tab) => navigate(TAB_TO_PATH[tab] || '/');
   const [pendingTimeControl, setPendingTimeControl] = useState(null);
   const [boardArrows, setBoardArrows]       = useState([]);  // hint/coach arrows
+  const hintTimeoutRef                      = useRef(null);   // cleanup for hint arrow auto-clear
   const [showLogin, setShowLogin]           = useState(false);
   const [showLogout, setShowLogout]         = useState(false);
   const [showStrength, setShowStrength]     = useState(false);
@@ -407,6 +408,17 @@ export default function App() {
 
   const handleGetHint = () => {
     if (!chessInstance || gameOver) return;
+    // Only hint on the user's own turn — otherwise we'd compute the opponent's best move.
+    const turn = chessInstance.turn();
+    const state = useGameStore.getState();
+    if (state.isComp) {
+      const userTurn = state.compColor === 'white' ? turn === 'b' : turn === 'w';
+      if (!userTurn) { showAlert('Wait for the opponent to move.'); return; }
+    } else if (state.isOnline) {
+      const userTurn = state.onlineColor === 'white' ? turn === 'w' : turn === 'b';
+      if (!userTurn) { showAlert('Wait for the opponent to move.'); return; }
+    }
+
     const s = getSuggestion(chessInstance.fen());
     if (!s) { showAlert('No hint available.'); return; }
     const toRC = (sq) => ({
@@ -415,10 +427,27 @@ export default function App() {
     });
     setBoardArrows([{ from: toRC(s.from), to: toRC(s.to), color: '#3ddc84', kind: 'hint' }]);
     showAlert(`Hint: ${s.from} → ${s.to}`);
-    setTimeout(() => {
+    // Replace any in-flight auto-clear so rapid re-hints don't cancel each other early.
+    if (hintTimeoutRef.current) clearTimeout(hintTimeoutRef.current);
+    hintTimeoutRef.current = setTimeout(() => {
       setBoardArrows((prev) => prev.filter((a) => a.kind !== 'hint'));
+      hintTimeoutRef.current = null;
     }, 4000);
   };
+
+  // Clean up pending hint-arrow timeout on unmount
+  useEffect(() => () => {
+    if (hintTimeoutRef.current) clearTimeout(hintTimeoutRef.current);
+  }, []);
+
+  // Clear any stale arrows when a new game starts / resets
+  useEffect(() => {
+    setBoardArrows([]);
+    if (hintTimeoutRef.current) {
+      clearTimeout(hintTimeoutRef.current);
+      hintTimeoutRef.current = null;
+    }
+  }, [gameStarted]);
 
   // ─── Online game handlers ─────────────────────────────────────────────────
   const onIncomingMove = (payload) => {
@@ -967,11 +996,11 @@ export default function App() {
               strength: level.strength,
               icon: coach.icon,
               color: coach.color,
-              tagline: coach.tagline,
-              description: coach.description,
-              winMsg: coach.closingWin,
-              loseMsg: coach.closingLoss,
-              drawMsg: coach.closingDraw,
+              tagline: coach.tagline || '',
+              description: coach.description || '',
+              winMsg: coach.closingWin  || 'Well played!',
+              loseMsg: coach.closingLoss || 'Good effort — let’s review.',
+              drawMsg: coach.closingDraw || 'A fair result.',
             });
             initGame();
             startGame(tc, true, compCol, level.strength, { isCoachGame: true, coachId: coach.id });

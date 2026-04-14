@@ -187,6 +187,9 @@ const useGameStore = create((set, get) => ({
       isOnline: true,
       onlineColor: playerColor,
       compThinking: false,
+      isCoachGame: false,
+      selectedCoachId: null,
+      selectedBotId: null,
       pawnPromotion: null,
       disableBoard: isBlack, // black waits for white to move first
       capturedByWhite: [],

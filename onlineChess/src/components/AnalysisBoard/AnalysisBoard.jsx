@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useId, useMemo, useCallback, memo } from '
 import Board from '../Board/Board';
 import styles from './AnalysisBoard.module.css';
 import useGameStore from '../../store/gameStore';
-import { getTopLinesAsync, analyzeGame, ANALYSIS_PASSES } from '../../utils/analysisEngine';
+import { getTopLinesAsync, analyzeGame, ANALYSIS_PASSES, precomputeAll } from '../../utils/analysisEngine';
 import { Chess } from 'chess.js';
 import { CLASSIFICATIONS, classifyFromEvals, explainMove, classifyPhases } from '../../utils/reviewEngine';
 import { fetchChessComGames } from '../../utils/chessComService';
@@ -527,7 +527,17 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
         }
       },
     })
-      .then(() => { setIsPrecomputing(false); setIsReviewing(false); })
+      .then(() => {
+        setIsPrecomputing(false);
+        setIsReviewing(false);
+        // Background: warm the top-3-lines cache so clicking moves post-review
+        // shows engine lines instantly instead of spinning "Computing...".
+        // Fire-and-forget — if the user switches tabs / loads another game,
+        // the next analyzeGame call will terminate the worker and unblock.
+        if (!controller.signal.aborted) {
+          precomputeAll(uniqueFens, 3).catch(() => { /* non-critical */ });
+        }
+      })
       .catch(() => { setIsPrecomputing(false); setIsReviewing(false); });
 
     return () => controller.abort();
@@ -629,10 +639,10 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
   const handleLoadGame = (game) => {
     if (!game.pgnStr) return;
     doLoad(game.pgnStr);
-    // Auto-flip so the user's own color sits at the bottom. Saved games carry
-    // a `color` field ('white' | 'black'); default to not flipped if missing.
+    // Auto-flip only when the saved game's `color` is explicitly known.
+    // If missing, leave the current flip alone so a manual flip isn't undone.
     if (game.color === 'black') setFlipped(true);
-    else setFlipped(false);
+    else if (game.color === 'white') setFlipped(false);
   };
 
   const handleFileUpload = (e) => {
@@ -1300,8 +1310,6 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                     <span className={styles.evalScore} style={{
                       top: flipped ? (displayPct >= 55 ? 'auto' : '4px') : (displayPct >= 55 ? '4px' : 'auto'),
                       bottom: flipped ? (displayPct >= 55 ? '4px' : 'auto') : (displayPct >= 55 ? 'auto' : '4px'),
-                      color: displayPct >= 55 ? '#111' : '#eee',
-                      textShadow: displayPct >= 55 ? '0 1px 1px rgba(255,255,255,0.5)' : '0 1px 2px rgba(0,0,0,0.6)',
                     }}>{formatEval(currentEval)}</span>
                   </div>
                   <div className={styles.boardWrap}>
@@ -1489,8 +1497,6 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                     <span className={styles.evalScore} style={{
                       top: flipped ? (displayPct >= 55 ? 'auto' : '4px') : (displayPct >= 55 ? '4px' : 'auto'),
                       bottom: flipped ? (displayPct >= 55 ? '4px' : 'auto') : (displayPct >= 55 ? 'auto' : '4px'),
-                      color: displayPct >= 55 ? '#111' : '#eee',
-                      textShadow: displayPct >= 55 ? '0 1px 1px rgba(255,255,255,0.5)' : '0 1px 2px rgba(0,0,0,0.6)',
                     }}>{formatEval(currentEval)}</span>
                   </div>
                   <div className={styles.boardWrap}>
