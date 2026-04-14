@@ -1,39 +1,58 @@
 .strip {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  left: 88px;
+  bottom: 24px;
   z-index: 450;
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
+  flex-direction: column-reverse;
+  align-items: flex-start;
+  gap: 10px;
   pointer-events: none;
-  max-width: 300px;
+  max-width: 320px;
+  width: max-content;
 }
 
 .toast {
+  position: relative;
   display: flex;
   align-items: flex-start;
-  gap: 8px;
-  padding: 8px 12px;
-  background: rgba(14, 14, 14, 0.96);
-  border: 1px solid rgba(255,255,255,0.09);
+  gap: 10px;
+  padding: 10px 14px 10px 12px;
+  background: linear-gradient(180deg, rgba(22,22,26,0.98), rgba(14,14,16,0.98));
+  border: 1px solid rgba(255,255,255,0.08);
   border-left: 3px solid var(--bot-color, #888);
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-  color: white;
-  font-size: 0.82rem;
-  line-height: 1.35;
-  max-width: 300px;
-  animation: slideIn 0.22s ease-out, fadeOut 0.4s ease-in 7s forwards;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,0,0,0.2);
+  color: rgba(255,255,255,0.94);
+  font-size: 0.84rem;
+  line-height: 1.4;
+  max-width: 320px;
+  animation: slideIn 0.24s ease-out, fadeOut 0.4s ease-in 7.3s forwards;
   pointer-events: auto;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* little speech-bubble tail pointing down-left toward the player area */
+.toast::after {
+  content: '';
+  position: absolute;
+  left: 18px;
+  bottom: -6px;
+  width: 10px;
+  height: 10px;
+  background: rgba(18,18,22,0.98);
+  border-right: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  transform: rotate(45deg);
 }
 
 .icon {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
   color: var(--bot-color, #888);
+  margin-top: 1px;
 }
 
 .body {
@@ -46,21 +65,21 @@
   font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.7px;
   color: var(--bot-color, #aaa);
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateX(10px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @keyframes fadeOut {
   to { opacity: 0; transform: translateY(-4px); }
 }
 
-@media (max-width: 640px) {
-  .strip { top: 12px; right: 8px; max-width: 70vw; }
-  .toast { font-size: 0.78rem; padding: 7px 10px; }
+@media (max-width: 860px) {
+  .strip { left: 12px; bottom: 96px; max-width: calc(100vw - 24px); }
+  .toast { font-size: 0.8rem; padding: 8px 12px; }
 }
