@@ -73,16 +73,18 @@ export default function BotCommentaryStrip() {
           className={styles.toast}
           style={{ '--bot-color': personality.color }}
         >
-          <svg
-            className={styles.icon}
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            dangerouslySetInnerHTML={{ __html: personality.icon }}
-          />
+          <span className={styles.avatar}>
+            <svg
+              className={styles.icon}
+              viewBox="0 0 24 24"
+              dangerouslySetInnerHTML={{ __html: personality.icon }}
+            />
+          </span>
           <div className={styles.body}>
             <span className={styles.name}>{personality.name}</span>
-            {t.text.replace(new RegExp(`^${personality.name}:\\s*`), '')}
+            <span className={styles.text}>
+              {t.text.replace(new RegExp(`^${personality.name}:\\s*`), '')}
+            </span>
           </div>
         </div>
       ))}
