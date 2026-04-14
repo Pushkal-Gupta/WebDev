@@ -4,11 +4,25 @@ import useGameStore from '../../store/gameStore';
 import useThemeStore from '../../store/themeStore';
 import { getOpeningName } from '../../utils/evaluation';
 import { CLASSIFICATIONS } from '../../utils/reviewEngine';
+import BotChatCard from '../BotChatCard/BotChatCard';
+
+function OpeningStrip({ name }) {
+  if (!name) return null;
+  return (
+    <div className={styles.openingStrip} title={name}>
+      <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 4.5A1.5 1.5 0 014.5 3H16v14H4.5A1.5 1.5 0 013 15.5v-11z"/>
+        <path d="M3 15.5A1.5 1.5 0 014.5 14H16"/>
+      </svg>
+      <span className={styles.openingLabel}>{name}</span>
+    </div>
+  );
+}
 
 export default function RightSidebar({ onAlert, reviewResults, isReviewing, isOnlineGame = false }) {
   const {
     moveHistory, currentMoveIndex, goToMove,
-    getPgn, gameStarted, flipped, setFlipped, undoMove, undoTwoMoves, isComp, isOnline,
+    getPgn, gameStarted, flipped, setFlipped, undoMove, undoTwoMoves, isComp, isOnline, isCoachGame,
   } = useGameStore();
 
   const { pieceSets, pieceSetIndex } = useThemeStore();
@@ -38,8 +52,20 @@ export default function RightSidebar({ onAlert, reviewResults, isReviewing, isOn
     });
   }
 
+  const openingName = getOpeningName(moveHistory);
+
+  const showBotChat   = isComp && !isCoachGame && !isOnline && !isOnlineGame;
+  const showCoachChat = isCoachGame;
+
   return (
     <aside className={styles.sidebar}>
+      {/* Bot / Coach chat card — lives at the top of the sidebar in non-online games */}
+      {showBotChat   && <BotChatCard mode="bot" />}
+      {showCoachChat && <BotChatCard mode="coach" />}
+
+      {/* Opening name strip */}
+      <OpeningStrip name={openingName} />
+
       {/* Review progress bar */}
       {isReviewing && (
         <div className={styles.reviewBar}>

@@ -76,6 +76,8 @@ const initialState = {
   compColor: 'black', // color of computer
   compStrength: 4,
   compThinking: false,
+  isCoachGame: false,      // true when playing the "Play with Coach" mode
+  selectedCoachId: null,   // id from src/data/coaches.js
   isOnline: false,
   onlineColor: 'white', // local player's color in online game
   pawnPromotion: null, // { from, to } pending promotion
@@ -111,7 +113,7 @@ const useGameStore = create((set, get) => ({
     });
   },
 
-  startGame: (timeControl, isComp = false, compColor = 'black', compStrength = 4) => {
+  startGame: (timeControl, isComp = false, compColor = 'black', compStrength = 4, opts = {}) => {
     const chess = new Chess();
     const total = timeControl ? timeControl.total : 0;
     set({
@@ -139,6 +141,8 @@ const useGameStore = create((set, get) => ({
       compColor,
       compStrength,
       compThinking: false,
+      isCoachGame: !!opts.isCoachGame,
+      selectedCoachId: opts.coachId || null,
       pawnPromotion: null,
       disableBoard: false,
       capturedByWhite: [],

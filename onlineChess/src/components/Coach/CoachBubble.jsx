@@ -64,6 +64,7 @@ export default function CoachBubble({
 }) {
   const enabled = usePrefsStore((s) => s.coachEnabled);
   const position = usePrefsStore((s) => s.coachPosition);
+  const isCoachGame = useGameStore((s) => s.isCoachGame);
 
   const messages = useCoachStore((s) => s.messages);
   const isOpen = useCoachStore((s) => s.isOpen);
@@ -129,6 +130,9 @@ export default function CoachBubble({
   }, [position]);
 
   if (!enabled) return null;
+  // Suppress the reactive bubble while a coach game is active — the sidebar
+  // chat card fills that role in that context.
+  if (isCoachGame) return null;
 
   return (
     <div className={`${styles.container} ${posClass}`}>
