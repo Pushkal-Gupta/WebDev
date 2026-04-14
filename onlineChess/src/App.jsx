@@ -80,6 +80,7 @@ const PATH_TO_TAB = {
   '/': 0, '/play': 1, '/analysis': 2, '/computer': 3, '/online': 4,
   '/account': 5, '/puzzles': 6, '/spectate': 7, '/friends': 8,
   '/clubs': 9, '/tournaments': 10, '/leaderboard': 11, '/p2p': 12, '/training': 13, '/settings': 14,
+  '/coach': 15,
 };
 const TAB_TO_PATH = Object.fromEntries(Object.entries(PATH_TO_TAB).map(([k, v]) => [v, k]));
 
@@ -816,13 +817,14 @@ export default function App() {
     }
   };
 
-  const handleStrengthSelect = (strength, color) => {
+  const handleStrengthSelect = (strength, color, chosenBot = null) => {
     setShowStrength(false);
     let compCol = color === 'white' ? 'black' : 'white';
     if (color === 'random') compCol = Math.random() < 0.5 ? 'white' : 'black';
-    setSelectedBot(getBotByStrength(strength));
+    const bot = chosenBot || getBotByStrength(strength);
+    setSelectedBot(bot);
     initGame();
-    startGame(pendingTimeControl, true, compCol, strength);
+    startGame(pendingTimeControl, true, compCol, strength, { botId: bot?.id || null });
     setPendingTimeControl(null);
     setActiveTab(3);
   };
@@ -928,7 +930,7 @@ export default function App() {
             setSelectedBot(bot);
             initGame();
             const compCol = color === 'random' ? (Math.random() < 0.5 ? 'white' : 'black') : (color === 'white' ? 'black' : 'white');
-            startGame(tc, true, compCol, bot.strength);
+            startGame(tc, true, compCol, bot.strength, { botId: bot.id });
           }} />
         )}
 

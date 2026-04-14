@@ -23,7 +23,7 @@ export default function StrengthModal({ onSelect, onCancel }) {
 
   const handlePlay = (color) => {
     if (!selectedBot) return;
-    onSelect(selectedBot.strength, color);
+    onSelect(selectedBot.strength, color, selectedBot);
   };
 
   return (

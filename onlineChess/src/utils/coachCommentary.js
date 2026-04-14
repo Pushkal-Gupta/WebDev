@@ -40,7 +40,10 @@ export async function commentOnMoveCoach({ coach, moveHistory, fen, openingName,
   // Try engine-driven judgment on the user's move only — we don't critique the coach's own moves.
   if (side === 'user') {
     try {
-      const msg = await runIntent(INTENTS.REVIEW_LAST, { fen, moveHistory });
+      const msg = await Promise.race([
+        runIntent(INTENTS.REVIEW_LAST, { fen, moveHistory }),
+        new Promise((resolve) => setTimeout(() => resolve(null), 2500)),
+      ]);
       if (msg?.text) {
         // Re-flavor obvious blunder/brilliant so it sounds like the coach, not the bot.
         const flat = msg.text.toLowerCase();

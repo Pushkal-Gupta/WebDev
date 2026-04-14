@@ -78,6 +78,7 @@ const initialState = {
   compThinking: false,
   isCoachGame: false,      // true when playing the "Play with Coach" mode
   selectedCoachId: null,   // id from src/data/coaches.js
+  selectedBotId: null,     // id from src/data/bots.js — set when a bot game starts
   isOnline: false,
   onlineColor: 'white', // local player's color in online game
   pawnPromotion: null, // { from, to } pending promotion
@@ -143,6 +144,7 @@ const useGameStore = create((set, get) => ({
       compThinking: false,
       isCoachGame: !!opts.isCoachGame,
       selectedCoachId: opts.coachId || null,
+      selectedBotId: opts.botId || null,
       pawnPromotion: null,
       disableBoard: false,
       capturedByWhite: [],

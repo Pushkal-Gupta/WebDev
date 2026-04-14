@@ -137,9 +137,10 @@ const EndgameSvg = () => (
 
 const CoachSvg = () => (
   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M10 2a5 5 0 015 5c0 2-1.5 3.5-3 4.5V14H8v-2.5C6.5 10.5 5 9 5 7a5 5 0 015-5z"/>
-    <path d="M8 14h4v2a2 2 0 01-4 0v-2z"/>
-    <path d="M8 18h4"/>
+    <path d="M2 7.5L10 4l8 3.5L10 11z"/>
+    <path d="M5 9v3.3c0 1.2 2.2 2.3 5 2.3s5-1.1 5-2.3V9"/>
+    <path d="M17.5 7.5V12"/>
+    <circle cx="17.5" cy="13" r="0.9" fill="currentColor"/>
   </svg>
 );
 

@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import useGameStore from '../../store/gameStore';
 import usePrefsStore from '../../store/prefsStore';
-import { getBotByStrength } from '../../data/bots';
+import { getBotById, getBotByStrength } from '../../data/bots';
 import { getCoachById } from '../../data/coaches';
 import { commentOnMove, greetingLine } from '../../utils/botCommentary';
 import { commentOnMoveCoach, coachGreeting } from '../../utils/coachCommentary';
 import styles from './BotChatCard.module.css';
 
-const MAX_LINES = 3;
+const MAX_LINES_BOT = 6;
+const MAX_LINES_COACH = 15;
 let lineId = 1;
 
 /**
@@ -22,6 +23,7 @@ export default function BotChatCard({ mode = 'bot' }) {
   const isCoachGame   = useGameStore((s) => s.isCoachGame);
   const compStrength  = useGameStore((s) => s.compStrength);
   const compColor     = useGameStore((s) => s.compColor);
+  const selectedBotId = useGameStore((s) => s.selectedBotId);
   const selectedCoachId = useGameStore((s) => s.selectedCoachId);
   const gameStarted   = useGameStore((s) => s.gameStarted);
   const gameOver      = useGameStore((s) => s.gameOver);
@@ -29,18 +31,40 @@ export default function BotChatCard({ mode = 'bot' }) {
 
   const personality = mode === 'coach'
     ? getCoachById(selectedCoachId)
-    : (isComp ? getBotByStrength(compStrength) : null);
+    : (isComp
+        ? (getBotById(selectedBotId) || getBotByStrength(compStrength))
+        : null);
 
   const [lines, setLines] = useState([]);
+  const storageKey = `botchat_${mode}_collapsed`;
+  const [collapsed, setCollapsed] = useState(() => {
+    try { return localStorage.getItem(storageKey) === '1'; } catch { return false; }
+  });
   const lastLenRef = useRef(0);
   const greetedRef = useRef(false);
   const inFlightRef = useRef(false);
+  const bubbleRef = useRef(null);
+
+  // Auto-scroll bubble to bottom when new line added
+  useEffect(() => {
+    if (bubbleRef.current && !collapsed) {
+      bubbleRef.current.scrollTop = bubbleRef.current.scrollHeight;
+    }
+  }, [lines.length, collapsed]);
+
+  const toggleCollapsed = () => {
+    const next = !collapsed;
+    setCollapsed(next);
+    try { localStorage.setItem(storageKey, next ? '1' : '0'); } catch { /* ignore */ }
+  };
+
+  const maxLines = mode === 'coach' ? MAX_LINES_COACH : MAX_LINES_BOT;
 
   const push = (text) => {
     if (!text) return;
     setLines((prev) => {
       const next = [...prev, { id: `l${lineId++}`, text, ts: Date.now() }];
-      return next.slice(-MAX_LINES);
+      return next.slice(-maxLines);
     });
   };
 
@@ -118,10 +142,20 @@ export default function BotChatCard({ mode = 'bot' }) {
             {mode === 'coach' ? 'Coach' : `Rating ${personality.rating || ''}`}
           </span>
         </div>
+        {lines.length > 0 && (
+          <button
+            className={styles.collapseBtn}
+            onClick={toggleCollapsed}
+            title={collapsed ? 'Expand chat' : 'Collapse chat'}
+            aria-label={collapsed ? 'Expand' : 'Collapse'}
+          >
+            {collapsed ? '▾' : '▴'}
+          </button>
+        )}
       </div>
 
-      {lines.length > 0 && (
-        <div className={styles.bubble}>
+      {lines.length > 0 && !collapsed && (
+        <div className={styles.bubble} ref={bubbleRef}>
           <span className={styles.tail} />
           {lines.map((l, idx) => {
             const isLatest = idx === lines.length - 1;
@@ -134,6 +168,11 @@ export default function BotChatCard({ mode = 'bot' }) {
               </div>
             );
           })}
+        </div>
+      )}
+      {lines.length > 0 && collapsed && (
+        <div className={styles.collapsedPeek} onClick={toggleCollapsed} title="Expand">
+          {lines[lines.length - 1].text}
         </div>
       )}
     </div>
