@@ -172,7 +172,10 @@ export default function RoadmapView({ roadmapMode, setRoadmapMode, session }) {
             .filter(e => {
               const sPos = rigidGrid[e.source];
               const tPos = rigidGrid[e.target];
-              return sPos && tPos && sPos.y < tPos.y;
+              if (!sPos || !tPos || sPos.y >= tPos.y) return false;
+              // Drop linkedlist→trees: visually crosses binary-search; covered by binary-search→trees
+              if (e.source === 'linkedlist' && e.target === 'trees') return false;
+              return true;
             })
             .map((e, idx) => ({
               id: `edge-${idx}`,

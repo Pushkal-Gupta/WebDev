@@ -1,23 +1,24 @@
-// ─── Type mappings: Python canonical → JS/Java ───
+// ─── Type mappings: Python canonical → JS/Java/C++ ───
 
 const TYPE_MAP = {
-  'int':                { jsdoc: 'number',     java: 'int' },
-  'float':              { jsdoc: 'number',     java: 'double' },
-  'str':                { jsdoc: 'string',     java: 'String' },
-  'bool':               { jsdoc: 'boolean',    java: 'boolean' },
-  'List[int]':          { jsdoc: 'number[]',   java: 'int[]' },
-  'List[str]':          { jsdoc: 'string[]',   java: 'String[]' },
-  'List[List[int]]':    { jsdoc: 'number[][]', java: 'int[][]' },
-  'List[List[str]]':    { jsdoc: 'string[][]', java: 'String[][]' },
-  'List[bool]':         { jsdoc: 'boolean[]',  java: 'boolean[]' },
-  'ListNode':           { jsdoc: 'ListNode',   java: 'ListNode' },
-  'Optional[ListNode]': { jsdoc: 'ListNode',   java: 'ListNode' },
-  'TreeNode':           { jsdoc: 'TreeNode',   java: 'TreeNode' },
-  'Optional[TreeNode]': { jsdoc: 'TreeNode',   java: 'TreeNode' },
+  'int':                { jsdoc: 'number',     java: 'int',       cpp: 'int' },
+  'float':              { jsdoc: 'number',     java: 'double',    cpp: 'double' },
+  'str':                { jsdoc: 'string',     java: 'String',    cpp: 'string' },
+  'bool':               { jsdoc: 'boolean',    java: 'boolean',   cpp: 'bool' },
+  'List[int]':          { jsdoc: 'number[]',   java: 'int[]',     cpp: 'vector<int>' },
+  'List[str]':          { jsdoc: 'string[]',   java: 'String[]',  cpp: 'vector<string>' },
+  'List[List[int]]':    { jsdoc: 'number[][]', java: 'int[][]',   cpp: 'vector<vector<int>>' },
+  'List[List[str]]':    { jsdoc: 'string[][]', java: 'String[][]', cpp: 'vector<vector<string>>' },
+  'List[bool]':         { jsdoc: 'boolean[]',  java: 'boolean[]', cpp: 'vector<bool>' },
+  'ListNode':           { jsdoc: 'ListNode',   java: 'ListNode',  cpp: 'ListNode*' },
+  'Optional[ListNode]': { jsdoc: 'ListNode',   java: 'ListNode',  cpp: 'ListNode*' },
+  'TreeNode':           { jsdoc: 'TreeNode',   java: 'TreeNode',  cpp: 'TreeNode*' },
+  'Optional[TreeNode]': { jsdoc: 'TreeNode',   java: 'TreeNode',  cpp: 'TreeNode*' },
 };
 
 const jt = (pyType) => TYPE_MAP[pyType]?.java || pyType;
 const jd = (pyType) => TYPE_MAP[pyType]?.jsdoc || pyType;
+const ct = (pyType) => TYPE_MAP[pyType]?.cpp || pyType;
 
 const isListNodeType = (t) => t === 'ListNode' || t === 'Optional[ListNode]';
 const isTreeNodeType = (t) => t === 'TreeNode' || t === 'Optional[TreeNode]';
@@ -58,6 +59,31 @@ const JS_TREENODE_COMMENT = `/**
  */
 `;
 
+const CPP_LISTNODE_COMMENT = `/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+`;
+
+const CPP_TREENODE_COMMENT = `/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+`;
+
 export function generateTemplate(language, methodName, params, returnType) {
   if (!methodName || !params) return null;
 
@@ -85,6 +111,20 @@ export function generateTemplate(language, methodName, params, returnType) {
   if (language === 'java') {
     const javaParams = params.map(p => `${jt(p.type)} ${p.name}`).join(', ');
     return `class Solution {\n    public ${jt(returnType)} ${methodName}(${javaParams}) {\n        \n    }\n}`;
+  }
+
+  if (language === 'cpp') {
+    // Pass vectors and strings by const-ref where the Java driver uses arrays —
+    // keeps signatures idiomatic LeetCode-style and avoids accidental copies.
+    const cppParams = params.map(p => {
+      const base = ct(p.type);
+      const isContainer = base.startsWith('vector<') || base === 'string';
+      return isContainer ? `${base}& ${p.name}` : `${base} ${p.name}`;
+    }).join(', ');
+    let prefix = '';
+    if (needsList) prefix += CPP_LISTNODE_COMMENT;
+    if (needsTree) prefix += CPP_TREENODE_COMMENT;
+    return `${prefix}#include <bits/stdc++.h>\nusing namespace std;\n\nclass Solution {\npublic:\n    ${ct(returnType)} ${methodName}(${cppParams}) {\n        \n    }\n};`;
   }
 
   return null;
@@ -231,12 +271,200 @@ function _fromTree(root) {
 }
 `;
 
-export function wrapWithDriver(userCode, language, methodName, params, returnType) {
+// Sentinel lines used by the Java multi-case driver. Stdins for each case are
+// concatenated with JAVA_CASE_SEP between them; outputs are separated by
+// JAVA_OUT_END so the client can split cleanly even if a case prints nothing
+// or crashes (see JAVA_ERR_PREFIX).
+export const JAVA_CASE_SEP = '###CASE###';
+export const JAVA_OUT_END = '###END###';
+export const JAVA_ERR_PREFIX = '###ERR###';
+
+const CPP_HELPERS = `
+#include <bits/stdc++.h>
+using namespace std;
+
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode() : val(0), next(nullptr) {}
+    ListNode(int x) : val(x), next(nullptr) {}
+    ListNode(int x, ListNode *n) : val(x), next(n) {}
+};
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *l, TreeNode *r) : val(x), left(l), right(r) {}
+};
+
+static const int _PGC_NULL = INT_MIN;
+
+static string _pgc_trim(const string& s) {
+    size_t a = s.find_first_not_of(" \\t\\r\\n");
+    size_t b = s.find_last_not_of(" \\t\\r\\n");
+    return (a == string::npos) ? string("") : s.substr(a, b - a + 1);
+}
+
+static string _pgc_strip_quotes(const string& s) {
+    string t = _pgc_trim(s);
+    if (t.size() >= 2 && t.front() == '"' && t.back() == '"')
+        return t.substr(1, t.size() - 2);
+    return t;
+}
+
+// Split comma-separated values at the top depth inside "[ ... ]" (handles nested [] and "…")
+static vector<string> _pgc_split_top(const string& s) {
+    vector<string> out;
+    string t = _pgc_trim(s);
+    if (t.size() < 2) return out;
+    string inner = _pgc_trim(t.substr(1, t.size() - 2));
+    if (inner.empty()) return out;
+    int depth = 0;
+    int start = 0;
+    bool inStr = false;
+    for (int i = 0; i < (int)inner.size(); i++) {
+        char c = inner[i];
+        if (c == '"' && (i == 0 || inner[i-1] != '\\\\')) inStr = !inStr;
+        else if (!inStr && c == '[') depth++;
+        else if (!inStr && c == ']') depth--;
+        else if (!inStr && c == ',' && depth == 0) {
+            out.push_back(_pgc_trim(inner.substr(start, i - start)));
+            start = i + 1;
+        }
+    }
+    out.push_back(_pgc_trim(inner.substr(start)));
+    return out;
+}
+
+static vector<int> _pgc_parse_vi(const string& s) {
+    vector<int> out;
+    for (auto& p : _pgc_split_top(s)) out.push_back(stoi(p));
+    return out;
+}
+
+static vector<string> _pgc_parse_vs(const string& s) {
+    vector<string> out;
+    for (auto& p : _pgc_split_top(s)) out.push_back(_pgc_strip_quotes(p));
+    return out;
+}
+
+static vector<bool> _pgc_parse_vb(const string& s) {
+    vector<bool> out;
+    for (auto& p : _pgc_split_top(s)) out.push_back(p == "true");
+    return out;
+}
+
+static vector<vector<int>> _pgc_parse_vvi(const string& s) {
+    vector<vector<int>> out;
+    for (auto& p : _pgc_split_top(s)) out.push_back(_pgc_parse_vi(p));
+    return out;
+}
+
+static vector<vector<string>> _pgc_parse_vvs(const string& s) {
+    vector<vector<string>> out;
+    for (auto& p : _pgc_split_top(s)) out.push_back(_pgc_parse_vs(p));
+    return out;
+}
+
+// Parse tree-shape tokens: ints or the literal "null"
+static vector<int> _pgc_parse_tree_tokens(const string& s) {
+    vector<int> out;
+    for (auto& p : _pgc_split_top(s)) {
+        string t = _pgc_trim(p);
+        if (t == "null") out.push_back(_PGC_NULL);
+        else out.push_back(stoi(t));
+    }
+    return out;
+}
+
+static ListNode* _pgc_to_list(const vector<int>& v) {
+    if (v.empty()) return nullptr;
+    ListNode* head = new ListNode(v[0]);
+    ListNode* cur = head;
+    for (size_t i = 1; i < v.size(); i++) {
+        cur->next = new ListNode(v[i]);
+        cur = cur->next;
+    }
+    return head;
+}
+
+static vector<int> _pgc_from_list(ListNode* head) {
+    vector<int> out;
+    while (head) { out.push_back(head->val); head = head->next; }
+    return out;
+}
+
+static TreeNode* _pgc_to_tree(const vector<int>& v) {
+    if (v.empty() || v[0] == _PGC_NULL) return nullptr;
+    TreeNode* root = new TreeNode(v[0]);
+    queue<TreeNode*> q; q.push(root);
+    size_t i = 1;
+    while (!q.empty() && i < v.size()) {
+        TreeNode* n = q.front(); q.pop();
+        if (i < v.size() && v[i] != _PGC_NULL) {
+            n->left = new TreeNode(v[i]);
+            q.push(n->left);
+        }
+        i++;
+        if (i < v.size() && v[i] != _PGC_NULL) {
+            n->right = new TreeNode(v[i]);
+            q.push(n->right);
+        }
+        i++;
+    }
+    return root;
+}
+
+static string _pgc_from_tree(TreeNode* root) {
+    if (!root) return "[]";
+    vector<string> toks;
+    queue<TreeNode*> q; q.push(root);
+    while (!q.empty()) {
+        TreeNode* n = q.front(); q.pop();
+        if (!n) { toks.push_back("null"); continue; }
+        toks.push_back(to_string(n->val));
+        q.push(n->left);
+        q.push(n->right);
+    }
+    while (!toks.empty() && toks.back() == "null") toks.pop_back();
+    string s = "[";
+    for (size_t i = 0; i < toks.size(); i++) { if (i) s += ","; s += toks[i]; }
+    return s + "]";
+}
+
+// --- Serializers keyed to the inferred return type ---
+static string _pgc_ser_bool(bool b)       { return b ? "true" : "false"; }
+static string _pgc_ser_int(long long x)   { return to_string(x); }
+static string _pgc_ser_double(double x)   { ostringstream o; o << x; return o.str(); }
+static string _pgc_ser_str(const string& s) { return "\\"" + s + "\\""; }
+
+static string _pgc_ser_vi(const vector<int>& v) {
+    string s = "["; for (size_t i=0;i<v.size();i++){ if(i)s+=","; s+=to_string(v[i]); } return s+"]";
+}
+static string _pgc_ser_vb(const vector<bool>& v) {
+    string s = "["; for (size_t i=0;i<v.size();i++){ if(i)s+=","; s+=(v[i]?"true":"false"); } return s+"]";
+}
+static string _pgc_ser_vs(const vector<string>& v) {
+    string s = "["; for (size_t i=0;i<v.size();i++){ if(i)s+=","; s+="\\""+v[i]+"\\""; } return s+"]";
+}
+static string _pgc_ser_vvi(const vector<vector<int>>& v) {
+    string s = "["; for (size_t i=0;i<v.size();i++){ if(i)s+=","; s+=_pgc_ser_vi(v[i]); } return s+"]";
+}
+static string _pgc_ser_vvs(const vector<vector<string>>& v) {
+    string s = "["; for (size_t i=0;i<v.size();i++){ if(i)s+=","; s+=_pgc_ser_vs(v[i]); } return s+"]";
+}
+`;
+
+export function wrapWithDriver(userCode, language, methodName, params, returnType, opts = {}) {
   if (!methodName || !params) return userCode;
 
   const args = params.map(p => p.name).join(', ');
   const retIsList = isListNodeType(returnType);
   const retIsTree = isTreeNodeType(returnType);
+  const multiCaseCount = Math.max(1, Number(opts.multiCaseCount) || 1);
 
   if (language === 'python') {
     // Operations runner: design-class problems whose tests are [["ClassName"],[op,args...],...]
@@ -365,6 +593,39 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
       return `${line}\n        // TODO: parse ${p.type}`;
     }).join('\n        ');
 
+    // Multi-case mode: one compile, N runs. Each case reads params.length lines,
+    // then consumes exactly one separator line (JAVA_CASE_SEP). On exception we
+    // print an error line so the client can mark that single case as failed
+    // without losing subsequent cases.
+    const mainBody = multiCaseCount > 1 ? [
+      '        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));',
+      '        Solution sol = new Solution();',
+      `        int _N = ${multiCaseCount};`,
+      '        StringBuilder _out = new StringBuilder();',
+      '        for (int _c = 0; _c < _N; _c++) {',
+      '            try {',
+      `                ${javaParsing}`,
+      `                Object _result = (Object) sol.${methodName}(${args});`,
+      '                _out.append(_jsonify(_result));',
+      '            } catch (Throwable _t) {',
+      `                _out.append("${JAVA_ERR_PREFIX}").append(_t.getClass().getSimpleName()).append(": ").append(String.valueOf(_t.getMessage()));`,
+      '            }',
+      `            _out.append('\\n').append("${JAVA_OUT_END}").append('\\n');`,
+      '            if (_c < _N - 1) {',
+      '                // Consume the case separator line from stdin',
+      '                String _sep = br.readLine();',
+      '                // tolerate missing separator silently',
+      '            }',
+      '        }',
+      '        System.out.print(_out.toString());',
+    ].join('\n') : [
+      '        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));',
+      `        ${javaParsing}`,
+      '        Solution sol = new Solution();',
+      `        Object _result = (Object) sol.${methodName}(${args});`,
+      '        System.out.println(_jsonify(_result));',
+    ].join('\n');
+
     return [
       'import java.util.*;',
       'import java.io.*;',
@@ -373,11 +634,7 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
       '',
       'class Main {',
       '    public static void main(String[] _args) throws Exception {',
-      '        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));',
-      `        ${javaParsing}`,
-      '        Solution sol = new Solution();',
-      `        Object _result = (Object) sol.${methodName}(${args});`,
-      '        System.out.println(_jsonify(_result));',
+      mainBody,
       '    }',
       '',
       '    static int[][] _parseIntIntArr(String s) {',
@@ -486,6 +743,92 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
       '        }',
       '        return o.toString();',
       '    }',
+      '}',
+    ].join('\n');
+  }
+
+  if (language === 'cpp') {
+    // Design-class "operations" problems need runtime class lookup — out of scope for C++;
+    // fall back to raw user code so the user can write their own driver if they must.
+    const isOps = params.length === 1 && params[0].name === 'operations'
+                  && params[0].type && params[0].type.startsWith('List[List');
+    if (isOps) return userCode;
+
+    // Parse one param from a raw line into the typed variable.
+    const parseForType = (name, type) => {
+      const raw = `_raw_${name}`;
+      if (type === 'int')   return `long long ${name}_ll = stoll(_pgc_trim(${raw})); int ${name} = (int)${name}_ll;`;
+      if (type === 'float') return `double ${name} = stod(_pgc_trim(${raw}));`;
+      if (type === 'bool')  return `bool ${name} = (_pgc_trim(${raw}) == "true");`;
+      if (type === 'str')   return `string ${name} = _pgc_strip_quotes(${raw});`;
+      if (type === 'List[int]')        return `vector<int> ${name} = _pgc_parse_vi(${raw});`;
+      if (type === 'List[str]')        return `vector<string> ${name} = _pgc_parse_vs(${raw});`;
+      if (type === 'List[bool]')       return `vector<bool> ${name} = _pgc_parse_vb(${raw});`;
+      if (type === 'List[List[int]]')  return `vector<vector<int>> ${name} = _pgc_parse_vvi(${raw});`;
+      if (type === 'List[List[str]]')  return `vector<vector<string>> ${name} = _pgc_parse_vvs(${raw});`;
+      if (isListNodeType(type))        return `ListNode* ${name} = _pgc_to_list(_pgc_parse_vi(${raw}));`;
+      if (isTreeNodeType(type))        return `TreeNode* ${name} = _pgc_to_tree(_pgc_parse_tree_tokens(${raw}));`;
+      return `string ${name} = ${raw}; // TODO: unsupported type ${type}`;
+    };
+
+    // Serialize the method's return value. Falls back to `<< _result` if type isn't recognized.
+    let serializeExpr;
+    if (returnType === 'int')                serializeExpr = '_pgc_ser_int((long long)_result)';
+    else if (returnType === 'float')         serializeExpr = '_pgc_ser_double(_result)';
+    else if (returnType === 'bool')          serializeExpr = '_pgc_ser_bool(_result)';
+    else if (returnType === 'str')           serializeExpr = '_pgc_ser_str(_result)';
+    else if (returnType === 'List[int]')     serializeExpr = '_pgc_ser_vi(_result)';
+    else if (returnType === 'List[str]')     serializeExpr = '_pgc_ser_vs(_result)';
+    else if (returnType === 'List[bool]')    serializeExpr = '_pgc_ser_vb(_result)';
+    else if (returnType === 'List[List[int]]') serializeExpr = '_pgc_ser_vvi(_result)';
+    else if (returnType === 'List[List[str]]') serializeExpr = '_pgc_ser_vvs(_result)';
+    else if (retIsList)                      serializeExpr = '_pgc_ser_vi(_pgc_from_list(_result))';
+    else if (retIsTree)                      serializeExpr = '_pgc_from_tree(_result)';
+    else                                     serializeExpr = '([&]{ ostringstream _o; _o << _result; return _o.str(); })()';
+
+    // Per-case body: read params.length lines, parse, call, serialize.
+    const caseBody = [
+      ...params.map(p => `    string _raw_${p.name}; getline(cin, _raw_${p.name});`),
+      ...params.map(p => `    ${parseForType(p.name, p.type)}`),
+      `    auto _result = sol.${methodName}(${params.map(p => p.name).join(', ')});`,
+      `    _out << ${serializeExpr};`,
+    ].join('\n');
+
+    const mainBody = multiCaseCount > 1 ? [
+      '    Solution sol;',
+      '    ostringstream _out;',
+      `    int _N = ${multiCaseCount};`,
+      '    for (int _c = 0; _c < _N; _c++) {',
+      '        try {',
+      caseBody.split('\n').map(l => '        ' + l).join('\n'),
+      '        } catch (const std::exception& _e) {',
+      `            _out << "${JAVA_ERR_PREFIX}" << _e.what();`,
+      '        } catch (...) {',
+      `            _out << "${JAVA_ERR_PREFIX}" << "unknown";`,
+      '        }',
+      `        _out << '\\n' << "${JAVA_OUT_END}" << '\\n';`,
+      '        if (_c < _N - 1) {',
+      '            string _sep; getline(cin, _sep); // consume case separator',
+      '        }',
+      '    }',
+      '    cout << _out.str();',
+    ].join('\n') : [
+      '    Solution sol;',
+      '    ostringstream _out;',
+      caseBody,
+      '    _out << \'\\n\';',
+      '    cout << _out.str();',
+    ].join('\n');
+
+    return [
+      CPP_HELPERS,
+      userCode,
+      '',
+      'int main() {',
+      '    ios_base::sync_with_stdio(false);',
+      '    cin.tie(nullptr);',
+      mainBody,
+      '    return 0;',
       '}',
     ].join('\n');
   }
