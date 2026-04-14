@@ -447,13 +447,19 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
   // Auto-load PGN from post-game review — 4-pass analysis auto-starts via [gameLoaded] effect
   useEffect(() => {
     if (!pendingPgn) return;
-    const ok = importPgn(pendingPgn);
+    // pendingPgn can be either a string (legacy) or { pgn, userColor }
+    const pgnStr = typeof pendingPgn === 'string' ? pendingPgn : pendingPgn.pgn;
+    const userColor = typeof pendingPgn === 'object' ? pendingPgn.userColor : null;
+    const ok = importPgn(pgnStr);
     if (ok) {
-      setLoadedPgn(pendingPgn);
+      setLoadedPgn(pgnStr);
       setGameLoaded(true);
       setReviewResults(null);
       setPanelTab('report');
       setReportAnimated(false);
+      // Auto-flip the board so the player's own color is at the bottom.
+      if (userColor === 'black') setFlipped(true);
+      else if (userColor === 'white') setFlipped(false);
     }
     if (onPendingPgnConsumed) onPendingPgnConsumed();
   }, [pendingPgn]); // eslint-disable-line
@@ -623,6 +629,10 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
   const handleLoadGame = (game) => {
     if (!game.pgnStr) return;
     doLoad(game.pgnStr);
+    // Auto-flip so the user's own color sits at the bottom. Saved games carry
+    // a `color` field ('white' | 'black'); default to not flipped if missing.
+    if (game.color === 'black') setFlipped(true);
+    else setFlipped(false);
   };
 
   const handleFileUpload = (e) => {

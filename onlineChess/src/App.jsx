@@ -850,12 +850,20 @@ export default function App() {
   };
 
   const handleReviewGame = () => {
-    const pgn = useGameStore.getState().getPgn();
+    const state = useGameStore.getState();
+    const pgn = state.getPgn();
     if (!pgn) return;
+    // Capture the user's color before we init — we'll pass it through so
+    // Analysis can flip the board to the player's perspective.
+    const userColor = state.isComp
+      ? (state.compColor === 'white' ? 'black' : 'white')
+      : state.isOnline
+        ? state.onlineColor
+        : 'white';
     // Close modal and navigate to Analysis tab with the PGN
     initGame();
     setRatingDelta(null);
-    setPendingReviewPgn(pgn);
+    setPendingReviewPgn({ pgn, userColor });
     setActiveTab(2); // Analysis tab
   };
 

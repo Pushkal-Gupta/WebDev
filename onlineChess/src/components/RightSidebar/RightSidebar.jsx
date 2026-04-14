@@ -1,10 +1,13 @@
-import { useRef } from 'react';
+import { useRef, useState, useMemo, useEffect } from 'react';
 import styles from './RightSidebar.module.css';
 import useGameStore from '../../store/gameStore';
 import useThemeStore from '../../store/themeStore';
 import { getOpeningName } from '../../utils/evaluation';
 import { CLASSIFICATIONS } from '../../utils/reviewEngine';
 import BotChatCard from '../BotChatCard/BotChatCard';
+
+const TAB_KEY = 'chess_right_tab';
+const PIECE_VALUES = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
 
 function OpeningStrip({ name }) {
   if (!name) return null;
@@ -19,14 +22,135 @@ function OpeningStrip({ name }) {
   );
 }
 
+function phaseFromMoves(n, totalMaterial) {
+  if (n < 14) return 'Opening';
+  if (totalMaterial <= 22) return 'Endgame';
+  return 'Middlegame';
+}
+
+function countMaterial(boardState) {
+  if (!boardState) return { w: 0, b: 0, total: 0 };
+  let w = 0, b = 0;
+  for (const row of boardState) {
+    for (const sq of row) {
+      if (!sq) continue;
+      if (sq.color === 'w') w += PIECE_VALUES[sq.type] || 0;
+      else b += PIECE_VALUES[sq.type] || 0;
+    }
+  }
+  return { w, b, total: w + b };
+}
+
+function InfoTab({ moveHistory, boardState, openingName, reviewResults, currentMoveIndex, capturedByWhite, capturedByBlack }) {
+  const mat = useMemo(() => countMaterial(boardState), [boardState]);
+  const phase = phaseFromMoves(moveHistory.length, mat.total);
+  const matDiff = mat.w - mat.b;
+  const latestReview = reviewResults?.[currentMoveIndex];
+  const cls = latestReview?.classification ? CLASSIFICATIONS[latestReview.classification] : null;
+  const activeName = currentMoveIndex >= 0 ? moveHistory[currentMoveIndex]?.san : null;
+
+  return (
+    <div className={styles.infoScroll}>
+      <section className={styles.infoCard}>
+        <div className={styles.infoLabel}>Opening</div>
+        <div className={styles.infoValue}>{openingName || <span className={styles.dim}>Out of book</span>}</div>
+      </section>
+
+      <section className={styles.infoCard}>
+        <div className={styles.infoLabel}>Phase</div>
+        <div className={styles.infoValue}>{phase}</div>
+        <div className={styles.infoSub}>
+          Move {Math.ceil(moveHistory.length / 2) || 0} · {moveHistory.length} plies played
+        </div>
+      </section>
+
+      <section className={styles.infoCard}>
+        <div className={styles.infoLabel}>Material</div>
+        <div className={styles.infoRow}>
+          <span className={styles.matWhite}>♙ {mat.w}</span>
+          <span className={styles.matDiff} style={{ color: matDiff === 0 ? 'rgba(255,255,255,0.4)' : matDiff > 0 ? '#6fdc8c' : '#ff7875' }}>
+            {matDiff === 0 ? 'Equal' : matDiff > 0 ? `+${matDiff} White` : `+${-matDiff} Black`}
+          </span>
+          <span className={styles.matBlack}>♟ {mat.b}</span>
+        </div>
+      </section>
+
+      {cls && activeName && (
+        <section className={styles.infoCard} style={{ '--cls-color': cls.color }}>
+          <div className={styles.infoLabel}>Last-move review</div>
+          <div className={styles.infoRow}>
+            <span className={styles.infoBadge}>{cls.symbol}</span>
+            <span className={styles.infoValue} style={{ color: cls.color }}>{cls.label}</span>
+            <span className={styles.dim}>{activeName}</span>
+          </div>
+        </section>
+      )}
+
+      {(capturedByWhite?.length > 0 || capturedByBlack?.length > 0) && (
+        <section className={styles.infoCard}>
+          <div className={styles.infoLabel}>Captured</div>
+          <div className={styles.captureRow}>
+            <div className={styles.captureLine}>
+              <span className={styles.dim}>White took:</span>
+              <span>{(capturedByWhite || []).map(p => pieceGlyph(p, 'b')).join(' ') || '–'}</span>
+            </div>
+            <div className={styles.captureLine}>
+              <span className={styles.dim}>Black took:</span>
+              <span>{(capturedByBlack || []).map(p => pieceGlyph(p, 'w')).join(' ') || '–'}</span>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {moveHistory.length === 0 && (
+        <section className={styles.infoHint}>
+          Make a move to see live stats appear here.
+        </section>
+      )}
+    </div>
+  );
+}
+
+function pieceGlyph(p, _pov) {
+  // Uses standard unicode chess pieces. Opponent color (value of capture).
+  const GLYPH = {
+    w: { p: '♙', n: '♘', b: '♗', r: '♖', q: '♕', k: '♔' },
+    b: { p: '♟', n: '♞', b: '♝', r: '♜', q: '♛', k: '♚' },
+  };
+  return GLYPH[p.color]?.[p.type] || '?';
+}
+
 export default function RightSidebar({ onAlert, reviewResults, isReviewing, isOnlineGame = false }) {
   const {
-    moveHistory, currentMoveIndex, goToMove,
+    moveHistory, currentMoveIndex, goToMove, boardState,
     getPgn, gameStarted, flipped, setFlipped, undoMove, undoTwoMoves, isComp, isOnline, isCoachGame,
+    capturedByWhite, capturedByBlack,
   } = useGameStore();
 
   const { pieceSets, pieceSetIndex } = useThemeStore();
   const moveHistoryRef = useRef(null);
+
+  const showBotChat   = isComp && !isCoachGame && !isOnline && !isOnlineGame;
+  const showCoachChat = isCoachGame;
+  const hasCoachTab   = showBotChat || showCoachChat;
+
+  const [tab, setTab] = useState(() => {
+    try {
+      const saved = localStorage.getItem(TAB_KEY);
+      if (saved === 'moves' || saved === 'coach' || saved === 'info') return saved;
+    } catch { /* ignore */ }
+    return hasCoachTab ? 'coach' : 'moves';
+  });
+
+  // If the coach tab disappears (online game), bounce to moves
+  useEffect(() => {
+    if (tab === 'coach' && !hasCoachTab) setTab('moves');
+  }, [tab, hasCoachTab]);
+
+  const selectTab = (t) => {
+    setTab(t);
+    try { localStorage.setItem(TAB_KEY, t); } catch { /* ignore */ }
+  };
 
   // Auto-scroll to active move
   const scrollToActive = () => {
@@ -54,16 +178,33 @@ export default function RightSidebar({ onAlert, reviewResults, isReviewing, isOn
 
   const openingName = getOpeningName(moveHistory);
 
-  const showBotChat   = isComp && !isCoachGame && !isOnline && !isOnlineGame;
-  const showCoachChat = isCoachGame;
-
   return (
     <aside className={styles.sidebar}>
-      {/* Bot / Coach chat card — lives at the top of the sidebar in non-online games */}
-      {showBotChat   && <BotChatCard mode="bot"   reviewResult={reviewResults?.[currentMoveIndex] || null} />}
-      {showCoachChat && <BotChatCard mode="coach" reviewResult={reviewResults?.[currentMoveIndex] || null} />}
+      {/* Tab bar */}
+      <div className={styles.tabBar} role="tablist">
+        <button
+          role="tab"
+          aria-selected={tab === 'moves'}
+          className={`${styles.tabBtn} ${tab === 'moves' ? styles.tabBtnActive : ''}`}
+          onClick={() => selectTab('moves')}
+        >Moves{moveHistory.length > 0 && <span className={styles.tabCount}>{moveHistory.length}</span>}</button>
+        {hasCoachTab && (
+          <button
+            role="tab"
+            aria-selected={tab === 'coach'}
+            className={`${styles.tabBtn} ${tab === 'coach' ? styles.tabBtnActive : ''}`}
+            onClick={() => selectTab('coach')}
+          >{isCoachGame ? 'Coach' : 'Bot'}</button>
+        )}
+        <button
+          role="tab"
+          aria-selected={tab === 'info'}
+          className={`${styles.tabBtn} ${tab === 'info' ? styles.tabBtnActive : ''}`}
+          onClick={() => selectTab('info')}
+        >Info</button>
+      </div>
 
-      {/* Opening name strip */}
+      {/* Opening strip (always visible regardless of tab) */}
       <OpeningStrip name={openingName} />
 
       {/* Review progress bar */}
@@ -74,52 +215,76 @@ export default function RightSidebar({ onAlert, reviewResults, isReviewing, isOn
         </div>
       )}
 
-      {/* Move history */}
-      <div className={styles.moveHistory} ref={moveHistoryRef} onScroll={() => {}}>
-        {moveHistory.length === 0 ? (
-          <div className={styles.emptyMoves}>No moves yet</div>
-        ) : (
-          <table className={styles.moveTable}>
-            <tbody>
-              {moveRows.map((row) => {
-                const wReview = reviewResults?.[row.whiteIdx];
-                const bReview = row.black ? reviewResults?.[row.blackIdx] : null;
-                const wClass  = wReview ? CLASSIFICATIONS[wReview.classification] : null;
-                const bClass  = bReview ? CLASSIFICATIONS[bReview.classification] : null;
-                return (
-                  <tr key={row.number} className={styles.moveRow}>
-                    <td className={styles.moveCellNum}>{row.number}.</td>
-                    <td
-                      className={`${styles.moveCell} ${currentMoveIndex === row.whiteIdx ? styles.moveCellActive : ''}`}
-                      onClick={() => { goToMove(row.whiteIdx); setTimeout(scrollToActive, 50); }}
-                    >
-                      {row.white?.san || ''}
-                      {wClass && (
-                        <span className={styles.badge} style={{ color: wClass.color }} title={wClass.label}>
-                          {wClass.symbol}
-                        </span>
-                      )}
-                    </td>
-                    <td
-                      className={`${styles.moveCell} ${row.black && currentMoveIndex === row.blackIdx ? styles.moveCellActive : ''}`}
-                      onClick={() => { if (row.black) { goToMove(row.blackIdx); setTimeout(scrollToActive, 50); } }}
-                    >
-                      {row.black?.san || ''}
-                      {bClass && (
-                        <span className={styles.badge} style={{ color: bClass.color }} title={bClass.label}>
-                          {bClass.symbol}
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
-      </div>
+      {/* ── Panel body ── */}
+      {tab === 'coach' && hasCoachTab && (
+        <div className={styles.coachPanel}>
+          {showBotChat   && <BotChatCard mode="bot"   reviewResult={reviewResults?.[currentMoveIndex] || null} />}
+          {showCoachChat && <BotChatCard mode="coach" reviewResult={reviewResults?.[currentMoveIndex] || null} />}
+        </div>
+      )}
 
-      {/* Navigation buttons */}
+      {tab === 'info' && (
+        <InfoTab
+          moveHistory={moveHistory}
+          boardState={boardState}
+          openingName={openingName}
+          reviewResults={reviewResults}
+          currentMoveIndex={currentMoveIndex}
+          capturedByWhite={capturedByWhite}
+          capturedByBlack={capturedByBlack}
+        />
+      )}
+
+      {tab === 'moves' && (
+        <div className={styles.moveHistory} ref={moveHistoryRef} onScroll={() => {}}>
+          {moveHistory.length === 0 ? (
+            <div className={styles.emptyMoves}>
+              <span>No moves yet</span>
+              <span className={styles.emptyHint}>Played moves show up here in pairs.</span>
+            </div>
+          ) : (
+            <table className={styles.moveTable}>
+              <tbody>
+                {moveRows.map((row) => {
+                  const wReview = reviewResults?.[row.whiteIdx];
+                  const bReview = row.black ? reviewResults?.[row.blackIdx] : null;
+                  const wClass  = wReview ? CLASSIFICATIONS[wReview.classification] : null;
+                  const bClass  = bReview ? CLASSIFICATIONS[bReview.classification] : null;
+                  return (
+                    <tr key={row.number} className={styles.moveRow}>
+                      <td className={styles.moveCellNum}>{row.number}.</td>
+                      <td
+                        className={`${styles.moveCell} ${currentMoveIndex === row.whiteIdx ? styles.moveCellActive : ''}`}
+                        onClick={() => { goToMove(row.whiteIdx); setTimeout(scrollToActive, 50); }}
+                      >
+                        {row.white?.san || ''}
+                        {wClass && (
+                          <span className={styles.badge} style={{ color: wClass.color }} title={wClass.label}>
+                            {wClass.symbol}
+                          </span>
+                        )}
+                      </td>
+                      <td
+                        className={`${styles.moveCell} ${row.black && currentMoveIndex === row.blackIdx ? styles.moveCellActive : ''}`}
+                        onClick={() => { if (row.black) { goToMove(row.blackIdx); setTimeout(scrollToActive, 50); } }}
+                      >
+                        {row.black?.san || ''}
+                        {bClass && (
+                          <span className={styles.badge} style={{ color: bClass.color }} title={bClass.label}>
+                            {bClass.symbol}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+
+      {/* Navigation buttons (always visible — shared across tabs) */}
       <div className={styles.navBtns}>
         <button className={styles.navBtn} onClick={() => goToMove(-1)} title="Start">⏮</button>
         <button className={styles.navBtn} onClick={() => goToMove(currentMoveIndex - 1)} title="Prev" disabled={currentMoveIndex < 0}>◀</button>

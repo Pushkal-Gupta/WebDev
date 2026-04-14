@@ -13,6 +13,160 @@
 
 
 
+/* ── Tab bar ──────────────────────────────────────────────────────────── */
+.tabBar {
+  display: flex;
+  gap: 0;
+  padding: 4px 4px 0;
+  background: rgba(255, 255, 255, 0.015);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
+}
+
+.tabBtn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.55);
+  padding: 9px 6px 10px;
+  font-family: inherit;
+  font-size: 0.76rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.14s, border-color 0.14s, background 0.14s;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.tabBtn:hover { color: #fff; background: rgba(255, 255, 255, 0.02); }
+
+.tabBtnActive {
+  color: var(--color-accent, #00fff5);
+  border-bottom-color: var(--color-accent, #00fff5);
+}
+
+.tabCount {
+  display: inline-block;
+  min-width: 18px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  line-height: 1.4;
+}
+
+.tabBtnActive .tabCount {
+  background: color-mix(in srgb, var(--color-accent, #00fff5) 20%, transparent);
+  color: var(--color-accent, #00fff5);
+}
+
+/* ── Coach panel wrapper ─────────────────────────────────────────────── */
+.coachPanel {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Info tab ────────────────────────────────────────────────────────── */
+.infoScroll {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 10px 10px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.infoCard {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 8px;
+  padding: 8px 10px 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.infoLabel {
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.infoValue {
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.infoSub {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.infoBadge {
+  display: inline-block;
+  min-width: 20px;
+  font-weight: 800;
+  font-size: 0.94rem;
+  color: var(--cls-color, #fff);
+  text-align: center;
+}
+
+.matWhite { color: rgba(255, 255, 255, 0.9); }
+.matBlack { color: rgba(255, 255, 255, 0.9); }
+.matDiff  { margin-left: auto; font-weight: 700; font-size: 0.78rem; }
+
+.captureRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.captureLine {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.dim { color: rgba(255, 255, 255, 0.4); font-size: 0.74rem; font-weight: 500; }
+
+.infoHint {
+  padding: 14px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
 /* Opening name strip (between chat card and move list) */
 .openingStrip {
   display: flex;
@@ -97,11 +251,25 @@
 }
 
 .emptyMoves {
-  padding: 16px 12px;
-  font-size: 0.78rem;
-  color: rgba(255,255,255,0.2);
+  padding: 24px 16px;
+  color: rgba(255,255,255,0.38);
   text-align: center;
-  font-style: italic;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.emptyMoves > span:first-child {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.55);
+}
+
+.emptyHint {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.3);
+  line-height: 1.4;
 }
 
 .moveTable {
