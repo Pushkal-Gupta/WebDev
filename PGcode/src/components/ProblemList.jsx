@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { CheckCircle, Star, Code2, ExternalLink, Lightbulb, Search, X, ChevronDown } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -7,19 +7,62 @@ import './ProblemList.css';
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
 const difficultyOrder = { 'Easy': 0, 'Medium': 1, 'Hard': 2 };
 
+const topicLabel = (raw) => (raw || '').split('\n')[0].trim();
+
+function FilterDropdown({ label, value, options, onChange, minWidth = 160 }) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef(null);
+  const selected = options.find(o => o.value === value) || options[0];
+
+  useEffect(() => {
+    if (!open) return;
+    const onDocClick = (e) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, [open]);
+
+  return (
+    <div className="pl-dd-wrap" ref={wrapRef} style={{ minWidth }}>
+      <button
+        type="button"
+        className={`pl-dd-btn ${open ? 'open' : ''}`}
+        onClick={() => setOpen(o => !o)}
+      >
+        <span className="pl-dd-label">{label}</span>
+        <span className="pl-dd-value">{selected?.label}</span>
+        <ChevronDown size={13} className={`pl-dd-chevron ${open ? 'open' : ''}`} />
+      </button>
+      {open && (
+        <div className="pl-dd-menu">
+          {options.map(opt => (
+            <button
+              key={opt.value}
+              type="button"
+              className={`pl-dd-item ${opt.value === value ? 'active' : ''}`}
+              onClick={() => { onChange(opt.value); setOpen(false); }}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ProblemList({ session, roadmapMode }) {
   const [problems, setProblems] = useState([]);
   const [topics, setTopics] = useState([]);
   const [userProgress, setUserProgress] = useState({});
   const [loading, setLoading] = useState(true);
 
-  // Filters
   const [search, setSearch] = useState('');
   const [topicFilter, setTopicFilter] = useState('all');
   const [diffFilter, setDiffFilter] = useState(new Set(['Easy', 'Medium', 'Hard']));
-  const [statusFilter, setStatusFilter] = useState('all'); // all | solved | unsolved | starred
-  const [tagFilter, setTagFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('topic'); // topic | difficulty | name
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('topic');
 
   useEffect(() => {
     async function fetchData() {
@@ -58,16 +101,33 @@ export default function ProblemList({ session, roadmapMode }) {
 
   const topicNameMap = useMemo(() => {
     const map = {};
+    topics.forEach(t => { map[t.id] = topicLabel(t.name); });
+    return map;
+  }, [topics]);
+
+  const topicFullMap = useMemo(() => {
+    const map = {};
     topics.forEach(t => { map[t.id] = t.name; });
     return map;
   }, [topics]);
 
-  // Tags will be available after running migrate_add_tags.sql
-  const allTags = useMemo(() => {
-    const tagSet = new Set();
-    problems.forEach(p => (p.tags || []).forEach(t => tagSet.add(t)));
-    return [...tagSet].sort();
-  }, [problems]);
+  const topicOptions = useMemo(() => [
+    { value: 'all', label: 'All Topics' },
+    ...topics.map(t => ({ value: t.id, label: topicLabel(t.name) })),
+  ], [topics]);
+
+  const statusOptions = [
+    { value: 'all', label: 'All Status' },
+    { value: 'solved', label: 'Solved' },
+    { value: 'unsolved', label: 'Unsolved' },
+    { value: 'starred', label: 'Starred' },
+  ];
+
+  const sortOptions = [
+    { value: 'topic', label: 'Topic' },
+    { value: 'difficulty', label: 'Difficulty' },
+    { value: 'name', label: 'Name' },
+  ];
 
   const toggleDiff = (diff) => {
     setDiffFilter(prev => {
@@ -128,7 +188,6 @@ export default function ProblemList({ session, roadmapMode }) {
     result.sort((a, b) => {
       if (sortBy === 'difficulty') return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
       if (sortBy === 'name') return a.name.localeCompare(b.name);
-      // Default: topic then difficulty
       if (a.topic_id !== b.topic_id) return (a.topic_id || '').localeCompare(b.topic_id || '');
       return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
     });
@@ -161,10 +220,14 @@ export default function ProblemList({ session, roadmapMode }) {
       <div className="pl-header-section">
         <div className="pl-title-row">
           <h1 className="pl-title">All Problems</h1>
-          <span className="pl-stats">{stats.solved} / {stats.total} solved</span>
+          <span className="pl-stats-chip">
+            <strong>{stats.solved}</strong>
+            <span className="pl-stats-sep">/</span>
+            <span>{stats.total}</span>
+            <span className="pl-stats-label">solved</span>
+          </span>
         </div>
 
-        {/* Filters */}
         <div className="pl-filters">
           <div className="pl-search-wrap">
             <Search size={14} className="pl-search-icon" />
@@ -178,39 +241,46 @@ export default function ProblemList({ session, roadmapMode }) {
             {search && <X size={14} className="pl-search-clear" onClick={() => setSearch('')} />}
           </div>
 
-          <select className="pl-select" value={topicFilter} onChange={e => setTopicFilter(e.target.value)}>
-            <option value="all">All Topics</option>
-            {topics.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-          </select>
+          <FilterDropdown
+            label="Topic"
+            value={topicFilter}
+            options={topicOptions}
+            onChange={setTopicFilter}
+            minWidth={170}
+          />
 
-          <div className="pl-diff-toggles">
+          <div className="pl-diff-toggles" role="group" aria-label="Filter by difficulty">
             {DIFFICULTIES.map(d => (
               <button
                 key={d}
                 className={`pl-diff-btn pl-diff-${d.toLowerCase()} ${diffFilter.has(d) ? 'active' : ''}`}
                 onClick={() => toggleDiff(d)}
+                aria-pressed={diffFilter.has(d)}
               >
+                <span className="pl-diff-dot" aria-hidden="true" />
                 {d}
               </button>
             ))}
           </div>
 
-          <select className="pl-select" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-            <option value="all">All Status</option>
-            <option value="solved">Solved</option>
-            <option value="unsolved">Unsolved</option>
-            <option value="starred">Starred</option>
-          </select>
+          <FilterDropdown
+            label="Status"
+            value={statusFilter}
+            options={statusOptions}
+            onChange={setStatusFilter}
+            minWidth={150}
+          />
 
-          <select className="pl-select pl-sort" value={sortBy} onChange={e => setSortBy(e.target.value)}>
-            <option value="topic">Sort: Topic</option>
-            <option value="difficulty">Sort: Difficulty</option>
-            <option value="name">Sort: Name</option>
-          </select>
+          <FilterDropdown
+            label="Sort"
+            value={sortBy}
+            options={sortOptions}
+            onChange={setSortBy}
+            minWidth={140}
+          />
         </div>
       </div>
 
-      {/* Table */}
       <div className="pl-table-wrap">
         <div className="pl-table-header">
           <div className="pl-col-status"></div>
@@ -223,7 +293,6 @@ export default function ProblemList({ session, roadmapMode }) {
         <div className="pl-table-body">
           {filteredProblems.map(p => {
             const prog = userProgress[p.id] || {};
-            const displayName = p.name.replace(/Pattern #(\d+)/, 'Problem #$1').replace(/Challenge #(\d+)/, 'Problem #$1');
             return (
               <div key={p.id} className="pl-row">
                 <div className="pl-col-status">
@@ -232,36 +301,41 @@ export default function ProblemList({ session, roadmapMode }) {
                     className={prog.is_completed ? 'pl-status-done' : 'pl-status-todo'}
                     onClick={() => toggleComplete(p.id)}
                     style={{ cursor: session ? 'pointer' : 'default' }}
+                    aria-label={prog.is_completed ? 'Mark as unsolved' : 'Mark as solved'}
                   />
                 </div>
                 <div className="pl-col-name">
+                  <Link to={`/category/${p.topic_id}/${p.id}`} className="pl-problem-link" title={p.name}>
+                    {p.name}
+                  </Link>
                   <Star
                     size={14}
                     className={`pl-name-star ${prog.is_starred ? 'pl-star-active' : 'pl-star-inactive'}`}
                     onClick={() => toggleStar(p.id)}
                     style={{ cursor: session ? 'pointer' : 'default' }}
+                    aria-label={prog.is_starred ? 'Unstar problem' : 'Star problem'}
                   />
-                  <Link to={`/category/${p.topic_id}/${p.id}`} className="pl-problem-link">
-                    {displayName}
-                  </Link>
                 </div>
-                <div className="pl-col-topic">
-                  <span className="pl-topic-badge">{topicNameMap[p.topic_id] || p.topic_id}</span>
+                <div className="pl-col-topic" title={topicFullMap[p.topic_id] || p.topic_id}>
+                  {topicNameMap[p.topic_id] || p.topic_id}
                 </div>
-                <div className={`pl-col-diff pl-diff-${p.difficulty.toLowerCase()}`}>
-                  {p.difficulty}
+                <div className="pl-col-diff">
+                  <span className={`pl-diff-tag pl-diff-${p.difficulty.toLowerCase()}`}>
+                    <span className="pl-diff-dot" aria-hidden="true" />
+                    {p.difficulty}
+                  </span>
                 </div>
                 <div className="pl-col-actions">
-                  <Link to={`/category/${p.topic_id}/${p.id}`} className="pl-action-icon" title="Solve on PGcode">
-                    <Code2 size={14} />
+                  <Link to={`/category/${p.topic_id}/${p.id}`} className="pl-action-icon" title="Solve on PGcode" aria-label="Solve on PGcode">
+                    <Code2 size={16} />
                   </Link>
                   {p.leetcode_url && (
-                    <a href={p.leetcode_url} target="_blank" rel="noopener noreferrer" className="pl-action-icon pl-lc" title="Solve on LeetCode">
-                      <ExternalLink size={13} />
+                    <a href={p.leetcode_url} target="_blank" rel="noopener noreferrer" className="pl-action-icon pl-lc" title="Solve on LeetCode" aria-label="Solve on LeetCode">
+                      <ExternalLink size={16} />
                     </a>
                   )}
-                  <Link to={`/solution/${p.id}`} className="pl-action-icon pl-sol" title="View Solution">
-                    <Lightbulb size={14} />
+                  <Link to={`/solution/${p.id}`} className="pl-action-icon pl-sol" title="View Solution" aria-label="View solution">
+                    <Lightbulb size={16} />
                   </Link>
                 </div>
               </div>
@@ -270,18 +344,19 @@ export default function ProblemList({ session, roadmapMode }) {
 
           {filteredProblems.length === 0 && (
             <div className="pl-empty">
-              <Search size={32} className="pl-empty-icon" />
-              <p>No problems match your filters.</p>
+              <Search size={40} className="pl-empty-icon" />
+              <p className="pl-empty-title">No problems match your filters.</p>
+              <p className="pl-empty-sub">Try clearing filters or switching topics.</p>
               <button className="pl-clear-btn" onClick={() => { setSearch(''); setTopicFilter('all'); setDiffFilter(new Set(DIFFICULTIES)); setStatusFilter('all'); }}>
                 Clear Filters
               </button>
             </div>
           )}
         </div>
-      </div>
 
-      <div className="pl-footer">
-        <span className="pl-count">{filteredProblems.length} problem{filteredProblems.length !== 1 ? 's' : ''}</span>
+        <div className="pl-table-footer">
+          <span className="pl-count">{filteredProblems.length} problem{filteredProblems.length !== 1 ? 's' : ''}</span>
+        </div>
       </div>
     </div>
   );
