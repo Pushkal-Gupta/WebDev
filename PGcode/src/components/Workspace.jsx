@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import Editor from '@monaco-editor/react';
 import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Play, ExternalLink, CheckCircle, RotateCcw, Code2, FileText, Award, MessageSquare, TestTube, Lightbulb } from 'lucide-react';
 import SolutionView from './SolutionView';
-import { runCode } from '../lib/codeRunner';
+import { runCode, runCodeBatch, runCodeMultiCase } from '../lib/codeRunner';
 import { generateTemplate, wrapWithDriver, buildStdin, compareOutput } from '../lib/driverCode';
 import '../styles/workspace.css';
 
@@ -314,18 +314,27 @@ export default function Workspace({ session, theme, roadmapMode }) {
     setSubmitProgress({ current: 0, total });
 
     try {
-      const fullCode = wrapWithDriver(codeContent, activeLang, activeProblem.method_name, activeProblem.params, activeProblem.return_type);
       const params = activeProblem.params || [];
       const cases = [];
       let passedCount = 0;
       let firstFailIdx = -1;
 
+      const stdins = indices.map(idx => buildStdin(activeProblem.test_cases[idx].inputs));
+      const useMultiCase = (activeLang === 'java' || activeLang === 'cpp') && total > 1;
+      const fullCode = wrapWithDriver(
+        codeContent, activeLang,
+        activeProblem.method_name, activeProblem.params, activeProblem.return_type,
+        useMultiCase ? { multiCaseCount: total } : {},
+      );
+      const results = useMultiCase
+        ? await runCodeMultiCase(fullCode, activeLang, stdins)
+        : await runCodeBatch(fullCode, activeLang, stdins);
+      setSubmitProgress({ current: total, total });
+
       for (let i = 0; i < total; i++) {
-        setSubmitProgress({ current: i + 1, total });
         const originalIdx = indices[i];
         const tc = activeProblem.test_cases[originalIdx];
-        const stdin = buildStdin(tc.inputs);
-        const result = await runCode(fullCode, activeLang, stdin);
+        const result = results[i];
 
         if (result.status !== 'success') {
           // Compile error is code-level — will fail identically for all cases, so break early
@@ -402,17 +411,26 @@ export default function Workspace({ session, theme, roadmapMode }) {
     const startTime = Date.now();
 
     try {
-      const fullCode = wrapWithDriver(codeContent, activeLang, activeProblem.method_name, activeProblem.params, activeProblem.return_type);
       const params = activeProblem.params || [];
       const cases = [];
       let allPassed = true;
       let failIdx = -1;
 
+      const stdins = activeProblem.test_cases.map(tc => buildStdin(tc.inputs));
+      const useMultiCase = (activeLang === 'java' || activeLang === 'cpp') && total > 1;
+      const fullCode = wrapWithDriver(
+        codeContent, activeLang,
+        activeProblem.method_name, activeProblem.params, activeProblem.return_type,
+        useMultiCase ? { multiCaseCount: total } : {},
+      );
+      const results = useMultiCase
+        ? await runCodeMultiCase(fullCode, activeLang, stdins)
+        : await runCodeBatch(fullCode, activeLang, stdins);
+      setSubmitProgress({ current: total, total });
+
       for (let i = 0; i < total; i++) {
-        setSubmitProgress({ current: i + 1, total });
         const tc = activeProblem.test_cases[i];
-        const stdin = buildStdin(tc.inputs);
-        const result = await runCode(fullCode, activeLang, stdin);
+        const result = results[i];
 
         if (result.status !== 'success') {
           allPassed = false;
@@ -986,6 +1004,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
                 <option value="python">Python3</option>
                 <option value="javascript">JavaScript</option>
                 <option value="java">Java</option>
+                <option value="cpp">C++</option>
               </select>
             </div>
           </div>

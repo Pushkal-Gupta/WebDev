@@ -48,7 +48,8 @@ export default function SolutionView({ problem }) {
     );
   }
 
-  const langMap = { python: 'code_python', javascript: 'code_javascript', java: 'code_java' };
+  const langMap = { python: 'code_python', javascript: 'code_javascript', java: 'code_java', cpp: 'code_cpp' };
+  const langLabels = { python: 'Python', javascript: 'JavaScript', java: 'Java', cpp: 'C++' };
 
   return (
     <div className="sv-container">
@@ -103,13 +104,13 @@ export default function SolutionView({ problem }) {
             {/* Code */}
             <div className="sv-subsection">
               <div className="sv-code-header">
-                {['python', 'javascript', 'java'].map(lang => (
+                {['python', 'javascript', 'java', 'cpp'].map(lang => (
                   <button
                     key={lang}
                     className={`sv-lang-tab ${activeCodeLang === lang ? 'active' : ''}`}
                     onClick={() => setActiveCodeLang(lang)}
                   >
-                    {lang === 'python' ? 'Python' : lang === 'javascript' ? 'JavaScript' : 'Java'}
+                    {langLabels[lang]}
                   </button>
                 ))}
               </div>
