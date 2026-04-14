@@ -11,6 +11,7 @@ import BoardEditor from './BoardEditor';
 import OpeningExplorer from './OpeningExplorer';
 import { countPieces, fetchTablebase } from '../../utils/tablebaseService';
 import CoachBubble from '../Coach/CoachBubble';
+import { scoreToWhitePct as evalToWhitePct, formatEval, ariaLabel as evalAriaLabel } from '../../utils/evalBar';
 
 // ── Persistence helpers ──────────────────────────────────────────────────────
 
@@ -35,17 +36,6 @@ function clearAnalysisState() {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function evalToWhitePct(score) {
-  if (score > 9000) return 99;
-  if (score < -9000) return 1;
-  return Math.max(1, Math.min(99, 50 + 50 * Math.tanh(score / 400)));
-}
-
-function formatEval(score) {
-  if (score > 9000) return 'M';
-  if (score < -9000) return '-M';
-  return (score >= 0 ? '+' : '') + (score / 100).toFixed(1);
-}
 
 const _openingCache = new Map();
 const _ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlrcGptdm95YXRjcmxxeXFiZ2Z1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNzgyNTEsImV4cCI6MjA4OTk1NDI1MX0.LgSbUHB93i5S61jp5d_0sAUWosZzDWWWv7jwoU6X-3Q';
@@ -1304,7 +1294,15 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
 
                 {/* Eval bar + board */}
                 <div className={styles.boardRow}>
-                  <div className={styles.evalBar} style={{ flexDirection: flipped ? 'column' : 'column-reverse' }}>
+                  <div
+                    className={styles.evalBar}
+                    style={{ flexDirection: flipped ? 'column' : 'column-reverse' }}
+                    role="meter"
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={Math.round(displayPct)}
+                    aria-label={evalAriaLabel(currentEval)}
+                  >
                     <div className={styles.evalWhite} style={{ height: `${displayPct}%` }} />
                     <div className={styles.evalBlack} />
                     {/* Pill pinned at the TOP of the bar — dark chip is readable
@@ -1490,7 +1488,15 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                   </div>
                 </div>
                 <div className={styles.boardRow}>
-                  <div className={styles.evalBar} style={{ flexDirection: flipped ? 'column' : 'column-reverse' }}>
+                  <div
+                    className={styles.evalBar}
+                    style={{ flexDirection: flipped ? 'column' : 'column-reverse' }}
+                    role="meter"
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={Math.round(displayPct)}
+                    aria-label={evalAriaLabel(currentEval)}
+                  >
                     <div className={styles.evalWhite} style={{ height: `${displayPct}%` }} />
                     <div className={styles.evalBlack} />
                     {/* Pill pinned at the TOP of the bar — dark chip is readable

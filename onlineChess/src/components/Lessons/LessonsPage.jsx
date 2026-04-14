@@ -233,11 +233,12 @@ export default function LessonsPage() {
   if (activeCategory) {
     const lessons = getLessonsByCategory(activeCategory);
     const cat = LESSON_CATEGORIES.find(c => c.id === activeCategory);
+    const accent = cat?.color || '#5dade2';
 
     return (
       <div className={styles.page}>
         <div className={styles.catHeader}>
-          <button className={styles.backBtn} onClick={() => setActiveCategory(null)}>Back</button>
+          <button className={styles.backBtn} onClick={() => setActiveCategory(null)}>← Lessons</button>
           <div>
             <div className={styles.catTitle}>{cat.label}</div>
             <div className={styles.catDesc}>{cat.desc}</div>
@@ -251,8 +252,15 @@ export default function LessonsPage() {
             <button
               key={lesson.id}
               className={styles.lessonCard}
+              style={{ '--accent': accent }}
               onClick={() => handleSelectLesson(lesson.id)}
             >
+              <span className={styles.lessonIcon} aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4V4z"/>
+                  <path d="M20 4h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8V4z"/>
+                </svg>
+              </span>
               <div className={styles.lessonInfo}>
                 <div className={styles.lessonName}>{lesson.title}</div>
                 <div className={styles.lessonDesc}>{lesson.description}</div>
@@ -261,7 +269,9 @@ export default function LessonsPage() {
                   <span className={styles.stepCount}>{lesson.steps.length} steps</span>
                 </div>
               </div>
-              {completed.includes(lesson.id) && <span className={styles.checkmark}>Done</span>}
+              {completed.includes(lesson.id)
+                ? <span className={styles.checkmark}>✓ Done</span>
+                : <span className={styles.lessonArrow}>→</span>}
             </button>
           ))}
         </div>
@@ -278,17 +288,32 @@ export default function LessonsPage() {
         {LESSON_CATEGORIES.map(cat => {
           const lessons = getLessonsByCategory(cat.id);
           const done = lessons.filter(l => completed.includes(l.id)).length;
+          const pct = lessons.length ? Math.round((done / lessons.length) * 100) : 0;
           return (
             <button
               key={cat.id}
               className={styles.catCard}
+              style={{ '--accent': cat.color }}
               onClick={() => setActiveCategory(cat.id)}
             >
+              <span className={styles.catIcon} aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4V4z"/>
+                  <path d="M20 4h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8V4z"/>
+                </svg>
+              </span>
               <div className={styles.catCardTitle}>{cat.label}</div>
               <div className={styles.catCardDesc}>{cat.desc}</div>
-              {lessons.length > 0 && (
-                <div className={styles.catProgress}>{done}/{lessons.length} completed</div>
-              )}
+              <div className={styles.catCardFoot}>
+                {lessons.length > 0
+                  ? <span className={styles.catProgress}>{done}/{lessons.length} done</span>
+                  : <span className={styles.catProgress}>Coming soon</span>}
+                {lessons.length > 0 && (
+                  <span className={styles.catProgressBar}>
+                    <span className={styles.catProgressFill} style={{ width: `${pct}%` }} />
+                  </span>
+                )}
+              </div>
             </button>
           );
         })}

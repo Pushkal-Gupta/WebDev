@@ -80,9 +80,9 @@ const ENDGAME_POSITIONS = [
 ];
 
 const CATEGORIES = [
-  { id: 'basic', label: 'Basic Mates', desc: 'KQ, KR, and two bishops vs king' },
-  { id: 'pawns', label: 'Pawn Endings', desc: 'Opposition, key squares, promotion' },
-  { id: 'rook', label: 'Rook Endings', desc: 'Lucena, Philidor, and practical positions' },
+  { id: 'basic', label: 'Basic Mates',  desc: 'KQ, KR, and two bishops vs king',        color: '#6fdc8c' },
+  { id: 'pawns', label: 'Pawn Endings', desc: 'Opposition, key squares, promotion',     color: '#f0c94c' },
+  { id: 'rook',  label: 'Rook Endings', desc: 'Lucena, Philidor, and practical positions', color: '#5dade2' },
 ];
 
 // ── Mini Board ───────────────────────────────────────────────────────────────
@@ -305,11 +305,12 @@ export default function EndgameTrainer() {
   if (activeCategory) {
     const catEndgames = ENDGAME_POSITIONS.filter(e => e.category === activeCategory);
     const cat = CATEGORIES.find(c => c.id === activeCategory);
+    const accent = cat?.color || '#5dade2';
 
     return (
       <div className={styles.page}>
         <div className={styles.catHeader}>
-          <button className={styles.backBtn} onClick={() => setActiveCategory(null)}>Back</button>
+          <button className={styles.backBtn} onClick={() => setActiveCategory(null)}>← Endgames</button>
           <div>
             <div className={styles.catTitle}>{cat.label}</div>
             <div className={styles.catDesc}>{cat.desc}</div>
@@ -317,14 +318,28 @@ export default function EndgameTrainer() {
         </div>
         <div className={styles.endgameList}>
           {catEndgames.map(eg => (
-            <button key={eg.id} className={styles.endgameCard} onClick={() => { setSelectedEndgame(eg); setPosIdx(0); }}>
-              <div className={styles.endgameName}>{eg.name}</div>
-              <div className={styles.endgameDesc}>{eg.description}</div>
-              <div className={styles.endgameMeta}>
-                <span className={`${styles.diffBadge} ${styles[`diff_${eg.difficulty}`]}`}>{eg.difficulty}</span>
-                <span>{eg.positions.length} positions</span>
-                {best[eg.id] && <span className={styles.bestTag}>Best: {best[eg.id]} moves</span>}
+            <button
+              key={eg.id}
+              className={styles.endgameCard}
+              style={{ '--accent': accent }}
+              onClick={() => { setSelectedEndgame(eg); setPosIdx(0); }}
+            >
+              <span className={styles.endgameIcon} aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 20V10l8-6 8 6v10"/>
+                  <path d="M9 20v-6h6v6"/>
+                </svg>
+              </span>
+              <div className={styles.endgameBody}>
+                <div className={styles.endgameName}>{eg.name}</div>
+                <div className={styles.endgameDesc}>{eg.description}</div>
+                <div className={styles.endgameMeta}>
+                  <span className={`${styles.diffBadge} ${styles[`diff_${eg.difficulty}`]}`}>{eg.difficulty}</span>
+                  <span className={styles.endgameCount}>{eg.positions.length} positions</span>
+                  {best[eg.id] && <span className={styles.bestTag}>Best: {best[eg.id]} moves</span>}
+                </div>
               </div>
+              <span className={styles.endgameArrow}>→</span>
             </button>
           ))}
         </div>
@@ -340,10 +355,24 @@ export default function EndgameTrainer() {
         {CATEGORIES.map(cat => {
           const endgames = ENDGAME_POSITIONS.filter(e => e.category === cat.id);
           return (
-            <button key={cat.id} className={styles.catCard} onClick={() => setActiveCategory(cat.id)}>
+            <button
+              key={cat.id}
+              className={styles.catCard}
+              style={{ '--accent': cat.color }}
+              onClick={() => setActiveCategory(cat.id)}
+            >
+              <span className={styles.catIcon} aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="4" y="4" width="16" height="16" rx="2"/>
+                  <path d="M4 12h16M12 4v16"/>
+                </svg>
+              </span>
               <div className={styles.catCardTitle}>{cat.label}</div>
               <div className={styles.catCardDesc}>{cat.desc}</div>
-              <div className={styles.catCardCount}>{endgames.length} endgames</div>
+              <div className={styles.catCardFoot}>
+                <span className={styles.catCardCount}>{endgames.length} endgames</span>
+                <span className={styles.catCardCta}>Open →</span>
+              </div>
             </button>
           );
         })}

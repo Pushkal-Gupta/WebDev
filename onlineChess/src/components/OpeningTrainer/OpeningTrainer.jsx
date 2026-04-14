@@ -271,25 +271,34 @@ export default function OpeningTrainer() {
       <div className={styles.openingGrid}>
         {repertoire.map(opening => {
           const linesDue = getDueLines(srsData, opening.lines).length;
+          const accent = opening.color || '#5dade2';
           return (
-            <div key={opening.id} className={styles.openingCard}>
-              <div className={styles.openingTop}>
-                <div className={styles.openingEco}>{opening.eco}</div>
-                <div className={styles.openingName}>{opening.name}</div>
+            <div
+              key={opening.id}
+              className={styles.openingCard}
+              style={{ '--accent': accent }}
+            >
+              <div className={styles.openingHead}>
+                <span className={styles.openingIcon} aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4V4z"/>
+                    <path d="M20 4h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8V4z"/>
+                  </svg>
+                </span>
+                <span className={styles.openingEco}>{opening.eco}</span>
+                {linesDue > 0 && <span className={styles.dueTag}>{linesDue} due</span>}
               </div>
+              <div className={styles.openingName}>{opening.name}</div>
               <div className={styles.openingDesc}>{opening.description}</div>
               <div className={styles.openingIdeas}>
                 {opening.keyIdeas.map((idea, i) => (
                   <div key={i} className={styles.ideaChip}>{idea}</div>
                 ))}
               </div>
-              <div className={styles.openingMeta}>
-                <span>{opening.lines.length} lines</span>
-                {linesDue > 0 && <span className={styles.dueTag}>{linesDue} due</span>}
-              </div>
-              <div className={styles.openingActions}>
+              <div className={styles.openingFoot}>
+                <span className={styles.openingMeta}>{opening.lines.length} lines</span>
                 <button className={styles.drillBtn} onClick={() => handleDrillAll(opening)}>
-                  Drill All
+                  Drill All →
                 </button>
               </div>
             </div>

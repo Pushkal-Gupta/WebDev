@@ -53,6 +53,14 @@ body {
   flex-direction: row;
   height: 100vh;
   overflow: hidden;
+  /* Global cyan wash — very subtle so it's felt, not seen. Gives every
+     screen a consistent atmosphere instead of pure black. */
+  background:
+    radial-gradient(140% 90% at 10% 0%,
+      rgba(0, 255, 245, 0.04) 0%, transparent 55%),
+    radial-gradient(120% 110% at 100% 100%,
+      rgba(0, 180, 200, 0.035) 0%, transparent 55%),
+    var(--color-bg-primary);
 }
 
 .main-content {

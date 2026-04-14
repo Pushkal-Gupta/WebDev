@@ -2,66 +2,120 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 16px;
+  padding: 24px 28px 28px;
   overflow-y: auto;
-  max-width: 800px;
+  max-width: 1100px;
   margin: 0 auto;
   width: 100%;
 }
 
 .pageTitle {
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: #fff;
-  margin-bottom: 4px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 6px;
 }
 
 .pageDesc {
-  font-size: 0.78rem;
-  color: rgba(255,255,255,0.4);
-  margin-bottom: 20px;
+  font-size: 0.92rem;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 22px;
+  line-height: 1.5;
+  max-width: 640px;
 }
 
 /* ── Category grid ── */
 
 .catGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
 }
 
 .catCard {
-  padding: 16px;
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 10px;
-  background: rgba(255,255,255,0.03);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 18px 14px;
+  border-radius: 14px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent, #888) 10%, rgba(255,255,255,0.025)) 0%,
+    rgba(255,255,255,0.02) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--accent, #888) 22%, rgba(255,255,255,0.06));
   text-align: left;
   cursor: pointer;
-  transition: all 0.2s;
+  font-family: inherit;
+  color: rgba(255, 255, 255, 0.92);
+  transition: transform 0.16s, border-color 0.16s, box-shadow 0.16s;
 }
 
 .catCard:hover {
-  border-color: rgba(0,255,245,0.25);
-  background: rgba(0,255,245,0.04);
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent, #888) 55%, transparent);
+  box-shadow: 0 12px 28px -12px color-mix(in srgb, var(--accent, #888) 45%, transparent);
+}
+
+.catIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--accent, #888) 18%, rgba(255,255,255,0.025));
+  border: 1px solid color-mix(in srgb, var(--accent, #888) 35%, transparent);
+  color: var(--accent, #ddd);
 }
 
 .catCardTitle {
-  font-size: 0.95rem;
+  font-size: 1.04rem;
   font-weight: 700;
-  color: #fff;
-  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+  color: rgba(255, 255, 255, 0.96);
 }
 
 .catCardDesc {
-  font-size: 0.72rem;
-  color: rgba(255,255,255,0.4);
-  line-height: 1.3;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.45;
+  flex: 1;
+}
+
+.catCardFoot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.06);
+}
+
+.catProgressBar {
+  flex: 1;
+  height: 4px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.catProgressFill {
+  display: block;
+  height: 100%;
+  background: var(--accent, #aaa);
+  border-radius: 3px;
+  transition: width 0.25s ease;
 }
 
 .catProgress {
-  font-size: 0.65rem;
-  color: var(--color-accent);
-  margin-top: 8px;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
 }
 
 /* ── Category detail ── */
@@ -107,24 +161,58 @@
 }
 
 .lessonCard {
-  display: flex;
+  display: grid;
+  grid-template-columns: 42px 1fr auto;
   align-items: center;
-  justify-content: space-between;
+  gap: 14px;
   padding: 14px 16px;
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 10px;
-  background: rgba(255,255,255,0.02);
+  border-radius: 12px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent, #888) 8%, rgba(255,255,255,0.025)) 0%,
+    rgba(255,255,255,0.02) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--accent, #888) 18%, rgba(255,255,255,0.05));
+  border-left: 3px solid color-mix(in srgb, var(--accent, #888) 60%, transparent);
   cursor: pointer;
   text-align: left;
-  transition: all 0.2s;
+  font-family: inherit;
+  color: rgba(255, 255, 255, 0.92);
+  transition: transform 0.16s, border-color 0.16s, box-shadow 0.16s;
 }
 
 .lessonCard:hover {
-  border-color: rgba(0,255,245,0.2);
-  background: rgba(0,255,245,0.03);
+  transform: translateX(2px);
+  border-color: color-mix(in srgb, var(--accent, #888) 45%, transparent);
+  border-left-color: var(--accent, #888);
+  box-shadow: 0 8px 22px -10px color-mix(in srgb, var(--accent, #888) 40%, transparent);
 }
 
-.lessonInfo { flex: 1; }
+.lessonIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--accent, #888) 18%, rgba(255,255,255,0.025));
+  border: 1px solid color-mix(in srgb, var(--accent, #888) 35%, transparent);
+  color: var(--accent, #ddd);
+  flex-shrink: 0;
+}
+
+.lessonArrow {
+  font-size: 1.15rem;
+  color: rgba(255, 255, 255, 0.3);
+  transition: transform 0.16s, color 0.16s;
+}
+
+.lessonCard:hover .lessonArrow {
+  transform: translateX(2px);
+  color: var(--accent, #ddd);
+}
+
+.lessonInfo { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 
 .lessonName {
   font-size: 0.88rem;

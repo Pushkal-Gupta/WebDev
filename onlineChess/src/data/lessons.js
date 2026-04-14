@@ -9,12 +9,12 @@
  */
 
 export const LESSON_CATEGORIES = [
-  { id: 'basics',     label: 'Basics',     desc: 'How pieces move and fundamental rules' },
-  { id: 'tactics',    label: 'Tactics',    desc: 'Forks, pins, skewers, and combinations' },
-  { id: 'checkmates', label: 'Checkmates', desc: 'Common mating patterns' },
-  { id: 'endgames',   label: 'Endgames',   desc: 'King and pawn, rook, and basic endgames' },
-  { id: 'openings',   label: 'Openings',   desc: 'Opening principles and popular lines' },
-  { id: 'strategy',   label: 'Strategy',   desc: 'Positional concepts and planning' },
+  { id: 'basics',     label: 'Basics',     desc: 'How pieces move and fundamental rules',       color: '#6fdc8c' },
+  { id: 'tactics',    label: 'Tactics',    desc: 'Forks, pins, skewers, and combinations',       color: '#e040fb' },
+  { id: 'checkmates', label: 'Checkmates', desc: 'Common mating patterns',                       color: '#e74c3c' },
+  { id: 'endgames',   label: 'Endgames',   desc: 'King and pawn, rook, and basic endgames',      color: '#f0c94c' },
+  { id: 'openings',   label: 'Openings',   desc: 'Opening principles and popular lines',         color: '#5dade2' },
+  { id: 'strategy',   label: 'Strategy',   desc: 'Positional concepts and planning',             color: '#9c27b0' },
 ];
 
 export const LESSONS = [

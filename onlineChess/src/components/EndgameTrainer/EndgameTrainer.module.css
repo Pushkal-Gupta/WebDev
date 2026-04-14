@@ -1,34 +1,264 @@
-.page { flex: 1; display: flex; flex-direction: column; padding: 16px; overflow-y: auto; max-width: 800px; margin: 0 auto; width: 100%; }
-.pageTitle { font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 4px; }
-.pageDesc { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-bottom: 20px; }
+.page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 28px 28px;
+  overflow-y: auto;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+}
 
-/* Category grid */
-.catGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
-.catCard { padding: 16px; border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; background: rgba(255,255,255,0.03); text-align: left; cursor: pointer; transition: all 0.2s; }
-.catCard:hover { border-color: rgba(0,255,245,0.25); background: rgba(0,255,245,0.04); }
-.catCardTitle { font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
-.catCardDesc { font-size: 0.72rem; color: rgba(255,255,255,0.4); line-height: 1.3; }
-.catCardCount { font-size: 0.65rem; color: var(--color-accent); margin-top: 8px; }
+.pageTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 6px;
+}
 
-/* Category detail */
-.catHeader { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-.catTitle { font-size: 1.1rem; font-weight: 700; color: #fff; }
-.catDesc { font-size: 0.72rem; color: rgba(255,255,255,0.4); }
-.backBtn { padding: 6px 12px; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; background: transparent; color: rgba(255,255,255,0.5); font-size: 0.75rem; font-weight: 600; cursor: pointer; flex-shrink: 0; }
-.backBtn:hover { color: #fff; }
+.pageDesc {
+  font-size: 0.92rem;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 22px;
+  line-height: 1.5;
+  max-width: 640px;
+}
 
-/* Endgame list */
-.endgameList { display: flex; flex-direction: column; gap: 8px; }
-.endgameCard { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; background: rgba(255,255,255,0.02); cursor: pointer; text-align: left; transition: all 0.2s; }
-.endgameCard:hover { border-color: rgba(0,255,245,0.2); background: rgba(0,255,245,0.03); }
-.endgameName { font-size: 0.88rem; font-weight: 700; color: #fff; }
-.endgameDesc { font-size: 0.72rem; color: rgba(255,255,255,0.4); }
-.endgameMeta { display: flex; gap: 10px; align-items: center; font-size: 0.65rem; color: rgba(255,255,255,0.3); }
-.diffBadge { font-size: 0.6rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
-.diff_beginner { background: rgba(61,220,132,0.15); color: #3ddc84; }
-.diff_intermediate { background: rgba(240,201,76,0.15); color: #f0c94c; }
-.diff_advanced { background: rgba(255,120,117,0.15); color: #ff7875; }
-.bestTag { color: var(--color-accent); }
+/* ── Category grid ──────────────────────────────────────────────────────── */
+.catGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.catCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 18px 14px;
+  border-radius: 14px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent, #888) 10%, rgba(255,255,255,0.025)) 0%,
+    rgba(255,255,255,0.02) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--accent, #888) 22%, rgba(255,255,255,0.06));
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  color: rgba(255, 255, 255, 0.92);
+  transition: transform 0.16s, border-color 0.16s, box-shadow 0.16s;
+}
+
+.catCard:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent, #888) 55%, transparent);
+  box-shadow: 0 12px 28px -12px color-mix(in srgb, var(--accent, #888) 45%, transparent);
+}
+
+.catIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--accent, #888) 18%, rgba(255,255,255,0.025));
+  border: 1px solid color-mix(in srgb, var(--accent, #888) 35%, transparent);
+  color: var(--accent, #ddd);
+  margin-bottom: 2px;
+}
+
+.catCardTitle {
+  font-size: 1.04rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: rgba(255, 255, 255, 0.96);
+}
+
+.catCardDesc {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.45;
+  flex: 1;
+}
+
+.catCardFoot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.06);
+}
+
+.catCardCount {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.45);
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.catCardCta {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--accent, #ddd);
+}
+
+/* ── Category detail ────────────────────────────────────────────────────── */
+.catHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.catTitle {
+  font-size: 1.24rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.catDesc {
+  font-size: 0.84rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 2px;
+}
+
+.backBtn {
+  padding: 7px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  font-family: inherit;
+}
+
+.backBtn:hover {
+  background: rgba(0, 255, 245, 0.06);
+  border-color: rgba(0, 255, 245, 0.3);
+  color: var(--color-accent);
+}
+
+/* ── Endgame list ───────────────────────────────────────────────────────── */
+.endgameList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.endgameCard {
+  display: grid;
+  grid-template-columns: 42px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent, #888) 8%, rgba(255,255,255,0.025)) 0%,
+    rgba(255,255,255,0.02) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--accent, #888) 18%, rgba(255,255,255,0.05));
+  border-left: 3px solid color-mix(in srgb, var(--accent, #888) 60%, transparent);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: rgba(255, 255, 255, 0.92);
+  transition: transform 0.16s, border-color 0.16s, box-shadow 0.16s;
+}
+
+.endgameCard:hover {
+  transform: translateX(2px);
+  border-color: color-mix(in srgb, var(--accent, #888) 45%, transparent);
+  border-left-color: var(--accent, #888);
+  box-shadow: 0 8px 22px -10px color-mix(in srgb, var(--accent, #888) 40%, transparent);
+}
+
+.endgameIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--accent, #888) 18%, rgba(255,255,255,0.025));
+  border: 1px solid color-mix(in srgb, var(--accent, #888) 35%, transparent);
+  color: var(--accent, #ddd);
+  flex-shrink: 0;
+}
+
+.endgameBody { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+
+.endgameName {
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.endgameDesc {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.4;
+}
+
+.endgameMeta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.endgameCount {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 600;
+}
+
+.endgameArrow {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.25);
+  transition: transform 0.16s, color 0.16s;
+}
+
+.endgameCard:hover .endgameArrow {
+  transform: translateX(2px);
+  color: var(--accent, #ddd);
+}
+
+.diffBadge {
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.diff_beginner    { background: rgba(61, 220, 132, 0.15); color: #6fdc8c; }
+.diff_intermediate { background: rgba(240, 201, 76, 0.15); color: #f0c94c; }
+.diff_advanced    { background: rgba(255, 120, 117, 0.15); color: #ff7875; }
+
+.bestTag {
+  font-size: 0.66rem;
+  color: var(--color-accent);
+  background: rgba(0, 255, 245, 0.08);
+  border: 1px solid rgba(0, 255, 245, 0.2);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+}
 
 /* Play mode */
 .playPage { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 16px; gap: 12px; overflow-y: auto; }
