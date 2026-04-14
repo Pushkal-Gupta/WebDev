@@ -40,7 +40,7 @@ const Board = memo(function Board({ arrows, badges }) {
     if (!lastMoveIsNew) return;
     if (!lastMove || !boardState) return;
 
-    const durationMs = animationSpeed === 'fast' ? 80 : animationSpeed === 'slow' ? 300 : 150;
+    const durationMs = animationSpeed === 'fast' ? 140 : animationSpeed === 'slow' ? 320 : 180;
     const flags = lastMove.flags || '';
     const color = lastMove.pieceColor || 'w';
     const pieces = [];

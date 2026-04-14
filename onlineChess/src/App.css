@@ -805,7 +805,13 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: var(--color-bg-primary);
+  /* Soft radial vignette so dead space around the board reads as intentional
+     chrome rather than empty canvas. */
+  background:
+    radial-gradient(120% 90% at 50% 55%,
+      rgba(0, 255, 245, 0.035) 0%,
+      rgba(0, 0, 0, 0) 55%),
+    var(--color-bg-primary);
 }
 
 .board-area {
@@ -816,6 +822,11 @@ body {
   padding: 6px 12px;
   overflow: hidden;
   min-height: 0;
+}
+
+.board-area > * {
+  box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.6);
+  border-radius: 4px;
 }
 
 /* ─── Player panels (above/below board) ────────────────────────────────────── */

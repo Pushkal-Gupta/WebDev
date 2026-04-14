@@ -91,6 +91,7 @@ export default function App() {
   const activeTab = PATH_TO_TAB[location.pathname] ?? 0;
   const setActiveTab = (tab) => navigate(TAB_TO_PATH[tab] || '/');
   const [pendingTimeControl, setPendingTimeControl] = useState(null);
+  const [boardArrows, setBoardArrows]       = useState([]);  // hint/coach arrows
   const [showLogin, setShowLogin]           = useState(false);
   const [showLogout, setShowLogout]         = useState(false);
   const [showStrength, setShowStrength]     = useState(false);
@@ -270,6 +271,9 @@ export default function App() {
 
     // Disable board until opponent responds
     if (!state.gameOver) useGameStore.getState().setDisableBoard(true);
+
+    // Any new move clears transient hint/coach arrows
+    setBoardArrows((prev) => prev.filter((a) => a.kind !== 'hint'));
   }, [moveHistory.length]);
 
   // ─── Online: cleanup channel when game ends ───────────────────────────────
@@ -404,8 +408,16 @@ export default function App() {
   const handleGetHint = () => {
     if (!chessInstance || gameOver) return;
     const s = getSuggestion(chessInstance.fen());
-    if (s) showAlert(`Hint: ${s.from} → ${s.to}`);
-    else   showAlert('No hint available.');
+    if (!s) { showAlert('No hint available.'); return; }
+    const toRC = (sq) => ({
+      row: 8 - parseInt(sq[1], 10),
+      col: sq.charCodeAt(0) - 'a'.charCodeAt(0),
+    });
+    setBoardArrows([{ from: toRC(s.from), to: toRC(s.to), color: '#3ddc84', kind: 'hint' }]);
+    showAlert(`Hint: ${s.from} → ${s.to}`);
+    setTimeout(() => {
+      setBoardArrows((prev) => prev.filter((a) => a.kind !== 'hint'));
+    }, 4000);
   };
 
   // ─── Online game handlers ─────────────────────────────────────────────────
@@ -1086,7 +1098,7 @@ export default function App() {
               />
 
               <div className="board-area">
-                <Board />
+                <Board arrows={boardArrows} />
               </div>
 
               {/* Board controls — flip, undo, redo, resign, copy PGN */}

@@ -1,6 +1,6 @@
 .nav {
-  width: 240px;
-  min-width: 240px;
+  width: var(--shell-left-w, 240px);
+  min-width: var(--shell-left-w, 240px);
   height: 100vh;
   background: #020c0c;
   border-right: 1px solid rgba(0, 255, 245, 0.07);
@@ -8,6 +8,7 @@
   flex-direction: column;
   flex-shrink: 0;
   overflow: hidden;
+  transition: width 0.18s ease, min-width 0.18s ease;
 }
 
 /* Logo */
@@ -155,12 +156,9 @@
   border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Responsive: collapse to icon-only on narrow screens */
+/* Responsive: collapse to icon-only on narrow screens.
+   Width itself comes from the --shell-left-w token in index.css. */
 @media (max-width: 900px) {
-  .nav {
-    width: 60px;
-    min-width: 60px;
-  }
   .logoText  { display: none; }
   .logoIcon  { margin: 0 auto; }
   .logo      { justify-content: center; padding: 16px 8px; }
