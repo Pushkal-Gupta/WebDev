@@ -14,6 +14,7 @@ const Board = memo(function Board({ arrows, badges }) {
   const flipped = useGameStore(s => s.flipped);
   const lastMove = useGameStore(s => s.lastMove);
   const lastMoveIsNew = useGameStore(s => s.lastMoveIsNew);
+  const premove = useGameStore(s => s.premove);
   const boardThemeType = useThemeStore(s => s.boardThemeType);
   const boardImageUrl = useThemeStore(s => s.boardImageUrl);
   const boardImageFailed = useThemeStore(s => s.boardImageFailed);
@@ -115,7 +116,14 @@ const Board = memo(function Board({ arrows, badges }) {
     return { x: dc * 100 + 50, y: dr * 100 + 50 };
   };
 
-  const hasOverlays = (arrows?.length > 0) || (badges?.length > 0);
+  // Build the final arrow set: caller-provided arrows + the implicit premove
+  // arrow (source → destination) when a premove has both endpoints.
+  const premoveArrow = (premove?.from && premove?.to)
+    ? { from: premove.from, to: premove.to, color: '#2e93d8', kind: 'premove' }
+    : null;
+  const allArrows = [...(arrows || []), ...(premoveArrow ? [premoveArrow] : [])];
+
+  const hasOverlays = (allArrows.length > 0) || (badges?.length > 0);
 
   // Compute animation overlays (one per animated piece)
   let animOverlay = null;
@@ -174,13 +182,13 @@ const Board = memo(function Board({ arrows, badges }) {
         {hasOverlays && (
           <svg className={styles.boardOverlay} viewBox="0 0 800 800">
             <defs>
-              {(arrows || []).map((a, i) => (
+              {allArrows.map((a, i) => (
                 <marker key={`ah${i}`} id={`ah${i}`} markerWidth="4" markerHeight="4" refX="2.5" refY="2" orient="auto">
                   <path d="M0,0 L4,2 L0,4 Z" fill={a.color} />
                 </marker>
               ))}
             </defs>
-            {(arrows || []).map((a, i) => {
+            {allArrows.map((a, i) => {
               const from = toSvg(a.from.row, a.from.col);
               const to = toSvg(a.to.row, a.to.col);
               // Shorten arrow slightly so head doesn't overshoot center

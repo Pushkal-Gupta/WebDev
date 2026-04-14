@@ -229,32 +229,68 @@ const useGameStore = create((set, get) => ({
     }
 
     // ── Premove mode: opponent's turn ──────────────────────────────────────────
+    // Chess.com / Lichess UX:
+    //   • click own piece → premove source (highlight)
+    //   • click legal destination for that piece → premove destination (ghost + arrow)
+    //   • click source again → cancel
+    //   • click a different own piece → replace source
+    //   • click illegal / unrelated square → do NOTHING (don't clobber premove)
     if (isOpponentTurn && (isComp || isOnline)) {
       const pmFrom = premove?.from;
 
+      // Helper: legal destinations from pmFrom, computed on a FEN where it IS
+      // our turn (chess.js would otherwise refuse to list moves for a piece
+      // whose side isn't to move).
+      const legalDestsFromPremoveSrc = () => {
+        if (!pmFrom) return [];
+        const fromFile = String.fromCharCode('a'.charCodeAt(0) + pmFrom.col);
+        const fromRank = String(8 - pmFrom.row);
+        const fromSq = fromFile + fromRank;
+        try {
+          const parts = chessInstance.fen().split(' ');
+          parts[1] = myColor;
+          const Chess = chessInstance.constructor;
+          const tmp = new Chess();
+          // Some FENs won't be loadable when it's "our turn" while opponent
+          // is also in check, etc. — swallow and fall back to empty list.
+          if (!tmp.load(parts.join(' '))) return [];
+          const moves = tmp.moves({ square: fromSq, verbose: true }) || [];
+          return moves.map(m => ({
+            row: 8 - parseInt(m.to[1], 10),
+            col: m.to.charCodeAt(0) - 'a'.charCodeAt(0),
+          }));
+        } catch {
+          return [];
+        }
+      };
+
       if (pmFrom) {
-        // We have a premove source selected
+        // Same source square → cancel premove entirely.
         if (pmFrom.row === row && pmFrom.col === col) {
-          // Clicked same source → deselect
           set({ premove: null });
           return;
         }
+        // Another own piece → replace source (clears any previous destination).
         if (piece && piece.color === myColor) {
-          // Clicked another own piece → change premove source
           set({ premove: { from: { row, col }, to: null, piece: { type: piece.type, color: piece.color } } });
           return;
         }
-        // Clicked a different square → set as premove destination
-        set({ premove: { ...get().premove, from: pmFrom, to: { row, col } } });
+        // Only accept squares that are LEGAL destinations for the premoved
+        // piece — prevents stray clicks from setting random blue "ghost" squares.
+        const legal = legalDestsFromPremoveSrc();
+        const isLegal = legal.some((m) => m.row === row && m.col === col);
+        if (isLegal) {
+          set({ premove: { ...get().premove, from: pmFrom, to: { row, col } } });
+        }
+        // Illegal clicks are ignored — keeps the existing premove intact.
         return;
       }
 
-      // No premove source yet
+      // No premove source yet.
       if (piece && piece.color === myColor) {
-        // Select own piece as premove source (store piece info for ghost rendering)
         set({ premove: { from: { row, col }, to: null, piece: { type: piece.type, color: piece.color } } });
       } else {
-        // Clear any existing premove
+        // Click on empty / opponent square with no premove: clear stale state.
         set({ premove: null });
       }
       return;
