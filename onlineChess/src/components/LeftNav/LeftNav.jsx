@@ -179,6 +179,7 @@ export default function LeftNav({ activeTab, onTabClick, friendBadge }) {
         <NavItem icon={<PlaySvg />}     label="Play"     active={activeTab === 0 || activeTab === 1} onClick={() => onTabClick(0)} />
         <NavItem icon={<AnalysisSvg />} label="Analysis" active={activeTab === 2}                    onClick={() => onTabClick(2)} />
         <NavItem icon={<ComputerSvg />} label="Computer" active={activeTab === 3}                    onClick={() => onTabClick(3)} />
+        <NavItem icon={<CoachSvg />}    label="Coach"    active={activeTab === 15}                   onClick={() => onTabClick(15)} />
         <NavItem icon={<OnlineSvg />}   label="Online"   active={activeTab === 4}                    onClick={() => onTabClick(4)} />
         <NavItem icon={<PuzzleSvg />}   label="Puzzles"  active={activeTab === 6}                    onClick={() => onTabClick(6)} />
         <NavItem icon={<SpectateSvg />} label="Spectate" active={activeTab === 7}                    onClick={() => onTabClick(7)} />

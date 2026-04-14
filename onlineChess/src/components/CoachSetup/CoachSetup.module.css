@@ -1,0 +1,249 @@
+.page {
+  display: flex;
+  gap: 24px;
+  padding: 28px 28px;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--color-bg-primary);
+}
+
+.leftCol {
+  flex: 1.2;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  min-width: 280px;
+}
+
+.rightCol {
+  flex: 1.6;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+.coachHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(
+    circle at 30% 30%,
+    color-mix(in srgb, var(--chip-color, #888) 60%, transparent),
+    color-mix(in srgb, var(--chip-color, #888) 15%, rgba(0, 0, 0, 0.4))
+  );
+  border: 1px solid color-mix(in srgb, var(--chip-color, #888) 50%, transparent);
+  color: var(--chip-color, #ddd);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.coachName {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.coachTag {
+  margin: 2px 0 0;
+  font-size: 0.84rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.description {
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.55;
+  font-size: 0.92rem;
+  margin: 0;
+}
+
+.quoteBubble {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 210, 122, 0.18);
+  border-left: 3px solid #ffd27a;
+  padding: 12px 14px;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.note {
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.45);
+  line-height: 1.45;
+  padding: 8px 10px;
+  border-left: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sectionLabel {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 0;
+  font-weight: 700;
+}
+
+/* ── Level list ─────────────────────────────────────────────────────────── */
+.levelList {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.levelBtn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.78);
+  cursor: pointer;
+  font-size: 0.92rem;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.levelBtn:hover {
+  background: rgba(255, 210, 122, 0.06);
+  color: #fff;
+}
+
+.levelBtnActive {
+  background: rgba(255, 210, 122, 0.12);
+  border-color: rgba(255, 210, 122, 0.45);
+  color: #ffd27a;
+}
+
+.levelName { font-weight: 600; }
+.levelRating { color: rgba(255, 255, 255, 0.45); font-size: 0.82rem; }
+
+/* ── TC grid ────────────────────────────────────────────────────────────── */
+.tcGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 6px;
+}
+
+.tcBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.tcBtn:hover {
+  background: rgba(255, 210, 122, 0.08);
+  border-color: rgba(255, 210, 122, 0.25);
+  color: #fff;
+}
+
+.tcBtnActive {
+  background: rgba(255, 210, 122, 0.14);
+  border-color: rgba(255, 210, 122, 0.55);
+  color: #ffd27a;
+}
+
+.tcTime { font-weight: 700; font-size: 0.92rem; }
+.tcCat  { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.6px; opacity: 0.72; margin-top: 2px; }
+
+/* ── Color buttons ───────────────────────────────────────────────────────── */
+.colorBtns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.colorBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.88rem;
+  transition: all 0.15s;
+}
+
+.colorBtn:hover {
+  background: rgba(255, 210, 122, 0.08);
+  border-color: rgba(255, 210, 122, 0.3);
+}
+
+.colorBtnActive {
+  background: rgba(255, 210, 122, 0.14);
+  border-color: rgba(255, 210, 122, 0.55);
+  color: #ffd27a;
+}
+
+.colorIcon {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* ── Start button ────────────────────────────────────────────────────────── */
+.startBtn {
+  padding: 14px;
+  background: linear-gradient(135deg, #ffd27a, #ffb347);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 4px;
+  letter-spacing: 0.2px;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+
+.startBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(255, 210, 122, 0.28);
+}
+
+@media (max-width: 900px) {
+  .page { flex-direction: column; padding: 16px; }
+  .leftCol, .rightCol { flex: none; min-width: 0; overflow-y: visible; }
+  .levelList { max-height: none; }
+}

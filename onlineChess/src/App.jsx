@@ -13,7 +13,6 @@ import PromotionModal from './components/modals/PromotionModal';
 import ConfirmModal from './components/modals/ConfirmModal';
 import CustomAlert from './components/modals/CustomAlert';
 import Chat from './components/Chat/Chat';
-import BotCommentaryStrip from './components/BotCommentary/BotCommentaryStrip';
 import useGameStore from './store/gameStore';
 import useAuthStore from './store/authStore';
 import useThemeStore from './store/themeStore';
@@ -52,6 +51,7 @@ const TournamentsPage = lazy(() => import('./components/Tournaments/TournamentsP
 const ClubsPage      = lazy(() => import('./components/Clubs/ClubsPage'));
 const TrainingHub    = lazy(() => import('./components/Training/TrainingHub'));
 const ComputerSetup  = lazy(() => import('./components/ComputerSetup/ComputerSetup'));
+const CoachSetup     = lazy(() => import('./components/CoachSetup/CoachSetup'));
 const SettingsPage   = lazy(() => import('./components/Settings/SettingsPage'));
 const P2PSetup       = lazy(() => import('./components/P2PPlay/P2PSetup'));
 const P2PGame        = lazy(() => import('./components/P2PPlay/P2PGame'));
@@ -847,7 +847,7 @@ export default function App() {
 
   // ─── Computed ─────────────────────────────────────────────────────────────
   const isOnlineGameActive = activeTab === 4 && isOnline && gameStarted;
-  const isGameViewActive   = (activeTab === 1 || activeTab === 3 || isOnlineGameActive) && gameStarted;
+  const isGameViewActive   = (activeTab === 1 || activeTab === 3 || activeTab === 15 || isOnlineGameActive) && gameStarted;
 
   // Player panel data (top = opponent perspective, bottom = you)
   const _PVALS = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
@@ -929,6 +929,30 @@ export default function App() {
             initGame();
             const compCol = color === 'random' ? (Math.random() < 0.5 ? 'white' : 'black') : (color === 'white' ? 'black' : 'white');
             startGame(tc, true, compCol, bot.strength);
+          }} />
+        )}
+
+        {/* ── Tab 15: Play with Coach ── */}
+        {activeTab === 15 && !gameStarted && (
+          <CoachSetup onStart={(coach, level, tc, color) => {
+            const compCol = color === 'random' ? (Math.random() < 0.5 ? 'white' : 'black') : (color === 'white' ? 'black' : 'white');
+            // Shape a bot-compatible opponent from the coach + level so the
+            // rest of the app (player panel, game-over message, etc.) works.
+            setSelectedBot({
+              id: coach.id,
+              name: coach.name,
+              rating: level.rating,
+              strength: level.strength,
+              icon: coach.icon,
+              color: coach.color,
+              tagline: coach.tagline,
+              description: coach.description,
+              winMsg: coach.closingWin,
+              loseMsg: coach.closingLoss,
+              drawMsg: coach.closingDraw,
+            });
+            initGame();
+            startGame(tc, true, compCol, level.strength, { isCoachGame: true, coachId: coach.id });
           }} />
         )}
 
@@ -1133,7 +1157,6 @@ export default function App() {
         />
       )}
 
-      <BotCommentaryStrip />
 
       {gameOver && gameOverMessage && (
         <GameOverModal

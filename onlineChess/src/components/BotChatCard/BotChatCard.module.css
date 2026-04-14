@@ -1,0 +1,113 @@
+.card {
+  padding: 12px 12px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--chip-color, #888) 7%, transparent),
+    transparent 70%
+  );
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chip {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(
+    circle at 30% 30%,
+    color-mix(in srgb, var(--chip-color, #888) 55%, transparent),
+    color-mix(in srgb, var(--chip-color, #888) 18%, rgba(0, 0, 0, 0.4))
+  );
+  border: 1px solid color-mix(in srgb, var(--chip-color, #888) 60%, transparent);
+  color: var(--chip-color, #ddd);
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.chipIcon {
+  width: 22px;
+  height: 22px;
+}
+
+.headerText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.name {
+  color: rgba(255, 255, 255, 0.94);
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.2px;
+}
+
+.sub {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: color-mix(in srgb, var(--chip-color, #aaa) 85%, #ddd);
+  opacity: 0.85;
+}
+
+.bubble {
+  position: relative;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 8px 10px 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.82rem;
+  line-height: 1.38;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* speech tail pointing up to the chip */
+.tail {
+  position: absolute;
+  top: -5px;
+  left: 16px;
+  width: 10px;
+  height: 10px;
+  background: rgba(22, 22, 26, 0.98);
+  border-left: 1px solid rgba(255, 255, 255, 0.07);
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  transform: rotate(45deg);
+}
+
+.line {
+  word-break: break-word;
+  transition: opacity 0.25s, transform 0.25s;
+}
+
+.lineLatest {
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 500;
+}
+
+.lineOld {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.76rem;
+}
+
+@media (max-width: 700px) {
+  .card { padding: 8px 10px; gap: 6px; }
+  .chip { width: 32px; height: 32px; }
+  .chipIcon { width: 18px; height: 18px; }
+  .name { font-size: 0.82rem; }
+  .bubble { font-size: 0.76rem; }
+}
