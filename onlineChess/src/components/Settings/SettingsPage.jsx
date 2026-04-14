@@ -267,6 +267,10 @@ export default function SettingsPage() {
     reducedMotion, setReducedMotion,
     highContrast, setHighContrast,
     pieceScale, setPieceScale,
+    coachEnabled, setCoachEnabled,
+    coachPosition, setCoachPosition,
+    coachVerbosity, setCoachVerbosity,
+    botCommentaryEnabled, setBotCommentaryEnabled,
     resetPrefs,
   } = usePrefsStore();
 
@@ -482,6 +486,44 @@ export default function SettingsPage() {
           <label className={styles.fieldLabel}>Piece Animation Speed</label>
           <select className={styles.select} value={animationSpeed} onChange={e => setAnimationSpeed(e.target.value)}>
             {ANIMATION_OPTIONS.map(o => (<option key={o.value} value={o.value}>{o.label}</option>))}
+          </select>
+        </div>
+      </div>
+
+      <div className={styles.subsection}>
+        <h4 className={styles.subsectionTitle}>Coach</h4>
+        <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.78rem', margin: '0 0 8px' }}>
+          The Coach bubble only appears in Analysis, Training and Puzzles — never during live games.
+        </p>
+        <div className={styles.toggleList}>
+          <Toggle
+            checked={coachEnabled}
+            onChange={setCoachEnabled}
+            label="Enable Coach bubble"
+            desc="Show the floating coach in Analysis, Training and Puzzles"
+          />
+          <Toggle
+            checked={botCommentaryEnabled}
+            onChange={setBotCommentaryEnabled}
+            label="Bot commentary vs Computer"
+            desc="Let bots speak in-character while you play them (flavor only, no move hints)"
+          />
+        </div>
+        <div className={styles.field} style={{ marginTop: 10 }}>
+          <label className={styles.fieldLabel}>Coach Position</label>
+          <select className={styles.select} value={coachPosition} onChange={e => setCoachPosition(e.target.value)}>
+            <option value="br">Bottom Right</option>
+            <option value="bl">Bottom Left</option>
+            <option value="tr">Top Right</option>
+            <option value="tl">Top Left</option>
+          </select>
+        </div>
+        <div className={styles.field}>
+          <label className={styles.fieldLabel}>Coach Verbosity</label>
+          <select className={styles.select} value={coachVerbosity} onChange={e => setCoachVerbosity(e.target.value)}>
+            <option value="quiet">Quiet</option>
+            <option value="medium">Medium</option>
+            <option value="verbose">Verbose</option>
           </select>
         </div>
       </div>
