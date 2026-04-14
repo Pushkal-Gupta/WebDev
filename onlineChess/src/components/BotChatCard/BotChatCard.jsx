@@ -1,33 +1,35 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import useGameStore from '../../store/gameStore';
 import usePrefsStore from '../../store/prefsStore';
 import { getBotById, getBotByStrength } from '../../data/bots';
 import { getCoachById } from '../../data/coaches';
 import { commentOnMove, greetingLine } from '../../utils/botCommentary';
 import { commentOnMoveCoach, coachGreeting } from '../../utils/coachCommentary';
+import { runIntent, INTENTS } from '../../utils/coachActions';
+import { CLASSIFICATIONS } from '../../utils/reviewEngine';
 import styles from './BotChatCard.module.css';
 
-const MAX_LINES_BOT = 6;
-const MAX_LINES_COACH = 15;
-let lineId = 1;
-
 /**
- * Sidebar-embedded chat card for bot and coach games.
- * Shows the persona chip at top and a stack of the latest N speech lines.
+ * Dashboard-style persona module for computer + coach games.
+ * Replaces the old floating speech bubble with a dense stack of cards:
+ *   - Persona strip (small chip + name + role)
+ *   - Insight line (one sentence, no bubble tail)
+ *   - Move feedback (classification icon + label) — when a review is available
+ *   - Coach accordions (Why / Best line / Plan) — coach mode only, on demand
  */
-export default function BotChatCard({ mode = 'bot' }) {
+export default function BotChatCard({ mode = 'bot', reviewResult = null }) {
   const enabled = usePrefsStore((s) =>
     mode === 'coach' ? s.coachEnabled : s.botCommentaryEnabled
   );
-  const isComp        = useGameStore((s) => s.isComp);
-  const isCoachGame   = useGameStore((s) => s.isCoachGame);
-  const compStrength  = useGameStore((s) => s.compStrength);
-  const compColor     = useGameStore((s) => s.compColor);
-  const selectedBotId = useGameStore((s) => s.selectedBotId);
+  const isComp          = useGameStore((s) => s.isComp);
+  const isCoachGame     = useGameStore((s) => s.isCoachGame);
+  const compStrength    = useGameStore((s) => s.compStrength);
+  const compColor       = useGameStore((s) => s.compColor);
+  const selectedBotId   = useGameStore((s) => s.selectedBotId);
   const selectedCoachId = useGameStore((s) => s.selectedCoachId);
-  const gameStarted   = useGameStore((s) => s.gameStarted);
-  const gameOver      = useGameStore((s) => s.gameOver);
-  const moveHistory   = useGameStore((s) => s.moveHistory);
+  const gameStarted     = useGameStore((s) => s.gameStarted);
+  const gameOver        = useGameStore((s) => s.gameOver);
+  const moveHistory     = useGameStore((s) => s.moveHistory);
 
   const personality = mode === 'coach'
     ? getCoachById(selectedCoachId)
@@ -35,47 +37,32 @@ export default function BotChatCard({ mode = 'bot' }) {
         ? (getBotById(selectedBotId) || getBotByStrength(compStrength))
         : null);
 
-  const [lines, setLines] = useState([]);
-  const storageKey = `botchat_${mode}_collapsed`;
-  const [collapsed, setCollapsed] = useState(() => {
-    try { return localStorage.getItem(storageKey) === '1'; } catch { return false; }
-  });
+  const [insight, setInsight]     = useState('');
+  const [openAcc, setOpenAcc]     = useState(null);        // 'why' | 'best' | 'plan' | null
+  const [accContent, setAccContent] = useState({ why: null, best: null, plan: null });
+  const [loadingAcc, setLoadingAcc] = useState(null);       // intent id currently loading
+
   const lastLenRef = useRef(0);
   const greetedRef = useRef(false);
   const inFlightRef = useRef(false);
-  const bubbleRef = useRef(null);
 
-  // Auto-scroll bubble to bottom when new line added
-  useEffect(() => {
-    if (bubbleRef.current && !collapsed) {
-      bubbleRef.current.scrollTop = bubbleRef.current.scrollHeight;
-    }
-  }, [lines.length, collapsed]);
-
-  const toggleCollapsed = () => {
-    const next = !collapsed;
-    setCollapsed(next);
-    try { localStorage.setItem(storageKey, next ? '1' : '0'); } catch { /* ignore */ }
+  const reset = () => {
+    setInsight('');
+    setOpenAcc(null);
+    setAccContent({ why: null, best: null, plan: null });
+    lastLenRef.current = 0;
+    greetedRef.current = false;
   };
 
-  const maxLines = mode === 'coach' ? MAX_LINES_COACH : MAX_LINES_BOT;
-
-  const push = (text) => {
-    if (!text) return;
-    setLines((prev) => {
-      const next = [...prev, { id: `l${lineId++}`, text, ts: Date.now() }];
-      return next.slice(-maxLines);
-    });
-  };
-
-  // Reset on new game
   useEffect(() => {
-    if (!gameStarted) {
-      setLines([]);
-      lastLenRef.current = 0;
-      greetedRef.current = false;
-    }
+    if (!gameStarted) reset();
   }, [gameStarted]);
+
+  // Invalidate cached accordion content when position advances
+  useEffect(() => {
+    setAccContent({ why: null, best: null, plan: null });
+    setOpenAcc(null);
+  }, [moveHistory.length]);
 
   // Greet once per game
   useEffect(() => {
@@ -84,10 +71,10 @@ export default function BotChatCard({ mode = 'bot' }) {
     if (moveHistory.length > 0) return;
     greetedRef.current = true;
     if (mode === 'coach') {
-      push(coachGreeting(personality));
+      setInsight(coachGreeting(personality));
     } else {
       const g = greetingLine(personality, { playerColor: compColor === 'white' ? 'black' : 'white' });
-      push(stripName(g, personality.name));
+      setInsight(stripName(g, personality.name));
     }
   }, [enabled, personality, gameStarted, gameOver, moveHistory.length, mode, compColor]);
 
@@ -111,7 +98,7 @@ export default function BotChatCard({ mode = 'bot' }) {
         fen: lastMove.fen,
         side,
       }).then((text) => {
-        if (text) push(text);
+        if (text) setInsight(text);
       }).catch(() => {}).finally(() => {
         inFlightRef.current = false;
       });
@@ -121,62 +108,138 @@ export default function BotChatCard({ mode = 'bot' }) {
         botColor: compColor,
         moveCount: moveHistory.length,
       });
-      if (line) push(stripName(line, personality.name));
+      if (line) setInsight(stripName(line, personality.name));
     }
   }, [moveHistory.length, enabled, personality, gameStarted, compColor, mode, moveHistory]);
+
+  const toggleAcc = useCallback(async (key, intent) => {
+    // Collapse if already open
+    if (openAcc === key) { setOpenAcc(null); return; }
+    setOpenAcc(key);
+    if (accContent[key] || loadingAcc === intent) return;
+    setLoadingAcc(intent);
+    try {
+      const fen = moveHistory[moveHistory.length - 1]?.fen
+        || (useGameStore.getState().chessInstance?.fen() || null);
+      const msg = await runIntent(intent, { fen, moveHistory });
+      setAccContent((prev) => ({ ...prev, [key]: msg?.text || 'No information available.' }));
+    } catch {
+      setAccContent((prev) => ({ ...prev, [key]: 'Failed to compute.' }));
+    } finally {
+      setLoadingAcc(null);
+    }
+  }, [openAcc, accContent, loadingAcc, moveHistory]);
 
   if (!enabled || !personality) return null;
   if (mode === 'bot' && (!isComp || isCoachGame)) return null;
   if (mode === 'coach' && !isCoachGame) return null;
 
+  const cls = reviewResult?.classification
+    ? CLASSIFICATIONS[reviewResult.classification]
+    : null;
+
   return (
     <div className={styles.card} style={{ '--chip-color': personality.color }}>
-      <div className={styles.header}>
+      {/* Persona strip */}
+      <div className={styles.personaRow}>
         <span className={styles.chip}>
           <svg viewBox="0 0 24 24" className={styles.chipIcon}
             dangerouslySetInnerHTML={{ __html: personality.icon }} />
         </span>
-        <div className={styles.headerText}>
+        <div className={styles.personaText}>
           <span className={styles.name}>{personality.name}</span>
-          <span className={styles.sub}>
-            {mode === 'coach' ? 'Coach' : `Rating ${personality.rating || ''}`}
+          <span className={styles.role}>
+            {mode === 'coach' ? 'Coach' : `${personality.rating}`}
+            {mode !== 'coach' && <span className={styles.roleDim}> · bot</span>}
           </span>
         </div>
-        {lines.length > 0 && (
-          <button
-            className={styles.collapseBtn}
-            onClick={toggleCollapsed}
-            title={collapsed ? 'Expand chat' : 'Collapse chat'}
-            aria-label={collapsed ? 'Expand' : 'Collapse'}
-          >
-            {collapsed ? '▾' : '▴'}
-          </button>
-        )}
       </div>
 
-      {lines.length > 0 && !collapsed && (
-        <div className={styles.bubble} ref={bubbleRef}>
-          <span className={styles.tail} />
-          {lines.map((l, idx) => {
-            const isLatest = idx === lines.length - 1;
-            return (
-              <div
-                key={l.id}
-                className={`${styles.line} ${isLatest ? styles.lineLatest : styles.lineOld}`}
-              >
-                {l.text}
-              </div>
-            );
-          })}
+      {/* One-line insight */}
+      {insight && (
+        <div className={styles.insightRow}>
+          <span className={styles.insightBar} />
+          <span className={styles.insightText}>{insight}</span>
         </div>
       )}
-      {lines.length > 0 && collapsed && (
-        <div className={styles.collapsedPeek} onClick={toggleCollapsed} title="Expand">
-          {lines[lines.length - 1].text}
+
+      {/* Move feedback (classification) */}
+      {cls && (
+        <div className={styles.feedback} style={{ '--cls-color': cls.color }}>
+          <span className={styles.feedbackIcon}>{cls.symbol}</span>
+          <span className={styles.feedbackLabel}>{cls.label}</span>
+          {reviewResult?.bestSan && reviewResult.bestSan !== reviewResult.san && (
+            <span className={styles.feedbackAlt}>
+              Best: <b>{reviewResult.bestSan}</b>
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Coach accordions */}
+      {mode === 'coach' && moveHistory.length > 0 && (
+        <div className={styles.accordions}>
+          <AccRow
+            label="Why it matters"
+            open={openAcc === 'why'}
+            loading={loadingAcc === INTENTS.REVIEW_LAST}
+            onClick={() => toggleAcc('why', INTENTS.REVIEW_LAST)}
+            content={accContent.why}
+          />
+          <AccRow
+            label="Best line"
+            open={openAcc === 'best'}
+            loading={loadingAcc === INTENTS.BEST_MOVE}
+            onClick={() => toggleAcc('best', INTENTS.BEST_MOVE)}
+            content={accContent.best}
+          />
+          <AccRow
+            label="Plan"
+            open={openAcc === 'plan'}
+            loading={loadingAcc === INTENTS.THREATS}
+            onClick={() => toggleAcc('plan', INTENTS.THREATS)}
+            content={accContent.plan}
+          />
         </div>
       )}
     </div>
   );
+}
+
+function AccRow({ label, open, loading, onClick, content }) {
+  return (
+    <div className={`${styles.acc} ${open ? styles.accOpen : ''}`}>
+      <button className={styles.accHead} onClick={onClick}
+        aria-expanded={open} aria-label={`${open ? 'Hide' : 'Show'} ${label}`}>
+        <span className={styles.accCaret}>{open ? '▾' : '▸'}</span>
+        <span className={styles.accLabel}>{label}</span>
+        {loading && <span className={styles.accSpin} />}
+      </button>
+      {open && (
+        <div className={styles.accBody}>
+          {content ? renderMarkdownInline(content) : (loading ? '…' : 'Tap to load')}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function renderMarkdownInline(text) {
+  // Preserve simple **bold** and _italic_ in accordion bodies.
+  const parts = [];
+  const re = /(\*\*[^*]+\*\*|_[^_]+_)/g;
+  let i = 0, m;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > i) parts.push(text.slice(i, m.index));
+    const chunk = m[0];
+    if (chunk.startsWith('**')) parts.push(<strong key={`b${m.index}`}>{chunk.slice(2, -2)}</strong>);
+    else parts.push(<em key={`e${m.index}`}>{chunk.slice(1, -1)}</em>);
+    i = m.index + chunk.length;
+  }
+  if (i < text.length) parts.push(text.slice(i));
+  return <>{parts.map((p, idx) => typeof p === 'string'
+    ? p.split('\n').map((line, j, arr) => <span key={`${idx}-${j}`}>{line}{j < arr.length - 1 && <br />}</span>)
+    : p)}</>;
 }
 
 function stripName(text, name) {

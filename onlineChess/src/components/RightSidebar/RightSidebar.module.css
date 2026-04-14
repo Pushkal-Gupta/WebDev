@@ -1,6 +1,6 @@
 .sidebar {
-  width: 300px;
-  min-width: 260px;
+  width: 340px;
+  min-width: 300px;
   background: rgba(8, 14, 14, 0.98);
   border-left: 1px solid rgba(255, 255, 255, 0.07);
   display: flex;
@@ -10,20 +10,24 @@
   overflow: hidden;
 }
 
+
+
 /* Opening name strip (between chat card and move list) */
 .openingStrip {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: rgba(0, 255, 245, 0.04);
-  border-bottom: 1px solid rgba(0, 255, 245, 0.1);
-  color: rgba(0, 255, 245, 0.8);
-  font-size: 0.78rem;
-  font-weight: 600;
+  gap: 7px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.72rem;
+  font-weight: 500;
   letter-spacing: 0.2px;
   flex-shrink: 0;
 }
+
+.openingStrip svg { color: var(--color-accent, #00fff5); opacity: 0.75; }
 
 .openingLabel {
   flex: 1;
@@ -102,7 +106,8 @@
 .moveTable {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .moveRow {

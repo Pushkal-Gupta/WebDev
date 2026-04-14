@@ -1,157 +1,197 @@
+/* ── Dashboard-style persona module ─────────────────────────────────────── */
+
 .card {
-  padding: 12px 12px 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 10px 12px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
   gap: 10px;
   flex-shrink: 0;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--chip-color, #888) 7%, transparent),
-    transparent 70%
-  );
+  background: transparent;
+  overflow-y: auto;
+  max-height: 55%;
 }
 
-.header {
+/* ── Persona strip (chip + name + role) ─────────────────────────────────── */
+.personaRow {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
 .chip {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(
-    circle at 30% 30%,
-    color-mix(in srgb, var(--chip-color, #888) 55%, transparent),
-    color-mix(in srgb, var(--chip-color, #888) 18%, rgba(0, 0, 0, 0.4))
-  );
-  border: 1px solid color-mix(in srgb, var(--chip-color, #888) 60%, transparent);
+  background: color-mix(in srgb, var(--chip-color, #888) 14%, rgba(255, 255, 255, 0.03));
+  border: 1px solid color-mix(in srgb, var(--chip-color, #888) 40%, transparent);
   color: var(--chip-color, #ddd);
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
 .chipIcon {
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
 }
 
-.headerText {
+.personaText {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  line-height: 1.15;
 }
 
 .name {
   color: rgba(255, 255, 255, 0.94);
-  font-weight: 700;
-  font-size: 0.9rem;
-  letter-spacing: 0.2px;
+  font-weight: 600;
+  font-size: 0.86rem;
+  letter-spacing: -0.01em;
 }
 
-.sub {
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: color-mix(in srgb, var(--chip-color, #aaa) 85%, #ddd);
-  opacity: 0.85;
+.role {
+  font-size: 0.7rem;
+  letter-spacing: 0.4px;
+  color: color-mix(in srgb, var(--chip-color, #aaa) 80%, #ddd);
+  margin-top: 2px;
 }
 
-.bubble {
-  position: relative;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 12px;
-  padding: 10px 10px 9px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 0.82rem;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.9);
-  resize: vertical;
-  overflow-y: auto;
-  min-height: 72px;
-  max-height: 420px;
-  height: 140px;
-}
-
-.bubble::-webkit-resizer {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 0 0 10px 0;
-}
-
-.collapseBtn {
-  margin-left: auto;
-  width: 24px;
-  height: 24px;
-  border: none;
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.65);
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  line-height: 1;
-  transition: all 0.15s;
-}
-
-.collapseBtn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
-}
-
-.collapsedPeek {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 10px;
-  padding: 7px 10px;
-  font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.75);
-  cursor: pointer;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: background 0.15s;
-}
-.collapsedPeek:hover { background: rgba(255, 255, 255, 0.06); }
-
-/* speech tail pointing up to the chip */
-.tail {
-  position: absolute;
-  top: -5px;
-  left: 16px;
-  width: 10px;
-  height: 10px;
-  background: rgba(22, 22, 26, 0.98);
-  border-left: 1px solid rgba(255, 255, 255, 0.07);
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
-  transform: rotate(45deg);
-}
-
-.line {
-  word-break: break-word;
-  transition: opacity 0.25s, transform 0.25s;
-}
-
-.lineLatest {
-  color: rgba(255, 255, 255, 0.95);
+.roleDim {
+  color: rgba(255, 255, 255, 0.35);
   font-weight: 500;
 }
 
-.lineOld {
-  color: rgba(255, 255, 255, 0.45);
+/* ── Insight row ─────────────────────────────────────────────────────────── */
+.insightRow {
+  display: flex;
+  gap: 10px;
+  padding: 6px 2px 6px 0;
+}
+
+.insightBar {
+  width: 2px;
+  flex-shrink: 0;
+  border-radius: 1px;
+  background: color-mix(in srgb, var(--chip-color, #888) 80%, transparent);
+}
+
+.insightText {
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+/* ── Move feedback (classification badge + label) ───────────────────────── */
+.feedback {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--cls-color, #fff) 10%, rgba(255,255,255,0.02));
+  border: 1px solid color-mix(in srgb, var(--cls-color, #fff) 35%, transparent);
   font-size: 0.76rem;
 }
 
+.feedbackIcon {
+  color: var(--cls-color, #fff);
+  font-weight: 800;
+  font-size: 0.92rem;
+  letter-spacing: -0.05em;
+  min-width: 18px;
+  text-align: center;
+}
+
+.feedbackLabel {
+  color: var(--cls-color, #fff);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.68rem;
+}
+
+.feedbackAlt {
+  margin-left: auto;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.72rem;
+}
+
+.feedbackAlt b {
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 600;
+}
+
+/* ── Accordions (coach only) ────────────────────────────────────────────── */
+.accordions {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 6px;
+}
+
+.acc {
+  border-radius: 6px;
+  transition: background 0.12s;
+}
+
+.acc:hover { background: rgba(255, 255, 255, 0.02); }
+
+.accHead {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 4px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.76rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  letter-spacing: 0.1px;
+}
+
+.accCaret {
+  width: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+.accOpen .accHead { color: #fff; }
+.accOpen .accCaret { color: var(--chip-color, #aaa); }
+
+.accLabel { flex: 1; }
+
+.accSpin {
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-top-color: var(--chip-color, #aaa);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.accBody {
+  padding: 2px 4px 10px 23px;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.78);
+  word-break: break-word;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
 @media (max-width: 700px) {
-  .card { padding: 8px 10px; gap: 6px; }
-  .chip { width: 32px; height: 32px; }
-  .chipIcon { width: 18px; height: 18px; }
+  .card { padding: 8px 10px; }
+  .chip { width: 28px; height: 28px; }
+  .chipIcon { width: 16px; height: 16px; }
   .name { font-size: 0.82rem; }
-  .bubble { font-size: 0.76rem; }
+  .insightText { font-size: 0.78rem; }
 }

@@ -971,6 +971,20 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
           {panelTab === 'report' && (
             <div className={styles.reportScroll}>
               <div className={styles.reportCenter}>
+                {/* ── Eval graph (pinned at the top of the report) ── */}
+                {graphData.length > 1 && (
+                  <div className={styles.reportGraphWrap}>
+                    <EvalGraph
+                      data={graphData}
+                      currentIdx={isReviewing ? -1 : currentMoveIndex}
+                      onSeek={isReviewing ? () => {} : goToMove}
+                      large
+                      reviewResults={reviewResults || (partialReviewData.length ? partialReviewData : null)}
+                      moveHistory={moveHistory}
+                    />
+                  </div>
+                )}
+
                 {/* ── Result banner ── */}
                 {(moveHistory.length > 0 || reviewResults) && (
                   <div className={styles.resultBanner}>
@@ -1007,14 +1021,6 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
 
                 {/* ── Game description ── */}
                 {gameDesc && <div className={styles.gameDescription}>{gameDesc}</div>}
-
-                {/* ── Eval graph ── */}
-                {graphData.length > 1 && (
-                  <div className={styles.reportGraphWrap}>
-                    <EvalGraph data={graphData} currentIdx={currentMoveIndex} onSeek={goToMove} large
-                      reviewResults={reviewResults} moveHistory={moveHistory} />
-                  </div>
-                )}
 
                 {/* ── Rating estimation ── */}
                 {reviewResults && (whiteAcc !== null || blackAcc !== null) && (
@@ -1255,16 +1261,6 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                   </div>
                 )}
 
-                {/* Real-time graph building up during review */}
-                {isReviewing && graphData.length > 1 && (
-                  <div className={styles.reviewingSection}>
-                    <div className={styles.reportGraphWrap}>
-                      <EvalGraph data={graphData} currentIdx={-1} onSeek={() => {}} large
-                        reviewResults={partialReviewData.length ? partialReviewData : null}
-                        moveHistory={moveHistory} />
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           )}
