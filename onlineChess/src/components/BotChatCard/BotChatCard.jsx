@@ -45,6 +45,7 @@ export default function BotChatCard({ mode = 'bot', reviewResult = null }) {
   const lastLenRef = useRef(0);
   const greetedRef = useRef(false);
   const inFlightRef = useRef(false);
+  const lastCommentedMoveRef = useRef(-1);   // idx of last move that produced an insight
 
   const reset = () => {
     setInsight('');
@@ -52,6 +53,7 @@ export default function BotChatCard({ mode = 'bot', reviewResult = null }) {
     setAccContent({ why: null, best: null, plan: null });
     lastLenRef.current = 0;
     greetedRef.current = false;
+    lastCommentedMoveRef.current = -1;
   };
 
   useEffect(() => {
@@ -103,12 +105,19 @@ export default function BotChatCard({ mode = 'bot', reviewResult = null }) {
         inFlightRef.current = false;
       });
     } else {
+      // Throttle: if we already commented within the last ply, skip this one
+      // to avoid spam. Ensures a comment appears at most every ~2 half-moves.
+      const movesSince = moveHistory.length - lastCommentedMoveRef.current;
+      if (movesSince < 2 && lastCommentedMoveRef.current > 0) return;
       const line = commentOnMove(personality, {
         lastMove,
         botColor: compColor,
         moveCount: moveHistory.length,
       });
-      if (line) setInsight(stripName(line, personality.name));
+      if (line) {
+        setInsight(stripName(line, personality.name));
+        lastCommentedMoveRef.current = moveHistory.length;
+      }
     }
   }, [moveHistory.length, enabled, personality, gameStarted, compColor, mode, moveHistory]);
 

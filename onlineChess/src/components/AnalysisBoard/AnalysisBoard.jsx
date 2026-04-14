@@ -1307,10 +1307,9 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                   <div className={styles.evalBar} style={{ flexDirection: flipped ? 'column' : 'column-reverse' }}>
                     <div className={styles.evalWhite} style={{ height: `${displayPct}%` }} />
                     <div className={styles.evalBlack} />
-                    <span className={styles.evalScore} style={{
-                      top: flipped ? (displayPct >= 55 ? 'auto' : '4px') : (displayPct >= 55 ? '4px' : 'auto'),
-                      bottom: flipped ? (displayPct >= 55 ? '4px' : 'auto') : (displayPct >= 55 ? 'auto' : '4px'),
-                    }}>{formatEval(currentEval)}</span>
+                    {/* Pill pinned at the TOP of the bar — dark chip is readable
+                        over any fill, and never clipped regardless of displayPct. */}
+                    <span className={styles.evalScore}>{formatEval(currentEval)}</span>
                   </div>
                   <div className={styles.boardWrap}>
                     <Board arrows={boardArrows} badges={boardBadges} />
@@ -1494,10 +1493,9 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                   <div className={styles.evalBar} style={{ flexDirection: flipped ? 'column' : 'column-reverse' }}>
                     <div className={styles.evalWhite} style={{ height: `${displayPct}%` }} />
                     <div className={styles.evalBlack} />
-                    <span className={styles.evalScore} style={{
-                      top: flipped ? (displayPct >= 55 ? 'auto' : '4px') : (displayPct >= 55 ? '4px' : 'auto'),
-                      bottom: flipped ? (displayPct >= 55 ? '4px' : 'auto') : (displayPct >= 55 ? 'auto' : '4px'),
-                    }}>{formatEval(currentEval)}</span>
+                    {/* Pill pinned at the TOP of the bar — dark chip is readable
+                        over any fill, and never clipped regardless of displayPct. */}
+                    <span className={styles.evalScore}>{formatEval(currentEval)}</span>
                   </div>
                   <div className={styles.boardWrap}>
                     <Board arrows={boardArrows} badges={boardBadges} />
