@@ -48,6 +48,29 @@ html, body, #root {
   --color-text-secondary: rgba(255, 255, 255, 0.55);
   --color-text-muted: rgba(255, 255, 255, 0.35);
   --color-text-dim: rgba(255, 255, 255, 0.2);
+
+  /* ── App-shell width tokens (one source of truth) ──
+     Left nav: 72 px collapsed ↔ 240 px expanded.
+     Right rail: 300 px compact ↔ 340 px comfortable ↔ 380 px wide. */
+  --shell-left-w: 240px;
+  --shell-right-w: 340px;
+  --shell-right-w-min: 300px;
+}
+
+/* Wider right rail on large screens */
+@media (min-width: 1600px) {
+  :root { --shell-right-w: 380px; }
+}
+
+/* Narrower right rail on mid viewports */
+@media (max-width: 1100px) {
+  :root { --shell-right-w: 300px; --shell-right-w-min: 260px; }
+}
+
+/* Collapsed left nav on tablet and below — LeftNav itself handles
+   the icon-only layout; we just shrink the shell token. */
+@media (max-width: 900px) {
+  :root { --shell-left-w: 72px; --shell-right-w: 260px; --shell-right-w-min: 220px; }
 }
 
 @media (min-width: 1100px) {
@@ -76,6 +99,26 @@ html, body, #root {
 
 @media (max-width: 400px) {
   :root { --cell-size: 34px; }   /* 272px board */
+}
+
+/* ── Viewport-height scaling ──
+   On tall monitors the board gets more vertical space; on short windows
+   (or laptops with browser chrome) it shrinks so pieces don't get clipped.
+   Width breakpoints above still cap the ceiling. */
+@media (min-height: 1000px) and (min-width: 1300px) {
+  :root { --cell-size: 82px; }
+}
+
+@media (min-height: 1200px) and (min-width: 1600px) {
+  :root { --cell-size: 92px; }
+}
+
+@media (max-height: 760px) {
+  :root { --cell-size: 56px; }
+}
+
+@media (max-height: 620px) {
+  :root { --cell-size: 48px; }
 }
 
 /*
