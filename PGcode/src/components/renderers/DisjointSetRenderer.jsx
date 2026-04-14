@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import './renderers.css';
+import './Renderers.css';
 
 const NODE_R = 20;
 const LEVEL_H = 64;

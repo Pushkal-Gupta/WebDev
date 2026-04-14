@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import './renderers.css';
+import './Renderers.css';
 
 const PAD = 30;
 const CANVAS_W = 480;

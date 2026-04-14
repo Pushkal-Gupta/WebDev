@@ -3,11 +3,11 @@
 // stored test_cases and reports the first failing case per problem.
 //
 // Usage (from PGcode/):
-//   node scripts/verify_solutions.mjs
+//   node scripts/verify-02-solutions.mjs
 //
 // Output:
-//   scripts/verifier_report.md   — human-readable, only failing problems
-//   scripts/verifier_report.json — machine-readable, used by triage phase
+//   scripts/report-verify.md   — human-readable, only failing problems
+//   scripts/report-verify.json — machine-readable, used by triage phase
 
 import { spawn, spawnSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
@@ -289,7 +289,7 @@ for (let pi = 0; pi < rows.length; pi++) {
 console.error('[3/3] Writing reports...');
 
 writeFileSync(
-  join(REPO, 'scripts/verifier_report.json'),
+  join(REPO, 'scripts/report-verify.json'),
   JSON.stringify({ ok: okCount, failed: failures.length, skipped: skipped.length, failures, skipped }, null, 2)
 );
 
@@ -324,7 +324,7 @@ if (skipped.length) {
   for (const s of skipped) md.push(`- \`${s.id}\` — ${s.reason}`);
 }
 
-writeFileSync(join(REPO, 'scripts/verifier_report.md'), md.join('\n'));
+writeFileSync(join(REPO, 'scripts/report-verify.md'), md.join('\n'));
 
 console.error(`\nDone. ${okCount} ok, ${failures.length} failing, ${skipped.length} skipped.`);
-console.error(`Report: scripts/verifier_report.md`);
+console.error(`Report: scripts/report-verify.md`);

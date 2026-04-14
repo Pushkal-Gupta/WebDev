@@ -157,9 +157,10 @@ cp .env.example .env
 #   VITE_SUPABASE_ANON_KEY=your-anon-key
 
 # Run database migrations (in Supabase SQL Editor)
-# 1. Run seed_data.sql (topics + edges + initial problems)
-# 2. Run migrate_v2.sql (user progress, profiles, friends)
-# 3. Run scripts in scripts/ for full problem catalog
+# 1. Run scripts/migrate-00-schema.sql (base schema)
+# 2. Run scripts/migrate-01-v2-progress-friends.sql (user progress, profiles, friends)
+# 3. Run scripts/seed-00-topics-edges-initial-problems.sql (topics + edges + initial problems)
+# 4. Run remaining scripts in scripts/ in order (migrate-* → seed-* → dryruns-* → solutions-* → gold-* → fix-*) for full catalog
 
 # Start dev server
 npm run dev

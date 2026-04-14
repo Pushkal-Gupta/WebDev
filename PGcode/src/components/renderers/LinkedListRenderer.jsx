@@ -1,5 +1,5 @@
 import React from 'react';
-import './renderers.css';
+import './Renderers.css';
 
 const POINTER_COLORS = ['var(--accent)', 'var(--medium)', 'var(--easy)', 'var(--hard)'];
 

@@ -6,7 +6,7 @@ ALTER TABLE public."PGcode_problems" ADD COLUMN IF NOT EXISTS solution_code_js T
 ALTER TABLE public."PGcode_problems" ADD COLUMN IF NOT EXISTS solution_code_python TEXT;
 ALTER TABLE public."PGcode_problems" ADD COLUMN IF NOT EXISTS solution_code_java TEXT;
 
--- Interactive dry-run frames (referenced by seed_data.sql and scripts/dryruns_*.sql)
+-- Interactive dry-run frames (referenced by seed-00-topics-edges-initial-problems.sql and dryruns-*.sql)
 CREATE TABLE IF NOT EXISTS public."PGcode_interactive_dry_runs" (
   id BIGSERIAL PRIMARY KEY,
   problem_id TEXT NOT NULL,

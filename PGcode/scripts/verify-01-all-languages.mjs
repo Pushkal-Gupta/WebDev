@@ -3,10 +3,10 @@
 // solutions against stored test_cases and reports failures per language.
 //
 // Usage (from PGcode/):
-//   node scripts/verify_all_languages.mjs              # all 3 languages
-//   node scripts/verify_all_languages.mjs --lang=js    # just javascript
-//   node scripts/verify_all_languages.mjs --lang=java  # just java
-//   node scripts/verify_all_languages.mjs --lang=py    # just python (same as verify_solutions.mjs)
+//   node scripts/verify-01-all-languages.mjs              # all 3 languages
+//   node scripts/verify-01-all-languages.mjs --lang=js    # just javascript
+//   node scripts/verify-01-all-languages.mjs --lang=java  # just java
+//   node scripts/verify-01-all-languages.mjs --lang=py    # just python (same as verify-02-solutions.mjs)
 
 import { spawn, spawnSync } from 'node:child_process';
 import { writeFileSync, mkdtempSync, rmSync } from 'node:fs';
@@ -556,7 +556,7 @@ async function runJavaTests(javaCode, tcs, problemId) {
 console.error('[3/4] Writing reports...');
 
 const report = { counts, failures: results };
-writeFileSync(join(REPO, 'scripts/verifier_all_report.json'), JSON.stringify(report, null, 2));
+writeFileSync(join(REPO, 'scripts/report-verify-all.json'), JSON.stringify(report, null, 2));
 
 const md = ['# Multi-Language Verifier Report', ''];
 for (const lang of ['python', 'javascript', 'java']) {
@@ -579,7 +579,7 @@ for (const lang of ['python', 'javascript', 'java']) {
   }
   md.push('');
 }
-writeFileSync(join(REPO, 'scripts/verifier_all_report.md'), md.join('\n'));
+writeFileSync(join(REPO, 'scripts/report-verify-all.md'), md.join('\n'));
 
 console.error('[4/4] Summary:');
 for (const lang of ['python', 'javascript', 'java']) {
@@ -588,4 +588,4 @@ for (const lang of ['python', 'javascript', 'java']) {
   const status = c.fail === 0 ? '✓' : '✗';
   console.error(`    ${status} ${lang}: ${c.ok} ok, ${c.fail} failing, ${c.skip} skipped`);
 }
-console.error(`\nReport: scripts/verifier_all_report.md`);
+console.error(`\nReport: scripts/report-verify-all.md`);
