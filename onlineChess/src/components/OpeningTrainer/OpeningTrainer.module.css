@@ -1,7 +1,30 @@
-.page { flex: 1; display: flex; flex-direction: column; padding: 16px; overflow-y: auto; max-width: 850px; margin: 0 auto; width: 100%; }
-.pageHeader { margin-bottom: 16px; }
-.pageTitle { font-size: 1.3rem; font-weight: 800; color: #fff; }
-.pageDesc { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
+.page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 28px 28px;
+  overflow-y: auto;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.pageHeader { margin-bottom: 18px; }
+
+.pageTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.pageDesc {
+  font-size: 0.92rem;
+  color: rgba(255, 255, 255, 0.55);
+  margin-top: 6px;
+  line-height: 1.5;
+  max-width: 640px;
+}
 
 /* Color selector */
 .colorRow { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
@@ -13,20 +36,142 @@
 .dueBadge { background: var(--color-accent); color: #000; font-size: 0.6rem; font-weight: 800; padding: 1px 6px; border-radius: 8px; }
 
 /* Opening grid */
-.openingGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
-.openingCard { padding: 16px; border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; background: rgba(255,255,255,0.02); display: flex; flex-direction: column; gap: 8px; }
-.openingCard:hover { border-color: rgba(0,255,245,0.15); }
-.openingTop { display: flex; align-items: baseline; gap: 8px; }
-.openingEco { font-size: 0.6rem; font-weight: 700; color: var(--color-accent); background: rgba(0,255,245,0.1); padding: 2px 6px; border-radius: 4px; }
-.openingName { font-size: 0.95rem; font-weight: 700; color: #fff; }
-.openingDesc { font-size: 0.72rem; color: rgba(255,255,255,0.45); line-height: 1.35; }
-.openingIdeas { display: flex; flex-wrap: wrap; gap: 4px; }
-.ideaChip { font-size: 0.6rem; padding: 2px 8px; border-radius: 4px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.5); }
-.openingMeta { display: flex; gap: 10px; font-size: 0.65rem; color: rgba(255,255,255,0.3); }
-.dueTag { color: #f0c94c; }
-.openingActions { display: flex; gap: 6px; }
-.drillBtn { padding: 6px 14px; border: none; border-radius: 6px; background: linear-gradient(135deg, rgba(0,255,245,0.15), rgba(0,200,230,0.15)); border: 1px solid rgba(0,255,245,0.25); color: var(--color-accent); font-size: 0.75rem; font-weight: 700; cursor: pointer; }
-.drillBtn:hover { background: linear-gradient(135deg, rgba(0,255,245,0.2), rgba(0,200,230,0.2)); }
+.openingGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.openingCard {
+  position: relative;
+  padding: 16px 16px 14px;
+  border-radius: 14px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent, #888) 10%, rgba(255,255,255,0.025)) 0%,
+    rgba(255,255,255,0.02) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--accent, #888) 22%, rgba(255,255,255,0.06));
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 0.16s, border-color 0.16s, box-shadow 0.16s;
+}
+
+.openingCard:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent, #888) 55%, transparent);
+  box-shadow: 0 12px 28px -12px color-mix(in srgb, var(--accent, #888) 45%, transparent);
+}
+
+.openingHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.openingIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--accent, #888) 18%, rgba(255,255,255,0.025));
+  border: 1px solid color-mix(in srgb, var(--accent, #888) 38%, transparent);
+  color: var(--accent, #ddd);
+  flex-shrink: 0;
+}
+
+.openingEco {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: var(--accent, #bbb);
+  background: color-mix(in srgb, var(--accent, #888) 15%, rgba(255,255,255,0.02));
+  border: 1px solid color-mix(in srgb, var(--accent, #888) 30%, transparent);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.openingName {
+  font-size: 1.04rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.96);
+  letter-spacing: -0.01em;
+}
+
+.openingDesc {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.45;
+  flex: 1;
+}
+
+.openingIdeas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.ideaChip {
+  font-size: 0.68rem;
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.68);
+  font-weight: 500;
+}
+
+.openingFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.06);
+}
+
+.openingMeta {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.45);
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.dueTag {
+  margin-left: auto;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 4px;
+  color: color-mix(in srgb, var(--accent, #bbb) 92%, #fff);
+  background: color-mix(in srgb, var(--accent, #888) 18%, rgba(255,255,255,0.02));
+  border: 1px solid color-mix(in srgb, var(--accent, #888) 40%, transparent);
+}
+
+.drillBtn {
+  padding: 6px 12px;
+  border: 1px solid color-mix(in srgb, var(--accent, #888) 55%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--accent, #888) 18%, rgba(255,255,255,0.02));
+  color: color-mix(in srgb, var(--accent, #bbb) 92%, #fff);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+}
+
+.drillBtn:hover {
+  background: color-mix(in srgb, var(--accent, #888) 28%, rgba(255,255,255,0.02));
+  border-color: color-mix(in srgb, var(--accent, #888) 75%, transparent);
+  transform: translateX(1px);
+}
 
 /* Drill page */
 .drillPage { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 16px; overflow-y: auto; gap: 12px; }

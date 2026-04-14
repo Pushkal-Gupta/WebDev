@@ -517,9 +517,9 @@
 .evalBar .evalBlack { overflow: hidden; }
 
 .evalWhite {
-  background: linear-gradient(to bottom, #f0f0f0, #c4c4c4);
+  background: linear-gradient(to bottom, #f3f3f3, #c8c8c8);
   flex-shrink: 0;
-  transition: height 0.4s ease;
+  transition: height 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .evalBlack {
