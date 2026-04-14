@@ -54,16 +54,18 @@ export default function BotChatCard({ mode = 'bot', reviewResult = null }) {
     lastLenRef.current = 0;
     greetedRef.current = false;
     lastCommentedMoveRef.current = -1;
+    inFlightRef.current = false;
   };
 
   useEffect(() => {
     if (!gameStarted) reset();
   }, [gameStarted]);
 
-  // Invalidate cached accordion content when position advances
+  // Invalidate cached accordion content when position advances.
+  // Keep the currently-open accordion open — content will either refresh
+  // automatically on next click, or the user can close it manually.
   useEffect(() => {
     setAccContent({ why: null, best: null, plan: null });
-    setOpenAcc(null);
   }, [moveHistory.length]);
 
   // Greet once per game
