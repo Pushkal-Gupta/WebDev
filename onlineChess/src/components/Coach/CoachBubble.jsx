@@ -139,8 +139,10 @@ export default function CoachBubble({
       {!isOpen && (
         <button className={styles.toggle} onClick={open} title="Open Coach" aria-label="Open Coach">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2L3 7v6c0 5 4 8 9 9 5-1 9-4 9-9V7l-9-5z" />
-            <path d="M9 11l2 2 4-4" />
+            <path d="M2 9l10-4 10 4-10 4z" />
+            <path d="M6 10.8V15c0 1.5 2.7 2.8 6 2.8s6-1.3 6-2.8v-4.2" />
+            <path d="M21 9v5" />
+            <circle cx="21" cy="15" r="1.2" fill="currentColor" />
           </svg>
           <span className={styles.toggleDot} />
         </button>
