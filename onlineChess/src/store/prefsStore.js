@@ -37,6 +37,12 @@ const DEFAULTS = {
   reducedMotion: false,
   highContrast: false,
   pieceScale: 100,
+
+  // Coach
+  coachEnabled: true,
+  coachPosition: 'br', // 'br' | 'bl' | 'tr' | 'tl'
+  coachVerbosity: 'medium', // 'quiet' | 'medium' | 'verbose'
+  botCommentaryEnabled: true,
 };
 
 const usePrefsStore = create(persist((set) => ({
@@ -77,6 +83,12 @@ const usePrefsStore = create(persist((set) => ({
   setReducedMotion: (val) => set({ reducedMotion: val }),
   setHighContrast: (val) => set({ highContrast: val }),
   setPieceScale: (val) => set({ pieceScale: val }),
+
+  // Coach
+  setCoachEnabled: (val) => set({ coachEnabled: val }),
+  setCoachPosition: (val) => set({ coachPosition: val }),
+  setCoachVerbosity: (val) => set({ coachVerbosity: val }),
+  setBotCommentaryEnabled: (val) => set({ botCommentaryEnabled: val }),
 
   // Reset all
   resetPrefs: () => set(DEFAULTS),

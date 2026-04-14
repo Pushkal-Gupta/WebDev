@@ -10,6 +10,7 @@ import { fetchLichessGames } from '../../utils/lichessService';
 import BoardEditor from './BoardEditor';
 import OpeningExplorer from './OpeningExplorer';
 import { countPieces, fetchTablebase } from '../../utils/tablebaseService';
+import CoachBubble from '../Coach/CoachBubble';
 
 // ── Persistence helpers ──────────────────────────────────────────────────────
 
@@ -1536,6 +1537,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
           )}
         </div>
       )}
+      <CoachBubble context="analysis" />
     </div>
   );
 }

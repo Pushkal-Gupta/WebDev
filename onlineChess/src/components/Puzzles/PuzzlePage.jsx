@@ -8,6 +8,7 @@ import PuzzleHistory from './PuzzleHistory';
 import RatingChart from './RatingChart';
 import usePuzzleStore from '../../store/puzzleStore';
 import useAuthStore from '../../store/authStore';
+import CoachBubble from '../Coach/CoachBubble';
 import { playSound } from '../../utils/soundManager';
 import { rankToRow, fileToCol } from '../../utils/boardHelpers';
 
@@ -676,6 +677,7 @@ export default function PuzzlePage() {
           </>
         )}
       </div>
+      <CoachBubble context="puzzle" fenOverride={currentFen} moveHistoryOverride={[]} />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useState, lazy, Suspense } from 'react';
 import styles from './Training.module.css';
+import CoachBubble from '../Coach/CoachBubble';
 
 const LessonsPage    = lazy(() => import('../Lessons/LessonsPage'));
 const CoachPanel     = lazy(() => import('../Coach/CoachPanel'));
@@ -40,6 +41,7 @@ export default function TrainingHub() {
           {tab === 'basics'   && <BasicsTraining />}
         </Suspense>
       </div>
+      <CoachBubble context="training" />
     </div>
   );
 }

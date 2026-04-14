@@ -13,6 +13,7 @@ import PromotionModal from './components/modals/PromotionModal';
 import ConfirmModal from './components/modals/ConfirmModal';
 import CustomAlert from './components/modals/CustomAlert';
 import Chat from './components/Chat/Chat';
+import BotCommentaryStrip from './components/BotCommentary/BotCommentaryStrip';
 import useGameStore from './store/gameStore';
 import useAuthStore from './store/authStore';
 import useThemeStore from './store/themeStore';
@@ -1131,6 +1132,8 @@ export default function App() {
           onCancel={() => { setShowConfirm(false); confirmActionRef.current = null; }}
         />
       )}
+
+      <BotCommentaryStrip />
 
       {gameOver && gameOverMessage && (
         <GameOverModal
