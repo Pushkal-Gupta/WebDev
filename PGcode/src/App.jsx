@@ -66,7 +66,10 @@ export default function App() {
       .eq('is_completed', true)
       .not('next_review_at', 'is', null)
       .lte('next_review_at', new Date().toISOString())
-      .then(({ count }) => setReviewCount(count || 0));
+      .then(({ count, error }) => {
+        if (error) { console.error('Review count fetch failed:', error); return; }
+        setReviewCount(count || 0);
+      });
   }, [session]);
 
   const toggleTheme = () => {

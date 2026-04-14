@@ -102,6 +102,8 @@ export default function Workspace({ session, theme, roadmapMode }) {
   const [leftWidth, setLeftWidth] = useState(
     () => parseInt(localStorage.getItem('pgcode_split')) || 45
   );
+  const latestLeftWidthRef = useRef(leftWidth);
+  useEffect(() => { latestLeftWidthRef.current = leftWidth; }, [leftWidth]);
 
   // Timer: tick every second when not paused
   useEffect(() => {
@@ -497,6 +499,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
 
       // Save submission to history
       const sub = {
+        id: (crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`),
         status: allPassed ? 'Accepted' : (failIdx >= 0 ? 'Wrong Answer' : 'Error'),
         language: activeLang,
         runtime: allPassed ? `${elapsed}ms` : 'N/A',
@@ -539,23 +542,27 @@ export default function Workspace({ session, theme, roadmapMode }) {
   const handleDividerDrag = useCallback((e) => {
     e.preventDefault();
     const startX = e.clientX;
-    const startW = leftWidth;
+    const startW = latestLeftWidthRef.current;
+    let finalPct = startW;
     const onMove = (ev) => {
       const c = document.querySelector('.ws-main');
       if (!c) return;
       const pct = startW + ((ev.clientX - startX) / c.offsetWidth) * 100;
-      if (pct >= 25 && pct <= 70) setLeftWidth(pct);
+      if (pct >= 25 && pct <= 70) {
+        finalPct = pct;
+        setLeftWidth(pct);
+      }
     };
     const onUp = () => {
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
       document.body.style.cursor = '';
-      localStorage.setItem('pgcode_split', Math.round(leftWidth));
+      localStorage.setItem('pgcode_split', Math.round(finalPct));
     };
     document.body.style.cursor = 'col-resize';
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
-  }, [leftWidth]);
+  }, []);
 
   if (!activeProblem) return <div className="ws-loading">Loading... <Link to="/">Back to Roadmap</Link></div>;
 
@@ -674,7 +681,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
 
                 {/* Hints */}
                 {activeProblem.hints?.length > 0 && activeProblem.hints.map((hint, i) => (
-                  <details key={i} className="ws-expandable">
+                  <details key={`hint-${i}-${(hint || '').slice(0, 32)}`} className="ws-expandable">
                     <summary>Hint {i + 1}</summary>
                     <p>{hint}</p>
                   </details>
@@ -721,7 +728,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
                       <span className="ws-sub-col">Date</span>
                     </div>
                     {submissions.map((sub, i) => (
-                      <div key={i} className="ws-sub-history-row">
+                      <div key={sub.id ?? `${sub.date}-${i}`} className="ws-sub-history-row">
                         <span className={`ws-sub-col-status ${sub.status === 'Accepted' ? 'accepted' : 'failed'}`}>
                           {sub.status}
                           <span style={{ fontWeight: 400, fontSize: '0.7rem', color: 'var(--text-dim)', marginLeft: '0.3rem' }}>
@@ -902,7 +909,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
                     {runResult.cases?.length > 0 && !runResult.isSubmission && (
                       <div className="ws-result-cases">
                         {runResult.cases.map((c, i) => (
-                          <button key={i}
+                          <button key={c.originalIdx ?? `case-${i}`}
                             className={`ws-result-case ${resultCaseIdx === i ? 'active' : ''}`}
                             onClick={() => setResultCaseIdx(i)}>
                             <span className={`case-dot ${c.passed ? 'pass' : 'fail'}`} />

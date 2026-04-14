@@ -62,6 +62,11 @@ export default function DryRunViewer({ problemId }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playSpeed, setPlaySpeed] = useState(1500);
   const playRef = useRef(null);
+  const feedbackTimeoutRef = useRef(null);
+
+  useEffect(() => () => {
+    if (feedbackTimeoutRef.current) clearTimeout(feedbackTimeoutRef.current);
+  }, []);
 
   useEffect(() => {
     async function loadDryRunData() {
@@ -154,9 +159,11 @@ export default function DryRunViewer({ problemId }) {
   const answerQuestion = (option) => {
     if (option === activeQuestion.correct_answer) {
       setFeedback({ type: 'success', text: activeQuestion.explanation || 'Correct!' });
-      setTimeout(() => {
+      if (feedbackTimeoutRef.current) clearTimeout(feedbackTimeoutRef.current);
+      feedbackTimeoutRef.current = setTimeout(() => {
         setActiveQuestion(null);
         setFeedback(null);
+        feedbackTimeoutRef.current = null;
       }, 2000);
     } else {
       setFeedback({ type: 'error', text: activeQuestion.hint || 'Incorrect. Try again!' });
