@@ -866,8 +866,16 @@ export default function App() {
     setSelectedBot(bot);
     initGame();
     startGame(pendingTimeControl, true, compCol, strength, { botId: bot?.id || null });
+    applyRealUsername();
     setPendingTimeControl(null);
     setActiveTab(3);
+  };
+
+  // Replace the store's default "You (Color)" label with the authenticated
+  // username so PGN headers, analysis cards, and player panels show a real name.
+  const applyRealUsername = () => {
+    const name = username || (user?.email ? user.email.split('@')[0] : null) || 'You';
+    useGameStore.getState().setYouName(name);
   };
 
   const handleGameOverNewGame = () => {
@@ -948,6 +956,7 @@ export default function App() {
               if (mode === 'local') {
                 initGame();
                 startGame(tc, false, 'black', 4);
+                applyRealUsername();
                 setActiveTab(1);
               } else if (mode === 'computer') {
                 setPendingTimeControl(tc);
@@ -980,6 +989,7 @@ export default function App() {
             initGame();
             const compCol = color === 'random' ? (Math.random() < 0.5 ? 'white' : 'black') : (color === 'white' ? 'black' : 'white');
             startGame(tc, true, compCol, bot.strength, { botId: bot.id });
+            applyRealUsername();
           }} />
         )}
 
