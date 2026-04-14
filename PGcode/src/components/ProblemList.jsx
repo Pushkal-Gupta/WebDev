@@ -7,7 +7,8 @@ import './ProblemList.css';
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
 const difficultyOrder = { 'Easy': 0, 'Medium': 1, 'Hard': 2 };
 
-const topicLabel = (raw) => (raw || '').split('\n')[0].trim();
+const topicLabel = (raw) => (raw || '').split(/\\n|\n/)[0].trim();
+const topicFullText = (raw) => (raw || '').replace(/\\n/g, ' — ').replace(/\n/g, ' — ').trim();
 
 function FilterDropdown({ label, value, options, onChange, minWidth = 160 }) {
   const [open, setOpen] = useState(false);
@@ -107,7 +108,7 @@ export default function ProblemList({ session, roadmapMode }) {
 
   const topicFullMap = useMemo(() => {
     const map = {};
-    topics.forEach(t => { map[t.id] = t.name; });
+    topics.forEach(t => { map[t.id] = topicFullText(t.name); });
     return map;
   }, [topics]);
 

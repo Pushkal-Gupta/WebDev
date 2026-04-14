@@ -150,17 +150,24 @@ export function commentOnMove(personality, ctx) {
   const san = lastMove.san || '';
   const chess = new Chess(lastMove.fen);
 
+  // Generic "something to say on any move" pool — used so the bot always
+  // comments at least once every turn or two.
+  const QUIET_LINES = [
+    'Hmm.', 'Alright.', 'Let’s see.', 'Interesting.', 'Noted.',
+    'Calculating.', 'Thinking.', 'Okay.', 'Going with this.',
+    'Steady.', 'Fine by me.',
+  ];
+
   // After a BOT move
   if (lastWasBot) {
     if (san.includes('#')) return `${personality.name}: ${pick(['Checkmate.', 'That’s the game.'])}`;
     if (san.includes('+')) return `${personality.name}: ${pick(bank.myCheck)}`;
     if (san.includes('x')) return `${personality.name}: ${pick(bank.myCapture)}`;
     if (moveCount <= 2) return `${personality.name}: ${pick(bank.openingMove)}`;
-    // occasional filler on own move — keep it rare to avoid spam
-    if (Math.random() < 0.18) {
-      const mat = materialDiff(lastMove.fen);
-      if (mat.total <= 20) return `${personality.name}: ${pick(bank.lowMaterial)}`;
-    }
+    const mat = materialDiff(lastMove.fen);
+    if (mat.total <= 20 && Math.random() < 0.55) return `${personality.name}: ${pick(bank.lowMaterial)}`;
+    // Quiet move — still say something roughly every turn for engagement.
+    if (Math.random() < 0.6) return `${personality.name}: ${pick(QUIET_LINES)}`;
     return null;
   }
 
@@ -173,9 +180,11 @@ export function commentOnMove(personality, ctx) {
     if (ctx.evalDelta <= -120) return `${personality.name}: ${pick(bank.playerBrilliant)}`;
   }
   // fallback: light filler on player captures
-  if (san.includes('x') && Math.random() < 0.25) {
+  if (san.includes('x') && Math.random() < 0.5) {
     return `${personality.name}: ${pick(['Fair trade.', 'I’ll manage.', 'Noted.'])}`;
   }
+  // Quiet response to a quiet player move — alternate so we don't double up
+  if (Math.random() < 0.55) return `${personality.name}: ${pick(QUIET_LINES)}`;
   return null;
 }
 
