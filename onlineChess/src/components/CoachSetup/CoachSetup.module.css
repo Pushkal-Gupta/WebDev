@@ -33,26 +33,21 @@
 }
 
 .avatar {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(
-    circle at 30% 30%,
-    color-mix(in srgb, var(--chip-color, #888) 60%, transparent),
-    color-mix(in srgb, var(--chip-color, #888) 15%, rgba(0, 0, 0, 0.4))
-  );
-  border: 1px solid color-mix(in srgb, var(--chip-color, #888) 50%, transparent);
+  background: color-mix(in srgb, var(--chip-color, #888) 14%, rgba(255,255,255,0.02));
+  border: 1px solid color-mix(in srgb, var(--chip-color, #888) 45%, transparent);
   color: var(--chip-color, #ddd);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
 }
 
 .coachName {
   margin: 0;
-  font-size: 1.4rem;
-  font-weight: 800;
+  font-size: 1.1rem;
+  font-weight: 700;
   letter-spacing: -0.01em;
 }
 
@@ -71,8 +66,8 @@
 
 .quoteBubble {
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 210, 122, 0.18);
-  border-left: 3px solid #ffd27a;
+  border: 1px solid rgba(0, 255, 245, 0.15);
+  border-left: 3px solid var(--color-accent, #00fff5);
   padding: 12px 14px;
   border-radius: 10px;
   color: rgba(255, 255, 255, 0.88);
@@ -108,8 +103,6 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 4px;
-  max-height: 260px;
-  overflow-y: auto;
   padding: 4px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 10px;
@@ -132,14 +125,14 @@
 }
 
 .levelBtn:hover {
-  background: rgba(255, 210, 122, 0.06);
+  background: rgba(0, 255, 245, 0.05);
   color: #fff;
 }
 
 .levelBtnActive {
-  background: rgba(255, 210, 122, 0.12);
-  border-color: rgba(255, 210, 122, 0.45);
-  color: #ffd27a;
+  background: rgba(0, 255, 245, 0.1);
+  border-color: rgba(0, 255, 245, 0.4);
+  color: var(--color-accent, #00fff5);
 }
 
 .levelName { font-weight: 600; }
@@ -167,15 +160,15 @@
 }
 
 .tcBtn:hover {
-  background: rgba(255, 210, 122, 0.08);
-  border-color: rgba(255, 210, 122, 0.25);
+  background: rgba(0, 255, 245, 0.06);
+  border-color: rgba(0, 255, 245, 0.25);
   color: #fff;
 }
 
 .tcBtnActive {
-  background: rgba(255, 210, 122, 0.14);
-  border-color: rgba(255, 210, 122, 0.55);
-  color: #ffd27a;
+  background: rgba(0, 255, 245, 0.12);
+  border-color: rgba(0, 255, 245, 0.5);
+  color: var(--color-accent, #00fff5);
 }
 
 .tcTime { font-weight: 700; font-size: 0.92rem; }
@@ -205,14 +198,14 @@
 }
 
 .colorBtn:hover {
-  background: rgba(255, 210, 122, 0.08);
-  border-color: rgba(255, 210, 122, 0.3);
+  background: rgba(0, 255, 245, 0.06);
+  border-color: rgba(0, 255, 245, 0.28);
 }
 
 .colorBtnActive {
-  background: rgba(255, 210, 122, 0.14);
-  border-color: rgba(255, 210, 122, 0.55);
-  color: #ffd27a;
+  background: rgba(0, 255, 245, 0.12);
+  border-color: rgba(0, 255, 245, 0.5);
+  color: var(--color-accent, #00fff5);
 }
 
 .colorIcon {
@@ -224,26 +217,22 @@
 
 /* ── Start button ────────────────────────────────────────────────────────── */
 .startBtn {
-  padding: 14px;
-  background: linear-gradient(135deg, #ffd27a, #ffb347);
-  color: #1a1a1a;
+  padding: 12px;
+  background: var(--color-accent, #00fff5);
+  color: #0a0a0a;
   border: none;
-  border-radius: 10px;
-  font-size: 1rem;
+  border-radius: 8px;
+  font-size: 0.92rem;
   font-weight: 700;
   cursor: pointer;
   margin-top: 4px;
   letter-spacing: 0.2px;
-  transition: transform 0.12s, box-shadow 0.12s;
+  transition: opacity 0.12s;
 }
 
-.startBtn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(255, 210, 122, 0.28);
-}
+.startBtn:hover { opacity: 0.9; }
 
 @media (max-width: 900px) {
   .page { flex-direction: column; padding: 16px; }
   .leftCol, .rightCol { flex: none; min-width: 0; overflow-y: visible; }
-  .levelList { max-height: none; }
 }

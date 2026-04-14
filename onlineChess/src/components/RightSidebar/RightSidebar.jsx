@@ -60,8 +60,8 @@ export default function RightSidebar({ onAlert, reviewResults, isReviewing, isOn
   return (
     <aside className={styles.sidebar}>
       {/* Bot / Coach chat card — lives at the top of the sidebar in non-online games */}
-      {showBotChat   && <BotChatCard mode="bot" />}
-      {showCoachChat && <BotChatCard mode="coach" />}
+      {showBotChat   && <BotChatCard mode="bot"   reviewResult={reviewResults?.[currentMoveIndex] || null} />}
+      {showCoachChat && <BotChatCard mode="coach" reviewResult={reviewResults?.[currentMoveIndex] || null} />}
 
       {/* Opening name strip */}
       <OpeningStrip name={openingName} />
