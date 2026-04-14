@@ -527,14 +527,14 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 0.82rem;
+  font-size: 0.62rem;
   font-weight: 800;
   pointer-events: none;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   z-index: 2;
   white-space: nowrap;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
+  text-align: center;
+  line-height: 1;
 }
 
 /* ── Board row ── */

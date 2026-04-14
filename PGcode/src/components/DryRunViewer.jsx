@@ -7,11 +7,15 @@ import TreeRenderer from './renderers/TreeRenderer';
 import LinkedListRenderer from './renderers/LinkedListRenderer';
 import StackQueueRenderer from './renderers/StackQueueRenderer';
 import HashMapRenderer from './renderers/HashMapRenderer';
+import GeometryRenderer from './renderers/GeometryRenderer';
+import DisjointSetRenderer from './renderers/DisjointSetRenderer';
 import './DryRunViewer.css';
 
 function detectType(data) {
   if (!data) return 'unknown';
   if (data.type) return data.type;
+  if (data.parent) return 'disjoint-set';
+  if (data.points || data.rectangles || data.lines) return 'geometry';
   if (data.array) return 'array';
   if (data.nodes && data.edges && data.directed !== undefined) return 'graph';
   if (data.nodes && data.edges) return 'tree';
@@ -39,6 +43,10 @@ function renderVisualState(data) {
       return <StackQueueRenderer data={data} />;
     case 'hashmap':
       return <HashMapRenderer data={data} />;
+    case 'geometry':
+      return <GeometryRenderer data={data} />;
+    case 'disjoint-set':
+      return <DisjointSetRenderer data={data} />;
     default:
       return <ArrayRenderer data={data} />;
   }
