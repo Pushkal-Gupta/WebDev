@@ -97,6 +97,7 @@ const initialState = {
   premove: null,          // { from: {row,col}, to: {row,col}|null } — queued premove
   illegalMoveAt: 0,       // timestamp of last illegal move attempt (triggers shake)
   lastMoveIsNew: false,   // true only when a real move was made (not undo/navigation)
+  variation: [],          // analysis side-line (alt-move tangent); cleared via clearVariation()
 };
 
 const useGameStore = create((set, get) => ({
@@ -433,13 +434,39 @@ const useGameStore = create((set, get) => ({
       fen: chessInstance.fen(),
       moveNumber: Math.floor(moveHistory.length / 2) + 1,
     };
-    // If the user played from a historical position (analysis branching),
-    // truncate the future before appending so the new move replaces it.
-    const { currentMoveIndex: curIdx } = get();
-    const trimmedHistory = curIdx >= 0 && curIdx < moveHistory.length - 1
-      ? moveHistory.slice(0, curIdx + 1)
-      : moveHistory;
-    const newHistory = [...trimmedHistory, newMove];
+
+    // ── Analysis-mode branching ─────────────────────────────────────────
+    // If the user played from a historical position (analysis/local mode),
+    // do NOT touch the original game. Push the move onto `variation` instead
+    // — a parallel side-line shown in grey. Calling `clearVariation()` returns
+    // to the main game.
+    const { currentMoveIndex: curIdx, isComp: _isComp, isOnline: _isOnline, variation: _variation } = get();
+    const _isLive = _isComp || _isOnline;
+    const _branching = !_isLive && curIdx < moveHistory.length - 1 && moveHistory.length > 0;
+    const _onVariation = !_isLive && (_variation?.length > 0);
+    if (_branching || _onVariation) {
+      const nextVar = [...(_variation || []), newMove];
+      set({
+        boardState: buildBoardState(chessInstance),
+        variation: nextVar,
+        selectedSquare: null,
+        validMoves: [],
+        lastMove: {
+          from, to,
+          pieceType: piece?.type || result.piece,
+          pieceColor: result.color,
+          flags: result.flags || '',
+          san: result.san,
+        },
+        lastMoveIsNew: true,
+        underCheck: findCheck(chessInstance),
+        activeColor: chessInstance.turn(),
+        pawnPromotion: null,
+        disableBoard: false,
+      });
+      return true;
+    }
+    const newHistory = [...moveHistory, newMove];
 
     // Check state
     const underCheck = findCheck(chessInstance);
@@ -702,12 +729,28 @@ const useGameStore = create((set, get) => ({
       lastMoveIsNew: false,
       underCheck,
       activeColor: chess.turn(),
+      // Navigating in the main move list always drops any active variation
+      // (analysis side-line) so we land on a clean main-game position.
+      variation: [],
       // In live games, keep chessInstance pinned to the latest played position
       // so clicks can't alter history. In analysis/local mode, always sync
       // chessInstance to the displayed position — enables playing alternative
       // moves from any point in the game.
       ...((!isLive || isLatest) ? { chessInstance: chess } : {}),
     });
+  },
+
+  // Drop any in-progress analysis side-line and snap back to the main game's
+  // current move index.
+  clearVariation: () => {
+    const { moveHistory, currentMoveIndex } = get();
+    set({ variation: [] });
+    // Re-sync to the main-game position the user was on before exploring.
+    if (currentMoveIndex >= 0 && currentMoveIndex < moveHistory.length) {
+      get().goToMove(currentMoveIndex);
+    } else if (moveHistory.length > 0) {
+      get().goToMove(moveHistory.length - 1);
+    }
   },
 
   importPgn: (pgnStr) => {
