@@ -44,13 +44,15 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
         if (problemsRes.error) throw problemsRes.error;
 
         let filtered = problemsRes.data || [];
-        if (roadmapMode === '200') {
+        if (roadmapMode === '100') {
+          filtered = filtered.filter(p => p.roadmap_set === '100');
+        } else if (roadmapMode === '200') {
           filtered = filtered.filter(p =>
-            p.roadmap_set === '200' || p.roadmap_set === 'both' || !p.roadmap_set
+            p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === 'both' || !p.roadmap_set
           );
         } else if (roadmapMode === '300') {
           filtered = filtered.filter(p =>
-            p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === 'both' || !p.roadmap_set
+            p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === 'both' || !p.roadmap_set
           );
         }
 
