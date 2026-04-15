@@ -195,10 +195,23 @@
 /* ── Accuracy rings section ── */
 .accSection {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 8px 0 4px;
+  gap: 24px;
+  padding: 18px 24px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-accent, #00fff5) 8%, rgba(255,255,255,0.025)) 0%,
+    rgba(255,255,255,0.02) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--color-accent, #00fff5) 18%, rgba(255,255,255,0.06));
+  border-radius: 16px;
+  transition: transform 0.16s, border-color 0.16s, box-shadow 0.16s;
+}
+
+.accSection:hover {
+  border-color: color-mix(in srgb, var(--color-accent, #00fff5) 35%, transparent);
+  box-shadow: 0 14px 30px -14px color-mix(in srgb, var(--color-accent, #00fff5) 30%, transparent);
 }
 
 .scoreCardAnimated {
@@ -907,20 +920,20 @@
   transition: width 1s ease;
 }
 
-/* Tier colors */
-.eloTier_beginner { border-color: rgba(224, 85, 85, 0.2); }
+/* Tier colors — feed --tier-color into .eloPlayerCard's gradient/border. */
+.eloTier_beginner { --tier-color: #e05555; }
 .eloTier_beginner .eloPlayerRating { color: #e05555; }
 .eloTier_beginner .eloPlayerBarFill { background: #e05555; }
 
-.eloTier_club { border-color: rgba(240, 201, 76, 0.2); }
+.eloTier_club { --tier-color: #f0c94c; }
 .eloTier_club .eloPlayerRating { color: #f0c94c; }
 .eloTier_club .eloPlayerBarFill { background: #f0c94c; }
 
-.eloTier_expert { border-color: rgba(0, 255, 245, 0.15); }
+.eloTier_expert { --tier-color: #00fff5; }
 .eloTier_expert .eloPlayerRating { color: #00fff5; }
 .eloTier_expert .eloPlayerBarFill { background: #00fff5; }
 
-.eloTier_master { border-color: rgba(160, 100, 255, 0.2); }
+.eloTier_master { --tier-color: #a064ff; }
 .eloTier_master .eloPlayerRating { color: #a064ff; }
 .eloTier_master .eloPlayerBarFill { background: linear-gradient(90deg, #a064ff, #e040fb); }
 
@@ -974,10 +987,21 @@
 
 /* ── Classification card ── */
 .classCard {
-  background: rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  border-radius: 10px;
-  padding: 10px 14px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-accent, #00fff5) 7%, rgba(255,255,255,0.025)) 0%,
+    rgba(255,255,255,0.02) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--color-accent, #00fff5) 16%, rgba(255,255,255,0.06));
+  border-radius: 14px;
+  padding: 16px 18px 14px;
+  transition: transform 0.16s, border-color 0.16s, box-shadow 0.16s;
+}
+
+.classCard:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--color-accent, #00fff5) 35%, transparent);
+  box-shadow: 0 12px 26px -12px color-mix(in srgb, var(--color-accent, #00fff5) 28%, transparent);
 }
 
 .classTable {
@@ -1033,10 +1057,21 @@
 
 /* ── Phase grades ── */
 .phaseCard {
-  background: rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  border-radius: 10px;
-  padding: 14px 16px 12px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-accent, #00fff5) 7%, rgba(255,255,255,0.025)) 0%,
+    rgba(255,255,255,0.02) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--color-accent, #00fff5) 16%, rgba(255,255,255,0.06));
+  border-radius: 14px;
+  padding: 16px 18px 14px;
+  transition: transform 0.16s, border-color 0.16s, box-shadow 0.16s;
+}
+
+.phaseCard:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--color-accent, #00fff5) 35%, transparent);
+  box-shadow: 0 12px 26px -12px color-mix(in srgb, var(--color-accent, #00fff5) 28%, transparent);
 }
 
 .phaseSectionTitle {

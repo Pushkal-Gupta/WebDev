@@ -405,15 +405,15 @@ export default function PuzzlePage() {
 
 
             <div className={styles.statsRow}>
-              <div className={styles.statItem}>
+              <div className={styles.statItem} style={{ '--stat-accent': '#6fdc8c' }}>
                 <div className={styles.statNum} style={{color:'#6fdc8c'}}>{userPuzzleRating?.wins || 0}</div>
                 <div className={styles.statLbl}>Solved</div>
               </div>
-              <div className={styles.statItem}>
+              <div className={styles.statItem} style={{ '--stat-accent': '#ff7875' }}>
                 <div className={styles.statNum} style={{color:'#ff7875'}}>{userPuzzleRating?.losses || 0}</div>
                 <div className={styles.statLbl}>Failed</div>
               </div>
-              <div className={styles.statItem}>
+              <div className={styles.statItem} style={{ '--stat-accent': '#00fff5' }}>
                 <div className={styles.statNum}>{userPuzzleRating?.games_played || 0}</div>
                 <div className={styles.statLbl}>Total</div>
               </div>
