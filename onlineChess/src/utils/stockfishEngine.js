@@ -154,8 +154,12 @@ export async function getStockfishAnalysis(fen, { depth = 12 } = {}) {
       score = lastInfoScore.cp;
     } else if (lastInfoScore.mate !== undefined) {
       mateIn = lastInfoScore.mate;
-      // Convert mate distance to large cp value (99999 scale)
-      score = lastInfoScore.mate > 0 ? 99999 : -99999;
+      // Encode mate as ±(100_000 − |plies|). Downstream (utils/evalBar.js)
+      // decodes via `100_000 - |cp|` to recover the ply count and render "M3".
+      // Sentinel `|cp| > 9000` still triggers the mate branch in scoreToWhitePct.
+      const plies = Math.max(1, Math.abs(lastInfoScore.mate));
+      const magnitude = 100_000 - plies;
+      score = lastInfoScore.mate > 0 ? magnitude : -magnitude;
     }
     // Stockfish reports from side-to-move's perspective; normalize to white's POV
     if (isBlackToMove) score = -score;
