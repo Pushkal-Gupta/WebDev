@@ -208,8 +208,11 @@ const useGameStore = create((set, get) => ({
     const { chessInstance, selectedSquare, validMoves, gameOver, disableBoard, activeColor, isComp, compColor, isOnline, onlineColor, currentMoveIndex, moveHistory, premove } = get();
     if (!chessInstance || gameOver) return;
 
-    // If viewing history, don't allow moves or premoves
-    if (currentMoveIndex !== moveHistory.length - 1 && moveHistory.length > 0) return;
+    // Live games (computer / online): refuse clicks while viewing history.
+    // Analysis / local mode: allow — playing will branch from the current
+    // displayed position (makeMove truncates future history).
+    const isLive = isComp || isOnline;
+    if (isLive && currentMoveIndex !== moveHistory.length - 1 && moveHistory.length > 0) return;
 
     const file = String.fromCharCode('a'.charCodeAt(0) + col);
     const rank = String(8 - row);
@@ -334,7 +337,10 @@ const useGameStore = create((set, get) => ({
     if (!_bypassValidation) {
       const { gameOver, disableBoard, gameStarted, isComp, compColor, isOnline, onlineColor, currentMoveIndex: ci, moveHistory: mh } = get();
       if (!gameStarted || gameOver || disableBoard) return false;
-      if (ci !== mh.length - 1 && mh.length > 0) return false;
+      const isLive = isComp || isOnline;
+      // Live games: refuse moves from a historical position.
+      // Analysis/local: allow branching — the move replaces the future.
+      if (isLive && ci !== mh.length - 1 && mh.length > 0) return false;
       const turn = chessInstance.turn();
       if (isComp) {
         const isCompTurn = (compColor === 'white' && turn === 'w') || (compColor === 'black' && turn === 'b');
@@ -427,7 +433,13 @@ const useGameStore = create((set, get) => ({
       fen: chessInstance.fen(),
       moveNumber: Math.floor(moveHistory.length / 2) + 1,
     };
-    const newHistory = [...moveHistory, newMove];
+    // If the user played from a historical position (analysis branching),
+    // truncate the future before appending so the new move replaces it.
+    const { currentMoveIndex: curIdx } = get();
+    const trimmedHistory = curIdx >= 0 && curIdx < moveHistory.length - 1
+      ? moveHistory.slice(0, curIdx + 1)
+      : moveHistory;
+    const newHistory = [...trimmedHistory, newMove];
 
     // Check state
     const underCheck = findCheck(chessInstance);
@@ -677,6 +689,8 @@ const useGameStore = create((set, get) => ({
 
     const underCheck = findCheck(chess);
 
+    const { isComp, isOnline } = get();
+    const isLive = isComp || isOnline;
     const isLatest = index === moveHistory.length - 1;
 
     set({
@@ -688,7 +702,11 @@ const useGameStore = create((set, get) => ({
       lastMoveIsNew: false,
       underCheck,
       activeColor: chess.turn(),
-      ...(isLatest ? { chessInstance: chess } : {}),
+      // In live games, keep chessInstance pinned to the latest played position
+      // so clicks can't alter history. In analysis/local mode, always sync
+      // chessInstance to the displayed position — enables playing alternative
+      // moves from any point in the game.
+      ...((!isLive || isLatest) ? { chessInstance: chess } : {}),
     });
   },
 

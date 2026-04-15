@@ -379,6 +379,9 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
   const [externalError, setExternalError]     = useState('');
   // Track the PGN string that was loaded (for persistence)
   const [loadedPgn, setLoadedPgn]           = useState(null);
+  // "What you missed" — top engine line from the position BEFORE the currently
+  // selected move, fetched on demand when the move has a classification.
+  const [missedLine, setMissedLine]         = useState(null); // { san: string, line: string[], score: number }
   // Animation states for report
   const [reportAnimated, setReportAnimated] = useState(false);
   // Pre-computation loading state
@@ -734,6 +737,25 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
   const curReview = reviewResults && currentMoveIndex >= 0 ? reviewResults[currentMoveIndex] : null;
   const curClass  = curReview ? CLASSIFICATIONS[curReview.classification] : null;
   const curMove   = currentMoveIndex >= 0 ? moveHistory[currentMoveIndex] : null;
+
+  // Fetch the engine's preferred continuation from the PRE-move position for
+  // classified moves (blunder / mistake / inaccuracy / brilliant). Surfaces
+  // "what should have been" so the user sees the full refutation line.
+  useEffect(() => {
+    const KEY = new Set(['blunder', 'mistake', 'inaccuracy', 'brilliant']);
+    if (!curReview || !KEY.has(curReview.classification)) { setMissedLine(null); return; }
+    const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+    const preFen = currentMoveIndex === 0 ? START_FEN : moveHistory[currentMoveIndex - 1]?.fen;
+    if (!preFen) { setMissedLine(null); return; }
+    let cancelled = false;
+    setMissedLine(null);
+    getTopLinesAsync(preFen, 1).then((lines) => {
+      if (cancelled || !lines || lines.length === 0) return;
+      const top = lines[0];
+      setMissedLine({ san: top.line?.[0] || curReview.bestMoveSan, line: top.line || [], score: top.score });
+    }).catch(() => { /* silent */ });
+    return () => { cancelled = true; };
+  }, [curReview, currentMoveIndex, moveHistory]);
 
   const gameCharacter = useMemo(() => getGameCharacter(reviewResults, moveHistory), [reviewResults, moveHistory]);
   const gameDesc = useMemo(() => getGameDescription(whiteAcc, blackAcc, pgnHeaders), [whiteAcc, blackAcc, pgnHeaders]);
@@ -1435,6 +1457,19 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                     {curReview.bestMoveSan && curReview.bestMoveSan !== curMove.san && (
                       <div className={styles.annotationBest}>
                         Best move: <strong>{curReview.bestMoveSan}</strong>
+                      </div>
+                    )}
+                    {missedLine && missedLine.line && missedLine.line.length > 1 && (
+                      <div className={styles.annotationBest} style={{ marginTop: 6 }}>
+                        <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.72rem', letterSpacing: '0.4px', textTransform: 'uppercase', fontWeight: 700 }}>Engine line</span>
+                        <div style={{ marginTop: 4, fontFamily: "'Inter', monospace", fontSize: '0.82rem', color: 'rgba(255,255,255,0.78)', lineHeight: 1.5 }}>
+                          {missedLine.line.slice(0, 6).map((m, i) => (
+                            <span key={i} style={{ marginRight: 6 }}>
+                              <span style={{ color: i === 0 ? '#6fdc8c' : 'inherit', fontWeight: i === 0 ? 700 : 500 }}>{m}</span>
+                            </span>
+                          ))}
+                          {missedLine.line.length > 6 && <span style={{ color: 'rgba(255,255,255,0.3)' }}>…</span>}
+                        </div>
                       </div>
                     )}
                   </div>
