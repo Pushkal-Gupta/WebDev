@@ -188,7 +188,7 @@ function RequestsTab({ userId }) {
 // ── Find Players tab ───────────────────────────────────────────────────────
 
 function FindTab({ userId }) {
-  const { searchResults, searchLoading, searchPlayers, clearSearch, sendRequest, getFriendshipStatus, getFriendshipId, removeRequest } = useFriendStore();
+  const { searchResults, searchLoading, searchError, searchPlayers, clearSearch, sendRequest, getFriendshipStatus, getFriendshipId, removeRequest } = useFriendStore();
   const [query, setQuery] = useState('');
   const [acting, setActing] = useState(null);
   const [localStatus, setLocalStatus] = useState({}); // userId → status after action
@@ -240,7 +240,17 @@ function FindTab({ userId }) {
       </div>
 
       {query && !searchLoading && searchResults.length === 0 && (
-        <div className={styles.empty}>No players found for "{query}"</div>
+        <div className={styles.empty}>
+          <div>No players found for "{query}"</div>
+          <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.35)', marginTop: 6 }}>
+            Make sure your friend has set a display name in Settings. Search matches display name, not email.
+          </div>
+          {searchError && (
+            <div style={{ fontSize: '0.68rem', color: '#ff7875', marginTop: 4 }}>
+              {searchError}
+            </div>
+          )}
+        </div>
       )}
 
       <div className={styles.list}>

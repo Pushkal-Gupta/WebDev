@@ -6,6 +6,7 @@ const useFriendStore = create((set, get) => ({
   incoming:        [],   // pending requests where I am friend_id
   outgoing:        [],   // pending requests where I am user_id
   searchResults:   [],
+  searchError:     null,
   loading:         false,
   searchLoading:   false,
 
@@ -91,18 +92,45 @@ const useFriendStore = create((set, get) => ({
     await get().loadFriends(myUserId);
   },
 
-  // ── Search players by username prefix (uses search_players RPC) ─────────
+  // ── Search players ─────────────────────────────────────────────────────
+  // Tries the `search_players` RPC first (case-insensitive server-side match
+  // across username / display_name / email). If the RPC is missing, fails, or
+  // returns empty, falls back to a direct `user_profiles` ilike query so a
+  // user typing an exact display name still finds their friend.
   async searchPlayers(query) {
-    if (!query.trim()) { set({ searchResults: [] }); return; }
-    set({ searchLoading: true });
-    const { data, error } = await supabase.rpc('search_players', {
-      p_query: query.trim(),
-      p_limit: 10,
+    const q = query.trim();
+    if (!q) { set({ searchResults: [], searchError: null }); return; }
+    set({ searchLoading: true, searchError: null });
+
+    // 1) Try the RPC first.
+    const rpc = await supabase.rpc('search_players', { p_query: q, p_limit: 10 });
+    let rows = !rpc.error ? (rpc.data || []) : [];
+
+    // 2) Fallback: direct table scan on user_profiles by display_name.
+    //    Skips if the RPC already returned rows.
+    if (rows.length === 0) {
+      const { data: profileRows } = await supabase
+        .from('user_profiles')
+        .select('user_id, display_name')
+        .ilike('display_name', `%${q}%`)
+        .limit(10);
+      if (profileRows && profileRows.length) {
+        rows = profileRows.map((r) => ({
+          user_id: r.user_id,
+          username: r.display_name,
+        }));
+      }
+    }
+
+    set({
+      searchResults: rows,
+      searchLoading: false,
+      searchError: rpc.error && rows.length === 0 ? (rpc.error.message || 'Search failed') : null,
     });
-    set({ searchResults: error ? [] : (data || []), searchLoading: false });
+    if (rpc.error) console.warn('[friendStore.searchPlayers] RPC error:', rpc.error.message);
   },
 
-  clearSearch() { set({ searchResults: [], searchLoading: false }); },
+  clearSearch() { set({ searchResults: [], searchLoading: false, searchError: null }); },
 
   // ── Check friendship status with a target user ────────────────────────────
   getFriendshipStatus(targetUserId) {
