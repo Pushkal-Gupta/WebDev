@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useId, useMemo, useCallback, memo } from '
 import Board from '../Board/Board';
 import styles from './AnalysisBoard.module.css';
 import useGameStore from '../../store/gameStore';
+import useAuthStore from '../../store/authStore';
 import { getTopLinesAsync, analyzeGame, ANALYSIS_PASSES, precomputeAll } from '../../utils/analysisEngine';
 import { Chess } from 'chess.js';
 import { CLASSIFICATIONS, classifyFromEvals, explainMove, classifyPhases } from '../../utils/reviewEngine';
@@ -358,7 +359,9 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
     chessInstance, importPgn, flipped, setFlipped,
     variation,
     isComp, compColor, compStrength,
+    isOnline, onlineColor, youName, oppName,
   } = useGameStore();
+  const authUsername = useAuthStore(s => s.username);
   const onVariation = (variation?.length || 0) > 0;
 
   // UI state
@@ -739,22 +742,34 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
   const whiteCounts   = useMemo(() => buildCounts(reviewResults, moveHistory, 'w'), [reviewResults, moveHistory]);
   const blackCounts   = useMemo(() => buildCounts(reviewResults, moveHistory, 'b'), [reviewResults, moveHistory]);
   // Resolve player names with smart fallbacks:
-  // 1) PGN header if present, 2) "Computer Lv N" for the bot side in a comp game,
-  // 3) "You" for the user side in a comp game, 4) literal "White"/"Black".
-  // Only trust the comp fallback when we're analysing an *active* comp game,
-  // not when a PGN has been imported afterwards (which would otherwise bleed
-  // the prior comp's "Computer Lv N" label onto an unrelated game).
-  const useCompFallback = isComp && !loadedPgn;
+  //  1) PGN header if present
+  //  2) For live games (comp/online) that have NOT been overwritten by a PGN
+  //     import: use the logged-in user's name on the user's side, and the
+  //     stored opponent / bot label on the other side.
+  //  3) Fall back to literal "White" / "Black".
+  // Strip any trailing "(White)"/"(Black)" parenthetical that the store appends
+  // to `youName`, so the label shown in the report reads cleanly.
+  const stripColor = (s) => (s || '').replace(/\s*\((?:White|Black)\)\s*$/i, '').trim();
+  const useLiveFallback = (isComp || isOnline) && !loadedPgn;
+  const myName     = stripColor(authUsername) || stripColor(youName) || 'You';
+  const botName    = `Computer Lv ${compStrength}`;
+  const oppLabel   = stripColor(oppName) || 'Opponent';
   const resolvedWhiteName = useMemo(() => {
-    if (pgnHeaders.White) return pgnHeaders.White;
-    if (useCompFallback) return compColor === 'white' ? `Computer Lv ${compStrength}` : 'You';
+    const fromPgn = stripColor(pgnHeaders.White);
+    if (fromPgn) return fromPgn;
+    if (!useLiveFallback) return 'White';
+    if (isComp)   return compColor === 'white' ? botName : myName;
+    if (isOnline) return onlineColor === 'white' ? myName : oppLabel;
     return 'White';
-  }, [pgnHeaders.White, useCompFallback, compColor, compStrength]);
+  }, [pgnHeaders.White, useLiveFallback, isComp, isOnline, compColor, onlineColor, botName, myName, oppLabel]);
   const resolvedBlackName = useMemo(() => {
-    if (pgnHeaders.Black) return pgnHeaders.Black;
-    if (useCompFallback) return compColor === 'black' ? `Computer Lv ${compStrength}` : 'You';
+    const fromPgn = stripColor(pgnHeaders.Black);
+    if (fromPgn) return fromPgn;
+    if (!useLiveFallback) return 'Black';
+    if (isComp)   return compColor === 'black' ? botName : myName;
+    if (isOnline) return onlineColor === 'black' ? myName : oppLabel;
     return 'Black';
-  }, [pgnHeaders.Black, useCompFallback, compColor, compStrength]);
+  }, [pgnHeaders.Black, useLiveFallback, isComp, isOnline, compColor, onlineColor, botName, myName, oppLabel]);
   const topName       = flipped ? resolvedWhiteName : resolvedBlackName;
   const bottomName    = flipped ? resolvedBlackName : resolvedWhiteName;
   const topColor      = flipped ? 'w' : 'b';
