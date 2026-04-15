@@ -69,61 +69,6 @@ const MODULES = [
     ),
     accent: '#e74c3c',
   },
-  {
-    route: 'rush',
-    title: 'Puzzle Rush',
-    blurb: 'Solve as many puzzles as you can before the timer runs out. Compete against yourself.',
-    cta: 'Coming soon',
-    status: 'soon',
-    icon: (
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-      </svg>
-    ),
-    accent: '#e040fb',
-  },
-  {
-    route: 'drills',
-    title: 'Practice Drills',
-    blurb: 'Convert advantages, hold inferior endgames, and exploit common motifs vs. the engine.',
-    cta: 'Coming soon',
-    status: 'soon',
-    icon: (
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 2v6M9 5l3-3 3 3M5 21l-2-2 5-5 2 2-5 5z"/>
-        <path d="M14 14l5 5 2-2-5-5"/>
-      </svg>
-    ),
-    accent: '#7cb342',
-  },
-  {
-    route: 'custom',
-    title: 'Custom Position',
-    blurb: 'Set up any position with a board editor and analyze or play it against the engine.',
-    cta: 'Coming soon',
-    status: 'soon',
-    icon: (
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 5v14M5 12h14"/>
-        <rect x="3" y="3" width="18" height="18" rx="3"/>
-      </svg>
-    ),
-    accent: '#9c27b0',
-  },
-  {
-    route: 'insights',
-    title: 'Game Insights',
-    blurb: 'Import a PGN and turn your own missed tactics into personalized training.',
-    cta: 'Coming soon',
-    status: 'soon',
-    icon: (
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 3v18h18"/>
-        <path d="M7 14l4-4 3 3 5-6"/>
-      </svg>
-    ),
-    accent: '#00bcd4',
-  },
 ];
 
 function ModuleCard({ mod, onClick }) {
