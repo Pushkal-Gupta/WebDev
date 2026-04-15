@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import LoginModal from './LoginModal';
 import AccountModal from './AccountModal';
 import './Navbar.css';
@@ -7,7 +8,13 @@ export default function Navbar({ session, theme, toggleTheme, isWorkspace }) {
   const [showLogin, setShowLogin] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
 
-  const brandHref = '#/';
+  // On the home page the brand links out to the portfolio landing; on any
+  // deeper page it goes back to the PGcode app home.
+  const { pathname } = useLocation();
+  const isHome = pathname === '/' || pathname === '';
+  const brandHref = isHome
+    ? 'https://pushkalgupta.com/PG/main.html'
+    : 'https://pushkalgupta.com/PGcode/dist/index.html';
 
   return (
     <header className="pg-header">
