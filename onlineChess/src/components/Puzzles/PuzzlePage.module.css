@@ -277,11 +277,22 @@
 }
 
 .ratingBox {
-  background: rgba(0,255,245,0.05);
-  border: 1px solid rgba(0,255,245,0.15);
-  border-radius: 10px;
-  padding: 10px 16px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-accent, #00fff5) 12%, rgba(255,255,255,0.025)) 0%,
+    rgba(255,255,255,0.02) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--color-accent, #00fff5) 28%, rgba(255,255,255,0.06));
+  border-radius: 14px;
+  padding: 14px 16px 12px;
   flex: 1;
+  transition: transform 0.16s, border-color 0.16s, box-shadow 0.16s;
+}
+
+.ratingBox:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--color-accent, #00fff5) 50%, transparent);
+  box-shadow: 0 10px 24px -10px color-mix(in srgb, var(--color-accent, #00fff5) 35%, transparent);
 }
 
 .ratingVal {
@@ -374,10 +385,20 @@
 .statItem {
   flex: 1;
   text-align: center;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 8px;
-  padding: 10px 6px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--stat-accent, rgba(255,255,255,0.25)) 9%, rgba(255,255,255,0.025)) 0%,
+    rgba(255,255,255,0.02) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--stat-accent, rgba(255,255,255,0.25)) 22%, rgba(255,255,255,0.06));
+  border-radius: 12px;
+  padding: 12px 6px 10px;
+  transition: transform 0.16s, border-color 0.16s, box-shadow 0.16s;
+}
+
+.statItem:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--stat-accent, rgba(255,255,255,0.4)) 50%, transparent);
 }
 
 .statNum {
@@ -432,16 +453,27 @@
 .skipBtn:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.75); }
 
 .hintBtn {
-  padding: 9px 16px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 200, 0, 0.3);
-  background: rgba(255, 200, 0, 0.08);
-  color: rgba(255, 200, 0, 0.8);
-  font-size: 0.85rem;
+  padding: 11px 16px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, #f0c94c 45%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #f0c94c 14%, rgba(255,255,255,0.025)) 0%,
+    rgba(255,255,255,0.02) 100%
+  );
+  color: #f0c94c;
+  font-weight: 700;
+  font-size: 0.86rem;
+  letter-spacing: 0.2px;
   cursor: pointer;
-  transition: all 0.2s;
+  font-family: inherit;
+  transition: transform 0.16s, border-color 0.16s, box-shadow 0.16s;
 }
-.hintBtn:hover { background: rgba(255, 200, 0, 0.15); }
+.hintBtn:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, #f0c94c 65%, transparent);
+  box-shadow: 0 10px 22px -10px rgba(240, 201, 76, 0.4);
+}
 .hintBtn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .hintNote {
