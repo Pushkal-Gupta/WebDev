@@ -12,44 +12,78 @@ const TC_OPTIONS = [
 ];
 
 export default function CoachSetup({ onStart }) {
-  const coach = COACHES[0];
+  const [selectedCoach, setSelectedCoach] = useState(COACHES[0]);
   const [level, setLevel]         = useState(COACH_LEVELS[3]);  // Intermediate default
   const [tc, setTc]               = useState(TC_OPTIONS[2]);    // 10+0 default
   const [noLimit, setNoLimit]     = useState(false);
   const [playerColor, setColor]   = useState('white');
 
   const handleStart = () => {
-    onStart(coach, level, noLimit ? null : tc, playerColor);
+    onStart(selectedCoach, level, noLimit ? null : tc, playerColor);
   };
 
   return (
     <div className={styles.page}>
-      <div className={styles.leftCol}>
-        <div className={styles.coachHeader}>
-          <span className={styles.avatar} style={{ '--chip-color': coach.color }}>
-            <svg viewBox="0 0 24 24" width="42" height="42"
-              dangerouslySetInnerHTML={{ __html: coach.icon }} />
-          </span>
-          <div>
-            <h2 className={styles.coachName} style={{ color: coach.color }}>
-              {coach.name}
-            </h2>
-            <p className={styles.coachTag}>{coach.tagline}</p>
-          </div>
-        </div>
-        <p className={styles.description}>{coach.description}</p>
-
-        <div className={styles.quoteBubble}>
-          {coach.greetings[0]}
-        </div>
-
-        <div className={styles.note}>
-          Play-with-Coach games are unrated. The coach will comment on your moves
-          and point out ideas as you play.
+      {/* ── Coach grid (left) ─────────────────────────────────────────────── */}
+      <div className={styles.coachGrid}>
+        <h2 className={styles.sectionTitle}>Choose Your Coach</h2>
+        <div className={styles.grid}>
+          {COACHES.map((coach) => (
+            <button
+              key={coach.id}
+              className={`${styles.coachCard} ${selectedCoach?.id === coach.id ? styles.coachCardActive : ''}`}
+              style={{ '--coach-color': coach.color }}
+              onClick={() => setSelectedCoach(coach)}
+            >
+              <div className={styles.coachIcon}>
+                <svg viewBox="0 0 24 24" width="28" height="28"
+                  style={{ color: coach.color, filter: `drop-shadow(0 0 6px ${coach.color}44)` }}
+                  dangerouslySetInnerHTML={{ __html: coach.icon }} />
+              </div>
+              <div className={styles.coachInfo}>
+                <span className={styles.coachName}>{coach.name}</span>
+              </div>
+              <span className={styles.coachTagline}>{coach.tagline}</span>
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className={styles.rightCol}>
+      {/* ── Detail panel + settings (right) ───────────────────────────────── */}
+      <div className={styles.detailPanel}>
+        {selectedCoach && (
+          <>
+            <div
+              className={styles.selectedHeader}
+              style={{ '--coach-color': selectedCoach.color }}
+            >
+              <svg viewBox="0 0 24 24" width="48" height="48"
+                style={{ color: selectedCoach.color, filter: `drop-shadow(0 0 8px ${selectedCoach.color}66)` }}
+                dangerouslySetInnerHTML={{ __html: selectedCoach.icon }} />
+              <div className={styles.selectedHeaderText}>
+                <h3 className={styles.selectedName} style={{ color: selectedCoach.color }}>
+                  {selectedCoach.name}
+                </h3>
+                <span className={styles.selectedTag}>{selectedCoach.tagline}</span>
+              </div>
+            </div>
+
+            {selectedCoach.focus && (
+              <div className={styles.focusRow}>
+                {selectedCoach.focus.map((f) => (
+                  <span key={f} className={styles.focusChip} style={{ '--coach-color': selectedCoach.color }}>{f}</span>
+                ))}
+              </div>
+            )}
+
+            <p className={styles.description}>{selectedCoach.description}</p>
+
+            <div className={styles.quoteBubble} style={{ '--coach-color': selectedCoach.color }}>
+              {selectedCoach.greetings[0]}
+            </div>
+          </>
+        )}
+
         <div className={styles.section}>
           <h4 className={styles.sectionLabel}>Skill Level</h4>
           <div className={styles.levelList}>
@@ -115,7 +149,7 @@ export default function CoachSetup({ onStart }) {
         </div>
 
         <button className={styles.startBtn} onClick={handleStart}>
-          Play with {coach.name}
+          Play with {selectedCoach.name}
         </button>
       </div>
     </div>
