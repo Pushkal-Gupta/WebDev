@@ -48,8 +48,28 @@
 
 /* ── Code Block ── */
 .sv-code-header {
-  display: flex; gap: 0; border-bottom: 1px solid var(--border);
+  display: flex; align-items: stretch; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
   background: var(--bg); border-radius: 8px 8px 0 0;
+}
+.sv-lang-tabs { display: flex; gap: 0; }
+.sv-copy-btn {
+  font-family: var(--mono); font-size: 0.7rem; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 0 0.9rem; margin: 0.3rem 0.4rem; background: none;
+  border: 1px solid var(--border); border-radius: 6px;
+  color: var(--text-dim); cursor: pointer;
+  transition: color var(--t), border-color var(--t), background var(--t);
+}
+.sv-copy-btn:hover:not(:disabled) {
+  color: var(--accent); border-color: var(--accent);
+}
+.sv-copy-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.sv-code-empty {
+  background: var(--bg); border: 1px dashed var(--border);
+  border-top: none; border-radius: 0 0 8px 8px;
+  padding: 1.5rem 1rem; text-align: center;
+  font-family: var(--mono); font-size: 0.78rem; color: var(--text-dim);
 }
 
 .sv-lang-tab {

@@ -43,6 +43,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
   // Solve timer
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [timerPaused, setTimerPaused] = useState(false);
+  const [timerStopped, setTimerStopped] = useState(false);
   const timerRef = useRef(null);
   const editorRef = useRef(null);
 
@@ -105,13 +106,14 @@ export default function Workspace({ session, theme, roadmapMode }) {
   const latestLeftWidthRef = useRef(leftWidth);
   useEffect(() => { latestLeftWidthRef.current = leftWidth; }, [leftWidth]);
 
-  // Timer: tick every second when not paused
+  // Timer: tick every second when not paused (tab hidden) and not stopped (solved)
   useEffect(() => {
+    if (timerStopped) return;
     timerRef.current = setInterval(() => {
       if (!timerPaused) setTimerSeconds(s => s + 1);
     }, 1000);
     return () => clearInterval(timerRef.current);
-  }, [timerPaused]);
+  }, [timerPaused, timerStopped]);
 
   // Timer: pause on tab visibility change
   useEffect(() => {
@@ -124,6 +126,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
   useEffect(() => {
     setTimerSeconds(0);
     setTimerPaused(false);
+    setTimerStopped(false);
   }, [activeProblem?.id]);
 
   // Fetch topic + problems
@@ -481,6 +484,8 @@ export default function Workspace({ session, theme, roadmapMode }) {
       const elapsed = Date.now() - startTime;
 
       if (allPassed) {
+        // Lock the solve-time the moment submission is accepted.
+        setTimerStopped(true);
         setRunResult({
           status: 'accepted',
           statusText: 'Accepted',
@@ -997,7 +1002,10 @@ export default function Workspace({ session, theme, roadmapMode }) {
           <div className="ws-editor-header">
             <div className="ws-editor-label"><Code2 size={14} /> Code</div>
             <div className="ws-editor-header-right">
-              <span className={`ws-timer ${timerPaused ? 'paused' : ''}`} title={timerPaused ? 'Paused (tab hidden)' : 'Timer running'}>
+              <span
+                className={`ws-timer ${timerStopped ? 'stopped' : (timerPaused ? 'paused' : '')}`}
+                title={timerStopped ? 'Solved — timer locked' : (timerPaused ? 'Paused (tab hidden)' : 'Timer running')}
+              >
                 {String(Math.floor(timerSeconds / 60)).padStart(2, '0')}:{String(timerSeconds % 60).padStart(2, '0')}
               </span>
               <select className="ws-lang" value={activeLang} onChange={e => setActiveLang(e.target.value)}>

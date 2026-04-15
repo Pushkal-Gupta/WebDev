@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import DryRunViewer from './DryRunViewer';
 import './SolutionView.css';
@@ -7,6 +7,18 @@ export default function SolutionView({ problem }) {
   const [approaches, setApproaches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeCodeLang, setActiveCodeLang] = useState('python');
+  const [copiedId, setCopiedId] = useState(null);
+
+  const handleCopy = async (approachId, text) => {
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(approachId);
+      setTimeout(() => setCopiedId(prev => (prev === approachId ? null : prev)), 1500);
+    } catch {
+      // clipboard may be blocked; fall back silently
+    }
+  };
 
   useEffect(() => {
     if (!problem) return;
@@ -104,17 +116,34 @@ export default function SolutionView({ problem }) {
             {/* Code */}
             <div className="sv-subsection">
               <div className="sv-code-header">
-                {['python', 'javascript', 'java', 'cpp'].map(lang => (
-                  <button
-                    key={lang}
-                    className={`sv-lang-tab ${activeCodeLang === lang ? 'active' : ''}`}
-                    onClick={() => setActiveCodeLang(lang)}
-                  >
-                    {langLabels[lang]}
-                  </button>
-                ))}
+                <div className="sv-lang-tabs">
+                  {['python', 'javascript', 'java', 'cpp'].map(lang => (
+                    <button
+                      key={lang}
+                      className={`sv-lang-tab ${activeCodeLang === lang ? 'active' : ''}`}
+                      onClick={() => setActiveCodeLang(lang)}
+                    >
+                      {langLabels[lang]}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  className="sv-copy-btn"
+                  onClick={() => handleCopy(ap.id, code)}
+                  disabled={!code}
+                  title={code ? 'Copy code' : 'No code to copy'}
+                  aria-label="Copy code"
+                >
+                  {copiedId === ap.id ? 'Copied' : 'Copy'}
+                </button>
               </div>
-              <pre className="sv-code-block"><code>{code}</code></pre>
+              {code ? (
+                <pre className="sv-code-block"><code>{code}</code></pre>
+              ) : (
+                <div className="sv-code-empty">
+                  No {langLabels[activeCodeLang]} reference yet for this approach.
+                </div>
+              )}
             </div>
 
             {/* Complexity */}
