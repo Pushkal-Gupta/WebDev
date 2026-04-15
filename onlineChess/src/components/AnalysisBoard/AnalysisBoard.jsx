@@ -354,7 +354,9 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
   const {
     moveHistory, currentMoveIndex, goToMove,
     chessInstance, importPgn, flipped, setFlipped,
+    variation,
   } = useGameStore();
+  const onVariation = (variation?.length || 0) > 0;
 
   // UI state
   const [panelTab, setPanelTab]             = useState('report');
@@ -557,14 +559,21 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
     let cancelled = false;
     evalTimerRef.current = setTimeout(async () => {
       try {
-        const fen = currentMoveIndex >= 0 && moveHistory[currentMoveIndex]
-          ? moveHistory[currentMoveIndex].fen : chessInstance.fen();
+        // While exploring a variation (analysis tangent), the chess instance
+        // is at the variation's current position — use that FEN, not the
+        // main-game move at currentMoveIndex.
+        const fen = onVariation
+          ? chessInstance.fen()
+          : (currentMoveIndex >= 0 && moveHistory[currentMoveIndex]
+              ? moveHistory[currentMoveIndex].fen
+              : chessInstance.fen());
         const lines = await getTopLinesAsync(fen, 3);
         if (cancelled) return;
         const ev = lines.length > 0 ? lines[0].score : 0;
         setEngineLines(lines);
-        // Only update currentEval from minimax if Stockfish hasn't provided a value
-        if (evalHistory[currentMoveIndex] === undefined) {
+        // While on a variation we always trust the engine's eval — there is
+        // no precomputed history for branched positions.
+        if (onVariation || evalHistory[currentMoveIndex] === undefined) {
           setCurrentEval(ev);
         }
         if (openingAbortRef.current) openingAbortRef.current.abort?.();
@@ -573,7 +582,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
       finally { if (!cancelled) setEngineBusy(false); }
     }, 150);
     return () => { cancelled = true; clearTimeout(evalTimerRef.current); };
-  }, [currentMoveIndex, gameLoaded, chessInstance, evalHistory, isPrecomputing]);
+  }, [currentMoveIndex, gameLoaded, chessInstance, evalHistory, isPrecomputing, onVariation, variation?.length]);
 
   useEffect(() => {
     if (!chessInstance || !gameLoaded) { setTablebaseData(null); return; }
@@ -734,9 +743,12 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
   const botAcc        = botColor === 'w' ? whiteAcc : blackAcc;
   const openingName   = liveOpeningName || pgnHeaders.Opening || pgnHeaders.ECO || null;
 
-  const curReview = reviewResults && currentMoveIndex >= 0 ? reviewResults[currentMoveIndex] : null;
+  // While exploring a variation, don't surface main-game review data — those
+  // arrows / classifications / "missed line" recommendations would be wrong
+  // for the position the user is actually looking at.
+  const curReview = !onVariation && reviewResults && currentMoveIndex >= 0 ? reviewResults[currentMoveIndex] : null;
   const curClass  = curReview ? CLASSIFICATIONS[curReview.classification] : null;
-  const curMove   = currentMoveIndex >= 0 ? moveHistory[currentMoveIndex] : null;
+  const curMove   = !onVariation && currentMoveIndex >= 0 ? moveHistory[currentMoveIndex] : null;
 
   // Fetch the engine's preferred continuation from the PRE-move position for
   // classified moves (blunder / mistake / inaccuracy / brilliant). Surfaces

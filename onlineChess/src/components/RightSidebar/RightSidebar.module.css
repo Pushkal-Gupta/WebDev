@@ -272,6 +272,38 @@
   line-height: 1.4;
 }
 
+/* ── Variation banner (persistent across all tabs while a side-line is open) */
+.variationBanner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 200, 80, 0.08) 0%,
+    rgba(255, 200, 80, 0.02) 100%
+  );
+  border-bottom: 1px solid rgba(255, 200, 80, 0.2);
+  flex-shrink: 0;
+}
+
+.variationDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ffd27a;
+  box-shadow: 0 0 8px rgba(255, 210, 122, 0.6);
+  flex-shrink: 0;
+}
+
+.variationBannerText {
+  flex: 1;
+  font-size: 0.74rem;
+  color: rgba(255, 210, 122, 0.85);
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
 /* ── Variation strip (analysis side-line) ───────────────────────────────── */
 .variationStrip {
   margin: 8px 8px 4px;
