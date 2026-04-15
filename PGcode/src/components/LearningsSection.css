@@ -40,14 +40,56 @@
 }
 
 /* ── Concept Card ── */
+/* Each concept gets one of CONCEPT_ACCENTS as a --cc hue driving the tile tint,
+   border-left strip, and key-points label. Keeps card bg uniform with the
+   rest of the app while still letting the accent read at a glance. */
 .concept-card {
+  --cc: 16, 185, 129;                    /* default: emerald (overridden below) */
   background: var(--surface);
   border: 1px solid var(--border);
+  border-left: 3px solid rgba(var(--cc), 0.75);
   border-radius: 10px;
   padding: 1.4rem 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
+  transition: border-color var(--t), transform var(--t), box-shadow var(--t);
+}
+.concept-card:hover {
+  border-color: var(--border);
+  border-left-color: rgba(var(--cc), 1);
+  box-shadow: 0 1px 0 rgba(var(--cc), 0.18) inset, 0 0 0 1px rgba(var(--cc), 0.12);
+}
+
+.concept-card--teal    { --cc: 20, 184, 166; }
+.concept-card--blue    { --cc: 59, 130, 246; }
+.concept-card--amber   { --cc: 234, 179,   8; }
+.concept-card--rose    { --cc: 244,  63,  94; }
+.concept-card--violet  { --cc: 168,  85, 247; }
+.concept-card--cyan    { --cc:   6, 182, 212; }
+.concept-card--emerald { --cc:  16, 185, 129; }
+.concept-card--orange  { --cc: 249, 115,  22; }
+
+.concept-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.concept-card-tile {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  background: rgba(var(--cc), 0.12);
+  color: rgb(var(--cc));
+  border: 1px solid rgba(var(--cc), 0.28);
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .concept-title {
@@ -89,6 +131,7 @@
   gap: 0.4rem;
   margin-bottom: 0.6rem;
 }
+.concept-card .keypoints-label { color: rgb(var(--cc)); }
 
 .keypoints-list {
   margin: 0;

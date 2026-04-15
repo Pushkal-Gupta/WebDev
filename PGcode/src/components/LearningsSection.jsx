@@ -477,7 +477,7 @@ export default function LearningsSection({ topicId }) {
       {/* Interleaved concepts + videos */}
       {sections.map((section, i) => {
         if (section.type === 'concept') {
-          return <ConceptCard key={`c-${section.idx}`} concept={section.data} />;
+          return <ConceptCard key={`c-${section.idx}`} concept={section.data} idx={section.idx} />;
         }
         return <VideoCard key={`v-${section.data.id}`} video={section.data} expandedId={expandedId} onToggle={setExpandedId} />;
       })}
@@ -485,10 +485,18 @@ export default function LearningsSection({ topicId }) {
   );
 }
 
-function ConceptCard({ concept }) {
+// Palette inspired by the chess "Training" card grid — one accent per concept,
+// cycled by index. Stays stable across re-renders since idx is stable.
+const CONCEPT_ACCENTS = ['teal', 'blue', 'amber', 'rose', 'violet', 'cyan', 'emerald', 'orange'];
+
+function ConceptCard({ concept, idx = 0 }) {
+  const accent = CONCEPT_ACCENTS[idx % CONCEPT_ACCENTS.length];
   return (
-    <div className="concept-card">
-      <h3 className="concept-title">{concept.title}</h3>
+    <div className={`concept-card concept-card--${accent}`}>
+      <div className="concept-card-head">
+        <div className="concept-card-tile" aria-hidden="true">{String(idx + 1).padStart(2, '0')}</div>
+        <h3 className="concept-title">{concept.title}</h3>
+      </div>
       <p className="concept-content">{concept.content}</p>
 
       {concept.keyPoints && (
