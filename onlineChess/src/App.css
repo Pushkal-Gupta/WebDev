@@ -237,29 +237,34 @@ body {
   gap: 10px;
 }
 .home-play-card {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px;
-  padding: 16px 14px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--card-accent, #888) 8%, rgba(255,255,255,0.025)) 0%,
+    rgba(255,255,255,0.02) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--card-accent, #888) 20%, rgba(255,255,255,0.06));
+  border-radius: 14px;
+  padding: 16px 16px 14px;
   text-align: left;
   cursor: pointer;
-  transition: all 0.18s;
+  font-family: inherit;
+  color: rgba(255,255,255,0.92);
+  transition: transform 0.16s, border-color 0.16s, box-shadow 0.16s;
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 .home-play-card:hover {
-  background: rgba(255,255,255,0.07);
-  border-color: rgba(255,255,255,0.16);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--card-accent, #888) 55%, transparent);
+  box-shadow: 0 12px 28px -12px color-mix(in srgb, var(--card-accent, #888) 45%, transparent);
 }
 .home-play-primary {
-  border-color: rgba(0,255,245,0.2);
-  background: rgba(0,255,245,0.04);
+  /* primary card already gets its accent via --card-accent; reinforce subtly */
+  border-color: color-mix(in srgb, var(--card-accent, #00fff5) 35%, transparent);
 }
 .home-play-primary:hover {
-  border-color: rgba(0,255,245,0.35);
-  background: rgba(0,255,245,0.08);
+  border-color: color-mix(in srgb, var(--card-accent, #00fff5) 70%, transparent);
 }
 .home-play-card-top {
   display: flex;
@@ -267,9 +272,20 @@ body {
   gap: 8px;
 }
 .home-play-card-icon {
-  font-size: 1.4rem;
+  font-size: 0.86rem;
   font-weight: 800;
   line-height: 1;
+  letter-spacing: 0.5px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--card-accent, #888) 18%, rgba(255,255,255,0.025));
+  border: 1px solid color-mix(in srgb, var(--card-accent, #888) 38%, transparent);
+  color: var(--card-accent, #ddd);
+  flex-shrink: 0;
 }
 .home-play-card-badge {
   font-size: 0.6rem;
@@ -420,28 +436,42 @@ body {
 .home-feat-card {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   padding: 12px 14px;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 10px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--feat-accent, #888) 8%, rgba(255,255,255,0.025)) 0%,
+    rgba(255,255,255,0.02) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--feat-accent, #888) 18%, rgba(255,255,255,0.05));
+  border-left: 3px solid color-mix(in srgb, var(--feat-accent, #888) 55%, transparent);
+  border-radius: 12px;
   cursor: pointer;
-  color: white;
+  color: rgba(255,255,255,0.92);
   font-family: inherit;
   text-align: left;
-  transition: all 0.15s;
+  transition: transform 0.16s, border-color 0.16s, box-shadow 0.16s;
 }
 .home-feat-card:hover {
-  background: rgba(255,255,255,0.045);
-  border-color: rgba(255,255,255,0.14);
-  transform: translateY(-1px);
+  transform: translateX(2px);
+  border-color: color-mix(in srgb, var(--feat-accent, #888) 45%, transparent);
+  border-left-color: var(--feat-accent, #888);
+  box-shadow: 0 8px 22px -10px color-mix(in srgb, var(--feat-accent, #888) 40%, transparent);
 }
 
 .home-feat-icon {
-  font-size: 1.4rem;
+  font-size: 1.1rem;
   flex-shrink: 0;
   line-height: 1;
-  filter: drop-shadow(0 0 8px var(--feat-accent, rgba(255,255,255,0.2)));
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--feat-accent, #888) 18%, rgba(255,255,255,0.025));
+  border: 1px solid color-mix(in srgb, var(--feat-accent, #888) 35%, transparent);
+  color: var(--feat-accent, #ddd);
 }
 
 .home-feat-text { flex: 1; min-width: 0; }

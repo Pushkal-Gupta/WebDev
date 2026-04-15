@@ -47,9 +47,12 @@ describe('formatEval', () => {
     expect(formatEval(null)).toBe('…');
     expect(formatEval(undefined)).toBe('…');
   });
-  it('formats mate scores as M# / -M#', () => {
-    expect(formatEval(99_998)).toMatch(/^M\d+$/);
-    expect(formatEval(-99_998)).toMatch(/^-M\d+$/);
+  it('formats mate scores as M# / -M# with correct move count', () => {
+    // stockfishEngine encodes mate-in-N-moves as sign * (100_000 - N)
+    expect(formatEval(99_997)).toBe('M3');      // 100_000 - 3 = 99_997
+    expect(formatEval(99_999)).toBe('M1');      // 100_000 - 1 = 99_999
+    expect(formatEval(-99_998)).toBe('-M2');    // black mate in 2
+    expect(formatEval(99_995)).toBe('M5');
   });
 });
 
@@ -63,8 +66,9 @@ describe('ariaLabel', () => {
   it('describes black advantage', () => {
     expect(ariaLabel(-120)).toMatch(/black better/i);
   });
-  it('describes mate', () => {
-    expect(ariaLabel(99_998)).toMatch(/mate in/i);
+  it('describes mate with move count', () => {
+    expect(ariaLabel(99_997)).toMatch(/white has mate in 3/i);
+    expect(ariaLabel(-99_998)).toMatch(/black has mate in 2/i);
   });
   it('handles nullish', () => {
     expect(ariaLabel(null)).toMatch(/pending/i);

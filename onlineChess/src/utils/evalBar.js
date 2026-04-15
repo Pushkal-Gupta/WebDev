@@ -29,28 +29,28 @@ export function scoreToWhitePct(cp) {
 }
 
 /**
+ * Decode "moves until mate" from the mate-encoded centipawn value.
+ * stockfishEngine encodes mate-in-N-moves as `sign * (100_000 - N)`,
+ * so `movesToMate(95_000 .. 99_999) = 100_000 - |cp|` → N.
+ */
+function movesToMate(cp) {
+  return Math.max(1, 100_000 - Math.abs(cp));
+}
+
+/**
  * Human-readable label.
  *   centipawns ±12  → "+0.1" / "-0.1"
  *   near-zero       → "0.0"
- *   mate in N plies → "M1" / "-M1" (ply → moves, rounded up)
+ *   mate in N moves → "M3" / "-M2"
  * @param {number|null|undefined} cp
  * @returns {string}
  */
 export function formatEval(cp) {
   if (cp == null || Number.isNaN(cp)) return '…';
-  if (cp >  MATE_SENTINEL) {
-    const plies = 100_000 - cp;                                  // stockfishEngine encoding
-    const moves = Math.max(1, Math.ceil(Math.abs(plies) / 2));
-    return `M${moves}`;
-  }
-  if (cp < -MATE_SENTINEL) {
-    const plies = 100_000 + cp;
-    const moves = Math.max(1, Math.ceil(Math.abs(plies) / 2));
-    return `-M${moves}`;
-  }
-  const pawns = cp / 100;
-  const abs = Math.abs(pawns).toFixed(1);
+  if (cp >  MATE_SENTINEL) return `M${movesToMate(cp)}`;
+  if (cp < -MATE_SENTINEL) return `-M${movesToMate(cp)}`;
   if (Math.abs(cp) < 5) return '0.0';
+  const abs = Math.abs(cp / 100).toFixed(1);
   return (cp >= 0 ? '+' : '-') + abs;
 }
 
@@ -62,16 +62,8 @@ export function formatEval(cp) {
  */
 export function ariaLabel(cp) {
   if (cp == null || Number.isNaN(cp)) return 'Evaluation pending';
-  if (cp >  MATE_SENTINEL) {
-    const plies = 100_000 - cp;
-    const moves = Math.max(1, Math.ceil(Math.abs(plies) / 2));
-    return `Evaluation: White has mate in ${moves}`;
-  }
-  if (cp < -MATE_SENTINEL) {
-    const plies = 100_000 + cp;
-    const moves = Math.max(1, Math.ceil(Math.abs(plies) / 2));
-    return `Evaluation: Black has mate in ${moves}`;
-  }
+  if (cp >  MATE_SENTINEL) return `Evaluation: White has mate in ${movesToMate(cp)}`;
+  if (cp < -MATE_SENTINEL) return `Evaluation: Black has mate in ${movesToMate(cp)}`;
   if (Math.abs(cp) < 5) return 'Evaluation: equal';
   const pawns = Math.abs(cp / 100).toFixed(1);
   return `Evaluation: ${cp > 0 ? 'White' : 'Black'} better by ${pawns} pawns`;

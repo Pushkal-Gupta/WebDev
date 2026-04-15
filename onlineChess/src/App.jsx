@@ -1381,34 +1381,50 @@ function HomeScreen({ user, onStart, onPlayOnline, onTabClick, onQuickMatch }) {
           <div className="home-section-label">Play</div>
           <div className="home-play-grid">
             {/* Primary CTA */}
-            <button className="home-play-card home-play-primary" onClick={() => onQuickMatch(DEFAULT_CTA_TC)}>
+            <button
+              className="home-play-card home-play-primary"
+              style={{ '--card-accent': '#00fff5' }}
+              onClick={() => onQuickMatch(DEFAULT_CTA_TC)}
+            >
               <div className="home-play-card-top">
-                <span className="home-play-card-icon icon-glow" style={{color:'#00fff5'}}>5+0</span>
+                <span className="home-play-card-icon icon-glow">5+0</span>
                 <span className="home-play-card-badge">Blitz</span>
               </div>
               <div className="home-play-card-title">Quick Match</div>
               <div className="home-play-card-desc">Play online now</div>
             </button>
 
-            <button className="home-play-card" onClick={() => onTabClick(3)}>
+            <button
+              className="home-play-card"
+              style={{ '--card-accent': '#a78bfa' }}
+              onClick={() => onTabClick(3)}
+            >
               <div className="home-play-card-top">
-                <span className="home-play-card-icon icon-glow" style={{color:'#a78bfa'}}>AI</span>
+                <span className="home-play-card-icon icon-glow">AI</span>
               </div>
               <div className="home-play-card-title">vs Computer</div>
               <div className="home-play-card-desc">10 difficulty levels</div>
             </button>
 
-            <button className="home-play-card" onClick={onPlayOnline}>
+            <button
+              className="home-play-card"
+              style={{ '--card-accent': '#38bdf8' }}
+              onClick={onPlayOnline}
+            >
               <div className="home-play-card-top">
-                <span className="home-play-card-icon icon-glow" style={{color:'#38bdf8'}}>ON</span>
+                <span className="home-play-card-icon icon-glow">ON</span>
               </div>
               <div className="home-play-card-title">Play Online</div>
               <div className="home-play-card-desc">Custom time controls</div>
             </button>
 
-            <button className="home-play-card" onClick={() => onStart('local', { display: '10+0', total: 600_000, incr: 0, cat: 'Rapid', delayType: 'none', delay: 0 })}>
+            <button
+              className="home-play-card"
+              style={{ '--card-accent': '#34d399' }}
+              onClick={() => onStart('local', { display: '10+0', total: 600_000, incr: 0, cat: 'Rapid', delayType: 'none', delay: 0 })}
+            >
               <div className="home-play-card-top">
-                <span className="home-play-card-icon icon-glow" style={{color:'#34d399'}}>2P</span>
+                <span className="home-play-card-icon icon-glow">2P</span>
               </div>
               <div className="home-play-card-title">Pass and Play</div>
               <div className="home-play-card-desc">Two players, one device</div>
