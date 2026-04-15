@@ -78,8 +78,9 @@ export default function ProblemList({ session, roadmapMode }) {
         ]);
 
         let filtered = (problemsRes.data || []).filter(p => {
-          if (roadmapMode === '200') return p.roadmap_set === '200' || p.roadmap_set === 'both' || !p.roadmap_set;
-          if (roadmapMode === '300') return p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === 'both' || !p.roadmap_set;
+          if (roadmapMode === '100') return p.roadmap_set === '100';
+          if (roadmapMode === '200') return p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === 'both' || !p.roadmap_set;
+          if (roadmapMode === '300') return p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === 'both' || !p.roadmap_set;
           return true;
         });
 
