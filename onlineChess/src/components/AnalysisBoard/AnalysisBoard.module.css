@@ -169,6 +169,12 @@
   .reviewPrompt {
     grid-column: 1 / -1;
   }
+  /* Classification table spans both rows on the right so the left column's
+     elo + phase cards hug each other with just the 16px grid gap, instead of
+     leaving a dead vertical strip between them. */
+  .classCard  { grid-row: span 2; align-self: stretch; }
+  .eloSection { align-self: start; }
+  .phaseCard  { align-self: start; }
 }
 
 /* ── Result banner ── */
@@ -228,8 +234,14 @@
   flex-direction: column;
   align-items: center;
   flex: 1;
-  max-width: 140px;
+  max-width: 160px;
+  gap: 6px;
+}
+
+.accRingSvgWrap {
   position: relative;
+  width: 88px;
+  height: 88px;
 }
 
 .accRing svg {
@@ -238,11 +250,7 @@
 
 .accRingInner {
   position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 88px;
-  height: 88px;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -257,24 +265,25 @@
 
 .accRingLabel {
   font-size: 0.58rem;
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.28);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-top: 2px;
+  letter-spacing: 0.1em;
+  margin-top: 1px;
 }
 
+/* Player name now sits ABOVE the ring as the first-read element. */
 .accRingName {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.6);
-  margin-top: 3px;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.92);
+  letter-spacing: 0.01em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 120px;
+  max-width: 150px;
 }
 
 .accRingDot {
@@ -299,7 +308,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding-top: 24px;
   gap: 2px;
   min-width: 44px;
 }
@@ -891,16 +899,17 @@
 }
 
 .eloPlayerName {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: 0.01em;
 }
 
 .eloPlayerRating {
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   font-weight: 900;
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
@@ -1674,12 +1683,12 @@
     font-size: 1.3rem;
   }
 
-  .accRing svg {
+  .accRingSvgWrap {
     width: 72px;
     height: 72px;
   }
 
-  .accRingInner {
+  .accRing svg {
     width: 72px;
     height: 72px;
   }

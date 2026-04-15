@@ -323,27 +323,29 @@ function AccuracyRing({ value, label, name, dotClass }) {
 
   return (
     <div className={styles.accRing}>
-      <svg viewBox="0 0 88 88" width="88" height="88">
-        <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
-        {value != null && (
-          <circle cx={cx} cy={cy} r={r} fill="none" stroke={ringColor} strokeWidth="5"
-            strokeLinecap="round"
-            strokeDasharray={circ}
-            strokeDashoffset={offset}
-            style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1)', transform: 'rotate(-90deg)', transformOrigin: `${cx}px ${cy}px` }}
-          />
-        )}
-      </svg>
-      <div className={styles.accRingInner}>
-        <span className={styles.accRingValue} style={{ color: ringColor }}>
-          {value != null ? display : '--'}
-        </span>
-      </div>
-      <div className={styles.accRingLabel}>ACCURACY</div>
       <div className={styles.accRingName}>
         <span className={`${styles.accRingDot} ${dotClass}`} />
         {name}
       </div>
+      <div className={styles.accRingSvgWrap}>
+        <svg viewBox="0 0 88 88" width="88" height="88">
+          <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
+          {value != null && (
+            <circle cx={cx} cy={cy} r={r} fill="none" stroke={ringColor} strokeWidth="5"
+              strokeLinecap="round"
+              strokeDasharray={circ}
+              strokeDashoffset={offset}
+              style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1)', transform: 'rotate(-90deg)', transformOrigin: `${cx}px ${cy}px` }}
+            />
+          )}
+        </svg>
+        <div className={styles.accRingInner}>
+          <span className={styles.accRingValue} style={{ color: ringColor }}>
+            {value != null ? display : '--'}
+          </span>
+        </div>
+      </div>
+      <div className={styles.accRingLabel}>ACCURACY</div>
     </div>
   );
 }
@@ -355,6 +357,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
     moveHistory, currentMoveIndex, goToMove,
     chessInstance, importPgn, flipped, setFlipped,
     variation,
+    isComp, compColor, compStrength,
   } = useGameStore();
   const onVariation = (variation?.length || 0) > 0;
 
@@ -735,8 +738,25 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
   const blackAcc      = useMemo(() => calcAccuracy(reviewResults, moveHistory, 'b'), [reviewResults, moveHistory]);
   const whiteCounts   = useMemo(() => buildCounts(reviewResults, moveHistory, 'w'), [reviewResults, moveHistory]);
   const blackCounts   = useMemo(() => buildCounts(reviewResults, moveHistory, 'b'), [reviewResults, moveHistory]);
-  const topName       = flipped ? (pgnHeaders.White || 'White') : (pgnHeaders.Black || 'Black');
-  const bottomName    = flipped ? (pgnHeaders.Black || 'Black') : (pgnHeaders.White || 'White');
+  // Resolve player names with smart fallbacks:
+  // 1) PGN header if present, 2) "Computer Lv N" for the bot side in a comp game,
+  // 3) "You" for the user side in a comp game, 4) literal "White"/"Black".
+  // Only trust the comp fallback when we're analysing an *active* comp game,
+  // not when a PGN has been imported afterwards (which would otherwise bleed
+  // the prior comp's "Computer Lv N" label onto an unrelated game).
+  const useCompFallback = isComp && !loadedPgn;
+  const resolvedWhiteName = useMemo(() => {
+    if (pgnHeaders.White) return pgnHeaders.White;
+    if (useCompFallback) return compColor === 'white' ? `Computer Lv ${compStrength}` : 'You';
+    return 'White';
+  }, [pgnHeaders.White, useCompFallback, compColor, compStrength]);
+  const resolvedBlackName = useMemo(() => {
+    if (pgnHeaders.Black) return pgnHeaders.Black;
+    if (useCompFallback) return compColor === 'black' ? `Computer Lv ${compStrength}` : 'You';
+    return 'Black';
+  }, [pgnHeaders.Black, useCompFallback, compColor, compStrength]);
+  const topName       = flipped ? resolvedWhiteName : resolvedBlackName;
+  const bottomName    = flipped ? resolvedBlackName : resolvedWhiteName;
   const topColor      = flipped ? 'w' : 'b';
   const botColor      = flipped ? 'b' : 'w';
   const topAcc        = topColor === 'w' ? whiteAcc : blackAcc;
@@ -1044,7 +1064,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                   <div className={`${styles.accSection} ${reportAnimated ? styles.scoreCardAnimated : ''}`}>
                     <AccuracyRing
                       value={whiteAcc}
-                      name={pgnHeaders.White || 'White'}
+                      name={resolvedWhiteName}
                       dotClass={styles.accDotW}
                     />
                     <div className={styles.accCenter}>
@@ -1057,7 +1077,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                     </div>
                     <AccuracyRing
                       value={blackAcc}
-                      name={pgnHeaders.Black || 'Black'}
+                      name={resolvedBlackName}
                       dotClass={styles.accDotB}
                     />
                   </div>
@@ -1078,7 +1098,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                           <div className={`${styles.eloPlayerCard} ${styles[`eloTier_${tier}`]}`}>
                             <div className={styles.eloPlayerHeader}>
                               <span className={`${styles.eloPlayerDot} ${styles.eloPlayerDotW}`} />
-                              <span className={styles.eloPlayerName}>{pgnHeaders.White || 'White'}</span>
+                              <span className={styles.eloPlayerName}>{resolvedWhiteName}</span>
                             </div>
                             <div className={styles.eloPlayerRating}>~{elo}</div>
                             <div className={styles.eloPlayerBar}>
@@ -1094,7 +1114,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                           <div className={`${styles.eloPlayerCard} ${styles[`eloTier_${tier}`]}`}>
                             <div className={styles.eloPlayerHeader}>
                               <span className={`${styles.eloPlayerDot} ${styles.eloPlayerDotB}`} />
-                              <span className={styles.eloPlayerName}>{pgnHeaders.Black || 'Black'}</span>
+                              <span className={styles.eloPlayerName}>{resolvedBlackName}</span>
                             </div>
                             <div className={styles.eloPlayerRating}>~{elo}</div>
                             <div className={styles.eloPlayerBar}>
@@ -1152,7 +1172,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                       {phaseGrades.endgame && <div className={styles.phaseColHead}>Endgame</div>}
                       <div className={styles.phaseRowLabel}>
                         <span className={`${styles.accRingDot} ${styles.accDotW}`} />
-                        {pgnHeaders.White || 'White'}
+                        {resolvedWhiteName}
                       </div>
                       {['opening', 'middlegame', 'endgame'].map(p => {
                         if (p === 'endgame' && !phaseGrades.endgame) return null;
@@ -1166,7 +1186,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
                       })}
                       <div className={styles.phaseRowLabel}>
                         <span className={`${styles.accRingDot} ${styles.accDotB}`} />
-                        {pgnHeaders.Black || 'Black'}
+                        {resolvedBlackName}
                       </div>
                       {['opening', 'middlegame', 'endgame'].map(p => {
                         if (p === 'endgame' && !phaseGrades.endgame) return null;
