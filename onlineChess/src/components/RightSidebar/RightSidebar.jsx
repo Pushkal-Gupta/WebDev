@@ -146,6 +146,17 @@ export default function RightSidebar({ onAlert, reviewResults, isReviewing, isOn
     if (tab === 'coach' && !hasCoachTab) setTab('moves');
   }, [tab, hasCoachTab]);
 
+  // When a variation kicks off, surface the moves tab so the user immediately
+  // sees the side-line strip and the "Back to game" control.
+  const prevVariationLenRef = useRef(0);
+  useEffect(() => {
+    const len = variation?.length || 0;
+    if (len > 0 && prevVariationLenRef.current === 0 && tab !== 'moves') {
+      setTab('moves');
+    }
+    prevVariationLenRef.current = len;
+  }, [variation?.length, tab]);
+
   const selectTab = (t) => {
     setTab(t);
     try { localStorage.setItem(TAB_KEY, t); } catch { /* ignore */ }
@@ -205,6 +216,24 @@ export default function RightSidebar({ onAlert, reviewResults, isReviewing, isOn
 
       {/* Opening strip (always visible regardless of tab) */}
       <OpeningStrip name={openingName} />
+
+      {/* Variation banner — shows on every tab so the user always sees they're
+          off the main game and how to return. */}
+      {variation && variation.length > 0 && (
+        <div className={styles.variationBanner}>
+          <span className={styles.variationDot} />
+          <span className={styles.variationBannerText}>
+            Exploring side line · {variation.length} {variation.length === 1 ? 'move' : 'moves'}
+          </span>
+          <button
+            className={styles.variationBack}
+            onClick={() => { clearVariation(); selectTab('moves'); }}
+            title="Return to the original game"
+          >
+            ← Back to game
+          </button>
+        </div>
+      )}
 
       {/* Review progress bar */}
       {isReviewing && (
