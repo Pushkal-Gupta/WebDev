@@ -799,18 +799,15 @@ body {
 }
 
 .eval-bar {
-  width: 22px;
+  width: 30px;
   background: #111;
   border-right: 1px solid rgba(255,255,255,0.06);
   border-radius: 4px 0 0 4px;
   position: relative;
-  overflow: visible;
+  overflow: hidden;
   flex-shrink: 0;
   align-self: stretch;
 }
-
-.eval-bar .eval-fill-black,
-.eval-bar .eval-fill-white { overflow: hidden; }
 
 .eval-fill-black {
   position: absolute; top: 0; left: 0; right: 0;
@@ -824,23 +821,24 @@ body {
   transition: height 0.4s cubic-bezier(0.4,0,0.2,1);
 }
 
-/* Floating dark pill — always readable against either fill. */
+/* Plain label inside the bar — text-shadow keeps it readable on either fill. */
 .eval-score {
   position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
   z-index: 3;
-  font-size: 0.7rem;
+  font-size: 0.66rem;
   font-weight: 800;
   font-family: 'Inter', monospace;
-  letter-spacing: 0.01em;
-  padding: 3px 6px;
-  border-radius: 4px;
-  color: #fff;
-  background: rgba(18, 22, 22, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  letter-spacing: 0;
+  padding: 3px 0;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow:
+    0 0 2px rgba(0, 0, 0, 0.9),
+    0 1px 0 rgba(0, 0, 0, 0.55);
   white-space: nowrap;
+  pointer-events: none;
 }
 
 .eval-score-white { bottom: 4px; }
