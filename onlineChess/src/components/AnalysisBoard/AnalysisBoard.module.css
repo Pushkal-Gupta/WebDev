@@ -148,10 +148,27 @@
 
 .reportCenter {
   width: 100%;
-  max-width: 540px;
-  display: flex;
-  flex-direction: column;
+  max-width: 1100px;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 16px;
+}
+
+/* On wide screens promote to 2-column so the right-hand stat cards use the
+   horizontal space instead of leaving a black gutter. */
+@media (min-width: 1100px) {
+  .reportCenter {
+    grid-template-columns: minmax(420px, 1.3fr) minmax(360px, 1fr);
+    align-items: start;
+  }
+  /* Items that span the full width: graph at top, banner, eval graph wrap. */
+  .reportGraphWrap,
+  .resultBanner,
+  .accSection,
+  .gameDescription,
+  .reviewPrompt {
+    grid-column: 1 / -1;
+  }
 }
 
 /* ── Result banner ── */
@@ -820,11 +837,20 @@
 
 .eloPlayerCard {
   flex: 1;
-  padding: 12px 14px 10px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: border-color 0.3s;
+  padding: 14px 16px 12px;
+  border-radius: 14px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--tier-color, #888) 9%, rgba(255,255,255,0.025)) 0%,
+    rgba(255,255,255,0.02) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--tier-color, #888) 22%, rgba(255,255,255,0.06));
+  transition: transform 0.16s, border-color 0.16s, box-shadow 0.16s;
+}
+
+.eloPlayerCard:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px -10px color-mix(in srgb, var(--tier-color, #888) 35%, transparent);
 }
 
 .eloPlayerHeader {

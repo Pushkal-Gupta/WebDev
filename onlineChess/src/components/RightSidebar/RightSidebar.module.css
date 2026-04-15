@@ -272,6 +272,76 @@
   line-height: 1.4;
 }
 
+/* ── Variation strip (analysis side-line) ───────────────────────────────── */
+.variationStrip {
+  margin: 8px 8px 4px;
+  padding: 8px 10px 9px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-left: 3px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+}
+
+.variationHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.variationLabel {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.variationBack {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.variationBack:hover {
+  background: rgba(0, 255, 245, 0.06);
+  border-color: rgba(0, 255, 245, 0.3);
+  color: var(--color-accent, #00fff5);
+}
+
+.variationMoves {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  /* Greyed out — clearly distinct from the main move list. */
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.variationMove {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.variationNum {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.7rem;
+}
+
+.variationSan {
+  font-weight: 500;
+}
+
 .moveTable {
   width: 100%;
   border-collapse: collapse;

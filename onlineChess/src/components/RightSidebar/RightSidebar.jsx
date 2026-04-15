@@ -124,6 +124,7 @@ export default function RightSidebar({ onAlert, reviewResults, isReviewing, isOn
     moveHistory, currentMoveIndex, goToMove, boardState,
     getPgn, gameStarted, flipped, setFlipped, undoMove, undoTwoMoves, isComp, isOnline, isCoachGame,
     capturedByWhite, capturedByBlack,
+    variation, clearVariation,
   } = useGameStore();
 
   const moveHistoryRef = useRef(null);
@@ -278,6 +279,33 @@ export default function RightSidebar({ onAlert, reviewResults, isReviewing, isOn
                 })}
               </tbody>
             </table>
+          )}
+
+          {/* Analysis side-line — alt-moves played from a historical position. */}
+          {variation && variation.length > 0 && (
+            <div className={styles.variationStrip}>
+              <div className={styles.variationHeader}>
+                <span className={styles.variationLabel}>Exploring</span>
+                <button className={styles.variationBack} onClick={clearVariation} title="Return to the original game">
+                  ← Back to game
+                </button>
+              </div>
+              <div className={styles.variationMoves}>
+                {variation.map((m, i) => {
+                  // Determine the move number this variation move would have.
+                  const baseIdx = (currentMoveIndex >= 0 ? currentMoveIndex : -1) + 1 + i;
+                  const moveNum = Math.floor(baseIdx / 2) + 1;
+                  const isWhite = baseIdx % 2 === 0;
+                  return (
+                    <span key={i} className={styles.variationMove}>
+                      {isWhite && <span className={styles.variationNum}>{moveNum}.</span>}
+                      {!isWhite && i === 0 && <span className={styles.variationNum}>{moveNum}…</span>}
+                      <span className={styles.variationSan}>{m.san}</span>
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
           )}
         </div>
       )}
