@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Copy, Check } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import DryRunViewer from './DryRunViewer';
 import './SolutionView.css';
@@ -128,13 +129,14 @@ export default function SolutionView({ problem }) {
                   ))}
                 </div>
                 <button
-                  className="sv-copy-btn"
+                  className={`sv-copy-btn ${copiedId === ap.id ? 'copied' : ''}`}
                   onClick={() => handleCopy(ap.id, code)}
                   disabled={!code}
                   title={code ? 'Copy code' : 'No code to copy'}
                   aria-label="Copy code"
                 >
-                  {copiedId === ap.id ? 'Copied' : 'Copy'}
+                  {copiedId === ap.id ? <Check size={13} /> : <Copy size={13} />}
+                  <span>{copiedId === ap.id ? 'Copied' : 'Copy'}</span>
                 </button>
               </div>
               {code ? (

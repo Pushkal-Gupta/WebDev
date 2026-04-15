@@ -54,17 +54,22 @@
 }
 .sv-lang-tabs { display: flex; gap: 0; }
 .sv-copy-btn {
-  font-family: var(--mono); font-size: 0.7rem; font-weight: 600;
-  letter-spacing: 0.06em; text-transform: uppercase;
-  padding: 0 0.9rem; margin: 0.3rem 0.4rem; background: none;
-  border: 1px solid var(--border); border-radius: 6px;
-  color: var(--text-dim); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 0.3rem 0.75rem; margin: 0.35rem 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--accent); border-radius: 6px;
+  color: var(--accent); cursor: pointer;
   transition: color var(--t), border-color var(--t), background var(--t);
 }
 .sv-copy-btn:hover:not(:disabled) {
-  color: var(--accent); border-color: var(--accent);
+  background: var(--accent); color: var(--surface);
 }
-.sv-copy-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.sv-copy-btn.copied {
+  background: var(--accent); color: var(--surface);
+}
+.sv-copy-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 .sv-code-empty {
   background: var(--bg); border: 1px dashed var(--border);
   border-top: none; border-radius: 0 0 8px 8px;
