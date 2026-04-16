@@ -5,10 +5,14 @@ import COACHES, { COACH_LEVELS } from '../../data/coaches';
 const TC_OPTIONS = [
   { display: '3+0',   total: 180_000,   incr: 0,      cat: 'Blitz',     delayType: 'none', delay: 0 },
   { display: '5+0',   total: 300_000,   incr: 0,      cat: 'Blitz',     delayType: 'none', delay: 0 },
+  { display: '5+3',   total: 300_000,   incr: 3_000,  cat: 'Blitz',     delayType: 'fischer', delay: 3_000 },
   { display: '10+0',  total: 600_000,   incr: 0,      cat: 'Rapid',     delayType: 'none', delay: 0 },
+  { display: '10+5',  total: 600_000,   incr: 5_000,  cat: 'Rapid',     delayType: 'fischer', delay: 5_000 },
   { display: '15+10', total: 900_000,   incr: 10_000, cat: 'Rapid',     delayType: 'fischer', delay: 10_000 },
   { display: '30+0',  total: 1_800_000, incr: 0,      cat: 'Classical', delayType: 'none', delay: 0 },
 ];
+
+const TC_COLOR = { Bullet: '#f0c94c', Blitz: '#ffa94d', Rapid: '#6fdc8c', Classical: '#a78bfa' };
 
 export default function CoachSetup({ onStart }) {
   const [selected, setSelected] = useState(COACHES[0]);
@@ -19,10 +23,10 @@ export default function CoachSetup({ onStart }) {
 
   return (
     <div className={styles.page}>
-      {/* ── Left: coach roster tower (2 cols x 4 rows) ── */}
-      <div className={styles.roster}>
-        <h2 className={styles.rosterTitle}>Coaches</h2>
-        <div className={styles.rosterGrid}>
+      {/* ── Coach grid (full width, 4 cols x 2 rows) ── */}
+      <section className={styles.gridSection}>
+        <h2 className={styles.heading}>Choose Your Coach</h2>
+        <div className={styles.grid}>
           {COACHES.map((c) => (
             <button
               key={c.id}
@@ -30,52 +34,50 @@ export default function CoachSetup({ onStart }) {
               style={{ '--c': c.color }}
               onClick={() => setSelected(c)}
             >
-              <div className={styles.cardIcon}>
-                <svg viewBox="0 0 24 24" width="32" height="32"
-                  style={{ color: c.color, filter: `drop-shadow(0 0 6px ${c.color}55)` }}
-                  dangerouslySetInnerHTML={{ __html: c.icon }} />
+              <div className={styles.cardTop}>
+                <div className={styles.cardIcon}>
+                  <svg viewBox="0 0 24 24" width="28" height="28"
+                    style={{ color: c.color, filter: `drop-shadow(0 0 6px ${c.color}44)` }}
+                    dangerouslySetInnerHTML={{ __html: c.icon }} />
+                </div>
+                <div className={styles.cardMeta}>
+                  <span className={styles.cardName}>{c.name}</span>
+                  <span className={styles.cardTag}>{c.tagline}</span>
+                </div>
               </div>
-              <span className={styles.cardName}>{c.name}</span>
-              <span className={styles.cardTag}>{c.tagline}</span>
+              <p className={styles.cardDesc}>{c.description}</p>
+              {c.focus && (
+                <div className={styles.cardChips}>
+                  {c.focus.map((f) => (
+                    <span key={f} className={styles.cardChip} style={{ '--c': c.color }}>{f}</span>
+                  ))}
+                </div>
+              )}
             </button>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* ── Right: selected coach dossier + settings ── */}
-      <div className={styles.dossier}>
-        {/* Hero header */}
-        <div className={styles.hero} style={{ '--c': selected.color }}>
-          <div className={styles.heroGlow} />
-          <div className={styles.heroIcon}>
-            <svg viewBox="0 0 24 24" width="56" height="56"
-              style={{ color: selected.color, filter: `drop-shadow(0 0 12px ${selected.color}88)` }}
-              dangerouslySetInnerHTML={{ __html: selected.icon }} />
+      {/* ── Selected coach detail + settings (full width, 2-column) ── */}
+      <section className={styles.bottomSection} style={{ '--c': selected.color }}>
+        <div className={styles.detailCol}>
+          <div className={styles.selectedHeader}>
+            <div className={styles.selectedIcon}>
+              <svg viewBox="0 0 24 24" width="48" height="48"
+                style={{ color: selected.color, filter: `drop-shadow(0 0 10px ${selected.color}66)` }}
+                dangerouslySetInnerHTML={{ __html: selected.icon }} />
+            </div>
+            <div>
+              <h3 className={styles.selectedName} style={{ color: selected.color }}>{selected.name}</h3>
+              <p className={styles.selectedTag}>{selected.tagline}</p>
+            </div>
           </div>
-          <div className={styles.heroText}>
-            <h2 className={styles.heroName} style={{ color: selected.color }}>{selected.name}</h2>
-            <p className={styles.heroTag}>{selected.tagline}</p>
-            {selected.focus && (
-              <div className={styles.focusRow}>
-                {selected.focus.map((f) => (
-                  <span key={f} className={styles.chip} style={{ '--c': selected.color }}>{f}</span>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Description + quote */}
-        <div className={styles.narrative}>
-          <p className={styles.desc}>{selected.description}</p>
-          <div className={styles.quote} style={{ '--c': selected.color }}>
+          <div className={styles.quote}>
             {selected.greetings[0]}
           </div>
         </div>
 
-        {/* Settings strip */}
-        <div className={styles.settings}>
-          {/* Skill level */}
+        <div className={styles.settingsCol}>
           <div className={styles.settingsSection}>
             <h4 className={styles.settingsLabel}>Skill Level</h4>
             <div className={styles.levelGrid}>
@@ -92,8 +94,7 @@ export default function CoachSetup({ onStart }) {
             </div>
           </div>
 
-          {/* Time + Color in a row */}
-          <div className={styles.settingsRow}>
+          <div className={styles.tcColorRow}>
             <div className={styles.settingsSection}>
               <h4 className={styles.settingsLabel}>Time Control</h4>
               <div className={styles.tcGrid}>
@@ -101,6 +102,7 @@ export default function CoachSetup({ onStart }) {
                   <button
                     key={opt.display}
                     className={`${styles.tcBtn} ${!noLimit && tc.display === opt.display ? styles.tcBtnActive : ''}`}
+                    style={{ '--tc-color': TC_COLOR[opt.cat] || '#888' }}
                     onClick={() => { setTc(opt); setNoLimit(false); }}
                   >
                     <span className={styles.tcTime}>{opt.display}</span>
@@ -142,16 +144,16 @@ export default function CoachSetup({ onStart }) {
               </div>
             </div>
           </div>
-        </div>
 
-        <button
-          className={styles.startBtn}
-          style={{ '--c': selected.color }}
-          onClick={() => onStart(selected, level, noLimit ? null : tc, color)}
-        >
-          Play with {selected.name}
-        </button>
-      </div>
+          <button
+            className={styles.startBtn}
+            style={{ '--c': selected.color }}
+            onClick={() => onStart(selected, level, noLimit ? null : tc, color)}
+          >
+            Play with {selected.name}
+          </button>
+        </div>
+      </section>
     </div>
   );
 }

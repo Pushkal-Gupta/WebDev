@@ -276,27 +276,33 @@ export default function PuzzlePage() {
         {feedback === 'correct' && <div className={styles.flash + ' ' + styles.flashCorrect}>+1</div>}
         {feedback === 'wrong'   && <div className={styles.flash + ' ' + styles.flashWrong}>X</div>}
 
-        {currentFen && status !== 'loading'
-          ? <PuzzleBoard
-              fen={currentFen}
-              playerColor={playerColor}
-              onMove={onMove}
-              status={boardStatus}
-              lastMoveFrom={lastMoveFrom}
-              lastMoveTo={lastMoveTo}
-              hintSquare={hintSquare}
-              moveIndex={moveIndex}
-              totalMoves={totalMoves}
+        {mode === 'themes' && (!selectedTheme || (status === 'idle' && !currentFen)) ? (
+          <div className={styles.fullThemePicker}>
+            <ThemePicker
+              selectedTheme={selectedTheme}
+              onSelectTheme={handleThemeSelect}
             />
-          : (
-            <div className={styles.loadingBoard}>
-              <div className={styles.loadingPulse} />
-              <div className={styles.loadingText}>
-                {status === 'loading' ? 'Analyzing position...' : 'Select a mode to begin'}
-              </div>
+          </div>
+        ) : currentFen && status !== 'loading' ? (
+          <PuzzleBoard
+            fen={currentFen}
+            playerColor={playerColor}
+            onMove={onMove}
+            status={boardStatus}
+            lastMoveFrom={lastMoveFrom}
+            lastMoveTo={lastMoveTo}
+            hintSquare={hintSquare}
+            moveIndex={moveIndex}
+            totalMoves={totalMoves}
+          />
+        ) : (
+          <div className={styles.loadingBoard}>
+            <div className={styles.loadingPulse} />
+            <div className={styles.loadingText}>
+              {status === 'loading' ? 'Analyzing position...' : 'Select a mode to begin'}
             </div>
-          )
-        }
+          </div>
+        )}
 
         {/* Move list below board */}
         {puzzle && solutionMoves.length > 0 && (
@@ -485,12 +491,7 @@ export default function PuzzlePage() {
         {/* ── Themes mode panel ── */}
         {mode === 'themes' && (
           <>
-            {!selectedTheme || status === 'idle' ? (
-              <ThemePicker
-                selectedTheme={selectedTheme}
-                onSelectTheme={handleThemeSelect}
-              />
-            ) : (
+            {selectedTheme && status !== 'idle' && (
               <>
                 <div className={styles.panelHeader}>
                   <span className={styles.panelTitle}>

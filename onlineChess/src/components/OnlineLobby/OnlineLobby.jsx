@@ -94,16 +94,20 @@ export default function OnlineLobby({
             <button
               key={tc.display}
               className={`${styles.timeBtn} ${selectedTime?.display === tc.display ? styles.timeBtnSelected : ''}`}
+              style={{ '--tc-color': tc.cat === 'Bullet' ? '#f0c94c' : tc.cat === 'Blitz' ? '#ffa94d' : tc.cat === 'Rapid' ? '#6fdc8c' : '#a78bfa' }}
               onClick={() => onSelectTime(tc)}
             >
-              {tc.display}
+              <span className={styles.timeBtnTime}>{tc.display}</span>
+              <span className={styles.timeBtnCat}>{tc.cat}</span>
             </button>
           ))}
           <button
             className={`${styles.timeBtn} ${!selectedTime ? styles.timeBtnSelected : ''}`}
+            style={{ '--tc-color': 'rgba(255,255,255,0.5)' }}
             onClick={() => onSelectTime(null)}
           >
-            Untimed
+            <span className={styles.timeBtnTime}>--:--</span>
+            <span className={styles.timeBtnCat}>No Limit</span>
           </button>
         </div>
 

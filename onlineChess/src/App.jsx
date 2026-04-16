@@ -74,7 +74,7 @@ const TC_PRESETS = [
   { display: '30+20', total: 1_800_000, incr: 20_000, cat: 'Classical', delayType: 'fischer', delay: 20_000 },
 ];
 
-const ONLINE_TIME_CONTROLS = TC_PRESETS.filter(p => ['1+0','3+0','5+0','10+0','15+10'].includes(p.display));
+const ONLINE_TIME_CONTROLS = TC_PRESETS;
 
 const PATH_TO_TAB = {
   '/': 0, '/play': 1, '/analysis': 2, '/computer': 3, '/online': 4,
