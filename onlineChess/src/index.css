@@ -193,7 +193,34 @@ html, body, #root {
   --color-success-rgb: 46, 125, 50;
   --color-warning: #c88400;
   --color-warning-dark: #a86d00;
+  color-scheme: light;
 }
+
+/* Force dark text + adjusted surfaces on every element in light mode.
+   Components hardcode rgba(255,255,255,...) extensively; these overrides
+   catch the most visible breakages without rewriting 700+ lines. */
+[data-theme="light"] {
+  color: var(--color-text-primary);
+}
+[data-theme="light"] button,
+[data-theme="light"] a,
+[data-theme="light"] input,
+[data-theme="light"] select,
+[data-theme="light"] textarea {
+  color: inherit;
+}
+[data-theme="light"] h1, [data-theme="light"] h2,
+[data-theme="light"] h3, [data-theme="light"] h4 {
+  color: var(--color-text-primary);
+}
+[data-theme="light"] table, [data-theme="light"] th, [data-theme="light"] td {
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+[data-theme="light"] ::placeholder {
+  color: var(--color-text-muted) !important;
+}
+
 [data-theme="light"][data-high-contrast="true"] {
   --color-border: rgba(0, 0, 0, 0.28);
   --color-border-light: rgba(0, 0, 0, 0.38);
