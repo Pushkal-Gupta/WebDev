@@ -242,8 +242,8 @@ body {
 /* ── Play mode cards ── */
 .home-play-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
 }
 .home-play-card {
   background: linear-gradient(
@@ -253,7 +253,7 @@ body {
   );
   border: 1px solid color-mix(in srgb, var(--card-accent, #888) 20%, rgba(255,255,255,0.06));
   border-radius: 14px;
-  padding: 20px 20px 18px;
+  padding: 14px 14px 12px;
   text-align: left;
   cursor: pointer;
   font-family: inherit;
@@ -261,7 +261,7 @@ body {
   transition: transform 0.16s, border-color 0.16s, box-shadow 0.16s;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 .home-play-card:hover {
   transform: translateY(-2px);

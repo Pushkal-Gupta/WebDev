@@ -138,8 +138,8 @@
 
 .bottomSection {
   display: grid;
-  grid-template-columns: 2fr 3fr;
-  gap: 20px;
+  grid-template-columns: 1fr 2fr;
+  gap: 16px;
   flex-shrink: 0;
 }
 
@@ -268,11 +268,11 @@
 .levelRating { font-size: 0.64rem; color: rgba(255, 255, 255, 0.28); font-weight: 600; font-variant-numeric: tabular-nums; }
 .levelBtnActive .levelRating { color: rgba(0, 255, 245, 0.5); }
 
-/* TC + Color side by side: 3:2 split */
+/* TC + Color side by side */
 .tcColorRow {
   display: grid;
-  grid-template-columns: 3fr 2fr;
-  gap: 14px;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
 }
 
 .tcGrid {

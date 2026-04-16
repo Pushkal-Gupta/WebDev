@@ -28,8 +28,7 @@
   padding: 8px 12px;
   position: relative;
   overflow: hidden;
-  /* Account for: mode tabs ~40px + turn bar ~28px + progress 4px + move list ~120px + padding ~24px + gaps ~30px */
-  --cell-size: min(68px, calc((100vh - 280px) / 8));
+  --cell-size: min(78px, calc((100vh - 240px) / 8));
 }
 
 .boardWrapper {
