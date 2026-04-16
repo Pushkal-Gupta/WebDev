@@ -107,9 +107,9 @@
 
 .hintBadge {
   display: inline-block;
-  font-size: 0.55rem;
+  font-size: 0.64rem;
   font-weight: 700;
-  padding: 1px 6px;
+  padding: 2px 7px;
   border-radius: 4px;
   background: rgba(0,255,245,0.15);
   color: var(--color-accent);

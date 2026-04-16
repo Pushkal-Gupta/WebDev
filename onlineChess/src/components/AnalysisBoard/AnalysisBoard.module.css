@@ -264,8 +264,8 @@
 }
 
 .accRingLabel {
-  font-size: 0.58rem;
-  color: rgba(255, 255, 255, 0.28);
+  font-size: 0.64rem;
+  color: rgba(255, 255, 255, 0.32);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin-top: 1px;
@@ -318,7 +318,7 @@
 }
 
 .accCenterLabel {
-  font-size: 0.58rem;
+  font-size: 0.64rem;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.35);
   text-transform: uppercase;
@@ -1170,7 +1170,7 @@
 }
 
 .depthBadge {
-  font-size: 0.55rem;
+  font-size: 0.64rem;
   font-weight: 700;
   background: rgba(100, 180, 255, 0.12);
   color: rgba(100, 180, 255, 0.7);

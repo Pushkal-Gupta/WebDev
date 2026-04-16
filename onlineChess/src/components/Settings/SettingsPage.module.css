@@ -954,8 +954,8 @@
   }
 }
 
-/* Mobile: sidebar becomes horizontal top tabs */
-@media (max-width: 600px) {
+/* Tablet + mobile: sidebar becomes horizontal top tabs */
+@media (max-width: 768px) {
   .page {
     flex-direction: column;
   }
@@ -984,12 +984,12 @@
     gap: 2px;
     padding: 8px 14px;
     flex-shrink: 0;
-    font-size: 0.6rem;
-    min-width: 56px;
+    font-size: 0.68rem;
+    min-width: 60px;
     justify-content: center;
     align-items: center;
   }
-  .sidebarLabel { display: block; font-size: 0.58rem; }
+  .sidebarLabel { display: block; font-size: 0.64rem; }
   .sidebarItemActive::before {
     left: 15%;
     right: 15%;
