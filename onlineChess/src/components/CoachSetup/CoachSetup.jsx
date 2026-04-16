@@ -2,7 +2,6 @@ import { useState } from 'react';
 import styles from './CoachSetup.module.css';
 import COACHES, { COACH_LEVELS } from '../../data/coaches';
 
-// Reuse the same time control presets as ComputerSetup for consistency.
 const TC_OPTIONS = [
   { display: '3+0',   total: 180_000,   incr: 0,      cat: 'Blitz',     delayType: 'none', delay: 0 },
   { display: '5+0',   total: 300_000,   incr: 0,      cat: 'Blitz',     delayType: 'none', delay: 0 },
@@ -12,144 +11,145 @@ const TC_OPTIONS = [
 ];
 
 export default function CoachSetup({ onStart }) {
-  const [selectedCoach, setSelectedCoach] = useState(COACHES[0]);
-  const [level, setLevel]         = useState(COACH_LEVELS[3]);  // Intermediate default
-  const [tc, setTc]               = useState(TC_OPTIONS[2]);    // 10+0 default
-  const [noLimit, setNoLimit]     = useState(false);
-  const [playerColor, setColor]   = useState('white');
-
-  const handleStart = () => {
-    onStart(selectedCoach, level, noLimit ? null : tc, playerColor);
-  };
+  const [selected, setSelected] = useState(COACHES[0]);
+  const [level, setLevel]       = useState(COACH_LEVELS[3]);
+  const [tc, setTc]             = useState(TC_OPTIONS[2]);
+  const [noLimit, setNoLimit]   = useState(false);
+  const [color, setColor]       = useState('white');
 
   return (
     <div className={styles.page}>
-      {/* ── Coach grid (left) ─────────────────────────────────────────────── */}
-      <div className={styles.coachGrid}>
-        <h2 className={styles.sectionTitle}>Choose Your Coach</h2>
-        <div className={styles.grid}>
-          {COACHES.map((coach) => (
+      {/* ── Left: coach roster tower (2 cols x 4 rows) ── */}
+      <div className={styles.roster}>
+        <h2 className={styles.rosterTitle}>Coaches</h2>
+        <div className={styles.rosterGrid}>
+          {COACHES.map((c) => (
             <button
-              key={coach.id}
-              className={`${styles.coachCard} ${selectedCoach?.id === coach.id ? styles.coachCardActive : ''}`}
-              style={{ '--coach-color': coach.color }}
-              onClick={() => setSelectedCoach(coach)}
+              key={c.id}
+              className={`${styles.card} ${selected?.id === c.id ? styles.cardActive : ''}`}
+              style={{ '--c': c.color }}
+              onClick={() => setSelected(c)}
             >
-              <div className={styles.coachIcon}>
-                <svg viewBox="0 0 24 24" width="28" height="28"
-                  style={{ color: coach.color, filter: `drop-shadow(0 0 6px ${coach.color}44)` }}
-                  dangerouslySetInnerHTML={{ __html: coach.icon }} />
+              <div className={styles.cardIcon}>
+                <svg viewBox="0 0 24 24" width="32" height="32"
+                  style={{ color: c.color, filter: `drop-shadow(0 0 6px ${c.color}55)` }}
+                  dangerouslySetInnerHTML={{ __html: c.icon }} />
               </div>
-              <div className={styles.coachInfo}>
-                <span className={styles.coachName}>{coach.name}</span>
-              </div>
-              <span className={styles.coachTagline}>{coach.tagline}</span>
+              <span className={styles.cardName}>{c.name}</span>
+              <span className={styles.cardTag}>{c.tagline}</span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* ── Detail panel + settings (right) ───────────────────────────────── */}
-      <div className={styles.detailPanel}>
-        {selectedCoach && (
-          <>
-            <div
-              className={styles.selectedHeader}
-              style={{ '--coach-color': selectedCoach.color }}
-            >
-              <svg viewBox="0 0 24 24" width="48" height="48"
-                style={{ color: selectedCoach.color, filter: `drop-shadow(0 0 8px ${selectedCoach.color}66)` }}
-                dangerouslySetInnerHTML={{ __html: selectedCoach.icon }} />
-              <div className={styles.selectedHeaderText}>
-                <h3 className={styles.selectedName} style={{ color: selectedCoach.color }}>
-                  {selectedCoach.name}
-                </h3>
-                <span className={styles.selectedTag}>{selectedCoach.tagline}</span>
-              </div>
-            </div>
-
-            {selectedCoach.focus && (
+      {/* ── Right: selected coach dossier + settings ── */}
+      <div className={styles.dossier}>
+        {/* Hero header */}
+        <div className={styles.hero} style={{ '--c': selected.color }}>
+          <div className={styles.heroGlow} />
+          <div className={styles.heroIcon}>
+            <svg viewBox="0 0 24 24" width="56" height="56"
+              style={{ color: selected.color, filter: `drop-shadow(0 0 12px ${selected.color}88)` }}
+              dangerouslySetInnerHTML={{ __html: selected.icon }} />
+          </div>
+          <div className={styles.heroText}>
+            <h2 className={styles.heroName} style={{ color: selected.color }}>{selected.name}</h2>
+            <p className={styles.heroTag}>{selected.tagline}</p>
+            {selected.focus && (
               <div className={styles.focusRow}>
-                {selectedCoach.focus.map((f) => (
-                  <span key={f} className={styles.focusChip} style={{ '--coach-color': selectedCoach.color }}>{f}</span>
+                {selected.focus.map((f) => (
+                  <span key={f} className={styles.chip} style={{ '--c': selected.color }}>{f}</span>
                 ))}
               </div>
             )}
+          </div>
+        </div>
 
-            <p className={styles.description}>{selectedCoach.description}</p>
+        {/* Description + quote */}
+        <div className={styles.narrative}>
+          <p className={styles.desc}>{selected.description}</p>
+          <div className={styles.quote} style={{ '--c': selected.color }}>
+            {selected.greetings[0]}
+          </div>
+        </div>
 
-            <div className={styles.quoteBubble} style={{ '--coach-color': selectedCoach.color }}>
-              {selectedCoach.greetings[0]}
+        {/* Settings strip */}
+        <div className={styles.settings}>
+          {/* Skill level */}
+          <div className={styles.settingsSection}>
+            <h4 className={styles.settingsLabel}>Skill Level</h4>
+            <div className={styles.levelGrid}>
+              {COACH_LEVELS.map((lv) => (
+                <button
+                  key={lv.id}
+                  className={`${styles.levelBtn} ${level.id === lv.id ? styles.levelBtnActive : ''}`}
+                  onClick={() => setLevel(lv)}
+                >
+                  <span className={styles.levelName}>{lv.name}</span>
+                  <span className={styles.levelRating}>{lv.rating}</span>
+                </button>
+              ))}
             </div>
-          </>
-        )}
+          </div>
 
-        <div className={styles.section}>
-          <h4 className={styles.sectionLabel}>Skill Level</h4>
-          <div className={styles.levelList}>
-            {COACH_LEVELS.map((lv) => (
-              <button
-                key={lv.id}
-                className={`${styles.levelBtn} ${level.id === lv.id ? styles.levelBtnActive : ''}`}
-                onClick={() => setLevel(lv)}
-              >
-                <span className={styles.levelName}>{lv.name}</span>
-                <span className={styles.levelRating}>({lv.rating})</span>
-              </button>
-            ))}
+          {/* Time + Color in a row */}
+          <div className={styles.settingsRow}>
+            <div className={styles.settingsSection}>
+              <h4 className={styles.settingsLabel}>Time Control</h4>
+              <div className={styles.tcGrid}>
+                {TC_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.display}
+                    className={`${styles.tcBtn} ${!noLimit && tc.display === opt.display ? styles.tcBtnActive : ''}`}
+                    onClick={() => { setTc(opt); setNoLimit(false); }}
+                  >
+                    <span className={styles.tcTime}>{opt.display}</span>
+                    <span className={styles.tcCat}>{opt.cat}</span>
+                  </button>
+                ))}
+                <button
+                  className={`${styles.tcBtn} ${noLimit ? styles.tcBtnActive : ''}`}
+                  onClick={() => setNoLimit(true)}
+                >
+                  <span className={styles.tcTime}>--:--</span>
+                  <span className={styles.tcCat}>No Limit</span>
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.settingsSection}>
+              <h4 className={styles.settingsLabel}>Play As</h4>
+              <div className={styles.colorBtns}>
+                {['white', 'random', 'black'].map((c) => (
+                  <button
+                    key={c}
+                    className={`${styles.colorBtn} ${color === c ? styles.colorBtnActive : ''}`}
+                    onClick={() => setColor(c)}
+                  >
+                    <span
+                      className={styles.colorDot}
+                      style={{
+                        background:
+                          c === 'white' ? '#fff' :
+                          c === 'random' ? 'linear-gradient(135deg, #fff 50%, #333 50%)' :
+                          '#333',
+                        border: c === 'black' ? '1px solid rgba(255,255,255,0.2)' : undefined,
+                      }}
+                    />
+                    {c.charAt(0).toUpperCase() + c.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className={styles.section}>
-          <h4 className={styles.sectionLabel}>Time Control</h4>
-          <div className={styles.tcGrid}>
-            {TC_OPTIONS.map((opt) => (
-              <button
-                key={opt.display}
-                className={`${styles.tcBtn} ${!noLimit && tc.display === opt.display ? styles.tcBtnActive : ''}`}
-                onClick={() => { setTc(opt); setNoLimit(false); }}
-              >
-                <span className={styles.tcTime}>{opt.display}</span>
-                <span className={styles.tcCat}>{opt.cat}</span>
-              </button>
-            ))}
-            <button
-              className={`${styles.tcBtn} ${noLimit ? styles.tcBtnActive : ''}`}
-              onClick={() => setNoLimit(true)}
-            >
-              <span className={styles.tcTime}>No Limit</span>
-              <span className={styles.tcCat}>Casual</span>
-            </button>
-          </div>
-        </div>
-
-        <div className={styles.section}>
-          <h4 className={styles.sectionLabel}>Play As</h4>
-          <div className={styles.colorBtns}>
-            {['white', 'random', 'black'].map((c) => (
-              <button
-                key={c}
-                className={`${styles.colorBtn} ${playerColor === c ? styles.colorBtnActive : ''}`}
-                onClick={() => setColor(c)}
-              >
-                <span
-                  className={styles.colorIcon}
-                  style={{
-                    background:
-                      c === 'white' ? '#fff' :
-                      c === 'random' ? 'linear-gradient(135deg, #fff 50%, #333 50%)' :
-                      '#333',
-                    border: c === 'black' ? '1px solid rgba(255,255,255,0.2)' : undefined,
-                  }}
-                />
-                {c.charAt(0).toUpperCase() + c.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <button className={styles.startBtn} onClick={handleStart}>
-          Play with {selectedCoach.name}
+        <button
+          className={styles.startBtn}
+          style={{ '--c': selected.color }}
+          onClick={() => onStart(selected, level, noLimit ? null : tc, color)}
+        >
+          Play with {selected.name}
         </button>
       </div>
     </div>
