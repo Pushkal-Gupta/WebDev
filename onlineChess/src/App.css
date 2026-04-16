@@ -242,7 +242,7 @@ body {
 /* ── Play mode cards ── */
 .home-play-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 }
 .home-play-card {
@@ -253,7 +253,7 @@ body {
   );
   border: 1px solid color-mix(in srgb, var(--card-accent, #888) 20%, rgba(255,255,255,0.06));
   border-radius: 14px;
-  padding: 16px 16px 14px;
+  padding: 20px 20px 18px;
   text-align: left;
   cursor: pointer;
   font-family: inherit;
@@ -261,7 +261,7 @@ body {
   transition: transform 0.16s, border-color 0.16s, box-shadow 0.16s;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 .home-play-card:hover {
   transform: translateY(-2px);
@@ -319,8 +319,8 @@ body {
 
 /* ── Quick play TC grid ── */
 .home-tc-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
 }
 
@@ -329,7 +329,7 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 3px;
-  padding: 14px 20px;
+  padding: 14px 8px;
   background: rgba(255,255,255,0.03);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 10px;
@@ -337,9 +337,6 @@ body {
   color: white;
   font-family: inherit;
   transition: all 0.15s;
-  min-width: 72px;
-  flex: 1;
-  max-width: 120px;
 }
 
 .home-tc-btn:hover {

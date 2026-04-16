@@ -796,7 +796,9 @@ export default function App() {
     }
 
     if (gameStarted && !gameOver) {
-      const msg = isOnline ? 'Leave online game? (You will forfeit)' : 'End current game?';
+      const contextLabels = { 2: 'Close Analysis', 6: 'Close Puzzles', 13: 'Close Training', 15: 'Close Coach Session' };
+      const msg = isOnline ? 'Leave online game? (You will forfeit)'
+        : contextLabels[activeTab] || 'End current game?';
       setConfirmMsg(msg);
       confirmActionRef.current = () => { if (isOnline) leaveOnlineGame(); initGame(); executeTabSwitch(index); };
       setShowConfirm(true);
@@ -1276,12 +1278,18 @@ export default function App() {
 // ─── Home screen ─────────────────────────────────────────────────────────────
 
 const QUICK_TCS = [
-  { display: '1+0',   cat: 'Bullet',    total: 60_000,    incr: 0,      catKey: 'bullet',    accent: '#fb923c' },
-  { display: '3+0',   cat: 'Blitz',     total: 180_000,   incr: 0,      catKey: 'blitz',     accent: '#00fff5' },
-  { display: '5+0',   cat: 'Blitz',     total: 300_000,   incr: 0,      catKey: 'blitz',     accent: '#00fff5' },
-  { display: '10+0',  cat: 'Rapid',     total: 600_000,   incr: 0,      catKey: 'rapid',     accent: '#34d399' },
-  { display: '15+10', cat: 'Rapid',     total: 900_000,   incr: 10_000, catKey: 'rapid',     accent: '#34d399' },
+  { display: '1+0',   cat: 'Bullet',    total: 60_000,    incr: 0,      catKey: 'bullet',    accent: '#f0c94c' },
+  { display: '1+1',   cat: 'Bullet',    total: 60_000,    incr: 1_000,  catKey: 'bullet',    accent: '#f0c94c' },
+  { display: '2+1',   cat: 'Bullet',    total: 120_000,   incr: 1_000,  catKey: 'bullet',    accent: '#f0c94c' },
+  { display: '3+0',   cat: 'Blitz',     total: 180_000,   incr: 0,      catKey: 'blitz',     accent: '#ffa94d' },
+  { display: '3+2',   cat: 'Blitz',     total: 180_000,   incr: 2_000,  catKey: 'blitz',     accent: '#ffa94d' },
+  { display: '5+0',   cat: 'Blitz',     total: 300_000,   incr: 0,      catKey: 'blitz',     accent: '#ffa94d' },
+  { display: '5+3',   cat: 'Blitz',     total: 300_000,   incr: 3_000,  catKey: 'blitz',     accent: '#ffa94d' },
+  { display: '10+0',  cat: 'Rapid',     total: 600_000,   incr: 0,      catKey: 'rapid',     accent: '#6fdc8c' },
+  { display: '10+5',  cat: 'Rapid',     total: 600_000,   incr: 5_000,  catKey: 'rapid',     accent: '#6fdc8c' },
+  { display: '15+10', cat: 'Rapid',     total: 900_000,   incr: 10_000, catKey: 'rapid',     accent: '#6fdc8c' },
   { display: '30+0',  cat: 'Classical', total: 1_800_000, incr: 0,      catKey: 'classical', accent: '#a78bfa' },
+  { display: '30+20', cat: 'Classical', total: 1_800_000, incr: 20_000, catKey: 'classical', accent: '#a78bfa' },
 ];
 
 const FEATURE_CARDS = [

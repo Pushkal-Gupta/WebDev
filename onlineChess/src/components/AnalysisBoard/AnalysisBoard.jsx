@@ -408,25 +408,8 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
   useEffect(() => {
     if (restoredRef.current) return;
     restoredRef.current = true;
-    const saved = loadAnalysisState();
-    if (!saved?.pgn) {
-      // No saved state — initialize board so moves can be played immediately
-      importPgn('');
-      return;
-    }
-    const ok = importPgn(saved.pgn);
-    if (!ok) { clearAnalysisState(); return; }
-    setLoadedPgn(saved.pgn);
-    setGameLoaded(true);
-    if (saved.reviewResults) setReviewResults(saved.reviewResults);
-    if (saved.pgnHeaders) setPgnHeaders(saved.pgnHeaders);
-    if (saved.panelTab) setPanelTab(saved.panelTab);
-    if (saved.evalHistory) setEvalHistory(saved.evalHistory);
-    if (typeof saved.currentMoveIndex === 'number' && saved.currentMoveIndex >= 0) {
-      setTimeout(() => goToMove(saved.currentMoveIndex), 50);
-    }
-    // Skip animation on restore
-    if (saved.reviewResults) setReportAnimated(true);
+    clearAnalysisState();
+    importPgn('');
   }, []); // eslint-disable-line
 
   // ── Persist state on changes ──────────────────────────────────────────────

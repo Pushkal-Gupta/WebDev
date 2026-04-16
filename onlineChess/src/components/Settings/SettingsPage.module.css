@@ -109,7 +109,7 @@
 }
 
 .contentInner {
-  max-width: 1000px;
+  max-width: none;
   padding: 24px 32px 40px;
 }
 
