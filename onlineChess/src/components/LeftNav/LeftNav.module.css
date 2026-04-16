@@ -176,7 +176,7 @@
     right: 0;
     top: auto;
     width: 100%;
-    height: calc(56px + env(safe-area-inset-bottom, 0px));
+    height: calc(46px + env(safe-area-inset-bottom, 0px));
     padding-bottom: env(safe-area-inset-bottom, 0px);
     flex-direction: row;
     border-right: none;
@@ -189,9 +189,9 @@
   .nav::-webkit-scrollbar { display: none; }
   .logo      { display: none; }
   .list      { display: flex; flex-direction: row; padding: 0; flex-shrink: 0; }
-  .item      { flex-direction: column; gap: 2px; flex-shrink: 0; width: 60px; padding: 8px 4px; font-size: 0.58rem; min-height: 44px; }
-  .icon      { width: 20px; height: 20px; }
-  .label     { display: block; font-size: 0.65rem; }
+  .item      { flex-direction: column; gap: 1px; flex-shrink: 0; width: 52px; padding: 5px 3px; font-size: 0.54rem; min-height: 36px; }
+  .icon      { width: 18px; height: 18px; }
+  .label     { display: block; font-size: 0.58rem; }
   .bottom    { display: flex; border-top: none; border-left: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
   .itemActive::before { left: 20%; right: 20%; top: 0; bottom: auto; width: auto; height: 2px; border-radius: 0 0 2px 2px; }
 }

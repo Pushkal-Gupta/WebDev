@@ -242,8 +242,8 @@
 /* ── Panel ────────────────────────────────────────────────────────────────── */
 
 .panel {
-  width: 320px;
-  min-width: 280px;
+  width: 380px;
+  min-width: 320px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -701,38 +701,63 @@
 
 .themeGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 5px;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
 }
 
 .themeBtn {
-  padding: 7px 10px;
-  border-radius: 6px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.03);
-  color: rgba(255,255,255,0.6);
-  font-size: 0.78rem;
-  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 8px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.025);
+  color: rgba(255,255,255,0.7);
   cursor: pointer;
-  transition: all 0.2s;
-  text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  transition: all 0.16s;
+  text-align: center;
+  font-family: inherit;
+}
+
+.themeBtnIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 255, 245, 0.06);
+  border: 1px solid rgba(0, 255, 245, 0.15);
+  color: var(--color-accent, #00fff5);
+  font-size: 0.88rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.themeBtnLabel {
+  font-size: 0.74rem;
+  font-weight: 600;
+  line-height: 1.2;
 }
 
 .themeBtn:hover {
-  background: rgba(255,255,255,0.07);
-  color: rgba(255,255,255,0.85);
-  border-color: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.14);
+  transform: translateY(-1px);
 }
 
 .themeBtnActive {
-  background: rgba(0,255,245,0.1);
-  border-color: rgba(0,255,245,0.3);
-  color: var(--color-accent);
-  font-weight: 600;
-  box-shadow: 0 0 8px rgba(0,255,245,0.1);
+  background: rgba(0,255,245,0.08);
+  border-color: rgba(0,255,245,0.35);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(0,255,245,0.1);
+}
+
+.themeBtnActive .themeBtnIcon {
+  background: rgba(0, 255, 245, 0.12);
+  border-color: rgba(0, 255, 245, 0.35);
 }
 
 /* ── Progress bar ────────────────────────────────────────────────────────── */
@@ -1084,7 +1109,16 @@
 
 @media (max-width: 700px) {
   .page { flex-direction: column; overflow-y: auto; }
-  .panel { width: 100%; border-left: none; border-top: 1px solid rgba(255,255,255,0.06); }
+  .boardCol { padding: 4px 6px; gap: 4px; }
+  .modeTabs { padding: 2px; border-radius: 8px; margin-bottom: 2px; }
+  .modeTab { padding: 5px 10px; font-size: 0.72rem; border-radius: 6px; }
+  .panel { width: 100%; border-left: none; border-top: 1px solid rgba(255,255,255,0.06); max-height: 200px; overflow-y: auto; }
   .moveList { width: 100%; }
   .progressBar { width: 100%; }
+  --cell-size: min(68px, calc((100vw - 24px) / 8));
+}
+
+@media (max-width: 540px) {
+  .modeTab { padding: 4px 8px; font-size: 0.68rem; }
+  .boardCol { padding: 2px 4px; gap: 2px; }
 }
