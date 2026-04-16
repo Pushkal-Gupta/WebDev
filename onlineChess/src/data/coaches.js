@@ -6,22 +6,32 @@
 // SVG path strings (rendered inside a 24x24 viewBox). Inline here so the
 // coaches data file is self-contained; a shared icons module is a nice
 // follow-up cleanup but not required for this redesign.
+// Coaching-themed SVG icon paths (24x24 viewBox). Each represents a teaching
+// archetype rather than a chess piece or bot character.
 const I = {
-  cap:      '<path d="M2 9l10-4 10 4-10 4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M6 10.8V15c0 1.5 2.7 2.8 6 2.8s6-1.3 6-2.8v-4.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 9v5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="21" cy="15" r="1.2" fill="currentColor"/>',
-  leaf:     '<path d="M17 8C8 10 5.9 16.17 3.82 21.34" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M17 8A5 5 0 005 12c0 4 3 7 7 7a9 9 0 005-11z" fill="none" stroke="currentColor" stroke-width="1.5"/>',
-  bolt:     '<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
-  book:     '<path d="M4 19.5A2.5 2.5 0 016.5 17H20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M4 4.5A2.5 2.5 0 016.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15z" fill="none" stroke="currentColor" stroke-width="1.5"/>',
-  flag:     '<path d="M4 2v20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M4 4h12l-3 4 3 4H4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>',
-  castle:   '<path d="M4 21V11h3V8h2V5h6v3h2v3h3v10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 21v-4h6v4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 11h16" stroke="currentColor" stroke-width="1.5"/>',
-  brain:    '<path d="M12 2C9 2 7 4 7 6.5c0 1-.5 2-1.5 2.5C4 10 3 12 3 14c0 3 2.5 5.5 5.5 5.5.5 0 1 0 1.5-.1V22h4v-2.6c.5.1 1 .1 1.5.1C18.5 19.5 21 17 21 14c0-2-1-4-2.5-5 -1-.5-1.5-1.5-1.5-2.5C17 4 15 2 12 2z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 2v20M8 8c2 1 4 1 6 0M7.5 14c2-1 5-1 7 0" stroke="currentColor" stroke-width="1" opacity="0.4"/>',
-  infinity: '<path d="M8 12c-2-2-4-2-4 0s2 4 4 4 4-2 4-4 2-4 4-4 4 2 4 4-2 2-4 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+  // Graduation cap — the classic teacher symbol.
+  gradCap:  '<path d="M2 9l10-4 10 4-10 4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M6 10.8V15c0 1.5 2.7 2.8 6 2.8s6-1.3 6-2.8v-4.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 9v5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="21" cy="15" r="1.2" fill="currentColor"/>',
+  // Seedling / sprout — nurture, first steps.
+  seedling: '<path d="M12 22V12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M12 12c0-4.4 3.6-8 8-8-0 4.4-3.6 8-8 8z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 16c0-3.3-2.7-6-6-6 0 3.3 2.7 6 6 6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>',
+  // Stopwatch — speed, time management.
+  watch:    '<circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 9v4l2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 2h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M12 2v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M20 7l1-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+  // Open book — study, strategy, deep knowledge.
+  openBook: '<path d="M2 4c2-1 4.5-1 6 0 1.5 1 3 1 4 0V20c-1 .8-2.5.8-4 0-1.5-.8-4-.8-6 0V4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 4c1-1 3.5-1 5 0s3.5 0 5 0v16c-1.5.8-3.5.8-5 0s-3.5-.8-5 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
+  // Crossed swords — aggression, offense.
+  swords:   '<path d="M6 20l4-4M14 10l-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M18 4l-8 8M4 18l8-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M15 3h5v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 21H4v-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
+  // Trophy — mastery, finishing, winning.
+  trophy:   '<path d="M8 21h8M12 17v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M7 4h10v5a5 5 0 01-10 0V4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 6H4v2a3 3 0 003 3M17 6h3v2a3 3 0 01-3 3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
+  // Magnifying glass — analysis, precision.
+  magnify:  '<circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M16.5 16.5L21 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8 11h6M11 8v6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>',
+  // Lotus — calm, mindfulness, balance.
+  lotus:    '<path d="M12 22c-4-4-8-9-4-14 1.5 2 3.5 3 4 5 .5-2 2.5-3 4-5 4 5 0 10-4 14z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 22c-3-2-8-6-10-8 3-1 6 0 10 8M12 22c3-2 8-6 10-8-3-1-6 0-10 8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" opacity="0.5"/>',
 };
 
 const COACHES = [
   {
     id: 'coach_nova',
     name: 'Coach Nova',
-    icon: I.cap,
+    icon: I.gradCap,
     color: '#ffd27a',
     tagline: 'Learn as you play.',
     focus: ['Balanced', 'Patient', 'Fundamentals'],
@@ -63,7 +73,7 @@ const COACHES = [
   {
     id: 'coach_sprout',
     name: 'Sprout',
-    icon: I.leaf,
+    icon: I.seedling,
     color: '#7ee787',
     tagline: 'Your very first moves.',
     focus: ['Beginner', 'Gentle', 'Encouraging'],
@@ -105,7 +115,7 @@ const COACHES = [
   {
     id: 'coach_flash',
     name: 'Flash',
-    icon: I.bolt,
+    icon: I.watch,
     color: '#ffa94d',
     tagline: 'Think fast, stay calm.',
     focus: ['Blitz', 'Intuition', 'Quick decisions'],
@@ -147,7 +157,7 @@ const COACHES = [
   {
     id: 'coach_sage',
     name: 'Sage',
-    icon: I.book,
+    icon: I.openBook,
     color: '#a78bfa',
     tagline: 'See the whole board.',
     focus: ['Positional', 'Strategy', 'Long-term'],
@@ -189,7 +199,7 @@ const COACHES = [
   {
     id: 'coach_gambit',
     name: 'Gambit',
-    icon: I.flag,
+    icon: I.swords,
     color: '#ff6b9a',
     tagline: 'Attack with purpose.',
     focus: ['Openings', 'Aggression', 'Initiative'],
@@ -231,7 +241,7 @@ const COACHES = [
   {
     id: 'coach_fortress',
     name: 'Fortress',
-    icon: I.castle,
+    icon: I.trophy,
     color: '#64d9e8',
     tagline: 'Finish what you start.',
     focus: ['Endgame', 'Technique', 'Conversion'],
@@ -273,7 +283,7 @@ const COACHES = [
   {
     id: 'coach_calculo',
     name: 'Calculo',
-    icon: I.brain,
+    icon: I.magnify,
     color: '#00fff5',
     tagline: 'Every variation counts.',
     focus: ['Tactics', 'Calculation', 'Precision'],
@@ -315,7 +325,7 @@ const COACHES = [
   {
     id: 'coach_zen',
     name: 'Zen',
-    icon: I.infinity,
+    icon: I.lotus,
     color: '#c7c7c7',
     tagline: 'Patience wins games.',
     focus: ['Mindset', 'Discipline', 'Resilience'],
