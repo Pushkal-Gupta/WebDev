@@ -12,7 +12,7 @@
   border-radius: 16px;
   padding: 24px 28px;
   width: 100%;
-  max-width: 480px;
+  max-width: 560px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -55,13 +55,13 @@
 }
 
 .timeBtn {
-  padding: 8px 4px;
+  padding: 12px 6px;
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.1);
   color: rgba(255,255,255,0.7);
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 0.82rem;
+  font-size: 0.88rem;
   transition: all 0.2s;
   text-align: center;
 }

@@ -127,7 +127,7 @@ const useFriendStore = create((set, get) => ({
       searchLoading: false,
       searchError: rpc.error && rows.length === 0 ? (rpc.error.message || 'Search failed') : null,
     });
-    if (rpc.error) console.warn('[friendStore.searchPlayers] RPC error:', rpc.error.message);
+    if (rpc.error) {}
   },
 
   clearSearch() { set({ searchResults: [], searchLoading: false, searchError: null }); },

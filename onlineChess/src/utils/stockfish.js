@@ -21,7 +21,6 @@ export async function getBestMove(fen, { strength = 10 } = {}) {
   try {
     return await getStockfishMove(fen, config);
   } catch (err) {
-    console.warn('Stockfish WASM failed, using local AI:', err.message);
     return getLocalBestMove(fen, strength);
   }
 }

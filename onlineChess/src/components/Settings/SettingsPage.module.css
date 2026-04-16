@@ -109,7 +109,7 @@
 }
 
 .contentInner {
-  max-width: 800px;
+  max-width: 1000px;
   padding: 24px 32px 40px;
 }
 
@@ -645,7 +645,7 @@
 
 .profileFieldHint {
   font-size: 0.72rem;
-  color: rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.38);
   line-height: 1.3;
 }
 
@@ -665,7 +665,7 @@
   box-shadow: 0 0 0 3px rgba(0,255,245,0.06);
 }
 .textInput::placeholder {
-  color: rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.3);
 }
 
 .textarea {
@@ -688,12 +688,12 @@
   box-shadow: 0 0 0 3px rgba(0,255,245,0.06);
 }
 .textarea::placeholder {
-  color: rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.3);
 }
 
 .charCount {
   font-size: 0.72rem;
-  color: rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.35);
   font-weight: 400;
 }
 

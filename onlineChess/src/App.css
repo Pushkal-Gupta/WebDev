@@ -88,7 +88,7 @@ body {
 .home-screen::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 
 .home-body {
-  max-width: 760px;
+  max-width: 1080px;
   margin: 0 auto;
   padding: 32px 32px 48px;
   display: flex;
@@ -118,10 +118,11 @@ body {
 }
 
 .home-tagline {
-  font-size: 0.95rem;
-  color: rgba(255,255,255,0.35);
+  font-size: 1rem;
+  color: rgba(255,255,255,0.45);
   margin: 0;
   letter-spacing: 0.01em;
+  line-height: 1.5;
 }
 
 /* Primary CTA button */
@@ -204,11 +205,11 @@ body {
 }
 
 .home-rating-chip-cat {
-  font-size: 0.65rem;
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: rgba(0,255,245,0.6);
+  letter-spacing: 0.06em;
+  color: rgba(0,255,245,0.65);
 }
 
 .home-rating-chip-val {
@@ -221,11 +222,11 @@ body {
 .home-section { display: flex; flex-direction: column; gap: 14px; }
 
 .home-section-label {
-  font-size: 0.65rem;
+  font-size: 0.74rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: rgba(0,255,245,0.45);
+  letter-spacing: 0.1em;
+  color: rgba(0,255,245,0.5);
   padding-bottom: 6px;
   border-bottom: 1px solid rgba(255,255,255,0.05);
 }
@@ -233,8 +234,8 @@ body {
 /* ── Play mode cards ── */
 .home-play-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
 }
 .home-play-card {
   background: linear-gradient(
@@ -288,13 +289,13 @@ body {
   flex-shrink: 0;
 }
 .home-play-card-badge {
-  font-size: 0.6rem;
+  font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: rgba(0,255,245,0.6);
+  letter-spacing: 0.06em;
+  color: rgba(0,255,245,0.65);
   background: rgba(0,255,245,0.08);
-  padding: 2px 6px;
+  padding: 3px 7px;
   border-radius: 4px;
 }
 .home-play-card-title {
@@ -303,8 +304,9 @@ body {
   color: rgba(255,255,255,0.9);
 }
 .home-play-card-desc {
-  font-size: 0.72rem;
-  color: rgba(255,255,255,0.35);
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.4;
 }
 
 /* ── Quick play TC grid ── */
@@ -878,11 +880,11 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 9px 16px;
+  padding: 8px 16px;
   flex-shrink: 0;
   gap: 10px;
   transition: background 0.25s;
-  min-height: 54px;
+  min-height: 48px;
 }
 
 .player-panel-ticking {

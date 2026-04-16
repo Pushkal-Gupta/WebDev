@@ -72,7 +72,6 @@ export async function fetchTablebase(fen) {
     cache.set(fen, result);
     return result;
   } catch (err) {
-    console.error('Tablebase fetch error:', err);
     return null;
   }
 }

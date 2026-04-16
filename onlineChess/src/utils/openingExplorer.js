@@ -103,7 +103,6 @@ export async function fetchExplorerData(fen, db = 'lichess') {
     cache.set(key, result);
     return result;
   } catch (err) {
-    console.error('Explorer fetch error:', err);
     return null;
   }
 }

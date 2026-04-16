@@ -1,4 +1,5 @@
 /* ─── Coach Setup — dossier layout ─────────────────────────────────────────── */
+/* Grid math: 8px base unit. All gaps, padding, and radii are multiples of 4 or 8. */
 
 .page {
   display: flex;
@@ -10,6 +11,8 @@
 }
 
 /* ─── Left: coach roster tower ────────────────────────────────────────────── */
+/* Fixed 280px. 2-col grid stretches rows to fill the full height so cards
+   breathe evenly instead of leaving a dead zone at the bottom. */
 
 .roster {
   width: 280px;
@@ -17,26 +20,27 @@
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  padding: 24px 16px 24px 20px;
+  padding: 24px 16px;
   overflow-y: auto;
   border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .rosterTitle {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 1.4px;
-  color: rgba(255, 255, 255, 0.35);
-  margin: 0 0 14px 2px;
+  letter-spacing: 1.6px;
+  color: rgba(255, 255, 255, 0.3);
+  margin: 0 0 12px 2px;
 }
 
 .rosterGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(4, 1fr);
   gap: 8px;
   flex: 1;
-  align-content: start;
+  min-height: 0;
 }
 
 /* ─── Coach card ──────────────────────────────────────────────────────────── */
@@ -45,9 +49,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 16px 8px 14px;
-  border-radius: 14px;
+  padding: 12px 8px;
+  border-radius: 12px;
   background: linear-gradient(
     180deg,
     color-mix(in srgb, var(--c, #888) 8%, rgba(255,255,255,0.02)) 0%,
@@ -59,6 +64,7 @@
   font-family: inherit;
   text-align: center;
   transition: transform 0.16s, border-color 0.16s, box-shadow 0.16s, background 0.16s;
+  min-height: 0;
 }
 
 .card:hover {
@@ -79,18 +85,19 @@
 }
 
 .cardIcon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: color-mix(in srgb, var(--c, #888) 14%, rgba(255,255,255,0.02));
   border: 1px solid color-mix(in srgb, var(--c, #888) 28%, transparent);
+  flex-shrink: 0;
 }
 
 .cardName {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 700;
   line-height: 1.15;
 }
@@ -98,30 +105,31 @@
 .cardActive .cardName { color: var(--c); }
 
 .cardTag {
-  font-size: 0.62rem;
-  color: rgba(255, 255, 255, 0.3);
-  line-height: 1.25;
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.28);
+  line-height: 1.2;
 }
 
 /* ─── Right: dossier panel ────────────────────────────────────────────────── */
+/* Flex column with even 16px gaps. Scrolls if content exceeds viewport. */
 
 .dossier {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 24px 28px 20px;
+  padding: 24px;
   overflow-y: auto;
   min-width: 0;
-  gap: 20px;
+  gap: 16px;
 }
 
-/* Hero header */
+/* Hero card — full width, generous padding, color-gradient bg. */
 .hero {
   display: flex;
   align-items: center;
   gap: 20px;
-  padding: 24px 28px;
-  border-radius: 18px;
+  padding: 24px;
+  border-radius: 16px;
   position: relative;
   overflow: hidden;
   background: linear-gradient(
@@ -130,6 +138,7 @@
     color-mix(in srgb, var(--c, #888) 5%, rgba(0,0,0,0.1)) 100%
   );
   border: 1px solid color-mix(in srgb, var(--c, #888) 28%, rgba(255,255,255,0.04));
+  flex-shrink: 0;
 }
 
 .heroGlow {
@@ -139,14 +148,14 @@
   width: 160px;
   height: 160px;
   border-radius: 50%;
-  background: radial-gradient(circle, color-mix(in srgb, var(--c, #888) 25%, transparent), transparent 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--c, #888) 22%, transparent), transparent 70%);
   pointer-events: none;
 }
 
 .heroIcon {
   width: 72px;
   height: 72px;
-  border-radius: 18px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -174,8 +183,8 @@
 
 .heroTag {
   margin: 0;
-  font-size: 0.92rem;
-  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.5);
   font-weight: 500;
 }
 
@@ -187,63 +196,67 @@
 }
 
 .chip {
-  font-size: 0.62rem;
+  font-size: 0.6rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  padding: 4px 10px;
+  padding: 3px 10px;
   border-radius: 999px;
   color: color-mix(in srgb, var(--c, #fff) 88%, white);
   background: color-mix(in srgb, var(--c, #fff) 12%, rgba(255,255,255,0.02));
   border: 1px solid color-mix(in srgb, var(--c, #fff) 28%, transparent);
 }
 
-/* Narrative section */
+/* Narrative — 1:1 split: description | quote. Clean 50/50. */
 .narrative {
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  flex-shrink: 0;
 }
 
 .desc {
-  flex: 1;
   margin: 0;
-  font-size: 0.88rem;
-  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.86rem;
+  color: rgba(255, 255, 255, 0.58);
   line-height: 1.6;
+  align-self: center;
 }
 
 .quote {
-  flex: 1;
   padding: 14px 16px;
   border-radius: 12px;
   background: color-mix(in srgb, var(--c, #888) 6%, rgba(255,255,255,0.015));
-  border: 1px solid color-mix(in srgb, var(--c, #888) 18%, rgba(255,255,255,0.03));
+  border: 1px solid color-mix(in srgb, var(--c, #888) 16%, rgba(255,255,255,0.03));
   border-left: 3px solid var(--c, #00fff5);
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   line-height: 1.55;
-  color: rgba(255, 255, 255, 0.82);
+  color: rgba(255, 255, 255, 0.8);
   font-style: italic;
+  align-self: center;
 }
 
-/* ─── Settings strip ──────────────────────────────────────────────────────── */
+/* ─── Settings card ───────────────────────────────────────────────────────── */
+/* All settings in one card with consistent internal spacing.
+   3 sections stacked: skill level (full width) → [TC | Color] (3:2 split). */
 
 .settings {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 20px 22px;
+  padding: 20px;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.015);
   border: 1px solid rgba(255, 255, 255, 0.05);
+  flex-shrink: 0;
 }
 
+/* TC and Color side by side: 3fr | 2fr (60/40 split). */
 .settingsRow {
-  display: flex;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 16px;
 }
-
-.settingsRow > .settingsSection { flex: 1; }
 
 .settingsSection {
   display: flex;
@@ -252,67 +265,66 @@
 }
 
 .settingsLabel {
-  font-size: 0.66rem;
+  font-size: 0.64rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  color: rgba(255, 255, 255, 0.38);
+  letter-spacing: 1.2px;
+  color: rgba(255, 255, 255, 0.32);
   margin: 0;
 }
 
-/* Level grid — horizontal wrap instead of vertical list */
+/* Skill level — 4 columns. 7 items fill row 1 (4) + row 2 (3). */
 .levelGrid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
 }
 
 .levelBtn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 12px;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 8px 10px;
   background: rgba(255, 255, 255, 0.025);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 8px;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
   font-family: inherit;
-  font-size: 0.8rem;
+  font-size: 0.76rem;
   transition: all 0.14s;
   white-space: nowrap;
 }
 
 .levelBtn:hover {
-  background: rgba(0, 255, 245, 0.05);
-  border-color: rgba(0, 255, 245, 0.2);
-  color: #fff;
+  background: rgba(0, 255, 245, 0.04);
+  border-color: rgba(0, 255, 245, 0.18);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .levelBtnActive {
   background: rgba(0, 255, 245, 0.1);
-  border-color: rgba(0, 255, 245, 0.45);
+  border-color: rgba(0, 255, 245, 0.4);
   color: var(--color-accent, #00fff5);
 }
 
 .levelName { font-weight: 600; }
 
 .levelRating {
-  font-size: 0.68rem;
-  color: rgba(255, 255, 255, 0.32);
+  font-size: 0.64rem;
+  color: rgba(255, 255, 255, 0.28);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
-.levelBtnActive .levelRating {
-  color: rgba(0, 255, 245, 0.55);
-}
+.levelBtnActive .levelRating { color: rgba(0, 255, 245, 0.5); }
 
-/* TC grid */
+/* TC grid — 3 columns, 2 rows. 6 items (5 presets + No Limit). */
 .tcGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 5px;
+  gap: 6px;
 }
 
 .tcBtn {
@@ -320,9 +332,9 @@
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  padding: 8px 6px;
+  padding: 8px 4px;
   background: rgba(255, 255, 255, 0.025);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 8px;
   color: #fff;
   cursor: pointer;
@@ -331,69 +343,81 @@
 }
 
 .tcBtn:hover {
-  background: rgba(0, 255, 245, 0.05);
-  border-color: rgba(0, 255, 245, 0.22);
+  background: rgba(0, 255, 245, 0.04);
+  border-color: rgba(0, 255, 245, 0.18);
 }
 
 .tcBtnActive {
   background: rgba(0, 255, 245, 0.1) !important;
-  border-color: rgba(0, 255, 245, 0.45) !important;
+  border-color: rgba(0, 255, 245, 0.4) !important;
   color: #00fff5 !important;
-  box-shadow: 0 0 10px rgba(0, 255, 245, 0.08);
+  box-shadow: 0 0 8px rgba(0, 255, 245, 0.08);
 }
 
-.tcTime { font-weight: 800; font-size: 0.86rem; letter-spacing: -0.02em; line-height: 1; }
-.tcCat  { font-size: 0.56rem; color: rgba(255, 255, 255, 0.28); text-transform: uppercase; letter-spacing: 0.05em; }
-.tcBtnActive .tcCat { color: rgba(0, 255, 245, 0.55); }
+.tcTime {
+  font-weight: 800;
+  font-size: 0.84rem;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
 
-/* Color buttons */
+.tcCat {
+  font-size: 0.54rem;
+  color: rgba(255, 255, 255, 0.25);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tcBtnActive .tcCat { color: rgba(0, 255, 245, 0.5); }
+
+/* Play As — 3 columns (one per option), same height as TC buttons. */
 .colorBtns {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 6px;
 }
 
 .colorBtn {
-  flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 9px 6px;
+  gap: 4px;
+  padding: 10px 4px;
   background: rgba(255, 255, 255, 0.025);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 8px;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.6);
   font-family: inherit;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 600;
   transition: all 0.14s;
-  white-space: nowrap;
 }
 
 .colorBtn:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.14);
 }
 
 .colorBtnActive {
   background: rgba(0, 255, 245, 0.1) !important;
-  border-color: rgba(0, 255, 245, 0.45) !important;
+  border-color: rgba(0, 255, 245, 0.4) !important;
   color: #00fff5 !important;
 }
 
 .colorDot {
   display: inline-block;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
-/* Start button — takes the coach color */
+/* Start button — coach-colored gradient, full width. */
 .startBtn {
-  padding: 15px 24px;
-  background: linear-gradient(135deg, var(--c, #00fff5) 0%, color-mix(in srgb, var(--c, #00fff5) 70%, #000) 100%);
+  padding: 16px 24px;
+  background: linear-gradient(135deg, var(--c, #00fff5) 0%, color-mix(in srgb, var(--c, #00fff5) 65%, #000) 100%);
   border: none;
   border-radius: 12px;
   cursor: pointer;
@@ -408,7 +432,7 @@
 
 .startBtn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 30px color-mix(in srgb, var(--c, #00fff5) 35%, transparent);
+  box-shadow: 0 8px 28px color-mix(in srgb, var(--c, #00fff5) 35%, transparent);
   filter: brightness(1.08);
 }
 
@@ -428,39 +452,43 @@
     flex-shrink: 0;
     border-right: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    padding: 16px 12px 12px;
+    padding: 16px 12px;
   }
 
   .rosterGrid {
     grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, auto);
     gap: 6px;
   }
 
   .cardTag { display: none; }
-
-  .card {
-    padding: 10px 6px 8px;
-  }
+  .card { padding: 10px 6px 8px; }
 
   .dossier {
     padding: 16px 12px;
-    gap: 14px;
+    gap: 12px;
   }
 
-  .hero {
-    padding: 16px 18px;
-    border-radius: 14px;
-  }
-
+  .hero { padding: 16px; border-radius: 12px; }
   .heroName { font-size: 1.2rem; }
+  .heroIcon { width: 56px; height: 56px; border-radius: 12px; }
 
-  .narrative { flex-direction: column; gap: 12px; }
+  .narrative {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
 
-  .settingsRow { flex-direction: column; gap: 14px; }
+  .settingsRow {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .levelGrid { grid-template-columns: repeat(2, 1fr); }
 
   .settings { padding: 14px 12px; }
 }
 
 @media (max-width: 500px) {
-  .rosterGrid { grid-template-columns: repeat(2, 1fr); }
+  .rosterGrid { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(4, auto); }
+  .levelGrid { grid-template-columns: repeat(2, 1fr); }
 }

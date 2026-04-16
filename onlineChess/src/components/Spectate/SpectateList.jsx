@@ -60,7 +60,6 @@ export default function SpectateList() {
       const data = await getPublicGames();
       setGames(data);
     } catch (err) {
-      console.error('Failed to fetch public games:', err);
     } finally {
       setLoading(false);
     }
@@ -78,7 +77,6 @@ export default function SpectateList() {
       const room = await getRoom(gameId);
       if (room) setSpectating(room);
     } catch (err) {
-      console.error('Failed to load game:', err);
     } finally {
       setLoadingId(null);
     }

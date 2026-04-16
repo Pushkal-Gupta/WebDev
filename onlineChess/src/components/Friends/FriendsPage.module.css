@@ -5,7 +5,7 @@
   padding: 28px 32px;
   overflow-y: auto;
   gap: 0;
-  max-width: 600px;
+  max-width: 860px;
   align-self: flex-start;
   width: 100%;
 }
@@ -181,7 +181,7 @@
 
 .requestActions { display: flex; gap: 6px; flex-shrink: 0; }
 .requestInfo { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
-.requestAge { font-size: 0.72rem; color: rgba(255,255,255,0.25); margin-top: 1px; }
+.requestAge { font-size: 0.72rem; color: rgba(255,255,255,0.38); margin-top: 1px; }
 
 .friendsBadge {
   font-size: 0.75rem;
@@ -254,7 +254,7 @@
 .notifBody { flex: 1; min-width: 0; }
 .notifTitle { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.85); }
 .notifText  { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
-.notifAge   { font-size: 0.72rem; color: rgba(255,255,255,0.2); flex-shrink: 0; }
+.notifAge   { font-size: 0.72rem; color: rgba(255,255,255,0.35); flex-shrink: 0; }
 
 /* ── Find tab ─────────────────────────────────────────────────────────────── */
 
@@ -277,7 +277,7 @@
   outline: none;
   transition: border-color 0.2s;
 }
-.searchInput::placeholder { color: rgba(255,255,255,0.25); }
+.searchInput::placeholder { color: rgba(255,255,255,0.35); }
 .searchInput:focus { border-color: rgba(0,255,245,0.35); }
 
 .searchSpinner {

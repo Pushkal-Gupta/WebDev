@@ -136,7 +136,7 @@ const useThemeStore = create(persist((set, get) => ({
     get().applyThemeToDOM();
     if (userId) {
       supabase.from('user_profiles').update({ theme_mode: mode }).eq('user_id', userId)
-        .then(({ error }) => { if (error) console.warn('Theme save failed:', error.message); });
+        .then(({ error }) => {});
     }
   },
 
@@ -145,7 +145,7 @@ const useThemeStore = create(persist((set, get) => ({
     get().applyThemeToDOM();
     if (userId) {
       supabase.from('user_profiles').update({ bg_theme: bg }).eq('user_id', userId)
-        .then(({ error }) => { if (error) console.warn('Bg theme save failed:', error.message); });
+        .then(({ error }) => {});
     }
   },
 

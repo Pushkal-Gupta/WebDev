@@ -105,7 +105,6 @@ export default function ClubsPage() {
         setMyClubs([]);
       }
     } catch (e) {
-      console.error('Failed to load clubs:', e);
     }
     setLoading(false);
   };
