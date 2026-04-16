@@ -82,7 +82,7 @@ export default function SpectateBoard({ room, onBack }) {
             chess.load(fenRef.current);
             chess.move({ from, to });
             setFen(chess.fen());
-          } catch (err) { console.warn('Fallback move apply failed:', err); }
+          } catch (err) {}
         }
         const { row: fr, col: fc } = sqToRowCol(from);
         const { row: tr, col: tc } = sqToRowCol(to);
@@ -100,9 +100,7 @@ export default function SpectateBoard({ room, onBack }) {
         return;
       }
       channelRef.current = channel;
-    }).catch((err) => {
-      console.warn('Spectator subscribe failed:', err.message);
-    });
+    }).catch(() => {});
 
     return () => {
       cancelled = true;

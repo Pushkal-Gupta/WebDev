@@ -253,7 +253,6 @@ export default function App() {
     if (onlineRoom?.id) {
       serverSubmitMove({ roomId: onlineRoom.id, from, to, promotion })
         .catch((err) => {
-          console.warn('Server validation failed, using direct broadcast:', err.message);
           // Fallback: broadcast directly if Edge Function unavailable
           bcastMove(onlineChannelRef.current, { from, to, promotion, fen: currentFen })
             .catch(() => {
@@ -352,7 +351,6 @@ export default function App() {
               loadRatings(user.id);
             }
           } catch (serverErr) {
-            console.warn('Server rating update failed, falling back to client-side:', serverErr.message);
             // Fallback to client-side rating
             delta = await updateOnlineGameRating({
               userId: user.id,
@@ -852,7 +850,6 @@ export default function App() {
       const games = await getGames(user?.id);
       setAnalysisGames(Array.isArray(games) ? games : []);
     } catch (e) {
-      console.error(e);
     } finally {
       setAnalysisLoading(false);
     }
@@ -1319,7 +1316,7 @@ function HomeScreen({ user, onStart, onPlayOnline, onTabClick, onQuickMatch }) {
         .select('*', { count: 'exact', head: true })
         .eq('status', 'playing')
         .then(({ count }) => setLiveCount(count ?? 0))
-        .catch(err => console.error('Failed to fetch live count:', err));
+        .catch(() => {});
     fetchCount();
     const id = setInterval(fetchCount, 30000); // refresh every 30 s
     return () => clearInterval(id);

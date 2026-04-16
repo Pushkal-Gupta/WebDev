@@ -86,7 +86,6 @@ const usePuzzleStore = create((set, get) => ({
         .single();
       if (error && error.code !== 'PGRST116') {
         // Network/server error — keep existing rating from cache, don't reset
-        console.warn('Puzzle rating load error:', error.message);
         if (!get().userPuzzleRating) set({ userPuzzleRating: { ...DEFAULT_RATING } });
         return;
       }
@@ -434,7 +433,6 @@ const usePuzzleStore = create((set, get) => ({
           .lte('rating', rating + window)
           .limit(20);
         if (error) {
-          console.warn('Puzzle query error:', error.message);
           continue; // try wider window instead of giving up
         }
         if (data?.length) {
@@ -447,9 +445,7 @@ const usePuzzleStore = create((set, get) => ({
         const { data } = await supabase.from('puzzles').select('id, fen, moves, rating, themes').limit(10);
         if (data?.length) puzzleRow = data[Math.floor(Math.random() * data.length)];
       }
-    } catch (err) {
-      console.warn('Puzzle fetch failed:', err.message);
-    }
+    } catch {}
 
     if (!puzzleRow) {
       set({ status: 'empty', errorMsg: 'No puzzles found. Check your connection and try again.' });
@@ -458,7 +454,6 @@ const usePuzzleStore = create((set, get) => ({
 
     const moves = (puzzleRow.moves || '').split(' ').filter(Boolean);
     if (moves.length < 1) {
-      console.warn('Puzzle has no moves:', puzzleRow.id);
       set({ status: 'error', errorMsg: 'Invalid puzzle data. Skipping to next puzzle...' });
       setTimeout(() => get()._loadPuzzleForMode(userId), 1000);
       return;
@@ -467,7 +462,6 @@ const usePuzzleStore = create((set, get) => ({
     try {
       _chess = new Chess(puzzleRow.fen);
     } catch {
-      console.warn('Invalid puzzle FEN:', puzzleRow.fen);
       set({ status: 'error', errorMsg: 'Invalid puzzle position. Loading another puzzle...' });
       setTimeout(() => get()._loadPuzzleForMode(userId), 1000);
       return;
@@ -497,7 +491,6 @@ const usePuzzleStore = create((set, get) => ({
     const setupCoords = uciToCoords(moves[0]);
     const firstMove = _chess.move(uciToMove(moves[0]));
     if (!firstMove) {
-      console.warn('Puzzle first move invalid:', moves[0]);
       set({ status: 'error', errorMsg: 'Invalid puzzle position. Loading another puzzle...' });
       setTimeout(() => get()._loadPuzzleForMode(userId), 1000);
       return;
@@ -686,9 +679,7 @@ const usePuzzleStore = create((set, get) => ({
 
     try {
       await supabase.from('user_puzzle_ratings').upsert(updated, { onConflict: 'user_id' });
-    } catch (err) {
-      console.warn('Failed to save puzzle rating:', err.message);
-    }
+    } catch {}
 
     const newRating = { ...cur, ...updated };
     set({
@@ -727,14 +718,12 @@ const usePuzzleStore = create((set, get) => ({
     try {
       const { data, error } = await supabase.rpc('get_daily_puzzle', { p_date: today });
       if (error) {
-        console.warn('Daily puzzle RPC error:', error.message);
+        // RPC error — fall through to "no puzzle" handling
       } else if (data) {
         // RPC returns SETOF (array) — pick first result
         puzzleRow = Array.isArray(data) ? data[0] : data;
       }
-    } catch (err) {
-      console.warn('Daily puzzle fetch failed:', err.message);
-    }
+    } catch {}
 
     if (!puzzleRow) {
       set({ status: 'error', errorMsg: 'No daily puzzle available today. Try again later.' });
@@ -795,7 +784,6 @@ const usePuzzleStore = create((set, get) => ({
           .lte('rating', rating + window)
           .limit(20);
         if (error) {
-          console.warn('Theme puzzle query error:', error.message);
           break;
         }
         if (data?.length) {
@@ -803,9 +791,7 @@ const usePuzzleStore = create((set, get) => ({
           break;
         }
       }
-    } catch (err) {
-      console.warn('Theme puzzle fetch failed:', err.message);
-    }
+    } catch {}
 
     if (!puzzleRow) {
       set({ status: 'error', errorMsg: `No puzzles found for theme "${theme}". Try a different theme.` });
@@ -866,9 +852,7 @@ const usePuzzleStore = create((set, get) => ({
       if (!error && data?.length) {
         puzzleRow = data[Math.floor(Math.random() * data.length)];
       }
-    } catch (err) {
-      console.warn('Difficulty puzzle fetch failed:', err.message);
-    }
+    } catch {}
 
     if (!puzzleRow) {
       set({ status: 'error', errorMsg: 'No puzzles found for this difficulty. Try a different level.' });
@@ -994,14 +978,12 @@ const usePuzzleStore = create((set, get) => ({
         .limit(50);
 
       if (error) {
-        console.warn('Puzzle history load error:', error.message);
         set({ puzzleHistory: [], historyLoading: false });
         return;
       }
 
       set({ puzzleHistory: data || [], historyLoading: false });
-    } catch (err) {
-      console.warn('Puzzle history fetch failed:', err.message);
+    } catch {
       set({ puzzleHistory: [], historyLoading: false });
     }
   },
@@ -1020,14 +1002,12 @@ const usePuzzleStore = create((set, get) => ({
         .limit(200);
 
       if (error) {
-        console.warn('Rating history load error:', error.message);
         set({ ratingHistory: [], ratingHistoryLoading: false });
         return;
       }
 
       set({ ratingHistory: data || [], ratingHistoryLoading: false });
-    } catch (err) {
-      console.warn('Rating history fetch failed:', err.message);
+    } catch {
       set({ ratingHistory: [], ratingHistoryLoading: false });
     }
   },
@@ -1048,9 +1028,7 @@ const usePuzzleStore = create((set, get) => ({
       }, { onConflict: 'user_id,puzzle_id' });
 
       await get().loadPuzzleHistory(userId);
-    } catch (err) {
-      console.warn('Failed to record puzzle attempt:', err.message);
-    }
+    } catch {}
   },
 
   // ── Record rating history ─────────────────────────────────────────────────
@@ -1064,9 +1042,7 @@ const usePuzzleStore = create((set, get) => ({
       });
 
       await get().loadRatingHistory(userId);
-    } catch (err) {
-      console.warn('Failed to record rating history:', err.message);
-    }
+    } catch {}
   },
 
   // ── Reset (go back to idle) ───────────────────────────────────────────────

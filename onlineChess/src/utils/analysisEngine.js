@@ -155,7 +155,7 @@ export async function analyzeGame(fens, {
         onPositionDone?.(i, fen, result, p);
       } catch (err) {
         // Timeout or error — skip this position at this depth, keep previous eval
-        console.warn(`Stockfish analysis failed for position ${i} at depth ${depth}:`, err.message);
+        // Timeout or error — keep previous eval
       }
       onProgress?.(i + 1, fens.length, p);
     }

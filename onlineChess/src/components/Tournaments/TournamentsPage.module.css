@@ -91,9 +91,9 @@
 }
 
 .status {
-  font-size: 0.62rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  padding: 2px 7px;
+  padding: 3px 8px;
   border-radius: 4px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -104,8 +104,8 @@
 .statusDone     { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.08); }
 
 .format {
-  font-size: 0.68rem;
-  color: rgba(255,255,255,0.3);
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.4);
   text-transform: capitalize;
 }
 

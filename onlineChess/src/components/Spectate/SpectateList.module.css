@@ -109,7 +109,7 @@
 
 .white  { color: rgba(255,255,255,0.9); }
 .black  { color: rgba(255,255,255,0.6); }
-.vs     { color: rgba(255,255,255,0.25); font-size: 0.7rem; }
+.vs     { color: rgba(255,255,255,0.38); font-size: 0.72rem; }
 
 .meta {
   display: flex;
@@ -119,7 +119,7 @@
 
 .tc        { font-size: 0.72rem; color: rgba(0,255,245,0.7); background: rgba(0,255,245,0.06); border-radius: 3px; padding: 1px 6px; }
 .specCount { font-size: 0.72rem; color: rgba(255,255,255,0.35); }
-.age       { font-size: 0.72rem; color: rgba(255,255,255,0.25); }
+.age       { font-size: 0.72rem; color: rgba(255,255,255,0.38); }
 
 .watchLabel {
   font-size: 0.75rem;

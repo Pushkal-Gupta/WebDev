@@ -89,11 +89,11 @@
 .table thead th {
   padding: 8px 12px;
   text-align: left;
-  font-size: 0.62rem;
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.09em;
-  color: rgba(0,255,245,0.45);
+  letter-spacing: 0.08em;
+  color: rgba(0,255,245,0.5);
   border-bottom: 1px solid rgba(255,255,255,0.07);
   position: sticky;
   top: 0;

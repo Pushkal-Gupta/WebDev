@@ -94,8 +94,8 @@
 .empty {
   padding: 48px 32px;
   text-align: center;
-  color: rgba(255,255,255,0.28);
-  font-size: 0.85rem;
+  color: rgba(255,255,255,0.4);
+  font-size: 0.88rem;
   line-height: 1.7;
 }
 
@@ -165,7 +165,7 @@
 
 .cardArrow {
   font-size: 1.3rem;
-  color: rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.35);
   flex-shrink: 0;
 }
 

@@ -142,4 +142,4 @@
 
 .statusTurn   { color: rgba(255,255,255,0.45); }
 .statusResign { color: var(--color-error); font-weight: 600; }
-.moveCount    { color: rgba(255,255,255,0.2); font-size: 0.75rem; }
+.moveCount    { color: rgba(255,255,255,0.35); font-size: 0.75rem; }
