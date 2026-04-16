@@ -80,7 +80,7 @@ body {
 
 @media (max-width: 540px) {
   .main-content {
-    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(46px + env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -1571,7 +1571,7 @@ body {
   .eval-bar { display: none; }
 
   /* Player panels compact */
-  .player-panel { min-height: 40px; padding: 5px 10px; }
+  .player-panel { min-height: 34px; padding: 4px 8px; }
   .pp-clock { font-size: 1.1rem; min-width: 60px; padding: 4px 8px; }
   .pp-avatar { width: 28px; height: 28px; font-size: 0.78rem; }
   .pp-name { max-width: 110px; }
@@ -1582,8 +1582,8 @@ body {
 
 /* ── 540px: bottom nav bar, compact everything ── */
 @media (max-width: 540px) {
-  .board-area { padding: 2px 4px; }
-  .player-panel { min-height: 42px; padding: 6px 10px; gap: 6px; }
+  .board-area { padding: 2px 2px; }
+  .player-panel { min-height: 32px; padding: 3px 8px; gap: 4px; }
   .pp-clock { font-size: 1rem; min-width: 54px; padding: 3px 7px; }
   .pp-avatar { width: 28px; height: 28px; }
   .pp-hint-btn { padding: 3px 7px; font-size: 0.75rem; min-height: 36px; }

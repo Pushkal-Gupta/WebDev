@@ -116,7 +116,8 @@ export default function ThemePicker({ selectedTheme, onSelectTheme }) {
                   onClick={() => onSelectTheme(id)}
                   title={theme.label}
                 >
-                  {theme.label}
+                  <span className={styles.themeBtnIcon}>{theme.icon}</span>
+                  <span className={styles.themeBtnLabel}>{theme.label}</span>
                 </button>
               );
             })}

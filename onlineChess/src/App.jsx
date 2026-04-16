@@ -1374,11 +1374,6 @@ function HomeScreen({ user, onStart, onPlayOnline, onTabClick, onQuickMatch }) {
               })}
             </div>
           )}
-          {!user && (
-            <button className="home-login-link" onClick={() => onTabClick(5)}>
-              Sign in for rated play
-            </button>
-          )}
         </div>
 
         {/* ── Play section — all game modes ── */}

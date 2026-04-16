@@ -53,8 +53,8 @@ html, body, #root {
      Left nav: 72 px collapsed ↔ 240 px expanded.
      Right rail: 300 px compact ↔ 340 px comfortable ↔ 380 px wide. */
   --shell-left-w: 240px;
-  --shell-right-w: 340px;
-  --shell-right-w-min: 300px;
+  --shell-right-w: 380px;
+  --shell-right-w-min: 320px;
 
   /* ── Spacing scale (8px base) ── */
   --space-1: 4px;

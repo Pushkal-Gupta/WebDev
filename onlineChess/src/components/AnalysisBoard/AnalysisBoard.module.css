@@ -18,24 +18,24 @@
 .importCenter {
   display: flex;
   align-items: flex-start;
-  justify-content: center;
+  justify-content: flex-start;
   flex: 1;
   overflow-y: auto;
-  padding: 32px 16px;
+  padding: 28px 28px 40px;
 }
 
 .importCard {
   width: 100%;
-  max-width: 520px;
-  background: rgba(0, 0, 0, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
-  overflow: hidden;
+  max-width: none;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
 }
 
 .importHeader {
-  padding: 24px 24px 16px;
-  text-align: center;
+  padding: 0 0 20px;
+  text-align: left;
 }
 
 .importTitle {
