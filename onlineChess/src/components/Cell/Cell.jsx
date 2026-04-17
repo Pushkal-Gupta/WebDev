@@ -133,6 +133,7 @@ const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, pie
       {piece && (
         <img
           src={resolvePiece(piece.type, piece.color)}
+          crossOrigin="anonymous"
           alt={`${piece.color === 'w' ? 'White' : 'Black'} ${PIECE_NAME_MAP[piece.type]}`}
           onError={e => { e.target.onerror = null; e.target.src = getFallbackUrl(piece.type, piece.color); }}
           className={`${styles.piece} ${draggingThis ? styles.dragging : ''}`}
