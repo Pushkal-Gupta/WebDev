@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import styles from './PuzzlePage.module.css';
 import PuzzleBoard from './PuzzleBoard';
 import MoveList from './MoveList';
-import ThemePicker from './ThemePicker';
+import ThemePicker, { PUZZLE_THEMES } from './ThemePicker';
 import DailyPuzzle from './DailyPuzzle';
 import PuzzleHistory from './PuzzleHistory';
 import RatingChart from './RatingChart';
@@ -495,7 +495,7 @@ export default function PuzzlePage() {
               <>
                 <div className={styles.panelHeader}>
                   <span className={styles.panelTitle}>
-                    {selectedTheme?.replace(/([A-Z])/g, ' $1').trim() || 'Theme Training'}
+                    {PUZZLE_THEMES.find(t => t.id === selectedTheme)?.label || 'Theme Training'}
                   </span>
                   <button className={styles.shareBtn} onClick={() => setMode('themes')}>
                     Change Theme
