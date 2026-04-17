@@ -242,8 +242,8 @@
 /* ── Panel ────────────────────────────────────────────────────────────────── */
 
 .panel {
-  width: 380px;
-  min-width: 320px;
+  width: clamp(280px, 25vw, 380px);
+  min-width: 260px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -731,9 +731,11 @@
   background: color-mix(in srgb, var(--theme-color, #00fff5) 8%, transparent);
   border: 1px solid color-mix(in srgb, var(--theme-color, #00fff5) 20%, transparent);
   color: var(--theme-color, #00fff5);
-  font-size: 0.88rem;
-  font-weight: 800;
   flex-shrink: 0;
+}
+
+.themeBtnIcon svg {
+  display: block;
 }
 
 .themeBtnLabel {
