@@ -51,10 +51,12 @@ export const PUZZLE_THEMES = [
 const THEME_SECTIONS = [
   {
     title: 'Checkmate Patterns',
+    color: '#ff6b6b',
     ids: ['mateIn1', 'mateIn2', 'mateIn3', 'mate', 'backRankMate', 'smotheredMate'],
   },
   {
     title: 'Tactics',
+    color: '#ffa94d',
     ids: [
       'fork', 'pin', 'skewer', 'discoveredAttack', 'doubleCheck', 'sacrifice',
       'deflection', 'decoy', 'clearance', 'interference', 'intermezzo',
@@ -63,18 +65,22 @@ const THEME_SECTIONS = [
   },
   {
     title: 'Endgame',
+    color: '#a78bfa',
     ids: ['endgame', 'pawnEndgame', 'rookEndgame', 'bishopEndgame', 'knightEndgame', 'queenEndgame'],
   },
   {
     title: 'Evaluation',
+    color: '#6fdc8c',
     ids: ['crushing', 'advantage', 'equality', 'defensiveMove', 'quietMove'],
   },
   {
     title: 'Special Moves',
+    color: '#38bdf8',
     ids: ['promotion', 'underPromotion', 'castling', 'enPassant'],
   },
   {
     title: 'Length',
+    color: '#c7c7c7',
     ids: ['short', 'long', 'veryLong', 'oneMove'],
   },
 ];
@@ -103,7 +109,7 @@ export default function ThemePicker({ selectedTheme, onSelectTheme }) {
       {/* Sections */}
       {THEME_SECTIONS.map((section) => (
         <div key={section.title} className={styles.themeSection}>
-          <span className={styles.themeSectionTitle}>{section.title}</span>
+          <span className={styles.themeSectionTitle} style={{ color: section.color }}>{section.title}</span>
           <div className={styles.themeGrid}>
             {section.ids.map((id) => {
               const theme = THEME_MAP[id];
@@ -113,6 +119,7 @@ export default function ThemePicker({ selectedTheme, onSelectTheme }) {
                 <button
                   key={id}
                   className={`${styles.themeBtn} ${isActive ? styles.themeBtnActive : ''}`}
+                  style={{ '--theme-color': section.color }}
                   onClick={() => onSelectTheme(id)}
                   title={theme.label}
                 >
