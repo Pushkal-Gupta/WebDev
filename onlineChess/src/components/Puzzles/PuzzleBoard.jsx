@@ -7,12 +7,23 @@ import { FILE_LABELS, squareName, rankToRow, fileToCol, parseFen } from '../../u
 import PromotionModal from '../modals/PromotionModal';
 
 function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveTo, hintSquare, moveIndex, totalMoves }) {
-  const { clr1, clr2, clr1p, clr2p, clr1x, clr2x } = useThemeStore();
+  const { clr1: _c1, clr2: _c2, clr1p, clr2p, clr1x, clr2x, clr1c, clr2c, boardThemeType, boardImageUrl, boardImageFailed } = useThemeStore();
+  const isImageTheme = boardThemeType === 'image' && !!boardImageUrl && !boardImageFailed;
+  const clr1 = isImageTheme || _c1 === 'transparent' ? '#EEEED2' : _c1;
+  const clr2 = isImageTheme || _c2 === 'transparent' ? '#769656' : _c2;
   const resolvePiece = usePieceResolver();
   const [selected, setSelected] = useState(null);
   const [validMoves, setValidMoves] = useState([]);
   const [chess]     = useState(() => new Chess());
   const [pendingPromotion, setPendingPromotion] = useState(null);
+
+  useEffect(() => {
+    if (boardThemeType !== 'image' || !boardImageUrl) return;
+    const img = new Image();
+    img.onload = () => useThemeStore.getState().setBoardImageFailed(false);
+    img.onerror = () => useThemeStore.getState().setBoardImageFailed(true);
+    img.src = boardImageUrl;
+  }, [boardImageUrl, boardThemeType]);
 
   const flipped   = playerColor === 'b';
   const rows      = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
@@ -76,7 +87,10 @@ function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveT
 
   return (
     <div className={styles.boardWrapper}>
-      <div className={styles.board}>
+      <div
+        className={styles.board}
+        style={isImageTheme ? { backgroundImage: `url(${boardImageUrl})`, backgroundSize: '25% 25%' } : undefined}
+      >
         {rows.map((row, displayRow) =>
           cols.map((col, displayCol) => {
             const piece    = board[row]?.[col];
@@ -88,11 +102,11 @@ function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveT
             const isHintFrom = hintSquare && hintSquare.from === squareName(row, col);
             const isHintTo   = hintSquare && hintSquare.to === squareName(row, col);
 
-            let bg = isLight ? clr1 : clr2;
+            let bg = isImageTheme ? 'transparent' : (isLight ? clr1 : clr2);
             if (isHintFrom) bg = 'rgba(255, 200, 0, 0.45)';
             else if (isHintTo) bg = 'rgba(255, 200, 0, 0.25)';
-            else if (isSel) bg = isLight ? clr1x : clr2x;
-            else if (isLastFrom || isLastTo) bg = isLight ? clr1p : clr2p;
+            else if (isSel) bg = isImageTheme ? (isLight ? 'rgba(255,255,50,0.42)' : 'rgba(255,255,50,0.42)') : (isLight ? clr1x : clr2x);
+            else if (isLastFrom || isLastTo) bg = isImageTheme ? (isLight ? 'rgba(255,255,50,0.32)' : 'rgba(255,255,50,0.32)') : (isLight ? clr1p : clr2p);
 
             const showFileLabel = displayRow === 7;
             const showRankLabel = displayCol === 0;
@@ -119,6 +133,7 @@ function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveT
                 {piece && (
                   <img
                     src={resolvePiece(piece.type, piece.color)}
+                    crossOrigin="anonymous"
                     onError={e => { e.target.onerror = null; e.target.src = getFallbackUrl(piece.type, piece.color); }}
                     alt={piece.type}
                     className={styles.piece}
