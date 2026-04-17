@@ -53,8 +53,8 @@ html, body, #root {
      Left nav: 72 px collapsed ↔ 240 px expanded.
      Right rail: 300 px compact ↔ 340 px comfortable ↔ 380 px wide. */
   --shell-left-w: 240px;
-  --shell-right-w: 380px;
-  --shell-right-w-min: 320px;
+  --shell-right-w: 340px;
+  --shell-right-w-min: 300px;
 
   /* ── Spacing scale (8px base) ── */
   --space-1: 4px;
@@ -84,12 +84,17 @@ html, body, #root {
 
 /* Wider right rail on large screens */
 @media (min-width: 1600px) {
-  :root { --shell-right-w: 380px; }
+  :root { --shell-right-w: 380px; --shell-right-w-min: 340px; }
 }
 
-/* Narrower right rail on mid viewports */
+/* Mid-sized laptops (1200-1400px) */
+@media (max-width: 1300px) {
+  :root { --shell-right-w: 320px; --shell-right-w-min: 280px; }
+}
+
+/* Narrower right rail on smaller viewports */
 @media (max-width: 1100px) {
-  :root { --shell-right-w: 300px; --shell-right-w-min: 260px; }
+  :root { --shell-right-w: 280px; --shell-right-w-min: 260px; }
 }
 
 /* Collapsed left nav on tablet and below — LeftNav itself handles
@@ -99,11 +104,11 @@ html, body, #root {
 }
 
 @media (min-width: 1100px) {
-  :root { --cell-size: 72px; }   /* 576px board */
+  :root { --cell-size: 68px; }   /* 544px board */
 }
 
 @media (min-width: 1300px) {
-  :root { --cell-size: 78px; }   /* 624px board */
+  :root { --cell-size: 74px; }   /* 592px board */
 }
 
 @media (min-width: 1600px) {
@@ -158,15 +163,15 @@ html, body, #root {
  * board size is still driven entirely by width.
  */
 @media (max-height: 900px) {
-  :root { --cell-size: 72px; }   /* 576px board — 1600×900 class */
+  :root { --cell-size: 68px; }   /* 544px board — 1600×900 class */
 }
 
 @media (max-height: 820px) {
-  :root { --cell-size: 64px; }   /* 512px board — 1366×768 class */
+  :root { --cell-size: 62px; }   /* 496px board — 1366×768 class */
 }
 
 @media (max-height: 720px) {
-  :root { --cell-size: 56px; }   /* 448px board — 1280×720 class */
+  :root { --cell-size: 54px; }   /* 432px board — 1280×720 class */
 }
 
 @media (max-height: 640px) {
