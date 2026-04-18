@@ -138,8 +138,10 @@ export default function Workspace({ session, theme, roadmapMode }) {
         if (topicData) setTopic(topicData);
         const { data: qData } = await supabase.from('PGcode_problems').select('*').eq('topic_id', categoryId);
         let filtered = qData || [];
-        if (roadmapMode === '200') filtered = filtered.filter(p => p.roadmap_set === '200' || p.roadmap_set === 'both' || !p.roadmap_set);
-        else if (roadmapMode === '300') filtered = filtered.filter(p => p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === 'both' || !p.roadmap_set);
+        if (roadmapMode === '100') filtered = filtered.filter(p => p.roadmap_set === '100');
+        else if (roadmapMode === '200') filtered = filtered.filter(p => p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === 'both' || !p.roadmap_set);
+        else if (roadmapMode === '300') filtered = filtered.filter(p => p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === 'both' || !p.roadmap_set);
+        else if (roadmapMode === '400') filtered = filtered.filter(p => p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === '400' || p.roadmap_set === 'both' || !p.roadmap_set);
         if (filtered.length > 0) {
           setProblems(filtered);
           setActiveProblem(problemId ? (filtered.find(p => p.id === problemId) || filtered[0]) : filtered[0]);

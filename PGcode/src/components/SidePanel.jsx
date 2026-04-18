@@ -36,6 +36,7 @@ export default function SidePanel({ session, roadmapMode, setRoadmapMode }) {
         if (roadmapMode === '100') return p.roadmap_set === '100';
         if (roadmapMode === '200') return p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === 'both' || !p.roadmap_set;
         if (roadmapMode === '300') return p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === 'both' || !p.roadmap_set;
+        if (roadmapMode === '400') return p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === '400' || p.roadmap_set === 'both' || !p.roadmap_set;
         return true; // PGcode 500 shows all
       });
 
@@ -189,6 +190,10 @@ export default function SidePanel({ session, roadmapMode, setRoadmapMode }) {
             <button className={`sp-dropdown-item ${roadmapMode === '300' ? 'active' : ''}`}
               onClick={() => { setRoadmapMode('300'); setDropdownOpen(false); }}>
               PGcode 300
+            </button>
+            <button className={`sp-dropdown-item ${roadmapMode === '400' ? 'active' : ''}`}
+              onClick={() => { setRoadmapMode('400'); setDropdownOpen(false); }}>
+              PGcode 400
             </button>
             <button className={`sp-dropdown-item ${roadmapMode === '500' ? 'active' : ''}`}
               onClick={() => { setRoadmapMode('500'); setDropdownOpen(false); }}>
