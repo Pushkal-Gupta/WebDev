@@ -54,6 +54,10 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
           filtered = filtered.filter(p =>
             p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === 'both' || !p.roadmap_set
           );
+        } else if (roadmapMode === '400') {
+          filtered = filtered.filter(p =>
+            p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === '400' || p.roadmap_set === 'both' || !p.roadmap_set
+          );
         }
 
         const isGeneric = (name) => /Pattern #\d+|Challenge #\d+/.test(name);
