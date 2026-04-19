@@ -14,6 +14,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
   const [topic, setTopic] = useState(null);
   const [problems, setProblems] = useState([]);
   const [activeProblem, setActiveProblem] = useState(null);
+  const [loadError, setLoadError] = useState(false);
 
   const [activeLang, setActiveLang] = useState('python');
   const [codeContent, setCodeContent] = useState('');
@@ -132,6 +133,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
   // Fetch topic + problems
   useEffect(() => {
     if (!categoryId) return;
+    setLoadError(false);
     (async () => {
       try {
         const { data: topicData } = await supabase.from('PGcode_topics').select('*').eq('id', categoryId).single();
@@ -142,11 +144,20 @@ export default function Workspace({ session, theme, roadmapMode }) {
         else if (roadmapMode === '200') filtered = filtered.filter(p => p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === 'both' || !p.roadmap_set);
         else if (roadmapMode === '300') filtered = filtered.filter(p => p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === 'both' || !p.roadmap_set);
         else if (roadmapMode === '400') filtered = filtered.filter(p => p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === '400' || p.roadmap_set === 'both' || !p.roadmap_set);
+        // Fallback: if the tier filter leaves zero problems for this topic, show all
+        if (filtered.length === 0) {
+          filtered = qData || [];
+        }
+        // Deep-link safety: if URL specifies a problemId not in the filtered set, include it
+        if (problemId && !filtered.find(p => p.id === problemId)) {
+          const target = (qData || []).find(p => p.id === problemId);
+          if (target) filtered.push(target);
+        }
         if (filtered.length > 0) {
           setProblems(filtered);
           setActiveProblem(problemId ? (filtered.find(p => p.id === problemId) || filtered[0]) : filtered[0]);
         }
-      } catch (err) { console.error(err); }
+      } catch (err) { console.error('Failed to load problems:', err); setLoadError(true); }
     })();
   }, [categoryId, roadmapMode, problemId]);
 
@@ -589,6 +600,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
     document.addEventListener('mouseup', onUp);
   }, []);
 
+  if (loadError) return <div className="ws-loading">Something went wrong loading this problem. <Link to="/">Back to Roadmap</Link></div>;
   if (!activeProblem) return <div className="ws-loading">Loading... <Link to="/">Back to Roadmap</Link></div>;
 
   const displayName = activeProblem.name.replace(/Pattern #(\d+)/, 'Problem #$1').replace(/Challenge #(\d+)/, 'Problem #$1');
@@ -696,7 +708,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
                 {(activeProblem.topics?.length > 0 || topic?.category) && (
                   <details className="ws-expandable">
                     <summary>Topics</summary>
-                    <div style={{ padding: '0.5rem 1rem', display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                    <div className="ws-topics-wrap">
                       {(activeProblem.topics || [topic?.category]).filter(Boolean).map((t, i) => (
                         <span key={i} className="ws-topic-pill">{t}</span>
                       ))}
@@ -723,7 +735,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
             {/* ── SOLUTION TAB ── */}
             {leftTab === 'solution' && (
               <div className="ws-solution">
-                <SolutionView problem={activeProblem} />
+                <SolutionView problem={activeProblem} activeLang={activeLang} />
               </div>
             )}
 
@@ -756,7 +768,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
                       <div key={sub.id ?? `${sub.date}-${i}`} className="ws-sub-history-row">
                         <span className={`ws-sub-col-status ${sub.status === 'Accepted' ? 'accepted' : 'failed'}`}>
                           {sub.status}
-                          <span style={{ fontWeight: 400, fontSize: '0.7rem', color: 'var(--text-dim)', marginLeft: '0.3rem' }}>
+                          <span className="ws-sub-pass-count">
                             {sub.passed}/{sub.total}
                           </span>
                         </span>
@@ -769,7 +781,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
                 )}
 
                 {submissions.length === 0 && (
-                  <p className="ws-empty-msg" style={{ padding: '1rem 0' }}>No submissions yet. Submit your code to see results here.</p>
+                  <p className="ws-empty-msg">No submissions yet. Submit your code to see results here.</p>
                 )}
 
                 {session && (

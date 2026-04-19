@@ -4,11 +4,13 @@ import { supabase } from '../lib/supabase';
 import DryRunViewer from './DryRunViewer';
 import './SolutionView.css';
 
-export default function SolutionView({ problem }) {
+export default function SolutionView({ problem, activeLang: wsLang }) {
   const [approaches, setApproaches] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeCodeLang, setActiveCodeLang] = useState('python');
+  const [activeCodeLang, setActiveCodeLang] = useState(wsLang || 'python');
   const [copiedId, setCopiedId] = useState(null);
+
+  useEffect(() => { if (wsLang) setActiveCodeLang(wsLang); }, [wsLang]);
 
   const handleCopy = async (approachId, text) => {
     if (!text) return;
@@ -33,7 +35,7 @@ export default function SolutionView({ problem }) {
           .order('approach_number', { ascending: true });
         setApproaches(data || []);
       } catch (err) {
-        console.error(err);
+        console.error('Failed to load solution approaches:', err);
       } finally {
         setLoading(false);
       }
@@ -81,9 +83,13 @@ export default function SolutionView({ problem }) {
 
       {/* Approaches */}
       {approaches.map((ap, idx) => {
-        const steps = typeof ap.algorithm_steps === 'string'
-          ? JSON.parse(ap.algorithm_steps)
-          : (ap.algorithm_steps || []);
+        let steps = [];
+        try {
+          const raw = typeof ap.algorithm_steps === 'string'
+            ? JSON.parse(ap.algorithm_steps)
+            : (ap.algorithm_steps || []);
+          steps = Array.isArray(raw) ? raw : (raw?.steps || []);
+        } catch { /* malformed JSON — show empty steps */ }
         const code = ap[langMap[activeCodeLang]] || ap.code_python || '';
 
         return (
