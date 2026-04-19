@@ -180,16 +180,15 @@ function Toggle({ checked, onChange, label, desc }) {
 /* ─── Mini Board Preview ─── */
 function MiniBoard({ theme, pieceSet, size = 80 }) {
   const cellSize = size / 4;
-  // piece positions: (type, color) tuples
   const layout = [
-    [null, null, ['b','w'], null],
-    [null, ['p','b'], null, ['p','w']],
-    [['p','w'], null, ['n','w'], null],
-    [null, null, null, ['r','w']],
+    [null, ['k','w'], null, ['b','b']],
+    [['p','w'], null, ['p','b'], null],
+    [null, ['n','w'], null, ['p','w']],
+    [['r','b'], null, null, ['q','w']],
   ];
   const isImage = theme?.type === 'image';
   const boardStyle = isImage && theme.imageUrl
-    ? { backgroundImage: `url(${theme.imageUrl})`, backgroundSize: '100% 100%' }
+    ? { backgroundImage: `url(${theme.imageUrl})`, backgroundSize: '200% 200%', backgroundPosition: '0% 0%' }
     : {};
 
   return (
@@ -201,7 +200,16 @@ function MiniBoard({ theme, pieceSet, size = 80 }) {
         const bg = isImage ? 'transparent' : (isLight ? (theme?.clr1 || '#fff') : (theme?.clr2 || '#33b3a6'));
         return (
           <div key={i} style={{ width: cellSize, height: cellSize, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {p && pieceSet && <img src={resolvePieceUrl(p[0], p[1], pieceSet)} alt="" loading="lazy" style={{ width: cellSize * 0.82, height: cellSize * 0.82, objectFit: 'contain' }} />}
+            {p && pieceSet && (
+              <img
+                src={resolvePieceUrl(p[0], p[1], pieceSet)}
+                crossOrigin="anonymous"
+                alt=""
+                loading="lazy"
+                style={{ width: cellSize * 0.82, height: cellSize * 0.82, objectFit: 'contain' }}
+                onError={e => { e.target.onerror = null; e.target.style.opacity = '0'; }}
+              />
+            )}
           </div>
         );
       })}
