@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Chess } from 'chess.js';
 import { LESSON_CATEGORIES, getLessonsByCategory, getLessonById, getCompletedLessons, markLessonComplete } from '../../data/lessons';
-import useThemeStore from '../../store/themeStore';
+import useThemeStore, { useBoardColors, cellStyle, boardContainerStyle } from '../../store/themeStore';
 import { usePieceResolver } from '../../utils/pieceResolver';
 import styles from './LessonsPage.module.css';
 
@@ -10,13 +10,13 @@ const RANKS = ['1','2','3','4','5','6','7','8'];
 
 // Mini board for lesson display
 function LessonBoard({ fen, onSquareClick, highlight }) {
-  const { clr1, clr2 } = useThemeStore();
+  const { clr1, clr2, isImageTheme, boardImageUrl } = useBoardColors();
   const resolvePiece = usePieceResolver();
   const chess = new Chess(fen);
   const board = chess.board();
 
   return (
-    <div className={styles.board}>
+    <div className={styles.board} style={boardContainerStyle(isImageTheme, boardImageUrl)}>
       {[7,6,5,4,3,2,1,0].map(rank =>
         [0,1,2,3,4,5,6,7].map(file => {
           const sq = FILES[file] + RANKS[rank];
@@ -24,13 +24,14 @@ function LessonBoard({ fen, onSquareClick, highlight }) {
           const isLight = (file + rank) % 2 !== 0;
           const isHighlighted = highlight === sq;
           let bg = isLight ? clr1 : clr2;
-          if (isHighlighted) bg = 'rgba(0,255,245,0.35)';
+          const hl = isHighlighted;
+          if (hl) bg = 'rgba(0,255,245,0.35)';
 
           return (
             <div
               key={sq}
               className={styles.cell}
-              style={{ backgroundColor: bg }}
+              style={cellStyle(isLight, bg, isImageTheme, boardImageUrl, hl)}
               onClick={() => onSquareClick?.(sq)}
             >
               {piece && (

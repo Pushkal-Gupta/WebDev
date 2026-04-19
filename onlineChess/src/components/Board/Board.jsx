@@ -106,7 +106,7 @@ const Board = memo(function Board({ arrows, badges }) {
   }
 
   const boardStyle = boardThemeType === 'image' && boardImageUrl && !boardImageFailed
-    ? { backgroundImage: `url(${boardImageUrl})`, backgroundSize: '25% 25%' }
+    ? { backgroundImage: `url(${boardImageUrl})`, backgroundSize: '100% 100%' }
     : undefined;
 
   // Convert (row, col) to SVG coordinates respecting flip

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Chess } from 'chess.js';
 import { p2p } from '../../utils/p2pService';
-import useThemeStore from '../../store/themeStore';
+import useThemeStore, { useBoardColors, cellStyle, boardContainerStyle } from '../../store/themeStore';
 import usePrefsStore from '../../store/prefsStore';
 import { usePieceResolver, getFallbackUrl } from '../../utils/pieceResolver';
 import { formatTime } from '../../utils/timeFormatter';
@@ -13,7 +13,7 @@ const INIT_TIME = 300_000; // 5 min each side in milliseconds
 // ── Inline board ──────────────────────────────────────────────────────────────
 
 function P2PBoard({ fen, myColor, interactive, onMove, lastFrom, lastTo }) {
-  const { clr1, clr2, clr1p, clr2p, clr1x, clr2x } = useThemeStore();
+  const { clr1, clr2, clr1p, clr2p, clr1x, clr2x, isImageTheme, boardImageUrl } = useBoardColors();
   const resolvePiece = usePieceResolver();
   const [selected, setSelected] = useState(null);
   const [validMoves, setValidMoves] = useState([]);
@@ -57,7 +57,7 @@ function P2PBoard({ fen, myColor, interactive, onMove, lastFrom, lastTo }) {
 
   return (
     <div className={styles.boardWrapper}>
-      <div className={styles.board}>
+      <div className={styles.board} style={boardContainerStyle(isImageTheme, boardImageUrl)}>
         {rows.map((row, dr) =>
           cols.map((col, dc) => {
             const piece     = boardData[row]?.[col];
@@ -68,6 +68,7 @@ function P2PBoard({ fen, myColor, interactive, onMove, lastFrom, lastTo }) {
             const isLastT   = lastTo   && lastTo[0]   === row && lastTo[1]   === col;
 
             let bg = isLight ? clr1 : clr2;
+            const hasHl = isSel || isLastF || isLastT;
             if (isSel)              bg = isLight ? clr1x : clr2x;
             else if (isLastF || isLastT) bg = isLight ? clr1p : clr2p;
 
@@ -75,7 +76,7 @@ function P2PBoard({ fen, myColor, interactive, onMove, lastFrom, lastTo }) {
               <div
                 key={`${row}-${col}`}
                 className={styles.cell}
-                style={{ backgroundColor: bg }}
+                style={cellStyle(isLight, bg, isImageTheme, boardImageUrl, hasHl)}
                 onClick={() => handleClick(row, col)}
               >
                 {dc === 0 && (

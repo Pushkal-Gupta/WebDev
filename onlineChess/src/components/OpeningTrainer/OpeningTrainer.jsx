@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Chess } from 'chess.js';
-import useThemeStore from '../../store/themeStore';
+import useThemeStore, { useBoardColors, cellStyle, boardContainerStyle } from '../../store/themeStore';
 import { usePieceResolver } from '../../utils/pieceResolver';
 import { playSound } from '../../utils/soundManager';
 import {
@@ -15,7 +15,7 @@ const RANKS = ['1','2','3','4','5','6','7','8'];
 // ── Mini Board ───────────────────────────────────────────────────────────────
 
 function MiniBoard({ fen, flipped, onSquareClick, highlight }) {
-  const { clr1, clr2 } = useThemeStore();
+  const { clr1, clr2, isImageTheme, boardImageUrl } = useBoardColors();
   const resolvePiece = usePieceResolver();
   const chess = new Chess(fen);
   const board = chess.board();
@@ -23,18 +23,19 @@ function MiniBoard({ fen, flipped, onSquareClick, highlight }) {
   const colOrder = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
 
   return (
-    <div className={styles.board}>
+    <div className={styles.board} style={boardContainerStyle(isImageTheme, boardImageUrl)}>
       {rowOrder.map(rank =>
         colOrder.map(file => {
           const sq = FILES[file] + RANKS[rank];
           const piece = board[7 - rank]?.[file];
           const isLight = (file + rank) % 2 !== 0;
           const isHl = highlight === sq;
+          const bg = isHl ? 'rgba(0,255,245,0.35)' : (isLight ? clr1 : clr2);
           return (
             <div
               key={sq}
               className={styles.cell}
-              style={{ backgroundColor: isHl ? 'rgba(0,255,245,0.35)' : (isLight ? clr1 : clr2) }}
+              style={cellStyle(isLight, bg, isImageTheme, boardImageUrl, isHl)}
               onClick={() => onSquareClick?.(sq)}
             >
               {piece && <img src={resolvePiece(piece.type, piece.color)} alt="" className={styles.pieceImg} />}

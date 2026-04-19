@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Chess } from 'chess.js';
-import useThemeStore from '../../store/themeStore';
+import useThemeStore, { useBoardColors, cellStyle, boardContainerStyle } from '../../store/themeStore';
 import { usePieceResolver } from '../../utils/pieceResolver';
 import { playSound } from '../../utils/soundManager';
 import { getBestMove } from '../../utils/stockfish';
@@ -88,7 +88,7 @@ const CATEGORIES = [
 // ── Mini Board ───────────────────────────────────────────────────────────────
 
 function MiniBoard({ fen, flipped, onSquareClick, highlight, lastMove }) {
-  const { clr1, clr2, clr1p, clr2p } = useThemeStore();
+  const { clr1, clr2, clr1p, clr2p, isImageTheme, boardImageUrl } = useBoardColors();
   const resolvePiece = usePieceResolver();
   const chess = new Chess(fen);
   const board = chess.board();
@@ -96,7 +96,7 @@ function MiniBoard({ fen, flipped, onSquareClick, highlight, lastMove }) {
   const colOrder = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
 
   return (
-    <div className={styles.board}>
+    <div className={styles.board} style={boardContainerStyle(isImageTheme, boardImageUrl)}>
       {rowOrder.map(rank =>
         colOrder.map(file => {
           const sq = FILES[file] + RANKS[rank];
@@ -105,11 +105,12 @@ function MiniBoard({ fen, flipped, onSquareClick, highlight, lastMove }) {
           const isHl = highlight === sq;
           const isLast = lastMove && (sq === lastMove.from || sq === lastMove.to);
           let bg = isLight ? clr1 : clr2;
+          const hasHl = isLast || isHl;
           if (isLast) bg = isLight ? clr1p : clr2p;
           if (isHl) bg = 'rgba(0,255,245,0.35)';
 
           return (
-            <div key={sq} className={styles.cell} style={{ backgroundColor: bg }} onClick={() => onSquareClick?.(sq)}>
+            <div key={sq} className={styles.cell} style={cellStyle(isLight, bg, isImageTheme, boardImageUrl, hasHl)} onClick={() => onSquareClick?.(sq)}>
               {piece && <img src={resolvePiece(piece.type, piece.color)} alt="" className={styles.pieceImg} />}
             </div>
           );

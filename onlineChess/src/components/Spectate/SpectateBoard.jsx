@@ -2,12 +2,12 @@ import { useState, useEffect, useRef } from 'react';
 import { Chess } from 'chess.js';
 import styles from './SpectateBoard.module.css';
 import { subscribeAsSpectator, unsubscribe, sqToRowCol } from '../../utils/multiplayerService';
-import useThemeStore from '../../store/themeStore';
+import useThemeStore, { useBoardColors, cellStyle, boardContainerStyle } from '../../store/themeStore';
 import { usePieceResolver, getFallbackUrl } from '../../utils/pieceResolver';
 import { PIECE_NAME, FILE_LABELS, parseFen } from '../../utils/boardHelpers';
 
 function ReadOnlyBoard({ fen, lastMoveFrom, lastMoveTo, flipped }) {
-  const { clr1, clr2, clr1p, clr2p } = useThemeStore();
+  const { clr1, clr2, clr1p, clr2p, isImageTheme, boardImageUrl } = useBoardColors();
   const resolvePiece = usePieceResolver();
   const rows = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
   const cols = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
@@ -15,7 +15,7 @@ function ReadOnlyBoard({ fen, lastMoveFrom, lastMoveTo, flipped }) {
 
   return (
     <div className={styles.boardWrapper}>
-      <div className={styles.board}>
+      <div className={styles.board} style={boardContainerStyle(isImageTheme, boardImageUrl)}>
         {rows.map((row, displayRow) =>
           cols.map((col, displayCol) => {
             const piece   = board[row]?.[col];
@@ -27,7 +27,7 @@ function ReadOnlyBoard({ fen, lastMoveFrom, lastMoveTo, flipped }) {
             const showFile = displayRow === 7;
 
             return (
-              <div key={`${row}-${col}`} className={styles.cell} style={{backgroundColor: bg}}>
+              <div key={`${row}-${col}`} className={styles.cell} style={cellStyle(isLight, bg, isImageTheme, boardImageUrl, isLast)}>
                 {showRank && (
                   <span className={styles.rankLabel} style={{color: isLight ? clr2 : clr1}}>
                     {flipped ? row + 1 : 8 - row}

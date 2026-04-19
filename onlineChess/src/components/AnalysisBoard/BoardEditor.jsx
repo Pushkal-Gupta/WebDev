@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import styles from './BoardEditor.module.css';
-import useThemeStore from '../../store/themeStore';
+import useThemeStore, { useBoardColors, cellStyle, boardContainerStyle } from '../../store/themeStore';
 import { usePieceResolver, getFallbackUrl } from '../../utils/pieceResolver';
 import { PIECE_NAME, FILE_LABELS, parseFen as parseFenToBoard } from '../../utils/boardHelpers';
 
@@ -41,7 +41,7 @@ function boardToFen(board, turn, castling) {
 }
 
 export default function BoardEditor({ onAnalyse }) {
-  const { clr1, clr2, clr1x, clr2x } = useThemeStore();
+  const { clr1, clr2, clr1x, clr2x, isImageTheme, boardImageUrl } = useBoardColors();
   const resolvePiece = usePieceResolver();
 
   const [board, setBoard] = useState(() => parseFenToBoard(START_FEN));
@@ -105,7 +105,7 @@ export default function BoardEditor({ onAnalyse }) {
   return (
     <div className={styles.editor}>
       {/* Mini board */}
-      <div className={styles.boardGrid}>
+      <div className={styles.boardGrid} style={boardContainerStyle(isImageTheme, boardImageUrl)}>
         {Array.from({ length: 8 }, (_, row) =>
           Array.from({ length: 8 }, (_, col) => {
             const piece = board[row]?.[col];
@@ -116,7 +116,7 @@ export default function BoardEditor({ onAnalyse }) {
               <div
                 key={`${row}-${col}`}
                 className={styles.cell}
-                style={{ backgroundColor: bg }}
+                style={cellStyle(isLight, bg, isImageTheme, boardImageUrl, false)}
                 onClick={() => handleCellClick(row, col)}
               >
                 {piece && (
