@@ -17,6 +17,8 @@
   min-width: 300px;
   max-width: 420px;
   width: 90%;
+  max-height: 90dvh;
+  overflow-y: auto;
   color: white;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0,0,0,0.5);
   z-index: 9999;
@@ -48,7 +50,7 @@
 }
 
 .btn {
-  padding: 8px 20px;
+  padding: 10px 22px;
   border-radius: 6px;
   border: none;
   cursor: pointer;

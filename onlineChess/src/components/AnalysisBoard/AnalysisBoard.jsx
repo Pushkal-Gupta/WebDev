@@ -164,7 +164,7 @@ const EvalGraph = memo(function EvalGraph({ data, currentIdx, onSeek, large, rev
   const evalToY = s => pad + (H - pad * 2) * (1 - evalToWhitePct(s) / 100);
   const pts = data.map((s, i) => [
     data.length > 1 ? pad + (i / (data.length - 1)) * (W - pad * 2) : W / 2,
-    evalToY(s),
+    evalToY(typeof s === 'number' && isFinite(s) ? s : 0),
   ]);
   // Smooth curve using Catmull-Rom → Bezier for a gentler line than straight segments.
   const pathD = pts.length > 1 ? (() => {
@@ -611,6 +611,9 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
   const doLoad = (pgnStr) => {
     setPgnError('');
     if (!pgnStr.trim()) { setPgnError('Paste a PGN or FEN first.'); return; }
+    if (reviewResults && moveHistory.length > 0) {
+      if (!window.confirm('Loading a new game will discard your current analysis. Continue?')) return;
+    }
     const chess = tryLoadPgn(pgnStr);
     if (!chess) { setPgnError('Invalid PGN format. Paste the full game text including move numbers (e.g., 1. e4 e5 2. Nf3 Nc6...) or a valid FEN string.'); return; }
     const cleanPgn = chess.pgn() || pgnStr;

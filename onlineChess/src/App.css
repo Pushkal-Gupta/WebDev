@@ -1024,7 +1024,7 @@ body {
 .pp-clock-low {
   background: rgba(210,30,30,0.14) !important;
   border-color: rgba(255,70,70,0.45) !important;
-  color: #ff8080 !important;
+  color: var(--color-error) !important;
   animation: clock-pulse 0.9s ease infinite;
 }
 
@@ -1058,6 +1058,18 @@ body {
 }
 
 .online-actions { margin-left: auto; display: flex; gap: 7px; }
+
+.opponent-thinking {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: center;
+  padding: 4px 0;
+  animation: opponentThinkPulse 1.8s ease-in-out infinite;
+}
+@keyframes opponentThinkPulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.8; }
+}
 
 .online-btn {
   padding: 4px 11px;
@@ -1118,7 +1130,7 @@ body {
 }
 .board-ctrl-resign:hover {
   background: rgba(255,60,60,0.12);
-  color: #ff8888;
+  color: var(--color-error);
 }
 
 /* ─── Local game controls (legacy, kept for resign) ── */
@@ -1180,7 +1192,7 @@ body {
   padding: 8px 18px;
   background: rgba(255,70,70,0.1);
   border: 1px solid rgba(255,70,70,0.3);
-  color: #ff9090; border-radius: 6px; cursor: pointer;
+  color: var(--color-error); border-radius: 6px; cursor: pointer;
   font-size: 0.88rem; transition: all 0.2s;
 }
 .account-logout-btn:hover { background: rgba(255,70,70,0.18); }
@@ -1230,7 +1242,7 @@ body {
   letter-spacing: 0.05em; padding: 2px 7px; border-radius: 4px;
 }
 .game-result.win  { color: #88ffaa; background: rgba(60,200,80,0.1); }
-.game-result.loss { color: #ff9090; background: rgba(255,60,60,0.1); }
+.game-result.loss { color: var(--color-error); background: rgba(255,60,60,0.1); }
 .game-result.draw { color: #ffdd88; background: rgba(255,190,60,0.1); }
 
 .game-date { font-size: 0.75rem; color: rgba(255,255,255,0.28); }
@@ -1246,7 +1258,7 @@ body {
 }
 
 .game-result-win  { color: #88ffaa; background: rgba(60,200,80,0.1);   font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 7px; border-radius: 4px; }
-.game-result-loss { color: #ff9090; background: rgba(255,60,60,0.1);   font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 7px; border-radius: 4px; }
+.game-result-loss { color: var(--color-error); background: rgba(255,60,60,0.1);   font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 7px; border-radius: 4px; }
 .game-result-draw { color: #ffdd88; background: rgba(255,190,60,0.1); font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 7px; border-radius: 4px; }
 
 .game-rating-change { font-size: 0.78rem; font-weight: 600; }

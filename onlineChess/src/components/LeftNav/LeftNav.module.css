@@ -150,6 +150,14 @@
   text-overflow: ellipsis;
 }
 
+/* Section dividers between nav groups */
+.divider {
+  height: 1px;
+  margin: 6px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  list-style: none;
+}
+
 /* Bottom account section */
 .bottom {
   margin-top: auto;
@@ -166,6 +174,7 @@
   .label     { display: none; }
   .item      { justify-content: center; padding: 13px; }
   .itemActive::before { top: 15%; bottom: 15%; }
+  .divider   { margin: 6px 8px; }
 }
 
 @media (max-width: 540px) {
@@ -194,4 +203,5 @@
   .label     { display: block; font-size: 0.58rem; }
   .bottom    { display: flex; border-top: none; border-left: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
   .itemActive::before { left: 20%; right: 20%; top: 0; bottom: auto; width: auto; height: 2px; border-radius: 0 0 2px 2px; }
+  .divider   { display: none; }
 }

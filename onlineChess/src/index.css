@@ -131,6 +131,10 @@ html, body, #root {
   :root { --cell-size: 34px; }   /* 272px board */
 }
 
+@media (max-width: 340px) {
+  :root { --cell-size: 30px; }   /* 240px board */
+}
+
 /* ── Viewport-height scaling ──
    On tall monitors the board gets more vertical space; on short windows
    (or laptops with browser chrome) it shrinks so pieces don't get clipped.

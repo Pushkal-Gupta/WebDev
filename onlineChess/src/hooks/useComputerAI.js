@@ -43,7 +43,7 @@ export default function useComputerAI(setAlertMsg) {
           try {
             bestMove = await getBestMove(fen, { strength: compStrength || 10 });
           } catch {
-            bestMove = getLocalBestMove(fen, compStrength || 8);
+            bestMove = getLocalBestMove(fen, Math.min(compStrength || 6, 6));
           }
         }
         if (!bestMove || bestMove === '(none)') return;
