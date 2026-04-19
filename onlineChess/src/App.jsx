@@ -219,8 +219,30 @@ export default function App() {
       useThemeStore.getState().loadThemeFromProfile(user.id);
     } else {
       unsubscribeNotifs();
+      resetMatchmaking();
+      useFriendStore.setState({ friends: [], incoming: [], outgoing: [] });
+      if (onlineChannelRef.current) {
+        unsubscribe(onlineChannelRef.current);
+        onlineChannelRef.current = null;
+      }
     }
   }, [user?.id]); // eslint-disable-line
+
+  // ─── Clean up Supabase channels on page unload ───────────────────────────
+  useEffect(() => {
+    const cleanup = () => {
+      if (onlineChannelRef.current) {
+        unsubscribe(onlineChannelRef.current);
+        onlineChannelRef.current = null;
+      }
+      resetMatchmaking();
+    };
+    window.addEventListener('beforeunload', cleanup);
+    return () => {
+      window.removeEventListener('beforeunload', cleanup);
+      cleanup();
+    };
+  }, []); // eslint-disable-line
 
   // ─── Timer tick (extracted to hook) ──
   useGameTimer();
@@ -498,7 +520,10 @@ export default function App() {
   };
 
   const onIncomingChat = (payload) => {
-    setChatMessages(msgs => [...msgs, payload]);
+    setChatMessages(msgs => {
+      if (msgs.some(m => m.ts === payload.ts && m.sender === payload.sender)) return msgs;
+      return [...msgs, payload];
+    });
   };
 
   const onOpponentResign = () => {
@@ -1133,6 +1158,12 @@ export default function App() {
                   )}
                 </div>
               )}
+
+              {isOnline && gameStarted && !gameOver && (() => {
+                const myTurn = (onlineColor === 'white' && activeColor === 'w') ||
+                               (onlineColor === 'black' && activeColor === 'b');
+                return !myTurn ? <div className="opponent-thinking">Opponent is thinking...</div> : null;
+              })()}
 
               {/* Top player panel */}
               <PlayerPanel
