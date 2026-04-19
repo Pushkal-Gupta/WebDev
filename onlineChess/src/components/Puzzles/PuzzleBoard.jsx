@@ -1,16 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Chess } from 'chess.js';
 import styles from './PuzzlePage.module.css';
-import useThemeStore from '../../store/themeStore';
+import useThemeStore, { useBoardColors, cellStyle } from '../../store/themeStore';
 import { usePieceResolver, getFallbackUrl } from '../../utils/pieceResolver';
 import { FILE_LABELS, squareName, rankToRow, fileToCol, parseFen } from '../../utils/boardHelpers';
 import PromotionModal from '../modals/PromotionModal';
 
 function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveTo, hintSquare, moveIndex, totalMoves }) {
-  const { clr1: _c1, clr2: _c2, clr1p, clr2p, clr1x, clr2x, clr1c, clr2c, boardThemeType, boardImageUrl, boardImageFailed } = useThemeStore();
-  const isImageTheme = boardThemeType === 'image' && !!boardImageUrl && !boardImageFailed;
-  const clr1 = isImageTheme || _c1 === 'transparent' ? '#EEEED2' : _c1;
-  const clr2 = isImageTheme || _c2 === 'transparent' ? '#769656' : _c2;
+  const { clr1, clr2, clr1p, clr2p, clr1x, clr2x, isImageTheme, boardImageUrl, boardThemeType } = useBoardColors();
   const resolvePiece = usePieceResolver();
   const [selected, setSelected] = useState(null);
   const [validMoves, setValidMoves] = useState([]);
@@ -89,7 +86,7 @@ function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveT
     <div className={styles.boardWrapper}>
       <div
         className={styles.board}
-        style={isImageTheme ? { backgroundImage: `url(${boardImageUrl})`, backgroundSize: '25% 25%' } : undefined}
+        style={isImageTheme ? { backgroundImage: `url(${boardImageUrl})`, backgroundSize: '100% 100%' } : undefined}
       >
         {rows.map((row, displayRow) =>
           cols.map((col, displayCol) => {
@@ -102,11 +99,12 @@ function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveT
             const isHintFrom = hintSquare && hintSquare.from === squareName(row, col);
             const isHintTo   = hintSquare && hintSquare.to === squareName(row, col);
 
-            let bg = isImageTheme ? 'transparent' : (isLight ? clr1 : clr2);
-            if (isHintFrom) bg = 'rgba(255, 200, 0, 0.45)';
-            else if (isHintTo) bg = 'rgba(255, 200, 0, 0.25)';
-            else if (isSel) bg = isImageTheme ? (isLight ? 'rgba(255,255,50,0.42)' : 'rgba(255,255,50,0.42)') : (isLight ? clr1x : clr2x);
-            else if (isLastFrom || isLastTo) bg = isImageTheme ? (isLight ? 'rgba(255,255,50,0.32)' : 'rgba(255,255,50,0.32)') : (isLight ? clr1p : clr2p);
+            let bg = isLight ? clr1 : clr2;
+            let hasHl = false;
+            if (isHintFrom) { bg = 'rgba(255, 200, 0, 0.45)'; hasHl = true; }
+            else if (isHintTo) { bg = 'rgba(255, 200, 0, 0.25)'; hasHl = true; }
+            else if (isSel) { bg = isLight ? clr1x : clr2x; hasHl = true; }
+            else if (isLastFrom || isLastTo) { bg = isLight ? clr1p : clr2p; hasHl = true; }
 
             const showFileLabel = displayRow === 7;
             const showRankLabel = displayCol === 0;
@@ -117,7 +115,7 @@ function PuzzleBoard({ fen, playerColor, onMove, status, lastMoveFrom, lastMoveT
               <div
                 key={`${row}-${col}`}
                 className={styles.cell}
-                style={{ backgroundColor: bg }}
+                style={cellStyle(isLight, bg, isImageTheme, boardImageUrl, hasHl)}
                 onClick={() => handleCellClick(row, col)}
               >
                 {showRankLabel && (

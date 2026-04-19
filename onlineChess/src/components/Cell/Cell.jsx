@@ -57,11 +57,12 @@ const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, pie
 
   const boardImageFailed = useThemeStore(s => s.boardImageFailed);
   const isImageTheme = boardThemeType === 'image' && !!boardImageUrl && !boardImageFailed;
-  let bgColor = isImageTheme ? 'transparent' : (isLight ? (clr1 !== 'transparent' ? clr1 : '#EEEED2') : (clr2 !== 'transparent' ? clr2 : '#769656'));
-  if (isPremoveFrom || isPremoveTo) bgColor = isLight ? 'rgba(11, 106, 148, 0.45)' : 'rgba(11, 106, 148, 0.55)';
-  else if (isInCheck) bgColor = isLight ? clr1c : clr2c;
-  else if (isSelected) bgColor = isLight ? clr1x : clr2x;
-  else if (isLastMoveFrom || isLastMoveTo) bgColor = isLight ? clr1p : clr2p;
+  let bgColor = isLight ? (clr1 !== 'transparent' ? clr1 : '#EEEED2') : (clr2 !== 'transparent' ? clr2 : '#769656');
+  let hasHighlight = false;
+  if (isPremoveFrom || isPremoveTo) { bgColor = isLight ? 'rgba(11, 106, 148, 0.45)' : 'rgba(11, 106, 148, 0.55)'; hasHighlight = true; }
+  else if (isInCheck) { bgColor = isLight ? clr1c : clr2c; hasHighlight = true; }
+  else if (isSelected) { bgColor = isLight ? clr1x : clr2x; hasHighlight = true; }
+  else if (isLastMoveFrom || isLastMoveTo) { bgColor = isLight ? clr1p : clr2p; hasHighlight = true; }
 
   const handleClick = useCallback(() => {
     if (!gameStarted) return;
@@ -114,7 +115,9 @@ const Cell = memo(function Cell({ row, col, displayRow, displayCol, flipped, pie
   return (
     <div
       className={`${styles.cell} ${cornerClass}`}
-      style={{ backgroundColor: bgColor }}
+      style={isImageTheme
+        ? { backgroundColor: hasHighlight ? bgColor : 'transparent' }
+        : { backgroundColor: bgColor }}
       onClick={handleClick}
       onDragOver={handleDragOver}
       onDrop={handleDrop}

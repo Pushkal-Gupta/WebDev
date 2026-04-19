@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import useThemeStore from '../../store/themeStore';
+import useThemeStore, { useBoardColors, cellStyle, boardContainerStyle } from '../../store/themeStore';
 import styles from './Training.module.css';
 
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
@@ -24,7 +24,7 @@ function squareColor(sq) {
 // ── Coordinate / Color Mode ─────────────────────────────────────────────────
 
 function CoordMode({ mode }) {
-  const { clr1, clr2 } = useThemeStore();
+  const { clr1, clr2, isImageTheme, boardImageUrl } = useBoardColors();
   const [target, setTarget]       = useState(randomSquare);
   const [score, setScore]         = useState(0);
   const [wrong, setWrong]         = useState(0);
@@ -189,7 +189,7 @@ function CoordMode({ mode }) {
 
         {/* Board */}
         {mode === 'coord' && (active || gameOver) && (
-          <div className={styles.miniBoard}>
+          <div className={styles.miniBoard} style={boardContainerStyle(isImageTheme, boardImageUrl)}>
             {rowOrder.map(rank =>
               colOrder.map(file => {
                 const sq = FILES[file] + RANKS[rank];
@@ -198,7 +198,7 @@ function CoordMode({ mode }) {
                   <div
                     key={sq}
                     className={styles.miniCell}
-                    style={{ backgroundColor: isLight ? clr1 : clr2 }}
+                    style={cellStyle(isLight, isLight ? clr1 : clr2, isImageTheme, boardImageUrl, false)}
                     onClick={() => handleCellClick(sq)}
                   >
                     {(flipped ? file === 7 : file === 0) && <span className={styles.miniRank}>{RANKS[rank]}</span>}
@@ -291,7 +291,7 @@ function CoordMode({ mode }) {
 // ── Knight Vision ────────────────────────────────────────────────────────────
 
 function KnightVision() {
-  const { clr1, clr2 } = useThemeStore();
+  const { clr1, clr2, isImageTheme, boardImageUrl } = useBoardColors();
   const [knightSq, setKnightSq]     = useState(null);
   const [selected, setSelected]       = useState(new Set());
   const [score, setScore]             = useState(0);
@@ -425,7 +425,7 @@ function KnightVision() {
         )}
 
         {(gameActive || showResult) && (
-          <div className={styles.miniBoard}>
+          <div className={styles.miniBoard} style={boardContainerStyle(isImageTheme, boardImageUrl)}>
             {rowOrder.map(rank =>
               colOrder.map(file => {
                 const sq = FILES[file] + RANKS[rank];
@@ -440,7 +440,7 @@ function KnightVision() {
                   <div
                     key={sq}
                     className={styles.miniCell}
-                    style={{ backgroundColor: bg }}
+                    style={cellStyle(isLight, bg, isImageTheme, boardImageUrl, isSel || isKnight)}
                     onClick={() => handleCellClick(sq)}
                   >
                     {isKnight && (

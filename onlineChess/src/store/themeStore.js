@@ -221,3 +221,45 @@ const useThemeStore = create(persist((set, get) => ({
 }));
 
 export default useThemeStore;
+
+const FALLBACK_LIGHT = '#EEEED2';
+const FALLBACK_DARK  = '#769656';
+
+export function cellStyle(isLight, bgColor, isImageTheme, boardImageUrl, hasHighlight) {
+  if (isImageTheme && !hasHighlight) {
+    return { backgroundColor: 'transparent' };
+  }
+  if (isImageTheme && hasHighlight) {
+    return { backgroundColor: bgColor };
+  }
+  return { backgroundColor: bgColor };
+}
+
+export function boardContainerStyle(isImageTheme, boardImageUrl) {
+  if (isImageTheme && boardImageUrl) {
+    return {
+      backgroundImage: `url(${boardImageUrl})`,
+      backgroundSize: '100% 100%',
+    };
+  }
+  return undefined;
+}
+
+export function useBoardColors() {
+  const s = useThemeStore();
+  const isImage = s.boardThemeType === 'image' && !!s.boardImageUrl && !s.boardImageFailed;
+  const needsFallback = isImage || s.clr1 === 'transparent';
+  return {
+    clr1: needsFallback ? FALLBACK_LIGHT : s.clr1,
+    clr2: needsFallback ? FALLBACK_DARK  : s.clr2,
+    clr1p: needsFallback ? 'rgba(255,255,50,0.32)' : s.clr1p,
+    clr2p: needsFallback ? 'rgba(255,255,50,0.32)' : s.clr2p,
+    clr1x: needsFallback ? 'rgba(255,255,50,0.42)' : s.clr1x,
+    clr2x: needsFallback ? 'rgba(255,255,50,0.42)' : s.clr2x,
+    clr1c: needsFallback ? 'rgba(235,97,80,0.72)'  : s.clr1c,
+    clr2c: needsFallback ? 'rgba(235,97,80,0.72)'  : s.clr2c,
+    isImageTheme: isImage,
+    boardImageUrl: s.boardImageUrl,
+    boardThemeType: s.boardThemeType,
+  };
+}
