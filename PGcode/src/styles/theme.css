@@ -19,6 +19,12 @@
   --easy: #4caf50;
   --medium: #f0a500;
   --hard: #ef4444;
+  --easy-bg: rgba(76, 175, 80, 0.12);
+  --medium-bg: rgba(240, 165, 0, 0.12);
+  --hard-bg: rgba(239, 68, 68, 0.12);
+  --easy-hover: #3a9e44;
+  --error-bg: rgba(239, 68, 68, 0.06);
+  --error-border: rgba(239, 68, 68, 0.15);
 
   /* Workspace language accent colors */
   --blue: #3b82f6;
@@ -49,6 +55,14 @@
   --border: #e0ddd7;
   --card-bg: #ffffff;
   --hover-box: rgba(0, 138, 126, 0.06);
+
+  /* Light mode status overrides */
+  --easy-bg: rgba(76, 175, 80, 0.10);
+  --medium-bg: rgba(240, 165, 0, 0.10);
+  --hard-bg: rgba(239, 68, 68, 0.10);
+  --easy-hover: #2e8b3e;
+  --error-bg: rgba(239, 68, 68, 0.05);
+  --error-border: rgba(239, 68, 68, 0.12);
 
   /* Light mode workspace overrides */
   --blue-bg: #e8f0fe;
