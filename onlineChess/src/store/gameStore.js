@@ -301,12 +301,12 @@ const useGameStore = create((set, get) => ({
     }
 
     // ── Normal mode: player's turn ────────────────────────────────────────────
+    if (premove) set({ premove: null });
     if (disableBoard) return;
 
     // If clicking a valid move square
     const isValidMove = validMoves.some(m => m.row === row && m.col === col);
     if (selectedSquare && isValidMove) {
-      if (premove) set({ premove: null });
       get().makeMove(selectedSquare, { row, col });
       return;
     }
@@ -494,6 +494,7 @@ const useGameStore = create((set, get) => ({
       turnStartBlack: newTurnStartBlack,
       delayRemaining: newDelayRemaining,
       pawnPromotion: null,
+      premove: null,
       disableBoard: false,
       capturedByWhite: newCapturedByWhite,
       capturedByBlack: newCapturedByBlack,
@@ -530,7 +531,7 @@ const useGameStore = create((set, get) => ({
     }
 
     if (message) {
-      set({ gameOver: true, gameOverMessage: message, timerRunning: false, disableBoard: true, gameResult, compThinking: false });
+      set({ gameOver: true, gameOverMessage: message, timerRunning: false, disableBoard: true, gameResult, compThinking: false, premove: null });
     }
   },
 
@@ -543,6 +544,7 @@ const useGameStore = create((set, get) => ({
       timerRunning: false,
       disableBoard: true,
       compThinking: false,
+      premove: null,
       gameResult: { winner: winner.toLowerCase(), reason: 'timeout' },
     });
   },
