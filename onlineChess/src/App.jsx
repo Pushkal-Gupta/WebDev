@@ -508,6 +508,7 @@ export default function App() {
         gameOverMessage: msg,
         timerRunning: false,
         disableBoard: true,
+        premove: null,
         gameResult: serverResult,
       });
     } else if (!useGameStore.getState().gameOver) {
@@ -535,6 +536,7 @@ export default function App() {
       gameOverMessage: `${winner} wins! Opponent resigned.`,
       timerRunning: false,
       disableBoard: true,
+      premove: null,
       gameResult: { winner: winner.toLowerCase(), reason: 'resign' },
     });
     if (onlineChannelRef.current) {
@@ -639,6 +641,7 @@ export default function App() {
         gameOverMessage: `${winner} wins! You resigned.`,
         timerRunning: false,
         disableBoard: true,
+        premove: null,
         gameResult: { winner: winner.toLowerCase(), reason: 'resign' },
       });
     };
@@ -658,6 +661,7 @@ export default function App() {
         gameOverMessage: `${winner} wins! You resigned.`,
         timerRunning: false,
         disableBoard: true,
+        premove: null,
         gameResult: { winner: winner.toLowerCase(), reason: 'resign' },
       });
     };
