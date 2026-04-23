@@ -5,6 +5,7 @@ import useGameStore from '../../store/gameStore';
 import useThemeStore from '../../store/themeStore';
 import usePrefsStore from '../../store/prefsStore';
 import { usePieceResolver } from '../../utils/pieceResolver';
+import useArrowDrawing from '../../hooks/useArrowDrawing';
 
 const NORMAL_ORDER  = [0, 1, 2, 3, 4, 5, 6, 7];
 const FLIPPED_ORDER = [7, 6, 5, 4, 3, 2, 1, 0];
@@ -25,6 +26,9 @@ const Board = memo(function Board({ arrows, badges }) {
   // animating: { pieces: [{ type, color, fromRow, fromCol, toRow, toCol }], hideSquares: [{row,col}], duration }
   const [animating, setAnimating] = useState(null);
   const boardRef = useRef(null);
+  const { userArrows, drawingArrow, clearUserArrows } = useArrowDrawing(boardRef, flipped);
+
+  useEffect(() => { clearUserArrows(); }, [lastMove, clearUserArrows]);
 
   // ── Illegal move shake ────────────────────────────────────────────────────
   const illegalMoveAt = useGameStore(s => s.illegalMoveAt);
@@ -121,7 +125,12 @@ const Board = memo(function Board({ arrows, badges }) {
   const premoveArrow = (premove?.from && premove?.to)
     ? { from: premove.from, to: premove.to, color: '#2e93d8', kind: 'premove' }
     : null;
-  const allArrows = [...(arrows || []), ...(premoveArrow ? [premoveArrow] : [])];
+  const allArrows = [
+    ...(arrows || []),
+    ...(premoveArrow ? [premoveArrow] : []),
+    ...userArrows,
+    ...(drawingArrow ? [drawingArrow] : []),
+  ];
 
   const hasOverlays = (allArrows.length > 0) || (badges?.length > 0);
 
