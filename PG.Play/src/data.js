@@ -58,14 +58,24 @@ export const GAMES = [
     story:'A single level, a classic corridor, and a handful of drifting creatures that want you gone. Wolfenstein-grade fake-3D rendered one column at a time. Aim, click, clear the sector — the old-school way.',
     playable:true },
 
-  { id:'treeshate', name:'Trees Hate You', cat:'Rage', kind:'story', players:'1P', levels:'∞',
-    tagline:'Harmless forest. Malicious foliage.',
-    story:'A quiet walk through the woods. Some of the trees are not trees. Step too close and they punch, they cannon, they drop logs, they spit arrows. Die once and the forest adds another trap. Make it to the flag — if you can figure out which ones are pretending.',
+  { id:'grudgewood', name:'Grudgewood', cat:'Rage', kind:'story', players:'1P', levels:'∞',
+    tagline:'Quiet forest. Bad intentions.',
+    story:'A sleepy-looking grove on a sleepy-looking afternoon. Problem: the trees remember something. Most are harmless. Some are waiting. Ten trap kinds — spikes, logs, saws, quiet traps you won\'t see until it\'s too late. Each death arms one more tree. Three checkpoints save your spot. The forest is mean, but legible — if you pay attention.',
     playable:true },
 
   { id:'arena', name:'Arena', cat:'Multiplayer', kind:'vs', players:'1-8', levels:1,
     tagline:'Top-down realtime shootout.',
     story:'A boxed arena, walls to hide behind, bots to warm up on, and real players dropping in through Supabase Realtime. Five kills to win the round. Click to fire, keep moving — the crosshair is a suggestion.',
+    playable:true, badge:'new' },
+
+  { id:'slipshot', name:'SLIPSHOT', cat:'FPS', kind:'story', players:'1P', levels:'∞',
+    tagline:'Three minutes. Pure momentum.',
+    story:'A corporate training chamber. Holo-targets blink along the walls. Drones drift in from the ceiling. You have 180 seconds. Slide into a jump, chain the landing into another slide, airdash between kills. The combo meter only climbs while you keep moving — stop, and it falls. Bronze is a clean line. Silver is a pattern. Gold is a song.',
+    playable:true, badge:'new' },
+
+  { id:'nightcap', name:'Nightcap', cat:'Rage', kind:'story', players:'1P', levels:7,
+    tagline:'A complimentary nightmare.',
+    story:'A roadside motel. 3 AM. The front desk forgot about you. The room fixtures did not. Seven rooms between you and the exit sign — lobby, hallway, vending alcove, ice room, pool, laundry, Room 13. Every plate, fan, fake-safe tile and ice block has a tell if you watch. One-hit deaths, instant respawn. A short stay. A long check-out.',
     playable:true, badge:'new' },
 
   // HEAD-TO-HEAD
@@ -86,6 +96,47 @@ export const GAMES = [
   { id:'basket', name:'Basket Champs', cat:'Sports', kind:'vs', players:'1-2', levels:3,
     tagline:'Aim. Arc. Drain the three.',
     story:'Two characters, one hoop, twenty-one points. Each turn you drag to aim, release to shoot — angle and power, that\'s it. Miss and the ball drops to the floor; your opponent lines up next. The court is yours until it isn\'t.' },
+];
+
+// Editorial collections. Curated by hand, not by algorithm. Each blurb is
+// an opinion — these are written to feel selected, not scraped.
+export const COLLECTIONS = [
+  {
+    id: 'start-in-ten',
+    title: 'Start in ten seconds',
+    blurb: 'Zero tutorial. See the game, understand it, get into a run before you finish reading this sentence.',
+    ids: ['g2048', 'connect4', 'cutrope', 'hook'],
+  },
+  {
+    id: 'pass-the-laptop',
+    title: 'Pass the laptop',
+    blurb: 'Two people, one keyboard, no setup. The games where handing over the laptop is half the fun.',
+    ids: ['connect4', 'eightball', 'football', 'basket'],
+  },
+  {
+    id: 'brainy',
+    title: 'Brainy',
+    blurb: 'For the reader’s corner: games that reward planning over reflex. Good for a rainy afternoon.',
+    ids: ['g2048', 'cutrope', 'bloons', 'connect4'],
+  },
+  {
+    id: 'twitch',
+    title: 'Fast twitch',
+    blurb: 'Movement, aim, timing. Sessions end in seconds; mastery takes hours. Headphones help.',
+    ids: ['slipshot', 'fps', 'hook', 'arena'],
+  },
+  {
+    id: 'mean-and-funny',
+    title: 'Mean, but funny',
+    blurb: 'Games designed to make you laugh at yourself while you restart for the fifteenth time.',
+    ids: ['grudgewood', 'nightcap', 'happywheels', 'vex'],
+  },
+  {
+    id: 'couch-coop',
+    title: 'Same-team co-op',
+    blurb: 'You and a friend on the same side. Clearing the level is the celebration.',
+    ids: ['fbwg', 'badicecream'],
+  },
 ];
 
 // Filter taxonomy used by the homepage tabs.
