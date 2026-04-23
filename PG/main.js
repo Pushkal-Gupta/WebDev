@@ -37,7 +37,7 @@ async function loginWithGoogle() {
 
 function showScreen(name) {
   ["screen-main", "screen-otp", "screen-new-pass"].forEach((id) =>
-    document.getElementById(id).classList.toggle("hidden", id !== name)
+    document.getElementById(id).classList.toggle("hidden", id !== name),
   );
 }
 
@@ -114,7 +114,9 @@ async function submitAuth() {
       res = await supabaseClient.auth.signUp({
         email,
         password,
-        options: { emailRedirectTo: window.location.origin + window.location.pathname },
+        options: {
+          emailRedirectTo: window.location.origin + window.location.pathname,
+        },
       });
       if (!res.error) {
         if (res.data?.session) {
@@ -203,7 +205,9 @@ async function submitNewPassword() {
 function showAccountModal() {
   document.getElementById("account-email-display").innerText = user.email;
   const isOAuth = user.app_metadata?.provider !== "email";
-  document.getElementById("change-password-section").classList.toggle("hidden", isOAuth);
+  document
+    .getElementById("change-password-section")
+    .classList.toggle("hidden", isOAuth);
   document.getElementById("oauth-note").classList.toggle("hidden", !isOAuth);
   if (!isOAuth) {
     document.getElementById("new-password").value = "";
@@ -284,8 +288,16 @@ const PROJECTS = [
     name: "PG.Code",
     desc: "Learn data structures and algorithms through a visual roadmap — solve coding problems, walk through step-by-step dry runs, and study worked solutions.",
     date: "Apr 2026",
-    status: "update",
+    status: "done",
     url: "../PGcode/dist/index.html",
+  },
+  {
+    featured: true,
+    name: "PG.Play",
+    desc: "Sixteen classic arcade titles in one clean room — story mode, same-keyboard co-op, and head-to-head vs a bot. Connect 4 and 8-Ball Pool fully playable.",
+    date: "Apr 2026",
+    status: "update",
+    url: "../PG.Play/dist/index.html",
   },
   {
     featured: false,
@@ -329,8 +341,16 @@ const PROJECTS = [
   },
 ];
 
-const STATUS_LABEL = { progress: "In Progress", done: "Completed", update: "Update Required" };
-const STATUS_CLASS = { progress: "s-progress", done: "s-done", update: "s-update" };
+const STATUS_LABEL = {
+  progress: "In Progress",
+  done: "Completed",
+  update: "Update Required",
+};
+const STATUS_CLASS = {
+  progress: "s-progress",
+  done: "s-done",
+  update: "s-update",
+};
 
 // ─── Render ───────────────────────────────────────────────────────────────────
 
@@ -349,7 +369,7 @@ function renderProjects() {
           <span class="feat-date">${p.date}</span>
           <button class="visit-btn" onclick="event.stopPropagation();window.location.href='${p.url}'">Visit →</button>
         </div>
-      </div>`
+      </div>`,
     )
     .join("");
 
@@ -361,7 +381,7 @@ function renderProjects() {
         <span class="other-status ${STATUS_CLASS[p.status]}">${STATUS_LABEL[p.status]}</span>
         <span class="other-date">${p.date}</span>
         <button class="other-visit" onclick="event.stopPropagation();window.location.href='${p.url}'">Visit →</button>
-      </div>`
+      </div>`,
     )
     .join("");
 
@@ -384,7 +404,9 @@ function init() {
   supabaseClient.auth.onAuthStateChange((event, session) => {
     if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
       user = session?.user || null;
-      document.getElementById("auth-btn").innerText = user ? "ACCOUNT" : "LOGIN";
+      document.getElementById("auth-btn").innerText = user
+        ? "ACCOUNT"
+        : "LOGIN";
     }
   });
 
