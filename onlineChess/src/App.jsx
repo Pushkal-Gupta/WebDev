@@ -478,10 +478,11 @@ export default function App() {
     // Only re-enable board if game didn't just end (checkmate/stalemate sets disableBoard:true)
     if (!useGameStore.getState().gameOver) {
       useGameStore.getState().setDisableBoard(false);
-      // Execute premove if one was queued
       const pm = useGameStore.getState().premove;
       if (pm?.to) {
         setTimeout(() => useGameStore.getState().executePremove(), 50);
+      } else if (pm) {
+        useGameStore.setState({ premove: null });
       }
     }
   };
@@ -516,6 +517,8 @@ export default function App() {
       const pm = useGameStore.getState().premove;
       if (pm?.to) {
         setTimeout(() => useGameStore.getState().executePremove(), 50);
+      } else if (pm) {
+        useGameStore.setState({ premove: null });
       }
     }
   };
