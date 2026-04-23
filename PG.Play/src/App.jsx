@@ -3,9 +3,14 @@ import { GAMES, FILTERS } from './data.js';
 import { Icon } from './icons.jsx';
 import Card from './components/Card.jsx';
 import FeaturedHero from './components/FeaturedHero.jsx';
-import FilterTabs from './components/FilterTabs.jsx';
+import Sidebar from './components/Sidebar.jsx';
 import GameIntro from './components/GameIntro.jsx';
 import SettingsDrawer from './components/SettingsDrawer.jsx';
+import AuthModal from './components/AuthModal.jsx';
+import { useSession } from './hooks/useSession.js';
+import { useFavorites } from './hooks/useFavorites.js';
+import { useBests } from './hooks/useBests.js';
+import { supabase } from './supabase.js';
 
 const readJSON = (k, fallback) => {
   try { return JSON.parse(localStorage.getItem(k)) ?? fallback; }
@@ -18,38 +23,56 @@ export default function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('pd-theme') || 'dark');
   const [q, setQ] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [active, setActive] = useState(null);
-  const [favs, setFavs] = useState(() => readJSON('pd-favs', {}));
   const [recent, setRecent] = useState(() => readJSON('pd-recent', []));
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [sideOpen, setSideOpen] = useState(false);
+
+  const { user } = useSession();
+  const { favs, toggle: toggleFav, clear: clearFavs } = useFavorites(user);
+  const { bests, submit: submitBest } = useBests(user);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('pd-theme', theme);
   }, [theme]);
 
-  useEffect(() => { localStorage.setItem('pd-favs', JSON.stringify(favs)); }, [favs]);
   useEffect(() => { localStorage.setItem('pd-recent', JSON.stringify(recent)); }, [recent]);
+
+  // Score bus: persist + update best whenever any game dispatches a score event.
+  useEffect(() => {
+    const onScore = (e) => {
+      const { gameId, score, meta } = e.detail || {};
+      if (!gameId || typeof score !== 'number') return;
+      submitBest(gameId, score, meta);
+    };
+    window.addEventListener('pgplay:score', onScore);
+    return () => window.removeEventListener('pgplay:score', onScore);
+  }, [submitBest]);
 
   const onOpen = (g) => {
     setActive(g);
     setRecent((r) => [g.id, ...r.filter((x) => x !== g.id)].slice(0, 8));
   };
-  const onFav = (id) => setFavs((f) => ({ ...f, [id]: !f[id] }));
+
+  const signOut = async () => { await supabase.auth.signOut(); };
 
   const filterFn = FILTERS.find((f) => f.id === activeFilter)?.match ?? (() => true);
 
   const visibleGames = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    return GAMES.filter(filterFn).filter((g) => {
-      if (!needle) return true;
-      return (
-        g.name.toLowerCase().includes(needle) ||
-        g.cat.toLowerCase().includes(needle) ||
-        (g.tagline || '').toLowerCase().includes(needle)
-      );
-    });
-  }, [q, activeFilter]);
+    const base = favoritesOnly
+      ? GAMES.filter((g) => favs[g.id])
+      : GAMES.filter(filterFn);
+    if (!needle) return base;
+    return base.filter((g) =>
+      g.name.toLowerCase().includes(needle) ||
+      g.cat.toLowerCase().includes(needle) ||
+      (g.tagline || '').toLowerCase().includes(needle)
+    );
+  }, [q, activeFilter, favoritesOnly, favs]);
 
   const recentGames = useMemo(
     () => recent.map((id) => GAMES.find((g) => g.id === id)).filter(Boolean),
@@ -58,17 +81,42 @@ export default function App() {
 
   const favCount = Object.values(favs).filter(Boolean).length;
 
-  const activeFilterLabel = FILTERS.find((f) => f.id === activeFilter)?.label || 'All';
-  const showRecent = recentGames.length > 0 && !q && activeFilter === 'all';
+  const currentLabel = favoritesOnly
+    ? 'Favorites'
+    : (FILTERS.find((f) => f.id === activeFilter)?.label || 'All');
+
+  const showHero = !q && !favoritesOnly && activeFilter === 'all';
+  const showRecent = recentGames.length > 0 && !q && !favoritesOnly && activeFilter === 'all';
+
+  const onFilter = (id) => { setFavoritesOnly(false); setActiveFilter(id); };
 
   return (
-    <div className="app-shell">
-      <header className="app-header">
-        <div className="app-header-inner">
-          <a className="brand" href="#">
-            <span className="brand-mark" aria-hidden="true"/>
-            PG<span className="brand-suffix">.Play</span>
-          </a>
+    <div className="app-layout">
+      {sideOpen && <div className="side-backdrop" onClick={() => setSideOpen(false)} aria-hidden="true"/>}
+      <div className={'sidebar-wrap' + (sideOpen ? ' is-open' : '')}>
+        <Sidebar
+          games={GAMES}
+          activeFilter={activeFilter}
+          onFilter={onFilter}
+          favCount={favCount}
+          onOpenFavorites={() => setFavoritesOnly(true)}
+          favoritesOnly={favoritesOnly}
+          onOpenSettings={() => setSettingsOpen(true)}
+          onOpenAuth={() => setAuthOpen(true)}
+          onSignOut={signOut}
+          user={user}
+          onClose={() => setSideOpen(false)}
+        />
+      </div>
+
+      <main className="app-main">
+        <div className="main-topbar">
+          <button
+            className="icon-btn main-menu"
+            onClick={() => setSideOpen(true)}
+            aria-label="Open navigation">
+            {Icon.menu}
+          </button>
           <div className="search">
             <span className="search-icon">{Icon.search}</span>
             <input
@@ -78,80 +126,79 @@ export default function App() {
               onChange={(e) => setQ(e.target.value)}
               aria-label="Search games"/>
           </div>
-          <div className="header-actions">
-            <button
-              className="icon-btn"
-              onClick={() => setSettingsOpen(true)}
-              aria-label="Open settings">
-              {Icon.settings}
-            </button>
-            <div className="avatar" aria-hidden="true">PG</div>
-          </div>
+          {user
+            ? <div className="avatar" title={user.email} aria-hidden="true">
+                {(user.email || 'U').slice(0, 2).toUpperCase()}
+              </div>
+            : <button className="btn btn-ghost btn-sm" onClick={() => setAuthOpen(true)}>Sign in</button>}
         </div>
-      </header>
 
-      <FeaturedHero
-        game={FEATURED}
-        fav={!!favs[FEATURED.id]}
-        onFav={onFav}
-        onOpen={() => onOpen(FEATURED)}/>
+        <div className="main-inner">
+          {showHero && (
+            <FeaturedHero
+              game={FEATURED}
+              fav={!!favs[FEATURED.id]}
+              onFav={toggleFav}
+              onOpen={() => onOpen(FEATURED)}/>
+          )}
 
-      <FilterTabs
-        games={GAMES}
-        active={activeFilter}
-        onChange={setActiveFilter}/>
+          {showRecent && (
+            <section className="section" aria-labelledby="continue-title">
+              <div className="section-head">
+                <h2 id="continue-title" className="section-title">Continue playing</h2>
+                <span className="section-count">{recentGames.length}</span>
+              </div>
+              <div className="rail">
+                {recentGames.map((g) => (
+                  <Card key={g.id} game={g} fav={!!favs[g.id]} onFav={toggleFav} onOpen={() => onOpen(g)} best={bests[g.id]?.best}/>
+                ))}
+              </div>
+            </section>
+          )}
 
-      {showRecent && (
-        <section className="section" aria-labelledby="continue-title">
-          <div className="section-head">
-            <h2 id="continue-title" className="section-title">Continue playing</h2>
-            <span className="section-count">{recentGames.length}</span>
-          </div>
-          <div className="rail">
-            {recentGames.map((g) => (
-              <Card key={g.id} game={g} fav={!!favs[g.id]} onFav={onFav} onOpen={() => onOpen(g)}/>
-            ))}
-          </div>
-        </section>
-      )}
+          <section className="section" aria-labelledby="grid-title">
+            <div className="section-head">
+              <h2 id="grid-title" className="section-title">{currentLabel}</h2>
+              <span className="section-count">
+                {visibleGames.length} {visibleGames.length === 1 ? 'title' : 'titles'}
+              </span>
+            </div>
+            {visibleGames.length === 0 ? (
+              <div className="empty">
+                {favoritesOnly && favCount === 0
+                  ? <>No favorites yet. Tap the <strong>heart</strong> on a game to save it here.</>
+                  : <>No games match <strong>“{q || currentLabel.toLowerCase()}”</strong>.</>}
+              </div>
+            ) : (
+              <div className="grid">
+                {visibleGames.map((g) => (
+                  <Card key={g.id} game={g} fav={!!favs[g.id]} onFav={toggleFav} onOpen={() => onOpen(g)} best={bests[g.id]?.best}/>
+                ))}
+              </div>
+            )}
+          </section>
 
-      <section className="section" aria-labelledby="grid-title">
-        <div className="section-head">
-          <h2 id="grid-title" className="section-title">
-            {activeFilter === 'all' ? 'All games' : activeFilterLabel}
-          </h2>
-          <span className="section-count">
-            {visibleGames.length} {visibleGames.length === 1 ? 'title' : 'titles'}
-          </span>
+          <footer className="app-footer">
+            PG.Play · {GAMES.length} games · <a href="https://pushkalgupta.com">pushkalgupta.com</a>
+          </footer>
         </div>
-        {visibleGames.length === 0 ? (
-          <div className="empty">
-            No games match <strong>“{q || activeFilterLabel.toLowerCase()}”</strong>.
-          </div>
-        ) : (
-          <div className="grid">
-            {visibleGames.map((g) => (
-              <Card key={g.id} game={g} fav={!!favs[g.id]} onFav={onFav} onOpen={() => onOpen(g)}/>
-            ))}
-          </div>
-        )}
-      </section>
+      </main>
 
-      <footer className="app-footer">
-        PG.Play · {GAMES.length} games · <a href="https://pushkalgupta.com">pushkalgupta.com</a>
-      </footer>
-
-      {active && <GameIntro game={active} onClose={() => setActive(null)}/>}
+      {active && <GameIntro game={active} best={bests[active.id]?.best} onClose={() => setActive(null)}/>}
       {settingsOpen && (
         <SettingsDrawer
           theme={theme}
           setTheme={setTheme}
-          onClearFavs={() => setFavs({})}
+          user={user}
+          onOpenAuth={() => { setAuthOpen(true); setSettingsOpen(false); }}
+          onSignOut={async () => { await signOut(); }}
+          onClearFavs={clearFavs}
           onClearRecent={() => setRecent([])}
           favCount={favCount}
           recentCount={recent.length}
           onClose={() => setSettingsOpen(false)}/>
       )}
+      {authOpen && <AuthModal onClose={() => setAuthOpen(false)}/>}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { GAME_COVERS } from '../covers.jsx';
 import { Icon } from '../icons.jsx';
 
-export default function Card({ game, fav, onFav, onOpen }) {
+export default function Card({ game, fav, onFav, onOpen, best }) {
   const Cover = GAME_COVERS[game.id];
   return (
     <div className="card" onClick={onOpen} role="button" tabIndex={0}
@@ -14,6 +14,9 @@ export default function Card({ game, fav, onFav, onOpen }) {
           aria-label={fav ? 'Remove from favorites' : 'Add to favorites'}>
           {fav ? Icon.heartF : Icon.heart}
         </button>
+        {best !== undefined && best !== null && (
+          <div className="card-best" aria-label={`Personal best ${best}`}>Best {best}</div>
+        )}
       </div>
       <div className="card-body">
         <div className="card-title">

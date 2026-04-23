@@ -3,6 +3,23 @@ import { GAME_COVERS } from '../covers.jsx';
 import { Icon } from '../icons.jsx';
 import Connect4Game from '../games/Connect4Game.jsx';
 import EightBallGame from '../games/EightBallGame.jsx';
+import Game2048 from '../games/Game2048.jsx';
+import CutRopeGame from '../games/CutRopeGame.jsx';
+import StickmanHookGame from '../games/StickmanHookGame.jsx';
+import RaycasterFPS from '../games/RaycasterFPS.jsx';
+import TreesHateYouGame from '../games/TreesHateYouGame.jsx';
+import ArenaGame from '../games/ArenaGame.jsx';
+
+const PLAYABLE = {
+  connect4:  Connect4Game,
+  eightball: EightBallGame,
+  g2048:     Game2048,
+  cutrope:   CutRopeGame,
+  hook:      StickmanHookGame,
+  fps:       RaycasterFPS,
+  treeshate: TreesHateYouGame,
+  arena:     ArenaGame,
+};
 
 const modeLabel = (mode, game) => {
   if (mode === '2p')    return '2 Player';
@@ -28,7 +45,7 @@ function PlayPlaceholder({ game }) {
   );
 }
 
-export default function GameIntro({ game, onClose }) {
+export default function GameIntro({ game, best, onClose }) {
   const [stage, setStage] = useState('intro');
   const [mode, setMode] = useState(null);
   const Cover = GAME_COVERS[game.id];
@@ -63,8 +80,8 @@ export default function GameIntro({ game, onClose }) {
             </div>
           </div>
           <div className="play-stage">
-            {game.id === 'connect4'  ? <Connect4Game/>
-              : game.id === 'eightball' ? <EightBallGame/>
+            {PLAYABLE[game.id]
+              ? (() => { const G = PLAYABLE[game.id]; return <G/>; })()
               : <PlayPlaceholder game={game}/>}
           </div>
         </div>
@@ -84,6 +101,7 @@ export default function GameIntro({ game, onClose }) {
         <div className="intro-copy">
           <div className="intro-eyebrow">
             {game.cat} · {game.players} · {game.levels === '∞' ? 'endless' : `${game.levels} levels`}
+            {best !== undefined && best !== null && <> · your best {best}</>}
           </div>
           <h1 id="intro-title" className="intro-title">{game.name}</h1>
           <div className="intro-tagline">{game.tagline}</div>
