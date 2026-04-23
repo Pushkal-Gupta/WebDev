@@ -84,7 +84,7 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
   }, [topic.id, roadmapMode, session]);
 
   const toggleComplete = async (problemId) => {
-    if (!session?.user) { alert('Login to track progress'); return; }
+    if (!session?.user) return;
     const current = userProgress[problemId];
     const newVal = !(current?.is_completed);
 
@@ -105,7 +105,7 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
   };
 
   const toggleStar = async (problemId) => {
-    if (!session?.user) { alert('Login to star problems'); return; }
+    if (!session?.user) return;
     const current = userProgress[problemId];
     const newVal = !(current?.is_starred);
 

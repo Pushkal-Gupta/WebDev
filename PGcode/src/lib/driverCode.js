@@ -438,8 +438,12 @@ static string _pgc_from_tree(TreeNode* root) {
 // --- Serializers keyed to the inferred return type ---
 static string _pgc_ser_bool(bool b)       { return b ? "true" : "false"; }
 static string _pgc_ser_int(long long x)   { return to_string(x); }
-static string _pgc_ser_double(double x)   { ostringstream o; o << x; return o.str(); }
-static string _pgc_ser_str(const string& s) { return "\\"" + s + "\\""; }
+static string _pgc_ser_double(double x)   { ostringstream o; o << setprecision(15) << x; return o.str(); }
+static string _pgc_ser_str(const string& s) {
+    string r = "\\"";
+    for (char c : s) { if (c == '"' || c == '\\\\') r += '\\\\'; r += c; }
+    r += "\\""; return r;
+}
 
 static string _pgc_ser_vi(const vector<int>& v) {
     string s = "["; for (size_t i=0;i<v.size();i++){ if(i)s+=","; s+=to_string(v[i]); } return s+"]";
@@ -448,7 +452,7 @@ static string _pgc_ser_vb(const vector<bool>& v) {
     string s = "["; for (size_t i=0;i<v.size();i++){ if(i)s+=","; s+=(v[i]?"true":"false"); } return s+"]";
 }
 static string _pgc_ser_vs(const vector<string>& v) {
-    string s = "["; for (size_t i=0;i<v.size();i++){ if(i)s+=","; s+="\\""+v[i]+"\\""; } return s+"]";
+    string s = "["; for (size_t i=0;i<v.size();i++){ if(i)s+=","; s+=_pgc_ser_str(v[i]); } return s+"]";
 }
 static string _pgc_ser_vvi(const vector<vector<int>>& v) {
     string s = "["; for (size_t i=0;i<v.size();i++){ if(i)s+=","; s+=_pgc_ser_vi(v[i]); } return s+"]";
