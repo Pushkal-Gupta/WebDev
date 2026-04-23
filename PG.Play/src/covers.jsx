@@ -781,14 +781,142 @@ const Cover_Nightcap = () => (
   </svg>
 );
 
+// 21. SLIPSHOT — movement-FPS training chamber, first-person speed silhouette
+const Cover_Slipshot = () => (
+  <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
+    <SharedDefs/>
+    <defs>
+      <linearGradient id="ss-bg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0"   stopColor="#0c1820"/>
+        <stop offset="0.6" stopColor="#07101a"/>
+        <stop offset="1"   stopColor="#050a10"/>
+      </linearGradient>
+      <linearGradient id="ss-floor" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#101a22"/>
+        <stop offset="1" stopColor="#050a10"/>
+      </linearGradient>
+      <radialGradient id="ss-glow" cx="0.5" cy="0.55" r="0.5">
+        <stop offset="0"   stopColor="#00fff5" stopOpacity="0.35"/>
+        <stop offset="0.6" stopColor="#00fff5" stopOpacity="0.06"/>
+        <stop offset="1"   stopColor="#00fff5" stopOpacity="0"/>
+      </radialGradient>
+    </defs>
+
+    {/* sky / chamber backdrop */}
+    <rect width="400" height="500" fill="url(#ss-bg)"/>
+
+    {/* perspective floor grid (converging to vanishing point ~y=200) */}
+    <rect x="0" y="200" width="400" height="300" fill="url(#ss-floor)"/>
+    {/* horizontal floor lines */}
+    {[0,1,2,3,4,5,6,7,8].map((i) => {
+      const t = i / 8;
+      const y = 200 + Math.pow(t, 1.9) * 300;
+      return <line key={`fh${i}`} x1="0" y1={y} x2="400" y2={y} stroke="#1a2a36" strokeWidth={0.6 + t*1.4} opacity={0.4 + t*0.5}/>;
+    })}
+    {/* vanishing lines */}
+    {[-4,-3,-2,-1,0,1,2,3,4].map((k) => {
+      const x2 = 200 + k*150;
+      return <line key={`fv${k}`} x1="200" y1="200" x2={x2} y2="500" stroke="#16242e" strokeWidth="0.8" opacity="0.7"/>;
+    })}
+
+    {/* far-wall accent trim (cyan) */}
+    <line x1="0"   y1="200" x2="400" y2="200" stroke="#00fff5" strokeWidth="1.5" opacity="0.5"/>
+    <line x1="0"   y1="196" x2="400" y2="196" stroke="#00fff5" strokeWidth="0.6" opacity="0.35"/>
+
+    {/* Soft cyan glow at center (holo aura) */}
+    <ellipse cx="200" cy="240" rx="180" ry="100" fill="url(#ss-glow)"/>
+
+    {/* Two mid-range pillars (bone-white) */}
+    <g>
+      <rect x="60"  y="150" width="22" height="120" fill="#e8ece8" opacity="0.85"/>
+      <rect x="60"  y="148" width="22" height="3"   fill="#00fff5" opacity="0.9"/>
+      <rect x="318" y="150" width="22" height="120" fill="#e8ece8" opacity="0.85"/>
+      <rect x="318" y="148" width="22" height="3"   fill="#00fff5" opacity="0.9"/>
+    </g>
+
+    {/* Low vault ledge center-right */}
+    <g>
+      <rect x="230" y="256" width="95" height="14" fill="#e8ece8" opacity="0.78"/>
+      <rect x="230" y="254" width="95" height="2"  fill="#00fff5" opacity="0.85"/>
+    </g>
+
+    {/* Holo targets: cyan cube + coral core */}
+    {[[130,215,14],[270,208,12],[195,178,11],[88,162,9],[330,178,9]].map(([x,y,s],i) => (
+      <g key={`tg${i}`} transform={`translate(${x},${y})`}>
+        <rect x={-s} y={-s} width={s*2} height={s*2} fill="#00fff5" opacity="0.85"/>
+        <rect x={-s} y={-s} width={s*2} height={s*2} fill="none" stroke="#0a0d0e" strokeWidth="1" opacity="0.3"/>
+        <rect x={-s*0.35} y={-s*0.35} width={s*0.7} height={s*0.7} fill="#ff6680"/>
+      </g>
+    ))}
+
+    {/* Drone (flying) with ring */}
+    <g transform="translate(160,108)">
+      <ellipse cx="0" cy="0" rx="22" ry="8" fill="none" stroke="#00fff5" strokeWidth="1.5" opacity="0.7"/>
+      <polygon points="0,-10 10,0 0,10 -10,0" fill="#ff4d6d"/>
+      <circle cx="0" cy="0" r="3" fill="#ffd64a"/>
+    </g>
+
+    {/* Tracer streaks (movement + shot feedback) */}
+    <g stroke="#00fff5" strokeWidth="2" strokeLinecap="round" opacity="0.9">
+      <line x1="40"  y1="420" x2="160" y2="235"/>
+      <line x1="42"  y1="418" x2="162" y2="233" stroke="#00fff5" strokeWidth="0.6" opacity="0.5"/>
+    </g>
+    <g stroke="#ffd64a" strokeWidth="1.5" strokeLinecap="round" opacity="0.85">
+      <line x1="90"  y1="440" x2="270" y2="210"/>
+    </g>
+
+    {/* Motion arc — the "slide-hop" curve */}
+    <path d="M 30,460 Q 140,320 230,360 Q 320,400 370,310"
+          fill="none" stroke="#00fff5" strokeWidth="1.2" strokeDasharray="2 5" opacity="0.55"/>
+
+    {/* First-person gun silhouette (bottom-right) */}
+    <g transform="translate(260,430)">
+      <rect x="0"   y="0"   width="90" height="22" rx="3" fill="#141a20" stroke="#2a3a46" strokeWidth="1"/>
+      <rect x="0"   y="-4"  width="90" height="3"  fill="#00fff5" opacity="0.9"/>
+      <rect x="-34" y="4"   width="34" height="10" fill="#0e1620"/>
+      <rect x="-34" y="4"   width="34" height="10" fill="none" stroke="#2a3a46"/>
+      <polygon points="90,8 130,10 130,16 90,18" fill="#0a0d0e"/>
+      <rect x="20" y="22" width="10" height="26" fill="#0e1620"/>
+    </g>
+
+    {/* Crosshair */}
+    <g stroke="#00fff5" strokeWidth="1.4" opacity="0.85">
+      <line x1="194" y1="250" x2="206" y2="250"/>
+      <line x1="200" y1="244" x2="200" y2="256"/>
+    </g>
+    <circle cx="200" cy="250" r="1.6" fill="#ff6680"/>
+
+    {/* Timer chip (corner) */}
+    <g transform="translate(28,28)">
+      <rect x="0" y="0" width="86" height="26" rx="4" fill="#0a1014" stroke="#1e2a33"/>
+      <text x="43" y="18" textAnchor="middle" fontFamily="monospace" fontSize="14" fontWeight="700"
+            fill="#eef3f5" letterSpacing="2">3:00</text>
+    </g>
+    {/* Combo chip */}
+    <g transform="translate(124,28)">
+      <rect x="0" y="0" width="62" height="26" rx="13" fill="#00fff5" opacity="0.14" stroke="#00fff5" strokeOpacity="0.6"/>
+      <text x="31" y="18" textAnchor="middle" fontFamily="monospace" fontSize="13" fontWeight="700"
+            fill="#00fff5" letterSpacing="1">×2.4</text>
+    </g>
+    {/* Score chip */}
+    <g transform="translate(196,28)">
+      <rect x="0" y="0" width="94" height="26" rx="4" fill="#0a1014" stroke="#1e2a33"/>
+      <text x="47" y="18" textAnchor="middle" fontFamily="monospace" fontSize="13" fontWeight="700"
+            fill="#eef3f5" letterSpacing="2">18,420</text>
+    </g>
+
+    <Grain/>
+  </svg>
+);
+
 export const GAME_COVERS = {
   fbwg: Cover_FBWG, bob: Cover_Bob, connect4: Cover_Connect4, eightball: Cover_EightBall,
   football: Cover_Football, basket: Cover_Basket, badicecream: Cover_BadIceCream, aow: Cover_AoW,
   vex: Cover_Vex, papa: Cover_Papa, hook: Cover_Hook, g2048: Cover_2048,
   cutrope: Cover_CutRope, bloons: Cover_Bloons, slither: Cover_Slither, happywheels: Cover_HappyWheels,
   fps: Cover_FPS, arena: Cover_Arena,
-  // Originals (reuse the earlier covers, now renamed via id):
+  // Originals:
   grudgewood: Cover_TreesHate,
-  slipshot:   Cover_Arena,
+  slipshot:   Cover_Slipshot,
   nightcap:   Cover_Nightcap,
 };

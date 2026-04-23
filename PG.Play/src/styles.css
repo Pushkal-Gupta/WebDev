@@ -1529,6 +1529,311 @@ svg { display: block; width: 100%; height: 100%; }
   text-align: center;
 }
 
+/* ── Score-attack HUD (top cluster) ───────────────────────────── */
+.slipshot-hud-top {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  z-index: 4;
+  pointer-events: none;
+}
+.slipshot-timer {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  min-width: 5.5ch;
+  text-align: center;
+}
+.slipshot-combo {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  padding: 4px 12px;
+  border: 1px solid rgba(var(--accent-rgb), 0.45);
+  border-radius: var(--r-pill);
+  background: rgba(var(--accent-rgb), 0.08);
+  backdrop-filter: blur(4px);
+  font-family: var(--font-mono);
+  transition: transform 0.12s ease, border-color 0.18s ease, background 0.18s ease;
+}
+.slipshot-combo-x {
+  font-size: 0.78rem;
+  opacity: 0.75;
+  color: var(--accent);
+}
+.slipshot-combo-v {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+}
+.slipshot-combo.tier-2 {
+  border-color: rgba(var(--accent-rgb), 0.8);
+  background: rgba(var(--accent-rgb), 0.14);
+  transform: scale(1.04);
+}
+.slipshot-combo.tier-3 {
+  border-color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.2);
+  transform: scale(1.09);
+  box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.35);
+}
+.slipshot-score {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  min-width: 7ch;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+/* ── Bottom-left: weapon / ammo / hp ──────────────────────────── */
+.slipshot-hud-bl {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.slipshot-weapon {
+  display: inline-flex;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.slipshot-weapon span {
+  padding: 3px 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--r-sm);
+  color: var(--text-mute);
+  background: rgba(10,16,20,0.6);
+  backdrop-filter: blur(4px);
+}
+.slipshot-weapon span.is-active {
+  background: rgba(var(--accent-rgb), 0.18);
+  color: var(--accent);
+  border-color: rgba(var(--accent-rgb), 0.5);
+}
+.slipshot-ammo {
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
+  color: var(--text);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  letter-spacing: 0.04em;
+}
+.slipshot-ammo b { font-weight: 700; color: var(--accent); }
+.slipshot-reloading {
+  font-size: 0.82rem;
+  color: #ffb347;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  animation: slip-flash 0.6s linear infinite;
+}
+.slipshot-hp {
+  position: relative;
+  width: 180px;
+  height: 8px;
+  background: rgba(255,255,255,0.08);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+.slipshot-hp-bar {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: linear-gradient(90deg, #35f0c9, #00fff5);
+  border-radius: var(--r-pill);
+  transition: width 0.25s ease;
+}
+.slipshot-hp span {
+  position: absolute;
+  right: 0;
+  top: -18px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  letter-spacing: 0.12em;
+}
+
+/* ── Bottom-right: dash LED ───────────────────────────────────── */
+.slipshot-hud-br {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 4;
+  pointer-events: none;
+}
+.slipshot-dash {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--r-pill);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  color: var(--text-mute);
+  background: rgba(10,16,20,0.6);
+  backdrop-filter: blur(4px);
+}
+.slipshot-dash-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #3a4550;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+.slipshot-dash.is-ready {
+  color: var(--accent);
+  border-color: rgba(var(--accent-rgb), 0.5);
+}
+.slipshot-dash.is-ready .slipshot-dash-dot {
+  background: var(--accent);
+  box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.8);
+}
+
+/* ── Overlays: ready / paused / end ───────────────────────────── */
+.slipshot-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.slipshot-paused .slipshot-title {
+  font-size: 1.4rem;
+  opacity: 0.85;
+}
+
+/* ── End screen ───────────────────────────────────────────────── */
+.slipshot-end {
+  gap: var(--s-3);
+}
+.slipshot-medal {
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  padding: 4px 16px;
+  border: 2px solid;
+  border-radius: var(--r-sm);
+  margin-top: 4px;
+}
+.slipshot-medal.medal-bronze {
+  color: #c08060;
+  border-color: #c08060;
+  text-shadow: 0 0 12px rgba(192,128,96,0.4);
+}
+.slipshot-medal.medal-silver {
+  color: #cfd6dc;
+  border-color: #cfd6dc;
+  text-shadow: 0 0 12px rgba(207,214,220,0.5);
+}
+.slipshot-medal.medal-gold {
+  color: #ffd64a;
+  border-color: #ffd64a;
+  text-shadow: 0 0 18px rgba(255,214,74,0.6);
+}
+.slipshot-medal.medal-none {
+  font-size: 1.2rem;
+  color: var(--text-dim);
+  border-color: var(--line-strong);
+  letter-spacing: 0.14em;
+}
+.slipshot-final-score {
+  font-family: var(--font-mono);
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.slipshot-pb-chip {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: var(--r-sm);
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 700;
+}
+.slipshot-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--s-5);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  max-width: 520px;
+}
+.slipshot-breakdown b {
+  color: var(--text);
+  font-weight: 700;
+  font-size: 1rem;
+  margin-right: 4px;
+}
+.slipshot-end-thresholds {
+  display: inline-flex;
+  gap: var(--s-4);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  margin-top: 6px;
+}
+.slipshot-end-thresholds .hit { color: var(--accent); }
+
+/* ── Floating score popups ────────────────────────────────────── */
+.slipshot-popups {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  overflow: hidden;
+}
+.slipshot-popup {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  transform: translate(-50%, 0);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--accent);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  animation: slip-pop 0.7s ease-out forwards;
+}
+.slipshot-popup.is-head {
+  color: #ffd64a;
+  font-size: 1.3rem;
+}
+@keyframes slip-pop {
+  0%   { transform: translate(-50%, 0)   scale(1);   opacity: 1; }
+  40%  { transform: translate(-50%, -22px) scale(1.12); opacity: 1; }
+  100% { transform: translate(-50%, -60px) scale(0.95); opacity: 0; }
+}
+
 /* Grudgewood death-recap card overlaid on the canvas */
 .grudgewood-stage {
   position: relative;
@@ -1566,6 +1871,53 @@ svg { display: block; width: 100%; height: 100%; }
   margin-top: 2px;
 }
 @keyframes grudge-pop { from { transform: translate(-50%, -46%); opacity: 0; } to { transform: translate(-50%, -50%); opacity: 1; } }
+
+/* Coil (Slither-lite) */
+.coil {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+  user-select: none;
+  width: 100%;
+  max-width: 860px;
+}
+.coil-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+.coil-bar b { color: var(--text); font-weight: 700; margin-left: var(--s-1); }
+.coil-canvas {
+  background: #0a1116;
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+  max-width: 100%;
+  height: auto;
+  cursor: crosshair;
+  touch-action: none;
+}
+.coil-death {
+  padding: var(--s-2) var(--s-4);
+  border: 1px solid rgba(var(--accent-rgb), 0.35);
+  border-radius: var(--r-pill);
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+.coil-death b { color: var(--text); font-weight: 700; }
+.coil-hint {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  text-align: center;
+}
 
 /* Arena (multiplayer) */
 .arena {
