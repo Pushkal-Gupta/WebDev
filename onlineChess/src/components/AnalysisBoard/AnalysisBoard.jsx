@@ -361,6 +361,7 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
     isComp, compColor, compStrength,
     isOnline, onlineColor, youName, oppName,
   } = useGameStore();
+  const authUser = useAuthStore(s => s.user);
   const authUsername = useAuthStore(s => s.username);
   const onVariation = (variation?.length || 0) > 0;
 
@@ -941,30 +942,34 @@ export default function AnalysisBoard({ savedGames = [], gamesLoading = false, p
               </div>
             )}
 
-            {(gamesLoading || savedGames.length > 0) && (
-              <div className={styles.savedSection}>
-                <div className={styles.sectionLabel}>Your Games</div>
-                {gamesLoading && <div className={styles.dim}>Loading...</div>}
-                <div className={styles.savedList}>
-                  {savedGames.map((g, i) => (
-                    <div key={i} className={styles.savedGame} onClick={() => handleLoadGame(g)}>
-                      <div className={styles.savedTop}>
-                        <span className={`${styles.pDot} ${g.color === 'white' ? styles.pDotW : styles.pDotB}`} />
-                        <span className={styles.savedVs}>
-                          {g.color === 'white' ? 'W' : 'B'} &middot; {g.opponent || 'vs Opponent'}
+            <div className={styles.savedSection}>
+              <div className={styles.sectionLabel}>Your Games</div>
+              {!authUser && (
+                <div className={styles.dim}>Log in to see your recent games</div>
+              )}
+              {authUser && gamesLoading && <div className={styles.dim}>Loading...</div>}
+              {authUser && !gamesLoading && savedGames.length === 0 && (
+                <div className={styles.dim}>No games yet. Play a rated game to see it here.</div>
+              )}
+              <div className={styles.savedList}>
+                {savedGames.map((g, i) => (
+                  <div key={i} className={styles.savedGame} onClick={() => handleLoadGame(g)}>
+                    <div className={styles.savedTop}>
+                      <span className={`${styles.pDot} ${g.color === 'white' ? styles.pDotW : styles.pDotB}`} />
+                      <span className={styles.savedVs}>
+                        {g.color === 'white' ? 'W' : 'B'} &middot; {g.opponent || 'vs Opponent'}
+                      </span>
+                      {g.result && (
+                        <span className={`${styles.resBadge} ${styles['res_' + g.result]}`}>
+                          {g.result === 'draw' ? '1/2' : g.result === g.color ? 'W' : 'L'}
                         </span>
-                        {g.result && (
-                          <span className={`${styles.resBadge} ${styles['res_' + g.result]}`}>
-                            {g.result === 'draw' ? '1/2' : g.result === g.color ? 'W' : 'L'}
-                          </span>
-                        )}
-                      </div>
-                      <div className={styles.savedPgn}>{(g.pgnStr || '').slice(0, 60)}...</div>
+                      )}
                     </div>
-                  ))}
-                </div>
+                    <div className={styles.savedPgn}>{(g.pgnStr || '').slice(0, 60)}...</div>
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
           </div>
         </div>
       )}
