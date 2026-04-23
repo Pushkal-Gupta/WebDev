@@ -4,7 +4,7 @@ export const GAMES = [
   { id:'fbwg', name:'Fireboy & Watergirl', cat:'Co-op', kind:'story', players:'1-2 co-op', levels:32,
     tagline:'Two elementals. One forgotten temple.',
     story:'Fireboy burns hot. Watergirl runs cool. Together they brave the four temples — Forest, Light, Ice, Crystal — scavenging gems and outwitting pressure plates. Separated, they fail. Split a keyboard, split the gems, get out alive.',
-    playable:true, featured:true, badge:'co-op' },
+    playable:true, featured:true },
 
   { id:'bob', name:'Bob the Robber', cat:'Stealth', kind:'story', players:'1P', levels:20,
     tagline:'A burglar with a conscience.',
@@ -12,8 +12,7 @@ export const GAMES = [
 
   { id:'badicecream', name:'Bad Ice Cream', cat:'Co-op', kind:'story', players:'1-2 co-op', levels:40,
     tagline:'Fruit. Ice. No mercy.',
-    story:'You are an ice cream. The fruit has gone feral. Freeze tunnels through ice blocks, corner the marching strawberries, and never, ever stand next to a bomb. Works solo, works better as a two-cone tag-team.',
-    badge:'co-op' },
+    story:'You are an ice cream. The fruit has gone feral. Freeze tunnels through ice blocks, corner the marching strawberries, and never, ever stand next to a bomb. Works solo, works better as a two-cone tag-team.' },
 
   { id:'aow', name:'Age of War 2', cat:'Strategy', kind:'story', players:'1P', levels:5,
     tagline:'From spear to spaceship.',
@@ -21,8 +20,7 @@ export const GAMES = [
 
   { id:'vex', name:'Vex', cat:'Platformer', kind:'story', players:'1P', levels:10,
     tagline:'Act IX: the parkour nightmare.',
-    story:'Buzzsaws spin. Spikes ambush. You have no name, no weapon, just a stickman\'s balance and a wall-jump. Each act is a trial — slide under, leap over, and never trust a block that moves on its own.',
-    badge:'new' },
+    story:'Buzzsaws spin. Spikes ambush. You have no name, no weapon, just a stickman\'s balance and a wall-jump. Each act is a trial — slide under, leap over, and never trust a block that moves on its own.' },
 
   { id:'papa', name:"Papa's Pizzeria", cat:'Time-mgmt', kind:'story', players:'1P', levels:30,
     tagline:'Papa Louie left you in charge.',
@@ -50,8 +48,7 @@ export const GAMES = [
 
   { id:'happywheels', name:'Happy Wheels', cat:'Physics', kind:'story', players:'1P', levels:15,
     tagline:'Gravity has opinions.',
-    story:'A man in a wheelchair with a rocket strapped to the back. A kid on a scooter chasing his dad down a hill. Fifteen hand-crafted tracks of ramps, spikes, cannons and questionable decisions. Finish the course — bones optional.',
-    badge:'hot' },
+    story:'A man in a wheelchair with a rocket strapped to the back. A kid on a scooter chasing his dad down a hill. Fifteen hand-crafted tracks of ramps, spikes, cannons and questionable decisions. Finish the course — bones optional.' },
 
   // HEAD-TO-HEAD
   { id:'connect4', name:'Connect 4', cat:'Classic', kind:'vs', players:'1-2', levels:3,
@@ -62,7 +59,7 @@ export const GAMES = [
   { id:'eightball', name:'8-Ball Pool', cat:'Classic', kind:'vs', players:'1-2', levels:3,
     tagline:'Solids vs stripes. Finish on the 8.',
     story:'Rack them, break them, claim your suit, sink them one by one. Pocket the 8-ball last — not before. Play the bot for a quick match, or swap sticks with someone across the table.',
-    playable:true, badge:'hot' },
+    playable:true },
 
   { id:'football', name:'Football Legends', cat:'Sports', kind:'vs', players:'1-2', levels:3,
     tagline:'2v2 street-ball chaos.',
@@ -73,30 +70,11 @@ export const GAMES = [
     story:'Two characters, one hoop, twenty-one points. Each turn you drag to aim, release to shoot — angle and power, that\'s it. Miss and the ball drops to the floor; your opponent lines up next. The court is yours until it isn\'t.' },
 ];
 
-export const STORY_GAMES = GAMES.filter(g => g.kind === 'story');
-export const VS_GAMES    = GAMES.filter(g => g.kind === 'vs');
-
-export const PALETTES = [
-  { name:'Cyan',    accent:'#00fff5', a2:'#ffe14f' },
-  { name:'Magenta', accent:'#ff4d8e', a2:'#ffe14f' },
-  { name:'Lime',    accent:'#c8ff3a', a2:'#ff8a3a' },
-  { name:'Violet',  accent:'#a78bfa', a2:'#f0abfc' },
-  { name:'Amber',   accent:'#ffb547', a2:'#35f0c9' },
+// Filter taxonomy used by the homepage tabs.
+export const FILTERS = [
+  { id:'all',      label:'All',      match: () => true },
+  { id:'solo',     label:'Solo',     match: (g) => g.kind === 'story' && g.players === '1P' },
+  { id:'coop',     label:'Co-op',    match: (g) => g.players.includes('co-op') },
+  { id:'versus',   label:'Versus',   match: (g) => g.kind === 'vs' },
+  { id:'playable', label:'Playable', match: (g) => !!g.playable },
 ];
-
-export const SHAPES = [
-  { id:'rect',    name:'Sharp' },
-  { id:'default', name:'Soft' },
-  { id:'round',   name:'Pill' },
-];
-
-export const CRT_OPTS = [
-  { id:'on',  name:'On' },
-  { id:'off', name:'Off' },
-];
-
-export const hexToRgbStr = (hex) => {
-  const h = hex.replace('#','');
-  const n = h.length===3 ? h.split('').map(c => c+c).join('') : h;
-  return `${parseInt(n.slice(0,2),16)}, ${parseInt(n.slice(2,4),16)}, ${parseInt(n.slice(4,6),16)}`;
-};
