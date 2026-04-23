@@ -559,9 +559,145 @@ const Cover_HappyWheels = () => (
   </svg>
 );
 
+// 17. Raycaster FPS
+const Cover_FPS = () => (
+  <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
+    <SharedDefs/>
+    <defs>
+      <linearGradient id="fps-bg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#1a2530"/>
+        <stop offset="0.5" stopColor="#0c1419"/>
+        <stop offset="0.5" stopColor="#2a1f14"/>
+        <stop offset="1" stopColor="#15110a"/>
+      </linearGradient>
+    </defs>
+    <rect width="400" height="500" fill="url(#fps-bg)"/>
+    {/* perspective corridor walls via trapezoids */}
+    <polygon points="0,120 140,200 140,320 0,400" fill="#2a3d48"/>
+    <polygon points="400,120 260,200 260,320 400,400" fill="#34495a"/>
+    <polygon points="140,200 260,200 260,320 140,320" fill="#1e2a33" opacity="0.7"/>
+    <polygon points="140,200 260,200 260,230 140,230" fill="#131d24"/>
+    {/* enemy silhouette */}
+    <g transform="translate(200,290)">
+      <circle r="36" fill="#a13a66"/>
+      <circle cx="-10" cy="-10" r="4" fill="#00fff5"/>
+      <circle cx="10" cy="-10" r="4" fill="#00fff5"/>
+    </g>
+    {/* weapon */}
+    <polygon points="140,500 260,500 235,420 165,420" fill="#0a0d0e"/>
+    <rect x="195" y="400" width="10" height="20" fill="#2a2a2a"/>
+    {/* crosshair */}
+    <g stroke="#fff" strokeWidth="1" opacity="0.7">
+      <line x1="193" y1="250" x2="207" y2="250"/>
+      <line x1="200" y1="243" x2="200" y2="257"/>
+    </g>
+    <Grain/>
+  </svg>
+);
+
+// 18. Trees Hate You
+const Cover_TreesHate = () => (
+  <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
+    <SharedDefs/>
+    <defs>
+      <linearGradient id="thy-sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#5ac7f5"/>
+        <stop offset="1" stopColor="#b5e8ff"/>
+      </linearGradient>
+    </defs>
+    <rect width="400" height="500" fill="url(#thy-sky)"/>
+    {/* ground */}
+    <rect x="0" y="380" width="400" height="120" fill="#5a7c3a"/>
+    <line x1="0" y1="380" x2="400" y2="380" stroke="#2f4a1a" strokeWidth="2"/>
+    {/* back trees silhouettes */}
+    <g fill="rgba(30,110,50,0.4)">
+      <polygon points="30,380 60,280 90,380"/>
+      <polygon points="110,380 140,290 170,380"/>
+      <polygon points="330,380 360,280 390,380"/>
+    </g>
+    {/* big evil tree */}
+    <g transform="translate(200,230)">
+      <rect x="-14" y="60" width="28" height="90" fill="#6b3a1a"/>
+      <circle cx="0" cy="50" r="54" fill="#2f6a2a"/>
+      <circle cx="-34" cy="65" r="36" fill="#2f6a2a"/>
+      <circle cx="34" cy="65" r="36" fill="#2f6a2a"/>
+      {/* red eyes */}
+      <circle cx="-12" cy="62" r="5" fill="#ff4d6d"/>
+      <circle cx="12" cy="62" r="5" fill="#ff4d6d"/>
+      {/* angry brow */}
+      <path d="M-22,52 L-4,58 M22,52 L4,58" stroke="#0a0d0e" strokeWidth="3" strokeLinecap="round"/>
+      {/* punching arm */}
+      <path d="M-50,110 Q-90,110 -110,130" stroke="#8a4a1a" strokeWidth="12" fill="none" strokeLinecap="round"/>
+      <circle cx="-110" cy="130" r="14" fill="#c08040"/>
+    </g>
+    {/* small player running */}
+    <g transform="translate(80,340)">
+      <circle cx="0" cy="-12" r="8" fill="#ffd1a6"/>
+      <circle cx="0" cy="8" r="12" fill="#ff4d6d"/>
+      {/* motion lines */}
+      <line x1="-20" y1="-10" x2="-30" y2="-8" stroke="#fff" strokeWidth="2" opacity="0.8"/>
+      <line x1="-20" y1="0" x2="-32" y2="0" stroke="#fff" strokeWidth="2" opacity="0.8"/>
+      <line x1="-20" y1="10" x2="-30" y2="12" stroke="#fff" strokeWidth="2" opacity="0.8"/>
+    </g>
+    {/* goal flag */}
+    <g transform="translate(360,320)">
+      <line x1="0" y1="0" x2="0" y2="60" stroke="#fff" strokeWidth="2"/>
+      <polygon points="0,0 20,6 0,14" fill="#ffe14f"/>
+    </g>
+    <Grain/>
+  </svg>
+);
+
+// 19. Arena (multiplayer top-down)
+const Cover_Arena = () => (
+  <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
+    <SharedDefs/>
+    <rect width="400" height="500" fill="#0a1116"/>
+    {/* grid floor */}
+    <g stroke="rgba(255,255,255,0.05)" strokeWidth="1">
+      {Array.from({length: 11}).map((_,i)=>(<line key={`v${i}`} x1={i*40} y1="0" x2={i*40} y2="500"/>))}
+      {Array.from({length: 13}).map((_,i)=>(<line key={`h${i}`} x1="0" y1={i*40} x2="400" y2={i*40}/>))}
+    </g>
+    {/* walls */}
+    <g fill="#1a2630" stroke="#2a3a46" strokeWidth="2">
+      <rect x="40" y="60" width="320" height="12"/>
+      <rect x="40" y="440" width="320" height="12"/>
+      <rect x="40" y="60" width="12" height="392"/>
+      <rect x="348" y="60" width="12" height="392"/>
+      <rect x="140" y="180" width="60" height="12"/>
+      <rect x="220" y="320" width="60" height="12"/>
+      <rect x="190" y="240" width="24" height="50"/>
+    </g>
+    {/* bullet trails */}
+    <g stroke="#ffe14f" strokeWidth="2" opacity="0.8">
+      <line x1="120" y1="260" x2="180" y2="240"/>
+      <line x1="260" y1="160" x2="310" y2="200"/>
+    </g>
+    {/* players */}
+    <g>
+      <circle cx="140" cy="280" r="16" fill="#00fff5"/>
+      <line x1="140" y1="280" x2="160" y2="270" stroke="#0a1014" strokeWidth="3"/>
+      <circle cx="140" cy="280" r="22" fill="#00fff522"/>
+      <circle cx="300" cy="180" r="16" fill="#ff4d6d"/>
+      <line x1="300" y1="180" x2="282" y2="196" stroke="#0a1014" strokeWidth="3"/>
+      <circle cx="230" cy="380" r="16" fill="#ffe14f"/>
+      <line x1="230" y1="380" x2="250" y2="370" stroke="#0a1014" strokeWidth="3"/>
+    </g>
+    {/* HP bars */}
+    <g>
+      <rect x="128" y="256" width="24" height="3" fill="#35f0c9"/>
+      <rect x="288" y="156" width="24" height="3" fill="#35f0c9"/>
+      <rect x="218" y="356" width="16" height="3" fill="#ff4d6d"/>
+      <rect x="234" y="356" width="8" height="3" fill="#000a"/>
+    </g>
+    <Grain/>
+  </svg>
+);
+
 export const GAME_COVERS = {
   fbwg: Cover_FBWG, bob: Cover_Bob, connect4: Cover_Connect4, eightball: Cover_EightBall,
   football: Cover_Football, basket: Cover_Basket, badicecream: Cover_BadIceCream, aow: Cover_AoW,
   vex: Cover_Vex, papa: Cover_Papa, hook: Cover_Hook, g2048: Cover_2048,
   cutrope: Cover_CutRope, bloons: Cover_Bloons, slither: Cover_Slither, happywheels: Cover_HappyWheels,
+  fps: Cover_FPS, treeshate: Cover_TreesHate, arena: Cover_Arena,
 };

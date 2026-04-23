@@ -26,17 +26,20 @@ export const GAMES = [
     tagline:'Papa Louie left you in charge.',
     story:'Monday: you were bussing tables. Tuesday: Papa handed you the apron and vanished. Take orders, build pies to exact topping specs, slide them into a screaming oven, slice with a steady hand. Thirty shifts. No burning.' },
 
-  { id:'hook', name:'Stickman Hook', cat:'Platformer', kind:'story', players:'1P', levels:75,
+  { id:'hook', name:'Stickman Hook', cat:'Platformer', kind:'story', players:'1P', levels:3,
     tagline:'Swing through the impossible.',
-    story:'One button. Attach, detach, pendulum, fling. Seventy-five neon courses between you and the flag — miss the grab, you splat. Land it, and you loop back through levels you thought were too long for a human arm.' },
+    story:'One button. Attach, detach, pendulum, fling. Three neon courses between you and the flag — miss the grab, you splat. Land it, and you loop back through levels you thought were too long for a human arm.',
+    playable:true },
 
   { id:'g2048', name:'2048', cat:'Puzzle', kind:'story', players:'1P', levels:'∞',
     tagline:'Numbers, merged.',
-    story:'The tile Threes fell in love with the tile Fives, but math is math — you can only merge equals. Slide the board. Fuse 2 into 4, 4 into 8, all the way to that elusive 2048 tile. Then keep going, because pride.' },
+    story:'The tile Threes fell in love with the tile Fives, but math is math — you can only merge equals. Slide the board. Fuse 2 into 4, 4 into 8, all the way to that elusive 2048 tile. Then keep going, because pride.',
+    playable:true },
 
-  { id:'cutrope', name:'Cut the Rope', cat:'Puzzle', kind:'story', players:'1P', levels:25,
+  { id:'cutrope', name:'Cut the Rope', cat:'Puzzle', kind:'story', players:'1P', levels:3,
     tagline:'Om Nom is hungry.',
-    story:'A small green creature in a cardboard box, staring up at a piece of candy on a string. Your job: slice the rope at the right angle, pop the bubble at the right time, collect every star on the way down. Feed the monster.' },
+    story:'A small green creature in a cardboard box, staring up at a piece of candy on a string. Your job: slice the rope at the right angle, collect every star on the way down, feed the monster. Three levels, one satisfying crunch.',
+    playable:true },
 
   { id:'bloons', name:'Bloons TD', cat:'Tower-Def', kind:'story', players:'1P', levels:20,
     tagline:'Defend the track. Pop everything.',
@@ -49,6 +52,21 @@ export const GAMES = [
   { id:'happywheels', name:'Happy Wheels', cat:'Physics', kind:'story', players:'1P', levels:15,
     tagline:'Gravity has opinions.',
     story:'A man in a wheelchair with a rocket strapped to the back. A kid on a scooter chasing his dad down a hill. Fifteen hand-crafted tracks of ramps, spikes, cannons and questionable decisions. Finish the course — bones optional.' },
+
+  { id:'fps', name:'Raycaster FPS', cat:'Shooter', kind:'story', players:'1P', levels:1,
+    tagline:'One corridor, four enemies, one gun.',
+    story:'A single level, a classic corridor, and a handful of drifting creatures that want you gone. Wolfenstein-grade fake-3D rendered one column at a time. Aim, click, clear the sector — the old-school way.',
+    playable:true },
+
+  { id:'treeshate', name:'Trees Hate You', cat:'Rage', kind:'story', players:'1P', levels:'∞',
+    tagline:'Harmless forest. Malicious foliage.',
+    story:'A quiet walk through the woods. Some of the trees are not trees. Step too close and they punch, they cannon, they drop logs, they spit arrows. Die once and the forest adds another trap. Make it to the flag — if you can figure out which ones are pretending.',
+    playable:true },
+
+  { id:'arena', name:'Arena', cat:'Multiplayer', kind:'vs', players:'1-8', levels:1,
+    tagline:'Top-down realtime shootout.',
+    story:'A boxed arena, walls to hide behind, bots to warm up on, and real players dropping in through Supabase Realtime. Five kills to win the round. Click to fire, keep moving — the crosshair is a suggestion.',
+    playable:true, badge:'new' },
 
   // HEAD-TO-HEAD
   { id:'connect4', name:'Connect 4', cat:'Classic', kind:'vs', players:'1-2', levels:3,
