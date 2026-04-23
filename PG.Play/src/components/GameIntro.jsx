@@ -15,6 +15,7 @@ const PLAYABLE = {
   arena:      lazy(() => import('../games/ArenaGame.jsx')),
   slipshot:   lazy(() => import('../games/SlipshotGame.jsx')),
   nightcap:   lazy(() => import('../games/NightcapGame.jsx')),
+  slither:    lazy(() => import('../games/SlitherLiteGame.jsx')),
 };
 
 const modeLabel = (mode, game) => {
