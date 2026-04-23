@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { GAMES, FILTERS } from './data.js';
+import { GAMES, FILTERS, COLLECTIONS } from './data.js';
 import { Icon } from './icons.jsx';
 import Card from './components/Card.jsx';
 import FeaturedHero from './components/FeaturedHero.jsx';
@@ -7,10 +7,15 @@ import Sidebar from './components/Sidebar.jsx';
 import GameIntro from './components/GameIntro.jsx';
 import SettingsDrawer from './components/SettingsDrawer.jsx';
 import AuthModal from './components/AuthModal.jsx';
+import Collection from './components/Collection.jsx';
+import ProfilePanel from './components/ProfilePanel.jsx';
+import AchievementToast from './components/AchievementToast.jsx';
 import { useSession } from './hooks/useSession.js';
 import { useFavorites } from './hooks/useFavorites.js';
 import { useBests } from './hooks/useBests.js';
+import { useAchievements } from './hooks/useAchievements.js';
 import { supabase } from './supabase.js';
+import { sfx } from './sound.js';
 
 const readJSON = (k, fallback) => {
   try { return JSON.parse(localStorage.getItem(k)) ?? fallback; }
@@ -19,42 +24,50 @@ const readJSON = (k, fallback) => {
 
 const FEATURED = GAMES.find((g) => g.featured) || GAMES[0];
 
+// Show two rotating collection rails on the home surface, not all six at once —
+// the other four live as filter destinations or on dedicated pages later.
+const HOME_COLLECTIONS = ['start-in-ten', 'pass-the-laptop'];
+
 export default function App() {
-  const [theme, setTheme] = useState(() => localStorage.getItem('pd-theme') || 'dark');
-  const [q, setQ] = useState('');
+  const [theme, setTheme]         = useState(() => localStorage.getItem('pd-theme') || 'dark');
+  const [q, setQ]                 = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [favoritesOnly, setFavoritesOnly] = useState(false);
-  const [active, setActive] = useState(null);
-  const [recent, setRecent] = useState(() => readJSON('pd-recent', []));
+  const [active, setActive]       = useState(null);
+  const [recent, setRecent]       = useState(() => readJSON('pd-recent', []));
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [authOpen, setAuthOpen] = useState(false);
-  const [sideOpen, setSideOpen] = useState(false);
+  const [profileOpen, setProfileOpen]   = useState(false);
+  const [authOpen, setAuthOpen]   = useState(false);
+  const [sideOpen, setSideOpen]   = useState(false);
 
   const { user } = useSession();
   const { favs, toggle: toggleFav, clear: clearFavs } = useFavorites(user);
   const { bests, submit: submitBest } = useBests(user);
+  const { unlocked, toast } = useAchievements(user, bests);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('pd-theme', theme);
   }, [theme]);
-
   useEffect(() => { localStorage.setItem('pd-recent', JSON.stringify(recent)); }, [recent]);
 
-  // Score bus: persist + update best whenever any game dispatches a score event.
+  // Score bus → persist + (optionally) play win chime
   useEffect(() => {
     const onScore = (e) => {
       const { gameId, score, meta } = e.detail || {};
       if (!gameId || typeof score !== 'number') return;
       submitBest(gameId, score, meta);
+      sfx.win();
     };
     window.addEventListener('pgplay:score', onScore);
     return () => window.removeEventListener('pgplay:score', onScore);
   }, [submitBest]);
 
   const onOpen = (g) => {
+    sfx.open();
     setActive(g);
     setRecent((r) => [g.id, ...r.filter((x) => x !== g.id)].slice(0, 8));
+    window.dispatchEvent(new CustomEvent('pgplay:open', { detail: { gameId: g.id } }));
   };
 
   const signOut = async () => { await supabase.auth.signOut(); };
@@ -85,8 +98,9 @@ export default function App() {
     ? 'Favorites'
     : (FILTERS.find((f) => f.id === activeFilter)?.label || 'All');
 
-  const showHero = !q && !favoritesOnly && activeFilter === 'all';
-  const showRecent = recentGames.length > 0 && !q && !favoritesOnly && activeFilter === 'all';
+  const showHero         = !q && !favoritesOnly && activeFilter === 'all';
+  const showRecent       = recentGames.length > 0 && !q && !favoritesOnly && activeFilter === 'all';
+  const showCollections  = !q && !favoritesOnly && activeFilter === 'all';
 
   const onFilter = (id) => { setFavoritesOnly(false); setActiveFilter(id); };
 
@@ -102,6 +116,7 @@ export default function App() {
           onOpenFavorites={() => setFavoritesOnly(true)}
           favoritesOnly={favoritesOnly}
           onOpenSettings={() => setSettingsOpen(true)}
+          onOpenProfile={() => setProfileOpen(true)}
           onOpenAuth={() => setAuthOpen(true)}
           onSignOut={signOut}
           user={user}
@@ -127,9 +142,9 @@ export default function App() {
               aria-label="Search games"/>
           </div>
           {user
-            ? <div className="avatar" title={user.email} aria-hidden="true">
+            ? <button className="avatar" title={user.email} onClick={() => setProfileOpen(true)}>
                 {(user.email || 'U').slice(0, 2).toUpperCase()}
-              </div>
+              </button>
             : <button className="btn btn-ghost btn-sm" onClick={() => setAuthOpen(true)}>Sign in</button>}
         </div>
 
@@ -155,6 +170,21 @@ export default function App() {
               </div>
             </section>
           )}
+
+          {showCollections && HOME_COLLECTIONS.map((id) => {
+            const c = COLLECTIONS.find((x) => x.id === id);
+            if (!c) return null;
+            return (
+              <Collection
+                key={c.id}
+                collection={c}
+                games={GAMES}
+                favs={favs}
+                onFav={toggleFav}
+                onOpen={onOpen}
+                bests={bests}/>
+            );
+          })}
 
           <section className="section" aria-labelledby="grid-title">
             <div className="section-head">
@@ -198,7 +228,17 @@ export default function App() {
           recentCount={recent.length}
           onClose={() => setSettingsOpen(false)}/>
       )}
+      {profileOpen && (
+        <ProfilePanel
+          user={user}
+          bests={bests}
+          unlocked={unlocked}
+          onOpenAuth={() => { setAuthOpen(true); setProfileOpen(false); }}
+          onSignOut={async () => { await signOut(); }}
+          onClose={() => setProfileOpen(false)}/>
+      )}
       {authOpen && <AuthModal onClose={() => setAuthOpen(false)}/>}
+      <AchievementToast toast={toast}/>
     </div>
   );
 }

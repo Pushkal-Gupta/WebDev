@@ -17,20 +17,20 @@ export default function Sidebar({
   onOpenFavorites,
   favoritesOnly,
   onOpenSettings,
+  onOpenProfile,
   onOpenAuth,
   onSignOut,
   user,
   onClose,
 }) {
-  const item = (id, label, icon, count) => {
+  const item = (id, label, icon, count, onClick) => {
     const isActive = id === (favoritesOnly ? 'favorites' : activeFilter);
     return (
       <button
         key={id}
         className={'side-item' + (isActive ? ' is-active' : '')}
         onClick={() => {
-          if (id === 'favorites') onOpenFavorites();
-          else onFilter(id);
+          onClick?.();
           if (onClose) onClose();
         }}>
         <span className="side-icon">{icon}</span>
@@ -51,18 +51,19 @@ export default function Sidebar({
 
       <nav className="side-nav">
         <div className="side-group-label">Browse</div>
-        {FILTERS.map((f) => item(f.id, f.label, NAV_ICONS[f.id], games.filter(f.match).length))}
+        {FILTERS.map((f) => item(f.id, f.label, NAV_ICONS[f.id], games.filter(f.match).length, () => onFilter(f.id)))}
 
         <div className="side-group-label side-group-spaced">Library</div>
-        {item('favorites', 'Favorites', Icon.heart, favCount)}
+        {item('favorites', 'Favorites', Icon.heart, favCount, onOpenFavorites)}
+        {item('profile',   'Profile',   Icon.solo,  undefined, onOpenProfile)}
       </nav>
 
       <div className="side-foot">
         {user ? (
           <div className="side-profile">
-            <div className="avatar avatar-sm" aria-hidden="true">
+            <button className="avatar avatar-sm" aria-label="Open profile" onClick={() => { onOpenProfile(); if (onClose) onClose(); }}>
               {(emailShort || 'U').slice(0, 2).toUpperCase()}
-            </div>
+            </button>
             <div className="side-profile-text">
               <div className="side-profile-name">{emailShort}</div>
               <button className="link side-profile-signout" onClick={onSignOut}>Sign out</button>

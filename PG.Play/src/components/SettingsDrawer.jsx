@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Icon } from '../icons.jsx';
+import { isMuted, setMuted } from '../sound.js';
 
 export default function SettingsDrawer({
   theme, setTheme,
@@ -9,6 +10,9 @@ export default function SettingsDrawer({
   favCount, recentCount,
   onClose,
 }) {
+  const [muted, setMutedState] = useState(() => isMuted());
+  const toggleMuted = () => { const n = !muted; setMuted(n); setMutedState(n); };
+
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', onKey);
@@ -58,6 +62,20 @@ export default function SettingsDrawer({
               <div className="seg" role="radiogroup" aria-label="Theme">
                 <button className={theme === 'light' ? 'is-active' : ''} onClick={() => setTheme('light')} role="radio" aria-checked={theme === 'light'}>Light</button>
                 <button className={theme === 'dark' ? 'is-active' : ''} onClick={() => setTheme('dark')} role="radio" aria-checked={theme === 'dark'}>Dark</button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div className="settings-group-label">Sound</div>
+            <div className="settings-row">
+              <div className="settings-row-text">
+                <div className="settings-row-title">UI sounds</div>
+                <div className="settings-row-desc">Tiny synth cues for clicks, wins, achievements.</div>
+              </div>
+              <div className="seg" role="radiogroup" aria-label="Sound">
+                <button className={!muted ? 'is-active' : ''} onClick={() => { if (muted) toggleMuted(); }} role="radio" aria-checked={!muted}>On</button>
+                <button className={muted ? 'is-active' : ''} onClick={() => { if (!muted) toggleMuted(); }} role="radio" aria-checked={muted}>Off</button>
               </div>
             </div>
           </div>

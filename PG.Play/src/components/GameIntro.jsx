@@ -1,24 +1,20 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { GAME_COVERS } from '../covers.jsx';
 import { Icon } from '../icons.jsx';
-import Connect4Game from '../games/Connect4Game.jsx';
-import EightBallGame from '../games/EightBallGame.jsx';
-import Game2048 from '../games/Game2048.jsx';
-import CutRopeGame from '../games/CutRopeGame.jsx';
-import StickmanHookGame from '../games/StickmanHookGame.jsx';
-import RaycasterFPS from '../games/RaycasterFPS.jsx';
-import TreesHateYouGame from '../games/TreesHateYouGame.jsx';
-import ArenaGame from '../games/ArenaGame.jsx';
 
+// Code-split every game so opening the lobby doesn't pull in Three.js or
+// game-specific bundles. Games load on demand when the player clicks play.
 const PLAYABLE = {
-  connect4:  Connect4Game,
-  eightball: EightBallGame,
-  g2048:     Game2048,
-  cutrope:   CutRopeGame,
-  hook:      StickmanHookGame,
-  fps:       RaycasterFPS,
-  treeshate: TreesHateYouGame,
-  arena:     ArenaGame,
+  connect4:   lazy(() => import('../games/Connect4Game.jsx')),
+  eightball:  lazy(() => import('../games/EightBallGame.jsx')),
+  g2048:      lazy(() => import('../games/Game2048.jsx')),
+  cutrope:    lazy(() => import('../games/CutRopeGame.jsx')),
+  hook:       lazy(() => import('../games/StickmanHookGame.jsx')),
+  fps:        lazy(() => import('../games/RaycasterFPS.jsx')),
+  grudgewood: lazy(() => import('../games/GrudgewoodGame.jsx')),
+  arena:      lazy(() => import('../games/ArenaGame.jsx')),
+  slipshot:   lazy(() => import('../games/SlipshotGame.jsx')),
+  nightcap:   lazy(() => import('../games/NightcapGame.jsx')),
 };
 
 const modeLabel = (mode, game) => {
@@ -38,9 +34,19 @@ function PlayPlaceholder({ game }) {
         <div className="play-placeholder-title">Chapter queued</div>
         <div className="play-placeholder-sub">
           The playable build for {game.name} ships in a future update. In the meantime, try
-          {' '}<b>Connect 4</b> or <b>8-Ball Pool</b> for a live demo.
+          {' '}<b>2048</b>, <b>Slipshot</b>, or <b>Grudgewood</b> for a live demo.
         </div>
       </div>
+    </div>
+  );
+}
+
+function LoadingGame({ game }) {
+  return (
+    <div className="play-placeholder">
+      <div className="play-placeholder-kicker">Loading</div>
+      <div className="play-placeholder-title">{game.name}</div>
+      <div className="play-placeholder-sub">Hang on while the game boots up.</div>
     </div>
   );
 }
@@ -68,6 +74,7 @@ export default function GameIntro({ game, best, onClose }) {
   const start = (m) => { setMode(m); setStage('play'); };
 
   if (stage === 'play') {
+    const GameComp = PLAYABLE[game.id];
     return (
       <div className="intro">
         <div className="play">
@@ -80,9 +87,11 @@ export default function GameIntro({ game, best, onClose }) {
             </div>
           </div>
           <div className="play-stage">
-            {PLAYABLE[game.id]
-              ? (() => { const G = PLAYABLE[game.id]; return <G/>; })()
-              : <PlayPlaceholder game={game}/>}
+            {GameComp ? (
+              <Suspense fallback={<LoadingGame game={game}/>}>
+                <GameComp/>
+              </Suspense>
+            ) : <PlayPlaceholder game={game}/>}
           </div>
         </div>
       </div>
@@ -114,11 +123,13 @@ export default function GameIntro({ game, best, onClose }) {
             {game.kind === 'vs' ? (
               <>
                 <button className="btn btn-primary" onClick={() => start('2p')}>
-                  {Icon.play} 2 Player
+                  {Icon.play} {game.players.includes('1-8') ? 'Join arena' : '2 Player'}
                 </button>
-                <button className="btn btn-ghost" onClick={() => start('bot')}>
-                  vs Bot
-                </button>
+                {!game.players.includes('1-8') && (
+                  <button className="btn btn-ghost" onClick={() => start('bot')}>
+                    vs Bot
+                  </button>
+                )}
               </>
             ) : (
               <button className="btn btn-primary" onClick={() => start('start')}>

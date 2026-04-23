@@ -1,0 +1,118 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { supabase } from '../supabase.js';
+import { sfx } from '../sound.js';
+
+// Opinionated achievement set. Triggered locally off score-submits +
+// play-open events. Persisted to localStorage always; synced to Supabase
+// pgplay_achievements when signed in.
+export const ACHIEVEMENTS = [
+  { id: 'first-play',      label: 'First run',           desc: 'Opened any game.' },
+  { id: 'first-score',     label: 'On the board',         desc: 'Submitted your first score.' },
+  { id: 'slipshot-10',     label: 'Slipshot cleared',    desc: 'Cleared a Slipshot round (10 kills).' },
+  { id: 'fps-clear',       label: 'Sector cleared',      desc: 'Cleared the single-level FPS.' },
+  { id: 'cutrope-perfect', label: 'Three stars',         desc: 'Won a Cut-the-Rope level with all stars.' },
+  { id: '2048-2048',       label: 'Hit 2048',            desc: 'Merged the elusive tile.' },
+  { id: 'arena-champ',     label: 'Arena champion',      desc: 'Won an Arena round.' },
+  { id: 'grudge-clear',    label: 'Made it through',     desc: 'Reached the flag in Grudgewood.' },
+  { id: 'bests-5',         label: 'Five bests',          desc: 'Holds personal bests in five different games.' },
+];
+
+const LS_KEY = 'pd-achievements';
+
+const readLocal = () => {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); }
+  catch { return {}; }
+};
+
+export function useAchievements(user, bests) {
+  const [unlocked, setUnlocked] = useState(readLocal);
+  const [toast, setToast] = useState(null);
+  const lastUserId = useRef(null);
+  const unlockQueue = useRef([]);
+
+  // Load / merge from DB on sign-in
+  useEffect(() => {
+    if (!user) { lastUserId.current = null; return; }
+    if (lastUserId.current === user.id) return;
+    lastUserId.current = user.id;
+    let cancelled = false;
+    (async () => {
+      const local = readLocal();
+      const localIds = Object.keys(local).filter((k) => local[k]);
+      if (localIds.length > 0) {
+        await supabase.from('pgplay_achievements').upsert(
+          localIds.map((achievement) => ({ user_id: user.id, achievement })),
+          { onConflict: 'user_id,achievement' }
+        );
+      }
+      const { data } = await supabase
+        .from('pgplay_achievements')
+        .select('achievement')
+        .eq('user_id', user.id);
+      if (cancelled) return;
+      const merged = { ...local };
+      (data || []).forEach((r) => { merged[r.achievement] = true; });
+      setUnlocked(merged);
+      localStorage.setItem(LS_KEY, JSON.stringify(merged));
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
+
+  const unlock = useCallback(async (id) => {
+    setUnlocked((prev) => {
+      if (prev[id]) return prev;
+      const next = { ...prev, [id]: true };
+      localStorage.setItem(LS_KEY, JSON.stringify(next));
+      unlockQueue.current.push(id);
+      return next;
+    });
+    if (user) {
+      await supabase.from('pgplay_achievements')
+        .upsert({ user_id: user.id, achievement: id }, { onConflict: 'user_id,achievement' });
+    }
+  }, [user]);
+
+  // Flush queue into the toast one at a time so stacked unlocks don't mash.
+  useEffect(() => {
+    if (toast) return;
+    const id = unlockQueue.current.shift();
+    if (!id) return;
+    const ach = ACHIEVEMENTS.find((a) => a.id === id);
+    if (!ach) return;
+    sfx.achievement();
+    setToast(ach);
+    const t = setTimeout(() => setToast(null), 3200);
+    return () => clearTimeout(t);
+  }, [toast, unlocked]);
+
+  // Score bus hook: listen for pgplay:score events + open events, derive unlocks.
+  useEffect(() => {
+    const onOpen = () => { unlock('first-play'); };
+    const onScore = (e) => {
+      const { gameId, score, meta = {} } = e.detail || {};
+      if (!gameId || typeof score !== 'number') return;
+      unlock('first-score');
+      if (gameId === 'slipshot' && (meta.kills ?? 0) >= 10) unlock('slipshot-10');
+      if (gameId === 'fps') unlock('fps-clear');
+      if (gameId === 'cutrope' && (meta.stars ?? 0) >= 3) unlock('cutrope-perfect');
+      if (gameId === 'arena') unlock('arena-champ');
+      if (gameId === 'grudgewood') unlock('grudge-clear');
+      // 2048: derive from bests since the submit just carries the score
+      if (gameId === 'g2048' && score >= 20480) unlock('2048-2048'); // raw score ≥ full-2048 heuristic
+    };
+    window.addEventListener('pgplay:score', onScore);
+    window.addEventListener('pgplay:open', onOpen);
+    return () => {
+      window.removeEventListener('pgplay:score', onScore);
+      window.removeEventListener('pgplay:open', onOpen);
+    };
+  }, [unlock]);
+
+  // Five-bests achievement derived from bests shape
+  useEffect(() => {
+    const ct = Object.keys(bests || {}).length;
+    if (ct >= 5 && !unlocked['bests-5']) unlock('bests-5');
+  }, [bests, unlocked, unlock]);
+
+  return { unlocked, toast, ACHIEVEMENTS };
+}

@@ -694,10 +694,101 @@ const Cover_Arena = () => (
   </svg>
 );
 
+// 20. Nightcap — roadside motel rage-comedy
+const Cover_Nightcap = () => (
+  <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
+    <SharedDefs/>
+    <defs>
+      <linearGradient id="nc-sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#0a0f1a"/>
+        <stop offset="0.7" stopColor="#141d2e"/>
+        <stop offset="1" stopColor="#1c2539"/>
+      </linearGradient>
+      <radialGradient id="nc-pink" cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0" stopColor="#ff3f88"/>
+        <stop offset="1" stopColor="#ff3f8800"/>
+      </radialGradient>
+    </defs>
+    {/* Night sky */}
+    <rect width="400" height="500" fill="url(#nc-sky)"/>
+    {/* Stars */}
+    <g fill="#fff" opacity="0.7">
+      <circle cx="40" cy="40" r="1"/><circle cx="90" cy="70" r="1.2"/><circle cx="140" cy="28" r="0.8"/>
+      <circle cx="210" cy="52" r="1"/><circle cx="260" cy="36" r="0.9"/><circle cx="320" cy="60" r="1.1"/>
+      <circle cx="360" cy="32" r="0.8"/><circle cx="70" cy="110" r="0.9"/><circle cx="180" cy="90" r="0.7"/>
+    </g>
+    {/* Moon */}
+    <circle cx="320" cy="100" r="28" fill="#f3efe8" opacity="0.9"/>
+    <circle cx="312" cy="94" r="24" fill="url(#nc-sky)"/>
+    {/* Pink neon glow behind sign */}
+    <ellipse cx="200" cy="190" rx="170" ry="60" fill="url(#nc-pink)" opacity="0.55"/>
+    {/* Neon sign pole */}
+    <rect x="196" y="210" width="8" height="60" fill="#1c2539"/>
+    {/* VACANCY neon */}
+    <g transform="translate(200,180)">
+      <rect x="-110" y="-38" width="220" height="68" rx="6" fill="#141d2e" stroke="#ff3f88" strokeWidth="2"/>
+      <text x="0" y="-8" textAnchor="middle" fontFamily="'Courier New',monospace" fontSize="14" fill="#ff3f88" letterSpacing="4" fontWeight="700">NIGHTCAP</text>
+      <text x="0" y="20" textAnchor="middle" fontFamily="'Courier New',monospace" fontSize="11" fill="#ffb347" letterSpacing="3" fontWeight="700" opacity="0.9">NO VACANCY</text>
+      {/* tiny blink dot — flicker */}
+      <circle cx="98" cy="-24" r="3" fill="#ffb347" opacity="0.8"/>
+    </g>
+    {/* Motel facade (silhouette) */}
+    <rect x="40" y="330" width="320" height="140" fill="#1c2539" stroke="#2e3d5a" strokeWidth="2"/>
+    {/* Roof line */}
+    <rect x="30" y="322" width="340" height="10" fill="#2e3d5a"/>
+    {/* Door frames */}
+    {[0,1,2,3,4].map(i => {
+      const x = 58 + i*62;
+      const isThirteen = i === 3;
+      return (
+        <g key={i}>
+          <rect x={x} y="356" width="36" height="80" fill="#2a1f14" stroke="#3a2a1a" strokeWidth="1"/>
+          {/* Door number */}
+          <text x={x+18} y="350" textAnchor="middle" fontFamily="'Courier New',monospace" fontSize="9"
+            fill={isThirteen ? "#ff3f88" : "#c9b48a"} fontWeight="700">
+            {i===0?'09':i===1?'10':i===2?'11':i===3?'13':'14'}
+          </text>
+          {/* Door handle */}
+          <circle cx={x+30} cy="396" r="1.5" fill="#ffb347"/>
+          {/* Room 13 glows red, lit window above */}
+          {isThirteen && (
+            <>
+              <rect x={x-4} y="352" width="44" height="88" fill="none" stroke="#ff3f88" strokeWidth="1.5" opacity="0.6"/>
+              <rect x={x+2} y="320" width="32" height="14" fill="#ff4455" opacity="0.85"/>
+            </>
+          )}
+          {!isThirteen && i!==0 && (
+            <rect x={x+2} y="320" width="32" height="14" fill="#ffb347" opacity={i===1?0.4:0.15}/>
+          )}
+        </g>
+      );
+    })}
+    {/* Ground line */}
+    <rect x="0" y="470" width="400" height="30" fill="#0a0f1a"/>
+    <line x1="0" y1="470" x2="400" y2="470" stroke="#2e3d5a" strokeWidth="1"/>
+    {/* Puddle reflection */}
+    <ellipse cx="200" cy="486" rx="90" ry="5" fill="#ff3f88" opacity="0.12"/>
+    {/* Tiny silhouette guest walking toward Room 13 */}
+    <g transform="translate(250,448)">
+      <circle cx="0" cy="-10" r="4" fill="#ffd1a6"/>
+      <rect x="-3" y="-6" width="6" height="10" fill="#e84a6b"/>
+      <rect x="-3" y="4" width="2.5" height="8" fill="#2c3e66"/>
+      <rect x="0.5" y="4" width="2.5" height="8" fill="#2c3e66"/>
+      {/* luggage */}
+      <rect x="-7" y="-2" width="3" height="6" fill="#2a1a0a"/>
+    </g>
+    <Grain/>
+  </svg>
+);
+
 export const GAME_COVERS = {
   fbwg: Cover_FBWG, bob: Cover_Bob, connect4: Cover_Connect4, eightball: Cover_EightBall,
   football: Cover_Football, basket: Cover_Basket, badicecream: Cover_BadIceCream, aow: Cover_AoW,
   vex: Cover_Vex, papa: Cover_Papa, hook: Cover_Hook, g2048: Cover_2048,
   cutrope: Cover_CutRope, bloons: Cover_Bloons, slither: Cover_Slither, happywheels: Cover_HappyWheels,
-  fps: Cover_FPS, treeshate: Cover_TreesHate, arena: Cover_Arena,
+  fps: Cover_FPS, arena: Cover_Arena,
+  // Originals (reuse the earlier covers, now renamed via id):
+  grudgewood: Cover_TreesHate,
+  slipshot:   Cover_Arena,
+  nightcap:   Cover_Nightcap,
 };
