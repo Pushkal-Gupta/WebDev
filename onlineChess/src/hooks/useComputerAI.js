@@ -70,6 +70,8 @@ export default function useComputerAI(setAlertMsg) {
           const pm = useGameStore.getState().premove;
           if (pm?.to) {
             setTimeout(() => useGameStore.getState().executePremove(), 50);
+          } else if (pm) {
+            useGameStore.setState({ premove: null });
           }
         }
       }
