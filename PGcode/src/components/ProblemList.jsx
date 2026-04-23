@@ -145,7 +145,7 @@ export default function ProblemList({ session, roadmapMode }) {
   };
 
   const toggleComplete = async (problemId) => {
-    if (!session?.user) { alert('Login to track progress'); return; }
+    if (!session?.user) return;
     const current = userProgress[problemId];
     const newVal = !(current?.is_completed);
     const { error } = await supabase.from('PGcode_user_progress').upsert({
@@ -160,7 +160,7 @@ export default function ProblemList({ session, roadmapMode }) {
   };
 
   const toggleStar = async (problemId) => {
-    if (!session?.user) { alert('Login to star problems'); return; }
+    if (!session?.user) return;
     const current = userProgress[problemId];
     const newVal = !(current?.is_starred);
     const { error } = await supabase.from('PGcode_user_progress').upsert({

@@ -45,7 +45,7 @@ export default function LoginModal({ onClose }) {
         if (data?.session) {
           onClose();
         } else {
-          alert('Check your inbox at ' + email + ' for a verification link!');
+          setError('Check your inbox at ' + email + ' for a verification link.');
           setMode('login');
         }
       } else if (mode === 'reset') {
@@ -104,7 +104,6 @@ export default function LoginModal({ onClose }) {
       const { error } = await supabase.auth.updateUser({ password: newPass });
       if (error) throw error;
       onClose();
-      setTimeout(() => alert('Password updated! You are now logged in.'), 200);
     } catch (err) {
       setError(err.message);
     } finally {

@@ -90,7 +90,7 @@ export default function DryRunViewer({ problemId }) {
         }
         setQuestions(qMap);
       } catch (err) {
-        console.error(err);
+        console.error('Failed to load dry run data:', err);
       } finally {
         setLoading(false);
       }
@@ -157,6 +157,7 @@ export default function DryRunViewer({ problemId }) {
   };
 
   const answerQuestion = (option) => {
+    if (!activeQuestion) return;
     if (option === activeQuestion.correct_answer) {
       setFeedback({ type: 'success', text: activeQuestion.explanation || 'Correct!' });
       if (feedbackTimeoutRef.current) clearTimeout(feedbackTimeoutRef.current);

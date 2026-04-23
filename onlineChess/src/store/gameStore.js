@@ -253,11 +253,7 @@ const useGameStore = create((set, get) => ({
         try {
           const parts = chessInstance.fen().split(' ');
           parts[1] = myColor;
-          const Chess = chessInstance.constructor;
-          const tmp = new Chess();
-          // Some FENs won't be loadable when it's "our turn" while opponent
-          // is also in check, etc. — swallow and fall back to empty list.
-          if (!tmp.load(parts.join(' '))) return [];
+          const tmp = new Chess(parts.join(' '));
           const moves = tmp.moves({ square: fromSq, verbose: true }) || [];
           return moves.map(m => ({
             row: 8 - parseInt(m.to[1], 10),
@@ -372,7 +368,12 @@ const useGameStore = create((set, get) => ({
     const moveObj = { from: fromSq, to: toSq };
     if (promotion) moveObj.promotion = promotion;
 
-    const result = chessInstance.move(moveObj);
+    let result;
+    try {
+      result = chessInstance.move(moveObj);
+    } catch {
+      result = null;
+    }
     if (!result) {
       // Illegal move — trigger shake feedback + sound
       if (!_bypassValidation) {
@@ -462,6 +463,7 @@ const useGameStore = create((set, get) => ({
         underCheck: findCheck(chessInstance),
         activeColor: chessInstance.turn(),
         pawnPromotion: null,
+        premove: null,
         disableBoard: false,
       });
       return true;
@@ -471,7 +473,7 @@ const useGameStore = create((set, get) => ({
     // Check state
     const underCheck = findCheck(chessInstance);
 
-    set({
+    const stateUpdate = {
       boardState: buildBoardState(chessInstance),
       moveHistory: newHistory,
       currentMoveIndex: newHistory.length - 1,
@@ -494,11 +496,15 @@ const useGameStore = create((set, get) => ({
       turnStartBlack: newTurnStartBlack,
       delayRemaining: newDelayRemaining,
       pawnPromotion: null,
-      premove: null,
       disableBoard: false,
       capturedByWhite: newCapturedByWhite,
       capturedByBlack: newCapturedByBlack,
-    });
+    };
+    // Clear premove only for user-initiated moves. Opponent/engine moves
+    // (with _bypassValidation) must preserve premove so the caller can
+    // read it and call executePremove() after the board updates.
+    if (!_bypassValidation) stateUpdate.premove = null;
+    set(stateUpdate);
 
     // Check game over
     get().checkGameOver();
@@ -618,6 +624,7 @@ const useGameStore = create((set, get) => ({
       gameOver: false,
       gameOverMessage: '',
       gameResult: null,
+      premove: null,
       disableBoard: false,
       capturedByWhite: newCapturedByWhite,
       capturedByBlack: newCapturedByBlack,
@@ -665,6 +672,7 @@ const useGameStore = create((set, get) => ({
       gameOver: false,
       gameOverMessage: '',
       gameResult: null,
+      premove: null,
       disableBoard: false,
       capturedByWhite: newCapturedByWhite,
       capturedByBlack: newCapturedByBlack,

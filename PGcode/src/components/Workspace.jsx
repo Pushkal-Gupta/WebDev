@@ -176,7 +176,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
 
   // Initialize test case inputs when problem changes
   useEffect(() => {
-    if (activeProblem?.test_cases?.length > 0) {
+    if (activeProblem?.test_cases?.length > 0 && activeProblem.test_cases[0]?.inputs) {
       setActiveTestIdx(0);
       setTestInputs([...activeProblem.test_cases[0].inputs]);
     } else {
@@ -287,7 +287,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
     // If the unpinned case was currently selected, fall back to case 0
     if (activeTestIdx === originalIdx) {
       setActiveTestIdx(0);
-      if (activeProblem?.test_cases?.[0]) {
+      if (activeProblem?.test_cases?.[0]?.inputs) {
         setTestInputs([...activeProblem.test_cases[0].inputs]);
       }
     }

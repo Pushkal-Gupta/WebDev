@@ -84,9 +84,12 @@ serve(async (req) => {
 
   try {
     const { code, language, stdins } = await req.json();
+    if (!code || typeof code !== "string") throw new Error("code must be a non-empty string");
+    if (code.length > 100_000) throw new Error("code exceeds maximum allowed size");
     const langId = LANG_MAP[language];
     if (!langId) throw new Error(`Unsupported language: ${language}`);
     if (!Array.isArray(stdins) || stdins.length === 0) throw new Error("stdins must be a non-empty array");
+    if (stdins.length > 100) throw new Error("Too many test cases (max 100)");
 
     // Judge0 batch endpoint accepts up to ~20 submissions per call; chunk to be safe.
     const CHUNK = 20;
