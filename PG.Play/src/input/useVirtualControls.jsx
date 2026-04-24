@@ -65,6 +65,16 @@ const BINDINGS = {
     },
     buttons: [{ id: 'sneak', label: 'Tiptoe', key: 'Shift', code: 'ShiftLeft' }],
   },
+  badicecream: {
+    // Frost Fight — grid maze: 4-way d-pad + freeze/melt action.
+    dpad: {
+      up:    { key: 'w', code: 'KeyW' },
+      down:  { key: 's', code: 'KeyS' },
+      left:  { key: 'a', code: 'KeyA' },
+      right: { key: 'd', code: 'KeyD' },
+    },
+    buttons: [{ id: 'freeze', label: 'Freeze', key: ' ', code: 'Space' }],
+  },
   goalbound: {
     // Goalbound — 1P vs Bot: move + jump + kick.
     dpad: {
@@ -75,6 +85,16 @@ const BINDINGS = {
       { id: 'jump', label: 'Jump', key: 'w', code: 'KeyW' },
       { id: 'kick', label: 'Kick', key: 's', code: 'KeyS' },
     ],
+  },
+  happywheels: {
+    // Faceplant — throttle / brake / lean
+    dpad: {
+      up:    { key: 'w', code: 'KeyW' },
+      down:  { key: 's', code: 'KeyS' },
+      left:  { key: 'a', code: 'KeyA' },
+      right: { key: 'd', code: 'KeyD' },
+    },
+    buttons: [{ id: 'throttle', label: 'Gas', key: 'd', code: 'KeyD' }],
   },
   fps: {
     // Raycaster reads WASD codes. No aim stick yet — touch-drag on canvas

@@ -40,11 +40,12 @@ export const GAMES = [
     mobileSupport:'touch-ok', inputs:['keyboard','touch'], orientation:'landscape',
     skillTags:['timing','stealth','planning'], sessionLength:'short' },
 
-  { id:'badicecream', name:'Bad Ice Cream', cat:'Co-op', kind:'story', players:'1-2 co-op', levels:40,
-    tagline:'Fruit. Ice. No mercy.',
-    story:'You are an ice cream. The fruit has gone feral. Freeze tunnels through ice blocks, corner the marching strawberries, and never, ever stand next to a bomb. Works solo, works better as a two-cone tag-team.',
-    mobileSupport:'desktop-only', inputs:['keyboard'], orientation:'landscape',
-    skillTags:['spatial','coop','timing'], sessionLength:'medium' },
+  { id:'badicecream', name:'Frost Fight', cat:'Arcade', kind:'story', players:'1P', levels:3,
+    tagline:'Fruit, ice, and not much else.',
+    story:'A grid maze, a handful of angry fruits, and one small ice cream. Step tile-to-tile, freeze the tile you\'re facing to wall them off, melt it to open the way. Collect every fruit piece in the room — only then does the exit accept you. Three rooms: Pantry, Cold Room, Aisle.',
+    playable:true, badge:'new', isOriginal:true,
+    mobileSupport:'touch-ok', inputs:['keyboard','touch'], orientation:'landscape',
+    skillTags:['spatial','planning','reflex'], sessionLength:'short' },
 
   { id:'aow', name:'Era Lane', cat:'Strategy', kind:'story', players:'1P', levels:5,
     tagline:'Five eras. One lane. One base you can\'t afford to lose.',
@@ -60,11 +61,12 @@ export const GAMES = [
     mobileSupport:'touch-ok', inputs:['keyboard','touch'], orientation:'landscape',
     skillTags:['reflex','timing','movement'], sessionLength:'short' },
 
-  { id:'papa', name:"Papa's Pizzeria", cat:'Time-mgmt', kind:'story', players:'1P', levels:30,
-    tagline:'Papa Louie left you in charge.',
-    story:'Monday: you were bussing tables. Tuesday: Papa handed you the apron and vanished. Take orders, build pies to exact topping specs, slide them into a screaming oven, slice with a steady hand. Thirty shifts. No burning.',
-    mobileSupport:'native', inputs:['mouse','touch','drag'], orientation:'landscape',
-    skillTags:['timing','memory','routing'], sessionLength:'long' },
+  { id:'papa', name:'Short Order', cat:'Time-mgmt', kind:'story', players:'1P', levels:'∞',
+    tagline:'Ninety-second shift. Tips in the jar.',
+    story:'Tickets pile up. Eight big buttons for every step — dough, sauce, cheese, pepperoni, veggies, oven, slice, box. Tap them in the right order for the leftmost ticket; wrong tap costs four seconds; running a ticket out of time costs a life. Three lives, ninety seconds, and a tip jar that scales with speed.',
+    playable:true, badge:'new', isOriginal:true,
+    mobileSupport:'native', inputs:['tap','mouse','keyboard'], orientation:'any',
+    skillTags:['timing','memory','routing'], sessionLength:'short' },
 
   { id:'hook', name:'Stickman Hook', cat:'Platformer', kind:'story', players:'1P', levels:3,
     tagline:'Swing through the impossible.',
@@ -100,9 +102,10 @@ export const GAMES = [
     mobileSupport:'native', inputs:['touch','mouse','keyboard'], orientation:'any',
     skillTags:['reflex','spatial','movement'], sessionLength:'short', isOriginal:true },
 
-  { id:'happywheels', name:'Happy Wheels', cat:'Physics', kind:'story', players:'1P', levels:15,
-    tagline:'Gravity has opinions.',
-    story:'A man in a wheelchair with a rocket strapped to the back. A kid on a scooter chasing his dad down a hill. Fifteen hand-crafted tracks of ramps, spikes, cannons and questionable decisions. Finish the course — bones optional.',
+  { id:'happywheels', name:'Faceplant', cat:'Physics', kind:'story', players:'1P', levels:1,
+    tagline:'Ride the course. Keep your head off the dirt.',
+    story:'One bike, one rider, one hand-drawn track of hills, bumps, and three spike fields between you and a green flag. Throttle, brake, and lean. Land wrong and the rider\'s head introduces itself to the ground. Faster clears score higher.',
+    playable:true, badge:'new', isOriginal:true,
     mobileSupport:'desktop-first', inputs:['keyboard'], orientation:'landscape',
     skillTags:['physics','reflex','timing'], sessionLength:'short' },
 
@@ -117,7 +120,7 @@ export const GAMES = [
     tagline:'The forest remembers.',
     story:'A hostile-environment trap-survival built around a single idea: the forest is the villain. Six trap families — branch whips, root snares, pressure mushrooms, rolling logs, predator trees, fake stumps — each teaches itself, varies, then combines. Three biomes: warm deceptive Mosswake, sickly Rotbog, and the crimson ember-raining Heart. One-hit deaths, ~500ms respawn, ragdoll slow-mo, checkpoint pylons between stages. Every lethal surprise has a tell. You are meant to feel tricked — never cheated.',
     playable:true, badge:'new',
-    mobileSupport:'desktop-first', inputs:['keyboard'], orientation:'landscape',
+    mobileSupport:'touch-ok', inputs:['keyboard','touch'], orientation:'landscape',
     skillTags:['reflex','memory','timing','movement'], sessionLength:'medium',
     isOriginal:true, updated:true },
 
