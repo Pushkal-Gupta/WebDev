@@ -101,6 +101,7 @@ const lerp = (a, b, t) => a + (b - a) * t;
 /* ─── component ───────────────────────────────────────────────── */
 export default function SlipshotGame() {
   const mountRef = useRef(null);
+  const startRunRef = useRef(() => {});
 
   // Single HUD state object; batched update at ~10 Hz to avoid 60-fps rerenders.
   const [hud, setHud] = useState({
@@ -185,9 +186,48 @@ export default function SlipshotGame() {
     const gunAccent = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.02, 0.48), new THREE.MeshStandardMaterial({ color: 0x00fff5, emissive: 0x00c8c0, emissiveIntensity: 0.9 }));
     gunAccent.position.y = 0.08;
     gun.add(gunAccent);
+    // Muzzle flash — dim by default, flicker on fire
+    const muzzleMat = new THREE.MeshBasicMaterial({ color: 0xfff5e0, transparent: true, opacity: 0 });
+    const muzzle = new THREE.Mesh(new THREE.SphereGeometry(0.13, 8, 8), muzzleMat);
+    muzzle.position.set(0, 0, -0.82);
+    gun.add(muzzle);
     gun.position.set(0.22, -0.2, -0.36);
     camera.add(gun);
     scene.add(camera);
+
+    /* ── procedural audio (tiny synth, no samples) ────────────── */
+    let audio = null;
+    const ensureAudio = () => {
+      if (audio) return audio;
+      const A = window.AudioContext || window.webkitAudioContext;
+      if (!A) return null;
+      audio = new A();
+      return audio;
+    };
+    const beep = (freq, dur, type, gain, freqEnd) => {
+      const ac = ensureAudio();
+      if (!ac) return;
+      if (ac.state === 'suspended') ac.resume();
+      const t0 = ac.currentTime;
+      const osc = ac.createOscillator();
+      const g = ac.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, t0);
+      if (freqEnd) osc.frequency.exponentialRampToValueAtTime(Math.max(20, freqEnd), t0 + dur);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(gain, t0 + 0.005);
+      g.gain.exponentialRampToValueAtTime(0.0002, t0 + dur);
+      osc.connect(g).connect(ac.destination);
+      osc.start(t0);
+      osc.stop(t0 + dur + 0.02);
+    };
+    const sfxFirePulse = () => beep(820, 0.06, 'square', 0.035, 360);
+    const sfxFireSlug  = () => { beep(180, 0.14, 'sawtooth', 0.09, 60); beep(640, 0.08, 'triangle', 0.04, 220); };
+    const sfxKill      = () => { beep(1300, 0.09, 'triangle', 0.07, 700); setTimeout(() => beep(1900, 0.06, 'triangle', 0.05, 1400), 45); };
+    const sfxHeadshot  = () => { beep(1800, 0.07, 'triangle', 0.09, 900); setTimeout(() => beep(2600, 0.06, 'triangle', 0.06, 1800), 40); };
+    const sfxHurt      = () => beep(120, 0.2, 'sine', 0.14, 45);
+
+    let muzzleLife = 0;
 
     /* ── player state ─────────────────────────────────────────── */
     const player = {
@@ -413,6 +453,10 @@ export default function SlipshotGame() {
     /* ── run lifecycle ────────────────────────────────────────── */
     const clock = new THREE.Clock();
 
+    // Juice accumulators (consumed in the main loop)
+    let shakeAmt = 0;
+    let bobPhase = 0;
+
     const startRun = () => {
       // Clear existing entities
       for (let i = entities.length - 1; i >= 0; i--) {
@@ -593,6 +637,12 @@ export default function SlipshotGame() {
       player.ammo[player.weapon]--;
       hudRef.current.shotsFired++;
 
+      // Juice: fire sound + muzzle flash
+      muzzleLife = 0.06;
+      muzzle.material.opacity = 1;
+      muzzle.scale.setScalar(1 + Math.random() * 0.4);
+      if (player.weapon === 'pulse') sfxFirePulse(); else sfxFireSlug();
+
       // Direction with weapon spread
       camera.getWorldPosition(shotOrigin);
       shotDir.set(0, 0, -1).applyQuaternion(camera.quaternion);
@@ -682,6 +732,7 @@ export default function SlipshotGame() {
       const headMult = isHead ? 1.5 : 1.0;
       const gained = Math.round(base * comboMult * headMult);
       hr.score += gained;
+      if (isHead) sfxHeadshot(); else sfxKill();
       hr.kills++;
       if (isHead) hr.hsCount++;
 
@@ -824,11 +875,14 @@ export default function SlipshotGame() {
         const targetEye = player.sliding ? SLIDE_EYE : PLAYER_EYE;
         player.eye += (targetEye - player.eye) * Math.min(1, dt * 14);
         if (player.pos.y <= player.eye) {
+          const impactSpd = Math.abs(player.vel.y);
           player.pos.y = player.eye;
           player.vel.y = 0;
           if (!player.onGround) {
             player.onGround = true;
             player.dashReady = true;
+            // Landing impact: shake scaled by fall speed (min threshold)
+            if (impactSpd > 3.5) shakeAmt = Math.min(0.45, shakeAmt + Math.min(0.25, impactSpd * 0.025));
           }
         }
 
@@ -840,6 +894,25 @@ export default function SlipshotGame() {
       camera.rotation.order = 'YXZ';
       camera.rotation.y = player.yaw;
       camera.rotation.x = player.pitch;
+
+      // Camera bob — subtle run rhythm on ground, flat while airborne or sliding
+      const speedH = Math.hypot(player.vel.x, player.vel.z);
+      if (player.onGround && !player.sliding && speedH > 0.8) {
+        bobPhase += speedH * 2.6 * dt;
+        const amp = Math.min(0.045, speedH * 0.0045);
+        camera.position.y += Math.sin(bobPhase) * amp;
+        camera.position.x += Math.cos(bobPhase * 0.5) * amp * 0.4;
+      }
+
+      // Shake: damage + landing — random jitter, quick decay
+      if (shakeAmt > 0.002) {
+        camera.position.x += (Math.random() - 0.5) * shakeAmt * 0.12;
+        camera.position.y += (Math.random() - 0.5) * shakeAmt * 0.12;
+        camera.rotation.z = (Math.random() - 0.5) * shakeAmt * 0.03;
+        shakeAmt = Math.max(0, shakeAmt - dt * 2.4);
+      } else {
+        camera.rotation.z = 0;
+      }
 
       /* ── director ─────────────────────────────────────────── */
       if (isPlaying) {
@@ -922,11 +995,20 @@ export default function SlipshotGame() {
           if (hitP && player.hp > 0) {
             player.hp = Math.max(0, player.hp - 10);
             player.lastHurt = 0;
+            sfxHurt();
+            shakeAmt = Math.min(0.6, shakeAmt + 0.4);
+            setHud((h) => ({ ...h, hurtAt: Date.now() }));
             if (player.hp <= 0) endRun();
           }
           scene.remove(s.mesh);
           enemyShots.splice(i, 1);
         }
+      }
+
+      /* ── muzzle flash decay ──────────────────────────────── */
+      if (muzzleLife > 0) {
+        muzzleLife -= dt;
+        muzzle.material.opacity = Math.max(0, muzzleLife / 0.06);
       }
 
       /* ── tracer fade ──────────────────────────────────────── */
@@ -983,6 +1065,9 @@ export default function SlipshotGame() {
     };
     loop();
 
+    // Expose startRun to JSX (end-screen button / ready-screen button)
+    startRunRef.current = startRun;
+
     /* ── cleanup ──────────────────────────────────────────────── */
     return () => {
       cancelAnimationFrame(raf);
@@ -999,6 +1084,7 @@ export default function SlipshotGame() {
       tracerGeo.dispose();
       particleGeo.dispose();
       enemyShotGeo.dispose();
+      if (audio && audio.state !== 'closed') audio.close?.();
       mount.innerHTML = '';
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1015,6 +1101,8 @@ export default function SlipshotGame() {
   return (
     <div className="slipshot">
       <div className="slipshot-mount" ref={mountRef}>
+        {/* Damage vignette — re-keyed on each hurt so the animation restarts */}
+        {hud.hurtAt && <div key={hud.hurtAt} className="slipshot-damage"/>}
         {/* Top-center HUD cluster */}
         {hud.status !== 'ready' && (
           <div className="slipshot-hud-top">
@@ -1094,8 +1182,15 @@ export default function SlipshotGame() {
               <span className={hud.score >= MEDAL_SILVER ? 'hit' : ''}>Silver {MEDAL_SILVER.toLocaleString()}</span>
               <span className={hud.score >= MEDAL_GOLD ? 'hit' : ''}>Gold {MEDAL_GOLD.toLocaleString()}</span>
             </div>
-            <div className="slipshot-sub" style={{ marginTop: 10 }}>
-              Click the arena or press <b>R</b> to run again.
+            <button
+              type="button"
+              className="slipshot-btn"
+              onClick={() => startRunRef.current?.()}
+            >
+              Run again
+            </button>
+            <div className="slipshot-sub" style={{ marginTop: 4, opacity: 0.7 }}>
+              or press <b>R</b> · click the arena to re-lock aim
             </div>
           </div>
         )}

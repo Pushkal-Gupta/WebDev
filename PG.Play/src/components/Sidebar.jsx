@@ -9,6 +9,14 @@ const NAV_ICONS = {
   playable: Icon.star,
 };
 
+const COLLECTION_NAV = [
+  { id: 'originals',       label: 'Originals',      icon: Icon.sparkle },
+  { id: 'new-updated',     label: 'New & updated',  icon: Icon.bolt },
+  { id: 'pass-the-laptop', label: 'Pass the laptop',icon: Icon.versus },
+  { id: 'phone-friendly',  label: 'Mobile friendly',icon: Icon.phone },
+  { id: 'twitch',          label: 'Fast twitch',    icon: Icon.target },
+];
+
 export default function Sidebar({
   games,
   activeFilter,
@@ -22,25 +30,26 @@ export default function Sidebar({
   onSignOut,
   user,
   onClose,
+  activeCollection,
+  onOpenCollection,
+  collectionCounts = {},
 }) {
-  const item = (id, label, icon, count, onClick) => {
-    const isActive = id === (favoritesOnly ? 'favorites' : activeFilter);
-    return (
-      <button
-        key={id}
-        className={'side-item' + (isActive ? ' is-active' : '')}
-        onClick={() => {
-          onClick?.();
-          if (onClose) onClose();
-        }}>
-        <span className="side-icon">{icon}</span>
-        <span className="side-label">{label}</span>
-        {count !== undefined && <span className="side-count">{count}</span>}
-      </button>
-    );
-  };
+  const item = (id, label, icon, count, onClick, isActive) => (
+    <button
+      key={id}
+      className={'side-item' + (isActive ? ' is-active' : '')}
+      onClick={() => {
+        onClick?.();
+        if (onClose) onClose();
+      }}>
+      <span className="side-icon">{icon}</span>
+      <span className="side-label">{label}</span>
+      {count !== undefined && <span className="side-count">{count}</span>}
+    </button>
+  );
 
   const emailShort = user ? (user.email || '').split('@')[0] : null;
+  const libraryActive = favoritesOnly ? 'favorites' : null;
 
   return (
     <aside className="sidebar" aria-label="Primary">
@@ -51,11 +60,28 @@ export default function Sidebar({
 
       <nav className="side-nav">
         <div className="side-group-label">Browse</div>
-        {FILTERS.map((f) => item(f.id, f.label, NAV_ICONS[f.id], games.filter(f.match).length, () => onFilter(f.id)))}
+        {FILTERS.map((f) => item(
+          f.id,
+          f.label,
+          NAV_ICONS[f.id],
+          games.filter(f.match).length,
+          () => onFilter(f.id),
+          !favoritesOnly && !activeCollection && activeFilter === f.id,
+        ))}
+
+        <div className="side-group-label side-group-spaced">Collections</div>
+        {COLLECTION_NAV.map((c) => item(
+          c.id,
+          c.label,
+          c.icon,
+          collectionCounts[c.id],
+          () => onOpenCollection?.(c.id),
+          activeCollection === c.id,
+        ))}
 
         <div className="side-group-label side-group-spaced">Library</div>
-        {item('favorites', 'Favorites', Icon.heart, favCount, onOpenFavorites)}
-        {item('profile',   'Profile',   Icon.solo,  undefined, onOpenProfile)}
+        {item('favorites', 'Favorites', Icon.heart, favCount, onOpenFavorites, libraryActive === 'favorites')}
+        {item('profile',   'Profile',   Icon.solo,  undefined, onOpenProfile, false)}
       </nav>
 
       <div className="side-foot">

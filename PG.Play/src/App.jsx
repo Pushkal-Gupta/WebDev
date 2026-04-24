@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { GAMES, FILTERS, COLLECTIONS } from './data.js';
+import { GAMES, FILTERS, COLLECTIONS, EDITORS_PICKS } from './data.js';
+import { GAME_COVERS } from './covers.jsx';
 import { Icon } from './icons.jsx';
 import Card from './components/Card.jsx';
 import FeaturedHero from './components/FeaturedHero.jsx';
@@ -24,21 +25,34 @@ const readJSON = (k, fallback) => {
 
 const FEATURED = GAMES.find((g) => g.featured) || GAMES[0];
 
-// Show two rotating collection rails on the home surface, not all six at once —
-// the other four live as filter destinations or on dedicated pages later.
-const HOME_COLLECTIONS = ['start-in-ten', 'pass-the-laptop'];
+// Home rail sequence. Each entry { id, variant } references a collection
+// in COLLECTIONS. The sequence creates rhythm: one opinionated rail,
+// one mobile-first rail, one originals rail, one curated close.
+const HOME_RAILS = [
+  { id: 'originals',       variant: 'rail' },
+  { id: 'pass-the-laptop', variant: 'rail' },
+  { id: 'phone-friendly',  variant: 'rail' },
+  { id: 'twitch',          variant: 'rail' },
+  { id: 'brainy',          variant: 'rail' },
+  { id: 'mean-and-funny',  variant: 'rail' },
+];
+
+// Editor's picks maps to a tight featured rail that wants to feel
+// chosen. Rendered before the main filter grid so it anchors discovery.
+const editorsPickSet = new Set(EDITORS_PICKS);
 
 export default function App() {
-  const [theme, setTheme]         = useState(() => localStorage.getItem('pd-theme') || 'dark');
-  const [q, setQ]                 = useState('');
+  const [theme, setTheme]               = useState(() => localStorage.getItem('pd-theme') || 'dark');
+  const [q, setQ]                       = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [favoritesOnly, setFavoritesOnly] = useState(false);
-  const [active, setActive]       = useState(null);
-  const [recent, setRecent]       = useState(() => readJSON('pd-recent', []));
+  const [activeCollection, setActiveCollection] = useState(null);
+  const [active, setActive]             = useState(null);
+  const [recent, setRecent]             = useState(() => readJSON('pd-recent', []));
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [profileOpen, setProfileOpen]   = useState(false);
-  const [authOpen, setAuthOpen]   = useState(false);
-  const [sideOpen, setSideOpen]   = useState(false);
+  const [authOpen, setAuthOpen]         = useState(false);
+  const [sideOpen, setSideOpen]         = useState(false);
 
   const { user } = useSession();
   const { favs, toggle: toggleFav, clear: clearFavs } = useFavorites(user);
@@ -51,7 +65,6 @@ export default function App() {
   }, [theme]);
   useEffect(() => { localStorage.setItem('pd-recent', JSON.stringify(recent)); }, [recent]);
 
-  // Score bus → persist + (optionally) play win chime
   useEffect(() => {
     const onScore = (e) => {
       const { gameId, score, meta } = e.detail || {};
@@ -74,35 +87,90 @@ export default function App() {
 
   const filterFn = FILTERS.find((f) => f.id === activeFilter)?.match ?? (() => true);
 
+  const activeCollectionDef = useMemo(
+    () => activeCollection ? COLLECTIONS.find((c) => c.id === activeCollection) : null,
+    [activeCollection]
+  );
+
   const visibleGames = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    const base = favoritesOnly
-      ? GAMES.filter((g) => favs[g.id])
-      : GAMES.filter(filterFn);
+    let base;
+    if (favoritesOnly) {
+      base = GAMES.filter((g) => favs[g.id]);
+    } else if (activeCollectionDef) {
+      const ids = new Set(activeCollectionDef.ids);
+      base = GAMES.filter((g) => ids.has(g.id));
+    } else {
+      base = GAMES.filter(filterFn);
+    }
     if (!needle) return base;
     return base.filter((g) =>
       g.name.toLowerCase().includes(needle) ||
       g.cat.toLowerCase().includes(needle) ||
       (g.tagline || '').toLowerCase().includes(needle)
     );
-  }, [q, activeFilter, favoritesOnly, favs]);
+  }, [q, activeFilter, favoritesOnly, favs, activeCollectionDef]);
 
   const recentGames = useMemo(
     () => recent.map((id) => GAMES.find((g) => g.id === id)).filter(Boolean),
     [recent]
   );
 
+  const becauseGames = useMemo(() => {
+    if (recentGames.length === 0) return [];
+    const seed = recentGames[0];
+    const seedTags = new Set(seed.skillTags || []);
+    const scored = GAMES
+      .filter((g) => g.id !== seed.id)
+      .map((g) => {
+        const tagOverlap = (g.skillTags || []).filter((t) => seedTags.has(t)).length;
+        const catMatch = g.cat === seed.cat ? 2 : 0;
+        return { g, score: tagOverlap * 2 + catMatch + (g.playable ? 1 : 0) };
+      })
+      .filter((x) => x.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 6)
+      .map((x) => x.g);
+    return { seed, items: scored };
+  }, [recentGames]);
+
   const favCount = Object.values(favs).filter(Boolean).length;
+
+  const collectionCounts = useMemo(() => {
+    const out = {};
+    for (const c of COLLECTIONS) {
+      out[c.id] = c.ids.filter((id) => GAMES.find((g) => g.id === id)).length;
+    }
+    return out;
+  }, []);
 
   const currentLabel = favoritesOnly
     ? 'Favorites'
+    : activeCollectionDef
+    ? activeCollectionDef.title
     : (FILTERS.find((f) => f.id === activeFilter)?.label || 'All');
 
-  const showHero         = !q && !favoritesOnly && activeFilter === 'all';
-  const showRecent       = recentGames.length > 0 && !q && !favoritesOnly && activeFilter === 'all';
-  const showCollections  = !q && !favoritesOnly && activeFilter === 'all';
+  const isHomeBrowse = !q && !favoritesOnly && !activeCollectionDef && activeFilter === 'all';
+  const showHero        = isHomeBrowse;
+  const showRecent      = isHomeBrowse && recentGames.length > 0;
+  const showBecause     = isHomeBrowse && becauseGames && becauseGames.items?.length > 0;
+  const showEditors     = isHomeBrowse;
+  const showCollections = isHomeBrowse;
 
-  const onFilter = (id) => { setFavoritesOnly(false); setActiveFilter(id); };
+  const editorsGames = useMemo(
+    () => EDITORS_PICKS.map((id) => GAMES.find((g) => g.id === id)).filter(Boolean),
+    []
+  );
+
+  const onFilter = (id) => {
+    setFavoritesOnly(false);
+    setActiveCollection(null);
+    setActiveFilter(id);
+  };
+  const onOpenCollection = (id) => {
+    setFavoritesOnly(false);
+    setActiveCollection(id);
+  };
 
   return (
     <div className="app-layout">
@@ -113,7 +181,7 @@ export default function App() {
           activeFilter={activeFilter}
           onFilter={onFilter}
           favCount={favCount}
-          onOpenFavorites={() => setFavoritesOnly(true)}
+          onOpenFavorites={() => { setActiveCollection(null); setFavoritesOnly(true); }}
           favoritesOnly={favoritesOnly}
           onOpenSettings={() => setSettingsOpen(true)}
           onOpenProfile={() => setProfileOpen(true)}
@@ -121,6 +189,9 @@ export default function App() {
           onSignOut={signOut}
           user={user}
           onClose={() => setSideOpen(false)}
+          activeCollection={activeCollection}
+          onOpenCollection={onOpenCollection}
+          collectionCounts={collectionCounts}
         />
       </div>
 
@@ -136,10 +207,14 @@ export default function App() {
             <span className="search-icon">{Icon.search}</span>
             <input
               type="search"
-              placeholder="Search games"
+              placeholder="Search games, genres, skill tags"
               value={q}
               onChange={(e) => setQ(e.target.value)}
               aria-label="Search games"/>
+            {q && (
+              <button className="search-clear" onClick={() => setQ('')} aria-label="Clear search">{Icon.close}</button>
+            )}
+            {!q && <kbd className="search-kbd" aria-hidden="true">⌘K</kbd>}
           </div>
           {user
             ? <button className="avatar" title={user.email} onClick={() => setProfileOpen(true)}>
@@ -148,19 +223,35 @@ export default function App() {
             : <button className="btn btn-ghost btn-sm" onClick={() => setAuthOpen(true)}>Sign in</button>}
         </div>
 
+        {/* Mobile-only quick filters — the sidebar is off-canvas below 900px */}
+        <div className="quick-filters" aria-label="Quick filters">
+          {FILTERS.map((f) => (
+            <button
+              key={f.id}
+              className={'chip-tab' + (!favoritesOnly && !activeCollectionDef && activeFilter === f.id ? ' is-active' : '')}
+              onClick={() => onFilter(f.id)}>
+              {f.label}
+            </button>
+          ))}
+        </div>
+
         <div className="main-inner">
           {showHero && (
             <FeaturedHero
               game={FEATURED}
               fav={!!favs[FEATURED.id]}
               onFav={toggleFav}
-              onOpen={() => onOpen(FEATURED)}/>
+              onOpen={() => onOpen(FEATURED)}
+              best={bests[FEATURED.id]?.best}/>
           )}
 
           {showRecent && (
             <section className="section" aria-labelledby="continue-title">
               <div className="section-head">
-                <h2 id="continue-title" className="section-title">Continue playing</h2>
+                <div className="section-head-text">
+                  <div className="section-kicker">Jump back in</div>
+                  <h2 id="continue-title" className="section-title">Continue playing</h2>
+                </div>
                 <span className="section-count">{recentGames.length}</span>
               </div>
               <div className="rail">
@@ -171,7 +262,57 @@ export default function App() {
             </section>
           )}
 
-          {showCollections && HOME_COLLECTIONS.map((id) => {
+          {showEditors && editorsGames.length > 0 && (
+            <section className="section editors-picks" aria-labelledby="editors-title">
+              <div className="section-head">
+                <div className="section-head-text">
+                  <div className="section-kicker">
+                    <span className="section-kicker-icon">{Icon.sparkle}</span> Editor’s picks
+                  </div>
+                  <h2 id="editors-title" className="section-title">Four chosen this week</h2>
+                  <p className="section-blurb">Curated by the team, not the algorithm. A starting point when nothing jumps out.</p>
+                </div>
+              </div>
+              <div className="editors-grid">
+                {editorsGames.map((g, i) => {
+                  const Cover = GAME_COVERS[g.id];
+                  return (
+                    <button
+                      key={g.id}
+                      className={`editors-tile editors-tile-${i}`}
+                      onClick={() => onOpen(g)}>
+                      <div className="editors-tile-cover">{Cover && <Cover/>}</div>
+                      <div className="editors-tile-shade"/>
+                      <div className="editors-tile-body">
+                        <div className="editors-tile-kicker">{g.cat}</div>
+                        <div className="editors-tile-title">{g.name}</div>
+                        <div className="editors-tile-meta">{g.tagline}</div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {showBecause && becauseGames.items && (
+            <section className="section" aria-labelledby="because-title">
+              <div className="section-head">
+                <div className="section-head-text">
+                  <div className="section-kicker">Because you played</div>
+                  <h2 id="because-title" className="section-title">{becauseGames.seed.name}</h2>
+                </div>
+                <span className="section-count">{becauseGames.items.length}</span>
+              </div>
+              <div className="rail">
+                {becauseGames.items.map((g) => (
+                  <Card key={g.id} game={g} fav={!!favs[g.id]} onFav={toggleFav} onOpen={() => onOpen(g)} best={bests[g.id]?.best}/>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {showCollections && HOME_RAILS.map(({ id, variant }) => {
             const c = COLLECTIONS.find((x) => x.id === id);
             if (!c) return null;
             return (
@@ -182,13 +323,23 @@ export default function App() {
                 favs={favs}
                 onFav={toggleFav}
                 onOpen={onOpen}
-                bests={bests}/>
+                bests={bests}
+                variant={variant}
+                onOpenAll={onOpenCollection}/>
             );
           })}
 
-          <section className="section" aria-labelledby="grid-title">
+          <section className="section section-grid" aria-labelledby="grid-title">
             <div className="section-head">
-              <h2 id="grid-title" className="section-title">{currentLabel}</h2>
+              <div className="section-head-text">
+                {activeCollectionDef && (
+                  <div className="section-kicker">Collection</div>
+                )}
+                <h2 id="grid-title" className="section-title">{currentLabel}</h2>
+                {activeCollectionDef && (
+                  <p className="section-blurb">{activeCollectionDef.blurb}</p>
+                )}
+              </div>
               <span className="section-count">
                 {visibleGames.length} {visibleGames.length === 1 ? 'title' : 'titles'}
               </span>
@@ -202,7 +353,13 @@ export default function App() {
             ) : (
               <div className="grid">
                 {visibleGames.map((g) => (
-                  <Card key={g.id} game={g} fav={!!favs[g.id]} onFav={toggleFav} onOpen={() => onOpen(g)} best={bests[g.id]?.best}/>
+                  <Card
+                    key={g.id}
+                    game={g}
+                    fav={!!favs[g.id]}
+                    onFav={toggleFav}
+                    onOpen={() => onOpen(g)}
+                    best={bests[g.id]?.best}/>
                 ))}
               </div>
             )}

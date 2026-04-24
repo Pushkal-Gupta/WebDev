@@ -73,6 +73,16 @@ export const sfx = {
     setTimeout(() => blip(880, 1320, 0.30, 'triangle', 0.14), 120);
   },
   shot:     () => { blip(320, 80, 0.07, 'sawtooth', 0.08); noise(0.05, 0.04); },
+  // Goalbound cues
+  kick:     () => { blip(220, 120, 0.06, 'square', 0.10); noise(0.05, 0.06); },
+  bounce:   () => envTone(360, 0.05, 'triangle', 0.06),
+  goal:     () => {
+    blip(523, 784, 0.18, 'sawtooth', 0.14);
+    setTimeout(() => blip(659, 988, 0.22, 'triangle', 0.14), 90);
+    setTimeout(() => blip(784, 1175, 0.30, 'triangle', 0.14), 210);
+  },
+  whistle:  () => { blip(2400, 2600, 0.18, 'square', 0.08); setTimeout(() => blip(2400, 2200, 0.12, 'square', 0.06), 160); },
+  save:     () => { envTone(180, 0.09, 'square', 0.1); noise(0.06, 0.06); },
 };
 
 export const setMuted = (yes) => {
