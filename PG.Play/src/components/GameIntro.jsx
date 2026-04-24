@@ -1,6 +1,8 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { GAME_COVERS } from '../covers.jsx';
 import { Icon } from '../icons.jsx';
+import GameShell from './GameShell.jsx';
+import { useIsMobile } from '../input/useVirtualControls.jsx';
 
 // Code-split every game so opening the lobby doesn't pull in Three.js or
 // game-specific bundles. Games load on demand when the player clicks play.
@@ -14,15 +16,113 @@ const PLAYABLE = {
   grudgewood: lazy(() => import('../games/GrudgewoodGame.jsx')),
   arena:      lazy(() => import('../games/ArenaGame.jsx')),
   slipshot:   lazy(() => import('../games/SlipshotGame.jsx')),
-  nightcap:   lazy(() => import('../games/NightcapGame.jsx')),
   slither:    lazy(() => import('../games/SlitherLiteGame.jsx')),
+  basket:     lazy(() => import('../games/HoopShotGame.jsx')),
+  aow:        lazy(() => import('../games/EraLaneGame.jsx')),
+  bloons:     lazy(() => import('../games/LoftDefenseGame.jsx')),
+  vex:        lazy(() => import('../games/TraceGame.jsx')),
+  bob:        lazy(() => import('../games/NightShiftGame.jsx')),
+  goalbound:  lazy(() => import('../games/GoalboundGame.jsx')),
+  fbwg:       lazy(() => import('../games/EmberTideGame.jsx')),
 };
 
-const modeLabel = (mode, game) => {
-  if (mode === '2p')    return '2 Player';
-  if (mode === 'bot')   return 'vs Bot';
-  if (mode === 'start') return game.players.includes('co-op') ? 'Co-op' : 'Story';
-  return '';
+// Per-game shell content. Keeps the shell generic while each game gets
+// tailored goals / controls / tips in the companion panel.
+const SHELL_CONFIG = {
+  goalbound: {
+    goals: {
+      lead: 'Outscore your rival in 60 seconds — or sudden-death golden goal if you can’t.',
+      bullets: [
+        'First to 3 goals wins early.',
+        'Wall-bounces are legal — use them for impossible angles.',
+        'Hold kick to charge; release near the ball for a curler.',
+      ],
+    },
+    controls: [
+      { title: 'Player 1', items: [
+        { keys: ['A','D'], label: 'Move left / right' },
+        { keys: ['W'],     label: 'Jump' },
+        { keys: ['S'],     label: 'Kick (hold to charge)' },
+      ]},
+      { title: 'Player 2', items: [
+        { keys: ['←','→'], label: 'Move left / right' },
+        { keys: ['↑'],     label: 'Jump' },
+        { keys: ['/'],     label: 'Kick (hold to charge)' },
+      ]},
+      { title: 'Shell', items: [
+        { keys: ['P'], label: 'Pause / resume' },
+        { keys: ['R'], label: 'Restart match' },
+        { keys: ['M'], label: 'Mute / unmute' },
+        { keys: ['F'], label: 'Fullscreen' },
+      ]},
+    ],
+    tips: [
+      'Jumping keepers clear deep crosses but leave the line open.',
+      'A running kick curves slightly up and away — great for finishes.',
+      'On mobile, long-press Kick for a charged power shot.',
+    ],
+  },
+  grudgewood: {
+    goals: {
+      lead: 'Survive the forest. Every death arms one more tree.',
+      bullets: ['Checkpoints remember; traps remember you.', 'Commit to jumps, don’t hesitate.'],
+    },
+    controls: [
+      { title: 'Movement', items: [
+        { keys: ['A','D'], label: 'Run' },
+        { keys: ['Space'], label: 'Jump' },
+      ]},
+    ],
+    tips: ['Hold jump for height, tap for a nudge.', 'If it feels safe, it has killed someone.'],
+  },
+  slipshot: {
+    goals: {
+      lead: 'Three minutes of pure momentum. The combo meter decays the moment you stop.',
+      bullets: ['Bronze is a clean run.', 'Silver chains slides.', 'Gold is flow.'],
+    },
+    controls: [
+      { title: 'Movement', items: [
+        { keys: ['WASD'],  label: 'Move' },
+        { keys: ['Shift'], label: 'Slide' },
+        { keys: ['Space'], label: 'Jump / air-dash' },
+        { keys: ['Mouse'], label: 'Aim' },
+        { keys: ['Click'], label: 'Fire' },
+      ]},
+    ],
+    tips: ['Slide into every jump for the boost.', 'Hold combos through gaps, not kills.'],
+  },
+  arena: {
+    goals: { lead: 'Five kills to win. Real players drop in live.', bullets: ['Walls are friends.', 'Predict — don’t trust the crosshair.'] },
+    controls: [
+      { title: 'Controls', items: [
+        { keys: ['WASD'],  label: 'Move' },
+        { keys: ['Mouse'], label: 'Aim' },
+        { keys: ['Click'], label: 'Fire' },
+      ]},
+    ],
+    tips: ['Never stand still.', 'Bots are training wheels — real players arrive unannounced.'],
+  },
+};
+
+const MODE_OPTIONS = {
+  goalbound: () => [
+    { id: 'bot',      label: 'Quick Match',      tone: 'primary' },
+    { id: '2p',       label: 'Local Versus',     tone: 'ghost', desktopOnly: true },
+    { id: 'shootout', label: 'Penalty Shootout', tone: 'ghost' },
+  ],
+  _vsDefault: (game) => [
+    { id: '2p',  label: game.players.includes('1-8') ? 'Join arena' : '2 Player', tone: 'primary' },
+    ...(game.players.includes('1-8') ? [] : [{ id: 'bot', label: 'vs Bot', tone: 'ghost' }]),
+  ],
+  _storyDefault: (game) => [
+    { id: 'start', label: game.players.includes('co-op') ? 'Start Co-op' : 'Start Story', tone: 'primary' },
+  ],
+};
+
+const getModeOptions = (game) => {
+  if (MODE_OPTIONS[game.id]) return MODE_OPTIONS[game.id](game);
+  if (game.kind === 'vs') return MODE_OPTIONS._vsDefault(game);
+  return MODE_OPTIONS._storyDefault(game);
 };
 
 function PlayPlaceholder({ game }) {
@@ -34,8 +134,8 @@ function PlayPlaceholder({ game }) {
         <div className="play-placeholder-kicker">Coming soon</div>
         <div className="play-placeholder-title">Chapter queued</div>
         <div className="play-placeholder-sub">
-          The playable build for {game.name} ships in a future update. In the meantime, try
-          {' '}<b>2048</b>, <b>Slipshot</b>, or <b>Grudgewood</b> for a live demo.
+          The playable build for {game.name} ships in a future update. Try
+          {' '}<b>Goalbound</b>, <b>Slipshot</b>, or <b>Grudgewood</b> in the meantime.
         </div>
       </div>
     </div>
@@ -53,16 +153,16 @@ function LoadingGame({ game }) {
 }
 
 export default function GameIntro({ game, best, onClose }) {
-  const [stage, setStage] = useState('intro');
-  const [mode, setMode] = useState(null);
+  const [stage, setStage]        = useState('intro');
+  const [mode, setMode]          = useState(null);
+  const [restartKey, setRestart] = useState(0);
   const Cover = GAME_COVERS[game.id];
+  const isMobile = useIsMobile();
+  const modes = getModeOptions(game);
 
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === 'Escape') {
-        if (stage === 'play') setStage('intro');
-        else onClose();
-      }
+      if (e.key === 'Escape' && stage !== 'play') onClose();
     };
     window.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
@@ -73,28 +173,28 @@ export default function GameIntro({ game, best, onClose }) {
   }, [stage, onClose]);
 
   const start = (m) => { setMode(m); setStage('play'); };
+  const shellCfg = SHELL_CONFIG[game.id] || {};
 
   if (stage === 'play') {
     const GameComp = PLAYABLE[game.id];
     return (
-      <div className="intro">
-        <div className="play">
-          <div className="play-topbar">
-            <button className="btn btn-ghost" onClick={() => setStage('intro')}>
-              {Icon.back} Back
-            </button>
-            <div className="play-title">
-              {game.name} <span className="play-title-meta">· {modeLabel(mode, game)}</span>
-            </div>
-          </div>
-          <div className="play-stage">
-            {GameComp ? (
-              <Suspense fallback={<LoadingGame game={game}/>}>
-                <GameComp/>
-              </Suspense>
-            ) : <PlayPlaceholder game={game}/>}
-          </div>
-        </div>
+      <div className="intro intro-playing">
+        <GameShell
+          game={game}
+          mode={mode}
+          best={best}
+          onExit={onClose}
+          onRestart={() => setRestart((k) => k + 1)}
+          goals={shellCfg.goals}
+          controls={shellCfg.controls}
+          tips={shellCfg.tips}
+          helpTitle={`${game.name} — how to play`}>
+          {GameComp ? (
+            <Suspense fallback={<LoadingGame game={game}/>}>
+              <GameComp key={restartKey} mode={mode}/>
+            </Suspense>
+          ) : <PlayPlaceholder game={game}/>}
+        </GameShell>
       </div>
     );
   }
@@ -121,22 +221,21 @@ export default function GameIntro({ game, best, onClose }) {
             {game.kind === 'vs' ? 'Choose your match' : 'Ready when you are'}
           </div>
           <div className="intro-ctas">
-            {game.kind === 'vs' ? (
-              <>
-                <button className="btn btn-primary" onClick={() => start('2p')}>
-                  {Icon.play} {game.players.includes('1-8') ? 'Join arena' : '2 Player'}
+            {modes.map((m) => {
+              const blocked = m.desktopOnly && isMobile;
+              return (
+                <button
+                  key={m.id}
+                  className={`btn ${m.tone === 'primary' ? 'btn-primary' : 'btn-ghost'}${blocked ? ' is-disabled' : ''}`}
+                  onClick={() => !blocked && start(m.id)}
+                  disabled={blocked}
+                  title={blocked ? 'Best on desktop — pass the laptop for local versus' : undefined}>
+                  {m.tone === 'primary' && Icon.play}
+                  <span>{m.label}</span>
+                  {blocked && <span className="intro-cta-hint">desktop</span>}
                 </button>
-                {!game.players.includes('1-8') && (
-                  <button className="btn btn-ghost" onClick={() => start('bot')}>
-                    vs Bot
-                  </button>
-                )}
-              </>
-            ) : (
-              <button className="btn btn-primary" onClick={() => start('start')}>
-                {Icon.play} {game.players.includes('co-op') ? 'Start Co-op' : 'Start Story'}
-              </button>
-            )}
+              );
+            })}
           </div>
         </div>
       </div>

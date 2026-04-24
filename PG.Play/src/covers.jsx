@@ -130,39 +130,104 @@ const Cover_EightBall = () => (
   </svg>
 );
 
-// 5. Football
-const Cover_Football = () => (
+// 5. Goalbound — original arcade football.
+// Side-view pitch at dusk, cyan vs ember silhouettes leaping for the ball,
+// stadium lights arcing overhead. No grass green, no franchise colorways.
+const Cover_Goalbound = () => (
   <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
     <SharedDefs/>
     <defs>
-      <linearGradient id="grass" x1="0" x2="0" y1="0" y2="1">
-        <stop offset="0" stopColor="#2d6a2a"/><stop offset="1" stopColor="#1a4a1a"/>
+      <linearGradient id="gb-sky" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0" stopColor="#0a1620"/><stop offset="0.6" stopColor="#122032"/><stop offset="1" stopColor="#0c1622"/>
+      </linearGradient>
+      <radialGradient id="gb-spot" cx="0.5" cy="0.22" r="0.55">
+        <stop offset="0" stopColor="#e8fbff" stopOpacity="0.45"/>
+        <stop offset="1" stopColor="#0b1624" stopOpacity="0"/>
+      </radialGradient>
+      <linearGradient id="gb-pitch" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0" stopColor="#172734"/><stop offset="1" stopColor="#0a1119"/>
+      </linearGradient>
+      <linearGradient id="gb-cyan" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0" stopColor="#6ffcf2"/><stop offset="1" stopColor="#00bab1"/>
+      </linearGradient>
+      <linearGradient id="gb-ember" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0" stopColor="#ffb070"/><stop offset="1" stopColor="#d85a22"/>
       </linearGradient>
     </defs>
-    <rect width="400" height="500" fill="url(#grass)"/>
-    {Array.from({length:8},(_,i)=>
-      <rect key={i} x="0" y={i*62} width="400" height="31" fill="#000" opacity="0.06"/>
+
+    {/* Sky + spotlight wash */}
+    <rect width="400" height="500" fill="url(#gb-sky)"/>
+    <rect width="400" height="500" fill="url(#gb-spot)"/>
+
+    {/* Distant city glow strip */}
+    {Array.from({length:32},(_,i)=>
+      <rect key={i} x={i*13} y="300" width="10" height={14+((i*7)%22)} fill="#6ffcf2" opacity="0.08"/>
     )}
-    <g transform="translate(100,40)">
-      <rect width="200" height="110" fill="none" stroke="#fff" strokeWidth="3"/>
-      <path d="M0,0 L-12,-24 L212,-24 L200,0 M200,110 L212,134 M0,110 L-12,134" fill="none" stroke="#fff" strokeWidth="2"/>
-      {Array.from({length:10},(_,i)=>
-        <line key={i} x1={i*22} y1="0" x2={i*22} y2="110" stroke="#fff5" strokeWidth="1"/>
+
+    {/* Stadium light arc */}
+    <path d="M20,120 C120,60 280,60 380,120" stroke="#3a4858" strokeWidth="2" fill="none" opacity="0.6"/>
+    {[60,140,200,260,340].map((x,i)=>(
+      <g key={i} transform={`translate(${x},${108 - Math.abs(x-200)*0.22})`}>
+        <circle r="5" fill="#ffe6a8"/>
+        <circle r="14" fill="#ffe6a8" opacity="0.1"/>
+      </g>
+    ))}
+
+    {/* Pitch floor + back wall */}
+    <rect y="360" width="400" height="140" fill="url(#gb-pitch)"/>
+    <path d="M0,360 L400,360" stroke="#6ffcf2" strokeWidth="1" opacity="0.35"/>
+
+    {/* Goal on the left */}
+    <g transform="translate(0,260)">
+      <path d="M2,0 L70,0 L70,100 L2,100 Z" fill="none" stroke="#6ffcf2" strokeWidth="2" opacity="0.7"/>
+      {Array.from({length:7},(_,i)=>
+        <line key={`gl${i}`} x1="2" y1={i*14} x2="70" y2={i*14} stroke="#6ffcf2" strokeWidth="0.6" opacity="0.28"/>
       )}
-      {Array.from({length:6},(_,i)=>
-        <line key={`h${i}`} x1="0" y1={i*22} x2="200" y2={i*22} stroke="#fff5" strokeWidth="1"/>
+      {Array.from({length:5},(_,i)=>
+        <line key={`gv${i}`} x1={14+i*12} y1="0" x2={14+i*12} y2="100" stroke="#6ffcf2" strokeWidth="0.6" opacity="0.28"/>
       )}
     </g>
-    <g transform="translate(140,310)">
-      <circle cx="25" cy="10" r="14" fill="#ff4d6d"/>
-      <path d="M12,24 L38,24 L42,70 L28,74 L22,74 L8,70 Z" fill="#ff4d6d"/>
-      <path d="M8,70 L0,100 M42,70 L56,100" stroke="#ff4d6d" strokeWidth="10" strokeLinecap="round"/>
+
+    {/* Goal on the right */}
+    <g transform="translate(330,260)">
+      <path d="M-2,0 L68,0 L68,100 L-2,100 Z" fill="none" stroke="#ff8855" strokeWidth="2" opacity="0.7"/>
+      {Array.from({length:7},(_,i)=>
+        <line key={`gl${i}`} x1="-2" y1={i*14} x2="68" y2={i*14} stroke="#ff8855" strokeWidth="0.6" opacity="0.28"/>
+      )}
+      {Array.from({length:5},(_,i)=>
+        <line key={`gv${i}`} x1={12+i*12} y1="0" x2={12+i*12} y2="100" stroke="#ff8855" strokeWidth="0.6" opacity="0.28"/>
+      )}
     </g>
-    <g transform="translate(240,360)">
-      <circle r="22" fill="#fff"/>
-      <polygon points="0,-12 10,-5 7,7 -7,7 -10,-5" fill="#0a0d0e"/>
-      <path d="M-12,-6 L-22,-2 M12,-6 L22,-2 M7,14 L14,22 M-7,14 L-14,22 M0,-22 L0,-12" stroke="#0a0d0e" strokeWidth="2" fill="none"/>
+
+    {/* Cyan athlete — mid-jump, trailing leg cocked */}
+    <g transform="translate(112,282)">
+      <path d="M0,-8 q6,-30 26,-32 q22,-2 28,18 q4,20 -14,28 q-18,8 -18,24 l-6,28 l-8,14 l-4,-18 l-8,-26 Z" fill="url(#gb-cyan)"/>
+      <path d="M32,6 L58,0 L72,-12 L80,-2 L60,14 L36,22 Z" fill="url(#gb-cyan)" opacity="0.95"/>
+      <circle cx="-6" cy="50" r="10" fill="url(#gb-cyan)"/>
+      <circle cx="26" cy="-16" r="2.5" fill="#0a1014"/>
     </g>
+
+    {/* Ball — mid-air, between players */}
+    <g transform="translate(210,246)">
+      <circle r="20" fill="#f0f5f8"/>
+      <circle r="20" fill="none" stroke="#0a1014" strokeWidth="1.3"/>
+      <polygon points="0,-10 9,-4 6,6 -6,6 -9,-4" fill="#0a1014"/>
+      <path d="M-10,-4 L-18,0 M10,-4 L18,0 M6,10 L12,17 M-6,10 L-12,17 M0,-17 L0,-10" stroke="#0a1014" strokeWidth="1.2" fill="none"/>
+      <ellipse cx="0" cy="320" rx="22" ry="3" fill="#000" opacity="0.35" transform="translate(0 -54)"/>
+    </g>
+
+    {/* Ember athlete — mid-jump, kicking leg extended toward ball */}
+    <g transform="translate(266,278)">
+      <path d="M10,-6 q-6,-32 -28,-30 q-22,2 -26,22 q-2,20 16,26 q18,6 16,22 l4,28 l8,14 l4,-18 l6,-26 Z" fill="url(#gb-ember)"/>
+      <path d="M-18,4 L-48,-4 L-60,-18 L-68,-6 L-48,14 L-22,22 Z" fill="url(#gb-ember)"/>
+      <circle cx="14" cy="50" r="10" fill="url(#gb-ember)"/>
+      <circle cx="-22" cy="-14" r="2.5" fill="#0a1014"/>
+    </g>
+
+    {/* Center spot + chalk ring */}
+    <circle cx="200" cy="360" r="40" fill="none" stroke="#6ffcf2" strokeWidth="1" opacity="0.35"/>
+    <circle cx="200" cy="360" r="3" fill="#6ffcf2" opacity="0.7"/>
+
     <Grain/>
   </svg>
 );
@@ -694,92 +759,6 @@ const Cover_Arena = () => (
   </svg>
 );
 
-// 20. Nightcap — roadside motel rage-comedy
-const Cover_Nightcap = () => (
-  <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
-    <SharedDefs/>
-    <defs>
-      <linearGradient id="nc-sky" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#0a0f1a"/>
-        <stop offset="0.7" stopColor="#141d2e"/>
-        <stop offset="1" stopColor="#1c2539"/>
-      </linearGradient>
-      <radialGradient id="nc-pink" cx="0.5" cy="0.5" r="0.5">
-        <stop offset="0" stopColor="#ff3f88"/>
-        <stop offset="1" stopColor="#ff3f8800"/>
-      </radialGradient>
-    </defs>
-    {/* Night sky */}
-    <rect width="400" height="500" fill="url(#nc-sky)"/>
-    {/* Stars */}
-    <g fill="#fff" opacity="0.7">
-      <circle cx="40" cy="40" r="1"/><circle cx="90" cy="70" r="1.2"/><circle cx="140" cy="28" r="0.8"/>
-      <circle cx="210" cy="52" r="1"/><circle cx="260" cy="36" r="0.9"/><circle cx="320" cy="60" r="1.1"/>
-      <circle cx="360" cy="32" r="0.8"/><circle cx="70" cy="110" r="0.9"/><circle cx="180" cy="90" r="0.7"/>
-    </g>
-    {/* Moon */}
-    <circle cx="320" cy="100" r="28" fill="#f3efe8" opacity="0.9"/>
-    <circle cx="312" cy="94" r="24" fill="url(#nc-sky)"/>
-    {/* Pink neon glow behind sign */}
-    <ellipse cx="200" cy="190" rx="170" ry="60" fill="url(#nc-pink)" opacity="0.55"/>
-    {/* Neon sign pole */}
-    <rect x="196" y="210" width="8" height="60" fill="#1c2539"/>
-    {/* VACANCY neon */}
-    <g transform="translate(200,180)">
-      <rect x="-110" y="-38" width="220" height="68" rx="6" fill="#141d2e" stroke="#ff3f88" strokeWidth="2"/>
-      <text x="0" y="-8" textAnchor="middle" fontFamily="'Courier New',monospace" fontSize="14" fill="#ff3f88" letterSpacing="4" fontWeight="700">NIGHTCAP</text>
-      <text x="0" y="20" textAnchor="middle" fontFamily="'Courier New',monospace" fontSize="11" fill="#ffb347" letterSpacing="3" fontWeight="700" opacity="0.9">NO VACANCY</text>
-      {/* tiny blink dot — flicker */}
-      <circle cx="98" cy="-24" r="3" fill="#ffb347" opacity="0.8"/>
-    </g>
-    {/* Motel facade (silhouette) */}
-    <rect x="40" y="330" width="320" height="140" fill="#1c2539" stroke="#2e3d5a" strokeWidth="2"/>
-    {/* Roof line */}
-    <rect x="30" y="322" width="340" height="10" fill="#2e3d5a"/>
-    {/* Door frames */}
-    {[0,1,2,3,4].map(i => {
-      const x = 58 + i*62;
-      const isThirteen = i === 3;
-      return (
-        <g key={i}>
-          <rect x={x} y="356" width="36" height="80" fill="#2a1f14" stroke="#3a2a1a" strokeWidth="1"/>
-          {/* Door number */}
-          <text x={x+18} y="350" textAnchor="middle" fontFamily="'Courier New',monospace" fontSize="9"
-            fill={isThirteen ? "#ff3f88" : "#c9b48a"} fontWeight="700">
-            {i===0?'09':i===1?'10':i===2?'11':i===3?'13':'14'}
-          </text>
-          {/* Door handle */}
-          <circle cx={x+30} cy="396" r="1.5" fill="#ffb347"/>
-          {/* Room 13 glows red, lit window above */}
-          {isThirteen && (
-            <>
-              <rect x={x-4} y="352" width="44" height="88" fill="none" stroke="#ff3f88" strokeWidth="1.5" opacity="0.6"/>
-              <rect x={x+2} y="320" width="32" height="14" fill="#ff4455" opacity="0.85"/>
-            </>
-          )}
-          {!isThirteen && i!==0 && (
-            <rect x={x+2} y="320" width="32" height="14" fill="#ffb347" opacity={i===1?0.4:0.15}/>
-          )}
-        </g>
-      );
-    })}
-    {/* Ground line */}
-    <rect x="0" y="470" width="400" height="30" fill="#0a0f1a"/>
-    <line x1="0" y1="470" x2="400" y2="470" stroke="#2e3d5a" strokeWidth="1"/>
-    {/* Puddle reflection */}
-    <ellipse cx="200" cy="486" rx="90" ry="5" fill="#ff3f88" opacity="0.12"/>
-    {/* Tiny silhouette guest walking toward Room 13 */}
-    <g transform="translate(250,448)">
-      <circle cx="0" cy="-10" r="4" fill="#ffd1a6"/>
-      <rect x="-3" y="-6" width="6" height="10" fill="#e84a6b"/>
-      <rect x="-3" y="4" width="2.5" height="8" fill="#2c3e66"/>
-      <rect x="0.5" y="4" width="2.5" height="8" fill="#2c3e66"/>
-      {/* luggage */}
-      <rect x="-7" y="-2" width="3" height="6" fill="#2a1a0a"/>
-    </g>
-    <Grain/>
-  </svg>
-);
 
 // 21. SLIPSHOT — movement-FPS training chamber, first-person speed silhouette
 const Cover_Slipshot = () => (
@@ -911,12 +890,11 @@ const Cover_Slipshot = () => (
 
 export const GAME_COVERS = {
   fbwg: Cover_FBWG, bob: Cover_Bob, connect4: Cover_Connect4, eightball: Cover_EightBall,
-  football: Cover_Football, basket: Cover_Basket, badicecream: Cover_BadIceCream, aow: Cover_AoW,
+  goalbound: Cover_Goalbound, basket: Cover_Basket, badicecream: Cover_BadIceCream, aow: Cover_AoW,
   vex: Cover_Vex, papa: Cover_Papa, hook: Cover_Hook, g2048: Cover_2048,
   cutrope: Cover_CutRope, bloons: Cover_Bloons, slither: Cover_Slither, happywheels: Cover_HappyWheels,
   fps: Cover_FPS, arena: Cover_Arena,
   // Originals:
   grudgewood: Cover_TreesHate,
   slipshot:   Cover_Slipshot,
-  nightcap:   Cover_Nightcap,
 };
