@@ -24,6 +24,9 @@ const PLAYABLE = {
   bob:        lazy(() => import('../games/NightShiftGame.jsx')),
   goalbound:  lazy(() => import('../games/GoalboundGame.jsx')),
   fbwg:       lazy(() => import('../games/EmberTideGame.jsx')),
+  badicecream: lazy(() => import('../games/FrostFightGame.jsx')),
+  papa:        lazy(() => import('../games/ShortOrderGame.jsx')),
+  happywheels: lazy(() => import('../games/FaceplantGame.jsx')),
 };
 
 // Per-game shell content. Keeps the shell generic while each game gets
@@ -83,13 +86,21 @@ const SHELL_CONFIG = {
     controls: [
       { title: 'Movement', items: [
         { keys: ['WASD'],  label: 'Move' },
-        { keys: ['Shift'], label: 'Slide' },
-        { keys: ['Space'], label: 'Jump / air-dash' },
+        { keys: ['Space'], label: 'Jump' },
+        { keys: ['Shift'], label: 'Slide (ground) / Airdash (air)' },
         { keys: ['Mouse'], label: 'Aim' },
-        { keys: ['Click'], label: 'Fire' },
+      ]},
+      { title: 'Combat', items: [
+        { keys: ['LMB'],       label: 'Fire' },
+        { keys: ['1','2','Q'], label: 'Swap weapon' },
+        { keys: ['R'],         label: 'Reload' },
       ]},
     ],
-    tips: ['Slide into every jump for the boost.', 'Hold combos through gaps, not kills.'],
+    tips: [
+      'Airborne kills refund the dash — chain dash→kill→dash.',
+      'Pulse spread tightens while moving; standing still costs accuracy.',
+      'A kill within 1.5s keeps the combo climbing toward ×3.',
+    ],
   },
   arena: {
     goals: { lead: 'Five kills to win. Real players drop in live.', bullets: ['Walls are friends.', 'Predict — don’t trust the crosshair.'] },

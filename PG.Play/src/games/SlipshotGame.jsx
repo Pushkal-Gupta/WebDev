@@ -44,7 +44,10 @@ const WEAPONS = {
   slug:  { label: 'Slug',  cd: 0.70,  dmg: 80, mag: 6,  reload: 1.4, spread: 0.0,   tracer: 0xffe14f },
 };
 
-/* Arena: compact sealed box with pillars and vault ledges */
+/* Arena: compact sealed box with pillars and vault ledges.
+   WALLS = full-height blockers (never vaultable).
+   LEDGES = short platforms the player can jump over and stand on.
+   Non-player collision (enemies, shots) treats everything as a wall. */
 const WALLS = [
   // central cross
   [  0,   0, 14,  3.0, 1.2],
@@ -62,7 +65,9 @@ const WALLS = [
   [-18,   0, 1.6, 3,   8 ],
   [  0,  18, 8,   3,   1.6],
   [  0, -18, 8,   3,   1.6],
-  // NEW: vault ledges (low walls you slide over)
+];
+const LEDGES = [
+  // vault ledges — slide → jump clears them; top is standable.
   [ 10,   4, 4.5, 1.1, 0.6],
   [-10,  -4, 4.5, 1.1, 0.6],
 ];
@@ -78,13 +83,49 @@ const TARGET_ANCHORS = [
 ];
 
 /* ─── tiny helpers ────────────────────────────────────────────── */
+// 2D collision used by enemies, projectiles, and shot tracers. Everything
+// blocks — enemies don't vault.
 const collidesCube = (x, z, r) => {
   for (const [cx, cz, sx, , sz] of WALLS) {
     const dx = Math.abs(x - cx) - sx / 2;
     const dz = Math.abs(z - cz) - sz / 2;
     if (dx < r && dz < r) return true;
   }
+  for (const [cx, cz, sx, , sz] of LEDGES) {
+    const dx = Math.abs(x - cx) - sx / 2;
+    const dz = Math.abs(z - cz) - sz / 2;
+    if (dx < r && dz < r) return true;
+  }
   return Math.abs(x) > ARENA_HALF - r || Math.abs(z) > ARENA_HALF - r;
+};
+
+// Player-aware collision. Full walls always block; ledges pass-through when
+// the player's feet are above the ledge top.
+const collidesPlayer = (x, z, r, feetY) => {
+  for (const [cx, cz, sx, , sz] of WALLS) {
+    const dx = Math.abs(x - cx) - sx / 2;
+    const dz = Math.abs(z - cz) - sz / 2;
+    if (dx < r && dz < r) return true;
+  }
+  for (const [cx, cz, sx, sy, sz] of LEDGES) {
+    if (feetY >= sy - 0.02) continue;
+    const dx = Math.abs(x - cx) - sx / 2;
+    const dz = Math.abs(z - cz) - sz / 2;
+    if (dx < r && dz < r) return true;
+  }
+  return Math.abs(x) > ARENA_HALF - r || Math.abs(z) > ARENA_HALF - r;
+};
+
+// Returns the standable floor height at (x,z): ARENA floor is 0, but a
+// ledge top counts if the player is inside its footprint.
+const standHeight = (x, z, r) => {
+  let h = 0;
+  for (const [cx, cz, sx, sy, sz] of LEDGES) {
+    const dx = Math.abs(x - cx) - sx / 2;
+    const dz = Math.abs(z - cz) - sz / 2;
+    if (dx < r && dz < r && sy > h) h = sy;
+  }
+  return h;
 };
 
 /* Tiny deterministic PRNG (mulberry32) — daily seed drives the director */
@@ -168,7 +209,7 @@ export default function SlipshotGame() {
       scene.add(m);
     });
 
-    WALLS.forEach(([cx, cz, sx, sy, sz]) => {
+    [...WALLS, ...LEDGES].forEach(([cx, cz, sx, sy, sz]) => {
       const m = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), wallMat);
       m.position.set(cx, sy / 2, cz);
       scene.add(m);
@@ -179,20 +220,46 @@ export default function SlipshotGame() {
 
     /* ── gun model in camera ──────────────────────────────────── */
     const gun = new THREE.Group();
-    gun.add(new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.14, 0.48), new THREE.MeshStandardMaterial({ color: 0x141a20 })));
-    const barrel = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 0.58), new THREE.MeshStandardMaterial({ color: 0x2a3a46 }));
+    const gunBody = new THREE.Mesh(
+      new THREE.BoxGeometry(0.22, 0.14, 0.48),
+      new THREE.MeshStandardMaterial({ color: 0x2a3540, emissive: 0x0a1018, emissiveIntensity: 0.6, roughness: 0.55 })
+    );
+    gun.add(gunBody);
+    const barrel = new THREE.Mesh(
+      new THREE.BoxGeometry(0.06, 0.06, 0.58),
+      new THREE.MeshStandardMaterial({ color: 0x3c4a58, emissive: 0x0f161d, emissiveIntensity: 0.5, roughness: 0.4 })
+    );
     barrel.position.z = -0.5;
     gun.add(barrel);
-    const gunAccent = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.02, 0.48), new THREE.MeshStandardMaterial({ color: 0x00fff5, emissive: 0x00c8c0, emissiveIntensity: 0.9 }));
+    const gunAccent = new THREE.Mesh(
+      new THREE.BoxGeometry(0.22, 0.02, 0.48),
+      new THREE.MeshStandardMaterial({ color: 0x00fff5, emissive: 0x00c8c0, emissiveIntensity: 1.1 })
+    );
     gunAccent.position.y = 0.08;
     gun.add(gunAccent);
+    // Weapon tip — a small cyan sight nub for visual read at the end of the barrel
+    const sightNub = new THREE.Mesh(
+      new THREE.BoxGeometry(0.035, 0.05, 0.035),
+      new THREE.MeshStandardMaterial({ color: 0x00fff5, emissive: 0x00c8c0, emissiveIntensity: 1.4 })
+    );
+    sightNub.position.set(0, 0.065, -0.68);
+    gun.add(sightNub);
     // Muzzle flash — dim by default, flicker on fire
     const muzzleMat = new THREE.MeshBasicMaterial({ color: 0xfff5e0, transparent: true, opacity: 0 });
     const muzzle = new THREE.Mesh(new THREE.SphereGeometry(0.13, 8, 8), muzzleMat);
     muzzle.position.set(0, 0, -0.82);
     gun.add(muzzle);
     gun.position.set(0.22, -0.2, -0.36);
+    // Render the gun after the scene so it never clips into walls.
+    gun.renderOrder = 10;
+    gun.traverse((o) => { if (o.material) { o.material.depthTest = false; o.material.depthWrite = false; } });
     camera.add(gun);
+
+    // Camera-attached fill light — keeps the viewmodel readable even when the
+    // player spins away from the key light.
+    const camFill = new THREE.PointLight(0xdde8ff, 0.55, 4, 2);
+    camFill.position.set(0.1, 0.15, -0.1);
+    camera.add(camFill);
     scene.add(camera);
 
     /* ── procedural audio (tiny synth, no samples) ────────────── */
@@ -418,7 +485,13 @@ export default function SlipshotGame() {
     };
     renderer.domElement.addEventListener('click', onClick);
 
-    const onLock = () => setHudField('locked', document.pointerLockElement === renderer.domElement);
+    const onLock = () => {
+      const locked = document.pointerLockElement === renderer.domElement;
+      setHudField('locked', locked);
+      // Dropping lock should cancel any held-fire so unpausing doesn't
+      // immediately unload a clip.
+      if (!locked) firing = false;
+    };
     document.addEventListener('pointerlockchange', onLock);
 
     const onMouseMove = (e) => {
@@ -453,9 +526,12 @@ export default function SlipshotGame() {
     /* ── run lifecycle ────────────────────────────────────────── */
     const clock = new THREE.Clock();
 
-    // Juice accumulators (consumed in the main loop)
+    // Juice accumulators + game clock. gameTime only advances while the run
+    // is active (status = playing AND pointer locked), so Esc-to-unlock
+    // effectively pauses the round.
     let shakeAmt = 0;
     let bobPhase = 0;
+    let gameTime = 0;
 
     const startRun = () => {
       // Clear existing entities
@@ -481,7 +557,7 @@ export default function SlipshotGame() {
       hudRef.current = {
         status: 'playing', timeLeft: RUN_SECONDS, score: 0, combo: 1.0,
         comboMax: 1.0, kills: 0, hsCount: 0, shotsFired: 0, shotsHit: 0,
-        lastKillT: -999, runStart: clock.getElapsedTime(),
+        lastKillT: -999, runStart: gameTime,
       };
 
       // Seat the director
@@ -720,6 +796,10 @@ export default function SlipshotGame() {
         setTimeout(() => { if (e.body) e.body.scale.setScalar(1); }, 60);
       }
 
+      // Reticle feedback — killing blow is handled by killEntity, otherwise
+      // flash the hit state briefly.
+      if (e.hp > 0) flashReticle(isHead ? 'head' : 'hit');
+
       if (e.hp <= 0) {
         killEntity(e, isHead, airborne);
       }
@@ -733,6 +813,8 @@ export default function SlipshotGame() {
       const gained = Math.round(base * comboMult * headMult);
       hr.score += gained;
       if (isHead) sfxHeadshot(); else sfxKill();
+      flashReticle(isHead ? 'head' : 'kill');
+      if (isHead) punchHeadshot();
       hr.kills++;
       if (isHead) hr.hsCount++;
 
@@ -741,7 +823,7 @@ export default function SlipshotGame() {
       if (isHead) add = Math.max(add, COMBO_ADD_HEAD);
       hr.combo = Math.min(COMBO_MAX, hr.combo + add);
       if (hr.combo > hr.comboMax) hr.comboMax = hr.combo;
-      hr.lastKillT = clock.getElapsedTime();
+      hr.lastKillT = gameTime;
 
       // Floating score popup (DOM)
       showScorePopup(gained, isHead);
@@ -770,6 +852,29 @@ export default function SlipshotGame() {
       setTimeout(() => el.remove(), 700);
     };
 
+    /* ── reticle + headshot punch layers (DOM, not React) ─────── */
+    const reticle = document.createElement('div');
+    reticle.className = 'slipshot-reticle';
+    mount.appendChild(reticle);
+    let reticleFlashTimer = 0;
+    const flashReticle = (kind) => {
+      // kind: 'hit' | 'kill' | 'head'
+      reticle.classList.remove('is-hit', 'is-kill', 'is-head');
+      // Force a reflow so the animation restarts on repeat hits.
+      void reticle.offsetWidth;
+      reticle.classList.add(kind === 'head' ? 'is-head' : kind === 'kill' ? 'is-kill' : 'is-hit');
+      clearTimeout(reticleFlashTimer);
+      reticleFlashTimer = setTimeout(() => {
+        reticle.classList.remove('is-hit', 'is-kill', 'is-head');
+      }, kind === 'head' ? 260 : kind === 'kill' ? 220 : 140);
+    };
+    const punchHeadshot = () => {
+      const el = document.createElement('div');
+      el.className = 'slipshot-punch';
+      mount.appendChild(el);
+      setTimeout(() => el.remove(), 180);
+    };
+
     /* ── loop ─────────────────────────────────────────────────── */
     let raf = 0;
     let hudTick = 0;
@@ -777,25 +882,30 @@ export default function SlipshotGame() {
     const loop = () => {
       raf = requestAnimationFrame(loop);
       const dt = Math.min(0.05, clock.getDelta());
-      const elapsed = clock.getElapsedTime();
       const hr = hudRef.current;
 
-      // Weapon cd / reload
+      const isPlaying = hr.status === 'playing';
+      const isLocked = document.pointerLockElement === renderer.domElement;
+      const isActive = isPlaying && isLocked;
+      // gdt = gameplay delta. Zero while paused (pointer unlocked or between
+      // runs), so every ticker below freezes in lockstep.
+      const gdt = isActive ? dt : 0;
+      gameTime += gdt;
+
+      // Weapon cd / reload (frozen during pause)
       if (player.reloadIn > 0) {
-        player.reloadIn -= dt;
+        player.reloadIn -= gdt;
         if (player.reloadIn <= 0) {
           player.ammo[player.weapon] = WEAPONS[player.weapon].mag;
         }
       }
-      player.fireCd -= dt;
+      player.fireCd -= gdt;
 
       // HP regen after grace period
-      player.lastHurt += dt;
-      if (player.lastHurt > HP_REGEN_DELAY && player.hp > 0 && player.hp < MAX_HP) {
-        player.hp = Math.min(MAX_HP, player.hp + HP_REGEN_RATE * dt);
+      player.lastHurt += gdt;
+      if (isActive && player.lastHurt > HP_REGEN_DELAY && player.hp > 0 && player.hp < MAX_HP) {
+        player.hp = Math.min(MAX_HP, player.hp + HP_REGEN_RATE * gdt);
       }
-
-      const isPlaying = hr.status === 'playing';
 
       /* ── movement ─────────────────────────────────────────── */
       if (isPlaying && player.hp > 0 && document.pointerLockElement === renderer.domElement) {
@@ -864,26 +974,33 @@ export default function SlipshotGame() {
         }
         player.vel.y -= GRAVITY * dt;
 
+        const feetY = player.pos.y - player.eye;
         const nx = player.pos.x + player.vel.x * dt;
         const nz = player.pos.z + player.vel.z * dt;
-        if (!collidesCube(nx, player.pos.z, RADIUS)) player.pos.x = nx;
+        if (!collidesPlayer(nx, player.pos.z, RADIUS, feetY)) player.pos.x = nx;
         else player.vel.x *= -0.15;
-        if (!collidesCube(player.pos.x, nz, RADIUS)) player.pos.z = nz;
+        if (!collidesPlayer(player.pos.x, nz, RADIUS, feetY)) player.pos.z = nz;
         else player.vel.z *= -0.15;
 
         player.pos.y += player.vel.y * dt;
         const targetEye = player.sliding ? SLIDE_EYE : PLAYER_EYE;
         player.eye += (targetEye - player.eye) * Math.min(1, dt * 14);
-        if (player.pos.y <= player.eye) {
+        // Floor height is 0 on the arena, or the top of a ledge you're
+        // standing within.
+        const floorY = standHeight(player.pos.x, player.pos.z, RADIUS);
+        const minY = floorY + player.eye;
+        if (player.pos.y <= minY) {
           const impactSpd = Math.abs(player.vel.y);
-          player.pos.y = player.eye;
+          player.pos.y = minY;
           player.vel.y = 0;
           if (!player.onGround) {
             player.onGround = true;
             player.dashReady = true;
-            // Landing impact: shake scaled by fall speed (min threshold)
             if (impactSpd > 3.5) shakeAmt = Math.min(0.45, shakeAmt + Math.min(0.25, impactSpd * 0.025));
           }
+        } else if (player.onGround && player.pos.y > minY + 0.08) {
+          // Stepped off a ledge — re-enter airborne state.
+          player.onGround = false;
         }
 
         if (firing) tryFire();
@@ -915,9 +1032,9 @@ export default function SlipshotGame() {
       }
 
       /* ── director ─────────────────────────────────────────── */
-      if (isPlaying) {
-        const runElapsed = elapsed - hr.runStart;
-        director.step(dt, runElapsed);
+      if (isActive) {
+        const runElapsed = gameTime - hr.runStart;
+        director.step(gdt, runElapsed);
 
         // Timer
         const timeLeft = Math.max(0, RUN_SECONDS - runElapsed);
@@ -926,30 +1043,30 @@ export default function SlipshotGame() {
         }
 
         // Combo decay
-        if (elapsed - hr.lastKillT > COMBO_DECAY_DELAY && hr.combo > COMBO_MIN) {
-          hr.combo = Math.max(COMBO_MIN, hr.combo - COMBO_DECAY_PER_S * dt);
+        if (gameTime - hr.lastKillT > COMBO_DECAY_DELAY && hr.combo > COMBO_MIN) {
+          hr.combo = Math.max(COMBO_MIN, hr.combo - COMBO_DECAY_PER_S * gdt);
         }
       }
 
       /* ── entity behavior ──────────────────────────────────── */
       for (const e of entities) {
         if (e.kind === 'target') {
-          e.bob += dt * 2;
+          e.bob += gdt * 2;
           e.mesh.position.y = e.pos.y + Math.sin(e.bob) * 0.14;
-          e.mesh.rotation.y += dt * 1.1;
+          e.mesh.rotation.y += gdt * 1.1;
         } else if (e.kind === 'drone') {
-          e.wobble += dt;
+          e.wobble += gdt;
           const toP = player.pos.clone().sub(e.mesh.position);
           const d = toP.length();
           if (d > 0.1) toP.multiplyScalar(1 / d);
           // Drift toward the player while keeping height band
-          e.mesh.position.x += toP.x * 1.8 * dt;
-          e.mesh.position.z += toP.z * 1.8 * dt;
+          e.mesh.position.x += toP.x * 1.8 * gdt;
+          e.mesh.position.z += toP.z * 1.8 * gdt;
           e.mesh.position.y = 3.4 + Math.sin(e.wobble * 1.3) * 0.35;
-          e.mesh.rotation.y += dt * 0.8;
+          e.mesh.rotation.y += gdt * 0.8;
           e.pos.copy(e.mesh.position);
-          e.fireCd -= dt;
-          if (e.fireCd <= 0 && d < 24 && isPlaying) {
+          e.fireCd -= gdt;
+          if (e.fireCd <= 0 && d < 24 && isActive) {
             e.fireCd = 2.4 + Math.random() * 0.8;
             fireEnemyShot(e.mesh.position.clone(), player.pos.clone());
           }
@@ -959,21 +1076,21 @@ export default function SlipshotGame() {
           const d = Math.hypot(dx, dz);
           const ang = Math.atan2(dz, dx);
           const move = d > 9 ? 3.0 : d < 4 ? -1.8 : 0;
-          const nx = e.pos.x + Math.cos(ang) * move * dt;
-          const nz = e.pos.z + Math.sin(ang) * move * dt;
+          const nx = e.pos.x + Math.cos(ang) * move * gdt;
+          const nz = e.pos.z + Math.sin(ang) * move * gdt;
           if (!collidesCube(nx, e.pos.z, 0.5)) e.pos.x = nx;
           if (!collidesCube(e.pos.x, nz, 0.5)) e.pos.z = nz;
-          e.strafeTick += dt;
+          e.strafeTick += gdt;
           if (e.strafeTick > 1.3) { e.strafeTick = 0; e.strafe = Math.random() > 0.5 ? 1 : -1; }
-          const sx = e.pos.x + Math.cos(ang + Math.PI / 2) * 2.2 * dt * e.strafe;
-          const sz = e.pos.z + Math.sin(ang + Math.PI / 2) * 2.2 * dt * e.strafe;
+          const sx = e.pos.x + Math.cos(ang + Math.PI / 2) * 2.2 * gdt * e.strafe;
+          const sz = e.pos.z + Math.sin(ang + Math.PI / 2) * 2.2 * gdt * e.strafe;
           if (!collidesCube(sx, e.pos.z, 0.5)) e.pos.x = sx;
           if (!collidesCube(e.pos.x, sz, 0.5)) e.pos.z = sz;
           e.mesh.position.set(e.pos.x, 1.0, e.pos.z);
           e.mesh.rotation.y = -ang + Math.PI / 2;
           if (e.head) e.head.position.set(e.pos.x, 1.85, e.pos.z);
-          e.fireCd -= dt;
-          if (e.fireCd <= 0 && d < 26 && isPlaying) {
+          e.fireCd -= gdt;
+          if (e.fireCd <= 0 && d < 26 && isActive) {
             e.fireCd = 1.6 + Math.random() * 0.6;
             const from = new THREE.Vector3(e.pos.x, 1.4, e.pos.z);
             const to = player.pos.clone();
@@ -985,8 +1102,8 @@ export default function SlipshotGame() {
       /* ── enemy shots ──────────────────────────────────────── */
       for (let i = enemyShots.length - 1; i >= 0; i--) {
         const s = enemyShots[i];
-        s.mesh.position.addScaledVector(s.vel, dt);
-        s.life -= dt;
+        s.mesh.position.addScaledVector(s.vel, gdt);
+        s.life -= gdt;
         const hitWall = collidesCube(s.mesh.position.x, s.mesh.position.z, 0.1) || s.mesh.position.y < 0.05;
         const dp = s.mesh.position.clone().sub(player.pos);
         dp.y += 0.4;
@@ -1043,7 +1160,7 @@ export default function SlipshotGame() {
       hudTick += dt;
       if (hudTick > 0.1) {
         hudTick = 0;
-        const runElapsed = elapsed - hr.runStart;
+        const runElapsed = gameTime - hr.runStart;
         setHud((h) => {
           if (h.status === 'ended') return h;
           return {
@@ -1080,6 +1197,7 @@ export default function SlipshotGame() {
       renderer.domElement.removeEventListener('click', onClick);
       renderer.domElement.removeEventListener('mousedown', onMouseDown);
       if (document.pointerLockElement === renderer.domElement) document.exitPointerLock?.();
+      clearTimeout(reticleFlashTimer);
       renderer.dispose();
       tracerGeo.dispose();
       particleGeo.dispose();

@@ -844,8 +844,51 @@ export default function GrudgewoodGame() {
     pauseOffset: 0, pausedAt: 0,
     paused: false, completed: false,
     elapsed: 0,
+    stageDeaths: [],   // deaths attributed to the stage you died in
   });
   const optsRef = useRef({ reducedMotion: false, highContrast: false, muted: false });
+
+  // Touch input — silhouette buttons when a touch device is detected. Merged
+  // into the same keys object the game loop reads, so touch + keyboard + pad
+  // all cooperate without special-case branches in the physics code.
+  const touchKeysRef = useRef({
+    left: false, right: false, jump: false, down: false,
+    jumpPressed: false, slidePressed: false,
+  });
+  const [touchPressed, setTouchPressed] = useState({ left: false, right: false, jump: false, down: false });
+  const [showTouch, setShowTouch] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    try { return window.matchMedia && window.matchMedia('(pointer: coarse)').matches; } catch { return false; }
+  });
+  const handleTouch = (key, active) => {
+    touchKeysRef.current[key] = active;
+    if (active) {
+      if (key === 'jump') touchKeysRef.current.jumpPressed = true;
+      if (key === 'down') touchKeysRef.current.slidePressed = true;
+    }
+    setTouchPressed((prev) => (prev[key] === active ? prev : { ...prev, [key]: active }));
+  };
+  const touchBind = (key) => ({
+    onPointerDown: (e) => {
+      e.preventDefault();
+      try { e.currentTarget.setPointerCapture?.(e.pointerId); } catch {}
+      handleTouch(key, true);
+    },
+    onPointerUp:     (e) => { e.preventDefault(); handleTouch(key, false); },
+    onPointerCancel: () => handleTouch(key, false),
+    onPointerLeave:  () => handleTouch(key, false),
+    onContextMenu:   (e) => e.preventDefault(),
+  });
+  useEffect(() => {
+    // Promote to touch UI on first touchstart anywhere — covers devices where
+    // matchMedia('(pointer: coarse)') returns false but touch is present.
+    const onFirstTouch = () => {
+      setShowTouch(true);
+      window.removeEventListener('touchstart', onFirstTouch);
+    };
+    window.addEventListener('touchstart', onFirstTouch, { passive: true });
+    return () => window.removeEventListener('touchstart', onFirstTouch);
+  }, []);
 
   const [ui, setUi] = useState({
     stageIdx: 0,
@@ -941,11 +984,14 @@ export default function GrudgewoodGame() {
 
       if (!runRef.current.paused && !runRef.current.completed) {
         readPad();
-        keys.left   = keys.kbLeft   || keys.padLeft;
-        keys.right  = keys.kbRight  || keys.padRight;
-        keys.jump   = keys.kbJump   || keys.padJump;
+        const tk = touchKeysRef.current;
+        keys.left   = keys.kbLeft   || keys.padLeft   || tk.left;
+        keys.right  = keys.kbRight  || keys.padRight  || tk.right;
+        keys.jump   = keys.kbJump   || keys.padJump   || tk.jump;
         keys.sprint = keys.kbSprint || keys.padSprint;
-        keys.down   = keys.kbDown   || keys.padDown;
+        keys.down   = keys.kbDown   || keys.padDown   || tk.down;
+        if (tk.jumpPressed)  { keys.jumpPressed  = true; tk.jumpPressed  = false; }
+        if (tk.slidePressed) { keys.slidePressed = true; tk.slidePressed = false; }
 
         const s = stateRef.current;
         const slowmoScale = s && s.slowmo > 0 ? lerp(SLOWMO_SCALE, 1, 1 - s.slowmo / SLOWMO_TIME) : 1;
@@ -1056,6 +1102,12 @@ export default function GrudgewoodGame() {
     audioRef.current?.death();
     const r = runRef.current;
     r.deaths += 1;
+    r.stageDeaths[r.stageIdx] = (r.stageDeaths[r.stageIdx] || 0) + 1;
+    // Directional camera kick on impact (decays in updateCamera)
+    if (!s.cam) s.cam = { x: 0, y: 0 };
+    s.cam.kickX = (impulseX || 0) * 3.2;
+    s.cam.kickY = ((impulseY || 0) * 2.4) - 6;
+    s.impactPt = { x: s.player.x + P_W / 2, y: s.player.y + P_H / 2 };
     setUi((u) => ({ ...u, deaths: r.deaths, status: 'dead', epitaph: s.epitaph }));
   }
 
@@ -1086,6 +1138,7 @@ export default function GrudgewoodGame() {
     r.startMs = performance.now();
     r.pauseOffset = 0; r.paused = false; r.completed = false;
     r.elapsed = 0;
+    r.stageDeaths = [];
     setUi((u) => ({ ...u, deaths: 0, elapsed: 0, completed: false, status: 'playing', epitaph: null, score: 0 }));
     enterStage(0);
   }
@@ -1314,6 +1367,14 @@ export default function GrudgewoodGame() {
     if (!s.ragdoll) return;
     s.ragdoll.t += dt;
     for (const part of s.ragdoll.parts) {
+      // Record position history for motion trail (~22 Hz sampling)
+      part._histTick = (part._histTick ?? 0) + dt;
+      if (part._histTick >= 0.045) {
+        part._histTick = 0;
+        if (!part.history) part.history = [];
+        part.history.push({ x: part.x, y: part.y, rot: part.rot });
+        if (part.history.length > 6) part.history.shift();
+      }
       part.vy += GRAVITY * dt * 0.9;
       if (part.vy > MAX_FALL) part.vy = MAX_FALL;
       part.x += part.vx * dt * 60;
@@ -1335,6 +1396,9 @@ export default function GrudgewoodGame() {
     s.cam.x = lerp(s.cam.x + W / 2, targetX, Math.min(1, dt * CAMERA_SMOOTH)) - W / 2;
     s.cam.x = clamp(s.cam.x, 0, Math.max(0, s.def.worldWidth - W));
     s.cam.y = 0;
+    // Decay directional impact kick toward zero. Fast decay = snappy kick feel.
+    s.cam.kickX = lerp(s.cam.kickX ?? 0, 0, Math.min(1, dt * 8));
+    s.cam.kickY = lerp(s.cam.kickY ?? 0, 0, Math.min(1, dt * 8));
     if (dying) {
       s.zoom = lerp(s.zoom, CAMERA_ZOOM_DEATH, Math.min(1, dt * 5));
     } else {
@@ -1698,8 +1762,12 @@ export default function GrudgewoodGame() {
     }
 
     // ── World space (player layer) starts here ─────────────────────────
+    // Directional camera kick is applied *only* to world layer so parallax
+    // doesn't wobble awkwardly.
+    const kx = reduceM ? 0 : (s.cam.kickX ?? 0);
+    const ky = reduceM ? 0 : (s.cam.kickY ?? 0);
     ctx.save();
-    ctx.translate(-cam, 0);
+    ctx.translate(-cam + kx, ky);
 
     // Drift particles behind props
     for (const pt of s.particles) {
@@ -1783,10 +1851,33 @@ export default function GrudgewoodGame() {
       ctx.fillRect(0, 0, W, H);
     }
 
-    // Slow-mo desaturation veil
+    // Slow-mo desaturation veil + tightening radial vignette toward impact
     if (s.slowmo > 0 && !reduceM) {
-      ctx.fillStyle = `rgba(10, 8, 12, ${(s.slowmo / SLOWMO_TIME) * 0.18})`;
+      const t = s.slowmo / SLOWMO_TIME;
+      ctx.fillStyle = `rgba(10, 8, 12, ${t * 0.18})`;
       ctx.fillRect(0, 0, W, H);
+      // Focus vignette — bloom tightens as time slows. Centered on screen since
+      // the camera has already framed the impact (player near centre via lookahead).
+      const cx = W / 2, cy = H / 2;
+      const innerR = W * (0.18 + 0.18 * (1 - t));
+      const outerR = W * 0.62;
+      const vg = ctx.createRadialGradient(cx, cy, innerR, cx, cy, outerR);
+      vg.addColorStop(0, 'transparent');
+      vg.addColorStop(1, `rgba(32, 6, 6, ${0.5 * t})`);
+      ctx.fillStyle = vg;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    // CSS-filter color grade on the canvas element itself — cheapest way to get
+    // a chromatic-style bite on impact. One style write per frame, browser
+    // composites for free. Cleared as slow-mo decays.
+    const canvasEl = ctx.canvas;
+    if (s.slowmo > 0 && !reduceM) {
+      const t = s.slowmo / SLOWMO_TIME;
+      const filter = `saturate(${(1 + t * 0.45).toFixed(2)}) hue-rotate(${(-t * 6).toFixed(1)}deg) contrast(${(1 + t * 0.12).toFixed(2)}) brightness(${(1 - t * 0.08).toFixed(2)})`;
+      if (canvasEl.style.filter !== filter) canvasEl.style.filter = filter;
+    } else if (canvasEl.style.filter) {
+      canvasEl.style.filter = '';
     }
 
     // HUD
@@ -2559,6 +2650,23 @@ export default function GrudgewoodGame() {
   }
 
   function drawRagdoll(ctx, rd) {
+    // Pass 1: motion-trail ghosts (older → more transparent)
+    for (const part of rd.parts) {
+      const hist = part.history;
+      if (!hist || !hist.length) continue;
+      for (let i = 0; i < hist.length; i++) {
+        const fade = (i + 1) / hist.length;
+        const h = hist[i];
+        ctx.save();
+        ctx.globalAlpha = 0.06 + fade * 0.18;
+        ctx.translate(h.x + part.w / 2, h.y + part.h / 2);
+        ctx.rotate(h.rot);
+        ctx.fillStyle = part.color;
+        ctx.fillRect(-part.w / 2, -part.h / 2, part.w, part.h);
+        ctx.restore();
+      }
+    }
+    // Pass 2: live parts on top, at full alpha
     for (const part of rd.parts) {
       ctx.save();
       ctx.translate(part.x + part.w / 2, part.y + part.h / 2);
@@ -2654,20 +2762,74 @@ export default function GrudgewoodGame() {
     ctx.fillStyle = 'rgba(8, 6, 10, 0.92)';
     ctx.fillRect(0, 0, W, H);
     ctx.textAlign = 'center';
+
+    // Title
     ctx.font = '700 52px "Lora", Georgia, serif';
     ctx.fillStyle = '#ffe39c';
     ctx.shadowBlur = 22;
     ctx.shadowColor = '#ffb74d';
-    ctx.fillText('SURVIVED', W / 2, H / 2 - 60);
+    ctx.fillText('SURVIVED', W / 2, H / 2 - 170);
     ctx.shadowBlur = 0;
+
+    // Totals line
+    const score = Math.max(0, Math.round(1800 - r.deaths * 28 - r.elapsed * 2.5));
     ctx.font = '600 14px "Courier New", monospace';
     ctx.fillStyle = '#f0e3c6';
-    ctx.fillText(`Time  ${fmtTime(r.elapsed)}`, W / 2, H / 2 - 14);
-    ctx.fillText(`Deaths  ${r.deaths}`, W / 2, H / 2 + 10);
-    ctx.fillText(`Score  ${Math.max(0, Math.round(1800 - r.deaths * 28 - r.elapsed * 2.5))}`, W / 2, H / 2 + 34);
+    ctx.fillText(
+      `TIME ${fmtTime(r.elapsed)}   ·   DEATHS ${r.deaths}   ·   SCORE ${score}`,
+      W / 2, H / 2 - 128
+    );
+
+    // Stage breakdown — two columns
+    ctx.font = '600 10px "Courier New", monospace';
+    ctx.fillStyle = 'rgba(201, 180, 138, 0.7)';
+    ctx.fillText('STAGE BREAKDOWN', W / 2, H / 2 - 92);
+
+    const rowH = 22;
+    const startY = H / 2 - 60;
+    const leftX = W / 2 - 180;
+    const rightX = W / 2 + 180;
+    STAGES.forEach((stage, i) => {
+      const deaths = r.stageDeaths[i] || 0;
+      const y = startY + i * rowH;
+      // Biome marker dot
+      const B = BIOMES[stage.biome];
+      ctx.fillStyle = B.accent;
+      ctx.beginPath();
+      ctx.arc(leftX - 14, y - 4, 3, 0, Math.PI * 2);
+      ctx.fill();
+      // Stage title
+      ctx.textAlign = 'left';
+      ctx.font = '600 13px "Courier New", monospace';
+      ctx.fillStyle = 'rgba(240, 227, 198, 0.82)';
+      ctx.fillText(stage.title, leftX, y);
+      // Death count (colour grade: green = clean, amber = rough, red = grim)
+      ctx.textAlign = 'right';
+      ctx.font = '700 14px "Courier New", monospace';
+      ctx.fillStyle = deaths === 0 ? '#a4f2d4'
+                    : deaths <= 3 ? '#f0e3c6'
+                    : deaths <= 6 ? '#ffb347'
+                    : '#ff7a5a';
+      ctx.fillText(String(deaths).padStart(2, '0'), rightX, y);
+    });
+
+    // Best line (if any)
+    const best = loadBest();
+    if (best != null) {
+      ctx.textAlign = 'center';
+      ctx.font = '600 10px "Courier New", monospace';
+      ctx.fillStyle = score >= best ? '#ffe39c' : 'rgba(138, 155, 165, 0.75)';
+      ctx.fillText(
+        score >= best ? `NEW BEST — ${score}` : `BEST ${best}`,
+        W / 2, startY + STAGES.length * rowH + 12
+      );
+    }
+
+    // CTA
+    ctx.textAlign = 'center';
     ctx.font = '600 11px "Courier New", monospace';
     ctx.fillStyle = '#8a9ba5';
-    ctx.fillText('R to run it back', W / 2, H / 2 + 74);
+    ctx.fillText('R to run it back', W / 2, startY + STAGES.length * rowH + 48);
   }
 
   // Restart handler on finish
@@ -2701,6 +2863,34 @@ export default function GrudgewoodGame() {
       </div>
       <div className="grudgewood-stage">
         <canvas ref={canvasRef} className="grudgewood-canvas" width={W} height={H} tabIndex={0}/>
+        {showTouch && !ui.completed && (
+          <div className="grudgewood-touch-layer" aria-hidden="false">
+            <div className="grudgewood-touch-left">
+              <button
+                className={`grudgewood-touch-btn ${touchPressed.left ? 'is-active' : ''}`}
+                aria-label="Move left"
+                {...touchBind('left')}
+              >◀</button>
+              <button
+                className={`grudgewood-touch-btn ${touchPressed.right ? 'is-active' : ''}`}
+                aria-label="Move right"
+                {...touchBind('right')}
+              >▶</button>
+            </div>
+            <div className="grudgewood-touch-right">
+              <button
+                className={`grudgewood-touch-btn grudgewood-touch-btn--small ${touchPressed.down ? 'is-active' : ''}`}
+                aria-label="Slide"
+                {...touchBind('down')}
+              >↓</button>
+              <button
+                className={`grudgewood-touch-btn grudgewood-touch-btn--big ${touchPressed.jump ? 'is-active' : ''}`}
+                aria-label="Jump"
+                {...touchBind('jump')}
+              >JUMP</button>
+            </div>
+          </div>
+        )}
         {ui.helpOpen && (
           <div className="grudgewood-help">
             <div className="grudgewood-help-title">Field Notes</div>

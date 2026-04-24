@@ -143,12 +143,14 @@ svg { display: block; width: 100%; height: 100%; }
   display: grid;
   grid-template-columns: 240px 1fr;
   min-height: 100vh;
+  min-height: 100dvh;
 }
-.sidebar-wrap { position: sticky; top: 0; height: 100vh; z-index: 50; }
+.sidebar-wrap { position: sticky; top: 0; height: 100vh; height: 100dvh; z-index: 50; }
 
 .sidebar {
   position: relative;
   height: 100vh;
+  height: 100dvh;
   border-right: 1px solid var(--line);
   background: var(--bg);
   display: flex;
@@ -1631,18 +1633,69 @@ svg { display: block; width: 100%; height: 100%; }
   background: #0a1014;
 }
 .slipshot-mount canvas { display: block; }
-.slipshot-mount::before {
-  /* crosshair */
-  content: "";
+
+/* Reticle: a small centered dot with four corner ticks. Color shifts to cyan
+   on hit, coral on kill, amber on headshot via JS-toggled classes. */
+.slipshot-reticle {
   position: absolute;
   top: 50%; left: 50%;
-  width: 14px; height: 14px;
+  width: 16px; height: 16px;
   transform: translate(-50%, -50%);
   pointer-events: none;
   z-index: 2;
+  --reticle-color: rgba(235, 245, 255, 0.9);
+}
+.slipshot-reticle::before {
+  /* center dot */
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 2px; height: 2px;
+  background: var(--reticle-color);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.6);
+}
+.slipshot-reticle::after {
+  /* four corner L-ticks */
+  content: "";
+  position: absolute;
+  inset: 0;
   background:
-    linear-gradient(90deg, rgba(255,255,255,0.7) 0 1px, transparent 1px) center / 14px 1px no-repeat,
-    linear-gradient(0deg,  rgba(255,255,255,0.7) 0 1px, transparent 1px) center / 1px 14px no-repeat;
+    linear-gradient(var(--reticle-color), var(--reticle-color)) left  top    / 5px 1px no-repeat,
+    linear-gradient(var(--reticle-color), var(--reticle-color)) right top    / 5px 1px no-repeat,
+    linear-gradient(var(--reticle-color), var(--reticle-color)) left  bottom / 5px 1px no-repeat,
+    linear-gradient(var(--reticle-color), var(--reticle-color)) right bottom / 5px 1px no-repeat,
+    linear-gradient(var(--reticle-color), var(--reticle-color)) left  top    / 1px 5px no-repeat,
+    linear-gradient(var(--reticle-color), var(--reticle-color)) right top    / 1px 5px no-repeat,
+    linear-gradient(var(--reticle-color), var(--reticle-color)) left  bottom / 1px 5px no-repeat,
+    linear-gradient(var(--reticle-color), var(--reticle-color)) right bottom / 1px 5px no-repeat;
+  filter: drop-shadow(0 0 1px rgba(0,0,0,0.7));
+}
+.slipshot-reticle.is-hit  { --reticle-color: #00fff5; animation: slip-reticle-pop 0.14s ease-out; }
+.slipshot-reticle.is-kill { --reticle-color: #ff8a5c; animation: slip-reticle-pop 0.22s ease-out; }
+.slipshot-reticle.is-head { --reticle-color: #ffd64a; animation: slip-reticle-pop 0.26s ease-out; }
+@keyframes slip-reticle-pop {
+  0%   { transform: translate(-50%, -50%) scale(1); }
+  40%  { transform: translate(-50%, -50%) scale(1.55); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+/* Headshot screen punch — brief amber pulse, non-blocking */
+.slipshot-punch {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  background:
+    radial-gradient(circle at center, rgba(255, 214, 74, 0.24) 0%, transparent 36%),
+    radial-gradient(ellipse at center, transparent 55%, rgba(255, 138, 92, 0.34) 100%);
+  mix-blend-mode: screen;
+  animation: slip-punch 0.16s ease-out forwards;
+}
+@keyframes slip-punch {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
 }
 .slipshot-overlay {
   position: absolute;
@@ -2030,6 +2083,8 @@ svg { display: block; width: 100%; height: 100%; }
 .grudgewood-stage {
   position: relative;
   width: 100%;
+  max-width: 1120px;  /* match canvas internal resolution so touch overlay aligns */
+  margin: 0 auto;
   display: flex;
   justify-content: center;
 }
@@ -2240,6 +2295,298 @@ svg { display: block; width: 100%; height: 100%; }
   18%  { opacity: 1; transform: translate(-50%, 0); }
   80%  { opacity: 1; }
   100% { opacity: 0; transform: translate(-50%, -6px); }
+}
+
+/* Short Order — kitchen workflow */
+.so {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--s-3);
+  user-select: none;
+  width: 100%;
+  max-width: 900px;
+  position: relative;
+}
+.so-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+.so-bar b { color: var(--text); font-weight: 700; margin-left: var(--s-1); }
+.so-queue {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--s-2);
+}
+.so-ticket {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: var(--s-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  min-height: 120px;
+  transition: border-color var(--t-fast), transform var(--t-fast);
+}
+.so-ticket.is-active {
+  border-color: rgba(var(--accent-rgb), 0.55);
+  box-shadow: 0 0 0 1px rgba(var(--accent-rgb), 0.25);
+}
+.so-ticket.is-urgent {
+  border-color: rgba(255, 77, 109, 0.5);
+  animation: so-urgent 1s ease-in-out infinite;
+}
+@keyframes so-urgent { 50% { box-shadow: 0 0 0 2px rgba(255, 77, 109, 0.35); } }
+.so-ticket-empty {
+  text-align: center;
+  color: var(--text-mute);
+  font-size: 0.85rem;
+  grid-column: 1 / -1;
+  border-style: dashed;
+}
+.so-ticket-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+.so-ticket-id { color: var(--text-dim); }
+.so-ticket-t  { color: var(--accent); font-weight: 700; }
+.so-ticket.is-urgent .so-ticket-t { color: #ff4d6d; }
+.so-ticket-steps { display: flex; flex-wrap: wrap; gap: 6px; }
+.so-step {
+  --btn-color: #888;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--text-dim);
+  font-size: 1rem;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+.so-step.is-done {
+  background: rgba(53, 240, 201, 0.18);
+  border-color: rgba(53, 240, 201, 0.5);
+  color: #35f0c9;
+}
+.so-step.is-current {
+  background: color-mix(in srgb, var(--btn-color) 30%, transparent);
+  border-color: var(--btn-color);
+  color: var(--btn-color);
+  animation: so-current 0.9s ease-in-out infinite;
+}
+@keyframes so-current { 50% { transform: scale(1.08); } }
+.so-ticket-bar {
+  height: 4px;
+  background: var(--surface-2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.so-ticket-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 120ms linear;
+}
+.so-ticket.is-urgent .so-ticket-fill { background: #ff4d6d; }
+
+.so-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--s-2);
+}
+.so-btn {
+  --btn-color: #888;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-1);
+  min-height: 72px;
+  padding: var(--s-3);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: background var(--t-fast), border-color var(--t-fast), transform var(--t-fast);
+}
+.so-btn:hover:not(:disabled) {
+  background: var(--surface-2);
+  border-color: rgba(var(--accent-rgb), 0.3);
+}
+.so-btn:active:not(:disabled) { transform: translateY(1px); }
+.so-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.so-btn.is-needed {
+  border-color: var(--btn-color);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--btn-color) 40%, transparent);
+  background: color-mix(in srgb, var(--btn-color) 10%, var(--surface));
+}
+.so-btn.is-wrong {
+  background: rgba(255, 77, 109, 0.2);
+  border-color: #ff4d6d;
+  animation: so-wrong 0.3s ease-in-out;
+}
+@keyframes so-wrong {
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+.so-btn-ico {
+  font-size: 1.6rem;
+  color: var(--btn-color);
+  line-height: 1;
+}
+.so-btn-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.so-btn.is-needed .so-btn-label { color: var(--text); }
+
+.so-tip-pop {
+  position: absolute;
+  top: 40px;
+  right: 24px;
+  padding: var(--s-2) var(--s-4);
+  background: rgba(53, 240, 201, 0.2);
+  border: 1px solid #35f0c9;
+  border-radius: var(--r-pill);
+  color: #35f0c9;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  animation: so-tip-pop 1.4s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes so-tip-pop {
+  0%   { opacity: 0; transform: translateY(-6px) scale(0.92); }
+  18%  { opacity: 1; transform: translateY(0) scale(1); }
+  70%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-12px) scale(0.98); }
+}
+.so-result {
+  padding: var(--s-2) var(--s-4);
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+}
+.so-hint {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  text-align: center;
+}
+
+/* Faceplant — physics ride */
+.face {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+  user-select: none;
+  width: 100%;
+  max-width: 900px;
+}
+.face-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+.face-bar b { color: var(--text); font-weight: 700; margin-left: var(--s-1); }
+.face-canvas {
+  background: #8bd6ff;
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+  max-width: 100%;
+  height: auto;
+  touch-action: none;
+}
+.face-result {
+  padding: var(--s-2) var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.face-hint {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  text-align: center;
+}
+
+/* Frost Fight — grid freeze maze */
+.frost {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+  user-select: none;
+  width: 100%;
+  max-width: 860px;
+}
+.frost-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  flex-wrap: wrap;
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+.frost-bar b { color: var(--text); font-weight: 700; margin-left: var(--s-1); }
+.frost-canvas {
+  background: #7ab7d0;
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+  max-width: 100%;
+  height: auto;
+  touch-action: none;
+}
+.frost-tip {
+  width: 100%;
+  color: var(--text-dim);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+.frost-tip-win { color: var(--accent); font-weight: 700; }
+.frost-hint {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  text-align: center;
 }
 
 /* Trace — precision platformer */
@@ -2878,6 +3225,67 @@ svg { display: block; width: 100%; height: 100%; }
   gap: var(--s-3);
   user-select: none;
   width: 100%;
+}
+/* Touch controls — silhouette buttons overlaid on the canvas. Only rendered
+   on coarse-pointer devices or after a first touchstart anywhere in the page. */
+.grudgewood-touch-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+.grudgewood-touch-left {
+  position: absolute;
+  bottom: clamp(10px, 2.4vw, 28px);
+  left: clamp(10px, 2.4vw, 28px);
+  display: flex;
+  gap: clamp(8px, 1.4vw, 16px);
+  pointer-events: none;
+}
+.grudgewood-touch-right {
+  position: absolute;
+  bottom: clamp(10px, 2.4vw, 28px);
+  right: clamp(10px, 2.4vw, 28px);
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(8px, 1.4vw, 16px);
+  pointer-events: none;
+}
+.grudgewood-touch-btn {
+  pointer-events: auto;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: rgba(8, 6, 10, 0.55);
+  border: 1px solid rgba(255, 227, 156, 0.32);
+  color: rgba(255, 227, 156, 0.9);
+  font-family: var(--font-mono);
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+  cursor: pointer;
+  transition: background 120ms, transform 90ms;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+.grudgewood-touch-btn.is-active {
+  background: rgba(255, 138, 66, 0.42);
+  transform: scale(0.94);
+  border-color: rgba(255, 227, 156, 0.6);
+}
+.grudgewood-touch-btn--small { width: 52px; height: 52px; font-size: 1rem; }
+.grudgewood-touch-btn--big   { width: 92px; height: 92px; font-size: 0.82rem; letter-spacing: 0.14em; }
+@media (hover: none) and (pointer: coarse) {
+  /* Squeeze bar + hints on small screens so the canvas claims more height */
+  .grudgewood-bar { gap: var(--s-2); font-size: 0.66rem; }
+  .grudgewood-hint { display: none; }
 }
 .grudgewood-bar {
   display: flex;
@@ -3556,7 +3964,19 @@ svg { display: block; width: 100%; height: 100%; }
   align-items: center;
   justify-content: center;
   min-height: min(72vh, 820px);
+  min-height: min(72dvh, 820px);
   box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02), inset 0 40px 80px -40px var(--glow);
+  overscroll-behavior: contain;
+  touch-action: manipulation;
+}
+/* Any fixed-pixel canvas inside the viewport scales down responsively
+   without changing its intrinsic render dimensions. */
+.game-shell-viewport-inner > canvas,
+.game-shell-viewport-inner canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-inline: auto;
 }
 .game-shell-viewport-frame {
   position: absolute;
