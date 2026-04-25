@@ -32,6 +32,7 @@ const GAME_MODULES = {
   badicecream: () => import('../src/games/FrostFightGame.jsx'),
   papa:        () => import('../src/games/ShortOrderGame.jsx'),
   happywheels: () => import('../src/games/FaceplantGame.jsx'),
+  bricklands:  () => import('../src/games/BricklandsGame.jsx'),
 };
 
 describe('every playable game imports cleanly', () => {

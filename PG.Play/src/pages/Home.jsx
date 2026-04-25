@@ -43,11 +43,11 @@ const CLASSIC_IDS = ['g2048', 'connect4'];
 
 // Hero copy options (pick one).
 const HERO_HEADLINES = [
-  'Play the internet\'s best arcade games instantly',
-  'Jump into hand-built browser games',
-  'A modern arcade built for instant fun, fast discovery, endless replay',
+  'A small arcade. Big appetite for one more run.',
+  'Twenty games. Zero downloads. One arcade.',
+  'Hand-built games for the couple of minutes you have.',
 ];
-const HERO_HEADLINE = HERO_HEADLINES[1];
+const HERO_HEADLINE = HERO_HEADLINES[0];
 
 export default function Home() {
   const navigate = useNavigate();
@@ -56,7 +56,7 @@ export default function Home() {
 
   useDocumentMeta({
     title: 'PG.Play — a hand-built arcade',
-    description: 'Four hand-built originals. Two quiet classics. Play instantly in your browser.',
+    description: 'Twenty hand-built browser games. No accounts, no downloads — one click and you are in.',
   });
 
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -125,11 +125,11 @@ export default function Home() {
     [recent, playable],
   );
 
-  // Pick a couple of editorial collections to surface as rails. Skip the
-  // ones whose ids aren't all playable (defensive — collections can outlive
-  // games).
+  // Pick a small set of editorial collections to surface as rails. The
+  // "New & updated" rail comes first (drives discovery of fresh ships).
+  // Then taste-curated rails. Skip collections whose ids aren't playable.
   const railCollections = useMemo(() => {
-    const wanted = ['start-in-ten', 'twitch', 'brainy'];
+    const wanted = ['new-updated', 'start-in-ten', 'twitch', 'brainy'];
     return wanted
       .map((id) => COLLECTIONS.find((c) => c.id === id))
       .filter(Boolean)
@@ -232,7 +232,8 @@ export default function Home() {
             </div>
             <h1 className="home-hero-title">{HERO_HEADLINE}</h1>
             <p className="home-hero-sub">
-              Four hand-built originals. Two quiet classics. Everything plays in your browser.
+              Originals, classics, and odd little experiments. Everything plays
+              in your browser. No accounts, no downloads, just a click.
             </p>
             <div className="home-hero-actions">
               <button className="btn btn-lg btn-primary" onClick={onPlayFeatured}>

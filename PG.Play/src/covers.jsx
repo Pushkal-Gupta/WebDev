@@ -1045,6 +1045,86 @@ const Cover_GoalboundPhoto  = () => <PhotoCover slug="goalbound"  alt="Goalbound
 const Cover_SlitherPhoto    = () => <PhotoCover slug="slither"    alt="Coil key art"       eager/>;
 const Cover_SlipshotPhoto   = () => <PhotoCover slug="slipshot"   alt="Slipshot key art"   eager/>;
 
+// Bricklands — bright meadow with the player silhouette mid-jump,
+// abstract floating platforms. Distinct from the four photo originals:
+// pure SVG, sunny gradient, magenta accent on the hero so it pops.
+const Cover_Bricklands = () => (
+  <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
+    <SharedDefs/>
+    <defs>
+      <linearGradient id="bl-sky" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0" stopColor="#7fd0ff"/>
+        <stop offset="0.6" stopColor="#ffd6e0"/>
+        <stop offset="1" stopColor="#1a2240"/>
+      </linearGradient>
+      <linearGradient id="bl-ground" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0" stopColor="#5a8c3a"/>
+        <stop offset="1" stopColor="#3c6324"/>
+      </linearGradient>
+    </defs>
+    {/* Sky */}
+    <rect width="400" height="500" fill="url(#bl-sky)"/>
+    {/* Sun */}
+    <circle cx="320" cy="110" r="44" fill="#fff5b8" opacity="0.85"/>
+    <circle cx="320" cy="110" r="60" fill="#fff5b8" opacity="0.18"/>
+    {/* Distant mountains */}
+    <g opacity="0.55" fill="#3b4f80">
+      <polygon points="-10,360 60,260 130,360"/>
+      <polygon points="100,360 200,230 300,360"/>
+      <polygon points="260,360 350,260 420,360"/>
+    </g>
+    <g opacity="0.7" fill="#2a4470">
+      <polygon points="-10,400 80,310 160,400"/>
+      <polygon points="140,400 240,300 340,400"/>
+      <polygon points="300,400 380,320 430,400"/>
+    </g>
+    {/* Floating platforms */}
+    <g>
+      <rect x="40"  y="320" width="80" height="14" rx="3" fill="#f6c93a"/>
+      <rect x="40"  y="332" width="80" height="3"  fill="#0003"/>
+      <rect x="200" y="270" width="60" height="12" rx="3" fill="#f6c93a"/>
+      <rect x="200" y="280" width="60" height="3"  fill="#0003"/>
+      <rect x="290" y="350" width="70" height="14" rx="3" fill="#f6c93a"/>
+      <rect x="290" y="362" width="70" height="3"  fill="#0003"/>
+    </g>
+    {/* Mystery block */}
+    <g transform="translate(150,200)">
+      <rect width="36" height="36" rx="4" fill="#f6c93a" stroke="#0003"/>
+      <text x="18" y="26" fontSize="22" fontFamily="ui-monospace, monospace"
+            fontWeight="700" textAnchor="middle" fill="#0008">?</text>
+    </g>
+    {/* Coins */}
+    <g fill="#f6c93a">
+      <ellipse cx="100" cy="290" rx="6" ry="9"/>
+      <ellipse cx="240" cy="240" rx="6" ry="9"/>
+      <ellipse cx="320" cy="320" rx="6" ry="9"/>
+    </g>
+    {/* Hero — mid-jump silhouette, magenta accent */}
+    <g transform="translate(178,250)">
+      <rect x="-2" y="14" width="28" height="24" rx="3" fill="#2a2a2a"/>
+      <rect x="-2" y="22" width="28" height="6"  fill="#ff3a8a"/>
+      <circle cx="12" cy="8" r="9" fill="#fff1d4"/>
+      <rect x="14" y="6" width="3" height="3" fill="#222"/>
+      <rect x="0"  y="38" width="6" height="6" fill="#1a1a1a"/>
+      <rect x="20" y="38" width="6" height="6" fill="#1a1a1a"/>
+      {/* Motion lines */}
+      <g stroke="#ff3a8a" strokeWidth="2" opacity="0.55" strokeLinecap="round">
+        <line x1="-14" y1="22" x2="-4" y2="22"/>
+        <line x1="-18" y1="30" x2="-6" y2="30"/>
+      </g>
+    </g>
+    {/* Goal flag */}
+    <g transform="translate(360,300)">
+      <line x1="0" y1="0" x2="0" y2="80" stroke="#222" strokeWidth="3"/>
+      <polygon points="0,0 22,8 0,16" fill="#ff3a8a"/>
+    </g>
+    {/* Ground */}
+    <rect x="0" y="430" width="400" height="80" fill="url(#bl-ground)"/>
+    <rect x="0" y="430" width="400" height="3"  fill="#fff" opacity="0.18"/>
+    <Grain/>
+  </svg>
+);
+
 export const GAME_COVERS = {
   fbwg: Cover_FBWG, bob: Cover_Bob, connect4: Cover_Connect4, eightball: Cover_EightBall,
   basket: Cover_Basket, badicecream: Cover_BadIceCream, aow: Cover_AoW,
@@ -1052,6 +1132,7 @@ export const GAME_COVERS = {
   cutrope: Cover_CutRope, bloons: Cover_Bloons, happywheels: Cover_HappyWheels,
   fps: Cover_FPS, arena: Cover_Arena,
   hook: Cover_Swingwire,
+  bricklands: Cover_Bricklands,
   // The four originals — replaced with bespoke key art (responsive WebP).
   grudgewood: Cover_GrudgewoodPhoto,
   goalbound:  Cover_GoalboundPhoto,

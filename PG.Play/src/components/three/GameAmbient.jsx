@@ -20,6 +20,9 @@ import * as THREE from 'three';
 // in the GameAmbient chunk.
 const BESPOKE = {
   grudgewood: lazy(() => import('./GrudgewoodAmbient.jsx')),
+  slither:    lazy(() => import('./CoilAmbient.jsx')),
+  goalbound:  lazy(() => import('./GoalboundAmbient.jsx')),
+  slipshot:   lazy(() => import('./SlipshotAmbient.jsx')),
 };
 
 const GENRE_CONFIG = {
@@ -136,9 +139,15 @@ function Drifters({ config, accentA, accentB }) {
 }
 
 export default function GameAmbient({ gameId, cat }) {
-  // Bespoke scenes win over the genre fallback. Render nothing while the
-  // bespoke chunk is loading — the fallback would flash the wrong vibe.
+  // All hooks must run unconditionally in the same order every render —
+  // so memo the genre config + colours up top, even on the bespoke path
+  // where the result is unused.
   const Bespoke = gameId && BESPOKE[gameId];
+  const genre = CAT_TO_GENRE[cat] || 'arcade';
+  const config = GENRE_CONFIG[genre];
+  const accentA = useMemo(() => new THREE.Color(config.color),  [config.color]);
+  const accentB = useMemo(() => new THREE.Color(config.color2), [config.color2]);
+
   if (Bespoke) {
     return (
       <Suspense fallback={null}>
@@ -146,11 +155,6 @@ export default function GameAmbient({ gameId, cat }) {
       </Suspense>
     );
   }
-
-  const genre = CAT_TO_GENRE[cat] || 'arcade';
-  const config = GENRE_CONFIG[genre];
-  const accentA = useMemo(() => new THREE.Color(config.color),  [config.color]);
-  const accentB = useMemo(() => new THREE.Color(config.color2), [config.color2]);
 
   return (
     <div className="ambient3d" aria-hidden="true" data-genre={genre}>
