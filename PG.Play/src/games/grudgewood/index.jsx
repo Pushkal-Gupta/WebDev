@@ -15,7 +15,7 @@ import { Input } from './input.js';
 import { sfx, startAmbient, stopAmbient, setVolumes, unlockAudio } from './audio.js';
 import { pickEpitaph, KIND_LABEL } from './epitaphs.js';
 import {
-  getSave, recordCheckpoint, recordDeath, unlockHat, equipHat as saveEquipHat,
+  getSave, recordCheckpoint, recordDeath, unlockHat,
   setSetting, resetProgress, unlockAxe, update as updateSave, setMedal,
 } from './save.js';
 import { gradeRun, modifiersFor } from './challenges.js';
@@ -508,17 +508,15 @@ export default function GrudgewoodGame() {
   }, []);
 
   // ── React event handlers for menu/HUD ──────────────────────────────────
+  // Phase 10E trim: only Continue, New Walk, Settings, Help are exposed by
+  // the menu, but the underlying handlers for challenges / segment picking
+  // / hat equipping stay alive because gameplay code (the engine, the
+  // FinishOverlay's "Back to challenges" path, save migrations) still
+  // touches those flows.
   const handleContinue = () => stateRef.current?.continueRun();
   const handleNewGame = () => stateRef.current?.startNewWalk();
-  const handlePickSegment = (idx) => stateRef.current?.pickSegment(idx);
-  const handlePickChallenge = (challenge) => stateRef.current?.startChallenge(challenge);
   const handleExitChallenge = () => stateRef.current?.exitChallenge();
   const handleRetry = () => stateRef.current?.retry();
-  const handleEquipHat = (id) => {
-    saveEquipHat(id);
-    stateRef.current?.setHat?.(id);
-    refresh();
-  };
   const handleSettingsChange = (k, v) => {
     setSetting(k, v);
     if (k === 'cameraShake') stateRef.current?.setShake?.(v);
@@ -544,9 +542,6 @@ export default function GrudgewoodGame() {
           save={save}
           onContinue={handleContinue}
           onNewGame={handleNewGame}
-          onPickSegment={handlePickSegment}
-          onPickChallenge={handlePickChallenge}
-          onEquipHat={handleEquipHat}
           onSettingsChange={handleSettingsChange}
           onResetProgress={handleResetProgress}
           onUnlockAudio={handleUnlockAudio}

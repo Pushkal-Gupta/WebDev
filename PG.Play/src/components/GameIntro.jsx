@@ -52,6 +52,7 @@ const PLAYABLE = {
   badicecream: lazy(() => import('../games/FrostFightGame.jsx')),
   papa:        lazy(() => import('../games/ShortOrderGame.jsx')),
   happywheels: lazy(() => import('../games/FaceplantGame.jsx')),
+  bricklands:  lazy(() => import('../games/BricklandsGame.jsx')),
 };
 
 const MODE_OPTIONS = {

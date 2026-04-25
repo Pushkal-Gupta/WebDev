@@ -183,8 +183,8 @@ export default function SettingsDrawer({
             <div className="settings-v2-about">
               <div className="settings-v2-wordmark">PG.Play</div>
               <p className="settings-v2-blurb">
-                A boutique arcade by Pushkal Gupta. Four hand-built originals,
-                two quiet classics, and the polish to keep them playable.
+                A boutique arcade by Pushkal Gupta. Twenty hand-built games,
+                instant in the browser, polished as time allows.
               </p>
               <div className="settings-v2-version">
                 <span className="settings-v2-version-k">Build</span>

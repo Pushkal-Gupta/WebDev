@@ -99,7 +99,7 @@ export const GAMES = [
   { id:'slither', name:'Coil', cat:'Arcade', kind:'story', players:'1P', levels:'∞',
     tagline:'Grow without touching.',
     story:'An empty arena and one thought: eat the orbs, don\'t touch anything but orbs. Steer with a finger, a mouse, or WASD. Other coils drift around looking for a mistake — yours or theirs. Bigger is slower, but bigger is also a wall.',
-    playable:true, badge:'new',
+    playable:true, badge:'new', updated:true,
     mobileSupport:'native', inputs:['touch','mouse','keyboard'], orientation:'any',
     skillTags:['reflex','spatial','movement'], sessionLength:'short', isOriginal:true },
 
@@ -140,6 +140,13 @@ export const GAMES = [
     skillTags:['movement','reflex','aim'], sessionLength:'short', isOriginal:true, updated:true },
 
 
+  { id:'bricklands', name:'Bricklands', cat:'Platformer', kind:'story', players:'1P', levels:3,
+    tagline:'Three short worlds. One bouncy hero.',
+    story:'A tight little side-scroller. Run, jump, stomp, collect — three handcrafted runs build into a finale that asks for everything you\'ve learned. Hold the jump button to jump higher; tap to bunny-hop chains; coyote-time and input-buffering keep the controls forgiving.',
+    playable:true, featured:true, badge:'new', isOriginal:true, updated:true,
+    mobileSupport:'touch-ok', inputs:['keyboard','touch'], orientation:'landscape',
+    skillTags:['reflex','timing','movement'], sessionLength:'short' },
+
   // HEAD-TO-HEAD
   { id:'connect4', name:'Connect 4', cat:'Classic', kind:'vs', players:'1-2', levels:3,
     tagline:'Four in a row. Old as time.',
@@ -158,7 +165,7 @@ export const GAMES = [
   { id:'goalbound', name:'Goalbound', cat:'Sports', kind:'vs', players:'1-2', levels:3,
     tagline:'One pitch. One minute. All yours.',
     story:'Two rivals, one minute, and a pitch small enough to make every touch matter. Jump a cross, half-volley a wall-bounce, bury the rebound. Face AI on three tiers or pass the keyboard — whoever blinks first is out. Penalty Shootout mode works on a single phone when nobody else is around.',
-    playable:true, featured:true, badge:'new', isOriginal:true, updated:true,
+    playable:true, badge:'new', isOriginal:true, updated:true,
     mobileSupport:'touch-ok', inputs:['keyboard','touch'], orientation:'landscape',
     skillTags:['timing','reflex','physics'], sessionLength:'short' },
 
@@ -175,10 +182,16 @@ export const GAMES = [
 // the roster meaningfully changes, not on a schedule.
 export const COLLECTIONS = [
   {
+    id: 'new-updated',
+    title: 'New & updated',
+    blurb: 'Fresh ships and recent refreshes. Start here if you have not been by in a week.',
+    ids: ['bricklands', 'slither', 'grudgewood', 'goalbound', 'slipshot'],
+  },
+  {
     id: 'originals',
     title: 'PG.Play originals',
     blurb: 'Built here, shipped here. The hand-made games this place exists for.',
-    ids: ['grudgewood', 'goalbound', 'slither', 'slipshot', 'arena', 'basket', 'aow', 'fps'],
+    ids: ['bricklands', 'grudgewood', 'goalbound', 'slither', 'slipshot', 'arena', 'basket', 'aow', 'fps'],
   },
   {
     id: 'start-in-ten',
