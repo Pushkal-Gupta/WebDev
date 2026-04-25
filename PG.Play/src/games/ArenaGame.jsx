@@ -1,10 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { supabase } from '../supabase.js';
 import { submitScore } from '../scoreBus.js';
-import { sizeCanvas } from '../util/canvasDpr.js';
+import { sizeCanvasFluid } from '../util/canvasDpr.js';
 
+// Default world dimensions used for initial spawns before the canvas
+// has measured itself. The fluid sizer overrides view.w / view.h on
+// every fit; arena clamps to MAX_W / MAX_H so 4K screens don't render
+// gigantic playfields.
 const W = 720;
 const H = 440;
+const MAX_W = 1200;
+const MAX_H = 740;
 const PLAYER_R = 12;
 const BULLET_R = 3;
 const BULLET_SPEED = 5.2;
@@ -14,35 +20,47 @@ const BOT_COUNT = 3;
 const MAX_HP = 3;
 const WIN_KILLS = 5;
 
-const WALLS = [
-  // x, y, w, h
-  [40, 40, 640, 20],   // top
-  [40, 380, 640, 20],  // bottom
-  [40, 40, 20, 360],   // left
-  [660, 40, 20, 360],  // right
-  [200, 140, 80, 20],
-  [440, 280, 80, 20],
-  [340, 190, 40, 60],
-  [150, 260, 20, 60],
-  [550, 140, 20, 60],
-];
+// Walls are computed lazily so they adapt to the current world size.
+// Border walls hug the world rect; interior obstacles are placed at
+// fractions of width / height so the shape of the playfield is roughly
+// preserved as the canvas grows or shrinks.
+function buildWalls(w, h) {
+  const wall = 20;
+  const inner = 20;       // gap between world edge and wall
+  const innerR = w - inner - wall;
+  const innerB = h - inner - wall;
+  return [
+    [inner, inner, w - inner * 2, wall],                 // top
+    [inner, h - inner - wall, w - inner * 2, wall],      // bottom
+    [inner, inner, wall, h - inner * 2],                 // left
+    [innerR, inner, wall, h - inner * 2],                // right
+    // Interior obstacles, placed proportionally
+    [Math.round(w * 0.28), Math.round(h * 0.32), 80, 20],
+    [Math.round(w * 0.61), Math.round(h * 0.64), 80, 20],
+    [Math.round(w * 0.47), Math.round(h * 0.43), 40, 60],
+    [Math.round(w * 0.21), Math.round(h * 0.59), 20, 60],
+    [Math.round(w * 0.76), Math.round(h * 0.32), 20, 60],
+  ];
+}
 
 const COLORS = ['#00fff5', '#ff4d6d', '#ffe14f', '#35f0c9', '#a78bfa', '#ff8a3a', '#6fbf2a', '#35c7f5'];
 const NAMES = ['Vega', 'Quill', 'Nova', 'Rune', 'Solo', 'Kite', 'Dune', 'Echo', 'Sage', 'Ranger'];
 const pickColor = () => COLORS[Math.floor(Math.random() * COLORS.length)];
 const pickName = () => NAMES[Math.floor(Math.random() * NAMES.length)] + Math.floor(10 + Math.random() * 89);
 
-const randSpawn = () => {
-  // Keep away from center
-  while (true) {
-    const x = 80 + Math.random() * (W - 160);
-    const y = 80 + Math.random() * (H - 160);
-    if (!collidesWall(x, y, PLAYER_R)) return { x, y };
+function randSpawn(walls, w, h) {
+  // Keep away from edges. Tries up to 200 attempts then falls back to
+  // a center-ish position to avoid an infinite loop on tiny worlds.
+  for (let i = 0; i < 200; i++) {
+    const x = 80 + Math.random() * Math.max(1, w - 160);
+    const y = 80 + Math.random() * Math.max(1, h - 160);
+    if (!collidesWall(walls, x, y, PLAYER_R)) return { x, y };
   }
-};
+  return { x: w / 2, y: h / 2 };
+}
 
-function collidesWall(x, y, r) {
-  for (const [wx, wy, ww, wh] of WALLS) {
+function collidesWall(walls, x, y, r) {
+  for (const [wx, wy, ww, wh] of walls) {
     const cx = Math.max(wx, Math.min(x, wx + ww));
     const cy = Math.max(wy, Math.min(y, wy + wh));
     if ((x - cx) ** 2 + (y - cy) ** 2 < r * r) return true;
@@ -50,20 +68,20 @@ function collidesWall(x, y, r) {
   return false;
 }
 
-function segmentHitsWall(x1, y1, x2, y2) {
+function segmentHitsWall(walls, x1, y1, x2, y2) {
   // Step-sample segment; cheap but adequate for small bullets
   const steps = Math.ceil(Math.hypot(x2 - x1, y2 - y1) / 3);
   for (let i = 0; i <= steps; i++) {
     const t = i / Math.max(1, steps);
     const x = x1 + (x2 - x1) * t;
     const y = y1 + (y2 - y1) * t;
-    if (collidesWall(x, y, BULLET_R)) return true;
+    if (collidesWall(walls, x, y, BULLET_R)) return true;
   }
   return false;
 }
 
 // ── bot AI ────────────────────────────────────────────────────
-function stepBot(bot, targets) {
+function stepBot(bot, targets, walls) {
   if (bot.hp <= 0) return;
   // Pick nearest alive target
   let best = null, bestD = Infinity;
@@ -80,22 +98,22 @@ function stepBot(bot, targets) {
   if (bestD > 120) {
     const nx = bot.x + Math.cos(ang) * MOVE * 0.6;
     const ny = bot.y + Math.sin(ang) * MOVE * 0.6;
-    if (!collidesWall(nx, bot.y, PLAYER_R)) bot.x = nx;
-    if (!collidesWall(bot.x, ny, PLAYER_R)) bot.y = ny;
+    if (!collidesWall(walls, nx, bot.y, PLAYER_R)) bot.x = nx;
+    if (!collidesWall(walls, bot.x, ny, PLAYER_R)) bot.y = ny;
   } else if (bestD < 70) {
     // back off
     const nx = bot.x - Math.cos(ang) * MOVE * 0.4;
     const ny = bot.y - Math.sin(ang) * MOVE * 0.4;
-    if (!collidesWall(nx, bot.y, PLAYER_R)) bot.x = nx;
-    if (!collidesWall(bot.x, ny, PLAYER_R)) bot.y = ny;
+    if (!collidesWall(walls, nx, bot.y, PLAYER_R)) bot.x = nx;
+    if (!collidesWall(walls, bot.x, ny, PLAYER_R)) bot.y = ny;
   }
   // Strafe randomly
   bot.strafeTick = (bot.strafeTick || 0) + 1;
   if (bot.strafeTick % 45 === 0) bot.strafeDir = Math.random() > 0.5 ? 1 : -1;
   const sx = bot.x + Math.cos(ang + Math.PI / 2) * MOVE * 0.45 * (bot.strafeDir || 0);
   const sy = bot.y + Math.sin(ang + Math.PI / 2) * MOVE * 0.45 * (bot.strafeDir || 0);
-  if (!collidesWall(sx, bot.y, PLAYER_R)) bot.x = sx;
-  if (!collidesWall(bot.x, sy, PLAYER_R)) bot.y = sy;
+  if (!collidesWall(walls, sx, bot.y, PLAYER_R)) bot.x = sx;
+  if (!collidesWall(walls, bot.x, sy, PLAYER_R)) bot.y = sy;
   // Fire (cooldown)
   bot.fireCd = (bot.fireCd || 0) - 1;
   if (bot.fireCd <= 0 && bestD < 260) {
@@ -107,6 +125,7 @@ function stepBot(bot, targets) {
 
 export default function ArenaGame() {
   const canvasRef = useRef(null);
+  const wrapRef = useRef(null);
   const stateRef = useRef(null);
   const channelRef = useRef(null);
 
@@ -120,16 +139,20 @@ export default function ArenaGame() {
   const [myHp, setMyHp] = useState(MAX_HP);
   const [status, setStatus] = useState('playing'); // 'playing' | 'won' | 'dead'
 
-  // Init game state once
+  // Init game state once. World w/h start at the default and get
+  // overwritten by the first onResize fit.
   useEffect(() => {
-    const spawn = randSpawn();
+    const w = W, h = H;
+    const walls = buildWalls(w, h);
+    const spawn = randSpawn(walls, w, h);
     stateRef.current = {
+      view: { w, h, walls },
       me: { x: spawn.x, y: spawn.y, angle: 0, hp: MAX_HP, kills: 0, fireCd: 0, deadUntil: 0 },
       keys: {},
-      mouse: { x: W / 2, y: H / 2, down: false },
+      mouse: { x: w / 2, y: h / 2, down: false },
       bullets: [],
       bots: Array.from({ length: BOT_COUNT }).map((_, i) => {
-        const p = randSpawn();
+        const p = randSpawn(walls, w, h);
         return {
           id: 'bot' + i,
           x: p.x, y: p.y,
@@ -154,7 +177,7 @@ export default function ArenaGame() {
     const ensureRemote = (id, data) => {
       const s = stateRef.current;
       if (!s) return;
-      const cur = s.remotes.get(id) || { x: W / 2, y: H / 2, angle: 0, hp: MAX_HP, kills: 0, color: '#fff', name: 'Player' };
+      const cur = s.remotes.get(id) || { x: s.view.w / 2, y: s.view.h / 2, angle: 0, hp: MAX_HP, kills: 0, color: '#fff', name: 'Player' };
       s.remotes.set(id, { ...cur, ...data });
     };
 
@@ -219,7 +242,35 @@ export default function ArenaGame() {
   // Input + game loop
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = sizeCanvas(canvas, W, H);
+    const wrap = wrapRef.current;
+    if (!canvas || !wrap) return;
+    const ctx = canvas.getContext('2d');
+
+    // Fluid sizer: clamp playfield to MAX_W × MAX_H so a 4K screen
+    // doesn't render an unmanageable arena. The canvas buffer still
+    // matches the parent's full size; we render a centered playfield
+    // and pad with a flat backdrop. The view object is read every
+    // frame by draw / step.
+    const dispose = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
+      const s = stateRef.current; if (!s) return;
+      const w = Math.min(MAX_W, Math.max(360, cssW));
+      const h = Math.min(MAX_H, Math.max(280, cssH));
+      const walls = buildWalls(w, h);
+      s.view = { w, h, walls, cssW, cssH };
+      // Clamp every entity into the new world so a shrink doesn't leave
+      // anyone outside; spawn fresh positions for anything that ends up
+      // inside a wall.
+      const fix = (e) => {
+        e.x = Math.max(PLAYER_R + 24, Math.min(w - PLAYER_R - 24, e.x));
+        e.y = Math.max(PLAYER_R + 24, Math.min(h - PLAYER_R - 24, e.y));
+        if (collidesWall(walls, e.x, e.y, PLAYER_R)) {
+          const p = randSpawn(walls, w, h);
+          e.x = p.x; e.y = p.y;
+        }
+      };
+      fix(s.me);
+      s.bots.forEach(fix);
+    });
 
     const kd = (e) => {
       const s = stateRef.current; if (!s) return;
@@ -231,9 +282,14 @@ export default function ArenaGame() {
     };
     const mm = (e) => {
       const s = stateRef.current; if (!s) return;
+      // Style is 100%/100% so the bounding rect IS the rendered css size.
+      // The world is drawn centered inside the canvas; subtract the
+      // playfield offset so mouse coords land in world space.
       const r = canvas.getBoundingClientRect();
-      s.mouse.x = (e.clientX - r.left) * (W / r.width);
-      s.mouse.y = (e.clientY - r.top) * (H / r.height);
+      const offX = (r.width  - s.view.w) / 2;
+      const offY = (r.height - s.view.h) / 2;
+      s.mouse.x = (e.clientX - r.left) - offX;
+      s.mouse.y = (e.clientY - r.top)  - offY;
     };
     const md = (e) => {
       const s = stateRef.current; if (!s) return;
@@ -274,25 +330,38 @@ export default function ArenaGame() {
 
     const draw = () => {
       const s = stateRef.current; if (!s) return;
+      const { view } = s;
+      const r = canvas.getBoundingClientRect();
+      const cssW = r.width, cssH = r.height;
 
-      // background
+      // Outer backdrop fills the canvas (everything outside the playfield)
+      ctx.fillStyle = '#06090c';
+      ctx.fillRect(0, 0, cssW, cssH);
+
+      // Center the playfield inside the canvas
+      const offX = (cssW - view.w) / 2;
+      const offY = (cssH - view.h) / 2;
+      ctx.save();
+      ctx.translate(offX, offY);
+
+      // playfield background
       ctx.fillStyle = '#0a1116';
-      ctx.fillRect(0, 0, W, H);
+      ctx.fillRect(0, 0, view.w, view.h);
       // grid
       ctx.strokeStyle = 'rgba(255,255,255,0.04)';
       ctx.lineWidth = 1;
-      for (let x = 0; x < W; x += 40) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+      for (let x = 0; x < view.w; x += 40) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, view.h); ctx.stroke();
       }
-      for (let y = 0; y < H; y += 40) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      for (let y = 0; y < view.h; y += 40) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(view.w, y); ctx.stroke();
       }
 
       // walls
       ctx.fillStyle = '#1a2630';
       ctx.strokeStyle = '#2a3a46';
       ctx.lineWidth = 2;
-      WALLS.forEach(([x, y, w, h]) => {
+      view.walls.forEach(([x, y, w, h]) => {
         ctx.fillRect(x, y, w, h);
         ctx.strokeRect(x, y, w, h);
       });
@@ -350,14 +419,18 @@ export default function ArenaGame() {
         ctx.fillStyle = b.remote ? '#ff4d6d' : '#ffe14f';
         ctx.fill();
       });
+
+      ctx.restore();
     };
 
     const step = () => {
       const s = stateRef.current; if (!s) { raf = requestAnimationFrame(step); return; }
 
+      const walls = s.view.walls;
+
       // Respawn
       if (s.me.hp <= 0 && performance.now() > s.me.deadUntil) {
-        const p = randSpawn();
+        const p = randSpawn(walls, s.view.w, s.view.h);
         s.me.x = p.x; s.me.y = p.y;
         s.me.hp = MAX_HP;
         setMyHp(MAX_HP);
@@ -378,8 +451,8 @@ export default function ArenaGame() {
             mvX /= m; mvY /= m;
             const nx = you.x + mvX * MOVE;
             const ny = you.y + mvY * MOVE;
-            if (!collidesWall(nx, you.y, PLAYER_R)) you.x = nx;
-            if (!collidesWall(you.x, ny, PLAYER_R)) you.y = ny;
+            if (!collidesWall(walls, nx, you.y, PLAYER_R)) you.x = nx;
+            if (!collidesWall(walls, you.x, ny, PLAYER_R)) you.y = ny;
           }
           you.angle = Math.atan2(mouse.y - you.y, mouse.x - you.x);
           if (you.fireCd > 0) you.fireCd--;
@@ -390,7 +463,7 @@ export default function ArenaGame() {
         s.bots.forEach((b) => {
           if (b.hp <= 0) return;
           const targets = [s.me, ...s.bots.filter((x) => x !== b), ...Array.from(s.remotes.values())];
-          const result = stepBot(b, targets);
+          const result = stepBot(b, targets, walls);
           if (result?.fire) {
             s.bullets.push({
               x: b.x + Math.cos(result.ang) * (PLAYER_R + 2),
@@ -409,7 +482,7 @@ export default function ArenaGame() {
           const prevX = b.x, prevY = b.y;
           b.x += b.vx; b.y += b.vy;
           b.life--;
-          if (b.life <= 0 || segmentHitsWall(prevX, prevY, b.x, b.y)) {
+          if (b.life <= 0 || segmentHitsWall(walls, prevX, prevY, b.x, b.y)) {
             s.bullets.splice(i, 1);
             continue;
           }
@@ -443,8 +516,9 @@ export default function ArenaGame() {
                   }
                   // Respawn bot after delay
                   setTimeout(() => {
-                    if (!stateRef.current) return;
-                    const p = randSpawn();
+                    const sNow = stateRef.current;
+                    if (!sNow) return;
+                    const p = randSpawn(sNow.view.walls, sNow.view.w, sNow.view.h);
                     bot.x = p.x; bot.y = p.y; bot.hp = MAX_HP;
                   }, 1400);
                 }
@@ -496,6 +570,7 @@ export default function ArenaGame() {
 
     return () => {
       cancelAnimationFrame(raf);
+      dispose();
       window.removeEventListener('keydown', kd);
       window.removeEventListener('keyup', ku);
       canvas.removeEventListener('mousemove', mm);
@@ -506,24 +581,29 @@ export default function ArenaGame() {
 
   const restart = () => {
     const s = stateRef.current; if (!s) return;
-    const p = randSpawn();
+    const p = randSpawn(s.view.walls, s.view.w, s.view.h);
     s.me.x = p.x; s.me.y = p.y; s.me.hp = MAX_HP; s.me.kills = 0;
     s.bullets = [];
-    s.bots.forEach((b, i) => { const sp = randSpawn(); b.x = sp.x; b.y = sp.y; b.hp = MAX_HP; });
+    s.bots.forEach((b) => {
+      const sp = randSpawn(s.view.walls, s.view.w, s.view.h);
+      b.x = sp.x; b.y = sp.y; b.hp = MAX_HP;
+    });
     setMyHp(MAX_HP);
     setMyKills(0);
     setStatus('playing');
   };
 
   return (
-    <div className="arena">
+    <div className="arena" style={{ width: '100%', height: '100%' }}>
       <div className="arena-bar">
         <span>Kills <b style={{color: 'var(--accent)'}}>{myKills}</b>/{WIN_KILLS}</span>
         <span>HP <b style={{color: myHp > 1 ? 'var(--text)' : '#ff4d6d'}}>{myHp}</b></span>
         <span>Others <b>{remoteCount}</b></span>
         <span style={{marginLeft: 'auto', color: 'var(--text-mute)'}}>{me.name}</span>
       </div>
-      <canvas ref={canvasRef} className="arena-canvas" width={W} height={H}/>
+      <div ref={wrapRef} style={{ flex: '1 1 0', minHeight: 0, width: '100%', position: 'relative' }}>
+        <canvas ref={canvasRef} className="arena-canvas"/>
+      </div>
       {status !== 'playing' && (
         <div className="arena-bar">
           <span style={{color: status === 'won' ? 'var(--accent)' : '#ff4d6d', fontWeight: 700}}>

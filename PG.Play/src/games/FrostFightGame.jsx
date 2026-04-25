@@ -18,8 +18,11 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { submitScore } from '../scoreBus.js';
-import { sizeCanvas } from '../util/canvasDpr.js';
+import { sizeCanvasFluid } from '../util/canvasDpr.js';
 
+// Tile-based: tiles stay a fixed size (T) so the grid keeps its
+// hand-tuned proportions. The canvas is fluid and pads the playfield
+// with a backdrop on each side.
 const T = 36;
 const COLS = 22;
 const ROWS = 13;
@@ -133,7 +136,9 @@ const ENEMY_INTERVAL = { strawberry: 1.0, blueberry: 0.7 };
 
 export default function FrostFightGame() {
   const canvasRef = useRef(null);
+  const wrapRef = useRef(null);
   const stateRef  = useRef(null);
+  const viewRef = useRef({ cssW: W, cssH: H });
   const submittedRef = useRef(false);
   const [levelIdx, setLevelIdx] = useState(0);
   const [deaths, setDeaths]     = useState(0);
@@ -176,7 +181,14 @@ export default function FrostFightGame() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = sizeCanvas(canvas, W, H);
+    const wrap = wrapRef.current;
+    if (!canvas || !wrap) return;
+    const ctx = canvas.getContext('2d');
+
+    // Fluid sizer — keep tile size fixed, render the W×H grid centered.
+    const dispose = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
+      viewRef.current = { cssW, cssH };
+    });
 
     const keys = {};
     const kd = (e) => {
@@ -194,6 +206,17 @@ export default function FrostFightGame() {
     const draw = () => {
       const s = stateRef.current; if (!s) return;
       const { level, player, enemies, shake, flash } = s;
+      const { cssW, cssH } = viewRef.current;
+
+      // Outer backdrop — fills any padding around the centered grid
+      ctx.fillStyle = '#446e85';
+      ctx.fillRect(0, 0, cssW, cssH);
+
+      // Center the fixed-size grid inside the canvas
+      const offX = (cssW - W) / 2;
+      const offY = (cssH - H) / 2;
+      ctx.save();
+      ctx.translate(offX, offY);
 
       // Arena background — pale blue gradient like a walk-in freezer
       const grad = ctx.createLinearGradient(0, 0, 0, H);
@@ -202,7 +225,7 @@ export default function FrostFightGame() {
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, W, H);
 
-      // Camera shake for hits
+      // Camera shake for hits — applied on top of the centering translate
       const sx = (Math.random() - 0.5) * shake;
       const sy = (Math.random() - 0.5) * shake;
       ctx.save();
@@ -401,12 +424,13 @@ export default function FrostFightGame() {
         }
       }
 
-      ctx.restore();
+      ctx.restore(); // pop camera shake
+      ctx.restore(); // pop centering translate
 
-      // Flash overlay
+      // Flash overlay covers the full canvas (not just the playfield)
       if (flash > 0) {
         ctx.fillStyle = `rgba(255, 77, 109, ${Math.min(0.5, flash)})`;
-        ctx.fillRect(0, 0, W, H);
+        ctx.fillRect(0, 0, cssW, cssH);
       }
     };
 
@@ -593,6 +617,7 @@ export default function FrostFightGame() {
 
     return () => {
       cancelAnimationFrame(raf);
+      dispose();
       window.removeEventListener('keydown', kd);
       window.removeEventListener('keyup', ku);
     };
@@ -611,7 +636,7 @@ export default function FrostFightGame() {
   const levelName = s?.level?.name ?? LEVELS[levelIdx]?.name ?? '';
 
   return (
-    <div className="frost">
+    <div className="frost" style={{ width: '100%', height: '100%' }}>
       <div className="frost-bar">
         <span>Room <b style={{color:'var(--accent)'}}>{Math.min(LEVELS.length, levelIdx + 1)}</b>/{LEVELS.length} · <span style={{color:'var(--text-dim)'}}>{levelName}</span></span>
         <span>Fruit <b>{gemsGot}</b>/{gemsTotal}</span>
@@ -621,7 +646,9 @@ export default function FrostFightGame() {
           {status === 'won' && <button className="btn btn-primary btn-sm" onClick={restart}>Play again</button>}
         </span>
       </div>
-      <canvas ref={canvasRef} className="frost-canvas" width={W} height={H}/>
+      <div ref={wrapRef} style={{ flex: '1 1 0', minHeight: 0, width: '100%', position: 'relative' }}>
+        <canvas ref={canvasRef} className="frost-canvas"/>
+      </div>
       {status === 'won'
         ? <div className="frost-tip frost-tip-win">Pantry, Cold Room, Aisle — all clear · {deaths} death{deaths === 1 ? '' : 's'} · {time}s</div>
         : <div className="frost-tip">{s?.level?.tip ?? LEVELS[levelIdx].tip}</div>}

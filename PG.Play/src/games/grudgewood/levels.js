@@ -64,17 +64,22 @@ const mosswake = [
       ...scatter('mushroom', 4, { capColor: '#b22' }),
     ],
     traps: [
-      { kind: 'sign', x: -3, z: 8, opts: { label: 'WELCOME', face: 1 } },
-      { kind: 'predator', x: -9, z: 18 },
-      { kind: 'whip', x: -7, z: 16, opts: { side: 'right' } },
-      { kind: 'snare', x: 1, z: 26 },
-      { kind: 'mushroom', x: -1, z: 34, opts: { capColor: '#c33' } },
-      { kind: 'predator', x: 9, z: 42 },
-      { kind: 'log', x: 0, z: 44, opts: { dir: -1 } },
-      { kind: 'sign', x: 3, z: 52, opts: { label: 'SAFE', face: -1 } },
-      { kind: 'whip', x: 7, z: 56, opts: { side: 'left' } },
-      { kind: 'predator', x: -10, z: 64 },
-      checkpointAt(70),
+      // First segment is the tutorial — give the player a clear runway to
+      // orient before the first trap fires. Welcome sign at z=6, the
+      // earliest whip is now at z=22 (was 16) which is well beyond its
+      // 9-unit detection range from a z=2 spawn.
+      { kind: 'sign', x: -3, z: 6, opts: { label: 'WELCOME', face: 1 } },
+      { kind: 'sign', x: 3, z: 12, opts: { label: 'WALK FORWARD', face: -1 } },
+      { kind: 'predator', x: -9, z: 24 },
+      { kind: 'whip', x: -7, z: 22, opts: { side: 'right' } },
+      { kind: 'snare', x: 1, z: 32 },
+      { kind: 'mushroom', x: -1, z: 40, opts: { capColor: '#c33' } },
+      { kind: 'predator', x: 9, z: 46 },
+      { kind: 'log', x: 0, z: 48, opts: { dir: -1 } },
+      { kind: 'sign', x: 3, z: 54, opts: { label: 'SAFE', face: -1 } },
+      { kind: 'whip', x: 7, z: 58, opts: { side: 'left' } },
+      { kind: 'predator', x: -10, z: 66 },
+      checkpointAt(72),
     ],
   },
   {

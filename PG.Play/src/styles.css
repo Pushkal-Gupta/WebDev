@@ -1858,10 +1858,12 @@ svg { display: block; width: 100%; height: 100%; }
 .slipshot {
   display: flex;
   flex-direction: column;
-  gap: var(--s-3);
+  gap: 0;
   user-select: none;
   width: 100%;
-  max-width: 880px;
+  height: 100%;
+  /* No max-width — fills the platform viewport. The mount inside is the
+     focal element; small status hints float over it instead of stacking. */
 }
 .slipshot-bar {
   display: flex;
@@ -1899,13 +1901,13 @@ svg { display: block; width: 100%; height: 100%; }
 .slipshot-mount {
   position: relative;
   width: 100%;
-  height: 480px;
-  border-radius: var(--r-lg);
+  flex: 1 1 auto;
+  min-height: 0;
+  border-radius: 0;
   overflow: hidden;
-  box-shadow: var(--shadow-card);
   background: #0a1014;
 }
-.slipshot-mount canvas { display: block; }
+.slipshot-mount canvas { display: block; width: 100%; height: 100%; }
 
 /* Reticle: a small centered dot with four corner ticks. Color shifts to cyan
    on hit, coral on kill, amber on headshot via JS-toggled classes. */
@@ -2000,12 +2002,23 @@ svg { display: block; width: 100%; height: 100%; }
 }
 .slipshot-sub b { color: var(--text); font-weight: 600; }
 .slipshot-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  max-width: 92%;
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text-mute);
+  color: rgba(255, 255, 255, 0.7);
   text-align: center;
+  pointer-events: none;
+  z-index: 5;
 }
 
 /* ── Score-attack HUD (top cluster) ───────────────────────────── */
@@ -4243,55 +4256,51 @@ svg { display: block; width: 100%; height: 100%; }
   overflow: hidden;
   /* No padding — the canvas should reach the viewport edges. */
 }
-.game-shell-viewport {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  background: var(--surface-sunken);
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overscroll-behavior: contain;
-  touch-action: manipulation;
-}
-/* Any fixed-pixel canvas inside the viewport scales down responsively
-   without changing its intrinsic render dimensions. Games that opt in
-   to fluid sizing use .is-fluid to fill the entire frame. */
-.game-shell-viewport-inner > canvas,
-.game-shell-viewport-inner canvas {
-  display: block;
-  max-width: 100%;
-  max-height: 100%;
-  height: auto;
-  margin-inline: auto;
-}
-.game-shell-viewport.is-fluid .game-shell-viewport-inner > canvas,
-.game-shell-viewport.is-fluid .game-shell-viewport-inner canvas {
-  width: 100%;
-  height: 100%;
-  max-width: none;
-  max-height: none;
-}
-.game-shell-viewport.is-fluid .game-shell-viewport-inner {
-  align-items: stretch;
-  justify-content: stretch;
-}
-.game-shell-viewport.is-fluid .game-shell-viewport-inner > * {
-  flex: 1;
-  width: 100%;
-  height: 100%;
-}
+/* Game viewport — fluid by default. Every game's outer wrapper stretches
+   to fill the available space; canvases inside become clientWidth /
+   clientHeight readable for Three.js setSize / ResizeObserver paths.
+   Games that want a fixed aspect ratio can self-constrain *inside* their
+   own root (max-width + margin auto on an inner element), but the OUTER
+   wrapper is no longer allowed to leave a void. */
 .game-shell-viewport-inner {
   position: relative;
   z-index: 2;
   width: 100%;
   height: 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
+  justify-content: stretch;
+  overscroll-behavior: contain;
+  touch-action: manipulation;
+  background: #000;
 }
-.game-shell-viewport[data-paused="1"] .game-shell-viewport-inner {
+.game-shell-viewport-inner > * {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  /* Override per-game `max-width: 880px` etc. baked into older games.
+     If a game truly wants a centered max-size content area, do it on
+     a child of the wrapper, not the wrapper itself. */
+  max-width: none !important;
+  height: 100%;
+}
+/* Every canvas inside the play viewport stretches to fill, regardless of
+   how deep it is in the wrapper tree, regardless of what sizeCanvas()
+   wrote inline. !important is used here on purpose: legacy games set
+   inline style.width / style.height in pixels, which would otherwise
+   leave them as small islands in a fluid viewport. The render buffer
+   keeps its intrinsic size — the visual is stretched/cropped to the
+   container, which is the correct trade-off until each game ships
+   ResizeObserver-driven fluid rendering. */
+.game-shell-viewport-inner canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+.game-shell[data-paused="1"] .game-shell-viewport-inner {
   filter: blur(2px) brightness(0.6);
   transition: filter var(--t);
 }

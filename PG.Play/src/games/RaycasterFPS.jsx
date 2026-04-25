@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { submitScore } from '../scoreBus.js';
+import { sizeCanvasFluid } from '../util/canvasDpr.js';
 
+// Default render dimensions used for initial calculations. The fluid
+// sizer overwrites view.w / view.h on every fit; the raycast loop reads
+// view to size its column step.
 const W = 640;
 const H = 360;
 const FOV = Math.PI / 3;           // 60°
 const HALF_FOV = FOV / 2;
-const NUM_RAYS = W / 2;            // one column per 2px for speed
+const COL_STEP = 2;                // one rendered column per 2 css pixels
 const MAX_DEPTH = 18;
 
 // 16×16 map. '#' wall, '.' empty. Outer walls enclose arena.
@@ -43,7 +47,9 @@ const ENEMY_SPAWNS = [
 
 export default function RaycasterFPS() {
   const canvasRef = useRef(null);
+  const wrapRef = useRef(null);
   const stateRef = useRef(null);
+  const viewRef = useRef({ w: W, h: H }); // fluid render dimensions
   const [hud, setHud] = useState({ health: 100, ammo: 24, alive: 4 });
   const [status, setStatus] = useState('playing'); // 'playing' | 'won' | 'lost'
 
@@ -63,8 +69,17 @@ export default function RaycasterFPS() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    const wrap = wrapRef.current;
+    if (!canvas || !wrap) return;
     const ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
+
+    // Fluid sizer — every fit updates viewRef so the raycast loop
+    // recomputes its column count and wall slice height for the new
+    // canvas dimensions on the next frame.
+    const dispose = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
+      viewRef.current = { w: cssW, h: cssH };
+    });
 
     // Keyboard
     const kd = (e) => {
@@ -190,21 +205,26 @@ export default function RaycasterFPS() {
         if (s.muzzle > 0) s.muzzle--;
       }
 
-      // ── Render
+      // ── Render. Read live dimensions from viewRef so a resize takes
+      // effect on the very next frame.
+      const VW = viewRef.current.w;
+      const VH = viewRef.current.h;
+      const numRays = Math.max(64, Math.floor(VW / COL_STEP));
+      const colW = VW / numRays;
+
       // Ceiling / floor
-      const grad = ctx.createLinearGradient(0, 0, 0, H);
+      const grad = ctx.createLinearGradient(0, 0, 0, VH);
       grad.addColorStop(0, '#1a2530');
       grad.addColorStop(0.5, '#0c1419');
       grad.addColorStop(0.5, '#2a1f14');
       grad.addColorStop(1, '#15110a');
       ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, W, H);
+      ctx.fillRect(0, 0, VW, VH);
 
       // Cast rays
-      const zBuffer = new Array(NUM_RAYS);
-      const colW = W / NUM_RAYS;
-      for (let col = 0; col < NUM_RAYS; col++) {
-        const rayAngle = s.player.angle - HALF_FOV + (col / NUM_RAYS) * FOV;
+      const zBuffer = new Array(numRays);
+      for (let col = 0; col < numRays; col++) {
+        const rayAngle = s.player.angle - HALF_FOV + (col / numRays) * FOV;
         const cos = Math.cos(rayAngle);
         const sin = Math.sin(rayAngle);
         let dist = 0;
@@ -218,8 +238,8 @@ export default function RaycasterFPS() {
         }
         const corrected = dist * Math.cos(rayAngle - s.player.angle);
         zBuffer[col] = corrected;
-        const wallH = Math.min(H, (H * 1.2) / corrected);
-        const y = (H - wallH) / 2;
+        const wallH = Math.min(VH, (VH * 1.2) / corrected);
+        const y = (VH - wallH) / 2;
         const shade = Math.max(0.15, 1 - corrected / MAX_DEPTH);
         const baseR = 42, baseG = 68, baseB = 80;
         const r = Math.floor(baseR * shade), g = Math.floor(baseG * shade), b = Math.floor(baseB * shade);
@@ -237,18 +257,18 @@ export default function RaycasterFPS() {
         })
         .sort((a, b) => b.d - a.d);
 
-      toDraw.forEach(({ e, d, dx, dy }) => {
+      toDraw.forEach(({ d, dx, dy }) => {
         const ang = Math.atan2(dy, dx) - s.player.angle;
         let a = ang;
         while (a > Math.PI) a -= 2 * Math.PI;
         while (a < -Math.PI) a += 2 * Math.PI;
         if (Math.abs(a) > HALF_FOV + 0.2) return;
-        const size = Math.min(H, (H * 0.9) / d);
-        const screenX = (0.5 + a / FOV) * W - size / 2;
-        const screenY = (H - size) / 2 + size * 0.05;
+        const size = Math.min(VH, (VH * 0.9) / d);
+        const screenX = (0.5 + a / FOV) * VW - size / 2;
+        const screenY = (VH - size) / 2 + size * 0.05;
         // occlusion
         const col = Math.floor((screenX + size / 2) / colW);
-        if (col >= 0 && col < NUM_RAYS && zBuffer[col] < d - 0.05) return;
+        if (col >= 0 && col < numRays && zBuffer[col] < d - 0.05) return;
 
         // Body (rounded shape)
         ctx.fillStyle = '#a13a66';
@@ -267,18 +287,18 @@ export default function RaycasterFPS() {
       // Weapon / muzzle
       ctx.fillStyle = '#1a1a1a';
       ctx.beginPath();
-      ctx.moveTo(W / 2 - 50, H);
-      ctx.lineTo(W / 2 + 50, H);
-      ctx.lineTo(W / 2 + 28, H - 70);
-      ctx.lineTo(W / 2 - 28, H - 70);
+      ctx.moveTo(VW / 2 - 50, VH);
+      ctx.lineTo(VW / 2 + 50, VH);
+      ctx.lineTo(VW / 2 + 28, VH - 70);
+      ctx.lineTo(VW / 2 - 28, VH - 70);
       ctx.closePath();
       ctx.fill();
       ctx.fillStyle = '#3a3a3a';
-      ctx.fillRect(W / 2 - 5, H - 90, 10, 25);
+      ctx.fillRect(VW / 2 - 5, VH - 90, 10, 25);
       if (s.muzzle > 0) {
         ctx.fillStyle = `rgba(255,230,140,${s.muzzle / 8})`;
         ctx.beginPath();
-        ctx.arc(W / 2, H - 95, 20, 0, Math.PI * 2);
+        ctx.arc(VW / 2, VH - 95, 20, 0, Math.PI * 2);
         ctx.fill();
       }
 
@@ -286,8 +306,8 @@ export default function RaycasterFPS() {
       ctx.strokeStyle = 'rgba(255,255,255,0.55)';
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(W / 2 - 6, H / 2); ctx.lineTo(W / 2 + 6, H / 2);
-      ctx.moveTo(W / 2, H / 2 - 6); ctx.lineTo(W / 2, H / 2 + 6);
+      ctx.moveTo(VW / 2 - 6, VH / 2); ctx.lineTo(VW / 2 + 6, VH / 2);
+      ctx.moveTo(VW / 2, VH / 2 - 6); ctx.lineTo(VW / 2, VH / 2 + 6);
       ctx.stroke();
 
       raf = requestAnimationFrame(step);
@@ -296,6 +316,7 @@ export default function RaycasterFPS() {
 
     return () => {
       cancelAnimationFrame(raf);
+      dispose();
       window.removeEventListener('keydown', kd);
       window.removeEventListener('keyup', ku);
       window.removeEventListener('mousemove', mm);
@@ -307,14 +328,16 @@ export default function RaycasterFPS() {
   }, [status]);
 
   return (
-    <div className="fps">
+    <div className="fps" style={{ width: '100%', height: '100%' }}>
       <div className="fps-bar">
         <span>HP <b style={{color: hud.health < 30 ? '#ff4d6d' : 'var(--text)'}}>{hud.health}</b></span>
         <span>Ammo <b>{hud.ammo}</b></span>
         <span>Enemies <b style={{color: 'var(--accent)'}}>{hud.alive}</b></span>
         <button className="btn btn-ghost btn-sm" onClick={reset}>Restart</button>
       </div>
-      <canvas ref={canvasRef} className="fps-canvas" width={W} height={H}/>
+      <div ref={wrapRef} style={{ flex: '1 1 0', minHeight: 0, width: '100%', position: 'relative' }}>
+        <canvas ref={canvasRef} className="fps-canvas"/>
+      </div>
       {status !== 'playing' && (
         <div className="fps-bar">
           <span style={{color: status === 'won' ? 'var(--accent)' : '#ff4d6d', fontWeight: 700}}>

@@ -1,1 +1,0 @@
-function r(t,o,n){if(!t)return null;const e=Math.min(window.devicePixelRatio||1,2);t.width=Math.round(o*e),t.height=Math.round(n*e),t.style.width=o+"px",t.style.height=n+"px";const i=t.getContext("2d");return i&&i.setTransform(e,0,0,e,0,0),i}export{r as s};

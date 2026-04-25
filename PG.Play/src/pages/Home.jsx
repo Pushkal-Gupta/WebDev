@@ -142,13 +142,21 @@ export default function Home() {
       .filter((c) => c.items.length >= 3);
   }, [playable]);
 
-  const editorsGames = heroes; // for the "Play featured" CTA
+  const editorsGames = heroes; // bento hero tiles
+
+  // The "Play featured" CTA prefers the data.js `featured: true` game so
+  // a new ship can take centre stage without rewriting EDITORS_PICKS.
+  // Falls back to the first hero, then the first playable, so the CTA is
+  // never dead.
+  const featuredGame = useMemo(
+    () => playable.find((g) => g.featured) || editorsGames[0] || playable[0],
+    [playable, editorsGames],
+  );
 
   const favCount = Object.values(favs).filter(Boolean).length;
 
   const onPlayFeatured = () => {
-    const target = editorsGames[0] || playable[0];
-    if (target) onOpen(target);
+    if (featuredGame) onOpen(featuredGame);
   };
 
   // Bento slot id for each hero (CSS grid-area). Order matches HERO_IDS.
@@ -238,7 +246,15 @@ export default function Home() {
             <div className="home-hero-actions">
               <button className="btn btn-lg btn-primary" onClick={onPlayFeatured}>
                 {Icon.play}
-                <span>Play featured</span>
+                <span>Play {featuredGame?.name || 'featured'}</span>
+              </button>
+              <button
+                type="button"
+                className="btn btn-lg btn-ghost"
+                onClick={() => setSearchOpen(true)}>
+                {Icon.search}
+                <span>Browse all</span>
+                <kbd className="search-kbd" aria-hidden="true">⌘K</kbd>
               </button>
               <span className="home-hero-count">
                 <span className="numeric">{playable.length}</span> playable today

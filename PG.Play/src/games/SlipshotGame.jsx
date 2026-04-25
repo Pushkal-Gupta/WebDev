@@ -9,6 +9,7 @@
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { submitScore } from '../scoreBus.js';
+import { isMuted } from '../sound.js';
 
 /* ─── tuning ──────────────────────────────────────────────────── */
 const RUN_SECONDS   = 180;
@@ -272,6 +273,9 @@ export default function SlipshotGame() {
       return audio;
     };
     const beep = (freq, dur, type, gain, freqEnd) => {
+      // Honor the platform mute toggle (Settings drawer + GameShell pause).
+      // isMuted reads localStorage on each call — cheap, always fresh.
+      if (isMuted()) return;
       const ac = ensureAudio();
       if (!ac) return;
       if (ac.state === 'suspended') ac.resume();

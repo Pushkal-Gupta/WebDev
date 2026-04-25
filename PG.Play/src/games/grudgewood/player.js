@@ -149,7 +149,10 @@ export class PlayerController {
     this.vel.set(0, 0, 0);
     this.facing = facing;
     this.alive = true;
-    this.invuln = 0.4;
+    // 1.6s of post-spawn invulnerability — long enough that a player can
+    // orient themselves, see what's ahead, and choose to walk or wait
+    // without dying to a trap they hadn't read yet.
+    this.invuln = 1.6;
     this.deathT = 0;
     this.deathKind = null;
     this.stumble = 0;

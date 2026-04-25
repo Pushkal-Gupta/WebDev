@@ -11,8 +11,12 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { submitScore } from '../scoreBus.js';
-import { sizeCanvas } from '../util/canvasDpr.js';
+import { sizeCanvasFluid } from '../util/canvasDpr.js';
 
+// Scene dimensions are fixed — levels are hand-tuned to this rect. The
+// fluid sizer fits the canvas to the viewport but the scene is drawn
+// centered inside, with a flat backdrop padding the margins. A wider
+// canvas just gives more room around the same playfield.
 const W = 840;
 const H = 460;
 const FLOOR_Y = 360;
@@ -60,7 +64,9 @@ const LEVELS = [
 
 export default function NightShiftGame() {
   const canvasRef = useRef(null);
+  const wrapRef = useRef(null);
   const stateRef  = useRef(null);
+  const viewRef = useRef({ cssW: W, cssH: H }); // fluid render dimensions
   const submittedRef = useRef(false);
   const [level, setLevel]     = useState(0);
   const [caught, setCaught]   = useState(0);
@@ -90,7 +96,15 @@ export default function NightShiftGame() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = sizeCanvas(canvas, W, H);
+    const wrap = wrapRef.current;
+    if (!canvas || !wrap) return;
+    const ctx = canvas.getContext('2d');
+
+    // Fluid sizer — record the css size so draw can center the scene
+    // inside it. The scene itself is always drawn at W × H.
+    const dispose = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
+      viewRef.current = { cssW, cssH };
+    });
 
     const keys = {};
     const kd = (e) => {
@@ -130,7 +144,19 @@ export default function NightShiftGame() {
 
     const draw = () => {
       const s = stateRef.current; if (!s) return;
-      const { lv, player, guards, detect, exitFlash, caughtFlash } = s;
+      const { lv, player, guards, exitFlash, caughtFlash } = s;
+      const { cssW, cssH } = viewRef.current;
+
+      // Outer backdrop — same color as the scene's bottom band so the
+      // padding around the playfield blends rather than framing it.
+      ctx.fillStyle = '#0a0e16';
+      ctx.fillRect(0, 0, cssW, cssH);
+
+      // Center the fixed-size scene inside the canvas
+      const offX = (cssW - W) / 2;
+      const offY = (cssH - H) / 2;
+      ctx.save();
+      ctx.translate(offX, offY);
 
       // Backdrop — dim corridor
       const grad = ctx.createLinearGradient(0, 0, 0, H);
@@ -248,14 +274,16 @@ export default function NightShiftGame() {
       ctx.fillStyle = '#0a0d0e';
       ctx.fillRect(player.x + 3, player.y + 4, P_W - 6, 3);
 
-      // Caught flash overlay
+      ctx.restore();
+
+      // Caught flash overlay (covers the full canvas, not just the scene)
       if (caughtFlash > 0) {
         ctx.fillStyle = `rgba(255, 77, 109, ${Math.min(0.6, caughtFlash)})`;
-        ctx.fillRect(0, 0, W, H);
+        ctx.fillRect(0, 0, cssW, cssH);
       }
       if (exitFlash > 0) {
         ctx.fillStyle = `rgba(0, 255, 245, ${Math.min(0.3, exitFlash)})`;
-        ctx.fillRect(0, 0, W, H);
+        ctx.fillRect(0, 0, cssW, cssH);
       }
     };
 
@@ -343,6 +371,7 @@ export default function NightShiftGame() {
 
     return () => {
       cancelAnimationFrame(raf);
+      dispose();
       window.removeEventListener('keydown', kd);
       window.removeEventListener('keyup', ku);
     };
@@ -360,7 +389,7 @@ export default function NightShiftGame() {
   const pct = Math.round(detect * 100);
 
   return (
-    <div className="nightshift">
+    <div className="nightshift" style={{ width: '100%', height: '100%' }}>
       <div className="nightshift-bar">
         <span>Night <b style={{color:'var(--accent)'}}>{Math.min(LEVELS.length, level + 1)}</b>/{LEVELS.length}</span>
         <span>{LEVELS[level]?.name}</span>
@@ -374,7 +403,9 @@ export default function NightShiftGame() {
         <div className={'nightshift-detect-fill' + (pct > 66 ? ' is-high' : pct > 33 ? ' is-mid' : '')} style={{width: `${pct}%`}}/>
         <span className="nightshift-detect-label">Detection</span>
       </div>
-      <canvas ref={canvasRef} className="nightshift-canvas" width={W} height={H}/>
+      <div ref={wrapRef} style={{ flex: '1 1 0', minHeight: 0, width: '100%', position: 'relative' }}>
+        <canvas ref={canvasRef} className="nightshift-canvas"/>
+      </div>
       {status === 'won' ? (
         <div className="nightshift-tip" style={{color:'var(--accent)', fontWeight:700}}>
           Clean out · {caught} caught · {time}s
