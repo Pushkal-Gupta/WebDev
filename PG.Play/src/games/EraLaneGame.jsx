@@ -10,13 +10,16 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { submitScore } from '../scoreBus.js';
+import { sizeCanvasFluid } from '../util/canvasDpr.js';
 
+// Default render dimensions; the fluid sizer overrides view.w / view.h
+// on every fit. Lane left/right are recomputed off the live width so
+// the bases always sit a fixed margin from the edges.
 const W = 820;
 const H = 420;
-const GROUND_Y = 320;
+const LANE_MARGIN = 110;        // distance from base to canvas edge
+const GROUND_BOTTOM_PAD = 100;  // ground sits this far above the bottom
 const BASE_HP = 500;
-const LANE_LEFT = 110;
-const LANE_RIGHT = W - 110;
 
 const UNITS = {
   scout: { name: 'Scout',  cost: 40,  cd: 0.9, hp: 35,  dmg: 6,   speed: 66, range: 22, color: '#35f0c9', w: 18, h: 22 },
@@ -55,7 +58,9 @@ const unitDraw = (ctx, u, x, y, side) => {
 
 export default function EraLaneGame() {
   const canvasRef = useRef(null);
+  const wrapRef = useRef(null);
   const stateRef = useRef(null);
+  const viewRef = useRef({ w: W, h: H, laneLeft: LANE_MARGIN, laneRight: W - LANE_MARGIN, groundY: H - GROUND_BOTTOM_PAD });
   const [gold, setGold] = useState(120);
   const [myHP, setMyHP] = useState(BASE_HP);
   const [enemyHP, setEnemyHP] = useState(BASE_HP);
@@ -97,10 +102,11 @@ export default function EraLaneGame() {
     s.cds[kind] = u.cd;
     setGold(s.gold);
     setCds({ ...s.cds });
+    const v = viewRef.current;
     s.myUnits.push({
       ...u, kind,
-      x: LANE_LEFT + 10,
-      y: GROUND_Y,
+      x: v.laneLeft + 10,
+      y: v.groundY,
       side: 'me',
       hpCur: u.hp,
       atkCd: 0,
@@ -109,13 +115,38 @@ export default function EraLaneGame() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    const wrap = wrapRef.current;
+    if (!canvas || !wrap) return;
     const ctx = canvas.getContext('2d');
+
+    // Fluid sizer — lane endpoints stay a fixed margin from each edge
+    // so a wider canvas just means more room for the fight to stretch
+    // across. Ground sits a fixed distance from the bottom.
+    const dispose = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
+      const w = cssW, h = cssH;
+      viewRef.current = {
+        w, h,
+        laneLeft: LANE_MARGIN,
+        laneRight: w - LANE_MARGIN,
+        groundY: h - GROUND_BOTTOM_PAD,
+      };
+      // Stick existing units onto the new ground; clamp positions inside
+      // the new lane so a shrink doesn't strand anyone past a base.
+      const s = stateRef.current; if (!s) return;
+      const v = viewRef.current;
+      [...s.myUnits, ...s.enemyUnits].forEach((u) => {
+        u.y = v.groundY;
+        u.x = Math.max(v.laneLeft - 30, Math.min(v.laneRight + 30, u.x));
+      });
+    });
 
     const clock = { last: performance.now() };
     let raf = 0;
 
     const draw = () => {
       const s = stateRef.current; if (!s) return;
+      const v = viewRef.current;
+      const W = v.w, H = v.h, GROUND_Y = v.groundY, LANE_LEFT = v.laneLeft, LANE_RIGHT = v.laneRight;
 
       // sky
       const grad = ctx.createLinearGradient(0, 0, 0, H);
@@ -213,6 +244,8 @@ export default function EraLaneGame() {
       const dt = Math.min(0.033, (now - clock.last) / 1000);
       clock.last = now;
       const s = stateRef.current; if (!s) return;
+      const v = viewRef.current;
+      const LANE_LEFT = v.laneLeft, LANE_RIGHT = v.laneRight, GROUND_Y = v.groundY;
 
       if (status === 'playing') {
         s.elapsed += dt;
@@ -337,7 +370,10 @@ export default function EraLaneGame() {
       draw();
     };
     raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      dispose();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
@@ -354,7 +390,7 @@ export default function EraLaneGame() {
   };
 
   return (
-    <div className="era">
+    <div className="era" style={{ width: '100%', height: '100%' }}>
       <div className="era-bar">
         <span>Gold <b style={{color:'var(--accent)'}}>{gold}</b></span>
         <span>Era <b>{era}/5</b></span>
@@ -365,7 +401,9 @@ export default function EraLaneGame() {
           <button className="btn btn-primary btn-sm" onClick={reset}>Play again</button>
         )}
       </div>
-      <canvas ref={canvasRef} className="era-canvas" width={W} height={H}/>
+      <div ref={wrapRef} style={{ flex: '1 1 0', minHeight: 0, width: '100%', position: 'relative' }}>
+        <canvas ref={canvasRef} className="era-canvas"/>
+      </div>
       <div className="era-buttons">
         {button('scout')}
         {button('spear')}
