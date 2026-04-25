@@ -48,7 +48,7 @@ export default function MatchSettings() {
 
   return (
     <div className="gb-page">
-      <BackBar onBack={() => setRoute(sel.mode === 'quick' ? 'difficulty' : 'player-select')}/>
+      <BackBar onBack={() => setRoute(sel.mode === 'quick' ? 'difficulty' : 'team-select')}/>
       <ScreenHead
         kicker="Match"
         title="Set the conditions."

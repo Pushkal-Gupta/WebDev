@@ -1014,14 +1014,47 @@ const Cover_Swingwire = () => (
   </svg>
 );
 
+// PhotoCover — `<picture>` with responsive WebP srcset and a small JPEG
+// fallback. Mounted for any game that has bespoke key art under
+// public/covers/. Source files generated via `npm run optimize:covers`.
+//
+// We don't lazy-load (`loading="lazy"`) the bento heroes — they're above
+// the fold. Smaller cards (rails, more-grid) get loading=lazy.
+const PhotoCover = ({ slug, alt, eager = false }) => {
+  const base = `covers/${slug}`;
+  return (
+    <picture>
+      <source
+        type="image/webp"
+        srcSet={`${base}-640.webp 640w, ${base}-1280.webp 1280w, ${base}-1920.webp 1920w`}
+        sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 33vw"
+      />
+      <img
+        src={`${base}-1280.jpg`}
+        alt={alt || ''}
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+      />
+    </picture>
+  );
+};
+
+const Cover_GrudgewoodPhoto = () => <PhotoCover slug="grudgewood" alt="Grudgewood key art" eager/>;
+const Cover_GoalboundPhoto  = () => <PhotoCover slug="goalbound"  alt="Goalbound key art"  eager/>;
+const Cover_SlitherPhoto    = () => <PhotoCover slug="slither"    alt="Coil key art"       eager/>;
+const Cover_SlipshotPhoto   = () => <PhotoCover slug="slipshot"   alt="Slipshot key art"   eager/>;
+
 export const GAME_COVERS = {
   fbwg: Cover_FBWG, bob: Cover_Bob, connect4: Cover_Connect4, eightball: Cover_EightBall,
-  goalbound: Cover_Goalbound, basket: Cover_Basket, badicecream: Cover_BadIceCream, aow: Cover_AoW,
+  basket: Cover_Basket, badicecream: Cover_BadIceCream, aow: Cover_AoW,
   vex: Cover_Vex, papa: Cover_Papa, g2048: Cover_2048,
-  cutrope: Cover_CutRope, bloons: Cover_Bloons, slither: Cover_Slither, happywheels: Cover_HappyWheels,
+  cutrope: Cover_CutRope, bloons: Cover_Bloons, happywheels: Cover_HappyWheels,
   fps: Cover_FPS, arena: Cover_Arena,
-  // Originals:
-  grudgewood: Cover_TreesHate,
-  slipshot:   Cover_Slipshot,
-  hook:       Cover_Swingwire,
+  hook: Cover_Swingwire,
+  // The four originals — replaced with bespoke key art (responsive WebP).
+  grudgewood: Cover_GrudgewoodPhoto,
+  goalbound:  Cover_GoalboundPhoto,
+  slither:    Cover_SlitherPhoto,
+  slipshot:   Cover_SlipshotPhoto,
 };

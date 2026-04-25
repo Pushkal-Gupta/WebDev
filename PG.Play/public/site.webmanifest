@@ -1,0 +1,16 @@
+{
+  "name": "PG.Play",
+  "short_name": "PG.Play",
+  "description": "A boutique browser arcade. Hand-built originals, instant play.",
+  "start_url": "/PG.Play/",
+  "scope": "/PG.Play/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#070a0d",
+  "theme_color": "#070a0d",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    { "src": "/PG.Play/favicon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any" },
+    { "src": "/PG.Play/icon-512.svg", "type": "image/svg+xml", "sizes": "512x512", "purpose": "any maskable" }
+  ]
+}

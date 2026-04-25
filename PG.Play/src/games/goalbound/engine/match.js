@@ -21,6 +21,15 @@ const {
 } = PHYSICS;
 
 const EFFECT_CAP = 120;
+// Hard cap on AI charge accumulation so it can't exceed the kick model's max.
+const MAX_CHARGE = KICK_CHARGE_MAX;
+// After a goal crosses the line we lock further detections for this long
+// so a ball lingering in the goal zone doesn't re-fire scoreGoal each frame.
+const GOAL_LOCK_MS = 1500;
+// Charge threshold above which the ball gets a strong-shot trail (>70%).
+const TRAIL_CHARGE_THRESHOLD = 0.7 * KICK_CHARGE_MAX;
+const TRAIL_LIFE = 0.4;       // seconds of fade
+const TRAIL_POINTS = 6;
 
 export const createMatch = ({
   mode = 'bot',            // 'bot' | '2p' | 'practice' | 'challenge'
@@ -39,7 +48,7 @@ export const createMatch = ({
   const state = {
     home: makePlayer(160,          +1, home.primary),
     away: makePlayer(W - 160 - P_W, -1, away.primary),
-    ball: { x: W / 2, y: FLOOR - 160, vx: 0, vy: 0, spin: 0 },
+    ball: { x: W / 2, y: FLOOR - 160, vx: 0, vy: 0, spin: 0, trail: [], trailT: 0 },
     clock: duration,
     status: goldenOnly ? 'golden' : 'playing',
     golden: goldenOnly,
@@ -53,6 +62,7 @@ export const createMatch = ({
     jumpCount: 0,
     peakAwayLead: 0,
     goalLog: [],                   // [{ t, side }]
+    goalLockUntil: 0,              // ms timestamp; while > now, goals are ignored
     shake: { t: 0, amp: 0 },
     flash: 0,
     hitStop: 0,
@@ -84,6 +94,8 @@ export const createMatch = ({
       state.home.x = 160; state.home.y = FLOOR - P_H; state.home.vx = 0; state.home.vy = 0; state.home.kickCd = 0; state.home.kickAnim = 0; state.home.facing = 1;
       state.away.x = W - 160 - P_W; state.away.y = FLOOR - P_H; state.away.vx = 0; state.away.vy = 0; state.away.kickCd = 0; state.away.kickAnim = 0; state.away.facing = -1;
       state.ball.x = W / 2; state.ball.y = FLOOR - 180; state.ball.vx = 0; state.ball.vy = 0; state.ball.spin = 0;
+      state.ball.trail.length = 0; state.ball.trailT = 0;
+      state.goalLockUntil = 0;
       state.celebT = 0; state.celebFor = null;
       state.kickOffT = 0.8;
       state.hitStop = 0; state.shake.t = 0; state.shake.amp = 0; state.flash = 0;
@@ -146,13 +158,32 @@ export const createMatch = ({
       }
 
       // Ball
-      const wind = weather.wind * 60; // lateral force
-      state.ball.vx += wind * dt;
+      // Wind is a lateral acceleration. The factor used to be `* 60`
+      // (a frame multiplier from a 60Hz era) which made the gust scale
+      // with framerate. Use `* dt` so it's framerate-independent.
+      const wind = weather.wind * dt; // lateral force this frame
+      state.ball.vx += wind;
       state.ball.vy += GRAVITY * dt * (weather.snow ? 0.92 : 1);
       state.ball.vx *= Math.pow(BALL_FRICTION_AIR * (ballCfg.dragMul || 1), 60 * dt);
       state.ball.x  += state.ball.vx * dt;
       state.ball.y  += state.ball.vy * dt;
       state.ball.spin *= 0.985;
+
+      // Strong-kick trail: while armed, push the ball position into a
+      // ring buffer of TRAIL_POINTS. Renderer draws each as a fading
+      // ghost. Decay age on existing samples; drop expired ones.
+      if (state.ball.trailT > 0) {
+        state.ball.trailT -= dt;
+        state.ball.trail.unshift({ x: state.ball.x, y: state.ball.y, age: 0 });
+        if (state.ball.trail.length > TRAIL_POINTS) state.ball.trail.length = TRAIL_POINTS;
+      }
+      if (state.ball.trail.length) {
+        for (const t of state.ball.trail) t.age += dt;
+        // Drop tail samples once they exceed the trail life.
+        while (state.ball.trail.length && state.ball.trail[state.ball.trail.length - 1].age > TRAIL_LIFE) {
+          state.ball.trail.pop();
+        }
+      }
 
       // Ground
       if (state.ball.y + BALL_R >= FLOOR) {
@@ -168,26 +199,38 @@ export const createMatch = ({
       }
       if (state.ball.y - BALL_R < 0) {
         state.ball.y = BALL_R;
-        state.ball.vy = -state.ball.vy * BALL_BOUNCE_WALL;
+        // Angle-dependent restitution: head-on impacts (cos=0) keep
+        // most energy; glancing skims (cos→1) eat into it. Gives the
+        // ball more weight than the old uniform multiplier.
+        const r = wallRestitution(state.ball.vx, state.ball.vy, 'horizontal');
+        state.ball.vy = -state.ball.vy * r;
       }
       const inLeftMouth  = state.ball.y > FLOOR - GOAL_H && state.ball.x < GOAL_W;
       const inRightMouth = state.ball.y > FLOOR - GOAL_H && state.ball.x > W - GOAL_W;
       if (state.ball.x - BALL_R < 0 && !inLeftMouth) {
         state.ball.x = BALL_R;
-        state.ball.vx = -state.ball.vx * BALL_BOUNCE_WALL;
+        const r = wallRestitution(state.ball.vx, state.ball.vy, 'vertical');
+        state.ball.vx = -state.ball.vx * r;
         emitPostHit(state, 0, state.ball.y);
       }
       if (state.ball.x + BALL_R > W && !inRightMouth) {
         state.ball.x = W - BALL_R;
-        state.ball.vx = -state.ball.vx * BALL_BOUNCE_WALL;
+        const r = wallRestitution(state.ball.vx, state.ball.vy, 'vertical');
+        state.ball.vx = -state.ball.vx * r;
         emitPostHit(state, W, state.ball.y);
       }
 
-      // Goal
-      if (inLeftMouth && state.ball.x < GOAL_W / 2) {
-        scoreGoal('away');
-      } else if (inRightMouth && state.ball.x > W - GOAL_W / 2) {
-        scoreGoal('home');
+      // Goal — guard with goalLockUntil so a ball lingering in the
+      // goal mouth for several frames doesn't fire scoreGoal each tick.
+      const now = performance.now();
+      if (now >= state.goalLockUntil) {
+        if (inLeftMouth && state.ball.x < GOAL_W / 2) {
+          state.goalLockUntil = now + GOAL_LOCK_MS;
+          scoreGoal('away');
+        } else if (inRightMouth && state.ball.x > W - GOAL_W / 2) {
+          state.goalLockUntil = now + GOAL_LOCK_MS;
+          scoreGoal('home');
+        }
       }
 
       // Ball vs players
@@ -253,6 +296,7 @@ export const createMatch = ({
     emitGoalBurst(state, side);
     // reset positions
     state.ball.x = W / 2; state.ball.y = FLOOR - 180; state.ball.vx = 0; state.ball.vy = 0;
+    state.ball.trail.length = 0; state.ball.trailT = 0;
     state.home.x = 160; state.home.y = FLOOR - P_H; state.home.vx = 0; state.home.vy = 0;
     state.away.x = W - 160 - P_W; state.away.y = FLOOR - P_H; state.away.vx = 0; state.away.vy = 0;
     listeners.onGoal?.(side, { scoreHome: state.scoreHome, scoreAway: state.scoreAway });
@@ -335,6 +379,11 @@ export const createMatch = ({
       s.shake.t = Math.max(s.shake.t, 0.15 + charge * 0.1);
       s.shake.amp = Math.max(s.shake.amp, 4 + charge * 10);
       emitKickBurst(s, bx, by, horizDir, charge);
+      // Strong kick: arm a fading trail behind the ball for ~400ms.
+      if (charge >= TRAIL_CHARGE_THRESHOLD) {
+        s.ball.trailT = TRAIL_LIFE;
+        s.ball.trail.length = 0;
+      }
       listeners.onKick?.({ charge });
     } else {
       emitKickWhiff(s, cx + p.facing * 16, cy);
@@ -344,13 +393,17 @@ export const createMatch = ({
   function updateCharge(slot, dt) {
     const wasHeld = !!slot.wasHeld;
     const isHeld  = !!slot.kick;
-    if (isHeld) slot.chargeAccum = (slot.chargeAccum || 0) + dt;
+    if (isHeld) slot.chargeAccum = Math.min(MAX_CHARGE, (slot.chargeAccum || 0) + dt);
     // Release edge — fires exactly once per press/release cycle.
     if (wasHeld && !isHeld) slot.released = true;
     slot.wasHeld = isHeld;
   }
   function updateChargeAI(collect, slot, dt) {
-    if (collect.charge) slot.chargeAccum = (slot.chargeAccum || 0) + dt;
+    if (collect.charge) {
+      // Clamp accumulation so the AI can't ramp charge unbounded
+      // across frames — runaway values blew past KICK_CHARGE_MAX.
+      slot.chargeAccum = Math.min(MAX_CHARGE, (slot.chargeAccum || 0) + dt);
+    }
   }
 
   function resolveInput(ctl, disableJump) {
@@ -360,6 +413,29 @@ export const createMatch = ({
       jump:  !!ctl.jump && !disableJump,
       kick:  !!ctl.kick,
     };
+  }
+
+  // Restitution as a function of incidence angle. Head-on (cos≈0)
+  // returns ~0.6; glancing skim (cos≈1) returns ~0.2 so the ball
+  // skims along the wall instead of bouncing wildly.
+  // Honors BALL_BOUNCE_WALL as a global multiplier to keep tunability.
+  function wallRestitution(vx, vy, wall) {
+    const speed = Math.hypot(vx, vy);
+    if (speed < 1e-3) return 0;
+    // Wall normal: 'horizontal' wall (top) → normal is vertical (vy);
+    // 'vertical' wall (left/right) → normal is horizontal (vx).
+    const cosTheta = wall === 'horizontal'
+      ? Math.abs(vy) / speed   // angle of incidence relative to normal
+      : Math.abs(vx) / speed;
+    // cosTheta=1 → head-on; cosTheta=0 → grazing.
+    // Per spec: 0.6 - 0.4 * |cos(angleOfIncidence)|, where
+    // angleOfIncidence is measured from the surface (so cos is the
+    // tangential component). Glancing skims yield ~0.2, head-ons ~0.6.
+    const tangentialCos = wall === 'horizontal'
+      ? Math.abs(vx) / speed
+      : Math.abs(vy) / speed;
+    const r = 0.6 - 0.4 * tangentialCos;
+    return r * BALL_BOUNCE_WALL;
   }
 
   function collideBallPlayer(s, p) {

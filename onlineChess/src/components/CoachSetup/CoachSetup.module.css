@@ -360,19 +360,33 @@
 /* ─── Responsive ─────────────────────────────────────────────────────────── */
 
 @media (max-width: 900px) {
-  .page { flex-direction: column; overflow-y: auto; }
-  .mainCol { padding: 20px 16px; }
-  .settingsPanel {
-    width: 100%;
-    border-left: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  .page {
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: auto;
+    min-height: 100%;
+  }
+  .mainCol {
+    flex: none;
+    overflow: visible;
     padding: 20px 16px;
   }
+  .settingsPanel {
+    flex: none;
+    width: 100%;
+    min-width: 0;
+    overflow: visible;
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 20px 16px 28px;
+  }
+  .startBtn { margin-top: 4px; }
 }
 
 @media (max-width: 600px) {
   .grid { grid-template-columns: 1fr; }
   .mainCol { padding: 16px 12px; gap: 14px; }
-  .settingsPanel { padding: 16px 12px; gap: 14px; }
+  .settingsPanel { padding: 16px 12px 24px; gap: 14px; }
   .tcGrid { grid-template-columns: repeat(4, 1fr); }
 }

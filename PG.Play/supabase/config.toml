@@ -1,0 +1,40 @@
+# PG.Play Supabase project config.
+# Project ref is set via `supabase link --project-ref <ref>`.
+project_id = "pgplay"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 17
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "http://localhost:5180"
+additional_redirect_urls = ["http://localhost:5180", "https://pushkalgupta.com"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = false
+enable_confirmations = false
+
+[functions.start-run]
+verify_jwt = true
+
+[functions.submit-score]
+verify_jwt = true
+
+[functions.leaderboard]
+verify_jwt = false

@@ -11,11 +11,13 @@
 // achievement toast, auth session) live here so they don't unmount when
 // navigating between Home and GamePage.
 
-import { useEffect } from 'react';
-import { HashRouter, Route, Routes } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { HashRouter, Route, Routes, useLocation } from 'react-router-dom';
 import Home from './pages/Home.jsx';
 import GamePage from './pages/GamePage.jsx';
 import AchievementToast from './components/AchievementToast.jsx';
+import ErrorBoundary from './components/ErrorBoundary.jsx';
+import LoadingBar from './components/states/LoadingBar.jsx';
 import { GAMES } from './data.js';
 import { useSession } from './hooks/useSession.js';
 import { useFavorites } from './hooks/useFavorites.js';
@@ -23,6 +25,25 @@ import { useBests } from './hooks/useBests.js';
 import { useAchievements } from './hooks/useAchievements.js';
 import { useTheme } from './hooks/useTheme.js';
 import { sfx } from './sound.js';
+
+// RouteProgress — paints the top LoadingBar for a short window whenever the
+// route changes. HashRouter doesn't expose `useNavigation` (that's a data-
+// router feature), so we approximate with a useLocation listener that
+// toggles `active` on for ~200ms after each pathname change. Cheap, honest,
+// and good enough for static-host SPA navigation where transitions are
+// effectively instant.
+function RouteProgress() {
+  const location = useLocation();
+  const [active, setActive] = useState(false);
+
+  useEffect(() => {
+    setActive(true);
+    const t = setTimeout(() => setActive(false), 220);
+    return () => clearTimeout(t);
+  }, [location.pathname]);
+
+  return <LoadingBar active={active} />;
+}
 
 export default function App() {
   // Theme is global — both Home and GamePage style off [data-theme].
@@ -62,11 +83,17 @@ export default function App() {
 
   return (
     <HashRouter>
-      <Routes>
-        <Route path="/" element={<Home/>}/>
-        <Route path="/game/:id" element={<GamePage/>}/>
-        <Route path="*" element={<Home/>}/>
-      </Routes>
+      {/* First Tab stop on every route — keyboard users can skip past the
+          sidebar/topbar and land directly inside the page's main region. */}
+      <a className="skip-link" href="#main">Skip to main content</a>
+      <RouteProgress/>
+      <ErrorBoundary>
+        <Routes>
+          <Route path="/" element={<Home/>}/>
+          <Route path="/game/:id" element={<GamePage/>}/>
+          <Route path="*" element={<Home/>}/>
+        </Routes>
+      </ErrorBoundary>
       <AchievementToast toast={toast}/>
     </HashRouter>
   );

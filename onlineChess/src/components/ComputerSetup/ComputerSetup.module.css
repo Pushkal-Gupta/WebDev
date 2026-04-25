@@ -361,9 +361,17 @@
 @media (max-width: 700px) {
   .page {
     flex-direction: column;
-    padding: 12px 10px;
+    padding: 12px 10px 24px;
     overflow-y: auto;
+    overflow-x: hidden;
+    height: auto;
+    min-height: 100%;
     gap: 16px;
+  }
+
+  .botGrid {
+    flex: none;
+    overflow: visible;
   }
 
   .sectionTitle {
@@ -400,12 +408,16 @@
   }
 
   .detailPanel {
+    flex: none;
     width: 100%;
+    max-width: none;
+    min-width: 0;
     border-left: none;
     padding-left: 0;
     border-top: 1px solid rgba(255, 255, 255, 0.06);
     padding-top: 12px;
     gap: 10px;
+    overflow: visible;
   }
 
   .selectedHeader svg {
@@ -448,6 +460,7 @@
   }
 
   .startBtn {
+    margin-top: 4px;
     padding: 12px 20px;
     font-size: 0.88rem;
   }

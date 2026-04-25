@@ -222,13 +222,28 @@ const drawPlayer = (ctx, p, primary, secondary, side) => {
 };
 
 const drawBall = (ctx, ball) => {
-  // trail
-  ctx.fillStyle = 'rgba(255,255,255,0.18)';
-  for (let i = 0; i < 4; i++) {
-    const k = (i + 1) / 5;
-    ctx.beginPath();
-    ctx.arc(ball.x - ball.vx * 0.008 * k, ball.y - ball.vy * 0.008 * k, BALL_R * (1 - k * 0.3), 0, Math.PI * 2);
-    ctx.fill();
+  // Strong-kick trail (set by the engine when the ball is launched at
+  // >70% charge): draw 6 fading positional ghosts behind the ball.
+  if (ball.trail && ball.trail.length) {
+    const TRAIL_LIFE = 0.4;
+    for (let i = ball.trail.length - 1; i >= 0; i--) {
+      const t = ball.trail[i];
+      const k = 1 - Math.min(1, t.age / TRAIL_LIFE);
+      if (k <= 0) continue;
+      ctx.fillStyle = `rgba(255,230,168,${(0.45 * k).toFixed(3)})`;
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, BALL_R * (0.6 + 0.4 * k), 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else {
+    // Idle motion smear (cheap velocity-based ghost — original behaviour).
+    ctx.fillStyle = 'rgba(255,255,255,0.18)';
+    for (let i = 0; i < 4; i++) {
+      const k = (i + 1) / 5;
+      ctx.beginPath();
+      ctx.arc(ball.x - ball.vx * 0.008 * k, ball.y - ball.vy * 0.008 * k, BALL_R * (1 - k * 0.3), 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
   // ball
   ctx.fillStyle = '#f3f6f8';

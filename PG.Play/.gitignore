@@ -2,3 +2,21 @@ node_modules
 .DS_Store
 *.log
 .vite
+dist
+
+# environment
+.env
+.env.local
+.env.*.local
+
+# supabase
+.branches
+.temp
+
+# generated cover variants — regenerate via `npm run optimize:covers`
+public/covers/*-640.webp
+public/covers/*-1280.webp
+public/covers/*-1920.webp
+public/covers/*-1280.jpg
+public/og.webp
+public/og-1200.jpg

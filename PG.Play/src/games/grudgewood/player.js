@@ -242,10 +242,48 @@ export class PlayerController {
       sfx.jump();
     }
 
-    // Integrate.
-    this.pos.x += this.vel.x * dt;
+    // Integrate horizontal first so we can detect wall (steep slope) collisions
+    // and slide along them via reflection math instead of clipping into cliffs.
+    const nextX = this.pos.x + this.vel.x * dt;
+    const nextZ = this.pos.z + this.vel.z * dt;
+    const hereY = sampleHeight(this.pos.x, this.pos.z);
+    const aheadY = sampleHeight(nextX, nextZ);
+    // A "wall" is anywhere the terrain step is steeper than ~1.2 m over a
+    // single frame's horizontal travel — too steep to climb.
+    const horizDelta = Math.hypot(nextX - this.pos.x, nextZ - this.pos.z);
+    const slope = (aheadY - hereY) / Math.max(0.0001, horizDelta);
+    if (this.grounded && slope > 1.2 && horizDelta > 0.001) {
+      // Sample the heightmap gradient to recover the wall normal in XZ.
+      const eps = 0.25;
+      const dhx = (sampleHeight(this.pos.x + eps, this.pos.z) - sampleHeight(this.pos.x - eps, this.pos.z)) / (2 * eps);
+      const dhz = (sampleHeight(this.pos.x, this.pos.z + eps) - sampleHeight(this.pos.x, this.pos.z - eps)) / (2 * eps);
+      // Wall normal points "downhill" in XZ — opposite the gradient.
+      const nx = -dhx;
+      const nz = -dhz;
+      const nMag = Math.hypot(nx, nz);
+      if (nMag > 0.0001) {
+        const ux = nx / nMag;
+        const uz = nz / nMag;
+        // Reflect velocity across the normal: v' = v - 2(v·n)n, scaled to 0.4 for damping.
+        // This produces a slide along the wall (tangent component preserved) with a
+        // small bounce-back when the player runs straight into it.
+        const dot = this.vel.x * ux + this.vel.z * uz;
+        if (dot < 0) {
+          this.vel.x = (this.vel.x - 2 * dot * ux) * 0.4;
+          this.vel.z = (this.vel.z - 2 * dot * uz) * 0.4;
+        }
+        // Don't advance into the wall this frame — re-integrate with the new vel.
+        this.pos.x += this.vel.x * dt;
+        this.pos.z += this.vel.z * dt;
+      } else {
+        this.pos.x = nextX;
+        this.pos.z = nextZ;
+      }
+    } else {
+      this.pos.x = nextX;
+      this.pos.z = nextZ;
+    }
     this.pos.y += this.vel.y * dt;
-    this.pos.z += this.vel.z * dt;
 
     // Ground collision via heightmap sample.
     const groundY = sampleHeight(this.pos.x, this.pos.z);

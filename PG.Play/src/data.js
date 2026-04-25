@@ -144,7 +144,7 @@ export const GAMES = [
   { id:'connect4', name:'Connect 4', cat:'Classic', kind:'vs', players:'1-2', levels:3,
     tagline:'Four in a row. Old as time.',
     story:'Drop checkers, yellow vs red, into a seven-by-six grid. First to align four — horizontal, vertical, diagonal — wins. The bot thinks three moves ahead; your friend across the couch thinks zero. Your call.',
-    playable:true,
+    playable:true,  // headline classic — quiet break
     mobileSupport:'native', inputs:['tap','mouse','touch'], orientation:'any',
     skillTags:['planning','spatial'], sessionLength:'short' },
 
@@ -170,74 +170,67 @@ export const GAMES = [
     skillTags:['aim-trajectory','timing','physics'], sessionLength:'short', isOriginal:true },
 ];
 
-// Editorial collections. Curated by hand, not by algorithm. Each blurb is
-// an opinion — these are written to feel selected, not scraped.
+// Editorial collections — curated rails on the lobby and search palette.
+// Each blurb is an opinion, not a product description. These rotate when
+// the roster meaningfully changes, not on a schedule.
 export const COLLECTIONS = [
+  {
+    id: 'originals',
+    title: 'PG.Play originals',
+    blurb: 'Built here, shipped here. The hand-made games this place exists for.',
+    ids: ['grudgewood', 'goalbound', 'slither', 'slipshot', 'arena', 'basket', 'aow', 'fps'],
+  },
   {
     id: 'start-in-ten',
     title: 'Start in ten seconds',
-    blurb: 'Zero tutorial. See the game, understand it, get into a run before you finish reading this sentence.',
-    ids: ['g2048', 'connect4', 'cutrope', 'hook'],
-  },
-  {
-    id: 'pass-the-laptop',
-    title: 'Pass the laptop',
-    blurb: 'Two people, one keyboard, no setup. The games where handing over the laptop is half the fun.',
-    ids: ['goalbound', 'connect4', 'eightball', 'arena'],
-  },
-  {
-    id: 'brainy',
-    title: 'Brainy',
-    blurb: 'For the reader’s corner: games that reward planning over reflex. Good for a rainy afternoon.',
-    ids: ['g2048', 'cutrope', 'bloons', 'connect4'],
+    blurb: 'Zero tutorial. See it, get it, into a run before this sentence ends.',
+    ids: ['g2048', 'connect4', 'cutrope', 'hook', 'happywheels'],
   },
   {
     id: 'twitch',
     title: 'Fast twitch',
-    blurb: 'Movement, aim, timing. Sessions end in seconds; mastery takes hours. Headphones help.',
-    ids: ['slipshot', 'fps', 'hook', 'arena', 'goalbound'],
+    blurb: 'Movement, aim, timing. Sessions end in seconds, mastery takes hours.',
+    ids: ['slipshot', 'fps', 'hook', 'arena', 'goalbound', 'vex'],
+  },
+  {
+    id: 'brainy',
+    title: 'Brainy',
+    blurb: 'Plan over reflex. Good for a rainy afternoon.',
+    ids: ['g2048', 'cutrope', 'bloons', 'connect4', 'aow'],
   },
   {
     id: 'mean-and-funny',
     title: 'Mean, but funny',
-    blurb: 'Games designed to make you laugh at yourself while you restart for the fifteenth time.',
+    blurb: 'Restart for the fifteenth time. Laugh. One more.',
     ids: ['grudgewood', 'happywheels', 'vex'],
+  },
+  {
+    id: 'pass-the-laptop',
+    title: 'Pass the laptop',
+    blurb: 'Two people, one keyboard, no setup.',
+    ids: ['goalbound', 'connect4', 'eightball', 'arena'],
   },
   {
     id: 'couch-coop',
     title: 'Same-team co-op',
-    blurb: 'You and a friend on the same side. Clearing the level is the celebration.',
+    blurb: 'Two players on the same side. Clearing the level is the celebration.',
     ids: ['fbwg', 'badicecream'],
   },
   {
     id: 'phone-friendly',
     title: 'Works on your phone',
-    blurb: 'Touch-native by design. Same game, smaller screen, no compromise.',
-    ids: ['g2048', 'cutrope', 'slither', 'connect4', 'basket', 'goalbound'],
-  },
-  {
-    id: 'originals',
-    title: 'PG.Play Originals',
-    blurb: 'Built here, shipped here. No legacy licenses, no clones — our own games, our own calls.',
-    ids: ['slipshot', 'grudgewood', 'goalbound', 'arena', 'slither', 'basket', 'aow', 'fps'],
-  },
-  {
-    id: 'new-updated',
-    title: 'New & updated',
-    blurb: 'Fresh ships and recent refreshes. If you haven’t been back in a week, start here.',
-    ids: ['goalbound', 'slipshot', 'slither', 'arena', 'aow', 'basket'],
+    blurb: 'Touch-native by design. Same game, smaller screen.',
+    ids: ['g2048', 'cutrope', 'slither', 'connect4', 'basket', 'goalbound', 'papa'],
   },
 ];
 
-// The staff picks live above the filter grid. Four hand-chosen titles,
-// rotated when the roster meaningfully changes — not automated.
-export const EDITORS_PICKS = ['goalbound', 'slipshot', 'grudgewood', 'g2048'];
+// The four headline originals — these get the bento hero tiles on home.
+export const EDITORS_PICKS = ['grudgewood', 'goalbound', 'slither', 'slipshot'];
 
-// Filter taxonomy used by the homepage tabs.
+// Filter taxonomy used by the homepage chip strip and sidebar.
 export const FILTERS = [
-  { id:'all',      label:'All',      match: () => true },
-  { id:'solo',     label:'Solo',     match: (g) => g.kind === 'story' && g.players === '1P' },
-  { id:'coop',     label:'Co-op',    match: (g) => g.players.includes('co-op') },
-  { id:'versus',   label:'Versus',   match: (g) => g.kind === 'vs' },
-  { id:'playable', label:'Playable', match: (g) => !!g.playable },
+  { id:'all',    label:'All',    match: () => true },
+  { id:'solo',   label:'Solo',   match: (g) => g.kind === 'story' && !g.players.includes('co-op') },
+  { id:'versus', label:'Versus', match: (g) => g.kind === 'vs' },
+  { id:'coop',   label:'Co-op',  match: (g) => g.players.includes('co-op') },
 ];
