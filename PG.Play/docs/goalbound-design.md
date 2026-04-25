@@ -1,119 +1,176 @@
-# Goalbound — design spec
+# Goalbound — design spec (v2)
 
-*Original arcade football title inspired by public references to
-"football heads" browser games. Not a clone — the brief asked for
-the feel without the IP. See `ui-audit.md` for what the previous
-"Football Legends" entry was.*
+*Original arcade football title. Rebuilt from the first-pass
+prototype into a full product with menu, tournament, team/player
+select, challenges, and a juiced match engine. See `src/games/goalbound/`
+for the implementation.*
 
 ## Identity
 
 - **Title:** Goalbound.
 - **Tagline:** *One pitch. One minute. All yours.*
-- **Fantasy:** two rivals duel on a tiny side-view pitch under dusk
-  stadium lights. Cyan athlete vs ember athlete. Oversized boots,
-  clean architectural silhouettes. No big heads, no one-leg
-  grotesques — own the genre feel, drop the caricature.
-- **Palette:** brand cyan (`#00e8d0`) vs ember orange (`#ff8855`),
-  dusk pitch (`#1a2f3e`). Stadium lights in `#ffe6a8`.
-- **Cover art:** `src/covers.jsx#Cover_Goalbound` — low-angle pitch
-  at dusk, two silhouettes leaping for an airborne ball, a stadium
-  light arc overhead.
+- **Fantasy:** Twilight stadium. Two rival clubs. Charged shots,
+  wall-bounces, golden-goal tie-breaks. Silhouettes are clean and
+  readable — no caricature.
+- **Palette:** brand cyan (`#00e8d0`) vs ember orange (`#ff8855`).
+  Dusk pitch, stadium lights in `#ffe6a8`.
+- **Art direction:** procedural SVG crests + portraits per club,
+  canvas-rendered match with particles, camera shake, hit-stop.
+
+## File structure
+
+```
+src/games/goalbound/
+  index.jsx              # Shell + route switch
+  store.js               # Versioned, validated persistent store
+  content.js             # Teams, players, arenas, difficulties, challenges, physics
+  styles.css             # Scoped UI styles
+  engine/
+    match.js             # Match simulation (physics, FX, scoring, rules)
+    ai.js                # Opponent AI (layered state machine)
+    render.js            # Canvas renderer (stadium, players, ball, weather, FX)
+    tournament.js        # Fixture / standings / bracket engine
+    challenges.js        # Challenge evaluator
+  ui/
+    Crest.jsx            # Procedural SVG team crests
+    Portrait.jsx         # Procedural SVG player portraits
+    primitives.jsx       # ScreenHead, Choice, Pill, Stat, BackBar, …
+  screens/
+    Boot.jsx             # First-launch splash
+    Menu.jsx             # Main menu + resume card
+    Mode.jsx             # Secondary mode picker
+    TeamSelect.jsx       # Club picker (home + away)
+    PlayerSelect.jsx     # Player cycler with attributes
+    Difficulty.jsx       # Casual / Pro / Hard / Legend
+    MatchSettings.jsx    # Duration, weather, ball, arena, crowd, a11y
+    TournamentSetup.jsx  # Format + seeding + AI difficulty
+    GroupStage.jsx       # Standings + fixtures + simulate
+    Bracket.jsx          # Knockout tree + trophy
+    MatchIntro.jsx       # Versus screen + countdown
+    Match.jsx            # Live match (canvas + HUD)
+    Results.jsx          # Scoreline, goal timeline, challenge stars
+    Stats.jsx            # Matches, trophies, medals, favorite club
+    Help.jsx             # Controls, modes, tips, reset progress
+    Challenges.jsx       # Scenario list
+    Shootout.jsx         # Hotseat penalty mode
+    Pause.jsx            # Pause overlay (unused — GameShell owns pause)
+```
 
 ## Modes
 
-| Mode           | Players | Notes |
-|----------------|---------|-------|
-| Quick Match    | 1 vs AI | 60s match, 3 difficulty tiers (Casual / Pro / Legend). First to 3 or timer-out; golden goal on tie. |
-| Local Versus   | 2 hotseat | Same keyboard. Desktop-only (hidden on < 820px viewport with a "Best on desktop" message). |
-| Penalty Shootout | 2 hotseat | 5 alternating rounds, kicker + keeper on the same phone. No simultaneous inputs — works natively on one mobile device. |
+| Mode              | Entry           | Notes |
+|-------------------|-----------------|-------|
+| Quick Match       | Menu > Quick    | 1v1 vs AI, full pre-match flow (team → player → difficulty → settings → intro). |
+| Tournament        | Menu > Tournament | 3 formats: Mini Cup, Continental, World Series. Standings + bracket + persistence. |
+| Local Versus      | Menu > Versus   | 2P hotseat. Desktop-first; shell already hides on narrow screens. |
+| Penalty Shootout  | Menu > Shootout | 5 alternating kicks. Works on single phone. |
+| Challenges        | Menu > Challenges | 7 scenarios. Applied modifiers + star checker. |
+| Practice          | Menu > Practice | Free play. No AI pressure. No clock win. |
 
-## Physics constants
+## Persistence
 
-| Name | Value | Notes |
-|------|-------|-------|
-| Pitch width | 760 | Virtual units |
-| Pitch height | 420 | |
-| Floor Y | 360 | Ground collision line |
-| Gravity | 1500 u/s² | |
-| Player move | 260 u/s | Ground speed |
-| Player jump | -540 u/s | Instant impulse |
-| Ball friction (air) | 0.995 | |
-| Ball bounce (ground) | 0.58 | |
-| Ball bounce (walls) | 0.75 | |
-| Kick range | 42 | Foot-to-ball contact threshold |
-| Kick power | 460 u/s | Scaled by random 1.05–1.15 |
-| Kick cooldown | 0.35s | Per-player |
-| Goal mouth width | 70 | Goal height 140, ground-tied |
-| Match seconds | 60 | |
-| Golden-goal seconds | 45 | Only on tied timer-out |
-| Win goals | 3 | Early-stop threshold |
+All state lives under `localStorage[pd-goalbound-v1]` as a single
+versioned JSON blob. The store validates on load, deep-merges over
+defaults to tolerate missing fields, and falls back to a clean reset
+if the blob is corrupted or the version doesn't match.
 
-## Controls
+Persisted surface:
 
-| Input | P1 (Home) | P2 (Away, versus mode) |
-|-------|-----------|------------------------|
-| Move  | A / D     | ← / → |
-| Jump  | W         | ↑ |
-| Kick  | S (or Space) | / (or Shift) |
+- `route` (last screen)
+- `selections` (mode, home/away team, players, difficulty, duration,
+  arena, weather, ball, crowd, template, seeding)
+- `settings` (sfx, reducedMotion, staticStadium)
+- `tournament` (full bracket / fixtures / standings snapshot)
+- `challenge` (active challenge id)
+- `match` (last-finished match snapshot, used by Results)
+- `stats` (matches, wins/draws/losses, goals, hat-tricks, clean sheets,
+  trophies, challenge stars, streaks, favorite team)
+- `meta` (bootedOnce, lastPlayedAt)
 
-Touch (mobile, via `src/input/useVirtualControls.jsx`):
-- `goalbound` binding surfaces a D-pad (A/D) + Jump (W) + Kick (S).
-- Virtual controls only render on `(max-width: 820px), (pointer: coarse)`.
+Reload restores the last route and all selections. If the user reloads
+mid-match, the route is `match`, so they land on a fresh kick-off
+with their same selections — a sensible resumable default.
 
-## AI design
+## Physics + feel
 
-Three tiers (see `AI_TIERS` in `GoalboundGame.jsx`):
+Tuning lives at the top of `content.js` (`PHYSICS`). Match engine
+adds: acceleration/deceleration (smoother movement), charged kicks
+(hold to charge up to ~0.55s), hit-stop (brief freeze on contact),
+camera shake (bigger on goals, tiny on shots), squash/stretch on
+jump/land, turf dust on bounces, confetti on goals, post-hit rings,
+and a crowd pulse that drives subtle stand animation.
 
-- **Casual** — 260ms react, large aim wobble, 25% contest-air, slow
-  counterattack. Misses most air balls.
-- **Pro** — 160ms react, tighter aim, 55% contest-air, punishes
-  neutral positioning.
-- **Legend** — 80ms react, tight aim, always contests air balls,
-  preemptively defends the goal line.
+## AI
 
-The AI uses a simple `{ goToX, jump, kick }` state machine,
-re-decided every `reactTime + jitter`. No pathfinding, no
-prediction tree — it's a 1D line with a jump axis.
+Four tiers (Casual / Pro / Hard / Legend). Each tier tunes:
 
-## Audio
+- `reactTime` — seconds between re-decisions
+- `aim` — noise added to targeted-X
+- `contestAir` — probability to jump aerial balls
+- `punish` — aggression on counter-attacks
+- `chase` — movement-speed multiplier
+- `mistakes` — random misposition probability
 
-Synthesized via `src/sound.js`. New cues: `sfx.kick`, `sfx.bounce`,
-`sfx.goal`, `sfx.whistle`, `sfx.save`. All Web Audio oscillator
-envelopes — no samples. Mute flag shared with the rest of the app.
+The AI is a 1D state machine: pick `{goToX, jump, kick, chargeMore}`
+every `reactTime`, apply until the next decision.
 
-## Integration
+## Tournament
 
-- Registered in `src/data.js` as `{ id:'goalbound', ... }`,
-  replacing the legacy `football` entry.
-- Lazy-loaded in `src/components/GameIntro.jsx#PLAYABLE`.
-- Score bus: `submitScore('goalbound', score, meta)` on match end
-  with `{ mode, difficulty, scored, conceded, reason, won }` in meta.
-- Featured on home hero (moved from fbwg since fbwg is still a
-  metadata-only stub).
-- Appears in `originals`, `twitch`, `pass-the-laptop`, `phone-friendly`
-  collections, and in `EDITORS_PICKS`.
-- Achievement ids (stub — wiring through `useAchievements.js` is
-  deferred): `goalbound_first_win`, `goalbound_clean_sheet`,
-  `goalbound_hat_trick`, `goalbound_legend_beat`, `goalbound_golden_goal`.
+Three templates:
 
-## Out of scope (v1)
+- **Mini Cup** — 4 teams round-robin, highest points wins.
+- **Continental** — 8 teams, 2 groups of 4, top 2 → SF → F.
+- **World Series** — 8 teams straight knockouts (QF → SF → F).
 
-- Gamepad input.
-- Tournament bracket / series mode.
-- Character picker / skins.
-- Advanced ball physics (spin, dribble).
-- Replay system.
+Non-player matches are simulated by a Poisson sampler modulated by
+rating delta. "Simulate others" / "Simulate round" finishes the
+current round off-screen so the player can stay in their lane.
+Drawn knockouts resolve by coin flip.
 
-## Play-tuning levers
+## Challenges
 
-All tuning constants live at the top of `src/games/GoalboundGame.jsx`.
-Common dials:
+Seven scenarios with temporary match modifiers. Checker function is
+bundled with each challenge in `content.js`; results are evaluated
+after finish via `engine/challenges.js#evaluateChallenge`. Highest
+star count earned is persisted.
 
-- Make games shorter: drop `MATCH_SECONDS` from 60 to 45.
-- Make goals easier: raise `KICK_POWER` or enlarge `GOAL_W`.
-- Make Pro feel like Legend: shrink `AI_TIERS.pro.reactTime`.
-- Make jump arcs loftier: make `PLAYER_JUMP` more negative or drop
-  `GRAVITY`.
+## Integration with PG.Play
 
-Keep the pitch size fixed — the reset coordinates and AI math
-assume `W = 760`.
+- `src/games/GoalboundGame.jsx` is a thin re-export of `goalbound/index.jsx`
+  so the lobby's lazy-load map keeps working.
+- `src/components/GameIntro.jsx` exposes a single primary CTA — **Enter
+  Goalbound** — that drops into the Goalbound menu. The Penalty
+  Shootout shortcut is retained for users who want the one-tap path.
+- The outer `GameShell` owns pause/help/mute/fullscreen/restart. The
+  Match component watches the shell's `[data-paused]` attribute so
+  the sim actually stops when the shell pauses.
+- Score bus (`submitScore('goalbound', score, meta)`) is still
+  emitted on match completion for quick/tournament/practice modes
+  so platform bests update.
+
+## Inputs
+
+- **Keyboard.** Always available. P1: A/D/W/S; P2: ←/→/↑///Shift.
+- **Touch.** Virtual controls layer (`useVirtualControls.jsx`) registers
+  a Goalbound binding (left/right + Jump + Kick). Surfaces only on
+  `(max-width: 820px), (pointer: coarse)`.
+- **Gamepad.** Standard mapping via the Gamepad API (`engine/gamepad.js`).
+  Left stick / D-pad maps to move, A = jump, B/X = kick. Two pads → P1
+  + P2 in Local Versus.
+
+## Known limitations
+
+- Controls remapping isn't exposed (defaults are fixed). The mapping
+  table lives in `Match.jsx#KEYS`.
+- Shootout is intentionally separate from tournaments — side mini-game.
+- Music is a stub toggle in the store (no track ships). SFX is Web
+  Audio synthesis — no samples.
+- Mid-match reload lands on a fresh kick-off with the same selections
+  (rather than full positional replay).
+
+## Tuning dials at a glance
+
+- Make matches shorter: `content.js#MATCH_DURATIONS` defaults
+- Make goals easier: `PHYSICS.KICK_POWER` / `PHYSICS.GOAL_W`
+- Make Pro feel like Legend: shrink `DIFFICULTIES.pro.reactTime`
+- Calmer FX: lower `CROWD_MODIFIERS.*.energy` or enable `staticStadium`

@@ -9,6 +9,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { submitScore } from '../scoreBus.js';
+import { sizeCanvas } from '../util/canvasDpr.js';
 
 const W = 800;
 const H = 500;
@@ -211,7 +212,7 @@ export default function TraceGame() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = sizeCanvas(canvas, W, H);
 
     const keys = {};
     const kd = (e) => {

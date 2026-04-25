@@ -18,6 +18,7 @@ export default function CompanionPanel({
   controls,
   stats,
   onOpen,
+  onClose,
 }) {
   const [tab, setTab] = useState(controls ? 'controls' : 'goals');
 
@@ -35,6 +36,18 @@ export default function CompanionPanel({
 
   return (
     <aside className="shell-companion" aria-label="Game info">
+      <div className="shell-companion-head">
+        <div className="shell-companion-head-title">{game.name}</div>
+        {onClose && (
+          <button
+            className="shell-companion-close"
+            onClick={onClose}
+            aria-label="Close info panel"
+            title="Close (Esc)">
+            {Icon.close}
+          </button>
+        )}
+      </div>
       <div className="shell-companion-tabs" role="tablist">
         {tabs.map((t) => (
           <button

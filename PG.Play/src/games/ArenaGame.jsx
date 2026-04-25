@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { supabase } from '../supabase.js';
 import { submitScore } from '../scoreBus.js';
+import { sizeCanvas } from '../util/canvasDpr.js';
 
 const W = 720;
 const H = 440;
@@ -218,7 +219,7 @@ export default function ArenaGame() {
   // Input + game loop
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = sizeCanvas(canvas, W, H);
 
     const kd = (e) => {
       const s = stateRef.current; if (!s) return;

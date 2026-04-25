@@ -10,6 +10,8 @@ export default function Toolbar({
   muted,
   onToggleFullscreen,
   isFullscreen,
+  onToggleCompanion,
+  companionOpen,
   showPause = true,
   showRestart = true,
   showHelp = true,
@@ -30,6 +32,16 @@ export default function Toolbar({
           aria-label={paused ? 'Resume' : 'Pause'}
           title={paused ? 'Resume (P)' : 'Pause (P)'}>
           {paused ? Icon.play : Icon.pause}
+        </button>
+      )}
+      {onToggleCompanion && (
+        <button
+          className={'btn-tool' + (companionOpen ? ' is-active' : '')}
+          onClick={onToggleCompanion}
+          aria-label={companionOpen ? 'Close info panel' : 'Open info panel'}
+          aria-expanded={!!companionOpen}
+          title={companionOpen ? 'Close info (I)' : 'Info — goals, controls, stats (I)'}>
+          {Icon.info}
         </button>
       )}
       {showHelp && (

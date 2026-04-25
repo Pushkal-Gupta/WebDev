@@ -28,22 +28,13 @@ export function useIsMobile() {
  * Each binding entry maps a game id to the physical controls we want to
  * surface on mobile. `dpad` is optional; `buttons` is an ordered list.
  * `key` / `code` must match what the game's native keyboard handler checks.
+ * Glyphs on the dpad are decorative; screen-reader labels come from DPAD_LABEL.
  */
 const BINDINGS = {
-  grudgewood: {
-    dpad: {
-      left:  { key: 'a', code: 'KeyA' },
-      right: { key: 'd', code: 'KeyD' },
-    },
-    buttons: [{ id: 'jump', label: 'Jump', key: ' ', code: 'Space' }],
-  },
-  nightcap: {
-    dpad: {
-      left:  { key: 'a', code: 'KeyA' },
-      right: { key: 'd', code: 'KeyD' },
-    },
-    buttons: [{ id: 'jump', label: 'Jump', key: ' ', code: 'Space' }],
-  },
+  // grudgewood is intentionally omitted here: the 3D Grudgewood ships its
+  // own analog joystick + Jump button via src/games/grudgewood/ui/TouchControls.jsx,
+  // which talks to its Input instance directly (Input.setAxis, jumpDown).
+  // Adding a binding here would render a duplicate, conflicting overlay.
   hook: {
     // Stickman Hook is a one-button game — grab + release.
     dpad: null,
@@ -87,7 +78,7 @@ const BINDINGS = {
     ],
   },
   happywheels: {
-    // Faceplant — throttle / brake / lean
+    // Faceplant — throttle / brake / lean.
     dpad: {
       up:    { key: 'w', code: 'KeyW' },
       down:  { key: 's', code: 'KeyS' },
@@ -107,7 +98,28 @@ const BINDINGS = {
     },
     buttons: [{ id: 'fire', label: 'Fire', key: ' ', code: 'Space' }],
   },
+  arena: {
+    // Top-down shooter. WASD moves; touch-on-canvas aims and fires.
+    // A dedicated Fire button stays available so no-look shooting works.
+    dpad: {
+      up:    { key: 'w', code: 'KeyW' },
+      down:  { key: 's', code: 'KeyS' },
+      left:  { key: 'a', code: 'KeyA' },
+      right: { key: 'd', code: 'KeyD' },
+    },
+    buttons: [{ id: 'fire', label: 'Fire', key: ' ', code: 'Space' }],
+  },
+  slither: {
+    // Coil — finger steers the snake, boost button doubles speed.
+    // No d-pad: drag-to-steer beats a virtual stick on a chase camera game.
+    dpad: null,
+    buttons: [{ id: 'boost', label: 'Boost', key: ' ', code: 'Space' }],
+  },
 };
+
+// Screen-reader labels; the on-screen arrow glyphs are decorative.
+const DPAD_LABEL = { up: 'Move up', down: 'Move down', left: 'Move left', right: 'Move right' };
+const DPAD_GLYPH = { up: '↑', down: '↓', left: '←', right: '→' };
 
 export function hasBinding(gameId) {
   return !!BINDINGS[gameId];
@@ -144,7 +156,7 @@ export default function VirtualControls({ gameId, visible = true }) {
     dispatch('keyup', b);
   };
 
-  const pad = (b, cls, label) => (
+  const pad = (b, cls, glyph, srLabel) => (
     <button
       key={b.code}
       className={`vctl-btn ${cls}`}
@@ -156,23 +168,23 @@ export default function VirtualControls({ gameId, visible = true }) {
       onPointerUp={(e) => { e.preventDefault(); release(b); }}
       onPointerCancel={(e) => { e.preventDefault(); release(b); }}
       onPointerLeave={(e) => { if (e.buttons === 0) release(b); }}
-      aria-label={label}>
-      <span>{label}</span>
+      aria-label={srLabel}>
+      <span aria-hidden="true">{glyph}</span>
     </button>
   );
 
   return (
-    <div className="vctl" aria-hidden="false">
+    <div className="vctl" role="group" aria-label="On-screen controls">
       {binding.dpad && (
         <div className="vctl-dpad">
-          {binding.dpad.up    && pad(binding.dpad.up,    'vctl-up',    '↑')}
-          {binding.dpad.left  && pad(binding.dpad.left,  'vctl-left',  '←')}
-          {binding.dpad.right && pad(binding.dpad.right, 'vctl-right', '→')}
-          {binding.dpad.down  && pad(binding.dpad.down,  'vctl-down',  '↓')}
+          {binding.dpad.up    && pad(binding.dpad.up,    'vctl-up',    DPAD_GLYPH.up,    DPAD_LABEL.up)}
+          {binding.dpad.left  && pad(binding.dpad.left,  'vctl-left',  DPAD_GLYPH.left,  DPAD_LABEL.left)}
+          {binding.dpad.right && pad(binding.dpad.right, 'vctl-right', DPAD_GLYPH.right, DPAD_LABEL.right)}
+          {binding.dpad.down  && pad(binding.dpad.down,  'vctl-down',  DPAD_GLYPH.down,  DPAD_LABEL.down)}
         </div>
       )}
       <div className="vctl-actions">
-        {binding.buttons.map((b) => pad(b, 'vctl-action', b.label))}
+        {binding.buttons.map((b) => pad(b, 'vctl-action', b.label, b.label))}
       </div>
     </div>
   );

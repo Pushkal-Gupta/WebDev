@@ -85,8 +85,20 @@ export const sfx = {
   save:     () => { envTone(180, 0.09, 'square', 0.1); noise(0.06, 0.06); },
 };
 
+// Cross-game mute event bus. Per-game audio modules subscribe so the
+// GameShell mute toggle (which calls setMuted here) reaches everyone.
+const muteListeners = new Set();
+export const subscribeMute = (cb) => {
+  muteListeners.add(cb);
+  return () => muteListeners.delete(cb);
+};
 export const setMuted = (yes) => {
-  if (yes) localStorage.setItem(LS_KEY, '1');
+  const next = !!yes;
+  const prev = muted();
+  if (next) localStorage.setItem(LS_KEY, '1');
   else localStorage.removeItem(LS_KEY);
+  if (prev !== next) {
+    muteListeners.forEach((cb) => { try { cb(next); } catch {} });
+  }
 };
 export const isMuted = muted;
