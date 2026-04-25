@@ -9,7 +9,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { submitScore } from '../scoreBus.js';
-import { sizeCanvas } from '../util/canvasDpr.js';
+import { sizeCanvasFluid } from '../util/canvasDpr.js';
 
 const W = 800;
 const H = 500;
@@ -177,6 +177,8 @@ function parseRoom(idx) {
 
 export default function TraceGame() {
   const canvasRef = useRef(null);
+  const wrapRef   = useRef(null);
+  const viewRef   = useRef({ cssW: W, cssH: H });
   const stateRef  = useRef(null);
   const submittedRef = useRef(false);
   const [roomIdx, setRoomIdx] = useState(0);
@@ -212,7 +214,16 @@ export default function TraceGame() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = sizeCanvas(canvas, W, H);
+    const wrap = wrapRef.current;
+    if (!canvas || !wrap) return;
+    const ctx = canvas.getContext('2d');
+
+    // Fluid sizer — record the css size so draw can center the fixed
+    // 800×500 room inside the available canvas area. Rooms are
+    // hand-authored at native size so we never stretch them.
+    const dispose = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
+      viewRef.current = { cssW, cssH };
+    });
 
     const keys = {};
     const kd = (e) => {
@@ -263,6 +274,19 @@ export default function TraceGame() {
     const draw = () => {
       const s = stateRef.current; if (!s) return;
       const { room, player, sawT } = s;
+      const { cssW, cssH } = viewRef.current;
+
+      // Outer backdrop fills the canvas in the same paper tone the room
+      // ends on — the padding around the playfield reads as margin, not
+      // as a frame.
+      ctx.fillStyle = '#d9d2c4';
+      ctx.fillRect(0, 0, cssW, cssH);
+
+      // Center the fixed 800×500 room inside the canvas.
+      const offX = (cssW - W) / 2;
+      const offY = (cssH - H) / 2;
+      ctx.save();
+      ctx.translate(offX, offY);
 
       // background gradient — soft paper → slate
       const grad = ctx.createLinearGradient(0, 0, 0, H);
@@ -384,6 +408,8 @@ export default function TraceGame() {
           ctx.stroke();
         }
       }
+
+      ctx.restore();
     };
 
     const clock = { last: performance.now() };
@@ -521,6 +547,7 @@ export default function TraceGame() {
 
     return () => {
       cancelAnimationFrame(raf);
+      dispose();
       window.removeEventListener('keydown', kd);
       window.removeEventListener('keyup', ku);
     };
@@ -545,7 +572,9 @@ export default function TraceGame() {
           {status === 'won' && <button className="btn btn-primary btn-sm" onClick={restart}>Play again</button>}
         </span>
       </div>
-      <canvas ref={canvasRef} className="trace-canvas" width={W} height={H}/>
+      <div ref={wrapRef} style={{ flex: '1 1 0', minHeight: 0, width: '100%', position: 'relative' }}>
+        <canvas ref={canvasRef} className="trace-canvas"/>
+      </div>
       {status === 'won' ? (
         <div className="trace-tip" style={{color:'var(--accent)', fontWeight:700}}>
           Cleared · {deaths} death{deaths === 1 ? '' : 's'} · {time}s

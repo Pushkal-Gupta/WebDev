@@ -8,7 +8,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { submitScore } from '../scoreBus.js';
-import { sizeCanvas } from '../util/canvasDpr.js';
+import { sizeCanvasFluid } from '../util/canvasDpr.js';
 
 const W = 720;
 const H = 460;
@@ -32,6 +32,8 @@ const HOOP = {
 
 export default function HoopShotGame() {
   const canvasRef = useRef(null);
+  const wrapRef = useRef(null);
+  const viewRef = useRef({ cssW: W, cssH: H });
   const stateRef = useRef(null);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
@@ -61,12 +63,25 @@ export default function HoopShotGame() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = sizeCanvas(canvas, W, H);
+    const wrap = wrapRef.current;
+    if (!canvas || !wrap) return;
+    const ctx = canvas.getContext('2d');
+
+    // Fluid sizer — record the css size so draw can center the fixed
+    // 720×460 court inside the available canvas.
+    const dispose = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
+      viewRef.current = { cssW, cssH };
+    });
 
     const rectOf = () => canvas.getBoundingClientRect();
     const toLocal = (cx, cy) => {
+      // Canvas fills the parent (style 100%/100%) — bounding rect IS the
+      // displayed size. Subtract the centered playfield offset so the
+      // pointer lands in 720×460 court coords.
       const r = rectOf();
-      return { x: (cx - r.left) * (W / r.width), y: (cy - r.top) * (H / r.height) };
+      const offX = (r.width  - W) / 2;
+      const offY = (r.height - H) / 2;
+      return { x: (cx - r.left) - offX, y: (cy - r.top) - offY };
     };
 
     const beginDraw = (x, y) => {
@@ -124,6 +139,18 @@ export default function HoopShotGame() {
 
     const draw = () => {
       const s = stateRef.current; if (!s) return;
+      const { cssW, cssH } = viewRef.current;
+
+      // Outer backdrop fills the canvas in the deep court orange so the
+      // surrounding padding feels like part of the arena, not a frame.
+      ctx.fillStyle = '#c84d1a';
+      ctx.fillRect(0, 0, cssW, cssH);
+
+      // Center the fixed 720×460 court inside the canvas.
+      const offX = (cssW - W) / 2;
+      const offY = (cssH - H) / 2;
+      ctx.save();
+      ctx.translate(offX, offY);
 
       // backdrop
       const grad = ctx.createLinearGradient(0, 0, 0, H);
@@ -234,6 +261,8 @@ export default function HoopShotGame() {
         ctx.fillRect(p.x - 2, p.y - 2, 4, 4);
         ctx.globalAlpha = 1;
       });
+
+      ctx.restore();
     };
 
     const clock = { last: performance.now() };
@@ -365,6 +394,7 @@ export default function HoopShotGame() {
 
     return () => {
       cancelAnimationFrame(raf);
+      dispose();
       canvas.removeEventListener('mousedown', onMouseDown);
       canvas.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
@@ -393,7 +423,9 @@ export default function HoopShotGame() {
           <button className="btn btn-primary btn-sm" onClick={reset}>Play again</button>
         )}
       </div>
-      <canvas ref={canvasRef} className="hoop-canvas" width={W} height={H}/>
+      <div ref={wrapRef} style={{ flex: '1 1 0', minHeight: 0, width: '100%', position: 'relative' }}>
+        <canvas ref={canvasRef} className="hoop-canvas"/>
+      </div>
       <div className="hoop-hint">Press the ball, drag back to aim, release to shoot · swishes = 3 · rim kisses = 2 · streak adds +1 per make</div>
     </div>
   );

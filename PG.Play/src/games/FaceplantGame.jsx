@@ -17,7 +17,12 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { submitScore } from '../scoreBus.js';
+import { sizeCanvasFluid } from '../util/canvasDpr.js';
 
+// Native level dimensions. The fluid sizer fills the canvas to its parent;
+// we render the level at this fixed size, centered horizontally with the
+// sky gradient + parallax hills filling the side margins. Vertical centering
+// keeps the playfield anchored mid-screen on tall viewports.
 const VIEW_W = 900;
 const VIEW_H = 420;
 
@@ -97,6 +102,8 @@ const inSpikeZone = (x) => SPIKES.some((s) => x >= s.x0 && x <= s.x1);
 
 export default function FaceplantGame() {
   const canvasRef = useRef(null);
+  const wrapRef   = useRef(null);
+  const viewRef   = useRef({ cssW: VIEW_W, cssH: VIEW_H, offX: 0, offY: 0 });
   const stateRef  = useRef(null);
   const submittedRef = useRef(false);
   const [time, setTime]       = useState(0);
@@ -127,7 +134,21 @@ export default function FaceplantGame() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    const wrap = wrapRef.current;
+    if (!canvas || !wrap) return;
     const ctx = canvas.getContext('2d');
+
+    // Fluid sizer: canvas buffer = parent css × dpr. We render the native
+    // VIEW_W × VIEW_H level centered, with the sky gradient extending to
+    // fill the entire canvas so wide viewports look intentional.
+    const dispose = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
+      viewRef.current = {
+        cssW,
+        cssH,
+        offX: Math.floor((cssW - VIEW_W) / 2),
+        offY: Math.floor((cssH - VIEW_H) / 2),
+      };
+    });
 
     const keys = {};
     const kd = (e) => {
@@ -144,33 +165,46 @@ export default function FaceplantGame() {
     const draw = () => {
       const s = stateRef.current; if (!s) return;
       const { bike, camX, particles } = s;
+      const view = viewRef.current;
+      const { cssW, cssH, offX, offY } = view;
 
-      // Sky gradient
-      const sky = ctx.createLinearGradient(0, 0, 0, VIEW_H);
+      // Full-canvas sky gradient — extends past the playfield so the side
+      // margins on wide viewports don't show empty backdrop.
+      const sky = ctx.createLinearGradient(0, 0, 0, cssH);
       sky.addColorStop(0, '#8bd6ff');
       sky.addColorStop(1, '#e6f4ff');
       ctx.fillStyle = sky;
-      ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+      ctx.fillRect(0, 0, cssW, cssH);
 
-      // Distant hills (parallax)
+      // Distant hills (parallax) — also span the full canvas width so the
+      // parallax skyline keeps filling the side margins.
       ctx.fillStyle = 'rgba(80, 140, 90, 0.45)';
-      for (let i = 0; i < 12; i++) {
-        const hx = ((i * 180 - camX * 0.35) % (VIEW_W + 400)) - 200;
+      for (let i = 0; i < 24; i++) {
+        const hx = ((i * 180 - camX * 0.35) % (cssW + 400)) - 200;
         ctx.beginPath();
-        ctx.moveTo(hx, 280);
-        ctx.quadraticCurveTo(hx + 60, 200, hx + 120, 280);
+        ctx.moveTo(hx, offY + 280);
+        ctx.quadraticCurveTo(hx + 60, offY + 200, hx + 120, offY + 280);
         ctx.closePath();
         ctx.fill();
       }
       ctx.fillStyle = 'rgba(60, 110, 70, 0.6)';
-      for (let i = 0; i < 10; i++) {
-        const hx = ((i * 220 - camX * 0.55) % (VIEW_W + 400)) - 200;
+      for (let i = 0; i < 20; i++) {
+        const hx = ((i * 220 - camX * 0.55) % (cssW + 400)) - 200;
         ctx.beginPath();
-        ctx.moveTo(hx, 300);
-        ctx.quadraticCurveTo(hx + 70, 230, hx + 140, 300);
+        ctx.moveTo(hx, offY + 300);
+        ctx.quadraticCurveTo(hx + 70, offY + 230, hx + 140, offY + 300);
         ctx.closePath();
         ctx.fill();
       }
+
+      // From here on, draw the level itself in its native coord system.
+      // Translate so (0,0) lines up with the playfield top-left, then clip
+      // so terrain / spikes don't bleed into the side margins.
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(offX, offY, VIEW_W, VIEW_H);
+      ctx.clip();
+      ctx.translate(offX, offY);
 
       // Ground polygon
       ctx.fillStyle = '#6fbf4a';
@@ -281,7 +315,8 @@ export default function FaceplantGame() {
         ctx.globalAlpha = 1;
       });
 
-      // HUD — distance bar
+      // HUD — distance bar (rendered inside the playfield's translated/clipped
+      // space so the start/finish labels track the actual level edges)
       ctx.fillStyle = 'rgba(0,0,0,0.3)';
       ctx.fillRect(20, 20, VIEW_W - 40, 6);
       ctx.fillStyle = '#ffe14f';
@@ -293,6 +328,8 @@ export default function FaceplantGame() {
       ctx.fillText('START', 20, 38);
       ctx.textAlign = 'right';
       ctx.fillText('FINISH', VIEW_W - 20, 38);
+
+      ctx.restore();
     };
 
     let raf = 0;
@@ -436,6 +473,7 @@ export default function FaceplantGame() {
 
     return () => {
       cancelAnimationFrame(raf);
+      dispose();
       window.removeEventListener('keydown', kd);
       window.removeEventListener('keyup', ku);
     };
@@ -462,7 +500,9 @@ export default function FaceplantGame() {
           {(status === 'crashed' || status === 'won') && <button className="btn btn-primary btn-sm" onClick={reset}>Restart</button>}
         </span>
       </div>
-      <canvas ref={canvasRef} className="face-canvas" width={VIEW_W} height={VIEW_H}/>
+      <div ref={wrapRef} style={{ flex: '1 1 0', minHeight: 0, width: '100%', position: 'relative' }}>
+        <canvas ref={canvasRef} className="face-canvas"/>
+      </div>
       {status === 'won' && (
         <div className="face-result" style={{color:'var(--accent)'}}>
           Course cleared · {time}s · bones intact
