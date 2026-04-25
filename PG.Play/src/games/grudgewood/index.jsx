@@ -256,6 +256,18 @@ export default function GrudgewoodGame() {
         cam.setMode('death');
         cam.bump(1.2);
         setPhase('death');
+        // Score the run on death so the leaderboard tracks how far each
+        // attempt got. Score = deepestSegment * 1000 - runtime, with deeper
+        // progress counted as a clean win over fast-but-shallow runs.
+        const deepestSegment = gameState.currentSegment;
+        const time = Math.round(gameState.runtime);
+        const score = Math.max(1, Math.round(deepestSegment * 1000 + 100 - gameState.runtime));
+        submitScore('grudgewood', score, {
+          time,
+          deepestSegment,
+          deaths: gameState.sessionDeaths,
+          deathKind: kind,
+        });
       },
       toast(msg, dur = 2.4) {
         gameState.toastText = msg;
@@ -316,6 +328,22 @@ export default function GrudgewoodGame() {
         };
         world.update(dt, trapCtx);
 
+        // Predator near-miss feedback — shake the camera when an active
+        // branch swing passes within ~2 units of the player without hitting.
+        for (const trap of world.traps) {
+          if (trap.kind !== 'predator' || !trap.lethalActive) continue;
+          const d = trap.swingDistanceTo?.(player.pos) ?? Infinity;
+          if (d < 2.0 && d > trap.hitRadius + PLAYER_RADIUS) {
+            if (!trap._nearMissed) {
+              trap._nearMissed = true;
+              cam.bump(0.55);
+              player.stumble = 0.25;
+            }
+          } else if (trap.phase !== 'strike') {
+            trap._nearMissed = false;
+          }
+        }
+
         // Lethal hits.
         if (player.alive && player.invuln <= 0) {
           const trap = world.checkLethalHit(player.pos, PLAYER_RADIUS);
@@ -360,7 +388,12 @@ export default function GrudgewoodGame() {
           gameState.toast('You took the Axe.');
           gameState.phase = 'finished';
           submitScore('grudgewood', Math.max(1, Math.round(10000 - gameState.sessionDeaths * 100 - gameState.runtime)),
-            { deaths: gameState.sessionDeaths, time: Math.round(gameState.runtime), reachedAxe: true });
+            {
+              deaths: gameState.sessionDeaths,
+              time: Math.round(gameState.runtime),
+              deepestSegment: gameState.currentSegment,
+              reachedAxe: true,
+            });
           // Stay on screen with a celebratory camera reveal.
           cam.setMode('reveal');
           setPhase('finished');

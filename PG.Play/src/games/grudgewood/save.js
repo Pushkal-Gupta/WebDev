@@ -44,11 +44,28 @@ function isValid(d) {
 }
 
 let cache = null;
+// In-memory fallback when localStorage is unavailable (private mode, quota
+// exceeded, sandboxed iframe, etc). Persists for the session only.
+const memoryStore = { [KEY]: null };
+let storageWorks = true;
+
+function safeGet(k) {
+  try { return localStorage.getItem(k); }
+  catch { storageWorks = false; return memoryStore[k] ?? null; }
+}
+
+function safeSet(k, v) {
+  try { localStorage.setItem(k, v); storageWorks = true; }
+  catch {
+    storageWorks = false;
+    memoryStore[k] = v;
+  }
+}
 
 export function loadSave() {
   if (cache) return cache;
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = safeGet(KEY);
     if (!raw) { cache = DEFAULT(); return cache; }
     const parsed = JSON.parse(raw);
     if (!isValid(parsed)) {
@@ -69,8 +86,14 @@ export function persist() {
   if (!cache) return;
   try {
     cache.lastSeen = Date.now();
-    localStorage.setItem(KEY, JSON.stringify(cache));
-  } catch {}
+    safeSet(KEY, JSON.stringify(cache));
+  } catch {
+    // safeSet already routes to memory; this catches JSON.stringify cycles.
+  }
+}
+
+export function isStoragePersistent() {
+  return storageWorks;
 }
 
 export function getSave() {

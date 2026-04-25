@@ -8,7 +8,7 @@ function trapFocus(node) {
   return () => {};
 }
 
-export function PauseOverlay({ open, onResume, onRestart, onExit }) {
+export function PauseOverlay({ open, onResume, onRestart, onExit, onToggleMute, muted }) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => {
@@ -21,12 +21,15 @@ export function PauseOverlay({ open, onResume, onRestart, onExit }) {
   return (
     <div className="shell-overlay" role="dialog" aria-modal="true" aria-labelledby="pause-title">
       <div className="shell-overlay-card" ref={trapFocus}>
-        <div className="shell-overlay-kicker">Paused</div>
-        <h2 id="pause-title" className="shell-overlay-title">Take a breath</h2>
-        <p className="shell-overlay-desc">Your match is held here. Resume to keep playing, restart if you want a fresh scoreline.</p>
+        <h2 id="pause-title" className="shell-overlay-title">Paused</h2>
         <div className="shell-overlay-actions">
           <button className="btn btn-primary btn-lg" onClick={onResume}>{Icon.play} Resume</button>
           <button className="btn btn-ghost btn-lg" onClick={onRestart}>{Icon.restart} Restart</button>
+          {onToggleMute && (
+            <button className="btn btn-ghost btn-lg" onClick={onToggleMute} aria-label={muted ? 'Unmute' : 'Mute'}>
+              {muted ? Icon.mute : Icon.volume} {muted ? 'Unmute' : 'Mute'}
+            </button>
+          )}
           <button className="btn btn-subtle" onClick={onExit}>{Icon.back} Exit</button>
         </div>
       </div>

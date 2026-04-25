@@ -47,7 +47,9 @@ export default function TeamSelect() {
     if (needsAway && side === 'home') { setSide('away'); return; }
     // For tournament mode we jump to the tournament setup after picking home
     if (mode === 'tournament') { setRoute('tournament-setup'); return; }
-    setRoute(mode === 'challenge' ? 'challenges' : 'player-select');
+    if (mode === 'challenge') { setRoute('challenges'); return; }
+    // Player-select was dropped; jump straight to the next logical step.
+    setRoute(mode === 'quick' ? 'difficulty' : 'match-settings');
   };
 
   const current = teamById(currentId);

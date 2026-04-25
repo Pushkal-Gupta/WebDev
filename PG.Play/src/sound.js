@@ -83,6 +83,14 @@ export const sfx = {
   },
   whistle:  () => { blip(2400, 2600, 0.18, 'square', 0.08); setTimeout(() => blip(2400, 2200, 0.12, 'square', 0.06), 160); },
   save:     () => { envTone(180, 0.09, 'square', 0.1); noise(0.06, 0.06); },
+  // Grudgewood: woody snap + low resonant tone for the axe-altar reveal.
+  axeReveal: () => {
+    blip(120, 80, 0.18, 'sawtooth', 0.10);
+    setTimeout(() => { envTone(220, 0.12, 'triangle', 0.08); noise(0.08, 0.05); }, 90);
+    setTimeout(() => blip(440, 660, 0.30, 'sine', 0.10), 220);
+  },
+  // Soft descending blip for "nothing found" / "couldn't load" UI signals.
+  error:    () => blip(420, 220, 0.18, 'triangle', 0.08),
 };
 
 // Cross-game mute event bus. Per-game audio modules subscribe so the

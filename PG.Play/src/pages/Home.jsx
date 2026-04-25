@@ -1,22 +1,32 @@
-// Home — the lobby surface. Sidebar + filter bar + hero + rails + grid.
+// Home — boutique arcade lobby.
 //
-// State that lives here is browse-only: search query, filter, favorites
-// view, collection view, and the various drawer / modal toggles.
-// Game launching is now a navigation, not a modal — `onOpen(game)` calls
-// `navigate('/game/:id')` and the GamePage owns everything from there.
+// Six playable games. The four originals occupy 2×2 hero tiles; the two
+// classics sit in a side rail. Above the bento, a strong typographic hero
+// section and a command-palette-style search.
+//
+// Browse-only state: search query, drawer toggles, sign-in, settings.
+// Filters and editorial rails were removed — with six titles the bento
+// is the editorial layout.
 
-import { useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GAMES, FILTERS, COLLECTIONS, EDITORS_PICKS } from '../data.js';
-import { GAME_COVERS } from '../covers.jsx';
+import { motion, useReducedMotion } from 'framer-motion';
+import { GAMES, EDITORS_PICKS, FILTERS, COLLECTIONS } from '../data.js';
 import { Icon } from '../icons.jsx';
 import Card from '../components/Card.jsx';
-import FeaturedHero from '../components/FeaturedHero.jsx';
 import Sidebar from '../components/Sidebar.jsx';
 import SettingsDrawer from '../components/SettingsDrawer.jsx';
 import AuthModal from '../components/AuthModal.jsx';
-import Collection from '../components/Collection.jsx';
 import ProfilePanel from '../components/ProfilePanel.jsx';
+import HomeLeaderboard from '../components/HomeLeaderboard.jsx';
+import SearchPalette from '../components/SearchPalette.jsx';
+import Footer from '../components/Footer.jsx';
+import { useCanRender3D } from '../hooks/useCanRender3D.js';
+import { useDocumentMeta } from '../hooks/useDocumentMeta.js';
+import { useRecent } from '../hooks/useRecent.js';
+
+// Lazy-loaded so the homepage's first paint doesn't pay for r3f / three.
+const HomeHero3D = lazy(() => import('../components/three/HomeHero3D.jsx'));
 import { useSession } from '../hooks/useSession.js';
 import { useFavorites } from '../hooks/useFavorites.js';
 import { useBests } from '../hooks/useBests.js';
@@ -25,166 +35,160 @@ import { useTheme } from '../hooks/useTheme.js';
 import { supabase } from '../supabase.js';
 import { sfx } from '../sound.js';
 
-const readJSON = (k, fallback) => {
-  try { return JSON.parse(localStorage.getItem(k)) ?? fallback; }
-  catch { return fallback; }
-};
+// The four originals get the bento hero tiles; the two headline classics
+// fill the small slots. Everything else playable lives in the "More games"
+// grid below the bento. Order: editorial via EDITORS_PICKS.
+const HERO_IDS = EDITORS_PICKS;
+const CLASSIC_IDS = ['g2048', 'connect4'];
 
-const FEATURED = GAMES.find((g) => g.featured) || GAMES[0];
-
-const HOME_RAILS = [
-  { id: 'originals',       variant: 'rail' },
-  { id: 'pass-the-laptop', variant: 'rail' },
-  { id: 'phone-friendly',  variant: 'rail' },
-  { id: 'twitch',          variant: 'rail' },
-  { id: 'brainy',          variant: 'rail' },
-  { id: 'mean-and-funny',  variant: 'rail' },
+// Hero copy options (pick one).
+const HERO_HEADLINES = [
+  'Play the internet\'s best arcade games instantly',
+  'Jump into hand-built browser games',
+  'A modern arcade built for instant fun, fast discovery, endless replay',
 ];
+const HERO_HEADLINE = HERO_HEADLINES[1];
 
 export default function Home() {
   const navigate = useNavigate();
-  const [q, setQ]                       = useState('');
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [favoritesOnly, setFavoritesOnly] = useState(false);
-  const [activeCollection, setActiveCollection] = useState(null);
-  const [recent, setRecent]             = useState(() => readJSON('pd-recent', []));
+  const reduced = useReducedMotion();
+  const can3D = useCanRender3D();
+
+  useDocumentMeta({
+    title: 'PG.Play — a hand-built arcade',
+    description: 'Four hand-built originals. Two quiet classics. Play instantly in your browser.',
+  });
+
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [profileOpen, setProfileOpen]   = useState(false);
   const [authOpen, setAuthOpen]         = useState(false);
   const [sideOpen, setSideOpen]         = useState(false);
+  const [searchOpen, setSearchOpen]     = useState(false);
+  const [activeFilter, setActiveFilter] = useState('all');
 
   const [theme, setTheme] = useTheme();
   const { user } = useSession();
   const { favs, toggle: toggleFav, clear: clearFavs } = useFavorites(user);
   const { bests } = useBests(user);
   const { unlocked } = useAchievements(user, bests);
-
-  useEffect(() => { localStorage.setItem('pd-recent', JSON.stringify(recent)); }, [recent]);
+  const { recent } = useRecent();
 
   const onOpen = (g) => {
     if (!g) return;
     sfx.open();
-    setRecent((r) => [g.id, ...r.filter((x) => x !== g.id)].slice(0, 8));
-    localStorage.setItem('pd-last-game', g.id);
     window.dispatchEvent(new CustomEvent('pgplay:open', { detail: { gameId: g.id } }));
     navigate(`/game/${g.id}`);
   };
 
   const signOut = async () => { await supabase.auth.signOut(); };
 
+  // Cmd-K / Ctrl-K opens the command palette. Esc closes the mobile drawer.
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+      if (e.key === 'Escape' && sideOpen) {
+        setSideOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [sideOpen]);
+
+  // Playable catalog, sorted: 4 originals → 2 headline classics → rest.
+  const playable = useMemo(() => GAMES.filter((g) => g.playable), []);
+  const heroes = useMemo(
+    () => HERO_IDS.map((id) => playable.find((g) => g.id === id)).filter(Boolean),
+    [playable]
+  );
+  const classics = useMemo(
+    () => CLASSIC_IDS.map((id) => playable.find((g) => g.id === id)).filter(Boolean),
+    [playable]
+  );
+  const more = useMemo(
+    () => playable.filter((g) => !HERO_IDS.includes(g.id) && !CLASSIC_IDS.includes(g.id)),
+    [playable]
+  );
+
   const filterFn = FILTERS.find((f) => f.id === activeFilter)?.match ?? (() => true);
+  const visibleMore = useMemo(() => more.filter(filterFn), [more, filterFn]);
 
-  const activeCollectionDef = useMemo(
-    () => activeCollection ? COLLECTIONS.find((c) => c.id === activeCollection) : null,
-    [activeCollection]
-  );
-
-  const visibleGames = useMemo(() => {
-    const needle = q.trim().toLowerCase();
-    let base;
-    if (favoritesOnly) {
-      base = GAMES.filter((g) => favs[g.id]);
-    } else if (activeCollectionDef) {
-      const ids = new Set(activeCollectionDef.ids);
-      base = GAMES.filter((g) => ids.has(g.id));
-    } else {
-      base = GAMES.filter(filterFn);
-    }
-    if (!needle) return base;
-    return base.filter((g) =>
-      g.name.toLowerCase().includes(needle) ||
-      g.cat.toLowerCase().includes(needle) ||
-      (g.tagline || '').toLowerCase().includes(needle)
-    );
-  }, [q, activeFilter, favoritesOnly, favs, activeCollectionDef]);
-
+  // Continue-playing rail: resolve recent ids → playable game objects.
+  // We render the rail only when there are at least two recents so a
+  // single open doesn't visually weight the page.
   const recentGames = useMemo(
-    () => recent.map((id) => GAMES.find((g) => g.id === id)).filter(Boolean),
-    [recent]
+    () => recent
+      .map((id) => playable.find((g) => g.id === id))
+      .filter(Boolean),
+    [recent, playable],
   );
 
-  const becauseGames = useMemo(() => {
-    if (recentGames.length === 0) return null;
-    const seed = recentGames[0];
-    const seedTags = new Set(seed.skillTags || []);
-    const items = GAMES
-      .filter((g) => g.id !== seed.id)
-      .map((g) => {
-        const tagOverlap = (g.skillTags || []).filter((t) => seedTags.has(t)).length;
-        const catMatch = g.cat === seed.cat ? 2 : 0;
-        return { g, score: tagOverlap * 2 + catMatch + (g.playable ? 1 : 0) };
-      })
-      .filter((x) => x.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 6)
-      .map((x) => x.g);
-    return { seed, items };
-  }, [recentGames]);
+  // Pick a couple of editorial collections to surface as rails. Skip the
+  // ones whose ids aren't all playable (defensive — collections can outlive
+  // games).
+  const railCollections = useMemo(() => {
+    const wanted = ['start-in-ten', 'twitch', 'brainy'];
+    return wanted
+      .map((id) => COLLECTIONS.find((c) => c.id === id))
+      .filter(Boolean)
+      .map((c) => ({
+        ...c,
+        items: c.ids
+          .map((id) => playable.find((g) => g.id === id))
+          .filter(Boolean),
+      }))
+      .filter((c) => c.items.length >= 3);
+  }, [playable]);
+
+  const editorsGames = heroes; // for the "Play featured" CTA
 
   const favCount = Object.values(favs).filter(Boolean).length;
 
-  const collectionCounts = useMemo(() => {
-    const out = {};
-    for (const c of COLLECTIONS) {
-      out[c.id] = c.ids.filter((id) => GAMES.find((g) => g.id === id)).length;
-    }
-    return out;
-  }, []);
-
-  const currentLabel = favoritesOnly
-    ? 'Favorites'
-    : activeCollectionDef
-    ? activeCollectionDef.title
-    : (FILTERS.find((f) => f.id === activeFilter)?.label || 'All');
-
-  const isHomeBrowse = !q && !favoritesOnly && !activeCollectionDef && activeFilter === 'all';
-  const showHero        = isHomeBrowse;
-  const showRecent      = isHomeBrowse && recentGames.length > 0;
-  const showBecause     = isHomeBrowse && becauseGames && becauseGames.items?.length > 0;
-  const showEditors     = isHomeBrowse;
-  const showCollections = isHomeBrowse;
-
-  const editorsGames = useMemo(
-    () => EDITORS_PICKS.map((id) => GAMES.find((g) => g.id === id)).filter(Boolean),
-    []
-  );
-
-  const onFilter = (id) => {
-    setFavoritesOnly(false);
-    setActiveCollection(null);
-    setActiveFilter(id);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const onPlayFeatured = () => {
+    const target = editorsGames[0] || playable[0];
+    if (target) onOpen(target);
   };
-  const onOpenCollection = (id) => {
-    setFavoritesOnly(false);
-    setActiveCollection(id);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+
+  // Bento slot id for each hero (CSS grid-area). Order matches HERO_IDS.
+  const HERO_SLOT_BY_INDEX = ['hero-1', 'hero-2', 'hero-3', 'hero-4'];
 
   return (
     <div className="app-layout">
       {sideOpen && <div className="side-backdrop" onClick={() => setSideOpen(false)} aria-hidden="true"/>}
       <div className={'sidebar-wrap' + (sideOpen ? ' is-open' : '')}>
-        <Sidebar
-          games={GAMES}
-          activeFilter={activeFilter}
-          onFilter={onFilter}
-          favCount={favCount}
-          onOpenFavorites={() => { setActiveCollection(null); setFavoritesOnly(true); }}
-          favoritesOnly={favoritesOnly}
-          onOpenSettings={() => setSettingsOpen(true)}
-          onOpenProfile={() => setProfileOpen(true)}
-          onOpenAuth={() => setAuthOpen(true)}
-          onSignOut={signOut}
-          user={user}
-          onClose={() => setSideOpen(false)}
-          activeCollection={activeCollection}
-          onOpenCollection={onOpenCollection}
-          collectionCounts={collectionCounts}
-        />
+        <motion.div
+          className="sidebar-shell"
+          // Desktop: this just renders. Mobile drawer: when sideOpen flips
+          // true, key changes and the slide-in (x: -20 -> 0, opacity 0.6 -> 1)
+          // plays. 240ms with the in-house ease curve.
+          key={sideOpen ? 'open' : 'closed'}
+          initial={reduced || !sideOpen ? false : { x: -20, opacity: 0.6 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <Sidebar
+            games={playable}
+            activeFilter="all"
+            onFilter={() => {}}
+            favCount={favCount}
+            onOpenFavorites={() => {}}
+            favoritesOnly={false}
+            onOpenSettings={() => setSettingsOpen(true)}
+            onOpenProfile={() => setProfileOpen(true)}
+            onOpenAuth={() => setAuthOpen(true)}
+            onSignOut={signOut}
+            user={user}
+            onClose={() => setSideOpen(false)}
+            activeCollection={null}
+            onOpenCollection={() => {}}
+            collectionCounts={{ originals: heroes.length }}
+          />
+        </motion.div>
       </div>
 
-      <main className="app-main">
+      <main id="main" className="app-main">
         <div className="main-topbar">
           <button
             className="icon-btn main-menu"
@@ -192,19 +196,16 @@ export default function Home() {
             aria-label="Open navigation">
             {Icon.menu}
           </button>
-          <div className="search">
+          <button
+            type="button"
+            className="search search-cmdk search-trigger"
+            onClick={() => setSearchOpen(true)}
+            aria-label="Open search palette"
+            aria-haspopup="dialog">
             <span className="search-icon">{Icon.search}</span>
-            <input
-              type="search"
-              placeholder="Search games, genres, skill tags"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              aria-label="Search games"/>
-            {q && (
-              <button className="search-clear" onClick={() => setQ('')} aria-label="Clear search">{Icon.close}</button>
-            )}
-            {!q && <kbd className="search-kbd" aria-hidden="true">⌘K</kbd>}
-          </div>
+            <span className="search-trigger-text">Search games, genres…</span>
+            <kbd className="search-kbd" aria-hidden="true">⌘K</kbd>
+          </button>
           {user
             ? <button className="avatar" title={user.email} onClick={() => setProfileOpen(true)}>
                 {(user.email || 'U').slice(0, 2).toUpperCase()}
@@ -212,159 +213,172 @@ export default function Home() {
             : <button className="btn btn-ghost btn-sm" onClick={() => setAuthOpen(true)}>Sign in</button>}
         </div>
 
-        <div className="quick-filters" aria-label="Quick filters">
-          {FILTERS.map((f) => (
-            <button
-              key={f.id}
-              className={'chip-tab' + (!favoritesOnly && !activeCollectionDef && activeFilter === f.id ? ' is-active' : '')}
-              onClick={() => onFilter(f.id)}>
-              {f.label}
-            </button>
-          ))}
-        </div>
-
         <div className="main-inner">
-          {showHero && (
-            <header className="home-lede">
-              <div className="home-lede-kicker">An arcade anthology</div>
-              <h1 className="home-lede-title">PG.Play</h1>
-              <p className="home-lede-sub">
-                {GAMES.filter((g) => g.playable).length} titles — curated, original, hand-built.
-              </p>
-            </header>
-          )}
-          {showHero && (
-            <FeaturedHero
-              game={FEATURED}
-              fav={!!favs[FEATURED.id]}
-              onFav={toggleFav}
-              onOpen={() => onOpen(FEATURED)}
-              best={bests[FEATURED.id]?.best}/>
+          {can3D && (
+            <Suspense fallback={null}>
+              <HomeHero3D/>
+            </Suspense>
           )}
 
-          {showRecent && (
-            <section className="section" aria-labelledby="continue-title">
-              <div className="section-head">
-                <div className="section-head-text">
-                  <div className="section-kicker">Jump back in</div>
-                  <h2 id="continue-title" className="section-title">Continue playing</h2>
-                </div>
-                <span className="section-count">{recentGames.length}</span>
-              </div>
-              <div className="rail">
-                {recentGames.map((g) => (
-                  <Card key={g.id} game={g} fav={!!favs[g.id]} onFav={toggleFav} onOpen={() => onOpen(g)} best={bests[g.id]?.best}/>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {showEditors && editorsGames.length > 0 && (
-            <section className="section editors-picks" aria-labelledby="editors-title">
-              <div className="section-head">
-                <div className="section-head-text">
-                  <div className="section-kicker">
-                    <span className="section-kicker-icon">{Icon.sparkle}</span> Editor’s picks
-                  </div>
-                  <h2 id="editors-title" className="section-title">Four chosen this week</h2>
-                  <p className="section-blurb">Curated by the team, not the algorithm. A starting point when nothing jumps out.</p>
-                </div>
-              </div>
-              <div className="editors-grid">
-                {editorsGames.map((g, i) => {
-                  const Cover = GAME_COVERS[g.id];
-                  return (
-                    <button
-                      key={g.id}
-                      className={`editors-tile editors-tile-${i}`}
-                      onClick={() => onOpen(g)}>
-                      <div className="editors-tile-cover">{Cover && <Cover/>}</div>
-                      <div className="editors-tile-shade"/>
-                      <div className="editors-tile-body">
-                        <div className="editors-tile-kicker">{g.cat}</div>
-                        <div className="editors-tile-title">{g.name}</div>
-                        <div className="editors-tile-meta">{g.tagline}</div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
-          )}
-
-          {showBecause && becauseGames.items && (
-            <section className="section" aria-labelledby="because-title">
-              <div className="section-head">
-                <div className="section-head-text">
-                  <div className="section-kicker">Because you played</div>
-                  <h2 id="because-title" className="section-title">{becauseGames.seed.name}</h2>
-                </div>
-                <span className="section-count">{becauseGames.items.length}</span>
-              </div>
-              <div className="rail">
-                {becauseGames.items.map((g) => (
-                  <Card key={g.id} game={g} fav={!!favs[g.id]} onFav={toggleFav} onOpen={() => onOpen(g)} best={bests[g.id]?.best}/>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {showCollections && HOME_RAILS.map(({ id, variant }) => {
-            const c = COLLECTIONS.find((x) => x.id === id);
-            if (!c) return null;
-            return (
-              <Collection
-                key={c.id}
-                collection={c}
-                games={GAMES}
-                favs={favs}
-                onFav={toggleFav}
-                onOpen={onOpen}
-                bests={bests}
-                variant={variant}
-                onOpenAll={onOpenCollection}/>
-            );
-          })}
-
-          <section className="section section-grid" aria-labelledby="grid-title">
-            <div className="section-head">
-              <div className="section-head-text">
-                {activeCollectionDef && (
-                  <div className="section-kicker">Collection</div>
-                )}
-                <h2 id="grid-title" className="section-title">{currentLabel}</h2>
-                {activeCollectionDef && (
-                  <p className="section-blurb">{activeCollectionDef.blurb}</p>
-                )}
-              </div>
-              <span className="section-count">
-                {visibleGames.length} {visibleGames.length === 1 ? 'title' : 'titles'}
+          <motion.header
+            className="home-hero"
+            initial={reduced ? { opacity: 0 } : { y: 12, opacity: 0 }}
+            animate={reduced ? { opacity: 1 } : { y: 0, opacity: 1 }}
+            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className="home-hero-eyebrow">
+              <span className="home-hero-dot"/>
+              <span>The PG.Play arcade</span>
+            </div>
+            <h1 className="home-hero-title">{HERO_HEADLINE}</h1>
+            <p className="home-hero-sub">
+              Four hand-built originals. Two quiet classics. Everything plays in your browser.
+            </p>
+            <div className="home-hero-actions">
+              <button className="btn btn-lg btn-primary" onClick={onPlayFeatured}>
+                {Icon.play}
+                <span>Play featured</span>
+              </button>
+              <span className="home-hero-count">
+                <span className="numeric">{playable.length}</span> playable today
               </span>
             </div>
-            {visibleGames.length === 0 ? (
-              <div className="empty">
-                {favoritesOnly && favCount === 0
-                  ? <>No favorites yet. Tap the <strong>heart</strong> on a game to save it here.</>
-                  : <>No games match <strong>“{q || currentLabel.toLowerCase()}”</strong>.</>}
+          </motion.header>
+
+          <section className="bento" aria-label="Headline games">
+            {heroes.map((g, i) => (
+              <div
+                key={g.id}
+                className={`bento-slot bento-slot-${HERO_SLOT_BY_INDEX[i]}`}
+                style={{ gridArea: HERO_SLOT_BY_INDEX[i] }}
+              >
+                <Card
+                  game={g}
+                  index={i}
+                  variant="hero"
+                  fav={!!favs[g.id]}
+                  onFav={toggleFav}
+                  onOpen={() => onOpen(g)}/>
               </div>
-            ) : (
-              <div className="grid">
-                {visibleGames.map((g) => (
+            ))}
+            {classics.map((g, i) => (
+              <div
+                key={g.id}
+                className={`bento-slot bento-slot-classic-${i + 1}`}
+                style={{ gridArea: `classic-${i + 1}` }}
+              >
+                <Card
+                  game={g}
+                  index={heroes.length + i}
+                  variant="standard"
+                  fav={!!favs[g.id]}
+                  onFav={toggleFav}
+                  onOpen={() => onOpen(g)}/>
+              </div>
+            ))}
+          </section>
+
+          {recentGames.length >= 2 && (
+            <section className="section section-collection" aria-labelledby="continue-title">
+              <div className="section-head">
+                <div>
+                  <h2 id="continue-title" className="section-title">Continue playing</h2>
+                  <p className="section-blurb">Where you left off.</p>
+                </div>
+                <span className="section-count numeric">{recentGames.length}</span>
+              </div>
+              <div className="rail">
+                {recentGames.map((g, i) => (
                   <Card
                     key={g.id}
                     game={g}
+                    index={i}
+                    variant="standard"
                     fav={!!favs[g.id]}
                     onFav={toggleFav}
-                    onOpen={() => onOpen(g)}
-                    best={bests[g.id]?.best}/>
+                    onOpen={() => onOpen(g)}/>
                 ))}
               </div>
-            )}
-          </section>
+            </section>
+          )}
 
-          <footer className="app-footer">
-            PG.Play · {GAMES.length} games · <a href="https://pushkalgupta.com">pushkalgupta.com</a>
-          </footer>
+          {railCollections.map((c) => (
+            <section key={c.id} className="section section-collection" aria-labelledby={`coll-${c.id}`}>
+              <div className="section-head">
+                <div>
+                  <h2 id={`coll-${c.id}`} className="section-title">{c.title}</h2>
+                  <p className="section-blurb">{c.blurb}</p>
+                </div>
+                <span className="section-count numeric">{c.items.length}</span>
+              </div>
+              <div className="rail">
+                {c.items.map((g, i) => (
+                  <Card
+                    key={g.id}
+                    game={g}
+                    index={i}
+                    variant="standard"
+                    fav={!!favs[g.id]}
+                    onFav={toggleFav}
+                    onOpen={() => onOpen(g)}/>
+                ))}
+              </div>
+            </section>
+          ))}
+
+          {more.length > 0 && (
+            <section className="section section-more" aria-labelledby="more-title">
+              <div className="section-head">
+                <div>
+                  <h2 id="more-title" className="section-title">More games</h2>
+                  <p className="section-blurb">
+                    The rest of the catalog. <span className="numeric">{more.length}</span> titles.
+                  </p>
+                </div>
+                <div className="filter-chips" role="tablist" aria-label="Filter games">
+                  {FILTERS.map((f) => (
+                    <button
+                      key={f.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={activeFilter === f.id}
+                      className={'chip-tab' + (activeFilter === f.id ? ' is-active' : '')}
+                      onClick={() => setActiveFilter(f.id)}>
+                      {f.label}
+                      <span className="chip-tab-count numeric">
+                        {more.filter(f.match).length}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {visibleMore.length === 0 ? (
+                <div className="empty">
+                  Nothing matches this filter. Try <strong>All</strong> or hit the search.
+                </div>
+              ) : (
+                <div className="more-grid">
+                  {visibleMore.map((g, i) => (
+                    <Card
+                      key={g.id}
+                      game={g}
+                      index={i}
+                      variant="standard"
+                      fav={!!favs[g.id]}
+                      onFav={toggleFav}
+                      onOpen={() => onOpen(g)}/>
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
+
+          <HomeLeaderboard/>
+
+          <Footer
+            theme={theme}
+            onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          />
         </div>
       </main>
 
@@ -376,9 +390,7 @@ export default function Home() {
           onOpenAuth={() => { setAuthOpen(true); setSettingsOpen(false); }}
           onSignOut={async () => { await signOut(); }}
           onClearFavs={clearFavs}
-          onClearRecent={() => setRecent([])}
           favCount={favCount}
-          recentCount={recent.length}
           onClose={() => setSettingsOpen(false)}/>
       )}
       {profileOpen && (
@@ -391,6 +403,7 @@ export default function Home() {
           onClose={() => setProfileOpen(false)}/>
       )}
       {authOpen && <AuthModal onClose={() => setAuthOpen(false)}/>}
+      <SearchPalette open={searchOpen} onClose={() => setSearchOpen(false)}/>
     </div>
   );
 }

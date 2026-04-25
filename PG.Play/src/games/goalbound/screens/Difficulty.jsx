@@ -19,7 +19,7 @@ export default function DifficultyScreen() {
 
   return (
     <div className="gb-page">
-      <BackBar onBack={() => setRoute('player-select')}/>
+      <BackBar onBack={() => setRoute('team-select')}/>
       <ScreenHead
         kicker="Difficulty"
         title="How sharp should the keeper be?"

@@ -149,6 +149,80 @@ export default function MatchScreen() {
     window.addEventListener('keydown', kd);
     window.addEventListener('keyup', ku);
 
+    // Touch zones (parallel to keyboard, doesn't replace it):
+    //  - Left half of the canvas: analog move stick (anchored where you
+    //    first touch). Past 12px left/right of anchor activates that direction.
+    //  - Right half: tap (under ~180ms with no slide) = jump.
+    //                hold-and-release = charge kick (engine fires on release).
+    const touch = { left:false, right:false, jump:false, kick:false };
+    const moveTouch = { id: null, ax: 0 };
+    const actionTouch = { id: null, startT: 0, charging: false };
+    const isTouch = typeof window !== 'undefined' && 'ontouchstart' in window;
+
+    const onTouchStart = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      for (const t of e.changedTouches) {
+        const x = t.clientX - rect.left;
+        const isLeft = x < rect.width / 2;
+        if (isLeft && moveTouch.id === null) {
+          moveTouch.id = t.identifier;
+          moveTouch.ax = x;
+          touch.left = false; touch.right = false;
+        } else if (!isLeft && actionTouch.id === null) {
+          actionTouch.id = t.identifier;
+          actionTouch.startT = performance.now();
+          actionTouch.charging = true;
+          touch.kick = true; // start charging immediately on press
+        }
+      }
+      e.preventDefault();
+    };
+    const onTouchMove = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      for (const t of e.changedTouches) {
+        if (t.identifier === moveTouch.id) {
+          const x = t.clientX - rect.left;
+          const dx = x - moveTouch.ax;
+          touch.left  = dx < -12;
+          touch.right = dx >  12;
+        }
+      }
+      e.preventDefault();
+    };
+    const onTouchEnd = (e) => {
+      for (const t of e.changedTouches) {
+        if (t.identifier === moveTouch.id) {
+          moveTouch.id = null; moveTouch.ax = 0;
+          touch.left = false; touch.right = false;
+        } else if (t.identifier === actionTouch.id) {
+          const held = performance.now() - actionTouch.startT;
+          // Quick tap (no real charge) = jump pulse; otherwise just release
+          // the kick so the engine fires the charged shot on the falling edge.
+          if (held < 180) {
+            touch.jump = true;
+            // Cancel kick charge so a tap doesn't also fire a tiny kick.
+            touch.kick = false;
+            actionTouch.charging = false;
+            // Release jump on next frame.
+            setTimeout(() => { touch.jump = false; }, 80);
+          } else {
+            // Drop kick — engine sees release edge and launches.
+            touch.kick = false;
+            actionTouch.charging = false;
+          }
+          actionTouch.id = null;
+        }
+      }
+      e.preventDefault();
+    };
+
+    if (isTouch) {
+      canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+      canvas.addEventListener('touchmove',  onTouchMove,  { passive: false });
+      canvas.addEventListener('touchend',   onTouchEnd,   { passive: false });
+      canvas.addEventListener('touchcancel',onTouchEnd,   { passive: false });
+    }
+
     const gamepad = createGamepadReader();
 
     const last = { t: performance.now() };
@@ -166,10 +240,10 @@ export default function MatchScreen() {
         const p1Pad = pads?.[0];
         const p2Pad = pads?.[1];
         engine.setP1({
-          left:  kb(KEYS.p1.left)  || !!p1Pad?.left,
-          right: kb(KEYS.p1.right) || !!p1Pad?.right,
-          jump:  kb(KEYS.p1.jump)  || !!p1Pad?.jump,
-          kick:  kb(KEYS.p1.kick)  || !!p1Pad?.kick,
+          left:  kb(KEYS.p1.left)  || !!p1Pad?.left  || touch.left,
+          right: kb(KEYS.p1.right) || !!p1Pad?.right || touch.right,
+          jump:  kb(KEYS.p1.jump)  || !!p1Pad?.jump  || touch.jump,
+          kick:  kb(KEYS.p1.kick)  || !!p1Pad?.kick  || touch.kick,
         });
         if (mode === '2p') {
           engine.setP2({
@@ -195,6 +269,12 @@ export default function MatchScreen() {
       cancelAnimationFrame(rafRef.current);
       window.removeEventListener('keydown', kd);
       window.removeEventListener('keyup', ku);
+      if (isTouch) {
+        canvas.removeEventListener('touchstart', onTouchStart);
+        canvas.removeEventListener('touchmove',  onTouchMove);
+        canvas.removeEventListener('touchend',   onTouchEnd);
+        canvas.removeEventListener('touchcancel',onTouchEnd);
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sel.mode, challengeId]);

@@ -85,26 +85,32 @@ export default function SlitherLiteGame() {
 
   // Initialize / reset world.
   const reset = (start = false) => {
+    const NAMES = ['Viper', 'Asp', 'Mamba', 'Kaa', 'Naga', 'Slink', 'Hydra', 'Cobra', 'Rattler', 'Fang'];
     const bots = Array.from({ length: BOT_COUNT }).map((_, i) => {
       const ang = rand(0, Math.PI * 2);
-      return makeSnake(rand(200, WORLD_W - 200), rand(200, WORLD_H - 200), ang, 12 + Math.floor(Math.random() * 10), COLORS[(i + 1) % COLORS.length]);
+      const s = makeSnake(rand(200, WORLD_W - 200), rand(200, WORLD_H - 200), ang, 12 + Math.floor(Math.random() * 10), COLORS[(i + 1) % COLORS.length]);
+      s.name = NAMES[i % NAMES.length];
+      return s;
     });
+    // Default pointerScreen to canvas center so initial steering vector is
+    // never NaN before the first pointer event lands.
+    const cnv = canvasRef.current;
+    const rect0 = cnv ? cnv.getBoundingClientRect() : { left: 0, top: 0, width: 800, height: 600 };
+    const cx0 = rect0.left + rect0.width / 2;
+    const cy0 = rect0.top + rect0.height / 2;
+    const me = makeSnake(WORLD_W / 2, WORLD_H / 2, 0, START_LEN, COLORS[0]);
+    me.name = 'You';
     stateRef.current = {
-      me: makeSnake(WORLD_W / 2, WORLD_H / 2, 0, START_LEN, COLORS[0]),
+      me,
       bots,
       food: Array.from({ length: FOOD_COUNT }).map(() => makeFood()),
       pointer: { x: WORLD_W / 2 + 200, y: WORLD_H / 2 },
       keys: {},
-      // camera: world-space center of view
       cam: { x: WORLD_W / 2, y: WORLD_H / 2, zoom: 1 },
-      // visual particles (eat / death)
       particles: [],
-      // pointer is in screen space until the first event maps it; default
-      // to forward-of-head world coords so steering doesn't snap on entry.
-      pointerScreen: null,
-      // anim time accumulator for pulses / shimmers
+      pointerScreen: { x: cx0, y: cy0 },
       tAccum: 0,
-      // shed orbs are just food entries; we cap total food
+      startedAt: performance.now(),
     };
     setLen(START_LEN);
     setScore(START_LEN * 10);
@@ -151,10 +157,11 @@ export default function SlitherLiteGame() {
     // --- Input wiring. Pointer steers in *world space*. Touch supports a
     // second finger as a boost trigger. Right-click also boosts on desktop.
     const screenToWorld = (cx, cy) => {
+      const s = stateRef.current;
+      if (!s || !s.cam || !view.w || !view.h) return { x: WORLD_W / 2, y: WORLD_H / 2 };
       const r = canvas.getBoundingClientRect();
       const sx = cx - r.left;
       const sy = cy - r.top;
-      const s = stateRef.current; if (!s) return { x: 0, y: 0 };
       const cam = s.cam;
       return { x: sx - view.w / 2 + cam.x, y: sy - view.h / 2 + cam.y };
     };
@@ -254,6 +261,21 @@ export default function SlitherLiteGame() {
 
     const baseSpeed = (snake) => Math.max(SPEED_MIN, SPEED_BASE - snake.body.length * SPEED_DECAY_PER_SEG);
 
+    const MAX_FOOD = FOOD_COUNT * 4;
+    // Cull oldest *shed* orbs first so original spawned food stays intact
+    // and respawns properly via replaceFood().
+    const trimShedFood = () => {
+      const s = stateRef.current;
+      if (s.food.length <= MAX_FOOD) return;
+      let excess = s.food.length - MAX_FOOD;
+      let i = 0;
+      while (excess > 0 && i < s.food.length) {
+        if (s.food[i].shed) { s.food.splice(i, 1); excess--; continue; }
+        i++;
+      }
+      if (s.food.length > MAX_FOOD) s.food.splice(0, s.food.length - MAX_FOOD);
+    };
+
     const dropOrbsFrom = (snake, count = null) => {
       const s = stateRef.current;
       const drop = count ?? Math.min(60, Math.floor(snake.body.length / 2));
@@ -266,15 +288,18 @@ export default function SlitherLiteGame() {
           color: snake.color[0],
           big: Math.random() < 0.18,
           phase: Math.random() * Math.PI * 2,
+          shed: true,
         });
       }
-      // cap total food so memory doesn't grow unbounded
-      if (s.food.length > FOOD_COUNT * 4) s.food.splice(0, s.food.length - FOOD_COUNT * 4);
+      trimShedFood();
     };
 
     const replaceFood = (idx) => {
       const s = stateRef.current;
+      const f = s.food[idx];
+      if (f && f.shed) { s.food.splice(idx, 1); return -1; }
       s.food[idx] = makeFood();
+      return idx;
     };
 
     const spawnEatBurst = (x, y, color) => {
@@ -510,28 +535,115 @@ export default function SlitherLiteGame() {
       const s = stateRef.current;
       const lenNow = s.me.body.length;
       const scoreNow = lenNow * 10;
-      // Offset below the shell topbar (which auto-overlays the canvas).
       const topInset = 72;
       ctx.save();
-      // Top-left length / score / best
-      ctx.fillStyle = 'rgba(11,19,24,0.55)';
+
+      // Top-right: Top-10 leaderboard panel.
+      const allSnakes = [{ name: s.me.name || 'You', len: lenNow, color: s.me.color, alive: s.me.alive, isMe: true }]
+        .concat(s.bots.filter((b) => b.alive).map((b) => ({ name: b.name || 'Snake', len: b.body.length, color: b.color, alive: true, isMe: false })))
+        .sort((a, b) => b.len - a.len)
+        .slice(0, 10);
+      const lbW = Math.min(200, view.w * 0.26);
+      const rowH = 16;
+      const lbH = 28 + allSnakes.length * rowH + 8;
+      const lbX = view.w - lbW - 12;
+      const lbY = topInset;
+      ctx.fillStyle = 'rgba(11,19,24,0.62)';
       ctx.strokeStyle = 'rgba(255,255,255,0.08)';
       ctx.lineWidth = 1;
-      roundRect(ctx, 12, topInset, 196, 56, 10);
+      roundRect(ctx, lbX, lbY, lbW, lbH, 10);
       ctx.fill(); ctx.stroke();
-      ctx.fillStyle = 'rgba(238,243,245,0.9)';
-      ctx.font = '600 11px "Space Mono", ui-monospace, monospace';
-      ctx.textBaseline = 'top';
-      ctx.fillText('LENGTH', 22, topInset + 6);
-      ctx.fillText('SCORE',  92, topInset + 6);
-      ctx.fillText('BEST',  152, topInset + 6);
       ctx.fillStyle = '#00fff5';
-      ctx.font = '700 18px Inter, system-ui, sans-serif';
-      ctx.fillText(String(lenNow), 22, topInset + 24);
+      ctx.font = '700 11px "Space Mono", ui-monospace, monospace';
+      ctx.textBaseline = 'top';
+      ctx.textAlign = 'left';
+      ctx.fillText('LEADERBOARD', lbX + 12, lbY + 8);
+      ctx.font = '600 10px Inter, system-ui, sans-serif';
+      for (let i = 0; i < allSnakes.length; i++) {
+        const row = allSnakes[i];
+        const ry = lbY + 28 + i * rowH;
+        if (row.isMe) {
+          ctx.fillStyle = 'rgba(0,255,245,0.10)';
+          roundRect(ctx, lbX + 6, ry - 1, lbW - 12, rowH, 4);
+          ctx.fill();
+        }
+        ctx.fillStyle = row.isMe ? '#00fff5' : 'rgba(238,243,245,0.55)';
+        ctx.fillText(`#${i + 1}`, lbX + 12, ry + 2);
+        ctx.fillStyle = row.color[0];
+        ctx.beginPath();
+        ctx.arc(lbX + 36, ry + 7, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = row.isMe ? '#eef3f5' : 'rgba(238,243,245,0.85)';
+        const nm = row.name.length > 10 ? row.name.slice(0, 10) : row.name;
+        ctx.fillText(nm, lbX + 46, ry + 2);
+        ctx.textAlign = 'right';
+        ctx.fillStyle = row.isMe ? '#00fff5' : 'rgba(238,243,245,0.7)';
+        ctx.fillText(String(row.len), lbX + lbW - 12, ry + 2);
+        ctx.textAlign = 'left';
+      }
+
+      // Minimap below the leaderboard.
+      const miniW = Math.min(160, view.w * 0.22);
+      const miniH = miniW * (WORLD_H / WORLD_W);
+      const mmx = view.w - miniW - 12;
+      const mmy = lbY + lbH + 10;
+      ctx.fillStyle = 'rgba(11,19,24,0.6)';
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      roundRect(ctx, mmx - 6, mmy - 6, miniW + 12, miniH + 12, 8);
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,0.04)';
+      ctx.fillRect(mmx, mmy, miniW, miniH);
+      const sx = miniW / WORLD_W;
+      const sy = miniH / WORLD_H;
+      for (const b of s.bots) {
+        if (!b.alive) continue;
+        const head = b.body[0];
+        ctx.fillStyle = b.color[0];
+        ctx.fillRect(mmx + head.x * sx - 1, mmy + head.y * sy - 1, 2, 2);
+      }
+      const mh = s.me.body[0];
+      if (mh) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(mmx + mh.x * sx - 2, mmy + mh.y * sy - 2, 4, 4);
+      }
+      ctx.strokeStyle = 'rgba(0,255,245,0.6)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(
+        mmx + (s.cam.x - view.w / 2) * sx,
+        mmy + (s.cam.y - view.h / 2) * sy,
+        view.w * sx,
+        view.h * sy,
+      );
+
+      // Bottom-left: length-based score panel.
+      const blW = 196;
+      const blH = 64;
+      const blX = 12;
+      const blY = view.h - blH - 44;
+      ctx.fillStyle = 'rgba(11,19,24,0.62)';
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      ctx.lineWidth = 1;
+      roundRect(ctx, blX, blY, blW, blH, 10);
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = 'rgba(238,243,245,0.55)';
+      ctx.font = '600 10px "Space Mono", ui-monospace, monospace';
+      ctx.textBaseline = 'top';
+      ctx.fillText('YOUR LENGTH', blX + 12, blY + 8);
+      ctx.fillStyle = '#00fff5';
+      ctx.font = '700 28px Inter, system-ui, sans-serif';
+      ctx.fillText(String(lenNow), blX + 12, blY + 22);
+      ctx.fillStyle = 'rgba(238,243,245,0.55)';
+      ctx.font = '600 10px "Space Mono", ui-monospace, monospace';
+      ctx.fillText('SCORE', blX + 92, blY + 8);
       ctx.fillStyle = '#eef3f5';
-      ctx.fillText(String(scoreNow), 92, topInset + 24);
+      ctx.font = '700 18px Inter, system-ui, sans-serif';
+      ctx.fillText(String(scoreNow), blX + 92, blY + 24);
+      ctx.fillStyle = 'rgba(238,243,245,0.55)';
+      ctx.font = '600 10px "Space Mono", ui-monospace, monospace';
+      ctx.fillText('BEST', blX + 152, blY + 8);
       ctx.fillStyle = '#8a9ba5';
-      ctx.fillText(String(Math.max(best, scoreNow)), 152, topInset + 24);
+      ctx.font = '700 14px Inter, system-ui, sans-serif';
+      ctx.fillText(String(Math.max(best, scoreNow)), blX + 152, blY + 26);
 
       // Boost meter (bottom center)
       const canBoost = lenNow > BOOST_MIN_LEN;
@@ -555,41 +667,6 @@ export default function SlitherLiteGame() {
       ctx.fillText(canBoost ? (s.me.boost ? 'BOOSTING' : 'BOOST  HOLD SPACE / SHIFT / 2-FINGER') : 'GROW TO UNLOCK BOOST', view.w / 2, my - 18);
       ctx.textAlign = 'start';
 
-      // Minimap (top-right, offset below shell topbar)
-      const miniW = Math.min(160, view.w * 0.22);
-      const miniH = miniW * (WORLD_H / WORLD_W);
-      const mmx = view.w - miniW - 12;
-      const mmy = topInset;
-      ctx.fillStyle = 'rgba(11,19,24,0.6)';
-      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-      roundRect(ctx, mmx - 6, mmy - 6, miniW + 12, miniH + 12, 8);
-      ctx.fill(); ctx.stroke();
-      ctx.fillStyle = 'rgba(255,255,255,0.04)';
-      ctx.fillRect(mmx, mmy, miniW, miniH);
-      const sx = miniW / WORLD_W;
-      const sy = miniH / WORLD_H;
-      // bots
-      for (const b of s.bots) {
-        if (!b.alive) continue;
-        const head = b.body[0];
-        ctx.fillStyle = b.color[0];
-        ctx.fillRect(mmx + head.x * sx - 1, mmy + head.y * sy - 1, 2, 2);
-      }
-      // me
-      const mh = s.me.body[0];
-      if (mh) {
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(mmx + mh.x * sx - 2, mmy + mh.y * sy - 2, 4, 4);
-      }
-      // viewport rect on the minimap
-      ctx.strokeStyle = 'rgba(0,255,245,0.6)';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(
-        mmx + (s.cam.x - view.w / 2) * sx,
-        mmy + (s.cam.y - view.h / 2) * sy,
-        view.w * sx,
-        view.h * sy,
-      );
       ctx.restore();
     };
 
@@ -707,8 +784,9 @@ export default function SlitherLiteGame() {
                 color: s.me.color[0],
                 big: false,
                 phase: Math.random() * Math.PI * 2,
+                shed: true,
               });
-              if (s.food.length > FOOD_COUNT * 4) s.food.splice(0, s.food.length - FOOD_COUNT * 4);
+              trimShedFood();
             }
             s.me.body.pop();
           }
@@ -726,8 +804,8 @@ export default function SlitherLiteGame() {
           s.me.alive = false;
         }
 
-        // Food pickups (player) — eat the orb under the head.
-        for (let i = 0; i < s.food.length; i++) {
+        // Food pickups (player) — iterate backwards so splice() is safe.
+        for (let i = s.food.length - 1; i >= 0; i--) {
           const f = s.food[i];
           const dx = myHead.x - f.x, dy = myHead.y - f.y;
           const r = (f.big ? FOOD_R + 3 : FOOD_R);
@@ -739,18 +817,15 @@ export default function SlitherLiteGame() {
               try { sfx.click(); } catch {}
               lastEatSfxAt = now;
             }
-            // Persistent shed orbs aren't replaced; only originally-spawned
-            // food gets refilled. We approximate by always replacing here —
-            // the cap above keeps memory bounded.
             replaceFood(i);
           }
         }
 
-        // Bots eat too (no SFX or particles to keep things calm).
+        // Bots eat too — iterate backwards for safe splice.
         s.bots.forEach((bot) => {
           if (!bot.alive) return;
           const bh = bot.body[0];
-          for (let i = 0; i < s.food.length; i++) {
+          for (let i = s.food.length - 1; i >= 0; i--) {
             const f = s.food[i];
             const dx = bh.x - f.x, dy = bh.y - f.y;
             const r = (f.big ? FOOD_R + 3 : FOOD_R);
@@ -801,12 +876,16 @@ export default function SlitherLiteGame() {
           }
         }
 
-        // Respawn dead bots after a beat.
+        // Per-bot respawn countdown — initialize on death, decrement, respawn at 0.
         s.bots.forEach((bot, i) => {
           if (bot.alive) return;
-          if (Math.random() < dt * 0.25) {
+          if (bot.respawnIn == null) bot.respawnIn = rand(4, 7);
+          bot.respawnIn -= dt;
+          if (bot.respawnIn <= 0) {
             const ang = rand(0, Math.PI * 2);
-            s.bots[i] = makeSnake(rand(200, WORLD_W - 200), rand(200, WORLD_H - 200), ang, 10 + Math.floor(Math.random() * 6), bot.color);
+            const fresh = makeSnake(rand(200, WORLD_W - 200), rand(200, WORLD_H - 200), ang, 10 + Math.floor(Math.random() * 6), bot.color);
+            fresh.name = bot.name;
+            s.bots[i] = fresh;
           }
         });
 
@@ -820,13 +899,17 @@ export default function SlitherLiteGame() {
         }
 
         if (!s.me.alive) {
-          // Death sequence: burst, score submit, transition.
           spawnDeathBurst(s.me);
+          // Iconic slither.io payoff — turn the corpse into orbs so other
+          // snakes can feast on the player's length.
+          dropOrbsFrom(s.me, Math.min(80, s.me.body.length));
           if (!mutedRef.current) { try { sfx.lose(); } catch {} }
-          const finalScore = s.me.body.length * 10;
+          const finalLen = s.me.body.length;
+          const secondsAlive = Math.max(0, (now - s.startedAt) / 1000);
           if (!submittedRef.current) {
             submittedRef.current = true;
-            submitScore('slither', finalScore, { length: s.me.body.length });
+            submitScore('slither', finalLen, { time: secondsAlive });
+            const finalScore = finalLen * 10;
             if (finalScore > best) {
               setBest(finalScore);
               localStorage.setItem('pd-coil-best', String(finalScore));

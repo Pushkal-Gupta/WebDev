@@ -296,6 +296,19 @@ export default function SlipshotGame() {
 
     let muzzleLife = 0;
 
+    // Tracks every setTimeout we hand out for DOM/popup work so the unmount
+    // cleanup can flush them — otherwise a 700ms popup callback will fire
+    // after the mount has been torn down and leak its DOM node.
+    const pendingTimeouts = new Set();
+    const trackTimeout = (fn, ms) => {
+      const id = setTimeout(() => {
+        pendingTimeouts.delete(id);
+        fn();
+      }, ms);
+      pendingTimeouts.add(id);
+      return id;
+    };
+
     /* ── player state ─────────────────────────────────────────── */
     const player = {
       pos: new THREE.Vector3(0, PLAYER_EYE, 14),
@@ -308,10 +321,14 @@ export default function SlipshotGame() {
       ammo: { pulse: WEAPONS.pulse.mag, slug: WEAPONS.slug.mag },
       fireCd: 0, reloadIn: 0,
       dashReady: true,
+      // Bunny-hop chain. `landTime` is the wall-clock (gameTime) of the most
+      // recent landing; jumping within BHOP_WINDOW preserves horizontal speed.
+      // After BHOP_MAX_CHAIN consecutive hops, friction returns to normal.
+      landTime: -999, bhopChain: 0,
     };
 
     /* ── enemies + targets registries ─────────────────────────── */
-    // Each entity: { kind, mesh, head?, hp, maxHp, pos, ... kind-specific ...}
+    // Each entity: { kind, alive, mesh, head?, hp, maxHp, pos, ... kind-specific ...}
     const entities = [];
 
     const spawnTarget = (pos) => {
@@ -329,7 +346,7 @@ export default function SlipshotGame() {
       group.position.copy(pos);
       scene.add(group);
       entities.push({
-        kind: 'target', mesh: group, body,
+        kind: 'target', alive: true, mesh: group, body,
         hp: 1, maxHp: 1, pos: pos.clone(),
         bob: Math.random() * Math.PI * 2, spawnT: clock.getElapsedTime(),
       });
@@ -351,7 +368,7 @@ export default function SlipshotGame() {
       group.position.copy(pos);
       scene.add(group);
       entities.push({
-        kind: 'drone', mesh: group, body,
+        kind: 'drone', alive: true, mesh: group, body,
         hp: 30, maxHp: 30, pos: pos.clone(), vel: new THREE.Vector3(),
         fireCd: 2.0 + Math.random() * 1.5, wobble: Math.random() * Math.PI * 2,
       });
@@ -371,12 +388,16 @@ export default function SlipshotGame() {
       scene.add(body);
       scene.add(head);
       entities.push({
-        kind: 'prowler', mesh: body, head,
-        hp: 60, maxHp: 60, pos: pos.clone(),
+        kind: 'prowler', alive: true, mesh: body, head,
+        hp: 60, maxHp: 60, pos: pos.clone(), name: pickProwlerName(),
         fireCd: 1.4 + Math.random() * 0.8,
         strafe: Math.random() > 0.5 ? 1 : -1, strafeTick: 0,
       });
     };
+
+    // Cosmetic name pool for killfeed entries.
+    const PROWLER_NAMES = ['Rook', 'Vex', 'Halo', 'Echo', 'Knox', 'Ash', 'Wren', 'Dax', 'Nyx', 'Orix'];
+    const pickProwlerName = () => PROWLER_NAMES[Math.floor(Math.random() * PROWLER_NAMES.length)];
 
     /* ── enemy projectiles (simple) ───────────────────────────── */
     const enemyShots = [];
@@ -584,8 +605,10 @@ export default function SlipshotGame() {
       const medal = hr.score >= MEDAL_GOLD ? 'gold'
                   : hr.score >= MEDAL_SILVER ? 'silver'
                   : hr.score >= MEDAL_BRONZE ? 'bronze' : null;
+      const elapsed = Math.min(RUN_SECONDS, Math.max(0, gameTime - hr.runStart));
       submitScore('slipshot', hr.score, {
         mode: 'score_attack',
+        time: Math.round(elapsed),
         kills: hr.kills,
         accuracy: Math.round(accuracy * 100),
         headshots: hr.hsCount,
@@ -733,9 +756,12 @@ export default function SlipshotGame() {
       raycaster.set(shotOrigin, shotDir);
       raycaster.far = 80;
 
-      // Gather candidate meshes (bodies + heads)
+      // Gather candidate meshes (bodies + heads). Skip dead entities so a
+      // stale corpse on the same frame can't double-register a headshot — the
+      // raycaster will happily intersect a mesh that hasn't been GC'd yet.
       const cands = [];
       for (const e of entities) {
+        if (!e.alive) continue;
         if (e.body) cands.push(e.body); else if (e.mesh) cands.push(e.mesh);
         if (e.head) cands.push(e.head);
       }
@@ -748,6 +774,7 @@ export default function SlipshotGame() {
       const hitEntity = hits.find((h) => {
         // Find the entity this mesh belongs to
         for (const e of entities) {
+          if (!e.alive) continue;
           if (e.body === h.object || e.mesh === h.object || e.head === h.object) {
             h._entity = e;
             h._isHead = e.head === h.object;
@@ -761,6 +788,8 @@ export default function SlipshotGame() {
       if (hitEntity && hitEntity.distance < envDist) {
         end = hitEntity.point.clone();
         hudRef.current.shotsHit++;
+        // Hit-marker feedback: deeper thunk on head, tight tick on body.
+        if (hitEntity._isHead) sfxHitThunk(); else sfxHitTick();
         applyHit(hitEntity._entity, hitEntity._isHead, w);
       }
       makeTracer(shotOrigin.clone().add(shotDir.clone().multiplyScalar(0.8)), end, w.tracer);
@@ -768,8 +797,10 @@ export default function SlipshotGame() {
 
     const terminateOnEnv = (origin, dir, out) => {
       // Ray-test against an upper ceiling plane + walls: cheap analytical.
-      // Simple: step the ray outward and test collidesCube.
-      const step = 0.25;
+      // Simple: step the ray outward and test collidesCube. Step is tight
+      // (0.08) so tracers don't tunnel through thin trim or stop short of
+      // walls; iteration count scales with `max / step` automatically.
+      const step = 0.08;
       const max = 80;
       for (let d = step; d < max; d += step) {
         const x = origin.x + dir.x * d;
@@ -793,7 +824,7 @@ export default function SlipshotGame() {
       // Visual punch: tiny scale pop
       if (e.body) {
         e.body.scale.setScalar(1.25);
-        setTimeout(() => { if (e.body) e.body.scale.setScalar(1); }, 60);
+        trackTimeout(() => { if (e.body) e.body.scale.setScalar(1); }, 60);
       }
 
       // Reticle feedback — killing blow is handled by killEntity, otherwise
@@ -806,6 +837,10 @@ export default function SlipshotGame() {
     };
 
     const killEntity = (e, isHead, airborne) => {
+      // Mark dead immediately. Subsequent shots in the same frame skip this
+      // entity in the candidate list, so a kill can't be double-counted as a
+      // headshot via a stale head mesh.
+      e.alive = false;
       const hr = hudRef.current;
       const base = e.kind === 'target' ? 60 : e.kind === 'drone' ? 180 : 360;
       const comboMult = hr.combo;
@@ -827,11 +862,15 @@ export default function SlipshotGame() {
 
       // Floating score popup (DOM)
       showScorePopup(gained, isHead);
+      // Killfeed entry — uses the player's current weapon icon.
+      pushKillfeed(e, player.weapon, isHead);
 
       // Airdash refund on kill while airborne
       if (airborne) player.dashReady = true;
 
-      // Burst + remove
+      // Burst + remove. Removing the meshes here means the same-frame
+      // raycaster candidate list (which already filtered on alive) stays
+      // consistent for any follow-up shots.
       const p = e.mesh ? e.mesh.position : e.pos;
       spawnBurst(p.clone(), e.kind === 'target' ? 0x00fff5 : 0xff4d6d, e.kind === 'target' ? 8 : 14);
       if (e.mesh) scene.remove(e.mesh);
@@ -847,9 +886,35 @@ export default function SlipshotGame() {
     const showScorePopup = (n, head) => {
       const el = document.createElement('div');
       el.className = 'slipshot-popup' + (head ? ' is-head' : '');
-      el.textContent = (head ? '+' : '+') + n;
+      // Headshots show as gold with a 1.5x multiplier suffix.
+      el.textContent = head ? `+${n} 1.5×` : `+${n}`;
       popupLayer.appendChild(el);
-      setTimeout(() => el.remove(), 700);
+      trackTimeout(() => el.remove(), 700);
+    };
+
+    /* ── killfeed (top-right rolling list) ────────────────────── */
+    const killfeed = document.createElement('div');
+    killfeed.className = 'slipshot-killfeed';
+    mount.appendChild(killfeed);
+    const KILLFEED_MAX = 4;
+    const pushKillfeed = (entity, weaponKey, isHead) => {
+      const row = document.createElement('div');
+      row.className = 'slipshot-kf-row';
+      const wIcon = weaponKey === 'slug' ? 'SLG' : 'PLS';
+      const name = entity.name
+        || (entity.kind === 'target' ? 'Target'
+          : entity.kind === 'drone' ? 'Drone' : 'Prowler');
+      row.innerHTML =
+        `<span class="slipshot-kf-weap">${wIcon}</span>` +
+        (isHead ? '<span class="slipshot-kf-head">HS</span>' : '') +
+        `<span class="slipshot-kf-name">${name}</span>`;
+      killfeed.prepend(row);
+      while (killfeed.childElementCount > KILLFEED_MAX) {
+        killfeed.lastElementChild?.remove();
+      }
+      // Auto-fade after 3s; the row may already be gone if it scrolled off.
+      trackTimeout(() => row.classList.add('is-fading'), 3000);
+      trackTimeout(() => row.remove(), 3400);
     };
 
     /* ── reticle + headshot punch layers (DOM, not React) ─────── */
@@ -859,12 +924,21 @@ export default function SlipshotGame() {
     let reticleFlashTimer = 0;
     const flashReticle = (kind) => {
       // kind: 'hit' | 'kill' | 'head'
+      // Replaces the brittle `void el.offsetWidth` reflow trick — that
+      // pattern races with rapid fire (two hits in the same frame can collapse
+      // into a single animation). Instead, drop all flash classes, hand the
+      // browser one rAF to commit the cleared state, then re-apply. This is
+      // the pulse on every confirmed hit; rapid fire produces visible ticks.
       reticle.classList.remove('is-hit', 'is-kill', 'is-head');
-      // Force a reflow so the animation restarts on repeat hits.
-      void reticle.offsetWidth;
-      reticle.classList.add(kind === 'head' ? 'is-head' : kind === 'kill' ? 'is-kill' : 'is-hit');
+      reticle.style.transform = 'translate(-50%, -50%) scale(1)';
+      reticle.style.opacity = '1';
+      requestAnimationFrame(() => {
+        reticle.style.transform = '';
+        reticle.style.opacity = '';
+        reticle.classList.add(kind === 'head' ? 'is-head' : kind === 'kill' ? 'is-kill' : 'is-hit');
+      });
       clearTimeout(reticleFlashTimer);
-      reticleFlashTimer = setTimeout(() => {
+      reticleFlashTimer = trackTimeout(() => {
         reticle.classList.remove('is-hit', 'is-kill', 'is-head');
       }, kind === 'head' ? 260 : kind === 'kill' ? 220 : 140);
     };
@@ -872,8 +946,12 @@ export default function SlipshotGame() {
       const el = document.createElement('div');
       el.className = 'slipshot-punch';
       mount.appendChild(el);
-      setTimeout(() => el.remove(), 180);
+      trackTimeout(() => el.remove(), 180);
     };
+
+    // Hit-marker synth ticks. Body = high tick, head = deeper thunk.
+    const sfxHitTick  = () => beep(1500, 0.04, 'square',   0.05, 1100);
+    const sfxHitThunk = () => beep(420,  0.08, 'triangle', 0.07, 240);
 
     /* ── loop ─────────────────────────────────────────────────── */
     let raf = 0;
@@ -970,7 +1048,18 @@ export default function SlipshotGame() {
         if (keys.Space && player.onGround) {
           player.vel.y = JUMP_V;
           player.onGround = false;
-          // slidehop preserves horizontal velocity through the jump
+          // Bunny-hop: a Space press within 80ms of landing keeps ~92% of
+          // horizontal speed and bypasses the upcoming ground-friction tick.
+          // After 5 chained hops, the chain resets so friction returns to
+          // normal — krunker-feel without infinite acceleration.
+          const sinceLand = gameTime - player.landTime;
+          if (sinceLand <= 0.08 && player.bhopChain < 5) {
+            player.vel.x *= 0.92;
+            player.vel.z *= 0.92;
+            player.bhopChain++;
+          } else {
+            player.bhopChain = 0;
+          }
         }
         player.vel.y -= GRAVITY * dt;
 
@@ -996,6 +1085,7 @@ export default function SlipshotGame() {
           if (!player.onGround) {
             player.onGround = true;
             player.dashReady = true;
+            player.landTime = gameTime;
             if (impactSpd > 3.5) shakeAmt = Math.min(0.45, shakeAmt + Math.min(0.25, impactSpd * 0.025));
           }
         } else if (player.onGround && player.pos.y > minY + 0.08) {
@@ -1125,7 +1215,9 @@ export default function SlipshotGame() {
       /* ── muzzle flash decay ──────────────────────────────── */
       if (muzzleLife > 0) {
         muzzleLife -= dt;
-        muzzle.material.opacity = Math.max(0, muzzleLife / 0.06);
+        // Clamp to [0,1]; on a long frame muzzleLife/0.06 can exceed 1 and
+        // make the sphere overshoot fully opaque, producing a pop.
+        muzzle.material.opacity = Math.min(1, Math.max(0, muzzleLife / 0.06));
       }
 
       /* ── tracer fade ──────────────────────────────────────── */
@@ -1198,6 +1290,10 @@ export default function SlipshotGame() {
       renderer.domElement.removeEventListener('mousedown', onMouseDown);
       if (document.pointerLockElement === renderer.domElement) document.exitPointerLock?.();
       clearTimeout(reticleFlashTimer);
+      // Flush every popup / killfeed / scale-pop / punch timeout so callbacks
+      // don't fire against a torn-down mount and leak DOM nodes (or throw).
+      for (const id of pendingTimeouts) clearTimeout(id);
+      pendingTimeouts.clear();
       renderer.dispose();
       tracerGeo.dispose();
       particleGeo.dispose();

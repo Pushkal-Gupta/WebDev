@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { sizeCanvas } from '../util/canvasDpr.js';
+import { submitScore } from '../scoreBus.js';
 
 export default function EightBallGame() {
   const canvasRef = useRef(null);
   const [scored, setScored] = useState(0);
   const [shots, setShots] = useState(0);
   const stateRef = useRef(null);
+  const submitRef = useRef({ scored: 0, shots: 0, started: 0 });
+  submitRef.current.scored = scored;
+  submitRef.current.shots = shots;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -176,6 +180,8 @@ export default function EightBallGame() {
     canvas.addEventListener('pointerup', onPointerUp);
     canvas.addEventListener('pointercancel', onPointerUp);
 
+    submitRef.current.started = performance.now();
+
     return () => {
       cancelAnimationFrame(raf);
       clearInterval(powerTimer);
@@ -183,6 +189,14 @@ export default function EightBallGame() {
       canvas.removeEventListener('pointerdown', onPointerDown);
       canvas.removeEventListener('pointerup', onPointerUp);
       canvas.removeEventListener('pointercancel', onPointerUp);
+      // Submit the session's running score on unmount. Eightball has no
+      // explicit win condition — it's a practice rack — so we report the
+      // tally of balls potted during the session.
+      const final = submitRef.current.scored;
+      if (final > 0) {
+        const time = Math.round((performance.now() - submitRef.current.started) / 1000);
+        submitScore('eightball', final, { time, shots: submitRef.current.shots });
+      }
     };
   }, []);
 

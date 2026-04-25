@@ -15,7 +15,6 @@ import BootScreen        from './screens/Boot.jsx';
 import MainMenu          from './screens/Menu.jsx';
 import ModeSelect        from './screens/Mode.jsx';
 import TeamSelect        from './screens/TeamSelect.jsx';
-import PlayerSelect      from './screens/PlayerSelect.jsx';
 import Difficulty        from './screens/Difficulty.jsx';
 import MatchSettings     from './screens/MatchSettings.jsx';
 import TournamentSetup   from './screens/TournamentSetup.jsx';
@@ -73,7 +72,6 @@ const RouteView = ({ route, onBootDone, initialMode }) => {
     case 'menu':              return <MainMenu/>;
     case 'mode':              return <ModeSelect/>;
     case 'team-select':       return <TeamSelect/>;
-    case 'player-select':     return <PlayerSelect/>;
     case 'difficulty':        return <Difficulty/>;
     case 'match-settings':    return <MatchSettings/>;
     case 'tournament-setup':  return <TournamentSetup/>;
