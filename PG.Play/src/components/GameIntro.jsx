@@ -452,7 +452,9 @@ export default function GameIntro({ game, best, onClose }) {
     // Games that own their own viewport sizing (camera-driven, fullscreen
     // canvas, etc.) opt into the fluid viewport so the canvas stretches
     // edge-to-edge instead of preserving its intrinsic dimensions.
-    const FLUID_GAMES = new Set(['slither', 'grudgewood', 'goalbound', 'fps']);
+    // Games that own their canvas sizing (camera-driven, internal ResizeObserver).
+    // Adding a fixed-size canvas here would stretch its bitmap and look soft.
+    const FLUID_GAMES = new Set(['slither', 'grudgewood', 'goalbound']);
     const viewportClassName = FLUID_GAMES.has(game.id) ? 'is-fluid' : '';
     return (
       <div className="intro intro-playing">
