@@ -91,6 +91,32 @@ export const sfx = {
   },
   // Soft descending blip for "nothing found" / "couldn't load" UI signals.
   error:    () => blip(420, 220, 0.18, 'triangle', 0.08),
+
+  // ── per-game stingers ─────────────────────────────────────────
+  // Coil: pellet pickup — bright two-tone chirp that rises
+  pellet:   () => { blip(880, 1320, 0.06, 'sine', 0.06); setTimeout(() => blip(1320, 1760, 0.05, 'sine', 0.04), 30); },
+
+  // Bricklands: coin pickup — clean bell tone, classic platformer feel
+  coin:     () => { blip(1568, 2093, 0.10, 'sine', 0.08); setTimeout(() => envTone(2349, 0.08, 'sine', 0.06), 40); },
+
+  // Bricklands: stomp — soft thud + small pop
+  stomp:    () => { blip(220, 90, 0.10, 'sine', 0.10); setTimeout(() => envTone(440, 0.04, 'triangle', 0.05), 30); },
+
+  // Slipshot: reload — mechanical click-click
+  reload:   () => { envTone(1200, 0.04, 'square', 0.05); setTimeout(() => envTone(900, 0.04, 'square', 0.05), 60); setTimeout(() => envTone(1500, 0.05, 'square', 0.06), 140); },
+
+  // Grudgewood: branch creak — slow falling sawtooth + noise
+  branchCreak: () => { blip(280, 140, 0.42, 'sawtooth', 0.06); noise(0.30, 0.03); },
+
+  // Goalbound: crowd cheer — short noise wash with a sweep
+  cheer:    () => { noise(0.35, 0.05); setTimeout(() => blip(440, 880, 0.20, 'triangle', 0.08), 50); },
+
+  // Star pickup (Bricklands optional, also generic) — sparkle ascending
+  star:     () => {
+    blip(1318, 1760, 0.10, 'triangle', 0.08);
+    setTimeout(() => blip(1760, 2349, 0.10, 'triangle', 0.08), 60);
+    setTimeout(() => blip(2349, 2794, 0.14, 'triangle', 0.08), 120);
+  },
 };
 
 // Cross-game mute event bus. Per-game audio modules subscribe so the

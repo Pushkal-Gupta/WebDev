@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { submitScore } from '../scoreBus.js';
 import { isMuted as platformIsMuted, subscribeMute } from '../sound.js';
+import { sizeCanvasFluid } from '../util/canvasDpr.js';
 
 // Swingwire — an original one-button rope-swing action platformer.
 //
@@ -21,8 +22,15 @@ import { isMuted as platformIsMuted, subscribeMute } from '../sound.js';
 // ──────────────────────────────────────────────────────────────────────────
 // Constants
 // ──────────────────────────────────────────────────────────────────────────
+// Default playfield dims — also act as the *minimum* viewport the camera
+// math is allowed to assume. The fluid sizer can grow these up to MAX_W /
+// MAX_H so wide displays scroll the city skyline naturally instead of
+// stretching the existing viewport. Render code shadows W / H with the
+// current viewport size pulled from viewRef.
 const W = 1120;
 const H = 640;
+const MAX_W = 1600;
+const MAX_H = 900;
 const STEP = 1 / 60;
 const GRAVITY = 820;
 const MAX_SPEED = 980;
@@ -398,12 +406,12 @@ function seedStars(worldW) {
   return stars;
 }
 
-function seedRain() {
+function seedRain(vw = W, vh = H) {
   const drops = [];
   for (let i = 0; i < 56; i++) {
     drops.push({
-      x: Math.random() * W,
-      y: Math.random() * H,
+      x: Math.random() * vw,
+      y: Math.random() * vh,
       vy: 360 + Math.random() * 260,
       vx: -30 - Math.random() * 50,
       len: 8 + Math.random() * 12,
@@ -417,6 +425,8 @@ function seedRain() {
 // ──────────────────────────────────────────────────────────────────────────
 export default function SwingwireGame() {
   const canvasRef = useRef(null);
+  const wrapRef = useRef(null);
+  const viewRef = useRef({ W, H });
   const stateRef = useRef(null);
   const audioRef = useRef(null);
 
@@ -451,8 +461,21 @@ export default function SwingwireGame() {
     runRef.current.courseStartMs = performance.now();
 
     const canvas = canvasRef.current;
+    const wrap = wrapRef.current;
     const ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = true;
+
+    // Fluid sizer — playfield viewport stretches between (W, H) and
+    // (MAX_W, MAX_H). Beyond MAX, the city skyline scrolls naturally
+    // instead of growing the camera window. Re-seed the rain so existing
+    // drops aren't bunched in a corner after a resize.
+    const dispose = wrap ? sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
+      const vw = clamp(cssW, W, MAX_W);
+      const vh = clamp(cssH, H, MAX_H);
+      viewRef.current = { W: vw, H: vh };
+      const s = stateRef.current;
+      if (s) s.rainDrops = seedRain(vw, vh);
+    }) : () => {};
 
     // Inputs — rope is engaged while any of these are "down":
     //   keyboard (Space / W / Up — touch button dispatches synthetic Space),
@@ -536,6 +559,7 @@ export default function SwingwireGame() {
     return () => {
       cancelAnimationFrame(raf);
       clearInterval(hudTimer);
+      dispose();
       audioRef.current?.cleanup?.();
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
@@ -665,6 +689,9 @@ export default function SwingwireGame() {
   function update(dt, holding) {
     const s = stateRef.current;
     if (!s) return;
+    // Shadow module-level W/H with the live viewport so screen-space wraps
+    // (rain re-spawn, etc.) match the actual canvas size.
+    const { W, H } = viewRef.current;
     const p = s.player;
 
     if (s.slowmo > 0) s.slowmo = Math.max(0, s.slowmo - dt);
@@ -855,6 +882,7 @@ export default function SwingwireGame() {
   }
 
   function updateCamera(s, dt, dying) {
+    const { W, H } = viewRef.current;
     const p = s.player;
     const aheadX = Math.sign(p.vx || 1) * CAMERA_LEAD_X;
     const aheadY = Math.sign(p.vy || 0) * CAMERA_LEAD_Y * 0.4;
@@ -921,6 +949,10 @@ export default function SwingwireGame() {
   function render(ctx, rawDt) {
     const s = stateRef.current;
     if (!s) return;
+    // Shadow module-level W / H with the live viewport. Every nested helper
+    // declared inside render() (drawFarBuildings, drawHud, drawPause…) closes
+    // over these locals, so the entire render tree resizes from one assignment.
+    const { W, H } = viewRef.current;
     const r = runRef.current;
     const reduceM = optsRef.current.reducedMotion;
     const hc = optsRef.current.highContrast;
@@ -1484,8 +1516,11 @@ export default function SwingwireGame() {
           {ui.highContrast ? 'Contrast: high' : 'Contrast: std'}
         </button>
       </div>
-      <div className="swingwire-stage">
-        <canvas ref={canvasRef} className="swingwire-canvas" width={W} height={H} tabIndex={0}/>
+      <div
+        ref={wrapRef}
+        className="swingwire-stage"
+        style={{ flex: '1 1 0', minHeight: 0, position: 'relative' }}>
+        <canvas ref={canvasRef} className="swingwire-canvas" tabIndex={0}/>
       </div>
       <div className="swingwire-hint">
         Hold to fire wire. Release to detach. {COURSES.length} courses, instant respawn.

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { submitScore } from '../scoreBus.js';
-import { sizeCanvas } from '../util/canvasDpr.js';
+import { sizeCanvasFluid } from '../util/canvasDpr.js';
 
 // Three hand-tuned levels. Rope pin position + rope length + star positions +
 // Om Nom position on the floor. Each rope is an idealized pendulum starting
@@ -21,6 +21,8 @@ const OMNOM_Y = FLOOR - 18;
 
 export default function CutRopeGame() {
   const canvasRef = useRef(null);
+  const wrapRef = useRef(null);
+  const viewRef = useRef({ cssW: W, cssH: H });
   const stateRef = useRef(null);
   const [levelIdx, setLevelIdx] = useState(0);
   const [stars, setStars] = useState(0);
@@ -44,12 +46,33 @@ export default function CutRopeGame() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = sizeCanvas(canvas, W, H);
+    const wrap = wrapRef.current;
+    if (!canvas || !wrap) return;
+    const ctx = canvas.getContext('2d');
+
+    // Fluid sizer — record the css size so draw can center the fixed
+    // 620×440 level inside the available canvas. Pendulum physics keeps
+    // running in the original 620×440 coord space.
+    const dispose = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
+      viewRef.current = { cssW, cssH };
+    });
 
     const draw = () => {
       const L = LEVELS[levelIdx];
       const s = stateRef.current;
       if (!s) return;
+      const { cssW, cssH } = viewRef.current;
+
+      // Outer backdrop fills the canvas in the same deep purple the level
+      // sky ends on so the surrounding area blends into the level.
+      ctx.fillStyle = '#0a0612';
+      ctx.fillRect(0, 0, cssW, cssH);
+
+      // Center the fixed 620×440 level inside the canvas.
+      const offX = (cssW - W) / 2;
+      const offY = (cssH - H) / 2;
+      ctx.save();
+      ctx.translate(offX, offY);
 
       // sky
       const grad = ctx.createLinearGradient(0, 0, 0, H);
@@ -112,6 +135,8 @@ export default function CutRopeGame() {
       ctx.lineTo(CANDY_R + 8, 0); ctx.lineTo(CANDY_R + 10, 7);
       ctx.closePath();
       ctx.fill();
+      ctx.restore();
+
       ctx.restore();
     };
 
@@ -176,7 +201,10 @@ export default function CutRopeGame() {
     };
 
     let raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      dispose();
+    };
   }, [levelIdx, status]);
 
   const rectOf = () => canvasRef.current.getBoundingClientRect();
@@ -184,8 +212,13 @@ export default function CutRopeGame() {
     const s = stateRef.current;
     if (!s || !s.rope || status !== 'playing') return;
     const r = rectOf();
-    const x = (clientX - r.left) * (W / r.width);
-    const y = (clientY - r.top) * (H / r.height);
+    // Canvas now fills its parent (style 100%/100%). The level is rendered
+    // centered inside it, so subtract the center offset so the click lands
+    // in level coords.
+    const offX = (r.width  - W) / 2;
+    const offY = (r.height - H) / 2;
+    const x = (clientX - r.left) - offX;
+    const y = (clientY - r.top)  - offY;
     const L = LEVELS[levelIdx];
     // Distance from click to rope segment.
     const d = distToSegment(x, y, L.pin[0], L.pin[1], s.candy.x, s.candy.y);
@@ -220,13 +253,13 @@ export default function CutRopeGame() {
         <span>Stars <b>{stars}/3</b></span>
         <button className="btn btn-ghost btn-sm" onClick={doRetry}>Retry</button>
       </div>
-      <canvas
-        ref={canvasRef}
-        className="cutrope-canvas"
-        width={W}
-        height={H}
-        onMouseDown={onMouseDown}
-        onTouchStart={onTouchStart}/>
+      <div ref={wrapRef} style={{ flex: '1 1 0', minHeight: 0, width: '100%', position: 'relative' }}>
+        <canvas
+          ref={canvasRef}
+          className="cutrope-canvas"
+          onMouseDown={onMouseDown}
+          onTouchStart={onTouchStart}/>
+      </div>
       {status !== 'playing' && (
         <div className="cutrope-bar">
           <span style={{color: status === 'won' ? 'var(--accent)' : '#ff4d6d', fontWeight: 700}}>

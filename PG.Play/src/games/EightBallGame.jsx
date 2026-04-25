@@ -1,9 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
-import { sizeCanvas } from '../util/canvasDpr.js';
+import { sizeCanvasFluid } from '../util/canvasDpr.js';
 import { submitScore } from '../scoreBus.js';
+
+// The pool table is authored at 620×360 — every pocket position, ball
+// radius, and physics constant is tuned to that coord space. To stay
+// fluid we keep entities/physics in those coords and uniformly scale
+// the rendered table up to a comfortable max so 4K screens get a
+// generously-sized rack but never a gigantic one.
+const W = 620;
+const H = 360;
+const MAX_W = 900;
+const MAX_H = 520;
 
 export default function EightBallGame() {
   const canvasRef = useRef(null);
+  const wrapRef = useRef(null);
+  // viewRef holds the most recent fluid fit. scale stays at 1 until the
+  // sizer measures the canvas and gives us room to grow.
+  const viewRef = useRef({ cssW: W, cssH: H, scale: 1, offX: 0, offY: 0 });
   const [scored, setScored] = useState(0);
   const [shots, setShots] = useState(0);
   const stateRef = useRef(null);
@@ -13,10 +27,26 @@ export default function EightBallGame() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const W = 620, H = 360;
-    const ctx = sizeCanvas(canvas, W, H);
+    const wrap = wrapRef.current;
+    if (!canvas || !wrap) return;
+    const ctx = canvas.getContext('2d');
     const BALL_R = 14;
     const pockets = [[30,30],[W/2,20],[W-30,30],[30,H-30],[W/2,H-20],[W-30,H-30]];
+
+    // Recompute scale + center offset on every fluid fit. We pick the
+    // largest uniform scale that fits both axes, then cap so the table
+    // never exceeds MAX_W × MAX_H (capped scale ≈ 1.45×).
+    const dispose = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
+      const scaleW = cssW / W;
+      const scaleH = cssH / H;
+      const maxScale = Math.min(MAX_W / W, MAX_H / H);
+      const scale = Math.max(0.5, Math.min(scaleW, scaleH, maxScale));
+      const tableW = W * scale;
+      const tableH = H * scale;
+      const offX = (cssW - tableW) / 2;
+      const offY = (cssH - tableH) / 2;
+      viewRef.current = { cssW, cssH, scale, offX, offY };
+    });
 
     const initBalls = () => {
       const balls = [{x:140,y:H/2,vx:0,vy:0,color:'#fff',num:0,cue:true,in:false}];
@@ -43,6 +73,19 @@ export default function EightBallGame() {
     let moving = false;
 
     const draw = () => {
+      const { cssW, cssH, scale, offX, offY } = viewRef.current;
+
+      // Outer backdrop fills the full canvas — felt-green padding around
+      // the table so the rack feels framed by cloth, not a hard rect.
+      ctx.fillStyle = '#0d3a2c';
+      ctx.fillRect(0, 0, cssW, cssH);
+
+      // Center + uniformly scale the table; everything inside this save
+      // block draws in the original 620×360 coord space.
+      ctx.save();
+      ctx.translate(offX, offY);
+      ctx.scale(scale, scale);
+
       ctx.fillStyle = '#12503c'; ctx.fillRect(0,0,W,H);
       ctx.strokeStyle = '#5a3a20'; ctx.lineWidth = 8; ctx.strokeRect(4,4,W-8,H-8);
       pockets.forEach(([x,y]) => {
@@ -84,6 +127,8 @@ export default function EightBallGame() {
           ctx.fillRect(10, H-20, Math.min(power,100)*1.2, 10);
         }
       }
+
+      ctx.restore();
     };
 
     const step = () => {
@@ -137,9 +182,12 @@ export default function EightBallGame() {
 
     const rectOf = () => canvas.getBoundingClientRect();
     const updateAim = (clientX, clientY) => {
+      // Canvas style is 100%/100%; the table is centered + scaled inside.
+      // Reverse the scale + offset so aim lands in original 620×360 coords.
       const r = rectOf();
-      aim.x = (clientX - r.left) * (W / r.width);
-      aim.y = (clientY - r.top) * (H / r.height);
+      const { scale, offX, offY } = viewRef.current;
+      aim.x = ((clientX - r.left) - offX) / scale;
+      aim.y = ((clientY - r.top)  - offY) / scale;
     };
     let powerTimer = null;
     const startCharge = () => {
@@ -185,6 +233,7 @@ export default function EightBallGame() {
     return () => {
       cancelAnimationFrame(raf);
       clearInterval(powerTimer);
+      dispose();
       canvas.removeEventListener('pointermove', onPointerMove);
       canvas.removeEventListener('pointerdown', onPointerDown);
       canvas.removeEventListener('pointerup', onPointerUp);
@@ -201,15 +250,17 @@ export default function EightBallGame() {
   }, []);
 
   return (
-    <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:14}}>
+    <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:14,width:'100%',height:'100%'}}>
       <div style={{display:'flex',gap:18,fontFamily:'var(--font-mono)',fontSize:11,letterSpacing:'0.1em',textTransform:'uppercase',color:'var(--text-dim)'}}>
         <span>Shots <b style={{color:'var(--text)',marginLeft:6}}>{shots}</b></span>
         <span>Potted <b style={{color:'var(--accent)',marginLeft:6}}>{scored}</b></span>
         <button onClick={() => stateRef.current?.reset()} style={{background:'var(--surface)',border:'1px solid var(--line)',color:'var(--text)',padding:'4px 12px',borderRadius:8,fontFamily:'var(--font-mono)',fontSize:10,letterSpacing:'0.08em',textTransform:'uppercase',cursor:'pointer'}}>Rack</button>
       </div>
-      <canvas
-        ref={canvasRef}
-        style={{borderRadius:12,cursor:'crosshair',touchAction:'none',boxShadow:'0 20px 40px -10px rgba(0,0,0,0.6)'}}/>
+      <div ref={wrapRef} style={{ flex: '1 1 0', minHeight: 0, width: '100%', position: 'relative' }}>
+        <canvas
+          ref={canvasRef}
+          style={{cursor:'crosshair',touchAction:'none'}}/>
+      </div>
       <div style={{fontFamily:'var(--font-mono)',fontSize:10,color:'var(--text-mute)',letterSpacing:'0.1em',textTransform:'uppercase'}}>
         Aim · hold to charge · release to shoot
       </div>

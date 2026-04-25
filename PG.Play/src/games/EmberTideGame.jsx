@@ -21,12 +21,16 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { submitScore } from '../scoreBus.js';
+import { sizeCanvasFluid } from '../util/canvasDpr.js';
 
 const T = 32;                       // tile size
 const COLS = 26;
 const ROWS = 15;
-const W = COLS * T;                 // 832
-const H = ROWS * T;                 // 480
+const W = COLS * T;                 // 832 — native level width
+const H = ROWS * T;                 // 480 — native level height
+// The level always renders at W × H. The fluid sizer fills the canvas to
+// its parent; the level is centered (offX, offY) and the surrounding area
+// is filled with the dusk gradient so wide / tall viewports look intentional.
 const P_W = 22, P_H = 28;
 const GRAVITY = 1700;
 const MOVE_MAX = 220;
@@ -151,6 +155,8 @@ const overlap = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h 
 
 export default function EmberTideGame() {
   const canvasRef = useRef(null);
+  const wrapRef   = useRef(null);
+  const viewRef   = useRef({ cssW: W, cssH: H, offX: 0, offY: 0 });
   const stateRef  = useRef(null);
   const submittedRef = useRef(false);
   const [levelIdx, setLevelIdx] = useState(0);
@@ -183,7 +189,21 @@ export default function EmberTideGame() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    const wrap = wrapRef.current;
+    if (!canvas || !wrap) return;
     const ctx = canvas.getContext('2d');
+
+    // Fluid sizer: canvas buffer follows the parent box. The level itself
+    // stays at native W × H; the draw routine reads viewRef to know the
+    // current canvas dims + the centering offset.
+    const dispose = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
+      viewRef.current = {
+        cssW,
+        cssH,
+        offX: Math.floor((cssW - W) / 2),
+        offY: Math.floor((cssH - H) / 2),
+      };
+    });
 
     const keys = {};
     const kd = (e) => {
@@ -276,12 +296,13 @@ export default function EmberTideGame() {
         }
       }
 
-      draw(ctx, s, gemsGot, gemsTotal);
+      draw(ctx, s, gemsGot, gemsTotal, viewRef.current);
     };
     raf = requestAnimationFrame(loop);
 
     return () => {
       cancelAnimationFrame(raf);
+      dispose();
       window.removeEventListener('keydown', kd);
       window.removeEventListener('keyup', ku);
     };
@@ -310,7 +331,9 @@ export default function EmberTideGame() {
           {status === 'won' && <button className="btn btn-primary btn-sm" onClick={restart}>Play again</button>}
         </span>
       </div>
-      <canvas ref={canvasRef} className="ember-canvas" width={W} height={H}/>
+      <div ref={wrapRef} style={{ flex: '1 1 0', minHeight: 0, width: '100%', position: 'relative' }}>
+        <canvas ref={canvasRef} className="ember-canvas"/>
+      </div>
       {status === 'won'
         ? <div className="ember-tip ember-tip-win">All chambers cleared · {deaths} death{deaths === 1 ? '' : 's'} · {time}s</div>
         : <div className="ember-tip">{s?.level?.tip ?? LEVELS[levelIdx].tip}</div>}
@@ -439,14 +462,34 @@ function kill(s, who) {
 
 /* ── render ─────────────────────────────────────────────────── */
 
-function draw(ctx, s, gemsGot, gemsTotal) {
+function draw(ctx, s, gemsGot, gemsTotal, view) {
   const { level } = s;
+  const { cssW, cssH, offX, offY } = view;
 
-  // dusk palette — slightly different per chamber by blending its doors' side
-  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  // Full-canvas dusk gradient — runs the whole height so the side / top
+  // margins on a fluid viewport blend with the level instead of leaving
+  // a hard backdrop seam.
+  const grad = ctx.createLinearGradient(0, 0, 0, cssH);
   grad.addColorStop(0, '#20112a');
   grad.addColorStop(1, '#0a0614');
   ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, cssW, cssH);
+
+  // Translate + clip so all level-coord drawing happens inside the centered
+  // W × H playfield. The HUD pickup indicator is drawn after restore so it
+  // tracks the level's right edge regardless of viewport size.
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(offX, offY, W, H);
+  ctx.clip();
+  ctx.translate(offX, offY);
+
+  // Level-local backdrop (slightly darker so the playfield reads as its
+  // own panel inside the dusk wash).
+  const inner = ctx.createLinearGradient(0, 0, 0, H);
+  inner.addColorStop(0, '#1c0d24');
+  inner.addColorStop(1, '#070310');
+  ctx.fillStyle = inner;
   ctx.fillRect(0, 0, W, H);
 
   // background gridlines
@@ -541,7 +584,8 @@ function draw(ctx, s, gemsGot, gemsTotal) {
 
   ctx.restore();
 
-  // HUD pickup indicator (subtle corner)
+  // HUD pickup indicator — rendered inside the level translation so it
+  // tracks the playfield's top-right corner regardless of viewport size.
   ctx.fillStyle = 'rgba(0,0,0,0.5)';
   ctx.fillRect(W - 130, 10, 118, 24);
   ctx.strokeStyle = 'rgba(255,255,255,0.15)';
@@ -550,6 +594,9 @@ function draw(ctx, s, gemsGot, gemsTotal) {
   ctx.font = 'bold 13px "Space Mono", monospace';
   ctx.textAlign = 'center';
   ctx.fillText(`GEMS  ${gemsGot}/${gemsTotal}`, W - 71, 27);
+
+  // Close the centered-level translation/clip.
+  ctx.restore();
 }
 
 function drawPlayer(ctx, p, main, glow) {
