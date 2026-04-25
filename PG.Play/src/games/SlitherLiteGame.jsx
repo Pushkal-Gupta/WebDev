@@ -510,26 +510,28 @@ export default function SlitherLiteGame() {
       const s = stateRef.current;
       const lenNow = s.me.body.length;
       const scoreNow = lenNow * 10;
+      // Offset below the shell topbar (which auto-overlays the canvas).
+      const topInset = 72;
       ctx.save();
       // Top-left length / score / best
       ctx.fillStyle = 'rgba(11,19,24,0.55)';
       ctx.strokeStyle = 'rgba(255,255,255,0.08)';
       ctx.lineWidth = 1;
-      roundRect(ctx, 12, 12, 196, 56, 10);
+      roundRect(ctx, 12, topInset, 196, 56, 10);
       ctx.fill(); ctx.stroke();
       ctx.fillStyle = 'rgba(238,243,245,0.9)';
       ctx.font = '600 11px "Space Mono", ui-monospace, monospace';
       ctx.textBaseline = 'top';
-      ctx.fillText('LENGTH', 22, 18);
-      ctx.fillText('SCORE',  92, 18);
-      ctx.fillText('BEST',  152, 18);
+      ctx.fillText('LENGTH', 22, topInset + 6);
+      ctx.fillText('SCORE',  92, topInset + 6);
+      ctx.fillText('BEST',  152, topInset + 6);
       ctx.fillStyle = '#00fff5';
       ctx.font = '700 18px Inter, system-ui, sans-serif';
-      ctx.fillText(String(lenNow), 22, 36);
+      ctx.fillText(String(lenNow), 22, topInset + 24);
       ctx.fillStyle = '#eef3f5';
-      ctx.fillText(String(scoreNow), 92, 36);
+      ctx.fillText(String(scoreNow), 92, topInset + 24);
       ctx.fillStyle = '#8a9ba5';
-      ctx.fillText(String(Math.max(best, scoreNow)), 152, 36);
+      ctx.fillText(String(Math.max(best, scoreNow)), 152, topInset + 24);
 
       // Boost meter (bottom center)
       const canBoost = lenNow > BOOST_MIN_LEN;
@@ -553,11 +555,11 @@ export default function SlitherLiteGame() {
       ctx.fillText(canBoost ? (s.me.boost ? 'BOOSTING' : 'BOOST  HOLD SPACE / SHIFT / 2-FINGER') : 'GROW TO UNLOCK BOOST', view.w / 2, my - 18);
       ctx.textAlign = 'start';
 
-      // Minimap (top-right)
+      // Minimap (top-right, offset below shell topbar)
       const miniW = Math.min(160, view.w * 0.22);
       const miniH = miniW * (WORLD_H / WORLD_W);
       const mmx = view.w - miniW - 12;
-      const mmy = 12;
+      const mmy = topInset;
       ctx.fillStyle = 'rgba(11,19,24,0.6)';
       ctx.strokeStyle = 'rgba(255,255,255,0.08)';
       roundRect(ctx, mmx - 6, mmy - 6, miniW + 12, miniH + 12, 8);
