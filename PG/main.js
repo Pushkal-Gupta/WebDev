@@ -294,7 +294,7 @@ const PROJECTS = [
   {
     featured: true,
     name: "PG.Play",
-    desc: "Sixteen classic arcade titles in one clean room — story mode, same-keyboard co-op, and head-to-head vs a bot. Connect 4 and 8-Ball Pool fully playable.",
+    desc: "A small arcade for short breaks — play alone or with a friend.",
     date: "Apr 2026",
     status: "update",
     url: "../PG.Play/dist/index.html",
