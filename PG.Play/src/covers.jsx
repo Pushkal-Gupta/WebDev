@@ -888,13 +888,140 @@ const Cover_Slipshot = () => (
   </svg>
 );
 
+// Swingwire — neon skyline, silhouette figure mid-swing on a red wire
+const Cover_Swingwire = () => (
+  <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
+    <SharedDefs/>
+    <defs>
+      <linearGradient id="sw-sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#0a1323"/>
+        <stop offset="0.7" stopColor="#131f32"/>
+        <stop offset="1" stopColor="#050a13"/>
+      </linearGradient>
+      <radialGradient id="sw-moon" cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0" stopColor="#ffeac8"/>
+        <stop offset="1" stopColor="#ffeac800"/>
+      </radialGradient>
+    </defs>
+    {/* Sky */}
+    <rect width="400" height="500" fill="url(#sw-sky)"/>
+    {/* Stars */}
+    <g fill="#fff" opacity="0.55">
+      <circle cx="40" cy="40" r="1"/><circle cx="100" cy="60" r="0.8"/><circle cx="170" cy="30" r="1"/>
+      <circle cx="240" cy="70" r="0.7"/><circle cx="310" cy="45" r="1"/><circle cx="360" cy="90" r="0.9"/>
+      <circle cx="70" cy="110" r="0.7"/><circle cx="200" cy="140" r="0.8"/>
+    </g>
+    {/* Moon halo */}
+    <circle cx="320" cy="90" r="60" fill="url(#sw-moon)" opacity="0.5"/>
+    <circle cx="320" cy="90" r="28" fill="#ffeac8" opacity="0.92"/>
+    <circle cx="312" cy="86" r="25" fill="url(#sw-sky)"/>
+    {/* Far buildings */}
+    <g fill="#13253b">
+      <rect x="0" y="260" width="50" height="140"/>
+      <rect x="54" y="230" width="40" height="170"/>
+      <rect x="100" y="250" width="60" height="150"/>
+      <rect x="168" y="200" width="45" height="200"/>
+      <rect x="220" y="240" width="55" height="160"/>
+      <rect x="282" y="210" width="42" height="190"/>
+      <rect x="330" y="250" width="60" height="150"/>
+    </g>
+    {/* Far-building windows */}
+    <g fill="#6ac7ff" opacity="0.28">
+      {Array.from({length:14}).map((_,i)=>(
+        <rect key={i} x={10 + i*28} y={280 + (i%3)*14} width="3" height="5"/>
+      ))}
+    </g>
+    {/* Mid buildings */}
+    <g fill="#0a1422">
+      <rect x="0" y="320" width="80" height="110"/>
+      <rect x="86" y="290" width="74" height="140"/>
+      <rect x="170" y="310" width="90" height="120"/>
+      <rect x="270" y="280" width="60" height="150"/>
+      <rect x="336" y="300" width="64" height="130"/>
+    </g>
+    {/* Mid windows (warmer + cooler mix) */}
+    <g fillOpacity="0.55">
+      <rect x="16" y="340" width="5" height="6" fill="#ffb547"/>
+      <rect x="28" y="340" width="5" height="6" fill="#6ac7ff"/>
+      <rect x="40" y="340" width="5" height="6" fill="#6ac7ff"/>
+      <rect x="16" y="360" width="5" height="6" fill="#6ac7ff"/>
+      <rect x="28" y="360" width="5" height="6" fill="#ffb547"/>
+      <rect x="94" y="312" width="5" height="6" fill="#ffb547"/>
+      <rect x="108" y="312" width="5" height="6" fill="#6ac7ff"/>
+      <rect x="122" y="312" width="5" height="6" fill="#6ac7ff"/>
+      <rect x="94" y="332" width="5" height="6" fill="#6ac7ff"/>
+      <rect x="122" y="332" width="5" height="6" fill="#ffb547"/>
+      <rect x="184" y="332" width="5" height="6" fill="#6ac7ff"/>
+      <rect x="198" y="332" width="5" height="6" fill="#ffb547"/>
+      <rect x="212" y="332" width="5" height="6" fill="#6ac7ff"/>
+      <rect x="184" y="352" width="5" height="6" fill="#ffb547"/>
+      <rect x="282" y="302" width="5" height="6" fill="#6ac7ff"/>
+      <rect x="296" y="302" width="5" height="6" fill="#6ac7ff"/>
+      <rect x="282" y="322" width="5" height="6" fill="#ffb547"/>
+      <rect x="344" y="322" width="5" height="6" fill="#6ac7ff"/>
+      <rect x="358" y="322" width="5" height="6" fill="#ffb547"/>
+      <rect x="372" y="322" width="5" height="6" fill="#6ac7ff"/>
+    </g>
+    {/* Near silhouette (ground line) */}
+    <g fill="#050a13">
+      <rect x="0" y="430" width="400" height="70"/>
+      <rect x="60" y="390" width="30" height="40"/>
+      <rect x="310" y="380" width="40" height="50"/>
+    </g>
+    {/* Antennas + anchor nodes */}
+    <g stroke="#0e1522" strokeWidth="2">
+      <line x1="75" y1="390" x2="75" y2="340"/>
+      <line x1="330" y1="380" x2="330" y2="320"/>
+    </g>
+    <g>
+      {/* Anchor nodes */}
+      <circle cx="140" cy="200" r="3.5" fill="#3a5a88"/>
+      <circle cx="140" cy="200" r="1.5" fill="#ffb547"/>
+      <circle cx="240" cy="170" r="3.5" fill="#3a5a88"/>
+      <circle cx="240" cy="170" r="1.5" fill="#ffb547"/>
+      {/* Active anchor, wire attached */}
+      <circle cx="200" cy="150" r="11" fill="#ff4a6a" opacity="0.28"/>
+      <circle cx="200" cy="150" r="4" fill="#ff4a6a"/>
+      <circle cx="200" cy="150" r="1.8" fill="#ffe6c4"/>
+    </g>
+    {/* The wire */}
+    <line x1="200" y1="150" x2="175" y2="280" stroke="#ff4a6a" strokeWidth="3" opacity="0.45"/>
+    <line x1="200" y1="150" x2="175" y2="280" stroke="#ff4a6a" strokeWidth="1.3"/>
+    {/* Motion trail */}
+    <g stroke="#ff4a6a" fill="none">
+      <path d="M175 280 Q 150 260 120 254" strokeWidth="3" opacity="0.12"/>
+      <path d="M175 280 Q 150 260 120 254" strokeWidth="1.5" opacity="0.3"/>
+      <path d="M175 280 Q 160 270 138 266" strokeWidth="2" opacity="0.55"/>
+    </g>
+    {/* Player silhouette mid-swing */}
+    <g>
+      <circle cx="175" cy="280" r="8" fill="#ffe6c4"/>
+      <circle cx="172" cy="278" r="2" fill="#ffd19c"/>
+      {/* Scarf trail */}
+      <path d="M170 278 Q 150 275 135 282" stroke="#ff4a6a" strokeWidth="3" fill="none" strokeLinecap="round"/>
+    </g>
+    {/* Goal portal glow (far right) */}
+    <rect x="368" y="340" width="20" height="70" fill="none" stroke="#6ffcf2" strokeWidth="2"/>
+    <rect x="368" y="340" width="20" height="70" fill="none" stroke="#6ffcf2" strokeWidth="6" opacity="0.3"/>
+    {/* Rain */}
+    <g stroke="rgba(110,170,200,0.22)" strokeWidth="1">
+      {Array.from({length:18}).map((_,i)=>{
+        const x = 20 + i*22, y = 30 + (i%5)*40;
+        return <line key={i} x1={x} y1={y} x2={x-4} y2={y+12}/>;
+      })}
+    </g>
+    <Grain/>
+  </svg>
+);
+
 export const GAME_COVERS = {
   fbwg: Cover_FBWG, bob: Cover_Bob, connect4: Cover_Connect4, eightball: Cover_EightBall,
   goalbound: Cover_Goalbound, basket: Cover_Basket, badicecream: Cover_BadIceCream, aow: Cover_AoW,
-  vex: Cover_Vex, papa: Cover_Papa, hook: Cover_Hook, g2048: Cover_2048,
+  vex: Cover_Vex, papa: Cover_Papa, g2048: Cover_2048,
   cutrope: Cover_CutRope, bloons: Cover_Bloons, slither: Cover_Slither, happywheels: Cover_HappyWheels,
   fps: Cover_FPS, arena: Cover_Arena,
   // Originals:
   grudgewood: Cover_TreesHate,
   slipshot:   Cover_Slipshot,
+  hook:       Cover_Swingwire,
 };

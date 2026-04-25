@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { sizeCanvas } from '../util/canvasDpr.js';
 
 export default function EightBallGame() {
   const canvasRef = useRef(null);
@@ -8,8 +9,8 @@ export default function EightBallGame() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    const W = canvas.width, H = canvas.height;
+    const W = 620, H = 360;
+    const ctx = sizeCanvas(canvas, W, H);
     const BALL_R = 14;
     const pockets = [[30,30],[W/2,20],[W-30,30],[30,H-30],[W/2,H-20],[W-30,H-30]];
 
@@ -131,18 +132,18 @@ export default function EightBallGame() {
     let raf = requestAnimationFrame(step);
 
     const rectOf = () => canvas.getBoundingClientRect();
-    const onMove = (e) => {
+    const updateAim = (clientX, clientY) => {
       const r = rectOf();
-      aim.x = (e.clientX - r.left) * (W / r.width);
-      aim.y = (e.clientY - r.top) * (H / r.height);
+      aim.x = (clientX - r.left) * (W / r.width);
+      aim.y = (clientY - r.top) * (H / r.height);
     };
     let powerTimer = null;
-    const onDown = () => {
+    const startCharge = () => {
       if (moving || balls[0].in) return;
       charging = true; power = 0;
       powerTimer = setInterval(() => { power = Math.min(power+3, 100); }, 16);
     };
-    const onUp = () => {
+    const releaseShot = () => {
       if (!charging) return;
       clearInterval(powerTimer);
       const cue = balls[0];
@@ -154,30 +155,49 @@ export default function EightBallGame() {
       charging = false; power = 0;
     };
 
-    canvas.addEventListener('mousemove', onMove);
-    canvas.addEventListener('mousedown', onDown);
-    window.addEventListener('mouseup', onUp);
+    // Pointer events unify mouse + touch + pen. Aim follows the pointer
+    // on hover AND during drag; charge begins on pointerdown; shot fires
+    // on pointerup. `setPointerCapture` keeps events flowing if the
+    // finger wanders off the canvas edge mid-charge.
+    const onPointerMove = (e) => updateAim(e.clientX, e.clientY);
+    const onPointerDown = (e) => {
+      e.preventDefault();
+      try { canvas.setPointerCapture(e.pointerId); } catch {}
+      updateAim(e.clientX, e.clientY);
+      startCharge();
+    };
+    const onPointerUp = (e) => {
+      releaseShot();
+      try { canvas.releasePointerCapture(e.pointerId); } catch {}
+    };
+
+    canvas.addEventListener('pointermove', onPointerMove);
+    canvas.addEventListener('pointerdown', onPointerDown);
+    canvas.addEventListener('pointerup', onPointerUp);
+    canvas.addEventListener('pointercancel', onPointerUp);
 
     return () => {
       cancelAnimationFrame(raf);
       clearInterval(powerTimer);
-      canvas.removeEventListener('mousemove', onMove);
-      canvas.removeEventListener('mousedown', onDown);
-      window.removeEventListener('mouseup', onUp);
+      canvas.removeEventListener('pointermove', onPointerMove);
+      canvas.removeEventListener('pointerdown', onPointerDown);
+      canvas.removeEventListener('pointerup', onPointerUp);
+      canvas.removeEventListener('pointercancel', onPointerUp);
     };
   }, []);
 
   return (
     <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:14}}>
-      <div style={{display:'flex',gap:18,fontFamily:'var(--mono)',fontSize:11,letterSpacing:'0.1em',textTransform:'uppercase',color:'var(--dim)'}}>
+      <div style={{display:'flex',gap:18,fontFamily:'var(--font-mono)',fontSize:11,letterSpacing:'0.1em',textTransform:'uppercase',color:'var(--text-dim)'}}>
         <span>Shots <b style={{color:'var(--text)',marginLeft:6}}>{shots}</b></span>
         <span>Potted <b style={{color:'var(--accent)',marginLeft:6}}>{scored}</b></span>
-        <button onClick={() => stateRef.current?.reset()} style={{background:'var(--surface)',border:'1px solid var(--line)',color:'var(--text)',padding:'4px 12px',borderRadius:8,fontFamily:'var(--mono)',fontSize:10,letterSpacing:'0.08em',textTransform:'uppercase',cursor:'pointer'}}>Rack</button>
+        <button onClick={() => stateRef.current?.reset()} style={{background:'var(--surface)',border:'1px solid var(--line)',color:'var(--text)',padding:'4px 12px',borderRadius:8,fontFamily:'var(--font-mono)',fontSize:10,letterSpacing:'0.08em',textTransform:'uppercase',cursor:'pointer'}}>Rack</button>
       </div>
-      <canvas ref={canvasRef} width={620} height={360}
-        style={{borderRadius:12,maxWidth:'100%',height:'auto',cursor:'crosshair',boxShadow:'0 20px 40px -10px rgba(0,0,0,0.6)'}}/>
-      <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--mute)',letterSpacing:'0.1em',textTransform:'uppercase'}}>
-        Aim with mouse · hold to charge · release to shoot
+      <canvas
+        ref={canvasRef}
+        style={{borderRadius:12,cursor:'crosshair',touchAction:'none',boxShadow:'0 20px 40px -10px rgba(0,0,0,0.6)'}}/>
+      <div style={{fontFamily:'var(--font-mono)',fontSize:10,color:'var(--text-mute)',letterSpacing:'0.1em',textTransform:'uppercase'}}>
+        Aim · hold to charge · release to shoot
       </div>
     </div>
   );

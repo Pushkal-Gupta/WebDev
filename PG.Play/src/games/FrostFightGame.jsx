@@ -18,6 +18,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { submitScore } from '../scoreBus.js';
+import { sizeCanvas } from '../util/canvasDpr.js';
 
 const T = 36;
 const COLS = 22;
@@ -175,7 +176,7 @@ export default function FrostFightGame() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = sizeCanvas(canvas, W, H);
 
     const keys = {};
     const kd = (e) => {

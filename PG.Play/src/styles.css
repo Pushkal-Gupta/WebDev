@@ -618,6 +618,38 @@ svg { display: block; width: 100%; height: 100%; }
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   Home lede — product headline above the hero. Appears only on the
+   default /all browse so filtered / collection views stay purposeful.
+   ═══════════════════════════════════════════════════════════════ */
+.home-lede {
+  margin-bottom: var(--s-6);
+  max-width: 720px;
+}
+.home-lede-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: var(--s-3);
+}
+.home-lede-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 5.2vw, 3.5rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.02;
+  color: var(--text);
+  margin-bottom: var(--s-3);
+}
+.home-lede-sub {
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--text-dim);
+  max-width: 52ch;
+}
+
+/* ═══════════════════════════════════════════════════════════════
    Sections
    ═══════════════════════════════════════════════════════════════ */
 .section { margin-bottom: var(--s-7); }
@@ -952,6 +984,30 @@ svg { display: block; width: 100%; height: 100%; }
   line-height: 1.6;
 }
 .play-placeholder-sub b { color: var(--accent); font-weight: 600; }
+
+/* Loading state — no cover art, just a calm pulsing rule under the title
+   so the room doesn't feel empty while the chunk downloads. */
+.play-placeholder-loading { gap: var(--s-3); }
+.play-placeholder-pulse {
+  width: 120px;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in srgb, var(--accent) 70%, transparent),
+    transparent
+  );
+  border-radius: 2px;
+  animation: play-pulse 1400ms ease-in-out infinite;
+}
+@keyframes play-pulse {
+  0%   { opacity: 0.25; transform: scaleX(0.6); }
+  50%  { opacity: 1;    transform: scaleX(1); }
+  100% { opacity: 0.25; transform: scaleX(0.6); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .play-placeholder-pulse { animation: none; opacity: 0.5; }
+}
 
 /* ═══════════════════════════════════════════════════════════════
    Settings drawer
@@ -3105,17 +3161,14 @@ svg { display: block; width: 100%; height: 100%; }
   width: 100%;
   max-width: 860px;
 }
-.coil-bar {
-  display: flex;
-  align-items: center;
-  gap: var(--s-4);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-mute);
+/* Fluid variant — fills the immersive viewport edge-to-edge. The canvas
+   sizes itself via ResizeObserver. No bordering / max-width constraint. */
+.coil-fluid {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  gap: 0;
 }
-.coil-bar b { color: var(--text); font-weight: 700; margin-left: var(--s-1); }
 .coil-canvas {
   background: #0a1116;
   border-radius: var(--r-lg);
@@ -3125,21 +3178,13 @@ svg { display: block; width: 100%; height: 100%; }
   cursor: crosshair;
   touch-action: none;
 }
-.coil-death {
-  padding: var(--s-2) var(--s-4);
-  border: 1px solid rgba(var(--accent-rgb), 0.35);
-  border-radius: var(--r-pill);
-  font-size: 0.9rem;
-  color: var(--text-dim);
-}
-.coil-death b { color: var(--text); font-weight: 700; }
-.coil-hint {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-mute);
-  text-align: center;
+.coil-canvas-fluid {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  border-radius: 0;
+  box-shadow: none;
+  display: block;
 }
 
 /* Arena (multiplayer) */
@@ -3899,92 +3944,150 @@ svg { display: block; width: 100%; height: 100%; }
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   Game shell — premium play wrapper
+   Game shell — immersive play surface
+   The shell takes the full viewport (100dvh, safe-area aware). The top
+   strip hovers over the viewport so the canvas owns the entire frame; it
+   auto-hides after a short idle so nothing competes with gameplay. The
+   companion (goals / tips / controls / stats) is opt-in via a slide-in
+   drawer rather than a permanent rail that shaves 320px off the play area.
    ═══════════════════════════════════════════════════════════════ */
 .intro-playing {
-  background: radial-gradient(ellipse at top, color-mix(in srgb, var(--accent) 6%, var(--bg)) 0%, var(--bg) 55%);
+  background: var(--bg);
+  padding: 0;
 }
 .game-shell {
+  position: relative;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 100dvh;
   width: 100%;
-  background: var(--bg);
+  background: #000;
+  overflow: hidden;
+  /* Honor iOS / Android safe areas without padding the canvas itself.
+     Specific chrome elements respect these via env() below. */
 }
+[data-theme="light"] .game-shell { background: var(--bg); }
+
 .game-shell-topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 12;
   display: flex;
   align-items: center;
-  gap: var(--s-4);
-  padding: var(--s-3) var(--s-5);
-  border-bottom: 1px solid var(--line);
-  background: color-mix(in srgb, var(--surface) 72%, transparent);
-  backdrop-filter: blur(12px);
-  flex-shrink: 0;
+  gap: var(--s-3);
+  padding: 10px var(--s-4);
+  padding-top: max(10px, env(safe-area-inset-top, 0));
+  padding-left:  max(var(--s-4), env(safe-area-inset-left, 0));
+  padding-right: max(var(--s-4), env(safe-area-inset-right, 0));
+  background: linear-gradient(to bottom,
+              color-mix(in srgb, #000 62%, transparent) 0%,
+              color-mix(in srgb, #000 30%, transparent) 60%,
+              transparent 100%);
+  backdrop-filter: blur(8px) saturate(1.1);
+  -webkit-backdrop-filter: blur(8px) saturate(1.1);
+  pointer-events: none;
+  transition: opacity 240ms cubic-bezier(0.4, 0, 0.2, 1),
+              transform 240ms cubic-bezier(0.4, 0, 0.2, 1);
 }
-.game-shell-back { padding: 0 var(--s-3); }
-.game-shell-title-block { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+[data-theme="light"] .game-shell-topbar {
+  background: linear-gradient(to bottom,
+              color-mix(in srgb, var(--bg) 90%, transparent) 0%,
+              color-mix(in srgb, var(--bg) 60%, transparent) 60%,
+              transparent 100%);
+}
+.game-shell-topbar > * { pointer-events: auto; }
+
+/* Auto-hide while playing. Back stays visible (handled by selector below). */
+.game-shell[data-chrome="off"][data-paused="0"] .game-shell-topbar {
+  opacity: 0;
+  transform: translateY(-12px);
+}
+.game-shell[data-chrome="off"][data-paused="0"] .game-shell-topbar:hover,
+.game-shell[data-chrome="off"][data-paused="0"] .game-shell-topbar:focus-within {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.game-shell-back {
+  padding: 0 var(--s-3);
+  height: 36px;
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  border: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
+  backdrop-filter: blur(6px);
+}
+.game-shell-back-label { font-size: 0.86rem; }
+.game-shell-title-block { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
 .game-shell-title {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 1.1rem;
+  font-size: 0.98rem;
   letter-spacing: -0.01em;
   color: var(--text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.45);
 }
+[data-theme="light"] .game-shell-title { text-shadow: none; }
 .game-shell-meta { display: flex; gap: 6px; flex-wrap: wrap; }
 .game-shell-toolbar-wrap { flex-shrink: 0; }
 .shell-toolbar {
   display: flex;
   gap: 4px;
   padding: 4px;
-  background: var(--surface);
-  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  border: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
   border-radius: var(--r-md);
+  backdrop-filter: blur(6px);
 }
+
 .game-shell-stage {
   position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: var(--s-5);
-  padding: var(--s-5);
   flex: 1;
   min-height: 0;
   overflow: hidden;
+  /* No padding — the canvas should reach the viewport edges. */
 }
-.game-shell-stage-full { grid-template-columns: 1fr; }
 .game-shell-viewport {
   position: relative;
+  width: 100%;
+  height: 100%;
   background: var(--surface-sunken);
-  border: 1px solid var(--line);
-  border-radius: var(--r-xl);
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: min(72vh, 820px);
-  min-height: min(72dvh, 820px);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02), inset 0 40px 80px -40px var(--glow);
   overscroll-behavior: contain;
   touch-action: manipulation;
 }
 /* Any fixed-pixel canvas inside the viewport scales down responsively
-   without changing its intrinsic render dimensions. */
+   without changing its intrinsic render dimensions. Games that opt in
+   to fluid sizing use .is-fluid to fill the entire frame. */
 .game-shell-viewport-inner > canvas,
 .game-shell-viewport-inner canvas {
   display: block;
   max-width: 100%;
+  max-height: 100%;
   height: auto;
   margin-inline: auto;
 }
-.game-shell-viewport-frame {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  z-index: 1;
-  box-shadow: inset 0 0 40px -10px color-mix(in srgb, var(--accent) 20%, transparent);
+.game-shell-viewport.is-fluid .game-shell-viewport-inner > canvas,
+.game-shell-viewport.is-fluid .game-shell-viewport-inner canvas {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+}
+.game-shell-viewport.is-fluid .game-shell-viewport-inner {
+  align-items: stretch;
+  justify-content: stretch;
+}
+.game-shell-viewport.is-fluid .game-shell-viewport-inner > * {
+  flex: 1;
+  width: 100%;
+  height: 100%;
 }
 .game-shell-viewport-inner {
   position: relative;
@@ -3996,20 +4099,79 @@ svg { display: block; width: 100%; height: 100%; }
   justify-content: center;
 }
 .game-shell-viewport[data-paused="1"] .game-shell-viewport-inner {
-  filter: blur(2px) brightness(0.7);
+  filter: blur(2px) brightness(0.6);
   transition: filter var(--t);
 }
 
-/* Companion panel */
+/* Companion drawer — overlay on top of the viewport, opt-in via Info button.
+   Slides in from the right; backed by a light scrim so the underlying game
+   stays visible (the game also pauses-blurs while the drawer is open if the
+   player chooses to pause). */
+.shell-companion-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 14;
+  background: rgba(0, 0, 0, 0);
+  pointer-events: none;
+  transition: background 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.game-shell[data-companion="open"] .shell-companion-scrim {
+  background: rgba(0, 0, 0, 0.36);
+  pointer-events: auto;
+}
+.shell-companion-drawer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: min(360px, 92vw);
+  z-index: 15;
+  display: flex;
+  background: var(--surface);
+  border-left: 1px solid var(--line);
+  box-shadow: var(--shadow-drawer);
+  transform: translateX(100%);
+  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  padding-top: max(0px, env(safe-area-inset-top, 0));
+  padding-bottom: max(0px, env(safe-area-inset-bottom, 0));
+  padding-right: max(0px, env(safe-area-inset-right, 0));
+  will-change: transform;
+}
+.shell-companion-drawer[data-open="1"] { transform: translateX(0); }
 .shell-companion {
   display: flex;
   flex-direction: column;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--r-xl);
+  background: transparent;
+  width: 100%;
   overflow: hidden;
   min-height: 0;
 }
+.shell-companion-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.shell-companion-head-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.shell-companion-close {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-sm);
+  color: var(--text-dim);
+  transition: color var(--t), background var(--t);
+}
+.shell-companion-close:hover { color: var(--text); background: var(--hover-bg); }
+.shell-companion-close > svg { width: 18px; height: 18px; }
 .shell-companion-tabs {
   display: flex;
   gap: 2px;
@@ -4311,6 +4473,122 @@ svg { display: block; width: 100%; height: 100%; }
   margin-left: 6px;
 }
 
+/* Swingwire — one-button swing action */
+.swingwire {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+  user-select: none;
+  width: 100%;
+}
+.swingwire-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  max-width: 1120px;
+  width: 100%;
+}
+.swingwire-bar b { color: var(--text); font-weight: 700; margin-left: var(--s-1); }
+.swingwire-stage {
+  position: relative;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+.swingwire-canvas {
+  background: #0a1323;
+  border-radius: var(--r-lg);
+  box-shadow:
+    var(--shadow-lift),
+    0 0 0 1px rgba(255, 74, 106, 0.12) inset;
+  max-width: 100%;
+  width: 100%;
+  height: auto;
+  display: block;
+  touch-action: none;
+  outline: none;
+}
+.swingwire-canvas:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.swingwire-help {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(8, 6, 14, 0.94);
+  border: 1px solid rgba(255, 74, 106, 0.28);
+  border-radius: var(--r-lg);
+  padding: var(--s-5) var(--s-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  z-index: 6;
+  box-shadow: var(--shadow-drawer);
+  min-width: 380px;
+  max-width: 90%;
+}
+.swingwire-help-title {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #ff4a6a;
+  text-align: center;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--s-2);
+}
+.swingwire-help-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-4);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+.swingwire-help-row b {
+  color: var(--text);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+.swingwire-help-tip {
+  margin-top: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-1);
+}
+.swingwire-help-tip b {
+  font-style: italic;
+  color: #c9b48a;
+  letter-spacing: 0.01em;
+}
+.swingwire-hint {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  text-align: center;
+}
+@media (hover: none) and (pointer: coarse) {
+  .swingwire-bar { gap: var(--s-2); font-size: 0.66rem; }
+  .swingwire-hint { display: none; }
+}
+
 /* ═══════════════════════════════════════════════════════════════
    Responsive
    ═══════════════════════════════════════════════════════════════ */
@@ -4323,7 +4601,6 @@ svg { display: block; width: 100%; height: 100%; }
   .intro-copy { padding: var(--s-8) var(--s-5) var(--s-5); }
   .feature-hero { grid-template-columns: 1.1fr 0.9fr; padding: var(--s-6); }
   .editors-grid { grid-template-columns: 1fr 1fr; grid-auto-rows: 200px; }
-  .game-shell-stage { grid-template-columns: minmax(0, 1fr) 280px; }
 }
 
 @media (max-width: 900px) {
@@ -4372,21 +4649,143 @@ svg { display: block; width: 100%; height: 100%; }
   .feature-hero-title { font-size: clamp(32px, 8vw, 44px); }
   .quick-filters { display: flex; }
   .editors-grid { grid-template-columns: 1fr; grid-auto-rows: 200px; }
-  .game-shell-stage {
-    grid-template-columns: 1fr;
-    padding: var(--s-3);
-    gap: var(--s-3);
-    overflow-y: auto;
-  }
-  .game-shell-viewport { min-height: 58vh; }
-  .shell-companion { min-height: 200px; }
   .game-shell-back-label { display: none; }
   .game-shell-meta .chip-sm { display: none; }
   .game-shell-meta .chip-sm.chip-accent { display: inline-flex; }
+  .game-shell-title { font-size: 0.9rem; }
 }
 
 @media (max-width: 520px) {
   .grid { grid-template-columns: 1fr; }
   .feature-hero-best { margin-left: 0; border-left: 0; padding: 0; }
   .shell-toolbar .btn-tool { height: 36px; min-width: 36px; padding: 0 8px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Connect 4 — replaces the game's previous inline styles. Uses
+   design-system tokens so theme toggles track correctly, plus a
+   subtle drop animation only on the freshly placed disc.
+   ═══════════════════════════════════════════════════════════════ */
+.c4 {
+  --c4-red:       #e54562;     /* tuned against neutral surfaces */
+  --c4-yellow:    #f5c14a;
+  --c4-board:     #1a3a7c;
+  --c4-board-2:   #0f265a;
+  --c4-hole:      #0b1f4d;
+  --c4-hole-ring: #07163a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-4);
+  color: var(--text);
+}
+[data-theme="light"] .c4 {
+  --c4-board:     #2451b8;
+  --c4-board-2:   #1a3e93;
+  --c4-hole:      #17306f;
+  --c4-hole-ring: #0d2155;
+}
+
+.c4-hud {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.c4-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  color: var(--text);
+  font-weight: 600;
+}
+.c4-status-win { font-weight: 700; }
+.c4-status.c4-side-r { color: var(--c4-red); }
+.c4-status.c4-side-y { color: var(--c4-yellow); }
+.c4-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.c4-side-r { color: var(--c4-red); }
+.c4-side-y { color: var(--c4-yellow); }
+.c4-reset { margin-left: var(--s-2); }
+
+.c4-board {
+  display: grid;
+  grid-template-columns: repeat(7, 44px);
+  gap: 6px;
+  padding: 10px;
+  background: linear-gradient(to bottom, var(--c4-board), var(--c4-board-2));
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lift);
+}
+.c4-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: var(--r-sm);
+  transition: background var(--t-fast);
+}
+.c4-col:disabled { cursor: default; }
+.c4-col.is-active { background: rgba(255,255,255,0.05); }
+.c4-col:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.c4-cell {
+  display: block;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--c4-hole);
+  border: 2px solid var(--c4-hole-ring);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.5);
+  transition: background var(--t);
+}
+.c4-cell-r {
+  background: var(--c4-red);
+  border-color: color-mix(in srgb, var(--c4-red) 60%, #000);
+  box-shadow: inset 0 -2px 6px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,0,0,0.15);
+}
+.c4-cell-y {
+  background: var(--c4-yellow);
+  border-color: color-mix(in srgb, var(--c4-yellow) 60%, #000);
+  box-shadow: inset 0 -2px 6px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.1);
+}
+.c4-cell-ghost {
+  background: transparent;
+  border: 2px dashed currentColor;
+  opacity: 0.55;
+}
+.c4-cell-drop { animation: c4-drop 280ms cubic-bezier(0.2, 0.7, 0.3, 1.1); }
+@keyframes c4-drop {
+  0%   { transform: translateY(-180%); }
+  70%  { transform: translateY(6%); }
+  100% { transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .c4-cell-drop { animation: none; }
+}
+
+.c4-help {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  text-align: center;
+}
+
+@media (max-width: 520px) {
+  .c4-board { grid-template-columns: repeat(7, 36px); gap: 5px; padding: 8px; }
+  .c4-cell  { width: 36px; height: 36px; }
 }

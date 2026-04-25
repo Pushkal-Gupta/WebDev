@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { submitScore } from '../scoreBus.js';
+import { sizeCanvas } from '../util/canvasDpr.js';
 
 // Three hand-tuned levels. Rope pin position + rope length + star positions +
 // Om Nom position on the floor. Each rope is an idealized pendulum starting
@@ -43,7 +44,7 @@ export default function CutRopeGame() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = sizeCanvas(canvas, W, H);
 
     const draw = () => {
       const L = LEVELS[levelIdx];

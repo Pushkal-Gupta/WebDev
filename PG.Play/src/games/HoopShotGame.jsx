@@ -8,6 +8,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { submitScore } from '../scoreBus.js';
+import { sizeCanvas } from '../util/canvasDpr.js';
 
 const W = 720;
 const H = 460;
@@ -60,7 +61,7 @@ export default function HoopShotGame() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = sizeCanvas(canvas, W, H);
 
     const rectOf = () => canvas.getBoundingClientRect();
     const toLocal = (cx, cy) => {
