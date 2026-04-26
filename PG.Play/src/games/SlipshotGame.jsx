@@ -16,13 +16,16 @@ const RUN_SECONDS   = 180;
 const PLAYER_EYE    = 1.62;
 const SLIDE_EYE     = 0.95;
 const RADIUS        = 0.38;
-const WALK_SPEED    = 6.4;
-const SPRINT_SPEED  = 9.6;
-const SLIDE_SPEED   = 13.4;
+// Movement: ~10% bump on base speeds to keep the larger arena from feeling
+// sluggish. Slide stays in proportional ratio so the slide → jump cadence
+// reads identically to the old tuning.
+const WALK_SPEED    = 7.05;
+const SPRINT_SPEED  = 10.55;
+const SLIDE_SPEED   = 14.75;
 const SLIDE_DECAY   = 0.93;
-const SLIDE_FRICTION_MIN = 4.8;
+const SLIDE_FRICTION_MIN = 5.3;
 const JUMP_V        = 7.2;
-const AIRDASH_V     = 9.2;
+const AIRDASH_V     = 10.1;
 const GRAVITY       = 21;
 const MAX_HP        = 100;
 const HP_REGEN_DELAY = 3.0;
@@ -45,42 +48,73 @@ const WEAPONS = {
   slug:  { label: 'Slug',  cd: 0.70,  dmg: 80, mag: 6,  reload: 1.4, spread: 0.0,   tracer: 0xffe14f },
 };
 
-/* Arena: compact sealed box with pillars and vault ledges.
+/* Arena: roomy sealed hall with pillars, cover blocks, and vault ledges.
    WALLS = full-height blockers (never vaultable).
    LEDGES = short platforms the player can jump over and stand on.
-   Non-player collision (enemies, shots) treats everything as a wall. */
+   Non-player collision (enemies, shots) treats everything as a wall.
+   Footprint pushed from a 44×44 inner box to 80×80 (~80% larger area)
+   so combat has breathing room; the cover/platform layout below fills
+   the bigger floor with sightline breaks instead of dead space. */
 const WALLS = [
-  // central cross
-  [  0,   0, 14,  3.0, 1.2],
-  [  0,   0, 1.2, 3.0, 14 ],
-  // corner blocks
-  [ -8, -10, 3,   2.4, 3 ],
-  [  8,  10, 3,   2.4, 3 ],
-  [-14,  12, 2.4, 2.4, 2.4],
-  [ 14, -12, 2.4, 2.4, 2.4],
+  // Split central cross arms — leave a centre opening so the player can
+  // spawn at (0, 0) without clipping into a wall on first frame. Arms run
+  // from ~3 to 12 units out on each axis.
+  [  7.5,  0, 9,   3.4, 1.4],
+  [ -7.5,  0, 9,   3.4, 1.4],
+  [  0,  7.5, 1.4, 3.4, 9  ],
+  [  0, -7.5, 1.4, 3.4, 9  ],
+  // diagonal corner blocks (pushed outward with the new arena)
+  [-14, -16, 3,   2.6, 3 ],
+  [ 14,  16, 3,   2.6, 3 ],
+  [-22,  20, 2.6, 2.6, 2.6],
+  [ 22, -20, 2.6, 2.6, 2.6],
   // pillars
-  [  5,  -5, 1.6, 5,   1.6],
-  [ -5,   5, 1.6, 5,   1.6],
-  // side fins
-  [ 18,   0, 1.6, 3,   8 ],
-  [-18,   0, 1.6, 3,   8 ],
-  [  0,  18, 8,   3,   1.6],
-  [  0, -18, 8,   3,   1.6],
+  [  8,  -8, 1.8, 5.4, 1.8],
+  [ -8,   8, 1.8, 5.4, 1.8],
+  [ 14,  -2, 1.6, 4.8, 1.6],
+  [-14,   2, 1.6, 4.8, 1.6],
+  // side fins (perimeter cover)
+  [ 30,   0, 1.6, 3.2, 10 ],
+  [-30,   0, 1.6, 3.2, 10 ],
+  [  0,  30, 10,  3.2, 1.6],
+  [  0, -30, 10,  3.2, 1.6],
+  // 6 cuboid cover blocks, scattered to break sightlines without forming
+  // corridor walls. Heights 2.0–2.8, widths 3.0–4.6.
+  [ 16,  10, 4.0, 2.4, 3.4],
+  [-16, -10, 4.0, 2.4, 3.4],
+  [ 20, -16, 3.4, 2.0, 4.6],
+  [-20,  16, 4.6, 2.0, 3.4],
+  [  6,  20, 3.0, 2.8, 3.0],
+  [ -6, -20, 3.0, 2.8, 3.0],
 ];
 const LEDGES = [
   // vault ledges — slide → jump clears them; top is standable.
-  [ 10,   4, 4.5, 1.1, 0.6],
-  [-10,  -4, 4.5, 1.1, 0.6],
+  [ 12,   6, 4.5, 1.1, 0.6],
+  [-12,  -6, 4.5, 1.1, 0.6],
+  // 3 elevated platforms (~1.2m, 4×4) hugging the perimeter so the centre
+  // stays open. Mantleable via the slide → jump → airdash chain.
+  [ 26,  18, 4.0, 1.2, 4.0],
+  [-26, -18, 4.0, 1.2, 4.0],
+  [ 22, -22, 4.0, 1.2, 4.0],
 ];
-const ARENA_HALF = 22;
+const ARENA_HALF = 40;
+const ARENA_HEIGHT = 6.5;
 
-/* Target/drone spawn anchors — reachable points around the arena */
+/* Target/drone spawn anchors — reachable points around the arena.
+   Expanded with the larger 80×80 footprint so wall-poppers populate the
+   whole hall instead of clustering near centre. */
 const TARGET_ANCHORS = [
+  // ring near-centre
   [  0,  16, 2.0], [  0, -16, 2.0], [ 16,   0, 2.0], [-16,   0, 2.0],
   [ 12,  12, 3.0], [-12,  12, 3.0], [ 12, -12, 3.0], [-12, -12, 3.0],
   [  6,   0, 4.2], [ -6,   0, 4.2], [  0,   6, 1.4], [  0,  -6, 1.4],
   [ 18,   8, 2.6], [-18,  -8, 2.6], [  8, -18, 2.6], [ -8,  18, 2.6],
   [  4,  10, 1.0], [ -4, -10, 1.0], [ 10,  -4, 1.0], [-10,   4, 1.0],
+  // outer perimeter
+  [  0,  30, 2.4], [  0, -30, 2.4], [ 30,   0, 2.4], [-30,   0, 2.4],
+  [ 22,  22, 3.2], [-22,  22, 3.2], [ 22, -22, 3.2], [-22, -22, 3.2],
+  [ 28,  10, 1.6], [-28, -10, 1.6], [ 10,  28, 1.6], [-10, -28, 1.6],
+  [ 18,  26, 4.4], [-18, -26, 4.4], [ 26, -14, 4.4], [-26,  14, 4.4],
 ];
 
 /* ─── tiny helpers ────────────────────────────────────────────── */
@@ -179,8 +213,11 @@ export default function SlipshotGame() {
     mount.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x0a1014, 24, 64);
-    const camera = new THREE.PerspectiveCamera(100, mount.clientWidth / mount.clientHeight, 0.1, 200);
+    // Fog pushed back to match the bigger arena — far walls fade rather than
+    // pop into view at the new 80-unit footprint.
+    scene.fog = new THREE.Fog(0x0a1014, 32, 96);
+    // FOV nudged 100 → 105 so the wider room reads in a single glance.
+    const camera = new THREE.PerspectiveCamera(105, mount.clientWidth / mount.clientHeight, 0.1, 240);
 
     scene.add(new THREE.AmbientLight(0xffffff, 0.55));
     const key = new THREE.DirectionalLight(0xffffff, 0.95);
@@ -195,29 +232,94 @@ export default function SlipshotGame() {
     floor.rotation.x = -Math.PI / 2;
     scene.add(floor);
 
-    const grid = new THREE.GridHelper(ARENA_HALF * 2, 44, 0x1d2a34, 0x101a21);
+    // Base structural grid — 1 cell per unit, kept dim. Divisions scale with
+    // ARENA_HALF so cell density stays identical no matter the room size.
+    const grid = new THREE.GridHelper(ARENA_HALF * 2, ARENA_HALF * 2, 0x1d2a34, 0x101a21);
     grid.position.y = 0.01;
     scene.add(grid);
 
+    // Faint magenta grid — one line every 4 units. Two layers gives the floor
+    // a clear sense of scale without overwhelming the dim base grid.
+    const accentGrid = new THREE.GridHelper(ARENA_HALF * 2, Math.round(ARENA_HALF / 2), 0x4a1530, 0x3a1028);
+    accentGrid.position.y = 0.012;
+    accentGrid.material.transparent = true;
+    accentGrid.material.opacity = 0.32;
+    scene.add(accentGrid);
+
     const wallMat   = new THREE.MeshStandardMaterial({ color: 0xe8ece8, roughness: 0.8 });
     const trimMat   = new THREE.MeshStandardMaterial({ color: 0x00fff5, emissive: 0x004843, emissiveIntensity: 0.6, roughness: 0.35 });
+    // Slightly lighter dark-magenta for the cover/platform tops — readable
+    // against the wall-bone wallMat without breaking the palette.
+    const coverMat  = new THREE.MeshStandardMaterial({ color: 0x6a2a48, emissive: 0x2a0a18, emissiveIntensity: 0.35, roughness: 0.7 });
+    // Magenta wall-strip accent — same emissive trick used by holo-targets.
+    const accentStripMat = new THREE.MeshStandardMaterial({
+      color: 0xff3a8a, emissive: 0xff1a6a, emissiveIntensity: 1.4, roughness: 0.3,
+    });
 
-    // Outer arena walls
-    [[0, ARENA_HALF, ARENA_HALF * 2, 4, 0.6], [0, -ARENA_HALF, ARENA_HALF * 2, 4, 0.6],
-     [ARENA_HALF, 0, 0.6, 4, ARENA_HALF * 2], [-ARENA_HALF, 0, 0.6, 4, ARENA_HALF * 2]].forEach(([cx, cz, sx, sy, sz]) => {
+    // Outer arena walls — taller now to match the increased ceiling height.
+    [[0, ARENA_HALF, ARENA_HALF * 2, ARENA_HEIGHT, 0.6], [0, -ARENA_HALF, ARENA_HALF * 2, ARENA_HEIGHT, 0.6],
+     [ARENA_HALF, 0, 0.6, ARENA_HEIGHT, ARENA_HALF * 2], [-ARENA_HALF, 0, 0.6, ARENA_HEIGHT, ARENA_HALF * 2]].forEach(([cx, cz, sx, sy, sz]) => {
       const m = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), wallMat);
       m.position.set(cx, sy / 2, cz);
       scene.add(m);
     });
 
+    // Cover indices: the last 6 entries of WALLS are scattered cover blocks
+    // (heights ≤ 3). Rendering them with `coverMat` so they pop visually as
+    // crouchable blocks rather than full structural walls.
+    const COVER_THRESHOLD = 3.0;
     [...WALLS, ...LEDGES].forEach(([cx, cz, sx, sy, sz]) => {
-      const m = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), wallMat);
+      const useCoverMat = sy <= COVER_THRESHOLD && sx >= 2.5 && sz >= 2.5;
+      const m = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), useCoverMat ? coverMat : wallMat);
       m.position.set(cx, sy / 2, cz);
       scene.add(m);
       const trim = new THREE.Mesh(new THREE.BoxGeometry(sx, 0.06, sz), trimMat);
       trim.position.set(cx, sy + 0.03, cz);
       scene.add(trim);
     });
+
+    // 6 thin glowing magenta strips on the perimeter walls. Decorative only —
+    // give the bigger room landmarks the eye can lock onto when sweeping.
+    const STRIP_W = 0.18, STRIP_H = 3.6, STRIP_D = 0.05;
+    const stripPositions = [
+      [-14, ARENA_HALF - 0.34, 0],  [ 14, ARENA_HALF - 0.34, 0],
+      [-14, -(ARENA_HALF - 0.34), Math.PI], [ 14, -(ARENA_HALF - 0.34), Math.PI],
+      [ ARENA_HALF - 0.34, 12, Math.PI / 2], [ ARENA_HALF - 0.34, -12, Math.PI / 2],
+      [-(ARENA_HALF - 0.34), 12, -Math.PI / 2], [-(ARENA_HALF - 0.34), -12, -Math.PI / 2],
+    ];
+    stripPositions.forEach(([cx, cz, ry]) => {
+      const strip = new THREE.Mesh(new THREE.BoxGeometry(STRIP_W, STRIP_H, STRIP_D), accentStripMat);
+      strip.position.set(cx, STRIP_H / 2 + 0.4, cz);
+      strip.rotation.y = ry;
+      scene.add(strip);
+    });
+
+    /* ── ambient drifting motes (decorative depth cue) ────────── */
+    // 30 small additive billboards drifting on independent sine waves. Pure
+    // visual — no collision, no gameplay impact. Held in a single shared
+    // material so adding/removing the system stays cheap.
+    const MOTE_COUNT = 30;
+    const moteMat = new THREE.MeshBasicMaterial({
+      color: 0xff6db0, transparent: true, opacity: 0.42, blending: THREE.AdditiveBlending, depthWrite: false,
+    });
+    const moteGeo = new THREE.SphereGeometry(0.07, 5, 4);
+    const motes = [];
+    for (let i = 0; i < MOTE_COUNT; i++) {
+      const m = new THREE.Mesh(moteGeo, moteMat);
+      const x = (Math.random() - 0.5) * (ARENA_HALF * 2 - 6);
+      const z = (Math.random() - 0.5) * (ARENA_HALF * 2 - 6);
+      const y = 0.6 + Math.random() * (ARENA_HEIGHT - 1.4);
+      m.position.set(x, y, z);
+      scene.add(m);
+      motes.push({
+        mesh: m,
+        baseY: y,
+        phase: Math.random() * Math.PI * 2,
+        speed: 0.3 + Math.random() * 0.6,
+        driftX: (Math.random() - 0.5) * 0.4,
+        driftZ: (Math.random() - 0.5) * 0.4,
+      });
+    }
 
     /* ── gun model in camera ──────────────────────────────────── */
     const gun = new THREE.Group();
@@ -315,7 +417,9 @@ export default function SlipshotGame() {
 
     /* ── player state ─────────────────────────────────────────── */
     const player = {
-      pos: new THREE.Vector3(0, PLAYER_EYE, 14),
+      // Spawn at the centre of the bigger arena (slightly forward so the
+      // player faces the central cross on first frame).
+      pos: new THREE.Vector3(0, PLAYER_EYE, 0),
       vel: new THREE.Vector3(),
       yaw: Math.PI, pitch: 0,
       onGround: true, sliding: false, slideTimer: 0,
@@ -572,8 +676,8 @@ export default function SlipshotGame() {
       for (let i = enemyShots.length - 1; i >= 0; i--) scene.remove(enemyShots[i].mesh);
       enemyShots.length = 0;
 
-      // Reset player
-      player.pos.set(0, PLAYER_EYE, 14);
+      // Reset player at arena centre.
+      player.pos.set(0, PLAYER_EYE, 0);
       player.vel.set(0, 0, 0);
       player.yaw = Math.PI; player.pitch = 0;
       player.hp = MAX_HP; player.lastHurt = 999;
@@ -651,33 +755,63 @@ export default function SlipshotGame() {
       const rng = mulberry32(dailySeed() ^ 0x51ab1);
       let tTarget = 0, tDrone = 0, tProwler = 0;
       const pick = (arr) => arr[Math.floor(rng() * arr.length)];
-      const pickAnchor = () => {
-        // Avoid spawning right on top of the player
-        for (let i = 0; i < 10; i++) {
-          const a = pick(TARGET_ANCHORS);
-          const dx = a[0] - player.pos.x;
-          const dz = a[1] - player.pos.z;
-          if (dx * dx + dz * dz > 25) return new THREE.Vector3(a[0], a[2], a[1]);
+
+      // Spawn-spacing audit: prevents pile-on at any single anchor. Returns
+      // true when the candidate point is too close to either the player
+      // (12u) or any live entity (8u). 12-attempt loop in each picker; if
+      // every attempt fails, the picker falls back to the last candidate
+      // (random) so the run never stalls.
+      const ENTITY_SPACING = 8;
+      const PLAYER_SPACING = 12;
+      const tooClose = (x, z, py) => {
+        const pdx = x - player.pos.x;
+        const pdz = z - player.pos.z;
+        if (pdx * pdx + pdz * pdz < PLAYER_SPACING * PLAYER_SPACING) return true;
+        for (const e of entities) {
+          if (!e.alive) continue;
+          const ep = e.mesh ? e.mesh.position : e.pos;
+          const dx = ep.x - x;
+          const dy = (ep.y || py) - py;
+          const dz = ep.z - z;
+          if (dx * dx + dy * dy + dz * dz < ENTITY_SPACING * ENTITY_SPACING) return true;
         }
-        const a = pick(TARGET_ANCHORS);
+        return false;
+      };
+
+      const pickAnchor = () => {
+        let last = null;
+        for (let i = 0; i < 12; i++) {
+          const a = pick(TARGET_ANCHORS);
+          last = a;
+          if (!tooClose(a[0], a[1], a[2])) return new THREE.Vector3(a[0], a[2], a[1]);
+        }
+        const a = last || pick(TARGET_ANCHORS);
         return new THREE.Vector3(a[0], a[2], a[1]);
       };
       const dronePoint = () => {
-        for (let i = 0; i < 20; i++) {
+        let lx = 0, lz = 10, ly = 4;
+        for (let i = 0; i < 12; i++) {
           const x = (rng() - 0.5) * (ARENA_HALF - 4) * 2;
           const z = (rng() - 0.5) * (ARENA_HALF - 4) * 2;
-          if (!collidesCube(x, z, 0.8)) return new THREE.Vector3(x, 3.4 + rng() * 1.4, z);
+          const y = 3.8 + rng() * 1.6;
+          lx = x; lz = z; ly = y;
+          if (collidesCube(x, z, 0.8)) continue;
+          if (tooClose(x, z, y)) continue;
+          return new THREE.Vector3(x, y, z);
         }
-        return new THREE.Vector3(0, 4, 10);
+        return new THREE.Vector3(lx, ly, lz);
       };
       const prowlerPoint = () => {
-        for (let i = 0; i < 20; i++) {
+        let lx = 12, lz = 12;
+        for (let i = 0; i < 12; i++) {
           const x = (rng() - 0.5) * (ARENA_HALF - 3) * 2;
           const z = (rng() - 0.5) * (ARENA_HALF - 3) * 2;
-          const dx = x - player.pos.x, dz = z - player.pos.z;
-          if (!collidesCube(x, z, 0.5) && (dx * dx + dz * dz) > 64) return new THREE.Vector3(x, 1.0, z);
+          lx = x; lz = z;
+          if (collidesCube(x, z, 0.5)) continue;
+          if (tooClose(x, z, 1.0)) continue;
+          return new THREE.Vector3(x, 1.0, z);
         }
-        return new THREE.Vector3(12, 1.0, 12);
+        return new THREE.Vector3(lx, 1.0, lz);
       };
       const countOf = (kind) => entities.reduce((n, e) => n + (e.kind === kind ? 1 : 0), 0);
 
@@ -686,9 +820,11 @@ export default function SlipshotGame() {
       const step = (dt, elapsed) => {
         const phase = phaseFor(elapsed);
 
-        // Targets
-        const tInt = phase === 0 ? 1.5 : phase === 1 ? 1.1 : 0.85;
-        const tCap = phase === 0 ? 8 : phase === 1 ? 10 : 12;
+        // Targets — intervals tightened ~25% (1.5→1.2, 1.1→0.88, 0.85→0.68)
+        // to keep wall-popping density alive across the bigger floor. Caps
+        // bumped a notch for the same reason.
+        const tInt = phase === 0 ? 1.2 : phase === 1 ? 0.88 : 0.68;
+        const tCap = phase === 0 ? 10 : phase === 1 ? 12 : 14;
         tTarget -= dt;
         while (tTarget <= 0 && countOf('target') < tCap) {
           spawnTarget(pickAnchor());
@@ -696,11 +832,12 @@ export default function SlipshotGame() {
         }
         if (tTarget < -0.1) tTarget = 0;
 
-        // Drones
+        // Drones — caps bumped by 1–2 across phases so the ceiling layer
+        // stays present in the larger overhead volume.
         const dStart = 18;
         if (elapsed > dStart) {
           const dInt = phase === 0 ? 5.5 : phase === 1 ? 3.6 : 2.4;
-          const dCap = phase === 0 ? 2 : phase === 1 ? 3 : 4;
+          const dCap = phase === 0 ? 3 : phase === 1 ? 5 : 6;
           tDrone -= dt;
           while (tDrone <= 0 && countOf('drone') < dCap) {
             spawnDrone(dronePoint());
@@ -709,8 +846,9 @@ export default function SlipshotGame() {
           if (tDrone < -0.1) tDrone = 0;
         }
 
-        // Prowlers
-        const pStart = 58;
+        // Prowlers — start moved 60s → 50s. The bigger floor gives them more
+        // room to threaten, so they need to show up sooner to apply pressure.
+        const pStart = 50;
         if (elapsed > pStart) {
           const pInt = phase === 1 ? 10 : 6.5;
           const pCap = phase === 1 ? 2 : 3;
@@ -808,12 +946,14 @@ export default function SlipshotGame() {
       // (0.08) so tracers don't tunnel through thin trim or stop short of
       // walls; iteration count scales with `max / step` automatically.
       const step = 0.08;
-      const max = 80;
+      const max = 120;
       for (let d = step; d < max; d += step) {
         const x = origin.x + dir.x * d;
         const y = origin.y + dir.y * d;
         const z = origin.z + dir.z * d;
-        if (y < 0.01 || y > 10 || collidesCube(x, z, 0.05)) {
+        // Vertical bounds match the new arena ceiling (ARENA_HEIGHT) so
+        // tracers correctly terminate at the top instead of running past it.
+        if (y < 0.01 || y > ARENA_HEIGHT || collidesCube(x, z, 0.05)) {
           out.set(x, y, z);
           return d;
         }
@@ -1172,7 +1312,8 @@ export default function SlipshotGame() {
           const advanceSign = e.retreatT > 0 ? -0.5 : 1;
           e.mesh.position.x += (toP.x * 1.8 * advanceSign + perpX * lateral) * gdt;
           e.mesh.position.z += (toP.z * 1.8 * advanceSign + perpZ * lateral) * gdt;
-          e.mesh.position.y = 3.4 + Math.sin(e.wobble * 1.3) * 0.35;
+          // Hover slightly higher (4.4 base) to use the new ceiling height.
+          e.mesh.position.y = 4.4 + Math.sin(e.wobble * 1.3) * 0.4;
           e.mesh.rotation.y += gdt * 0.8;
           e.pos.copy(e.mesh.position);
           e.fireCd -= gdt;
@@ -1266,6 +1407,21 @@ export default function SlipshotGame() {
         }
       }
 
+      /* ── ambient motes — drift on independent sine waves ─── */
+      for (let i = 0; i < motes.length; i++) {
+        const m = motes[i];
+        m.phase += dt * m.speed;
+        m.mesh.position.y = m.baseY + Math.sin(m.phase) * 0.35;
+        m.mesh.position.x += m.driftX * dt;
+        m.mesh.position.z += m.driftZ * dt;
+        // Wrap softly within the arena so motes never escape into walls.
+        const lim = ARENA_HALF - 2;
+        if (m.mesh.position.x >  lim) m.mesh.position.x = -lim;
+        if (m.mesh.position.x < -lim) m.mesh.position.x =  lim;
+        if (m.mesh.position.z >  lim) m.mesh.position.z = -lim;
+        if (m.mesh.position.z < -lim) m.mesh.position.z =  lim;
+      }
+
       renderer.render(scene, camera);
 
       /* ── HUD batch (10 Hz) ─────────────────────────────────── */
@@ -1318,6 +1474,8 @@ export default function SlipshotGame() {
       tracerGeo.dispose();
       particleGeo.dispose();
       enemyShotGeo.dispose();
+      moteGeo.dispose();
+      moteMat.dispose();
       if (audio && audio.state !== 'closed') audio.close?.();
       mount.innerHTML = '';
     };

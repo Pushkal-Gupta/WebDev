@@ -21,11 +21,12 @@ import { sfx, subscribeMute, isMuted as soundIsMuted } from '../sound.js';
 import { getSkin as readPersistedSkin, setSkin as writePersistedSkin, subscribeSkinChange } from '../lib/coilSkin.js';
 
 // --- World tuning ---
-const ARENA_R0 = 1200;            // initial radius in world units
-const ARENA_GROW = 0.6;           // units per second of growth
-const SEG_SPACING = 3.6;          // tighter spacing → ~40% overlap
-const HEAD_R_BASE = 10;
-const FOOD_R = 6;
+const ARENA_R0 = 2200;            // initial radius in world units (was 1200)
+const ARENA_GROW = 0.8;           // units per second of growth (was 0.6)
+const HEAD_R_BASE = 14;           // +40% for chunkier head (was 10)
+const BODY_R_BASE = 14;           // explicit body base radius (matches head; tapers per-segment)
+const SEG_SPACING = 5.0;          // bumped to ~50% overlap with thicker body (was 3.6)
+const FOOD_R = 8;                 // slightly bigger orbs read at new scale (was 6)
 const FOOD_COUNT = 110;
 const BOT_COUNT = 6;
 const START_LEN = 16;
@@ -38,6 +39,11 @@ const BOOST_MULT = 1.85;
 const BOOST_BURN = 1.6;
 const BOOST_MIN_LEN = 12;
 const FOOD_BIG_CHANCE = 0.10;
+
+// --- Background tuning ---
+const GRID_CELL = 200;            // world-space grid cell size in units
+const NEBULA_COUNT = 5;           // drifting cloud blobs
+const DUST_COUNT = 40;            // sparkle dust dots
 
 // --- Helpers ---
 const rand = (a, b) => a + Math.random() * (b - a);
@@ -186,11 +192,53 @@ function makeStars(count = 80) {
   const out = [];
   for (let i = 0; i < count; i++) {
     out.push({
-      x: rand(-2400, 2400),
-      y: rand(-2400, 2400),
+      x: rand(-3600, 3600),
+      y: rand(-3600, 3600),
       r: rand(0.4, 1.6),
       a: rand(0.18, 0.55),
       tw: rand(0, TAU),
+    });
+  }
+  return out;
+}
+
+// Drifting nebula clouds — large radial gradients at parallax 0.3x. Each
+// cloud is anchored in world coords and drifts very slowly.
+function makeNebulae(count = NEBULA_COUNT) {
+  const palette = [
+    'rgba(0, 220, 255, ',     // cyan
+    'rgba(220, 90, 200, ',    // magenta
+    'rgba(140, 110, 255, ',   // soft violet
+    'rgba(0, 200, 200, ',     // teal-cyan
+    'rgba(180, 80, 220, ',    // magenta-violet
+  ];
+  const out = [];
+  for (let i = 0; i < count; i++) {
+    out.push({
+      x: rand(-3200, 3200),
+      y: rand(-3200, 3200),
+      r: rand(520, 760),
+      vx: rand(-6, 6),       // world-units per second drift
+      vy: rand(-6, 6),
+      base: palette[i % palette.length],
+      alpha: rand(0.05, 0.10),
+      phase: rand(0, TAU),
+    });
+  }
+  return out;
+}
+
+// Sparkle dust — tiny twinkling points at parallax 0.7x (closer than stars).
+function makeDust(count = DUST_COUNT) {
+  const out = [];
+  for (let i = 0; i < count; i++) {
+    out.push({
+      x: rand(-2400, 2400),
+      y: rand(-2400, 2400),
+      r: rand(0.6, 1.6),
+      a: rand(0.35, 0.85),
+      tw: rand(0, TAU),
+      tws: rand(0.6, 1.6),  // twinkle speed
     });
   }
   return out;
@@ -246,6 +294,8 @@ export default function SlitherLiteGame() {
       arenaR0: arenaR,
       food: Array.from({ length: FOOD_COUNT }).map(() => makeFood(arenaR)),
       stars: makeStars(80),
+      nebulae: makeNebulae(),
+      dust: makeDust(),
       pointer: { x: 200, y: 0 },
       keys: {},
       cam: { x: 0, y: 0, zoom: 1 },
@@ -297,7 +347,8 @@ export default function SlitherLiteGame() {
     ro.observe(wrap);
     window.addEventListener('orientationchange', sizeCanvas);
 
-    // Input: pointer steers in world space.
+    // Input: pointer steers in world space. Camera zoom (z) maps world->screen
+    // by a factor of z, so screen->world divides the offset by z.
     const screenToWorld = (cx, cy) => {
       const s = stateRef.current;
       if (!s || !s.cam || !view.w || !view.h) return { x: 0, y: 0 };
@@ -305,7 +356,8 @@ export default function SlitherLiteGame() {
       const sx = cx - r.left;
       const sy = cy - r.top;
       const cam = s.cam;
-      return { x: sx - view.w / 2 + cam.x, y: sy - view.h / 2 + cam.y };
+      const z = cam.zoom || 1;
+      return { x: (sx - view.w / 2) / z + cam.x, y: (sy - view.h / 2) / z + cam.y };
     };
     const setPointerFromEvent = (cx, cy) => {
       const w = screenToWorld(cx, cy);
@@ -393,6 +445,9 @@ export default function SlitherLiteGame() {
 
     const baseSpeed = (snake) => Math.max(SPEED_MIN, SPEED_BASE - snake.body.length * SPEED_DECAY_PER_SEG);
 
+    // Eat-radius forgiveness (so the chunkier head still grazes pellets fairly).
+    const EAT_PAD = 4;
+
     const MAX_FOOD = FOOD_COUNT * 4;
     const trimShedFood = () => {
       const s = stateRef.current;
@@ -419,10 +474,10 @@ export default function SlitherLiteGame() {
         if (!seg) continue;
         const delay = reduced ? 0 : (staggerSec * (i / Math.max(1, drop)));
         s.food.push({
-          x: seg.x + rand(-6, 6),
-          y: seg.y + rand(-6, 6),
+          x: seg.x + rand(-9, 9),
+          y: seg.y + rand(-9, 9),
           color: sampleC,
-          big: i === 0 || Math.random() < 0.16,
+          big: i === 0 || Math.random() < 0.20,
           phase: Math.random() * TAU,
           shed: true,
           appearAt: now + delay,
@@ -444,7 +499,7 @@ export default function SlitherLiteGame() {
       for (let i = 0; i < 10; i++) {
         const a = rand(0, TAU);
         const v = rand(40, 120);
-        s.particles.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: rand(0.25, 0.55), age: 0, color, r: rand(1.6, 3.2) });
+        s.particles.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: rand(0.25, 0.55), age: 0, color, r: rand(2.2, 4.2) });
       }
     };
 
@@ -455,7 +510,7 @@ export default function SlitherLiteGame() {
       for (let i = 0; i < n; i++) {
         const a = rand(0, TAU);
         const v = rand(60, 180);
-        s.particles.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: rand(0.2, 0.45), age: 0, color, r: rand(1.4, 2.8), flash: i === 0 });
+        s.particles.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: rand(0.2, 0.45), age: 0, color, r: rand(2.0, 3.6), flash: i === 0 });
       }
     };
 
@@ -469,20 +524,31 @@ export default function SlitherLiteGame() {
       for (let i = 0; i < n; i++) {
         const a = rand(0, TAU);
         const v = rand(80, 280);
-        s.particles.push({ x: head.x, y: head.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: rand(0.4, 0.9), age: 0, color: c, r: rand(2, 4) });
+        s.particles.push({ x: head.x, y: head.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: rand(0.4, 0.9), age: 0, color: c, r: rand(2.6, 5.4) });
       }
     };
 
     // -------------------------- Render: [BG] --------------------------
-    const drawBackground = (cam, t) => {
+    // Drawn in screen space (no zoom transform). Layers:
+    //   0. obsidian base
+    //   1. cyan radial vignette anchored at world (0,0) — boundary cue
+    //   2. drifting nebula clouds at parallax 0.3x — soft cyan/magenta/violet
+    //   3. parallax stars at 0.5x — pinpoint twinkles
+    //   4. sparkle dust at 0.7x — tighter, brighter twinkle
+    //   5. faint diagonal scanlines — texture
+    const drawBackground = (cam, t, dt) => {
       const s = stateRef.current;
+      const reduced = reducedRef.current;
+
       // Layer 0: deep obsidian base
       ctx.fillStyle = '#070a0d';
       ctx.fillRect(0, 0, view.w, view.h);
 
-      // Layer 1: cyan radial vignette anchored at world center (0,0).
-      const cwx = -cam.x + view.w / 2;
-      const cwy = -cam.y + view.h / 2;
+      // Layer 1: cyan radial vignette anchored at world center (0,0). Account
+      // for zoom so the falloff feels consistent at every length.
+      const z = cam.zoom || 1;
+      const cwx = (-cam.x) * z + view.w / 2;
+      const cwy = (-cam.y) * z + view.h / 2;
       const r1 = Math.max(view.w, view.h) * 1.1;
       const g1 = ctx.createRadialGradient(cwx, cwy, 0, cwx, cwy, r1);
       g1.addColorStop(0, 'rgba(0, 255, 245, 0.10)');
@@ -491,24 +557,66 @@ export default function SlitherLiteGame() {
       ctx.fillStyle = g1;
       ctx.fillRect(0, 0, view.w, view.h);
 
-      // Layer 2: parallax stars (0.5x camera).
+      // Layer 2: drifting nebula clouds (parallax 0.3x). Slow drift gives
+      // depth without clutter. Reduced motion freezes drift but still draws.
+      const npx = cam.x * 0.3;
+      const npy = cam.y * 0.3;
+      const wrapN = 6400;
+      for (let i = 0; i < s.nebulae.length; i++) {
+        const nb = s.nebulae[i];
+        if (!reduced) {
+          nb.x += nb.vx * dt;
+          nb.y += nb.vy * dt;
+        }
+        let sx = ((nb.x - npx) % wrapN + wrapN * 1.5) % wrapN - wrapN / 2 + view.w / 2;
+        let sy = ((nb.y - npy) % wrapN + wrapN * 1.5) % wrapN - wrapN / 2 + view.h / 2;
+        if (sx < -nb.r || sx > view.w + nb.r || sy < -nb.r || sy > view.h + nb.r) continue;
+        const breath = reduced ? 1 : (1 + 0.06 * Math.sin(t * 0.4 + nb.phase));
+        const r = nb.r * breath;
+        const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, r);
+        g.addColorStop(0, nb.base + nb.alpha + ')');
+        g.addColorStop(0.55, nb.base + (nb.alpha * 0.35).toFixed(3) + ')');
+        g.addColorStop(1, nb.base + '0)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(sx, sy, r, 0, TAU);
+        ctx.fill();
+      }
+
+      // Layer 3: parallax stars (0.5x camera).
       const px = cam.x * 0.5;
       const py = cam.y * 0.5;
       for (let i = 0; i < s.stars.length; i++) {
         const st = s.stars[i];
         // Wrap stars across a large window so they always cover the view.
-        const wrapW = 4800, wrapH = 4800;
+        const wrapW = 7200, wrapH = 7200;
         let sx = ((st.x - px) % wrapW + wrapW * 1.5) % wrapW - wrapW / 2 + view.w / 2;
         let sy = ((st.y - py) % wrapH + wrapH * 1.5) % wrapH - wrapH / 2 + view.h / 2;
         if (sx < -10 || sx > view.w + 10 || sy < -10 || sy > view.h + 10) continue;
-        const tw = 0.55 + 0.45 * Math.sin(t * 2 + st.tw);
+        const tw = reduced ? 1 : (0.55 + 0.45 * Math.sin(t * 2 + st.tw));
         ctx.fillStyle = `rgba(180, 220, 240, ${(st.a * tw).toFixed(3)})`;
         ctx.beginPath();
         ctx.arc(sx, sy, st.r, 0, TAU);
         ctx.fill();
       }
 
-      // Layer 3: faint diagonal scanlines (very subtle, screen-space).
+      // Layer 4: sparkle dust (0.7x parallax, twinkle a bit faster).
+      const dpx = cam.x * 0.7;
+      const dpy = cam.y * 0.7;
+      const wrapD = 4800;
+      for (let i = 0; i < s.dust.length; i++) {
+        const d = s.dust[i];
+        let sx = ((d.x - dpx) % wrapD + wrapD * 1.5) % wrapD - wrapD / 2 + view.w / 2;
+        let sy = ((d.y - dpy) % wrapD + wrapD * 1.5) % wrapD - wrapD / 2 + view.h / 2;
+        if (sx < -4 || sx > view.w + 4 || sy < -4 || sy > view.h + 4) continue;
+        const tw = reduced ? 0.8 : (0.4 + 0.6 * Math.abs(Math.sin(t * d.tws + d.tw)));
+        ctx.fillStyle = `rgba(255, 255, 255, ${(d.a * tw).toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(sx, sy, d.r, 0, TAU);
+        ctx.fill();
+      }
+
+      // Layer 5: faint diagonal scanlines (very subtle, screen-space).
       ctx.save();
       ctx.globalAlpha = 0.04;
       ctx.strokeStyle = '#9bd6e6';
@@ -519,6 +627,37 @@ export default function SlitherLiteGame() {
         ctx.lineTo(view.w, y + view.w);
         ctx.stroke();
       }
+      ctx.restore();
+    };
+
+    // World-space grid (drawn inside zoom transform). 200-unit cells, 1px
+    // lines at very low alpha — gives directional reading without noise.
+    const drawWorldGrid = (cam) => {
+      const z = cam.zoom || 1;
+      // Visible world bounds at current zoom.
+      const halfW = (view.w / z) / 2;
+      const halfH = (view.h / z) / 2;
+      const left = cam.x - halfW;
+      const right = cam.x + halfW;
+      const top = cam.y - halfH;
+      const bottom = cam.y + halfH;
+      const startX = Math.floor(left / GRID_CELL) * GRID_CELL;
+      const startY = Math.floor(top / GRID_CELL) * GRID_CELL;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(0, 255, 245, 0.04)';
+      ctx.lineWidth = 1 / z; // keep visual line weight ~1px on screen
+      ctx.beginPath();
+      for (let x = startX; x <= right; x += GRID_CELL) {
+        const sx = x - cam.x + view.w / 2;
+        ctx.moveTo(sx, top - cam.y + view.h / 2);
+        ctx.lineTo(sx, bottom - cam.y + view.h / 2);
+      }
+      for (let y = startY; y <= bottom; y += GRID_CELL) {
+        const sy = y - cam.y + view.h / 2;
+        ctx.moveTo(left - cam.x + view.w / 2, sy);
+        ctx.lineTo(right - cam.x + view.w / 2, sy);
+      }
+      ctx.stroke();
       ctx.restore();
     };
 
@@ -638,13 +777,17 @@ export default function SlitherLiteGame() {
 
       // Tail-to-head pass: each segment is a soft glow + a coloured disc.
       // Drawing per-segment lets each skin colour itself precisely; segments
-      // overlap (~40%) thanks to SEG_SPACING < diameter.
+      // overlap (~50%) thanks to SEG_SPACING < diameter at the new chunky scale.
       // Boost outer aura — wide cyan-tinted halo.
+      // Visibility culling expands with zoom — a lower z reveals more world,
+      // so we widen the cull margin proportionally to body radius / zoom.
+      const z = cam.zoom || 1;
+      const cullPad = (BODY_R_BASE * 3) / z;
       if (isMe && snake.boost && !reducedRef.current) {
         ctx.save();
         const headSwatch = skinDef.swatch?.[0] || '#00fff5';
         ctx.strokeStyle = hexAlpha(headSwatch, 0.32);
-        ctx.lineWidth = HEAD_R_BASE * 2 + 10;
+        ctx.lineWidth = HEAD_R_BASE * 2 + 14;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.beginPath();
@@ -666,11 +809,11 @@ export default function SlitherLiteGame() {
           const seg = body[i];
           const sx = seg.x - cam.x + view.w / 2;
           const sy = seg.y - cam.y + view.h / 2;
-          if (sx < -40 || sx > view.w + 40 || sy < -40 || sy > view.h + 40) continue;
+          if (sx < -cullPad || sx > view.w + cullPad || sy < -cullPad || sy > view.h + cullPad) continue;
           const taper = 1 - (i / Math.max(1, n)) * 0.35;
-          const radius = (i === 0 ? HEAD_R_BASE * 1.2 : HEAD_R_BASE * taper);
+          const radius = (i === 0 ? HEAD_R_BASE * 1.2 : BODY_R_BASE * taper);
           const { fill } = skinFn(i, n, t);
-          // Glow radius ~2.4x; alpha small so overdraw is cheap-looking.
+          // Glow radius scales with the bigger body — keep ~2.4x.
           const gr = ctx.createRadialGradient(sx, sy, 0, sx, sy, radius * 2.4);
           // Take a colour string we can alpha — accept rgb()/rgba()/hsl()/hex.
           const glowC = colorWithAlpha(fill, 0.28);
@@ -689,22 +832,23 @@ export default function SlitherLiteGame() {
         const seg = body[i];
         const sx = seg.x - cam.x + view.w / 2;
         const sy = seg.y - cam.y + view.h / 2;
-        if (sx < -40 || sx > view.w + 40 || sy < -40 || sy > view.h + 40) continue;
+        if (sx < -cullPad || sx > view.w + cullPad || sy < -cullPad || sy > view.h + cullPad) continue;
         const taper = 1 - (i / Math.max(1, n)) * 0.35;
-        const radius = (i === 0 ? HEAD_R_BASE * 1.2 : HEAD_R_BASE * taper);
+        const radius = (i === 0 ? HEAD_R_BASE * 1.2 : BODY_R_BASE * taper);
         const { fill, stroke } = skinFn(i, n, t);
         ctx.fillStyle = fill;
         ctx.beginPath();
         ctx.arc(sx, sy, radius, 0, TAU);
         ctx.fill();
         if (stroke && i % 2 === 0) {
-          ctx.lineWidth = i === 0 ? 1.4 : 0.8;
+          ctx.lineWidth = i === 0 ? 1.6 : 1.0;
           ctx.strokeStyle = stroke;
           ctx.stroke();
         }
       }
 
-      // Head detail: eyes + pupils tracking steering vector.
+      // Head detail: eyes + pupils tracking steering vector. Eye sizes scale
+      // with HEAD_R_BASE so they keep proportion to the chunkier head.
       const head = body[0];
       const hx = head.x - cam.x + view.w / 2;
       const hy = head.y - cam.y + view.h / 2;
@@ -713,9 +857,9 @@ export default function SlitherLiteGame() {
       const ly = Math.sin(ang + Math.PI / 2);
       const fx = Math.cos(ang);
       const fy = Math.sin(ang);
-      const eR = 3.0;
-      const eOff = 4.4;
-      const eFwd = 2.4;
+      const eR = HEAD_R_BASE * 0.30;     // ~4.2 at HEAD_R_BASE=14
+      const eOff = HEAD_R_BASE * 0.44;   // ~6.2
+      const eFwd = HEAD_R_BASE * 0.24;   // ~3.4
       const e1 = { x: hx + lx * eOff + fx * eFwd, y: hy + ly * eOff + fy * eFwd };
       const e2 = { x: hx - lx * eOff + fx * eFwd, y: hy - ly * eOff + fy * eFwd };
       ctx.fillStyle = '#fff';
@@ -729,11 +873,13 @@ export default function SlitherLiteGame() {
       } else {
         steerAng = snake.turnTarget ?? ang;
       }
-      const pdx = Math.cos(steerAng) * 1.3;
-      const pdy = Math.sin(steerAng) * 1.3;
+      const pupilR = HEAD_R_BASE * 0.16;  // ~2.2
+      const pupilNudge = HEAD_R_BASE * 0.13; // ~1.8
+      const pdx = Math.cos(steerAng) * pupilNudge;
+      const pdy = Math.sin(steerAng) * pupilNudge;
       ctx.fillStyle = '#0a0d0e';
-      ctx.beginPath(); ctx.arc(e1.x + pdx, e1.y + pdy, 1.6, 0, TAU); ctx.fill();
-      ctx.beginPath(); ctx.arc(e2.x + pdx, e2.y + pdy, 1.6, 0, TAU); ctx.fill();
+      ctx.beginPath(); ctx.arc(e1.x + pdx, e1.y + pdy, pupilR, 0, TAU); ctx.fill();
+      ctx.beginPath(); ctx.arc(e2.x + pdx, e2.y + pdy, pupilR, 0, TAU); ctx.fill();
     };
 
     // -------------------------- Render: particles --------------------------
@@ -800,8 +946,8 @@ export default function SlitherLiteGame() {
       const lbW = Math.min(200, view.w * 0.26);
       const rowH = 16;
       const lbH = 28 + allSnakes.length * rowH + 8;
-      const lbX = view.w - lbW - 12;
-      const lbY = topInset - 44;
+      const lbX = view.w - lbW - 18;
+      const lbY = topInset - 40;
       ctx.fillStyle = 'rgba(11,19,24,0.62)';
       ctx.strokeStyle = 'rgba(255,255,255,0.08)';
       ctx.lineWidth = 1;
@@ -839,8 +985,8 @@ export default function SlitherLiteGame() {
 
       // Below leaderboard: arena progress ring (player position vs boundary)
       const ringSize = 88;
-      const rx = view.w - ringSize - 24;
-      const ry = lbY + lbH + 12;
+      const rx = view.w - ringSize - 30;
+      const ry = lbY + lbH + 14;
       const cxr = rx + ringSize / 2;
       const cyr = ry + ringSize / 2;
       const ringR = ringSize / 2 - 8;
@@ -1011,15 +1157,15 @@ export default function SlitherLiteGame() {
       let target = bot.angle;
       let priorityHandled = false;
 
-      // 1. Arena edge
-      if (arenaR - distC < 80) {
+      // 1. Arena edge — wider buffer with the bigger map / chunkier snakes.
+      if (arenaR - distC < 110) {
         const inward = Math.atan2(-bh.y, -bh.x);
         // Steer 90° toward center: nudge to inward direction (perpendicular bias optional).
         target = inward;
         priorityHandled = true;
       }
 
-      // 2 & 3: scan other snakes' heads
+      // 2 & 3: scan other snakes' heads (radii scaled with the +40% body)
       if (!priorityHandled) {
         const all = [s.me, ...s.bots];
         let avoid = null, aggro = null;
@@ -1030,8 +1176,8 @@ export default function SlitherLiteGame() {
           const oh = other.body[0]; if (!oh) continue;
           const d = Math.hypot(oh.x - bh.x, oh.y - bh.y);
           const oLen = other.body.length;
-          if (d < 80 && oLen > myLen + 1 && d < avoidD) { avoid = other; avoidD = d; }
-          if (d < 120 && oLen < myLen - 1 && d < aggroD) { aggro = other; aggroD = d; }
+          if (d < 110 && oLen > myLen + 1 && d < avoidD) { avoid = other; avoidD = d; }
+          if (d < 165 && oLen < myLen - 1 && d < aggroD) { aggro = other; aggroD = d; }
         }
         if (avoid) {
           const oh = avoid.body[0];
@@ -1050,9 +1196,9 @@ export default function SlitherLiteGame() {
         }
       }
 
-      // 4. Food chase
+      // 4. Food chase (detection radius bumped with chunkier scale)
       if (!priorityHandled) {
-        const detR2 = 380 * 380;
+        const detR2 = 460 * 460;
         let nearest = null, nearestD = Infinity;
         const foodArr = s.food;
         // Sample a subset for cheap scan if many shed orbs.
@@ -1154,13 +1300,14 @@ export default function SlitherLiteGame() {
           s.me.alive = false;
         }
 
-        // Player food pickups.
+        // Player food pickups. Eat radius adds a small forgiveness margin
+        // (~4 units) so the chunkier head still reads as "fair to graze".
         for (let i = s.food.length - 1; i >= 0; i--) {
           const f = s.food[i];
           if (f.appearAt && (now / 1000) < f.appearAt) continue;
           const dx = myHead.x - f.x, dy = myHead.y - f.y;
           const r = (f.big ? FOOD_R + 3 : FOOD_R);
-          if (dx * dx + dy * dy < (HEAD_R_BASE + r) ** 2) {
+          if (dx * dx + dy * dy < (HEAD_R_BASE * 1.2 + r + EAT_PAD) ** 2) {
             const bonus = f.big ? GROW_PER_FOOD * 2 : GROW_PER_FOOD;
             s.me.grow += bonus;
             spawnEatBurst(f.x, f.y, f.color);
@@ -1174,7 +1321,7 @@ export default function SlitherLiteGame() {
           }
         }
 
-        // Bot food pickups.
+        // Bot food pickups (same fairness as the player).
         s.bots.forEach((bot) => {
           if (!bot.alive) return;
           const bh = bot.body[0];
@@ -1183,24 +1330,28 @@ export default function SlitherLiteGame() {
             if (f.appearAt && (now / 1000) < f.appearAt) continue;
             const dx = bh.x - f.x, dy = bh.y - f.y;
             const r = (f.big ? FOOD_R + 3 : FOOD_R);
-            if (dx * dx + dy * dy < (HEAD_R_BASE + r) ** 2) {
+            if (dx * dx + dy * dy < (HEAD_R_BASE * 1.2 + r + EAT_PAD) ** 2) {
               bot.grow += (f.big ? GROW_PER_FOOD * 2 : GROW_PER_FOOD);
               replaceFood(i);
             }
           }
         });
 
-        // Body collisions.
+        // Body collisions. Use a representative body radius (~70% of base
+        // accounts for taper along the snake). Skip enough head segments
+        // that own-body overlap doesn't kill us.
+        const SEG_HIT_R = BODY_R_BASE * 0.7; // ~9.8
+        const SELF_SKIP = 14;
         const hit = (bx, by, r) => (myHead.x - bx) ** 2 + (myHead.y - by) ** 2 < (HEAD_R_BASE + r) ** 2;
-        for (let i = 14; i < s.me.body.length; i++) {
+        for (let i = SELF_SKIP; i < s.me.body.length; i++) {
           const seg = s.me.body[i];
-          if (hit(seg.x, seg.y, 5)) { s.me.alive = false; break; }
+          if (hit(seg.x, seg.y, SEG_HIT_R)) { s.me.alive = false; break; }
         }
         if (s.me.alive) {
           for (const bot of s.bots) {
             if (!bot.alive) continue;
             for (const seg of bot.body) {
-              if (hit(seg.x, seg.y, 5)) { s.me.alive = false; break; }
+              if (hit(seg.x, seg.y, SEG_HIT_R)) { s.me.alive = false; break; }
             }
             if (!s.me.alive) break;
           }
@@ -1218,14 +1369,14 @@ export default function SlitherLiteGame() {
             if (other === bot || !other.alive) continue;
             for (const seg of other.body) {
               const dx = bh.x - seg.x, dy = bh.y - seg.y;
-              if (dx * dx + dy * dy < (HEAD_R_BASE + 5) ** 2) { bot.alive = false; dropOrbsFrom(bot, null, 0.4); break; }
+              if (dx * dx + dy * dy < (HEAD_R_BASE + SEG_HIT_R) ** 2) { bot.alive = false; dropOrbsFrom(bot, null, 0.4); break; }
             }
             if (!bot.alive) break;
           }
           if (bot.alive) {
             for (const seg of s.me.body) {
               const dx = bh.x - seg.x, dy = bh.y - seg.y;
-              if (dx * dx + dy * dy < (HEAD_R_BASE + 5) ** 2) { bot.alive = false; dropOrbsFrom(bot, null, 0.4); break; }
+              if (dx * dx + dy * dy < (HEAD_R_BASE + SEG_HIT_R) ** 2) { bot.alive = false; dropOrbsFrom(bot, null, 0.4); break; }
             }
           }
         }
@@ -1283,14 +1434,37 @@ export default function SlitherLiteGame() {
         s.cam.x += (myHead.x - s.cam.x) * Math.min(1, dt * 6);
         s.cam.y += (myHead.y - s.cam.y) * Math.min(1, dt * 6);
       }
+      // Zoom curve: 1.0 at length 20, 0.75 at length 200, clamped. Lerps so the
+      // camera eases into the new zoom as the snake grows or sheds.
+      const meLenForZoom = s.me.body.length;
+      const zoomTarget = clamp(1.0 - ((meLenForZoom - 20) / 180) * 0.25, 0.75, 1.0);
+      const curZ = s.cam.zoom || 1;
+      s.cam.zoom = curZ + (zoomTarget - curZ) * Math.min(1, dt * 2.5);
 
       // -------------------- Draw frame --------------------
-      drawBackground(s.cam, s.tAccum);
+      // Background (obsidian, vignette, parallax stars/nebula/dust, scanlines)
+      // is drawn in screen space — parallax already simulates depth, no zoom.
+      drawBackground(s.cam, s.tAccum, dt);
+
+      // World-space block: scale around screen center so arena/snake/food/etc.
+      // share the camera zoom. Existing draw functions use pre-projected
+      // coords (sx = wx - cam.x + view.w/2) which still resolve correctly
+      // when the canvas itself is scaled around (view.w/2, view.h/2).
+      const z = s.cam.zoom || 1;
+      ctx.save();
+      ctx.translate(view.w / 2, view.h / 2);
+      ctx.scale(z, z);
+      ctx.translate(-view.w / 2, -view.h / 2);
+
+      drawWorldGrid(s.cam);
       drawArena(s.cam);
       drawFood(s.cam, s.tAccum);
       for (const b of s.bots) drawSnake(b, s.cam, s.tAccum, false);
       drawSnake(s.me, s.cam, s.tAccum, true);
       drawParticles(s.cam, dt);
+
+      ctx.restore();
+
       drawEdgeWarning(s.cam);
 
       // Soft screen-edge vignette.
