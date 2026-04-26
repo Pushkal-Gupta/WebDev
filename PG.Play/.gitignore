@@ -2,7 +2,10 @@ node_modules
 .DS_Store
 *.log
 .vite
-dist
+
+# NOTE: dist/ is intentionally NOT ignored — GitHub Pages serves the
+# arcade from the repo's dist/ subdirectory at pushkalgupta.com/PG.Play/dist/.
+# If you ever swap to a separate gh-pages branch, re-add `dist` here.
 
 # environment
 .env
