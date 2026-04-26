@@ -6,16 +6,22 @@ import { sfx } from '../sound.js';
 // play-open events. Persisted to localStorage always; synced to Supabase
 // pgplay_achievements when signed in.
 export const ACHIEVEMENTS = [
-  { id: 'first-play',      label: 'First run',           desc: 'Opened any game.' },
-  { id: 'first-score',     label: 'On the board',         desc: 'Submitted your first score.' },
-  { id: 'slipshot-10',     label: 'Slipshot cleared',    desc: 'Cleared a Slipshot round (10 kills).' },
-  { id: 'fps-clear',       label: 'Sector cleared',      desc: 'Cleared the single-level FPS.' },
-  { id: 'cutrope-perfect', label: 'Three stars',         desc: 'Won a Cut-the-Rope level with all stars.' },
-  { id: '2048-2048',       label: 'Hit 2048',            desc: 'Merged the elusive tile.' },
-  { id: 'arena-champ',     label: 'Arena champion',      desc: 'Won an Arena round.' },
-  { id: 'grudge-clear',    label: 'Made it through',     desc: 'Reached the flag in Grudgewood.' },
-  { id: 'bests-5',         label: 'Five bests',          desc: 'Holds personal bests in five different games.' },
+  { id: 'first-play',       label: 'First run',           desc: 'Opened any game.' },
+  { id: 'first-score',      label: 'On the board',         desc: 'Submitted your first score.' },
+  { id: 'three-in-a-row',   label: 'Three in a sitting',   desc: 'Played three different games in one session.' },
+  { id: 'breadth-10',       label: 'Curious type',         desc: 'Played 10 different games.' },
+  { id: 'all-originals',    label: 'Originals tour',       desc: 'Played all four PG.Play originals.' },
+  { id: 'slipshot-10',      label: 'Slipshot cleared',    desc: 'Cleared a Slipshot round (10 kills).' },
+  { id: 'fps-clear',        label: 'Sector cleared',      desc: 'Cleared the single-level FPS.' },
+  { id: 'cutrope-perfect',  label: 'Three stars',         desc: 'Won a Cut-the-Rope level with all stars.' },
+  { id: '2048-2048',        label: 'Hit 2048',            desc: 'Merged the elusive tile.' },
+  { id: 'arena-champ',      label: 'Arena champion',      desc: 'Won an Arena round.' },
+  { id: 'grudge-clear',     label: 'Made it through',     desc: 'Reached the flag in Grudgewood.' },
+  { id: 'bricklands-finish', label: 'World traveller',    desc: 'Cleared all three Bricklands worlds.' },
+  { id: 'bests-5',          label: 'Five bests',          desc: 'Holds personal bests in five different games.' },
 ];
+
+const ORIGINAL_IDS = ['grudgewood', 'goalbound', 'slither', 'slipshot'];
 
 const LS_KEY = 'pd-achievements';
 
@@ -85,9 +91,37 @@ export function useAchievements(user, bests) {
     return () => clearTimeout(t);
   }, [toast, unlocked]);
 
+  // Per-session breadth tracking — survives across route changes within
+  // one tab, resets on reload. Used by the "three-in-a-sitting"
+  // achievement and the originals-tour cumulative check.
+  const sessionGames = useRef(new Set());
+  const playedGames = useRef(new Set(
+    Object.keys(readLocal()).filter((k) => k.startsWith('played:')).map((k) => k.slice(7))
+  ));
+
   // Score bus hook: listen for pgplay:score events + open events, derive unlocks.
   useEffect(() => {
-    const onOpen = () => { unlock('first-play'); };
+    const onOpen = (e) => {
+      const gameId = e?.detail?.gameId;
+      unlock('first-play');
+      if (!gameId) return;
+
+      sessionGames.current.add(gameId);
+      if (sessionGames.current.size >= 3) unlock('three-in-a-row');
+
+      // Persistent breadth — store as `played:<id>` keys in the same blob
+      // so we don't need a new schema. New game opened → mark played.
+      if (!playedGames.current.has(gameId)) {
+        playedGames.current.add(gameId);
+        const blob = readLocal();
+        blob[`played:${gameId}`] = true;
+        try { localStorage.setItem(LS_KEY, JSON.stringify(blob)); } catch {}
+      }
+      const breadth = playedGames.current.size;
+      if (breadth >= 10) unlock('breadth-10');
+      const seenAll = ORIGINAL_IDS.every((id) => playedGames.current.has(id));
+      if (seenAll) unlock('all-originals');
+    };
     const onScore = (e) => {
       const { gameId, score, meta = {} } = e.detail || {};
       if (!gameId || typeof score !== 'number') return;
@@ -97,8 +131,13 @@ export function useAchievements(user, bests) {
       if (gameId === 'cutrope' && (meta.stars ?? 0) >= 3) unlock('cutrope-perfect');
       if (gameId === 'arena') unlock('arena-champ');
       if (gameId === 'grudgewood') unlock('grudge-clear');
+      // Bricklands clears all three worlds: meta.level >= 3 OR raw score
+      // crosses the level-3 finish bonus (~100k threshold).
+      if (gameId === 'bricklands' && ((meta.level ?? 0) >= 3 || score >= 100000)) {
+        unlock('bricklands-finish');
+      }
       // 2048: derive from bests since the submit just carries the score
-      if (gameId === 'g2048' && score >= 20480) unlock('2048-2048'); // raw score ≥ full-2048 heuristic
+      if (gameId === 'g2048' && score >= 20480) unlock('2048-2048');
     };
     window.addEventListener('pgplay:score', onScore);
     window.addEventListener('pgplay:open', onOpen);

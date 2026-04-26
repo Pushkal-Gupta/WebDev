@@ -39,7 +39,9 @@ export default function HoopShotGame() {
   const [streak, setStreak] = useState(0);
   const [best, setBest] = useState(() => Number(localStorage.getItem('pd-hoop-best') || 0));
   const [time, setTime] = useState(RUN_SECONDS);
-  const [status, setStatus] = useState('playing'); // 'playing' | 'ended'
+  // 'ready' is the spawn-safety gate — the 90s timer doesn't start
+  // until the first pointerdown / first valid input.
+  const [status, setStatus] = useState('ready'); // 'ready' | 'playing' | 'ended'
   const [shots, setShots] = useState(0);
   const [made, setMade] = useState(0);
 
@@ -56,7 +58,7 @@ export default function HoopShotGame() {
       timeLeft: RUN_SECONDS,
     };
     setScore(0); setStreak(0); setTime(RUN_SECONDS); setShots(0); setMade(0);
-    setStatus('playing');
+    setStatus('ready');
   };
 
   useEffect(() => { reset(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
@@ -85,7 +87,15 @@ export default function HoopShotGame() {
     };
 
     const beginDraw = (x, y) => {
-      const s = stateRef.current; if (!s || status !== 'playing') return;
+      const s = stateRef.current; if (!s) return;
+      // Spawn-safety gate: first valid press leaves 'ready' and starts the
+      // 90s clock. The press itself doesn't count as a shot if the ball
+      // is far away — same hit-test as before.
+      if (status === 'ready') {
+        setStatus('playing');
+        return;
+      }
+      if (status !== 'playing') return;
       // Must start near the ball
       if (!s.ball.settled) return;
       const d = Math.hypot(x - s.ball.x, y - s.ball.y);
@@ -141,9 +151,14 @@ export default function HoopShotGame() {
       const s = stateRef.current; if (!s) return;
       const { cssW, cssH } = viewRef.current;
 
-      // Outer backdrop fills the canvas in the deep court orange so the
-      // surrounding padding feels like part of the arena, not a frame.
-      ctx.fillStyle = '#c84d1a';
+      // Stadium-light gradient — warmer near the rim at the top, deeper
+      // amber at the floor. Reads as "court under directional light",
+      // not "block of solid orange".
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, cssH);
+      bgGrad.addColorStop(0, '#d6541d');
+      bgGrad.addColorStop(0.55, '#b6451a');
+      bgGrad.addColorStop(1, '#8a3010');
+      ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, cssW, cssH);
 
       // Center the fixed 720×460 court inside the canvas.
@@ -425,6 +440,19 @@ export default function HoopShotGame() {
       </div>
       <div ref={wrapRef} style={{ flex: '1 1 0', minHeight: 0, width: '100%', position: 'relative' }}>
         <canvas ref={canvasRef} className="hoop-canvas"/>
+        {status === 'ready' && (
+          <div style={{
+            position: 'absolute', inset: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(0,0,0,0.35)', pointerEvents: 'none',
+            color: '#fff', textAlign: 'center', padding: 16,
+          }}>
+            <div>
+              <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: 0.5 }}>Tap to start</div>
+              <div style={{ marginTop: 6, opacity: 0.85, fontSize: 14 }}>90 seconds. Drag the ball back, release to shoot.</div>
+            </div>
+          </div>
+        )}
       </div>
       <div className="hoop-hint">Press the ball, drag back to aim, release to shoot · swishes = 3 · rim kisses = 2 · streak adds +1 per make</div>
     </div>

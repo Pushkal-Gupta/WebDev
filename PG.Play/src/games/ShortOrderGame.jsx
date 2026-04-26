@@ -73,7 +73,10 @@ export default function ShortOrderGame() {
   const [shiftT, setShiftT]   = useState(SHIFT_SECONDS);
   const [tip, setTip]         = useState(null);        // transient { at, amount }
   const [wrong, setWrong]     = useState(null);        // transient { at, key }
-  const [status, setStatus]   = useState('playing');   // playing | won | lost
+  // 'ready' is the spawn-safety gate — tickets don't tick down until
+  // the first action / start tap. Prevents an order from expiring while
+  // the player is still reading the first ticket.
+  const [status, setStatus]   = useState('ready');     // ready | playing | won | lost
 
   // Mutable runtime state kept in a ref so the animation loop doesn't
   // re-subscribe every React render.
@@ -99,7 +102,7 @@ export default function ShortOrderGame() {
     setShiftT(SHIFT_SECONDS);
     setTip(null);
     setWrong(null);
-    setStatus('playing');
+    setStatus('ready');
   };
 
   // Boot with two tickets so it never looks empty.
@@ -197,7 +200,12 @@ export default function ShortOrderGame() {
   }, [status]);
 
   const onAction = (key) => {
-    if (status !== 'playing') return;
+    // First input from the spawn-safety gate flips us to 'playing' and
+    // also acts on the first ticket so the tap isn't wasted.
+    if (status === 'ready') {
+      setStatus('playing');
+      // Fall through so this same tap counts as the first action.
+    } else if (status !== 'playing') return;
     setOrders((curr) => {
       if (curr.length === 0) return curr;
       const [active, ...rest] = curr;
@@ -226,7 +234,22 @@ export default function ShortOrderGame() {
   const wrongAge = wrong ? (now - wrong.at) / 1000 : 99;
 
   return (
-    <div className="so">
+    <div className="so" style={{ position: 'relative' }}>
+      {status === 'ready' && (
+        <div
+          onClick={() => setStatus('playing')}
+          style={{
+            position: 'absolute', inset: 0, zIndex: 10,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(0,0,0,0.55)', cursor: 'pointer',
+            color: '#fff', textAlign: 'center', padding: 16,
+          }}>
+          <div>
+            <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: 0.5 }}>Tap to start the shift</div>
+            <div style={{ marginTop: 6, opacity: 0.85, fontSize: 14 }}>90s clock and ticket timers stay frozen until you do.</div>
+          </div>
+        </div>
+      )}
       <div className="so-bar">
         <span>Shift <b>{Math.ceil(shiftT)}s</b></span>
         <span>Lives <b style={{color: lives <= 1 ? '#ff4d6d' : 'var(--text)'}}>{'♥'.repeat(Math.max(0, lives))}</b></span>
@@ -256,7 +279,7 @@ export default function ShortOrderGame() {
               className={`so-btn${needed ? ' is-needed' : ''}${flashWrong ? ' is-wrong' : ''}`}
               style={{ '--btn-color': act.color }}
               onClick={() => onAction(k)}
-              disabled={status !== 'playing'}
+              disabled={status === 'won' || status === 'lost'}
               aria-label={act.label}>
               <span className="so-btn-ico">{act.emoji}</span>
               <span className="so-btn-label">{act.label}</span>

@@ -162,6 +162,14 @@ export default function FaceplantGame() {
     window.addEventListener('keydown', kd);
     window.addEventListener('keyup', ku);
 
+    // Touch overlay flags — held-button model. The throttle pill also
+    // lifts the game out of 'ready' just like pressing → does on keyboard.
+    const touchKeys = { throttle: false, brake: false, leanBack: false, leanFwd: false };
+    wrap._setTouch = (id, v) => {
+      if (id in touchKeys) touchKeys[id] = v;
+      if (id === 'throttle' && v && status === 'ready') setStatus('playing');
+    };
+
     const draw = () => {
       const s = stateRef.current; if (!s) return;
       const { bike, camX, particles } = s;
@@ -295,7 +303,7 @@ export default function FaceplantGame() {
       ctx.arc( CHASSIS_W / 2 - 6, CHASSIS_H / 2 + 8, 5, 0, Math.PI * 2);
       ctx.fill();
       // exhaust flame when throttle
-      if (keys['d'] || keys['arrowright'] || keys['keyd']) {
+      if (keys['d'] || keys['arrowright'] || keys['keyd'] || touchKeys.throttle) {
         ctx.fillStyle = '#ff8a3a';
         ctx.beginPath();
         ctx.moveTo(-CHASSIS_W / 2, 0);
@@ -351,10 +359,10 @@ export default function FaceplantGame() {
         }
 
         // Controls
-        const throttle = keys['d'] || keys['arrowright'] || keys['keyd'];
-        const brake    = keys['a'] || keys['arrowleft']  || keys['keya'];
-        const leanBack = keys['w'] || keys['arrowup']    || keys['keyw'];
-        const leanFwd  = keys['s'] || keys['arrowdown']  || keys['keys'];
+        const throttle = keys['d'] || keys['arrowright'] || keys['keyd'] || touchKeys.throttle;
+        const brake    = keys['a'] || keys['arrowleft']  || keys['keya'] || touchKeys.brake;
+        const leanBack = keys['w'] || keys['arrowup']    || keys['keyw'] || touchKeys.leanBack;
+        const leanFwd  = keys['s'] || keys['arrowdown']  || keys['keys'] || touchKeys.leanFwd;
 
         if (throttle) bike.vx += THROTTLE_ACCEL * dt;
         if (brake)    bike.vx -= BRAKE_ACCEL   * dt;
@@ -489,6 +497,12 @@ export default function FaceplantGame() {
     pit:   'Off the edge of the world.',
   }[reason];
 
+  const isTouch = typeof window !== 'undefined' && 'ontouchstart' in window;
+  const setTouch = (id, v) => {
+    const w = wrapRef.current;
+    if (w && w._setTouch) w._setTouch(id, v);
+  };
+
   return (
     <div className="face">
       <div className="face-bar">
@@ -502,6 +516,20 @@ export default function FaceplantGame() {
       </div>
       <div ref={wrapRef} style={{ flex: '1 1 0', minHeight: 0, width: '100%', position: 'relative' }}>
         <canvas ref={canvasRef} className="face-canvas"/>
+        {isTouch && (
+          <>
+            {/* Brake / throttle pair — bottom-left */}
+            <div style={{ position: 'absolute', bottom: 18, left: 18, display: 'flex', gap: 10, zIndex: 5 }}>
+              <PillBtn label="BRAKE" wide onDown={() => setTouch('brake', true)}    onUp={() => setTouch('brake', false)} />
+              <PillBtn label="GO"    wide onDown={() => setTouch('throttle', true)} onUp={() => setTouch('throttle', false)} />
+            </div>
+            {/* Lean stack — bottom-right, lean-back on top */}
+            <div style={{ position: 'absolute', bottom: 18, right: 18, display: 'flex', flexDirection: 'column', gap: 8, zIndex: 5 }}>
+              <PillBtn label="LEAN ↑" wide onDown={() => setTouch('leanBack', true)} onUp={() => setTouch('leanBack', false)} />
+              <PillBtn label="LEAN ↓" wide onDown={() => setTouch('leanFwd', true)}  onUp={() => setTouch('leanFwd', false)} />
+            </div>
+          </>
+        )}
       </div>
       {status === 'won' && (
         <div className="face-result" style={{color:'var(--accent)'}}>
@@ -513,5 +541,45 @@ export default function FaceplantGame() {
       )}
       <div className="face-hint">→ throttle · ← brake · W/↑ lean back · S/↓ lean forward · R restart</div>
     </div>
+  );
+}
+
+// Inline-styled touch pill — held-button model. Throttle / brake / lean
+// flags stay set as long as the pill is held.
+function PillBtn({ label, wide, onDown, onUp }) {
+  const base = {
+    position: 'relative',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: wide ? 96 : 56,
+    height: 56,
+    borderRadius: 28,
+    background: 'rgba(0,0,0,0.55)',
+    border: '1px solid rgba(255,255,255,0.18)',
+    color: '#fff',
+    fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+    fontSize: wide ? 11 : 18,
+    fontWeight: 700,
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase',
+    userSelect: 'none',
+    touchAction: 'none',
+    backdropFilter: 'blur(8px)',
+    WebkitBackdropFilter: 'blur(8px)',
+    pointerEvents: 'auto',
+    cursor: 'pointer',
+  };
+  return (
+    <button
+      style={base}
+      onPointerDown={(e) => { e.preventDefault(); try { e.currentTarget.setPointerCapture(e.pointerId); } catch {} onDown?.(); }}
+      onPointerUp={(e) => { e.preventDefault(); onUp?.(); }}
+      onPointerCancel={(e) => { e.preventDefault(); onUp?.(); }}
+      onPointerLeave={(e) => { if (e.buttons === 0) onUp?.(); }}
+      aria-label={label}
+    >
+      {label}
+    </button>
   );
 }

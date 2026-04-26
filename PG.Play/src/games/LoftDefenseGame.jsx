@@ -329,10 +329,13 @@ export default function LoftDefenseGame() {
       const s = stateRef.current; if (!s) return;
       const { cssW, cssH } = viewRef.current;
 
-      // Outer backdrop fills the canvas in the same dark-grass tone the
-      // playfield ends on so the surrounding area blends rather than
-      // framing it.
-      ctx.fillStyle = '#3c7a1f';
+      // Daylit-grass gradient — sun-warm at the top, deeper meadow
+      // green at the foot, so the playfield reads as ground under sky.
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, cssH);
+      bgGrad.addColorStop(0, '#4d8e26');
+      bgGrad.addColorStop(0.6, '#37711a');
+      bgGrad.addColorStop(1, '#2a5610');
+      ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, cssW, cssH);
 
       // Center the fixed 800×500 playfield inside the canvas.

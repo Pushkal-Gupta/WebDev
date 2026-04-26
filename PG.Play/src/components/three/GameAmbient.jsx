@@ -23,6 +23,7 @@ const BESPOKE = {
   slither:    lazy(() => import('./CoilAmbient.jsx')),
   goalbound:  lazy(() => import('./GoalboundAmbient.jsx')),
   slipshot:   lazy(() => import('./SlipshotAmbient.jsx')),
+  bricklands: lazy(() => import('./BricklandsAmbient.jsx')),
 };
 
 const GENRE_CONFIG = {

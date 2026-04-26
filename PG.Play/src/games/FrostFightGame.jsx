@@ -203,13 +203,27 @@ export default function FrostFightGame() {
     window.addEventListener('keydown', kd);
     window.addEventListener('keyup', ku);
 
+    // Touch overlay flags. Held-button model: while a direction pill is
+    // pressed, the game's own MOVE_TIME (0.18s ≈ 5.5 steps/s) naturally
+    // rate-limits the auto-repeat — a step only fires when the player is
+    // idle, so we don't need an extra debounce here.
+    const touchKeys = { up: false, down: false, left: false, right: false, action: false };
+    wrap._setTouch = (id, v) => {
+      if (id in touchKeys) touchKeys[id] = v;
+    };
+
     const draw = () => {
       const s = stateRef.current; if (!s) return;
       const { level, player, enemies, shake, flash } = s;
       const { cssW, cssH } = viewRef.current;
 
-      // Outer backdrop — fills any padding around the centered grid
-      ctx.fillStyle = '#446e85';
+      // Frost-pane vignette — frosted-glass blue, lighter near the grid,
+      // deeper at the corners. Plays into the ice-cream theme without
+      // dominating the playfield.
+      const bgGrad = ctx.createRadialGradient(cssW / 2, cssH / 2, 0, cssW / 2, cssH / 2, Math.max(cssW, cssH) * 0.7);
+      bgGrad.addColorStop(0, '#5180a0');
+      bgGrad.addColorStop(1, '#324e62');
+      ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, cssW, cssH);
 
       // Center the fixed-size grid inside the canvas
@@ -466,11 +480,11 @@ export default function FrostFightGame() {
 
       // Player input (only when not moving & not dead)
       if (!p.dead && !p.moving) {
-        const left  = keys['a'] || keys['arrowleft']  || keys['keya'];
-        const right = keys['d'] || keys['arrowright'] || keys['keyd'];
-        const up    = keys['w'] || keys['arrowup']    || keys['keyw'];
-        const down  = keys['s'] || keys['arrowdown']  || keys['keys'];
-        const freeze = keys[' '] || keys['space'] || keys['j'] || keys['keyj'];
+        const left  = keys['a'] || keys['arrowleft']  || keys['keya'] || touchKeys.left;
+        const right = keys['d'] || keys['arrowright'] || keys['keyd'] || touchKeys.right;
+        const up    = keys['w'] || keys['arrowup']    || keys['keyw'] || touchKeys.up;
+        const down  = keys['s'] || keys['arrowdown']  || keys['keys'] || touchKeys.down;
+        const freeze = keys[' '] || keys['space'] || keys['j'] || keys['keyj'] || touchKeys.action;
 
         let wantDir = null;
         if (left)       wantDir = 'left';
@@ -635,6 +649,12 @@ export default function FrostFightGame() {
   const s = stateRef.current;
   const levelName = s?.level?.name ?? LEVELS[levelIdx]?.name ?? '';
 
+  const isTouch = typeof window !== 'undefined' && 'ontouchstart' in window;
+  const setTouch = (id, v) => {
+    const w = wrapRef.current;
+    if (w && w._setTouch) w._setTouch(id, v);
+  };
+
   return (
     <div className="frost" style={{ width: '100%', height: '100%' }}>
       <div className="frost-bar">
@@ -648,6 +668,29 @@ export default function FrostFightGame() {
       </div>
       <div ref={wrapRef} style={{ flex: '1 1 0', minHeight: 0, width: '100%', position: 'relative' }}>
         <canvas ref={canvasRef} className="frost-canvas"/>
+        {isTouch && (
+          <>
+            {/* 4-direction d-pad — bottom-left, plus-shape layout */}
+            <div style={{ position: 'absolute', bottom: 14, left: 14, width: 168, height: 168, zIndex: 5 }}>
+              <div style={{ position: 'absolute', top: 0,   left: 56 }}>
+                <PillBtn label="↑" onDown={() => setTouch('up', true)}    onUp={() => setTouch('up', false)} />
+              </div>
+              <div style={{ position: 'absolute', top: 56,  left: 0 }}>
+                <PillBtn label="←" onDown={() => setTouch('left', true)}  onUp={() => setTouch('left', false)} />
+              </div>
+              <div style={{ position: 'absolute', top: 56,  left: 112 }}>
+                <PillBtn label="→" onDown={() => setTouch('right', true)} onUp={() => setTouch('right', false)} />
+              </div>
+              <div style={{ position: 'absolute', top: 112, left: 56 }}>
+                <PillBtn label="↓" onDown={() => setTouch('down', true)}  onUp={() => setTouch('down', false)} />
+              </div>
+            </div>
+            {/* Action pill — freeze / melt */}
+            <div style={{ position: 'absolute', bottom: 70, right: 18, zIndex: 5 }}>
+              <PillBtn label="ACTION" wide onDown={() => setTouch('action', true)} onUp={() => setTouch('action', false)} />
+            </div>
+          </>
+        )}
       </div>
       {status === 'won'
         ? <div className="frost-tip frost-tip-win">Pantry, Cold Room, Aisle — all clear · {deaths} death{deaths === 1 ? '' : 's'} · {time}s</div>
@@ -686,4 +729,45 @@ function enemyTouchesPlayer(e, p) {
   if (e.moving && e.fromCol === p.col && e.fromRow === p.row) return true;
   if (p.moving && p.fromCol === e.col && p.fromRow === e.row) return true;
   return false;
+}
+
+// Inline-styled touch pill — held-button model. Tile-step rate-limiting
+// is handled by the game's own MOVE_TIME, so a held direction button just
+// produces continuous steps at the natural cadence.
+function PillBtn({ label, wide, onDown, onUp }) {
+  const base = {
+    position: 'relative',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: wide ? 96 : 56,
+    height: 56,
+    borderRadius: 28,
+    background: 'rgba(0,0,0,0.55)',
+    border: '1px solid rgba(255,255,255,0.18)',
+    color: '#fff',
+    fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+    fontSize: wide ? 11 : 18,
+    fontWeight: 700,
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase',
+    userSelect: 'none',
+    touchAction: 'none',
+    backdropFilter: 'blur(8px)',
+    WebkitBackdropFilter: 'blur(8px)',
+    pointerEvents: 'auto',
+    cursor: 'pointer',
+  };
+  return (
+    <button
+      style={base}
+      onPointerDown={(e) => { e.preventDefault(); try { e.currentTarget.setPointerCapture(e.pointerId); } catch {} onDown?.(); }}
+      onPointerUp={(e) => { e.preventDefault(); onUp?.(); }}
+      onPointerCancel={(e) => { e.preventDefault(); onUp?.(); }}
+      onPointerLeave={(e) => { if (e.buttons === 0) onUp?.(); }}
+      aria-label={label}
+    >
+      {label}
+    </button>
+  );
 }

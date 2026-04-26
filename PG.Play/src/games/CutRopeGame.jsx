@@ -63,9 +63,13 @@ export default function CutRopeGame() {
       if (!s) return;
       const { cssW, cssH } = viewRef.current;
 
-      // Outer backdrop fills the canvas in the same deep purple the level
-      // sky ends on so the surrounding area blends into the level.
-      ctx.fillStyle = '#0a0612';
+      // Atmospheric radial backdrop — slightly lighter at center, deep
+      // obsidian-purple at the edges. Reads as "shadowed room", not "flat
+      // fill". Built fresh per frame because cssW/cssH change with resize.
+      const bgGrad = ctx.createRadialGradient(cssW / 2, cssH / 2, 0, cssW / 2, cssH / 2, Math.max(cssW, cssH) * 0.7);
+      bgGrad.addColorStop(0, '#1a0d22');
+      bgGrad.addColorStop(1, '#070310');
+      ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, cssW, cssH);
 
       // Center the fixed 620×440 level inside the canvas.

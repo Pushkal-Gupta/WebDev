@@ -121,6 +121,38 @@ function ControlsHint({ game }) {
   );
 }
 
+function ShareButton({ game }) {
+  const [shared, setShared] = useState(false);
+  const url = `https://pushkalgupta.com/PG.Play/dist/#/game/${game.id}`;
+  const onClick = async (e) => {
+    e.preventDefault();
+    const data = { title: `${game.name} — PG.Play`, text: game.tagline || '', url };
+    try {
+      if (navigator.share) {
+        await navigator.share(data);
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(url);
+        setShared(true);
+        setTimeout(() => setShared(false), 1600);
+      }
+    } catch {
+      // User cancelled / not supported — silent.
+    }
+  };
+  return (
+    <button
+      type="button"
+      className="btn btn-lg btn-subtle intro-cta-share"
+      onClick={onClick}
+      title="Share this game"
+      aria-label={`Share ${game.name}`}
+    >
+      {Icon.bookmark}
+      <span>{shared ? 'Link copied' : 'Share'}</span>
+    </button>
+  );
+}
+
 function PlayPlaceholder({ game }) {
   const Cover = GAME_COVERS[game.id];
   return (
@@ -287,6 +319,7 @@ export default function GameIntro({ game, onClose }) {
                 </button>
               );
             })}
+            <ShareButton game={game}/>
           </motion.div>
 
           <motion.div variants={itemVariants}>

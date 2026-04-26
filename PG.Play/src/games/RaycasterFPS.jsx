@@ -55,7 +55,10 @@ export default function RaycasterFPS() {
 
   const reset = () => {
     stateRef.current = {
-      player: { x: 2.5, y: 2.5, angle: 0 },
+      // 1s of post-spawn invulnerability (60 frames). Enemies still drift
+      // toward you but contact damage is suppressed during the window —
+      // enough time to finish parsing the maze.
+      player: { x: 2.5, y: 2.5, angle: 0, invul: 60 },
       keys: { w: false, a: false, s: false, d: false, ArrowLeft: false, ArrowRight: false },
       enemies: ENEMY_SPAWNS.map(([x, y]) => ({ x, y, alive: true, hurt: 0 })),
       health: 100, ammo: 24,
@@ -189,10 +192,14 @@ export default function RaycasterFPS() {
             if (!isWall(Math.floor(e.x), Math.floor(ny))) e.y = ny;
           }
           if (d < 0.6) {
-            s.health -= 0.8;
-            if (s.health <= 0) {
-              s.health = 0;
-              setStatus('lost');
+            // Spawn-safety: damage is gated by the invul timer so the
+            // enemy can be in contact range without burning HP.
+            if ((s.player.invul || 0) <= 0) {
+              s.health -= 0.8;
+              if (s.health <= 0) {
+                s.health = 0;
+                setStatus('lost');
+              }
             }
           }
         });
@@ -203,6 +210,7 @@ export default function RaycasterFPS() {
 
         if (s.fireCd > 0) s.fireCd--;
         if (s.muzzle > 0) s.muzzle--;
+        if ((s.player.invul || 0) > 0) s.player.invul--;
       }
 
       // ── Render. Read live dimensions from viewRef so a resize takes
@@ -300,6 +308,15 @@ export default function RaycasterFPS() {
         ctx.beginPath();
         ctx.arc(VW / 2, VH - 95, 20, 0, Math.PI * 2);
         ctx.fill();
+      }
+
+      // Spawn-safety frame: while invul, breathe a cyan vignette around
+      // the viewport edge so the player sees they're protected.
+      if ((s.player.invul || 0) > 0) {
+        const a = 0.35 + 0.25 * Math.cos(performance.now() * 0.016);
+        ctx.strokeStyle = `rgba(0,255,245,${a.toFixed(3)})`;
+        ctx.lineWidth = 6;
+        ctx.strokeRect(3, 3, VW - 6, VH - 6);
       }
 
       // Crosshair

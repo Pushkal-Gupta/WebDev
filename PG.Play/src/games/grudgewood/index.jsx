@@ -312,6 +312,15 @@ export default function GrudgewoodGame() {
           gameState.sprintUsed = true;
           inSnap.sprint = false;
         }
+        // Camera yaw: angle the camera is facing in the XZ plane. Used by
+        // the player to rotate the input stick so WASD reads as "screen up
+        // / left / right" relative to the chase camera, not absolute world
+        // axes. Three.js camera looks along -Z by default; player.facing
+        // uses Math.atan2(mx, mz) which expects the same convention.
+        const camFwd = tmp.set(0, 0, -1).applyQuaternion(engine.camera.quaternion);
+        const cameraYaw = Math.atan2(camFwd.x, -camFwd.z);
+        inSnap.cameraYaw = cameraYaw;
+
         const ctx = {
           input: inSnap,
           sampleHeight: (x, z) => world.sampleHeight(x, z),

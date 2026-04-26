@@ -1642,28 +1642,41 @@ svg { display: block; width: 100%; height: 100%; }
 .bests-id { color: var(--text-dim); }
 .bests-v { color: var(--accent); font-family: var(--font-mono); font-weight: 700; }
 
-/* Achievement toast */
+/* Achievement toast — landing moment when an unlock fires. Glass card
+   with a gradient trophy badge on the left + a small text block on the
+   right. Sits in the bottom-right above the onboarding card (z 120 vs
+   30) so an unlock during a fresh user's first game still reads. */
 .ach-toast {
   position: fixed;
   right: var(--s-5);
   bottom: var(--s-5);
   z-index: 120;
-  min-width: 280px;
-  padding: var(--s-4);
-  background: var(--surface);
+  min-width: 320px;
+  max-width: min(360px, calc(100vw - var(--s-7)));
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-xl);
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  align-items: center;
+  gap: var(--s-3);
+}
+.ach-toast-badge {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.35), rgba(255, 92, 182, 0.28));
   border: 1px solid rgba(var(--accent-rgb), 0.45);
-  border-radius: var(--r-lg);
-  box-shadow: var(--shadow-drawer);
-  animation: ach-in 240ms cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--accent);
+  box-shadow: 0 0 24px rgba(var(--accent-rgb), 0.28), inset 0 1px 0 rgba(255,255,255,0.18);
 }
-@keyframes ach-in {
-  from { transform: translateY(20px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
-}
+.ach-toast-badge > svg { width: 26px; height: 26px; }
+.ach-toast-text { min-width: 0; }
 .ach-toast-kicker {
   font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--accent);
   font-weight: 700;
@@ -1671,14 +1684,27 @@ svg { display: block; width: 100%; height: 100%; }
 }
 .ach-toast-title {
   font-family: var(--font-display);
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 600;
   color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .ach-toast-desc {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--text-dim);
   margin-top: 2px;
+  line-height: 1.35;
+}
+@media (max-width: 520px) {
+  .ach-toast {
+    right: var(--s-4);
+    bottom: var(--s-4);
+    left: var(--s-4);
+    min-width: 0;
+    max-width: none;
+  }
 }
 
 /* Sidebar profile block */
@@ -4401,6 +4427,177 @@ svg { display: block; width: 100%; height: 100%; }
   font-variant-numeric: tabular-nums;
   font-weight: 600;
   color: var(--accent);
+}
+
+/* Onboarding tip — bottom-right glass card. One-shot for new visitors;
+   dismisses on close, on first ⌘K, on first bento click, or after 12s. */
+.onboard {
+  position: fixed;
+  right: var(--s-5);
+  bottom: var(--s-5);
+  z-index: 30;
+  width: min(340px, calc(100vw - var(--s-7)));
+  padding: var(--s-4) var(--s-4) var(--s-3);
+  border-radius: var(--r-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  pointer-events: auto;
+}
+.onboard-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+.onboard-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.onboard-close {
+  width: 28px; height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: var(--text-dim);
+  background: transparent;
+  border: 1px solid var(--line);
+}
+.onboard-close:hover { color: var(--text); border-color: var(--line-strong); }
+.onboard-close > svg { width: 14px; height: 14px; }
+.onboard-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s-3); }
+.onboard-row {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  align-items: center;
+  gap: var(--s-3);
+  font-size: 0.92rem;
+  color: var(--text);
+  line-height: 1.4;
+}
+.onboard-row b { color: var(--accent); font-weight: 600; }
+.onboard-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 28px;
+  border-radius: var(--r-sm);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line-strong);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text);
+}
+.onboard-kbd > svg { width: 12px; height: 12px; }
+.onboard-foot {
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--line);
+  font-size: 0.78rem;
+  color: var(--text-mute);
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 520px) {
+  .onboard {
+    right: var(--s-4);
+    bottom: var(--s-4);
+    left: var(--s-4);
+    width: auto;
+  }
+}
+
+/* Keyboard shortcuts modal — pressed `?` from any platform surface. */
+.shortcuts-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--s-5);
+}
+.shortcuts-card {
+  width: min(560px, 100%);
+  border-radius: var(--r-2xl);
+  padding: var(--s-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+.shortcuts-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-4);
+}
+.shortcuts-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+.shortcuts-title {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin-top: 4px;
+}
+.shortcuts-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.shortcuts-row {
+  display: grid;
+  grid-template-columns: 110px 1fr auto;
+  align-items: center;
+  gap: var(--s-3);
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  font-size: 0.92rem;
+}
+.shortcuts-row:first-child { border-top: none; }
+.shortcuts-keys { display: inline-flex; gap: 4px; }
+.shortcuts-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: var(--r-sm);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line-strong);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.shortcuts-label { color: var(--text); }
+.shortcuts-ctx {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+@media (max-width: 520px) {
+  .shortcuts-row {
+    grid-template-columns: 90px 1fr;
+    gap: var(--s-2);
+  }
+  .shortcuts-ctx { display: none; }
 }
 
 /* Loading bar shown while a game chunk lazy-loads. Pure black background;
