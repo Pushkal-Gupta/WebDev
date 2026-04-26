@@ -119,7 +119,7 @@ export default function MatchScreen() {
       goldenOnly,
       noJump,
       listeners: {
-        onGoal:   () => { sfx.goal(); },
+        onGoal:   () => { sfx.goal(); setTimeout(() => sfx.cheer?.(), 220); },
         onKick:   () => { sfx.kick(); },
         onBounce: () => { /* too noisy; skip */ },
         onWhistle: () => sfx.whistle(),

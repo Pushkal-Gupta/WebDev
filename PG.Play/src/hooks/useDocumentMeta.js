@@ -6,8 +6,8 @@ import { useEffect } from 'react';
 //
 // Pass null/undefined to fall back to the index.html defaults.
 
-const SITE_URL = 'https://pushkalgupta.com/PG.Play/';
-const OG_IMAGE = `${SITE_URL}og.png`; // see /public/og.svg + README for the conversion note
+const SITE_URL = 'https://pushkalgupta.com/PG.Play/dist/';
+const OG_IMAGE = `${SITE_URL}og-1200.jpg`;
 
 function ensureMeta(name, attr = 'name') {
   let el = document.head.querySelector(`meta[${attr}="${name}"]`);

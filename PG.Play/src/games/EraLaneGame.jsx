@@ -84,6 +84,7 @@ export default function EraLaneGame() {
       era: 1,
       goldAcc: 0,
       particles: [],
+      unitId: 0,
     };
     setGold(120); setMyHP(BASE_HP); setEnemyHP(BASE_HP);
     setEra(1); setCds({ scout: 0, spear: 0, heavy: 0 });
@@ -103,13 +104,16 @@ export default function EraLaneGame() {
     setGold(s.gold);
     setCds({ ...s.cds });
     const v = viewRef.current;
+    const id = ++s.unitId;
     s.myUnits.push({
       ...u, kind,
+      id,
       x: v.laneLeft + 10,
       y: v.groundY,
       side: 'me',
       hpCur: u.hp,
       atkCd: 0,
+      laneY: ((id % 3) - 1) * 2,
     });
   };
 
@@ -220,8 +224,8 @@ export default function EraLaneGame() {
       drawBase(LANE_LEFT - 50, 'YOU',    s.myHP,    '#00e5dd');
       drawBase(LANE_RIGHT + 50, 'ENEMY', s.enemyHP, '#ff4d6d');
 
-      // units
-      [...s.myUnits, ...s.enemyUnits].forEach((u) => unitDraw(ctx, u, u.x, u.y, u.side));
+      // units — laneY stagger keeps overlapping units from z-fighting
+      [...s.myUnits, ...s.enemyUnits].forEach((u) => unitDraw(ctx, u, u.x, u.y + (u.laneY || 0), u.side));
 
       // particles
       s.particles.forEach((p) => {
@@ -281,13 +285,16 @@ export default function EraLaneGame() {
           if (r < 0.15 * budget) kind = 'heavy';
           else if (r < 0.55 * budget) kind = 'spear';
           const u = UNITS[kind];
+          const eid = ++s.unitId;
           s.enemyUnits.push({
             ...u, kind,
+            id: eid,
             x: LANE_RIGHT - 10,
             y: GROUND_Y,
             side: 'enemy',
             hpCur: u.hp,
             atkCd: 0,
+            laneY: ((eid % 3) - 1) * 2,
           });
           s.enemyCd = 2.4 / budget + Math.random() * 1.2;
         }
@@ -343,6 +350,29 @@ export default function EraLaneGame() {
         };
         stepUnits(s.myUnits, s.enemyUnits, LANE_RIGHT + 50);
         stepUnits(s.enemyUnits, s.myUnits, LANE_LEFT - 50);
+
+        // Same-side inter-unit repulsion so stacked friendlies fan out
+        // along the lane instead of reading as a single sprite. O(n²)
+        // is fine — units.length is typically <30. Opposite-side pairs
+        // are skipped so combat distance stays untouched.
+        const UNIT_SPACING = 22;
+        const repel = (arr) => {
+          for (let i = 0; i < arr.length; i++) {
+            for (let j = i + 1; j < arr.length; j++) {
+              const a = arr[i], b = arr[j];
+              if (a.hpCur <= 0 || b.hpCur <= 0) continue;
+              const delta = a.x - b.x;
+              const ad = Math.abs(delta);
+              if (ad < UNIT_SPACING) {
+                const push = (UNIT_SPACING - ad) / 2;
+                if (delta >= 0) { a.x += push; b.x -= push; }
+                else            { a.x -= push; b.x += push; }
+              }
+            }
+          }
+        };
+        repel(s.myUnits);
+        repel(s.enemyUnits);
 
         s.myUnits   = s.myUnits.filter((u)   => u.hpCur > 0);
         s.enemyUnits = s.enemyUnits.filter((u) => u.hpCur > 0);

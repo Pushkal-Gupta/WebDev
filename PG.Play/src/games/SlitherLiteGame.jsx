@@ -1165,7 +1165,9 @@ export default function SlitherLiteGame() {
             s.me.grow += bonus;
             spawnEatBurst(f.x, f.y, f.color);
             if (!mutedRef.current && (now - lastEatSfxAt) > 50) {
-              try { sfx.click(); } catch {}
+              // Bigger pellets get a meatier cue (confirm) — small ones
+              // chirp via the dedicated pellet stinger.
+              try { (f.big ? sfx.confirm : sfx.pellet)(); } catch {}
               lastEatSfxAt = now;
             }
             replaceFood(i);

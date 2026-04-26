@@ -12,7 +12,10 @@
 // Cache name is versioned. Bump VERSION when shipping a release that
 // changes the static asset shape; the activate step purges old caches.
 
-const VERSION = 'pgplay-v1';
+// Bump VERSION on every release that changes static asset shapes.
+// Old caches are purged in the activate step, so stale chunks can't
+// stick around and serve a half-broken SPA after a deploy.
+const VERSION = 'pgplay-v3-2026-04-25-2';
 const CORE = [
   '/PG.Play/',
   '/PG.Play/index.html',

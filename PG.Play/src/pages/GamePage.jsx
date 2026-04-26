@@ -33,7 +33,7 @@ export default function GamePage() {
       ? {
           title: `${game.name} — PG.Play`,
           description: game.tagline || game.story?.slice(0, 160),
-          url: `https://pushkalgupta.com/PG.Play/#/game/${game.id}`,
+          url: `https://pushkalgupta.com/PG.Play/dist/#/game/${game.id}`,
         }
       : undefined,
   );
