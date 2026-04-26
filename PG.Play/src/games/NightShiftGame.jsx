@@ -123,6 +123,16 @@ export default function NightShiftGame() {
     window.addEventListener('keydown', kd);
     window.addEventListener('keyup', ku);
 
+    // Touch overlay flags — flipped by the pill buttons rendered in JSX
+    // below. The wrap element exposes a setter so the React-side handlers
+    // can talk to the loop's local state without re-binding refs.
+    const touchKeys = { left: false, right: false, tiptoe: false };
+    wrap._setTouch = (id, v) => {
+      if (id === 'left')   touchKeys.left   = v;
+      if (id === 'right')  touchKeys.right  = v;
+      if (id === 'tiptoe') touchKeys.tiptoe = v;
+    };
+
     const coneContainsPlayer = (g, px, py) => {
       const dx = px - g.x;
       const dy = py - g.y;
@@ -298,9 +308,9 @@ export default function NightShiftGame() {
       const s = stateRef.current; if (!s || status !== 'playing') return;
 
       const p = s.player;
-      const left  = keys['a'] || keys['arrowleft']  || keys['keya'];
-      const right = keys['d'] || keys['arrowright'] || keys['keyd'];
-      const sneak = keys['shift'] || keys['shiftleft'] || keys['shiftright'] || keys[' '] || keys['space'];
+      const left  = keys['a'] || keys['arrowleft']  || keys['keya'] || touchKeys.left;
+      const right = keys['d'] || keys['arrowright'] || keys['keyd'] || touchKeys.right;
+      const sneak = keys['shift'] || keys['shiftleft'] || keys['shiftright'] || keys[' '] || keys['space'] || touchKeys.tiptoe;
 
       setTiptoe(!!sneak);
 
@@ -388,6 +398,12 @@ export default function NightShiftGame() {
 
   const pct = Math.round(detect * 100);
 
+  const isTouch = typeof window !== 'undefined' && 'ontouchstart' in window;
+  const setTouch = (id, v) => {
+    const w = wrapRef.current;
+    if (w && w._setTouch) w._setTouch(id, v);
+  };
+
   return (
     <div className="nightshift" style={{ width: '100%', height: '100%' }}>
       <div className="nightshift-bar">
@@ -405,6 +421,17 @@ export default function NightShiftGame() {
       </div>
       <div ref={wrapRef} style={{ flex: '1 1 0', minHeight: 0, width: '100%', position: 'relative' }}>
         <canvas ref={canvasRef} className="nightshift-canvas"/>
+        {isTouch && (
+          <>
+            <div style={{ position: 'absolute', bottom: 18, left: 18, display: 'flex', gap: 10, zIndex: 5 }}>
+              <PillBtn label="←" onDown={() => setTouch('left', true)}  onUp={() => setTouch('left', false)} />
+              <PillBtn label="→" onDown={() => setTouch('right', true)} onUp={() => setTouch('right', false)} />
+            </div>
+            <div style={{ position: 'absolute', bottom: 18, right: 18, zIndex: 5 }}>
+              <PillBtn label="TIPTOE" wide onDown={() => setTouch('tiptoe', true)} onUp={() => setTouch('tiptoe', false)} />
+            </div>
+          </>
+        )}
       </div>
       {status === 'won' ? (
         <div className="nightshift-tip" style={{color:'var(--accent)', fontWeight:700}}>
@@ -415,5 +442,45 @@ export default function NightShiftGame() {
       )}
       <div className="nightshift-hint">A/D move · Shift or Space to tiptoe · R restart night · slip past cones, reach the door</div>
     </div>
+  );
+}
+
+// Inline-styled touch pill — matches the shared shape used across the
+// other touch-enabled games. `wide` widens the body for word labels.
+function PillBtn({ label, wide, onDown, onUp }) {
+  const base = {
+    position: 'relative',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: wide ? 96 : 56,
+    height: 56,
+    borderRadius: 28,
+    background: 'rgba(0,0,0,0.55)',
+    border: '1px solid rgba(255,255,255,0.18)',
+    color: '#fff',
+    fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+    fontSize: wide ? 11 : 18,
+    fontWeight: 700,
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase',
+    userSelect: 'none',
+    touchAction: 'none',
+    backdropFilter: 'blur(8px)',
+    WebkitBackdropFilter: 'blur(8px)',
+    pointerEvents: 'auto',
+    cursor: 'pointer',
+  };
+  return (
+    <button
+      style={base}
+      onPointerDown={(e) => { e.preventDefault(); try { e.currentTarget.setPointerCapture(e.pointerId); } catch {} onDown?.(); }}
+      onPointerUp={(e) => { e.preventDefault(); onUp?.(); }}
+      onPointerCancel={(e) => { e.preventDefault(); onUp?.(); }}
+      onPointerLeave={(e) => { if (e.buttons === 0) onUp?.(); }}
+      aria-label={label}
+    >
+      {label}
+    </button>
   );
 }

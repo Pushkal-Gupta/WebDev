@@ -303,6 +303,10 @@ export default function SlitherLiteGame() {
       pointerScreen: { x: 0, y: 0 },
       tAccum: 0,
       startedAt: performance.now(),
+      // Spawn-safety: 1.5s of post-spawn invulnerability so the player can
+      // read the field before bots can kill the head. Visualised by the
+      // head segments flashing during the window.
+      invulnUntil: performance.now() / 1000 + 1.5,
       deathT: 0,
     };
     setLen(START_LEN);
@@ -775,6 +779,16 @@ export default function SlitherLiteGame() {
       const skinFn = skinDef.fn;
       const n = body.length;
 
+      // Spawn-safety flash: when the player is still in their post-spawn
+      // invulnerability window, breathe the alpha so the immunity reads
+      // as a state. Cosine-driven so it's smooth, not strobed.
+      const sNow = stateRef.current;
+      const invulnFlash = isMe && sNow && (performance.now() / 1000) < (sNow.invulnUntil || 0);
+      if (invulnFlash) {
+        ctx.save();
+        ctx.globalAlpha = 0.55 + 0.45 * Math.cos(performance.now() * 0.016);
+      }
+
       // Tail-to-head pass: each segment is a soft glow + a coloured disc.
       // Drawing per-segment lets each skin colour itself precisely; segments
       // overlap (~50%) thanks to SEG_SPACING < diameter at the new chunky scale.
@@ -880,6 +894,8 @@ export default function SlitherLiteGame() {
       ctx.fillStyle = '#0a0d0e';
       ctx.beginPath(); ctx.arc(e1.x + pdx, e1.y + pdy, pupilR, 0, TAU); ctx.fill();
       ctx.beginPath(); ctx.arc(e2.x + pdx, e2.y + pdy, pupilR, 0, TAU); ctx.fill();
+
+      if (invulnFlash) ctx.restore();
     };
 
     // -------------------------- Render: particles --------------------------
@@ -1295,8 +1311,14 @@ export default function SlitherLiteGame() {
 
         const myHead = s.me.body[0];
 
+        // Spawn-safety: while invulnerable, hostile interactions still
+        // register visually but cannot set `alive = false`. Boundary is
+        // also gated so a player who spawns at (0,0) and drifts can't be
+        // killed by a microscopic clamp issue in the first 1.5s.
+        const invulnActive = (now / 1000) < (s.invulnUntil || 0);
+
         // Boundary kill: head outside circle.
-        if (Math.hypot(myHead.x, myHead.y) > s.arenaR) {
+        if (!invulnActive && Math.hypot(myHead.x, myHead.y) > s.arenaR) {
           s.me.alive = false;
         }
 
@@ -1343,17 +1365,19 @@ export default function SlitherLiteGame() {
         const SEG_HIT_R = BODY_R_BASE * 0.7; // ~9.8
         const SELF_SKIP = 14;
         const hit = (bx, by, r) => (myHead.x - bx) ** 2 + (myHead.y - by) ** 2 < (HEAD_R_BASE + r) ** 2;
-        for (let i = SELF_SKIP; i < s.me.body.length; i++) {
-          const seg = s.me.body[i];
-          if (hit(seg.x, seg.y, SEG_HIT_R)) { s.me.alive = false; break; }
-        }
-        if (s.me.alive) {
-          for (const bot of s.bots) {
-            if (!bot.alive) continue;
-            for (const seg of bot.body) {
-              if (hit(seg.x, seg.y, SEG_HIT_R)) { s.me.alive = false; break; }
+        if (!invulnActive) {
+          for (let i = SELF_SKIP; i < s.me.body.length; i++) {
+            const seg = s.me.body[i];
+            if (hit(seg.x, seg.y, SEG_HIT_R)) { s.me.alive = false; break; }
+          }
+          if (s.me.alive) {
+            for (const bot of s.bots) {
+              if (!bot.alive) continue;
+              for (const seg of bot.body) {
+                if (hit(seg.x, seg.y, SEG_HIT_R)) { s.me.alive = false; break; }
+              }
+              if (!s.me.alive) break;
             }
-            if (!s.me.alive) break;
           }
         }
         for (const bot of s.bots) {

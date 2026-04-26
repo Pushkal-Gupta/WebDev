@@ -242,6 +242,14 @@ export default function TraceGame() {
     window.addEventListener('keydown', kd);
     window.addEventListener('keyup', ku);
 
+    // Touch overlay — pill buttons in JSX call this shim to set held flags.
+    const touchKeys = { left: false, right: false, jump: false };
+    wrap._setTouch = (id, v) => {
+      if (id === 'left')  touchKeys.left  = v;
+      if (id === 'right') touchKeys.right = v;
+      if (id === 'jump')  touchKeys.jump  = v;
+    };
+
     const solidAt = (tiles, x, y, w, h) => {
       for (const t of tiles) {
         if (t.kind !== 'solid') continue;
@@ -276,10 +284,13 @@ export default function TraceGame() {
       const { room, player, sawT } = s;
       const { cssW, cssH } = viewRef.current;
 
-      // Outer backdrop fills the canvas in the same paper tone the room
-      // ends on — the padding around the playfield reads as margin, not
-      // as a frame.
-      ctx.fillStyle = '#d9d2c4';
+      // Paper-stock backdrop — warm vignette that lifts the playfield
+      // out of the page. Lighter near the centred room, darker at the
+      // sheet edges so the room feels mounted, not glued on.
+      const bgGrad = ctx.createRadialGradient(cssW / 2, cssH / 2, 0, cssW / 2, cssH / 2, Math.max(cssW, cssH) * 0.65);
+      bgGrad.addColorStop(0, '#e7e0d1');
+      bgGrad.addColorStop(1, '#c2b8a3');
+      ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, cssW, cssH);
 
       // Center the fixed 800×500 room inside the canvas.
@@ -440,9 +451,9 @@ export default function TraceGame() {
       }
 
       // Input
-      const left  = keys['a'] || keys['arrowleft']  || keys['keya'];
-      const right = keys['d'] || keys['arrowright'] || keys['keyd'];
-      const jumpDown = keys[' '] || keys['space'] || keys['w'] || keys['arrowup'];
+      const left  = keys['a'] || keys['arrowleft']  || keys['keya']  || touchKeys.left;
+      const right = keys['d'] || keys['arrowright'] || keys['keyd']  || touchKeys.right;
+      const jumpDown = keys[' '] || keys['space'] || keys['w'] || keys['arrowup'] || touchKeys.jump;
       if (jumpDown && !p.jumpDown) p.buffer = BUFFER;
       p.jumpDown = jumpDown;
 
@@ -562,6 +573,12 @@ export default function TraceGame() {
     setTime(0);
   };
 
+  const isTouch = typeof window !== 'undefined' && 'ontouchstart' in window;
+  const setTouch = (id, v) => {
+    const w = wrapRef.current;
+    if (w && w._setTouch) w._setTouch(id, v);
+  };
+
   return (
     <div className="trace">
       <div className="trace-bar">
@@ -574,6 +591,17 @@ export default function TraceGame() {
       </div>
       <div ref={wrapRef} style={{ flex: '1 1 0', minHeight: 0, width: '100%', position: 'relative' }}>
         <canvas ref={canvasRef} className="trace-canvas"/>
+        {isTouch && (
+          <>
+            <div style={{ position: 'absolute', bottom: 18, left: 18, display: 'flex', gap: 10, zIndex: 5 }}>
+              <PillBtn label="←" onDown={() => setTouch('left', true)}  onUp={() => setTouch('left', false)} />
+              <PillBtn label="→" onDown={() => setTouch('right', true)} onUp={() => setTouch('right', false)} />
+            </div>
+            <div style={{ position: 'absolute', bottom: 18, right: 18, zIndex: 5 }}>
+              <PillBtn label="JUMP" wide onDown={() => setTouch('jump', true)} onUp={() => setTouch('jump', false)} />
+            </div>
+          </>
+        )}
       </div>
       {status === 'won' ? (
         <div className="trace-tip" style={{color:'var(--accent)', fontWeight:700}}>
@@ -584,5 +612,45 @@ export default function TraceGame() {
       )}
       <div className="trace-hint">A/D move · Space jump · hug wall + jump = wall-jump · R restart room</div>
     </div>
+  );
+}
+
+// Inline-styled touch pill — held-button model, identical look across the
+// touch-enabled games.
+function PillBtn({ label, wide, onDown, onUp }) {
+  const base = {
+    position: 'relative',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: wide ? 96 : 56,
+    height: 56,
+    borderRadius: 28,
+    background: 'rgba(0,0,0,0.55)',
+    border: '1px solid rgba(255,255,255,0.18)',
+    color: '#fff',
+    fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+    fontSize: wide ? 11 : 18,
+    fontWeight: 700,
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase',
+    userSelect: 'none',
+    touchAction: 'none',
+    backdropFilter: 'blur(8px)',
+    WebkitBackdropFilter: 'blur(8px)',
+    pointerEvents: 'auto',
+    cursor: 'pointer',
+  };
+  return (
+    <button
+      style={base}
+      onPointerDown={(e) => { e.preventDefault(); try { e.currentTarget.setPointerCapture(e.pointerId); } catch {} onDown?.(); }}
+      onPointerUp={(e) => { e.preventDefault(); onUp?.(); }}
+      onPointerCancel={(e) => { e.preventDefault(); onUp?.(); }}
+      onPointerLeave={(e) => { if (e.buttons === 0) onUp?.(); }}
+      aria-label={label}
+    >
+      {label}
+    </button>
   );
 }

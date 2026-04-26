@@ -18,6 +18,7 @@ import GamePage from './pages/GamePage.jsx';
 import AchievementToast from './components/AchievementToast.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import LoadingBar from './components/states/LoadingBar.jsx';
+import ShortcutsModal from './components/ShortcutsModal.jsx';
 import { GAMES } from './data.js';
 import { useSession } from './hooks/useSession.js';
 import { useFavorites } from './hooks/useFavorites.js';
@@ -70,6 +71,21 @@ export default function App() {
   const { bests, submit: submitBest } = useBests(user);
   const { toast } = useAchievements(user, bests);
 
+  // Global `?` opens the shortcuts modal; doesn't fire if a text input is
+  // focused (so the user can type ? in search without it triggering).
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key !== '?') return;
+      const t = e.target;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+      e.preventDefault();
+      setShortcutsOpen((v) => !v);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   useEffect(() => {
     const onScore = (e) => {
       const { gameId, score, meta } = e.detail || {};
@@ -95,6 +111,7 @@ export default function App() {
         </Routes>
       </ErrorBoundary>
       <AchievementToast toast={toast}/>
+      <ShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)}/>
     </HashRouter>
   );
 }

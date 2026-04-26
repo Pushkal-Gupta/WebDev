@@ -21,6 +21,7 @@ import ProfilePanel from '../components/ProfilePanel.jsx';
 import HomeLeaderboard from '../components/HomeLeaderboard.jsx';
 import SearchPalette from '../components/SearchPalette.jsx';
 import Footer from '../components/Footer.jsx';
+import Onboarding from '../components/Onboarding.jsx';
 import { useCanRender3D } from '../hooks/useCanRender3D.js';
 import { useDocumentMeta } from '../hooks/useDocumentMeta.js';
 import { useRecent } from '../hooks/useRecent.js';
@@ -159,6 +160,16 @@ export default function Home() {
     if (featuredGame) onOpen(featuredGame);
   };
 
+  // "Surprise me" — picks a random playable game that isn't the one
+  // currently featured. With 21 games this is a real second-CTA option
+  // for anyone who can't decide.
+  const onRandom = () => {
+    const pool = playable.filter((g) => g.id !== featuredGame?.id);
+    if (!pool.length) return;
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    onOpen(pick);
+  };
+
   // Bento slot id for each hero (CSS grid-area). Order matches HERO_IDS.
   const HERO_SLOT_BY_INDEX = ['hero-1', 'hero-2', 'hero-3', 'hero-4'];
 
@@ -255,6 +266,14 @@ export default function Home() {
                 {Icon.search}
                 <span>Browse all</span>
                 <kbd className="search-kbd" aria-hidden="true">⌘K</kbd>
+              </button>
+              <button
+                type="button"
+                className="btn btn-lg btn-subtle"
+                onClick={onRandom}
+                title="Pick a random game">
+                {Icon.sparkle}
+                <span>Surprise me</span>
               </button>
               <span className="home-hero-count">
                 <span className="numeric">{playable.length}</span> playable today
@@ -421,6 +440,7 @@ export default function Home() {
       )}
       {authOpen && <AuthModal onClose={() => setAuthOpen(false)}/>}
       <SearchPalette open={searchOpen} onClose={() => setSearchOpen(false)}/>
+      <Onboarding featuredName={featuredGame?.name}/>
     </div>
   );
 }

@@ -51,6 +51,7 @@ const CAMERA_LERP  = 0.18;
 const CAMERA_LEAD  = 80;
 const CAM_DEADZONE = 48;
 const HURT_INVUL_F = 30;          // 0.5s @ 60fps
+const SPAWN_INVUL_F = 96;         // 1.6s @ 60fps — read time at level start
 
 // Tile glyphs — see LEVELS for the maps.
 //   .  empty
@@ -437,7 +438,10 @@ export default function BricklandsGame() {
           jumpHeld: false,
           jumpHeldFrames: 0,
           jumpKeyEdge: false,
-          invul: 0,
+          // Spawn-safety: 96 frames @ 60fps ≈ 1.6s. Identical to the
+          // post-hurt window, so the existing flash render + the hurt()
+          // short-circuit cover both cases.
+          invul: SPAWN_INVUL_F,
           dead: false,
           deadT: 0,
         },
@@ -1241,7 +1245,8 @@ export default function BricklandsGame() {
         x: lvl.spawn.x, y: lvl.spawn.y,
         vx: 0, vy: 0, facing: 1, onGround: false,
         coyote: 0, buffer: 0, jumpHeld: false, jumpHeldFrames: 0, jumpKeyEdge: false,
-        invul: 0, dead: false, deadT: 0,
+        // Spawn-safety on restart too (≈1.6s read window).
+        invul: SPAWN_INVUL_F, dead: false, deadT: 0,
       },
       lives: 3, score: 0, coins: 0, stars: 0, deaths: 0,
       elapsed: 0, status: 'playing',

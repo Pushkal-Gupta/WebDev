@@ -12,6 +12,7 @@ const H = 440;
 const MAX_W = 1200;
 const MAX_H = 740;
 const PLAYER_R = 12;
+const SPAWN_INVUL_F = 90;       // 1.5s @ 60fps — read time after spawn / respawn
 const BULLET_R = 3;
 const BULLET_SPEED = 5.2;
 const BULLET_LIFE = 90;
@@ -147,7 +148,7 @@ export default function ArenaGame() {
     const spawn = randSpawn(walls, w, h);
     stateRef.current = {
       view: { w, h, walls },
-      me: { x: spawn.x, y: spawn.y, angle: 0, hp: MAX_HP, kills: 0, fireCd: 0, deadUntil: 0 },
+      me: { x: spawn.x, y: spawn.y, angle: 0, hp: MAX_HP, kills: 0, fireCd: 0, deadUntil: 0, invul: SPAWN_INVUL_F },
       keys: {},
       mouse: { x: w / 2, y: h / 2, down: false },
       bullets: [],
@@ -207,6 +208,9 @@ export default function ArenaGame() {
         if (!payload || payload.target !== me.id) return;
         const s = stateRef.current; if (!s) return;
         if (s.me.hp <= 0) return;
+        // Spawn-safety: discard hits while invuln so a remote shooter
+        // can't burn through the read window.
+        if (s.me.invul > 0) return;
         s.me.hp -= 1;
         setMyHp(s.me.hp);
         if (s.me.hp <= 0) {
@@ -409,8 +413,17 @@ export default function ArenaGame() {
         if (b.hp <= 0) return;
         drawEntity(b.x, b.y, b.angle, b.color, b.hp, b.name);
       });
-      // me
-      if (s.me.hp > 0) drawEntity(s.me.x, s.me.y, s.me.angle, me.color, s.me.hp, me.name + ' (you)', true);
+      // me — flash alpha while invuln so the spawn-safety window is
+      // legible. Uses the project-standard 6-frame strobe pattern.
+      if (s.me.hp > 0) {
+        const flash = (s.me.invul || 0) > 0 && (Math.floor(s.me.invul / 6) % 2 === 0);
+        if (flash) {
+          ctx.save();
+          ctx.globalAlpha = 0.4;
+        }
+        drawEntity(s.me.x, s.me.y, s.me.angle, me.color, s.me.hp, me.name + ' (you)', true);
+        if (flash) ctx.restore();
+      }
 
       // bullets
       s.bullets.forEach((b) => {
@@ -433,9 +446,15 @@ export default function ArenaGame() {
         const p = randSpawn(walls, s.view.w, s.view.h);
         s.me.x = p.x; s.me.y = p.y;
         s.me.hp = MAX_HP;
+        // Fresh post-respawn invuln so we don't drop straight back into
+        // a kill funnel.
+        s.me.invul = SPAWN_INVUL_F;
         setMyHp(MAX_HP);
         setStatus('playing');
       }
+
+      // Decay player invul each frame (independent of input lock).
+      if (s.me.invul > 0) s.me.invul -= 1;
 
       if (status !== 'won') {
         // Me movement + aim
@@ -462,7 +481,15 @@ export default function ArenaGame() {
         // Bots
         s.bots.forEach((b) => {
           if (b.hp <= 0) return;
-          const targets = [s.me, ...s.bots.filter((x) => x !== b), ...Array.from(s.remotes.values())];
+          // Spawn-safety: drop the player from the target list while they
+          // are invulnerable so bots can't queue fire that would resolve
+          // the moment invuln drops.
+          const meTargetable = s.me.hp > 0 && (s.me.invul || 0) <= 0;
+          const targets = [
+            ...(meTargetable ? [s.me] : []),
+            ...s.bots.filter((x) => x !== b),
+            ...Array.from(s.remotes.values()),
+          ];
           const result = stepBot(b, targets, walls);
           if (result?.fire) {
             s.bullets.push({
@@ -490,6 +517,12 @@ export default function ArenaGame() {
           if (b.from !== me.id && s.me.hp > 0 && Math.hypot(b.x - s.me.x, b.y - s.me.y) < PLAYER_R + BULLET_R) {
             // Local bullet from bot hits me; remote bullets don't damage here (remote says hit via event)
             if (!b.remote) {
+              if (s.me.invul > 0) {
+                // Spawn-safety: bullet still pops visually (consumed) but
+                // does no damage during the read window.
+                s.bullets.splice(i, 1);
+                continue;
+              }
               s.me.hp -= 1;
               setMyHp(s.me.hp);
               if (s.me.hp <= 0) {
@@ -582,7 +615,7 @@ export default function ArenaGame() {
   const restart = () => {
     const s = stateRef.current; if (!s) return;
     const p = randSpawn(s.view.walls, s.view.w, s.view.h);
-    s.me.x = p.x; s.me.y = p.y; s.me.hp = MAX_HP; s.me.kills = 0;
+    s.me.x = p.x; s.me.y = p.y; s.me.hp = MAX_HP; s.me.kills = 0; s.me.invul = SPAWN_INVUL_F;
     s.bullets = [];
     s.bots.forEach((b) => {
       const sp = randSpawn(s.view.walls, s.view.w, s.view.h);

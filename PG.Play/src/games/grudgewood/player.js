@@ -112,16 +112,21 @@ export function makePlayer() {
 }
 
 // ── Player controller ─────────────────────────────────────────────────────
-const WALK_MAX = 6.4;     // m/s
-const SPRINT_MAX = 9.6;
-const ACCEL_GROUND = 38;
-const ACCEL_AIR = 14;
-const FRICTION_GROUND = 32;
-const JUMP_V = 9.5;
+// Movement tuning. Walk is the default cruise; Shift = sprint. Walk was
+// previously 6.4 m/s, which felt sluggish through the long Mosswake
+// segments — bumped to 8.0 so casual play is brisk and Sprint is the
+// commitment, not the baseline.
+const WALK_MAX = 8.0;     // m/s
+const SPRINT_MAX = 11.5;
+const ACCEL_GROUND = 46;  // reach top in ~0.17s, snappy turn-around
+const ACCEL_AIR = 18;
+const FRICTION_GROUND = 38;
+const JUMP_V = 9.8;
 const GRAVITY = 24;
 const MAX_FALL = 26;
-const COYOTE = 0.10;
-const JUMP_BUFFER = 0.12;
+const COYOTE = 0.12;       // generous — was 0.10
+const JUMP_BUFFER = 0.14;  // generous — was 0.12
+const TURN_RATE = 22;      // radians-per-second-ish lerp factor (was 14, felt floaty)
 const PLAYER_R = 0.55;
 const PLAYER_H = 1.8;
 
@@ -187,24 +192,40 @@ export class PlayerController {
     }
 
     // Input → desired direction.
-    let mx = 0, mz = 0;
-    if (input.left)  mx -= 1;
-    if (input.right) mx += 1;
-    if (input.fwd)   mz += 1;
-    if (input.back)  mz -= 1;
-    const mag = Math.hypot(mx, mz);
-    if (mag > 0) { mx /= mag; mz /= mag; }
+    //
+    // Controls are camera-relative now: W is "away from the camera into
+    // the scene" regardless of where the player is currently facing.
+    // The camera trails behind the player's facing, so for normal
+    // forward play the world-space and camera-space frames coincide;
+    // the difference shows after a sharp turn — your next W keeps you
+    // moving in the direction you can SEE forward, not the world axis
+    // you happened to be on a moment ago.
+    let lx = 0, lz = 0;
+    if (input.left)  lx -= 1;
+    if (input.right) lx += 1;
+    if (input.fwd)   lz += 1;
+    if (input.back)  lz -= 1;
+    const lmag = Math.hypot(lx, lz);
+    if (lmag > 0) { lx /= lmag; lz /= lmag; }
+
+    // Rotate the local stick by the camera's yaw so screen-up is +Z in
+    // the camera's frame. cameraYaw is supplied by the loop snapshot.
+    const camY = input.cameraYaw || 0;
+    const cs = Math.cos(camY);
+    const sn = Math.sin(camY);
+    const mx = lx * cs - lz * sn;
+    const mz = lx * sn + lz * cs;
+    const mag = lmag;
     const sprint = !!input.sprint;
     const maxSpeed = sprint ? SPRINT_MAX : WALK_MAX;
 
-    // Update facing toward movement direction.
+    // Update facing toward movement direction (snappier turn-around now).
     if (mag > 0.01) {
       const target = Math.atan2(mx, mz);
-      // Smooth rotation
       let d = target - this.facing;
       while (d > Math.PI) d -= Math.PI * 2;
       while (d < -Math.PI) d += Math.PI * 2;
-      this.facing += d * Math.min(1, dt * 14);
+      this.facing += d * Math.min(1, dt * TURN_RATE);
     }
 
     // Acceleration on ground / in air.

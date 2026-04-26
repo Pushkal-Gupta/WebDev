@@ -75,9 +75,13 @@ export default function EightBallGame() {
     const draw = () => {
       const { cssW, cssH, scale, offX, offY } = viewRef.current;
 
-      // Outer backdrop fills the full canvas — felt-green padding around
-      // the table so the rack feels framed by cloth, not a hard rect.
-      ctx.fillStyle = '#0d3a2c';
+      // Felt vignette — slightly lighter near the table center, deeper
+      // green at the canvas edges. Reads as "table under a hanging
+      // billiard light" instead of a flat field.
+      const bgGrad = ctx.createRadialGradient(cssW / 2, cssH / 2, 0, cssW / 2, cssH / 2, Math.max(cssW, cssH) * 0.7);
+      bgGrad.addColorStop(0, '#155440');
+      bgGrad.addColorStop(1, '#082d22');
+      ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, cssW, cssH);
 
       // Center + uniformly scale the table; everything inside this save
