@@ -667,7 +667,7 @@ export default function BricklandsGame() {
               x: hit.c * TILE + 4, y: (hit.r - 1) * TILE + 4,
               w: 8, h: 8, taken: false, t: 0, fly: 18,
             });
-            sfx.confirm && sfx.confirm();
+            sfx.coin && sfx.coin();
             emit(s, hit.c * TILE + 8, hit.r * TILE, 'spark', 5);
           }
         }
@@ -751,7 +751,7 @@ export default function BricklandsGame() {
           coin.taken = true;
           s.coins += 1;
           s.score += 50;
-          sfx.confirm && sfx.confirm();
+          sfx.coin && sfx.coin();
           emit(s, coin.x + 4, coin.y + 4, 'spark', 4);
           if (s.coins >= 100) { s.coins -= 100; s.lives += 1; }
         }
@@ -763,7 +763,7 @@ export default function BricklandsGame() {
         if (aabb(playerBox, star)) {
           star.taken = true;
           s.score += 500;
-          sfx.win && sfx.win();
+          sfx.star && sfx.star();
           emit(s, star.x + 6, star.y + 6, 'star', 12);
         }
       }
@@ -841,12 +841,12 @@ export default function BricklandsGame() {
               e.alive = false;
               s.score += 100;
               p.vy = STOMP_BOUNCE;
-              sfx.shot && sfx.shot();
+              sfx.stomp && sfx.stomp();
               emit(s, e.x + e.w / 2, e.y + e.h, 'debris', 8);
             } else if (e.kind === 'hopper') {
               e.hp -= 1;
               p.vy = STOMP_BOUNCE;
-              sfx.shot && sfx.shot();
+              sfx.stomp && sfx.stomp();
               emit(s, e.x + e.w / 2, e.y + e.h / 2, 'debris', 6);
               if (e.hp <= 0) { e.alive = false; s.score += 250; }
             }

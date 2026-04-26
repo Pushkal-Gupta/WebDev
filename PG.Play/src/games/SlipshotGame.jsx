@@ -9,7 +9,7 @@
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { submitScore } from '../scoreBus.js';
-import { isMuted } from '../sound.js';
+import { isMuted, sfx } from '../sound.js';
 
 /* ─── tuning ──────────────────────────────────────────────────── */
 const RUN_SECONDS   = 180;
@@ -375,6 +375,7 @@ export default function SlipshotGame() {
         kind: 'drone', alive: true, mesh: group, body,
         hp: 30, maxHp: 30, pos: pos.clone(), vel: new THREE.Vector3(),
         fireCd: 2.0 + Math.random() * 1.5, wobble: Math.random() * Math.PI * 2,
+        wobblePhase: Math.random() * Math.PI * 2, retreatT: 0,
       });
     };
 
@@ -481,6 +482,8 @@ export default function SlipshotGame() {
       if (player.reloadIn > 0) return;
       if (player.ammo[player.weapon] >= w.mag) return;
       player.reloadIn = w.reload;
+      // Mechanical click-click-clack on reload start. Honors mute via sfx.
+      try { sfx?.reload?.(); } catch {}
     };
 
     const doAirdash = () => {
@@ -1153,9 +1156,22 @@ export default function SlipshotGame() {
           const toP = player.pos.clone().sub(e.mesh.position);
           const d = toP.length();
           if (d > 0.1) toP.multiplyScalar(1 / d);
-          // Drift toward the player while keeping height band
-          e.mesh.position.x += toP.x * 1.8 * gdt;
-          e.mesh.position.z += toP.z * 1.8 * gdt;
+          // Evasion arc — sin-driven lateral offset perpendicular to the
+          // approach vector so drones weave instead of drifting in a
+          // straight line. Pure scalar math, no raycasts.
+          const EVADE_AMP = 1.6;
+          const lateral = Math.sin(gameTime * 1.4 + e.wobblePhase) * EVADE_AMP;
+          // Perpendicular in XZ plane: rotate (toP.x, toP.z) by 90°
+          const perpX = -toP.z;
+          const perpZ = toP.x;
+          // Retreat-when-close: back-step at half speed for 0.6s when the
+          // player gets inside 16 units, so the drone can't be melted at
+          // point-blank. Countdown ticks down per-frame.
+          if (e.retreatT <= 0 && d < 16) e.retreatT = 0.6;
+          if (e.retreatT > 0) e.retreatT -= gdt;
+          const advanceSign = e.retreatT > 0 ? -0.5 : 1;
+          e.mesh.position.x += (toP.x * 1.8 * advanceSign + perpX * lateral) * gdt;
+          e.mesh.position.z += (toP.z * 1.8 * advanceSign + perpZ * lateral) * gdt;
           e.mesh.position.y = 3.4 + Math.sin(e.wobble * 1.3) * 0.35;
           e.mesh.rotation.y += gdt * 0.8;
           e.pos.copy(e.mesh.position);
