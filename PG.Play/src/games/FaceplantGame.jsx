@@ -103,7 +103,7 @@ const inSpikeZone = (x) => SPIKES.some((s) => x >= s.x0 && x <= s.x1);
 export default function FaceplantGame() {
   const canvasRef = useRef(null);
   const wrapRef   = useRef(null);
-  const viewRef   = useRef({ cssW: VIEW_W, cssH: VIEW_H, offX: 0, offY: 0 });
+  const viewRef   = useRef({ cssW: VIEW_W, cssH: VIEW_H, scale: 1, offX: 0, offY: 0, dispW: VIEW_W, dispH: VIEW_H });
   const stateRef  = useRef(null);
   const submittedRef = useRef(false);
   const [time, setTime]       = useState(0);
@@ -139,14 +139,22 @@ export default function FaceplantGame() {
     const ctx = canvas.getContext('2d');
 
     // Fluid sizer: canvas buffer = parent css × dpr. We render the native
-    // VIEW_W × VIEW_H level centered, with the sky gradient extending to
-    // fill the entire canvas so wide viewports look intentional.
+    // VIEW_W × VIEW_H level uniform-scaled and centered so the playfield
+    // never clips off-screen on short widescreen viewports.
     const dispose = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
+      const scaleW = cssW / VIEW_W;
+      const scaleH = cssH / VIEW_H;
+      const scale = Math.max(0.5, Math.min(scaleW, scaleH, 1.6));
+      const dispW = VIEW_W * scale;
+      const dispH = VIEW_H * scale;
       viewRef.current = {
         cssW,
         cssH,
-        offX: Math.floor((cssW - VIEW_W) / 2),
-        offY: Math.floor((cssH - VIEW_H) / 2),
+        scale,
+        dispW,
+        dispH,
+        offX: Math.floor((cssW - dispW) / 2),
+        offY: Math.floor((cssH - dispH) / 2),
       };
     });
 
@@ -174,7 +182,7 @@ export default function FaceplantGame() {
       const s = stateRef.current; if (!s) return;
       const { bike, camX, particles } = s;
       const view = viewRef.current;
-      const { cssW, cssH, offX, offY } = view;
+      const { cssW, cssH, offX, offY, scale, dispW, dispH } = view;
 
       // Full-canvas sky gradient — extends past the playfield so the side
       // margins on wide viewports don't show empty backdrop.
@@ -210,9 +218,10 @@ export default function FaceplantGame() {
       // so terrain / spikes don't bleed into the side margins.
       ctx.save();
       ctx.beginPath();
-      ctx.rect(offX, offY, VIEW_W, VIEW_H);
+      ctx.rect(offX, offY, dispW, dispH);
       ctx.clip();
       ctx.translate(offX, offY);
+      ctx.scale(scale, scale);
 
       // Ground polygon
       ctx.fillStyle = '#6fbf4a';

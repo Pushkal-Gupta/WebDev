@@ -1,0 +1,57 @@
+{
+  "generatedAt": "2026-04-27T01:18:35.463Z",
+  "matchesPerDifficulty": 200,
+  "reports": [
+    {
+      "name": "skirmish",
+      "n": 200,
+      "playerWinRate": 0.445,
+      "enemyWinRate": 0.555,
+      "drawRate": 0,
+      "medianTimeSec": 106,
+      "p10TimeSec": 78,
+      "p90TimeSec": 135,
+      "medianPlayerEra": 3,
+      "medianEnemyEra": 3,
+      "avgPlayerKills": 28.4,
+      "avgEnemyKills": 29.5,
+      "avgPlayerSpawns": 33.4,
+      "avgEnemySpawns": 32.8,
+      "timedOut": 0
+    },
+    {
+      "name": "standard",
+      "n": 200,
+      "playerWinRate": 0.43,
+      "enemyWinRate": 0.57,
+      "drawRate": 0,
+      "medianTimeSec": 120,
+      "p10TimeSec": 92,
+      "p90TimeSec": 159,
+      "medianPlayerEra": 3,
+      "medianEnemyEra": 3,
+      "avgPlayerKills": 36.3,
+      "avgEnemyKills": 38,
+      "avgPlayerSpawns": 42.2,
+      "avgEnemySpawns": 41.3,
+      "timedOut": 0
+    },
+    {
+      "name": "conquest",
+      "n": 200,
+      "playerWinRate": 0.44,
+      "enemyWinRate": 0.56,
+      "drawRate": 0,
+      "medianTimeSec": 117.5,
+      "p10TimeSec": 82,
+      "p90TimeSec": 171,
+      "medianPlayerEra": 3,
+      "medianEnemyEra": 3,
+      "avgPlayerKills": 37,
+      "avgEnemyKills": 38.5,
+      "avgPlayerSpawns": 42.8,
+      "avgEnemySpawns": 42.1,
+      "timedOut": 0
+    }
+  ]
+}

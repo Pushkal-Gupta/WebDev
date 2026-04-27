@@ -138,7 +138,7 @@ export default function FrostFightGame() {
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
   const stateRef  = useRef(null);
-  const viewRef = useRef({ cssW: W, cssH: H });
+  const viewRef = useRef({ cssW: W, cssH: H, scale: 1, offX: 0, offY: 0 });
   const submittedRef = useRef(false);
   const [levelIdx, setLevelIdx] = useState(0);
   const [deaths, setDeaths]     = useState(0);
@@ -185,9 +185,17 @@ export default function FrostFightGame() {
     if (!canvas || !wrap) return;
     const ctx = canvas.getContext('2d');
 
-    // Fluid sizer — keep tile size fixed, render the W×H grid centered.
+    // Fluid sizer — uniform scale-to-fit so the W×H grid never clips
+    // off-screen on short widescreen viewports.
     const dispose = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
-      viewRef.current = { cssW, cssH };
+      const scaleW = cssW / W;
+      const scaleH = cssH / H;
+      const scale = Math.max(0.5, Math.min(scaleW, scaleH, 1.6));
+      const dispW = W * scale;
+      const dispH = H * scale;
+      const offX = (cssW - dispW) / 2;
+      const offY = (cssH - dispH) / 2;
+      viewRef.current = { cssW, cssH, scale, offX, offY };
     });
 
     const keys = {};
@@ -226,11 +234,11 @@ export default function FrostFightGame() {
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, cssW, cssH);
 
-      // Center the fixed-size grid inside the canvas
-      const offX = (cssW - W) / 2;
-      const offY = (cssH - H) / 2;
+      // Centered + uniform-scaled grid.
+      const { scale, offX, offY } = viewRef.current;
       ctx.save();
       ctx.translate(offX, offY);
+      ctx.scale(scale, scale);
 
       // Arena background — pale blue gradient like a walk-in freezer
       const grad = ctx.createLinearGradient(0, 0, 0, H);

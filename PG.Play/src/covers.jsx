@@ -297,47 +297,79 @@ const Cover_BadIceCream = () => (
   </svg>
 );
 
-// 8. Age of War 2
+// 8. Era Siege — five-era progression. Cover is a five-band sky over a
+// shared lane silhouette: ember, iron, brass, storm, void. Two figures
+// (player and enemy) stand at the lane ends; a banner pennant flies
+// over each. Generated entirely from primitives, no third-party assets.
 const Cover_AoW = () => (
   <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
     <SharedDefs/>
     <defs>
-      <linearGradient id="aow-bg" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#ff8a3a"/><stop offset="0.55" stopColor="#6b2a0a"/><stop offset="1" stopColor="#1a0a06"/>
-      </linearGradient>
+      <linearGradient id="aow-band-1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ff8a3a"/><stop offset="1" stopColor="#7d2a10"/></linearGradient>
+      <linearGradient id="aow-band-2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#7d8794"/><stop offset="1" stopColor="#262e38"/></linearGradient>
+      <linearGradient id="aow-band-3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#dba85a"/><stop offset="1" stopColor="#62311a"/></linearGradient>
+      <linearGradient id="aow-band-4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#3c5777"/><stop offset="1" stopColor="#0e1622"/></linearGradient>
+      <linearGradient id="aow-band-5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#1a0a3a"/><stop offset="1" stopColor="#080014"/></linearGradient>
     </defs>
-    <rect width="400" height="500" fill="url(#aow-bg)"/>
-    <circle cx="200" cy="150" r="60" fill="#ffe14f" opacity="0.3"/>
-    <circle cx="200" cy="150" r="38" fill="#ffe14f" opacity="0.6"/>
+    {/* Five vertical era bands */}
+    <rect x="0"   y="0" width="80"  height="380" fill="url(#aow-band-1)"/>
+    <rect x="80"  y="0" width="80"  height="380" fill="url(#aow-band-2)"/>
+    <rect x="160" y="0" width="80"  height="380" fill="url(#aow-band-3)"/>
+    <rect x="240" y="0" width="80"  height="380" fill="url(#aow-band-4)"/>
+    <rect x="320" y="0" width="80"  height="380" fill="url(#aow-band-5)"/>
+    {/* Per-band silhouettes: a flag pennant at the top of each, era number at the bottom */}
+    <g fontFamily="'JetBrains Mono', monospace" fontSize="11" fill="#0a0604" textAnchor="middle" opacity="0.6">
+      <text x="40"  y="370">I</text>
+      <text x="120" y="370">II</text>
+      <text x="200" y="370">III</text>
+      <text x="280" y="370">IV</text>
+      <text x="360" y="370">V</text>
+    </g>
+    {/* Mid-band motif glyph (one per era) */}
+    <g opacity="0.55">
+      <circle cx="40"  cy="120" r="14" fill="#ffd05a"/>
+      <rect   x="106" y="106" width="28" height="28" fill="#d8d4cc" stroke="#0a0604" strokeWidth="1"/>
+      <polygon points="200,100 218,140 182,140" fill="#ffcb6b"/>
+      <g transform="translate(280,120)" stroke="#bef3ff" strokeWidth="2.5" fill="none"><polyline points="-10,-12 0,2 -4,2 6,16"/></g>
+      <circle cx="360" cy="120" r="14" fill="#1a0a3a" stroke="#e9c8ff" strokeWidth="1.5"/>
+    </g>
+    {/* Ground band */}
     <path d="M0,380 L400,380 L400,500 L0,500 Z" fill="#0a0604"/>
     <path d="M0,380 L400,380" stroke="#c84d1a" strokeWidth="2"/>
-    <g transform="translate(20,290)">
-      <path d="M0,90 L20,20 L60,20 L80,90 Z" fill="#4a3a2a" stroke="#2a1a0a" strokeWidth="2"/>
-      <rect x="30" y="50" width="20" height="40" fill="#0a0604"/>
+    {/* Player base on the left */}
+    <g transform="translate(28,300)">
+      <rect x="0" y="0" width="60" height="80" fill="#15171b" stroke="#0a0604" strokeWidth="1.5"/>
+      <rect x="0" y="-3" width="60" height="3" fill="#ffd05a"/>
+      {[0,1,2].map((k) => <rect key={k} x={k*20+2} y="-10" width="8" height="6" fill="#1f2329"/>)}
+      <rect x="22" y="20" width="16" height="60" fill="#ffd05a"/>
+      <line x1="30" y1="-10" x2="30" y2="-36" stroke="#fff" strokeWidth="1.2"/>
+      <polygon points="30,-36 46,-32 30,-28" fill="#ffd05a"/>
     </g>
-    <g transform="translate(300,270)">
-      <rect x="0" y="30" width="80" height="80" fill="#5a5a6a" stroke="#2a2a3a" strokeWidth="2"/>
-      <rect x="5" y="15" width="10" height="15" fill="#5a5a6a"/>
-      <rect x="25" y="15" width="10" height="15" fill="#5a5a6a"/>
-      <rect x="45" y="15" width="10" height="15" fill="#5a5a6a"/>
-      <rect x="65" y="15" width="10" height="15" fill="#5a5a6a"/>
-      <rect x="30" y="60" width="20" height="30" fill="#0a0604"/>
+    {/* Enemy base on the right */}
+    <g transform="translate(312,300)">
+      <rect x="0" y="0" width="60" height="80" fill="#15171b" stroke="#0a0604" strokeWidth="1.5"/>
+      <rect x="0" y="-3" width="60" height="3" fill="#ff4d6d"/>
+      {[0,1,2].map((k) => <rect key={k} x={k*20+2} y="-10" width="8" height="6" fill="#1f2329"/>)}
+      <rect x="22" y="20" width="16" height="60" fill="#ff4d6d"/>
+      <line x1="30" y1="-10" x2="30" y2="-36" stroke="#fff" strokeWidth="1.2"/>
+      <polygon points="30,-36 14,-32 30,-28" fill="#ff4d6d"/>
     </g>
+    {/* Lane figures */}
     <g fill="#0a0604">
-      <g transform="translate(110,340)">
-        <circle cx="8" cy="0" r="7"/><rect x="4" y="7" width="8" height="18"/>
-        <line x1="6" y1="14" x2="-6" y2="10" stroke="#0a0604" strokeWidth="5" strokeLinecap="round"/>
-        <line x1="-8" y1="4" x2="-16" y2="-10" stroke="#6b3a1a" strokeWidth="3" strokeLinecap="round"/>
-        <circle cx="-16" cy="-12" r="6" fill="#6b3a1a"/>
+      <g transform="translate(120,340)">
+        <circle cx="8" cy="0" r="7"/>
+        <rect x="4" y="7" width="8" height="18"/>
+        <line x1="14" y1="-2" x2="26" y2="-12" stroke="#ffd05a" strokeWidth="2.5"/>
+        <polygon points="26,-12 32,-14 30,-7" fill="#ffd05a"/>
       </g>
-      <g transform="translate(240,340)">
-        <circle cx="8" cy="0" r="7" fill="#c0c0c0"/>
-        <rect x="4" y="7" width="8" height="18" fill="#6a6a7a"/>
-        <line x1="14" y1="-6" x2="26" y2="-22" stroke="#c0c0c0" strokeWidth="3"/>
-        <polygon points="26,-22 30,-30 34,-22" fill="#c0c0c0"/>
+      <g transform="translate(250,340)">
+        <circle cx="8" cy="0" r="7" fill="#3a4858"/>
+        <rect x="4" y="7" width="8" height="18" fill="#3a4858"/>
+        <line x1="2" y1="-2" x2="-12" y2="-12" stroke="#bef3ff" strokeWidth="2.5"/>
       </g>
     </g>
-    <text x="200" y="450" textAnchor="middle" fontFamily="monospace" fontSize="12" fill="#ffe14f" letterSpacing="2">— ERA II —</text>
+    <text x="200" y="450" textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="13" fill="#ffe14f" letterSpacing="3">ERA SIEGE</text>
+    <text x="200" y="468" textAnchor="middle" fontFamily="'Inter', sans-serif" fontSize="10" fill="#fff" opacity="0.55" letterSpacing="2">FIVE ERAS · ONE LANE</text>
     <Grain/>
   </svg>
 );

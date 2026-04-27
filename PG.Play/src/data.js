@@ -47,11 +47,11 @@ export const GAMES = [
     mobileSupport:'touch-ok', inputs:['keyboard','touch'], orientation:'landscape',
     skillTags:['spatial','planning','reflex'], sessionLength:'short' },
 
-  { id:'aow', name:'Era Lane', cat:'Strategy', kind:'story', players:'1P', levels:5,
-    tagline:'Five eras. One lane. One base you can\'t afford to lose.',
-    story:'A single lane, your base on the left, theirs on the right. Gold grows on a clock; units cost gold and cooldown. Scouts are cheap and fast; Spears hit harder; Heavies punch through a wall of them. Every thirty seconds the enemy escalates. Destroy their base before they destroy yours.',
-    playable:true, badge:'new',
-    mobileSupport:'native', inputs:['mouse','tap'], orientation:'landscape',
+  { id:'aow', name:'Era Siege', cat:'Strategy', kind:'story', players:'1P', levels:5,
+    tagline:'Five eras of warfare. One lane. One base you can\'t afford to lose.',
+    story:'A single lane across the long arc of history. Spawn units, build turrets, save XP for the era-up. Five originals — Ember Tribe, Iron Dominion, Sun Foundry, Storm Republic, Void Ascendancy — each with their own roster, turret, and special. Three difficulties. Skirmish to learn the loop, Conquest when you want the AI to bite back.',
+    playable:true, badge:'new', updated:true,
+    mobileSupport:'native', inputs:['mouse','tap','keyboard'], orientation:'landscape',
     skillTags:['planning','resource-mgmt'], sessionLength:'medium', isOriginal:true },
 
   { id:'vex', name:'Trace', cat:'Platformer', kind:'story', players:'1P', levels:6,

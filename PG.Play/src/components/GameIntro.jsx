@@ -60,6 +60,11 @@ const MODE_OPTIONS = {
     { id: 'arcade',   label: 'Enter Goalbound',  tone: 'primary' },
     { id: 'shootout', label: 'Penalty Shootout', tone: 'ghost' },
   ],
+  aow: () => [
+    { id: 'standard', label: 'Standard',  tone: 'primary' },
+    { id: 'skirmish', label: 'Skirmish',  tone: 'ghost' },
+    { id: 'conquest', label: 'Conquest',  tone: 'ghost' },
+  ],
   _vsDefault: (game) => [
     { id: '2p',  label: game.players.includes('1-8') ? 'Join arena' : '2 Player', tone: 'primary' },
     ...(game.players.includes('1-8') ? [] : [{ id: 'bot', label: 'vs Bot', tone: 'ghost' }]),

@@ -100,7 +100,7 @@ function distToPath(px, py) {
 export default function LoftDefenseGame() {
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
-  const viewRef = useRef({ cssW: W, cssH: H });
+  const viewRef = useRef({ cssW: W, cssH: H, scale: 1, offX: 0, offY: 0 });
   const stateRef = useRef(null);
   const [hud, setHud] = useState({
     lives: START_LIVES,
@@ -139,22 +139,27 @@ export default function LoftDefenseGame() {
     if (!canvas || !wrap) return;
     const ctx = canvas.getContext('2d');
 
-    // Fluid sizer — record the css size so draw can center the fixed
-    // 800×500 playfield inside the available canvas. The path is fixed
-    // in playfield coords; we just recenter where it lives on screen.
+    // Fluid sizer — uniform scale-to-fit so the 800×500 playfield never
+    // clips off-screen on short widescreen viewports.
     const dispose = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
-      viewRef.current = { cssW, cssH };
+      const scaleW = cssW / W;
+      const scaleH = cssH / H;
+      const scale = Math.max(0.5, Math.min(scaleW, scaleH, 1.6));
+      const dispW = W * scale;
+      const dispH = H * scale;
+      const offX = (cssW - dispW) / 2;
+      const offY = (cssH - dispH) / 2;
+      viewRef.current = { cssW, cssH, scale, offX, offY };
     });
 
     const rectOf = () => canvas.getBoundingClientRect();
     const toLocal = (cx, cy) => {
-      // Canvas fills the parent (style 100%/100%) so the bounding rect IS
-      // the displayed size. Subtract the centered playfield offset so the
-      // pointer lands in 800×500 path coords.
       const r = rectOf();
-      const offX = (r.width  - W) / 2;
-      const offY = (r.height - H) / 2;
-      return { x: (cx - r.left) - offX, y: (cy - r.top) - offY };
+      const { scale, offX, offY } = viewRef.current;
+      return {
+        x: ((cx - r.left) - offX) / scale,
+        y: ((cy - r.top)  - offY) / scale,
+      };
     };
 
     const onTap = (x, y) => {
@@ -338,11 +343,11 @@ export default function LoftDefenseGame() {
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, cssW, cssH);
 
-      // Center the fixed 800×500 playfield inside the canvas.
-      const offX = (cssW - W) / 2;
-      const offY = (cssH - H) / 2;
+      // Centered + uniform-scaled 800×500 playfield.
+      const { scale, offX, offY } = viewRef.current;
       ctx.save();
       ctx.translate(offX, offY);
+      ctx.scale(scale, scale);
 
       // grass background
       const grad = ctx.createLinearGradient(0, 0, 0, H);

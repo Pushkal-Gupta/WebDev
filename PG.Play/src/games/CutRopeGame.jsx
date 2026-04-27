@@ -22,7 +22,10 @@ const OMNOM_Y = FLOOR - 18;
 export default function CutRopeGame() {
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
-  const viewRef = useRef({ cssW: W, cssH: H });
+  // Uniform scale-to-fit: the level is authored at 620×440 and rendered
+  // centred inside the available canvas with the largest scale that fits
+  // both axes, capped at 1.6× so 4K screens don't get a giant level.
+  const viewRef = useRef({ cssW: W, cssH: H, scale: 1, offX: 0, offY: 0 });
   const stateRef = useRef(null);
   const [levelIdx, setLevelIdx] = useState(0);
   const [stars, setStars] = useState(0);
@@ -54,7 +57,17 @@ export default function CutRopeGame() {
     // 620×440 level inside the available canvas. Pendulum physics keeps
     // running in the original 620×440 coord space.
     const dispose = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
-      viewRef.current = { cssW, cssH };
+      // Scale uniformly so the entire 620×440 level fits no matter the
+      // canvas aspect. Cap at 1.6× to keep things from getting comical
+      // on 4K. Centre the resulting playfield.
+      const scaleW = cssW / W;
+      const scaleH = cssH / H;
+      const scale = Math.max(0.5, Math.min(scaleW, scaleH, 1.6));
+      const dispW = W * scale;
+      const dispH = H * scale;
+      const offX = (cssW - dispW) / 2;
+      const offY = (cssH - dispH) / 2;
+      viewRef.current = { cssW, cssH, scale, offX, offY };
     });
 
     const draw = () => {
@@ -72,11 +85,12 @@ export default function CutRopeGame() {
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, cssW, cssH);
 
-      // Center the fixed 620×440 level inside the canvas.
-      const offX = (cssW - W) / 2;
-      const offY = (cssH - H) / 2;
+      // Centre + uniformly scale the level. Everything inside this save
+      // block draws in the original 620×440 coord space.
+      const { scale, offX, offY } = viewRef.current;
       ctx.save();
       ctx.translate(offX, offY);
+      ctx.scale(scale, scale);
 
       // sky
       const grad = ctx.createLinearGradient(0, 0, 0, H);
@@ -216,13 +230,12 @@ export default function CutRopeGame() {
     const s = stateRef.current;
     if (!s || !s.rope || status !== 'playing') return;
     const r = rectOf();
-    // Canvas now fills its parent (style 100%/100%). The level is rendered
-    // centered inside it, so subtract the center offset so the click lands
-    // in level coords.
-    const offX = (r.width  - W) / 2;
-    const offY = (r.height - H) / 2;
-    const x = (clientX - r.left) - offX;
-    const y = (clientY - r.top)  - offY;
+    // Reverse the same translate + scale the draw applies, so the click
+    // lands in original 620×440 level coords. r.width/height are the
+    // canvas's CSS size (style 100%/100% × parent.clientWidth).
+    const { scale, offX, offY } = viewRef.current;
+    const x = ((clientX - r.left) - offX) / scale;
+    const y = ((clientY - r.top)  - offY) / scale;
     const L = LEVELS[levelIdx];
     // Distance from click to rope segment.
     const d = distToSegment(x, y, L.pin[0], L.pin[1], s.candy.x, s.candy.y);
