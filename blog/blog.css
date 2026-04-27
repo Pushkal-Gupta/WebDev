@@ -145,7 +145,7 @@ header {
   font-family: var(--serif);
   font-style: italic;
   color: var(--text-dim);
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   margin: 1.5rem 0 2rem;
 }
 /* --- Content Section --- */
@@ -175,13 +175,13 @@ header {
 
 .post-date {
   font-family: var(--mono);
-  font-size: 0.95rem;
+  font-size: 1rem;
   color: var(--text-dim);
 }
 
 .post-title {
   font-family: var(--serif);
-  font-size: 1.45rem;
+  font-size: 1.55rem;
   color: var(--text-main);
   transition: color var(--t);
 }
@@ -200,11 +200,10 @@ header {
 #p-content {
   position: relative;
   width: 100%;
-  height: calc(100vh - (4rem + env(safe-area-inset-top)));
+  min-height: calc(100vh - (4rem + env(safe-area-inset-top)));
 }
 iframe {
   width: 100%;
-  height: 100%;
   border: none;
   display: block;
 }
