@@ -33,7 +33,7 @@ const HOOP = {
 export default function HoopShotGame() {
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
-  const viewRef = useRef({ cssW: W, cssH: H });
+  const viewRef = useRef({ cssW: W, cssH: H, scale: 1, offX: 0, offY: 0 });
   const stateRef = useRef(null);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
@@ -69,21 +69,27 @@ export default function HoopShotGame() {
     if (!canvas || !wrap) return;
     const ctx = canvas.getContext('2d');
 
-    // Fluid sizer — record the css size so draw can center the fixed
-    // 720×460 court inside the available canvas.
+    // Fluid sizer — uniform scale-to-fit so the 720×460 court never
+    // clips off-screen on short widescreen viewports.
     const dispose = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
-      viewRef.current = { cssW, cssH };
+      const scaleW = cssW / W;
+      const scaleH = cssH / H;
+      const scale = Math.max(0.5, Math.min(scaleW, scaleH, 1.6));
+      const dispW = W * scale;
+      const dispH = H * scale;
+      const offX = (cssW - dispW) / 2;
+      const offY = (cssH - dispH) / 2;
+      viewRef.current = { cssW, cssH, scale, offX, offY };
     });
 
     const rectOf = () => canvas.getBoundingClientRect();
     const toLocal = (cx, cy) => {
-      // Canvas fills the parent (style 100%/100%) — bounding rect IS the
-      // displayed size. Subtract the centered playfield offset so the
-      // pointer lands in 720×460 court coords.
       const r = rectOf();
-      const offX = (r.width  - W) / 2;
-      const offY = (r.height - H) / 2;
-      return { x: (cx - r.left) - offX, y: (cy - r.top) - offY };
+      const { scale, offX, offY } = viewRef.current;
+      return {
+        x: ((cx - r.left) - offX) / scale,
+        y: ((cy - r.top)  - offY) / scale,
+      };
     };
 
     const beginDraw = (x, y) => {
@@ -161,11 +167,11 @@ export default function HoopShotGame() {
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, cssW, cssH);
 
-      // Center the fixed 720×460 court inside the canvas.
-      const offX = (cssW - W) / 2;
-      const offY = (cssH - H) / 2;
+      // Centered + uniform-scaled 720×460 court.
+      const { scale, offX, offY } = viewRef.current;
       ctx.save();
       ctx.translate(offX, offY);
+      ctx.scale(scale, scale);
 
       // backdrop
       const grad = ctx.createLinearGradient(0, 0, 0, H);

@@ -15,7 +15,7 @@
 // Bump VERSION on every release that changes static asset shapes.
 // Old caches are purged in the activate step, so stale chunks can't
 // stick around and serve a half-broken SPA after a deploy.
-const VERSION = 'pgplay-v3-2026-04-25-2';
+const VERSION = 'pgplay-v3-2026-04-27-1';
 const CORE = [
   '/PG.Play/',
   '/PG.Play/index.html',

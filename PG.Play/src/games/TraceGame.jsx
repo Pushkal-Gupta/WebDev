@@ -178,7 +178,7 @@ function parseRoom(idx) {
 export default function TraceGame() {
   const canvasRef = useRef(null);
   const wrapRef   = useRef(null);
-  const viewRef   = useRef({ cssW: W, cssH: H });
+  const viewRef   = useRef({ cssW: W, cssH: H, scale: 1, offX: 0, offY: 0 });
   const stateRef  = useRef(null);
   const submittedRef = useRef(false);
   const [roomIdx, setRoomIdx] = useState(0);
@@ -218,11 +218,17 @@ export default function TraceGame() {
     if (!canvas || !wrap) return;
     const ctx = canvas.getContext('2d');
 
-    // Fluid sizer — record the css size so draw can center the fixed
-    // 800×500 room inside the available canvas area. Rooms are
-    // hand-authored at native size so we never stretch them.
+    // Fluid sizer — uniform scale-to-fit so the 800×500 room never
+    // clips off-screen on short widescreen viewports.
     const dispose = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
-      viewRef.current = { cssW, cssH };
+      const scaleW = cssW / W;
+      const scaleH = cssH / H;
+      const scale = Math.max(0.5, Math.min(scaleW, scaleH, 1.6));
+      const dispW = W * scale;
+      const dispH = H * scale;
+      const offX = (cssW - dispW) / 2;
+      const offY = (cssH - dispH) / 2;
+      viewRef.current = { cssW, cssH, scale, offX, offY };
     });
 
     const keys = {};
@@ -293,11 +299,11 @@ export default function TraceGame() {
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, cssW, cssH);
 
-      // Center the fixed 800×500 room inside the canvas.
-      const offX = (cssW - W) / 2;
-      const offY = (cssH - H) / 2;
+      // Centered + uniform-scaled 800×500 room.
+      const { scale, offX, offY } = viewRef.current;
       ctx.save();
       ctx.translate(offX, offY);
+      ctx.scale(scale, scale);
 
       // background gradient — soft paper → slate
       const grad = ctx.createLinearGradient(0, 0, 0, H);

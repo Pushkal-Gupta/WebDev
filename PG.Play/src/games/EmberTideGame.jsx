@@ -156,7 +156,7 @@ const overlap = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h 
 export default function EmberTideGame() {
   const canvasRef = useRef(null);
   const wrapRef   = useRef(null);
-  const viewRef   = useRef({ cssW: W, cssH: H, offX: 0, offY: 0 });
+  const viewRef   = useRef({ cssW: W, cssH: H, scale: 1, offX: 0, offY: 0, dispW: W, dispH: H });
   const stateRef  = useRef(null);
   const submittedRef = useRef(false);
   const [levelIdx, setLevelIdx] = useState(0);
@@ -193,15 +193,23 @@ export default function EmberTideGame() {
     if (!canvas || !wrap) return;
     const ctx = canvas.getContext('2d');
 
-    // Fluid sizer: canvas buffer follows the parent box. The level itself
-    // stays at native W × H; the draw routine reads viewRef to know the
-    // current canvas dims + the centering offset.
+    // Fluid sizer: canvas buffer follows the parent box. We uniform-scale
+    // the W × H level to fit, so it never clips off-screen on short
+    // widescreen viewports.
     const dispose = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
+      const scaleW = cssW / W;
+      const scaleH = cssH / H;
+      const scale = Math.max(0.5, Math.min(scaleW, scaleH, 1.6));
+      const dispW = W * scale;
+      const dispH = H * scale;
       viewRef.current = {
         cssW,
         cssH,
-        offX: Math.floor((cssW - W) / 2),
-        offY: Math.floor((cssH - H) / 2),
+        scale,
+        dispW,
+        dispH,
+        offX: Math.floor((cssW - dispW) / 2),
+        offY: Math.floor((cssH - dispH) / 2),
       };
     });
 
@@ -464,7 +472,7 @@ function kill(s, who) {
 
 function draw(ctx, s, gemsGot, gemsTotal, view) {
   const { level } = s;
-  const { cssW, cssH, offX, offY } = view;
+  const { cssW, cssH, offX, offY, scale, dispW, dispH } = view;
 
   // Full-canvas dusk gradient — runs the whole height so the side / top
   // margins on a fluid viewport blend with the level instead of leaving
@@ -480,9 +488,10 @@ function draw(ctx, s, gemsGot, gemsTotal, view) {
   // tracks the level's right edge regardless of viewport size.
   ctx.save();
   ctx.beginPath();
-  ctx.rect(offX, offY, W, H);
+  ctx.rect(offX, offY, dispW, dispH);
   ctx.clip();
   ctx.translate(offX, offY);
+  ctx.scale(scale, scale);
 
   // Level-local backdrop (slightly darker so the playfield reads as its
   // own panel inside the dusk wash).

@@ -66,7 +66,7 @@ export default function NightShiftGame() {
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
   const stateRef  = useRef(null);
-  const viewRef = useRef({ cssW: W, cssH: H }); // fluid render dimensions
+  const viewRef = useRef({ cssW: W, cssH: H, scale: 1, offX: 0, offY: 0 }); // fluid render dimensions
   const submittedRef = useRef(false);
   const [level, setLevel]     = useState(0);
   const [caught, setCaught]   = useState(0);
@@ -100,10 +100,17 @@ export default function NightShiftGame() {
     if (!canvas || !wrap) return;
     const ctx = canvas.getContext('2d');
 
-    // Fluid sizer — record the css size so draw can center the scene
-    // inside it. The scene itself is always drawn at W × H.
+    // Fluid sizer — uniform scale-to-fit so the 840×460 corridor never
+    // clips off-screen on short widescreen viewports.
     const dispose = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
-      viewRef.current = { cssW, cssH };
+      const scaleW = cssW / W;
+      const scaleH = cssH / H;
+      const scale = Math.max(0.5, Math.min(scaleW, scaleH, 1.6));
+      const dispW = W * scale;
+      const dispH = H * scale;
+      const offX = (cssW - dispW) / 2;
+      const offY = (cssH - dispH) / 2;
+      viewRef.current = { cssW, cssH, scale, offX, offY };
     });
 
     const keys = {};
@@ -162,11 +169,11 @@ export default function NightShiftGame() {
       ctx.fillStyle = '#0a0e16';
       ctx.fillRect(0, 0, cssW, cssH);
 
-      // Center the fixed-size scene inside the canvas
-      const offX = (cssW - W) / 2;
-      const offY = (cssH - H) / 2;
+      // Centered + uniform-scaled scene.
+      const { scale, offX, offY } = viewRef.current;
       ctx.save();
       ctx.translate(offX, offY);
+      ctx.scale(scale, scale);
 
       // Backdrop — dim corridor
       const grad = ctx.createLinearGradient(0, 0, 0, H);
