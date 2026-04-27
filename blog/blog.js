@@ -75,13 +75,11 @@ function toggleTheme() {
 
   if (!currentActivePost) return;
   const ifr = document.getElementById("reader-frame");
-  if (!ifr || !ifr.contentWindow) return;
+  const pv = document.getElementById("post-view");
+  if (!ifr || !pv) return;
 
-  const doc = ifr.contentDocument || ifr.contentWindow.document;
-  const scrollPos = ifr.contentWindow.pageYOffset;
-  const maxScroll =
-    doc.documentElement.scrollHeight - ifr.contentWindow.innerHeight;
-  const scrollPercent = maxScroll > 0 ? scrollPos / maxScroll : 0;
+  const maxScroll = pv.scrollHeight - pv.clientHeight;
+  const scrollPercent = maxScroll > 0 ? pv.scrollTop / maxScroll : 0;
 
   const loader = document.getElementById("loader");
   if (loader) loader.classList.remove("hidden");
@@ -94,10 +92,12 @@ function toggleTheme() {
   ifr.onload = () => {
     if (loader) loader.classList.add("hidden");
     widenReaderContent();
-    const newDoc = ifr.contentDocument || ifr.contentWindow.document;
-    const newMax =
-      newDoc.documentElement.scrollHeight - ifr.contentWindow.innerHeight;
-    ifr.contentWindow.scrollTo(0, scrollPercent * newMax);
+    resizeReaderFrame();
+    forwardIframeScroll();
+    requestAnimationFrame(() => {
+      const newMax = pv.scrollHeight - pv.clientHeight;
+      pv.scrollTop = scrollPercent * newMax;
+    });
     attachScrollSaver(currentActivePost.id);
   };
 }
@@ -120,46 +120,106 @@ function widenReaderContent() {
   doc.head.appendChild(style);
 }
 
+// ─── Unified scroll (article + comments share #post-view's scroll) ───────────
+// We size the iframe to its content height so it has no internal scrollbar,
+// then forward wheel events from the iframe document up to #post-view. Without
+// this, scrolling over the article only moved the iframe and left the comments
+// section visible underneath when scrolling back up.
+
+function resizeReaderFrame() {
+  const ifr = document.getElementById("reader-frame");
+  if (!ifr || !ifr.contentDocument) return;
+  const doc = ifr.contentDocument;
+  const h = Math.max(
+    doc.documentElement.scrollHeight,
+    doc.body ? doc.body.scrollHeight : 0,
+  );
+  if (h > 0) ifr.style.height = h + "px";
+}
+
+function forwardIframeScroll() {
+  const ifr = document.getElementById("reader-frame");
+  const pv = document.getElementById("post-view");
+  if (!ifr || !ifr.contentDocument || !pv) return;
+  const idoc = ifr.contentDocument;
+  if (idoc.__pgForwarded) return;
+  idoc.__pgForwarded = true;
+
+  idoc.addEventListener(
+    "wheel",
+    (e) => {
+      pv.scrollBy({ top: e.deltaY, left: e.deltaX, behavior: "auto" });
+      e.preventDefault();
+    },
+    { passive: false },
+  );
+
+  let lastY = 0;
+  idoc.addEventListener(
+    "touchstart",
+    (e) => {
+      lastY = e.touches[0].clientY;
+    },
+    { passive: true },
+  );
+  idoc.addEventListener(
+    "touchmove",
+    (e) => {
+      const y = e.touches[0].clientY;
+      pv.scrollBy(0, lastY - y);
+      lastY = y;
+    },
+    { passive: true },
+  );
+
+  if (window.ResizeObserver && idoc.body) {
+    const ro = new ResizeObserver(resizeReaderFrame);
+    ro.observe(idoc.body);
+  }
+}
+
 // ─── Scroll persistence ───────────────────────────────────────────────────────
 
 function attachScrollSaver(postId) {
-  const ifr = document.getElementById("reader-frame");
-  if (!ifr || !ifr.contentWindow) return;
-  try {
-    ifr.contentWindow.addEventListener(
-      "scroll",
-      () => {
-        clearTimeout(scrollSaveTimer);
-        scrollSaveTimer = setTimeout(() => {
-          const doc = ifr.contentDocument || ifr.contentWindow.document;
-          const scrollPos = ifr.contentWindow.pageYOffset;
-          const maxScroll =
-            doc.documentElement.scrollHeight - ifr.contentWindow.innerHeight;
-          const pct = maxScroll > 0 ? scrollPos / maxScroll : 0;
-          localStorage.setItem("scroll_" + postId, pct);
-        }, 200);
-      },
-      { passive: true },
-    );
-  } catch (_) {
-    // cross-origin guard
-  }
+  const pv = document.getElementById("post-view");
+  if (!pv) return;
+  pv.__pgScrollPostId = postId;
+  if (pv.__pgScrollAttached) return;
+  pv.__pgScrollAttached = true;
+  pv.addEventListener(
+    "scroll",
+    () => {
+      clearTimeout(scrollSaveTimer);
+      scrollSaveTimer = setTimeout(() => {
+        const id = pv.__pgScrollPostId;
+        if (!id) return;
+        const max = pv.scrollHeight - pv.clientHeight;
+        const pct = max > 0 ? pv.scrollTop / max : 0;
+        localStorage.setItem("scroll_" + id, pct);
+      }, 200);
+    },
+    { passive: true },
+  );
 }
 
 function onIframeLoad(postId) {
   const loader = document.getElementById("loader");
   if (loader) loader.classList.add("hidden");
   widenReaderContent();
+  resizeReaderFrame();
+  forwardIframeScroll();
 
   const saved = localStorage.getItem("scroll_" + postId);
-  if (saved !== null) {
-    const ifr = document.getElementById("reader-frame");
-    if (ifr && ifr.contentWindow) {
-      const doc = ifr.contentDocument || ifr.contentWindow.document;
-      const maxScroll =
-        doc.documentElement.scrollHeight - ifr.contentWindow.innerHeight;
-      ifr.contentWindow.scrollTo(0, parseFloat(saved) * maxScroll);
-    }
+  const pv = document.getElementById("post-view");
+  if (pv) {
+    requestAnimationFrame(() => {
+      if (saved !== null) {
+        const max = pv.scrollHeight - pv.clientHeight;
+        pv.scrollTop = parseFloat(saved) * max;
+      } else {
+        pv.scrollTop = 0;
+      }
+    });
   }
   attachScrollSaver(postId);
 }
