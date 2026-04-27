@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Body — slightly squashed (wider, shorter) -->
+  <path d="M 64 40 C 92 40 102 60 102 78 C 102 100 84 114 64 114 C 44 114 26 100 26 78 C 26 60 36 40 64 40 Z"
+        fill="#ff4d6d" stroke="#0a0d0e" stroke-width="4" stroke-linejoin="round"/>
+  <ellipse cx="48" cy="62" rx="10" ry="8" fill="#ff7b96" opacity="0.85"/>
+  <ellipse cx="50" cy="80" rx="2" ry="3" fill="#fff" stroke="#0a0d0e" stroke-width="0.8"/>
+  <ellipse cx="78" cy="76" rx="2" ry="3" fill="#fff" stroke="#0a0d0e" stroke-width="0.8"/>
+  <ellipse cx="64" cy="94" rx="2" ry="3" fill="#fff" stroke="#0a0d0e" stroke-width="0.8"/>
+  <ellipse cx="84" cy="98" rx="2" ry="3" fill="#fff" stroke="#0a0d0e" stroke-width="0.8"/>
+  <ellipse cx="44" cy="100" rx="2" ry="3" fill="#fff" stroke="#0a0d0e" stroke-width="0.8"/>
+  <!-- Crown -->
+  <path d="M 36 42 L 48 26 L 56 40 L 64 22 L 72 40 L 80 26 L 92 42 Z"
+        fill="#2d7a2a" stroke="#0a0d0e" stroke-width="4" stroke-linejoin="round"/>
+  <!-- Wider eyes (alert / wide-open) -->
+  <path d="M 42 54 L 60 60" stroke="#0a0d0e" stroke-width="3.6" stroke-linecap="round"/>
+  <path d="M 86 54 L 68 60" stroke="#0a0d0e" stroke-width="3.6" stroke-linecap="round"/>
+  <circle cx="52" cy="70" r="7" fill="#fff" stroke="#0a0d0e" stroke-width="2"/>
+  <circle cx="76" cy="70" r="7" fill="#fff" stroke="#0a0d0e" stroke-width="2"/>
+  <circle cx="53" cy="71" r="3" fill="#0a0d0e"/>
+  <circle cx="77" cy="71" r="3" fill="#0a0d0e"/>
+  <!-- Open frown (gritted) -->
+  <path d="M 52 88 Q 64 82 76 88" stroke="#0a0d0e" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M 56 86 L 60 90 M 64 86 L 64 90 M 68 86 L 72 90"
+        stroke="#0a0d0e" stroke-width="1.6" stroke-linecap="round"/>
+</svg>

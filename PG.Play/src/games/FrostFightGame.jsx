@@ -30,6 +30,48 @@ import Hud from './frost-fight/ui/Hud.jsx';
 import BottomRail from './frost-fight/ui/BottomRail.jsx';
 import { LevelIntro, LevelClearChip, WinCard } from './frost-fight/ui/Overlay.jsx';
 import { useIsMobile } from '../input/useVirtualControls.jsx';
+import { spawnFx, tickFx, drawFx, spawnFloater } from './frost-fight/fx.js';
+// Sprite atlas — Vite resolves these to bundled URLs honoring base path.
+// Loaded as Image() once on mount; the loop falls back to procedural
+// drawing if any sprite hasn't decoded yet (or fails entirely).
+// Painted PNGs sourced from the user's art sheets (see
+// scripts/frost-fight-process-art.mjs). The hand-authored SVGs in the
+// same folder remain as a fallback layer — the `complete &&
+// naturalWidth > 0` gate in the draw loop handles either format.
+import playerSpriteUrl     from './frost-fight/sprites/player.png?url';
+import strawberrySpriteUrl from './frost-fight/sprites/strawberry.png?url';
+import blueberrySpriteUrl  from './frost-fight/sprites/blueberry.png?url';
+import fruitSpriteUrl      from './frost-fight/sprites/fruit.png?url';
+import iceSpriteUrl        from './frost-fight/sprites/ice.png?url';
+import exitSpriteUrl       from './frost-fight/sprites/exit.png?url';
+import strawberryWindupUrl from './frost-fight/sprites/strawberry-windup.png?url';
+import blueberryWindupUrl  from './frost-fight/sprites/blueberry-windup.png?url';
+import orangeSpriteUrl     from './frost-fight/sprites/orange.png?url';
+import coverUrl            from './frost-fight/sprites/cover.webp?url';
+
+// Per-room wall textures — Vite's glob-import so they're auto-discovered
+// the moment the user drops a PNG into sprites/walls/. Keys are derived
+// from the filename (e.g. `pantry.png` → 'pantry'). The draw loop falls
+// back to a solid wall fill when a key isn't present.
+const WALL_MODULES = import.meta.glob('./frost-fight/sprites/walls/*.png', {
+  eager: true,
+  import: 'default',
+  query: '?url',
+});
+const WALL_TEXTURES = {};
+for (const [pathKey, url] of Object.entries(WALL_MODULES)) {
+  const m = pathKey.match(/walls\/([\w-]+)\.png$/);
+  if (m) WALL_TEXTURES[m[1]] = url;
+}
+// Maps room name → expected texture filename stem.
+const ROOM_WALL_KEY = {
+  'Pantry':       'pantry',
+  'Cold Room':    'coldroom',
+  'The Aisle':    'aisle',
+  'Walk-In':      'walkin',
+  'Loading Dock': 'loadingdock',
+  'Sub-Basement': 'sub-basement',
+};
 
 const BEST_LS_KEY = 'pgplay-ff-best';
 function readBest() {
@@ -78,9 +120,12 @@ const DPR_CAP     = 2;
 //   halo                — DOM cyan halo behind the board (rgba)
 //   frame               — outer board-frame drop-shadow tint
 const PALETTE = {
-  Pantry:     { floorTop: '#bfe6f5', floorBot: '#7ab7d0', halo: 'rgba(108, 208, 240, 0.12)', frame: 'rgba(108, 208, 240, 0.12)' },
-  'Cold Room':{ floorTop: '#c9e4ee', floorBot: '#6ea6c2', halo: 'rgba(140, 200, 230, 0.13)', frame: 'rgba(140, 200, 230, 0.13)' },
-  'The Aisle':{ floorTop: '#d0d8e8', floorBot: '#7790a8', halo: 'rgba(180, 200, 230, 0.14)', frame: 'rgba(170, 195, 225, 0.14)' },
+  Pantry:        { floorTop: '#bfe6f5', floorBot: '#7ab7d0', halo: 'rgba(108, 208, 240, 0.12)', frame: 'rgba(108, 208, 240, 0.12)' },
+  'Cold Room':   { floorTop: '#c9e4ee', floorBot: '#6ea6c2', halo: 'rgba(140, 200, 230, 0.13)', frame: 'rgba(140, 200, 230, 0.13)' },
+  'The Aisle':   { floorTop: '#d0d8e8', floorBot: '#7790a8', halo: 'rgba(180, 200, 230, 0.14)', frame: 'rgba(170, 195, 225, 0.14)' },
+  'Walk-In':     { floorTop: '#bfd6e8', floorBot: '#5e8aaa', halo: 'rgba(120, 180, 220, 0.13)', frame: 'rgba(120, 180, 220, 0.14)' },
+  'Loading Dock':{ floorTop: '#cdd4dd', floorBot: '#7282a0', halo: 'rgba(170, 190, 215, 0.12)', frame: 'rgba(170, 190, 215, 0.13)' },
+  'Sub-Basement':{ floorTop: '#a8b8c8', floorBot: '#3e5673', halo: 'rgba(95, 140, 200, 0.16)',  frame: 'rgba(95, 140, 200, 0.18)' },
 };
 const DEFAULT_PALETTE = PALETTE.Pantry;
 
@@ -142,6 +187,63 @@ const LEVELS = [
       '######################',
     ],
   },
+  {
+    name: 'Walk-In',
+    tip: 'Pre-cut ice cubes work for you — once. Save the melt for when it counts.',
+    grid: [
+      '######################',
+      '#p..f.....I......f...#',
+      '#.####..####..####...#',
+      '#....................#',
+      '#.f..#....s....#.....#',
+      '#....#.........#.f...#',
+      '#....######.####.....#',
+      '#........f...........#',
+      '#.####..####..####...#',
+      '#......b.............#',
+      '#............f.....X.#',
+      '#....I...........I...#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Loading Dock',
+    tip: 'Open floor, no walls to hide behind. Build your own.',
+    grid: [
+      '######################',
+      '#p...f........f...f..#',
+      '#....................#',
+      '#..####........####..#',
+      '#.b..............b...#',
+      '#....................#',
+      '#......##....##......#',
+      '#....................#',
+      '#..####........####..#',
+      '#.s..............s...#',
+      '#....................#',
+      '#.....f.........f...X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Sub-Basement',
+    tip: 'Last room. An orange runs medium-fast — read its tells.',
+    grid: [
+      '######################',
+      '#p..#......f.....#...#',
+      '#...#.####....####...#',
+      '#.f.#.#......#.....#.#',
+      '#...#.#..s...#..f..#.#',
+      '#...#.#######........#',
+      '#......o...I.....b...#',
+      '#........#######.....#',
+      '#.#..f...#.....#..f..#',
+      '#.#......#######.....#',
+      '#.#.####....####.....#',
+      '#.f.................X#',
+      '######################',
+    ],
+  },
 ];
 
 function parseLevel(idx) {
@@ -164,6 +266,7 @@ function parseLevel(idx) {
       else if (ch === 'f') fruits.push({ col: c, row: r });
       else if (ch === 's') enemies.push({ col: c, row: r, kind: 'strawberry' });
       else if (ch === 'b') enemies.push({ col: c, row: r, kind: 'blueberry' });
+      else if (ch === 'o') enemies.push({ col: c, row: r, kind: 'orange' });
     }
   }
   return { walls, wallSet, ice, fruits, enemies, spawn, exit, tip: LEVELS[idx].tip, name: LEVELS[idx].name };
@@ -174,7 +277,10 @@ const isIce      = (level, c, r) => level.ice.has(`${c},${r}`);
 const inBounds   = (c, r) => c >= 0 && r >= 0 && c < COLS && r < ROWS;
 const isPassable = (level, c, r) => inBounds(c, r) && !isWall(level, c, r) && !isIce(level, c, r);
 
-const ENEMY_INTERVAL = { strawberry: 1.0, blueberry: 0.7 };
+// Per-kind step interval (seconds between move decisions). Orange sits
+// between strawberry and blueberry — meaningful pacing variety without a
+// new AI branch.
+const ENEMY_INTERVAL = { strawberry: 1.0, blueberry: 0.7, orange: 0.85 };
 
 export default function FrostFightGame() {
   const canvasRef = useRef(null);
@@ -183,6 +289,20 @@ export default function FrostFightGame() {
   const viewRef = useRef({ cssW: W, cssH: H, scale: 1, offX: 0, offY: 0 });
   const submittedRef = useRef(false);
   const tipResolvedRef = useRef('');
+  // Preloaded sprite atlas. Each entry stays null until the Image
+  // decodes; the draw loop falls back to procedural shapes meanwhile.
+  const spritesRef = useRef({
+    player: null,
+    strawberry: null, blueberry: null, orange: null,
+    strawberryWind: null, blueberryWind: null,
+    fruit: null, ice: null, exit: null,
+  });
+  // Particle FX queue. Items: { kind, cx, cy, t (life 0..1, decreasing) }.
+  // The loop pushes on event triggers, draws + decays each frame.
+  const fxRef = useRef([]);
+  // Active room wall pattern. Created lazily once the level texture image
+  // decodes; null while no texture is registered for the current room.
+  const wallPatternRef = useRef(null);
 
   const [levelIdx, setLevelIdx] = useState(0);
   const [deaths, setDeaths]     = useState(0);
@@ -197,6 +317,11 @@ export default function FrostFightGame() {
   // of the player. Updated only when the action would actually change.
   const [freezeAction, setFreezeAction] = useState(null);
   const freezeActionRef = useRef(null);
+  // Movement urgency: which directions hold an adjacent enemy (within
+  // one tile of the player). Bitmask packed into a string key for cheap
+  // change detection. Empty string when nothing is dangerous.
+  const [dangerDirs, setDangerDirs] = useState('');
+  const dangerDirsRef = useRef('');
   // Best run (read once on mount; written when we beat it on a win).
   const [best, setBest] = useState(() => readBest());
   const [bestBeaten, setBestBeaten] = useState(false);
@@ -235,6 +360,8 @@ export default function FrostFightGame() {
     setShowIntro(true);
     setFreezeAction(null);
     freezeActionRef.current = null;
+    // Drop any in-flight particles from the previous room.
+    fxRef.current.length = 0;
 
     // Push the palette to CSS so the halo/frame tint matches the canvas.
     const stage = stageRef.current;
@@ -243,6 +370,24 @@ export default function FrostFightGame() {
       stage.style.setProperty('--ff-room-halo', p.halo);
       stage.style.setProperty('--ff-room-frame', p.frame);
     }
+
+    // Wall texture preload. Falls back silently if the user hasn't
+    // dropped a tile in for this room — `wallPatternRef` stays null and
+    // the draw loop uses the solid #1a2540 fill.
+    wallPatternRef.current = null;
+    const wallKey = ROOM_WALL_KEY[level.name];
+    const wallUrl = wallKey ? WALL_TEXTURES[wallKey] : null;
+    if (wallUrl && canvasRef.current) {
+      const img = new Image();
+      img.decoding = 'async';
+      img.onload = () => {
+        const ctx2d = canvasRef.current?.getContext('2d');
+        if (!ctx2d) return;
+        const pat = ctx2d.createPattern(img, 'repeat');
+        wallPatternRef.current = pat;
+      };
+      img.src = wallUrl;
+    }
   };
 
   useEffect(() => {
@@ -250,12 +395,46 @@ export default function FrostFightGame() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [levelIdx]);
 
-  // Auto-dismiss the level intro after a beat.
+  // Auto-dismiss the level intro after a beat. Fires the per-room sting
+  // on entry so each transition has a tonal cue.
   useEffect(() => {
     if (!showIntro) return;
+    sfx.frostIntro(levelIdx);
     const t = setTimeout(() => setShowIntro(false), reduced ? 600 : 1100);
     return () => clearTimeout(t);
-  }, [showIntro, reduced]);
+  }, [showIntro, reduced, levelIdx]);
+
+  // Sprite preload — fire once per mount, drop into spritesRef as each
+  // image decodes. Errors are swallowed; the loop already falls back to
+  // procedural shapes if a slot is null or hasn't completed.
+  useEffect(() => {
+    const sources = {
+      player: playerSpriteUrl,
+      strawberry: strawberrySpriteUrl,
+      blueberry: blueberrySpriteUrl,
+      orange: orangeSpriteUrl,
+      strawberryWind: strawberryWindupUrl,
+      blueberryWind: blueberryWindupUrl,
+      fruit: fruitSpriteUrl,
+      ice: iceSpriteUrl,
+      exit: exitSpriteUrl,
+    };
+    const created = [];
+    for (const [key, src] of Object.entries(sources)) {
+      const img = new Image();
+      img.decoding = 'async';
+      img.onload = () => { spritesRef.current[key] = img; };
+      img.onerror = () => { /* leave null → procedural fallback */ };
+      img.src = src;
+      created.push(img);
+    }
+    return () => {
+      // Best-effort cancel: clearing src interrupts pending decodes
+      // on most engines. We don't unset spritesRef so a remount with
+      // the same URL hits the HTTP cache instantly.
+      for (const img of created) img.onload = img.onerror = null;
+    };
+  }, []);
 
   // Stage sizing — measure the stage element, fit the board with no
   // upper-1.6 cap. Drives canvas backing buffer + render transform.
@@ -379,150 +558,243 @@ export default function FrostFightGame() {
         ctx.beginPath(); ctx.moveTo(0, r * T); ctx.lineTo(W, r * T); ctx.stroke();
       }
 
-      // Walls.
+      // Walls. Use a CanvasPattern when the room has a registered texture;
+      // overlay a thin dark veil so the texture stays cool-toned and the
+      // grid still reads. Fall back to solid navy when no texture is
+      // present.
+      const wallPat = wallPatternRef.current;
       level.walls.forEach((w) => {
-        ctx.fillStyle = '#1a2540';
-        ctx.fillRect(w.col * T, w.row * T, T, T);
-        ctx.strokeStyle = '#2a3860';
+        const wx = w.col * T, wy = w.row * T;
+        if (wallPat) {
+          ctx.fillStyle = wallPat;
+          ctx.fillRect(wx, wy, T, T);
+          ctx.fillStyle = 'rgba(8, 16, 28, 0.30)';
+          ctx.fillRect(wx, wy, T, T);
+        } else {
+          ctx.fillStyle = '#1a2540';
+          ctx.fillRect(wx, wy, T, T);
+        }
+        ctx.strokeStyle = 'rgba(42, 56, 96, 0.75)';
         ctx.lineWidth = 2 * px;
-        ctx.strokeRect(w.col * T + 1, w.row * T + 1, T - 2, T - 2);
+        ctx.strokeRect(wx + 1, wy + 1, T - 2, T - 2);
       });
 
       // Ice blocks.
+      const iceImg = spritesRef.current.ice;
+      const iceReady = iceImg && iceImg.complete && iceImg.naturalWidth > 0;
       level.ice.forEach((key) => {
         const [c, r] = key.split(',').map(Number);
         const x = c * T, y = r * T;
-        ctx.fillStyle = '#d9ecf5';
-        ctx.fillRect(x + 2, y + 2, T - 4, T - 4);
-        ctx.strokeStyle = '#7ac0e0';
-        ctx.lineWidth = 2 * px;
-        ctx.strokeRect(x + 2, y + 2, T - 4, T - 4);
-        ctx.strokeStyle = 'rgba(255,255,255,0.8)';
-        ctx.lineWidth = px;
-        ctx.beginPath();
-        ctx.moveTo(x + 6, y + 8); ctx.lineTo(x + 14, y + 14);
-        ctx.moveTo(x + 18, y + 24); ctx.lineTo(x + 28, y + 16);
-        ctx.stroke();
+        if (iceReady) {
+          ctx.drawImage(iceImg, x + 1, y + 1, T - 2, T - 2);
+        } else {
+          ctx.fillStyle = '#d9ecf5';
+          ctx.fillRect(x + 2, y + 2, T - 4, T - 4);
+          ctx.strokeStyle = '#7ac0e0';
+          ctx.lineWidth = 2 * px;
+          ctx.strokeRect(x + 2, y + 2, T - 4, T - 4);
+          ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+          ctx.lineWidth = px;
+          ctx.beginPath();
+          ctx.moveTo(x + 6, y + 8); ctx.lineTo(x + 14, y + 14);
+          ctx.moveTo(x + 18, y + 24); ctx.lineTo(x + 28, y + 16);
+          ctx.stroke();
+        }
       });
 
-      // Exit.
+      // Exit. The cyan halo + flag combo: halo pulses when active, flag
+      // sprite sits on top.
       const ex = level.exit.col * T + T / 2;
       const ey = level.exit.row * T + T / 2;
       const exitActive = s.fruitsLeft === 0;
-      const pulse = exitActive ? 0.6 + 0.4 * Math.sin(performance.now() / 200) : 0.3;
-      ctx.fillStyle = exitActive ? `rgba(53, 240, 201, ${pulse})` : 'rgba(120,180,200,0.25)';
+      const pulse = exitActive ? 0.6 + 0.4 * Math.sin(performance.now() / 200) : 0.25;
+      ctx.fillStyle = exitActive ? `rgba(53, 240, 201, ${pulse})` : 'rgba(120,180,200,0.18)';
       ctx.beginPath();
-      ctx.arc(ex, ey, T * 0.4, 0, Math.PI * 2);
+      ctx.arc(ex, ey + 4, T * 0.42, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = exitActive ? '#35f0c9' : '#888';
-      ctx.lineWidth = 3 * px;
-      ctx.beginPath();
-      ctx.arc(ex, ey, T * 0.4, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth = 2 * px;
-      ctx.beginPath();
-      ctx.moveTo(ex, ey - 14); ctx.lineTo(ex, ey + 10);
-      ctx.stroke();
-      ctx.fillStyle = exitActive ? '#fff' : 'rgba(255,255,255,0.5)';
-      ctx.beginPath();
-      ctx.moveTo(ex, ey - 14); ctx.lineTo(ex + 12, ey - 9); ctx.lineTo(ex, ey - 4); ctx.closePath();
-      ctx.fill();
+      const exitImg = spritesRef.current.exit;
+      const exitReady = exitImg && exitImg.complete && exitImg.naturalWidth > 0;
+      if (exitReady) {
+        const sz = 28;
+        ctx.save();
+        if (!exitActive) ctx.globalAlpha = 0.55;
+        ctx.drawImage(exitImg, ex - sz / 2, ey - sz / 2 - 2, sz, sz);
+        ctx.restore();
+      } else {
+        ctx.strokeStyle = exitActive ? '#35f0c9' : '#888';
+        ctx.lineWidth = 3 * px;
+        ctx.beginPath();
+        ctx.arc(ex, ey, T * 0.4, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2 * px;
+        ctx.beginPath();
+        ctx.moveTo(ex, ey - 14); ctx.lineTo(ex, ey + 10);
+        ctx.stroke();
+        ctx.fillStyle = exitActive ? '#fff' : 'rgba(255,255,255,0.5)';
+        ctx.beginPath();
+        ctx.moveTo(ex, ey - 14); ctx.lineTo(ex + 12, ey - 9); ctx.lineTo(ex, ey - 4); ctx.closePath();
+        ctx.fill();
+      }
 
       // Fruits.
+      const fruitImg = spritesRef.current.fruit;
+      const fruitReady = fruitImg && fruitImg.complete && fruitImg.naturalWidth > 0;
       level.fruits.forEach((f) => {
         if (f.taken) return;
         const fx = f.col * T + T / 2;
         const fy = f.row * T + T / 2 + Math.sin(performance.now() / 350 + f.col) * 1.5;
-        ctx.fillStyle = '#ff4d6d';
-        ctx.beginPath();
-        ctx.arc(fx, fy + 2, 8, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#2d7a2a';
-        ctx.beginPath();
-        ctx.moveTo(fx - 4, fy - 6);
-        ctx.lineTo(fx + 4, fy - 6);
-        ctx.lineTo(fx, fy - 2);
-        ctx.closePath();
-        ctx.fill();
-        ctx.fillStyle = 'rgba(255,255,255,0.7)';
-        ctx.fillRect(fx - 3, fy, 1, 1);
-        ctx.fillRect(fx + 2, fy + 2, 1, 1);
-        ctx.fillRect(fx, fy - 1, 1, 1);
-      });
-
-      // Enemies.
-      enemies.forEach((e) => {
-        const { x, y } = entityPos(e);
-        const ecx = x + T / 2, ecy = y + T / 2;
-        if (e.kind === 'strawberry') {
+        if (fruitReady) {
+          const sz = 26;
+          ctx.drawImage(fruitImg, fx - sz / 2, fy - sz / 2, sz, sz);
+        } else {
           ctx.fillStyle = '#ff4d6d';
           ctx.beginPath();
-          ctx.arc(ecx, ecy + 3, 11, 0, Math.PI * 2);
+          ctx.arc(fx, fy + 2, 8, 0, Math.PI * 2);
           ctx.fill();
           ctx.fillStyle = '#2d7a2a';
           ctx.beginPath();
-          ctx.moveTo(ecx - 6, ecy - 8);
-          ctx.lineTo(ecx + 6, ecy - 8);
-          ctx.lineTo(ecx, ecy - 3);
+          ctx.moveTo(fx - 4, fy - 6);
+          ctx.lineTo(fx + 4, fy - 6);
+          ctx.lineTo(fx, fy - 2);
           ctx.closePath();
           ctx.fill();
-        } else {
-          ctx.fillStyle = '#35a8ff';
-          ctx.beginPath();
-          ctx.arc(ecx, ecy + 3, 11, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = '#1a3a7a';
-          ctx.beginPath();
-          ctx.arc(ecx, ecy - 5, 3, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.fillStyle = 'rgba(255,255,255,0.7)';
+          ctx.fillRect(fx - 3, fy, 1, 1);
+          ctx.fillRect(fx + 2, fy + 2, 1, 1);
+          ctx.fillRect(fx, fy - 1, 1, 1);
         }
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(ecx - 5, ecy, 3, 3);
-        ctx.fillRect(ecx + 2, ecy, 3, 3);
-        ctx.fillStyle = '#0a0d0e';
-        ctx.fillRect(ecx - 4, ecy + 1, 1, 1);
-        ctx.fillRect(ecx + 3, ecy + 1, 1, 1);
-        ctx.strokeStyle = '#0a0d0e';
-        ctx.lineWidth = 1.2 * px;
-        ctx.beginPath();
-        ctx.moveTo(ecx - 6, ecy - 2); ctx.lineTo(ecx - 2, ecy - 1);
-        ctx.moveTo(ecx + 6, ecy - 2); ctx.lineTo(ecx + 2, ecy - 1);
-        ctx.stroke();
+      });
+
+      // Enemies.
+      const strawImg = spritesRef.current.strawberry;
+      const blueImg  = spritesRef.current.blueberry;
+      const orangeImg = spritesRef.current.orange;
+      const strawWindImg = spritesRef.current.strawberryWind;
+      const blueWindImg  = spritesRef.current.blueberryWind;
+      const strawReady  = strawImg  && strawImg.complete  && strawImg.naturalWidth > 0;
+      const blueReady   = blueImg   && blueImg.complete   && blueImg.naturalWidth > 0;
+      const orangeReady = orangeImg && orangeImg.complete && orangeImg.naturalWidth > 0;
+      // Wind-up pre-tell: ~220ms before an enemy commits to a step it
+      // switches to a wider-eyed "alert" pose. Reads as scanning, gives
+      // the player a tiny tell on top of the global ENEMY_INTERVAL. The
+      // same alt sprite doubles as the in-step "walking" frame so the
+      // sequence reads rest → alert (windup lead) → walk (mid-step) →
+      // rest. Orange has no alt sprite yet so it just stays resting.
+      const WINDUP_LEAD = 0.22;
+      enemies.forEach((e) => {
+        const { x, y } = entityPos(e);
+        const ecx = x + T / 2, ecy = y + T / 2;
+        const isWinding =
+          (!e.moving && e.nextDecide > 0 && e.nextDecide < WINDUP_LEAD)
+          || e.moving;
+        const baseSprite =
+          e.kind === 'strawberry' ? strawImg
+          : e.kind === 'orange'   ? orangeImg
+          : blueImg;
+        const windSprite =
+          e.kind === 'strawberry' ? strawWindImg
+          : e.kind === 'orange'   ? null
+          : blueWindImg;
+        const windReady = windSprite && windSprite.complete && windSprite.naturalWidth > 0;
+        const sprite = (isWinding && windReady) ? windSprite : baseSprite;
+        const ready =
+          e.kind === 'strawberry' ? strawReady
+          : e.kind === 'orange'   ? orangeReady
+          : blueReady;
+        if (ready) {
+          // Subtle bob so enemies don't feel pasted onto the grid.
+          const bob = Math.sin(performance.now() / 280 + e.col + e.row) * 0.6;
+          // Slight squash on the wind-up frame for extra punch.
+          const sz = isWinding ? 32 : 30;
+          ctx.drawImage(sprite, ecx - sz / 2, ecy - sz / 2 + bob, sz, sz);
+        } else {
+          // Procedural fallback (kept identical to the original look).
+          if (e.kind === 'strawberry') {
+            ctx.fillStyle = '#ff4d6d';
+            ctx.beginPath();
+            ctx.arc(ecx, ecy + 3, 11, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#2d7a2a';
+            ctx.beginPath();
+            ctx.moveTo(ecx - 6, ecy - 8);
+            ctx.lineTo(ecx + 6, ecy - 8);
+            ctx.lineTo(ecx, ecy - 3);
+            ctx.closePath();
+            ctx.fill();
+          } else if (e.kind === 'orange') {
+            ctx.fillStyle = '#ff8a3a';
+            ctx.beginPath();
+            ctx.arc(ecx, ecy + 3, 11, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#1f5c1c';
+            ctx.fillRect(ecx - 1, ecy - 10, 2, 4);
+          } else {
+            ctx.fillStyle = '#35a8ff';
+            ctx.beginPath();
+            ctx.arc(ecx, ecy + 3, 11, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#1a3a7a';
+            ctx.beginPath();
+            ctx.arc(ecx, ecy - 5, 3, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.fillStyle = '#fff';
+          ctx.fillRect(ecx - 5, ecy, 3, 3);
+          ctx.fillRect(ecx + 2, ecy, 3, 3);
+          ctx.fillStyle = '#0a0d0e';
+          ctx.fillRect(ecx - 4, ecy + 1, 1, 1);
+          ctx.fillRect(ecx + 3, ecy + 1, 1, 1);
+          ctx.strokeStyle = '#0a0d0e';
+          ctx.lineWidth = 1.2 * px;
+          ctx.beginPath();
+          ctx.moveTo(ecx - 6, ecy - 2); ctx.lineTo(ecx - 2, ecy - 1);
+          ctx.moveTo(ecx + 6, ecy - 2); ctx.lineTo(ecx + 2, ecy - 1);
+          ctx.stroke();
+        }
       });
 
       // Player (ice cream).
       if (!player.dead) {
         const { x, y } = entityPos(player);
         const pcx = x + T / 2, pcy = y + T / 2;
-        ctx.fillStyle = '#d4a460';
-        ctx.beginPath();
-        ctx.moveTo(pcx - 9, pcy); ctx.lineTo(pcx + 9, pcy); ctx.lineTo(pcx, pcy + 14); ctx.closePath();
-        ctx.fill();
-        ctx.strokeStyle = '#8b5a2b';
-        ctx.lineWidth = px;
-        ctx.beginPath();
-        ctx.moveTo(pcx - 6, pcy + 2); ctx.lineTo(pcx + 6, pcy + 2);
-        ctx.moveTo(pcx - 4, pcy + 6); ctx.lineTo(pcx + 4, pcy + 6);
-        ctx.stroke();
-        ctx.fillStyle = '#ff8ec6';
-        ctx.beginPath();
-        ctx.arc(pcx, pcy - 4, 11, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#0a0d0e';
-        ctx.lineWidth = 1.5 * px;
-        ctx.stroke();
-        const dc = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[player.dir] || [0, 1];
-        ctx.fillStyle = '#fff';
-        ctx.beginPath();
-        ctx.arc(pcx - 3 + dc[0] * 0.4, pcy - 4, 3, 0, Math.PI * 2);
-        ctx.arc(pcx + 4 + dc[0] * 0.4, pcy - 4, 3, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#0a0d0e';
-        ctx.beginPath();
-        ctx.arc(pcx - 3 + dc[0] * 1.4, pcy - 4 + dc[1] * 1.4, 1.4, 0, Math.PI * 2);
-        ctx.arc(pcx + 4 + dc[0] * 1.4, pcy - 4 + dc[1] * 1.4, 1.4, 0, Math.PI * 2);
-        ctx.fill();
+        const playerImg = spritesRef.current.player;
+        const playerReady = playerImg && playerImg.complete && playerImg.naturalWidth > 0;
+        if (playerReady) {
+          const sz = 32;
+          // Tiny step bob so the character feels alive while moving.
+          const bob = player.moving ? Math.sin(player.moveT * Math.PI) * -1.2 : 0;
+          ctx.drawImage(playerImg, pcx - sz / 2, pcy - sz / 2 + bob, sz, sz);
+        } else {
+          ctx.fillStyle = '#d4a460';
+          ctx.beginPath();
+          ctx.moveTo(pcx - 9, pcy); ctx.lineTo(pcx + 9, pcy); ctx.lineTo(pcx, pcy + 14); ctx.closePath();
+          ctx.fill();
+          ctx.strokeStyle = '#8b5a2b';
+          ctx.lineWidth = px;
+          ctx.beginPath();
+          ctx.moveTo(pcx - 6, pcy + 2); ctx.lineTo(pcx + 6, pcy + 2);
+          ctx.moveTo(pcx - 4, pcy + 6); ctx.lineTo(pcx + 4, pcy + 6);
+          ctx.stroke();
+          ctx.fillStyle = '#ff8ec6';
+          ctx.beginPath();
+          ctx.arc(pcx, pcy - 4, 11, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#0a0d0e';
+          ctx.lineWidth = 1.5 * px;
+          ctx.stroke();
+          const dc = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[player.dir] || [0, 1];
+          ctx.fillStyle = '#fff';
+          ctx.beginPath();
+          ctx.arc(pcx - 3 + dc[0] * 0.4, pcy - 4, 3, 0, Math.PI * 2);
+          ctx.arc(pcx + 4 + dc[0] * 0.4, pcy - 4, 3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#0a0d0e';
+          ctx.beginPath();
+          ctx.arc(pcx - 3 + dc[0] * 1.4, pcy - 4 + dc[1] * 1.4, 1.4, 0, Math.PI * 2);
+          ctx.arc(pcx + 4 + dc[0] * 1.4, pcy - 4 + dc[1] * 1.4, 1.4, 0, Math.PI * 2);
+          ctx.fill();
+        }
       } else {
         const { x, y } = entityPos(player);
         ctx.fillStyle = 'rgba(255, 77, 109, 0.55)';
@@ -530,6 +802,9 @@ export default function FrostFightGame() {
         ctx.ellipse(x + T / 2, y + T / 2 + 6, 13, 4, 0, 0, Math.PI * 2);
         ctx.fill();
       }
+
+      // Particles — drawn in board coordinates, on top of entities.
+      drawFx(fxRef.current, ctx);
 
       // Freeze-ready hint — small marker on tile in front of player.
       if (!player.moving && !player.dead) {
@@ -595,6 +870,9 @@ export default function FrostFightGame() {
       if (s.shake > 0) s.shake = Math.max(0, s.shake - dt * 40);
       if (s.flash > 0) s.flash -= dt * 1.8;
 
+      // Particle tick (advance + decay; in-place compaction).
+      if (fxRef.current.length > 0) tickFx(fxRef.current, dt);
+
       // Player input (only when not moving & not dead).
       if (!p.dead && !p.moving) {
         const left  = keys['a'] || keys['arrowleft']  || keys['keya'];
@@ -634,6 +912,7 @@ export default function FrostFightGame() {
             s.level.ice.delete(key);
             p.freezeCd = FREEZE_CD;
             sfx.frostMelt();
+            if (!reduced) spawnFx(fxRef.current, 'melt', tc * T + T / 2, tr * T + T / 2);
           } else {
             const occupied =
               s.enemies.some((e) => e.col === tc && e.row === tr)
@@ -644,6 +923,7 @@ export default function FrostFightGame() {
               s.level.ice.add(key);
               p.freezeCd = FREEZE_CD;
               sfx.frostFreeze();
+              if (!reduced) spawnFx(fxRef.current, 'freeze', tc * T + T / 2, tr * T + T / 2);
             }
           }
         }
@@ -673,6 +953,27 @@ export default function FrostFightGame() {
         }
       }
 
+      // Movement urgency — direction-pack a string of adjacent-enemy
+      // directions so the bottom-rail caps can flag the danger axis.
+      // An enemy mid-step counts at both its from and to tiles.
+      {
+        let mask = '';
+        if (!p.dead) {
+          const dirs = [['up', 0, -1], ['down', 0, 1], ['left', -1, 0], ['right', 1, 0]];
+          for (const [name, dx, dy] of dirs) {
+            const tc = p.col + dx, tr = p.row + dy;
+            const here = (e) =>
+              (e.col === tc && e.row === tr)
+              || (e.moving && e.fromCol === tc && e.fromRow === tr);
+            if (s.enemies.some(here)) mask += name[0];
+          }
+        }
+        if (mask !== dangerDirsRef.current) {
+          dangerDirsRef.current = mask;
+          setDangerDirs(mask);
+        }
+      }
+
       // Advance player movement.
       if (p.moving) {
         p.moveT += dt / MOVE_TIME;
@@ -687,6 +988,16 @@ export default function FrostFightGame() {
           s.fruitsLeft -= 1;
           setGemsGot((n) => n + 1);
           sfx.frostFruit();
+          const fcx = fruit.col * T + T / 2;
+          const fcy = fruit.row * T + T / 2;
+          if (!reduced) {
+            spawnFx(fxRef.current, 'fruit', fcx, fcy);
+            if (s.fruitsLeft === 0) {
+              spawnFloater(fxRef.current, 'EXIT LIVE', fcx, fcy - 10, '#6cd0f0', { size: 9, life: 1.2 });
+            } else {
+              spawnFloater(fxRef.current, '+1', fcx, fcy - 10, '#ffd1de');
+            }
+          }
           if (s.fruitsLeft === 0) {
             const t = 'All clear — head for the flag.';
             tipResolvedRef.current = t;
@@ -714,7 +1025,10 @@ export default function FrostFightGame() {
           }
           if (!submittedRef.current) {
             submittedRef.current = true;
-            const score = Math.max(0, Math.round(1500 - deaths * 50 - s.elapsed * 3));
+            // Base scales with room count so longer runs aren't penalised
+            // by the elapsed-time term hitting the 0 floor.
+            const base = LEVELS.length * 500;
+            const score = Math.max(0, Math.round(base - deaths * 50 - s.elapsed * 3));
             submitScore('badicecream', score, { deaths, time: finalTime, levels: LEVELS.length });
           }
         } else {
@@ -776,6 +1090,12 @@ export default function FrostFightGame() {
             setDeaths((d) => d + 1);
             setTip('Touched — respawning.');
             sfx.frostDeath();
+            if (!reduced) {
+              const dpos = entityPos(p);
+              const dcx = dpos.x + T / 2, dcy = dpos.y + T / 2;
+              spawnFx(fxRef.current, 'death', dcx, dcy);
+              spawnFloater(fxRef.current, 'OUCH', dcx, dcy - 10, '#ff7b96', { size: 10, life: 0.9 });
+            }
             break;
           }
         }
@@ -837,6 +1157,7 @@ export default function FrostFightGame() {
       <main className="ff-stage" ref={stageRef}>
         <div className="ff-stage-bg" aria-hidden="true"/>
         <div className="ff-stage-halo" aria-hidden="true"/>
+        <div className="ff-snow" aria-hidden="true"/>
         <div className="ff-board-frame" data-clear={showClear ? '1' : '0'}>
           <canvas ref={canvasRef} className="ff-board"/>
         </div>
@@ -854,6 +1175,7 @@ export default function FrostFightGame() {
           best={best}
           bestBeaten={bestBeaten}
           levelCount={LEVELS.length}
+          coverUrl={coverUrl}
           onPlayAgain={restart}
           onExit={onExitToLobby}/>
       </main>
@@ -864,6 +1186,7 @@ export default function FrostFightGame() {
           status={status}
           isTouch={isTouch}
           freezeAction={freezeAction}
+          dangerDirs={dangerDirs}
           onPlayAgain={restart}/>
       </footer>
     </div>

@@ -136,6 +136,30 @@ export const sfx = {
     setTimeout(() => blip(880, 1100, 0.10, 'triangle', 0.10), 70);
     setTimeout(() => blip(1100, 1480, 0.16, 'triangle', 0.10), 140);
   },
+  // Room intro sting — a soft minor-third pad that rises and falls,
+  // pitched per-room so each level entrance has its own tonal hint.
+  // Roots: Pantry C5, Cold Room A4, The Aisle G4 — each minor-third
+  // chord plays root + minor-3rd + 5th simultaneously, fading in/out.
+  frostIntro:  (roomIdx = 0) => {
+    const c = ensure(); if (!c) return;
+    const roots = [523.25, 440.00, 392.00]; // C5 / A4 / G4
+    const root = roots[Math.min(roomIdx, roots.length - 1)] || roots[0];
+    const notes = [root, root * 1.2, root * 1.5]; // root, minor 3rd, perfect 5th
+    const t0 = c.currentTime;
+    const dur = 0.75;
+    notes.forEach((freq, i) => {
+      const osc = c.createOscillator();
+      const g = c.createGain();
+      osc.type = i === 0 ? 'sine' : 'triangle';
+      osc.frequency.setValueAtTime(freq, t0);
+      g.gain.setValueAtTime(0, t0);
+      g.gain.linearRampToValueAtTime(0.05, t0 + 0.18);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      osc.connect(g).connect(c.destination);
+      osc.start(t0);
+      osc.stop(t0 + dur + 0.05);
+    });
+  },
 };
 
 // Cross-game mute event bus. Per-game audio modules subscribe so the

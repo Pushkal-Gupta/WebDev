@@ -151,6 +151,11 @@ export function makeRenderer() {
       for (const r of match.effects.rings) drawRing(ctx, r);
     }
 
+    // 11c) Painted-frame explosions — heavy deaths + point specials.
+    if (match.effects.explosions && match.effects.explosions.length > 0) {
+      for (const e of match.effects.explosions) drawPaintedExplosion(ctx, e);
+    }
+
     // 12) Damage numbers
     for (const d of match.pools.damageNum.live) if (d.alive) drawDamageNumber(ctx, d);
 
@@ -284,6 +289,16 @@ function drawGround(_ctx, w, h, v, pal, ctx, eraId) {
 
 // ── Bases ──────────────────────────────────────────────────────────────
 function drawBase(ctx, x, groundY, side, isPlayer, pal) {
+  // Sprite path: blit the painted base if its asset is loaded.
+  // The HP bar + label drawn afterwards stay procedural so they read
+  // crisply even when the underlying art is busy.
+  const eraN = side.eraIndex + 1;
+  const key = `base/era${eraN}/${isPlayer ? 'player' : 'enemy'}`;
+  if (assets.has(key)) {
+    assets.draw(ctx, key, x, groundY + 8, { h: 200, flipX: false });
+    drawBaseHpAndLabel(ctx, x, groundY, side, isPlayer);
+    return;
+  }
   // Wall block
   ctx.fillStyle = '#15171b';
   ctx.fillRect(x - 38, groundY - 90, 76, 90);
@@ -316,17 +331,22 @@ function drawBase(ctx, x, groundY, side, isPlayer, pal) {
   ctx.lineTo(x, groundY - 122);
   ctx.closePath();
   ctx.fill();
-  // HP bar
+  drawBaseHpAndLabel(ctx, x, groundY, side, isPlayer);
+}
+
+// HP bar + side label — shared between procedural and sprite paths.
+function drawBaseHpAndLabel(ctx, x, groundY, side, isPlayer) {
   const hpR = side.base.hp / side.base.maxHp;
+  // HP bar sits above the silhouette so it reads against the sky.
   ctx.fillStyle = 'rgba(0,0,0,0.55)';
-  ctx.fillRect(x - 38, groundY - 116, 76, 5);
+  ctx.fillRect(x - 48, groundY - 200, 96, 6);
   ctx.fillStyle = hpColor(hpR);
-  ctx.fillRect(x - 38, groundY - 116, 76 * Math.max(0, hpR), 5);
-  // Label
+  ctx.fillRect(x - 48, groundY - 200, 96 * Math.max(0, hpR), 6);
+  // Label sits just below the ground line.
   ctx.fillStyle = '#fff';
-  ctx.font = '11px "JetBrains Mono", monospace';
+  ctx.font = 'bold 11px "JetBrains Mono", monospace';
   ctx.textAlign = 'center';
-  ctx.fillText(isPlayer ? 'YOU' : 'ENEMY', x, groundY + 26);
+  ctx.fillText(isPlayer ? 'YOU' : 'ENEMY', x, groundY + 28);
 }
 
 // ── Turrets ────────────────────────────────────────────────────────────
@@ -335,7 +355,34 @@ function drawTurret(ctx, t, isPlayer) {
   const v = t.visual;
   const cdR = t.cooldownMaxMs ? (t.cooldownMs / t.cooldownMaxMs) : 0;
   const justFired = cdR > 0.85;
-  // Base plate
+
+  // Sprite path: blit the painted turret if its idle frame is loaded.
+  // We swap to the `-fire` frame for the brief justFired window, and
+  // `-recoil` for the immediately-following one.
+  const eraN = (t.eraIndex | 0) + 1;
+  const idleKey   = `turret/era${eraN}`;
+  if (assets.has(idleKey)) {
+    let frameKey = idleKey;
+    // justFired is true when cdR > 0.85 (top 15% of the cooldown).
+    // Split into "fire" (top 7.5%) and "recoil" (next 7.5%).
+    if (cdR > 0.92 && assets.has(`turret/era${eraN}-fire`))   frameKey = `turret/era${eraN}-fire`;
+    else if (cdR > 0.85 && assets.has(`turret/era${eraN}-recoil`)) frameKey = `turret/era${eraN}-recoil`;
+    const targetH = 64;
+    const targetW = targetH * (938 / 307); // preserve sheet aspect (≈3:1)
+    const flip = !isPlayer;
+    ctx.save();
+    if (flip) {
+      ctx.translate(x, y);
+      ctx.scale(-1, 1);
+      assets.draw(ctx, frameKey, 0, 0, { w: targetW, h: targetH, anchor: 'foot' });
+    } else {
+      assets.draw(ctx, frameKey, x, y, { w: targetW, h: targetH, anchor: 'foot' });
+    }
+    ctx.restore();
+    return;
+  }
+
+  // Base plate (procedural fallback — used until the turret PNG loads)
   ctx.fillStyle = v.baseColor;
   ctx.fillRect(x - 12, y, 24, 10);
   ctx.fillStyle = '#0a0d0e';
@@ -582,14 +629,14 @@ function drawUnit(ctx, u, sideAuraActive) {
   drawWeapon(ctx, u.visual?.weaponShape || 'spear', wx, wy, u.facing, colorTrim, u.attackTickPhase);
 
   // Muzzle flash for ranged units the moment they fire.
+  // Map the first 80ms of the recover window across the 4-frame sheet.
   if (u.projectileId && u.attackTickPhase === 'recover' && u.attackTimerMs > u.attackRecoverMs - 80) {
+    const flashAge = (u.attackRecoverMs - u.attackTimerMs);  // 0..80
+    const frame = Math.max(0, Math.min(3, Math.floor((flashAge / 80) * 4)));
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    ctx.globalAlpha = 0.7;
-    ctx.fillStyle = '#ffe14f';
-    ctx.beginPath();
-    ctx.arc(wx + u.facing * 10, wy + 1, 4, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.globalAlpha = 0.85;
+    assets.draw(ctx, 'vfx/muzzle-flash', wx + u.facing * 10, wy + 1, { frame, size: 28 });
     ctx.restore();
   }
 
@@ -630,6 +677,17 @@ function drawWeapon(ctx, shape, x, y, facing, color, phase) {
 function drawProjectile(ctx, p) {
   const x = (p.px != null) ? p.px + (p.x - p.px) * _alpha : p.x;
   const y = (p.py != null) ? p.py + (p.y - p.py) * _alpha : p.y;
+
+  // Sprite path: blit the painted projectile if its asset is loaded,
+  // rotated to point along the velocity vector.
+  const spriteKey = `projectile/${p.defId}`;
+  if (assets.has(spriteKey)) {
+    const angle = Math.atan2(p.vy, p.vx);
+    const size = p.kind === 'orb' ? 22 : 18;
+    assets.draw(ctx, spriteKey, x, y, { size, angle });
+    return;
+  }
+
   if (p.kind === 'orb') {
     ctx.save();
     const r = p.size + 1;
@@ -657,6 +715,20 @@ function drawParticle(ctx, p) {
   ctx.fillStyle = p.color;
   ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
   ctx.globalAlpha = 1;
+}
+
+// ── Painted-frame explosion ────────────────────────────────────────────
+function drawPaintedExplosion(ctx, e) {
+  const FRAMES = 12;
+  const t = e.ageMs / e.lifeMs;
+  const frame = Math.min(FRAMES - 1, Math.floor(t * FRAMES));
+  // Subtle alpha falloff at the very end so the puff fades cleanly.
+  const a = t > 0.85 ? 1 - (t - 0.85) / 0.15 : 1;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = Math.max(0, a);
+  assets.draw(ctx, 'vfx/explosion-12', e.x, e.y, { frame, size: e.size });
+  ctx.restore();
 }
 
 // ── Special impact rings ───────────────────────────────────────────────

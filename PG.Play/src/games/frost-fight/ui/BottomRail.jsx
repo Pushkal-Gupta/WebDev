@@ -14,7 +14,7 @@ function Key({ children, wide, active, tone }) {
   return <kbd className={cls.join(' ')}>{children}</kbd>;
 }
 
-export default function BottomRail({ tip, status, isTouch, freezeAction, onPlayAgain }) {
+export default function BottomRail({ tip, status, isTouch, freezeAction, dangerDirs, onPlayAgain }) {
   const reduced = useReducedMotion();
   // Adaptive: when the player faces a freezable / meltable tile, the
   // SPACE cap lights up. Cyan for freeze, warm rose for melt — matches
@@ -22,13 +22,19 @@ export default function BottomRail({ tip, status, isTouch, freezeAction, onPlayA
   const spaceActive = !!freezeAction;
   const spaceTone   = freezeAction === 'melt' ? 'warm' : freezeAction === 'freeze' ? 'cool' : null;
   const spaceLabel  = freezeAction === 'melt' ? 'Melt' : freezeAction === 'freeze' ? 'Freeze' : 'Freeze · Melt';
+  // Danger mask: 'u', 'd', 'l', 'r' = enemy one tile in that direction.
+  const danger = dangerDirs || '';
+  const moveLabel = danger ? 'Threat adjacent' : 'Move';
   return (
     <div className="ff-rail-row">
       {!isTouch ? (
         <div className="ff-keycaps" aria-label="Controls">
           <span className="ff-keycap-group">
-            <Key>W</Key><Key>A</Key><Key>S</Key><Key>D</Key>
-            <span className="ff-keycap-label">Move</span>
+            <Key active={danger.includes('u')} tone={danger.includes('u') ? 'danger' : null}>W</Key>
+            <Key active={danger.includes('l')} tone={danger.includes('l') ? 'danger' : null}>A</Key>
+            <Key active={danger.includes('d')} tone={danger.includes('d') ? 'danger' : null}>S</Key>
+            <Key active={danger.includes('r')} tone={danger.includes('r') ? 'danger' : null}>D</Key>
+            <span className={'ff-keycap-label' + (danger ? ' is-danger' : '')}>{moveLabel}</span>
           </span>
           <span className="ff-keycap-group">
             <Key wide active={spaceActive} tone={spaceTone}>Space</Key>

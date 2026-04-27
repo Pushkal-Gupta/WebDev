@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Body — slightly stretched / leaning forward -->
+  <ellipse cx="64" cy="76" rx="42" ry="38" fill="#35a8ff" stroke="#0a0d0e" stroke-width="4"/>
+  <ellipse cx="48" cy="58" rx="10" ry="8" fill="#7fc6ff" opacity="0.85"/>
+  <path d="M 56 38 L 72 38 L 70 30 L 64 28 L 58 30 Z"
+        fill="#1a3a7a" stroke="#0a0d0e" stroke-width="3" stroke-linejoin="round"/>
+  <!-- Wider eyes (alert) -->
+  <path d="M 42 56 L 60 62" stroke="#0a0d0e" stroke-width="3.6" stroke-linecap="round"/>
+  <path d="M 86 56 L 68 62" stroke="#0a0d0e" stroke-width="3.6" stroke-linecap="round"/>
+  <circle cx="52" cy="70" r="7" fill="#fff" stroke="#0a0d0e" stroke-width="2"/>
+  <circle cx="76" cy="70" r="7" fill="#fff" stroke="#0a0d0e" stroke-width="2"/>
+  <circle cx="53" cy="71" r="3" fill="#0a0d0e"/>
+  <circle cx="77" cy="71" r="3" fill="#0a0d0e"/>
+  <path d="M 52 90 Q 64 84 76 90" stroke="#0a0d0e" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M 56 88 L 60 92 M 64 88 L 64 92 M 68 88 L 72 92"
+        stroke="#0a0d0e" stroke-width="1.6" stroke-linecap="round"/>
+</svg>

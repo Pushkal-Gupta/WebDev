@@ -127,7 +127,10 @@ export default function EraSiegeGame({ mode }) {
   // Pause sim while any blocking surface is open (settings / power-ups /
   // evolution preview / turret build / turret manage). Restored on close.
   const wasPausedBeforeDrawerRef = useRef(false);
+  // Includes shortcutsOpen so reading the cheat-sheet auto-pauses the
+  // sim — without this, units kept marching while the player read keys.
   const overlayOpen = settingsOpen || powerUpsOpen || evolutionOpen
+                   || shortcutsOpen
                    || turretBuildSlot != null || turretManageSlot != null;
   useEffect(() => {
     if (overlayOpen) {

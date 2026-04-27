@@ -96,7 +96,7 @@ export function createMatch(opts = {}) {
     allocId,
     player: makeSide('player', 0, false),
     enemy:  makeSide('enemy',  0, true),
-    effects: { shakeMs: 0, shakeMag: 0, flashMs: 0, flashColor: '#fff', flashAlpha: 0, rings: [] },
+    effects: { shakeMs: 0, shakeMag: 0, flashMs: 0, flashColor: '#fff', flashAlpha: 0, rings: [], explosions: [] },
     lowFx: false,          // toggled at runtime by the perf monitor on mobile
     endlessMode: !!opts.endlessMode,
     endlessTimeSec: 0,     // ticks while endlessMode is on

@@ -40,10 +40,10 @@ export const GAMES = [
     mobileSupport:'touch-ok', inputs:['keyboard','touch'], orientation:'landscape',
     skillTags:['timing','stealth','planning'], sessionLength:'short' },
 
-  { id:'badicecream', name:'Frost Fight', cat:'Arcade', kind:'story', players:'1P', levels:3,
+  { id:'badicecream', name:'Frost Fight', cat:'Arcade', kind:'story', players:'1P', levels:6,
     tagline:'Fruit, ice, and not much else.',
-    story:'A grid maze, a handful of angry fruits, and one small ice cream. Step tile-to-tile, freeze the tile you\'re facing to wall them off, melt it to open the way. Collect every fruit piece in the room — only then does the exit accept you. Three rooms: Pantry, Cold Room, Aisle.',
-    playable:true, badge:'new', isOriginal:true,
+    story:'A grid maze, a handful of angry fruits, and one small ice cream. Step tile-to-tile, freeze the tile you\'re facing to wall them off, melt it to open the way. Collect every fruit piece in the room — only then does the exit accept you. Six rooms: Pantry, Cold Room, Aisle, Walk-In, Loading Dock, Sub-Basement.',
+    playable:true, badge:'new', updated:true, isOriginal:true,
     mobileSupport:'touch-ok', inputs:['keyboard','touch'], orientation:'landscape',
     skillTags:['spatial','planning','reflex'], sessionLength:'short' },
 

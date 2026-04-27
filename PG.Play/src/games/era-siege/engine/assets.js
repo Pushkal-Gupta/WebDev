@@ -111,6 +111,64 @@ function drawSkyImage(ctx, img, _x, _y, opts) {
   ctx.drawImage(img, 0, 0, w, h);
 }
 
+// Mountains / foregrounds: bottom-anchored to the ground line. The
+// manifest receives view.groundY in opts; the image's *bottom* edge
+// aligns with it, and the image stretches horizontally to fill view.w.
+function drawMountainImage(ctx, img, _x, _y, opts) {
+  if (!img.naturalWidth) return;
+  const W = opts.w || 1920;
+  const groundY = opts.groundY || 600;
+  // Preserve image aspect — use intrinsic h * (W/intrinsicW).
+  const dh = Math.round(img.naturalHeight * (W / img.naturalWidth));
+  const dy = groundY - dh;
+  ctx.drawImage(img, 0, dy, W, dh);
+}
+
+function drawForegroundImage(ctx, img, _x, _y, opts) {
+  if (!img.naturalWidth) return;
+  const W = opts.w || 1920;
+  const groundY = opts.groundY || 600;
+  // Foreground sits at the very bottom of the view — bottom-anchored.
+  // Cap height so giant images don't blot the entire battlefield.
+  const intrinsicAspect = img.naturalHeight / img.naturalWidth;
+  const dh = Math.min(Math.round(W * intrinsicAspect), 200);
+  const viewH = (opts.h || groundY + 200);
+  const dy = viewH - dh;
+  ctx.drawImage(img, 0, dy, W, dh);
+}
+
+// Bases: foot-anchored, scaled to a target height.
+function drawBaseImage(ctx, img, x, y, opts) {
+  if (!img.naturalWidth) return;
+  const targetH = opts.h || 220;
+  const aspect = img.naturalWidth / img.naturalHeight;
+  const targetW = Math.round(targetH * aspect);
+  const flip = !!opts.flipX;
+  if (flip) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(-1, 1);
+    ctx.drawImage(img, -targetW / 2, -targetH, targetW, targetH);
+    ctx.restore();
+  } else {
+    ctx.drawImage(img, x - targetW / 2, y - targetH, targetW, targetH);
+  }
+}
+
+// Projectile: tiny sprite oriented to velocity.
+function drawProjectileImage(ctx, img, x, y, opts) {
+  if (!img.naturalWidth) return;
+  const targetH = opts.size || 18;
+  const aspect = img.naturalWidth / img.naturalHeight;
+  const targetW = Math.round(targetH * aspect);
+  const angle = opts.angle || 0;
+  ctx.save();
+  ctx.translate(x, y);
+  if (angle) ctx.rotate(angle);
+  ctx.drawImage(img, -targetW / 2, -targetH / 2, targetW, targetH);
+  ctx.restore();
+}
+
 // Clouds: a horizontal strip near the horizon, drifting with `t` and
 // tiled so the seam never shows. Source images are 3-row sheets; we
 // extract the middle row (the most varied silhouette) and render that.
@@ -165,13 +223,16 @@ for (let i = 0; i < 5; i++) {
     drawCloudImage);
 
   reg(`bg/era${i + 1}/mountains-far`, `games/era-siege/bg/era${i + 1}/mountains-far.png`,
-    (ctx, _x, _y, { w, groundY }) => placeholderMountains(ctx, eraId, w, groundY, 'far'));
+    (ctx, _x, _y, { w, groundY }) => placeholderMountains(ctx, eraId, w, groundY, 'far'),
+    drawMountainImage);
 
   reg(`bg/era${i + 1}/mountains-mid`, `games/era-siege/bg/era${i + 1}/mountains-mid.png`,
-    (ctx, _x, _y, { w, groundY }) => placeholderMountains(ctx, eraId, w, groundY, 'mid'));
+    (ctx, _x, _y, { w, groundY }) => placeholderMountains(ctx, eraId, w, groundY, 'mid'),
+    drawMountainImage);
 
   reg(`bg/era${i + 1}/foreground`, `games/era-siege/bg/era${i + 1}/foreground.png`,
-    (ctx, _x, _y, { w, groundY }) => placeholderForeground(ctx, eraId, w, groundY));
+    (ctx, _x, _y, { w, groundY }) => placeholderForeground(ctx, eraId, w, groundY),
+    drawForegroundImage);
 }
 
 // ── Bases ─────────────────────────────────────────────────────────────
@@ -179,9 +240,11 @@ for (let i = 0; i < 5; i++) {
 for (let i = 0; i < 5; i++) {
   const eraId = getEraByIndex(i).id;
   reg(`base/era${i + 1}/player`, `games/era-siege/base/era${i + 1}/player.png`,
-    (ctx, x, y, _o) => placeholderBase(ctx, eraId, x, y, true));
+    (ctx, x, y, _o) => placeholderBase(ctx, eraId, x, y, true),
+    drawBaseImage);
   reg(`base/era${i + 1}/enemy`, `games/era-siege/base/era${i + 1}/enemy.png`,
-    (ctx, x, y, _o) => placeholderBase(ctx, eraId, x, y, false));
+    (ctx, x, y, _o) => placeholderBase(ctx, eraId, x, y, false),
+    drawBaseImage);
 }
 
 // ── Turrets ───────────────────────────────────────────────────────────
@@ -189,7 +252,14 @@ for (let i = 0; i < 5; i++) {
 for (let i = 0; i < 5; i++) {
   const eraId = getEraByIndex(i).id;
   const def = getTurretForEra(eraId);
-  reg(`turret/era${i + 1}`, `games/era-siege/turret/era${i + 1}.png`,
+  // Idle / fire / recoil frames. The renderer chooses one based on the
+  // turret's cooldown phase. Missing fire/recoil PNGs fall back to the
+  // same placeholder so partial coverage degrades gracefully.
+  reg(`turret/era${i + 1}`,        `games/era-siege/turret/era${i + 1}.png`,
+    (ctx, x, y, opts) => placeholderTurret(ctx, def, x, y, opts || {}));
+  reg(`turret/era${i + 1}-fire`,   `games/era-siege/turret/era${i + 1}-fire.png`,
+    (ctx, x, y, opts) => placeholderTurret(ctx, def, x, y, opts || {}));
+  reg(`turret/era${i + 1}-recoil`, `games/era-siege/turret/era${i + 1}-recoil.png`,
     (ctx, x, y, opts) => placeholderTurret(ctx, def, x, y, opts || {}));
 }
 
@@ -211,19 +281,63 @@ const PROJECTILE_IDS = ['bone-shard', 'crossbow-bolt', 'steam-bolt', 'arc-bolt',
 for (const id of PROJECTILE_IDS) {
   const def = getProjectile(id);
   reg(`projectile/${id}`, `games/era-siege/projectile/${id}.png`,
-    (ctx, x, y, opts) => placeholderProjectile(ctx, def, x, y, opts || {}));
+    (ctx, x, y, opts) => placeholderProjectile(ctx, def, x, y, opts || {}),
+    drawProjectileImage);
 }
 
 // ── VFX ───────────────────────────────────────────────────────────────
 
+// Hit spark — 9-frame strip (288×32). Frame chosen by opts.frame (0..8).
 reg('vfx/hit-spark', 'games/era-siege/vfx/hit-spark.png',
-  (ctx, x, y, _o) => placeholderHitSpark(ctx, x, y));
+  (ctx, x, y, _o) => placeholderHitSpark(ctx, x, y),
+  drawSpark9);
+
+// Muzzle flash — 4-frame strip (512×128). Frame chosen by opts.frame (0..3).
 reg('vfx/muzzle-flash', 'games/era-siege/vfx/muzzle-flash.png',
-  (ctx, x, y, opts) => placeholderMuzzle(ctx, x, y, opts || {}));
+  (ctx, x, y, opts) => placeholderMuzzle(ctx, x, y, opts || {}),
+  drawMuzzle4);
+
+function drawSpark9(ctx, img, x, y, opts) {
+  if (!img.naturalWidth) return;
+  const FRAMES = 9;
+  const sw = Math.floor(img.naturalWidth / FRAMES);  // 32
+  const sh = img.naturalHeight;                       // 32
+  const frame = Math.max(0, Math.min(FRAMES - 1, opts.frame | 0));
+  const size = opts.size || 28;
+  ctx.drawImage(img, frame * sw, 0, sw, sh, x - size / 2, y - size / 2, size, size);
+}
+
+function drawMuzzle4(ctx, img, x, y, opts) {
+  if (!img.naturalWidth) return;
+  const FRAMES = 4;
+  const sw = Math.floor(img.naturalWidth / FRAMES);  // 128
+  const sh = img.naturalHeight;                       // 128
+  const frame = Math.max(0, Math.min(FRAMES - 1, opts.frame | 0));
+  const size = opts.size || 32;
+  ctx.drawImage(img, frame * sw, 0, sw, sh, x - size / 2, y - size / 2, size, size);
+}
 reg('vfx/explosion-small', 'games/era-siege/vfx/explosion-small.png',
   (ctx, x, y, _o) => placeholderExplosion(ctx, x, y, 32));
 reg('vfx/explosion-large', 'games/era-siege/vfx/explosion-large.png',
   (ctx, x, y, _o) => placeholderExplosion(ctx, x, y, 56));
+
+// 12-frame painted explosion sheet (1152×96, frame size 96×96). The
+// renderer chooses a frame by `opts.frame` (0..11) and blits one cell.
+reg('vfx/explosion-12', 'games/era-siege/vfx/explosion-12.png',
+  (ctx, x, y, opts) => placeholderExplosion(ctx, x, y, (opts && opts.size) || 48),
+  drawExplosion12);
+
+function drawExplosion12(ctx, img, x, y, opts) {
+  if (!img.naturalWidth) return;
+  const FRAMES = 12;
+  const sw = Math.floor(img.naturalWidth / FRAMES);  // 96
+  const sh = img.naturalHeight;                       // 96
+  const frame = Math.max(0, Math.min(FRAMES - 1, opts.frame | 0));
+  const sx = frame * sw;
+  const dw = (opts.size || 96);
+  const dh = (opts.size || 96);
+  ctx.drawImage(img, sx, 0, sw, sh, x - dw / 2, y - dh / 2, dw, dh);
+}
 
 // ── Placeholder draw helpers ──────────────────────────────────────────
 //
