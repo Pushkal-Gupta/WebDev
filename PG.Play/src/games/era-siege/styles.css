@@ -1071,7 +1071,9 @@
   background: rgba(0,0,0,0.65);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  z-index: 13;
+  /* Sit just under the gameplay-blocking modals (pause/settings/build).
+     Avoids a portrait-warning lock if deviceClass mis-detects. */
+  z-index: 10;
   padding: 24px;
 }
 .es-orient-card {

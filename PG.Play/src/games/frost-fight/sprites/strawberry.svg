@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Body -->
+  <path d="M 64 36 C 90 36 100 60 100 80 C 100 102 82 116 64 116 C 46 116 28 102 28 80 C 28 60 38 36 64 36 Z"
+        fill="#ff4d6d" stroke="#0a0d0e" stroke-width="4" stroke-linejoin="round"/>
+  <!-- Highlight -->
+  <ellipse cx="48" cy="60" rx="10" ry="8" fill="#ff7b96" opacity="0.85"/>
+  <!-- Seeds -->
+  <ellipse cx="50" cy="78" rx="2" ry="3" fill="#fff" stroke="#0a0d0e" stroke-width="0.8"/>
+  <ellipse cx="78" cy="74" rx="2" ry="3" fill="#fff" stroke="#0a0d0e" stroke-width="0.8"/>
+  <ellipse cx="64" cy="92" rx="2" ry="3" fill="#fff" stroke="#0a0d0e" stroke-width="0.8"/>
+  <ellipse cx="84" cy="96" rx="2" ry="3" fill="#fff" stroke="#0a0d0e" stroke-width="0.8"/>
+  <ellipse cx="44" cy="98" rx="2" ry="3" fill="#fff" stroke="#0a0d0e" stroke-width="0.8"/>
+  <!-- Crown -->
+  <path d="M 36 38 L 48 22 L 56 36 L 64 18 L 72 36 L 80 22 L 92 38 Z"
+        fill="#2d7a2a" stroke="#0a0d0e" stroke-width="4" stroke-linejoin="round"/>
+  <!-- Eyebrows (angry) -->
+  <path d="M 44 56 L 60 60" stroke="#0a0d0e" stroke-width="3.6" stroke-linecap="round"/>
+  <path d="M 84 56 L 68 60" stroke="#0a0d0e" stroke-width="3.6" stroke-linecap="round"/>
+  <!-- Eyes -->
+  <circle cx="52" cy="68" r="5.5" fill="#fff" stroke="#0a0d0e" stroke-width="2"/>
+  <circle cx="76" cy="68" r="5.5" fill="#fff" stroke="#0a0d0e" stroke-width="2"/>
+  <circle cx="53" cy="69" r="2.4" fill="#0a0d0e"/>
+  <circle cx="77" cy="69" r="2.4" fill="#0a0d0e"/>
+  <!-- Frown -->
+  <path d="M 54 86 Q 64 80 74 86" stroke="#0a0d0e" stroke-width="3" fill="none" stroke-linecap="round"/>
+</svg>

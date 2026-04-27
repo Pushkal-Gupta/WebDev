@@ -5,6 +5,7 @@
 // low-effects detector can scale visuals down on slow devices.
 
 import { awardKill } from './economy.js';
+import { pushExplosion } from './effects.js';
 
 const PARTICLE_CAP_FULL = 80;
 const PARTICLE_CAP_LOW  = 24;
@@ -42,6 +43,11 @@ function onUnitDeath(state, attackerOwner, victim) {
     if (killerSide !== ownerSide) awardKill(state, killerSide, victim);
   }
   spawnHitParticles(state, victim.x, victim.y - 8, victim.color || '#fff', 8);
+  // Heavy units get the painted explosion VFX. Frontline / ranged stick
+  // with the ash burst so the screen doesn't drown in animation.
+  if (victim.role === 'heavy') {
+    pushExplosion(state, victim.x, victim.y - 14, { size: 80, lifeMs: 720 });
+  }
 }
 
 export function spawnDamageNumber(state, x, y, value, team) {

@@ -130,8 +130,12 @@ export default function Game2048() {
   // Keyboard
   useEffect(() => {
     const onKey = (e) => {
-      const dir = { ArrowLeft: 0, ArrowUp: 1, ArrowRight: 2, ArrowDown: 3,
-                    a: 0, w: 1, d: 2, s: 3, A: 0, W: 1, D: 2, S: 3 }[e.key];
+      // dir codes: 0=left, 1=down, 2=right, 3=up. The rotate() helper is
+      // CW, so a single rotation+slide-left+unrotate moves tiles DOWN
+      // (not up). The keymap reflects that — earlier versions had up/down
+      // inverted because the comment in move() lied.
+      const dir = { ArrowLeft: 0, ArrowUp: 3, ArrowRight: 2, ArrowDown: 1,
+                    a: 0, w: 3, d: 2, s: 1, A: 0, W: 3, D: 2, S: 1 }[e.key];
       if (dir === undefined) return;
       e.preventDefault();
       tryMove(dir);
@@ -154,7 +158,7 @@ export default function Game2048() {
     touchRef.current = null;
     if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return;
     if (Math.abs(dx) > Math.abs(dy)) tryMove(dx > 0 ? 2 : 0);
-    else tryMove(dy > 0 ? 3 : 1);
+    else tryMove(dy > 0 ? 1 : 3);
   };
 
   const reset = () => {

@@ -41,15 +41,27 @@ period flavour without referencing any existing in-genre product.
 - v1: zero third-party assets. All visuals are generated from
   primitives in `era-siege/engine/renderer.js`. All audio comes from
   PG.Play's existing procedural mixer (`src/sound.js`).
-- v2 (future): a third-party swap is gated on:
-  1. CC0 or commercial license confirmed.
-  2. License file committed at `licenses/<asset-id>.md`.
-  3. Attribution shown in the credits screen if the license requires it.
-  4. License manifest reviewed before the next deploy.
+- v2 (current posture, post-phase-7): third-party assets are accepted
+  when **both** of the following hold:
+  1. The asset is **not iconic** — i.e. its visual identity is not
+     uniquely tied to a recognizable franchise (no Mario sprites, no
+     Pokémon, no Halo Master Chief silhouette, no Among Us crewmates,
+     etc.). A pile of coins, a generic explosion sheet, a stone keep
+     wall, and a parallax sky strip are non-iconic and fine.
+  2. The license permits commercial / static-site use. CC0, CC-BY,
+     OpenGameArt's various permissive licenses, royalty-free packs
+     (Kenney, OGA contributors, etc.), and the user's own AI
+     generations all qualify.
+- For CC-BY assets specifically: include the attribution line in
+  `docs/CREDITS.md` (auto-rolled when present) and in the in-game
+  credits screen when one exists. Otherwise no separate license file
+  is required per asset; the source URL goes in `docs/images.md`'s
+  notes column.
 
-The candidate sourcing list is in `docs/THIRD_PARTY_ASSETS.md`. Inclusion
-in that list is **not** licensing approval — every entry must be
-verified at the moment of import.
+The candidate sourcing list is in `docs/THIRD_PARTY_ASSETS.md`. Use
+that as a starting point — anything else found in similarly permissive
+sources (OpenGameArt, freesound, kenney.nl, mixkit free tier) is also
+acceptable as long as the iconicity test above is passed.
 
 ## Code origin rule
 - Era Siege is written in this repo, by this team. No code is copied

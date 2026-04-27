@@ -25,6 +25,10 @@ export const ACHIEVEMENTS = [
   { id: 'era-siege-conquest', label: 'Conquest victor',     desc: 'Won an Era Siege match on Conquest.' },
   { id: 'era-siege-fast-win', label: 'Lightning campaign', desc: 'Won an Era Siege match in under 90 seconds.' },
   { id: 'era-siege-daily',    label: 'Daily commander',    desc: 'Completed an Era Siege daily challenge.' },
+  // Frost Fight
+  { id: 'frost-clear',        label: 'Cold opening',        desc: 'Cleared every room in Frost Fight.' },
+  { id: 'frost-deathless',    label: 'Untouchable',         desc: 'Cleared Frost Fight without a single death.' },
+  { id: 'frost-fast',         label: 'Sub-zero sprint',     desc: 'Cleared Frost Fight in under 150 seconds.' },
 ];
 
 const ORIGINAL_IDS = ['grudgewood', 'goalbound', 'slither', 'slipshot'];
@@ -152,6 +156,13 @@ export function useAchievements(user, bests) {
         if (meta.daily === true)            unlock('era-siege-daily');
       }
       if (gameId === 'aow' && (meta.era ?? 0) >= 5) unlock('era-siege-era5');
+      // Frost Fight — meta carries { deaths, time, levels }. The score
+      // bus only fires on a full-run win so we always award `frost-clear`.
+      if (gameId === 'badicecream') {
+        unlock('frost-clear');
+        if ((meta.deaths ?? 1) === 0) unlock('frost-deathless');
+        if ((meta.time ?? 9999) < 150) unlock('frost-fast');
+      }
     };
     window.addEventListener('pgplay:score', onScore);
     window.addEventListener('pgplay:open', onOpen);

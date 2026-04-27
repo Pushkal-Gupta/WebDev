@@ -37,4 +37,23 @@ export function tickEffects(state, dt) {
     for (const r of state.effects.rings) r.ageMs += dt * 1000;
     state.effects.rings = state.effects.rings.filter((r) => r.ageMs < r.lifeMs);
   }
+
+  // Painted-frame explosions — heavy unit deaths and point-mode specials.
+  if (state.effects.explosions && state.effects.explosions.length > 0) {
+    for (const e of state.effects.explosions) e.ageMs += dt * 1000;
+    state.effects.explosions = state.effects.explosions.filter((e) => e.ageMs < e.lifeMs);
+  }
+}
+
+export function pushExplosion(state, x, y, opts = {}) {
+  const arr = state.effects.explosions;
+  if (!arr) return;
+  // Cap to 12 simultaneous so a tight cluster doesn't tank frame budget.
+  if (arr.length > 12) arr.shift();
+  arr.push({
+    x, y,
+    ageMs: 0,
+    lifeMs: opts.lifeMs || 720,    // 12 frames × ~60ms ≈ 720ms
+    size: opts.size || 64,
+  });
 }

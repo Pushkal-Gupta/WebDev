@@ -3,6 +3,11 @@
 // Defs are inlined per-SVG via <SharedDefs/> so every cover
 // is fully self-contained (no cross-SVG id references).
 
+// One painted PNG ships from the user's art sheet — used as the lobby
+// cover for `badicecream` (Frost Fight), embedded inside an SVG so the
+// portrait card layout still works.
+import badicecreamCoverUrl from './games/frost-fight/sprites/cover.webp?url';
+
 const SharedDefs = () => (
   <defs>
     <pattern id="grain-pattern" width="4" height="4" patternUnits="userSpaceOnUse">
@@ -264,36 +269,40 @@ const Cover_Basket = () => (
   </svg>
 );
 
-// 7. Bad Ice Cream
+// 7. Bad Ice Cream — uses the painted hero art the user supplied. The
+// scene is landscape 16:9 and we frame it inside the project's portrait
+// 400×500 cover viewBox by anchoring the painted region centred and
+// filling the top/bottom with the route's deep-navy backdrop. A subtle
+// cyan halo on top of the painting echoes the in-game frame glow.
 const Cover_BadIceCream = () => (
   <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
-    <SharedDefs/>
-    <rect width="400" height="500" fill="#bfe6f5"/>
-    {[...Array(40)].map((_,i)=>{
-      const x = (i%8)*50, y = Math.floor(i/8)*62+60;
-      const has = [3,5,11,14,17,22,27,29,31,34,36,39].includes(i);
-      if (!has) return null;
-      return <g key={i}>
-        <rect x={x} y={y} width="48" height="60" fill="#e8f7ff" stroke="#7ac0e0" strokeWidth="2" rx="2"/>
-        <line x1={x+8} y1={y+6} x2={x+18} y2={y+14} stroke="#b0dcf0" strokeWidth="2"/>
-      </g>;
-    })}
-    <g fill="#ff4d6d">
-      <circle cx="110" cy="180" r="10"/><circle cx="280" cy="240" r="10"/>
-      <circle cx="180" cy="310" r="10"/>
-    </g>
-    <g transform="translate(140,360)">
-      <polygon points="30,40 90,40 60,100" fill="#d4a460" stroke="#8b5a2b" strokeWidth="2"/>
-      <path d="M40,60 L80,60 M45,75 L75,75" stroke="#8b5a2b" strokeWidth="1"/>
-      <circle cx="60" cy="30" r="36" fill="#ff8ec6" stroke="#2a1a1a" strokeWidth="2"/>
-      <circle cx="48" cy="22" r="4" fill="#fff"/>
-      <circle cx="72" cy="22" r="4" fill="#fff"/>
-      <circle cx="48" cy="22" r="2" fill="#0a0d0e"/>
-      <circle cx="72" cy="22" r="2" fill="#0a0d0e"/>
-      <path d="M40,12 L54,18 M66,18 L80,12" stroke="#0a0d0e" strokeWidth="3" strokeLinecap="round"/>
-      <path d="M48,42 Q60,34 72,42" fill="none" stroke="#0a0d0e" strokeWidth="2"/>
-    </g>
-    <Grain/>
+    <defs>
+      <linearGradient id="ff-cover-bg" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" stopColor="#0b1626"/>
+        <stop offset="55%" stopColor="#0e1c30"/>
+        <stop offset="100%" stopColor="#070f1c"/>
+      </linearGradient>
+      <radialGradient id="ff-cover-halo" cx="50%" cy="50%" r="60%">
+        <stop offset="0%" stopColor="rgba(108,208,240,0.18)"/>
+        <stop offset="100%" stopColor="rgba(108,208,240,0)"/>
+      </radialGradient>
+    </defs>
+    <rect width="400" height="500" fill="url(#ff-cover-bg)"/>
+    {/* Painted scene — 16:9 fitted to the full width (400×225), centred
+        vertically (top edge at y≈137 so the scene sits in the middle). */}
+    <image
+      href={badicecreamCoverUrl}
+      x="0" y="138" width="400" height="225"
+      preserveAspectRatio="xMidYMid slice"/>
+    {/* Soft halo on top of the painting for cohesion with the in-game
+        frame glow. Stays subtle so the painted detail reads through. */}
+    <rect width="400" height="500" fill="url(#ff-cover-halo)" opacity="0.6"/>
+    {/* Subtle frosted edge band at the very top + bottom — frames the
+        painting against the cover-card chrome. */}
+    <rect x="0" y="0" width="400" height="40"
+          fill="rgba(108,208,240,0.06)"/>
+    <rect x="0" y="460" width="400" height="40"
+          fill="rgba(108,208,240,0.06)"/>
   </svg>
 );
 

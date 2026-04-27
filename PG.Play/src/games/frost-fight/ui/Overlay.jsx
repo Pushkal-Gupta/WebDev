@@ -62,7 +62,7 @@ function fmt(time) {
   return m > 0 ? `${m}m ${s.toString().padStart(2, '0')}s` : `${s}s`;
 }
 
-export function WinCard({ open, deaths, time, best, bestBeaten, levelCount, onPlayAgain, onExit }) {
+export function WinCard({ open, deaths, time, best, bestBeaten, levelCount, coverUrl, onPlayAgain, onExit }) {
   const reduced = useReducedMotion();
   const t = fmt(time);
   // Best line — show the recorded best and a small "NEW BEST" tag when
@@ -85,6 +85,12 @@ export function WinCard({ open, deaths, time, best, bestBeaten, levelCount, onPl
             initial={reduced ? false : { y: 18, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}>
+            {coverUrl && (
+              <div
+                className="ff-card-art"
+                aria-hidden="true"
+                style={{ backgroundImage: `url(${coverUrl})` }}/>
+            )}
             <div className="ff-card-eyebrow">All rooms cleared</div>
             <div className="ff-card-title ff-card-title-xl">Frost Fight</div>
             <div className="ff-card-stats">

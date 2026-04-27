@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Pole -->
+  <rect x="60" y="20" width="6" height="92" rx="3"
+        fill="#ffffff" stroke="#0a0d0e" stroke-width="2.5"/>
+  <!-- Flag triangle -->
+  <path d="M 66 26 L 110 38 L 66 50 Z"
+        fill="#35f0c9" stroke="#0a0d0e" stroke-width="3" stroke-linejoin="round"/>
+  <!-- Flag highlight -->
+  <path d="M 66 26 L 96 34 L 66 30 Z" fill="#7af5dc" opacity="0.8"/>
+  <!-- Base socket -->
+  <ellipse cx="63" cy="112" rx="14" ry="4"
+           fill="#0a0d0e" opacity="0.35"/>
+</svg>

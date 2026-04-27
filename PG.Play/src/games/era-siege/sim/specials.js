@@ -4,6 +4,7 @@
 import { getSpecial } from '../content/specials.js';
 import { getEraByIndex } from '../content/eras.js';
 import { damageUnit, spawnHitParticles, spawnDamageNumber } from './combat.js';
+import { pushExplosion } from './effects.js';
 import { getMultiplier } from './powerups.js';
 
 export function tryFireSpecial(state, side) {
@@ -97,6 +98,8 @@ function applySpecialImpact(state, side, foeSide, def, impactX) {
     spawnDamageNumber(state, cx, cy - 18, def.damage, side.team);
     state.effects.shakeMs = 320; state.effects.shakeMag = 10;
     pushRing(state, cx, cy, def.radius, def.visual.primary, 'point');
+    // Painted explosion centred at impact, scaled with the radius.
+    pushExplosion(state, cx, cy - 18, { size: Math.min(220, def.radius * 1.4), lifeMs: 760 });
   } else if (def.mode === 'aura') {
     // Aura: +25% damage to owned units for 4s; immediate damage on engaged foes.
     side.auraLeftMs = 4000;
