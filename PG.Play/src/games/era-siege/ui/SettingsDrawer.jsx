@@ -63,6 +63,25 @@ export default function SettingsDrawer({ open, onClose }) {
           </button>
         </Row>
 
+        <Row label="Master volume">
+          <VolumeSlider
+            value={settings.volumes?.master ?? 0.8}
+            onChange={(v) => update({ volumes: { ...(settings.volumes || {}), master: v } })}
+          />
+        </Row>
+        <Row label="Music volume" hint="Music files ship in a future release">
+          <VolumeSlider
+            value={settings.volumes?.music ?? 0.5}
+            onChange={(v) => update({ volumes: { ...(settings.volumes || {}), music: v } })}
+          />
+        </Row>
+        <Row label="SFX volume">
+          <VolumeSlider
+            value={settings.volumes?.sfx ?? 0.9}
+            onChange={(v) => update({ volumes: { ...(settings.volumes || {}), sfx: v } })}
+          />
+        </Row>
+
         <Row label="Reduce motion" hint="Disables era flash + screen shake">
           <Tri
             value={settings.reduceMotion}
@@ -136,6 +155,21 @@ function Row({ label, hint, children }) {
         {hint && <div className="es-settings-row-hint">{hint}</div>}
       </div>
       <div className="es-settings-row-control">{children}</div>
+    </div>
+  );
+}
+
+function VolumeSlider({ value, onChange }) {
+  return (
+    <div className="es-vol">
+      <input
+        type="range"
+        min="0" max="1" step="0.05"
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        aria-label="Volume"
+      />
+      <span className="es-vol-num">{Math.round(value * 100)}</span>
     </div>
   );
 }

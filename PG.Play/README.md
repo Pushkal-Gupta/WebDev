@@ -25,7 +25,11 @@ The site is built around five hand-made originals:
 | **SLIPSHOT** | krunker.io | Movement-first FPS score attack. |
 | **Bricklands** | classic platformers | Three short worlds. One bouncy hero. |
 
-Plus 16 quieter pieces: 2048, Connect 4, 8-Ball Pool, Cut the Rope, Hoop Shot, Trace, Era Lane, Loft Defense, Short Order, Frost Fight, Night Shift, Arena, Faceplant, Raycaster FPS, Ember & Tide, Swingwire.
+Plus a sixth headline original — **Era Siege**, a five-era base-defense
+strategy game with 15 units, era-tied turrets, telegraphed specials, an
+AI director, and a balance simulator under `scripts/era-siege-sim.mjs`.
+
+And 15 quieter pieces: 2048, Connect 4, 8-Ball Pool, Cut the Rope, Hoop Shot, Trace, Loft Defense, Short Order, Frost Fight, Night Shift, Arena, Faceplant, Raycaster FPS, Ember & Tide, Swingwire.
 
 The four originals are **clones in spirit, not in code** — none use external assets or iframe-embedded reference games. Bricklands has zero Nintendo art.
 

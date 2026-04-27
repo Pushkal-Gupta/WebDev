@@ -5,6 +5,7 @@
 import { getProjectile } from '../content/projectiles.js';
 import { damageUnit, damageBase, spawnHitParticles } from './combat.js';
 import { distSq } from '../utils/math.js';
+import { getMultiplier } from './powerups.js';
 
 const HOMING_BIAS = 0.18;     // 0..1 — how much the projectile turns toward live target each second
 const IMPACT_RADIUS_SQ = 14 * 14;
@@ -17,15 +18,20 @@ export function spawnProjectile(state, attacker, target, side) {
   const dy = ty - attacker.y;
   const len = Math.max(1, Math.hypot(dx, dy));
   const speed = def.speed;
+  // Munitions powerup: turret-fired projectiles get the bonus damage.
+  // We detect by attacker.kind === 'turret' (set by makeTurretInstance).
+  const isTurret = attacker && attacker.kind === 'turret';
+  const dmgMul = isTurret ? getMultiplier(side.powerups, 'turret') : 1;
   state.pools.projectile.acquire((p) => {
     p.alive = true;
     p.id = state.allocId();
     p.team = side.team;
     p.defId = def.id;
     p.x = attacker.x; p.y = attacker.y - 8;
+    p.px = p.x; p.py = p.y;        // previous-step end for render interpolation
     p.vx = (dx / len) * speed;
     p.vy = (dy / len) * speed;
-    p.damage = attacker.damage;
+    p.damage = attacker.damage * dmgMul;
     p.targetId = target ? target.id : null;
     p.ttlMs = def.ttlMs;
     p.kind = def.kind;
@@ -42,6 +48,7 @@ export function tickProjectiles(state, dt) {
 
   for (const p of pool.live) {
     if (!p.alive) continue;
+    p.px = p.x; p.py = p.y;          // capture previous-step end
     p.ttlMs -= dt * 1000;
     if (p.ttlMs <= 0) { p.alive = false; continue; }
     // Homing bias toward live target if any.
@@ -50,7 +57,6 @@ export function tickProjectiles(state, dt) {
       const dx = t.x - p.x, dy = (t.y - 6) - p.y;
       const len = Math.max(1, Math.hypot(dx, dy));
       const speed = Math.hypot(p.vx, p.vy);
-      // lerp velocity toward target dir.
       const k = Math.min(1, HOMING_BIAS * dt);
       p.vx = p.vx * (1 - k) + (dx / len) * speed * k;
       p.vy = p.vy * (1 - k) + (dy / len) * speed * k;

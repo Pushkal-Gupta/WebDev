@@ -4,6 +4,7 @@
 import { getSpecial } from '../content/specials.js';
 import { getEraByIndex } from '../content/eras.js';
 import { damageUnit, spawnHitParticles, spawnDamageNumber } from './combat.js';
+import { getMultiplier } from './powerups.js';
 
 export function tryFireSpecial(state, side) {
   if (side.specialCooldownMs > 0) {
@@ -59,7 +60,8 @@ export function tickSpecials(state, dt) {
       const def = getSpecial(sa.specialId);
       const foeSide = side === state.player ? state.enemy : state.player;
       applySpecialImpact(state, side, foeSide, def, sa.impactX);
-      side.specialCooldownMs = def.cooldownMs;
+      // Apply Resonance powerup: cooldown × (1 - 0.10 × level).
+      side.specialCooldownMs = Math.round(def.cooldownMs * getMultiplier(side.powerups, 'special'));
       side.specialActive = null;
       state.bus.emit('special_used', { team: side.team, specialId: def.id, era: side.eraIndex });
     }

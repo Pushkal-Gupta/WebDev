@@ -1,32 +1,42 @@
-// Canvas2D renderer for Era Siege. Draws everything from primitives —
-// no sprite atlas in v1. Reads palette per era from the match.
+// Canvas2D renderer for Era Siege.
 //
-// HP-bar palette is selected by `match.cbSafe` — green/amber/red for
-// the default and blue/amber/magenta for the color-blind-safe variant.
+// Phase 7 layered draw order (back → front):
+//   1. Sky                (parallax.drawSky)
+//   2. Cloud band         (parallax.drawClouds)
+//   3. Far mountain ridge (parallax.drawFarMountains)
+//   4. Mid hill ridge     (parallax.drawMidMountains)
+//   5. Ground band        (parallax.drawGround)
+//   6. Foreground band    (parallax.drawForeground) — between ground and bases
+//   7. Bases (era-tinted, taller, with banner + pennant)
+//   8. Turrets
+//   9. Special telegraphs
+//  10. Units (sorted by foot-y for back-to-front readability)
+//  11. Projectiles
+//  12. Particles (additive)
+//  13. Special-impact rings
+//  14. Damage numbers
+//  15. Era ribbon (top-of-screen)
 //
-// Layered draw order (each pass on top of the previous):
-//   1. Sky gradient (era-tinted, cached)
-//   2. Far mountains (deeper era tint)
-//   3. Mid motif (era-specific flavour particles)
-//   4. Near foreground rocks
-//   5. Ground band + detail
-//   6. Bases (era-tinted, with banner + pennant)
-//   7. Turrets (with firing flash)
-//   8. Special telegraphs (so units occlude)
-//   9. Units (back-to-front by id)
-//  10. Projectiles
-//  11. Particles (additive)
-//  12. Damage numbers
-//  13. Era label (top-of-screen ribbon)
-//
-// Screen shake is applied as a translate before passes 1–13.
-// Era flash is full-screen overlay drawn last (post-shake).
+// Screen shake is applied as a translate before passes 1–15.
+// Era flash + era-up banner are drawn after restore so they're shake-stable.
 
-import { paletteFor, getEraByIndex } from '../content/eras.js';
+import { paletteFor, getEraByIndex, ERAS_BY_ID } from '../content/eras.js';
+import { BALANCE } from '../content/balance.js';
+import { assets } from './assets.js';
+import {
+  drawSky, drawClouds, drawFarMountains, drawMidMountains,
+  drawGround as drawGroundLayer, drawForeground,
+} from './parallax.js';
 
-// Module-level HP-palette flag, set per-render. Lets the static draw
-// helpers consult it without threading it through every call.
+// eraId → index map for unit sprite lookup (renderer-only, immutable).
+const ERA_BY_ID = Object.fromEntries(
+  Object.entries(ERAS_BY_ID).map(([id, era]) => [id, era.index + 1]),
+);
+
+// Module-level draw flags, set per-render. Lets the static draw helpers
+// consult them without threading parameters through every call.
 let _cbSafe = false;
+let _alpha = 1;
 function hpColor(r) {
   if (_cbSafe) {
     // Blue → amber → magenta — distinguishable across deuteranopia,
@@ -70,6 +80,9 @@ export function makeRenderer() {
     const v = match.view;
     const w = v.w, h = v.h;
     _cbSafe = !!match.cbSafe;
+    // Render-interp factor: where between the last and the next sim step
+    // are we right now? Buttery 120-Hz / 2× speed motion needs this.
+    _alpha = Math.max(0, Math.min(1, (match._acc || 0) / (1 / 60)));
     const playerEraIdx = match.player.eraIndex;
     const playerEra = getEraByIndex(playerEraIdx);
     const pal = paletteFor(playerEra.id);
@@ -82,22 +95,26 @@ export function makeRenderer() {
     if (shakeX || shakeY) ctx.translate(shakeX, shakeY);
 
     // 1) Sky
-    ctx.fillStyle = getSkyGradient(ctx, playerEra.id, w, h);
-    ctx.fillRect(0, 0, w, h);
+    drawSky(ctx, v, playerEraIdx);
 
-    // 2) Far mountains (darker, set further from ground)
-    drawMountains(ctx, w, h, v, pal, 0.6, 100);
+    // 2) Cloud band (drifting)
+    drawClouds(ctx, v, playerEraIdx, match.timeSec);
 
-    // 3) Mid motif
-    drawMidMotif(ctx, w, h, v, pal, playerEra.id, match.timeSec);
+    // 3) Far mountains
+    drawFarMountains(ctx, v, playerEraIdx);
 
-    // 4) Near rocks (foreground silhouettes)
-    drawNearRocks(ctx, w, v, pal);
+    // 4) Mid mountains
+    drawMidMountains(ctx, v, playerEraIdx);
 
     // 5) Ground
-    drawGround(ctx, w, h, v, pal, ctx, playerEra.id);
+    drawGroundLayer(ctx, v, playerEraIdx);
 
-    // 6) Bases
+    // 6) Foreground band (rocks/grass/debris) — sits *behind* the bases
+    //    but in front of the ground gradient so it reads as detail near
+    //    the camera.
+    drawForeground(ctx, v, playerEraIdx);
+
+    // 7) Bases
     drawBase(ctx, v.laneLeft - 50, v.groundY, match.player, true, pal);
     drawBase(ctx, v.laneRight + 50, v.groundY, match.enemy, false, paletteFor(getEraByIndex(match.enemy.eraIndex).id));
 
@@ -403,15 +420,83 @@ function drawSpecialTelegraph(ctx, match, side, isPlayer) {
   ctx.restore();
 }
 
+// Sprite-blit unit. Reads the painted hero pose from the manifest and
+// blits it foot-anchored at the unit's x/y. Walk-frame animation lives
+// in a future commit when we wire the multi-frame `<role>-sheet.png`.
+function drawUnitSprite(ctx, u, x, y, spriteKey, sideAuraActive) {
+  // Aura halo — same colour vocabulary as the procedural path.
+  if (sideAuraActive) {
+    const pulse = (Math.sin(performance.now() / 220) + 1) / 2;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = 0.18 + pulse * 0.18;
+    ctx.fillStyle = '#ffcb6b';
+    ctx.beginPath();
+    ctx.ellipse(x, y - 18, 24, 14, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+  // Foot shadow.
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 1, 14, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Sprite. Authoring is at single-frame ~183×102 — render at ~64 tall
+  // for a battlefield-readable size that stays consistent across eras.
+  const SCALE = BALANCE.UNIT_RENDER_SCALE || 1;
+  const role = u.role;
+  const targetH = role === 'heavy' ? 80 * SCALE : 64 * SCALE;
+  // The frame's inherent aspect is ~1.79:1 (183/102) — preserve it.
+  const targetW = targetH * 1.79;
+  const flipX = u.facing < 0;
+  ctx.save();
+  if (flipX) {
+    ctx.translate(x, y);
+    ctx.scale(-1, 1);
+    assets.draw(ctx, spriteKey, 0, 0, { w: targetW, h: targetH, anchor: 'foot' });
+  } else {
+    assets.draw(ctx, spriteKey, x, y, { w: targetW, h: targetH, anchor: 'foot' });
+  }
+  ctx.restore();
+
+  // HP bar (only when damaged, drawn over the sprite).
+  const hpR = u.hp / u.maxHp;
+  if (hpR < 0.999) {
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    ctx.fillRect(x - 18, y - targetH - 6, 36, 3);
+    ctx.fillStyle = hpColor(hpR);
+    ctx.fillRect(x - 18, y - targetH - 6, 36 * Math.max(0, hpR), 3);
+  }
+}
+
 // ── Units ──────────────────────────────────────────────────────────────
 function drawUnit(ctx, u, sideAuraActive) {
-  const x = u.x, y = u.y + (u.laneStagger || 0);
-  const w = u.silhouetteW || 16;
-  const h = u.silhouetteH || 22;
+  // Interpolate between the previous-step end and the current-step end.
+  // px/py are populated at the start of every sim step; on the first
+  // step they equal x/y so the lerp is a no-op.
+  const x = (u.px != null) ? u.px + (u.x - u.px) * _alpha : u.x;
+  const y = ((u.py != null) ? u.py + (u.y - u.py) * _alpha : u.y) + (u.laneStagger || 0);
+
+  // Try the painted sprite first. Each unit's content def carries
+  // `eraId` (e.g. 'ember-tribe') — we map to the manifest's era index.
+  const eraN = u.eraIndex != null ? u.eraIndex + 1 : ERA_BY_ID[u.eraId] || 1;
+  const role = u.role;
+  const spriteKey = `unit/era${eraN}/${role}`;
+  if (assets.has(spriteKey)) {
+    drawUnitSprite(ctx, u, x, y, spriteKey, sideAuraActive);
+    return;
+  }
+
+  // Visual scale lifts silhouettes off the ground without touching
+  // sim values (range / collision still use the content-data sizes).
+  const SCALE = BALANCE.UNIT_RENDER_SCALE || 1;
+  const w = (u.silhouetteW || 16) * SCALE;
+  const h = (u.silhouetteH || 22) * SCALE;
   const halfW = w / 2;
   const colorBody = u.visual?.colorBody || u.color || '#888';
   const colorTrim = u.visual?.colorTrim || '#fff';
-  const headR = u.visual?.headRadius || 6;
+  const headR = (u.visual?.headRadius || 6) * SCALE;
   const isHeavy = u.role === 'heavy';
 
   // Walk bob (cosmetic only).
@@ -543,24 +628,26 @@ function drawWeapon(ctx, shape, x, y, facing, color, phase) {
 
 // ── Projectiles ────────────────────────────────────────────────────────
 function drawProjectile(ctx, p) {
+  const x = (p.px != null) ? p.px + (p.x - p.px) * _alpha : p.x;
+  const y = (p.py != null) ? p.py + (p.y - p.py) * _alpha : p.y;
   if (p.kind === 'orb') {
     ctx.save();
     const r = p.size + 1;
-    const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 2);
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, r * 2);
     grad.addColorStop(0, p.color);
     grad.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = grad;
-    ctx.beginPath(); ctx.arc(p.x, p.y, r * 2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x, y, r * 2, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
   } else {
     ctx.strokeStyle = p.colorTrail || p.color;
     ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.moveTo(p.x - p.vx * 0.025, p.y - p.vy * 0.025);
-    ctx.lineTo(p.x, p.y);
+    ctx.moveTo(x - p.vx * 0.025, y - p.vy * 0.025);
+    ctx.lineTo(x, y);
     ctx.stroke();
     ctx.fillStyle = p.color;
-    ctx.fillRect(p.x - 1, p.y - 1, 2, 2);
+    ctx.fillRect(x - 1, y - 1, 2, 2);
   }
 }
 

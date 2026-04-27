@@ -16,6 +16,7 @@ const DEFAULTS = {
   lowFxOverride: null,  // null = follow auto-detect; true/false override
   speed: 1,             // 1 or 2
   cbSafePalette: false, // color-blind safe HP palette
+  volumes: { master: 0.8, music: 0.5, sfx: 0.9 }, // 0..1 per bus
 };
 
 let cache = null;

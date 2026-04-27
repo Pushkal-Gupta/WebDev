@@ -19,14 +19,13 @@ import { startLoop } from './engine/loop.js';
 import { makeRenderer } from './engine/renderer.js';
 import { makeIntents, clearIntents, attachKeyboard } from './engine/input.js';
 import { attachAudio } from './engine/audio.js';
-import { paletteFor, getEraByIndex } from './content/eras.js';
+import { paletteFor, getEraByIndex, nextEra } from './content/eras.js';
 import { validateContent } from './content/index.js';
 import { BALANCE } from './content/balance.js';
 
-import HUD from './ui/HUD.jsx';
+import TopBar from './ui/TopBar.jsx';
 import UnitDock from './ui/UnitDock.jsx';
-import TurretRack from './ui/TurretRack.jsx';
-import EraBadge from './ui/EraBadge.jsx';
+import TurretSlots from './ui/TurretSlots.jsx';
 import SpecialButton from './ui/SpecialButton.jsx';
 import Tutorial from './ui/Tutorial.jsx';
 import ResultPanel from './ui/ResultPanel.jsx';
@@ -34,10 +33,16 @@ import DifficultyChip from './ui/DifficultyChip.jsx';
 import PauseOverlay from './ui/PauseOverlay.jsx';
 import PerfOverlay from './ui/PerfOverlay.jsx';
 import SettingsDrawer from './ui/SettingsDrawer.jsx';
-import TopActions from './ui/TopActions.jsx';
 import OrientationGuide from './ui/OrientationGuide.jsx';
 import ShortcutsOverlay from './ui/ShortcutsOverlay.jsx';
+import TurretBuildModal from './ui/TurretBuildModal.jsx';
+import TurretManagePopover from './ui/TurretManagePopover.jsx';
+import PowerUpsDrawer from './ui/PowerUpsDrawer.jsx';
+import EvolutionPanel from './ui/EvolutionPanel.jsx';
+import EraBanner from './ui/EraBanner.jsx';
 import { makePerfMon, detectDeviceClass } from './engine/perf.js';
+import { assets } from './engine/assets.js';
+import { POWERUP_DEFS, getMultiplier } from './sim/powerups.js';
 
 import './styles.css';
 
@@ -56,6 +61,15 @@ function modeIsEndless(mode) { return mode === 'endless'; }
 
 // Read URL flags once at module load. SSR-safe.
 const SHOW_PERF = typeof window !== 'undefined' && /[?&]perf\b/.test(window.location?.search || '');
+function urlSeed() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const m = (window.location.search || '').match(/[?&]es-seed=(-?\d+)/);
+    if (!m) return null;
+    const n = Number(m[1]);
+    return Number.isFinite(n) ? (n >>> 0) : null;
+  } catch { return null; }
+}
 
 export default function EraSiegeGame({ mode }) {
   // Refs hold the heavy stuff so changing them never triggers re-renders.
@@ -77,18 +91,27 @@ export default function EraSiegeGame({ mode }) {
   const [paused, setPaused] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [powerUpsOpen, setPowerUpsOpen] = useState(false);
+  const [evolutionOpen, setEvolutionOpen] = useState(false);
+  const [turretBuildSlot, setTurretBuildSlot] = useState(null);
+  const [turretManageSlot, setTurretManageSlot] = useState(null);
+  const [eraBannerVer, setEraBannerVer] = useState(null);
   const [settingsRev, setSettingsRev] = useState(0);   // re-render trigger when settings change
 
   // Minimal HUD mirror.
   const [hud, setHud] = useState({
     gold: 110, xp: 0, eraIndex: 0,
     playerHP: BALANCE.BASE_HP, enemyHP: BALANCE.BASE_HP,
+    maxHP: BALANCE.BASE_HP, enemyMaxHP: BALANCE.BASE_HP,
     cooldownsMs: {},
+    enemyAuraLeftMs: 0,
+    enemyEraIndex: 0,
     turretSlots: [null, null, null],
     specialCooldownMs: 0, specialCharging: false,
     auraLeftMs: 0,
     timeSec: 0, status: 'playing', score: 0,
     endlessSec: 0,
+    powerups: { economy: 0, base: 0, special: 0, turret: 0 },
     stats: { unitsSpawned: 0, turretsBuilt: 0, specialsUsed: 0, kills: 0 },
   });
   const [tutorialIdx, setTutorialIdx] = useState(() =>
@@ -101,23 +124,32 @@ export default function EraSiegeGame({ mode }) {
     return subscribeSettings((s) => { settingsRef.current = s; setSettingsRev((n) => n + 1); });
   }, []);
 
-  // Pause when settings drawer is open. Restored on close.
+  // Pause sim while any blocking surface is open (settings / power-ups /
+  // evolution preview / turret build / turret manage). Restored on close.
   const wasPausedBeforeDrawerRef = useRef(false);
+  const overlayOpen = settingsOpen || powerUpsOpen || evolutionOpen
+                   || turretBuildSlot != null || turretManageSlot != null;
   useEffect(() => {
-    if (settingsOpen) {
-      wasPausedBeforeDrawerRef.current = pausedRef.current;
+    if (overlayOpen) {
+      // Capture current pause state on the first open of an overlay session.
+      if (!pausedRef.current) wasPausedBeforeDrawerRef.current = false;
+      else                    wasPausedBeforeDrawerRef.current = true;
       pausedRef.current = true;
       setPaused(true);
     } else {
       pausedRef.current = wasPausedBeforeDrawerRef.current;
       setPaused(pausedRef.current);
     }
-  }, [settingsOpen]);
+  }, [overlayOpen]);
 
   // ── Mount: build match, attach loop/renderer/audio/input.
   useEffect(() => {
     if (typeof window === 'undefined') return; // jsdom mount safety
     validateContent();
+    // Begin loading any present art; placeholders carry the visuals
+    // until images decode. Vite serves under `/` in dev and the
+    // current dist under the configured base — we resolve relative.
+    try { assets.preloadAll('/'); } catch { /* placeholder path is fine */ }
 
     const wrap = wrapRef.current;
     const canvas = canvasRef.current;
@@ -126,7 +158,10 @@ export default function EraSiegeGame({ mode }) {
     const difficulty = modeToDifficulty(mode);
     const isDaily = modeIsDaily(mode);
     const isEndless = modeIsEndless(mode);
-    const seed = isDaily ? todaySeed() : undefined;
+    // URL-pinned seed wins over daily seed except in daily mode (the
+    // whole point of daily is "the same seed for everyone today").
+    const sharedSeed = !isDaily ? urlSeed() : null;
+    const seed = isDaily ? todaySeed() : (sharedSeed != null ? sharedSeed : undefined);
     const match = createMatch({
       difficulty,
       seed,
@@ -153,7 +188,11 @@ export default function EraSiegeGame({ mode }) {
     // Telemetry.
     const offMs = match.bus.on('match_start', (e) => telemetry.emit('era_siege:match_start', { ...e, isDaily }));
     const offMe = match.bus.on('match_end',   (e) => telemetry.emit('era_siege:match_end',   { ...e, isDaily }));
-    const offEr = match.bus.on('era_reached', (e) => telemetry.emit('era_siege:era_reached', e));
+    const offEr = match.bus.on('era_reached', (e) => {
+      telemetry.emit('era_siege:era_reached', e);
+      // Player evolutions trigger the EraBanner overlay.
+      if (e.team === 'player') setEraBannerVer((v) => (v == null ? 1 : v + 1));
+    });
     const offEv = match.bus.on('evolve_clicked', (e) => telemetry.emit('era_siege:evolve_clicked', e));
     const offUs = match.bus.on('unit_spawned', (e) => {
       if (e.team === 'player' && Math.random() < 0.25) telemetry.emit('era_siege:unit_spawned', e);
@@ -198,6 +237,8 @@ export default function EraSiegeGame({ mode }) {
           evolves: match.player.eraIndex,
           isDaily,
           dailyDate: isDaily ? todayDateString() : null,
+          isEndless,
+          endlessSec: Math.round(match.endlessTimeSec || 0),
         });
       } catch { /* don't block submission on storage failure */ }
 
@@ -236,6 +277,7 @@ export default function EraSiegeGame({ mode }) {
         setPaused(pausedRef.current);
       },
       requestShortcuts: () => setShortcutsOpen((v) => !v),
+      requestPowerUps:  () => setPowerUpsOpen((v) => !v),
     });
 
     // Loop.
@@ -284,6 +326,23 @@ export default function EraSiegeGame({ mode }) {
     setRootAccent(wrap, getEraByIndex(0).id);
 
     return () => {
+      // If the match is still in-flight when the component unmounts, the
+      // player closed the tab / hit Back / changed games mid-run. Telemetry
+      // calls this rage_quit so we can track sad-path drop-offs separate
+      // from natural defeats.
+      try {
+        const m = matchRef.current;
+        if (m && m.status === 'playing' && !submittedRef.current) {
+          telemetry.emit('era_siege:rage_quit', {
+            era: m.player.eraIndex + 1,
+            timeSec: Math.round(m.timeSec),
+            hpRatio: m.player.base.hp / m.player.base.maxHp,
+            difficulty: m.difficulty.id,
+            isDaily,
+            isEndless,
+          });
+        }
+      } catch { /* swallow */ }
       try { offMs?.(); offMe?.(); offEr?.(); offEv?.(); offUs?.(); offTb?.(); offSu?.(); offLg?.(); offTut?.(); offEnd?.(); } catch { /* ignore */ }
       try { audioStopRef.current?.(); } catch { /* ignore */ }
       try { kbStopRef.current?.(); } catch { /* ignore */ }
@@ -310,6 +369,7 @@ export default function EraSiegeGame({ mode }) {
       playerHP: match.player.base.hp,
       enemyHP:  match.enemy.base.hp,
       cooldownsMs: match.player._spawnCooldowns ? { ...match.player._spawnCooldowns } : {},
+      enemyAuraLeftMs: match.enemy.auraLeftMs || 0,
       turretSlots: [
         match.player.turretSlots[0] ? { eraIndex: match.player.turretSlots[0].eraIndex, turretId: match.player.turretSlots[0].turretId, buildCost: match.player.turretSlots[0].buildCost } : null,
         match.player.turretSlots[1] ? { eraIndex: match.player.turretSlots[1].eraIndex, turretId: match.player.turretSlots[1].turretId, buildCost: match.player.turretSlots[1].buildCost } : null,
@@ -322,6 +382,12 @@ export default function EraSiegeGame({ mode }) {
       status:  match.status,
       score:   match.endlessMode ? scoreMatch(match) : (match.status === 'playing' ? 0 : scoreMatch(match)),
       endlessSec: Math.floor(match.endlessTimeSec || 0),
+      maxHP:    match.player.base.maxHp,
+      enemyMaxHP: match.enemy.base.maxHp,
+      enemyEraIndex: match.enemy.eraIndex,
+      powerups: match.player.powerups
+        ? { ...match.player.powerups }
+        : { economy: 0, base: 0, special: 0, turret: 0 },
       stats:   match.statsPlayer,
     };
     if (cheapDiffers(hud, next)) {
@@ -357,27 +423,62 @@ export default function EraSiegeGame({ mode }) {
     const cur = settingsRef.current.speed || 1;
     writeSettings({ speed: cur === 1 ? 2 : 1 });
   };
+  const onBuyPowerup = (treeId) => { intentsRef.current.buyPowerup = treeId; };
+  const onSlotClick = (i) => {
+    const t = matchRef.current?.player.turretSlots[i];
+    if (t) setTurretManageSlot(t);
+    else   setTurretBuildSlot(i);
+  };
+  const onConfirmBuild = (slot) => {
+    intentsRef.current.buildTurret = { slot };
+    setTurretBuildSlot(null);
+  };
+  const onConfirmUpgrade = () => {
+    if (turretManageSlot) intentsRef.current.buildTurret = { slot: turretManageSlot.slot };
+    setTurretManageSlot(null);
+  };
+  const onConfirmSell = () => {
+    if (turretManageSlot) intentsRef.current.sellTurret = turretManageSlot.slot;
+    setTurretManageSlot(null);
+  };
 
   const era = getEraByIndex(hud.eraIndex);
   const unitIds = era?.unitIds || [];
   const difficulty = modeToDifficulty(mode);
   const isDaily = modeIsDaily(mode);
   const isEndless = modeIsEndless(mode);
-  const speed = settingsRef.current.speed || 1;
   const stats = readStats();
+
+  // Evolve readiness — exposed here so the TopBar's Evolve CTA can read it.
+  const nextDef = era ? nextEra(era.id) : null;
+  const evolveReady = !!nextDef && hud.xp >= nextDef.xpToEvolve && hud.gold >= nextDef.evolveCost;
+  const specialReady = hud.specialCooldownMs <= 0 && !hud.specialCharging;
 
   return (
     <div ref={wrapRef} className="es-root" data-rev={settingsRev}>
-      <HUD
+      <TopBar
         gold={hud.gold}
+        xp={hud.xp}
+        eraIndex={hud.eraIndex}
         playerHP={hud.playerHP}
         enemyHP={hud.enemyHP}
-        maxHP={BALANCE.BASE_HP}
-        eraIndex={hud.eraIndex}
+        maxHP={hud.maxHP}
+        enemyEraIndex={hud.enemyEraIndex}
         timeSec={hud.timeSec}
+        speed={settingsRef.current.speed || 1}
+        paused={paused}
+        specialReady={specialReady}
+        evolveReady={evolveReady}
+        onEvolve={() => setEvolutionOpen(true)}
+        onTogglePause={onTogglePause}
+        onCycleSpeed={onCycleSpeed}
+        onOpenSettings={() => setSettingsOpen(true)}
+        onOpenPowerUps={() => setPowerUpsOpen(true)}
+        onOpenShortcuts={() => setShortcutsOpen(true)}
       />
       <div className="es-stage">
         <canvas ref={canvasRef} className="es-canvas" aria-label="Era Siege battlefield"/>
+
         <DifficultyChip difficultyId={difficulty}/>
         {isDaily && (
           <div className="es-daily-pill" title={`Daily seed for ${todayDateString()}`}>
@@ -389,42 +490,39 @@ export default function EraSiegeGame({ mode }) {
             Endless · {hud.endlessSec}s · {hud.score}/100
           </div>
         )}
-        <TopActions
-          paused={paused}
-          speed={speed}
-          onTogglePause={onTogglePause}
-          onCycleSpeed={onCycleSpeed}
-          onOpenSettings={() => setSettingsOpen(true)}
-        />
-        <EraBadge
-          gold={hud.gold}
-          xp={hud.xp}
-          eraIndex={hud.eraIndex}
-          onEvolve={onEvolve}
-        />
         {hud.auraLeftMs > 0 && (
           <div className="es-aura-pill" title="Sun Forge: +25% damage to your units">
             Sun Forge · {Math.ceil(hud.auraLeftMs / 1000)}s
           </div>
         )}
+        {hud.enemyAuraLeftMs > 0 && (
+          <div className="es-aura-pill is-enemy" title="Enemy Sun Forge: their units are buffed">
+            Enemy Forge · {Math.ceil(hud.enemyAuraLeftMs / 1000)}s
+          </div>
+        )}
+
+        <TurretSlots
+          slots={hud.turretSlots}
+          eraIndex={hud.eraIndex}
+          gold={hud.gold}
+          onSlotClick={onSlotClick}
+        />
+
         <SpecialButton
           eraIndex={hud.eraIndex}
           cooldownMs={hud.specialCooldownMs}
           charging={hud.specialCharging}
           onFire={onSpecial}
         />
-        <TurretRack
-          slots={hud.turretSlots}
-          eraIndex={hud.eraIndex}
-          gold={hud.gold}
-          onBuild={onBuild}
-          onSell={onSell}
-        />
+
         <Tutorial activeIdx={tutorialIdx} onDismiss={onTutDismiss}/>
+        <EraBanner eraIndex={hud.eraIndex} version={eraBannerVer}/>
+
         <PauseOverlay
-          paused={paused && !settingsOpen}
+          paused={paused && !overlayOpen}
           onResume={() => { pausedRef.current = false; setPaused(false); }}
         />
+
         {SHOW_PERF && (
           <PerfOverlay
             perfMon={perfMonRef.current}
@@ -432,6 +530,7 @@ export default function EraSiegeGame({ mode }) {
             lowFx={matchRef.current?.lowFx || false}
           />
         )}
+
         <ResultPanel
           status={hud.status}
           eraIndex={hud.eraIndex}
@@ -439,10 +538,48 @@ export default function EraSiegeGame({ mode }) {
           score={hud.score}
           stats={hud.stats}
           difficulty={difficulty}
+          seed={matchRef.current?.seed}
           isDaily={isDaily}
           persistedStats={stats}
           onAgain={onAgain}
         />
+
+        <TurretBuildModal
+          open={turretBuildSlot != null}
+          slotIndex={turretBuildSlot ?? 0}
+          eraIndex={hud.eraIndex}
+          gold={hud.gold}
+          onBuild={onConfirmBuild}
+          onClose={() => setTurretBuildSlot(null)}
+        />
+
+        <TurretManagePopover
+          open={turretManageSlot != null}
+          slot={turretManageSlot}
+          gold={hud.gold}
+          eraIndex={hud.eraIndex}
+          onUpgrade={onConfirmUpgrade}
+          onSell={onConfirmSell}
+          onClose={() => setTurretManageSlot(null)}
+        />
+
+        <PowerUpsDrawer
+          open={powerUpsOpen}
+          gold={hud.gold}
+          powerups={hud.powerups}
+          onBuy={onBuyPowerup}
+          onClose={() => setPowerUpsOpen(false)}
+        />
+
+        <EvolutionPanel
+          open={evolutionOpen}
+          eraIndex={hud.eraIndex}
+          gold={hud.gold}
+          xp={hud.xp}
+          onEvolve={onEvolve}
+          onClose={() => setEvolutionOpen(false)}
+        />
+
         <SettingsDrawer
           open={settingsOpen}
           onClose={() => setSettingsOpen(false)}
@@ -450,6 +587,7 @@ export default function EraSiegeGame({ mode }) {
         <OrientationGuide deviceClass={deviceClassRef.current}/>
         <ShortcutsOverlay open={shortcutsOpen} onClose={() => setShortcutsOpen(false)}/>
       </div>
+
       <UnitDock
         unitIds={unitIds}
         gold={hud.gold}
@@ -459,6 +597,7 @@ export default function EraSiegeGame({ mode }) {
     </div>
   );
 }
+
 
 function cheapDiffers(a, b) {
   if (a.gold !== b.gold) return true;
@@ -470,6 +609,8 @@ function cheapDiffers(a, b) {
   if (a.specialCharging !== b.specialCharging) return true;
   if ((a.auraLeftMs > 0) !== (b.auraLeftMs > 0)) return true;
   if (Math.abs((a.auraLeftMs || 0) - (b.auraLeftMs || 0)) > 250) return true;
+  if ((a.enemyAuraLeftMs > 0) !== (b.enemyAuraLeftMs > 0)) return true;
+  if (Math.abs((a.enemyAuraLeftMs || 0) - (b.enemyAuraLeftMs || 0)) > 250) return true;
   if (a.timeSec !== b.timeSec) return true;
   if (a.status !== b.status) return true;
   if (a.score !== b.score) return true;
@@ -485,6 +626,12 @@ function cheapDiffers(a, b) {
     if (ai && bi && (ai.eraIndex !== bi.eraIndex || ai.turretId !== bi.turretId)) return true;
   }
   if (a.stats?.kills !== b.stats?.kills) return true;
+  if (a.maxHP !== b.maxHP) return true;
+  if (a.enemyMaxHP !== b.enemyMaxHP) return true;
+  if (a.enemyEraIndex !== b.enemyEraIndex) return true;
+  // Powerups change rarely (purchase only) — full shallow compare.
+  const ap = a.powerups || {}, bp = b.powerups || {};
+  if (ap.economy !== bp.economy || ap.base !== bp.base || ap.special !== bp.special || ap.turret !== bp.turret) return true;
   return false;
 }
 

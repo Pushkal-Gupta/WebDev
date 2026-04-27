@@ -42,6 +42,8 @@ export function trySpawnUnit(state, side, unitId) {
     kind: 'unit',
     team: side.team,
     unitId: def.id,
+    eraId:    def.eraId,
+    eraIndex: eraIdxOfDef,         // renderer reads this for sprite key lookup
     name: def.name,
     role: def.role,
     hp: def.hp,
@@ -119,6 +121,22 @@ function stepSide(state, side, foeSide, dt) {
     const targetX = target ? target.x : foeBaseX;
     const dx = targetX - u.x;
     const distance = Math.abs(dx);
+
+    // Ranged kiting: if we have a long range and a *melee* foe is within
+    // our personal-space radius, back-step instead of standing & shooting.
+    // Personal space = 60% of own range. Only ranged units (range > 60)
+    // get this behaviour — melee units lean in.
+    const isRangedKind = u.range >= 100 && !!u.projectileId;
+    if (isRangedKind && target && Math.abs(target.x - u.x) < u.range * 0.45 && (target.range || 0) < 80) {
+      // Back-step at half move speed, reset attack windup so we don't
+      // shoot mid-retreat. We still face the same direction.
+      u.x -= u.facing * u.moveSpeed * 0.5 * dt;
+      u.x = clampX(u.x, state.view);
+      u.walkPhaseMs += dt * 1000;
+      u.attackTickPhase = 'idle';
+      u.attackTimerMs = 0;
+      continue;
+    }
 
     if (u.attackTickPhase === 'idle' && distance > u.range) {
       // Walk

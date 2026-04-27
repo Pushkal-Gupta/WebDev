@@ -20,6 +20,7 @@ const blank = () => ({
   fastestWinSec: { skirmish: 0, standard: 0, conquest: 0 },
   unlocks: { conquest: false },
   daily: { lastClaimedDate: null, lastDailyScore: 0, streak: 0, longestStreak: 0 },
+  endless: { bestScore: 0, longestSec: 0, runs: 0 },
   lastDifficulty: 'standard',
 });
 
@@ -34,7 +35,8 @@ export function readStats() {
                                     bestEra:   { ...blank().bestEra,   ...(parsed.bestEra   || {}) },
                                     fastestWinSec: { ...blank().fastestWinSec, ...(parsed.fastestWinSec || {}) },
                                     unlocks:   { ...blank().unlocks,   ...(parsed.unlocks   || {}) },
-                                    daily:     { ...blank().daily,     ...(parsed.daily     || {}) } };
+                                    daily:     { ...blank().daily,     ...(parsed.daily     || {}) },
+                                    endless:   { ...blank().endless,   ...(parsed.endless   || {}) } };
   } catch {
     return blank();
   }
@@ -44,7 +46,7 @@ export function writeStats(stats) {
   try { storage.set(KEY, JSON.stringify(stats)); } catch { /* fall through */ }
 }
 
-export function recordMatchResult({ difficulty, won, era, timeSec, score, kills, spawns, evolves, isDaily, dailyDate }) {
+export function recordMatchResult({ difficulty, won, era, timeSec, score, kills, spawns, evolves, isDaily, dailyDate, isEndless, endlessSec }) {
   const s = readStats();
   s.matches++;
   if (won)  s.wins++;
@@ -77,6 +79,12 @@ export function recordMatchResult({ difficulty, won, era, timeSec, score, kills,
       s.daily.lastClaimedDate = dailyDate;
       if (score > s.daily.lastDailyScore) s.daily.lastDailyScore = score;
     }
+  }
+  // Endless stats — separate space because the score formula is different.
+  if (isEndless) {
+    s.endless.runs++;
+    if (score > (s.endless.bestScore || 0)) s.endless.bestScore = score;
+    if ((endlessSec || 0) > (s.endless.longestSec || 0)) s.endless.longestSec = endlessSec || 0;
   }
   s.lastDifficulty = difficulty;
   writeStats(s);

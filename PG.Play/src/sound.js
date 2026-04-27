@@ -117,6 +117,25 @@ export const sfx = {
     setTimeout(() => blip(1760, 2349, 0.10, 'triangle', 0.08), 60);
     setTimeout(() => blip(2349, 2794, 0.14, 'triangle', 0.08), 120);
   },
+
+  // ── Frost Fight ──────────────────────────────────────────────
+  // Tile step — ultra-short tap, intentionally below the threshold of
+  // attention so a held direction doesn't fatigue.
+  frostStep:   () => envTone(420, 0.025, 'triangle', 0.025),
+  // Freeze — short crystal shimmer (rising blip + pinch of noise).
+  frostFreeze: () => { blip(880, 1480, 0.10, 'triangle', 0.07); noise(0.06, 0.025); },
+  // Melt — softer descending wisp.
+  frostMelt:   () => { blip(960, 480, 0.14, 'sine', 0.06); noise(0.04, 0.018); },
+  // Fruit pickup — bright two-step chirp.
+  frostFruit:  () => { blip(880, 1320, 0.07, 'triangle', 0.08); setTimeout(() => envTone(1760, 0.06, 'sine', 0.06), 40); },
+  // Death — low descending sweep + noise burst.
+  frostDeath:  () => { blip(420, 110, 0.32, 'sawtooth', 0.10); noise(0.18, 0.05); },
+  // Room clear — three-note ascending chime, shorter than the full win.
+  frostClear:  () => {
+    blip(660, 880, 0.10, 'triangle', 0.10);
+    setTimeout(() => blip(880, 1100, 0.10, 'triangle', 0.10), 70);
+    setTimeout(() => blip(1100, 1480, 0.16, 'triangle', 0.10), 140);
+  },
 };
 
 // Cross-game mute event bus. Per-game audio modules subscribe so the
