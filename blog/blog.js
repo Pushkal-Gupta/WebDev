@@ -9,17 +9,24 @@ let resetPendingEmail = "";
 const POSTS = [
   {
     id: "ai-cage",
-    date: "13.03.2026",
+    date: "11.03.2026",
     title: "AI and the Lion's Cage — The Last Tool We Build",
     darkFile: "ai-cage-dark.html",
     lightFile: "ai-cage-light.html",
   },
   {
     id: "power",
-    date: "10.04.2026",
+    date: "08.04.2026",
     title: "The Architecture of Power — How Society Actually Works",
     darkFile: "power-dark.html",
     lightFile: "power-light.html",
+  },
+  {
+    id: "work-matters",
+    date: "27.04.2026",
+    title: "The Golden Cage — Why Work Matters in the Age of AI",
+    darkFile: "work-dark.html",
+    lightFile: "work-light.html",
   },
   {
     id: "upcoming",
