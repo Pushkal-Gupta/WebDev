@@ -6,12 +6,22 @@
 
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 
-function Key({ children, wide }) {
-  return <kbd className={'ff-key' + (wide ? ' ff-key-wide' : '')}>{children}</kbd>;
+function Key({ children, wide, active, tone }) {
+  const cls = ['ff-key'];
+  if (wide) cls.push('ff-key-wide');
+  if (active) cls.push('is-active');
+  if (tone) cls.push('ff-key-' + tone);
+  return <kbd className={cls.join(' ')}>{children}</kbd>;
 }
 
-export default function BottomRail({ tip, status, isTouch, onPlayAgain }) {
+export default function BottomRail({ tip, status, isTouch, freezeAction, onPlayAgain }) {
   const reduced = useReducedMotion();
+  // Adaptive: when the player faces a freezable / meltable tile, the
+  // SPACE cap lights up. Cyan for freeze, warm rose for melt — matches
+  // the in-canvas cursor highlight colors.
+  const spaceActive = !!freezeAction;
+  const spaceTone   = freezeAction === 'melt' ? 'warm' : freezeAction === 'freeze' ? 'cool' : null;
+  const spaceLabel  = freezeAction === 'melt' ? 'Melt' : freezeAction === 'freeze' ? 'Freeze' : 'Freeze · Melt';
   return (
     <div className="ff-rail-row">
       {!isTouch ? (
@@ -21,8 +31,8 @@ export default function BottomRail({ tip, status, isTouch, onPlayAgain }) {
             <span className="ff-keycap-label">Move</span>
           </span>
           <span className="ff-keycap-group">
-            <Key wide>Space</Key>
-            <span className="ff-keycap-label">Freeze · Melt</span>
+            <Key wide active={spaceActive} tone={spaceTone}>Space</Key>
+            <span className="ff-keycap-label">{spaceLabel}</span>
           </span>
           <span className="ff-keycap-group">
             <Key>R</Key>

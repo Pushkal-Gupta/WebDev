@@ -56,11 +56,18 @@ export function LevelClearChip({ open, levelName }) {
   );
 }
 
-export function WinCard({ open, deaths, time, levelCount, onPlayAgain, onExit }) {
-  const reduced = useReducedMotion();
+function fmt(time) {
   const m = Math.floor(time / 60);
   const s = time % 60;
-  const t = m > 0 ? `${m}m ${s.toString().padStart(2, '0')}s` : `${s}s`;
+  return m > 0 ? `${m}m ${s.toString().padStart(2, '0')}s` : `${s}s`;
+}
+
+export function WinCard({ open, deaths, time, best, bestBeaten, levelCount, onPlayAgain, onExit }) {
+  const reduced = useReducedMotion();
+  const t = fmt(time);
+  // Best line — show the recorded best and a small "NEW BEST" tag when
+  // the just-finished run improved on it.
+  const hasBest = best && typeof best.time === 'number';
   return (
     <AnimatePresence>
       {open && (
@@ -89,6 +96,10 @@ export function WinCard({ open, deaths, time, levelCount, onPlayAgain, onExit })
               </div>
               <div className="ff-card-stat">
                 <span>Time</span><b>{t}</b>
+              </div>
+              <div className={'ff-card-stat ff-card-stat-best' + (bestBeaten ? ' is-new' : '')}>
+                <span>{bestBeaten ? 'New best' : 'Best'}</span>
+                <b>{hasBest ? fmt(best.time) : '—'}</b>
               </div>
             </div>
             <div className="ff-card-cta">

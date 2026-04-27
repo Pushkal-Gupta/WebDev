@@ -3,6 +3,8 @@
 import { getEraByIndex } from '../content/eras.js';
 import { getSpecial } from '../content/specials.js';
 
+const ICON_BASE = '/games/era-siege/ui';
+
 export default function SpecialButton({ eraIndex, cooldownMs, charging, onFire }) {
   const era = getEraByIndex(eraIndex);
   const def = era ? getSpecial(era.specialId) : null;
@@ -18,6 +20,13 @@ export default function SpecialButton({ eraIndex, cooldownMs, charging, onFire }
       disabled={disabled}
       title={`${def.name} — ${def.description}`}
       aria-label={`${def.name}, special attack`}>
+      <img
+        className="es-special-icon"
+        src={`${ICON_BASE}/special-era${eraIndex + 1}.png`}
+        alt=""
+        loading="lazy"
+        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+      />
       <div className="es-special-name">
         {def.name}
         {ready && <span className="es-special-ready">READY</span>}

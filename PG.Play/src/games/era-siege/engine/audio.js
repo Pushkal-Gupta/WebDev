@@ -10,6 +10,7 @@
 import { sfx, isMuted } from '../../../sound.js';
 import { getUnit } from '../content/units.js';
 import { getSpecial } from '../content/specials.js';
+import { readSettings } from '../utils/settings.js';
 
 const THROTTLE_MS = 160;
 
@@ -26,6 +27,10 @@ export function attachAudio(bus) {
   function fire(name) {
     if (!name) return;
     if (isMuted()) return;
+    const sett = readSettings();
+    const v = sett.volumes || {};
+    const gate = (v.master ?? 0.8) * (v.sfx ?? 0.9);
+    if (gate <= 0.001) return;       // master / sfx zeroed → silent
     const now = performance.now();
     const last = lastFireMs.get(name) || 0;
     if (now - last < THROTTLE_MS) return;

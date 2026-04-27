@@ -53,6 +53,8 @@ export default function EraSiegeIntroStats() {
       <div className="es-intro-stats-foot">
         <div><span>Daily best</span><b>{stats.daily.lastDailyScore || 0}/100</b></div>
         <div><span>Daily streak</span><b>{dailyStreak}</b></div>
+        <div><span>Endless best</span><b>{stats.endless?.bestScore || 0}/100</b></div>
+        <div><span>Endless longest</span><b>{stats.endless?.longestSec ? `${stats.endless.longestSec}s` : '—'}</b></div>
         <div><span>Total kills</span><b>{stats.totalKills}</b></div>
         <div><span>Era evolves</span><b>{stats.totalEvolves}</b></div>
       </div>

@@ -2905,51 +2905,485 @@ svg { display: block; width: 100%; height: 100%; }
   text-align: center;
 }
 
-/* Frost Fight — grid freeze maze */
-.frost {
+/* ─── Frost Fight (badicecream) ────────────────────────────────────────
+   Full-bleed arcade scene: top HUD chips, framed stage, bottom rail.
+   The route's accent is a cold cyan, the surface is deep navy. The board
+   buffer is sized by canvas DPR; CSS only handles chrome + frame. */
+.ff-root {
+  --ff-bg-0: #07101c;
+  --ff-bg-1: #0f1c30;
+  --ff-bg-2: #0a1424;
+  --ff-frost: #6cd0f0;
+  --ff-frost-soft: rgba(108, 208, 240, 0.14);
+  --ff-frost-glow: rgba(108, 208, 240, 0.35);
+  --ff-ice-edge: rgba(255, 255, 255, 0.12);
+  --ff-text: #e8f0f6;
+  --ff-text-dim: rgba(232, 240, 246, 0.55);
+  --ff-text-mute: rgba(232, 240, 246, 0.38);
+  --ff-warning: #ffb86b;
+  --ff-board-w: 800px;
+  --ff-board-h: 472px;
+
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  color: var(--ff-text);
+  font-family: var(--font-sans);
+  user-select: none;
+  background:
+    radial-gradient(1200px 700px at 50% 0%, rgba(108, 208, 240, 0.06), transparent 65%),
+    linear-gradient(180deg, var(--ff-bg-0) 0%, var(--ff-bg-1) 55%, var(--ff-bg-2) 100%);
+  isolation: isolate;
+}
+[data-theme="light"] .ff-root {
+  /* Always cold and dark inside the game route — light theme overrides
+     the surrounding shell, but Frost Fight stays sub-zero. */
+  color: var(--ff-text);
+}
+
+/* ── Top HUD ─────────────────────────────────────────────────── */
+.ff-hud {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  justify-content: center;
+  padding:
+    max(14px, env(safe-area-inset-top, 14px))
+    clamp(16px, 4vw, 40px)
+    12px
+    clamp(16px, 4vw, 40px);
+  /* Reserve space on the left so the floating Exit/Pause/FS cluster
+     never collides with the chips. */
+  padding-left: max(72px, calc(env(safe-area-inset-left, 0px) + 72px));
+}
+.ff-hud-row {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.ff-chip {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 14px;
+  min-width: 96px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: border-color 240ms ease, background 240ms ease, box-shadow 240ms ease;
+}
+.ff-chip-primary {
+  background: rgba(108, 208, 240, 0.05);
+  border-color: rgba(108, 208, 240, 0.18);
+}
+.ff-chip-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ff-text-mute);
+  font-weight: 600;
+}
+.ff-chip-value {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  line-height: 1;
+}
+.ff-chip-num {
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 1.6vmin, 1.4rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ff-text);
+  display: inline-block;
+  transform-origin: left center;
+}
+.ff-chip-unit {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ff-text-dim);
+  font-variant-numeric: tabular-nums;
+}
+.ff-chip-sub {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ff-text-dim);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 14ch;
+}
+.ff-chip-fruit.is-cleared {
+  border-color: var(--ff-frost-glow);
+  background: rgba(108, 208, 240, 0.10);
+  box-shadow:
+    0 0 0 1px var(--ff-frost-glow),
+    0 6px 30px var(--ff-frost-soft);
+  animation: ff-pulse 1.4s ease-in-out 0s 2;
+}
+.ff-chip-fruit.is-cleared .ff-chip-label { color: var(--ff-frost); }
+.ff-chip-fruit.is-cleared .ff-chip-num { color: var(--ff-frost); }
+@keyframes ff-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px var(--ff-frost-glow), 0 6px 30px var(--ff-frost-soft); }
+  50%      { box-shadow: 0 0 0 2px var(--ff-frost), 0 10px 36px rgba(108, 208, 240, 0.35); }
+}
+
+/* ── Stage + board ───────────────────────────────────────────── */
+.ff-stage {
+  position: relative;
+  z-index: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  padding: clamp(8px, 1.6vmin, 20px) clamp(16px, 3vw, 32px);
+}
+.ff-stage-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(80% 60% at 50% 50%, rgba(108, 208, 240, 0.06), transparent 70%),
+    radial-gradient(120% 80% at 50% 100%, rgba(7, 16, 28, 0.6), transparent 70%);
+}
+.ff-stage-halo {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  pointer-events: none;
+  z-index: 0;
+  width: min(82vmin, calc(var(--ff-board-w) * 1.22));
+  height: min(82vmin, calc(var(--ff-board-h) * 1.6));
+  /* Per-room halo tint (set by JS on .ff-stage). Falls back to cyan. */
+  background: radial-gradient(closest-side, var(--ff-room-halo, var(--ff-frost-soft)), transparent 75%);
+  filter: blur(10px);
+  transition: background 480ms ease;
+}
+.ff-board-frame {
+  position: relative;
+  z-index: 1;
+  width: var(--ff-board-w);
+  height: var(--ff-board-h);
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 18px;
+  background: #0c1828;
+  box-shadow:
+    inset 0 0 0 1px var(--ff-ice-edge),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.45),
+    /* Per-room outer drop-shadow tint, falls back to cyan. */
+    0 18px 56px var(--ff-room-frame, rgba(58, 200, 240, 0.12)),
+    0 36px 80px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+  transition: box-shadow 480ms ease;
+}
+.ff-board-frame::after {
+  /* A 1px frosted edge that cools the join between board and frame. */
+  content: '';
+  position: absolute;
+  inset: 1px;
+  pointer-events: none;
+  border-radius: 17px;
+  border: 1px solid rgba(108, 208, 240, 0.18);
+  mix-blend-mode: screen;
+}
+.ff-board-frame[data-clear="1"] {
+  box-shadow:
+    inset 0 0 0 1px rgba(108, 208, 240, 0.6),
+    0 0 0 1px rgba(108, 208, 240, 0.45),
+    0 0 56px rgba(108, 208, 240, 0.5),
+    0 36px 80px rgba(0, 0, 0, 0.55);
+}
+.ff-board {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  background: transparent;
+  touch-action: none;
+}
+
+/* ── Overlays (intro, clear chip, win) ───────────────────────── */
+.ff-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.ff-overlay-win { pointer-events: auto; }
+.ff-card {
+  pointer-events: auto;
+  padding: clamp(28px, 4vmin, 44px) clamp(32px, 5vmin, 56px);
+  background: rgba(7, 16, 28, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 18px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow:
+    0 18px 56px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  text-align: center;
+  color: var(--ff-text);
+  max-width: min(560px, calc(100% - 32px));
+}
+.ff-card-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ff-frost);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+.ff-card-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4vmin, 2.4rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.ff-card-title-xl { font-size: clamp(2rem, 5.2vmin, 3rem); }
+.ff-card-body {
+  margin-top: 10px;
+  color: var(--ff-text-dim);
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+.ff-card-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 22px 0 24px;
+}
+@media (max-width: 540px) {
+  .ff-card-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.ff-card-stat-best {
+  background: rgba(108, 208, 240, 0.06);
+  border-color: rgba(108, 208, 240, 0.18);
+}
+.ff-card-stat-best b { color: var(--ff-frost); }
+.ff-card-stat-best.is-new {
+  border-color: var(--ff-frost);
+  background: rgba(108, 208, 240, 0.14);
+  box-shadow: 0 0 0 1px var(--ff-frost-glow), 0 8px 26px rgba(108, 208, 240, 0.32);
+  animation: ff-pulse 1.4s ease-in-out 0s 2;
+}
+.ff-card-stat-best.is-new span {
+  color: var(--ff-frost);
+  font-weight: 700;
+}
+.ff-card-stat {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--s-3);
-  user-select: none;
-  width: 100%;
-  max-width: 860px;
+  gap: 4px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
 }
-.frost-bar {
+.ff-card-stat span {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ff-text-mute);
+}
+.ff-card-stat b {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ff-text);
+}
+.ff-card-cta {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.ff-clear-chip {
+  position: absolute;
+  top: clamp(18px, 4vmin, 36px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 18px;
+  background: var(--ff-frost);
+  color: #07101c;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  font-size: 0.95rem;
+  box-shadow: 0 10px 36px rgba(108, 208, 240, 0.45);
+  pointer-events: none;
+}
+.ff-clear-chip-tag {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: rgba(7, 16, 28, 0.7);
+}
+
+/* ── Bottom rail ─────────────────────────────────────────────── */
+.ff-rail {
+  position: relative;
+  z-index: 4;
+  padding:
+    10px
+    clamp(16px, 4vw, 40px)
+    max(14px, env(safe-area-inset-bottom, 14px))
+    clamp(16px, 4vw, 40px);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  background: linear-gradient(180deg, transparent, rgba(7, 16, 28, 0.4));
+}
+.ff-rail-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: clamp(14px, 3vw, 32px);
+  max-width: 1280px;
+  margin: 0 auto;
+}
+.ff-keycaps {
   display: flex;
   align-items: center;
-  gap: var(--s-4);
+  gap: 18px;
   flex-wrap: wrap;
-  width: 100%;
+}
+.ff-keycap-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.ff-keycap-label {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--text-mute);
+  color: var(--ff-text-dim);
+  margin-left: 4px;
+  font-weight: 600;
 }
-.frost-bar b { color: var(--text); font-weight: 700; margin-left: var(--s-1); }
-.frost-canvas {
-  background: #7ab7d0;
-  border-radius: var(--r-lg);
-  box-shadow: var(--shadow-card);
-  max-width: 100%;
-  height: auto;
-  touch-action: none;
-}
-.frost-tip {
-  width: 100%;
-  color: var(--text-dim);
-  font-size: 0.88rem;
-  line-height: 1.5;
-}
-.frost-tip-win { color: var(--accent); font-weight: 700; }
-.frost-hint {
+.ff-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  padding: 4px 8px;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
+  font-size: 0.74rem;
+  font-weight: 600;
   text-transform: uppercase;
-  color: var(--text-mute);
+  letter-spacing: 0.04em;
+  color: var(--ff-text);
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 6px;
+  box-shadow:
+    inset 0 -1px 0 rgba(0, 0, 0, 0.5),
+    0 1px 0 rgba(255, 255, 255, 0.03);
+  transition: color 200ms ease, border-color 200ms ease, box-shadow 200ms ease,
+              background 200ms ease;
+}
+.ff-key-wide { padding: 4px 12px; }
+/* Adaptive keycap states — light up SPACE when an action would fire. */
+.ff-key.is-active.ff-key-cool {
+  color: var(--ff-frost);
+  border-color: rgba(108, 208, 240, 0.55);
+  background: linear-gradient(180deg, rgba(108, 208, 240, 0.18), rgba(108, 208, 240, 0.06));
+  box-shadow:
+    inset 0 -1px 0 rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(108, 208, 240, 0.35),
+    0 4px 14px rgba(108, 208, 240, 0.25);
+}
+.ff-key.is-active.ff-key-warm {
+  color: #ff9bb1;
+  border-color: rgba(255, 120, 150, 0.5);
+  background: linear-gradient(180deg, rgba(255, 120, 150, 0.18), rgba(255, 120, 150, 0.06));
+  box-shadow:
+    inset 0 -1px 0 rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 120, 150, 0.32),
+    0 4px 14px rgba(255, 120, 150, 0.22);
+}
+.ff-rail-tip {
   text-align: center;
+  font-size: 0.92rem;
+  color: var(--ff-text-dim);
+  line-height: 1.4;
+  min-height: 1.4em;
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+.ff-rail-tip span {
+  display: inline-block;
+}
+.ff-rail-cta {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-width: 0;
+}
+.ff-keycaps-touch .ff-keycap-label { margin-left: 0; }
+
+/* ── Pause + idle dim ────────────────────────────────────────── */
+.ff-root[data-state="won"] .ff-hud,
+.ff-root[data-state="won"] .ff-rail {
+  opacity: 0.55;
+}
+
+/* ── Compact / portrait ──────────────────────────────────────── */
+@media (max-width: 820px) {
+  .ff-hud {
+    padding-left: max(64px, calc(env(safe-area-inset-left, 0px) + 64px));
+    padding-right: clamp(12px, 4vw, 20px);
+  }
+  .ff-chip { min-width: 80px; padding: 7px 11px; }
+  .ff-chip-num { font-size: 1rem; }
+  .ff-chip-sub { display: none; }
+  .ff-rail-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .ff-keycaps { justify-content: center; gap: 14px; }
+  .ff-rail-cta { justify-content: center; }
+}
+@media (max-width: 540px) {
+  .ff-hud-row { gap: 6px; }
+  .ff-chip { min-width: 64px; padding: 6px 9px; }
+  .ff-chip-label { font-size: 0.58rem; letter-spacing: 0.14em; }
+  .ff-keycaps { gap: 10px; }
+}
+
+/* ── Reduced motion ──────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .ff-chip-fruit.is-cleared { animation: none; }
+  .ff-board-frame { transition: none; }
 }
 
 /* Trace — precision platformer */

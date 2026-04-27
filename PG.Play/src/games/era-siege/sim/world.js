@@ -20,6 +20,7 @@ import { trySpawnUnit } from './unit.js';
 import { tryBuildTurret, trySellTurret } from './turret.js';
 import { matchOver, scoreMatch } from './match.js';
 import { tickEffects } from './effects.js';
+import { makePowerupsState, tryBuyPowerup, getMultiplier } from './powerups.js';
 
 /**
  * Build a fresh MatchState. Pure factory — no side effects.
@@ -71,6 +72,7 @@ export function createMatch(opts = {}) {
     specialCooldownMs: 0,
     specialActive: null,  // { specialId, telegraphLeftMs, eraIndex } when telegraphing
     auraLeftMs: 0,        // aura special — duration left
+    powerups: makePowerupsState(),
     ai: isAi ? {
       decisionTimerMs: 1000,
       spawnIntentMs: 1500,
@@ -113,7 +115,13 @@ export function setView(state, w, h) {
   state.view.h = h;
   state.view.laneLeft  = BALANCE.LANE_LEFT_OFFSET;
   state.view.laneRight = w - BALANCE.LANE_RIGHT_OFFSET;
-  state.view.groundY   = h - BALANCE.GROUND_BOTTOM_PAD;
+  // Ground line: prefer the ratio (~62% of stage) so the battlefield
+  // band takes up ~38% of the stage height (was ~12% under the old
+  // GROUND_BOTTOM_PAD-only layout). The pad acts as a hard floor so
+  // tight viewports never crop unit feet against the bottom edge.
+  const ratioY = Math.round(h * (BALANCE.STAGE_GROUND_RATIO || 0.62));
+  const padY   = h - BALANCE.GROUND_BOTTOM_PAD;
+  state.view.groundY   = Math.min(ratioY, padY);
   // Reseat units onto the new ground; clamp x in case of a shrink.
   for (const u of state.player.units) { u.y = state.view.groundY; u.x = clampX(u.x, state.view); }
   for (const u of state.enemy.units)  { u.y = state.view.groundY; u.x = clampX(u.x, state.view); }
@@ -142,6 +150,9 @@ function applyPlayerIntents(state, intents) {
   }
   if (intents.special) {
     tryFireSpecial(state, state.player);
+  }
+  if (intents.buyPowerup) {
+    tryBuyPowerup(state, state.player, intents.buyPowerup);
   }
 }
 
@@ -228,3 +239,4 @@ export function teardownMatch(state) {
 export { ERAS };
 export { getEra };
 export { scoreMatch } from './match.js';
+export { POWERUP_DEFS, nextLevelCost, getMultiplier } from './powerups.js';

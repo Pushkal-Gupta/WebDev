@@ -1,11 +1,13 @@
 // Gold trickle. Bounty + base-hit gold are awarded inside combat.js.
 
 import { getEraByIndex } from '../content/eras.js';
+import { getMultiplier } from './powerups.js';
 
 export function tickEconomy(state, dt) {
   for (const side of [state.player, state.enemy]) {
     const era = getEraByIndex(side.eraIndex);
-    side.goldAcc += (era?.goldPerSec || 12) * dt;
+    const mul = getMultiplier(side.powerups, 'economy');
+    side.goldAcc += (era?.goldPerSec || 12) * mul * dt;
     if (side.goldAcc >= 1) {
       const add = Math.floor(side.goldAcc);
       side.goldAcc -= add;

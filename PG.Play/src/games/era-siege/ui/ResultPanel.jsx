@@ -1,10 +1,11 @@
 // Victory / defeat panel. Shows match stats + persisted bests for the
 // current difficulty + daily flag.
 
+import { useState } from 'react';
 import { getEraByIndex } from '../content/eras.js';
 
 export default function ResultPanel({
-  status, eraIndex, timeSec, score, stats, difficulty,
+  status, eraIndex, timeSec, score, stats, difficulty, seed,
   isDaily, persistedStats, onAgain,
 }) {
   if (status !== 'won' && status !== 'lost') return null;
@@ -46,7 +47,39 @@ export default function ResultPanel({
           {fastestSec > 0 && <span>fastest win {fastestSec}s{isFastestWin ? ' (new!)' : ''}</span>}
         </div>
       )}
-      <button type="button" className="es-result-again" onClick={onAgain}>Play again</button>
+      <div className="es-result-actions">
+        <button type="button" className="es-result-again" onClick={onAgain}>Play again</button>
+        {seed != null && !isDaily && <ShareSeedButton seed={seed}/>}
+      </div>
     </div>
+  );
+}
+
+function ShareSeedButton({ seed }) {
+  const [copied, setCopied] = useState(false);
+  const onClick = async () => {
+    try {
+      const base = typeof window !== 'undefined' ? window.location : null;
+      if (!base) return;
+      // Build a URL that pins this seed — the hash route + es-seed query.
+      const url = `${base.origin}${base.pathname}?es-seed=${seed >>> 0}#/game/aow`;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        prompt('Copy this run URL:', url);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch { /* swallow */ }
+  };
+  return (
+    <button
+      type="button"
+      className="es-result-share"
+      onClick={onClick}
+      title="Copy a URL that replays this match (same seed, same enemy AI rolls)"
+      aria-label="Copy a link that replays this match">
+      {copied ? 'Link copied' : 'Share run'}
+    </button>
   );
 }
