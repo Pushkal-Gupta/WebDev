@@ -19,6 +19,12 @@ export const ACHIEVEMENTS = [
   { id: 'grudge-clear',     label: 'Made it through',     desc: 'Reached the flag in Grudgewood.' },
   { id: 'bricklands-finish', label: 'World traveller',    desc: 'Cleared all three Bricklands worlds.' },
   { id: 'bests-5',          label: 'Five bests',          desc: 'Holds personal bests in five different games.' },
+  // Era Siege
+  { id: 'era-siege-victor',   label: 'First crown',          desc: 'Won an Era Siege match.' },
+  { id: 'era-siege-era5',     label: 'Void Ascendancy',     desc: 'Reached era 5 in Era Siege.' },
+  { id: 'era-siege-conquest', label: 'Conquest victor',     desc: 'Won an Era Siege match on Conquest.' },
+  { id: 'era-siege-fast-win', label: 'Lightning campaign', desc: 'Won an Era Siege match in under 90 seconds.' },
+  { id: 'era-siege-daily',    label: 'Daily commander',    desc: 'Completed an Era Siege daily challenge.' },
 ];
 
 const ORIGINAL_IDS = ['grudgewood', 'goalbound', 'slither', 'slipshot'];
@@ -138,6 +144,14 @@ export function useAchievements(user, bests) {
       }
       // 2048: derive from bests since the submit just carries the score
       if (gameId === 'g2048' && score >= 20480) unlock('2048-2048');
+      // Era Siege — meta carries { era, time, difficulty, defeat, daily }
+      if (gameId === 'aow' && !meta.defeat) {
+        unlock('era-siege-victor');
+        if (meta.difficulty === 'conquest') unlock('era-siege-conquest');
+        if ((meta.time ?? 9999) <= 90)      unlock('era-siege-fast-win');
+        if (meta.daily === true)            unlock('era-siege-daily');
+      }
+      if (gameId === 'aow' && (meta.era ?? 0) >= 5) unlock('era-siege-era5');
     };
     window.addEventListener('pgplay:score', onScore);
     window.addEventListener('pgplay:open', onOpen);

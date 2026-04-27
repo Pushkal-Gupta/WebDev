@@ -24,10 +24,14 @@ import Leaderboard from './Leaderboard.jsx';
 import { useIsMobile } from '../input/useVirtualControls.jsx';
 import { useCanRender3D } from '../hooks/useCanRender3D.js';
 
+// Era Siege intro stats — lazy-loaded so visiting other games doesn't pull
+// in the era-siege content.
+const EraSiegeIntroStats = lazy(() => import('../games/era-siege/ui/IntroStats.jsx'));
+
 const GameAmbient = lazy(() => import('./three/GameAmbient.jsx'));
 
 // Games whose scores are validated server-side and live on the public leaderboard.
-const LEADERBOARD_GAMES = new Set(['slither', 'slipshot', 'grudgewood', 'goalbound', 'g2048', 'connect4']);
+const LEADERBOARD_GAMES = new Set(['slither', 'slipshot', 'grudgewood', 'goalbound', 'g2048', 'connect4', 'aow']);
 
 // Code-split every game so opening the lobby doesn't pull in Three.js or
 // game-specific bundles. Games load on demand when the player clicks play.
@@ -60,11 +64,23 @@ const MODE_OPTIONS = {
     { id: 'arcade',   label: 'Enter Goalbound',  tone: 'primary' },
     { id: 'shootout', label: 'Penalty Shootout', tone: 'ghost' },
   ],
-  aow: () => [
-    { id: 'standard', label: 'Standard',  tone: 'primary' },
-    { id: 'skirmish', label: 'Skirmish',  tone: 'ghost' },
-    { id: 'conquest', label: 'Conquest',  tone: 'ghost' },
-  ],
+  aow: () => {
+    // Conquest is gated until the first Standard win — read the
+    // persisted Era Siege stats. Defensive: storage may be unavailable.
+    let conquestUnlocked = false;
+    try {
+      const raw = typeof localStorage !== 'undefined' ? localStorage.getItem('era-siege:stats') : null;
+      const parsed = raw ? JSON.parse(raw) : null;
+      conquestUnlocked = !!(parsed && parsed.unlocks && parsed.unlocks.conquest);
+    } catch { /* keep gated */ }
+    return [
+      { id: 'standard', label: 'Standard',          tone: 'primary' },
+      { id: 'skirmish', label: 'Skirmish',          tone: 'ghost' },
+      { id: 'conquest', label: conquestUnlocked ? 'Conquest' : 'Conquest (locked)', tone: 'ghost', disabled: !conquestUnlocked, disabledHint: 'Win a Standard match to unlock' },
+      { id: 'daily',    label: 'Daily challenge',   tone: 'ghost' },
+      { id: 'endless',  label: 'Endless',           tone: 'ghost' },
+    ];
+  },
   _vsDefault: (game) => [
     { id: '2p',  label: game.players.includes('1-8') ? 'Join arena' : '2 Player', tone: 'primary' },
     ...(game.players.includes('1-8') ? [] : [{ id: 'bot', label: 'vs Bot', tone: 'ghost' }]),
@@ -310,15 +326,19 @@ export default function GameIntro({ game, onClose }) {
 
           <motion.div className="intro-ctas intro-ctas-premium" variants={itemVariants}>
             {modes.map((m) => {
-              const blocked = m.desktopOnly && isMobile;
+              const desktopBlocked = m.desktopOnly && isMobile;
+              const explicitlyDisabled = !!m.disabled;
+              const blocked = desktopBlocked || explicitlyDisabled;
               const isPrimary = m.tone === 'primary';
+              const title = desktopBlocked ? 'Best on desktop'
+                          : explicitlyDisabled ? (m.disabledHint || 'Locked') : undefined;
               return (
                 <button
                   key={m.id}
                   className={`btn btn-lg ${isPrimary ? 'btn-primary intro-cta-primary' : 'btn-ghost intro-cta-ghost'}${blocked ? ' is-disabled' : ''}`}
                   onClick={() => !blocked && start(m.id)}
                   disabled={blocked}
-                  title={blocked ? 'Best on desktop' : undefined}>
+                  title={title}>
                   {isPrimary && Icon.play}
                   <span>{m.label}</span>
                 </button>
@@ -330,6 +350,14 @@ export default function GameIntro({ game, onClose }) {
           <motion.div variants={itemVariants}>
             <ControlsHint game={game}/>
           </motion.div>
+
+          {game.id === 'aow' && (
+            <motion.div variants={itemVariants}>
+              <Suspense fallback={null}>
+                <EraSiegeIntroStats/>
+              </Suspense>
+            </motion.div>
+          )}
 
           {LEADERBOARD_GAMES.has(game.id) && (
             <motion.div variants={itemVariants}>

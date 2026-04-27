@@ -31,4 +31,10 @@ export function tickEffects(state, dt) {
     if (d.ageMs >= d.lifeMs) d.alive = false;
   }
   dpool.sweep((d) => d.alive);
+
+  // Special impact rings (visual only).
+  if (state.effects.rings && state.effects.rings.length > 0) {
+    for (const r of state.effects.rings) r.ageMs += dt * 1000;
+    state.effects.rings = state.effects.rings.filter((r) => r.ageMs < r.lifeMs);
+  }
 }
