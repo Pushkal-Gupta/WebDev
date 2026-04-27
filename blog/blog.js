@@ -93,12 +93,31 @@ function toggleTheme() {
 
   ifr.onload = () => {
     if (loader) loader.classList.add("hidden");
+    widenReaderContent();
     const newDoc = ifr.contentDocument || ifr.contentWindow.document;
     const newMax =
       newDoc.documentElement.scrollHeight - ifr.contentWindow.innerHeight;
     ifr.contentWindow.scrollTo(0, scrollPercent * newMax);
     attachScrollSaver(currentActivePost.id);
   };
+}
+
+// ─── Reader width + size override ────────────────────────────────────────────
+// Per-post HTML files cap .wrap at max-width: 860px and use absolute px sizes
+// throughout. We widen to 1100px and apply a small zoom to scale text and
+// spacing uniformly without touching the per-post mobile padding media queries.
+
+function widenReaderContent() {
+  const ifr = document.getElementById("reader-frame");
+  if (!ifr || !ifr.contentDocument) return;
+  const doc = ifr.contentDocument;
+  if (doc.getElementById("__pg_widen")) return;
+  const style = doc.createElement("style");
+  style.id = "__pg_widen";
+  style.textContent =
+    ".wrap{max-width:1100px !important;}" +
+    "@media (min-width:769px){body{zoom:1.08;}}";
+  doc.head.appendChild(style);
 }
 
 // ─── Scroll persistence ───────────────────────────────────────────────────────
@@ -130,6 +149,7 @@ function attachScrollSaver(postId) {
 function onIframeLoad(postId) {
   const loader = document.getElementById("loader");
   if (loader) loader.classList.add("hidden");
+  widenReaderContent();
 
   const saved = localStorage.getItem("scroll_" + postId);
   if (saved !== null) {
