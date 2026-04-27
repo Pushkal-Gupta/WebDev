@@ -3,7 +3,7 @@
   --serif: "Lora", serif;
   --sans: "Inter", sans-serif;
   --t: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  --container-width: 820px;
+  --container-width: 1100px;
 }
 [data-theme="dark"] {
   --bg: #030a0a;
@@ -145,7 +145,7 @@ header {
   font-family: var(--serif);
   font-style: italic;
   color: var(--text-dim);
-  font-size: 1rem;
+  font-size: 1.15rem;
   margin: 1.5rem 0 2rem;
 }
 /* --- Content Section --- */
@@ -175,13 +175,13 @@ header {
 
 .post-date {
   font-family: var(--mono);
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   color: var(--text-dim);
 }
 
 .post-title {
   font-family: var(--serif);
-  font-size: 1.25rem;
+  font-size: 1.45rem;
   color: var(--text-main);
   transition: color var(--t);
 }
