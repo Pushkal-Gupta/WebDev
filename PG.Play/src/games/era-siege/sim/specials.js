@@ -78,6 +78,9 @@ function applySpecialImpact(state, side, foeSide, def, impactX) {
       spawnHitParticles(state, fx, state.view.groundY - 80, def.visual.primary, 2);
     }
     state.effects.shakeMs = 360; state.effects.shakeMag = 9;
+    // Lane band ring.
+    pushRing(state, (state.view.laneLeft + state.view.laneRight) / 2, state.view.groundY - 30,
+             (state.view.laneRight - state.view.laneLeft) / 2, def.visual.primary, 'lane');
   } else if (def.mode === 'point') {
     // Damage foe units inside radius around impactX.
     const cx = impactX ?? state.view.laneRight - 100;
@@ -91,6 +94,7 @@ function applySpecialImpact(state, side, foeSide, def, impactX) {
     spawnHitParticles(state, cx, cy, def.visual.primary, 16);
     spawnDamageNumber(state, cx, cy - 18, def.damage, side.team);
     state.effects.shakeMs = 320; state.effects.shakeMag = 10;
+    pushRing(state, cx, cy, def.radius, def.visual.primary, 'point');
   } else if (def.mode === 'aura') {
     // Aura: +25% damage to owned units for 4s; immediate damage on engaged foes.
     side.auraLeftMs = 4000;
@@ -103,5 +107,15 @@ function applySpecialImpact(state, side, foeSide, def, impactX) {
       }
     }
     state.effects.flashMs = 360; state.effects.flashAlpha = 0.3;
+    // Aura ring: a wide band over the entire lane to mark the buff window.
+    pushRing(state, (state.view.laneLeft + state.view.laneRight) / 2, state.view.groundY - 30,
+             (state.view.laneRight - state.view.laneLeft) / 2, def.visual.primary, 'aura');
   }
+}
+
+function pushRing(state, x, y, radius, color, kind) {
+  const rings = state.effects.rings;
+  rings.push({ x, y, radius, color, kind, ageMs: 0, lifeMs: 600 });
+  // Cap to the most recent few — extras unwind quickly.
+  if (rings.length > 4) rings.splice(0, rings.length - 4);
 }

@@ -8,6 +8,7 @@
     "validate:catalog": "node scripts/validate-catalog.mjs",
     "optimize:covers": "node scripts/optimize-covers.mjs",
     "deploy": "node scripts/deploy.mjs",
+    "sim:era-siege": "node scripts/era-siege-sim.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "prebuild": "npm run validate:catalog && npm run test",

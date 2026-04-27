@@ -19,7 +19,7 @@ export function clearIntents(intents) {
   intents.evolve = false;
 }
 
-export function attachKeyboard({ getActiveUnitIds, requestSpawn, requestBuild, requestSpecial, requestEvolve, requestPause, requestSell }) {
+export function attachKeyboard({ getActiveUnitIds, requestSpawn, requestBuild, requestSpecial, requestEvolve, requestPause, requestSell, requestShortcuts }) {
   const onKey = (e) => {
     // Ignore keys when typing in form fields (none in our HUD, defensive only).
     const tag = (e.target && e.target.tagName) || '';
@@ -35,6 +35,7 @@ export function attachKeyboard({ getActiveUnitIds, requestSpawn, requestBuild, r
     else if (e.key === ' ')                   { requestSpecial(); e.preventDefault(); }
     else if (e.key === 'r' || e.key === 'R') { requestEvolve(); e.preventDefault(); }
     else if (e.key === 'p' || e.key === 'P') { requestPause(); e.preventDefault(); }
+    else if (e.key === '?') { requestShortcuts?.(); e.preventDefault(); }
   };
   window.addEventListener('keydown', onKey);
   return () => window.removeEventListener('keydown', onKey);

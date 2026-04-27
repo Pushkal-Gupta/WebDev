@@ -9,15 +9,19 @@ export default function SpecialButton({ eraIndex, cooldownMs, charging, onFire }
   if (!def) return null;
   const cdR = cooldownMs > 0 ? cooldownMs / def.cooldownMs : 0;
   const disabled = cooldownMs > 0 || charging;
+  const ready = !disabled;
   return (
     <button
       type="button"
-      className={`es-special${charging ? ' is-charging' : ''}${disabled ? ' is-disabled' : ''}`}
+      className={`es-special${charging ? ' is-charging' : ''}${disabled ? ' is-disabled' : ''}${ready ? ' is-ready' : ''}`}
       onClick={onFire}
       disabled={disabled}
       title={`${def.name} — ${def.description}`}
       aria-label={`${def.name}, special attack`}>
-      <div className="es-special-name">{def.name}</div>
+      <div className="es-special-name">
+        {def.name}
+        {ready && <span className="es-special-ready">READY</span>}
+      </div>
       <div className="es-special-cd-track">
         <div className="es-special-cd-fill" style={{ width: `${(1 - cdR) * 100}%` }}/>
       </div>

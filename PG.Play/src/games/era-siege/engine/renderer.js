@@ -1,6 +1,9 @@
 // Canvas2D renderer for Era Siege. Draws everything from primitives —
 // no sprite atlas in v1. Reads palette per era from the match.
 //
+// HP-bar palette is selected by `match.cbSafe` — green/amber/red for
+// the default and blue/amber/magenta for the color-blind-safe variant.
+//
 // Layered draw order (each pass on top of the previous):
 //   1. Sky gradient (era-tinted, cached)
 //   2. Far mountains (deeper era tint)
@@ -20,6 +23,18 @@
 // Era flash is full-screen overlay drawn last (post-shake).
 
 import { paletteFor, getEraByIndex } from '../content/eras.js';
+
+// Module-level HP-palette flag, set per-render. Lets the static draw
+// helpers consult it without threading it through every call.
+let _cbSafe = false;
+function hpColor(r) {
+  if (_cbSafe) {
+    // Blue → amber → magenta — distinguishable across deuteranopia,
+    // protanopia, and tritanopia.
+    return r > 0.5 ? '#7be3ff' : r > 0.25 ? '#ffcb6b' : '#ff5fb3';
+  }
+  return r > 0.5 ? '#35f0c9' : r > 0.25 ? '#ffe14f' : '#ff4d6d';
+}
 
 export function makeRenderer() {
   const gradCache = new Map();
@@ -54,13 +69,15 @@ export function makeRenderer() {
     if (!match) return;
     const v = match.view;
     const w = v.w, h = v.h;
+    _cbSafe = !!match.cbSafe;
     const playerEraIdx = match.player.eraIndex;
     const playerEra = getEraByIndex(playerEraIdx);
     const pal = paletteFor(playerEra.id);
 
-    // Screen shake
-    const shakeX = match.effects.shakeMs > 0 ? (Math.random() - 0.5) * match.effects.shakeMag : 0;
-    const shakeY = match.effects.shakeMs > 0 ? (Math.random() - 0.5) * match.effects.shakeMag * 0.6 : 0;
+    // Screen shake (suppressed under reduceMotion)
+    const shakeOk = !match.reduceMotion;
+    const shakeX = shakeOk && match.effects.shakeMs > 0 ? (Math.random() - 0.5) * match.effects.shakeMag : 0;
+    const shakeY = shakeOk && match.effects.shakeMs > 0 ? (Math.random() - 0.5) * match.effects.shakeMag * 0.6 : 0;
     ctx.save();
     if (shakeX || shakeY) ctx.translate(shakeX, shakeY);
 
@@ -99,7 +116,9 @@ export function makeRenderer() {
     // 9) Units — sorted by foot Y so they stack readably.
     const all = [...match.player.units, ...match.enemy.units];
     all.sort((a, b) => (a.y + (a.laneStagger || 0)) - (b.y + (b.laneStagger || 0)) || a.id - b.id);
-    for (const u of all) drawUnit(ctx, u);
+    const playerAura = match.player.auraLeftMs > 0;
+    const enemyAura  = match.enemy.auraLeftMs  > 0;
+    for (const u of all) drawUnit(ctx, u, u.team === 'player' ? playerAura : enemyAura);
 
     // 10) Projectiles
     for (const p of match.pools.projectile.live) if (p.alive) drawProjectile(ctx, p);
@@ -109,6 +128,11 @@ export function makeRenderer() {
     ctx.globalCompositeOperation = 'lighter';
     for (const p of match.pools.particle.live) if (p.alive) drawParticle(ctx, p);
     ctx.restore();
+
+    // 11b) Special impact rings (over particles, under damage numbers)
+    if (match.effects.rings && match.effects.rings.length > 0) {
+      for (const r of match.effects.rings) drawRing(ctx, r);
+    }
 
     // 12) Damage numbers
     for (const d of match.pools.damageNum.live) if (d.alive) drawDamageNumber(ctx, d);
@@ -279,7 +303,7 @@ function drawBase(ctx, x, groundY, side, isPlayer, pal) {
   const hpR = side.base.hp / side.base.maxHp;
   ctx.fillStyle = 'rgba(0,0,0,0.55)';
   ctx.fillRect(x - 38, groundY - 116, 76, 5);
-  ctx.fillStyle = hpR > 0.5 ? '#35f0c9' : hpR > 0.25 ? '#ffe14f' : '#ff4d6d';
+  ctx.fillStyle = hpColor(hpR);
   ctx.fillRect(x - 38, groundY - 116, 76 * Math.max(0, hpR), 5);
   // Label
   ctx.fillStyle = '#fff';
@@ -380,7 +404,7 @@ function drawSpecialTelegraph(ctx, match, side, isPlayer) {
 }
 
 // ── Units ──────────────────────────────────────────────────────────────
-function drawUnit(ctx, u) {
+function drawUnit(ctx, u, sideAuraActive) {
   const x = u.x, y = u.y + (u.laneStagger || 0);
   const w = u.silhouetteW || 16;
   const h = u.silhouetteH || 22;
@@ -395,6 +419,20 @@ function drawUnit(ctx, u) {
   const bob = u.attackTickPhase === 'idle' ? Math.sin(phase) * (isHeavy ? 1.0 : 1.6) : 0;
   // Forward lean during windup.
   const lean = u.attackTickPhase === 'windup' ? u.facing * 3 : 0;
+
+  // Sun Forge aura — soft pulsing halo behind buffed units.
+  if (sideAuraActive) {
+    const pulse = (Math.sin(performance.now() / 220) + 1) / 2;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = 0.18 + pulse * 0.18;
+    ctx.fillStyle = '#ffcb6b';
+    ctx.beginPath();
+    ctx.ellipse(x + lean, y - h * 0.4 + bob, halfW + 6 + pulse * 2, h * 0.7 + pulse * 2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
   // Heavy units get a charge-up halo during windup.
   if (isHeavy && u.attackTickPhase === 'windup') {
     const chargeT = 1 - Math.max(0, u.attackTimerMs / u.attackWindupMs);
@@ -414,9 +452,19 @@ function drawUnit(ctx, u) {
   ctx.ellipse(x, y + 1, halfW + 2, 2.5, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Legs
+  // Legs — alternating phasing so the walk reads as a stride, not a hop.
   ctx.fillStyle = colorBody;
-  ctx.fillRect(x - halfW + lean, y - 10 + bob, w, 10);
+  if (u.attackTickPhase === 'idle' && !isHeavy) {
+    const legPhase = (u.walkPhaseMs || 0) / 130;
+    const legA = Math.sin(legPhase) * 2.4;
+    const legB = -legA;
+    const legW = Math.max(3, Math.floor(w / 2.4));
+    ctx.fillRect(x - halfW + 1 + lean, y - 10 + bob - legA, legW, 10 + legA);
+    ctx.fillRect(x + halfW - legW - 1 + lean, y - 10 + bob - legB, legW, 10 + legB);
+  } else {
+    // Static stance during windup/recover or for heavies (heavy stride is a planted thud).
+    ctx.fillRect(x - halfW + lean, y - 10 + bob, w, 10);
+  }
   // Torso
   ctx.fillRect(x - halfW + lean, y - 10 - h * 0.45 + bob, w, h * 0.45);
   // Trim band (banner)
@@ -465,7 +513,7 @@ function drawUnit(ctx, u) {
   if (hpR < 0.999) {
     ctx.fillStyle = 'rgba(0,0,0,0.55)';
     ctx.fillRect(x - 14, y - h - 2 + bob, 28, 3);
-    ctx.fillStyle = hpR > 0.5 ? '#35f0c9' : hpR > 0.25 ? '#ffe14f' : '#ff4d6d';
+    ctx.fillStyle = hpColor(hpR);
     ctx.fillRect(x - 14, y - h - 2 + bob, 28 * Math.max(0, hpR), 3);
   }
 }
@@ -522,6 +570,27 @@ function drawParticle(ctx, p) {
   ctx.fillStyle = p.color;
   ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
   ctx.globalAlpha = 1;
+}
+
+// ── Special impact rings ───────────────────────────────────────────────
+function drawRing(ctx, r) {
+  const t = r.ageMs / r.lifeMs;
+  const expand = r.kind === 'point' ? 1 + t * 0.3 : 1;
+  const alpha = 1 - t;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = alpha * 0.65;
+  ctx.strokeStyle = r.color;
+  ctx.lineWidth = 2 + (1 - t) * 2;
+  ctx.beginPath();
+  if (r.kind === 'lane' || r.kind === 'aura') {
+    // Wide flat band — stretched ellipse over the lane line.
+    ctx.ellipse(r.x, r.y, r.radius * expand, 14 + (1 - t) * 6, 0, 0, Math.PI * 2);
+  } else {
+    ctx.arc(r.x, r.y, r.radius * expand, 0, Math.PI * 2);
+  }
+  ctx.stroke();
+  ctx.restore();
 }
 
 // ── Damage numbers ─────────────────────────────────────────────────────

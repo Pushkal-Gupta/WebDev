@@ -23,7 +23,7 @@ import { tickEffects } from './effects.js';
 
 /**
  * Build a fresh MatchState. Pure factory — no side effects.
- * @param {{ difficulty?: 'skirmish'|'standard'|'conquest', seed?: number, view?: { w:number, h:number } }} opts
+ * @param {{ difficulty?: 'skirmish'|'standard'|'conquest', seed?: number, endlessMode?: boolean, view?: { w:number, h:number } }} opts
  */
 export function createMatch(opts = {}) {
   const difficulty = getDifficulty(opts.difficulty || 'standard');
@@ -94,8 +94,10 @@ export function createMatch(opts = {}) {
     allocId,
     player: makeSide('player', 0, false),
     enemy:  makeSide('enemy',  0, true),
-    effects: { shakeMs: 0, shakeMag: 0, flashMs: 0, flashColor: '#fff', flashAlpha: 0 },
+    effects: { shakeMs: 0, shakeMag: 0, flashMs: 0, flashColor: '#fff', flashAlpha: 0, rings: [] },
     lowFx: false,          // toggled at runtime by the perf monitor on mobile
+    endlessMode: !!opts.endlessMode,
+    endlessTimeSec: 0,     // ticks while endlessMode is on
     status: 'playing',     // 'playing' | 'won' | 'lost'
     winner: null,
     statsPlayer: { unitsSpawned: 0, turretsBuilt: 0, specialsUsed: 0, kills: 0 },
@@ -171,6 +173,7 @@ export function tick(state, frameDtSec, intents) {
 function runStep(state, dt, intents) {
   state.timeMs += dt * 1000;
   state.timeSec = state.timeMs / 1000;
+  if (state.endlessMode) state.endlessTimeSec += dt;
 
   if (intents) applyPlayerIntents(state, intents);
 
@@ -183,6 +186,17 @@ function runStep(state, dt, intents) {
   tickProjectiles(state, dt);
   tickProgression(state, dt);
   tickEffects(state, dt);
+
+  // Endless mode: refill enemy base HP slowly so it can never fall.
+  // Also auto-tick the enemy era so the player faces escalating waves.
+  if (state.endlessMode) {
+    state.enemy.base.hp = Math.min(state.enemy.base.maxHp, state.enemy.base.hp + 30 * dt);
+    // Force-evolve the enemy on a 30s clock until era 5.
+    if (state.enemy.eraIndex < 4 && state.endlessTimeSec >= 30 * (state.enemy.eraIndex + 1)) {
+      state.enemy.eraIndex++;
+      state.bus.emit('era_reached', { team: 'enemy', era: state.enemy.eraIndex });
+    }
+  }
 
   const over = matchOver(state);
   if (over) {
