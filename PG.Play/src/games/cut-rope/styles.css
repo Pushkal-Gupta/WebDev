@@ -69,6 +69,12 @@
 .cr-star-pip.on {
   color: #ffd24a;
   text-shadow: 0 0 12px rgba(255, 210, 74, 0.55), 0 1px 4px rgba(0,0,0,0.5);
+  animation: cr-pip-pop 380ms cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+@keyframes cr-pip-pop {
+  0%   { transform: scale(0.5);  filter: brightness(1.7); }
+  60%  { transform: scale(1.45); filter: brightness(1.3); }
+  100% { transform: scale(1);    filter: brightness(1.0); }
 }
 
 /* ── Hint pill ──────────────────────────────────────────────────── */
@@ -235,6 +241,34 @@
 .cr-level-stars { display: flex; gap: 3px; }
 .cr-level-stars .cr-star-pip { font-size: 14px; }
 
-.cr-success .cr-card { border-color: rgba(255, 210, 74, 0.35); }
+/* Delay the success modal slightly so the flash + confetti + chomp
+   play first before the card lands. `both` fill keeps the from-state
+   (opacity 0 / scale 0.92) during the delay so there's no flicker. */
+.cr-success { animation: cr-fade-in 220ms ease-out 320ms both; }
+.cr-success .cr-card {
+  border-color: rgba(255, 210, 74, 0.35);
+  animation: cr-pop-in 320ms cubic-bezier(0.2, 1.6, 0.4, 1) 320ms both;
+}
 .cr-fail .cr-card    { border-color: rgba(255, 120, 130, 0.35); }
 .cr-fail-msg { margin: 0 0 14px; opacity: 0.85; font-size: 14px; }
+
+/* ── Screen flash on level clear ────────────────────────────────── */
+.cr-flash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 50% 60%,
+    rgba(255, 220, 130, 0.5) 0%,
+    rgba(255, 200, 90, 0.18) 35%,
+    rgba(255, 200, 90, 0) 70%
+  );
+  opacity: 0;
+  z-index: 5;
+  animation: cr-flash 720ms ease-out forwards;
+}
+@keyframes cr-flash {
+  0%   { opacity: 0; }
+  18%  { opacity: 1; }
+  100% { opacity: 0; }
+}

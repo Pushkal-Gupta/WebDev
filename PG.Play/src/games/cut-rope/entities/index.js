@@ -10,3 +10,4 @@ export { makeTarget } from './target.js';
 export { makeBubble } from './bubble.js';
 export { makeBlower } from './blower.js';
 export { makeSpike }  from './spike.js';
+export { makeTutorialPulse } from './tutorial.js';

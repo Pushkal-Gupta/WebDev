@@ -53,9 +53,39 @@ const A2_LAYOUT = [
   { name: 'peach.png',  col: 1, row: 1 },
 ];
 
-async function emitSprite(cellBuf, outFile, target = 128) {
+// Single-character drops (one image per file). These are full-frame
+// renders rather than 2x2 sheets, so they get their own processor:
+// strip platform UI badges in the corner, trim transparent edges,
+// square-pad, resize to 128.
+const SINGLES = [
+  // The orange wind-up source has Gemini share/download UI chips in the
+  // top-right. Wipe a generous rectangle (the buttons sit well above
+  // the orange head, so a 22 % tall wipe is safe) and use a higher
+  // trim threshold so faint sub-pixel alpha at the wipe edges doesn't
+  // leak into the character bbox.
+  { src: 'orange-wind-up.png', out: 'orange-windup.png',
+    wipeTopRight: { wPct: 0.42, hPct: 0.22 }, trimThreshold: 25 },
+];
+
+// Wall texture sheets — opaque 2048×2048. The user's drops have a
+// small Gemini "sparkle" badge in the bottom-right corner; we cover it
+// by extracting a similarly-sized region from the bottom-left of the
+// same image, flopping it horizontally, and compositing over the badge
+// zone. For these textures the bottom band is roughly translation-
+// invariant on the horizontal axis, so the seam reads as natural
+// continuation rather than a visible patch. Final resize 256×256.
+const WALLS = [
+  { src: 'pantry.png',       out: 'pantry.png' },
+  { src: 'coldroom.png',     out: 'coldroom.png' },
+  { src: 'aisle.png',        out: 'aisle.png' },
+  { src: 'walkin.png',       out: 'walkin.png' },
+  { src: 'loadingdock.png',  out: 'loadingdock.png' },
+  { src: 'subbasement.png',  out: 'subbasement.png' },
+];
+
+async function emitSprite(cellBuf, outFile, target = 128, trimThreshold = 5) {
   // Trim transparent edges, square-pad with 8% margin, resize to target.
-  const t = await sharp(cellBuf).trim({ threshold: 5 }).toBuffer({ resolveWithObject: true });
+  const t = await sharp(cellBuf).trim({ threshold: trimThreshold }).toBuffer({ resolveWithObject: true });
   const m = t.info;
   const max = Math.max(m.width, m.height);
   const pad = Math.round(max * 0.08);
@@ -82,6 +112,60 @@ async function processSheet(sheetPath, layout) {
     await emitSprite(cell, out, 128);
     process.stdout.write(`  ${item.name}\n`);
   }
+}
+
+// Single-frame characters. Wipes a configurable top-right rectangle so
+// platform UI badges (share / download buttons) get erased before the
+// trim crops the sprite tight to its character bbox.
+async function processSingle(item) {
+  const src = join(SRC, item.src);
+  const meta = await sharp(src).metadata();
+  const ww = Math.round(meta.width  * (item.wipeTopRight?.wPct ?? 0));
+  const wh = Math.round(meta.height * (item.wipeTopRight?.hPct ?? 0));
+  let buf = await sharp(src).png().toBuffer();
+  if (ww > 0 && wh > 0) {
+    const mask = await sharp({
+      create: { width: ww, height: wh, channels: 4,
+                background: { r: 255, g: 255, b: 255, alpha: 1 } },
+    }).png().toBuffer();
+    buf = await sharp(buf)
+      .composite([{ input: mask, left: meta.width - ww, top: 0, blend: 'dest-out' }])
+      .png().toBuffer();
+  }
+  await emitSprite(buf, join(OUT_SPRITES, item.out), 128, item.trimThreshold ?? 5);
+  process.stdout.write(`  ${item.out}\n`);
+}
+
+// Wall-texture pipeline. Strips the bottom-right Gemini sparkle, then
+// resizes to 256x256 for the in-game CanvasPattern repeat fill.
+async function processWall(item) {
+  const src = join(SRC, item.src);
+  const meta = await sharp(src).metadata();
+  const W = meta.width, H = meta.height;
+  // Patch zone: ~14 % × 14 % at the bottom-right covers the badge with
+  // headroom. Source patch: same dims taken from the bottom-LEFT and
+  // flopped horizontally so the texture's horizontal grain continues.
+  const ww = Math.round(W * 0.14);
+  const wh = Math.round(H * 0.14);
+  const patch = await sharp(src)
+    .extract({ left: 0, top: H - wh, width: ww, height: wh })
+    .flop()
+    .png()
+    .toBuffer();
+  const cleaned = await sharp(src)
+    .composite([{ input: patch, left: W - ww, top: H - wh }])
+    .toBuffer();
+  // Out folder is sprites/walls/. Final 256×256 PNG with sharp
+  // compression. We DON'T trim or pad — wall textures are tiles, not
+  // sprites; they need to keep their full square frame for the
+  // CanvasPattern('repeat') to align.
+  const outDir = join(OUT_SPRITES, 'walls');
+  mkdirSync(outDir, { recursive: true });
+  await sharp(cleaned)
+    .resize(256, 256, { fit: 'cover' })
+    .png({ compressionLevel: 9 })
+    .toFile(join(outDir, item.out));
+  process.stdout.write(`  walls/${item.out}\n`);
 }
 
 // The Frost-Fight.png sheet contains a painted scene in the bottom-right
@@ -120,6 +204,10 @@ async function processCover() {
   await processSheet(join(SRC, 'B Type 1.png'), B_LAYOUT);
   console.log('▶︎ A Type 2');
   await processSheet(join(SRC, 'A Type 2.png'), A2_LAYOUT);
+  console.log('▶︎ Singles');
+  for (const s of SINGLES) await processSingle(s);
+  console.log('▶︎ Walls');
+  for (const w of WALLS) await processWall(w);
   console.log('▶︎ Frost-Fight cover');
   await processCover();
   console.log('done');
