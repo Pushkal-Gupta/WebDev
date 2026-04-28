@@ -35,13 +35,16 @@ export default function Menu({
   if (screen === 'settings') return <SettingsScreen save={save} onChange={onSettingsChange} onResetProgress={onResetProgress} onBack={() => setScreen('main')} />;
   if (screen === 'help') return <HelpScreen onBack={() => setScreen('main')} />;
 
-  const cont = save.checkpoint && (save.checkpoint.segment > 0 || save.furthestSegment > 0);
+  const furthest = save.furthestDistance || 0;
+  const cont = (save.respawnAnchor || 0) > 0;
 
   return (
     <div className="gw-menu">
       <div className="gw-menu-card">
         <div className="gw-menu-title">Grudgewood</div>
-        <div className="gw-menu-sub">The forest remembers.</div>
+        <div className="gw-menu-sub">
+          {furthest > 0 ? `Furthest reach: ${Math.round(furthest)}m` : 'The forest remembers.'}
+        </div>
         <div className="gw-menu-list">
           <Btn primary onClick={onContinue} disabled={!cont}>
             <span className="gw-hud-icon">{Icon.play}</span> Continue
@@ -57,7 +60,7 @@ export default function Menu({
           </Btn>
         </div>
         <div className="gw-menu-foot">
-          <span className="gw-menu-hint">Use the toolbar above to leave the forest.</span>
+          <span className="gw-menu-hint">WASD/arrows to move · Shift to sprint · Space to jump.</span>
         </div>
       </div>
     </div>

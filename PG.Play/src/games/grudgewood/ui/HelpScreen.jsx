@@ -31,11 +31,11 @@ export default function HelpScreen({ onBack }) {
             </ul>
           </section>
           <section>
-            <h4>Checkpoints</h4>
+            <h4>Distance</h4>
             <ul>
-              <li>Glowing pylons activate when you step into them.</li>
-              <li>Death respawns you at the latest one. Quickly.</li>
-              <li>Each biome ends with a checkpoint. Survive that long.</li>
+              <li>The walk has no end. Score is the furthest metre you reach.</li>
+              <li>Auto-checkpoints latch every 50m so death sends you back briefly, not to the start.</li>
+              <li>Biomes shift roughly every 280m. Each has its own attack mix.</li>
             </ul>
           </section>
           <section>

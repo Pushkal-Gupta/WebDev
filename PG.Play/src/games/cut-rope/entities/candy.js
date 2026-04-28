@@ -37,21 +37,33 @@ export function makeCandy(palette, def) {
   ao.position.z = -0.5;
 
   const point = makePoint(def.x, def.y);
+  let squashT = 0;          // squash timeline; >0 means animating
 
   return {
     point,
     mesh: group,
     aoMesh: ao,
-    sync() {
+    sync(dt) {
       group.position.set(point.x, point.y, 0);
       const vx = point.x - point.prevX;
       const vy = point.y - point.prevY;
       group.rotation.z = Math.atan2(vx, -vy) * 0.6;
+      // Squash animation — vertical stretch then settle, ~180ms.
+      let sx = 1, sy = 1;
+      if (squashT > 0) {
+        squashT = Math.max(0, squashT - (dt || 0.016));
+        const k = squashT / 0.18;       // 1 → 0
+        const w = Math.sin(k * Math.PI);
+        sx = 1 + w * 0.18;
+        sy = 1 - w * 0.22;
+      }
+      group.scale.set(sx, sy, 1);
       // AO sits on the floor (y = 5.4 world).
       ao.position.set(point.x, 5.4, -0.5);
       const vmag = Math.hypot(vx, vy);
       aoMat.opacity = Math.max(0.02, 0.22 - Math.min(0.18, vmag * 0.25));
     },
+    pulse() { squashT = 0.18; },
     dispose() {
       coreGeo.dispose(); tailGeo.dispose(); aoGeo.dispose();
       coreMat.dispose(); wrapMat.dispose(); aoMat.dispose();

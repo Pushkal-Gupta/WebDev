@@ -33,6 +33,7 @@ export default function CutRopeGame() {
   const lastRef = useRef(0);
   const swipeRef = useRef({ active: false, lastX: 0, lastY: 0, moved: false, popped: false });
   const finishedRef = useRef(false);
+  const camPunchRef = useRef(0);    // seconds remaining on the camera-zoom punch
 
   const [scene, setScene] = useState('start');     // 'start' | 'play' | 'levels' | 'paused' | 'won' | 'lost'
   const [levelId, setLevelId] = useState(LEVELS[0].id);
@@ -135,7 +136,7 @@ export default function CutRopeGame() {
       // physics so the candy holds its final pose.
       lv.target.update(dt, lv.candy.point);
       lv.stars.forEach((s) => s.update(dt));
-      lv.candy.sync();
+      lv.candy.sync(dt);
       lv.ropes.forEach((r) => r.rebuild());
       attachRopeMeshes(engine, lv);
       return;
@@ -227,9 +228,22 @@ export default function CutRopeGame() {
     }
 
     lv.target.update(dt, lv.candy.point);
-    lv.candy.sync();
+    lv.candy.sync(dt);
+    lv.tutorial?.update(dt);
     lv.ropes.forEach((r) => r.rebuild());
     attachRopeMeshes(engine, lv);
+
+    // Camera punch — eases the ortho zoom back to 1 after a chomp.
+    if (camPunchRef.current > 0) {
+      camPunchRef.current = Math.max(0, camPunchRef.current - dt);
+      const k = camPunchRef.current / 0.36;     // 1 → 0
+      const punch = Math.sin(k * Math.PI) * 0.05;
+      engine.camera.zoom = 1 + punch;
+      engine.camera.updateProjectionMatrix();
+    } else if (engine.camera.zoom !== 1) {
+      engine.camera.zoom = 1;
+      engine.camera.updateProjectionMatrix();
+    }
   };
 
   // Add any newly-rebuilt rope meshes that aren't yet in the scene tree.
@@ -246,6 +260,7 @@ export default function CutRopeGame() {
     if (won) {
       audio.targetChomp();
       audio.levelClear();
+      camPunchRef.current = 0.36;     // brief zoom-in then ease back
       const lv = levelRef.current;
       const engine = engineRef.current;
       if (lv && engine) spawnConfetti(engine.scene, lv.target.pos.x, lv.target.pos.y - 0.4);
@@ -314,7 +329,11 @@ export default function CutRopeGame() {
     const dx = w.x - sw.lastX, dy = w.y - sw.lastY;
     if (Math.hypot(dx, dy) < SWIPE_MIN_DIST) return;
     const cuts = cutAlongSegment(lv.world, sw.lastX, sw.lastY, w.x, w.y);
-    if (cuts > 0) audio.ropeCut();
+    if (cuts > 0) {
+      audio.ropeCut();
+      lv.candy.pulse();
+      lv.tutorial?.fade();
+    }
     sw.lastX = w.x; sw.lastY = w.y; sw.moved = true;
   }, [scene]);
 
@@ -331,7 +350,11 @@ export default function CutRopeGame() {
     if (!engine || !canvas || !lv) return;
     const w = screenToWorld(engine.camera, canvas, e.clientX, e.clientY);
     const cuts = cutAtPoint(lv.world, w.x, w.y, CUT_RADIUS);
-    if (cuts > 0) audio.ropeCut();
+    if (cuts > 0) {
+      audio.ropeCut();
+      lv.candy.pulse();
+      lv.tutorial?.fade();
+    }
   }, [scene]);
 
   // ── UI handlers ──────────────────────────────────────────────────────
@@ -394,6 +417,7 @@ export default function CutRopeGame() {
         </>
       )}
 
+      {scene === 'won' && <div className="cr-flash" />}
       {scene === 'start'  && <StartScreen progress={progress} onPlay={onPlay} onLevelSelect={() => setScene('levels')} />}
       {scene === 'levels' && <LevelSelect progress={progress} onPick={onPickLevel} onClose={onCloseLevels} />}
       {scene === 'paused' && <PauseMenu onResume={onResume} onRetry={handleRetry} onMenu={onMenu} />}

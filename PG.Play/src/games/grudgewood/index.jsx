@@ -17,7 +17,7 @@ import * as THREE from 'three';
 import './styles.css';
 import { makeEngine } from './engine.js';
 import { ChaseCamera } from './camera.js';
-import { ChunkManager, CHUNK_LENGTH } from './chunkManager.js';
+import { ChunkManager } from './chunkManager.js';
 import { biomeAt } from './biomeProgression.js';
 import { makePlayer, PlayerController, PLAYER_RADIUS } from './player.js';
 import { Input } from './input.js';

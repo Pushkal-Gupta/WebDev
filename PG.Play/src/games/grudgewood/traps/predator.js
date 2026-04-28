@@ -95,7 +95,7 @@ export class PredatorTree extends Trap {
       // Tree slams forward.
       this.tree.rotation.x = THREE.MathUtils.lerp(0.22, -0.5, k);
       // Lethal sphere swings out along the locked direction; one-hit kill on
-      // contact thanks to checkLethalHit in world.js.
+      // contact thanks to ChunkManager.checkLethalHit.
       tmpV.set(
         this.anchor.x + this.lockDirX * STRIKE_REACH * k,
         this.anchor.y + 1.0,
