@@ -518,18 +518,24 @@ const Cover_2048 = () => {
   );
 };
 
-// 13. Cut the Rope
+// 13. Sweet Strand — original Cut-the-Rope-style game.
+// Original creature design (no teeth, ear-tufts, friendly smile).
 const Cover_CutRope = () => (
   <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
     <SharedDefs/>
     <defs>
-      <linearGradient id="rope-bg" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#2a1a3a"/><stop offset="1" stopColor="#0a0612"/>
+      <linearGradient id="strand-bg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#fff3e2"/>
+        <stop offset="1" stopColor="#f3c79f"/>
       </linearGradient>
     </defs>
-    <rect width="400" height="500" fill="url(#rope-bg)"/>
-    <g fill="#ffe14f">
-      {[[90,180],[280,220],[200,120]].map(([x,y],i)=>{
+    <rect width="400" height="500" fill="url(#strand-bg)"/>
+    {/* shelf wainscoting */}
+    <rect x="0" y="430" width="400" height="70" fill="#a87649"/>
+    <rect x="0" y="430" width="400" height="3" fill="#7a4d2c"/>
+    {/* stars */}
+    <g fill="#ffd24a">
+      {[[88,170],[308,210],[200,90]].map(([x,y],i)=>{
         const pts = Array.from({length:10},(_,j)=>{
           const a = (j*36-90)*Math.PI/180;
           const r = j%2===0?14:6;
@@ -538,26 +544,37 @@ const Cover_CutRope = () => (
         return <polygon key={i} points={pts}/>;
       })}
     </g>
-    <line x1="100" y1="80" x2="190" y2="330" stroke="#b9830b" strokeWidth="3"/>
-    <line x1="300" y1="80" x2="210" y2="330" stroke="#b9830b" strokeWidth="3"/>
-    <circle cx="100" cy="80" r="10" fill="#7a5a2a"/>
-    <circle cx="300" cy="80" r="10" fill="#7a5a2a"/>
-    <g transform="translate(200,340)">
-      <rect x="-30" y="-30" width="60" height="60" rx="14" fill="#ff4d6d"/>
-      <rect x="-30" y="-30" width="60" height="60" rx="14" fill="url(#grain-pattern)" opacity="0.3"/>
-      <path d="M-30,0 L-50,-15 L-45,0 L-50,15 Z" fill="#ff4d6d"/>
-      <path d="M30,0 L50,-15 L45,0 L50,15 Z" fill="#ff4d6d"/>
+    {/* anchor pins + ropes */}
+    <circle cx="120" cy="80" r="9" fill="#9aa7b3"/>
+    <circle cx="120" cy="80" r="9" fill="none" stroke="#5e6e7d" strokeWidth="2"/>
+    <circle cx="280" cy="80" r="9" fill="#9aa7b3"/>
+    <circle cx="280" cy="80" r="9" fill="none" stroke="#5e6e7d" strokeWidth="2"/>
+    <line x1="120" y1="80" x2="200" y2="320" stroke="#e8c46f" strokeWidth="4" strokeLinecap="round"/>
+    <line x1="280" y1="80" x2="200" y2="320" stroke="#e8c46f" strokeWidth="4" strokeLinecap="round"/>
+    {/* candy */}
+    <g transform="translate(200,320)">
+      <rect x="-26" y="-22" width="52" height="44" rx="14" fill="#ff4d6d"/>
+      <rect x="-26" y="-22" width="52" height="44" rx="14" fill="url(#grain-pattern)" opacity="0.25"/>
+      <path d="M-26,0 L-44,-12 L-39,0 L-44,12 Z" fill="#ffe14f"/>
+      <path d="M26,0 L44,-12 L39,0 L44,12 Z" fill="#ffe14f"/>
+      <ellipse cx="-7" cy="-9" rx="6" ry="3" fill="#fff" opacity="0.5"/>
     </g>
-    <g transform="translate(200,440)">
-      <ellipse cx="0" cy="0" rx="40" ry="34" fill="#6fbf2a"/>
-      <circle cx="-12" cy="-10" r="9" fill="#fff"/>
-      <circle cx="12" cy="-10" r="9" fill="#fff"/>
-      <circle cx="-10" cy="-8" r="4" fill="#0a0d0e"/>
-      <circle cx="14" cy="-8" r="4" fill="#0a0d0e"/>
-      <path d="M-14,10 Q0,24 14,10 L14,14 L-14,14 Z" fill="#0a0d0e"/>
-      <rect x="-10" y="12" width="4" height="6" fill="#fff"/>
-      <rect x="-2" y="12" width="4" height="6" fill="#fff"/>
-      <rect x="6" y="12" width="4" height="6" fill="#fff"/>
+    {/* Mochi — round body, two ear-tufts, no teeth */}
+    <g transform="translate(200,438)">
+      {/* ear-tufts */}
+      <ellipse cx="-22" cy="-26" rx="9" ry="13" fill="#9ddb8d"/>
+      <ellipse cx="22" cy="-26" rx="9" ry="13" fill="#9ddb8d"/>
+      {/* body */}
+      <ellipse cx="0" cy="0" rx="42" ry="34" fill="#9ddb8d"/>
+      {/* belly */}
+      <ellipse cx="0" cy="6" rx="28" ry="18" fill="#fff7d6"/>
+      {/* eyes */}
+      <ellipse cx="-12" cy="-8" rx="5" ry="6" fill="#1c1218"/>
+      <ellipse cx="12" cy="-8" rx="5" ry="6" fill="#1c1218"/>
+      <circle cx="-10" cy="-10" r="1.6" fill="#fff"/>
+      <circle cx="14" cy="-10" r="1.6" fill="#fff"/>
+      {/* friendly mouth (no teeth) */}
+      <path d="M-9,8 Q0,16 9,8" stroke="#1c1218" strokeWidth="2.4" fill="none" strokeLinecap="round"/>
     </g>
     <Grain/>
   </svg>

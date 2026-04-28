@@ -5,8 +5,8 @@
 import {
   makeAnchor, makeCandy, makeRope, makeStar, makeTarget,
   makeBubble, makeBlower, makeSpike,
-} from './entities.js';
-import { makeWorld, makeConstraint, makePoint } from './physics.js';
+} from './entities/index.js';
+import { makeWorld } from './physics.js';
 import { PALETTE } from './levels.js';
 
 export function loadLevel(scene, sceneRoot, level) {

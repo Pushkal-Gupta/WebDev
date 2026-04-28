@@ -8,6 +8,7 @@ import { step as stepWorld, cutAlongSegment, cutAtPoint } from './physics.js';
 import { LEVELS, PALETTE, levelById } from './levels.js';
 import { loadLevel, disposeLevel } from './loader.js';
 import { audio } from './audio.js';
+import { spawnStarBurst, spawnConfetti, tickFx, disposeAllFx } from './fx.js';
 import { readState, recordAttempt } from './state.js';
 import { submitScore } from '../../scoreBus.js';
 import Hud from './ui/Hud.jsx';
@@ -17,9 +18,11 @@ import {
 
 const STAR_PICKUP_RADIUS = 0.45;
 const TARGET_PICKUP_RADIUS = 0.7;
-const CUT_RADIUS = 0.18;
+const CUT_RADIUS = 0.22;
 const SWIPE_MIN_DIST = 0.04;     // world units
 const FAIL_OOB = { minX: -7, maxX: 7, maxY: 6.6 };
+// Scenes that keep the canvas updating. Pause + menus freeze the loop.
+const ALIVE_SCENES = { play: 1, won: 1, lost: 1 };
 
 export default function CutRopeGame() {
   const wrapRef = useRef(null);
@@ -28,11 +31,12 @@ export default function CutRopeGame() {
   const levelRef = useRef(null);
   const rafRef = useRef(0);
   const lastRef = useRef(0);
-  const swipeRef = useRef({ active: false, lastX: 0, lastY: 0, moved: false });
+  const swipeRef = useRef({ active: false, lastX: 0, lastY: 0, moved: false, popped: false });
   const finishedRef = useRef(false);
 
   const [scene, setScene] = useState('start');     // 'start' | 'play' | 'levels' | 'paused' | 'won' | 'lost'
   const [levelId, setLevelId] = useState(LEVELS[0].id);
+  const [reloadKey, setReloadKey] = useState(0);   // bump to force a level reload (retry)
   const [stars, setStars] = useState(0);
   const [failReason, setFailReason] = useState(null);
   const [progress, setProgress] = useState(() => readState());
@@ -64,6 +68,7 @@ export default function CutRopeGame() {
       ro.disconnect();
       window.removeEventListener('orientationchange', fitToWrap);
       cancelAnimationFrame(rafRef.current);
+      disposeAllFx(engine.scene);
       disposeLevel(engine.sceneRoot, levelRef.current);
       levelRef.current = null;
       engine.dispose();
@@ -72,49 +77,53 @@ export default function CutRopeGame() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ── Mount/swap a level when entering play ─────────────────────────────
+  // ── Level lifecycle + RAF loop ────────────────────────────────────────
+  // One effect controls both. Levels are (re)loaded only when the levelId
+  // or reloadKey changes — pause/resume just toggles scene without
+  // touching level state. The RAF loop runs while the level is visible:
+  // play, won, lost. Pause + start screen + level select freeze the loop.
   useEffect(() => {
-    if (scene !== 'play') return;
+    if (!ALIVE_SCENES[scene]) return;
     const engine = engineRef.current;
     if (!engine) return;
 
-    // Tear down any previous level.
-    disposeLevel(engine.sceneRoot, levelRef.current);
+    const cur = levelRef.current;
+    const needsReload = !cur || cur._levelId !== levelId || cur._reloadKey !== reloadKey;
 
-    // Fresh load.
-    const lv = loadLevel(engine.scene, engine.sceneRoot, level);
-    levelRef.current = lv;
-    engine.setBackdrop(lv.palette.backdropTop, lv.palette.backdropBot);
-
-    // If there's an initial bubble around the candy, attach it.
-    for (const b of lv.bubbles) {
-      const dx = lv.candy.point.x - b.state.x;
-      const dy = lv.candy.point.y - b.state.y;
-      if (Math.hypot(dx, dy) < b.state.r) b.attach(lv.candy.point);
+    if (needsReload) {
+      disposeAllFx(engine.scene);
+      disposeLevel(engine.sceneRoot, cur);
+      const lv = loadLevel(engine.scene, engine.sceneRoot, level);
+      lv._levelId = levelId;
+      lv._reloadKey = reloadKey;
+      levelRef.current = lv;
+      engine.setBackdrop(lv.palette.backdropTop, lv.palette.backdropBot);
+      // Auto-attach bubble if the candy spawns inside one.
+      for (const b of lv.bubbles) {
+        const dx = lv.candy.point.x - b.state.x;
+        const dy = lv.candy.point.y - b.state.y;
+        if (Math.hypot(dx, dy) < b.state.r) b.attach(lv.candy.point);
+      }
+      finishedRef.current = false;
+      setStars(0);
+      setFailReason(null);
     }
 
-    finishedRef.current = false;
-    setStars(0);
-    setFailReason(null);
-
-    // Kick the loop.
     cancelAnimationFrame(rafRef.current);
     lastRef.current = performance.now();
     const loop = () => {
       rafRef.current = requestAnimationFrame(loop);
       const now = performance.now();
-      const dt = Math.min(0.034, (now - lastRef.current) / 1000);
+      const dt = (now - lastRef.current) / 1000;
       lastRef.current = now;
       tick(dt);
       engine.renderer.render(engine.scene, engine.camera);
     };
     rafRef.current = requestAnimationFrame(loop);
 
-    return () => {
-      cancelAnimationFrame(rafRef.current);
-    };
+    return () => cancelAnimationFrame(rafRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scene, levelId]);
+  }, [scene, levelId, reloadKey]);
 
   // ── Main per-frame tick ───────────────────────────────────────────────
   const tick = (dt) => {
@@ -161,6 +170,7 @@ export default function CutRopeGame() {
       const dy = s.state.y - lv.candy.point.y;
       if (Math.hypot(dx, dy) < STAR_PICKUP_RADIUS) {
         s.take();
+        spawnStarBurst(engine.scene, s.state.x, s.state.y);
         pickedAny = true;
         starsNow += 1;
       }
@@ -170,6 +180,7 @@ export default function CutRopeGame() {
       audio.starGet();
       setStars(starsNow);
     }
+    tickFx(dt, engine.scene);
 
     // Spike fail.
     for (const sp of lv.spikes) {
@@ -179,9 +190,21 @@ export default function CutRopeGame() {
       }
     }
 
-    // Out-of-bounds fail (after the candy has fully detached from rope).
-    const allRopesDead = lv.ropes.every((r) => !r.points.some((p) => isPointInAliveChain(lv.world, p)));
-    const detached = allRopesDead;
+    // Out-of-bounds fail (after the candy is fully detached from every
+    // anchor — i.e., no live constraint chain links it to any anchor).
+    const tethered = isCandyTethered(lv);
+    if (!tethered) {
+      // Free the candy from any trailing-tail constraints so it falls
+      // cleanly instead of being weighed down by invisible rope segments
+      // on the candy-side of the cut.
+      const cs = lv.world.constraints;
+      const cp = lv.candy.point;
+      for (let i = 0; i < cs.length; i++) {
+        const c = cs[i];
+        if (c.alive && (c.a === cp || c.b === cp)) c.alive = false;
+      }
+    }
+    const detached = !tethered;
     if (detached) {
       const c = lv.candy.point;
       if (c.x < FAIL_OOB.minX || c.x > FAIL_OOB.maxX || c.y > FAIL_OOB.maxY) {
@@ -223,6 +246,9 @@ export default function CutRopeGame() {
     if (won) {
       audio.targetChomp();
       audio.levelClear();
+      const lv = levelRef.current;
+      const engine = engineRef.current;
+      if (lv && engine) spawnConfetti(engine.scene, lv.target.pos.x, lv.target.pos.y - 0.4);
       const next = recordAttempt(progress, level.id, finalStars, true);
       setProgress(next);
       // Submit the per-level star count. Edge fn maxScore is 50.
@@ -250,27 +276,30 @@ export default function CutRopeGame() {
     const canvas = canvasRef.current;
     if (!engine || !canvas) return;
     const w = screenToWorld(engine.camera, canvas, e.clientX, e.clientY);
-    swipeRef.current = { active: true, lastX: w.x, lastY: w.y, moved: false };
+    let popped = false;
 
-    // Bubble-pop check at the press point.
+    // Bubble-pop check at the press point. If a bubble is here, the
+    // press counts as a pop only — we don't treat the same gesture as
+    // a rope cut on pointerup.
     const lv = levelRef.current;
     if (lv) {
       for (const b of lv.bubbles) {
         if (!b.state.alive) continue;
-        const d = Math.hypot(w.x - b.state.x, w.y - b.state.y);
-        if (d < b.state.r + 0.12) {
+        // Use the live mesh position when attached (it follows the candy);
+        // otherwise the static def position.
+        const bx = b.state.attached ? b.mesh.position.x : b.state.x;
+        const by = b.state.attached ? b.mesh.position.y : b.state.y;
+        const d = Math.hypot(w.x - bx, w.y - by);
+        if (d < b.state.r + 0.18) {
           b.pop();
           audio.bubblePop();
+          popped = true;
           break;
-        }
-        // If the bubble is attached + moving with the candy, follow its mesh.
-        if (b.state.attached) {
-          const m = b.mesh.position;
-          const d2 = Math.hypot(w.x - m.x, w.y - m.y);
-          if (d2 < b.state.r + 0.18) { b.pop(); audio.bubblePop(); break; }
         }
       }
     }
+
+    swipeRef.current = { active: true, lastX: w.x, lastY: w.y, moved: false, popped };
   }, [scene]);
 
   const onPointerMove = useCallback((e) => {
@@ -294,8 +323,8 @@ export default function CutRopeGame() {
     if (!sw.active) return;
     sw.active = false;
     if (scene !== 'play' || finishedRef.current) return;
-    if (sw.moved) return;
-    // Tap-cut fallback.
+    if (sw.moved || sw.popped) return;
+    // Tap-cut fallback (only if the press wasn't already used to pop).
     const engine = engineRef.current;
     const canvas = canvasRef.current;
     const lv = levelRef.current;
@@ -305,22 +334,32 @@ export default function CutRopeGame() {
     if (cuts > 0) audio.ropeCut();
   }, [scene]);
 
+  // ── UI handlers ──────────────────────────────────────────────────────
+  // Retry — bump the reload key (always forces a fresh load of the
+  // current level) and ensure scene is 'play'. Bumping reloadKey alone
+  // re-runs the level-life effect.
+  const handleRetry = useCallback(() => {
+    audio.buttonClick();
+    setReloadKey((k) => k + 1);
+    setScene('play');
+  }, []);
+
+  const onPause = useCallback(() => {
+    if (scene === 'play') { audio.buttonClick(); setScene('paused'); }
+  }, [scene]);
+
   // ── Keyboard ─────────────────────────────────────────────────────────
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === 'r' || e.key === 'R') { onRetry(); }
-      else if (e.key === 'Escape') { onPause(); }
+      if (e.key === 'r' || e.key === 'R') handleRetry();
+      else if (e.key === 'Escape') onPause();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scene]);
+  }, [handleRetry, onPause]);
 
-  // ── UI handlers ──────────────────────────────────────────────────────
   const onPlay = () => { audio.buttonClick(); setLevelId(firstUnplayedOrFirst(progress)); setScene('play'); };
-  const onPause = () => { if (scene === 'play') { audio.buttonClick(); setScene('paused'); } };
   const onResume = () => { audio.buttonClick(); setScene('play'); lastRef.current = performance.now(); };
-  const onRetry = () => { audio.buttonClick(); setScene('play'); /* effect dep on scene/levelId reloads */ setLevelId((id) => id); /* nudge */ };
   const onMenu = () => { audio.buttonClick(); setScene('levels'); };
   const onPickLevel = (id) => { audio.buttonClick(); setLevelId(id); setScene('play'); };
   const onCloseLevels = () => { audio.buttonClick(); setScene('start'); };
@@ -329,21 +368,6 @@ export default function CutRopeGame() {
     const idx = LEVELS.findIndex((l) => l.id === level.id);
     if (idx < LEVELS.length - 1) { setLevelId(LEVELS[idx + 1].id); setScene('play'); }
     else setScene('levels');
-  };
-
-  // Force a reload of the same level by toggling a key — the easy hack is
-  // to swap to a sentinel and back, but we already trigger reload on the
-  // 'play' scene effect. So onRetry just sets scene back to 'play' from
-  // a non-play scene, which re-runs the effect.
-  const reTriggerSameLevel = () => {
-    setScene('paused');                  // briefly leave 'play'
-    setTimeout(() => setScene('play'), 0);
-  };
-  // Wire onRetry properly — leaving + returning re-runs the load effect.
-  const handleRetry = () => {
-    audio.buttonClick();
-    if (scene === 'play') reTriggerSameLevel();
-    else setScene('play');
   };
 
   return (
@@ -366,7 +390,7 @@ export default function CutRopeGame() {
             onRetry={handleRetry}
             onMenu={onMenu}
           />
-          {level.hint && <HintPill text={level.hint} />}
+          {level.hint && <HintPill key={`${levelId}:${reloadKey}`} text={level.hint} />}
         </>
       )}
 
@@ -386,8 +410,23 @@ function firstUnplayedOrFirst(progress) {
   return LEVELS[0].id;
 }
 
-// True if the given point is part of any rope chain that's still attached
-// from anchor through to candy. Used for "the candy detached" detection.
-function isPointInAliveChain(world, p) {
-  return world.constraints.some((c) => c.alive && (c.a === p || c.b === p));
+// BFS along live constraints from candy; returns true iff any anchor
+// point is reachable. Used to decide when the candy has been freed.
+function isCandyTethered(lv) {
+  const anchors = new Set(lv.anchors.map((a) => a.point));
+  const candy = lv.candy.point;
+  const visited = new Set([candy]);
+  const queue = [candy];
+  const cs = lv.world.constraints;
+  while (queue.length) {
+    const cur = queue.shift();
+    if (anchors.has(cur)) return true;
+    for (let i = 0; i < cs.length; i++) {
+      const c = cs[i];
+      if (!c.alive) continue;
+      const other = c.a === cur ? c.b : c.b === cur ? c.a : null;
+      if (other && !visited.has(other)) { visited.add(other); queue.push(other); }
+    }
+  }
+  return false;
 }

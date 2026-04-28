@@ -27,7 +27,7 @@ export class HiddenPit extends Trap {
     shaft.position.y = -2;
     g.add(shaft);
 
-    super({ kind: 'pit', group: g, anchor, hitRadius: radius * 0.9, anticipation: 0, cooldown: 0 });
+    super({ kind: 'pit', group: g, anchor, hitRadius: radius * 0.9, anticipation: 0, cooldown: 6.0 });
     this.cover = cover;
     this.shaft = shaft;
     this.radius = radius;
@@ -50,9 +50,17 @@ export class HiddenPit extends Trap {
       this.lethalCenter.copy(this.anchor).setY(this.anchor.y - 0.4);
       this.hitRadius = this.radius * 0.95;
       if (this.t > 0.4) {
-        this.phase = 'done';
+        this.phase = 'cooldown';
+        this.t = 0;
         this.lethalActive = false;
       }
+    } else {
+      // Cooldown — leaves slowly grow back over the pit so a returning
+      // player gets a fresh trap instead of stepping over a dead trigger.
+      const k = Math.min(1, this.t / this.cooldown);
+      this.cover.position.y = THREE.MathUtils.lerp(-2.5, 0.05, k);
+      this.cover.rotation.x = (1 - k) * -1.2;
+      if (this.t >= this.cooldown) { this.phase = 'idle'; this.t = 0; }
     }
   }
 }

@@ -121,14 +121,14 @@ export function makeEngine({ canvas }) {
   };
 }
 
-// Convert a screen-pixel coordinate (relative to the canvas) to world XY.
+// Convert a screen-pixel coordinate (relative to the canvas) to world XY
+// on the gameplay plane. Uses Three's unproject so it stays correct
+// regardless of camera position / aspect / future tweaks.
+const _unprojScratch = new THREE.Vector3();
 export function screenToWorld(camera, canvas, sx, sy) {
   const r = canvas.getBoundingClientRect();
   const nx =  ((sx - r.left) / r.width)  * 2 - 1;
   const ny = -((sy - r.top)  / r.height) * 2 + 1;
-  // Inverse projection: ortho camera maps NDC linearly to its frustum.
-  const wx = camera.left + (nx + 1) * 0.5 * (camera.right - camera.left);
-  // Camera flipped vertically (top < bottom), so the math swaps.
-  const wy = camera.top  + (1 - (ny + 1) * 0.5) * (camera.bottom - camera.top);
-  return { x: wx, y: wy };
+  _unprojScratch.set(nx, ny, 0).unproject(camera);
+  return { x: _unprojScratch.x, y: _unprojScratch.y };
 }

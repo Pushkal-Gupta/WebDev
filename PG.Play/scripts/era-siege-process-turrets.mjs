@@ -1,4 +1,4 @@
-// Process the master turret sheet `assets/era-seige/turret_spirits.png`.
+// Process the master turret sheet `assets/era-siege/turret_spirits.png`.
 //
 // Sheet layout:                 3 frames × 5 eras
 //   row 0 = Era 1 (Bone Crossbow)
@@ -24,7 +24,7 @@ import { existsSync, mkdirSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 
 const ROOT = resolve(import.meta.dirname || new URL('.', import.meta.url).pathname, '..');
-const SRC  = resolve(ROOT, 'assets/era-seige/turret_spirits.png');
+const SRC  = resolve(ROOT, 'assets/era-siege/turret_spirits.png');
 const DEST = resolve(ROOT, 'public/games/era-siege/turret');
 
 if (!existsSync(SRC)) {

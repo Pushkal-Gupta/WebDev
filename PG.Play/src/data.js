@@ -82,12 +82,12 @@ export const GAMES = [
     mobileSupport:'native', inputs:['swipe','keyboard'], orientation:'portrait',
     skillTags:['planning','spatial'], sessionLength:'short' },
 
-  { id:'cutrope', name:'Cut the Rope', cat:'Puzzle', kind:'story', players:'1P', levels:3,
-    tagline:'Om Nom is hungry.',
-    story:'A small green creature in a cardboard box, staring up at a piece of candy on a string. Your job: slice the rope at the right angle, collect every star on the way down, feed the monster. Three levels, one satisfying crunch.',
+  { id:'cutrope', name:'Sweet Strand', cat:'Puzzle', kind:'story', players:'1P', levels:10,
+    tagline:'Slice. Steer. Feed Mochi.',
+    story:'A toy-box puzzle. Slice ropes, steer a candy through stars, drop it into Mochi\'s waiting mouth. Ten hand-built levels across three dioramas — Sweet Shop, Greenhouse, Workshop — escalating through bubbles, blowers, spikes, and sliding pins.',
     playable:true,
     mobileSupport:'native', inputs:['touch','mouse'], orientation:'landscape',
-    skillTags:['physics','timing','spatial'], sessionLength:'instant' },
+    skillTags:['physics','timing','spatial'], sessionLength:'short' },
 
   { id:'bloons', name:'Loft Defense', cat:'Tower-Def', kind:'story', players:'1P', levels:10,
     tagline:'Hold the line. Spend wisely.',

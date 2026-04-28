@@ -1,5 +1,5 @@
 // Bulk splitter for the four "reference sheet" inputs the user dropped
-// in `assets/era-seige/`. Each sheet has multiple labeled cells; this
+// in `assets/era-siege/`. Each sheet has multiple labeled cells; this
 // script crops single hero-pose / silhouette assets out of each and
 // writes them at the manifest paths the renderer expects.
 //
@@ -18,7 +18,7 @@ import { existsSync, mkdirSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 
 const ROOT = resolve(import.meta.dirname || new URL('.', import.meta.url).pathname, '..');
-const SRC  = resolve(ROOT, 'assets/era-seige');
+const SRC  = resolve(ROOT, 'assets/era-siege');
 const OUT  = resolve(ROOT, 'public/games/era-siege');
 mkdirSync(OUT, { recursive: true });
 
