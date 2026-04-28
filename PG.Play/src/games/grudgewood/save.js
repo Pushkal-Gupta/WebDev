@@ -1,36 +1,34 @@
 // Grudgewood — persistence with schema versioning + corruption fallback.
-// localStorage key holds the player profile: progress, hats, settings, stats.
+// localStorage holds the player profile: progress (distance + respawn anchor),
+// hats, settings, lifetime stats. Schema bumped to v2 when we moved from
+// segment-based progression to a continuous infinite walk.
 
-const KEY = 'grudgewood:save:v1';
-const SCHEMA = 1;
+const KEY = 'grudgewood:save:v2';
+const SCHEMA = 2;
 
 const DEFAULT = () => ({
   schema: SCHEMA,
-  // progression
-  furthestBiome: 'mosswake',
-  furthestSegment: 0,
-  checkpoint: { biome: 'mosswake', segment: 0, anchor: 0 },
+  // progression — pure distance into the forest. respawnAnchor is the
+  // furthest auto-checkpoint the player has reached this profile.
+  furthestDistance: 0,
+  respawnAnchor: 0,
   // unlocks
   hats: { 'leaf-crown': true },
   equippedHat: 'leaf-crown',
-  axeUnlocked: false,
-  secretsFound: [],
-  challengeMedals: {}, // challengeId -> 'bronze'|'silver'|'gold'
   // stats
   stats: { deaths: 0, retries: 0, runtime: 0, traps: {} },
   // settings
   settings: {
-    quality: 'auto',          // 'low' | 'medium' | 'high' | 'auto'
+    quality: 'auto',
     masterVolume: 0.8,
     sfxVolume: 0.9,
     musicVolume: 0.4,
     cameraShake: 1.0,
     reducedMotion: false,
     showFps: false,
-    casualMode: false,        // softer punishment, retains comedy
+    casualMode: false,
     invertY: false,
   },
-  // session
   lastSeen: Date.now(),
 });
 
@@ -38,14 +36,10 @@ function isValid(d) {
   return d
     && typeof d === 'object'
     && d.schema === SCHEMA
-    && typeof d.furthestBiome === 'string'
-    && typeof d.checkpoint === 'object'
     && typeof d.settings === 'object';
 }
 
 let cache = null;
-// In-memory fallback when localStorage is unavailable (private mode, quota
-// exceeded, sandboxed iframe, etc). Persists for the session only.
 const memoryStore = { [KEY]: null };
 let storageWorks = true;
 
@@ -53,13 +47,9 @@ function safeGet(k) {
   try { return localStorage.getItem(k); }
   catch { storageWorks = false; return memoryStore[k] ?? null; }
 }
-
 function safeSet(k, v) {
   try { localStorage.setItem(k, v); storageWorks = true; }
-  catch {
-    storageWorks = false;
-    memoryStore[k] = v;
-  }
+  catch { storageWorks = false; memoryStore[k] = v; }
 }
 
 export function loadSave() {
@@ -69,7 +59,6 @@ export function loadSave() {
     if (!raw) { cache = DEFAULT(); return cache; }
     const parsed = JSON.parse(raw);
     if (!isValid(parsed)) {
-      // Corruption fallback — keep what we can salvage.
       const def = DEFAULT();
       cache = { ...def, ...(typeof parsed === 'object' ? parsed : {}), schema: SCHEMA };
       return cache;
@@ -87,18 +76,11 @@ export function persist() {
   try {
     cache.lastSeen = Date.now();
     safeSet(KEY, JSON.stringify(cache));
-  } catch {
-    // safeSet already routes to memory; this catches JSON.stringify cycles.
-  }
+  } catch {}
 }
 
-export function isStoragePersistent() {
-  return storageWorks;
-}
-
-export function getSave() {
-  return loadSave();
-}
+export function isStoragePersistent() { return storageWorks; }
+export function getSave() { return loadSave(); }
 
 export function update(mut) {
   const s = loadSave();
@@ -107,13 +89,8 @@ export function update(mut) {
   return s;
 }
 
-export function unlockHat(id) {
-  return update((s) => { s.hats[id] = true; });
-}
-
-export function equipHat(id) {
-  return update((s) => { if (s.hats[id]) s.equippedHat = id; });
-}
+export function unlockHat(id) { return update((s) => { s.hats[id] = true; }); }
+export function equipHat(id)  { return update((s) => { if (s.hats[id]) s.equippedHat = id; }); }
 
 export function recordDeath(trapKind) {
   return update((s) => {
@@ -122,30 +99,13 @@ export function recordDeath(trapKind) {
   });
 }
 
-export function recordCheckpoint(biome, segment, anchor) {
+// Save the furthest reached distance and the active respawn anchor. Both
+// only ever move forward — a death cannot lower these.
+export function recordDistance(furthest, respawnAnchor) {
   return update((s) => {
-    s.checkpoint = { biome, segment, anchor };
-    // Track furthest progress monotonically.
-    const order = ['mosswake', 'trickster', 'rotbog', 'cliffside', 'heart', 'sanctum'];
-    const cur = order.indexOf(biome);
-    const fur = order.indexOf(s.furthestBiome);
-    if (cur > fur || (cur === fur && segment > s.furthestSegment)) {
-      s.furthestBiome = biome;
-      s.furthestSegment = segment;
-    }
+    if (furthest > (s.furthestDistance || 0)) s.furthestDistance = furthest;
+    if (respawnAnchor > (s.respawnAnchor || 0)) s.respawnAnchor = respawnAnchor;
   });
-}
-
-export function setMedal(challengeId, medal) {
-  return update((s) => {
-    const order = { bronze: 1, silver: 2, gold: 3 };
-    const cur = order[s.challengeMedals[challengeId]] || 0;
-    if ((order[medal] || 0) > cur) s.challengeMedals[challengeId] = medal;
-  });
-}
-
-export function unlockAxe() {
-  return update((s) => { s.axeUnlocked = true; });
 }
 
 export function setSetting(key, value) {

@@ -37,7 +37,7 @@ export const GAME_RULES: Record<string, GameRule> = {
   bob:        { minScore: 0, maxScore: 100000,  maxRunSeconds: 1800 },
   badicecream:{ minScore: 0, maxScore: 100000,  maxRunSeconds: 1800 },
   fbwg:       { minScore: 0, maxScore: 100000,  maxRunSeconds: 1800 },
-  cutrope:    { minScore: 0, maxScore: 30,      maxRunSeconds: 1800 },
+  cutrope:    { minScore: 0, maxScore: 50,      maxRunSeconds: 1800 },
   happywheels:{ minScore: 0, maxScore: 100000,  maxRunSeconds: 600 },
   eightball:  { minScore: 0, maxScore: 100,     maxRunSeconds: 3600 },
   bricklands: { minScore: 0, maxScore: 100000,  maxRunSeconds: 1200 },

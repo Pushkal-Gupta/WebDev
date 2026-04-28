@@ -102,22 +102,32 @@ export function makeEngine({ canvas, qualitySetting = 'auto' }) {
     camera.updateProjectionMatrix();
   }
 
-  // Apply biome look.
-  function applyBiome(b) {
-    skyMat.uniforms.uTop.value.copy(b.sky.top);
-    skyMat.uniforms.uMid.value.copy(b.sky.mid);
-    skyMat.uniforms.uBot.value.copy(b.sky.bot);
-    scene.fog.color.copy(b.fog.color);
-    scene.fog.density = b.fog.density;
-    sun.color.copy(b.sun.color);
-    sun.intensity = b.sun.intensity;
-    sun.position.set(b.sun.angle[0] * 60, -b.sun.angle[1] * 60, b.sun.angle[2] * 60);
-    hemi.color.copy(b.sky.top);
-    hemi.groundColor.copy(b.ground.darken);
+  // Apply biome look. When `next` and `t` are provided we blend toward the
+  // next biome by `t` in [0,1] so transitions in a continuous world feel
+  // breath-y instead of snapping at chunk boundaries.
+  const _tmpColor = new THREE.Color();
+  const lerpInto = (out, a, b, t) => out.copy(a).lerp(b, t);
+  function applyBiome(b, next = null, t = 0) {
+    const blend = next ? Math.max(0, Math.min(1, t)) : 0;
+    const target = next || b;
+    lerpInto(skyMat.uniforms.uTop.value, b.sky.top, target.sky.top, blend);
+    lerpInto(skyMat.uniforms.uMid.value, b.sky.mid, target.sky.mid, blend);
+    lerpInto(skyMat.uniforms.uBot.value, b.sky.bot, target.sky.bot, blend);
+    lerpInto(scene.fog.color, b.fog.color, target.fog.color, blend);
+    scene.fog.density = THREE.MathUtils.lerp(b.fog.density, target.fog.density, blend);
+    lerpInto(sun.color, b.sun.color, target.sun.color, blend);
+    sun.intensity = THREE.MathUtils.lerp(b.sun.intensity, target.sun.intensity, blend);
+    sun.position.set(
+      THREE.MathUtils.lerp(b.sun.angle[0], target.sun.angle[0], blend) * 60,
+      -THREE.MathUtils.lerp(b.sun.angle[1], target.sun.angle[1], blend) * 60,
+      THREE.MathUtils.lerp(b.sun.angle[2], target.sun.angle[2], blend) * 60,
+    );
+    lerpInto(hemi.color, b.sky.top, target.sky.top, blend);
+    lerpInto(hemi.groundColor, b.ground.darken, target.ground.darken, blend);
     hemi.intensity = 0.55;
-    ambient.color.copy(b.ambient.color);
-    ambient.intensity = b.ambient.intensity;
-    renderer.setClearColor(b.fog.color);
+    lerpInto(ambient.color, b.ambient.color, target.ambient.color, blend);
+    ambient.intensity = THREE.MathUtils.lerp(b.ambient.intensity, target.ambient.intensity, blend);
+    renderer.setClearColor(_tmpColor.copy(b.fog.color).lerp(target.fog.color, blend));
   }
 
   function dispose() {

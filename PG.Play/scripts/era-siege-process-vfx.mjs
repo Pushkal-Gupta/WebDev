@@ -1,6 +1,6 @@
 // Process VFX assets (currently sourced from OpenGameArt — CC0).
 //
-// Inputs (all in assets/era-seige/):
+// Inputs (all in assets/era-siege/):
 //   muzzle_flash_oga.png   — 4 frames × 128×128, white-on-black (no alpha)
 //   spark_oga.png          — 9 frames × 32×32, transparent
 //   explosion_sheet.png    — 12 frames × 96×96, transparent (already
@@ -18,7 +18,7 @@ import { existsSync, mkdirSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 
 const ROOT = resolve(import.meta.dirname || new URL('.', import.meta.url).pathname, '..');
-const SRC  = resolve(ROOT, 'assets/era-seige');
+const SRC  = resolve(ROOT, 'assets/era-siege');
 const DEST = resolve(ROOT, 'public/games/era-siege/vfx');
 mkdirSync(DEST, { recursive: true });
 

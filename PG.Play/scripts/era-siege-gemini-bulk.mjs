@@ -3,7 +3,7 @@
 // Reads GEMINI_API_KEY from the environment, calls
 // `gemini-2.5-flash-image-preview` for each entry in JOBS, decodes the
 // returned base64 PNG, strips the model's bottom-right watermark, and
-// drops the result into `assets/era-seige/<id>.png` so the existing
+// drops the result into `assets/era-siege/<id>.png` so the existing
 // processor scripts pick it up.
 //
 // Usage:
@@ -23,7 +23,7 @@ import { mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve, join, dirname } from 'node:path';
 
 const ROOT = resolve(import.meta.dirname || new URL('.', import.meta.url).pathname, '..');
-const SRC_DIR = resolve(ROOT, 'assets/era-seige');
+const SRC_DIR = resolve(ROOT, 'assets/era-siege');
 
 const KEY = process.env.GEMINI_API_KEY;
 if (!KEY) {

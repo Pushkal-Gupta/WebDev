@@ -1,55 +1,59 @@
-// Grudgewood — top-level React component. Owns the canvas, the engine,
-// the world manager, the player rig, the chase camera, and the orchestration
-// that ties save state, menu screens, input, and the gameplay loop.
+// Grudgewood — top-level React component for the continuous, infinite forest.
+//
+// Architecture:
+//   engine.js        → Three.js renderer, scene, lights, sky, biome blend
+//   chunkManager.js  → streams terrain + props + traps as the player advances
+//   player.js        → controller + animated rig
+//   camera.js        → chase/death/menu camera modes
+//   input.js         → keyboard + touch axis
+//   spawn.js         → deterministic per-chunk content rules
+//   biomeProgression → which biome lives at which Z, with crossfades
+//
+// The whole game is one phase: walk forward, dodge what attacks you. Death
+// resets you to a respawn anchor at your furthest reached distance.
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import './styles.css';
 import { makeEngine } from './engine.js';
 import { ChaseCamera } from './camera.js';
-import { World } from './world.js';
-import { biomeFor } from './biomes.js';
+import { ChunkManager, CHUNK_LENGTH } from './chunkManager.js';
+import { biomeAt } from './biomeProgression.js';
 import { makePlayer, PlayerController, PLAYER_RADIUS } from './player.js';
-import { SEGMENTS } from './levels.js';
 import { Input } from './input.js';
 import { sfx, startAmbient, stopAmbient, setVolumes, unlockAudio } from './audio.js';
 import { pickEpitaph, KIND_LABEL } from './epitaphs.js';
 import {
-  getSave, recordCheckpoint, recordDeath, unlockHat,
-  setSetting, resetProgress, unlockAxe, update as updateSave, setMedal,
+  getSave, recordDeath, setSetting, resetProgress, recordDistance,
 } from './save.js';
-import { gradeRun, modifiersFor } from './challenges.js';
 import HUD from './ui/HUD.jsx';
 import Menu from './ui/Menu.jsx';
 import TouchControls from './ui/TouchControls.jsx';
 import { submitScore } from '../../scoreBus.js';
 
 const tmp = new THREE.Vector3();
+const RESPAWN_GRID = 50;        // meters between auto-respawn anchors
+const SPAWN_Z = 2;              // initial spawn distance into the forest
 
 export default function GrudgewoodGame() {
   const wrapRef = useRef(null);
   const canvasRef = useRef(null);
   const stateRef = useRef(null);
-  const inputRef = useRef(null);  // exposed to TouchControls (analog stick + jump)
+  const inputRef = useRef(null);
 
-  const [tick, setTick] = useState(0);
-  const [phase, setPhase] = useState('menu'); // 'menu' | 'play' | 'death' | 'paused' | 'finished'
+  const [phase, setPhase] = useState('menu');
   const [hudData, setHud] = useState({
     biomeName: 'Mosswake',
-    segmentLabel: 'Walk Home',
+    distance: 0,
+    furthest: 0,
     deaths: 0,
-    time: 0,
     flashKey: 0,
     deathState: null,
-    axeUnlocked: false,
-    axeBeacon: '',
     toast: '',
   });
   const [save, setSave] = useState(() => ({ ...getSave() }));
-
   const refresh = useCallback(() => setSave({ ...getSave() }), []);
 
-  // ── Engine / scene bootstrap (mounted once) ─────────────────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
     const wrap = wrapRef.current;
@@ -58,14 +62,11 @@ export default function GrudgewoodGame() {
 
     const engine = makeEngine({ canvas, qualitySetting: s.settings.quality });
     const cam = new ChaseCamera(engine.camera);
-    // Reduced motion globally damps shake on top of the user-tuned multiplier.
-    const effShake = (s.settings.reducedMotion ? 0.25 : 1) * (s.settings.cameraShake ?? 1);
-    cam.setShakeMultiplier(effShake);
+    cam.setShakeMultiplier((s.settings.reducedMotion ? 0.25 : 1) * (s.settings.cameraShake ?? 1));
 
-    const world = new World(engine.scene);
+    const chunks = new ChunkManager(engine.scene);
     const playerRig = makePlayer();
     playerRig.setHat(s.equippedHat || 'leaf-crown');
-    playerRig.setAxeVisible(!!s.axeUnlocked);
     engine.scene.add(playerRig.root);
 
     const player = new PlayerController(playerRig);
@@ -79,164 +80,82 @@ export default function GrudgewoodGame() {
       music: s.settings.musicVolume,
     });
 
-    // Resize observer keeps the canvas pixel-correct when the shell resizes.
-    const onResize = () => {
-      const w = wrap.clientWidth;
-      const h = wrap.clientHeight;
-      engine.resize(Math.max(1, w), Math.max(1, h));
-    };
+    const onResize = () => engine.resize(Math.max(1, wrap.clientWidth), Math.max(1, wrap.clientHeight));
     onResize();
     const ro = new ResizeObserver(onResize);
     ro.observe(wrap);
 
-    // Helper: load segment, place player at start of path, snap camera.
-    const loadSegment = (idx, anchor = 0) => {
-      const def = world.loadSegment(idx);
-      if (!def) return null;
-      engine.applyBiome(biomeFor(def.biome));
-      // Spawn position: at z=2 along path; if a checkpoint anchor is given, use that.
-      let spawn;
-      if (anchor > 0) {
-        const cp = world.checkpoints.find((c) => c.anchor.z >= anchor - 0.1);
-        spawn = (cp || world.checkpoints[0])?.anchor.clone() || new THREE.Vector3(0, 0, 2);
-        // Activate previously-passed checkpoints up to this one.
-        for (const c of world.checkpoints) {
-          if (c.anchor.z <= anchor + 0.5) { c.reached = true; c.obj.userData.activate?.(); }
-        }
-      } else {
-        spawn = new THREE.Vector3(world.terrain.pathOffset(2), world.terrain.sampleHeight(world.terrain.pathOffset(2), 2), 2);
-      }
-      player.reset(spawn, 0);
-      // Snap camera behind player.
-      const camPos = new THREE.Vector3(spawn.x, spawn.y + 4, spawn.z - 8);
-      cam.snapTo(camPos, new THREE.Vector3(spawn.x, spawn.y + 1.4, spawn.z));
-      startAmbient(def.biome);
-      return def;
+    // Place player at a starting Z and snap the camera behind them.
+    const placeAt = (z) => {
+      // Snap to the path centerline so the player always spawns on solid ground.
+      const x = 0;
+      const y = chunks.sampleHeight(x, z);
+      chunks.ensureLoadedAround(z);
+      player.reset(new THREE.Vector3(x, y, z), 0);
+      const camPos = new THREE.Vector3(x, y + 4, z - 8);
+      cam.snapTo(camPos, new THREE.Vector3(x, y + 1.4, z));
+      const { biome } = biomeAt(z);
+      startAmbient(biome.id);
     };
 
-    // Wire pause/retry/esc handlers — these go through React state via the ref.
     input.onPause = () => stateRef.current?.togglePause();
-    input.onRetry = () => stateRef.current?.retry();
+    input.onRetry = () => stateRef.current?.respawn();
     input.onEsc = () => stateRef.current?.openMenu();
 
-    // Game state machine — exposed via ref so React handlers and the loop both read it.
     const gameState = {
       phase: 'menu',
-      currentSegment: 0,
       runStartTime: 0,
       runtime: 0,
       sessionDeaths: 0,
       lastDeathKind: null,
       lastEpitaph: '',
-      axeBeaconText: '',
+      respawnZ: SPAWN_Z,
+      furthestZ: SPAWN_Z,
       toastText: '',
       toastUntil: 0,
       flashKey: 0,
-      deathTimer: 0,
       respawnDelay: 0,
-      // Pending operations issued by trap/UI events.
-      pendingHat: null,
-      pendingAxe: false,
-      // Challenge state. When activeChallenge is set, the loop tracks
-      // sprintUsed (for noSprint) and grades the run on segment-finish.
-      activeChallenge: null,
-      challengeMods: null,
-      sprintUsed: false,
-      challengeResult: null, // { medal, finished, deaths, elapsed } shown in finish overlay
+      lastBiomeId: null,
+      lastAnchorRecorded: 0,
 
       startNewWalk() {
-        const s2 = getSave();
-        loadSegment(0, 0);
-        gameState.currentSegment = 0;
+        gameState.respawnZ = SPAWN_Z;
+        gameState.furthestZ = SPAWN_Z;
+        gameState.sessionDeaths = 0;
         gameState.runStartTime = performance.now() / 1000;
         gameState.runtime = 0;
-        gameState.sessionDeaths = 0;
+        placeAt(SPAWN_Z);
         gameState.phase = 'play';
         cam.setMode('chase');
         setPhase('play');
       },
+
       continueRun() {
-        const s2 = getSave();
-        const segIdx = clampSegmentIndex(s2.checkpoint?.segment ?? 0);
-        loadSegment(segIdx, s2.checkpoint?.anchor ?? 0);
-        gameState.currentSegment = segIdx;
-        gameState.runStartTime = performance.now() / 1000;
-        gameState.runtime = 0;
-        gameState.phase = 'play';
-        cam.setMode('chase');
-        setPhase('play');
-      },
-      pickSegment(segIdx) {
-        const idx = clampSegmentIndex(segIdx);
-        loadSegment(idx, 0);
-        gameState.currentSegment = idx;
-        gameState.runStartTime = performance.now() / 1000;
-        gameState.runtime = 0;
+        const sNow = getSave();
+        gameState.respawnZ = Math.max(SPAWN_Z, sNow.respawnAnchor || SPAWN_Z);
+        gameState.furthestZ = Math.max(gameState.respawnZ, sNow.furthestDistance || SPAWN_Z);
         gameState.sessionDeaths = 0;
-        gameState.activeChallenge = null;
-        gameState.challengeMods = null;
-        gameState.sprintUsed = false;
-        gameState.challengeResult = null;
-        gameState.phase = 'play';
-        cam.setMode('chase');
-        setPhase('play');
-      },
-      startChallenge(challenge) {
-        const idx = clampSegmentIndex(challenge.segment ?? 0);
-        loadSegment(idx, 0);
-        gameState.currentSegment = idx;
         gameState.runStartTime = performance.now() / 1000;
         gameState.runtime = 0;
-        gameState.sessionDeaths = 0;
-        gameState.activeChallenge = challenge;
-        gameState.challengeMods = modifiersFor(challenge);
-        gameState.sprintUsed = false;
-        gameState.challengeResult = null;
-        // hatBait challenges visually equip the required hat for the run only.
-        if (gameState.challengeMods.hatRequired) {
-          playerRig.setHat(gameState.challengeMods.hatRequired);
-        }
+        placeAt(gameState.respawnZ);
         gameState.phase = 'play';
         cam.setMode('chase');
         setPhase('play');
       },
-      retry() {
-        if (gameState.phase !== 'death' && gameState.phase !== 'play' && gameState.phase !== 'paused' && gameState.phase !== 'finished') return;
-        const segIdx = gameState.currentSegment;
-        if (gameState.activeChallenge) {
-          // Challenge runs always restart from the segment start so the timer
-          // and death counts measure a full clean attempt.
-          loadSegment(segIdx, 0);
-          gameState.runStartTime = performance.now() / 1000;
-          gameState.runtime = 0;
-          gameState.sessionDeaths = 0;
-          gameState.sprintUsed = false;
-          gameState.challengeResult = null;
-        } else {
-          const s2 = getSave();
-          loadSegment(segIdx, s2.checkpoint?.segment === segIdx ? s2.checkpoint.anchor : 0);
-        }
+
+      respawn() {
+        if (gameState.phase !== 'death' && gameState.phase !== 'play' && gameState.phase !== 'paused') return;
+        placeAt(gameState.respawnZ);
         gameState.phase = 'play';
         cam.setMode('chase');
         setPhase('play');
       },
-      exitChallenge() {
-        // Used after a graded run — drop back to the menu.
-        gameState.activeChallenge = null;
-        gameState.challengeMods = null;
-        gameState.sprintUsed = false;
-        gameState.challengeResult = null;
-        // Restore equipped hat from save.
-        playerRig.setHat(getSave().equippedHat || 'leaf-crown');
-        gameState.phase = 'menu';
-        cam.setMode('menu');
-        setPhase('menu');
-        stopAmbient();
-      },
+
       togglePause() {
         if (gameState.phase === 'play') { gameState.phase = 'paused'; setPhase('paused'); }
         else if (gameState.phase === 'paused') { gameState.phase = 'play'; setPhase('play'); }
       },
+
       openMenu() {
         if (gameState.phase === 'menu') return;
         gameState.phase = 'menu';
@@ -244,6 +163,7 @@ export default function GrudgewoodGame() {
         setPhase('menu');
         stopAmbient();
       },
+
       kill(kind) {
         player.kill(kind);
         gameState.lastDeathKind = kind;
@@ -251,95 +171,73 @@ export default function GrudgewoodGame() {
         gameState.sessionDeaths++;
         recordDeath(kind);
         gameState.phase = 'death';
-        gameState.deathTimer = 0;
         gameState.respawnDelay = 1.6;
         cam.setMode('death');
         cam.bump(1.2);
         setPhase('death');
-        // Score the run on death so the leaderboard tracks how far each
-        // attempt got. Score = deepestSegment * 1000 - runtime, with deeper
-        // progress counted as a clean win over fast-but-shallow runs.
-        const deepestSegment = gameState.currentSegment;
-        const time = Math.round(gameState.runtime);
-        const score = Math.max(1, Math.round(deepestSegment * 1000 + 100 - gameState.runtime));
-        submitScore('grudgewood', score, {
-          time,
-          deepestSegment,
+        // Score = furthest reached; deeper runs score better.
+        const distance = Math.round(gameState.furthestZ);
+        submitScore('grudgewood', Math.max(1, distance), {
+          distance,
           deaths: gameState.sessionDeaths,
           deathKind: kind,
         });
       },
+
       toast(msg, dur = 2.4) {
         gameState.toastText = msg;
         gameState.toastUntil = performance.now() / 1000 + dur;
       },
+
+      setShake(v) {
+        const sNow = getSave();
+        cam.setShakeMultiplier((sNow.settings.reducedMotion ? 0.25 : 1) * v);
+      },
+      setReducedMotion(rm) {
+        const sNow = getSave();
+        cam.setShakeMultiplier((rm ? 0.25 : 1) * (sNow.settings.cameraShake ?? 1));
+      },
+      setVolumes(vols) { setVolumes(vols); },
+      setHat(id) { playerRig.setHat(id); },
     };
     stateRef.current = gameState;
-    // Expose internals for React-side setters that need to mutate the live scene.
-    gameState.setHat = (id) => { playerRig.setHat(id); };
-    gameState.setShake = (v) => {
-      const sNow = getSave();
-      cam.setShakeMultiplier((sNow.settings.reducedMotion ? 0.25 : 1) * v);
-    };
-    gameState.setReducedMotion = (rm) => {
-      const sNow = getSave();
-      cam.setShakeMultiplier((rm ? 0.25 : 1) * (sNow.settings.cameraShake ?? 1));
-    };
-    gameState.setVolumes = (vols) => setVolumes(vols);
 
-    // Main loop.
     let raf = 0;
     let lastT = performance.now() / 1000;
     let lastHudPush = 0;
+
     const tickLoop = () => {
       const now = performance.now() / 1000;
-      let dt = Math.min(0.05, now - lastT);
+      const dt = Math.min(0.05, now - lastT);
       lastT = now;
 
       const sNow = getSave();
-      const reduced = sNow.settings.reducedMotion;
       const casual = sNow.settings.casualMode;
 
       if (gameState.phase === 'play') {
         const inSnap = input.snapshot();
-        // Challenge: noSprint disables the sprint flag at input time so the
-        // player physics never sees it. Track usage attempts for the toast.
-        const mods = gameState.challengeMods;
-        if (mods && !mods.sprintAllowed && inSnap.sprint) {
-          if (!gameState.sprintUsed) {
-            gameState.toast('Walk only. Sprint disabled.');
-          }
-          gameState.sprintUsed = true;
-          inSnap.sprint = false;
-        }
-        // Camera yaw: angle the camera is facing in the XZ plane. Used by
-        // the player to rotate the input stick so WASD reads as "screen up
-        // / left / right" relative to the chase camera, not absolute world
-        // axes. Three.js camera looks along -Z by default; player.facing
-        // uses Math.atan2(mx, mz) which expects the same convention.
         const camFwd = tmp.set(0, 0, -1).applyQuaternion(engine.camera.quaternion);
-        const cameraYaw = Math.atan2(camFwd.x, -camFwd.z);
-        inSnap.cameraYaw = cameraYaw;
+        inSnap.cameraYaw = Math.atan2(camFwd.x, camFwd.z);
 
-        const ctx = {
+        player.update(dt, {
           input: inSnap,
-          sampleHeight: (x, z) => world.sampleHeight(x, z),
+          sampleHeight: (x, z) => chunks.sampleHeight(x, z),
           casualMode: casual,
-        };
-        player.update(dt, ctx);
+        });
 
-        // Per-trap context with applyForce.
-        const trapCtx = {
+        // Stream chunks around the player.
+        chunks.ensureLoadedAround(player.pos.z);
+
+        // Tick traps with the player context.
+        chunks.tickTraps(dt, {
           player: player.pos,
           playerSpeedXZ: player.speedXZ(),
           playerGrounded: player.grounded,
           applyForce: (f, dts) => player.applyForce(f, dts),
-        };
-        world.update(dt, trapCtx);
+        });
 
-        // Predator near-miss feedback — shake the camera when an active
-        // branch swing passes within ~2 units of the player without hitting.
-        for (const trap of world.traps) {
+        // Predator near-miss feedback.
+        for (const trap of chunks.traps()) {
           if (trap.kind !== 'predator' || !trap.lethalActive) continue;
           const d = trap.swingDistanceTo?.(player.pos) ?? Infinity;
           if (d < 2.0 && d > trap.hitRadius + PLAYER_RADIUS) {
@@ -355,10 +253,9 @@ export default function GrudgewoodGame() {
 
         // Lethal hits.
         if (player.alive && player.invuln <= 0) {
-          const trap = world.checkLethalHit(player.pos, PLAYER_RADIUS);
+          const trap = chunks.checkLethalHit(player.pos, PLAYER_RADIUS);
           if (trap) {
             if (casual && Math.random() < 0.35) {
-              // Casual mode: occasionally convert a kill to a near-miss with knockback.
               player.applyForce({ x: -player.vel.x, y: 6, z: -player.vel.z * 0.4 }, dt);
               player.invuln = 0.5;
               player.stumble = 0.4;
@@ -370,98 +267,48 @@ export default function GrudgewoodGame() {
           }
         }
 
-        // Checkpoint touches.
-        const cpHit = world.checkCheckpointTouch(player.pos);
-        if (cpHit) {
-          recordCheckpoint(SEGMENTS[gameState.currentSegment].biome, gameState.currentSegment, cpHit.anchor.z);
-          gameState.toast('Checkpoint reached.');
-          cam.bump(0.3);
-        }
-
-        // Secret hat touches.
-        const hatHit = world.checkSecretTouch(player.pos);
-        if (hatHit) {
-          updateSave((s) => {
-            s.hats[hatHit.hat] = true;
-            s.secretsFound = Array.from(new Set([...(s.secretsFound || []), hatHit.id]));
-          });
-          gameState.toast(`Hat unlocked: ${hatHit.hat.replace(/-/g, ' ')}`);
-        }
-
-        // Altar reach (axe unlock).
-        if (world.checkAltarReach(player.pos)) {
-          unlockAxe();
-          unlockHat('axe-circlet');
-          playerRig.setAxeVisible(true);
-          sfx.axeReveal();
-          gameState.toast('You took the Axe.');
-          gameState.phase = 'finished';
-          submitScore('grudgewood', Math.max(1, Math.round(10000 - gameState.sessionDeaths * 100 - gameState.runtime)),
-            {
-              deaths: gameState.sessionDeaths,
-              time: Math.round(gameState.runtime),
-              deepestSegment: gameState.currentSegment,
-              reachedAxe: true,
-            });
-          // Stay on screen with a celebratory camera reveal.
-          cam.setMode('reveal');
-          setPhase('finished');
-          refresh();
-        }
-
-        // Reached end of segment → grade challenge or advance to next biome.
-        if (world.reachedEnd(player.pos) && gameState.phase === 'play') {
-          if (gameState.activeChallenge) {
-            const result = {
-              finished: true,
-              elapsed: gameState.runtime,
-              deaths: gameState.sessionDeaths,
-            };
-            const medal = gradeRun(gameState.activeChallenge, result);
-            if (medal) setMedal(gameState.activeChallenge.id, medal);
-            gameState.challengeResult = { ...result, medal };
-            gameState.phase = 'finished';
-            cam.setMode('reveal');
-            setPhase('finished');
-            refresh();
-          } else {
-            const next = gameState.currentSegment + 1;
-            if (next >= SEGMENTS.length) {
-              gameState.phase = 'finished';
-              cam.setMode('reveal');
-              setPhase('finished');
-            } else {
-              recordCheckpoint(SEGMENTS[next].biome, next, 0);
-              gameState.currentSegment = next;
-              loadSegment(next, 0);
-              gameState.toast(`Entering ${biomeFor(SEGMENTS[next].biome).name}.`);
-              cam.setMode('reveal');
-              setTimeout(() => cam.setMode('chase'), 1400);
-            }
+        // Track furthest distance and auto-record respawn anchors at every
+        // RESPAWN_GRID meters so death doesn't dump the player back to start.
+        if (player.pos.z > gameState.furthestZ) gameState.furthestZ = player.pos.z;
+        const anchor = Math.floor(player.pos.z / RESPAWN_GRID) * RESPAWN_GRID;
+        if (anchor > gameState.lastAnchorRecorded && anchor >= SPAWN_Z) {
+          gameState.lastAnchorRecorded = anchor;
+          gameState.respawnZ = Math.max(gameState.respawnZ, anchor);
+          recordDistance(gameState.furthestZ, gameState.respawnZ);
+          if (anchor > SPAWN_Z) {
+            sfx.checkpoint();
+            cam.bump(0.3);
+            gameState.toast(`${anchor}m — checkpoint`);
           }
         }
 
         gameState.runtime += dt;
       } else if (gameState.phase === 'death') {
-        // Update player so the death tumble still animates.
-        player.update(dt, { input: { left:false,right:false,fwd:false,back:false,sprint:false,jumpPressed:false }, sampleHeight: () => -10, casualMode: false });
-        gameState.deathTimer += dt;
+        player.update(dt, { input: { left: false, right: false, fwd: false, back: false, sprint: false, jumpPressed: false }, sampleHeight: () => -10, casualMode: false });
         gameState.respawnDelay -= dt;
-        if (gameState.respawnDelay <= 0) {
-          gameState.retry();
-        }
-      } else if (gameState.phase === 'paused' || gameState.phase === 'menu' || gameState.phase === 'finished') {
-        // Idle camera; keep world updating subtly so traps still loop.
-        const trapCtx = {
+        if (gameState.respawnDelay <= 0) gameState.respawn();
+      } else {
+        // Menu / paused: keep streaming chunks at the player's last position
+        // so the menu's atmospheric scene stays alive, and let traps tick
+        // (gives the menu motion). No input is consumed.
+        chunks.ensureLoadedAround(player.pos.z);
+        chunks.tickTraps(dt, {
           player: player.pos,
           playerSpeedXZ: 0,
           playerGrounded: player.grounded,
           applyForce: () => {},
-        };
-        world.update(dt, trapCtx);
+        });
       }
 
-      // Camera always updates so menu/death flyovers feel alive.
+      // Crossfade biome look as the player approaches the next biome boundary.
+      const { biome, next, blend } = biomeAt(player.pos.z);
+      engine.applyBiome(biome, next, blend);
+      if (gameState.lastBiomeId !== biome.id && gameState.phase === 'play') {
+        gameState.lastBiomeId = biome.id;
+        startAmbient(biome.id);
+        gameState.toast(`Entering ${biome.name}.`);
+      }
+
       cam.update(dt, {
         pos: player.pos,
         facing: player.facing,
@@ -472,26 +319,21 @@ export default function GrudgewoodGame() {
 
       engine.renderer.render(engine.scene, engine.camera);
 
-      // Push HUD updates at ~12hz to keep React renders cheap.
+      // HUD ~12 Hz.
       if (now - lastHudPush > 0.08) {
         lastHudPush = now;
-        const seg = SEGMENTS[gameState.currentSegment];
-        const biome = seg ? biomeFor(seg.biome) : biomeFor('mosswake');
-        const sNow2 = getSave();
         const toast = (gameState.toastUntil > now) ? gameState.toastText : '';
         setHud({
           biomeName: biome.name,
-          segmentLabel: seg?.intro || '',
+          distance: Math.max(0, Math.round(player.pos.z - SPAWN_Z)),
+          furthest: Math.max(0, Math.round(gameState.furthestZ - SPAWN_Z)),
           deaths: gameState.sessionDeaths,
-          time: gameState.runtime,
-          axeUnlocked: !!sNow2.axeUnlocked,
           flashKey: gameState.flashKey,
           deathState: gameState.phase === 'death' ? {
             kind: KIND_LABEL[gameState.lastDeathKind] || KIND_LABEL.unknown,
             epitaph: gameState.lastEpitaph,
-            nearestCheckpoint: world.checkpoints.find((c) => c.reached)?.anchor.z.toFixed(0) || 'start',
+            respawnAt: Math.max(0, Math.round(gameState.respawnZ - SPAWN_Z)),
           } : null,
-          axeBeacon: gameState.axeBeaconText,
           toast,
         });
       }
@@ -500,8 +342,8 @@ export default function GrudgewoodGame() {
     };
     raf = requestAnimationFrame(tickLoop);
 
-    // Initial menu render with a placeholder Mosswake scene behind it.
-    loadSegment(0, 0);
+    // Boot directly into the first chunk so the menu has scenery behind it.
+    placeAt(SPAWN_Z);
     cam.setMode('menu');
 
     return () => {
@@ -510,22 +352,15 @@ export default function GrudgewoodGame() {
       input.detach();
       inputRef.current = null;
       stopAmbient();
-      world.disposeSegment();
+      chunks.disposeAll();
       engine.dispose();
       stateRef.current = null;
     };
   }, []);
 
-  // ── React event handlers for menu/HUD ──────────────────────────────────
-  // Phase 10E trim: only Continue, New Walk, Settings, Help are exposed by
-  // the menu, but the underlying handlers for challenges / segment picking
-  // / hat equipping stay alive because gameplay code (the engine, the
-  // FinishOverlay's "Back to challenges" path, save migrations) still
-  // touches those flows.
   const handleContinue = () => stateRef.current?.continueRun();
   const handleNewGame = () => stateRef.current?.startNewWalk();
-  const handleExitChallenge = () => stateRef.current?.exitChallenge();
-  const handleRetry = () => stateRef.current?.retry();
+  const handleRetry = () => stateRef.current?.respawn();
   const handleSettingsChange = (k, v) => {
     setSetting(k, v);
     if (k === 'cameraShake') stateRef.current?.setShake?.(v);
@@ -536,10 +371,7 @@ export default function GrudgewoodGame() {
     }
     refresh();
   };
-  const handleResetProgress = () => {
-    resetProgress();
-    refresh();
-  };
+  const handleResetProgress = () => { resetProgress(); refresh(); };
   const handleUnlockAudio = () => unlockAudio();
 
   return (
@@ -564,58 +396,6 @@ export default function GrudgewoodGame() {
       )}
 
       <TouchControls inputRef={inputRef} active={phase === 'play'} />
-
-
-      {phase === 'finished' ? (
-        <FinishOverlay
-          challenge={stateRef.current?.activeChallenge}
-          result={stateRef.current?.challengeResult}
-          onMenu={() => stateRef.current?.openMenu()}
-          onRetry={handleRetry}
-          onExitChallenge={handleExitChallenge}
-        />
-      ) : null}
-    </div>
-  );
-}
-
-function clampSegmentIndex(i) {
-  return Math.max(0, Math.min(SEGMENTS.length - 1, i | 0));
-}
-
-function FinishOverlay({ challenge, result, onMenu, onRetry, onExitChallenge }) {
-  if (challenge && result) {
-    const fmt = (s) => {
-      const m = Math.floor(s / 60), r = Math.max(0, s - m * 60);
-      return `${m}:${r.toFixed(2).padStart(5, '0')}`;
-    };
-    return (
-      <div className="gw-finish">
-        <div className="gw-finish-card">
-          <div className="gw-menu-sub" style={{ marginBottom: 4 }}>{challenge.name}</div>
-          <div className="gw-menu-title">
-            {result.medal ? `${result.medal[0].toUpperCase()}${result.medal.slice(1)}` : 'Run complete'}
-          </div>
-          <div className="gw-finish-stats">
-            <div><span>Time</span><strong>{fmt(result.elapsed)}</strong></div>
-            <div><span>Deaths</span><strong>{result.deaths}</strong></div>
-            <div><span>Medal</span><strong>{result.medal || '—'}</strong></div>
-          </div>
-          <div className="gw-finish-actions">
-            <button className="gw-btn" onClick={onRetry}>Retry</button>
-            <button className="gw-btn gw-btn--primary" onClick={onExitChallenge}>Back to challenges</button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  return (
-    <div className="gw-finish">
-      <div className="gw-finish-card">
-        <div className="gw-menu-title">The Axe.</div>
-        <div className="gw-menu-sub">You found the quiet at the end of the forest.</div>
-        <button className="gw-btn gw-btn--primary" onClick={onMenu}>Back to menu</button>
-      </div>
     </div>
   );
 }

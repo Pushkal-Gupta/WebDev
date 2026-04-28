@@ -25,7 +25,7 @@ import { resolve, join } from 'node:path';
 const ROOT    = resolve(import.meta.dirname || new URL('.', import.meta.url).pathname, '..');
 // User-managed source folder (note: their spelling has a typo — "seige").
 // Files dropped here are processed into the public/ tree the renderer reads.
-const SRC_DIR = resolve(ROOT, 'assets/era-seige');
+const SRC_DIR = resolve(ROOT, 'assets/era-siege');
 const DEST_BG = resolve(ROOT, 'public/games/era-siege/bg');
 
 // Output dimensions. The asset doc spec — sky 1920×600, clouds 1920×660.

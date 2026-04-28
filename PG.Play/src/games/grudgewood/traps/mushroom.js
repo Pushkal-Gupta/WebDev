@@ -22,7 +22,7 @@ export class MushroomPop extends Trap {
     puff.scale.setScalar(0.01);
     g.add(puff);
 
-    super({ kind: 'mushroom', group: g, anchor, hitRadius: 1.4, anticipation: 0.05, cooldown: 1.2 });
+    super({ kind: 'mushroom', group: g, anchor, hitRadius: 1.4, anticipation: 0.05, cooldown: 4.0 });
     this.cap = m.userData.cap;
     this.body = m;
     this.puff = puff;
@@ -55,9 +55,14 @@ export class MushroomPop extends Trap {
         this.phase = 'cooldown'; this.t = 0; this.lethalActive = false;
       }
     } else {
-      // Don't recover — stays popped (cap gone).
-      this.body.visible = false;
-      if (this.t >= this.cooldown) { /* stays in cooldown forever */ }
+      // Cooldown — cap regrows so the mushroom rearms for repeated runs
+      // through the same chunk. Without this, a player who backtracks past
+      // a triggered mushroom finds a dead, harmless prop.
+      const k = Math.min(1, this.t / this.cooldown);
+      this.body.visible = true;
+      this.cap.scale.set(THREE.MathUtils.lerp(0.2, 1.0, k), THREE.MathUtils.lerp(0.2, 1.0, k), THREE.MathUtils.lerp(0.2, 1.0, k));
+      this.puff.material.opacity = 0;
+      if (this.t >= this.cooldown) { this.phase = 'idle'; this.t = 0; this.cap.scale.set(1, 1, 1); }
     }
   }
 }

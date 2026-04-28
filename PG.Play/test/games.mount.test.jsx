@@ -55,7 +55,7 @@ const PLAYABLE = {
 // Games that need a real WebGL/GPU context jsdom cannot fake. Three.js
 // throws inside its WebGLRenderer constructor when getContext('webgl')
 // returns null. We document and skip — smoke test still covers them.
-const REQUIRES_WEBGL = new Set(['slipshot', 'grudgewood']);
+const REQUIRES_WEBGL = new Set(['slipshot', 'grudgewood', 'cutrope']);
 
 // Patterns that indicate a real React/runtime error (caught by the
 // boundary or surfaced by React itself). If any logged console.error

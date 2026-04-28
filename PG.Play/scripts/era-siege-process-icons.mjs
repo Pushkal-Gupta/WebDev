@@ -21,7 +21,7 @@ import { resolve, join } from 'node:path';
 
 const ROOT    = resolve(import.meta.dirname || new URL('.', import.meta.url).pathname, '..');
 // User-managed source folder (their spelling: "seige").
-const SRC_DIR = resolve(ROOT, 'assets/era-seige');
+const SRC_DIR = resolve(ROOT, 'assets/era-siege');
 const DEST_UI = resolve(ROOT, 'public/games/era-siege/ui');
 
 // Watermark wipe: a transparent rect over the bottom-right of each
