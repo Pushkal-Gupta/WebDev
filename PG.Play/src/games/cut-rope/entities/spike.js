@@ -5,8 +5,11 @@
 import * as THREE from 'three';
 
 export function makeSpike(def) {
+  // DoubleSide — engine.js uses a vertically flipped ortho camera so
+  // single-sided ShapeGeometry would back-face-cull. See star.js.
   const mat = new THREE.MeshStandardMaterial({
     color: 0x5a6a7a, roughness: 0.4, metalness: 0.5,
+    side: THREE.DoubleSide,
   });
   const group = new THREE.Group();
   group.position.set(def.x, def.y, 0);

@@ -26,7 +26,7 @@ import { getUnit } from '../content/units.js';
 import { getTurretForEra } from '../content/turrets.js';
 import { getProjectile } from '../content/projectiles.js';
 import {
-  placeholderClouds, placeholderMountains, placeholderForeground,
+  placeholderSky, placeholderClouds, placeholderMountains, placeholderForeground,
   placeholderBase, placeholderTurret, placeholderUnit, placeholderProjectile,
   placeholderHitSpark, placeholderMuzzle, placeholderExplosion,
 } from './assets/placeholders.js';
@@ -59,16 +59,45 @@ export const assets = {
 
   preloadAll(baseUrl) {
     if (typeof window === 'undefined' || typeof Image === 'undefined') return;
-    const base = baseUrl || '/';
-    for (const entry of registry.values()) {
+    // Resolve the base URL the static host actually serves under.
+    //
+    // PG.Play deploys to `https://pushkalgupta.com/PG.Play/dist/` on
+    // GitHub Pages, but the dev server runs at `http://localhost:5180/`.
+    // An absolute `/games/...` works in dev and FAILS in production.
+    //
+    // Strategy: resolve every asset URL against `document.baseURI`,
+    // which the browser anchors to the location of index.html. That gives:
+    //   dev   → http://localhost:5180/games/era-siege/...
+    //   prod  → https://pushkalgupta.com/PG.Play/dist/games/era-siege/...
+    let base;
+    if (baseUrl != null) {
+      base = baseUrl;
+    } else if (typeof document !== 'undefined' && document.baseURI) {
+      base = document.baseURI;
+    } else {
+      base = '/';
+    }
+    for (const [key, entry] of registry.entries()) {
       if (!entry.src) continue;
+      // Era-themed silhouettes (bg / base / unit / turret) were generated
+      // with a transparency-checker baked into the canvas. Even after
+      // flood-fill keying, residual checker pixels survive inside the
+      // silhouette outline and read as blocky panels in-game. The
+      // procedural placeholders are crisper, era-themed, and cost nothing
+      // to render, so we skip those PNGs entirely. VFX + projectile PNGs
+      // still load — they were authored separately and are clean.
+      if (key.startsWith('bg/') || key.startsWith('base/')
+          || key.startsWith('unit/era') || key.startsWith('turret/era')) {
+        continue;
+      }
       try {
         const img = new Image();
         img.decoding = 'async';
         img.loading  = 'eager';
         img.onload  = () => { entry.image = img; entry.ready = true; };
         img.onerror = () => { /* leave placeholder in place */ };
-        img.src = base + entry.src;
+        // URL constructor handles relative paths + trailing-slash quirks.
+        img.src = new URL(entry.src, base).href;
       } catch { /* keep placeholder */ }
     }
   },
@@ -90,14 +119,7 @@ for (let i = 0; i < 5; i++) {
   const eraId = getEraByIndex(i).id;
 
   reg(`bg/era${i + 1}/sky`, `games/era-siege/bg/era${i + 1}/sky.png`,
-    (ctx, _x, _y, { w, h }) => {
-      const pal = paletteFor(eraId);
-      const g = ctx.createLinearGradient(0, 0, 0, h);
-      g.addColorStop(0, pal.sky[0]);
-      g.addColorStop(1, pal.sky[1]);
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
-    },
+    (ctx, _x, _y, { w, h, groundY }) => placeholderSky(ctx, eraId, w, h, groundY ?? h),
     drawSkyImage);
 
   reg(`bg/era${i + 1}/clouds`, `games/era-siege/bg/era${i + 1}/clouds.png`,

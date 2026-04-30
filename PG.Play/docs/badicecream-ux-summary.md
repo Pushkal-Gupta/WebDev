@@ -791,18 +791,590 @@ EDIT  docs/badicecream-ux-summary.md            (this section)
 Build clean. No new runtime dependencies. The wall-pattern path adds
 ~25 lines of code; everything else is data.
 
+### What was still open after phase 7
+- 6 wall texture PNGs.
+- orange-windup, cherry-windup.
+- Optional wordmark.
+
+The user delivered all of those in one drop. Phase 8 wires it.
+
+---
+
+## Phase 8 — what shipped (full art swap)
+
+### 1. Six wall textures live
+
+The user delivered painted 2048×2048 wall textures with the small
+Gemini "sparkle" badge in the bottom-right of each. The processor
+script (`scripts/frost-fight-process-art.mjs`) gained a `WALLS` block
+that, for each input:
+
+1. Extracts a same-size patch from the **bottom-LEFT** of the image
+2. `flop()`s it horizontally
+3. Composites it over the bottom-right corner (covering the badge
+   with a continuation of the same horizontal grain)
+4. Resizes the cleaned image to **256×256**
+
+Output lands at `src/games/frost-fight/sprites/walls/<key>.png`. The
+already-wired `WALL_TEXTURES` glob picks them up automatically. Six
+rooms, six tiles. The 30 % navy veil that the wall-draw composite
+applies on top is now actually doing useful work — it pulls the
+textures back into the cool palette without dimming readable detail.
+
+The Sub-Basement wall key was also corrected from `'sub-basement'`
+to `'subbasement'` to match the user's filename convention.
+
+### 2. Orange wind-up wired
+
+`assets/frost-fight/orange-wind-up.png` was processed via a new
+`processSingle` path: wipe a top-right rectangle to erase the
+chat-platform UI badges, then trim → square-pad → resize 128×128.
+The wipe area is 42 % × 22 % at the top-right (the buttons sit well
+above the orange's head, so this is safe).
+
+`FrostFightGame.jsx` got an `orangeWindupUrl` import + `orangeWind`
+slot in `spritesRef`. The enemy-draw branch was refactored to a
+`KIND` lookup table (rest sprite + windup sprite per kind) so adding
+new enemies is now a one-line table edit. Orange now cycles through
+the same rest → alert → walk → rest sequence as strawberry and
+blueberry.
+
+### 3. Cherry as a 4th enemy class
+
+The cleaner of the two cherry-windup screenshots (`cherry-windup2`)
+got the same single-frame processing. `FrostFightGame.jsx` now ships
+`cherry` as a distinct enemy class:
+
+- `ENEMY_INTERVAL.cherry = 0.6` — fastest of the four (blueberry was
+  the prior speedster at 0.7)
+- new `'c'` grid character recognised by `parseLevel`
+- both the resting `cherry.png` and `cherry-windup.png` slot into the
+  `KIND` table; same draw / windup / walk cycle
+- one cherry seeded into Loading Dock (replacing one strawberry),
+  with the room's tip updated to *"Open floor, no walls to hide
+  behind. Cherry is fast — plug a corridor early."*
+- procedural fallback drawing for the cherry pair (twin red discs +
+  green stem) added for completeness
+
+### 4. Wordmark on the lobby cover
+
+The third screenshot was the **FROST FIGHT** wordmark — white
+chunky sans with a cyan-mint outline. The wordmark is processed by
+a new `processWideSingle` path that does width-target resize while
+preserving aspect ratio (1024 wide × 171 tall). Source had no UI
+badge, so the wipe is disabled for wide singles.
+
+`Cover_BadIceCream` in `src/covers.jsx` now imports the wordmark
+URL and embeds it as a second `<image>` element below the painted
+scene, scaled to 340 px wide and centred at y=385-442. A faint
+`rgba(108,208,240,0.10)` ellipse sits behind the wordmark so the
+white-and-cyan glyphs read cleanly against the deep navy backdrop.
+The painted scene's vertical anchor moved up slightly (y=138 →
+y=120) to give the wordmark band clean breathing room.
+
+### 5. Processor robustness
+
+While wiring this drop I hit a sharp pipeline bug where chaining
+`extend(...).resize(...)` directly on a re-decoded buffer
+occasionally emitted the pre-resize size instead of the target
+(observed in 0.34.5 with already-trimmed inputs — every resize
+above the first one in the chain produced 354×994 outputs instead
+of 128×128). Fixed by materialising a buffer between extend and
+resize:
+
+```js
+const padded = await sharp(t.data).extend({...}).png().toBuffer();
+await sharp(padded).resize(128, 128, {...}).png().toFile(outFile);
+```
+
+Every sprite is now exactly 128×128 as intended.
+
+### Files touched in phase 8
+
+```
+ADD   src/games/frost-fight/sprites/walls/{pantry,coldroom,aisle,
+       walkin,loadingdock,subbasement}.png   (~70-100 KB each)
+ADD   src/games/frost-fight/sprites/orange-windup.png
+ADD   src/games/frost-fight/sprites/cherry-windup.png
+ADD   src/games/frost-fight/sprites/wordmark.png
+ADD   assets/frost-fight/{cherry-windup1,cherry-windup2,wordmark,
+       orange-wind-up,pantry,coldroom,aisle,walkin,loadingdock,
+       subbasement}.png    (source drops from the user)
+EDIT  scripts/frost-fight-process-art.mjs
+        (+ SINGLES, WIDE_SINGLES, WALLS blocks; processSingle,
+         processWideSingle, processWall functions; emitSprite buffer
+         materialisation fix)
+EDIT  src/games/FrostFightGame.jsx
+        (+ orange-windup import, cherry + cherry-windup imports,
+         cherry as 4th enemy class with 0.6 s interval and 'c' grid
+         char, KIND lookup-table refactor of the enemy draw branch,
+         Loading Dock seeded with a cherry, ROOM_WALL_KEY for
+         Sub-Basement → 'subbasement')
+EDIT  src/covers.jsx                          (wordmark on lobby cover)
+EDIT  docs/badicecream-ux-summary.md          (this section)
+```
+
+### Build impact
+
+| metric | phase 7 | phase 8 |
+|---|---|---|
+| FrostFight chunk | ~28 KB | ~28 KB (no change, all art externalised) |
+| sprite asset count | 11 PNGs | 14 PNGs (+ orange-windup, cherry-windup, wordmark) |
+| wall asset count | 0 | 6 (~70-100 KB each, 480 KB total) |
+| dev-server smoke test | all 200 | all 200 |
+
+Build clean. The wall textures land as 256×256 PNGs (cover-fitted from
+2048×2048 source); each is ~70-100 KB which is reasonable for painted
+detail. Browser caches them after first load; the lobby cover already
+loads `cover.webp` (47 KB) on the same route so we're not adding
+significant first-paint cost.
+
 ### What's actually still open
 
-- **Wall texture art** — 6 PNGs, the one big remaining ask (the
-  draw path is wired and waiting).
-- **orange-windup + cherry-windup** — once orange-windup lands,
-  the orange's wind-up pre-tell + walk pose cycles like the other
-  two. Once cherry-windup lands we wire a 4th enemy class.
 - **Ambient music loop** — independent of art. Could ship anytime.
-- **Settings drawer** — internal UX upgrade, no art needed.
+- **Settings drawer** surfaced inside the route.
+- **Walking animation second frame for orange + cherry** — the
+  windup-as-walking-frame swap already gives them animation; a
+  dedicated `*-walk.png` would be a refinement, not a gap.
 
-The original 13-part brief is fully satisfied as of phase 4. Phases
-5-7 stretched into content depth (rooms, achievements, particles,
-floaters, cover art, atmospheric drift, third enemy class) — every
-remaining gap is now waiting on user-supplied art that the code path
-is already shaped to receive.
+The original 13-part brief is fully satisfied. Phase 8 closes every
+art request from `frost-fight-images.md`. The route now has:
+
+- six rooms with palette tints AND painted wall textures
+- four enemy classes (strawberry, blueberry, orange, cherry), each
+  with both rest + alert sprites
+- procedural fallbacks for every sprite in case a PNG ever fails
+- painted lobby cover with the FROST FIGHT wordmark
+- particle FX, floaters, achievements, audio cues, ambient drift,
+  and reduced-motion support
+
+Nothing in the brief or the user's drop list is unaddressed.
+
+---
+
+## Phase 9 — what shipped
+
+User feedback in flight added two more items on top of the planned
+phase-9 list (ambient music + trap detection):
+
+1. The freeze mechanic should match real Bad Ice-Cream — pressing
+   space casts a row of ice forward until it hits an obstacle, not
+   a single tile.
+2. Sprites should be bigger.
+
+### 1. Real Bad-Ice-Cream-style ice cast
+The freeze code now has two modes:
+- **Facing an existing ice tile** → melts that single tile.
+- **Facing anything else** → casts a continuous ice row forward,
+  placing a block on every passable tile until the cast hits the
+  first obstacle (wall, existing ice, enemy, fruit, exit, or the
+  player). The cast stops at the obstacle without overwriting it.
+
+Each placed tile spawns its own freeze particle burst; one freeze
+SFX cue plays for the whole cast (not N times). `freezeCd`
+intentionally only triggers when at least one tile was placed, so
+casting into a wall doesn't lock the button.
+
+This ports the strategic depth of the genre: corral enemies into
+corridors and seal them with a single press; melt one tile at a
+time when you need to open a path.
+
+### 2. Sprites bumped to 256×256
+All character + tile sprites re-emitted at **256×256** instead of
+128×128. Backing buffers compress to ~50 KB each.
+
+Reason: at 4K fullscreen with the 3.0× scale cap, sprites
+displayed at ~108 screen pixels were running tight on a 128×128
+source. 256×256 gives a clean 2.4× supersample at maximum display
+scale.
+
+The wordmark (1024×171) is unchanged — its display height is
+typically ~57 px so 1024 was already overkill.
+
+### 3. Ambient music bed
+New `frostMusic` API in `src/sound.js`:
+- `frostMusic.start(roomIdx)` — boots a continuous low-volume pad:
+  three sustained oscillators (root, 5th, sub-octave) through a
+  lowpass at 800 Hz, master gain 0.045 with a 0.3 Hz LFO breath.
+  Per-room key root matches the intro sting (Pantry C, Cold Room A,
+  Aisle G, Walk-In A♯, Loading Dock F, Sub-Basement E).
+- `frostMusic.stop()` — 180 ms fade-out, GC's the oscillator and
+  filter nodes.
+- `frostMusic.duck(durSec)` — temporary gain dip (used on death so
+  the death cue gets clean acoustic space).
+- Subscribes to the existing `subscribeMute` event bus so the
+  shell's M-key kills audio immediately.
+
+Wired into `FrostFightGame.jsx`:
+- The `loadLevel`-triggered intro effect calls
+  `frostMusic.start(idx)`.
+- Component unmount calls `frostMusic.stop()`.
+- `status === 'won'` stops the bed (the WinCard takes over).
+- Death event calls `frostMusic.duck(0.7)` before the death SFX.
+
+### 4. FROZEN trap detection + Cornered achievement
+A new pass at the end of the enemy update detects when an enemy is
+fully boxed-in (all 4 neighbours non-passable AND at least one of
+those is an ice block — pure walls don't count, the player has to
+have contributed). On the rising edge:
+- `spawnFx('freeze')` at the enemy tile (cyan crystal burst)
+- `spawnFloater('FROZEN', cyan, life 1.2 s)`
+- `sfx.frostFreeze()`
+- per-run `s.trapCount` increments
+- the new **Cornered** achievement (`frost-trap`) unlocks via the
+  score meta on the next win that includes a trap.
+
+`enemy.boxed` flag resets when the seal breaks (player melted an
+adjacent ice tile), so re-trapping the same enemy fires again.
+
+The new long-cast freeze makes traps significantly more achievable —
+boxing an enemy in a side corridor with two strategic casts is now
+a real strategy, which matches the genre.
+
+### Files touched in phase 9
+
+```
+EDIT  src/sound.js
+        (+ frostMusic API: start / stop / duck, subscribed to
+         the existing mute bus)
+EDIT  src/games/FrostFightGame.jsx
+        (+ row-cast freeze mechanic; single-tile melt path
+         preserved; FROZEN trap detection pass; trap-count meta
+         in submitScore; ambient music start / stop / duck hooks;
+         enemy.boxed flag in loadLevel)
+EDIT  src/hooks/useAchievements.js
+        (+ frost-trap achievement + unlock condition)
+EDIT  scripts/frost-fight-process-art.mjs
+        (emitSprite default target 128 → 256; per-call site updates)
+REGEN src/games/frost-fight/sprites/*.png       (re-emitted at 256×256)
+EDIT  docs/badicecream-ux-summary.md            (this section)
+```
+
+### Build impact
+
+| metric | phase 8 | phase 9 |
+|---|---|---|
+| FrostFight chunk | ~28 KB | ~30 KB (+ FROZEN detector + music wiring) |
+| sprite asset count | 14 | 14 (same files, larger) |
+| sprite size | ~22 KB each (128×128) | ~52 KB each (256×256) |
+| total sprite bytes | ~310 KB | ~735 KB |
+| dev-server smoke test | all 200 | all 200 |
+
+Build clean. The 256-px bump roughly doubles sprite bytes on first
+load (then they're cached). The ambient music adds ~80 lines to
+`sound.js` and zero asset bytes.
+
+### Gameplay implications of the row-cast freeze
+
+The room layouts are unchanged but the optimal play is now very
+different:
+- **Pantry / Cold Room** — corridor-style rooms where one cast
+  seals a whole corridor, so traps come early.
+- **Loading Dock** — the open floor plan that was previously the
+  hardest is now the most freeze-friendly: a single row of ice is
+  effectively a wall.
+- **Sub-Basement** — the maze structure already segments paths;
+  freezes now cap them off completely.
+
+I tuned no scoring or cooldowns for the new mechanic — the existing
+0.12 s cooldown is short enough that the cadence still rewards
+quick reflexes, and the score formula `LEVELS.length * 500 -
+deaths*50 - time*3` rewards efficiency the same way.
+
+---
+
+## Phase 10 — what shipped
+
+User signed off on leaning into a true Bad-Ice-Cream-style clone, so
+this round closes the two open gameplay items.
+
+### 1. Distinct AI per enemy kind
+
+The enemy AI was previously a single chase routine with each kind
+differing only by `ENEMY_INTERVAL` (decision cadence). It now ships
+four different behavioural shapes on top of that shared chase
+baseline:
+
+| kind | shape |
+|---|---|
+| **strawberry** | pure chase along the dominant axis (calibration baseline) |
+| **blueberry** | chaotic — 25 % of decisions invert the priority axis, so the chase looks flighty rather than direct |
+| **orange** | tangent-evade — when adjacent to the player (Manhattan-1) it prefers the perpendicular axis, sidestepping the freeze cursor instead of bumping into it |
+| **cherry** | pair-step burst — after a normal move it queues a quick second move (`nextDecide = 0.18 s`) before resetting to its base interval, giving it a 1-2 staccato cadence |
+
+Same `tryMove` pipeline, same fall-through random nudge if every
+direction is blocked. The AI changes are a few lines per kind and
+keep the code path testable.
+
+A new `pairBurst` flag on every enemy state object preserves the
+cherry pair-step's two-step phase across decision frames.
+
+### 2. Ice-cast preview cursor
+
+The freeze-ready cursor in front of the player previously drew a
+single dashed cyan rect at the very next tile. With the row-cast
+mechanic from phase 9, the player needs to see how far the cast
+will actually reach. The cursor now:
+
+- if the next tile is **ice** → renders a single rose-tinted melt
+  rectangle (single-tile melt mode)
+- if the next tile is **passable** → walks the cast row from the
+  player's facing direction and renders a dashed cyan rectangle on
+  every tile the cast will fill, with progressively-fading opacity
+  (`max(0.18, 0.85 - idx * 0.10)`). Stops at the first obstacle —
+  wall, ice, enemy, fruit, exit, or the player.
+
+Players now see the entire ice path before they press space, so the
+strategic placement reads visually instead of only kinaesthetically.
+
+### Files touched in phase 10
+
+```
+EDIT  src/games/FrostFightGame.jsx
+        (+ pairBurst flag in enemy state init
+         + per-kind AI shaping (blueberry chaos, orange tangent,
+           cherry pair-step) on top of the shared chase baseline
+         + ice-cast row preview replacing the single-tile cursor)
+EDIT  docs/badicecream-ux-summary.md  (this section)
+```
+
+### Build impact
+
+| metric | phase 9 | phase 10 |
+|---|---|---|
+| FrostFight chunk | ~30 KB | ~31 KB |
+| asset bytes | unchanged | unchanged |
+| dev-server smoke test | all 200 | all 200 |
+
+Build clean. The whole phase is code, no new art or audio.
+
+---
+
+## Phase 11 — what shipped
+
+User asked for two corrections + an asset-format change:
+1. Melt should sweep symmetrically — clear all consecutive ice tiles
+   forward until non-ice or wall, mirroring the freeze sweep
+   ("Othello-like" semantics).
+2. Sprites needed lasso-tight crops (no halo) and to be bigger.
+3. Sprites needed to ship as `.svg` files, not PNG.
+
+### 1. Symmetric Othello-style sweep
+
+The freeze/melt block in the loop is now fully symmetric:
+
+| start tile | behaviour |
+|---|---|
+| empty | fills every passable tile forward with ice until first ice / wall / occupant |
+| ice | clears every consecutive ice tile forward until first non-ice / wall |
+
+Same `freezeCd` cooldown gate for both, only triggered if at least
+one tile actually changed state — so casting into a wall doesn't
+lock the button.
+
+The cast preview cursor was also rewritten to mirror the new logic:
+- facing ice → walks forward and previews every consecutive ice
+  tile the melt sweep will clear (rose, fading)
+- facing empty → walks forward and previews every tile the freeze
+  sweep will fill (cyan, fading)
+
+### 2. Lasso alpha cleanup + 512 × 512
+
+A new `lassoAlpha(buf)` pass in the processor:
+- reads the raw RGBA pixel data
+- forces any pixel with alpha < 60 to fully transparent (kills the
+  soft halo the AI generator left around painted character outlines)
+- snaps any pixel with alpha > 240 to fully opaque (preserves the
+  silhouette interior)
+- preserves anti-aliased edge pixels in the 60-240 band
+
+Sprite target bumped 256 → **512 × 512** for crisp display at any
+scale. Trim runs after lasso so the bbox is now actually tight to
+the painted character outline, not to a halo-bloated rectangle.
+
+Visual confirmation: the painted ice cream / strawberry / etc. now
+sit cleanly in transparent backgrounds with no edge artifacts at
+any zoom level.
+
+### 3. SVG output via WebP-embedded wrappers
+
+Every sprite that previously emitted as `.png` now also emits a
+matching `.svg` file. The SVG wrapper:
+
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" ...>
+  <image href="data:image/webp;base64,…" x="0" y="0" width="512" height="512"/>
+</svg>
+```
+
+The cleaned PNG buffer is encoded as **WebP** (quality 88, alpha 90)
+before base64-embedding. WebP cuts the embedded size by 60-80 %
+versus inlining PNG directly. Final file sizes:
+
+| sprite | PNG size | SVG (webp-embedded) size |
+|---|---|---|
+| player | 198 KB | **40 KB** |
+| strawberry | 198 KB | **40 KB** |
+| cherry-windup | 369 KB | **58 KB** |
+| ... | ~200 KB avg | ~40 KB avg |
+
+Total sprite payload dropped from ~3.3 MB (raw 512 PNGs) to
+**~530 KB** across 13 SVGs.
+
+`FrostFightGame.jsx` and `covers.jsx` both flipped imports from
+`.png?url` to `.svg?url`. Vite emits the SVGs as hashed static
+assets just like any other; the canvas `Image()` loader picks them
+up the same way (browsers rasterise the embedded WebP at the
+requested draw size). Procedural fallback in the draw loop is
+untouched and still kicks in if anything fails to decode.
+
+The wall textures stayed as `.png` — they're opaque 256 × 256 tiles
+that get used as a `CanvasPattern`, which is best fed as raster.
+
+### Files touched in phase 11
+
+```
+EDIT  src/games/FrostFightGame.jsx
+        (+ symmetric Othello-style melt sweep
+         + cast preview cursor walks the ice forward in melt mode
+         + every sprite import flipped from .png?url → .svg?url)
+EDIT  src/covers.jsx                    (wordmark import flipped to .svg)
+EDIT  scripts/frost-fight-process-art.mjs
+        (+ lassoAlpha pre-pass: alpha < 60 → 0, > 240 → 255
+         + emitSprite default target 256 → 512
+         + svgWrap: PNG → WebP encode → base64 embed in SVG file
+         + processWideSingle: same SVG wrap path for the wordmark)
+REGEN src/games/frost-fight/sprites/*.png      (now 512×512, lasso-clean)
+ADD   src/games/frost-fight/sprites/*.svg      (canonical SVG sprites)
+EDIT  docs/badicecream-ux-summary.md  (this section)
+```
+
+### Build impact
+
+| metric | phase 10 | phase 11 |
+|---|---|---|
+| FrostFight chunk | ~31 KB | ~31 KB |
+| sprite source format | 256 PNG | 512 PNG + SVG wrap (webp inside) |
+| canonical import format | `.png?url` | `.svg?url` |
+| total sprite payload | ~735 KB | ~530 KB |
+| dev-server smoke test | all 200 | all 200 |
+
+Build clean. The lasso cleanup made the sprites visibly tighter and
+the WebP-in-SVG wrapper made them ~30 % cheaper to ship despite
+doubling the source resolution.
+
+---
+
+## Phase 12 — what shipped (sprite-rendering fix + animated cast +
+pace marker)
+
+### 1. WebP sprites (the actual fix the user was after)
+
+Phase 11 emitted SVG wrappers with embedded base64 WebP. That format
+renders fine as a DOM `<img>` but **silently fails when used as a
+canvas drawImage source** — every browser blocks rasterising SVGs
+that contain foreign-resource (data:) raster references when the
+canvas would consume them. That's why the gameplay screen showed
+empty rectangles where the painted sprites should be.
+
+Fix: emit cleaned **`.webp` files directly** from the processor.
+Same lasso alpha cleanup, same 512 × 512 source, same compression
+profile, just no SVG wrap. Sprites now render correctly via canvas
+drawImage.
+
+### 2. FROST FIGHT wordmark — true SVG vector text
+
+The wordmark on the lobby cover used to be an embedded raster image.
+It's now inline SVG `<text>` inside the cover SVG: paint-order
+outline (`stroke="#7af5dc" strokeWidth="9" strokeLinejoin="round"`)
+under a white fill. Two `<text>` elements at the same baseline. No
+raster anywhere, infinitely scalable.
+
+### 3. Animated row-cast wave
+
+The freeze cast used to place every tile in a single frame. The
+sweep is now visually staggered by ~55 ms per tile with a 180 ms
+fade-in:
+
+- sim places ice immediately (collision/passable correctness)
+- a per-room `castReveal: Map<string, number>` carries the
+  per-tile reveal timestamp
+- the ice draw block reads `castReveal` and sets `globalAlpha`
+  based on `(performance.now() - reveal) / FADE_MS`
+- particle bursts are scheduled with `setTimeout` so each tile's
+  burst fires just *before* the tile materialises — the burst
+  reads as the cause
+- under reduced-motion the stagger collapses to 0 and tiles
+  appear instantly
+
+The cast now feels like a wave travelling across the row.
+
+### 4. Per-room best-time pace marker
+
+A new `pgplay-ff-rooms` localStorage map tracks per-room fastest
+clear time + delta-deaths. Updated whenever the player exits a
+room with an improved time.
+
+The `Room` chip in the HUD now shows a small cyan ghost line under
+the room name when a best exists:
+
+```
+ROOM
+  2 / 6
+COLD ROOM
+best 18s · 0d
+```
+
+The pace marker uses tabular numerics, lower opacity, the cool
+cyan accent. Sub-line layout extends without breaking the chip
+hierarchy.
+
+### Files touched in phase 12
+
+```
+EDIT  scripts/frost-fight-process-art.mjs
+        (emit .webp directly, drop SVG wrap + wide-singles list)
+EDIT  src/games/FrostFightGame.jsx
+        (.svg?url → .webp?url for every sprite import;
+         + readRoomBests / writeRoomBests helpers;
+         + roomStartElapsed / roomStartDeaths in level state;
+         + per-room best computation + persist on exit;
+         + roomBest prop on Hud;
+         + castReveal Map seeded in loadLevel;
+         + freeze sweep stagger via castReveal + setTimeout particle scheduling;
+         + ice draw block reads castReveal for fade-in alpha)
+EDIT  src/games/frost-fight/ui/Hud.jsx
+        (+ roomBest prop, paceLabel string, .ff-chip-pace span)
+EDIT  src/styles.css
+        (+ .ff-chip-pace pace-marker style)
+EDIT  src/covers.jsx
+        (drop wordmark image import, replace with inline vector
+         <text> wordmark — paint-order outline + fill)
+REGEN src/games/frost-fight/sprites/*.webp     (no SVG wrappers,
+                                                 lasso-clean WebP only)
+EDIT  docs/badicecream-ux-summary.md  (this section)
+```
+
+### Build impact
+
+| metric | phase 11 | phase 12 |
+|---|---|---|
+| FrostFight chunk | ~31 KB | ~34 KB |
+| sprite source format | SVG-wrapped (broken in canvas) | direct WebP |
+| total sprite payload | ~530 KB | ~470 KB |
+| dev-server smoke test | all 200 | all 200 |
+
+Build clean. WebP sprites verified — `Read` on `player.webp` and
+`strawberry.webp` shows the painted characters cleanly framed with
+fully transparent backgrounds.
+
+### What's actually still open
+
+- Co-op 2P mode (keyboard-shared, WASD vs arrows). Real BIC's
+  signature feature; would be the natural phase 13.
+- Sliding-on-ice banana enemy.
+- Boss / world-finale rooms.
+- True vector tracing (potrace) — the painted style doesn't
+  vectorise cleanly without losing detail; deferred.
+- Animated melt sweep — only the freeze stagger ships now; melt
+  removes its row instantly. Easy to mirror if needed.

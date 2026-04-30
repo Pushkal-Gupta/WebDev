@@ -28,13 +28,18 @@ export const LEVELS = [
     devices: [],
   },
   {
+    // "Long swing" — candy spawns at ~65° left of vertical so verlet's
+    // first integrate creates a real pendulum. Stars are placed on the
+    // arc (each is exactly `rope.length` from the anchor) so a single
+    // swing collects all three. Cut at the right-side apex to drop the
+    // candy into Mochi.
     id: 'l2', world: 1, number: 2, theme: SWEET,
     name: 'Long swing',
-    hint: 'Time the cut so the swing collects all three stars.',
-    anchors: [{ id: 'a1', x: -1.6, y: -0.2 }],
-    candy:   { x: -1.6, y: 2.4 },
-    ropes:   [{ from: 'a1', length: 2.6, segments: 11 }],
-    stars:   [{ x: 0.0, y: 2.6 }, { x: 1.4, y: 2.4 }, { x: 2.6, y: 1.6 }],
+    hint: 'Let it swing through every star, then cut.',
+    anchors: [{ id: 'a1', x: 0.0, y: -0.2 }],
+    candy:   { x: -2.72, y: 1.07 },
+    ropes:   [{ from: 'a1', length: 3.0, segments: 12 }],
+    stars:   [{ x: 0.0, y: 2.8 }, { x: 1.5, y: 2.4 }, { x: 2.6, y: 1.3 }],
     target:  { x: 2.6, y: 5.0 },
     hazards: [],
     devices: [],

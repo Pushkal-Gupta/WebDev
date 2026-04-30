@@ -31,6 +31,7 @@ export class ChaseCamera {
     this.mode = mode;
     this.modeT = 0;
     if (focus) this.deathFocus.copy(focus);
+    this.hasDeathFocus = !!focus;
   }
 
   bump(amount = 0.6) { this.shake = Math.min(1.6, this.shake + amount); }
@@ -62,17 +63,36 @@ export class ChaseCamera {
       player.pos.z - fwdZ * followDist,
     );
 
-    // Death camera: orbit slowly + zoom in on player.
+    // Death camera: pull back, orbit between the player and the trap that
+    // killed them so the player sees the joke. Without a focus we fall
+    // back to a slow orbit around the body.
     if (this.mode === 'death') {
-      const orbit = this.modeT * 0.6;
-      const radius = 4.2;
-      desiredPos.set(
-        player.pos.x + Math.cos(orbit) * radius,
-        player.pos.y + 2.8,
-        player.pos.z + Math.sin(orbit) * radius,
-      );
-      desiredTarget.copy(player.pos).add(tmp.set(0, 0.8, 0));
-      this.fovTarget = 48;
+      const orbit = this.modeT * 0.45;
+      const radius = 5.2;
+      if (this.hasDeathFocus) {
+        // Point the camera between the player and the lethal source so
+        // the death-card screenshot captures both in frame.
+        const mid = tmp.set(
+          (player.pos.x + this.deathFocus.x) * 0.5,
+          (player.pos.y + this.deathFocus.y) * 0.5 + 1.4,
+          (player.pos.z + this.deathFocus.z) * 0.5,
+        );
+        const off = new THREE.Vector3(
+          Math.cos(orbit) * radius * 0.8,
+          2.6,
+          Math.sin(orbit) * radius * 0.8,
+        );
+        desiredPos.copy(mid).add(off);
+        desiredTarget.copy(this.deathFocus).lerp(player.pos, 0.5).add(tmpA.set(0, 1.2, 0));
+      } else {
+        desiredPos.set(
+          player.pos.x + Math.cos(orbit) * radius,
+          player.pos.y + 2.8,
+          player.pos.z + Math.sin(orbit) * radius,
+        );
+        desiredTarget.copy(player.pos).add(tmpA.set(0, 0.8, 0));
+      }
+      this.fovTarget = 50;
     } else if (this.mode === 'reveal') {
       // Higher, wider — used for new biome reveals.
       desiredPos.set(

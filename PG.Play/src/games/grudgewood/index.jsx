@@ -108,6 +108,7 @@ export default function GrudgewoodGame() {
       runtime: 0,
       sessionDeaths: 0,
       lastDeathKind: null,
+      lastDeathDistance: 0,
       lastEpitaph: '',
       respawnZ: SPAWN_Z,
       furthestZ: SPAWN_Z,
@@ -115,6 +116,9 @@ export default function GrudgewoodGame() {
       toastUntil: 0,
       flashKey: 0,
       respawnDelay: 0,
+      timeScale: 1,           // 1=normal, 0=hit-stop, 0.32=slow-mo
+      hitStopTimer: 0,        // seconds remaining of frame-freeze on impact
+      slowMoTimer: 0,         // seconds remaining of slow-mo (after hit-stop)
       lastBiomeId: null,
       lastAnchorRecorded: 0,
 
@@ -147,6 +151,9 @@ export default function GrudgewoodGame() {
         if (gameState.phase !== 'death' && gameState.phase !== 'play' && gameState.phase !== 'paused') return;
         placeAt(gameState.respawnZ);
         gameState.phase = 'play';
+        gameState.timeScale = 1;
+        gameState.hitStopTimer = 0;
+        gameState.slowMoTimer = 0;
         cam.setMode('chase');
         setPhase('play');
       },
@@ -164,18 +171,28 @@ export default function GrudgewoodGame() {
         stopAmbient();
       },
 
-      kill(kind) {
+      kill(kind, trapAnchor) {
         player.kill(kind);
         gameState.lastDeathKind = kind;
+        gameState.lastDeathDistance = Math.max(0, Math.round(player.pos.z - SPAWN_Z));
         gameState.lastEpitaph = pickEpitaph(kind);
         gameState.sessionDeaths++;
         recordDeath(kind);
         gameState.phase = 'death';
-        gameState.respawnDelay = 1.6;
-        cam.setMode('death');
-        cam.bump(1.2);
+        // Death-cam tempo:
+        //   1) hit-stop:   ~90ms total freeze (timeScale=0). Sells the impact.
+        //   2) slow-mo:    ~360ms at 0.32× so the player reads the trap.
+        //   3) settle:     remaining real-time until respawnDelay expires.
+        // We schedule the slow-mo to begin after the freeze ends; the loop
+        // ticks gameState.hitStopTimer and gameState.slowMoTimer in real
+        // time so this sequence is frame-rate independent.
+        gameState.respawnDelay = 1.3;
+        gameState.hitStopTimer = 0.09;
+        gameState.timeScale = 0;
+        gameState.slowMoTimer = 0.36;
+        cam.setMode('death', trapAnchor);
+        cam.bump(1.4);
         setPhase('death');
-        // Score = furthest reached; deeper runs score better.
         const distance = Math.round(gameState.furthestZ);
         submitScore('grudgewood', Math.max(1, distance), {
           distance,
@@ -208,11 +225,24 @@ export default function GrudgewoodGame() {
 
     const tickLoop = () => {
       const now = performance.now() / 1000;
-      const dt = Math.min(0.05, now - lastT);
+      const realDt = Math.min(0.05, now - lastT);
       lastT = now;
 
       const sNow = getSave();
       const casual = sNow.settings.casualMode;
+
+      // Death-cam tempo:
+      //   hitStopTimer first (timeScale held at 0 — frame freeze),
+      //   then slowMoTimer (timeScale ramped to 0.32 — slow-motion replay),
+      //   finally back to normal. All timers tick in real time.
+      if (gameState.hitStopTimer > 0) {
+        gameState.hitStopTimer = Math.max(0, gameState.hitStopTimer - realDt);
+        if (gameState.hitStopTimer === 0) gameState.timeScale = 0.32;
+      } else if (gameState.slowMoTimer > 0) {
+        gameState.slowMoTimer = Math.max(0, gameState.slowMoTimer - realDt);
+        if (gameState.slowMoTimer === 0) gameState.timeScale = 1;
+      }
+      const dt = realDt * gameState.timeScale;
 
       if (gameState.phase === 'play') {
         const inSnap = input.snapshot();
@@ -228,12 +258,14 @@ export default function GrudgewoodGame() {
         // Stream chunks around the player.
         chunks.ensureLoadedAround(player.pos.z);
 
-        // Tick traps with the player context.
+        // Tick traps with the player context. applySlow lets area-effect
+        // traps (spore cloud) tax the player's speed without killing.
         chunks.tickTraps(dt, {
           player: player.pos,
           playerSpeedXZ: player.speedXZ(),
           playerGrounded: player.grounded,
           applyForce: (f, dts) => player.applyForce(f, dts),
+          applySlow: (factor, duration) => player.applySlow(factor, duration),
         });
 
         // Predator near-miss feedback.
@@ -262,7 +294,9 @@ export default function GrudgewoodGame() {
               cam.bump(0.6);
               gameState.flashKey++;
             } else {
-              gameState.kill(trap.kind);
+              // Kill: pass the trap's anchor so the death camera knows
+              // where to look. trap.anchor is a world-space Vector3.
+              gameState.kill(trap.kind, trap.anchor);
             }
           }
         }
@@ -285,7 +319,7 @@ export default function GrudgewoodGame() {
         gameState.runtime += dt;
       } else if (gameState.phase === 'death') {
         player.update(dt, { input: { left: false, right: false, fwd: false, back: false, sprint: false, jumpPressed: false }, sampleHeight: () => -10, casualMode: false });
-        gameState.respawnDelay -= dt;
+        gameState.respawnDelay -= realDt;       // respawn timer runs in real time so slow-mo doesn't drag it
         if (gameState.respawnDelay <= 0) gameState.respawn();
       } else {
         // Menu / paused: keep streaming chunks at the player's last position
@@ -332,6 +366,7 @@ export default function GrudgewoodGame() {
           deathState: gameState.phase === 'death' ? {
             kind: KIND_LABEL[gameState.lastDeathKind] || KIND_LABEL.unknown,
             epitaph: gameState.lastEpitaph,
+            distance: gameState.lastDeathDistance,
             respawnAt: Math.max(0, Math.round(gameState.respawnZ - SPAWN_Z)),
           } : null,
           toast,

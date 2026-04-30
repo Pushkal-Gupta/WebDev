@@ -227,31 +227,34 @@ export const HATS = {
 };
 
 // Unlock conditions evaluated against save profile (s).
-// Each returns true if currently unlocked or earnable.
+// All milestones are tied to distance walked or trap-specific death counts
+// so unlocks line up with the continuous-walk progression model.
+const m = (s) => s.furthestDistance || 0;
+
 export const HAT_UNLOCK = {
   'leaf-crown':   () => true,
   'lumber-cap':   (s) => s.stats.deaths >= 5,
   'mushroom-cap': (s) => (s.stats.traps?.mushroom || 0) >= 3,
   'cone-of-shame':(s) => s.stats.deaths >= 25,
-  'bucket':       (s) => !!s.secretsFound?.includes('bucket'),
-  'top-hat':      (s) => s.furthestBiome === 'rotbog' || s.furthestBiome === 'cliffside' || s.furthestBiome === 'heart' || s.furthestBiome === 'sanctum',
+  'bucket':       (s) => m(s) >= 250,
+  'top-hat':      (s) => m(s) >= 500,
   'twig-halo':    (s) => (s.stats.traps?.predator || 0) >= 3,
-  'picnic':       (s) => !!s.secretsFound?.includes('picnic'),
-  'antlers':      (s) => !!s.secretsFound?.includes('antlers'),
-  'flame-crown':  (s) => s.furthestBiome === 'heart' || s.furthestBiome === 'sanctum',
-  'axe-circlet':  (s) => !!s.axeUnlocked,
+  'picnic':       (s) => m(s) >= 750,
+  'antlers':      (s) => m(s) >= 1000,
+  'flame-crown':  (s) => m(s) >= 1500,
+  'axe-circlet':  (s) => m(s) >= 2000,
 };
 
 export const HAT_HINT = {
-  'leaf-crown': 'Yours from the start.',
-  'lumber-cap': 'Die five times. Forest pays its respects.',
-  'mushroom-cap': 'Step on three mushroom traps across runs.',
+  'leaf-crown':    'Yours from the start.',
+  'lumber-cap':    'Die five times. Forest pays its respects.',
+  'mushroom-cap':  'Step on three mushroom traps across runs.',
   'cone-of-shame': 'Die twenty-five times. The forest insists.',
-  'bucket': 'There is a bucket. Mosswake. Off the path. Look up.',
-  'top-hat': 'Reach the Rotbog.',
-  'twig-halo': 'Be killed by a predator tree three times.',
-  'picnic': 'Hidden in the Trickster Grove. The forest set a table.',
-  'antlers': 'Cliffside Pines, somewhere quiet.',
-  'flame-crown': 'Reach the Heart.',
-  'axe-circlet': 'Take the Axe.',
+  'bucket':        'Walk 250 metres into the forest.',
+  'top-hat':       'Walk 500 metres into the forest.',
+  'twig-halo':     'Be killed by a predator tree three times.',
+  'picnic':        'Walk 750 metres into the forest.',
+  'antlers':       'Walk 1,000 metres into the forest.',
+  'flame-crown':   'Walk 1,500 metres into the forest.',
+  'axe-circlet':   'Walk 2,000 metres into the forest.',
 };

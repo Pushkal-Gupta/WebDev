@@ -102,17 +102,31 @@ async function keyout(path, opts = {}) {
 }
 
 // Per-asset settings:
-//   bases       — saturated artwork; chromaLimit 8 catches the grey
-//                  checker, doesn't touch banners/flags/wood
-//   mountains   — earth-tone silhouette has chroma ≥ 12; chromaLimit 8
-//                  kills the checker without touching the silhouette
-//   foreground  — varied palette per era; chromaLimit 8 is safe
+//   bases / units / turrets — saturated artwork; chromaLimit 8 catches
+//                              the grey checker, doesn't touch banners,
+//                              flags, wood, skin, or metal tones.
+//   mountains / foreground   — silhouette palettes overlap with greyscale
+//                              for some eras (Iron Dominion is grey by
+//                              design). Procedural fallback handles
+//                              those instead — clean per-era silhouettes.
+async function existsOk(p) {
+  // The keyout function already guards with existsSync. Pass-through.
+}
 for (let n = 1; n <= 5; n++) {
-  await keyout(join(OUT, `base/era${n}/player.png`),         { chromaLimit: 8, darkLimit: 78 });
-  await keyout(join(OUT, `base/era${n}/enemy.png`),          { chromaLimit: 8, darkLimit: 78 });
-  await keyout(join(OUT, `bg/era${n}/mountains-far.png`),    { chromaLimit: 8 });
-  await keyout(join(OUT, `bg/era${n}/mountains-mid.png`),    { chromaLimit: 8 });
-  await keyout(join(OUT, `bg/era${n}/foreground.png`),       { chromaLimit: 8 });
+  // Bases (10).
+  await keyout(join(OUT, `base/era${n}/player.png`), { chromaLimit: 8, darkLimit: 78 });
+  await keyout(join(OUT, `base/era${n}/enemy.png`),  { chromaLimit: 8, darkLimit: 78 });
+  // Units (15) — single hero-pose frame per role.
+  for (const role of ['frontline', 'ranged', 'heavy']) {
+    await keyout(join(OUT, `unit/era${n}/${role}.png`), { chromaLimit: 8 });
+  }
+  // Turrets (15) — idle / fire / recoil frames per era.
+  await keyout(join(OUT, `turret/era${n}.png`),        { chromaLimit: 8 });
+  await keyout(join(OUT, `turret/era${n}-fire.png`),   { chromaLimit: 8 });
+  await keyout(join(OUT, `turret/era${n}-recoil.png`), { chromaLimit: 8 });
+  // Mountains + foregrounds intentionally skipped — procedural draws
+  // those cleanly per-era and the source sheets had checker patterns
+  // that can't be color-keyed without eating the silhouette.
 }
 
-console.log('\ndone — backgrounds keyed transparent. Hard-reload the game.');
+console.log('\ndone — bases/units/turrets keyed transparent. Hard-reload.');

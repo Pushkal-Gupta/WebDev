@@ -40,10 +40,12 @@ export default function HUD({
           <div className="gw-death-card">
             <div className="gw-death-cause">{deathState.kind || 'You died.'}</div>
             <div className="gw-death-epitaph">{deathState.epitaph}</div>
+            <div className="gw-death-meta">
+              Reached {deathState.distance || 0}m · Respawn at {deathState.respawnAt || 0}m
+            </div>
             <button className="gw-btn gw-btn--primary" onClick={onRetry} autoFocus>
               <span className="gw-hud-icon">{Icon.restart}</span> Retry — Space
             </button>
-            <div className="gw-death-hint">Respawn at {deathState.respawnAt || 0}m</div>
           </div>
         </div>
       ) : null}

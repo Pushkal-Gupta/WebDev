@@ -60,6 +60,7 @@ export function makeDecor(theme, palette) {
     const winMat = useMat(new THREE.MeshBasicMaterial({
       color: 0xfff0d6, transparent: true, opacity: 0.18,
       blending: THREE.AdditiveBlending, depthWrite: false,
+      side: THREE.DoubleSide,
     }));
     const win = new THREE.Mesh(useGeo(new THREE.CircleGeometry(2.0, 32, 0, Math.PI)), winMat);
     win.position.set(-3.5, 1.4, Z_DECOR + 0.1);
@@ -85,6 +86,7 @@ export function makeDecor(theme, palette) {
     const haloMat = useMat(new THREE.MeshBasicMaterial({
       color: 0xff9a4a, transparent: true, opacity: 0.16,
       blending: THREE.AdditiveBlending, depthWrite: false,
+      side: THREE.DoubleSide,
     }));
     const halo = new THREE.Mesh(useGeo(new THREE.CircleGeometry(2.4, 32)), haloMat);
     halo.position.set(-3.4, 2.4, Z_DECOR + 0.12);

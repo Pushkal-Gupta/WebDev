@@ -1,4 +1,6 @@
 // Epitaphs — one-liners shown on death. Kind-keyed; falls back to generic.
+// New death kinds (acorn, boar, vine, boulder, geyser) get their own
+// flavour so the death card always lands a joke instead of a shrug.
 
 export const EPITAPHS = {
   whip: [
@@ -52,6 +54,42 @@ export const EPITAPHS = {
     'Air had plans.',
     'The gust knew where you would land.',
   ],
+  acorn: [
+    'A seed with intent.',
+    'The tree had range.',
+    'A canopy did the math.',
+    'You miscounted the arc.',
+  ],
+  boar: [
+    'A tree with somewhere to be.',
+    'Roots are wheels in the wrong story.',
+    'A trunk took the racing line.',
+  ],
+  vine: [
+    'The grass was a question. The vine was the answer.',
+    'You tried to time a hungry thing.',
+    'Slow doesn\'t mean polite.',
+  ],
+  boulder: [
+    'The shadow on the ground was advance notice.',
+    'A rock, kept aloft, eventually falls.',
+    'You stood under the punchline.',
+  ],
+  geyser: [
+    'The bubbles were on schedule.',
+    'You were exactly on time.',
+    'Tar keeps a calendar.',
+  ],
+  lash: [
+    'Two branches. One window. You walked through neither.',
+    'It was a duet. You were the third part.',
+    'The first whip set the tempo. The second kept it.',
+  ],
+  mirror: [
+    'You stayed too long looking at yourself.',
+    'It walked toward you because you let it.',
+    'The reflection had range.',
+  ],
   unknown: [
     'The forest filed it under "deserved".',
     'Something happened. The forest knows.',
@@ -65,14 +103,21 @@ export function pickEpitaph(kind) {
 }
 
 export const KIND_LABEL = {
-  whip: 'A branch did this.',
-  snare: 'The roots did this.',
+  whip:     'A branch did this.',
+  snare:    'The roots did this.',
   mushroom: 'A mushroom did this.',
-  log: 'A log did this.',
-  pit: 'The floor did this.',
+  log:      'A log did this.',
+  pit:      'The floor did this.',
   predator: 'A tree did this.',
-  stump: 'A stump did this.',
-  embers: 'The embers did this.',
-  wind: 'The wind did this.',
-  unknown: 'You died.',
+  stump:    'A stump did this.',
+  embers:   'The embers did this.',
+  wind:     'The wind did this.',
+  acorn:    'An acorn did this.',
+  boar:     'A charging tree did this.',
+  vine:     'A vine did this.',
+  boulder:  'A boulder did this.',
+  geyser:   'A tar geyser did this.',
+  lash:     'A pair of branches did this.',
+  mirror:   'A mirror tree did this.',
+  unknown:  'You died.',
 };

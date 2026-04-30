@@ -16,9 +16,16 @@ export function makeStar(def) {
   }
   shape.closePath();
   const geo = new THREE.ShapeGeometry(shape);
+  // ShapeGeometry is single-sided (faces +Z). The engine's camera uses
+  // a vertically flipped ortho frustum (top < bottom) to keep gameplay
+  // +y reading as screen-down — that flip inverts winding-order so a
+  // CCW shape becomes back-facing from the camera's view. DoubleSide
+  // makes the star render regardless. Same workaround applies to every
+  // flat ShapeGeometry/PlaneGeometry/CircleGeometry in this game.
   const mat = new THREE.MeshStandardMaterial({
     color: 0xffd24a, roughness: 0.4, metalness: 0.1,
     emissive: 0xffae33, emissiveIntensity: 0.4,
+    side: THREE.DoubleSide,
   });
   const mesh = new THREE.Mesh(geo, mat);
   mesh.position.set(def.x, def.y, 0);
