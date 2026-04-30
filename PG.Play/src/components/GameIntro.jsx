@@ -64,6 +64,10 @@ const MODE_OPTIONS = {
     { id: 'arcade',   label: 'Enter Goalbound',  tone: 'primary' },
     { id: 'shootout', label: 'Penalty Shootout', tone: 'ghost' },
   ],
+  badicecream: () => [
+    { id: 'solo', label: 'Solo',           tone: 'primary' },
+    { id: 'coop', label: 'Co-op (2P)',     tone: 'ghost', desktopOnly: true },
+  ],
   aow: () => {
     // Conquest is gated until the first Standard win — read the
     // persisted Era Siege stats. Defensive: storage may be unavailable.

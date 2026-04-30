@@ -94,12 +94,71 @@ const WALLS = [
   { src: 'subbasement.png',  out: 'subbasement.png' },
 ];
 
+// Knock out the checker-pattern "transparent placeholder" that the AI
+// generator bakes into source sheets as actual opaque gray pixels.
+// The checker has multiple shades (~172 dark, ~199 light, ~254 near-
+// white) so a simple color match misses the lightest cells. Flood-fill
+// approach: seed from every border pixel that looks "bg-ish" (low
+// saturation + medium-to-high brightness), expand inwards through
+// matching neighbours. The character is enclosed by black outlines
+// and never touches the border, so its interior whites (eyes, scoop
+// highlights) are preserved.
+async function removeCheckerBg(buf) {
+  const raw = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const { width: w, height: h, channels: ch } = raw.info;
+  const data = raw.data;
+  const total = w * h;
+  // Pass 1: classify every pixel as bg-candidate (low saturation + the
+  // checker brightness band, plus near-whites that aren't pure 255).
+  const candidate = new Uint8Array(total);
+  for (let p = 0, i = 0; p < total; p++, i += ch) {
+    const r = data[i], g = data[i + 1], b = data[i + 2];
+    const max = r > g ? (r > b ? r : b) : (g > b ? g : b);
+    const min = r < g ? (r < b ? r : b) : (g < b ? g : b);
+    if ((max - min) <= 14 && max >= 150) candidate[p] = 1;
+  }
+  // Pass 2: flood-fill from borders through candidates. Stack-based to
+  // avoid the O(n) cost of Array.shift on a queue.
+  const visited = new Uint8Array(total);
+  const stack = [];
+  const seedRow = (y) => {
+    for (let x = 0; x < w; x++) {
+      const p = y * w + x;
+      if (candidate[p] && !visited[p]) { visited[p] = 1; stack.push(p); }
+    }
+  };
+  const seedCol = (x) => {
+    for (let y = 0; y < h; y++) {
+      const p = y * w + x;
+      if (candidate[p] && !visited[p]) { visited[p] = 1; stack.push(p); }
+    }
+  };
+  seedRow(0); seedRow(h - 1); seedCol(0); seedCol(w - 1);
+  while (stack.length > 0) {
+    const p = stack.pop();
+    const x = p % w, y = (p / w) | 0;
+    if (x > 0)     { const n = p - 1; if (candidate[n] && !visited[n]) { visited[n] = 1; stack.push(n); } }
+    if (x < w - 1) { const n = p + 1; if (candidate[n] && !visited[n]) { visited[n] = 1; stack.push(n); } }
+    if (y > 0)     { const n = p - w; if (candidate[n] && !visited[n]) { visited[n] = 1; stack.push(n); } }
+    if (y < h - 1) { const n = p + w; if (candidate[n] && !visited[n]) { visited[n] = 1; stack.push(n); } }
+  }
+  // Pass 3: zero alpha for every visited pixel.
+  let cleared = 0;
+  for (let p = 0; p < total; p++) {
+    if (visited[p]) { data[p * ch + 3] = 0; cleared++; }
+  }
+  if (cleared > 0) {
+    process.stdout.write(`    (checker bg cleared on ${(cleared / total * 100).toFixed(1)}% of pixels)\n`);
+  }
+  return sharp(data, { raw: { width: w, height: h, channels: ch } }).png().toBuffer();
+}
+
 // Aggressive alpha cleanup. Any pixel whose alpha is below `lowCut`
 // becomes fully transparent — kills the soft halo the AI generator
 // leaves around painted character outlines. Pixels above `highCut`
 // snap to fully opaque so the silhouette reads cleanly. Mid-alpha
 // pixels (real anti-aliased edges) are preserved untouched.
-async function lassoAlpha(buf, lowCut = 60, highCut = 240) {
+async function lassoAlpha(buf, lowCut = 130, highCut = 240) {
   const raw = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   const { width, height, channels } = raw.info;
   const data = raw.data;
@@ -132,13 +191,14 @@ async function svgWrap(pngBuf, side, outFile) {
 }
 
 async function emitSprite(cellBuf, outFile, target = 512, trimThreshold = 5) {
-  // Pipeline: lasso alpha cleanup → trim → square-pad with 8% margin →
-  // resize to target → emit as a transparent WebP. WebP is the canonical
-  // sprite format because the game draws via canvas drawImage and SVG
-  // wrappers around raster data don't rasterize inside `<canvas>` on
-  // most browsers (they silently render blank). Direct WebP works.
-  const cleaned = await lassoAlpha(cellBuf);
-  const t = await sharp(cleaned).trim({ threshold: trimThreshold }).toBuffer({ resolveWithObject: true });
+  // Pipeline: knock-out checker background → lasso alpha cleanup → trim
+  // → square-pad → resize → LASSO AGAIN (sharp's resize blends edges
+  // and introduces sub-threshold halo) → emit as PNG. PNG keeps alpha
+  // exact; WebP's lossy alpha encoder reintroduces halo and breaks the
+  // silhouette in the canvas draw path.
+  const noChecker = await removeCheckerBg(cellBuf);
+  const cleaned1 = await lassoAlpha(noChecker);
+  const t = await sharp(cleaned1).trim({ threshold: trimThreshold }).toBuffer({ resolveWithObject: true });
   const m = t.info;
   const max = Math.max(m.width, m.height);
   const pad = Math.round(max * 0.08);
@@ -153,18 +213,36 @@ async function emitSprite(cellBuf, outFile, target = 512, trimThreshold = 5) {
     })
     .png()
     .toBuffer();
-  // outFile arg may end in .png — coerce to .webp for the actual write.
-  const webpFile = outFile.replace(/\.(png|svg)$/i, '.webp');
-  await sharp(padded)
+  const resized = await sharp(padded)
     .resize(target, target, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
-    .webp({ quality: 90, alphaQuality: 95, effort: 6 })
-    .toFile(webpFile);
+    .png()
+    .toBuffer();
+  // Second lasso pass: the resize step blends edge pixels via Lanczos
+  // and that blend can introduce alpha 30-120 in the formerly-clean
+  // padding. Re-cut anything below a tight threshold to fully zero.
+  const cleaned2 = await lassoAlpha(resized, 140, 240);
+  // outFile arg may end in .webp/.svg — coerce to .png.
+  const pngFile = outFile.replace(/\.(webp|svg)$/i, '.png');
+  await sharp(cleaned2)
+    .png({ compressionLevel: 9, palette: false })
+    .toFile(pngFile);
 }
 
 async function processSheet(sheetPath, layout) {
+  // Inset every edge of the cell. The AI generator drew dark divider
+  // lines around each cell (3-10 px black/near-black) plus a faint
+  // dropshadow band that the gray-only flood-fill doesn't catch. 50 px
+  // is far enough in to clear all that without clipping the centred
+  // character (the character bboxes are <800 px in a 1408×768 cell).
+  const INSET = 50;
   for (const item of layout) {
     const cell = await sharp(sheetPath)
-      .extract({ left: item.col * CELL_W, top: item.row * CELL_H, width: CELL_W, height: CELL_H })
+      .extract({
+        left:   item.col * CELL_W + INSET,
+        top:    item.row * CELL_H + INSET,
+        width:  CELL_W - 2 * INSET,
+        height: CELL_H - 2 * INSET,
+      })
       .toBuffer();
     const out = join(OUT_SPRITES, item.name);
     await emitSprite(cell, out, 512);
@@ -310,5 +388,17 @@ async function processCover() {
   for (const w of WALLS) await processWall(w);
   console.log('▶︎ Frost-Fight cover');
   await processCover();
+  // Co-op P2 — re-tint the player sprite. 200° hue rotation shifts
+  // pink (~hue 325) to cyan-mint (~hue 165) so the two players read
+  // as distinct without needing a second source asset.
+  console.log('▶︎ Co-op P2');
+  const playerPath = join(OUT_SPRITES, 'player.png');
+  if (fs.existsSync(playerPath)) {
+    await sharp(playerPath)
+      .modulate({ hue: 200 })
+      .png({ compressionLevel: 9 })
+      .toFile(join(OUT_SPRITES, 'player-2.png'));
+    process.stdout.write('  player-2.png\n');
+  }
   console.log('done');
 })();

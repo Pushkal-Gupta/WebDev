@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Era Siege bake</title></head>
+<body style="margin:0;background:#222;">
+<canvas id="c" width="32" height="32"></canvas>
+<script type="module">
+// Re-uses the runtime procedural draws so baked PNGs match what the
+// game looks like in procedural mode. We import via relative path; the
+// page is loaded via file:// so plain ESM resolution applies.
+import {
+  placeholderSky, placeholderClouds, placeholderMountains, placeholderForeground,
+  placeholderBase, placeholderUnit,
+} from '../../src/games/era-siege/engine/assets/placeholders.js';
+import { ERAS } from '../../src/games/era-siege/content/eras.js';
+import { getUnit } from '../../src/games/era-siege/content/units.js';
+
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+// Bake one asset into the canvas and return its data URL.
+//
+// spec = { type, eraId, w, h, opts }
+//   type: 'sky' | 'mountains-far' | 'mountains-mid' | 'foreground'
+//       | 'base-player' | 'base-enemy'
+//   w, h: canvas dimensions in pixels
+//   opts: per-type extras
+//     sky      : { groundY }
+//     mountains: { groundY }
+//     foreground: { groundY }
+//     base*     : { x, groundY }
+window.bakeAsset = function bakeAsset(spec) {
+  const { type, eraId, w, h, opts = {} } = spec;
+  canvas.width = w;
+  canvas.height = h;
+  ctx.clearRect(0, 0, w, h);
+
+  switch (type) {
+    case 'sky':
+      placeholderSky(ctx, eraId, w, h, opts.groundY ?? h);
+      break;
+    case 'mountains-far':
+      placeholderMountains(ctx, eraId, w, opts.groundY ?? h, 'far');
+      break;
+    case 'mountains-mid':
+      placeholderMountains(ctx, eraId, w, opts.groundY ?? h, 'mid');
+      break;
+    case 'foreground':
+      // Foreground content sits BELOW groundY; bake with groundY at top.
+      placeholderForeground(ctx, eraId, w, opts.groundY ?? 0);
+      break;
+    case 'base-player':
+      placeholderBase(ctx, eraId, opts.x ?? w / 2, opts.groundY ?? h, true);
+      break;
+    case 'base-enemy':
+      placeholderBase(ctx, eraId, opts.x ?? w / 2, opts.groundY ?? h, false);
+      break;
+    case 'unit': {
+      const def = getUnit(opts.unitId);
+      if (!def) throw new Error(`unknown unitId: ${opts.unitId}`);
+      // Foot at canvas-bottom-center; right-facing canonical pose.
+      placeholderUnit(ctx, def, w / 2, h, { facing: 1, eraId, scale: opts.scale ?? 2.6 });
+      break;
+    }
+    default:
+      throw new Error(`unknown bake type: ${type}`);
+  }
+  return canvas.toDataURL('image/png');
+};
+
+window.bakeReady = true;
+window.eraIds = ERAS.map((e) => e.id);
+</script>
+</body>
+</html>

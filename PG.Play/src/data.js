@@ -40,12 +40,12 @@ export const GAMES = [
     mobileSupport:'touch-ok', inputs:['keyboard','touch'], orientation:'landscape',
     skillTags:['timing','stealth','planning'], sessionLength:'short' },
 
-  { id:'badicecream', name:'Frost Fight', cat:'Arcade', kind:'story', players:'1P', levels:6,
-    tagline:'Fruit, ice, and not much else.',
-    story:'A grid maze, a handful of angry fruits, and one small ice cream. Step tile-to-tile, freeze the tile you\'re facing to wall them off, melt it to open the way. Collect every fruit piece in the room — only then does the exit accept you. Six rooms: Pantry, Cold Room, Aisle, Walk-In, Loading Dock, Sub-Basement.',
+  { id:'badicecream', name:'Frost Fight', cat:'Arcade', kind:'story', players:'1-2 co-op', levels:6,
+    tagline:'Fruit, ice, and not much else. Now with a friend.',
+    story:'A grid maze, a handful of angry fruits, and one small ice cream — or two. Solo: WASD to step, Space to cast a row of ice in the direction you face. Co-op: P1 on WASD + Space, P2 on arrows + Enter, sharing the room and the same death-restart rule. Step tile-to-tile, freeze the tile you\'re facing to wall the fruit off, melt it to open the way. Six rooms: Pantry, Cold Room, Aisle, Walk-In, Loading Dock, Sub-Basement.',
     playable:true, badge:'new', updated:true, isOriginal:true,
     mobileSupport:'touch-ok', inputs:['keyboard','touch'], orientation:'landscape',
-    skillTags:['spatial','planning','reflex'], sessionLength:'short' },
+    skillTags:['spatial','planning','reflex','coop'], sessionLength:'short' },
 
   { id:'aow', name:'Era Siege', cat:'Strategy', kind:'story', players:'1P', levels:5,
     tagline:'Five eras of warfare. One lane. One base you can\'t afford to lose.',

@@ -1,34 +1,36 @@
-// Grudgewood — biome schedule along the infinite walk.
+// Grudgewood — biome schedule across the 2D maze.
 //
-// Every BIOME_LENGTH meters of forward travel the world shifts to the next
-// biome. After we cycle through all six, we keep cycling — the forest is
-// endless, but its mood still changes every few minutes of running. A
-// short crossfade window lets the engine blend sky/fog colors so transitions
-// feel breath-y instead of jarring.
+// Biomes change with distance from the spawn cell (Euclidean cell radius).
+// A small fade window blends sky/fog colours as the player crosses each
+// boundary so the maze gradually shifts mood instead of snapping.
 
 import { biomeFor } from './biomes.js';
+import { cellCenter, CELL_SIZE } from './mazeGrid.js';
 
 export const BIOME_ORDER = ['mosswake', 'trickster', 'rotbog', 'cliffside', 'heart', 'sanctum'];
-export const BIOME_LENGTH = 280; // meters per biome (long enough to settle into a vibe)
-const FADE_WINDOW = 36;          // last N meters of a biome blend into the next
+export const BIOME_RADIUS = 9;       // cells per biome ring (~9 * 24m = 216m)
+const FADE_RING = 1.4;               // last 1.4 cells of a ring crossfade into the next
 
-// Returns { biome, next, blend } where blend in [0,1] is how far we are
-// into the crossfade *into* `next`. blend=0 means fully in `biome`, 1 fully
-// in `next`. Outside the fade window blend stays at 0.
-export function biomeAt(z) {
-  const phase = Math.max(0, z) / BIOME_LENGTH;
-  const idx = Math.floor(phase);
-  const local = (phase - idx) * BIOME_LENGTH; // 0..BIOME_LENGTH
+// Returns { biome, next, blend } at a given cell coordinate.
+// `radius` is the Euclidean distance from origin in cells.
+export function biomeAt(cx, cz) {
+  const radius = Math.sqrt(cx * cx + cz * cz);
+  const idx = Math.floor(radius / BIOME_RADIUS);
+  const local = radius - idx * BIOME_RADIUS;
   const biome = biomeFor(BIOME_ORDER[idx % BIOME_ORDER.length]);
   const next = biomeFor(BIOME_ORDER[(idx + 1) % BIOME_ORDER.length]);
-  const inFade = local > BIOME_LENGTH - FADE_WINDOW;
-  const blend = inFade ? (local - (BIOME_LENGTH - FADE_WINDOW)) / FADE_WINDOW : 0;
+  const inFade = local > BIOME_RADIUS - FADE_RING;
+  const blend = inFade ? (local - (BIOME_RADIUS - FADE_RING)) / FADE_RING : 0;
   return { biome, next, blend, idx };
 }
 
-// Same as biomeAt but for the chunk-grain queries the renderer makes —
-// returns just the biome whose color/foliage rules dominate this chunk.
-// We pick by the chunk's center Z so a chunk's identity is stable.
-export function biomeForChunk(chunkIndex, chunkLength) {
-  return biomeAt(chunkIndex * chunkLength + chunkLength / 2).biome;
+// Used by walls.js / spawn.js to colour a whole cell uniformly. Pick by
+// the cell's centre so the cell's identity is stable.
+export function biomeForCell(cx, cz) {
+  return biomeAt(cx, cz).biome;
+}
+
+// World-space distance from spawn — what the HUD shows as "distance".
+export function distanceFromSpawn(x, z) {
+  return Math.sqrt(x * x + z * z);
 }

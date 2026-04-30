@@ -47,33 +47,11 @@ function hpColor(r) {
 }
 
 export function makeRenderer() {
-  const gradCache = new Map();
-
-  function getSkyGradient(ctx, eraId, w, h) {
-    const key = `sky:${eraId}:${w}:${h}`;
-    let g = gradCache.get(key);
-    if (g) return g;
-    const pal = paletteFor(eraId);
-    g = ctx.createLinearGradient(0, 0, 0, h);
-    g.addColorStop(0, pal.sky[0]);
-    g.addColorStop(1, pal.sky[1]);
-    gradCache.set(key, g);
-    return g;
-  }
-
-  function getGroundGradient(ctx, eraId, groundY, h) {
-    const key = `gnd:${eraId}:${groundY}:${h}`;
-    let g = gradCache.get(key);
-    if (g) return g;
-    const pal = paletteFor(eraId);
-    g = ctx.createLinearGradient(0, groundY, 0, h);
-    g.addColorStop(0, pal.ground);
-    g.addColorStop(1, pal.groundDetail);
-    gradCache.set(key, g);
-    return g;
-  }
-
-  function clearCache() { gradCache.clear(); }
+  // Sky / ground gradients are now built per-frame by the placeholder
+  // sky/ground draws (they vary with view height and groundY, both of
+  // which already change rarely). Keeping a stub `clearCache` so the
+  // index.jsx resize hook keeps working without an extra check.
+  function clearCache() { /* no-op */ }
 
   function render(ctx, match, _frameDt) {
     if (!match) return;
@@ -175,116 +153,6 @@ export function makeRenderer() {
   }
 
   return { render, clearCache };
-}
-
-// ── Mountains ──────────────────────────────────────────────────────────
-function drawMountains(ctx, w, h, v, pal, alpha, baseY) {
-  ctx.save();
-  ctx.globalAlpha = alpha;
-  ctx.fillStyle = pal.mountain;
-  ctx.beginPath();
-  ctx.moveTo(0, v.groundY);
-  // Two passes — far ridge in deep tint then a closer ridge in mid tint.
-  for (let i = 0; i <= 16; i++) {
-    const x = (i / 16) * w;
-    const y = v.groundY - baseY + Math.sin(i * 1.7) * 22 + Math.cos(i * 3.1 + 0.5) * 10;
-    ctx.lineTo(x, y);
-  }
-  ctx.lineTo(w, v.groundY);
-  ctx.closePath();
-  ctx.fill();
-  ctx.restore();
-}
-
-// ── Near rocks ─────────────────────────────────────────────────────────
-function drawNearRocks(ctx, w, v, pal) {
-  ctx.save();
-  ctx.fillStyle = pal.mountain;
-  ctx.globalAlpha = 0.85;
-  // Foreground silhouettes — three pyramidal lumps far enough apart they
-  // don't crowd the lane silhouettes. Deterministic (seeded by w).
-  for (let i = 0; i < 4; i++) {
-    const cx = (i / 4) * w + (w * 0.07);
-    const peakY = v.groundY - 28 - ((i * 13) % 20);
-    ctx.beginPath();
-    ctx.moveTo(cx - 22, v.groundY);
-    ctx.lineTo(cx, peakY);
-    ctx.lineTo(cx + 22, v.groundY);
-    ctx.closePath();
-    ctx.fill();
-  }
-  ctx.restore();
-}
-
-// ── Mid-layer motif ────────────────────────────────────────────────────
-function drawMidMotif(ctx, w, h, v, pal, eraId, t) {
-  ctx.save();
-  ctx.globalAlpha = 0.18;
-  ctx.fillStyle = pal.midMotif;
-  if (eraId === 'ember-tribe') {
-    // Floating embers
-    for (let i = 0; i < 14; i++) {
-      const x = (i * 80 + (t * 22) % w) % w;
-      const y = v.groundY - 130 - (i * 6) % 50 + Math.sin(t * 2 + i) * 6;
-      ctx.fillRect(x, y, 3, 3);
-    }
-  } else if (eraId === 'iron-dominion') {
-    for (let i = 0; i < 10; i++) {
-      const x = (i + 0.5) * (w / 10);
-      const y = v.groundY - 140 + Math.sin(t + i) * 2;
-      ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill();
-    }
-  } else if (eraId === 'sun-foundry') {
-    for (let i = 0; i < 5; i++) {
-      const x = (i + 0.2) * (w / 5);
-      const y0 = v.groundY - 160;
-      ctx.beginPath();
-      ctx.arc(x,      y0 + Math.sin(t + i) * 4,       18, 0, Math.PI * 2);
-      ctx.arc(x + 14, y0 - 14 + Math.sin(t + i + 1) * 3, 14, 0, Math.PI * 2);
-      ctx.arc(x - 14, y0 - 8  + Math.sin(t + i + 2) * 3, 12, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  } else if (eraId === 'storm-republic') {
-    // Lightning rods + arc flash
-    ctx.fillRect(w * 0.2 - 1, v.groundY - 200, 2, 80);
-    ctx.fillRect(w * 0.5 - 1, v.groundY - 220, 2, 100);
-    ctx.fillRect(w * 0.8 - 1, v.groundY - 200, 2, 80);
-    if (Math.sin(t * 6) > 0.7) {
-      ctx.globalAlpha = 0.45;
-      ctx.fillRect(w * 0.5 - 3, v.groundY - 220, 6, 100);
-    }
-  } else if (eraId === 'void-ascendancy') {
-    ctx.globalAlpha = 0.28;
-    for (let i = 0; i < 6; i++) {
-      const x = (i + 0.5) * (w / 6) + Math.sin(t + i) * 14;
-      const y = v.groundY - 150 + Math.cos(t + i) * 10;
-      ctx.beginPath();
-      ctx.ellipse(x, y, 28, 9, 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-  ctx.restore();
-}
-
-// ── Ground ─────────────────────────────────────────────────────────────
-function drawGround(_ctx, w, h, v, pal, ctx, eraId) {
-  // Rebuild the gradient from cache (looked up via the renderer's cache).
-  ctx.fillStyle = pal.ground;
-  ctx.fillRect(0, v.groundY, w, h - v.groundY);
-  ctx.fillStyle = pal.groundDetail;
-  // Era-specific ground motif
-  for (let x = 0; x < w; x += 28) {
-    ctx.fillRect(x, v.groundY + 8, 2, 5);
-    ctx.fillRect(x + 14, v.groundY + 24, 1, 3);
-  }
-  // Era-specific accent on the ground rim
-  if (eraId === 'storm-republic' || eraId === 'void-ascendancy') {
-    ctx.save();
-    ctx.globalAlpha = 0.4;
-    ctx.fillStyle = pal.midMotif;
-    for (let x = 0; x < w; x += 60) ctx.fillRect(x, v.groundY - 1, 30, 1);
-    ctx.restore();
-  }
 }
 
 // ── Bases ──────────────────────────────────────────────────────────────
@@ -489,13 +357,15 @@ function drawUnitSprite(ctx, u, x, y, spriteKey, sideAuraActive) {
   ctx.ellipse(x, y + 1, 14, 3, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Sprite. Authoring is at single-frame ~183×102 — render at ~64 tall
-  // for a battlefield-readable size that stays consistent across eras.
+  // Sprite. Target heights chosen for battlefield readability; the
+  // image's natural aspect ratio drives the width so any baked sheet
+  // (tight bbox or otherwise) renders without horizontal stretch.
   const SCALE = BALANCE.UNIT_RENDER_SCALE || 1;
   const role = u.role;
   const targetH = role === 'heavy' ? 80 * SCALE : 64 * SCALE;
-  // The frame's inherent aspect is ~1.79:1 (183/102) — preserve it.
-  const targetW = targetH * 1.79;
+  const nat = assets.naturalSize(spriteKey);
+  const aspect = nat ? nat.w / nat.h : 0.6;
+  const targetW = targetH * aspect;
   const flipX = u.facing < 0;
   ctx.save();
   if (flipX) {
