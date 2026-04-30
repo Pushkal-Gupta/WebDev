@@ -1368,13 +1368,249 @@ Build clean. WebP sprites verified — `Read` on `player.webp` and
 `strawberry.webp` shows the painted characters cleanly framed with
 fully transparent backgrounds.
 
+---
+
+## Phase 13 — Co-op 2P
+
+The genre's signature feature, finally in. Two ice creams on one
+keyboard, sharing the room with same-team-forgiveness death.
+
+### 1. Mode select
+
+`GameIntro.jsx` got a `MODE_OPTIONS.badicecream` entry exposing two
+buttons in the lobby:
+
+- **Solo** — the existing one-player run
+- **Co-op (2P)** — new; flagged `desktopOnly: true` so mobile users
+  see a "Best on desktop" hint
+
+`data.js` updated: `players: '1-2 co-op'`, story line rewritten,
+skill tag `coop` added.
+
+### 2. P2 sprite (cyan-mint scoop)
+
+The processor adds an idempotent post-step:
+
+```js
+sharp(playerPath).modulate({ hue: 200 }).webp({…}).toFile('player-2.webp');
+```
+
+200° hue rotation shifts pink (~hue 325) to cyan-mint (~hue 165) —
+the cone goes light blue, the scoop goes turquoise. Visually
+distinct from P1 with zero new source art.
+
+### 3. Two-player state machine
+
+`FrostFightGame` now accepts a `mode` prop. When `mode === 'coop'`:
+
+- `loadLevel` seeds a `s.player2` with its own state object spawned
+  on the first passable orthogonal neighbour of P1's spawn (falls
+  back to `spawn.col + 1`)
+- `s.p2Spawn` is captured at level mount for the shared respawn flow
+- The per-player tick pipeline (respawn → input → step → cast →
+  fruit) was extracted into an inline `tickPlayer(player, kbag, isP1)`
+  function. It's called for both players each frame.
+- Input split: in **solo** P1 reads WASD ∪ arrows ∪ Space; in
+  **coop** P1 is WASD ∪ Space and P2 is arrows ∪ Enter. Zero key
+  overlap so simultaneous input on one keyboard works.
+
+Player-vs-player collision: on movement, the other player's tile
+(and their `from` tile mid-step) blocks. On freeze cast, the other
+player's tile stops the sweep — same as enemies / fruit / exit.
+
+### 4. Shared mechanics
+
+- **Fruit** — either player picking a tile decrements the shared
+  count. Floater + cue fire from whichever player picked it up.
+- **Death** — any alive player touched by an enemy → BOTH players
+  die together (same-team forgiveness). One `OUCH` floater fires
+  at the touched-player's tile. One `frostMusic.duck()` and one
+  `setDeaths` increment per touch event.
+- **Exit** — either player on the exit tile + both alive +
+  `fruitsLeft === 0` triggers the room transition.
+
+### 5. Smarter enemy AI
+
+The chase target is now the **closest alive player** (Manhattan
+distance), with ties resolving to P1 for determinism. Strawberry,
+blueberry, orange, and cherry all retain their per-kind shaping
+(pure chase / chaotic / tangent-evade / pair-step) on top of the
+new target selection.
+
+### 6. Render + cursor preview for both
+
+Player draw was extracted into a `drawPlayer(player, spriteSlot,
+scoopColor)` helper. Called twice — P1 with the pink scoop sprite
+and procedural fallback, P2 with the cyan-mint sprite and a
+mint-cyan procedural fallback. Same step-bob, same dead-splash.
+
+Cast preview cursor was likewise factored into
+`drawCastPreview(player, freezeRgb)` — P1 in cyan
+`(80, 180, 230)`, P2 in mint `(120, 240, 200)`. Each player sees
+their own cursor in their own tint, mirroring the in-canvas
+character colour.
+
+### 7. Bottom-rail keycap split
+
+`BottomRail` accepts a `coop` prop. In coop, the keycap row gains
+two pink/cyan player-tag pills (`P1` / `P2`) and a second keycap
+group showing the arrow keys + Enter. The R-restart cap is hidden
+in coop to keep the rail compact. Adaptive freeze-action highlight
+and danger-direction flash stay P1-only — the rail's visual
+emphasis follows the dominant player.
+
+### Files touched in phase 13
+
+```
+ADD   src/games/frost-fight/sprites/player-2.webp     (cyan-mint via sharp)
+EDIT  scripts/frost-fight-process-art.mjs             (idempotent P2 step)
+EDIT  src/components/GameIntro.jsx                    (+ Solo / Co-op modes)
+EDIT  src/data.js                                     (players: '1-2 co-op')
+EDIT  src/games/FrostFightGame.jsx
+        (+ mode prop + coop derived flag
+         + s.player2 + s.p2Spawn in loadLevel
+         + tickPlayer helper, called for both
+         + input split (WASD vs arrows + Enter)
+         + player-vs-player collision in step + cast
+         + chase target = nearest alive player
+         + shared death (any → both) + shared exit (either →)
+         + drawPlayer + drawCastPreview helpers
+         + sprites.player2 slot)
+EDIT  src/games/frost-fight/ui/BottomRail.jsx          (+ coop prop, P1/P2 lanes)
+EDIT  src/styles.css                                   (+ .ff-keycap-tag pills)
+EDIT  docs/badicecream-ux-summary.md                   (this section)
+```
+
+### Build impact
+
+| metric | phase 12 | phase 13 |
+|---|---|---|
+| FrostFight chunk | ~34 KB | ~34 KB |
+| sprite count | 13 | 14 (+ player-2.webp) |
+| total sprite bytes | ~470 KB | ~503 KB |
+| dev-server smoke test | all 200 | all 200 |
+
+Build clean. Solo mode preserved — the `mode = 'solo'` default plus
+`coop` boolean derived from `mode === 'coop'` means everywhere we
+gate on `coop` falls through to the original single-player flow
+when the prop isn't passed or is anything other than `'coop'`.
+
+---
+
+## Phase 14 — root-cause sprite fix + richer music bed
+
+### 1. Sprite rendering — actual root cause
+
+The "white card" rendering issue persisted across phases 11 and 12
+because I was treating an underlying source problem with surface-level
+fixes. Real diagnosis:
+
+- The user's `A Type 1 / 2.png` and `B Type 1.png` source sheets are
+  **fully opaque** (`alpha = 255` everywhere).
+- The "transparent checker" you see in the source isn't real
+  transparency — it's actual gray pixels (~172 / ~199 / ~254) drawn
+  by the AI generator as a placeholder background.
+- Every alpha-based pipeline step I'd built (lasso threshold, trim,
+  fit-contain) was no-op-ing on those pixels because alpha was never
+  below the threshold. The trim couldn't find a tight bbox because
+  the cell was opaque from edge to edge.
+
+### 2. Flood-fill checker removal
+
+A new `removeCheckerBg()` step now runs first in `emitSprite`:
+
+1. Classify every pixel as "bg-candidate" if `max-min ≤ 14` (very
+   desaturated) AND `max ≥ 150` (gray/white range).
+2. Stack-based flood-fill from every border pixel, walking only
+   through candidates. Each visited candidate gets `alpha = 0`.
+3. Character interior whites (eye whites, scoop highlights) are
+   enclosed by black outlines so they're never reached by the fill —
+   they stay opaque.
+
+The flood-fill clears 60–85 % of pixels per source cell (the entire
+bg). Trim then finds a tight character bbox.
+
+### 3. Cell inset for divider lines
+
+The AI generator drew dark cell-divider lines at the cell boundaries
+(near-black, low-saturation, but below the brightness threshold of
+the bg-candidate classifier). They survived the flood-fill and
+inflated the bbox.
+
+Fix: extract each cell with a **50 px inset** on every edge. The
+character bboxes are <800 px in 1408×768 cells, so 50 px clears any
+divider artifacts without clipping the character.
+
+### 4. Verified bbox tightness
+
+Per-sprite content fill after the fix:
+
+| sprite | width | height |
+|---|---|---|
+| player | 61 % | 86 % |
+| strawberry | 65 % | 86 % |
+| blueberry | 73 % | 86 % |
+| orange | 72 % | 86 % |
+| cherry | 84 % | 86 % |
+| fruit | 67 % | 86 % |
+| ice | 83 % | 86 % |
+| exit | 59 % | 86 % |
+
+86 % vertical fill across the board — exactly what the 8 % padding
+target predicts. Width varies with character shape.
+
+### 5. Verified in-game
+
+Headless screenshot at 2× DPR confirmed: the painted ice cream player,
+strawberry villain, fruit pickups, exit flag, and ice tiles all
+render at proper character size with clean transparent crops.
+
+### 6. Music bed — multi-layer ambient
+
+The phase 9 drone (3 oscillators + LFO) was a literal drone. The
+new ambient bed:
+
+- **Bass drone** — sub-octave + root sines + two detuned voices
+  (±0.5 %) for chorus thickness
+- **Pad chord** — minor 7th (root + b3 + 5 + b7) on triangle waves,
+  stereo-spread (b3 left, p5 right)
+- **Bell ostinato** — `setInterval`-driven sparse high notes every
+  5.5 s, walking a 6-note pattern (octave / m3 / p5 / 2-octave /
+  m3 / p5). Each note is a fundamental sine + slightly inharmonic
+  triangle harmonic (2.01×), pan-randomised, with a 1.7 s
+  exponential decay
+- **Slap-back delay** — 340 ms tap, 28 % feedback, 22 % wet — adds
+  spatial depth without smearing
+- **Low-pass filter sweep** — 0.07 Hz LFO modulates cutoff between
+  680-1120 Hz so the texture breathes
+- **Master breath** — 0.20 Hz LFO on master gain, ±20 %
+
+Same per-room key roots (Pantry C5, Cold Room A4, etc.) give each
+room a distinct tonal centre. Same `start / stop / duck` API; mute
+bus subscription preserved.
+
+### Files touched in phase 14
+
+```
+EDIT  scripts/frost-fight-process-art.mjs
+        (+ removeCheckerBg flood-fill, 50 px cell inset,
+         second lasso pass after resize, PNG output not WebP)
+EDIT  src/games/FrostFightGame.jsx
+        (sprite imports flipped .webp?url → .png?url, cover stays webp)
+REGEN src/games/frost-fight/sprites/*.png    (lasso-clean, full-size,
+                                               actually renders correctly)
+EDIT  src/sound.js
+        (frostMusic redesigned: minor-7th pad + bass + bell ostinato
+         + slap-back delay + lowpass sweep + breath LFO)
+EDIT  docs/badicecream-ux-summary.md         (this section)
+```
+
 ### What's actually still open
 
-- Co-op 2P mode (keyboard-shared, WASD vs arrows). Real BIC's
-  signature feature; would be the natural phase 13.
-- Sliding-on-ice banana enemy.
-- Boss / world-finale rooms.
-- True vector tracing (potrace) — the painted style doesn't
-  vectorise cleanly without losing detail; deferred.
-- Animated melt sweep — only the freeze stagger ships now; melt
-  removes its row instantly. Easy to mirror if needed.
+- Sliding-on-ice banana enemy (sliding-momentum mechanic).
+- Boss / world-finale rooms (different AI, large fruit count).
+- Co-op-specific touch controls (currently coop is desktop-only;
+  could add a second virtual pad if mobile demand shows up).
+- Animated melt sweep (mirror of the freeze stagger).
+- True vector tracing (potrace) — deferred; painted style doesn't
+  vectorise cleanly without losing cel-shading detail.

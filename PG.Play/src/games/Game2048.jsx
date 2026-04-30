@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { submitScore } from '../scoreBus.js';
+import Celebration from '../components/Celebration.jsx';
 
 const SIZE = 4;
 
@@ -15,7 +16,29 @@ const TILE_COLORS = {
   512:  { bg: '#edc850', fg: '#f9f6f2' },
   1024: { bg: '#edc53f', fg: '#f9f6f2' },
   2048: { bg: '#edc22e', fg: '#f9f6f2' },
+  4096: { bg: '#3c3a32', fg: '#f9f6f2' },
+  8192: { bg: '#3c3a32', fg: '#f9f6f2' },
+  16384:{ bg: '#3c3a32', fg: '#f9f6f2' },
+  32768:{ bg: '#3c3a32', fg: '#f9f6f2' },
+  65536:{ bg: '#3c3a32', fg: '#f9f6f2' },
 };
+
+// Each entry is a milestone we celebrate the first time the player reaches it
+// in a run. Intensity escalates so 4096 feels bigger than 2048, etc.
+const TIERS = [
+  { value: 2048,  intensity: 2, title: '2048!',
+    sub: 'You merged the legend. Keep going — there\'s more.' },
+  { value: 4096,  intensity: 3, title: '4096!',
+    sub: 'Beyond legendary. The grid bows.' },
+  { value: 8192,  intensity: 4, title: '8192!',
+    sub: 'You shouldn\'t even be here. Push onward.' },
+  { value: 16384, intensity: 5, title: '16,384!',
+    sub: 'A digit you didn\'t need today.' },
+  { value: 32768, intensity: 6, title: '32,768!',
+    sub: 'This is statistically improbable.' },
+  { value: 65536, intensity: 6, title: '65,536 — MAX TILE',
+    sub: 'Nothing higher exists on a 4×4. Take a bow.' },
+];
 
 const empty = () => Array.from({ length: SIZE }, () => Array(SIZE).fill(0));
 
@@ -36,9 +59,10 @@ const addTile = (grid) => {
 
 const newGame = () => addTile(addTile(empty()));
 
-// Slide + merge a single row to the left. Returns { row, gained }.
-const slideRow = (row) => {
-  const filtered = row.filter((v) => v !== 0);
+// Compact a line toward index 0: drop zeros, merge adjacent equal pairs once,
+// pad zeros at the end. Caller flips the line for the opposite direction.
+const compact = (line) => {
+  const filtered = line.filter((v) => v !== 0);
   const out = [];
   let gained = 0;
   for (let i = 0; i < filtered.length; i++) {
@@ -52,28 +76,57 @@ const slideRow = (row) => {
     }
   }
   while (out.length < SIZE) out.push(0);
-  return { row: out, gained };
+  return { line: out, gained };
 };
 
-const rotate = (grid) => {
-  // 90° clockwise
-  const out = empty();
-  for (let r = 0; r < SIZE; r++) for (let c = 0; c < SIZE; c++) out[c][SIZE - 1 - r] = grid[r][c];
-  return out;
-};
-
-const move = (grid, dir) => {
-  // dir: 0=left, 1=up, 2=right, 3=down. Normalize to "left" by rotating.
-  let g = grid;
-  for (let i = 0; i < dir; i++) g = rotate(g);
-  let totalGained = 0;
-  g = g.map((row) => {
-    const { row: next, gained } = slideRow(row);
-    totalGained += gained;
-    return next;
+// Each direction is implemented directly so the mapping from key → motion is
+// unambiguous. ArrowDown moves tiles toward the bottom row, ArrowUp toward the
+// top, etc.
+const moveLeft = (grid) => {
+  let gained = 0;
+  const out = grid.map((row) => {
+    const { line, gained: g } = compact(row);
+    gained += g;
+    return line;
   });
-  for (let i = 0; i < (4 - dir) % 4; i++) g = rotate(g);
-  return { grid: g, gained: totalGained };
+  return { grid: out, gained };
+};
+
+const moveRight = (grid) => {
+  let gained = 0;
+  const out = grid.map((row) => {
+    const reversed = row.slice().reverse();
+    const { line, gained: g } = compact(reversed);
+    gained += g;
+    return line.reverse();
+  });
+  return { grid: out, gained };
+};
+
+const moveUp = (grid) => {
+  let gained = 0;
+  const out = empty();
+  for (let c = 0; c < SIZE; c++) {
+    const col = [];
+    for (let r = 0; r < SIZE; r++) col.push(grid[r][c]);
+    const { line, gained: g } = compact(col);
+    gained += g;
+    for (let r = 0; r < SIZE; r++) out[r][c] = line[r];
+  }
+  return { grid: out, gained };
+};
+
+const moveDown = (grid) => {
+  let gained = 0;
+  const out = empty();
+  for (let c = 0; c < SIZE; c++) {
+    const col = [];
+    for (let r = SIZE - 1; r >= 0; r--) col.push(grid[r][c]);
+    const { line, gained: g } = compact(col);
+    gained += g;
+    for (let r = 0; r < SIZE; r++) out[SIZE - 1 - r][c] = line[r];
+  }
+  return { grid: out, gained };
 };
 
 const equal = (a, b) => {
@@ -90,14 +143,18 @@ const hasMoves = (grid) => {
   return false;
 };
 
-const hasTile = (grid, v) => grid.some((row) => row.some((x) => x === v));
+const maxTile = (grid) => {
+  let m = 0;
+  for (const row of grid) for (const v of row) if (v > m) m = v;
+  return m;
+};
 
 export default function Game2048() {
-  const [grid, setGrid] = useState(newGame);
-  const [score, setScore] = useState(0);
-  const [best, setBest] = useState(() => Number(localStorage.getItem('pd-2048-best') || 0));
-  const [won, setWon] = useState(false);
-  const [keepPlaying, setKeepPlaying] = useState(false);
+  const [grid, setGrid]                 = useState(newGame);
+  const [score, setScore]               = useState(0);
+  const [best, setBest]                 = useState(() => Number(localStorage.getItem('pd-2048-best') || 0));
+  const [celebratedTiers, setCelebrated] = useState(() => new Set());
+  const [celebrating, setCelebrating]   = useState(null);
   const over = !hasMoves(grid);
 
   useEffect(() => {
@@ -109,15 +166,27 @@ export default function Game2048() {
 
   const submittedRef = useRef(0);
 
-  const tryMove = useCallback((dir) => {
-    if (over || (won && !keepPlaying)) return;
-    const { grid: moved, gained } = move(grid, dir);
+  const tryMove = useCallback((mover) => {
+    if (over || celebrating) return;
+    const { grid: moved, gained } = mover(grid);
     if (equal(moved, grid)) return;
     const next = addTile(moved);
     setGrid(next);
     setScore((s) => s + gained);
-    if (!won && hasTile(next, 2048)) setWon(true);
-  }, [grid, over, won, keepPlaying]);
+    // First uncelebrated tier the player has now reached.
+    const max = maxTile(next);
+    for (const tier of TIERS) {
+      if (max >= tier.value && !celebratedTiers.has(tier.value)) {
+        setCelebrated((prev) => {
+          const nx = new Set(prev);
+          nx.add(tier.value);
+          return nx;
+        });
+        setCelebrating(tier);
+        break;
+      }
+    }
+  }, [grid, over, celebrating, celebratedTiers]);
 
   // Submit on game over (once per run)
   useEffect(() => {
@@ -127,18 +196,23 @@ export default function Game2048() {
     }
   }, [over, score]);
 
-  // Keyboard
+  // Keyboard — direct motion, no rotation tricks.
   useEffect(() => {
+    const KEY_MAP = {
+      ArrowLeft:  moveLeft,
+      ArrowRight: moveRight,
+      ArrowUp:    moveUp,
+      ArrowDown:  moveDown,
+      a: moveLeft,  A: moveLeft,
+      d: moveRight, D: moveRight,
+      w: moveUp,    W: moveUp,
+      s: moveDown,  S: moveDown,
+    };
     const onKey = (e) => {
-      // dir codes: 0=left, 1=down, 2=right, 3=up. The rotate() helper is
-      // CW, so a single rotation+slide-left+unrotate moves tiles DOWN
-      // (not up). The keymap reflects that — earlier versions had up/down
-      // inverted because the comment in move() lied.
-      const dir = { ArrowLeft: 0, ArrowUp: 3, ArrowRight: 2, ArrowDown: 1,
-                    a: 0, w: 3, d: 2, s: 1, A: 0, W: 3, D: 2, S: 1 }[e.key];
-      if (dir === undefined) return;
+      const fn = KEY_MAP[e.key];
+      if (!fn) return;
       e.preventDefault();
-      tryMove(dir);
+      tryMove(fn);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -157,15 +231,15 @@ export default function Game2048() {
     const dy = t.clientY - touchRef.current.y;
     touchRef.current = null;
     if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return;
-    if (Math.abs(dx) > Math.abs(dy)) tryMove(dx > 0 ? 2 : 0);
-    else tryMove(dy > 0 ? 1 : 3);
+    if (Math.abs(dx) > Math.abs(dy)) tryMove(dx > 0 ? moveRight : moveLeft);
+    else tryMove(dy > 0 ? moveDown : moveUp);
   };
 
   const reset = () => {
     setGrid(newGame());
     setScore(0);
-    setWon(false);
-    setKeepPlaying(false);
+    setCelebrated(new Set());
+    setCelebrating(null);
     submittedRef.current = 0;
   };
 
@@ -199,22 +273,26 @@ export default function Game2048() {
             );
           })
         )}
-        {(over || (won && !keepPlaying)) && (
+        {over && !celebrating && (
           <div className="g2048-overlay">
-            <div className="g2048-overlay-title">{won && !over ? 'You win!' : 'Game over'}</div>
-            <div className="g2048-overlay-sub">
-              {won && !over ? `You reached 2048 with ${score} points.` : `Final score ${score}.`}
-            </div>
+            <div className="g2048-overlay-title">Game over</div>
+            <div className="g2048-overlay-sub">Final score {score}.</div>
             <div className="g2048-overlay-ctas">
-              {won && !over && (
-                <button className="btn btn-ghost" onClick={() => setKeepPlaying(true)}>Keep playing</button>
-              )}
               <button className="btn btn-primary" onClick={reset}>New game</button>
             </div>
           </div>
         )}
       </div>
       <div className="g2048-hint">Arrow keys / WASD · swipe on touch</div>
+      {celebrating && (
+        <Celebration
+          intensity={celebrating.intensity}
+          title={celebrating.title}
+          subtitle={celebrating.sub}
+          ctaLabel="Keep playing"
+          onDismiss={() => setCelebrating(null)}
+        />
+      )}
     </div>
   );
 }

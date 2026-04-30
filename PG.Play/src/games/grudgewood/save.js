@@ -3,15 +3,19 @@
 // hats, settings, lifetime stats. Schema bumped to v2 when we moved from
 // segment-based progression to a continuous infinite walk.
 
-const KEY = 'grudgewood:save:v2';
-const SCHEMA = 2;
+const KEY = 'grudgewood:save:v3';
+const SCHEMA = 3;
 
 const DEFAULT = () => ({
   schema: SCHEMA,
-  // progression — pure distance into the forest. respawnAnchor is the
-  // furthest auto-checkpoint the player has reached this profile.
+  // progression — Euclidean distance reached, the cell-level checkpoint
+  // the player last raised, and which level flags are persistently
+  // raised across runs. respawnAnchor stores world coords so the player
+  // resumes exactly where the last flag is.
   furthestDistance: 0,
-  respawnAnchor: 0,
+  highestLevel: 0,
+  respawnAnchor: { x: 12, z: 12 },
+  raisedFlags: [],                 // sorted list of level indices
   // unlocks
   hats: { 'leaf-crown': true },
   equippedHat: 'leaf-crown',
@@ -99,12 +103,24 @@ export function recordDeath(trapKind) {
   });
 }
 
-// Save the furthest reached distance and the active respawn anchor. Both
-// only ever move forward — a death cannot lower these.
-export function recordDistance(furthest, respawnAnchor) {
+// Save the furthest reached distance. Only moves forward — a death
+// cannot lower it. (respawnAnchor + highestLevel + raisedFlags are
+// updated through their own helpers below when the player raises a flag.)
+export function recordDistance(furthest) {
   return update((s) => {
     if (furthest > (s.furthestDistance || 0)) s.furthestDistance = furthest;
-    if (respawnAnchor > (s.respawnAnchor || 0)) s.respawnAnchor = respawnAnchor;
+  });
+}
+
+// Persist a flag-raise: bumps highestLevel, latches the flag in the
+// raisedFlags list, and stores the new respawn anchor as the flag's
+// world coordinates so future deaths return there.
+export function recordFlagRaise(level, anchor) {
+  return update((s) => {
+    if (level > (s.highestLevel || 0)) s.highestLevel = level;
+    if (!s.raisedFlags) s.raisedFlags = [];
+    if (!s.raisedFlags.includes(level)) s.raisedFlags.push(level);
+    s.respawnAnchor = { x: anchor.x, z: anchor.z };
   });
 }
 

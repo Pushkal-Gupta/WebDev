@@ -14,7 +14,7 @@ function Key({ children, wide, active, tone }) {
   return <kbd className={cls.join(' ')}>{children}</kbd>;
 }
 
-export default function BottomRail({ tip, status, isTouch, freezeAction, dangerDirs, onPlayAgain }) {
+export default function BottomRail({ tip, status, isTouch, freezeAction, dangerDirs, coop, onPlayAgain }) {
   const reduced = useReducedMotion();
   // Adaptive: when the player faces a freezable / meltable tile, the
   // SPACE cap lights up. Cyan for freeze, warm rose for melt — matches
@@ -29,6 +29,7 @@ export default function BottomRail({ tip, status, isTouch, freezeAction, dangerD
     <div className="ff-rail-row">
       {!isTouch ? (
         <div className="ff-keycaps" aria-label="Controls">
+          {coop && <span className="ff-keycap-tag ff-keycap-tag-p1">P1</span>}
           <span className="ff-keycap-group">
             <Key active={danger.includes('u')} tone={danger.includes('u') ? 'danger' : null}>W</Key>
             <Key active={danger.includes('l')} tone={danger.includes('l') ? 'danger' : null}>A</Key>
@@ -40,10 +41,25 @@ export default function BottomRail({ tip, status, isTouch, freezeAction, dangerD
             <Key wide active={spaceActive} tone={spaceTone}>Space</Key>
             <span className="ff-keycap-label">{spaceLabel}</span>
           </span>
-          <span className="ff-keycap-group">
-            <Key>R</Key>
-            <span className="ff-keycap-label">Restart room</span>
-          </span>
+          {coop && (
+            <>
+              <span className="ff-keycap-tag ff-keycap-tag-p2">P2</span>
+              <span className="ff-keycap-group">
+                <Key>↑</Key><Key>←</Key><Key>↓</Key><Key>→</Key>
+                <span className="ff-keycap-label">Move</span>
+              </span>
+              <span className="ff-keycap-group">
+                <Key wide>Enter</Key>
+                <span className="ff-keycap-label">Cast</span>
+              </span>
+            </>
+          )}
+          {!coop && (
+            <span className="ff-keycap-group">
+              <Key>R</Key>
+              <span className="ff-keycap-label">Restart room</span>
+            </span>
+          )}
         </div>
       ) : (
         <div className="ff-keycaps ff-keycaps-touch">

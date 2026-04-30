@@ -197,6 +197,12 @@ export function placeholderMountains(ctx, eraId, w, groundY, depth) {
 
   // Motif on the silhouette: era-specific spires sit on the ridge.
   drawRidgeMotif(ctx, eraId, w, groundY);
+
+  // Tree-line just behind the lane. Lives in the mid-ridge layer rather
+  // than the foreground, because the image-blit contract anchors the
+  // foreground PNG to the dirt band (BELOW groundY) — trees need to be
+  // above groundY, where the mid-mountain PNG ends up at runtime.
+  drawTreeLine(ctx, eraId, w, groundY - 6);
 }
 
 function ridgePath(ctx, eraId, w, groundY, baseY, amp, step, offsetY = 0) {
@@ -317,17 +323,15 @@ function drawRidgeMotif(ctx, eraId, w, groundY) {
 }
 
 // ── Foreground ────────────────────────────────────────────────────────
-// The big visual layer. Trees + grass + era-specific props on the
-// ground band. The ground band itself is a separate gradient drawn
-// before this layer in the renderer; this paints DETAIL on top.
+// The dirt-band detail layer. Sits in the band below groundY at runtime
+// (the runtime blits this PNG anchored to the bottom of the visible
+// area). Tree-line lives in the mid-mountain layer instead — trees
+// above groundY would clip out of this layer's blit window.
 export function placeholderForeground(ctx, eraId, w, groundY) {
   const pal = paletteFor(eraId);
   ctx.save();
 
-  // 1) Distant tree-line right behind the lane (keeps the lane readable).
-  drawTreeLine(ctx, eraId, w, groundY - 6);
-
-  // 2) Ground texture stripes — short horizontal scumble across the dirt.
+  // 1) Ground texture stripes — short horizontal scumble across the dirt.
   ctx.globalAlpha = 0.55;
   ctx.fillStyle = pal.groundDetail;
   for (let i = 0; i < 24; i++) {
@@ -336,11 +340,11 @@ export function placeholderForeground(ctx, eraId, w, groundY) {
     ctx.fillRect(x, y, 14 + (i % 3) * 4, 1);
   }
 
-  // 3) Grass tufts along the lane — clean readable pixel tufts.
+  // 2) Grass tufts along the lane — clean readable pixel tufts.
   ctx.globalAlpha = 0.85;
   drawGrassTufts(ctx, eraId, w, groundY);
 
-  // 4) Era-specific debris/props — large enough to read at lane scale.
+  // 3) Era-specific debris/props — large enough to read at lane scale.
   drawEraProps(ctx, eraId, w, groundY);
 
   ctx.restore();
@@ -737,16 +741,265 @@ export function placeholderTurret(ctx, def, x, y, opts) {
   }
 }
 
-export function placeholderUnit(ctx, def, x, y, _opts) {
-  // The renderer's drawUnit is the visual workhorse; this is a coarse
-  // fallback used only if `assets.has` is queried directly.
+// Rich unit silhouette — full body in a static neutral pose. Used both
+// as a runtime fallback (when no PNG is loaded) AND as the source of
+// truth for the baked unit PNGs in scripts/era-siege-bake.mjs.
+//
+// `eraId` lets us add era-specific accents on top of the base body
+// (face paint, plate trim, goggles, gas mask, glowing eyes, etc.).
+// `facing` is +1 (right) or -1 (left). Bake calls with facing=+1.
+export function placeholderUnit(ctx, def, x, y, opts = {}) {
   const v = def.visual;
-  ctx.fillStyle = v.colorBody;
-  const w = v.silhouetteW;
-  const h = v.silhouetteH;
-  ctx.fillRect(x - w / 2, y - h, w, h);
-  ctx.fillStyle = v.colorTrim;
-  ctx.fillRect(x - w / 2, y - h + 3, w, 2);
+  const facing = opts.facing || 1;
+  const isHeavy = def.role === 'heavy';
+  const isRanged = def.role === 'ranged';
+  // Scale silhouette up for the bake — the runtime expects bigger sprites
+  // than the original sim sizes (renderer used to upscale procedurally).
+  const SCALE = opts.scale || 2.6;
+  const w = v.silhouetteW * SCALE;
+  const h = v.silhouetteH * SCALE;
+  const halfW = w / 2;
+  const headR = v.headRadius * SCALE;
+  const colorBody = v.colorBody;
+  const colorTrim = v.colorTrim;
+  const eraId = opts.eraId || def.eraId;
+
+  // Boot shadow — soft elliptical pad just below the foot.
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 2, halfW + 4, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Legs — neutral stance with a slight forward step. Two split rectangles
+  // so the silhouette reads as two legs rather than a block.
+  ctx.fillStyle = colorBody;
+  const legW = Math.max(4, Math.floor(w / 2.6));
+  const legH = h * 0.40;
+  ctx.fillRect(x - halfW + 1, y - legH, legW, legH);
+  ctx.fillRect(x + halfW - legW - 1, y - legH, legW, legH);
+  // Boot toe caps
+  ctx.fillStyle = '#0a0d0e';
+  ctx.fillRect(x - halfW + 1, y - 2, legW, 2);
+  ctx.fillRect(x + halfW - legW - 1, y - 2, legW, 2);
+
+  // Torso — taller block above the legs with a subtle shoulder bevel.
+  const torsoTop = y - h * 0.85;
+  const torsoH = h * 0.45;
+  ctx.fillStyle = colorBody;
+  ctx.fillRect(x - halfW, y - legH - torsoH, w, torsoH);
+  // Shoulder bevel
+  ctx.fillStyle = shadeColor(colorBody, -18);
+  ctx.fillRect(x - halfW, y - legH - torsoH, w, 3);
+
+  // Trim band (banner / sash across the torso).
+  ctx.fillStyle = colorTrim;
+  ctx.fillRect(x - halfW, y - legH - torsoH + 5, w, 3);
+
+  // Cape for heavies — flares slightly behind.
+  if (isHeavy) {
+    ctx.fillStyle = colorTrim;
+    ctx.beginPath();
+    ctx.moveTo(x - halfW * facing, torsoTop + 6);
+    ctx.lineTo(x - halfW * facing - 14 * facing, y - 4);
+    ctx.lineTo(x - halfW * facing + 4 * facing, y - 4);
+    ctx.closePath();
+    ctx.fill();
+    // Cape inner shadow
+    ctx.fillStyle = shadeColor(colorTrim, -25);
+    ctx.beginPath();
+    ctx.moveTo(x - halfW * facing,                 torsoTop + 8);
+    ctx.lineTo(x - halfW * facing - 8 * facing,    y - 6);
+    ctx.lineTo(x - halfW * facing - 2 * facing,    y - 6);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // Pauldrons (shoulder caps) for heavies / iron-like roles.
+  if (isHeavy || (eraId === 'iron-dominion' && !isRanged)) {
+    ctx.fillStyle = shadeColor(colorBody, -10);
+    ctx.fillRect(x - halfW - 2, torsoTop + 3, 4, 8);
+    ctx.fillRect(x + halfW - 2, torsoTop + 3, 4, 8);
+  }
+
+  // Neck — thin connector to the head so the silhouette doesn't read as
+  // a balloon on a brick.
+  const neckY = torsoTop;
+  ctx.fillStyle = colorBody;
+  ctx.fillRect(x - 2, neckY - 4, 4, 5);
+
+  // Head — circle perched on the neck.
+  const headY = neckY - headR + 1;
+  ctx.fillStyle = colorBody;
+  ctx.beginPath();
+  ctx.arc(x, headY, headR, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Era-specific head accents — what makes the unit feel like its era.
+  drawHeadAccent(ctx, eraId, def.role, x, headY, headR, facing, colorTrim);
+
+  // Helm crest (heavies + iron-dominion).
+  if (isHeavy) {
+    ctx.fillStyle = colorTrim;
+    ctx.fillRect(x - 2, headY - headR - 4, 4, 5);
+  }
+
+  // Weapon — held in the leading hand, foregrounded.
+  const wx = x + facing * (halfW + 4);
+  const wy = neckY + 4;
+  drawWeapon(ctx, v.weaponShape, wx, wy, facing, colorTrim, SCALE);
+}
+
+function drawHeadAccent(ctx, eraId, role, x, headY, headR, facing, colorTrim) {
+  if (eraId === 'ember-tribe') {
+    // Tribal face paint stripe.
+    ctx.fillStyle = colorTrim;
+    ctx.fillRect(x - headR + 2, headY, headR * 2 - 4, 1.5);
+  } else if (eraId === 'iron-dominion') {
+    // Helmet visor slit.
+    ctx.fillStyle = '#0a0d0e';
+    ctx.fillRect(x - headR + 2, headY - 1, headR * 2 - 4, 2);
+  } else if (eraId === 'sun-foundry') {
+    // Goggles — two small circles.
+    ctx.fillStyle = '#0a0d0e';
+    ctx.beginPath(); ctx.arc(x - headR / 2, headY, headR / 3, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x + headR / 2, headY, headR / 3, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#ffcb6b';
+    ctx.beginPath(); ctx.arc(x - headR / 2, headY, headR / 5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x + headR / 2, headY, headR / 5, 0, Math.PI * 2); ctx.fill();
+  } else if (eraId === 'storm-republic') {
+    // Gas mask filter.
+    ctx.fillStyle = '#0a0d0e';
+    ctx.fillRect(x - headR + 1, headY - 2, headR * 2 - 2, 5);
+    ctx.fillStyle = '#7be3ff';
+    ctx.fillRect(x - 2, headY, 4, 2);
+  } else if (eraId === 'void-ascendancy') {
+    // Glowing eyes — additive.
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = colorTrim;
+    ctx.fillRect(x - headR / 2 - 1, headY - 1, 2, 2);
+    ctx.fillRect(x + headR / 2 - 1, headY - 1, 2, 2);
+    ctx.restore();
+  }
+}
+
+function drawWeapon(ctx, shape, x, y, facing, color, scale = 1) {
+  ctx.fillStyle = color;
+  // Hand
+  ctx.fillStyle = '#3a2a1a';
+  ctx.fillRect(x - 2, y - 2, 4, 4);
+  ctx.fillStyle = color;
+  // Weapon shape
+  const s = scale; // size multiplier so weapons match the body scale
+  switch (shape) {
+    case 'club':
+      ctx.fillRect(x, y - 1, facing * 12 * s, 4 * s);
+      ctx.fillStyle = shadeColor(color, -15);
+      ctx.fillRect(x + facing * 8 * s, y - 4 * s, facing * 6 * s, 8 * s);
+      break;
+    case 'sling':
+      ctx.fillRect(x, y - 1, facing * 14 * s, 2);
+      ctx.fillStyle = '#cdb89a';
+      ctx.beginPath(); ctx.arc(x + facing * 14 * s, y, 3 * s, 0, Math.PI * 2); ctx.fill();
+      break;
+    case 'brand':
+      ctx.fillRect(x, y - 2, facing * 14 * s, 5 * s);
+      ctx.fillStyle = '#ffe14f';
+      ctx.beginPath(); ctx.arc(x + facing * 14 * s, y - 1, 5 * s, 0, Math.PI * 2); ctx.fill();
+      break;
+    case 'spear':
+      ctx.fillRect(x, y - 1, facing * 18 * s, 2 * s);
+      ctx.fillStyle = '#cdb89a';
+      ctx.beginPath();
+      ctx.moveTo(x + facing * 18 * s, y - 4 * s);
+      ctx.lineTo(x + facing * 24 * s, y);
+      ctx.lineTo(x + facing * 18 * s, y + 4 * s);
+      ctx.closePath(); ctx.fill();
+      break;
+    case 'crossbow':
+      ctx.fillRect(x, y - 1, facing * 14 * s, 2 * s);
+      ctx.fillRect(x + facing * 6 * s, y - 5 * s, 2, 11 * s);
+      break;
+    case 'maul':
+      ctx.fillRect(x, y - 2, facing * 12 * s, 4 * s);
+      ctx.fillStyle = shadeColor(color, -15);
+      ctx.fillRect(x + facing * 10 * s, y - 6 * s, facing * 8 * s, 12 * s);
+      break;
+    case 'sabre':
+      ctx.beginPath();
+      ctx.moveTo(x, y - 1);
+      ctx.quadraticCurveTo(x + facing * 12 * s, y - 6 * s, x + facing * 18 * s, y - 2 * s);
+      ctx.lineTo(x + facing * 18 * s, y);
+      ctx.quadraticCurveTo(x + facing * 12 * s, y - 4 * s, x, y + 1);
+      ctx.closePath(); ctx.fill();
+      break;
+    case 'rifle':
+      ctx.fillRect(x, y - 1, facing * 18 * s, 3 * s);
+      ctx.fillStyle = '#3a2a1a';
+      ctx.fillRect(x - facing * 2 * s, y, facing * 6 * s, 5 * s);
+      break;
+    case 'piledriver':
+      ctx.fillRect(x, y - 4 * s, facing * 14 * s, 9 * s);
+      ctx.fillStyle = shadeColor(color, -25);
+      ctx.fillRect(x + facing * 10 * s, y - 6 * s, facing * 8 * s, 14 * s);
+      break;
+    case 'bayonet':
+      ctx.fillRect(x, y - 1, facing * 18 * s, 2 * s);
+      ctx.fillStyle = '#7be3ff';
+      ctx.beginPath();
+      ctx.moveTo(x + facing * 18 * s, y - 3 * s);
+      ctx.lineTo(x + facing * 24 * s, y);
+      ctx.lineTo(x + facing * 18 * s, y + 3 * s);
+      ctx.closePath(); ctx.fill();
+      break;
+    case 'arc-rifle':
+      ctx.fillRect(x, y - 1, facing * 18 * s, 3 * s);
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.fillStyle = '#7be3ff';
+      ctx.beginPath(); ctx.arc(x + facing * 18 * s, y + 1, 4 * s, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+      break;
+    case 'howitzer':
+      ctx.fillRect(x, y - 5 * s, facing * 22 * s, 11 * s);
+      ctx.fillStyle = shadeColor(color, -20);
+      ctx.fillRect(x + facing * 18 * s, y - 7 * s, facing * 6 * s, 15 * s);
+      break;
+    case 'edge':
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + facing * 14 * s, y - 6 * s);
+      ctx.lineTo(x + facing * 14 * s, y + 1);
+      ctx.lineTo(x, y + 2);
+      ctx.closePath(); ctx.fill();
+      break;
+    case 'lance':
+      ctx.fillRect(x, y - 1, facing * 22 * s, 2 * s);
+      ctx.fillStyle = '#e9c8ff';
+      ctx.beginPath();
+      ctx.moveTo(x + facing * 22 * s, y - 4 * s);
+      ctx.lineTo(x + facing * 30 * s, y);
+      ctx.lineTo(x + facing * 22 * s, y + 4 * s);
+      ctx.closePath(); ctx.fill();
+      break;
+    case 'colossus-fist':
+      ctx.fillStyle = shadeColor(color, -10);
+      ctx.fillRect(x, y - 8 * s, facing * 14 * s, 16 * s);
+      ctx.fillStyle = '#1a0a3a';
+      // Knuckle ridges
+      for (let k = 0; k < 4; k++) ctx.fillRect(x + facing * (3 + k * 3) * s, y - 9 * s, 2, 2);
+      break;
+    default:
+      ctx.fillRect(x, y - 1, facing * 10 * s, 2 * s);
+  }
+}
+
+// Lightens or darkens a hex colour by `amount` (0-100). Negative darkens.
+function shadeColor(hex, amount) {
+  const r = Math.max(0, Math.min(255, parseInt(hex.slice(1, 3), 16) + amount));
+  const g = Math.max(0, Math.min(255, parseInt(hex.slice(3, 5), 16) + amount));
+  const b = Math.max(0, Math.min(255, parseInt(hex.slice(5, 7), 16) + amount));
+  return `#${(r * 65536 + g * 256 + b).toString(16).padStart(6, '0')}`;
 }
 
 export function placeholderProjectile(ctx, def, x, y, _opts) {

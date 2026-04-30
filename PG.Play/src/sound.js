@@ -171,16 +171,18 @@ export const subscribeMute = (cb) => {
 };
 
 // ── Frost Fight ambient bed ──────────────────────────────────
-// Continuous low-volume pad: root sine + perfect-5th sine through a
-// lowpass at 800Hz, gain 0.045 with a slow LFO breath (0.3 Hz). Per-room
-// key root matches the intro sting (Pantry C5, Cold Room A4, Aisle G4,
-// new rooms reuse the closest pitch).
+// Multi-layer pad with bell ostinato. Architecture:
+//   bass drone     sub-octave + root sines, slight detune chorus
+//   pad chord      minor-7th: root + b3 + 5 + b7, triangles,
+//                  stereo-spread, gentle pitch wobble
+//   bell ostinato  setInterval-driven sparse high notes every
+//                  ~5.5 s — adds direction so the bed doesn't drone
+//   delay line     slap-back at 340 ms, ~28 % feedback for spatial depth
+//   low-pass       800-1100 Hz, modulated by a 0.07 Hz LFO for breath
+//   master breath  0.2 Hz LFO on master gain, ±20 %
 //
-// Design constraints:
-//   - never starts while muted
-//   - stops + GC's its nodes on .stop() so a route exit cleans up
-//   - .duck(t) does a temporary gain dip (e.g. on death) and returns
-//   - subscribes to muteListeners so the shell's M-key kills audio live
+// Per-room key shifts the same chord shape. Maintains the existing
+// API (start / stop / duck / mute-aware).
 
 const ROOM_ROOTS = [
   523.25, // Pantry        C5
@@ -191,22 +193,26 @@ const ROOM_ROOTS = [
   329.63, // Sub-Basement  E4
 ];
 
-let _ff = null;        // active state ({ ctx, master, oscs, lfoStop, unsubMute })
-let _ffRoom = -1;      // last started room — re-keying needs to .stop() first
+const FF_BASE_GAIN = 0.060;   // master target (was 0.045 — bumped to
+                              // accommodate the busier graph without
+                              // becoming louder per voice)
+
+let _ff = null;        // active state
+let _ffRoom = -1;      // last started room — re-keying calls stop() first
 
 function _frostStop() {
   if (!_ff) return;
-  const { ctx, master, oscs, lfoStop, unsubMute } = _ff;
-  // Quick fade so the cut isn't audible.
+  const { ctx, master, oscs, lfos, bellInterval, unsubMute } = _ff;
   try {
     const t = ctx.currentTime;
     master.gain.cancelScheduledValues(t);
     master.gain.setValueAtTime(master.gain.value, t);
-    master.gain.linearRampToValueAtTime(0.0001, t + 0.18);
-    oscs.forEach((o) => { try { o.stop(t + 0.22); } catch {} });
-  } catch {}
-  if (typeof lfoStop === 'function') { try { lfoStop(); } catch {} }
-  if (typeof unsubMute === 'function') { try { unsubMute(); } catch {} }
+    master.gain.linearRampToValueAtTime(0.0001, t + 0.32);
+    oscs.forEach((o) => { try { o.stop(t + 0.36); } catch { /* ignore */ } });
+    lfos.forEach((l) => { try { l.stop(t + 0.36); } catch { /* ignore */ } });
+  } catch { /* ignore */ }
+  if (bellInterval) { try { clearInterval(bellInterval); } catch { /* ignore */ } }
+  if (typeof unsubMute === 'function') { try { unsubMute(); } catch { /* ignore */ } }
   _ff = null;
   _ffRoom = -1;
 }
@@ -219,46 +225,135 @@ function _frostStart(roomIdx) {
 
   const root = ROOM_ROOTS[roomIdx] ?? ROOM_ROOTS[0];
   const t0 = c.currentTime;
+
+  // ── Master + post-processing chain ────────────────────────
   const master = c.createGain();
   master.gain.setValueAtTime(0, t0);
-  master.gain.linearRampToValueAtTime(0.045, t0 + 1.4);
+  master.gain.linearRampToValueAtTime(FF_BASE_GAIN, t0 + 2.4);
+
   const lp = c.createBiquadFilter();
   lp.type = 'lowpass';
-  lp.frequency.setValueAtTime(800, t0);
-  master.connect(lp).connect(c.destination);
+  lp.Q.value = 0.7;
+  lp.frequency.setValueAtTime(900, t0);
 
+  // Slap-back delay for spatial depth — short feedback so the room
+  // feels alive without smearing into reverb mush.
+  const delay = c.createDelay(1.0);
+  delay.delayTime.value = 0.34;
+  const delayFb = c.createGain();
+  delayFb.gain.value = 0.28;
+  const delayWet = c.createGain();
+  delayWet.gain.value = 0.22;
+
+  master.connect(lp);
+  lp.connect(c.destination);            // dry
+  lp.connect(delay);
+  delay.connect(delayFb);
+  delayFb.connect(delay);                // feedback loop
+  delay.connect(delayWet);
+  delayWet.connect(c.destination);      // wet
+
+  // ── Voices ────────────────────────────────────────────────
   const oscs = [];
-  const make = (freq, gainScale = 1, type = 'sine') => {
+  const lfos = [];
+  const makeVoice = (freq, gain, type, pan = 0) => {
     const o = c.createOscillator();
     o.type = type;
     o.frequency.setValueAtTime(freq, t0);
     const g = c.createGain();
-    g.gain.setValueAtTime(0.42 * gainScale, t0);
-    o.connect(g).connect(master);
+    g.gain.setValueAtTime(gain, t0);
+    const p = c.createStereoPanner();
+    p.pan.value = pan;
+    o.connect(g).connect(p).connect(master);
     o.start(t0);
     oscs.push(o);
-    return g;
+    return o;
   };
-  make(root, 1.0, 'sine');           // root drone
-  make(root * 1.5, 0.5, 'sine');     // perfect 5th
-  make(root * 0.5, 0.4, 'triangle'); // sub-octave for body
 
-  // Slow LFO on master gain — gentle ~0.3 Hz breath, ±25 % around the
-  // base level. Implemented with a gain node modulated by a sine osc.
-  const lfo = c.createOscillator();
-  lfo.frequency.setValueAtTime(0.3, t0);
-  const lfoAmp = c.createGain();
-  lfoAmp.gain.setValueAtTime(0.011, t0); // depth around the 0.045 base
-  lfo.connect(lfoAmp).connect(master.gain);
-  lfo.start(t0);
-  const lfoStop = () => { try { lfo.stop(); } catch {} };
+  // Bass — sub-octave + root, slight detune chorus on the root.
+  makeVoice(root * 0.5,    0.36, 'sine',     0.0);
+  makeVoice(root,          0.30, 'sine',     0.0);
+  makeVoice(root * 1.005,  0.14, 'triangle', -0.10);
+  makeVoice(root * 0.995,  0.14, 'triangle',  0.10);
+
+  // Pad chord — minor 7th: root + b3 + 5 + b7. The b3 + b7 land the
+  // pad in cool / wistful territory, fitting a frozen-pantry mood.
+  makeVoice(root * 1.20,   0.13, 'triangle', -0.28); // m3
+  makeVoice(root * 1.50,   0.11, 'triangle',  0.28); // p5
+  makeVoice(root * 1.78,   0.08, 'triangle',  0.0);  // m7
+
+  // ── LFO 1: master breath ──────────────────────────────────
+  const breathLfo = c.createOscillator();
+  breathLfo.frequency.setValueAtTime(0.20, t0);
+  const breathAmp = c.createGain();
+  breathAmp.gain.setValueAtTime(0.012, t0); // ±20 % around base 0.06
+  breathLfo.connect(breathAmp).connect(master.gain);
+  breathLfo.start(t0);
+  lfos.push(breathLfo);
+
+  // ── LFO 2: low-pass sweep ─────────────────────────────────
+  const filterLfo = c.createOscillator();
+  filterLfo.frequency.setValueAtTime(0.07, t0);
+  const filterAmp = c.createGain();
+  filterAmp.gain.setValueAtTime(220, t0);   // 900 ± 220 Hz
+  filterLfo.connect(filterAmp).connect(lp.frequency);
+  filterLfo.start(t0);
+  lfos.push(filterLfo);
+
+  // ── Bell ostinato ─────────────────────────────────────────
+  // Sparse high notes pinned to the chord. Pattern walks through a
+  // 4-note cell (octave / m3 / p5 / 2-octave) so each pass feels
+  // like a fresh phrase.
+  const bellPattern = [
+    root * 2.0,   // 1 (octave)
+    root * 2.4,   // m3
+    root * 3.0,   // 5
+    root * 4.0,   // 2-octave
+    root * 2.4,   // m3 (return)
+    root * 3.0,   // 5
+  ];
+  let bellIdx = 0;
+  const playBell = () => {
+    if (!_ff || muted()) return;
+    const tn = c.currentTime;
+    const f = bellPattern[bellIdx % bellPattern.length];
+    bellIdx++;
+    // Two-oscillator bell: fundamental + slightly inharmonic 2x for
+    // sparkle. ~1.7 s exponential decay.
+    const harmonics = [
+      { mul: 1.0,  type: 'sine',     gain: 0.13 },
+      { mul: 2.01, type: 'triangle', gain: 0.05 },
+    ];
+    const pan = c.createStereoPanner();
+    pan.pan.value = (Math.random() * 0.6) - 0.3;
+    pan.connect(master);
+    harmonics.forEach((h) => {
+      const o = c.createOscillator();
+      o.type = h.type;
+      o.frequency.setValueAtTime(f * h.mul, tn);
+      const g = c.createGain();
+      g.gain.setValueAtTime(0, tn);
+      g.gain.linearRampToValueAtTime(h.gain, tn + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.0001, tn + 1.7);
+      o.connect(g).connect(pan);
+      o.start(tn);
+      o.stop(tn + 1.8);
+    });
+  };
+  // 5.5 s base interval with light jitter on the very first hit so
+  // multiple rooms in one session don't all chime in lockstep.
+  const firstHitDelay = 1500 + Math.random() * 2000;
+  const bellInterval = setTimeout(() => {
+    playBell();
+    _ff && (_ff.bellInterval = setInterval(playBell, 5500));
+  }, firstHitDelay);
 
   // Pause when the user toggles mute mid-game.
   const unsubMute = subscribeMute((isMute) => {
     if (isMute) _frostStop();
   });
 
-  _ff = { ctx: c, master, oscs, lfoStop, unsubMute };
+  _ff = { ctx: c, master, oscs, lfos, bellInterval, unsubMute };
   _ffRoom = roomIdx;
 }
 
@@ -270,8 +365,8 @@ function _frostDuck(durationSec = 0.6) {
     master.gain.cancelScheduledValues(t);
     master.gain.setValueAtTime(master.gain.value, t);
     master.gain.linearRampToValueAtTime(0.005, t + 0.12);
-    master.gain.linearRampToValueAtTime(0.045, t + durationSec);
-  } catch {}
+    master.gain.linearRampToValueAtTime(FF_BASE_GAIN, t + durationSec);
+  } catch { /* ignore */ }
 }
 
 export const frostMusic = {

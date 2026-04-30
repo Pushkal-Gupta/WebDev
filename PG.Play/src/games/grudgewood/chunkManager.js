@@ -1,17 +1,19 @@
-// Grudgewood — chunk manager for the streaming, infinite forest.
+// Grudgewood — 2D cell manager for the maze world.
 //
-// The world is sliced into fixed-length tiles along Z. As the player walks
-// forward, chunks ahead of them are built on demand and chunks far behind
-// are disposed. Each chunk owns a terrain mesh, decorative props, and a
-// set of traps; the manager forwards per-frame updates and lethal-hit
-// checks. Chunk builds are deferred via the next idle/microtask so a
-// boundary crossing never costs a single frame.
+// The world is a grid of cells (see mazeGrid.js). The manager keeps a
+// 3×3 ring of cells around the player loaded; cells outside that ring
+// are disposed. Walls are built per cell and re-used for both rendering
+// and physics — the player's circle-vs-AABB push-out (player.js) reads
+// the same AABBs the renderer uses, so visual and physical walls can
+// never disagree.
 
 import * as THREE from 'three';
-import { CHUNK_LENGTH, CHUNK_HALF_W } from './chunkConstants.js';
-import { pathOffsetAt, sampleHeight as sampleHeightGlobal, noise2D } from './heightmap.js';
-import { biomeAt, biomeForChunk } from './biomeProgression.js';
-import { spawnChunkContent } from './spawn.js';
+import { CELL_SIZE, cellOf, cellOrigin, cellCenter } from './mazeGrid.js';
+import { sampleHeight as sampleHeightGlobal } from './heightmap.js';
+import { biomeAt, biomeForCell } from './biomeProgression.js';
+import { spawnCellContent } from './spawn.js';
+import { buildCellWalls } from './walls.js';
+import { flagLevelInCell, flagAnchorFor, makeFlag, tickFlag, FLAG_TOUCH_RADIUS } from './flags.js';
 import {
   makeTree, makePine, makeShrub, makeRock, makeStump, makeMushroom,
 } from './props.js';
@@ -34,15 +36,10 @@ import { SporeCloud } from './traps/spore.js';
 import { BranchLashCombo } from './traps/lash.js';
 import { MirrorTree } from './traps/mirror.js';
 
-export { CHUNK_LENGTH, CHUNK_HALF_W };
+export { CELL_SIZE };
 
-// Lowering terrain mesh resolution doubles the framerate on low-end laptops
-// without changing how the corridor reads visually. The path widths are
-// already authored at metre scale so 24×48 verts is plenty of detail.
-const TERRAIN_RES_X = 24;
-const TERRAIN_RES_Z = 48;
-const CHUNKS_AHEAD = 2;
-const CHUNKS_BEHIND = 1;
+const TERRAIN_RES = 12;            // verts per side of the cell floor mesh
+const CELLS_AROUND = 1;            // 3×3 grid loaded around the player
 
 const TRAP_CLASS = {
   whip: BranchWhip, snare: RootSnare, mushroom: MushroomPop, log: RollingLog,
@@ -61,9 +58,6 @@ const PROP_BUILDER = {
   mushroom: (b, e) => makeMushroom(b, e.capColor || '#c33', e.scale || 1),
 };
 
-// Defer non-blocking work to the next idle slot when the browser supports
-// it; otherwise fall through to a microtask. The whole point is that a
-// chunk build never stalls a single render frame.
 const idle = (cb) => {
   if (typeof requestIdleCallback === 'function') {
     requestIdleCallback(cb, { timeout: 250 });
@@ -72,30 +66,30 @@ const idle = (cb) => {
   }
 };
 
-function buildChunkTerrain(biome, chunkIndex) {
-  const z0 = chunkIndex * CHUNK_LENGTH;
-  const geo = new THREE.PlaneGeometry(CHUNK_HALF_W * 2, CHUNK_LENGTH, TERRAIN_RES_X, TERRAIN_RES_Z);
+function buildCellFloor(biome, cx, cz) {
+  const o = cellOrigin(cx, cz);
+  const geo = new THREE.PlaneGeometry(CELL_SIZE, CELL_SIZE, TERRAIN_RES, TERRAIN_RES);
   geo.rotateX(-Math.PI / 2);
-  geo.translate(0, 0, CHUNK_LENGTH / 2 + z0);
+  geo.translate(o.x + CELL_SIZE / 2, 0, o.z + CELL_SIZE / 2);
 
   const pos = geo.attributes.position;
   const colors = new Float32Array(pos.count * 3);
+  const tmp = new THREE.Color();
   const cGround = biome.ground.color;
-  const cDark = biome.ground.darken;
   const cGrass = biome.grass.color;
   const cGrassLt = biome.grass.light;
-  const tmp = new THREE.Color();
-
   for (let i = 0; i < pos.count; i++) {
     const x = pos.getX(i);
     const z = pos.getZ(i);
     const y = sampleHeightGlobal(x, z);
     pos.setY(i, y);
-    const dist = Math.abs(x - pathOffsetAt(z));
-    const t = Math.max(0, Math.min(1, 1 - dist / 7));
-    const g = Math.max(0, Math.min(1, (noise2D(x * 0.4, z * 0.4) - 0.4) * 1.6));
-    tmp.copy(cGround).lerp(cGrass, t * 0.6).lerp(cGrassLt, t * g * 0.55);
-    if (y > 1.5) tmp.lerp(cDark, Math.min(1, (y - 1.5) / 4));
+    // Blend ground → grass with cell-local random patches so the floor
+    // doesn't look flat-shaded uniform.
+    const dx = x - (o.x + CELL_SIZE / 2);
+    const dz = z - (o.z + CELL_SIZE / 2);
+    const r = Math.hypot(dx, dz) / (CELL_SIZE * 0.7);
+    const t = Math.max(0, 1 - r) * 0.6;
+    tmp.copy(cGround).lerp(cGrass, t).lerp(cGrassLt, t * 0.4);
     colors[i * 3] = tmp.r; colors[i * 3 + 1] = tmp.g; colors[i * 3 + 2] = tmp.b;
   }
   geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
@@ -109,15 +103,20 @@ function buildChunkTerrain(biome, chunkIndex) {
   return mesh;
 }
 
-function buildChunk(scene, chunkIndex) {
-  const biome = biomeForChunk(chunkIndex, CHUNK_LENGTH);
+function buildCell(scene, cx, cz, raisedFlags) {
+  const biome = biomeForCell(cx, cz);
   const group = new THREE.Group();
   scene.add(group);
 
-  const terrain = buildChunkTerrain(biome, chunkIndex);
-  group.add(terrain);
+  group.add(buildCellFloor(biome, cx, cz));
 
-  const { traps: trapDefs, props: propDefs, archetype } = spawnChunkContent(chunkIndex, biome, CHUNK_LENGTH);
+  // Walls are shared across cells (this cell builds N + E only). The
+  // collision AABBs land in the chunk's `wallAABBs` list so player.js
+  // can iterate them.
+  const wallResult = buildCellWalls(biome, cx, cz);
+  for (const m of wallResult.meshes) group.add(m);
+
+  const { traps: trapDefs, props: propDefs } = spawnCellContent(cx, cz, biome);
 
   const props = [];
   for (const e of propDefs) {
@@ -141,40 +140,42 @@ function buildChunk(scene, chunkIndex) {
     traps.push(trap);
   }
 
-  // LOD state — every prop in this chunk, with its kind tagged. Used by
-  // applyLOD below to switch shadow casting and material detail when the
-  // player walks far enough away that fine detail won't read.
-  const lodProps = props.map((m) => ({ mesh: m, kind: m.userData?.kind }));
+  // Flag checkpoint, if this is a spine flag cell. The mesh is positioned
+  // at the cell centre and its raised-state reflects the global
+  // raisedFlags Set so rebuilt cells show the correct state immediately.
+  const level = flagLevelInCell(cx, cz);
+  let flag = null;
+  if (level !== null) {
+    const anchor = flagAnchorFor(level);
+    const raised = raisedFlags.has(level);
+    const m = makeFlag({ level, raised });
+    m.position.set(anchor.x, sampleHeightGlobal(anchor.x, anchor.z), anchor.z);
+    group.add(m);
+    flag = { level, mesh: m, anchor };
+  }
 
-  return { index: chunkIndex, group, terrain, props, traps, biome, archetype, lodProps, _lodLevel: 'near' };
+  return { cx, cz, group, props, traps, biome, wallAABBs: wallResult.aabbs, flag, _lodLevel: 'near' };
 }
 
-// Walk a chunk and toggle prop detail. "near" keeps shadow casting on;
-// "far" disables shadows and removes the inner foliage blobs that don't
-// read past ~50m. Cheap to flip — just a per-mesh attribute toggle, no
-// rebuild.
-function applyChunkLOD(chunk, level) {
-  if (chunk._lodLevel === level) return;
-  chunk._lodLevel = level;
-  // Snapshot the original cast-shadow flag BEFORE we mutate it — otherwise
-  // the first transition to "far" overwrites every mesh's `castShadow` with
-  // false, the snapshot reads that false, and shadows are lost permanently.
-  if (!chunk._lodSnapshotted) {
-    chunk._lodSnapshotted = true;
-    chunk.group.traverse((o) => {
+function applyCellLOD(cell, level) {
+  if (cell._lodLevel === level) return;
+  cell._lodLevel = level;
+  if (!cell._lodSnapshotted) {
+    cell._lodSnapshotted = true;
+    cell.group.traverse((o) => {
       if (o.isMesh) o.userData._castShadowOriginal = o.userData._castShadowOriginal ?? o.castShadow;
     });
   }
   const wantShadows = level === 'near';
-  chunk.group.traverse((o) => {
+  cell.group.traverse((o) => {
     if (o.isMesh) o.castShadow = wantShadows && (o.userData?._castShadowOriginal ?? false);
   });
 }
 
-function disposeChunk(scene, chunk) {
-  for (const t of chunk.traps) t.dispose?.();
-  scene.remove(chunk.group);
-  chunk.group.traverse((o) => {
+function disposeCell(scene, cell) {
+  for (const t of cell.traps) t.dispose?.();
+  scene.remove(cell.group);
+  cell.group.traverse((o) => {
     if (o.geometry) o.geometry.dispose?.();
     if (o.material) {
       if (Array.isArray(o.material)) o.material.forEach((m) => m.dispose?.());
@@ -183,70 +184,97 @@ function disposeChunk(scene, chunk) {
   });
 }
 
+const cellKey = (cx, cz) => `${cx},${cz}`;
+
 export class ChunkManager {
   constructor(scene) {
     this.scene = scene;
-    this.chunks = new Map();
-    this._lastPlayerChunk = null;
-    this._building = new Set();          // indices currently scheduled but not built
+    this.cells = new Map();          // key -> cell record
+    this._lastPlayerCell = null;
+    this._building = new Set();      // keys currently scheduled but not built
+    this.raisedFlags = new Set();    // level indices that are currently raised
   }
 
-  // Ensure chunks around the player are loaded; dispose chunks too far away.
-  // First load (when the manager has no chunks) is synchronous so the player
-  // never spawns into a void; subsequent neighbour loads are deferred.
-  ensureLoadedAround(playerZ) {
-    const center = Math.floor(playerZ / CHUNK_LENGTH);
-    // LOD update runs every call regardless of whether streaming changed,
-    // so chunks transition smoothly as the player walks within a chunk.
-    for (const chunk of this.chunks.values()) {
-      const dist = Math.abs(chunk.index - center);
-      // Keep both the player's chunk and the immediately-ahead chunk at
-      // full detail. The next chunk is always within ~CHUNK_LENGTH metres
-      // of the camera so its shadow casts very much read on screen.
-      applyChunkLOD(chunk, dist <= 1 ? 'near' : 'far');
+  // Mark a flag level as raised. Called from index.jsx when the player's
+  // proximity check fires. Already-raised flags are silently ignored.
+  raiseFlag(level) {
+    if (this.raisedFlags.has(level)) return false;
+    this.raisedFlags.add(level);
+    return true;
+  }
+
+  // Ensure cells around the player are loaded; dispose cells too far away.
+  // First load is sync (so the player never spawns into a void); the
+  // 3×3 ring after that is deferred via requestIdleCallback when supported.
+  ensureLoadedAround(playerX, playerZ) {
+    const [pcx, pcz] = cellOf(playerX, playerZ);
+    // LOD pass — every cell, every call, with an early-out inside applyCellLOD.
+    for (const cell of this.cells.values()) {
+      const dist = Math.max(Math.abs(cell.cx - pcx), Math.abs(cell.cz - pcz));
+      applyCellLOD(cell, dist === 0 ? 'near' : 'far');
     }
-    if (this._lastPlayerChunk === center) return;
-    this._lastPlayerChunk = center;
 
-    const minIdx = Math.max(0, center - CHUNKS_BEHIND);
-    const maxIdx = center + CHUNKS_AHEAD;
+    const newKey = cellKey(pcx, pcz);
+    if (this._lastPlayerCell === newKey) return;
+    this._lastPlayerCell = newKey;
 
-    for (let i = minIdx; i <= maxIdx; i++) {
-      if (this.chunks.has(i) || this._building.has(i)) continue;
-      if (this.chunks.size === 0) {
-        // Cold start — must be ready before the loop runs the first frame.
-        this.chunks.set(i, buildChunk(this.scene, i));
-      } else {
-        this._building.add(i);
-        idle(() => {
-          if (!this._building.has(i)) return;     // disposed before build
-          this._building.delete(i);
-          if (this.chunks.has(i)) return;
-          this.chunks.set(i, buildChunk(this.scene, i));
-        });
+    const wanted = new Set();
+    for (let dx = -CELLS_AROUND; dx <= CELLS_AROUND; dx++) {
+      for (let dz = -CELLS_AROUND; dz <= CELLS_AROUND; dz++) {
+        const cx = pcx + dx, cz = pcz + dz;
+        const k = cellKey(cx, cz);
+        wanted.add(k);
+        if (this.cells.has(k) || this._building.has(k)) continue;
+        if (this.cells.size === 0) {
+          this.cells.set(k, buildCell(this.scene, cx, cz, this.raisedFlags));
+        } else {
+          this._building.add(k);
+          idle(() => {
+            if (!this._building.has(k)) return;
+            this._building.delete(k);
+            if (this.cells.has(k)) return;
+            this.cells.set(k, buildCell(this.scene, cx, cz, this.raisedFlags));
+          });
+        }
       }
     }
-    for (const [idx, chunk] of this.chunks) {
-      if (idx < minIdx || idx > maxIdx) {
-        disposeChunk(this.scene, chunk);
-        this.chunks.delete(idx);
+    for (const [k, cell] of this.cells) {
+      if (!wanted.has(k)) {
+        disposeCell(this.scene, cell);
+        this.cells.delete(k);
       }
     }
-    // Cancel pending builds outside the window.
-    for (const idx of this._building) {
-      if (idx < minIdx || idx > maxIdx) this._building.delete(idx);
+    for (const k of this._building) {
+      if (!wanted.has(k)) this._building.delete(k);
     }
   }
 
   tickTraps(dt, ctx) {
-    for (const chunk of this.chunks.values()) {
-      for (const trap of chunk.traps) trap.tick(dt, ctx);
+    for (const cell of this.cells.values()) {
+      for (const trap of cell.traps) trap.tick(dt, ctx);
+      if (cell.flag) {
+        const want = this.raisedFlags.has(cell.flag.level);
+        tickFlag(cell.flag.mesh, dt, want);
+      }
+    }
+  }
+
+  // Loaded flags whose anchor is within `radius` metres of the player.
+  // Used by index.jsx to detect the proximity-based "raise" trigger.
+  *flagsNear(playerX, playerZ, radius = FLAG_TOUCH_RADIUS) {
+    const r2 = radius * radius;
+    for (const cell of this.cells.values()) {
+      const f = cell.flag;
+      if (!f) continue;
+      const dx = playerX - f.anchor.x;
+      const dz = playerZ - f.anchor.z;
+      if (dx * dx + dz * dz <= r2) yield f;
     }
   }
 
   checkLethalHit(player, playerRadius) {
-    for (const chunk of this.chunks.values()) {
-      for (const trap of chunk.traps) {
+    for (const cell of this.cells.values()) {
+      for (const trap of cell.traps) {
         if (trap.hitsPlayer(player, playerRadius)) return trap;
       }
     }
@@ -254,28 +282,34 @@ export class ChunkManager {
   }
 
   *traps() {
-    for (const chunk of this.chunks.values()) {
-      for (const trap of chunk.traps) yield trap;
+    for (const cell of this.cells.values()) {
+      for (const trap of cell.traps) yield trap;
     }
   }
 
-  // Find the chunk containing a Z and report its archetype + biome — used
-  // by the HUD to label the current room ("Bend", "Clearing", etc.).
-  archetypeAt(z) {
-    const idx = Math.floor(z / CHUNK_LENGTH);
-    return this.chunks.get(idx)?.archetype || null;
+  // All wall AABBs from currently-loaded cells. Used by player.js to
+  // resolve circle-vs-rectangle collisions every frame.
+  *wallAABBs() {
+    for (const cell of this.cells.values()) {
+      for (const w of cell.wallAABBs) yield w;
+    }
   }
 
   disposeAll() {
-    for (const chunk of this.chunks.values()) disposeChunk(this.scene, chunk);
-    this.chunks.clear();
+    for (const cell of this.cells.values()) disposeCell(this.scene, cell);
+    this.cells.clear();
     this._building.clear();
-    this._lastPlayerChunk = null;
+    this._lastPlayerCell = null;
   }
 
   sampleHeight(x, z) {
     return sampleHeightGlobal(x, z);
   }
 
-  biomeAt(z) { return biomeAt(z); }
+  // Biome lookup for the cell at world coordinates — used by index.jsx
+  // to pick HUD labels and ambient audio.
+  biomeAt(x, z) {
+    const [cx, cz] = cellOf(x, z);
+    return biomeAt(cx, cz);
+  }
 }

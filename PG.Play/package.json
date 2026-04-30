@@ -9,6 +9,7 @@
     "optimize:covers": "node scripts/optimize-covers.mjs",
     "deploy": "node scripts/deploy.mjs",
     "sim:era-siege": "node scripts/era-siege-sim.mjs",
+    "bake:era-siege": "node scripts/era-siege-bake.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "prebuild": "npm run validate:catalog && npm run test",

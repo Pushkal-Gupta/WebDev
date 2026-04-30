@@ -57,6 +57,15 @@ export const assets = {
     return !!(e && e.ready);
   },
 
+  // Natural width / height of a loaded image — lets the renderer scale
+  // sprites to the source aspect ratio rather than a hard-coded one.
+  // Returns null if the image hasn't loaded yet.
+  naturalSize(key) {
+    const e = registry.get(key);
+    if (!e || !e.image || !e.image.naturalWidth) return null;
+    return { w: e.image.naturalWidth, h: e.image.naturalHeight };
+  },
+
   preloadAll(baseUrl) {
     if (typeof window === 'undefined' || typeof Image === 'undefined') return;
     // Resolve the base URL the static host actually serves under.
@@ -79,15 +88,17 @@ export const assets = {
     }
     for (const [key, entry] of registry.entries()) {
       if (!entry.src) continue;
-      // Era-themed silhouettes (bg / base / unit / turret) were generated
-      // with a transparency-checker baked into the canvas. Even after
-      // flood-fill keying, residual checker pixels survive inside the
-      // silhouette outline and read as blocky panels in-game. The
-      // procedural placeholders are crisper, era-themed, and cost nothing
-      // to render, so we skip those PNGs entirely. VFX + projectile PNGs
-      // still load — they were authored separately and are clean.
-      if (key.startsWith('bg/') || key.startsWith('base/')
-          || key.startsWith('unit/era') || key.startsWith('turret/era')) {
+      // The original Gemini reference sheets baked transparency-checker
+      // pixels into the silhouette region; no keying pass cleaned them
+      // reliably. We bake clean PNGs for the static layers via
+      // `scripts/era-siege-bake.mjs` (which runs the same procedural
+      // draws used at runtime) and load those.
+      //
+      // Excluded: clouds (drift over time) and turrets (fire/recoil
+      // frame swaps composited in the renderer, not pre-painted).
+      // Units now have baked static-pose PNGs; the renderer composites
+      // animation effects (walk-bob, attack lean, muzzle flash) on top.
+      if (key.endsWith('/clouds') || key.startsWith('turret/era')) {
         continue;
       }
       try {

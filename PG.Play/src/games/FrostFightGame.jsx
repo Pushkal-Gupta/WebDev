@@ -38,18 +38,19 @@ import { spawnFx, tickFx, drawFx, spawnFloater } from './frost-fight/fx.js';
 // embed raster data (Chrome / Firefox both render blank under that
 // configuration when used via Image() → drawImage). WebP keeps the
 // transparency, stays small, and renders correctly.
-import playerSpriteUrl     from './frost-fight/sprites/player.webp?url';
-import strawberrySpriteUrl from './frost-fight/sprites/strawberry.webp?url';
-import blueberrySpriteUrl  from './frost-fight/sprites/blueberry.webp?url';
-import fruitSpriteUrl      from './frost-fight/sprites/fruit.webp?url';
-import iceSpriteUrl        from './frost-fight/sprites/ice.webp?url';
-import exitSpriteUrl       from './frost-fight/sprites/exit.webp?url';
-import strawberryWindupUrl from './frost-fight/sprites/strawberry-windup.webp?url';
-import blueberryWindupUrl  from './frost-fight/sprites/blueberry-windup.webp?url';
-import orangeSpriteUrl     from './frost-fight/sprites/orange.webp?url';
-import orangeWindupUrl     from './frost-fight/sprites/orange-windup.webp?url';
-import cherrySpriteUrl     from './frost-fight/sprites/cherry.webp?url';
-import cherryWindupUrl     from './frost-fight/sprites/cherry-windup.webp?url';
+import playerSpriteUrl     from './frost-fight/sprites/player.png?url';
+import player2SpriteUrl    from './frost-fight/sprites/player-2.png?url';
+import strawberrySpriteUrl from './frost-fight/sprites/strawberry.png?url';
+import blueberrySpriteUrl  from './frost-fight/sprites/blueberry.png?url';
+import fruitSpriteUrl      from './frost-fight/sprites/fruit.png?url';
+import iceSpriteUrl        from './frost-fight/sprites/ice.png?url';
+import exitSpriteUrl       from './frost-fight/sprites/exit.png?url';
+import strawberryWindupUrl from './frost-fight/sprites/strawberry-windup.png?url';
+import blueberryWindupUrl  from './frost-fight/sprites/blueberry-windup.png?url';
+import orangeSpriteUrl     from './frost-fight/sprites/orange.png?url';
+import orangeWindupUrl     from './frost-fight/sprites/orange-windup.png?url';
+import cherrySpriteUrl     from './frost-fight/sprites/cherry.png?url';
+import cherryWindupUrl     from './frost-fight/sprites/cherry-windup.png?url';
 import coverUrl            from './frost-fight/sprites/cover.webp?url';
 
 // Per-room wall textures — Vite's glob-import so they're auto-discovered
@@ -308,7 +309,11 @@ const ENEMY_INTERVAL = {
   cherry:     0.6,
 };
 
-export default function FrostFightGame() {
+export default function FrostFightGame({ mode = 'solo' }) {
+  // Co-op (`mode === 'coop'`) adds a second player driven by the
+  // arrow keys + Enter. P1 stays on WASD + Space. The two players
+  // share the room — fruit / death / exit are joint.
+  const coop = mode === 'coop';
   const canvasRef = useRef(null);
   const stageRef  = useRef(null);
   const stateRef  = useRef(null);
@@ -323,7 +328,7 @@ export default function FrostFightGame() {
   // Preloaded sprite atlas. Each entry stays null until the Image
   // decodes; the draw loop falls back to procedural shapes meanwhile.
   const spritesRef = useRef({
-    player: null,
+    player: null, player2: null,
     strawberry: null, blueberry: null, orange: null, cherry: null,
     strawberryWind: null, blueberryWind: null, orangeWind: null, cherryWind: null,
     fruit: null, ice: null, exit: null,
@@ -366,6 +371,24 @@ export default function FrostFightGame() {
 
   const loadLevel = (idx) => {
     const level = parseLevel(idx);
+    // Co-op P2 spawn — first passable orthogonal neighbour of P1 spawn
+    // that isn't a fruit / enemy / exit. Falls back to one tile right.
+    const p2Spawn = (() => {
+      if (!coop) return null;
+      const sp = level.spawn;
+      const candidates = [[1, 0], [0, 1], [-1, 0], [0, -1]];
+      for (const [dx, dy] of candidates) {
+        const c = sp.col + dx, r = sp.row + dy;
+        if (!inBounds(c, r)) continue;
+        if (isWall(level, c, r)) continue;
+        if (level.ice.has(`${c},${r}`)) continue;
+        if (level.enemies.some((e) => e.col === c && e.row === r)) continue;
+        if (level.fruits.some((f) => f.col === c && f.row === r)) continue;
+        if (level.exit.col === c && level.exit.row === r) continue;
+        return { col: c, row: r };
+      }
+      return { col: sp.col + 1, row: sp.row };
+    })();
     stateRef.current = {
       level,
       player: {
@@ -376,6 +399,16 @@ export default function FrostFightGame() {
         freezeCd: 0,
         dead: false, respawn: 0,
       },
+      player2: p2Spawn ? {
+        col: p2Spawn.col, row: p2Spawn.row,
+        moving: false, moveT: 0,
+        fromCol: p2Spawn.col, fromRow: p2Spawn.row,
+        dir: 'down',
+        freezeCd: 0,
+        dead: false, respawn: 0,
+      } : null,
+      // Captured spawn locations for the shared-respawn flow.
+      p2Spawn,
       enemies: level.enemies.map((e) => ({
         col: e.col, row: e.row, kind: e.kind,
         moving: false, moveT: 0, fromCol: e.col, fromRow: e.row,
@@ -467,6 +500,7 @@ export default function FrostFightGame() {
   useEffect(() => {
     const sources = {
       player: playerSpriteUrl,
+      player2: player2SpriteUrl,
       strawberry: strawberrySpriteUrl,
       blueberry: blueberrySpriteUrl,
       orange: orangeSpriteUrl,
@@ -566,6 +600,7 @@ export default function FrostFightGame() {
     const draw = () => {
       const s = stateRef.current; if (!s) return;
       const { level, player, enemies, shake, flash } = s;
+      const player2 = s.player2 ?? null;
       const { cssW, cssH } = viewRef.current;
 
       // Clear the full backing buffer with a transparent wipe — the
@@ -828,18 +863,31 @@ export default function FrostFightGame() {
         }
       });
 
-      // Player (ice cream).
-      if (!player.dead) {
-        const { x, y } = entityPos(player);
+      // Player rendering — shared helper. Draws the sprite if loaded
+      // (with a step-bob), otherwise falls back to procedural shapes
+      // matching the player's accent colour. Dead state shows a small
+      // splash ellipse.
+      const drawPlayer = (pp, spriteSlot, scoopColor) => {
+        if (!pp) return;
+        if (pp.dead) {
+          const { x, y } = entityPos(pp);
+          ctx.fillStyle = 'rgba(255, 77, 109, 0.55)';
+          ctx.beginPath();
+          ctx.ellipse(x + T / 2, y + T / 2 + 6, 13, 4, 0, 0, Math.PI * 2);
+          ctx.fill();
+          return;
+        }
+        const { x, y } = entityPos(pp);
         const pcx = x + T / 2, pcy = y + T / 2;
-        const playerImg = spritesRef.current.player;
-        const playerReady = playerImg && playerImg.complete && playerImg.naturalWidth > 0;
-        if (playerReady) {
+        const img = spritesRef.current[spriteSlot];
+        const ready = img && img.complete && img.naturalWidth > 0;
+        if (ready) {
           const sz = 32;
-          // Tiny step bob so the character feels alive while moving.
-          const bob = player.moving ? Math.sin(player.moveT * Math.PI) * -1.2 : 0;
-          ctx.drawImage(playerImg, pcx - sz / 2, pcy - sz / 2 + bob, sz, sz);
+          const bob = pp.moving ? Math.sin(pp.moveT * Math.PI) * -1.2 : 0;
+          ctx.drawImage(img, pcx - sz / 2, pcy - sz / 2 + bob, sz, sz);
         } else {
+          // Procedural fallback. Cone matches stock palette; scoop uses
+          // the per-player accent so P2 reads as the cyan-mint scoop.
           ctx.fillStyle = '#d4a460';
           ctx.beginPath();
           ctx.moveTo(pcx - 9, pcy); ctx.lineTo(pcx + 9, pcy); ctx.lineTo(pcx, pcy + 14); ctx.closePath();
@@ -850,14 +898,14 @@ export default function FrostFightGame() {
           ctx.moveTo(pcx - 6, pcy + 2); ctx.lineTo(pcx + 6, pcy + 2);
           ctx.moveTo(pcx - 4, pcy + 6); ctx.lineTo(pcx + 4, pcy + 6);
           ctx.stroke();
-          ctx.fillStyle = '#ff8ec6';
+          ctx.fillStyle = scoopColor;
           ctx.beginPath();
           ctx.arc(pcx, pcy - 4, 11, 0, Math.PI * 2);
           ctx.fill();
           ctx.strokeStyle = '#0a0d0e';
           ctx.lineWidth = 1.5 * px;
           ctx.stroke();
-          const dc = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[player.dir] || [0, 1];
+          const dc = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[pp.dir] || [0, 1];
           ctx.fillStyle = '#fff';
           ctx.beginPath();
           ctx.arc(pcx - 3 + dc[0] * 0.4, pcy - 4, 3, 0, Math.PI * 2);
@@ -869,58 +917,53 @@ export default function FrostFightGame() {
           ctx.arc(pcx + 4 + dc[0] * 1.4, pcy - 4 + dc[1] * 1.4, 1.4, 0, Math.PI * 2);
           ctx.fill();
         }
-      } else {
-        const { x, y } = entityPos(player);
-        ctx.fillStyle = 'rgba(255, 77, 109, 0.55)';
-        ctx.beginPath();
-        ctx.ellipse(x + T / 2, y + T / 2 + 6, 13, 4, 0, 0, Math.PI * 2);
-        ctx.fill();
-      }
+      };
+      drawPlayer(player,  'player',  '#ff8ec6'); // P1 — pink scoop
+      drawPlayer(player2, 'player2', '#7af5dc'); // P2 — cyan-mint scoop
 
       // Particles — drawn in board coordinates, on top of entities.
       drawFx(fxRef.current, ctx);
 
-      // Cast preview cursor — symmetric.
-      //   - facing ice    → walk forward and preview every consecutive
-      //     ice tile the melt sweep will clear (rose, fading)
-      //   - facing empty  → walk forward and preview every tile the
-      //     freeze sweep will fill (cyan, fading)
-      // Both stop at the same boundary the live cast logic uses.
-      if (!player.moving && !player.dead) {
-        const d = dirVec(player.dir);
-        const sc = player.col + d[0], sr = player.row + d[1];
-        if (inBounds(sc, sr) && !isWall(level, sc, sr)) {
-          ctx.lineWidth = 2 * px;
-          ctx.setLineDash([4, 3]);
-          let c = sc, r = sr, idx = 0;
-          if (isIce(level, sc, sr)) {
-            // Melt preview.
-            while (inBounds(c, r) && isIce(level, c, r)) {
-              const fade = Math.max(0.18, 0.85 - idx * 0.10);
-              ctx.strokeStyle = `rgba(255, 120, 150, ${fade.toFixed(3)})`;
-              ctx.strokeRect(c * T + 3, r * T + 3, T - 6, T - 6);
-              c += d[0]; r += d[1];
-              idx++;
-            }
-          } else {
-            // Freeze preview.
-            while (inBounds(c, r) && !isWall(level, c, r) && !isIce(level, c, r)) {
-              const occupied =
-                enemies.some((e) => e.col === c && e.row === r)
-                || level.fruits.some((f) => !f.taken && f.col === c && f.row === r)
-                || (level.exit.col === c && level.exit.row === r)
-                || (player.col === c && player.row === r);
-              if (occupied) break;
-              const fade = Math.max(0.18, 0.85 - idx * 0.10);
-              ctx.strokeStyle = `rgba(80, 180, 230, ${fade.toFixed(3)})`;
-              ctx.strokeRect(c * T + 3, r * T + 3, T - 6, T - 6);
-              c += d[0]; r += d[1];
-              idx++;
-            }
+      // Cast preview cursor — symmetric. Drawn for both alive players,
+      // each tinted to its own scoop colour so co-op players can tell
+      // their cursor apart.
+      const drawCastPreview = (pp, freezeRgb) => {
+        if (!pp || pp.moving || pp.dead) return;
+        const d = dirVec(pp.dir);
+        const sc = pp.col + d[0], sr = pp.row + d[1];
+        if (!inBounds(sc, sr) || isWall(level, sc, sr)) return;
+        ctx.lineWidth = 2 * px;
+        ctx.setLineDash([4, 3]);
+        let c = sc, r = sr, idx = 0;
+        if (isIce(level, sc, sr)) {
+          while (inBounds(c, r) && isIce(level, c, r)) {
+            const fade = Math.max(0.18, 0.85 - idx * 0.10);
+            ctx.strokeStyle = `rgba(255, 120, 150, ${fade.toFixed(3)})`;
+            ctx.strokeRect(c * T + 3, r * T + 3, T - 6, T - 6);
+            c += d[0]; r += d[1];
+            idx++;
           }
-          ctx.setLineDash([]);
+        } else {
+          while (inBounds(c, r) && !isWall(level, c, r) && !isIce(level, c, r)) {
+            const occupied =
+              enemies.some((e) => e.col === c && e.row === r)
+              || level.fruits.some((f) => !f.taken && f.col === c && f.row === r)
+              || (level.exit.col === c && level.exit.row === r)
+              || (pp.col === c && pp.row === r)
+              || (player2 && pp !== player2 && !player2.dead && player2.col === c && player2.row === r)
+              || (player  && pp !== player  && !player.dead  && player.col  === c && player.row  === r);
+            if (occupied) break;
+            const fade = Math.max(0.18, 0.85 - idx * 0.10);
+            ctx.strokeStyle = `rgba(${freezeRgb}, ${fade.toFixed(3)})`;
+            ctx.strokeRect(c * T + 3, r * T + 3, T - 6, T - 6);
+            c += d[0]; r += d[1];
+            idx++;
+          }
         }
-      }
+        ctx.setLineDash([]);
+      };
+      drawCastPreview(player,  '80, 180, 230');   // P1 cyan
+      drawCastPreview(player2, '120, 240, 200');  // P2 mint
 
       ctx.restore(); // pop camera shake
       ctx.restore(); // pop centering translate
@@ -943,22 +986,7 @@ export default function FrostFightGame() {
       const s = stateRef.current; if (!s || status !== 'playing') return;
 
       const p = s.player;
-
-      // Respawn tick.
-      if (p.dead) {
-        p.respawn -= dt;
-        if (p.respawn <= 0) {
-          const sp = s.level.spawn;
-          p.col = sp.col; p.row = sp.row;
-          p.fromCol = sp.col; p.fromRow = sp.row;
-          p.moving = false; p.moveT = 0;
-          p.dead = false;
-          p.dir = 'down';
-          p.freezeCd = 0;
-          // Restore tip post-respawn.
-          setTip(tipResolvedRef.current);
-        }
-      }
+      const p2 = s.player2 ?? null;
 
       // Shake + flash decay.
       if (s.shake > 0) s.shake = Math.max(0, s.shake - dt * 40);
@@ -967,114 +995,177 @@ export default function FrostFightGame() {
       // Particle tick (advance + decay; in-place compaction).
       if (fxRef.current.length > 0) tickFx(fxRef.current, dt);
 
-      // Player input (only when not moving & not dead).
-      if (!p.dead && !p.moving) {
-        const left  = keys['a'] || keys['arrowleft']  || keys['keya'];
-        const right = keys['d'] || keys['arrowright'] || keys['keyd'];
-        const up    = keys['w'] || keys['arrowup']    || keys['keyw'];
-        const down  = keys['s'] || keys['arrowdown']  || keys['keys'];
-        const freeze = keys[' '] || keys['space'] || keys['j'] || keys['keyj'];
-
-        let wantDir = null;
-        if (left)       wantDir = 'left';
-        else if (right) wantDir = 'right';
-        else if (up)    wantDir = 'up';
-        else if (down)  wantDir = 'down';
-
-        if (wantDir) {
-          p.dir = wantDir;
-          const d = dirVec(wantDir);
-          const tc = p.col + d[0], tr = p.row + d[1];
-          if (isPassable(s.level, tc, tr)) {
-            p.moving = true;
-            p.moveT = 0;
-            p.fromCol = p.col; p.fromRow = p.row;
-            p.col = tc; p.row = tr;
-            sfx.frostStep();
+      // Per-player tick — runs the same respawn / input / cast / move /
+      // fruit pipeline for either player. Closes over `dt`, `s`, the
+      // keys map, and the FX / sound helpers from the enclosing scope.
+      // `kbag` is a pre-resolved {left,right,up,down,freeze} bag so the
+      // input split can map WASD to P1 and arrows to P2 cleanly.
+      const tickPlayer = (player, kbag, isP1) => {
+        if (!player) return;
+        // Respawn.
+        if (player.dead) {
+          player.respawn -= dt;
+          if (player.respawn <= 0) {
+            const sp = isP1 ? s.level.spawn : s.p2Spawn;
+            player.col = sp.col; player.row = sp.row;
+            player.fromCol = sp.col; player.fromRow = sp.row;
+            player.moving = false; player.moveT = 0;
+            player.dead = false;
+            player.dir = 'down';
+            player.freezeCd = 0;
+            if (isP1) setTip(tipResolvedRef.current);
           }
+          return;
         }
-
-        // Freeze / melt — Othello-symmetric row cast. The starting
-        // tile in the player's facing direction picks the mode:
-        //   - empty start → freeze sweep: fills every passable tile
-        //     forward until it hits the first ICE or wall (or any
-        //     other occupant: enemy / fruit / exit / player)
-        //   - ice start   → melt sweep: clears every consecutive ice
-        //     tile forward until it hits the first NON-ice tile (or
-        //     a wall / out-of-bounds)
-        // Same cooldown gate either way; only triggers if at least one
-        // tile actually changed state.
-        if (p.freezeCd > 0) p.freezeCd -= dt;
-        if (freeze && p.freezeCd <= 0) {
-          const d = dirVec(p.dir);
-          const sc = p.col + d[0], sr = p.row + d[1];
-          if (!inBounds(sc, sr)) { /* facing edge — nothing to do */ }
-          else if (isWall(s.level, sc, sr)) { /* can't freeze a wall */ }
-          else if (isIce(s.level, sc, sr)) {
-            // Melt sweep — clear consecutive ice until non-ice tile.
-            let cleared = 0;
-            let c = sc, r = sr;
-            while (inBounds(c, r) && isIce(s.level, c, r)) {
-              s.level.ice.delete(`${c},${r}`);
-              cleared++;
-              if (!reduced) spawnFx(fxRef.current, 'melt', c * T + T / 2, r * T + T / 2);
-              c += d[0]; r += d[1];
+        const otherPlayer = isP1 ? p2 : p;
+        const otherBlocks = (tc, tr) => {
+          if (!otherPlayer || otherPlayer.dead) return false;
+          if (otherPlayer.col === tc && otherPlayer.row === tr) return true;
+          if (otherPlayer.moving && otherPlayer.fromCol === tc && otherPlayer.fromRow === tr) return true;
+          return false;
+        };
+        // Input + step + cast (idle frame).
+        if (!player.moving) {
+          let wantDir = null;
+          if (kbag.left)       wantDir = 'left';
+          else if (kbag.right) wantDir = 'right';
+          else if (kbag.up)    wantDir = 'up';
+          else if (kbag.down)  wantDir = 'down';
+          if (wantDir) {
+            player.dir = wantDir;
+            const dv = dirVec(wantDir);
+            const tc = player.col + dv[0], tr = player.row + dv[1];
+            if (isPassable(s.level, tc, tr) && !otherBlocks(tc, tr)) {
+              player.moving = true;
+              player.moveT = 0;
+              player.fromCol = player.col; player.fromRow = player.row;
+              player.col = tc; player.row = tr;
+              sfx.frostStep();
             }
-            if (cleared > 0) {
-              sfx.frostMelt();
-              p.freezeCd = FREEZE_CD;
-            }
-          } else {
-            // Freeze sweep — place ice on every passable tile until
-            // an obstacle. The cast stops AT the obstacle without
-            // overwriting it. Sim adds the tile to `level.ice`
-            // immediately; the per-tile reveal timestamp in
-            // `castReveal` staggers the visual unveil at ~60 ms per
-            // tile so the cast reads as a wave.
-            let placed = 0;
-            let c = sc, r = sr;
-            const castStartTs = performance.now();
-            const CAST_STAGGER = reduced ? 0 : 55; // ms between tiles
-            const PARTICLE_LEAD = 30;              // particles fire just before the tile materialises
-            while (inBounds(c, r) && !isWall(s.level, c, r) && !isIce(s.level, c, r)) {
-              const occupied =
-                s.enemies.some((e) => e.col === c && e.row === r)
-                || s.level.fruits.some((f) => !f.taken && f.col === c && f.row === r)
-                || (s.level.exit.col === c && s.level.exit.row === r)
-                || (p.col === c && p.row === r);
-              if (occupied) break;
-              const key = `${c},${r}`;
-              s.level.ice.add(key);
-              s.castReveal.set(key, castStartTs + placed * CAST_STAGGER);
-              if (!reduced) {
-                // Schedule the particle burst slightly before the tile
-                // appears so the burst feels like the *cause* of the
-                // ice forming. setTimeout is acceptable here — fires
-                // at most ~10 times per cast, and React isn't involved.
-                const cx = c * T + T / 2;
-                const cy = r * T + T / 2;
-                const delay = Math.max(0, placed * CAST_STAGGER - PARTICLE_LEAD);
-                if (delay === 0) spawnFx(fxRef.current, 'freeze', cx, cy);
-                else setTimeout(() => spawnFx(fxRef.current, 'freeze', cx, cy), delay);
+          }
+          if (player.freezeCd > 0) player.freezeCd -= dt;
+          if (kbag.freeze && player.freezeCd <= 0) {
+            const dv = dirVec(player.dir);
+            const sc = player.col + dv[0], sr = player.row + dv[1];
+            if (!inBounds(sc, sr)) { /* edge */ }
+            else if (isWall(s.level, sc, sr)) { /* wall */ }
+            else if (isIce(s.level, sc, sr)) {
+              // Melt sweep.
+              let cleared = 0;
+              let c = sc, r = sr;
+              while (inBounds(c, r) && isIce(s.level, c, r)) {
+                s.level.ice.delete(`${c},${r}`);
+                cleared++;
+                if (!reduced) spawnFx(fxRef.current, 'melt', c * T + T / 2, r * T + T / 2);
+                c += dv[0]; r += dv[1];
               }
-              placed++;
-              c += d[0]; r += d[1];
-            }
-            if (placed > 0) {
-              sfx.frostFreeze();
-              p.freezeCd = FREEZE_CD;
+              if (cleared > 0) {
+                sfx.frostMelt();
+                player.freezeCd = FREEZE_CD;
+              }
+            } else {
+              // Freeze sweep with staggered visual reveal.
+              let placed = 0;
+              let c = sc, r = sr;
+              const castStartTs = performance.now();
+              const CAST_STAGGER = reduced ? 0 : 55;
+              const PARTICLE_LEAD = 30;
+              while (inBounds(c, r) && !isWall(s.level, c, r) && !isIce(s.level, c, r)) {
+                const occupied =
+                  s.enemies.some((e) => e.col === c && e.row === r)
+                  || s.level.fruits.some((f) => !f.taken && f.col === c && f.row === r)
+                  || (s.level.exit.col === c && s.level.exit.row === r)
+                  || (player.col === c && player.row === r)
+                  || (otherPlayer && !otherPlayer.dead && otherPlayer.col === c && otherPlayer.row === r);
+                if (occupied) break;
+                const key = `${c},${r}`;
+                s.level.ice.add(key);
+                s.castReveal.set(key, castStartTs + placed * CAST_STAGGER);
+                if (!reduced) {
+                  const cx = c * T + T / 2;
+                  const cy = r * T + T / 2;
+                  const delay = Math.max(0, placed * CAST_STAGGER - PARTICLE_LEAD);
+                  if (delay === 0) spawnFx(fxRef.current, 'freeze', cx, cy);
+                  else setTimeout(() => spawnFx(fxRef.current, 'freeze', cx, cy), delay);
+                }
+                placed++;
+                c += dv[0]; r += dv[1];
+              }
+              if (placed > 0) {
+                sfx.frostFreeze();
+                player.freezeCd = FREEZE_CD;
+              }
             }
           }
         }
+        // Advance step animation.
+        if (player.moving) {
+          player.moveT += dt / MOVE_TIME;
+          if (player.moveT >= 1) { player.moveT = 0; player.moving = false; }
+        }
+        // Fruit pickup — settled tile only.
+        if (!player.moving) {
+          const fruit = s.level.fruits.find((f) => !f.taken && f.col === player.col && f.row === player.row);
+          if (fruit) {
+            fruit.taken = true;
+            s.fruitsLeft -= 1;
+            setGemsGot((n) => n + 1);
+            sfx.frostFruit();
+            const fcx = fruit.col * T + T / 2;
+            const fcy = fruit.row * T + T / 2;
+            if (!reduced) {
+              spawnFx(fxRef.current, 'fruit', fcx, fcy);
+              if (s.fruitsLeft === 0) {
+                spawnFloater(fxRef.current, 'EXIT LIVE', fcx, fcy - 10, '#6cd0f0', { size: 9, life: 1.2 });
+              } else {
+                spawnFloater(fxRef.current, '+1', fcx, fcy - 10, '#ffd1de');
+              }
+            }
+            if (s.fruitsLeft === 0) {
+              const t = 'All clear — head for the flag.';
+              tipResolvedRef.current = t;
+              setTip(t);
+            }
+          }
+        }
+      };
+
+      // Solo: P1 accepts WASD + arrows. Co-op: P1 is WASD + Space, P2
+      // is arrows + Enter (no key overlap so simultaneous input works).
+      const p1Bag = coop ? {
+        left:   keys['a'] || keys['keya'],
+        right:  keys['d'] || keys['keyd'],
+        up:     keys['w'] || keys['keyw'],
+        down:   keys['s'] || keys['keys'],
+        freeze: keys[' '] || keys['space'] || keys['j'] || keys['keyj'],
+      } : {
+        left:   keys['a'] || keys['arrowleft']  || keys['keya'],
+        right:  keys['d'] || keys['arrowright'] || keys['keyd'],
+        up:     keys['w'] || keys['arrowup']    || keys['keyw'],
+        down:   keys['s'] || keys['arrowdown']  || keys['keys'],
+        freeze: keys[' '] || keys['space'] || keys['j'] || keys['keyj'],
+      };
+      tickPlayer(p, p1Bag, true);
+      if (coop && p2) {
+        const p2Bag = {
+          left:   keys['arrowleft'],
+          right:  keys['arrowright'],
+          up:     keys['arrowup'],
+          down:   keys['arrowdown'],
+          freeze: keys['enter'],
+        };
+        tickPlayer(p2, p2Bag, false);
       }
 
-      // Adaptive keycap state — derive from the tile in front of the
-      // player. setState only on transitions to avoid per-frame churn.
+      // Adaptive keycap state — only tracks P1; the bottom-rail rail
+      // is P1-centric. P2 plays without an adaptive cap (and that's
+      // fine — co-op is a desktop scenario where the second player can
+      // see the cursor preview on the canvas itself).
       {
         let next = null;
         if (!p.dead) {
-          const d = dirVec(p.dir);
-          const tc = p.col + d[0], tr = p.row + d[1];
+          const dv = dirVec(p.dir);
+          const tc = p.col + dv[0], tr = p.row + dv[1];
           if (inBounds(tc, tr)) {
             if (isIce(s.level, tc, tr)) next = 'melt';
             else if (
@@ -1083,6 +1174,7 @@ export default function FrostFightGame() {
               && !s.level.fruits.some((f) => !f.taken && f.col === tc && f.row === tr)
               && !(s.level.exit.col === tc && s.level.exit.row === tr)
               && !(p.col === tc && p.row === tr)
+              && !(p2 && !p2.dead && p2.col === tc && p2.row === tr)
             ) next = 'freeze';
           }
         }
@@ -1092,9 +1184,8 @@ export default function FrostFightGame() {
         }
       }
 
-      // Movement urgency — direction-pack a string of adjacent-enemy
-      // directions so the bottom-rail caps can flag the danger axis.
-      // An enemy mid-step counts at both its from and to tiles.
+      // Movement urgency — danger directions for P1 (the rail's
+      // primary). P2 sees the cursor preview directly on the board.
       {
         let mask = '';
         if (!p.dead) {
@@ -1113,41 +1204,17 @@ export default function FrostFightGame() {
         }
       }
 
-      // Advance player movement.
-      if (p.moving) {
-        p.moveT += dt / MOVE_TIME;
-        if (p.moveT >= 1) { p.moveT = 0; p.moving = false; }
-      }
-
-      // Fruit pickup.
-      if (!p.dead && !p.moving) {
-        const fruit = s.level.fruits.find((f) => !f.taken && f.col === p.col && f.row === p.row);
-        if (fruit) {
-          fruit.taken = true;
-          s.fruitsLeft -= 1;
-          setGemsGot((n) => n + 1);
-          sfx.frostFruit();
-          const fcx = fruit.col * T + T / 2;
-          const fcy = fruit.row * T + T / 2;
-          if (!reduced) {
-            spawnFx(fxRef.current, 'fruit', fcx, fcy);
-            if (s.fruitsLeft === 0) {
-              spawnFloater(fxRef.current, 'EXIT LIVE', fcx, fcy - 10, '#6cd0f0', { size: 9, life: 1.2 });
-            } else {
-              spawnFloater(fxRef.current, '+1', fcx, fcy - 10, '#ffd1de');
-            }
-          }
-          if (s.fruitsLeft === 0) {
-            const t = 'All clear — head for the flag.';
-            tipResolvedRef.current = t;
-            setTip(t);
-          }
-        }
-      }
-
-      // Exit check.
-      if (!p.dead && !p.moving && s.fruitsLeft === 0
-          && p.col === s.level.exit.col && p.row === s.level.exit.row) {
+      // Exit check. In coop, EITHER alive player on the exit tile
+      // (with the other player also alive) triggers the room. The
+      // "anyOnExit" combined with "bothAlive" rule keeps it satisfying
+      // without forcing both players onto the same tile.
+      const anyOnExit = (() => {
+        if (!p.dead && !p.moving && p.col === s.level.exit.col && p.row === s.level.exit.row) return true;
+        if (p2 && !p2.dead && !p2.moving && p2.col === s.level.exit.col && p2.row === s.level.exit.row) return true;
+        return false;
+      })();
+      const bothAlive = !p.dead && (!p2 || !p2.dead);
+      if (bothAlive && anyOnExit && s.fruitsLeft === 0) {
         // Per-room best — captured before either branch since both
         // paths complete the current room. Time is rounded seconds for
         // THIS room only; deaths is the delta from room start.
@@ -1240,10 +1307,20 @@ export default function FrostFightGame() {
           e.moving = true; e.moveT = 0;
           return true;
         };
-        const dx = Math.sign(s.player.col - e.col);
-        const dy = Math.sign(s.player.row - e.row);
-        const adx = Math.abs(s.player.col - e.col);
-        const ady = Math.abs(s.player.row - e.row);
+        // Chase target — closest alive player. In solo this is always
+        // P1; in coop, distance ties resolve to P1 so the priority
+        // stays deterministic.
+        const target = (() => {
+          if (!p2 || p2.dead) return p;
+          if (p.dead) return p2;
+          const d1 = Math.abs(p.col  - e.col) + Math.abs(p.row  - e.row);
+          const d2 = Math.abs(p2.col - e.col) + Math.abs(p2.row - e.row);
+          return d1 <= d2 ? p : p2;
+        })();
+        const dx = Math.sign(target.col - e.col);
+        const dy = Math.sign(target.row - e.row);
+        const adx = Math.abs(target.col - e.col);
+        const ady = Math.abs(target.row - e.row);
         const adjacent = adx + ady === 1;
         let primaryAxis = adx >= ady ? 'x' : 'y';
 
@@ -1299,26 +1376,37 @@ export default function FrostFightGame() {
         }
       }
 
-      // Collision: enemy on same (or moving-through same) tile as player => death.
-      if (!p.dead) {
-        for (const e of s.enemies) {
-          if (enemyTouchesPlayer(e, p)) {
-            p.dead = true;
-            p.respawn = RESPAWN_DELAY;
-            s.shake = reduced ? 0 : 12;
-            s.flash = reduced ? 0 : 0.5;
-            setDeaths((d) => d + 1);
-            setTip('Touched — respawning.');
-            sfx.frostDeath();
-            frostMusic.duck(0.7);
-            if (!reduced) {
-              const dpos = entityPos(p);
-              const dcx = dpos.x + T / 2, dcy = dpos.y + T / 2;
-              spawnFx(fxRef.current, 'death', dcx, dcy);
-              spawnFloater(fxRef.current, 'OUCH', dcx, dcy - 10, '#ff7b96', { size: 10, life: 0.9 });
-            }
-            break;
-          }
+      // Collision: any alive player touched by an enemy → BOTH players
+      // die together (BIC same-team forgiveness rule). Keeps co-op
+      // forgiving so a single mistake doesn't punish only one player.
+      const touchedPlayer = (() => {
+        if (!p.dead) {
+          for (const e of s.enemies) if (enemyTouchesPlayer(e, p)) return p;
+        }
+        if (p2 && !p2.dead) {
+          for (const e of s.enemies) if (enemyTouchesPlayer(e, p2)) return p2;
+        }
+        return null;
+      })();
+      if (touchedPlayer) {
+        const killOne = (target) => {
+          if (target.dead) return;
+          target.dead = true;
+          target.respawn = RESPAWN_DELAY;
+        };
+        killOne(p);
+        if (p2) killOne(p2);
+        s.shake = reduced ? 0 : 12;
+        s.flash = reduced ? 0 : 0.5;
+        setDeaths((d) => d + 1);
+        setTip('Touched — respawning.');
+        sfx.frostDeath();
+        frostMusic.duck(0.7);
+        if (!reduced) {
+          const dpos = entityPos(touchedPlayer);
+          const dcx = dpos.x + T / 2, dcy = dpos.y + T / 2;
+          spawnFx(fxRef.current, 'death', dcx, dcy);
+          spawnFloater(fxRef.current, 'OUCH', dcx, dcy - 10, '#ff7b96', { size: 10, life: 0.9 });
         }
       }
 
@@ -1410,6 +1498,7 @@ export default function FrostFightGame() {
           isTouch={isTouch}
           freezeAction={freezeAction}
           dangerDirs={dangerDirs}
+          coop={coop}
           onPlayAgain={restart}/>
       </footer>
     </div>

@@ -1744,10 +1744,13 @@ svg { display: block; width: 100%; height: 100%; }
 
 /* 2048 */
 .g2048 {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--s-4);
+  justify-content: center;
+  gap: var(--s-3);
+  padding: var(--s-3);
   touch-action: none;
   user-select: none;
 }
@@ -1755,9 +1758,8 @@ svg { display: block; width: 100%; height: 100%; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--s-4);
-  width: 100%;
-  max-width: 440px;
+  gap: var(--s-3);
+  width: min(560px, 100%);
 }
 .g2048-scores { display: flex; gap: var(--s-2); }
 .g2048-score {
@@ -1784,16 +1786,18 @@ svg { display: block; width: 100%; height: 100%; }
 }
 .g2048-board {
   position: relative;
-  width: 440px;
-  max-width: 100%;
+  /* Pick the smaller of: max board size, available width, and the height
+     remaining once the bar + hint take their share. Keeps the board square
+     and fully visible in landscape phones and short windows. */
+  width: min(560px, 100%, calc(100dvh - 140px));
   aspect-ratio: 1 / 1;
-  padding: 10px;
+  padding: 12px;
   background: #bbada0;
   border-radius: var(--r-lg);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(4, 1fr);
-  gap: 10px;
+  gap: 12px;
   box-shadow: var(--shadow-card);
 }
 .g2048-tile {
@@ -1803,13 +1807,15 @@ svg { display: block; width: 100%; height: 100%; }
   border-radius: 8px;
   background: rgba(238, 228, 218, 0.35);
   font-weight: 800;
-  font-size: 2rem;
+  /* Scale tile font with the smaller viewport axis so digits never overflow
+     when the board shrinks on phones. */
+  font-size: clamp(1.1rem, 7vmin, 2.4rem);
   transition: background 120ms ease;
 }
 .g2048-tile.is-filled { animation: g2048-pop 140ms ease; }
 @keyframes g2048-pop { from { transform: scale(0.82); } to { transform: scale(1); } }
-.g2048-tile span.is-mid { font-size: 1.6rem; }
-.g2048-tile span.is-small { font-size: 1.15rem; }
+.g2048-tile span.is-mid { font-size: clamp(1rem, 5.6vmin, 1.9rem); }
+.g2048-tile span.is-small { font-size: clamp(0.85rem, 4.2vmin, 1.4rem); }
 .g2048-overlay {
   position: absolute;
   inset: 0;
@@ -3391,6 +3397,25 @@ svg { display: block; width: 100%; height: 100%; }
               background 200ms ease;
 }
 .ff-key-wide { padding: 4px 12px; }
+/* Co-op player tags — small pill before each player's keycap group so
+   the rail visually splits into P1 / P2 lanes. */
+.ff-keycap-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  margin-right: 4px;
+  margin-left: 4px;
+  opacity: 0.85;
+}
+.ff-keycap-tag-p1 { color: #ff8ec6; }
+.ff-keycap-tag-p2 { color: #7af5dc; }
 /* Adaptive keycap states — light up SPACE when an action would fire. */
 .ff-key.is-active.ff-key-cool {
   color: var(--ff-frost);
@@ -5546,10 +5571,17 @@ svg { display: block; width: 100%; height: 100%; }
   --c4-board-2:   #0f265a;
   --c4-hole:      #0b1f4d;
   --c4-hole-ring: #07163a;
+  /* Cell size flexes with the available viewport so the board is never
+     clipped on landscape phones or short windows. The board is 7 cells wide
+     and 6 cells tall; gaps + padding eat ~12% of either axis. */
+  --c4-cell: clamp(36px, min(13vw, 14.5vh), 72px);
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--s-4);
+  justify-content: center;
+  gap: var(--s-3);
+  padding: var(--s-3);
   color: var(--text);
 }
 [data-theme="light"] .c4 {
@@ -5590,7 +5622,7 @@ svg { display: block; width: 100%; height: 100%; }
 
 .c4-board {
   display: grid;
-  grid-template-columns: repeat(7, 44px);
+  grid-template-columns: repeat(7, var(--c4-cell));
   gap: 6px;
   padding: 10px;
   background: linear-gradient(to bottom, var(--c4-board), var(--c4-board-2));
@@ -5617,7 +5649,8 @@ svg { display: block; width: 100%; height: 100%; }
 
 .c4-cell {
   display: block;
-  width: 44px; height: 44px;
+  width: var(--c4-cell);
+  height: var(--c4-cell);
   border-radius: 50%;
   background: var(--c4-hole);
   border: 2px solid var(--c4-hole-ring);
@@ -5659,8 +5692,124 @@ svg { display: block; width: 100%; height: 100%; }
 }
 
 @media (max-width: 520px) {
-  .c4-board { grid-template-columns: repeat(7, 36px); gap: 5px; padding: 8px; }
-  .c4-cell  { width: 36px; height: 36px; }
+  .c4-board { gap: 5px; padding: 8px; }
+}
+
+.c4-difficulty {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: var(--s-2);
+}
+.c4-diff-btn {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--text-dim);
+  border-radius: var(--r-sm);
+  padding: 4px 9px;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+}
+.c4-diff-btn:hover { color: var(--text); border-color: var(--text-mute); }
+.c4-diff-btn.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.c4-diff-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ═══════════════════════════════════════════════════════════════
+   Celebration — confetti + headline card. Used by Game2048 (tier
+   crossings) and Connect4 (winner). The host element should set
+   `position: relative` so the overlay scopes to the game frame.
+   ═══════════════════════════════════════════════════════════════ */
+.celebrate {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  /* Block clicks behind the overlay until the user dismisses it. */
+  pointer-events: auto;
+}
+.celebrate-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.celebrate-confetti {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--size);
+  height: var(--size);
+  background: var(--bg);
+  border-radius: 2px;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  animation: celebrate-fly var(--dur) cubic-bezier(0.16, 1, 0.3, 1) var(--delay) forwards;
+}
+@keyframes celebrate-fly {
+  0%   { transform: translate(-50%, -50%) rotate(0deg);  opacity: 0; }
+  10%  { opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--cx)), calc(-50% + var(--cy))) rotate(var(--rot)); opacity: 0.55; }
+}
+.celebrate-card {
+  position: relative;
+  z-index: 2;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lift);
+  padding: var(--s-5) var(--s-5);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  align-items: center;
+  max-width: min(420px, 88%);
+  animation: celebrate-pop 320ms cubic-bezier(0.18, 1.2, 0.32, 1.1);
+}
+@keyframes celebrate-pop {
+  from { transform: scale(0.78); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+.celebrate-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  color: var(--text);
+  font-size: clamp(1.5rem, 5vmin, 2.4rem);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.celebrate-i4 .celebrate-title,
+.celebrate-i5 .celebrate-title,
+.celebrate-i6 .celebrate-title {
+  font-size: clamp(1.8rem, 6.5vmin, 3rem);
+  background: linear-gradient(95deg, #ffaf5b, #e54562 35%, #c879ff 70%, #5fb6e5);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.celebrate-sub {
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  max-width: 32ch;
+}
+.celebrate-cta { min-width: 140px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .celebrate-confetti { animation: none; opacity: 0; }
+  .celebrate-card { animation: none; }
 }
 
 /* ═══════════════════════════════════════════════════════════════

@@ -5,7 +5,6 @@
 import * as THREE from 'three';
 import { HATS } from './hats.js';
 import { sfx } from './audio.js';
-import { pathOffsetAt, pathHalfWidthAt, barrierPressureAt } from './heightmap.js';
 
 const tmp = new THREE.Vector3();
 const tmpA = new THREE.Vector3();
@@ -119,12 +118,15 @@ export function makePlayer() {
 // cliff, the reflection capped velocity, then input pushed again — making
 // the player feel "stuck" against any rising terrain. The new system
 // guarantees the player can always move on the floor.
-const WALK_MAX = 8.5;     // m/s
-const SPRINT_MAX = 12.5;
-const ACCEL_GROUND = 50;
-const ACCEL_AIR = 22;
+// Movement tempo: deliberately under the old corridor tuning. Trees-hate-you
+// asks the player to read rooms before walking through them, so a brisk
+// stroll beats a sprint here. Sprint is still meaningfully faster.
+const WALK_MAX = 6.8;
+const SPRINT_MAX = 9.5;
+const ACCEL_GROUND = 42;
+const ACCEL_AIR = 20;
 const FRICTION_GROUND = 28;        // lower friction = more carry, less "stop on a dime"
-const JUMP_V = 11.5;               // higher arc so jumps clear branches and pits
+const JUMP_V = 10.5;
 const GRAVITY = 26;
 const MAX_FALL = 28;
 const COYOTE = 0.14;
@@ -132,8 +134,6 @@ const JUMP_BUFFER = 0.16;
 const TURN_RATE = 26;              // snappy turn-around
 const PLAYER_R = 0.55;
 const PLAYER_H = 1.8;
-const BARRIER_FORCE = 60;          // restoring force toward the path when player drifts off-corridor
-const BARRIER_DAMP = 0.6;          // how aggressively outward velocity is killed at the barrier
 
 export class PlayerController {
   constructor(rig) {
@@ -200,7 +200,47 @@ export class PlayerController {
     sfx.death();
   }
 
-  update(dt, { input, sampleHeight, casualMode }) {
+  // Resolve circle-vs-AABB push-out for every wall the cell manager
+  // knows about. Iterating each frame is cheap because the cell manager
+  // only loads a 3×3 ring (≤ ~12 walls). The push direction comes from
+  // the closest point on the box to the player; we also kill the
+  // velocity component pointed *into* the wall so the player doesn't
+  // stutter back and forth.
+  resolveWalls(walls) {
+    const r = PLAYER_R;
+    for (const w of walls) {
+      const cx = Math.max(w.minX, Math.min(this.pos.x, w.maxX));
+      const cz = Math.max(w.minZ, Math.min(this.pos.z, w.maxZ));
+      const dx = this.pos.x - cx;
+      const dz = this.pos.z - cz;
+      const d2 = dx * dx + dz * dz;
+      if (d2 >= r * r) continue;
+      const d = Math.sqrt(d2);
+      let nx, nz;
+      if (d > 1e-4) {
+        nx = dx / d; nz = dz / d;
+      } else {
+        // Player centre exactly on a wall edge — pick the shortest exit.
+        const halfX = (w.maxX - w.minX) / 2;
+        const halfZ = (w.maxZ - w.minZ) / 2;
+        const px = (this.pos.x - (w.minX + halfX));
+        const pz = (this.pos.z - (w.minZ + halfZ));
+        if (Math.abs(px) > Math.abs(pz)) { nx = Math.sign(px) || 1; nz = 0; }
+        else { nx = 0; nz = Math.sign(pz) || 1; }
+      }
+      const push = r - d;
+      this.pos.x += nx * push;
+      this.pos.z += nz * push;
+      // Kill velocity into the wall normal.
+      const vn = this.vel.x * nx + this.vel.z * nz;
+      if (vn < 0) {
+        this.vel.x -= vn * nx;
+        this.vel.z -= vn * nz;
+      }
+    }
+  }
+
+  update(dt, { input, sampleHeight, casualMode, walls }) {
     // Death animation only.
     if (!this.alive) {
       this.deathT += dt;
@@ -211,31 +251,27 @@ export class PlayerController {
       return;
     }
 
-    // Input → desired direction.
+    // Input → desired direction. Controls are ABSOLUTE in screen-space:
+    //   W / ↑  = forward = up the screen
+    //   S / ↓  = back
+    //   A / ←  = left on screen
+    //   D / →  = right on screen
     //
-    // Controls are camera-relative now: W is "away from the camera into
-    // the scene" regardless of where the player is currently facing.
-    // The camera trails behind the player's facing, so for normal
-    // forward play the world-space and camera-space frames coincide;
-    // the difference shows after a sharp turn — your next W keeps you
-    // moving in the direction you can SEE forward, not the world axis
-    // you happened to be on a moment ago.
-    let lx = 0, lz = 0;
-    if (input.left)  lx -= 1;
-    if (input.right) lx += 1;
-    if (input.fwd)   lz += 1;
-    if (input.back)  lz -= 1;
-    const lmag = Math.hypot(lx, lz);
-    if (lmag > 0) { lx /= lmag; lz /= lmag; }
-
-    // Rotate the local stick by the camera's yaw so screen-up is +Z in
-    // the camera's frame. cameraYaw is supplied by the loop snapshot.
-    const camY = input.cameraYaw || 0;
-    const cs = Math.cos(camY);
-    const sn = Math.sin(camY);
-    const mx = lx * cs - lz * sn;
-    const mz = lx * sn + lz * cs;
-    const mag = lmag;
+    // The camera looks at the player from south (z<0) with three.js's
+    // standard up vector. With that geometry the camera's right vector
+    // is world -X (cross-product convention up × back), so world +X
+    // actually projects to the LEFT side of the screen. We mirror the
+    // X axis here so what the player presses matches what they see —
+    // left arrow moves the body left on screen, right arrow right.
+    // Z is unaffected: walking +Z does project to screen-up because
+    // the camera tilts down from the south.
+    let mx = 0, mz = 0;
+    if (input.left)  mx += 1;
+    if (input.right) mx -= 1;
+    if (input.fwd)   mz += 1;
+    if (input.back)  mz -= 1;
+    const mag = Math.hypot(mx, mz);
+    if (mag > 0) { mx /= mag; mz /= mag; }
     const sprint = !!input.sprint;
     // Bleed off any active slow effect (spore cloud etc).
     if (this.slowTimer > 0) {
@@ -291,26 +327,12 @@ export class PlayerController {
       sfx.jump();
     }
 
-    // Corridor barrier — keeps the player on the walkable floor without
-    // ever wedging them. We sample how far past the corridor edge the
-    // player is and apply a smooth restoring force back toward the
-    // path centerline. Inside the corridor this contributes nothing, so
-    // movement on the floor stays free.
-    const pressure = barrierPressureAt(this.pos.x, this.pos.z);
-    if (pressure > 0) {
-      const px = pathOffsetAt(this.pos.z);
-      const inward = Math.sign(px - this.pos.x) || 1;
-      // Spring back toward the path; the magnitude grows with how deep
-      // the player has pushed into the wall.
-      this.vel.x += inward * BARRIER_FORCE * pressure * dt;
-      // Kill outward velocity decisively so the player doesn't bounce
-      // back and forth against the wall on next-frame input.
-      if (Math.sign(this.vel.x) === -inward) this.vel.x *= (1 - BARRIER_DAMP);
-    }
-
+    // Integrate position. Wall collisions resolved next.
     this.pos.x += this.vel.x * dt;
     this.pos.z += this.vel.z * dt;
     this.pos.y += this.vel.y * dt;
+
+    if (walls) this.resolveWalls(walls);
 
     // Ground collision via heightmap sample.
     const groundY = sampleHeight(this.pos.x, this.pos.z);
