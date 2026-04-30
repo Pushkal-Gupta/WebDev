@@ -37,8 +37,14 @@ export default function Hud({
   gemsTotal,
   deaths,
   time,
+  roomBest,
   exitLive,
 }) {
+  // Pace marker — show the player's recorded best for this room as a
+  // ghost line under the room name. Gives a target without nagging.
+  const paceLabel = roomBest && typeof roomBest.time === 'number'
+    ? `best ${roomBest.time}s${roomBest.deaths > 0 ? ` · ${roomBest.deaths}d` : ''}`
+    : null;
   return (
     <div className="ff-hud-row">
       <div className="ff-chip ff-chip-primary">
@@ -48,6 +54,7 @@ export default function Hud({
           <span className="ff-chip-unit">/{levelCount}</span>
         </span>
         <span className="ff-chip-sub">{levelName}</span>
+        {paceLabel && <span className="ff-chip-pace">{paceLabel}</span>}
       </div>
 
       <div

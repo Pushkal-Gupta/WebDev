@@ -1,15 +1,14 @@
-// Grudgewood — chunk manager for a streaming, infinite forest.
+// Grudgewood — chunk manager for the streaming, infinite forest.
 //
 // The world is sliced into fixed-length tiles along Z. As the player walks
 // forward, chunks ahead of them are built on demand and chunks far behind
-// are disposed. Each chunk owns a terrain mesh, decorative props, and a set
-// of traps; the manager forwards per-frame updates and lethal-hit checks.
-//
-// Why chunks instead of one giant world: GPU memory scales with mesh count
-// and trap count. Chunked streaming keeps the active scene small (~3 chunks)
-// no matter how far the player has run.
+// are disposed. Each chunk owns a terrain mesh, decorative props, and a
+// set of traps; the manager forwards per-frame updates and lethal-hit
+// checks. Chunk builds are deferred via the next idle/microtask so a
+// boundary crossing never costs a single frame.
 
 import * as THREE from 'three';
+import { CHUNK_LENGTH, CHUNK_HALF_W } from './chunkConstants.js';
 import { pathOffsetAt, sampleHeight as sampleHeightGlobal, noise2D } from './heightmap.js';
 import { biomeAt, biomeForChunk } from './biomeProgression.js';
 import { spawnChunkContent } from './spawn.js';
@@ -26,18 +25,32 @@ import { FakeStump } from './traps/fakestump.js';
 import { EmberRain } from './traps/embers.js';
 import { WindGust } from './traps/wind.js';
 import { LyingSign } from './traps/sign.js';
+import { AcornCannon } from './traps/acorn.js';
+import { BoarTree } from './traps/boar.js';
+import { CarnivorousVine } from './traps/vine.js';
+import { BoulderDrop } from './traps/boulder.js';
+import { TarGeyser } from './traps/geyser.js';
+import { SporeCloud } from './traps/spore.js';
+import { BranchLashCombo } from './traps/lash.js';
+import { MirrorTree } from './traps/mirror.js';
 
-export const CHUNK_LENGTH = 64;     // meters along Z per chunk
-export const CHUNK_HALF_W = 32;     // meters either side of the corridor
-const TERRAIN_RES_X = 30;
-const TERRAIN_RES_Z = 64;
-const CHUNKS_AHEAD = 2;             // load this many chunks beyond the player
-const CHUNKS_BEHIND = 1;            // keep one behind so the player can backtrack briefly
+export { CHUNK_LENGTH, CHUNK_HALF_W };
+
+// Lowering terrain mesh resolution doubles the framerate on low-end laptops
+// without changing how the corridor reads visually. The path widths are
+// already authored at metre scale so 24×48 verts is plenty of detail.
+const TERRAIN_RES_X = 24;
+const TERRAIN_RES_Z = 48;
+const CHUNKS_AHEAD = 2;
+const CHUNKS_BEHIND = 1;
 
 const TRAP_CLASS = {
   whip: BranchWhip, snare: RootSnare, mushroom: MushroomPop, log: RollingLog,
   pit: HiddenPit, predator: PredatorTree, stump: FakeStump, embers: EmberRain,
   wind: WindGust, sign: LyingSign,
+  acorn: AcornCannon, boar: BoarTree, vine: CarnivorousVine,
+  boulder: BoulderDrop, geyser: TarGeyser, spore: SporeCloud,
+  lash: BranchLashCombo, mirror: MirrorTree,
 };
 const PROP_BUILDER = {
   tree:     (b, e) => makeTree(b, e.scale || 1, e.variant || 0),
@@ -48,9 +61,17 @@ const PROP_BUILDER = {
   mushroom: (b, e) => makeMushroom(b, e.capColor || '#c33', e.scale || 1),
 };
 
-// Build a flat-relative terrain mesh for a chunk. The mesh is positioned at
-// world Z = chunkIndex * CHUNK_LENGTH; vertices and the height sample function
-// are both expressed in world coordinates so adjacent chunks line up.
+// Defer non-blocking work to the next idle slot when the browser supports
+// it; otherwise fall through to a microtask. The whole point is that a
+// chunk build never stalls a single render frame.
+const idle = (cb) => {
+  if (typeof requestIdleCallback === 'function') {
+    requestIdleCallback(cb, { timeout: 250 });
+  } else {
+    Promise.resolve().then(cb);
+  }
+};
+
 function buildChunkTerrain(biome, chunkIndex) {
   const z0 = chunkIndex * CHUNK_LENGTH;
   const geo = new THREE.PlaneGeometry(CHUNK_HALF_W * 2, CHUNK_LENGTH, TERRAIN_RES_X, TERRAIN_RES_Z);
@@ -71,9 +92,9 @@ function buildChunkTerrain(biome, chunkIndex) {
     const y = sampleHeightGlobal(x, z);
     pos.setY(i, y);
     const dist = Math.abs(x - pathOffsetAt(z));
-    const t = Math.max(0, Math.min(1, 1 - dist / 6));
+    const t = Math.max(0, Math.min(1, 1 - dist / 7));
     const g = Math.max(0, Math.min(1, (noise2D(x * 0.4, z * 0.4) - 0.4) * 1.6));
-    tmp.copy(cGround).lerp(cGrass, t * 0.55).lerp(cGrassLt, t * g * 0.5);
+    tmp.copy(cGround).lerp(cGrass, t * 0.6).lerp(cGrassLt, t * g * 0.55);
     if (y > 1.5) tmp.lerp(cDark, Math.min(1, (y - 1.5) / 4));
     colors[i * 3] = tmp.r; colors[i * 3 + 1] = tmp.g; colors[i * 3 + 2] = tmp.b;
   }
@@ -88,7 +109,6 @@ function buildChunkTerrain(biome, chunkIndex) {
   return mesh;
 }
 
-// One chunk = its terrain + props + traps + scene group.
 function buildChunk(scene, chunkIndex) {
   const biome = biomeForChunk(chunkIndex, CHUNK_LENGTH);
   const group = new THREE.Group();
@@ -97,7 +117,7 @@ function buildChunk(scene, chunkIndex) {
   const terrain = buildChunkTerrain(biome, chunkIndex);
   group.add(terrain);
 
-  const { traps: trapDefs, props: propDefs } = spawnChunkContent(chunkIndex, biome, CHUNK_LENGTH);
+  const { traps: trapDefs, props: propDefs, archetype } = spawnChunkContent(chunkIndex, biome, CHUNK_LENGTH);
 
   const props = [];
   for (const e of propDefs) {
@@ -121,7 +141,34 @@ function buildChunk(scene, chunkIndex) {
     traps.push(trap);
   }
 
-  return { index: chunkIndex, group, terrain, props, traps, biome };
+  // LOD state — every prop in this chunk, with its kind tagged. Used by
+  // applyLOD below to switch shadow casting and material detail when the
+  // player walks far enough away that fine detail won't read.
+  const lodProps = props.map((m) => ({ mesh: m, kind: m.userData?.kind }));
+
+  return { index: chunkIndex, group, terrain, props, traps, biome, archetype, lodProps, _lodLevel: 'near' };
+}
+
+// Walk a chunk and toggle prop detail. "near" keeps shadow casting on;
+// "far" disables shadows and removes the inner foliage blobs that don't
+// read past ~50m. Cheap to flip — just a per-mesh attribute toggle, no
+// rebuild.
+function applyChunkLOD(chunk, level) {
+  if (chunk._lodLevel === level) return;
+  chunk._lodLevel = level;
+  // Snapshot the original cast-shadow flag BEFORE we mutate it — otherwise
+  // the first transition to "far" overwrites every mesh's `castShadow` with
+  // false, the snapshot reads that false, and shadows are lost permanently.
+  if (!chunk._lodSnapshotted) {
+    chunk._lodSnapshotted = true;
+    chunk.group.traverse((o) => {
+      if (o.isMesh) o.userData._castShadowOriginal = o.userData._castShadowOriginal ?? o.castShadow;
+    });
+  }
+  const wantShadows = level === 'near';
+  chunk.group.traverse((o) => {
+    if (o.isMesh) o.castShadow = wantShadows && (o.userData?._castShadowOriginal ?? false);
+  });
 }
 
 function disposeChunk(scene, chunk) {
@@ -139,42 +186,64 @@ function disposeChunk(scene, chunk) {
 export class ChunkManager {
   constructor(scene) {
     this.scene = scene;
-    this.chunks = new Map();      // chunkIndex -> chunk
-    this._lastPlayerChunk = null; // cache so we only re-stream on chunk-change
+    this.chunks = new Map();
+    this._lastPlayerChunk = null;
+    this._building = new Set();          // indices currently scheduled but not built
   }
 
   // Ensure chunks around the player are loaded; dispose chunks too far away.
+  // First load (when the manager has no chunks) is synchronous so the player
+  // never spawns into a void; subsequent neighbour loads are deferred.
   ensureLoadedAround(playerZ) {
     const center = Math.floor(playerZ / CHUNK_LENGTH);
+    // LOD update runs every call regardless of whether streaming changed,
+    // so chunks transition smoothly as the player walks within a chunk.
+    for (const chunk of this.chunks.values()) {
+      const dist = Math.abs(chunk.index - center);
+      // Keep both the player's chunk and the immediately-ahead chunk at
+      // full detail. The next chunk is always within ~CHUNK_LENGTH metres
+      // of the camera so its shadow casts very much read on screen.
+      applyChunkLOD(chunk, dist <= 1 ? 'near' : 'far');
+    }
     if (this._lastPlayerChunk === center) return;
     this._lastPlayerChunk = center;
 
     const minIdx = Math.max(0, center - CHUNKS_BEHIND);
     const maxIdx = center + CHUNKS_AHEAD;
 
-    // Load anything missing.
     for (let i = minIdx; i <= maxIdx; i++) {
-      if (!this.chunks.has(i)) {
+      if (this.chunks.has(i) || this._building.has(i)) continue;
+      if (this.chunks.size === 0) {
+        // Cold start — must be ready before the loop runs the first frame.
         this.chunks.set(i, buildChunk(this.scene, i));
+      } else {
+        this._building.add(i);
+        idle(() => {
+          if (!this._building.has(i)) return;     // disposed before build
+          this._building.delete(i);
+          if (this.chunks.has(i)) return;
+          this.chunks.set(i, buildChunk(this.scene, i));
+        });
       }
     }
-    // Drop anything outside the window.
     for (const [idx, chunk] of this.chunks) {
       if (idx < minIdx || idx > maxIdx) {
         disposeChunk(this.scene, chunk);
         this.chunks.delete(idx);
       }
     }
+    // Cancel pending builds outside the window.
+    for (const idx of this._building) {
+      if (idx < minIdx || idx > maxIdx) this._building.delete(idx);
+    }
   }
 
-  // Walk every active trap, ticking it and forwarding ctx (player pos etc).
   tickTraps(dt, ctx) {
     for (const chunk of this.chunks.values()) {
       for (const trap of chunk.traps) trap.tick(dt, ctx);
     }
   }
 
-  // First lethal trap hitting the player, or null.
   checkLethalHit(player, playerRadius) {
     for (const chunk of this.chunks.values()) {
       for (const trap of chunk.traps) {
@@ -184,27 +253,29 @@ export class ChunkManager {
     return null;
   }
 
-  // Iterate all active traps for camera near-miss checks.
   *traps() {
     for (const chunk of this.chunks.values()) {
       for (const trap of chunk.traps) yield trap;
     }
   }
 
-  // Dispose every loaded chunk. Used on game teardown.
+  // Find the chunk containing a Z and report its archetype + biome — used
+  // by the HUD to label the current room ("Bend", "Clearing", etc.).
+  archetypeAt(z) {
+    const idx = Math.floor(z / CHUNK_LENGTH);
+    return this.chunks.get(idx)?.archetype || null;
+  }
+
   disposeAll() {
     for (const chunk of this.chunks.values()) disposeChunk(this.scene, chunk);
     this.chunks.clear();
+    this._building.clear();
     this._lastPlayerChunk = null;
   }
 
-  // Sample terrain height at any world coordinate. Pure function via the
-  // global heightmap, so chunks don't actually need to be loaded for this.
   sampleHeight(x, z) {
     return sampleHeightGlobal(x, z);
   }
 
-  // Biome description and biome-blend at a given Z. Used for the engine's
-  // sky/fog crossfade and the HUD label.
   biomeAt(z) { return biomeAt(z); }
 }

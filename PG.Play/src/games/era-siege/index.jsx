@@ -152,7 +152,10 @@ export default function EraSiegeGame({ mode }) {
     // Begin loading any present art; placeholders carry the visuals
     // until images decode. Vite serves under `/` in dev and the
     // current dist under the configured base — we resolve relative.
-    try { assets.preloadAll('/'); } catch { /* placeholder path is fine */ }
+    // No baseUrl arg → manifest resolves against document.baseURI so
+    // assets work both in dev (localhost:5180/) and prod
+    // (pushkalgupta.com/PG.Play/dist/).
+    try { assets.preloadAll(); } catch { /* placeholder path is fine */ }
 
     const wrap = wrapRef.current;
     const canvas = canvasRef.current;

@@ -190,6 +190,13 @@
   text-transform: uppercase;
   color: rgba(245, 232, 210, 0.5);
 }
+.gw-death-meta {
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(245, 232, 210, 0.62);
+  margin-bottom: 16px;
+}
 
 @keyframes gw-fade-in {
   from { opacity: 0; }

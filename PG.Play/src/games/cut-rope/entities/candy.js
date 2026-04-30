@@ -28,8 +28,10 @@ export function makeCandy(palette, def) {
   tailR.position.x = 0.42;
   group.add(tailL); group.add(tailR);
 
+  // DoubleSide — flat CircleGeometry under the engine's flipped camera.
   const aoMat = new THREE.MeshBasicMaterial({
     color: 0x000000, transparent: true, opacity: 0.18, depthWrite: false,
+    side: THREE.DoubleSide,
   });
   const aoGeo = new THREE.CircleGeometry(0.32, 16);
   const ao = new THREE.Mesh(aoGeo, aoMat);

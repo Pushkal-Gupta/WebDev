@@ -16,6 +16,7 @@
 // Run:  node scripts/frost-fight-process-art.mjs
 
 import sharp from 'sharp';
+import * as fs from 'node:fs';
 import { mkdirSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 
@@ -65,7 +66,17 @@ const SINGLES = [
   // leak into the character bbox.
   { src: 'orange-wind-up.png', out: 'orange-windup.png',
     wipeTopRight: { wPct: 0.42, hPct: 0.22 }, trimThreshold: 25 },
+  // Cherry-windup screenshot ships with the chat-platform UI badge in
+  // the top-right corner; same wipe pattern. Two variants supplied —
+  // we use the second (cleaner alignment) and skip the first.
+  { src: 'cherry-windup2.png', out: 'cherry-windup.png',
+    wipeTopRight: { wPct: 0.30, hPct: 0.18 }, trimThreshold: 18 },
 ];
+
+// Long-format singles. Currently empty — the FROST FIGHT wordmark is
+// rendered as inline vector text in src/covers.jsx so it scales
+// infinitely without rasterising.
+const WIDE_SINGLES = [];
 
 // Wall texture sheets — opaque 2048×2048. The user's drops have a
 // small Gemini "sparkle" badge in the bottom-right corner; we cover it
@@ -83,14 +94,56 @@ const WALLS = [
   { src: 'subbasement.png',  out: 'subbasement.png' },
 ];
 
-async function emitSprite(cellBuf, outFile, target = 128, trimThreshold = 5) {
-  // Trim transparent edges, square-pad with 8% margin, resize to target.
-  const t = await sharp(cellBuf).trim({ threshold: trimThreshold }).toBuffer({ resolveWithObject: true });
+// Aggressive alpha cleanup. Any pixel whose alpha is below `lowCut`
+// becomes fully transparent — kills the soft halo the AI generator
+// leaves around painted character outlines. Pixels above `highCut`
+// snap to fully opaque so the silhouette reads cleanly. Mid-alpha
+// pixels (real anti-aliased edges) are preserved untouched.
+async function lassoAlpha(buf, lowCut = 60, highCut = 240) {
+  const raw = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const { width, height, channels } = raw.info;
+  const data = raw.data;
+  for (let i = 3; i < data.length; i += channels) {
+    const a = data[i];
+    if (a < lowCut) data[i] = 0;
+    else if (a > highCut) data[i] = 255;
+    // else: keep as-is (anti-aliased outline pixels)
+  }
+  return sharp(data, { raw: { width, height, channels } }).png().toBuffer();
+}
+
+// Wrap a processed PNG buffer into an SVG file with the same display
+// size. The PNG is converted to WebP (40-60% smaller for painterly
+// art) and embedded as a base64 data URI inside an `<image>` element.
+// Output is a true `.svg` file Vite emits as a static asset; consumers
+// `import x from '...svg?url'` like any other asset. Browsers rasterise
+// the embedded WebP at whatever rendered size, so the sprite scales
+// without re-encoding.
+async function svgWrap(pngBuf, side, outFile) {
+  const webpBuf = await sharp(pngBuf)
+    .webp({ quality: 88, effort: 6, alphaQuality: 90 })
+    .toBuffer();
+  const b64 = webpBuf.toString('base64');
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${side} ${side}" width="${side}" height="${side}" preserveAspectRatio="xMidYMid meet">
+  <image href="data:image/webp;base64,${b64}" x="0" y="0" width="${side}" height="${side}" image-rendering="auto"/>
+</svg>
+`;
+  await fs.promises.writeFile(outFile, svg);
+}
+
+async function emitSprite(cellBuf, outFile, target = 512, trimThreshold = 5) {
+  // Pipeline: lasso alpha cleanup → trim → square-pad with 8% margin →
+  // resize to target → emit as a transparent WebP. WebP is the canonical
+  // sprite format because the game draws via canvas drawImage and SVG
+  // wrappers around raster data don't rasterize inside `<canvas>` on
+  // most browsers (they silently render blank). Direct WebP works.
+  const cleaned = await lassoAlpha(cellBuf);
+  const t = await sharp(cleaned).trim({ threshold: trimThreshold }).toBuffer({ resolveWithObject: true });
   const m = t.info;
   const max = Math.max(m.width, m.height);
   const pad = Math.round(max * 0.08);
   const side = max + pad * 2;
-  await sharp(t.data)
+  const padded = await sharp(t.data)
     .extend({
       top:    Math.floor((side - m.height) / 2),
       bottom: Math.ceil((side - m.height) / 2),
@@ -98,9 +151,14 @@ async function emitSprite(cellBuf, outFile, target = 128, trimThreshold = 5) {
       right:  Math.ceil((side - m.width)  / 2),
       background: { r: 0, g: 0, b: 0, alpha: 0 },
     })
+    .png()
+    .toBuffer();
+  // outFile arg may end in .png — coerce to .webp for the actual write.
+  const webpFile = outFile.replace(/\.(png|svg)$/i, '.webp');
+  await sharp(padded)
     .resize(target, target, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
-    .png({ compressionLevel: 9 })
-    .toFile(outFile);
+    .webp({ quality: 90, alphaQuality: 95, effort: 6 })
+    .toFile(webpFile);
 }
 
 async function processSheet(sheetPath, layout) {
@@ -109,7 +167,7 @@ async function processSheet(sheetPath, layout) {
       .extract({ left: item.col * CELL_W, top: item.row * CELL_H, width: CELL_W, height: CELL_H })
       .toBuffer();
     const out = join(OUT_SPRITES, item.name);
-    await emitSprite(cell, out, 128);
+    await emitSprite(cell, out, 512);
     process.stdout.write(`  ${item.name}\n`);
   }
 }
@@ -132,8 +190,48 @@ async function processSingle(item) {
       .composite([{ input: mask, left: meta.width - ww, top: 0, blend: 'dest-out' }])
       .png().toBuffer();
   }
-  await emitSprite(buf, join(OUT_SPRITES, item.out), 128, item.trimThreshold ?? 5);
+  await emitSprite(buf, join(OUT_SPRITES, item.out), 512, item.trimThreshold ?? 5);
   process.stdout.write(`  ${item.out}\n`);
+}
+
+// Wide single — wordmark style. Wipes the platform UI badge, trims,
+// resizes by width while preserving aspect ratio.
+async function processWideSingle(item) {
+  const src = join(SRC, item.src);
+  const meta = await sharp(src).metadata();
+  const ww = Math.round(meta.width  * (item.wipeTopRight?.wPct ?? 0));
+  const wh = Math.round(meta.height * (item.wipeTopRight?.hPct ?? 0));
+  let buf = await sharp(src).png().toBuffer();
+  if (ww > 0 && wh > 0) {
+    const mask = await sharp({
+      create: { width: ww, height: wh, channels: 4,
+                background: { r: 255, g: 255, b: 255, alpha: 1 } },
+    }).png().toBuffer();
+    buf = await sharp(buf)
+      .composite([{ input: mask, left: meta.width - ww, top: 0, blend: 'dest-out' }])
+      .png().toBuffer();
+  }
+  const cleaned = await lassoAlpha(buf);
+  const trimmed = await sharp(cleaned).trim({ threshold: item.trimThreshold ?? 5 })
+    .toBuffer({ resolveWithObject: true });
+  const pngBuf = await sharp(trimmed.data)
+    .resize({ width: item.targetWidth ?? 1024 })
+    .png({ compressionLevel: 9 })
+    .toBuffer();
+  const outPng = join(OUT_SPRITES, item.out);
+  await fs.promises.writeFile(outPng, pngBuf);
+  // SVG wrap with webp embedding. Preserves the wide aspect ratio.
+  const wrapMeta = await sharp(pngBuf).metadata();
+  const webpBuf = await sharp(pngBuf)
+    .webp({ quality: 88, effort: 6, alphaQuality: 90 })
+    .toBuffer();
+  const b64 = webpBuf.toString('base64');
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${wrapMeta.width} ${wrapMeta.height}" width="${wrapMeta.width}" height="${wrapMeta.height}" preserveAspectRatio="xMidYMid meet">
+  <image href="data:image/webp;base64,${b64}" x="0" y="0" width="${wrapMeta.width}" height="${wrapMeta.height}"/>
+</svg>
+`;
+  await fs.promises.writeFile(outPng.replace(/\.png$/, '.svg'), svg);
+  process.stdout.write(`  ${item.out} + .svg (${wrapMeta.width}×${wrapMeta.height})\n`);
 }
 
 // Wall-texture pipeline. Strips the bottom-right Gemini sparkle, then
@@ -206,6 +304,8 @@ async function processCover() {
   await processSheet(join(SRC, 'A Type 2.png'), A2_LAYOUT);
   console.log('▶︎ Singles');
   for (const s of SINGLES) await processSingle(s);
+  console.log('▶︎ Wide singles');
+  for (const ws of WIDE_SINGLES) await processWideSingle(ws);
   console.log('▶︎ Walls');
   for (const w of WALLS) await processWall(w);
   console.log('▶︎ Frost-Fight cover');

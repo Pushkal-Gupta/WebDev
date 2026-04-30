@@ -19,9 +19,12 @@ export function makeBlower(def) {
   nozzle.position.x = -0.05;
   group.add(nozzle);
 
+  // DoubleSide — flat PlaneGeometry would back-face-cull under the
+  // engine's vertically flipped ortho camera. See star.js.
   const coneMat = new THREE.MeshBasicMaterial({
     color: 0xffe6b3, transparent: true, opacity: 0.18,
     blending: THREE.AdditiveBlending, depthWrite: false,
+    side: THREE.DoubleSide,
   });
   const coneGeo = new THREE.PlaneGeometry(def.length, def.radius * 2);
   const cone = new THREE.Mesh(coneGeo, coneMat);

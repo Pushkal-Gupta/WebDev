@@ -20,6 +20,7 @@ export function spawnStarBurst(scene, x, y) {
     const mat = new THREE.MeshBasicMaterial({
       color: 0xffe07a, transparent: true, opacity: 1,
       blending: THREE.AdditiveBlending, depthWrite: false,
+      side: THREE.DoubleSide,
     });
     const mesh = new THREE.Mesh(SPARKLE_GEO, mat);
     mesh.position.set(x, y, 0.05);

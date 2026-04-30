@@ -3,9 +3,10 @@
 // Defs are inlined per-SVG via <SharedDefs/> so every cover
 // is fully self-contained (no cross-SVG id references).
 
-// One painted PNG ships from the user's art sheet — used as the lobby
-// cover for `badicecream` (Frost Fight), embedded inside an SVG so the
-// portrait card layout still works.
+// Painted hero scene (the lobby cover for Frost Fight). Embedded in
+// the portrait 400×500 SVG below. The FROST FIGHT wordmark is rendered
+// as inline SVG text (paint-order outline + fill) so it stays a true
+// vector at any cover size — no embedded raster.
 import badicecreamCoverUrl from './games/frost-fight/sprites/cover.webp?url';
 
 const SharedDefs = () => (
@@ -288,21 +289,45 @@ const Cover_BadIceCream = () => (
       </radialGradient>
     </defs>
     <rect width="400" height="500" fill="url(#ff-cover-bg)"/>
-    {/* Painted scene — 16:9 fitted to the full width (400×225), centred
-        vertically (top edge at y≈137 so the scene sits in the middle). */}
+    {/* Painted scene — 16:9 fitted to the full width (400×225), shifted
+        slightly up so the wordmark band has clean room below. */}
     <image
       href={badicecreamCoverUrl}
-      x="0" y="138" width="400" height="225"
+      x="0" y="120" width="400" height="225"
       preserveAspectRatio="xMidYMid slice"/>
     {/* Soft halo on top of the painting for cohesion with the in-game
         frame glow. Stays subtle so the painted detail reads through. */}
-    <rect width="400" height="500" fill="url(#ff-cover-halo)" opacity="0.6"/>
-    {/* Subtle frosted edge band at the very top + bottom — frames the
-        painting against the cover-card chrome. */}
-    <rect x="0" y="0" width="400" height="40"
+    <rect width="400" height="500" fill="url(#ff-cover-halo)" opacity="0.55"/>
+    {/* Subtle frosted edge band at the very top — frames the painting
+        against the cover-card chrome. */}
+    <rect x="0" y="0" width="400" height="32"
           fill="rgba(108,208,240,0.06)"/>
-    <rect x="0" y="460" width="400" height="40"
-          fill="rgba(108,208,240,0.06)"/>
+    {/* A faint cyan glow band behind the wordmark for read-back on the
+        deep navy. Drawn first so the wordmark sits on top. */}
+    <ellipse cx="200" cy="416" rx="180" ry="34"
+             fill="rgba(108,208,240,0.10)"/>
+    {/* Wordmark — true SVG text. Paint-order: stroke (cyan-mint outline)
+        first, then fill (white). Two pseudo-elements stacked, so the
+        outline doesn't bleed into the fill weight. Bricolage Grotesque
+        is loaded by the platform CSS; falls back through Inter +
+        system-ui so it always reads. */}
+    <g style={{
+      fontFamily: '"Bricolage Grotesque", "Inter", system-ui, sans-serif',
+      fontWeight: 800,
+      fontSize: 56,
+      letterSpacing: '0.01em',
+    }} textAnchor="middle">
+      <text
+        x="200" y="430"
+        fill="none"
+        stroke="#7af5dc"
+        strokeWidth="9"
+        strokeLinejoin="round"
+        strokeLinecap="round">
+        FROST FIGHT
+      </text>
+      <text x="200" y="430" fill="#ffffff">FROST FIGHT</text>
+    </g>
   </svg>
 );
 

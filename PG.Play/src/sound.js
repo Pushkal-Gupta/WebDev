@@ -169,6 +169,116 @@ export const subscribeMute = (cb) => {
   muteListeners.add(cb);
   return () => muteListeners.delete(cb);
 };
+
+// ── Frost Fight ambient bed ──────────────────────────────────
+// Continuous low-volume pad: root sine + perfect-5th sine through a
+// lowpass at 800Hz, gain 0.045 with a slow LFO breath (0.3 Hz). Per-room
+// key root matches the intro sting (Pantry C5, Cold Room A4, Aisle G4,
+// new rooms reuse the closest pitch).
+//
+// Design constraints:
+//   - never starts while muted
+//   - stops + GC's its nodes on .stop() so a route exit cleans up
+//   - .duck(t) does a temporary gain dip (e.g. on death) and returns
+//   - subscribes to muteListeners so the shell's M-key kills audio live
+
+const ROOM_ROOTS = [
+  523.25, // Pantry        C5
+  440.00, // Cold Room     A4
+  392.00, // The Aisle     G4
+  466.16, // Walk-In       A♯4
+  349.23, // Loading Dock  F4
+  329.63, // Sub-Basement  E4
+];
+
+let _ff = null;        // active state ({ ctx, master, oscs, lfoStop, unsubMute })
+let _ffRoom = -1;      // last started room — re-keying needs to .stop() first
+
+function _frostStop() {
+  if (!_ff) return;
+  const { ctx, master, oscs, lfoStop, unsubMute } = _ff;
+  // Quick fade so the cut isn't audible.
+  try {
+    const t = ctx.currentTime;
+    master.gain.cancelScheduledValues(t);
+    master.gain.setValueAtTime(master.gain.value, t);
+    master.gain.linearRampToValueAtTime(0.0001, t + 0.18);
+    oscs.forEach((o) => { try { o.stop(t + 0.22); } catch {} });
+  } catch {}
+  if (typeof lfoStop === 'function') { try { lfoStop(); } catch {} }
+  if (typeof unsubMute === 'function') { try { unsubMute(); } catch {} }
+  _ff = null;
+  _ffRoom = -1;
+}
+
+function _frostStart(roomIdx) {
+  if (muted()) return;
+  if (_ff && _ffRoom === roomIdx) return;
+  if (_ff) _frostStop();
+  const c = ensure(); if (!c) return;
+
+  const root = ROOM_ROOTS[roomIdx] ?? ROOM_ROOTS[0];
+  const t0 = c.currentTime;
+  const master = c.createGain();
+  master.gain.setValueAtTime(0, t0);
+  master.gain.linearRampToValueAtTime(0.045, t0 + 1.4);
+  const lp = c.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.setValueAtTime(800, t0);
+  master.connect(lp).connect(c.destination);
+
+  const oscs = [];
+  const make = (freq, gainScale = 1, type = 'sine') => {
+    const o = c.createOscillator();
+    o.type = type;
+    o.frequency.setValueAtTime(freq, t0);
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.42 * gainScale, t0);
+    o.connect(g).connect(master);
+    o.start(t0);
+    oscs.push(o);
+    return g;
+  };
+  make(root, 1.0, 'sine');           // root drone
+  make(root * 1.5, 0.5, 'sine');     // perfect 5th
+  make(root * 0.5, 0.4, 'triangle'); // sub-octave for body
+
+  // Slow LFO on master gain — gentle ~0.3 Hz breath, ±25 % around the
+  // base level. Implemented with a gain node modulated by a sine osc.
+  const lfo = c.createOscillator();
+  lfo.frequency.setValueAtTime(0.3, t0);
+  const lfoAmp = c.createGain();
+  lfoAmp.gain.setValueAtTime(0.011, t0); // depth around the 0.045 base
+  lfo.connect(lfoAmp).connect(master.gain);
+  lfo.start(t0);
+  const lfoStop = () => { try { lfo.stop(); } catch {} };
+
+  // Pause when the user toggles mute mid-game.
+  const unsubMute = subscribeMute((isMute) => {
+    if (isMute) _frostStop();
+  });
+
+  _ff = { ctx: c, master, oscs, lfoStop, unsubMute };
+  _ffRoom = roomIdx;
+}
+
+function _frostDuck(durationSec = 0.6) {
+  if (!_ff) return;
+  const { ctx, master } = _ff;
+  const t = ctx.currentTime;
+  try {
+    master.gain.cancelScheduledValues(t);
+    master.gain.setValueAtTime(master.gain.value, t);
+    master.gain.linearRampToValueAtTime(0.005, t + 0.12);
+    master.gain.linearRampToValueAtTime(0.045, t + durationSec);
+  } catch {}
+}
+
+export const frostMusic = {
+  start: _frostStart,
+  stop:  _frostStop,
+  duck:  _frostDuck,
+};
 export const setMuted = (yes) => {
   const next = !!yes;
   const prev = muted();

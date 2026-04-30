@@ -5,6 +5,7 @@
 import * as THREE from 'three';
 import { HATS } from './hats.js';
 import { sfx } from './audio.js';
+import { pathOffsetAt, pathHalfWidthAt, barrierPressureAt } from './heightmap.js';
 
 const tmp = new THREE.Vector3();
 const tmpA = new THREE.Vector3();
@@ -112,23 +113,27 @@ export function makePlayer() {
 }
 
 // ── Player controller ─────────────────────────────────────────────────────
-// Movement tuning. Walk is the default cruise; Shift = sprint. Walk was
-// previously 6.4 m/s, which felt sluggish through the long Mosswake
-// segments — bumped to 8.0 so casual play is brisk and Sprint is the
-// commitment, not the baseline.
-const WALK_MAX = 8.0;     // m/s
-const SPRINT_MAX = 11.5;
-const ACCEL_GROUND = 46;  // reach top in ~0.17s, snappy turn-around
-const ACCEL_AIR = 18;
-const FRICTION_GROUND = 38;
-const JUMP_V = 9.8;
-const GRAVITY = 24;
-const MAX_FALL = 26;
-const COYOTE = 0.12;       // generous — was 0.10
-const JUMP_BUFFER = 0.14;  // generous — was 0.12
-const TURN_RATE = 22;      // radians-per-second-ish lerp factor (was 14, felt floaty)
+// Movement tuning. Walk is the default cruise; Shift = sprint. The corridor
+// barrier (see corridorPush below) replaced the older slope-reflect wall
+// code, which got the player into a feedback loop where input pushed into a
+// cliff, the reflection capped velocity, then input pushed again — making
+// the player feel "stuck" against any rising terrain. The new system
+// guarantees the player can always move on the floor.
+const WALK_MAX = 8.5;     // m/s
+const SPRINT_MAX = 12.5;
+const ACCEL_GROUND = 50;
+const ACCEL_AIR = 22;
+const FRICTION_GROUND = 28;        // lower friction = more carry, less "stop on a dime"
+const JUMP_V = 11.5;               // higher arc so jumps clear branches and pits
+const GRAVITY = 26;
+const MAX_FALL = 28;
+const COYOTE = 0.14;
+const JUMP_BUFFER = 0.16;
+const TURN_RATE = 26;              // snappy turn-around
 const PLAYER_R = 0.55;
 const PLAYER_H = 1.8;
+const BARRIER_FORCE = 60;          // restoring force toward the path when player drifts off-corridor
+const BARRIER_DAMP = 0.6;          // how aggressively outward velocity is killed at the barrier
 
 export class PlayerController {
   constructor(rig) {
@@ -147,6 +152,21 @@ export class PlayerController {
     this.gait = 0;         // 0..1 walk cycle phase
     this.lastStep = 0;
     this.stumble = 0;       // post-near-miss flinch
+    this.slowFactor = 1;    // movement multiplier from area effects (spores etc)
+    this.slowTimer = 0;     // seconds remaining of slow
+  }
+
+  // Call from a trap's tick() via ctx.applySlow(factor, duration). The
+  // strongest currently-active slow wins. A weaker slow can never refresh
+  // a stronger slow's timer — otherwise a brush past a weak cloud would
+  // extend a strong cloud's hold on the player.
+  applySlow(factor, duration) {
+    if (factor < this.slowFactor) {
+      this.slowFactor = factor;
+      this.slowTimer = duration;
+    } else if (factor === this.slowFactor && this.slowTimer < duration) {
+      this.slowTimer = duration;
+    }
   }
 
   reset(pos, facing = 0) {
@@ -217,7 +237,12 @@ export class PlayerController {
     const mz = lx * sn + lz * cs;
     const mag = lmag;
     const sprint = !!input.sprint;
-    const maxSpeed = sprint ? SPRINT_MAX : WALK_MAX;
+    // Bleed off any active slow effect (spore cloud etc).
+    if (this.slowTimer > 0) {
+      this.slowTimer = Math.max(0, this.slowTimer - dt);
+      if (this.slowTimer === 0) this.slowFactor = 1;
+    }
+    const maxSpeed = (sprint ? SPRINT_MAX : WALK_MAX) * this.slowFactor;
 
     // Update facing toward movement direction (snappier turn-around now).
     if (mag > 0.01) {
@@ -266,47 +291,25 @@ export class PlayerController {
       sfx.jump();
     }
 
-    // Integrate horizontal first so we can detect wall (steep slope) collisions
-    // and slide along them via reflection math instead of clipping into cliffs.
-    const nextX = this.pos.x + this.vel.x * dt;
-    const nextZ = this.pos.z + this.vel.z * dt;
-    const hereY = sampleHeight(this.pos.x, this.pos.z);
-    const aheadY = sampleHeight(nextX, nextZ);
-    // A "wall" is anywhere the terrain step is steeper than ~1.2 m over a
-    // single frame's horizontal travel — too steep to climb.
-    const horizDelta = Math.hypot(nextX - this.pos.x, nextZ - this.pos.z);
-    const slope = (aheadY - hereY) / Math.max(0.0001, horizDelta);
-    if (this.grounded && slope > 1.2 && horizDelta > 0.001) {
-      // Sample the heightmap gradient to recover the wall normal in XZ.
-      const eps = 0.25;
-      const dhx = (sampleHeight(this.pos.x + eps, this.pos.z) - sampleHeight(this.pos.x - eps, this.pos.z)) / (2 * eps);
-      const dhz = (sampleHeight(this.pos.x, this.pos.z + eps) - sampleHeight(this.pos.x, this.pos.z - eps)) / (2 * eps);
-      // Wall normal points "downhill" in XZ — opposite the gradient.
-      const nx = -dhx;
-      const nz = -dhz;
-      const nMag = Math.hypot(nx, nz);
-      if (nMag > 0.0001) {
-        const ux = nx / nMag;
-        const uz = nz / nMag;
-        // Reflect velocity across the normal: v' = v - 2(v·n)n, scaled to 0.4 for damping.
-        // This produces a slide along the wall (tangent component preserved) with a
-        // small bounce-back when the player runs straight into it.
-        const dot = this.vel.x * ux + this.vel.z * uz;
-        if (dot < 0) {
-          this.vel.x = (this.vel.x - 2 * dot * ux) * 0.4;
-          this.vel.z = (this.vel.z - 2 * dot * uz) * 0.4;
-        }
-        // Don't advance into the wall this frame — re-integrate with the new vel.
-        this.pos.x += this.vel.x * dt;
-        this.pos.z += this.vel.z * dt;
-      } else {
-        this.pos.x = nextX;
-        this.pos.z = nextZ;
-      }
-    } else {
-      this.pos.x = nextX;
-      this.pos.z = nextZ;
+    // Corridor barrier — keeps the player on the walkable floor without
+    // ever wedging them. We sample how far past the corridor edge the
+    // player is and apply a smooth restoring force back toward the
+    // path centerline. Inside the corridor this contributes nothing, so
+    // movement on the floor stays free.
+    const pressure = barrierPressureAt(this.pos.x, this.pos.z);
+    if (pressure > 0) {
+      const px = pathOffsetAt(this.pos.z);
+      const inward = Math.sign(px - this.pos.x) || 1;
+      // Spring back toward the path; the magnitude grows with how deep
+      // the player has pushed into the wall.
+      this.vel.x += inward * BARRIER_FORCE * pressure * dt;
+      // Kill outward velocity decisively so the player doesn't bounce
+      // back and forth against the wall on next-frame input.
+      if (Math.sign(this.vel.x) === -inward) this.vel.x *= (1 - BARRIER_DAMP);
     }
+
+    this.pos.x += this.vel.x * dt;
+    this.pos.z += this.vel.z * dt;
     this.pos.y += this.vel.y * dt;
 
     // Ground collision via heightmap sample.

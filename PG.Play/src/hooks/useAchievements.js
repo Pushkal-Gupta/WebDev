@@ -29,6 +29,7 @@ export const ACHIEVEMENTS = [
   { id: 'frost-clear',        label: 'Cold opening',        desc: 'Cleared every room in Frost Fight.' },
   { id: 'frost-deathless',    label: 'Untouchable',         desc: 'Cleared Frost Fight without a single death.' },
   { id: 'frost-fast',         label: 'Sub-zero sprint',     desc: 'Cleared Frost Fight in under 150 seconds.' },
+  { id: 'frost-trap',         label: 'Cornered',            desc: 'Boxed an enemy in solid ice in Frost Fight.' },
 ];
 
 const ORIGINAL_IDS = ['grudgewood', 'goalbound', 'slither', 'slipshot'];
@@ -162,6 +163,7 @@ export function useAchievements(user, bests) {
         unlock('frost-clear');
         if ((meta.deaths ?? 1) === 0) unlock('frost-deathless');
         if ((meta.time ?? 9999) < 150) unlock('frost-fast');
+        if ((meta.trapped ?? 0) >= 1)  unlock('frost-trap');
       }
     };
     window.addEventListener('pgplay:score', onScore);

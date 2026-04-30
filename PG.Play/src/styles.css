@@ -3026,6 +3026,19 @@ svg { display: block; width: 100%; height: 100%; }
   text-overflow: ellipsis;
   max-width: 14ch;
 }
+/* Pace ghost — per-room best, sub-line under the room name. Cyan-tinted
+   so it reads as a friendly target rather than another data point. */
+.ff-chip-pace {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ff-frost);
+  font-variant-numeric: tabular-nums;
+  margin-top: 1px;
+  white-space: nowrap;
+  opacity: 0.9;
+}
 .ff-chip-fruit.is-cleared {
   border-color: var(--ff-frost-glow);
   background: rgba(108, 208, 240, 0.10);
