@@ -8,7 +8,7 @@
 // `position: relative` so the overlay scopes to the game frame instead of
 // the whole viewport.
 
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 const COLORS = ['#f5c14a', '#e54562', '#7ad17a', '#5fb6e5', '#c879ff', '#ffaf5b', '#56e0c2'];
 
@@ -16,9 +16,19 @@ export default function Celebration({
   intensity = 3,
   title,
   subtitle,
-  ctaLabel = 'Continue',
+  ctaLabel,
   onDismiss,
+  // If set, auto-fade and call onDismiss after this many ms. Used by games
+  // that want the celebration to clear itself so the board (e.g., Connect 4's
+  // highlighted winning line) is fully visible after the animation.
+  autoDismissMs,
 }) {
+  useEffect(() => {
+    if (!autoDismissMs || !onDismiss) return;
+    const t = setTimeout(onDismiss, autoDismissMs);
+    return () => clearTimeout(t);
+  }, [autoDismissMs, onDismiss]);
+
   const particles = useMemo(() => {
     if (intensity <= 0) return [];
     const count = 40 + intensity * 30;        // 70 → 220
@@ -38,8 +48,16 @@ export default function Celebration({
     });
   }, [intensity]);
 
+  // When auto-dismissing, the card fades to clear the board sooner than the
+  // confetti finishes. We mirror the keyframe duration in CSS via inline var.
+  const fadeStyle = autoDismissMs
+    ? { '--celebrate-fade-dur': `${autoDismissMs}ms` }
+    : undefined;
+
   return (
-    <div className={`celebrate celebrate-i${Math.min(6, intensity)}`}>
+    <div
+      className={`celebrate celebrate-i${Math.min(6, intensity)}${autoDismissMs ? ' celebrate-autofade' : ''}`}
+      style={fadeStyle}>
       <div className="celebrate-particles" aria-hidden="true">
         {particles.map((p, i) => (
           <span key={i} className="celebrate-confetti" style={{
@@ -56,7 +74,7 @@ export default function Celebration({
       <div className="celebrate-card">
         {title    && <div className="celebrate-title">{title}</div>}
         {subtitle && <div className="celebrate-sub">{subtitle}</div>}
-        {onDismiss && (
+        {ctaLabel && onDismiss && (
           <button className="btn btn-primary celebrate-cta" onClick={onDismiss}>
             {ctaLabel}
           </button>

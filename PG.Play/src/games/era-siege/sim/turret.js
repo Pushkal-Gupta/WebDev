@@ -34,7 +34,8 @@ export function trySellTurret(state, side, slot) {
   const t = side.turretSlots[slot];
   if (!t) return false;
   const refund = Math.round(t.buildCost * SELL_REFUND_PCT);
-  side.gold = Math.min(9999, side.gold + refund);
+  // Refund pays out in full, even above GOLD_CAP — see economy.js.
+  side.gold += refund;
   side.turretSlots[slot] = null;
   state.bus.emit('turret_sold', { team: side.team, slot, refund });
   return true;
@@ -61,8 +62,55 @@ function makeTurretInstance(state, side, def, slot) {
     projectileId: def.projectileId,
     buildCost: def.buildCost,
     visual: def.visual,
+    // Per-turret upgrades. Each level applies a multiplier to the
+    // matching base stat. Capped at TURRET_UPGRADE_MAX so a single
+    // turret can't outscale the rest of the side.
+    rangeLevel:  0,
+    damageLevel: 0,
+    rateLevel:   0,
   };
 }
+
+// Per-turret stat upgrades. Each level costs the same as the previous
+// (linear), each adds a flat multiplier. Caps at TURRET_UPGRADE_MAX.
+const TURRET_UPGRADE_MAX = 3;
+const TURRET_UPGRADE_BASE_COST = 60;
+const TURRET_UPGRADE_DEFS = {
+  range:  { label: 'Range',  multPerLevel: 1.20, statKey: 'range',         levelKey: 'rangeLevel'  },
+  damage: { label: 'Damage', multPerLevel: 1.25, statKey: 'damage',        levelKey: 'damageLevel' },
+  rate:   { label: 'Rate',   multPerLevel: 0.85, statKey: 'cooldownMaxMs', levelKey: 'rateLevel'   },
+};
+
+export function turretUpgradeCost(level) {
+  // Linear ramp — level 0→1 = 60g, 1→2 = 120g, 2→3 = 180g.
+  return TURRET_UPGRADE_BASE_COST * (level + 1);
+}
+
+export function tryUpgradeTurretStat(state, side, slot, statId) {
+  const t = side.turretSlots[slot];
+  if (!t) return false;
+  const def = TURRET_UPGRADE_DEFS[statId];
+  if (!def) return false;
+  const lvl = t[def.levelKey] | 0;
+  if (lvl >= TURRET_UPGRADE_MAX) {
+    state.bus.emit('low_gold_error', { reason: 'upgrade_maxed', slot, statId });
+    return false;
+  }
+  const cost = turretUpgradeCost(lvl);
+  if (side.gold < cost) {
+    state.bus.emit('low_gold_error', { reason: 'gold', slot, cost, gold: side.gold });
+    return false;
+  }
+  side.gold -= cost;
+  t[def.levelKey] = lvl + 1;
+  // Apply the multiplier directly to the live stat. Cooldown uses a
+  // <1 multiplier (fewer ms between shots = faster fire rate).
+  t[def.statKey] = Math.round(t[def.statKey] * def.multPerLevel);
+  state.bus.emit('turret_upgraded', { team: side.team, slot, statId, level: lvl + 1 });
+  return true;
+}
+
+export { TURRET_UPGRADE_MAX };
 
 export function tickTurrets(state, dt) {
   for (const side of [state.player, state.enemy]) {

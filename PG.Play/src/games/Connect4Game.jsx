@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Celebration from '../components/Celebration.jsx';
 
 const ROWS = 6, COLS = 7;
@@ -24,18 +24,30 @@ const dropAt = (b, col, piece) => {
 
 const DIRS = [[0,1],[1,0],[1,1],[1,-1]];
 
-function checkWin(b) {
+// Returns { winner, line } where line is the array of [r, c] cells that
+// formed the four-in-a-row, so the UI can highlight it. Both null when no
+// winner yet.
+function findWin(b) {
   for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
     const v = b[r][c];
     if (!v) continue;
     for (const [dr, dc] of DIRS) {
-      let k = 1;
-      while (k < 4 && r+dr*k>=0 && r+dr*k<ROWS && c+dc*k>=0 && c+dc*k<COLS && b[r+dr*k][c+dc*k] === v) k++;
-      if (k === 4) return v;
+      const cells = [[r, c]];
+      let ok = true;
+      for (let k = 1; k < 4; k++) {
+        const nr = r + dr*k, nc = c + dc*k;
+        if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS || b[nr][nc] !== v) { ok = false; break; }
+        cells.push([nr, nc]);
+      }
+      if (ok) return { winner: v, line: cells };
     }
   }
-  return null;
+  return { winner: null, line: null };
 }
+
+// Thin wrapper for paths that just want the piece ID — used by the bot's
+// minimax where the winning cells aren't needed.
+const checkWin = (b) => findWin(b).winner;
 
 const isFull = (b) => b[0].every((v) => v !== null);
 
@@ -145,6 +157,9 @@ export default function Connect4Game({ mode } = {}) {
   const [board, setBoard]   = useState(emptyBoard);
   const [turn, setTurn]     = useState(HUMAN);
   const [winner, setWinner] = useState(null);
+  const [winLine, setWinLine] = useState(null);   // array of [r, c] | null
+  const [draw, setDraw]     = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
   const [hover, setHover]   = useState(-1);
   const [lastDrop, setLastDrop] = useState(null);
   const [thinking, setThinking] = useState(false);
@@ -153,23 +168,49 @@ export default function Connect4Game({ mode } = {}) {
     catch { return 'medium'; }
   });
   const botTimerRef = useRef(null);
+  const gameOver = !!winner || draw;
+  const winSet = useMemo(() => {
+    if (!winLine) return null;
+    return new Set(winLine.map(([r, c]) => `${r},${c}`));
+  }, [winLine]);
 
+  const reset = useCallback(() => {
+    if (botTimerRef.current) window.clearTimeout(botTimerRef.current);
+    setBoard(emptyBoard());
+    setTurn(HUMAN);
+    setWinner(null);
+    setWinLine(null);
+    setDraw(false);
+    setShowCelebration(false);
+    setLastDrop(null);
+    setThinking(false);
+  }, []);
+
+  // Switching difficulty mid-game starts a fresh board — keeps the bot's
+  // skill level honest and avoids weird mid-game tonal shifts.
   const persistDifficulty = (d) => {
+    if (d === difficulty) return;
     setDifficulty(d);
     try { localStorage.setItem(DIFFICULTY_KEY, d); } catch { /* private mode */ }
+    reset();
   };
 
   const place = useCallback((b, col, piece) => dropAt(b, col, piece), []);
 
   const drop = (col) => {
-    if (winner || thinking) return;
+    if (gameOver || thinking) return;
     if (vsBot && turn !== HUMAN) return;
     const next = place(board, col, turn);
     if (!next) return;
-    const w = checkWin(next.board);
+    const w = findWin(next.board);
     setBoard(next.board);
     setLastDrop({ col, row: next.row });
-    if (w) { setWinner(w); return; }
+    if (w.winner) {
+      setWinner(w.winner);
+      setWinLine(w.line);
+      return;
+    }
+    if (isFull(next.board)) { setDraw(true); return; }
     setTurn(turn === HUMAN ? BOT : HUMAN);
   };
 
@@ -177,19 +218,25 @@ export default function Connect4Game({ mode } = {}) {
   // freshly dropped disc finishes its animation before the bot answers, and
   // an extra beat on hard so the player feels it deliberate.
   useEffect(() => {
-    if (!vsBot || winner || turn !== BOT) return;
+    if (!vsBot || gameOver || turn !== BOT) return;
     setThinking(true);
     const delay = difficulty === 'hard' ? 520 : difficulty === 'easy' ? 240 : 360;
     botTimerRef.current = window.setTimeout(() => {
       const col = pickBotMove(board, difficulty);
       const next = place(board, col, BOT);
       if (!next) { setThinking(false); return; }
-      const w = checkWin(next.board);
+      const w = findWin(next.board);
       setBoard(next.board);
       setLastDrop({ col, row: next.row });
       setThinking(false);
-      if (w) setWinner(w);
-      else setTurn(HUMAN);
+      if (w.winner) {
+        setWinner(w.winner);
+        setWinLine(w.line);
+      } else if (isFull(next.board)) {
+        setDraw(true);
+      } else {
+        setTurn(HUMAN);
+      }
     }, delay);
     return () => {
       if (botTimerRef.current) {
@@ -197,22 +244,29 @@ export default function Connect4Game({ mode } = {}) {
         botTimerRef.current = null;
       }
     };
-  }, [vsBot, turn, winner, board, place, difficulty]);
+  }, [vsBot, turn, gameOver, board, place, difficulty]);
 
-  const reset = () => {
-    if (botTimerRef.current) window.clearTimeout(botTimerRef.current);
-    setBoard(emptyBoard());
-    setTurn(HUMAN);
-    setWinner(null);
-    setLastDrop(null);
-    setThinking(false);
-  };
+  // Hold the celebration back briefly so the player sees the highlighted
+  // winning line first, then trigger confetti. The Celebration's autoDismiss
+  // handles the back half — fade itself out so the highlighted line stays
+  // legible after the animation. Draws shorten the lead-in (no line to read).
+  useEffect(() => {
+    if (!gameOver) { setShowCelebration(false); return; }
+    const t = setTimeout(() => setShowCelebration(true), draw ? 300 : 600);
+    return () => clearTimeout(t);
+  }, [gameOver, draw]);
 
   const sideName = (s) => (s === HUMAN ? (vsBot ? 'You' : 'Red') : (vsBot ? 'Bot' : 'Yellow'));
   const turnLabel = sideName(turn);
 
-  // Celebration copy — confetti for player wins, silent card for a bot win.
-  const winCopy = () => {
+  // Celebration copy — confetti for player wins, silent card for bot win or
+  // a draw. The card always offers a rematch shortcut.
+  const endCopy = () => {
+    if (draw) return {
+      intensity: 0,
+      title: 'Draw',
+      sub: 'Board full, nobody got four in a row. Run it back?',
+    };
     if (!winner) return null;
     if (vsBot) {
       if (winner === HUMAN) return {
@@ -221,7 +275,7 @@ export default function Connect4Game({ mode } = {}) {
         sub: `Four in a row on ${difficulty}. Want a tougher rematch?`,
       };
       return {
-        intensity: 0,                 // no confetti when the bot wins
+        intensity: 0,
         title: 'Bot wins',
         sub: difficulty === 'hard'
           ? 'Hard is unforgiving. Try medium to find the rhythm.'
@@ -234,7 +288,7 @@ export default function Connect4Game({ mode } = {}) {
       sub: 'Four in a row. Glory.',
     };
   };
-  const wc = winCopy();
+  const wc = endCopy();
 
   return (
     <div className="c4">
@@ -243,6 +297,8 @@ export default function Connect4Game({ mode } = {}) {
           <span className={`c4-status c4-status-win c4-side-${winner}`}>
             {sideName(winner)} {winner === HUMAN && vsBot ? 'win' : 'wins'}
           </span>
+        ) : draw ? (
+          <span className="c4-status c4-status-draw">Draw</span>
         ) : (
           <span className="c4-status">
             <span className={`c4-dot c4-side-${turn}`} aria-hidden="true"/>
@@ -264,16 +320,16 @@ export default function Connect4Game({ mode } = {}) {
           </div>
         )}
         <button className="btn btn-ghost btn-sm c4-reset" onClick={reset}>
-          {winner ? 'Rematch' : 'Reset'}
+          {gameOver ? 'Rematch' : 'Reset'}
         </button>
       </div>
 
       <div className="c4-board" role="grid" aria-label="Connect 4 board">
         {Array.from({ length: COLS }, (_, c) => {
           const lr = landingRow(board, c);
-          const isColActive = hover === c && !winner && !thinking && lr !== -1
+          const isColActive = hover === c && !gameOver && !thinking && lr !== -1
                               && (!vsBot || turn === HUMAN);
-          const colDisabled = !!winner || lr === -1 || thinking
+          const colDisabled = gameOver || lr === -1 || thinking
                               || (vsBot && turn !== HUMAN);
           return (
             <button
@@ -290,6 +346,7 @@ export default function Connect4Game({ mode } = {}) {
                 const v = board[r][c];
                 const isGhost = isColActive && r === lr && !v;
                 const dropped = lastDrop && lastDrop.col === c && lastDrop.row === r;
+                const isWin = !!winSet && winSet.has(`${r},${c}`);
                 return (
                   <span
                     key={r}
@@ -297,7 +354,8 @@ export default function Connect4Game({ mode } = {}) {
                       'c4-cell' +
                       (v ? ` c4-cell-${v}` : '') +
                       (isGhost ? ` c4-cell-ghost c4-side-${turn}` : '') +
-                      (dropped ? ' c4-cell-drop' : '')
+                      (dropped ? ' c4-cell-drop' : '') +
+                      (isWin ? ' c4-cell-win' : '')
                     }
                     aria-hidden="true"
                   />
@@ -313,13 +371,13 @@ export default function Connect4Game({ mode } = {}) {
                : 'Click a column to drop. First four in a row wins.'}
       </p>
 
-      {wc && (
+      {wc && showCelebration && (
         <Celebration
           intensity={wc.intensity}
           title={wc.title}
           subtitle={wc.sub}
-          ctaLabel="Rematch"
-          onDismiss={reset}
+          autoDismissMs={4400}
+          onDismiss={() => setShowCelebration(false)}
         />
       )}
     </div>

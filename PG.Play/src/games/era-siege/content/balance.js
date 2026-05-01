@@ -11,9 +11,11 @@ export const BALANCE = {
   MAX_UNITS_PER_SIDE: 40,
   LANE_LEFT_OFFSET:   110,      // px from left edge to player base column
   LANE_RIGHT_OFFSET:  110,      // px from right edge to enemy base column
-  GROUND_BOTTOM_PAD:  140,      // px from bottom edge to ground line — leaves room for foreground band
-  STAGE_GROUND_RATIO: 0.62,     // ground line target as a fraction of stage height
-  UNIT_RENDER_SCALE:  1.65,     // visual-only scale; sim units (ranges) unchanged
+  GROUND_BOTTOM_PAD:  90,       // px from bottom edge to ground line — leaves room for foreground band
+  STAGE_GROUND_RATIO: 0.80,     // ground line target as a fraction of stage height — keeps a wide sky and a tight foreground band
+  GOLD_CAP:           600,      // hard cap on accrued gold; forces players to spend rather than hoard
+  UNIT_RENDER_SCALE:  2.10,     // visual-only scale; sim units (ranges) unchanged
+  BASE_RENDER_H_PX:   260,      // baked base PNG target height — was 200 (too small)
   UNIT_REPULSE_PX:    22,       // friendly unit minimum spacing along the lane
   TURRET_ROW_Y_PX:    72,       // turret rack y-offset from base top
   ATTACK_TICK_MS:     600,      // unit melee re-attack baseline (overridden per unit)

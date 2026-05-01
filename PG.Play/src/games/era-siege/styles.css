@@ -58,6 +58,8 @@
 .es-zone-label { font-size: 10px; opacity: 0.55; text-transform: uppercase; letter-spacing: 0.08em; }
 .es-zone-num   { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 16px; color: var(--text); }
 .es-zone-gold  { color: #ffe14f; font-size: 18px; }
+.es-zone-gold.is-capped { color: #ff6e6e; animation: es-cap-pulse 1.2s ease-in-out infinite; }
+@keyframes es-cap-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
 
 .es-zone-player { justify-content: flex-start; }
 .es-zone-enemy  { justify-content: flex-end; }
@@ -524,6 +526,40 @@
 }
 .es-tm-upgrade strong { font-size: 13px; color: var(--es-accent); }
 .es-tm-upgrade span { font-size: 11px; opacity: 0.8; }
+.es-tm-blurb { font-size: 11px; opacity: 0.55; margin: 2px 0 0; }
+.es-tm-upgrades {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 10px 0 4px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.es-tm-upg-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.es-tm-upg-row:hover:not(:disabled) { background: rgba(255,255,255,0.06); border-color: var(--es-accent); }
+.es-tm-upg-row.is-disabled { opacity: 0.45; cursor: not-allowed; }
+.es-tm-upg-row.is-maxed    { opacity: 0.6; cursor: default; }
+.es-tm-upg-label { text-align: left; font-weight: 600; }
+.es-tm-upg-pips  { display: inline-flex; gap: 4px; }
+.es-tm-pip {
+  width: 10px; height: 10px;
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 2px;
+  background: transparent;
+}
+.es-tm-pip.is-on { background: var(--es-accent); border-color: var(--es-accent); }
+.es-tm-upg-cost { color: #ffe14f; font-weight: 700; }
 .es-tm-foot { display: flex; gap: 10px; justify-content: flex-end; }
 .es-tm-sell {
   padding: 8px 14px;

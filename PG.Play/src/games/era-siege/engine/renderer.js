@@ -163,7 +163,7 @@ function drawBase(ctx, x, groundY, side, isPlayer, pal) {
   const eraN = side.eraIndex + 1;
   const key = `base/era${eraN}/${isPlayer ? 'player' : 'enemy'}`;
   if (assets.has(key)) {
-    assets.draw(ctx, key, x, groundY + 8, { h: 200, flipX: false });
+    assets.draw(ctx, key, x, groundY + 8, { h: BALANCE.BASE_RENDER_H_PX || 200, flipX: false });
     drawBaseHpAndLabel(ctx, x, groundY, side, isPlayer);
     return;
   }
@@ -335,55 +335,100 @@ function drawSpecialTelegraph(ctx, match, side, isPlayer) {
   ctx.restore();
 }
 
-// Sprite-blit unit. Reads the painted hero pose from the manifest and
-// blits it foot-anchored at the unit's x/y. Walk-frame animation lives
-// in a future commit when we wire the multi-frame `<role>-sheet.png`.
+// Sprite-blit unit. Reads the static hero pose from the manifest and
+// blits it foot-anchored, with a walk-bob, attack-lean, and windup glow
+// driven from the sim's animation state — the same animation the
+// procedural path applies, so swapping in baked sprites doesn't lose
+// any of the on-lane motion language.
 function drawUnitSprite(ctx, u, x, y, spriteKey, sideAuraActive) {
-  // Aura halo — same colour vocabulary as the procedural path.
+  const isHeavy = u.role === 'heavy';
+  const SCALE = BALANCE.UNIT_RENDER_SCALE || 1;
+  const targetH = isHeavy ? 80 * SCALE : 64 * SCALE;
+  const nat = assets.naturalSize(spriteKey);
+  const aspect = nat ? nat.w / nat.h : 0.6;
+  const targetW = targetH * aspect;
+
+  // ── Animation state ──────────────────────────────────────────────
+  // Walk-bob: small Y oscillation while idle (i.e. walking the lane).
+  // Heavies bob slightly less so they read as planted-thud movers.
+  const walkPhase = (u.walkPhaseMs || 0) / 130;
+  const bob = u.attackTickPhase === 'idle'
+    ? Math.sin(walkPhase) * (isHeavy ? 1.4 : 2.2)
+    : 0;
+  // Forward lean during attack windup — telegraphs the strike.
+  const lean = u.attackTickPhase === 'windup' ? u.facing * 4 : 0;
+  // Slight scale pop on the recover frame so impacts feel weighty.
+  const pop = u.attackTickPhase === 'recover' ? 1.05 : 1;
+
+  // ── Aura halo (Sun Forge etc.) ───────────────────────────────────
   if (sideAuraActive) {
     const pulse = (Math.sin(performance.now() / 220) + 1) / 2;
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    ctx.globalAlpha = 0.18 + pulse * 0.18;
+    ctx.globalAlpha = 0.20 + pulse * 0.20;
     ctx.fillStyle = '#ffcb6b';
     ctx.beginPath();
-    ctx.ellipse(x, y - 18, 24, 14, 0, 0, Math.PI * 2);
+    ctx.ellipse(x + lean, y - targetH * 0.45 + bob, targetW * 0.55, targetH * 0.45, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }
-  // Foot shadow.
-  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+
+  // ── Heavy charge halo during windup ──────────────────────────────
+  if (isHeavy && u.attackTickPhase === 'windup') {
+    const chargeT = 1 - Math.max(0, u.attackTimerMs / u.attackWindupMs);
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = 0.30 + chargeT * 0.40;
+    ctx.fillStyle = u.visual?.colorTrim || '#ffe14f';
+    ctx.beginPath();
+    ctx.arc(x + lean, y - targetH * 0.45 + bob, targetH * 0.42 + chargeT * 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // ── Foot shadow — sized to the sprite, sits at the actual foot ───
+  ctx.fillStyle = 'rgba(0,0,0,0.38)';
   ctx.beginPath();
-  ctx.ellipse(x, y + 1, 14, 3, 0, 0, Math.PI * 2);
+  ctx.ellipse(x, y + 2, targetW * 0.36, 3.5, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Sprite. Target heights chosen for battlefield readability; the
-  // image's natural aspect ratio drives the width so any baked sheet
-  // (tight bbox or otherwise) renders without horizontal stretch.
-  const SCALE = BALANCE.UNIT_RENDER_SCALE || 1;
-  const role = u.role;
-  const targetH = role === 'heavy' ? 80 * SCALE : 64 * SCALE;
-  const nat = assets.naturalSize(spriteKey);
-  const aspect = nat ? nat.w / nat.h : 0.6;
-  const targetW = targetH * aspect;
+  // ── Sprite blit (with bob + lean + pop) ──────────────────────────
   const flipX = u.facing < 0;
+  const dx = x + lean;
+  const dy = y + bob;
+  const dw = targetW * pop;
+  const dh = targetH * pop;
   ctx.save();
   if (flipX) {
-    ctx.translate(x, y);
+    ctx.translate(dx, dy);
     ctx.scale(-1, 1);
-    assets.draw(ctx, spriteKey, 0, 0, { w: targetW, h: targetH, anchor: 'foot' });
+    assets.draw(ctx, spriteKey, 0, 0, { w: dw, h: dh, anchor: 'foot' });
   } else {
-    assets.draw(ctx, spriteKey, x, y, { w: targetW, h: targetH, anchor: 'foot' });
+    assets.draw(ctx, spriteKey, dx, dy, { w: dw, h: dh, anchor: 'foot' });
   }
   ctx.restore();
 
-  // HP bar (only when damaged, drawn over the sprite).
+  // ── Muzzle flash for ranged units the moment they fire ───────────
+  if (u.projectileId && u.attackTickPhase === 'recover' && u.attackTimerMs > u.attackRecoverMs - 80) {
+    const flashAge = u.attackRecoverMs - u.attackTimerMs;  // 0..80
+    const frame = Math.max(0, Math.min(3, Math.floor((flashAge / 80) * 4)));
+    const wx = dx + u.facing * (targetW * 0.45);
+    const wy = dy - targetH * 0.55;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = 0.85;
+    assets.draw(ctx, 'vfx/muzzle-flash', wx, wy, { frame, size: 32 });
+    ctx.restore();
+  }
+
+  // ── HP bar (only when damaged) ───────────────────────────────────
   const hpR = u.hp / u.maxHp;
   if (hpR < 0.999) {
+    const barW = Math.max(28, targetW * 0.55);
     ctx.fillStyle = 'rgba(0,0,0,0.55)';
-    ctx.fillRect(x - 18, y - targetH - 6, 36, 3);
+    ctx.fillRect(x - barW / 2, y - targetH - 6, barW, 3);
     ctx.fillStyle = hpColor(hpR);
-    ctx.fillRect(x - 18, y - targetH - 6, 36 * Math.max(0, hpR), 3);
+    ctx.fillRect(x - barW / 2, y - targetH - 6, barW * Math.max(0, hpR), 3);
   }
 }
 

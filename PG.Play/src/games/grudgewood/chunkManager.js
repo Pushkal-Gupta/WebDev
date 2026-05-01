@@ -35,6 +35,8 @@ import { TarGeyser } from './traps/geyser.js';
 import { SporeCloud } from './traps/spore.js';
 import { BranchLashCombo } from './traps/lash.js';
 import { MirrorTree } from './traps/mirror.js';
+import { FallingTree } from './traps/falling.js';
+import { EruptingTree } from './traps/erupting.js';
 
 export { CELL_SIZE };
 
@@ -48,6 +50,7 @@ const TRAP_CLASS = {
   acorn: AcornCannon, boar: BoarTree, vine: CarnivorousVine,
   boulder: BoulderDrop, geyser: TarGeyser, spore: SporeCloud,
   lash: BranchLashCombo, mirror: MirrorTree,
+  falling: FallingTree, erupting: EruptingTree,
 };
 const PROP_BUILDER = {
   tree:     (b, e) => makeTree(b, e.scale || 1, e.variant || 0),

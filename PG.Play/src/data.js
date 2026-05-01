@@ -40,9 +40,9 @@ export const GAMES = [
     mobileSupport:'touch-ok', inputs:['keyboard','touch'], orientation:'landscape',
     skillTags:['timing','stealth','planning'], sessionLength:'short' },
 
-  { id:'badicecream', name:'Frost Fight', cat:'Arcade', kind:'story', players:'1-2 co-op', levels:6,
+  { id:'badicecream', name:'Frost Fight', cat:'Arcade', kind:'story', players:'1-2 co-op', levels:10,
     tagline:'Fruit, ice, and not much else. Now with a friend.',
-    story:'A grid maze, a handful of angry fruits, and one small ice cream — or two. Solo: WASD to step, Space to cast a row of ice in the direction you face. Co-op: P1 on WASD + Space, P2 on arrows + Enter, sharing the room and the same death-restart rule. Step tile-to-tile, freeze the tile you\'re facing to wall the fruit off, melt it to open the way. Six rooms: Pantry, Cold Room, Aisle, Walk-In, Loading Dock, Sub-Basement.',
+    story:'A grid maze, a handful of angry fruits, and one small ice cream — or two. Solo: WASD to step, Space to cast a row of ice in the direction you face. Co-op: P1 on WASD + Space, P2 on arrows + Enter, sharing the room and the same death-restart rule. Cherries and oranges learn to blow ice back at you in the later rooms; peaches show up as bonus pickups. Ten rooms: Pantry, Cold Room, Aisle, Walk-In, Loading Dock, Sub-Basement, Cold Storage, Conveyor Maze, The Vault, Frostbite.',
     playable:true, badge:'new', updated:true, isOriginal:true,
     mobileSupport:'touch-ok', inputs:['keyboard','touch'], orientation:'landscape',
     skillTags:['spatial','planning','reflex','coop'], sessionLength:'short' },
@@ -82,9 +82,9 @@ export const GAMES = [
     mobileSupport:'native', inputs:['swipe','keyboard'], orientation:'portrait',
     skillTags:['planning','spatial'], sessionLength:'short' },
 
-  { id:'cutrope', name:'Sweet Strand', cat:'Puzzle', kind:'story', players:'1P', levels:10,
+  { id:'cutrope', name:'Snip', cat:'Puzzle', kind:'story', players:'1P', levels:25,
     tagline:'Slice. Steer. Feed Mochi.',
-    story:'A toy-box puzzle. Slice ropes, steer a candy through stars, drop it into Mochi\'s waiting mouth. Ten hand-built levels across three dioramas — Sweet Shop, Greenhouse, Workshop — escalating through bubbles, blowers, spikes, and sliding pins.',
+    story:'A toy-box puzzle. Slice ropes, steer a candy through stars, drop it into Mochi\'s waiting mouth. Twenty-five hand-built levels across three dioramas — Sweet Shop, Greenhouse, Workshop — escalating through bubbles, blowers, spikes, and sliding pins.',
     playable:true,
     mobileSupport:'native', inputs:['touch','mouse'], orientation:'landscape',
     skillTags:['physics','timing','spatial'], sessionLength:'short' },

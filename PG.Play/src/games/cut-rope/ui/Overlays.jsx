@@ -9,7 +9,7 @@ export function StartScreen({ progress, onPlay, onLevelSelect }) {
     <div className="cr-overlay cr-start">
       <div className="cr-card">
         <div className="cr-eyebrow">PG.Play original</div>
-        <h1 className="cr-title">Sweet Strand</h1>
+        <h1 className="cr-title">Snip</h1>
         <p className="cr-tagline">Cut the rope. Steer the candy. Feed Mochi.</p>
         <div className="cr-cta">
           <button className="btn btn-primary" onClick={onPlay}>Play</button>

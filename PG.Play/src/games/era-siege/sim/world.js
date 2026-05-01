@@ -17,7 +17,7 @@ import { tickProgression, tryEvolve } from './progression.js';
 import { tickAi } from './ai.js';
 import { tickSpecials, tryFireSpecial } from './specials.js';
 import { trySpawnUnit } from './unit.js';
-import { tryBuildTurret, trySellTurret } from './turret.js';
+import { tryBuildTurret, trySellTurret, tryUpgradeTurretStat } from './turret.js';
 import { matchOver, scoreMatch } from './match.js';
 import { tickEffects } from './effects.js';
 import { makePowerupsState, tryBuyPowerup, getMultiplier } from './powerups.js';
@@ -147,6 +147,9 @@ function applyPlayerIntents(state, intents) {
   }
   if (intents.sellTurret != null) {
     trySellTurret(state, state.player, intents.sellTurret);
+  }
+  if (intents.upgradeTurret) {
+    tryUpgradeTurretStat(state, state.player, intents.upgradeTurret.slot, intents.upgradeTurret.statId);
   }
   if (intents.special) {
     tryFireSpecial(state, state.player);

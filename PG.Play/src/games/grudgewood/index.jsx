@@ -35,6 +35,7 @@ import Menu from './ui/Menu.jsx';
 import TouchControls from './ui/TouchControls.jsx';
 import { submitScore } from '../../scoreBus.js';
 
+const tmp = new THREE.Vector3();           // scratch for cameraYaw computation
 const RESPAWN_RING = 50;        // metres of distance between auto-checkpoint pulses
 
 export default function GrudgewoodGame() {
@@ -44,6 +45,7 @@ export default function GrudgewoodGame() {
   const inputRef = useRef(null);
 
   const [phase, setPhase] = useState('menu');
+  const [loaded, setLoaded] = useState(false);
   const [hudData, setHud] = useState({
     biomeName: 'Mosswake',
     distance: 0,
@@ -88,14 +90,17 @@ export default function GrudgewoodGame() {
     ro.observe(wrap);
 
     // Place the player at a world-space anchor (defaults to the spawn-cell
-    // centre). Camera snaps to the iso offset so respawn doesn't slew —
-    // keep this in sync with camera.js ISO_OFFSET.
+    // centre). Snap the chase camera so it sits directly behind the
+    // player's default facing (+Z), at the same offset the live chase
+    // logic uses — this keeps respawn from slewing across the maze.
     const placeAt = (x = 12, z = 12) => {
       const y = chunks.sampleHeight(x, z);
       chunks.ensureLoadedAround(x, z);
-      player.reset(new THREE.Vector3(x, y, z), 0);
-      const camPos = new THREE.Vector3(x, y + 7.0, z - 7.5);
-      cam.snapTo(camPos, new THREE.Vector3(x, y + 1.4, z));
+      const facing = 0;                 // facing +Z on respawn
+      player.reset(new THREE.Vector3(x, y, z), facing);
+      const fwdX = Math.sin(facing), fwdZ = Math.cos(facing);
+      const camPos = new THREE.Vector3(x - fwdX * 6, y + 2.8, z - fwdZ * 6);
+      cam.snapTo(camPos, new THREE.Vector3(x + fwdX * 0.5, y + 1.4, z + fwdZ * 0.5));
       const { biome } = chunks.biomeAt(x, z);
       startAmbient(biome.id);
     };
@@ -207,10 +212,17 @@ export default function GrudgewoodGame() {
         // We schedule the slow-mo to begin after the freeze ends; the loop
         // ticks gameState.hitStopTimer and gameState.slowMoTimer in real
         // time so this sequence is frame-rate independent.
-        gameState.respawnDelay = 1.3;
-        gameState.hitStopTimer = 0.09;
+        // Death replay tempo (extended for cinematic readability):
+        //   1) hit-stop:   ~120ms total freeze (timeScale = 0)
+        //   2) slow-mo:    ~900ms at 0.30× — long enough to read the trap
+        //   3) settle:     remaining real time until respawnDelay expires
+        // The HUD draws a desaturated/vignetted overlay during the entire
+        // death phase via data-deathcam; the trap-name banner stays loud
+        // through the whole replay.
+        gameState.respawnDelay = 2.4;
+        gameState.hitStopTimer = 0.12;
         gameState.timeScale = 0;
-        gameState.slowMoTimer = 0.36;
+        gameState.slowMoTimer = 0.9;
         cam.setMode('death', trapAnchor);
         cam.bump(1.4);
         setPhase('death');
@@ -258,7 +270,7 @@ export default function GrudgewoodGame() {
       //   finally back to normal. All timers tick in real time.
       if (gameState.hitStopTimer > 0) {
         gameState.hitStopTimer = Math.max(0, gameState.hitStopTimer - realDt);
-        if (gameState.hitStopTimer === 0) gameState.timeScale = 0.32;
+        if (gameState.hitStopTimer === 0) gameState.timeScale = 0.30;
       } else if (gameState.slowMoTimer > 0) {
         gameState.slowMoTimer = Math.max(0, gameState.slowMoTimer - realDt);
         if (gameState.slowMoTimer === 0) gameState.timeScale = 1;
@@ -267,6 +279,13 @@ export default function GrudgewoodGame() {
 
       if (gameState.phase === 'play') {
         const inSnap = input.snapshot();
+        // Camera yaw — the world angle the camera is facing, used to
+        // rotate input from camera-relative to world-relative. (0,0,-1)
+        // applied by the camera quaternion gives the world-space
+        // direction the camera is looking.
+        const camFwd = tmp.set(0, 0, -1).applyQuaternion(engine.camera.quaternion);
+        inSnap.cameraYaw = Math.atan2(camFwd.x, camFwd.z);
+
         // Stream cells around the player BEFORE physics so wall AABBs are
         // up to date when the player tries to walk through them.
         chunks.ensureLoadedAround(player.pos.x, player.pos.z);
@@ -382,21 +401,26 @@ export default function GrudgewoodGame() {
         gameState.toast(`Entering ${biome.name}.`);
       }
 
+      // Camera occlusion needs the active wall AABBs so it can pull in
+      // when the line of sight is blocked. We collect them once per frame
+      // (cheap — at most ~12 walls in the loaded ring).
       cam.update(dt, {
         pos: player.pos,
         facing: player.facing,
         vel: player.vel,
         alive: player.alive,
         deathKind: player.deathKind,
-      });
+      }, Array.from(chunks.wallAABBs()));
 
       engine.renderer.render(engine.scene, engine.camera);
 
       // HUD ~12 Hz. Distance is Euclidean from spawn; we surface the
       // current level, the metres to the next unraised flag, and a screen
       // angle so the HUD can render an arrow pointing the player there.
-      // The camera mirrors X (see player.js for the why), so screen-X is
-      // world -X; we mirror dx the same way when computing the angle.
+      // With the chase camera, the angle is computed RELATIVE to
+      // player.facing — when the player is looking at the flag, the
+      // arrow points up; when the flag is to the player's right, the
+      // arrow rotates clockwise to match.
       if (now - lastHudPush > 0.08) {
         lastHudPush = now;
         const toast = (gameState.toastUntil > now) ? gameState.toastText : '';
@@ -405,10 +429,12 @@ export default function GrudgewoodGame() {
         const dx = nextAnchor.x - player.pos.x;
         const dz = nextAnchor.z - player.pos.z;
         const distToFlag = Math.round(Math.hypot(dx, dz));
-        // Screen-up = +Z, screen-right = -X (camera at south flips X).
-        // CSS rotate is clockwise from screen-up, so:
-        //   angle = atan2(screen-x, screen-y) = atan2(-dx, dz)
-        const angleDeg = (Math.atan2(-dx, dz) * 180) / Math.PI;
+        // atan2(dx, dz) is the world angle to the flag (CW from +Z).
+        // Subtract player.facing to get the angle relative to where the
+        // player is looking, then convert to degrees. CSS rotate(deg) is
+        // clockwise from screen-up, which matches.
+        const relAngle = Math.atan2(dx, dz) - player.facing;
+        const angleDeg = (relAngle * 180) / Math.PI;
         setHud({
           biomeName: biome.name,
           level: gameState.level,
@@ -431,9 +457,14 @@ export default function GrudgewoodGame() {
     };
     raf = requestAnimationFrame(tickLoop);
 
-    // Boot at spawn cell so the menu has scenery behind it.
+    // Boot at spawn cell so the menu has scenery behind it. Once the
+    // first frame has been rendered we drop the loading overlay — the
+    // chunk build is sync but the engine/scene init can take a few
+    // hundred ms on slower devices, and an explicit "Loading..." panel
+    // is friendlier than a black canvas.
     placeAt();
     cam.setMode('menu');
+    requestAnimationFrame(() => setLoaded(true));
 
     return () => {
       cancelAnimationFrame(raf);
@@ -464,8 +495,18 @@ export default function GrudgewoodGame() {
   const handleUnlockAudio = () => unlockAudio();
 
   return (
-    <div ref={wrapRef} className="gw-wrap">
+    <div ref={wrapRef} className="gw-wrap" data-deathcam={phase === 'death' ? '1' : '0'}>
       <canvas ref={canvasRef} className="gw-canvas" />
+
+      {!loaded ? (
+        <div className="gw-loading">
+          <div className="gw-loading-card">
+            <div className="gw-loading-spinner" />
+            <div className="gw-loading-title">Loading the forest…</div>
+            <div className="gw-loading-sub">The trees are getting ready.</div>
+          </div>
+        </div>
+      ) : null}
 
       {phase === 'menu' ? (
         <Menu

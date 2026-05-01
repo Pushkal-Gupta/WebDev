@@ -1605,12 +1605,222 @@ EDIT  src/sound.js
 EDIT  docs/badicecream-ux-summary.md         (this section)
 ```
 
+---
+
+## Phase 15 — bugs + content + difficulty curve
+
+User reported: R restarts whole game (not the level), spawn-killing
+loop, residual cherry crop artefacts, weird orange windup face, plus
+content asks (more fruit types, ice-casting enemies, more levels,
+better logo). All addressed.
+
+### 1. R now restarts only the current room
+
+GameShell registers a window-level keydown listener for R that calls
+`onRestart` (full-game key bump → component remount). FrostFightGame
+also handled R but ran *after* the shell. Fix: register
+FrostFightGame's listener with `{ capture: true }` so it runs first,
+then `e.stopImmediatePropagation()` to keep the shell's listener
+quiet. R now reloads the current `levelIdx` only.
+
+### 2. Spawn-killing → death triggers a full room restart
+
+Death used to teleport the player back to the spawn tile after 0.9 s.
+If an enemy was loitering near spawn, the player respawned into instant
+re-death (we saw 15 deaths in 17 s in the user's screenshot).
+
+Fixed: on touch, both players are marked dead, `s.dying = true`,
+shake/flash/particles play, and `setTimeout(() => loadLevel(levelIdx),
+950)` schedules a full room reload. Enemies, ice, and fruit reset to
+the room's initial state. The `dying` flag prevents double-firing
+the death cue if multiple enemies hit in the same frame.
+
+### 3. Sprite cropping — residue elimination
+
+The cherry sprite kept showing a small near-white triangular patch
+between the stems. Two compounding causes:
+
+- The user's source sheets are fully opaque with the "transparent
+  checker" baked as actual gray pixels. Phase 14's flood-fill caught
+  the outer bg but enclosed pockets (e.g. between the cherry stems)
+  weren't reachable.
+- Sharp's Lanczos resize blends edge colours into the padding,
+  re-introducing bg-coloured pixels with mid-alpha.
+
+Two fixes layered together:
+
+1. After flood-fill, a **direct colour pass** zeros any pixel matching
+   the gray-band (`max ∈ [158, 232]`, low saturation) OR the
+   tinted-near-white profile (`max ≥ 233` with a slight color cast,
+   `max-min ∈ [3, 14]`). Pure character whites (255,255,255 — eye
+   highlights) have cast = 0 and survive.
+2. The whole `removeCheckerBg` pass runs **a second time** after
+   resize so the resize-bleed gets re-cleaned.
+
+Cherry residue is now negligible at any rendered size.
+
+### 4. FROST FIGHT logo
+
+Old: simple stroke + white fill.
+New: three-layer SVG composition wrapped in an outer cyan glow filter
+(`feGaussianBlur` × 2 + `feFlood` + `feMerge`):
+
+- Dark navy contrast halo (stroke 11) — keeps the gradient legible
+  over the painted scene
+- Cyan-mint icy ring (stroke 6) — the ice-edge wrap
+- Gradient chrome fill — `cyan-mint → white → cyan` linear gradient
+  inside the strokes
+
+Plus four small four-point ice-crystal sparkles flanking the text
+and a wider radial halo behind the wordmark band.
+
+### 5. Ice-casting enemies (cherry + orange)
+
+New per-kind table `ENEMY_ICE_CHANCE` — 0 for strawberry/blueberry,
+0.20 for orange, 0.28 for cherry. On each enemy decision tick, a
+chance roll picks "cast ice" instead of the usual move:
+
+- Determine the nearest-alive-player chase target
+- Pick the dominant axis toward them
+- If the tile in that direction is free (not wall/ice/enemy/fruit/
+  exit/player) → place ice there with a freeze-particle burst
+- Apply per-enemy `iceCd = 2.4 s` so they don't spam
+- Skip the move this tick (the cast IS the action)
+
+Each enemy also seeds a stagger on `iceCd` at level mount so multiple
+casters don't all fire on the same frame at room load.
+
+### 6. Peach — second fruit pickup type
+
+`peach.png` (already cropped from `A Type 2.png` in phase 7) wired
+as a second fruit kind:
+
+- New grid char `'P'` → `kind: 'peach'`
+- Fruit object now carries `kind`; render branch picks
+  `peach.png` (sz 30, 4 px bigger) vs `fruit.png` (sz 26)
+- Pickup behaviour identical (decrements `fruitsLeft`); peaches just
+  read as a richer pickup target.
+
+### 7. Four new rooms (6 → 10)
+
+Added with a difficulty curve, each with its own palette:
+
+| # | name | new mechanics |
+|---|---|---|
+| 7 | **Cold Storage** | first peaches; cherries can blow ice |
+| 8 | **Conveyor Maze** | ice-casting oranges in long corridors |
+| 9 | **The Vault** | cherry + orange ice-casters + 2 blueberries in a maze |
+| 10 | **Frostbite** | finale: 6 chasers, 4 ice-casters, 2 peaches |
+
+The achievement threshold for `frost-fast` was bumped 150 → 240 s
+to match the longer total run.
+
+### Files touched in phase 15
+
+```
+EDIT  scripts/frost-fight-process-art.mjs
+        (pass-4 widened: gray band [158, 232] + tinted-white [233+, cast 3-14];
+         second `removeCheckerBg` after resize)
+EDIT  src/games/FrostFightGame.jsx
+        (capture-phase R handler with stopImmediatePropagation;
+         death → full room reload via setTimeout + s.dying flag;
+         peach fruit kind in parser + draw + sprite slot;
+         ENEMY_ICE_CHANCE + ENEMY_ICE_CD + ice-cast block in the AI tick;
+         enemy.iceCd seeded at level mount;
+         four new rooms + four new palette entries)
+EDIT  src/covers.jsx
+        (logo upgrade: outer glow filter, gradient chrome fill,
+         dark contrast halo, ice-crystal sparkles, ellipse glow band)
+EDIT  src/data.js
+        (levels 6 → 10, story line refresh)
+EDIT  src/hooks/useAchievements.js
+        (frost-fast threshold 150 → 240 s)
+REGEN src/games/frost-fight/sprites/*.png   (with the stronger cleanup)
+EDIT  docs/badicecream-ux-summary.md         (this section)
+```
+
+### Build
+
+`npx vite build` clean. All 10 grids validated (22 cols × 13 rows,
+exactly one `p` and one `X` each). Headless screenshot at 2× DPR
+shows the new logo rendering correctly and the gameplay sprites
+(player, strawberry, fruit, exit) at proper character size with
+clean crops.
+
+---
+
+## Phase 16 — orange-windup fix, animated melt, peach scoring
+
+### 1. Orange windup → reuse resting sprite
+
+The user noted the orange's source windup pose came out pumpkin-like
+and weird mid-animation. The dedicated `orange-windup.png` import is
+commented out and the `orangeWind` slot in `spritesRef` falls back to
+the regular `orange.png`. Wind-up still works as a behaviour (the
+slight squash from `sz 30 → 32` is preserved) — it just doesn't swap
+to a different sprite. Re-enable when better art ships.
+
+### 2. Animated melt sweep — mirror of freeze
+
+A new `s.castVanish: Map<string, number>` mirrors `castReveal`:
+
+- On a melt cast, every ice tile in the row is removed from
+  `level.ice` immediately (sim-correct from frame 0)
+- Each removed tile gets an entry in `castVanish` with timestamp
+  `meltStart + i × 55 ms`
+- The ice draw block adds a second pass that iterates `castVanish`
+  and renders ghost ice with a 1 → 0 alpha fade over 180 ms
+- Particle bursts schedule via `setTimeout` so each tile's burst
+  fires just before its ghost begins to fade
+- Entries auto-clean once their fade is done
+
+Same reduced-motion gate as freeze (collapses stagger to 0).
+
+### 3. Peach score weight
+
+A new `runPeachesRef` counts peaches eaten across the entire run
+(survives `loadLevel`'s state reset). On peach pickup:
+
+- `runPeachesRef.current += 1`
+- A `+2` floater appears (vs `+1` for strawberries) using a warmer
+  peach-tinted color
+- `submitScore` meta now carries `peaches: runPeachesRef.current`
+- Score formula adds `peachBonus = peaches × 80` to the base
+
+The `WinCard` shows a fourth "Peaches" stat tile (warm peach accent)
+when the player ate at least one. The tile uses `--ff-card-stat-peach`
+styling distinct from the cyan best-time tile.
+
+`runPeachesRef` resets to 0 alongside `runTrapCountRef` in `restart()`
+so the next playthrough starts at zero.
+
+### Files touched in phase 16
+
+```
+EDIT  src/games/FrostFightGame.jsx
+        (orange-windup import dropped, orangeWind → orangeSpriteUrl;
+         + s.castVanish Map, animated melt sweep, ghost-ice draw block;
+         + runPeachesRef + peach pickup bonus + score formula update;
+         + peaches in submitScore meta + WinCard prop)
+EDIT  src/games/frost-fight/ui/Overlay.jsx
+        (WinCard + peaches stat tile)
+EDIT  src/styles.css
+        (.ff-card-stat-peach warm-tone tile style)
+EDIT  docs/badicecream-ux-summary.md           (this section)
+```
+
+### Build
+
+`npx vite build` clean. Dev-server-served sprites + routes confirmed
+in earlier phases.
+
 ### What's actually still open
 
 - Sliding-on-ice banana enemy (sliding-momentum mechanic).
 - Boss / world-finale rooms (different AI, large fruit count).
 - Co-op-specific touch controls (currently coop is desktop-only;
   could add a second virtual pad if mobile demand shows up).
-- Animated melt sweep (mirror of the freeze stagger).
 - True vector tracing (potrace) — deferred; painted style doesn't
   vectorise cleanly without losing cel-shading detail.
+- A genuinely different orange-windup sprite (current build reuses
+  the resting orange — works but loses the visual pre-tell).

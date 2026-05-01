@@ -14,15 +14,70 @@ import { CELL_SIZE, cellOrigin, cellCenter, cellWalls, cellSeed } from './mazeGr
 import { difficultyForCell } from './heightmap.js';
 import { flagLevelInCell } from './flags.js';
 
+// ── Hand-authored first level (cells (0, 1)..(0, 5)) ─────────────────────
+// Following the trees-hate-you design framework — orientation, first
+// betrayal, rule teaching, rule variation, relief pocket, multi-trap mix.
+// World-space coordinates. Every cell along the spine in the first level
+// is a vertical corridor (S+N open by spine guarantee), so traps are
+// authored along the centerline at z = cellOrigin + offset.
+//
+// (0, 0) is spawn — handled by the sanctuary branch below; no traps.
+// (0, 1) — First Betrayal: a sign labelled SAFE in front of a hidden pit.
+// (0, 2) — Rule Teaching: a single Branch Whip with audible windup.
+// (0, 3) — Rule Variation: a Predator Tree on the right flank.
+// (0, 4) — Relief Pocket: no traps, just decor (handled by closure).
+// (0, 5) — Multi-Trap: whip and predator on opposite flanks.
+const SCRIPTED_CELLS = {
+  // Level 1 (cells 0,1 → 0,5, ending at flag 1 at 0,6). Teaching arc.
+  '0,1': () => [
+    { kind: 'sign', x: 11, z: 30, opts: { label: 'SAFE', face: 1 } },
+    { kind: 'pit',  x: 12, z: 39 },
+  ],
+  '0,2': () => [
+    { kind: 'whip', x: 5, z: 60, opts: { side: 'right' } },
+  ],
+  '0,3': () => [
+    { kind: 'predator', x: 18, z: 84 },
+  ],
+  '0,4': () => [],   // intentional relief
+  '0,5': () => [
+    { kind: 'whip',     x: 4,  z: 130, opts: { side: 'right' } },
+    { kind: 'predator', x: 18, z: 138 },
+  ],
+  // Level 2 (cells 0,7 → 0,11, ending at flag 2 at 0,12). Introduces
+  // the falling tree, erupting tree, and acorn cannon — the showy traps.
+  '0,7': () => [
+    // Mound the player MUST cross (centerline) — first erupting tree.
+    { kind: 'erupting', x: 12, z: 174 },
+  ],
+  '0,8': () => [
+    // Acorn cannon on the right flank — first ranged threat.
+    { kind: 'acorn', x: 19, z: 200 },
+  ],
+  '0,9': () => [
+    // Falling tree on the left flank — sweeps across the path.
+    { kind: 'falling', x: 4, z: 222, opts: { side: 1 } },
+    // Sign baits the player toward the felled trunk.
+    { kind: 'sign',    x: 17, z: 220, opts: { label: 'KEEP RIGHT', face: -1 } },
+  ],
+  '0,10': () => [],  // relief
+  '0,11': () => [
+    // Multi-trap mix: erupting tree + acorn cannon together.
+    { kind: 'erupting', x: 11, z: 270 },
+    { kind: 'acorn',    x: 18, z: 276 },
+    { kind: 'predator', x: 4,  z: 282 },
+  ],
+};
+
 // Per-biome trap palette — same shape as the old corridor palette, with
 // every trap type registered.
 const PALETTE = {
-  mosswake:  { predator: 4, whip: 3, snare: 2, mushroom: 3, stump: 1, sign: 1, acorn: 2, boar: 1, lash: 1 },
-  trickster: { pit: 4, sign: 3, log: 2, mushroom: 2, snare: 2, stump: 2, spore: 2, vine: 1, mirror: 3 },
-  rotbog:    { snare: 4, predator: 3, mushroom: 3, log: 2, pit: 1, vine: 3, spore: 2, geyser: 2, mirror: 2 },
-  cliffside: { wind: 4, log: 2, predator: 2, whip: 2, pit: 1, boulder: 3, acorn: 2, lash: 2 },
-  heart:     { embers: 4, predator: 3, log: 2, whip: 2, pit: 1, boar: 2, geyser: 3, boulder: 2, lash: 2 },
-  sanctum:   { snare: 2, predator: 1, whip: 1, sign: 1, vine: 1, spore: 1, mirror: 2 },
+  mosswake:  { predator: 4, whip: 3, snare: 2, mushroom: 2, stump: 1, sign: 1, acorn: 3, boar: 1, lash: 1, falling: 2, erupting: 2 },
+  trickster: { pit: 3, sign: 3, log: 2, mushroom: 2, snare: 2, stump: 2, spore: 2, vine: 1, mirror: 3, erupting: 2 },
+  rotbog:    { snare: 4, predator: 3, mushroom: 3, log: 2, pit: 1, vine: 3, spore: 2, geyser: 2, mirror: 2, erupting: 3 },
+  cliffside: { wind: 4, log: 2, predator: 2, whip: 2, pit: 1, boulder: 3, acorn: 3, lash: 2, falling: 3 },
+  heart:     { embers: 4, predator: 3, log: 2, whip: 2, pit: 1, boar: 2, geyser: 3, boulder: 2, lash: 2, falling: 2 },
+  sanctum:   { snare: 2, predator: 1, whip: 1, sign: 1, vine: 1, spore: 1, mirror: 2, erupting: 1 },
 };
 
 // Mulberry32 RNG keyed by the cell's seed.
@@ -51,8 +106,9 @@ function pick(rng, weights) {
 // along world-Z (the spine direction). In a horizontal corridor or corner
 // cell where the player is moving E↔W, these would either swing into a
 // wall or miss. We strip them from the palette in those cells so only
-// direction-agnostic traps spawn there.
-const Z_AXIS_TRAPS = new Set(['whip', 'boar', 'wind', 'log']);
+// direction-agnostic traps spawn there. `falling` is also Z-locked
+// because the trunk topples along world-Z.
+const Z_AXIS_TRAPS = new Set(['whip', 'boar', 'wind', 'log', 'falling']);
 
 function paletteWithoutZAxis(palette) {
   const out = {};
@@ -248,6 +304,16 @@ export function spawnCellContent(cx, cz, biome) {
   const openCount = (walls.n ? 0 : 1) + (walls.s ? 0 : 1) + (walls.e ? 0 : 1) + (walls.w ? 0 : 1);
   const mult = difficultyForCell(cx, cz);
   const flagLevel = flagLevelInCell(cx, cz);
+
+  // Hand-authored cells skip the procedural layouts entirely. We still
+  // run the decor pass below so trees/shrubs/rocks stay deterministic
+  // around the scripted traps.
+  const scriptedKey = `${cx},${cz}`;
+  if (SCRIPTED_CELLS[scriptedKey]) {
+    const traps = SCRIPTED_CELLS[scriptedKey]();
+    const props = openCount > 0 ? spawnDecor(rng, biome, cx, cz) : [];
+    return { traps, props };
+  }
   // Flag cells are sanctuaries: the flag itself sits at the cell centre,
   // the cell needs to be visibly safe so the player can read "this is the
   // checkpoint", and any trap clutter would distract from that read.

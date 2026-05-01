@@ -90,6 +90,16 @@ export const EPITAPHS = {
     'It walked toward you because you let it.',
     'The reflection had range.',
   ],
+  falling: [
+    'A whole tree wanted the path more than you did.',
+    'You misjudged the lean.',
+    'Timber. Specifically yours.',
+  ],
+  erupting: [
+    'The mound was a doorbell.',
+    'Something underground said hello.',
+    'A tree decided to start its life on top of you.',
+  ],
   unknown: [
     'The forest filed it under "deserved".',
     'Something happened. The forest knows.',
@@ -119,5 +129,7 @@ export const KIND_LABEL = {
   geyser:   'A tar geyser did this.',
   lash:     'A pair of branches did this.',
   mirror:   'A mirror tree did this.',
+  falling:  'A falling tree did this.',
+  erupting: 'A tree shot up from the ground.',
   unknown:  'You died.',
 };

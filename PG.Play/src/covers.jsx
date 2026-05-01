@@ -287,47 +287,46 @@ const Cover_BadIceCream = () => (
         <stop offset="0%" stopColor="rgba(108,208,240,0.18)"/>
         <stop offset="100%" stopColor="rgba(108,208,240,0)"/>
       </radialGradient>
+      {/* Single soft drop-shadow on the wordmark — no glow, no halo, no
+          gradient. The painting above carries the visual weight; the
+          logo just needs to read clearly on a dark backdrop. */}
+      <filter id="ff-logo-shadow" x="-15%" y="-30%" width="130%" height="160%">
+        <feDropShadow dx="0" dy="3" stdDeviation="4"
+                      floodColor="#000000" floodOpacity="0.55"/>
+      </filter>
     </defs>
     <rect width="400" height="500" fill="url(#ff-cover-bg)"/>
     {/* Painted scene — 16:9 fitted to the full width (400×225), shifted
         slightly up so the wordmark band has clean room below. */}
     <image
       href={badicecreamCoverUrl}
-      x="0" y="120" width="400" height="225"
+      x="0" y="118" width="400" height="225"
       preserveAspectRatio="xMidYMid slice"/>
     {/* Soft halo on top of the painting for cohesion with the in-game
         frame glow. Stays subtle so the painted detail reads through. */}
     <rect width="400" height="500" fill="url(#ff-cover-halo)" opacity="0.55"/>
-    {/* Subtle frosted edge band at the very top — frames the painting
-        against the cover-card chrome. */}
+    {/* Subtle frosted edge band at the very top. */}
     <rect x="0" y="0" width="400" height="32"
           fill="rgba(108,208,240,0.06)"/>
-    {/* A faint cyan glow band behind the wordmark for read-back on the
-        deep navy. Drawn first so the wordmark sits on top. */}
-    <ellipse cx="200" cy="416" rx="180" ry="34"
-             fill="rgba(108,208,240,0.10)"/>
-    {/* Wordmark — true SVG text. Paint-order: stroke (cyan-mint outline)
-        first, then fill (white). Two pseudo-elements stacked, so the
-        outline doesn't bleed into the fill weight. Bricolage Grotesque
-        is loaded by the platform CSS; falls back through Inter +
-        system-ui so it always reads. */}
-    <g style={{
-      fontFamily: '"Bricolage Grotesque", "Inter", system-ui, sans-serif',
-      fontWeight: 800,
-      fontSize: 56,
-      letterSpacing: '0.01em',
-    }} textAnchor="middle">
-      <text
-        x="200" y="430"
-        fill="none"
-        stroke="#7af5dc"
-        strokeWidth="9"
-        strokeLinejoin="round"
-        strokeLinecap="round">
-        FROST FIGHT
-      </text>
-      <text x="200" y="430" fill="#ffffff">FROST FIGHT</text>
-    </g>
+    {/* Single thin underline accent below the wordmark — the only
+        decorative element. Cyan-mint on the dark backdrop. */}
+    <line x1="148" y1="455" x2="252" y2="455"
+          stroke="#7af5dc" strokeWidth="2" strokeLinecap="round"/>
+    {/* Wordmark — one text element, pure white, soft drop-shadow.
+        Bold, confident, no clip-art. */}
+    <text
+      x="200" y="438"
+      textAnchor="middle"
+      fill="#ffffff"
+      filter="url(#ff-logo-shadow)"
+      style={{
+        fontFamily: '"Bricolage Grotesque", "Inter", system-ui, sans-serif',
+        fontWeight: 800,
+        fontSize: 52,
+        letterSpacing: '-0.01em',
+      }}>
+      FROST FIGHT
+    </text>
   </svg>
 );
 
@@ -543,7 +542,7 @@ const Cover_2048 = () => {
   );
 };
 
-// 13. Sweet Strand — original Cut-the-Rope-style game.
+// 13. Snip — original Cut-the-Rope-style game.
 // Original creature design (no teeth, ear-tufts, friendly smile).
 const Cover_CutRope = () => (
   <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">

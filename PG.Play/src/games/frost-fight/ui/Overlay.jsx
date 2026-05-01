@@ -62,7 +62,7 @@ function fmt(time) {
   return m > 0 ? `${m}m ${s.toString().padStart(2, '0')}s` : `${s}s`;
 }
 
-export function WinCard({ open, deaths, time, best, bestBeaten, levelCount, coverUrl, onPlayAgain, onExit }) {
+export function WinCard({ open, deaths, time, best, bestBeaten, levelCount, peaches, coverUrl, onPlayAgain, onExit }) {
   const reduced = useReducedMotion();
   const t = fmt(time);
   // Best line — show the recorded best and a small "NEW BEST" tag when
@@ -107,6 +107,11 @@ export function WinCard({ open, deaths, time, best, bestBeaten, levelCount, cove
                 <span>{bestBeaten ? 'New best' : 'Best'}</span>
                 <b>{hasBest ? fmt(best.time) : '—'}</b>
               </div>
+              {peaches > 0 && (
+                <div className="ff-card-stat ff-card-stat-peach">
+                  <span>Peaches</span><b>{peaches}</b>
+                </div>
+              )}
             </div>
             <div className="ff-card-cta">
               <button type="button" className="btn btn-primary btn-lg" onClick={onPlayAgain}>
