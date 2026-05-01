@@ -127,11 +127,20 @@ export default function EraSiegeGame({ mode }) {
   // Pause sim while any blocking surface is open (settings / power-ups /
   // evolution preview / turret build / turret manage). Restored on close.
   const wasPausedBeforeDrawerRef = useRef(false);
-  // Includes shortcutsOpen so reading the cheat-sheet auto-pauses the
-  // sim — without this, units kept marching while the player read keys.
-  const overlayOpen = settingsOpen || powerUpsOpen || evolutionOpen
-                   || shortcutsOpen
-                   || turretBuildSlot != null || turretManageSlot != null;
+  // Pause-on-overlay split into two cohorts:
+  //   READ-MODE (auto-pause): settings, shortcuts cheat-sheet — these
+  //     are explanations, not tactical decisions; pausing prevents the
+  //     player getting flanked while reading keys.
+  //   TACTICAL (no-pause): evolve, power-ups, turret build/manage —
+  //     these are battlefield decisions made under pressure. Forcing
+  //     a pause robs them of weight and feels jarring.
+  const overlayOpen = settingsOpen || shortcutsOpen;
+  // Kept for the PauseOverlay's "is the canvas obscured by anything?"
+  // check (so the Resume click target is suppressed while a tactical
+  // overlay is on top of the canvas).
+  const anyOverlayOpen = overlayOpen
+                      || powerUpsOpen || evolutionOpen
+                      || turretBuildSlot != null || turretManageSlot != null;
   useEffect(() => {
     if (overlayOpen) {
       // Capture current pause state on the first open of an overlay session.
@@ -447,6 +456,11 @@ export default function EraSiegeGame({ mode }) {
     if (turretManageSlot) intentsRef.current.sellTurret = turretManageSlot.slot;
     setTurretManageSlot(null);
   };
+  // Per-turret stat upgrade (range / damage / rate). Stays open after
+  // a buy so the player can stack levels.
+  const onUpgradeTurretStat = (slot, statId) => {
+    intentsRef.current.upgradeTurret = { slot, statId };
+  };
 
   const era = getEraByIndex(hud.eraIndex);
   const unitIds = era?.unitIds || [];
@@ -525,7 +539,7 @@ export default function EraSiegeGame({ mode }) {
         <EraBanner eraIndex={hud.eraIndex} version={eraBannerVer}/>
 
         <PauseOverlay
-          paused={paused && !overlayOpen}
+          paused={paused && !anyOverlayOpen}
           onResume={() => { pausedRef.current = false; setPaused(false); }}
         />
 
@@ -561,11 +575,17 @@ export default function EraSiegeGame({ mode }) {
 
         <TurretManagePopover
           open={turretManageSlot != null}
-          slot={turretManageSlot}
+          /* Re-derive the slot from the live match each render so stat
+             upgrades reflect immediately. The state holds the original
+             snapshot only for the open/close trigger. */
+          slot={turretManageSlot != null
+            ? matchRef.current?.player.turretSlots[turretManageSlot.slot] || turretManageSlot
+            : null}
           gold={hud.gold}
           eraIndex={hud.eraIndex}
           onUpgrade={onConfirmUpgrade}
           onSell={onConfirmSell}
+          onUpgradeStat={onUpgradeTurretStat}
           onClose={() => setTurretManageSlot(null)}
         />
 

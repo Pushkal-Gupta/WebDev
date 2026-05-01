@@ -1,14 +1,15 @@
-// Grudgewood — fixed-angle isometric pan camera. The camera holds a
-// constant orientation in world space and pans to follow the player; it
-// does NOT spin to follow player facing. This keeps WASD aligned with
-// world axes (W = +Z always), matching trees-hate-you's read-the-room
-// camera and avoiding any "controls flipped because I turned" surprise.
+// Grudgewood — third-person chase camera. The camera trails behind the
+// player at a fixed distance/height like a drone, rotating to keep
+// player.facing pointed away from the camera. WASD/arrows are
+// camera-relative — pressing W always moves the player away from the
+// camera, regardless of which direction they were facing a moment ago.
 //
 // Modes:
-//   chase   — fixed iso, pans with player, mild look-ahead in velocity dir.
-//   menu    — slow orbit overhead so the menu has motion behind it.
+//   chase   — drone follows player.facing, mild lookahead in velocity dir.
+//   menu    — slow overhead orbit so the menu has motion behind it.
 //   reveal  — pulled back, higher angle.
-//   death   — frames the player + the trap that killed them.
+//   death   — frames the player + the trap that killed them, still from
+//             behind so the third-person feel never breaks.
 
 import * as THREE from 'three';
 
@@ -16,32 +17,29 @@ const tmp = new THREE.Vector3();
 const tmpA = new THREE.Vector3();
 const tmpB = new THREE.Vector3();
 
-// Iso offset: camera sits PURE south and above the player so world axes
-// align with screen axes. World +X projects to screen-right, world +Z to
-// screen-up. This is what fixes the "A and D feel flipped" complaint —
-// a non-zero X offset rotates the view a few degrees and makes D feel
-// like a diagonal move instead of "right".
-//
-// Pitch ~42° down, no yaw. Slightly more depth than pure top-down so
-// walls still show their front faces and trees look 3D.
-const ISO_OFFSET = new THREE.Vector3(0, 7.0, -7.5);
-const ISO_LOOK_HEIGHT = 1.4;
+// Drone offset relative to the player. Distance ~6m back along the
+// player's facing, ~2.8m up, look-target at head height. Pitch works
+// out to ~atan(2.8/6) ≈ 25° down — clearly third-person, not top-down.
+const FOLLOW_DIST = 6.0;
+const FOLLOW_HEIGHT = 2.8;
+const LOOK_HEIGHT = 1.4;
 
 export class ChaseCamera {
   constructor(camera) {
     this.cam = camera;
-    this.target = new THREE.Vector3();   // smoothed look-at
-    this.position = new THREE.Vector3(); // smoothed position
+    this.target = new THREE.Vector3();
+    this.position = new THREE.Vector3();
     this.targetVel = new THREE.Vector3();
     this.posVel = new THREE.Vector3();
-    this.shake = 0;        // intensity
+    this.shake = 0;
     this.shakeSeed = Math.random() * 1000;
     this.fov = 60;
     this.fovTarget = 60;
     this.mode = 'chase';   // 'chase' | 'death' | 'reveal' | 'menu'
     this.modeT = 0;
-    this.shakeMul = 1.0;   // user setting
+    this.shakeMul = 1.0;
     this.deathFocus = new THREE.Vector3();
+    this.hasDeathFocus = false;
   }
 
   setShakeMultiplier(v) { this.shakeMul = v; }
@@ -55,68 +53,73 @@ export class ChaseCamera {
 
   bump(amount = 0.6) { this.shake = Math.min(1.6, this.shake + amount); }
 
-  // dt and player ({ pos, facing, vel, alive, deathKind })
-  update(dt, player) {
+  // dt and player ({ pos, facing, vel, alive, deathKind }); optional
+  // walls list (AABBs from chunkManager) is used for occlusion: if a
+  // wall blocks the line from desired-cam to player, the desired position
+  // is pulled in along the cam→player ray so the player stays visible.
+  update(dt, player, walls = null) {
     this.modeT += dt;
 
-    // Mild look-ahead in velocity direction so the camera leans forward
-    // when the player is moving — but only by a couple of metres, never
-    // enough to rotate the view.
+    // Player's heading vector (XZ). facing = 0 means facing +Z. Camera
+    // lives along -facing so it sits directly behind the body.
+    const fwdX = Math.sin(player.facing);
+    const fwdZ = Math.cos(player.facing);
+
+    // Velocity look-ahead — camera leans forward a touch when moving so
+    // the player can read what's coming. Capped so it never overpowers
+    // the chase frame.
     const speed = Math.hypot(player.vel.x, player.vel.z);
-    const leadX = THREE.MathUtils.clamp(player.vel.x * 0.18, -1.6, 1.6);
-    const leadZ = THREE.MathUtils.clamp(player.vel.z * 0.18, -1.6, 1.6);
+    const lead = THREE.MathUtils.clamp(speed * 0.18, 0, 1.6);
 
-    // Iso target: a point at the player's head height, slightly ahead of
-    // them in their direction of travel.
+    // Default chase frame: target is ahead of player, position is behind.
     const desiredTarget = tmpA.set(
-      player.pos.x + leadX,
-      player.pos.y + ISO_LOOK_HEIGHT,
-      player.pos.z + leadZ,
+      player.pos.x + fwdX * lead,
+      player.pos.y + LOOK_HEIGHT,
+      player.pos.z + fwdZ * lead,
     );
-    // Iso position: same offset relative to the player, world-axis aligned.
     const desiredPos = tmpB.set(
-      player.pos.x + ISO_OFFSET.x,
-      player.pos.y + ISO_OFFSET.y,
-      player.pos.z + ISO_OFFSET.z,
+      player.pos.x - fwdX * FOLLOW_DIST,
+      player.pos.y + FOLLOW_HEIGHT,
+      player.pos.z - fwdZ * FOLLOW_DIST,
     );
 
-    // Death camera: keep the iso angle but reframe between the player
-    // and the trap that killed them so both are in shot. No orbit so the
-    // killer is held still long enough to be recognised.
     if (this.mode === 'death') {
+      // Reframe the camera so the killer trap and the player are both in
+      // shot, but keep the drone-behind angle by positioning relative to
+      // their midpoint along the player's old heading. Without a focus
+      // we just hold a slightly wider chase frame around the body.
       if (this.hasDeathFocus) {
         const mid = tmp.set(
           (player.pos.x + this.deathFocus.x) * 0.5,
           (player.pos.y + this.deathFocus.y) * 0.5 + 1.4,
           (player.pos.z + this.deathFocus.z) * 0.5,
         );
-        // Camera pulls back further and a bit higher to fit both in frame.
         desiredPos.set(
-          mid.x + ISO_OFFSET.x * 1.15,
-          mid.y + ISO_OFFSET.y * 0.9,
-          mid.z + ISO_OFFSET.z * 1.15,
+          mid.x - fwdX * (FOLLOW_DIST + 1.5),
+          mid.y + FOLLOW_HEIGHT + 0.5,
+          mid.z - fwdZ * (FOLLOW_DIST + 1.5),
         );
         desiredTarget.copy(mid);
       } else {
-        desiredTarget.set(player.pos.x, player.pos.y + 0.9, player.pos.z);
         desiredPos.set(
-          player.pos.x + ISO_OFFSET.x * 1.1,
-          player.pos.y + ISO_OFFSET.y * 0.95,
-          player.pos.z + ISO_OFFSET.z * 1.1,
+          player.pos.x - fwdX * (FOLLOW_DIST + 1.5),
+          player.pos.y + FOLLOW_HEIGHT + 0.6,
+          player.pos.z - fwdZ * (FOLLOW_DIST + 1.5),
         );
+        desiredTarget.set(player.pos.x, player.pos.y + 0.9, player.pos.z);
       }
-      this.fovTarget = 50;
+      this.fovTarget = 52;
     } else if (this.mode === 'reveal') {
-      // Pull further back and higher for a wider reveal moment.
+      // Wider reveal: same direction, more distance + altitude.
       desiredPos.set(
-        player.pos.x + ISO_OFFSET.x * 1.6,
-        player.pos.y + ISO_OFFSET.y * 1.4,
-        player.pos.z + ISO_OFFSET.z * 1.6,
+        player.pos.x - fwdX * (FOLLOW_DIST + 6),
+        player.pos.y + FOLLOW_HEIGHT + 4,
+        player.pos.z - fwdZ * (FOLLOW_DIST + 6),
       );
       desiredTarget.set(player.pos.x, player.pos.y + 1.2, player.pos.z);
       this.fovTarget = 70;
     } else if (this.mode === 'menu') {
-      // Slow overhead orbit behind the player so the menu has motion behind it.
+      // Slow overhead orbit so the menu screen has motion behind it.
       desiredPos.set(
         player.pos.x + Math.cos(this.modeT * 0.3) * 10,
         player.pos.y + 5 + Math.sin(this.modeT * 0.4) * 1.2,
@@ -125,15 +128,23 @@ export class ChaseCamera {
       desiredTarget.set(player.pos.x, player.pos.y + 1.0, player.pos.z);
       this.fovTarget = 60;
     } else {
-      // Fixed iso while playing. Slight FOV bloom when sprinting.
+      // Subtle FOV bloom when sprinting; otherwise a calm wide-ish FOV.
       this.fovTarget = speed > 6 ? 62 : 58;
     }
 
-    // Critically-damped smoothing.
+    // Occlusion — if any wall AABB sits between the desired camera and
+    // the player in the XZ plane, slide the desired camera forward along
+    // the cam→player ray until it's just in front of the wall. Walls are
+    // 3.4m tall (taller than camera/player), so a 2D AABB intersection
+    // in XZ is sufficient — no need for a 3D test.
+    if (walls && this.mode !== 'menu') {
+      adjustForOcclusion(desiredPos, player.pos, walls);
+    }
+
+    // Critically-damped smoothing keeps the chase smooth without lag.
     this.smooth(this.position, this.posVel, desiredPos, dt, 6.5);
     this.smooth(this.target, this.targetVel, desiredTarget, dt, 8);
 
-    // Apply shake (decays exponentially).
     this.shake = Math.max(0, this.shake - dt * 2.4);
     if (this.shake > 0 && this.shakeMul > 0) {
       const k = this.shake * 0.4 * this.shakeMul;
@@ -147,13 +158,12 @@ export class ChaseCamera {
 
     this.cam.lookAt(this.target);
 
-    // FOV breathing.
     this.fov += (this.fovTarget - this.fov) * Math.min(1, dt * 4);
     this.cam.fov = this.fov;
     this.cam.updateProjectionMatrix();
   }
 
-  // Spring-style critically-damped smoothing.
+  // Critically-damped spring smoother. omega controls responsiveness.
   smooth(out, vel, target, dt, omega) {
     const f = 1 + 2 * dt * omega;
     const ww = omega * omega;
@@ -177,7 +187,8 @@ export class ChaseCamera {
     out.z = target.z + (dz + dt * vel.z) * detFFF;
   }
 
-  // Snap to a position immediately (used after respawn so we don't trail through walls).
+  // Snap to an explicit world-space camera/target pair. Used after
+  // respawn so the camera doesn't trail through walls catching up.
   snapTo(pos, target) {
     this.position.copy(pos);
     this.target.copy(target);
@@ -185,5 +196,53 @@ export class ChaseCamera {
     this.cam.lookAt(target);
     this.posVel.set(0, 0, 0);
     this.targetVel.set(0, 0, 0);
+  }
+}
+
+export const CHASE_FOLLOW_DIST = FOLLOW_DIST;
+export const CHASE_FOLLOW_HEIGHT = FOLLOW_HEIGHT;
+export const CHASE_LOOK_HEIGHT = LOOK_HEIGHT;
+
+// Slab-method ray-AABB intersection in XZ. Returns the entry distance t
+// along the ray (camera origin + t*dir) for the nearest hit, or Infinity
+// when the ray misses. Used by adjustForOcclusion.
+function rayAabb2D(ox, oz, dx, dz, w) {
+  const tx1 = (w.minX - ox) / (dx || 1e-12);
+  const tx2 = (w.maxX - ox) / (dx || 1e-12);
+  const tz1 = (w.minZ - oz) / (dz || 1e-12);
+  const tz2 = (w.maxZ - oz) / (dz || 1e-12);
+  const txmin = Math.min(tx1, tx2);
+  const txmax = Math.max(tx1, tx2);
+  const tzmin = Math.min(tz1, tz2);
+  const tzmax = Math.max(tz1, tz2);
+  const tmin = Math.max(txmin, tzmin);
+  const tmax = Math.min(txmax, tzmax);
+  if (tmax < 0 || tmin > tmax) return Infinity;
+  return Math.max(0, tmin);
+}
+
+// Mutates `cam` so that the line from cam → playerPos doesn't cross any
+// wall. Camera always stays at least MIN_DIST metres back so it doesn't
+// jam into the player's body when a wall is right behind them.
+const MIN_OCCLUSION_DIST = 2.2;
+const OCCLUSION_PADDING = 0.5;
+function adjustForOcclusion(cam, playerPos, walls) {
+  const dx = playerPos.x - cam.x;
+  const dz = playerPos.z - cam.z;
+  const dist = Math.hypot(dx, dz);
+  if (dist < 0.5) return;
+  const nx = dx / dist;
+  const nz = dz / dist;
+  let earliest = dist;
+  for (const w of walls) {
+    const t = rayAabb2D(cam.x, cam.z, nx, nz, w);
+    if (t < earliest) earliest = t;
+  }
+  if (earliest < dist) {
+    // Stop just shy of the wall, but never closer to the player than MIN.
+    const safeT = Math.max(MIN_OCCLUSION_DIST, earliest - OCCLUSION_PADDING);
+    const slide = dist - safeT;
+    cam.x += nx * slide;
+    cam.z += nz * slide;
   }
 }

@@ -151,8 +151,11 @@ const maxTile = (grid) => {
 
 export default function Game2048() {
   const [grid, setGrid]                 = useState(newGame);
-  const [score, setScore]               = useState(0);
-  const [best, setBest]                 = useState(() => Number(localStorage.getItem('pd-2048-best') || 0));
+  // Score is the highest tile currently on the board — the merge target the
+  // game is named for. Best tracks the largest tile the player has ever
+  // reached (under a separate localStorage key from the old cumulative score).
+  const score = maxTile(grid);
+  const [best, setBest] = useState(() => Number(localStorage.getItem('pd-2048-best-tile') || 0));
   const [celebratedTiers, setCelebrated] = useState(() => new Set());
   const [celebrating, setCelebrating]   = useState(null);
   const over = !hasMoves(grid);
@@ -160,7 +163,7 @@ export default function Game2048() {
   useEffect(() => {
     if (score > best) {
       setBest(score);
-      localStorage.setItem('pd-2048-best', String(score));
+      localStorage.setItem('pd-2048-best-tile', String(score));
     }
   }, [score, best]);
 
@@ -168,11 +171,10 @@ export default function Game2048() {
 
   const tryMove = useCallback((mover) => {
     if (over || celebrating) return;
-    const { grid: moved, gained } = mover(grid);
+    const { grid: moved } = mover(grid);
     if (equal(moved, grid)) return;
     const next = addTile(moved);
     setGrid(next);
-    setScore((s) => s + gained);
     // First uncelebrated tier the player has now reached.
     const max = maxTile(next);
     for (const tier of TIERS) {
@@ -237,7 +239,6 @@ export default function Game2048() {
 
   const reset = () => {
     setGrid(newGame());
-    setScore(0);
     setCelebrated(new Set());
     setCelebrating(null);
     submittedRef.current = 0;
@@ -248,12 +249,12 @@ export default function Game2048() {
       <div className="g2048-bar">
         <div className="g2048-scores">
           <div className="g2048-score">
-            <div className="g2048-score-label">Score</div>
-            <div className="g2048-score-value">{score}</div>
+            <div className="g2048-score-label">Top tile</div>
+            <div className="g2048-score-value">{score || 0}</div>
           </div>
           <div className="g2048-score">
             <div className="g2048-score-label">Best</div>
-            <div className="g2048-score-value">{best}</div>
+            <div className="g2048-score-value">{best || 0}</div>
           </div>
         </div>
         <button className="btn btn-ghost btn-sm" onClick={reset}>New game</button>
@@ -276,7 +277,7 @@ export default function Game2048() {
         {over && !celebrating && (
           <div className="g2048-overlay">
             <div className="g2048-overlay-title">Game over</div>
-            <div className="g2048-overlay-sub">Final score {score}.</div>
+            <div className="g2048-overlay-sub">Highest tile reached: {score || 0}.</div>
             <div className="g2048-overlay-ctas">
               <button className="btn btn-primary" onClick={reset}>New game</button>
             </div>

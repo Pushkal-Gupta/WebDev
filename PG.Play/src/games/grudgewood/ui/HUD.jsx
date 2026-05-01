@@ -23,6 +23,8 @@ const KIND_NOUN = {
   geyser:   'TAR GEYSER',
   lash:     'BRANCH LASH COMBO',
   mirror:   'MIRROR TREE',
+  falling:  'FALLING TREE',
+  erupting: 'ERUPTING TREE',
   unknown:  'THE FOREST',
 };
 

@@ -14,14 +14,14 @@
 export const CELL_SIZE = 24;
 export const SPINE_X = 0;          // cx along which forward path is guaranteed
 
-// Per-edge open probability for OFF-spine edges. 0.30 means most non-spine
-// edges are walls, so the maze reads as a single dominant route (the
-// spine) with short side detours rather than a branching labyrinth where
-// the player has too many choices to track.
-const OPEN_PROB = 0.30;
-// Spine off-ramps: open ~60% so the player has frequent but optional
-// side rooms branching east/west off the main path.
-const OPEN_PROB_SPINE_RAMP = 0.60;
+// Per-edge open probability for OFF-spine edges. Tightened to 0.15 so
+// the maze reads as essentially one path. A few side rooms still exist
+// for variety, but most non-spine edges are walls — the player isn't
+// drowned in choices.
+const OPEN_PROB = 0.15;
+// Spine off-ramps — about a third of east/west edges from the spine
+// are open, giving the player optional but unfrequent detours.
+const OPEN_PROB_SPINE_RAMP = 0.35;
 
 // Mulberry32 — deterministic per-edge PRNG seed.
 function rng32(seed) {

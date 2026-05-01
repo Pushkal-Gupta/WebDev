@@ -147,6 +147,28 @@ async function removeCheckerBg(buf) {
   for (let p = 0; p < total; p++) {
     if (visited[p]) { data[p * ch + 3] = 0; cleared++; }
   }
+  // Pass 4: hard-zero enclosed checker pixels the flood-fill couldn't
+  // reach (e.g. between cherry stems, inside leaf curls). Two ranges:
+  //   - GRAY band: max in [158, 220], very desaturated (the two bulk
+  //     checker shades).
+  //   - TINTED near-white: max ≥ 240 with a slight color cast
+  //     (max-min in [3, 14]). The AI generator's near-white checker
+  //     cells have a faint green/cream tint (e.g. 254,255,250 — cast
+  //     of 5). Pure character whites (eye highlights) sit at exactly
+  //     255,255,255 (cast 0) so they survive.
+  for (let p = 0, i = 0; p < total; p++, i += ch) {
+    if (data[i + 3] === 0) continue;
+    const r = data[i], g = data[i + 1], b = data[i + 2];
+    const max = r > g ? (r > b ? r : b) : (g > b ? g : b);
+    const min = r < g ? (r < b ? r : b) : (g < b ? g : b);
+    const cast = max - min;
+    const isGrayBand     = cast <= 12 && max >= 158 && max <= 232;
+    const isTintedWhite  = cast >= 2 && cast <= 14 && max >= 233;
+    if (isGrayBand || isTintedWhite) {
+      data[i + 3] = 0;
+      cleared++;
+    }
+  }
   if (cleared > 0) {
     process.stdout.write(`    (checker bg cleared on ${(cleared / total * 100).toFixed(1)}% of pixels)\n`);
   }
@@ -217,10 +239,14 @@ async function emitSprite(cellBuf, outFile, target = 512, trimThreshold = 5) {
     .resize(target, target, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .png()
     .toBuffer();
-  // Second lasso pass: the resize step blends edge pixels via Lanczos
-  // and that blend can introduce alpha 30-120 in the formerly-clean
-  // padding. Re-cut anything below a tight threshold to fully zero.
-  const cleaned2 = await lassoAlpha(resized, 140, 240);
+  // Second pass — checker re-removal AND lasso alpha cleanup. The
+  // resize step uses Lanczos and blends edge colours into the padding,
+  // which can re-introduce bg-coloured pixels with mid-alpha. The
+  // colour-aware checker pass catches bg-coloured pixels regardless
+  // of alpha, and the alpha lasso then cuts any remaining sub-140
+  // alpha noise.
+  const noChecker2 = await removeCheckerBg(resized);
+  const cleaned2 = await lassoAlpha(noChecker2, 140, 240);
   // outFile arg may end in .webp/.svg — coerce to .png.
   const pngFile = outFile.replace(/\.(webp|svg)$/i, '.png');
   await sharp(cleaned2)
@@ -350,10 +376,17 @@ async function processWall(item) {
 async function processCover() {
   const meta = await sharp(join(SRC, 'Frost-Fight.png')).metadata();
   const W = meta.width, H = meta.height;
-  // Empirical region — confirmed visually. Tweak if the source layout shifts.
-  const left   = Math.round(W * 0.625);
-  const top    = Math.round(H * 0.555);
-  const width  = W - left;
+  // Empirical region — the painted hero scene sits in the bottom-right
+  // quadrant of the master sheet. The sheet has a light-gray divider
+  // band at the right edge of the scene (artifact of the original
+  // panel layout). RIGHT_CROP slices past it; LEFT_INSET nudges the
+  // start in by a hair to keep the framing centred.
+  const RIGHT_CROP = 50;
+  const LEFT_INSET = 8;
+  const TOP_INSET  = 6;
+  const left   = Math.round(W * 0.625) + LEFT_INSET;
+  const top    = Math.round(H * 0.555) + TOP_INSET;
+  const width  = W - left - RIGHT_CROP;
   const height = H - top;
   const cropped = await sharp(join(SRC, 'Frost-Fight.png'))
     .extract({ left, top, width, height })

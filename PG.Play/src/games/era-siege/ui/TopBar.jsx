@@ -8,6 +8,7 @@
 // Replaces the older flat HUD.jsx grid.
 
 import { getEraByIndex, nextEra } from '../content/eras.js';
+import { BALANCE } from '../content/balance.js';
 import { Icon } from '../../../icons.jsx';
 
 export default function TopBar({
@@ -31,10 +32,10 @@ export default function TopBar({
       <div className="es-zone es-zone-player">
         <div className="es-portrait es-portrait-player" aria-hidden="true">YOU</div>
         <div className="es-zone-stack">
-          <div className="es-zone-row">
+          <div className="es-zone-row" title={gold >= BALANCE.GOLD_CAP ? 'Gold cap reached — spend it!' : undefined}>
             <span className="es-zone-icon" aria-hidden="true">{Icon.bolt}</span>
-            <span className="es-zone-num es-zone-gold">{gold}</span>
-            <span className="es-zone-label">gold</span>
+            <span className={`es-zone-num es-zone-gold${gold >= BALANCE.GOLD_CAP ? ' is-capped' : ''}`}>{gold}</span>
+            <span className="es-zone-label">{gold >= BALANCE.GOLD_CAP ? `cap ${BALANCE.GOLD_CAP}` : 'gold'}</span>
           </div>
           <div className="es-hp2" aria-label={`Your base HP, ${Math.round(playerR * 100)}%`}>
             <div className="es-hp2-fill" style={{ width: `${playerR * 100}%` }}/>

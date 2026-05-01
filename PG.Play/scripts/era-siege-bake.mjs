@@ -59,13 +59,16 @@ const BG_W       = 1920;
 const SKY_H      = 720;
 const MOUNTAIN_H = 360;
 const FG_H       = 200;
-const BASE_W     = 256;
-const BASE_H     = 320;
-// Units: 320×360 canvas at scale 2.6. Even the largest silhouette
-// (singular-colossus, 32×36 raw → 83×94 at scale) plus weapon clearance
-// fits comfortably. Trimmed after bake to a tight bbox.
-const UNIT_W     = 320;
-const UNIT_H     = 360;
+// Bases: 360×440 canvas — runtime renders at h≈260 so we want a
+// natural height ≥260 to stay sharp.
+const BASE_BAKE_W = 360;
+const BASE_BAKE_H = 440;
+// Units: 480×520 canvas at scale 3.6 — bumped from 2.6 so the runtime's
+// scale-up to ~134-168px target stays inside 1.0× of the source (no
+// blur from canvas upscaling). Trimmed after bake to a tight bbox.
+const UNIT_W     = 480;
+const UNIT_H     = 520;
+const UNIT_SCALE = 3.6;
 
 // Spec list. For each spec we evaluate `window.bakeAsset(spec)` and write
 // the resulting PNG to `outPath`.
@@ -102,13 +105,13 @@ function buildSpecs(eraIds) {
     mkdirSync(baseDir, { recursive: true });
     specs.push({
       outPath: join(baseDir, 'player.png'),
-      spec: { type: 'base-player', eraId, w: BASE_W, h: BASE_H,
-              opts: { x: BASE_W / 2, groundY: BASE_H } },
+      spec: { type: 'base-player', eraId, w: BASE_BAKE_W, h: BASE_BAKE_H,
+              opts: { x: BASE_BAKE_W / 2, groundY: BASE_BAKE_H } },
     });
     specs.push({
       outPath: join(baseDir, 'enemy.png'),
-      spec: { type: 'base-enemy', eraId, w: BASE_W, h: BASE_H,
-              opts: { x: BASE_W / 2, groundY: BASE_H } },
+      spec: { type: 'base-enemy', eraId, w: BASE_BAKE_W, h: BASE_BAKE_H,
+              opts: { x: BASE_BAKE_W / 2, groundY: BASE_BAKE_H } },
     });
   }
 
@@ -127,7 +130,7 @@ function buildSpecs(eraIds) {
       specs.push({
         outPath: join(dir, `${role}.png`),
         spec: { type: 'unit', eraId, w: UNIT_W, h: UNIT_H,
-                opts: { unitId, scale: 2.6 } },
+                opts: { unitId, scale: UNIT_SCALE } },
       });
     }
   }

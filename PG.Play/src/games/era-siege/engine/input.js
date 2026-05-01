@@ -4,19 +4,23 @@
 export function makeIntents() {
   return {
     spawn: [],
-    buildTurret: null,
-    sellTurret: null,
+    buildTurret:   null,
+    sellTurret:    null,
+    upgradeTurret: null,
+    buyPowerup:    null,
     special: false,
-    evolve: false,
+    evolve:  false,
   };
 }
 
 export function clearIntents(intents) {
   intents.spawn.length = 0;
-  intents.buildTurret = null;
-  intents.sellTurret = null;
+  intents.buildTurret   = null;
+  intents.sellTurret    = null;
+  intents.upgradeTurret = null;
+  intents.buyPowerup    = null;
   intents.special = false;
-  intents.evolve = false;
+  intents.evolve  = false;
 }
 
 export function attachKeyboard({ getActiveUnitIds, requestSpawn, requestBuild, requestSpecial, requestEvolve, requestPause, requestSell, requestShortcuts, requestPowerUps }) {

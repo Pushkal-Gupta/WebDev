@@ -22,6 +22,7 @@ import ShortcutsModal from './components/ShortcutsModal.jsx';
 import { GAMES } from './data.js';
 import { useSession } from './hooks/useSession.js';
 import { useFavorites } from './hooks/useFavorites.js';
+import { useProfileSync } from './hooks/useProfileSync.js';
 import { useBests } from './hooks/useBests.js';
 import { useAchievements } from './hooks/useAchievements.js';
 import { useTheme } from './hooks/useTheme.js';
@@ -68,6 +69,7 @@ export default function App() {
   // submit at any time and the toast shows on the next page transition.
   const { user } = useSession();
   useFavorites(user);
+  useProfileSync(user);   // seed pgplay_profiles.display_name on first sign-in
   const { bests, submit: submitBest } = useBests(user);
   const { toast } = useAchievements(user, bests);
 

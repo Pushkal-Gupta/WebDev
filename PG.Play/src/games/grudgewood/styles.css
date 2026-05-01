@@ -197,6 +197,68 @@
   color: rgba(245, 232, 210, 0.62);
   margin-bottom: 16px;
 }
+/* Loading overlay — sits over the canvas while the engine is booting.
+   The first requestAnimationFrame after placeAt drops the `loaded`
+   flag, removing this. The card's spinner makes the transition friendly
+   instead of a sudden black canvas. */
+.gw-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, rgba(20, 12, 8, 0.92), rgba(8, 4, 2, 1));
+  pointer-events: none;
+  animation: gw-fade-in 200ms ease-out;
+}
+.gw-loading-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.gw-loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(255, 200, 130, 0.18);
+  border-top-color: #ffb070;
+  border-radius: 50%;
+  animation: gw-spin 0.8s linear infinite;
+}
+.gw-loading-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #ffd2a0;
+}
+.gw-loading-sub {
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(245, 232, 210, 0.6);
+}
+@keyframes gw-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Death-cam visual treatment — applied to the wrap when phase === death.
+   Desaturates the canvas, adds a soft red vignette, and slows down the
+   rendered frame so the trap reads clearly during the slow-mo replay. */
+.gw-wrap[data-deathcam="1"] .gw-canvas {
+  filter: saturate(0.45) contrast(1.06);
+  transition: filter 200ms linear;
+}
+.gw-wrap[data-deathcam="1"]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 38%, rgba(96, 12, 8, 0.55) 92%);
+  z-index: 5;
+  animation: gw-fade-in 180ms ease-out;
+}
+
 /* Waypoint arrow — a CSS triangle that rotates to point toward the next
    flag. Sits inside .gw-hud-stat so it inherits the HUD chrome treatment.
    Pure CSS so it costs nothing to redraw at HUD frequency (~12 Hz). */

@@ -43,12 +43,17 @@ import player2SpriteUrl    from './frost-fight/sprites/player-2.png?url';
 import strawberrySpriteUrl from './frost-fight/sprites/strawberry.png?url';
 import blueberrySpriteUrl  from './frost-fight/sprites/blueberry.png?url';
 import fruitSpriteUrl      from './frost-fight/sprites/fruit.png?url';
+import peachSpriteUrl      from './frost-fight/sprites/peach.png?url';
 import iceSpriteUrl        from './frost-fight/sprites/ice.png?url';
 import exitSpriteUrl       from './frost-fight/sprites/exit.png?url';
 import strawberryWindupUrl from './frost-fight/sprites/strawberry-windup.png?url';
 import blueberryWindupUrl  from './frost-fight/sprites/blueberry-windup.png?url';
 import orangeSpriteUrl     from './frost-fight/sprites/orange.png?url';
-import orangeWindupUrl     from './frost-fight/sprites/orange-windup.png?url';
+// Orange's source windup pose came out pumpkin-like (gritted-teeth
+// face) and reads as a different character mid-animation. Drop it
+// and fall back to the resting orange for the alert pose so the
+// orange enemy stays consistent. Re-enable when better art ships.
+// import orangeWindupUrl     from './frost-fight/sprites/orange-windup.png?url';
 import cherrySpriteUrl     from './frost-fight/sprites/cherry.png?url';
 import cherryWindupUrl     from './frost-fight/sprites/cherry-windup.png?url';
 import coverUrl            from './frost-fight/sprites/cover.webp?url';
@@ -147,6 +152,10 @@ const PALETTE = {
   'Walk-In':     { floorTop: '#bfd6e8', floorBot: '#5e8aaa', halo: 'rgba(120, 180, 220, 0.13)', frame: 'rgba(120, 180, 220, 0.14)' },
   'Loading Dock':{ floorTop: '#cdd4dd', floorBot: '#7282a0', halo: 'rgba(170, 190, 215, 0.12)', frame: 'rgba(170, 190, 215, 0.13)' },
   'Sub-Basement':{ floorTop: '#a8b8c8', floorBot: '#3e5673', halo: 'rgba(95, 140, 200, 0.16)',  frame: 'rgba(95, 140, 200, 0.18)' },
+  'Cold Storage':{ floorTop: '#b6cee2', floorBot: '#5078a0', halo: 'rgba(120, 180, 230, 0.18)',  frame: 'rgba(120, 180, 230, 0.18)' },
+  'Conveyor Maze':{ floorTop: '#c0d0e0', floorBot: '#5e7494', halo: 'rgba(150, 180, 210, 0.16)',  frame: 'rgba(150, 180, 210, 0.18)' },
+  'The Vault':  { floorTop: '#9aaabe', floorBot: '#3a4e6e', halo: 'rgba(110, 150, 200, 0.18)',  frame: 'rgba(110, 150, 200, 0.20)' },
+  'Frostbite':  { floorTop: '#d6e8f0', floorBot: '#5288b0', halo: 'rgba(108, 208, 240, 0.22)',  frame: 'rgba(108, 208, 240, 0.24)' },
 };
 const DEFAULT_PALETTE = PALETTE.Pantry;
 
@@ -248,7 +257,7 @@ const LEVELS = [
   },
   {
     name: 'Sub-Basement',
-    tip: 'Last room. An orange runs medium-fast — read its tells.',
+    tip: 'Three chasers. An orange watches your moves — read its tells.',
     grid: [
       '######################',
       '#p..#......f.....#...#',
@@ -262,6 +271,82 @@ const LEVELS = [
       '#.#......#######.....#',
       '#.#.####....####.....#',
       '#.f.................X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Cold Storage',
+    tip: 'Cherries can blow ice now. Mind the new wall they build for you.',
+    grid: [
+      '######################',
+      '#p...f.....P.....f...#',
+      '#.####..####..####...#',
+      '#....................#',
+      '#....c..s....c.......#',
+      '#....######.######...#',
+      '#......I.....I.......#',
+      '#....######.######...#',
+      '#.f................f.#',
+      '#....................#',
+      '#.####..####..####...#',
+      '#.f...P............X.#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Conveyor Maze',
+    tip: 'Long corridors, ice-casting oranges. Cut a path before they wall you off.',
+    grid: [
+      '######################',
+      '#p.f....f....f....f..#',
+      '#.####.####..####....#',
+      '#....................#',
+      '#....o....b....o.....#',
+      '#....######....##....#',
+      '#......f....f........#',
+      '#....##....######....#',
+      '#....................#',
+      '#.f.............P....#',
+      '#.####.####..####....#',
+      '#.f.................X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'The Vault',
+    tip: 'Two ice-casters and two chasers. The maze is your friend; use it.',
+    grid: [
+      '######################',
+      '#p..####...P...####..#',
+      '#.f..#.f.......#..f..#',
+      '#....#####.######....#',
+      '#.....c....b.........#',
+      '#.######....######...#',
+      '#.f.......I........f.#',
+      '#.######....######...#',
+      '#.....b....o.........#',
+      '#....#####.######....#',
+      '#.f.f...........f.f..#',
+      '#....f.............X.#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Frostbite',
+    tip: 'Final room. Six chasers, two of them ice-casters. Two peaches in the chaos.',
+    grid: [
+      '######################',
+      '#p..f...c.......f....#',
+      '#.####..####..####...#',
+      '#......o........b....#',
+      '#....................#',
+      '#....######.######...#',
+      '#......I..f..I.......#',
+      '#....######.######...#',
+      '#......P.......b.....#',
+      '#.f..c......o....f...#',
+      '#.####..####..####...#',
+      '#.f.....P..........X.#',
       '######################',
     ],
   },
@@ -284,7 +369,8 @@ function parseLevel(idx) {
       else if (ch === 'I') ice.add(`${c},${r}`);
       else if (ch === 'p') spawn = { col: c, row: r };
       else if (ch === 'X') exit  = { col: c, row: r };
-      else if (ch === 'f') fruits.push({ col: c, row: r });
+      else if (ch === 'f') fruits.push({ col: c, row: r, kind: 'strawberry' });
+      else if (ch === 'P') fruits.push({ col: c, row: r, kind: 'peach' });
       else if (ch === 's') enemies.push({ col: c, row: r, kind: 'strawberry' });
       else if (ch === 'b') enemies.push({ col: c, row: r, kind: 'blueberry' });
       else if (ch === 'o') enemies.push({ col: c, row: r, kind: 'orange' });
@@ -309,6 +395,18 @@ const ENEMY_INTERVAL = {
   cherry:     0.6,
 };
 
+// Per-kind ice-cast probability per decision tick. Cherry and orange
+// occasionally fire a single-tile ice block in front of them toward
+// the player. Strawberry and blueberry never cast ice. The cooldown
+// (`iceCd`) prevents an enemy from spamming casts.
+const ENEMY_ICE_CHANCE = {
+  strawberry: 0,
+  blueberry:  0,
+  orange:     0.20,   // moderate threat
+  cherry:     0.28,   // slightly more aggressive
+};
+const ENEMY_ICE_CD = 2.4;   // seconds between casts per enemy
+
 export default function FrostFightGame({ mode = 'solo' }) {
   // Co-op (`mode === 'coop'`) adds a second player driven by the
   // arrow keys + Enter. P1 stays on WASD + Space. The two players
@@ -324,6 +422,9 @@ export default function FrostFightGame({ mode = 'solo' }) {
   // which would zero a per-state counter every time the player advanced
   // a room — and the 'frost-trap' achievement reads this at win-time.
   const runTrapCountRef = useRef(0);
+  // Same pattern for peaches — survives the per-state reset on level
+  // transition. Surfaced via submitScore meta + the WinCard.
+  const runPeachesRef = useRef(0);
   const tipResolvedRef = useRef('');
   // Preloaded sprite atlas. Each entry stays null until the Image
   // decodes; the draw loop falls back to procedural shapes meanwhile.
@@ -331,7 +432,7 @@ export default function FrostFightGame({ mode = 'solo' }) {
     player: null, player2: null,
     strawberry: null, blueberry: null, orange: null, cherry: null,
     strawberryWind: null, blueberryWind: null, orangeWind: null, cherryWind: null,
-    fruit: null, ice: null, exit: null,
+    fruit: null, peach: null, ice: null, exit: null,
   });
   // Particle FX queue. Items: { kind, cx, cy, t (life 0..1, decreasing) }.
   // The loop pushes on event triggers, draws + decays each frame.
@@ -415,14 +516,25 @@ export default function FrostFightGame({ mode = 'solo' }) {
         nextDecide: Math.random() * 0.4 + 0.2,
         boxed: false,
         pairBurst: false,
+        // Cherry / orange may cast ice. Stagger the first allowed cast
+        // so enemies don't all blow simultaneously when the room loads.
+        iceCd: (ENEMY_ICE_CHANCE[e.kind] ?? 0) > 0 ? Math.random() * 1.5 + 1.0 : 0,
       })),
       fruitsLeft: level.fruits.length,
       elapsed: 0,
       shake: 0,
       flash: 0,
+      // Set on death; gates the death-detect block so we don't fire
+      // setDeaths / sfx / spawnFx multiple times during the death anim
+      // before the room restarts.
+      dying: false,
       // Per-tile reveal timestamps for the animated cast wave. Sim
       // adds ice immediately; this map staggers the visual unveil.
       castReveal: new Map(),
+      // Per-tile vanish timestamps for the animated melt sweep. Sim
+      // removes ice immediately; this map fades out the ice in the
+      // same staggered cadence as freeze places it.
+      castVanish: new Map(),
       // Snapshots taken on level mount — used to compute the per-room
       // clear time + deaths when this room is finished. We start each
       // room timer from zero (`elapsed` is reset above) and capture
@@ -507,9 +619,11 @@ export default function FrostFightGame({ mode = 'solo' }) {
       cherry: cherrySpriteUrl,
       strawberryWind: strawberryWindupUrl,
       blueberryWind: blueberryWindupUrl,
-      orangeWind: orangeWindupUrl,
+      // Orange shares its rest sprite with its alert state — see import note.
+      orangeWind: orangeSpriteUrl,
       cherryWind: cherryWindupUrl,
       fruit: fruitSpriteUrl,
+      peach: peachSpriteUrl,
       ice: iceSpriteUrl,
       exit: exitSpriteUrl,
     };
@@ -589,12 +703,20 @@ export default function FrostFightGame({ mode = 'solo' }) {
       const k = e.key.toLowerCase();
       keys[k] = true; keys[e.code] = true;
       if (k === 'r') {
+        // R reloads JUST this room. We intercept in capture phase and
+        // stop propagation so GameShell's "full game restart" handler
+        // (which would unmount the component and reset to level 0)
+        // doesn't also fire. Death-counter increment per restart use.
+        e.stopImmediatePropagation();
+        e.preventDefault();
         setDeaths((d) => d + 1);
         loadLevel(levelIdx);
       }
     };
     const ku = (e) => { keys[e.key.toLowerCase()] = false; keys[e.code] = false; };
-    window.addEventListener('keydown', kd);
+    // Capture phase so we run BEFORE GameShell's window listener.
+    // stopImmediatePropagation in our handler keeps the shell out of it.
+    window.addEventListener('keydown', kd, { capture: true });
     window.addEventListener('keyup', ku);
 
     const draw = () => {
@@ -714,6 +836,33 @@ export default function FrostFightGame({ mode = 'solo' }) {
         if (alpha < 1) ctx.globalAlpha = 1;
       });
 
+      // Vanishing-ghost ice — tiles the player just melted. Sim has
+      // already removed them from `level.ice` (passable from frame 0),
+      // but `castVanish` carries the wave-fade-out timestamps so the
+      // visual matches the freeze-cast stagger. Ghosts auto-clean once
+      // their 180 ms fade is done.
+      if (s.castVanish && s.castVanish.size > 0) {
+        for (const [key, vanishTs] of s.castVanish) {
+          const elapsed = nowMs - vanishTs;
+          if (elapsed >= FADE_MS) { s.castVanish.delete(key); continue; }
+          const ghostAlpha = elapsed < 0 ? 1 : (1 - elapsed / FADE_MS);
+          if (ghostAlpha <= 0) continue;
+          const [c, r] = key.split(',').map(Number);
+          const x = c * T, y = r * T;
+          ctx.globalAlpha = ghostAlpha;
+          if (iceReady) {
+            ctx.drawImage(iceImg, x + 1, y + 1, T - 2, T - 2);
+          } else {
+            ctx.fillStyle = '#d9ecf5';
+            ctx.fillRect(x + 2, y + 2, T - 4, T - 4);
+            ctx.strokeStyle = '#7ac0e0';
+            ctx.lineWidth = 2 * px;
+            ctx.strokeRect(x + 2, y + 2, T - 4, T - 4);
+          }
+          ctx.globalAlpha = 1;
+        }
+      }
+
       // Exit. The cyan halo + flag combo: halo pulses when active, flag
       // sprite sits on top.
       const ex = level.exit.col * T + T / 2;
@@ -749,20 +898,30 @@ export default function FrostFightGame({ mode = 'solo' }) {
         ctx.fill();
       }
 
-      // Fruits.
+      // Fruits — strawberries by default; peaches in later levels
+      // (parser maps 'P' grid char to kind:'peach'). Each fruit kind
+      // picks its own sprite slot.
       const fruitImg = spritesRef.current.fruit;
+      const peachImg = spritesRef.current.peach;
       const fruitReady = fruitImg && fruitImg.complete && fruitImg.naturalWidth > 0;
+      const peachReady = peachImg && peachImg.complete && peachImg.naturalWidth > 0;
       level.fruits.forEach((f) => {
         if (f.taken) return;
         const fx = f.col * T + T / 2;
         const fy = f.row * T + T / 2 + Math.sin(performance.now() / 350 + f.col) * 1.5;
-        if (fruitReady) {
-          const sz = 26;
-          ctx.drawImage(fruitImg, fx - sz / 2, fy - sz / 2, sz, sz);
+        const isPeach = f.kind === 'peach';
+        const img = isPeach ? peachImg : fruitImg;
+        const ready = isPeach ? peachReady : fruitReady;
+        if (ready) {
+          // Peach is rendered slightly larger so the score-bonus reads
+          // visually — players notice the bigger pickup.
+          const sz = isPeach ? 30 : 26;
+          ctx.drawImage(img, fx - sz / 2, fy - sz / 2, sz, sz);
         } else {
-          ctx.fillStyle = '#ff4d6d';
+          // Procedural fallback colours per kind.
+          ctx.fillStyle = isPeach ? '#ffb38a' : '#ff4d6d';
           ctx.beginPath();
-          ctx.arc(fx, fy + 2, 8, 0, Math.PI * 2);
+          ctx.arc(fx, fy + 2, isPeach ? 9 : 8, 0, Math.PI * 2);
           ctx.fill();
           ctx.fillStyle = '#2d7a2a';
           ctx.beginPath();
@@ -771,10 +930,12 @@ export default function FrostFightGame({ mode = 'solo' }) {
           ctx.lineTo(fx, fy - 2);
           ctx.closePath();
           ctx.fill();
-          ctx.fillStyle = 'rgba(255,255,255,0.7)';
-          ctx.fillRect(fx - 3, fy, 1, 1);
-          ctx.fillRect(fx + 2, fy + 2, 1, 1);
-          ctx.fillRect(fx, fy - 1, 1, 1);
+          if (!isPeach) {
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.fillRect(fx - 3, fy, 1, 1);
+            ctx.fillRect(fx + 2, fy + 2, 1, 1);
+            ctx.fillRect(fx, fy - 1, 1, 1);
+          }
         }
       });
 
@@ -1050,13 +1211,27 @@ export default function FrostFightGame({ mode = 'solo' }) {
             if (!inBounds(sc, sr)) { /* edge */ }
             else if (isWall(s.level, sc, sr)) { /* wall */ }
             else if (isIce(s.level, sc, sr)) {
-              // Melt sweep.
+              // Melt sweep — mirror of freeze. Sim removes every ice
+              // tile in the row immediately (collisions are correct
+              // from frame 0); the visual fade-out is staggered via
+              // `castVanish` so the wave rolls forward at the same
+              // ~55 ms-per-tile cadence as the freeze cast.
               let cleared = 0;
               let c = sc, r = sr;
+              const meltStartTs = performance.now();
+              const CAST_STAGGER = reduced ? 0 : 55;
+              const PARTICLE_LEAD = 30;
               while (inBounds(c, r) && isIce(s.level, c, r)) {
-                s.level.ice.delete(`${c},${r}`);
+                const key = `${c},${r}`;
+                s.level.ice.delete(key);
+                s.castVanish.set(key, meltStartTs + cleared * CAST_STAGGER);
+                if (!reduced) {
+                  const cx = c * T + T / 2, cy = r * T + T / 2;
+                  const delay = Math.max(0, cleared * CAST_STAGGER - PARTICLE_LEAD);
+                  if (delay === 0) spawnFx(fxRef.current, 'melt', cx, cy);
+                  else setTimeout(() => spawnFx(fxRef.current, 'melt', cx, cy), delay);
+                }
                 cleared++;
-                if (!reduced) spawnFx(fxRef.current, 'melt', c * T + T / 2, r * T + T / 2);
                 c += dv[0]; r += dv[1];
               }
               if (cleared > 0) {
@@ -1111,12 +1286,18 @@ export default function FrostFightGame({ mode = 'solo' }) {
             s.fruitsLeft -= 1;
             setGemsGot((n) => n + 1);
             sfx.frostFruit();
+            // Peach is worth 2 score "weight" units; strawberry is 1.
+            // Tracked in s.score; surfaces via submitScore meta.
+            const isPeach = fruit.kind === 'peach';
+            if (isPeach) runPeachesRef.current += 1;
             const fcx = fruit.col * T + T / 2;
             const fcy = fruit.row * T + T / 2;
             if (!reduced) {
               spawnFx(fxRef.current, 'fruit', fcx, fcy);
               if (s.fruitsLeft === 0) {
                 spawnFloater(fxRef.current, 'EXIT LIVE', fcx, fcy - 10, '#6cd0f0', { size: 9, life: 1.2 });
+              } else if (isPeach) {
+                spawnFloater(fxRef.current, '+2', fcx, fcy - 10, '#ffd1be', { size: 11 });
               } else {
                 spawnFloater(fxRef.current, '+1', fcx, fcy - 10, '#ffd1de');
               }
@@ -1250,11 +1431,18 @@ export default function FrostFightGame({ mode = 'solo' }) {
             // Base scales with room count so longer runs aren't penalised
             // by the elapsed-time term hitting the 0 floor. Trap count
             // surfaces in meta so the achievement bus can pick it up.
+            // Score: room-count base, minus death cost, minus elapsed
+            // time, plus a bonus for each peach eaten across the run.
             const base = LEVELS.length * 500;
-            const score = Math.max(0, Math.round(base - deaths * 50 - s.elapsed * 3));
+            const peachBonus = runPeachesRef.current * 80;
+            const score = Math.max(
+              0,
+              Math.round(base + peachBonus - deaths * 50 - s.elapsed * 3),
+            );
             submitScore('badicecream', score, {
               deaths, time: finalTime, levels: LEVELS.length,
               trapped: runTrapCountRef.current,
+              peaches: runPeachesRef.current,
             });
           }
         } else {
@@ -1285,7 +1473,54 @@ export default function FrostFightGame({ mode = 'solo' }) {
           return;
         }
         e.nextDecide -= dt;
+        if (e.iceCd > 0) e.iceCd -= dt;
         if (e.nextDecide > 0) return;
+
+        // Ice-cast attempt — cherry / orange occasionally fire a single
+        // ice block in the direction of the nearest player. Acts as a
+        // turn-skip: the enemy spends this decision on a cast instead of
+        // a step. Cooldown prevents back-to-back casts. The cast tile
+        // must be empty (passable, not occupied by player/fruit/exit).
+        const iceChance = ENEMY_ICE_CHANCE[e.kind] || 0;
+        if (iceChance > 0 && e.iceCd <= 0 && Math.random() < iceChance) {
+          // Pick the direction toward the nearest player.
+          const targetForCast = (() => {
+            if (!p2 || p2.dead) return p;
+            if (p.dead) return p2;
+            const d1 = Math.abs(p.col  - e.col) + Math.abs(p.row  - e.row);
+            const d2 = Math.abs(p2.col - e.col) + Math.abs(p2.row - e.row);
+            return d1 <= d2 ? p : p2;
+          })();
+          // Direction: pick the dominant axis toward the target.
+          const ddx = Math.sign(targetForCast.col - e.col);
+          const ddy = Math.sign(targetForCast.row - e.row);
+          const ax = Math.abs(targetForCast.col - e.col);
+          const ay = Math.abs(targetForCast.row - e.row);
+          const dir = ax >= ay ? [ddx, 0] : [0, ddy];
+          if (dir[0] !== 0 || dir[1] !== 0) {
+            const tc = e.col + dir[0], tr = e.row + dir[1];
+            const free = inBounds(tc, tr)
+              && !isWall(s.level, tc, tr)
+              && !isIce(s.level, tc, tr)
+              && !s.enemies.some((o) => o !== e && o.col === tc && o.row === tr)
+              && !s.level.fruits.some((f) => !f.taken && f.col === tc && f.row === tr)
+              && !(s.level.exit.col === tc && s.level.exit.row === tr)
+              && !(p && !p.dead && p.col === tc && p.row === tr)
+              && !(p2 && !p2.dead && p2.col === tc && p2.row === tr);
+            if (free) {
+              const key = `${tc},${tr}`;
+              s.level.ice.add(key);
+              s.castReveal.set(key, performance.now());
+              if (!reduced) spawnFx(fxRef.current, 'freeze', tc * T + T / 2, tr * T + T / 2);
+              sfx.frostFreeze();
+              e.iceCd = ENEMY_ICE_CD;
+              // Skip the move this decision tick.
+              e.nextDecide = ENEMY_INTERVAL[e.kind];
+              return;
+            }
+          }
+        }
+
         // Cherry pair-step: after the first step in a pair, schedule a
         // quick second; on the second, reset to full interval.
         if (e.kind === 'cherry' && !e.pairBurst) {
@@ -1380,6 +1615,7 @@ export default function FrostFightGame({ mode = 'solo' }) {
       // die together (BIC same-team forgiveness rule). Keeps co-op
       // forgiving so a single mistake doesn't punish only one player.
       const touchedPlayer = (() => {
+        if (s.dying) return null;          // already triggered this room
         if (!p.dead) {
           for (const e of s.enemies) if (enemyTouchesPlayer(e, p)) return p;
         }
@@ -1389,25 +1625,36 @@ export default function FrostFightGame({ mode = 'solo' }) {
         return null;
       })();
       if (touchedPlayer) {
-        const killOne = (target) => {
-          if (target.dead) return;
-          target.dead = true;
-          target.respawn = RESPAWN_DELAY;
-        };
-        killOne(p);
-        if (p2) killOne(p2);
+        // Death now triggers a full ROOM restart, not just a player
+        // respawn. This kills the spawn-loop bug — if an enemy was
+        // sitting on the spawn tile when the player respawned, the
+        // player would die instantly. Reloading the room resets enemy
+        // positions and ice state too.
+        s.dying = true;
+        // Mark both players dead with an effectively-infinite respawn
+        // so the existing tickPlayer code path doesn't teleport anyone
+        // back before the level reload.
+        if (!p.dead) { p.dead = true; p.respawn = 999; }
+        if (p2 && !p2.dead) { p2.dead = true; p2.respawn = 999; }
         s.shake = reduced ? 0 : 12;
         s.flash = reduced ? 0 : 0.5;
         setDeaths((d) => d + 1);
-        setTip('Touched — respawning.');
+        setTip('Touched — restarting room.');
         sfx.frostDeath();
-        frostMusic.duck(0.7);
+        frostMusic.duck(1.1);
         if (!reduced) {
           const dpos = entityPos(touchedPlayer);
           const dcx = dpos.x + T / 2, dcy = dpos.y + T / 2;
           spawnFx(fxRef.current, 'death', dcx, dcy);
           spawnFloater(fxRef.current, 'OUCH', dcx, dcy - 10, '#ff7b96', { size: 10, life: 0.9 });
         }
+        // Schedule the actual room reload after the death animation /
+        // shake / flash settle. Guard against double-fire if the
+        // component unmounts in the meantime.
+        const dyingState = s;
+        setTimeout(() => {
+          if (stateRef.current === dyingState) loadLevel(levelIdx);
+        }, 950);
       }
 
       s.elapsed += dt;
@@ -1422,7 +1669,7 @@ export default function FrostFightGame({ mode = 'solo' }) {
 
     return () => {
       cancelAnimationFrame(raf);
-      window.removeEventListener('keydown', kd);
+      window.removeEventListener('keydown', kd, { capture: true });
       window.removeEventListener('keyup', ku);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1431,6 +1678,7 @@ export default function FrostFightGame({ mode = 'solo' }) {
   const restart = useCallback(() => {
     submittedRef.current = false;
     runTrapCountRef.current = 0;
+    runPeachesRef.current = 0;
     setDeaths(0);
     setTime(0);
     setLevelIdx(0);
@@ -1486,6 +1734,7 @@ export default function FrostFightGame({ mode = 'solo' }) {
           best={best}
           bestBeaten={bestBeaten}
           levelCount={LEVELS.length}
+          peaches={runPeachesRef.current}
           coverUrl={coverUrl}
           onPlayAgain={restart}
           onExit={onExitToLobby}/>

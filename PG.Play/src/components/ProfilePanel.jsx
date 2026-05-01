@@ -108,7 +108,15 @@ export default function ProfilePanel({
     if (!v) { setEditing(false); return; }
     setSavingName(true);
     try {
-      await supabase.auth.updateUser({ data: { display_name: v } });
+      // Two writes: (1) auth user_metadata for the in-app UI, (2) the public
+      // pgplay_profiles row that the leaderboard view joins against. Without
+      // the second, the player would still appear as a 6-char user_id hash
+      // on the global board.
+      await Promise.all([
+        supabase.auth.updateUser({ data: { display_name: v } }),
+        supabase.from('pgplay_profiles')
+          .upsert({ user_id: user.id, display_name: v }, { onConflict: 'user_id' }),
+      ]);
     } catch { /* noop — UI optimism */ }
     setSavingName(false);
     setEditing(false);
