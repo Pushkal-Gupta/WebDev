@@ -27,6 +27,7 @@ import TopBar from './ui/TopBar.jsx';
 import UnitDock from './ui/UnitDock.jsx';
 import TurretSlots from './ui/TurretSlots.jsx';
 import SpecialButton from './ui/SpecialButton.jsx';
+import GeneralButton from './ui/GeneralButton.jsx';
 import Tutorial from './ui/Tutorial.jsx';
 import ResultPanel from './ui/ResultPanel.jsx';
 import DifficultyChip from './ui/DifficultyChip.jsx';
@@ -108,6 +109,7 @@ export default function EraSiegeGame({ mode }) {
     enemyEraIndex: 0,
     turretSlots: [null, null, null],
     specialCooldownMs: 0, specialCharging: false,
+    generalCooldownMs: 0, generalAlive: false,
     auraLeftMs: 0,
     timeSec: 0, status: 'playing', score: 0,
     endlessSec: 0,
@@ -385,13 +387,17 @@ export default function EraSiegeGame({ mode }) {
       enemyHP:  match.enemy.base.hp,
       cooldownsMs: match.player._spawnCooldowns ? { ...match.player._spawnCooldowns } : {},
       enemyAuraLeftMs: match.enemy.auraLeftMs || 0,
-      turretSlots: [
-        match.player.turretSlots[0] ? { eraIndex: match.player.turretSlots[0].eraIndex, turretId: match.player.turretSlots[0].turretId, buildCost: match.player.turretSlots[0].buildCost } : null,
-        match.player.turretSlots[1] ? { eraIndex: match.player.turretSlots[1].eraIndex, turretId: match.player.turretSlots[1].turretId, buildCost: match.player.turretSlots[1].buildCost } : null,
-        match.player.turretSlots[2] ? { eraIndex: match.player.turretSlots[2].eraIndex, turretId: match.player.turretSlots[2].turretId, buildCost: match.player.turretSlots[2].buildCost } : null,
-      ],
+      turretSlots: [0, 1, 2].map((i) => {
+        const t = match.player.turretSlots[i];
+        const spotBuilt = !!(match.player.turretSpots && match.player.turretSpots[i]);
+        if (!t) return spotBuilt ? { spotOnly: true } : null;
+        return { eraIndex: t.eraIndex, turretId: t.turretId, buildCost: t.buildCost, spotBuilt: true };
+      }),
       specialCooldownMs: match.player.specialCooldownMs,
       specialCharging:   !!match.player.specialActive,
+      generalCooldownMs:
+        match.player._spawnCooldowns?.[getEraByIndex(match.player.eraIndex)?.generalId] || 0,
+      generalAlive: match.player.units.some((u) => u.role === 'general' && !u.dead && u.hp > 0),
       auraLeftMs: match.player.auraLeftMs || 0,
       timeSec: Math.floor(match.timeSec),
       status:  match.status,
@@ -419,6 +425,10 @@ export default function EraSiegeGame({ mode }) {
   const onBuild   = (i)   => { intentsRef.current.buildTurret = { slot: i }; };
   const onSell    = (i)   => { intentsRef.current.sellTurret = i; };
   const onSpecial = ()    => { intentsRef.current.special = true; };
+  const onDeployGeneral = () => {
+    const cur = getEraByIndex(matchRef.current?.player.eraIndex || 0);
+    if (cur?.generalId) intentsRef.current.spawn.push(cur.generalId);
+  };
   const onEvolve  = ()    => { intentsRef.current.evolve = true; };
   const onAgain   = ()    => {
     submittedRef.current = false;
@@ -442,7 +452,12 @@ export default function EraSiegeGame({ mode }) {
   const onSlotClick = (i) => {
     const t = matchRef.current?.player.turretSlots[i];
     if (t) setTurretManageSlot(t);
-    else   setTurretBuildSlot(i);
+    else   setTurretBuildSlot(i);   // modal handles spot-vs-turret state
+  };
+  // Spot-first flow: empty + no-spot → BuildSpot, empty + spot-built → BuildTurret.
+  const onConfirmBuildSpot = (slot) => {
+    intentsRef.current.buildTurretSpot = slot;
+    setTurretBuildSlot(null);
   };
   const onConfirmBuild = (slot) => {
     intentsRef.current.buildTurret = { slot };
@@ -535,6 +550,14 @@ export default function EraSiegeGame({ mode }) {
           onFire={onSpecial}
         />
 
+        <GeneralButton
+          eraIndex={hud.eraIndex}
+          gold={hud.gold}
+          cooldownMs={hud.generalCooldownMs}
+          alive={hud.generalAlive}
+          onDeploy={onDeployGeneral}
+        />
+
         <Tutorial activeIdx={tutorialIdx} onDismiss={onTutDismiss}/>
         <EraBanner eraIndex={hud.eraIndex} version={eraBannerVer}/>
 
@@ -569,6 +592,11 @@ export default function EraSiegeGame({ mode }) {
           slotIndex={turretBuildSlot ?? 0}
           eraIndex={hud.eraIndex}
           gold={hud.gold}
+          /* Spot already laid? Modal switches to "Build Turret" mode;
+             otherwise it shows "Build Spot" first. */
+          spotBuilt={turretBuildSlot != null
+            && !!matchRef.current?.player.turretSpots?.[turretBuildSlot]}
+          onBuildSpot={onConfirmBuildSpot}
           onBuild={onConfirmBuild}
           onClose={() => setTurretBuildSlot(null)}
         />
@@ -632,6 +660,8 @@ function cheapDiffers(a, b) {
   if (a.playerHP !== b.playerHP) return true;
   if (a.enemyHP !== b.enemyHP) return true;
   if (a.specialCooldownMs !== b.specialCooldownMs) return true;
+  if (a.generalAlive !== b.generalAlive) return true;
+  if (Math.abs((a.generalCooldownMs || 0) - (b.generalCooldownMs || 0)) > 250) return true;
   if (a.specialCharging !== b.specialCharging) return true;
   if ((a.auraLeftMs > 0) !== (b.auraLeftMs > 0)) return true;
   if (Math.abs((a.auraLeftMs || 0) - (b.auraLeftMs || 0)) > 250) return true;

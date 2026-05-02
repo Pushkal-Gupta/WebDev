@@ -179,7 +179,7 @@ for (let i = 0; i < 5; i++) {
     (ctx, x, y, opts) => placeholderTurret(ctx, def, x, y, opts || {}));
 }
 
-// ── Units (5 eras × frontline / ranged / heavy) ──────────────────────
+// ── Units (5 eras × frontline / ranged / heavy + general) ───────────
 
 for (let i = 0; i < 5; i++) {
   const era = getEraByIndex(i);
@@ -188,6 +188,13 @@ for (let i = 0; i < 5; i++) {
     if (!def) continue;
     reg(`unit/era${i + 1}/${role}`, `games/era-siege/unit/era${i + 1}/${role}.png`,
       (ctx, x, y, opts) => placeholderUnit(ctx, def, x, y, opts || {}));
+  }
+  if (era.generalId) {
+    const gdef = getUnit(era.generalId);
+    if (gdef) {
+      reg(`unit/era${i + 1}/general`, `games/era-siege/unit/era${i + 1}/general.png`,
+        (ctx, x, y, opts) => placeholderUnit(ctx, gdef, x, y, opts || {}));
+    }
   }
 }
 

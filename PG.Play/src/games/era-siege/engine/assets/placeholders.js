@@ -751,7 +751,10 @@ export function placeholderTurret(ctx, def, x, y, opts) {
 export function placeholderUnit(ctx, def, x, y, opts = {}) {
   const v = def.visual;
   const facing = opts.facing || 1;
-  const isHeavy = def.role === 'heavy';
+  const isGeneral = def.role === 'general';
+  // Generals share the heavy silhouette decorations (cape, helm, pauldrons)
+  // PLUS get a crown/plume above the head and a back-banner pole.
+  const isHeavy = def.role === 'heavy' || isGeneral;
   const isRanged = def.role === 'ranged';
   // Scale silhouette up for the bake — the runtime expects bigger sprites
   // than the original sim sizes (renderer used to upscale procedurally).
@@ -837,10 +840,51 @@ export function placeholderUnit(ctx, def, x, y, opts = {}) {
   // Era-specific head accents — what makes the unit feel like its era.
   drawHeadAccent(ctx, eraId, def.role, x, headY, headR, facing, colorTrim);
 
-  // Helm crest (heavies + iron-dominion).
+  // Helm crest (heavies + generals).
   if (isHeavy) {
     ctx.fillStyle = colorTrim;
     ctx.fillRect(x - 2, headY - headR - 4, 4, 5);
+  }
+
+  // Generals: a 3-point crown above the helm crest + a back-banner.
+  // The crown is the read-at-a-glance signal that this isn't just a
+  // heavy — it's the era's general.
+  if (isGeneral) {
+    const crownY = headY - headR - 8;
+    ctx.fillStyle = colorTrim;
+    // Crown band
+    ctx.fillRect(x - headR - 1, crownY - 1, headR * 2 + 2, 3);
+    // Three points
+    ctx.beginPath();
+    ctx.moveTo(x - headR,     crownY - 1);
+    ctx.lineTo(x - headR + 2, crownY - 6);
+    ctx.lineTo(x - headR + 4, crownY - 1);
+    ctx.lineTo(x - 2,         crownY - 1);
+    ctx.lineTo(x,             crownY - 8);
+    ctx.lineTo(x + 2,         crownY - 1);
+    ctx.lineTo(x + headR - 4, crownY - 1);
+    ctx.lineTo(x + headR - 2, crownY - 6);
+    ctx.lineTo(x + headR,     crownY - 1);
+    ctx.closePath();
+    ctx.fill();
+    // Crown gem (era accent)
+    ctx.fillStyle = paletteFor(eraId).hudAccent || '#ffe14f';
+    ctx.fillRect(x - 1, crownY - 5, 2, 2);
+
+    // Back-banner: pole rising behind the shoulders + a flag.
+    const poleX = x - facing * (halfW * 0.4);
+    const poleTop = torsoTop - h * 0.55;
+    ctx.fillStyle = '#0a0d0e';
+    ctx.fillRect(poleX - 1, poleTop, 2, h * 0.55);
+    ctx.fillStyle = colorTrim;
+    ctx.beginPath();
+    ctx.moveTo(poleX,                    poleTop);
+    ctx.lineTo(poleX - facing * 14,      poleTop + 6);
+    ctx.lineTo(poleX,                    poleTop + 14);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = shadeColor(colorTrim, -25);
+    ctx.fillRect(poleX - facing * 6, poleTop + 4, 1, 5);
   }
 
   // Weapon — held in the leading hand, foregrounded.

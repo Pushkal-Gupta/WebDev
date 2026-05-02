@@ -17,7 +17,7 @@ import { tickProgression, tryEvolve } from './progression.js';
 import { tickAi } from './ai.js';
 import { tickSpecials, tryFireSpecial } from './specials.js';
 import { trySpawnUnit } from './unit.js';
-import { tryBuildTurret, trySellTurret, tryUpgradeTurretStat } from './turret.js';
+import { tryBuildTurret, tryBuildTurretSpot, trySellTurret, tryUpgradeTurretStat } from './turret.js';
 import { matchOver, scoreMatch } from './match.js';
 import { tickEffects } from './effects.js';
 import { makePowerupsState, tryBuyPowerup, getMultiplier } from './powerups.js';
@@ -69,6 +69,11 @@ export function createMatch(opts = {}) {
     eraIndex: 0,
     units: [],            // active unit list, Maintained by sim/unit.js
     turretSlots: Array.from({ length: BALANCE.TURRET_SLOT_COUNT }, () => null),
+    // Two-stage turret building: a spot must be built first (cheap
+    // commitment that locks the slot), then a turret (era-current cost).
+    // Selling the turret keeps the spot built — rebuilding only pays
+    // the turret cost again.
+    turretSpots: Array.from({ length: BALANCE.TURRET_SLOT_COUNT }, () => false),
     specialCooldownMs: 0,
     specialActive: null,  // { specialId, telegraphLeftMs, eraIndex } when telegraphing
     auraLeftMs: 0,        // aura special — duration left
@@ -141,6 +146,9 @@ function applyPlayerIntents(state, intents) {
   }
   if (intents.spawn) {
     for (const unitId of intents.spawn) trySpawnUnit(state, state.player, unitId);
+  }
+  if (intents.buildTurretSpot != null) {
+    tryBuildTurretSpot(state, state.player, intents.buildTurretSpot);
   }
   if (intents.buildTurret) {
     tryBuildTurret(state, state.player, intents.buildTurret.slot);

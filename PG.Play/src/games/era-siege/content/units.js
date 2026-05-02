@@ -6,7 +6,7 @@
  * @property {string} id
  * @property {string} eraId
  * @property {string} name
- * @property {'frontline'|'ranged'|'heavy'} role
+ * @property {'frontline'|'ranged'|'heavy'|'general'} role
  * @property {number} cost
  * @property {number} spawnCooldownMs
  * @property {number} hp
@@ -176,6 +176,55 @@ export const UNITS = [
     attackWindupMs: 540, attackRecoverMs: 740,
     bountyGold: 168, bountyXp: 100,
     visual: { silhouetteW: 32, silhouetteH: 36, colorBody: '#1a0a3a', colorTrim: '#e9c8ff', weaponShape: 'colossus-fist', headRadius: 9 },
+    audio: { spawnCue: 'open', attackCue: 'axeReveal', deathCue: 'lose' },
+  }),
+
+  // ── Generals — one per era. Long cooldown, high cost, high impact.
+  // Only one living general per side at a time (enforced in trySpawnUnit).
+  // Stats sized at ~3-4× the era's heavy unit.
+  u({
+    id: 'pyre-warlord', eraId: 'ember-tribe', name: 'Pyre Warlord', role: 'general',
+    cost: 220, spawnCooldownMs: 60_000,
+    hp: 520, damage: 42, range: 28, moveSpeed: 38,
+    attackWindupMs: 480, attackRecoverMs: 620,
+    bountyGold: 110, bountyXp: 75,
+    visual: { silhouetteW: 28, silhouetteH: 38, colorBody: '#c2391b', colorTrim: '#ffd05a', weaponShape: 'brand', headRadius: 9 },
+    audio: { spawnCue: 'open', attackCue: 'axeReveal', deathCue: 'lose' },
+  }),
+  u({
+    id: 'iron-marshal', eraId: 'iron-dominion', name: 'Iron Marshal', role: 'general',
+    cost: 260, spawnCooldownMs: 65_000,
+    hp: 720, damage: 50, range: 30, moveSpeed: 36,
+    attackWindupMs: 500, attackRecoverMs: 660,
+    bountyGold: 140, bountyXp: 90,
+    visual: { silhouetteW: 30, silhouetteH: 40, colorBody: '#5a6878', colorTrim: '#d8d4cc', weaponShape: 'maul', headRadius: 9 },
+    audio: { spawnCue: 'open', attackCue: 'axeReveal', deathCue: 'lose' },
+  }),
+  u({
+    id: 'brass-captain', eraId: 'sun-foundry', name: 'Brass Captain', role: 'general',
+    cost: 290, spawnCooldownMs: 70_000,
+    hp: 880, damage: 58, range: 32, moveSpeed: 34,
+    attackWindupMs: 520, attackRecoverMs: 680,
+    bountyGold: 168, bountyXp: 105,
+    visual: { silhouetteW: 30, silhouetteH: 40, colorBody: '#7a4818', colorTrim: '#ffcb6b', weaponShape: 'piledriver', headRadius: 9 },
+    audio: { spawnCue: 'open', attackCue: 'axeReveal', deathCue: 'lose' },
+  }),
+  u({
+    id: 'storm-commodore', eraId: 'storm-republic', name: 'Storm Commodore', role: 'general',
+    cost: 320, spawnCooldownMs: 75_000,
+    hp: 1040, damage: 66, range: 34, moveSpeed: 32,
+    attackWindupMs: 540, attackRecoverMs: 700,
+    bountyGold: 196, bountyXp: 120,
+    visual: { silhouetteW: 32, silhouetteH: 42, colorBody: '#1f2c3c', colorTrim: '#7be3ff', weaponShape: 'lance', headRadius: 10 },
+    audio: { spawnCue: 'open', attackCue: 'axeReveal', deathCue: 'lose' },
+  }),
+  u({
+    id: 'void-sovereign', eraId: 'void-ascendancy', name: 'Void Sovereign', role: 'general',
+    cost: 380, spawnCooldownMs: 80_000,
+    hp: 1240, damage: 78, range: 36, moveSpeed: 30,
+    attackWindupMs: 560, attackRecoverMs: 720,
+    bountyGold: 224, bountyXp: 140,
+    visual: { silhouetteW: 34, silhouetteH: 44, colorBody: '#1a0a3a', colorTrim: '#e9c8ff', weaponShape: 'colossus-fist', headRadius: 10 },
     audio: { spawnCue: 'open', attackCue: 'axeReveal', deathCue: 'lose' },
   }),
 ];

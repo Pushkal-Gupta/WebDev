@@ -254,6 +254,120 @@ async function emitSprite(cellBuf, outFile, target = 512, trimThreshold = 5) {
     .toFile(pngFile);
 }
 
+// Connected-component sprite finder. After `removeCheckerBg` clears the
+// checker pattern, the remaining alpha>30 islands are individual
+// sprites (characters, fruits, walls, cover scene). We label them via
+// iterative DFS, filter out tiny noise (< minArea), and sort in
+// reading order so a per-sheet manifest can map `componentIndex → name`
+// deterministically.
+function findComponents(rawAlpha, minArea = 1200, alphaThreshold = 30) {
+  const { data, width: w, height: h, channels: ch } = rawAlpha;
+  const total = w * h;
+  const visited = new Uint8Array(total);
+  const components = [];
+  const stack = [];
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const p = y * w + x;
+      if (visited[p]) continue;
+      if (data[p * ch + 3] < alphaThreshold) { visited[p] = 1; continue; }
+      stack.length = 0;
+      stack.push(p);
+      visited[p] = 1;
+      let area = 0;
+      let minX = x, maxX = x, minY = y, maxY = y;
+      while (stack.length > 0) {
+        const q = stack.pop();
+        area++;
+        const qx = q % w, qy = (q / w) | 0;
+        if (qx < minX) minX = qx;
+        if (qx > maxX) maxX = qx;
+        if (qy < minY) minY = qy;
+        if (qy > maxY) maxY = qy;
+        if (qx > 0)     { const n = q - 1; if (!visited[n] && data[n * ch + 3] >= alphaThreshold) { visited[n] = 1; stack.push(n); } }
+        if (qx < w - 1) { const n = q + 1; if (!visited[n] && data[n * ch + 3] >= alphaThreshold) { visited[n] = 1; stack.push(n); } }
+        if (qy > 0)     { const n = q - w; if (!visited[n] && data[n * ch + 3] >= alphaThreshold) { visited[n] = 1; stack.push(n); } }
+        if (qy < h - 1) { const n = q + w; if (!visited[n] && data[n * ch + 3] >= alphaThreshold) { visited[n] = 1; stack.push(n); } }
+      }
+      if (area >= minArea) {
+        components.push({
+          x0: minX, y0: minY, x1: maxX, y1: maxY,
+          w: maxX - minX + 1, h: maxY - minY + 1, area,
+        });
+      }
+    }
+  }
+  // Reading order: row-banded by ~120 px, then by x within band.
+  components.sort((a, b) => {
+    const ay = Math.floor(a.y0 / 120), by = Math.floor(b.y0 / 120);
+    if (ay !== by) return ay - by;
+    return a.x0 - b.x0;
+  });
+  return components;
+}
+
+// Per-sheet manifests (sheets 1.png … 7.png). Keys are the component
+// indices in reading order from `findComponents`. Run
+// `node scripts/frost-fight-cc-discover.mjs <n>` to dump components
+// when adjusting these.
+const SHEET1_MANIFEST = {
+  // 0:  player-orange (small ice-cream variant) — skip; we have player.png
+  1:  'banana-bot.png',         // angry yellow banana
+  2:  'grape-bot.png',          // angry green grape cluster
+  3:  'apple-fruit.png',        // plain apple, no face — fruit pickup
+  4:  'plum-bot.png',           // angry purple plum
+  5:  'eggplant-bot.png',       // angry eggplant
+  6:  'lemon-fruit.png',        // plain lemon — fruit pickup
+  7:  'cherrybomb-bot.png',     // bomb-cherry attacker (red sphere with fuse)
+  // 8: blueberry (already have it)
+  // 9: ice-crystal decorative — skip
+  // 10: flag — skip (have exit)
+  11: 'melon-bot.png',          // angry green melon
+  12: 'kiwi-fruit.png',         // kiwi half — fruit pickup
+  13: 'cherry-fruit.png',       // plain cherry — fruit pickup (alt to strawberry)
+  // 14-21: wall textures + theme cover — handled separately
+};
+
+// CC-driven sprite extractor. Loads a sheet, runs checker-bg removal,
+// finds components, then for each manifest entry crops the bbox out of
+// the cleaned sheet and runs the standard emitSprite tail (lasso + trim
+// + pad + resize 512 + dual cleanup).
+async function processSheetCC(sheetFile, manifest) {
+  const sheetPath = join(SRC, sheetFile);
+  // Step 1: full-sheet checker-removal returns the cleaned alpha buffer.
+  const cleanedRaw = await sharp(await sharp(sheetPath).png().toBuffer())
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  // We need the cleaned buffer (post-checker-removal). To reuse
+  // removeCheckerBg, run it then re-extract raw pixels.
+  const cleanedPngBuf = await removeCheckerBg(await sharp(sheetPath).png().toBuffer());
+  const rawAlpha = await sharp(cleanedPngBuf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const components = findComponents({
+    data: rawAlpha.data,
+    width: rawAlpha.info.width,
+    height: rawAlpha.info.height,
+    channels: rawAlpha.info.channels,
+  }, 1200);
+  for (const [idxStr, name] of Object.entries(manifest)) {
+    const idx = Number(idxStr);
+    if (idx >= components.length) {
+      process.stdout.write(`  [warn] ${sheetFile} component ${idx} out of range (have ${components.length})\n`);
+      continue;
+    }
+    if (!name) continue;
+    const c = components[idx];
+    // Crop the component bbox from the CLEANED sheet so we keep the
+    // checker-removed alpha. emitSprite runs its standard cleanup tail.
+    const cropped = await sharp(cleanedPngBuf)
+      .extract({ left: c.x0, top: c.y0, width: c.w, height: c.h })
+      .png()
+      .toBuffer();
+    await emitSprite(cropped, join(OUT_SPRITES, name), 512);
+    process.stdout.write(`  ${name}  (cc#${idx}, ${c.w}×${c.h})\n`);
+  }
+}
+
 async function processSheet(sheetPath, layout) {
   // Inset every edge of the cell. The AI generator drew dark divider
   // lines around each cell (3-10 px black/near-black) plus a faint
@@ -413,6 +527,8 @@ async function processCover() {
   await processSheet(join(SRC, 'B Type 1.png'), B_LAYOUT);
   console.log('▶︎ A Type 2');
   await processSheet(join(SRC, 'A Type 2.png'), A2_LAYOUT);
+  console.log('▶︎ Sheet 1 (themed bots + alt fruits)');
+  await processSheetCC('1.png', SHEET1_MANIFEST);
   console.log('▶︎ Singles');
   for (const s of SINGLES) await processSingle(s);
   console.log('▶︎ Wide singles');

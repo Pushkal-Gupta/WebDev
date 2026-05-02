@@ -38,6 +38,35 @@ export function spawnStarBurst(scene, x, y) {
   }
 }
 
+// Tiny puff of light particles — used at the cut location so the player
+// sees an immediate "snip" response in addition to the audio cue. Kept
+// short (~0.3s) and small (6 motes) so it never fights the rope visual.
+export function spawnCutPuff(scene, x, y) {
+  for (let i = 0; i < 6; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 0.9 + Math.random() * 1.4;
+    const mat = new THREE.MeshBasicMaterial({
+      color: 0xfff5d0, transparent: true, opacity: 1,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+    const mesh = new THREE.Mesh(SPARKLE_GEO, mat);
+    mesh.position.set(x, y, 0.04);
+    mesh.scale.setScalar(0.4 + Math.random() * 0.3);
+    mesh.rotation.z = Math.random() * Math.PI;
+    scene.add(mesh);
+    particles.push({
+      mesh, mat,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      gy: 6,
+      spin: (Math.random() - 0.5) * 8,
+      life: 0,
+      ttl: 0.28 + Math.random() * 0.12,
+    });
+  }
+}
+
 export function spawnConfetti(scene, x, y) {
   for (let i = 0; i < 24; i++) {
     const ang = -Math.PI / 2 + (Math.random() - 0.5) * 1.6;

@@ -25,11 +25,15 @@ const EFFECT_CAP = 120;
 const MAX_CHARGE = KICK_CHARGE_MAX;
 // After a goal crosses the line we lock further detections for this long
 // so a ball lingering in the goal zone doesn't re-fire scoreGoal each frame.
-const GOAL_LOCK_MS = 1500;
+const GOAL_LOCK_MS = 700;
 // Charge threshold above which the ball gets a strong-shot trail (>70%).
 const TRAIL_CHARGE_THRESHOLD = 0.7 * KICK_CHARGE_MAX;
-const TRAIL_LIFE = 0.4;       // seconds of fade
+const TRAIL_LIFE = 0.28;      // seconds of fade
 const TRAIL_POINTS = 6;
+// Tunable celebration/freeze durations (used in scoreGoal + create state).
+const CELEB_T = 0.95;         // goal celebration overlay
+const KICKOFF_T_INITIAL = 0.5;
+const KICKOFF_T_AFTER_GOAL = 0.7;
 
 export const createMatch = ({
   mode = 'bot',            // 'bot' | '2p' | 'practice' | 'challenge'
@@ -56,7 +60,7 @@ export const createMatch = ({
     scoreAway: 0,
     celebT: 0,
     celebFor: null,
-    kickOffT: 0.8,
+    kickOffT: KICKOFF_T_INITIAL,
     endReason: null,
     firstGoalAt: null,
     jumpCount: 0,
@@ -97,7 +101,7 @@ export const createMatch = ({
       state.ball.trail.length = 0; state.ball.trailT = 0;
       state.goalLockUntil = 0;
       state.celebT = 0; state.celebFor = null;
-      state.kickOffT = 0.8;
+      state.kickOffT = KICKOFF_T_INITIAL;
       state.hitStop = 0; state.shake.t = 0; state.shake.amp = 0; state.flash = 0;
       state.effects.length = 0;
       if (!keepScore) {
@@ -287,11 +291,11 @@ export const createMatch = ({
     if (state.firstGoalAt == null) state.firstGoalAt = state.clock;
     state.peakAwayLead = Math.max(state.peakAwayLead, state.scoreAway - state.scoreHome);
     state.goalLog.push({ t: Math.round(t), side });
-    state.celebT = 1.6; state.celebFor = side;
-    state.kickOffT = 1.1;
-    state.hitStop = 0.08;
-    state.flash = 0.9;
-    state.shake.t = 0.5; state.shake.amp = 12 * crowd.energy;
+    state.celebT = CELEB_T; state.celebFor = side;
+    state.kickOffT = KICKOFF_T_AFTER_GOAL;
+    state.hitStop = 0.06;
+    state.flash = 0.65;
+    state.shake.t = 0.32; state.shake.amp = 10 * crowd.energy;
     state.crowdPulse = 1 * crowd.energy;
     emitGoalBurst(state, side);
     // reset positions

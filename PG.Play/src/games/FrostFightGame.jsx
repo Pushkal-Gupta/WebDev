@@ -28,9 +28,10 @@ import { submitScore } from '../scoreBus.js';
 import { sfx, frostMusic } from '../sound.js';
 import Hud from './frost-fight/ui/Hud.jsx';
 import BottomRail from './frost-fight/ui/BottomRail.jsx';
-import { LevelIntro, LevelClearChip, WinCard } from './frost-fight/ui/Overlay.jsx';
+import { LevelIntro, LevelClearChip, WinCard, LevelResetCard } from './frost-fight/ui/Overlay.jsx';
+import { markRoomCleared, markRoomReached, markRunCleared } from './frost-fight/utils/progress.js';
 import { useIsMobile } from '../input/useVirtualControls.jsx';
-import { spawnFx, tickFx, drawFx, spawnFloater } from './frost-fight/fx.js';
+import { spawnFx, tickFx, drawFx, spawnFloater, spawnRing } from './frost-fight/fx.js';
 // Sprite atlas — Vite resolves these to bundled URLs honoring base
 // path. Loaded as Image() once on mount; the loop falls back to
 // procedural drawing if any sprite hasn't decoded yet. Direct WebP
@@ -56,6 +57,21 @@ import orangeSpriteUrl     from './frost-fight/sprites/orange.png?url';
 // import orangeWindupUrl     from './frost-fight/sprites/orange-windup.png?url';
 import cherrySpriteUrl     from './frost-fight/sprites/cherry.png?url';
 import cherryWindupUrl     from './frost-fight/sprites/cherry-windup.png?url';
+// Themed-era bots from sheet 1 (Phase 17). Each is a single-pose sprite
+// (no dedicated wind-up frame yet — they reuse the rest pose for
+// alert/walk states).
+import bananaBotUrl        from './frost-fight/sprites/banana-bot.png?url';
+import grapeBotUrl         from './frost-fight/sprites/grape-bot.png?url';
+import plumBotUrl          from './frost-fight/sprites/plum-bot.png?url';
+import eggplantBotUrl      from './frost-fight/sprites/eggplant-bot.png?url';
+import melonBotUrl         from './frost-fight/sprites/melon-bot.png?url';
+import cherrybombBotUrl    from './frost-fight/sprites/cherrybomb-bot.png?url';
+// Themed fruit pickups (sheet 1). All count as 1 toward room clear; the
+// kind change is purely visual variety per era.
+import appleFruitUrl       from './frost-fight/sprites/apple-fruit.png?url';
+import lemonFruitUrl       from './frost-fight/sprites/lemon-fruit.png?url';
+import kiwiFruitUrl        from './frost-fight/sprites/kiwi-fruit.png?url';
+import cherryFruitUrl      from './frost-fight/sprites/cherry-fruit.png?url';
 import coverUrl            from './frost-fight/sprites/cover.webp?url';
 
 // Per-room wall textures — Vite's glob-import so they're auto-discovered
@@ -156,6 +172,22 @@ const PALETTE = {
   'Conveyor Maze':{ floorTop: '#c0d0e0', floorBot: '#5e7494', halo: 'rgba(150, 180, 210, 0.16)',  frame: 'rgba(150, 180, 210, 0.18)' },
   'The Vault':  { floorTop: '#9aaabe', floorBot: '#3a4e6e', halo: 'rgba(110, 150, 200, 0.18)',  frame: 'rgba(110, 150, 200, 0.20)' },
   'Frostbite':  { floorTop: '#d6e8f0', floorBot: '#5288b0', halo: 'rgba(108, 208, 240, 0.22)',  frame: 'rgba(108, 208, 240, 0.24)' },
+  // Era 3 — Crystal Cavern (kiwi + cherry pickups; no kiwi/cherry bots)
+  'Crystal Cave':   { floorTop: '#a8e0c8', floorBot: '#3a8870', halo: 'rgba(120, 220, 180, 0.18)', frame: 'rgba(120, 220, 180, 0.20)' },
+  'Crystal Tunnel': { floorTop: '#9ed4be', floorBot: '#357c66', halo: 'rgba(120, 220, 180, 0.18)', frame: 'rgba(120, 220, 180, 0.20)' },
+  'Geode Hall':     { floorTop: '#bce4d2', floorBot: '#3e9078', halo: 'rgba(140, 220, 200, 0.20)', frame: 'rgba(140, 220, 200, 0.22)' },
+  // Era 4 — Citrus Yard (lemon + apple pickups; no lemon/apple bots — only veggies)
+  'Citrus Yard':    { floorTop: '#fae8b0', floorBot: '#a87830', halo: 'rgba(240, 200, 110, 0.18)', frame: 'rgba(240, 200, 110, 0.20)' },
+  'Lemon Grove':    { floorTop: '#fce5a0', floorBot: '#b58030', halo: 'rgba(240, 200, 110, 0.18)', frame: 'rgba(240, 200, 110, 0.20)' },
+  'Sour Press':     { floorTop: '#f0d890', floorBot: '#9a6c28', halo: 'rgba(240, 180, 100, 0.20)', frame: 'rgba(240, 180, 100, 0.22)' },
+  // Era 5 — Vineyard (apple + cherryFruit pickups; deep purple palette)
+  'Vineyard':       { floorTop: '#d0a8d8', floorBot: '#684078', halo: 'rgba(180, 140, 220, 0.18)', frame: 'rgba(180, 140, 220, 0.20)' },
+  'Cellar':         { floorTop: '#bc98c8', floorBot: '#5a3868', halo: 'rgba(180, 140, 220, 0.18)', frame: 'rgba(180, 140, 220, 0.20)' },
+  'Crusher':        { floorTop: '#a888b8', floorBot: '#4a2e58', halo: 'rgba(200, 150, 230, 0.20)', frame: 'rgba(200, 150, 230, 0.22)' },
+  // Era 6 — Final Storm (cherry + kiwi + lemon mix; cold steel palette)
+  'Frost Gate':     { floorTop: '#bcc8d8', floorBot: '#48587a', halo: 'rgba(140, 170, 220, 0.20)', frame: 'rgba(140, 170, 220, 0.22)' },
+  'Storm Hall':     { floorTop: '#a4b4c8', floorBot: '#384a6a', halo: 'rgba(120, 160, 220, 0.22)', frame: 'rgba(120, 160, 220, 0.24)' },
+  'Final Vortex':   { floorTop: '#dceaf2', floorBot: '#3a78b8', halo: 'rgba(108, 208, 240, 0.26)', frame: 'rgba(108, 208, 240, 0.28)' },
 };
 const DEFAULT_PALETTE = PALETTE.Pantry;
 
@@ -350,7 +382,402 @@ const LEVELS = [
       '######################',
     ],
   },
+  {
+    name: 'Frostlock',
+    tip: 'Cold 11 — three chasers + an ice-caster. Pre-cut traps make every cast a commitment.',
+    grid: [
+      '######################',
+      '#p..f....I......f....#',
+      '#.####.####.####.....#',
+      '#....b....c.....o....#',
+      '#.f................f.#',
+      '#....######.######...#',
+      '#......I.....I.......#',
+      '#....######.######...#',
+      '#.f....s....f.....f..#',
+      '#....................#',
+      '#.####.####.####.....#',
+      '#.f...........P....X.#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Slush Maze',
+    tip: 'Cold 12 — diagonal pillars, narrow lanes. Read the cherry windups before you step.',
+    grid: [
+      '######################',
+      '#p..#......f....#....#',
+      '#...####..####..####.#',
+      '#.f...........P......#',
+      '#.####..####.####....#',
+      '#......c....b........#',
+      '#.####.####.####...f.#',
+      '#......o....f........#',
+      '#.####..####.####....#',
+      '#......b.......c.....#',
+      '#.####..####..####...#',
+      '#.f.................X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Ice Run',
+    tip: 'Cold 13 — open arena, four chasers in a line. Plug a corridor or sprint the gap.',
+    grid: [
+      '######################',
+      '#p..f....f....f....f.#',
+      '#....................#',
+      '#.b...c....o....s....#',
+      '#....................#',
+      '#.####.####.####.....#',
+      '#......I....I........#',
+      '#.####.####.####.....#',
+      '#....................#',
+      '#.c.....o....s.....f.#',
+      '#....................#',
+      '#.f....f....f.....f.X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Frostfall',
+    tip: 'Cold 14 — six bots, double ice trap. Save the peach for the very last sprint.',
+    grid: [
+      '######################',
+      '#p...f....f....f.....#',
+      '#.####.####.####.....#',
+      '#....c....b....o.....#',
+      '#.f.................f#',
+      '#..####..####..####..#',
+      '#....s.I.....I.b.....#',
+      '#..####..####..####..#',
+      '#.f...c....o.......f.#',
+      '#....................#',
+      '#.####.####.####.....#',
+      '#.f...P............X.#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Glacier',
+    tip: 'Cold 15 — peak Cold. Eight bots, two peaches. Treat every freeze as your last.',
+    grid: [
+      '######################',
+      '#p..f.......P......f.#',
+      '#.####.####.####.....#',
+      '#.....c.s....b.s.....#',
+      '#.f................f.#',
+      '#.####.####.####.....#',
+      '#....I.......I.......#',
+      '#.####.####.####.....#',
+      '#.....o.s....o.s.....#',
+      '#.f................f.#',
+      '#.####.####.####.....#',
+      '#.f...........P....X.#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Crystal Cave',
+    tip: 'Crystal Cavern era. Kiwi pickups glow cyan; blueberries chase, plums freeze rows.',
+    grid: [
+      '######################',
+      '#p..K................#',
+      '#.####..####..####...#',
+      '#....b...........U...#',
+      '#............K.......#',
+      '#....#....b....#.....#',
+      '#....######.####.....#',
+      '#........K...........#',
+      '#.####..####..####...#',
+      '#......K....U........#',
+      '#............K.....X.#',
+      '#....................#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Crystal Tunnel',
+    tip: 'Tighter corridors. Plums cast a long row of ice — keep an exit lane open.',
+    grid: [
+      '######################',
+      '#.p..............K...#',
+      '#.####..####..####...#',
+      '#....................#',
+      '#...K...b.......K....#',
+      '#....####..####......#',
+      '#....#........#...K..#',
+      '#....#...U....#......#',
+      '#....####..####......#',
+      '#...K......b.........#',
+      '#.####..####..####...#',
+      '#.K.K...............X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Geode Hall',
+    tip: 'Open arena. Two blueberries plus a plum — round the chasers, dodge the freeze.',
+    grid: [
+      '######################',
+      '#p........K..........#',
+      '#.####..####..####...#',
+      '#........b...........#',
+      '#........#...........#',
+      '#....K...#....K......#',
+      '#........######......#',
+      '#...U................#',
+      '#....#......#.....b..#',
+      '#....#......#........#',
+      '#....#..K...#....K...#',
+      '#...K...............X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Citrus Yard',
+    tip: 'Citrus Yard era. Lemon + apple drops; eggplants chase, grapes freeze, cherrybombs explode.',
+    grid: [
+      '######################',
+      '#p..L.....I......A...#',
+      '#.####..####..####...#',
+      '#....................#',
+      '#.L..#....V....#.....#',
+      '#....#.........#.A...#',
+      '#....######.####.....#',
+      '#........L...........#',
+      '#.####..####..####...#',
+      '#......G.............#',
+      '#............A.....X.#',
+      '#....I...........I...#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Lemon Grove',
+    tip: 'Loading-dock layout, citrus theme. Cherrybombs cast ice fast — clear them first.',
+    grid: [
+      '######################',
+      '#p...L........A...L..#',
+      '#....................#',
+      '#..####........####..#',
+      '#.V..............G...#',
+      '#....................#',
+      '#......##....##......#',
+      '#....................#',
+      '#..####........####..#',
+      '#.Y..............V...#',
+      '#....................#',
+      '#.....L.........A...X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Sour Press',
+    tip: 'Max citrus pressure. Eggplant chases, grape and cherrybomb both cast ice rows.',
+    grid: [
+      '######################',
+      '#p..#......L.....#...#',
+      '#...#.####....####...#',
+      '#.A.#.#......#.....#.#',
+      '#...#.#..V...#..L..#.#',
+      '#...#.#######........#',
+      '#......G...I.....Y...#',
+      '#........#######.....#',
+      '#.#..A...#.....#..L..#',
+      '#.#......#######.....#',
+      '#.#.####....####.....#',
+      '#.A.................X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Vineyard',
+    tip: 'Vineyard era. Apple and cherry pickups; melons stomp, grapes and plums freeze.',
+    grid: [
+      '######################',
+      '#p...A.....P.....A...#',
+      '#.####..####..####...#',
+      '#....................#',
+      '#....M..G....M.......#',
+      '#....######.######...#',
+      '#......I.....I.......#',
+      '#....######.######...#',
+      '#.A................Q.#',
+      '#....................#',
+      '#.####..####..####...#',
+      '#.A...P............X.#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Cellar',
+    tip: 'Long corridors, two melons stalking. Use the apples to plug the gap mid-row.',
+    grid: [
+      '######################',
+      '#p.A....A....Q....A..#',
+      '#.####.####..####....#',
+      '#....................#',
+      '#....M....G....M.....#',
+      '#....######....##....#',
+      '#......A....Q........#',
+      '#....##....######....#',
+      '#....................#',
+      '#.A.............U....#',
+      '#.####.####..####....#',
+      '#.A.................X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Crusher',
+    tip: 'Vault remix. Two melons + grape + plum. Cherry pickups buy you a free freeze.',
+    grid: [
+      '######################',
+      '#p..####...P...####..#',
+      '#.A..#.A.......#..Q..#',
+      '#....#####.######....#',
+      '#.....M....G.........#',
+      '#.######....######...#',
+      '#.A.......I........Q.#',
+      '#.######....######...#',
+      '#.....G....M.........#',
+      '#....#####.######....#',
+      '#.A.A...........Q.A..#',
+      '#....A.............X.#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Frost Gate',
+    tip: 'Final Storm era. Cherrybombs explode, grape and melon stalk. One peach hides the line home.',
+    grid: [
+      '######################',
+      '#p..L...Y.......K....#',
+      '#.####..####..####...#',
+      '#......G........M....#',
+      '#....................#',
+      '#....######.######...#',
+      '#......I..K..I.......#',
+      '#....######.######...#',
+      '#......P.......U.....#',
+      '#.L..G......M....Q...#',
+      '#.####..####..####...#',
+      '#.L.....P..........X.#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Storm Hall',
+    tip: 'Two melons, two plums, a cherrybomb, a grape. Read the windups — every freeze is a row.',
+    grid: [
+      '######################',
+      '#p..K...........L....#',
+      '#.####..####..####...#',
+      '#......Y........G....#',
+      '#....M..U....M.......#',
+      '#....######.######...#',
+      '#......I..Q..I.......#',
+      '#....######.######...#',
+      '#......L.......U.....#',
+      '#.K..G......M....K...#',
+      '#.####..####..####...#',
+      '#.K.....L..........X.#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Final Vortex',
+    tip: 'Last room. Melon, grape, plum, cherrybomb — three fruit kinds. Don\'t panic; freeze and pivot.',
+    grid: [
+      '######################',
+      '#p..#......L.....#...#',
+      '#...#.####....####...#',
+      '#.K.#.#......#.....#.#',
+      '#...#.#..M...#..L..#.#',
+      '#...#.#######........#',
+      '#......G...I.....U...#',
+      '#........#######.....#',
+      '#.#..K...#.....#..Q..#',
+      '#.#......#######.....#',
+      '#.#.####....####.....#',
+      '#.K.................X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Bare Vault',
+    tip: 'Orchard 13 — no fruit pickups. Only peaches. You finish on row casts and footwork alone.',
+    grid: [
+      '######################',
+      '#p...........P.......#',
+      '#.####.####.####.....#',
+      '#....G..M....U..G....#',
+      '#....................#',
+      '#....######.######...#',
+      '#......I.....I.......#',
+      '#....######.######...#',
+      '#....U..M....G..M....#',
+      '#....................#',
+      '#.####.####.####.....#',
+      '#.............P.....X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Teleport Hall',
+    tip: 'Orchard 14 — four plums teleport every 8 s. Cherry-fruit grants free freezes; spend them.',
+    grid: [
+      '######################',
+      '#p...Q.....U.....Q...#',
+      '#.####.####.####.....#',
+      '#....U....M....U.....#',
+      '#.Q................Q.#',
+      '#....######.######...#',
+      '#......I.....I.......#',
+      '#....######.######...#',
+      '#....U....M....U.....#',
+      '#.Q................Q.#',
+      '#.####.####.####.....#',
+      '#.Q...........P....X.#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Vortex Crown',
+    tip: 'Orchard 15 — every bot kind, every fruit kind. Use the apple boost to break the line.',
+    grid: [
+      '######################',
+      '#p..L....M.......K...#',
+      '#.####.####.####.....#',
+      '#....G..Y.M.U....M...#',
+      '#.L................Q.#',
+      '#....######.######...#',
+      '#......I..A..I.......#',
+      '#....######.######...#',
+      '#....U..M.G.Y....G...#',
+      '#.K................L.#',
+      '#.####.####.####.....#',
+      '#.Q...P............X.#',
+      '######################',
+    ],
+  },
 ];
+
+// Phase 18 — themed packs. Each theme is a slice of 15 levels into the
+// LEVELS array. The lobby's theme pills pick which slice to play; per-
+// theme progress (cleared rooms, hardest difficulty) lives under
+// pgplay-ff-progress[theme]. Adding a new theme later is a one-entry
+// push here + appending the new levels to LEVELS.
+export const THEMES = {
+  cold:    { id: 'cold',    label: 'Cold Aisle', startIdx: 0,  length: 15,
+             tagline: 'The frozen-pantry classic. 15 rooms, easy → punishing.' },
+  orchard: { id: 'orchard', label: 'Orchard',    startIdx: 15, length: 15,
+             tagline: 'Crystal, citrus, and final-storm bots. 15 rooms.' },
+};
+export const THEME_ORDER = ['cold', 'orchard'];
+const DEFAULT_THEME = 'cold';
+const resolveTheme = (id) => THEMES[id] || THEMES[DEFAULT_THEME];
 
 function parseLevel(idx) {
   const g = LEVELS[idx].grid;
@@ -371,10 +798,20 @@ function parseLevel(idx) {
       else if (ch === 'X') exit  = { col: c, row: r };
       else if (ch === 'f') fruits.push({ col: c, row: r, kind: 'strawberry' });
       else if (ch === 'P') fruits.push({ col: c, row: r, kind: 'peach' });
+      else if (ch === 'A') fruits.push({ col: c, row: r, kind: 'apple' });
+      else if (ch === 'L') fruits.push({ col: c, row: r, kind: 'lemon' });
+      else if (ch === 'K') fruits.push({ col: c, row: r, kind: 'kiwi' });
+      else if (ch === 'Q') fruits.push({ col: c, row: r, kind: 'cherryFruit' });
       else if (ch === 's') enemies.push({ col: c, row: r, kind: 'strawberry' });
       else if (ch === 'b') enemies.push({ col: c, row: r, kind: 'blueberry' });
       else if (ch === 'o') enemies.push({ col: c, row: r, kind: 'orange' });
       else if (ch === 'c') enemies.push({ col: c, row: r, kind: 'cherry' });
+      else if (ch === 'B') enemies.push({ col: c, row: r, kind: 'banana' });
+      else if (ch === 'G') enemies.push({ col: c, row: r, kind: 'grape' });
+      else if (ch === 'V') enemies.push({ col: c, row: r, kind: 'eggplant' });
+      else if (ch === 'M') enemies.push({ col: c, row: r, kind: 'melon' });
+      else if (ch === 'U') enemies.push({ col: c, row: r, kind: 'plum' });
+      else if (ch === 'Y') enemies.push({ col: c, row: r, kind: 'cherrybomb' });
     }
   }
   return { walls, wallSet, ice, fruits, enemies, spawn, exit, tip: LEVELS[idx].tip, name: LEVELS[idx].name };
@@ -387,27 +824,63 @@ const isPassable = (level, c, r) => inBounds(c, r) && !isWall(level, c, r) && !i
 
 // Per-kind step interval (seconds between move decisions). Orange sits
 // between strawberry and blueberry; cherry is the fastest of the four.
-// Same AI for every kind — only the cadence differs.
+// Same AI for every kind — only the cadence differs. Themed-era bots
+// (banana, grape, eggplant, melon, plum, cherrybomb) plug into the same
+// chase pipeline and get their own intervals + ice-cast probabilities.
 const ENEMY_INTERVAL = {
   strawberry: 1.0,
   blueberry:  0.7,
   orange:     0.85,
   cherry:     0.6,
+  banana:     0.65,    // fast wobbler
+  grape:      1.05,    // slow heavy
+  eggplant:   1.10,    // slow heavy
+  melon:      0.90,
+  plum:       0.85,    // ice-caster mid-tempo
+  cherrybomb: 0.75,    // fast ice-caster
 };
 
 // Per-kind ice-cast probability per decision tick. Cherry and orange
-// occasionally fire a single-tile ice block in front of them toward
-// the player. Strawberry and blueberry never cast ice. The cooldown
-// (`iceCd`) prevents an enemy from spamming casts.
+// fire a row of ice toward the player (same Othello logic the player
+// uses). Strawberry and blueberry never cast. Cooldown prevents spam.
+// Halved from the single-tile era since a row cast is much more
+// powerful — a single bot cast can wall off a corridor.
 const ENEMY_ICE_CHANCE = {
   strawberry: 0,
   blueberry:  0,
-  orange:     0.20,   // moderate threat
-  cherry:     0.28,   // slightly more aggressive
+  orange:     0.10,
+  cherry:     0.14,
+  banana:     0,
+  grape:      0,
+  eggplant:   0,
+  melon:      0,
+  plum:       0.12,
+  cherrybomb: 0.16,
 };
-const ENEMY_ICE_CD = 2.4;   // seconds between casts per enemy
+const ENEMY_ICE_CD = 3.0;   // seconds between casts per enemy
 
-export default function FrostFightGame({ mode = 'solo' }) {
+// Five difficulty tiers. `lives` is a hard ceiling on deaths before the
+// run flips to game-over (Insane = 0 means a single death ends the run).
+// `iceMul` multiplies every enemy's ice-cast probability — Insane doubles
+// the row-cast pressure on top of the lives squeeze.
+export const DIFFICULTIES = {
+  easy:   { id: 'easy',   label: 'Easy',   lives: 5, iceMul: 1 },
+  normal: { id: 'normal', label: 'Normal', lives: 3, iceMul: 1 },
+  hard:   { id: 'hard',   label: 'Hard',   lives: 2, iceMul: 1 },
+  expert: { id: 'expert', label: 'Expert', lives: 1, iceMul: 1 },
+  insane: { id: 'insane', label: 'Insane', lives: 0, iceMul: 2 },
+};
+const DEFAULT_DIFFICULTY = 'normal';
+const resolveDifficulty = (id) => DIFFICULTIES[id] || DIFFICULTIES[DEFAULT_DIFFICULTY];
+
+export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIFFICULTY, theme = DEFAULT_THEME, startLevel = 0 }) {
+  const diff = resolveDifficulty(difficulty);
+  const themeDef = resolveTheme(theme);
+  // Theme-relative → absolute level index. The game still indexes
+  // into the global LEVELS array; the theme just gates the slice.
+  const themeStart = themeDef.startIdx;
+  const themeEnd = themeDef.startIdx + themeDef.length;     // exclusive
+  const themeCount = themeDef.length;
   // Co-op (`mode === 'coop'`) adds a second player driven by the
   // arrow keys + Enter. P1 stays on WASD + Space. The two players
   // share the room — fruit / death / exit are joint.
@@ -430,6 +903,8 @@ export default function FrostFightGame({ mode = 'solo' }) {
   // decodes; the draw loop falls back to procedural shapes meanwhile.
   const spritesRef = useRef({
     player: null, player2: null,
+    banana: null, grape: null, plum: null, eggplant: null, melon: null, cherrybomb: null,
+    apple: null, lemon: null, kiwi: null, cherryFruit: null,
     strawberry: null, blueberry: null, orange: null, cherry: null,
     strawberryWind: null, blueberryWind: null, orangeWind: null, cherryWind: null,
     fruit: null, peach: null, ice: null, exit: null,
@@ -441,15 +916,38 @@ export default function FrostFightGame({ mode = 'solo' }) {
   // decodes; null while no texture is registered for the current room.
   const wallPatternRef = useRef(null);
 
-  const [levelIdx, setLevelIdx] = useState(0);
+  // `startLevel` is the theme-relative index from the lobby (0..14
+   // within the picked theme). Clamp into the theme slice and convert
+   // to an absolute LEVELS index.
+  const startLevelInTheme = Math.min(Math.max(0, startLevel | 0), themeCount - 1);
+  const initialLevel = themeStart + startLevelInTheme;
+  const [levelIdx, setLevelIdx] = useState(initialLevel);
   const [deaths, setDeaths]     = useState(0);
+  // Mirror of `deaths` so the death handler can compare against the
+  // difficulty cap without depending on the React closure (the loop
+  // effect doesn't re-run on every death, so the captured `deaths`
+  // can be stale by the time a fatal fires).
+  const deathsRef = useRef(0);
+  // Phase 18: lives are now a PER-LEVEL pool. `levelDeaths` resets
+  // to 0 on every level entry; when it exceeds `diff.lives` the
+  // player still respawns, but a 'Level reset' overlay fires and the
+  // counter resets — the run never ends from the cap. The per-level
+  // counter feeds the HUD's Lives chip, while the run-wide `deaths`
+  // counter still feeds scoring + leaderboards.
+  const [levelDeaths, setLevelDeaths] = useState(0);
+  const levelDeathsRef = useRef(0);
+  const [showLevelReset, setShowLevelReset] = useState(false);
+  // Phase 18 — surfaced active power-up for the HUD chip. `t` ticks
+  // down each frame; setter fires only on changes to avoid every-
+  // frame React renders.
+  const [activePower, setActivePower] = useState(null);
   const [time, setTime]         = useState(0);
   const [gemsGot, setGemsGot]   = useState(0);
   const [gemsTotal, setGemsTotal] = useState(0);
   const [status, setStatus]     = useState('playing'); // playing | won
   const [showIntro, setShowIntro] = useState(false);
   const [showClear, setShowClear] = useState(false);
-  const [tip, setTip]           = useState(LEVELS[0].tip);
+  const [tip, setTip]           = useState(LEVELS[initialLevel].tip);
   // Adaptive keycap: 'freeze' / 'melt' / null based on the tile in front
   // of the player. Updated only when the action would actually change.
   const [freezeAction, setFreezeAction] = useState(null);
@@ -499,6 +997,11 @@ export default function FrostFightGame({ mode = 'solo' }) {
         dir: 'down',
         freezeCd: 0,
         dead: false, respawn: 0,
+        // Phase 18 power-ups. `power` is the active kind ('invincible'
+        // | 'invisible' | 'speed' | null); `powerT` is seconds left.
+        // `freeFreeze` is a single-shot flag from cherryFruit pickup —
+        // the next ice cast skips the cooldown.
+        power: null, powerT: 0, freeFreeze: false,
       },
       player2: p2Spawn ? {
         col: p2Spawn.col, row: p2Spawn.row,
@@ -507,6 +1010,7 @@ export default function FrostFightGame({ mode = 'solo' }) {
         dir: 'down',
         freezeCd: 0,
         dead: false, respawn: 0,
+        power: null, powerT: 0, freeFreeze: false,
       } : null,
       // Captured spawn locations for the shared-respawn flow.
       p2Spawn,
@@ -516,6 +1020,24 @@ export default function FrostFightGame({ mode = 'solo' }) {
         nextDecide: Math.random() * 0.4 + 0.2,
         boxed: false,
         pairBurst: false,
+        // Phase 18 per-kind trait state. Most stay null/0 unless that
+        // bot's trait is firing this room — keeps the per-tick branch
+        // count small.
+        castPending: null,           // orange: { dir, untilTs }
+        slipDir: null,               // banana: [dx, dy] queued slip
+        shadowCd: e.kind === 'grape'
+          ? 2.5 + Math.random() * 1.0
+          : 0,                       // grape: seconds until next ice drop
+        stompCd: e.kind === 'eggplant'
+          ? 2.0 + Math.random() * 1.5
+          : 0,                       // eggplant: seconds until next stomp
+        teleportCd: e.kind === 'plum'
+          ? 6.0 + Math.random() * 2.0
+          : 0,                       // plum: seconds until next teleport
+        fuseT: e.kind === 'cherrybomb'
+          ? 3.0 + Math.random() * 1.0
+          : 0,                       // cherrybomb: countdown to detonation
+        burstSpeedT: 0,              // blueberry: seconds left of berry-sense
         // Cherry / orange may cast ice. Stagger the first allowed cast
         // so enemies don't all blow simultaneously when the room loads.
         iceCd: (ENEMY_ICE_CHANCE[e.kind] ?? 0) > 0 ? Math.random() * 1.5 + 1.0 : 0,
@@ -583,6 +1105,11 @@ export default function FrostFightGame({ mode = 'solo' }) {
 
   useEffect(() => {
     loadLevel(levelIdx);
+    markRoomReached(levelIdx);
+    // Per-level lives pool resets on level entry (Phase 18). The
+    // run-wide `deaths` counter keeps incrementing for scoring.
+    levelDeathsRef.current = 0;
+    setLevelDeaths(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [levelIdx]);
 
@@ -626,6 +1153,19 @@ export default function FrostFightGame({ mode = 'solo' }) {
       peach: peachSpriteUrl,
       ice: iceSpriteUrl,
       exit: exitSpriteUrl,
+      // Themed-era bots (sheet 1). Each shares its rest sprite for the
+      // alert/walk state — no dedicated wind-up frames yet.
+      banana: bananaBotUrl,
+      grape: grapeBotUrl,
+      plum: plumBotUrl,
+      eggplant: eggplantBotUrl,
+      melon: melonBotUrl,
+      cherrybomb: cherrybombBotUrl,
+      // Themed-era fruit pickups.
+      apple: appleFruitUrl,
+      lemon: lemonFruitUrl,
+      kiwi: kiwiFruitUrl,
+      cherryFruit: cherryFruitUrl,
     };
     const created = [];
     for (const [key, src] of Object.entries(sources)) {
@@ -898,30 +1438,41 @@ export default function FrostFightGame({ mode = 'solo' }) {
         ctx.fill();
       }
 
-      // Fruits — strawberries by default; peaches in later levels
-      // (parser maps 'P' grid char to kind:'peach'). Each fruit kind
-      // picks its own sprite slot.
-      const fruitImg = spritesRef.current.fruit;
-      const peachImg = spritesRef.current.peach;
-      const fruitReady = fruitImg && fruitImg.complete && fruitImg.naturalWidth > 0;
-      const peachReady = peachImg && peachImg.complete && peachImg.naturalWidth > 0;
+      // Fruits — strawberries by default, peach + apple + lemon + kiwi
+      // + cherry-pickup variants per themed era. Each fruit also gets
+      // a slow pulsing cyan halo behind it so players never confuse a
+      // pickup with an enemy of the same colour family (the user's
+      // "no same-kind on same map" rule is enforced level-side; the
+      // halo is the visual safety net).
+      const FRUIT_KIND = {
+        strawberry: { slot: 'fruit',       sz: 26, fbColor: '#ff4d6d', seeds: true  },
+        peach:      { slot: 'peach',       sz: 30, fbColor: '#ffb38a', seeds: false },
+        apple:      { slot: 'apple',       sz: 28, fbColor: '#ff5a3a', seeds: false },
+        lemon:      { slot: 'lemon',       sz: 28, fbColor: '#ffe35a', seeds: false },
+        kiwi:       { slot: 'kiwi',        sz: 28, fbColor: '#7ec25a', seeds: false },
+        cherryFruit:{ slot: 'cherryFruit', sz: 26, fbColor: '#d72a3a', seeds: false },
+      };
+      const HALO_R = T * 0.42;
       level.fruits.forEach((f) => {
         if (f.taken) return;
         const fx = f.col * T + T / 2;
         const fy = f.row * T + T / 2 + Math.sin(performance.now() / 350 + f.col) * 1.5;
-        const isPeach = f.kind === 'peach';
-        const img = isPeach ? peachImg : fruitImg;
-        const ready = isPeach ? peachReady : fruitReady;
+        const cfg = FRUIT_KIND[f.kind] || FRUIT_KIND.strawberry;
+        // Pulsing halo. Slow phase per-fruit so the field doesn't
+        // strobe in unison; alpha kept low so it reads as a soft cue.
+        const haloA = 0.18 + 0.10 * Math.sin(performance.now() / 480 + f.col + f.row * 1.3);
+        ctx.fillStyle = `rgba(108, 208, 240, ${haloA.toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(fx, fy, HALO_R, 0, Math.PI * 2);
+        ctx.fill();
+        const img = spritesRef.current[cfg.slot];
+        const ready = img && img.complete && img.naturalWidth > 0;
         if (ready) {
-          // Peach is rendered slightly larger so the score-bonus reads
-          // visually — players notice the bigger pickup.
-          const sz = isPeach ? 30 : 26;
-          ctx.drawImage(img, fx - sz / 2, fy - sz / 2, sz, sz);
+          ctx.drawImage(img, fx - cfg.sz / 2, fy - cfg.sz / 2, cfg.sz, cfg.sz);
         } else {
-          // Procedural fallback colours per kind.
-          ctx.fillStyle = isPeach ? '#ffb38a' : '#ff4d6d';
+          ctx.fillStyle = cfg.fbColor;
           ctx.beginPath();
-          ctx.arc(fx, fy + 2, isPeach ? 9 : 8, 0, Math.PI * 2);
+          ctx.arc(fx, fy + 2, cfg.sz / 3.2, 0, Math.PI * 2);
           ctx.fill();
           ctx.fillStyle = '#2d7a2a';
           ctx.beginPath();
@@ -930,7 +1481,7 @@ export default function FrostFightGame({ mode = 'solo' }) {
           ctx.lineTo(fx, fy - 2);
           ctx.closePath();
           ctx.fill();
-          if (!isPeach) {
+          if (cfg.seeds) {
             ctx.fillStyle = 'rgba(255,255,255,0.7)';
             ctx.fillRect(fx - 3, fy, 1, 1);
             ctx.fillRect(fx + 2, fy + 2, 1, 1);
@@ -949,6 +1500,15 @@ export default function FrostFightGame({ mode = 'solo' }) {
         blueberry:  [sprites.blueberry,  sprites.blueberryWind],
         orange:     [sprites.orange,     sprites.orangeWind],
         cherry:     [sprites.cherry,     sprites.cherryWind],
+        // Themed-era bots — no dedicated wind-up pose yet, so we reuse
+        // the rest sprite for both. The size-bump on the alert frame
+        // (sz 30 → 32) still fires as a subtle pre-tell.
+        banana:     [sprites.banana,     sprites.banana],
+        grape:      [sprites.grape,      sprites.grape],
+        plum:       [sprites.plum,       sprites.plum],
+        eggplant:   [sprites.eggplant,   sprites.eggplant],
+        melon:      [sprites.melon,      sprites.melon],
+        cherrybomb: [sprites.cherrybomb, sprites.cherrybomb],
       };
       // Wind-up pre-tell: ~220ms before an enemy commits to a step it
       // switches to a wider-eyed "alert" pose. The alt sprite doubles
@@ -1022,6 +1582,18 @@ export default function FrostFightGame({ mode = 'solo' }) {
           ctx.moveTo(ecx + 6, ecy - 2); ctx.lineTo(ecx + 2, ecy - 1);
           ctx.stroke();
         }
+        // Phase 18 — cherrybomb fuse counter. Draws the rounded-up
+        // seconds remaining above the bomb in a small pink chip.
+        if (e.kind === 'cherrybomb' && typeof e.fuseT === 'number' && e.fuseT > 0) {
+          const fuseLabel = Math.max(0, Math.ceil(e.fuseT));
+          ctx.font = `700 ${10}px "Bricolage Grotesque", "Inter", system-ui, sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = 'rgba(0,0,0,0.55)';
+          ctx.fillText(`${fuseLabel}`, ecx + 0.6, ecy - 14 + 0.6);
+          ctx.fillStyle = e.fuseT < 1 ? '#ffd86b' : '#ff7b96';
+          ctx.fillText(`${fuseLabel}`, ecx, ecy - 14);
+        }
       });
 
       // Player rendering — shared helper. Draws the sprite if loaded
@@ -1042,10 +1614,29 @@ export default function FrostFightGame({ mode = 'solo' }) {
         const pcx = x + T / 2, pcy = y + T / 2;
         const img = spritesRef.current[spriteSlot];
         const ready = img && img.complete && img.naturalWidth > 0;
+        // Phase 18 — power-up aura. Golden for invincible, cyan-white
+        // ghost for invisible (with reduced sprite alpha), green for
+        // speed. Drawn underneath the sprite so it doesn't overpower
+        // the character.
+        if (pp.power) {
+          const auraColor = pp.power === 'invincible' ? 'rgba(255, 216, 107,'
+            : pp.power === 'invisible' ? 'rgba(160, 220, 255,'
+            : 'rgba(156, 240, 142,';
+          const pulse = 0.35 + 0.20 * Math.sin(performance.now() / 220);
+          ctx.fillStyle = `${auraColor} ${pulse.toFixed(3)})`;
+          ctx.beginPath();
+          ctx.arc(pcx, pcy, T * 0.42, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        // Invisibility renders the sprite at low alpha so the player
+        // still tracks themselves but the silhouette reads as "ghost".
+        const drawAlpha = pp.power === 'invisible' ? 0.42 : 1;
         if (ready) {
           const sz = 32;
           const bob = pp.moving ? Math.sin(pp.moveT * Math.PI) * -1.2 : 0;
+          ctx.globalAlpha = drawAlpha;
           ctx.drawImage(img, pcx - sz / 2, pcy - sz / 2 + bob, sz, sz);
+          ctx.globalAlpha = 1;
         } else {
           // Procedural fallback. Cone matches stock palette; scoop uses
           // the per-player accent so P2 reads as the cyan-mint scoop.
@@ -1228,20 +1819,30 @@ export default function FrostFightGame({ mode = 'solo' }) {
                 if (!reduced) {
                   const cx = c * T + T / 2, cy = r * T + T / 2;
                   const delay = Math.max(0, cleared * CAST_STAGGER - PARTICLE_LEAD);
-                  if (delay === 0) spawnFx(fxRef.current, 'melt', cx, cy);
-                  else setTimeout(() => spawnFx(fxRef.current, 'melt', cx, cy), delay);
+                  // Phase 18: cyan shatter shards at every melted tile.
+                  if (delay === 0) spawnFx(fxRef.current, 'iceShatter', cx, cy);
+                  else setTimeout(() => spawnFx(fxRef.current, 'iceShatter', cx, cy), delay);
                 }
                 cleared++;
                 c += dv[0]; r += dv[1];
               }
               if (cleared > 0) {
                 sfx.frostMelt();
-                player.freezeCd = FREEZE_CD;
+                // Phase 18 — free-freeze (cherryFruit) also covers melts.
+                if (player.freeFreeze) { player.freeFreeze = false; }
+                else { player.freezeCd = FREEZE_CD; }
               }
             } else {
               // Freeze sweep with staggered visual reveal.
               let placed = 0;
               let c = sc, r = sr;
+              // Phase 18: white ring from the player tile telegraphs
+              // the cast in the chosen direction.
+              if (!reduced) {
+                spawnRing(fxRef.current, player.col * T + T / 2, player.row * T + T / 2, {
+                  life: 0.32, r0: 3, r1: T * 0.55, color: '#ffffff', width: 2,
+                });
+              }
               const castStartTs = performance.now();
               const CAST_STAGGER = reduced ? 0 : 55;
               const PARTICLE_LEAD = 30;
@@ -1268,14 +1869,17 @@ export default function FrostFightGame({ mode = 'solo' }) {
               }
               if (placed > 0) {
                 sfx.frostFreeze();
-                player.freezeCd = FREEZE_CD;
+                if (player.freeFreeze) { player.freeFreeze = false; }
+                else { player.freezeCd = FREEZE_CD; }
               }
             }
           }
         }
-        // Advance step animation.
+        // Advance step animation. Phase 18 speed boost halves MOVE_TIME
+        // for the player carrying the apple power-up.
         if (player.moving) {
-          player.moveT += dt / MOVE_TIME;
+          const moveTime = player.power === 'speed' ? MOVE_TIME * 0.5 : MOVE_TIME;
+          player.moveT += dt / moveTime;
           if (player.moveT >= 1) { player.moveT = 0; player.moving = false; }
         }
         // Fruit pickup — settled tile only.
@@ -1290,11 +1894,40 @@ export default function FrostFightGame({ mode = 'solo' }) {
             // Tracked in s.score; surfaces via submitScore meta.
             const isPeach = fruit.kind === 'peach';
             if (isPeach) runPeachesRef.current += 1;
+            // Phase 18 — power-up fruits grant timed effects on top of
+            // the standard pickup credit. The power label fires a
+            // floater so the player reads it; the active state lives
+            // on the player object and ticks down each frame.
+            const PWR = {
+              kiwi:        { id: 'invincible', t: 2.5, label: 'INVINCIBLE',  color: '#ffd86b' },
+              lemon:       { id: 'invisible',  t: 3.0, label: 'INVISIBLE',   color: '#dff5ff' },
+              apple:       { id: 'speed',      t: 3.0, label: 'SPEED',       color: '#9cf08e' },
+              cherryFruit: { id: 'freefreeze', t: 0,   label: 'FREE FREEZE', color: '#ff8aa3' },
+            };
+            const pw = PWR[fruit.kind];
+            if (pw) {
+              if (pw.id === 'freefreeze') {
+                player.freeFreeze = true;
+                player.freezeCd = 0;
+              } else {
+                // Stack: if a longer effect is already active, keep its
+                // remaining time; otherwise overwrite with the new one.
+                if (player.power !== pw.id || player.powerT < pw.t) {
+                  player.power = pw.id;
+                  player.powerT = pw.t;
+                }
+              }
+              setActivePower({ id: pw.id, t: pw.id === 'freefreeze' ? 0 : pw.t,
+                               total: pw.id === 'freefreeze' ? 0 : pw.t,
+                               label: pw.label });
+            }
             const fcx = fruit.col * T + T / 2;
             const fcy = fruit.row * T + T / 2;
             if (!reduced) {
               spawnFx(fxRef.current, 'fruit', fcx, fcy);
-              if (s.fruitsLeft === 0) {
+              if (pw) {
+                spawnFloater(fxRef.current, pw.label, fcx, fcy - 12, pw.color, { size: 10, life: 1.1 });
+              } else if (s.fruitsLeft === 0) {
                 spawnFloater(fxRef.current, 'EXIT LIVE', fcx, fcy - 10, '#6cd0f0', { size: 9, life: 1.2 });
               } else if (isPeach) {
                 spawnFloater(fxRef.current, '+2', fcx, fcy - 10, '#ffd1be', { size: 11 });
@@ -1411,10 +2044,15 @@ export default function FrostFightGame({ mode = 'solo' }) {
           writeRoomBests(nextMap);
           setRoomBests(nextMap);
         }
+        // Persist per-room clear so the lobby's level-select unlocks
+        // progressively. Run completion is recorded below at the
+        // run-end branch.
+        markRoomCleared(roomName);
 
-        if (levelIdx + 1 >= LEVELS.length) {
+        if (levelIdx + 1 >= themeEnd) {
           setStatus('won');
           sfx.win();
+          markRunCleared(diff.id);
           // Best-time persistence — track per-run total time + deaths.
           const finalTime = Math.round(s.elapsed);
           const prev = readBest();
@@ -1428,21 +2066,22 @@ export default function FrostFightGame({ mode = 'solo' }) {
           }
           if (!submittedRef.current) {
             submittedRef.current = true;
-            // Base scales with room count so longer runs aren't penalised
-            // by the elapsed-time term hitting the 0 floor. Trap count
-            // surfaces in meta so the achievement bus can pick it up.
-            // Score: room-count base, minus death cost, minus elapsed
-            // time, plus a bonus for each peach eaten across the run.
-            const base = LEVELS.length * 500;
+            // Base scales with theme room count (15) so longer themes
+            // don't penalise the elapsed-time term. Trap count + peach
+            // count surface in meta so the achievement bus can pick
+            // them up.
+            const base = themeCount * 500;
             const peachBonus = runPeachesRef.current * 80;
             const score = Math.max(
               0,
               Math.round(base + peachBonus - deaths * 50 - s.elapsed * 3),
             );
             submitScore('badicecream', score, {
-              deaths, time: finalTime, levels: LEVELS.length,
+              deaths, time: finalTime, levels: themeCount,
               trapped: runTrapCountRef.current,
               peaches: runPeachesRef.current,
+              difficulty: diff.id,
+              theme: themeDef.id,
             });
           }
         } else {
@@ -1468,22 +2107,180 @@ export default function FrostFightGame({ mode = 'solo' }) {
       //                to its base interval
       s.enemies.forEach((e) => {
         if (e.moving) {
-          e.moveT += dt / (MOVE_TIME * 1.25);
+          // Phase 18: blueberry's berry-sense burst halves move time
+          // while the burst window is open. The window decays even
+          // mid-step so the bot eventually returns to baseline cadence.
+          const moveScale = (e.kind === 'blueberry' && e.burstSpeedT > 0) ? 0.55 : 1.25;
+          e.moveT += dt / (MOVE_TIME * moveScale);
           if (e.moveT >= 1) { e.moveT = 0; e.moving = false; }
+          if (e.burstSpeedT > 0) e.burstSpeedT = Math.max(0, e.burstSpeedT - dt);
           return;
         }
         e.nextDecide -= dt;
         if (e.iceCd > 0) e.iceCd -= dt;
+        // Per-kind trait timers tick down even between decisions so
+        // (e.g.) a plum's teleport doesn't only fire on its decide tick.
+        if (e.shadowCd > 0)    e.shadowCd    = Math.max(0, e.shadowCd - dt);
+        if (e.stompCd > 0)     e.stompCd     = Math.max(0, e.stompCd - dt);
+        if (e.teleportCd > 0)  e.teleportCd  = Math.max(0, e.teleportCd - dt);
+        if (e.burstSpeedT > 0) e.burstSpeedT = Math.max(0, e.burstSpeedT - dt);
+
+        // ── Phase 18 traits that fire OUTSIDE the decide gate ──
+        // These run every frame so they don't have to wait for
+        // ENEMY_INTERVAL[e.kind] to elapse — they're independent
+        // ticks bolted onto the chase pipeline.
+
+        // plum — teleport every ~8 s to a random distant passable tile.
+        if (e.kind === 'plum' && e.teleportCd <= 0 && !e.moving) {
+          const candidates = [];
+          for (let r = 1; r < ROWS - 1; r++) {
+            for (let c = 1; c < COLS - 1; c++) {
+              if (isWall(s.level, c, r)) continue;
+              if (isIce(s.level, c, r)) continue;
+              if (s.enemies.some((o) => o.col === c && o.row === r)) continue;
+              if (s.level.fruits.some((f) => !f.taken && f.col === c && f.row === r)) continue;
+              if (s.level.exit.col === c && s.level.exit.row === r) continue;
+              if (p && !p.dead && p.col === c && p.row === r) continue;
+              if (p2 && !p2.dead && p2.col === c && p2.row === r) continue;
+              const dist = Math.abs(c - e.col) + Math.abs(r - e.row);
+              if (dist >= 5) candidates.push({ c, r });
+            }
+          }
+          if (candidates.length > 0) {
+            const dst = candidates[(Math.random() * candidates.length) | 0];
+            if (!reduced) {
+              spawnFx(fxRef.current, 'teleport', e.col * T + T / 2, e.row * T + T / 2);
+              spawnFx(fxRef.current, 'teleport', dst.c * T + T / 2, dst.r * T + T / 2);
+            }
+            e.col = dst.c; e.row = dst.r;
+            e.fromCol = dst.c; e.fromRow = dst.r;
+          }
+          e.teleportCd = 7.0 + Math.random() * 2.0;
+        }
+
+        // cherrybomb — visible fuse counter ticks down each frame; on
+        // detonation, melt every ice tile in the 3×3 around the bomb.
+        // Resets the fuse for the next cycle.
+        if (e.kind === 'cherrybomb') {
+          e.fuseT = Math.max(0, e.fuseT - dt);
+          if (e.fuseT <= 0) {
+            let melted = 0;
+            for (let dy = -1; dy <= 1; dy++) {
+              for (let dx = -1; dx <= 1; dx++) {
+                const tc = e.col + dx, tr = e.row + dy;
+                if (!inBounds(tc, tr)) continue;
+                const key = `${tc},${tr}`;
+                if (s.level.ice.has(key)) {
+                  s.level.ice.delete(key);
+                  s.castVanish?.set(key, performance.now());
+                  if (!reduced) spawnFx(fxRef.current, 'iceShatter', tc * T + T / 2, tr * T + T / 2);
+                  melted++;
+                }
+              }
+            }
+            if (melted > 0 && !reduced) sfx.frostMelt?.();
+            // Ring at the bomb's tile so the player reads the radius.
+            if (!reduced) {
+              spawnRing(fxRef.current, e.col * T + T / 2, e.row * T + T / 2, {
+                life: 0.5, r0: T * 0.3, r1: T * 1.4, color: '#ff7b96', width: 2.4,
+              });
+            }
+            e.fuseT = 3.0 + Math.random() * 1.5;
+          }
+        }
+
+        // grape — drops a single ice tile at its current position
+        // every ~3 s. Acts as a 'shadow' the player has to navigate
+        // around or melt.
+        if (e.kind === 'grape' && e.shadowCd <= 0 && !e.moving) {
+          // Only drop if the tile becomes ice without trapping the bot
+          // permanently (other neighbours must remain passable).
+          const here = `${e.col},${e.row}`;
+          const onTopOfPickup = s.level.fruits.some((f) => !f.taken && f.col === e.col && f.row === e.row)
+            || (s.level.exit.col === e.col && s.level.exit.row === e.row);
+          if (!onTopOfPickup && !s.level.ice.has(here)) {
+            // We need to move FIRST, then drop the ice behind us.
+            // Mark a "pendingShadow" so the post-move code emits it.
+            e._wantsShadowDrop = true;
+          }
+          e.shadowCd = 3.0 + Math.random() * 1.5;
+        }
+
         if (e.nextDecide > 0) return;
 
-        // Ice-cast attempt — cherry / orange occasionally fire a single
-        // ice block in the direction of the nearest player. Acts as a
-        // turn-skip: the enemy spends this decision on a cast instead of
-        // a step. Cooldown prevents back-to-back casts. The cast tile
-        // must be empty (passable, not occupied by player/fruit/exit).
-        const iceChance = ENEMY_ICE_CHANCE[e.kind] || 0;
-        if (iceChance > 0 && e.iceCd <= 0 && Math.random() < iceChance) {
-          // Pick the direction toward the nearest player.
+        // Phase 18 — blueberry "berry-sense": when the closest player
+        // is within 3 tiles, kick a brief speed burst by halving the
+        // step's interval. Unlike orange's windup, this acts on the
+        // chase pipeline (just shorter intervals and faster moves).
+        if (e.kind === 'blueberry') {
+          const dst = Math.min(
+            p && !p.dead ? Math.abs(p.col - e.col) + Math.abs(p.row - e.row) : 99,
+            p2 && !p2.dead ? Math.abs(p2.col - e.col) + Math.abs(p2.row - e.row) : 99,
+          );
+          if (dst <= 3 && e.burstSpeedT <= 0) {
+            e.burstSpeedT = 1.4;     // ~2 fast steps before cooldown
+            if (!reduced) {
+              spawnRing(fxRef.current, e.col * T + T / 2, e.row * T + T / 2, {
+                life: 0.32, r0: 4, r1: T * 0.8, color: '#5fb9ff', width: 2,
+              });
+            }
+          }
+        }
+
+        // Phase 18 — eggplant stomps an ice tile in front of it once
+        // its stompCd elapses. Removes ice + emits a wallCrack burst.
+        // Skips the move this tick — the stomp IS the action.
+        if (e.kind === 'eggplant' && e.stompCd <= 0) {
+          const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+          let stomped = false;
+          for (const [dx, dy] of dirs) {
+            const tc = e.col + dx, tr = e.row + dy;
+            if (!inBounds(tc, tr)) continue;
+            if (isIce(s.level, tc, tr)) {
+              const key = `${tc},${tr}`;
+              s.level.ice.delete(key);
+              s.castVanish?.set(key, performance.now());
+              if (!reduced) {
+                spawnFx(fxRef.current, 'wallCrack', tc * T + T / 2, tr * T + T / 2);
+                spawnFx(fxRef.current, 'iceShatter', tc * T + T / 2, tr * T + T / 2);
+              }
+              stomped = true;
+              break;
+            }
+          }
+          if (stomped) {
+            sfx.frostMelt?.();
+            e.stompCd = 4.0 + Math.random() * 2.0;
+            e.nextDecide = ENEMY_INTERVAL[e.kind];
+            return;
+          }
+          // No adjacent ice — postpone the next stomp check briefly so
+          // we don't keep iterating dirs every tick.
+          e.stompCd = 1.0;
+        }
+
+        // Ice-cast attempt — cherry / orange / plum / cherrybomb may
+        // fire a row of ice toward the nearest player. The roll is
+        // gated by `iceCd` and the per-kind probability.
+        // Phase 18 — orange has a 'thought-bubble' tell: when it rolls
+        // a cast, defer the actual cast by `castPending` instead of
+        // firing immediately, and show a '?' floater so the player
+        // reads the windup. Melon ignores its iceCd when the player
+        // is on the same row/col.
+        let iceChance = (ENEMY_ICE_CHANCE[e.kind] || 0) * diff.iceMul;
+        // Pending-cast resolution (orange windup): if a cast is queued,
+        // ignore the roll and just fire it on this decision tick.
+        const pendingFire = !!e.castPending;
+        // Melon — same-row/col aggression bypasses cooldown.
+        if (e.kind === 'melon') {
+          const onSame = (p && !p.dead && (p.col === e.col || p.row === e.row))
+            || (p2 && !p2.dead && (p2.col === e.col || p2.row === e.row));
+          if (onSame && e.iceCd <= 0) iceChance = Math.max(iceChance, 0.55);
+        }
+        // Orange — if no pending and roll succeeds, queue instead of cast.
+        if (e.kind === 'orange' && !pendingFire && e.iceCd <= 0 && Math.random() < iceChance) {
+          // Compute direction now and schedule the cast for the NEXT
+          // decision in 0.6 s. Show a "?" floater above the bot.
           const targetForCast = (() => {
             if (!p2 || p2.dead) return p;
             if (p.dead) return p2;
@@ -1491,30 +2288,131 @@ export default function FrostFightGame({ mode = 'solo' }) {
             const d2 = Math.abs(p2.col - e.col) + Math.abs(p2.row - e.row);
             return d1 <= d2 ? p : p2;
           })();
-          // Direction: pick the dominant axis toward the target.
           const ddx = Math.sign(targetForCast.col - e.col);
           const ddy = Math.sign(targetForCast.row - e.row);
           const ax = Math.abs(targetForCast.col - e.col);
           const ay = Math.abs(targetForCast.row - e.row);
           const dir = ax >= ay ? [ddx, 0] : [0, ddy];
           if (dir[0] !== 0 || dir[1] !== 0) {
-            const tc = e.col + dir[0], tr = e.row + dir[1];
-            const free = inBounds(tc, tr)
-              && !isWall(s.level, tc, tr)
-              && !isIce(s.level, tc, tr)
-              && !s.enemies.some((o) => o !== e && o.col === tc && o.row === tr)
-              && !s.level.fruits.some((f) => !f.taken && f.col === tc && f.row === tr)
-              && !(s.level.exit.col === tc && s.level.exit.row === tr)
-              && !(p && !p.dead && p.col === tc && p.row === tr)
-              && !(p2 && !p2.dead && p2.col === tc && p2.row === tr);
-            if (free) {
-              const key = `${tc},${tr}`;
+            e.castPending = { dir, untilTs: performance.now() + 600 };
+            if (!reduced) {
+              spawnFloater(fxRef.current, '?', e.col * T + T / 2, e.row * T + T / 2 - 14, '#ffd86b', { size: 14, life: 0.65, vy: -8 });
+              spawnRing(fxRef.current, e.col * T + T / 2, e.row * T + T / 2, {
+                life: 0.6, r0: 4, r1: T * 0.45, color: '#ffd86b', width: 2,
+              });
+            }
+            // Defer the action; come back in 0.6 s to fire the cast.
+            e.nextDecide = 0.6;
+            return;
+          }
+        }
+        if (iceChance > 0 && (pendingFire || (e.iceCd <= 0 && Math.random() < iceChance))) {
+          // Direction: prefer the queued direction from the orange
+          // windup (`castPending`); otherwise pick the dominant axis
+          // toward the nearest live player.
+          let dir;
+          if (pendingFire) {
+            dir = e.castPending.dir;
+            e.castPending = null;
+          } else {
+            const targetForCast = (() => {
+              if (!p2 || p2.dead) return p;
+              if (p.dead) return p2;
+              const d1 = Math.abs(p.col  - e.col) + Math.abs(p.row  - e.row);
+              const d2 = Math.abs(p2.col - e.col) + Math.abs(p2.row - e.row);
+              return d1 <= d2 ? p : p2;
+            })();
+            const ddx = Math.sign(targetForCast.col - e.col);
+            const ddy = Math.sign(targetForCast.row - e.row);
+            const ax = Math.abs(targetForCast.col - e.col);
+            const ay = Math.abs(targetForCast.row - e.row);
+            dir = ax >= ay ? [ddx, 0] : [0, ddy];
+          }
+          if (dir[0] !== 0 || dir[1] !== 0) {
+            // Row-cast — same Othello logic as the player. Walks
+            // forward placing ice on every passable tile until the
+            // first obstacle (wall, ice, enemy, fruit, exit, player).
+            // Single SFX cue per cast, single iceCd reset.
+            let placed = 0;
+            let c = e.col + dir[0], r = e.row + dir[1];
+            const castStartTs = performance.now();
+            const CAST_STAGGER = reduced ? 0 : 55;
+            const PARTICLE_LEAD = 30;
+            // Phase 18: cyan ring at the bot's tile so the player can
+            // read which row is about to fill with ice. Quick (0.34 s)
+            // so it doesn't overlap with the next decision tick.
+            if (!reduced) {
+              spawnRing(fxRef.current, e.col * T + T / 2, e.row * T + T / 2, {
+                life: 0.34, r0: 4, r1: T * 0.55, color: '#6cd0f0', width: 2,
+              });
+            }
+            while (inBounds(c, r) && !isWall(s.level, c, r) && !isIce(s.level, c, r)) {
+              const occupied =
+                s.enemies.some((o) => o !== e && o.col === c && o.row === r)
+                || s.level.fruits.some((f) => !f.taken && f.col === c && f.row === r)
+                || (s.level.exit.col === c && s.level.exit.row === r)
+                || (p && !p.dead && p.col === c && p.row === r)
+                || (p2 && !p2.dead && p2.col === c && p2.row === r);
+              if (occupied) break;
+              const key = `${c},${r}`;
               s.level.ice.add(key);
-              s.castReveal.set(key, performance.now());
-              if (!reduced) spawnFx(fxRef.current, 'freeze', tc * T + T / 2, tr * T + T / 2);
+              s.castReveal.set(key, castStartTs + placed * CAST_STAGGER);
+              if (!reduced) {
+                const cx = c * T + T / 2, cy = r * T + T / 2;
+                const delay = Math.max(0, placed * CAST_STAGGER - PARTICLE_LEAD);
+                if (delay === 0) spawnFx(fxRef.current, 'freeze', cx, cy);
+                else setTimeout(() => spawnFx(fxRef.current, 'freeze', cx, cy), delay);
+              }
+              placed++;
+              c += dir[0]; r += dir[1];
+            }
+            if (placed > 0) {
               sfx.frostFreeze();
               e.iceCd = ENEMY_ICE_CD;
-              // Skip the move this decision tick.
+              // Skip the move this decision tick — the cast IS the action.
+              e.nextDecide = ENEMY_INTERVAL[e.kind];
+              return;
+            }
+          }
+        }
+
+        // Self-unblock — if the enemy is fully boxed in by ice/walls
+        // (and at least one neighbour is ice it could melt), it
+        // sacrifices its turn to clear ALL adjacent ice tiles. Mirror
+        // of the player's row melt but radial: tries every direction
+        // and removes any ice block found one tile away. This prevents
+        // permanently-trapped bots after a long player cast or a
+        // cherry/orange casting itself into a corner.
+        if (!e.moving) {
+          const dirs4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+          let stuck = true;
+          for (const [dx, dy] of dirs4) {
+            const tc = e.col + dx, tr = e.row + dy;
+            if (!inBounds(tc, tr)) continue;
+            if (isWall(s.level, tc, tr)) continue;
+            if (isIce(s.level, tc, tr)) continue;
+            if (s.enemies.some((o) => o !== e && o.col === tc && o.row === tr)) continue;
+            stuck = false;
+            break;
+          }
+          if (stuck) {
+            // Find an ice neighbour to melt. Prefer one toward the
+            // player so the unblock breaks toward the chase target.
+            let cleared = 0;
+            for (const [dx, dy] of dirs4) {
+              const tc = e.col + dx, tr = e.row + dy;
+              if (!inBounds(tc, tr)) continue;
+              if (isIce(s.level, tc, tr)) {
+                const key = `${tc},${tr}`;
+                s.level.ice.delete(key);
+                s.castVanish?.set(key, performance.now());
+                if (!reduced) spawnFx(fxRef.current, 'iceShatter', tc * T + T / 2, tr * T + T / 2);
+                cleared++;
+                if (cleared >= 1) break;  // one melt per stuck turn
+              }
+            }
+            if (cleared > 0) {
+              sfx.frostMelt();
               e.nextDecide = ENEMY_INTERVAL[e.kind];
               return;
             }
@@ -1542,16 +2440,26 @@ export default function FrostFightGame({ mode = 'solo' }) {
           e.moving = true; e.moveT = 0;
           return true;
         };
-        // Chase target — closest alive player. In solo this is always
-        // P1; in coop, distance ties resolve to P1 so the priority
-        // stays deterministic.
+        // Chase target — closest alive *visible* player. Phase 18
+        // invisibility makes that player undetectable for chase
+        // purposes (they can still die if a bot stumbles into them).
+        // If every player is invisible/dead, bots pick a random
+        // direction and wander.
+        const pVisible  = p  && !p.dead  && p.power  !== 'invisible';
+        const p2Visible = p2 && !p2.dead && p2.power !== 'invisible';
         const target = (() => {
-          if (!p2 || p2.dead) return p;
-          if (p.dead) return p2;
+          if (!p2Visible) return pVisible ? p : null;
+          if (!pVisible) return p2;
           const d1 = Math.abs(p.col  - e.col) + Math.abs(p.row  - e.row);
           const d2 = Math.abs(p2.col - e.col) + Math.abs(p2.row - e.row);
           return d1 <= d2 ? p : p2;
         })();
+        if (!target) {
+          // Wander: random orthogonal step.
+          const choices = [[1, 0], [-1, 0], [0, 1], [0, -1]].sort(() => Math.random() - 0.5);
+          for (const [mx, my] of choices) if (tryMove(mx, my)) break;
+          return;
+        }
         const dx = Math.sign(target.col - e.col);
         const dy = Math.sign(target.row - e.row);
         const adx = Math.abs(target.col - e.col);
@@ -1573,16 +2481,94 @@ export default function FrostFightGame({ mode = 'solo' }) {
         const order = primaryAxis === 'x'
           ? [[dx, 0], [0, dy], [-dx, 0], [0, -dy]]
           : [[0, dy], [dx, 0], [0, -dy], [-dx, 0]];
+        // Banana slip — if a slip was queued from a previous step,
+        // try the queued direction first. The slip mimics the player's
+        // movement carrying momentum across plain floor.
         let moved = false;
-        for (const [mx, my] of order) {
-          if (mx === 0 && my === 0) continue;
-          if (tryMove(mx, my)) { moved = true; break; }
+        if (e.kind === 'banana' && e.slipDir) {
+          const [sdx, sdy] = e.slipDir;
+          if (tryMove(sdx, sdy)) moved = true;
+          e.slipDir = null;
+        }
+        if (!moved) {
+          for (const [mx, my] of order) {
+            if (mx === 0 && my === 0) continue;
+            if (tryMove(mx, my)) { moved = true; break; }
+          }
         }
         if (!moved) {
           const choices = [[1, 0], [-1, 0], [0, 1], [0, -1]].sort(() => Math.random() - 0.5);
           for (const [mx, my] of choices) if (tryMove(mx, my)) break;
         }
+        // ── Phase 18 post-move effects ──
+        // Banana — queue a slip step in the same direction at half
+        // interval, but ONLY if the next tile is plain floor (no ice,
+        // no wall, no occupant). Slip can be cancelled by any blocker.
+        if (moved && e.kind === 'banana' && Math.random() < 0.7) {
+          const sdx = e.col - e.fromCol;
+          const sdy = e.row - e.fromRow;
+          const nc = e.col + sdx, nr = e.row + sdy;
+          if (inBounds(nc, nr)
+              && !isWall(s.level, nc, nr)
+              && !isIce(s.level, nc, nr)
+              && !s.enemies.some((o) => o !== e && o.col === nc && o.row === nr)) {
+            e.slipDir = [sdx, sdy];
+            e.nextDecide = 0.16;     // overrides the cherry-or-base above
+          }
+        }
+        // Grape — drop a shadow ice tile at the just-vacated tile if
+        // the trait flag was set this tick.
+        if (e._wantsShadowDrop && moved) {
+          const sc = e.fromCol, sr = e.fromRow;
+          if (inBounds(sc, sr)
+              && !isWall(s.level, sc, sr)
+              && !isIce(s.level, sc, sr)
+              && !s.level.fruits.some((f) => !f.taken && f.col === sc && f.row === sr)
+              && !(s.level.exit.col === sc && s.level.exit.row === sr)
+              && !(p && !p.dead && p.col === sc && p.row === sr)
+              && !(p2 && !p2.dead && p2.col === sc && p2.row === sr)) {
+            const key = `${sc},${sr}`;
+            s.level.ice.add(key);
+            s.castReveal.set(key, performance.now());
+            if (!reduced) {
+              spawnFx(fxRef.current, 'iceForm', sc * T + T / 2, sr * T + T / 2);
+            }
+          }
+          e._wantsShadowDrop = false;
+        }
       });
+
+      // Phase 18 — power-up timers tick down each frame for both
+      // players. When a power expires, clear it AND clear the HUD
+      // chip if the chip was showing this player's power.
+      const tickPower = (pp) => {
+        if (!pp) return;
+        if (pp.powerT > 0) {
+          pp.powerT = Math.max(0, pp.powerT - dt);
+          if (pp.powerT === 0) pp.power = null;
+        }
+      };
+      tickPower(p);
+      tickPower(p2);
+      // Mirror the active player's remaining-time into the HUD chip.
+      // Use a 0.1 s threshold to avoid an every-frame setState churn.
+      const activePp = (p && p.power) ? p : (p2 && p2.power ? p2 : null);
+      const hudPower = activePower;
+      if (activePp) {
+        // Update the chip's `t` to the live remaining seconds. Tick
+        // only when the labeled second changes.
+        const labelSec = Math.ceil(activePp.powerT * 10) / 10;
+        if (!hudPower || hudPower.id !== activePp.power || Math.abs(hudPower.t - labelSec) > 0.05) {
+          setActivePower((prev) => prev && prev.id === activePp.power
+            ? { ...prev, t: labelSec }
+            : { id: activePp.power, t: labelSec, total: prev?.total ?? labelSec, label: activePp.power.toUpperCase() });
+        }
+      } else if (hudPower && hudPower.id !== 'freefreeze') {
+        setActivePower(null);
+      } else if (hudPower && hudPower.id === 'freefreeze' && !p.freeFreeze && !(p2 && p2.freeFreeze)) {
+        // Free-freeze chip disappears once the player consumes it.
+        setActivePower(null);
+      }
 
       // Trap detection — runs once per frame after the AI pass.
       // Fires the FROZEN celebration on the rising edge (`!boxed →
@@ -1616,10 +2602,13 @@ export default function FrostFightGame({ mode = 'solo' }) {
       // forgiving so a single mistake doesn't punish only one player.
       const touchedPlayer = (() => {
         if (s.dying) return null;          // already triggered this room
-        if (!p.dead) {
+        // Phase 18 — invincibility: a player with `power === 'invincible'`
+        // ignores enemy touches for the duration. Both players checked
+        // independently so co-op pickups don't blanket the partner.
+        if (!p.dead && p.power !== 'invincible') {
           for (const e of s.enemies) if (enemyTouchesPlayer(e, p)) return p;
         }
-        if (p2 && !p2.dead) {
+        if (p2 && !p2.dead && p2.power !== 'invincible') {
           for (const e of s.enemies) if (enemyTouchesPlayer(e, p2)) return p2;
         }
         return null;
@@ -1638,8 +2627,15 @@ export default function FrostFightGame({ mode = 'solo' }) {
         if (p2 && !p2.dead) { p2.dead = true; p2.respawn = 999; }
         s.shake = reduced ? 0 : 12;
         s.flash = reduced ? 0 : 0.5;
-        setDeaths((d) => d + 1);
-        setTip('Touched — restarting room.');
+        // Bump both run-wide and per-level counters via refs so the
+        // cap check below reads the freshest values even between
+        // effect re-runs.
+        const nextDeaths = deathsRef.current + 1;
+        deathsRef.current = nextDeaths;
+        setDeaths(nextDeaths);
+        const nextLevelDeaths = levelDeathsRef.current + 1;
+        levelDeathsRef.current = nextLevelDeaths;
+        setLevelDeaths(nextLevelDeaths);
         sfx.frostDeath();
         frostMusic.duck(1.1);
         if (!reduced) {
@@ -1648,13 +2644,28 @@ export default function FrostFightGame({ mode = 'solo' }) {
           spawnFx(fxRef.current, 'death', dcx, dcy);
           spawnFloater(fxRef.current, 'OUCH', dcx, dcy - 10, '#ff7b96', { size: 10, life: 0.9 });
         }
-        // Schedule the actual room reload after the death animation /
-        // shake / flash settle. Guard against double-fire if the
-        // component unmounts in the meantime.
+        // Per-level lives cap (Phase 18): exceeding it triggers a
+        // 'Level reset' beat — louder overlay, then full level reload
+        // and lives counter back to cap. The run continues; this is
+        // not a game-over.
+        const overCap = nextLevelDeaths > diff.lives;
         const dyingState = s;
-        setTimeout(() => {
-          if (stateRef.current === dyingState) loadLevel(levelIdx);
-        }, 950);
+        if (overCap) {
+          setTip('Out of lives — restarting level.');
+          setShowLevelReset(true);
+          setTimeout(() => {
+            if (stateRef.current !== dyingState) return;
+            loadLevel(levelIdx);
+            // Reset on the next tick so the overlay's exit animation
+            // plays before the new level intro takes over.
+            setTimeout(() => setShowLevelReset(false), 120);
+          }, 1400);
+        } else {
+          setTip('Touched — restarting room.');
+          setTimeout(() => {
+            if (stateRef.current === dyingState) loadLevel(levelIdx);
+          }, 950);
+        }
       }
 
       s.elapsed += dt;
@@ -1679,12 +2690,16 @@ export default function FrostFightGame({ mode = 'solo' }) {
     submittedRef.current = false;
     runTrapCountRef.current = 0;
     runPeachesRef.current = 0;
+    deathsRef.current = 0;
+    levelDeathsRef.current = 0;
     setDeaths(0);
+    setLevelDeaths(0);
+    setShowLevelReset(false);
     setTime(0);
-    setLevelIdx(0);
+    setLevelIdx(initialLevel);
     setStatus('playing');
     setBestBeaten(false);
-  }, []);
+  }, [initialLevel]);
 
   const onExitToLobby = useCallback(() => {
     // Defer to the shell's Back button (rendered by GameShell) rather than
@@ -1702,15 +2717,18 @@ export default function FrostFightGame({ mode = 'solo' }) {
     <div className="ff-root" data-state={status}>
       <header className="ff-hud">
         <Hud
-          levelIdx={levelIdx}
-          levelCount={LEVELS.length}
+          levelIdx={levelIdx - themeStart}
+          levelCount={themeCount}
           levelName={levelName}
           gemsGot={gemsGot}
           gemsTotal={gemsTotal}
           deaths={deaths}
+          levelDeaths={levelDeaths}
           time={time}
           roomBest={roomBests[levelName]}
-          exitLive={exitLive && status === 'playing'}/>
+          exitLive={exitLive && status === 'playing'}
+          difficulty={diff}
+          activePower={activePower}/>
       </header>
 
       <main className="ff-stage" ref={stageRef}>
@@ -1733,11 +2751,15 @@ export default function FrostFightGame({ mode = 'solo' }) {
           time={time}
           best={best}
           bestBeaten={bestBeaten}
-          levelCount={LEVELS.length}
+          levelCount={themeCount}
           peaches={runPeachesRef.current}
           coverUrl={coverUrl}
           onPlayAgain={restart}
           onExit={onExitToLobby}/>
+        <LevelResetCard
+          open={showLevelReset}
+          difficulty={diff}
+          levelName={levelName}/>
       </main>
 
       <footer className="ff-rail">

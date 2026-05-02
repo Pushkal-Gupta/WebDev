@@ -14,6 +14,7 @@ export const BALANCE = {
   GROUND_BOTTOM_PAD:  90,       // px from bottom edge to ground line — leaves room for foreground band
   STAGE_GROUND_RATIO: 0.80,     // ground line target as a fraction of stage height — keeps a wide sky and a tight foreground band
   GOLD_CAP:           600,      // hard cap on accrued gold; forces players to spend rather than hoard
+  TURRET_SPOT_COST:   30,       // gold to lay a turret spot (slot foundation) — must be built before placing a turret in that slot
   UNIT_RENDER_SCALE:  2.10,     // visual-only scale; sim units (ranges) unchanged
   BASE_RENDER_H_PX:   260,      // baked base PNG target height — was 200 (too small)
   UNIT_REPULSE_PX:    22,       // friendly unit minimum spacing along the lane

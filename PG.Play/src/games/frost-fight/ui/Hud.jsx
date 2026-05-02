@@ -36,10 +36,21 @@ export default function Hud({
   gemsGot,
   gemsTotal,
   deaths,
+  levelDeaths,
   time,
   roomBest,
   exitLive,
+  difficulty,
+  activePower,
 }) {
+  // Phase 18: lives are per-level. `levelDeaths` resets to 0 on every
+  // level entry, so `livesRemaining = max(0, livesCap - levelDeaths)`.
+  // Hitting 0 fires a level-reset overlay (separate component) — it
+  // doesn't end the run. The chip flips to is-danger at <=0 remaining.
+  const livesCap = difficulty && Number.isFinite(difficulty.lives) ? difficulty.lives : null;
+  const livesUsed = typeof levelDeaths === 'number' ? levelDeaths : deaths;
+  const livesRemaining = livesCap !== null ? Math.max(0, livesCap - livesUsed) : null;
+  const livesLow = livesRemaining !== null && livesRemaining <= 0;
   // Pace marker — show the player's recorded best for this room as a
   // ghost line under the room name. Gives a target without nagging.
   const paceLabel = roomBest && typeof roomBest.time === 'number'
@@ -67,10 +78,17 @@ export default function Hud({
         </span>
       </div>
 
-      <div className="ff-chip ff-chip-sec">
-        <span className="ff-chip-label">Deaths</span>
+      <div className={'ff-chip ff-chip-sec' + (livesLow ? ' is-danger' : '')}>
+        <span className="ff-chip-label">{livesCap !== null ? 'Lives' : 'Deaths'}</span>
         <span className="ff-chip-value">
-          <PopNumber value={deaths} className="ff-chip-num"/>
+          {livesCap !== null ? (
+            <>
+              <PopNumber value={livesRemaining} className="ff-chip-num"/>
+              <span className="ff-chip-unit">/{livesCap}</span>
+            </>
+          ) : (
+            <PopNumber value={deaths} className="ff-chip-num"/>
+          )}
         </span>
       </div>
 
@@ -80,6 +98,22 @@ export default function Hud({
           <b className="ff-chip-num">{fmtTime(time)}</b>
         </span>
       </div>
+
+      {activePower && (
+        <div className={'ff-chip ff-chip-power ff-chip-power-' + activePower.id}>
+          <span className="ff-chip-label">Power</span>
+          <span className="ff-chip-value">
+            <b className="ff-chip-num">{activePower.label}</b>
+            {activePower.id !== 'freefreeze' && activePower.total > 0 && (
+              <span className="ff-chip-power-bar" aria-hidden="true">
+                <span
+                  className="ff-chip-power-bar-fill"
+                  style={{ width: `${Math.max(0, Math.min(1, activePower.t / activePower.total)) * 100}%` }}/>
+              </span>
+            )}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

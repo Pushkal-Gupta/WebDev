@@ -35,7 +35,6 @@ import Menu from './ui/Menu.jsx';
 import TouchControls from './ui/TouchControls.jsx';
 import { submitScore } from '../../scoreBus.js';
 
-const tmp = new THREE.Vector3();           // scratch for cameraYaw computation
 const RESPAWN_RING = 50;        // metres of distance between auto-checkpoint pulses
 
 export default function GrudgewoodGame() {
@@ -90,17 +89,15 @@ export default function GrudgewoodGame() {
     ro.observe(wrap);
 
     // Place the player at a world-space anchor (defaults to the spawn-cell
-    // centre). Snap the chase camera so it sits directly behind the
-    // player's default facing (+Z), at the same offset the live chase
-    // logic uses — this keeps respawn from slewing across the maze.
+    // centre). The pan camera always sits at a fixed offset south +
+    // above the player; keep this snap target in sync with camera.js
+    // PAN_OFFSET so respawn doesn't slew across the maze.
     const placeAt = (x = 12, z = 12) => {
       const y = chunks.sampleHeight(x, z);
       chunks.ensureLoadedAround(x, z);
-      const facing = 0;                 // facing +Z on respawn
-      player.reset(new THREE.Vector3(x, y, z), facing);
-      const fwdX = Math.sin(facing), fwdZ = Math.cos(facing);
-      const camPos = new THREE.Vector3(x - fwdX * 6, y + 2.8, z - fwdZ * 6);
-      cam.snapTo(camPos, new THREE.Vector3(x + fwdX * 0.5, y + 1.4, z + fwdZ * 0.5));
+      player.reset(new THREE.Vector3(x, y, z), 0);
+      const camPos = new THREE.Vector3(x, y + 4.5, z - 6.0);
+      cam.snapTo(camPos, new THREE.Vector3(x, y + 1.4, z));
       const { biome } = chunks.biomeAt(x, z);
       startAmbient(biome.id);
     };
@@ -279,12 +276,9 @@ export default function GrudgewoodGame() {
 
       if (gameState.phase === 'play') {
         const inSnap = input.snapshot();
-        // Camera yaw — the world angle the camera is facing, used to
-        // rotate input from camera-relative to world-relative. (0,0,-1)
-        // applied by the camera quaternion gives the world-space
-        // direction the camera is looking.
-        const camFwd = tmp.set(0, 0, -1).applyQuaternion(engine.camera.quaternion);
-        inSnap.cameraYaw = Math.atan2(camFwd.x, camFwd.z);
+        // Controls are absolute world axes (player.js mirrors X to match
+        // the screen). The camera doesn't rotate with player.facing, so
+        // there's no cameraYaw to feed; A always means world +X, etc.
 
         // Stream cells around the player BEFORE physics so wall AABBs are
         // up to date when the player tries to walk through them.
@@ -414,13 +408,10 @@ export default function GrudgewoodGame() {
 
       engine.renderer.render(engine.scene, engine.camera);
 
-      // HUD ~12 Hz. Distance is Euclidean from spawn; we surface the
-      // current level, the metres to the next unraised flag, and a screen
-      // angle so the HUD can render an arrow pointing the player there.
-      // With the chase camera, the angle is computed RELATIVE to
-      // player.facing — when the player is looking at the flag, the
-      // arrow points up; when the flag is to the player's right, the
-      // arrow rotates clockwise to match.
+      // HUD ~12 Hz. Distance is Euclidean from spawn; we also push a
+      // screen angle for the waypoint arrow. Since the camera is fixed
+      // and X is mirrored, screen-right = world -X and screen-up = +Z;
+      // the arrow's angle is therefore atan2(-dx, dz).
       if (now - lastHudPush > 0.08) {
         lastHudPush = now;
         const toast = (gameState.toastUntil > now) ? gameState.toastText : '';
@@ -429,12 +420,7 @@ export default function GrudgewoodGame() {
         const dx = nextAnchor.x - player.pos.x;
         const dz = nextAnchor.z - player.pos.z;
         const distToFlag = Math.round(Math.hypot(dx, dz));
-        // atan2(dx, dz) is the world angle to the flag (CW from +Z).
-        // Subtract player.facing to get the angle relative to where the
-        // player is looking, then convert to degrees. CSS rotate(deg) is
-        // clockwise from screen-up, which matches.
-        const relAngle = Math.atan2(dx, dz) - player.facing;
-        const angleDeg = (relAngle * 180) / Math.PI;
+        const angleDeg = (Math.atan2(-dx, dz) * 180) / Math.PI;
         setHud({
           biomeName: biome.name,
           level: gameState.level,

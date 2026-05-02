@@ -6,7 +6,7 @@
 
 import * as THREE from 'three';
 import { Trap } from './base.js';
-import { makePredatorTree } from '../props.js';
+import { makePredatorTree, makePusher } from '../props.js';
 import { sfx } from '../audio.js';
 
 const tmpV = new THREE.Vector3();
@@ -23,6 +23,17 @@ export class PredatorTree extends Trap {
   constructor({ biome, anchor }) {
     const g = makePredatorTree(biome);
     g.position.copy(anchor);
+
+    // Pusher gremlin — a small humanoid behind the trunk that shoves
+    // the tree during the strike. Placed ~1m behind the trunk in the
+    // tree's local -Z (which becomes +Z relative to player on strike).
+    // The pusher's body pivot is animated by tick() so the figure
+    // visibly heaves the tree forward as it slams.
+    const pusher = makePusher(biome);
+    pusher.position.set(0, 0, -1.0);
+    pusher.rotation.y = Math.PI;          // face the trunk (its +Z toward tree)
+    g.add(pusher);
+
     super({
       kind: 'predator',
       group: g,
@@ -33,6 +44,8 @@ export class PredatorTree extends Trap {
     });
     this.eye = g.userData.eye;
     this.tree = g;
+    this.pusher = pusher;
+    this.pusherBody = pusher.userData.body;
     this.lockTimer = 0;
     // Strike direction (XZ) — locked at the moment of wind-up so a moving
     // player can sidestep. Includes a small lead based on player velocity.
@@ -50,6 +63,21 @@ export class PredatorTree extends Trap {
     const heat = this.phase === 'idle' ? 0.6 : 1.4;
     const pulse = 0.8 + Math.sin(this.t * 4 * heat) * 0.5;
     if (this.eye?.material) this.eye.material.emissiveIntensity = pulse;
+
+    // Pusher animation always reflects the current phase: idle = neutral,
+    // winding = leaning back with the tree, strike = lunging forward.
+    // Done outside the phase branches so transitions read smoothly.
+    let pusherTilt = 0;
+    if (this.phase === 'winding') {
+      pusherTilt = -0.25 * Math.min(1, this.t / WINDUP_SECONDS);
+    } else if (this.phase === 'strike') {
+      // Lunge forward in sync with the canopy slam.
+      pusherTilt = THREE.MathUtils.lerp(-0.25, 0.55, Math.min(1, this.t / STRIKE_SECONDS));
+    } else if (this.phase === 'cooldown') {
+      // Settle back to neutral.
+      pusherTilt = THREE.MathUtils.lerp(0.55, 0, Math.min(1, this.t / 1.4));
+    }
+    this.pusherBody.rotation.x = pusherTilt;
 
     if (this.phase === 'idle') {
       // Lock-on as soon as the player is in reach. We still ramp via lockTimer

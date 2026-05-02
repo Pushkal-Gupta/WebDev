@@ -96,7 +96,17 @@ export function makeRenderer() {
     drawBase(ctx, v.laneLeft - 50, v.groundY, match.player, true, pal);
     drawBase(ctx, v.laneRight + 50, v.groundY, match.enemy, false, paletteFor(getEraByIndex(match.enemy.eraIndex).id));
 
-    // 7) Turrets
+    // 7) Turret spots (foundations only) — drawn before turrets so a
+    //    placed turret sits on top of its slab.
+    for (let i = 0; i < match.player.turretSlots.length; i++) {
+      const hasSpot = match.player.turretSpots && match.player.turretSpots[i];
+      if (hasSpot) drawTurretSpot(ctx, match.view, i, true,  !!match.player.turretSlots[i]);
+    }
+    for (let i = 0; i < match.enemy.turretSlots.length; i++) {
+      const hasSpot = match.enemy.turretSpots && match.enemy.turretSpots[i];
+      if (hasSpot) drawTurretSpot(ctx, match.view, i, false, !!match.enemy.turretSlots[i]);
+    }
+    // 7b) Turrets
     for (let i = 0; i < match.player.turretSlots.length; i++) {
       const t = match.player.turretSlots[i]; if (t) drawTurret(ctx, t, true);
     }
@@ -215,6 +225,37 @@ function drawBaseHpAndLabel(ctx, x, groundY, side, isPlayer) {
   ctx.font = 'bold 11px "JetBrains Mono", monospace';
   ctx.textAlign = 'center';
   ctx.fillText(isPlayer ? 'YOU' : 'ENEMY', x, groundY + 28);
+}
+
+// ── Turret spots ──────────────────────────────────────────────────────
+//
+// A "laid foundation" — the slab the player puts down before deciding
+// which turret to drop in. Drawn at the same x/y where a turret in
+// that slot would sit, so once the turret is placed it lands on top
+// of its own slab.
+function drawTurretSpot(ctx, view, slot, isPlayer, hasTurret) {
+  const x = isPlayer ? view.laneLeft - 22 : view.laneRight + 22;
+  const y = view.groundY - BALANCE.TURRET_ROW_Y_PX - slot * 22;
+  ctx.save();
+  // Stone slab
+  ctx.fillStyle = '#3a3f48';
+  ctx.fillRect(x - 16, y + 2, 32, 8);
+  ctx.fillStyle = '#1c2128';
+  ctx.fillRect(x - 16, y + 8, 32, 2);
+  // Corner posts (only when no turret has been placed yet — once the
+  // turret is up they'd clip through its base plate).
+  if (!hasTurret) {
+    ctx.fillStyle = '#3a3f48';
+    ctx.fillRect(x - 14, y - 4, 4, 6);
+    ctx.fillRect(x + 10, y - 4, 4, 6);
+    // "Empty" hint dot pulsing in the centre — telegraphs that this
+    // foundation is awaiting a turret.
+    const t = (Math.sin(performance.now() / 380) + 1) / 2;
+    ctx.globalAlpha = 0.45 + t * 0.35;
+    ctx.fillStyle = '#ffe14f';
+    ctx.beginPath(); ctx.arc(x, y - 4, 1.6, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.restore();
 }
 
 // ── Turrets ────────────────────────────────────────────────────────────
@@ -341,9 +382,12 @@ function drawSpecialTelegraph(ctx, match, side, isPlayer) {
 // procedural path applies, so swapping in baked sprites doesn't lose
 // any of the on-lane motion language.
 function drawUnitSprite(ctx, u, x, y, spriteKey, sideAuraActive) {
-  const isHeavy = u.role === 'heavy';
+  const isGeneral = u.role === 'general';
+  const isHeavy = u.role === 'heavy' || isGeneral;
   const SCALE = BALANCE.UNIT_RENDER_SCALE || 1;
-  const targetH = isHeavy ? 80 * SCALE : 64 * SCALE;
+  // Generals render bigger — they're the era centerpiece. Heavy = 80,
+  // general = 110 (≈40% taller than heavy on the same canvas).
+  const targetH = (isGeneral ? 110 : isHeavy ? 80 : 64) * SCALE;
   const nat = assets.naturalSize(spriteKey);
   const aspect = nat ? nat.w / nat.h : 0.6;
   const targetW = targetH * aspect;
@@ -444,6 +488,8 @@ function drawUnit(ctx, u, sideAuraActive) {
   // `eraId` (e.g. 'ember-tribe') — we map to the manifest's era index.
   const eraN = u.eraIndex != null ? u.eraIndex + 1 : ERA_BY_ID[u.eraId] || 1;
   const role = u.role;
+  // Generals get their own sprite key. Frontline / ranged / heavy
+  // each map to their role-named PNG.
   const spriteKey = `unit/era${eraN}/${role}`;
   if (assets.has(spriteKey)) {
     drawUnitSprite(ctx, u, x, y, spriteKey, sideAuraActive);

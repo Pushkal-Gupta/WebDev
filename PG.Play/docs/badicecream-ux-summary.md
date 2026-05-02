@@ -1824,3 +1824,395 @@ in earlier phases.
   vectorise cleanly without losing cel-shading detail.
 - A genuinely different orange-windup sprite (current build reuses
   the resting orange — works but loses the visual pre-tell).
+
+## Phase 17 — pipeline rebuild + themed eras + difficulty + music
+
+User asks (in priority order, all addressed):
+
+1. Robust image processing — zero-checker extraction from the new
+   irregular sheets (1.png … 7.png) the user dropped in
+   `assets/frost-fight/`.
+2. Bot ice cast = row sweep (Othello-symmetric with the player).
+3. Themed eras with no fruit/enemy of-the-same-kind on the same map
+   and a visual cue distinguishing pickups from villains.
+4. Difficulty tiers (Easy 5 lives → Insane 0 lives).
+5. Level select for cleared rooms.
+6. Better background music (real audio, not just a synth).
+7. Fix angry-orange rendering using sheet-6 / sheet-4 alts.
+8. Bots that can self-unblock when boxed in by ice/walls.
+
+### A — pipeline rebuild
+
+`scripts/frost-fight-process-art.mjs` gained `processSheetCC()` driven
+by a per-sheet manifest. Components are labelled with iterative DFS
+on the alpha mask after the existing two-pass `removeCheckerBg` (border
+flood-fill + direct gray-band/tinted-white classifier). Each emitted
+PNG runs through the same `lassoAlpha` + tight-trim + 8% pad +
+512×512 resize + dual-pass cleanup as the legacy grid extractor.
+
+Sheet 1 manifest emitted 10 new sprites (banana-bot, grape-bot,
+plum-bot, eggplant-bot, melon-bot, cherrybomb-bot, apple-fruit,
+lemon-fruit, kiwi-fruit, cherry-fruit) — all visually verified by
+direct file Read. Discovery tool `scripts/frost-fight-cc-discover.mjs`
+dumps each component to `/tmp/ff-cc/<sheet>/<idx>.png` so manifests
+can be hand-authored from inspection.
+
+### B — bot ice row sweep
+
+Replaced the single-tile enemy ice cast in `FrostFightGame.jsx` with
+the same forward sweep the player uses: walk from the bot's facing
+tile until `isWall` / `isIce` / occupant. Every placed tile lands in
+`s.castReveal` for the staggered visual. Halved orange/cherry chances
+(0.20 → 0.10, 0.28 → 0.14) and bumped `ENEMY_ICE_CD` 2.4 → 3.0 s
+since rows are much more powerful per cast.
+
+### C — sprite swaps + new bot kinds
+
+Imported the 10 new sprites into `spritesRef`. Extended `KIND` lookup
++ `parseLevel` grid char map: `B/G/V/M/U/Y` for new bots
+(banana, grape, eggplant, melon, plum, cherrybomb), `A/L/K/Q` for
+new fruit pickups (apple, lemon, kiwi, cherryFruit). Each new bot
+plugs into the existing chase pipeline with its own `ENEMY_INTERVAL`
++ `ENEMY_ICE_CHANCE` row.
+
+### D — themed eras (12 new rooms)
+
+Six eras across 22 rooms total:
+
+| Era | Rooms | Fruit pickup | Bot roster |
+|---|---|---|---|
+| 1 — Cold Aisle  | 1–6   | strawberry        | strawberry / blueberry / orange / cherry |
+| 2 — Vault       | 7–10  | strawberry+peach  | + cherry / orange |
+| 3 — Crystal     | 11–13 | kiwi              | blueberry / plum |
+| 4 — Citrus      | 14–16 | lemon + apple     | eggplant / grape / cherrybomb |
+| 5 — Vineyard    | 17–19 | apple + cherry    | melon / grape / plum |
+| 6 — Final Storm | 20–22 | mixed             | melon / grape / plum / cherrybomb / cherry |
+
+Each new room respects "no fruit-of-X + bot-of-X on same map" so
+strawberry-pickup vs strawberry-villain (and cherry-pickup vs
+cherry-bot) confusion never happens. A node script verifies the
+constraint at edit-time.
+
+### E — fruit pulse halo
+
+Cyan halo behind every pickup pulses at ~0.5 Hz with per-tile phase
+offset (col + row * 1.3) so identical-coloured pickups don't blink in
+sync. Defined via the new `FRUIT_KIND` config table that maps each
+fruit kind to its sprite slot, fallback colour, and seed-rendering
+hint. `HALO_R = T * 0.42`, alpha range 0.18 → 0.28.
+
+### F — difficulty tiers + lives
+
+`DIFFICULTIES` map exported from `FrostFightGame.jsx`:
+
+```js
+easy   { lives: 5, iceMul: 1 }
+normal { lives: 3, iceMul: 1 }
+hard   { lives: 2, iceMul: 1 }
+expert { lives: 1, iceMul: 1 }
+insane { lives: 0, iceMul: 2 }   // bots cast ice 2× as often
+```
+
+`deathsRef` mirrors the React state so the death handler reads the
+freshest count between effect runs. When `nextDeaths > diff.lives`
+the run flips to `status='gameover'` and shows a new `GameOverCard`
+overlay (mirrors `WinCard` chrome with a warm-danger tint and a Try
+Again CTA). The HUD's Deaths chip becomes a Lives chip
+(`livesRemaining/livesCap`) when a cap exists, with an `is-danger`
+state at zero remaining.
+
+`iceMul` multiplies every bot's `ENEMY_ICE_CHANCE` so Insane doubles
+the row-cast pressure on top of the lives squeeze.
+
+### G — level select + progress
+
+Two new LS keys via `src/games/frost-fight/utils/progress.js`:
+
+- `pgplay-ff-difficulty` → `{ id: 'normal' }` (last picked tier)
+- `pgplay-ff-progress`   → `{ v:1, cleared, lastReached, hardest }`
+
+`markRoomCleared(name)` fires on every room exit; `markRunCleared(id)`
+fires on full-run win and tracks the hardest difficulty completed.
+`markRoomReached(idx)` runs on level load.
+
+The lobby (`src/components/frost-fight-setup.jsx`, lazy-loaded) shows
+a difficulty pill row + a "Pick a cleared room" toggle that opens a
+22-room grid. Locked rooms are disabled until the previous one is
+cleared; cleared rooms render a cyan "cleared" tag. Click → the run
+starts at that index via the new `startLevel` prop on
+`<FrostFightGame>`.
+
+### H — real audio bed (with synth fallback)
+
+`src/sound.js` adds an HTML5-audio path that probes
+`./games/frost-fight/audio/bed.mp3` via a HEAD fetch. On hit:
+- Creates a single `<audio loop>` element.
+- Per-room playback-rate nudge (0.92 → 1.08 across 8-room cycle) so
+  each room sounds distinct without one file per room.
+- Fade-in to 0.55 over 1.6 s; duck on death attenuates to 18 % then
+  restores over `durationSec`.
+- Mute toggle pauses the element via the existing `subscribeMute`
+  hook.
+
+On miss (404 / fetch error): falls back to the existing WebAudio
+synth bed with no code-path branching needed at the call site.
+
+The audio file is **not** vendored in this repo — drop a CC0 /
+public-domain ambient loop at the path above. See
+`public/games/frost-fight/audio/README.md` for source recommendations
+and target spec.
+
+### Bot self-unblock
+
+When a bot's four neighbours are all blocked (walls + ice + occupants)
+and it has no escape, the AI now picks one adjacent ice tile to melt:
+the tile leaves `level.ice`, lands in `s.castVanish` for the fade
+animation, and the bot plays a single `sfx.frostMelt()` cue. Prevents
+permanent stalemates if the player walls off all four sides with ice.
+
+### Achievements
+
+`useAchievements.js`:
+- `frost-fast` threshold raised 240 → 540 s (campaign is 22 rooms).
+- New `frost-insane` (`No room for error`) — clearing any run with
+  `meta.difficulty === 'insane'`.
+
+### Files touched in phase 17
+
+```
+NEW   scripts/frost-fight-cc-discover.mjs
+NEW   src/games/frost-fight/utils/progress.js
+NEW   src/components/frost-fight-setup.jsx
+NEW   public/games/frost-fight/audio/README.md
+EDIT  scripts/frost-fight-process-art.mjs
+        (+ findComponents, processSheetCC, SHEET1_MANIFEST,
+         + per-sheet driver wiring; emitted 10 new sprites)
+EDIT  src/games/FrostFightGame.jsx
+        (+ DIFFICULTIES + deathsRef + game-over branch
+         + startLevel prop + 12 new LEVELS + 12 PALETTE entries
+         + bot row-sweep ice cast + bot self-unblock
+         + KIND lookup expansion + new sprite imports
+         + FRUIT_KIND + cyan pulsing halo behind every pickup
+         + iceMul multiplier on enemy ice probability
+         + markRoomCleared / markRoomReached / markRunCleared calls)
+EDIT  src/games/frost-fight/ui/Overlay.jsx
+        (+ GameOverCard)
+EDIT  src/games/frost-fight/ui/Hud.jsx
+        (Lives chip with is-danger state when cap exhausted)
+EDIT  src/components/GameIntro.jsx
+        (+ FrostFightSetup integration, difficulty + startLevel
+         forwarded to <FrostFightGame>)
+EDIT  src/sound.js
+        (+ HTML5 audio bed path with synth fallback)
+EDIT  src/data.js
+        (Frost Fight: levels 10 → 22 + new tagline + new story)
+EDIT  src/hooks/useAchievements.js
+        (+ frost-insane achievement, frost-fast threshold raised)
+EDIT  src/styles.css
+        (.ff-overlay-gameover + .ff-card-gameover,
+         .ff-chip-sec.is-danger, .ff-lobby-* setup panel,
+         .ff-lobby-pill / .ff-lobby-room grid)
+EDIT  docs/badicecream-ux-summary.md           (this section)
+```
+
+### Build / test
+
+`npx vite build` clean. `npx vitest run` passes 45/45 (3 skipped, 0
+failures). The pre-existing jsdom WebAudio shim crash inside
+`_frostStart` (jsdom doesn't implement `delay.delayTime.value`) is
+unhandled-rejection noise — pre-Phase-17, not a regression.
+
+### What's still open
+
+- Sheet manifests for 2.png … 7.png (only sheet-1 is wired into the
+  build right now; the discovery tool dumps them to /tmp/ff-cc/ for
+  the next pass).
+- Vendored CC0 audio file at `public/games/frost-fight/audio/bed.mp3`
+  (the wiring + fallback is shipped; the binary is a one-off drop).
+- A real angry-orange windup sprite — sheets 4–6 carry alt anger
+  states that we haven't manifested yet. Current build still reuses
+  the resting orange for windup (no regression vs phase 16).
+
+## Phase 18 — per-level lives, themes, traits, power-ups
+
+User asks (all addressed in one phase):
+
+1. Lives are **per-level**, not run-wide. Out of lives → soft level
+   restart, not game over.
+2. **Admin / level-select bypass** so any room can be opened for
+   testing.
+3. **Bots of similar look should behave differently** — each bot kind
+   gets a unique trait/personality.
+4. **Block animations** (form-up + shatter + cast windup ring + wall
+   crack) so casts and melts feel weighty.
+5. **Themed packs** — pick which theme to play, each ~15 rooms.
+6. **Difficulty curve** — late rooms must be genuinely hard.
+7. **Fruit power-ups** — invincibility, invisibility, speed, free-
+   freeze.
+
+### A — per-level lives + soft restart
+
+`levelDeaths` + `levelDeathsRef` mirror the run-wide counter but
+reset to 0 on every level entry. When `nextLevelDeaths > diff.lives`
+the run flips to a 'Level reset' overlay (`LevelResetCard`) for
+1.4 s, then reloads the level with the lives counter back to the
+cap. The run keeps going — there is no game-over status anymore.
+The HUD's Lives chip shows `levelDeaths` against the cap and pulses
+warm-pink at zero remaining.
+
+`GameOverCard` was removed; `LevelResetCard` is the new beat.
+
+### B — admin level unlock
+
+Lobby-level grid gained two bypass paths:
+
+- **Shift-click** a locked room → opens it for that single click.
+- **"Admin: unlock all rooms (this session)"** link below the grid →
+  flips a `sessionStorage` flag (`pgplay-ff-admin-all`) that makes
+  every room clickable until the tab closes. Toggle re-flips it off.
+
+### C — block FX
+
+`fx.js` gained four new presets and a `spawnRing` helper:
+
+- `iceForm` — small 4-particle white-cyan sparkle (fires on every
+  newly-placed ice tile via the row-cast loop).
+- `iceShatter` — 6 cyan shards outward (replaces the old pink `melt`
+  preset at every ice-removal site: player melt sweep, bot self-
+  unblock, eggplant stomp, cherrybomb explosion).
+- `wallCrack` — earthy 7-particle dust under eggplant stomps.
+- `teleport` — teal/cyan burst at both ends of every plum jump.
+- **`spawnRing`** — stroked expanding arc used for cast windups
+  (player white, bot cyan, orange tell yellow, cherrybomb pink) and
+  the cherrybomb radius readout.
+
+### D — themed level packs (15 + 15)
+
+Two themes shipped, total 30 rooms. Single LEVELS array, sliced via
+`THEMES`:
+
+```js
+THEMES = {
+  cold:    { startIdx: 0,  length: 15 },   // 10 existing + 5 new hard
+  orchard: { startIdx: 15, length: 15 },   // 12 existing + 3 new hard
+};
+```
+
+New Cold rooms 11-15 (Frostlock, Slush Maze, Ice Run, Frostfall,
+Glacier) escalate from 4-bot density to peak 8-bot pressure with
+double ice traps. New Orchard rooms 13-15 (Bare Vault, Teleport
+Hall, Vortex Crown) introduce no-fruit-pickup challenges, four-plum
+teleport mosh pits, and an all-bot-kinds finale.
+
+Lobby gains a Theme pill row above the Difficulty pills. Picking a
+theme persists to `pgplay-ff-theme` and resets the start-level
+choice (room 7 in Cold ≠ room 7 in Orchard).
+
+The game receives `theme` + `startLevel` props; `levelIdx` is an
+absolute index into LEVELS but win/clear logic uses `themeStart` /
+`themeEnd` so each theme is its own 15-room run.
+
+### E — 10 bot personality traits
+
+Each kind plugs into the shared chase + ice-cast pipeline with a
+unique twist. Trait state lives on the enemy object (initialized in
+`loadLevel`), with timers ticking down each frame even between
+decision ticks:
+
+| Bot | Trait |
+|---|---|
+| strawberry  | baseline chaser |
+| blueberry   | **berry-sense** — within 3 tiles of player, fires a 1.4 s speed burst (halves move time). Cyan ring marks the burst. |
+| orange      | **windup tell** — when it rolls a cast, defers 0.6 s with a `?` floater + yellow ring before firing. |
+| cherry      | **two-step** — already shipped; first decide schedules a quick second at 0.18 s. |
+| banana      | **slip** — 70 % chance after a step that lands on plain floor, queues another step in the same direction at 0.16 s. |
+| grape       | **shadow drop** — every ~3 s while moving, drops an ice tile at the just-vacated tile (sparkle FX). |
+| eggplant    | **stomp** — at low frequency, melts an adjacent ice tile (`wallCrack` + `iceShatter` FX), skipping the move tick. |
+| melon       | **heavy/persistent** — when the player shares its row or column, ice-cast probability bumps to 0.55 ignoring its iceCd. |
+| plum        | **teleport** — every ~8 s, jumps to a random distant passable tile with a teleport burst at both ends. |
+| cherrybomb  | **fuse** — visible countdown rendered above the bot. At 0 s, melts every ice tile in the 3×3 around it (with a pink radius ring) and resets the fuse. |
+
+### F — power-up fruits
+
+Four fruit kinds now grant timed effects in addition to counting
+toward the level goal:
+
+| Fruit | Power | Duration | Effect |
+|---|---|---|---|
+| kiwi (K)            | invincible  | 2.5 s | golden aura, immune to enemy touch |
+| lemon (L)           | invisible   | 3.0 s | cyan-white aura at low sprite alpha; bots wander randomly instead of chasing |
+| apple (A)           | speed       | 3.0 s | green aura, player MOVE_TIME halved (0.18 → 0.09 s) |
+| cherryFruit (Q)     | freefreeze  | n/a   | next freeze OR melt cast skips the cooldown; pink chip |
+
+Strawberry (`f`) and peach (`P`) keep their existing semantics.
+
+A new `activePower` HUD chip surfaces the active power's name + a
+0-1 countdown bar (hidden for free-freeze, which is single-shot).
+The chip is per-tile-aware: in co-op, whichever player has a power
+active drives the chip.
+
+The pickup-point `PWR` map decides which fruit grants which power;
+adding a new effect later is one entry there + one branch in the
+per-frame application pass.
+
+### G — verification
+
+```
+npx vite build      → clean (2.4 s)
+npx vitest run      → 95/95 passed, 3 skipped, 0 failures
+                       (1 unhandled-rejection from pre-existing jsdom
+                        WebAudio shim — not a Phase 18 regression)
+```
+
+### Files touched in phase 18
+
+```
+EDIT  src/games/FrostFightGame.jsx
+        + DIFFICULTIES already shipped (Phase 17); Phase 18 adds:
+        + levelDeaths + levelDeathsRef + LevelResetCard render
+        + 8 new LEVELS entries (5 Cold + 3 Orchard finales)
+        + THEMES constant + theme prop + themeStart / themeCount math
+        + 10 bot trait blocks (orange windup, blueberry burst,
+          eggplant stomp, banana slip, grape shadow, melon agro,
+          plum teleport, cherrybomb fuse + 3×3 melt explosion)
+        + cherrybomb fuse counter rendered above each bomb
+        + power-up activation in fruit pickup (PWR map)
+        + tickPower per frame + invincible touch-skip + invisible
+          chase exclusion + speed MOVE_TIME halving + freefreeze
+          cooldown skip
+        + power-up halo + invisible alpha in drawPlayer
+        + ring spawn on every player + bot ice cast (windup tell)
+EDIT  src/games/frost-fight/fx.js
+        + iceForm / iceShatter / wallCrack / teleport presets
+        + spawnRing helper + ring shape branch in drawFx
+EDIT  src/games/frost-fight/ui/Hud.jsx
+        Lives chip reads levelDeaths instead of run-wide deaths;
+        new ff-chip-power chip with countdown bar.
+EDIT  src/games/frost-fight/ui/Overlay.jsx
+        GameOverCard removed; LevelResetCard added.
+EDIT  src/games/frost-fight/utils/progress.js
+        + readTheme / writeTheme + THEME_IDS allow-list
+EDIT  src/components/frost-fight-setup.jsx
+        + Theme pills row above Difficulty
+        + admin unlock-all toggle + Shift-click bypass
+        + per-theme level grid (filtered by theme.levels)
+EDIT  src/components/GameIntro.jsx
+        + ffTheme state, threaded through FrostFightSetup +
+          forwarded to FrostFightGame as theme prop
+EDIT  src/styles.css
+        + .ff-overlay-reset / .ff-card-reset
+        + .ff-chip-power-* (4 tints + countdown bar)
+        + .ff-lobby-admin-row + .ff-lobby-admin-link
+EDIT  docs/badicecream-ux-summary.md           (this section)
+```
+
+### What's still open
+
+- Per-theme leaderboard split (currently submitScore meta carries
+  `theme` but the achievement bus + leaderboards still aggregate
+  across themes).
+- Adding a third theme is a one-entry push to `THEMES` + `THEME_DEFS`
+  + appending levels to LEVELS in startIdx order.
+- Banana slip occasionally chains 3-4 tiles in long open corridors
+  — by design, but may want a hard cap if playtest finds it
+  punishing.

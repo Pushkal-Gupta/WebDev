@@ -6,6 +6,26 @@ import { getEraByIndex } from '../content/eras.js';
 import { spawnProjectile } from './projectile.js';
 import { BALANCE } from '../content/balance.js';
 
+// Lay a turret spot in the given slot. Cheap foundation cost — the
+// player commits to this slot before deciding which turret to place.
+// No-op if a spot already exists.
+export function tryBuildTurretSpot(state, side, slot) {
+  if (slot < 0 || slot >= BALANCE.TURRET_SLOT_COUNT) return false;
+  if (!side.turretSpots) {
+    side.turretSpots = Array.from({ length: BALANCE.TURRET_SLOT_COUNT }, () => false);
+  }
+  if (side.turretSpots[slot]) return false;     // already built
+  const cost = BALANCE.TURRET_SPOT_COST;
+  if (side.gold < cost) {
+    state.bus.emit('low_gold_error', { reason: 'gold', slot, cost, gold: side.gold });
+    return false;
+  }
+  side.gold -= cost;
+  side.turretSpots[slot] = true;
+  state.bus.emit('turret_spot_built', { team: side.team, slot });
+  return true;
+}
+
 export function tryBuildTurret(state, side, slot) {
   if (slot < 0 || slot >= BALANCE.TURRET_SLOT_COUNT) return false;
   const era = getEraByIndex(side.eraIndex);
@@ -17,11 +37,21 @@ export function tryBuildTurret(state, side, slot) {
     state.bus.emit('low_gold_error', { reason: 'turret_already_current', slot });
     return false;
   }
-  if (side.gold < def.buildCost) {
-    state.bus.emit('low_gold_error', { reason: 'gold', slot, cost: def.buildCost, gold: side.gold });
+  // Auto-lay a spot if one isn't built yet (covers tests + AI which
+  // call tryBuildTurret directly without a separate spot phase). The
+  // UI flow calls tryBuildTurretSpot first explicitly. Total cost
+  // when laying both: SPOT_COST + def.buildCost.
+  if (!side.turretSpots) {
+    side.turretSpots = Array.from({ length: BALANCE.TURRET_SLOT_COUNT }, () => false);
+  }
+  const needsSpot = !side.turretSpots[slot];
+  const totalCost = (needsSpot ? BALANCE.TURRET_SPOT_COST : 0) + def.buildCost;
+  if (side.gold < totalCost) {
+    state.bus.emit('low_gold_error', { reason: 'gold', slot, cost: totalCost, gold: side.gold });
     return false;
   }
-  side.gold -= def.buildCost;
+  side.gold -= totalCost;
+  side.turretSpots[slot] = true;
   side.turretSlots[slot] = makeTurretInstance(state, side, def, slot);
   if (side === state.player) state.statsPlayer.turretsBuilt++;
   else                       state.statsEnemy.turretsBuilt++;

@@ -171,47 +171,58 @@ export const subscribeMute = (cb) => {
 };
 
 // ── Frost Fight ambient bed ──────────────────────────────────
-// Multi-layer pad with bell ostinato. Architecture:
-//   bass drone     sub-octave + root sines, slight detune chorus
-//   pad chord      minor-7th: root + b3 + 5 + b7, triangles,
-//                  stereo-spread, gentle pitch wobble
-//   bell ostinato  setInterval-driven sparse high notes every
-//                  ~5.5 s — adds direction so the bed doesn't drone
-//   delay line     slap-back at 340 ms, ~28 % feedback for spatial depth
-//   low-pass       800-1100 Hz, modulated by a 0.07 Hz LFO for breath
-//   master breath  0.2 Hz LFO on master gain, ±20 %
+// Calm, slowly-modulating pad. No bell ostinato — the previous build's
+// ringing high notes every 5.5 s were the loudest source of fatigue.
+// Architecture (Phase 17 rewrite):
+//   sub bass       sub-octave + root sines, slight detune for body
+//   pad chord      i (minor) ↔ VI (major-relative) crossfade every 16 s
+//                  via two triangle voicings on a slow LFO
+//   air bed        deeply-LP-filtered noise for "winter air" texture
+//   reverb tail    longer, lower-feedback delay for spatial depth (no
+//                  slap-back metallic flutter)
+//   low-pass       650-820 Hz, very slow (0.04 Hz) and shallow sweep
+//   master breath  removed — was too noticeable at 0.2 Hz
 //
-// Per-room key shifts the same chord shape. Maintains the existing
-// API (start / stop / duck / mute-aware).
+// Per-room root rotates through a small modal palette. Maintains the
+// existing API (start / stop / duck / mute-aware).
 
 const ROOM_ROOTS = [
-  523.25, // Pantry        C5
-  440.00, // Cold Room     A4
-  392.00, // The Aisle     G4
-  466.16, // Walk-In       A♯4
-  349.23, // Loading Dock  F4
-  329.63, // Sub-Basement  E4
+  // Lower roots than the previous build (was C5/A4 region) — sits
+  // under the FX so it doesn't compete for attention. Span an octave
+  // so consecutive rooms feel distinct without being abrasive.
+  220.00, // 0  A3
+  207.65, // 1  G♯3
+  196.00, // 2  G3
+  185.00, // 3  F♯3
+  174.61, // 4  F3
+  164.81, // 5  E3
+  155.56, // 6  D♯3
+  146.83, // 7  D3
+  138.59, // 8  C♯3
+  130.81, // 9  C3
+  220.00, // 10 — restart the cycle for newer rooms
+  207.65, 196.00, 185.00, 174.61, 164.81, 155.56, 146.83, 138.59, 130.81,
+  123.47, 116.54,
 ];
 
-const FF_BASE_GAIN = 0.060;   // master target (was 0.045 — bumped to
-                              // accommodate the busier graph without
-                              // becoming louder per voice)
+const FF_BASE_GAIN = 0.040;   // sit lower as bed; the previous 0.060
+                              // pushed past "ambient" into "foreground"
 
 let _ff = null;        // active state
 let _ffRoom = -1;      // last started room — re-keying calls stop() first
 
 function _frostStop() {
   if (!_ff) return;
-  const { ctx, master, oscs, lfos, bellInterval, unsubMute } = _ff;
+  const { ctx, master, oscs, lfos, noise, unsubMute } = _ff;
   try {
     const t = ctx.currentTime;
     master.gain.cancelScheduledValues(t);
     master.gain.setValueAtTime(master.gain.value, t);
-    master.gain.linearRampToValueAtTime(0.0001, t + 0.32);
-    oscs.forEach((o) => { try { o.stop(t + 0.36); } catch { /* ignore */ } });
-    lfos.forEach((l) => { try { l.stop(t + 0.36); } catch { /* ignore */ } });
+    master.gain.linearRampToValueAtTime(0.0001, t + 0.6);
+    oscs.forEach((o) => { try { o.stop(t + 0.7); } catch { /* ignore */ } });
+    lfos.forEach((l) => { try { l.stop(t + 0.7); } catch { /* ignore */ } });
+    if (noise) { try { noise.stop(t + 0.7); } catch { /* ignore */ } }
   } catch { /* ignore */ }
-  if (bellInterval) { try { clearInterval(bellInterval); } catch { /* ignore */ } }
   if (typeof unsubMute === 'function') { try { unsubMute(); } catch { /* ignore */ } }
   _ff = null;
   _ffRoom = -1;
@@ -227,23 +238,26 @@ function _frostStart(roomIdx) {
   const t0 = c.currentTime;
 
   // ── Master + post-processing chain ────────────────────────
+  // Two-stage low-pass keeps highs gentle without sounding muffled.
+  // No master breath LFO — it was the second-most fatiguing element
+  // after the bell. Slow shallow filter sweep does the breathing now.
   const master = c.createGain();
   master.gain.setValueAtTime(0, t0);
-  master.gain.linearRampToValueAtTime(FF_BASE_GAIN, t0 + 2.4);
+  master.gain.linearRampToValueAtTime(FF_BASE_GAIN, t0 + 4.0);
 
   const lp = c.createBiquadFilter();
   lp.type = 'lowpass';
-  lp.Q.value = 0.7;
-  lp.frequency.setValueAtTime(900, t0);
+  lp.Q.value = 0.5;
+  lp.frequency.setValueAtTime(740, t0);
 
-  // Slap-back delay for spatial depth — short feedback so the room
-  // feels alive without smearing into reverb mush.
-  const delay = c.createDelay(1.0);
-  delay.delayTime.value = 0.34;
+  // Long, low-feedback delay → diffuse tail rather than slap-back
+  // metallic flutter. 0.62 s + 18 % feedback ≈ a faint hall.
+  const delay = c.createDelay(1.5);
+  delay.delayTime.value = 0.62;
   const delayFb = c.createGain();
-  delayFb.gain.value = 0.28;
+  delayFb.gain.value = 0.18;
   const delayWet = c.createGain();
-  delayWet.gain.value = 0.22;
+  delayWet.gain.value = 0.16;
 
   master.connect(lp);
   lp.connect(c.destination);            // dry
@@ -256,104 +270,116 @@ function _frostStart(roomIdx) {
   // ── Voices ────────────────────────────────────────────────
   const oscs = [];
   const lfos = [];
-  const makeVoice = (freq, gain, type, pan = 0) => {
+  const makeVoice = (freq, gain, type, pan = 0, t = t0) => {
     const o = c.createOscillator();
     o.type = type;
-    o.frequency.setValueAtTime(freq, t0);
+    o.frequency.setValueAtTime(freq, t);
     const g = c.createGain();
-    g.gain.setValueAtTime(gain, t0);
+    g.gain.setValueAtTime(gain, t);
     const p = c.createStereoPanner();
     p.pan.value = pan;
     o.connect(g).connect(p).connect(master);
-    o.start(t0);
+    o.start(t);
     oscs.push(o);
-    return o;
+    return { osc: o, gain: g };
   };
 
-  // Bass — sub-octave + root, slight detune chorus on the root.
-  makeVoice(root * 0.5,    0.36, 'sine',     0.0);
-  makeVoice(root,          0.30, 'sine',     0.0);
-  makeVoice(root * 1.005,  0.14, 'triangle', -0.10);
-  makeVoice(root * 0.995,  0.14, 'triangle',  0.10);
+  // Sub bass — sub-octave + root, very slight detune chorus.
+  // Lower gain than before since the new ROOM_ROOTS already sit in
+  // the bass register; doubling the energy here would muddy the mix.
+  makeVoice(root * 0.5,    0.22, 'sine',      0.0);
+  makeVoice(root,          0.18, 'sine',      0.0);
+  makeVoice(root * 1.004,  0.07, 'triangle', -0.12);
+  makeVoice(root * 0.996,  0.07, 'triangle',  0.12);
 
-  // Pad chord — minor 7th: root + b3 + 5 + b7. The b3 + b7 land the
-  // pad in cool / wistful territory, fitting a frozen-pantry mood.
-  makeVoice(root * 1.20,   0.13, 'triangle', -0.28); // m3
-  makeVoice(root * 1.50,   0.11, 'triangle',  0.28); // p5
-  makeVoice(root * 1.78,   0.08, 'triangle',  0.0);  // m7
+  // Pad chord A — minor (i): root + m3 + p5 + m7
+  // Pad chord B — relative major (VI): root*1.6 + m3*1.6 + p5*1.6 + m7*1.6
+  // We crossfade A and B every 16 s via two opposing-phase LFOs on
+  // their gain nodes. Result: the harmony slowly modulates instead
+  // of holding a single static minor 7th the whole way through.
+  const padGain = 0.085;
+  const chordA = [
+    makeVoice(root * 1.20,  padGain * 1.0,  'triangle', -0.28),  // m3
+    makeVoice(root * 1.50,  padGain * 0.85, 'triangle',  0.28),  // p5
+    makeVoice(root * 1.78,  padGain * 0.6,  'triangle',  0.0),   // m7
+  ];
+  const chordB = [
+    makeVoice(root * 1.6,   padGain * 1.0,  'triangle', -0.22),  // VI root
+    makeVoice(root * 2.0,   padGain * 0.85, 'triangle',  0.22),  // VI m3
+    makeVoice(root * 2.4,   padGain * 0.6,  'triangle',  0.0),   // VI p5
+  ];
+  // Initial state: A audible, B muted. The crossfade LFO will
+  // animate them once it starts.
+  chordB.forEach((v) => v.gain.gain.setValueAtTime(0, t0));
 
-  // ── LFO 1: master breath ──────────────────────────────────
-  const breathLfo = c.createOscillator();
-  breathLfo.frequency.setValueAtTime(0.20, t0);
-  const breathAmp = c.createGain();
-  breathAmp.gain.setValueAtTime(0.012, t0); // ±20 % around base 0.06
-  breathLfo.connect(breathAmp).connect(master.gain);
-  breathLfo.start(t0);
-  lfos.push(breathLfo);
+  // ── LFO 1: chord A/B crossfade ────────────────────────────
+  // 0.03125 Hz = 32 s period (16 s per swap). A custom DC offset on
+  // each chord's gain is what gives the audible motion — the LFO
+  // adds and subtracts equally so total gain stays balanced.
+  const xfadeFreq = 0.03125;
+  const xfadeLfoA = c.createOscillator();
+  xfadeLfoA.frequency.setValueAtTime(xfadeFreq, t0);
+  const xfadeAmpA = c.createGain();
+  xfadeAmpA.gain.setValueAtTime(padGain * 0.5, t0);
+  chordA.forEach((v) => xfadeAmpA.connect(v.gain.gain));
+  xfadeLfoA.connect(xfadeAmpA);
+  xfadeLfoA.start(t0);
+  lfos.push(xfadeLfoA);
 
-  // ── LFO 2: low-pass sweep ─────────────────────────────────
+  const xfadeLfoB = c.createOscillator();
+  xfadeLfoB.frequency.setValueAtTime(xfadeFreq, t0);
+  // Phase-invert by using a -1 multiplier
+  const xfadeAmpB = c.createGain();
+  xfadeAmpB.gain.setValueAtTime(-padGain * 0.5, t0);
+  chordB.forEach((v) => xfadeAmpB.connect(v.gain.gain));
+  xfadeLfoB.connect(xfadeAmpB);
+  xfadeLfoB.start(t0);
+  lfos.push(xfadeLfoB);
+
+  // ── LFO 2: very slow shallow filter sweep ─────────────────
+  // 0.04 Hz = 25 s period; 90 Hz amplitude → cutoff 650-830 Hz.
+  // Replaces the old master-breath LFO + steeper filter sweep.
   const filterLfo = c.createOscillator();
-  filterLfo.frequency.setValueAtTime(0.07, t0);
+  filterLfo.frequency.setValueAtTime(0.04, t0);
   const filterAmp = c.createGain();
-  filterAmp.gain.setValueAtTime(220, t0);   // 900 ± 220 Hz
+  filterAmp.gain.setValueAtTime(90, t0);
   filterLfo.connect(filterAmp).connect(lp.frequency);
   filterLfo.start(t0);
   lfos.push(filterLfo);
 
-  // ── Bell ostinato ─────────────────────────────────────────
-  // Sparse high notes pinned to the chord. Pattern walks through a
-  // 4-note cell (octave / m3 / p5 / 2-octave) so each pass feels
-  // like a fresh phrase.
-  const bellPattern = [
-    root * 2.0,   // 1 (octave)
-    root * 2.4,   // m3
-    root * 3.0,   // 5
-    root * 4.0,   // 2-octave
-    root * 2.4,   // m3 (return)
-    root * 3.0,   // 5
-  ];
-  let bellIdx = 0;
-  const playBell = () => {
-    if (!_ff || muted()) return;
-    const tn = c.currentTime;
-    const f = bellPattern[bellIdx % bellPattern.length];
-    bellIdx++;
-    // Two-oscillator bell: fundamental + slightly inharmonic 2x for
-    // sparkle. ~1.7 s exponential decay.
-    const harmonics = [
-      { mul: 1.0,  type: 'sine',     gain: 0.13 },
-      { mul: 2.01, type: 'triangle', gain: 0.05 },
-    ];
-    const pan = c.createStereoPanner();
-    pan.pan.value = (Math.random() * 0.6) - 0.3;
-    pan.connect(master);
-    harmonics.forEach((h) => {
-      const o = c.createOscillator();
-      o.type = h.type;
-      o.frequency.setValueAtTime(f * h.mul, tn);
-      const g = c.createGain();
-      g.gain.setValueAtTime(0, tn);
-      g.gain.linearRampToValueAtTime(h.gain, tn + 0.05);
-      g.gain.exponentialRampToValueAtTime(0.0001, tn + 1.7);
-      o.connect(g).connect(pan);
-      o.start(tn);
-      o.stop(tn + 1.8);
-    });
-  };
-  // 5.5 s base interval with light jitter on the very first hit so
-  // multiple rooms in one session don't all chime in lockstep.
-  const firstHitDelay = 1500 + Math.random() * 2000;
-  const bellInterval = setTimeout(() => {
-    playBell();
-    _ff && (_ff.bellInterval = setInterval(playBell, 5500));
-  }, firstHitDelay);
+  // ── Air bed: heavily-LP-filtered noise ────────────────────
+  // 1 s of pre-rolled white noise played as a looping buffer source,
+  // pushed through a 220 Hz lowpass + tiny gain → "winter air"
+  // texture under the pad. Inaudible as a discrete source; you only
+  // notice it when it stops.
+  let noise = null;
+  try {
+    const sr = c.sampleRate;
+    const buf = c.createBuffer(1, sr * 1.0, sr);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.5;
+    noise = c.createBufferSource();
+    noise.buffer = buf;
+    noise.loop = true;
+    const noiseLp = c.createBiquadFilter();
+    noiseLp.type = 'lowpass';
+    noiseLp.Q.value = 0.4;
+    noiseLp.frequency.setValueAtTime(220, t0);
+    const noiseGain = c.createGain();
+    noiseGain.gain.setValueAtTime(0, t0);
+    noiseGain.gain.linearRampToValueAtTime(0.020, t0 + 4.0);
+    noise.connect(noiseLp).connect(noiseGain).connect(master);
+    noise.start(t0);
+  } catch {
+    noise = null;
+  }
 
   // Pause when the user toggles mute mid-game.
   const unsubMute = subscribeMute((isMute) => {
     if (isMute) _frostStop();
   });
 
-  _ff = { ctx: c, master, oscs, lfos, bellInterval, unsubMute };
+  _ff = { ctx: c, master, oscs, lfos, noise, unsubMute };
   _ffRoom = roomIdx;
 }
 
@@ -364,15 +390,153 @@ function _frostDuck(durationSec = 0.6) {
   try {
     master.gain.cancelScheduledValues(t);
     master.gain.setValueAtTime(master.gain.value, t);
-    master.gain.linearRampToValueAtTime(0.005, t + 0.12);
-    master.gain.linearRampToValueAtTime(FF_BASE_GAIN, t + durationSec);
+    master.gain.linearRampToValueAtTime(FF_BASE_GAIN * 0.08, t + 0.12);
+    master.gain.linearRampToValueAtTime(FF_BASE_GAIN, t + Math.max(durationSec, 0.4));
   } catch { /* ignore */ }
 }
 
+// ── HTML5-audio bed (preferred) ────────────────────────────────
+// Tries a real ambient music file first, falls back to the synth bed
+// above. The audio file is expected at the path below; if it 404s or
+// fails to play, we silently fall back to the synth bed so playback
+// never goes silent.
+//
+// Drop the file at:   public/games/frost-fight/audio/bed.mp3
+// (Recommended: a CC0 / public-domain ambient loop, ~30-90s. The first
+// successful play triggers the real bed; subsequent rooms re-key by
+// nudging playbackRate slightly so each room feels distinct without
+// needing a dedicated track per room.)
+
+const FF_BED_URLS = [
+  // Vite serves /public/* at the root, so this resolves to
+  // /games/frost-fight/audio/bed.mp3 in dev and dist builds.
+  './games/frost-fight/audio/bed.mp3',
+];
+const FF_HTML5_GAIN = 0.55;     // file is mastered louder than the synth
+let _ffEl = null;               // HTMLAudioElement
+let _ffElTested = false;        // we've already probed availability
+let _ffElAvailable = false;     // probe result
+let _ffElPlaying = false;
+let _ffElUnsubMute = null;
+
+async function _probeBed() {
+  if (_ffElTested) return _ffElAvailable;
+  _ffElTested = true;
+  try {
+    for (const url of FF_BED_URLS) {
+      try {
+        const res = await fetch(url, { method: 'HEAD' });
+        if (res.ok) {
+          _ffElAvailable = true;
+          _ffElUrl = url;
+          return true;
+        }
+      } catch { /* try next */ }
+    }
+  } catch { /* ignore */ }
+  _ffElAvailable = false;
+  return false;
+}
+
+let _ffElUrl = null;
+
+function _frostHtml5Stop() {
+  if (!_ffEl) return;
+  try { _ffEl.pause(); } catch { /* ignore */ }
+  if (_ffElUnsubMute) { try { _ffElUnsubMute(); } catch { /* ignore */ } _ffElUnsubMute = null; }
+  _ffElPlaying = false;
+}
+
+function _frostHtml5Start(roomIdx) {
+  if (muted()) return false;
+  if (!_ffEl) {
+    try {
+      _ffEl = new Audio(_ffElUrl);
+      _ffEl.loop = true;
+      _ffEl.volume = 0;
+      _ffEl.preload = 'auto';
+    } catch { return false; }
+  }
+  // Per-room rate nudge so each room feels distinct without separate files.
+  // Range 0.92 .. 1.08 across the 22 rooms.
+  const room = Math.max(0, roomIdx | 0);
+  const phase = (room % 8) / 8;                 // 0..0.875
+  _ffEl.playbackRate = 0.92 + phase * 0.16;
+  // Fade in to FF_HTML5_GAIN over ~1.6s. We can't schedule volume on
+  // the HTMLAudioElement, so step it on a short timer.
+  const start = performance.now();
+  const fadeMs = 1600;
+  const tick = () => {
+    if (!_ffEl || !_ffElPlaying) return;
+    const t = Math.min(1, (performance.now() - start) / fadeMs);
+    _ffEl.volume = FF_HTML5_GAIN * t;
+    if (t < 1) requestAnimationFrame(tick);
+  };
+  const playPromise = _ffEl.play();
+  if (playPromise && typeof playPromise.then === 'function') {
+    playPromise.then(() => { _ffElPlaying = true; requestAnimationFrame(tick); })
+      .catch(() => { _ffElAvailable = false; _ffElPlaying = false; });
+  } else {
+    _ffElPlaying = true;
+    requestAnimationFrame(tick);
+  }
+  if (!_ffElUnsubMute) {
+    _ffElUnsubMute = subscribeMute((isMute) => {
+      if (isMute) _frostHtml5Stop();
+    });
+  }
+  return true;
+}
+
+function _frostHtml5Duck(durationSec = 0.6) {
+  if (!_ffEl || !_ffElPlaying) return;
+  // Quick attenuate, gradual restore. Mirrors the synth duck behaviour.
+  const ductMs = 120;
+  const restoreMs = Math.max(120, durationSec * 1000);
+  const startVol = _ffEl.volume;
+  const duckTarget = Math.max(0.04, startVol * 0.18);
+  const duckStart = performance.now();
+  const duckTick = () => {
+    if (!_ffEl || !_ffElPlaying) return;
+    const t = Math.min(1, (performance.now() - duckStart) / ductMs);
+    _ffEl.volume = startVol + (duckTarget - startVol) * t;
+    if (t < 1) requestAnimationFrame(duckTick);
+    else {
+      const restoreStart = performance.now();
+      const restoreTick = () => {
+        if (!_ffEl || !_ffElPlaying) return;
+        const u = Math.min(1, (performance.now() - restoreStart) / restoreMs);
+        _ffEl.volume = duckTarget + (FF_HTML5_GAIN - duckTarget) * u;
+        if (u < 1) requestAnimationFrame(restoreTick);
+      };
+      requestAnimationFrame(restoreTick);
+    }
+  };
+  requestAnimationFrame(duckTick);
+}
+
+// Public dispatcher: prefer HTML5 file when available, otherwise synth.
+async function _frostStartDispatch(roomIdx) {
+  const ok = await _probeBed();
+  if (ok && _frostHtml5Start(roomIdx)) {
+    if (_ff) _frostStop();           // make sure the synth isn't double-playing
+    return;
+  }
+  _frostStart(roomIdx);
+}
+function _frostStopDispatch() {
+  _frostHtml5Stop();
+  _frostStop();
+}
+function _frostDuckDispatch(durationSec) {
+  if (_ffElPlaying) _frostHtml5Duck(durationSec);
+  else _frostDuck(durationSec);
+}
+
 export const frostMusic = {
-  start: _frostStart,
-  stop:  _frostStop,
-  duck:  _frostDuck,
+  start: _frostStartDispatch,
+  stop:  _frostStopDispatch,
+  duck:  _frostDuckDispatch,
 };
 export const setMuted = (yes) => {
   const next = !!yes;
