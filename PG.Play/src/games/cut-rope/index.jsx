@@ -8,7 +8,7 @@ import { step as stepWorld, cutAlongSegment, cutAtPoint } from './physics.js';
 import { LEVELS, PALETTE, levelById } from './levels.js';
 import { loadLevel, disposeLevel } from './loader.js';
 import { audio } from './audio.js';
-import { spawnStarBurst, spawnConfetti, tickFx, disposeAllFx } from './fx.js';
+import { spawnStarBurst, spawnConfetti, spawnCutPuff, tickFx, disposeAllFx } from './fx.js';
 import { readState, recordAttempt } from './state.js';
 import { submitScore } from '../../scoreBus.js';
 import Hud from './ui/Hud.jsx';
@@ -97,14 +97,27 @@ export default function CutRopeGame() {
       const lv = loadLevel(engine.scene, engine.sceneRoot, level);
       lv._levelId = levelId;
       lv._reloadKey = reloadKey;
+      lv._tetheredCache = true;
       levelRef.current = lv;
       engine.setBackdrop(lv.palette.backdropTop, lv.palette.backdropBot);
-      // Auto-attach bubble if the candy spawns inside one.
+      // Auto-attach bubble if the candy spawns inside one. We also nudge
+      // the candy slightly sideways: with verlet+constraint physics, a
+      // perfectly straight-down taut rope locks the candy in place and
+      // the bubble can't lift it. The nudge gives the rope an angle so
+      // bubble lift converts to a swing-up arc.
       for (const b of lv.bubbles) {
         const dx = lv.candy.point.x - b.state.x;
         const dy = lv.candy.point.y - b.state.y;
-        if (Math.hypot(dx, dy) < b.state.r) b.attach(lv.candy.point);
+        if (Math.hypot(dx, dy) < b.state.r) {
+          b.attach(lv.candy.point);
+          const cp = lv.candy.point;
+          cp.x += 0.04;
+          cp.prevX -= 0.04;
+        }
       }
+      // Add rope meshes once at level load — the new rope geometry is
+      // updated in place per frame; no re-add needed.
+      for (const r of lv.ropes) if (r.mesh && !r.mesh.parent) engine.sceneRoot.add(r.mesh);
       finishedRef.current = false;
       setStars(0);
       setFailReason(null);
@@ -138,9 +151,13 @@ export default function CutRopeGame() {
       lv.stars.forEach((s) => s.update(dt));
       lv.candy.sync(dt);
       lv.ropes.forEach((r) => r.rebuild());
-      attachRopeMeshes(engine, lv);
       return;
     }
+
+    // Anchor track motion runs FIRST so this frame's physics step sees
+    // the up-to-date pin positions; the chain feels the move on the
+    // same frame instead of one frame late.
+    lv.anchors.forEach((a) => a.update(dt));
 
     // Apply blower forces (force fields) to every active world point.
     for (const blower of lv.blowers) {
@@ -148,19 +165,21 @@ export default function CutRopeGame() {
       for (const p of lv.world.points) blower.apply(p);
     }
 
-    // Step physics.
+    // Step physics — fixed-step internally; dt is wall-clock.
     stepWorld(lv.world, dt);
 
-    // Anchor track motion (after the integrate, so the next step feels it).
-    lv.anchors.forEach((a) => a.update(dt));
-
     // Bubble follow + auto-pop on touch (handled by pointer; nothing here).
+    let bubbleDirty = false;
     lv.bubbles.forEach((b) => {
       b.update(dt);
       if (b.state.alive && b.state.attached === lv.candy.point) {
         b.follow(lv.candy.point);
       }
+      if (b.state.dirty) { bubbleDirty = true; b.state.dirty = false; }
     });
+    if (bubbleDirty || lv.world.topologyDirty) {
+      propagateBubbleState(lv);
+    }
 
     // Star collect.
     let pickedAny = false;
@@ -193,18 +212,22 @@ export default function CutRopeGame() {
 
     // Out-of-bounds fail (after the candy is fully detached from every
     // anchor — i.e., no live constraint chain links it to any anchor).
-    const tethered = isCandyTethered(lv);
-    if (!tethered) {
-      // Free the candy from any trailing-tail constraints so it falls
-      // cleanly instead of being weighed down by invisible rope segments
-      // on the candy-side of the cut.
-      const cs = lv.world.constraints;
-      const cp = lv.candy.point;
-      for (let i = 0; i < cs.length; i++) {
-        const c = cs[i];
-        if (c.alive && (c.a === cp || c.b === cp)) c.alive = false;
+    // Cached: only re-walk when the world topology actually changed.
+    if (lv.world.topologyDirty) {
+      lv._tetheredCache = isCandyTethered(lv);
+      lv.world.topologyDirty = false;
+      // If the candy is now free, snip any trailing tail constraints
+      // so it falls cleanly instead of dragging invisible rope mass.
+      if (!lv._tetheredCache) {
+        const cs = lv.world.constraints;
+        const cp = lv.candy.point;
+        for (let i = 0; i < cs.length; i++) {
+          const c = cs[i];
+          if (c.alive && (c.a === cp || c.b === cp)) c.alive = false;
+        }
       }
     }
+    const tethered = lv._tetheredCache;
     const detached = !tethered;
     if (detached) {
       const c = lv.candy.point;
@@ -231,7 +254,6 @@ export default function CutRopeGame() {
     lv.candy.sync(dt);
     lv.tutorial?.update(dt);
     lv.ropes.forEach((r) => r.rebuild());
-    attachRopeMeshes(engine, lv);
 
     // Camera punch — eases the ortho zoom back to 1 after a chomp.
     if (camPunchRef.current > 0) {
@@ -243,13 +265,6 @@ export default function CutRopeGame() {
     } else if (engine.camera.zoom !== 1) {
       engine.camera.zoom = 1;
       engine.camera.updateProjectionMatrix();
-    }
-  };
-
-  // Add any newly-rebuilt rope meshes that aren't yet in the scene tree.
-  const attachRopeMeshes = (engine, lv) => {
-    for (const r of lv.ropes) {
-      if (r.mesh && !r.mesh.parent) engine.sceneRoot.add(r.mesh);
     }
   };
 
@@ -333,6 +348,9 @@ export default function CutRopeGame() {
       audio.ropeCut();
       lv.candy.pulse();
       lv.tutorial?.fade();
+      const mx = (sw.lastX + w.x) * 0.5;
+      const my = (sw.lastY + w.y) * 0.5;
+      spawnCutPuff(engine.scene, mx, my);
     }
     sw.lastX = w.x; sw.lastY = w.y; sw.moved = true;
   }, [scene]);
@@ -354,6 +372,7 @@ export default function CutRopeGame() {
       audio.ropeCut();
       lv.candy.pulse();
       lv.tutorial?.fade();
+      spawnCutPuff(engine.scene, w.x, w.y);
     }
   }, [scene]);
 
@@ -453,4 +472,37 @@ function isCandyTethered(lv) {
     }
   }
   return false;
+}
+
+// Bubble buoyancy propagates along the alive chain. Without this, only
+// the candy point gets `bubbled = true`, and the 12-segment rope's
+// gravity-bound mass out-pulls the bubble's lift — the candy never
+// rises. Runs only when a bubble state changes or the world topology
+// changes (a cut), so it's not a per-frame walk.
+function propagateBubbleState(lv) {
+  const cs = lv.world.constraints;
+  // Step 1: clear bubbled on all non-pinned points; we'll re-mark below.
+  for (const p of lv.world.points) if (!p.pinned) p.bubbled = false;
+  // Step 2: for each attached, alive bubble, BFS the alive chain from
+  // its attached point and mark every reachable non-pinned point.
+  for (const b of lv.bubbles) {
+    if (!b.state.alive || !b.state.attached) continue;
+    const seed = b.state.attached;
+    const visited = new Set([seed]);
+    const queue = [seed];
+    seed.bubbled = true;
+    while (queue.length) {
+      const cur = queue.shift();
+      for (let i = 0; i < cs.length; i++) {
+        const c = cs[i];
+        if (!c.alive) continue;
+        const other = c.a === cur ? c.b : c.b === cur ? c.a : null;
+        if (other && !visited.has(other) && !other.pinned) {
+          visited.add(other);
+          other.bubbled = true;
+          queue.push(other);
+        }
+      }
+    }
+  }
 }

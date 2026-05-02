@@ -24,6 +24,11 @@ export function validateContent() {
     for (const uid of era.unitIds) if (!UNITS_BY_ID[uid]) errs.push(`era ${era.id} unit ${uid} not found`);
     if (!TURRETS_BY_ID[era.turretId]) errs.push(`era ${era.id} turret ${era.turretId} not found`);
     if (!SPECIALS_BY_ID[era.specialId]) errs.push(`era ${era.id} special ${era.specialId} not found`);
+    if (era.generalId) {
+      const g = UNITS_BY_ID[era.generalId];
+      if (!g) errs.push(`era ${era.id} general ${era.generalId} not found`);
+      else if (g.role !== 'general') errs.push(`era ${era.id} general ${era.generalId} must have role: 'general'`);
+    }
     if (era.xpToEvolve < lastXp) errs.push(`era ${era.id} xpToEvolve below previous`);
     lastXp = era.xpToEvolve;
   }

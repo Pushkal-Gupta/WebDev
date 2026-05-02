@@ -127,3 +127,37 @@ export function WinCard({ open, deaths, time, best, bestBeaten, levelCount, peac
     </AnimatePresence>
   );
 }
+
+// Level-reset overlay (Phase 18). Fires when the per-level lives pool
+// hits zero — louder than a normal death beat so the player reads it
+// as a setback, but the run continues; lives reset to cap on reload.
+export function LevelResetCard({ open, difficulty, levelName }) {
+  const reduced = useReducedMotion();
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          key="levelreset"
+          className="ff-overlay ff-overlay-reset"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.22 }}
+          aria-live="polite">
+          <motion.div
+            className="ff-card ff-card-reset"
+            initial={reduced ? false : { y: 14, opacity: 0, scale: 0.96 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={reduced ? { opacity: 0 } : { y: -10, opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}>
+            <div className="ff-card-eyebrow">Out of lives</div>
+            <div className="ff-card-title">Restarting {levelName}</div>
+            <div className="ff-card-body">
+              {difficulty?.label} pool exhausted. Lives reset; nothing else lost.
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}

@@ -3188,6 +3188,229 @@ svg { display: block; width: 100%; height: 100%; }
   pointer-events: none;
 }
 .ff-overlay-win { pointer-events: auto; }
+.ff-overlay-reset { pointer-events: none; }
+/* Level-reset card — dimmer than the win card, warm-danger eyebrow so
+   the player reads it as a beat ('out of lives, restarting') rather
+   than a halt. Auto-dismisses with the level reload. */
+.ff-card-reset {
+  padding: 18px 28px;
+  text-align: center;
+  background: rgba(7, 16, 28, 0.78);
+  border: 1px solid rgba(255, 123, 150, 0.35);
+  box-shadow:
+    0 12px 36px rgba(80, 0, 16, 0.5),
+    0 0 0 1px rgba(255, 123, 150, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+.ff-card-reset .ff-card-eyebrow { color: #ff7b96; }
+.ff-card-reset .ff-card-title { font-size: 1.2rem; }
+/* Lives chip danger state — flashes when the player is down to last life. */
+.ff-chip-sec.is-danger {
+  border-color: rgba(255, 123, 150, 0.5);
+  background: rgba(255, 123, 150, 0.10);
+}
+.ff-chip-sec.is-danger .ff-chip-num,
+.ff-chip-sec.is-danger .ff-chip-label { color: #ff7b96; }
+/* Phase 18 — power-up chip with a thin countdown bar at the bottom.
+   One color tint per power so the chip reads at a glance. */
+.ff-chip-power { padding-bottom: 8px; }
+.ff-chip-power-bar {
+  display: block;
+  margin-top: 4px;
+  width: 80px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+.ff-chip-power-bar-fill {
+  display: block;
+  height: 100%;
+  background: currentColor;
+  transition: width 0.12s linear;
+}
+.ff-chip-power-invincible {
+  border-color: rgba(255, 216, 107, 0.55);
+  background: rgba(255, 216, 107, 0.10);
+  color: #ffd86b;
+}
+.ff-chip-power-invincible .ff-chip-num { color: #ffd86b; }
+.ff-chip-power-invisible {
+  border-color: rgba(160, 220, 255, 0.55);
+  background: rgba(160, 220, 255, 0.10);
+  color: #a0dcff;
+}
+.ff-chip-power-invisible .ff-chip-num { color: #a0dcff; }
+.ff-chip-power-speed {
+  border-color: rgba(156, 240, 142, 0.55);
+  background: rgba(156, 240, 142, 0.10);
+  color: #9cf08e;
+}
+.ff-chip-power-speed .ff-chip-num { color: #9cf08e; }
+.ff-chip-power-freefreeze {
+  border-color: rgba(255, 138, 163, 0.5);
+  background: rgba(255, 138, 163, 0.10);
+  color: #ff8aa3;
+}
+.ff-chip-power-freefreeze .ff-chip-num { color: #ff8aa3; }
+/* Lobby setup — difficulty pills + level select. Lives below the
+   intro CTAs in the badicecream lobby card. Frosted glass + cyan
+   accent so it feels native to the game's HUD palette. */
+.ff-lobby-setup {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(108, 208, 240, 0.04);
+  border: 1px solid rgba(108, 208, 240, 0.12);
+}
+.ff-lobby-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.ff-lobby-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  min-width: 78px;
+}
+.ff-lobby-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.ff-lobby-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.12s ease;
+}
+.ff-lobby-pill b { font-size: 0.92rem; font-weight: 600; }
+.ff-lobby-pill span { font-size: 0.72rem; color: rgba(255, 255, 255, 0.55); }
+.ff-lobby-pill:hover { background: rgba(108, 208, 240, 0.08); transform: translateY(-1px); }
+.ff-lobby-pill.is-active {
+  background: rgba(108, 208, 240, 0.16);
+  border-color: rgba(108, 208, 240, 0.6);
+  color: #fff;
+}
+.ff-lobby-pill.is-active span { color: rgba(255, 255, 255, 0.78); }
+.ff-lobby-levels {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ff-lobby-level-btn,
+.ff-lobby-level-toggle {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+.ff-lobby-level-btn:hover,
+.ff-lobby-level-toggle:hover { background: rgba(108, 208, 240, 0.1); border-color: rgba(108, 208, 240, 0.4); }
+.ff-lobby-level-btn.is-active {
+  background: rgba(108, 208, 240, 0.18);
+  border-color: rgba(108, 208, 240, 0.6);
+  color: #fff;
+}
+.ff-lobby-level-current { font-size: 0.78rem; color: rgba(255, 255, 255, 0.6); }
+.ff-lobby-level-current b { color: rgba(255, 255, 255, 0.9); }
+.ff-lobby-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 8px;
+}
+.ff-lobby-room {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease;
+}
+.ff-lobby-room:hover:not(:disabled) { background: rgba(108, 208, 240, 0.08); border-color: rgba(108, 208, 240, 0.4); }
+.ff-lobby-room.is-active { background: rgba(108, 208, 240, 0.16); border-color: rgba(108, 208, 240, 0.6); color: #fff; }
+.ff-lobby-room.is-cleared { border-color: rgba(108, 208, 240, 0.4); }
+.ff-lobby-room.is-locked, .ff-lobby-room:disabled { opacity: 0.45; cursor: not-allowed; }
+.ff-lobby-room-idx {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.5);
+  min-width: 18px;
+}
+.ff-lobby-room-name { flex: 1; font-size: 0.86rem; font-weight: 500; }
+.ff-lobby-room-tag {
+  font-size: 0.68rem;
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(108, 208, 240, 0.16);
+  color: rgba(108, 208, 240, 0.95);
+}
+.ff-lobby-room-tag.is-locked {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.5);
+}
+/* Admin unlock-all toggle (Phase 18). Sits below the level grid;
+   flips a sessionStorage flag to make every room clickable. Shift-
+   click is a one-off bypass, which the hint line spells out. */
+.ff-lobby-admin-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+}
+.ff-lobby-admin-link {
+  background: none;
+  border: 1px solid rgba(255, 200, 100, 0.32);
+  color: rgba(255, 220, 160, 0.92);
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease;
+}
+.ff-lobby-admin-link:hover {
+  background: rgba(255, 200, 100, 0.1);
+  border-color: rgba(255, 200, 100, 0.55);
+}
+.ff-lobby-admin-link.is-active {
+  background: rgba(255, 200, 100, 0.16);
+  border-color: rgba(255, 200, 100, 0.7);
+  color: #fff;
+}
+.ff-lobby-admin-hint {
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.5);
+}
 .ff-card {
   position: relative;
   pointer-events: auto;

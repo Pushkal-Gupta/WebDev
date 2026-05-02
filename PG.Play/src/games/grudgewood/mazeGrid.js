@@ -14,14 +14,15 @@
 export const CELL_SIZE = 24;
 export const SPINE_X = 0;          // cx along which forward path is guaranteed
 
-// Per-edge open probability for OFF-spine edges. Tightened to 0.15 so
-// the maze reads as essentially one path. A few side rooms still exist
-// for variety, but most non-spine edges are walls — the player isn't
-// drowned in choices.
-const OPEN_PROB = 0.15;
-// Spine off-ramps — about a third of east/west edges from the spine
-// are open, giving the player optional but unfrequent detours.
-const OPEN_PROB_SPINE_RAMP = 0.35;
+// The PLAYABLE CORRIDOR is the strip cx ∈ [-1, 1] — three cells wide.
+// Cells outside that strip are fully walled in so the player can't
+// wander into empty meadow. Inside the corridor, the spine (cx=0)
+// always continues forward; the side cells (|cx|=1) sometimes open
+// onto parallel paths that rejoin via east/west doorways, giving the
+// player "left curve / right curve" alternatives to the same flag.
+export const CORRIDOR_HALF = 1;       // |cx| ≤ this is playable
+const OPEN_PROB_SIDE_NS = 0.45;       // chance side cells continue forward
+const OPEN_PROB_RAMP = 0.55;          // chance spine has a side-room doorway
 
 // Mulberry32 — deterministic per-edge PRNG seed.
 function rng32(seed) {
@@ -38,21 +39,24 @@ function hash3(a, b, c) {
 }
 
 // Edge between (cx, cz) and (cx, cz+1) — the "north edge" of cell (cx, cz).
-// Spine cells force open so the forward route is never blocked.
+// The spine always continues; side cells inside the corridor sometimes
+// continue forward (parallel paths); cells outside the corridor are
+// always walled.
 export function northEdgeOpen(cx, cz) {
   if (cx === SPINE_X) return true;
-  return rng32(hash3(1, cx, cz)) < OPEN_PROB;
+  if (Math.abs(cx) > CORRIDOR_HALF) return false;
+  return rng32(hash3(1, cx, cz)) < OPEN_PROB_SIDE_NS;
 }
 
 // Edge between (cx, cz) and (cx+1, cz) — the "east edge" of cell (cx, cz).
-// Spine off-ramps (cx == SPINE_X or cx == SPINE_X - 1) open at the higher
-// rate so the spine has frequent side rooms; deeper edges off-spine are
-// walls most of the time so the side branches naturally dead-end after
-// a cell or two.
+// Open only between cells inside the corridor (so doorways rejoin paths
+// to the spine). Edges crossing into the un-walked area beyond cx=±1
+// are always walls.
 export function eastEdgeOpen(cx, cz) {
-  const nearSpine = (cx === SPINE_X || cx === SPINE_X - 1);
-  const r = rng32(hash3(2, cx, cz));
-  return r < (nearSpine ? OPEN_PROB_SPINE_RAMP : OPEN_PROB);
+  // The east edge connects (cx, cz) to (cx+1, cz). Both must be in the
+  // corridor for this edge to be openable.
+  if (cx < -CORRIDOR_HALF || cx + 1 > CORRIDOR_HALF) return false;
+  return rng32(hash3(2, cx, cz)) < OPEN_PROB_RAMP;
 }
 
 // Cell coords of a world point.

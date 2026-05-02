@@ -402,11 +402,13 @@ export default function MatchScreen() {
         </div>
       </header>
 
-      <canvas
-        ref={canvasRef}
-        className="gb-match-canvas"
-        width={PHYSICS.W}
-        height={PHYSICS.H}/>
+      <div className="gb-match-frame">
+        <canvas
+          ref={canvasRef}
+          className="gb-match-canvas"
+          width={PHYSICS.W}
+          height={PHYSICS.H}/>
+      </div>
 
       {challenge && (
         <div className="gb-match-challenge-strip">

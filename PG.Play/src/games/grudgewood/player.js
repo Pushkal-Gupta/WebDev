@@ -251,36 +251,27 @@ export class PlayerController {
       return;
     }
 
-    // Input → desired direction. Controls are CAMERA-RELATIVE: pressing
-    // W moves the player forward (away from the camera), pressing D
-    // moves them to their right on screen, regardless of facing.
+    // Input → desired direction. Controls are ABSOLUTE world-axis with
+    // an X mirror to compensate for three.js's camera convention: with
+    // the camera positioned south of the player, camera-right ends up
+    // pointing at world -X (because three.js builds camera basis as
+    // _x = up × back, and with back = -Z that gives -X). Without the
+    // mirror, pressing D walks +X which projects to screen-LEFT.
     //
-    // The X axis is MIRRORED in the rotation. Why: three.js's lookAt
-    // computes camera-right as `up × back`, which for a camera south of
-    // the player gives camera-right = world -X. Without the mirror,
-    // pressing D would walk the player toward world +X — which renders
-    // to screen-LEFT through the camera, the exact "left and right are
-    // flipped" complaint. Mirroring lx makes screen-right always feel
-    // like world-camera-right.
+    //   A → world +X  (renders to screen-LEFT  ✓ — A means left)
+    //   D → world -X  (renders to screen-RIGHT ✓ — D means right)
+    //   W → world +Z  (renders to screen-UP)
+    //   S → world -Z  (renders to screen-DOWN)
     //
-    //   worldX = -lx*cosθ + lz*sinθ
-    //   worldZ =  lx*sinθ + lz*cosθ
-    //
-    // Verified: θ=0 (D → -X projects to screen-right ✓), θ=π/2 (D → +Z
-    // = camera-east-right ✓), θ=π (D → +X = camera-north-right ✓).
-    let lx = 0, lz = 0;
-    if (input.left)  lx -= 1;
-    if (input.right) lx += 1;
-    if (input.fwd)   lz += 1;
-    if (input.back)  lz -= 1;
-    const lmag = Math.hypot(lx, lz);
-    if (lmag > 0) { lx /= lmag; lz /= lmag; }
-    const camY = input.cameraYaw || 0;
-    const cs = Math.cos(camY);
-    const sn = Math.sin(camY);
-    const mx = -lx * cs + lz * sn;
-    const mz =  lx * sn + lz * cs;
-    const mag = lmag;
+    // No camera-relative rotation; holding A always moves the body the
+    // same world direction so the chase-cam-spin loop is impossible.
+    let mx = 0, mz = 0;
+    if (input.left)  mx += 1;     // A → world +X
+    if (input.right) mx -= 1;     // D → world -X
+    if (input.fwd)   mz += 1;
+    if (input.back)  mz -= 1;
+    const mag = Math.hypot(mx, mz);
+    if (mag > 0) { mx /= mag; mz /= mag; }
     const sprint = !!input.sprint;
     // Bleed off any active slow effect (spore cloud etc).
     if (this.slowTimer > 0) {

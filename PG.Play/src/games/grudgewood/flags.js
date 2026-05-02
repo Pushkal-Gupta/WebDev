@@ -16,7 +16,10 @@ import { CELL_SIZE, SPINE_X } from './mazeGrid.js';
 
 export const FLAG_INTERVAL_CELLS = 6;        // every 6 cells on the spine = ~144m
 export const FLAG_TOUCH_RADIUS = 2.4;
-const POLE_HEIGHT = 4.0;
+// Pole rises well above the tree canopy (~6m) and the wall caps (~3.4m)
+// so the flag is the tallest thing in any biome. From far away the
+// player can pick out the flag against the sky as the next goal.
+const POLE_HEIGHT = 6.0;
 
 // World-space anchor for the flag at level index N (0 = spawn flag, 1 =
 // first goal flag, etc.). Always sits in the centre of the spine cell at
@@ -45,12 +48,24 @@ export function makeFlag({ level, raised = false }) {
   const g = new THREE.Group();
 
   const pole = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.08, 0.10, POLE_HEIGHT, 8),
+    new THREE.CylinderGeometry(0.09, 0.12, POLE_HEIGHT, 8),
     new THREE.MeshStandardMaterial({ color: '#8a6a3a', roughness: 0.9, flatShading: true }),
   );
   pole.position.y = POLE_HEIGHT / 2;
   pole.castShadow = true;
   g.add(pole);
+
+  // Glowing finial at the top — small icosahedron in biome-bright gold
+  // so the flag pops against any biome sky from far away.
+  const finial = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(0.18, 0),
+    new THREE.MeshStandardMaterial({
+      color: '#ffd266', emissive: '#ffd266', emissiveIntensity: 1.4,
+      roughness: 0.3, metalness: 0.1,
+    }),
+  );
+  finial.position.y = POLE_HEIGHT + 0.1;
+  g.add(finial);
 
   // Stone base — a small cairn so the flag reads as "an objective" rather
   // than a stick someone forgot in the woods.

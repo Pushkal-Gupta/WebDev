@@ -281,6 +281,72 @@ export function makePredatorTree(biome) {
   return g;
 }
 
+// Pusher — a small humanoid "forest gremlin" placed behind certain
+// trees. The trap's tick() rotates this figure and pushes it forward
+// during the strike so the player can see the trap is being shoved by
+// something, not magically moving on its own. Returns a Group whose
+// `userData.body` is the torso pivot for animation.
+//
+// Style notes: dark mossy green so it reads as part of the forest from
+// far away, two yellow dot eyes for character, ~1.4m tall (smaller than
+// the player so the tree visibly dwarfs it).
+export function makePusher(biome) {
+  const g = new THREE.Group();
+  const skinCol = new THREE.Color('#3a4a2a').lerp(biome.treeLeaf, 0.35);
+  const cloakCol = biome.treeBark.clone().lerp(new THREE.Color('#000'), 0.35);
+  const skinMat = new THREE.MeshStandardMaterial({ color: skinCol, roughness: 0.9, flatShading: true });
+  const cloakMat = new THREE.MeshStandardMaterial({ color: cloakCol, roughness: 0.95, flatShading: true });
+  const eyeMat = new THREE.MeshStandardMaterial({
+    color: '#ffd266', emissive: '#ffd266', emissiveIntensity: 1.4, roughness: 0.3,
+  });
+
+  // Torso pivot — child meshes sit above its origin so rotating around
+  // X tilts the gremlin forward without sliding the body off the ground.
+  const body = new THREE.Group();
+  body.position.y = 0.6;       // base of torso (hips)
+  g.add(body);
+
+  // Cloak/torso block.
+  const torso = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.55, 0.28), cloakMat);
+  torso.position.y = 0.27;
+  torso.castShadow = true;
+  body.add(torso);
+
+  // Head.
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.28, 0.26), skinMat);
+  head.position.y = 0.72;
+  head.castShadow = true;
+  body.add(head);
+
+  // Two glowing eyes — pointed in body's +Z direction so the pusher
+  // "looks" at the tree it's shoving.
+  const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.05, 6, 4), eyeMat);
+  const eyeR = new THREE.Mesh(new THREE.SphereGeometry(0.05, 6, 4), eyeMat);
+  eyeL.position.set(-0.07, 0.74, 0.13);
+  eyeR.position.set( 0.07, 0.74, 0.13);
+  body.add(eyeL); body.add(eyeR);
+
+  // Stubby arms — outstretched forward to plant on the trunk.
+  const armL = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.10, 0.45), skinMat);
+  const armR = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.10, 0.45), skinMat);
+  armL.position.set(-0.16, 0.36, 0.30);
+  armR.position.set( 0.16, 0.36, 0.30);
+  armL.castShadow = armR.castShadow = true;
+  body.add(armL); body.add(armR);
+
+  // Legs — short stumps so the figure stands at ~1.4m.
+  const legL = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.55, 0.16), cloakMat);
+  const legR = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.55, 0.16), cloakMat);
+  legL.position.set(-0.10, -0.27, 0);
+  legR.position.set( 0.10, -0.27, 0);
+  legL.castShadow = legR.castShadow = true;
+  body.add(legL); body.add(legR);
+
+  g.userData.kind = 'pusher';
+  g.userData.body = body;
+  return g;
+}
+
 // 2D label texture for signs.
 function makeTextTexture(text, color = '#000') {
   const cv = document.createElement('canvas');

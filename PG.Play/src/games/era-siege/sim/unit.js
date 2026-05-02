@@ -28,6 +28,13 @@ export function trySpawnUnit(state, side, unitId) {
     return false;
   }
   if (side.units.length >= BALANCE.MAX_UNITS_PER_SIDE) return false;
+  // Generals: cap at one living per side. The HUD cooldown is mostly
+  // there to gate cost; this cap prevents stacking even when cooldown
+  // somehow elapses (e.g. AI spawn race, save/load future-proofing).
+  if (def.role === 'general' && side.units.some((u) => u.role === 'general' && !u.dead && u.hp > 0)) {
+    state.bus.emit('low_gold_error', { unitId, reason: 'general_alive' });
+    return false;
+  }
 
   side.gold -= def.cost;
   cd[unitId] = def.spawnCooldownMs;

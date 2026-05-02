@@ -1,15 +1,21 @@
-// Grudgewood — third-person chase camera. The camera trails behind the
-// player at a fixed distance/height like a drone, rotating to keep
-// player.facing pointed away from the camera. WASD/arrows are
-// camera-relative — pressing W always moves the player away from the
-// camera, regardless of which direction they were facing a moment ago.
+// Grudgewood — fixed-orientation pan camera with chase-style distance.
+//
+// Why fixed orientation: a chase cam that rotates with player.facing
+// creates a feedback spin when the input is camera-relative — holding
+// "left" pulls the player CCW, which pulls the camera CCW, which rotates
+// the world-meaning of "left" CCW, which pulls the player CCW... loop.
+// We avoid that by holding the camera at a constant world-axis offset
+// and letting the BODY rotate to face the absolute movement direction.
+//
+// Why not pure top-down: too overhead reads as a twin-stick shooter.
+// Pitch ≈ atan(4.5 / 6.0) ≈ 37° — clearly third-person/iso, with walls
+// showing their front faces and trees readable in 3D.
 //
 // Modes:
-//   chase   — drone follows player.facing, mild lookahead in velocity dir.
+//   chase   — fixed pan, mild velocity look-ahead, FOV bloom on sprint.
 //   menu    — slow overhead orbit so the menu has motion behind it.
 //   reveal  — pulled back, higher angle.
-//   death   — frames the player + the trap that killed them, still from
-//             behind so the third-person feel never breaks.
+//   death   — frames the player + the trap that killed them.
 
 import * as THREE from 'three';
 
@@ -17,11 +23,13 @@ const tmp = new THREE.Vector3();
 const tmpA = new THREE.Vector3();
 const tmpB = new THREE.Vector3();
 
-// Drone offset relative to the player. Distance ~6m back along the
-// player's facing, ~2.8m up, look-target at head height. Pitch works
-// out to ~atan(2.8/6) ≈ 25° down — clearly third-person, not top-down.
-const FOLLOW_DIST = 6.0;
-const FOLLOW_HEIGHT = 2.8;
+// Pan offset relative to the player. Camera always sits at the same
+// world-axis offset (south + above), regardless of where the player
+// is facing. World +X = screen-left (three.js up×back convention),
+// world +Z = screen-up — the player.js input mirrors X to compensate.
+const PAN_OFFSET_X = 0;
+const PAN_OFFSET_Y = 4.5;
+const PAN_OFFSET_Z = -6.0;
 const LOOK_HEIGHT = 1.4;
 
 export class ChaseCamera {
@@ -54,40 +62,32 @@ export class ChaseCamera {
   bump(amount = 0.6) { this.shake = Math.min(1.6, this.shake + amount); }
 
   // dt and player ({ pos, facing, vel, alive, deathKind }); optional
-  // walls list (AABBs from chunkManager) is used for occlusion: if a
-  // wall blocks the line from desired-cam to player, the desired position
-  // is pulled in along the cam→player ray so the player stays visible.
+  // walls list (AABBs from chunkManager) is used for occlusion.
   update(dt, player, walls = null) {
     this.modeT += dt;
 
-    // Player's heading vector (XZ). facing = 0 means facing +Z. Camera
-    // lives along -facing so it sits directly behind the body.
-    const fwdX = Math.sin(player.facing);
-    const fwdZ = Math.cos(player.facing);
-
-    // Velocity look-ahead — camera leans forward a touch when moving so
-    // the player can read what's coming. Capped so it never overpowers
-    // the chase frame.
+    // Velocity look-ahead in world space — camera leans toward where
+    // the player is heading, but only a couple of metres so the camera
+    // never rotates around them.
     const speed = Math.hypot(player.vel.x, player.vel.z);
-    const lead = THREE.MathUtils.clamp(speed * 0.18, 0, 1.6);
+    const leadX = THREE.MathUtils.clamp(player.vel.x * 0.18, -1.6, 1.6);
+    const leadZ = THREE.MathUtils.clamp(player.vel.z * 0.18, -1.6, 1.6);
 
-    // Default chase frame: target is ahead of player, position is behind.
     const desiredTarget = tmpA.set(
-      player.pos.x + fwdX * lead,
+      player.pos.x + leadX,
       player.pos.y + LOOK_HEIGHT,
-      player.pos.z + fwdZ * lead,
+      player.pos.z + leadZ,
     );
     const desiredPos = tmpB.set(
-      player.pos.x - fwdX * FOLLOW_DIST,
-      player.pos.y + FOLLOW_HEIGHT,
-      player.pos.z - fwdZ * FOLLOW_DIST,
+      player.pos.x + PAN_OFFSET_X,
+      player.pos.y + PAN_OFFSET_Y,
+      player.pos.z + PAN_OFFSET_Z,
     );
 
     if (this.mode === 'death') {
-      // Reframe the camera so the killer trap and the player are both in
-      // shot, but keep the drone-behind angle by positioning relative to
-      // their midpoint along the player's old heading. Without a focus
-      // we just hold a slightly wider chase frame around the body.
+      // Reframe between the player and the trap that killed them.
+      // Camera still uses the same axis-aligned offset so the death cam
+      // is consistent with normal play — no orbit, just a wider frame.
       if (this.hasDeathFocus) {
         const mid = tmp.set(
           (player.pos.x + this.deathFocus.x) * 0.5,
@@ -95,16 +95,16 @@ export class ChaseCamera {
           (player.pos.z + this.deathFocus.z) * 0.5,
         );
         desiredPos.set(
-          mid.x - fwdX * (FOLLOW_DIST + 1.5),
-          mid.y + FOLLOW_HEIGHT + 0.5,
-          mid.z - fwdZ * (FOLLOW_DIST + 1.5),
+          mid.x + PAN_OFFSET_X * 1.2,
+          mid.y + PAN_OFFSET_Y + 0.6,
+          mid.z + PAN_OFFSET_Z * 1.2,
         );
         desiredTarget.copy(mid);
       } else {
         desiredPos.set(
-          player.pos.x - fwdX * (FOLLOW_DIST + 1.5),
-          player.pos.y + FOLLOW_HEIGHT + 0.6,
-          player.pos.z - fwdZ * (FOLLOW_DIST + 1.5),
+          player.pos.x + PAN_OFFSET_X * 1.15,
+          player.pos.y + PAN_OFFSET_Y + 0.4,
+          player.pos.z + PAN_OFFSET_Z * 1.15,
         );
         desiredTarget.set(player.pos.x, player.pos.y + 0.9, player.pos.z);
       }
@@ -112,9 +112,9 @@ export class ChaseCamera {
     } else if (this.mode === 'reveal') {
       // Wider reveal: same direction, more distance + altitude.
       desiredPos.set(
-        player.pos.x - fwdX * (FOLLOW_DIST + 6),
-        player.pos.y + FOLLOW_HEIGHT + 4,
-        player.pos.z - fwdZ * (FOLLOW_DIST + 6),
+        player.pos.x + PAN_OFFSET_X * 1.6,
+        player.pos.y + PAN_OFFSET_Y + 4,
+        player.pos.z + PAN_OFFSET_Z * 1.6,
       );
       desiredTarget.set(player.pos.x, player.pos.y + 1.2, player.pos.z);
       this.fovTarget = 70;
@@ -199,8 +199,8 @@ export class ChaseCamera {
   }
 }
 
-export const CHASE_FOLLOW_DIST = FOLLOW_DIST;
-export const CHASE_FOLLOW_HEIGHT = FOLLOW_HEIGHT;
+export const CHASE_FOLLOW_DIST = -PAN_OFFSET_Z;
+export const CHASE_FOLLOW_HEIGHT = PAN_OFFSET_Y;
 export const CHASE_LOOK_HEIGHT = LOOK_HEIGHT;
 
 // Slab-method ray-AABB intersection in XZ. Returns the entry distance t

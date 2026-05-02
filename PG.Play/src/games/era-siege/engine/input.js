@@ -4,9 +4,10 @@
 export function makeIntents() {
   return {
     spawn: [],
-    buildTurret:   null,
-    sellTurret:    null,
-    upgradeTurret: null,
+    buildTurret:     null,
+    buildTurretSpot: null,
+    sellTurret:      null,
+    upgradeTurret:   null,
     buyPowerup:    null,
     special: false,
     evolve:  false,
@@ -15,9 +16,10 @@ export function makeIntents() {
 
 export function clearIntents(intents) {
   intents.spawn.length = 0;
-  intents.buildTurret   = null;
-  intents.sellTurret    = null;
-  intents.upgradeTurret = null;
+  intents.buildTurret     = null;
+  intents.buildTurretSpot = null;
+  intents.sellTurret      = null;
+  intents.upgradeTurret   = null;
   intents.buyPowerup    = null;
   intents.special = false;
   intents.evolve  = false;

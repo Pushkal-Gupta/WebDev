@@ -13,10 +13,19 @@
 //   2. apply force fields  (blowers, bubbles)
 //   3. relax distance constraints       (Jakobsen, K iterations)
 //   4. clamp anchor pins back to base    (in case constraints moved them)
+//
+// The world tracks a `topologyDirty` flag — flipped when any constraint
+// transitions to !alive — so consumers (rope walk, tether check) can
+// cache their walks instead of rescanning every frame.
 
 const GRAVITY = 26;        // world units / s². Tuned to feel right at scale 6 unit tall.
-const DAMP = 0.9985;
-const ITERATIONS = 8;
+const DAMP = 0.9985;       // per-substep velocity retention. Tuned so a single swing
+                            // cycle reaches its symmetric apex with a small loss —
+                            // higher values feel rubbery, lower values kill the swing
+                            // before it gets through every star.
+const ITERATIONS = 10;     // more constraint iterations = stiffer, less stretchy chain.
+const FIXED_DT = 1 / 120;  // physics substep — independent of frame rate.
+const MAX_SUBSTEPS = 4;    // protects against tab-resume spikes.
 
 // ── Point ──────────────────────────────────────────────────────────────
 export function makePoint(x, y, opts = {}) {
@@ -27,18 +36,33 @@ export function makePoint(x, y, opts = {}) {
     pinned: !!opts.pinned,
     pinX: opts.pinned ? x : 0,
     pinY: opts.pinned ? y : 0,
-    bubbled: false,           // bubble mechanic flips gravity for this point
+    pinPrevX: opts.pinned ? x : 0,   // last frame's pin pos — used to drag the chain.
+    pinPrevY: opts.pinned ? y : 0,
+    bubbled: false,
     forceX: 0,
     forceY: 0,
   };
 }
 
-// Hard-pin a point to a new (x, y) — used by moving anchors.
+// Soft-pin a point to a new (x, y) — used by moving anchors. Unlike the
+// previous version this preserves the pin's "previous frame" position so
+// the verlet chain feels the anchor's motion as a constraint impulse on
+// the next step. The pin itself still snaps; only its derivative is
+// preserved.
 export function setPinTarget(p, x, y) {
-  p.pinX = x; p.pinY = y;
   if (p.pinned) {
-    p.x = x; p.y = y;
-    p.prevX = x; p.prevY = y;
+    p.pinPrevX = p.pinX;
+    p.pinPrevY = p.pinY;
+    p.pinX = x;
+    p.pinY = y;
+    p.x = x;
+    p.y = y;
+    // prevX/prevY left at the previous pin position so the chain "feels"
+    // the anchor moving (constraint relaxation drags neighbours along).
+    p.prevX = p.pinPrevX;
+    p.prevY = p.pinPrevY;
+  } else {
+    p.pinX = x; p.pinY = y;
   }
 }
 
@@ -52,12 +76,14 @@ export function makeWorld() {
   return {
     points: [],
     constraints: [],
+    topologyDirty: true,    // true once at start so consumers warm caches.
+    accumulator: 0,         // substep accumulator owned by the world.
   };
 }
 
-export function step(world, dt) {
-  // dt clamp — protect against tab-resume spikes.
-  const h = Math.min(dt, 1 / 30);
+// Per-substep integration. Don't call directly — use stepWorld(world, dt).
+function stepFixed(world) {
+  const h = FIXED_DT;
   const h2 = h * h;
   const pts = world.points;
 
@@ -66,7 +92,8 @@ export function step(world, dt) {
     const p = pts[i];
     if (p.pinned) {
       p.x = p.pinX; p.y = p.pinY;
-      p.prevX = p.x; p.prevY = p.y;
+      // prevX/prevY left untouched here so a moving anchor's previous
+      // frame trail can still influence the chain through Jakobsen.
       continue;
     }
     const vx = (p.x - p.prevX) * DAMP + p.forceX * h2;
@@ -98,6 +125,23 @@ export function step(world, dt) {
   }
 }
 
+// Frame-rate-independent step. Drains the accumulator into 1/120 substeps
+// so swing physics is identical at 30, 60, 90, 144 fps.
+export function step(world, dt) {
+  // Clamp accumulator to avoid death-spiral after a tab resume.
+  const safeDt = Math.min(dt, FIXED_DT * MAX_SUBSTEPS);
+  world.accumulator += safeDt;
+  let i = 0;
+  while (world.accumulator >= FIXED_DT && i < MAX_SUBSTEPS) {
+    stepFixed(world);
+    world.accumulator -= FIXED_DT;
+    i++;
+  }
+  // If we overran the substep budget, drop the leftover accumulator
+  // rather than carrying it forward — keeps wall-clock honest.
+  if (i === MAX_SUBSTEPS) world.accumulator = 0;
+}
+
 // Cut a rope: deactivate every constraint along the path that intersects
 // the cut segment (sx,sy)→(ex,ey). Returns the count cut.
 export function cutAlongSegment(world, sx, sy, ex, ey) {
@@ -110,6 +154,7 @@ export function cutAlongSegment(world, sx, sy, ex, ey) {
       cuts++;
     }
   }
+  if (cuts > 0) world.topologyDirty = true;
   return cuts;
 }
 
@@ -124,6 +169,7 @@ export function cutAtPoint(world, x, y, radius) {
       cuts++;
     }
   }
+  if (cuts > 0) world.topologyDirty = true;
   return cuts;
 }
 

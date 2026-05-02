@@ -71,7 +71,9 @@ export const drawFrame = (ctx, s, arena, opts = {}) => {
 
   // Kickoff freeze ring
   if (s.kickOffT > 0) {
-    const alpha = Math.max(0, s.kickOffT / 0.8);
+    // Normalize against the tunable kickoff window so the ring fades correctly
+    // regardless of whether this is the initial freeze or post-goal restart.
+    const alpha = Math.max(0, Math.min(1, s.kickOffT / 0.7));
     ctx.strokeStyle = `rgba(255,255,255,${0.35 * alpha})`;
     ctx.lineWidth = 3;
     ctx.beginPath(); ctx.arc(W / 2, FLOOR - 180, 20 + (1 - alpha) * 40, 0, Math.PI * 2); ctx.stroke();
@@ -91,7 +93,7 @@ export const drawFrame = (ctx, s, arena, opts = {}) => {
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 72px "Lora", serif';
     ctx.textAlign = 'center';
-    const bob = Math.sin((1.6 - s.celebT) * 10) * 4;
+    const bob = Math.sin((0.95 - s.celebT) * 12) * 4;
     ctx.fillText('GOAL!', W / 2, H / 2 + bob);
     ctx.font = 'bold 14px "Space Mono", monospace';
     ctx.fillStyle = hexToRgba(tint, 1);
@@ -225,7 +227,7 @@ const drawBall = (ctx, ball) => {
   // Strong-kick trail (set by the engine when the ball is launched at
   // >70% charge): draw 6 fading positional ghosts behind the ball.
   if (ball.trail && ball.trail.length) {
-    const TRAIL_LIFE = 0.4;
+    const TRAIL_LIFE = 0.28;
     for (let i = ball.trail.length - 1; i >= 0; i--) {
       const t = ball.trail[i];
       const k = 1 - Math.min(1, t.age / TRAIL_LIFE);

@@ -52,6 +52,49 @@ const PRESETS = {
     sizeJitter: 0.9,
     colors: ['#ff4d6d', '#ff7b96', '#ffffff'],
   },
+  // Phase 18: smaller, denser sparkle that fires at every newly-placed
+  // ice tile. Designed to be cheap (4 particles) so a 12-tile row cast
+  // doesn't tank the frame.
+  iceForm: {
+    count: 4,
+    speed: 14,
+    speedJitter: 6,
+    life: 0.32,
+    sizeBase: 1.0,
+    sizeJitter: 0.6,
+    colors: ['#ffffff', '#bfe7ff', '#6cd0f0'],
+  },
+  // Phase 18: 6 cyan shards outward when an ice tile melts.
+  iceShatter: {
+    count: 6,
+    speed: 32,
+    speedJitter: 10,
+    life: 0.40,
+    sizeBase: 1.4,
+    sizeJitter: 0.6,
+    colors: ['#bfe7ff', '#ffffff', '#6cd0f0'],
+  },
+  // Phase 18: small dust puff under an eggplant-stomp wall crack.
+  wallCrack: {
+    count: 7,
+    speed: 16,
+    speedJitter: 6,
+    life: 0.42,
+    sizeBase: 1.5,
+    sizeJitter: 0.7,
+    colors: ['#cbb798', '#a08866', '#ffffff'],
+  },
+  // Phase 18: teal flash burst when a plum bot teleports — fires at
+  // both source + destination tiles.
+  teleport: {
+    count: 10,
+    speed: 28,
+    speedJitter: 8,
+    life: 0.45,
+    sizeBase: 1.4,
+    sizeJitter: 0.7,
+    colors: ['#a8f0d8', '#6cd0f0', '#ffffff'],
+  },
 };
 
 const TAU = Math.PI * 2;
@@ -111,6 +154,17 @@ export function drawFx(list, ctx) {
       ctx.fillText(p.text, p.x + 0.6, p.y + 0.6);
       ctx.fillStyle = p.color;
       ctx.fillText(p.text, p.x, p.y);
+    } else if (p.ring) {
+      // Stroked expanding ring. Radius interpolates from `size` (r0)
+      // up to `r1` over the particle's lifetime.
+      const t = 1 - p.life / p.max;
+      const r = p.size + (p.r1 - p.size) * t;
+      ctx.globalAlpha = alpha * 0.85;
+      ctx.strokeStyle = p.color;
+      ctx.lineWidth = p.width;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r, 0, TAU);
+      ctx.stroke();
     } else {
       ctx.globalAlpha = alpha;
       ctx.fillStyle = p.color;
@@ -137,5 +191,25 @@ export function spawnFloater(list, text, cx, cy, color = '#ffffff', opts = {}) {
     max: life,
     color,
     size: opts.size ?? 11,
+  });
+}
+
+// Phase 18 — expanding ring used for cast windup tells (orange's
+// thought bubble), fuse counters, and other 'something is about to
+// happen here' beats. Drawn as a stroked arc; radius grows from
+// `r0` to `r1` over `life` seconds, alpha fades from 1 to 0.
+export function spawnRing(list, cx, cy, opts = {}) {
+  const life = opts.life ?? 0.4;
+  list.push({
+    ring: true,
+    x: cx,
+    y: cy,
+    vx: 0, vy: 0,
+    life,
+    max: life,
+    color: opts.color ?? '#bfe7ff',
+    size: opts.r0 ?? 2,
+    r1: opts.r1 ?? 18,
+    width: opts.width ?? 2,
   });
 }

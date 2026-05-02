@@ -14,6 +14,7 @@ import { PALETTES } from './palette.js';
  * @property {number} evolveCost
  * @property {number} goldPerSec
  * @property {string[]} unitIds
+ * @property {string} generalId
  * @property {string} turretId
  * @property {string} specialId
  * @property {string} paletteId
@@ -28,6 +29,7 @@ export const ERAS = [
     evolveCost: 0,
     goldPerSec: 12,
     unitIds: ['ember-runner', 'bone-slinger', 'pyre-bearer'],
+    generalId: 'pyre-warlord',
     turretId: 'bone-crossbow',
     specialId: 'ember-volley',
     paletteId: 'ember-tribe',
@@ -40,6 +42,7 @@ export const ERAS = [
     evolveCost: 80,
     goldPerSec: 14,
     unitIds: ['oath-spear', 'crossbow-sworn', 'iron-bastion'],
+    generalId: 'iron-marshal',
     turretId: 'iron-ballista',
     specialId: 'iron-rain',
     paletteId: 'iron-dominion',
@@ -52,6 +55,7 @@ export const ERAS = [
     evolveCost: 130,
     goldPerSec: 17,
     unitIds: ['brass-skirmisher', 'steam-caster', 'forge-hauler'],
+    generalId: 'brass-captain',
     turretId: 'brass-mortar',
     specialId: 'sun-forge',
     paletteId: 'sun-foundry',
@@ -64,6 +68,7 @@ export const ERAS = [
     evolveCost: 200,
     goldPerSec: 21,
     unitIds: ['rail-trooper', 'voltaic-sharpshooter', 'howitzer-walker'],
+    generalId: 'storm-commodore',
     turretId: 'volt-cannon',
     specialId: 'storm-fork',
     paletteId: 'storm-republic',
@@ -76,6 +81,7 @@ export const ERAS = [
     evolveCost: 320,
     goldPerSec: 26,
     unitIds: ['cinder-wraith', 'echo-lance', 'singular-colossus'],
+    generalId: 'void-sovereign',
     turretId: 'void-lance',
     specialId: 'void-collapse',
     paletteId: 'void-ascendancy',

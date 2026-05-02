@@ -41,7 +41,9 @@ import { EruptingTree } from './traps/erupting.js';
 export { CELL_SIZE };
 
 const TERRAIN_RES = 12;            // verts per side of the cell floor mesh
-const CELLS_AROUND = 1;            // 3×3 grid loaded around the player
+const CELLS_AROUND = 2;            // 5×5 grid loaded — ~48m forward visibility
+                                   // so the player can see the next flag and
+                                   // path stripe well before reaching them.
 
 const TRAP_CLASS = {
   whip: BranchWhip, snare: RootSnare, mushroom: MushroomPop, log: RollingLog,
@@ -86,8 +88,10 @@ function buildCellFloor(biome, cx, cz) {
     const z = pos.getZ(i);
     const y = sampleHeightGlobal(x, z);
     pos.setY(i, y);
-    // Blend ground → grass with cell-local random patches so the floor
-    // doesn't look flat-shaded uniform.
+    // Smooth ground → grass blend with cell-local random patches so the
+    // floor doesn't look flat-shaded uniform. No path stripe — the
+    // forest reads cleaner without an explicit "go this way" marker;
+    // we steer the player by walling off the wrong directions instead.
     const dx = x - (o.x + CELL_SIZE / 2);
     const dz = z - (o.z + CELL_SIZE / 2);
     const r = Math.hypot(dx, dz) / (CELL_SIZE * 0.7);

@@ -28,6 +28,10 @@ import { useCanRender3D } from '../hooks/useCanRender3D.js';
 // in the era-siege content.
 const EraSiegeIntroStats = lazy(() => import('../games/era-siege/ui/IntroStats.jsx'));
 
+// Frost Fight setup panel — difficulty pills + level select.
+// Lazy-loaded so other games don't pull in FF utilities.
+const FrostFightSetup = lazy(() => import('./frost-fight-setup.jsx'));
+
 const GameAmbient = lazy(() => import('./three/GameAmbient.jsx'));
 
 // Games whose scores are validated server-side and live on the public leaderboard.
@@ -205,6 +209,12 @@ export default function GameIntro({ game, onClose }) {
   const [stage, setStage]        = useState('intro');
   const [mode, setMode]          = useState(null);
   const [restartKey, setRestart] = useState(0);
+  // Frost Fight setup state — picked from the lobby setup panel and
+  // forwarded into the game component on mount. Default fallbacks
+  // keep non-FF games unaffected.
+  const [ffDifficulty, setFfDifficulty] = useState('normal');
+  const [ffTheme, setFfTheme]           = useState('cold');
+  const [ffStartLevel, setFfStartLevel] = useState(0);
   const Cover = GAME_COVERS[game.id];
   const isMobile = useIsMobile();
   const reduced  = useReducedMotion();
@@ -236,7 +246,9 @@ export default function GameIntro({ game, onClose }) {
           onRestart={() => setRestart((k) => k + 1)}>
           {GameComp ? (
             <Suspense fallback={<LoadingGame/>}>
-              <GameComp key={restartKey} mode={mode}/>
+              {game.id === 'badicecream'
+                ? <GameComp key={restartKey} mode={mode} difficulty={ffDifficulty} theme={ffTheme} startLevel={ffStartLevel}/>
+                : <GameComp key={restartKey} mode={mode}/>}
             </Suspense>
           ) : <PlayPlaceholder game={game}/>}
         </GameShell>
@@ -354,6 +366,20 @@ export default function GameIntro({ game, onClose }) {
           <motion.div variants={itemVariants}>
             <ControlsHint game={game}/>
           </motion.div>
+
+          {game.id === 'badicecream' && (
+            <motion.div variants={itemVariants}>
+              <Suspense fallback={null}>
+                <FrostFightSetup
+                  difficulty={ffDifficulty}
+                  onDifficultyChange={setFfDifficulty}
+                  theme={ffTheme}
+                  onThemeChange={setFfTheme}
+                  startLevel={ffStartLevel}
+                  onStartLevelChange={setFfStartLevel}/>
+              </Suspense>
+            </motion.div>
+          )}
 
           {game.id === 'aow' && (
             <motion.div variants={itemVariants}>

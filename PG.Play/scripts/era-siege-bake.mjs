@@ -115,8 +115,9 @@ function buildSpecs(eraIds) {
     });
   }
 
-  // Units — 5 eras × 3 roles. Each era's unitIds[] is ordered
-  // [frontline, ranged, heavy] but we look up by role to be safe.
+  // Units — 5 eras × 3 roles + 1 general. Each era's unitIds[] is
+  // ordered [frontline, ranged, heavy]; the era's generalId points at
+  // the era's general unit.
   const ROLE_ORDER = ['frontline', 'ranged', 'heavy'];
   for (let i = 0; i < 5; i++) {
     const eraId = eraIds[i];
@@ -131,6 +132,15 @@ function buildSpecs(eraIds) {
         outPath: join(dir, `${role}.png`),
         spec: { type: 'unit', eraId, w: UNIT_W, h: UNIT_H,
                 opts: { unitId, scale: UNIT_SCALE } },
+      });
+    }
+    if (era.generalId) {
+      // Generals bake at a higher scale so the upscale in-game stays
+      // crisp — they render at heavy×1.4 ≈ 235px tall on the canvas.
+      specs.push({
+        outPath: join(dir, 'general.png'),
+        spec: { type: 'unit', eraId, w: UNIT_W, h: UNIT_H,
+                opts: { unitId: era.generalId, scale: UNIT_SCALE * 1.25 } },
       });
     }
   }
