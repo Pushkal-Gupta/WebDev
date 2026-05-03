@@ -298,6 +298,24 @@ svg { display: block; width: 100%; height: 100%; }
   min-height: 100dvh;
 }
 .sidebar-wrap { position: sticky; top: 0; height: 100vh; height: 100dvh; z-index: 50; }
+/* Phase 20 — sidebar is collapsible on every viewport. Default state
+   is OPEN on desktop (≥901px) and CLOSED on mobile. The hamburger
+   toggles `is-side-open` on `.app-layout`; CSS reads that flag for
+   the column width + sidebar transform.
+   Desktop closed: grid collapses to a single column, sidebar slides
+   off-canvas. Mobile open: sidebar slides on-canvas as an overlay
+   (matching the previous mobile drawer behaviour). */
+.app-layout { transition: grid-template-columns 220ms cubic-bezier(0.4, 0, 0.2, 1); }
+.sidebar { transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1); }
+@media (min-width: 901px) {
+  .app-layout:not(.is-side-open) { grid-template-columns: 0 1fr; }
+  .app-layout:not(.is-side-open) .sidebar-wrap {
+    width: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .app-layout:not(.is-side-open) .sidebar { transform: translateX(-100%); }
+}
 
 .sidebar {
   position: relative;
@@ -412,7 +430,16 @@ svg { display: block; width: 100%; height: 100%; }
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
 }
-.main-menu { display: none; }
+/* Phase 20 — hamburger visible on every viewport. On desktop it
+   toggles the persistent sidebar; on mobile it toggles the slide-in
+   drawer. is-active gives the icon an accent tint while the sidebar
+   is open. */
+.main-menu {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.main-menu.is-active { color: var(--accent); background: var(--accent-soft); }
 
 .main-inner {
   flex: 1;
@@ -3247,12 +3274,12 @@ svg { display: block; width: 100%; height: 100%; }
   color: #9cf08e;
 }
 .ff-chip-power-speed .ff-chip-num { color: #9cf08e; }
-.ff-chip-power-freefreeze {
+.ff-chip-power-slowdown {
   border-color: rgba(255, 138, 163, 0.5);
   background: rgba(255, 138, 163, 0.10);
   color: #ff8aa3;
 }
-.ff-chip-power-freefreeze .ff-chip-num { color: #ff8aa3; }
+.ff-chip-power-slowdown .ff-chip-num { color: #ff8aa3; }
 /* Lobby setup — difficulty pills + level select. Lives below the
    intro CTAs in the badicecream lobby card. Frosted glass + cyan
    accent so it feels native to the game's HUD palette. */
@@ -7792,6 +7819,82 @@ svg { display: block; width: 100%; height: 100%; }
   font-weight: 700;
   color: var(--text-mute);
 }
+
+/* Phase 20 — admin gate inside SettingsDrawer. The form sits flush
+   with the section's row spacing; verify result lives just below. */
+.settings-admin-gate {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-3) 0;
+}
+.settings-admin-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+.settings-admin-row {
+  display: flex;
+  gap: var(--s-2);
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+.settings-admin-input-wrap {
+  position: relative;
+  flex: 1 1 200px;
+  min-width: 0;
+  display: flex;
+}
+.settings-admin-input {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  padding: 0 36px 0 12px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--surface-sunken);
+  color: var(--text);
+  font-size: 0.92rem;
+  font-family: var(--font-mono);
+}
+.settings-admin-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+.settings-admin-eye {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: var(--text-mute);
+  cursor: pointer;
+  border-radius: var(--r-sm);
+}
+.settings-admin-eye:hover { background: var(--hover-bg); color: var(--text); }
+.settings-admin-eye:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+.settings-admin-eye svg { width: 16px; height: 16px; }
+.settings-admin-error {
+  font-size: 0.78rem;
+  color: #ff7b96;
+  font-weight: 500;
+}
+.settings-admin-hint {
+  font-size: 0.74rem;
+  color: var(--text-mute);
+  line-height: 1.45;
+}
+.settings-admin-status .settings-v2-row-title { color: #6cd0f0; }
 
 /* ── Footer v2 ────────────────────────────────────────────────── */
 .footer-v2 {

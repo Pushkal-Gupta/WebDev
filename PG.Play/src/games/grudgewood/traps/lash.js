@@ -9,7 +9,7 @@
 
 import * as THREE from 'three';
 import { Trap } from './base.js';
-import { makeTree, makeBranch } from '../props.js';
+import { makeTree, makeBranch, makePusher } from '../props.js';
 import { sfx } from '../audio.js';
 
 const FLANK = 6.5;             // distance from path centerline to each tree
@@ -59,12 +59,26 @@ export class BranchLashCombo extends Trap {
     stripe.position.y = 0.04;
     g.add(stripe);
 
+    // Two pusher gremlins — one behind each tree, both heaving inward
+    // toward the path. The animation in tick() alternates their shove
+    // timing to match the alternating whips: pusher L lunges first
+    // when branch L strikes, pusher R lunges on the second beat.
+    const pusherL = makePusher(biome);
+    pusherL.position.set(-FLANK, 0, -0.9);
+    pusherL.rotation.y = Math.PI;
+    g.add(pusherL);
+    const pusherR = makePusher(biome);
+    pusherR.position.set( FLANK, 0, -0.9);
+    pusherR.rotation.y = Math.PI;
+    g.add(pusherR);
+
     super({ kind: 'lash', group: g, anchor, hitRadius: 1.0, anticipation: WINDUP, cooldown: COOLDOWN });
     this.pivots = [pivotL, pivotR];
     this.branches = [branchL, branchR];
     this.stripe = stripe;
     this.stage = 'idle';            // idle | windup | strikeL | gap | strikeR | cooldown
     this.tStage = 0;
+    this.pusherBodies = [pusherL.userData.body, pusherR.userData.body];
   }
 
   // Helper to read the world-space tip of one branch for hit detection.
@@ -78,6 +92,29 @@ export class BranchLashCombo extends Trap {
     this.tStage += dt;
     const dz = ctx.player.z - this.anchor.z;
     const between = Math.abs(dz) < 4.5;
+
+    // Pusher animation per stage. Each pusher's body tilts forward
+    // when their tree's branch is striking, leans back during the
+    // windup, and settles during the cooldown.
+    let tiltL = 0, tiltR = 0;
+    if (this.stage === 'windup') {
+      tiltL = tiltR = -0.32 * Math.min(1, this.tStage / WINDUP);
+    } else if (this.stage === 'strikeL') {
+      tiltL = THREE.MathUtils.lerp(-0.32, 0.45, Math.min(1, this.tStage / STRIKE));
+      tiltR = -0.32;
+    } else if (this.stage === 'gap') {
+      tiltL = THREE.MathUtils.lerp(0.45, 0.0, Math.min(1, this.tStage / GAP));
+      tiltR = THREE.MathUtils.lerp(-0.32, -0.42, Math.min(1, this.tStage / GAP));
+    } else if (this.stage === 'strikeR') {
+      tiltL = 0.0;
+      tiltR = THREE.MathUtils.lerp(-0.42, 0.5, Math.min(1, this.tStage / STRIKE));
+    } else if (this.stage === 'cooldown') {
+      const k = Math.min(1, this.tStage / (COOLDOWN * 0.8));
+      tiltL = THREE.MathUtils.lerp(0.0, 0, k);
+      tiltR = THREE.MathUtils.lerp(0.5, 0, k);
+    }
+    this.pusherBodies[0].rotation.x = tiltL;
+    this.pusherBodies[1].rotation.x = tiltR;
 
     if (this.stage === 'idle') {
       if (between) {

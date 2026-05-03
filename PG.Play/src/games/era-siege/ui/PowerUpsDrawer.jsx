@@ -12,6 +12,16 @@ import { POWERUP_DEFS } from '../sim/powerups.js';
 
 const ICON_BASE = '/games/era-siege/ui';
 
+// Group the 7 powerup trees into readable sections in the drawer.
+// Order matches gameplay flow: produce gold, fortify, sharpen combat,
+// then specialise the troops the gold builds.
+const SECTIONS = [
+  { title: 'Production', ids: ['economy'] },
+  { title: 'Defense',    ids: ['base'] },
+  { title: 'Offense',    ids: ['special', 'turret'] },
+  { title: 'Troops',     ids: ['troopDmg', 'troopHp', 'troopRng'] },
+];
+
 export default function PowerUpsDrawer({ open, gold, powerups, onBuy, onClose }) {
   useEffect(() => {
     if (!open) return;
@@ -32,16 +42,27 @@ export default function PowerUpsDrawer({ open, gold, powerups, onBuy, onClose })
           <span className="es-pu-gold">{gold}g</span>
         </header>
 
-        <div className="es-pu-grid">
-          {POWERUP_DEFS.map((def) => (
-            <PowerupRow
-              key={def.id}
-              def={def}
-              level={(powerups && powerups[def.id]) | 0}
-              gold={gold}
-              onBuy={() => onBuy(def.id)}
-            />
-          ))}
+        <div className="es-pu-sections">
+          {SECTIONS.map((sec) => {
+            const defs = sec.ids.map((id) => POWERUP_DEFS.find((d) => d.id === id)).filter(Boolean);
+            if (!defs.length) return null;
+            return (
+              <section key={sec.title} className="es-pu-section">
+                <h3 className="es-pu-section-title">{sec.title}</h3>
+                <div className="es-pu-grid">
+                  {defs.map((def) => (
+                    <PowerupRow
+                      key={def.id}
+                      def={def}
+                      level={(powerups && powerups[def.id]) | 0}
+                      gold={gold}
+                      onBuy={() => onBuy(def.id)}
+                    />
+                  ))}
+                </div>
+              </section>
+            );
+          })}
         </div>
 
         <footer className="es-pu-foot">

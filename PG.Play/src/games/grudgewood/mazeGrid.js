@@ -13,6 +13,8 @@
 
 export const CELL_SIZE = 24;
 export const SPINE_X = 0;          // cx along which forward path is guaranteed
+const FLAG_INTERVAL = 6;            // mirror of flags.js FLAG_INTERVAL_CELLS
+const APPROACH_ROWS = 2;            // rows before each flag where side cells force open
 
 // The PLAYABLE CORRIDOR is the strip cx ∈ [-1, 1] — three cells wide.
 // Cells outside that strip are fully walled in so the player can't
@@ -38,24 +40,37 @@ function hash3(a, b, c) {
   return ((a * 73856093) ^ (b * 19349663) ^ (c * 83492791)) >>> 0;
 }
 
+// True if cell (cx, cz) sits within the APPROACH_ROWS rows just before
+// a flag — those rows force open layouts so each flag has 2-3 routes
+// converging on it. Spine + at least one side path is guaranteed.
+function isFlagApproach(cz) {
+  if (cz <= 0) return false;
+  // cz mod FLAG_INTERVAL within the last APPROACH_ROWS positions before
+  // a flag (e.g. 4, 5 for FLAG_INTERVAL=6 — the rows just south of the
+  // flag at cz=6, 12, ...).
+  const m = cz % FLAG_INTERVAL;
+  return m >= FLAG_INTERVAL - APPROACH_ROWS && m < FLAG_INTERVAL;
+}
+
 // Edge between (cx, cz) and (cx, cz+1) — the "north edge" of cell (cx, cz).
 // The spine always continues; side cells inside the corridor sometimes
-// continue forward (parallel paths); cells outside the corridor are
-// always walled.
+// continue forward; cells outside the corridor are always walled. In
+// the rows just before a flag we force the side cells open so the
+// approach is a 3-wide convergence.
 export function northEdgeOpen(cx, cz) {
   if (cx === SPINE_X) return true;
   if (Math.abs(cx) > CORRIDOR_HALF) return false;
+  if (isFlagApproach(cz)) return true;
   return rng32(hash3(1, cx, cz)) < OPEN_PROB_SIDE_NS;
 }
 
 // Edge between (cx, cz) and (cx+1, cz) — the "east edge" of cell (cx, cz).
 // Open only between cells inside the corridor (so doorways rejoin paths
-// to the spine). Edges crossing into the un-walked area beyond cx=±1
-// are always walls.
+// to the spine). On flag-approach rows we force open the spine ↔ side
+// connectors so the player can pick a side route AT the approach.
 export function eastEdgeOpen(cx, cz) {
-  // The east edge connects (cx, cz) to (cx+1, cz). Both must be in the
-  // corridor for this edge to be openable.
   if (cx < -CORRIDOR_HALF || cx + 1 > CORRIDOR_HALF) return false;
+  if (isFlagApproach(cz)) return true;
   return rng32(hash3(2, cx, cz)) < OPEN_PROB_RAMP;
 }
 

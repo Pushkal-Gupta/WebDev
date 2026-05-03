@@ -15,15 +15,16 @@ import {
   readProgress, isRoomUnlocked,
 } from '../games/frost-fight/utils/progress.js';
 
-// Difficulty config — duplicated from FrostFightGame.jsx so the lobby
-// doesn't have to load the whole game module to render the pills.
-// Keep in sync with DIFFICULTIES in FrostFightGame.jsx.
+// Phase 19 — difficulty pill copy. Keep in sync with DIFFICULTIES in
+// FrostFightGame.jsx; the duplication is so the lobby doesn't pull in
+// the whole game module just to render five pills. Lives counts here
+// are formulas applied per theme length L (15 for both shipped themes).
 const DIFFICULTIES = {
-  easy:   { id: 'easy',   label: 'Easy',   lives: 5, iceMul: 1 },
-  normal: { id: 'normal', label: 'Normal', lives: 3, iceMul: 1 },
-  hard:   { id: 'hard',   label: 'Hard',   lives: 2, iceMul: 1 },
-  expert: { id: 'expert', label: 'Expert', lives: 1, iceMul: 1 },
-  insane: { id: 'insane', label: 'Insane', lives: 0, iceMul: 2 },
+  easy:   { id: 'easy',   label: 'Easy',   livesText: '∞ lives',          iceMul: 1,   blurb: 'Full respawn allowed.' },
+  normal: { id: 'normal', label: 'Normal', livesText: '2L lives (≈ 40)',  iceMul: 1,   blurb: 'Two lives per level.' },
+  hard:   { id: 'hard',   label: 'Hard',   livesText: '~4L/3 (≈ 27)',     iceMul: 1.2, blurb: 'Tighter pool, faster ice.' },
+  expert: { id: 'expert', label: 'Expert', livesText: '~2L/3 (≈ 13)',     iceMul: 1.5, blurb: 'Tight margin.' },
+  insane: { id: 'insane', label: 'Insane', livesText: 'No respawn',       iceMul: 2,   blurb: 'One hit ends the run.' },
 };
 const DIFF_ORDER = ['easy', 'normal', 'hard', 'expert', 'insane'];
 
@@ -36,23 +37,25 @@ const THEME_DEFS = {
   cold: {
     id: 'cold',
     label: 'Cold Aisle',
-    tagline: 'Frozen pantry, fridge, and the deep cold beyond. 15 rooms.',
+    tagline: 'Frozen pantry, fridge, deep cold, then the boss room. 20 rooms.',
     levels: [
       'Pantry', 'Cold Room', 'The Aisle', 'Walk-In', 'Loading Dock',
       'Sub-Basement', 'Cold Storage', 'Conveyor Maze', 'The Vault', 'Frostbite',
       'Frostlock', 'Slush Maze', 'Ice Run', 'Frostfall', 'Glacier',
+      'Slipstream', 'Ice Wall', 'Press', 'Apex', 'Frostpeak',
     ],
   },
   orchard: {
     id: 'orchard',
     label: 'Orchard',
-    tagline: 'Crystal cave, citrus yard, vineyard, final storm. 15 rooms.',
+    tagline: 'Crystal, citrus, vineyard, final storm — and the boss runs after. 20 rooms.',
     levels: [
       'Crystal Cave', 'Crystal Tunnel', 'Geode Hall',
       'Citrus Yard', 'Lemon Grove', 'Sour Press',
       'Vineyard', 'Cellar', 'Crusher',
       'Frost Gate', 'Storm Hall', 'Final Vortex',
       'Bare Vault', 'Teleport Hall', 'Vortex Crown',
+      'Plum Tide', 'Eggplant Court', 'Grape Net', 'Bomb Foundry', 'Annihilation',
     ],
   },
 };
@@ -89,23 +92,20 @@ export default function FrostFightSetup({
   const themeDef = THEME_DEFS[theme] || THEME_DEFS.cold;
   const levelNames = themeDef.levels;
   const [levelsOpen, setLevelsOpen] = useState(false);
-  // Admin unlock-all (session-scoped). Shift-click on a locked room
-  // also bypasses the gate for that single click without flipping the
-  // session flag — handy for one-off testing.
+  // Phase 20 — the admin unlock-all toggle moved to the home Settings
+  // drawer (gated by a server-verified password). The lobby still
+  // respects the resulting sessionStorage flag, but doesn't show or
+  // toggle it. Shift-click on a locked room remains a one-off bypass.
   const [adminAll, setAdminAll] = useState(() => {
     try { return sessionStorage.getItem('pgplay-ff-admin-all') === '1'; }
     catch { return false; }
   });
-  const toggleAdminAll = () => {
-    setAdminAll((v) => {
-      const next = !v;
-      try {
-        if (next) sessionStorage.setItem('pgplay-ff-admin-all', '1');
-        else sessionStorage.removeItem('pgplay-ff-admin-all');
-      } catch { /* ignore */ }
-      return next;
-    });
-  };
+  // Re-read the flag whenever the lobby panel mounts (e.g. after the
+  // user toggled it in Settings and came back here). Cheap one-shot.
+  useEffect(() => {
+    try { setAdminAll(sessionStorage.getItem('pgplay-ff-admin-all') === '1'); }
+    catch { /* ignore */ }
+  }, []);
 
   const onPickLevel = (idx, shiftBypass = false) => {
     if (!shiftBypass && !adminAll && !isRoomUnlocked(idx, levelNames)) return;
@@ -145,7 +145,6 @@ export default function FrostFightSetup({
           {DIFF_ORDER.map((id) => {
             const def = DIFFICULTIES[id];
             const active = difficulty === id;
-            const livesText = def.lives === 0 ? '0 lives' : `${def.lives} ${def.lives === 1 ? 'life' : 'lives'}`;
             const ice = def.iceMul > 1 ? ` · ${def.iceMul}× ice` : '';
             return (
               <button
@@ -155,9 +154,9 @@ export default function FrostFightSetup({
                 aria-checked={active}
                 className={'ff-lobby-pill' + (active ? ' is-active' : '')}
                 onClick={() => onPickDifficulty(id)}
-                title={`${def.label} — ${livesText}${ice}`}>
+                title={`${def.label} — ${def.livesText}${ice} · ${def.blurb}`}>
                 <b>{def.label}</b>
-                <span>{livesText}{ice}</span>
+                <span>{def.livesText}{ice}</span>
               </button>
             );
           })}
@@ -189,57 +188,42 @@ export default function FrostFightSetup({
       </div>
 
       {levelsOpen && (
-        <>
-          <div className="ff-lobby-grid" role="list">
-            {levelNames.map((name, idx) => {
-              const cleared = !!progress.cleared[name];
-              const unlocked = adminAll || isRoomUnlocked(idx, levelNames);
-              const active = idx === startLevel;
-              const onClick = (e) => {
-                // Shift-click bypasses the gate for a single click —
-                // handy for testing without flipping the session flag.
-                const shift = e.shiftKey;
-                if (unlocked || shift) onPickLevel(idx, shift);
-              };
-              return (
-                <button
-                  key={name}
-                  type="button"
-                  role="listitem"
-                  className={
-                    'ff-lobby-room'
-                    + (active ? ' is-active' : '')
-                    + (cleared ? ' is-cleared' : '')
-                    + (!unlocked ? ' is-locked' : '')
-                  }
-                  disabled={!unlocked}
-                  onClick={onClick}
-                  title={unlocked
-                    ? name
-                    : 'Clear the previous room to unlock — Shift-click to bypass'}>
-                  <span className="ff-lobby-room-idx">{idx + 1}</span>
-                  <span className="ff-lobby-room-name">{name}</span>
-                  {cleared && <span className="ff-lobby-room-tag">cleared</span>}
-                  {!unlocked && <span className="ff-lobby-room-tag is-locked">locked</span>}
-                </button>
-              );
-            })}
-          </div>
-          <div className="ff-lobby-admin-row">
-            <button
-              type="button"
-              className={'ff-lobby-admin-link' + (adminAll ? ' is-active' : '')}
-              onClick={toggleAdminAll}
-              aria-pressed={adminAll}>
-              {adminAll
-                ? 'Admin: all rooms unlocked (this session) — click to disable'
-                : 'Admin: unlock all rooms (this session)'}
-            </button>
-            <span className="ff-lobby-admin-hint">
-              Shift-click a locked room to bypass once.
-            </span>
-          </div>
-        </>
+        <div className="ff-lobby-grid" role="list">
+          {levelNames.map((name, idx) => {
+            const cleared = !!progress.cleared[name];
+            const unlocked = adminAll || isRoomUnlocked(idx, levelNames);
+            const active = idx === startLevel;
+            const onClick = (e) => {
+              // Shift-click bypasses the gate for a single click — a
+              // one-off dev shortcut. The persistent unlock-all flag
+              // lives in Settings → Admin (password-gated).
+              const shift = e.shiftKey;
+              if (unlocked || shift) onPickLevel(idx, shift);
+            };
+            return (
+              <button
+                key={name}
+                type="button"
+                role="listitem"
+                className={
+                  'ff-lobby-room'
+                  + (active ? ' is-active' : '')
+                  + (cleared ? ' is-cleared' : '')
+                  + (!unlocked ? ' is-locked' : '')
+                }
+                disabled={!unlocked}
+                onClick={onClick}
+                title={unlocked
+                  ? name
+                  : 'Clear the previous room to unlock — Shift-click to bypass'}>
+                <span className="ff-lobby-room-idx">{idx + 1}</span>
+                <span className="ff-lobby-room-name">{name}</span>
+                {cleared && <span className="ff-lobby-room-tag">cleared</span>}
+                {!unlocked && <span className="ff-lobby-room-tag is-locked">locked</span>}
+              </button>
+            );
+          })}
+        </div>
       )}
     </div>
   );

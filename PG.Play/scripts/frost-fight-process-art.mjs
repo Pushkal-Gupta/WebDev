@@ -58,20 +58,12 @@ const A2_LAYOUT = [
 // renders rather than 2x2 sheets, so they get their own processor:
 // strip platform UI badges in the corner, trim transparent edges,
 // square-pad, resize to 128.
-const SINGLES = [
-  // The orange wind-up source has Gemini share/download UI chips in the
-  // top-right. Wipe a generous rectangle (the buttons sit well above
-  // the orange head, so a 22 % tall wipe is safe) and use a higher
-  // trim threshold so faint sub-pixel alpha at the wipe edges doesn't
-  // leak into the character bbox.
-  { src: 'orange-wind-up.png', out: 'orange-windup.png',
-    wipeTopRight: { wPct: 0.42, hPct: 0.22 }, trimThreshold: 25 },
-  // Cherry-windup screenshot ships with the chat-platform UI badge in
-  // the top-right corner; same wipe pattern. Two variants supplied —
-  // we use the second (cleaner alignment) and skip the first.
-  { src: 'cherry-windup2.png', out: 'cherry-windup.png',
-    wipeTopRight: { wPct: 0.30, hPct: 0.18 }, trimThreshold: 18 },
-];
+// Singles list: empty since sheets 3/6/7 produce clean cherry/orange
+// windups via the connected-component pipeline. The legacy single-image
+// sources (orange-wind-up.png, cherry-windup2.png) had platform UI
+// chips that needed wiping; the new sheet extracts are isolated by
+// the CC pass and don't have that problem.
+const SINGLES = [];
 
 // Long-format singles. Currently empty — the FROST FIGHT wordmark is
 // rendered as inline vector text in src/covers.jsx so it scales
@@ -328,6 +320,30 @@ const SHEET1_MANIFEST = {
   // 14-21: wall textures + theme cover — handled separately
 };
 
+// Sheet 3 — kiwi + cherry anger transitions. Cleaner cherry-windup
+// than the manual screenshot in cherry-windup2.png (no platform UI to
+// strip, sprite trimmed flush). Kiwi-angry is a brand-new asset for
+// the future kiwi-bot enemy.
+const SHEET3_MANIFEST = {
+  3:  'kiwi-windup.png',     // kiwi: angry pose (cheeks not yet puffed)
+  14: 'cherry-windup.png',   // cherry: angry pose — overwrites the manual single
+};
+
+// Sheet 6 — orange anger transitions. cc#12 is the cleanest angry pose
+// (no steam clouds nearby, isolated by the CC pass). Replaces the
+// previously-disabled orange-wind-up.png that read as a different
+// character mid-animation.
+const SHEET6_MANIFEST = {
+  12: 'orange-windup.png',   // orange: angry/decisive — used for cast windup
+};
+
+// Sheet 7 — pineapple + grape + lemon + strawberry transitions. Grape
+// gets a proper windup pose; the rest pose stays as the standalone
+// grape-bot from sheet 1. Pineapple/lemon left for future bot kinds.
+const SHEET7_MANIFEST = {
+  28: 'grape-windup.png',    // grape cluster: angry, all faces frowning
+};
+
 // CC-driven sprite extractor. Loads a sheet, runs checker-bg removal,
 // finds components, then for each manifest entry crops the bbox out of
 // the cleaned sheet and runs the standard emitSprite tail (lasso + trim
@@ -529,6 +545,12 @@ async function processCover() {
   await processSheet(join(SRC, 'A Type 2.png'), A2_LAYOUT);
   console.log('▶︎ Sheet 1 (themed bots + alt fruits)');
   await processSheetCC('1.png', SHEET1_MANIFEST);
+  console.log('▶︎ Sheet 3 (kiwi + cherry anger)');
+  await processSheetCC('3.png', SHEET3_MANIFEST);
+  console.log('▶︎ Sheet 6 (orange anger)');
+  await processSheetCC('6.png', SHEET6_MANIFEST);
+  console.log('▶︎ Sheet 7 (grape anger)');
+  await processSheetCC('7.png', SHEET7_MANIFEST);
   console.log('▶︎ Singles');
   for (const s of SINGLES) await processSingle(s);
   console.log('▶︎ Wide singles');

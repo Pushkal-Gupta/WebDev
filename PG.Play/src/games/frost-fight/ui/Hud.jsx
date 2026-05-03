@@ -43,14 +43,18 @@ export default function Hud({
   difficulty,
   activePower,
 }) {
-  // Phase 18: lives are per-level. `levelDeaths` resets to 0 on every
-  // level entry, so `livesRemaining = max(0, livesCap - levelDeaths)`.
-  // Hitting 0 fires a level-reset overlay (separate component) — it
-  // doesn't end the run. The chip flips to is-danger at <=0 remaining.
-  const livesCap = difficulty && Number.isFinite(difficulty.lives) ? difficulty.lives : null;
-  const livesUsed = typeof levelDeaths === 'number' ? levelDeaths : deaths;
-  const livesRemaining = livesCap !== null ? Math.max(0, livesCap - livesUsed) : null;
-  const livesLow = livesRemaining !== null && livesRemaining <= 0;
+  // Phase 19: lives are a RUN-WIDE pool that scales with theme length.
+  // `livesFor(L)` from the picked difficulty resolves the cap; Easy
+  // returns Infinity (chip shows ∞), Insane returns 0 (chip shows
+  // "0/0" with is-danger). Out of pool → game-over (handled by the
+  // game's death pipeline, not the chip).
+  const livesCap = difficulty && typeof difficulty.livesFor === 'function'
+    ? difficulty.livesFor(typeof levelCount === 'number' ? levelCount : 15)
+    : null;
+  const isUnlimited = livesCap === Infinity;
+  const livesRemaining = isUnlimited ? Infinity
+    : (livesCap === null ? null : Math.max(0, livesCap - deaths));
+  const livesLow = livesRemaining !== null && !isUnlimited && livesRemaining <= 1;
   // Pace marker — show the player's recorded best for this room as a
   // ghost line under the room name. Gives a target without nagging.
   const paceLabel = roomBest && typeof roomBest.time === 'number'
@@ -81,7 +85,9 @@ export default function Hud({
       <div className={'ff-chip ff-chip-sec' + (livesLow ? ' is-danger' : '')}>
         <span className="ff-chip-label">{livesCap !== null ? 'Lives' : 'Deaths'}</span>
         <span className="ff-chip-value">
-          {livesCap !== null ? (
+          {isUnlimited ? (
+            <b className="ff-chip-num">∞</b>
+          ) : livesCap !== null ? (
             <>
               <PopNumber value={livesRemaining} className="ff-chip-num"/>
               <span className="ff-chip-unit">/{livesCap}</span>
@@ -104,7 +110,7 @@ export default function Hud({
           <span className="ff-chip-label">Power</span>
           <span className="ff-chip-value">
             <b className="ff-chip-num">{activePower.label}</b>
-            {activePower.id !== 'freefreeze' && activePower.total > 0 && (
+            {activePower.total > 0 && (
               <span className="ff-chip-power-bar" aria-hidden="true">
                 <span
                   className="ff-chip-power-bar-fill"

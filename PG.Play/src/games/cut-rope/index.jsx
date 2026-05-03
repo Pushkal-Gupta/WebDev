@@ -99,7 +99,7 @@ export default function CutRopeGame() {
       lv._reloadKey = reloadKey;
       lv._tetheredCache = true;
       levelRef.current = lv;
-      engine.setBackdrop(lv.palette.backdropTop, lv.palette.backdropBot);
+      engine.setBackdrop(lv.palette.backdropTop, lv.palette.backdropBot, lv.palette.floor);
       // Auto-attach bubble if the candy spawns inside one. We also nudge
       // the candy slightly sideways: with verlet+constraint physics, a
       // perfectly straight-down taut rope locks the candy in place and

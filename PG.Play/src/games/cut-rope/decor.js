@@ -1,110 +1,77 @@
-// Cut the Rope — per-world diorama decor. Adds a few low-poly accents
-// at z=-2.5 (between the gameplay plane at z=0 and the backdrop at
-// z=-3.5) so each world reads as a distinct space. Pure procedural
-// geometry; no textures.
+// Snip — per-world decor. One quiet background motif per world, each
+// rendered as flat shapes that read as paper-craft. The previous
+// implementation stacked procedural primitives (box shelves, cone
+// leaves, cylinder gears) which betrayed the geometry — we keep it
+// minimal here.
+//
+// Decor sits at z = -2.5 (between the backdrop at z = -3.5 and the
+// gameplay layer at z ≈ 0). Materials are unlit and lightly tinted so
+// the foreground stays the eye target.
 
 import * as THREE from 'three';
+import { paperDisk } from './entities/_paper.js';
 
 const Z_DECOR = -2.5;
 
 export function makeDecor(theme, palette) {
   const group = new THREE.Group();
-  const disposables = [];
+  const owned = [];   // materials we created and need to dispose
 
-  const useMat = (mat) => { disposables.push(mat); return mat; };
-  const useGeo = (geo) => { disposables.push(geo); return geo; };
+  const addCircle = (x, y, r, color, opts = {}) => {
+    const m = paperDisk(r, color, { highlight: 0, shade: 0, ...opts });
+    m.position.set(x, y, Z_DECOR);
+    group.add(m);
+    owned.push(m.material);
+  };
 
   if (theme === 'sweet') {
-    // Two shelf brackets + a shelf line.
-    const shelfMat = useMat(new THREE.MeshStandardMaterial({
-      color: palette.floor, roughness: 0.7, metalness: 0.05,
-    }));
-    const shelf = new THREE.Mesh(useGeo(new THREE.BoxGeometry(14, 0.18, 0.2)), shelfMat);
-    shelf.position.set(0, 5.6, Z_DECOR);
-    group.add(shelf);
-
-    const bracketGeo = useGeo(new THREE.BoxGeometry(0.6, 0.6, 0.18));
-    const bracketMat = useMat(new THREE.MeshStandardMaterial({
-      color: palette.floorEdge, roughness: 0.6, metalness: 0.1,
-    }));
-    const bL = new THREE.Mesh(bracketGeo, bracketMat); bL.position.set(-4.8, 5.95, Z_DECOR);
-    const bR = new THREE.Mesh(bracketGeo, bracketMat); bR.position.set( 4.8, 5.95, Z_DECOR);
-    group.add(bL); group.add(bR);
-
-    // Two pastel macaron silhouettes far back-left.
-    const macMatA = useMat(new THREE.MeshStandardMaterial({ color: 0xffd6cc, roughness: 0.7 }));
-    const macMatB = useMat(new THREE.MeshStandardMaterial({ color: 0xffe9b3, roughness: 0.7 }));
-    const macGeo = useGeo(new THREE.CylinderGeometry(0.5, 0.5, 0.3, 24));
-    const m1 = new THREE.Mesh(macGeo, macMatA); m1.position.set(-5.2, 5.0, Z_DECOR + 0.05); m1.rotation.z = Math.PI / 2;
-    const m2 = new THREE.Mesh(macGeo, macMatB); m2.position.set(-5.2, 4.2, Z_DECOR + 0.05); m2.rotation.z = Math.PI / 2;
-    group.add(m1); group.add(m2);
+    // Two soft pastel orbs floating top-left + top-right — read as
+    // plump candies behind the action.
+    addCircle(-4.4, 0.6, 0.62, '#ffd6cc', { softness: 0.35 });
+    addCircle( 4.4, 1.2, 0.48, '#ffe9b3', { softness: 0.35 });
+    addCircle(-3.6, 5.3, 0.34, '#ffcab0', { softness: 0.4 });
+    addCircle( 3.4, 5.4, 0.40, '#ffe0bd', { softness: 0.4 });
   }
   else if (theme === 'green') {
-    // A potted fern silhouette far right + an arched window glow.
-    const potMat = useMat(new THREE.MeshStandardMaterial({ color: palette.floorEdge, roughness: 0.8 }));
-    const pot = new THREE.Mesh(useGeo(new THREE.CylinderGeometry(0.6, 0.7, 0.7, 16)), potMat);
-    pot.position.set(5.0, 5.4, Z_DECOR);
-    group.add(pot);
+    // Soft leaf silhouettes left + right — rounded ellipses tilted.
+    const leafL = paperDisk(1.0, '#7fa86b', { highlight: 0, shade: 0, softness: 0.35 });
+    leafL.position.set(-4.6, 1.0, Z_DECOR);
+    leafL.scale.set(0.6, 1.1, 1);
+    leafL.rotation.z = -0.5;
+    group.add(leafL); owned.push(leafL.material);
 
-    const leafMat = useMat(new THREE.MeshStandardMaterial({ color: 0x6d9a5a, roughness: 0.6 }));
-    const leafGeo = useGeo(new THREE.ConeGeometry(0.5, 1.4, 6, 1, true));
-    for (let i = 0; i < 5; i++) {
-      const leaf = new THREE.Mesh(leafGeo, leafMat);
-      leaf.position.set(5.0, 4.4, Z_DECOR);
-      leaf.rotation.z = (i - 2) * 0.4;
-      leaf.scale.set(0.7, 1.0 + i * 0.05, 0.7);
-      group.add(leaf);
-    }
+    const leafR = paperDisk(0.8, '#9ec77b', { highlight: 0, shade: 0, softness: 0.35 });
+    leafR.position.set(4.6, 0.6, Z_DECOR);
+    leafR.scale.set(0.6, 1.0, 1);
+    leafR.rotation.z = 0.5;
+    group.add(leafR); owned.push(leafR.material);
 
-    // Soft arched window — a flat plane with a warm additive blend.
-    const winMat = useMat(new THREE.MeshBasicMaterial({
-      color: 0xfff0d6, transparent: true, opacity: 0.18,
-      blending: THREE.AdditiveBlending, depthWrite: false,
-      side: THREE.DoubleSide,
-    }));
-    const win = new THREE.Mesh(useGeo(new THREE.CircleGeometry(2.0, 32, 0, Math.PI)), winMat);
-    win.position.set(-3.5, 1.4, Z_DECOR + 0.1);
-    win.rotation.z = Math.PI;
-    group.add(win);
+    addCircle(4.0, 5.0, 0.3, '#a8c886', { softness: 0.4 });
+    addCircle(-3.4, 5.2, 0.28, '#bcd4a0', { softness: 0.4 });
   }
   else if (theme === 'work') {
-    // A pendant lamp + two gear silhouettes.
-    const wireMat = useMat(new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.6 }));
-    const wire = new THREE.Mesh(useGeo(new THREE.BoxGeometry(0.04, 1.6, 0.04)), wireMat);
-    wire.position.set(-3.4, 0.6, Z_DECOR);
-    group.add(wire);
+    // Two warm circular lamps — soft glow halos.
+    const haloA = paperDisk(1.2, '#ff7b3a', { highlight: 0, shade: 0, softness: 0.7 });
+    haloA.material.transparent = true;
+    haloA.material.opacity = 0.45;
+    haloA.position.set(-3.6, 1.6, Z_DECOR);
+    group.add(haloA); owned.push(haloA.material);
 
-    const lampMat = useMat(new THREE.MeshStandardMaterial({
-      color: 0xff7b3a, roughness: 0.5, metalness: 0.6,
-      emissive: 0xff7b3a, emissiveIntensity: 0.7,
-    }));
-    const lamp = new THREE.Mesh(useGeo(new THREE.ConeGeometry(0.5, 0.8, 18)), lampMat);
-    lamp.position.set(-3.4, 1.6, Z_DECOR + 0.05);
-    group.add(lamp);
+    const haloB = paperDisk(0.9, '#ffae6a', { highlight: 0, shade: 0, softness: 0.7 });
+    haloB.material.transparent = true;
+    haloB.material.opacity = 0.40;
+    haloB.position.set(3.4, 0.6, Z_DECOR);
+    group.add(haloB); owned.push(haloB.material);
 
-    // Soft warm halo plane below the lamp.
-    const haloMat = useMat(new THREE.MeshBasicMaterial({
-      color: 0xff9a4a, transparent: true, opacity: 0.16,
-      blending: THREE.AdditiveBlending, depthWrite: false,
-      side: THREE.DoubleSide,
-    }));
-    const halo = new THREE.Mesh(useGeo(new THREE.CircleGeometry(2.4, 32)), haloMat);
-    halo.position.set(-3.4, 2.4, Z_DECOR + 0.12);
-    group.add(halo);
-
-    // Two gear silhouettes far right.
-    const gearMat = useMat(new THREE.MeshStandardMaterial({ color: 0x4a3a30, roughness: 0.8 }));
-    const g1 = new THREE.Mesh(useGeo(new THREE.CylinderGeometry(0.7, 0.7, 0.18, 12)), gearMat);
-    g1.position.set(5.2, 4.8, Z_DECOR); g1.rotation.x = Math.PI / 2;
-    const g2 = new THREE.Mesh(useGeo(new THREE.CylinderGeometry(0.5, 0.5, 0.18, 10)), gearMat);
-    g2.position.set(5.8, 3.6, Z_DECOR); g2.rotation.x = Math.PI / 2;
-    group.add(g1); group.add(g2);
+    // Small specular dots in the lamps' centres.
+    addCircle(-3.6, 1.6, 0.10, '#fff3c4', { softness: 0.05 });
+    addCircle( 3.4, 0.6, 0.07, '#fff3c4', { softness: 0.05 });
   }
 
   return {
     mesh: group,
     dispose() {
-      for (const d of disposables) d.dispose();
+      for (const m of owned) m.dispose();
     },
   };
 }

@@ -6,7 +6,7 @@
 
 import * as THREE from 'three';
 import { Trap } from './base.js';
-import { makeTree } from '../props.js';
+import { makeTree, makePusher } from '../props.js';
 import { sfx } from '../audio.js';
 
 const REACH = 9;             // metres at which the tree starts winding up
@@ -29,12 +29,22 @@ export class FallingTree extends Trap {
     const tree = makeTree(biome, 1.5, 0);
     trunkPivot.add(tree);
 
-    // The fall axis — rotation around world-X (so the canopy sweeps the
-    // path along Z). `side` flips it so the tree falls toward the path
-    // from whichever flank it was placed on.
+    // Pusher gremlin behind the tree, planted at z = -1.0 (the side
+    // opposite to the path). When the trunk leans BACK for windup the
+    // pusher leans into it; on the fall the pusher heaves forward and
+    // the canopy sweeps the path. We add the pusher to the trap group
+    // (NOT the trunkPivot) so it stays standing while the tree falls
+    // — it's pushing, not riding the trunk down.
+    const pusher = makePusher(biome);
+    pusher.position.set(0, 0, -1.1);
+    pusher.rotation.y = Math.PI;          // face the trunk
+    g.add(pusher);
+
     super({ kind: 'falling', group: g, anchor, hitRadius: 0.9, anticipation: WINDUP, cooldown: COOLDOWN });
     this.tree = tree;
     this.pivot = trunkPivot;
+    this.pusher = pusher;
+    this.pusherBody = pusher.userData.body;
     this.side = side;
     this.creaked = false;
     this.lieT = 0;
@@ -43,6 +53,15 @@ export class FallingTree extends Trap {
   tick(dt, ctx) {
     this.t += dt;
     const inRange = this.anchor.distanceTo(ctx.player) < REACH;
+
+    // Pusher animation, mirrored from the trunk's phase: leans into
+    // the windup, heaves on the strike, settles during cooldown.
+    let pusherTilt = 0;
+    if (this.phase === 'anticipation') pusherTilt = -0.18 * Math.min(1, this.t / WINDUP);
+    else if (this.phase === 'strike')  pusherTilt = THREE.MathUtils.lerp(-0.18, 0.7, Math.min(1, this.t / FALL_TIME));
+    else if (this.phase === 'lie')     pusherTilt = 0.55;
+    else if (this.phase === 'cooldown') pusherTilt = THREE.MathUtils.lerp(0.55, 0, Math.min(1, this.t / (COOLDOWN * 0.6)));
+    this.pusherBody.rotation.x = pusherTilt;
 
     if (this.phase === 'idle') {
       // Subtle sway so the tree reads as alive.

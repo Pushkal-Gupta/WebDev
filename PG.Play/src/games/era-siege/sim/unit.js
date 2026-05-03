@@ -6,6 +6,7 @@ import { ERAS_BY_ID } from '../content/eras.js';
 import { BALANCE } from '../content/balance.js';
 import { damageUnit, damageBase } from './combat.js';
 import { spawnProjectile } from './projectile.js';
+import { getMultiplier } from './powerups.js';
 
 const UNIT_REPULSE_PX = BALANCE.UNIT_REPULSE_PX;
 
@@ -44,6 +45,15 @@ export function trySpawnUnit(state, side, unitId) {
     ? state.view.laneLeft + 14
     : state.view.laneRight - 14;
   const facing = side === state.player ? 1 : -1;
+  // Troop powerups apply to non-general units only — generals are
+  // already monumentally tuned and the player has another lever (era
+  // upgrade) to scale them.
+  const isGeneral = def.role === 'general';
+  const isRanged  = def.role === 'ranged';
+  const dmgMul = isGeneral ? 1 : getMultiplier(side.powerups, 'troopDmg');
+  const hpMul  = isGeneral ? 1 : getMultiplier(side.powerups, 'troopHp');
+  const rngMul = (isGeneral || !isRanged) ? 1 : getMultiplier(side.powerups, 'troopRng');
+  const finalHp = Math.round(def.hp * hpMul);
   const u = {
     id,
     kind: 'unit',
@@ -53,10 +63,10 @@ export function trySpawnUnit(state, side, unitId) {
     eraIndex: eraIdxOfDef,         // renderer reads this for sprite key lookup
     name: def.name,
     role: def.role,
-    hp: def.hp,
-    maxHp: def.hp,
-    damage: def.damage,
-    range: def.range,
+    hp: finalHp,
+    maxHp: finalHp,
+    damage: Math.round(def.damage * dmgMul),
+    range: Math.round(def.range * rngMul),
     moveSpeed: def.moveSpeed,
     attackWindupMs: def.attackWindupMs,
     attackRecoverMs: def.attackRecoverMs,

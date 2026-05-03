@@ -28,113 +28,113 @@ export const GAMES = [
   // STORY / CO-OP
   { id:'fbwg', name:'Ember & Tide', cat:'Co-op', kind:'story', players:'1-2 co-op', levels:3,
     tagline:'Two friends, one keyboard, three chambers.',
-    story:'Ember burns, Tide cools. Ember can\'t touch water. Tide can\'t touch fire. Acid hates everyone. Share a keyboard — W A D for Ember, arrows for Tide — collect every gem, step onto your own door at the same time. Three hand-designed chambers. Same-team forgiveness: if one falls, you both restart the room.',
+    story:'Ember burns. Tide cools. They need each other to leave the room. Share the keyboard with someone you trust — and find out fast whether you should.',
     playable:true, badge:'new', isOriginal:true,
     mobileSupport:'desktop-only', inputs:['keyboard'], orientation:'landscape',
     skillTags:['spatial','planning','coop'], sessionLength:'short' },
 
   { id:'bob', name:'Night Shift', cat:'Stealth', kind:'story', players:'1P', levels:3,
     tagline:'Three floors. Three nights. One flashlight too many.',
-    story:'A quiet walk past guards who don\'t want you there. Read patrol paths, step into gaps between vision cones, hold Shift to tiptoe when you need to go silent. Detection fills a meter — fill it and the shift restarts. Three handcrafted nights: reception, second floor, penthouse.',
+    story:'A building you are not supposed to be in. Guards who would rather you weren\'t. Read the room, time the gap, and slip through without ever being seen.',
     playable:true, badge:'new', isOriginal:true,
     mobileSupport:'touch-ok', inputs:['keyboard','touch'], orientation:'landscape',
     skillTags:['timing','stealth','planning'], sessionLength:'short' },
 
-  { id:'badicecream', name:'Frost Fight', cat:'Arcade', kind:'story', players:'1-2 co-op', levels:22,
-    tagline:'Six themed eras of fruit, ice, and difficulty tiers.',
-    story:'A grid maze, a roster of angry fruits, and one small ice cream — or two. Solo: WASD to step, Space to cast a row of ice in the direction you face. Co-op: P1 on WASD + Space, P2 on arrows + Enter, sharing the room. Bots cast ice rows back the same way you do, and self-melt out of corners. Twenty-two rooms across six eras: Cold Aisle (Pantry → Frostbite), Crystal Cavern (kiwi pickups, blueberry & plum bots), Citrus Yard (lemon & apple, eggplant & grape & cherrybomb), Vineyard (apple & cherry, melon & grape & plum), Final Storm (mixed everything). Five difficulty tiers: Easy 5 lives → Insane 0 lives plus 2× enemy ice rate.',
+  { id:'badicecream', name:'Frost Fight', cat:'Arcade', kind:'story', players:'1-2 co-op', levels:40,
+    tagline:'A maze. Some angry fruit. One small ice cream.',
+    story:'You are a small ice cream in a place that does not want you here. The fruit is patient and the corridors are short. Freeze a row to buy a second. Melt a row to take it back. Bring a friend if the lonely freezes in your chest. The deeper you go, the meaner the orchard gets.',
     playable:true, badge:'new', updated:true, isOriginal:true,
     mobileSupport:'touch-ok', inputs:['keyboard','touch'], orientation:'landscape',
     skillTags:['spatial','planning','reflex','coop'], sessionLength:'short' },
 
   { id:'aow', name:'Era Siege', cat:'Strategy', kind:'story', players:'1P', levels:5,
     tagline:'Five eras of warfare. One lane. One base you can\'t afford to lose.',
-    story:'A single lane across the long arc of history. Spawn units, build turrets, save XP for the era-up. Five originals — Ember Tribe, Iron Dominion, Sun Foundry, Storm Republic, Void Ascendancy — each with their own roster, turret, and special. Three difficulties. Skirmish to learn the loop, Conquest when you want the AI to bite back.',
+    story:'A single lane across the long arc of history. Spawn the unit, build the turret, save for the next age. Hold long enough and your enemy ages with you — just meaner, and not always patient enough to wait.',
     playable:true, badge:'new', updated:true,
     mobileSupport:'native', inputs:['mouse','tap','keyboard'], orientation:'landscape',
     skillTags:['planning','resource-mgmt'], sessionLength:'medium', isOriginal:true },
 
   { id:'vex', name:'Trace', cat:'Platformer', kind:'story', players:'1P', levels:6,
-    tagline:'Six rooms. Read the line. Run it.',
-    story:'A precision platformer with six hand-designed rooms — tutorial, spike pit, saw alley, wall-jump chimney, saw timing, finale. Coyote time and jump buffering keep controls forgiving; death is instant and so is the respawn. Score rewards clean runs: fewer deaths and fewer seconds = higher finish.',
+    tagline:'Read the line. Run it.',
+    story:'The room shows you the path and dares you to take it without flinching. Death is instant. So is the next try. You will be quicker the second time. You will not be quick enough the third.',
     playable:true, badge:'new', isOriginal:true,
     mobileSupport:'touch-ok', inputs:['keyboard','touch'], orientation:'landscape',
     skillTags:['reflex','timing','movement'], sessionLength:'short' },
 
   { id:'papa', name:'Short Order', cat:'Time-mgmt', kind:'story', players:'1P', levels:'∞',
     tagline:'Ninety-second shift. Tips in the jar.',
-    story:'Tickets pile up. Eight big buttons for every step — dough, sauce, cheese, pepperoni, veggies, oven, slice, box. Tap them in the right order for the leftmost ticket; wrong tap costs four seconds; running a ticket out of time costs a life. Three lives, ninety seconds, and a tip jar that scales with speed.',
+    story:'The tickets pile up faster than you can read them. Move quickly, finish strong, watch the jar fill. Mess up and the next one is already cold. Move clean and the rush is the reward.',
     playable:true, badge:'new', isOriginal:true,
     mobileSupport:'native', inputs:['tap','mouse','keyboard'], orientation:'any',
     skillTags:['timing','memory','routing'], sessionLength:'short' },
 
   { id:'hook', name:'Swingwire', cat:'Action', kind:'story', players:'1P', levels:3,
     tagline:'One button. Momentum is the reward.',
-    story:'A neon skyline at night. You are a silhouette with one input: hold to fire a wire at the nearest overhead anchor, release to detach. Late-release arcs carry farther than early release; every course teaches when to let go. Three handcrafted runs — Night Shift (tutorial), Flux (pulsing lasers + tight pillars), Last Call (gauntlet finale). Splat on contact, respawn at checkpoint in ~450ms.',
+    story:'A neon skyline at night. You are a silhouette with one input and the next swing depends on the last one. Let go too early and you fall short. Hold too long and the wire snaps. Find the line.',
     playable:true, badge:'new', isOriginal:true, updated:true,
     mobileSupport:'touch-ok', inputs:['mouse','touch','keyboard'], orientation:'landscape',
     skillTags:['timing','reflex','physics','movement'], sessionLength:'short' },
 
   { id:'g2048', name:'2048', cat:'Puzzle', kind:'story', players:'1P', levels:'∞',
     tagline:'Numbers, merged.',
-    story:'The tile Threes fell in love with the tile Fives, but math is math — you can only merge equals. Slide the board. Fuse 2 into 4, 4 into 8, all the way to that elusive 2048 tile. Then keep going, because pride.',
+    story:'Slide the board, fuse the matches, chase that 2048 tile. Then keep going, because pride. The good run is always one move away.',
     playable:true,
     mobileSupport:'native', inputs:['swipe','keyboard'], orientation:'portrait',
     skillTags:['planning','spatial'], sessionLength:'short' },
 
   { id:'cutrope', name:'Snip', cat:'Puzzle', kind:'story', players:'1P', levels:12,
     tagline:'Slice. Steer. Feed Mochi.',
-    story:'A toy-box puzzle. Slice ropes, steer a candy through stars, drop it into Mochi\'s waiting mouth. Twelve hand-built levels across three dioramas — Sweet Shop, Greenhouse, Workshop — escalating through swings, bubbles, spikes, and sliding pins.',
+    story:'Mochi is hungry. There is candy at the end of a few inconvenient ropes and a small army of physics in between. Cut things in the right order. Mochi gets fed. Mochi is satisfied. You win.',
     playable:true,
     mobileSupport:'native', inputs:['touch','mouse'], orientation:'landscape',
     skillTags:['physics','timing','spatial'], sessionLength:'short' },
 
   { id:'bloons', name:'Loft Defense', cat:'Tower-Def', kind:'story', players:'1P', levels:10,
     tagline:'Hold the line. Spend wisely.',
-    story:'A single winding path. Waves of drifters with rising HP. You have gold and three tower types — fast, splash, slow. Tap to place, tap a tower to upgrade or sell. Ten waves before they break through or you hold the lot.',
+    story:'A single winding path and a slow trickle of trouble that becomes a lot of trouble. Place towers. Watch the math. Hold what matters. The wave you barely survive is the one you remember.',
     playable:true, badge:'new', isOriginal:true,
     mobileSupport:'native', inputs:['tap','mouse'], orientation:'landscape',
     skillTags:['planning','resource-mgmt','routing'], sessionLength:'medium' },
 
   { id:'slither', name:'Coil', cat:'Arcade', kind:'story', players:'1P', levels:'∞',
     tagline:'Grow without touching.',
-    story:'An empty arena and one thought: eat the orbs, don\'t touch anything but orbs. Steer with a finger, a mouse, or WASD. Other coils drift around looking for a mistake — yours or theirs. Bigger is slower, but bigger is also a wall.',
+    story:'An empty arena and one rule: eat the orbs, don\'t touch anything else. Other coils drift around looking for a mistake. Yours, theirs — somebody is going to make one.',
     playable:true, badge:'new', updated:true,
     mobileSupport:'native', inputs:['touch','mouse','keyboard'], orientation:'any',
     skillTags:['reflex','spatial','movement'], sessionLength:'short', isOriginal:true },
 
   { id:'happywheels', name:'Faceplant', cat:'Physics', kind:'story', players:'1P', levels:1,
     tagline:'Ride the course. Keep your head off the dirt.',
-    story:'One bike, one rider, one hand-drawn track of hills, bumps, and three spike fields between you and a green flag. Throttle, brake, and lean. Land wrong and the rider\'s head introduces itself to the ground. Faster clears score higher.',
+    story:'One hand-drawn track between you and a green flag. The hills are kind. The landings, less so. Faster is funnier; funnier is faster. Pray the next one forgives you.',
     playable:true, badge:'new', isOriginal:true,
     mobileSupport:'desktop-first', inputs:['keyboard'], orientation:'landscape',
     skillTags:['physics','reflex','timing'], sessionLength:'short' },
 
   { id:'fps', name:'Raycaster FPS', cat:'Shooter', kind:'story', players:'1P', levels:1,
     tagline:'One corridor, four enemies, one gun.',
-    story:'A single level, a classic corridor, and a handful of drifting creatures that want you gone. Wolfenstein-grade fake-3D rendered one column at a time. Aim, click, clear the sector — the old-school way.',
+    story:'A corridor. A handful of drifters that want you gone. Aim, click, clear it. The old-school way still works.',
     playable:true,
     mobileSupport:'desktop-first', inputs:['keyboard','mouse'], orientation:'landscape',
     skillTags:['reflex','aim'], sessionLength:'short', isOriginal:true },
 
   { id:'grudgewood', name:'Grudgewood', cat:'Rage', kind:'story', players:'1P', levels:6,
     tagline:'The forest remembers.',
-    story:'A hostile-environment trap-survival built around a single idea: the forest is the villain. Six trap families — branch whips, root snares, pressure mushrooms, rolling logs, predator trees, fake stumps — each teaches itself, varies, then combines. Three biomes: warm deceptive Mosswake, sickly Rotbog, and the crimson ember-raining Heart. One-hit deaths, ~500ms respawn, ragdoll slow-mo, checkpoint pylons between stages. Every lethal surprise has a tell. You are meant to feel tricked — never cheated.',
+    story:'The forest is the villain. Roots want your ankles, branches want your face, and the ground is rarely the ground. Every nasty surprise has a tell. The only way out is through.',
     playable:true, badge:'new',
     mobileSupport:'touch-ok', inputs:['keyboard','touch'], orientation:'landscape',
     skillTags:['reflex','memory','timing','movement'], sessionLength:'medium',
     isOriginal:true, updated:true },
 
   { id:'arena', name:'Arena', cat:'Multiplayer', kind:'vs', players:'1-8', levels:1,
-    tagline:'Top-down realtime shootout.',
-    story:'A boxed arena, walls to hide behind, bots to warm up on, and real players dropping in through Supabase Realtime. Five kills to win the round. Click to fire, keep moving — the crosshair is a suggestion.',
+    tagline:'Last one standing eats free.',
+    story:'A boxed arena. Bots to warm up on. Real players dropping in. Nobody hides for long.',
     playable:true, badge:'new',
     mobileSupport:'touch-ok', inputs:['keyboard','mouse'], orientation:'landscape',
     skillTags:['reflex','aim','movement'], sessionLength:'short', isOriginal:true },
 
   { id:'slipshot', name:'SLIPSHOT', cat:'FPS', kind:'story', players:'1P', levels:'∞',
     tagline:'Three minutes. Pure momentum.',
-    story:'A corporate training chamber. Holo-targets blink along the walls. Drones drift in from the ceiling. You have 180 seconds. Slide into a jump, chain the landing into another slide, airdash between kills. The combo meter only climbs while you keep moving — stop, and it falls. Bronze is a clean line. Silver is a pattern. Gold is a song.',
+    story:'Slide into the jump, chain the landing into another slide, airdash between kills. The combo only climbs while you keep moving — and stopping is the worst thing that can happen. Bronze is a clean line. Silver is a pattern. Gold is a song.',
     playable:true, badge:'new',
     mobileSupport:'desktop-only', inputs:['keyboard','mouse'], orientation:'landscape',
     skillTags:['movement','reflex','aim'], sessionLength:'short', isOriginal:true, updated:true },
@@ -142,7 +142,7 @@ export const GAMES = [
 
   { id:'bricklands', name:'Bricklands', cat:'Platformer', kind:'story', players:'1P', levels:3,
     tagline:'Three short worlds. One bouncy hero.',
-    story:'A tight little side-scroller. Run, jump, stomp, collect — three handcrafted runs build into a finale that asks for everything you\'ve learned. Hold the jump button to jump higher; tap to bunny-hop chains; coyote-time and input-buffering keep the controls forgiving.',
+    story:'Run, jump, stomp, collect. Three handcrafted runs build into a finale that asks for everything you have learned — even the parts you thought were the obvious bits.',
     playable:true, featured:true, badge:'new', isOriginal:true, updated:true,
     mobileSupport:'touch-ok', inputs:['keyboard','touch'], orientation:'landscape',
     skillTags:['reflex','timing','movement'], sessionLength:'short' },
@@ -150,28 +150,28 @@ export const GAMES = [
   // HEAD-TO-HEAD
   { id:'connect4', name:'Connect 4', cat:'Classic', kind:'vs', players:'1-2', levels:3,
     tagline:'Four in a row. Old as time.',
-    story:'Drop checkers, yellow vs red, into a seven-by-six grid. First to align four — horizontal, vertical, diagonal — wins. The bot thinks three moves ahead; your friend across the couch thinks zero. Your call.',
+    story:'Drop the checker. Watch the other side. The bot thinks ahead. The friend across the couch usually does not. Your call.',
     playable:true,  // headline classic — quiet break
     mobileSupport:'native', inputs:['tap','mouse','touch'], orientation:'any',
     skillTags:['planning','spatial'], sessionLength:'short' },
 
   { id:'eightball', name:'8-Ball Pool', cat:'Classic', kind:'vs', players:'1-2', levels:3,
     tagline:'Solids vs stripes. Finish on the 8.',
-    story:'Rack them, break them, claim your suit, sink them one by one. Pocket the 8-ball last — not before. Play the bot for a quick match, or swap sticks with someone across the table.',
+    story:'Rack. Break. Claim your side and sink them one at a time. Save the 8 for last. Lose the cue and lose the table.',
     playable:true,
     mobileSupport:'touch-ok', inputs:['mouse','touch','drag'], orientation:'landscape',
     skillTags:['physics','aim','planning'], sessionLength:'medium' },
 
   { id:'goalbound', name:'Goalbound', cat:'Sports', kind:'vs', players:'1-2', levels:3,
     tagline:'One pitch. One minute. All yours.',
-    story:'Two rivals, one minute, and a pitch small enough to make every touch matter. Jump a cross, half-volley a wall-bounce, bury the rebound. Face AI on three tiers or pass the keyboard — whoever blinks first is out. Penalty Shootout mode works on a single phone when nobody else is around.',
+    story:'Two rivals, one minute, and a pitch small enough that every touch counts. Whoever blinks first is out.',
     playable:true, badge:'new', isOriginal:true, updated:true,
     mobileSupport:'touch-ok', inputs:['keyboard','touch'], orientation:'landscape',
     skillTags:['timing','reflex','physics'], sessionLength:'short' },
 
   { id:'basket', name:'Hoop Shot', cat:'Sports', kind:'story', players:'1P', levels:'∞',
     tagline:'Ninety seconds. One sliding hoop.',
-    story:'A drag-back-release basket shootout. The hoop slides; you don\'t. Press the ball, drag back to aim, release to launch. Swishes score three, rim kisses score two, consecutive makes add a streak bonus that scales. Ninety seconds to rack up. Touch, mouse, both.',
+    story:'Drag back. Release. Watch it fall. The hoop slides; you don\'t. Streak the makes and the score climbs faster than you can throw.',
     playable:true, badge:'new',
     mobileSupport:'native', inputs:['touch','mouse','drag'], orientation:'landscape',
     skillTags:['aim-trajectory','timing','physics'], sessionLength:'short', isOriginal:true },
@@ -238,7 +238,10 @@ export const COLLECTIONS = [
 ];
 
 // The four headline originals — these get the bento hero tiles on home.
-export const EDITORS_PICKS = ['grudgewood', 'goalbound', 'slither', 'slipshot'];
+// Phase 20: Frost Fight promoted to hero tier; Goalbound demoted to a
+// classic-slot card so the user-requested top tier reads:
+//   Frost Fight, Slipshot, Grudgewood, Coil, Goalbound, Connect 4.
+export const EDITORS_PICKS = ['badicecream', 'slipshot', 'grudgewood', 'slither'];
 
 // Filter taxonomy used by the homepage chip strip and sidebar.
 export const FILTERS = [

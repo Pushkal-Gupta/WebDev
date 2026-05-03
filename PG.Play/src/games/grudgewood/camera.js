@@ -27,8 +27,11 @@ const tmpB = new THREE.Vector3();
 // world-axis offset (south + above), regardless of where the player
 // is facing. World +X = screen-left (three.js up×back convention),
 // world +Z = screen-up — the player.js input mirrors X to compensate.
+//
+// Pitch ≈ atan(5.5 / 6) ≈ 42° — a touch more top-down than the prior
+// 37° so the player can read the room without being overhead-shooter.
 const PAN_OFFSET_X = 0;
-const PAN_OFFSET_Y = 4.5;
+const PAN_OFFSET_Y = 5.5;
 const PAN_OFFSET_Z = -6.0;
 const LOOK_HEIGHT = 1.4;
 
@@ -66,15 +69,17 @@ export class ChaseCamera {
   update(dt, player, walls = null) {
     this.modeT += dt;
 
-    // Velocity look-ahead in world space — camera leans toward where
-    // the player is heading, but only a couple of metres so the camera
-    // never rotates around them.
+    // Forward-only velocity look-ahead — when the player walks +Z the
+    // camera leans an extra metre or two into the scene so they can
+    // read what's coming. We deliberately DON'T lead on X: with the
+    // fixed-orientation camera, an X look-ahead pans the look-target
+    // sideways and rotates the view a few degrees, which reads as a
+    // "weird tilt" when walking purely east or west.
     const speed = Math.hypot(player.vel.x, player.vel.z);
-    const leadX = THREE.MathUtils.clamp(player.vel.x * 0.18, -1.6, 1.6);
-    const leadZ = THREE.MathUtils.clamp(player.vel.z * 0.18, -1.6, 1.6);
+    const leadZ = THREE.MathUtils.clamp(player.vel.z * 0.16, -1.2, 1.6);
 
     const desiredTarget = tmpA.set(
-      player.pos.x + leadX,
+      player.pos.x,
       player.pos.y + LOOK_HEIGHT,
       player.pos.z + leadZ,
     );

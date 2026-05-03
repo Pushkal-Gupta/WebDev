@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Icon } from '../icons.jsx';
 import { isMuted, setMuted } from '../sound.js';
+import { isAdminVerified, setAdminVerified, verifyAdminPassword } from '../utils/admin.js';
 
 function PillToggle({ ariaLabel, value, options, onChange }) {
   const reduced = useReducedMotion();
@@ -48,6 +49,66 @@ export default function SettingsDrawer({
   const reduced = useReducedMotion();
   const [muted, setMutedState] = useState(() => isMuted());
   const drawerRef = useRef(null);
+  // Phase 21 — only render the admin section when the URL contains
+  // `?admin` (or `?admin=1` etc). Anyone without that query string
+  // can't see the section at all; with it, the password gate is the
+  // actual lock. Computed once on mount; toggling it requires reload.
+  const adminQueryEnabled = (() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return params.has('admin');
+    } catch { return false; }
+  })();
+  // Admin gate state. `revealed` flips the password row open; the
+  // gate doesn't open the section itself (it's always rendered when
+  // ?admin is in the URL).
+  const [adminRevealed, setAdminRevealed] = useState(() => isAdminVerified());
+  const [adminPwd, setAdminPwd]           = useState('');
+  const [adminPwdShown, setAdminPwdShown] = useState(false);
+  const [adminBusy, setAdminBusy]         = useState(false);
+  const [adminError, setAdminError]       = useState(null);
+  const [adminVerified, setAdminVerifiedState] = useState(() => isAdminVerified());
+  const [ffUnlockAll, setFfUnlockAll]     = useState(() => {
+    try { return sessionStorage.getItem('pgplay-ff-admin-all') === '1'; }
+    catch { return false; }
+  });
+
+  const trySubmitAdmin = async (e) => {
+    if (e) e.preventDefault();
+    if (!adminPwd || adminBusy) return;
+    setAdminBusy(true);
+    setAdminError(null);
+    const { ok } = await verifyAdminPassword(adminPwd);
+    setAdminBusy(false);
+    if (ok) {
+      setAdminVerified(true);
+      setAdminVerifiedState(true);
+      setAdminPwd('');
+      setAdminPwdShown(false);
+    } else {
+      setAdminError('Wrong password.');
+    }
+  };
+
+  const signOutAdmin = () => {
+    setAdminVerified(false);
+    setAdminVerifiedState(false);
+    setFfUnlockAll(false);
+    try { sessionStorage.removeItem('pgplay-ff-admin-all'); }
+    catch { /* ignore */ }
+  };
+
+  const toggleFfUnlockAll = () => {
+    setFfUnlockAll((v) => {
+      const next = !v;
+      try {
+        if (next) sessionStorage.setItem('pgplay-ff-admin-all', '1');
+        else sessionStorage.removeItem('pgplay-ff-admin-all');
+      } catch { /* ignore */ }
+      return next;
+    });
+  };
   const setSound = (v) => {
     const wantMute = v === 'off';
     if (wantMute !== muted) { setMuted(wantMute); setMutedState(wantMute); }
@@ -176,6 +237,102 @@ export default function SettingsDrawer({
               </button>
             </div>
           </section>
+
+          {/* Admin — gated by a server-verified password AND a `?admin`
+              URL flag. Without ?admin in the query string the section
+              is not rendered at all (anyone hitting plain /home doesn't
+              see it). With it, the password is the real lock. */}
+          {adminQueryEnabled && (
+          <section className="settings-v2-section">
+            <div className="settings-v2-kicker">Admin</div>
+            {!adminRevealed && !adminVerified && (
+              <div className="settings-v2-row">
+                <div className="settings-v2-row-text">
+                  <div className="settings-v2-row-title">Admin tools</div>
+                  <div className="settings-v2-row-desc">Hidden by default. Enter the password to unlock dev shortcuts.</div>
+                </div>
+                <button
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => setAdminRevealed(true)}>
+                  Show
+                </button>
+              </div>
+            )}
+            {adminRevealed && !adminVerified && (
+              <form className="settings-admin-gate" onSubmit={trySubmitAdmin}>
+                <label className="settings-admin-label" htmlFor="settings-admin-pwd">
+                  Admin password
+                </label>
+                <div className="settings-admin-row">
+                  <div className="settings-admin-input-wrap">
+                    <input
+                      id="settings-admin-pwd"
+                      className="settings-admin-input"
+                      type={adminPwdShown ? 'text' : 'password'}
+                      autoComplete="current-password"
+                      value={adminPwd}
+                      onChange={(e) => { setAdminPwd(e.target.value); setAdminError(null); }}
+                      placeholder="Enter password"
+                      disabled={adminBusy}
+                    />
+                    <button
+                      type="button"
+                      className="settings-admin-eye"
+                      onClick={() => setAdminPwdShown((v) => !v)}
+                      aria-label={adminPwdShown ? 'Hide password' : 'Show password'}
+                      aria-pressed={adminPwdShown}
+                      tabIndex={0}>
+                      {adminPwdShown ? Icon.eyeOff : Icon.eye}
+                    </button>
+                  </div>
+                  <button
+                    type="submit"
+                    className="btn btn-primary btn-sm"
+                    disabled={adminBusy || !adminPwd}>
+                    {adminBusy ? 'Verifying…' : 'Unlock'}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => { setAdminRevealed(false); setAdminPwd(''); setAdminError(null); setAdminPwdShown(false); }}>
+                    Cancel
+                  </button>
+                </div>
+                {adminError && <div className="settings-admin-error">{adminError}</div>}
+                <div className="settings-admin-hint">
+                  Verified server-side when the edge function is deployed; a
+                  one-way PBKDF2 digest in the bundle handles the local case.
+                  The plaintext password is never stored client-side.
+                </div>
+              </form>
+            )}
+            {adminVerified && (
+              <>
+                <div className="settings-v2-row settings-admin-status">
+                  <div className="settings-v2-row-text">
+                    <div className="settings-v2-row-title">Admin unlocked</div>
+                    <div className="settings-v2-row-desc">Tools below are session-scoped. Closing the tab signs you out.</div>
+                  </div>
+                  <button className="btn btn-ghost btn-sm" onClick={signOutAdmin}>Sign out</button>
+                </div>
+                <div className="settings-v2-row">
+                  <div className="settings-v2-row-text">
+                    <div className="settings-v2-row-title">Frost Fight — unlock every room</div>
+                    <div className="settings-v2-row-desc">Bypasses the cleared-rooms gate in the Frost Fight lobby.</div>
+                  </div>
+                  <PillToggle
+                    ariaLabel="Unlock all Frost Fight rooms"
+                    value={ffUnlockAll ? 'on' : 'off'}
+                    options={[{ value: 'on', label: 'On' }, { value: 'off', label: 'Off' }]}
+                    onChange={(v) => {
+                      if ((v === 'on') !== ffUnlockAll) toggleFfUnlockAll();
+                    }}
+                  />
+                </div>
+              </>
+            )}
+          </section>
+          )}
 
           {/* About */}
           <section className="settings-v2-section">
