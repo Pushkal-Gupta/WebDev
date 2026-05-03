@@ -223,25 +223,23 @@ export default function Home() {
         id="primary-sidebar"
         className={'sidebar-wrap' + (sideOpen ? ' is-open' : '')}
         aria-hidden={sideOpen ? 'false' : 'true'}>
-        <div className="sidebar-shell">
-          <Sidebar
-            games={playable}
-            activeFilter="all"
-            onFilter={() => {}}
-            favCount={favCount}
-            onOpenFavorites={() => {}}
-            favoritesOnly={false}
-            onOpenSettings={() => setSettingsOpen(true)}
-            onOpenProfile={() => setProfileOpen(true)}
-            onOpenAuth={() => setAuthOpen(true)}
-            onSignOut={signOut}
-            user={user}
-            onClose={() => setSideOpen(false)}
-            activeCollection={null}
-            onOpenCollection={() => {}}
-            collectionCounts={{ originals: heroes.length }}
-          />
-        </div>
+        <Sidebar
+          user={user}
+          favCount={favCount}
+          activeSection="home"
+          onHome={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          onSearch={() => setSearchOpen(true)}
+          onRandom={onRandom}
+          onFavorites={() => {
+            const node = document.getElementById('more-title');
+            if (node) node.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }}
+          onProfile={() => setProfileOpen(true)}
+          onOpenSettings={() => setSettingsOpen(true)}
+          onOpenAuth={() => setAuthOpen(true)}
+          onSignOut={signOut}
+          onClose={() => setSideOpen(false)}
+        />
       </div>
 
       <main id="main" className="app-main">

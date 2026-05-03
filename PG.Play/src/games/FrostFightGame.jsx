@@ -123,6 +123,23 @@ const ROOM_WALL_KEY = {
   'Walk-In':      'walkin',
   'Loading Dock': 'loadingdock',
   'Sub-Basement': 'subbasement',
+  // Phase 22 — Harvest theme walls. Seven user-supplied textures
+  // (img1.png + img2.png 2×3 atlas) extracted to sprites/walls/ via
+  // scripts/frost-fight-harvest-walls.mjs. Each Harvest room maps to
+  // one of the seven so the era reads as visually distinct from
+  // Cold/Orchard.
+  'Orchard Path':   'orchard-mosspebbles',
+  'Citrus Lane':    'orchard-bark',
+  'Berry Mix':      'orchard-mossdeep',
+  'Sour Yard':      'orchard-basket',
+  'Full Bloom':     'orchard-mossdeep',
+  'Harvest Storm':  'orchard-woodvines',
+  'Heartwood':      'orchard-wood',
+  'Bramble':        'orchard-bark',
+  'Sunset Grove':   'orchard-basket',
+  'Old Crusher':    'orchard-stones',
+  'Witchhazel':     'orchard-woodvines',
+  'Last Harvest':   'orchard-stones',
 };
 
 const BEST_LS_KEY = 'pgplay-ff-best';
@@ -1115,7 +1132,7 @@ const LEVELS = [
     grid: [
       '######################',
       '#p..f....k....A....nh#',
-      '#.####.####.####.####',
+      '#.####.####.####.#####',
       '#....j.....G........K#',
       '#.f.................A#',
       '#.####....####.####..#',
@@ -1123,7 +1140,7 @@ const LEVELS = [
       '#.####....####.####..#',
       '#.A.................f#',
       '#....G.....j........h#',
-      '#.####.####.####.####',
+      '#.####.####.####.#####',
       '#.K....f.....k.....AX#',
       '######################',
     ],
@@ -1172,7 +1189,7 @@ const LEVELS = [
     grid: [
       '######################',
       '#p..f....n....A....j.#',
-      '#.####.####.####.####',
+      '#.####.####.####.#####',
       '#....A.....f........n#',
       '#.....######.........#',
       '#..A.........h.......#',
@@ -1180,7 +1197,7 @@ const LEVELS = [
       '#..A.........h.......#',
       '#.....######.........#',
       '#....A.....f........j#',
-      '#.####.####.####.####',
+      '#.####.####.####.#####',
       '#......f....n......AX#',
       '######################',
     ],
@@ -1213,9 +1230,9 @@ const LEVELS = [
       '#.######......######.#',
       '#......j.........j...#',
       '#A...................#',
-      '#..######......######',
-      '#......U....G........A',
-      '#..######......######',
+      '#.######......######.#',
+      '#......U....G......A.#',
+      '#.######......######.#',
       '#A...................#',
       '#......j.........j...#',
       '#.######......######.#',
@@ -1265,7 +1282,22 @@ const DEFAULT_THEME = 'cold';
 const resolveTheme = (id) => THEMES[id] || THEMES[DEFAULT_THEME];
 
 function parseLevel(idx) {
-  const g = LEVELS[idx].grid;
+  // Phase 22 — defensive normalisation. Grids that authoritively drift
+  // from the 22×13 contract (a missed wall char, a row clipped a hair
+  // short) used to break parsing silently — the right-edge walls would
+  // disappear, enemies would walk off the board, and the room would
+  // load with bot-out-of-bounds errors. Pad short rows with `#` to the
+  // canonical width, clip overlong rows, and pad/clip the row count
+  // the same way. This way an off-by-one in level data degrades to a
+  // visible wall instead of a broken room.
+  const raw = LEVELS[idx].grid;
+  const g = raw.map((row) => {
+    if (row.length === COLS) return row;
+    if (row.length < COLS)  return row + '#'.repeat(COLS - row.length);
+    return row.slice(0, COLS);
+  });
+  while (g.length < ROWS) g.push('#'.repeat(COLS));
+  if (g.length > ROWS) g.length = ROWS;
   const walls = [];
   const ice   = new Set();
   const fruits = [];
@@ -1613,6 +1645,17 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
         // Pulse the attack-release animation for ~0.4 s after a cast
         // even if e.moving / e.castPending have already cleared.
         releaseT: 0,
+        // Phase 22b — pre-cast charge window. Set by the cast roll for
+        // atlas bots so the attackCharge frames play through (4 frames
+        // × 120 ms ≈ 0.48 s) before the ice actually places. The cast
+        // payload (direction) lives on castPending until chargingT
+        // reaches 0 and the place-ice branch fires.
+        chargingT: 0,
+        // Random idle-sad timer. Every few seconds we roll a small
+        // chance to play the sad cycle for a beat — adds personality
+        // when the bot is genuinely just standing around.
+        sadT: 0,
+        sadCheckT: 2.0 + Math.random() * 4.0,
       })),
       fruitsLeft: level.fruits.length,
       elapsed: 0,
@@ -2154,34 +2197,47 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
         if (e.atlasKey) {
           const atlas = loadAtlas(e.atlasKey);
           if (atlas?.ready) {
-            // Manhattan distance to the closest alive player.
-            const dToP  = (p && !p.dead)
-              ? Math.abs(p.col  - e.col)  + Math.abs(p.row  - e.row)
+            // Manhattan distance to the closest alive player. The
+            // draw scope destructures `player` / `player2` (the tick
+            // scope uses short `p` / `p2` aliases — different scope).
+            const dToP  = (player && !player.dead)
+              ? Math.abs(player.col  - e.col)  + Math.abs(player.row  - e.row)
               : 99;
-            const dToP2 = (p2 && !p2.dead)
-              ? Math.abs(p2.col - e.col) + Math.abs(p2.row - e.row)
+            const dToP2 = (player2 && !player2.dead)
+              ? Math.abs(player2.col - e.col) + Math.abs(player2.row - e.row)
               : 99;
             const nearest = Math.min(dToP, dToP2);
+            // Action priority — blowing frames (attackCharge +
+            // attackRelease) play ONLY around real ice casts:
+            //   • attackRelease — 0.4 s post-cast puff (releaseT)
+            //   • attackCharge  — 0.5 s pre-cast cheek-puff (chargingT)
+            //                     plus the legacy castPending path for
+            //                     orange's '?' tell
+            //   • walk          — moving step-to-step
+            //   • sad           — boxed/trapped or idle-random sadT
+            //   • irritated     — player ≤2 tiles away (static angry)
+            //   • neutral       — default rest pose
             let action;
-            if (e.releaseT > 0)         action = 'attackRelease';   // just cast
-            else if (e.moving)          action = 'walk';            // step
-            else if (nearest <= 2)      action = 'attackCharge';    // player nearby
-            else if (e.boxed)           action = 'state:sad';       // trapped
-            else                        action = 'state:neutral';   // chill
+            if (e.releaseT > 0)                                  action = 'attackRelease';
+            else if (e.chargingT > 0 || e.castPending)           action = 'attackCharge';
+            else if (e.moving)                                   action = 'walk';
+            else if (e.boxed || e.sadT > 0)                      action = 'state:sad';
+            else if (nearest <= 2)                               action = 'state:irritated';
+            else                                                 action = 'state:neutral';
             setAnimAction(e, action);
             const frame = getFrame(atlas, e.animAction, e.animFrame);
             if (frame && frame.complete && frame.naturalWidth > 0) {
               const bob = Math.sin(performance.now() / 280 + e.col + e.row) * 0.6;
-              // Larger sprite (T+12 px = 48 px on 36-px tiles) so the
-              // character body isn't tiny against the maze. Anchor by
-              // the FEET — bottom edge sits just inside the tile floor
-              // so feet read clearly instead of getting cropped at
-              // tile-center.
-              const sz = action === 'attackRelease' ? 52 : 48;
+              // Match the legacy single-sprite size (30 px on 36-px
+              // tile, 34 during the cast-release puff so the puff has
+              // headroom). Foot-anchor by sitting 2 px ABOVE the tile
+              // floor so the body reads inside the cell instead of
+              // bleeding into the row below.
+              const sz = action === 'attackRelease' ? 34 : 30;
               const drawX = ecx - sz / 2;
-              const drawY = (y + T) - sz + 4 + bob;  // bottom of tile - sprite height + 4 px overlap
+              const drawY = (y + T) - sz - 2 + bob;
               ctx.drawImage(frame, drawX, drawY, sz, sz);
-              return;  // skip the legacy single-sprite path
+              return;
             }
           }
         }
@@ -2792,9 +2848,24 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
         // moving / decide state so walk/cast cycles read smoothly.
         // releaseT is a small post-cast pulse window so the visible
         // attack-release frames hold for ~0.4 s after the row of ice
-        // actually places.
+        // actually places. chargingT is the pre-cast window during
+        // which attackCharge plays. sadT is a brief idle-sad pulse.
         if (e.atlasKey) tickAnim(e, dt);
-        if (e.releaseT > 0) e.releaseT = Math.max(0, e.releaseT - dt);
+        if (e.releaseT  > 0) e.releaseT  = Math.max(0, e.releaseT  - dt);
+        if (e.chargingT > 0) e.chargingT = Math.max(0, e.chargingT - dt);
+        if (e.sadT      > 0) e.sadT      = Math.max(0, e.sadT      - dt);
+        if (e.atlasKey && e.sadCheckT > 0) {
+          e.sadCheckT -= dt;
+          if (e.sadCheckT <= 0) {
+            // Roll once every few seconds; on a hit, play sad for a
+            // ~1.2 s beat. Idle-only — never overrides a cast or step.
+            if (!e.moving && !e.chargingT && !e.releaseT && !e.castPending
+                && Math.random() < 0.18) {
+              e.sadT = 1.2;
+            }
+            e.sadCheckT = 4.0 + Math.random() * 3.0;
+          }
+        }
         if (e.moving) {
           // Phase 18: blueberry's berry-sense burst halves move time
           // while the burst window is open. The window decays even
@@ -3006,10 +3077,12 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
           }
           if (e.melonTagT > 0) e.melonTagT = Math.max(0, e.melonTagT - dt);
         }
-        // Orange — if no pending and roll succeeds, queue instead of cast.
-        if (e.kind === 'orange' && !pendingFire && e.iceCd <= 0 && Math.random() < iceChance) {
-          // Compute direction now and schedule the cast for the NEXT
-          // decision in 0.6 s. Show a "?" floater above the bot.
+        // Phase 22b — animated atlas casters (orange/pineapple/lemon)
+        // ALL stage their cast through `castPending` so the
+        // attackCharge animation has time to read. Non-atlas casters
+        // (cherry, plum, cherrybomb) still cast immediately.
+        const isAtlasCaster = !!(e.atlasKey && (ENEMY_ICE_CHANCE[e.kind] || 0) > 0);
+        if (isAtlasCaster && !pendingFire && e.iceCd <= 0 && Math.random() < iceChance) {
           const targetForCast = (() => {
             if (!p2 || p2.dead) return p;
             if (p.dead) return p2;
@@ -3023,18 +3096,32 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
           const ay = Math.abs(targetForCast.row - e.row);
           const dir = ax >= ay ? [ddx, 0] : [0, ddy];
           if (dir[0] !== 0 || dir[1] !== 0) {
-            e.castPending = { dir, untilTs: performance.now() + 600 };
-            if (!reduced) {
+            // 0.5 s charge window — gives the 4-frame attackCharge
+            // cycle (~0.48 s) time to play through before the cast
+            // actually fires.
+            e.castPending = { dir, untilTs: performance.now() + 500 };
+            e.chargingT = 0.5;
+            // Reset the animation to the start of the charge cycle
+            // immediately so the first frame is frame 0.
+            e.animAction = 'attackCharge';
+            e.animFrame = 0;
+            e.animT = 0;
+            // Orange keeps its '?' floater + ring as a pre-cast tell
+            // — the other animated casters skip the floater since the
+            // charging-cheek animation IS the tell.
+            if (e.kind === 'orange' && !reduced) {
               spawnFloater(fxRef.current, '?', e.col * T + T / 2, e.row * T + T / 2 - 14, '#ffd86b', { size: 14, life: 0.65, vy: -8 });
               spawnRing(fxRef.current, e.col * T + T / 2, e.row * T + T / 2, {
                 life: 0.6, r0: 4, r1: T * 0.45, color: '#ffd86b', width: 2,
               });
             }
-            // Defer the action; come back in 0.6 s to fire the cast.
-            e.nextDecide = 0.6;
+            e.nextDecide = 0.5;
             return;
           }
         }
+        // (The legacy orange-only deferred-cast block was removed in
+        // Phase 22b — the unified `isAtlasCaster` block above handles
+        // orange / pineapple / lemon identically.)
         if (iceChance > 0 && (pendingFire || (e.iceCd <= 0 && Math.random() < iceChance))) {
           // Direction: prefer the queued direction from the orange
           // windup (`castPending`); otherwise pick the dominant axis

@@ -317,94 +317,12 @@ svg { display: block; width: 100%; height: 100%; }
   .app-layout:not(.is-side-open) .sidebar { transform: translateX(-100%); }
 }
 
-.sidebar {
-  position: relative;
-  height: 100vh;
-  height: 100dvh;
-  border-right: 1px solid var(--line);
-  background: var(--bg);
-  display: flex;
-  flex-direction: column;
-  padding: var(--s-5) var(--s-4);
-}
-
-.side-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-2);
-  padding: 0 var(--s-2) var(--s-5);
-  font-size: 1.05rem;
-  font-weight: 700;
-  letter-spacing: -0.015em;
-  color: var(--text);
-  white-space: nowrap;
-}
-
-.side-nav {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  overflow-y: auto;
-}
-.side-group-label {
-  padding: var(--s-3) var(--s-2) var(--s-2);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-mute);
-}
-.side-group-spaced { margin-top: var(--s-3); }
-
-.side-item {
-  display: flex;
-  align-items: center;
-  gap: var(--s-3);
-  height: 40px;
-  padding: 0 var(--s-3);
-  border-radius: var(--r-md);
-  color: var(--text-dim);
-  font-size: 0.9rem;
-  font-weight: 500;
-  text-align: left;
-  width: 100%;
-  transition: background var(--t-fast), color var(--t-fast);
-}
-.side-item:hover { background: var(--hover-bg); color: var(--text); }
-.side-item.is-active {
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-weight: 600;
-}
-.side-icon {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-  display: inline-flex;
-}
-.side-icon > svg { width: 18px; height: 18px; }
-.side-label { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.side-count {
-  font-size: 0.75rem;
-  color: var(--text-mute);
-  font-variant-numeric: tabular-nums;
-  opacity: 0.9;
-}
-.side-item.is-active .side-count { color: var(--accent); opacity: 1; }
-
-.side-foot {
-  padding-top: var(--s-3);
-  margin-top: var(--s-3);
-  border-top: 1px solid var(--line);
-}
-
 .side-backdrop {
   display: none;
   position: fixed;
   inset: 0;
   z-index: 45;
-  background: rgba(0,0,0,0.55);
+  background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   animation: fade-in 160ms ease;
@@ -4868,29 +4786,6 @@ svg { display: block; width: 100%; height: 100%; }
 .card-sm .card-meta { font-size: 0.76rem; }
 .card-wide { grid-column: span 2; }
 
-/* ═══════════════════════════════════════════════════════════════
-   Sidebar — left accent bar, tiered groups
-   ═══════════════════════════════════════════════════════════════ */
-.side-item {
-  position: relative;
-}
-.side-item::before {
-  content: "";
-  position: absolute;
-  left: -4px;
-  top: 50%;
-  transform: translateY(-50%) scaleY(0);
-  width: 3px;
-  height: 22px;
-  background: var(--accent);
-  border-radius: 0 3px 3px 0;
-  transition: transform var(--t-spring);
-  transform-origin: center;
-}
-.side-item.is-active::before { transform: translateY(-50%) scaleY(1); }
-.side-item.is-active { background: var(--accent-soft); color: var(--accent); }
-.side-item.is-active .side-count { color: var(--accent); }
-.side-foot { border-top: 1px solid var(--line); padding-top: var(--s-3); margin-top: var(--s-3); }
 
 /* ═══════════════════════════════════════════════════════════════
    Topbar — pill search + quick-filter chips
@@ -6792,40 +6687,6 @@ svg { display: block; width: 100%; height: 100%; }
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   Brand wordmark — Sidebar uses Bricolage Grotesque, tighter
-   tracking, with an accent dot that sits between PG and Play.
-   ═══════════════════════════════════════════════════════════════ */
-.side-brand {
-  padding: 0 var(--s-2) var(--s-6);
-}
-.side-brand-wordmark {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 6px;
-  font-family: var(--font-display);
-  font-size: 1.4rem;
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  line-height: 1;
-  color: var(--text);
-}
-.side-brand-name { font-family: var(--font-display); }
-.side-brand-suffix {
-  font-family: var(--font-display);
-  color: var(--text-dim);
-  font-weight: 600;
-}
-.side-brand-dot {
-  display: inline-block;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--accent);
-  align-self: center;
-  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent);
-}
-
-/* ═══════════════════════════════════════════════════════════════
    Home hero — premium typographic block above the bento.
    ═══════════════════════════════════════════════════════════════ */
 /* 3D backdrop sitting behind the lobby hero text. position:absolute so it
@@ -8594,100 +8455,109 @@ svg { display: block; width: 100%; height: 100%; }
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   Sidebar v2 — boutique-arcade left rail.
-   Glass-strong surface, mono group kickers, motion-driven nav items,
-   genre dots beside Originals, accessible footer block.
-   Appends and overrides the legacy `.side-item` / `.side-foot` rules
-   above; existing CSS is left intact for any consumers that still
-   reference it elsewhere.
-   ═══════════════════════════════════════════════════════════════ */
+   Sidebar — left rail.
 
-/* Layout shim — wraps the Sidebar so framer-motion can animate the
-   drawer open without disturbing the sticky/fixed wrapper. */
-.sidebar-wrap > .sidebar-shell {
+   Layout responsibility is split between the wrapper (.sidebar-wrap,
+   defined in the shell block above) and this component. The wrapper
+   handles open/closed state + viewport-specific positioning; the
+   component below paints the surface and lays out content.
+
+   Sections:  brand → nav → foot.  Active state shows as a left-edge
+   accent bar plus tinted background. Hover + focus echo the boutique
+   accent without going loud.
+   ═══════════════════════════════════════════════════════════════ */
+.sidebar {
+  position: relative;
   height: 100%;
   display: flex;
   flex-direction: column;
-}
-
-/* Surface ────────────────────────────────────────────────────── */
-.sidebar.sidebar-v2 {
-  position: relative;
-  background: color-mix(in srgb, var(--surface) 55%, transparent);
-  border-right: 1px solid transparent;
   padding: var(--s-5) var(--s-3) var(--s-4);
-}
-/* Subtle right-edge separator — 1px gradient, fades at top + bottom. */
-.sidebar.sidebar-v2::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 1px;
-  pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    var(--line-strong) 18%,
-    var(--line-strong) 82%,
-    transparent 100%
-  );
-  opacity: 0.7;
+  background: var(--bg);
+  border-right: 1px solid var(--line);
 }
 
-/* Brand wordmark — keep JSX, just animate the dot. ──────────── */
-.sidebar-v2 .side-brand-v2 {
-  padding: var(--s-1) var(--s-3) var(--s-5);
+/* Brand ──────────────────────────────────────────────────────── */
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  padding: 0 var(--s-2) var(--s-5);
 }
-.sidebar-v2 .side-brand-dot {
-  animation: side-brand-pulse 1.8s ease-in-out infinite;
+.sidebar-brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--text);
 }
-@keyframes side-brand-pulse {
+.sidebar-brand-name { color: var(--text); }
+.sidebar-brand-suffix { color: var(--text-dim); font-weight: 600; }
+.sidebar-brand-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent);
+  animation: sidebar-brand-pulse 1.8s ease-in-out infinite;
+}
+@keyframes sidebar-brand-pulse {
   0%, 100% { opacity: 0.6; }
   50%      { opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .sidebar-v2 .side-brand-dot { animation: none; opacity: 1; }
+  .sidebar-brand-dot { animation: none; opacity: 1; }
 }
+/* Close button only on mobile — the brand row hosts it on the right. */
+.sidebar-close {
+  display: none;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-mute);
+  cursor: pointer;
+  transition: color var(--t-fast), background var(--t-fast),
+              border-color var(--t-fast);
+}
+.sidebar-close:hover {
+  color: var(--text);
+  background: var(--hover-bg);
+  border-color: var(--line);
+}
+.sidebar-close svg { width: 16px; height: 16px; }
 
-/* Nav with top + bottom mask so middle scroll feels anchored. ── */
-.sidebar-v2 .side-nav-v2 {
+/* Nav ────────────────────────────────────────────────────────── */
+.sidebar-nav {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: var(--s-3);
   overflow-y: auto;
   padding: 0 var(--s-1);
-  -webkit-mask-image: linear-gradient(
-    180deg,
-    transparent 0,
-    black var(--s-3),
-    black calc(100% - var(--s-3)),
-    transparent 100%
-  );
-          mask-image: linear-gradient(
-    180deg,
-    transparent 0,
-    black var(--s-3),
-    black calc(100% - var(--s-3)),
-    transparent 100%
-  );
   scrollbar-width: thin;
   scrollbar-color: var(--line-strong) transparent;
 }
-.sidebar-v2 .side-nav-v2::-webkit-scrollbar { width: 4px; }
-.sidebar-v2 .side-nav-v2::-webkit-scrollbar-thumb {
+.sidebar-nav::-webkit-scrollbar { width: 4px; }
+.sidebar-nav::-webkit-scrollbar-thumb {
   background: var(--line-strong);
   border-radius: 999px;
 }
 
-/* Group kicker — mono, uppercase, accent dot, tighter. ─────── */
-.sidebar-v2 .side-group-label-v2 {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: var(--s-3) var(--s-3) var(--s-1);
+.sidebar-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.sidebar-group-label {
+  padding: 0 var(--s-2) 6px;
   font-family: var(--font-mono);
   font-size: 0.66rem;
   font-weight: 600;
@@ -8695,172 +8565,145 @@ svg { display: block; width: 100%; height: 100%; }
   text-transform: uppercase;
   color: var(--text-mute);
 }
-.sidebar-v2 .side-group-label-v2:first-child { padding-top: var(--s-1); }
-.sidebar-v2 .side-group-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--accent) 80%, transparent);
-  box-shadow: 0 0 6px color-mix(in srgb, var(--accent) 50%, transparent);
-  flex-shrink: 0;
-}
 
-/* Nav item — glass-on-hover, framer handles the x: 2 nudge. ── */
-.sidebar-v2 .side-item-v2 {
+/* Item — height 38px, accent bar on the left when active. */
+.sidebar-item {
   position: relative;
   display: flex;
   align-items: center;
   gap: var(--s-2);
   width: 100%;
   height: 38px;
-  padding: 0 var(--s-2) 0 var(--s-2);
+  padding: 0 var(--s-3);
   border-radius: var(--r-md);
   border: 1px solid transparent;
+  background: transparent;
   color: var(--text-dim);
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 500;
   text-align: left;
-  background: transparent;
+  cursor: pointer;
   transition: background var(--t-fast), color var(--t-fast),
-              border-color var(--t-fast);
+              border-color var(--t-fast), transform var(--t-fast);
 }
-/* Cancel the legacy left-bar pseudo on v2 items. */
-.sidebar-v2 .side-item-v2::before { content: none; display: none; }
-
-.sidebar-v2 .side-item-v2:hover {
-  background: var(--glass-bg);
-  border-color: var(--glass-border);
+.sidebar-item::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 50%;
+  transform: translateY(-50%) scaleY(0);
+  width: 3px;
+  height: 22px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent);
+  transform-origin: center;
+  transition: transform var(--t-spring);
+}
+.sidebar-item:hover {
+  background: var(--hover-bg);
   color: var(--text);
 }
-.sidebar-v2 .side-item-v2.is-active {
-  background: color-mix(in srgb, var(--accent) 10%, transparent);
+.sidebar-item:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+.sidebar-item.is-active {
+  background: var(--accent-soft);
   color: var(--accent);
   font-weight: 600;
-  border-color: transparent;
-  border-left: 2px solid var(--accent);
-  padding-left: calc(var(--s-2) - 2px);
 }
-.sidebar-v2 .side-item-v2.is-active .side-icon-tile {
-  background: color-mix(in srgb, var(--accent) 14%, transparent);
-  color: var(--accent);
+.sidebar-item.is-active::before {
+  transform: translateY(-50%) scaleY(1);
 }
+.sidebar-item.is-muted { color: var(--text-mute); }
+.sidebar-item.is-muted:hover { color: var(--text); }
 
-/* Icon container — small rounded square, padding-aware. ─────── */
-.sidebar-v2 .side-icon-tile {
-  width: 26px;
-  height: 26px;
+.sidebar-item-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 7px;
-  background: var(--hover-bg);
-  color: var(--text-dim);
-  flex-shrink: 0;
-  transition: background var(--t-fast), color var(--t-fast);
 }
-.sidebar-v2 .side-icon-tile .side-icon { width: 14px; height: 14px; display: inline-flex; }
-.sidebar-v2 .side-icon-tile .side-icon > svg { width: 14px; height: 14px; }
-.sidebar-v2 .side-item-v2:hover .side-icon-tile {
-  background: color-mix(in srgb, var(--text) 8%, transparent);
-  color: var(--text);
-}
+.sidebar-item-icon > svg { width: 18px; height: 18px; }
 
-.sidebar-v2 .side-item-v2 .side-label {
+.sidebar-item-label {
   flex: 1;
   min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 0.88rem;
 }
-.sidebar-v2 .side-item-v2 .side-count {
-  margin-left: auto;
-  font-size: 0.72rem;
+
+.sidebar-item-kbd {
   font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  padding: 2px 5px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  background: var(--surface-sunken);
+  color: var(--text-mute);
+}
+
+.sidebar-item-count {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
   font-variant-numeric: tabular-nums;
   color: var(--text-mute);
   text-align: right;
   min-width: 1.4em;
-  letter-spacing: 0.02em;
 }
-.sidebar-v2 .side-item-v2.is-active .side-count { color: var(--accent); }
+.sidebar-item.is-active .sidebar-item-count { color: var(--accent); }
 
-/* Genre dots beside Originals — four mini swatches. ─────────── */
-.sidebar-v2 .side-genre-dots {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  margin-left: auto;
-  padding-right: var(--s-1);
-}
-.sidebar-v2 .side-item-v2 .side-genre-dots + .side-count {
-  margin-left: 0;
-}
-.sidebar-v2 .side-genre-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  display: inline-block;
-}
-.sidebar-v2 .side-genre-dot-action  { background: var(--genre-action); }
-.sidebar-v2 .side-genre-dot-arcade  { background: var(--genre-arcade); }
-.sidebar-v2 .side-genre-dot-sports  { background: var(--genre-sports); }
-.sidebar-v2 .side-genre-dot-puzzle  { background: var(--genre-puzzle); }
-
-/* Footer block — signed-in / signed-out + settings. ─────────── */
-.sidebar-v2 .side-foot-v2 {
-  border-top: none;
-  margin-top: var(--s-3);
-  padding: var(--s-2) var(--s-1) 0;
+/* Foot ───────────────────────────────────────────────────────── */
+.sidebar-foot {
   display: flex;
   flex-direction: column;
-  gap: var(--s-1);
-}
-.sidebar-v2 .side-foot-divider {
-  height: 1px;
-  margin: var(--s-2) 0 var(--s-1);
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    var(--line-strong) 20%,
-    var(--line-strong) 80%,
-    transparent 100%
-  );
-  opacity: 0.6;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--line);
 }
 
-.sidebar-v2 .side-account {
+.sidebar-account {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: var(--s-2);
   padding: var(--s-2);
   border-radius: var(--r-md);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
 }
-.sidebar-v2 .side-avatar {
-  width: 32px;
-  height: 32px;
+.sidebar-avatar {
+  width: 34px;
+  height: 34px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--bg);
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.74rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   color: var(--text);
   cursor: pointer;
-  transition: transform var(--t-fast);
+  transition: transform var(--t-fast), border-color var(--t-fast);
 }
-.sidebar-v2 .side-avatar:hover { transform: translateY(-1px); }
-.sidebar-v2 .side-account-text {
+.sidebar-avatar:hover { transform: translateY(-1px); border-color: var(--accent); }
+.sidebar-account-text {
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 1px;
-  line-height: 1.15;
+  line-height: 1.2;
 }
-.sidebar-v2 .side-account-name {
+.sidebar-account-name {
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--text);
@@ -8868,7 +8711,7 @@ svg { display: block; width: 100%; height: 100%; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.sidebar-v2 .side-account-email {
+.sidebar-account-email {
   font-size: 0.7rem;
   font-family: var(--font-mono);
   color: var(--text-mute);
@@ -8876,51 +8719,71 @@ svg { display: block; width: 100%; height: 100%; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.sidebar-v2 .side-account-signout {
-  font-size: 0.7rem;
+.sidebar-account-signout {
   font-family: var(--font-mono);
-  letter-spacing: 0.06em;
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-mute);
+  background: transparent;
+  border: 0;
   padding: 4px 6px;
   border-radius: var(--r-sm);
+  cursor: pointer;
   transition: color var(--t-fast), background var(--t-fast);
 }
-.sidebar-v2 .side-account-signout:hover {
+.sidebar-account-signout:hover {
   color: var(--accent);
   background: var(--hover-bg);
 }
 
-.sidebar-v2 .side-signin-v2 {
+.sidebar-signin {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--s-2);
   width: 100%;
-  height: 38px;
-  padding: 0 var(--s-3);
+  padding: var(--s-3);
   border-radius: var(--r-md);
-  border: 1px solid var(--glass-border);
-  background: var(--glass-bg);
+  border: 1px solid var(--line);
+  background: var(--surface-sunken);
   color: var(--text);
-  font-size: 0.85rem;
-  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
   transition: border-color var(--t-fast), background var(--t-fast),
               color var(--t-fast);
 }
-.sidebar-v2 .side-signin-v2:hover {
-  border-color: color-mix(in srgb, var(--accent) 50%, var(--glass-border));
-  color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 8%, var(--glass-bg));
+.sidebar-signin:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface-sunken));
 }
-.sidebar-v2 .side-signin-icon {
-  width: 14px;
-  height: 14px;
+.sidebar-signin-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.sidebar-signin-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.sidebar-signin-sub {
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  color: var(--text-mute);
+  letter-spacing: 0.02em;
+}
+.sidebar-signin-arrow {
+  width: 16px;
+  height: 16px;
   display: inline-flex;
-  opacity: 0.7;
+  color: var(--text-mute);
 }
-.sidebar-v2 .side-signin-icon > svg { width: 14px; height: 14px; }
+.sidebar-signin-arrow > svg { width: 16px; height: 16px; }
 
-/* Settings sits at the very bottom, slightly muted. */
-.sidebar-v2 .side-item-settings { color: var(--text-mute); }
-.sidebar-v2 .side-item-settings:hover { color: var(--text); }
+/* Mobile-only close button reveal — desktop hides it (the burger
+   in the topbar is the canonical close affordance). */
+@media (max-width: 900px) {
+  .sidebar-close { display: inline-flex; }
+}

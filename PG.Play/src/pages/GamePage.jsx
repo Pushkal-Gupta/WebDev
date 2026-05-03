@@ -10,6 +10,7 @@ import GameIntro from '../components/GameIntro.jsx';
 import { startRun } from '../lib/runToken.js';
 import { useSession } from '../hooks/useSession.js';
 import { useDocumentMeta } from '../hooks/useDocumentMeta.js';
+import { homeMusic } from '../sound.js';
 
 const SUPPRESS_KEYS = new Set([
   'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
@@ -44,6 +45,16 @@ export default function GamePage() {
     if (!game || !user) return;
     startRun(game.id);
   }, [game, user]);
+
+  // Phase 22c — kill the home page ambient bed the moment a game route
+  // mounts. Belt-and-braces: Home.jsx already calls homeMusic.stop()
+  // on its own unmount, but route-transition timing + the play() promise
+  // race in the audio element can leave the home track playing under
+  // the game's bed. Calling stop() here guarantees a single bed at any
+  // time. Cheap if the home audio isn't running (just a no-op pause).
+  useEffect(() => {
+    homeMusic.stop();
+  }, []);
 
   useEffect(() => {
     if (!game) return;
