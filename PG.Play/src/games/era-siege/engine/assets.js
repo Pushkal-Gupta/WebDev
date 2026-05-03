@@ -41,6 +41,11 @@ import {
 
 const registry = new Map(); // key -> { placeholder, src, image, ready, imageDraw }
 
+// Dev-mode cache bust — stable for the session so HMR doesn't re-fetch
+// every PNG on every keystroke, but changes per fresh page load. In
+// production builds vite's `define` substitutes BUILD_VERSION below.
+const _devCacheBust = `dev-${Math.floor(Math.random() * 1e9).toString(36)}`;
+
 export const assets = {
   draw(ctx, key, x, y, opts) {
     const entry = registry.get(key);
@@ -86,6 +91,16 @@ export const assets = {
     } else {
       base = '/';
     }
+    // Cache-bust query for image URLs. Bake-produced PNGs share a stable
+    // path across builds, so the browser will serve a stale copy unless
+    // we change the URL when content changes. The version is injected at
+    // build time via vite's `define` (BUILD_VERSION). Falls back to a
+    // session-stable random for dev where define isn't applied.
+    const ver = (typeof BUILD_VERSION !== 'undefined' && BUILD_VERSION) || _devCacheBust;
+    const debug = typeof window !== 'undefined'
+               && /[?&]es-debug\b/.test(window.location?.search || '');
+    const promises = [];
+    const failed = [];
     for (const [key, entry] of registry.entries()) {
       if (!entry.src) continue;
       // The original Gemini reference sheets baked transparency-checker
@@ -105,17 +120,42 @@ export const assets = {
         const img = new Image();
         img.decoding = 'async';
         img.loading  = 'eager';
-        img.onload  = () => { entry.image = img; entry.ready = true; };
-        img.onerror = () => { /* leave placeholder in place */ };
-        // URL constructor handles relative paths + trailing-slash quirks.
-        img.src = new URL(entry.src, base).href;
-      } catch { /* keep placeholder */ }
+        const resolved = new URL(entry.src, base).href;
+        const url = ver ? `${resolved}?v=${ver}` : resolved;
+        promises.push(new Promise((resolve) => {
+          img.onload  = () => { entry.image = img; entry.ready = true; resolve('ok'); };
+          img.onerror = () => { failed.push({ key, url }); resolve('fail'); };
+          img.src = url;
+        }));
+      } catch (e) {
+        failed.push({ key, url: entry.src, error: String(e) });
+      }
     }
+    // Single grouped report once all images settle. Loud only on
+    // failure or when ?es-debug is set; silent in the happy path.
+    Promise.allSettled(promises).then(() => {
+      const total = promises.length;
+      const ok = total - failed.length;
+      assets._lastLoadReport = { total, ok, failed: failed.slice() };
+      if (failed.length) {
+        // eslint-disable-next-line no-console
+        console.warn(`[era-siege] ${failed.length}/${total} assets failed to load:`,
+          failed.map((f) => `${f.key} → ${f.url}`).join('\n  '));
+      } else if (debug) {
+        // eslint-disable-next-line no-console
+        console.info(`[era-siege] assets ready (${ok}/${total})`);
+      }
+    });
   },
 
   _resetForTests() {
     for (const e of registry.values()) { e.image = null; e.ready = false; }
   },
+
+  // Exposed for the `?es-debug` overlay so it can iterate registered
+  // keys and check `ready` status without an extra import. Also handy
+  // for ad-hoc devtools inspection.
+  get _registry() { return registry; },
 };
 
 // ── Registration helpers ──────────────────────────────────────────────

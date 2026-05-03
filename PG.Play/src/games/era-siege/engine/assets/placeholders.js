@@ -760,10 +760,11 @@ export function placeholderUnit(ctx, def, x, y, opts = {}) {
   //   bake → passes opts.scale (raw silhouette multiplier)
   //   runtime fallback → passes opts.h (target on-canvas height)
   // Prefer h-driven if provided so the placeholder fills the same
-  // footprint a baked sprite would. Default 2.6 for any other caller.
-  const SCALE = opts.h
-    ? opts.h / v.silhouetteH
-    : (opts.scale || 2.6);
+  // footprint a baked sprite would. The silhouetteH guard is defensive:
+  // if a future content edit zeros it the scale would otherwise become
+  // Infinity and produce a giant invisible rect.
+  const scaleByH = (opts.h && v.silhouetteH) ? opts.h / v.silhouetteH : null;
+  const SCALE = scaleByH ?? opts.scale ?? 2.6;
   const w = v.silhouetteW * SCALE;
   const h = v.silhouetteH * SCALE;
   const halfW = w / 2;

@@ -545,14 +545,17 @@ export const frostMusic = {
 };
 
 // ── Home-page ambient bed (Phase 22) ───────────────────────────────
-// Plays the first 30 s of `public/audio/home-bed.mp3` on loop. The
-// user's source track gets harsher after the 30 s mark, so we
-// hard-clamp playback via a `timeupdate` listener that snaps back to
-// 0 once we cross 28 s (giving a 2 s soft tail to fade through). A
-// per-tick gain ramp keeps the loop seam from clicking.
+// Plays a clean middle slice of `public/audio/home-bed.mp3` on loop.
+// The user's source track has rough sections at the head and tail
+// (slate marker, gear noise, and a louder coda after ~45 s), so we
+// hard-clamp playback to the [HOME_BED_LOOP_START, HOME_BED_LOOP_END]
+// window. The seek is jitter-free because we drive it from the
+// `timeupdate` event (which fires ~4×/sec on most engines) rather
+// than a frame-rate loop.
 const HOME_BED_URL = './audio/home-bed.mp3';
-const HOME_BED_LOOP_END = 28;     // seconds — clamp before the harsh tail
-const HOME_BED_GAIN = 0.18;       // very quiet — sits under everything else
+const HOME_BED_LOOP_START = 4;    // seconds — skip slate/lead-in
+const HOME_BED_LOOP_END   = 45;   // seconds — clamp before the loud tail
+const HOME_BED_GAIN       = 0.06; // very quiet — almost subliminal bed
 let _homeEl = null;
 let _homePlaying = false;
 let _homeUnsubMute = null;
@@ -577,13 +580,21 @@ async function _homeStart() {
       _homeEl = new Audio(HOME_BED_URL);
       _homeEl.preload = 'auto';
       _homeEl.volume = 0;
-      // Snap back to start before the source track turns harsh. The
-      // small `currentTime = 0` reset is essentially a hard loop, but
-      // since we fade in/out around the seam it stays unobtrusive.
+      // Start at the loop start (skip the rough lead-in). canplay fires
+      // the moment enough buffer is available; we set currentTime then
+      // so the seek lands instantly when play() resolves.
+      _homeEl.addEventListener('canplay', () => {
+        if (_homeEl && _homeEl.currentTime < HOME_BED_LOOP_START) {
+          _homeEl.currentTime = HOME_BED_LOOP_START;
+        }
+      }, { once: true });
+      // Snap back to the loop start before the source's loud tail. The
+      // jump is essentially a hard loop; the gain is so low (0.06)
+      // that the seam is inaudible.
       _homeEl.addEventListener('timeupdate', () => {
         if (!_homeEl) return;
         if (_homeEl.currentTime >= HOME_BED_LOOP_END) {
-          _homeEl.currentTime = 0;
+          _homeEl.currentTime = HOME_BED_LOOP_START;
         }
       });
     } catch { return; }

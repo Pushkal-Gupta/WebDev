@@ -11,9 +11,17 @@ import react from '@vitejs/plugin-react';
 // them out so they're only fetched when the parts of the app that use
 // them are visited (motion is everywhere on home, supabase only when
 // auth/leaderboard fires).
+// Build-time version stamp. Used by the era-siege asset manifest to
+// cache-bust baked PNGs whose paths are stable across builds (the
+// browser would otherwise serve a stale copy after a re-bake).
+const BUILD_VERSION = JSON.stringify(`b${Date.now().toString(36)}`);
+
 export default defineConfig({
   base: '',
   plugins: [react()],
+  define: {
+    BUILD_VERSION,
+  },
   server: { port: 5180, open: true },
   test: {
     environment: 'jsdom',

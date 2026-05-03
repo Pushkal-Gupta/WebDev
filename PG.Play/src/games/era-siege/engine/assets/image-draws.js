@@ -21,8 +21,11 @@ export function drawImage(ctx, img, x, y, opts = {}) {
   if (!img.naturalWidth) return;
   const w = opts.w || img.naturalWidth / 2;
   const h = opts.h || img.naturalHeight / 2;
-  const ax = opts.anchor === 'foot' ? w / 2 : w / 2;
-  const ay = opts.anchor === 'foot' ? h     : h / 2;
+  // Both anchor modes centre horizontally — the only difference is
+  // vertical: 'foot' puts the foot at (x, y); the default puts the
+  // image centre at (x, y).
+  const ax = w / 2;
+  const ay = opts.anchor === 'foot' ? h : h / 2;
   const flip = opts.flipX ? -1 : 1;
   if (flip < 0) {
     ctx.save();
