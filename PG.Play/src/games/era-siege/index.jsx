@@ -62,6 +62,10 @@ function modeIsEndless(mode) { return mode === 'endless'; }
 
 // Read URL flags once at module load. SSR-safe.
 const SHOW_PERF = typeof window !== 'undefined' && /[?&]perf\b/.test(window.location?.search || '');
+// `?es-debug` toggles a tiny overlay reporting how many era-siege image
+// assets loaded. Failures already log to console; the overlay is the
+// at-a-glance check the user can run without opening devtools.
+const SHOW_ES_DEBUG = typeof window !== 'undefined' && /[?&]es-debug\b/.test(window.location?.search || '');
 function urlSeed() {
   if (typeof window === 'undefined') return null;
   try {
@@ -574,6 +578,8 @@ export default function EraSiegeGame({ mode }) {
           />
         )}
 
+        {SHOW_ES_DEBUG && <AssetDebugOverlay/>}
+
         <ResultPanel
           status={hud.status}
           eraIndex={hud.eraIndex}
@@ -652,6 +658,46 @@ export default function EraSiegeGame({ mode }) {
   );
 }
 
+
+// Tiny overlay shown when the URL has `?es-debug`. Polls the asset
+// manifest twice a second and reports loaded/total/failed for the
+// era-siege image keys. Useful for diagnosing the user's
+// "troops aren't showing up" complaints — if the count says 50/50/0
+// the issue is rendering or layout, not loading.
+function AssetDebugOverlay() {
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 500);
+    return () => clearInterval(id);
+  }, []);
+  // Count keys via the registry export; ignores keys we explicitly
+  // never load (clouds, turrets — see assets.js preloadAll).
+  const reg = assets._registry;
+  let total = 0, ready = 0;
+  if (reg) {
+    for (const [key, entry] of reg) {
+      if (!entry.src) continue;
+      if (key.endsWith('/clouds') || key.startsWith('turret/era')) continue;
+      total++;
+      if (entry.ready) ready++;
+    }
+  }
+  const lr = assets._lastLoadReport;
+  const failed = lr ? lr.failed.length : 0;
+  void tick; // re-render trigger
+  return (
+    <div style={{
+      position: 'absolute', bottom: 8, right: 8, zIndex: 20,
+      padding: '6px 10px',
+      background: 'rgba(0,0,0,0.7)', color: '#fff',
+      font: '11px JetBrains Mono, monospace',
+      borderRadius: 6, border: '1px solid rgba(255,255,255,0.1)',
+      pointerEvents: 'none',
+    }}>
+      assets {ready}/{total}{failed ? ` · ${failed} failed` : ''}
+    </div>
+  );
+}
 
 function cheapDiffers(a, b) {
   if (a.gold !== b.gold) return true;
