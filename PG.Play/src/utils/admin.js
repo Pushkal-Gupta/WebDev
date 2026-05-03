@@ -44,6 +44,45 @@ export function setAdminVerified(v) {
   } catch { /* ignore */ }
 }
 
+// Admin "play any level" — set on launch from the settings drawer,
+// consumed (and cleared) by the corresponding game on mount. Stored
+// in sessionStorage so refresh / new tabs reset to normal play.
+const START_LEVEL_KEY = (id) => `pgplay-admin-start::${id}`;
+const AUTOSTART_KEY   = (id) => `pgplay-admin-autostart::${id}`;
+
+export function setAdminStartLevel(gameId, level) {
+  if (!gameId) return;
+  try {
+    if (level == null) sessionStorage.removeItem(START_LEVEL_KEY(gameId));
+    else sessionStorage.setItem(START_LEVEL_KEY(gameId), String(level));
+    sessionStorage.setItem(AUTOSTART_KEY(gameId), '1');
+  } catch { /* ignore */ }
+}
+
+// Returns the override (number) or null. Clears the flag so a manual
+// retry from the lobby restarts at the normal first level.
+export function consumeAdminStartLevel(gameId) {
+  if (!gameId) return null;
+  try {
+    const raw = sessionStorage.getItem(START_LEVEL_KEY(gameId));
+    sessionStorage.removeItem(START_LEVEL_KEY(gameId));
+    if (raw == null) return null;
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : null;
+  } catch { return null; }
+}
+
+// GameIntro reads + clears this so an admin launch skips the lobby
+// and drops straight into gameplay. Returns true once.
+export function consumeAdminAutostart(gameId) {
+  if (!gameId) return false;
+  try {
+    const v = sessionStorage.getItem(AUTOSTART_KEY(gameId)) === '1';
+    if (v) sessionStorage.removeItem(AUTOSTART_KEY(gameId));
+    return v;
+  } catch { return false; }
+}
+
 // Constant-time hex string compare. Both sides are 64 hex chars
 // (PBKDF2 → 256 bits). Returns true only if every nibble matches.
 function constantTimeHexEqual(a, b) {

@@ -23,6 +23,7 @@ import GameShell from './GameShell.jsx';
 import Leaderboard from './Leaderboard.jsx';
 import { useIsMobile } from '../input/useVirtualControls.jsx';
 import { useCanRender3D } from '../hooks/useCanRender3D.js';
+import { consumeAdminAutostart } from '../utils/admin.js';
 
 // Era Siege intro stats — lazy-loaded so visiting other games doesn't pull
 // in the era-siege content.
@@ -232,6 +233,20 @@ export default function GameIntro({ game, onClose }) {
       document.body.style.overflow = '';
     };
   }, [stage, onClose]);
+
+  // Admin autostart — launched from the settings drawer with a level
+  // pre-set. Skip the lobby and drop straight into the primary mode so
+  // the start-level override is consumed by the game on its first mount.
+  useEffect(() => {
+    if (consumeAdminAutostart(game.id)) {
+      const primary = (modes.find((m) => m.tone === 'primary' && !m.disabled) || modes[0]);
+      if (primary) {
+        setMode(primary.id);
+        setStage('play');
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game.id]);
 
   const start = (m) => { setMode(m); setStage('play'); };
 

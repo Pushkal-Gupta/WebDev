@@ -12,6 +12,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { submitScore } from '../scoreBus.js';
 import { sizeCanvasFluid } from '../util/canvasDpr.js';
+import { consumeAdminStartLevel } from '../utils/admin.js';
 
 // Scene dimensions are fixed — levels are hand-tuned to this rect. The
 // fluid sizer fits the canvas to the viewport but the scene is drawn
@@ -68,7 +69,10 @@ export default function NightShiftGame() {
   const stateRef  = useRef(null);
   const viewRef = useRef({ cssW: W, cssH: H, scale: 1, offX: 0, offY: 0 }); // fluid render dimensions
   const submittedRef = useRef(false);
-  const [level, setLevel]     = useState(0);
+  const [level, setLevel]     = useState(() => {
+    const adminStart = consumeAdminStartLevel('bob');
+    return adminStart != null ? Math.max(0, Math.min(2, adminStart)) : 0;
+  });
   const [caught, setCaught]   = useState(0);
   const [detect, setDetect]   = useState(0);
   const [time, setTime]       = useState(0);

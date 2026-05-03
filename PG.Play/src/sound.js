@@ -415,9 +415,9 @@ const FF_BED_URLS = [
   // Drift) with its own loop-window clamp.
   './games/frost-fight/audio/bed.mp3',
 ];
-// Phase 22d — in-game volume at 0.08, just slightly above the home
-// page (0.06) so the bed sits behind SFX without disappearing.
-const FF_HTML5_GAIN = 0.08;
+// Phase 22e — user requested +150% on top of 0.08 → 0.20. Still well
+// below SFX so it stays a bed, just more present.
+const FF_HTML5_GAIN = 0.20;
 let _ffEl = null;               // HTMLAudioElement
 let _ffElTested = false;        // we've already probed availability
 let _ffElAvailable = false;     // probe result
@@ -557,7 +557,7 @@ export const frostMusic = {
 const HOME_BED_URL = './audio/home-bed.mp3';
 const HOME_BED_LOOP_START = 4;    // seconds — skip slate/lead-in
 const HOME_BED_LOOP_END   = 45;   // seconds — clamp before the loud tail
-const HOME_BED_GAIN       = 0.06; // very quiet — almost subliminal bed
+const HOME_BED_GAIN       = 0.15; // +150% of the prior 0.06 — soft but audible
 let _homeEl = null;
 let _homePlaying = false;
 let _homeUnsubMute = null;

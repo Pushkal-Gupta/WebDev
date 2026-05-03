@@ -22,6 +22,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { submitScore } from '../scoreBus.js';
 import { sizeCanvasFluid } from '../util/canvasDpr.js';
+import { consumeAdminStartLevel } from '../utils/admin.js';
 
 const T = 32;                       // tile size
 const COLS = 26;
@@ -159,7 +160,10 @@ export default function EmberTideGame() {
   const viewRef   = useRef({ cssW: W, cssH: H, scale: 1, offX: 0, offY: 0, dispW: W, dispH: H });
   const stateRef  = useRef(null);
   const submittedRef = useRef(false);
-  const [levelIdx, setLevelIdx] = useState(0);
+  const [levelIdx, setLevelIdx] = useState(() => {
+    const adminStart = consumeAdminStartLevel('fbwg');
+    return adminStart != null ? Math.max(0, Math.min(2, adminStart)) : 0;
+  });
   const [deaths,   setDeaths]   = useState(0);
   const [time,     setTime]     = useState(0);
   const [gemsGot,  setGemsGot]  = useState(0);

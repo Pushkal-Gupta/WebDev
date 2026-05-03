@@ -107,6 +107,17 @@ export default function Home() {
     return () => window.removeEventListener('keydown', onKey);
   }, [sideOpen]);
 
+  // Mobile only: lock body scroll while the sidebar is up as an overlay.
+  // Desktop sidebar is a static rail, so we leave scrolling alone there.
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const isMobile = window.matchMedia('(max-width: 900px)').matches;
+    if (!sideOpen || !isMobile) return undefined;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, [sideOpen]);
+
   // Phase 22 — home page ambient bed. Plays the first ~28 s of the
   // user's "Soft Game Drift" track on loop (the source gets harsher
   // after that). Browser autoplay policy: kicks in on first user
@@ -204,21 +215,15 @@ export default function Home() {
   const HERO_SLOT_BY_INDEX = ['hero-1', 'hero-2', 'hero-3', 'hero-4'];
 
   return (
-    <div className={'app-layout' + (sideOpen ? ' is-side-open' : '')}>
+    <div
+      className={'app-layout' + (sideOpen ? ' is-side-open' : '')}
+      data-side-open={sideOpen ? 'true' : 'false'}>
       {sideOpen && <div className="side-backdrop" onClick={() => setSideOpen(false)} aria-hidden="true"/>}
       <div
         id="primary-sidebar"
-        className={'sidebar-wrap' + (sideOpen ? ' is-open' : '')}>
-        <motion.div
-          className="sidebar-shell"
-          // Drawer slide-in plays whenever sideOpen flips true on any
-          // viewport (desktop now uses the same overlay pattern as
-          // mobile). Key change re-keys the motion node.
-          key={sideOpen ? 'open' : 'closed'}
-          initial={reduced || !sideOpen ? false : { x: -20, opacity: 0.6 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-        >
+        className={'sidebar-wrap' + (sideOpen ? ' is-open' : '')}
+        aria-hidden={sideOpen ? 'false' : 'true'}>
+        <div className="sidebar-shell">
           <Sidebar
             games={playable}
             activeFilter="all"
@@ -236,7 +241,7 @@ export default function Home() {
             onOpenCollection={() => {}}
             collectionCounts={{ originals: heroes.length }}
           />
-        </motion.div>
+        </div>
       </div>
 
       <main id="main" className="app-main">
@@ -452,17 +457,16 @@ export default function Home() {
         </div>
       </main>
 
-      {settingsOpen && (
-        <SettingsDrawer
-          theme={theme}
-          setTheme={setTheme}
-          user={user}
-          onOpenAuth={() => { setAuthOpen(true); setSettingsOpen(false); }}
-          onSignOut={async () => { await signOut(); }}
-          onClearFavs={clearFavs}
-          favCount={favCount}
-          onClose={() => setSettingsOpen(false)}/>
-      )}
+      <SettingsDrawer
+        open={settingsOpen}
+        theme={theme}
+        setTheme={setTheme}
+        user={user}
+        onOpenAuth={() => { setAuthOpen(true); setSettingsOpen(false); }}
+        onSignOut={async () => { await signOut(); }}
+        onClearFavs={clearFavs}
+        favCount={favCount}
+        onClose={() => setSettingsOpen(false)}/>
       {profileOpen && (
         <ProfilePanel
           user={user}

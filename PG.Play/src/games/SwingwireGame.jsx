@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { submitScore } from '../scoreBus.js';
 import { isMuted as platformIsMuted, subscribeMute } from '../sound.js';
 import { sizeCanvasFluid } from '../util/canvasDpr.js';
+import { consumeAdminStartLevel } from '../utils/admin.js';
 
 // Swingwire — an original one-button rope-swing action platformer.
 //
@@ -456,7 +457,9 @@ export default function SwingwireGame() {
 
   useEffect(() => {
     audioRef.current = makeAudio();
-    enterCourse(0);
+    const adminStart = consumeAdminStartLevel('hook');
+    const startCourse = adminStart != null ? Math.max(0, Math.min(2, adminStart)) : 0;
+    enterCourse(startCourse);
     runRef.current.startMs = performance.now();
     runRef.current.courseStartMs = performance.now();
 
