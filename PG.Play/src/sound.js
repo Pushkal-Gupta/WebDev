@@ -612,8 +612,16 @@ async function _homeStart() {
   };
   const playPromise = _homeEl.play();
   if (playPromise && typeof playPromise.then === 'function') {
-    playPromise.then(() => { _homePlaying = true; requestAnimationFrame(tick); })
-      .catch(() => { _homePlaying = false; _homeAvailable = false; });
+    playPromise.then(() => {
+      // Race guard: if _homeStop ran between play() and this resolve,
+      // the element is paused and we MUST NOT restart the fade-in tick
+      // (which would set _homePlaying = true and re-mix the home bed
+      // under whatever game audio is playing). Check the actual paused
+      // state, not a flag.
+      if (!_homeEl || _homeEl.paused) return;
+      _homePlaying = true;
+      requestAnimationFrame(tick);
+    }).catch(() => { _homePlaying = false; _homeAvailable = false; });
   } else {
     _homePlaying = true;
     requestAnimationFrame(tick);
@@ -627,7 +635,12 @@ async function _homeStart() {
 
 function _homeStop() {
   if (!_homeEl) return;
+  // Pause + zero volume so even if a stale play() promise tries to
+  // restart playback (race with React unmount cleanup) it can't be
+  // heard. The home Audio element is reused across mounts so we keep
+  // it allocated; only the playback state is cleared.
   try { _homeEl.pause(); } catch { /* ignore */ }
+  try { _homeEl.volume = 0; } catch { /* ignore */ }
   _homePlaying = false;
   if (_homeUnsubMute) {
     try { _homeUnsubMute(); } catch { /* ignore */ }

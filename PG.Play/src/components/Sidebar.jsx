@@ -1,61 +1,27 @@
-// Sidebar v2 — boutique arcade left rail.
+// Sidebar — left rail.
 //
-// Surface: `.glass-strong` so the body atmosphere bleeds through.
-// Wordmark uses the display font with a CSS-keyframe pulsing dot
-// (paused under reduced-motion via media query). Section headers are
-// mono kickers with a tinted dot. Each nav item nudges 2px on hover
-// via framer-motion. The Originals row gets four genre dots that
-// echo the hero tiles. Footer cleanly splits signed-in / signed-out.
+// Brand at top, real navigation in the middle, account + settings at
+// the bottom. Persistent rail on desktop, overlay drawer on mobile.
+// Behavior is owned by Home.jsx; this component is purely presentational
+// + dispatches the handlers it's given.
 
-import { motion, useReducedMotion } from 'framer-motion';
-import { FILTERS } from '../data.js';
 import { Icon } from '../icons.jsx';
 
-const NAV_ICONS = {
-  all:      Icon.home,
-  solo:     Icon.solo,
-  coop:     Icon.coop,
-  versus:   Icon.versus,
-  playable: Icon.star,
-};
-
-const COLLECTION_NAV = [
-  { id: 'originals', label: 'Originals', icon: Icon.sparkle },
-];
-
-// Genre swatches mirroring the four originals (matches data.js order:
-// grudgewood = action, goalbound = sports, slither = arcade, slipshot = action).
-// To get four distinct hues we surface action + sports + arcade + puzzle —
-// the colour set already bound to PG.Play.
-const ORIGINAL_GENRES = ['action', 'sports', 'arcade', 'puzzle'];
-
-function NavItem({ id, label, icon, count, onClick, isActive, reduced, extra }) {
+function NavItem({ icon, label, count, kbd, onClick, active = false, muted = false }) {
   return (
-    <motion.button
-      key={id}
+    <button
       type="button"
-      className={'side-item side-item-v2' + (isActive ? ' is-active' : '')}
-      onClick={onClick}
-      whileHover={reduced ? undefined : { x: 2 }}
-      transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-      data-nav-id={id}
-    >
-      <span className="side-icon-tile" aria-hidden="true">
-        <span className="side-icon">{icon}</span>
-      </span>
-      <span className="side-label">{label}</span>
-      {extra}
-      {count !== undefined && <span className="side-count numeric">{count}</span>}
-    </motion.button>
-  );
-}
-
-function GroupLabel({ children }) {
-  return (
-    <div className="side-group-label side-group-label-v2">
-      <span className="side-group-dot" aria-hidden="true" />
-      <span className="side-group-text">{children}</span>
-    </div>
+      className={
+        'sidebar-item'
+        + (active ? ' is-active' : '')
+        + (muted ? ' is-muted' : '')
+      }
+      onClick={onClick}>
+      <span className="sidebar-item-icon" aria-hidden="true">{icon}</span>
+      <span className="sidebar-item-label">{label}</span>
+      {kbd && <kbd className="sidebar-item-kbd" aria-hidden="true">{kbd}</kbd>}
+      {count != null && <span className="sidebar-item-count numeric">{count}</span>}
+    </button>
   );
 }
 
@@ -70,150 +36,118 @@ function monogramFor(user) {
 }
 
 export default function Sidebar({
-  games,
-  activeFilter,
-  onFilter,
-  favCount,
-  onOpenFavorites,
-  favoritesOnly,
+  user,
+  favCount = 0,
+  activeSection = 'home',
+  onHome,
+  onSearch,
+  onRandom,
+  onFavorites,
+  onProfile,
   onOpenSettings,
-  onOpenProfile,
   onOpenAuth,
   onSignOut,
-  user,
   onClose,
-  activeCollection,
-  onOpenCollection,
-  collectionCounts = {},
 }) {
-  const reduced = useReducedMotion();
-
   const close = () => { if (onClose) onClose(); };
-  const handle = (fn) => () => { fn?.(); close(); };
+  const fire = (fn) => () => { fn?.(); close(); };
 
-  const libraryActive = favoritesOnly ? 'favorites' : null;
-  const emailShort = user ? (user.email || '').split('@')[0] : null;
   const displayName =
     user?.user_metadata?.display_name ||
     user?.user_metadata?.full_name ||
-    emailShort ||
-    'Signed in';
-
-  const originalsExtra = (
-    <span className="side-genre-dots" aria-hidden="true">
-      {ORIGINAL_GENRES.map((g) => (
-        <span key={g} className={`side-genre-dot side-genre-dot-${g}`} />
-      ))}
-    </span>
-  );
+    (user?.email ? user.email.split('@')[0] : 'Signed in');
 
   return (
-    <aside className="sidebar sidebar-v2 glass-strong" aria-label="Primary">
-      <div className="side-brand side-brand-v2">
-        <span className="side-brand-wordmark">
-          <span className="side-brand-name">PG</span>
-          <span className="side-brand-dot" aria-hidden="true"/>
-          <span className="side-brand-suffix">Play</span>
+    <aside className="sidebar" aria-label="Primary navigation">
+      <div className="sidebar-brand">
+        <span className="sidebar-brand-mark">
+          <span className="sidebar-brand-name">PG</span>
+          <span className="sidebar-brand-dot" aria-hidden="true"/>
+          <span className="sidebar-brand-suffix">Play</span>
         </span>
+        <button
+          type="button"
+          className="sidebar-close"
+          onClick={close}
+          aria-label="Close navigation">
+          {Icon.close}
+        </button>
       </div>
 
-      <nav className="side-nav side-nav-v2" aria-label="Sections">
-        <GroupLabel>Browse</GroupLabel>
-        {FILTERS.map((f) => (
+      <nav className="sidebar-nav" aria-label="Sections">
+        <div className="sidebar-group">
+          <div className="sidebar-group-label">Browse</div>
           <NavItem
-            key={f.id}
-            id={f.id}
-            label={f.label}
-            icon={NAV_ICONS[f.id] || Icon.home}
-            count={games.filter(f.match).length}
-            onClick={handle(() => onFilter(f.id))}
-            isActive={!favoritesOnly && !activeCollection && activeFilter === f.id}
-            reduced={reduced}
-          />
-        ))}
-
-        <GroupLabel>Collections</GroupLabel>
-        {COLLECTION_NAV.map((c) => (
+            icon={Icon.home}
+            label="Home"
+            active={activeSection === 'home'}
+            onClick={fire(onHome)}/>
           <NavItem
-            key={c.id}
-            id={c.id}
-            label={c.label}
-            icon={c.icon}
-            count={collectionCounts[c.id]}
-            onClick={handle(() => onOpenCollection?.(c.id))}
-            isActive={activeCollection === c.id}
-            reduced={reduced}
-            extra={c.id === 'originals' ? originalsExtra : null}
-          />
-        ))}
+            icon={Icon.search}
+            label="Search"
+            kbd="⌘K"
+            onClick={fire(onSearch)}/>
+          <NavItem
+            icon={Icon.sparkle}
+            label="Surprise me"
+            onClick={fire(onRandom)}/>
+        </div>
 
-        <GroupLabel>Library</GroupLabel>
-        <NavItem
-          id="favorites"
-          label="Favorites"
-          icon={Icon.heart}
-          count={favCount}
-          onClick={handle(onOpenFavorites)}
-          isActive={libraryActive === 'favorites'}
-          reduced={reduced}
-        />
-        <NavItem
-          id="profile"
-          label="Profile"
-          icon={Icon.solo}
-          onClick={handle(onOpenProfile)}
-          isActive={false}
-          reduced={reduced}
-        />
+        <div className="sidebar-group">
+          <div className="sidebar-group-label">Library</div>
+          <NavItem
+            icon={Icon.heart}
+            label="Favorites"
+            count={favCount}
+            active={activeSection === 'favorites'}
+            onClick={fire(onFavorites)}/>
+          <NavItem
+            icon={Icon.solo}
+            label="Profile"
+            onClick={fire(onProfile)}/>
+        </div>
       </nav>
 
-      <div className="side-foot side-foot-v2">
+      <div className="sidebar-foot">
         {user ? (
-          <div className="side-account">
+          <div className="sidebar-account">
             <button
               type="button"
-              className="side-avatar glass"
-              aria-label="Open profile"
-              onClick={handle(onOpenProfile)}
-            >
+              className="sidebar-avatar"
+              onClick={fire(onProfile)}
+              aria-label="Open profile">
               {monogramFor(user)}
             </button>
-            <div className="side-account-text">
-              <div className="side-account-name">{displayName}</div>
-              <div className="side-account-email" title={user.email}>{user.email}</div>
+            <div className="sidebar-account-text">
+              <div className="sidebar-account-name">{displayName}</div>
+              <div className="sidebar-account-email" title={user.email}>{user.email}</div>
             </div>
             <button
               type="button"
-              className="side-account-signout"
+              className="sidebar-account-signout"
               onClick={onSignOut}
-              aria-label="Sign out"
-            >
+              aria-label="Sign out">
               Sign out
             </button>
           </div>
         ) : (
           <button
             type="button"
-            className="side-signin-v2"
-            onClick={handle(onOpenAuth)}
-          >
-            <span className="side-signin-label">Sign in to sync</span>
-            <span className="side-signin-icon" aria-hidden="true">{Icon.chevronRight}</span>
+            className="sidebar-signin"
+            onClick={fire(onOpenAuth)}>
+            <span className="sidebar-signin-text">
+              <span className="sidebar-signin-title">Sign in to sync</span>
+              <span className="sidebar-signin-sub">Favorites, bests, achievements</span>
+            </span>
+            <span className="sidebar-signin-arrow" aria-hidden="true">{Icon.chevronRight}</span>
           </button>
         )}
-        <div className="side-foot-divider" aria-hidden="true" />
-        <motion.button
-          type="button"
-          className="side-item side-item-v2 side-item-settings"
-          onClick={handle(onOpenSettings)}
-          whileHover={reduced ? undefined : { x: 2 }}
-          transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-        >
-          <span className="side-icon-tile" aria-hidden="true">
-            <span className="side-icon">{Icon.settings}</span>
-          </span>
-          <span className="side-label">Settings</span>
-        </motion.button>
+
+        <NavItem
+          icon={Icon.settings}
+          label="Settings"
+          muted
+          onClick={fire(onOpenSettings)}/>
       </div>
     </aside>
   );
