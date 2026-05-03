@@ -409,15 +409,15 @@ function _frostDuck(durationSec = 0.6) {
 
 const FF_BED_URLS = [
   // Vite serves /public/* at the root, so this resolves to
-  // /games/frost-fight/audio/bed.{m4a,mp3} in dev and dist builds.
-  // .m4a tried first — that's the user-supplied track we like; .mp3
-  // is the fallback name from earlier.
-  './games/frost-fight/audio/bed.m4a',
+  // /games/frost-fight/audio/bed.mp3 in dev and dist builds. Phase
+  // 22d: the in-game bed is bgm.mp3 (the user's preferred short loop
+  // for gameplay). The home page uses a different track (Soft Game
+  // Drift) with its own loop-window clamp.
   './games/frost-fight/audio/bed.mp3',
 ];
-// Phase 22 — user requested a softer mix. Dropped from 0.55 → 0.32
-// so the track sits underneath SFX without fighting them.
-const FF_HTML5_GAIN = 0.32;
+// Phase 22d — in-game volume at 0.08, just slightly above the home
+// page (0.06) so the bed sits behind SFX without disappearing.
+const FF_HTML5_GAIN = 0.08;
 let _ffEl = null;               // HTMLAudioElement
 let _ffElTested = false;        // we've already probed availability
 let _ffElAvailable = false;     // probe result
@@ -457,6 +457,8 @@ function _frostHtml5Start(roomIdx) {
   if (!_ffEl) {
     try {
       _ffEl = new Audio(_ffElUrl);
+      // bgm.mp3 is already a short clean loop; just let the native
+      // HTML5 loop attribute handle the seam.
       _ffEl.loop = true;
       _ffEl.volume = 0;
       _ffEl.preload = 'auto';

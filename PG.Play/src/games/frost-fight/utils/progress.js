@@ -9,13 +9,21 @@
 // `lastReached` tracks the highest room index the player has *entered*
 // (set when a room loads), so a fresh save can resume from the lobby.
 
-const DIFF_KEY  = 'pgplay-ff-difficulty';
+// Phase 22 — DIFF_KEY bumped to v2 because the difficulty semantics
+// changed (lives pool replaced with behavior-based tiers). Old 'easy'
+// picks from prior versions silently roll back to the new 'normal'
+// default, which is what we want — the old 'easy' meant "infinite
+// lives", the new one means "respawn in place". Treating them as the
+// same setting would surprise existing players.
+const DIFF_KEY  = 'pgplay-ff-difficulty-v2';
 const THEME_KEY = 'pgplay-ff-theme';
 const PROG_KEY  = 'pgplay-ff-progress';
 const PROG_VER  = 1;
 
 export const DIFFICULTY_RANK = ['easy', 'normal', 'hard', 'expert', 'insane'];
-export const THEME_IDS = ['cold', 'orchard'];
+// Phase 22 — added 'harvest' (animated bot theme) to the allow-list
+// so theme persistence accepts it.
+export const THEME_IDS = ['cold', 'orchard', 'harvest'];
 
 export function readDifficulty(fallback = 'normal') {
   try {
