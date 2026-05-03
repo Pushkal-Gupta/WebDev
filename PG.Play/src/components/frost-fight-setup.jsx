@@ -15,16 +15,16 @@ import {
   readProgress, isRoomUnlocked,
 } from '../games/frost-fight/utils/progress.js';
 
-// Phase 19 — difficulty pill copy. Keep in sync with DIFFICULTIES in
-// FrostFightGame.jsx; the duplication is so the lobby doesn't pull in
-// the whole game module just to render five pills. Lives counts here
-// are formulas applied per theme length L (15 for both shipped themes).
+// Phase 22 — difficulty pill copy. Keep in sync with DIFFICULTIES in
+// FrostFightGame.jsx. No life-pool maths in the labels: each tier
+// just describes what changes on death or in bot behavior so all five
+// pills fit in a single row.
 const DIFFICULTIES = {
-  easy:   { id: 'easy',   label: 'Easy',   livesText: '∞ lives',          iceMul: 1,   blurb: 'Full respawn allowed.' },
-  normal: { id: 'normal', label: 'Normal', livesText: '2L lives (≈ 40)',  iceMul: 1,   blurb: 'Two lives per level.' },
-  hard:   { id: 'hard',   label: 'Hard',   livesText: '~4L/3 (≈ 27)',     iceMul: 1.2, blurb: 'Tighter pool, faster ice.' },
-  expert: { id: 'expert', label: 'Expert', livesText: '~2L/3 (≈ 13)',     iceMul: 1.5, blurb: 'Tight margin.' },
-  insane: { id: 'insane', label: 'Insane', livesText: 'No respawn',       iceMul: 2,   blurb: 'One hit ends the run.' },
+  easy:   { id: 'easy',   label: 'Easy',   blurb: 'Respawn in place.' },
+  normal: { id: 'normal', label: 'Normal', blurb: 'Standard rules.' },
+  hard:   { id: 'hard',   label: 'Hard',   blurb: 'Bots cast more.' },
+  expert: { id: 'expert', label: 'Expert', blurb: 'Bots think faster.' },
+  insane: { id: 'insane', label: 'Insane', blurb: 'One hit ends it.' },
 };
 const DIFF_ORDER = ['easy', 'normal', 'hard', 'expert', 'insane'];
 
@@ -145,7 +145,6 @@ export default function FrostFightSetup({
           {DIFF_ORDER.map((id) => {
             const def = DIFFICULTIES[id];
             const active = difficulty === id;
-            const ice = def.iceMul > 1 ? ` · ${def.iceMul}× ice` : '';
             return (
               <button
                 key={id}
@@ -154,9 +153,9 @@ export default function FrostFightSetup({
                 aria-checked={active}
                 className={'ff-lobby-pill' + (active ? ' is-active' : '')}
                 onClick={() => onPickDifficulty(id)}
-                title={`${def.label} — ${def.livesText}${ice} · ${def.blurb}`}>
+                title={`${def.label} — ${def.blurb}`}>
                 <b>{def.label}</b>
-                <span>{def.livesText}{ice}</span>
+                <span>{def.blurb}</span>
               </button>
             );
           })}
