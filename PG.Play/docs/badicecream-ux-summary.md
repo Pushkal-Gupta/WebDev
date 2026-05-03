@@ -2216,3 +2216,144 @@ EDIT  docs/badicecream-ux-summary.md           (this section)
 - Banana slip occasionally chains 3-4 tiles in long open corridors
   — by design, but may want a hard cap if playtest finds it
   punishing.
+
+## Phase 19 — difficulty rewrite, harder rooms, visible traits, Timer
+
+User asks (all addressed):
+
+1. Levels too easy — make them harder; add more.
+2. Bot personalities need **visible markers** (e.g. teleport tells).
+3. Difficulty classification was wrong:
+   - Easy: full respawn allowed.
+   - Normal: 2× the number of levels.
+   - Insane: directly sent back (game over).
+   - Fill the middle (Hard / Expert) using AP.
+4. Use `THREE.Timer` instead of `THREE.Clock`.
+
+### A — difficulty rewrite (run-wide pool, AP middle)
+
+Reverted Phase 18's per-level lives → run-wide pool that scales with
+the picked theme length L. Each tier resolves its life count at game
+start via `livesFor(L)`:
+
+```js
+DIFFICULTIES = {
+  easy:   { livesFor: () => Infinity,                    iceMul: 1   },
+  normal: { livesFor: (L) => 2 * L,                      iceMul: 1   },
+  hard:   { livesFor: (L) => round(4 * L / 3),           iceMul: 1.2 },
+  expert: { livesFor: (L) => round(2 * L / 3),           iceMul: 1.5 },
+  insane: { livesFor: () => 0,                           iceMul: 2   },
+};
+```
+
+For L=20 (the new theme length): Normal 40 / Hard 27 / Expert 13 /
+Insane 0 / Easy ∞. Hard and Expert sit on an arithmetic progression
+between Normal and Insane.
+
+Phase 18's `LevelResetCard` was retired. The new run-wide death
+handler flips `status='gameover'` when `nextDeaths > livesCap`
+(skipped entirely on Easy thanks to `Infinity > anything === false`),
+restoring `GameOverCard` with a Try Again CTA.
+
+The HUD's Lives chip reads `livesFor(themeCount) - deaths`; Easy
+shows `∞`, Insane shows `0/0` until the first death.
+
+### B — visible bot trait markers
+
+Every trait now has at least one inline visual the player can read:
+
+| Bot | Marker |
+|---|---|
+| strawberry | baseline (no marker) |
+| blueberry  | `BURST` floater + cyan ring on berry-sense activation |
+| orange     | `?` floater + yellow ring 0.6 s before each cast |
+| cherry     | (pair-step is mechanical; no floater) |
+| banana     | `SLIP` floater on every slip-queue (≤ once / 0.6 s) |
+| grape      | `SHADOW` floater at every dropped ice tile |
+| eggplant   | `STOMP` floater on each successful crack |
+| melon      | `IN ROW` floater (≤ once / 1.6 s) when the player shares its row/col |
+| plum       | **0.5 s pre-teleport tell** — `TP` floater + cyan ring at source, then teleport bursts at both ends |
+| cherrybomb | visible fuse counter (already shipped Phase 18) |
+
+The plum tell adds two new state fields (`teleportTellT`,
+`teleportPending`) so the jump is staged rather than instant — the
+player can react to the tell.
+
+### C — bigger campaign + harder rooms
+
+Each theme grew 15 → 20 rooms (campaign 30 → 40). Five new ultra-
+hard rooms per theme:
+
+- **Cold 16-20**: Slipstream (open arena, banana / cherry mix),
+  Ice Wall (pre-laid ice everywhere, two melts to clear), Press
+  (three orange row-casters above and below), Apex (six bots),
+  Frostpeak (boss room — twelve bots).
+- **Orchard 16-20**: Plum Tide (five plums teleporting),
+  Eggplant Court (six stompers), Grape Net (six shadows everywhere),
+  Bomb Foundry (six cherrybombs ticking), Annihilation (every
+  Orchard kind in one room — twelve bots).
+
+Mid-game existing rooms (Loading Dock, Sub-Basement, Conveyor Maze)
+got bot-density boosts so the curve doesn't sag in the middle.
+
+`THEMES.cold.length` and `THEMES.orchard.length` bumped 15 → 20;
+`THEMES.orchard.startIdx` bumped 15 → 20 to account for the inserted
+Cold finales. PALETTE got 10 new entries.
+
+### D — THREE.Timer in SlipshotGame
+
+`new THREE.Clock()` → `new THREE.Timer()` (three 0.184 exposes
+`Timer` directly off the `three` namespace). Adds an explicit
+`clock.update()` call at the top of the render loop since Timer
+doesn't auto-advance on `getDelta()` reads. The single
+`getElapsedTime()` call became `getElapsed()` (Timer's name).
+
+### E — verification
+
+```
+npx vite build      → clean (2.5 s)
+npx vitest run      → 95/95 passed, 3 skipped, 0 failures
+                       (1 unhandled-rejection from pre-existing jsdom
+                        WebAudio shim — not a Phase 19 regression)
+```
+
+### Files touched in phase 19
+
+```
+EDIT  src/games/FrostFightGame.jsx
+        + DIFFICULTIES rewritten (livesFor formula + iceMul)
+        + per-level lives state torn out, run-wide pool restored
+        + GameOverCard reimported + rendered on status='gameover'
+        + 10 new LEVELS entries (Cold 16-20, Orchard 16-20)
+        + THEMES length 15 → 20, Orchard startIdx 15 → 20
+        + 10 new PALETTE entries
+        + Loading Dock / Sub-Basement / Conveyor Maze hardened
+        + plum pre-teleport tell (state + 0.5 s window + TP floater)
+        + BURST / STOMP / SLIP / SHADOW / IN ROW floaters
+EDIT  src/games/frost-fight/ui/Hud.jsx
+        Lives chip reads livesFor(themeCount); ∞ render for Easy
+EDIT  src/games/frost-fight/ui/Overlay.jsx
+        LevelResetCard removed; GameOverCard reinstated
+EDIT  src/components/frost-fight-setup.jsx
+        Difficulty pill copy reflects the new lives formulas;
+        theme level lists extended to 20 rooms each
+EDIT  src/data.js
+        Frost Fight: levels 22 → 40 + new tagline
+EDIT  src/games/SlipshotGame.jsx
+        new THREE.Clock() → new THREE.Timer() + clock.update() per
+        frame + getElapsed() instead of getElapsedTime()
+EDIT  docs/badicecream-ux-summary.md           (this section)
+```
+
+### What's still open
+
+- The `iceMul` bump on Hard (1.2) and Expert (1.5) should be
+  playtested — old values were 1 across the middle.
+- Some existing Cold rooms 11-15 (Frostlock through Glacier from
+  Phase 18) didn't get hardened in this pass; they sit between the
+  bumped Loading Dock-era rooms and the new Slipstream-era rooms,
+  which is fine but a future pass could even out the curve.
+- `livesFor` returns Infinity for Easy; if a leaderboard splits
+  scores by difficulty, that branch's submit meta should probably
+  scrub `lives: Infinity` to avoid JSON edge cases (it currently
+  isn't surfaced in submitScore meta — only `difficulty.id` is).

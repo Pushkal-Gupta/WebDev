@@ -1,41 +1,56 @@
-// Cut the Rope — bubble device. Encloses a candy point, flips its
-// effective gravity for a gentle lift; pop on tap reverts the candy
-// to normal physics.
-//
-// The bubbled state is set per-point and propagated outward through the
-// alive constraint chain by the gameplay loop (see propagateBubble in
-// index.jsx). That way, the rope hanging off a bubbled candy is also
-// buoyant — without it the rope's gravity-bound segments out-mass the
-// candy and drag it down regardless of how strong the bubble is.
+// Snip — bubble device. Encloses a candy point, propagates buoyancy
+// through the alive constraint chain (handled in index.jsx), and pops
+// on tap. Rendered as a clean translucent ring with two small glints.
 
 import * as THREE from 'three';
+import { paperDisk } from './_paper.js';
 
 export function makeBubble(def) {
-  const mat = new THREE.MeshStandardMaterial({
-    color: 0xcfeaff, roughness: 0.05, metalness: 0.0,
-    transparent: true, opacity: 0.45,
+  const group = new THREE.Group();
+  group.position.set(def.x, def.y, 0);
+
+  // Outer rim — translucent ring drawn as a slightly larger blue disk
+  // with a transparent inner cutout via the shader.
+  const rim = paperDisk(def.radius, '#cfeaff', {
+    highlight: 0.12, shade: 0.05, outline: '#9fd3ff', outlineWidth: 0.18,
   });
-  const geo = new THREE.SphereGeometry(def.radius, 24, 18);
-  const mesh = new THREE.Mesh(geo, mat);
-  mesh.position.set(def.x, def.y, 0);
+  rim.material.transparent = true;
+  rim.material.uniforms.uOutline.value.setRGB(0.62, 0.83, 1.0);
+  rim.position.z = -0.05;
+  group.add(rim);
+
+  // Inner translucent fill — keeps it readable as a "soap bubble".
+  const fill = paperDisk(def.radius * 0.92, '#dff1ff', { highlight: 0.05, shade: 0.0 });
+  fill.material.transparent = true;
+  fill.material.opacity = 0.55;
+  group.add(fill);
+
+  // Two glints — top-left big, bottom-right small.
+  const glintA = paperDisk(0.12, '#ffffff', { highlight: 0, shade: 0 });
+  glintA.position.set(-def.radius * 0.42, -def.radius * 0.42, 0.03);
+  group.add(glintA);
+  const glintB = paperDisk(0.06, '#ffffff', { highlight: 0, shade: 0 });
+  glintB.position.set(def.radius * 0.32, def.radius * 0.32, 0.03);
+  group.add(glintB);
 
   const state = {
     x: def.x, y: def.y, r: def.radius,
     alive: true, attached: null,
-    dirty: false,            // gameplay loop watches this to re-propagate bubbled state.
+    dirty: false,
   };
 
   return {
     state,
-    mesh,
+    mesh: group,
     update() {
       const t = performance.now() / 800;
-      mesh.scale.setScalar(1 + Math.sin(t) * 0.04);
+      const s = 1 + Math.sin(t) * 0.04;
+      group.scale.setScalar(s);
     },
     pop() {
       if (!state.alive) return;
       state.alive = false;
-      mesh.visible = false;
+      group.visible = false;
       state.attached = null;
       state.dirty = true;
     },
@@ -46,8 +61,10 @@ export function makeBubble(def) {
       state.dirty = true;
     },
     follow(point) {
-      mesh.position.set(point.x, point.y, 0);
+      group.position.set(point.x, point.y, 0);
     },
-    dispose() { geo.dispose(); mat.dispose(); },
+    dispose() {
+      group.traverse((obj) => obj.material?.dispose?.());
+    },
   };
 }

@@ -1,93 +1,114 @@
-// Cut the Rope — particle FX layer. Tiny stand-alone module: the
-// gameplay loop spawns bursts at events, and ticks the system each
-// frame. Particles dispose themselves when their lifetime ends.
+// Snip — particle FX layer. Tiny stand-alone module: the gameplay loop
+// spawns bursts at events and ticks the system each frame. Particles
+// are SDF round dots rendered through a shared shader so they always
+// look antialiased and crisp — never as a square plane with rotation.
+// Confetti uses the same dot shape but in a wider color palette and
+// with longer lifetime + gravity.
 
 import * as THREE from 'three';
 
 const particles = [];
 
-const SPARKLE_GEO = new THREE.PlaneGeometry(0.18, 0.18);
-const CONFETTI_GEOS = [
-  new THREE.PlaneGeometry(0.18, 0.10),
-  new THREE.PlaneGeometry(0.10, 0.18),
-];
-const CONFETTI_COLORS = [0xff6e84, 0xffd24a, 0x7fb88a, 0x9bd6ff, 0xffae33, 0xc7a6e2];
+const _unitGeo = new THREE.PlaneGeometry(2, 2);
+const _vertex = /* glsl */`
+  varying vec2 vUv;
+  void main() {
+    vUv = uv * 2.0 - 1.0;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+const _fragmentDot = /* glsl */`
+  uniform vec3 uColor;
+  uniform float uOpacity;
+  uniform float uSoft;
+  varying vec2 vUv;
+  void main() {
+    float r = length(vUv);
+    float a = smoothstep(1.0, 1.0 - uSoft, r) * uOpacity;
+    if (a <= 0.001) discard;
+    gl_FragColor = vec4(uColor, a);
+  }
+`;
+
+function makeDotMesh(color, scale, additive = false, soft = 0.18) {
+  const mat = new THREE.ShaderMaterial({
+    uniforms: {
+      uColor: { value: new THREE.Color(color) },
+      uOpacity: { value: 1 },
+      uSoft: { value: soft },
+    },
+    vertexShader: _vertex,
+    fragmentShader: _fragmentDot,
+    transparent: true,
+    depthWrite: false,
+    blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending,
+  });
+  const mesh = new THREE.Mesh(_unitGeo, mat);
+  mesh.scale.set(scale, scale, 1);
+  return { mesh, mat };
+}
 
 export function spawnStarBurst(scene, x, y) {
-  for (let i = 0; i < 10; i++) {
-    const angle = (i / 10) * Math.PI * 2 + Math.random() * 0.4;
-    const speed = 1.4 + Math.random() * 1.6;
-    const mat = new THREE.MeshBasicMaterial({
-      color: 0xffe07a, transparent: true, opacity: 1,
-      blending: THREE.AdditiveBlending, depthWrite: false,
-      side: THREE.DoubleSide,
-    });
-    const mesh = new THREE.Mesh(SPARKLE_GEO, mat);
+  for (let i = 0; i < 12; i++) {
+    const angle = (i / 12) * Math.PI * 2 + Math.random() * 0.3;
+    const speed = 1.6 + Math.random() * 1.4;
+    const { mesh, mat } = makeDotMesh(0xfff0a8, 0.10 + Math.random() * 0.06, true, 0.5);
     mesh.position.set(x, y, 0.05);
-    mesh.rotation.z = Math.random() * Math.PI;
     scene.add(mesh);
     particles.push({
       mesh, mat,
       vx: Math.cos(angle) * speed,
       vy: Math.sin(angle) * speed,
-      gy: 4,
-      spin: (Math.random() - 0.5) * 6,
+      gy: 3.2,
+      drag: 0.96,
       life: 0,
-      ttl: 0.45 + Math.random() * 0.2,
+      ttl: 0.5 + Math.random() * 0.2,
+      shrink: 1.6,
     });
   }
 }
 
-// Tiny puff of light particles — used at the cut location so the player
-// sees an immediate "snip" response in addition to the audio cue. Kept
-// short (~0.3s) and small (6 motes) so it never fights the rope visual.
+// Tiny puff at the cut location — bright, brief, no rotation.
 export function spawnCutPuff(scene, x, y) {
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 7; i++) {
     const angle = Math.random() * Math.PI * 2;
     const speed = 0.9 + Math.random() * 1.4;
-    const mat = new THREE.MeshBasicMaterial({
-      color: 0xfff5d0, transparent: true, opacity: 1,
-      blending: THREE.AdditiveBlending, depthWrite: false,
-      side: THREE.DoubleSide,
-    });
-    const mesh = new THREE.Mesh(SPARKLE_GEO, mat);
+    const size = 0.06 + Math.random() * 0.05;
+    const { mesh, mat } = makeDotMesh(0xfff5d0, size, true, 0.5);
     mesh.position.set(x, y, 0.04);
-    mesh.scale.setScalar(0.4 + Math.random() * 0.3);
-    mesh.rotation.z = Math.random() * Math.PI;
     scene.add(mesh);
     particles.push({
       mesh, mat,
       vx: Math.cos(angle) * speed,
       vy: Math.sin(angle) * speed,
-      gy: 6,
-      spin: (Math.random() - 0.5) * 8,
+      gy: 4.0,
+      drag: 0.94,
       life: 0,
-      ttl: 0.28 + Math.random() * 0.12,
+      ttl: 0.30 + Math.random() * 0.10,
+      shrink: 2.0,
     });
   }
 }
 
+const CONFETTI_COLORS = [0xff6e84, 0xffd24a, 0x7fb88a, 0x9bd6ff, 0xffae33, 0xc7a6e2];
+
 export function spawnConfetti(scene, x, y) {
-  for (let i = 0; i < 24; i++) {
-    const ang = -Math.PI / 2 + (Math.random() - 0.5) * 1.6;
+  for (let i = 0; i < 30; i++) {
+    const ang = -Math.PI / 2 + (Math.random() - 0.5) * 1.7;
     const speed = 2.6 + Math.random() * 2.2;
-    const geo = CONFETTI_GEOS[i & 1];
-    const mat = new THREE.MeshBasicMaterial({
-      color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
-      transparent: true, opacity: 1, side: THREE.DoubleSide,
-    });
-    const mesh = new THREE.Mesh(geo, mat);
+    const c = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
+    const { mesh, mat } = makeDotMesh(c, 0.08 + Math.random() * 0.06, false, 0.18);
     mesh.position.set(x + (Math.random() - 0.5) * 0.4, y, 0.05);
-    mesh.rotation.z = Math.random() * Math.PI;
     scene.add(mesh);
     particles.push({
       mesh, mat,
       vx: Math.cos(ang) * speed,
       vy: Math.sin(ang) * speed,
       gy: 9,
-      spin: (Math.random() - 0.5) * 12,
+      drag: 0.985,
       life: 0,
       ttl: 1.2 + Math.random() * 0.6,
+      shrink: 0.0,
     });
   }
 }
@@ -103,13 +124,17 @@ export function tickFx(dt, scene) {
       continue;
     }
     // Drag + gravity (positive Y is "down" in our convention).
-    p.vx *= 0.98;
-    p.vy = p.vy * 0.985 + p.gy * dt;
+    p.vx *= p.drag;
+    p.vy = p.vy * p.drag + p.gy * dt;
     p.mesh.position.x += p.vx * dt;
     p.mesh.position.y += p.vy * dt;
-    p.mesh.rotation.z += p.spin * dt;
     const k = 1 - p.life / p.ttl;
-    p.mat.opacity = k;
+    p.mat.uniforms.uOpacity.value = k;
+    if (p.shrink > 0) {
+      const s = Math.max(0.001, k);
+      p.mesh.scale.x *= 1 - p.shrink * dt * 0.3;
+      p.mesh.scale.y *= 1 - p.shrink * dt * 0.3;
+    }
   }
 }
 

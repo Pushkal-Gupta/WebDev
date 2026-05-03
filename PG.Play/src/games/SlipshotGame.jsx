@@ -8,6 +8,12 @@
 
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
+// Phase 19: prefer the newer THREE.Timer (three 0.184+) over the
+// legacy Clock. Timer is exposed directly off the `three` namespace.
+// API: update() advances the internal clock once per frame, then
+// getDelta() returns the elapsed time since the previous update().
+// Unlike Clock, getDelta() doesn't auto-advance, so multiple reads
+// inside the same frame yield the same dt.
 import { submitScore } from '../scoreBus.js';
 import { isMuted, sfx } from '../sound.js';
 
@@ -456,7 +462,7 @@ export default function SlipshotGame() {
       entities.push({
         kind: 'target', alive: true, mesh: group, body,
         hp: 1, maxHp: 1, pos: pos.clone(),
-        bob: Math.random() * Math.PI * 2, spawnT: clock.getElapsedTime(),
+        bob: Math.random() * Math.PI * 2, spawnT: clock.getElapsed(),
       });
     };
 
@@ -656,7 +662,12 @@ export default function SlipshotGame() {
     const setHudField = (k, v) => setHud((h) => ({ ...h, [k]: v }));
 
     /* ── run lifecycle ────────────────────────────────────────── */
-    const clock = new THREE.Clock();
+    // Phase 19: Timer replaces Clock. Timer.update() advances the
+    // internal clock once per frame (called at the top of `loop`),
+    // then getDelta() / getElapsed() are read like Clock — but Timer
+    // doesn't auto-advance on every getDelta() call, so dt is stable
+    // across multiple reads inside the same frame.
+    const clock = new THREE.Timer();
 
     // Juice accumulators + game clock. gameTime only advances while the run
     // is active (status = playing AND pointer locked), so Esc-to-unlock
@@ -1106,6 +1117,9 @@ export default function SlipshotGame() {
 
     const loop = () => {
       raf = requestAnimationFrame(loop);
+      // Timer wants an explicit advance call once per frame; getDelta()
+      // afterward returns the elapsed time since the previous update().
+      clock.update();
       const dt = Math.min(0.05, clock.getDelta());
       const hr = hudRef.current;
 

@@ -128,32 +128,47 @@ export function WinCard({ open, deaths, time, best, bestBeaten, levelCount, peac
   );
 }
 
-// Level-reset overlay (Phase 18). Fires when the per-level lives pool
-// hits zero — louder than a normal death beat so the player reads it
-// as a setback, but the run continues; lives reset to cap on reload.
-export function LevelResetCard({ open, difficulty, levelName }) {
+// Phase 19 — game-over card. Fires when the run-wide lives pool is
+// exhausted (or first death on Insane). Mirrors the WinCard chrome
+// with a warm-danger tint. Try Again restarts the run from the
+// lobby's chosen start level; Back returns to the lobby.
+export function GameOverCard({ open, deaths, time, levelIdx, levelCount, levelName, difficulty, onPlayAgain, onExit }) {
   const reduced = useReducedMotion();
   return (
     <AnimatePresence>
       {open && (
         <motion.div
-          key="levelreset"
-          className="ff-overlay ff-overlay-reset"
+          key="gameover"
+          className="ff-overlay ff-overlay-gameover"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.22 }}
-          aria-live="polite">
+          transition={{ duration: 0.28 }}
+          role="dialog"
+          aria-label="Game over">
           <motion.div
-            className="ff-card ff-card-reset"
-            initial={reduced ? false : { y: 14, opacity: 0, scale: 0.96 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={reduced ? { opacity: 0 } : { y: -10, opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}>
+            className="ff-card ff-card-gameover"
+            initial={reduced ? false : { y: 18, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}>
             <div className="ff-card-eyebrow">Out of lives</div>
-            <div className="ff-card-title">Restarting {levelName}</div>
+            <div className="ff-card-title ff-card-title-xl">Game over</div>
             <div className="ff-card-body">
-              {difficulty?.label} pool exhausted. Lives reset; nothing else lost.
+              {difficulty?.label} run ended on <b>{levelName}</b>. Lower the difficulty or learn the row casts.
+            </div>
+            <div className="ff-card-stats">
+              <div className="ff-card-stat"><span>Difficulty</span><b>{difficulty?.label}</b></div>
+              <div className="ff-card-stat"><span>Reached</span><b>{levelIdx + 1}/{levelCount}</b></div>
+              <div className="ff-card-stat"><span>Deaths</span><b>{deaths}</b></div>
+              <div className="ff-card-stat"><span>Time</span><b>{fmt(time)}</b></div>
+            </div>
+            <div className="ff-card-cta">
+              <button type="button" className="btn btn-primary btn-lg" onClick={onPlayAgain}>
+                Try again
+              </button>
+              <button type="button" className="btn btn-ghost btn-lg" onClick={onExit}>
+                Back to lobby
+              </button>
             </div>
           </motion.div>
         </motion.div>

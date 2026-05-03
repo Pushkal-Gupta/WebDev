@@ -96,7 +96,7 @@ export default function GrudgewoodGame() {
       const y = chunks.sampleHeight(x, z);
       chunks.ensureLoadedAround(x, z);
       player.reset(new THREE.Vector3(x, y, z), 0);
-      const camPos = new THREE.Vector3(x, y + 4.5, z - 6.0);
+      const camPos = new THREE.Vector3(x, y + 5.5, z - 6.0);
       cam.snapTo(camPos, new THREE.Vector3(x, y + 1.4, z));
       const { biome } = chunks.biomeAt(x, z);
       startAmbient(biome.id);
@@ -135,13 +135,12 @@ export default function GrudgewoodGame() {
         gameState.runtime = 0;
         gameState.respawnAnchor = { x: 12, z: 12 };
         gameState.level = 0;
-        // Always include flag 0 in the raised set on a fresh walk. The
-        // first flag is the spawn flag — visible from the start, raised
-        // by default so the player sees "this is a checkpoint" before
-        // they walk anywhere.
-        const sNow = getSave();
-        chunks.raisedFlags = new Set(sNow.raisedFlags || []);
-        chunks.raisedFlags.add(0);
+        // Fresh walk: ONLY the spawn flag is raised. Without this reset
+        // the persistent save's `raisedFlags` carries over from previous
+        // sessions, so the player would walk up to flag 1 and find it
+        // already up — no checkpoint registers, no toast fires. The
+        // save's raisedFlags is for Continue only.
+        chunks.raisedFlags = new Set([0]);
         placeAt(gameState.respawnAnchor.x, gameState.respawnAnchor.z);
         gameState.phase = 'play';
         cam.setMode('chase');

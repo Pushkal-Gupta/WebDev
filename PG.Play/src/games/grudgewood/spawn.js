@@ -67,6 +67,90 @@ const SCRIPTED_CELLS = {
     { kind: 'acorn',    x: 18, z: 276 },
     { kind: 'predator', x: 4,  z: 282 },
   ],
+
+  // Level 3 (cells 0,13 → 0,17, ending at flag 3 at 0,18). Trickster
+  // Grove biome takes over around cz=9. Theme: confidence trap +
+  // mirror tree + ranged pressure. The framework's "major subversion"
+  // beat — the player thinks they've learned the patterns and gets
+  // schooled by the bait sign and the mirror.
+  '0,13': () => [
+    // Confidence trap — sign labelled EASY, then a carpet of pits.
+    { kind: 'sign', x: 11, z: 318, opts: { label: 'EASY', face: 1 } },
+    { kind: 'pit',  x: 9,  z: 326 },
+    { kind: 'pit',  x: 13, z: 327 },
+    { kind: 'pit',  x: 11, z: 332 },
+  ],
+  '0,14': () => [
+    // Mirror tree introduction — tree mirrors the player's silhouette.
+    // Sign tries to disarm the player into staying near it.
+    { kind: 'mirror', x: 18, z: 350 },
+    { kind: 'sign',   x: 6,  z: 348, opts: { label: 'TRUST', face: -1 } },
+  ],
+  '0,15': () => [
+    // Acorn crossfire — two cannons on opposite flanks.
+    { kind: 'acorn', x: 4,  z: 372 },
+    { kind: 'acorn', x: 19, z: 378 },
+  ],
+  '0,16': () => [],   // relief — Trickster pretends it's done
+  '0,17': () => [
+    // Lash combo + erupting tree centerline, the level's climax.
+    { kind: 'lash',     x: 12, z: 420 },
+    { kind: 'erupting', x: 12, z: 432 },
+  ],
+
+  // Level 4 (cells 0,19 → 0,23, ending at flag 4 at 0,24). Rotbog
+  // biome (cz ≥ 18). Theme: patient slowfields and moving threats.
+  // Vines and geysers force the player to time movement, not just dodge.
+  '0,19': () => [
+    // Vine introduction — single sweeping vine on the centerline.
+    { kind: 'vine', x: 12, z: 462 },
+  ],
+  '0,20': () => [
+    // Vine cluster — two vines staggered + a snare baiting the gap.
+    { kind: 'vine',  x: 8,  z: 484 },
+    { kind: 'vine',  x: 16, z: 492 },
+    { kind: 'snare', x: 12, z: 488 },
+  ],
+  '0,21': () => [
+    // Geyser introduction — timed eruption + predator on flank pressures
+    // the player to move while the geyser is dormant.
+    { kind: 'geyser',   x: 12, z: 510, opts: { period: 3.6, phase: 0 } },
+    { kind: 'predator', x: 4,  z: 516 },
+  ],
+  '0,22': () => [],   // relief
+  '0,23': () => [
+    // Climax — geyser + vine + predator orchestrated.
+    { kind: 'geyser',   x: 12, z: 558, opts: { period: 3.0, phase: 0.5 } },
+    { kind: 'vine',     x: 12, z: 568 },
+    { kind: 'predator', x: 18, z: 564 },
+  ],
+
+  // Level 5 (cells 0,25 → 0,29, ending at flag 5 at 0,30). Cliffside
+  // biome (cz ≥ 27). Theme: wind + boulders + falling trees. Heavy,
+  // physical hazards. The player has learned the vocabulary; here the
+  // forest just throws weight.
+  '0,25': () => [
+    // Wind gust pushes player off-line + log roll cleans up.
+    { kind: 'wind', x: 12, z: 606, opts: { dir: -1, force: 22 } },
+    { kind: 'log',  x: 12, z: 618, opts: { dir: -1, speed: 16 } },
+  ],
+  '0,26': () => [
+    // Boulder drop introduction — visible shadow on the path.
+    { kind: 'boulder', x: 12, z: 636 },
+    { kind: 'sign',    x: 4,  z: 632, opts: { label: 'KEEP MOVING', face: 1 } },
+  ],
+  '0,27': () => [
+    // Falling tree + boulder combo — both fire on the centerline.
+    { kind: 'falling', x: 4,  z: 656, opts: { side: 1 } },
+    { kind: 'boulder', x: 16, z: 662 },
+  ],
+  '0,28': () => [],   // relief
+  '0,29': () => [
+    // Final climax — wind, boulder, falling tree all in 24m.
+    { kind: 'wind',    x: 12, z: 700, opts: { dir: 1, force: 24 } },
+    { kind: 'falling', x: 19, z: 708, opts: { side: -1 } },
+    { kind: 'boulder', x: 8,  z: 716 },
+  ],
 };
 
 // Per-biome trap palette — same shape as the old corridor palette, with

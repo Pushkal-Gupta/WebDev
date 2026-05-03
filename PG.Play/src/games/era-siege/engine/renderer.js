@@ -477,6 +477,12 @@ function drawUnitSprite(ctx, u, x, y, spriteKey, sideAuraActive) {
 }
 
 // ── Units ──────────────────────────────────────────────────────────────
+//
+// One render path now: `drawUnitSprite`. It calls `assets.draw(spriteKey)`
+// which transparently uses the baked PNG when loaded, and the registered
+// `placeholderUnit` (rich procedural body) while loading or if the PNG
+// 404s. Both produce the same visual style — the user no longer sees a
+// "loading" stick-figure pop into a different "loaded" silhouette.
 function drawUnit(ctx, u, sideAuraActive) {
   // Interpolate between the previous-step end and the current-step end.
   // px/py are populated at the start of every sim step; on the first
@@ -484,154 +490,13 @@ function drawUnit(ctx, u, sideAuraActive) {
   const x = (u.px != null) ? u.px + (u.x - u.px) * _alpha : u.x;
   const y = ((u.py != null) ? u.py + (u.y - u.py) * _alpha : u.y) + (u.laneStagger || 0);
 
-  // Try the painted sprite first. Each unit's content def carries
-  // `eraId` (e.g. 'ember-tribe') — we map to the manifest's era index.
+  // Resolve the sprite key. eraIndex on the unit is set at spawn-time
+  // by trySpawnUnit; if that's missing for any reason we fall through
+  // to the era-by-id lookup table.
   const eraN = u.eraIndex != null ? u.eraIndex + 1 : ERA_BY_ID[u.eraId] || 1;
   const role = u.role;
-  // Generals get their own sprite key. Frontline / ranged / heavy
-  // each map to their role-named PNG.
   const spriteKey = `unit/era${eraN}/${role}`;
-  if (assets.has(spriteKey)) {
-    drawUnitSprite(ctx, u, x, y, spriteKey, sideAuraActive);
-    return;
-  }
-
-  // Visual scale lifts silhouettes off the ground without touching
-  // sim values (range / collision still use the content-data sizes).
-  const SCALE = BALANCE.UNIT_RENDER_SCALE || 1;
-  const w = (u.silhouetteW || 16) * SCALE;
-  const h = (u.silhouetteH || 22) * SCALE;
-  const halfW = w / 2;
-  const colorBody = u.visual?.colorBody || u.color || '#888';
-  const colorTrim = u.visual?.colorTrim || '#fff';
-  const headR = (u.visual?.headRadius || 6) * SCALE;
-  const isHeavy = u.role === 'heavy';
-
-  // Walk bob (cosmetic only).
-  const phase = (u.walkPhaseMs || 0) / 130;
-  const bob = u.attackTickPhase === 'idle' ? Math.sin(phase) * (isHeavy ? 1.0 : 1.6) : 0;
-  // Forward lean during windup.
-  const lean = u.attackTickPhase === 'windup' ? u.facing * 3 : 0;
-
-  // Sun Forge aura — soft pulsing halo behind buffed units.
-  if (sideAuraActive) {
-    const pulse = (Math.sin(performance.now() / 220) + 1) / 2;
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-    ctx.globalAlpha = 0.18 + pulse * 0.18;
-    ctx.fillStyle = '#ffcb6b';
-    ctx.beginPath();
-    ctx.ellipse(x + lean, y - h * 0.4 + bob, halfW + 6 + pulse * 2, h * 0.7 + pulse * 2, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  }
-
-  // Heavy units get a charge-up halo during windup.
-  if (isHeavy && u.attackTickPhase === 'windup') {
-    const chargeT = 1 - Math.max(0, u.attackTimerMs / u.attackWindupMs);
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-    ctx.globalAlpha = 0.35 + chargeT * 0.35;
-    ctx.fillStyle = colorTrim;
-    ctx.beginPath();
-    ctx.arc(x + lean, y - h * 0.4 + bob, h * 0.55 + chargeT * 4, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  }
-
-  // Boots / shadow
-  ctx.fillStyle = 'rgba(0,0,0,0.35)';
-  ctx.beginPath();
-  ctx.ellipse(x, y + 1, halfW + 2, 2.5, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Legs — alternating phasing so the walk reads as a stride, not a hop.
-  ctx.fillStyle = colorBody;
-  if (u.attackTickPhase === 'idle' && !isHeavy) {
-    const legPhase = (u.walkPhaseMs || 0) / 130;
-    const legA = Math.sin(legPhase) * 2.4;
-    const legB = -legA;
-    const legW = Math.max(3, Math.floor(w / 2.4));
-    ctx.fillRect(x - halfW + 1 + lean, y - 10 + bob - legA, legW, 10 + legA);
-    ctx.fillRect(x + halfW - legW - 1 + lean, y - 10 + bob - legB, legW, 10 + legB);
-  } else {
-    // Static stance during windup/recover or for heavies (heavy stride is a planted thud).
-    ctx.fillRect(x - halfW + lean, y - 10 + bob, w, 10);
-  }
-  // Torso
-  ctx.fillRect(x - halfW + lean, y - 10 - h * 0.45 + bob, w, h * 0.45);
-  // Trim band (banner)
-  ctx.fillStyle = colorTrim;
-  ctx.fillRect(x - halfW + lean, y - 10 - h * 0.45 + 3 + bob, w, 2);
-  // Cape for heavies
-  if (isHeavy) {
-    ctx.fillStyle = colorTrim;
-    ctx.beginPath();
-    ctx.moveTo(x - halfW + lean - u.facing * 2, y - 10 - h * 0.20 + bob);
-    ctx.lineTo(x - halfW + lean - u.facing * 8, y - 4 + bob);
-    ctx.lineTo(x - halfW + lean - u.facing * 2, y - 4 + bob);
-    ctx.closePath();
-    ctx.fill();
-  }
-  // Head
-  ctx.fillStyle = colorBody;
-  ctx.beginPath();
-  ctx.arc(x + lean, y - h * 0.66 + bob, headR, 0, Math.PI * 2);
-  ctx.fill();
-  // Helm crest for heavies
-  if (isHeavy) {
-    ctx.fillStyle = colorTrim;
-    ctx.fillRect(x + lean - 1, y - h * 0.66 - headR - 4 + bob, 2, 5);
-  }
-
-  // Weapon
-  const wx = x + u.facing * (halfW + 6) + lean;
-  const wy = y - 18 + bob;
-  drawWeapon(ctx, u.visual?.weaponShape || 'spear', wx, wy, u.facing, colorTrim, u.attackTickPhase);
-
-  // Muzzle flash for ranged units the moment they fire.
-  // Map the first 80ms of the recover window across the 4-frame sheet.
-  if (u.projectileId && u.attackTickPhase === 'recover' && u.attackTimerMs > u.attackRecoverMs - 80) {
-    const flashAge = (u.attackRecoverMs - u.attackTimerMs);  // 0..80
-    const frame = Math.max(0, Math.min(3, Math.floor((flashAge / 80) * 4)));
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-    ctx.globalAlpha = 0.85;
-    assets.draw(ctx, 'vfx/muzzle-flash', wx + u.facing * 10, wy + 1, { frame, size: 28 });
-    ctx.restore();
-  }
-
-  // HP bar (only when damaged)
-  const hpR = u.hp / u.maxHp;
-  if (hpR < 0.999) {
-    ctx.fillStyle = 'rgba(0,0,0,0.55)';
-    ctx.fillRect(x - 14, y - h - 2 + bob, 28, 3);
-    ctx.fillStyle = hpColor(hpR);
-    ctx.fillRect(x - 14, y - h - 2 + bob, 28 * Math.max(0, hpR), 3);
-  }
-}
-
-function drawWeapon(ctx, shape, x, y, facing, color, phase) {
-  ctx.fillStyle = color;
-  if (phase === 'windup') ctx.fillStyle = '#fff';
-  switch (shape) {
-    case 'club':       ctx.fillRect(x, y - 1, facing * 8,  3); break;
-    case 'sling':      ctx.fillRect(x, y - 1, facing * 10, 2); break;
-    case 'brand':      ctx.fillRect(x, y - 2, facing * 12, 4); break;
-    case 'spear':      ctx.fillRect(x, y - 1, facing * 14, 2); break;
-    case 'crossbow':   ctx.fillRect(x, y - 1, facing * 10, 2); ctx.fillRect(x + facing * 4, y - 4, 2, 8); break;
-    case 'maul':       ctx.fillRect(x, y - 3, facing * 10, 6); break;
-    case 'sabre':      ctx.fillRect(x, y - 1, facing * 11, 2); break;
-    case 'rifle':      ctx.fillRect(x, y - 1, facing * 13, 2); break;
-    case 'piledriver': ctx.fillRect(x, y - 4, facing * 12, 8); break;
-    case 'bayonet':    ctx.fillRect(x, y - 1, facing * 14, 2); break;
-    case 'arc-rifle':  ctx.fillRect(x, y - 1, facing * 13, 2); break;
-    case 'howitzer':   ctx.fillRect(x, y - 4, facing * 16, 8); break;
-    case 'edge':       ctx.fillRect(x, y - 2, facing * 10, 4); break;
-    case 'lance':      ctx.fillRect(x, y - 1, facing * 16, 2); break;
-    case 'colossus-fist': ctx.fillRect(x, y - 6, facing * 14, 12); break;
-    default:           ctx.fillRect(x, y - 1, facing * 8, 2);
-  }
+  drawUnitSprite(ctx, u, x, y, spriteKey, sideAuraActive);
 }
 
 // ── Projectiles ────────────────────────────────────────────────────────

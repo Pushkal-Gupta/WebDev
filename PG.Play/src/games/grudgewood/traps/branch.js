@@ -3,7 +3,7 @@
 
 import * as THREE from 'three';
 import { Trap } from './base.js';
-import { makeTree, makeBranch } from '../props.js';
+import { makeTree, makeBranch, makePusher } from '../props.js';
 import { sfx } from '../audio.js';
 
 const tmpV = new THREE.Vector3();
@@ -22,6 +22,16 @@ export class BranchWhip extends Trap {
     branch.rotation.z = side === 'right' ? -Math.PI / 2 : Math.PI / 2;
     pivot.add(branch);
 
+    // Pusher gremlin halfway up the trunk, on the side AWAY from the
+    // path. It tugs the branch BACK during windup (mirroring the leaf
+    // creak) and heaves it forward on the strike. Positioned in local
+    // tree space so it scales/falls correctly with the trunk.
+    const pusher = makePusher(biome);
+    pusher.position.set(0, 1.6, side === 'right' ? -0.4 : 0.4);
+    pusher.rotation.y = side === 'right' ? 0 : Math.PI;
+    pusher.scale.setScalar(0.85);
+    g.add(pusher);
+
     super({ kind: 'whip', group: g, anchor, hitRadius: 0.8, anticipation: 0.7, cooldown: 2.2 });
     g.position.copy(anchor);
     this.pivot = pivot;
@@ -33,11 +43,21 @@ export class BranchWhip extends Trap {
     this.creaked = false;
     this.swinging = false;
     this.swingT = 0;
+    this.pusher = pusher;
+    this.pusherBody = pusher.userData.body;
   }
 
   tick(dt, ctx) {
     this.t += dt;
     const playerNear = this.anchor.distanceTo(ctx.player) < 9 && Math.abs(ctx.player.z - this.anchor.z) < 4;
+
+    // Pusher animation: leans back during windup (heaving the branch),
+    // shoves forward on the strike, settles during cooldown.
+    let pusherTilt = 0;
+    if (this.phase === 'anticipation') pusherTilt = -0.32 * Math.min(1, this.t / 0.7);
+    else if (this.phase === 'strike')  pusherTilt = THREE.MathUtils.lerp(-0.32, 0.4, Math.min(1, this.t / 0.18));
+    else if (this.phase === 'cooldown') pusherTilt = THREE.MathUtils.lerp(0.4, 0, Math.min(1, this.t / 0.9));
+    this.pusherBody.rotation.x = pusherTilt;
 
     if (this.phase === 'idle') {
       if (playerNear) {

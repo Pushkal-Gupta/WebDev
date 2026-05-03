@@ -120,8 +120,8 @@
 
 /* ═══ Page framework (shared) ═════════════════════════════════ */
 .gb-page {
-  display: flex; flex-direction: column; gap: var(--s-5);
-  padding: var(--s-4) var(--s-5) var(--s-6);
+  display: flex; flex-direction: column; gap: var(--s-3);
+  padding: var(--s-3) var(--s-5) var(--s-4);
   max-width: 1080px; margin: 0 auto; width: 100%;
   animation: gb-page-in 280ms cubic-bezier(.2,.8,.2,1) both;
 }
@@ -633,8 +633,8 @@
 
 /* ═══ Settings groups ═══════════════════════════════════════ */
 .gb-settings-group {
-  display: flex; flex-direction: column; gap: var(--s-2);
-  padding: var(--s-3) var(--s-4);
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 10px var(--s-3);
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
@@ -692,7 +692,16 @@
 .gb-toggle.is-on { color: var(--text); border-color: var(--accent); }
 .gb-toggle.is-on .gb-toggle-dot { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.5); }
 
-.gb-arena-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+/* Arena selector. The wrapper uses width: 100% because the parent
+   .gb-settings-row is a flex container — without an explicit width the
+   grid's auto-fill resolves against its intrinsic size (one track of
+   minmax min) and collapses to a single column. */
+.gb-arena-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+  width: 100%;
+}
 .gb-arena-card {
   text-align: left;
   background: var(--surface-sunken);
@@ -702,25 +711,36 @@
   cursor: pointer;
   transition: transform var(--t-fast), border-color var(--t-fast);
   color: var(--text);
+  display: flex;
+  flex-direction: column;
 }
 .gb-arena-card:hover { transform: translateY(-2px); border-color: var(--accent); }
 .gb-arena-card.is-on { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.25); }
 .gb-arena-card-preview {
   position: relative;
-  height: 72px; overflow: hidden;
+  height: 44px; overflow: hidden;
   background: linear-gradient(180deg, var(--tm-sky-a), var(--tm-sky-b));
 }
 .gb-arena-card-sky { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, var(--tm-light), transparent 60%); opacity: 0.5; }
 .gb-arena-card-light {
-  position: absolute; top: 0; left: 20%; right: 20%; height: 20px;
+  position: absolute; top: 0; left: 20%; right: 20%; height: 16px;
   background: radial-gradient(ellipse, var(--tm-light), transparent 70%);
   opacity: 0.6;
   filter: blur(4px);
 }
 .gb-arena-card-pitch { position: absolute; bottom: 0; left: 0; right: 0; height: 30%; background: linear-gradient(180deg, #1a5530, #0f3a1f); }
-.gb-arena-card-body { padding: 10px 12px; }
-.gb-arena-card-title { font-family: var(--font-display); font-size: 0.95rem; }
-.gb-arena-card-blurb { color: var(--text-dim); font-size: 0.75rem; margin-top: 2px; line-height: 1.4; }
+.gb-arena-card-body { padding: 8px 10px; flex: 1; }
+.gb-arena-card-title { font-family: var(--font-display); font-size: 0.9rem; line-height: 1.2; }
+.gb-arena-card-blurb {
+  color: var(--text-dim);
+  font-size: 0.7rem;
+  margin-top: 2px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
 /* ═══ Difficulty tile extras ═══ */
 .gb-diff-grid {

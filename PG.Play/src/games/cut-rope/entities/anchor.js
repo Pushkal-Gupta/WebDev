@@ -1,22 +1,26 @@
-// Cut the Rope — anchor pin entity. A pinned verlet point + a small
-// metal-pin mesh. Optional `track` definition drives a moving anchor
-// that oscillates along a path (sin-wave parametric).
+// Snip — anchor pin entity. A clean, minimal two-layer disk: outer
+// ring in the rim color, inner disk in the body color, plus a tiny
+// rivet glint in the centre. No more sphere+torus combo.
+//
+// Optional `track` definition drives a moving anchor that oscillates
+// along a path (sin-wave parametric).
 
 import * as THREE from 'three';
 import { makePoint, setPinTarget } from '../physics.js';
+import { paperDisk, disposePaperGroup } from './_paper.js';
 
 export function makeAnchor(palette, def) {
   const group = new THREE.Group();
-  const pinMat = new THREE.MeshStandardMaterial({
-    color: palette.pin, roughness: 0.4, metalness: 0.55,
-  });
-  const ringMat = new THREE.MeshStandardMaterial({
-    color: palette.pinRim, roughness: 0.5, metalness: 0.3,
-  });
-  const cap = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 12), pinMat);
-  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.04, 8, 18), ringMat);
-  ring.position.z = 0.02;
-  group.add(ring); group.add(cap);
+
+  const outer = paperDisk(0.18, palette.pinRim, { highlight: 0.1, shade: 0.18 });
+  group.add(outer);
+  const inner = paperDisk(0.13, palette.pin, { highlight: 0.16, shade: 0.18 });
+  inner.position.z = 0.02;
+  group.add(inner);
+  const rivet = paperDisk(0.035, '#fff8e6', { highlight: 0, shade: 0 });
+  rivet.position.set(-0.025, -0.025, 0.04);
+  group.add(rivet);
+
   group.position.set(def.x, def.y, 0);
 
   const point = makePoint(def.x, def.y, { pinned: true });
@@ -37,8 +41,7 @@ export function makeAnchor(palette, def) {
       group.position.set(x, y, 0);
     },
     dispose() {
-      cap.geometry.dispose(); ring.geometry.dispose();
-      pinMat.dispose(); ringMat.dispose();
+      disposePaperGroup(group);
     },
   };
 }

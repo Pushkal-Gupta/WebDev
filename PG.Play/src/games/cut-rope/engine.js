@@ -1,12 +1,20 @@
-// Cut the Rope — Three.js engine bootstrap.
-// Owns the renderer, scene, ortho camera, lights, and the backdrop
-// gradient mesh. Returns a handle the gameplay code uses to mount
-// per-level entities.
+// Snip — Three.js engine bootstrap.
+//
+// Aesthetic: clean 2D paper-craft under an orthographic camera. We
+// deliberately do NOT use directional lights or PBR materials on the
+// gameplay layer — those expose the low-poly facets of the geometry
+// that gameplay objects are made of. Instead, every gameplay entity
+// uses a custom unlit shader (or flat MeshBasic with carefully
+// chosen colors) and bakes its shading by stacking layered shapes.
+//
+// The backdrop is a single shader quad: a soft vertical gradient, a
+// soft radial light bloom from upper-left, and a subtle paper-grain
+// noise. Combined this reads as a printed page — never as a 3D scene.
 
 import * as THREE from 'three';
 
-const FRUSTUM_HEIGHT = 7.6;        // world units visible vertically
-const FRUSTUM_PAD_X  = 0.6;        // extra horizontal headroom on widescreen
+const FRUSTUM_HEIGHT = 7.6;
+const FRUSTUM_PAD_X  = 0.6;
 
 export function makeEngine({ canvas }) {
   const renderer = new THREE.WebGLRenderer({
@@ -17,27 +25,25 @@ export function makeEngine({ canvas }) {
   });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  // Linear tone-mapping keeps our hand-picked palette colors intact;
+  // ACES would warm them in ways we don't want.
+  renderer.toneMapping = THREE.NoToneMapping;
 
   const scene = new THREE.Scene();
 
-  // Orthographic camera looking down the -Z axis. World "up" in our
-  // gameplay coords is -Y (because +Y is "down toward the floor"), so
-  // we just flip the camera vertically by negating its scale.
   const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 100);
   camera.position.set(0, 2, 10);
   camera.lookAt(0, 2, 0);
 
-  // Backdrop — a single full-frustum quad; its material is swapped per
-  // level theme. Sits at z = -2 so candy/rope/everything renders in front.
+  // Backdrop — a full-frustum quad shaded entirely in fragment.
   const backdropMat = new THREE.ShaderMaterial({
     side: THREE.DoubleSide,
     depthWrite: false,
     uniforms: {
-      uTop: { value: new THREE.Color('#fff3e2') },
-      uBot: { value: new THREE.Color('#f3c79f') },
-      uVignette: { value: 0.55 },
+      uTop:   { value: new THREE.Color('#fff3e2') },
+      uBot:   { value: new THREE.Color('#f3c79f') },
+      uFloor: { value: new THREE.Color('#a87649') },
+      uLight: { value: new THREE.Color('#ffffff') },
     },
     vertexShader: /* glsl */`
       varying vec2 vUv;
@@ -49,13 +55,43 @@ export function makeEngine({ canvas }) {
     fragmentShader: /* glsl */`
       uniform vec3 uTop;
       uniform vec3 uBot;
-      uniform float uVignette;
+      uniform vec3 uFloor;
+      uniform vec3 uLight;
       varying vec2 vUv;
+
+      // Hash-based 2D noise; cheap paper-grain.
+      float hash21(vec2 p) {
+        p = fract(p * vec2(123.34, 456.21));
+        p += dot(p, p + 45.32);
+        return fract(p.x * p.y);
+      }
+
       void main() {
-        vec3 col = mix(uTop, uBot, vUv.y);
-        float d = distance(vUv, vec2(0.5));
-        float v = smoothstep(0.78, 0.30, 1.0 - d * uVignette);
-        col *= 0.85 + 0.15 * v;
+        // 1) vertical gradient: top at vUv.y=0, bottom at vUv.y=1.
+        float t = smoothstep(0.0, 0.78, vUv.y);
+        vec3 col = mix(uTop, uBot, t);
+
+        // 2) horizon line + floor band — gives the world a clear ground.
+        float floorMask = smoothstep(0.84, 0.88, vUv.y);
+        col = mix(col, uFloor, floorMask * 0.85);
+        // soft shadow just above the floor line
+        float horizon = smoothstep(0.86, 0.84, vUv.y) * smoothstep(0.78, 0.84, vUv.y);
+        col *= 1.0 - horizon * 0.10;
+
+        // 3) soft radial bloom from upper-left.
+        vec2 d = vUv - vec2(0.22, 0.18);
+        float r = length(d * vec2(1.6, 1.0));
+        float bloom = smoothstep(0.55, 0.0, r);
+        col = mix(col, uLight, bloom * 0.10);
+
+        // 4) edge vignette.
+        float vig = smoothstep(1.05, 0.45, length(vUv - 0.5));
+        col *= 0.86 + 0.14 * vig;
+
+        // 5) paper grain — subtle multi-octave noise.
+        float n = hash21(vUv * 720.0) * 0.03 + hash21(vUv * 180.0) * 0.015;
+        col += (n - 0.022);
+
         gl_FragColor = vec4(col, 1.0);
       }
     `,
@@ -65,20 +101,13 @@ export function makeEngine({ canvas }) {
   backdrop.frustumCulled = false;
   scene.add(backdrop);
 
-  // Lights — one warm directional key, one cool fill, soft warm ambient.
-  const key = new THREE.DirectionalLight(0xffd9a8, 1.4);
-  key.position.set(2.5, -3, 4);
-  scene.add(key);
-  const fill = new THREE.DirectionalLight(0xcde0ff, 0.45);
-  fill.position.set(-2.5, -1, 4);
-  scene.add(fill);
-  scene.add(new THREE.AmbientLight(0xfff5e7, 0.32));
+  // Soft ambient — keeps any incidental MeshStandardMaterial in the
+  // scene legible, but most gameplay objects are unlit/shader-shaded.
+  scene.add(new THREE.AmbientLight(0xffffff, 0.95));
 
-  // Container groups for entity meshes — keeps level swap simple.
   const sceneRoot = new THREE.Group();
   scene.add(sceneRoot);
 
-  // Sizing — keep frustum height fixed; expand width with aspect.
   const fit = (cssW, cssH) => {
     const dpr = Math.min(window.devicePixelRatio, 2);
     renderer.setPixelRatio(dpr);
@@ -88,7 +117,7 @@ export function makeEngine({ canvas }) {
     const halfW = halfH * aspect + FRUSTUM_PAD_X;
     camera.left = -halfW;
     camera.right =  halfW;
-    camera.top = -halfH;        // flipped so +y in gameplay = down on screen
+    camera.top = -halfH;
     camera.bottom = halfH;
     camera.position.x = 0;
     camera.position.y = 2;
@@ -96,9 +125,10 @@ export function makeEngine({ canvas }) {
     backdrop.scale.set(halfW * 2.4, halfH * 2.4, 1);
   };
 
-  function setBackdrop(top, bot) {
+  function setBackdrop(top, bot, floor) {
     backdropMat.uniforms.uTop.value.set(top);
     backdropMat.uniforms.uBot.value.set(bot);
+    if (floor) backdropMat.uniforms.uFloor.value.set(floor);
   }
 
   function dispose() {
@@ -121,9 +151,6 @@ export function makeEngine({ canvas }) {
   };
 }
 
-// Convert a screen-pixel coordinate (relative to the canvas) to world XY
-// on the gameplay plane. Uses Three's unproject so it stays correct
-// regardless of camera position / aspect / future tweaks.
 const _unprojScratch = new THREE.Vector3();
 export function screenToWorld(camera, canvas, sx, sy) {
   const r = canvas.getBoundingClientRect();

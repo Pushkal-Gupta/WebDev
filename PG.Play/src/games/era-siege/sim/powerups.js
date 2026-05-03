@@ -6,10 +6,13 @@ import { BALANCE } from '../content/balance.js';
 
 /**
  * @typedef {Object} PowerupsState
- * @property {number} economy 0..3 — gold rate +10/+20/+30%
- * @property {number} base    0..3 — max base HP +10/+20/+30%
- * @property {number} special 0..3 — special cooldown -10/-20/-30%
- * @property {number} turret  0..3 — turret damage +10/+20/+30%
+ * @property {number} economy   0..3 — gold rate +10/+20/+30%
+ * @property {number} base      0..3 — max base HP +10/+20/+30%
+ * @property {number} special   0..3 — special cooldown -10/-20/-30%
+ * @property {number} turret    0..3 — turret damage +10/+20/+30%
+ * @property {number} troopDmg  0..3 — non-general unit damage +10/+20/+30%
+ * @property {number} troopHp   0..3 — non-general unit HP    +10/+20/+30%
+ * @property {number} troopRng  0..3 — ranged-unit reach     +10/+20/+30%
  */
 
 export const POWERUP_DEFS = [
@@ -57,20 +60,56 @@ export const POWERUP_DEFS = [
       { cost: 400, effect: '+30% turret dmg' },
     ],
   },
+  {
+    id: 'troopDmg',
+    name: 'Drilled Edge',
+    description: 'Your troops swing harder. (Generals unaffected.)',
+    color: '#ff8a3a',
+    levels: [
+      { cost: 100, effect: '+10% troop damage' },
+      { cost: 240, effect: '+20% troop damage' },
+      { cost: 480, effect: '+30% troop damage' },
+    ],
+  },
+  {
+    id: 'troopHp',
+    name: 'Conditioning',
+    description: 'Your troops take a beating. (Generals unaffected.)',
+    color: '#35f0c9',
+    levels: [
+      { cost: 100, effect: '+10% troop HP' },
+      { cost: 240, effect: '+20% troop HP' },
+      { cost: 480, effect: '+30% troop HP' },
+    ],
+  },
+  {
+    id: 'troopRng',
+    name: 'Long-Sighted',
+    description: 'Ranged troops reach further. Melee unaffected.',
+    color: '#7be3ff',
+    levels: [
+      { cost: 100, effect: '+10% ranged reach' },
+      { cost: 240, effect: '+20% ranged reach' },
+      { cost: 480, effect: '+30% ranged reach' },
+    ],
+  },
 ];
 
 export function makePowerupsState() {
-  return { economy: 0, base: 0, special: 0, turret: 0 };
+  return { economy: 0, base: 0, special: 0, turret: 0, troopDmg: 0, troopHp: 0, troopRng: 0 };
 }
 
 export function getMultiplier(state, kind) {
   const lvl = (state && state[kind]) | 0;
   switch (kind) {
-    case 'economy': return 1 + 0.10 * lvl;
-    case 'base':    return 1 + 0.10 * lvl;
-    case 'special': return 1 - 0.10 * lvl;
-    case 'turret':  return 1 + 0.10 * lvl;
-    default:        return 1;
+    case 'economy':  return 1 + 0.10 * lvl;
+    case 'base':     return 1 + 0.10 * lvl;
+    case 'special':  return 1 - 0.10 * lvl;
+    case 'turret':   return 1 + 0.10 * lvl;
+    case 'troopDmg': return 1 + 0.10 * lvl;
+    case 'troopHp':  return 1 + 0.10 * lvl;
+    case 'troopRng': return 1 + 0.10 * lvl;
+    default:         return 1;
   }
 }
 

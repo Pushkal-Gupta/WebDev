@@ -18,7 +18,14 @@ import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'framer-motion';
 import { submitScore } from '../scoreBus.js';
 import { sfx, subscribeMute, isMuted as soundIsMuted } from '../sound.js';
-import { getSkin as readPersistedSkin, setSkin as writePersistedSkin, subscribeSkinChange } from '../lib/coilSkin.js';
+import {
+  getSkin as readPersistedSkin,
+  setSkin as writePersistedSkin,
+  subscribeSkinChange,
+  getName as readPersistedName,
+  setName as writePersistedName,
+  subscribeNameChange,
+} from '../lib/coilProfile.js';
 
 // --- World tuning ---
 const ARENA_R0 = 2200;            // initial radius in world units (was 1200)
@@ -144,10 +151,10 @@ const SKINS = {
 };
 const SKIN_ORDER = ['cyan', 'magenta', 'solar', 'mint', 'violet', 'stripes', 'rainbow', 'stealth'];
 
-// Skin persistence delegates to lib/coilSkin which mirrors localStorage
-// to pgplay_profiles.prefs.coilSkin when the user is signed in. The game
+// Skin/name persistence delegates to lib/coilProfile which mirrors
+// localStorage to pgplay_profiles when the user is signed in. The game
 // stays synchronous; server hydration happens lazily and notifies via
-// subscribeSkinChange so the picker UI can react.
+// subscribeSkinChange / subscribeNameChange so the picker UI can react.
 function readSkin() {
   const v = readPersistedSkin();
   return v && SKINS[v] ? v : 'cyan';
@@ -253,23 +260,35 @@ export default function SlitherLiteGame() {
   const [best, setBest] = useState(() => Number(localStorage.getItem('pd-coil-best') || 0));
   const [status, setStatus] = useState('intro'); // 'intro' | 'playing' | 'dead'
   const [skin, setSkin] = useState(readSkin);
-  const [pickerOpen, setPickerOpen] = useState(false);
+  const [name, setName] = useState(() => readPersistedName());
   const submittedRef = useRef(false);
   const mutedRef = useRef(soundIsMuted());
   const reducedMotion = useReducedMotion();
   const reducedRef = useRef(!!reducedMotion);
   useEffect(() => { reducedRef.current = !!reducedMotion; }, [reducedMotion]);
 
-  // The render loop reads skin from a ref so the picker can change live.
+  // The render loop reads skin/name from refs so the picker can change them live.
   const skinRef = useRef(skin);
   useEffect(() => { skinRef.current = skin; writeSkin(skin); }, [skin]);
-
-  // If the user signs in mid-session and their server-saved skin differs
-  // from local, subscribeSkinChange fires — bring the live game in sync.
+  const nameRef = useRef(name);
   useEffect(() => {
-    return subscribeSkinChange((next) => {
+    nameRef.current = name;
+    writePersistedName(name);
+    // Apply live to the current snake instance.
+    const s = stateRef.current;
+    if (s && s.me) s.me.name = name || 'You';
+  }, [name]);
+
+  // If the user signs in mid-session and their server-saved prefs differ
+  // from local, subscribe* fires — bring the live game in sync.
+  useEffect(() => {
+    const offSkin = subscribeSkinChange((next) => {
       if (next && SKINS[next]) setSkin(next);
     });
+    const offName = subscribeNameChange((next) => {
+      if (next) setName(next);
+    });
+    return () => { offSkin(); offName(); };
   }, []);
 
   // -----------------------------------------------------------------------
@@ -287,7 +306,7 @@ export default function SlitherLiteGame() {
       return s;
     });
     const me = makeSnake(0, 0, 0, START_LEN, skinRef.current || 'cyan');
-    me.name = 'You';
+    me.name = (nameRef.current || 'You').slice(0, 16);
     stateRef.current = {
       me, bots,
       arenaR,
@@ -303,10 +322,10 @@ export default function SlitherLiteGame() {
       pointerScreen: { x: 0, y: 0 },
       tAccum: 0,
       startedAt: performance.now(),
-      // Spawn-safety: 1.5s of post-spawn invulnerability so the player can
+      // Spawn-safety: 2.5s of post-spawn invulnerability so the player can
       // read the field before bots can kill the head. Visualised by the
       // head segments flashing during the window.
-      invulnUntil: performance.now() / 1000 + 1.5,
+      invulnUntil: performance.now() / 1000 + 2.5,
       deathT: 0,
     };
     setLen(START_LEN);
@@ -630,6 +649,50 @@ export default function SlitherLiteGame() {
         ctx.moveTo(0, y);
         ctx.lineTo(view.w, y + view.w);
         ctx.stroke();
+      }
+      ctx.restore();
+    };
+
+    // World-space hex cell pattern (drawn inside zoom transform). 80-unit
+    // pointy-top hexes at very low alpha — gives the void cellular texture
+    // and reinforces the circular arena's organic feel. Rendered before the
+    // 200-unit grid so the grid sits on top as a directional reference.
+    const HEX_S = 80;
+    const HEX_DX = Math.sqrt(3) * HEX_S;
+    const HEX_DY = 1.5 * HEX_S;
+    const drawHexCells = (cam) => {
+      const z = cam.zoom || 1;
+      const halfW = (view.w / z) / 2 + HEX_S * 2;
+      const halfH = (view.h / z) / 2 + HEX_S * 2;
+      const left = cam.x - halfW;
+      const right = cam.x + halfW;
+      const top = cam.y - halfH;
+      const bottom = cam.y + halfH;
+      const startRow = Math.floor(top / HEX_DY) - 1;
+      const endRow = Math.ceil(bottom / HEX_DY) + 1;
+      ctx.save();
+      ctx.lineWidth = 1 / z;
+      ctx.strokeStyle = 'rgba(0, 255, 245, 0.045)';
+      for (let row = startRow; row <= endRow; row++) {
+        const y = row * HEX_DY;
+        const offX = (row & 1) ? HEX_DX / 2 : 0;
+        const startCol = Math.floor((left - offX) / HEX_DX) - 1;
+        const endCol = Math.ceil((right - offX) / HEX_DX) + 1;
+        for (let col = startCol; col <= endCol; col++) {
+          const x = col * HEX_DX + offX;
+          const sx = x - cam.x + view.w / 2;
+          const sy = y - cam.y + view.h / 2;
+          ctx.beginPath();
+          for (let i = 0; i < 6; i++) {
+            const ang = (Math.PI / 3) * i + Math.PI / 2;
+            const px = sx + Math.cos(ang) * HEX_S;
+            const py = sy + Math.sin(ang) * HEX_S;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.closePath();
+          ctx.stroke();
+        }
       }
       ctx.restore();
     };
@@ -1360,15 +1423,23 @@ export default function SlitherLiteGame() {
         });
 
         // Body collisions. Use a representative body radius (~70% of base
-        // accounts for taper along the snake). Skip enough head segments
-        // that own-body overlap doesn't kill us.
-        const SEG_HIT_R = BODY_R_BASE * 0.7; // ~9.8
-        const SELF_SKIP = 14;
+        // accounts for taper along the snake). Self vs. enemy use different
+        // params so self-collision is forgiving (you can do tight turns)
+        // while enemy collision stays decisive.
+        //
+        // SELF_SKIP must cover the worst-case loop length: at TURN_RATE 5
+        // and SPEED_BASE 165 the turn radius is ~33u, so a 360° loop has
+        // a circumference of ~207u (= ~41 segments at SEG_SPACING 5). Boost
+        // widens this further. Skipping 26 segments + a smaller self-hit
+        // radius covers normal play; the enemy body remains tight.
+        const SEG_HIT_R = BODY_R_BASE * 0.7;       // ~9.8 (enemy bodies)
+        const SELF_HIT_R = BODY_R_BASE * 0.45;     // ~6.3 (own body, forgiving)
+        const SELF_SKIP = 26;
         const hit = (bx, by, r) => (myHead.x - bx) ** 2 + (myHead.y - by) ** 2 < (HEAD_R_BASE + r) ** 2;
         if (!invulnActive) {
           for (let i = SELF_SKIP; i < s.me.body.length; i++) {
             const seg = s.me.body[i];
-            if (hit(seg.x, seg.y, SEG_HIT_R)) { s.me.alive = false; break; }
+            if (hit(seg.x, seg.y, SELF_HIT_R)) { s.me.alive = false; break; }
           }
           if (s.me.alive) {
             for (const bot of s.bots) {
@@ -1480,6 +1551,7 @@ export default function SlitherLiteGame() {
       ctx.scale(z, z);
       ctx.translate(-view.w / 2, -view.h / 2);
 
+      drawHexCells(s.cam);
       drawWorldGrid(s.cam);
       drawArena(s.cam);
       drawFood(s.cam, s.tAccum);
@@ -1543,39 +1615,104 @@ export default function SlitherLiteGame() {
     if (s && s.me) s.me.skin = id;
   };
 
+  const stopBubble = {
+    onMouseDown: (e) => e.stopPropagation(),
+    onMouseUp: (e) => e.stopPropagation(),
+    onTouchStart: (e) => e.stopPropagation(),
+    onClick: (e) => e.stopPropagation(),
+  };
+
+  const selectedDef = SKINS[skin] || SKINS.cyan;
+
   return (
     <div ref={wrapRef} className="coil coil-fluid" style={{ position: 'relative' }}>
       <canvas ref={canvasRef} className="coil-canvas coil-canvas-fluid" tabIndex={0} aria-label="Coil — eat orbs and outlast the other snakes"/>
       {showPicker && (
         <div
+          {...stopBubble}
           style={{
             position: 'absolute',
             top: 12,
             left: '50%',
             transform: 'translateX(-50%)',
             display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            padding: '8px 12px',
-            background: 'rgba(11, 19, 24, 0.72)',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
+            flexDirection: 'column',
+            gap: 8,
+            padding: '10px 14px',
+            background: 'rgba(11, 19, 24, 0.78)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
             border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: 12,
+            borderRadius: 14,
             zIndex: 4,
             pointerEvents: 'auto',
             color: '#eef3f5',
             fontFamily: '"Space Mono", ui-monospace, monospace',
             fontSize: 11,
+            minWidth: 'min(440px, calc(100vw - 32px))',
+            boxShadow: '0 20px 40px -16px rgba(0, 0, 0, 0.55)',
           }}
-          onMouseDown={(e) => e.stopPropagation()}
-          onMouseUp={(e) => e.stopPropagation()}
-          onTouchStart={(e) => e.stopPropagation()}
-          onClick={(e) => e.stopPropagation()}
         >
-          <span style={{ color: '#00fff5', letterSpacing: 1 }}>SKIN</span>
-          <SkinPreview skinId={skin} />
-          <div style={{ display: 'flex', gap: 6 }}>
+          {/* Row 1: name input */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ color: '#00fff5', letterSpacing: 1, fontSize: 10, minWidth: 50 }}>SNAKE</span>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value.slice(0, 16))}
+              onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
+              maxLength={16}
+              placeholder="Your name"
+              spellCheck={false}
+              autoComplete="off"
+              aria-label="Snake name"
+              style={{
+                flex: 1,
+                padding: '6px 10px',
+                borderRadius: 6,
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                background: 'rgba(7, 10, 13, 0.6)',
+                color: '#eef3f5',
+                fontFamily: 'Inter, system-ui, sans-serif',
+                fontSize: 13,
+                letterSpacing: 0.2,
+                outline: 'none',
+              }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = 'rgba(0, 255, 245, 0.45)'; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)'; }}
+            />
+            <span style={{ color: 'rgba(238,243,245,0.45)', fontSize: 10, letterSpacing: 1 }}>
+              {name.length}/16
+            </span>
+          </div>
+
+          {/* Row 2: skin label + preview */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ color: '#00fff5', letterSpacing: 1, fontSize: 10, minWidth: 50 }}>SKIN</span>
+            <span style={{ color: '#eef3f5', fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, fontWeight: 600 }}>
+              {selectedDef.label}
+            </span>
+            <SkinPreview skinId={skin} />
+            <button
+              type="button"
+              onClick={pickRandomSkin}
+              style={{
+                marginLeft: 'auto',
+                padding: '4px 10px',
+                borderRadius: 6,
+                border: '1px solid rgba(0, 255, 245, 0.3)',
+                background: 'rgba(0, 255, 245, 0.08)',
+                color: '#00fff5',
+                fontFamily: '"Space Mono", ui-monospace, monospace',
+                fontSize: 10,
+                letterSpacing: 1,
+                cursor: 'pointer',
+              }}
+            >RANDOM</button>
+          </div>
+
+          {/* Row 3: skin swatch grid */}
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {SKIN_ORDER.map((id) => {
               const def = SKINS[id];
               const sel = id === skin;
@@ -1586,33 +1723,38 @@ export default function SlitherLiteGame() {
                   onClick={() => chooseSkin(id)}
                   title={def.label}
                   aria-label={`Skin ${def.label}`}
+                  aria-pressed={sel}
                   style={{
-                    width: 22, height: 22, borderRadius: 6,
-                    border: sel ? '2px solid #00fff5' : '1px solid rgba(255,255,255,0.18)',
-                    background: `linear-gradient(135deg, ${def.swatch[0]}, ${def.swatch[1]})`,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 3,
+                    padding: '4px 6px 3px',
+                    borderRadius: 8,
+                    border: sel ? '1px solid rgba(0, 255, 245, 0.6)' : '1px solid rgba(255, 255, 255, 0.08)',
+                    background: sel ? 'rgba(0, 255, 245, 0.08)' : 'rgba(7, 10, 13, 0.4)',
                     cursor: 'pointer',
-                    padding: 0,
-                    boxShadow: sel ? '0 0 0 2px rgba(0,255,245,0.18)' : 'none',
+                    transition: 'border-color 120ms, background 120ms',
                   }}
-                />
+                >
+                  <span
+                    style={{
+                      width: 28, height: 28, borderRadius: 6,
+                      background: `linear-gradient(135deg, ${def.swatch[0]}, ${def.swatch[1]})`,
+                      boxShadow: sel ? '0 0 0 2px rgba(0,255,245,0.25)' : 'inset 0 0 0 1px rgba(255,255,255,0.06)',
+                    }}
+                  />
+                  <span style={{
+                    color: sel ? '#00fff5' : 'rgba(238, 243, 245, 0.7)',
+                    fontFamily: '"Space Mono", ui-monospace, monospace',
+                    fontSize: 9,
+                    letterSpacing: 0.5,
+                    textTransform: 'uppercase',
+                  }}>{def.label}</span>
+                </button>
               );
             })}
           </div>
-          <button
-            type="button"
-            onClick={pickRandomSkin}
-            style={{
-              padding: '4px 10px',
-              borderRadius: 6,
-              border: '1px solid rgba(0, 255, 245, 0.3)',
-              background: 'rgba(0, 255, 245, 0.08)',
-              color: '#00fff5',
-              fontFamily: '"Space Mono", ui-monospace, monospace',
-              fontSize: 10,
-              letterSpacing: 1,
-              cursor: 'pointer',
-            }}
-          >RANDOM</button>
         </div>
       )}
     </div>

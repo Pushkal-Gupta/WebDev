@@ -34,18 +34,20 @@ import { useBests } from '../hooks/useBests.js';
 import { useAchievements } from '../hooks/useAchievements.js';
 import { useTheme } from '../hooks/useTheme.js';
 import { supabase } from '../supabase.js';
-import { sfx } from '../sound.js';
+import { sfx, homeMusic } from '../sound.js';
 
 // The four originals get the bento hero tiles; the two headline classics
 // fill the small slots. Everything else playable lives in the "More games"
 // grid below the bento. Order: editorial via EDITORS_PICKS.
 const HERO_IDS = EDITORS_PICKS;
-const CLASSIC_IDS = ['g2048', 'connect4'];
+// Phase 20 — classic slots now host Goalbound + Connect 4 (top-tier
+// list: Frost Fight, Slipshot, Grudgewood, Coil, then these two).
+const CLASSIC_IDS = ['goalbound', 'connect4'];
 
-// Hero copy options (pick one).
+// Hero copy options (pick one). Sell the feel, not the feature list.
 const HERO_HEADLINES = [
   'A small arcade. Big appetite for one more run.',
-  'Twenty games. Zero downloads. One arcade.',
+  'No accounts. No downloads. Just the next run.',
   'Hand-built games for the couple of minutes you have.',
 ];
 const HERO_HEADLINE = HERO_HEADLINES[0];
@@ -57,13 +59,20 @@ export default function Home() {
 
   useDocumentMeta({
     title: 'PG.Play — a hand-built arcade',
-    description: 'Twenty hand-built browser games. No accounts, no downloads — one click and you are in.',
+    description: 'A small browser arcade. No accounts, no downloads — one click and you are in.',
   });
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [profileOpen, setProfileOpen]   = useState(false);
   const [authOpen, setAuthOpen]         = useState(false);
-  const [sideOpen, setSideOpen]         = useState(false);
+  // Phase 20: sidebar defaults open on desktop, closed on mobile so the
+  // first paint matches the persistent-rail / overlay-drawer split.
+  // matchMedia is synchronous in browsers; the SSR-safe fallback is
+  // closed (re-evaluated by the effect below if window flips).
+  const [sideOpen, setSideOpen] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(min-width: 901px)').matches;
+  });
   const [searchOpen, setSearchOpen]     = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
 
@@ -97,6 +106,27 @@ export default function Home() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [sideOpen]);
+
+  // Phase 22 — home page ambient bed. Plays the first ~28 s of the
+  // user's "Soft Game Drift" track on loop (the source gets harsher
+  // after that). Browser autoplay policy: kicks in on first user
+  // gesture (any keyup / pointerup), so the page is silent on cold
+  // load and only starts after the visitor interacts.
+  useEffect(() => {
+    let started = false;
+    const startOnce = () => {
+      if (started) return;
+      started = true;
+      homeMusic.start();
+    };
+    window.addEventListener('pointerup',  startOnce, { once: true });
+    window.addEventListener('keyup',      startOnce, { once: true });
+    return () => {
+      window.removeEventListener('pointerup', startOnce);
+      window.removeEventListener('keyup',     startOnce);
+      homeMusic.stop();
+    };
+  }, []);
 
   // Playable catalog, sorted: 4 originals → 2 headline classics → rest.
   const playable = useMemo(() => GAMES.filter((g) => g.playable), []);
@@ -174,14 +204,16 @@ export default function Home() {
   const HERO_SLOT_BY_INDEX = ['hero-1', 'hero-2', 'hero-3', 'hero-4'];
 
   return (
-    <div className="app-layout">
+    <div className={'app-layout' + (sideOpen ? ' is-side-open' : '')}>
       {sideOpen && <div className="side-backdrop" onClick={() => setSideOpen(false)} aria-hidden="true"/>}
-      <div className={'sidebar-wrap' + (sideOpen ? ' is-open' : '')}>
+      <div
+        id="primary-sidebar"
+        className={'sidebar-wrap' + (sideOpen ? ' is-open' : '')}>
         <motion.div
           className="sidebar-shell"
-          // Desktop: this just renders. Mobile drawer: when sideOpen flips
-          // true, key changes and the slide-in (x: -20 -> 0, opacity 0.6 -> 1)
-          // plays. 240ms with the in-house ease curve.
+          // Drawer slide-in plays whenever sideOpen flips true on any
+          // viewport (desktop now uses the same overlay pattern as
+          // mobile). Key change re-keys the motion node.
           key={sideOpen ? 'open' : 'closed'}
           initial={reduced || !sideOpen ? false : { x: -20, opacity: 0.6 }}
           animate={{ x: 0, opacity: 1 }}
@@ -210,9 +242,11 @@ export default function Home() {
       <main id="main" className="app-main">
         <div className="main-topbar">
           <button
-            className="icon-btn main-menu"
-            onClick={() => setSideOpen(true)}
-            aria-label="Open navigation">
+            className={'icon-btn main-menu' + (sideOpen ? ' is-active' : '')}
+            onClick={() => setSideOpen((v) => !v)}
+            aria-label={sideOpen ? 'Close navigation' : 'Open navigation'}
+            aria-expanded={sideOpen}
+            aria-controls="primary-sidebar">
             {Icon.menu}
           </button>
           <button

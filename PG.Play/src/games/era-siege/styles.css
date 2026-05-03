@@ -182,10 +182,14 @@
 .es-tool svg  { width: 14px; height: 14px; }
 .es-tool-text { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; }
 
-/* ── Slim turret slots (phase 7) ─────────────────────────────── */
+/* ── Slim turret slots ───────────────────────────────────────── */
+/* The right rail stacks vertically:
+     12-126   .es-special   (top button)
+     138-252  .es-general   (just below — see GeneralButton CSS)
+     264+     .es-rack2     (turret slots — three rows of ~46px)        */
 .es-rack2 {
   position: absolute;
-  top: 96px;
+  top: 264px;
   right: 12px;
   display: flex; flex-direction: column;
   gap: 8px;
@@ -357,12 +361,28 @@
   border: 1px solid rgba(255,225,79,0.25);
   border-radius: 8px;
 }
+.es-pu-sections {
+  display: flex; flex-direction: column;
+  gap: 18px;
+  padding: 16px 20px;
+  overflow-y: auto;
+}
+.es-pu-section { display: flex; flex-direction: column; gap: 10px; }
+.es-pu-section-title {
+  margin: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
 .es-pu-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
-  padding: 16px 20px;
-  overflow-y: auto;
 }
 .es-pu-row {
   display: flex; flex-direction: column; gap: 10px;
@@ -690,8 +710,14 @@
   .es-tools { right: 6px; bottom: -16px; padding: 3px 6px; gap: 4px; }
   .es-tool { width: 24px; height: 24px; }
   .es-tool svg { width: 12px; height: 12px; }
-  .es-rack2 { right: 8px; top: 84px; }
-  .es-slot2 { width: 124px; padding: 6px 8px; grid-template-columns: 14px 24px 1fr; gap: 6px; }
+  /* Mobile right-rail: special (~12-100), general (~108-196), rack starts ~204. */
+  .es-special  { width: 124px; padding: 6px 8px; }
+  .es-general  { top: 108px; width: 124px; padding: 6px 8px; }
+  .es-general-name { font-size: 11px; }
+  .es-general-eyebrow { font-size: 8px; }
+  .es-general-status  { font-size: 9px; }
+  .es-rack2    { right: 8px; top: 204px; }
+  .es-slot2    { width: 124px; padding: 6px 8px; grid-template-columns: 14px 24px 1fr; gap: 6px; }
   .es-slot2-text { font-size: 10px; }
   .es-dock2 { gap: 8px; padding: 10px; grid-template-columns: repeat(3, 1fr); }
   .es-card2 { min-height: 84px; padding: 8px 10px; }
@@ -795,7 +821,7 @@
 /* ── General button (right rail, slot below Special) ── */
 .es-general {
   position: absolute;
-  top: 130px;     /* sits directly under .es-special — see below */
+  top: 138px;     /* sits directly under .es-special — see right-rail diagram in .es-rack2 */
   right: 12px;
   display: flex; flex-direction: column; gap: 4px;
   width: 158px;

@@ -113,7 +113,7 @@ export default function EraSiegeGame({ mode }) {
     auraLeftMs: 0,
     timeSec: 0, status: 'playing', score: 0,
     endlessSec: 0,
-    powerups: { economy: 0, base: 0, special: 0, turret: 0 },
+    powerups: { economy: 0, base: 0, special: 0, turret: 0, troopDmg: 0, troopHp: 0, troopRng: 0 },
     stats: { unitsSpawned: 0, turretsBuilt: 0, specialsUsed: 0, kills: 0 },
   });
   const [tutorialIdx, setTutorialIdx] = useState(() =>
@@ -408,7 +408,7 @@ export default function EraSiegeGame({ mode }) {
       enemyEraIndex: match.enemy.eraIndex,
       powerups: match.player.powerups
         ? { ...match.player.powerups }
-        : { economy: 0, base: 0, special: 0, turret: 0 },
+        : { economy: 0, base: 0, special: 0, turret: 0, troopDmg: 0, troopHp: 0, troopRng: 0 },
       stats:   match.statsPlayer,
     };
     if (cheapDiffers(hud, next)) {

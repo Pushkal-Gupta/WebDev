@@ -7,19 +7,22 @@ import { tryFireSpecial } from '../src/games/era-siege/sim/specials.js';
 import { BALANCE } from '../src/games/era-siege/content/balance.js';
 
 describe('era-siege powerups — defs + state', () => {
-  it('exports four trees with three levels each', () => {
-    expect(POWERUP_DEFS).toHaveLength(4);
+  it('exports seven trees (economy/base/special/turret + troop trio) with three levels each', () => {
+    expect(POWERUP_DEFS).toHaveLength(7);
     for (const d of POWERUP_DEFS) {
       expect(d.levels).toHaveLength(3);
       // Levels ramp in cost.
       expect(d.levels[0].cost).toBeLessThan(d.levels[1].cost);
       expect(d.levels[1].cost).toBeLessThan(d.levels[2].cost);
     }
+    // The four originals plus three troop trees must all be present.
+    const ids = POWERUP_DEFS.map((d) => d.id).sort();
+    expect(ids).toEqual(['base', 'economy', 'special', 'troopDmg', 'troopHp', 'troopRng', 'turret']);
   });
 
-  it('blank state is all zeros', () => {
+  it('blank state is all zeros across every tree', () => {
     const s = makePowerupsState();
-    expect(s).toEqual({ economy: 0, base: 0, special: 0, turret: 0 });
+    expect(s).toEqual({ economy: 0, base: 0, special: 0, turret: 0, troopDmg: 0, troopHp: 0, troopRng: 0 });
   });
 
   it('multiplier formulas', () => {

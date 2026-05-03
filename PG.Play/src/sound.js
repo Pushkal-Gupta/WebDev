@@ -409,10 +409,15 @@ function _frostDuck(durationSec = 0.6) {
 
 const FF_BED_URLS = [
   // Vite serves /public/* at the root, so this resolves to
-  // /games/frost-fight/audio/bed.mp3 in dev and dist builds.
+  // /games/frost-fight/audio/bed.{m4a,mp3} in dev and dist builds.
+  // .m4a tried first — that's the user-supplied track we like; .mp3
+  // is the fallback name from earlier.
+  './games/frost-fight/audio/bed.m4a',
   './games/frost-fight/audio/bed.mp3',
 ];
-const FF_HTML5_GAIN = 0.55;     // file is mastered louder than the synth
+// Phase 22 — user requested a softer mix. Dropped from 0.55 → 0.32
+// so the track sits underneath SFX without fighting them.
+const FF_HTML5_GAIN = 0.32;
 let _ffEl = null;               // HTMLAudioElement
 let _ffElTested = false;        // we've already probed availability
 let _ffElAvailable = false;     // probe result
@@ -538,6 +543,90 @@ export const frostMusic = {
   stop:  _frostStopDispatch,
   duck:  _frostDuckDispatch,
 };
+
+// ── Home-page ambient bed (Phase 22) ───────────────────────────────
+// Plays the first 30 s of `public/audio/home-bed.mp3` on loop. The
+// user's source track gets harsher after the 30 s mark, so we
+// hard-clamp playback via a `timeupdate` listener that snaps back to
+// 0 once we cross 28 s (giving a 2 s soft tail to fade through). A
+// per-tick gain ramp keeps the loop seam from clicking.
+const HOME_BED_URL = './audio/home-bed.mp3';
+const HOME_BED_LOOP_END = 28;     // seconds — clamp before the harsh tail
+const HOME_BED_GAIN = 0.18;       // very quiet — sits under everything else
+let _homeEl = null;
+let _homePlaying = false;
+let _homeUnsubMute = null;
+let _homeTested = false;
+let _homeAvailable = false;
+
+async function _homeProbe() {
+  if (_homeTested) return _homeAvailable;
+  _homeTested = true;
+  try {
+    const res = await fetch(HOME_BED_URL, { method: 'HEAD' });
+    _homeAvailable = res.ok;
+  } catch { _homeAvailable = false; }
+  return _homeAvailable;
+}
+
+async function _homeStart() {
+  if (muted()) return;
+  if (!(await _homeProbe())) return;
+  if (!_homeEl) {
+    try {
+      _homeEl = new Audio(HOME_BED_URL);
+      _homeEl.preload = 'auto';
+      _homeEl.volume = 0;
+      // Snap back to start before the source track turns harsh. The
+      // small `currentTime = 0` reset is essentially a hard loop, but
+      // since we fade in/out around the seam it stays unobtrusive.
+      _homeEl.addEventListener('timeupdate', () => {
+        if (!_homeEl) return;
+        if (_homeEl.currentTime >= HOME_BED_LOOP_END) {
+          _homeEl.currentTime = 0;
+        }
+      });
+    } catch { return; }
+  }
+  // Fade in over ~2 s so it doesn't pop in.
+  const start = performance.now();
+  const fadeMs = 2000;
+  const tick = () => {
+    if (!_homeEl || !_homePlaying) return;
+    const t = Math.min(1, (performance.now() - start) / fadeMs);
+    _homeEl.volume = HOME_BED_GAIN * t;
+    if (t < 1) requestAnimationFrame(tick);
+  };
+  const playPromise = _homeEl.play();
+  if (playPromise && typeof playPromise.then === 'function') {
+    playPromise.then(() => { _homePlaying = true; requestAnimationFrame(tick); })
+      .catch(() => { _homePlaying = false; _homeAvailable = false; });
+  } else {
+    _homePlaying = true;
+    requestAnimationFrame(tick);
+  }
+  if (!_homeUnsubMute) {
+    _homeUnsubMute = subscribeMute((isMute) => {
+      if (isMute) _homeStop();
+    });
+  }
+}
+
+function _homeStop() {
+  if (!_homeEl) return;
+  try { _homeEl.pause(); } catch { /* ignore */ }
+  _homePlaying = false;
+  if (_homeUnsubMute) {
+    try { _homeUnsubMute(); } catch { /* ignore */ }
+    _homeUnsubMute = null;
+  }
+}
+
+export const homeMusic = {
+  start: _homeStart,
+  stop:  _homeStop,
+};
+
 export const setMuted = (yes) => {
   const next = !!yes;
   const prev = muted();

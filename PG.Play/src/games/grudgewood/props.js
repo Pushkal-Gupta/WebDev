@@ -5,29 +5,55 @@ import * as THREE from 'three';
 
 const tmpQ = new THREE.Quaternion();
 
-// Stylized low-poly tree. Trunk is a tapered cylinder, canopy is a few
-// bunched icospheres. Bark/leaf colors come from biome.
+// Stylized low-poly tree.
+//
+// Design notes for clarity at a distance:
+// - Slightly chunkier trunk (root flare + slimmer crown) so the bark
+//   silhouette is unambiguous against the biome ground colour.
+// - 2-3 LARGER canopy blobs instead of 2-4 small ones — fewer pieces,
+//   each more legible. Random offsets are tighter so the canopy reads
+//   as a single round shape.
+// - Subtle root cap (a short, wider cylinder at the base) so the
+//   trunk doesn't look like a stick poked into the floor.
+// - Detail level kept at 0 (icosahedron 12 tris) to keep tris/cell low.
 export function makeTree(biome, scale = 1, variant = 0) {
   const g = new THREE.Group();
-  const trunkH = 4 + Math.random() * 3;
-  const trunkR = 0.35 + Math.random() * 0.25;
+  const trunkH = 4 + Math.random() * 2.4;
+  const trunkR = 0.4 + Math.random() * 0.18;
+  const barkMat = new THREE.MeshStandardMaterial({ color: biome.treeBark, roughness: 0.95, flatShading: true });
+
+  // Trunk — gently tapered cylinder, narrower at the top.
   const trunk = new THREE.Mesh(
-    new THREE.CylinderGeometry(trunkR * 0.6, trunkR, trunkH, 7),
-    new THREE.MeshStandardMaterial({ color: biome.treeBark, roughness: 0.95, flatShading: true }),
+    new THREE.CylinderGeometry(trunkR * 0.55, trunkR, trunkH, 8),
+    barkMat,
   );
   trunk.position.y = trunkH / 2;
   trunk.castShadow = true;
   g.add(trunk);
 
+  // Root flare — a short, wider stub that visually anchors the trunk
+  // to the ground. Reuses the bark material so it doesn't add a
+  // material switch.
+  const root = new THREE.Mesh(
+    new THREE.CylinderGeometry(trunkR * 1.05, trunkR * 1.25, 0.35, 8),
+    barkMat,
+  );
+  root.position.y = 0.18;
+  root.castShadow = true;
+  g.add(root);
+
   const leafMat = new THREE.MeshStandardMaterial({ color: biome.treeLeaf, roughness: 0.85, flatShading: true });
-  const blobs = 2 + ((variant + 1) % 3);
+  const blobs = 2 + (variant % 2);                         // 2-3 blobs
+  const baseR = 1.7 + (variant % 2) * 0.3;                 // larger blobs
+  const canopyY = trunkH + baseR * 0.55;
   for (let i = 0; i < blobs; i++) {
-    const r = 1.4 + Math.random() * 1.2;
+    const r = baseR + (Math.random() - 0.5) * 0.4;
     const blob = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 0), leafMat);
+    // Tight cluster so the canopy reads as one shape from a distance.
     blob.position.set(
-      (Math.random() - 0.5) * 1.6,
-      trunkH + r * 0.4 + Math.random() * 1.2,
-      (Math.random() - 0.5) * 1.6,
+      (Math.random() - 0.5) * 1.0,
+      canopyY + (Math.random() - 0.5) * 0.6,
+      (Math.random() - 0.5) * 1.0,
     );
     blob.castShadow = true;
     g.add(blob);
