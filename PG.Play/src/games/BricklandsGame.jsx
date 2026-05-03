@@ -23,6 +23,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { submitScore } from '../scoreBus.js';
 import { sfx } from '../sound.js';
+import { consumeAdminStartLevel } from '../utils/admin.js';
 
 // Logical render dimensions — every world coordinate is in these units.
 const VIEW_W = 480;
@@ -465,7 +466,11 @@ export default function BricklandsGame() {
       cam.targetY = cam.y;
       return st;
     }
-    stateRef.current = newGame(0);
+    {
+      const adminStart = consumeAdminStartLevel('bricklands');
+      const startIdx = adminStart != null ? Math.max(0, Math.min(2, adminStart)) : 0;
+      stateRef.current = newGame(startIdx);
+    }
 
     function pushHud() {
       const s = stateRef.current; if (!s) return;

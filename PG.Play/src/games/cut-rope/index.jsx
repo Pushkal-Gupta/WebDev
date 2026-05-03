@@ -11,6 +11,7 @@ import { audio } from './audio.js';
 import { spawnStarBurst, spawnConfetti, spawnCutPuff, tickFx, disposeAllFx } from './fx.js';
 import { readState, recordAttempt } from './state.js';
 import { submitScore } from '../../scoreBus.js';
+import { consumeAdminStartLevel } from '../../utils/admin.js';
 import Hud from './ui/Hud.jsx';
 import {
   StartScreen, LevelSelect, PauseMenu, LevelComplete, LevelFail, HintPill,
@@ -35,8 +36,17 @@ export default function CutRopeGame() {
   const finishedRef = useRef(false);
   const camPunchRef = useRef(0);    // seconds remaining on the camera-zoom punch
 
-  const [scene, setScene] = useState('start');     // 'start' | 'play' | 'levels' | 'paused' | 'won' | 'lost'
-  const [levelId, setLevelId] = useState(LEVELS[0].id);
+  // Admin override: jump straight into the chosen puzzle from the
+  // settings drawer — bypass the start screen so we land in 'play'.
+  const adminStartIdx = (() => {
+    const v = consumeAdminStartLevel('cutrope');
+    if (v == null) return null;
+    return Math.max(0, Math.min(LEVELS.length - 1, v));
+  })();
+  const [scene, setScene] = useState(adminStartIdx != null ? 'play' : 'start');
+  const [levelId, setLevelId] = useState(
+    adminStartIdx != null ? LEVELS[adminStartIdx].id : LEVELS[0].id,
+  );
   const [reloadKey, setReloadKey] = useState(0);   // bump to force a level reload (retry)
   const [stars, setStars] = useState(0);
   const [failReason, setFailReason] = useState(null);

@@ -11,6 +11,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { submitScore } from '../scoreBus.js';
 import { sizeCanvasFluid } from '../util/canvasDpr.js';
+import { consumeAdminStartLevel } from '../utils/admin.js';
 
 const W = 800;
 const H = 500;
@@ -111,7 +112,22 @@ export default function LoftDefenseGame() {
     hoverTower: null, // id of placed tower with open menu
   });
 
+  // Admin override is consumed once on initial mount; later resets
+  // (game over → retry) start at wave 0 like normal play.
+  const adminStartWave = useRef(consumeAdminStartLevel('bloons'));
+
   const reset = () => {
+    const startIdx = (() => {
+      const v = adminStartWave.current;
+      adminStartWave.current = null;
+      if (v == null) return 0;
+      return Math.max(0, Math.min(9, v));
+    })();
+    // Per-wave gold scaling matches the inline reward at line 604
+    // (`30 + s.waveIdx * 6`), so jumping in past wave 0 also gets the
+    // accumulated gold the player would have earned.
+    let gold = START_GOLD;
+    for (let i = 0; i < startIdx; i++) gold += 30 + i * 6;
     stateRef.current = {
       towers: [],
       enemies: [],
@@ -119,16 +135,16 @@ export default function LoftDefenseGame() {
       particles: [],
       spawnQueue: [],
       spawnTimer: 0,
-      waveIdx: 0,
+      waveIdx: startIdx,
       waveActive: false,
       pointer: { x: -1, y: -1 },
       hoverTowerId: null,
       selectedType: null,
-      gold: START_GOLD,
+      gold,
       lives: START_LIVES,
       elapsed: 0,
     };
-    setHud({ lives: START_LIVES, gold: START_GOLD, wave: 0, status: 'pre', selected: null, hoverTower: null });
+    setHud({ lives: START_LIVES, gold, wave: startIdx, status: 'pre', selected: null, hoverTower: null });
   };
 
   useEffect(() => { reset(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);

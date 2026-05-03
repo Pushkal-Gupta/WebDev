@@ -752,17 +752,8 @@ export function placeholderUnit(ctx, def, x, y, opts = {}) {
   const v = def.visual;
   const facing = opts.facing || 1;
   const isGeneral = def.role === 'general';
-  // Generals share the heavy silhouette decorations (cape, helm, pauldrons)
-  // PLUS get a crown/plume above the head and a back-banner pole.
   const isHeavy = def.role === 'heavy' || isGeneral;
   const isRanged = def.role === 'ranged';
-  // Two callers, two scale conventions:
-  //   bake → passes opts.scale (raw silhouette multiplier)
-  //   runtime fallback → passes opts.h (target on-canvas height)
-  // Prefer h-driven if provided so the placeholder fills the same
-  // footprint a baked sprite would. The silhouetteH guard is defensive:
-  // if a future content edit zeros it the scale would otherwise become
-  // Infinity and produce a giant invisible rect.
   const scaleByH = (opts.h && v.silhouetteH) ? opts.h / v.silhouetteH : null;
   const SCALE = scaleByH ?? opts.scale ?? 2.6;
   const w = v.silhouetteW * SCALE;
@@ -772,84 +763,163 @@ export function placeholderUnit(ctx, def, x, y, opts = {}) {
   const colorBody = v.colorBody;
   const colorTrim = v.colorTrim;
   const eraId = opts.eraId || def.eraId;
+  const dark   = '#0c0e12';                        // outline / shadows
+  const mid    = shadeColor(colorBody, -18);        // shading on body
+  const lite   = shadeColor(colorBody,  16);        // highlight on body
+  const skin   = skinColorFor(eraId);
 
-  // Boot shadow — soft elliptical pad just below the foot.
-  ctx.fillStyle = 'rgba(0,0,0,0.35)';
-  ctx.beginPath();
-  ctx.ellipse(x, y + 2, halfW + 4, 4, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Legs — neutral stance with a slight forward step. Two split rectangles
-  // so the silhouette reads as two legs rather than a block.
-  ctx.fillStyle = colorBody;
-  const legW = Math.max(4, Math.floor(w / 2.6));
-  const legH = h * 0.40;
-  ctx.fillRect(x - halfW + 1, y - legH, legW, legH);
-  ctx.fillRect(x + halfW - legW - 1, y - legH, legW, legH);
-  // Boot toe caps
-  ctx.fillStyle = '#0a0d0e';
-  ctx.fillRect(x - halfW + 1, y - 2, legW, 2);
-  ctx.fillRect(x + halfW - legW - 1, y - 2, legW, 2);
-
-  // Torso — taller block above the legs with a subtle shoulder bevel.
-  const torsoTop = y - h * 0.85;
-  const torsoH = h * 0.45;
-  ctx.fillStyle = colorBody;
-  ctx.fillRect(x - halfW, y - legH - torsoH, w, torsoH);
-  // Shoulder bevel
-  ctx.fillStyle = shadeColor(colorBody, -18);
-  ctx.fillRect(x - halfW, y - legH - torsoH, w, 3);
-
-  // Trim band (banner / sash across the torso).
-  ctx.fillStyle = colorTrim;
-  ctx.fillRect(x - halfW, y - legH - torsoH + 5, w, 3);
-
-  // Cape for heavies — flares slightly behind.
-  if (isHeavy) {
-    ctx.fillStyle = colorTrim;
-    ctx.beginPath();
-    ctx.moveTo(x - halfW * facing, torsoTop + 6);
-    ctx.lineTo(x - halfW * facing - 14 * facing, y - 4);
-    ctx.lineTo(x - halfW * facing + 4 * facing, y - 4);
-    ctx.closePath();
-    ctx.fill();
-    // Cape inner shadow
-    ctx.fillStyle = shadeColor(colorTrim, -25);
-    ctx.beginPath();
-    ctx.moveTo(x - halfW * facing,                 torsoTop + 8);
-    ctx.lineTo(x - halfW * facing - 8 * facing,    y - 6);
-    ctx.lineTo(x - halfW * facing - 2 * facing,    y - 6);
-    ctx.closePath();
-    ctx.fill();
-  }
-
-  // Pauldrons (shoulder caps) for heavies / iron-like roles.
-  if (isHeavy || (eraId === 'iron-dominion' && !isRanged)) {
-    ctx.fillStyle = shadeColor(colorBody, -10);
-    ctx.fillRect(x - halfW - 2, torsoTop + 3, 4, 8);
-    ctx.fillRect(x + halfW - 2, torsoTop + 3, 4, 8);
-  }
-
-  // Neck — thin connector to the head so the silhouette doesn't read as
-  // a balloon on a brick.
+  // Body geometry — proper proportions, not pure rectangles.
+  const torsoH = h * 0.42;
+  const legH   = h * 0.38;
+  const torsoTop = y - legH - torsoH;
+  const torsoBot = y - legH;
+  const shoulderW = w;                              // wider at shoulders
+  const hipW = w * 0.78;                            // narrower at hips
+  const neckH = h * 0.06;
   const neckY = torsoTop;
-  ctx.fillStyle = colorBody;
-  ctx.fillRect(x - 2, neckY - 4, 4, 5);
+  const headY = neckY - neckH - headR;
 
-  // Head — circle perched on the neck.
-  const headY = neckY - headR + 1;
-  ctx.fillStyle = colorBody;
+  // 1) Foot shadow.
+  ctx.fillStyle = 'rgba(0,0,0,0.45)';
   ctx.beginPath();
-  ctx.arc(x, headY, headR, 0, Math.PI * 2);
+  ctx.ellipse(x, y + 1, halfW + 5, 4, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Era-specific head accents — what makes the unit feel like its era.
-  drawHeadAccent(ctx, eraId, def.role, x, headY, headR, facing, colorTrim);
+  // 2) BACK arm — drawn behind the torso so it reads as depth.
+  const armW = Math.max(4, w * 0.22);
+  const backShoulderX = x - facing * (halfW * 0.55);
+  ctx.fillStyle = mid;
+  roundRect(ctx, backShoulderX - armW / 2, torsoTop + torsoH * 0.10, armW, torsoH * 0.85, armW * 0.4);
+  ctx.fill();
+  ctx.fillStyle = dark;
+  roundRect(ctx, backShoulderX - armW / 2, torsoTop + torsoH * 0.10, armW, torsoH * 0.85, armW * 0.4);
+  ctx.lineWidth = Math.max(1, SCALE * 0.4);
+  ctx.strokeStyle = dark;
+  ctx.stroke();
 
-  // Helm crest (heavies + generals).
+  // 3) LEGS — two distinct legs with a slight stride hint, clean outline.
+  const legW = Math.max(5, w / 2.4);
+  const legGap = w * 0.10;
+  const leftLegX  = x - legGap / 2 - legW;
+  const rightLegX = x + legGap / 2;
+  // Slight forward foot lift on the leading leg (facing direction)
+  const leadLift = 1;
+  drawBodyPart(ctx, leftLegX,  y - legH,             legW, legH,        colorBody, mid, dark, SCALE);
+  drawBodyPart(ctx, rightLegX, y - legH - leadLift,  legW, legH,        colorBody, mid, dark, SCALE);
+  // Boot caps
+  ctx.fillStyle = dark;
+  roundRect(ctx, leftLegX - 1,  y - 3,            legW + 2, 4, 1.5);
+  ctx.fill();
+  roundRect(ctx, rightLegX - 1, y - 3 - leadLift, legW + 2, 4, 1.5);
+  ctx.fill();
+
+  // 4) TORSO — trapezoid (wider at shoulders, narrower at hips).
+  ctx.beginPath();
+  ctx.moveTo(x - shoulderW / 2 + 1, torsoTop);
+  ctx.lineTo(x + shoulderW / 2 - 1, torsoTop);
+  ctx.lineTo(x + hipW / 2,           torsoBot);
+  ctx.lineTo(x - hipW / 2,           torsoBot);
+  ctx.closePath();
+  ctx.fillStyle = colorBody;
+  ctx.fill();
+  // Right-side shading
+  ctx.beginPath();
+  ctx.moveTo(x + shoulderW * 0.10, torsoTop);
+  ctx.lineTo(x + shoulderW / 2 - 1, torsoTop);
+  ctx.lineTo(x + hipW / 2,          torsoBot);
+  ctx.lineTo(x + hipW * 0.05,       torsoBot);
+  ctx.closePath();
+  ctx.fillStyle = mid;
+  ctx.fill();
+  // Outline
+  ctx.beginPath();
+  ctx.moveTo(x - shoulderW / 2 + 1, torsoTop);
+  ctx.lineTo(x + shoulderW / 2 - 1, torsoTop);
+  ctx.lineTo(x + hipW / 2,           torsoBot);
+  ctx.lineTo(x - hipW / 2,           torsoBot);
+  ctx.closePath();
+  ctx.lineWidth = Math.max(1.2, SCALE * 0.55);
+  ctx.strokeStyle = dark;
+  ctx.stroke();
+
+  // 5) Sash / banner across the chest (era-coloured).
+  ctx.fillStyle = colorTrim;
+  ctx.beginPath();
+  ctx.moveTo(x - shoulderW / 2 + 2, torsoTop + torsoH * 0.18);
+  ctx.lineTo(x + shoulderW / 2 - 2, torsoTop + torsoH * 0.32);
+  ctx.lineTo(x + shoulderW / 2 - 2, torsoTop + torsoH * 0.42);
+  ctx.lineTo(x - shoulderW / 2 + 2, torsoTop + torsoH * 0.28);
+  ctx.closePath();
+  ctx.fill();
+
+  // 6) Heavies + generals: cape behind torso.
+  if (isHeavy) {
+    const capeColor = colorTrim;
+    const capeShadow = shadeColor(capeColor, -28);
+    ctx.fillStyle = capeColor;
+    ctx.beginPath();
+    ctx.moveTo(x - facing * shoulderW * 0.55, torsoTop + 2);
+    ctx.quadraticCurveTo(
+      x - facing * shoulderW * 0.85, (torsoTop + y) / 2,
+      x - facing * shoulderW * 0.40, y - 2,
+    );
+    ctx.lineTo(x - facing * shoulderW * 0.05, y - 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = capeShadow;
+    ctx.beginPath();
+    ctx.moveTo(x - facing * shoulderW * 0.55, torsoTop + 4);
+    ctx.quadraticCurveTo(
+      x - facing * shoulderW * 0.70, (torsoTop + y) / 2 + 2,
+      x - facing * shoulderW * 0.35, y - 4,
+    );
+    ctx.lineTo(x - facing * shoulderW * 0.20, y - 4);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // 7) Pauldrons (shoulder armour) — heavies and iron-style roles.
+  if (isHeavy || eraId === 'iron-dominion' || eraId === 'storm-republic') {
+    const paW = Math.max(5, shoulderW * 0.18);
+    const paH = Math.max(5, torsoH * 0.30);
+    drawShoulderPad(ctx, x - shoulderW / 2 - paW * 0.2, torsoTop - 1, paW, paH, mid, dark);
+    drawShoulderPad(ctx, x + shoulderW / 2 - paW * 0.8, torsoTop - 1, paW, paH, mid, dark);
+  }
+
+  // 8) Neck.
+  ctx.fillStyle = skin;
+  roundRect(ctx, x - shoulderW * 0.10, neckY - neckH, shoulderW * 0.20, neckH + 2, neckH * 0.4);
+  ctx.fill();
+  ctx.lineWidth = Math.max(1, SCALE * 0.35);
+  ctx.strokeStyle = dark;
+  ctx.stroke();
+
+  // 9) Head — slight oval, dark outline. Skin tone unless covered by
+  // a helmet (rendered via era accent below).
+  ctx.beginPath();
+  ctx.ellipse(x, headY, headR * 0.95, headR, 0, 0, Math.PI * 2);
+  ctx.fillStyle = skin;
+  ctx.fill();
+  ctx.lineWidth = Math.max(1.2, SCALE * 0.55);
+  ctx.strokeStyle = dark;
+  ctx.stroke();
+
+  // 10) Era-specific head + costume accents.
+  drawHeadAccent(ctx, eraId, def.role, x, headY, headR, facing, colorTrim);
+  drawCostumeAccents(ctx, eraId, def.role, x, torsoTop, torsoH, shoulderW, hipW, colorBody, colorTrim, dark, SCALE);
+
+  // Helm crest (heavies + generals) — sits on top of any era helmet.
   if (isHeavy) {
     ctx.fillStyle = colorTrim;
-    ctx.fillRect(x - 2, headY - headR - 4, 4, 5);
+    ctx.beginPath();
+    ctx.moveTo(x - 3, headY - headR);
+    ctx.lineTo(x,     headY - headR - 8);
+    ctx.lineTo(x + 3, headY - headR);
+    ctx.closePath();
+    ctx.fill();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = dark;
+    ctx.stroke();
   }
 
   // Generals: a 3-point crown above the helm crest + a back-banner.
@@ -893,10 +963,162 @@ export function placeholderUnit(ctx, def, x, y, opts = {}) {
     ctx.fillRect(poleX - facing * 6, poleTop + 4, 1, 5);
   }
 
-  // Weapon — held in the leading hand, foregrounded.
-  const wx = x + facing * (halfW + 4);
-  const wy = neckY + 4;
-  drawWeapon(ctx, v.weaponShape, wx, wy, facing, colorTrim, SCALE);
+  // 11) FRONT arm + weapon. Drawn last so it overlaps the torso and
+  // reads as foregrounded. The arm bends slightly forward (elbow) for
+  // a less-stiff stance.
+  const frontShoulderX = x + facing * (shoulderW * 0.42);
+  const elbowX  = frontShoulderX + facing * (armW * 0.6);
+  const elbowY  = torsoTop + torsoH * 0.55;
+  const handX   = frontShoulderX + facing * (armW * 1.5);
+  const handY   = torsoTop + torsoH * 0.40;
+  ctx.lineWidth = armW;
+  ctx.strokeStyle = colorBody;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(frontShoulderX, torsoTop + torsoH * 0.10);
+  ctx.lineTo(elbowX, elbowY);
+  ctx.lineTo(handX, handY);
+  ctx.stroke();
+  // Outline the arm
+  ctx.lineWidth = armW + Math.max(1.5, SCALE * 0.5);
+  ctx.strokeStyle = dark;
+  ctx.beginPath();
+  ctx.moveTo(frontShoulderX, torsoTop + torsoH * 0.10);
+  ctx.lineTo(elbowX, elbowY);
+  ctx.lineTo(handX, handY);
+  ctx.stroke();
+  // Inner-fill on top
+  ctx.lineWidth = armW;
+  ctx.strokeStyle = colorBody;
+  ctx.beginPath();
+  ctx.moveTo(frontShoulderX, torsoTop + torsoH * 0.10);
+  ctx.lineTo(elbowX, elbowY);
+  ctx.lineTo(handX, handY);
+  ctx.stroke();
+  ctx.lineCap = 'butt';
+  // Hand
+  ctx.fillStyle = skin;
+  ctx.beginPath(); ctx.arc(handX, handY, armW * 0.55, 0, Math.PI * 2); ctx.fill();
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = dark;
+  ctx.stroke();
+
+  // 12) Weapon — extends from the hand.
+  drawWeapon(ctx, v.weaponShape, handX, handY, facing, colorTrim, SCALE);
+}
+
+// Draws a rounded rect onto the path (caller fills/strokes).
+function roundRect(ctx, x, y, w, h, r) {
+  const rr = Math.max(0, Math.min(r, Math.min(w, h) / 2));
+  ctx.beginPath();
+  ctx.moveTo(x + rr, y);
+  ctx.lineTo(x + w - rr, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + rr);
+  ctx.lineTo(x + w, y + h - rr);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - rr, y + h);
+  ctx.lineTo(x + rr, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - rr);
+  ctx.lineTo(x, y + rr);
+  ctx.quadraticCurveTo(x, y, x + rr, y);
+  ctx.closePath();
+}
+
+// Body part with two-tone shading + dark outline.
+function drawBodyPart(ctx, x, y, w, h, base, mid, outline, scale) {
+  const r = Math.min(w, h) * 0.25;
+  roundRect(ctx, x, y, w, h, r);
+  ctx.fillStyle = base;
+  ctx.fill();
+  // Right-side shading
+  roundRect(ctx, x + w * 0.55, y, w * 0.45, h, r);
+  ctx.fillStyle = mid;
+  ctx.fill();
+  // Outline
+  roundRect(ctx, x, y, w, h, r);
+  ctx.lineWidth = Math.max(1.2, scale * 0.55);
+  ctx.strokeStyle = outline;
+  ctx.stroke();
+}
+
+// Curved pauldron silhouette.
+function drawShoulderPad(ctx, x, y, w, h, fill, outline) {
+  ctx.beginPath();
+  ctx.moveTo(x, y + h);
+  ctx.quadraticCurveTo(x + w / 2, y - h * 0.35, x + w, y + h);
+  ctx.closePath();
+  ctx.fillStyle = fill;
+  ctx.fill();
+  ctx.lineWidth = 1.2;
+  ctx.strokeStyle = outline;
+  ctx.stroke();
+}
+
+// Era-themed skin / undersuit colour for exposed areas (face, neck, hand).
+function skinColorFor(eraId) {
+  switch (eraId) {
+    case 'ember-tribe':    return '#caa07b';
+    case 'iron-dominion':  return '#c9a98b';
+    case 'sun-foundry':    return '#b58862';
+    case 'storm-republic': return '#9aa6b3';
+    case 'void-ascendancy':return '#7a5c9a';
+    default:               return '#caa07b';
+  }
+}
+
+// Era-specific body / costume detail rendered ON TOP of the torso, so
+// the unit's silhouette reads as belonging to its era at a glance.
+function drawCostumeAccents(ctx, eraId, role, x, torsoTop, torsoH, shoulderW, hipW, colorBody, colorTrim, dark, scale) {
+  const torsoBot = torsoTop + torsoH;
+  if (eraId === 'ember-tribe') {
+    // Tribal cloth wrap across the hips.
+    ctx.fillStyle = '#d8a06a';
+    ctx.fillRect(x - hipW / 2 - 1, torsoBot - 4, hipW + 2, 5);
+    ctx.fillStyle = '#a26430';
+    ctx.fillRect(x - hipW / 2 - 1, torsoBot - 1, hipW + 2, 1);
+  } else if (eraId === 'iron-dominion') {
+    // Plate chest with rivet rows.
+    ctx.fillStyle = '#0a0d10';
+    for (let i = 0; i < 4; i++) {
+      const px = x - shoulderW * 0.30 + i * (shoulderW * 0.20);
+      ctx.fillRect(px, torsoTop + torsoH * 0.20, 1.5, 1.5);
+      ctx.fillRect(px, torsoTop + torsoH * 0.55, 1.5, 1.5);
+    }
+    // Belt
+    ctx.fillStyle = '#3a2a1a';
+    ctx.fillRect(x - hipW / 2 + 1, torsoBot - 5, hipW - 2, 4);
+    ctx.fillStyle = '#ffd05a';
+    ctx.fillRect(x - 3, torsoBot - 5, 6, 4);
+  } else if (eraId === 'sun-foundry') {
+    // Brass buttons + leather belt.
+    ctx.fillStyle = '#ffcb6b';
+    ctx.beginPath(); ctx.arc(x, torsoTop + torsoH * 0.30, 1.6, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x, torsoTop + torsoH * 0.50, 1.6, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x, torsoTop + torsoH * 0.70, 1.6, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#3a2a1a';
+    ctx.fillRect(x - hipW / 2, torsoBot - 4, hipW, 3);
+  } else if (eraId === 'storm-republic') {
+    // Voltage stripe down the chest + utility belt.
+    ctx.fillStyle = '#7be3ff';
+    ctx.fillRect(x - 1, torsoTop + 3, 2, torsoH * 0.7);
+    ctx.fillStyle = '#0c121b';
+    ctx.fillRect(x - hipW / 2, torsoBot - 4, hipW, 3);
+    ctx.fillStyle = '#ff486b';
+    ctx.fillRect(x - 2, torsoBot - 4, 4, 3);
+  } else if (eraId === 'void-ascendancy') {
+    // Glowing crack down the torso.
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.strokeStyle = '#c89bff';
+    ctx.globalAlpha = 0.7;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x, torsoTop + 4);
+    ctx.lineTo(x - 2, torsoTop + torsoH * 0.35);
+    ctx.lineTo(x + 1, torsoTop + torsoH * 0.65);
+    ctx.lineTo(x - 1, torsoBot - 2);
+    ctx.stroke();
+    ctx.restore();
+  }
 }
 
 function drawHeadAccent(ctx, eraId, role, x, headY, headR, facing, colorTrim) {

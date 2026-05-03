@@ -26,6 +26,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'framer-motion';
 import { submitScore } from '../scoreBus.js';
 import { sfx, frostMusic } from '../sound.js';
+import { consumeAdminStartLevel } from '../utils/admin.js';
 import Hud from './frost-fight/ui/Hud.jsx';
 import BottomRail from './frost-fight/ui/BottomRail.jsx';
 import { LevelIntro, LevelClearChip, WinCard, GameOverCard } from './frost-fight/ui/Overlay.jsx';
@@ -225,6 +226,21 @@ const PALETTE = {
   'Grape Net':      { floorTop: '#a890b8', floorBot: '#3a2050', halo: 'rgba(190, 140, 230, 0.30)', frame: 'rgba(190, 140, 230, 0.32)' },
   'Bomb Foundry':   { floorTop: '#c8a4a8', floorBot: '#582834', halo: 'rgba(255, 138, 163, 0.30)', frame: 'rgba(255, 138, 163, 0.32)' },
   'Annihilation':   { floorTop: '#d4c0c8', floorBot: '#3a1a30', halo: 'rgba(255, 138, 163, 0.36)', frame: 'rgba(255, 138, 163, 0.40)' },
+  // Phase 22 — Harvest theme. Warm orchard greens + soft sunset. Each
+  // room steps the gradient hue across the cycle so room 1 reads as
+  // "morning meadow" and room 12 as "twilight grove".
+  'Orchard Path':   { floorTop: '#d4ecbc', floorBot: '#5a8a3a', halo: 'rgba(160, 220, 120, 0.20)', frame: 'rgba(120, 200, 80, 0.22)',  decor: 'leaves' },
+  'Citrus Lane':    { floorTop: '#fde8a4', floorBot: '#c89030', halo: 'rgba(250, 220, 120, 0.22)', frame: 'rgba(240, 180, 80, 0.24)',  decor: 'leaves' },
+  'Berry Mix':      { floorTop: '#e8c8d8', floorBot: '#a8508a', halo: 'rgba(230, 150, 200, 0.20)', frame: 'rgba(220, 120, 180, 0.22)', decor: 'leaves' },
+  'Sour Yard':      { floorTop: '#f4dca0', floorBot: '#9a6c28', halo: 'rgba(240, 200, 110, 0.22)', frame: 'rgba(220, 170, 80, 0.24)',  decor: 'leaves' },
+  'Full Bloom':     { floorTop: '#cfe7c8', floorBot: '#3e7a4a', halo: 'rgba(140, 220, 160, 0.22)', frame: 'rgba(110, 200, 130, 0.24)', decor: 'leaves' },
+  'Harvest Storm':  { floorTop: '#e8c4a0', floorBot: '#7a3a2a', halo: 'rgba(240, 160, 110, 0.26)', frame: 'rgba(220, 130, 80, 0.28)',  decor: 'leaves' },
+  'Heartwood':      { floorTop: '#d8c0a0', floorBot: '#6a4830', halo: 'rgba(220, 180, 130, 0.22)', frame: 'rgba(200, 150, 100, 0.24)', decor: 'leaves' },
+  'Bramble':        { floorTop: '#c4d8a8', floorBot: '#4a6028', halo: 'rgba(180, 220, 130, 0.22)', frame: 'rgba(150, 200, 90, 0.24)',  decor: 'leaves' },
+  'Sunset Grove':   { floorTop: '#f0c89a', floorBot: '#a44a2a', halo: 'rgba(240, 170, 110, 0.26)', frame: 'rgba(220, 130, 80, 0.28)',  decor: 'leaves' },
+  'Old Crusher':    { floorTop: '#c8a890', floorBot: '#5e3820', halo: 'rgba(220, 160, 120, 0.24)', frame: 'rgba(200, 130, 90, 0.26)',  decor: 'leaves' },
+  'Witchhazel':     { floorTop: '#bcb4d4', floorBot: '#382858', halo: 'rgba(170, 150, 220, 0.26)', frame: 'rgba(150, 120, 200, 0.28)', decor: 'leaves' },
+  'Last Harvest':   { floorTop: '#a89c80', floorBot: '#2c1c0a', halo: 'rgba(220, 200, 140, 0.30)', frame: 'rgba(200, 170, 110, 0.34)', decor: 'leaves' },
 };
 const DEFAULT_PALETTE = PALETTE.Pantry;
 
@@ -1112,6 +1128,120 @@ const LEVELS = [
       '######################',
     ],
   },
+  {
+    name: 'Heartwood',
+    tip: 'Harvest 7 — kiwi pair on the diagonals. Pre-laid ice slows the chase.',
+    grid: [
+      '######################',
+      '#p..A...IIII....A....#',
+      '#.######......######.#',
+      '#....k...........k...#',
+      '#.A.................A#',
+      '#.IIIII.....IIIII....#',
+      '#....................#',
+      '#.IIIII.....IIIII....#',
+      '#.A.................A#',
+      '#....k...........k...#',
+      '#.######......######.#',
+      '#......A....IIII...AX#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Bramble',
+    tip: 'Harvest 8 — chokepoints. Two grapes drop ice trails; squeeze through.',
+    grid: [
+      '######################',
+      '#p.A...##........##.f#',
+      '#.....##.G......G##..#',
+      '#A.................A.#',
+      '#######....######....#',
+      '#......h....h........#',
+      '#.A....######........#',
+      '#......######........#',
+      '#.................A..#',
+      '#######....######....#',
+      '#.....##........##...#',
+      '#A.f..##.G....G.##..X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Sunset Grove',
+    tip: 'Harvest 9 — pineapple + lemon team. Three casters means three rows of ice.',
+    grid: [
+      '######################',
+      '#p..f....n....A....j.#',
+      '#.####.####.####.####',
+      '#....A.....f........n#',
+      '#.....######.........#',
+      '#..A.........h.......#',
+      '#.....######.........#',
+      '#..A.........h.......#',
+      '#.....######.........#',
+      '#....A.....f........j#',
+      '#.####.####.####.####',
+      '#......f....n......AX#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Old Crusher',
+    tip: 'Harvest 10 — strawberry mob. Six chasers and one peach buys you time.',
+    grid: [
+      '######################',
+      '#p.s..#.s..s..#..s..s#',
+      '#......######........#',
+      '#.................P..#',
+      '#..####........####..#',
+      '#....G......h....G...#',
+      '#.................A..#',
+      '#....G......h....G...#',
+      '#..####........####..#',
+      '#.................P..#',
+      '#......######........#',
+      '#.s..s#.s..s..#.s...X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Witchhazel',
+    tip: 'Harvest 11 — grape + plum + lemon. Plum teleports — read the cyan ring.',
+    grid: [
+      '######################',
+      '#p..A....U....A....G.#',
+      '#.######......######.#',
+      '#......j.........j...#',
+      '#A...................#',
+      '#..######......######',
+      '#......U....G........A',
+      '#..######......######',
+      '#A...................#',
+      '#......j.........j...#',
+      '#.######......######.#',
+      '#.G....A....U....A..X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Last Harvest',
+    tip: 'Harvest 12 — every animated bot. Final orchard. Survive the storm.',
+    grid: [
+      '######################',
+      '#p..k.s..o..G..n..j.h#',
+      '#.####################',
+      '#....IIII....IIII....#',
+      '#.A...........IIII..A#',
+      '#.####....####....####',
+      '#....h..........k....#',
+      '#.####....####....####',
+      '#.A...........IIII..A#',
+      '#....IIII....IIII....#',
+      '#.####################',
+      '#h.j..n..G..o..s..k.X#',
+      '######################',
+    ],
+  },
 ];
 
 // Phase 18 — themed packs. Each theme is a slice of 15 levels into the
@@ -1127,8 +1257,8 @@ export const THEMES = {
   // Phase 22 — animated era. Bots have proper walk + cast cycles
   // (extracted from the user's char1-char7 sheets). Six rooms while
   // the level set grows; theme can extend by appending to LEVELS.
-  harvest: { id: 'harvest', label: 'Harvest',    startIdx: 40, length: 6,
-             tagline: 'Animated orchard. Six rooms, every bot tells you what it\'s about to do.' },
+  harvest: { id: 'harvest', label: 'Harvest',    startIdx: 40, length: 12,
+             tagline: 'Animated orchard. Twelve rooms; every bot reads its mood on its face.' },
 };
 export const THEME_ORDER = ['cold', 'orchard', 'harvest'];
 const DEFAULT_THEME = 'cold';
@@ -1337,8 +1467,12 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
 
   // `startLevel` is the theme-relative index from the lobby (0..14
    // within the picked theme). Clamp into the theme slice and convert
-   // to an absolute LEVELS index.
-  const startLevelInTheme = Math.min(Math.max(0, startLevel | 0), themeCount - 1);
+   // to an absolute LEVELS index. The admin override (sessionStorage,
+   // set by the settings drawer) takes priority over the lobby pick
+   // and is consumed exactly once per launch.
+  const adminStart = consumeAdminStartLevel('badicecream');
+  const effectiveStart = adminStart != null ? adminStart : startLevel;
+  const startLevelInTheme = Math.min(Math.max(0, effectiveStart | 0), themeCount - 1);
   const initialLevel = themeStart + startLevelInTheme;
   const [levelIdx, setLevelIdx] = useState(initialLevel);
   const [deaths, setDeaths]     = useState(0);
@@ -1746,6 +1880,44 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, W, H);
 
+      // Phase 22 — themed decoration overlay. Harvest rooms (palette
+      // marked decor: 'leaves') get a soft sun-dappled overlay made
+      // from a deterministic scatter of warm circles + leaf dots so
+      // the floor reads as orchard ground rather than ice. Drawn as
+      // pure canvas — no extra image asset required.
+      if (palette.decor === 'leaves' && !reduced) {
+        ctx.save();
+        const t = performance.now() / 4200;
+        for (let i = 0; i < 18; i++) {
+          // Hash-stable position per room — i and the room name's
+          // length seed the pattern so each Harvest room has its own
+          // dapple but the dapples don't shimmer randomly each frame.
+          const seed = (i * 73 + level.name.length * 17) % 997;
+          const px = ((seed * 31) % W);
+          const py = ((seed * 47) % H);
+          const r  = 14 + ((seed * 11) % 18);
+          const a  = 0.04 + 0.04 * Math.sin(t + i * 0.7);
+          ctx.fillStyle = `rgba(255, 244, 200, ${a.toFixed(3)})`;
+          ctx.beginPath();
+          ctx.arc(px, py, r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        // Scattered leaf-shape dabs (small olives) — warm color picked
+        // from the palette's bottom tone for cohesion.
+        const leafColor = 'rgba(80, 120, 60, 0.10)';
+        ctx.fillStyle = leafColor;
+        for (let i = 0; i < 36; i++) {
+          const seed = (i * 53 + level.name.length * 23) % 991;
+          const px = ((seed * 17) % W);
+          const py = ((seed * 29) % H);
+          const r  = 2 + ((seed * 5) % 4);
+          ctx.beginPath();
+          ctx.arc(px, py, r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
       // Camera shake for hits — applied on top of the centering translate.
       const sx = (Math.random() - 0.5) * shake;
       const sy = (Math.random() - 0.5) * shake;
@@ -1971,32 +2143,44 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
           (!e.moving && e.nextDecide > 0 && e.nextDecide < WINDUP_LEAD)
           || e.moving;
 
-        // Phase 22 — atlas-driven animation path. If this kind has an
-        // atlas registered AND it's loaded, walk-cycle / cast-windup /
-        // cast-release frames render here. Falls back to the legacy
-        // single-sprite path below if the atlas isn't ready.
+        // Phase 22 — atlas-driven animation. Action is contextual:
+        //   • walk           — bot is moving step-to-step
+        //   • attackRelease  — one-shot puff right after a real cast
+        //   • attackCharge   — only when a player is actually NEAR
+        //                      (≤2 tiles Manhattan distance) so the
+        //                      anger pose reads as "you woke me up"
+        //   • state:sad      — bot is "trapped" / boxed in
+        //   • state:neutral  — default rest pose otherwise
         if (e.atlasKey) {
           const atlas = loadAtlas(e.atlasKey);
           if (atlas?.ready) {
-            // Pick action: prefer one-shot release, then cast-windup,
-            // then walk, then idle pose. Animation timer ticks during
-            // the post-draw enemy update block so frames advance even
-            // when the bot is between decisions.
+            // Manhattan distance to the closest alive player.
+            const dToP  = (p && !p.dead)
+              ? Math.abs(p.col  - e.col)  + Math.abs(p.row  - e.row)
+              : 99;
+            const dToP2 = (p2 && !p2.dead)
+              ? Math.abs(p2.col - e.col) + Math.abs(p2.row - e.row)
+              : 99;
+            const nearest = Math.min(dToP, dToP2);
             let action;
-            if (e.releaseT > 0)               action = 'attackRelease';
-            else if (e.castPending)            action = 'attackCharge';
-            else if (e.fuseT && e.fuseT < 1)   action = 'attackCharge';
-            else if (e.moving)                 action = 'walk';
-            else if (isWinding)                action = 'attackCharge';
-            else                               action = 'state:neutral';
+            if (e.releaseT > 0)         action = 'attackRelease';   // just cast
+            else if (e.moving)          action = 'walk';            // step
+            else if (nearest <= 2)      action = 'attackCharge';    // player nearby
+            else if (e.boxed)           action = 'state:sad';       // trapped
+            else                        action = 'state:neutral';   // chill
             setAnimAction(e, action);
             const frame = getFrame(atlas, e.animAction, e.animFrame);
             if (frame && frame.complete && frame.naturalWidth > 0) {
               const bob = Math.sin(performance.now() / 280 + e.col + e.row) * 0.6;
-              // Slightly larger sprite so the puff in attack-release
-              // frames doesn't get clipped at sz=32.
-              const sz = action === 'attackRelease' ? 36 : 32;
-              ctx.drawImage(frame, ecx - sz / 2, ecy - sz / 2 + bob, sz, sz);
+              // Larger sprite (T+12 px = 48 px on 36-px tiles) so the
+              // character body isn't tiny against the maze. Anchor by
+              // the FEET — bottom edge sits just inside the tile floor
+              // so feet read clearly instead of getting cropped at
+              // tile-center.
+              const sz = action === 'attackRelease' ? 52 : 48;
+              const drawX = ecx - sz / 2;
+              const drawY = (y + T) - sz + 4 + bob;  // bottom of tile - sprite height + 4 px overlap
+              ctx.drawImage(frame, drawX, drawY, sz, sz);
               return;  // skip the legacy single-sprite path
             }
           }

@@ -7896,6 +7896,129 @@ svg { display: block; width: 100%; height: 100%; }
 }
 .settings-admin-status .settings-v2-row-title { color: #6cd0f0; }
 
+/* Admin level launcher — cross-game level picker shown after the
+   password gate is cleared. Each game gets its own card with a chip
+   grid plus a single launch button.  */
+.settings-v2-section.settings-admin .settings-v2-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.settings-admin-badge {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, #6cd0f0 18%, transparent);
+  color: #6cd0f0;
+  border: 1px solid color-mix(in srgb, #6cd0f0 32%, transparent);
+}
+.settings-admin-launcher {
+  margin-top: var(--s-3);
+  padding: var(--s-3);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface-sunken) 70%, transparent);
+}
+.settings-admin-launcher-head {
+  margin-bottom: var(--s-3);
+}
+.settings-admin-game-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.settings-admin-game {
+  padding: var(--s-3);
+  border-radius: var(--r-md);
+  background: var(--bg);
+  border: 1px solid var(--line);
+}
+.settings-admin-game-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: var(--s-2);
+}
+.settings-admin-game-title {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.settings-admin-game-note {
+  font-size: 0.75rem;
+  color: var(--text-mute);
+}
+.settings-admin-level-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 6px;
+  margin-bottom: var(--s-3);
+}
+.settings-admin-level-chip {
+  height: 30px;
+  padding: 0 10px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  background: var(--surface-sunken);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast),
+              border-color var(--t-fast), transform var(--t-fast);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.settings-admin-level-chip:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.settings-admin-level-chip.is-active {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+.settings-admin-launch {
+  width: 100%;
+  justify-content: center;
+}
+.settings-admin-launch svg { width: 14px; height: 14px; }
+
+/* Burger menu polish — give it a clear surface so it reads as a
+   tappable target on any background. The previous implementation
+   relied on `icon-btn` defaults which were too subtle. */
+.icon-btn.main-menu {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--surface-sunken);
+  color: var(--text);
+  transition: background var(--t-fast), border-color var(--t-fast),
+              color var(--t-fast), transform var(--t-fast);
+}
+.icon-btn.main-menu:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface-sunken));
+  color: var(--accent);
+}
+.icon-btn.main-menu:active { transform: scale(0.97); }
+.icon-btn.main-menu.is-active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.icon-btn.main-menu svg { width: 18px; height: 18px; }
+
 /* ── Footer v2 ────────────────────────────────────────────────── */
 .footer-v2 {
   margin-top: var(--s-8);

@@ -10,6 +10,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { submitScore } from '../scoreBus.js';
 import { sizeCanvasFluid } from '../util/canvasDpr.js';
+import { consumeAdminStartLevel } from '../utils/admin.js';
 
 const W = 800;
 const H = 500;
@@ -181,10 +182,13 @@ export default function TraceGame() {
   const viewRef   = useRef({ cssW: W, cssH: H, scale: 1, offX: 0, offY: 0 });
   const stateRef  = useRef(null);
   const submittedRef = useRef(false);
-  const [roomIdx, setRoomIdx] = useState(0);
+  const [roomIdx, setRoomIdx] = useState(() => {
+    const adminStart = consumeAdminStartLevel('vex');
+    return adminStart != null ? Math.max(0, Math.min(ROOMS.length - 1, adminStart)) : 0;
+  });
   const [deaths, setDeaths]   = useState(0);
   const [time, setTime]       = useState(0);
-  const [tip, setTip]         = useState(ROOMS[0].tip);
+  const [tip, setTip]         = useState(() => ROOMS[Math.max(0, Math.min(ROOMS.length - 1, roomIdx))]?.tip || '');
   const [status, setStatus]   = useState('playing'); // playing | won
 
   const loadRoom = (idx) => {

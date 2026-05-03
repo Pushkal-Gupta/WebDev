@@ -58,8 +58,23 @@ const THEME_DEFS = {
       'Plum Tide', 'Eggplant Court', 'Grape Net', 'Bomb Foundry', 'Annihilation',
     ],
   },
+  // Phase 22 — Harvest theme. Animated bot roster (kiwi, pineapple,
+  // lemon, peach + animated orange/strawberry/grape) extracted from
+  // the user's char1-char7 sheets. Six rooms while the level set
+  // grows; names match LEVELS[40..45] in FrostFightGame.jsx.
+  harvest: {
+    id: 'harvest',
+    label: 'Harvest',
+    tagline: 'Animated orchard. Every bot reads its mood on its face. 12 rooms.',
+    levels: [
+      'Orchard Path', 'Citrus Lane', 'Berry Mix',
+      'Sour Yard', 'Full Bloom', 'Harvest Storm',
+      'Heartwood', 'Bramble', 'Sunset Grove',
+      'Old Crusher', 'Witchhazel', 'Last Harvest',
+    ],
+  },
 };
-const THEME_ORDER = ['cold', 'orchard'];
+const THEME_ORDER = ['cold', 'orchard', 'harvest'];
 
 export default function FrostFightSetup({
   difficulty, onDifficultyChange,
@@ -67,8 +82,16 @@ export default function FrostFightSetup({
   startLevel, onStartLevelChange,
 }) {
   // Hydrate persisted picks once on mount so the parent state matches LS.
+  // Phase 22b — semantic of 'easy' changed (lives → in-place respawn);
+  // any stale 'easy' carried over from prior sessions silently rolls
+  // to 'normal' so the lobby always opens on the new default. Players
+  // who actually want Easy can re-pick — that's a one-click fix.
   useEffect(() => {
-    const persistedDiff = readDifficulty('normal');
+    let persistedDiff = readDifficulty('normal');
+    if (persistedDiff === 'easy') {
+      writeDifficulty('normal');
+      persistedDiff = 'normal';
+    }
     if (persistedDiff !== difficulty) onDifficultyChange(persistedDiff);
     const persistedTheme = readTheme('cold');
     if (persistedTheme !== theme) onThemeChange(persistedTheme);
