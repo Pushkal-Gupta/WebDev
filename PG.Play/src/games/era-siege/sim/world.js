@@ -16,7 +16,7 @@ import { tickEconomy } from './economy.js';
 import { tickProgression, tryEvolve } from './progression.js';
 import { tickAi } from './ai.js';
 import { tickSpecials, tryFireSpecial } from './specials.js';
-import { trySpawnUnit } from './unit.js';
+import { trySpawnUnit, tryQueueUnit, tryCancelQueued } from './unit.js';
 import { tryBuildTurret, tryBuildTurretSpot, trySellTurret, tryUpgradeTurretStat } from './turret.js';
 
 // One-time spend to unlock generals for the rest of the match. After
@@ -103,7 +103,9 @@ export function createMatch(opts = {}) {
     // a hit — written by combat.damageBase, ticked by effects.js.
     baseFlashMs: 0,
     specialCooldownMs: 0,
-    specialActive: null,  // { specialId, telegraphLeftMs, eraIndex } when telegraphing
+    specialActive: null,  // { specialId, telegraphLeftMs, eraIndex, slot } when telegraphing
+    specialCooldownMs2: 0,
+    specialActive2: null,
     auraLeftMs: 0,        // aura special — duration left
     powerups: makePowerupsState(),
     ai: isAi ? {
@@ -173,13 +175,21 @@ function applyPlayerIntents(state, intents) {
     tryEvolve(state, state.player);
   }
   if (intents.spawn) {
+    // Legacy direct-spawn path. Kept for tests + AI; the player UI
+    // now goes through `intents.queue`.
     for (const unitId of intents.spawn) trySpawnUnit(state, state.player, unitId);
+  }
+  if (intents.queue && intents.queue.length) {
+    for (const unitId of intents.queue) tryQueueUnit(state, state.player, unitId);
+  }
+  if (intents.cancelQueue != null) {
+    tryCancelQueued(state, state.player, intents.cancelQueue);
   }
   if (intents.buildTurretSpot != null) {
     tryBuildTurretSpot(state, state.player, intents.buildTurretSpot);
   }
   if (intents.buildTurret) {
-    tryBuildTurret(state, state.player, intents.buildTurret.slot);
+    tryBuildTurret(state, state.player, intents.buildTurret.slot, intents.buildTurret.turretId);
   }
   if (intents.sellTurret != null) {
     trySellTurret(state, state.player, intents.sellTurret);
@@ -191,7 +201,10 @@ function applyPlayerIntents(state, intents) {
     tryUnlockGenerals(state, state.player);
   }
   if (intents.special) {
-    tryFireSpecial(state, state.player);
+    tryFireSpecial(state, state.player, 'primary');
+  }
+  if (intents.special2) {
+    tryFireSpecial(state, state.player, 'secondary');
   }
   if (intents.buyPowerup) {
     tryBuyPowerup(state, state.player, intents.buyPowerup);

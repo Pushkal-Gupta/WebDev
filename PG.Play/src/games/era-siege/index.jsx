@@ -8,6 +8,17 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { submitScore } from '../../scoreBus.js';
+import { sfx as _sharedSfx, isMuted as _sharedIsMuted } from '../../sound.js';
+
+// Wrapper so the hover-SFX handler can call without re-importing on
+// every render. Respects the global mute toggle and the per-game
+// settings volumes.
+function uiHoverSfx() {
+  try { _sharedSfx.hover && _sharedSfx.hover(); } catch { /* swallow */ }
+}
+function uiHoverIsMuted() {
+  try { return _sharedIsMuted(); } catch { return false; }
+}
 import { sizeCanvasFluid } from '../../util/canvasDpr.js';
 import { storage } from './utils/storage.js';
 import { telemetry } from './utils/telemetry.js';
@@ -15,6 +26,7 @@ import { readSettings, subscribeSettings, writeSettings, effectiveReduceMotion }
 import { recordMatchResult, todaySeed, todayDateString, isDifficultyUnlocked, readStats } from './utils/stats.js';
 
 import { createMatch, tick, setView, teardownMatch, scoreMatch } from './sim/world.js';
+import { readGameSave, writeGameSave, clearGameSave, applyGameSave, AUTOSAVE_INTERVAL_MS } from './utils/gameSave.js';
 import { startLoop } from './engine/loop.js';
 import { makeRenderer } from './engine/renderer.js';
 import { makeIntents, clearIntents, attachKeyboard } from './engine/input.js';
@@ -41,6 +53,7 @@ import TurretManagePopover from './ui/TurretManagePopover.jsx';
 import PowerUpsDrawer from './ui/PowerUpsDrawer.jsx';
 import EvolutionPanel from './ui/EvolutionPanel.jsx';
 import EraBanner from './ui/EraBanner.jsx';
+import LootOrbs from './ui/LootOrbs.jsx';
 import { makePerfMon, detectDeviceClass } from './engine/perf.js';
 import { assets } from './engine/assets.js';
 import { POWERUP_DEFS, getMultiplier } from './sim/powerups.js';
@@ -120,8 +133,10 @@ export default function EraSiegeGame({ mode }) {
     enemyEraIndex: 0,
     turretSlots: [null, null, null],
     specialCooldownMs: 0, specialCharging: false,
+    specialCooldownMs2: 0, specialCharging2: false,
     generalCooldownMs: 0, generalAlive: false, generalsUnlocked: false,
     population: 0, populationMax: BALANCE.MAX_UNITS_PER_SIDE,
+    spawnQueue: [],
     auraLeftMs: 0,
     timeSec: 0, status: 'playing', score: 0,
     endlessSec: 0,
@@ -199,6 +214,23 @@ export default function EraSiegeGame({ mode }) {
     });
     matchRef.current = match;
 
+    // ── Save / resume ──────────────────────────────────────────────
+    // Daily + endless runs are skipped for save/resume — daily must
+    // start fresh each day; endless is competitive runs that shouldn't
+    // be paused-and-continued. Standard / difficulty modes restore
+    // and auto-save.
+    const canSave = !isDaily && !isEndless;
+    if (canSave) {
+      const save = readGameSave();
+      if (save && save.difficulty === difficulty) {
+        applyGameSave(match, save);
+      }
+    }
+    const autoSaveTimer = canSave ? window.setInterval(() => {
+      writeGameSave(match);
+    }, AUTOSAVE_INTERVAL_MS) : null;
+    const stopAutoSave = () => { if (autoSaveTimer) window.clearInterval(autoSaveTimer); };
+
     // Hook view sizing.
     const disposeFluid = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
       setView(match, cssW, cssH);
@@ -263,6 +295,10 @@ export default function EraSiegeGame({ mode }) {
     const offEnd = match.bus.on('match_end', (e) => {
       if (submittedRef.current) return;
       submittedRef.current = true;
+      // Drop the autosave the moment the match ends — no point resuming
+      // a finished match, and a stale save would confuse "Continue".
+      clearGameSave();
+      stopAutoSave();
       const score = scoreMatch(match);
 
       // Persist stats locally for the result panel + difficulty unlocks.
@@ -311,7 +347,8 @@ export default function EraSiegeGame({ mode }) {
       requestSpawn:   (id)  => { intentsRef.current.spawn.push(id); },
       requestBuild:   (i)   => { intentsRef.current.buildTurret = { slot: i }; },
       requestSell:    (i)   => { intentsRef.current.sellTurret = i; },
-      requestSpecial: ()    => { intentsRef.current.special = true; },
+      requestSpecial:  ()    => { intentsRef.current.special  = true; },
+      requestSpecial2: ()    => { intentsRef.current.special2 = true; },
       requestEvolve:  ()    => { intentsRef.current.evolve = true; },
       requestPause:   ()    => {
         pausedRef.current = !pausedRef.current;
@@ -370,10 +407,12 @@ export default function EraSiegeGame({ mode }) {
       // If the match is still in-flight when the component unmounts, the
       // player closed the tab / hit Back / changed games mid-run. Telemetry
       // calls this rage_quit so we can track sad-path drop-offs separate
-      // from natural defeats.
+      // from natural defeats. We ALSO write a final save so they can
+      // resume next time.
       try {
         const m = matchRef.current;
         if (m && m.status === 'playing' && !submittedRef.current) {
+          if (canSave) writeGameSave(m);
           telemetry.emit('era_siege:rage_quit', {
             era: m.player.eraIndex + 1,
             timeSec: Math.round(m.timeSec),
@@ -384,6 +423,7 @@ export default function EraSiegeGame({ mode }) {
           });
         }
       } catch { /* swallow */ }
+      try { stopAutoSave(); } catch { /* ignore */ }
       try { offMs?.(); offMe?.(); offEr?.(); offEv?.(); offUs?.(); offTb?.(); offSu?.(); offLg?.(); offTut?.(); offEnd?.(); } catch { /* ignore */ }
       try { audioStopRef.current?.(); } catch { /* ignore */ }
       try { kbStopRef.current?.(); } catch { /* ignore */ }
@@ -419,12 +459,17 @@ export default function EraSiegeGame({ mode }) {
       }),
       specialCooldownMs: match.player.specialCooldownMs,
       specialCharging:   !!match.player.specialActive,
+      specialCooldownMs2: match.player.specialCooldownMs2 || 0,
+      specialCharging2:   !!match.player.specialActive2,
       generalCooldownMs:
         match.player._spawnCooldowns?.[getEraByIndex(match.player.eraIndex)?.generalId] || 0,
       generalAlive: match.player.units.some((u) => u.role === 'general' && !u.dead && u.hp > 0),
       generalsUnlocked: !!match.player.generalsUnlocked,
       population:    match.player.units.filter((u) => !u.dead && u.hp > 0).length,
       populationMax: BALANCE.MAX_UNITS_PER_SIDE,
+      spawnQueue:    Array.isArray(match.player.spawnQueue)
+        ? match.player.spawnQueue.map((q) => q.unitId)
+        : [],
       auraLeftMs: match.player.auraLeftMs || 0,
       timeSec: Math.floor(match.timeSec),
       status:  match.status,
@@ -448,10 +493,14 @@ export default function EraSiegeGame({ mode }) {
   }
 
   // ── HUD intent helpers ─────────────────────────────────────────────
-  const onSpawn   = (id)  => { intentsRef.current.spawn.push(id); };
+  // Player spawns go through the queue — gold is reserved on click and
+  // the head spawns automatically when cooldown / pop-cap allow.
+  const onSpawn   = (id)  => { intentsRef.current.queue.push(id); };
+  const onCancelQueued = (i) => { intentsRef.current.cancelQueue = i; };
   const onBuild   = (i)   => { intentsRef.current.buildTurret = { slot: i }; };
   const onSell    = (i)   => { intentsRef.current.sellTurret = i; };
-  const onSpecial = ()    => { intentsRef.current.special = true; };
+  const onSpecial  = ()   => { intentsRef.current.special  = true; };
+  const onSpecial2 = ()   => { intentsRef.current.special2 = true; };
   const onDeployGeneral = () => {
     const cur = getEraByIndex(matchRef.current?.player.eraIndex || 0);
     if (cur?.generalId) intentsRef.current.spawn.push(cur.generalId);
@@ -487,8 +536,11 @@ export default function EraSiegeGame({ mode }) {
     intentsRef.current.buildTurretSpot = slot;
     setTurretBuildSlot(null);
   };
-  const onConfirmBuild = (slot) => {
-    intentsRef.current.buildTurret = { slot };
+  // turretId is optional — when supplied (from the picker) the player
+  // explicitly chose a tier; otherwise the era-default medium tier
+  // builds (legacy + AI path).
+  const onConfirmBuild = (slot, turretId) => {
+    intentsRef.current.buildTurret = { slot, turretId };
     setTurretBuildSlot(null);
   };
   const onConfirmUpgrade = () => {
@@ -517,8 +569,24 @@ export default function EraSiegeGame({ mode }) {
   const evolveReady = !!nextDef && hud.xp >= nextDef.xpToEvolve && hud.gold >= nextDef.evolveCost;
   const specialReady = hud.specialCooldownMs <= 0 && !hud.specialCharging;
 
+  // UI hover SFX — delegated handler so we don't need to wire onMouseEnter
+  // on every button. Throttled (one chirp per 90 ms total) to avoid a
+  // sound wall when the cursor sweeps a row of cards.
+  const lastHoverMsRef = useRef(0);
+  const onRootMouseOver = (e) => {
+    if (uiHoverIsMuted()) return;
+    const t = e.target;
+    if (!t || !t.closest) return;
+    // Match interactive surfaces only — avoid firing on bare panel space.
+    if (!t.closest('button, .es-card2, .es-rack3-slot, .es-tb-tier, .es-pu-row, .es-tm-upg-row')) return;
+    const now = performance.now();
+    if (now - (lastHoverMsRef.current || 0) < 90) return;
+    lastHoverMsRef.current = now;
+    try { uiHoverSfx(); } catch { /* swallow */ }
+  };
+
   return (
-    <div ref={wrapRef} className="es-root" data-rev={settingsRev}>
+    <div ref={wrapRef} className="es-root" data-rev={settingsRev} onMouseOver={onRootMouseOver}>
       <TopBar
         gold={hud.gold}
         xp={hud.xp}
@@ -580,6 +648,14 @@ export default function EraSiegeGame({ mode }) {
           onFire={onSpecial}
         />
 
+        <SpecialButton
+          eraIndex={hud.eraIndex}
+          slot="secondary"
+          cooldownMs={hud.specialCooldownMs2}
+          charging={hud.specialCharging2}
+          onFire={onSpecial2}
+        />
+
         <GeneralButton
           eraIndex={hud.eraIndex}
           gold={hud.gold}
@@ -590,6 +666,8 @@ export default function EraSiegeGame({ mode }) {
 
         <Tutorial activeIdx={tutorialIdx} onDismiss={onTutDismiss}/>
         <EraBanner eraIndex={hud.eraIndex} version={eraBannerVer}/>
+
+        <LootOrbs matchRef={matchRef} canvasRef={canvasRef}/>
 
         <PauseOverlay
           paused={paused && !anyOverlayOpen}
@@ -683,7 +761,9 @@ export default function EraSiegeGame({ mode }) {
         generalAlive={hud.generalAlive}
         gold={hud.gold}
         cooldownsMs={hud.cooldownsMs}
+        spawnQueue={hud.spawnQueue}
         onSpawn={onSpawn}
+        onCancelQueued={onCancelQueued}
         onUnlockGenerals={onUnlockGenerals}
       />
     </div>
@@ -738,10 +818,16 @@ function cheapDiffers(a, b) {
   if (a.playerHP !== b.playerHP) return true;
   if (a.enemyHP !== b.enemyHP) return true;
   if (a.specialCooldownMs !== b.specialCooldownMs) return true;
+  if ((a.specialCooldownMs2 || 0) !== (b.specialCooldownMs2 || 0)) return true;
+  if (a.specialCharging2 !== b.specialCharging2) return true;
   if (a.generalAlive !== b.generalAlive) return true;
   if (a.generalsUnlocked !== b.generalsUnlocked) return true;
   if (Math.abs((a.generalCooldownMs || 0) - (b.generalCooldownMs || 0)) > 250) return true;
   if (a.population !== b.population) return true;
+  if ((a.spawnQueue?.length || 0) !== (b.spawnQueue?.length || 0)) return true;
+  for (let i = 0; i < (b.spawnQueue?.length || 0); i++) {
+    if (a.spawnQueue?.[i] !== b.spawnQueue[i]) return true;
+  }
   if (a.specialCharging !== b.specialCharging) return true;
   if ((a.auraLeftMs > 0) !== (b.auraLeftMs > 0)) return true;
   if (Math.abs((a.auraLeftMs || 0) - (b.auraLeftMs || 0)) > 250) return true;

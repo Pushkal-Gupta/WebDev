@@ -1,5 +1,7 @@
-// 5 specials — one per era. Each special telegraphs before impact so the
-// player or enemy can react. Counterplay-friendly by design.
+// 10 specials — TWO per era (primary + secondary). The primary slot
+// fires off Q (telegraphs before impact, counterplay-friendly). The
+// secondary slot fires off W (longer cooldown, bigger effect — meant
+// for clutch reversals).
 
 /**
  * @typedef {Object} SpecialDef
@@ -55,6 +57,48 @@ export const SPECIALS = [
     cooldownMs: 42000, telegraphMs: 1400,
     mode: 'point', damage: 360, radius: 140,
     visual: { primary: '#e9c8ff', secondary: '#1a0a3a', kind: 'singularity' },
+    audio: { chargeCue: 'branchCreak', impactCue: 'lose' },
+  },
+
+  // ── Secondary specials (W slot) — bigger swings, longer cooldowns.
+  {
+    id: 'meteor-rain', eraId: 'ember-tribe', name: 'Meteor Rain',
+    description: 'Three meteors crash down across the lane. Heavy hits, slow recharge.',
+    cooldownMs: 65000, telegraphMs: 1400,
+    mode: 'lane', damage: 140, radius: 80,
+    visual: { primary: '#ffd05a', secondary: '#a23a1f', kind: 'volley' },
+    audio: { chargeCue: 'whistle', impactCue: 'axeReveal' },
+  },
+  {
+    id: 'iron-rampart', eraId: 'iron-dominion', name: 'Iron Rampart',
+    description: 'Restores 25% base HP and bolsters every alive ally for 6s.',
+    cooldownMs: 75000, telegraphMs: 600,
+    mode: 'aura', damage: 0, radius: 0,
+    visual: { primary: '#d8d4cc', secondary: '#c24237', kind: 'aura' },
+    audio: { chargeCue: 'whistle', impactCue: 'cheer' },
+  },
+  {
+    id: 'foundry-mortar', eraId: 'sun-foundry', name: 'Foundry Mortar',
+    description: 'A heavy brass shell explodes on the densest cluster.',
+    cooldownMs: 70000, telegraphMs: 1500,
+    mode: 'point', damage: 320, radius: 130,
+    visual: { primary: '#ffcb6b', secondary: '#5a3a1a', kind: 'volley' },
+    audio: { chargeCue: 'whistle', impactCue: 'axeReveal' },
+  },
+  {
+    id: 'voltaic-cascade', eraId: 'storm-republic', name: 'Voltaic Cascade',
+    description: 'Chain-lightning across the entire enemy frontline.',
+    cooldownMs: 80000, telegraphMs: 1200,
+    mode: 'lane', damage: 180, radius: 0,
+    visual: { primary: '#bef3ff', secondary: '#3c5777', kind: 'storm' },
+    audio: { chargeCue: 'whistle', impactCue: 'shot' },
+  },
+  {
+    id: 'event-horizon', eraId: 'void-ascendancy', name: 'Event Horizon',
+    description: 'A vast singularity sweeps the lane. Annihilates non-general units.',
+    cooldownMs: 95000, telegraphMs: 1600,
+    mode: 'lane', damage: 500, radius: 0,
+    visual: { primary: '#e9c8ff', secondary: '#04001a', kind: 'singularity' },
     audio: { chargeCue: 'branchCreak', impactCue: 'lose' },
   },
 ];

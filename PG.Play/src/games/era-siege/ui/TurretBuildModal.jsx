@@ -10,9 +10,9 @@
 // (cheap) and decide which turret to actually drop in once they've
 // scouted the matchup.
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { getEraByIndex } from '../content/eras.js';
-import { getTurretForEra } from '../content/turrets.js';
+import { getTurretForEra, getTurretsForEra } from '../content/turrets.js';
 import { BALANCE } from '../content/balance.js';
 
 export default function TurretBuildModal({ open, slotIndex, eraIndex, gold, spotBuilt, onBuild, onBuildSpot, onClose }) {
@@ -67,21 +67,62 @@ export default function TurretBuildModal({ open, slotIndex, eraIndex, gold, spot
     );
   }
 
-  // ── Stage 2: Build Turret ────────────────────────────────────────
+  // ── Stage 2: Build Turret — picker for the era's three tiers ─────
+  return (
+    <BuildTurretPicker
+      eraIndex={eraIndex}
+      slotIndex={slotIndex}
+      gold={gold}
+      onBuild={onBuild}
+      onClose={onClose}
+    />
+  );
+}
+
+// Three-tier picker: light / medium / heavy. Defaults to medium —
+// the era's signature pick — since that's the existing one-button flow.
+function BuildTurretPicker({ eraIndex, slotIndex, gold, onBuild, onClose }) {
+  const era = getEraByIndex(eraIndex);
+  const choices = era ? getTurretsForEra(era.id) : [];
+  // Order light → medium → heavy.
+  const TIER_ORDER = { light: 0, medium: 1, heavy: 2 };
+  const sorted = [...choices].sort((a, b) => (TIER_ORDER[a.tier] ?? 99) - (TIER_ORDER[b.tier] ?? 99));
+  const [selectedId, setSelectedId] = useState(() => {
+    const med = sorted.find((d) => d.tier === 'medium');
+    return med ? med.id : (sorted[0]?.id);
+  });
+  const def = sorted.find((d) => d.id === selectedId) || sorted[0];
+  if (!def) return null;
   const canAfford = gold >= def.buildCost;
   const dps = (def.damage / (def.cooldownMs / 1000)).toFixed(1);
 
   return (
     <div className="es-tb-scrim" role="dialog" aria-label="Build turret" onClick={onClose}>
-      <div className="es-tb-card" onClick={(e) => e.stopPropagation()}>
+      <div className="es-tb-card es-tb-card-wide" onClick={(e) => e.stopPropagation()}>
         <header className="es-tb-head">
-          <span className="es-tb-eyebrow">Slot {slotIndex + 1} · Stage 2 of 2</span>
+          <span className="es-tb-eyebrow">Slot {slotIndex + 1} · Pick a turret</span>
           <h2>{def.name}</h2>
-          <p>{TURRET_BLURBS[def.id] || 'Era-current emplacement.'}</p>
+          <p>{def.blurb || TURRET_BLURBS[def.id] || 'Era-current emplacement.'}</p>
         </header>
 
-        <div className="es-tb-art" aria-hidden="true">
-          <TurretSilhouette def={def}/>
+        {/* Tier picker — three cards, click to select. */}
+        <div className="es-tb-tier-grid">
+          {sorted.map((d) => {
+            const sel = d.id === selectedId;
+            const tooPoor = gold < d.buildCost;
+            return (
+              <button
+                key={d.id}
+                type="button"
+                className={`es-tb-tier${sel ? ' is-selected' : ''}${tooPoor ? ' is-poor' : ''}`}
+                onClick={() => setSelectedId(d.id)}
+                title={d.blurb || d.name}>
+                <span className="es-tb-tier-eyebrow">{d.tier?.toUpperCase()}</span>
+                <span className="es-tb-tier-name">{d.name}</span>
+                <span className="es-tb-tier-cost">{d.buildCost}g</span>
+              </button>
+            );
+          })}
         </div>
 
         <ul className="es-tb-stats">
@@ -97,9 +138,9 @@ export default function TurretBuildModal({ open, slotIndex, eraIndex, gold, spot
             type="button"
             className={`es-tb-build${canAfford ? '' : ' is-disabled'}`}
             disabled={!canAfford}
-            onClick={() => canAfford && onBuild(slotIndex)}
+            onClick={() => canAfford && onBuild(slotIndex, def.id)}
             title={canAfford ? 'Build now' : `Need ${def.buildCost}g`}>
-            Build · {def.buildCost}g
+            Build {def.name} · {def.buildCost}g
           </button>
         </footer>
       </div>

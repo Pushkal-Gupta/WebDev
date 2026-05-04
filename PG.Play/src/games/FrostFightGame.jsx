@@ -1182,16 +1182,16 @@ const LEVELS = [
   // h=peach-bot. Existing s/o/G also animate when used here.
   {
     name: 'Orchard Path',
-    tip: 'Harvest 1 — meet the orchard. A peach paces, a kiwi chases.',
+    tip: 'Harvest 1 — meet the orchard. One peach paces. Take your time.',
     grid: [
       '######################',
-      '#p..f.........f.....h#',
+      '#p..f.........f......#',
       '#.####.....####......#',
       '#....................#',
-      '#..f....k.......f....#',
+      '#..f............f....#',
       '#....................#',
       '#.####.....####......#',
-      '#....................#',
+      '#........h...........#',
       '#..f.........f.......#',
       '#....................#',
       '#.####.....####......#',
@@ -1201,17 +1201,17 @@ const LEVELS = [
   },
   {
     name: 'Citrus Lane',
-    tip: 'Harvest 2 — pineapple and lemon both blow ice. Read the cheek-puff.',
+    tip: 'Harvest 2 — one lemon casts ice. Read the cheek-puff and freeze a row.',
     grid: [
       '######################',
-      '#p..A........A.....n.#',
+      '#p..A........A.......#',
       '#.####.####.####.....#',
       '#....................#',
-      '#..A....j......A.....#',
+      '#..A...........A.....#',
       '#....................#',
       '#.####.####.####.....#',
-      '#....................#',
-      '#..n........A........#',
+      '#........j...........#',
+      '#............A.......#',
       '#....................#',
       '#.####.####.####.....#',
       '#......A........A...X#',
@@ -1220,29 +1220,29 @@ const LEVELS = [
   },
   {
     name: 'Berry Mix',
-    tip: 'Harvest 3 — strawberry and grape rush; kiwi loops the back rows.',
+    tip: 'Harvest 3 — strawberry and grape rush. Two bots, plenty of fruit.',
     grid: [
       '######################',
-      '#p..f....s....f.....k#',
+      '#p..f.........f......#',
       '#.####....####.####..#',
       '#....G..............f#',
       '#..f.................#',
       '#.....######.........#',
-      '#..f................f#',
+      '#..f.....s..........f#',
       '#.....######.........#',
       '#..f.................#',
-      '#....G..............f#',
+      '#....................#',
       '#.####....####.####..#',
-      '#......f.....s.....fX#',
+      '#......f...........fX#',
       '######################',
     ],
   },
   {
     name: 'Sour Yard',
-    tip: 'Harvest 4 — peaches everywhere, lemon casts often, pineapple hits hard.',
+    tip: 'Harvest 4 — one lemon casts, one peach paces. Read both.',
     grid: [
       '######################',
-      '#p..P.........P....n.#',
+      '#p..P.........P......#',
       '#.####.####.####.....#',
       '#....h..............P#',
       '#..P.................#',
@@ -1250,64 +1250,64 @@ const LEVELS = [
       '#..P................P#',
       '#.....######.........#',
       '#..P.................#',
-      '#....j..............P#',
+      '#....j...............#',
       '#.####.####.####.....#',
-      '#......P.....h.....PX#',
+      '#......P...........PX#',
       '######################',
     ],
   },
   {
     name: 'Full Bloom',
-    tip: 'Harvest 5 — kiwi, pineapple, lemon, grape. Watch four windups at once.',
+    tip: 'Harvest 5 — three bot kinds. Pineapple casts, kiwi chases, grape drops shadows.',
     grid: [
       '######################',
-      '#p..A....k....A.....G#',
+      '#p..A....k....A......#',
       '#.####.####.####.....#',
-      '#....n.....j........A#',
+      '#....n..............A#',
       '#..A.................#',
       '#.....######.........#',
       '#..A................A#',
       '#.....######.........#',
       '#..A.................#',
-      '#....j.....n........A#',
+      '#....G...............#',
       '#.####.####.####.....#',
-      '#.G....A.....k.....AX#',
+      '#......A...........AX#',
       '######################',
     ],
   },
   {
     name: 'Harvest Storm',
-    tip: 'Harvest 6 — every animated bot, every fruit. Read the sheet, freeze the row.',
+    tip: 'Harvest 6 — kiwi, lemon, grape. Mid-room mix. Cherry pickup helps.',
     grid: [
       '######################',
-      '#p..f....k....A....nh#',
+      '#p..f....k....A......#',
       '#.####.####.####.#####',
-      '#....j.....G........K#',
+      '#....................#',
       '#.f.................A#',
       '#.####....####.####..#',
-      '#..o................n#',
+      '#..o.........G.......#',
       '#.####....####.####..#',
       '#.A.................f#',
-      '#....G.....j........h#',
+      '#....j...............#',
       '#.####.####.####.#####',
-      '#.K....f.....k.....AX#',
+      '#......f...........AX#',
       '######################',
     ],
   },
   {
     name: 'Heartwood',
-    tip: 'Harvest 7 — kiwi pair on the diagonals. Pre-laid ice slows the chase.',
+    tip: 'Harvest 7 — two kiwis with pre-laid ice. Cut a path through the freeze.',
     grid: [
       '######################',
       '#p..A...IIII....A....#',
       '#.######......######.#',
-      '#....k...........k...#',
+      '#....k...............#',
       '#.A.................A#',
       '#.IIIII.....IIIII....#',
       '#....................#',
       '#.IIIII.....IIIII....#',
       '#.A.................A#',
-      '#....k...........k...#',
+      '#.................k..#',
       '#.######......######.#',
       '#......A....IIII...AX#',
       '######################',
@@ -1315,58 +1315,58 @@ const LEVELS = [
   },
   {
     name: 'Bramble',
-    tip: 'Harvest 8 — chokepoints. Two grapes drop ice trails; squeeze through.',
+    tip: 'Harvest 8 — chokepoints. One grape drops ice trails; squeeze through.',
     grid: [
       '######################',
       '#p.A...##........##.f#',
-      '#.....##.G......G##..#',
+      '#.....##........G##..#',
       '#A.................A.#',
       '#######....######....#',
-      '#......h....h........#',
+      '#......h.............#',
       '#.A....######........#',
       '#......######........#',
       '#.................A..#',
       '#######....######....#',
       '#.....##........##...#',
-      '#A.f..##.G....G.##..X#',
+      '#A.f..##......G.##..X#',
       '######################',
     ],
   },
   {
     name: 'Sunset Grove',
-    tip: 'Harvest 9 — pineapple + lemon team. Three casters means three rows of ice.',
+    tip: 'Harvest 9 — one pineapple + one lemon. Two cheek-puffs to read.',
     grid: [
       '######################',
-      '#p..f....n....A....j.#',
+      '#p..f....n....A......#',
       '#.####.####.####.#####',
-      '#....A.....f........n#',
+      '#....A.....f.........#',
       '#.....######.........#',
       '#..A.........h.......#',
       '#.....######.........#',
-      '#..A.........h.......#',
+      '#..A.................#',
       '#.....######.........#',
       '#....A.....f........j#',
       '#.####.####.####.#####',
-      '#......f....n......AX#',
+      '#......f...........AX#',
       '######################',
     ],
   },
   {
     name: 'Old Crusher',
-    tip: 'Harvest 10 — strawberry mob. Six chasers and one peach buys you time.',
+    tip: 'Harvest 10 — strawberry mob. Three chasers, two peaches.',
     grid: [
       '######################',
-      '#p.s..#.s..s..#..s..s#',
+      '#p.s..#.......#......#',
       '#......######........#',
       '#.................P..#',
       '#..####........####..#',
-      '#....G......h....G...#',
-      '#.................A..#',
-      '#....G......h....G...#',
+      '#....G......h........#',
+      '#....................#',
+      '#.....................',
       '#..####........####..#',
       '#.................P..#',
       '#......######........#',
-      '#.s..s#.s..s..#.s...X#',
+      '#.s..s#........#....X#',
       '######################',
     ],
   },
@@ -1413,18 +1413,18 @@ const LEVELS = [
   // Letters: C=candle, T=teapot, l=lamp, Z=chest.
   {
     name: 'Mantelpiece',
-    tip: 'Trinkets 1 — candles flicker and blow ice. The flame is the tell.',
+    tip: 'Trinkets 1 — meet the candle. Flame flickers, then it blows ice.',
     grid: [
       '######################',
-      '#p..f.........f.....C#',
+      '#p..f.........f......#',
       '#.####.....####......#',
-      '#....C..............f#',
+      '#....................#',
       '#.f..................#',
       '#......######........#',
-      '#.f.........f........#',
+      '#............C.......#',
       '#......######........#',
-      '#....C..............f#',
       '#.f..................#',
+      '#....................#',
       '#.####.....####......#',
       '#......f...........fX#',
       '######################',
@@ -1432,18 +1432,18 @@ const LEVELS = [
   },
   {
     name: 'Tea Time',
-    tip: 'Trinkets 2 — teapots steam first, then blow. Don\'t stand on the same row.',
+    tip: 'Trinkets 2 — one teapot. Steams first, then blows. Watch the cheek.',
     grid: [
       '######################',
-      '#p..A.........A.....T#',
+      '#p..A.........A......#',
       '#.####.####.####.#####',
-      '#....T..............A#',
+      '#....................#',
       '#.A..................#',
       '#.....######.........#',
-      '#.A.........A........#',
+      '#............T.......#',
       '#.....######.........#',
-      '#....T..............A#',
       '#.A..................#',
+      '#....................#',
       '#.####.####.####.#####',
       '#......A...........AX#',
       '######################',
@@ -1451,39 +1451,39 @@ const LEVELS = [
   },
   {
     name: 'Genie Hall',
-    tip: 'Trinkets 3 — lamps chase fast. Cherry pickup slows everyone.',
+    tip: 'Trinkets 3 — one lamp predicts your move. Cherry pickup slows it down.',
     grid: [
       '######################',
-      '#p..Q....l....Q.....l#',
+      '#p..Q.........Q......#',
       '#.######......######.#',
-      '#......l............f#',
+      '#....................#',
       '#.A..................#',
       '#.######......######.#',
-      '#......l.....l.......#',
+      '#............l.......#',
       '#.######......######.#',
       '#A..................A#',
-      '#......l.............#',
+      '#....................#',
       '#.######......######.#',
-      '#.Q....A....l....A..X#',
+      '#.Q....A.........A..X#',
       '######################',
     ],
   },
   {
     name: 'Treasure Vault',
-    tip: 'Trinkets 4 — chests sit heavy and wait. Candles + teapots fill the room.',
+    tip: 'Trinkets 4 — meet the chest. It\'s slow, but it\'s heavy.',
     grid: [
       '######################',
-      '#p..A....C....A....TZ#',
+      '#p..A.........A......#',
       '#.####################',
-      '#....T..............Z#',
+      '#....................#',
       '#.A.........Q........#',
       '#.####....####....####',
-      '#....C..............Z#',
+      '#............Z.......#',
       '#.####....####....####',
-      '#.A.........Q.......T#',
-      '#....T..............Z#',
+      '#.A.........Q........#',
+      '#....................#',
       '#.####################',
-      '#Z.A....C....T.....AX#',
+      '#......A...........AX#',
       '######################',
     ],
   },
@@ -1699,115 +1699,115 @@ const LEVELS = [
   // ─── Trinkets 5-20 ─────────────────────────────────────────────────
   {
     name: 'Hearthstone',
-    tip: 'Trinkets 5 — three candles in a tight room. Read the flame.',
+    tip: 'Trinkets 5 — two candles. Read each flame, freeze a row.',
     grid: [
       '######################',
-      '#p..f....C....f.....C#',
+      '#p..f.........f.....C#',
       '#.####.....####......#',
-      '#....C..............f#',
+      '#....................#',
       '#.f..................#',
       '#......######........#',
       '#.f.........f........#',
       '#......######........#',
       '#.f.........C........#',
-      '#....C..............f#',
+      '#....................#',
       '#.####.....####......#',
-      '#......f.........C.fX#',
+      '#......f...........fX#',
       '######################',
     ],
   },
   {
     name: 'Tin Drum',
-    tip: 'Trinkets 6 — chests block the lanes. Squeeze around.',
+    tip: 'Trinkets 6 — one chest blocks a lane. Two teapots steam from afar.',
     grid: [
       '######################',
-      '#p..A.....Z....A....Z#',
+      '#p..A.........A......#',
       '#.####################',
       '#....T..............Z#',
-      '#.A.........T........#',
+      '#.A..................#',
       '#.####....####....####',
-      '#....C..............A#',
+      '#....................#',
       '#.####....####....####',
       '#.A.........T........#',
-      '#....C..............A#',
+      '#....................#',
       '#.####################',
-      '#Z.A....T....C.....AX#',
+      '#......A...........AX#',
       '######################',
     ],
   },
   {
     name: 'Tea Service',
-    tip: 'Trinkets 7 — teapots in a row. Tea time turns sour fast.',
+    tip: 'Trinkets 7 — two teapots. Tea time, but watch the cheek-puff.',
     grid: [
       '######################',
-      '#p..A.....T....A....T#',
+      '#p..A.........A......#',
       '#.######......######.#',
       '#......T............A#',
       '#A...................#',
       '#..####....####......#',
-      '#......T....T........#',
+      '#....................#',
       '#..####....####......#',
       '#A...................#',
       '#......T............A#',
       '#.######......######.#',
-      '#T....A....T....A...X#',
+      '#......A...........AX#',
       '######################',
     ],
   },
   {
     name: 'Brass Bell',
-    tip: 'Trinkets 8 — lamps predict your moves. Don\'t walk straight.',
+    tip: 'Trinkets 8 — two lamps predict where you go. Don\'t walk straight.',
     grid: [
       '######################',
-      '#p..f.........f.....l#',
+      '#p..f.........f......#',
       '#.######......######.#',
       '#......l............f#',
       '#.f..................#',
       '#......######........#',
-      '#............l.......#',
+      '#....................#',
       '#......######........#',
       '#.f.........l........#',
-      '#......l............f#',
+      '#....................#',
       '#.######......######.#',
-      '#l....f.....l....f..X#',
+      '#......f.........f..X#',
       '######################',
     ],
   },
   {
     name: 'Spice Rack',
-    tip: 'Trinkets 9 — candle + teapot tag-team in tight quarters.',
+    tip: 'Trinkets 9 — candle + teapot tag-team. Pre-laid ice between rows.',
     grid: [
       '######################',
-      '#p..A....C....A.....T#',
+      '#p..A....C....A......#',
       '#.######.####.######.#',
-      '#......T..............',
-      '#.A..........C.......#',
+      '#......T.............#',
+      '#.A..................#',
       '#..####.IIII.####....#',
-      '#............T.......#',
+      '#....................#',
       '#..####.IIII.####....#',
       '#.A..........C.......#',
-      '#......T..............',
+      '#....................#',
       '#.######.####.######.#',
-      '#T....A....C....A...X#',
+      '#......A....T......AX#',
       '######################',
     ],
   },
   {
     name: 'Wax Hall',
-    tip: 'Trinkets 10 — five candles in a long hallway.',
+    tip: 'Trinkets 10 — three candles in a long hallway. Two phases.',
     grid: [
       '######################',
-      '#p.f..C..f..C..f..C..#',
+      '#p.f..C..f.....f..C..#',
       '#####.######.######.##',
-      '#......C....C........#',
+      '#....................#',
       '#.f................f.#',
       '#.######.....######..#',
       '#............C.......#',
       '#.######.....######..#',
       '#.f................f.#',
-      '#......C....C........#',
+      '#....................#',
       '#####.######.######.##',
-      '#.f..C..f..C..f..C..X#',
+      '#.f.....f.....f.....X#',
       '######################',
     ],
     phases: [
@@ -2830,14 +2830,27 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
       grad.addColorStop(1, palette.floorBot);
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, W, H);
-      // Phase 22k — themed floor texture (Trinkets era). When present,
-      // overlays the gradient with a CanvasPattern repeat tile, then
-      // a soft warm veil so the maze grid + walls still read clearly.
+      // Phase 22k — themed floor texture (Trinkets era). The texture
+      // sits at REDUCED opacity over the palette gradient so it reads
+      // as a subtle backdrop, not a foreground hero. A dark veil on
+      // top further mutes vibrancy so player + bots + fruits + walls
+      // pop. Tuned for the busy Persian / mosaic / damask textures.
       const floorPat = floorPatternRef.current;
       if (floorPat) {
+        ctx.save();
+        ctx.globalAlpha = 0.55;            // texture at ~half visibility
         ctx.fillStyle = floorPat;
         ctx.fillRect(0, 0, W, H);
-        ctx.fillStyle = 'rgba(20, 14, 8, 0.18)';
+        ctx.restore();
+        // Re-tint with the room's palette gradient at 0.30 alpha so
+        // each room keeps its color identity even with the texture.
+        ctx.save();
+        ctx.globalAlpha = 0.30;
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+        ctx.restore();
+        // Final dark veil so the busy patterns recede.
+        ctx.fillStyle = 'rgba(20, 14, 8, 0.32)';
         ctx.fillRect(0, 0, W, H);
       }
 
@@ -2906,7 +2919,11 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
         if (wallPat) {
           ctx.fillStyle = wallPat;
           ctx.fillRect(wx, wy, T, T);
-          ctx.fillStyle = 'rgba(8, 16, 28, 0.30)';
+          // Phase 22n — pushed 0.30 → 0.55 so the wall pattern reads
+          // as a subtle tint behind the wall block silhouette, not a
+          // full-saturation pattern fighting with the floor texture
+          // for attention.
+          ctx.fillStyle = 'rgba(8, 16, 28, 0.55)';
           ctx.fillRect(wx, wy, T, T);
         } else {
           ctx.fillStyle = '#1a2540';
@@ -3053,7 +3070,15 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
         const img = spritesRef.current[cfg.slot];
         const ready = img && img.complete && img.naturalWidth > 0;
         if (ready) {
-          ctx.drawImage(img, fx - cfg.sz / 2, fy - cfg.sz / 2, cfg.sz, cfg.sz);
+          // Phase 22n — aspect-preserving render. The sprite PNGs are
+          // now emitted at their natural aspect (longest edge = 256
+          // px, shorter scales proportionally), so we read
+          // naturalWidth/Height and fit the longer dimension to cfg.sz.
+          const sw = img.naturalWidth, sh = img.naturalHeight;
+          const m = Math.max(sw, sh);
+          const dw = cfg.sz * (sw / m);
+          const dh = cfg.sz * (sh / m);
+          ctx.drawImage(img, fx - dw / 2, fy - dh / 2, dw, dh);
         } else {
           ctx.fillStyle = cfg.fbColor;
           ctx.beginPath();
@@ -3153,17 +3178,25 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
             const frame = getFrame(atlas, e.animAction, e.animFrame);
             if (frame && frame.complete && frame.naturalWidth > 0) {
               const bob = Math.sin(performance.now() / 280 + e.col + e.row) * 0.6;
-              // Match the legacy single-sprite size (30 px on 36-px
-              // tile, 34 during the cast-release puff so the puff has
-              // headroom). Foot-anchor by sitting 2 px ABOVE the tile
-              // floor so the body reads inside the cell instead of
-              // bleeding into the row below.
-              // Phase 22h — bumped 30→34 (release 34→38) so the
-              // tighter-padded atlas frames read clearly at tile size.
+              // Phase 22n — aspect-preserving draw on the atlas frame.
+              // Atlas frames are 192² square (CC + crop pipeline), so
+              // naturalWidth === naturalHeight and the math reduces to
+              // square draw. Future aspect-preserved atlases will Just
+              // Work because of this guard.
               const sz = action === 'attackRelease' ? 38 : 34;
-              const drawX = ecx - sz / 2;
-              const drawY = (y + T) - sz - 2 + bob;
-              ctx.drawImage(frame, drawX, drawY, sz, sz);
+              const sw = frame.naturalWidth, sh = frame.naturalHeight;
+              const m = Math.max(sw, sh);
+              const dw = sz * (sw / m);
+              const dh = sz * (sh / m);
+              const drawX = ecx - dw / 2;
+              const drawY = (y + T) - dh - 2 + bob;
+              // Phase 22o — drop shadow under feet for legibility.
+              const feetY = (y + T) - 4 + bob;
+              ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
+              ctx.beginPath();
+              ctx.ellipse(ecx, feetY, dw * 0.34, 2.2, 0, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.drawImage(frame, drawX, drawY, dw, dh);
               return;
             }
           }
@@ -3175,11 +3208,23 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
         if (isReady) {
           // Subtle bob so enemies don't feel pasted onto the grid.
           const bob = Math.sin(performance.now() / 280 + e.col + e.row) * 0.6;
-          // Slight squash on the wind-up frame for extra punch.
-          // Phase 22h — legacy bots also bumped to 34/36 to match the
-          // atlas-driven path so non-animated bots don't read tiny.
           const sz = isWinding ? 36 : 34;
-          ctx.drawImage(sprite, ecx - sz / 2, ecy - sz / 2 + bob, sz, sz);
+          // Phase 22n — aspect-preserving draw so tall sprites
+          // (banana, eggplant, plum) render at natural proportions
+          // instead of getting squashed to a square.
+          const sw = sprite.naturalWidth, sh = sprite.naturalHeight;
+          const m = Math.max(sw, sh);
+          const dw = sz * (sw / m);
+          const dh = sz * (sh / m);
+          // Phase 22o — soft drop shadow under feet so the bot reads
+          // against busy Trinkets floors (mosaic / Persian rug).
+          const feetY = (y + T) - 4 + bob;
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
+          ctx.beginPath();
+          ctx.ellipse(ecx, feetY, dw * 0.34, 2.2, 0, 0, Math.PI * 2);
+          ctx.fill();
+          // Foot-anchor (bottom of sprite at tile bottom + 2 px head).
+          ctx.drawImage(sprite, ecx - dw / 2, (y + T) - dh - 2 + bob, dw, dh);
         } else {
           // Procedural fallback (kept identical to the original look).
           if (e.kind === 'strawberry') {
@@ -3282,13 +3327,23 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
         // still tracks themselves but the silhouette reads as "ghost".
         const drawAlpha = pp.power === 'invisible' ? 0.42 : 1;
         if (ready) {
-          // Phase 22h — player size 32 → 36. Combined with the tighter
-          // 3 % source padding, the ice cream now reads as a clear
-          // character rather than a tiny dot.
+          // Phase 22n — aspect-preserving render. With the new natural-
+          // aspect skin sprites (vanilla / sundae / triple / sandwich),
+          // tall cones don't get squashed sideways anymore.
           const sz = 36;
+          const sw = img.naturalWidth, sh = img.naturalHeight;
+          const m = Math.max(sw, sh);
+          const dw = sz * (sw / m);
+          const dh = sz * (sh / m);
           const bob = pp.moving ? Math.sin(pp.moveT * Math.PI) * -1.2 : 0;
+          // Phase 22o — drop shadow for legibility against busy floors.
+          const feetY = pcy + dh / 2 - 2 + bob;
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.24)';
+          ctx.beginPath();
+          ctx.ellipse(pcx, feetY, dw * 0.36, 2.4, 0, 0, Math.PI * 2);
+          ctx.fill();
           ctx.globalAlpha = drawAlpha;
-          ctx.drawImage(img, pcx - sz / 2, pcy - sz / 2 + bob, sz, sz);
+          ctx.drawImage(img, pcx - dw / 2, pcy - dh / 2 + bob, dw, dh);
           ctx.globalAlpha = 1;
         } else {
           // Procedural fallback. Cone matches stock palette; scoop uses
@@ -4456,10 +4511,17 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
       // free no-op, so this doesn't churn renders.
       const activePp = (p && p.power) ? p : (p2 && p2.power ? p2 : null);
       if (activePp) {
+        // Phase 22n — capture the power kind synchronously. The
+        // setActivePower callback runs in a later React batch; if
+        // we read activePp.power again inside it, tickPower could
+        // have already cleared it to null and `.toUpperCase()` would
+        // crash with "cannot read properties of null".
+        const kind = activePp.power;
         const labelSec = Math.ceil(activePp.powerT * 10) / 10;
-        setActivePower((prev) => prev && prev.id === activePp.power
+        const label = String(kind).toUpperCase();
+        setActivePower((prev) => prev && prev.id === kind
           ? (Math.abs(prev.t - labelSec) > 0.05 ? { ...prev, t: labelSec } : prev)
-          : { id: activePp.power, t: labelSec, total: prev?.total ?? labelSec, label: activePp.power.toUpperCase() });
+          : { id: kind, t: labelSec, total: prev?.total ?? labelSec, label });
       } else {
         // No active power on either player. setActivePower(null) is a
         // free no-op when state is already null (React Object.is on

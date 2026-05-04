@@ -79,6 +79,34 @@ export function attachAudio(bus) {
     fire(def?.audio?.impactCue || eraPick(ERA_BASE_HIT, e.era || 0));
   }));
 
+  // Combat hit — fires on every melee clash + projectile hit. The
+  // router's per-cue throttle keeps this from saturating during a
+  // swarm fight (max one 'shot' / 'kick' every 160 ms).
+  offs.push(bus.on('combat_hit', (e) => {
+    // Heavy + general hits sound thumpier; ranged projectile hits
+    // get the lighter 'shot' cue; everything else maps to 'kick'.
+    if (e.isProjectile) fire('shot');
+    else if (e.role === 'heavy' || e.role === 'general') fire('stomp');
+    else fire('kick');
+  }));
+
+  // Base hit — chip damage on the wall. Big amounts get the heavier
+  // era-flavoured cue; small chip damage uses 'kick'.
+  offs.push(bus.on('base_hit', (e) => {
+    if ((e.amount | 0) >= 30) fire(eraPick(ERA_BASE_HIT, e.eraIndex || 0));
+    else fire('kick');
+  }));
+
+  // Generals unlocked — celebratory cue.
+  offs.push(bus.on('generals_unlocked', () => fire('achievement')));
+
+  // Unit queue — light blip on add, save chime on cancel-with-refund.
+  offs.push(bus.on('unit_queued',   () => fire('bounce')));
+  offs.push(bus.on('unit_unqueued', () => fire('save')));
+
+  // Powerup purchase — celebratory level-up cue.
+  offs.push(bus.on('powerup_bought', () => fire('achievement')));
+
   // Insufficient gold / cooldown / locked — error chirp.
   offs.push(bus.on('low_gold_error', () => fire('error')));
 

@@ -220,23 +220,22 @@ async function emitFrame(srcBuf, outFile, target = 192) {
   const cleaned1 = await lassoAlpha(onlyChar);
   const t = await sharp(cleaned1).trim({ threshold: 5 }).toBuffer({ resolveWithObject: true });
   const m = t.info;
-  // Skip empty crops (all transparent) that produce 0×0 trim output.
   if (m.width <= 1 || m.height <= 1) return false;
   const max = Math.max(m.width, m.height);
-  const pad = Math.round(max * 0.03);
-  const side = max + pad * 2;
+  // Phase 22n — natural-aspect output (longest edge = target px).
+  const pad = Math.round(max * 0.02);
   const padded = await sharp(t.data)
     .extend({
-      top:    Math.floor((side - m.height) / 2),
-      bottom: Math.ceil((side - m.height) / 2),
-      left:   Math.floor((side - m.width)  / 2),
-      right:  Math.ceil((side - m.width)  / 2),
+      top: pad, bottom: pad, left: pad, right: pad,
       background: { r: 0, g: 0, b: 0, alpha: 0 },
     })
     .png()
     .toBuffer();
+  const scale = target / (max + pad * 2);
+  const outW = Math.round((m.width  + pad * 2) * scale);
+  const outH = Math.round((m.height + pad * 2) * scale);
   const resized = await sharp(padded)
-    .resize(target, target, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .resize({ width: outW, height: outH, fit: 'fill' })
     .png()
     .toBuffer();
   const cleaned2 = await lassoAlpha(resized, 140, 240);
