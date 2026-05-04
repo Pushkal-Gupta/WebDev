@@ -30,8 +30,8 @@
   ],
   "state": {
     "neutral": "walk-0.png",
-    "fuming": "attackCharge-2.png",
-    "irritated": "attackCharge-3.png",
+    "fuming": "walk-0.png",
+    "irritated": "walk-0.png",
     "sad": "death-0.png"
   }
 }

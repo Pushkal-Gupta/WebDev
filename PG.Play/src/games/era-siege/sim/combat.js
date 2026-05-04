@@ -17,6 +17,14 @@ export function damageUnit(state, attacker, victim, amount) {
   victim.hp -= amount;
   spawnDamageNumber(state, victim.x, victim.y - 12, amount, victim.team);
   spawnHitParticles(state, victim.x, victim.y - 8, victim.color || '#ff4d6d', 4);
+  // Audio hook — let the audio router play a melee/projectile clash
+  // SFX. Throttled at the router (THROTTLE_MS=160) so a swarm of
+  // hits doesn't drown out everything else.
+  state.bus.emit('combat_hit', {
+    team: victim.team,
+    role: victim.role,
+    isProjectile: !!(attacker && attacker.kind === 'turret') || !!attacker?.projectileId,
+  });
   if (victim.hp <= 0) {
     victim.hp = 0;
     onUnitDeath(state, attacker, victim);
@@ -44,6 +52,9 @@ export function damageBase(state, attackerSide, defenderSide, amount) {
   spawnHitParticles(state, hitX, hitY, '#ff8a3a', 4);
   // Chip-damage popup so the player sees how hard each landing hit lands.
   spawnLootNumber(state, hitX, hitY - 14, amount, defenderSide.team, 'damage');
+  // Audio hook — base wall taking a hit. Magnitude lets the router
+  // pick a heavier vs lighter cue based on amount.
+  state.bus.emit('base_hit', { team: defenderSide.team, amount, eraIndex: defenderSide.eraIndex });
 }
 
 function onUnitDeath(state, attackerOwner, victim) {

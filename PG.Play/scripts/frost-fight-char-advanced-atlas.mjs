@@ -202,22 +202,24 @@ async function emitFrame(srcBuf, outFile, target = 192) {
   const t = await sharp(cleaned1).trim({ threshold: 5 }).toBuffer({ resolveWithObject: true });
   const m = t.info;
   const max = Math.max(m.width, m.height);
-  // Phase 22h — pad tightened 8 % → 3 % so animation frames read big
-  // when drawn at the in-game 30-34 px size.
-  const pad = Math.round(max * 0.03);
-  const side = max + pad * 2;
+  // Phase 22n — natural-aspect output. Skip the square-pad so tall
+  // characters keep their actual proportions; runtime reads
+  // naturalWidth/Height to draw at the right aspect rectangle.
+  const pad = Math.round(max * 0.02);
   const padded = await sharp(t.data)
     .extend({
-      top:    Math.floor((side - m.height) / 2),
-      bottom: Math.ceil((side - m.height) / 2),
-      left:   Math.floor((side - m.width)  / 2),
-      right:  Math.ceil((side - m.width)  / 2),
+      top: pad, bottom: pad, left: pad, right: pad,
       background: { r: 0, g: 0, b: 0, alpha: 0 },
     })
     .png()
     .toBuffer();
+  // Resize so the LONGEST edge becomes `target`; shorter edge scales
+  // proportionally. Output PNG is non-square for tall/wide chars.
+  const scale = target / (max + pad * 2);
+  const outW = Math.round((m.width  + pad * 2) * scale);
+  const outH = Math.round((m.height + pad * 2) * scale);
   const resized = await sharp(padded)
-    .resize(target, target, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .resize({ width: outW, height: outH, fit: 'fill' })
     .png()
     .toBuffer();
   const cleaned2 = await lassoAlpha(resized, 140, 240);

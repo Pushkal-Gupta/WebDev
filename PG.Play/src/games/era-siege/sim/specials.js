@@ -7,26 +7,33 @@ import { damageUnit, spawnHitParticles, spawnDamageNumber } from './combat.js';
 import { pushExplosion } from './effects.js';
 import { getMultiplier } from './powerups.js';
 
-export function tryFireSpecial(state, side) {
-  if (side.specialCooldownMs > 0) {
+// Slot 'primary' (Q) or 'secondary' (W). Each slot has its own
+// cooldown and its own active-telegraph state — the player can charge
+// both at once. Defaults to 'primary' for legacy callers.
+export function tryFireSpecial(state, side, slot = 'primary') {
+  const cdKey = slot === 'secondary' ? 'specialCooldownMs2' : 'specialCooldownMs';
+  const activeKey = slot === 'secondary' ? 'specialActive2' : 'specialActive';
+  if ((side[cdKey] || 0) > 0) {
     state.bus.emit('low_gold_error', { reason: 'special_cooldown' });
     return false;
   }
-  if (side.specialActive) return false;
+  if (side[activeKey]) return false;
   const era = getEraByIndex(side.eraIndex);
   if (!era) return false;
-  const def = getSpecial(era.specialId);
+  const specialId = slot === 'secondary' ? era.secondarySpecialId : era.specialId;
+  const def = getSpecial(specialId);
   if (!def) return false;
 
-  side.specialActive = {
+  side[activeKey] = {
     specialId: def.id,
     telegraphLeftMs: def.telegraphMs,
     eraIndex: side.eraIndex,
     impactX: pickImpactX(state, side, def),
+    slot,
   };
   if (side === state.player) state.statsPlayer.specialsUsed++;
   else                       state.statsEnemy.specialsUsed++;
-  state.bus.emit('special_charged', { team: side.team, specialId: def.id, telegraphMs: def.telegraphMs });
+  state.bus.emit('special_charged', { team: side.team, specialId: def.id, telegraphMs: def.telegraphMs, slot });
   return true;
 }
 
@@ -51,20 +58,27 @@ export function tickSpecials(state, dt) {
     if (side.specialCooldownMs > 0) {
       side.specialCooldownMs = Math.max(0, side.specialCooldownMs - dt * 1000);
     }
+    if (side.specialCooldownMs2 > 0) {
+      side.specialCooldownMs2 = Math.max(0, side.specialCooldownMs2 - dt * 1000);
+    }
     if (side.auraLeftMs > 0) {
       side.auraLeftMs = Math.max(0, side.auraLeftMs - dt * 1000);
     }
-    const sa = side.specialActive;
-    if (!sa) continue;
-    sa.telegraphLeftMs -= dt * 1000;
-    if (sa.telegraphLeftMs <= 0) {
-      const def = getSpecial(sa.specialId);
-      const foeSide = side === state.player ? state.enemy : state.player;
-      applySpecialImpact(state, side, foeSide, def, sa.impactX);
-      // Apply Resonance powerup: cooldown × (1 - 0.10 × level).
-      side.specialCooldownMs = Math.round(def.cooldownMs * getMultiplier(side.powerups, 'special'));
-      side.specialActive = null;
-      state.bus.emit('special_used', { team: side.team, specialId: def.id, era: side.eraIndex });
+    // Resolve both slots independently — each has its own active state
+    // and its own cooldown so the player can chain Q then W.
+    for (const activeKey of ['specialActive', 'specialActive2']) {
+      const sa = side[activeKey];
+      if (!sa) continue;
+      sa.telegraphLeftMs -= dt * 1000;
+      if (sa.telegraphLeftMs <= 0) {
+        const def = getSpecial(sa.specialId);
+        const foeSide = side === state.player ? state.enemy : state.player;
+        applySpecialImpact(state, side, foeSide, def, sa.impactX);
+        const cdKey = sa.slot === 'secondary' ? 'specialCooldownMs2' : 'specialCooldownMs';
+        side[cdKey] = Math.round(def.cooldownMs * getMultiplier(side.powerups, 'special'));
+        side[activeKey] = null;
+        state.bus.emit('special_used', { team: side.team, specialId: def.id, era: side.eraIndex, slot: sa.slot });
+      }
     }
   }
 }
@@ -101,20 +115,35 @@ function applySpecialImpact(state, side, foeSide, def, impactX) {
     // Painted explosion centred at impact, scaled with the radius.
     pushExplosion(state, cx, cy - 18, { size: Math.min(220, def.radius * 1.4), lifeMs: 760 });
   } else if (def.mode === 'aura') {
-    // Aura: +25% damage to owned units for 4s; immediate damage on engaged foes.
-    side.auraLeftMs = 4000;
-    for (const u of side.units) {
-      // Damage any foe in melee range of an owned unit.
-      for (const f of foeSide.units) {
-        if (Math.abs(f.x - u.x) <= u.range) {
-          damageUnit(state, { team: side.team }, f, def.damage);
+    // Iron Rampart (W slot, era 2) is a special-cased aura: instead
+    // of damage-on-engage, it restores 25% of base maxHp and applies
+    // a longer 6s buff window. Detected by id.
+    if (def.id === 'iron-rampart') {
+      side.auraLeftMs = 6000;
+      const restore = Math.round(side.base.maxHp * 0.25);
+      side.base.hp = Math.min(side.base.maxHp, side.base.hp + restore);
+      // Heal numbers float up at the base position so the player sees
+      // the chunk that came back.
+      const hx = side === state.player ? state.view.laneLeft - 30 : state.view.laneRight + 30;
+      spawnDamageNumber(state, hx, state.view.groundY - 90, restore, side.team);
+      state.effects.flashMs = 320; state.effects.flashAlpha = 0.22;
+      pushRing(state, (state.view.laneLeft + state.view.laneRight) / 2, state.view.groundY - 30,
+               (state.view.laneRight - state.view.laneLeft) / 2, def.visual.primary, 'aura');
+    } else {
+      // Default aura: +25% damage to owned units for 4s; immediate
+      // damage on engaged foes.
+      side.auraLeftMs = 4000;
+      for (const u of side.units) {
+        for (const f of foeSide.units) {
+          if (Math.abs(f.x - u.x) <= u.range) {
+            damageUnit(state, { team: side.team }, f, def.damage);
+          }
         }
       }
+      state.effects.flashMs = 360; state.effects.flashAlpha = 0.3;
+      pushRing(state, (state.view.laneLeft + state.view.laneRight) / 2, state.view.groundY - 30,
+               (state.view.laneRight - state.view.laneLeft) / 2, def.visual.primary, 'aura');
     }
-    state.effects.flashMs = 360; state.effects.flashAlpha = 0.3;
-    // Aura ring: a wide band over the entire lane to mark the buff window.
-    pushRing(state, (state.view.laneLeft + state.view.laneRight) / 2, state.view.groundY - 30,
-             (state.view.laneRight - state.view.laneLeft) / 2, def.visual.primary, 'aura');
   }
 }
 

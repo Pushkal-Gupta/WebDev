@@ -247,7 +247,7 @@
 /* ── Slim turret slots — legacy (kept for any older mount) ───── */
 .es-rack2 {
   position: absolute;
-  top: 264px;
+  top: 392px;
   right: 12px;
   display: flex; flex-direction: column;
   gap: 8px;
@@ -358,14 +358,59 @@
 .es-slot2-text { font-weight: 600; font-size: 11px; }
 
 /* ── New unit dock (phase 7) ─────────────────────────────────── */
+.es-dock2-wrap {
+  display: flex; flex-direction: column;
+  background: linear-gradient(to top, rgba(0,0,0,0.65), rgba(0,0,0,0.22));
+  border-top: 1px solid rgba(255,255,255,0.06);
+  z-index: 4;
+}
 .es-dock2 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
-  padding: 14px 16px;
-  background: linear-gradient(to top, rgba(0,0,0,0.65), rgba(0,0,0,0.22));
-  border-top: 1px solid rgba(255,255,255,0.06);
-  z-index: 4;
+  padding: 12px 16px 14px 16px;
+}
+
+/* ── Phase-1 queue strip — sits above the dock cards ───────────── */
+.es-queue {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 16px 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.es-queue-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--es-accent, #ffe14f);
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.es-queue-cells { display: flex; gap: 6px; align-items: center; }
+.es-queue-cell {
+  width: 36px; height: 36px;
+  padding: 2px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  transition: transform 0.10s ease, border-color 0.10s ease;
+}
+.es-queue-cell:hover:not(.is-pad) { border-color: var(--es-accent); transform: translateY(-1px); }
+.es-queue-cell.is-head { border-color: var(--es-accent); box-shadow: 0 0 6px rgba(255,225,79,0.35); }
+.es-queue-cell.is-pad { border-style: dashed; opacity: 0.35; cursor: default; }
+.es-queue-cell img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.es-queue-cell:hover:not(.is-pad)::after {
+  content: '✕';
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 18px;
+  color: #ff6e6e;
+  text-shadow: 0 0 6px rgba(0,0,0,0.85);
+  background: rgba(0,0,0,0.55);
+  border-radius: 5px;
+  pointer-events: none;
 }
 .es-card2-wrap { position: relative; }
 .es-card2-wrap-general .es-card2 {
@@ -614,6 +659,41 @@
   border-radius: 14px;
   animation: es-tip-in 0.14s ease-out;
 }
+/* Wider variant for the 3-tier picker so all three cards fit on a row. */
+.es-tb-card-wide { width: min(560px, 94vw); }
+.es-tb-tier-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.es-tb-tier {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 10px 8px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.10s ease, border-color 0.10s ease, background 0.10s ease;
+}
+.es-tb-tier:hover { transform: translateY(-1px); border-color: var(--es-accent); }
+.es-tb-tier.is-selected {
+  border-color: var(--es-accent);
+  background: rgba(255,225,79,0.08);
+  box-shadow: 0 0 0 1px var(--es-accent) inset;
+}
+.es-tb-tier.is-poor:not(.is-selected) { opacity: 0.55; }
+.es-tb-tier-eyebrow {
+  font-size: 9px; letter-spacing: 0.12em; opacity: 0.55;
+}
+.es-tb-tier-name {
+  font-size: 12px; font-weight: 700;
+  font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+  letter-spacing: 0.01em;
+}
+.es-tb-tier-cost { font-size: 11px; color: #ffe14f; font-weight: 700; }
 .es-tb-head { display: flex; flex-direction: column; gap: 4px; }
 .es-tb-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; opacity: 0.6; letter-spacing: 0.08em; text-transform: uppercase; }
 .es-tb-head h2 { margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 18px; }
@@ -974,7 +1054,7 @@
 /* ── General button (right rail, slot below Special) ── */
 .es-general {
   position: absolute;
-  top: 138px;     /* sits directly under .es-special — see right-rail diagram in .es-rack2 */
+  top: 264px;     /* under both specials (primary 12-126, secondary 138-252) */
   right: 12px;
   display: flex; flex-direction: column; gap: 4px;
   width: 158px;
@@ -1003,7 +1083,15 @@
 .es-general-cd-fill { height: 100%; background: var(--es-accent); transition: width 0.12s linear; }
 .es-general-status  { font-size: 10px; opacity: 0.65; font-family: 'JetBrains Mono', monospace; }
 
-/* ── Special button (right rail, top) ── */
+/* ── Special button (right rail, top) ──
+   Two stacked: primary on top, secondary directly under. The General
+   button sits below them, then the TURRETS panel. */
+.es-special.is-secondary {
+  position: absolute;
+  top: 138px;     /* under primary */
+  right: 12px;
+  border-color: rgba(124, 138, 152, 0.45);
+}
 .es-special {
   position: absolute;
   top: 12px;
@@ -1218,6 +1306,56 @@
 .es-diff-chip.is-medium                              { color: #ffe14f; }
 .es-diff-chip.is-hard,    .es-diff-chip.is-conquest { color: #ff8aa3; }
 .es-diff-chip.is-insane                              { color: #c89bff; }
+
+/* ── Loot orbs (Phase 4 cont.) — flying gold + xp particles ───── */
+/* DOM particles. Each orb is a single span absolutely positioned in
+   the stage; transform animates from spawn (kill location) to target
+   (gold counter / xp bar). Pointer events disabled so they never eat
+   clicks. */
+.es-loot-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 8;
+  overflow: hidden;
+}
+.es-loot-orb {
+  position: absolute;
+  top: 0; left: 0;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  transition: transform var(--orb-dur, 700ms) cubic-bezier(0.42, 0, 0.55, 1.0),
+              opacity   var(--orb-dur, 700ms) ease-out;
+  will-change: transform, opacity;
+}
+.es-loot-coin {
+  background: radial-gradient(circle at 35% 30%, #fff5b0 0%, #ffe14f 35%, #c89328 75%, #6e4f0f 100%);
+  box-shadow: 0 0 8px rgba(255, 225, 79, 0.65), 0 0 14px rgba(255, 225, 79, 0.35);
+  border: 1px solid rgba(255, 235, 140, 0.8);
+}
+.es-loot-orb.es-loot-orb {
+  /* Specificity helper for the XP variant below. */
+}
+.es-loot-orb.es-loot-orb {
+  /* dummy to silence the IDE — actual style on .es-loot-orb (kind=orb) */
+}
+.es-loot-overlay .es-loot-orb.es-loot-coin { animation: es-coin-spin 0.6s linear infinite; }
+.es-loot-overlay .es-loot-orb:not(.es-loot-coin) {
+  /* XP orb */
+  background: radial-gradient(circle at 40% 35%, #ffffff 0%, #7be3ff 30%, #5aa6e8 60%, #2c5e94 100%);
+  box-shadow: 0 0 10px rgba(123, 227, 255, 0.7), 0 0 20px rgba(123, 227, 255, 0.35);
+  border: 1px solid rgba(190, 240, 255, 0.7);
+  animation: es-xp-pulse 0.55s ease-in-out infinite alternate;
+}
+@keyframes es-coin-spin {
+  from { box-shadow: 0 0 8px rgba(255, 225, 79, 0.65), 0 0 14px rgba(255, 225, 79, 0.35); }
+  50%  { box-shadow: 0 0 12px rgba(255, 225, 79, 0.85), 0 0 22px rgba(255, 225, 79, 0.55); }
+  to   { box-shadow: 0 0 8px rgba(255, 225, 79, 0.65), 0 0 14px rgba(255, 225, 79, 0.35); }
+}
+@keyframes es-xp-pulse {
+  from { transform-origin: center; }
+  to   { box-shadow: 0 0 14px rgba(123, 227, 255, 0.95), 0 0 28px rgba(123, 227, 255, 0.55); }
+}
 
 /* ── Phase-5 Result panel — dramatic full-screen overlay ── */
 .es-result {

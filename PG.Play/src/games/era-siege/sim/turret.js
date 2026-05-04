@@ -1,8 +1,8 @@
 // Turret build / sell / tick. Slots are persistent across eras; building
 // in a slot during era N installs era N's turret class.
 
-import { getTurretForEra, SELL_REFUND_PCT } from '../content/turrets.js';
-import { getEraByIndex } from '../content/eras.js';
+import { getTurret, getTurretForEra, SELL_REFUND_PCT } from '../content/turrets.js';
+import { ERAS, getEraByIndex } from '../content/eras.js';
 import { spawnProjectile } from './projectile.js';
 import { BALANCE } from '../content/balance.js';
 
@@ -26,11 +26,20 @@ export function tryBuildTurretSpot(state, side, slot) {
   return true;
 }
 
-export function tryBuildTurret(state, side, slot) {
+export function tryBuildTurret(state, side, slot, turretId) {
   if (slot < 0 || slot >= BALANCE.TURRET_SLOT_COUNT) return false;
   const era = getEraByIndex(side.eraIndex);
-  const def = getTurretForEra(era.id);
+  // Resolve which turret to build: caller can pass an explicit id from
+  // the picker UI (any of the era's 3 tiers); falls back to the era's
+  // medium tier for AI / legacy callers.
+  const def = turretId ? getTurret(turretId) : getTurretForEra(era.id);
   if (!def) return false;
+  // Era gate — block building turrets from a future era.
+  const defEraIdx = ERAS.findIndex((e) => e.id === def.eraId);
+  if (defEraIdx > side.eraIndex) {
+    state.bus.emit('low_gold_error', { reason: 'era_locked', slot, turretId: def.id });
+    return false;
+  }
   // If the slot already has a turret of the *current* era, no-op.
   const existing = side.turretSlots[slot];
   if (existing && existing.eraIndex === side.eraIndex) {

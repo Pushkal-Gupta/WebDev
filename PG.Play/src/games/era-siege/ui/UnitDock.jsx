@@ -13,7 +13,7 @@ import { getUnit } from '../content/units.js';
 import { useLongPress } from '../utils/useLongPress.js';
 import RoleIcon from './RoleIcon.jsx';
 
-export default function UnitDock({ unitIds, generalId, generalsUnlocked, generalUnlockCost, generalCooldownMs, generalAlive, gold, cooldownsMs, onSpawn, onUnlockGenerals }) {
+export default function UnitDock({ unitIds, generalId, generalsUnlocked, generalUnlockCost, generalCooldownMs, generalAlive, gold, cooldownsMs, spawnQueue, onSpawn, onCancelQueued, onUnlockGenerals }) {
   const [flashId, setFlashId] = useState(null);
   const [tipId, setTipId]     = useState(null);
   const flashTimeoutRef = useRef(null);
@@ -34,9 +34,42 @@ export default function UnitDock({ unitIds, generalId, generalsUnlocked, general
   }, [tipId]);
 
   const generalDef = generalId ? getUnit(generalId) : null;
+  const queue = spawnQueue || [];
 
   return (
-    <div className="es-dock2" role="group" aria-label="Spawn unit">
+    <div className="es-dock2-wrap">
+      {/* Queued units strip — sits above the dock cards. Click to cancel
+          (refunds 50% of unit cost). Only renders when queue non-empty
+          so the layout doesn't reserve dead space. */}
+      {queue.length > 0 && (
+        <div className="es-queue" role="group" aria-label="Spawn queue">
+          <span className="es-queue-label">QUEUE</span>
+          <div className="es-queue-cells">
+            {queue.map((id, i) => {
+              const def = getUnit(id);
+              if (!def) return null;
+              const eraN = ERA_INDEX_BY_ID[def.eraId] || 1;
+              const role = def.role;
+              const src = `games/era-siege/unit/era${eraN}/${role}.png?v=${_VER}`;
+              return (
+                <button
+                  key={i + ':' + id}
+                  type="button"
+                  className={`es-queue-cell${i === 0 ? ' is-head' : ''}`}
+                  onClick={() => onCancelQueued && onCancelQueued(i)}
+                  title={`${def.name} — click to cancel (refund ${Math.floor(def.cost * 0.5)}g)`}>
+                  <img src={src} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none'; }}/>
+                </button>
+              );
+            })}
+            {Array.from({ length: 5 - queue.length }, (_, i) => (
+              <div key={'pad' + i} className="es-queue-cell is-pad" aria-hidden="true"/>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="es-dock2" role="group" aria-label="Spawn unit">
       {unitIds.map((id, idx) => {
         const def = getUnit(id);
         if (!def) return null;
@@ -76,6 +109,7 @@ export default function UnitDock({ unitIds, generalId, generalsUnlocked, general
           triggerPoorFlash={() => triggerPoorFlash('__general')}
         />
       )}
+      </div>
     </div>
   );
 }

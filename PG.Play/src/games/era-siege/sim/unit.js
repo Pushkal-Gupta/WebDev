@@ -10,6 +10,92 @@ import { getMultiplier } from './powerups.js';
 
 const UNIT_REPULSE_PX = BALANCE.UNIT_REPULSE_PX;
 
+// ── Spawn queue ──────────────────────────────────────────────────────
+// Player-facing flow: click a unit card → tryQueueUnit. Gold is
+// deducted IMMEDIATELY (reservation). The queue head auto-spawns on
+// every tick once cooldown / pop-cap allow. Cancel a queued unit to
+// recover 50% gold.
+//
+// AI uses trySpawnUnit directly (no queue) so its decision-making
+// stays one-shot — easier to tune.
+
+export const QUEUE_MAX = 5;
+export const QUEUE_REFUND_PCT = 0.5;
+
+export function tryQueueUnit(state, side, unitId) {
+  const def = getUnit(unitId);
+  if (!def) return false;
+  const eraIdxOfDef = getEraIndexOfUnit(def);
+  if (eraIdxOfDef > side.eraIndex) {
+    state.bus.emit('low_gold_error', { unitId, reason: 'era_locked' });
+    return false;
+  }
+  // Generals are still gated by the unlock flag and one-living cap —
+  // queue them only if they could theoretically spawn.
+  if (def.role === 'general' && !side.generalsUnlocked) {
+    state.bus.emit('low_gold_error', { unitId, reason: 'general_locked' });
+    return false;
+  }
+  side.spawnQueue ||= [];
+  if (side.spawnQueue.length >= QUEUE_MAX) {
+    state.bus.emit('low_gold_error', { unitId, reason: 'queue_full' });
+    return false;
+  }
+  // Soft pop check — alive + queued ≤ MAX_UNITS_PER_SIDE so the player
+  // can't stockpile a flood the lane can't hold.
+  const popUsed = side.units.filter((u) => !u.dead).length + side.spawnQueue.length;
+  if (popUsed >= BALANCE.MAX_UNITS_PER_SIDE) {
+    state.bus.emit('low_gold_error', { unitId, reason: 'pop_cap' });
+    return false;
+  }
+  if (side.gold < def.cost) {
+    state.bus.emit('low_gold_error', { unitId, cost: def.cost, gold: side.gold, reason: 'gold' });
+    return false;
+  }
+  side.gold -= def.cost;
+  side.spawnQueue.push({ unitId, queuedAtMs: state.timeMs });
+  state.bus.emit('unit_queued', { team: side.team, unitId });
+  return true;
+}
+
+export function tryCancelQueued(state, side, queueIndex) {
+  const q = side.spawnQueue;
+  if (!q || queueIndex < 0 || queueIndex >= q.length) return false;
+  const item = q[queueIndex];
+  const def = getUnit(item.unitId);
+  if (def) side.gold += Math.floor(def.cost * QUEUE_REFUND_PCT);
+  q.splice(queueIndex, 1);
+  state.bus.emit('unit_unqueued', { team: side.team, unitId: item.unitId, refund: def ? Math.floor(def.cost * QUEUE_REFUND_PCT) : 0 });
+  return true;
+}
+
+// Drain the head of the queue when cooldown + pop-cap allow. Called
+// once per side per tick from stepSim.
+export function tickSpawnQueue(state, side) {
+  const q = side.spawnQueue;
+  if (!q || q.length === 0) return;
+  const item = q[0];
+  const def = getUnit(item.unitId);
+  if (!def) { q.shift(); return; }
+  const cd = (side._spawnCooldowns?.[item.unitId]) || 0;
+  if (cd > 0) return;
+  if (side.units.filter((u) => !u.dead).length >= BALANCE.MAX_UNITS_PER_SIDE) return;
+  if (def.role === 'general' && side.units.some((u) => u.role === 'general' && !u.dead && u.hp > 0)) return;
+  // Pre-paid — bypass cost re-check inside spawnUnitDirect.
+  q.shift();
+  spawnUnitFromQueue(state, side, def);
+}
+
+// Internal — variant of trySpawnUnit that skips cost / cooldown
+// rejection because the queue already validated those. Cooldown still
+// gets SET to def.spawnCooldownMs for the next queue head.
+function spawnUnitFromQueue(state, side, def) {
+  const cd = side._spawnCooldowns ||= {};
+  cd[def.id] = def.spawnCooldownMs;
+  // Reuse the same construction trySpawnUnit does — keep them in sync.
+  doSpawn(state, side, def);
+}
+
 export function trySpawnUnit(state, side, unitId) {
   const def = getUnit(unitId);
   if (!def) return false;
@@ -45,15 +131,19 @@ export function trySpawnUnit(state, side, unitId) {
 
   side.gold -= def.cost;
   cd[unitId] = def.spawnCooldownMs;
+  doSpawn(state, side, def);
+  return true;
+}
 
+// Shared unit-construction body used by both trySpawnUnit (after gold +
+// cooldown checks) and the queue tick (after the queue's pre-payment).
+function doSpawn(state, side, def) {
+  const eraIdxOfDef = getEraIndexOfUnit(def);
   const id = state.allocId();
   const baseX = side === state.player
     ? state.view.laneLeft + 14
     : state.view.laneRight - 14;
   const facing = side === state.player ? 1 : -1;
-  // Troop powerups apply to non-general units only — generals are
-  // already monumentally tuned and the player has another lever (era
-  // upgrade) to scale them.
   const isGeneral = def.role === 'general';
   const isRanged  = def.role === 'ranged';
   const dmgMul = isGeneral ? 1 : getMultiplier(side.powerups, 'troopDmg');
@@ -66,7 +156,7 @@ export function trySpawnUnit(state, side, unitId) {
     team: side.team,
     unitId: def.id,
     eraId:    def.eraId,
-    eraIndex: eraIdxOfDef,         // renderer reads this for sprite key lookup
+    eraIndex: eraIdxOfDef,
     name: def.name,
     role: def.role,
     hp: finalHp,
@@ -76,7 +166,7 @@ export function trySpawnUnit(state, side, unitId) {
     moveSpeed: def.moveSpeed,
     attackWindupMs: def.attackWindupMs,
     attackRecoverMs: def.attackRecoverMs,
-    attackTickPhase: 'idle',     // 'idle' | 'windup' | 'recover'
+    attackTickPhase: 'idle',
     attackTimerMs: 0,
     targetId: null,
     bountyGold: def.bountyGold,
@@ -92,7 +182,7 @@ export function trySpawnUnit(state, side, unitId) {
     facing,
     laneStagger: ((id % 3) - 1) * 2.4,
     x: baseX, y: state.view.groundY,
-    px: baseX, py: state.view.groundY, // previous-frame position for render interpolation
+    px: baseX, py: state.view.groundY,
     walkPhaseMs: Math.random() * 1000,
     dead: false,
   };
@@ -100,7 +190,6 @@ export function trySpawnUnit(state, side, unitId) {
   if (side === state.player) state.statsPlayer.unitsSpawned++;
   else                       state.statsEnemy.unitsSpawned++;
   state.bus.emit('unit_spawned', { team: side.team, unitId: def.id, era: side.eraIndex });
-  return true;
 }
 
 function getEraIndexOfUnit(def) {
@@ -118,6 +207,12 @@ export function tickUnits(state, dt) {
       for (const k in cd) if (cd[k] > 0) cd[k] = Math.max(0, cd[k] - dt * 1000);
     }
   }
+
+  // 1b) Drain the player's spawn queue head if cooldown / pop allow.
+  // Enemy AI doesn't queue (it spawns directly via trySpawnUnit) but
+  // we tick its (always-empty) queue too for symmetry.
+  tickSpawnQueue(state, state.player);
+  tickSpawnQueue(state, state.enemy);
 
   // 2) Per-unit AI: pick target, advance, attack.
   stepSide(state, state.player, state.enemy, dt);

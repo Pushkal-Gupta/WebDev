@@ -17,6 +17,7 @@ import { PALETTES } from './palette.js';
  * @property {string} generalId
  * @property {string} turretId
  * @property {string} specialId
+ * @property {string} secondarySpecialId  W-slot — bigger swings, longer cd
  * @property {string} paletteId
  */
 
@@ -32,6 +33,7 @@ export const ERAS = [
     generalId: 'pyre-warlord',
     turretId: 'bone-crossbow',
     specialId: 'ember-volley',
+    secondarySpecialId: 'meteor-rain',
     paletteId: 'ember-tribe',
   },
   {
@@ -45,6 +47,7 @@ export const ERAS = [
     generalId: 'iron-marshal',
     turretId: 'iron-ballista',
     specialId: 'iron-rain',
+    secondarySpecialId: 'iron-rampart',
     paletteId: 'iron-dominion',
   },
   {
@@ -58,6 +61,7 @@ export const ERAS = [
     generalId: 'brass-captain',
     turretId: 'brass-mortar',
     specialId: 'sun-forge',
+    secondarySpecialId: 'foundry-mortar',
     paletteId: 'sun-foundry',
   },
   {
@@ -71,6 +75,7 @@ export const ERAS = [
     generalId: 'storm-commodore',
     turretId: 'volt-cannon',
     specialId: 'storm-fork',
+    secondarySpecialId: 'voltaic-cascade',
     paletteId: 'storm-republic',
   },
   {
@@ -84,6 +89,7 @@ export const ERAS = [
     generalId: 'void-sovereign',
     turretId: 'void-lance',
     specialId: 'void-collapse',
+    secondarySpecialId: 'event-horizon',
     paletteId: 'void-ascendancy',
   },
 ];
