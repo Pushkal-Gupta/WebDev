@@ -11,7 +11,7 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
-import { GAMES, EDITORS_PICKS, FILTERS, COLLECTIONS } from '../data.js';
+import { GAMES, EDITORS_PICKS, FILTERS, COLLECTIONS, GENRES, genreMatches } from '../data.js';
 import { Icon } from '../icons.jsx';
 import Card from '../components/Card.jsx';
 import Sidebar from '../components/Sidebar.jsx';
@@ -74,7 +74,15 @@ export default function Home() {
     return window.matchMedia('(min-width: 901px)').matches;
   });
   const [searchOpen, setSearchOpen]     = useState(false);
-  const [activeFilter, setActiveFilter] = useState('all');
+  // `activeMode` is the play-style filter (solo/coop/versus) the user has
+  // chosen — `null` means "no mode filter". `activeGenre` similarly carries
+  // a genre id from data.GENRES or null. The chip strip in the More Games
+  // section also drives `activeMode` so sidebar + chips stay in sync.
+  const [activeMode, setActiveMode]     = useState(null);
+  const [activeGenre, setActiveGenre]   = useState(null);
+  // `activeView` slices the catalog into a top-level mode: home (default),
+  // favorites (only saved games), or new (only badge:'new' / updated:true).
+  const [activeView, setActiveView]     = useState('home');
 
   const [theme, setTheme] = useTheme();
   const { user } = useSession();
@@ -154,8 +162,84 @@ export default function Home() {
     [playable]
   );
 
-  const filterFn = FILTERS.find((f) => f.id === activeFilter)?.match ?? (() => true);
-  const visibleMore = useMemo(() => more.filter(filterFn), [more, filterFn]);
+  // Compose every active filter (mode, genre, view) into a single predicate
+  // applied to the More games grid. Sidebar clicks scroll users to that
+  // section so they can see the result.
+  const modeFn = activeMode
+    ? (FILTERS.find((f) => f.id === activeMode)?.match ?? (() => true))
+    : (() => true);
+  const isNewOrUpdated = (g) => g.badge === 'new' || g.updated === true;
+  const isFav = (g) => !!favs[g.id];
+  const visibleMore = useMemo(() => {
+    return more.filter((g) => {
+      if (activeView === 'favorites' && !isFav(g)) return false;
+      if (activeView === 'new'       && !isNewOrUpdated(g)) return false;
+      if (activeGenre && !genreMatches(activeGenre, g)) return false;
+      if (!modeFn(g)) return false;
+      return true;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [more, activeMode, activeGenre, activeView, favs]);
+
+  // Counts that the sidebar surfaces — based on the full playable catalog
+  // so the sidebar reads as the place to discover the breadth of the arcade.
+  const newUpdatedCount = useMemo(
+    () => playable.filter(isNewOrUpdated).length,
+    [playable],
+  );
+
+  // Programmatic helpers wired to sidebar handlers. They all funnel into
+  // the same scroll-to-grid behavior so a click feels like it did
+  // something instead of silently changing some chip far away.
+  const scrollToMore = () => {
+    const node = document.getElementById('more-title');
+    if (node) node.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  const setMode = (id) => {
+    setActiveMode((cur) => (cur === id ? null : id));
+    setActiveView('home');
+    scrollToMore();
+  };
+  const setGenre = (id) => {
+    setActiveGenre((cur) => (cur === id ? null : id));
+    setActiveView('home');
+    scrollToMore();
+  };
+  const showFavorites = () => {
+    setActiveView('favorites');
+    setActiveMode(null);
+    setActiveGenre(null);
+    scrollToMore();
+  };
+  const showNew = () => {
+    setActiveView('new');
+    setActiveMode(null);
+    setActiveGenre(null);
+    scrollToMore();
+  };
+  const goHome = () => {
+    setActiveView('home');
+    setActiveMode(null);
+    setActiveGenre(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  const continueRecent = () => {
+    const id = recent[0];
+    const g = playable.find((x) => x.id === id);
+    if (g) onOpen(g);
+  };
+  const activeFilterChip = (() => {
+    if (activeView === 'favorites') return { kind: 'view', label: 'Favorites' };
+    if (activeView === 'new')       return { kind: 'view', label: 'New & updated' };
+    if (activeGenre) return { kind: 'genre', label: GENRES.find((g) => g.id === activeGenre)?.label || 'Genre' };
+    if (activeMode)  return { kind: 'mode',  label: FILTERS.find((f) => f.id === activeMode)?.label  || 'Mode' };
+    return null;
+  })();
+  const clearFilters = () => {
+    setActiveMode(null);
+    setActiveGenre(null);
+    setActiveView('home');
+  };
 
   // Continue-playing rail: resolve recent ids → playable game objects.
   // We render the rail only when there are at least two recents so a
@@ -225,15 +309,21 @@ export default function Home() {
         aria-hidden={sideOpen ? 'false' : 'true'}>
         <Sidebar
           user={user}
+          games={playable}
           favCount={favCount}
-          activeSection="home"
-          onHome={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          recentCount={recentGames.length}
+          newUpdatedCount={newUpdatedCount}
+          activeMode={activeMode}
+          activeGenre={activeGenre}
+          activeView={activeView}
+          onHome={goHome}
           onSearch={() => setSearchOpen(true)}
           onRandom={onRandom}
-          onFavorites={() => {
-            const node = document.getElementById('more-title');
-            if (node) node.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }}
+          onContinue={continueRecent}
+          onShowNew={showNew}
+          onSelectMode={setMode}
+          onSelectGenre={setGenre}
+          onFavorites={showFavorites}
           onProfile={() => setProfileOpen(true)}
           onOpenSettings={() => setSettingsOpen(true)}
           onOpenAuth={() => setAuthOpen(true)}
@@ -405,18 +495,29 @@ export default function Home() {
                 <div>
                   <h2 id="more-title" className="section-title">More games</h2>
                   <p className="section-blurb">
-                    The rest of the catalog. <span className="numeric">{more.length}</span> titles.
+                    {activeFilterChip
+                      ? <>Filtering by <strong>{activeFilterChip.label}</strong>. <span className="numeric">{visibleMore.length}</span> match{visibleMore.length === 1 ? '' : 'es'}.</>
+                      : <>The rest of the catalog. <span className="numeric">{more.length}</span> titles.</>}
                   </p>
                 </div>
                 <div className="filter-chips" role="tablist" aria-label="Filter games">
-                  {FILTERS.map((f) => (
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={!activeFilterChip}
+                    className={'chip-tab' + (!activeFilterChip ? ' is-active' : '')}
+                    onClick={clearFilters}>
+                    All
+                    <span className="chip-tab-count numeric">{more.length}</span>
+                  </button>
+                  {FILTERS.filter((f) => f.id !== 'all').map((f) => (
                     <button
                       key={f.id}
                       type="button"
                       role="tab"
-                      aria-selected={activeFilter === f.id}
-                      className={'chip-tab' + (activeFilter === f.id ? ' is-active' : '')}
-                      onClick={() => setActiveFilter(f.id)}>
+                      aria-selected={activeMode === f.id && !activeGenre && activeView === 'home'}
+                      className={'chip-tab' + (activeMode === f.id && !activeGenre && activeView === 'home' ? ' is-active' : '')}
+                      onClick={() => setMode(f.id)}>
                       {f.label}
                       <span className="chip-tab-count numeric">
                         {more.filter(f.match).length}
@@ -427,7 +528,9 @@ export default function Home() {
               </div>
               {visibleMore.length === 0 ? (
                 <div className="empty">
-                  Nothing matches this filter. Try <strong>All</strong> or hit the search.
+                  Nothing matches this filter.{' '}
+                  <button type="button" className="empty-link" onClick={clearFilters}>Clear filters</button>{' '}
+                  or hit the search.
                 </div>
               ) : (
                 <div className="more-grid">

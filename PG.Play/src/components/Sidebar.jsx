@@ -1,13 +1,19 @@
-// Sidebar — left rail.
+// Sidebar — arcade left rail.
 //
-// Brand at top, real navigation in the middle, account + settings at
-// the bottom. Persistent rail on desktop, overlay drawer on mobile.
-// Behavior is owned by Home.jsx; this component is purely presentational
-// + dispatches the handlers it's given.
+// Brand (top), search trigger, then four navigation groups:
+//   • Discover     — Home, Random, New & Updated
+//   • Play style   — Solo / Co-op / Versus
+//   • Genres       — Action, Puzzle, Arcade, Platformer, Sports, Strategy, Casual
+//   • Library      — Favorites, Profile
+// Account block + Settings live in the foot.
+//
+// All filter clicks fire `onSelectFilter({ kind, id })` so Home can drive a
+// single source of truth and scroll the catalog grid into view.
 
 import { Icon } from '../icons.jsx';
+import { FILTERS, GENRES } from '../data.js';
 
-function NavItem({ icon, label, count, kbd, onClick, active = false, muted = false }) {
+function NavItem({ icon, label, count, kbd, onClick, active = false, muted = false, dot }) {
   return (
     <button
       type="button"
@@ -17,7 +23,9 @@ function NavItem({ icon, label, count, kbd, onClick, active = false, muted = fal
         + (muted ? ' is-muted' : '')
       }
       onClick={onClick}>
-      <span className="sidebar-item-icon" aria-hidden="true">{icon}</span>
+      {dot != null
+        ? <span className={`sidebar-item-dot sidebar-genre-${dot}`} aria-hidden="true"/>
+        : <span className="sidebar-item-icon" aria-hidden="true">{icon}</span>}
       <span className="sidebar-item-label">{label}</span>
       {kbd && <kbd className="sidebar-item-kbd" aria-hidden="true">{kbd}</kbd>}
       {count != null && <span className="sidebar-item-count numeric">{count}</span>}
@@ -37,11 +45,20 @@ function monogramFor(user) {
 
 export default function Sidebar({
   user,
+  games = [],
   favCount = 0,
-  activeSection = 'home',
+  recentCount = 0,
+  newUpdatedCount = 0,
+  activeMode = null,    // 'all' | 'solo' | 'coop' | 'versus' | null
+  activeGenre = null,   // GENRES id | null
+  activeView = 'home',  // 'home' | 'favorites' | 'new'
   onHome,
   onSearch,
   onRandom,
+  onContinue,           // optional, hidden when no recents
+  onShowNew,
+  onSelectMode,
+  onSelectGenre,
   onFavorites,
   onProfile,
   onOpenSettings,
@@ -50,12 +67,15 @@ export default function Sidebar({
   onClose,
 }) {
   const close = () => { if (onClose) onClose(); };
-  const fire = (fn) => () => { fn?.(); close(); };
+  const fire = (fn, ...args) => () => { fn?.(...args); close(); };
 
   const displayName =
     user?.user_metadata?.display_name ||
     user?.user_metadata?.full_name ||
     (user?.email ? user.email.split('@')[0] : 'Signed in');
+
+  const countFor = (filter) => games.filter(filter.match).length;
+  const countForGenre = (genre) => games.filter((g) => genre.cats.includes(g.cat)).length;
 
   return (
     <aside className="sidebar" aria-label="Primary navigation">
@@ -74,23 +94,74 @@ export default function Sidebar({
         </button>
       </div>
 
+      <button
+        type="button"
+        className="sidebar-search"
+        onClick={fire(onSearch)}
+        aria-label="Open search">
+        <span className="sidebar-search-icon" aria-hidden="true">{Icon.search}</span>
+        <span className="sidebar-search-text">Search games…</span>
+        <kbd className="sidebar-search-kbd" aria-hidden="true">⌘K</kbd>
+      </button>
+
       <nav className="sidebar-nav" aria-label="Sections">
         <div className="sidebar-group">
-          <div className="sidebar-group-label">Browse</div>
+          <div className="sidebar-group-label">Discover</div>
           <NavItem
             icon={Icon.home}
             label="Home"
-            active={activeSection === 'home'}
+            count={games.length}
+            active={activeView === 'home' && !activeMode && !activeGenre}
             onClick={fire(onHome)}/>
           <NavItem
-            icon={Icon.search}
-            label="Search"
-            kbd="⌘K"
-            onClick={fire(onSearch)}/>
-          <NavItem
             icon={Icon.sparkle}
-            label="Surprise me"
+            label="Random pick"
             onClick={fire(onRandom)}/>
+          {newUpdatedCount > 0 && (
+            <NavItem
+              icon={Icon.bolt}
+              label="New & updated"
+              count={newUpdatedCount}
+              active={activeView === 'new'}
+              onClick={fire(onShowNew)}/>
+          )}
+          {recentCount > 0 && (
+            <NavItem
+              icon={Icon.clock}
+              label="Continue"
+              count={recentCount}
+              onClick={fire(onContinue)}/>
+          )}
+        </div>
+
+        <div className="sidebar-group">
+          <div className="sidebar-group-label">Play style</div>
+          {FILTERS.filter((f) => f.id !== 'all').map((f) => (
+            <NavItem
+              key={f.id}
+              icon={f.id === 'solo' ? Icon.solo : f.id === 'coop' ? Icon.coop : Icon.versus}
+              label={f.label}
+              count={countFor(f)}
+              active={activeMode === f.id}
+              onClick={fire(onSelectMode, f.id)}/>
+          ))}
+        </div>
+
+        <div className="sidebar-group">
+          <div className="sidebar-group-label">Genres</div>
+          {GENRES.map((g) => {
+            const c = countForGenre(g);
+            if (c === 0) return null;
+            return (
+              <NavItem
+                key={g.id}
+                dot={g.id}
+                label={g.label}
+                count={c}
+                active={activeGenre === g.id}
+                onClick={fire(onSelectGenre, g.id)}/>
+            );
+          })}
         </div>
 
         <div className="sidebar-group">
@@ -99,7 +170,7 @@ export default function Sidebar({
             icon={Icon.heart}
             label="Favorites"
             count={favCount}
-            active={activeSection === 'favorites'}
+            active={activeView === 'favorites'}
             onClick={fire(onFavorites)}/>
           <NavItem
             icon={Icon.solo}

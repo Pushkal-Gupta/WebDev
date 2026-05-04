@@ -53,9 +53,16 @@ const STORAGE_TUTORIAL_KEY = 'era-siege:tutorial-dismissed';
 // standard tuning under a stable seed; Endless runs standard tuning
 // against a never-falling enemy.
 function modeToDifficulty(mode) {
-  if (mode === 'skirmish' || mode === 'standard' || mode === 'conquest') return mode;
-  if (mode === 'daily' || mode === 'endless') return 'standard';
-  return 'standard';
+  // New ladder: easy / normal / medium / hard / insane.
+  if (mode === 'easy' || mode === 'normal' || mode === 'medium'
+   || mode === 'hard' || mode === 'insane') return mode;
+  // Legacy aliases — keep so older intro buttons / saved sessions still
+  // resolve. getDifficulty() also alias-maps for safety.
+  if (mode === 'skirmish') return 'easy';
+  if (mode === 'standard') return 'normal';
+  if (mode === 'conquest') return 'hard';
+  if (mode === 'daily' || mode === 'endless') return 'normal';
+  return 'normal';
 }
 function modeIsDaily(mode)   { return mode === 'daily'; }
 function modeIsEndless(mode) { return mode === 'endless'; }
@@ -113,7 +120,8 @@ export default function EraSiegeGame({ mode }) {
     enemyEraIndex: 0,
     turretSlots: [null, null, null],
     specialCooldownMs: 0, specialCharging: false,
-    generalCooldownMs: 0, generalAlive: false,
+    generalCooldownMs: 0, generalAlive: false, generalsUnlocked: false,
+    population: 0, populationMax: BALANCE.MAX_UNITS_PER_SIDE,
     auraLeftMs: 0,
     timeSec: 0, status: 'playing', score: 0,
     endlessSec: 0,
@@ -220,7 +228,19 @@ export default function EraSiegeGame({ mode }) {
     });
     const offTb = match.bus.on('turret_built', (e) => telemetry.emit('era_siege:turret_built', e));
     const offSu = match.bus.on('special_used', (e) => telemetry.emit('era_siege:special_used', e));
-    const offLg = match.bus.on('low_gold_error', () => { /* sampled in audio router */ });
+    const offLg = match.bus.on('low_gold_error', (e) => {
+      // Visual feedback for failed buys — flash the gold counter red
+      // for 300 ms. Only when reason indicates a money problem
+      // (`gold` reason), not for other rejections (cooldown, era_locked).
+      if (e?.reason !== 'gold') return;
+      const root = wrapRef.current;
+      if (!root) return;
+      root.classList.add('es-shake-gold');
+      window.clearTimeout(root._lowGoldTimer);
+      root._lowGoldTimer = window.setTimeout(() => {
+        root.classList.remove('es-shake-gold');
+      }, 380);
+    });
 
     // Tutorial.
     const offTut = match.bus.on('unit_spawned', (e) => {
@@ -402,6 +422,9 @@ export default function EraSiegeGame({ mode }) {
       generalCooldownMs:
         match.player._spawnCooldowns?.[getEraByIndex(match.player.eraIndex)?.generalId] || 0,
       generalAlive: match.player.units.some((u) => u.role === 'general' && !u.dead && u.hp > 0),
+      generalsUnlocked: !!match.player.generalsUnlocked,
+      population:    match.player.units.filter((u) => !u.dead && u.hp > 0).length,
+      populationMax: BALANCE.MAX_UNITS_PER_SIDE,
       auraLeftMs: match.player.auraLeftMs || 0,
       timeSec: Math.floor(match.timeSec),
       status:  match.status,
@@ -433,6 +456,7 @@ export default function EraSiegeGame({ mode }) {
     const cur = getEraByIndex(matchRef.current?.player.eraIndex || 0);
     if (cur?.generalId) intentsRef.current.spawn.push(cur.generalId);
   };
+  const onUnlockGenerals = () => { intentsRef.current.unlockGenerals = true; };
   const onEvolve  = ()    => { intentsRef.current.evolve = true; };
   const onAgain   = ()    => {
     submittedRef.current = false;
@@ -505,6 +529,8 @@ export default function EraSiegeGame({ mode }) {
         enemyEraIndex={hud.enemyEraIndex}
         timeSec={hud.timeSec}
         speed={settingsRef.current.speed || 1}
+        population={hud.population}
+        populationMax={hud.populationMax}
         paused={paused}
         specialReady={specialReady}
         evolveReady={evolveReady}
@@ -650,9 +676,15 @@ export default function EraSiegeGame({ mode }) {
 
       <UnitDock
         unitIds={unitIds}
+        generalId={era?.generalId}
+        generalsUnlocked={hud.generalsUnlocked}
+        generalUnlockCost={BALANCE.GENERAL_UNLOCK_COST}
+        generalCooldownMs={hud.generalCooldownMs}
+        generalAlive={hud.generalAlive}
         gold={hud.gold}
         cooldownsMs={hud.cooldownsMs}
         onSpawn={onSpawn}
+        onUnlockGenerals={onUnlockGenerals}
       />
     </div>
   );
@@ -707,7 +739,9 @@ function cheapDiffers(a, b) {
   if (a.enemyHP !== b.enemyHP) return true;
   if (a.specialCooldownMs !== b.specialCooldownMs) return true;
   if (a.generalAlive !== b.generalAlive) return true;
+  if (a.generalsUnlocked !== b.generalsUnlocked) return true;
   if (Math.abs((a.generalCooldownMs || 0) - (b.generalCooldownMs || 0)) > 250) return true;
+  if (a.population !== b.population) return true;
   if (a.specialCharging !== b.specialCharging) return true;
   if ((a.auraLeftMs > 0) !== (b.auraLeftMs > 0)) return true;
   if (Math.abs((a.auraLeftMs || 0) - (b.auraLeftMs || 0)) > 250) return true;

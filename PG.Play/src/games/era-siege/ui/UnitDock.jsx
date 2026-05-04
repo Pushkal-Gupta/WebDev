@@ -13,7 +13,7 @@ import { getUnit } from '../content/units.js';
 import { useLongPress } from '../utils/useLongPress.js';
 import RoleIcon from './RoleIcon.jsx';
 
-export default function UnitDock({ unitIds, gold, cooldownsMs, onSpawn }) {
+export default function UnitDock({ unitIds, generalId, generalsUnlocked, generalUnlockCost, generalCooldownMs, generalAlive, gold, cooldownsMs, onSpawn, onUnlockGenerals }) {
   const [flashId, setFlashId] = useState(null);
   const [tipId, setTipId]     = useState(null);
   const flashTimeoutRef = useRef(null);
@@ -32,6 +32,8 @@ export default function UnitDock({ unitIds, gold, cooldownsMs, onSpawn }) {
     }, 50);
     return () => { clearTimeout(t); document.removeEventListener('pointerdown', close); };
   }, [tipId]);
+
+  const generalDef = generalId ? getUnit(generalId) : null;
 
   return (
     <div className="es-dock2" role="group" aria-label="Spawn unit">
@@ -58,6 +60,95 @@ export default function UnitDock({ unitIds, gold, cooldownsMs, onSpawn }) {
           />
         );
       })}
+      {generalDef && (
+        <GeneralCard
+          def={generalDef}
+          unlocked={!!generalsUnlocked}
+          unlockCost={generalUnlockCost}
+          cooldownMs={generalCooldownMs}
+          alive={generalAlive}
+          gold={gold}
+          tipOpen={tipId === '__general'}
+          onUnlock={onUnlockGenerals}
+          onSpawn={() => onSpawn(generalDef.id)}
+          onLongPress={() => setTipId((cur) => cur === '__general' ? null : '__general')}
+          poorFlash={flashId === '__general'}
+          triggerPoorFlash={() => triggerPoorFlash('__general')}
+        />
+      )}
+    </div>
+  );
+}
+
+// 4th card — the era's general. Two states:
+//   locked   → shows a lock icon + the unlock cost; click pays the
+//              one-time GENERAL_UNLOCK_COST gold to unlock
+//   unlocked → behaves like a normal unit card but with the longer
+//              cooldown + one-living cap baked into the sim.
+function GeneralCard({ def, unlocked, unlockCost, cooldownMs, alive, gold, tipOpen, onUnlock, onSpawn, onLongPress, poorFlash, triggerPoorFlash }) {
+  const longPress = useLongPress({ onLongPress, delayMs: 450 });
+  const cdR = unlocked && cooldownMs > 0 && def.spawnCooldownMs > 0
+    ? Math.max(0, Math.min(1, cooldownMs / def.spawnCooldownMs))
+    : 0;
+  let label, sub, disabled, tooPoor, onClick;
+  if (!unlocked) {
+    label = 'LOCKED';
+    sub = `Unlock ${unlockCost}g`;
+    tooPoor = gold < unlockCost;
+    disabled = false;  // click still allowed (poor-flash if not enough)
+    onClick = () => { if (tooPoor) triggerPoorFlash(); else onUnlock(); };
+  } else if (alive) {
+    label = def.name;
+    sub = 'On the field';
+    tooPoor = false;
+    disabled = true;
+    onClick = () => {};
+  } else if (cooldownMs > 0) {
+    label = def.name;
+    sub = `Reform ${Math.ceil(cooldownMs / 1000)}s`;
+    tooPoor = false;
+    disabled = true;
+    onClick = () => {};
+  } else {
+    label = def.name;
+    sub = `${def.cost}g`;
+    tooPoor = gold < def.cost;
+    disabled = false;
+    onClick = () => { if (tooPoor) triggerPoorFlash(); else onSpawn(); };
+  }
+  return (
+    <div className="es-card2-wrap es-card2-wrap-general">
+      <button
+        type="button"
+        className={`es-card2 es-card2-general${disabled ? ' is-disabled' : ''}${tooPoor ? ' is-poor' : ''}${poorFlash ? ' is-flash' : ''}${!unlocked ? ' is-locked' : ''}`}
+        onClick={onClick}
+        disabled={disabled}
+        aria-label={`${def.name} (general). ${unlocked ? sub : 'Locked. Click to unlock for ' + unlockCost + ' gold.'}`}
+        title={unlocked ? `${def.name} · ${sub}` : `Unlock generals (${unlockCost}g)`}
+        {...longPress}>
+        <UnitSilhouette def={def}/>
+        <div className="es-card2-name">
+          <span>{label}</span>
+          <span className="es-card2-role" aria-hidden="true"><RoleIcon role="general"/></span>
+        </div>
+        <div className="es-card2-cost">
+          <span>{sub}</span>
+          {!unlocked && (
+            <svg className="es-card2-lock" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                 strokeLinejoin="round" aria-hidden="true">
+              <rect x="5" y="11" width="14" height="10" rx="2"/>
+              <path d="M8 11V8a4 4 0 0 1 8 0v3"/>
+            </svg>
+          )}
+        </div>
+        {unlocked && cdR > 0 && (
+          <div className="es-card2-cd">
+            <div className="es-card2-cd-fill" style={{ width: `${(1 - cdR) * 100}%` }}/>
+          </div>
+        )}
+      </button>
+      {tipOpen && <UnitTip def={def}/>}
     </div>
   );
 }
@@ -95,30 +186,32 @@ function UnitCard({ def, idx, cd, tooPoor, isFlashing, tipOpen, onClick, onLongP
   );
 }
 
+// Map a unit def to its baked PNG path. Lookup is by eraId so the dock
+// stays in sync with the era — when the player evolves, the cards
+// automatically pull the new era's art.
+const ERA_INDEX_BY_ID = {
+  'ember-tribe': 1, 'iron-dominion': 2, 'sun-foundry': 3,
+  'storm-republic': 4, 'void-ascendancy': 5,
+};
+
+// Build version is injected by vite's `define` (see vite.config.js).
+// Falls back to a session-stable random when define isn't applied
+// (e.g. some test envs). Used to bust the browser cache on every
+// build so swapped-in hand-art shows up after a refresh.
+const _VER = (typeof BUILD_VERSION !== 'undefined' && BUILD_VERSION)
+          || `dev-${Math.floor(Math.random() * 1e9).toString(36)}`;
+
 function UnitSilhouette({ def }) {
-  // A faithful silhouette of the unit using its content-data colours.
-  // Swapped to an authored PNG once `unit/era<N>/<role>.png` lands.
-  const v = def.visual;
-  const w = 92;
-  const h = 92;
+  const eraN = ERA_INDEX_BY_ID[def.eraId] || 1;
+  const role = def.role;
+  // Base path resolves against `document.baseURI` so the same path
+  // works on Vite dev (5180), Live Server, and the GitHub Pages
+  // sub-path (/PG.Play/dist/) without absolute-vs-relative quirks.
+  const src = `games/era-siege/unit/era${eraN}/${role}.png?v=${_VER}`;
   return (
     <div className="es-card2-art" aria-hidden="true">
-      <svg viewBox={`0 0 ${w} ${h}`}>
-        {/* Ground shadow */}
-        <ellipse cx={w / 2} cy={h - 8} rx={w * 0.32} ry={4} fill="rgba(0,0,0,0.4)"/>
-        {/* Legs */}
-        <rect x={w / 2 - v.silhouetteW / 2} y={h - 26} width={v.silhouetteW} height={14} fill={v.colorBody}/>
-        {/* Torso */}
-        <rect x={w / 2 - v.silhouetteW / 2} y={h - 26 - v.silhouetteH * 0.6} width={v.silhouetteW} height={v.silhouetteH * 0.6} fill={v.colorBody}/>
-        {/* Trim */}
-        <rect x={w / 2 - v.silhouetteW / 2} y={h - 26 - v.silhouetteH * 0.45} width={v.silhouetteW} height={3} fill={v.colorTrim}/>
-        {/* Head */}
-        <circle cx={w / 2} cy={h - 26 - v.silhouetteH * 0.6 - v.headRadius} r={v.headRadius} fill={v.colorBody}/>
-        {/* Weapon glyph */}
-        {def.role === 'frontline' && <rect x={w / 2 + v.silhouetteW / 2} y={h - 38} width="14" height="2" fill={v.colorTrim}/>}
-        {def.role === 'ranged'    && <rect x={w / 2 + v.silhouetteW / 2} y={h - 38} width="18" height="2" fill={v.colorTrim}/>}
-        {def.role === 'heavy'     && <rect x={w / 2 + v.silhouetteW / 2} y={h - 40} width="14" height="6" fill={v.colorTrim}/>}
-      </svg>
+      <img className="es-card2-img" src={src} alt="" loading="lazy"
+           onError={(e) => { e.currentTarget.style.display = 'none'; }}/>
     </div>
   );
 }

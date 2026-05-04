@@ -18,6 +18,22 @@ import { tickAi } from './ai.js';
 import { tickSpecials, tryFireSpecial } from './specials.js';
 import { trySpawnUnit } from './unit.js';
 import { tryBuildTurret, tryBuildTurretSpot, trySellTurret, tryUpgradeTurretStat } from './turret.js';
+
+// One-time spend to unlock generals for the rest of the match. After
+// unlocking, the player can deploy any era's general (subject to the
+// per-general gold cost + cooldown + one-living cap).
+function tryUnlockGenerals(state, side) {
+  if (side.generalsUnlocked) return false;
+  const cost = BALANCE.GENERAL_UNLOCK_COST;
+  if (side.gold < cost) {
+    state.bus.emit('low_gold_error', { reason: 'gold', cost, gold: side.gold });
+    return false;
+  }
+  side.gold -= cost;
+  side.generalsUnlocked = true;
+  state.bus.emit('generals_unlocked', { team: side.team });
+  return true;
+}
 import { matchOver, scoreMatch } from './match.js';
 import { tickEffects } from './effects.js';
 import { makePowerupsState, tryBuyPowerup, getMultiplier } from './powerups.js';
@@ -52,10 +68,14 @@ export function createMatch(opts = {}) {
     (o) => { o.alive = false; o.x = 0; o.y = 0; o.vx = 0; o.vy = 0; o.lifeMs = 0; o.maxLifeMs = 0; o.color = '#fff'; o.size = 2; },
     160,
   );
+  // Floating-number pool. `kind` controls colour + prefix in the
+  // renderer: 'damage' (red/amber), 'gold' (yellow with +Xg), 'xp'
+  // (cyan with +Xxp). lifeMs varies — loot pops linger longer so the
+  // player can read them.
   const damageNumPool = makePool(
-    () => ({ id: 0, alive: false, x: 0, y: 0, ageMs: 0, lifeMs: 800, value: 0, team: 'player' }),
-    (o) => { o.alive = false; o.x = 0; o.y = 0; o.ageMs = 0; o.lifeMs = 800; o.value = 0; o.team = 'player'; },
-    32,
+    () => ({ id: 0, alive: false, x: 0, y: 0, vx: 0, vy: 0, ageMs: 0, lifeMs: 800, value: 0, team: 'player', kind: 'damage' }),
+    (o) => { o.alive = false; o.x = 0; o.y = 0; o.vx = 0; o.vy = 0; o.ageMs = 0; o.lifeMs = 800; o.value = 0; o.team = 'player'; o.kind = 'damage'; },
+    48,
   );
 
   const allocId = makeIdAllocator();
@@ -74,6 +94,14 @@ export function createMatch(opts = {}) {
     // Selling the turret keeps the spot built — rebuilding only pays
     // the turret cost again.
     turretSpots: Array.from({ length: BALANCE.TURRET_SLOT_COUNT }, () => false),
+    // Generals are locked at match start — the player pays a one-time
+    // unlock cost (BALANCE.GENERAL_UNLOCK_COST) before they can deploy
+    // any general. Enemy AI gets generals unlocked after evolving past
+    // era 1 so the unlock isn't a free chunk of game.
+    generalsUnlocked: isAi ? false : false,
+    // Brief white-glow timer painted on the wall when the base takes
+    // a hit — written by combat.damageBase, ticked by effects.js.
+    baseFlashMs: 0,
     specialCooldownMs: 0,
     specialActive: null,  // { specialId, telegraphLeftMs, eraIndex } when telegraphing
     auraLeftMs: 0,        // aura special — duration left
@@ -158,6 +186,9 @@ function applyPlayerIntents(state, intents) {
   }
   if (intents.upgradeTurret) {
     tryUpgradeTurretStat(state, state.player, intents.upgradeTurret.slot, intents.upgradeTurret.statId);
+  }
+  if (intents.unlockGenerals) {
+    tryUnlockGenerals(state, state.player);
   }
   if (intents.special) {
     tryFireSpecial(state, state.player);

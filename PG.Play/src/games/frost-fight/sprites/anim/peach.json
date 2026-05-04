@@ -1,37 +1,37 @@
 {
-  "state": {
-    "neutral": "state-neutral.png",
-    "fuming": "state-fuming.png",
-    "blowing": "state-blowing.png",
-    "neutral2": "state-neutral2.png",
-    "irritated": "state-irritated.png",
-    "blowing2": "state-blowing2.png",
-    "neutral3": "state-neutral3.png",
-    "sad": "state-sad.png",
-    "sad2": "state-sad2.png"
-  },
   "walk": [
     "walk-0.png",
     "walk-1.png",
     "walk-2.png",
-    "walk-3.png"
+    "walk-3.png",
+    "walk-4.png",
+    "walk-5.png"
   ],
   "attackCharge": [
     "attackCharge-0.png",
     "attackCharge-1.png",
     "attackCharge-2.png",
-    "attackCharge-3.png"
+    "attackCharge-3.png",
+    "attackCharge-4.png",
+    "attackCharge-5.png"
   ],
   "attackRelease": [
     "attackRelease-0.png",
     "attackRelease-1.png",
     "attackRelease-2.png",
-    "attackRelease-3.png"
+    "attackRelease-3.png",
+    "attackRelease-4.png"
   ],
   "death": [
     "death-0.png",
     "death-1.png",
     "death-2.png",
     "death-3.png"
-  ]
+  ],
+  "state": {
+    "neutral": "walk-0.png",
+    "fuming": "attackCharge-2.png",
+    "irritated": "attackCharge-3.png",
+    "sad": "death-0.png"
+  }
 }

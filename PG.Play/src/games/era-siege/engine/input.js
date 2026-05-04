@@ -8,6 +8,7 @@ export function makeIntents() {
     buildTurretSpot: null,
     sellTurret:      null,
     upgradeTurret:   null,
+    unlockGenerals:  false,
     buyPowerup:    null,
     special: false,
     evolve:  false,
@@ -20,6 +21,7 @@ export function clearIntents(intents) {
   intents.buildTurretSpot = null;
   intents.sellTurret      = null;
   intents.upgradeTurret   = null;
+  intents.unlockGenerals  = false;
   intents.buyPowerup    = null;
   intents.special = false;
   intents.evolve  = false;

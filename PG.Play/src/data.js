@@ -250,3 +250,21 @@ export const FILTERS = [
   { id:'versus', label:'Versus', match: (g) => g.kind === 'vs' },
   { id:'coop',   label:'Co-op',  match: (g) => g.players.includes('co-op') },
 ];
+
+// Genre groupings — fold the long-tail `cat` values into a handful of
+// arcade-style buckets that fit a sidebar without scrolling. Each genre
+// matches by membership in `cats`.
+export const GENRES = [
+  { id:'action',    label:'Action',     cats:['Action','FPS','Shooter','Rage','Multiplayer'] },
+  { id:'puzzle',    label:'Puzzle',     cats:['Puzzle','Classic'] },
+  { id:'arcade',    label:'Arcade',     cats:['Arcade'] },
+  { id:'platformer',label:'Platformer', cats:['Platformer'] },
+  { id:'sports',    label:'Sports',     cats:['Sports'] },
+  { id:'strategy',  label:'Strategy',   cats:['Strategy','Tower-Def'] },
+  { id:'casual',    label:'Casual',     cats:['Time-mgmt','Physics','Stealth','Co-op'] },
+];
+
+export function genreMatches(genreId, game) {
+  const g = GENRES.find((x) => x.id === genreId);
+  return g ? g.cats.includes(game.cat) : true;
+}

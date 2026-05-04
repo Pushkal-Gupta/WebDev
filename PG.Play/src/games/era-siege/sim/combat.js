@@ -28,9 +28,22 @@ export function damageUnit(state, attacker, victim, amount) {
 export function damageBase(state, attackerSide, defenderSide, amount) {
   if (defenderSide.base.hp <= 0) return;
   defenderSide.base.hp = Math.max(0, defenderSide.base.hp - amount);
-  state.effects.shakeMs = Math.max(state.effects.shakeMs, 120);
-  state.effects.shakeMag = Math.max(state.effects.shakeMag, 4);
-  spawnHitParticles(state, defenderSide === state.player ? state.view.laneLeft - 30 : state.view.laneRight + 30, state.view.groundY - 60, '#ffe14f', 6);
+  // Shake scales with damage so big hits feel weighty.
+  const shakeMs  = 120 + Math.min(280, amount * 2);
+  const shakeMag = 4   + Math.min(8,   amount * 0.10);
+  state.effects.shakeMs  = Math.max(state.effects.shakeMs,  shakeMs);
+  state.effects.shakeMag = Math.max(state.effects.shakeMag, shakeMag);
+  // White flash overlay on the defender's base — flagged as a per-side
+  // effect so the renderer can paint a brief white strobe over the wall.
+  defenderSide.baseFlashMs = Math.max(defenderSide.baseFlashMs || 0, 160);
+  // Particle burst at the impact point (top of the wall, sky-side so it
+  // reads against the dark canvas).
+  const hitX = defenderSide === state.player ? state.view.laneLeft - 30 : state.view.laneRight + 30;
+  const hitY = state.view.groundY - 60;
+  spawnHitParticles(state, hitX, hitY, '#ffe14f', 8);
+  spawnHitParticles(state, hitX, hitY, '#ff8a3a', 4);
+  // Chip-damage popup so the player sees how hard each landing hit lands.
+  spawnLootNumber(state, hitX, hitY - 14, amount, defenderSide.team, 'damage');
 }
 
 function onUnitDeath(state, attackerOwner, victim) {
@@ -51,6 +64,12 @@ function onUnitDeath(state, attackerOwner, victim) {
 }
 
 export function spawnDamageNumber(state, x, y, value, team) {
+  spawnLootNumber(state, x, y, value, team, 'damage');
+}
+
+// Generic floating-number spawn. `kind` is 'damage' | 'gold' | 'xp'.
+// Loot pops (gold / xp) linger longer and float higher than damage.
+export function spawnLootNumber(state, x, y, value, team, kind = 'damage') {
   const pool = state.pools.damageNum;
   const cap = state.lowFx ? DMGNUM_CAP_LOW : DMGNUM_CAP_FULL;
   if (pool.live.length >= cap) {
@@ -59,10 +78,15 @@ export function spawnDamageNumber(state, x, y, value, team) {
   pool.acquire((d) => {
     d.alive = true;
     d.x = x; d.y = y;
+    // A tiny random horizontal jitter so stacked pops don't overlap.
+    d.vx = (Math.random() - 0.5) * 12;
+    d.vy = -28;
     d.value = Math.round(value);
     d.team = team;
+    d.kind = kind;
     d.ageMs = 0;
-    d.lifeMs = 800;
+    // Damage 800 ms, loot 1100 ms — loot needs to read at a glance.
+    d.lifeMs = (kind === 'damage') ? 800 : 1100;
     d.id = state.allocId();
   });
 }

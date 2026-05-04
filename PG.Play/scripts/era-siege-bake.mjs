@@ -72,6 +72,11 @@ const UNIT_SCALE = 3.6;
 
 // Spec list. For each spec we evaluate `window.bakeAsset(spec)` and write
 // the resulting PNG to `outPath`.
+// IMPORTANT — bases / units / turrets are now hand-art cropped from
+// `assets/age-of-war/*.png` via `era-siege-crop-sheets.mjs`. This bake
+// only writes PROCEDURAL backgrounds (sky / mountains / foreground)
+// to avoid clobbering the hand-art. To regenerate hand-art crops,
+// run `node scripts/era-siege-crop-sheets.mjs` instead.
 function buildSpecs(eraIds) {
   const specs = [];
   for (let i = 0; i < eraIds.length; i++) {
@@ -100,7 +105,13 @@ function buildSpecs(eraIds) {
       spec: { type: 'foreground', eraId, w: BG_W, h: FG_H, opts: { groundY: 0 } },
     });
 
-    // Bases — foot-anchored at the canvas bottom, centered in x.
+    // BASES + UNITS + TURRETS intentionally OMITTED. They are hand-art
+    // cropped from `assets/age-of-war/*.png` by the sheet-cropper
+    // script; if you re-bake those here you'll erase the hand-drawn
+    // versions. Leaving the legacy spec literals below as comments so
+    // the original layout is recoverable if you ever want procedural
+    // bases back (e.g. for a future demo with no source sheets).
+    /*
     const baseDir = join(OUT, `base/era${eraN}`);
     mkdirSync(baseDir, { recursive: true });
     specs.push({
@@ -113,11 +124,12 @@ function buildSpecs(eraIds) {
       spec: { type: 'base-enemy', eraId, w: BASE_BAKE_W, h: BASE_BAKE_H,
               opts: { x: BASE_BAKE_W / 2, groundY: BASE_BAKE_H } },
     });
+    */
   }
 
-  // Units — 5 eras × 3 roles + 1 general. Each era's unitIds[] is
-  // ordered [frontline, ranged, heavy]; the era's generalId points at
-  // the era's general unit.
+  // Units intentionally OMITTED — see comment above. Hand-art comes
+  // from `scripts/era-siege-crop-sheets.mjs`.
+  /*
   const ROLE_ORDER = ['frontline', 'ranged', 'heavy'];
   for (let i = 0; i < 5; i++) {
     const eraId = eraIds[i];
@@ -144,6 +156,7 @@ function buildSpecs(eraIds) {
       });
     }
   }
+  */
   return specs;
 }
 

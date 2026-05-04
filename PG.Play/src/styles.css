@@ -954,6 +954,18 @@ svg { display: block; width: 100%; height: 100%; }
   border-radius: var(--r-lg);
 }
 .empty strong { color: var(--text-dim); }
+.empty-link {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.empty-link:hover { filter: brightness(1.15); }
 
 /* ═══════════════════════════════════════════════════════════════
    Footer
@@ -3252,6 +3264,67 @@ svg { display: block; width: 100%; height: 100%; }
   color: #fff;
 }
 .ff-lobby-pill.is-active span { color: rgba(255, 255, 255, 0.78); }
+/* Phase 22g — guide modal. Glass-card with two columns. */
+.ff-guide-backdrop {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(8, 14, 24, 0.72);
+  backdrop-filter: blur(6px);
+  display: grid; place-items: center;
+  padding: 24px;
+}
+.ff-guide-card {
+  width: min(720px, 100%);
+  max-height: min(80vh, 720px);
+  overflow: auto;
+  background: rgba(18, 28, 44, 0.96);
+  border: 1px solid rgba(108, 208, 240, 0.22);
+  border-radius: 14px;
+  padding: 22px 24px;
+  color: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+}
+.ff-guide-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.ff-guide-head h3 { margin: 0; font-size: 1.05rem; font-weight: 600; letter-spacing: 0.02em; }
+.ff-guide-close {
+  width: 32px; height: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit; border-radius: 8px;
+  font-size: 1.1rem; cursor: pointer;
+}
+.ff-guide-close:hover { background: rgba(255, 255, 255, 0.08); }
+.ff-guide-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+@media (max-width: 640px) { .ff-guide-cols { grid-template-columns: 1fr; } }
+.ff-guide-cols section h4 {
+  margin: 0 0 10px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(108, 208, 240, 0.85);
+}
+.ff-guide-cols ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.ff-guide-cols li { font-size: 0.84rem; line-height: 1.4; color: rgba(255, 255, 255, 0.78); }
+.ff-guide-cols li b { color: rgba(255, 255, 255, 0.96); font-weight: 600; margin-right: 4px; }
+.ff-guide-foot { margin: 16px 0 0; font-size: 0.78rem; color: rgba(255, 255, 255, 0.55); }
+/* Phase 22e — fruit power legend. Inline list of pill-style chips.
+   Reads as a quick reference, not interactive. */
+.ff-lobby-power-list {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-wrap: wrap; gap: 6px 14px;
+  font-size: 0.78rem; color: rgba(255, 255, 255, 0.7);
+}
+.ff-lobby-power-list li {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(108, 208, 240, 0.06);
+  border: 1px solid rgba(108, 208, 240, 0.15);
+}
+.ff-lobby-power-list b {
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 600;
+  margin-right: 4px;
+}
 .ff-lobby-levels {
   display: flex;
   align-items: center;
@@ -8471,7 +8544,7 @@ svg { display: block; width: 100%; height: 100%; }
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: var(--s-5) var(--s-3) var(--s-4);
+  padding: var(--s-4) var(--s-3) var(--s-3);
   background: var(--bg);
   border-right: 1px solid var(--line);
 }
@@ -8534,6 +8607,58 @@ svg { display: block; width: 100%; height: 100%; }
 }
 .sidebar-close svg { width: 16px; height: 16px; }
 
+/* Search ─────────────────────────────────────────────────────── */
+.sidebar-search {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  width: calc(100% - var(--s-2));
+  height: 38px;
+  margin: 0 var(--s-1) var(--s-3);
+  padding: 0 10px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--surface-sunken);
+  color: var(--text-mute);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color var(--t-fast), background var(--t-fast),
+              color var(--t-fast);
+}
+.sidebar-search:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface-sunken));
+  color: var(--text);
+}
+.sidebar-search:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+.sidebar-search-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.sidebar-search-icon > svg { width: 16px; height: 16px; }
+.sidebar-search-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.85rem;
+}
+.sidebar-search-kbd {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--text-mute);
+}
+
 /* Nav ────────────────────────────────────────────────────────── */
 .sidebar-nav {
   flex: 1;
@@ -8566,20 +8691,22 @@ svg { display: block; width: 100%; height: 100%; }
   color: var(--text-mute);
 }
 
-/* Item — height 38px, accent bar on the left when active. */
+/* Item — height 34px (the rail now has six groups, so we tighten to keep
+   everything in view without a second scroll), accent bar on the left when
+   active. */
 .sidebar-item {
   position: relative;
   display: flex;
   align-items: center;
   gap: var(--s-2);
   width: 100%;
-  height: 38px;
-  padding: 0 var(--s-3);
+  height: 34px;
+  padding: 0 10px;
   border-radius: var(--r-md);
   border: 1px solid transparent;
   background: transparent;
   color: var(--text-dim);
-  font-size: 0.9rem;
+  font-size: 0.86rem;
   font-weight: 500;
   text-align: left;
   cursor: pointer;
@@ -8627,7 +8754,34 @@ svg { display: block; width: 100%; height: 100%; }
   align-items: center;
   justify-content: center;
 }
-.sidebar-item-icon > svg { width: 18px; height: 18px; }
+.sidebar-item-icon > svg { width: 17px; height: 17px; }
+
+/* Genre dot — used in the Genres group instead of an icon. Sits in the
+   same 18px slot as the icon container so labels line up. */
+.sidebar-item-dot {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.sidebar-item-dot::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--genre-color, var(--accent));
+  box-shadow: 0 0 8px color-mix(in srgb, var(--genre-color, var(--accent)) 50%, transparent);
+}
+.sidebar-genre-action     { --genre-color: var(--genre-action); }
+.sidebar-genre-puzzle     { --genre-color: var(--genre-puzzle); }
+.sidebar-genre-arcade     { --genre-color: var(--genre-arcade); }
+.sidebar-genre-platformer { --genre-color: #c084fc; }
+.sidebar-genre-sports     { --genre-color: var(--genre-sports); }
+.sidebar-genre-strategy   { --genre-color: #f59e0b; }
+.sidebar-genre-casual     { --genre-color: #34d399; }
 
 .sidebar-item-label {
   flex: 1;

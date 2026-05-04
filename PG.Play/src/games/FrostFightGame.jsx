@@ -42,6 +42,20 @@ import { spawnFx, tickFx, drawFx, spawnFloater, spawnRing } from './frost-fight/
 // transparency, stays small, and renders correctly.
 import playerSpriteUrl     from './frost-fight/sprites/player.png?url';
 import player2SpriteUrl    from './frost-fight/sprites/player-2.png?url';
+// Phase 22d — sheet-5 ice cream skin variants for the player. Each is
+// optional; the default falls back to player.png. Selected via the
+// `skin` prop persisted in localStorage by the lobby.
+import skinVanillaUrl      from './frost-fight/sprites/icecream-vanilla.png?url';
+import skinSundaeUrl       from './frost-fight/sprites/icecream-sundae.png?url';
+import skinTripleUrl       from './frost-fight/sprites/icecream-triple.png?url';
+import skinSandwichUrl     from './frost-fight/sprites/icecream-sandwich.png?url';
+const PLAYER_SKINS = {
+  default:  playerSpriteUrl,
+  vanilla:  skinVanillaUrl,
+  sundae:   skinSundaeUrl,
+  triple:   skinTripleUrl,
+  sandwich: skinSandwichUrl,
+};
 import strawberrySpriteUrl from './frost-fight/sprites/strawberry.png?url';
 import blueberrySpriteUrl  from './frost-fight/sprites/blueberry.png?url';
 import fruitSpriteUrl      from './frost-fight/sprites/fruit.png?url';
@@ -89,15 +103,32 @@ import { loadAtlas, getFrame, tickAnim, setAnimAction, ATLAS_CHARS }
 
 // Map enemy kind → atlas char key. Kinds not listed here use the
 // existing single-sprite path (blueberry, plum, eggplant, melon,
-// banana, cherrybomb, cherry).
+// banana, cherrybomb).
+//
+// Phase 22e — cherry now uses its proper atlas (advanced sheet 7);
+// the legacy `cherry-windup.png` slot still loads as a fallback for
+// any code path that asks for it directly. apple is a new atlas
+// member that didn't exist before. kiwi/pineapple/lemon/peach atlases
+// pulled from the advanced sheets (chars 4/5/3/5 respectively in the
+// new layout).
 const ATLAS_KEY_FOR_KIND = {
   orange:     'orange',
   strawberry: 'strawberry',
   grape:      'grape',
-  kiwi:       'kiwi',
-  pineapple:  'pineapple',
+  kiwi:       'kiwi',     // not yet present on disk — loadAtlas returns null gracefully
+  pineapple:  'pineapple', // ditto — falls back to legacy single sprite
   lemon:      'lemon',
   peach:      'peach',
+  cherry:     'cherry',
+  apple:      'apple',
+  // Phase 22f — Trinkets theme: special non-fruit bots. Their atlases
+  // came out partial (steam/flame/sparkle effects fuse adjacent frames
+  // in the source sheets) but the runtime handles short cycles
+  // gracefully via modulo wrap.
+  candle:     'candle',
+  teapot:     'teapot',
+  lamp:       'lamp',
+  chest:      'chest',
 };
 
 // Per-room wall textures — Vite's glob-import so they're auto-discovered
@@ -113,6 +144,21 @@ const WALL_TEXTURES = {};
 for (const [pathKey, url] of Object.entries(WALL_MODULES)) {
   const m = pathKey.match(/walls\/([\w-]+)\.png$/);
   if (m) WALL_TEXTURES[m[1]] = url;
+}
+
+// Phase 22k — themed FLOOR textures (Trinkets era + future). Same
+// glob pattern as walls. ROOM_FLOOR_KEY (defined below the room
+// catalog) maps each room → texture stem; rooms without a key fall
+// back to the canvas linear-gradient floor.
+const FLOOR_MODULES = import.meta.glob('./frost-fight/sprites/floors/*.png', {
+  eager: true,
+  import: 'default',
+  query: '?url',
+});
+const FLOOR_TEXTURES = {};
+for (const [pathKey, url] of Object.entries(FLOOR_MODULES)) {
+  const m = pathKey.match(/floors\/([\w-]+)\.png$/);
+  if (m) FLOOR_TEXTURES[m[1]] = url;
 }
 // Maps room name → expected texture filename stem (no hyphens — matches
 // the user's drop convention).
@@ -140,6 +186,77 @@ const ROOM_WALL_KEY = {
   'Old Crusher':    'orchard-stones',
   'Witchhazel':     'orchard-woodvines',
   'Last Harvest':   'orchard-stones',
+  // Phase 22f — Trinkets walls (reuse Harvest textures with thematic
+  // pairings; each gives the room a different feel even on the same
+  // texture set).
+  // Phase 22k — Trinkets walls now use the dedicated img3 textures
+  // (hearth / damask / tile / vault) so the era reads visually distinct
+  // from Harvest's wood-and-moss palette.
+  'Mantelpiece':    'trinket-hearth',
+  'Tea Time':       'trinket-damask',
+  'Genie Hall':     'trinket-tile',
+  'Treasure Vault': 'trinket-vault',
+  // Harvest 13-20 wall mappings (cycle through Harvest atlas).
+  'Cidery':         'orchard-basket',
+  'Quince Walk':    'orchard-bark',
+  'Berry Cellar':   'orchard-mossdeep',
+  'Rotwood':        'orchard-wood',
+  'Ember Field':    'orchard-woodvines',
+  'Thicket':        'orchard-bark',
+  'Mossfall':       'orchard-mossdeep',
+  'Final Bloom':    'orchard-stones',
+  // Trinkets 5-20 walls — distributed across the four img3 textures
+  // by sub-theme. Hearths for fire-heavy rooms (Hearthstone / Wax Hall
+  // / Ash Cellar), damask for tea/dining (Tea Service / Carafe / Music
+  // Box / Spice Rack), tile for lamp/genie rooms (Lampblack / Iron
+  // Cross / Tin Drum / Bell Tower), vault for chest/treasure rooms
+  // (Brass Bell / Gilded Mirror / Hourglass / Crystal Chest / Vault
+  // Final).
+  'Hearthstone':    'trinket-hearth',
+  'Tin Drum':       'trinket-tile',
+  'Tea Service':    'trinket-damask',
+  'Brass Bell':     'trinket-vault',
+  'Spice Rack':     'trinket-damask',
+  'Wax Hall':       'trinket-hearth',
+  'Lampblack':      'trinket-tile',
+  'Carafe':         'trinket-damask',
+  'Gilded Mirror':  'trinket-vault',
+  'Music Box':      'trinket-damask',
+  'Hourglass':      'trinket-vault',
+  'Iron Cross':     'trinket-tile',
+  'Ash Cellar':     'trinket-hearth',
+  'Crystal Chest':  'trinket-vault',
+  'Bell Tower':     'trinket-tile',
+  'Vault Final':    'trinket-vault',
+};
+
+// Phase 22k — per-room FLOOR texture mapping. Rooms not listed here
+// fall back to the canvas gradient. Trinkets gets the eight img4
+// textures distributed by mood: parquet for warm/wood rooms, mosaic
+// for genie/tile rooms, marble for vault/elegant rooms, persian for
+// rich/ornate rooms.
+const ROOM_FLOOR_KEY = {
+  // Trinkets 1-20 — every room gets a distinct floor.
+  'Mantelpiece':    'trinket-parquet-square',
+  'Tea Time':       'trinket-persian-small',
+  'Genie Hall':     'trinket-mosaic-blue',
+  'Treasure Vault': 'trinket-marble-white',
+  'Hearthstone':    'trinket-parquet-square',
+  'Tin Drum':       'trinket-mosaic-orange',
+  'Tea Service':    'trinket-persian-small',
+  'Brass Bell':     'trinket-marble-white',
+  'Spice Rack':     'trinket-persian-large',
+  'Wax Hall':       'trinket-parquet-herring',
+  'Lampblack':      'trinket-mosaic-blue',
+  'Carafe':         'trinket-persian-small',
+  'Gilded Mirror':  'trinket-marble-white',
+  'Music Box':      'trinket-persian-large',
+  'Hourglass':      'trinket-marble-green',
+  'Iron Cross':     'trinket-mosaic-blue',
+  'Ash Cellar':     'trinket-parquet-herring',
+  'Crystal Chest':  'trinket-marble-green',
+  'Bell Tower':     'trinket-mosaic-orange',
+  'Vault Final':    'trinket-persian-large',
 };
 
 const BEST_LS_KEY = 'pgplay-ff-best';
@@ -243,6 +360,12 @@ const PALETTE = {
   'Grape Net':      { floorTop: '#a890b8', floorBot: '#3a2050', halo: 'rgba(190, 140, 230, 0.30)', frame: 'rgba(190, 140, 230, 0.32)' },
   'Bomb Foundry':   { floorTop: '#c8a4a8', floorBot: '#582834', halo: 'rgba(255, 138, 163, 0.30)', frame: 'rgba(255, 138, 163, 0.32)' },
   'Annihilation':   { floorTop: '#d4c0c8', floorBot: '#3a1a30', halo: 'rgba(255, 138, 163, 0.36)', frame: 'rgba(255, 138, 163, 0.40)' },
+  // Phase 22f — Trinkets theme. Warm-tinted, lit-from-above palette
+  // for the magical-object rooms.
+  'Mantelpiece':    { floorTop: '#e6d4b8', floorBot: '#7a5a36', halo: 'rgba(240, 200, 130, 0.22)', frame: 'rgba(220, 170, 100, 0.24)' },
+  'Tea Time':       { floorTop: '#dcd0c0', floorBot: '#605040', halo: 'rgba(220, 200, 170, 0.22)', frame: 'rgba(200, 170, 140, 0.24)' },
+  'Genie Hall':     { floorTop: '#e0d8e8', floorBot: '#604878', halo: 'rgba(200, 170, 230, 0.22)', frame: 'rgba(180, 150, 220, 0.24)' },
+  'Treasure Vault': { floorTop: '#e8d8a4', floorBot: '#7a5018', halo: 'rgba(240, 210, 110, 0.26)', frame: 'rgba(220, 180, 80, 0.28)' },
   // Phase 22 — Harvest theme. Warm orchard greens + soft sunset. Each
   // room steps the gradient hue across the cycle so room 1 reads as
   // "morning meadow" and room 12 as "twilight grove".
@@ -258,6 +381,32 @@ const PALETTE = {
   'Old Crusher':    { floorTop: '#c8a890', floorBot: '#5e3820', halo: 'rgba(220, 160, 120, 0.24)', frame: 'rgba(200, 130, 90, 0.26)',  decor: 'leaves' },
   'Witchhazel':     { floorTop: '#bcb4d4', floorBot: '#382858', halo: 'rgba(170, 150, 220, 0.26)', frame: 'rgba(150, 120, 200, 0.28)', decor: 'leaves' },
   'Last Harvest':   { floorTop: '#a89c80', floorBot: '#2c1c0a', halo: 'rgba(220, 200, 140, 0.30)', frame: 'rgba(200, 170, 110, 0.34)', decor: 'leaves' },
+  // Harvest 13-20 — extending the 12-room set to a full 20.
+  'Cidery':         { floorTop: '#e2c98a', floorBot: '#7a4a18', halo: 'rgba(240, 200, 110, 0.24)', frame: 'rgba(220, 170, 80, 0.26)',  decor: 'leaves' },
+  'Quince Walk':    { floorTop: '#d8c890', floorBot: '#604824', halo: 'rgba(220, 200, 130, 0.22)', frame: 'rgba(200, 170, 100, 0.24)', decor: 'leaves' },
+  'Berry Cellar':   { floorTop: '#bca8c0', floorBot: '#382848', halo: 'rgba(180, 150, 220, 0.24)', frame: 'rgba(160, 130, 200, 0.26)', decor: 'leaves' },
+  'Rotwood':        { floorTop: '#b09078', floorBot: '#2c1804', halo: 'rgba(200, 170, 130, 0.26)', frame: 'rgba(180, 140, 100, 0.28)', decor: 'leaves' },
+  'Ember Field':    { floorTop: '#e8b48a', floorBot: '#7a3018', halo: 'rgba(240, 150, 90, 0.30)',  frame: 'rgba(220, 120, 70, 0.32)',  decor: 'leaves' },
+  'Thicket':        { floorTop: '#b8c898', floorBot: '#384828', halo: 'rgba(180, 220, 130, 0.24)', frame: 'rgba(150, 200, 100, 0.26)', decor: 'leaves' },
+  'Mossfall':       { floorTop: '#a8c0a4', floorBot: '#2c4830', halo: 'rgba(170, 220, 180, 0.26)', frame: 'rgba(140, 200, 150, 0.28)', decor: 'leaves' },
+  'Final Bloom':    { floorTop: '#d4a890', floorBot: '#5e2818', halo: 'rgba(240, 170, 120, 0.32)', frame: 'rgba(220, 130, 90, 0.36)',  decor: 'leaves' },
+  // Trinkets 5-20 — extending the 4-room set to a full 20.
+  'Hearthstone':    { floorTop: '#e0c4a0', floorBot: '#704830', halo: 'rgba(240, 200, 130, 0.24)', frame: 'rgba(220, 170, 100, 0.26)' },
+  'Tin Drum':       { floorTop: '#c8c0b0', floorBot: '#605040', halo: 'rgba(200, 190, 170, 0.22)', frame: 'rgba(180, 170, 150, 0.24)' },
+  'Tea Service':    { floorTop: '#dcd0b8', floorBot: '#604830', halo: 'rgba(220, 200, 160, 0.22)', frame: 'rgba(200, 170, 130, 0.24)' },
+  'Brass Bell':     { floorTop: '#e8c890', floorBot: '#7a5018', halo: 'rgba(240, 210, 110, 0.26)', frame: 'rgba(220, 180, 80, 0.28)' },
+  'Spice Rack':     { floorTop: '#d4a888', floorBot: '#5e3018', halo: 'rgba(240, 170, 110, 0.26)', frame: 'rgba(220, 130, 80, 0.28)' },
+  'Wax Hall':       { floorTop: '#e8d4b4', floorBot: '#604018', halo: 'rgba(240, 210, 150, 0.26)', frame: 'rgba(220, 180, 110, 0.28)' },
+  'Lampblack':      { floorTop: '#bca8b8', floorBot: '#382838', halo: 'rgba(180, 150, 200, 0.24)', frame: 'rgba(160, 130, 180, 0.26)' },
+  'Carafe':         { floorTop: '#d4c0a8', floorBot: '#604830', halo: 'rgba(220, 190, 150, 0.22)', frame: 'rgba(200, 170, 120, 0.24)' },
+  'Gilded Mirror':  { floorTop: '#ecd8a8', floorBot: '#604018', halo: 'rgba(240, 220, 130, 0.30)', frame: 'rgba(220, 190, 90, 0.32)' },
+  'Music Box':      { floorTop: '#c8a8c8', floorBot: '#403048', halo: 'rgba(200, 160, 220, 0.24)', frame: 'rgba(180, 140, 200, 0.26)' },
+  'Hourglass':      { floorTop: '#dccaa0', floorBot: '#5a3818', halo: 'rgba(220, 200, 140, 0.26)', frame: 'rgba(200, 170, 100, 0.28)' },
+  'Iron Cross':     { floorTop: '#a8a8b8', floorBot: '#282838', halo: 'rgba(160, 160, 200, 0.24)', frame: 'rgba(140, 140, 180, 0.26)' },
+  'Ash Cellar':     { floorTop: '#a89890', floorBot: '#281c14', halo: 'rgba(180, 160, 140, 0.26)', frame: 'rgba(160, 140, 120, 0.28)' },
+  'Crystal Chest':  { floorTop: '#c0d8e0', floorBot: '#384850', halo: 'rgba(180, 220, 230, 0.28)', frame: 'rgba(150, 200, 220, 0.32)' },
+  'Bell Tower':     { floorTop: '#d8c8a0', floorBot: '#5a3018', halo: 'rgba(240, 200, 110, 0.30)', frame: 'rgba(220, 170, 80, 0.34)' },
+  'Vault Final':    { floorTop: '#e8b888', floorBot: '#5a2008', halo: 'rgba(240, 150, 90, 0.36)',  frame: 'rgba(220, 110, 60, 0.40)' },
 };
 const DEFAULT_PALETTE = PALETTE.Pantry;
 
@@ -1259,6 +1408,678 @@ const LEVELS = [
       '######################',
     ],
   },
+  // ─── TRINKETS theme (Phase 22f) ─────────────────────────────────
+  // Magical-objects era: candles, teapots, genie lamps, treasure chests.
+  // Letters: C=candle, T=teapot, l=lamp, Z=chest.
+  {
+    name: 'Mantelpiece',
+    tip: 'Trinkets 1 — candles flicker and blow ice. The flame is the tell.',
+    grid: [
+      '######################',
+      '#p..f.........f.....C#',
+      '#.####.....####......#',
+      '#....C..............f#',
+      '#.f..................#',
+      '#......######........#',
+      '#.f.........f........#',
+      '#......######........#',
+      '#....C..............f#',
+      '#.f..................#',
+      '#.####.....####......#',
+      '#......f...........fX#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Tea Time',
+    tip: 'Trinkets 2 — teapots steam first, then blow. Don\'t stand on the same row.',
+    grid: [
+      '######################',
+      '#p..A.........A.....T#',
+      '#.####.####.####.#####',
+      '#....T..............A#',
+      '#.A..................#',
+      '#.....######.........#',
+      '#.A.........A........#',
+      '#.....######.........#',
+      '#....T..............A#',
+      '#.A..................#',
+      '#.####.####.####.#####',
+      '#......A...........AX#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Genie Hall',
+    tip: 'Trinkets 3 — lamps chase fast. Cherry pickup slows everyone.',
+    grid: [
+      '######################',
+      '#p..Q....l....Q.....l#',
+      '#.######......######.#',
+      '#......l............f#',
+      '#.A..................#',
+      '#.######......######.#',
+      '#......l.....l.......#',
+      '#.######......######.#',
+      '#A..................A#',
+      '#......l.............#',
+      '#.######......######.#',
+      '#.Q....A....l....A..X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Treasure Vault',
+    tip: 'Trinkets 4 — chests sit heavy and wait. Candles + teapots fill the room.',
+    grid: [
+      '######################',
+      '#p..A....C....A....TZ#',
+      '#.####################',
+      '#....T..............Z#',
+      '#.A.........Q........#',
+      '#.####....####....####',
+      '#....C..............Z#',
+      '#.####....####....####',
+      '#.A.........Q.......T#',
+      '#....T..............Z#',
+      '#.####################',
+      '#Z.A....C....T.....AX#',
+      '######################',
+    ],
+  },
+  // ─── Harvest 13-20 ─────────────────────────────────────────────────
+  {
+    name: 'Cidery',
+    tip: 'Harvest 13 — apples + lemon + grape. Tight columns, fast bots.',
+    grid: [
+      '######################',
+      '#p..A.....A....A....A#',
+      '#.######......######.#',
+      '#......j............G#',
+      '#A...................#',
+      '#..####.IIII.####....#',
+      '#......G............A#',
+      '#..####.IIII.####....#',
+      '#A...................#',
+      '#......j............A#',
+      '#.######......######.#',
+      '#A....A.....A....A..X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Quince Walk',
+    tip: 'Harvest 14 — narrow lanes, three pineapples on patrol.',
+    grid: [
+      '######################',
+      '#p.f....n....n....n.f#',
+      '#####.######.######.##',
+      '#.....................',
+      '#.f................f.#',
+      '#.######.....######..#',
+      '#......h.....h.......#',
+      '#.######.....######..#',
+      '#.f................f.#',
+      '#.....................',
+      '#####.######.######.##',
+      '#.f....n....n....n.fX#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Berry Cellar',
+    tip: 'Harvest 15 — strawberry mob in tight quarters. Two phases.',
+    grid: [
+      '######################',
+      '#p.s..s..s..s..s..s..#',
+      '#.######......######.#',
+      '#....................#',
+      '#..####........####..#',
+      '#....................#',
+      '#..f....f....f....f..#',
+      '#....................#',
+      '#..####........####..#',
+      '#....................#',
+      '#.######......######.#',
+      '#.s..s..s..s..s..s..X#',
+      '######################',
+    ],
+    phases: [
+      { fruits: [
+          { col: 5, row: 4, kind: 'strawberry' }, { col: 11, row: 4, kind: 'strawberry' },
+          { col: 16, row: 4, kind: 'strawberry' }, { col: 5, row: 8, kind: 'strawberry' },
+          { col: 11, row: 8, kind: 'strawberry' }, { col: 16, row: 8, kind: 'strawberry' },
+        ],
+        enemies: [
+          { col: 7, row: 5, kind: 'kiwi' }, { col: 14, row: 7, kind: 'kiwi' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'Rotwood',
+    tip: 'Harvest 16 — grape + plum sandwich. Read the cyan ring.',
+    grid: [
+      '######################',
+      '#p..A.....U....A....U#',
+      '#.######......######.#',
+      '#......G............A#',
+      '#A...................#',
+      '#..######....######..#',
+      '#......U....G........#',
+      '#..######....######..#',
+      '#A...................#',
+      '#......G............A#',
+      '#.######......######.#',
+      '#U....A.....U....A..X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Ember Field',
+    tip: 'Harvest 17 — cherrybombs everywhere. Two phases of fuses.',
+    grid: [
+      '######################',
+      '#p..A....Y....A....Y.#',
+      '#.######......######.#',
+      '#....Y..............A#',
+      '#.A..................#',
+      '#..######....######..#',
+      '#.....Y....A.........#',
+      '#..######....######..#',
+      '#.A.........A........#',
+      '#....Y..............A#',
+      '#.######......######.#',
+      '#Y....A....Y....A...X#',
+      '######################',
+    ],
+    phases: [
+      { fruits: [
+          { col: 4, row: 4, kind: 'apple' }, { col: 17, row: 4, kind: 'apple' },
+          { col: 4, row: 8, kind: 'apple' }, { col: 17, row: 8, kind: 'apple' },
+        ],
+        enemies: [
+          { col: 10, row: 6, kind: 'cherrybomb' }, { col: 11, row: 6, kind: 'cherrybomb' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'Thicket',
+    tip: 'Harvest 18 — open arena, fast chasers. Read footsteps.',
+    grid: [
+      '######################',
+      '#p..f.................',
+      '#.....h.....k........#',
+      '#....................#',
+      '#.f.........k....A...#',
+      '#....................#',
+      '#......######........#',
+      '#....................#',
+      '#.f.........h....A...#',
+      '#....................#',
+      '#.....h.....k........#',
+      '#....f.....f........X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Mossfall',
+    tip: 'Harvest 19 — three-phase grind. Kiwi → Pineapple → Final Storm.',
+    grid: [
+      '######################',
+      '#p..f....k....f.....k#',
+      '#.######......######.#',
+      '#....................#',
+      '#..f....k.......f....#',
+      '#....................#',
+      '#......######........#',
+      '#....................#',
+      '#..f.........f.......#',
+      '#....................#',
+      '#.######......######.#',
+      '#......f...........fX#',
+      '######################',
+    ],
+    phases: [
+      { fruits: [
+          { col: 5, row: 6, kind: 'apple' }, { col: 11, row: 6, kind: 'apple' },
+          { col: 17, row: 6, kind: 'apple' },
+        ],
+        enemies: [
+          { col: 4, row: 4, kind: 'pineapple' }, { col: 17, row: 8, kind: 'pineapple' },
+        ],
+      },
+      { fruits: [
+          { col: 7, row: 4, kind: 'cherryFruit' }, { col: 14, row: 8, kind: 'cherryFruit' },
+        ],
+        enemies: [
+          { col: 10, row: 5, kind: 'lemon' }, { col: 11, row: 7, kind: 'lemon' },
+          { col: 5, row: 10, kind: 'plum' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'Final Bloom',
+    tip: 'Harvest 20 — three phases. Every animated bot. Survive.',
+    grid: [
+      '######################',
+      '#p..k.s..o..G..n..j.h#',
+      '#.####################',
+      '#....IIII....IIII....#',
+      '#.A...........IIII..A#',
+      '#.####....####....####',
+      '#....h..........k....#',
+      '#.####....####....####',
+      '#.A...........IIII..A#',
+      '#....IIII....IIII....#',
+      '#.####################',
+      '#h.j..n..G..o..s..k.X#',
+      '######################',
+    ],
+    phases: [
+      { fruits: [
+          { col: 5, row: 6, kind: 'cherryFruit' }, { col: 16, row: 6, kind: 'cherryFruit' },
+        ],
+        enemies: [
+          { col: 4, row: 4, kind: 'cherrybomb' }, { col: 17, row: 8, kind: 'cherrybomb' },
+        ],
+      },
+      { fruits: [
+          { col: 10, row: 4, kind: 'kiwi' }, { col: 11, row: 8, kind: 'lemon' },
+        ],
+        enemies: [
+          { col: 5, row: 5, kind: 'plum' }, { col: 16, row: 7, kind: 'eggplant' },
+          { col: 10, row: 6, kind: 'melon' },
+        ],
+      },
+    ],
+  },
+  // ─── Trinkets 5-20 ─────────────────────────────────────────────────
+  {
+    name: 'Hearthstone',
+    tip: 'Trinkets 5 — three candles in a tight room. Read the flame.',
+    grid: [
+      '######################',
+      '#p..f....C....f.....C#',
+      '#.####.....####......#',
+      '#....C..............f#',
+      '#.f..................#',
+      '#......######........#',
+      '#.f.........f........#',
+      '#......######........#',
+      '#.f.........C........#',
+      '#....C..............f#',
+      '#.####.....####......#',
+      '#......f.........C.fX#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Tin Drum',
+    tip: 'Trinkets 6 — chests block the lanes. Squeeze around.',
+    grid: [
+      '######################',
+      '#p..A.....Z....A....Z#',
+      '#.####################',
+      '#....T..............Z#',
+      '#.A.........T........#',
+      '#.####....####....####',
+      '#....C..............A#',
+      '#.####....####....####',
+      '#.A.........T........#',
+      '#....C..............A#',
+      '#.####################',
+      '#Z.A....T....C.....AX#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Tea Service',
+    tip: 'Trinkets 7 — teapots in a row. Tea time turns sour fast.',
+    grid: [
+      '######################',
+      '#p..A.....T....A....T#',
+      '#.######......######.#',
+      '#......T............A#',
+      '#A...................#',
+      '#..####....####......#',
+      '#......T....T........#',
+      '#..####....####......#',
+      '#A...................#',
+      '#......T............A#',
+      '#.######......######.#',
+      '#T....A....T....A...X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Brass Bell',
+    tip: 'Trinkets 8 — lamps predict your moves. Don\'t walk straight.',
+    grid: [
+      '######################',
+      '#p..f.........f.....l#',
+      '#.######......######.#',
+      '#......l............f#',
+      '#.f..................#',
+      '#......######........#',
+      '#............l.......#',
+      '#......######........#',
+      '#.f.........l........#',
+      '#......l............f#',
+      '#.######......######.#',
+      '#l....f.....l....f..X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Spice Rack',
+    tip: 'Trinkets 9 — candle + teapot tag-team in tight quarters.',
+    grid: [
+      '######################',
+      '#p..A....C....A.....T#',
+      '#.######.####.######.#',
+      '#......T..............',
+      '#.A..........C.......#',
+      '#..####.IIII.####....#',
+      '#............T.......#',
+      '#..####.IIII.####....#',
+      '#.A..........C.......#',
+      '#......T..............',
+      '#.######.####.######.#',
+      '#T....A....C....A...X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Wax Hall',
+    tip: 'Trinkets 10 — five candles in a long hallway.',
+    grid: [
+      '######################',
+      '#p.f..C..f..C..f..C..#',
+      '#####.######.######.##',
+      '#......C....C........#',
+      '#.f................f.#',
+      '#.######.....######..#',
+      '#............C.......#',
+      '#.######.....######..#',
+      '#.f................f.#',
+      '#......C....C........#',
+      '#####.######.######.##',
+      '#.f..C..f..C..f..C..X#',
+      '######################',
+    ],
+    phases: [
+      { fruits: [
+          { col: 5, row: 6, kind: 'apple' }, { col: 16, row: 6, kind: 'apple' },
+        ],
+        enemies: [
+          { col: 7, row: 4, kind: 'lamp' }, { col: 14, row: 8, kind: 'lamp' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'Lampblack',
+    tip: 'Trinkets 11 — lamps predict, chests trap. Two-phase.',
+    grid: [
+      '######################',
+      '#p..A....l....A.....Z#',
+      '#.####################',
+      '#....l..............Z#',
+      '#.A.........l........#',
+      '#.####....####....####',
+      '#....l..............A#',
+      '#.####....####....####',
+      '#.A.........l........#',
+      '#....l..............A#',
+      '#.####################',
+      '#Z.A....l....l.....AX#',
+      '######################',
+    ],
+    phases: [
+      { fruits: [
+          { col: 5, row: 4, kind: 'cherryFruit' }, { col: 16, row: 8, kind: 'cherryFruit' },
+        ],
+        enemies: [
+          { col: 10, row: 6, kind: 'teapot' }, { col: 11, row: 6, kind: 'teapot' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'Carafe',
+    tip: 'Trinkets 12 — teapots blow in volleys. Cherry slows them.',
+    grid: [
+      '######################',
+      '#p..Q....T....Q.....T#',
+      '#.######......######.#',
+      '#......T............Q#',
+      '#A...................#',
+      '#..####....####......#',
+      '#......T.....T.......#',
+      '#..####....####......#',
+      '#A...................#',
+      '#......T............Q#',
+      '#.######......######.#',
+      '#T....Q....T....Q...X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Gilded Mirror',
+    tip: 'Trinkets 13 — three-phase. Lamps then candles then chest.',
+    grid: [
+      '######################',
+      '#p..A....l....A....l.#',
+      '#.######......######.#',
+      '#....................#',
+      '#.A..........l.......#',
+      '#......######........#',
+      '#....................#',
+      '#......######........#',
+      '#.A..........l.......#',
+      '#....................#',
+      '#.######......######.#',
+      '#.l....A....l....A..X#',
+      '######################',
+    ],
+    phases: [
+      { fruits: [
+          { col: 6, row: 4, kind: 'apple' }, { col: 15, row: 4, kind: 'apple' },
+          { col: 6, row: 8, kind: 'apple' }, { col: 15, row: 8, kind: 'apple' },
+        ],
+        enemies: [
+          { col: 4, row: 6, kind: 'candle' }, { col: 17, row: 6, kind: 'candle' },
+        ],
+      },
+      { fruits: [
+          { col: 10, row: 6, kind: 'cherryFruit' },
+        ],
+        enemies: [
+          { col: 11, row: 5, kind: 'chest' }, { col: 11, row: 7, kind: 'chest' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'Music Box',
+    tip: 'Trinkets 14 — open arena. Lamps, candles, teapots. Read the lanes.',
+    grid: [
+      '######################',
+      '#p..f.........f.....l#',
+      '#....C......T........#',
+      '#....................#',
+      '#.f................f.#',
+      '#....................#',
+      '#......######........#',
+      '#....................#',
+      '#.f................f.#',
+      '#....................#',
+      '#....T......C........#',
+      '#l....f.....l....f..X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Hourglass',
+    tip: 'Trinkets 15 — pre-laid ice + lamps. Melt, dodge, repeat.',
+    grid: [
+      '######################',
+      '#p..IIII....IIII....l#',
+      '#.######......######.#',
+      '#....l...............#',
+      '#A.IIII.....IIII....A#',
+      '#......######........#',
+      '#....l.......l.......#',
+      '#......######........#',
+      '#A.IIII.....IIII....A#',
+      '#....l...............#',
+      '#.######......######.#',
+      '#l..IIII....IIII....X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Iron Cross',
+    tip: 'Trinkets 16 — chests + lamps. Patient maze, brutal predict.',
+    grid: [
+      '######################',
+      '#p..A....l....A....Zl#',
+      '#.####################',
+      '#....Z..............Z#',
+      '#.A.........l........#',
+      '#.####....####....####',
+      '#....l..............A#',
+      '#.####....####....####',
+      '#.A.........l........#',
+      '#....Z..............A#',
+      '#.####################',
+      '#Z.A....l....l.....AX#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Ash Cellar',
+    tip: 'Trinkets 17 — three phases of candles. Heat rising.',
+    grid: [
+      '######################',
+      '#p..f....C....f.....C#',
+      '#.####.....####......#',
+      '#....................#',
+      '#.f....C....C....f...#',
+      '#......######........#',
+      '#....................#',
+      '#......######........#',
+      '#.f....C....C....f...#',
+      '#....................#',
+      '#.####.....####......#',
+      '#.f....C....f.....C.X#',
+      '######################',
+    ],
+    phases: [
+      { fruits: [
+          { col: 5, row: 6, kind: 'apple' }, { col: 16, row: 6, kind: 'apple' },
+        ],
+        enemies: [
+          { col: 7, row: 4, kind: 'candle' }, { col: 14, row: 8, kind: 'candle' },
+        ],
+      },
+      { fruits: [
+          { col: 10, row: 6, kind: 'cherryFruit' },
+        ],
+        enemies: [
+          { col: 4, row: 6, kind: 'lamp' }, { col: 17, row: 6, kind: 'lamp' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'Crystal Chest',
+    tip: 'Trinkets 18 — chests grow heavy. Ice + lamps + heart.',
+    grid: [
+      '######################',
+      '#p..IIII...Z...IIII.l#',
+      '#.######......######.#',
+      '#....Z..............l#',
+      '#A...................#',
+      '#..####.IIII.####....#',
+      '#....l.......l.......#',
+      '#..####.IIII.####....#',
+      '#A...................#',
+      '#....Z..............l#',
+      '#.######......######.#',
+      '#l..IIII...Z...IIII.X#',
+      '######################',
+    ],
+  },
+  {
+    name: 'Bell Tower',
+    tip: 'Trinkets 19 — every Trinkets bot. Two-phase apex.',
+    grid: [
+      '######################',
+      '#p..C....T....l.....Z#',
+      '#.######......######.#',
+      '#......l............Z#',
+      '#.A.........T........#',
+      '#.####....####....####',
+      '#....C..............A#',
+      '#.####....####....####',
+      '#.A.........l........#',
+      '#......T............A#',
+      '#.######......######.#',
+      '#Z.C....l....T.....AX#',
+      '######################',
+    ],
+    phases: [
+      { fruits: [
+          { col: 5, row: 4, kind: 'cherryFruit' }, { col: 16, row: 4, kind: 'cherryFruit' },
+          { col: 5, row: 8, kind: 'cherryFruit' }, { col: 16, row: 8, kind: 'cherryFruit' },
+        ],
+        enemies: [
+          { col: 10, row: 6, kind: 'lamp' }, { col: 11, row: 6, kind: 'lamp' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'Vault Final',
+    tip: 'Trinkets 20 — final boss room. Three phases of mounting trouble.',
+    grid: [
+      '######################',
+      '#p..A....C....l.....T#',
+      '#.####################',
+      '#....l..............Z#',
+      '#.A.........T........#',
+      '#.####....####....####',
+      '#....C..............A#',
+      '#.####....####....####',
+      '#.A.........l........#',
+      '#....T..............A#',
+      '#.####################',
+      '#Z.A....l....C.....TX#',
+      '######################',
+    ],
+    phases: [
+      { fruits: [
+          { col: 5, row: 4, kind: 'apple' }, { col: 16, row: 4, kind: 'apple' },
+          { col: 5, row: 8, kind: 'apple' }, { col: 16, row: 8, kind: 'apple' },
+        ],
+        enemies: [
+          { col: 4, row: 6, kind: 'lamp' }, { col: 17, row: 6, kind: 'lamp' },
+        ],
+      },
+      { fruits: [
+          { col: 10, row: 6, kind: 'cherryFruit' }, { col: 11, row: 6, kind: 'cherryFruit' },
+        ],
+        enemies: [
+          { col: 7, row: 5, kind: 'chest' }, { col: 14, row: 7, kind: 'chest' },
+          { col: 10, row: 4, kind: 'teapot' }, { col: 11, row: 8, kind: 'teapot' },
+        ],
+      },
+    ],
+  },
 ];
 
 // Phase 18 — themed packs. Each theme is a slice of 15 levels into the
@@ -1274,10 +2095,13 @@ export const THEMES = {
   // Phase 22 — animated era. Bots have proper walk + cast cycles
   // (extracted from the user's char1-char7 sheets). Six rooms while
   // the level set grows; theme can extend by appending to LEVELS.
-  harvest: { id: 'harvest', label: 'Harvest',    startIdx: 40, length: 12,
-             tagline: 'Animated orchard. Twelve rooms; every bot reads its mood on its face.' },
+  harvest: { id: 'harvest', label: 'Harvest',    startIdx: 40, length: 20,
+             tagline: 'Animated orchard. Twenty rooms; every bot reads its mood on its face.' },
+  // Phase 22f — Trinkets era: candles, teapots, lamps, chests.
+  trinkets: { id: 'trinkets', label: 'Trinkets', startIdx: 60, length: 20,
+             tagline: 'Mantelpiece to vault — twenty rooms of magical objects.' },
 };
-export const THEME_ORDER = ['cold', 'orchard', 'harvest'];
+export const THEME_ORDER = ['cold', 'orchard', 'harvest', 'trinkets'];
 const DEFAULT_THEME = 'cold';
 const resolveTheme = (id) => THEMES[id] || THEMES[DEFAULT_THEME];
 
@@ -1336,15 +2160,48 @@ function parseLevel(idx) {
       else if (ch === 'n') enemies.push({ col: c, row: r, kind: 'pineapple' });
       else if (ch === 'j') enemies.push({ col: c, row: r, kind: 'lemon' });
       else if (ch === 'h') enemies.push({ col: c, row: r, kind: 'peach' });
+      // Phase 22f — Trinkets theme bots. Uppercase to free the lowercase
+      // namespace for future fruits.
+      else if (ch === 'C') enemies.push({ col: c, row: r, kind: 'candle' });
+      else if (ch === 'T') enemies.push({ col: c, row: r, kind: 'teapot' });
+      else if (ch === 'l') enemies.push({ col: c, row: r, kind: 'lamp' });
+      else if (ch === 'Z') enemies.push({ col: c, row: r, kind: 'chest' });
     }
   }
-  return { walls, wallSet, ice, fruits, enemies, spawn, exit, tip: LEVELS[idx].tip, name: LEVELS[idx].name };
+  // Phase 22i — multi-phase levels. The level's `grid` is phase 0;
+  // optional `phases` is an array of up to 2 extra spawn waves
+  // (max 3 phases total). Each phase contributes additional fruits +
+  // enemies that get pushed into the level state when the previous
+  // phase's last fruit is collected. Exit only goes live after the
+  // final phase clears.
+  const phases = (LEVELS[idx].phases || []).slice(0, 2);
+  return {
+    walls, wallSet, ice, fruits, enemies, spawn, exit,
+    phases,
+    tip: LEVELS[idx].tip, name: LEVELS[idx].name,
+  };
 }
 
 const isWall     = (level, c, r) => level.wallSet.has(`${c},${r}`);
 const isIce      = (level, c, r) => level.ice.has(`${c},${r}`);
 const inBounds   = (c, r) => c >= 0 && r >= 0 && c < COLS && r < ROWS;
 const isPassable = (level, c, r) => inBounds(c, r) && !isWall(level, c, r) && !isIce(level, c, r);
+
+// Phase 22h — predict where the player is heading. Walks `depth`
+// tiles forward in the player's last `dir`, stopping at the first
+// wall (so the bot doesn't aim at an unreachable tile). Returns a
+// pseudo-target { col, row } the chase pipeline can route toward.
+const DIR_VEC = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
+function predictTarget(level, player, depth) {
+  const dv = DIR_VEC[player.dir] || DIR_VEC.down;
+  let c = player.col, r = player.row;
+  for (let i = 0; i < depth; i++) {
+    const nc = c + dv[0], nr = r + dv[1];
+    if (!inBounds(nc, nr) || isWall(level, nc, nr)) break;
+    c = nc; r = nr;
+  }
+  return { col: c, row: r };
+}
 
 // Per-kind step interval (seconds between move decisions). Orange sits
 // between strawberry and blueberry; cherry is the fastest of the four.
@@ -1367,6 +2224,12 @@ const ENEMY_INTERVAL = {
   pineapple:  0.95,    // slow heavy ice-caster
   lemon:      0.80,    // sour mid-tempo caster
   peach:      0.70,    // soft chaser
+  apple:      0.85,    // mid-tempo
+  // Phase 22f — Trinkets theme.
+  candle:     0.95,    // slow flicker, lights ice rows
+  teapot:     0.85,    // steam-caster
+  lamp:       0.70,    // fast genie
+  chest:      1.20,    // very slow heavy
 };
 
 // Per-kind ice-cast probability per decision tick. Cherry and orange
@@ -1392,6 +2255,13 @@ const ENEMY_ICE_CHANCE = {
   pineapple:  0.13,
   lemon:      0.11,
   peach:      0,
+  apple:      0,
+  // Phase 22f — Trinkets casters. Candle and teapot blow ice rows;
+  // lamp + chest are pure chasers.
+  candle:     0.12,
+  teapot:     0.14,
+  lamp:       0,
+  chest:      0,
 };
 const ENEMY_ICE_CD = 3.0;   // seconds between casts per enemy
 
@@ -1418,43 +2288,43 @@ export const DIFFICULTIES = {
   easy: {
     id: 'easy', label: 'Easy',
     respawnInPlace: true, respawnInvuln: 3.0,
-    intervalMul: 1.05, iceMul: 0.85,
+    intervalMul: 1.05, iceMul: 0.85, predictionDepth: 0,
     livesFor: () => Infinity,
     blurb: 'Respawn where you fell.',
   },
   normal: {
     id: 'normal', label: 'Normal',
     respawnInPlace: false, respawnInvuln: 0,
-    intervalMul: 1.0, iceMul: 1.0,
+    intervalMul: 1.0, iceMul: 1.0, predictionDepth: 0,
     livesFor: () => Infinity,
     blurb: 'Standard rules.',
   },
   hard: {
     id: 'hard', label: 'Hard',
     respawnInPlace: false, respawnInvuln: 0,
-    intervalMul: 1.0, iceMul: 1.4,
+    intervalMul: 1.0, iceMul: 1.4, predictionDepth: 1,
     livesFor: () => Infinity,
-    blurb: 'Bots cast more often.',
+    blurb: 'Bots cast more, predict 1 tile.',
   },
   expert: {
     id: 'expert', label: 'Expert',
     respawnInPlace: false, respawnInvuln: 0,
-    intervalMul: 0.75, iceMul: 1.5,
+    intervalMul: 0.75, iceMul: 1.5, predictionDepth: 2,
     livesFor: () => Infinity,
-    blurb: 'Bots think faster.',
+    blurb: 'Bots think faster, predict 2 tiles.',
   },
   insane: {
     id: 'insane', label: 'Insane',
     respawnInPlace: false, respawnInvuln: 0,
-    intervalMul: 0.6, iceMul: 2.0,
+    intervalMul: 0.6, iceMul: 2.0, predictionDepth: 3,
     livesFor: () => 0,
-    blurb: 'One hit. Game over.',
+    blurb: 'One hit. Bots predict 3 tiles.',
   },
 };
 const DEFAULT_DIFFICULTY = 'normal';
 const resolveDifficulty = (id) => DIFFICULTIES[id] || DIFFICULTIES[DEFAULT_DIFFICULTY];
 
-export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIFFICULTY, theme = DEFAULT_THEME, startLevel = 0 }) {
+export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIFFICULTY, theme = DEFAULT_THEME, startLevel = 0, skin = 'default' }) {
   const diff = resolveDifficulty(difficulty);
   const themeDef = resolveTheme(theme);
   // Theme-relative → absolute level index. The game still indexes
@@ -1496,6 +2366,11 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
   // Active room wall pattern. Created lazily once the level texture image
   // decodes; null while no texture is registered for the current room.
   const wallPatternRef = useRef(null);
+  // Phase 22k — floor pattern. Same lifecycle as wallPatternRef:
+  // re-set on level load, used as a CanvasPattern fill in the draw
+  // loop. Stays null when the room has no floor texture mapping (most
+  // Cold/Orchard/Harvest rooms — they use the gradient fallback).
+  const floorPatternRef = useRef(null);
 
   // `startLevel` is the theme-relative index from the lobby (0..14
    // within the picked theme). Clamp into the theme slice and convert
@@ -1528,6 +2403,11 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
   const [activePower, setActivePower] = useState(null);
   const [time, setTime]         = useState(0);
   const [gemsGot, setGemsGot]   = useState(0);
+  // Phase 22i — multi-phase HUD. `phase` = 1-indexed current phase
+  // (1, 2, or 3). `phaseTotal` = how many the level defines (1 if no
+  // phases were configured). Hud chip hides itself when total === 1.
+  const [phase, setPhase]             = useState(1);
+  const [phaseTotal, setPhaseTotal]   = useState(1);
   const [gemsTotal, setGemsTotal] = useState(0);
   const [status, setStatus]     = useState('playing'); // playing | won
   const [showIntro, setShowIntro] = useState(false);
@@ -1682,6 +2562,10 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
     };
     setGemsTotal(level.fruits.length);
     setGemsGot(0);
+    // Phase 22i — initialise phase HUD. Total = 1 + however many extra
+    // phases are queued. Current phase always starts at 1.
+    setPhase(1);
+    setPhaseTotal(1 + (level.phases?.length || 0));
     setStatus('playing');
     setTip(level.tip);
     tipResolvedRef.current = level.tip;
@@ -1715,6 +2599,20 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
         wallPatternRef.current = pat;
       };
       img.src = wallUrl;
+    }
+    // Phase 22k — same lifecycle for the floor texture.
+    floorPatternRef.current = null;
+    const floorKey = ROOM_FLOOR_KEY[level.name];
+    const floorUrl = floorKey ? FLOOR_TEXTURES[floorKey] : null;
+    if (floorUrl && canvasRef.current) {
+      const img = new Image();
+      img.decoding = 'async';
+      img.onload = () => {
+        const ctx2d = canvasRef.current?.getContext('2d');
+        if (!ctx2d) return;
+        floorPatternRef.current = ctx2d.createPattern(img, 'repeat');
+      };
+      img.src = floorUrl;
     }
   };
 
@@ -1760,9 +2658,13 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
   // Sprite preload — fire once per mount, drop into spritesRef as each
   // image decodes. Errors are swallowed; the loop already falls back to
   // procedural shapes if a slot is null or hasn't completed.
+  // Phase 22d — `skin` resolves the P1 ice-cream sprite. P2 stays on
+  // the existing hue-rotated player-2 (so co-op partners read distinct
+  // even if they pick the same skin id).
   useEffect(() => {
+    const playerUrl = PLAYER_SKINS[skin] || PLAYER_SKINS.default;
     const sources = {
-      player: playerSpriteUrl,
+      player: playerUrl,
       player2: player2SpriteUrl,
       strawberry: strawberrySpriteUrl,
       blueberry: blueberrySpriteUrl,
@@ -1807,7 +2709,11 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
       // the same URL hits the HTTP cache instantly.
       for (const img of created) img.onload = img.onerror = null;
     };
-  }, []);
+    // `skin` is the only mutable input; the game key already remounts
+    // on restart so this re-runs whenever the player picks a new
+    // ice-cream variant.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [skin]);
 
   // Stage sizing — measure the stage element, fit the board with no
   // upper-1.6 cap. Drives canvas backing buffer + render transform.
@@ -1916,12 +2822,24 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
       ctx.translate(offX, offY);
       ctx.scale(scale, scale);
 
-      // Arena background — pale blue gradient, palette tinted per room.
+      // Arena background — palette gradient first (acts as a tinted
+      // base if the floor pattern is still loading), then a textured
+      // floor pattern on top if the room has one.
       const grad = ctx.createLinearGradient(0, 0, 0, H);
       grad.addColorStop(0, palette.floorTop);
       grad.addColorStop(1, palette.floorBot);
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, W, H);
+      // Phase 22k — themed floor texture (Trinkets era). When present,
+      // overlays the gradient with a CanvasPattern repeat tile, then
+      // a soft warm veil so the maze grid + walls still read clearly.
+      const floorPat = floorPatternRef.current;
+      if (floorPat) {
+        ctx.fillStyle = floorPat;
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = 'rgba(20, 14, 8, 0.18)';
+        ctx.fillRect(0, 0, W, H);
+      }
 
       // Phase 22 — themed decoration overlay. Harvest rooms (palette
       // marked decor: 'leaves') get a soft sun-dappled overlay made
@@ -2107,13 +3025,17 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
       // pickup with an enemy of the same colour family (the user's
       // "no same-kind on same map" rule is enforced level-side; the
       // halo is the visual safety net).
+      // Phase 22h — fruit pickup sizes bumped (~+25 %) so the
+      // characters read clearly against the maze. Tighter 3 % source
+      // padding combined with these sizes lands ~32-34 px of actual
+      // character body inside a 36 px tile.
       const FRUIT_KIND = {
-        strawberry: { slot: 'fruit',       sz: 26, fbColor: '#ff4d6d', seeds: true  },
-        peach:      { slot: 'peach',       sz: 30, fbColor: '#ffb38a', seeds: false },
-        apple:      { slot: 'apple',       sz: 28, fbColor: '#ff5a3a', seeds: false },
-        lemon:      { slot: 'lemon',       sz: 28, fbColor: '#ffe35a', seeds: false },
-        kiwi:       { slot: 'kiwi',        sz: 28, fbColor: '#7ec25a', seeds: false },
-        cherryFruit:{ slot: 'cherryFruit', sz: 26, fbColor: '#d72a3a', seeds: false },
+        strawberry: { slot: 'fruit',       sz: 32, fbColor: '#ff4d6d', seeds: true  },
+        peach:      { slot: 'peach',       sz: 34, fbColor: '#ffb38a', seeds: false },
+        apple:      { slot: 'apple',       sz: 34, fbColor: '#ff5a3a', seeds: false },
+        lemon:      { slot: 'lemon',       sz: 34, fbColor: '#ffe35a', seeds: false },
+        kiwi:       { slot: 'kiwi',        sz: 34, fbColor: '#7ec25a', seeds: false },
+        cherryFruit:{ slot: 'cherryFruit', sz: 32, fbColor: '#d72a3a', seeds: false },
       };
       const HALO_R = T * 0.42;
       level.fruits.forEach((f) => {
@@ -2208,22 +3130,25 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
               : 99;
             const nearest = Math.min(dToP, dToP2);
             // Action priority — blowing frames (attackCharge +
-            // attackRelease) play ONLY around real ice casts:
-            //   • attackRelease — 0.4 s post-cast puff (releaseT)
-            //   • attackCharge  — 0.5 s pre-cast cheek-puff (chargingT)
-            //                     plus the legacy castPending path for
-            //                     orange's '?' tell
-            //   • walk          — moving step-to-step
+            // attackRelease) play ONLY around real ice casts. Idle
+            // bots use the WALK cycle as a subtle breathing animation
+            // so the sprite always reads alive instead of stiff.
+            //   • attackRelease — 0.55 s post-cast puff (releaseT)
+            //   • attackCharge  — 0.6 s pre-cast cheek-puff (chargingT)
+            //                     plus the legacy castPending path
+            //   • walk          — both during step AND during idle
+            //                     between decisions; getFrame loops it
             //   • sad           — boxed/trapped or idle-random sadT
             //   • irritated     — player ≤2 tiles away (static angry)
-            //   • neutral       — default rest pose
+            //                     pose; advanced atlases alias this
+            //                     to walk[0] anyway, but the explicit
+            //                     branch lets the player read tension
             let action;
             if (e.releaseT > 0)                                  action = 'attackRelease';
             else if (e.chargingT > 0 || e.castPending)           action = 'attackCharge';
-            else if (e.moving)                                   action = 'walk';
             else if (e.boxed || e.sadT > 0)                      action = 'state:sad';
-            else if (nearest <= 2)                               action = 'state:irritated';
-            else                                                 action = 'state:neutral';
+            else if (nearest <= 2 && !e.moving)                  action = 'state:irritated';
+            else                                                 action = 'walk';
             setAnimAction(e, action);
             const frame = getFrame(atlas, e.animAction, e.animFrame);
             if (frame && frame.complete && frame.naturalWidth > 0) {
@@ -2233,7 +3158,9 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
               // headroom). Foot-anchor by sitting 2 px ABOVE the tile
               // floor so the body reads inside the cell instead of
               // bleeding into the row below.
-              const sz = action === 'attackRelease' ? 34 : 30;
+              // Phase 22h — bumped 30→34 (release 34→38) so the
+              // tighter-padded atlas frames read clearly at tile size.
+              const sz = action === 'attackRelease' ? 38 : 34;
               const drawX = ecx - sz / 2;
               const drawY = (y + T) - sz - 2 + bob;
               ctx.drawImage(frame, drawX, drawY, sz, sz);
@@ -2249,7 +3176,9 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
           // Subtle bob so enemies don't feel pasted onto the grid.
           const bob = Math.sin(performance.now() / 280 + e.col + e.row) * 0.6;
           // Slight squash on the wind-up frame for extra punch.
-          const sz = isWinding ? 32 : 30;
+          // Phase 22h — legacy bots also bumped to 34/36 to match the
+          // atlas-driven path so non-animated bots don't read tiny.
+          const sz = isWinding ? 36 : 34;
           ctx.drawImage(sprite, ecx - sz / 2, ecy - sz / 2 + bob, sz, sz);
         } else {
           // Procedural fallback (kept identical to the original look).
@@ -2353,7 +3282,10 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
         // still tracks themselves but the silhouette reads as "ghost".
         const drawAlpha = pp.power === 'invisible' ? 0.42 : 1;
         if (ready) {
-          const sz = 32;
+          // Phase 22h — player size 32 → 36. Combined with the tighter
+          // 3 % source padding, the ice cream now reads as a clear
+          // character rather than a tiny dot.
+          const sz = 36;
           const bob = pp.moving ? Math.sin(pp.moveT * Math.PI) * -1.2 : 0;
           ctx.globalAlpha = drawAlpha;
           ctx.drawImage(img, pcx - sz / 2, pcy - sz / 2 + bob, sz, sz);
@@ -2553,6 +3485,10 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
               while (inBounds(c, r) && isIce(s.level, c, r)) {
                 const key = `${c},${r}`;
                 s.level.ice.delete(key);
+                if (s.level.shadowIce?.has(key)) {
+                  s.level.shadowIce.delete(key);
+                  if (!reduced) spawnFx(fxRef.current, 'death', c * T + T / 2, r * T + T / 2);
+                }
                 s.castVanish.set(key, meltStartTs + cleared * CAST_STAGGER);
                 if (!reduced) {
                   const cx = c * T + T / 2, cy = r * T + T / 2;
@@ -2656,10 +3592,81 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
             }
             const fcx = fruit.col * T + T / 2;
             const fcy = fruit.row * T + T / 2;
+            // Phase 22i — phase advance. If the level has remaining
+            // phase definitions, fruitsLeft hitting 0 spawns the next
+            // wave instead of opening the exit. Up to 2 extra phases
+            // (max 3 total).
+            const phaseAdvanced = (s.fruitsLeft === 0 && s.level.phases?.length > 0)
+              ? (() => {
+                  const next = s.level.phases.shift();
+                  // Phase 22j — find a passable tile if the level
+                  // author placed a fruit/enemy on a wall. Walks
+                  // outward in expanding rings from the requested
+                  // tile until a non-wall, non-occupied cell is
+                  // found. Falls back to the original (col, row) if
+                  // the whole level is somehow blocked — better than
+                  // a crash.
+                  const findOpenTile = (col, row) => {
+                    if (!isWall(s.level, col, row)) return { col, row };
+                    for (let r = 1; r <= 6; r++) {
+                      for (let dy = -r; dy <= r; dy++) {
+                        for (let dx = -r; dx <= r; dx++) {
+                          if (Math.abs(dx) !== r && Math.abs(dy) !== r) continue;
+                          const c = col + dx, rr = row + dy;
+                          if (!inBounds(c, rr)) continue;
+                          if (isWall(s.level, c, rr)) continue;
+                          if (s.level.exit.col === c && s.level.exit.row === rr) continue;
+                          return { col: c, row: rr };
+                        }
+                      }
+                    }
+                    return { col, row };
+                  };
+                  // Push new fruits — passable-tile validated.
+                  if (Array.isArray(next.fruits)) {
+                    for (const f of next.fruits) {
+                      const pos = findOpenTile(f.col, f.row);
+                      s.level.fruits.push({ col: pos.col, row: pos.row, kind: f.kind, taken: false });
+                      s.fruitsLeft += 1;
+                    }
+                  }
+                  // Push new enemies — initialise the same shape as in
+                  // the room loader so per-kind trait timers are set.
+                  if (Array.isArray(next.enemies)) {
+                    for (const e of next.enemies) {
+                      const pos = findOpenTile(e.col, e.row);
+                      s.enemies.push({
+                        col: pos.col, row: pos.row, kind: e.kind,
+                        moving: false, moveT: 0, fromCol: pos.col, fromRow: pos.row,
+                        nextDecide: Math.random() * 0.4 + 0.2,
+                        boxed: false, pairBurst: false,
+                        castPending: null, slipDir: null,
+                        shadowCd: e.kind === 'grape' ? 2.5 + Math.random() * 1.0 : 0,
+                        stompCd:  e.kind === 'eggplant' ? 2.0 + Math.random() * 1.5 : 0,
+                        teleportCd: e.kind === 'plum' ? 6.0 + Math.random() * 2.0 : 0,
+                        teleportTellT: 0, teleportPending: false,
+                        melonTagT: 0, bananaTrailT: 0,
+                        burstSignalT: 0, stompSignalT: 0,
+                        fuseT: e.kind === 'cherrybomb' ? 3.0 + Math.random() * 1.0 : 0,
+                        burstSpeedT: 0,
+                        iceCd: (ENEMY_ICE_CHANCE[e.kind] ?? 0) > 0 ? Math.random() * 1.5 + 1.0 : 0,
+                        animAction: 'state:neutral', animFrame: 0, animT: 0,
+                        atlasKey: ATLAS_KEY_FOR_KIND[e.kind] || null,
+                        releaseT: 0, chargingT: 0,
+                        sadT: 0, sadCheckT: 2.0 + Math.random() * 4.0,
+                      });
+                    }
+                  }
+                  return true;
+                })()
+              : false;
             if (!reduced) {
               spawnFx(fxRef.current, 'fruit', fcx, fcy);
               if (pw) {
                 spawnFloater(fxRef.current, pw.label, fcx, fcy - 12, pw.color, { size: 10, life: 1.1 });
+              } else if (phaseAdvanced) {
+                const phaseN = phaseTotal - s.level.phases.length;
+                spawnFloater(fxRef.current, `PHASE ${phaseN}`, fcx, fcy - 10, '#ffd86b', { size: 11, life: 1.2, vy: -10 });
               } else if (s.fruitsLeft === 0) {
                 spawnFloater(fxRef.current, 'EXIT LIVE', fcx, fcy - 10, '#6cd0f0', { size: 9, life: 1.2 });
               } else if (isPeach) {
@@ -2668,7 +3675,17 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
                 spawnFloater(fxRef.current, '+1', fcx, fcy - 10, '#ffd1de');
               }
             }
-            if (s.fruitsLeft === 0) {
+            if (phaseAdvanced) {
+              // Total phases is captured at level load (1 + phases
+              // count). Current phase = total - remaining.
+              const total = phaseTotal;
+              const phaseN = total - s.level.phases.length;
+              setPhase(phaseN);
+              const t = `Phase ${phaseN} — fresh fruits, fresh trouble.`;
+              tipResolvedRef.current = t;
+              setTip(t);
+              sfx.frostClear?.();
+            } else if (s.fruitsLeft === 0) {
               const t = 'All clear — head for the flag.';
               tipResolvedRef.current = t;
               setTip(t);
@@ -2854,6 +3871,7 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
         if (e.releaseT  > 0) e.releaseT  = Math.max(0, e.releaseT  - dt);
         if (e.chargingT > 0) e.chargingT = Math.max(0, e.chargingT - dt);
         if (e.sadT      > 0) e.sadT      = Math.max(0, e.sadT      - dt);
+        if (e._readT    > 0) e._readT    = Math.max(0, e._readT    - dt);
         if (e.atlasKey && e.sadCheckT > 0) {
           e.sadCheckT -= dt;
           if (e.sadCheckT <= 0) {
@@ -2931,9 +3949,17 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
           if (candidates.length > 0) {
             const dst = candidates[(Math.random() * candidates.length) | 0];
             if (!reduced) {
-              spawnFx(fxRef.current, 'teleport', e.col * T + T / 2, e.row * T + T / 2);
-              spawnFx(fxRef.current, 'teleport', dst.c * T + T / 2, dst.r * T + T / 2);
-              spawnRing(fxRef.current, dst.c * T + T / 2, dst.r * T + T / 2, {
+              const sx = e.col * T + T / 2, sy = e.row * T + T / 2;
+              const dx = dst.c * T + T / 2, dy = dst.r * T + T / 2;
+              spawnFx(fxRef.current, 'teleport', sx, sy);
+              spawnFx(fxRef.current, 'teleport', dx, dy);
+              // Phase 22e — death FX + 'POOF' label at the SOURCE so
+              // the teleport reads as "the old self dies, a new one
+              // arrives". The destination already has the cyan ring.
+              spawnFx(fxRef.current, 'death', sx, sy);
+              spawnFloater(fxRef.current, 'POOF', sx, sy - 12, '#a8f0d8',
+                           { size: 10, life: 0.7, vy: -10 });
+              spawnRing(fxRef.current, dx, dy, {
                 life: 0.45, r0: T * 0.5, r1: 4, color: '#a8f0d8', width: 2,
               });
             }
@@ -2958,6 +3984,10 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
                 const key = `${tc},${tr}`;
                 if (s.level.ice.has(key)) {
                   s.level.ice.delete(key);
+                  if (s.level.shadowIce?.has(key)) {
+                    s.level.shadowIce.delete(key);
+                    if (!reduced) spawnFx(fxRef.current, 'death', tc * T + T / 2, tr * T + T / 2);
+                  }
                   s.castVanish?.set(key, performance.now());
                   if (!reduced) spawnFx(fxRef.current, 'iceShatter', tc * T + T / 2, tr * T + T / 2);
                   melted++;
@@ -3026,6 +4056,10 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
             if (isIce(s.level, tc, tr)) {
               const key = `${tc},${tr}`;
               s.level.ice.delete(key);
+              if (s.level.shadowIce?.has(key)) {
+                s.level.shadowIce.delete(key);
+                if (!reduced) spawnFx(fxRef.current, 'death', tc * T + T / 2, tr * T + T / 2);
+              }
               s.castVanish?.set(key, performance.now());
               if (!reduced) {
                 spawnFx(fxRef.current, 'wallCrack', tc * T + T / 2, tr * T + T / 2);
@@ -3096,13 +4130,11 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
           const ay = Math.abs(targetForCast.row - e.row);
           const dir = ax >= ay ? [ddx, 0] : [0, ddy];
           if (dir[0] !== 0 || dir[1] !== 0) {
-            // 0.5 s charge window — gives the 4-frame attackCharge
-            // cycle (~0.48 s) time to play through before the cast
-            // actually fires.
-            e.castPending = { dir, untilTs: performance.now() + 500 };
-            e.chargingT = 0.5;
-            // Reset the animation to the start of the charge cycle
-            // immediately so the first frame is frame 0.
+            // 0.6 s charge window — matches the advanced 6-frame
+            // attackCharge cycle (~0.6 s) so the bot reads through
+            // its full anger transition before the ice fires.
+            e.castPending = { dir, untilTs: performance.now() + 600 };
+            e.chargingT = 0.6;
             e.animAction = 'attackCharge';
             e.animFrame = 0;
             e.animT = 0;
@@ -3115,7 +4147,7 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
                 life: 0.6, r0: 4, r1: T * 0.45, color: '#ffd86b', width: 2,
               });
             }
-            e.nextDecide = 0.5;
+            e.nextDecide = 0.6;
             return;
           }
         }
@@ -3188,7 +4220,9 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
               // Hold attack-release frames for ~0.4 s after the cast
               // so the puff animation reads even if the bot's next
               // action would otherwise return it to walk/idle.
-              if (e.atlasKey) e.releaseT = 0.4;
+              // 0.55 s release window — fits the 6-frame attackRelease
+              // cycle so the puff exits and settles before walk resumes.
+              if (e.atlasKey) e.releaseT = 0.55;
               // Skip the move this decision tick — the cast IS the action.
               e.nextDecide = ENEMY_INTERVAL[e.kind];
               return;
@@ -3225,6 +4259,10 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
               if (isIce(s.level, tc, tr)) {
                 const key = `${tc},${tr}`;
                 s.level.ice.delete(key);
+                if (s.level.shadowIce?.has(key)) {
+                  s.level.shadowIce.delete(key);
+                  if (!reduced) spawnFx(fxRef.current, 'death', tc * T + T / 2, tr * T + T / 2);
+                }
                 s.castVanish?.set(key, performance.now());
                 if (!reduced) spawnFx(fxRef.current, 'iceShatter', tc * T + T / 2, tr * T + T / 2);
                 cleared++;
@@ -3267,18 +4305,35 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
         // direction and wander.
         const pVisible  = p  && !p.dead  && p.power  !== 'invisible';
         const p2Visible = p2 && !p2.dead && p2.power !== 'invisible';
-        const target = (() => {
+        const rawTarget = (() => {
           if (!p2Visible) return pVisible ? p : null;
           if (!pVisible) return p2;
           const d1 = Math.abs(p.col  - e.col) + Math.abs(p.row  - e.row);
           const d2 = Math.abs(p2.col - e.col) + Math.abs(p2.row - e.row);
           return d1 <= d2 ? p : p2;
         })();
-        if (!target) {
+        if (!rawTarget) {
           // Wander: random orthogonal step.
           const choices = [[1, 0], [-1, 0], [0, 1], [0, -1]].sort(() => Math.random() - 0.5);
           for (const [mx, my] of choices) if (tryMove(mx, my)) break;
           return;
+        }
+        // Phase 22h — predictive chase. Lamp ALWAYS predicts player
+        // movement (its trait); other bots predict 0/0/1/2/3 tiles
+        // ahead based on diff.predictionDepth (Easy → Insane). The
+        // predicted tile is `target.pos + dir × depth`, clamped to
+        // a passable cell so bots don't pathfind toward a wall.
+        const lampDepth   = e.kind === 'lamp' ? 3 : 0;
+        const diffDepth   = diff.predictionDepth || 0;
+        const depth       = Math.max(lampDepth, diffDepth);
+        const target      = (depth > 0 && rawTarget.dir)
+          ? predictTarget(s.level, rawTarget, depth)
+          : rawTarget;
+        // Lamp announces its read so the player can read what just
+        // happened. Throttled per-bot via a 1.6 s cooldown.
+        if (e.kind === 'lamp' && depth > 0 && (e._readT || 0) <= 0 && !reduced) {
+          spawnFloater(fxRef.current, 'READ', e.col * T + T / 2, e.row * T + T / 2 - 14, '#a8f0d8', { size: 10, life: 0.6, vy: -8 });
+          e._readT = 1.6;
         }
         const dx = Math.sign(target.col - e.col);
         const dy = Math.sign(target.row - e.row);
@@ -3357,11 +4412,13 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
             const key = `${sc},${sr}`;
             s.level.ice.add(key);
             s.castReveal.set(key, performance.now());
+            // Phase 22e — track which ice tiles came from grape's
+            // shadow trait. When one of these gets melted (player or
+            // bot), we play a death FX to read the "shadow died".
+            if (!s.level.shadowIce) s.level.shadowIce = new Set();
+            s.level.shadowIce.add(key);
             if (!reduced) {
               spawnFx(fxRef.current, 'iceForm', sc * T + T / 2, sr * T + T / 2);
-              // Visible "SHADOW" floater at the dropped tile so the
-              // player reads which ice came from grape vs. their own
-              // cast or another bot.
               spawnFloater(fxRef.current, 'SHADOW', sc * T + T / 2, sr * T + T / 2 - 12, '#b785f0', { size: 9, life: 0.65, vy: -8 });
             }
           }
@@ -3371,30 +4428,43 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
 
       // Phase 18 — power-up timers tick down each frame for both
       // players. When a power expires, clear it AND clear the HUD
-      // chip if the chip was showing this player's power.
+      // chip if the chip was showing this player's power. Phase 22m:
+      // capture the expiring kind so we can also clear the HUD chip
+      // explicitly — covers all four pickups (invincible / invisible /
+      // speed / slowdown) plus the Easy-respawn invincibility.
+      let powerJustExpired = null;
       const tickPower = (pp) => {
         if (!pp) return;
         if (pp.powerT > 0) {
           pp.powerT = Math.max(0, pp.powerT - dt);
-          if (pp.powerT === 0) pp.power = null;
+          if (pp.powerT === 0) {
+            powerJustExpired = pp.power;
+            pp.power = null;
+          }
         }
       };
       tickPower(p);
       tickPower(p2);
       // Mirror the active player's remaining-time into the HUD chip.
-      // Use a 0.1 s threshold to avoid an every-frame setState churn.
+      // Phase 22m — the previous version checked the closure-captured
+      // `activePower` state to decide whether to clear, but that
+      // closure stayed at its initial value (null) for the entire
+      // effect lifetime, so the chip would NEVER clear once set.
+      // Now: when no player has a power, unconditionally call
+      // setActivePower(null). React's Object.is shallow check on
+      // primitive state means re-setting null when already null is a
+      // free no-op, so this doesn't churn renders.
       const activePp = (p && p.power) ? p : (p2 && p2.power ? p2 : null);
-      const hudPower = activePower;
       if (activePp) {
-        // Update the chip's `t` to the live remaining seconds. Tick
-        // only when the labeled second changes.
         const labelSec = Math.ceil(activePp.powerT * 10) / 10;
-        if (!hudPower || hudPower.id !== activePp.power || Math.abs(hudPower.t - labelSec) > 0.05) {
-          setActivePower((prev) => prev && prev.id === activePp.power
-            ? { ...prev, t: labelSec }
-            : { id: activePp.power, t: labelSec, total: prev?.total ?? labelSec, label: activePp.power.toUpperCase() });
-        }
-      } else if (hudPower) {
+        setActivePower((prev) => prev && prev.id === activePp.power
+          ? (Math.abs(prev.t - labelSec) > 0.05 ? { ...prev, t: labelSec } : prev)
+          : { id: activePp.power, t: labelSec, total: prev?.total ?? labelSec, label: activePp.power.toUpperCase() });
+      } else {
+        // No active power on either player. setActivePower(null) is a
+        // free no-op when state is already null (React Object.is on
+        // primitives). Fires regardless of which power kind expired —
+        // handles invincible / invisible / speed / slowdown uniformly.
         setActivePower(null);
       }
 
@@ -3566,7 +4636,9 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
           roomBest={roomBests[levelName]}
           exitLive={exitLive && status === 'playing'}
           difficulty={diff}
-          activePower={activePower}/>
+          activePower={activePower}
+          phase={phase}
+          phaseTotal={phaseTotal}/>
       </header>
 
       <main className="ff-stage" ref={stageRef}>

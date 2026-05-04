@@ -10,6 +10,10 @@ export function tickEffects(state, dt) {
   if (e.flashMs > 0) {
     e.flashMs = Math.max(0, e.flashMs - dt * 1000);
   }
+  // Per-side base flash — strobes the wall for ~160 ms after a hit so
+  // the impact reads even when the screen shake is mild.
+  if (state.player.baseFlashMs > 0) state.player.baseFlashMs = Math.max(0, state.player.baseFlashMs - dt * 1000);
+  if (state.enemy.baseFlashMs  > 0) state.enemy.baseFlashMs  = Math.max(0, state.enemy.baseFlashMs  - dt * 1000);
   // Particles
   const ppool = state.pools.particle;
   for (const p of ppool.live) {
