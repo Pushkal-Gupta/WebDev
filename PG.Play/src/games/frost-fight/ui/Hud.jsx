@@ -42,6 +42,8 @@ export default function Hud({
   exitLive,
   difficulty,
   activePower,
+  phase,
+  phaseTotal,
 }) {
   // Phase 19: lives are a RUN-WIDE pool that scales with theme length.
   // `livesFor(L)` from the picked difficulty resolves the cap; Easy
@@ -80,6 +82,9 @@ export default function Hud({
           <PopNumber value={gemsGot} className="ff-chip-num"/>
           <span className="ff-chip-unit">/{gemsTotal}</span>
         </span>
+        {phaseTotal > 1 && (
+          <span className="ff-chip-pace">Phase {phase}/{phaseTotal}</span>
+        )}
       </div>
 
       <div className={'ff-chip ff-chip-sec' + (livesLow ? ' is-danger' : '')}>

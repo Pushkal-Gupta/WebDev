@@ -1,14 +1,9 @@
 {
   "state": {
-    "neutral": "state-neutral.png",
-    "fuming": "state-fuming.png",
-    "blowing": "state-blowing.png",
-    "neutral2": "state-neutral2.png",
-    "irritated": "state-irritated.png",
-    "blowing2": "state-blowing2.png",
-    "neutral3": "state-neutral3.png",
-    "sad": "state-sad.png",
-    "sad2": "state-sad2.png"
+    "neutral":   "state-neutral.png",
+    "fuming":    "state-neutral.png",
+    "irritated": "state-neutral.png",
+    "sad":       "state-sad.png"
   },
   "walk": [
     "walk-0.png",

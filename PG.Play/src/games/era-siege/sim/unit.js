@@ -32,9 +32,15 @@ export function trySpawnUnit(state, side, unitId) {
   // Generals: cap at one living per side. The HUD cooldown is mostly
   // there to gate cost; this cap prevents stacking even when cooldown
   // somehow elapses (e.g. AI spawn race, save/load future-proofing).
-  if (def.role === 'general' && side.units.some((u) => u.role === 'general' && !u.dead && u.hp > 0)) {
-    state.bus.emit('low_gold_error', { unitId, reason: 'general_alive' });
-    return false;
+  if (def.role === 'general') {
+    if (!side.generalsUnlocked) {
+      state.bus.emit('low_gold_error', { unitId, reason: 'general_locked' });
+      return false;
+    }
+    if (side.units.some((u) => u.role === 'general' && !u.dead && u.hp > 0)) {
+      state.bus.emit('low_gold_error', { unitId, reason: 'general_alive' });
+      return false;
+    }
   }
 
   side.gold -= def.cost;
@@ -121,10 +127,16 @@ export function tickUnits(state, dt) {
   repel(state.player.units);
   repel(state.enemy.units);
 
-  // 4) Sweep dead.
-  state.player.units = state.player.units.filter((u) => !u.dead);
-  state.enemy.units  = state.enemy.units.filter((u) => !u.dead);
+  // 4) Death animation tick + sweep. When a unit's `dead` is set, the
+  // body lingers for DEATH_ANIM_MS so the renderer can fade + tilt it.
+  // Also strip from the live `units` list once dispose threshold passes.
+  for (const u of state.player.units) if (u.dead) u.deathAgeMs = (u.deathAgeMs || 0) + dt * 1000;
+  for (const u of state.enemy.units)  if (u.dead) u.deathAgeMs = (u.deathAgeMs || 0) + dt * 1000;
+  state.player.units = state.player.units.filter((u) => !u.dead || u.deathAgeMs < DEATH_ANIM_MS);
+  state.enemy.units  = state.enemy.units.filter((u) => !u.dead || u.deathAgeMs < DEATH_ANIM_MS);
 }
+
+const DEATH_ANIM_MS = 380;
 
 function stepSide(state, side, foeSide, dt) {
   const foeBaseX = foeSide === state.player ? state.view.laneLeft - 30 : state.view.laneRight + 30;

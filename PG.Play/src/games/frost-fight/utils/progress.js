@@ -17,13 +17,35 @@
 // same setting would surprise existing players.
 const DIFF_KEY  = 'pgplay-ff-difficulty-v2';
 const THEME_KEY = 'pgplay-ff-theme';
+const SKIN_KEY  = 'pgplay-ff-skin';
 const PROG_KEY  = 'pgplay-ff-progress';
 const PROG_VER  = 1;
+
+// Phase 22d — player ice-cream skin. Five values: the canonical pink
+// 'default' (the existing player.png) plus the four sheet-5 variants.
+export const SKIN_IDS = ['default', 'vanilla', 'sundae', 'triple', 'sandwich'];
+
+export function readSkin(fallback = 'default') {
+  try {
+    const raw = localStorage.getItem(SKIN_KEY);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed.id === 'string' && SKIN_IDS.includes(parsed.id)) {
+      return parsed.id;
+    }
+  } catch { /* ignore */ }
+  return fallback;
+}
+
+export function writeSkin(id) {
+  try { localStorage.setItem(SKIN_KEY, JSON.stringify({ id })); }
+  catch { /* ignore */ }
+}
 
 export const DIFFICULTY_RANK = ['easy', 'normal', 'hard', 'expert', 'insane'];
 // Phase 22 — added 'harvest' (animated bot theme) to the allow-list
 // so theme persistence accepts it.
-export const THEME_IDS = ['cold', 'orchard', 'harvest'];
+export const THEME_IDS = ['cold', 'orchard', 'harvest', 'trinkets'];
 
 export function readDifficulty(fallback = 'normal') {
   try {

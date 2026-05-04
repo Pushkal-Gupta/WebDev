@@ -147,8 +147,9 @@ export function makeRenderer() {
     // 12) Damage numbers
     for (const d of match.pools.damageNum.live) if (d.alive) drawDamageNumber(ctx, d);
 
-    // 13) Era label
-    drawEraLabel(ctx, w, match);
+    // 13) Era label — moved off the canvas; the era name is shown in the
+    // TopBar's center zone now. See user feedback "no in-between text".
+    // drawEraLabel(ctx, w, match);
 
     ctx.restore();
 
@@ -172,8 +173,30 @@ function drawBase(ctx, x, groundY, side, isPlayer, pal) {
   // crisply even when the underlying art is busy.
   const eraN = side.eraIndex + 1;
   const key = `base/era${eraN}/${isPlayer ? 'player' : 'enemy'}`;
+  // Damage flash — additive glow centred on the impact zone while
+  // baseFlashMs > 0. Source-atop tinting against an alpha sprite is
+  // tricky on canvas2d (the sprite is already composited against the
+  // sky), so we settle for a punchy radial glow that's visually sharp
+  // and unmistakably "I just got hit".
+  const flashMs = side.baseFlashMs || 0;
+  const flashAlpha = flashMs > 0 ? Math.min(0.85, flashMs / 160 * 0.85) : 0;
   if (assets.has(key)) {
     assets.draw(ctx, key, x, groundY + 8, { h: BALANCE.BASE_RENDER_H_PX || 200, flipX: false });
+    if (flashAlpha > 0) {
+      const baseH = BALANCE.BASE_RENDER_H_PX || 200;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      const glow = ctx.createRadialGradient(x, groundY - baseH * 0.45, 4,
+                                            x, groundY - baseH * 0.45, 90);
+      glow.addColorStop(0,   `rgba(255,255,255,${flashAlpha})`);
+      glow.addColorStop(0.4, `rgba(255,225,79,${flashAlpha * 0.55})`);
+      glow.addColorStop(1,   'rgba(0,0,0,0)');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(x, groundY - baseH * 0.45, 90, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
     drawBaseHpAndLabel(ctx, x, groundY, side, isPlayer);
     return;
   }
@@ -212,19 +235,77 @@ function drawBase(ctx, x, groundY, side, isPlayer, pal) {
   drawBaseHpAndLabel(ctx, x, groundY, side, isPlayer);
 }
 
-// HP bar + side label — shared between procedural and sprite paths.
+// Base HP visualization — much more prominent. Wide bar with percentage,
+// rounded background, drop shadow, and a side label below the ground.
 function drawBaseHpAndLabel(ctx, x, groundY, side, isPlayer) {
-  const hpR = side.base.hp / side.base.maxHp;
-  // HP bar sits above the silhouette so it reads against the sky.
-  ctx.fillStyle = 'rgba(0,0,0,0.55)';
-  ctx.fillRect(x - 48, groundY - 200, 96, 6);
-  ctx.fillStyle = hpColor(hpR);
-  ctx.fillRect(x - 48, groundY - 200, 96 * Math.max(0, hpR), 6);
-  // Label sits just below the ground line.
+  const hpR = Math.max(0, side.base.hp / side.base.maxHp);
+  const barW = 240;
+  const barH = 18;
+  const barX = x - barW / 2;
+  const barY = groundY - 250;
+  // Drop shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  roundRect(ctx, barX - 1, barY + 2, barW + 2, barH, 4);
+  ctx.fill();
+  // Track
+  ctx.fillStyle = 'rgba(8,10,14,0.85)';
+  roundRect(ctx, barX, barY, barW, barH, 4);
+  ctx.fill();
+  // Border
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  // Fill (gradient: green/yellow/red by ratio)
+  const fillW = (barW - 4) * hpR;
+  if (fillW > 0) {
+    const fillColor = hpColor(hpR);
+    const grad = ctx.createLinearGradient(barX, barY, barX, barY + barH);
+    grad.addColorStop(0, fillColor);
+    grad.addColorStop(1, shadeHex(fillColor, -25));
+    ctx.fillStyle = grad;
+    roundRect(ctx, barX + 2, barY + 2, fillW, barH - 4, 3);
+    ctx.fill();
+  }
+  // Percentage text centered
   ctx.fillStyle = '#fff';
-  ctx.font = 'bold 11px "JetBrains Mono", monospace';
+  ctx.font = 'bold 12px "JetBrains Mono", monospace';
   ctx.textAlign = 'center';
-  ctx.fillText(isPlayer ? 'YOU' : 'ENEMY', x, groundY + 28);
+  ctx.textBaseline = 'middle';
+  ctx.shadowColor = 'rgba(0,0,0,0.7)';
+  ctx.shadowBlur = 3;
+  ctx.fillText(`${Math.round(hpR * 100)}%`, x, barY + barH / 2 + 1);
+  ctx.shadowBlur = 0;
+  ctx.textBaseline = 'alphabetic';
+  // Side label below the ground line
+  ctx.fillStyle = isPlayer ? '#7be3ff' : '#ff8aa3';
+  ctx.font = 'bold 12px "JetBrains Mono", monospace';
+  ctx.shadowColor = 'rgba(0,0,0,0.85)';
+  ctx.shadowBlur = 2;
+  ctx.fillText(isPlayer ? 'YOUR BASE' : 'ENEMY BASE', x, groundY + 30);
+  ctx.shadowBlur = 0;
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  const rr = Math.max(0, Math.min(r, Math.min(w, h) / 2));
+  ctx.beginPath();
+  ctx.moveTo(x + rr, y);
+  ctx.lineTo(x + w - rr, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + rr);
+  ctx.lineTo(x + w, y + h - rr);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - rr, y + h);
+  ctx.lineTo(x + rr, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - rr);
+  ctx.lineTo(x, y + rr);
+  ctx.quadraticCurveTo(x, y, x + rr, y);
+  ctx.closePath();
+}
+
+function shadeHex(hex, amount) {
+  if (!hex || hex[0] !== '#') return hex;
+  const r = Math.max(0, Math.min(255, parseInt(hex.slice(1, 3), 16) + amount));
+  const g = Math.max(0, Math.min(255, parseInt(hex.slice(3, 5), 16) + amount));
+  const b = Math.max(0, Math.min(255, parseInt(hex.slice(5, 7), 16) + amount));
+  return `#${(r * 65536 + g * 256 + b).toString(16).padStart(6, '0')}`;
 }
 
 // ── Turret spots ──────────────────────────────────────────────────────
@@ -442,15 +523,30 @@ function drawUnitSprite(ctx, u, x, y, spriteKey, sideAuraActive) {
   const dy = y + bob;
   const dw = targetW * pop;
   const dh = targetH * pop;
+  // Death animation: fade alpha to 0 over ~380ms while tilting forward
+  // (away from the attacker) so the body falls toward the lane it was
+  // pushing into. Drives off `u.deathAgeMs` set by the sim sweep.
+  const deathT = u.dead ? Math.min(1, (u.deathAgeMs || 0) / 380) : 0;
+  const deathAlpha = deathT > 0 ? 1 - deathT : 1;
+  const deathTilt  = deathT > 0 ? deathT * 0.85 * u.facing : 0;
+  const deathSink  = deathT > 0 ? deathT * 4 : 0;          // sink slightly into ground
   ctx.save();
+  ctx.globalAlpha *= deathAlpha;
   if (flipX) {
-    ctx.translate(dx, dy);
+    ctx.translate(dx, dy + deathSink);
     ctx.scale(-1, 1);
+    if (deathTilt) ctx.rotate(-deathTilt);
+    assets.draw(ctx, spriteKey, 0, 0, { w: dw, h: dh, anchor: 'foot' });
+  } else if (deathTilt) {
+    ctx.translate(dx, dy + deathSink);
+    ctx.rotate(deathTilt);
     assets.draw(ctx, spriteKey, 0, 0, { w: dw, h: dh, anchor: 'foot' });
   } else {
-    assets.draw(ctx, spriteKey, dx, dy, { w: dw, h: dh, anchor: 'foot' });
+    assets.draw(ctx, spriteKey, dx, dy + deathSink, { w: dw, h: dh, anchor: 'foot' });
   }
   ctx.restore();
+  // Skip HP bar etc. for dead units (the "HP" rendered would always be 0).
+  if (u.dead) return;
 
   // ── Muzzle flash for ranged units the moment they fire ───────────
   if (u.projectileId && u.attackTickPhase === 'recover' && u.attackTimerMs > u.attackRecoverMs - 80) {
@@ -578,15 +674,51 @@ function drawRing(ctx, r) {
   ctx.restore();
 }
 
-// ── Damage numbers ─────────────────────────────────────────────────────
+// ── Damage / loot numbers ──────────────────────────────────────────────
+//
+// Three kinds in one pool:
+//   damage → faction-coloured numerals, fade upward, lifeMs 800
+//   gold   → "+Xg" in gold with shadow + glow, lifeMs 1100
+//   xp     → "+Xxp" in cyan with shadow, lifeMs 1100
 function drawDamageNumber(ctx, d) {
   const t = d.ageMs / d.lifeMs;
-  ctx.globalAlpha = 1 - t;
-  ctx.fillStyle = d.team === 'player' ? '#ffe14f' : '#ff8aa3';
-  ctx.font = 'bold 12px "JetBrains Mono", monospace';
+  // Apply float — vy starts up, decelerates with squared age. Horizontal
+  // drift is small so stacked pops don't overlap.
+  const ageS = d.ageMs / 1000;
+  const yOff = (d.vy || -28) * ageS - 24 * ageS * ageS;
+  const xOff = (d.vx || 0) * ageS;
+  const alpha = 1 - t * t;   // ease-out fade
+  ctx.save();
+  ctx.globalAlpha = Math.max(0, alpha);
   ctx.textAlign = 'center';
-  ctx.fillText(String(d.value), d.x, d.y);
-  ctx.globalAlpha = 1;
+  ctx.textBaseline = 'middle';
+  let label, color, font, shadow;
+  if (d.kind === 'gold') {
+    label  = `+${d.value}g`;
+    color  = '#ffe14f';
+    shadow = 'rgba(0,0,0,0.85)';
+    // Slight scale pop in the first 120 ms — feels like a coin appearing.
+    const pop = Math.min(1, ageS * 8);
+    const size = 13 + (1 - pop) * 6;
+    font = `bold ${size}px "JetBrains Mono", monospace`;
+  } else if (d.kind === 'xp') {
+    label  = `+${d.value}xp`;
+    color  = '#7be3ff';
+    shadow = 'rgba(0,0,0,0.85)';
+    font   = 'bold 11px "JetBrains Mono", monospace';
+  } else {
+    label  = String(d.value);
+    color  = d.team === 'player' ? '#ffe14f' : '#ff8aa3';
+    shadow = 'rgba(0,0,0,0.7)';
+    font   = 'bold 12px "JetBrains Mono", monospace';
+  }
+  ctx.font = font;
+  ctx.shadowColor = shadow;
+  ctx.shadowBlur = 4;
+  ctx.fillStyle = color;
+  ctx.fillText(label, d.x + xOff, d.y + yOff);
+  ctx.shadowBlur = 0;
+  ctx.restore();
 }
 
 // ── Era label ──────────────────────────────────────────────────────────

@@ -49,7 +49,7 @@ export default function Footer({ theme, onToggleTheme }) {
         <div className="footer-col footer-col-brand">
           <div className="footer-wordmark">PG.Play</div>
           <p className="footer-tagline">
-            A boutique browser arcade. Hand-built games, no ads, no signup wall.
+            A browser arcade. Twenty hand-built games, no ads, no signup wall.
           </p>
           <p className="footer-author">
             Made by{' '}

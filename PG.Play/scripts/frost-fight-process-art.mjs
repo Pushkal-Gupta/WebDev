@@ -210,12 +210,15 @@ async function emitSprite(cellBuf, outFile, target = 512, trimThreshold = 5) {
   // and introduces sub-threshold halo) → emit as PNG. PNG keeps alpha
   // exact; WebP's lossy alpha encoder reintroduces halo and breaks the
   // silhouette in the canvas draw path.
+  // Phase 22h — pad reduced 8 % → 3 %. The character now fills 94 %
+  // of the canvas instead of 86 %, so when the runtime draws at
+  // sz=30 the sprite reads at ~28 effective pixels instead of ~26.
   const noChecker = await removeCheckerBg(cellBuf);
   const cleaned1 = await lassoAlpha(noChecker);
   const t = await sharp(cleaned1).trim({ threshold: trimThreshold }).toBuffer({ resolveWithObject: true });
   const m = t.info;
   const max = Math.max(m.width, m.height);
-  const pad = Math.round(max * 0.08);
+  const pad = Math.round(max * 0.03);
   const side = max + pad * 2;
   const padded = await sharp(t.data)
     .extend({

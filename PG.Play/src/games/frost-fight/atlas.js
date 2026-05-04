@@ -138,13 +138,19 @@ export function getFrame(atlas, action, frameIdx) {
   return list[frameIdx % list.length];
 }
 
-// Frame durations per action (seconds per frame). Tuned so the cycle
-// reads at gameplay speed without flickering.
+// Frame durations per action (seconds per frame). Tuned so the
+// 6-frame walk/charge/release cycles from the advanced sheets play
+// at gameplay speed without flickering.
+//
+//   walk          — 6 frames × 100 ms ≈ 600 ms full step cycle
+//   attackCharge  — 6 frames × 100 ms ≈ 600 ms windup
+//   attackRelease — 6 frames × 90 ms  ≈ 540 ms blow
+//   death         — 4 frames × 150 ms ≈ 600 ms one-shot to angel
 export const FRAME_DURATION = {
-  walk:          0.110,  // 4-frame walk × 110 ms ≈ 440 ms cycle
-  attackCharge:  0.120,  // 3-4 frames × 120 ms — slight pause on each
-  attackRelease: 0.080,  // fast — the puff is the key moment
-  death:         0.140,  // 4-frame one-shot ≈ 560 ms
+  walk:          0.100,
+  attackCharge:  0.100,
+  attackRelease: 0.090,
+  death:         0.150,
 };
 
 // Advance an enemy's animation timer + frame. Mutates the enemy object

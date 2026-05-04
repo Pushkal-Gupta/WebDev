@@ -216,6 +216,7 @@ export default function GameIntro({ game, onClose }) {
   const [ffDifficulty, setFfDifficulty] = useState('normal');
   const [ffTheme, setFfTheme]           = useState('cold');
   const [ffStartLevel, setFfStartLevel] = useState(0);
+  const [ffSkin, setFfSkin]             = useState('default');
   const Cover = GAME_COVERS[game.id];
   const isMobile = useIsMobile();
   const reduced  = useReducedMotion();
@@ -252,17 +253,22 @@ export default function GameIntro({ game, onClose }) {
 
   if (stage === 'play') {
     const GameComp = PLAYABLE[game.id];
+    // Phase 22l — exiting from a live run drops the player back to
+    // the lobby (mode/difficulty/theme/skin pickers preserved) rather
+    // than booting them all the way to the home page. The lobby
+    // already has its own back button (line below) that closes the
+    // intro entirely.
     return (
       <main id="main" className="intro intro-playing" aria-label={`${game.name} — playing`}>
         <GameShell
           game={game}
           mode={mode}
-          onExit={onClose}
+          onExit={() => setStage('intro')}
           onRestart={() => setRestart((k) => k + 1)}>
           {GameComp ? (
             <Suspense fallback={<LoadingGame/>}>
               {game.id === 'badicecream'
-                ? <GameComp key={restartKey} mode={mode} difficulty={ffDifficulty} theme={ffTheme} startLevel={ffStartLevel}/>
+                ? <GameComp key={restartKey} mode={mode} difficulty={ffDifficulty} theme={ffTheme} startLevel={ffStartLevel} skin={ffSkin}/>
                 : <GameComp key={restartKey} mode={mode}/>}
             </Suspense>
           ) : <PlayPlaceholder game={game}/>}
@@ -391,7 +397,9 @@ export default function GameIntro({ game, onClose }) {
                   theme={ffTheme}
                   onThemeChange={setFfTheme}
                   startLevel={ffStartLevel}
-                  onStartLevelChange={setFfStartLevel}/>
+                  onStartLevelChange={setFfStartLevel}
+                  skin={ffSkin}
+                  onSkinChange={setFfSkin}/>
               </Suspense>
             </motion.div>
           )}

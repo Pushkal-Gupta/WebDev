@@ -9,12 +9,19 @@
 import { getEraByIndex } from '../content/eras.js';
 import { getMultiplier } from './powerups.js';
 import { BALANCE } from '../content/balance.js';
+import { spawnLootNumber } from './combat.js';
 
 export function tickEconomy(state, dt) {
   for (const side of [state.player, state.enemy]) {
     const era = getEraByIndex(side.eraIndex);
     const mul = getMultiplier(side.powerups, 'economy');
-    side.goldAcc += (era?.goldPerSec || 12) * mul * dt;
+    // Difficulty trims the *player*'s gold rate so harder tiers feel
+    // gold-starved. The AI runs at the era's nominal rate so it doesn't
+    // get a double boost (it already has aiSpawnRateMul / aiTechRateMul).
+    const diffMul = (side === state.player)
+      ? (state.difficulty?.playerGoldRateMul ?? 1)
+      : 1;
+    side.goldAcc += (era?.goldPerSec || 12) * mul * diffMul * dt;
     if (side.goldAcc >= 1) {
       const add = Math.floor(side.goldAcc);
       side.goldAcc -= add;
@@ -28,10 +35,16 @@ export function tickEconomy(state, dt) {
 
 export function awardKill(state, killerSide, deadUnit) {
   // Bounty in gold + xp goes to the killer's side. Stat tracking on both.
-  killerSide.gold += (deadUnit.bountyGold | 0);
-  killerSide.xp   = killerSide.xp + (deadUnit.bountyXp | 0);
+  const goldGained = deadUnit.bountyGold | 0;
+  const xpGained   = deadUnit.bountyXp   | 0;
+  killerSide.gold += goldGained;
+  killerSide.xp   += xpGained;
   if (killerSide === state.player) state.statsPlayer.kills++;
   else                              state.statsEnemy.kills++;
+  // Visual juice — gold + xp pops at the kill site. Only the killer
+  // side gets pops so the lane doesn't drown in numbers.
+  if (goldGained > 0) spawnLootNumber(state, deadUnit.x, deadUnit.y - 14, goldGained, killerSide.team, 'gold');
+  if (xpGained   > 0) spawnLootNumber(state, deadUnit.x, deadUnit.y - 30, xpGained,   killerSide.team, 'xp');
   state.bus.emit('kill', { team: killerSide.team, unitId: deadUnit.unitId, x: deadUnit.x, y: deadUnit.y });
 }
 
