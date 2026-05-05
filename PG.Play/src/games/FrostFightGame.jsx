@@ -241,12 +241,16 @@ const ROOM_FLOOR_KEY = {
   'Tea Time':       'trinket-persian-small',
   'Genie Hall':     'trinket-mosaic-blue',
   'Treasure Vault': 'trinket-marble-white',
-  'Hearthstone':    'trinket-parquet-square',
-  'Tin Drum':       'trinket-mosaic-orange',
+  // Hearthstone / Wax Hall used the warm parquet floors; against
+  // the trinket-hearth stone walls they read too much like the
+  // Harvest wood-and-leaf rooms. Swap to mosaic-orange + marble-green
+  // so the early Trinkets levels read clearly as palace-flavored.
+  'Hearthstone':    'trinket-mosaic-orange',
+  'Tin Drum':       'trinket-mosaic-blue',
   'Tea Service':    'trinket-persian-small',
   'Brass Bell':     'trinket-marble-white',
   'Spice Rack':     'trinket-persian-large',
-  'Wax Hall':       'trinket-parquet-herring',
+  'Wax Hall':       'trinket-marble-green',
   'Lampblack':      'trinket-mosaic-blue',
   'Carafe':         'trinket-persian-small',
   'Gilded Mirror':  'trinket-marble-white',
@@ -1509,20 +1513,24 @@ const LEVELS = [
   },
   {
     name: 'Quince Walk',
-    tip: 'Harvest 14 — narrow lanes, three pineapples on patrol.',
+    tip: 'Harvest 14 — comb teeth. Drop between rakes; one corridor cuts across.',
+    // Comb-teeth shape: vertical 1-wide "rake" walls hang from the top
+    // shelf and rise from the bottom shelf, forcing the player to drop
+    // down a single column between teeth. A horizontal corridor in the
+    // middle row hosts two peaches that intercept whoever is too slow.
     grid: [
       '######################',
-      '#p.f....n....n....n.f#',
-      '#####.######.######.##',
-      '#.....................',
-      '#.f................f.#',
-      '#.######.....######..#',
-      '#......h.....h.......#',
-      '#.######.....######..#',
-      '#.f................f.#',
-      '#.....................',
-      '#####.######.######.##',
-      '#.f....n....n....n.fX#',
+      '#p.f.f.f.f...f.f.f.f.#',
+      '#..#.#.#.#...#.#.#.#.#',
+      '#..#.#.#.#...#.#.#.#.#',
+      '#..#.#.#.#.h.#.#.#.#.#',
+      '#..#.#.#.#...#.#.#.#.#',
+      '#....................#',
+      '#..#.#.#.#...#.#.#.#.#',
+      '#..#.#.#.#.h.#.#.#.#.#',
+      '#..#.#.#.#...#.#.#.#.#',
+      '#..#.#.#.#...#.#.#.#.#',
+      '#.f.f.f.f....f.f.f.fX#',
       '######################',
     ],
   },
@@ -1606,20 +1614,25 @@ const LEVELS = [
   },
   {
     name: 'Thicket',
-    tip: 'Harvest 18 — open arena, fast chasers. Read footsteps.',
+    tip: 'Harvest 18 — briar branches. Three forks, three chasers, one apple at the heart.',
+    // Briar-branches shape: a three-pronged "Y" of walls splits the room
+    // into three arms radiating from a central node. One enemy patrols
+    // each arm; the prized apple sits at the dead center where every arm
+    // converges. Player must commit to an arm and flee before the chaser
+    // pins them at the fork.
     grid: [
       '######################',
-      '#p..f.................',
-      '#.....h.....k........#',
-      '#....................#',
-      '#.f.........k....A...#',
-      '#....................#',
-      '#......######........#',
-      '#....................#',
-      '#.f.........h....A...#',
-      '#....................#',
-      '#.....h.....k........#',
-      '#....f.....f........X#',
+      '#p..f....k.......h..f#',
+      '#.######......######.#',
+      '#.....################',
+      '#.f.................f#',
+      '#.######......######.#',
+      '#..........A.........#',
+      '#.######......######.#',
+      '#.f.................f#',
+      '################.....#',
+      '#.######......######.#',
+      '#f...h.......k.....fX#',
       '######################',
     ],
   },
@@ -1699,20 +1712,24 @@ const LEVELS = [
   // ─── Trinkets 5-20 ─────────────────────────────────────────────────
   {
     name: 'Hearthstone',
-    tip: 'Trinkets 5 — two candles. Read each flame, freeze a row.',
+    tip: 'Trinkets 5 — mantel shelves. Sweep top, sweep bottom, dodge two flames in the hearth.',
+    // Mantel-shelf shape: top + bottom strips loaded with strawberries,
+    // a hearth in the middle with two candles flanking ice barriers. The
+    // candles can sweep the ENTIRE middle corridor — the safe play is to
+    // race the shelves first and only enter the hearth to cross.
     grid: [
       '######################',
-      '#p..f.........f.....C#',
-      '#.####.....####......#',
+      '#p..f...f...f...f...f#',
+      '#.##################.#',
       '#....................#',
-      '#.f..................#',
-      '#......######........#',
-      '#.f.........f........#',
-      '#......######........#',
-      '#.f.........C........#',
+      '#.IIII...IIII...IIII.#',
+      '#......C......C......#',
       '#....................#',
-      '#.####.....####......#',
-      '#......f...........fX#',
+      '#....................#',
+      '#......C......C......#',
+      '#.IIII...IIII...IIII.#',
+      '#....................#',
+      '#..f...f...f...f...fX',
       '######################',
     ],
   },
@@ -1756,20 +1773,24 @@ const LEVELS = [
   },
   {
     name: 'Brass Bell',
-    tip: 'Trinkets 8 — two lamps predict where you go. Don\'t walk straight.',
+    tip: 'Trinkets 8 — crossroads. Four quadrants, two lamps in the spine.',
+    // Crossroads shape: a + of walls divides the room into four small
+    // quadrants. Two lamps prowl the central corridor between top and
+    // bottom; they predict your move, so sneaking past requires faking
+    // a direction at the spine.
     grid: [
       '######################',
-      '#p..f.........f......#',
-      '#.######......######.#',
-      '#......l............f#',
-      '#.f..................#',
-      '#......######........#',
+      '#p..f.............f..#',
       '#....................#',
-      '#......######........#',
-      '#.f.........l........#',
-      '#....................#',
-      '#.######......######.#',
-      '#......f.........f..X#',
+      '#.........##.........#',
+      '#.........##.........#',
+      '#.f.......##.......f.#',
+      '#######......#########',
+      '#......l....l........#',
+      '#######......#########',
+      '#.f.......##.......f.#',
+      '#.........##.........#',
+      '#..f......##......f.X#',
       '######################',
     ],
   },
@@ -1905,20 +1926,24 @@ const LEVELS = [
   },
   {
     name: 'Music Box',
-    tip: 'Trinkets 14 — open arena. Lamps, candles, teapots. Read the lanes.',
+    tip: 'Trinkets 14 — two decks. Lamps top, teapots bottom, one passage.',
+    // Two-decks shape: a horizontal wall splits the room into top and
+    // bottom halves with a single one-tile passage. Top deck holds three
+    // lamps that predict; bottom deck holds three teapots that cast.
+    // Choose your moment to slip through the passage.
     grid: [
       '######################',
-      '#p..f.........f.....l#',
-      '#....C......T........#',
+      '#p..f....f....f....f.#',
+      '#.##################.#',
       '#....................#',
-      '#.f................f.#',
+      '#.f...l.....l....l.f.#',
       '#....................#',
-      '#......######........#',
+      '##########.###########',
       '#....................#',
-      '#.f................f.#',
+      '#.f...T.....T....T.f.#',
       '#....................#',
-      '#....T......C........#',
-      '#l....f.....l....f..X#',
+      '#.##################.#',
+      '#..f...f....f....f.fX#',
       '######################',
     ],
   },
@@ -3206,25 +3231,41 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
         const sprite = (isWinding && ready(windSprite)) ? windSprite : baseSprite;
         const isReady = ready(sprite);
         if (isReady) {
-          // Subtle bob so enemies don't feel pasted onto the grid.
-          const bob = Math.sin(performance.now() / 280 + e.col + e.row) * 0.6;
+          // Banana is a tall, banana-shaped sprite that reads as static
+          // when drawn flat. Give it a wobble animation: a sin-wave tilt
+          // that always plays, and an extra bounce + lean-into-direction
+          // while it's stepping. Other legacy bots keep the simple bob.
+          const t = performance.now();
+          const bob = Math.sin(t / 280 + e.col + e.row) * 0.6;
           const sz = isWinding ? 36 : 34;
-          // Phase 22n — aspect-preserving draw so tall sprites
-          // (banana, eggplant, plum) render at natural proportions
-          // instead of getting squashed to a square.
           const sw = sprite.naturalWidth, sh = sprite.naturalHeight;
           const m = Math.max(sw, sh);
           const dw = sz * (sw / m);
           const dh = sz * (sh / m);
-          // Phase 22o — soft drop shadow under feet so the bot reads
-          // against busy Trinkets floors (mosaic / Persian rug).
           const feetY = (y + T) - 4 + bob;
           ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
           ctx.beginPath();
           ctx.ellipse(ecx, feetY, dw * 0.34, 2.2, 0, 0, Math.PI * 2);
           ctx.fill();
-          // Foot-anchor (bottom of sprite at tile bottom + 2 px head).
-          ctx.drawImage(sprite, ecx - dw / 2, (y + T) - dh - 2 + bob, dw, dh);
+
+          if (e.kind === 'banana') {
+            // Always-on wobble (~3 Hz, ±6°) reads as banana being too top-
+            // heavy to stand still. While moving, add a 2× amplitude lean
+            // toward the step direction + a vertical hop on top of bob.
+            const wobble = Math.sin(t / 130 + e.col * 0.7) * 0.10;
+            const dirSign = e.dir === 'left' ? -1 : e.dir === 'right' ? 1 : 0;
+            const moveLean = e.moving ? dirSign * 0.18 : 0;
+            const moveHop  = e.moving ? Math.abs(Math.sin(t / 110)) * -1.8 : 0;
+            const drawX = ecx;
+            const drawY = (y + T) - dh / 2 - 2 + bob + moveHop;
+            ctx.save();
+            ctx.translate(drawX, drawY);
+            ctx.rotate(wobble + moveLean);
+            ctx.drawImage(sprite, -dw / 2, -dh / 2, dw, dh);
+            ctx.restore();
+          } else {
+            ctx.drawImage(sprite, ecx - dw / 2, (y + T) - dh - 2 + bob, dw, dh);
+          }
         } else {
           // Procedural fallback (kept identical to the original look).
           if (e.kind === 'strawberry') {

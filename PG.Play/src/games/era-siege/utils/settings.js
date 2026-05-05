@@ -14,7 +14,7 @@ const DEFAULTS = {
   v: VERSION,
   reduceMotion: null,   // null = follow prefers-reduced-motion; true/false override
   lowFxOverride: null,  // null = follow auto-detect; true/false override
-  speed: 1,             // 1 or 2
+  speed: 1,             // 1, 2, or 3 — sim-tick multiplier
   cbSafePalette: false, // color-blind safe HP palette
   volumes: { master: 0.8, music: 0.5, sfx: 0.9 }, // 0..1 per bus
 };

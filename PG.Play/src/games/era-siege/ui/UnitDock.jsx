@@ -51,14 +51,24 @@ export default function UnitDock({ unitIds, generalId, generalsUnlocked, general
               const eraN = ERA_INDEX_BY_ID[def.eraId] || 1;
               const role = def.role;
               const src = `games/era-siege/unit/era${eraN}/${role}.png?v=${_VER}`;
+              // Cooldown ratio for the HEAD card — when this unit-id's
+              // spawn cooldown is decaying, show the bar so the player
+              // sees WHY the queue isn't draining.
+              const headCd = i === 0 ? (cooldownsMs?.[id] || 0) : 0;
+              const cdR = (i === 0 && def.spawnCooldownMs > 0)
+                ? Math.max(0, Math.min(1, headCd / def.spawnCooldownMs))
+                : 0;
               return (
                 <button
                   key={i + ':' + id}
                   type="button"
-                  className={`es-queue-cell${i === 0 ? ' is-head' : ''}`}
+                  className={`es-queue-cell${i === 0 ? ' is-head' : ''}${cdR > 0 ? ' is-cooling' : ''}`}
                   onClick={() => onCancelQueued && onCancelQueued(i)}
                   title={`${def.name} — click to cancel (refund ${Math.floor(def.cost * 0.5)}g)`}>
                   <img src={src} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none'; }}/>
+                  {cdR > 0 && (
+                    <span className="es-queue-cd" style={{ width: `${(1 - cdR) * 100}%` }} aria-hidden="true"/>
+                  )}
                 </button>
               );
             })}

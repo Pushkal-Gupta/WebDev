@@ -7,22 +7,38 @@
 // Sub-row of compact tool buttons (time / speed / pause / power-ups /
 // settings / shortcuts) sits below the main bar.
 
+import { useEffect, useRef, useState } from 'react';
 import { getEraByIndex, nextEra } from '../content/eras.js';
 import { BALANCE } from '../content/balance.js';
 import { Icon } from '../../../icons.jsx';
 
 export default function TopBar({
-  gold, xp, eraIndex, playerHP, enemyHP, maxHP,
+  gold, goldRate, xp, eraIndex, playerHP, enemyHP, maxHP,
   enemyEraIndex, timeSec, speed,
   population, populationMax,
   paused,
   specialReady,
   evolveReady, onEvolve,
-  onTogglePause, onCycleSpeed, onOpenSettings, onOpenPowerUps, onOpenShortcuts,
+  onTogglePause, onCycleSpeed, onOpenSettings, onOpenPowerUps, onOpenShortcuts, onOpenStats,
 }) {
   const era      = getEraByIndex(eraIndex);
   const next     = nextEra(era?.id);
   const enemyEra = getEraByIndex(enemyEraIndex);
+  // One-shot "just became ready" flash on the EVOLVE CTA. Watching the
+  // transition rather than the steady-state lets us flag the moment the
+  // player crossed the affordability line without spamming animation
+  // every render.
+  const [justReady, setJustReady] = useState(false);
+  const prevReadyRef = useRef(false);
+  useEffect(() => {
+    if (evolveReady && !prevReadyRef.current) {
+      setJustReady(true);
+      const t = setTimeout(() => setJustReady(false), 1400);
+      prevReadyRef.current = true;
+      return () => clearTimeout(t);
+    }
+    if (!evolveReady) prevReadyRef.current = false;
+  }, [evolveReady]);
   const xpR      = next ? Math.min(1, xp / next.xpToEvolve) : 1;
   const playerR  = clamp01(playerHP / maxHP);
   const enemyR   = clamp01(enemyHP / maxHP);
@@ -38,10 +54,13 @@ export default function TopBar({
           <span className="es-portrait-glyph">{(era?.name || 'YOU').split(' ')[0]}</span>
         </div>
         <div className="es-zone-stack">
-          <div className="es-gold-row" title={isCapped ? `Gold cap reached — spend it!` : 'Gold'}>
+          <div className="es-gold-row" title={isCapped ? `Gold cap reached — spend it!` : `Gold (+${goldRate || 0}/s trickle)`}>
             <span className="es-gold-icon" aria-hidden="true">{Icon.bolt}</span>
             <span className={`es-gold-num${isCapped ? ' is-capped' : ''}`}>{gold}</span>
             <span className="es-gold-label">{isCapped ? `cap ${BALANCE.GOLD_CAP}` : 'GOLD'}</span>
+            {!isCapped && goldRate > 0 && (
+              <span className="es-gold-rate" aria-label={`+${goldRate} gold per second`}>+{goldRate}/s</span>
+            )}
           </div>
           <div className="es-pop-row" title={`Population: ${population}/${popMax}`}>
             <span className="es-pop-label">POP</span>
@@ -70,7 +89,7 @@ export default function TopBar({
         {next && (
           <button
             type="button"
-            className={`es-evolve-cta${evolveReady ? ' is-ready' : ''}`}
+            className={`es-evolve-cta${evolveReady ? ' is-ready' : ''}${justReady ? ' is-just-ready' : ''}`}
             disabled={!evolveReady}
             onClick={onEvolve}
             title={evolveReady ? `Evolve to ${next.name}` : `Reach ${next.xpToEvolve} XP and ${next.evolveCost}g`}>
@@ -103,6 +122,7 @@ export default function TopBar({
         <button type="button" className={`es-tool${speed > 1 ? ' is-on' : ''}`} onClick={onCycleSpeed} title={`Speed ${speed}×`}><span className="es-tool-text">{speed}×</span></button>
         <button type="button" className={`es-tool${paused ? ' is-on' : ''}`} onClick={onTogglePause} title={paused ? 'Resume (P)' : 'Pause (P)'}>{paused ? Icon.play : Icon.pause}</button>
         <button type="button" className="es-tool" onClick={onOpenPowerUps} title="Power-ups (U)" aria-label="Power-ups">{Icon.bolt}</button>
+        <button type="button" className="es-tool" onClick={onOpenStats}     title="Stats"        aria-label="Stats">{Icon.trophy}</button>
         <button type="button" className="es-tool" onClick={onOpenSettings}  title="Settings"     aria-label="Settings">{Icon.settings}</button>
         <button type="button" className="es-tool" onClick={onOpenShortcuts} title="Shortcuts (?)" aria-label="Shortcuts">{Icon.keyboard}</button>
         {specialReady && <span className="es-tool-pulse" aria-hidden="true"/>}

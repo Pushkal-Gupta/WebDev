@@ -17,7 +17,7 @@ import { useEffect, useRef, useState } from 'react';
 const COIN_LIFE_MS = 700;
 const ORB_LIFE_MS  = 800;
 
-export default function LootOrbs({ matchRef, canvasRef, goldTargetSelector = '.es-gold-num', xpTargetSelector = '.es-xp-track' }) {
+export default function LootOrbs({ matchRef, canvasRef, matchReady, goldTargetSelector = '.es-gold-num', xpTargetSelector = '.es-xp-track' }) {
   const [orbs, setOrbs] = useState([]);
   const idRef = useRef(0);
   const wrapRef = useRef(null);
@@ -78,7 +78,7 @@ export default function LootOrbs({ matchRef, canvasRef, goldTargetSelector = '.e
       }
     });
     return () => off?.();
-  }, [matchRef, canvasRef, goldTargetSelector, xpTargetSelector]);
+  }, [matchRef, canvasRef, matchReady, goldTargetSelector, xpTargetSelector]);
 
   return (
     <div ref={wrapRef} className="es-loot-overlay" aria-hidden="true">

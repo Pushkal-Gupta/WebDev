@@ -113,6 +113,18 @@ export function attachAudio(bus) {
   // Match end — long stinger.
   offs.push(bus.on('match_end', (e) => fire(e.won ? 'win' : 'lose')));
 
+  // Boss wave — warning chirp (heads-up) then a heavier impact when
+  // the champion lands. Both cues duck the music for ~0.6 s so the
+  // event is unmissable.
+  offs.push(bus.on('boss_wave_warning', () => {
+    fire('error');                       // sharp "alert" tone we already ship
+    try { import('./music.js').then((m) => m.esMusic?.duck?.(0.6)); } catch { /* ignore */ }
+  }));
+  offs.push(bus.on('boss_wave_spawned', () => {
+    fire('achievement');
+    try { import('./music.js').then((m) => m.esMusic?.duck?.(0.8)); } catch { /* ignore */ }
+  }));
+
   return () => { for (const off of offs) off?.(); };
 }
 

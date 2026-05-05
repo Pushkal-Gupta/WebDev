@@ -2,10 +2,12 @@ import { useEffect } from 'react';
 import { Icon } from '../../icons.jsx';
 
 function trapFocus(node) {
-  if (!node) return () => {};
+  // React 18+ no longer accepts a function return from a callback ref
+  // (it logs a warning). The original "return () => {}" was a no-op
+  // anyway — focus is taken once on mount and React handles unmount.
+  if (!node) return;
   const first = node.querySelector('button, [tabindex]:not([tabindex="-1"])');
   first?.focus?.();
-  return () => {};
 }
 
 export function PauseOverlay({ open, onResume, onRestart, onExit, onToggleMute, muted }) {

@@ -72,25 +72,34 @@ export function makeRenderer() {
     ctx.save();
     if (shakeX || shakeY) ctx.translate(shakeX, shakeY);
 
-    // 1) Sky
+    // 1) Sky — no parallax (sky is "infinite")
     drawSky(ctx, v, playerEraIdx);
 
-    // 2) Cloud band (drifting)
+    // 2) Cloud band — drifts based on `t`
     drawClouds(ctx, v, playerEraIdx, match.timeSec);
 
-    // 3) Far mountains
-    drawFarMountains(ctx, v, playerEraIdx);
+    // Parallax driver — `match.timeSec` for idle drift; `shakeX` is
+    // already applied to the canvas via the global ctx.translate above
+    // so we pass 0 here (each bg layer just gets the drift component).
+    const T = match.timeSec || 0;
 
-    // 4) Mid mountains
-    drawMidMountains(ctx, v, playerEraIdx);
+    // 3) Far mountains — slowest scroll
+    drawFarMountains(ctx, v, playerEraIdx, T, 0);
+
+    // 4) Mid mountains — medium scroll
+    drawMidMountains(ctx, v, playerEraIdx, T, 0);
 
     // 5) Ground
     drawGroundLayer(ctx, v, playerEraIdx);
 
-    // 6) Foreground band (rocks/grass/debris) — sits *behind* the bases
-    //    but in front of the ground gradient so it reads as detail near
-    //    the camera.
-    drawForeground(ctx, v, playerEraIdx);
+    // 6) Foreground band — fastest scroll (closest layer to "camera")
+    drawForeground(ctx, v, playerEraIdx, T, 0);
+
+    // 6b) Ambient era motes — embers for Ember Tribe, dust for Iron,
+    //     sparks for Foundry, rain flecks for Storm, void motes for
+    //     Void Ascendancy. Lazily inits on first draw and ticks +
+    //     advances per-frame, so it survives saves / unmounts cleanly.
+    drawAmbientMotes(ctx, v, playerEra.id, T, _frameDt);
 
     // 7) Bases
     drawBase(ctx, v.laneLeft - 50, v.groundY, match.player, true, pal);
@@ -164,6 +173,129 @@ export function makeRenderer() {
   }
 
   return { render, clearCache };
+}
+
+// ── Ambient era motes ──────────────────────────────────────────────────
+// Tiny drifting particles painted between the foreground and the bases.
+// Per-era palette + motion gives each era a distinctive "atmosphere"
+// without needing extra art:
+//
+//   ember-tribe    — orange embers rising + flickering
+//   iron-dominion  — pale dust drifting sideways
+//   sun-foundry    — yellow sparks rising fast + spinning
+//   storm-republic — cyan rain flecks falling at a slight slant
+//   void-ascendancy — magenta void motes orbiting slowly
+//
+// State lives on `_motes` keyed by era — we re-use the buffer when
+// the era changes (reseeded with the new palette).
+
+const ERA_MOTE_CONFIG = {
+  'ember-tribe':     { count: 40, spawnW: 1.0, color: '#ff8a3a', glow: '#ffd05a',  vy: -22, vyJ: 14, vx: 6,   vxJ: 12, life: 4.0, size: 2.0, mode: 'rise' },
+  'iron-dominion':   { count: 36, spawnW: 1.0, color: '#cdc8c0', glow: '#ffffff',  vy: -4,  vyJ: 6,  vx: 28,  vxJ: 18, life: 5.0, size: 1.5, mode: 'drift' },
+  'sun-foundry':     { count: 50, spawnW: 1.0, color: '#ffcb6b', glow: '#fff0a0',  vy: -34, vyJ: 18, vx: 4,   vxJ: 16, life: 3.0, size: 1.6, mode: 'rise' },
+  'storm-republic':  { count: 60, spawnW: 1.0, color: '#7be3ff', glow: '#bef3ff',  vy: 90,  vyJ: 18, vx: -22, vxJ: 8,  life: 2.5, size: 1.4, mode: 'fall' },
+  'void-ascendancy': { count: 32, spawnW: 1.0, color: '#c89bff', glow: '#e9c8ff',  vy: 0,   vyJ: 4,  vx: 0,   vxJ: 0,  life: 5.0, size: 2.4, mode: 'orbit' },
+};
+
+let _motes = [];        // active mote pool (single buffer, era-keyed)
+let _motesEra = null;   // last era id used to (re)seed the buffer
+
+function _seedMotes(eraId, view) {
+  const cfg = ERA_MOTE_CONFIG[eraId];
+  if (!cfg) { _motes = []; return; }
+  _motes = [];
+  for (let i = 0; i < cfg.count; i++) {
+    _motes.push(_freshMote(cfg, view, true));
+  }
+  _motesEra = eraId;
+}
+
+function _freshMote(cfg, view, anywhere) {
+  // For 'rise' / 'fall' modes the mote spawns OFF-SCREEN on the leading
+  // edge so the first frame doesn't show a sudden swarm. `anywhere`
+  // (used at seed time) lets us scatter across the full canvas.
+  let x, y;
+  if (anywhere) {
+    x = Math.random() * view.w;
+    y = Math.random() * view.groundY;
+  } else if (cfg.mode === 'fall') {
+    x = Math.random() * view.w;
+    y = -10;
+  } else if (cfg.mode === 'rise') {
+    x = Math.random() * view.w;
+    y = view.groundY + 8;
+  } else if (cfg.mode === 'drift') {
+    x = -10;
+    y = Math.random() * view.groundY;
+  } else { // orbit
+    x = Math.random() * view.w;
+    y = Math.random() * view.groundY;
+  }
+  return {
+    x, y,
+    vx: cfg.vx + (Math.random() - 0.5) * cfg.vxJ,
+    vy: cfg.vy + (Math.random() - 0.5) * cfg.vyJ,
+    life: Math.random() * cfg.life,
+    maxLife: cfg.life * (0.7 + Math.random() * 0.6),
+    phase: Math.random() * Math.PI * 2,
+  };
+}
+
+function drawAmbientMotes(ctx, view, eraId, t, dt) {
+  const cfg = ERA_MOTE_CONFIG[eraId];
+  if (!cfg) return;
+  if (_motesEra !== eraId || _motes.length === 0) _seedMotes(eraId, view);
+  const stepDt = Math.max(0.001, Math.min(0.05, dt || 1 / 60));
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for (const m of _motes) {
+    if (cfg.mode === 'orbit') {
+      // Slow swirl — vx/vy oscillate via a per-mote phase. Visual feels
+      // like a calm drift rather than streaks.
+      m.phase += stepDt * 0.6;
+      m.x += Math.cos(m.phase) * 12 * stepDt;
+      m.y += Math.sin(m.phase) * 8 * stepDt;
+    } else {
+      m.x += m.vx * stepDt;
+      m.y += m.vy * stepDt;
+    }
+    m.life += stepDt;
+    // Recycle off-screen / dead motes back to a fresh spawn.
+    const dead = (
+         m.life >= m.maxLife
+      || m.x < -16 || m.x > view.w + 16
+      || m.y < -16 || m.y > view.groundY + 16
+    );
+    if (dead) {
+      const fresh = _freshMote(cfg, view, false);
+      m.x = fresh.x; m.y = fresh.y;
+      m.vx = fresh.vx; m.vy = fresh.vy;
+      m.life = 0;
+      m.maxLife = fresh.maxLife;
+      m.phase = fresh.phase;
+    }
+    // Fade in/out over the mote's life.
+    const lifeR = m.life / m.maxLife;
+    const alpha = lifeR < 0.2
+      ? lifeR / 0.2
+      : lifeR > 0.8 ? (1 - lifeR) / 0.2 : 1;
+    const flicker = 0.7 + 0.3 * Math.sin(m.phase + t * 8);
+    const sizePx = cfg.size * (0.8 + 0.4 * Math.sin(m.phase * 2));
+    // Outer glow halo — bigger, softer.
+    ctx.globalAlpha = Math.max(0, alpha * 0.45 * flicker);
+    ctx.fillStyle = cfg.glow;
+    ctx.beginPath();
+    ctx.arc(m.x, m.y, sizePx * 2.2, 0, Math.PI * 2);
+    ctx.fill();
+    // Inner core.
+    ctx.globalAlpha = Math.max(0, alpha * flicker);
+    ctx.fillStyle = cfg.color;
+    ctx.beginPath();
+    ctx.arc(m.x, m.y, sizePx, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
 }
 
 // ── Bases ──────────────────────────────────────────────────────────────
@@ -465,10 +597,13 @@ function drawSpecialTelegraph(ctx, match, side, isPlayer) {
 function drawUnitSprite(ctx, u, x, y, spriteKey, sideAuraActive) {
   const isGeneral = u.role === 'general';
   const isHeavy = u.role === 'heavy' || isGeneral;
+  const isChampion = !!u.isChampion;
   const SCALE = BALANCE.UNIT_RENDER_SCALE || 1;
   // Generals render bigger — they're the era centerpiece. Heavy = 80,
   // general = 110 (≈40% taller than heavy on the same canvas).
-  const targetH = (isGeneral ? 110 : isHeavy ? 80 : 64) * SCALE;
+  // Champions are scaled an additional 25 % so they read as bosses.
+  const baseH = (isGeneral ? 110 : isHeavy ? 80 : 64);
+  const targetH = baseH * SCALE * (isChampion ? 1.25 : 1);
   const nat = assets.naturalSize(spriteKey);
   const aspect = nat ? nat.w / nat.h : 0.6;
   const targetW = targetH * aspect;
@@ -508,6 +643,52 @@ function drawUnitSprite(ctx, u, x, y, spriteKey, sideAuraActive) {
     ctx.beginPath();
     ctx.arc(x + lean, y - targetH * 0.45 + bob, targetH * 0.42 + chargeT * 6, 0, Math.PI * 2);
     ctx.fill();
+    ctx.restore();
+  }
+
+  // ── Champion halo + crown ────────────────────────────────────────
+  // Boss-wave champions get a persistent red-orange aura that pulses
+  // slowly + a small crown shape above the head so they read as
+  // distinct from regular units of the same role.
+  if (isChampion && !u.dead) {
+    const pulseT = 0.55 + Math.sin(performance.now() / 380) * 0.20;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = pulseT;
+    const grad = ctx.createRadialGradient(
+      x + lean, y - targetH * 0.5, targetH * 0.20,
+      x + lean, y - targetH * 0.5, targetH * 0.95,
+    );
+    grad.addColorStop(0, '#ff6048');
+    grad.addColorStop(0.5, 'rgba(255,96,72,0.4)');
+    grad.addColorStop(1, 'rgba(255,96,72,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(x + lean, y - targetH * 0.5, targetH * 0.95, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    // Crown glyph drawn procedurally — 5 points on a small bar.
+    const crownX = x + lean;
+    const crownY = y - targetH - 18;
+    const crownW = Math.max(18, targetW * 0.42);
+    const crownH = 9;
+    ctx.save();
+    ctx.fillStyle = '#ffd14a';
+    ctx.strokeStyle = '#7a4a10';
+    ctx.lineWidth = 1.5;
+    // base bar
+    ctx.fillRect(crownX - crownW / 2, crownY + crownH * 0.5, crownW, crownH * 0.5);
+    ctx.strokeRect(crownX - crownW / 2, crownY + crownH * 0.5, crownW, crownH * 0.5);
+    // 3 spikes
+    ctx.beginPath();
+    for (let i = 0; i < 3; i++) {
+      const px = crownX - crownW / 2 + (crownW / 3) * (i + 0.5);
+      ctx.moveTo(px - crownW / 8, crownY + crownH * 0.5);
+      ctx.lineTo(px,                 crownY - crownH * 0.4);
+      ctx.lineTo(px + crownW / 8,   crownY + crownH * 0.5);
+    }
+    ctx.fill();
+    ctx.stroke();
     ctx.restore();
   }
 

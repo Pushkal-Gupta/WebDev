@@ -28,6 +28,7 @@ import { consumeAdminAutostart } from '../utils/admin.js';
 // Era Siege intro stats — lazy-loaded so visiting other games doesn't pull
 // in the era-siege content.
 const EraSiegeIntroStats = lazy(() => import('../games/era-siege/ui/IntroStats.jsx'));
+const EraSiegeEraPreview = lazy(() => import('../games/era-siege/ui/EraPreviewCards.jsx'));
 
 // Frost Fight setup panel — difficulty pills + level select.
 // Lazy-loaded so other games don't pull in FF utilities.
@@ -407,6 +408,7 @@ export default function GameIntro({ game, onClose }) {
           {game.id === 'aow' && (
             <motion.div variants={itemVariants}>
               <Suspense fallback={null}>
+                <EraSiegeEraPreview/>
                 <EraSiegeIntroStats/>
               </Suspense>
             </motion.div>

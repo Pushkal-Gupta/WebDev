@@ -31,6 +31,7 @@ import { startLoop } from './engine/loop.js';
 import { makeRenderer } from './engine/renderer.js';
 import { makeIntents, clearIntents, attachKeyboard } from './engine/input.js';
 import { attachAudio } from './engine/audio.js';
+import { esMusic } from './engine/music.js';
 import { paletteFor, getEraByIndex, nextEra } from './content/eras.js';
 import { validateContent } from './content/index.js';
 import { BALANCE } from './content/balance.js';
@@ -51,9 +52,13 @@ import ShortcutsOverlay from './ui/ShortcutsOverlay.jsx';
 import TurretBuildModal from './ui/TurretBuildModal.jsx';
 import TurretManagePopover from './ui/TurretManagePopover.jsx';
 import PowerUpsDrawer from './ui/PowerUpsDrawer.jsx';
+import UpgradeStation from './ui/UpgradeStation.jsx';
 import EvolutionPanel from './ui/EvolutionPanel.jsx';
 import EraBanner from './ui/EraBanner.jsx';
 import LootOrbs from './ui/LootOrbs.jsx';
+import KillFeed from './ui/KillFeed.jsx';
+import BossWaveWarning from './ui/BossWaveWarning.jsx';
+import StatsPanel from './ui/StatsPanel.jsx';
 import { makePerfMon, detectDeviceClass } from './engine/perf.js';
 import { assets } from './engine/assets.js';
 import { POWERUP_DEFS, getMultiplier } from './sim/powerups.js';
@@ -116,6 +121,7 @@ export default function EraSiegeGame({ mode }) {
   const [paused, setPaused] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [statsOpen, setStatsOpen] = useState(false);
   const [powerUpsOpen, setPowerUpsOpen] = useState(false);
   const [evolutionOpen, setEvolutionOpen] = useState(false);
   const [turretBuildSlot, setTurretBuildSlot] = useState(null);
@@ -124,8 +130,14 @@ export default function EraSiegeGame({ mode }) {
   const [settingsRev, setSettingsRev] = useState(0);   // re-render trigger when settings change
 
   // Minimal HUD mirror.
+  // Bus-subscribing children (KillFeed, LootOrbs, BossWaveWarning) need
+  // a way to know that matchRef.current has been populated. React effects
+  // fire child→parent, so a child's effect captures matchRef.current === null
+  // at mount; we flip this flag *after* createMatch so the children's
+  // effects re-run with the live match in hand.
+  const [matchReady, setMatchReady] = useState(false);
   const [hud, setHud] = useState({
-    gold: 110, xp: 0, eraIndex: 0,
+    gold: 110, goldRate: 0, xp: 0, eraIndex: 0,
     playerHP: BALANCE.BASE_HP, enemyHP: BALANCE.BASE_HP,
     maxHP: BALANCE.BASE_HP, enemyMaxHP: BALANCE.BASE_HP,
     cooldownsMs: {},
@@ -163,7 +175,7 @@ export default function EraSiegeGame({ mode }) {
   //   TACTICAL (no-pause): evolve, power-ups, turret build/manage —
   //     these are battlefield decisions made under pressure. Forcing
   //     a pause robs them of weight and feels jarring.
-  const overlayOpen = settingsOpen || shortcutsOpen;
+  const overlayOpen = settingsOpen || shortcutsOpen || statsOpen;
   // Kept for the PauseOverlay's "is the canvas obscured by anything?"
   // check (so the Resume click target is suppressed while a tactical
   // overlay is on top of the canvas).
@@ -213,6 +225,7 @@ export default function EraSiegeGame({ mode }) {
       view: { w: 820, h: 420 },
     });
     matchRef.current = match;
+    setMatchReady(true);
 
     // ── Save / resume ──────────────────────────────────────────────
     // Daily + endless runs are skipped for save/resume — daily must
@@ -246,13 +259,28 @@ export default function EraSiegeGame({ mode }) {
     // Audio.
     audioStopRef.current = attachAudio(match.bus);
 
+    // Music bed — start the era-1 voice now; era_reached re-keys to
+    // the new era's bed with a 3 s crossfade. Special impacts duck
+    // the bed briefly so the impact-cue reads punchier.
+    esMusic.start(match.player.eraIndex || 0);
+
     // Telemetry.
     const offMs = match.bus.on('match_start', (e) => telemetry.emit('era_siege:match_start', { ...e, isDaily }));
     const offMe = match.bus.on('match_end',   (e) => telemetry.emit('era_siege:match_end',   { ...e, isDaily }));
     const offEr = match.bus.on('era_reached', (e) => {
       telemetry.emit('era_siege:era_reached', e);
-      // Player evolutions trigger the EraBanner overlay.
-      if (e.team === 'player') setEraBannerVer((v) => (v == null ? 1 : v + 1));
+      // Player evolutions trigger the EraBanner overlay AND the music
+      // crossfade — the new era's synth bed ramps in over 3 s while
+      // the old one ramps down.
+      if (e.team === 'player') {
+        setEraBannerVer((v) => (v == null ? 1 : v + 1));
+        try { esMusic.start(e.era | 0); } catch { /* swallow */ }
+      }
+    });
+    // Special impact ducks the music bed for ~600 ms so the impact
+    // cue reads punchier without permanently lowering the bed.
+    const offSp = match.bus.on('special_used', () => {
+      try { esMusic.duck(0.6); } catch { /* swallow */ }
     });
     const offEv = match.bus.on('evolve_clicked', (e) => telemetry.emit('era_siege:evolve_clicked', e));
     const offUs = match.bus.on('unit_spawned', (e) => {
@@ -272,6 +300,21 @@ export default function EraSiegeGame({ mode }) {
       root._lowGoldTimer = window.setTimeout(() => {
         root.classList.remove('es-shake-gold');
       }, 380);
+    });
+
+    // Player base took a hit → red strobe edge on the canvas wrap so the
+    // damage reads even when the player's eyes are on the unit dock or
+    // a popover. The class clears after 360 ms regardless of new hits
+    // (timer reset on each hit, so steady fire keeps the strobe on).
+    const offBh = match.bus.on('base_hit', (e) => {
+      if (e?.team !== 'player') return;
+      const root = wrapRef.current;
+      if (!root) return;
+      root.classList.add('es-base-hit');
+      window.clearTimeout(root._baseHitTimer);
+      root._baseHitTimer = window.setTimeout(() => {
+        root.classList.remove('es-base-hit');
+      }, 360);
     });
 
     // Tutorial.
@@ -345,7 +388,17 @@ export default function EraSiegeGame({ mode }) {
         return era?.unitIds || [];
       },
       requestSpawn:   (id)  => { intentsRef.current.spawn.push(id); },
-      requestBuild:   (i)   => { intentsRef.current.buildTurret = { slot: i }; },
+      requestBuild:   (i)   => {
+        // Same flow as clicking the turret slot in the action bar:
+        // an installed turret opens the manage popover, an empty
+        // (or spot-only) slot opens the build modal so the player
+        // can pick a tier. Without this the Z/X/C keys silently
+        // submitted a buildTurret intent with no turretId and the
+        // sim rejected it for missing data.
+        const t = matchRef.current?.player.turretSlots[i];
+        if (t && !t.spotOnly) setTurretManageSlot(t);
+        else                  setTurretBuildSlot(i);
+      },
       requestSell:    (i)   => { intentsRef.current.sellTurret = i; },
       requestSpecial:  ()    => { intentsRef.current.special  = true; },
       requestSpecial2: ()    => { intentsRef.current.special2 = true; },
@@ -365,18 +418,30 @@ export default function EraSiegeGame({ mode }) {
       getSpeed:   () => settingsRef.current.speed || 1,
       getIntents: () => {
         const i = intentsRef.current;
+        // Drain *every* intent field — earlier this clipped to 5
+        // fields and silently dropped unlockGenerals, special2,
+        // upgradeTurret, buildTurretSpot, queue, etc. The user
+        // saw "click does nothing" because their intent never
+        // reached the sim.
         const drained = {
-          spawn: i.spawn.slice(),
-          buildTurret: i.buildTurret,
-          sellTurret: i.sellTurret,
-          special: i.special,
-          evolve: i.evolve,
+          spawn:           i.spawn.slice(),
+          queue:           i.queue.slice(),
+          cancelQueue:     i.cancelQueue,
+          buildTurret:     i.buildTurret,
+          buildTurretSpot: i.buildTurretSpot,
+          sellTurret:      i.sellTurret,
+          upgradeTurret:   i.upgradeTurret,
+          unlockGenerals:  i.unlockGenerals,
+          buyPowerup:      i.buyPowerup,
+          special:         i.special,
+          special2:        i.special2,
+          evolve:          i.evolve,
         };
         clearIntents(i);
         return drained;
       },
-      render:    (m) => {
-        renderer.render(ctx, m);
+      render:    (m, dt) => {
+        renderer.render(ctx, m, dt);
         syncHud(m);
       },
       onFrame: (dt) => {
@@ -424,13 +489,15 @@ export default function EraSiegeGame({ mode }) {
         }
       } catch { /* swallow */ }
       try { stopAutoSave(); } catch { /* ignore */ }
-      try { offMs?.(); offMe?.(); offEr?.(); offEv?.(); offUs?.(); offTb?.(); offSu?.(); offLg?.(); offTut?.(); offEnd?.(); } catch { /* ignore */ }
+      try { offMs?.(); offMe?.(); offEr?.(); offEv?.(); offUs?.(); offTb?.(); offSu?.(); offLg?.(); offBh?.(); offTut?.(); offEnd?.(); offSp?.(); } catch { /* ignore */ }
+      try { esMusic.stop(); } catch { /* ignore */ }
       try { audioStopRef.current?.(); } catch { /* ignore */ }
       try { kbStopRef.current?.(); } catch { /* ignore */ }
       try { loopStopRef.current?.(); } catch { /* ignore */ }
       try { disposeFluid?.(); } catch { /* ignore */ }
       try { teardownMatch(matchRef.current); } catch { /* ignore */ }
       matchRef.current = null;
+      setMatchReady(false);
       rendererRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -445,6 +512,14 @@ export default function EraSiegeGame({ mode }) {
     if (!match) return;
     const next = {
       gold:     match.player.gold,
+      // Predictable gold trickle: era * powerup * difficulty. Kill
+      // bounties + base-hit chip aren't included here (they're spiky).
+      goldRate: (() => {
+        const era = getEraByIndex(match.player.eraIndex);
+        const eco = 1 + 0.10 * ((match.player.powerups?.economy) | 0);
+        const dif = match.difficulty?.playerGoldRateMul ?? 1;
+        return Math.round((era?.goldPerSec || 12) * eco * dif * 10) / 10;
+      })(),
       xp:       match.player.xp,
       eraIndex: match.player.eraIndex,
       playerHP: match.player.base.hp,
@@ -521,9 +596,12 @@ export default function EraSiegeGame({ mode }) {
     pausedRef.current = !pausedRef.current;
     setPaused(pausedRef.current);
   };
+  // Cycle speed 1 → 2 → 3 → 1. Per the Age of War 2 spec — three game
+  // speeds. Clamped both ways so future settings reads see a valid value.
   const onCycleSpeed = () => {
     const cur = settingsRef.current.speed || 1;
-    writeSettings({ speed: cur === 1 ? 2 : 1 });
+    const next = cur === 1 ? 2 : cur === 2 ? 3 : 1;
+    writeSettings({ speed: next });
   };
   const onBuyPowerup = (treeId) => { intentsRef.current.buyPowerup = treeId; };
   const onSlotClick = (i) => {
@@ -589,6 +667,7 @@ export default function EraSiegeGame({ mode }) {
     <div ref={wrapRef} className="es-root" data-rev={settingsRev} onMouseOver={onRootMouseOver}>
       <TopBar
         gold={hud.gold}
+        goldRate={hud.goldRate}
         xp={hud.xp}
         eraIndex={hud.eraIndex}
         playerHP={hud.playerHP}
@@ -608,6 +687,7 @@ export default function EraSiegeGame({ mode }) {
         onOpenSettings={() => setSettingsOpen(true)}
         onOpenPowerUps={() => setPowerUpsOpen(true)}
         onOpenShortcuts={() => setShortcutsOpen(true)}
+        onOpenStats={() => setStatsOpen(true)}
       />
       <div className="es-stage">
         <canvas ref={canvasRef} className="es-canvas" aria-label="Era Siege battlefield"/>
@@ -634,40 +714,51 @@ export default function EraSiegeGame({ mode }) {
           </div>
         )}
 
-        <TurretSlots
-          slots={hud.turretSlots}
-          eraIndex={hud.eraIndex}
-          gold={hud.gold}
-          onSlotClick={onSlotClick}
-        />
-
-        <SpecialButton
-          eraIndex={hud.eraIndex}
-          cooldownMs={hud.specialCooldownMs}
-          charging={hud.specialCharging}
-          onFire={onSpecial}
-        />
-
-        <SpecialButton
-          eraIndex={hud.eraIndex}
-          slot="secondary"
-          cooldownMs={hud.specialCooldownMs2}
-          charging={hud.specialCharging2}
-          onFire={onSpecial2}
-        />
-
-        <GeneralButton
-          eraIndex={hud.eraIndex}
-          gold={hud.gold}
-          cooldownMs={hud.generalCooldownMs}
-          alive={hud.generalAlive}
-          onDeploy={onDeployGeneral}
-        />
+        {/* Action bar — single horizontal row pinned to the top of
+            the stage. Houses the two specials (Q/W), the general,
+            the turret-slot strip, and the upgrade station. Replaces
+            the old right-rail vertical stack that floated in the
+            middle of the canvas. */}
+        <div className="es-action-bar" role="toolbar" aria-label="Battle actions">
+          <SpecialButton
+            eraIndex={hud.eraIndex}
+            cooldownMs={hud.specialCooldownMs}
+            charging={hud.specialCharging}
+            onFire={onSpecial}
+          />
+          <SpecialButton
+            eraIndex={hud.eraIndex}
+            slot="secondary"
+            cooldownMs={hud.specialCooldownMs2}
+            charging={hud.specialCharging2}
+            onFire={onSpecial2}
+          />
+          <GeneralButton
+            eraIndex={hud.eraIndex}
+            gold={hud.gold}
+            cooldownMs={hud.generalCooldownMs}
+            alive={hud.generalAlive}
+            onDeploy={onDeployGeneral}
+          />
+          <TurretSlots
+            slots={hud.turretSlots}
+            eraIndex={hud.eraIndex}
+            gold={hud.gold}
+            onSlotClick={onSlotClick}
+          />
+          <UpgradeStation
+            gold={hud.gold}
+            powerups={hud.powerups}
+            onOpen={() => setPowerUpsOpen(true)}
+          />
+        </div>
 
         <Tutorial activeIdx={tutorialIdx} onDismiss={onTutDismiss}/>
         <EraBanner eraIndex={hud.eraIndex} version={eraBannerVer}/>
 
-        <LootOrbs matchRef={matchRef} canvasRef={canvasRef}/>
+        <LootOrbs matchRef={matchRef} canvasRef={canvasRef} matchReady={matchReady}/>
+        <KillFeed matchRef={matchRef} matchReady={matchReady}/>
+        <BossWaveWarning matchRef={matchRef} matchReady={matchReady}/>
 
         <PauseOverlay
           paused={paused && !anyOverlayOpen}
@@ -750,6 +841,7 @@ export default function EraSiegeGame({ mode }) {
         />
         <OrientationGuide deviceClass={deviceClassRef.current}/>
         <ShortcutsOverlay open={shortcutsOpen} onClose={() => setShortcutsOpen(false)}/>
+        <StatsPanel open={statsOpen} onClose={() => setStatsOpen(false)}/>
       </div>
 
       <UnitDock
@@ -813,6 +905,7 @@ function AssetDebugOverlay() {
 
 function cheapDiffers(a, b) {
   if (a.gold !== b.gold) return true;
+  if ((a.goldRate || 0) !== (b.goldRate || 0)) return true;
   if (a.xp !== b.xp) return true;
   if (a.eraIndex !== b.eraIndex) return true;
   if (a.playerHP !== b.playerHP) return true;
