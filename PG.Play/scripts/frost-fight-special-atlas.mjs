@@ -195,9 +195,12 @@ async function maskLargestComponent(buf) {
 
 // Zero a top + bottom strip of the cropped cell. Kills any caption /
 // title pixels that survive the global dead-zone pass — text rows can
-// descend a few px further than expected. 35 / 30 px windows are small
-// enough to spare reasonable character bodies.
-async function zeroEdgeStrips(buf, topStrip = 35, bottomStrip = 30) {
+// descend a few px further than expected. Phase 22p: reduced from
+// 35/30 → 12/8 since the larger windows were clipping the head + base
+// of tall characters (lamp / teapot / chest looked like horizontal
+// strips). The maskLargestComponent pass handles whatever text leaks
+// past the smaller window.
+async function zeroEdgeStrips(buf, topStrip = 12, bottomStrip = 8) {
   const raw = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   const { width: w, height: h, channels: ch } = raw.info;
   const data = raw.data;

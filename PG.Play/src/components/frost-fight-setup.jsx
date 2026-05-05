@@ -175,16 +175,13 @@ export default function FrostFightSetup({
   skin, onSkinChange,
 }) {
   // Hydrate persisted picks once on mount so the parent state matches LS.
-  // Phase 22b — semantic of 'easy' changed (lives → in-place respawn);
-  // any stale 'easy' carried over from prior sessions silently rolls
-  // to 'normal' so the lobby always opens on the new default. Players
-  // who actually want Easy can re-pick — that's a one-click fix.
+  // Phase 22o — the old easy-→-normal coercion was removed: the v2
+  // LS key bump (in progress.js) already handles the semantic
+  // transition; the coercion was over-firing and overriding fresh
+  // user picks of Easy. Now: read whatever was saved, default to
+  // 'normal' on a fresh install, respect the user's choice otherwise.
   useEffect(() => {
-    let persistedDiff = readDifficulty('normal');
-    if (persistedDiff === 'easy') {
-      writeDifficulty('normal');
-      persistedDiff = 'normal';
-    }
+    const persistedDiff = readDifficulty('normal');
     if (persistedDiff !== difficulty) onDifficultyChange(persistedDiff);
     const persistedTheme = readTheme('cold');
     if (persistedTheme !== theme) onThemeChange(persistedTheme);

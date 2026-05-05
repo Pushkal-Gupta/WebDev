@@ -7,6 +7,7 @@
 // the player is already brimming.
 
 import { getEraByIndex } from '../content/eras.js';
+import { getUnit } from '../content/units.js';
 import { getMultiplier } from './powerups.js';
 import { BALANCE } from '../content/balance.js';
 import { spawnLootNumber } from './combat.js';
@@ -45,7 +46,21 @@ export function awardKill(state, killerSide, deadUnit) {
   // side gets pops so the lane doesn't drown in numbers.
   if (goldGained > 0) spawnLootNumber(state, deadUnit.x, deadUnit.y - 14, goldGained, killerSide.team, 'gold');
   if (xpGained   > 0) spawnLootNumber(state, deadUnit.x, deadUnit.y - 30, xpGained,   killerSide.team, 'xp');
-  state.bus.emit('kill', { team: killerSide.team, unitId: deadUnit.unitId, x: deadUnit.x, y: deadUnit.y });
+  // Resolve victim's display name + role for the kill-feed ticker. We
+  // pass these in the event payload so the UI doesn't have to look up
+  // the unit def itself.
+  const victim = getUnit(deadUnit.unitId);
+  state.bus.emit('kill', {
+    team: killerSide.team,
+    unitId: deadUnit.unitId,
+    unitName: deadUnit.isChampion ? `Champion ${victim?.name || deadUnit.unitId}` : (victim?.name || deadUnit.unitId),
+    role: victim?.role || 'frontline',
+    isChampion: !!deadUnit.isChampion,
+    goldGained,
+    xpGained,
+    x: deadUnit.x,
+    y: deadUnit.y,
+  });
 }
 
 export function awardBaseHit(state, attackerSide, hitDamage) {

@@ -301,11 +301,29 @@ function clampX(x, v) {
 }
 
 function pickTarget(self, foes) {
+  // Two-pass selection so a unit hitting a wall can be re-tasked by a
+  // friendly arriving behind it:
+  //   Pass 1 — any foe within self.range, regardless of facing. The
+  //            attack range itself is the threat radius; if a foe is
+  //            inside it, engage (turning around takes zero time in
+  //            this sim — pickTarget is the only "decision").
+  //   Pass 2 — fall back to the nearest forward foe so units still
+  //            advance toward the lane when nothing's in melee.
+  // Without pass 1, an enemy frontline parked at the player base would
+  // ignore newly-spawned player units behind it and keep grinding the
+  // wall — exactly the bug in the user's screenshot.
   let best = null, bestD = Infinity;
   for (const f of foes) {
     if (f.dead || f.hp <= 0) continue;
+    const ad = Math.abs(f.x - self.x);
+    if (ad <= self.range && ad < bestD) { bestD = ad; best = f; }
+  }
+  if (best) return best;
+  bestD = Infinity;
+  for (const f of foes) {
+    if (f.dead || f.hp <= 0) continue;
     const dx = f.x - self.x;
-    const forward = self.facing > 0 ? dx > -8 : dx < 8;  // small bias so we still hit a foe right next to us
+    const forward = self.facing > 0 ? dx > -8 : dx < 8;
     if (!forward) continue;
     const ad = Math.abs(dx);
     if (ad < bestD) { bestD = ad; best = f; }
@@ -314,16 +332,30 @@ function pickTarget(self, foes) {
 }
 
 function repel(arr) {
+  // Cross-team repulsion radius is *bigger* than same-team — enemies
+  // engaged in melee should still leave visible space between their
+  // sprites. Without this, two attacking foes stack at the same x and
+  // visually overlap (the user's screenshot shows them merged into a
+  // single blob).
+  const SAME = UNIT_REPULSE_PX;
+  const FOES = UNIT_REPULSE_PX + 14;
   for (let i = 0; i < arr.length; i++) {
     for (let j = i + 1; j < arr.length; j++) {
       const a = arr[i], b = arr[j];
       if (a.dead || b.dead) continue;
-      // Don't pry units in attack windup apart — keeps engagement ranges clean.
-      if (a.attackTickPhase !== 'idle' || b.attackTickPhase !== 'idle') continue;
+      const sameTeam = a.team === b.team;
+      // Same-team units freeze in attack windup so spear-walls hold
+      // formation. Cross-team units always repel so foes can't share
+      // a pixel column even mid-strike.
+      if (sameTeam && (a.attackTickPhase !== 'idle' || b.attackTickPhase !== 'idle')) continue;
+      const radius = sameTeam ? SAME : FOES;
       const delta = a.x - b.x;
       const ad = Math.abs(delta);
-      if (ad < UNIT_REPULSE_PX) {
-        const push = (UNIT_REPULSE_PX - ad) / 2;
+      if (ad < radius) {
+        // Cross-team push at a fraction so attacking units still
+        // close to range without bouncing off each other forever.
+        const fraction = sameTeam ? 0.5 : 0.35;
+        const push = (radius - ad) * fraction;
         if (delta >= 0) { a.x += push; b.x -= push; }
         else            { a.x -= push; b.x += push; }
       }

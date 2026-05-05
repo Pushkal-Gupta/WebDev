@@ -15,6 +15,7 @@ import { tickProjectiles } from './projectile.js';
 import { tickEconomy } from './economy.js';
 import { tickProgression, tryEvolve } from './progression.js';
 import { tickAi } from './ai.js';
+import { tickBossWaves } from './bossWaves.js';
 import { tickSpecials, tryFireSpecial } from './specials.js';
 import { trySpawnUnit, tryQueueUnit, tryCancelQueued } from './unit.js';
 import { tryBuildTurret, tryBuildTurretSpot, trySellTurret, tryUpgradeTurretStat } from './turret.js';
@@ -245,6 +246,7 @@ function runStep(state, dt, intents) {
 
   tickEconomy(state, dt);
   tickAi(state, dt);
+  tickBossWaves(state, dt);
 
   tickSpecials(state, dt);
   tickUnits(state, dt);

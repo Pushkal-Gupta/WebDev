@@ -18,6 +18,12 @@ const ensure = () => {
   return ctx;
 };
 
+// Expose the audio-context factory + the mute predicate so per-game
+// music modules (e.g. era-siege/engine/music.js) can boot their own
+// synth beds without re-implementing the gate.
+export const ensureCtx = ensure;
+export { muted };
+
 const envTone = (freq, duration = 0.18, type = 'sine', gain = 0.18) => {
   const c = ensure(); if (!c) return;
   const osc = c.createOscillator();
@@ -233,6 +239,12 @@ function _frostStart(roomIdx) {
   if (_ff && _ffRoom === roomIdx) return;
   if (_ff) _frostStop();
   const c = ensure(); if (!c) return;
+  // jsdom's Web Audio shim returns AudioParam-less nodes for createDelay; bail
+  // gracefully so test runs don't surface unhandled rejections.
+  try {
+    const probe = c.createDelay && c.createDelay(0.5);
+    if (!probe || !probe.delayTime || typeof probe.delayTime.value !== 'number') return;
+  } catch { return; }
 
   const root = ROOM_ROOTS[roomIdx] ?? ROOM_ROOTS[0];
   const t0 = c.currentTime;
@@ -563,6 +575,14 @@ let _homePlaying = false;
 let _homeUnsubMute = null;
 let _homeTested = false;
 let _homeAvailable = false;
+// Sticky "stop was requested" flag. _homeStart awaits a HEAD probe and
+// has to construct the Audio element before it can call pause(); if
+// _homeStop runs in that window (the common case when a click both
+// starts the bed and immediately navigates to a game route) it'd
+// previously no-op because _homeEl was still null. The flag survives
+// across the async boundaries so a started-but-not-yet-playing bed
+// gets cancelled the moment it has anything to cancel.
+let _homeAbort = false;
 
 async function _homeProbe() {
   if (_homeTested) return _homeAvailable;
@@ -575,8 +595,10 @@ async function _homeProbe() {
 }
 
 async function _homeStart() {
+  _homeAbort = false;
   if (muted()) return;
   if (!(await _homeProbe())) return;
+  if (_homeAbort) return;
   if (!_homeEl) {
     try {
       _homeEl = new Audio(HOME_BED_URL);
@@ -601,11 +623,12 @@ async function _homeStart() {
       });
     } catch { return; }
   }
+  if (_homeAbort) return;
   // Fade in over ~2 s so it doesn't pop in.
   const start = performance.now();
   const fadeMs = 2000;
   const tick = () => {
-    if (!_homeEl || !_homePlaying) return;
+    if (!_homeEl || !_homePlaying || _homeAbort) return;
     const t = Math.min(1, (performance.now() - start) / fadeMs);
     _homeEl.volume = HOME_BED_GAIN * t;
     if (t < 1) requestAnimationFrame(tick);
@@ -614,11 +637,18 @@ async function _homeStart() {
   if (playPromise && typeof playPromise.then === 'function') {
     playPromise.then(() => {
       // Race guard: if _homeStop ran between play() and this resolve,
-      // the element is paused and we MUST NOT restart the fade-in tick
-      // (which would set _homePlaying = true and re-mix the home bed
-      // under whatever game audio is playing). Check the actual paused
-      // state, not a flag.
-      if (!_homeEl || _homeEl.paused) return;
+      // either the element is paused or _homeAbort is set. In either
+      // case we MUST NOT restart the fade-in tick (which would set
+      // _homePlaying = true and re-mix the home bed under whatever
+      // game audio is playing) — and we also explicitly pause + zero
+      // volume so a play() that landed after our stop() can't keep
+      // bleeding through.
+      if (!_homeEl || _homeEl.paused || _homeAbort) {
+        try { _homeEl?.pause(); } catch { /* ignore */ }
+        try { if (_homeEl) _homeEl.volume = 0; } catch { /* ignore */ }
+        _homePlaying = false;
+        return;
+      }
       _homePlaying = true;
       requestAnimationFrame(tick);
     }).catch(() => { _homePlaying = false; _homeAvailable = false; });
@@ -634,7 +664,18 @@ async function _homeStart() {
 }
 
 function _homeStop() {
-  if (!_homeEl) return;
+  // Mark abort first so any in-flight _homeStart bails at its next
+  // checkpoint — stop() ran while _homeEl was still null is the most
+  // common stuck-music case.
+  _homeAbort = true;
+  if (_homeUnsubMute) {
+    try { _homeUnsubMute(); } catch { /* ignore */ }
+    _homeUnsubMute = null;
+  }
+  if (!_homeEl) {
+    _homePlaying = false;
+    return;
+  }
   // Pause + zero volume so even if a stale play() promise tries to
   // restart playback (race with React unmount cleanup) it can't be
   // heard. The home Audio element is reused across mounts so we keep
@@ -642,10 +683,6 @@ function _homeStop() {
   try { _homeEl.pause(); } catch { /* ignore */ }
   try { _homeEl.volume = 0; } catch { /* ignore */ }
   _homePlaying = false;
-  if (_homeUnsubMute) {
-    try { _homeUnsubMute(); } catch { /* ignore */ }
-    _homeUnsubMute = null;
-  }
 }
 
 export const homeMusic = {
