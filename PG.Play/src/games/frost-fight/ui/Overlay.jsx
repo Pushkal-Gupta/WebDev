@@ -5,6 +5,7 @@
 // but auto-dismisses after ~1.1 s. The win card is sticky and offers
 // Play again + Back to lobby.
 
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 
 export function LevelIntro({ open, levelIdx, levelName, levelTip }) {
@@ -170,6 +171,130 @@ export function GameOverCard({ open, deaths, time, levelIdx, levelCount, levelNa
                 Back to lobby
               </button>
             </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+// Theme preload overlay — covers the canvas while preloadTheme warms
+// every atlas frame + wall + floor texture for the chosen theme.
+// Visualised as a circular cyan ring that fills as progress climbs;
+// the percentage number in the centre interpolates smoothly between
+// actual report ticks so the readout reads as continuous rather than
+// jumping in chunks. A second concentric ring spins behind it for
+// motion, plus a soft pulse to keep the wait visually alive.
+export function ThemePreloadOverlay({ open, themeLabel, progress }) {
+  const reduced = useReducedMotion();
+  const target = Math.max(0, Math.min(1, progress || 0));
+
+  // Smooth-tick the displayed percentage toward the actual progress so
+  // the number isn't a step function. Each animation frame eases ~12%
+  // of the remaining gap so the digit climbs visibly even when load
+  // settles in big batches.
+  const [shown, setShown] = useState(0);
+  const shownRef = useRef(0);
+  useEffect(() => {
+    if (!open) return;
+    let raf = 0;
+    const tick = () => {
+      const next = shownRef.current + (target - shownRef.current) * 0.12;
+      const snapped = Math.abs(target - next) < 0.0008 ? target : next;
+      shownRef.current = snapped;
+      setShown(snapped);
+      if (snapped !== target || target < 1) {
+        raf = requestAnimationFrame(tick);
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [open, target]);
+
+  // Reset the smoothing baseline when the overlay reopens for a new
+  // theme so the ring doesn't flash back from 100%.
+  useEffect(() => {
+    if (open) {
+      shownRef.current = 0;
+      setShown(0);
+    }
+  }, [open]);
+
+  const pct = Math.max(0, Math.min(1, shown));
+  const pctText = Math.round(pct * 100);
+  // SVG ring geometry. Radius 56 → circumference ≈ 351.86. Stroke 7
+  // sits comfortably inside an 130×130 svg viewBox.
+  const R = 56;
+  const C = 2 * Math.PI * R;
+  const dashOffset = C * (1 - pct);
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          key="preload"
+          className="ff-overlay ff-overlay-preload"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          aria-live="polite"
+          role="status">
+          <motion.div
+            className="ff-card ff-card-preload"
+            initial={reduced ? false : { y: 12, opacity: 0, scale: 0.98 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}>
+            <div className="ff-preload-ring-wrap">
+              {/* Spinning halo behind the progress ring — pure decoration. */}
+              <div className="ff-preload-halo" aria-hidden="true"/>
+              <svg
+                className="ff-preload-ring"
+                viewBox="0 0 130 130"
+                aria-hidden="true">
+                <defs>
+                  <linearGradient id="ff-preload-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%"   stopColor="#6cd0f0"/>
+                    <stop offset="50%"  stopColor="#a8ecff"/>
+                    <stop offset="100%" stopColor="#6cd0f0"/>
+                  </linearGradient>
+                  <filter id="ff-preload-glow" x="-30%" y="-30%" width="160%" height="160%">
+                    <feGaussianBlur stdDeviation="3" result="b"/>
+                    <feMerge>
+                      <feMergeNode in="b"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+                {/* Track */}
+                <circle
+                  cx="65" cy="65" r={R}
+                  fill="none"
+                  stroke="rgba(108, 208, 240, 0.14)"
+                  strokeWidth="7"/>
+                {/* Progress arc — rotated -90° so it grows from the top. */}
+                <circle
+                  cx="65" cy="65" r={R}
+                  fill="none"
+                  stroke="url(#ff-preload-grad)"
+                  strokeWidth="7"
+                  strokeLinecap="round"
+                  strokeDasharray={C}
+                  strokeDashoffset={dashOffset}
+                  filter="url(#ff-preload-glow)"
+                  style={{
+                    transform: 'rotate(-90deg)',
+                    transformOrigin: '65px 65px',
+                    transition: 'stroke-dashoffset 80ms linear',
+                  }}/>
+              </svg>
+              <div className="ff-preload-pct">
+                <span className="ff-preload-pct-num">{pctText}</span>
+                <span className="ff-preload-pct-sym">%</span>
+              </div>
+            </div>
+            <div className="ff-card-eyebrow">Loading</div>
+            <div className="ff-card-title">{themeLabel}</div>
           </motion.div>
         </motion.div>
       )}
