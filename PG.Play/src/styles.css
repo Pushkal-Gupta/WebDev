@@ -3146,6 +3146,131 @@ svg { display: block; width: 100%; height: 100%; }
 }
 .ff-overlay-win { pointer-events: auto; }
 .ff-overlay-reset { pointer-events: none; }
+/* Theme preload — full-stage cover with a radial cyan ring and the
+   live percentage in the middle. Backdrop is a dark wash with a
+   subtle radial cyan vignette so the ring reads against any room.   */
+.ff-overlay-preload {
+  pointer-events: auto;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(108, 208, 240, 0.10), transparent 60%),
+    rgba(6, 11, 20, 0.82);
+  backdrop-filter: blur(8px);
+}
+.ff-card-preload {
+  padding: 28px 40px 26px;
+  text-align: center;
+  min-width: 240px;
+  background: rgba(10, 18, 32, 0.78);
+  border: 1px solid rgba(108, 208, 240, 0.30);
+  border-radius: 16px;
+  box-shadow:
+    0 18px 50px rgba(0, 22, 44, 0.55),
+    0 0 0 1px rgba(108, 208, 240, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+.ff-card-preload .ff-card-eyebrow {
+  color: #6cd0f0;
+  letter-spacing: 0.22em;
+  margin-top: 14px;
+}
+.ff-card-preload .ff-card-title {
+  color: #e9f6fb;
+  text-shadow: 0 0 18px rgba(108, 208, 240, 0.28);
+}
+
+/* Ring container — fixed square so the SVG, halo, and centred number
+   all align at the same focal point. */
+.ff-preload-ring-wrap {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  margin: 4px auto 10px;
+}
+.ff-preload-ring {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 2;
+  filter: drop-shadow(0 0 12px rgba(108, 208, 240, 0.35));
+}
+/* Slow-rotating cyan halo behind the progress ring. Two layered
+   conic gradients with opposing rotations create a shimmering
+   pinwheel effect. Pure decoration; pointer-events none. */
+.ff-preload-halo {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    conic-gradient(
+      from 0deg,
+      rgba(108, 208, 240, 0.0)  0%,
+      rgba(108, 208, 240, 0.35) 25%,
+      rgba(108, 208, 240, 0.0)  50%,
+      rgba(168, 236, 255, 0.30) 75%,
+      rgba(108, 208, 240, 0.0)  100%);
+  filter: blur(4px);
+  animation: ff-preload-halo-spin 5.6s linear infinite;
+  opacity: 0.85;
+}
+@keyframes ff-preload-halo-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Centred percentage stack — number + small `%` glyph. The number
+   is large + thin so it reads instantly; the `%` is dimmer so the
+   eye anchors on the digits. */
+.ff-preload-pct {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 3;
+  pointer-events: none;
+}
+.ff-preload-pct-num {
+  font-size: 2.2rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #e9f6fb;
+  text-shadow:
+    0 0 12px rgba(108, 208, 240, 0.55),
+    0 0 22px rgba(108, 208, 240, 0.30);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.ff-preload-pct-sym {
+  position: absolute;
+  bottom: 28px;
+  right: 28px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(168, 236, 255, 0.65);
+  text-shadow: 0 0 8px rgba(108, 208, 240, 0.35);
+}
+
+/* Soft heartbeat pulse on the entire ring wrap — subtle so it doesn't
+   distract from the percentage tick. */
+.ff-preload-ring-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, rgba(108, 208, 240, 0.18), transparent 70%);
+  z-index: 0;
+  animation: ff-preload-pulse 2.4s ease-in-out infinite;
+}
+@keyframes ff-preload-pulse {
+  0%, 100% { opacity: 0.45; transform: scale(0.96); }
+  50%      { opacity: 0.85; transform: scale(1.04); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ff-preload-halo,
+  .ff-preload-ring-wrap::before { animation: none; }
+}
 /* Level-reset card — dimmer than the win card, warm-danger eyebrow so
    the player reads it as a beat ('out of lives, restarting') rather
    than a halt. Auto-dismisses with the level reload. */
