@@ -12,47 +12,53 @@ export function makeCandy(palette, def) {
 
   // ── Layers (back-to-front) ──────────────────────────────────────────
   // Wrapper twists — small triangles fanned at each end. Approximate via
-  // small pills rotated, behind the body.
-  const wrapL = paperPill(0.18, 0.10, palette.wrapper);
-  wrapL.position.set(-0.36, 0, -0.02);
+  // small pills rotated, behind the body. Sized to match the original
+  // candy footprint so play-tested timings still feel right.
+  const wrapL = paperPill(0.24, 0.13, palette.wrapper);
+  wrapL.position.set(-0.46, 0, -0.06);
   wrapL.rotation.z = 0.4;
-  const wrapL2 = paperPill(0.18, 0.10, palette.wrapper);
-  wrapL2.position.set(-0.36, 0.02, -0.03);
+  const wrapL2 = paperPill(0.24, 0.13, palette.wrapper);
+  wrapL2.position.set(-0.46, 0.02, -0.07);
   wrapL2.rotation.z = -0.4;
   group.add(wrapL); group.add(wrapL2);
 
-  const wrapR = paperPill(0.18, 0.10, palette.wrapper);
-  wrapR.position.set(0.36, 0, -0.02);
+  const wrapR = paperPill(0.24, 0.13, palette.wrapper);
+  wrapR.position.set(0.46, 0, -0.06);
   wrapR.rotation.z = -0.4;
-  const wrapR2 = paperPill(0.18, 0.10, palette.wrapper);
-  wrapR2.position.set(0.36, 0.02, -0.03);
+  const wrapR2 = paperPill(0.24, 0.13, palette.wrapper);
+  wrapR2.position.set(0.46, 0.02, -0.07);
   wrapR2.rotation.z = 0.4;
   group.add(wrapR); group.add(wrapR2);
 
-  // Body silhouette outline (slightly larger).
-  const outline = paperDisk(0.32, palette.candyRim || '#3a0e18', { highlight: 0, shade: 0 });
-  outline.scale.set(0.32 * 1.06, 0.28 * 1.06, 1);
+  // Body silhouette outline (slightly larger, behind body).
+  const outline = paperDisk(1, palette.candyRim || '#3a0e18', { highlight: 0, shade: 0 });
+  outline.scale.set(0.42 * 1.08, 0.36 * 1.08, 1);
+  outline.position.z = -0.02;
   group.add(outline);
 
   // Body fill.
-  const body = paperDisk(0.32, palette.candy, { highlight: 0.16, shade: 0.20 });
-  body.scale.set(0.32, 0.28, 1);
+  const body = paperDisk(1, palette.candy, { highlight: 0.20, shade: 0.24 });
+  body.scale.set(0.42, 0.36, 1);
   group.add(body);
 
-  // Tiny face — two dot eyes, smile. Reads as "alive" without overdoing.
-  const eyeL = paperDisk(0.024, '#26171f', { highlight: 0, shade: 0 });
-  eyeL.position.set(-0.07, -0.02, 0.05);
-  const eyeR = paperDisk(0.024, '#26171f', { highlight: 0, shade: 0 });
-  eyeR.position.set( 0.07, -0.02, 0.05);
+  // Tiny face — two dot eyes + a small smile. Bigger so they read at
+  // typical play distance rather than disappearing into the body fill.
+  const eyeL = paperDisk(1, '#26171f', { highlight: 0, shade: 0 });
+  eyeL.scale.set(0.038, 0.038, 1);
+  eyeL.position.set(-0.10, -0.04, 0.05);
+  const eyeR = paperDisk(1, '#26171f', { highlight: 0, shade: 0 });
+  eyeR.scale.set(0.038, 0.038, 1);
+  eyeR.position.set( 0.10, -0.04, 0.05);
   group.add(eyeL); group.add(eyeR);
 
-  const smile = paperPill(0.10, 0.025, '#26171f');
-  smile.position.set(0, 0.06, 0.05);
+  const smile = paperPill(0.16, 0.04, '#26171f');
+  smile.position.set(0, 0.10, 0.05);
   group.add(smile);
 
-  // Gleam — small white-yellow speck top-left.
-  const gleam = paperDisk(0.04, '#fff5d6', { highlight: 0, shade: 0 });
-  gleam.position.set(-0.10, -0.10, 0.06);
+  // Gleam — small white-yellow speck top-left of the body.
+  const gleam = paperDisk(1, '#fff5d6', { highlight: 0, shade: 0 });
+  gleam.scale.set(0.07, 0.05, 1);
+  gleam.position.set(-0.14, -0.14, 0.06);
   group.add(gleam);
 
   // Ground shadow that lives on the floor plane — separate so it can

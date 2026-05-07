@@ -23,7 +23,11 @@ const DAMP = 0.9985;       // per-substep velocity retention. Tuned so a single 
                             // cycle reaches its symmetric apex with a small loss —
                             // higher values feel rubbery, lower values kill the swing
                             // before it gets through every star.
-const ITERATIONS = 10;     // more constraint iterations = stiffer, less stretchy chain.
+const ITERATIONS = 18;     // more constraint iterations = stiffer chain, less visible
+                            // stretching during fast swings + heavy moving anchors.
+                            // 18 propagates the constraint signal end-to-end on a
+                            // 12-segment rope plus headroom; below ~14 the rope reads
+                            // as visibly elastic, which is the "rubbery" feel.
 const FIXED_DT = 1 / 120;  // physics substep — independent of frame rate.
 const MAX_SUBSTEPS = 4;    // protects against tab-resume spikes.
 

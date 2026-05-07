@@ -17,11 +17,18 @@ import {
   StartScreen, LevelSelect, PauseMenu, LevelComplete, LevelFail, HintPill,
 } from './ui/Overlays.jsx';
 
-const STAR_PICKUP_RADIUS = 0.45;
-const TARGET_PICKUP_RADIUS = 0.7;
-const CUT_RADIUS = 0.22;
+const STAR_PICKUP_RADIUS = 0.58;   // forgiving — the player's cut timing
+                                    // never lands exactly where the simulator's
+                                    // does, so a tighter radius fights the player.
+const TARGET_PICKUP_RADIUS = 0.78;
+const CUT_RADIUS = 0.24;
 const SWIPE_MIN_DIST = 0.04;     // world units
 const FAIL_OOB = { minX: -7, maxX: 7, maxY: 6.6 };
+// Camera follow — the camera y eases toward the candy when the candy
+// flies above the default frame (e.g. bubble lift). Keeps the candy
+// visible even on levels where the lift apex sits above y = -1.
+const CAM_BASE_Y = 2.0;
+const CAM_FOLLOW_GAIN = 0.10;
 // Scenes that keep the canvas updating. Pause + menus freeze the loop.
 const ALIVE_SCENES = { play: 1, won: 1, lost: 1 };
 
@@ -110,6 +117,11 @@ export default function CutRopeGame() {
       lv._tetheredCache = true;
       levelRef.current = lv;
       engine.setBackdrop(lv.palette.backdropTop, lv.palette.backdropBot, lv.palette.floor);
+      // Reset camera baseline so a fresh level doesn't inherit the
+      // previous level's bubble-follow pan.
+      engine.camera.position.y = CAM_BASE_Y;
+      engine.camera.zoom = 1;
+      engine.camera.updateProjectionMatrix();
       // Auto-attach bubble if the candy spawns inside one. We also nudge
       // the candy slightly sideways: with verlet+constraint physics, a
       // perfectly straight-down taut rope locks the candy in place and
@@ -274,6 +286,21 @@ export default function CutRopeGame() {
       engine.camera.updateProjectionMatrix();
     } else if (engine.camera.zoom !== 1) {
       engine.camera.zoom = 1;
+      engine.camera.updateProjectionMatrix();
+    }
+
+    // Camera follow — when the candy lifts above the visible frame
+    // (bubble levels), ease the camera up so the action stays on-screen.
+    // We never pan DOWN (the floor is fixed where Mochi lives); we only
+    // catch upward drift past y ≈ 0.
+    const cy = lv.candy.point.y;
+    const wantBase = (cy < 0)
+      ? CAM_BASE_Y + cy * 0.55      // linear lift; cy=-3.8 → camera y ≈ -0.1
+      : CAM_BASE_Y;
+    const camY = engine.camera.position.y;
+    const ny = camY + (wantBase - camY) * CAM_FOLLOW_GAIN;
+    if (Math.abs(ny - camY) > 0.0005) {
+      engine.camera.position.y = ny;
       engine.camera.updateProjectionMatrix();
     }
   };

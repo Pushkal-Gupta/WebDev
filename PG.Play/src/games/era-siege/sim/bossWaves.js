@@ -84,11 +84,13 @@ export function tickBossWaves(state, _dt) {
 
 function pickChampionUnitId(era) {
   if (!era) return null;
-  // Prefer the era's heavy unit; fall back to frontline if the heavy
-  // is missing in content.
-  const heavy = era.unitIds?.find((id) => /heavy/i.test(id))
-             || era.unitIds?.find((id) => /(siege|guard|knight|colossus|titan)/i.test(id));
-  return heavy || era.unitIds?.[0] || null;
+  // Prefer the era's heavy unit (resolved by role, not id-substring,
+  // so era 1's Pyre Bearer → era 2's Iron Bastion → etc. all match).
+  // Falls back to frontline if no heavy is present in the era's roster.
+  const heavy = era.unitIds?.find((id) => getUnit(id)?.role === 'heavy');
+  return heavy || era.unitIds?.find((id) => getUnit(id)?.role === 'frontline')
+               || era.unitIds?.[0]
+               || null;
 }
 
 function spawnChampion(state, waveIndex, secondary = false) {

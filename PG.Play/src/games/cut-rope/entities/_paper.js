@@ -181,16 +181,16 @@ export function paperStar(radius, color = 0xffd24a, glowColor = 0xffe98f) {
       uniform vec3 uGlow;
       varying vec2 vUv;
       // Polar SDF for a 5-point star, radii r1 (outer) and r2 (inner).
+      // The wedge is centered on the +y axis in local SDF space; we feed
+      // it (vUv.x, -vUv.y) so the apex points screen-up under our
+      // vertically-flipped ortho camera.
       float sdStar(vec2 p, float r1, float r2) {
         const float n = 5.0;
         float a = 3.14159 / n;
-        // Reflect into one wedge.
         float ang = atan(p.x, p.y);
         ang = mod(ang, 2.0 * a) - a;
         float d = length(p);
-        // Distance to wedge edge defined by r1 (outer point) and r2 (inner notch).
         vec2 q = vec2(d * sin(ang), d * cos(ang));
-        // Edge from outer point (0, r1) to inner notch (r2*sin(a), r2*cos(a)).
         vec2 e = vec2(r2 * sin(a), r2 * cos(a)) - vec2(0.0, r1);
         vec2 v = q - vec2(0.0, r1);
         float t = clamp(dot(v, e) / dot(e, e), 0.0, 1.0);
@@ -199,7 +199,7 @@ export function paperStar(radius, color = 0xffd24a, glowColor = 0xffe98f) {
         return (q.x * e.y - q.y * e.x) > 0.0 ? -dist : dist;
       }
       void main() {
-        float d = sdStar(vUv, 0.95, 0.42);
+        float d = sdStar(vec2(vUv.x, -vUv.y), 0.95, 0.42);
         float aa = smoothstep(0.02, -0.02, d);
         // Inner glow — closer to center is brighter.
         float r = length(vUv);

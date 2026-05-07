@@ -18,7 +18,7 @@ import * as THREE from 'three';
 import { makePoint, makeConstraint } from '../physics.js';
 
 const MAX_NODES = 32;          // anchor + segments + candy
-const ROPE_RADIUS = 0.06;
+const ROPE_RADIUS = 0.085;     // visible thickness — tuned against the candy footprint.
 
 export function makeRope(palette, def, anchorPoint, candyPoint, world) {
   // `segments` is the number of *interior* points; the constraint chain
@@ -74,13 +74,19 @@ export function makeRope(palette, def, anchorPoint, candyPoint, world) {
   // positions in place. Computed once, big enough for any swing.
   geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 2, 0), 12);
 
-  // Custom shader gives the flat ribbon a tube-like cross-section look:
-  // a smooth darken toward each long edge plus a thin specular highlight
-  // along the center. Cheap, and avoids the per-frame Frenet-frame work
-  // that TubeGeometry would impose.
+  // Custom shader gives the ribbon an organic twisted-fibre look: a
+  // tube cross-section (darker at edges, thin specular highlight) plus
+  // a sinusoidal twist band that runs along the rope's length so it
+  // reads as braided cord, not glossy plastic. The twist is keyed off
+  // the v coordinate (which we baked along the chain length), so it
+  // stays locked to the rope as it swings.
   const ropeColor = new THREE.Color(palette.rope);
+  const ropeDark = ropeColor.clone().multiplyScalar(0.62);
   const ropeMat = new THREE.ShaderMaterial({
-    uniforms: { uColor: { value: ropeColor } },
+    uniforms: {
+      uColor: { value: ropeColor },
+      uDark: { value: ropeDark },
+    },
     vertexShader: /* glsl */`
       varying vec2 vUv;
       void main() {
@@ -90,12 +96,20 @@ export function makeRope(palette, def, anchorPoint, candyPoint, world) {
     `,
     fragmentShader: /* glsl */`
       uniform vec3 uColor;
+      uniform vec3 uDark;
       varying vec2 vUv;
       void main() {
-        float edge = abs(vUv.x - 0.5) * 2.0;        // 0 in middle, 1 at edges
-        float shade = 1.0 - 0.45 * pow(edge, 1.4);  // darken toward edges
-        float hi = smoothstep(0.05, 0.0, abs(vUv.x - 0.45)); // thin highlight
-        vec3 col = uColor * shade + vec3(1.0, 0.95, 0.82) * hi * 0.35;
+        float edge = abs(vUv.x - 0.5) * 2.0;
+        float shade = 1.0 - 0.50 * pow(edge, 1.4);
+        // Twisted-fibre band: a sin pattern along v, cross-section
+        // mapped via uv.x so the dark stripe shifts diagonally and
+        // reads as helical winding.
+        float twist = sin((vUv.y * 60.0 + vUv.x * 3.4));
+        float fibre = smoothstep(-0.1, 0.55, twist) * 0.45;
+        vec3 base = mix(uDark, uColor, 0.55 + fibre * 0.6);
+        // Thin specular along the upper edge of the cross-section.
+        float hi = smoothstep(0.06, 0.0, abs(vUv.x - 0.42));
+        vec3 col = base * shade + vec3(1.0, 0.95, 0.82) * hi * 0.30;
         gl_FragColor = vec4(col, 1.0);
       }
     `,
