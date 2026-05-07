@@ -26,6 +26,9 @@ export default function GeneralButton({ eraIndex, gold, cooldownMs, alive, onDep
     : cooldownMs > 0 ? `Reform ${Math.ceil(cooldownMs / 1000)}s`
     : tooPoor       ? `Need ${def.cost}g`
     : 'READY';
+  // Era N is 1-indexed for the asset path.
+  const eraN = eraIndex + 1;
+  const portraitSrc = `games/era-siege/unit/era${eraN}/general.png`;
   return (
     <button
       type="button"
@@ -34,6 +37,13 @@ export default function GeneralButton({ eraIndex, gold, cooldownMs, alive, onDep
       disabled={disabled}
       title={`${def.name} — ${def.cost}g · long cooldown · one living at a time`}
       aria-label={`Deploy ${def.name}`}>
+      <img
+        className="es-general-icon"
+        src={portraitSrc}
+        alt=""
+        loading="lazy"
+        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+      />
       <span className="es-general-eyebrow">General</span>
       <span className="es-general-name">{def.name}</span>
       <span className="es-general-cost">{def.cost}g</span>

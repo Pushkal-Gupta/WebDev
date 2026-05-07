@@ -14,6 +14,7 @@
 
 import { useEffect } from 'react';
 import { readStats } from '../utils/stats.js';
+import { ACHIEVEMENTS } from '../utils/achievements.js';
 
 const DIFFICULTY_ROWS = [
   { id: 'easy',     label: 'Easy',     legacy: 'skirmish' },
@@ -105,6 +106,29 @@ export default function StatsPanel({ open, onClose }) {
               <Stat label="Best score"    value={s.endless?.bestScore || 0}/>
               <Stat label="Longest run"   value={s.endless?.longestSec ? `${s.endless.longestSec}s` : '—'}/>
             </div>
+          </section>
+
+          {/* ── Achievements ───────────────────────────────── */}
+          <section className="es-stats-section">
+            <h3>
+              Achievements
+              <span className="es-stats-count">
+                {(s.achievements || []).length} / {ACHIEVEMENTS.length}
+              </span>
+            </h3>
+            <ul className="es-stats-ach-list">
+              {ACHIEVEMENTS.map((a) => {
+                const unlocked = (s.achievements || []).includes(a.id);
+                return (
+                  <li
+                    key={a.id}
+                    className={`es-stats-ach${unlocked ? ' is-unlocked' : ' is-locked'}`}>
+                    <span className="es-stats-ach-name">{a.name}</span>
+                    <span className="es-stats-ach-desc">{a.description}</span>
+                  </li>
+                );
+              })}
+            </ul>
           </section>
         </div>
 

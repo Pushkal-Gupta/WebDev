@@ -53,11 +53,11 @@ import TurretBuildModal from './ui/TurretBuildModal.jsx';
 import TurretManagePopover from './ui/TurretManagePopover.jsx';
 import PowerUpsDrawer from './ui/PowerUpsDrawer.jsx';
 import UpgradeStation from './ui/UpgradeStation.jsx';
-import EvolutionPanel from './ui/EvolutionPanel.jsx';
 import EraBanner from './ui/EraBanner.jsx';
 import LootOrbs from './ui/LootOrbs.jsx';
 import KillFeed from './ui/KillFeed.jsx';
 import BossWaveWarning from './ui/BossWaveWarning.jsx';
+import AchievementToast from './ui/AchievementToast.jsx';
 import StatsPanel from './ui/StatsPanel.jsx';
 import { makePerfMon, detectDeviceClass } from './engine/perf.js';
 import { assets } from './engine/assets.js';
@@ -123,7 +123,6 @@ export default function EraSiegeGame({ mode }) {
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
   const [powerUpsOpen, setPowerUpsOpen] = useState(false);
-  const [evolutionOpen, setEvolutionOpen] = useState(false);
   const [turretBuildSlot, setTurretBuildSlot] = useState(null);
   const [turretManageSlot, setTurretManageSlot] = useState(null);
   const [eraBannerVer, setEraBannerVer] = useState(null);
@@ -136,6 +135,10 @@ export default function EraSiegeGame({ mode }) {
   // at mount; we flip this flag *after* createMatch so the children's
   // effects re-run with the live match in hand.
   const [matchReady, setMatchReady] = useState(false);
+  // Newly unlocked achievement definitions for the post-match toast.
+  // Set by recordMatchResult's return value; cleared by AchievementToast
+  // after the toast lifetime expires.
+  const [unlockedAchievements, setUnlockedAchievements] = useState([]);
   const [hud, setHud] = useState({
     gold: 110, goldRate: 0, xp: 0, eraIndex: 0,
     playerHP: BALANCE.BASE_HP, enemyHP: BALANCE.BASE_HP,
@@ -180,7 +183,7 @@ export default function EraSiegeGame({ mode }) {
   // check (so the Resume click target is suppressed while a tactical
   // overlay is on top of the canvas).
   const anyOverlayOpen = overlayOpen
-                      || powerUpsOpen || evolutionOpen
+                      || powerUpsOpen
                       || turretBuildSlot != null || turretManageSlot != null;
   useEffect(() => {
     if (overlayOpen) {
@@ -346,7 +349,7 @@ export default function EraSiegeGame({ mode }) {
 
       // Persist stats locally for the result panel + difficulty unlocks.
       try {
-        recordMatchResult({
+        const result = recordMatchResult({
           difficulty: e.difficulty,
           won: e.won,
           era: e.era + 1,
@@ -360,6 +363,11 @@ export default function EraSiegeGame({ mode }) {
           isEndless,
           endlessSec: Math.round(match.endlessTimeSec || 0),
         });
+        // Surface newly-unlocked achievements as toasts on the
+        // results screen.
+        if (result?.newlyUnlocked?.length) {
+          setUnlockedAchievements(result.newlyUnlocked);
+        }
       } catch { /* don't block submission on storage failure */ }
 
       // Score submission via existing PG.Play infrastructure.
@@ -681,7 +689,14 @@ export default function EraSiegeGame({ mode }) {
         paused={paused}
         specialReady={specialReady}
         evolveReady={evolveReady}
-        onEvolve={() => setEvolutionOpen(true)}
+        onEvolve={() => {
+          // Direct evolve — no confirmation panel. Per the user
+          // spec, the game doesn't stop for anything; clicking the
+          // CTA is the confirmation. The TopBar's button is itself
+          // gated on `evolveReady`, so reaching this handler means
+          // the player has the gold + xp.
+          intentsRef.current.evolve = true;
+        }}
         onTogglePause={onTogglePause}
         onCycleSpeed={onCycleSpeed}
         onOpenSettings={() => setSettingsOpen(true)}
@@ -759,6 +774,10 @@ export default function EraSiegeGame({ mode }) {
         <LootOrbs matchRef={matchRef} canvasRef={canvasRef} matchReady={matchReady}/>
         <KillFeed matchRef={matchRef} matchReady={matchReady}/>
         <BossWaveWarning matchRef={matchRef} matchReady={matchReady}/>
+        <AchievementToast
+          unlocked={unlockedAchievements}
+          onClear={() => setUnlockedAchievements([])}
+        />
 
         <PauseOverlay
           paused={paused && !anyOverlayOpen}
@@ -824,15 +843,6 @@ export default function EraSiegeGame({ mode }) {
           powerups={hud.powerups}
           onBuy={onBuyPowerup}
           onClose={() => setPowerUpsOpen(false)}
-        />
-
-        <EvolutionPanel
-          open={evolutionOpen}
-          eraIndex={hud.eraIndex}
-          gold={hud.gold}
-          xp={hud.xp}
-          onEvolve={onEvolve}
-          onClose={() => setEvolutionOpen(false)}
         />
 
         <SettingsDrawer

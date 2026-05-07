@@ -32,14 +32,19 @@ export default function PowerUpsDrawer({ open, gold, powerups, onBuy, onClose })
 
   if (!open) return null;
   return (
-    <div className="es-pu-scrim" role="dialog" aria-label="Power-ups" onClick={onClose}>
+    <div className="es-pu-scrim" role="dialog" aria-label="Power-ups">
       <aside className="es-pu-card" onClick={(e) => e.stopPropagation()}>
         <header className="es-pu-head">
-          <div>
+          <div className="es-pu-head-text">
             <h2>Power-ups</h2>
-            <p>Spend gold for permanent passive upgrades. Reset each match.</p>
+            <p>Spend gold while the battle keeps going.</p>
           </div>
           <span className="es-pu-gold">{gold}g</span>
+          <button
+            type="button"
+            className="es-pu-x"
+            onClick={onClose}
+            aria-label="Close power-ups">×</button>
         </header>
 
         <div className="es-pu-sections">
@@ -116,13 +121,20 @@ function PowerupRow({ def, level, gold, onBuy }) {
 // fallback path keeps the UI from showing a broken-image glyph for
 // trees whose art hasn't shipped yet.
 function PowerupIcon({ def }) {
+  // The new artwork (assets/era-siege/power_2.png cropped per-tree)
+  // fills the tile with its own framed art, so we no longer want a
+  // colored background bleeding through the edges. Fall back to the
+  // colored chip only if the PNG fails to load.
   return (
-    <span className="es-pu-icon" aria-hidden="true" style={{ background: def.color }}>
+    <span className="es-pu-icon" aria-hidden="true">
       <img
         src={`${ICON_BASE}/upgrade-${def.id}.png`}
         alt=""
         loading="lazy"
-        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+        onError={(e) => {
+          e.currentTarget.style.display = 'none';
+          e.currentTarget.parentElement.style.background = def.color;
+        }}
       />
     </span>
   );
