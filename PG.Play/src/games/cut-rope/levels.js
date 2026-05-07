@@ -100,47 +100,51 @@ export const LEVELS = [
   },
 
   // ── World 2 — Greenhouse (bubbles) ────────────────────────────────────
+  // Bubble levels are tuned so the lift apex stays near the visible
+  // frame. Apex altitude = anchor.y - rope.length; we keep that above
+  // y = -1 (top of frustum) plus the camera-follow margin so the candy
+  // never spends the lift hidden above the screen.
   {
     id: 'l6', world: 2, number: 1, theme: GREEN,
     name: 'Bubble lift',
     hint: 'Pop the bubble at the right time. Drop into Mochi.',
-    anchors: [{ id: 'a1', x: 0, y: -0.2 }],
-    candy:   { x: 0.3, y: 3.2 },
-    ropes:   [{ from: 'a1', length: 3.6, segments: 13 }],
-    stars:   [{ x: 0.0, y: 2.0 }, { x: -0.4, y: 0.6 }, { x: -0.8, y: -1.0 }],
-    target:  { x: -1.0, y: 4.6 },
+    anchors: [{ id: 'a1', x: 0, y: 1.6 }],
+    candy:   { x: 0.3, y: 3.4 },
+    ropes:   [{ from: 'a1', length: 2.0, segments: 10 }],
+    stars:   [{ x: 0.2, y: 2.6 }, { x: 0.0, y: 1.4 }, { x: -0.3, y: 0.2 }],
+    target:  { x: -0.6, y: 4.7 },
     hazards: [],
-    devices: [{ kind: 'bubble', x: 0.3, y: 3.2, radius: 0.55 }],
+    devices: [{ kind: 'bubble', x: 0.3, y: 3.4, radius: 0.55 }],
   },
   {
     id: 'l7', world: 2, number: 2, theme: GREEN,
     name: 'Cradle pop',
     hint: 'The bubble lifts the cradle. Pop, then cut.',
-    anchors: [{ id: 'a1', x: -1.6, y: -0.2 }, { id: 'a2', x: 1.6, y: -0.2 }],
-    candy:   { x: 0.3, y: 2.4 },
+    anchors: [{ id: 'a1', x: -1.4, y: 1.4 }, { id: 'a2', x: 1.4, y: 1.4 }],
+    candy:   { x: 0.3, y: 2.6 },
     ropes:   [
-      { from: 'a1', length: 3.0, segments: 12 },
-      { from: 'a2', length: 3.0, segments: 12 },
+      { from: 'a1', length: 1.8, segments: 9 },
+      { from: 'a2', length: 1.8, segments: 9 },
     ],
-    stars:   [{ x: 0.4, y: 1.4 }, { x: 0.5, y: 0.4 }, { x: 0.6, y: -0.6 }],
-    target:  { x: 0, y: 4.6 },
+    stars:   [{ x: 0.3, y: 2.0 }, { x: 0.3, y: 1.0 }, { x: 0.3, y: 0.0 }],
+    target:  { x: 0, y: 4.7 },
     hazards: [],
-    devices: [{ kind: 'bubble', x: 0.3, y: 2.4, radius: 0.55 }],
+    devices: [{ kind: 'bubble', x: 0.3, y: 2.6, radius: 0.55 }],
   },
   {
     id: 'l8', world: 2, number: 3, theme: GREEN,
     name: 'Lift over',
     hint: 'Lift past the spikes. Pop in the safe lane.',
-    anchors: [{ id: 'a1', x: 0, y: -0.2 }],
-    candy:   { x: 0.3, y: 3.2 },
-    ropes:   [{ from: 'a1', length: 3.6, segments: 13 }],
-    stars:   [{ x: 0.1, y: 2.0 }, { x: -0.4, y: 0.6 }, { x: -0.5, y: -1.0 }],
-    target:  { x: -1.0, y: 4.6 },
+    anchors: [{ id: 'a1', x: 0, y: 1.6 }],
+    candy:   { x: 0.3, y: 3.4 },
+    ropes:   [{ from: 'a1', length: 2.0, segments: 10 }],
+    stars:   [{ x: 0.2, y: 2.6 }, { x: 0.0, y: 1.4 }, { x: -0.3, y: 0.4 }],
+    target:  { x: -1.0, y: 4.7 },
     hazards: [
-      { kind: 'spike', x: -2.4, y: 4.6, w: 1.4, h: 0.36 },
-      { kind: 'spike', x:  2.4, y: 4.6, w: 1.4, h: 0.36 },
+      { kind: 'spike', x: -2.6, y: 4.6, w: 1.4, h: 0.36 },
+      { kind: 'spike', x:  2.6, y: 4.6, w: 1.4, h: 0.36 },
     ],
-    devices: [{ kind: 'bubble', x: 0.3, y: 3.2, radius: 0.55 }],
+    devices: [{ kind: 'bubble', x: 0.3, y: 3.4, radius: 0.55 }],
   },
 
   // ── World 3 — Workshop (moving pins) ──────────────────────────────────

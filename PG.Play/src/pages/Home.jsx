@@ -342,21 +342,11 @@ export default function Home() {
             aria-controls="primary-sidebar">
             {Icon.menu}
           </button>
-          <button
-            type="button"
-            className="search search-cmdk search-trigger"
-            onClick={() => setSearchOpen(true)}
-            aria-label="Open search palette"
-            aria-haspopup="dialog">
-            <span className="search-icon">{Icon.search}</span>
-            <span className="search-trigger-text">Search games, genres…</span>
-            <kbd className="search-kbd" aria-hidden="true">⌘K</kbd>
-          </button>
           {user
-            ? <button className="avatar" title={user.email} onClick={() => setProfileOpen(true)}>
+            ? <button className="avatar" title={user.email} onClick={() => setProfileOpen(true)} style={{ marginInlineStart: 'auto' }}>
                 {(user.email || 'U').slice(0, 2).toUpperCase()}
               </button>
-            : <button className="btn btn-ghost btn-sm" onClick={() => setAuthOpen(true)}>Sign in</button>}
+            : <button className="btn btn-ghost btn-sm" onClick={() => setAuthOpen(true)} style={{ marginInlineStart: 'auto' }}>Sign in</button>}
         </div>
 
         <div className="main-inner">

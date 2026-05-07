@@ -11,14 +11,15 @@ export function makeStar(def) {
   group.position.set(def.x, def.y, 0);
 
   // Outer halo — soft transparent disc that pulses with star.t.
-  const halo = paperDisk(0.5, '#ffe98f', { highlight: 0, shade: 0, softness: 0.5 });
+  const halo = paperDisk(1, '#ffe98f', { highlight: 0, shade: 0, softness: 0.7 });
+  halo.scale.set(0.62, 0.62, 1);
   halo.material.transparent = true;
   halo.material.uniforms.uColor.value.setRGB(1.0, 0.92, 0.56);
   halo.position.z = -0.02;
   group.add(halo);
 
   // The star shape itself.
-  const star = paperStar(0.32, '#ffd24a', '#fff3a8');
+  const star = paperStar(0.36, '#ffd24a', '#fff3a8');
   group.add(star);
 
   const state = { x: def.x, y: def.y, taken: false, t: Math.random() * Math.PI };

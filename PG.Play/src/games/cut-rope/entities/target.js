@@ -5,80 +5,94 @@
 //
 // All shading is baked into the shaders inside `_paper.js`; nothing
 // here uses lighting. The character is intentionally readable as a
-// 2D illustration, not a 3D model.
+// 2D illustration, not a 3D model. Each layer also has an explicit
+// z offset so transparency-sort renders them back-to-front reliably.
 
 import * as THREE from 'three';
-import { paperDisk, paperEllipse, paperPill, paperShadow, disposePaperGroup } from './_paper.js';
+import { paperDisk, paperPill, paperShadow, disposePaperGroup } from './_paper.js';
 
 export function makeTarget(palette, def) {
   const group = new THREE.Group();
   group.position.set(def.x, def.y, 0);
 
-  // ── Layers (back-to-front) ──────────────────────────────────────────
-  // Ground shadow — soft ellipse that sits *under* mochi.
-  const shadow = paperShadow(0.78, 0.18, 0.28);
-  shadow.position.set(0, 0.62, -0.05);
+  // Layered z stack: shadow -> ears (back) -> outline -> body -> belly
+  // -> brows / eyes / mouth -> glints (front).
+
+  const shadow = paperShadow(1, 1, 0.32);
+  shadow.scale.set(0.95, 0.22, 1);
+  shadow.position.set(0, 0.66, -0.08);
   group.add(shadow);
 
-  // Outline silhouette — body fill drawn slightly larger in the rim color.
-  const bodyOutline = paperDisk(0.66, palette.targetRim || '#3a2c25', { highlight: 0, shade: 0 });
-  bodyOutline.position.set(0, 0, -0.01);
-  bodyOutline.scale.set(0.66 * 1.04, 0.62 * 1.04, 1);
-  group.add(bodyOutline);
-
-  // Body fill — soft-shaded.
-  const body = paperDisk(0.62, palette.target, { highlight: 0.18, shade: 0.22 });
-  body.scale.set(0.66, 0.62, 1);
-  group.add(body);
-
-  // Belly highlight — slightly lighter ellipse near the chin.
-  const belly = paperEllipse(0.42, 0.30, palette.targetBelly, {
-    highlight: 0.10, shade: 0.05,
-  });
-  belly.position.set(0, 0.18, 0.04);
-  group.add(belly);
-
-  // Ear tufts (two small disks tilted outward, slightly behind the body).
-  const earL = paperDisk(0.18, palette.target, { highlight: 0.18, shade: 0.18 });
-  earL.position.set(-0.42, -0.40, -0.02);
-  earL.scale.set(0.20, 0.24, 1);
-  const earR = paperDisk(0.18, palette.target, { highlight: 0.18, shade: 0.18 });
-  earR.position.set( 0.42, -0.40, -0.02);
-  earR.scale.set(0.20, 0.24, 1);
+  // Ears go BEHIND the body so they read as tufts protruding from the head.
+  const earL = paperDisk(1, palette.target, { highlight: 0.18, shade: 0.18, outline: palette.targetRim, outlineWidth: 0.10 });
+  earL.scale.set(0.22, 0.30, 1);
+  earL.position.set(-0.50, -0.42, -0.04);
+  earL.rotation.z = -0.15;
+  const earR = paperDisk(1, palette.target, { highlight: 0.18, shade: 0.18, outline: palette.targetRim, outlineWidth: 0.10 });
+  earR.scale.set(0.22, 0.30, 1);
+  earR.position.set( 0.50, -0.42, -0.04);
+  earR.rotation.z =  0.15;
   group.add(earL); group.add(earR);
 
-  // Eye whites + pupils. Whites keep position; pupils translate based
-  // on the candy's relative direction.
-  const eyeWhiteL = paperDisk(0.10, '#fffaf0', { highlight: 0.0, shade: 0.0, outline: '#1c1218', outlineWidth: 0.16 });
-  eyeWhiteL.position.set(-0.18, -0.05, 0.08);
-  const eyeWhiteR = paperDisk(0.10, '#fffaf0', { highlight: 0.0, shade: 0.0, outline: '#1c1218', outlineWidth: 0.16 });
-  eyeWhiteR.position.set( 0.18, -0.05, 0.08);
+  // Body silhouette / outline (slightly bigger, behind body).
+  const bodyOutline = paperDisk(1, palette.targetRim, { highlight: 0, shade: 0 });
+  bodyOutline.scale.set(0.78 * 1.05, 0.74 * 1.05, 1);
+  bodyOutline.position.z = -0.02;
+  group.add(bodyOutline);
+
+  // Body fill.
+  const body = paperDisk(1, palette.target, { highlight: 0.20, shade: 0.24 });
+  body.scale.set(0.78, 0.74, 1);
+  group.add(body);
+
+  // Belly highlight — slightly lighter ellipse low on the body.
+  const belly = paperDisk(1, palette.targetBelly, { highlight: 0.10, shade: 0.04 });
+  belly.scale.set(0.50, 0.34, 1);
+  belly.position.set(0, 0.30, 0.02);
+  group.add(belly);
+
+  // Eye whites + pupils. Pupils translate based on the candy's relative
+  // direction; the whites stay put.
+  const eyeWhiteL = paperDisk(1, '#fffaf0', {
+    highlight: 0, shade: 0, outline: '#1c1218', outlineWidth: 0.18,
+  });
+  eyeWhiteL.scale.set(0.13, 0.13, 1);
+  eyeWhiteL.position.set(-0.20, -0.06, 0.05);
+  const eyeWhiteR = paperDisk(1, '#fffaf0', {
+    highlight: 0, shade: 0, outline: '#1c1218', outlineWidth: 0.18,
+  });
+  eyeWhiteR.scale.set(0.13, 0.13, 1);
+  eyeWhiteR.position.set( 0.20, -0.06, 0.05);
   group.add(eyeWhiteL); group.add(eyeWhiteR);
 
-  const pupilL = paperDisk(0.045, '#1c1218', { highlight: 0.0, shade: 0.0 });
-  pupilL.position.set(-0.18, -0.05, 0.10);
-  const pupilR = paperDisk(0.045, '#1c1218', { highlight: 0.0, shade: 0.0 });
-  pupilR.position.set( 0.18, -0.05, 0.10);
+  const pupilL = paperDisk(1, '#1c1218', { highlight: 0, shade: 0 });
+  pupilL.scale.set(0.052, 0.052, 1);
+  pupilL.position.set(-0.20, -0.06, 0.07);
+  const pupilR = paperDisk(1, '#1c1218', { highlight: 0, shade: 0 });
+  pupilR.scale.set(0.052, 0.052, 1);
+  pupilR.position.set( 0.20, -0.06, 0.07);
   group.add(pupilL); group.add(pupilR);
 
-  // Pupil glints (the white dot that gives the eyes life).
-  const glintL = paperDisk(0.018, '#ffffff', { highlight: 0, shade: 0 });
-  glintL.position.set(-0.18 + 0.018, -0.062, 0.11);
-  const glintR = paperDisk(0.018, '#ffffff', { highlight: 0, shade: 0 });
-  glintR.position.set( 0.18 + 0.018, -0.062, 0.11);
+  // Glints — tiny white specks that give the eyes life.
+  const glintL = paperDisk(1, '#ffffff', { highlight: 0, shade: 0 });
+  glintL.scale.set(0.022, 0.022, 1);
+  glintL.position.set(pupilL.position.x + 0.022, pupilL.position.y - 0.014, 0.08);
+  const glintR = paperDisk(1, '#ffffff', { highlight: 0, shade: 0 });
+  glintR.scale.set(0.022, 0.022, 1);
+  glintR.position.set(pupilR.position.x + 0.022, pupilR.position.y - 0.014, 0.08);
   group.add(glintL); group.add(glintR);
 
-  // Brows — two short pills above each eye. Tilt animates per phase.
-  const browL = paperPill(0.16, 0.04, '#1c1218');
-  browL.position.set(-0.18, -0.20, 0.10);
-  const browR = paperPill(0.16, 0.04, '#1c1218');
-  browR.position.set( 0.18, -0.20, 0.10);
+  // Brows — short pills above each eye. Tilt animates per phase.
+  const browL = paperPill(0.18, 0.045, '#1c1218');
+  browL.position.set(-0.20, -0.22, 0.06);
+  const browR = paperPill(0.18, 0.045, '#1c1218');
+  browR.position.set( 0.20, -0.22, 0.06);
   group.add(browL); group.add(browR);
 
   // Mouth — a soft pill that scales horizontally for idle and grows tall
-  // for chomp. Sad phase flips the curvature by setting Y small.
-  const mouth = paperPill(0.34, 0.14, '#1c1218');
-  mouth.position.set(0, 0.18, 0.10);
+  // for chomp. Sits clear of the belly highlight so they don't overlap.
+  const mouth = paperPill(0.40, 0.16, '#1c1218');
+  mouth.position.set(0, 0.10, 0.06);
   group.add(mouth);
 
   let elapsed = 0;
@@ -103,37 +117,35 @@ export function makeTarget(palette, def) {
         if (phase === 'idle' && d < 1.6 && dy < -0.05) this.setPhase('anticipate');
         if (phase === 'anticipate' && d > 2.2) this.setPhase('idle');
         // Eye tracking — pupils slide a few pixels toward the candy.
-        const ex = Math.max(-0.04, Math.min(0.04, dx * 0.05));
-        const ey = Math.max(-0.03, Math.min(0.03, dy * 0.04));
-        pupilL.position.x = -0.18 + ex; pupilR.position.x = 0.18 + ex;
-        pupilL.position.y = -0.05 + ey; pupilR.position.y = -0.05 + ey;
-        glintL.position.x = pupilL.position.x + 0.018;
-        glintR.position.x = pupilR.position.x + 0.018;
-        glintL.position.y = pupilL.position.y - 0.012;
-        glintR.position.y = pupilR.position.y - 0.012;
+        const ex = Math.max(-0.05, Math.min(0.05, dx * 0.05));
+        const ey = Math.max(-0.04, Math.min(0.04, dy * 0.04));
+        pupilL.position.x = -0.20 + ex; pupilR.position.x = 0.20 + ex;
+        pupilL.position.y = -0.06 + ey; pupilR.position.y = -0.06 + ey;
+        glintL.position.x = pupilL.position.x + 0.022;
+        glintR.position.x = pupilR.position.x + 0.022;
+        glintL.position.y = pupilL.position.y - 0.014;
+        glintR.position.y = pupilR.position.y - 0.014;
       }
 
       // Mouth and brow per phase.
       if (phase === 'idle') {
-        mouth.scale.set(0.34, 0.10, 1);
-        mouth.position.y = 0.20;
+        mouth.scale.set(0.40, 0.10, 1);
+        mouth.position.y = 0.12;
         browL.rotation.z = 0; browR.rotation.z = 0;
       } else if (phase === 'anticipate') {
-        // Mouth opens vertically, brows tilt up (excited).
         const open = Math.min(0.22, phaseT * 0.6);
-        mouth.scale.set(0.30, 0.10 + open, 1);
-        mouth.position.y = 0.20 + open * 0.5;
+        mouth.scale.set(0.36, 0.10 + open, 1);
+        mouth.position.y = 0.12 + open * 0.4;
         browL.rotation.z = -0.20;
         browR.rotation.z =  0.20;
       } else if (phase === 'chomp') {
-        // Big open then snap shut over ~0.22s.
         const k = Math.min(1, phaseT / 0.22);
         const open = (1 - k) * 0.45;
-        mouth.scale.set(0.32 + (1 - k) * 0.06, 0.10 + open, 1);
-        mouth.position.y = 0.20 + open * 0.4;
+        mouth.scale.set(0.40 + (1 - k) * 0.06, 0.10 + open, 1);
+        mouth.position.y = 0.12 + open * 0.4;
       } else if (phase === 'sad') {
-        mouth.scale.set(0.26, 0.06, 1);
-        mouth.position.y = 0.24;
+        mouth.scale.set(0.30, 0.06, 1);
+        mouth.position.y = 0.18;
         browL.rotation.z =  0.22;
         browR.rotation.z = -0.22;
       }

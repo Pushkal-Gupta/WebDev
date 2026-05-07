@@ -3276,24 +3276,12 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
           ctx.ellipse(ecx, feetY, dw * 0.34, 2.2, 0, 0, Math.PI * 2);
           ctx.fill();
 
-          if (e.kind === 'banana') {
-            // Banana is tall + asymmetric, so any rotation tends to read
-            // as a smear during the fast slip step (interval 0.16 s).
-            // Replace the rotation with a small sin-wave horizontal sway
-            // + a vertical hop while moving. Sub-pixel offsets only —
-            // the banana itself stays upright so the eye tracks ONE bot
-            // even at high tempo.
-            const sway = Math.sin(t / 200 + e.col * 0.7) * 0.8;
-            const moveHop = e.moving ? Math.abs(Math.sin(t / 130)) * -1.4 : 0;
-            ctx.drawImage(
-              sprite,
-              ecx - dw / 2 + sway,
-              (y + T) - dh - 2 + bob + moveHop,
-              dw, dh,
-            );
-          } else {
-            ctx.drawImage(sprite, ecx - dw / 2, (y + T) - dh - 2 + bob, dw, dh);
-          }
+          // All legacy bots — banana included — draw the same way: foot-
+          // anchored, with the standard bob. Banana's slip-step interval
+          // is fast (0.16 s) and any extra rotation/sway/hop on top of
+          // that reads as a doubled or smeared sprite. Keep it simple —
+          // one drawImage per frame, no transforms.
+          ctx.drawImage(sprite, ecx - dw / 2, (y + T) - dh - 2 + bob, dw, dh);
         } else {
           // Procedural fallback (kept identical to the original look).
           if (e.kind === 'strawberry') {

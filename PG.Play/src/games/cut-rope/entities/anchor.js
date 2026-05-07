@@ -12,13 +12,17 @@ import { paperDisk, disposePaperGroup } from './_paper.js';
 export function makeAnchor(palette, def) {
   const group = new THREE.Group();
 
-  const outer = paperDisk(0.18, palette.pinRim, { highlight: 0.1, shade: 0.18 });
+  const outer = paperDisk(1, palette.pinRim, { highlight: 0.10, shade: 0.18 });
+  outer.scale.set(0.20, 0.20, 1);
+  outer.position.z = 0.0;
   group.add(outer);
-  const inner = paperDisk(0.13, palette.pin, { highlight: 0.16, shade: 0.18 });
+  const inner = paperDisk(1, palette.pin, { highlight: 0.20, shade: 0.18 });
+  inner.scale.set(0.14, 0.14, 1);
   inner.position.z = 0.02;
   group.add(inner);
-  const rivet = paperDisk(0.035, '#fff8e6', { highlight: 0, shade: 0 });
-  rivet.position.set(-0.025, -0.025, 0.04);
+  const rivet = paperDisk(1, '#fff8e6', { highlight: 0, shade: 0 });
+  rivet.scale.set(0.04, 0.04, 1);
+  rivet.position.set(-0.030, -0.030, 0.04);
   group.add(rivet);
 
   group.position.set(def.x, def.y, 0);
