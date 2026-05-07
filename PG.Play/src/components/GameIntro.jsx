@@ -75,20 +75,31 @@ const MODE_OPTIONS = {
     { id: 'coop', label: 'Co-op (2P)',     tone: 'ghost', desktopOnly: true },
   ],
   aow: () => {
-    // Conquest is gated until the first Standard win — read the
-    // persisted Era Siege stats. Defensive: storage may be unavailable.
-    let conquestUnlocked = false;
+    // Five tiers — Easy → Insane — driving AI spawn rate, AI tech
+    // pace, enemy damage, and player gold trickle. Higher tiers
+    // are unlocked once the previous tier is beaten so the player
+    // doesn't drop into Insane raw.
+    let beat = { easy: false, normal: false, medium: false, hard: false };
     try {
       const raw = typeof localStorage !== 'undefined' ? localStorage.getItem('era-siege:stats') : null;
       const parsed = raw ? JSON.parse(raw) : null;
-      conquestUnlocked = !!(parsed && parsed.unlocks && parsed.unlocks.conquest);
-    } catch { /* keep gated */ }
+      // bestEra > 0 means at least one win at that tier — unlocks the
+      // next tier. (Falls back to all-locked for fresh installs.)
+      beat = {
+        easy:   (parsed?.bestEra?.skirmish || parsed?.bestEra?.easy   || 0) > 0,
+        normal: (parsed?.bestEra?.standard || parsed?.bestEra?.normal || 0) > 0,
+        medium: (parsed?.bestEra?.medium  || 0) > 0,
+        hard:   (parsed?.bestEra?.conquest|| parsed?.bestEra?.hard    || 0) > 0,
+      };
+    } catch { /* keep all gated */ }
     return [
-      { id: 'standard', label: 'Standard',          tone: 'primary' },
-      { id: 'skirmish', label: 'Skirmish',          tone: 'ghost' },
-      { id: 'conquest', label: conquestUnlocked ? 'Conquest' : 'Conquest (locked)', tone: 'ghost', disabled: !conquestUnlocked, disabledHint: 'Win a Standard match to unlock' },
-      { id: 'daily',    label: 'Daily challenge',   tone: 'ghost' },
-      { id: 'endless',  label: 'Endless',           tone: 'ghost' },
+      { id: 'easy',    label: 'Easy',    tone: 'primary' },
+      { id: 'normal',  label: beat.easy   ? 'Normal' : 'Normal (locked)', tone: 'ghost', disabled: !beat.easy,   disabledHint: 'Win an Easy match to unlock' },
+      { id: 'medium',  label: beat.normal ? 'Medium' : 'Medium (locked)', tone: 'ghost', disabled: !beat.normal, disabledHint: 'Win a Normal match to unlock' },
+      { id: 'hard',    label: beat.medium ? 'Hard'   : 'Hard (locked)',   tone: 'ghost', disabled: !beat.medium, disabledHint: 'Win a Medium match to unlock' },
+      { id: 'insane',  label: beat.hard   ? 'Insane' : 'Insane (locked)', tone: 'ghost', disabled: !beat.hard,   disabledHint: 'Win a Hard match to unlock' },
+      { id: 'daily',   label: 'Daily challenge', tone: 'ghost' },
+      { id: 'endless', label: 'Endless',         tone: 'ghost' },
     ];
   },
   _vsDefault: (game) => [

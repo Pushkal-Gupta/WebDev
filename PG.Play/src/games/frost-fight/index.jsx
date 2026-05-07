@@ -3249,7 +3249,23 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
               ctx.beginPath();
               ctx.ellipse(ecx, feetY, dw * 0.34, 2.2, 0, 0, Math.PI * 2);
               ctx.fill();
-              ctx.drawImage(frame, drawX, drawY, dw, dh);
+              // Mirror the sprite when the bot is blowing left so the
+              // cheek-puff and the ice puff both leave the same side of
+              // the bot. Atlas source frames are drawn facing right; we
+              // flip via ctx.scale(-1, 1) for left-facing casts. Only
+              // applied during attackCharge / attackRelease since those
+              // are the only frames whose direction is asymmetric.
+              const facing = e.castFacing || 1;
+              const isCastFrame = action === 'attackCharge' || action === 'attackRelease';
+              if (isCastFrame && facing < 0) {
+                ctx.save();
+                ctx.translate(ecx, 0);
+                ctx.scale(-1, 1);
+                ctx.drawImage(frame, -dw / 2, drawY, dw, dh);
+                ctx.restore();
+              } else {
+                ctx.drawImage(frame, drawX, drawY, dw, dh);
+              }
               return;
             }
           }
@@ -4247,6 +4263,12 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
             // its full anger transition before the ice fires.
             e.castPending = { dir, untilTs: performance.now() + 600 };
             e.chargingT = 0.6;
+            // Remember which way the bot is blowing so the draw path
+            // can mirror the sprite. Horizontal casts get the natural
+            // flip from dir[0]; vertical casts borrow the sign of the
+            // player's column offset so the bot still faces the right
+            // half of the room rather than reading as upside-down.
+            e.castFacing = dir[0] !== 0 ? dir[0] : Math.sign(targetForCast.col - e.col) || 1;
             e.animAction = 'attackCharge';
             e.animFrame = 0;
             e.animT = 0;
@@ -4289,6 +4311,16 @@ export default function FrostFightGame({ mode = 'solo', difficulty = DEFAULT_DIF
             dir = ax >= ay ? [ddx, 0] : [0, ddy];
           }
           if (dir[0] !== 0 || dir[1] !== 0) {
+            // Lock in the visual facing for the attackRelease window
+            // even if the cast came from the immediate path (no prior
+            // castPending charge). Vertical casts inherit the sign of
+            // the player's column offset.
+            const targetSign = (() => {
+              const tgt = (p2 && !p2.dead && (!p || p.dead)) ? p2 : p;
+              if (!tgt) return 1;
+              return Math.sign(tgt.col - e.col) || 1;
+            })();
+            e.castFacing = dir[0] !== 0 ? dir[0] : targetSign;
             // Row-cast — same Othello logic as the player. Walks
             // forward placing ice on every passable tile until the
             // first obstacle (wall, ice, enemy, fruit, exit, player).

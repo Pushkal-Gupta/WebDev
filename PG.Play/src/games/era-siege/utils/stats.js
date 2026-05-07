@@ -3,6 +3,7 @@
 // localStorage is unavailable (Safari private mode, embedded shells).
 
 import { storage } from './storage.js';
+import { evaluateAchievements } from './achievements.js';
 
 const KEY = 'era-siege:stats';
 const VERSION = 1;
@@ -15,9 +16,12 @@ const blank = () => ({
   totalKills: 0,
   totalSpawns: 0,
   totalEvolves: 0,
-  bestScore: { skirmish: 0, standard: 0, conquest: 0 },
-  bestEra:   { skirmish: 0, standard: 0, conquest: 0 },
-  fastestWinSec: { skirmish: 0, standard: 0, conquest: 0 },
+  // Legacy keys (skirmish/standard/conquest) and the new
+  // 5-tier keys (easy/normal/medium/hard/insane) live side-by-side
+  // so old saves still resolve cleanly.
+  bestScore:     { skirmish: 0, standard: 0, conquest: 0, easy: 0, normal: 0, medium: 0, hard: 0, insane: 0 },
+  bestEra:       { skirmish: 0, standard: 0, conquest: 0, easy: 0, normal: 0, medium: 0, hard: 0, insane: 0 },
+  fastestWinSec: { skirmish: 0, standard: 0, conquest: 0, easy: 0, normal: 0, medium: 0, hard: 0, insane: 0 },
   unlocks: { conquest: false },
   daily: { lastClaimedDate: null, lastDailyScore: 0, streak: 0, longestStreak: 0 },
   endless: { bestScore: 0, longestSec: 0, runs: 0 },
@@ -87,8 +91,12 @@ export function recordMatchResult({ difficulty, won, era, timeSec, score, kills,
     if ((endlessSec || 0) > (s.endless.longestSec || 0)) s.endless.longestSec = endlessSec || 0;
   }
   s.lastDifficulty = difficulty;
+  // Evaluate achievements after deltas. Newly unlocked ones are
+  // returned so the UI can toast them; we still call writeStats once
+  // with the merged result.
+  const newlyUnlocked = evaluateAchievements(s);
   writeStats(s);
-  return s;
+  return { stats: s, newlyUnlocked };
 }
 
 export function isDifficultyUnlocked(stats, id) {

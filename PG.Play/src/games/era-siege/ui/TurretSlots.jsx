@@ -42,12 +42,15 @@ export default function TurretSlots({ slots, eraIndex, gold, onSlotClick }) {
             label = 'Lay Spot';
             sub   = `${spotCost}g`;
             cost  = spotCost;
-            mark  = <SpotDashed/>;
+            // Show the era's turret as a faint preview so the player
+            // sees what they'd build, not just an abstract dashed circle.
+            mark  = <TurretArt eraN={eraN} ghost/>;
           } else if (spotOnly) {
             label = 'Build';
             sub   = `${turretCost}g`;
             cost  = turretCost;
-            mark  = <FoundationMark/>;
+            // Foundation slab + ghosted era turret icon.
+            mark  = <TurretArt eraN={eraN} ghost/>;
           } else {
             label = isCurrent ? 'Manage' : 'Upgrade';
             sub   = isCurrent ? 'OK' : 'OLD';
@@ -84,11 +87,16 @@ const _TURRET_VER = (typeof BUILD_VERSION !== 'undefined' && BUILD_VERSION)
 
 // Era turret PNG — uses the baked `turret/era<N>.png` cropped from the
 // reference sheet. Falls back to an SVG glyph if the PNG hasn't loaded.
-function TurretArt({ eraN, fallbackEraN }) {
+function TurretArt({ eraN, fallbackEraN, ghost }) {
   const src = `games/era-siege/turret/era${eraN || fallbackEraN || 1}.png?v=${_TURRET_VER}`;
   return (
-    <img className="es-rack3-slot-img" src={src} alt="" loading="lazy"
-         onError={(e) => { e.currentTarget.style.display = 'none'; }}/>
+    <img
+      className={`es-rack3-slot-img${ghost ? ' is-ghost' : ''}`}
+      src={src}
+      alt=""
+      loading="lazy"
+      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+    />
   );
 }
 

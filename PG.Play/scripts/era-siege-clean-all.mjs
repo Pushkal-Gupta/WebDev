@@ -49,7 +49,13 @@ function cullBg(buf, w, h, isBg) {
   // any low-chroma pixel is alpha-checker artifact. Unit/turret art
   // can have moderate greys (steel armor, smoke) so the cap stays
   // tighter there.
+  // - greyMaxLum: upper luminance bound for cull
+  // - greyMaxChr: upper chromaticity bound — bg files extend to chr≤22
+  //   to catch tinted alpha-checker artifacts (chr 10-22) that survive
+  //   the chr<=9 unit-safe filter. Real bg art (sunset orange, deep
+  //   purple, gold) has chr > 30 so it stays.
   const greyMaxLum = isBg ? 220 : 160;
+  const greyMaxChr = isBg ? 22  : 9;
   // ── Pass 1: unconditional cull for definite background pixels ──
   // - Pure / near-pure white at any chroma (catches warm-white halos
   //   like rgba(252, 248, 240) — anti-aliasing tint from a warm body)
@@ -69,9 +75,8 @@ function cullBg(buf, w, h, isBg) {
     // with off-by-one channel noise (e.g. rgb(96,96,98) chr=2 vs.
     // rgb(112,107,113) chr=6). Wider threshold catches the noise; legit
     // figure pixels reliably have chr > 12 in our saturated palettes.
-    if (chr > 9) continue;
-    // Single contiguous band lum 32-160 (was two bands with a 95-99
-    // gap that let through ~184k pixels in the cloud layer alone).
+    if (chr > greyMaxChr) continue;
+    // Single contiguous band lum 32-greyMaxLum.
     if (lum >= 32 && lum <= greyMaxLum) {
       buf[o + 3] = 0; cleared++;
     }
