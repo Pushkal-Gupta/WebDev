@@ -31,7 +31,7 @@ import {
   placeholderHitSpark, placeholderMuzzle, placeholderExplosion,
 } from './assets/placeholders.js';
 import {
-  drawImage,
+  drawImage, drawStripFrame,
   drawSkyImage, drawCloudImage, drawMountainImage, drawForegroundImage,
   drawBaseImage, drawProjectileImage,
   drawSpark9, drawMuzzle4, drawExplosion12,
@@ -158,6 +158,13 @@ export const assets = {
   get _registry() { return registry; },
 };
 
+// Dev debug — expose registry on window so external probes can inspect
+// load state without re-importing the module (which would yield a fresh
+// empty registry instance).
+if (typeof window !== 'undefined') {
+  window.__esAssets = assets;
+}
+
 // ── Registration helpers ──────────────────────────────────────────────
 
 function reg(key, src, placeholder, imageDraw) {
@@ -217,6 +224,12 @@ for (let i = 0; i < 5; i++) {
     (ctx, x, y, opts) => placeholderTurret(ctx, def, x, y, opts || {}));
   reg(`turret/era${i + 1}-recoil`, `games/era-siege/turret/era${i + 1}-recoil.png`,
     (ctx, x, y, opts) => placeholderTurret(ctx, def, x, y, opts || {}));
+  // Tier-specific sprites — light/heavy when shipped, otherwise the
+  // medium silhouette is reused via the renderer's fallback.
+  reg(`turret/era${i + 1}-light`,  `games/era-siege/turret/era${i + 1}-light.png`,
+    (ctx, x, y, opts) => placeholderTurret(ctx, def, x, y, opts || {}));
+  reg(`turret/era${i + 1}-heavy`,  `games/era-siege/turret/era${i + 1}-heavy.png`,
+    (ctx, x, y, opts) => placeholderTurret(ctx, def, x, y, opts || {}));
 }
 
 // ── Units (5 eras × frontline / ranged / heavy + general) ───────────
@@ -234,6 +247,22 @@ for (let i = 0; i < 5; i++) {
     if (gdef) {
       reg(`unit/era${i + 1}/general`, `games/era-siege/unit/era${i + 1}/general.png`,
         (ctx, x, y, opts) => placeholderUnit(ctx, gdef, x, y, opts || {}));
+    }
+  }
+  // Animation strips: walk / attack / idle (6 frames each, horizontal).
+  // Renderer picks one based on the unit's attackTickPhase + a global
+  // anim clock. Falls back silently to the static fallback if the strip
+  // PNG hasn't shipped yet.
+  for (const role of ['frontline', 'ranged', 'heavy', 'general']) {
+    const def = role === 'general'
+      ? (era.generalId ? getUnit(era.generalId) : null)
+      : era.unitIds.map(getUnit).find((u) => u && u.role === role);
+    if (!def) continue;
+    for (const anim of ['walk', 'attack', 'idle']) {
+      reg(`unit/era${i + 1}/${role}/${anim}`,
+        `games/era-siege/sprites/unit/era${i + 1}/${role}/${anim}.png`,
+        (ctx, x, y, opts) => placeholderUnit(ctx, def, x, y, opts || {}),
+        drawStripFrame);
     }
   }
 }

@@ -12,6 +12,35 @@
 //   projectile   — rotate to velocity vector
 //   spark/muzzle/explosion — frame-based blits from horizontal sheets
 
+// ── Sprite strip blit ────────────────────────────────────────────────
+//
+// Horizontal animation strip — opts.frame picks a cell from a
+// 6-frame strip authored at `cellW = img.naturalWidth / opts.frames`.
+// Used for unit walk/attack/idle animation. Foot-anchored by default
+// because units are baked with their foot at the cell's bottom band.
+export function drawStripFrame(ctx, img, x, y, opts = {}) {
+  if (!img.naturalWidth) return;
+  const frames = opts.frames || 6;
+  const frameIdx = Math.max(0, Math.min(frames - 1, Math.floor(opts.frame || 0)));
+  const sw = img.naturalWidth / frames;
+  const sh = img.naturalHeight;
+  const sx = frameIdx * sw;
+  const w = opts.w || sw / 2;
+  const h = opts.h || sh / 2;
+  const ax = w / 2;
+  const ay = opts.anchor === 'foot' ? h : h / 2;
+  const flip = opts.flipX ? -1 : 1;
+  if (flip < 0) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(-1, 1);
+    ctx.drawImage(img, sx, 0, sw, sh, -ax, -ay, w, h);
+    ctx.restore();
+  } else {
+    ctx.drawImage(img, sx, 0, sw, sh, x - ax, y - ay, w, h);
+  }
+}
+
 // ── Default blit — used when no specific imageDraw is registered ──────
 //
 // Authoring rule: source images are 2× target size for HiDPI; we

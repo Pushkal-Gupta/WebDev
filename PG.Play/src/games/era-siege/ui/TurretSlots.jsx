@@ -26,10 +26,6 @@ export default function TurretSlots({ slots, eraIndex, gold, onSlotClick }) {
 
   return (
     <aside className="es-rack3" role="group" aria-label="Turrets">
-      <header className="es-rack3-head">
-        <span className="es-rack3-title">TURRETS</span>
-        {def && <span className="es-rack3-sub">{def.name}</span>}
-      </header>
       <div className="es-rack3-grid">
         {slots.map((t, i) => {
           const empty    = !t;
@@ -39,15 +35,15 @@ export default function TurretSlots({ slots, eraIndex, gold, onSlotClick }) {
           const isCurrent = turret && t.eraIndex === eraIndex;
           let label, sub, cost, mark;
           if (empty) {
-            label = 'Lay Spot';
-            sub   = `${spotCost}g`;
+            label = 'Build';
+            sub   = `${spotCost}g foundation`;
             cost  = spotCost;
             // Show the era's turret as a faint preview so the player
             // sees what they'd build, not just an abstract dashed circle.
             mark  = <TurretArt eraN={eraN} ghost/>;
           } else if (spotOnly) {
-            label = 'Build';
-            sub   = `${turretCost}g`;
+            label = 'Pick Turret';
+            sub   = `from ${turretCost}g`;
             cost  = turretCost;
             // Foundation slab + ghosted era turret icon.
             mark  = <TurretArt eraN={eraN} ghost/>;

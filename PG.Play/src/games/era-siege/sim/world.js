@@ -18,7 +18,7 @@ import { tickAi } from './ai.js';
 import { tickBossWaves } from './bossWaves.js';
 import { tickSpecials, tryFireSpecial } from './specials.js';
 import { trySpawnUnit, tryQueueUnit, tryCancelQueued } from './unit.js';
-import { tryBuildTurret, tryBuildTurretSpot, trySellTurret, tryUpgradeTurretStat } from './turret.js';
+import { tryBuildTurret, tryBuildTurretSpot, tryCancelTurretSpot, trySellTurret, tryUpgradeTurretStat } from './turret.js';
 
 // One-time spend to unlock generals for the rest of the match. After
 // unlocking, the player can deploy any era's general (subject to the
@@ -188,6 +188,9 @@ function applyPlayerIntents(state, intents) {
   }
   if (intents.buildTurretSpot != null) {
     tryBuildTurretSpot(state, state.player, intents.buildTurretSpot);
+  }
+  if (intents.cancelTurretSpot != null) {
+    tryCancelTurretSpot(state, state.player, intents.cancelTurretSpot);
   }
   if (intents.buildTurret) {
     tryBuildTurret(state, state.player, intents.buildTurret.slot, intents.buildTurret.turretId);

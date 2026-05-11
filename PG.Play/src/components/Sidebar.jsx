@@ -80,11 +80,14 @@ export default function Sidebar({
   return (
     <aside className="sidebar" aria-label="Primary navigation">
       <div className="sidebar-brand">
-        <span className="sidebar-brand-mark">
+        <a
+          className="sidebar-brand-mark"
+          href="https://pushkalgupta.com/PG/main.html"
+          aria-label="Back to Pushkal Gupta home">
           <span className="sidebar-brand-name">PG</span>
           <span className="sidebar-brand-dot" aria-hidden="true"/>
           <span className="sidebar-brand-suffix">Play</span>
-        </span>
+        </a>
         <button
           type="button"
           className="sidebar-close"

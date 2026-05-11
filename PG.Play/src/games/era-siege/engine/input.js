@@ -8,6 +8,7 @@ export function makeIntents() {
     cancelQueue: null,    // queue index to cancel
     buildTurret:     null,
     buildTurretSpot: null,
+    cancelTurretSpot: null, // slot index to refund the foundation
     sellTurret:      null,
     upgradeTurret:   null,
     unlockGenerals:  false,
@@ -24,6 +25,7 @@ export function clearIntents(intents) {
   intents.cancelQueue  = null;
   intents.buildTurret     = null;
   intents.buildTurretSpot = null;
+  intents.cancelTurretSpot = null;
   intents.sellTurret      = null;
   intents.upgradeTurret   = null;
   intents.unlockGenerals  = false;

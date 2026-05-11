@@ -437,6 +437,7 @@ export default function EraSiegeGame({ mode }) {
           cancelQueue:     i.cancelQueue,
           buildTurret:     i.buildTurret,
           buildTurretSpot: i.buildTurretSpot,
+          cancelTurretSpot: i.cancelTurretSpot,
           sellTurret:      i.sellTurret,
           upgradeTurret:   i.upgradeTurret,
           unlockGenerals:  i.unlockGenerals,
@@ -514,6 +515,7 @@ export default function EraSiegeGame({ mode }) {
   function setRootAccent(wrap, eraId) {
     const pal = paletteFor(eraId);
     wrap.style.setProperty('--es-accent', pal.hudAccent);
+    if (eraId) wrap.setAttribute('data-era', eraId);
   }
 
   function syncHud(match) {
@@ -617,9 +619,16 @@ export default function EraSiegeGame({ mode }) {
     if (t) setTurretManageSlot(t);
     else   setTurretBuildSlot(i);   // modal handles spot-vs-turret state
   };
-  // Spot-first flow: empty + no-spot → BuildSpot, empty + spot-built → BuildTurret.
+  // Single-modal flow: stays open across spot-lay → tier-pick → build,
+  // so the player never loses context. The sim handles each intent
+  // independently; the modal just keeps showing the same slot.
   const onConfirmBuildSpot = (slot) => {
     intentsRef.current.buildTurretSpot = slot;
+    // Modal stays open — the next render shows spotBuilt=true so the
+    // tier picker and "Build {tier}" footer button become active.
+  };
+  const onConfirmCancelSpot = (slot) => {
+    intentsRef.current.cancelTurretSpot = slot;
     setTurretBuildSlot(null);
   };
   // turretId is optional — when supplied (from the picker) the player
@@ -812,11 +821,12 @@ export default function EraSiegeGame({ mode }) {
           slotIndex={turretBuildSlot ?? 0}
           eraIndex={hud.eraIndex}
           gold={hud.gold}
-          /* Spot already laid? Modal switches to "Build Turret" mode;
-             otherwise it shows "Build Spot" first. */
+          /* Live spot state — modal re-renders into the "tier picker
+             active" state the moment the sim processes buildTurretSpot. */
           spotBuilt={turretBuildSlot != null
             && !!matchRef.current?.player.turretSpots?.[turretBuildSlot]}
           onBuildSpot={onConfirmBuildSpot}
+          onCancelSpot={onConfirmCancelSpot}
           onBuild={onConfirmBuild}
           onClose={() => setTurretBuildSlot(null)}
         />
@@ -937,6 +947,7 @@ function cheapDiffers(a, b) {
   if ((a.enemyAuraLeftMs > 0) !== (b.enemyAuraLeftMs > 0)) return true;
   if (Math.abs((a.enemyAuraLeftMs || 0) - (b.enemyAuraLeftMs || 0)) > 250) return true;
   if (a.timeSec !== b.timeSec) return true;
+  if ((a.endlessSec || 0) !== (b.endlessSec || 0)) return true;
   if (a.status !== b.status) return true;
   if (a.score !== b.score) return true;
   const ak = Object.keys(a.cooldownsMs);

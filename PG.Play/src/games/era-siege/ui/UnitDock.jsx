@@ -187,9 +187,9 @@ function GeneralCard({ def, unlocked, unlockCost, cooldownMs, alive, gold, tipOp
           )}
         </div>
         {unlocked && cdR > 0 && (
-          <div className="es-card2-cd">
-            <div className="es-card2-cd-fill" style={{ width: `${(1 - cdR) * 100}%` }}/>
-          </div>
+          <div className="es-card2-cd"
+               data-cd-text={`${Math.ceil((cooldownMs || 0) / 1000)}s`}
+               style={{ '--cd-height': `${cdR * 100}%` }}/>
         )}
       </button>
       {tipOpen && <UnitTip def={def}/>}
@@ -201,19 +201,21 @@ function UnitCard({ def, idx, cd, tooPoor, isFlashing, tipOpen, onClick, onLongP
   const cdR = cd > 0 ? cd / def.spawnCooldownMs : 0;
   const disabled = cd > 0;
   const longPress = useLongPress({ onLongPress, delayMs: 450 });
+  const cdSec = Math.ceil(cd / 1000);
 
   return (
     <div className="es-card2-wrap">
       <button
         type="button"
-        className={`es-card2${disabled ? ' is-disabled' : ''}${tooPoor ? ' is-poor' : ''}${isFlashing ? ' is-flash' : ''}`}
+        className={`es-card2${disabled ? ' is-disabled is-cooling' : ''}${tooPoor ? ' is-poor' : ''}${isFlashing ? ' is-flash' : ''}`}
         onClick={onClick}
         disabled={disabled}
-        title={`${def.name} · ${def.cost}g`}
-        aria-label={`Spawn ${def.name}, costs ${def.cost} gold`}
+        aria-disabled={disabled || tooPoor}
+        title={`${def.name} · ${def.cost}g${tooPoor ? ' (need more gold)' : ''}`}
+        aria-label={`Spawn ${def.name}, costs ${def.cost} gold${tooPoor ? ', not enough gold' : ''}`}
         {...longPress}>
         <UnitSilhouette def={def}/>
-        <div className="es-card2-name" style={{ color: def.visual.colorBody }}>
+        <div className="es-card2-name">
           <span className="es-card2-name-text">{def.name}</span>
           <RoleIcon role={def.role} className="es-card2-role"/>
         </div>
@@ -222,7 +224,9 @@ function UnitCard({ def, idx, cd, tooPoor, isFlashing, tipOpen, onClick, onLongP
           <span className="es-card2-key" aria-hidden="true">{idx + 1}</span>
         </div>
         {cd > 0 && (
-          <div className="es-card2-cd" style={{ width: `${cdR * 100}%` }}/>
+          <div className="es-card2-cd"
+               data-cd-text={cdSec > 0 ? `${cdSec}s` : ''}
+               style={{ '--cd-height': `${cdR * 100}%` }}/>
         )}
       </button>
       {tipOpen && <UnitTip def={def}/>}
