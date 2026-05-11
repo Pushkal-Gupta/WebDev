@@ -53,6 +53,11 @@ export function makeRenderer() {
   // index.jsx resize hook keeps working without an extra check.
   function clearCache() { /* no-op */ }
 
+  // Phase 7 verified — back-to-front draw order matches the header
+  // comment: sky → clouds → mountains → ground → foreground → bases →
+  // turrets → telegraphs → units → projectiles → particles → impact
+  // rings → damage numbers → era ribbon. Screen shake wraps 1-15;
+  // era flash + era banner sit after restore so they're shake-stable.
   function render(ctx, match, _frameDt) {
     if (!match) return;
     const v = match.view;
@@ -367,54 +372,120 @@ function drawBase(ctx, x, groundY, side, isPlayer, pal) {
   drawBaseHpAndLabel(ctx, x, groundY, side, isPlayer);
 }
 
-// Base HP visualization — much more prominent. Wide bar with percentage,
-// rounded background, drop shadow, and a side label below the ground.
+// Base HP frame — composite war-state plate hung above the base.
+// Materials: charred wood backplate, bronze rim, segmented HP bar, stamped
+// numerals, banner-style nameplate. Three danger states escalate visually.
 function drawBaseHpAndLabel(ctx, x, groundY, side, isPlayer) {
-  const hpR = Math.max(0, side.base.hp / side.base.maxHp);
-  const barW = 240;
-  const barH = 18;
-  const barX = x - barW / 2;
-  const barY = groundY - 250;
-  // Drop shadow
-  ctx.fillStyle = 'rgba(0,0,0,0.45)';
-  roundRect(ctx, barX - 1, barY + 2, barW + 2, barH, 4);
+  // Phase 7 — base nameplate + HP bar (DOM-side primitives mirrored).
+  // Glass panel with cyan/amber/red HP segments, Space Grotesk type;
+  // colors track the DOM .es-bar-segmented family so DOM + canvas
+  // read as one HUD.
+  const hpR     = Math.max(0, side.base.hp / side.base.maxHp);
+  const hp      = Math.max(0, Math.round(side.base.hp));
+  const maxHp   = side.base.maxHp;
+  const flashR  = Math.max(0, Math.min(1, (side.baseFlashMs || 0) / 160));
+  const barW    = 220;
+  const barH    = 20;
+  const frameW  = barW + 14;
+  const frameH  = 52;
+  const barX    = x - barW / 2;
+  const frameX  = x - frameW / 2;
+  const frameY  = groundY - 250;
+  const barY    = frameY + 22;
+  const segments = 10;
+  const segGap   = 2;
+  const segW     = (barW - segGap * (segments - 1)) / segments;
+  const filledSegs = Math.max(0, Math.ceil(hpR * segments));
+  // Side tint — player = cyan, enemy = magenta hot
+  const accent   = isPlayer ? 'rgba(127, 214, 255, 0.85)' : 'rgba(255, 92, 182, 0.85)';
+  const accentDim = isPlayer ? 'rgba(127, 214, 255, 0.18)' : 'rgba(255, 92, 182, 0.18)';
+
+  ctx.save();
+
+  // Glass panel — translucent carbon
+  ctx.fillStyle = 'rgba(12, 19, 32, 0.78)';
+  roundRect(ctx, frameX, frameY, frameW, frameH, 8);
   ctx.fill();
-  // Track
-  ctx.fillStyle = 'rgba(8,10,14,0.85)';
-  roundRect(ctx, barX, barY, barW, barH, 4);
-  ctx.fill();
-  // Border
-  ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+  // Hairline cyan stroke
+  ctx.strokeStyle = accent;
   ctx.lineWidth = 1;
+  roundRect(ctx, frameX + 0.5, frameY + 0.5, frameW - 1, frameH - 1, 7.5);
   ctx.stroke();
-  // Fill (gradient: green/yellow/red by ratio)
-  const fillW = (barW - 4) * hpR;
-  if (fillW > 0) {
-    const fillColor = hpColor(hpR);
-    const grad = ctx.createLinearGradient(barX, barY, barX, barY + barH);
-    grad.addColorStop(0, fillColor);
-    grad.addColorStop(1, shadeHex(fillColor, -25));
-    ctx.fillStyle = grad;
-    roundRect(ctx, barX + 2, barY + 2, fillW, barH - 4, 3);
-    ctx.fill();
-  }
-  // Percentage text centered
-  ctx.fillStyle = '#fff';
-  ctx.font = 'bold 12px "JetBrains Mono", monospace';
+
+  // Nameplate text — Space Grotesk small-caps
+  ctx.fillStyle = isPlayer ? '#cfe5f5' : '#ffcfe6';
+  ctx.font = '600 9px "Space Grotesk", "Inter", sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.shadowColor = 'rgba(0,0,0,0.7)';
-  ctx.shadowBlur = 3;
-  ctx.fillText(`${Math.round(hpR * 100)}%`, x, barY + barH / 2 + 1);
-  ctx.shadowBlur = 0;
-  ctx.textBaseline = 'alphabetic';
-  // Side label below the ground line
-  ctx.fillStyle = isPlayer ? '#7be3ff' : '#ff8aa3';
-  ctx.font = 'bold 12px "JetBrains Mono", monospace';
   ctx.shadowColor = 'rgba(0,0,0,0.85)';
   ctx.shadowBlur = 2;
-  ctx.fillText(isPlayer ? 'YOUR BASE' : 'ENEMY BASE', x, groundY + 30);
+  ctx.fillText(isPlayer ? 'YOUR STRONGHOLD' : 'ENEMY STRONGHOLD', x, frameY + 10);
   ctx.shadowBlur = 0;
+
+  // HP bar track
+  ctx.fillStyle = '#06090f';
+  roundRect(ctx, barX - 2, barY - 2, barW + 4, barH + 4, 3);
+  ctx.fill();
+  ctx.strokeStyle = accentDim;
+  ctx.lineWidth = 1;
+  roundRect(ctx, barX - 1.5, barY - 1.5, barW + 3, barH + 3, 2.5);
+  ctx.stroke();
+
+  for (let i = 0; i < segments; i++) {
+    const segX = barX + i * (segW + segGap);
+    if (i < filledSegs) {
+      const isLastFilled = (i === filledSegs - 1);
+      const lowSeg = filledSegs <= 2;
+      // Tier colors match DOM tokens — cyan healthy / amber mid /
+      // magenta-red critical (same as .es-bar-segmented family).
+      let top = '#5dd6ff', bot = '#22a8e6';
+      if (hpR < 0.5)  { top = '#ffd070'; bot = '#ffb84a'; }
+      if (hpR < 0.25) { top = '#ff5e7a'; bot = '#c93a4e'; }
+      if (isLastFilled && lowSeg) {
+        const pulse = (Math.sin(performance.now() / 220) * 0.5 + 0.5);
+        ctx.globalAlpha = 0.6 + 0.4 * pulse;
+      }
+      const segGrad = ctx.createLinearGradient(0, barY, 0, barY + barH);
+      segGrad.addColorStop(0, top);
+      segGrad.addColorStop(1, bot);
+      ctx.fillStyle = segGrad;
+      ctx.fillRect(segX, barY, segW, barH);
+      // Top inner highlight
+      ctx.fillStyle = 'rgba(255,255,255,0.25)';
+      ctx.fillRect(segX, barY, segW, 2);
+      // Damage flash overlay on the last filled segment
+      if (isLastFilled && flashR > 0) {
+        ctx.fillStyle = `rgba(255, 245, 214, ${flashR * 0.85})`;
+        ctx.fillRect(segX, barY, segW, barH);
+      }
+      ctx.globalAlpha = 1;
+    } else {
+      ctx.fillStyle = 'rgba(255,255,255,0.025)';
+      ctx.fillRect(segX, barY, segW, barH);
+    }
+  }
+
+  // Stamped HP numerals — JetBrains Mono for tabular feel
+  ctx.fillStyle = '#e8f1fb';
+  ctx.font = '700 11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.shadowColor = 'rgba(0,0,0,0.85)';
+  ctx.shadowBlur = 3;
+  ctx.fillText(`${hp} / ${maxHp}`, x, barY + barH / 2 + 1);
+  ctx.shadowBlur = 0;
+
+  // Side ground label
+  ctx.fillStyle = isPlayer ? 'rgba(168, 225, 255, 0.78)' : 'rgba(255, 168, 210, 0.78)';
+  ctx.font = '600 9px "Space Grotesk", "Inter", sans-serif';
+  ctx.shadowColor = 'rgba(0,0,0,0.9)';
+  ctx.shadowBlur = 3;
+  ctx.fillText(isPlayer ? 'YOUR BASE' : 'ENEMY BASE', x, groundY + 28);
+  ctx.shadowBlur = 0;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+
+  ctx.restore();
 }
 
 function roundRect(ctx, x, y, w, h, r) {
@@ -447,26 +518,50 @@ function shadeHex(hex, amount) {
 // that slot would sit, so once the turret is placed it lands on top
 // of its own slab.
 function drawTurretSpot(ctx, view, slot, isPlayer, hasTurret) {
+  // Phase 7 — turret foundation. Glass slab with cyan corner brackets
+  // and a soft pulsing core when empty; pairs with the DOM dashboard.
   const x = isPlayer ? view.laneLeft - 22 : view.laneRight + 22;
   const y = view.groundY - BALANCE.TURRET_ROW_Y_PX - slot * 22;
+  const cyan = isPlayer ? 'rgba(127, 214, 255, 0.85)' : 'rgba(255, 168, 210, 0.75)';
+  const cyanDim = isPlayer ? 'rgba(127, 214, 255, 0.18)' : 'rgba(255, 168, 210, 0.18)';
   ctx.save();
-  // Stone slab
-  ctx.fillStyle = '#3a3f48';
-  ctx.fillRect(x - 16, y + 2, 32, 8);
-  ctx.fillStyle = '#1c2128';
-  ctx.fillRect(x - 16, y + 8, 32, 2);
-  // Corner posts (only when no turret has been placed yet — once the
-  // turret is up they'd clip through its base plate).
+  // Foundation slab — translucent carbon
+  ctx.fillStyle = 'rgba(12, 19, 32, 0.78)';
+  ctx.fillRect(x - 18, y + 1, 36, 10);
+  // Cyan hairline on top + bottom edges
+  ctx.fillStyle = cyanDim;
+  ctx.fillRect(x - 18, y + 1, 36, 1);
+  ctx.fillRect(x - 18, y + 10, 36, 1);
+  // Corner brackets — short cyan strokes at each end (4-corner hex feel)
+  ctx.strokeStyle = cyan;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  // top-left
+  ctx.moveTo(x - 18, y + 4); ctx.lineTo(x - 18, y + 1); ctx.lineTo(x - 14, y + 1);
+  // top-right
+  ctx.moveTo(x + 14, y + 1); ctx.lineTo(x + 18, y + 1); ctx.lineTo(x + 18, y + 4);
+  // bottom-left
+  ctx.moveTo(x - 18, y + 7); ctx.lineTo(x - 18, y + 11); ctx.lineTo(x - 14, y + 11);
+  // bottom-right
+  ctx.moveTo(x + 14, y + 11); ctx.lineTo(x + 18, y + 11); ctx.lineTo(x + 18, y + 7);
+  ctx.stroke();
+
   if (!hasTurret) {
-    ctx.fillStyle = '#3a3f48';
-    ctx.fillRect(x - 14, y - 4, 4, 6);
-    ctx.fillRect(x + 10, y - 4, 4, 6);
-    // "Empty" hint dot pulsing in the centre — telegraphs that this
-    // foundation is awaiting a turret.
+    // Glass empty posts — two thin cyan-rimmed bars
+    ctx.fillStyle = 'rgba(12, 19, 32, 0.7)';
+    ctx.fillRect(x - 15, y - 5, 5, 7);
+    ctx.fillRect(x + 10, y - 5, 5, 7);
+    ctx.strokeStyle = cyanDim;
+    ctx.strokeRect(x - 15 + 0.5, y - 5 + 0.5, 4, 6);
+    ctx.strokeRect(x + 10 + 0.5, y - 5 + 0.5, 4, 6);
+    // Soft pulsing cyan core — telegraphs an awaiting foundation
     const t = (Math.sin(performance.now() / 380) + 1) / 2;
-    ctx.globalAlpha = 0.45 + t * 0.35;
-    ctx.fillStyle = '#ffe14f';
-    ctx.beginPath(); ctx.arc(x, y - 4, 1.6, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 0.55 + t * 0.4;
+    ctx.fillStyle = isPlayer ? '#5dd6ff' : '#ff5cb6';
+    ctx.beginPath(); ctx.arc(x, y - 1, 1.6, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 0.18 + t * 0.2;
+    ctx.beginPath(); ctx.arc(x, y - 1, 3.4, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 1;
   }
   ctx.restore();
 }
@@ -482,11 +577,13 @@ function drawTurret(ctx, t, isPlayer) {
   // We swap to the `-fire` frame for the brief justFired window, and
   // `-recoil` for the immediately-following one.
   const eraN = (t.eraIndex | 0) + 1;
-  const idleKey   = `turret/era${eraN}`;
+  // Tier-specific keys: try `turret/era<N>-<tier>` first (light/heavy
+  // have their own sheets), fall back to the era's primary `turret/era<N>`.
+  const tier = t.tier || 'medium';
+  const tierKey = tier === 'medium' ? `turret/era${eraN}` : `turret/era${eraN}-${tier}`;
+  const idleKey = assets.has(tierKey) ? tierKey : `turret/era${eraN}`;
   if (assets.has(idleKey)) {
     let frameKey = idleKey;
-    // justFired is true when cdR > 0.85 (top 15% of the cooldown).
-    // Split into "fire" (top 7.5%) and "recoil" (next 7.5%).
     if (cdR > 0.92 && assets.has(`turret/era${eraN}-fire`))   frameKey = `turret/era${eraN}-fire`;
     else if (cdR > 0.85 && assets.has(`turret/era${eraN}-recoil`)) frameKey = `turret/era${eraN}-recoil`;
     const targetH = 64;
@@ -594,7 +691,7 @@ function drawSpecialTelegraph(ctx, match, side, isPlayer) {
 // driven from the sim's animation state — the same animation the
 // procedural path applies, so swapping in baked sprites doesn't lose
 // any of the on-lane motion language.
-function drawUnitSprite(ctx, u, x, y, spriteKey, sideAuraActive) {
+function drawUnitSprite(ctx, u, x, y, spriteKey, sideAuraActive, frame = 0) {
   const isGeneral = u.role === 'general';
   const isHeavy = u.role === 'heavy' || isGeneral;
   const isChampion = !!u.isChampion;
@@ -604,20 +701,27 @@ function drawUnitSprite(ctx, u, x, y, spriteKey, sideAuraActive) {
   // Champions are scaled an additional 25 % so they read as bosses.
   const baseH = (isGeneral ? 110 : isHeavy ? 80 : 64);
   const targetH = baseH * SCALE * (isChampion ? 1.25 : 1);
+  // Aspect is per-cell. Strip keys (with `/walk`, `/attack`, `/idle`
+  // suffix) hold 6 horizontal frames, so divide the natural width by
+  // the frame count. Static fallback keys are 1×1 so frames=1.
+  const isStrip = spriteKey.endsWith('/walk') || spriteKey.endsWith('/attack') || spriteKey.endsWith('/idle');
+  const frames = isStrip ? 6 : 1;
   const nat = assets.naturalSize(spriteKey);
-  const aspect = nat ? nat.w / nat.h : 0.6;
+  const aspect = nat ? (nat.w / frames) / nat.h : 0.6;
   const targetW = targetH * aspect;
 
   // ── Animation state ──────────────────────────────────────────────
-  // Walk-bob: small Y oscillation while idle (i.e. walking the lane).
-  // Heavies bob slightly less so they read as planted-thud movers.
+  // The walk strip's 6 frames already encode the bob/cycle, so we only
+  // apply procedural bob when falling back to the static fallback key
+  // (no animation strip available).
   const walkPhase = (u.walkPhaseMs || 0) / 130;
-  const bob = u.attackTickPhase === 'idle'
+  const bob = !isStrip && u.attackTickPhase === 'idle'
     ? Math.sin(walkPhase) * (isHeavy ? 1.4 : 2.2)
     : 0;
-  // Forward lean during attack windup — telegraphs the strike.
-  const lean = u.attackTickPhase === 'windup' ? u.facing * 4 : 0;
-  // Slight scale pop on the recover frame so impacts feel weighty.
+  // Forward lean during attack windup — telegraphs the strike. Skip
+  // for strip path since the attack strip's frames already lean.
+  const lean = !isStrip && u.attackTickPhase === 'windup' ? u.facing * 4 : 0;
+  // Slight scale pop on the recover frame — applies to both paths.
   const pop = u.attackTickPhase === 'recover' ? 1.05 : 1;
 
   // ── Aura halo (Sun Forge etc.) ───────────────────────────────────
@@ -713,17 +817,18 @@ function drawUnitSprite(ctx, u, x, y, spriteKey, sideAuraActive) {
   const deathSink  = deathT > 0 ? deathT * 4 : 0;          // sink slightly into ground
   ctx.save();
   ctx.globalAlpha *= deathAlpha;
+  const drawOpts = { w: dw, h: dh, anchor: 'foot', frame, frames: 6 };
   if (flipX) {
     ctx.translate(dx, dy + deathSink);
     ctx.scale(-1, 1);
     if (deathTilt) ctx.rotate(-deathTilt);
-    assets.draw(ctx, spriteKey, 0, 0, { w: dw, h: dh, anchor: 'foot' });
+    assets.draw(ctx, spriteKey, 0, 0, drawOpts);
   } else if (deathTilt) {
     ctx.translate(dx, dy + deathSink);
     ctx.rotate(deathTilt);
-    assets.draw(ctx, spriteKey, 0, 0, { w: dw, h: dh, anchor: 'foot' });
+    assets.draw(ctx, spriteKey, 0, 0, drawOpts);
   } else {
-    assets.draw(ctx, spriteKey, dx, dy + deathSink, { w: dw, h: dh, anchor: 'foot' });
+    assets.draw(ctx, spriteKey, dx, dy + deathSink, drawOpts);
   }
   ctx.restore();
   // Skip HP bar etc. for dead units (the "HP" rendered would always be 0).
@@ -772,8 +877,37 @@ function drawUnit(ctx, u, sideAuraActive) {
   // to the era-by-id lookup table.
   const eraN = u.eraIndex != null ? u.eraIndex + 1 : ERA_BY_ID[u.eraId] || 1;
   const role = u.role;
-  const spriteKey = `unit/era${eraN}/${role}`;
-  drawUnitSprite(ctx, u, x, y, spriteKey, sideAuraActive);
+  // Animation strip selection. Three rows on each unit sheet:
+  //   walk   — frames 0..5 cycled by global anim clock
+  //   attack — frame chosen by attackTickPhase progression
+  //   idle   — fallback when standing still (rare in this game)
+  // Falls back to the static fallback `unit/era<N>/<role>` if the
+  // strip PNG hasn't been baked yet.
+  const phase = u.attackTickPhase;
+  let stripAnim = 'walk';
+  let frame = 0;
+  if (phase === 'windup' || phase === 'recover') {
+    stripAnim = 'attack';
+    // 6-frame attack strip — anchor frame 3 at the strike (mid of recover)
+    if (phase === 'windup') {
+      const t = u.attackWindupMs ? 1 - Math.max(0, u.attackTimerMs / u.attackWindupMs) : 0;
+      frame = Math.min(2, Math.floor(t * 3));        // 0..2 wind-up
+    } else {
+      const t = u.attackRecoverMs ? 1 - Math.max(0, u.attackTimerMs / u.attackRecoverMs) : 0;
+      frame = 3 + Math.min(2, Math.floor(t * 3));    // 3..5 strike+recover
+    }
+  } else {
+    // Walking — cycle 6 frames over ~900ms (150ms per frame). Slower
+    // than typical sprite anim because units render small (~64-110px)
+    // and the eye needs more time to register each pose.
+    const cycleMs = 900;
+    const tNow = (typeof performance !== 'undefined' ? performance.now() : 0) + (u.id || 0) * 71;
+    frame = Math.floor((tNow % cycleMs) / (cycleMs / 6)) % 6;
+  }
+  const stripKey = `unit/era${eraN}/${role}/${stripAnim}`;
+  const fallbackKey = `unit/era${eraN}/${role}`;
+  const spriteKey = assets.has(stripKey) ? stripKey : fallbackKey;
+  drawUnitSprite(ctx, u, x, y, spriteKey, sideAuraActive, frame);
 }
 
 // ── Projectiles ────────────────────────────────────────────────────────

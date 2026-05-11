@@ -68,6 +68,20 @@ export function tryBuildTurret(state, side, slot, turretId) {
   return true;
 }
 
+// Refund a previously-laid foundation. Only valid when the slot has a
+// spot but no turret yet — once a turret is installed, the sell flow
+// handles refunds (which already prices the spot into the turret cost).
+export function tryCancelTurretSpot(state, side, slot) {
+  if (slot < 0 || slot >= BALANCE.TURRET_SLOT_COUNT) return false;
+  if (!side.turretSpots || !side.turretSpots[slot]) return false;
+  if (side.turretSlots[slot]) return false;             // has turret — use sell
+  const refund = BALANCE.TURRET_SPOT_COST;
+  side.gold += refund;
+  side.turretSpots[slot] = false;
+  state.bus.emit('turret_spot_cancelled', { team: side.team, slot, refund });
+  return true;
+}
+
 export function trySellTurret(state, side, slot) {
   if (slot < 0 || slot >= BALANCE.TURRET_SLOT_COUNT) return false;
   const t = side.turretSlots[slot];
@@ -89,6 +103,7 @@ function makeTurretInstance(state, side, def, slot) {
     kind: 'turret',
     team: side.team,
     turretId: def.id,
+    tier: def.tier,
     eraIndex: side.eraIndex,
     slot,
     x: baseX + (side === state.player ? 28 : -28),

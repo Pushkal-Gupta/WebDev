@@ -1,21 +1,23 @@
-// TurretBuildModal — opens when the player taps an empty turret slot.
+// TurretBuildModal — single-screen flow.
 //
-// Two modes, switched by `spotBuilt`:
-//   - !spotBuilt  → "Lay Spot" — small commitment that earmarks the slot.
-//                   No turret stats shown; just the spot price.
-//   - spotBuilt   → "Build Turret" — full preview of the era-current
-//                   turret with stats, blurb, and silhouette art.
-//
-// The two-stage flow exists so the player can earmark slots early
-// (cheap) and decide which turret to actually drop in once they've
-// scouted the matchup.
+// Always shows the three-tier picker plus a footer that adapts to
+// whether the foundation is laid. Earlier the modal was two-stage
+// (Lay Spot, then close, then click slot again for tier picker);
+// players reported "where are the new turrets" because the second
+// click was never discovered. Now it's one modal: pick tier first
+// (or not), lay foundation, build — without ever closing.
 
 import { useEffect, useState } from 'react';
 import { getEraByIndex } from '../content/eras.js';
-import { getTurretForEra, getTurretsForEra } from '../content/turrets.js';
+import { getTurretsForEra } from '../content/turrets.js';
 import { BALANCE } from '../content/balance.js';
 
-export default function TurretBuildModal({ open, slotIndex, eraIndex, gold, spotBuilt, onBuild, onBuildSpot, onClose }) {
+const TIER_ORDER = { light: 0, medium: 1, heavy: 2 };
+
+export default function TurretBuildModal({
+  open, slotIndex, eraIndex, gold, spotBuilt,
+  onBuild, onBuildSpot, onCancelSpot, onClose,
+}) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
@@ -23,93 +25,44 @@ export default function TurretBuildModal({ open, slotIndex, eraIndex, gold, spot
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
-  if (!open) return null;
-  const era = getEraByIndex(eraIndex);
-  const def = era ? getTurretForEra(era.id) : null;
-  if (!def) return null;
-
-  // ── Stage 1: Lay Spot ────────────────────────────────────────────
-  if (!spotBuilt) {
-    const spotCost = BALANCE.TURRET_SPOT_COST;
-    const canAfford = gold >= spotCost;
-    return (
-      <div className="es-tb-scrim" role="dialog" aria-label="Lay turret spot" onClick={onClose}>
-        <div className="es-tb-card" onClick={(e) => e.stopPropagation()}>
-          <header className="es-tb-head">
-            <span className="es-tb-eyebrow">Slot {slotIndex + 1} · Stage 1 of 2</span>
-            <h2>Lay Foundation</h2>
-            <p>Stake the slot. After the foundation is laid you can build any era-current turret here.</p>
-          </header>
-
-          <div className="es-tb-art" aria-hidden="true">
-            <SpotSilhouette/>
-          </div>
-
-          <ul className="es-tb-stats">
-            <li><span>Slot lock</span><b>permanent</b></li>
-            <li><span>Refund on sell</span><b>turret only</b></li>
-            <li><span>Time to lay</span><b>instant</b></li>
-          </ul>
-
-          <footer className="es-tb-foot">
-            <button type="button" className="es-tb-cancel" onClick={onClose}>Cancel</button>
-            <button
-              type="button"
-              className={`es-tb-build${canAfford ? '' : ' is-disabled'}`}
-              disabled={!canAfford}
-              onClick={() => canAfford && onBuildSpot(slotIndex)}
-              title={canAfford ? 'Lay foundation now' : `Need ${spotCost}g`}>
-              Lay Spot · {spotCost}g
-            </button>
-          </footer>
-        </div>
-      </div>
-    );
-  }
-
-  // ── Stage 2: Build Turret — picker for the era's three tiers ─────
-  return (
-    <BuildTurretPicker
-      eraIndex={eraIndex}
-      slotIndex={slotIndex}
-      gold={gold}
-      onBuild={onBuild}
-      onClose={onClose}
-    />
-  );
-}
-
-// Three-tier picker: light / medium / heavy. Defaults to medium —
-// the era's signature pick — since that's the existing one-button flow.
-function BuildTurretPicker({ eraIndex, slotIndex, gold, onBuild, onClose }) {
   const era = getEraByIndex(eraIndex);
   const choices = era ? getTurretsForEra(era.id) : [];
-  // Order light → medium → heavy.
-  const TIER_ORDER = { light: 0, medium: 1, heavy: 2 };
   const sorted = [...choices].sort((a, b) => (TIER_ORDER[a.tier] ?? 99) - (TIER_ORDER[b.tier] ?? 99));
   const [selectedId, setSelectedId] = useState(() => {
     const med = sorted.find((d) => d.tier === 'medium');
     return med ? med.id : (sorted[0]?.id);
   });
+
+  if (!open) return null;
   const def = sorted.find((d) => d.id === selectedId) || sorted[0];
   if (!def) return null;
-  const canAfford = gold >= def.buildCost;
-  const dps = (def.damage / (def.cooldownMs / 1000)).toFixed(1);
+
+  const spotCost     = BALANCE.TURRET_SPOT_COST;
+  const totalCost    = (spotBuilt ? 0 : spotCost) + def.buildCost;
+  const canBuild     = spotBuilt && gold >= def.buildCost;
+  const canLay       = !spotBuilt && gold >= spotCost;
+  const dps          = (def.damage / (def.cooldownMs / 1000)).toFixed(1);
 
   return (
     <div className="es-tb-scrim" role="dialog" aria-label="Build turret" onClick={onClose}>
       <div className="es-tb-card es-tb-card-wide" onClick={(e) => e.stopPropagation()}>
         <header className="es-tb-head">
-          <span className="es-tb-eyebrow">Slot {slotIndex + 1} · Pick a turret</span>
+          <span className="es-tb-eyebrow">
+            Slot {slotIndex + 1} · {spotBuilt ? 'Pick a turret' : 'Foundation + turret'}
+          </span>
           <h2>{def.name}</h2>
           <p>{def.blurb || TURRET_BLURBS[def.id] || 'Era-current emplacement.'}</p>
         </header>
 
-        {/* Tier picker — three cards, click to select. */}
+        {/* Tier picker is always visible. When the spot isn't laid yet,
+            the cards still work as "select your intended tier" so the
+            player sees their options up front; the footer's "Lay
+            Foundation" button is the unlock. */}
         <div className="es-tb-tier-grid">
           {sorted.map((d) => {
             const sel = d.id === selectedId;
             const tooPoor = gold < d.buildCost;
+            const recommended = d.tier === 'medium';
             return (
               <button
                 key={d.id}
@@ -117,7 +70,9 @@ function BuildTurretPicker({ eraIndex, slotIndex, gold, onBuild, onClose }) {
                 className={`es-tb-tier${sel ? ' is-selected' : ''}${tooPoor ? ' is-poor' : ''}`}
                 onClick={() => setSelectedId(d.id)}
                 title={d.blurb || d.name}>
-                <span className="es-tb-tier-eyebrow">{d.tier?.toUpperCase()}</span>
+                <span className="es-tb-tier-eyebrow">
+                  {d.tier?.toUpperCase()}{recommended ? ' · RECOMMENDED' : ''}
+                </span>
                 <span className="es-tb-tier-name">{d.name}</span>
                 <span className="es-tb-tier-cost">{d.buildCost}g</span>
               </button>
@@ -132,16 +87,43 @@ function BuildTurretPicker({ eraIndex, slotIndex, gold, onBuild, onClose }) {
           <li><span>DPS</span><b>{dps}</b></li>
         </ul>
 
+        {!spotBuilt && (
+          <div className="es-tb-foundation-note">
+            <b>Foundation required first.</b> Lay it once ({spotCost}g) — then build any tier on it.
+            Total to deploy {def.name}: <b>{totalCost}g</b>.
+          </div>
+        )}
+
         <footer className="es-tb-foot">
-          <button type="button" className="es-tb-cancel" onClick={onClose}>Cancel</button>
-          <button
-            type="button"
-            className={`es-tb-build${canAfford ? '' : ' is-disabled'}`}
-            disabled={!canAfford}
-            onClick={() => canAfford && onBuild(slotIndex, def.id)}
-            title={canAfford ? 'Build now' : `Need ${def.buildCost}g`}>
-            Build {def.name} · {def.buildCost}g
-          </button>
+          {spotBuilt && onCancelSpot && (
+            <button
+              type="button"
+              className="es-tb-cancel-spot"
+              onClick={() => onCancelSpot(slotIndex)}
+              title="Refund foundation and abandon this slot">
+              Refund Foundation
+            </button>
+          )}
+          <button type="button" className="es-tb-cancel" onClick={onClose}>Close</button>
+          {spotBuilt ? (
+            <button
+              type="button"
+              className={`es-tb-build${canBuild ? '' : ' is-disabled'}`}
+              disabled={!canBuild}
+              onClick={() => canBuild && onBuild(slotIndex, def.id)}
+              title={canBuild ? `Build ${def.name}` : `Need ${def.buildCost}g`}>
+              Build {def.name} · {def.buildCost}g
+            </button>
+          ) : (
+            <button
+              type="button"
+              className={`es-tb-build${canLay ? '' : ' is-disabled'}`}
+              disabled={!canLay}
+              onClick={() => canLay && onBuildSpot(slotIndex)}
+              title={canLay ? 'Lay the foundation' : `Need ${spotCost}g`}>
+              Lay Foundation · {spotCost}g
+            </button>
+          )}
         </footer>
       </div>
     </div>

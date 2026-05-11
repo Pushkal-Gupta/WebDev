@@ -9,7 +9,7 @@
 
 import * as THREE from 'three';
 import { CELL_SIZE, cellOf, cellOrigin, cellCenter } from './mazeGrid.js';
-import { sampleHeight as sampleHeightGlobal } from './heightmap.js';
+import { sampleHeight as sampleHeightGlobal, cellHasPlatform, PLATFORM } from './heightmap.js';
 import { biomeAt, biomeForCell } from './biomeProgression.js';
 import { spawnCellContent } from './spawn.js';
 import { buildCellWalls } from './walls.js';
@@ -110,6 +110,70 @@ function buildCellFloor(biome, cx, cz) {
   return mesh;
 }
 
+// Builds the visual deck + ramps for a platform cell. Heights match
+// PLATFORM constants so the mesh sits exactly on the heightmap surface.
+// Returned group can be added to the cell as a single child.
+function buildPlatformMesh(biome, cx, cz) {
+  const g = new THREE.Group();
+  const cc = cellCenter(cx, cz);
+  const stoneMat = new THREE.MeshStandardMaterial({
+    color: biome.rock, roughness: 0.95, metalness: 0.0, flatShading: true,
+  });
+  const capMat = new THREE.MeshStandardMaterial({
+    color: biome.rock.clone().lerp(new THREE.Color('#ffffff'), 0.16),
+    roughness: 0.9, flatShading: true,
+  });
+
+  // Deck — 4×4 box at +0.6 (centered on the platform's interior
+  // mid-height). Top sits at PLATFORM.HEIGHT to match the heightmap.
+  const deck = new THREE.Mesh(
+    new THREE.BoxGeometry(PLATFORM.HALF * 2, PLATFORM.HEIGHT, PLATFORM.HALF * 2),
+    stoneMat,
+  );
+  deck.position.set(cc.x, PLATFORM.HEIGHT / 2, cc.z);
+  deck.castShadow = true;
+  deck.receiveShadow = true;
+  g.add(deck);
+  // Cap stripe on the deck edges for a subtle step-line read.
+  const cap = new THREE.Mesh(
+    new THREE.BoxGeometry(PLATFORM.HALF * 2 + 0.06, 0.12, PLATFORM.HALF * 2 + 0.06),
+    capMat,
+  );
+  cap.position.set(cc.x, PLATFORM.HEIGHT - 0.06, cc.z);
+  cap.castShadow = true;
+  g.add(cap);
+
+  // South ramp — sloped triangular prism. Built as a thin box tilted
+  // around its top-edge so the bottom touches y=0 and the top meets the
+  // deck at y=PLATFORM.HEIGHT. Width matches the deck.
+  const rampW = PLATFORM.HALF * 2;
+  const rampLen = PLATFORM.RAMP_LENGTH;
+  const slopeLen = Math.hypot(rampLen, PLATFORM.HEIGHT);
+  const slopeAngle = Math.atan2(PLATFORM.HEIGHT, rampLen);
+  // The ramp is a thin box rotated about X so its top edge sits at the
+  // deck top and bottom edge sits on the ground rampLen away.
+  function buildRamp(zOffsetSign) {
+    const m = new THREE.Mesh(
+      new THREE.BoxGeometry(rampW, 0.18, slopeLen),
+      stoneMat,
+    );
+    m.castShadow = true;
+    m.receiveShadow = true;
+    // The ramp's local +Z extends from the deck edge outward by rampLen
+    // toward the ground. Rotate so the slope matches the elevation drop.
+    m.rotation.x = zOffsetSign * slopeAngle;
+    // Position centre: midway between deck edge (at cc.z ± HALF) and
+    // ground edge (at cc.z ± HALF ± rampLen), at half the elevation.
+    const mid = PLATFORM.HALF + rampLen / 2;
+    m.position.set(cc.x, PLATFORM.HEIGHT / 2, cc.z + zOffsetSign * mid);
+    g.add(m);
+  }
+  buildRamp(1);   // north
+  buildRamp(-1);  // south
+
+  return g;
+}
+
 function buildCell(scene, cx, cz, raisedFlags) {
   const biome = biomeForCell(cx, cz);
   const group = new THREE.Group();
@@ -122,6 +186,13 @@ function buildCell(scene, cx, cz, raisedFlags) {
   // can iterate them.
   const wallResult = buildCellWalls(biome, cx, cz);
   for (const m of wallResult.meshes) group.add(m);
+
+  // Stone deck + ramps for platform cells. The heightmap already gives
+  // the correct elevation across this region, so the mesh just paints
+  // the deck visually — physics is driven by sampleHeight.
+  if (cellHasPlatform(cx, cz)) {
+    group.add(buildPlatformMesh(biome, cx, cz));
+  }
 
   const { traps: trapDefs, props: propDefs } = spawnCellContent(cx, cz, biome);
 

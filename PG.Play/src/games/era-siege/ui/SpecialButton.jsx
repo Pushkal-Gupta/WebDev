@@ -28,7 +28,7 @@ export default function SpecialButton({ eraIndex, slot, cooldownMs, charging, on
       aria-label={`${def.name}, special attack`}>
       <img
         className="es-special-icon"
-        src={`${ICON_BASE}/special-era${eraIndex + 1}${isSecondary ? '-2' : ''}.png`}
+        src={`${ICON_BASE}/special-era${Math.min(5, Math.max(1, (eraIndex | 0) + 1))}${isSecondary ? '-2' : ''}.png`}
         alt=""
         loading="lazy"
         onError={(e) => { e.currentTarget.style.display = 'none'; }}

@@ -10,16 +10,48 @@ import { getMultiplier } from './powerups.js';
 const HOMING_BIAS = 0.18;     // 0..1 — how much the projectile turns toward live target each second
 const IMPACT_RADIUS_SQ = 14 * 14;
 
+// Fire point is roughly the attacker's weapon hand — well above the
+// foot anchor. Tuned per role:
+//   frontline ~ 60 px above foot, ranged ~ 70, heavy ~ 90, general ~ 110.
+// (Sprites render with foot at attacker.y; subtracting moves the fire
+// origin upward into the figure's torso/arm zone.)
+function fireOriginY(attacker) {
+  // Turrets already sit at their cannon height (turret.y is offset
+  // above the ground by TURRET_ROW_Y_PX), so no extra y-shift.
+  if (attacker?.kind === 'turret') return -8;
+  switch (attacker?.role) {
+    case 'general':  return -110;
+    case 'heavy':    return -90;
+    case 'ranged':   return -70;
+    case 'frontline':return -60;
+    default:         return -55;
+  }
+}
+function fireOriginX(attacker) {
+  if (attacker?.kind === 'turret') return 12;
+  switch (attacker?.role) {
+    case 'heavy':    return 18;
+    case 'general':  return 22;
+    case 'ranged':   return 24;
+    case 'frontline':return 14;
+    default:         return 16;
+  }
+}
+
 export function spawnProjectile(state, attacker, target, side) {
   const def = getProjectile(attacker.projectileId || 'bone-shard');
+  // Aim at the *target's torso*, not its foot, so projectiles arc into
+  // the hit zone rather than the ground.
+  const targetTorsoY = target ? target.y + fireOriginY(target) * 0.6 : state.view.groundY - 60;
   const tx = target ? target.x : (side === state.player ? state.view.laneRight : state.view.laneLeft);
-  const ty = target ? target.y - 6 : state.view.groundY - 30;
-  const dx = tx - attacker.x;
-  const dy = ty - attacker.y;
+  const ty = targetTorsoY;
+  // Spawn from the attacker's weapon hand (torso/forearm zone).
+  const sx = attacker.x + (attacker.facing || 1) * fireOriginX(attacker);
+  const sy = attacker.y + fireOriginY(attacker);
+  const dx = tx - sx;
+  const dy = ty - sy;
   const len = Math.max(1, Math.hypot(dx, dy));
   const speed = def.speed;
-  // Munitions powerup: turret-fired projectiles get the bonus damage.
-  // We detect by attacker.kind === 'turret' (set by makeTurretInstance).
   const isTurret = attacker && attacker.kind === 'turret';
   const dmgMul = isTurret ? getMultiplier(side.powerups, 'turret') : 1;
   state.pools.projectile.acquire((p) => {
@@ -27,8 +59,8 @@ export function spawnProjectile(state, attacker, target, side) {
     p.id = state.allocId();
     p.team = side.team;
     p.defId = def.id;
-    p.x = attacker.x; p.y = attacker.y - 8;
-    p.px = p.x; p.py = p.y;        // previous-step end for render interpolation
+    p.x = sx; p.y = sy;
+    p.px = p.x; p.py = p.y;
     p.vx = (dx / len) * speed;
     p.vy = (dy / len) * speed;
     p.damage = attacker.damage * dmgMul;

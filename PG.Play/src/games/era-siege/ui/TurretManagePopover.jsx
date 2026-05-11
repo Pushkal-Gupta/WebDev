@@ -82,7 +82,7 @@ export default function TurretManagePopover({ open, slot, gold, eraIndex, onUpgr
         {upgradable && (
           <div className="es-tm-upgrade">
             <strong>Era upgrade · {erasCurrent.name}</strong>
-            <span>Replaces this turret with the era-current variant. Resets stat upgrades.</span>
+            <span>Replaces this turret with the era-current <b>medium</b> tier. Resets stat upgrades.</span>
           </div>
         )}
 
