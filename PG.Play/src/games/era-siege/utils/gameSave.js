@@ -22,6 +22,7 @@
 // cleared on win/loss (no point resuming a finished match).
 
 import { storage } from './storage.js';
+import { getTurret } from '../content/turrets.js';
 
 const KEY = 'era-siege:save';
 const VERSION = 1;
@@ -38,11 +39,13 @@ function dehydrateSide(side) {
     turretSpots: Array.isArray(side.turretSpots) ? side.turretSpots.slice() : [false, false, false],
     turretSlots: (side.turretSlots || []).map((t) => t ? {
       turretId:    t.turretId,
+      tier:        t.tier || 'medium',
       eraIndex:    t.eraIndex | 0,
       buildCost:   t.buildCost | 0,
       damage:      t.damage,
       range:       t.range,
       cooldownMaxMs: t.cooldownMaxMs,
+      projectileId: t.projectileId || null,
       rangeLevel:  t.rangeLevel | 0,
       damageLevel: t.damageLevel | 0,
       rateLevel:   t.rateLevel  | 0,
@@ -112,6 +115,10 @@ export function applyGameSave(state, save) {
       // Restore turret instances enough that ManagePopover + tickTurrets work.
       dst.turretSlots = src.turretSlots.map((t, i) => {
         if (!t) return null;
+        // Saves predating v1.1 won't have projectileId on the slot;
+        // recover it from the content def so the turret fires the
+        // correct projectile after resume.
+        const def = t.turretId ? getTurret(t.turretId) : null;
         return {
           ...t,
           id: state.allocId(),
@@ -121,8 +128,8 @@ export function applyGameSave(state, save) {
           x: 0, y: 0,                     // tickTurrets reseats
           facing: dst === state.player ? 1 : -1,
           cooldownMs: 0,
-          projectileId: null,             // looked up from def at fire-time fallback
-          visual: t.visual || {},
+          projectileId: t.projectileId || def?.projectileId || null,
+          visual: t.visual || def?.visual || {},
         };
       });
     }

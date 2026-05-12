@@ -89,13 +89,24 @@ export function loadLevel(scene, sceneRoot, level) {
       return s;
     });
 
-  // Tutorial pulse — only on level 1, centered on the rope midpoint.
+  // Tutorial pulse — placed on the first level of each world so the
+  // player learns the world's new mechanic with a clear visual cue:
+  //   l1 (Sweet Shop)  — cut the rope (pulse on the rope's midpoint)
+  //   l6 (Greenhouse)  — pop the bubble (pulse on the bubble)
+  //   l9 (Workshop)    — moving anchor (pulse on the anchor's mid-track)
   let tutorial = null;
   if (level.id === 'l1' && level.ropes[0]) {
     const a = level.anchors[0];
     const midX = (a.x + level.candy.x) / 2;
     const midY = (a.y + level.candy.y) / 2;
     tutorial = makeTutorialPulse(midX, midY);
+    sceneRoot.add(tutorial.mesh);
+  } else if (level.id === 'l6' && bubbles[0]) {
+    tutorial = makeTutorialPulse(bubbles[0].state.x, bubbles[0].state.y);
+    sceneRoot.add(tutorial.mesh);
+  } else if (level.id === 'l9' && level.anchors[0]?.track) {
+    const t = level.anchors[0].track;
+    tutorial = makeTutorialPulse((t.ax + t.bx) / 2, (t.ay + t.by) / 2);
     sceneRoot.add(tutorial.mesh);
   }
 

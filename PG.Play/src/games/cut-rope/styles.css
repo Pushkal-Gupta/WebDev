@@ -158,7 +158,9 @@
   font-weight: 600;
   margin-bottom: 6px;
 }
-.cr-eyebrow-fail { color: #ff8095; opacity: 0.85; }
+.cr-eyebrow-fail  { color: #ff8095; opacity: 0.85; }
+.cr-eyebrow-first { color: #ffd24a; opacity: 1; }
+.cr-eyebrow-best  { color: #9bd6ff; opacity: 1; }
 
 .cr-title {
   font-size: 36px;

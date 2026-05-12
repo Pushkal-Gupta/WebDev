@@ -3,15 +3,18 @@
 
 export const PALETTES = {
   'ember-tribe': {
-    sky:          ['#ff8a3a', '#7d2a10'],
-    mountain:     '#2c150a',
-    ground:       '#3a2a10',
-    groundDetail: '#1e1608',
-    midMotif:     '#ffb070',     // ember sparks in the air
+    // Sky: deep-blue twilight with an ember-warm sunset glow at the
+    // horizon, instead of full-canvas orange. Keeps the warm flavour
+    // as an accent against a cool dashboard atmosphere.
+    sky:          ['#1c2840', '#0f1626'],
+    mountain:     '#1c2030',
+    ground:       '#1d2434',
+    groundDetail: '#0e1320',
+    midMotif:     '#ffb070',     // ember sparks in the air (warm accent)
     banner:       '#ffd05a',
     bannerEnemy:  '#ff5a4d',
     flash:        '#ffe14f',
-    hudAccent:    '#ffb070',
+    hudAccent:    '#ffb84a',     // HUD trim: amber (matches data-era token)
   },
   'iron-dominion': {
     sky:          ['#7d8794', '#262e38'],
@@ -22,18 +25,20 @@ export const PALETTES = {
     banner:       '#d8d4cc',
     bannerEnemy:  '#c24237',
     flash:        '#ffe6c0',
-    hudAccent:    '#d8d4cc',
+    hudAccent:    '#7fd6ff',     // HUD trim: cyan (matches data-era token)
   },
   'sun-foundry': {
-    sky:          ['#dba85a', '#62311a'],
-    mountain:     '#3a1f12',
-    ground:       '#3a261a',
-    groundDetail: '#1f140c',
-    midMotif:     '#ffcb6b',     // foundry haze
+    // Deep industrial dusk — the gold furnace glow is preserved in the
+    // motes + accents; the sky itself reads as a cool foundry-shadow.
+    sky:          ['#2a2c3a', '#10131e'],
+    mountain:     '#1c1f2a',
+    ground:       '#23222a',
+    groundDetail: '#0e0d14',
+    midMotif:     '#ffcb6b',     // foundry haze (warm accent)
     banner:       '#ffcb6b',
     bannerEnemy:  '#bb441f',
     flash:        '#ffd97a',
-    hudAccent:    '#ffcb6b',
+    hudAccent:    '#ffd070',     // HUD trim: gold (matches data-era token)
   },
   'storm-republic': {
     sky:          ['#3c5777', '#0e1622'],
@@ -44,7 +49,7 @@ export const PALETTES = {
     banner:       '#7be3ff',
     bannerEnemy:  '#ff486b',
     flash:        '#bef3ff',
-    hudAccent:    '#7be3ff',
+    hudAccent:    '#a8e1ff',     // HUD trim: ice (matches data-era token)
   },
   'void-ascendancy': {
     sky:          ['#1a0a3a', '#080014'],
@@ -55,6 +60,6 @@ export const PALETTES = {
     banner:       '#e9c8ff',
     bannerEnemy:  '#ff4d6d',
     flash:        '#e9c8ff',
-    hudAccent:    '#c89bff',
+    hudAccent:    '#c79bff',     // HUD trim: violet (matches data-era token)
   },
 };

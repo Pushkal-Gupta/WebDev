@@ -265,6 +265,7 @@ function runStep(state, dt, intents) {
     // Force-evolve the enemy on a 30s clock until era 5.
     if (state.enemy.eraIndex < 4 && state.endlessTimeSec >= 30 * (state.enemy.eraIndex + 1)) {
       state.enemy.eraIndex++;
+      if (state.enemy.eraIndex >= 1) state.enemy.generalsUnlocked = true;
       state.bus.emit('era_reached', { team: 'enemy', era: state.enemy.eraIndex });
     }
   }

@@ -95,15 +95,22 @@ export function PauseMenu({ onResume, onRetry, onMenu }) {
   );
 }
 
-export function LevelComplete({ stars, level, onRetry, onNext, onMenu, hasNext }) {
+export function LevelComplete({ stars, level, winFlags, onRetry, onNext, onMenu, hasNext }) {
+  const flags = winFlags || {};
+  const eyebrow = flags.firstClear ? 'First clear'
+                 : flags.newBest    ? 'New best'
+                 : 'Level cleared';
   return (
     <div className="cr-overlay cr-success">
       <div className="cr-card">
-        <div className="cr-eyebrow">Level cleared</div>
+        <div className={`cr-eyebrow ${flags.firstClear ? 'cr-eyebrow-first' : flags.newBest ? 'cr-eyebrow-best' : ''}`}>{eyebrow}</div>
         <h2 className="cr-card-title">{level.name}</h2>
         <div className="cr-stars-big">
           {[0, 1, 2].map((i) => <StarSvg key={i} on={i < stars} size={42} />)}
         </div>
+        {flags.newBest && flags.prevBest > 0 && (
+          <p className="cr-fineprint">Previous best: {flags.prevBest} ★</p>
+        )}
         <div className="cr-stack">
           {hasNext
             ? <button className="cr-btn cr-btn-primary" onClick={onNext}>Next level</button>
