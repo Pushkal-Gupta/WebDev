@@ -8,10 +8,12 @@ import { step as stepWorld, cutAlongSegment, cutAtPoint } from './physics.js';
 import { LEVELS, PALETTE, levelById } from './levels.js';
 import { loadLevel, disposeLevel } from './loader.js';
 import { audio } from './audio.js';
+import { startBed, stopBed } from './music.js';
 import { spawnStarBurst, spawnConfetti, spawnCutPuff, tickFx, disposeAllFx } from './fx.js';
 import { readState, recordAttempt } from './state.js';
 import { submitScore } from '../../scoreBus.js';
 import { consumeAdminStartLevel } from '../../utils/admin.js';
+import { useGameShellPaused } from '../../components/game-shell/context.js';
 import Hud from './ui/Hud.jsx';
 import {
   StartScreen, LevelSelect, PauseMenu, LevelComplete, LevelFail, HintPill,
@@ -58,6 +60,20 @@ export default function CutRopeGame() {
   const [stars, setStars] = useState(0);
   const [failReason, setFailReason] = useState(null);
   const [progress, setProgress] = useState(() => readState());
+  // Capture clear status BEFORE the win is recorded so the LevelComplete
+  // overlay can show "First clear!" or "New best!" appropriately.
+  const [winFlags, setWinFlags] = useState({ firstClear: false, newBest: false, prevBest: 0 });
+
+  // Mirror the host shell's pause state — when the player hits the
+  // shell's floating Pause button, freeze the RAF loop here too. Without
+  // this the canvas would keep stepping under the overlay.
+  const shellPaused = useGameShellPaused();
+  const sceneScene = shellPaused && scene === 'play' ? 'paused' : scene;
+  // We don't write `scene = 'paused'` directly because the player
+  // can also resume via the shell button (which clears shellPaused)
+  // and we want to fall back to 'play' without re-rendering through
+  // the Snip pause menu. So we derive sceneScene for the RAF gate
+  // below and leave the React state alone.
 
   const level = levelById(levelId) || LEVELS[0];
   const hasNext = LEVELS.findIndex((l) => l.id === level.id) < LEVELS.length - 1;
@@ -89,6 +105,7 @@ export default function CutRopeGame() {
       disposeAllFx(engine.scene);
       disposeLevel(engine.sceneRoot, levelRef.current);
       levelRef.current = null;
+      stopBed(true);
       engine.dispose();
       engineRef.current = null;
     };
@@ -101,7 +118,7 @@ export default function CutRopeGame() {
   // touching level state. The RAF loop runs while the level is visible:
   // play, won, lost. Pause + start screen + level select freeze the loop.
   useEffect(() => {
-    if (!ALIVE_SCENES[scene]) return;
+    if (!ALIVE_SCENES[sceneScene]) return;
     const engine = engineRef.current;
     if (!engine) return;
 
@@ -122,6 +139,8 @@ export default function CutRopeGame() {
       engine.camera.position.y = CAM_BASE_Y;
       engine.camera.zoom = 1;
       engine.camera.updateProjectionMatrix();
+      // Cross-fade the ambient bed to the new world's theme.
+      startBed(level.theme);
       // Auto-attach bubble if the candy spawns inside one. We also nudge
       // the candy slightly sideways: with verlet+constraint physics, a
       // perfectly straight-down taut rope locks the candy in place and
@@ -141,6 +160,7 @@ export default function CutRopeGame() {
       // updated in place per frame; no re-add needed.
       for (const r of lv.ropes) if (r.mesh && !r.mesh.parent) engine.sceneRoot.add(r.mesh);
       finishedRef.current = false;
+      audio.resetStreak?.();
       setStars(0);
       setFailReason(null);
     }
@@ -159,7 +179,7 @@ export default function CutRopeGame() {
 
     return () => cancelAnimationFrame(rafRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scene, levelId, reloadKey]);
+  }, [sceneScene, levelId, reloadKey]);
 
   // ── Main per-frame tick ───────────────────────────────────────────────
   const tick = (dt) => {
@@ -316,6 +336,12 @@ export default function CutRopeGame() {
       const lv = levelRef.current;
       const engine = engineRef.current;
       if (lv && engine) spawnConfetti(engine.scene, lv.target.pos.x, lv.target.pos.y - 0.4);
+      const prev = progress.levels[level.id] || { bestStars: 0, cleared: false };
+      setWinFlags({
+        firstClear: !prev.cleared,
+        newBest: prev.cleared && finalStars > prev.bestStars,
+        prevBest: prev.bestStars,
+      });
       const next = recordAttempt(progress, level.id, finalStars, true);
       setProgress(next);
       // Submit the per-level star count. Edge fn maxScore is 50.
@@ -427,6 +453,17 @@ export default function CutRopeGame() {
     if (scene === 'play') { audio.buttonClick(); setScene('paused'); }
   }, [scene]);
 
+  // ── Music bed lifecycle ──────────────────────────────────────────────
+  // Bed plays only during gameplay-active scenes; stops on menu screens
+  // so the start / levels overlays sit in silence.
+  useEffect(() => {
+    if (scene === 'play' || scene === 'paused' || scene === 'won' || scene === 'lost') {
+      startBed(level.theme);
+    } else {
+      stopBed(false);
+    }
+  }, [scene, level.theme]);
+
   // ── Keyboard ─────────────────────────────────────────────────────────
   useEffect(() => {
     const onKey = (e) => {
@@ -477,7 +514,7 @@ export default function CutRopeGame() {
       {scene === 'start'  && <StartScreen progress={progress} onPlay={onPlay} onLevelSelect={() => setScene('levels')} />}
       {scene === 'levels' && <LevelSelect progress={progress} onPick={onPickLevel} onClose={onCloseLevels} />}
       {scene === 'paused' && <PauseMenu onResume={onResume} onRetry={handleRetry} onMenu={onMenu} />}
-      {scene === 'won'    && <LevelComplete stars={stars} level={level} onRetry={handleRetry} onNext={onNext} onMenu={onMenu} hasNext={hasNext} />}
+      {scene === 'won'    && <LevelComplete stars={stars} level={level} winFlags={winFlags} onRetry={handleRetry} onNext={onNext} onMenu={onMenu} hasNext={hasNext} />}
       {scene === 'lost'   && <LevelFail reason={failReason} onRetry={handleRetry} onMenu={onMenu} />}
     </div>
   );

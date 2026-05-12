@@ -98,6 +98,18 @@ export const LEVELS = [
     hazards: [],
     devices: [],
   },
+  {
+    id: 'l5b', world: 1, number: 6, theme: SWEET,
+    name: 'Off-centre',
+    hint: 'A pendulum that swings past Mochi. Time the cut.',
+    anchors: [{ id: 'a1', x: -1.2, y: -0.2 }],
+    candy:   { x: -3.6, y: 1.4 },
+    ropes:   [{ from: 'a1', length: 3.0, segments: 12 }],
+    stars:   [{ x: -2.4, y: 2.6 }, { x: -0.6, y: 2.8 }, { x: 1.0, y: 2.6 }],
+    target:  { x: 1.6, y: 4.7 },
+    hazards: [],
+    devices: [],
+  },
 
   // ── World 2 — Greenhouse (bubbles) ────────────────────────────────────
   // Bubble levels are tuned so the lift apex stays near the visible
@@ -145,6 +157,18 @@ export const LEVELS = [
       { kind: 'spike', x:  2.6, y: 4.6, w: 1.4, h: 0.36 },
     ],
     devices: [{ kind: 'bubble', x: 0.3, y: 3.4, radius: 0.55 }],
+  },
+  {
+    id: 'l8b', world: 2, number: 4, theme: GREEN,
+    name: 'Off-side lift',
+    hint: 'The bubble drifts the candy sideways as it rises.',
+    anchors: [{ id: 'a1', x: -1.0, y: 1.6 }],
+    candy:   { x: -0.7, y: 3.4 },
+    ropes:   [{ from: 'a1', length: 2.0, segments: 10 }],
+    stars:   [{ x: -0.8, y: 2.7 }, { x: -1.2, y: 1.4 }, { x: -1.6, y: 0.4 }],
+    target:  { x: -2.4, y: 4.7 },
+    hazards: [],
+    devices: [{ kind: 'bubble', x: -0.7, y: 3.4, radius: 0.55 }],
   },
 
   // ── World 3 — Workshop (moving pins) ──────────────────────────────────
@@ -203,6 +227,33 @@ export const LEVELS = [
     stars:   [{ x: -0.8, y: 3.0 }, { x: 0.0, y: 3.4 }, { x: 0.8, y: 3.0 }],
     target:  { x: 0, y: 4.7 },
     hazards: [],
+    devices: [],
+  },
+  {
+    id: 'l12b', world: 3, number: 5, theme: WORK,
+    name: 'Long pivot',
+    hint: 'A floating pin with a long rope sweeps the candy across.',
+    anchors: [{ id: 'a1', x: 0, y: 0.8 }],
+    candy:   { x: -3.0, y: 1.6 },
+    ropes:   [{ from: 'a1', length: 3.4, segments: 13 }],
+    stars:   [{ x: -1.6, y: 3.6 }, { x: 0.0, y: 4.0 }, { x: 1.6, y: 3.6 }],
+    target:  { x: 3.0, y: 4.7 },
+    hazards: [],
+    devices: [],
+  },
+  {
+    id: 'l12c', world: 3, number: 6, theme: WORK,
+    name: 'Drift drop',
+    hint: 'Slide the anchor, then drop into the gap between spikes.',
+    anchors: [{ id: 'a1', x: -2.4, y: -0.2, track: { ax: -2.4, ay: -0.2, bx: 2.4, by: -0.2, period: 4.0 } }],
+    candy:   { x: -2.4, y: 2.4 },
+    ropes:   [{ from: 'a1', length: 2.6, segments: 11 }],
+    stars:   [{ x: -1.4, y: 2.6 }, { x: 0.0, y: 2.6 }, { x: 1.4, y: 2.6 }],
+    target:  { x: 0, y: 4.7 },
+    hazards: [
+      { kind: 'spike', x: -2.6, y: 4.6, w: 1.4, h: 0.34 },
+      { kind: 'spike', x:  2.6, y: 4.6, w: 1.4, h: 0.34 },
+    ],
     devices: [],
   },
 ];

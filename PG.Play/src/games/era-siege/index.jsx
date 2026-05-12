@@ -487,10 +487,11 @@ export default function EraSiegeGame({ mode }) {
         const m = matchRef.current;
         if (m && m.status === 'playing' && !submittedRef.current) {
           if (canSave) writeGameSave(m);
+          const maxHp = m.player.base.maxHp || 1;   // guard /0
           telemetry.emit('era_siege:rage_quit', {
             era: m.player.eraIndex + 1,
             timeSec: Math.round(m.timeSec),
-            hpRatio: m.player.base.hp / m.player.base.maxHp,
+            hpRatio: Math.max(0, Math.min(1, m.player.base.hp / maxHp)),
             difficulty: m.difficulty.id,
             isDaily,
             isEndless,
@@ -582,7 +583,6 @@ export default function EraSiegeGame({ mode }) {
   // the head spawns automatically when cooldown / pop-cap allow.
   const onSpawn   = (id)  => { intentsRef.current.queue.push(id); };
   const onCancelQueued = (i) => { intentsRef.current.cancelQueue = i; };
-  const onBuild   = (i)   => { intentsRef.current.buildTurret = { slot: i }; };
   const onSell    = (i)   => { intentsRef.current.sellTurret = i; };
   const onSpecial  = ()   => { intentsRef.current.special  = true; };
   const onSpecial2 = ()   => { intentsRef.current.special2 = true; };

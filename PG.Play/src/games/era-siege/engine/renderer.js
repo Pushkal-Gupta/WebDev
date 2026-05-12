@@ -167,6 +167,30 @@ export function makeRenderer() {
 
     ctx.restore();
 
+    // 13b) Theme bridge — the procedural battlefield art uses the warm
+    // era palette (ember orange, foundry brass, etc.) while the HUD is
+    // a cool cyan/glass dashboard. Pass 1: cool tint via 'overlay' so
+    // warm hues shift toward the dashboard blue. Pass 2: top/bottom
+    // fades into the chrome so canvas doesn't cut hard against the HUD.
+    ctx.save();
+    ctx.globalCompositeOperation = 'overlay';
+    ctx.fillStyle = 'rgba(36, 88, 156, 0.26)';
+    ctx.fillRect(0, 0, w, h);
+    ctx.restore();
+    // Top fade into the dashboard top bar.
+    const topGrad = ctx.createLinearGradient(0, 0, 0, 110);
+    topGrad.addColorStop(0,  'rgba(6, 9, 15, 0.92)');
+    topGrad.addColorStop(0.6,'rgba(6, 9, 15, 0.35)');
+    topGrad.addColorStop(1,  'rgba(6, 9, 15, 0)');
+    ctx.fillStyle = topGrad;
+    ctx.fillRect(0, 0, w, 110);
+    // Bottom fade into the unit dock.
+    const botGrad = ctx.createLinearGradient(0, h - 80, 0, h);
+    botGrad.addColorStop(0, 'rgba(6, 9, 15, 0)');
+    botGrad.addColorStop(1, 'rgba(6, 9, 15, 0.85)');
+    ctx.fillStyle = botGrad;
+    ctx.fillRect(0, h - 80, w, 80);
+
     // 14) Era flash (post-shake, full screen)
     if (match.effects.flashMs > 0) {
       const a = (match.effects.flashMs / 600) * (match.effects.flashAlpha || 0.4);

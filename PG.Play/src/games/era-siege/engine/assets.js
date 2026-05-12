@@ -116,6 +116,15 @@ export const assets = {
       if (key.endsWith('/clouds') || key.startsWith('turret/era')) {
         continue;
       }
+      // Base + background PNGs were baked from procedural draws that
+      // composited foot shadows onto a dark canvas; their semi-transparent
+      // edges carry dark RGB which renders as a black halo over the new
+      // cool dashboard canvas. Skip preload so the procedural draw runs
+      // every frame on a transparent target — no halo, and the warm art
+      // gets blended via the top vignette in the renderer.
+      if (key.startsWith('base/') || key.startsWith('bg/')) {
+        continue;
+      }
       try {
         const img = new Image();
         img.decoding = 'async';

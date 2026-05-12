@@ -27,6 +27,14 @@ export function tryEvolve(state, side) {
   side.eraIndex = next.index;
   side.specialCooldownMs = 0; // fresh era → fresh special
 
+  // AI auto-unlocks generals after evolving past era 1 — the player has
+  // to pay BALANCE.GENERAL_UNLOCK_COST manually for theirs. Mirrored in
+  // the enemy auto-evolve path in world.js so both AI evolve flows stay
+  // in sync.
+  if (side !== state.player && side.eraIndex >= 1) {
+    side.generalsUnlocked = true;
+  }
+
   // Heal pulse on every owned unit.
   const heal = BALANCE.EVOLVE_HEAL_PCT;
   for (const u of side.units) {

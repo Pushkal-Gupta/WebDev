@@ -82,7 +82,7 @@ export const GAMES = [
     mobileSupport:'native', inputs:['swipe','keyboard'], orientation:'portrait',
     skillTags:['planning','spatial'], sessionLength:'short' },
 
-  { id:'cutrope', name:'Snip', cat:'Puzzle', kind:'story', players:'1P', levels:12,
+  { id:'cutrope', name:'Snip', cat:'Puzzle', kind:'story', players:'1P', levels:16,
     tagline:'Slice. Steer. Feed Mochi.',
     story:'Mochi is hungry. There is candy at the end of a few inconvenient ropes and a small army of physics in between. Cut things in the right order. Mochi gets fed. Mochi is satisfied. You win.',
     playable:true,

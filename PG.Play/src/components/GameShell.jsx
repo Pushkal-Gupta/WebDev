@@ -3,10 +3,11 @@
 // fades to ~35% opacity while the player is engaged. Pause overlay holds
 // the mute toggle. No site chrome — if a player is here, they're playing.
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Icon } from '../icons.jsx';
 import { isMuted, setMuted } from '../sound.js';
 import { PauseOverlay } from './game-shell/Overlays.jsx';
+import { GameShellContext } from './game-shell/context.js';
 import DeviceHint from './DeviceHint.jsx';
 import VirtualControls, { hasBinding } from '../input/useVirtualControls.jsx';
 
@@ -124,7 +125,10 @@ export default function GameShell({
     };
   }, [paused]);
 
+  const shellCtx = useMemo(() => ({ paused }), [paused]);
+
   return (
+    <GameShellContext.Provider value={shellCtx}>
     <div
       className="game-shell"
       ref={shellRef}
@@ -179,5 +183,6 @@ export default function GameShell({
         onToggleMute={toggleMute}
         muted={muted}/>
     </div>
+    </GameShellContext.Provider>
   );
 }

@@ -568,14 +568,15 @@ function drawPennant(ctx, x, top, color) {
 
 function drawEmberBase(ctx, pal, x, groundY, isPlayer) {
   const top = groundY - 112;
-  // Wooden palisade
-  ctx.fillStyle = '#2c1a0c';
+  // Charcoal-stained palisade — neutral dark wood reads as silhouette
+  // first, hot ember accents second (matches dashboard).
+  ctx.fillStyle = '#1c2030';
   ctx.fillRect(x - 44, top, 88, 112);
   // Vertical plank seams
-  ctx.fillStyle = '#150a04';
+  ctx.fillStyle = '#0c1018';
   for (let i = 0; i < 8; i++) ctx.fillRect(x - 44 + i * 11, top, 1, 112);
   // Pointed tops
-  ctx.fillStyle = '#150a04';
+  ctx.fillStyle = '#0c1018';
   for (let i = 0; i < 8; i++) {
     ctx.beginPath();
     ctx.moveTo(x - 44 + i * 11,     top);
@@ -586,9 +587,9 @@ function drawEmberBase(ctx, pal, x, groundY, isPlayer) {
   // Banner
   ctx.fillStyle = isPlayer ? pal.banner : pal.bannerEnemy;
   ctx.fillRect(x - 38, top + 16, 76, 18);
-  ctx.fillStyle = '#0a0d0e';
+  ctx.fillStyle = '#06090f';
   ctx.fillRect(x - 8, top + 70, 16, 42);  // doorway
-  // Bonfire
+  // Bonfire — the warm accent that names the era
   ctx.fillStyle = '#ff8a3a';
   ctx.beginPath(); ctx.arc(x - 28 * (isPlayer ? 1 : -1), groundY - 6, 4, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#ffd05a';
@@ -618,28 +619,28 @@ function drawIronBase(ctx, pal, x, groundY, isPlayer) {
 
 function drawFoundryBase(ctx, pal, x, groundY, isPlayer) {
   const top = groundY - 124;
-  // Brass-plated workshop
-  ctx.fillStyle = '#5a3a1a';
+  // Industrial carbon shell — brass survives only as banding + glow.
+  ctx.fillStyle = '#1f2230';
   ctx.fillRect(x - 48, top, 96, 124);
-  // Brass banding
+  // Brass banding — the warm accent that names the era
   ctx.fillStyle = '#ffcb6b';
   ctx.fillRect(x - 48, top + 12, 96, 4);
   ctx.fillRect(x - 48, top + 110, 96, 4);
   // Rivets
-  ctx.fillStyle = '#1a0d06';
+  ctx.fillStyle = '#06090f';
   for (let i = 0; i < 10; i++) ctx.fillRect(x - 46 + i * 10, top + 16, 1.5, 1.5);
   // Smokestack
-  ctx.fillStyle = '#2c1a0c';
+  ctx.fillStyle = '#10131e';
   ctx.fillRect(x + (isPlayer ? 22 : -28), top - 36, 8, 36);
   ctx.save();
-  ctx.globalAlpha = 0.5;
+  ctx.globalAlpha = 0.55;
   ctx.fillStyle = '#ffcb6b';
   ctx.beginPath();
   ctx.arc(x + (isPlayer ? 26 : -24), top - 40, 7, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
   // Door / vent grille
-  ctx.fillStyle = '#0a0d0e';
+  ctx.fillStyle = '#06090f';
   ctx.fillRect(x - 12, top + 70, 24, 54);
   ctx.fillStyle = '#ffcb6b';
   for (let i = 0; i < 5; i++) ctx.fillRect(x - 11, top + 74 + i * 10, 22, 2);

@@ -66,6 +66,15 @@ export function attachAudio(bus) {
   // Turret build — confirm cue.
   offs.push(bus.on('turret_built', () => fire('confirm')));
 
+  // Foundation laid — lighter "click" cue, no full confirm (player still
+  // has to pick a tier). Cancellation refunds the foundation: "save" cue.
+  offs.push(bus.on('turret_spot_built',     () => fire('click')));
+  offs.push(bus.on('turret_spot_cancelled', () => fire('save')));
+
+  // Per-stat turret upgrade (Range / Damage / Rate) — bounce so it's
+  // distinct from the heavier turret_built confirm.
+  offs.push(bus.on('turret_upgraded', () => fire('bounce')));
+
   // Turret sold — bounce (lighter than confirm so it doesn't read as a build).
   offs.push(bus.on('turret_sold', () => fire('bounce')));
 
