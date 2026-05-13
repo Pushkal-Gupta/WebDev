@@ -17,11 +17,18 @@ export default function UnitDock({ unitIds, generalId, generalsUnlocked, general
   const [flashId, setFlashId] = useState(null);
   const [tipId, setTipId]     = useState(null);
   const flashTimeoutRef = useRef(null);
+  const [confirmId, setConfirmId] = useState(null);
+  const confirmTimeoutRef = useRef(null);
 
   const triggerPoorFlash = (id) => {
     setFlashId(id);
     if (flashTimeoutRef.current) clearTimeout(flashTimeoutRef.current);
     flashTimeoutRef.current = setTimeout(() => setFlashId(null), 360);
+  };
+  const triggerConfirm = (id) => {
+    setConfirmId(id);
+    if (confirmTimeoutRef.current) clearTimeout(confirmTimeoutRef.current);
+    confirmTimeoutRef.current = setTimeout(() => setConfirmId(null), 240);
   };
 
   useEffect(() => {
@@ -93,10 +100,12 @@ export default function UnitDock({ unitIds, generalId, generalsUnlocked, general
             cd={cd}
             tooPoor={tooPoor}
             isFlashing={flashId === id}
+            isConfirming={confirmId === id}
             tipOpen={tipId === id}
             onClick={() => {
               if (cd > 0) return;
               if (tooPoor) { triggerPoorFlash(id); return; }
+              triggerConfirm(id);
               onSpawn(id);
             }}
             onLongPress={() => setTipId((cur) => cur === id ? null : id)}
@@ -197,7 +206,7 @@ function GeneralCard({ def, unlocked, unlockCost, cooldownMs, alive, gold, tipOp
   );
 }
 
-function UnitCard({ def, idx, cd, tooPoor, isFlashing, tipOpen, onClick, onLongPress }) {
+function UnitCard({ def, idx, cd, tooPoor, isFlashing, isConfirming, tipOpen, onClick, onLongPress }) {
   const cdR = cd > 0 ? cd / def.spawnCooldownMs : 0;
   const disabled = cd > 0;
   const longPress = useLongPress({ onLongPress, delayMs: 450 });
@@ -207,7 +216,7 @@ function UnitCard({ def, idx, cd, tooPoor, isFlashing, tipOpen, onClick, onLongP
     <div className="es-card2-wrap">
       <button
         type="button"
-        className={`es-card2${disabled ? ' is-disabled is-cooling' : ''}${tooPoor ? ' is-poor' : ''}${isFlashing ? ' is-flash' : ''}`}
+        className={`es-card2${disabled ? ' is-disabled is-cooling' : ''}${tooPoor ? ' is-poor' : ''}${isFlashing ? ' is-flash' : ''}${isConfirming ? ' is-confirming' : ''}`}
         onClick={onClick}
         disabled={disabled}
         aria-disabled={disabled || tooPoor}

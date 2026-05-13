@@ -16,6 +16,7 @@ const DEFAULTS = {
   lowFxOverride: null,  // null = follow auto-detect; true/false override
   speed: 1,             // 1, 2, or 3 — sim-tick multiplier
   cbSafePalette: false, // color-blind safe HP palette
+  artPack: 'classic',   // 'classic' (original procedural+baked) or 'v2' (hand-painted sheets)
   volumes: { master: 0.8, music: 0.5, sfx: 0.9 }, // 0..1 per bus
 };
 

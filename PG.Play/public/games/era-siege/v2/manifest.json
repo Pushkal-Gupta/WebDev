@@ -1,0 +1,128 @@
+{
+  "generatedAt": "2026-05-13T08:43:31.704Z",
+  "unitCount": 24,
+  "units": [
+    {
+      "num": 1,
+      "eraN": 1,
+      "role": "frontline"
+    },
+    {
+      "num": 2,
+      "eraN": 1,
+      "role": "ranged"
+    },
+    {
+      "num": 3,
+      "eraN": 1,
+      "role": "heavy"
+    },
+    {
+      "num": 4,
+      "eraN": 1,
+      "role": "general"
+    },
+    {
+      "num": 5,
+      "eraN": 2,
+      "role": "frontline"
+    },
+    {
+      "num": 6,
+      "eraN": 2,
+      "role": "ranged"
+    },
+    {
+      "num": 7,
+      "eraN": 2,
+      "role": "heavy"
+    },
+    {
+      "num": 8,
+      "eraN": 2,
+      "role": "general"
+    },
+    {
+      "num": 9,
+      "eraN": 3,
+      "role": "frontline"
+    },
+    {
+      "num": 10,
+      "eraN": 3,
+      "role": "ranged"
+    },
+    {
+      "num": 11,
+      "eraN": 3,
+      "role": "heavy"
+    },
+    {
+      "num": 12,
+      "eraN": 3,
+      "role": "general"
+    },
+    {
+      "num": 13,
+      "eraN": 4,
+      "role": "frontline"
+    },
+    {
+      "num": 14,
+      "eraN": 4,
+      "role": "ranged"
+    },
+    {
+      "num": 15,
+      "eraN": 4,
+      "role": "heavy"
+    },
+    {
+      "num": 16,
+      "eraN": 4,
+      "role": "general"
+    },
+    {
+      "num": 17,
+      "eraN": 5,
+      "role": "frontline"
+    },
+    {
+      "num": 18,
+      "eraN": 5,
+      "role": "ranged"
+    },
+    {
+      "num": 19,
+      "eraN": 5,
+      "role": "heavy"
+    },
+    {
+      "num": 20,
+      "eraN": 5,
+      "role": "general"
+    },
+    {
+      "num": 21,
+      "eraN": 1,
+      "role": "frontline-alt"
+    },
+    {
+      "num": 22,
+      "eraN": 3,
+      "role": "frontline-alt"
+    },
+    {
+      "num": 23,
+      "eraN": 4,
+      "role": "frontline-alt"
+    },
+    {
+      "num": 24,
+      "eraN": 5,
+      "role": "frontline-alt"
+    }
+  ],
+  "turretCount": 0,
+  "turrets": []
+}

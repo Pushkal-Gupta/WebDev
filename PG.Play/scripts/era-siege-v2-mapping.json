@@ -1,0 +1,34 @@
+{
+  "_note": "NEW batch — sheets 1-24 from assets/era-seige-2/NEW/ (now promoted to main dir; v1 archived). Best-guess by sequential order: era 1→5, role frontline→ranged→heavy→general, then 4 extras likely turrets or alts. Edit any slot freely.",
+
+  "1":  { "eraN": 1, "role": "frontline" },
+  "2":  { "eraN": 1, "role": "ranged" },
+  "3":  { "eraN": 1, "role": "heavy" },
+  "4":  { "eraN": 1, "role": "general" },
+
+  "5":  { "eraN": 2, "role": "frontline" },
+  "6":  { "eraN": 2, "role": "ranged" },
+  "7":  { "eraN": 2, "role": "heavy" },
+  "8":  { "eraN": 2, "role": "general" },
+
+  "9":  { "eraN": 3, "role": "frontline" },
+  "10": { "eraN": 3, "role": "ranged" },
+  "11": { "eraN": 3, "role": "heavy" },
+  "12": { "eraN": 3, "role": "general" },
+
+  "13": { "eraN": 4, "role": "frontline" },
+  "14": { "eraN": 4, "role": "ranged" },
+  "15": { "eraN": 4, "role": "heavy" },
+  "16": { "eraN": 4, "role": "general" },
+
+  "17": { "eraN": 5, "role": "frontline" },
+  "18": { "eraN": 5, "role": "ranged" },
+  "19": { "eraN": 5, "role": "heavy" },
+  "20": { "eraN": 5, "role": "general" },
+
+  "_extras_21_24": "If 21-24 are unit alts, assign here. If they are turret strips (3-frame each), copy them into assets/era-seige-2/turret/raw-<N>.png instead.",
+  "21": { "eraN": 1, "role": "frontline-alt" },
+  "22": { "eraN": 3, "role": "frontline-alt" },
+  "23": { "eraN": 4, "role": "frontline-alt" },
+  "24": { "eraN": 5, "role": "frontline-alt" }
+}

@@ -41,12 +41,22 @@ import {
 
 const registry = new Map(); // key -> { placeholder, src, image, ready, imageDraw }
 
+// Art-pack toggle — see assets.setArtPack below.
+const ART_PACK_DEFAULT = 'classic';
+
 // Dev-mode cache bust — stable for the session so HMR doesn't re-fetch
 // every PNG on every keystroke, but changes per fresh page load. In
 // production builds vite's `define` substitutes BUILD_VERSION below.
 const _devCacheBust = `dev-${Math.floor(Math.random() * 1e9).toString(36)}`;
 
+// Alpha-fringe cleanup runs at build time (see
+// scripts/era-siege-process-v2-sheets.mjs) so the runtime path stays
+// lean — just blit decoded PNGs. Authors should bleed their exports
+// before delivery; the build script handles incoming raw sheets.
+
 export const assets = {
+  _artPack: ART_PACK_DEFAULT,
+
   draw(ctx, key, x, y, opts) {
     const entry = registry.get(key);
     if (!entry) return;
@@ -69,6 +79,24 @@ export const assets = {
     const e = registry.get(key);
     if (!e || !e.image || !e.image.naturalWidth) return null;
     return { w: e.image.naturalWidth, h: e.image.naturalHeight };
+  },
+
+  // Three art packs ship with the game:
+  //   'classic' — original procedurally-baked + Gemini-cropped art
+  //   'v1'      — hand-painted OLD batch in public/games/era-siege/v1/
+  //   'v2'      — hand-painted NEW batch in public/games/era-siege/v2/
+  // The chooser is in SettingsDrawer; pack persists in user settings.
+  // When 'v1' or 'v2', unit/* + sprites/unit/* URLs get the prefix
+  // injected; missing files 404 and fall back to the procedural
+  // placeholder for that key.
+  setArtPack(pack) {
+    const next = (pack === 'v1' || pack === 'v2') ? pack : 'classic';
+    if (next === assets._artPack) return;
+    assets._artPack = next;
+    // Re-load anything that's already resolved so the new pack takes
+    // effect without a full page refresh.
+    for (const e of registry.values()) { e.image = null; e.ready = false; }
+    if (typeof window !== 'undefined') assets.preloadAll();
   },
 
   preloadAll(baseUrl) {
@@ -118,22 +146,45 @@ export const assets = {
       }
       // Base + background PNGs were baked from procedural draws that
       // composited foot shadows onto a dark canvas; their semi-transparent
-      // edges carry dark RGB which renders as a black halo over the new
-      // cool dashboard canvas. Skip preload so the procedural draw runs
-      // every frame on a transparent target — no halo, and the warm art
-      // gets blended via the top vignette in the renderer.
-      if (key.startsWith('base/') || key.startsWith('bg/')) {
+      // edges carry dark RGB which renders as a black halo. On the
+      // classic pack we skip them so the procedural draw runs every
+      // frame on a transparent target. On the v1/v2 packs we DO try to
+      // load them so hand-painted biome bases (e.g. era3/Major hub Gate)
+      // override the procedural drawing where the user has shipped art.
+      if ((key.startsWith('base/') || key.startsWith('bg/')) && assets._artPack === 'classic') {
         continue;
       }
       try {
         const img = new Image();
         img.decoding = 'async';
         img.loading  = 'eager';
-        const resolved = new URL(entry.src, base).href;
+        // Art-pack switch: when 'v1' or 'v2', rewrite unit/* +
+        // sprites/unit/* sources to the matching prefix.
+        const pack = assets._artPack;
+        const src = ((pack === 'v1' || pack === 'v2') && /^games\/era-siege\/(unit|sprites\/unit)\//.test(entry.src))
+          ? entry.src.replace('games/era-siege/', `games/era-siege/${pack}/`)
+          : entry.src;
+        const resolved = new URL(src, base).href;
         const url = ver ? `${resolved}?v=${ver}` : resolved;
+        // Fallback chain — when v2 PNG 404s, retry the classic URL so a
+        // partially-shipped art pack still renders the missing units.
+        const classicResolved = (src !== entry.src)
+          ? new URL(entry.src, base).href + (ver ? `?v=${ver}` : '')
+          : null;
         promises.push(new Promise((resolve) => {
           img.onload  = () => { entry.image = img; entry.ready = true; resolve('ok'); };
-          img.onerror = () => { failed.push({ key, url }); resolve('fail'); };
+          img.onerror = () => {
+            if (classicResolved) {
+              const fb = new Image();
+              fb.decoding = 'async';
+              fb.onload  = () => { entry.image = fb; entry.ready = true; resolve('ok-fallback'); };
+              fb.onerror = () => { failed.push({ key, url }); resolve('fail'); };
+              fb.src = classicResolved;
+            } else {
+              failed.push({ key, url });
+              resolve('fail');
+            }
+          };
           img.src = url;
         }));
       } catch (e) {
@@ -305,6 +356,26 @@ reg('vfx/explosion-large', 'games/era-siege/vfx/explosion-large.png',
 reg('vfx/explosion-12', 'games/era-siege/vfx/explosion-12.png',
   (ctx, x, y, opts) => placeholderExplosion(ctx, x, y, (opts && opts.size) || 48),
   drawExplosion12);
+
+// ── Era-themed biome assets (v2 art pack) ─────────────────────────────
+//
+// HP-bar art — currently shipped only for v2 pack. The renderer's
+// drawBaseHpAndLabel and the TopBar's enemy plate read pixel colours
+// from the cool dashboard palette by default; when v2 ships the artist-
+// painted bar these slots provide an opt-in override key. The asset is
+// a single horizontal bar PNG per era; the renderer uses it as a
+// backdrop and overlays the segmented fill from the same era-trim hue.
+//
+// Hazard art — each era's biome sheet has a 5-frame "interactive"
+// strip (plasma conduit / void rift / molten pool / electrical field /
+// bio-acidic pool). Reserved here so the importer has a stable target;
+// no in-game hazard mechanic yet, but loading is harmless.
+for (let i = 0; i < 5; i++) {
+  reg(`ui/hp-bar-era${i + 1}`, `games/era-siege/v2/ui/hp-bar-era${i + 1}.png`,
+    (_ctx, _x, _y, _o) => { /* CSS bar is the placeholder */ });
+  reg(`vfx/hazard-era${i + 1}`, `games/era-siege/v2/vfx/hazard-era${i + 1}.png`,
+    (ctx, x, y, opts) => placeholderExplosion(ctx, x, y, (opts && opts.size) || 48));
+}
 
 // ── Test re-export ────────────────────────────────────────────────────
 

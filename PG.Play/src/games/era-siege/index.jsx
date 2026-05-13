@@ -163,9 +163,17 @@ export default function EraSiegeGame({ mode }) {
   );
   const [restartKey, setRestartKey] = useState(0);
 
-  // Settings subscription — re-render when any setting changes.
+  // Settings subscription — re-render when any setting changes, and
+  // hot-swap the art pack so the new sprites load without a refresh.
   useEffect(() => {
-    return subscribeSettings((s) => { settingsRef.current = s; setSettingsRev((n) => n + 1); });
+    return subscribeSettings((s) => {
+      const prevPack = settingsRef.current.artPack;
+      settingsRef.current = s;
+      if (s.artPack && s.artPack !== prevPack) {
+        try { assets.setArtPack(s.artPack); } catch { /* swallow */ }
+      }
+      setSettingsRev((n) => n + 1);
+    });
   }, []);
 
   // Pause sim while any blocking surface is open (settings / power-ups /
@@ -208,6 +216,12 @@ export default function EraSiegeGame({ mode }) {
     // No baseUrl arg → manifest resolves against document.baseURI so
     // assets work both in dev (localhost:5180/) and prod
     // (pushkalgupta.com/PG.Play/dist/).
+    // Apply the user's chosen art pack BEFORE preload so v2 URLs (when
+    // selected) get fetched the first time. The pack is persisted in
+    // settings; the SettingsDrawer toggle calls assets.setArtPack to
+    // hot-swap mid-match.
+    try { assets.setArtPack(settingsRef.current.artPack || 'classic'); }
+    catch { /* swallow */ }
     try { assets.preloadAll(); } catch { /* placeholder path is fine */ }
 
     const wrap = wrapRef.current;

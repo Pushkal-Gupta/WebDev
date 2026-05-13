@@ -108,12 +108,49 @@ function FactionBanner({ index, name, side }) {
 }
 
 function GoldPlinth({ gold, rate, capped }) {
+  // Smoothly tween the displayed gold toward the actual sim value. Sim
+  // already ticks every frame; we just lerp the display so the number
+  // glides instead of stepping. The animation runs off requestAnimationFrame
+  // so we never queue setIntervals.
+  const displayRef = useRef(gold);
+  const [display, setDisplay] = useState(gold);
+  const targetRef = useRef(gold);
+  const rafRef = useRef(0);
+  // Flash class on every income tick — eye-catching pulse for the
+  // most-watched HUD number.
+  const [bump, setBump] = useState(0);
+  const prevGold = useRef(gold);
+  useEffect(() => {
+    targetRef.current = gold;
+    if (gold > prevGold.current) setBump((n) => n + 1);
+    prevGold.current = gold;
+    const tick = () => {
+      const t = targetRef.current;
+      const d = displayRef.current;
+      const diff = t - d;
+      if (Math.abs(diff) < 0.5) {
+        displayRef.current = t;
+        setDisplay(t);
+        rafRef.current = 0;
+        return;
+      }
+      // Easing toward target — 20% per frame ≈ 5-frame catch-up at 60fps.
+      const next = d + diff * 0.22;
+      displayRef.current = next;
+      setDisplay(next);
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    if (!rafRef.current) rafRef.current = requestAnimationFrame(tick);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); rafRef.current = 0; };
+  }, [gold]);
   return (
     <div className={`es-gold-plinth${capped ? ' is-capped' : ''}`}
          title={capped ? `Gold cap reached — spend!` : `Gold (+${rate || 0}/s)`}>
       <div className="es-gold-coin" aria-hidden="true">G</div>
       <div className="es-gold-stack">
-        <div className="es-gold-num es-text-stamp es-text-stamp-gold">{gold}</div>
+        <div key={bump} className="es-gold-num es-text-stamp es-text-stamp-gold">
+          {Math.round(display)}
+        </div>
         <div className="es-gold-rate-row">
           {capped
             ? <span className="es-gold-rate is-cap">CAP</span>

@@ -21,23 +21,26 @@
 export function drawStripFrame(ctx, img, x, y, opts = {}) {
   if (!img.naturalWidth) return;
   const frames = opts.frames || 6;
-  const frameIdx = Math.max(0, Math.min(frames - 1, Math.floor(opts.frame || 0)));
+  // Defensive: clamp + finite-guard against NaN/undefined frame inputs
+  // from upstream timer math.
+  const f = Number.isFinite(opts.frame) ? Math.floor(opts.frame) : 0;
+  const frameIdx = Math.max(0, Math.min(frames - 1, f));
   const sw = img.naturalWidth / frames;
   const sh = img.naturalHeight;
-  const sx = frameIdx * sw;
-  const w = opts.w || sw / 2;
-  const h = opts.h || sh / 2;
-  const ax = w / 2;
-  const ay = opts.anchor === 'foot' ? h : h / 2;
+  const sx = Math.round(frameIdx * sw);
+  const w = Math.round(opts.w || sw / 2);
+  const h = Math.round(opts.h || sh / 2);
+  const ax = Math.round(w / 2);
+  const ay = Math.round(opts.anchor === 'foot' ? h : h / 2);
   const flip = opts.flipX ? -1 : 1;
   if (flip < 0) {
     ctx.save();
-    ctx.translate(x, y);
+    ctx.translate(Math.round(x), Math.round(y));
     ctx.scale(-1, 1);
-    ctx.drawImage(img, sx, 0, sw, sh, -ax, -ay, w, h);
+    ctx.drawImage(img, sx, 0, Math.round(sw), sh, -ax, -ay, w, h);
     ctx.restore();
   } else {
-    ctx.drawImage(img, sx, 0, sw, sh, x - ax, y - ay, w, h);
+    ctx.drawImage(img, sx, 0, Math.round(sw), sh, Math.round(x) - ax, Math.round(y) - ay, w, h);
   }
 }
 
@@ -48,22 +51,23 @@ export function drawStripFrame(ctx, img, x, y, opts = {}) {
 
 export function drawImage(ctx, img, x, y, opts = {}) {
   if (!img.naturalWidth) return;
-  const w = opts.w || img.naturalWidth / 2;
-  const h = opts.h || img.naturalHeight / 2;
+  const w = Math.round(opts.w || img.naturalWidth / 2);
+  const h = Math.round(opts.h || img.naturalHeight / 2);
   // Both anchor modes centre horizontally — the only difference is
   // vertical: 'foot' puts the foot at (x, y); the default puts the
   // image centre at (x, y).
-  const ax = w / 2;
-  const ay = opts.anchor === 'foot' ? h : h / 2;
+  const ax = Math.round(w / 2);
+  const ay = Math.round(opts.anchor === 'foot' ? h : h / 2);
   const flip = opts.flipX ? -1 : 1;
+  const rx = Math.round(x), ry = Math.round(y);
   if (flip < 0) {
     ctx.save();
-    ctx.translate(x, y);
+    ctx.translate(rx, ry);
     ctx.scale(-1, 1);
     ctx.drawImage(img, -ax, -ay, w, h);
     ctx.restore();
   } else {
-    ctx.drawImage(img, x - ax, y - ay, w, h);
+    ctx.drawImage(img, rx - ax, ry - ay, w, h);
   }
 }
 
