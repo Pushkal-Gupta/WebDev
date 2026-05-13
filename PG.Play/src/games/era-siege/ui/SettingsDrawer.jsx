@@ -129,6 +129,25 @@ export default function SettingsDrawer({ open, onClose }) {
           </button>
         </Row>
 
+        <Row label="Art pack" hint="Switch between procedural art and hand-painted batches.">
+          <div className="es-segmented" role="radiogroup" aria-label="Art pack">
+            {[
+              { v: 'classic', label: 'Classic' },
+              { v: 'v1',      label: 'Batch 1' },
+              { v: 'v2',      label: 'Batch 2' },
+            ].map(({ v, label }) => (
+              <button
+                key={v}
+                type="button"
+                className={`es-seg${(settings.artPack || 'classic') === v ? ' is-on' : ''}`}
+                onClick={() => update({ artPack: v })}
+                aria-pressed={(settings.artPack || 'classic') === v}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </Row>
+
         <Row label="Reset stats" hint="Clears bests, unlocks, daily streak">
           <button
             type="button"

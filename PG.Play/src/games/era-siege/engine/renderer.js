@@ -37,6 +37,13 @@ const ERA_BY_ID = Object.fromEntries(
 // consult them without threading parameters through every call.
 let _cbSafe = false;
 let _alpha = 1;
+// Single timestamp captured at the top of every render() call. All
+// downstream pulse/sine/glow animations read from this instead of
+// calling _now() per-entity — keeps every pulse phase-
+// coherent within a frame AND saves ~20 calls/frame at 20-unit load.
+let _renderTime = 0;
+const _PERF = (typeof performance !== 'undefined') ? performance : null;
+function _now() { return _renderTime || (_PERF ? _PERF.now() : 0); }
 function hpColor(r) {
   if (_cbSafe) {
     // Blue → amber → magenta — distinguishable across deuteranopia,
@@ -60,6 +67,7 @@ export function makeRenderer() {
   // era flash + era banner sit after restore so they're shake-stable.
   function render(ctx, match, _frameDt) {
     if (!match) return;
+    _renderTime = _PERF ? _PERF.now() : 0;
     const v = match.view;
     const w = v.w, h = v.h;
     _cbSafe = !!match.cbSafe;
@@ -466,7 +474,7 @@ function drawBaseHpAndLabel(ctx, x, groundY, side, isPlayer) {
       if (hpR < 0.5)  { top = '#ffd070'; bot = '#ffb84a'; }
       if (hpR < 0.25) { top = '#ff5e7a'; bot = '#c93a4e'; }
       if (isLastFilled && lowSeg) {
-        const pulse = (Math.sin(performance.now() / 220) * 0.5 + 0.5);
+        const pulse = (Math.sin(_now() / 220) * 0.5 + 0.5);
         ctx.globalAlpha = 0.6 + 0.4 * pulse;
       }
       const segGrad = ctx.createLinearGradient(0, barY, 0, barY + barH);
@@ -579,7 +587,7 @@ function drawTurretSpot(ctx, view, slot, isPlayer, hasTurret) {
     ctx.strokeRect(x - 15 + 0.5, y - 5 + 0.5, 4, 6);
     ctx.strokeRect(x + 10 + 0.5, y - 5 + 0.5, 4, 6);
     // Soft pulsing cyan core — telegraphs an awaiting foundation
-    const t = (Math.sin(performance.now() / 380) + 1) / 2;
+    const t = (Math.sin(_now() / 380) + 1) / 2;
     ctx.globalAlpha = 0.55 + t * 0.4;
     ctx.fillStyle = isPlayer ? '#5dd6ff' : '#ff5cb6';
     ctx.beginPath(); ctx.arc(x, y - 1, 1.6, 0, Math.PI * 2); ctx.fill();
@@ -658,7 +666,7 @@ function drawTurret(ctx, t, isPlayer) {
     }
   } else if (v.kind === 'tesla') {
     for (let k = -1; k <= 1; k++) ctx.fillRect(x + k * 6 - 1, y - 22, 2, 14);
-    if (Math.sin(performance.now() / 30) > 0.5 || justFired) {
+    if (Math.sin(_now() / 30) > 0.5 || justFired) {
       ctx.strokeStyle = v.barrelColor;
       ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.moveTo(x - 7, y - 24); ctx.lineTo(x + 7, y - 24); ctx.stroke();
@@ -683,7 +691,7 @@ function drawTurret(ctx, t, isPlayer) {
 function drawSpecialTelegraph(ctx, match, side, isPlayer) {
   const sa = side.specialActive;
   if (!sa) return;
-  const pulse = (Math.sin(performance.now() / 80) + 1) / 2;
+  const pulse = (Math.sin(_now() / 80) + 1) / 2;
   ctx.save();
   ctx.globalAlpha = 0.35 + pulse * 0.35;
   ctx.fillStyle = isPlayer ? '#7be3ff' : '#ff486b';
@@ -748,13 +756,14 @@ function drawUnitSprite(ctx, u, x, y, spriteKey, sideAuraActive, frame = 0) {
   // Slight scale pop on the recover frame — applies to both paths.
   const pop = u.attackTickPhase === 'recover' ? 1.05 : 1;
 
-  // ── Aura halo (Sun Forge etc.) ───────────────────────────────────
+  // ── Aura halo (Sun Forge etc.) — buff effect, era-coloured ─────
   if (sideAuraActive) {
-    const pulse = (Math.sin(performance.now() / 220) + 1) / 2;
+    const pulse = (Math.sin(_now() / 220) + 1) / 2;
+    const pal = paletteFor(getEraByIndex(u.eraIndex || 0)?.id);
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     ctx.globalAlpha = 0.20 + pulse * 0.20;
-    ctx.fillStyle = '#ffcb6b';
+    ctx.fillStyle = pal?.hudAccent || '#5dd6ff';
     ctx.beginPath();
     ctx.ellipse(x + lean, y - targetH * 0.45 + bob, targetW * 0.55, targetH * 0.45, 0, 0, Math.PI * 2);
     ctx.fill();
@@ -767,7 +776,7 @@ function drawUnitSprite(ctx, u, x, y, spriteKey, sideAuraActive, frame = 0) {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     ctx.globalAlpha = 0.30 + chargeT * 0.40;
-    ctx.fillStyle = u.visual?.colorTrim || '#ffe14f';
+    ctx.fillStyle = u.visual?.colorTrim || '#5dd6ff';
     ctx.beginPath();
     ctx.arc(x + lean, y - targetH * 0.45 + bob, targetH * 0.42 + chargeT * 6, 0, Math.PI * 2);
     ctx.fill();
@@ -779,7 +788,7 @@ function drawUnitSprite(ctx, u, x, y, spriteKey, sideAuraActive, frame = 0) {
   // slowly + a small crown shape above the head so they read as
   // distinct from regular units of the same role.
   if (isChampion && !u.dead) {
-    const pulseT = 0.55 + Math.sin(performance.now() / 380) * 0.20;
+    const pulseT = 0.55 + Math.sin(_now() / 380) * 0.20;
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     ctx.globalAlpha = pulseT;
@@ -925,7 +934,7 @@ function drawUnit(ctx, u, sideAuraActive) {
     // than typical sprite anim because units render small (~64-110px)
     // and the eye needs more time to register each pose.
     const cycleMs = 900;
-    const tNow = (typeof performance !== 'undefined' ? performance.now() : 0) + (u.id || 0) * 71;
+    const tNow = _now() + (u.id || 0) * 71;
     frame = Math.floor((tNow % cycleMs) / (cycleMs / 6)) % 6;
   }
   const stripKey = `unit/era${eraN}/${role}/${stripAnim}`;

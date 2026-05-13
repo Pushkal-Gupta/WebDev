@@ -1,0 +1,33 @@
+{
+  "generatedAt": "2026-05-13T08:48:54.929Z",
+  "unitCount": 5,
+  "units": [
+    {
+      "num": 15,
+      "eraN": 4,
+      "role": "heavy"
+    },
+    {
+      "num": 16,
+      "eraN": 4,
+      "role": "general"
+    },
+    {
+      "num": 17,
+      "eraN": 5,
+      "role": "frontline"
+    },
+    {
+      "num": 18,
+      "eraN": 5,
+      "role": "ranged"
+    },
+    {
+      "num": 23,
+      "eraN": 4,
+      "role": "frontline-alt"
+    }
+  ],
+  "turretCount": 0,
+  "turrets": []
+}
