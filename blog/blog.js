@@ -29,6 +29,13 @@ const POSTS = [
     lightFile: "work-light.html",
   },
   {
+    id: "ebm-reasoning",
+    date: "18.05.2026",
+    title: "Does AI Actually Think - Why Architecture Matters More Than Data",
+    darkFile: "ebm-reasoning-dark.html",
+    lightFile: "ebm-reasoning-light.html",
+  },
+  {
     id: "upcoming",
     date: "xx.xx.2026",
     title: "How Data Reaches You(A first Principles Approach)",

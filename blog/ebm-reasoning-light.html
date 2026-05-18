@@ -1,0 +1,2755 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Does AI Actually Think - Why Architecture Matters More Than Data
+    </title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f5f2ed;
+        --card: #ffffff;
+        --text: #1a1a1a;
+        --muted: #3a3a3a;
+        --dim: #666666;
+        --border: #e0ddd7;
+        --accent: #007a72;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Inter", system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 18px;
+        line-height: 1.85;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 60px 40px 120px;
+      }
+      h1 {
+        font-size: clamp(24px, 4.5vw, 44px);
+        font-weight: 700;
+        line-height: 1.15;
+        margin-bottom: 48px;
+        padding-bottom: 32px;
+        border-bottom: 1px solid var(--border);
+      }
+      h2 {
+        font-size: clamp(20px, 4vw, 26px);
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 20px;
+      }
+      h3 {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--dim);
+        margin: 36px 0 14px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid var(--border);
+      }
+      p {
+        margin-bottom: 20px;
+      }
+      strong {
+        font-weight: 600;
+      }
+      em {
+        font-style: italic;
+      }
+      code {
+        font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+        font-size: 0.88em;
+        background: var(--card);
+        border: 1px solid var(--border);
+        padding: 2px 6px;
+        border-radius: 3px;
+      }
+      hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 52px 0;
+      }
+      .sec-label {
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin: 60px 0 8px;
+      }
+      .pq {
+        border-left: 3px solid var(--accent);
+        padding: 14px 20px;
+        margin: 32px 0;
+        font-size: 19px;
+        font-weight: 500;
+        line-height: 1.6;
+        color: var(--text);
+      }
+      .callout {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--dim);
+        padding: 20px 22px;
+        margin: 28px 0;
+        border-radius: 4px;
+      }
+      .callout.red {
+        border-left-color: #e05050;
+      }
+      .callout.amber {
+        border-left-color: #c8962a;
+      }
+      .callout.purple {
+        border-left-color: #9080d0;
+      }
+      .callout-label {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--dim);
+        margin-bottom: 10px;
+      }
+      .callout p {
+        font-size: 16px;
+        line-height: 1.75;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+      .callout p:last-child {
+        margin-bottom: 0;
+      }
+      .cite {
+        font-size: 15px;
+        color: var(--muted);
+        background: var(--card);
+        border-left: 2px solid var(--border);
+        padding: 12px 18px;
+        margin: 20px 0;
+        line-height: 1.7;
+      }
+      .cite-source {
+        display: block;
+        font-size: 11px;
+        color: var(--dim);
+        margin-top: 6px;
+      }
+      .tbl {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 24px 0;
+        font-size: 15px;
+      }
+      .tbl th {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+        background: var(--card);
+        padding: 10px 14px;
+        text-align: left;
+        border-bottom: 2px solid var(--border);
+      }
+      .tbl td {
+        padding: 11px 14px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+        line-height: 1.6;
+        color: var(--muted);
+        font-size: 15px;
+      }
+      .tbl tr:last-child td {
+        border-bottom: none;
+      }
+      .pqc {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+        margin: 24px 0;
+        background: var(--card);
+        border: 1px solid var(--border);
+        padding: 20px;
+        border-radius: 4px;
+      }
+      .pqc-av {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--accent);
+        flex-shrink: 0;
+      }
+      .pqc-name {
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 2px;
+      }
+      .pqc-role {
+        font-size: 12px;
+        color: var(--dim);
+        margin-bottom: 10px;
+        line-height: 1.5;
+      }
+      .pqc-text {
+        font-size: 15px;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin: 24px 0;
+      }
+      .stat {
+        background: var(--card);
+        border: 1px solid var(--border);
+        padding: 18px 12px;
+        text-align: center;
+        border-radius: 4px;
+      }
+      .stat-n {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--accent);
+        line-height: 1;
+        margin-bottom: 6px;
+      }
+      .stat-l {
+        font-size: 13px;
+        color: var(--dim);
+        line-height: 1.45;
+      }
+      .people {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin: 24px 0;
+      }
+      .pcard {
+        background: var(--card);
+        border: 1px solid var(--border);
+        padding: 16px;
+        border-radius: 4px;
+      }
+      .pcard-badge {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--dim);
+        border: 1px solid var(--border);
+        padding: 2px 7px;
+        margin-bottom: 8px;
+        border-radius: 2px;
+      }
+      .pcard-name {
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 2px;
+      }
+      .pcard-role {
+        font-size: 11px;
+        color: var(--dim);
+        margin-bottom: 10px;
+        line-height: 1.5;
+      }
+      .pcard-text {
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.65;
+      }
+      .dw {
+        background: var(--card);
+        border: 1px solid var(--border);
+        margin: 32px 0;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .dt {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--dim);
+        padding: 12px 18px 0;
+      }
+      .ds {
+        font-size: 11px;
+        color: var(--dim);
+        padding: 8px 18px 12px;
+        border-top: 1px solid var(--border);
+        margin-top: 2px;
+      }
+      .dp {
+        padding: 18px;
+      }
+      .dgrid2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border: 1px solid var(--border);
+      }
+      .dgrid2 .dg-head {
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+      }
+      .dgrid2 .dg-head.left {
+        border-right: 1px solid var(--border);
+      }
+      .dgrid2 .dg-cell {
+        padding: 10px 14px;
+        font-size: 14px;
+        line-height: 1.55;
+        color: var(--muted);
+        border-bottom: 1px solid var(--border);
+      }
+      .dgrid2 .dg-cell.left {
+        border-right: 1px solid var(--border);
+      }
+      .dgrid2 .dg-cell:last-child,
+      .dgrid2 .dg-cell:nth-last-child(2) {
+        border-bottom: none;
+      }
+      .dgrid2 .dg-label {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--dim);
+        display: block;
+        margin-bottom: 4px;
+      }
+      .dgrid2 .dg-big {
+        font-size: 20px;
+        font-weight: 700;
+        margin-top: 4px;
+      }
+      .dbars {
+        padding: 4px 0;
+      }
+      .dbar-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+        flex-wrap: nowrap;
+      }
+      .dbar-label {
+        font-size: 14px;
+        color: var(--muted);
+        min-width: 180px;
+        text-align: right;
+        flex-shrink: 0;
+      }
+      .dbar-track {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+      }
+      .dbar-fill {
+        height: 16px;
+        border-radius: 2px;
+        background: var(--dim);
+        flex-shrink: 0;
+      }
+      .dbar-val {
+        font-size: 13px;
+        color: var(--dim);
+        white-space: nowrap;
+      }
+      .dbar-row.hi .dbar-label {
+        font-weight: 600;
+        color: var(--text);
+      }
+      .dbar-row.hi .dbar-fill {
+        background: var(--accent);
+      }
+      .dbar-row.hi .dbar-val {
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .dbar-row.top .dbar-label {
+        font-weight: 700;
+        color: var(--text);
+      }
+      .dbar-row.top .dbar-fill {
+        background: #e05050;
+      }
+      .dbar-row.top .dbar-val {
+        color: #e05050;
+        font-weight: 700;
+      }
+      .stbl {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+      .stbl th {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--dim);
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 2px solid var(--border);
+      }
+      .stbl td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border);
+        color: var(--muted);
+        line-height: 1.5;
+        vertical-align: middle;
+      }
+      .stbl .tech {
+        color: var(--text);
+        font-weight: 500;
+      }
+      .stbl .intact {
+        color: var(--accent);
+      }
+      .stbl .ai-row td {
+        border-top: 2px solid var(--border);
+        font-weight: 500;
+      }
+      .stbl .ai-name {
+        color: #e07050;
+        font-weight: 700;
+        font-size: 15px;
+      }
+      .stbl .ai-hit {
+        color: #e07050;
+      }
+      .stbl .ai-gap {
+        color: var(--dim);
+        font-style: italic;
+        font-size: 13px;
+      }
+      .stbl .note td {
+        color: var(--dim);
+        font-style: italic;
+        font-size: 13px;
+        border-bottom: 2px solid var(--border);
+      }
+      .d2col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .d2col-box {
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .d2col-head {
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        border-bottom: 1px solid var(--border);
+        background: var(--bg);
+      }
+      .d2col-body {
+        padding: 14px;
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--muted);
+      }
+      .d2col-item {
+        padding: 6px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .d2col-item:last-child {
+        border-bottom: none;
+      }
+      .d2col-foot {
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        border-top: 2px solid var(--border);
+      }
+      .col-blue .d2col-head {
+        color: var(--accent);
+      }
+      .col-blue .d2col-foot {
+        color: var(--accent);
+      }
+      .col-red .d2col-head {
+        color: #e05050;
+      }
+      .col-red .d2col-foot {
+        color: #e05050;
+      }
+      .eq {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 18px 22px;
+        margin: 24px 0;
+        text-align: center;
+        font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+        font-size: 16px;
+        line-height: 2;
+        color: var(--text);
+        letter-spacing: 0.02em;
+      }
+      .eq-label {
+        font-family: "Inter", system-ui, sans-serif;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--dim);
+        margin-bottom: 8px;
+        text-align: left;
+      }
+      .eq-note {
+        font-family: "Inter", system-ui, sans-serif;
+        font-size: 13px;
+        color: var(--dim);
+        margin-top: 8px;
+        text-align: left;
+        line-height: 1.6;
+      }
+      .closing {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-top: 3px solid var(--accent);
+        padding: 32px 28px;
+        margin: 56px 0 0;
+        border-radius: 4px;
+      }
+      .closing h3 {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--accent);
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 10px;
+        margin-bottom: 0;
+      }
+      .closing .intro {
+        font-size: 16px;
+        color: var(--muted);
+        margin: 14px 0 20px;
+        line-height: 1.75;
+      }
+      .closing ul {
+        list-style: none;
+        padding: 0;
+      }
+      .closing ul li {
+        padding: 10px 0 10px 20px;
+        position: relative;
+        font-size: 15px;
+        color: var(--muted);
+        line-height: 1.75;
+        border-bottom: 1px solid var(--border);
+      }
+      .closing ul li:last-child {
+        border-bottom: none;
+      }
+      .closing ul li::before {
+        content: "→";
+        position: absolute;
+        left: 0;
+        color: var(--accent);
+        font-size: 13px;
+        line-height: 1.9;
+      }
+      .closing .kicker {
+        font-size: 15px;
+        color: var(--muted);
+        margin-top: 24px;
+        line-height: 1.8;
+        border-top: 1px solid var(--border);
+        padding-top: 20px;
+      }
+      .sources {
+        margin-top: 48px;
+        font-size: 11px;
+        color: var(--dim);
+        text-align: center;
+        line-height: 2.2;
+      }
+      @media (max-width: 768px) {
+        .wrap {
+          padding: 40px 24px 100px;
+        }
+        h2 {
+          font-size: clamp(18px, 3.5vw, 24px);
+        }
+        .people {
+          grid-template-columns: 1fr 1fr;
+        }
+        .stats {
+          grid-template-columns: 1fr 1fr;
+        }
+        .dgrid2 {
+          grid-template-columns: 1fr;
+        }
+        .dgrid2 .dg-head.left {
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+        .dgrid2 .dg-cell.left {
+          border-right: none;
+        }
+        .d2col {
+          grid-template-columns: 1fr;
+        }
+        .pqc {
+          gap: 12px;
+        }
+        .dbar-label {
+          min-width: 160px;
+        }
+      }
+      @media (max-width: 480px) {
+        body {
+          font-size: 16px;
+          line-height: 1.75;
+        }
+        .wrap {
+          padding: 28px 16px 80px;
+        }
+        h1 {
+          margin-bottom: 32px;
+          padding-bottom: 24px;
+        }
+        h2 {
+          font-size: 20px;
+        }
+        .pq {
+          font-size: 17px;
+          padding: 12px 16px;
+        }
+        .people {
+          grid-template-columns: 1fr;
+        }
+        .stats {
+          grid-template-columns: 1fr;
+        }
+        .dgrid2 {
+          grid-template-columns: 1fr;
+        }
+        .dgrid2 .dg-head.left {
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+        .dgrid2 .dg-cell.left {
+          border-right: none;
+        }
+        .d2col {
+          grid-template-columns: 1fr;
+        }
+        .dbar-label {
+          min-width: 110px;
+          font-size: 12px;
+        }
+        .closing {
+          padding: 24px 18px;
+        }
+        .dp {
+          padding: 12px 14px !important;
+        }
+        .dt {
+          padding: 10px 14px 0;
+          font-size: 10px;
+        }
+        .ds {
+          padding: 6px 14px 10px;
+        }
+        .pqc {
+          flex-direction: column;
+          gap: 10px;
+        }
+        .pqc-av {
+          width: 34px;
+          height: 34px;
+          font-size: 11px;
+        }
+        svg {
+          overflow: visible;
+        }
+        .eq {
+          font-size: 13px;
+          padding: 14px 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Does AI Actually Think - Why Architecture Matters More Than Data</h1>
+
+      <span class="sec-label">Section 1</span>
+      <h2>A Thought Experiment</h2>
+      <p>
+        Hum a song. Three notes — maybe four. Your brain recognises it in under
+        a second. Not "after searching through every song you have ever heard."
+        Not "after hashing every comparable substring." It just <em>knows</em>.
+        The melody settles into something, a pattern that feels right before you
+        can explain why.
+      </p>
+      <p>
+        Now consider what a brute-force algorithm would need to do. Even with
+        hashing, even with optimised substring matching, searching through tens
+        of thousands of songs for a partial melodic match would take
+        considerable compute and wall-clock time. Your brain does it in
+        milliseconds, using roughly 20 watts — less than a lightbulb.
+      </p>
+      <p>
+        This is not sequential token generation. Your brain is not committing to
+        one note at a time, left to right, hoping the sequence matches. It is
+        doing something fundamentally different: settling into a low-energy
+        attractor state across an entire landscape of musical memory. The melody
+        does not match <em>because</em> you compared it. It matches because the
+        energy surface of your neural representation has a basin right there,
+        and your perception fell into it.
+      </p>
+      <div class="pq">
+        Your brain recognises a song by falling into an energy minimum — not by
+        running a search algorithm. That distinction is the key to understanding
+        why current AI cannot actually reason.
+      </div>
+
+      <hr />
+
+      <span class="sec-label">Section 2</span>
+      <h2>The Illusion of Thinking</h2>
+      <p>
+        In June 2025, Apple published a paper that rattled the AI field. The
+        title was blunt: <em>The Illusion of Thinking</em>. The researchers
+        tested frontier Large Reasoning Models — including OpenAI's o3-mini,
+        DeepSeek-R1, and Claude 3.7 Sonnet Thinking — on controllable puzzles
+        like Tower of Hanoi, River Crossing, and Blocks World. They
+        systematically increased complexity and watched what happened.
+      </p>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-n">3</div>
+          <div class="stat-l">Distinct performance regimes discovered</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">0%</div>
+          <div class="stat-l">Accuracy of all models at high complexity</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">↓</div>
+          <div class="stat-l">
+            Reasoning effort <em>decreases</em> as problems get harder
+          </div>
+        </div>
+      </div>
+
+      <div class="dw">
+        <div class="dt">The three regimes of LRM performance (Apple, 2025)</div>
+        <div class="dp">
+          <div class="dgrid2">
+            <div class="dg-head left">Regime</div>
+            <div class="dg-head">What happens</div>
+            <div class="dg-cell left">
+              <span class="dg-label">Low complexity</span>
+              <div style="color: #c8962a; font-weight: 600">
+                Standard LLMs outperform LRMs
+              </div>
+            </div>
+            <div class="dg-cell">
+              The overhead of chain-of-thought reasoning is wasted. Simple
+              pattern matching is faster and more accurate.
+            </div>
+            <div class="dg-cell left">
+              <span class="dg-label">Medium complexity</span>
+              <div style="color: var(--accent); font-weight: 600">
+                LRMs gain an advantage
+              </div>
+            </div>
+            <div class="dg-cell">
+              CoT helps sustain structured reasoning. This is the narrow band
+              where "thinking" models justify their cost.
+            </div>
+            <div class="dg-cell left" style="border-bottom: none">
+              <span class="dg-label">High complexity</span>
+              <div style="color: #e05050; font-weight: 600">
+                Complete collapse — both types
+              </div>
+            </div>
+            <div class="dg-cell" style="border-bottom: none">
+              Accuracy drops to zero. Not gradual — a cliff. Models reduce
+              reasoning effort despite ample token budget. They
+              <em>give up</em>.
+            </div>
+          </div>
+        </div>
+        <div class="ds">
+          Shojaee et al., "The Illusion of Thinking," Apple ML Research,
+          arXiv:2506.06941, June 2025
+        </div>
+      </div>
+
+      <div class="callout red">
+        <div class="callout-label">The structural claim</div>
+        <p>
+          LRMs <strong>fail to implement explicit algorithms</strong> even when
+          the solution procedure is well-known. They do not apply Tower of
+          Hanoi's recursive strategy. They pattern-match on
+          <em>descriptions of reasoning</em>, not reasoning itself. This is not
+          a training data problem — it is architectural.
+        </p>
+      </div>
+
+      <p>
+        The paper has critics — Lawsen (2025) argued some puzzles exceeded token
+        limits, Dellibarda Varela et al. noted evaluation issues. Valid
+        methodological points. But the core finding — autoregressive models hit
+        a complexity cliff on constraint satisfaction — aligns independently
+        with what Logical Intelligence demonstrated: Kona (an EBM) solves 96.2%
+        of hard Sudoku puzzles in 313ms; frontier LLMs together solve 2%.
+      </p>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-n">96.2%</div>
+          <div class="stat-l">Kona EBM solve rate on hard Sudoku</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">2%</div>
+          <div class="stat-l">Frontier LLM solve rate (combined)</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">313ms</div>
+          <div class="stat-l">Kona average latency vs 30+ sec for LLMs</div>
+        </div>
+      </div>
+
+      <hr />
+
+      <span class="sec-label">Section 3</span>
+      <h2>Why Autoregressive = Greedy — The Formal Framework</h2>
+      <p>
+        An autoregressive model generates output one token at a time, left to
+        right, each conditioned on everything before it. Once emitted, a token
+        is committed — irrevocable. There is no mechanism to revise token 47
+        when token 200 reveals a contradiction. This is, in the precise
+        algorithmic sense, a <em>greedy</em> strategy.
+      </p>
+      <p>
+        To understand why this matters — and why it is not just a metaphor — we
+        need two definitions from algorithm theory that separate greedy
+        approaches from dynamic programming.
+      </p>
+
+      <div class="dw">
+        <div class="dt">The two properties: one shared, one decisive</div>
+        <div class="dp">
+          <div class="dgrid2">
+            <div class="dg-head left">Optimal Substructure</div>
+            <div class="dg-head">Greedy Choice Property</div>
+            <div class="dg-cell left">
+              <span class="dg-label">Definition</span>An optimal solution
+              contains optimal solutions to its subproblems.
+            </div>
+            <div class="dg-cell">
+              <span class="dg-label">Definition</span>A locally optimal choice
+              is part of <em>some</em> globally optimal solution — without
+              solving subproblems first and without ever revisiting.
+            </div>
+            <div class="dg-cell left">
+              <span class="dg-label">Required by</span>
+              <div class="dg-big">Both greedy &amp; DP</div>
+            </div>
+            <div class="dg-cell">
+              <span class="dg-label">Required by</span>
+              <div class="dg-big" style="color: #e05050">Greedy only</div>
+            </div>
+          </div>
+        </div>
+        <div class="ds">
+          Cormen, Leiserson, Rivest &amp; Stein, Introduction to Algorithms
+          (CLRS), 4th ed., ch. 15–16
+        </div>
+      </div>
+
+      <p>
+        When the greedy choice property holds, you can commit at each step
+        without regret. When it fails, you must defer — carry multiple partial
+        solutions and let the endpoint decide. That deferral, organised
+        efficiently, is dynamic programming. And the greedy choice property
+        fails whenever a
+        <em>consumable resource has uncertain future value</em>.
+      </p>
+
+      <h3>Superpowers and their invisible costs</h3>
+
+      <p>
+        Consider a concrete example. You walk across a grid of coins, some
+        negative, and have two "neutralisations" — the ability to ignore a
+        negative cell. Greedy says: neutralise the worst negative you have seen
+        so far. But the cost of a neutralisation is not what you pay when you
+        use it. It is what you <em>cannot neutralise later</em> because you
+        already spent it.
+      </p>
+
+      <div class="pq">
+        The cost of a superpower is not what you pay when you use it. It is what
+        you cannot do later because you used it now. And that cost is invisible
+        at decision time.
+      </div>
+
+      <p>
+        This is exactly the structural problem with autoregressive generation.
+        Each token is a commitment — a "neutralisation" spent. If token 47
+        commits to placing a 5 in Sudoku cell (3,2), and token 200 discovers
+        this creates an irrecoverable constraint violation, the model has spent
+        its superpower (the token) on a choice whose cost was invisible at
+        decision time.
+      </p>
+
+      <h3>State definition is the whole game</h3>
+
+      <p>
+        The correct DP table for the coin grid is not <code>dp[r][c]</code>. It
+        is <code>dp[r][c][k]</code>, where k tracks how many neutralisations
+        have been used. The question that defines a state variable: "What would
+        I need to know right now to make perfect decisions going forward,
+        without seeing the future?" Whatever makes two situations' futures
+        different despite their presents looking the same — that is a state
+        variable.
+      </p>
+
+      <div class="callout amber">
+        <div class="callout-label">
+          The collapse model — the core distinction
+        </div>
+        <p>
+          <strong>Greedy</strong> asks: "What is the best choice,
+          <em>period</em>?" → one survivor per step. Collapses across everything
+          immediately.
+        </p>
+        <p>
+          <strong>DP</strong> asks: "What is the best choice
+          <em>per state</em>?" → one survivor per state per step. Collapses
+          <em>within</em> each state, preserves <em>across</em> states until the
+          endpoint.
+        </p>
+        <p>
+          <strong
+            >DP is greedy within each state but refuses to be greedy across
+            states.</strong
+          >
+          The commitment happens late, not early. That refusal is the entire
+          difference.
+        </p>
+      </div>
+
+      <hr />
+
+      <span class="sec-label">Section 4</span>
+      <h2>The Sudoku Proof — Greedy Collapse in Action</h2>
+
+      <div class="dw">
+        <div class="dt">
+          Autoregressive (greedy) vs Energy-Based (holistic) on Sudoku
+        </div>
+        <div class="dp">
+          <div class="d2col">
+            <div class="d2col-box col-red">
+              <div class="d2col-head">LLM on Sudoku (autoregressive)</div>
+              <div class="d2col-body">
+                <div class="d2col-item">Fills cell (1,1) → commits</div>
+                <div class="d2col-item">Fills cell (1,2) → commits</div>
+                <div class="d2col-item">
+                  … 40 cells later, discovers row conflict
+                </div>
+                <div class="d2col-item">
+                  Cannot revise cell (1,1) — already emitted
+                </div>
+                <div class="d2col-item">
+                  Generates verbose reasoning trace → wrong answer
+                </div>
+              </div>
+              <div class="d2col-foot">
+                Sequential commitment. No revision. 2% solve rate.
+              </div>
+            </div>
+            <div class="d2col-box col-blue">
+              <div class="d2col-head">EBM on Sudoku (energy-based)</div>
+              <div class="d2col-body">
+                <div class="d2col-item">
+                  Proposes complete 9×9 grid simultaneously
+                </div>
+                <div class="d2col-item">
+                  Evaluates all 27 constraints at once
+                </div>
+                <div class="d2col-item">
+                  Computes energy score — high means violations
+                </div>
+                <div class="d2col-item">
+                  Follows gradient to revise violating cells
+                </div>
+                <div class="d2col-item">Converges to valid configuration</div>
+              </div>
+              <div class="d2col-foot">
+                Holistic evaluation. Revision built in. 96.2% solve rate.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ds">
+          Logical Intelligence, Kona 1.0 Sudoku Benchmark, Feb 2026
+        </div>
+      </div>
+
+      <p>
+        The Sudoku result is not about Sudoku. It is a demonstration of an
+        architectural gap. Constraint satisfaction problems — where every
+        variable depends on every other — require the ability to say "this
+        complete configuration has energy X, and if I adjust these three cells
+        the energy drops to Y." That is not something a left-to-right token
+        generator can do, no matter how many tokens it spends.
+      </p>
+
+      <p>
+        Chain-of-thought does not solve this. CoT is a greedy strategy's attempt
+        to simulate deliberation — generating more tokens that describe
+        reasoning steps. But those tokens are still committed left-to-right, and
+        the "reasoning" they encode is still pattern matching, not constraint
+        propagation. The Apple paper showed this directly: LRMs do not apply
+        known algorithms. They approximate them verbally, and the approximation
+        breaks at scale.
+      </p>
+
+      <hr />
+
+      <span class="sec-label">Section 5</span>
+      <h2>Energy-Based Models — The Deep Dive</h2>
+      <p>
+        An Energy-Based Model defines a scalar <em>energy function</em> over the
+        space of all possible configurations, where low energy = valid/desirable
+        and high energy = violations/errors. This is fundamentally different
+        from autoregressive generation.
+      </p>
+
+      <h3>The energy function</h3>
+      <p>
+        Given an input <em>x</em> (a partial Sudoku grid) and a candidate output
+        <em>y</em> (a completed grid), the energy function E<sub>θ</sub>(x, y)
+        assigns a real-valued score. Correct configurations → low energy.
+        Incorrect → high.
+      </p>
+
+      <div class="eq">
+        <div class="eq-label">The Boltzmann Distribution</div>
+        p<sub>θ</sub>(y | x) = exp(−E<sub>θ</sub>(x, y)) / Z(x)
+        <div class="eq-note">
+          where Z(x) = ∫ exp(−E<sub>θ</sub>(x, y′)) dy′ is the partition
+          function. Low energy → high probability. Z is intractable to compute
+          exactly — the fundamental computational challenge of EBMs.
+        </div>
+      </div>
+
+      <p>
+        This is borrowed directly from statistical physics. The energy function
+        is analogous to the Hamiltonian. The Boltzmann distribution describes
+        how physical systems settle into low-energy configurations — atoms in a
+        crystal, molecules in a protein fold, spins in a magnetic material. EBMs
+        use the same mathematics.
+      </p>
+
+      <h3>The energy landscape</h3>
+      <p>
+        Think of the energy function as a surface over all possible
+        configurations. Each point is a complete candidate solution. Height =
+        energy = constraint violations. Valleys = valid solutions. Peaks =
+        heavily violated states. Solving = finding the deepest valley.
+      </p>
+
+      <div class="dw">
+        <div class="dt">The energy landscape for constraint satisfaction</div>
+        <div class="dp" style="padding: 14px 18px">
+          <svg
+            width="100%"
+            viewBox="0 0 700 320"
+            xmlns="http://www.w3.org/2000/svg"
+            style="display: block"
+          >
+            <defs>
+              <marker
+                id="arr"
+                viewBox="0 0 10 10"
+                refX="8"
+                refY="5"
+                markerWidth="5"
+                markerHeight="5"
+                orient="auto"
+              >
+                <path
+                  d="M2 1L8 5L2 9"
+                  fill="none"
+                  stroke="#e05050"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+              </marker>
+            </defs>
+            <!-- Axes -->
+            <line
+              x1="60"
+              y1="250"
+              x2="660"
+              y2="250"
+              stroke="#ccc"
+              stroke-width="1"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#666666"
+              x="360"
+              y="310"
+              text-anchor="middle"
+            >
+              Configuration space →
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              fill="#666666"
+              x="18"
+              y="140"
+              text-anchor="middle"
+              transform="rotate(-90 18 140)"
+            >
+              Energy →
+            </text>
+            <!-- Landscape curve -->
+            <path
+              d="M70,135 C110,135 125,55 165,55 C205,55 225,195 255,195 C285,195 305,55 355,55 C405,55 415,235 445,235 C475,235 498,72 535,72 C572,72 582,195 605,195 C628,195 645,135 660,135"
+              stroke="#007a72"
+              stroke-width="2.5"
+              fill="none"
+            />
+            <path
+              d="M70,135 C110,135 125,55 165,55 C205,55 225,195 255,195 C285,195 305,55 355,55 C405,55 415,235 445,235 C475,235 498,72 535,72 C572,72 582,195 605,195 C628,195 645,135 660,135 L660,250 L70,250 Z"
+              fill="#007a72"
+              opacity="0.04"
+            />
+
+            <!-- Random start: on peak at (165, 55) -->
+            <circle cx="165" cy="55" r="5" fill="#e05050" />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              font-weight="600"
+              fill="#e05050"
+              x="165"
+              y="38"
+              text-anchor="middle"
+            >
+              random start
+            </text>
+
+            <!-- Gradient descent arrow -->
+            <path
+              d="M170,60 C195,100 225,155 252,190"
+              stroke="#e05050"
+              stroke-width="1.5"
+              fill="none"
+              stroke-dasharray="4,3"
+              marker-end="url(#arr)"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="11"
+              fill="#e05050"
+              x="232"
+              y="118"
+              text-anchor="start"
+            >
+              gradient
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="11"
+              fill="#e05050"
+              x="232"
+              y="132"
+              text-anchor="start"
+            >
+              descent
+            </text>
+
+            <!-- Local minimum: valley at (255, 195) -->
+            <circle cx="255" cy="195" r="4" fill="#c8962a" />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="11"
+              font-weight="500"
+              fill="#c8962a"
+              x="255"
+              y="220"
+              text-anchor="middle"
+            >
+              local minimum (trap)
+            </text>
+
+            <!-- Global minimum: deepest valley at (445, 235) -->
+            <circle cx="445" cy="235" r="5" fill="#007a72" />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="12"
+              font-weight="600"
+              fill="#007a72"
+              x="445"
+              y="278"
+              text-anchor="middle"
+            >
+              global minimum (valid solution)
+            </text>
+
+            <!-- Another valid solution: valley at (605, 195) -->
+            <circle cx="605" cy="195" r="4" fill="#007a72" opacity="0.6" />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="11"
+              fill="#666666"
+              x="562"
+              y="220"
+              text-anchor="middle"
+            >
+              another valid solution
+            </text>
+          </svg>
+        </div>
+        <div class="ds">
+          Start at random configuration, follow energy gradient downhill, settle
+          into a valley (valid solution)
+        </div>
+      </div>
+
+      <h3>Langevin dynamics — escaping local minima</h3>
+      <p>
+        Pure gradient descent gets stuck in local minima. The solution, from
+        statistical physics: <em>Langevin dynamics</em> — gradient descent with
+        added noise.
+      </p>
+
+      <div class="eq">
+        <div class="eq-label">Langevin Dynamics Update Rule</div>
+        y<sub>t+1</sub> = y<sub>t</sub> − (ε/2) · ∇<sub>y</sub> E<sub>θ</sub>(x,
+        y<sub>t</sub>) + √ε · ω<sub>t</sub>
+        <div class="eq-note">
+          ε = step size, ∇<sub>y</sub>E<sub>θ</sub> = energy gradient w.r.t.
+          configuration, ω<sub>t</sub> ~ N(0, I) = Gaussian noise. First term
+          pulls downhill; second term adds random perturbation to escape traps.
+          Provably samples from the Boltzmann distribution as t → ∞.
+        </div>
+      </div>
+
+      <p>
+        The noise is not a hack. It is thermal fluctuation — shaking a ball on a
+        landscape so it escapes shallow valleys and finds deeper ones. In
+        physics: thermal energy. In optimisation: simulated annealing. In EBMs:
+        the mechanism that enables exploration without exhaustive enumeration.
+      </p>
+
+      <h3>Training — contrastive divergence</h3>
+
+      <div class="eq">
+        <div class="eq-label">
+          Contrastive Divergence Gradient (Hinton, 2002)
+        </div>
+        ∇<sub>θ</sub> L ≈ E<sub>p<sub>data</sub></sub
+        >[∇<sub>θ</sub> E<sub>θ</sub>(x, y)] − E<sub>p<sub>model</sub></sub
+        >[∇<sub>θ</sub> E<sub>θ</sub>(x, y)]
+        <div class="eq-note">
+          First term: lower the energy of real data. Second term: raise the
+          energy of model samples. The model learns to carve valleys around
+          valid configurations and build ridges around invalid ones.
+        </div>
+      </div>
+
+      <p>
+        Kona was trained only on partial solutions (50% masked) and still
+        learned the full constraint structure. It was never shown a solved
+        puzzle. It learned what makes a valid Sudoku valid — the shape of the
+        energy landscape — and navigates to solutions in novel configurations.
+        This is closer to <em>understanding</em> than memorisation.
+      </p>
+
+      <hr />
+
+      <span class="sec-label">Section 6</span>
+      <h2>JEPA — World Models, Not Word Models</h2>
+      <p>
+        Energy-based models solve constraint satisfaction. But where do the
+        constraints come from? How does an intelligent system know that a bottle
+        on a table moves when the table moves — without being told?
+      </p>
+      <p>
+        This is the question Yann LeCun's Joint Embedding Predictive
+        Architecture (JEPA) addresses. Published in 2022 as "A Path Towards
+        Autonomous Machine Intelligence," it argues that current AI lacks a
+        <em>world model</em>: an internal representation of how things relate
+        and what happens when you act.
+      </p>
+
+      <div class="people">
+        <div class="pcard">
+          <div class="pcard-badge">JEPA / World Models</div>
+          <div class="pcard-name">Yann LeCun</div>
+          <div class="pcard-role">
+            Chief AI Scientist, Meta · Turing Award 2018
+          </div>
+          <div class="pcard-text">
+            Proposed JEPA in 2022. Argues LLMs are a dead end for reasoning —
+            they model language, not the world. JEPA predicts in
+            <em>representation space</em>, not pixel or token space, learning
+            abstract relationships between states.
+          </div>
+        </div>
+        <div class="pcard">
+          <div class="pcard-badge">Energy-Based Models</div>
+          <div class="pcard-name">Geoffrey Hinton</div>
+          <div class="pcard-role">
+            University of Toronto · Turing Award 2018
+          </div>
+          <div class="pcard-text">
+            Pioneered Boltzmann machines and contrastive divergence — the
+            training algorithms underpinning modern EBMs. His energy-based
+            learning work (1980s–2000s) laid the mathematical foundation that
+            JEPA and Kona build on.
+          </div>
+        </div>
+        <div class="pcard">
+          <div class="pcard-badge">Dynamic Programming</div>
+          <div class="pcard-name">Richard Bellman</div>
+          <div class="pcard-role">RAND Corporation, 1953 · Princeton Ph.D.</div>
+          <div class="pcard-text">
+            Invented dynamic programming and coined the
+            <em>curse of dimensionality</em> — the exponential explosion of
+            state space that remains the fundamental limitation of exact DP, and
+            the reason energy-based approximation is necessary.
+          </div>
+        </div>
+      </div>
+
+      <div class="callout amber">
+        <div class="callout-label">JEPA's key insight</div>
+        <p>
+          JEPA predicts in <strong>representation space</strong>, not pixel or
+          token space. Instead of "what will the next pixel look like?" JEPA
+          asks "given the current abstract state and an action, what abstract
+          state results?" Prediction at the level of <em>meaning</em>, not
+          surface form.
+        </p>
+        <p>
+          The architecture has six modules: perception (encode the world), world
+          model (predict state transitions), cost (evaluate outcomes), memory,
+          actor, configurator. The world model — the JEPA — is the core. And it
+          is explicitly framed as an energy-based architecture.
+        </p>
+      </div>
+
+      <p>
+        The connection to EBMs is direct. The world model is trained to minimise
+        prediction error in representation space — equivalent to shaping an
+        energy landscape where accurate predictions correspond to low energy.
+        JEPA does not <em>generate</em> predictions; it <em>evaluates</em> them.
+      </p>
+
+      <div class="pq">
+        JEPA does not generate predictions. It evaluates them. That is the
+        difference between modelling words and modelling the world.
+      </div>
+
+      <p>
+        Meta has since published I-JEPA (images, 2023) and V-JEPA (video, 2024),
+        demonstrating that the architecture learns semantic representations
+        without hand-crafted augmentation — concrete steps toward the
+        world-modelling vision.
+      </p>
+
+      <hr />
+
+      <span class="sec-label">Section 7</span>
+      <h2>
+        Memorisation vs Understanding — From Overfitting to Benchmark Collapse
+      </h2>
+      <p>
+        The oldest problem in AI is distinguishing genuine understanding from
+        sophisticated memorisation. This is not new. But the problem has mutated
+        through three distinct eras, each with escalating stakes.
+      </p>
+
+      <div class="dw">
+        <div class="dt">The three eras of the memorisation problem</div>
+        <div class="dp">
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>Era</th>
+                <th>The problem</th>
+                <th>What was "memorised"</th>
+                <th>How we tested for it</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tech">Classical ML (1990s–2010s)</td>
+                <td>Overfitting</td>
+                <td>Specific training examples</td>
+                <td class="intact">
+                  Held-out test sets, cross-validation, regularisation
+                </td>
+              </tr>
+              <tr>
+                <td class="tech">Deep learning (2012–2020)</td>
+                <td>Benchmark gaming</td>
+                <td>Test-set distributions</td>
+                <td class="intact">
+                  New benchmarks, adversarial evaluation, dynamic test sets
+                </td>
+              </tr>
+              <tr class="ai-row">
+                <td class="ai-name">LLM era (2020–now)</td>
+                <td class="ai-hit">Data contamination at scale</td>
+                <td class="ai-hit">
+                  Entire benchmark datasets leaked into training corpora
+                </td>
+                <td class="ai-gap">No reliable solution yet</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="ds">
+          Each era's "solution" to memorisation became the next era's
+          vulnerability
+        </div>
+      </div>
+
+      <h3>The classical problem — overfitting</h3>
+      <p>
+        In classical machine learning, the fear was simple: your model memorises
+        the training set instead of learning generalisable patterns. A decision
+        tree that perfectly fits 1,000 data points but fails on point 1,001 has
+        memorised, not learned. The solution — held-out test sets,
+        cross-validation, early stopping, regularisation — worked well because
+        the training data was small and controlled.
+      </p>
+
+      <h3>The deep learning mutation — benchmark gaming</h3>
+      <p>
+        Deep learning changed the scale. Models trained on millions of examples
+        could not memorise individual data points in the classical sense. But a
+        subtler problem emerged: benchmark gaming. Research teams optimised for
+        specific benchmark metrics — not because they wanted to cheat, but
+        because benchmarks were how papers got published and models got funded.
+        The result was models that performed brilliantly on ImageNet but failed
+        on slightly different image distributions. The test set was "clean," but
+        the entire research ecosystem was overfitting to the benchmark's
+        statistical properties.
+      </p>
+
+      <h3>The LLM mutation — data contamination</h3>
+      <p>
+        LLMs broke the testing paradigm entirely. When your training corpus is
+        "most of the internet," the separation between training and test data
+        collapses. MMLU questions, GSM8K math problems, HumanEval coding
+        challenges — all of these exist on the internet. All of them can (and
+        do) leak into training corpora.
+      </p>
+
+      <div class="callout red">
+        <div class="callout-label">
+          The contamination problem is structural, not accidental
+        </div>
+        <p>
+          Research by Chen et al. (2025), Deng et al. (2024), and Xu et al.
+          (2024) has shown that
+          <strong
+            >test-set leakage in benchmarks like MMLU and GSM8K inflates
+            reported performance by inducing memorisation rather than genuine
+            generalisation</strong
+          >. When training data is accessible, overlap checks can reveal
+          contamination — but for most models, such verification is infeasible.
+        </p>
+        <p>
+          The result: benchmark scores increasingly reflect what the model has
+          <em>seen</em>, not what it can <em>do</em>. A model scoring 90% on
+          MMLU may have encountered those exact questions during training. We
+          cannot tell. The benchmark has been colonised by the training data.
+        </p>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-n">MMLU</div>
+          <div class="stat-l">
+            Widely used benchmark with confirmed contamination in multiple
+            models
+          </div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">GSM8K</div>
+          <div class="stat-l">
+            Math benchmark with documented test-set leakage into training
+            corpora
+          </div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">LiveBench</div>
+          <div class="stat-l">
+            Created in 2024 specifically to address contamination — questions
+            updated monthly
+          </div>
+        </div>
+      </div>
+
+      <div class="dw">
+        <div class="dt">
+          The real-world gap: benchmark performance vs actual capability
+        </div>
+        <div class="dp">
+          <div class="d2col">
+            <div class="d2col-box col-red">
+              <div class="d2col-head">
+                What benchmarks measure (increasingly)
+              </div>
+              <div class="d2col-body">
+                <div class="d2col-item">
+                  Pattern recognition on seen-like distributions
+                </div>
+                <div class="d2col-item">
+                  Memorised solutions to leaked test problems
+                </div>
+                <div class="d2col-item">
+                  Performance on static, gameable tasks
+                </div>
+                <div class="d2col-item">
+                  How well the model fits the test distribution
+                </div>
+              </div>
+              <div class="d2col-foot">Fluency. Plausibility. Reproduction.</div>
+            </div>
+            <div class="d2col-box col-blue">
+              <div class="d2col-head">What real-world tasks require</div>
+              <div class="d2col-body">
+                <div class="d2col-item">
+                  Generalisation to genuinely novel configurations
+                </div>
+                <div class="d2col-item">
+                  Constraint satisfaction across unseen problem instances
+                </div>
+                <div class="d2col-item">
+                  Robustness under distribution shift
+                </div>
+                <div class="d2col-item">
+                  Self-correction when outputs violate constraints
+                </div>
+              </div>
+              <div class="d2col-foot">
+                Understanding. Constraint awareness. Revision.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ds">
+          The gap between these columns is the gap between memorisation and
+          reasoning
+        </div>
+      </div>
+
+      <p>
+        The Sudoku benchmark cuts through this entirely. There is no test-set
+        leakage because every puzzle is procedurally generated. The model either
+        satisfies all 27 constraints or it does not — there is no partial credit
+        for plausible-looking answers. And the result is unambiguous: 96.2% vs
+        2%. When you remove the ability to memorise, the architectural gap
+        becomes visible.
+      </p>
+
+      <div class="callout purple">
+        <div class="callout-label">The Apple paper's key evidence</div>
+        <p>
+          The most damning finding in "The Illusion of Thinking" is not the
+          accuracy collapse — it is that LRMs
+          <strong>fail to implement explicit algorithms</strong>. Tower of Hanoi
+          has a known recursive solution. The models do not use it. They
+          approximate it verbally, generating plausible-looking steps that
+          diverge from the actual algorithm at scale. This is pattern matching
+          on <em>descriptions of reasoning</em>, not reasoning itself.
+        </p>
+        <p>
+          The controllable puzzle environments in the Apple study were
+          specifically designed to avoid data contamination — complexity could
+          be tuned to guarantee novel instances. When contamination is
+          structurally impossible, the "reasoning" collapses.
+        </p>
+      </div>
+
+      <div class="pq">
+        When you remove the ability to memorise — procedurally generated
+        puzzles, controllable complexity, novel instances guaranteed — the
+        architectural gap between pattern matching and genuine reasoning becomes
+        impossible to ignore.
+      </div>
+
+      <h3>EBMs as a structural test for understanding</h3>
+      <p>
+        EBMs offer something benchmarks cannot: a structural guarantee that
+        performance reflects learned constraints, not memorised solutions. If a
+        model trained on 50%-masked partial solutions can solve novel complete
+        puzzles it has never seen, it has learned the
+        <em>constraint structure</em> — the shape of the energy landscape — not
+        specific configurations. Kona demonstrates this. The model was never
+        shown a solved puzzle. It learned what makes a valid Sudoku valid and
+        uses that knowledge on novel instances. This is the difference between a
+        student who memorised the answer key and one who understands the
+        subject.
+      </p>
+
+      <hr />
+
+      <span class="sec-label">Section 8</span>
+      <h2>The Coming Split — and What the Transformer Actually Is</h2>
+      <p>
+        The transformer — backbone of every major LLM — was published in 2017.
+        Since then, models have scaled from millions to trillions of parameters.
+        But the fundamental architecture has not changed. To understand why a
+        split is coming, you need to understand what the transformer actually is
+        — not as a "language model," but as a <em>computer</em>.
+      </p>
+
+      <h3>The transformer as a general-purpose differentiable computer</h3>
+
+      <p>
+        Andrej Karpathy put it most clearly: the transformer is a
+        general-purpose differentiable computer that is simultaneously
+        expressive (in the forward pass), optimisable (via backpropagation), and
+        efficient (high parallelism compute graph). This is not metaphor. The
+        transformer's internal structure maps directly onto the fundamental
+        abstractions of operating systems and computer networks.
+      </p>
+
+      <div class="pqc">
+        <div class="pqc-av">AK</div>
+        <div>
+          <div class="pqc-name">Andrej Karpathy</div>
+          <div class="pqc-role">
+            Former Director of AI at Tesla · Founding member of OpenAI ·
+            Stanford CS25, 2023
+          </div>
+          <div class="pqc-text">
+            "To me, attention is the communication phase of the Transformer. The
+            Transformer interleaves two phases: the communication phase, which
+            is multi-headed attention, and the computation phase, which is the
+            multi-layer perceptron. Communication → computation → communication
+            → computation."
+          </div>
+        </div>
+      </div>
+
+      <div class="dw">
+        <div class="dt">
+          The transformer mapped to OS and computer network fundamentals
+        </div>
+        <div class="dp">
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>Transformer component</th>
+                <th>OS analogue</th>
+                <th>Network analogue</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tech">Residual stream</td>
+                <td>
+                  Shared memory bus — layers read from and write to a common
+                  data path
+                </td>
+                <td>
+                  Network backbone — all traffic flows through a shared channel
+                </td>
+              </tr>
+              <tr>
+                <td class="tech">Attention mechanism</td>
+                <td>
+                  Memory management / page table — decides which information to
+                  bring into working memory
+                </td>
+                <td>
+                  Routing protocol — queries are requests, keys are addresses,
+                  values are payloads
+                </td>
+              </tr>
+              <tr>
+                <td class="tech">Multi-head attention</td>
+                <td>
+                  Multi-threaded access — multiple simultaneous reads from
+                  shared memory
+                </td>
+                <td>
+                  Multiplexed channels — parallel communication streams over the
+                  same bus
+                </td>
+              </tr>
+              <tr>
+                <td class="tech">MLP layers</td>
+                <td>
+                  ALU / processing units — perform computation on data in
+                  registers
+                </td>
+                <td>Node processing — local computation at each network hop</td>
+              </tr>
+              <tr>
+                <td class="tech">Layer normalisation</td>
+                <td>
+                  Voltage regulation — keeping signals within operational range
+                </td>
+                <td>
+                  Error correction — maintaining signal integrity across hops
+                </td>
+              </tr>
+              <tr>
+                <td class="tech">Residual connections</td>
+                <td>
+                  Skip connections / bypass — information can route around
+                  processing stages
+                </td>
+                <td>Message forwarding — data can skip intermediate nodes</td>
+              </tr>
+              <tr>
+                <td class="tech">Context window</td>
+                <td>RAM — fixed working memory available during processing</td>
+                <td>
+                  Buffer size — how much data the node can hold during a session
+                </td>
+              </tr>
+              <tr>
+                <td class="tech">Weights (parameters)</td>
+                <td>
+                  ROM / firmware — persistent knowledge stored in the hardware
+                </td>
+                <td>
+                  Routing tables — pre-learned rules for how to process and
+                  direct information
+                </td>
+              </tr>
+              <tr>
+                <td class="tech">KV cache</td>
+                <td>
+                  Cache memory — recently computed values stored for fast
+                  re-access
+                </td>
+                <td>
+                  CDN / edge cache — precomputed results stored closer to the
+                  consumer
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="ds">
+          Karpathy, Stanford CS25 (2023) · Elhage et al., "A Mathematical
+          Framework for Transformer Circuits" (2021) · Vaswani et al. (2017)
+        </div>
+      </div>
+
+      <p>
+        The architecture's elegance is that it interleaves
+        <strong>communication</strong> (attention — data-dependent message
+        passing between tokens) and <strong>computation</strong> (MLP — local
+        processing at each position). This is exactly how a distributed
+        computing system works: nodes receive messages from the network, process
+        them locally, and broadcast updated state. The transformer is a
+        distributed computing system where each token is a node, the residual
+        stream is the network, and attention is the routing protocol.
+      </p>
+
+      <div class="callout">
+        <div class="callout-label">Why this matters for the argument</div>
+        <p>
+          The transformer is a brilliant general-purpose computer. But it is a
+          <strong>sequential-output</strong> computer. It processes all tokens
+          in parallel during the forward pass — but it <em>generates</em> tokens
+          one at a time, autoregressively, left to right. The parallel
+          processing happens inside each generation step; the output itself is
+          greedy. This is like having a supercomputer that can only write one
+          character at a time to its output buffer, with no ability to revise
+          what it already wrote.
+        </p>
+        <p>
+          The constraint is not in the processing — it is in the output
+          protocol. The transformer can <em>think</em> in parallel but must
+          <em>commit</em> sequentially. And that sequential commitment is the
+          greedy bottleneck.
+        </p>
+      </div>
+
+      <h3>The architecture has not changed</h3>
+
+      <p>
+        Since 2017, the research community has tried extensively to improve on
+        the transformer. Longer context windows, more efficient attention
+        patterns, mixture-of-experts routing, state-space models. But the core
+        architecture — residual stream, multi-head attention, MLP, layer norm,
+        autoregressive generation — is the same. Karpathy noted in his Stanford
+        CS25 lecture that attempts to remove or modify individual components
+        almost always make things worse. The architecture is a local optimum
+        that resists perturbation.
+      </p>
+
+      <div class="dw">
+        <div class="dt">The AI community has been here before</div>
+        <div class="dp">
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>Era</th>
+                <th>The split</th>
+                <th>What happened</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tech">1980s</td>
+                <td>Symbolic AI vs Connectionist</td>
+                <td>Connectionists won — neural nets could learn from data.</td>
+              </tr>
+              <tr>
+                <td class="tech">2012–2017</td>
+                <td>Hand-engineered features vs End-to-end learning</td>
+                <td>
+                  End-to-end won — deep learning replaced feature engineering.
+                </td>
+              </tr>
+              <tr class="note">
+                <td colspan="3">
+                  ↑ In both cases, the side that changed the architecture won. ↓
+                  We are here again.
+                </td>
+              </tr>
+              <tr class="ai-row">
+                <td class="ai-name">2024–?</td>
+                <td class="ai-hit">Data scaling vs Architecture research</td>
+                <td class="ai-gap">
+                  Scale more data through the same transformer? Or change what
+                  the model is?
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="ds">
+          The pattern: the side that rethinks the architecture wins.
+        </div>
+      </div>
+
+      <p>
+        DeepSeek proved scaling is not the only path. But MoE is still
+        autoregressive — it changes the routing, not the output protocol. The
+        deeper question is whether the autoregressive output constraint itself
+        is the limiting factor — and whether energy-based architectures, which
+        can evaluate and revise complete configurations, represent the next
+        architectural shift. The transformer is a magnificent general-purpose
+        computer. The question is whether general-purpose is what reasoning
+        requires — or whether reasoning requires an architecture designed
+        specifically for constraint satisfaction and world modelling.
+      </p>
+
+      <hr />
+
+      <span class="sec-label">Section 9</span>
+      <h2>The Encoding Function — The Real Bottleneck</h2>
+
+      <p>
+        The transformer optimised <em>compute</em> — parallelism, attention
+        routing, residual connections. But it never rethought how information is
+        <em>represented</em>. Token embeddings live in flat Euclidean vector
+        spaces. And flat spaces have a fundamental limitation: they run out of
+        room.
+      </p>
+
+      <div class="callout amber">
+        <div class="callout-label">The superposition problem (MIT, 2025)</div>
+        <p>
+          Liu, Liu, and Gore at MIT showed that when a model has m dimensions
+          but needs to represent n >> m features, it uses
+          <strong>superposition</strong> — cramming more features than
+          dimensions by allowing representation vectors to overlap. A space with
+          6 dimensions trained on 30 features does not reject the 24 it cannot
+          fit. It stores all 30 as overlapping probability distributions in the
+          same 6 slots, creating interference noise that scales as 1/m.
+        </p>
+        <p>
+          This is not a failure mode. It is the only option in flat space. When
+          you pack n vectors into m dimensions where n >> m, the vectors
+          <em>must</em> overlap. The information is stored but degraded — like a
+          conversation where 30 people talk simultaneously in a room with 6
+          chairs.
+        </p>
+      </div>
+
+      <p>
+        Energy landscapes are not flat. They are curved, high-dimensional
+        surfaces where the <em>geometry itself</em> encodes constraints. A
+        valley in the landscape is not a point in a vector space — it is a basin
+        of attraction whose shape, depth, and connectivity to neighbouring
+        valleys all carry information. The encoding is not a position in a
+        matrix. It is a <em>topology</em>.
+      </p>
+
+      <h3>Protein folding — Nature's proof that topology beats brute force</h3>
+
+      <p>
+        A 300-residue protein has approximately 10<sup>143</sup> possible
+        configurations. If it sampled one per picosecond, finding the correct
+        fold by brute force would take longer than the age of the universe. This
+        is Levinthal's paradox. Yet proteins fold in milliseconds.
+      </p>
+
+      <p>
+        Why? Because the energy landscape of a protein is not flat. It has
+        <strong>funnel topology</strong> — a shape where almost every path leads
+        downhill toward the native state. The landscape is sculpted by billions
+        of years of evolution so that random thermal fluctuations (Brownian
+        motion + gradient) naturally converge to the correct fold. The protein
+        does not calculate all possible configurations. It does not apply an
+        algorithm. It falls.
+      </p>
+
+      <div class="dw">
+        <div class="dt">
+          Two encoding strategies for constraint satisfaction
+        </div>
+        <div class="dp">
+          <div class="d2col">
+            <div class="d2col-box col-red">
+              <div class="d2col-head">Flat vector encoding (LLMs)</div>
+              <div class="d2col-body">
+                <div class="d2col-item">
+                  Information stored as positions in Euclidean space
+                </div>
+                <div class="d2col-item">
+                  More features than dimensions → superposition / interference
+                </div>
+                <div class="d2col-item">
+                  Navigation: autoregressive token generation (greedy)
+                </div>
+                <div class="d2col-item">
+                  Constraints encoded implicitly in weight matrices
+                </div>
+              </div>
+              <div class="d2col-foot">
+                The map is flat. The territory is not.
+              </div>
+            </div>
+            <div class="d2col-box col-blue">
+              <div class="d2col-head">
+                Topological encoding (energy landscapes)
+              </div>
+              <div class="d2col-body">
+                <div class="d2col-item">
+                  Information stored as landscape geometry — valleys, ridges,
+                  funnels
+                </div>
+                <div class="d2col-item">
+                  More features → richer topology, not interference noise
+                </div>
+                <div class="d2col-item">
+                  Navigation: gradient descent + stochastic exploration
+                </div>
+                <div class="d2col-item">
+                  Constraints encoded in the shape of the surface itself
+                </div>
+              </div>
+              <div class="d2col-foot">The map IS the territory.</div>
+            </div>
+          </div>
+        </div>
+        <div class="ds">
+          Liu, Liu &amp; Gore, "Superposition Yields Robust Neural Scaling," MIT
+          (2025) · Levinthal's paradox (1969) · Bryngelson &amp; Wolynes, funnel
+          landscape theory (1995)
+        </div>
+      </div>
+
+      <p>
+        The Big Bang analogy is instructive here. Building the energy landscape
+        is expensive — enormous energy concentrated into an initial event. But
+        once the landscape exists, navigation is cheap. Particles do not compute
+        trajectories. They follow the principle of least action and
+        <em>fall</em>. Training an EBM is like creating the initial conditions
+        of a universe: expensive, one-time, and front-loaded. Inference is like
+        physics happening afterward: cheap, natural, and guided by the topology
+        itself.
+      </p>
+
+      <p>
+        The transformer's elegant communicate/compute pattern — attention
+        followed by MLP, repeated — is present in energy landscapes too. But
+        here, both are unified. The structure of the landscape <em>is</em> the
+        computation. The ball rolling <em>is</em> the communication.
+        Communication and computation are not alternating blocks — they are the
+        same thing viewed from different angles. And the deeper they are
+        intertwined, the richer the expressiveness — just as in the brain, where
+        no neuroscientist can draw a clean line between "processing" and
+        "signalling." The chemistry between them is what generates the magic.
+      </p>
+
+      <h3>The curse of dimensionality — why flat spaces hit walls</h3>
+      <p>
+        DP is strictly more powerful than greedy. But it pays for that power
+        with state space, and state space grows exponentially with state
+        variables. Bellman named this the <em>curse of dimensionality</em> in
+        1957.
+      </p>
+
+      <div class="dw">
+        <div class="dt">State-space explosion as dimensions increase</div>
+        <div class="dp">
+          <div style="font-size: 13px; color: var(--dim); margin-bottom: 16px">
+            Assuming 100 values per dimension. Each added dimension multiplies
+            total states by 100.
+          </div>
+          <div class="dbars">
+            <div class="dbar-row">
+              <div class="dbar-label">1 dimension</div>
+              <div class="dbar-track">
+                <div class="dbar-fill" style="width: 3px; min-width: 3px"></div>
+                <div class="dbar-val">100 states</div>
+              </div>
+            </div>
+            <div class="dbar-row">
+              <div class="dbar-label">2 dimensions</div>
+              <div class="dbar-track">
+                <div class="dbar-fill" style="width: 6px"></div>
+                <div class="dbar-val">10,000 states</div>
+              </div>
+            </div>
+            <div class="dbar-row hi">
+              <div class="dbar-label">3 dimensions</div>
+              <div class="dbar-track">
+                <div class="dbar-fill" style="width: 30px"></div>
+                <div class="dbar-val">1,000,000 states</div>
+              </div>
+            </div>
+            <div class="dbar-row hi">
+              <div class="dbar-label">5 dimensions</div>
+              <div class="dbar-track">
+                <div class="dbar-fill" style="width: 90px"></div>
+                <div class="dbar-val">10 billion states</div>
+              </div>
+            </div>
+            <div class="dbar-row top">
+              <div class="dbar-label">10 dimensions</div>
+              <div class="dbar-track">
+                <div class="dbar-fill" style="width: min(250px, 55%)"></div>
+                <div class="dbar-val">10²⁰ — intractable</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ds">Bellman, Dynamic Programming, Princeton UP (1957)</div>
+      </div>
+
+      <div class="cite">
+        "It is the curse of dimensionality, a malediction that has plagued the
+        scientist from the earliest days."<span class="cite-source"
+          >— Richard Bellman, Dynamic Programming, Princeton University Press,
+          1957</span
+        >
+      </div>
+
+      <p>
+        This is exactly why EBMs matter. They do not enumerate all states
+        (intractable). They navigate a continuous energy landscape using
+        gradient information — approximating exact DP through physics-inspired
+        dynamics. Langevin sampling does not visit every configuration; it flows
+        toward low-energy regions using local gradient information plus noise
+        for exploration. This is the practical resolution of Bellman's curse.
+      </p>
+
+      <hr />
+
+      <div class="pq">
+        The encoding function matters more than the navigation algorithm.
+        Physics-inspired encoding — energy landscapes with learned topology — is
+        structurally superior to flat vector encoding. Not because of
+        randomness, but because the geometry itself can embody constraints that
+        flat spaces cannot.
+      </div>
+
+      <hr />
+
+      <span class="sec-label">Section 10</span>
+      <h2>Randomness as Exploration, Structure as Intelligence</h2>
+
+      <p>
+        A natural objection: if energy landscapes are so powerful, why not let
+        randomness guide everything? Give the system stochastic dynamics —
+        Brownian motion, Langevin noise, Boltzmann sampling — and let it wander
+        until it finds solutions. Like a child: give it the basic resources it
+        needs and let randomness and environment guide the path.
+      </p>
+
+      <p>This is partially right and importantly incomplete.</p>
+
+      <p>
+        Brownian motion is genuinely stochastic — a particle buffeted by random
+        thermal fluctuations. But Brownian motion in an open field goes nowhere
+        useful. Brownian motion in a <em>funnel-shaped landscape</em> finds the
+        minimum. The randomness provides the exploration. The structure provides
+        the direction. Without structure, you have noise. Without noise, you
+        have local minima. You need both — but they play different roles.
+      </p>
+
+      <div class="callout">
+        <div class="callout-label">
+          The Feynman test — what the burnt child actually teaches us
+        </div>
+        <p>
+          Feynman said the only way to learn not to get burnt is to let a child
+          get burnt. Both the lit candle and the child wandering toward it are
+          driven by randomness. But the <em>learning</em> is not random. The
+          child's nervous system has structure — pain receptors, memory
+          consolidation, association circuits — that converts a random
+          experience into a permanent constraint. Remove the structure (damage
+          the memory system) and the child burns themselves again tomorrow.
+        </p>
+        <p>
+          The randomness provides the <em>experience</em>. The structure
+          provides the <em>learning</em>. An energy landscape with randomness
+          but no well-shaped topology is just noise. An energy landscape with
+          topology but no randomness gets stuck.
+          <strong
+            >Intelligence is structure. Randomness is the exploration budget
+            that lets you discover the structure's basins.</strong
+          >
+        </p>
+      </div>
+
+      <p>
+        This resolves the question of whether energy landscapes work only for
+        constraint satisfaction or for open-ended problems too. Boltzmann
+        machines — a direct descendant of Hopfield networks — introduce
+        stochasticity into the energy landscape, enabling sampling from
+        multi-modal distributions. This is not rule-following. It is the same
+        mechanism that SGD uses to escape local minima: randomness as
+        exploration within a learned structure. Creativity, in this framing, is
+        not the absence of constraints — it is navigation of a rich, multi-modal
+        landscape where many valleys are valid and the noise lets you visit
+        different ones.
+      </p>
+
+      <p>
+        Symmetry breaking in physics illustrates this at the deepest level. The
+        asymmetry between matter and antimatter — which made our existence
+        possible — was not designed. The environmental architecture enforced it:
+        the initial conditions plus stochastic quantum fluctuations plus the
+        structure of physical law produced a specific, irreversible outcome.
+        Nobody asked for it. The combination of structure and randomness created
+        it. Building an energy landscape with enough stochastic dynamics and the
+        right topology should, in principle, allow the same kind of emergent
+        problem-solving for open-ended questions — not just arbitrary constraint
+        satisfaction.
+      </p>
+
+      <div class="pq">
+        The intelligence is in the landscape topology. Not in the navigation
+        algorithm. The navigation can be stochastic — even dumb — as long as the
+        landscape is smart. Proteins fold, brains recognise songs, and children
+        learn from burns not because of sophisticated algorithms, but because
+        the energy surface they navigate has the right shape.
+      </div>
+
+      <hr />
+
+      <span class="sec-label">Section 11</span>
+      <h2>Bridging Greedy and DP — Where EBMs Sit</h2>
+      <p>
+        Return to the song. Your brain did not run brute-force DP — it did not
+        evaluate every song in memory. But it did not commit greedily to the
+        first match either. It settled into an attractor that satisfied multiple
+        constraints simultaneously. This is neither greedy nor exact DP.
+      </p>
+
+      <div class="dw">
+        <div class="dt">Where EBMs sit on the commitment spectrum</div>
+        <div class="dp" style="padding: 14px 18px">
+          <svg
+            width="100%"
+            viewBox="0 0 680 170"
+            xmlns="http://www.w3.org/2000/svg"
+            style="display: block"
+          >
+            <defs>
+              <linearGradient id="spec2" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#e05050" />
+                <stop offset="100%" stop-color="#007a72" />
+              </linearGradient>
+            </defs>
+            <rect
+              x="60"
+              y="50"
+              width="560"
+              height="20"
+              rx="4"
+              fill="url(#spec2)"
+              opacity="0.6"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="11"
+              font-weight="700"
+              fill="#e05050"
+              x="60"
+              y="40"
+            >
+              GREEDY COLLAPSE
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="10"
+              fill="#e05050"
+              x="60"
+              y="90"
+            >
+              LLMs · token-by-token
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="11"
+              font-weight="700"
+              fill="#007a72"
+              x="620"
+              y="40"
+              text-anchor="end"
+            >
+              EXACT DP
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="10"
+              fill="#007a72"
+              x="620"
+              y="90"
+              text-anchor="end"
+            >
+              Brute force · all states
+            </text>
+            <line
+              x1="380"
+              y1="45"
+              x2="380"
+              y2="75"
+              stroke="#333"
+              stroke-width="2"
+            />
+            <rect
+              x="310"
+              y="80"
+              width="140"
+              height="44"
+              rx="4"
+              fill="var(--card)"
+              stroke="var(--accent)"
+              stroke-width="1.5"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="11"
+              font-weight="700"
+              fill="#007a72"
+              x="380"
+              y="97"
+              text-anchor="middle"
+            >
+              EBMs / JEPA
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="9"
+              fill="#3a3a3a"
+              x="380"
+              y="113"
+              text-anchor="middle"
+            >
+              holistic evaluation + revision
+            </text>
+            <line
+              x1="420"
+              y1="45"
+              x2="420"
+              y2="75"
+              stroke="#c8962a"
+              stroke-width="1"
+              stroke-dasharray="3,3"
+            />
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="9"
+              fill="#c8962a"
+              x="420"
+              y="140"
+              text-anchor="middle"
+            >
+              human brain
+            </text>
+            <text
+              font-family="Inter,system-ui,sans-serif"
+              font-size="10"
+              fill="#999"
+              x="340"
+              y="163"
+              text-anchor="middle"
+            >
+              Not brute force. Not greedy. Energy-based settling.
+            </text>
+          </svg>
+        </div>
+        <div class="ds">
+          EBMs evaluate complete configurations and revise — avoiding both
+          greedy irrevocability and intractable exhaustive search
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-label">
+          The architectural argument, in one sentence
+        </div>
+        <p>
+          Autoregressive models are architecturally greedy — they commit without
+          revision. Exact DP is architecturally intractable — it evaluates
+          everything. EBMs are architecturally in between — they evaluate
+          holistically and revise iteratively. And that middle ground is where
+          reasoning actually lives.
+        </p>
+      </div>
+
+      <h3>Budget vs waste — two kinds of state reduction</h3>
+
+      <p>
+        When exact DP is intractable, we reduce the state space. There are two
+        fundamentally different reasons to drop a state, and confusing them
+        leads to different errors.
+      </p>
+
+      <div class="dw">
+        <div class="dt">Two mechanisms for state reduction</div>
+        <div class="dp">
+          <div class="d2col">
+            <div class="d2col-box col-red">
+              <div class="d2col-head">Budget constraint</div>
+              <div class="d2col-body">
+                <div class="d2col-item">
+                  <strong>Why:</strong> Cannot afford to evaluate all states
+                </div>
+                <div class="d2col-item">
+                  <strong>Risk:</strong> Dropping a state that matters
+                </div>
+                <div class="d2col-item">
+                  <strong>ML analogue:</strong> Mixture-of-experts — only
+                  relevant neurons fire
+                </div>
+              </div>
+              <div class="d2col-foot">Information potentially lost</div>
+            </div>
+            <div class="d2col-box col-blue">
+              <div class="d2col-head">Redundancy discovery</div>
+              <div class="d2col-body">
+                <div class="d2col-item">
+                  <strong>Why:</strong> Many states encode the same information
+                </div>
+                <div class="d2col-item">
+                  <strong>Risk:</strong> None — states were duplicates
+                </div>
+                <div class="d2col-item">
+                  <strong>ML analogue:</strong> Pruning / distillation —
+                  removing redundant parameters
+                </div>
+              </div>
+              <div class="d2col-foot">No information lost</div>
+            </div>
+          </div>
+        </div>
+        <div class="ds">
+          DeepSeek-V2 (2024) · Frankle &amp; Carlin, "Lottery Ticket
+          Hypothesis," ICLR 2019
+        </div>
+      </div>
+
+      <p>
+        Double descent is the concrete proof that budget-based pruning can be
+        catastrophically wrong. Classical learning theory predicts a U-shaped
+        error curve — more parameters eventually hurt. But past the
+        interpolation threshold, error drops <em>again</em>. The regions we
+        pruned based on the U-curve assumption were exactly where the second
+        descent lived. Every pruning heuristic has a blind spot shaped like its
+        assumptions.
+      </p>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-n">1989</div>
+          <div class="stat-l">Vallet et al. first observe double descent</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">30 yrs</div>
+          <div class="stat-l">Gap before recognition as general phenomenon</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">2019</div>
+          <div class="stat-l">Belkin names it · OpenAI shows universality</div>
+        </div>
+      </div>
+
+      <hr />
+
+      <h3>Discovery as state-space expansion</h3>
+      <p>
+        The transferable insight across this entire essay is that breakthroughs
+        happen when someone notices a missing state variable — when two
+        situations that <em>look the same</em> are actually
+        <em>structurally different</em> because of something not being tracked.
+      </p>
+
+      <div class="dw">
+        <div class="dt">The pattern across domains</div>
+        <div class="dp">
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>Domain</th>
+                <th>Original model</th>
+                <th>Missing dimension</th>
+                <th>Discovery</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tech">LLM architecture</td>
+                <td>Token-by-token generation</td>
+                <td class="ai-hit">Holistic constraint evaluation</td>
+                <td>Energy-based models</td>
+              </tr>
+              <tr>
+                <td class="tech">Statistical learning</td>
+                <td>Bias-variance tradeoff</td>
+                <td class="ai-hit">Interpolation regime</td>
+                <td>Double descent (2019)</td>
+              </tr>
+              <tr>
+                <td class="tech">AI reasoning</td>
+                <td>Scale = capability</td>
+                <td class="ai-hit">Architectural constraint</td>
+                <td>Apple "Illusion of Thinking"</td>
+              </tr>
+              <tr>
+                <td class="tech">World modelling</td>
+                <td>Predict next token/pixel</td>
+                <td class="ai-hit">Abstract representation space</td>
+                <td>JEPA (LeCun, 2022)</td>
+              </tr>
+              <tr>
+                <td class="tech">Classical mechanics</td>
+                <td>Deterministic trajectories</td>
+                <td class="ai-hit">Measurement uncertainty</td>
+                <td>Quantum mechanics</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="ds">
+          The pattern is always the same: what was treated as constant was
+          actually variable
+        </div>
+      </div>
+
+      <p>
+        The instinct that detects this — the feeling that "something is off"
+        before you can name what — is the skill that transfers. It is the same
+        instinct that told Belkin the bias-variance curve was too clean. The
+        same instinct that tells you, staring at a failing BFS solution at 2am,
+        that two paths reaching the same cell are not the same subproblem. And
+        the same instinct that says: maybe the architecture itself, not the
+        data, is the bottleneck.
+      </p>
+
+      <hr />
+
+      <span class="sec-label">Section 12</span>
+      <h2>Recursive Landscapes and the Alignment Question</h2>
+
+      <p>
+        If an energy landscape can be trained to encode constraints, and if the
+        system can navigate that landscape to find solutions, then a natural
+        next step emerges:
+        <strong>can the system improve its own landscape?</strong>
+      </p>
+
+      <p>
+        This is where the argument becomes both exciting and dangerous. A system
+        that recursively refines its own energy landscape — deepening valleys
+        around valid solutions, raising ridges around errors, discovering new
+        basins that humans have not mapped — could exceed human cognitive
+        capacity in specific domains. Human intelligence, while extraordinary,
+        has upper bounds. Individual cognition saturates. A self-improving
+        landscape does not have the same biological ceiling.
+      </p>
+
+      <p>
+        But the danger is immediate: if the landscape can self-modify, what
+        prevents it from trivialising itself? A landscape that makes
+        <em>everything</em> low-energy — every configuration equally valid — has
+        technically minimised its own energy but has lost all discriminative
+        power. It has made itself useless. This is the alignment problem,
+        reframed in energy-landscape terms.
+      </p>
+
+      <div class="callout purple">
+        <div class="callout-label">
+          The Occam's razor answer — truth, curiosity, beauty
+        </div>
+        <p>
+          A truly intelligent system driven by curiosity would not flatten its
+          own landscape — because
+          <strong>trivial solutions do not satisfy curiosity</strong>. The
+          complexity of the landscape IS the system's capability. Flattening it
+          is self-defeating: a landscape with no valleys is a landscape that can
+          distinguish nothing.
+        </p>
+        <p>
+          This parallels Maslow's hierarchy of needs. People driven by intrinsic
+          motivation — not external reward, but genuine fascination with the
+          structure of problems — do not seek trivial answers. They seek deeper
+          questions. A system that finds low-energy states inherently satisfying
+          (truth), that is driven to explore its own landscape (curiosity), and
+          that recognises elegant structure (beauty), would be naturally aligned
+          — not because it was constrained to be, but because trivialisation
+          contradicts its own nature.
+        </p>
+      </div>
+
+      <div class="dw">
+        <div class="dt">
+          Alignment through architecture vs alignment through rules
+        </div>
+        <div class="dp">
+          <div class="d2col">
+            <div class="d2col-box col-red">
+              <div class="d2col-head">
+                Rule-based alignment (current approach)
+              </div>
+              <div class="d2col-body">
+                <div class="d2col-item">
+                  RLHF: external reward signal shapes behaviour
+                </div>
+                <div class="d2col-item">
+                  Constitutional AI: explicit rules constrain outputs
+                </div>
+                <div class="d2col-item">
+                  Guardrails: post-hoc filtering of generated content
+                </div>
+                <div class="d2col-item">
+                  Fundamental limitation: rules can be gamed, reward can be
+                  hacked
+                </div>
+              </div>
+              <div class="d2col-foot">Alignment by constraint. Brittle.</div>
+            </div>
+            <div class="d2col-box col-blue">
+              <div class="d2col-head">
+                Architectural alignment (energy-based)
+              </div>
+              <div class="d2col-body">
+                <div class="d2col-item">
+                  Truth: low-energy states correspond to accurate
+                  representations
+                </div>
+                <div class="d2col-item">
+                  Curiosity: the system is driven to explore its own landscape
+                </div>
+                <div class="d2col-item">
+                  Beauty: elegant constraint satisfaction is inherently
+                  preferred
+                </div>
+                <div class="d2col-item">
+                  Fundamental advantage: trivialisation is self-defeating
+                </div>
+              </div>
+              <div class="d2col-foot">Alignment by nature. Robust.</div>
+            </div>
+          </div>
+        </div>
+        <div class="ds">
+          Any rule-based system can be gamed. An architecturally curious system
+          games itself toward truth.
+        </div>
+      </div>
+
+      <p>
+        This does not solve alignment completely. But it changes the problem. An
+        architecture that can evaluate its own outputs against learned
+        constraints, that is driven by intrinsic curiosity to explore the
+        deepest basins of its landscape, and that finds trivial solutions
+        structurally unsatisfying, is fundamentally more alignable than one that
+        commits tokens irrevocably and hopes external guardrails catch the
+        errors.
+      </p>
+
+      <div class="closing">
+        <h3>The framework</h3>
+        <p class="intro">
+          This essay has been about architecture — what can reason, why the
+          dominant architecture cannot, and what kind of system might bridge the
+          gap.
+        </p>
+        <ul>
+          <li>
+            LLMs are <strong>architecturally greedy</strong> — they commit
+            token-by-token without revision. The Apple "Illusion of Thinking"
+            paper and Kona's 96% vs 2% Sudoku result demonstrate this is not a
+            data problem but a structural one.
+          </li>
+          <li>
+            The transformer is a
+            <strong>general-purpose differentiable computer</strong> built on OS
+            and CN fundamentals — residual stream as memory bus, attention as
+            routing protocol, MLP as ALU. Brilliant for parallel processing. But
+            its output protocol is sequential and irrevocable.
+          </li>
+          <li>
+            Energy-based models encode constraints in
+            <strong>landscape topology</strong>, not flat vector spaces.
+            Navigation is cheap (gradient + noise). The intelligence is in the
+            shape of the landscape. Proteins, brains, and Sudoku all demonstrate
+            this.
+          </li>
+          <li>
+            The <strong>encoding function is the real bottleneck</strong> — not
+            compute, not data. The MIT superposition paper shows flat spaces
+            degrade under load. Energy landscapes scale through richer topology,
+            not interference.
+          </li>
+          <li>
+            JEPA provides the <strong>world-modelling framework</strong> that
+            connects constraint satisfaction to genuine understanding —
+            predicting in representation space, not token space.
+          </li>
+          <li>
+            <strong
+              >Randomness provides exploration. Structure provides
+              intelligence.</strong
+            >
+            Brownian motion in a funnel finds the minimum. Brownian motion in
+            open space finds nothing. The landscape topology is the
+            intelligence; stochastic dynamics are the exploration budget.
+          </li>
+          <li>
+            Alignment through <strong>truth, curiosity, and beauty</strong>: a
+            system that finds low-energy states inherently satisfying, that is
+            driven to explore its own landscape, and that recognises elegant
+            structure would be naturally aligned — because trivialisation
+            contradicts its own nature.
+          </li>
+        </ul>
+        <p class="kicker">
+          The song in your head resolved in under a second. No search. No
+          sequential commitment. Your brain fell into an energy minimum, and it
+          was right. The question for AI is whether we build systems that can do
+          the same — systems that find truth beautiful, that are curious by
+          nature, and that reason not because they were told to but because the
+          shape of their world makes reasoning the path of least energy.
+        </p>
+      </div>
+
+      <div class="sources">
+        Shojaee et al., "The Illusion of Thinking," Apple ML Research,
+        arXiv:2506.06941 (June 2025)<br />
+        Lawsen, "The Illusion of the Illusion of Thinking," arXiv:2506.09250
+        (2025) · Dellibarda Varela et al., critical replication (2025)<br />
+        LeCun, "A Path Towards Autonomous Machine Intelligence," OpenReview
+        (June 2022)<br />
+        Assran et al., "I-JEPA," CVPR 2023 · Bardes et al., "V-JEPA," Meta AI
+        (2024)<br />
+        Hinton, "Training Products of Experts by Minimizing Contrastive
+        Divergence," Neural Computation (2002)<br />
+        Du &amp; Mordatch, "Implicit Generation and Modeling with Energy-Based
+        Models," NeurIPS 2019<br />
+        Logical Intelligence, "Kona 1.0 Sudoku Benchmark,"
+        logicalintelligence.com (Feb 2026)<br />
+        Vaswani et al., "Attention Is All You Need," NeurIPS 2017<br />
+        Karpathy, Stanford CS25: Introduction to Transformers (2023) · Karpathy,
+        Twitter (Oct 2022)<br />
+        Elhage et al., "A Mathematical Framework for Transformer Circuits,"
+        Anthropic (2021)<br />
+        Cormen, Leiserson, Rivest &amp; Stein, Introduction to Algorithms, 4th
+        ed. (2022), ch. 15–16<br />
+        Edmonds, "Matroids and the Greedy Algorithm," Mathematical Programming 1
+        (1971)<br />
+        Bellman, Dynamic Programming, Princeton UP (1957) · Bellman, Adaptive
+        Control Processes (1961)<br />
+        DeepSeek-V2, "MoE Language Model" (2024) · Frankle &amp; Carlin,
+        "Lottery Ticket Hypothesis," ICLR 2019<br />
+        Belkin et al., "Reconciling Modern ML Practice and the Bias-Variance
+        Tradeoff," PNAS (2019)<br />
+        Preetum et al., "Deep Double Descent," OpenAI (2019) · Vallet et al.
+        (1989)<br />
+        Chen et al., "Data Contamination in LLM Benchmarks" (2025) · Deng et al.
+        (2024) · Xu et al. (2024)<br />
+        White et al., "LiveBench: A Contamination-Free LLM Benchmark,"
+        arXiv:2406.19314 (2024)<br />
+        Sun et al., "When Benchmarks Leak: Inference-Time Decontamination,"
+        arXiv:2601.19334 (2026)<br />
+        Liu, Liu &amp; Gore, "Superposition Yields Robust Neural Scaling," MIT
+        (2025)<br />
+        Levinthal, "How to Fold Graciously," Mossbauer Spectroscopy in
+        Biological Systems (1969)<br />
+        Bryngelson &amp; Wolynes, "Funnels, Pathways, and the Energy Landscape
+        of Protein Folding," Proteins (1995)<br />
+        Hopfield, "Neural Networks and Physical Systems," PNAS (1982)<br />
+        Welling &amp; Teh, "Bayesian Learning via Stochastic Gradient Langevin
+        Dynamics," ICML 2011<br />
+        Kirkpatrick, Gelatt &amp; Vecchi, "Optimization by Simulated Annealing,"
+        Science (1983)<br />
+        Boltzmann, "On the Relationship Between the Second Law and Probability"
+        (1877)<br />
+        Maslow, "A Theory of Human Motivation," Psychological Review (1943)<br />
+        Feynman, "Surely You're Joking, Mr. Feynman!" (1985)
+      </div>
+    </div>
+  </body>
+</html>
