@@ -1,0 +1,26 @@
+{
+  "slug": "count-number-of-trapezoids-ii",
+  "leetcode_id": "3897",
+  "title": "Count Number of Trapezoids II",
+  "difficulty": "Hard",
+  "tags": [
+    "array",
+    "hash-table",
+    "math",
+    "geometry"
+  ],
+  "description_html": "<p data-end=\"189\" data-start=\"146\">You are given a 2D integer array <code>points</code> where <code>points[i] = [x<sub>i</sub>, y<sub>i</sub>]</code> represents the coordinates of the <code>i<sup>th</sup></code> point on the Cartesian plane.</p>\n\n<p data-end=\"189\" data-start=\"146\">Return <em data-end=\"330\" data-start=\"297\">the number of unique </em><em>trapezoids</em> that can be formed by choosing any four distinct points from <code>points</code>.</p>\n\n<p data-end=\"579\" data-start=\"405\">A<b> </b><strong>trapezoid</strong> is a convex quadrilateral with <strong data-end=\"496\" data-start=\"475\">at least one pair</strong> of parallel sides. Two lines are parallel if and only if they have the same slope.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">points = [[-3,2],[3,0],[2,3],[3,2],[2,-3]]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">2</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p><img alt=\"\" src=\"https://assets.leetcode.com/uploads/2025/04/29/desmos-graph-4.png\" style=\"width: 250px; height: 250px;\" /> <img alt=\"\" src=\"https://assets.leetcode.com/uploads/2025/04/29/desmos-graph-3.png\" style=\"width: 250px; height: 250px;\" /></p>\n\n<p>There are two distinct ways to pick four points that form a trapezoid:</p>\n\n<ul>\n\t<li>The points <code>[-3,2], [2,3], [3,2], [2,-3]</code> form one trapezoid.</li>\n\t<li>The points <code>[2,3], [3,2], [3,0], [2,-3]</code> form another trapezoid.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">points = [[0,0],[1,0],[0,1],[2,1]]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">1</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p><img alt=\"\" src=\"https://assets.leetcode.com/uploads/2025/04/29/desmos-graph-5.png\" style=\"width: 250px; height: 250px;\" /></p>\n\n<p>There is only one trapezoid which can be formed.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>4 &lt;= points.length &lt;= 500</code></li>\n\t<li><code>&ndash;1000 &lt;= x<sub>i</sub>, y<sub>i</sub> &lt;= 1000</code></li>\n\t<li>All points are pairwise distinct.</li>\n</ul>\n",
+  "hints": [
+    "Hash every point-pair by its reduced slope <code>(dy,dx)</code> (normalize with GCD and fix signs).",
+    "In each slope-bucket of size <code>k</code>, there are <code>C(k,2)</code> ways to pick two segments as the trapezoid's parallel bases.",
+    "Skip any base-pair that shares an endpoint since it would not form a quadrilateral.",
+    "Subtract one count for each parallelogram. Each parallelogram was counted once for each of its two parallel-side pairs, so after subtracting once, every quadrilateral with at least one pair of parallel sides, including parallelograms, contributes exactly one to the final total.",
+    "Final answer = total valid base-pairs minus parallelogram overcounts."
+  ],
+  "sample_test_cases": [
+    "[[-3,2],[3,0],[2,3],[3,2],[2,-3]]",
+    "[[0,0],[1,0],[0,1],[2,1]]"
+  ],
+  "content_signature": "-9u5973",
+  "fetched_at": "2026-05-21T07:45:50.837Z"
+}

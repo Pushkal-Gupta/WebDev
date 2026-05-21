@@ -1,0 +1,23 @@
+{
+  "slug": "maximum-sum-of-alternating-subsequence-with-distance-at-least-k",
+  "leetcode_id": "4260",
+  "title": "Maximum Sum of Alternating Subsequence With Distance at Least K",
+  "difficulty": "Hard",
+  "tags": [],
+  "description_html": "<p>You are given an integer array <code>nums</code> of length <code>n</code> and an integer <code>k</code>.</p>\n\n<p>Pick a <strong><span data-keyword=\"subsequence-sequence\">subsequence</span></strong> with indices <code>0 &lt;= i<sub>1</sub> &lt; i<sub>2</sub> &lt; ... &lt; i<sub>m</sub> &lt; n</code> such that:</p>\n\n<ul>\n\t<li>For every <code>1 &lt;= t &lt; m</code>, <code>i<sub>t+1</sub> - i<sub>t</sub> &gt;= k</code>.</li>\n\t<li>The selected values form a <strong>strictly alternating</strong> sequence. In other words, either:\n\t<ul>\n\t\t<li><code>nums[i<sub>1</sub>] &lt; nums[i<sub>2</sub>] &gt; nums[i<sub>3</sub>] &lt; ...</code>, or</li>\n\t\t<li><code>nums[i<sub>1</sub>] &gt; nums[i<sub>2</sub>] &lt; nums[i<sub>3</sub>] &gt; ...</code></li>\n\t</ul>\n\t</li>\n</ul>\n\n<p>A <strong>subsequence</strong> of length 1 is also considered <strong>strictly</strong> alternating. The score of a <strong>valid</strong> subsequence is the <strong>sum</strong> of its selected values.</p>\n\n<p>Return an integer denoting the <strong>maximum</strong> possible <strong>score</strong> of a valid subsequence.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [5,4,2], k = 2</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">7</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>An optimal choice is indices <code>[0, 2]</code>, which gives values <code>[5, 2]</code>.</p>\n\n<ul>\n\t<li>The distance condition holds because <code>2 - 0 = 2 &gt;= k</code>.</li>\n\t<li>The values are strictly alternating because <code>5 &gt; 2</code>.</li>\n</ul>\n\n<p>The score is <code>5 + 2 = 7</code>.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [3,5,4,2,4], k = 1</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">14</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>An optimal choice is indices <code>[0, 1, 3, 4]</code>, which gives values <code>[3, 5, 2, 4]</code>.</p>\n\n<ul>\n\t<li>The distance condition holds because each pair of consecutive chosen indices differs by at least <code>k = 1</code>.</li>\n\t<li>The values are strictly alternating since <code>3 &lt; 5 &gt; 2 &lt; 4</code>.</li>\n</ul>\n\n<p>The score is <code>3 + 5 + 2 + 4 = 14</code>.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [5], k = 1</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">5</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The only valid subsequence is <code>[5]</code>. A subsequence with 1 element is always strictly alternating, so the score is 5.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= n == nums.length &lt;= 10<sup>5</sup></code></li>\n\t<li><code>1 &lt;= nums[i] &lt;= 10<sup>5</sup></code></li>\n\t<li><code>1 &lt;= k &lt;= n</code></li>\n</ul>\n",
+  "hints": [
+    "Use dynamic programming",
+    "Let <code>dp[i][val][0/1]</code> represent the maximum score using the first <code>i</code> values, where the last selected value is <code>val</code> and <code>0/1</code> indicates the alternating relation of the last two selected values",
+    "Use a segment tree to query values greater than or less than <code>val</code> during the DP transitions"
+  ],
+  "sample_test_cases": [
+    "[5,4,2]",
+    "2",
+    "[3,5,4,2,4]",
+    "1",
+    "[5]",
+    "1"
+  ],
+  "content_signature": "-9mbgdg",
+  "fetched_at": "2026-05-21T07:54:30.035Z"
+}

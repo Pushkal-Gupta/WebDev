@@ -1,0 +1,65 @@
+.mbn {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .mbn {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: stretch;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    z-index: 800;
+    padding-bottom: env(safe-area-inset-bottom);
+    backdrop-filter: blur(10px);
+  }
+
+  /* Make sure route containers don't get hidden behind the bottom nav. */
+  .pg-playground,
+  .pd-container,
+  .rmx-container,
+  .comp-container,
+  .learn-container,
+  .web-sandbox,
+  .sql-pg,
+  .adm-container,
+  .ml-container,
+  .ph-container,
+  .ctx-container,
+  .pl-container,
+  .rq-container {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  }
+}
+
+.mbn-link {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.18rem;
+  padding: 0.55rem 0.3rem 0.6rem;
+  text-decoration: none;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.56rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: color var(--t), background var(--t);
+}
+
+.mbn-link:hover { color: var(--text-main); background: var(--hover-box); }
+.mbn-link.active { color: var(--accent); }
+.mbn-link.active::after {
+  content: '';
+  width: 12px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 2px;
+  margin-top: 0.1rem;
+}

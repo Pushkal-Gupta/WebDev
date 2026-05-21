@@ -1,0 +1,24 @@
+{
+  "slug": "find-the-maximum-length-of-valid-subsequence-ii",
+  "leetcode_id": "3491",
+  "title": "Find the Maximum Length of Valid Subsequence II",
+  "difficulty": "Medium",
+  "tags": [
+    "array",
+    "dynamic-programming"
+  ],
+  "description_html": "You are given an integer array <code>nums</code> and a <strong>positive</strong> integer <code>k</code>.\n<p>A <span data-keyword=\"subsequence-array\">subsequence</span> <code>sub</code> of <code>nums</code> with length <code>x</code> is called <strong>valid</strong> if it satisfies:</p>\n\n<ul>\n\t<li><code>(sub[0] + sub[1]) % k == (sub[1] + sub[2]) % k == ... == (sub[x - 2] + sub[x - 1]) % k.</code></li>\n</ul>\nReturn the length of the <strong>longest</strong> <strong>valid</strong> subsequence of <code>nums</code>.\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,2,3,4,5], k = 2</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">5</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The longest valid subsequence is <code>[1, 2, 3, 4, 5]</code>.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,4,2,3,1,4], k = 3</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">4</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The longest valid subsequence is <code>[1, 4, 1, 4]</code>.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>2 &lt;= nums.length &lt;= 10<sup>3</sup></code></li>\n\t<li><code>1 &lt;= nums[i] &lt;= 10<sup>7</sup></code></li>\n\t<li><code>1 &lt;= k &lt;= 10<sup>3</sup></code></li>\n</ul>\n",
+  "hints": [
+    "Fix the value of <code>(subs[0] + subs[1]) % k</code> from the <code>k</code> possible values. Let it be <code>val</code>.",
+    "Let <code>dp[i]</code> store the maximum length of a subsequence with its last element <code>x</code> such that <code>x % k == i</code>.",
+    "Answer for a subsequence ending at index <code>y</code> is <code>dp[(k + val - (y % k)) % k] + 1</code>."
+  ],
+  "sample_test_cases": [
+    "[1,2,3,4,5]",
+    "2",
+    "[1,4,2,3,1,4]",
+    "3"
+  ],
+  "content_signature": "-bxmcby",
+  "fetched_at": "2026-05-21T07:13:29.048Z"
+}

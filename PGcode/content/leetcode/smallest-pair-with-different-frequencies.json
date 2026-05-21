@@ -1,0 +1,23 @@
+{
+  "slug": "smallest-pair-with-different-frequencies",
+  "leetcode_id": "4231",
+  "title": "Smallest Pair With Different Frequencies",
+  "difficulty": "Easy",
+  "tags": [
+    "array",
+    "hash-table",
+    "counting"
+  ],
+  "description_html": "<p>You are given an integer array <code>nums</code>.</p>\n\n<p>Consider all pairs of <strong>distinct</strong> values <code>x</code> and <code>y</code> from <code>nums</code> such that:</p>\n\n<ul>\n\t<li><code>x &lt; y</code></li>\n\t<li><code>x</code> and <code>y</code> have different <span data-keyword=\"frequency-array\">frequencies</span> in <code>nums</code>.</li>\n</ul>\n\n<p>Among all such pairs:</p>\n\n<ul>\n\t<li>Choose the pair with the smallest possible value of <code>x</code>.</li>\n\t<li>If multiple pairs have the same <code>x</code>, choose the one with the smallest possible value of <code>y</code>.</li>\n</ul>\n\n<p>Return an integer array <code>[x, y]</code>. If no valid pair exists, return <code>[-1, -1]</code>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,1,2,2,3,4]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">[1,3]</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The smallest value is 1 with a frequency of 2, and the smallest value greater than 1 that has a different frequency from 1 is 3 with a frequency of 1. Thus, the answer is <code>[1, 3]</code>.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,5]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">[-1,-1]</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>Both values have the same frequency, so no valid pair exists. Return <code>[-1, -1]</code>.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [7]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">[-1,-1]</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>There is only one value in the array, so no valid pair exists. Return <code>[-1, -1]</code>.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= nums.length &lt;= 100</code></li>\n\t<li><code>1 &lt;= nums[i] &lt;= 100</code></li>\n</ul>\n",
+  "hints": [
+    "Calculate the frequency of each element in the array using a hash map or frequency array.",
+    "Find the smallest element that has a different frequency from the smallest element."
+  ],
+  "sample_test_cases": [
+    "[1,1,2,2,3,4]",
+    "[1,5]",
+    "[7]"
+  ],
+  "content_signature": "4f0a1a",
+  "fetched_at": "2026-05-21T07:52:03.082Z"
+}

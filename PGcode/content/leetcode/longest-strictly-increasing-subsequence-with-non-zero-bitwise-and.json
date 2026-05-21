@@ -1,0 +1,26 @@
+{
+  "slug": "longest-strictly-increasing-subsequence-with-non-zero-bitwise-and",
+  "leetcode_id": "4032",
+  "title": "Longest Strictly Increasing Subsequence With Non-Zero Bitwise AND",
+  "difficulty": "Medium",
+  "tags": [
+    "array",
+    "binary-search",
+    "bit-manipulation",
+    "enumeration"
+  ],
+  "description_html": "<p>You are given an integer array <code>nums</code>.</p>\n\n<p>Return the length of the <strong>longest strictly increasing <span data-keyword=\"subsequence-array-nonempty\">subsequence</span></strong> in <code>nums</code> whose bitwise <strong>AND</strong> is <strong>non-zero</strong>. If no such <strong>subsequence</strong> exists, return 0.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [5,4,7]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">2</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>One longest strictly increasing subsequence is <code>[5, 7]</code>. The bitwise AND is <code>5 AND 7 = 5</code>, which is non-zero.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [2,3,6]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">3</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The longest strictly increasing subsequence is <code>[2, 3, 6]</code>. The bitwise AND is <code>2 AND 3 AND 6 = 2</code>, which is non-zero.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [0,1]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">1</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>One longest strictly increasing subsequence is <code>[1]</code>. The bitwise AND is 1, which is non-zero.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= nums.length &lt;= 10<sup>5</sup></code></li>\n\t<li><code>0 &lt;= nums[i] &lt;= 10<sup>9</sup></code>​​​​​​​</li>\n</ul>\n",
+  "hints": [
+    "Solve bit-by-bit for each <code>b</code> in <code>0..30</code>.",
+    "Filter: take elements with bit <code>b</code> set, preserving order.",
+    "On that filtered sequence compute the longest increasing subsequence (LIS).",
+    "Return the maximum LIS over all bits; if no candidates return <code>0</code>."
+  ],
+  "sample_test_cases": [
+    "[5,4,7]",
+    "[2,3,6]",
+    "[0,1]"
+  ],
+  "content_signature": "-w7pp7t",
+  "fetched_at": "2026-05-21T07:51:08.066Z"
+}

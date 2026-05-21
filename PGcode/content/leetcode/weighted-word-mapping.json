@@ -1,0 +1,28 @@
+{
+  "slug": "weighted-word-mapping",
+  "leetcode_id": "4216",
+  "title": "Weighted Word Mapping",
+  "difficulty": "Easy",
+  "tags": [
+    "array",
+    "string",
+    "simulation"
+  ],
+  "description_html": "<p>You are given an array of strings <code>words</code>, where each string represents a word containing lowercase English letters.</p>\n\n<p>You are also given an integer array <code>weights</code> of length 26, where <code>weights[i]</code> represents the weight of the <code>i<sup>th</sup></code> lowercase English letter.</p>\n\n<p>The <strong>weight</strong> of a word is defined as the <strong>sum</strong> of the weights of its characters.</p>\n\n<p>For each word, take its weight modulo 26 and map the result to a lowercase English letter using reverse alphabetical order (<code>0 -&gt; &#39;z&#39;, 1 -&gt; &#39;y&#39;, ..., 25 -&gt; &#39;a&#39;</code>).</p>\n\n<p>Return a string formed by concatenating the mapped characters for all words in order.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">words = [&quot;abcd&quot;,&quot;def&quot;,&quot;xyz&quot;], weights = [5,3,12,14,1,2,3,2,10,6,6,9,7,8,7,10,8,9,6,9,9,8,3,7,7,2]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">&quot;rij&quot;</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<ul>\n\t<li>The weight of <code>&quot;abcd&quot;</code> is <code>5 + 3 + 12 + 14 = 34</code>. The result modulo 26 is <code>34 % 26 = 8</code>, which maps to <code>&#39;r&#39;</code>.</li>\n\t<li>The weight of <code>&quot;def&quot;</code> is <code>14 + 1 + 2 = 17</code>. The result modulo 26 is <code>17 % 26 = 17</code>, which maps to <code>&#39;i&#39;</code>.</li>\n\t<li>The weight of <code>&quot;xyz&quot;</code> is <code>7 + 7 + 2 = 16</code>. The result modulo 26 is <code>16 % 26 = 16</code>, which maps to <code>&#39;j&#39;</code>.</li>\n</ul>\n\n<p>Thus, the string formed by concatenating the mapped characters is <code>&quot;rij&quot;</code>.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">words = [&quot;a&quot;,&quot;b&quot;,&quot;c&quot;], weights = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">&quot;yyy&quot;</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>Each word has weight 1. The result modulo 26 is <code>1 % 26 = 1</code>, which maps to <code>&#39;y&#39;</code>.</p>\n\n<p>Thus, the string formed by concatenating the mapped characters is <code>&quot;yyy&quot;</code>.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">words = [&quot;abcd&quot;], weights = [7,5,3,4,3,5,4,9,4,2,2,7,10,2,5,10,6,1,2,2,4,1,3,4,4,5]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">&quot;g&quot;</span></p>\n\n<p><strong>Explanation:​​​​​​​</strong></p>\n\n<p>The weight of <code>&quot;abcd&quot;</code> is <code>7 + 5 + 3 + 4 = 19</code>. The result modulo 26 is <code>19 % 26 = 19</code>, which maps to <code>&#39;g&#39;</code>.</p>\n\n<p>Thus, the string formed by concatenating the mapped characters is <code>&quot;g&quot;</code>.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= words.length &lt;= 100</code></li>\n\t<li><code>1 &lt;= words[i].length &lt;= 10</code></li>\n\t<li><code>weights.length == 26</code></li>\n\t<li><code>1 &lt;= weights[i] &lt;= 100</code></li>\n\t<li><code>words[i]</code> consists of lowercase English letters.</li>\n</ul>\n",
+  "hints": [
+    "For each word, sum character weights using <code>weights[c - 'a']</code>",
+    "Take the sum modulo <code>26</code>",
+    "Map the value to a character using reverse order: <code>char = 'z' - value</code>",
+    "Append all mapped characters in order to form the result string"
+  ],
+  "sample_test_cases": [
+    "[\"abcd\",\"def\",\"xyz\"]",
+    "[5,3,12,14,1,2,3,2,10,6,6,9,7,8,7,10,8,9,6,9,9,8,3,7,7,2]",
+    "[\"a\",\"b\",\"c\"]",
+    "[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]",
+    "[\"abcd\"]",
+    "[7,5,3,4,3,5,4,9,4,2,2,7,10,2,5,10,6,1,2,2,4,1,3,4,4,5]"
+  ],
+  "content_signature": "-d7jtzn",
+  "fetched_at": "2026-05-21T07:51:35.826Z"
+}

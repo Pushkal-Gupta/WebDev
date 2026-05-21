@@ -1,0 +1,19 @@
+{
+  "slug": "generate-parentheses",
+  "leetcode_id": "22",
+  "title": "Generate Parentheses",
+  "difficulty": "Medium",
+  "tags": [
+    "string",
+    "dynamic-programming",
+    "backtracking"
+  ],
+  "description_html": "<p>Given <code>n</code> pairs of parentheses, write a function to <em>generate all combinations of well-formed parentheses</em>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n<pre><strong>Input:</strong> n = 3\n<strong>Output:</strong> [\"((()))\",\"(()())\",\"(())()\",\"()(())\",\"()()()\"]\n</pre><p><strong class=\"example\">Example 2:</strong></p>\n<pre><strong>Input:</strong> n = 1\n<strong>Output:</strong> [\"()\"]\n</pre>\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= n &lt;= 8</code></li>\n</ul>\n",
+  "hints": [],
+  "sample_test_cases": [
+    "3",
+    "1"
+  ],
+  "content_signature": "-h15ixb",
+  "fetched_at": "2026-05-21T05:42:53.015Z"
+}

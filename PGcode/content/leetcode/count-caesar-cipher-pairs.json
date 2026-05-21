@@ -1,0 +1,25 @@
+{
+  "slug": "count-caesar-cipher-pairs",
+  "leetcode_id": "4183",
+  "title": "Count Caesar Cipher Pairs",
+  "difficulty": "Medium",
+  "tags": [
+    "array",
+    "hash-table",
+    "math",
+    "string",
+    "counting"
+  ],
+  "description_html": "<p>You are given an array <code>words</code> of <code>n</code> strings. Each string has length <code>m</code> and contains only lowercase English letters.</p>\n\n<p>Two strings <code>s</code> and <code>t</code> are <strong>similar</strong> if we can apply the following operation any number of times (possibly zero times) so that <code>s</code> and <code>t</code> become <strong>equal</strong>.</p>\n\n<ul>\n\t<li>Choose either <code>s</code> or <code>t</code>.</li>\n\t<li>Replace <strong>every</strong> letter in the chosen string with the next letter in the alphabet cyclically. The next letter after <code>&#39;z&#39;</code> is <code>&#39;a&#39;</code>.</li>\n</ul>\n\n<p>Count the number of pairs of indices <code>(i, j)</code> such that:</p>\n\n<ul>\n\t<li><code>i &lt; j</code></li>\n\t<li><code>words[i]</code> and <code>words[j]</code> are <strong>similar</strong>.</li>\n</ul>\n\n<p>Return an integer denoting the number of such pairs.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">words = [&quot;fusion&quot;,&quot;layout&quot;]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">1</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p><code>words[0] = &quot;fusion&quot;</code> and <code>words[1] = &quot;layout&quot;</code> are similar because we can apply the operation to <code>&quot;fusion&quot;</code> 6 times. The string <code>&quot;fusion&quot;</code> changes as follows.</p>\n\n<ul>\n\t<li><code>&quot;fusion&quot;</code></li>\n\t<li><code>&quot;gvtjpo&quot;</code></li>\n\t<li><code>&quot;hwukqp&quot;</code></li>\n\t<li><code>&quot;ixvlrq&quot;</code></li>\n\t<li><code>&quot;jywmsr&quot;</code></li>\n\t<li><code>&quot;kzxnts&quot;</code></li>\n\t<li><code>&quot;layout&quot;</code></li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">words = [&quot;ab&quot;,&quot;aa&quot;,&quot;za&quot;,&quot;aa&quot;]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">2</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p><code>words[0] = &quot;ab&quot;</code> and <code>words[2] = &quot;za&quot;</code> are similar. <code>words[1] = &quot;aa&quot;</code> and <code>words[3] = &quot;aa&quot;</code> are similar.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= n == words.length &lt;= 10<sup>5</sup></code></li>\n\t<li><code>1 &lt;= m == words[i].length &lt;= 10<sup>5</sup></code></li>\n\t<li><code>1 &lt;= n * m &lt;= 10<sup>5</sup></code></li>\n\t<li><code>words[i]</code> consists only of lowercase English letters.</li>\n</ul>\n",
+  "hints": [
+    "Two strings are similar if the differences between consecutive characters (mod 26) are the same; normalize each string by shifting its first character to <code>'a'</code>.",
+    "Compute a hashable key for each normalized string representing its relative character differences.",
+    "Use a map to count how many strings share the same normalized key."
+  ],
+  "sample_test_cases": [
+    "[\"fusion\",\"layout\"]",
+    "[\"ab\",\"aa\",\"za\",\"aa\"]"
+  ],
+  "content_signature": "-tjqjrr",
+  "fetched_at": "2026-05-21T07:50:34.981Z"
+}

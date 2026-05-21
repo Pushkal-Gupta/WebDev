@@ -1,0 +1,21 @@
+{
+  "slug": "maximum-nesting-depth-of-the-parentheses",
+  "leetcode_id": "1737",
+  "title": "Maximum Nesting Depth of the Parentheses",
+  "difficulty": "Easy",
+  "tags": [
+    "string",
+    "stack"
+  ],
+  "description_html": "<p>Given a <strong>valid parentheses string</strong> <code>s</code>, return the <strong>nesting depth</strong> of<em> </em><code>s</code>. The nesting depth is the <strong>maximum</strong> number of nested parentheses.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">s = &quot;(1+(2*3)+((8)/4))+1&quot;</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">3</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>Digit 8 is inside of 3 nested parentheses in the string.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">s = &quot;(1)+((2))+(((3)))&quot;</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">3</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>Digit 3 is inside of 3 nested parentheses in the string.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">s = &quot;()(())((()()))&quot;</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">3</span></p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= s.length &lt;= 100</code></li>\n\t<li><code>s</code> consists of digits <code>0-9</code> and characters <code>&#39;+&#39;</code>, <code>&#39;-&#39;</code>, <code>&#39;*&#39;</code>, <code>&#39;/&#39;</code>, <code>&#39;(&#39;</code>, and <code>&#39;)&#39;</code>.</li>\n\t<li>It is guaranteed that parentheses expression <code>s</code> is a VPS.</li>\n</ul>\n",
+  "hints": [
+    "The depth of any character in the VPS is the ( number of left brackets before it ) - ( number of right brackets before it )"
+  ],
+  "sample_test_cases": [
+    "\"(1+(2*3)+((8)/4))+1\"",
+    "\"(1)+((2))+(((3)))\"",
+    "\"()(())((()()))\""
+  ],
+  "content_signature": "-z5y3ud",
+  "fetched_at": "2026-05-21T06:24:19.670Z"
+}

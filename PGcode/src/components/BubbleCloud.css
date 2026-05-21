@@ -1,0 +1,40 @@
+.bcl {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 0.3rem 0;
+}
+
+.bcl-bubble circle {
+  transition: opacity var(--t), transform var(--t);
+  transform-origin: center;
+  stroke: var(--surface);
+  stroke-width: 1;
+}
+
+.bcl-bubble text {
+  font-family: var(--mono);
+  font-weight: 600;
+  fill: var(--bg);
+  pointer-events: none;
+}
+
+.bcl-bubble:hover circle {
+  opacity: 0.85;
+}
+
+.bcl-bubble-none circle    { fill: var(--border); }
+.bcl-bubble-low circle     { fill: var(--medium); opacity: 0.65; }
+.bcl-bubble-half circle    { fill: var(--easy); opacity: 0.75; }
+.bcl-bubble-mastered circle { fill: var(--easy); }
+
+.bcl-bubble-low text       { fill: var(--bg); opacity: 0.95; }
+.bcl-bubble-none text      { fill: var(--text-dim); }
+
+.bcl-empty {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  padding: 1rem 0;
+  text-align: center;
+}

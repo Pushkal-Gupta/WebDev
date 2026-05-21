@@ -1,0 +1,31 @@
+{
+  "slug": "minimum-moves-to-reach-target-in-grid",
+  "leetcode_id": "3922",
+  "title": "Minimum Moves to Reach Target in Grid",
+  "difficulty": "Hard",
+  "tags": [
+    "math"
+  ],
+  "description_html": "<p>You are given four integers <code>sx</code>, <code>sy</code>, <code>tx</code>, and <code>ty</code>, representing two points <code>(sx, sy)</code> and <code>(tx, ty)</code> on an infinitely large 2D grid.</p>\n\n<p>You start at <code>(sx, sy)</code>.</p>\n\n<p>At any point <code>(x, y)</code>, define <code>m = max(x, y)</code>. You can either:</p>\n\n<ul>\n\t<li>Move to <code>(x + m, y)</code>, or</li>\n\t<li>Move to <code>(x, y + m)</code>.</li>\n</ul>\n\n<p>Return the <strong>minimum</strong> number of moves required to reach <code>(tx, ty)</code>. If it is impossible to reach the target, return -1.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">sx = 1, sy = 2, tx = 5, ty = 4</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">2</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The optimal path is:</p>\n\n<ul>\n\t<li>Move 1: <code>max(1, 2) = 2</code>. Increase the y-coordinate by 2, moving from <code>(1, 2)</code> to <code>(1, 2 + 2) = (1, 4)</code>.</li>\n\t<li>Move 2: <code>max(1, 4) = 4</code>. Increase the x-coordinate by 4, moving from <code>(1, 4)</code> to <code>(1 + 4, 4) = (5, 4)</code>.</li>\n</ul>\n\n<p>Thus, the minimum number of moves to reach <code>(5, 4)</code> is 2.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">sx = 0, sy = 1, tx = 2, ty = 3</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">3</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The optimal path is:</p>\n\n<ul>\n\t<li>Move 1: <code>max(0, 1) = 1</code>. Increase the x-coordinate by 1, moving from <code>(0, 1)</code> to <code>(0 + 1, 1) = (1, 1)</code>.</li>\n\t<li>Move 2: <code>max(1, 1) = 1</code>. Increase the x-coordinate by 1, moving from <code>(1, 1)</code> to <code>(1 + 1, 1) = (2, 1)</code>.</li>\n\t<li>Move 3: <code>max(2, 1) = 2</code>. Increase the y-coordinate by 2, moving from <code>(2, 1)</code> to <code>(2, 1 + 2) = (2, 3)</code>.</li>\n</ul>\n\n<p>Thus, the minimum number of moves to reach <code>(2, 3)</code> is 3.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">sx = 1, sy = 1, tx = 2, ty = 2</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">-1</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<ul>\n\t<li>It is impossible to reach <code>(2, 2)</code> from <code>(1, 1)</code> using the allowed moves. Thus, the answer is -1.</li>\n</ul>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>0 &lt;= sx &lt;= tx &lt;= 10<sup>9</sup></code></li>\n\t<li><code>0 &lt;= sy &lt;= ty &lt;= 10<sup>9</sup></code></li>\n</ul>\n",
+  "hints": [
+    "Work backwards from <code>(tx, ty)</code> to <code>(sx, sy)</code>, undoing one move at each step.",
+    "If the larger coordinate >= 2 × (the smaller), undo by halving the larger; otherwise undo by subtracting the smaller from the larger.",
+    "Count these undo-steps until you hit <code>(sx, sy)</code> (return the count), or return -1 if you drop below or get stuck."
+  ],
+  "sample_test_cases": [
+    "1",
+    "2",
+    "5",
+    "4",
+    "0",
+    "1",
+    "2",
+    "3",
+    "1",
+    "1",
+    "2",
+    "2"
+  ],
+  "content_signature": "5x6t9o",
+  "fetched_at": "2026-05-21T07:45:12.759Z"
+}

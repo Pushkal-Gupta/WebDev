@@ -1,0 +1,19 @@
+{
+  "slug": "remove-trailing-zeros-from-a-string",
+  "leetcode_id": "2819",
+  "title": "Remove Trailing Zeros From a String",
+  "difficulty": "Easy",
+  "tags": [
+    "string"
+  ],
+  "description_html": "<p>Given a <strong>positive</strong> integer <code>num</code> represented as a string, return <em>the integer </em><code>num</code><em> without trailing zeros as a string</em>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<pre>\n<strong>Input:</strong> num = &quot;51230100&quot;\n<strong>Output:</strong> &quot;512301&quot;\n<strong>Explanation:</strong> Integer &quot;51230100&quot; has 2 trailing zeros, we remove them and return integer &quot;512301&quot;.\n</pre>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<pre>\n<strong>Input:</strong> num = &quot;123&quot;\n<strong>Output:</strong> &quot;123&quot;\n<strong>Explanation:</strong> Integer &quot;123&quot; has no trailing zeros, we return integer &quot;123&quot;.\n</pre>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= num.length &lt;= 1000</code></li>\n\t<li><code>num</code> consists&nbsp;of only digits.</li>\n\t<li><code>num</code> doesn&#39;t&nbsp;have any leading zeros.</li>\n</ul>\n",
+  "hints": [
+    "Find the last non-zero digit in num."
+  ],
+  "sample_test_cases": [
+    "\"51230100\"",
+    "\"123\""
+  ],
+  "content_signature": "3i7ljp",
+  "fetched_at": "2026-05-21T07:03:34.460Z"
+}

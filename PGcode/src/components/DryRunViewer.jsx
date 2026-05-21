@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { supabase } from '../lib/supabase';
+import { useDryRun } from '../lib/queries';
 import { SkipBack, SkipForward, Play, Pause, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import ArrayRenderer from './renderers/ArrayRenderer';
 import GraphRenderer from './renderers/GraphRenderer';
@@ -53,12 +53,10 @@ function renderVisualState(data) {
 }
 
 export default function DryRunViewer({ problemId }) {
-  const [steps, setSteps] = useState([]);
-  const [questions, setQuestions] = useState({});
+  const { steps, questions, isLoading: loading } = useDryRun(problemId);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [activeQuestion, setActiveQuestion] = useState(null);
   const [feedback, setFeedback] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playSpeed, setPlaySpeed] = useState(1500);
   const playRef = useRef(null);
@@ -68,42 +66,15 @@ export default function DryRunViewer({ problemId }) {
     if (feedbackTimeoutRef.current) clearTimeout(feedbackTimeoutRef.current);
   }, []);
 
+  // Reset playback state when problem changes
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    async function loadDryRunData() {
-      setLoading(true);
-      try {
-        const { data: stepData } = await supabase
-          .from('PGcode_interactive_dry_runs')
-          .select('*')
-          .eq('problem_id', problemId)
-          .order('step_number', { ascending: true });
-
-        const { data: qData } = await supabase
-          .from('PGcode_interactive_questions')
-          .select('*');
-
-        setSteps(stepData || []);
-
-        const qMap = {};
-        if (qData) {
-          qData.forEach(q => { qMap[q.dry_run_step_id] = q; });
-        }
-        setQuestions(qMap);
-      } catch (err) {
-        console.error('Failed to load dry run data:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    if (problemId) {
-      loadDryRunData();
-      setCurrentStepIndex(0);
-      setActiveQuestion(null);
-      setFeedback(null);
-      setIsPlaying(false);
-    }
+    setCurrentStepIndex(0);
+    setActiveQuestion(null);
+    setFeedback(null);
+    setIsPlaying(false);
   }, [problemId]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Auto-play
   useEffect(() => {
@@ -122,6 +93,7 @@ export default function DryRunViewer({ problemId }) {
   }, [isPlaying, playSpeed, steps.length, activeQuestion]);
 
   // Question trigger on step change
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (steps.length === 0) return;
     const currentStep = steps[currentStepIndex];
@@ -133,6 +105,7 @@ export default function DryRunViewer({ problemId }) {
       setFeedback(null);
     }
   }, [currentStepIndex, steps, questions]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleNext = () => {
     if (currentStepIndex < steps.length - 1) {

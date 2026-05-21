@@ -12,10 +12,20 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 
 const LANG_MAP: Record<string, number> = {
-  python: 71,
-  javascript: 63,
-  java: 62,
-  cpp: 54,
+  python: 71,         // Python 3.8.1
+  javascript: 63,     // Node.js 12.14.0
+  java: 62,           // Java OpenJDK 13.0.1
+  cpp: 54,            // C++ GCC 9.2.0
+  c: 50,              // C GCC 9.2.0
+  go: 60,             // Go 1.13.5
+  rust: 73,           // Rust 1.40.0
+  typescript: 74,     // TypeScript 3.7.4
+  csharp: 51,         // C# Mono 6.6.0.161
+  ruby: 72,           // Ruby 2.7.0
+  kotlin: 78,         // Kotlin 1.3.70
+  swift: 83,          // Swift 5.2.3
+  php: 68,            // PHP 7.4.1
+  bash: 46,           // Bash 5.0.0
 };
 
 const CORS_HEADERS = {

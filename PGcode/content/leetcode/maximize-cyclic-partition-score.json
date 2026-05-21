@@ -1,0 +1,27 @@
+{
+  "slug": "maximize-cyclic-partition-score",
+  "leetcode_id": "4030",
+  "title": "Maximize Cyclic Partition Score",
+  "difficulty": "Hard",
+  "tags": [
+    "array",
+    "dynamic-programming"
+  ],
+  "description_html": "<p>You are given a <strong>cyclic</strong> array <code>nums</code> and an integer <code>k</code>.</p>\n\n<p><strong>Partition</strong> <code>nums</code> into <strong>at most</strong> <code>k</code><strong> </strong><span data-keyword=\"subarray-nonempty\">subarrays</span>. As <code>nums</code> is cyclic, these subarrays may wrap around from the end of the array back to the beginning.</p>\n\n<p>The <strong>range</strong> of a subarray is the difference between its <strong>maximum</strong> and <strong>minimum</strong> values. The <strong>score</strong> of a partition is the sum of subarray <strong>ranges</strong>.</p>\n\n<p>Return the <strong>maximum</strong> possible <strong>score</strong> among all cyclic partitions.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,2,3,3], k = 2</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">3</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<ul>\n\t<li>Partition <code>nums</code> into <code>[2, 3]</code> and <code>[3, 1]</code> (wrapped around).</li>\n\t<li>The range of <code>[2, 3]</code> is <code>max(2, 3) - min(2, 3) = 3 - 2 = 1</code>.</li>\n\t<li>The range of <code>[3, 1]</code> is <code>max(3, 1) - min(3, 1) = 3 - 1 = 2</code>.</li>\n\t<li>The score is <code>1 + 2 = 3</code>.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,2,3,3], k = 1</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">2</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<ul>\n\t<li>Partition <code>nums</code> into <code>[1, 2, 3, 3]</code>.</li>\n\t<li>The range of <code>[1, 2, 3, 3]</code> is <code>max(1, 2, 3, 3) - min(1, 2, 3, 3) = 3 - 1 = 2</code>.</li>\n\t<li>The score is 2.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,2,3,3], k = 4</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">3</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>Identical to Example 1, we partition <code>nums</code> into <code>[2, 3]</code> and <code>[3, 1]</code>. Note that <code>nums</code> may be partitioned into fewer than <code>k</code> subarrays.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= nums.length &lt;= 1000</code></li>\n\t<li><code>1 &lt;= nums[i] &lt;= 10<sup>9</sup></code></li>\n\t<li><code>1 &lt;= k &lt;= nums.length</code></li>\n</ul>\n",
+  "hints": [
+    "Use dynamic programming on the number of extreme picks: allow up to <code>2 * k</code> picks (each partition can supply a + and a -), so the problem becomes choosing which elements are + or -.",
+    "Model a partition by its max (+<code>nums[i]</code>) and min (-<code>nums[i]</code>) contributions; selecting an element as a max adds +<code>nums[i]</code>, and selecting it as a min adds -<code>nums[i]</code>.",
+    "Use a DP state <code>(picks, balance)</code> where <code>picks</code> is the total number of + and - chosen so far (<= <code>2 * k</code>), and <code>balance</code> represents the difference between the counts of + and - currently; at each <code>i</code>, you conceptually take +, take -, or skip.",
+    "Handle cyclicity by limiting <code>balance</code> to the range <code>[0, 2]</code>. You can show that such a balance is always achievable."
+  ],
+  "sample_test_cases": [
+    "[1,3,4]",
+    "2",
+    "[1,1000000000,1000000000]",
+    "3",
+    "[1]",
+    "1"
+  ],
+  "content_signature": "-td1wum",
+  "fetched_at": "2026-05-21T07:48:57.785Z"
+}

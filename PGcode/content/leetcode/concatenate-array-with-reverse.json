@@ -1,0 +1,18 @@
+{
+  "slug": "concatenate-array-with-reverse",
+  "leetcode_id": "4299",
+  "title": "Concatenate Array With Reverse",
+  "difficulty": "Easy",
+  "tags": [
+    "array",
+    "simulation"
+  ],
+  "description_html": "<p>You are given an integer array <code>nums</code> of length <code>n</code>.</p>\n\n<p>Construct a new array <code>ans</code> of length <code>2 * n</code> such that the first <code>n</code> elements are the same as <code>nums</code>, and the next <code>n</code> elements are the elements of <code>nums</code> in reverse order.</p>\n\n<p>Formally, for <code>0 &lt;= i &lt;= n - 1</code>:</p>\n\n<ul>\n\t<li><code>ans[i] = nums[i]</code></li>\n\t<li><code>ans[i + n] = nums[n - i - 1]</code></li>\n</ul>\n\n<p>Return an integer array <code>ans</code>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,2,3]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">[1,2,3,3,2,1]</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The first <code>n</code> elements of <code>ans</code> are the same as <code>nums</code>.</p>\n\n<p>For the next <code>n = 3</code> elements, each element is taken from <code>nums</code> in reverse order:</p>\n\n<ul>\n\t<li><code>ans[3] = nums[2] = 3</code></li>\n\t<li><code>ans[4] = nums[1] = 2</code></li>\n\t<li><code>ans[5] = nums[0] = 1</code></li>\n</ul>\n\n<p>Thus, <code>ans = [1, 2, 3, 3, 2, 1]</code>.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">[1,1]</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The array remains the same when reversed. Thus, <code>ans = [1, 1]</code>.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= nums.length &lt;= 100</code></li>\n\t<li><code>1 &lt;= nums[i] &lt;= 100</code></li>\n</ul>\n",
+  "hints": [],
+  "sample_test_cases": [
+    "[1,2,3]",
+    "[1]"
+  ],
+  "content_signature": "4i27tz",
+  "fetched_at": "2026-05-21T07:54:45.606Z"
+}

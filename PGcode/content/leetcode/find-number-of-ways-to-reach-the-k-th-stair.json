@@ -1,0 +1,25 @@
+{
+  "slug": "find-number-of-ways-to-reach-the-k-th-stair",
+  "leetcode_id": "3414",
+  "title": "Find Number of Ways to Reach the K-th Stair",
+  "difficulty": "Hard",
+  "tags": [
+    "math",
+    "dynamic-programming",
+    "bit-manipulation",
+    "memoization",
+    "combinatorics"
+  ],
+  "description_html": "<p>You are given a <strong>non-negative</strong> integer <code>k</code>. There exists a staircase with an infinite number of stairs, with the <strong>lowest</strong> stair numbered 0.</p>\n\n<p>Alice has an integer <code>jump</code>, with an initial value of 0. She starts on stair 1 and wants to reach stair <code>k</code> using <strong>any</strong> number of <strong>operations</strong>. If she is on stair <code>i</code>, in one <strong>operation</strong> she can:</p>\n\n<ul>\n\t<li>Go down to stair <code>i - 1</code>. This operation <strong>cannot</strong> be used consecutively or on stair 0.</li>\n\t<li>Go up to stair <code>i + 2<sup>jump</sup></code>. And then, <code>jump</code> becomes <code>jump + 1</code>.</li>\n</ul>\n\n<p>Return the <em>total</em> number of ways Alice can reach stair <code>k</code>.</p>\n\n<p><strong>Note</strong> that it is possible that Alice reaches the stair <code>k</code>, and performs some operations to reach the stair <code>k</code> again.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">k = 0</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">2</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The 2 possible ways of reaching stair 0 are:</p>\n\n<ul>\n\t<li>Alice starts at stair 1.\n\t<ul>\n\t\t<li>Using an operation of the first type, she goes down 1 stair to reach stair 0.</li>\n\t</ul>\n\t</li>\n\t<li>Alice starts at stair 1.\n\t<ul>\n\t\t<li>Using an operation of the first type, she goes down 1 stair to reach stair 0.</li>\n\t\t<li>Using an operation of the second type, she goes up 2<sup>0</sup> stairs to reach stair 1.</li>\n\t\t<li>Using an operation of the first type, she goes down 1 stair to reach stair 0.</li>\n\t</ul>\n\t</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">k = 1</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">4</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The 4 possible ways of reaching stair 1 are:</p>\n\n<ul>\n\t<li>Alice starts at stair 1. Alice is at stair 1.</li>\n\t<li>Alice starts at stair 1.\n\t<ul>\n\t\t<li>Using an operation of the first type, she goes down 1 stair to reach stair 0.</li>\n\t\t<li>Using an operation of the second type, she goes up 2<sup>0</sup> stairs to reach stair 1.</li>\n\t</ul>\n\t</li>\n\t<li>Alice starts at stair 1.\n\t<ul>\n\t\t<li>Using an operation of the second type, she goes up 2<sup>0</sup> stairs to reach stair 2.</li>\n\t\t<li>Using an operation of the first type, she goes down 1 stair to reach stair 1.</li>\n\t</ul>\n\t</li>\n\t<li>Alice starts at stair 1.\n\t<ul>\n\t\t<li>Using an operation of the first type, she goes down 1 stair to reach stair 0.</li>\n\t\t<li>Using an operation of the second type, she goes up 2<sup>0</sup> stairs to reach stair 1.</li>\n\t\t<li>Using an operation of the first type, she goes down 1 stair to reach stair 0.</li>\n\t\t<li>Using an operation of the second type, she goes up 2<sup>1</sup> stairs to reach stair 2.</li>\n\t\t<li>Using an operation of the first type, she goes down 1 stair to reach stair 1.</li>\n\t</ul>\n\t</li>\n</ul>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>0 &lt;= k &lt;= 10<sup>9</sup></code></li>\n</ul>\n",
+  "hints": [
+    "On using <code>x</code> operations of the second type and <code>y</code> operations of the first type, the stair <code>2<sup>x</sup> - y</code> is reached.",
+    "Since first operations cannot be consecutive, there are exactly <code>x + 1</code> positions (before and after each power of 2) to perform the second operation.",
+    "Using combinatorics, we have <sup>x + 1</sup>C<sub>y</sub> number of ways to select the positions of second operations."
+  ],
+  "sample_test_cases": [
+    "0",
+    "1"
+  ],
+  "content_signature": "lrqngi",
+  "fetched_at": "2026-05-21T07:12:31.694Z"
+}

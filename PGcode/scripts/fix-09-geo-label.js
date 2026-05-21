@@ -8,7 +8,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function fixLabels() {
   console.log("Updating 'Geo' to 'Geometry'...");
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('PGcode_topics')
     .update({ name: 'Geometry' })
     .eq('id', 'geometry');

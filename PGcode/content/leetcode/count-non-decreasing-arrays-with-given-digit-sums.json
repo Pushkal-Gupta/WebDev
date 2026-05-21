@@ -1,0 +1,25 @@
+{
+  "slug": "count-non-decreasing-arrays-with-given-digit-sums",
+  "leetcode_id": "4259",
+  "title": "Count Non Decreasing Arrays With Given Digit Sums",
+  "difficulty": "Hard",
+  "tags": [
+    "array",
+    "dynamic-programming",
+    "prefix-sum"
+  ],
+  "description_html": "<p>You are given an integer array <code>digitSum</code> of length <code>n</code>.</p>\n\n<p>An array <code>arr</code> of length <code>n</code> is considered <strong>valid</strong> if:</p>\n\n<ul>\n\t<li><code>0 &lt;= arr[i] &lt;= 5000</code></li>\n\t<li>it is <strong>non-decreasing</strong>.</li>\n\t<li>the <strong>sum of the digits</strong> of <code>arr[i]</code> <strong>equals</strong> <code>digitSum[i]</code>.</li>\n</ul>\n\n<p>Return an integer denoting the number of <strong>distinct valid arrays</strong>. Since the answer may be large, return it modulo <code>10<sup>9</sup> + 7</code>.</p>\n\n<p>An array is said to be <strong>non-decreasing</strong> if each element is greater than or equal to the previous element, if it exists.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">digitSum = [25,1]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">6</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>Numbers whose sum of digits is 25 are 799, 889, 898, 979, 988, and 997.</p>\n\n<p>The only number whose sum of digits is 1 that can appear after these values while keeping the array non-decreasing is 1000.</p>\n\n<p>Thus, the valid arrays are <code>[799, 1000]</code>, <code>[889, 1000]</code>, <code>[898, 1000]</code>, <code>[979, 1000]</code>, <code>[988, 1000]</code>, and <code>[997, 1000]</code>.</p>\n\n<p>Hence, the answer is 6.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">digitSum = [1]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">4</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The valid arrays are <code>[1]</code>, <code>[10]</code>, <code>[100]</code>, and <code>[1000]</code>.</p>\n\n<p>Thus, the answer is 4.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">digitSum = [2,49,23]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">0</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>There is no integer in the range [0, 5000] whose sum of digits is 49. Thus, the answer is 0.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= digitSum.length &lt;= 1000</code></li>\n\t<li><code>0 &lt;= digitSum[i] &lt;= 50</code></li>\n</ul>\n",
+  "hints": [
+    "Use dynamic programming",
+    "Group every number from 0 to 5000 by its digit sum into sorted vectors once.",
+    "<code>dp[j]</code> holds the number of ways ending exactly at the j-th candidate for the current position.",
+    "Build prefix sums on the previous <code>dp</code>, then use <code>upper_bound</code> on the sorted previous list to count all values <= current."
+  ],
+  "sample_test_cases": [
+    "[25,1]",
+    "[1]",
+    "[2,49,23]"
+  ],
+  "content_signature": "-czl6ay",
+  "fetched_at": "2026-05-21T07:53:34.830Z"
+}

@@ -1,0 +1,23 @@
+{
+  "slug": "smallest-palindromic-rearrangement-i",
+  "leetcode_id": "3812",
+  "title": "Smallest Palindromic Rearrangement I",
+  "difficulty": "Medium",
+  "tags": [
+    "string",
+    "sorting",
+    "counting-sort"
+  ],
+  "description_html": "<p>You are given a <strong><span data-keyword=\"palindrome-string\">palindromic</span></strong> string <code>s</code>.</p>\n\n<p>Return the <strong><span data-keyword=\"lexicographically-smaller-string\">lexicographically smallest</span></strong> palindromic <span data-keyword=\"permutation-string\">permutation</span> of <code>s</code>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">s = &quot;z&quot;</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">&quot;z&quot;</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>A string of only one character is already the lexicographically smallest palindrome.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">s = &quot;babab&quot;</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">&quot;abbba&quot;</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>Rearranging <code>&quot;babab&quot;</code> &rarr; <code>&quot;abbba&quot;</code> gives the smallest lexicographic palindrome.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">s = &quot;daccad&quot;</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">&quot;acddca&quot;</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>Rearranging <code>&quot;daccad&quot;</code> &rarr; <code>&quot;acddca&quot;</code> gives the smallest lexicographic palindrome.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= s.length &lt;= 10<sup>5</sup></code></li>\n\t<li><code>s</code> consists of lowercase English letters.</li>\n\t<li><code>s</code> is guaranteed to be palindromic.</li>\n</ul>\n",
+  "hints": [
+    "Consider a palindrome as composed of two mirror-image halves.",
+    "Construct one half (using <code>s</code>), and then the other half is its reverse to obtain the lexicographically smallest permutation."
+  ],
+  "sample_test_cases": [
+    "\"z\"",
+    "\"babab\"",
+    "\"daccad\""
+  ],
+  "content_signature": "-1sybu3",
+  "fetched_at": "2026-05-21T07:42:16.201Z"
+}

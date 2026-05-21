@@ -1,0 +1,22 @@
+{
+  "slug": "smallest-subsequence-of-distinct-characters",
+  "leetcode_id": "1159",
+  "title": "Smallest Subsequence of Distinct Characters",
+  "difficulty": "Medium",
+  "tags": [
+    "string",
+    "stack",
+    "greedy",
+    "monotonic-stack"
+  ],
+  "description_html": "<p>Given a string <code>s</code>, return <em>the </em><span data-keyword=\"lexicographically-smaller-string\"><em>lexicographically smallest</em></span> <span data-keyword=\"subsequence-string\"><em>subsequence</em></span><em> of</em> <code>s</code> <em>that contains all the distinct characters of</em> <code>s</code> <em>exactly once</em>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<pre>\n<strong>Input:</strong> s = &quot;bcabc&quot;\n<strong>Output:</strong> &quot;abc&quot;\n</pre>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<pre>\n<strong>Input:</strong> s = &quot;cbacdcbc&quot;\n<strong>Output:</strong> &quot;acdb&quot;\n</pre>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= s.length &lt;= 1000</code></li>\n\t<li><code>s</code> consists of lowercase English letters.</li>\n</ul>\n\n<p>&nbsp;</p>\n<strong>Note:</strong> This question is the same as 316: <a href=\"https://leetcode.com/problems/remove-duplicate-letters/\" target=\"_blank\">https://leetcode.com/problems/remove-duplicate-letters/</a>",
+  "hints": [
+    "Greedily try to add one missing character. How to check if adding some character will not cause problems ? Use bit-masks to check whether you will be able to complete the sub-sequence if you add the character at some index i."
+  ],
+  "sample_test_cases": [
+    "\"bcabc\"",
+    "\"cbacdcbc\""
+  ],
+  "content_signature": "3qgs03",
+  "fetched_at": "2026-05-21T06:13:36.410Z"
+}

@@ -1,0 +1,27 @@
+{
+  "slug": "count-subarrays-with-cost-less-than-or-equal-to-k",
+  "leetcode_id": "4211",
+  "title": "Count Subarrays With Cost Less Than or Equal to K",
+  "difficulty": "Medium",
+  "tags": [
+    "array",
+    "queue",
+    "monotonic-queue"
+  ],
+  "description_html": "<p>You are given an integer array <code>nums</code>, and an integer <code>k</code>.</p>\n\n<p>For any <span data-keyword=\"subarray-nonempty\">subarray</span> <code>nums[l..r]</code>, define its <strong>cost</strong> as:</p>\n\n<p><code>cost = (max(nums[l..r]) - min(nums[l..r])) * (r - l + 1)</code>.</p>\n\n<p>Return an integer denoting the number of subarrays of <code>nums</code> whose cost is <strong>less than or equal</strong> to <code>k</code>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,3,2], k = 4</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">5</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>We consider all subarrays of <code>nums</code>:</p>\n\n<ul>\n\t<li><code>nums[0..0]</code>: <code>cost = (1 - 1) * 1 = 0</code></li>\n\t<li><code>nums[0..1]</code>: <code>cost = (3 - 1) * 2 = 4</code></li>\n\t<li><code>nums[0..2]</code>: <code>cost = (3 - 1) * 3 = 6</code></li>\n\t<li><code>nums[1..1]</code>: <code>cost = (3 - 3) * 1 = 0</code></li>\n\t<li><code>nums[1..2]</code>: <code>cost = (3 - 2) * 2 = 2</code></li>\n\t<li><code>nums[2..2]</code>: <code>cost = (2 - 2) * 1 = 0</code></li>\n</ul>\n\n<p>There are 5 subarrays whose cost is less than or equal to 4.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [5,5,5,5], k = 0</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">10</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>For any subarray of <code>nums</code>, the maximum and minimum values are the same, so the cost is always 0.</p>\n\n<p>As a result, every subarray of <code>nums</code> has cost less than or equal to 0.</p>\n\n<p>For an array of length 4, the total number of subarrays is <code>(4 * 5) / 2 = 10</code>.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,2,3], k = 0</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">3</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The only subarrays of <code>nums</code> with cost 0 are the single-element subarrays, and there are 3 of them.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= nums.length &lt;= 10<sup>5</sup></code></li>\n\t<li><code>1 &lt;= nums[i] &lt;= 10<sup>9</sup></code></li>\n\t<li><code>0 &lt;= k &lt;= 10<sup>15</sup></code></li>\n</ul>\n",
+  "hints": [
+    "Use sliding window.",
+    "A monotonic deque is useful for maintaining the maximum or minimum in <code>O(1)</code> time per operation.",
+    "When the current window's cost exceeds <code>k</code>, move the left boundary forward until the window becomes valid again. Count all subarrays ending at the current right boundary."
+  ],
+  "sample_test_cases": [
+    "[1,3,2]",
+    "4",
+    "[5,5,5,5]",
+    "0",
+    "[1,2,3]",
+    "0"
+  ],
+  "content_signature": "chx4f9",
+  "fetched_at": "2026-05-21T07:51:31.685Z"
+}

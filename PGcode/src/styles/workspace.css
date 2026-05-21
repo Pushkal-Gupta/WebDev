@@ -72,6 +72,15 @@
 .ws-expandable summary:hover { color: var(--text-main); }
 .ws-expandable p { padding: 0.7rem 1rem; font-family: var(--sans); font-size: 0.82rem; color: var(--text-dim); line-height: 1.6; margin: 0; }
 
+/* ── Examples (rendered when description lacks them) ── */
+.ws-examples { display: flex; flex-direction: column; gap: 0.7rem; margin: 0.4rem 0 1rem; }
+.ws-example { padding: 0.8rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; display: flex; flex-direction: column; gap: 0.35rem; }
+.ws-example-title { font-family: var(--sans); font-size: 0.82rem; font-weight: 700; color: var(--text-main); }
+.ws-example-row { display: flex; gap: 0.5rem; align-items: flex-start; font-family: var(--mono); font-size: 0.78rem; line-height: 1.55; }
+.ws-example-label { color: var(--text-dim); flex-shrink: 0; min-width: 5.5rem; font-family: var(--sans); font-weight: 600; }
+.ws-example-row code { color: var(--text-main); background: var(--hover-box); padding: 0.1rem 0.4rem; border-radius: 4px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+.ws-example-explain { color: var(--text-dim); font-family: var(--sans); }
+
 /* ── Constraints section ── */
 .ws-constraints { display: flex; flex-direction: column; gap: 0.3rem; padding: 0.8rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .ws-constraints-title { font-family: var(--sans); font-size: 0.82rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.3rem; }
@@ -217,7 +226,7 @@
 .ws-timer.paused { opacity: 0.4; }
 .ws-timer.stopped { color: var(--accent); border-color: var(--accent); background: rgba(0, 138, 126, 0.08); }
 
-.ws-editor-area { flex: 1; min-height: 0; }
+.ws-editor-area { flex: 1; min-height: 0; background: var(--bg); }
 
 /* ── Editor Footer ── */
 .ws-editor-footer { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border-top: 1px solid var(--border); background: var(--surface); flex-shrink: 0; min-height: 56px; }
@@ -389,7 +398,24 @@
 @media (max-width: 768px) {
   .ws-main { flex-direction: column; }
   .ws-left { width: 100% !important; max-height: 50vh; border-right: none; border-bottom: 1px solid var(--border); }
-  .ws-right { width: 100% !important; min-height: 350px; }
+  .ws-right { width: 100% !important; min-height: 50vh; display: flex; flex-direction: column; }
+  .ws-editor-area { min-height: 32vh; }
   .ws-divider { display: none; }
-  .ws-left-tabs { flex-wrap: nowrap; }
+  .ws-left-tabs { flex-wrap: nowrap; overflow-x: auto; }
+  .ws-left-tabs .ws-tab { font-size: 0.7rem; padding: 0.5rem 0.6rem; }
+  .ws-editor-header { padding: 0.35rem 0.6rem; }
+  .ws-editor-header-right { gap: 0.4rem; }
+  .ws-editor-footer { padding: 0.55rem 0.7rem; min-height: 50px; flex-wrap: wrap; gap: 0.4rem; }
+  .ws-run-btn, .ws-submit-btn { padding: 0.45rem 0.85rem; font-size: 0.78rem; }
+  .ws-q-title { font-size: 1.15rem; }
+  .ws-q-desc { font-size: 0.82rem; }
+  .ws-q-tags { gap: 0.3rem; flex-wrap: wrap; }
+  .ws-example { padding: 0.65rem 0.75rem; }
+  .ws-example-label { min-width: 4.5rem; font-size: 0.72rem; }
+}
+
+@media (max-width: 480px) {
+  .ws-editor-area { min-height: 28vh; }
+  .ws-cursor-pos { display: none; }
+  .ws-timer { font-size: 0.7rem; }
 }

@@ -1,0 +1,24 @@
+{
+  "slug": "partition-string-into-minimum-beautiful-substrings",
+  "leetcode_id": "2883",
+  "title": "Partition String Into Minimum Beautiful Substrings",
+  "difficulty": "Medium",
+  "tags": [
+    "hash-table",
+    "string",
+    "dynamic-programming",
+    "backtracking"
+  ],
+  "description_html": "<p>Given a binary string <code>s</code>, partition the string into one or more <strong>substrings</strong> such that each substring is <strong>beautiful</strong>.</p>\n\n<p>A string is <strong>beautiful</strong> if:</p>\n\n<ul>\n\t<li>It doesn&#39;t contain leading zeros.</li>\n\t<li>It&#39;s the <strong>binary</strong> representation of a number that is a power of <code>5</code>.</li>\n</ul>\n\n<p>Return <em>the <strong>minimum</strong> number of substrings in such partition. </em>If it is impossible to partition the string <code>s</code> into beautiful substrings,&nbsp;return <code>-1</code>.</p>\n\n<p>A <strong>substring</strong> is a contiguous sequence of characters in a string.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<pre>\n<strong>Input:</strong> s = &quot;1011&quot;\n<strong>Output:</strong> 2\n<strong>Explanation:</strong> We can paritition the given string into [&quot;101&quot;, &quot;1&quot;].\n- The string &quot;101&quot; does not contain leading zeros and is the binary representation of integer 5<sup>1</sup> = 5.\n- The string &quot;1&quot; does not contain leading zeros and is the binary representation of integer 5<sup>0</sup> = 1.\nIt can be shown that 2 is the minimum number of beautiful substrings that s can be partitioned into.\n</pre>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<pre>\n<strong>Input:</strong> s = &quot;111&quot;\n<strong>Output:</strong> 3\n<strong>Explanation:</strong> We can paritition the given string into [&quot;1&quot;, &quot;1&quot;, &quot;1&quot;].\n- The string &quot;1&quot; does not contain leading zeros and is the binary representation of integer 5<sup>0</sup> = 1.\nIt can be shown that 3 is the minimum number of beautiful substrings that s can be partitioned into.\n</pre>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<pre>\n<strong>Input:</strong> s = &quot;0&quot;\n<strong>Output:</strong> -1\n<strong>Explanation:</strong> We can not partition the given string into beautiful substrings.\n</pre>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= s.length &lt;= 15</code></li>\n\t<li><code>s[i]</code> is either <code>&#39;0&#39;</code> or <code>&#39;1&#39;</code>.</li>\n</ul>\n",
+  "hints": [
+    "To check if number x is a power of 5 or not, we will divide x by 5 while x > 1 and x mod 5 == 0. After iteration if x == 1, then it was a power of 5.",
+    "Since the constraint of s.length is small, we can use recursion to find all the partitions."
+  ],
+  "sample_test_cases": [
+    "\"1011\"",
+    "\"111\"",
+    "\"0\""
+  ],
+  "content_signature": "-3nhzdg",
+  "fetched_at": "2026-05-21T07:04:41.449Z"
+}

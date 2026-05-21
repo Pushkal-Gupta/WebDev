@@ -159,6 +159,9 @@
   text-align: left;
   cursor: pointer;
   transition: all var(--t);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .sp-dropdown-item:hover {
@@ -169,6 +172,67 @@
 .sp-dropdown-item.active {
   color: var(--accent);
   background: var(--hover-box);
+}
+
+/* ── Problem of the Day ── */
+.sp-potd {
+  display: block;
+  text-decoration: none;
+  background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.10) 0%, var(--surface) 100%);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  transition: transform var(--t), box-shadow var(--t);
+  color: var(--text-main);
+}
+.sp-potd:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(var(--accent-rgb), 0.18);
+}
+
+.sp-potd-label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+.sp-potd-name {
+  display: block;
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--text-main);
+  margin-bottom: 0.55rem;
+}
+
+.sp-potd-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+}
+
+.sp-potd-diff {
+  padding: 0.18rem 0.55rem;
+  border-radius: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.sp-potd-diff.sp-easy   { color: var(--easy);   background: var(--easy-bg); }
+.sp-potd-diff.sp-medium { color: var(--medium); background: var(--medium-bg); }
+.sp-potd-diff.sp-hard   { color: var(--hard);   background: var(--hard-bg); }
+
+.sp-potd-cta {
+  color: var(--accent);
+  font-weight: 700;
 }
 
 /* ── Continue Where You Left Off ── */

@@ -39,7 +39,7 @@ export default function TreeRenderer({ data }) {
       const children = childrenMap[id] || [];
 
       // Sort: left first, then right
-      children.sort((a, b) => (a.side === 'left' ? -1 : 1));
+      children.sort((a, _b) => (a.side === 'left' ? -1 : 1));
 
       children.forEach(child => {
         const dx = child.side === 'left' ? -spread : spread;

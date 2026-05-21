@@ -1,0 +1,22 @@
+{
+  "slug": "sum-of-beauty-of-all-substrings",
+  "leetcode_id": "1890",
+  "title": "Sum of Beauty of All Substrings",
+  "difficulty": "Medium",
+  "tags": [
+    "hash-table",
+    "string",
+    "counting"
+  ],
+  "description_html": "<p>The <strong>beauty</strong> of a string is the difference in frequencies between the most frequent and least frequent characters.</p>\n\n<ul>\n\t<li>For example, the beauty of <code>&quot;abaacc&quot;</code> is <code>3 - 1 = 2</code>.</li>\n</ul>\n\n<p>Given a string <code>s</code>, return <em>the sum of <strong>beauty</strong> of all of its substrings.</em></p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<pre>\n<strong>Input:</strong> s = &quot;aabcb&quot;\n<strong>Output:</strong> 5\n<strong>Explanation: </strong>The substrings with non-zero beauty are [&quot;aab&quot;,&quot;aabc&quot;,&quot;aabcb&quot;,&quot;abcb&quot;,&quot;bcb&quot;], each with beauty equal to 1.</pre>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<pre>\n<strong>Input:</strong> s = &quot;aabcbaa&quot;\n<strong>Output:</strong> 17\n</pre>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= s.length &lt;=<sup> </sup>500</code></li>\n\t<li><code>s</code> consists of only lowercase English letters.</li>\n</ul>\n",
+  "hints": [
+    "Maintain a prefix sum for the frequencies of characters.",
+    "You can iterate over all substring then iterate over the alphabet and find which character appears most and which appears least using the prefix sum array"
+  ],
+  "sample_test_cases": [
+    "\"aabcb\"",
+    "\"aabcbaa\""
+  ],
+  "content_signature": "-wvgerd",
+  "fetched_at": "2026-05-21T06:28:04.969Z"
+}

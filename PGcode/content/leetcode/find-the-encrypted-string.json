@@ -1,0 +1,21 @@
+{
+  "slug": "find-the-encrypted-string",
+  "leetcode_id": "3468",
+  "title": "Find the Encrypted String",
+  "difficulty": "Easy",
+  "tags": [
+    "string"
+  ],
+  "description_html": "<p>You are given a string <code>s</code> and an integer <code>k</code>. Encrypt the string using the following algorithm:</p>\n\n<ul>\n\t<li>For each character <code>c</code> in <code>s</code>, replace <code>c</code> with the <code>k<sup>th</sup></code> character after <code>c</code> in the string (in a cyclic manner).</li>\n</ul>\n\n<p>Return the <em>encrypted string</em>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">s = &quot;dart&quot;, k = 3</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">&quot;tdar&quot;</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<ul>\n\t<li>For <code>i = 0</code>, the 3<sup>rd</sup> character after <code>&#39;d&#39;</code> is <code>&#39;t&#39;</code>.</li>\n\t<li>For <code>i = 1</code>, the 3<sup>rd</sup> character after <code>&#39;a&#39;</code> is <code>&#39;d&#39;</code>.</li>\n\t<li>For <code>i = 2</code>, the 3<sup>rd</sup> character after <code>&#39;r&#39;</code> is <code>&#39;a&#39;</code>.</li>\n\t<li>For <code>i = 3</code>, the 3<sup>rd</sup> character after <code>&#39;t&#39;</code> is <code>&#39;r&#39;</code>.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">s = &quot;aaa&quot;, k = 1</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">&quot;aaa&quot;</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>As all the characters are the same, the encrypted string will also be the same.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= s.length &lt;= 100</code></li>\n\t<li><code>1 &lt;= k &lt;= 10<sup>4</sup></code></li>\n\t<li><code>s</code> consists only of lowercase English letters.</li>\n</ul>\n",
+  "hints": [
+    "Make a new string such that for each character in <code>s</code>, character <code>i</code> will correspond to <code>(i + k) % s.length</code> character in the original string."
+  ],
+  "sample_test_cases": [
+    "\"dart\"",
+    "3",
+    "\"aaa\"",
+    "1"
+  ],
+  "content_signature": "ggstg6",
+  "fetched_at": "2026-05-21T07:13:38.781Z"
+}

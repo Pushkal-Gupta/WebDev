@@ -1,0 +1,18 @@
+{
+  "slug": "find-the-degree-of-each-vertex",
+  "leetcode_id": "4271",
+  "title": "Find the Degree of Each Vertex",
+  "difficulty": "Easy",
+  "tags": [],
+  "description_html": "<p>You are given a 2D integer array <code>matrix</code> of size <code>n x n</code> representing the adjacency matrix of an undirected graph with <code>n</code> vertices labeled from 0 to <code>n - 1</code>.</p>\n\n<ul>\n\t<li><code>matrix[i][j] = 1</code> indicates that there is an edge between vertices <code>i</code> and <code>j</code>.</li>\n\t<li><code>matrix[i][j] = 0</code> indicates that there is no edge between vertices <code>i</code> and <code>j</code>.</li>\n</ul>\n\n<p>The <strong>degree</strong> of a vertex is the number of edges connected to it.</p>\n\n<p>Return an integer array <code>ans</code> of size <code>n</code> where <code>ans[i]</code> represents the degree of vertex <code>i</code>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<p><img alt=\"\" src=\"https://assets.leetcode.com/uploads/2026/03/14/g41f.png\" style=\"width: 180px; height: 142px;\" /></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">matrix = [[0,1,1],[1,0,1],[1,1,0]]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">[2,2,2]</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<ul>\n\t<li>Vertex 0 is connected to vertices 1 and 2, so its degree is 2.</li>\n\t<li>Vertex 1 is connected to vertices 0 and 2, so its degree is 2.</li>\n\t<li>Vertex 2 is connected to vertices 0 and 1, so its degree is 2.</li>\n</ul>\n\n<p>Thus, the answer is <code>[2, 2, 2]</code>.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<p><img alt=\"\" src=\"https://assets.leetcode.com/uploads/2026/03/14/g42f.png\" style=\"width: 180px; height: 145px;\" /></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">matrix = [[0,1,0],[1,0,0],[0,0,0]]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">[1,1,0]</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<ul>\n\t<li>Vertex 0 is connected to vertex 1, so its degree is 1.</li>\n\t<li>Vertex 1 is connected to vertex 0, so its degree is 1.</li>\n\t<li>Vertex 2 is not connected to any vertex, so its degree is 0.</li>\n</ul>\n\n<p>Thus, the answer is <code>[1, 1, 0]</code>.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">matrix = [[0]]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">[0]</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p data-end=\"1129\" data-start=\"1068\">There is only one vertex and it has no edges connected to it. Thus, the answer is <code data-end=\"1156\" data-start=\"1151\">[0]</code>.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= n == matrix.length == matrix[i].length &lt;= 100</code>​​​​​​​</li>\n\t<li><code>​​​​​​​matrix[i][i] == 0</code></li>\n\t<li><code>matrix[i][j]</code> is either 0 or 1</li>\n\t<li><code>matrix[i][j] == matrix[j][i]</code></li>\n</ul>\n",
+  "hints": [
+    "The degree of node <code>i</code> is the sum of row <code>i</code> in the matrix"
+  ],
+  "sample_test_cases": [
+    "[[0,1,1],[1,0,1],[1,1,0]]",
+    "[[0,1,0],[1,0,0],[0,0,0]]",
+    "[[0]]"
+  ],
+  "content_signature": "70jpes",
+  "fetched_at": "2026-05-21T07:54:02.271Z"
+}

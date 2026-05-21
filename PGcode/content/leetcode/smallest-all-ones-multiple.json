@@ -1,0 +1,23 @@
+{
+  "slug": "smallest-all-ones-multiple",
+  "leetcode_id": "4175",
+  "title": "Smallest All-Ones Multiple",
+  "difficulty": "Medium",
+  "tags": [
+    "hash-table",
+    "math"
+  ],
+  "description_html": "<p>You are given a positive integer <code>k</code>.</p>\n\n<p>Find the <strong>smallest</strong> integer <code>n</code> divisible by <code>k</code> that consists of <strong>only the digit 1</strong> in its decimal representation (e.g., 1, 11, 111, ...).</p>\n\n<p>Return an integer denoting the <strong>number of digits</strong> in the decimal representation of <code>n</code>. If no such <code>n</code> exists, return <code>-1</code>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">k = 3</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">3</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p><code>n = 111</code> because 111 is divisible by 3, but 1 and 11 are not. The length of <code>n = 111</code> is 3.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">k = 7</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">6</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p><code>n = 111111</code>. The length of <code>n = 111111</code> is 6.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">k = 2</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">-1</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>There does not exist a valid <code>n</code> that is a multiple of 2.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>2 &lt;= k &lt;= 10<sup>5</sup></code></li>\n</ul>\n",
+  "hints": [
+    "Notice that <code>n % k</code> should be <code>0</code>.",
+    "Build the number digit-by-digit using only modulo <code>k</code>. Start with remainder <code>rem = 1 % k</code>. Repeatedly update <code>rem = (rem * 10 + 1) % k</code> while counting how many <code>1</code>s have been appended.",
+    "Continue until <code>rem == 0</code> or a remainder repeats (which indicates a cycle and that no such <code>n</code> exists)."
+  ],
+  "sample_test_cases": [
+    "3",
+    "7",
+    "2"
+  ],
+  "content_signature": "s9amhn",
+  "fetched_at": "2026-05-21T07:50:11.068Z"
+}

@@ -1,0 +1,27 @@
+{
+  "slug": "maximum-bitwise-xor-after-rearrangement",
+  "leetcode_id": "4044",
+  "title": "Maximum Bitwise XOR After Rearrangement",
+  "difficulty": "Medium",
+  "tags": [
+    "string",
+    "greedy",
+    "bit-manipulation"
+  ],
+  "description_html": "<p>You are given two binary strings <code>s</code> and <code>t</code>​​​​​​​, each of length <code>n</code>.</p>\n\n<p>You may <strong>rearrange</strong> the characters of <code>t</code> in any order, but <code>s</code> <strong>must remain unchanged</strong>.</p>\n\n<p>Return a <strong>binary string</strong> of length <code>n</code> representing the <strong>maximum</strong> integer value obtainable by taking the bitwise <strong>XOR</strong> of <code>s</code> and rearranged <code>t</code>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">s = &quot;101&quot;, t = &quot;011&quot;</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">&quot;110&quot;</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<ul>\n\t<li>One optimal rearrangement of <code>t</code> is <code>&quot;011&quot;</code>.</li>\n\t<li>The bitwise XOR of <code>s</code> and rearranged <code>t</code> is <code>&quot;101&quot; XOR &quot;011&quot; = &quot;110&quot;</code>, which is the maximum possible.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">s = &quot;0110&quot;, t = &quot;1110&quot;</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">&quot;1101&quot;</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<ul>\n\t<li>One optimal rearrangement of <code>t</code> is <code>&quot;1011&quot;</code>.</li>\n\t<li>The bitwise XOR of <code>s</code> and rearranged <code>t</code> is <code>&quot;0110&quot; XOR &quot;1011&quot; = &quot;1101&quot;</code>, which is the maximum possible.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">s = &quot;0101&quot;, t = &quot;1001&quot;</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">&quot;1111&quot;</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<ul>\n\t<li>One optimal rearrangement of <code>t</code> is <code>&quot;1010&quot;</code>.</li>\n\t<li>The bitwise XOR of <code>s</code> and rearranged <code>t</code> is <code>&quot;0101&quot; XOR &quot;1010&quot; = &quot;1111&quot;</code>, which is the maximum possible.</li>\n</ul>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= n == s.length == t.length &lt;= 2 * 10<sup>5</sup></code></li>\n\t<li><code>s[i]</code> and <code>t[i]</code> are either <code>&#39;0&#39;</code> or <code>&#39;1&#39;</code>.</li>\n</ul>\n",
+  "hints": [
+    "Count how many <code>'0'</code> and <code>'1'</code> characters exist in <code>t</code>.",
+    "To maximize XOR, try to place opposite bits: match <code>'1'</code> in <code>s</code> with <code>'0'</code> from <code>t</code>, and <code>'0'</code> in <code>s</code> with <code>'1'</code>.",
+    "Greedily build the result from left to right, using available counts while maximizing each XOR bit."
+  ],
+  "sample_test_cases": [
+    "\"101\"",
+    "\"011\"",
+    "\"0110\"",
+    "\"1110\"",
+    "\"0101\"",
+    "\"1001\""
+  ],
+  "content_signature": "s2b81l",
+  "fetched_at": "2026-05-21T07:51:58.922Z"
+}

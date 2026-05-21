@@ -1,0 +1,22 @@
+{
+  "slug": "longest-fibonacci-subarray",
+  "leetcode_id": "4003",
+  "title": "Longest Fibonacci Subarray",
+  "difficulty": "Medium",
+  "tags": [
+    "array"
+  ],
+  "description_html": "<p>You are given an array of <strong>positive</strong> integers <code>nums</code>.</p>\n\n<p>A <strong>Fibonacci</strong> array is a contiguous sequence whose third and subsequent terms each equal the sum of the two preceding terms.</p>\n\n<p>Return the length of the longest <strong>Fibonacci</strong> <strong><span data-keyword=\"subarray-nonempty\">subarray</span></strong> in <code>nums</code>.</p>\n\n<p><strong>Note:</strong> Subarrays of length 1 or 2 are always <strong>Fibonacci</strong>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,1,1,1,2,3,5,1]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">5</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The longest Fibonacci subarray is <code>nums[2..6] = [1, 1, 2, 3, 5]</code>.</p>\n\n<p><code>[1, 1, 2, 3, 5]</code> is Fibonacci because <code>1 + 1 = 2</code>, <code>1 + 2 = 3</code>, and <code>2 + 3 = 5</code>.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [5,2,7,9,16]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">5</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The longest Fibonacci subarray is <code>nums[0..4] = [5, 2, 7, 9, 16]</code>.</p>\n\n<p><code>[5, 2, 7, 9, 16]</code> is Fibonacci because <code>5 + 2 = 7</code>, <code>2 + 7 = 9</code>, and <code>7 + 9 = 16</code>.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1000000000,1000000000,1000000000]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">2</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The longest Fibonacci subarray is <code>nums[1..2] = [1000000000, 1000000000]</code>.</p>\n\n<p><code>[1000000000, 1000000000]</code> is Fibonacci because its length is 2.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>3 &lt;= nums.length &lt;= 10<sup>5</sup></code></li>\n\t<li><code>1 &lt;= nums[i] &lt;= 10<sup>9</sup></code></li>\n</ul>\n",
+  "hints": [
+    "Any subarray of <code>length <= 2</code> is valid. Start with length 2.",
+    "If <code>a[i] == a[i - 1] + a[i - 2]</code>, extend; otherwise reset length to 2.",
+    "Track the maximum length during one pass."
+  ],
+  "sample_test_cases": [
+    "[1,1,1,1,2,3,5,1]",
+    "[5,2,7,9,16]",
+    "[1000000000,1000000000,1000000000]"
+  ],
+  "content_signature": "2bxczb",
+  "fetched_at": "2026-05-21T07:48:03.032Z"
+}

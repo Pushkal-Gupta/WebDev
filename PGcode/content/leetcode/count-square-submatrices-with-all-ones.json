@@ -1,0 +1,22 @@
+{
+  "slug": "count-square-submatrices-with-all-ones",
+  "leetcode_id": "1402",
+  "title": "Count Square Submatrices with All Ones",
+  "difficulty": "Medium",
+  "tags": [
+    "array",
+    "dynamic-programming",
+    "matrix"
+  ],
+  "description_html": "<p>Given a <code>m * n</code> matrix of ones and zeros, return how many <strong>square</strong> submatrices have all ones.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<pre>\n<strong>Input:</strong> matrix =\n[\n&nbsp; [0,1,1,1],\n&nbsp; [1,1,1,1],\n&nbsp; [0,1,1,1]\n]\n<strong>Output:</strong> 15\n<strong>Explanation:</strong> \nThere are <strong>10</strong> squares of side 1.\nThere are <strong>4</strong> squares of side 2.\nThere is  <strong>1</strong> square of side 3.\nTotal number of squares = 10 + 4 + 1 = <strong>15</strong>.\n</pre>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<pre>\n<strong>Input:</strong> matrix = \n[\n  [1,0,1],\n  [1,1,0],\n  [1,1,0]\n]\n<strong>Output:</strong> 7\n<strong>Explanation:</strong> \nThere are <b>6</b> squares of side 1.  \nThere is <strong>1</strong> square of side 2. \nTotal number of squares = 6 + 1 = <b>7</b>.\n</pre>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= arr.length&nbsp;&lt;= 300</code></li>\n\t<li><code>1 &lt;= arr[0].length&nbsp;&lt;= 300</code></li>\n\t<li><code>0 &lt;= arr[i][j] &lt;= 1</code></li>\n</ul>\n",
+  "hints": [
+    "Create an additive table that counts the sum of elements of submatrix with the superior corner at (0,0).",
+    "Loop over all subsquares in O(n^3) and check if the sum make the whole array to be ones, if it checks then add 1 to the answer."
+  ],
+  "sample_test_cases": [
+    "[[0,1,1,1],[1,1,1,1],[0,1,1,1]]",
+    "[[1,0,1],[1,1,0],[1,1,0]]"
+  ],
+  "content_signature": "wbq9yp",
+  "fetched_at": "2026-05-21T06:16:47.163Z"
+}

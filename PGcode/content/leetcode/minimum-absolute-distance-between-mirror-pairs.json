@@ -1,0 +1,23 @@
+{
+  "slug": "minimum-absolute-distance-between-mirror-pairs",
+  "leetcode_id": "4139",
+  "title": "Minimum Absolute Distance Between Mirror Pairs",
+  "difficulty": "Medium",
+  "tags": [
+    "array",
+    "hash-table",
+    "math"
+  ],
+  "description_html": "<p>You are given an integer array <code>nums</code>.</p>\n\n<p>A <strong>mirror pair</strong> is a pair of indices <code>(i, j)</code> such that:</p>\n\n<ul>\n\t<li><code>0 &lt;= i &lt; j &lt; nums.length</code>, and</li>\n\t<li><code>reverse(nums[i]) == nums[j]</code>, where <code>reverse(x)</code> denotes the integer formed by reversing the digits of <code>x</code>. Leading zeros are omitted after reversing, for example <code>reverse(120) = 21</code>.</li>\n</ul>\n\n<p>Return the <strong>minimum</strong> absolute distance between the indices of any mirror pair. The absolute distance between indices <code>i</code> and <code>j</code> is <code>abs(i - j)</code>.</p>\n\n<p>If no mirror pair exists, return <code>-1</code>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [12,21,45,33,54]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">1</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The mirror pairs are:</p>\n\n<ul>\n\t<li>(0, 1) since <code>reverse(nums[0]) = reverse(12) = 21 = nums[1]</code>, giving an absolute distance <code>abs(0 - 1) = 1</code>.</li>\n\t<li>(2, 4) since <code>reverse(nums[2]) = reverse(45) = 54 = nums[4]</code>, giving an absolute distance <code>abs(2 - 4) = 2</code>.</li>\n</ul>\n\n<p>The minimum absolute distance among all pairs is 1.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [120,21]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">1</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>There is only one mirror pair (0, 1) since <code>reverse(nums[0]) = reverse(120) = 21 = nums[1]</code>.</p>\n\n<p>The minimum absolute distance is 1.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [21,120]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">-1</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>There are no mirror pairs in the array.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= nums.length &lt;= 10<sup>5</sup></code></li>\n\t<li><code>1 &lt;= nums[i] &lt;= 10<sup>9</sup></code>​​​​​​​</li>\n</ul>\n",
+  "hints": [
+    "Scan left to right with a hash map: for each <code>nums[i]</code>, if the map contains key <code>nums[i]</code> then set <code>ans = min(ans, i - map[nums[i]])</code>.",
+    "Store/update the current index under key <code>reverse(nums[i])</code>, so future matches use the most recent index."
+  ],
+  "sample_test_cases": [
+    "[12,21,45,33,54]",
+    "[120,21]",
+    "[21,120]"
+  ],
+  "content_signature": "hx84l7",
+  "fetched_at": "2026-05-21T07:49:24.456Z"
+}

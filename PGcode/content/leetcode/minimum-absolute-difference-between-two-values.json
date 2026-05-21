@@ -1,0 +1,20 @@
+{
+  "slug": "minimum-absolute-difference-between-two-values",
+  "leetcode_id": "4255",
+  "title": "Minimum Absolute Difference Between Two Values",
+  "difficulty": "Easy",
+  "tags": [
+    "array",
+    "enumeration"
+  ],
+  "description_html": "<p>You are given an integer array <code>nums</code> consisting only of 0, 1, and 2.</p>\n\n<p>A pair of indices <code>(i, j)</code> is called <strong>valid</strong> if <code>nums[i] == 1</code> and <code>nums[j] == 2</code>.</p>\n\n<p>Return the <strong>minimum</strong> absolute difference between <code>i</code> and <code>j</code> among all valid pairs. If no valid pair exists, return -1.</p>\n\n<p>The absolute difference between indices <code>i</code> and <code>j</code> is defined as <code>abs(i - j)</code>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,0,0,2,0,1]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">2</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The valid pairs are:</p>\n\n<ul>\n\t<li>(0, 3) which has absolute difference of <code>abs(0 - 3) = 3</code>.</li>\n\t<li>(5, 3) which has absolute difference of <code>abs(5 - 3) = 2</code>.</li>\n</ul>\n\n<p>Thus, the answer is 2.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,0,1,0]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">-1</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>There are no valid pairs in the array, thus the answer is -1.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= nums.length &lt;= 100</code></li>\n\t<li><code>0 &lt;= nums[i] &lt;= 2</code></li>\n</ul>\n",
+  "hints": [
+    "Use brute force"
+  ],
+  "sample_test_cases": [
+    "[1,0,0,2,0,1]",
+    "[1,0,1,0]"
+  ],
+  "content_signature": "uc1ku9",
+  "fetched_at": "2026-05-21T07:53:28.541Z"
+}

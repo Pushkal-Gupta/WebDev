@@ -1,0 +1,26 @@
+{
+  "slug": "find-minimum-log-transportation-cost",
+  "leetcode_id": "3879",
+  "title": "Find Minimum Log Transportation Cost",
+  "difficulty": "Easy",
+  "tags": [
+    "math"
+  ],
+  "description_html": "<p>You are given integers <code>n</code>, <code>m</code>, and <code>k</code>.</p>\n\n<p>There are two logs of lengths <code>n</code> and <code>m</code> units, which need to be transported in three trucks where each truck can carry one log with length <strong>at most</strong> <code>k</code> units.</p>\n\n<p>You may cut the logs into smaller pieces, where the cost of cutting a log of length <code>x</code> into logs of length <code>len1</code> and <code>len2</code> is <code>cost = len1 * len2</code> such that <code>len1 + len2 = x</code>.</p>\n\n<p>Return the <strong>minimum total cost</strong> to distribute the logs onto the trucks. If the logs don&#39;t need to be cut, the total cost is 0.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">n = 6, m = 5, k = 5</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">5</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>Cut the log with length 6 into logs with length 1 and 5, at a cost equal to <code>1 * 5 == 5</code>. Now the three logs of length 1, 5, and 5 can fit in one truck each.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">n = 4, m = 4, k = 6</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">0</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The two logs can fit in the trucks already, hence we don&#39;t need to cut the logs.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>2 &lt;= k &lt;= 10<sup>5</sup></code></li>\n\t<li><code>1 &lt;= n, m &lt;= 2 * k</code></li>\n\t<li>The input is generated such that it is always possible to transport the logs.</li>\n</ul>\n",
+  "hints": [
+    "If both logs have a length less than <code>k</code>, cost is zero.",
+    "Can we transport the logs if both logs have length greater than <code>k</code>.",
+    "Otherwise, pick the log with greater length and cut it into logs with lengths <code>len1</code> and <code>len2</code> such that <code>len1 + len2</code> equals the original length.",
+    "To minimize the cost <code>len1 * len2</code>, choose <code>len1</code> and <code>len2</code> as far apart as possible (e.g. <code>1</code> and <code>length−1</code>)."
+  ],
+  "sample_test_cases": [
+    "6",
+    "5",
+    "5",
+    "4",
+    "4",
+    "6"
+  ],
+  "content_signature": "-d414a5",
+  "fetched_at": "2026-05-21T07:43:26.092Z"
+}

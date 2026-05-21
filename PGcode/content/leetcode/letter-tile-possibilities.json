@@ -1,0 +1,23 @@
+{
+  "slug": "letter-tile-possibilities",
+  "leetcode_id": "1160",
+  "title": "Letter Tile Possibilities",
+  "difficulty": "Medium",
+  "tags": [
+    "hash-table",
+    "string",
+    "backtracking",
+    "counting"
+  ],
+  "description_html": "<p>You have <code>n</code>&nbsp;&nbsp;<code>tiles</code>, where each tile has one letter <code>tiles[i]</code> printed on it.</p>\n\n<p>Return <em>the number of possible non-empty sequences of letters</em> you can make using the letters printed on those <code>tiles</code>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<pre>\n<strong>Input:</strong> tiles = &quot;AAB&quot;\n<strong>Output:</strong> 8\n<strong>Explanation: </strong>The possible sequences are &quot;A&quot;, &quot;B&quot;, &quot;AA&quot;, &quot;AB&quot;, &quot;BA&quot;, &quot;AAB&quot;, &quot;ABA&quot;, &quot;BAA&quot;.\n</pre>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<pre>\n<strong>Input:</strong> tiles = &quot;AAABBC&quot;\n<strong>Output:</strong> 188\n</pre>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<pre>\n<strong>Input:</strong> tiles = &quot;V&quot;\n<strong>Output:</strong> 1\n</pre>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= tiles.length &lt;= 7</code></li>\n\t<li><code>tiles</code> consists of uppercase English letters.</li>\n</ul>\n",
+  "hints": [
+    "Try to build the string with a backtracking DFS by considering what you can put in every position."
+  ],
+  "sample_test_cases": [
+    "\"AAB\"",
+    "\"AAABBC\"",
+    "\"V\""
+  ],
+  "content_signature": "1pdgqa",
+  "fetched_at": "2026-05-21T06:13:33.309Z"
+}

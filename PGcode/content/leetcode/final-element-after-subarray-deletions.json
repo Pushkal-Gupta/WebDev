@@ -1,0 +1,24 @@
+{
+  "slug": "final-element-after-subarray-deletions",
+  "leetcode_id": "4122",
+  "title": "Final Element After Subarray Deletions",
+  "difficulty": "Medium",
+  "tags": [
+    "array",
+    "math",
+    "brainteaser",
+    "game-theory"
+  ],
+  "description_html": "<p>You are given an integer array <code>nums</code>.</p>\n\n<p>Two players, Alice and Bob, play a game in turns, with Alice playing first.</p>\n\n<ul>\n\t<li>In each turn, the current player chooses any <strong><span data-keyword=\"subarray-nonempty\">subarray</span></strong> <code>nums[l..r]</code> such that <code>r - l + 1 &lt; m</code>, where <code>m</code> is the <strong>current length</strong> of the array.</li>\n\t<li>The selected <strong>subarray is removed</strong>, and the remaining elements are <strong>concatenated</strong> to form the new array.</li>\n\t<li>The game continues until <strong>only one</strong> element remains.</li>\n</ul>\n\n<p>Alice aims to <strong>maximize</strong> the final element, while Bob aims to <strong>minimize</strong> it. Assuming both play optimally, return the value of the final remaining element.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,5,2]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">2</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>One valid optimal strategy:</p>\n\n<ul>\n\t<li>Alice removes <code>[1]</code>, array becomes <code>[5, 2]</code>.</li>\n\t<li>Bob removes <code>[5]</code>, array becomes <code>[2]</code>​​​​​​​. Thus, the answer is 2.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [3,7]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">7</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>Alice removes <code>[3]</code>, leaving the array <code>[7]</code>. Since Bob cannot play a turn now, the answer is 7.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= nums.length &lt;= 10<sup>5</sup></code></li>\n\t<li><code>1 &lt;= nums[i] &lt;= 10<sup>5</sup></code></li>\n</ul>\n",
+  "hints": [
+    "Observe which positions Alice can force to survive her first move so that Bob cannot remove them afterward.",
+    "Any middle element can always be removed by Bob, so only the endpoints can be protected.",
+    "Alice chooses the better endpoint: the answer is <code>max(nums[0], nums[len(nums) - 1])</code>."
+  ],
+  "sample_test_cases": [
+    "[1,5,2]",
+    "[3,7]"
+  ],
+  "content_signature": "7fa093",
+  "fetched_at": "2026-05-21T07:51:15.378Z"
+}

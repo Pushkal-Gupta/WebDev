@@ -1,0 +1,16 @@
+{
+  "slug": "employees-whose-manager-left-the-company",
+  "leetcode_id": "2127",
+  "title": "Employees Whose Manager Left the Company",
+  "difficulty": "Easy",
+  "tags": [
+    "database"
+  ],
+  "description_html": "<p>Table: <code>Employees</code></p>\n\n<pre>\n+-------------+----------+\n| Column Name | Type     |\n+-------------+----------+\n| employee_id | int      |\n| name        | varchar  |\n| manager_id  | int      |\n| salary      | int      |\n+-------------+----------+\nIn SQL, employee_id is the primary key for this table.\nThis table contains information about the employees, their salary, and the ID of their manager. Some employees do not have a manager (manager_id is null). \n</pre>\n\n<p>&nbsp;</p>\n\n<p>Find the IDs of the employees whose salary is strictly less than <code>$30000</code> and whose manager left the company. When a manager leaves the company, their information is deleted from the <code>Employees</code> table, but the reports still have their <code>manager_id</code> set to the manager that left.</p>\n\n<p>Return the result table ordered by <code>employee_id</code>.</p>\n\n<p>The result format is in the following example.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<pre>\n<strong>Input: </strong> \nEmployees table:\n+-------------+-----------+------------+--------+\n| employee_id | name      | manager_id | salary |\n+-------------+-----------+------------+--------+\n| 3           | Mila      | 9          | 60301  |\n| 12          | Antonella | null       | 31000  |\n| 13          | Emery     | null       | 67084  |\n| 1           | Kalel     | 11         | 21241  |\n| 9           | Mikaela   | null       | 50937  |\n| 11          | Joziah    | 6          | 28485  |\n+-------------+-----------+------------+--------+\n<strong>Output:</strong> \n+-------------+\n| employee_id |\n+-------------+\n| 11          |\n+-------------+\n\n<strong>Explanation:</strong> \nThe employees with a salary less than $30000 are 1 (Kalel) and 11 (Joziah).\nKalel&#39;s manager is employee 11, who is still in the company (Joziah).\nJoziah&#39;s manager is employee 6, who left the company because there is no row for employee 6 as it was deleted.\n</pre>\n",
+  "hints": [],
+  "sample_test_cases": [
+    "{\"headers\": {\"Employees\": [\"employee_id\", \"name\", \"manager_id\", \"salary\"]}, \"rows\": {\"Employees\": [[3, \"Mila\", 9, 60301], [12, \"Antonella\", null, 31000], [13, \"Emery\", null, 67084], [1, \"Kalel\", 11, 21241], [9, \"Mikaela\", null, 50937], [11, \"Joziah\", 6, 28485]]}}"
+  ],
+  "content_signature": "9tmlki",
+  "fetched_at": "2026-05-21T06:32:26.700Z"
+}

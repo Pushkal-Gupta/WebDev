@@ -1,0 +1,26 @@
+{
+  "slug": "find-maximum-area-of-a-triangle",
+  "leetcode_id": "3868",
+  "title": "Find Maximum Area of a Triangle",
+  "difficulty": "Medium",
+  "tags": [
+    "array",
+    "hash-table",
+    "math",
+    "greedy",
+    "geometry",
+    "enumeration"
+  ],
+  "description_html": "<p>You are given a 2D array <code>coords</code> of size <code>n x 2</code>, representing the coordinates of <code>n</code> points in an infinite Cartesian plane.</p>\n\n<p>Find <strong>twice</strong> the <strong>maximum</strong> area of a triangle with its corners at <em>any</em> three elements from <code>coords</code>, such that at least one side of this triangle is <strong>parallel</strong> to the x-axis or y-axis. Formally, if the maximum area of such a triangle is <code>A</code>, return <code>2 * A</code>.</p>\n\n<p>If no such triangle exists, return -1.</p>\n\n<p><strong>Note</strong> that a triangle <em>cannot</em> have zero area.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">coords = [[1,1],[1,2],[3,2],[3,3]]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">2</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p><img src=\"https://assets.leetcode.com/uploads/2025/04/19/image-20250420010047-1.png\" style=\"width: 300px; height: 289px;\" /></p>\n\n<p>The triangle shown in the image has a base 1 and height 2. Hence its area is <code>1/2 * base * height = 1</code>.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">coords = [[1,1],[2,2],[3,3]]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">-1</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The only possible triangle has corners <code>(1, 1)</code>, <code>(2, 2)</code>, and <code>(3, 3)</code>. None of its sides are parallel to the x-axis or the y-axis.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= n == coords.length &lt;= 10<sup>5</sup></code></li>\n\t<li><code>1 &lt;= coords[i][0], coords[i][1] &lt;= 10<sup>6</sup></code></li>\n\t<li>All <code>coords[i]</code> are <strong>unique</strong>.</li>\n</ul>\n",
+  "hints": [
+    "<code>area * 2 = base * height</code>",
+    "Let the base be parallel to the x‑axis or y‑axis",
+    "Sort to find the maximum base for each fixed <code>x</code> (or <code>y</code>), then the maximum height comes from the extreme values of the other coordinate."
+  ],
+  "sample_test_cases": [
+    "[[1,1],[1,2],[3,2],[3,3]]",
+    "[[1,1],[2,2],[3,3]]"
+  ],
+  "content_signature": "-dyus6p",
+  "fetched_at": "2026-05-21T07:44:12.457Z"
+}
