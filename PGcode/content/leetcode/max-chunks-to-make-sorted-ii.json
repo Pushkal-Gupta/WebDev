@@ -1,0 +1,23 @@
+{
+  "slug": "max-chunks-to-make-sorted-ii",
+  "leetcode_id": "779",
+  "title": "Max Chunks To Make Sorted II",
+  "difficulty": "Hard",
+  "tags": [
+    "array",
+    "stack",
+    "greedy",
+    "sorting",
+    "monotonic-stack"
+  ],
+  "description_html": "<p>You are given an integer array <code>arr</code>.</p>\n\n<p>We split <code>arr</code> into some number of <strong>chunks</strong> (i.e., partitions), and individually sort each chunk. After concatenating them, the result should equal the sorted array.</p>\n\n<p>Return <em>the largest number of chunks we can make to sort the array</em>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<pre>\n<strong>Input:</strong> arr = [5,4,3,2,1]\n<strong>Output:</strong> 1\n<strong>Explanation:</strong>\nSplitting into two or more chunks will not return the required result.\nFor example, splitting into [5, 4], [3, 2, 1] will result in [4, 5, 1, 2, 3], which isn&#39;t sorted.\n</pre>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<pre>\n<strong>Input:</strong> arr = [2,1,3,4,4]\n<strong>Output:</strong> 4\n<strong>Explanation:</strong>\nWe can split into two chunks, such as [2, 1], [3, 4, 4].\nHowever, splitting into [2, 1], [3], [4], [4] is the highest number of chunks possible.\n</pre>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= arr.length &lt;= 2000</code></li>\n\t<li><code>0 &lt;= arr[i] &lt;= 10<sup>8</sup></code></li>\n</ul>\n",
+  "hints": [
+    "Each k for which some permutation of arr[:k] is equal to sorted(arr)[:k] is where we should cut each chunk."
+  ],
+  "sample_test_cases": [
+    "[5,4,3,2,1]",
+    "[2,1,3,4,4]"
+  ],
+  "content_signature": "81hfrz",
+  "fetched_at": "2026-05-21T06:05:41.496Z"
+}

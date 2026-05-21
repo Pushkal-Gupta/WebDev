@@ -1,0 +1,21 @@
+{
+  "slug": "account-balance-after-rounded-purchase",
+  "leetcode_id": "2955",
+  "title": "Account Balance After Rounded Purchase",
+  "difficulty": "Easy",
+  "tags": [
+    "math"
+  ],
+  "description_html": "<p>Initially, you have a bank account balance of <strong>100</strong> dollars.</p>\n\n<p>You are given an integer <code>purchaseAmount</code> representing the amount you will spend on a purchase in dollars, in other words, its price.</p>\n\n<p>When making the purchase, first the <code>purchaseAmount</code> <strong>is rounded to the nearest multiple of 10</strong>. Let us call this value <code>roundedAmount</code>. Then, <code>roundedAmount</code> dollars are removed from your bank account.</p>\n\n<p>Return an integer denoting your final bank account balance after this purchase.</p>\n\n<p><strong>Notes:</strong></p>\n\n<ul>\n\t<li>0 is considered to be a multiple of 10 in this problem.</li>\n\t<li>When rounding, 5 is rounded upward (5 is rounded to 10, 15 is rounded to 20, 25 to 30, and so on).</li>\n</ul>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">purchaseAmount = 9</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">90</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The nearest multiple of 10 to 9 is 10. So your account balance becomes 100 - 10 = 90.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">purchaseAmount = 15</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">80</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The nearest multiple of 10 to 15 is 20. So your account balance becomes 100 - 20 = 80.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">purchaseAmount = 10</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">90</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>10 is a multiple of 10 itself. So your account balance becomes 100 - 10 = 90.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>0 &lt;= purchaseAmount &lt;= 100</code></li>\n</ul>\n",
+  "hints": [
+    "To determine the nearest multiple of 10, we can brute force the rounded amount since there are at most 100 options. In case of multiple nearest multiples, choose the largest.",
+    "Another solution is observing that the rounded amount is floor((purchaseAmount + 5) / 10) * 10. Using this formula, we can calculate the account balance without having to brute force the rounded amount."
+  ],
+  "sample_test_cases": [
+    "9",
+    "15",
+    "10"
+  ],
+  "content_signature": "-7ki0ki",
+  "fetched_at": "2026-05-21T07:05:17.122Z"
+}

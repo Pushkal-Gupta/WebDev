@@ -1,0 +1,28 @@
+{
+  "slug": "total-score-of-dungeon-runs",
+  "leetcode_id": "4146",
+  "title": "Total Score of Dungeon Runs",
+  "difficulty": "Medium",
+  "tags": [
+    "array",
+    "binary-search",
+    "prefix-sum"
+  ],
+  "description_html": "<p>You are given a <strong>positive</strong> integer <code>hp</code> and two <strong>positive</strong> <strong>1-indexed</strong> integer arrays <code>damage</code> and <code>requirement</code>.</p>\n\n<p>There is a dungeon with <code>n</code> trap rooms numbered from 1 to <code>n</code>. Entering room <code>i</code> reduces your health points by <code>damage[i]</code>. After that reduction, if your remaining health points are <strong>at least</strong> <code>requirement[i]</code>, you earn <strong>1 point </strong>for that room.</p>\n\n<p>Let <code>score(j)</code> be the number of <strong>points</strong> you get if you start with <code>hp</code> health points and enter the rooms <code>j</code>, <code>j + 1</code>, ..., <code>n</code> in this order.</p>\n\n<p>Return the integer <code>score(1) + score(2) + ... + score(n)</code>, the sum of scores over all starting rooms.</p>\n\n<p><strong>Note</strong>: You cannot skip rooms. You can finish your journey even if your health points become non-positive.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">hp = 11, damage = [3,6,7], requirement = [4,2,5]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">3</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p><code>score(1) = 2</code>, <code>score(2) = 1</code>, <code>score(3) = 0</code>. The total score is <code>2 + 1 + 0 = 3</code>.</p>\n\n<p>As an example, <code>score(1) = 2</code> because you get 2 points if you start from room 1.</p>\n\n<ul>\n\t<li>You start with 11 health points.</li>\n\t<li>Enter room 1. Your health points are now <code>11 - 3 = 8</code>. You get 1 point because <code>8 &gt;= 4</code>.</li>\n\t<li>Enter room 2. Your health points are now <code>8 - 6 = 2</code>. You get 1 point because <code>2 &gt;= 2</code>.</li>\n\t<li>Enter room 3. Your health points are now <code>2 - 7 = -5</code>. You do not get any points because <code>-5 &lt; 5</code>.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">hp = 2, damage = [10000,1], requirement = [1,1]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">1</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p><code>score(1) = 0</code>, <code>score(2) = 1</code>. The total score is <code>0 + 1 = 1</code>.</p>\n\n<p><code>score(1) = 0</code> because you do not get any points if you start from room 1.</p>\n\n<ul>\n\t<li>You start with 2 health points.</li>\n\t<li>Enter room 1. Your health points are now <code>2 - 10000 = -9998</code>. You do not get any points because <code>-9998 &lt; 1</code>.</li>\n\t<li>Enter room 2. Your health points are now <code>-9998 - 1 = -9999</code>. You do not get any points because <code>-9999 &lt; 1</code>.</li>\n</ul>\n\n<p><code>score(2) = 1</code> because you get 1 point if you start from room 2.</p>\n\n<ul>\n\t<li>You start with 2 health points.</li>\n\t<li>Enter room 2. Your health points are now <code>2 - 1 = 1</code>. You get 1 point because <code>1 &gt;= 1</code>.</li>\n</ul>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= hp &lt;= 10<sup>9</sup></code></li>\n\t<li><code>1 &lt;= n == damage.length == requirement.length &lt;= 10<sup>5</sup></code></li>\n\t<li><code>1 &lt;= damage[i], requirement[i] &lt;= 10<sup>4</sup></code></li>\n</ul>\n",
+  "hints": [
+    "Use prefix sums on the damage. Create <code>pref</code> with the prefix sums.",
+    "Initially, the total points/score is the total number of subarrays <code>n * (n + 1) / 2</code>.",
+    "We need to subtract subarrays <code>[i, j]</code> that do not satisfy <code>hp - (pref[j] - pref[i-1]) >= requirement[j]</code>. The inequality is equivalent to <code>pref[i-1] >= requirement[j] - hp + pref[j]</code>.",
+    "For each <code>j</code>, count the previous <code>i</code>s with <code>pref[i-1] < requirement[j] - hp + pref[j]</code> using binary search or an ordered data structure."
+  ],
+  "sample_test_cases": [
+    "11",
+    "[3,6,7]",
+    "[4,2,5]",
+    "2",
+    "[10000,1]",
+    "[1,1]"
+  ],
+  "content_signature": "-skbh5j",
+  "fetched_at": "2026-05-21T07:49:41.192Z"
+}

@@ -1,0 +1,27 @@
+{
+  "slug": "flip-square-submatrix-vertically",
+  "leetcode_id": "3973",
+  "title": "Flip Square Submatrix Vertically",
+  "difficulty": "Easy",
+  "tags": [
+    "array",
+    "two-pointers",
+    "matrix"
+  ],
+  "description_html": "<p>You are given an <code>m x n</code> integer matrix <code>grid</code>, and three integers <code>x</code>, <code>y</code>, and <code>k</code>.</p>\n\n<p>The integers <code>x</code> and <code>y</code> represent the row and column indices of the <strong>top-left</strong> corner of a <strong>square</strong> submatrix and the integer <code>k</code> represents the size (side length) of the square submatrix.</p>\n\n<p>Your task is to flip the submatrix by reversing the order of its rows vertically.</p>\n\n<p>Return the updated matrix.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n<img alt=\"\" src=\"https://assets.leetcode.com/uploads/2025/07/20/gridexmdrawio.png\" style=\"width: 300px; height: 116px;\" />\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">grid = </span>[[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]]<span class=\"example-io\">, x = 1, y = 0, k = 3</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">[[1,2,3,4],[13,14,15,8],[9,10,11,12],[5,6,7,16]]</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The diagram above shows the grid before and after the transformation.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n<img alt=\"\" src=\"https://assets.leetcode.com/uploads/2025/07/20/gridexm2drawio.png\" style=\"width: 350px; height: 68px;\" />​​​​​​​\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">grid = [[3,4,2,3],[2,3,4,2]], x = 0, y = 2, k = 2</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">[[3,4,4,2],[2,3,2,3]]</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The diagram above shows the grid before and after the transformation.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>m == grid.length</code></li>\n\t<li><code>n == grid[i].length</code></li>\n\t<li><code>1 &lt;= m, n &lt;= 50</code></li>\n\t<li><code>1 &lt;= grid[i][j] &lt;= 100</code></li>\n\t<li><code>0 &lt;= x &lt; m</code></li>\n\t<li><code>0 &lt;= y &lt; n</code></li>\n\t<li><code>1 &lt;= k &lt;= min(m - x, n - y)</code></li>\n</ul>\n",
+  "hints": [
+    "Use two pointers at the block's top and bottom rows and swap their <code>k</code> columns pairwise until the pointers meet."
+  ],
+  "sample_test_cases": [
+    "[[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]]",
+    "1",
+    "0",
+    "3",
+    "[[3,4,2,3],[2,3,4,2]]",
+    "0",
+    "2",
+    "2"
+  ],
+  "content_signature": "lsj99c",
+  "fetched_at": "2026-05-21T07:46:18.554Z"
+}

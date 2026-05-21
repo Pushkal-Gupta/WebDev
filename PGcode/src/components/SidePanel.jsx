@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { useProblemsCompact, useUserProgress, useProfile, useRecentProblems, filterByRoadmap } from '../lib/queries';
 import { ChevronDown, Settings, RotateCcw, HelpCircle, Flame, Trophy, Play } from 'lucide-react';
 import './SidePanel.css';
 
@@ -9,115 +9,81 @@ const DAYS = ['S','M','T','W','T','F','S'];
 
 export default function SidePanel({ session, roadmapMode, setRoadmapMode }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [progress, setProgress] = useState({ easy: 0, easyTotal: 0, med: 0, medTotal: 0, hard: 0, hardTotal: 0, completed: 0, total: 0 });
-  const [streak, setStreak] = useState({ current: 0, best: 0 });
-  const [solveDates, setSolveDates] = useState(new Set());
-  const [recentProblems, setRecentProblems] = useState([]);
+  const userId = session?.user?.id;
 
   // Calendar state
   const now = new Date();
   const [calYear, setCalYear] = useState(now.getFullYear());
   const [calMonth, setCalMonth] = useState(now.getMonth());
 
-  useEffect(() => {
-    // Reset immediately so ring doesn't show stale counts
-    setProgress({ easy: 0, easyTotal: 0, med: 0, medTotal: 0, hard: 0, hardTotal: 0, completed: 0, total: 0 });
-    setStreak({ current: 0, best: 0 });
-    fetchProgress();
-  }, [roadmapMode, session]);
+  const { data: problemsData } = useProblemsCompact();
+  const { data: progressBundle } = useUserProgress(userId);
+  const { data: profile } = useProfile(userId);
+  const { data: recentProblems = [] } = useRecentProblems(userId);
 
-  async function fetchProgress() {
-    try {
-      const { data: problems } = await supabase
-        .from('PGcode_problems')
-        .select('id, topic_id, difficulty, roadmap_set');
+  const streak = useMemo(() => ({
+    current: profile?.current_streak || 0,
+    best: profile?.longest_streak || 0,
+  }), [profile]);
 
-      const filtered = (problems || []).filter(p => {
-        if (roadmapMode === '100') return p.roadmap_set === '100';
-        if (roadmapMode === '200') return p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === 'both' || !p.roadmap_set;
-        if (roadmapMode === '300') return p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === 'both' || !p.roadmap_set;
-        if (roadmapMode === '400') return p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === '400' || p.roadmap_set === 'both' || !p.roadmap_set;
-        return true; // PGcode 500 shows all
-      });
+  // Problem of the Day — deterministic by UTC date so the same problem
+  // surfaces all day, then rotates at midnight UTC. Prefer the rich-content
+  // flagships (presence of test_cases) when available.
+  const potd = useMemo(() => {
+    const pool = (problemsData || []).filter(p => Array.isArray(p.test_cases) && p.test_cases.length >= 5);
+    const list = pool.length > 0 ? pool : (problemsData || []).slice(0, 100);
+    if (list.length === 0) return null;
+    // Days since unix epoch as the seed; deterministic per UTC day.
+    const days = Math.floor(Date.now() / 86400000);
+    const idx = days % list.length;
+    return list[idx];
+  }, [problemsData]);
 
-      let easyTotal = 0, medTotal = 0, hardTotal = 0;
-      filtered.forEach(p => {
-        if (p.difficulty === 'Easy') easyTotal++;
-        else if (p.difficulty === 'Medium') medTotal++;
-        else if (p.difficulty === 'Hard') hardTotal++;
-      });
+  // Per-mode counts so the dropdown can show the real number of problems
+  // each mode includes. Avoids the old confusion where "PGcode 100" did NOT
+  // mean 100 problems.
+  const modeCounts = useMemo(() => {
+    const all = problemsData || [];
+    return {
+      '100': filterByRoadmap(all, '100').length,
+      '200': filterByRoadmap(all, '200').length,
+      '300': filterByRoadmap(all, '300').length,
+      '400': filterByRoadmap(all, '400').length,
+      '500': filterByRoadmap(all, '500').length,
+      all:   all.length,
+    };
+  }, [problemsData]);
 
-      let easy = 0, med = 0, hard = 0, dates = new Set();
-      if (session?.user) {
-        const { data: userProg } = await supabase
-          .from('PGcode_user_progress')
-          .select('problem_id, is_completed, last_solved_at')
-          .eq('user_id', session.user.id)
-          .eq('is_completed', true);
+  const { progress, solveDates } = useMemo(() => {
+    const filtered = filterByRoadmap(problemsData, roadmapMode);
+    let easyTotal = 0, medTotal = 0, hardTotal = 0;
+    const diffMap = {};
+    filtered.forEach(p => {
+      diffMap[p.id] = p.difficulty;
+      if (p.difficulty === 'Easy') easyTotal++;
+      else if (p.difficulty === 'Medium') medTotal++;
+      else if (p.difficulty === 'Hard') hardTotal++;
+    });
 
-        if (userProg) {
-          const completedIds = new Set(userProg.map(p => p.problem_id));
-          const diffMap = {};
-          filtered.forEach(p => { diffMap[p.id] = p.difficulty; });
+    let easy = 0, med = 0, hard = 0;
+    const dates = new Set();
+    (progressBundle?.rows || []).forEach(p => {
+      if (!p.is_completed) return;
+      if (diffMap[p.problem_id] === 'Easy') easy++;
+      else if (diffMap[p.problem_id] === 'Medium') med++;
+      else if (diffMap[p.problem_id] === 'Hard') hard++;
+      if (p.last_solved_at) dates.add(new Date(p.last_solved_at).toDateString());
+    });
 
-          completedIds.forEach(id => {
-            if (diffMap[id] === 'Easy') easy++;
-            else if (diffMap[id] === 'Medium') med++;
-            else if (diffMap[id] === 'Hard') hard++;
-          });
-
-          userProg.forEach(p => {
-            if (p.last_solved_at) {
-              dates.add(new Date(p.last_solved_at).toDateString());
-            }
-          });
-        }
-
-        // Fetch streak
-        const { data: profile } = await supabase
-          .from('PGcode_profiles')
-          .select('current_streak, longest_streak')
-          .eq('user_id', session.user.id)
-          .single();
-
-        if (profile) {
-          setStreak({ current: profile.current_streak || 0, best: profile.longest_streak || 0 });
-        }
-
-        // Fetch recent problems for "Continue" section
-        const { data: recentProg } = await supabase
-          .from('PGcode_user_progress')
-          .select('problem_id, updated_at')
-          .eq('user_id', session.user.id)
-          .order('updated_at', { ascending: false })
-          .limit(3);
-
-        if (recentProg && recentProg.length > 0) {
-          const recentIds = recentProg.map(r => r.problem_id);
-          const { data: recentData } = await supabase
-            .from('PGcode_problems')
-            .select('id, name, topic_id, difficulty')
-            .in('id', recentIds);
-
-          if (recentData) {
-            // Preserve order from progress query
-            const map = {};
-            recentData.forEach(p => { map[p.id] = p; });
-            setRecentProblems(recentIds.map(id => map[id]).filter(Boolean));
-          }
-        }
-      }
-
-      setSolveDates(dates);
-      setProgress({
+    return {
+      progress: {
         easy, easyTotal, med, medTotal, hard, hardTotal,
         completed: easy + med + hard,
         total: easyTotal + medTotal + hardTotal,
-      });
-    } catch (err) {
-      // non-critical
-    }
-  }
+      },
+      solveDates: dates,
+    };
+  }, [problemsData, progressBundle, roadmapMode]);
 
   // Calendar grid
   const calendarGrid = useMemo(() => {
@@ -171,37 +137,50 @@ export default function SidePanel({ session, roadmapMode, setRoadmapMode }) {
         </div>
       </div>
 
-      {/* Mode Dropdown */}
+      {/* Mode Dropdown — label shows real per-mode counts so users aren't
+          confused when "PGcode 200" used to actually return 263 problems. */}
       <div className="sp-dropdown-wrap">
         <button className="sp-dropdown-btn" onClick={() => setDropdownOpen(!dropdownOpen)}>
-          PGcode {roadmapMode}
+          {roadmapMode === 'all' ? 'PGcode All' : `PGcode ${roadmapMode}`}
+          <span style={{ marginLeft: '0.4rem', opacity: 0.6, fontSize: '0.7em' }}>
+            {modeCounts[roadmapMode] || 0}
+          </span>
           <ChevronDown size={14} className={`sp-chevron ${dropdownOpen ? 'open' : ''}`} />
         </button>
         {dropdownOpen && (
           <div className="sp-dropdown-menu">
-            <button className={`sp-dropdown-item ${roadmapMode === '100' ? 'active' : ''}`}
-              onClick={() => { setRoadmapMode('100'); setDropdownOpen(false); }}>
-              PGcode 100
-            </button>
-            <button className={`sp-dropdown-item ${roadmapMode === '200' ? 'active' : ''}`}
-              onClick={() => { setRoadmapMode('200'); setDropdownOpen(false); }}>
-              PGcode 200
-            </button>
-            <button className={`sp-dropdown-item ${roadmapMode === '300' ? 'active' : ''}`}
-              onClick={() => { setRoadmapMode('300'); setDropdownOpen(false); }}>
-              PGcode 300
-            </button>
-            <button className={`sp-dropdown-item ${roadmapMode === '400' ? 'active' : ''}`}
-              onClick={() => { setRoadmapMode('400'); setDropdownOpen(false); }}>
-              PGcode 400
-            </button>
-            <button className={`sp-dropdown-item ${roadmapMode === '500' ? 'active' : ''}`}
-              onClick={() => { setRoadmapMode('500'); setDropdownOpen(false); }}>
-              PGcode 500
-            </button>
+            {['100', '200', '300', '400', '500', 'all'].map(mode => (
+              <button
+                key={mode}
+                className={`sp-dropdown-item ${roadmapMode === mode ? 'active' : ''}`}
+                onClick={() => { setRoadmapMode(mode); setDropdownOpen(false); }}
+              >
+                {mode === 'all' ? 'PGcode All' : `PGcode ${mode}`}
+                <span style={{ marginLeft: 'auto', opacity: 0.5, fontFamily: 'var(--mono)', fontSize: '0.72em' }}>
+                  {modeCounts[mode] || 0}
+                </span>
+              </button>
+            ))}
           </div>
         )}
       </div>
+
+      {/* Problem of the Day — deterministic by date so it changes daily but
+          stays stable within the day. Picks from the rich-content flagships
+          if available, otherwise the first 100 problems. */}
+      {potd && (
+        <Link
+          to={`/category/${encodeURIComponent(potd.topic_id)}/${encodeURIComponent(potd.id)}`}
+          className="sp-potd"
+        >
+          <span className="sp-potd-label">Problem of the Day</span>
+          <span className="sp-potd-name">{potd.name}</span>
+          <span className="sp-potd-foot">
+            <span className={`sp-potd-diff sp-${potd.difficulty?.toLowerCase()}`}>{potd.difficulty}</span>
+            <span className="sp-potd-cta">Solve →</span>
+          </span>
+        </Link>
+      )}
 
       {/* Continue Where You Left Off */}
       {session?.user && recentProblems.length > 0 && (
@@ -210,7 +189,7 @@ export default function SidePanel({ session, roadmapMode, setRoadmapMode }) {
             <Play size={12} /> Continue
           </div>
           {recentProblems.map(p => (
-            <Link key={p.id} to={`/category/${p.topic_id}/${p.id}`} className="sp-continue-item">
+            <Link key={p.id} to={`/category/${encodeURIComponent(p.topic_id)}/${encodeURIComponent(p.id)}`} className="sp-continue-item">
               <span className="sp-continue-name">{p.name}</span>
               <span className={`sp-continue-diff sp-${p.difficulty?.toLowerCase()}`}>{p.difficulty}</span>
             </Link>

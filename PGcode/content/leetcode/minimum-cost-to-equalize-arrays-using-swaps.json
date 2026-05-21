@@ -1,0 +1,28 @@
+{
+  "slug": "minimum-cost-to-equalize-arrays-using-swaps",
+  "leetcode_id": "4253",
+  "title": "Minimum Cost to Equalize Arrays Using Swaps",
+  "difficulty": "Medium",
+  "tags": [
+    "array",
+    "hash-table",
+    "greedy",
+    "counting"
+  ],
+  "description_html": "<p>You are given two integer arrays <code>nums1</code> and <code>nums2</code> of size <code>n</code>.</p>\n\n<p>You can perform the following two operations any number of times on these two arrays:</p>\n\n<ul>\n\t<li><strong>Swap within the same array</strong>: Choose two indices <code>i</code> and <code>j</code>. Then, choose either to swap <code>nums1[i]</code> and <code>nums1[j]</code>, or <code>nums2[i]</code> and <code>nums2[j]</code>. This operation is <strong>free of charge</strong>.</li>\n\t<li><strong>Swap between two arrays</strong>: Choose an index <code>i</code>. Then, swap <code>nums1[i]</code> and <code>nums2[i]</code>. This operation <strong>incurs a cost of 1</strong>.</li>\n</ul>\n\n<p>Return an integer denoting the <strong>minimum cost</strong> to make <code>nums1</code> and <code>nums2</code> <strong>identical</strong>. If this is not possible, return -1.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums1 = [10,20], nums2 = [20,10]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">0</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<ul>\n\t<li>Swap <code>nums2[0] = 20</code> and <code>nums2[1] = 10</code>.\n\n\t<ul>\n\t\t<li><code>nums2</code> becomes <code>[10, 20]</code>.</li>\n\t\t<li>This operation is free of charge.</li>\n\t</ul>\n\t</li>\n\t<li><code>nums1</code> and <code>nums2</code> are now identical. The cost is 0.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums1 = [10,10], nums2 = [20,20]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">1</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<ul>\n\t<li>Swap <code>nums1[0] = 10</code> and <code>nums2[0] = 20</code>.\n\n\t<ul>\n\t\t<li><code>nums1</code> becomes <code>[20, 10]</code>.</li>\n\t\t<li><code>nums2</code> becomes <code>[10, 20]</code>.</li>\n\t\t<li>This operation costs 1.</li>\n\t</ul>\n\t</li>\n\t<li>Swap <code>nums2[0] = 10</code> and <code>nums2[1] = 20</code>.\n\t<ul>\n\t\t<li><code>nums2</code> becomes <code>[20, 10]</code>.</li>\n\t\t<li>This operation is free of charge.</li>\n\t</ul>\n\t</li>\n\t<li><code>nums1</code> and <code>nums2</code> are now identical. The cost is 1.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums1 = [10,20], nums2 = [30,40]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">-1</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>It is impossible to make the two arrays identical. Therefore, the answer is -1.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>2 &lt;= n == nums1.length == nums2.length &lt;= 8 * 10<sup>4</sup></code></li>\n\t<li><code>1 &lt;= nums1[i], nums2[i] &lt;= 8 * 10<sup>4</sup></code></li>\n</ul>\n",
+  "hints": [
+    "Since swaps inside the same array are free, positions do not matter; only frequencies matter.",
+    "Let <code>cnt1[v]</code> and <code>cnt2[v]</code> be frequencies. If <code>cnt1[v] + cnt2[v]</code> is odd for any <code>v</code>, return <code>-1</code>.",
+    "Let <code>diff[v] = abs(cnt1[v] - cnt2[v])</code>. Each cross swap fixes two mismatches, so minimum cost = <code>sum(diff[v]) / 4</code>."
+  ],
+  "sample_test_cases": [
+    "[10,20]",
+    "[20,10]",
+    "[10,10]",
+    "[20,20]",
+    "[10,20]",
+    "[30,40]"
+  ],
+  "content_signature": "-dlz9xh",
+  "fetched_at": "2026-05-21T07:53:04.532Z"
+}

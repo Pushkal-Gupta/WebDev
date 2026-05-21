@@ -4,12 +4,13 @@ import LoginModal from './LoginModal';
 import AccountModal from './AccountModal';
 import './Navbar.css';
 
-export default function Navbar({ session, theme, toggleTheme, isWorkspace }) {
+export default function Navbar({ session, theme, toggleTheme, applyTheme, setPreferredLang, preferredLang }) {
   const [showLogin, setShowLogin] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
 
-  // On the home page the brand links out to the portfolio landing; on any
-  // deeper page it goes back to the PGcode app home.
+  // Brand link doubles as cross-app navigation:
+  // - On the PGcode home (roadmap), brand → portfolio hub
+  // - Anywhere deeper inside PGcode, brand → back to PGcode root
   const { pathname } = useLocation();
   const isHome = pathname === '/' || pathname === '';
   const brandHref = isHome
@@ -27,10 +28,16 @@ export default function Navbar({ session, theme, toggleTheme, isWorkspace }) {
           </div>
 
           <div className="header-right">
-            <div className="toggle-wrap" onClick={toggleTheme}>
-              <span className="toggle-label">{theme === 'dark' ? 'Dark' : 'Light'}</span>
+            <button
+              type="button"
+              className="toggle-wrap"
+              onClick={toggleTheme}
+              aria-label={`Switch theme (current: ${theme})`}
+              title={`Theme: ${theme} — click to switch`}
+            >
+              <span className="toggle-label">{theme.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}</span>
               <div className="switch-base"></div>
-            </div>
+            </button>
 
             {session ? (
               <button className="auth-btn" onClick={() => setShowAccount(true)}>
@@ -46,7 +53,16 @@ export default function Navbar({ session, theme, toggleTheme, isWorkspace }) {
       </div>
 
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
-      {showAccount && <AccountModal session={session} onClose={() => setShowAccount(false)} />}
+      {showAccount && (
+        <AccountModal
+          session={session}
+          theme={theme}
+          applyTheme={applyTheme}
+          setPreferredLang={setPreferredLang}
+          preferredLang={preferredLang}
+          onClose={() => setShowAccount(false)}
+        />
+      )}
     </header>
   );
 }

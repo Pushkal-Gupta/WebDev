@@ -1,0 +1,21 @@
+{
+  "slug": "bitwise-and-of-numbers-range",
+  "leetcode_id": "201",
+  "title": "Bitwise AND of Numbers Range",
+  "difficulty": "Medium",
+  "tags": [
+    "bit-manipulation"
+  ],
+  "description_html": "<p>Given two integers <code>left</code> and <code>right</code> that represent the range <code>[left, right]</code>, return <em>the bitwise AND of all numbers in this range, inclusive</em>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<pre>\n<strong>Input:</strong> left = 5, right = 7\n<strong>Output:</strong> 4\n</pre>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<pre>\n<strong>Input:</strong> left = 0, right = 0\n<strong>Output:</strong> 0\n</pre>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<pre>\n<strong>Input:</strong> left = 1, right = 2147483647\n<strong>Output:</strong> 0\n</pre>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>0 &lt;= left &lt;= right &lt;= 2<sup>31</sup> - 1</code></li>\n</ul>\n",
+  "hints": [],
+  "sample_test_cases": [
+    "5",
+    "7",
+    "0",
+    "0",
+    "1",
+    "2147483647"
+  ],
+  "content_signature": "bovj1q",
+  "fetched_at": "2026-05-21T05:54:28.590Z"
+}

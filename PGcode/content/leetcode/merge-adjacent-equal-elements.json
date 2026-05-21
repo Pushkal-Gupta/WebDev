@@ -1,0 +1,24 @@
+{
+  "slug": "merge-adjacent-equal-elements",
+  "leetcode_id": "4213",
+  "title": "Merge Adjacent Equal Elements",
+  "difficulty": "Medium",
+  "tags": [
+    "array",
+    "stack",
+    "simulation"
+  ],
+  "description_html": "<p>You are given an integer array <code>nums</code>.</p>\n\n<p>You must <strong>repeatedly</strong> apply the following merge operation until no more changes can be made:</p>\n\n<ul>\n\t<li>If any <strong>two adjacent elements are equal</strong>, choose the <strong>leftmost</strong> such adjacent pair in the current array and replace them with a single element equal to their <strong>sum</strong>.</li>\n</ul>\n\n<p>After each merge operation, the array size <strong>decreases</strong> by 1. Repeat the process on the updated array until no more changes can be made.</p>\n\n<p>Return the final array after all possible merge operations.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [3,1,1,2]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">[3,4]</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<ul>\n\t<li>The middle two elements are equal and merged into <code>1 + 1 = 2</code>, resulting in <code>[3, 2, 2]</code>.</li>\n\t<li>The last two elements are equal and merged into <code>2 + 2 = 4</code>, resulting in <code>[3, 4]</code>.</li>\n\t<li>No adjacent equal elements remain. Thus, the answer is <code>[3, 4]</code>.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [2,2,4]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">[8]</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<ul>\n\t<li>The first two elements are equal and merged into <code>2 + 2 = 4</code>, resulting in <code>[4, 4]</code>.</li>\n\t<li>The first two elements are equal and merged into <code>4 + 4 = 8</code>, resulting in <code>[8]</code>.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [3,7,5]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">[3,7,5]</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>There are no adjacent equal elements in the array, so no operations are performed.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= nums.length &lt;= 10<sup>5</sup></code></li>\n\t<li><code>1 &lt;= nums[i] &lt;= 10<sup>5</sup></code>​​​​​​​</li>\n</ul>\n",
+  "hints": [
+    "Process the array from left to right using a stack-like structure",
+    "When the current value equals the top of the stack, merge them by replacing with their sum and continue checking",
+    "The remaining stack elements form the final array"
+  ],
+  "sample_test_cases": [
+    "[3,1,1,2]",
+    "[2,2,4]",
+    "[3,7,5]"
+  ],
+  "content_signature": "-erdwco",
+  "fetched_at": "2026-05-21T07:51:29.538Z"
+}

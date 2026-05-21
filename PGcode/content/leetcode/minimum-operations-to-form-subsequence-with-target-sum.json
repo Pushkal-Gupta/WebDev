@@ -1,0 +1,29 @@
+{
+  "slug": "minimum-operations-to-form-subsequence-with-target-sum",
+  "leetcode_id": "3025",
+  "title": "Minimum Operations to Form Subsequence With Target Sum",
+  "difficulty": "Hard",
+  "tags": [
+    "array",
+    "greedy",
+    "bit-manipulation"
+  ],
+  "description_html": "<p>You are given a <strong>0-indexed</strong> array <code>nums</code> consisting of <strong>non-negative</strong> powers of <code>2</code>, and an integer <code>target</code>.</p>\n\n<p>In one operation, you must apply the following changes to the array:</p>\n\n<ul>\n\t<li>Choose any element of the array <code>nums[i]</code> such that <code>nums[i] &gt; 1</code>.</li>\n\t<li>Remove <code>nums[i]</code> from the array.</li>\n\t<li>Add <strong>two</strong> occurrences of <code>nums[i] / 2</code> to the <strong>end</strong> of <code>nums</code>.</li>\n</ul>\n\n<p>Return the <em><strong>minimum number of operations</strong> you need to perform so that </em><code>nums</code><em> contains a <strong>subsequence</strong> whose elements sum to</em> <code>target</code>. If it is impossible to obtain such a subsequence, return <code>-1</code>.</p>\n\n<p>A <strong>subsequence</strong> is an array that can be derived from another array by deleting some or no elements without changing the order of the remaining elements.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<pre>\n<strong>Input:</strong> nums = [1,2,8], target = 7\n<strong>Output:</strong> 1\n<strong>Explanation:</strong> In the first operation, we choose element nums[2]. The array becomes equal to nums = [1,2,4,4].\nAt this stage, nums contains the subsequence [1,2,4] which sums up to 7.\nIt can be shown that there is no shorter sequence of operations that results in a subsequnce that sums up to 7.\n</pre>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<pre>\n<strong>Input:</strong> nums = [1,32,1,2], target = 12\n<strong>Output:</strong> 2\n<strong>Explanation:</strong> In the first operation, we choose element nums[1]. The array becomes equal to nums = [1,1,2,16,16].\nIn the second operation, we choose element nums[3]. The array becomes equal to nums = [1,1,2,16,8,8]\nAt this stage, nums contains the subsequence [1,1,2,8] which sums up to 12.\nIt can be shown that there is no shorter sequence of operations that results in a subsequence that sums up to 12.</pre>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<pre>\n<strong>Input:</strong> nums = [1,32,1], target = 35\n<strong>Output:</strong> -1\n<strong>Explanation:</strong> It can be shown that no sequence of operations results in a subsequence that sums up to 35.\n</pre>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= nums.length &lt;= 1000</code></li>\n\t<li><code>1 &lt;= nums[i] &lt;= 2<sup>30</sup></code></li>\n\t<li><code>nums</code> consists only of non-negative powers of two.</li>\n\t<li><code>1 &lt;= target &lt; 2<sup>31</sup></code></li>\n</ul>\n",
+  "hints": [
+    "<div class=\"_1l1MA\">if <code>target > sum(nums[i]) </code>, return <code>-1</code>. Otherwise, an answer exists</div>",
+    "<div class=\"_1l1MA\">Solve the problem for each set bit of <code>target</code>, independently, from least significant to most significant bit. </div>",
+    "<div class=\"_1l1MA\">For each set <code>bit</code> of <code>target</code> from least to most significant, let <code>X = sum(nums[i])</code> for <code>nums[i] <= 2^bit</code>.</div>",
+    "<div class=\"_1l1MA\">\r\nif <code>X >= 2^bit</code>, repeatedly select the maximum <code>nums[i]</code> such that <code>nums[i]<=2^bit</code> that has not been selected yet, until the sum of selected elements equals <code>2^bit</code>. The selected <code>nums[i]</code> will be part of the subsequence whose elements sum to target, so those elements can not be selected again.\r\n</div>",
+    "<div class=\"_1l1MA\">Otherwise, select the smallest <code>nums[i]</code> such that <code>nums[i] > 2^bit</code>, delete <code>nums[i]</code> and add two occurences of <code>nums[i]/2</code>. Without moving to the next <code>bit</code>, go back to the step in hint 3.</div>"
+  ],
+  "sample_test_cases": [
+    "[1,2,8]",
+    "7",
+    "[1,32,1,2]",
+    "12",
+    "[1,32,1]",
+    "35"
+  ],
+  "content_signature": "-mvv3rf",
+  "fetched_at": "2026-05-21T07:05:53.135Z"
+}

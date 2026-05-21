@@ -1,0 +1,21 @@
+{
+  "slug": "maximum-value-of-concatenated-binary-segments",
+  "leetcode_id": "4278",
+  "title": "Maximum Value of Concatenated Binary Segments",
+  "difficulty": "Hard",
+  "tags": [],
+  "description_html": "<p>You are given two integer arrays <code>nums1</code> and <code>nums0</code>, each of size <code>n</code>.</p>\n\n<ul>\n\t<li><code>nums1[i]</code> represents the number of <code>&#39;1&#39;</code>s in the <code>i<sup>th</sup></code> segment.</li>\n\t<li><code>nums0[i]</code> represents the number of <code>&#39;0&#39;</code>s in the <code>i<sup>th</sup></code> segment.</li>\n</ul>\n\n<p>For each index <code>i</code>, construct a binary segment consisting of:</p>\n\n<ul>\n\t<li><code>nums1[i]</code> occurrences of <code>&#39;1&#39;</code> followed by</li>\n\t<li><code>nums0[i]</code> occurrences of <code>&#39;0&#39;</code>.</li>\n</ul>\n\n<p>You may <strong>rearrange</strong> the order of these <strong>segments</strong> in any way. After rearranging, <strong>concatenate</strong> all segments to form a single binary string.</p>\n\n<p>Return the <strong>maximum</strong> possible integer value of the concatenated binary string.</p>\n\n<p>Since the result can be very large, return the answer <strong>modulo</strong> <code>10<sup>9</sup> + 7</code>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums1 = [1,2], nums0 = [1,0]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">14</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<ul>\n\t<li>At index 0, <code>nums1[0] = 1</code> and <code>nums0[0] = 1</code>, so the segment formed is <code>&quot;10&quot;</code>.</li>\n\t<li>At index 1, <code>nums1[1] = 2</code> and <code>nums0[1] = 0</code>, so the segment formed is <code>&quot;11&quot;</code>.</li>\n\t<li>Reordering the segments as <code>&quot;11&quot;</code> followed by <code>&quot;10&quot;</code> produces the binary string <code>&quot;1110&quot;</code>.</li>\n\t<li>The binary number <code>&quot;1110&quot;</code> has value 14 which is the maximum possible value.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums1 = [3,1], nums0 = [0,3]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">120</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<ul>\n\t<li>At index 0, <code>nums1[0] = 3</code> and <code>nums0[0] = 0</code>, so the segment formed is <code>&quot;111&quot;</code>.</li>\n\t<li>At index 1, <code>nums1[1] = 1</code> and <code>nums0[1] = 3</code>, so the segment formed is <code>&quot;1000&quot;</code>.</li>\n\t<li>Reordering the segments as <code>&quot;111&quot;</code> followed by <code>&quot;1000&quot;</code> produces the binary string <code>&quot;1111000&quot;</code>.</li>\n\t<li>The binary number <code>&quot;1111000&quot;</code> has value 120 which is the maximum possible value.</li>\n</ul>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= n == nums1.length == nums0.length &lt;= 10<sup>5</sup></code></li>\n\t<li><code>0 &lt;= nums1[i], nums0[i] &lt;= 10<sup>4</sup></code></li>\n\t<li><code>nums1[i] + nums0[i] &gt; 0</code></li>\n\t<li>The total sum of all elements in <code>nums1</code> and <code>nums0</code> does not exceed 2 * 10<sup>5</sup>.</li>\n</ul>\n",
+  "hints": [
+    "It is optimal for the segments with more leading ones to come first.",
+    "Sort the segments by the number of ones in their prefix (in descending order).",
+    "Start with segments that contain the most ones first."
+  ],
+  "sample_test_cases": [
+    "[1,2]",
+    "[1,0]",
+    "[3,1]",
+    "[0,3]"
+  ],
+  "content_signature": "-k8u8dr",
+  "fetched_at": "2026-05-21T07:54:00.684Z"
+}

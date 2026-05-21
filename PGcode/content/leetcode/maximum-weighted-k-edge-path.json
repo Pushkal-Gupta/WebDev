@@ -1,0 +1,33 @@
+{
+  "slug": "maximum-weighted-k-edge-path",
+  "leetcode_id": "3856",
+  "title": "Maximum Weighted K-Edge Path",
+  "difficulty": "Medium",
+  "tags": [
+    "hash-table",
+    "dynamic-programming",
+    "graph"
+  ],
+  "description_html": "<p>You are given an integer <code>n</code> and a <strong>Directed Acyclic Graph (DAG)</strong> with <code>n</code> nodes labeled from 0 to <code>n - 1</code>. This is represented by a 2D array <code>edges</code>, where <code>edges[i] = [u<sub>i</sub>, v<sub>i</sub>, w<sub>i</sub>]</code> indicates a directed edge from node <code>u<sub>i</sub></code> to <code>v<sub>i</sub></code> with weight <code>w<sub>i</sub></code>.</p>\n\n<p>You are also given two integers, <code>k</code> and <code>t</code>.</p>\n\n<p>Your task is to determine the <strong>maximum</strong> possible sum of edge weights for any path in the graph such that:</p>\n\n<ul>\n\t<li>The path contains <strong>exactly</strong> <code>k</code> edges.</li>\n\t<li>The total sum of edge weights in the path is <strong>strictly</strong> less than <code>t</code>.</li>\n</ul>\n\n<p>Return the <strong>maximum</strong> possible sum of weights for such a path. If no such path exists, return <code>-1</code>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">n = 3, edges = [[0,1,1],[1,2,2]], k = 2, t = 4</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">3</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p><img src=\"https://assets.leetcode.com/uploads/2025/04/09/screenshot-2025-04-10-at-061326.png\" style=\"width: 180px; height: 162px;\" /></p>\n\n<ul>\n\t<li>The only path with <code>k = 2</code> edges is <code>0 -&gt; 1 -&gt; 2</code> with weight <code>1 + 2 = 3 &lt; t</code>.</li>\n\t<li>Thus, the maximum possible sum of weights less than <code>t</code> is 3.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">n = 3, edges = [[0,1,2],[0,2,3]], k = 1, t = 3</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">2</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p><img src=\"https://assets.leetcode.com/uploads/2025/04/09/screenshot-2025-04-10-at-061406.png\" style=\"width: 180px; height: 164px;\" /></p>\n\n<ul>\n\t<li>There are two paths with <code>k = 1</code> edge:\n\n\t<ul>\n\t\t<li><code>0 -&gt; 1</code> with weight <code>2 &lt; t</code>.</li>\n\t\t<li><code>0 -&gt; 2</code> with weight <code>3 = t</code>, which is not strictly less than <code>t</code>.</li>\n\t</ul>\n\t</li>\n\t<li>Thus, the maximum possible sum of weights less than <code>t</code> is 2.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">n = 3, edges = [[0,1,6],[1,2,8]], k = 1, t = 6</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">-1</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p><img src=\"https://assets.leetcode.com/uploads/2025/04/09/screenshot-2025-04-10-at-061442.png\" style=\"width: 180px; height: 154px;\" /></p>\n\n<ul>\n\t<li>There are two paths with k = 1 edge:\n\t<ul>\n\t\t<li><code>0 -&gt; 1</code> with weight <code>6 = t</code>, which is not strictly less than <code>t</code>.</li>\n\t\t<li><code>1 -&gt; 2</code> with weight <code>8 &gt; t</code>, which is not strictly less than <code>t</code>.</li>\n\t</ul>\n\t</li>\n\t<li>Since there is no path with sum of weights strictly less than <code>t</code>, the answer is -1.</li>\n</ul>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= n &lt;= 300</code></li>\n\t<li><code>0 &lt;= edges.length &lt;= 300</code></li>\n\t<li><code>edges[i] = [u<sub>i</sub>, v<sub>i</sub>, w<sub>i</sub>]</code></li>\n\t<li><code>0 &lt;= u<sub>i</sub>, v<sub>i</sub> &lt; n</code></li>\n\t<li><code>u<sub>i</sub> != v<sub>i</sub></code></li>\n\t<li><code>1 &lt;= w<sub>i</sub> &lt;= 10</code></li>\n\t<li><code>0 &lt;= k &lt;= 300</code></li>\n\t<li><code>1 &lt;= t &lt;= 600</code></li>\n\t<li>The input graph is <strong>guaranteed</strong> to be a <strong>DAG</strong>.</li>\n\t<li>There are no duplicate edges.</li>\n</ul>\n",
+  "hints": [
+    "Use Dynamic Programming",
+    "How many paths and path sums are possible? Can we maintain the pathSums for a given path length ending at a particular node in a set?",
+    "The set <code>dp[i][j]</code> contains all possible path weights that end at node <code>i</code>, have total weight less than <code>T</code>, and consist of exactly <code>j</code> edges"
+  ],
+  "sample_test_cases": [
+    "3",
+    "[[0,1,1],[1,2,2]]",
+    "2",
+    "4",
+    "3",
+    "[[0,1,2],[0,2,3]]",
+    "1",
+    "3",
+    "3",
+    "[[0,1,6],[1,2,8]]",
+    "1",
+    "6"
+  ],
+  "content_signature": "-408028",
+  "fetched_at": "2026-05-21T07:42:57.897Z"
+}

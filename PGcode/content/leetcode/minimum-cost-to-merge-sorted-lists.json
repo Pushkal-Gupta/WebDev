@@ -1,0 +1,29 @@
+{
+  "slug": "minimum-cost-to-merge-sorted-lists",
+  "leetcode_id": "4144",
+  "title": "Minimum Cost to Merge Sorted Lists",
+  "difficulty": "Hard",
+  "tags": [
+    "array",
+    "two-pointers",
+    "binary-search",
+    "dynamic-programming",
+    "bit-manipulation"
+  ],
+  "description_html": "<p>You are given a 2D integer array <code>lists</code>, where each <code>lists[i]</code> is a non-empty array of integers <strong>sorted</strong> in <strong>non-decreasing</strong> order.</p>\n\n<p>You may <strong>repeatedly</strong> choose two lists <code>a = lists[i]</code> and <code>b = lists[j]</code>, where <code>i != j</code>, and merge them. The <strong>cost</strong> to merge <code>a</code> and <code>b</code> is:</p>\n\n<p><code>len(a) + len(b) + abs(median(a) - median(b))</code>, where <code>len</code> and <code>median</code> denote the list length and median, respectively.</p>\n\n<p>After merging <code>a</code> and <code>b</code>, remove both <code>a</code> and <code>b</code> from <code>lists</code> and insert the new merged <strong>sorted list</strong> in <strong>any</strong> position. Repeat merges until only <strong>one</strong> list remains.</p>\n\n<p>Return an integer denoting the <strong>minimum total cost</strong> required to merge all lists into one single sorted list.</p>\n\n<p>The <strong>median</strong> of an array is the middle element after sorting it in non-decreasing order. If the array has an even number of elements, the median is the left middle element.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">lists = [[1,3,5],[2,4],[6,7,8]]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">18</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>Merge <code>a = [1, 3, 5]</code> and <code>b = [2, 4]</code>:</p>\n\n<ul>\n\t<li><code>len(a) = 3</code> and <code>len(b) = 2</code></li>\n\t<li><code>median(a) = 3</code> and <code>median(b) = 2</code></li>\n\t<li><code>cost = len(a) + len(b) + abs(median(a) - median(b)) = 3 + 2 + abs(3 - 2) = 6</code></li>\n</ul>\n\n<p>So <code>lists</code> becomes <code>[[1, 2, 3, 4, 5], [6, 7, 8]]</code>.</p>\n\n<p>Merge <code>a = [1, 2, 3, 4, 5]</code> and <code>b = [6, 7, 8]</code>:</p>\n\n<ul>\n\t<li><code>len(a) = 5</code> and <code>len(b) = 3</code></li>\n\t<li><code>median(a) = 3</code> and <code>median(b) = 7</code></li>\n\t<li><code>cost = len(a) + len(b) + abs(median(a) - median(b)) = 5 + 3 + abs(3 - 7) = 12</code></li>\n</ul>\n\n<p>So <code>lists</code> becomes <code>[[1, 2, 3, 4, 5, 6, 7, 8]]</code>, and total cost is <code>6 + 12 = 18</code>.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">lists = [[1,1,5],[1,4,7,8]]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">10</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>Merge <code>a = [1, 1, 5]</code> and <code>b = [1, 4, 7, 8]</code>:</p>\n\n<ul>\n\t<li><code>len(a) = 3</code> and <code>len(b) = 4</code></li>\n\t<li><code>median(a) = 1</code> and <code>median(b) = 4</code></li>\n\t<li><code>cost = len(a) + len(b) + abs(median(a) - median(b)) = 3 + 4 + abs(1 - 4) = 10</code></li>\n</ul>\n\n<p>So <code>lists</code> becomes <code>[[1, 1, 1, 4, 5, 7, 8]]</code>, and total cost is 10.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">lists = [[1],[3]]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">4</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>Merge <code>a = [1]</code> and <code>b = [3]</code>:</p>\n\n<ul>\n\t<li><code>len(a) = 1</code> and <code>len(b) = 1</code></li>\n\t<li><code>median(a) = 1</code> and <code>median(b) = 3</code></li>\n\t<li><code>cost = len(a) + len(b) + abs(median(a) - median(b)) = 1 + 1 + abs(1 - 3) = 4</code></li>\n</ul>\n\n<p>So <code>lists</code> becomes <code>[[1, 3]]</code>, and total cost is 4.</p>\n</div>\n\n<p><strong class=\"example\">Example 4:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">lists = [[1],[1]]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">2</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The total cost is <code>len(a) + len(b) + abs(median(a) - median(b)) = 1 + 1 + abs(1 - 1) = 2</code>.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>2 &lt;= lists.length &lt;= 12</code></li>\n\t<li><code>1 &lt;= lists[i].length &lt;= 500</code></li>\n\t<li><code>-10<sup>9</sup> &lt;= lists[i][j] &lt;= 10<sup>9</sup></code></li>\n\t<li><code>lists[i]</code> is sorted in non-decreasing order.</li>\n\t<li>The <strong>sum</strong> of <code>lists[i].length</code> will not exceed 2000.</li>\n</ul>\n",
+  "hints": [
+    "Use dynamic programming and bitmasks",
+    "Precompute the medians for every mask",
+    "Let <code>dp[mask]</code> represent the minimum cost to merge all lists in <code>mask</code>",
+    "<code>dp[mask] = min(dp[s] + dp[mask ^ s] + cost(s, mask ^ s))</code>, where <code>s</code> and <code>mask ^ s</code> are nonempty disjoint submasks whose union is <code>mask</code>",
+    "Use the precomputed medians to compute costs efficiently"
+  ],
+  "sample_test_cases": [
+    "[[1,3,5],[2,4],[6,7,8]]",
+    "[[1,1,5],[1,4,7,8]]",
+    "[[1],[3]]",
+    "[[1],[1]]"
+  ],
+  "content_signature": "-n3pd90",
+  "fetched_at": "2026-05-21T07:50:29.669Z"
+}

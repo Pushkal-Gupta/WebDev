@@ -1,0 +1,25 @@
+{
+  "slug": "largest-local-values-in-a-matrix-ii",
+  "leetcode_id": "3802",
+  "title": "Largest Local Values in a Matrix II",
+  "difficulty": "Medium",
+  "tags": [
+    "array",
+    "matrix",
+    "prefix-sum"
+  ],
+  "description_html": "<p>You are given an <code>n x m</code> integer matrix <code>matrix</code> containing non-negative integers.</p>\n\n<p>A <strong>non-zero </strong>cell <code>(row, col)</code> checks the cells near it as follows:</p>\n\n<ul>\n\t<li>Let <code>x = matrix[row][col]</code>.</li>\n\t<li>Consider every cell within <code>x</code> rows and <code>x</code> columns of <code>(row, col)</code>.</li>\n\t<li>Ignore cells that are outside the matrix.</li>\n\t<li>Ignore the&nbsp;cells where both the row distance and column distance are exactly <code>x</code>.</li>\n</ul>\n\n<p>The cell <code>(row, col)</code> is a <strong>local maximum</strong> if it is <strong>non-zero</strong> and no considered cell has a value <strong>greater than</strong> <code>x</code>.</p>\n\n<p>Return an integer denoting the number of <strong>local maximums</strong> in <code>matrix</code>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">​​​​​​​Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">matrix = [[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,2,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0]]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">1</span></p>\n\n<p><img alt=\"\" src=\"https://assets.leetcode.com/uploads/2026/05/13/chatgpt-image-may-14-2026-01_53_19-am.png\" style=\"width: 300px; height: 300px;\" />​​​​​​​​​​​​​​​​​​​​​</p>\n\n<p><strong>Explanation:</strong></p>\n\n<ul>\n\t<li>For the non-zero cell <code>(3, 3)</code>, <code>x = matrix[3][3] = 2</code>.</li>\n\t<li>The highlighted cells are the considered cells within <code>x</code> rows and <code>x</code> columns of <code>(3, 3)</code>.</li>\n\t<li>The four cells with both row and column distances equal to <code>x = 2</code> are ignored.</li>\n\t<li>No considered cell has a value greater than 2, so <code>(3, 3)</code> is a local maximum.</li>\n\t<li>There are no other non-zero cells, so the answer is 1.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">matrix = [[1,2],[3,4]]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">1</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>Only the cell with value 4 is a local maximum. Every other non-zero cell considers a cell with a greater value.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">matrix = [[1,0,1],[0,1,0],[1,0,1]]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">5</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<ul>\n\t<li>For a cell with value 1, the considered cells are the cell itself and its 4-directionally adjacent cells that are inside the matrix.</li>\n\t<li>Each of the five cells with value 1 only considers cells with values 0 or 1, so all five of them are local maximums.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 4:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">matrix = [[1,1],[1,1]]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">4</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>All cells have the same value. Therefore, no cell considers another cell with a greater value, so all 4 cells are local maximums.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= n == matrix.length &lt;= 200</code></li>\n\t<li><code>1 &lt;= m == matrix[i].length &lt;= 200</code></li>\n\t<li><code>0 &lt;= matrix[i][j] &lt;= 200</code></li>\n</ul>\n",
+  "hints": [
+    "Brute forcing every centered square can be too slow: each check may scan up to <code>200 * 200</code> cells.",
+    "Since all values are at most 200, build prefix sums by threshold: for each <code>v</code>, store how many cells have value <code>> v</code> in every prefix rectangle.",
+    "For a cell with value <code>x</code>, query its clamped square using the prefix sum for threshold <code>x</code>. If the count of values <code>> x</code> is zero, it is a local maximum.",
+    "Remember to subtract the ignored corner cells <code>(i ± x, j ± x)</code> from the queried count if they are inside the matrix and greater than <code>x</code>."
+  ],
+  "sample_test_cases": [
+    "[[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,2,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0]]",
+    "[[1,2],[3,4]]",
+    "[[1,0,1],[0,1,0],[1,0,1]]"
+  ],
+  "content_signature": "-2et6l3",
+  "fetched_at": "2026-05-21T07:54:58.336Z"
+}

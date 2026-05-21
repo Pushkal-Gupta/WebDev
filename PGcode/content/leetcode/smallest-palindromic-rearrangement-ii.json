@@ -1,0 +1,31 @@
+{
+  "slug": "smallest-palindromic-rearrangement-ii",
+  "leetcode_id": "3813",
+  "title": "Smallest Palindromic Rearrangement II",
+  "difficulty": "Hard",
+  "tags": [
+    "hash-table",
+    "math",
+    "string",
+    "combinatorics",
+    "counting"
+  ],
+  "description_html": "<p data-end=\"332\" data-start=\"99\">You are given a <strong><span data-keyword=\"palindrome-string\">palindromic</span></strong> string <code>s</code> and an integer <code>k</code>.</p>\n\n<p>Return the <strong>k-th</strong> <strong><span data-keyword=\"lexicographically-smaller-string\">lexicographically smallest</span></strong> palindromic <span data-keyword=\"permutation-string\">permutation</span> of <code>s</code>. If there are fewer than <code>k</code> distinct palindromic permutations, return an empty string.</p>\n\n<p><strong>Note:</strong> Different rearrangements that yield the same palindromic string are considered identical and are counted once.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">s = &quot;abba&quot;, k = 2</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">&quot;baab&quot;</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<ul>\n\t<li>The two distinct palindromic rearrangements of <code>&quot;abba&quot;</code> are <code>&quot;abba&quot;</code> and <code>&quot;baab&quot;</code>.</li>\n\t<li>Lexicographically, <code>&quot;abba&quot;</code> comes before <code>&quot;baab&quot;</code>. Since <code>k = 2</code>, the output is <code>&quot;baab&quot;</code>.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">s = &quot;aa&quot;, k = 2</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">&quot;&quot;</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<ul>\n\t<li>There is only one palindromic rearrangement: <code data-end=\"1112\" data-start=\"1106\">&quot;aa&quot;</code>.</li>\n\t<li>The output is an empty string since <code>k = 2</code> exceeds the number of possible rearrangements.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">s = &quot;bacab&quot;, k = 1</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">&quot;abcba&quot;</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<ul>\n\t<li>The two distinct palindromic rearrangements of <code>&quot;bacab&quot;</code> are <code>&quot;abcba&quot;</code> and <code>&quot;bacab&quot;</code>.</li>\n\t<li>Lexicographically, <code>&quot;abcba&quot;</code> comes before <code>&quot;bacab&quot;</code>. Since <code>k = 1</code>, the output is <code>&quot;abcba&quot;</code>.</li>\n</ul>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= s.length &lt;= 10<sup>4</sup></code></li>\n\t<li><code>s</code> consists of lowercase English letters.</li>\n\t<li><code>s</code> is guaranteed to be palindromic.</li>\n\t<li><code>1 &lt;= k &lt;= 10<sup>6</sup></code></li>\n</ul>\n",
+  "hints": [
+    "Only build <code>floor(n / 2)</code> characters (the rest are determined by symmetry).",
+    "Count character frequencies and use half the counts for construction.",
+    "Incrementally choose each character (from smallest to largest) and calculate how many valid arrangements result if that character is chosen at the current index.",
+    "If the count is at least <code>k</code>, fix that character; otherwise, subtract the count from <code>k</code> and try the next candidate.",
+    "Use combinatorics to compute the number of permutations at each step."
+  ],
+  "sample_test_cases": [
+    "\"abba\"",
+    "2",
+    "\"aa\"",
+    "2",
+    "\"bacab\"",
+    "1"
+  ],
+  "content_signature": "-m01slm",
+  "fetched_at": "2026-05-21T07:42:18.357Z"
+}

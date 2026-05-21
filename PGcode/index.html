@@ -5,13 +5,108 @@
     <link rel="icon" type="image/svg+xml" href="https://static.vecteezy.com/system/resources/previews/018/720/978/non_2x/parental-guidance-sign-on-transparent-background-free-png.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PGcode — Pushkal Gupta</title>
+    <meta name="description" content="DSA learning + practice + interview prep. Tutorials, contests, playgrounds, and a real judge." />
     <link
       href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+    <!--
+      Inline shell + theme bootstrap. Goals:
+      1. Set [data-theme] from localStorage before React mounts → no flash of wrong theme.
+      2. Render Navbar + SubNav skeleton so the first paint shows app chrome
+         (not a blank screen) before any JS executes.
+      The real React app mounts inside #root and overwrites this shell.
+    -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('pg-theme') || 'dark';
+          var ok = ['dark','light','midnight','solarized','dracula'].indexOf(t) >= 0 ? t : 'dark';
+          document.documentElement.setAttribute('data-theme', ok);
+        } catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+      })();
+    </script>
+    <style id="pg-shell-style">
+      /* Bootstrap-only styles. Real app CSS takes over on mount. */
+      :root { --bg: #030a0a; --surface: #061010; --text-main: #ffffff; --text-dim: #5c8582;
+              --accent: #00fff5; --border: #0f2b29; }
+      [data-theme="light"] { --bg: #f5f2ed; --surface: #ffffff; --text-main: #1a1a1a;
+              --text-dim: #666666; --accent: #008a7e; --border: #e0ddd7; }
+      [data-theme="midnight"] { --bg: #0b1024; --surface: #131a3a; --text-main: #f5f4ff;
+              --text-dim: #8b8fb8; --accent: #a78bfa; --border: #1f2950; }
+      [data-theme="solarized"] { --bg: #fdf6e3; --surface: #eee8d5; --text-main: #073642;
+              --text-dim: #586e75; --accent: #268bd2; --border: #d8d2bf; }
+      [data-theme="dracula"] { --bg: #282a36; --surface: #21222c; --text-main: #f8f8f2;
+              --text-dim: #8b8ca0; --accent: #ff79c6; --border: #383a4a; }
+      html, body { margin: 0; padding: 0; height: 100%; overflow: hidden;
+                   background: var(--bg); color: var(--text-main);
+                   font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+      #pg-shell { display: flex; flex-direction: column; height: 100vh; }
+      .pg-shell-header { padding: 1.2rem 0; border-bottom: 1px solid var(--border);
+                         background: var(--bg); }
+      .pg-shell-wrap { width: 94%; max-width: 1400px; margin: 0 auto;
+                       display: flex; align-items: center; justify-content: space-between; }
+      .pg-shell-brand { font-family: 'Lora', serif; font-size: 1.3rem; font-weight: 600;
+                        color: var(--text-main); }
+      .pg-shell-brand span { color: var(--accent); font-weight: 700; }
+      .pg-shell-right { display: flex; align-items: center; gap: 1.5rem;
+                        font-family: 'Space Mono', monospace; font-size: 0.6rem;
+                        color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
+      .pg-shell-subnav { background: var(--bg); border-bottom: 1px solid var(--border); }
+      .pg-shell-subnav-inner { width: 94%; max-width: 1400px; margin: 0 auto;
+                               padding: 0.5rem 0; display: flex; gap: 0.4rem; overflow: hidden; }
+      .pg-shell-link { font-family: 'Space Mono', monospace; font-size: 0.68rem;
+                       font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+                       color: var(--text-dim); padding: 0.4rem 0.75rem; }
+      .pg-shell-body { flex: 1; display: flex; align-items: center; justify-content: center;
+                       padding: 2rem; }
+      .pg-shell-loader { display: flex; flex-direction: column; align-items: center; gap: 0.7rem;
+                        font-family: 'Space Mono', monospace; font-size: 0.7rem;
+                        color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; }
+      .pg-shell-spinner { width: 18px; height: 18px; border: 2px solid var(--border);
+                          border-top-color: var(--accent); border-radius: 50%;
+                          animation: pg-spin 0.8s linear infinite; }
+      @keyframes pg-spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) { .pg-shell-spinner { animation: none; } }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!--
+        Pre-rendered shell. Visible from byte 1 of the HTML; replaced when React mounts.
+        Keeps the page from being blank during the lazy-route chunk load.
+      -->
+      <div id="pg-shell">
+        <header class="pg-shell-header">
+          <div class="pg-shell-wrap">
+            <span class="pg-shell-brand">Pushkal Gupta <span>Code</span></span>
+            <div class="pg-shell-right">
+              <span>Theme</span>
+              <span>Account</span>
+            </div>
+          </div>
+        </header>
+        <nav class="pg-shell-subnav">
+          <div class="pg-shell-subnav-inner">
+            <span class="pg-shell-link">Roadmap</span>
+            <span class="pg-shell-link">Tutorial</span>
+            <span class="pg-shell-link">Concepts</span>
+            <span class="pg-shell-link">Practice</span>
+            <span class="pg-shell-link">Review</span>
+            <span class="pg-shell-link">Playground</span>
+            <span class="pg-shell-link">Companies</span>
+            <span class="pg-shell-link">Contests</span>
+            <span class="pg-shell-link">Progress</span>
+          </div>
+        </nav>
+        <div class="pg-shell-body">
+          <div class="pg-shell-loader">
+            <div class="pg-shell-spinner" aria-hidden="true"></div>
+            <span>Loading…</span>
+          </div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

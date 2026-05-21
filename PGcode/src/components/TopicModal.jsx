@@ -1,16 +1,23 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { X, Star, CheckCircle, ExternalLink, Video, FileText, ChevronLeft, Code2, Lightbulb } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useTopicProblems, useUserProgress, filterByRoadmap, qk } from '../lib/queries';
+import { primaryTopicLabel } from '../lib/topicLabel';
 import LearningsSection from './LearningsSection';
 import './TopicModal.css';
 
 const difficultyOrder = { 'Easy': 0, 'Medium': 1, 'Hard': 2 };
 
 export default function TopicModal({ topic, onClose, roadmapMode, session }) {
-  const [problems, setProblems] = useState([]);
-  const [userProgress, setUserProgress] = useState({});
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const userId = session?.user?.id;
+  const { data: rawProblems, isLoading } = useTopicProblems(topic?.id);
+  const { data: progressBundle } = useUserProgress(userId);
+  const userProgress = progressBundle?.byId || {};
+  const loading = isLoading;
+
   const [activeTab, setActiveTab] = useState('problems');
   const [width, setWidth] = useState(() => {
     const maxAllowed = window.innerWidth - 60;
@@ -30,100 +37,76 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
     };
   }, []);
 
-  useEffect(() => {
-    async function loadProblems() {
-      try {
-        // Parallel fetch: problems + user progress
-        const [problemsRes, progressRes] = await Promise.all([
-          supabase.from('PGcode_problems').select('*').eq('topic_id', topic.id),
-          session?.user
-            ? supabase.from('PGcode_user_progress').select('*').eq('user_id', session.user.id)
-            : Promise.resolve({ data: null }),
-        ]);
-
-        if (problemsRes.error) throw problemsRes.error;
-
-        let filtered = problemsRes.data || [];
-        if (roadmapMode === '100') {
-          filtered = filtered.filter(p => p.roadmap_set === '100');
-        } else if (roadmapMode === '200') {
-          filtered = filtered.filter(p =>
-            p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === 'both' || !p.roadmap_set
-          );
-        } else if (roadmapMode === '300') {
-          filtered = filtered.filter(p =>
-            p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === 'both' || !p.roadmap_set
-          );
-        } else if (roadmapMode === '400') {
-          filtered = filtered.filter(p =>
-            p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === '400' || p.roadmap_set === 'both' || !p.roadmap_set
-          );
-        }
-
-        const isGeneric = (name) => /Pattern #\d+|Challenge #\d+/.test(name);
-        const sorted = [...filtered].sort((a, b) => {
-          const ag = isGeneric(a.name) ? 1 : 0;
-          const bg = isGeneric(b.name) ? 1 : 0;
-          if (ag !== bg) return ag - bg;
-          return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
-        });
-        setProblems(sorted);
-
-        if (progressRes.data) {
-          const map = {};
-          progressRes.data.forEach(p => { map[p.problem_id] = p; });
-          setUserProgress(map);
-        }
-      } catch (err) {
-        console.error("Error fetching problems:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadProblems();
-  }, [topic.id, roadmapMode, session]);
-
-  const toggleComplete = async (problemId) => {
-    if (!session?.user) return;
-    const current = userProgress[problemId];
-    const newVal = !(current?.is_completed);
-
-    const { error } = await supabase.from('PGcode_user_progress').upsert({
-      user_id: session.user.id,
-      problem_id: problemId,
-      is_completed: newVal,
-      is_starred: current?.is_starred ?? false,
-      updated_at: new Date().toISOString()
+  const problems = useMemo(() => {
+    const filtered = filterByRoadmap(rawProblems, roadmapMode);
+    const isGeneric = (name) => /Pattern #\d+|Challenge #\d+/.test(name);
+    return [...filtered].sort((a, b) => {
+      const ag = isGeneric(a.name) ? 1 : 0;
+      const bg = isGeneric(b.name) ? 1 : 0;
+      if (ag !== bg) return ag - bg;
+      return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
     });
+  }, [rawProblems, roadmapMode]);
 
-    if (error) { console.error('Toggle complete failed:', error); return; }
+  const progressMutation = useMutation({
+    mutationFn: async ({ problemId, patch }) => {
+      const current = userProgress[problemId] || {};
+      const next = {
+        user_id: userId,
+        problem_id: problemId,
+        is_completed: current.is_completed ?? false,
+        is_starred: current.is_starred ?? false,
+        ...patch,
+        updated_at: new Date().toISOString(),
+      };
+      const { error } = await supabase.from('PGcode_user_progress').upsert(next);
+      if (error) throw error;
+      return next;
+    },
+    onMutate: async ({ problemId, patch }) => {
+      const key = qk.userProgress(userId);
+      await queryClient.cancelQueries({ queryKey: key });
+      const prev = queryClient.getQueryData(key);
+      queryClient.setQueryData(key, (old) => {
+        const rows = old?.rows ? [...old.rows] : [];
+        const byId = { ...(old?.byId || {}) };
+        const existing = byId[problemId] || { problem_id: problemId, user_id: userId };
+        const merged = { ...existing, ...patch };
+        byId[problemId] = merged;
+        const idx = rows.findIndex(r => r.problem_id === problemId);
+        if (idx >= 0) rows[idx] = merged; else rows.push(merged);
+        return { rows, byId };
+      });
+      return { prev, key };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(ctx.key, ctx.prev);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: qk.userProgress(userId) });
+    },
+  });
 
-    setUserProgress(prev => ({
-      ...prev,
-      [problemId]: { ...prev[problemId], is_completed: newVal }
-    }));
+  const toggleComplete = (problemId) => {
+    if (!userId || progressMutation.isPending) return;
+    const current = userProgress[problemId];
+    const nextCompleted = !current?.is_completed;
+    progressMutation.mutate({
+      problemId,
+      patch: {
+        is_completed: nextCompleted,
+        status: nextCompleted ? 'solved' : (current?.is_starred ? 'bookmarked' : 'attempted'),
+        status_changed_at: new Date().toISOString(),
+      },
+    });
   };
 
-  const toggleStar = async (problemId) => {
-    if (!session?.user) return;
+  const toggleStar = (problemId) => {
+    if (!userId || progressMutation.isPending) return;
     const current = userProgress[problemId];
-    const newVal = !(current?.is_starred);
-
-    const { error } = await supabase.from('PGcode_user_progress').upsert({
-      user_id: session.user.id,
-      problem_id: problemId,
-      is_starred: newVal,
-      is_completed: current?.is_completed ?? false,
-      updated_at: new Date().toISOString()
-    });
-
-    if (error) { console.error('Toggle star failed:', error); return; }
-
-    setUserProgress(prev => ({
-      ...prev,
-      [problemId]: { ...prev[problemId], is_starred: newVal }
-    }));
+    progressMutation.mutate({ problemId, patch: { is_starred: !current?.is_starred } });
   };
+
 
   const handleMouseDown = (e) => {
     e.preventDefault();
@@ -159,7 +142,7 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
   if (!topic) return null;
 
   const rawTitle = topic.data?.label || topic.name || '';
-  const [mainTitle] = rawTitle.split('\\n');
+  const mainTitle = primaryTopicLabel(rawTitle);
 
   const completedCount = problems.filter(p => userProgress[p.id]?.is_completed).length;
   const totalCount = problems.length;
@@ -221,11 +204,12 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
 
                   {loading ? (
                     <div className="skeleton-list">
-                      {Array.from({ length: 6 }).map((_, i) => (
+                      {/* Deterministic widths so re-renders don't shimmer-jitter */}
+                      {[72, 58, 80, 65, 76, 62].map((w, i) => (
                         <div key={i} className="skeleton-row">
                           <div className="skel skel-circle" />
                           <div className="skel skel-circle" />
-                          <div className="skel skel-text" style={{ width: `${55 + Math.random() * 25}%` }} />
+                          <div className="skel skel-text" style={{ width: `${w}%` }} />
                           <div className="skel skel-text-short" />
                         </div>
                       ))}

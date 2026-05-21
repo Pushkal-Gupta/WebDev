@@ -1,0 +1,17 @@
+{
+  "slug": "defanging-an-ip-address",
+  "leetcode_id": "1205",
+  "title": "Defanging an IP Address",
+  "difficulty": "Easy",
+  "tags": [
+    "string"
+  ],
+  "description_html": "<p>Given a valid (IPv4) IP <code>address</code>, return a defanged version of that IP address.</p>\r\n\r\n<p>A <em>defanged&nbsp;IP address</em>&nbsp;replaces every period <code>&quot;.&quot;</code> with <code>&quot;[.]&quot;</code>.</p>\r\n\r\n<p>&nbsp;</p>\r\n<p><strong class=\"example\">Example 1:</strong></p>\r\n<pre><strong>Input:</strong> address = \"1.1.1.1\"\r\n<strong>Output:</strong> \"1[.]1[.]1[.]1\"\r\n</pre><p><strong class=\"example\">Example 2:</strong></p>\r\n<pre><strong>Input:</strong> address = \"255.100.50.0\"\r\n<strong>Output:</strong> \"255[.]100[.]50[.]0\"\r\n</pre>\r\n<p>&nbsp;</p>\r\n<p><strong>Constraints:</strong></p>\r\n\r\n<ul>\r\n\t<li>The given <code>address</code> is a valid IPv4 address.</li>\r\n</ul>",
+  "hints": [],
+  "sample_test_cases": [
+    "\"1.1.1.1\"",
+    "\"255.100.50.0\""
+  ],
+  "content_signature": "-xsaorv",
+  "fetched_at": "2026-05-21T06:13:59.019Z"
+}

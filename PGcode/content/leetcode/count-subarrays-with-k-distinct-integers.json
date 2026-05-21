@@ -1,0 +1,27 @@
+{
+  "slug": "count-subarrays-with-k-distinct-integers",
+  "leetcode_id": "4002",
+  "title": "Count Subarrays With K Distinct Integers",
+  "difficulty": "Hard",
+  "tags": [
+    "array",
+    "hash-table",
+    "sliding-window",
+    "counting"
+  ],
+  "description_html": "<p>You are given an integer array <code>nums</code> and two integers <code>k</code> and <code>m</code>.</p>\n\n<p>Return an integer denoting the count of <strong><span data-keyword=\"subarray-nonempty\">subarrays</span></strong> of <code>nums</code> such that:</p>\n\n<ul>\n\t<li>The subarray contains <strong>exactly</strong> <code>k</code> <strong>distinct</strong> integers.</li>\n\t<li>Within the subarray, each <strong>distinct</strong> integer appears <strong>at least</strong> <code>m</code> times.</li>\n</ul>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,2,1,2,2], k = 2, m = 2</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">2</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The possible subarrays with <code>k = 2</code> distinct integers, each appearing at least <code>m = 2</code> times are:</p>\n\n<table style=\"border: 1px solid black;\">\n\t<thead>\n\t\t<tr>\n\t\t\t<th style=\"border: 1px solid black;\">Subarray</th>\n\t\t\t<th style=\"border: 1px solid black;\">Distinct<br />\n\t\t\tnumbers</th>\n\t\t\t<th style=\"border: 1px solid black;\">Frequency</th>\n\t\t</tr>\n\t</thead>\n\t<tbody>\n\t\t<tr>\n\t\t\t<td style=\"border: 1px solid black;\">[1, 2, 1, 2]</td>\n\t\t\t<td style=\"border: 1px solid black;\">{1, 2} &rarr; 2</td>\n\t\t\t<td style=\"border: 1px solid black;\">{1: 2, 2: 2}</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td style=\"border: 1px solid black;\">[1, 2, 1, 2, 2]</td>\n\t\t\t<td style=\"border: 1px solid black;\">{1, 2} &rarr; 2</td>\n\t\t\t<td style=\"border: 1px solid black;\">{1: 2, 2: 3}</td>\n\t\t</tr>\n\t</tbody>\n</table>\n\n<p>Thus, the answer is 2.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [3,1,2,4], k = 2, m = 1</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">3</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The possible subarrays with <code>k = 2</code> distinct integers, each appearing at least <code>m = 1</code> times are:</p>\n\n<table style=\"border: 1px solid black;\">\n\t<thead>\n\t\t<tr>\n\t\t\t<th style=\"border: 1px solid black;\">Subarray</th>\n\t\t\t<th style=\"border: 1px solid black;\">Distinct<br />\n\t\t\tnumbers</th>\n\t\t\t<th style=\"border: 1px solid black;\">Frequency</th>\n\t\t</tr>\n\t</thead>\n\t<tbody>\n\t\t<tr>\n\t\t\t<td style=\"border: 1px solid black;\">[3, 1]</td>\n\t\t\t<td style=\"border: 1px solid black;\">{3, 1} &rarr; 2</td>\n\t\t\t<td style=\"border: 1px solid black;\">{3: 1, 1: 1}</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td style=\"border: 1px solid black;\">[1, 2]</td>\n\t\t\t<td style=\"border: 1px solid black;\">{1, 2} &rarr; 2</td>\n\t\t\t<td style=\"border: 1px solid black;\">{1: 1, 2: 1}</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td style=\"border: 1px solid black;\">[2, 4]</td>\n\t\t\t<td style=\"border: 1px solid black;\">{2, 4} &rarr; 2</td>\n\t\t\t<td style=\"border: 1px solid black;\">{2: 1, 4: 1}</td>\n\t\t</tr>\n\t</tbody>\n</table>\n\n<p>Thus, the answer is 3.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= nums.length &lt;= 10<sup>5</sup></code></li>\n\t<li><code>1 &lt;= nums[i] &lt;= 10<sup>5</sup></code></li>\n\t<li><code>1 &lt;= k, m &lt;= nums.length</code></li>\n</ul>\n",
+  "hints": [
+    "Use sliding window.",
+    "Use the reduction: <code>answer = at_most(k) - at_most(k-1)</code>. <code>at_most(K)</code> = number of subarrays with <code><= K</code> distinct values where every present value appears <code>>= m</code> times."
+  ],
+  "sample_test_cases": [
+    "[1,2,1,2,2]",
+    "2",
+    "2",
+    "[3,1,2,4]",
+    "2",
+    "1"
+  ],
+  "content_signature": "wcr2ua",
+  "fetched_at": "2026-05-21T07:52:18.813Z"
+}

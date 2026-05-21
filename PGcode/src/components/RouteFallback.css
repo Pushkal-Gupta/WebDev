@@ -1,0 +1,25 @@
+.route-fallback {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 3rem 1rem;
+}
+
+.route-fallback-inner {
+  width: 94%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.route-fallback-bar {
+  height: 18px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--surface) 25%, var(--border) 50%, var(--surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.route-fallback-bar-half { width: 60%; }
+.route-fallback-bar-third { width: 35%; }

@@ -1,0 +1,30 @@
+{
+  "slug": "maximum-product-of-subsequences-with-an-alternating-sum-equal-to-k",
+  "leetcode_id": "3777",
+  "title": "Maximum Product of Subsequences With an Alternating Sum Equal to K",
+  "difficulty": "Hard",
+  "tags": [
+    "array",
+    "hash-table",
+    "dynamic-programming"
+  ],
+  "description_html": "<p>You are given an integer array <code>nums</code> and two integers, <code>k</code> and <code>limit</code>. Your task is to find a non-empty <strong><span data-keyword=\"subsequence-array\">subsequence</span></strong> of <code>nums</code> that:</p>\n\n<ul>\n\t<li>Has an <strong>alternating sum</strong> equal to <code>k</code>.</li>\n\t<li><strong>Maximizes</strong> the product of all its numbers <em>without the product exceeding</em> <code>limit</code>.</li>\n</ul>\n\n<p>Return the <em>product</em> of the numbers in such a subsequence. If no subsequence satisfies the requirements, return -1.</p>\n\n<p>The <strong>alternating sum</strong> of a <strong>0-indexed</strong> array is defined as the <strong>sum</strong> of the elements at <strong>even</strong> indices <strong>minus</strong> the <strong>sum</strong> of the elements at <strong>odd</strong> indices.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,2,3], k = 2, limit = 10</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">6</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The subsequences with an alternating sum of 2 are:</p>\n\n<ul>\n\t<li><code>[1, 2, 3]</code>\n\n\t<ul>\n\t\t<li>Alternating Sum: <code>1 - 2 + 3 = 2</code></li>\n\t\t<li>Product: <code>1 * 2 * 3 = 6</code></li>\n\t</ul>\n\t</li>\n\t<li><code>[2]</code>\n\t<ul>\n\t\t<li>Alternating Sum: 2</li>\n\t\t<li>Product: 2</li>\n\t</ul>\n\t</li>\n</ul>\n\n<p>The maximum product within the limit is 6.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [0,2,3], k = -5, limit = 12</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">-1</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>A subsequence with an alternating sum of exactly -5 does not exist.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [2,2,3,3], k = 0, limit = 9</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">9</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The subsequences with an alternating sum of 0 are:</p>\n\n<ul>\n\t<li><code>[2, 2]</code>\n\n\t<ul>\n\t\t<li>Alternating Sum: <code>2 - 2 = 0</code></li>\n\t\t<li>Product: <code>2 * 2 = 4</code></li>\n\t</ul>\n\t</li>\n\t<li><code>[3, 3]</code>\n\t<ul>\n\t\t<li>Alternating Sum: <code>3 - 3 = 0</code></li>\n\t\t<li>Product: <code>3 * 3 = 9</code></li>\n\t</ul>\n\t</li>\n\t<li><code>[2, 2, 3, 3]</code>\n\t<ul>\n\t\t<li>Alternating Sum: <code>2 - 2 + 3 - 3 = 0</code></li>\n\t\t<li>Product: <code>2 * 2 * 3 * 3 = 36</code></li>\n\t</ul>\n\t</li>\n</ul>\n\n<p>The subsequence <code>[2, 2, 3, 3]</code> has the greatest product with an alternating sum equal to <code>k</code>, but <code>36 &gt; 9</code>. The next greatest product is 9, which is within the limit.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= nums.length &lt;= 150</code></li>\n\t<li><code>0 &lt;= nums[i] &lt;= 12</code></li>\n\t<li><code>-10<sup>5</sup> &lt;= k &lt;= 10<sup>5</sup></code></li>\n\t<li><code>1 &lt;= limit &lt;= 5000</code></li>\n</ul>\n",
+  "hints": [
+    "Use dynamic programming.",
+    "Save all possible products with a particular sum.",
+    "Handle the case where a subsequence has a product of <code>0</code> and an alternating sum of <code>k</code>."
+  ],
+  "sample_test_cases": [
+    "[1,2,3]",
+    "2",
+    "10",
+    "[0,2,3]",
+    "-5",
+    "12",
+    "[2,2,3,3]",
+    "0",
+    "9"
+  ],
+  "content_signature": "lj6puy",
+  "fetched_at": "2026-05-21T07:42:04.017Z"
+}

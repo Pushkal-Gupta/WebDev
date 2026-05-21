@@ -1,0 +1,185 @@
+.ach {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.ach-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+}
+.ach-header-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.ach-progress-bar {
+  height: 4px;
+  background: var(--hover-box);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.ach-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+.ach-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+.ach-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-dim);
+  flex: 1 1 200px;
+  min-width: 0;
+}
+.ach-search:focus-within { border-color: var(--accent); color: var(--text-main); }
+.ach-search input {
+  border: none;
+  background: transparent;
+  color: var(--text-main);
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  outline: none;
+  flex: 1;
+  min-width: 0;
+}
+.ach-chips {
+  display: inline-flex;
+  gap: 0.3rem;
+}
+.ach-chip {
+  padding: 0.35rem 0.7rem;
+  font-family: var(--sans);
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color var(--t), border-color var(--t), background var(--t);
+}
+.ach-chip:hover { color: var(--text-main); border-color: var(--accent); }
+.ach-chip.active { color: var(--accent); border-color: var(--accent); background: var(--hover-box); }
+.ach-empty {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 1.5rem 1rem;
+}
+
+.ach-title {
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.ach-count {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ach-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.55rem;
+}
+
+.ach-compact .ach-grid {
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+
+.ach-card {
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  transition: border-color var(--t), background var(--t), transform var(--t);
+}
+
+.ach-card.earned {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+
+.ach-card.earned.ach-card-easy   { border-color: var(--easy); }
+.ach-card.earned.ach-card-medium { border-color: var(--medium); }
+.ach-card.earned.ach-card-hard   { border-color: var(--hard); }
+.ach-card.earned.ach-card-accent { border-color: var(--accent); }
+
+.ach-card.locked {
+  opacity: 0.55;
+}
+.ach-card.locked:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  border-color: var(--text-dim);
+}
+
+.ach-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  color: var(--text-dim);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.ach-card.earned .ach-card-icon { background: var(--surface); }
+.ach-card.earned.ach-card-easy   .ach-card-icon { color: var(--easy);   border-color: var(--easy); }
+.ach-card.earned.ach-card-medium .ach-card-icon { color: var(--medium); border-color: var(--medium); }
+.ach-card.earned.ach-card-hard   .ach-card-icon { color: var(--hard);   border-color: var(--hard); }
+.ach-card.earned.ach-card-accent .ach-card-icon { color: var(--accent); border-color: var(--accent); }
+
+.ach-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.ach-card-title {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ach-card-desc {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+}

@@ -1,5 +1,7 @@
 import React from 'react';
 import { Handle, Position } from 'reactflow';
+import { usePrefetch } from '../lib/queries';
+import { primaryTopicLabel } from '../lib/topicLabel';
 import './TopicNode.css';
 
 const topicMetadata = {
@@ -28,15 +30,19 @@ const topicMetadata = {
 };
 
 export default function TopicNode({ data }) {
-  const parts = (data.label || '').split(/\\n|\n/);
-  const mainTitle = parts[0].trim();
+  const mainTitle = primaryTopicLabel(data.label);
   const meta = topicMetadata[data.id] || { num: '??' };
-  
+  const { prefetchTopicProblems } = usePrefetch();
+
   const { total = 0, completed = 0 } = data.progress || {};
   const progressPercent = total > 0 ? (completed / total) * 100 : 0;
 
   return (
-    <div className="topic-node-container" id={`node-${data.id}`}>
+    <div
+      className="topic-node-container"
+      id={`node-${data.id}`}
+      onMouseEnter={() => prefetchTopicProblems(data.id)}
+    >
       <Handle type="target" position={Position.Top} className="handle" />
       
       <div className="topic-node-content">

@@ -1,0 +1,21 @@
+{
+  "slug": "first-matching-character-from-both-ends",
+  "leetcode_id": "4264",
+  "title": "First Matching Character From Both Ends",
+  "difficulty": "Easy",
+  "tags": [
+    "two-pointers",
+    "string"
+  ],
+  "description_html": "<p>You are given a string <code>s</code> of length <code>n</code> consisting of lowercase English letters.</p>\n\n<p>Return the smallest index <code>i</code> such that <code>s[i] == s[n - i - 1]</code>.</p>\n\n<p>If no such index exists, return -1.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">s = &quot;abcacbd&quot;</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">1</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>At index <code>i = 1</code>, <code>s[1]</code> and <code>s[5]</code> are both <code>&#39;b&#39;</code>.</p>\n\n<p>No smaller index satisfies the condition, so the answer is 1.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">s = &quot;abc&quot;</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">1</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>​​​​​​​At index <code>i = 1</code>, the two compared positions coincide, so both characters are <code>&#39;b&#39;</code>.</p>\n\n<p>No smaller index satisfies the condition, so the answer is 1.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">s = &quot;abcdab&quot;</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">-1</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>​​​​​​​For every index <code>i</code>, the characters at positions <code>i</code> and <code>n - i - 1</code> are different.</p>\n\n<p>Therefore, no valid index exists, so the answer is -1.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= n == s.length &lt;= 100</code></li>\n\t<li><code>s</code> consists of lowercase English letters.</li>\n</ul>\n",
+  "hints": [
+    "Use two pointers"
+  ],
+  "sample_test_cases": [
+    "\"abcacbd\"",
+    "\"abc\"",
+    "\"abcdab\""
+  ],
+  "content_signature": "-3cm52h",
+  "fetched_at": "2026-05-21T07:53:36.932Z"
+}

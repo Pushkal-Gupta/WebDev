@@ -1,0 +1,28 @@
+{
+  "slug": "lexicographically-smallest-string-after-deleting-duplicate-characters",
+  "leetcode_id": "4086",
+  "title": "Lexicographically Smallest String After Deleting Duplicate Characters",
+  "difficulty": "Hard",
+  "tags": [
+    "hash-table",
+    "string",
+    "stack",
+    "greedy",
+    "monotonic-stack"
+  ],
+  "description_html": "<p>You are given a string <code>s</code> that consists of lowercase English letters.</p>\n\n<p>You can perform the following operation any number of times (possibly zero times):</p>\n\n<ul>\n\t<li>Choose any letter that appears <strong>at least twice</strong> in the current string <code>s</code> and delete any <strong>one</strong> occurrence.</li>\n</ul>\n\n<p>Return the <strong><span data-keyword=\"lexicographically-smaller-string\">lexicographically smallest</span></strong> resulting string that can be formed this way.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">s = &quot;aaccb&quot;</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">&quot;aacb&quot;</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>We can form the strings <code>&quot;acb&quot;</code>, <code>&quot;aacb&quot;</code>, <code>&quot;accb&quot;</code>, and <code>&quot;aaccb&quot;</code>. <code>&quot;aacb&quot;</code> is the lexicographically smallest one.</p>\n\n<p>For example, we can obtain <code>&quot;aacb&quot;</code> by choosing <code>&#39;c&#39;</code> and deleting its first occurrence.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">s = &quot;z&quot;</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">&quot;z&quot;</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>We cannot perform any operations. The only string we can form is <code>&quot;z&quot;</code>.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= s.length &lt;= 10<sup>5</sup></code></li>\n\t<li><code>s</code> contains lowercase English letters only.</li>\n</ul>\n",
+  "hints": [
+    "Solve greedily.",
+    "Each distinct letter must appear at least once in the final string.",
+    "For each letter, maintain a deque of its positions.",
+    "At each step, try letters from <code>'a'</code> to <code>'z'</code> and pick the smallest letter whose earliest position lies within a safe window.",
+    "Do not pick an occurrence if choosing it would make some other letter impossible to keep.",
+    "Mark positions as used and repeat, always minimizing the next chosen character."
+  ],
+  "sample_test_cases": [
+    "\"aaccb\"",
+    "\"z\""
+  ],
+  "content_signature": "hwhd28",
+  "fetched_at": "2026-05-21T07:50:53.757Z"
+}

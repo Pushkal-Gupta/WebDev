@@ -1,0 +1,25 @@
+{
+  "slug": "check-if-any-element-has-prime-frequency",
+  "leetcode_id": "3914",
+  "title": "Check if Any Element Has Prime Frequency",
+  "difficulty": "Easy",
+  "tags": [
+    "array",
+    "hash-table",
+    "math",
+    "counting",
+    "number-theory"
+  ],
+  "description_html": "<p>You are given an integer array <code>nums</code>.</p>\n\n<p>Return <code>true</code> if the frequency of any element of the array is <strong>prime</strong>, otherwise, return <code>false</code>.</p>\n\n<p>The <strong>frequency</strong> of an element <code>x</code> is the number of times it occurs in the array.</p>\n\n<p>A prime number is a natural number greater than 1 with only two factors, 1 and itself.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,2,3,4,5,4]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">true</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>4 has a frequency of two, which is a prime number.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,2,3,4,5]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">false</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>All elements have a frequency of one.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [2,2,2,4,4]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">true</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>Both 2 and 4 have a prime frequency.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= nums.length &lt;= 100</code></li>\n\t<li><code>0 &lt;= nums[i] &lt;= 100</code></li>\n</ul>\n",
+  "hints": [
+    "Implement a function to check if a number is prime",
+    "Find the frequencies of all the distinct elements in the array (using data structures like map in C++), check if there is any element with prime frequency"
+  ],
+  "sample_test_cases": [
+    "[1,2,3,4,5,4]",
+    "[1,2,3,4,5]",
+    "[2,2,2,4,4]"
+  ],
+  "content_signature": "-qho3uu",
+  "fetched_at": "2026-05-21T07:44:17.610Z"
+}

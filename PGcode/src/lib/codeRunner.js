@@ -7,12 +7,63 @@ import { JAVA_CASE_SEP, JAVA_OUT_END, JAVA_ERR_PREFIX } from './driverCode';
 
 const JUDGE0_DIRECT_URL = 'https://ce.judge0.com/submissions?base64_encoded=false&wait=true';
 
+// Languages with full test-harness/driver-code support (used by the Workspace runner)
+// must be a strict subset of all supported languages — only these have driver code in
+// driverCode.js. The Playground accepts every key in this map.
 const LANG_MAP = {
-  python:     { id: 71 },   // Python 3.8.1
-  javascript: { id: 63 },   // JavaScript (Node.js 12.14.0)
-  java:       { id: 62 },   // Java (OpenJDK 13.0.1)
-  cpp:        { id: 54 },   // C++ (GCC 9.2.0)
+  python:     { id: 71, name: 'Python 3',     monaco: 'python',     harness: true  },
+  javascript: { id: 63, name: 'JavaScript',   monaco: 'javascript', harness: true  },
+  java:       { id: 62, name: 'Java',         monaco: 'java',       harness: true  },
+  cpp:        { id: 54, name: 'C++',          monaco: 'cpp',        harness: true  },
+  c:          { id: 50, name: 'C',            monaco: 'c',          harness: false },
+  go:         { id: 60, name: 'Go',           monaco: 'go',         harness: false },
+  rust:       { id: 73, name: 'Rust',         monaco: 'rust',       harness: false },
+  typescript: { id: 74, name: 'TypeScript',   monaco: 'typescript', harness: false },
+  csharp:     { id: 51, name: 'C#',           monaco: 'csharp',     harness: false },
+  ruby:       { id: 72, name: 'Ruby',         monaco: 'ruby',       harness: false },
+  kotlin:     { id: 78, name: 'Kotlin',       monaco: 'kotlin',     harness: false },
+  swift:      { id: 83, name: 'Swift',        monaco: 'swift',      harness: false },
+  php:        { id: 68, name: 'PHP',          monaco: 'php',        harness: false },
+  bash:       { id: 46, name: 'Bash',         monaco: 'shell',      harness: false },
 };
+
+export const PLAYGROUND_LANGS = Object.entries(LANG_MAP).map(([value, meta]) => ({
+  value,
+  label: meta.name,
+  monaco: meta.monaco,
+}));
+
+export const HARNESS_LANGS = Object.entries(LANG_MAP)
+  .filter(([, m]) => m.harness)
+  .map(([value, m]) => ({ value, label: m.name, monaco: m.monaco }));
+
+export { LANG_MAP };
+
+// Server-side grading. Loads tests + driver from DB; client never sees expected
+// outputs unless the function returns them in `cases[i].hint`. Falls back to
+// null on any error so the caller can run the legacy client-grading flow.
+//
+// Returns: { verdict, passed, total, cases: [{ index, status, hint? }] } or null.
+export async function gradeOnServer(problemId, language, code) {
+  if (!problemId || !code || !LANG_MAP[language]) return null;
+  try {
+    const { data, error } = await supabase.functions.invoke('grade-submission', {
+      body: { problem_id: problemId, language, code },
+    });
+    if (error) {
+      console.warn('grade-submission failed, falling back:', error.message);
+      return null;
+    }
+    if (data?.error) {
+      console.warn('grade-submission rejected:', data.error);
+      return null;
+    }
+    return data;
+  } catch (err) {
+    console.warn('grade-submission exception:', err.message);
+    return null;
+  }
+}
 
 // Run a batch of stdins against the same source code in parallel, server-side.
 // Returns an array of { status, output } in the same order as `stdins`.

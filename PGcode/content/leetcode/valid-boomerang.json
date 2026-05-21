@@ -1,0 +1,21 @@
+{
+  "slug": "valid-boomerang",
+  "leetcode_id": "1115",
+  "title": "Valid Boomerang",
+  "difficulty": "Easy",
+  "tags": [
+    "array",
+    "math",
+    "geometry"
+  ],
+  "description_html": "<p>Given an array <code>points</code> where <code>points[i] = [x<sub>i</sub>, y<sub>i</sub>]</code> represents a point on the <strong>X-Y</strong> plane, return <code>true</code> <em>if these points are a <strong>boomerang</strong></em>.</p>\n\n<p>A <strong>boomerang</strong> is a set of three points that are <strong>all distinct</strong> and <strong>not in a straight line</strong>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n<pre><strong>Input:</strong> points = [[1,1],[2,3],[3,2]]\n<strong>Output:</strong> true\n</pre><p><strong class=\"example\">Example 2:</strong></p>\n<pre><strong>Input:</strong> points = [[1,1],[2,2],[3,3]]\n<strong>Output:</strong> false\n</pre>\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>points.length == 3</code></li>\n\t<li><code>points[i].length == 2</code></li>\n\t<li><code>0 &lt;= x<sub>i</sub>, y<sub>i</sub> &lt;= 100</code></li>\n</ul>\n",
+  "hints": [
+    "3 points form a boomerang if and only if the triangle formed from them has non-zero area."
+  ],
+  "sample_test_cases": [
+    "[[1,1],[2,3],[3,2]]",
+    "[[1,1],[2,2],[3,3]]"
+  ],
+  "content_signature": "-diqdyx",
+  "fetched_at": "2026-05-21T06:12:50.174Z"
+}

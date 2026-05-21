@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle, Star, Code2, ExternalLink, Lightbulb, Search, X, ChevronDown } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useProblemsCompact, useTopics, useUserProgress, useLists, useListProblemIds, qk } from '../lib/queries';
+import { legacyToStatus } from '../lib/status';
+import { primaryTopicLabel, fullTopicLabel } from '../lib/topicLabel';
 import './ProblemList.css';
 
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
 const difficultyOrder = { 'Easy': 0, 'Medium': 1, 'Hard': 2 };
-
-const topicLabel = (raw) => (raw || '').split(/\\n|\n/)[0].trim();
-const topicFullText = (raw) => (raw || '').replace(/\\n/g, ' — ').replace(/\n/g, ' — ').trim();
 
 function FilterDropdown({ label, value, options, onChange, minWidth = 160 }) {
   const [open, setOpen] = useState(false);
@@ -53,78 +54,63 @@ function FilterDropdown({ label, value, options, onChange, minWidth = 160 }) {
   );
 }
 
-export default function ProblemList({ session, roadmapMode }) {
-  const [problems, setProblems] = useState([]);
-  const [topics, setTopics] = useState([]);
-  const [userProgress, setUserProgress] = useState({});
-  const [loading, setLoading] = useState(true);
+// Practice is intentionally NOT scoped by roadmapMode — it shows the full
+// catalog (3000+ problems) like LeetCode's problem table. The roadmapMode
+// control only affects the /roadmap visualization.
+export default function ProblemList({ session }) {
+  const queryClient = useQueryClient();
+  const userId = session?.user?.id;
+
+  const { data: rawProblems, isLoading: problemsLoading } = useProblemsCompact();
+  const { data: rawTopics, isLoading: topicsLoading } = useTopics();
+  const { data: progressBundle } = useUserProgress(userId);
+  const { data: lists = [] } = useLists();
 
   const [search, setSearch] = useState('');
   const [topicFilter, setTopicFilter] = useState('all');
   const [diffFilter, setDiffFilter] = useState(new Set(['Easy', 'Medium', 'Hard']));
   const [statusFilter, setStatusFilter] = useState('all');
+  const [listFilter, setListFilter] = useState('all');
   const [sortBy, setSortBy] = useState('topic');
 
-  useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
-      try {
-        const [problemsRes, topicsRes, progressRes] = await Promise.all([
-          supabase.from('PGcode_problems').select('id, name, topic_id, difficulty, roadmap_set, leetcode_url'),
-          supabase.from('PGcode_topics').select('id, name').neq('id', 'first-order'),
-          session?.user
-            ? supabase.from('PGcode_user_progress').select('problem_id, is_completed, is_starred').eq('user_id', session.user.id)
-            : Promise.resolve({ data: null }),
-        ]);
+  const { data: listProblemIds } = useListProblemIds(listFilter);
 
-        let filtered = (problemsRes.data || []).filter(p => {
-          if (roadmapMode === '100') return p.roadmap_set === '100';
-          if (roadmapMode === '200') return p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === 'both' || !p.roadmap_set;
-          if (roadmapMode === '300') return p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === 'both' || !p.roadmap_set;
-          if (roadmapMode === '400') return p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === '400' || p.roadmap_set === 'both' || !p.roadmap_set;
-          return true;
-        });
-
-        setProblems(filtered);
-        setTopics(topicsRes.data || []);
-
-        if (progressRes.data) {
-          const map = {};
-          progressRes.data.forEach(p => { map[p.problem_id] = p; });
-          setUserProgress(map);
-        }
-      } catch (err) {
-        console.error('Error fetching problems:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, [roadmapMode, session]);
+  const problems = useMemo(() => rawProblems || [], [rawProblems]);
+  const topics = useMemo(() => (rawTopics || []).filter(t => t.id !== 'first-order'), [rawTopics]);
+  const userProgress = useMemo(() => progressBundle?.byId || {}, [progressBundle]);
+  const loading = problemsLoading || topicsLoading;
 
   const topicNameMap = useMemo(() => {
     const map = {};
-    topics.forEach(t => { map[t.id] = topicLabel(t.name); });
+    topics.forEach(t => { map[t.id] = primaryTopicLabel(t.name); });
     return map;
   }, [topics]);
 
   const topicFullMap = useMemo(() => {
     const map = {};
-    topics.forEach(t => { map[t.id] = topicFullText(t.name); });
+    topics.forEach(t => { map[t.id] = fullTopicLabel(t.name); });
     return map;
   }, [topics]);
 
   const topicOptions = useMemo(() => [
     { value: 'all', label: 'All Topics' },
-    ...topics.map(t => ({ value: t.id, label: topicLabel(t.name) })),
+    ...topics.map(t => ({ value: t.id, label: primaryTopicLabel(t.name) })),
   ], [topics]);
 
   const statusOptions = [
-    { value: 'all', label: 'All Status' },
-    { value: 'solved', label: 'Solved' },
-    { value: 'unsolved', label: 'Unsolved' },
-    { value: 'starred', label: 'Starred' },
+    { value: 'all',            label: 'All Status' },
+    { value: 'not_started',    label: 'Not Started' },
+    { value: 'attempted',      label: 'Attempted' },
+    { value: 'solved',         label: 'Solved' },
+    { value: 'mastered',       label: 'Mastered' },
+    { value: 'bookmarked',     label: 'Bookmarked' },
+    { value: 'needs_revision', label: 'Needs Revision' },
   ];
+
+  const listOptions = useMemo(() => [
+    { value: 'all', label: 'All problems' },
+    ...lists.map(l => ({ value: l.slug, label: l.name })),
+  ], [lists]);
 
   const sortOptions = [
     { value: 'topic', label: 'Topic' },
@@ -144,46 +130,78 @@ export default function ProblemList({ session, roadmapMode }) {
     });
   };
 
-  const toggleComplete = async (problemId) => {
-    if (!session?.user) return;
+  const progressMutation = useMutation({
+    mutationFn: async ({ problemId, patch }) => {
+      const current = userProgress[problemId] || {};
+      const next = {
+        user_id: userId,
+        problem_id: problemId,
+        is_completed: current.is_completed ?? false,
+        is_starred: current.is_starred ?? false,
+        ...patch,
+        updated_at: new Date().toISOString(),
+      };
+      const { error } = await supabase.from('PGcode_user_progress').upsert(next);
+      if (error) throw error;
+      return next;
+    },
+    onMutate: async ({ problemId, patch }) => {
+      const key = qk.userProgress(userId);
+      await queryClient.cancelQueries({ queryKey: key });
+      const prev = queryClient.getQueryData(key);
+      queryClient.setQueryData(key, (old) => {
+        const rows = old?.rows ? [...old.rows] : [];
+        const byId = { ...(old?.byId || {}) };
+        const existing = byId[problemId] || { problem_id: problemId, user_id: userId };
+        const merged = { ...existing, ...patch };
+        byId[problemId] = merged;
+        const idx = rows.findIndex(r => r.problem_id === problemId);
+        if (idx >= 0) rows[idx] = merged; else rows.push(merged);
+        return { rows, byId };
+      });
+      return { prev, key };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(ctx.key, ctx.prev);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: qk.userProgress(userId) });
+    },
+  });
+
+  const toggleComplete = (problemId) => {
+    if (!userId || progressMutation.isPending) return;
     const current = userProgress[problemId];
-    const newVal = !(current?.is_completed);
-    const { error } = await supabase.from('PGcode_user_progress').upsert({
-      user_id: session.user.id,
-      problem_id: problemId,
-      is_completed: newVal,
-      is_starred: current?.is_starred ?? false,
-      updated_at: new Date().toISOString()
+    const nextCompleted = !current?.is_completed;
+    progressMutation.mutate({
+      problemId,
+      patch: {
+        is_completed: nextCompleted,
+        status: nextCompleted ? 'solved' : (current?.is_starred ? 'bookmarked' : 'attempted'),
+        status_changed_at: new Date().toISOString(),
+      },
     });
-    if (error) return;
-    setUserProgress(prev => ({ ...prev, [problemId]: { ...prev[problemId], is_completed: newVal } }));
   };
 
-  const toggleStar = async (problemId) => {
-    if (!session?.user) return;
+  const toggleStar = (problemId) => {
+    if (!userId || progressMutation.isPending) return;
     const current = userProgress[problemId];
-    const newVal = !(current?.is_starred);
-    const { error } = await supabase.from('PGcode_user_progress').upsert({
-      user_id: session.user.id,
-      problem_id: problemId,
-      is_starred: newVal,
-      is_completed: current?.is_completed ?? false,
-      updated_at: new Date().toISOString()
-    });
-    if (error) return;
-    setUserProgress(prev => ({ ...prev, [problemId]: { ...prev[problemId], is_starred: newVal } }));
+    progressMutation.mutate({ problemId, patch: { is_starred: !current?.is_starred } });
   };
+
 
   const filteredProblems = useMemo(() => {
     let result = problems.filter(p => {
       if (topicFilter !== 'all' && p.topic_id !== topicFilter) return false;
       if (!diffFilter.has(p.difficulty)) return false;
       if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
+      if (listProblemIds && !listProblemIds.has(p.id)) return false;
 
-      const prog = userProgress[p.id];
-      if (statusFilter === 'solved' && !prog?.is_completed) return false;
-      if (statusFilter === 'unsolved' && prog?.is_completed) return false;
-      if (statusFilter === 'starred' && !prog?.is_starred) return false;
+      if (statusFilter !== 'all') {
+        const prog = userProgress[p.id];
+        const status = legacyToStatus(prog);
+        if (status !== statusFilter) return false;
+      }
 
       return true;
     });
@@ -196,7 +214,7 @@ export default function ProblemList({ session, roadmapMode }) {
     });
 
     return result;
-  }, [problems, topicFilter, diffFilter, search, statusFilter, sortBy, userProgress]);
+  }, [problems, topicFilter, diffFilter, search, statusFilter, sortBy, userProgress, listProblemIds]);
 
   const stats = useMemo(() => {
     const total = problems.length;
@@ -243,6 +261,14 @@ export default function ProblemList({ session, roadmapMode }) {
             />
             {search && <X size={14} className="pl-search-clear" onClick={() => setSearch('')} />}
           </div>
+
+          <FilterDropdown
+            label="List"
+            value={listFilter}
+            options={listOptions}
+            onChange={setListFilter}
+            minWidth={160}
+          />
 
           <FilterDropdown
             label="Topic"
@@ -308,7 +334,7 @@ export default function ProblemList({ session, roadmapMode }) {
                   />
                 </div>
                 <div className="pl-col-name">
-                  <Link to={`/category/${p.topic_id}/${p.id}`} className="pl-problem-link" title={p.name}>
+                  <Link to={`/category/${encodeURIComponent(p.topic_id)}/${encodeURIComponent(p.id)}`} className="pl-problem-link" title={p.name}>
                     {p.name}
                   </Link>
                   <Star
@@ -329,7 +355,7 @@ export default function ProblemList({ session, roadmapMode }) {
                   </span>
                 </div>
                 <div className="pl-col-actions">
-                  <Link to={`/category/${p.topic_id}/${p.id}`} className="pl-action-icon" title="Solve on PGcode" aria-label="Solve on PGcode">
+                  <Link to={`/category/${encodeURIComponent(p.topic_id)}/${encodeURIComponent(p.id)}`} className="pl-action-icon" title="Solve on PGcode" aria-label="Solve on PGcode">
                     <Code2 size={16} />
                   </Link>
                   {p.leetcode_url && (

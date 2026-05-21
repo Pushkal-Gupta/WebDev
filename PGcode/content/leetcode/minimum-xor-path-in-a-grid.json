@@ -1,0 +1,25 @@
+{
+  "slug": "minimum-xor-path-in-a-grid",
+  "leetcode_id": "4205",
+  "title": "Minimum XOR Path in a Grid",
+  "difficulty": "Medium",
+  "tags": [
+    "array",
+    "dynamic-programming",
+    "bit-manipulation",
+    "matrix"
+  ],
+  "description_html": "<p>You are given a 2D integer array <code>grid</code> of size <code>m * n</code>.</p>\n\n<p>You start at the <strong>top-left</strong> cell <code>(0, 0)</code> and want to reach the <strong>bottom-right</strong> cell <code>(m - 1, n - 1)</code>.</p>\n\n<p>At each step, you <strong>may</strong> move either <strong>right or down</strong>.</p>\n\n<p>The <strong>cost</strong> of a path is defined as the <strong>bitwise XOR</strong> of all the values in the cells along that path, <strong>including</strong> the start and end cells.</p>\n\n<p>Return the <strong>minimum</strong> possible XOR value among all valid paths from <code>(0, 0)</code> to <code>(m - 1, n - 1)</code>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">grid = [[1,2],[3,4]]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">6</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>There are two valid paths:</p>\n\n<ul>\n\t<li><code>(0, 0) &rarr; (0, 1) &rarr; (1, 1)</code> with XOR: <code>1 XOR 2 XOR 4 = 7</code></li>\n\t<li><code>(0, 0) &rarr; (1, 0) &rarr; (1, 1)</code> with XOR: <code>1 XOR 3 XOR 4 = 6</code></li>\n</ul>\n\n<p>The minimum XOR value among all valid paths is 6.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">grid = [[6,7],[5,8]]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">9</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>There are two valid paths:</p>\n\n<ul>\n\t<li><code>(0, 0) &rarr; (0, 1) &rarr; (1, 1)</code> with XOR: <code>6 XOR 7 XOR 8 = 9</code></li>\n\t<li><code>(0, 0) &rarr; (1, 0) &rarr; (1, 1)</code> with XOR: <code>6 XOR 5 XOR 8 = 11</code></li>\n</ul>\n\n<p>The minimum XOR value among all valid paths is 9.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">grid = [[2,7,5]]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">0</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>There is only one valid path:</p>\n\n<ul>\n\t<li><code>(0, 0) &rarr; (0, 1) &rarr; (0, 2)</code> with XOR: <code>2 XOR 7 XOR 5 = 0</code></li>\n</ul>\n\n<p>The XOR value of this path is 0, which is the minimum possible.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= m == grid.length &lt;= 1000</code></li>\n\t<li><code>1 &lt;= n == grid[i].length &lt;= 1000</code></li>\n\t<li><code>m * n &lt;= 1000</code></li>\n\t<li><code>0 &lt;= grid[i][j] &lt;= 1023​</code></li>\n</ul>\n",
+  "hints": [
+    "Use dynamic programming with state <code>dp[i][j][x]</code>, where <code>x</code> is a possible XOR value.",
+    "<code>dp[i][j][x]</code> indicates whether it is possible to reach cell <code>(i, j)</code> with XOR equal to <code>x</code>.",
+    "Transition from the top left cell by updating <code>x ^ grid[i][j]</code>, and track all reachable XOR values to find the minimum at the end cell."
+  ],
+  "sample_test_cases": [
+    "[[1,2],[3,4]]",
+    "[[6,7],[5,8]]",
+    "[[2,7,5]]"
+  ],
+  "content_signature": "-pvafal",
+  "fetched_at": "2026-05-21T07:53:32.733Z"
+}

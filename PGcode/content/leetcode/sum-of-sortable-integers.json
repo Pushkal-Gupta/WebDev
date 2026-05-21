@@ -1,0 +1,26 @@
+{
+  "slug": "sum-of-sortable-integers",
+  "leetcode_id": "4257",
+  "title": "Sum of Sortable Integers",
+  "difficulty": "Hard",
+  "tags": [
+    "array",
+    "math",
+    "sorting",
+    "enumeration"
+  ],
+  "description_html": "<p>You are given an integer array <code>nums</code> of length <code>n</code>.</p>\n\n<p>An integer <code>k</code> is called <strong>sortable</strong> if <code>k</code> <strong>divides</strong> <code>n</code> and you can sort <code>nums</code> in <strong>non-decreasing</strong> order by sequentially performing the following operations:</p>\n\n<ul>\n\t<li>Partition <code>nums</code> into <strong>consecutive <span data-keyword=\"subarray-nonempty\">subarrays</span></strong> of length <code>k</code>.</li>\n\t<li><strong>Cyclically rotate each subarray independently</strong> any number of times to the left or to the right.</li>\n</ul>\n\n<p>Return an integer denoting the sum of all possible sortable integers <code>k</code>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [3,1,2]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">3</span></p>\n\n<p><strong>Explanation:</strong>​​​​​​​</p>\n\n<ul>\n\t<li>For <code>n = 3</code>, possible divisors are 1 and 3.</li>\n\t<li>For <code>k = 1</code>: each subarray has one element. No rotation can sort the array.</li>\n\t<li>For <code>k = 3</code>: the single subarray <code>[3, 1, 2]</code> can be rotated once to produce <code>[1, 2, 3]</code>, which is sorted.</li>\n\t<li>Only <code>k = 3</code> is sortable. Hence, the answer is 3.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [7,6,5]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">0</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<ul>\n\t<li>For <code>n = 3</code>, possible divisors are 1 and 3.</li>\n\t<li>For <code>k = 1</code>: each subarray has one element. No rotation can sort the array.</li>\n\t<li>For <code>k = 3</code>: the single subarray <code>[7, 6, 5]</code> cannot be rotated into non-decreasing order.</li>\n\t<li>No <code>k</code> is sortable. Hence, the answer is 0.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [5,8]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">3</span></p>\n\n<p><strong>Explanation:</strong>​​​​​​​</p>\n\n<ul>\n\t<li>For <code>n = 2</code>, possible divisors are 1 and 2.</li>\n\t<li>Since <code>[5, 8]</code> is already sorted, every divisor is sortable. Hence, the answer is <code>1 + 2 = 3</code>.</li>\n</ul>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= n == nums.length &lt;= 10<sup>5</sup></code></li>\n\t<li><code>1 &lt;= nums[i] &lt;= 10<sup>5</sup></code></li>\n</ul>\n",
+  "hints": [
+    "First, observe that <code>k</code> must divide <code>n</code>, since the array is partitioned into subarrays of length <code>k</code>. Iterate over all divisors of <code>n</code>.",
+    "Let <code>s</code> be the sorted version of the array. For each divisor <code>k</code>, check every block <code>[i, i+k)</code>.",
+    "A block can be rotated to match its sorted counterpart if the sorted segment <code>s[i..i+k-1]</code> appears as a cyclic rotation of <code>nums[i..i+k-1]</code>.",
+    "You can test this by checking whether the sorted segment exists inside two concatenated copies of the block. If all blocks satisfy this, then <code>k</code> is sortable."
+  ],
+  "sample_test_cases": [
+    "[3,1,2]",
+    "[7,6,5]",
+    "[5,8]"
+  ],
+  "content_signature": "hacnid",
+  "fetched_at": "2026-05-21T07:53:41.649Z"
+}

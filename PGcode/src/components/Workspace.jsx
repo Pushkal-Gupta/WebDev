@@ -1,29 +1,131 @@
-import React, { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
+import { useTopicProblems, filterByRoadmap, qk, useProblemCompanies, useSimilarProblems } from '../lib/queries';
 import Editor from '@monaco-editor/react';
-import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Play, ExternalLink, CheckCircle, RotateCcw, Code2, FileText, Award, MessageSquare, TestTube, Lightbulb } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Play, ExternalLink, CheckCircle, RotateCcw, Code2, FileText, Award, MessageSquare, TestTube, Lightbulb, Pin } from 'lucide-react';
 import SolutionView from './SolutionView';
+import ProblemVisualizer from './ProblemVisualizer';
+import HintsPanel from './HintsPanel';
+import StatusPill from './StatusPill';
+import AiExplainFailure from './AiExplainFailure';
+import Select from './Select';
+import { legacyToStatus } from '../lib/status';
 import { runCode, runCodeBatch, runCodeMultiCase } from '../lib/codeRunner';
+
+// Translate raw exec errors into actionable messages for the user.
+// Network-y errors, Judge0 quirks, malformed responses — each gets a hint.
+function humanizeRunError(err) {
+  const msg = (err?.message || String(err) || '').toLowerCase();
+  if (/429|rate.?limit|too many/.test(msg)) {
+    return { title: 'Code runner is rate-limited', detail: 'Wait ~30 seconds and try again. If this keeps happening, the Edge Function may need to be redeployed.' };
+  }
+  if (/5\d\d|server error|bad gateway|gateway timeout/.test(msg)) {
+    return { title: 'Code runner is temporarily down', detail: 'Judge0 returned a server error. Try again in a moment.' };
+  }
+  if (/network|failed to fetch|networkerror|connection|cors/.test(msg)) {
+    return { title: 'Network error', detail: 'Could not reach the code runner. Check your connection and try again.' };
+  }
+  if (/timeout|timed out|aborted/.test(msg)) {
+    return { title: 'Timed out', detail: 'Your code or the runner took too long. Look for infinite loops or O(n²) on a 100k input.' };
+  }
+  return { title: 'Execution Failed', detail: err?.message || 'Unknown error. Try Run again.' };
+}
 import { generateTemplate, wrapWithDriver, buildStdin, compareOutput } from '../lib/driverCode';
+import { nextReviewAt } from '../lib/spacedRepetition';
 import '../styles/workspace.css';
 
-export default function Workspace({ session, theme, roadmapMode }) {
+const VALID_LANGS = ['python', 'javascript', 'java', 'cpp'];
+
+// Map app theme preset → Monaco theme. Custom themes are registered on first
+// editor mount (registerMonacoThemes). Built-ins ('vs', 'vs-dark') are aliased
+// to keep one source of truth.
+const MONACO_THEME_MAP = {
+  dark: 'pg-dark',
+  light: 'pg-light',
+  midnight: 'pg-midnight',
+  solarized: 'pg-solarized',
+  dracula: 'pg-dracula',
+  'midnight-light': 'pg-midnight-light',
+  'dracula-light': 'pg-dracula-light',
+  'solarized-dark': 'pg-solarized-dark',
+};
+
+// True when the resolved Monaco theme should use a dark base.
+const DARK_PRESETS = new Set(['dark', 'midnight', 'dracula', 'solarized-dark']);
+
+let monacoThemesRegistered = false;
+function registerMonacoThemes(monaco) {
+  if (monacoThemesRegistered || !monaco?.editor?.defineTheme) return;
+  const defs = {
+    'pg-dark':     { base: 'vs-dark', bg: '#030a0a', fg: '#d7e9e6' },
+    'pg-light':    { base: 'vs',      bg: '#f5f2ed', fg: '#1c1f23' },
+    'pg-midnight': { base: 'vs-dark', bg: '#0b1024', fg: '#dbe2ff' },
+    'pg-solarized':{ base: 'vs',      bg: '#fdf6e3', fg: '#586e75' },
+    'pg-dracula':  { base: 'vs-dark', bg: '#282a36', fg: '#f8f8f2' },
+    'pg-midnight-light':  { base: 'vs',      bg: '#eef1ff', fg: '#1a2040' },
+    'pg-dracula-light':   { base: 'vs',      bg: '#f4f4ff', fg: '#2d2f3f' },
+    'pg-solarized-dark':  { base: 'vs-dark', bg: '#002b36', fg: '#93a1a1' },
+  };
+  for (const [name, d] of Object.entries(defs)) {
+    monaco.editor.defineTheme(name, {
+      base: d.base,
+      inherit: true,
+      rules: [],
+      colors: {
+        'editor.background': d.bg,
+        'editor.foreground': d.fg,
+        'editorLineNumber.foreground': d.base === 'vs-dark' ? '#4a5d7a' : '#a0a8b0',
+        'editorLineNumber.activeForeground': d.fg,
+        'editor.selectionBackground': d.base === 'vs-dark' ? '#1f3a4a' : '#cfe2f3',
+        'editor.lineHighlightBackground': d.base === 'vs-dark' ? '#0e1f24' : '#ece9e0',
+        'editorCursor.foreground': d.fg,
+        'editorWidget.background': d.bg,
+      },
+    });
+  }
+  monacoThemesRegistered = true;
+}
+
+export default function Workspace({ session, theme, roadmapMode, preferredLang }) {
   const { categoryId, problemId } = useParams();
   const navigate = useNavigate();
-  const [topic, setTopic] = useState(null);
-  const [problems, setProblems] = useState([]);
-  const [activeProblem, setActiveProblem] = useState(null);
-  const [loadError, setLoadError] = useState(false);
+  const queryClient = useQueryClient();
+  const userId = session?.user?.id;
 
-  const [activeLang, setActiveLang] = useState('python');
+  const [activeProblem, setActiveProblem] = useState(null);
+
+  const initialLang = VALID_LANGS.includes(preferredLang) ? preferredLang : 'python';
+  const [activeLang, setActiveLang] = useState(initialLang);
+  const userTouchedLangRef = useRef(false);
+
+  // When the user's preferred language loads/changes and they haven't manually switched, follow it.
+  useEffect(() => {
+    if (!userTouchedLangRef.current && preferredLang && VALID_LANGS.includes(preferredLang)) {
+      setActiveLang(preferredLang);
+    }
+  }, [preferredLang]);
+
+  const onLangChange = (next) => {
+    userTouchedLangRef.current = true;
+    setActiveLang(next);
+    // Persist as the user's preferred language so it survives reload + applies
+    // to other Workspace problems. Writes to localStorage immediately so the
+    // next problem opens in the same language even if the Supabase upsert is
+    // still in flight.
+    try { localStorage.setItem('pg-preferred-lang', next); } catch { /* ignore */ }
+    if (userId) {
+      queryClient.setQueryData(qk.profile(userId), (prev) => ({ ...(prev || { user_id: userId }), preferred_lang: next }));
+      supabase.from('PGcode_profiles').upsert({ user_id: userId, preferred_lang: next }).then(() => {
+        queryClient.invalidateQueries({ queryKey: qk.profile(userId) });
+      });
+    }
+  };
   const [codeContent, setCodeContent] = useState('');
-  const [templates, setTemplates] = useState({});
   const [leftTab, setLeftTab] = useState('description');
-  const [userProgress, setUserProgress] = useState(null);
   const [notes, setNotes] = useState('');
   const [confidence, setConfidence] = useState(0);
-  const [showConsole, setShowConsole] = useState(false);
   const [consoleOutput, setConsoleOutput] = useState('');
   const [running, setRunning] = useState(false);
   const [editorStatus, setEditorStatus] = useState('');
@@ -39,14 +141,16 @@ export default function Workspace({ session, theme, roadmapMode }) {
   const [submissions, setSubmissions] = useState([]);
   // Success animation
   const [showSuccess, setShowSuccess] = useState(false);
-  // Pattern breakdown for post-solve
-  const [similarProblems, setSimilarProblems] = useState([]);
+  // Local "similar" list for the post-solve modal (kept separate from the
+  // concept-derived `similarProblems` hook used in the Description tab).
+  const [postSolveSimilar, setPostSolveSimilar] = useState([]);
   // Solve timer
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [timerPaused, setTimerPaused] = useState(false);
   const [timerStopped, setTimerStopped] = useState(false);
   const timerRef = useRef(null);
   const editorRef = useRef(null);
+  const monacoRef = useRef(null);
 
   // Lock page scroll while Workspace is mounted — only inner panes scroll.
   // Measure the nav height at runtime and expose as --pg-nav-h so
@@ -130,55 +234,102 @@ export default function Workspace({ session, theme, roadmapMode }) {
     setTimerStopped(false);
   }, [activeProblem?.id]);
 
-  // Fetch topic + problems
-  useEffect(() => {
-    if (!categoryId) return;
-    setLoadError(false);
-    (async () => {
-      try {
-        const { data: topicData } = await supabase.from('PGcode_topics').select('*').eq('id', categoryId).single();
-        if (topicData) setTopic(topicData);
-        const { data: qData } = await supabase.from('PGcode_problems').select('*').eq('topic_id', categoryId);
-        let filtered = qData || [];
-        if (roadmapMode === '100') filtered = filtered.filter(p => p.roadmap_set === '100');
-        else if (roadmapMode === '200') filtered = filtered.filter(p => p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === 'both' || !p.roadmap_set);
-        else if (roadmapMode === '300') filtered = filtered.filter(p => p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === 'both' || !p.roadmap_set);
-        else if (roadmapMode === '400') filtered = filtered.filter(p => p.roadmap_set === '100' || p.roadmap_set === '200' || p.roadmap_set === '300' || p.roadmap_set === '400' || p.roadmap_set === 'both' || !p.roadmap_set);
-        // Fallback: if the tier filter leaves zero problems for this topic, show all
-        if (filtered.length === 0) {
-          filtered = qData || [];
-        }
-        // Deep-link safety: if URL specifies a problemId not in the filtered set, include it
-        if (problemId && !filtered.find(p => p.id === problemId)) {
-          const target = (qData || []).find(p => p.id === problemId);
-          if (target) filtered.push(target);
-        }
-        if (filtered.length > 0) {
-          setProblems(filtered);
-          setActiveProblem(problemId ? (filtered.find(p => p.id === problemId) || filtered[0]) : filtered[0]);
-        }
-      } catch (err) { console.error('Failed to load problems:', err); setLoadError(true); }
-    })();
-  }, [categoryId, roadmapMode, problemId]);
+  // Topic info (cached)
+  const { data: topic } = useQuery({
+    queryKey: ['topic', categoryId],
+    queryFn: async () => {
+      const { data } = await supabase.from('PGcode_topics').select('*').eq('id', categoryId).maybeSingle();
+      return data || null;
+    },
+    enabled: !!categoryId,
+    staleTime: 60 * 60 * 1000,
+  });
 
-  // Fetch templates
+  // Problems for this topic (cached, shared with TopicModal)
+  const { data: rawProblems, isError: problemsError } = useTopicProblems(categoryId);
+
+  const problems = useMemo(() => {
+    if (!rawProblems) return [];
+    let filtered = filterByRoadmap(rawProblems, roadmapMode);
+    if (filtered.length === 0) filtered = rawProblems;
+    if (problemId && !filtered.find(p => p.id === problemId)) {
+      const target = rawProblems.find(p => p.id === problemId);
+      if (target) filtered = [...filtered, target];
+    }
+    return filtered;
+  }, [rawProblems, roadmapMode, problemId]);
+
+  const loadError = problemsError;
+
+  // If the URL has /category/X/Y but Y isn't a problem under category X (wrong
+  // topic_id on the source link, stale bookmark, list-style roadmap, deleted
+  // topic, etc.), fall back to fetching the problem row directly so the page
+  // actually opens. Without this the page would hang on "Loading…".
+  //
+  // CRITICAL: fire whenever problemId is set and the topic-filtered list
+  // doesn't contain it — even when the topic load returned empty OR errored.
+  // Earlier bug: gating on `rawProblems !== undefined` alone meant a network
+  // error or RLS failure left rawProblems forever undefined → fallback never
+  // fired → page hangs on "Loading…".
+  const inTopic = !!problemId && !!problems.find(p => p.id === problemId);
+  const { data: directProblem, isLoading: directLoading } = useQuery({
+    queryKey: ['problemById', problemId],
+    queryFn: async () => {
+      const { data } = await supabase.from('PGcode_problems').select('*').eq('id', problemId).maybeSingle();
+      return data || null;
+    },
+    enabled: !!problemId && (rawProblems !== undefined || !!problemsError) && !inTopic,
+    staleTime: 60 * 60 * 1000,
+    retry: 2,
+  });
+
+  // Sync activeProblem from (a) the topic list, (b) the direct fetch, or
+  // (c) the topic's first problem if no problemId in URL.
   useEffect(() => {
-    if (!activeProblem) return;
-    (async () => {
-      try {
-        const { data } = await supabase.from('PGcode_problem_templates').select('*').eq('problem_id', activeProblem.id);
-        const m = {};
-        if (data) data.forEach(t => { m[t.language] = t.code; });
-        setTemplates(m);
-      } catch { setTemplates({}); }
-    })();
-  }, [activeProblem]);
+    let next;
+    if (problemId) {
+      next = problems.find(p => p.id === problemId) || directProblem;
+    } else if (problems.length > 0) {
+      next = problems[0];
+    }
+    if (next) setActiveProblem(prev => (prev?.id === next.id ? prev : next));
+  }, [problems, problemId, directProblem]);
+
+  // Persist last-opened problem so Home can offer "Resume where you left off".
+  useEffect(() => {
+    if (!session?.user?.id || !activeProblem?.id) return;
+    try {
+      localStorage.setItem(
+        `pg-last-problem-${session.user.id}`,
+        JSON.stringify({
+          id: activeProblem.id,
+          name: activeProblem.name,
+          difficulty: activeProblem.difficulty,
+          topic_id: activeProblem.topic_id,
+        }),
+      );
+    } catch { /* localStorage full or unavailable */ }
+  }, [session?.user?.id, activeProblem?.id, activeProblem?.name, activeProblem?.difficulty, activeProblem?.topic_id]);
+
+  // Templates per problem (cached)
+  const { data: templates = {} } = useQuery({
+    queryKey: qk.templates(activeProblem?.id),
+    queryFn: async () => {
+      const { data } = await supabase.from('PGcode_problem_templates').select('*').eq('problem_id', activeProblem.id);
+      const m = {};
+      (data || []).forEach(t => { m[t.language] = t.code; });
+      return m;
+    },
+    enabled: !!activeProblem?.id,
+    staleTime: 60 * 60 * 1000,
+  });
 
   // Initialize test case inputs when problem changes
+  const activeTestCases = activeProblem?.test_cases;
   useEffect(() => {
-    if (activeProblem?.test_cases?.length > 0 && activeProblem.test_cases[0]?.inputs) {
+    if (activeTestCases?.length > 0 && activeTestCases[0]?.inputs) {
       setActiveTestIdx(0);
-      setTestInputs([...activeProblem.test_cases[0].inputs]);
+      setTestInputs([...activeTestCases[0].inputs]);
     } else {
       setActiveTestIdx(0);
       setTestInputs([]);
@@ -186,65 +337,93 @@ export default function Workspace({ session, theme, roadmapMode }) {
     setRunResult(null);
     setResultCaseIdx(0);
     setSubmitProgress(null);
-    // Load submission history
     try {
       const saved = JSON.parse(localStorage.getItem(`pgcode_subs_${activeProblem?.id}`) || '[]');
       setSubmissions(saved);
     } catch { setSubmissions([]); }
-    // Load pinned test case indices
     try {
       const savedPinned = JSON.parse(localStorage.getItem(`pgcode_pinned_${activeProblem?.id}`) || '[]');
       setPinnedCaseIndices(Array.isArray(savedPinned) ? savedPinned : []);
     } catch { setPinnedCaseIndices([]); }
-  }, [activeProblem?.id]);
+  }, [activeProblem?.id, activeTestCases]);
 
+  // Per-problem user progress (cached). MUST come before the editor-init
+  // effect — the effect reads userProgress and React's evaluation of the deps
+  // array would otherwise throw a TDZ ReferenceError on mount.
+  const { data: userProgress } = useQuery({
+    queryKey: ['userProgress', userId, activeProblem?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('PGcode_user_progress')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('problem_id', activeProblem.id)
+        .maybeSingle();
+      return data || null;
+    },
+    enabled: !!userId && !!activeProblem?.id,
+    staleTime: 60 * 1000,
+  });
+
+  // Track which (problem, lang) combo the editor has been initialized for.
+  // Without this, the effect's `userProgress` dep would cause every Run/save to
+  // re-initialize the editor (stomping the user's in-flight edits).
+  const initKeyRef = useRef('');
   useEffect(() => {
     if (!activeProblem) return;
+    const key = `${activeProblem.id}::${activeLang}`;
+    if (initKeyRef.current === key) return;
+
     const localKey = `pgcode_code_${activeProblem.id}_${activeLang}`;
     const localCode = localStorage.getItem(localKey);
     const hasMetadata = activeProblem.method_name && activeProblem.params;
     const generated = hasMetadata ? generateTemplate(activeLang, activeProblem.method_name, activeProblem.params, activeProblem.return_type) : null;
 
-    // Detect stale generic templates from before metadata was added
     const isStaleGeneric = localCode && (
       localCode.includes('def solve(self, input)') ||
       localCode.includes('var solve = function(input)') ||
       localCode.includes('Object solve(')
     );
-
-    // If metadata exists and localStorage has old generic template, clear it
     if (isStaleGeneric && hasMetadata) localStorage.removeItem(localKey);
 
-    // Priority: localStorage (non-stale) > Supabase progress > generated > DB template > fallback
     if (localCode && !isStaleGeneric) setCodeContent(localCode);
     else if (userProgress?.last_code?.[activeLang]) setCodeContent(userProgress.last_code[activeLang]);
     else setCodeContent(generated || templates[activeLang] || `class Solution:\n    def solve(self, input):\n        # Write your solution here\n        pass`);
+
+    initKeyRef.current = key;
   }, [activeProblem, activeLang, templates, userProgress]);
 
+  // Companies that have asked this problem + similar problems (sharing concepts)
+  const { data: problemCompanies = [] } = useProblemCompanies(activeProblem?.id);
+  const { data: similarProblems = [] } = useSimilarProblems(activeProblem?.id);
+
+  // Sync notes/confidence local UI state from cached progress
   useEffect(() => {
-    if (!activeProblem || !session?.user) { setUserProgress(null); setNotes(''); setConfidence(0); return; }
-    (async () => {
-      try {
-        const { data } = await supabase.from('PGcode_user_progress').select('*').eq('user_id', session.user.id).eq('problem_id', activeProblem.id).single();
-        if (data) { setUserProgress(data); setNotes(data.notes || ''); setConfidence(data.confidence || 0); }
-        else { setUserProgress(null); setNotes(''); setConfidence(0); }
-      } catch { setUserProgress(null); }
-    })();
-  }, [activeProblem, session]);
+    setNotes(userProgress?.notes || '');
+    setConfidence(userProgress?.confidence || 0);
+  }, [userProgress?.id, userProgress?.notes, userProgress?.confidence]);
 
   const saveProgress = async (updates) => {
-    if (!session?.user || !activeProblem) return;
-    const payload = { user_id: session.user.id, problem_id: activeProblem.id, updated_at: new Date().toISOString(), ...updates };
+    if (!userId || !activeProblem) return;
+    const payload = { user_id: userId, problem_id: activeProblem.id, updated_at: new Date().toISOString(), ...updates };
     const { error } = await supabase.from('PGcode_user_progress').upsert(payload);
-    if (!error) setUserProgress(prev => ({ ...prev, ...payload }));
-  };
-
-  const handleSave = async () => {
-    if (!session?.user) { setEditorStatus('Login to save'); setTimeout(() => setEditorStatus(''), 2000); return; }
-    const lastCode = { ...(userProgress?.last_code || {}), [activeLang]: codeContent };
-    await saveProgress({ last_code: lastCode });
-    if (activeProblem) localStorage.setItem(`pgcode_code_${activeProblem.id}_${activeLang}`, codeContent);
-    setEditorStatus('Saved'); setTimeout(() => setEditorStatus(''), 2000);
+    if (!error) {
+      // Optimistically merge into both the per-problem and bundle caches so the
+      // UI flips before invalidation refetches.
+      queryClient.setQueryData(['userProgress', userId, activeProblem.id], (prev) => ({ ...(prev || {}), ...payload }));
+      queryClient.setQueryData(qk.userProgress(userId), (old) => {
+        if (!old) return old;
+        const rows = old.rows ? [...old.rows] : [];
+        const byId = { ...(old.byId || {}) };
+        const existing = byId[activeProblem.id] || {};
+        const merged = { ...existing, ...payload };
+        byId[activeProblem.id] = merged;
+        const idx = rows.findIndex(r => r.problem_id === activeProblem.id);
+        if (idx >= 0) rows[idx] = merged; else rows.push(merged);
+        return { rows, byId };
+      });
+      queryClient.invalidateQueries({ queryKey: qk.userProgress(userId) });
+    }
   };
 
   const VISIBLE_DEFAULT_COUNT = 3;
@@ -263,7 +442,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
     setPinnedCaseIndices(prev => {
       if (prev.includes(originalIdx)) return prev;
       const next = [...prev, originalIdx].sort((a, b) => a - b);
-      try { localStorage.setItem(`pgcode_pinned_${activeProblem.id}`, JSON.stringify(next)); } catch {}
+      try { localStorage.setItem(`pgcode_pinned_${activeProblem.id}`, JSON.stringify(next)); } catch { /* ignore */ }
       return next;
     });
     // Update runResult to remove canPin flag since case is now visible
@@ -281,7 +460,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
   const unpinCase = (originalIdx) => {
     setPinnedCaseIndices(prev => {
       const next = prev.filter(i => i !== originalIdx);
-      try { localStorage.setItem(`pgcode_pinned_${activeProblem.id}`, JSON.stringify(next)); } catch {}
+      try { localStorage.setItem(`pgcode_pinned_${activeProblem.id}`, JSON.stringify(next)); } catch { /* ignore */ }
       return next;
     });
     // If the unpinned case was currently selected, fall back to case 0
@@ -312,7 +491,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
           setRunResult(null);
         }
       } catch (err) {
-        setRunResult({ status: 'error', statusText: 'Execution Failed', error: err.message, isSubmission: false });
+        { const e = humanizeRunError(err); setRunResult({ status: 'error', statusText: e.title, error: e.detail, isSubmission: false }); }
         setConsoleOutput('');
       } finally {
         setRunning(false);
@@ -403,7 +582,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
       });
       setResultCaseIdx(firstFailIdx >= 0 ? firstFailIdx : 0);
     } catch (err) {
-      setRunResult({ status: 'error', statusText: 'Execution Failed', error: err.message, isSubmission: false });
+      { const e = humanizeRunError(err); setRunResult({ status: 'error', statusText: e.title, error: e.detail, isSubmission: false }); }
     } finally {
       setRunning(false);
       setSubmitProgress(null);
@@ -428,7 +607,6 @@ export default function Workspace({ session, theme, roadmapMode }) {
 
     try {
       const params = activeProblem.params || [];
-      const cases = [];
       let allPassed = true;
       let failIdx = -1;
 
@@ -518,10 +696,10 @@ export default function Workspace({ session, theme, roadmapMode }) {
             .overlaps('tags', activeProblem.tags)
             .neq('id', activeProblem.id)
             .limit(5)
-            .then(({ data }) => setSimilarProblems(data || []))
-            .catch(() => setSimilarProblems([]));
+            .then(({ data }) => setPostSolveSimilar(data || []))
+            .catch(() => setPostSolveSimilar([]));
         } else {
-          setSimilarProblems([]);
+          setPostSolveSimilar([]);
         }
         if (session?.user) {
           saveProgress({
@@ -545,31 +723,43 @@ export default function Workspace({ session, theme, roadmapMode }) {
       };
       const newSubs = [sub, ...submissions].slice(0, 20);
       setSubmissions(newSubs);
-      try { localStorage.setItem(`pgcode_subs_${activeProblem.id}`, JSON.stringify(newSubs)); } catch {}
+      try { localStorage.setItem(`pgcode_subs_${activeProblem.id}`, JSON.stringify(newSubs)); } catch { /* ignore */ }
 
     } catch (err) {
-      setRunResult({ status: 'error', statusText: 'Execution Failed', error: err.message, isSubmission: true });
+      { const e = humanizeRunError(err); setRunResult({ status: 'error', statusText: e.title, error: e.detail, isSubmission: true }); }
     } finally {
       setRunning(false);
       setSubmitProgress(null);
     }
   };
 
-  const markComplete = () => {
-    const newVal = !(userProgress?.is_completed);
-    saveProgress({ is_completed: newVal, last_solved_at: newVal ? new Date().toISOString() : null, next_review_at: newVal ? new Date(Date.now() + 3 * 86400000).toISOString() : null, solve_count: (userProgress?.solve_count || 0) + (newVal ? 1 : 0) });
-  };
-
   const setAndSaveConfidence = (val) => {
     setConfidence(val);
-    const days = { 1: 1, 2: 2, 3: 3, 4: 7, 5: 14 };
-    saveProgress({ confidence: val, next_review_at: new Date(Date.now() + (days[val] || 3) * 86400000).toISOString() });
+    saveProgress({
+      confidence: val,
+      next_review_at: nextReviewAt(val, userProgress?.solve_count || 1),
+    });
   };
 
   const saveNotes = () => { saveProgress({ notes }); setEditorStatus('Notes saved'); setTimeout(() => setEditorStatus(''), 2000); };
 
-  const handleEditorMount = (editor) => {
+  // Debounced auto-save of notes — manual Save button stays as a confidence
+  // signal, but users won't lose unsaved edits on tab close / nav-away.
+  useEffect(() => {
+    if (!userId || !activeProblem) return;
+    const remote = userProgress?.notes || '';
+    if (notes === remote) return;
+    const t = setTimeout(() => { saveProgress({ notes }); }, 1500);
+    return () => clearTimeout(t);
+    // saveProgress is intentionally NOT in deps — it changes identity each
+    // render and would re-debounce constantly. activeProblem.id is the key.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notes, userId, activeProblem?.id, userProgress?.notes]);
+
+  const handleEditorMount = (editor, monaco) => {
     editorRef.current = editor;
+    monacoRef.current = monaco;
+    registerMonacoThemes(monaco);
     editor.onDidChangeCursorPosition((e) => {
       setCursorPos({ ln: e.position.lineNumber, col: e.position.column });
     });
@@ -601,9 +791,46 @@ export default function Workspace({ session, theme, roadmapMode }) {
   }, []);
 
   if (loadError) return <div className="ws-loading">Something went wrong loading this problem. <Link to="/">Back to Roadmap</Link></div>;
-  if (!activeProblem) return <div className="ws-loading">Loading... <Link to="/">Back to Roadmap</Link></div>;
+  // After the topic AND direct fetch have both finished, if we still have no
+  // problem, the ID truly doesn't exist — say so instead of spinning forever.
+  if (!activeProblem) {
+    const giveUp = problemId && rawProblems !== undefined && !directLoading && directProblem === null;
+    if (giveUp) {
+      return (
+        <div className="ws-loading">
+          Couldn&rsquo;t find a problem with id <code>{problemId}</code>.
+          <br />
+          <Link to="/practice">Browse all problems</Link> · <Link to="/">Back to roadmap</Link>
+        </div>
+      );
+    }
+    return <div className="ws-loading">Loading… <Link to="/">Back to roadmap</Link></div>;
+  }
 
   const displayName = activeProblem.name.replace(/Pattern #(\d+)/, 'Problem #$1').replace(/Challenge #(\d+)/, 'Problem #$1');
+
+  // Examples to render below the description. We prefer the seeded description's
+  // own examples (lots of legacy problems embed them as HTML); if it has none,
+  // synthesize from the first ~3 sample test cases so the user always sees concrete
+  // I/O instead of a wall of prose.
+  const descHasExamples = /\bexample\s*\d*\s*:?/i.test(activeProblem.description || '');
+  const sampleCases = (() => {
+    if (descHasExamples) return [];
+    const tcs = Array.isArray(activeProblem.test_cases) ? activeProblem.test_cases : [];
+    const samples = tcs.filter(t => t && (t.sample || t.is_sample || t.example));
+    const pool = samples.length ? samples : tcs;
+    return pool.slice(0, 3).map((t, i) => {
+      const input = t.input ?? t.in ?? t.stdin ?? '';
+      const output = t.expected ?? t.output ?? t.out ?? '';
+      const explain = t.explanation || t.note || '';
+      return {
+        i: i + 1,
+        input: typeof input === 'string' ? input : JSON.stringify(input),
+        output: typeof output === 'string' ? output : JSON.stringify(output),
+        explain,
+      };
+    });
+  })();
 
   return (
     <div className="ws-container">
@@ -653,8 +880,14 @@ export default function Workspace({ session, theme, roadmapMode }) {
             <button className={`ws-tab ${leftTab === 'description' ? 'active' : ''}`} onClick={() => setLeftTab('description')}>
               <FileText size={13} /> Description
             </button>
+            <button className={`ws-tab ${leftTab === 'hints' ? 'active' : ''}`} onClick={() => setLeftTab('hints')}>
+              <Lightbulb size={13} /> Hints
+            </button>
             <button className={`ws-tab ${leftTab === 'solution' ? 'active' : ''}`} onClick={() => setLeftTab('solution')}>
-              <Lightbulb size={13} /> Solution
+              <Award size={13} /> Solution
+            </button>
+            <button className={`ws-tab ${leftTab === 'visualize' ? 'active' : ''}`} onClick={() => setLeftTab('visualize')}>
+              <Play size={13} /> Visualize
             </button>
             <button className={`ws-tab ${leftTab === 'submissions' ? 'active' : ''}`} onClick={() => setLeftTab('submissions')}>
               <Award size={13} /> Submissions
@@ -677,9 +910,36 @@ export default function Workspace({ session, theme, roadmapMode }) {
                 <div className="ws-q-tags">
                   <span className={`ws-diff-badge ws-diff-${activeProblem.difficulty?.toLowerCase()}`}>{activeProblem.difficulty}</span>
                   {topic?.category && <span className="ws-tag-pill">{topic.category}</span>}
+                  {Array.isArray(activeProblem.tags) && activeProblem.tags.map(t => (
+                    <span key={t} className="ws-tag-pill ws-tag-pattern">{t}</span>
+                  ))}
                 </div>
 
+                {problemCompanies.length > 0 && (
+                  <div className="ws-companies">
+                    <span className="ws-companies-label">Asked at</span>
+                    {problemCompanies.map(c => (
+                      <Link key={c.slug} to={`/company/${c.slug}`} className="ws-company-chip">{c.name}</Link>
+                    ))}
+                  </div>
+                )}
+
                 <div className="ws-q-desc" dangerouslySetInnerHTML={{ __html: activeProblem.description }} />
+
+                {sampleCases.length > 0 && (
+                  <div className="ws-examples">
+                    {sampleCases.map(ex => (
+                      <div key={ex.i} className="ws-example">
+                        <div className="ws-example-title">Example {ex.i}</div>
+                        <div className="ws-example-row"><span className="ws-example-label">Input:</span><code>{ex.input}</code></div>
+                        <div className="ws-example-row"><span className="ws-example-label">Output:</span><code>{ex.output}</code></div>
+                        {ex.explain && (
+                          <div className="ws-example-row"><span className="ws-example-label">Explanation:</span><span className="ws-example-explain">{ex.explain}</span></div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 {/* Constraints */}
                 {activeProblem.constraints && (
@@ -729,7 +989,36 @@ export default function Workspace({ session, theme, roadmapMode }) {
                     <ExternalLink size={13} /> Solve on LeetCode
                   </a>
                 )}
+
+                {similarProblems.length > 0 && (
+                  <div className="ws-similar">
+                    <h3 className="ws-similar-title">Similar problems</h3>
+                    <div className="ws-similar-list">
+                      {similarProblems.map(p => (
+                        <Link
+                          key={p.id}
+                          to={`/category/${encodeURIComponent(p.topic_id)}/${encodeURIComponent(p.id)}`}
+                          className="ws-similar-card"
+                        >
+                          <span className={`ws-similar-diff ws-similar-diff-${p.difficulty?.toLowerCase()}`}>{p.difficulty}</span>
+                          <span className="ws-similar-name">{p.name}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
+            )}
+
+            {/* ── HINTS TAB ── */}
+            {leftTab === 'hints' && (
+              <HintsPanel
+                hints={activeProblem.hints || []}
+                problemId={activeProblem.id}
+                problemName={activeProblem.name}
+                problemDescription={activeProblem.description}
+                code={codeContent}
+              />
             )}
 
             {/* ── SOLUTION TAB ── */}
@@ -739,14 +1028,34 @@ export default function Workspace({ session, theme, roadmapMode }) {
               </div>
             )}
 
+            {/* ── VISUALIZE TAB ── */}
+            {leftTab === 'visualize' && (
+              <div className="ws-solution">
+                <ProblemVisualizer problem={activeProblem} />
+              </div>
+            )}
+
             {/* ── SUBMISSIONS TAB ── */}
             {leftTab === 'submissions' && (
               <div className="ws-submissions">
                 <div className="ws-sub-actions">
                   {session ? (
-                    <button className={`ws-sub-btn ${userProgress?.is_completed ? 'ws-sub-done' : ''}`} onClick={markComplete}>
-                      <CheckCircle size={15} /> {userProgress?.is_completed ? 'Completed' : 'Mark Complete'}
-                    </button>
+                    <StatusPill
+                      value={legacyToStatus(userProgress)}
+                      onChange={(next) => {
+                        const patch = {
+                          status: next,
+                          status_changed_at: new Date().toISOString(),
+                          is_completed: next === 'solved' || next === 'mastered',
+                          is_starred: next === 'bookmarked' ? true : (userProgress?.is_starred ?? false),
+                        };
+                        if (next === 'solved' || next === 'mastered') {
+                          patch.last_solved_at = new Date().toISOString();
+                          patch.solve_count = (userProgress?.solve_count || 0) + (userProgress?.is_completed ? 0 : 1);
+                        }
+                        saveProgress(patch);
+                      }}
+                    />
                   ) : (
                     <p className="ws-empty-msg">Login to track progress</p>
                   )}
@@ -822,7 +1131,7 @@ export default function Workspace({ session, theme, roadmapMode }) {
                                 setActiveTestIdx(originalIdx);
                                 setTestInputs([...activeProblem.test_cases[originalIdx].inputs]);
                               }}>
-                              {isPinned && <span className="ws-tc-pin-icon" title="Pinned">📌</span>}
+                              {isPinned && <Pin size={11} className="ws-tc-pin-icon" />}
                               Case {i + 1}
                             </button>
                             {isPinned && (
@@ -912,6 +1221,16 @@ export default function Workspace({ session, theme, roadmapMode }) {
                       <div className="ws-result-error">{runResult.error}</div>
                     )}
 
+                    {/* AI explain-failure button — only when the submission failed and AI is configured */}
+                    {runResult.isSubmission && runResult.status !== 'accepted' && (
+                      <AiExplainFailure
+                        problem={activeProblem}
+                        result={runResult}
+                        code={codeContent}
+                        language={activeLang}
+                      />
+                    )}
+
                     {/* Success message for accepted submit with no cases array */}
                     {runResult.isSubmission && runResult.status === 'accepted' && !runResult.cases?.length && (
                       <p className="ws-success-msg">You have successfully completed this problem!</p>
@@ -928,11 +1247,11 @@ export default function Workspace({ session, theme, roadmapMode }) {
                             </span>
                           ))}
                         </div>
-                        {similarProblems.length > 0 && (
+                        {postSolveSimilar.length > 0 && (
                           <div className="ws-pb-similar">
                             <div className="ws-pb-similar-label">Similar problems using these patterns:</div>
-                            {similarProblems.map(sp => (
-                              <Link key={sp.id} to={`/category/${sp.topic_id}/${sp.id}`} className="ws-pb-similar-item">
+                            {postSolveSimilar.map(sp => (
+                              <Link key={sp.id} to={`/category/${encodeURIComponent(sp.topic_id)}/${encodeURIComponent(sp.id)}`} className="ws-pb-similar-item">
                                 <span className="ws-pb-similar-name">{sp.name}</span>
                                 <span className={`ws-pb-similar-diff ws-diff-${sp.difficulty?.toLowerCase()}`}>{sp.difficulty}</span>
                               </Link>
@@ -1022,17 +1341,22 @@ export default function Workspace({ session, theme, roadmapMode }) {
               >
                 {String(Math.floor(timerSeconds / 60)).padStart(2, '0')}:{String(timerSeconds % 60).padStart(2, '0')}
               </span>
-              <select className="ws-lang" value={activeLang} onChange={e => setActiveLang(e.target.value)}>
-                <option value="python">Python3</option>
-                <option value="javascript">JavaScript</option>
-                <option value="java">Java</option>
-                <option value="cpp">C++</option>
-              </select>
+              <Select
+                value={activeLang}
+                onChange={onLangChange}
+                options={[
+                  { value: 'python', label: 'Python 3' },
+                  { value: 'javascript', label: 'JavaScript' },
+                  { value: 'java', label: 'Java' },
+                  { value: 'cpp', label: 'C++' },
+                ]}
+                size="sm"
+              />
             </div>
           </div>
 
           <div className="ws-editor-area">
-            <Editor height="100%" theme={theme === 'dark' ? 'vs-dark' : 'light'}
+            <Editor height="100%" theme={MONACO_THEME_MAP[theme] || (DARK_PRESETS.has(theme) ? 'vs-dark' : 'vs')}
               language={activeLang} value={codeContent}
               onChange={val => {
                 const code = val || '';
@@ -1040,7 +1364,14 @@ export default function Workspace({ session, theme, roadmapMode }) {
                 if (activeProblem) localStorage.setItem(`pgcode_code_${activeProblem.id}_${activeLang}`, code);
               }}
               onMount={handleEditorMount}
-              options={{ minimap: { enabled: false }, fontSize: 14, fontFamily: '"Space Mono", monospace', scrollBeyondLastLine: false }} />
+              options={{
+                minimap: { enabled: localStorage.getItem('pg-editor-minimap') === 'true' },
+                fontSize: Number(localStorage.getItem('pg-editor-font-size')) || 14,
+                tabSize: Number(localStorage.getItem('pg-editor-tab-size')) || 2,
+                wordWrap: localStorage.getItem('pg-editor-word-wrap') !== 'false' ? 'on' : 'off',
+                fontFamily: '"Space Mono", monospace',
+                scrollBeyondLastLine: false,
+              }} />
           </div>
 
           <div className="ws-editor-footer">

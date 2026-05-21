@@ -3,11 +3,11 @@
   width: 94%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 1.5rem 0 0;
-  height: calc(100vh - 100px);
+  padding: 1.5rem 0 2rem;
+  min-height: calc(100vh - 100px);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 /* ── Header ── */
@@ -104,7 +104,7 @@
 
 .pl-search:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(0, 255, 245, 0.15);
+  box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.15);
 }
 
 .pl-search-clear {
@@ -150,7 +150,7 @@
 
 .pl-dd-btn.open {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(0, 255, 245, 0.15);
+  box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.15);
 }
 
 .pl-dd-label {
@@ -250,7 +250,7 @@
 
 .pl-diff-btn.active {
   opacity: 1;
-  box-shadow: inset 0 0 0 1px rgba(0, 255, 245, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.35);
 }
 
 .pl-diff-btn:hover {
@@ -275,6 +275,15 @@
 .pl-diff-easy .pl-diff-dot { background: var(--easy); }
 .pl-diff-medium .pl-diff-dot { background: var(--medium); }
 .pl-diff-hard .pl-diff-dot { background: var(--hard); }
+
+/* Difficulty pill glow on row hover. */
+.pl-row:hover .pl-diff-tag {
+  box-shadow: 0 0 0 1px currentColor, 0 0 12px rgba(255, 255, 255, 0.06);
+  transition: box-shadow var(--t);
+}
+.pl-row:hover .pl-diff-easy { color: var(--easy); }
+.pl-row:hover .pl-diff-medium { color: var(--medium); }
+.pl-row:hover .pl-diff-hard { color: var(--hard); }
 
 /* ── Table ── */
 .pl-table-wrap {
@@ -385,8 +394,8 @@
 }
 
 .pl-star-active {
-  color: #f59e0b;
-  fill: #f59e0b;
+  color: var(--warning);
+  fill: var(--warning);
 }
 
 .pl-star-inactive {

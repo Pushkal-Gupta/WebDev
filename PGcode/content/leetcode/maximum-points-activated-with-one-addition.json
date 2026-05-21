@@ -1,0 +1,25 @@
+{
+  "slug": "maximum-points-activated-with-one-addition",
+  "leetcode_id": "4249",
+  "title": "Maximum Points Activated with One Addition",
+  "difficulty": "Hard",
+  "tags": [
+    "array",
+    "hash-table",
+    "union-find"
+  ],
+  "description_html": "<p>You are given a 2D integer array <code>points</code>, where <code>points[i] = [x<sub>i</sub>, y<sub>i</sub>]</code> represents the coordinates of the <code>i<sup>th</sup></code> point. All coordinates in <code>points</code> are <strong>distinct</strong>.</p>\n\n<p>If a point is <strong>activated</strong>, then all points that have the <strong>same</strong> x-coordinate <strong>or</strong> y-coordinate become <strong>activated</strong> as well.</p>\n\n<p>Activation continues until no additional points can be activated.</p>\n\n<p>You may add <strong>one additional</strong> point at any integer coordinate <code>(x, y)</code> not already present in <code>points</code>. Activation begins by <strong>activating</strong> this <strong>newly added point</strong>.</p>\n\n<p>Return an integer denoting the <strong>maximum</strong> number of points that can be activated, including the newly added point.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">points = [[1,1],[1,2],[2,2]]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">4</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>Adding and activating a point such as <code>(1, 3)</code> causes activations:</p>\n\n<ul>\n\t<li><code>(1, 3)</code> shares <code>x = 1</code> with <code>(1, 1)</code> and <code>(1, 2)</code> -&gt; <code>(1, 1)</code> and <code>(1, 2)</code> become activated.</li>\n\t<li><code>(1, 2)</code> shares <code>y = 2</code> with <code>(2, 2)</code> -&gt; <code>(2, 2)</code> becomes activated.</li>\n</ul>\n\n<p>Thus, the activated points are <code>(1, 3)</code>, <code>(1, 1)</code>, <code>(1, 2)</code>, <code>(2, 2)</code>, so 4 points in total. We can show this is the maximum activated.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">points = [[2,2],[1,1],[3,3]]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">3</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>Adding and activating a point such as <code>(1, 2)</code> causes activations:</p>\n\n<ul>\n\t<li><code>(1, 2)</code> shares <code>x = 1</code> with <code>(1, 1)</code> -&gt; <code>(1, 1)</code> becomes activated.</li>\n\t<li><code>(1, 2)</code> shares <code>y = 2</code> with <code>(2, 2)</code> -&gt; <code>(2, 2)</code> becomes activated.</li>\n</ul>\n\n<p>Thus, the activated points are <code>(1, 2)</code>, <code>(1, 1)</code>, <code>(2, 2)</code>, so 3 points in total. We can show this is the maximum activated.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">points = [[2,3],[2,2],[1,1],[4,5]]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">4</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>Adding and activating a point such as <code>(2, 1)</code> causes activations:</p>\n\n<ul>\n\t<li><code>(2, 1)</code> shares <code>x = 2</code> with <code>(2, 3)</code> and <code>(2, 2)</code> -&gt; <code>(2, 3)</code> and <code>(2, 2)</code> become activated.</li>\n\t<li><code>(2, 1)</code> shares <code>y = 1</code> with <code>(1, 1)</code> -&gt; <code>(1, 1)</code> becomes activated.</li>\n</ul>\n\n<p>Thus, the activated points are <code>(2, 1)</code>, <code>(2, 3)</code>, <code>(2, 2)</code>, <code>(1, 1)</code>, so 4 points in total.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= points.length &lt;= 10<sup>5</sup></code></li>\n\t<li><code>points[i] = [x<sub>i</sub>, y<sub>i</sub>]</code></li>\n\t<li><code>-10<sup>9</sup> &lt;= x<sub>i</sub>, y<sub>i</sub> &lt;= 10<sup>9</sup></code></li>\n\t<li><code>points</code> contains all <strong>distinct</strong> coordinates.</li>\n</ul>\n",
+  "hints": [
+    "Use disjoint-set union (DSU).",
+    "Build components by unioning points that share the same <code>x</code> or the same <code>y</code>.",
+    "Each <code>x</code> maps to one component and each <code>y</code> maps to one component. Adding <code>(x0, y0)</code> connects at most two distinct components; activated = <code>size(A) + size(B) + 1</code> (if same component then <code>size(A) + 1</code>).",
+    "Maximize by choosing the two components with largest <code>size</code>; if only one component, answer = <code>n + 1</code>."
+  ],
+  "sample_test_cases": [
+    "[[1,1],[1,2],[2,2]]",
+    "[[2,2],[1,1],[3,3]]",
+    "[[2,3],[2,2],[1,1],[4,5]]"
+  ],
+  "content_signature": "gi6pny",
+  "fetched_at": "2026-05-21T07:53:16.481Z"
+}

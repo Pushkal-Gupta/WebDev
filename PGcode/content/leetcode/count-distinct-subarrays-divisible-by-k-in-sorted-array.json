@@ -1,0 +1,25 @@
+{
+  "slug": "count-distinct-subarrays-divisible-by-k-in-sorted-array",
+  "leetcode_id": "4063",
+  "title": "Count Distinct Subarrays Divisible by K in Sorted Array",
+  "difficulty": "Hard",
+  "tags": [
+    "array",
+    "hash-table",
+    "prefix-sum"
+  ],
+  "description_html": "<p>You are given an integer array <code>nums</code> <strong>sorted</strong> in <strong>non-descending</strong> order and a positive integer <code>k</code>.</p>\n\n<p>A <strong><span data-keyword=\"subarray-nonempty\">subarray</span></strong> of <code>nums</code> is <strong>good</strong> if the sum of its elements is <strong>divisible</strong> by <code>k</code>.</p>\n\n<p>Return an integer denoting the number of <strong>distinct</strong> <strong>good</strong> subarrays of <code>nums</code>.</p>\n\n<p>Subarrays are <strong>distinct</strong> if their sequences of values are. For example, there are 3 <strong>distinct</strong> subarrays in <code>[1, 1, 1]</code>, namely <code>[1]</code>, <code>[1, 1]</code>, and <code>[1, 1, 1]</code>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,2,3], k = 3</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">3</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The good subarrays are <code>[1, 2]</code>, <code>[3]</code>, and <code>[1, 2, 3]</code>. For example, <code>[1, 2, 3]</code> is good because the sum of its elements is <code>1 + 2 + 3 = 6</code>, and <code>6 % k = 6 % 3 = 0</code>.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [2,2,2,2,2,2], k = 6</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">2</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The good subarrays are <code>[2, 2, 2]</code> and <code>[2, 2, 2, 2, 2, 2]</code>. For example, <code>[2, 2, 2]</code> is good because the sum of its elements is <code>2 + 2 + 2 = 6</code>, and <code>6 % k = 6 % 6 = 0</code>.</p>\n\n<p>Note that <code>[2, 2, 2]</code> is counted only once.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= nums.length &lt;= 10<sup>5</sup></code></li>\n\t<li><code>1 &lt;= nums[i] &lt;= 10<sup>9</sup></code></li>\n\t<li><code>nums</code> is sorted in non-descending order.</li>\n\t<li><code>1 &lt;= k &lt;= 10<sup>9</sup></code></li>\n</ul>\n",
+  "hints": [
+    "Use prefix sums.",
+    "Any subarray with >= 2 distinct values has a unique strict-increase boundary <code>(i, j)</code>, so the value sequence is identified by that boundary and how many elements you take from each edge.",
+    "Count single-value sequences per run by testing <code>(L*val) % k == 0</code>."
+  ],
+  "sample_test_cases": [
+    "[1,2,3]",
+    "3",
+    "[2,2,2,2,2,2]",
+    "6"
+  ],
+  "content_signature": "convuu",
+  "fetched_at": "2026-05-21T07:48:37.222Z"
+}

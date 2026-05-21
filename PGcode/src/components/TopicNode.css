@@ -21,20 +21,20 @@
   border-color: var(--accent);
   background: var(--hover-box);
   transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(0, 255, 245, 0.15);
+  box-shadow: 0 12px 30px rgba(var(--accent-rgb), 0.15);
 }
 
 /* Light Mode: Cyan tint for visibility */
 [data-theme="light"] .topic-node-container {
-  background: rgba(0, 138, 126, 0.07);
-  border: 1.5px solid rgba(0, 138, 126, 0.25);
-  box-shadow: 0 4px 14px rgba(0, 138, 126, 0.18);
+  background: rgba(var(--accent-rgb), 0.07);
+  border: 1.5px solid rgba(var(--accent-rgb), 0.25);
+  box-shadow: 0 4px 14px rgba(var(--accent-rgb), 0.18);
 }
 
 [data-theme="light"] .topic-node-container:hover {
-  background: rgba(0, 138, 126, 0.12);
+  background: rgba(var(--accent-rgb), 0.12);
   border-color: var(--accent);
-  box-shadow: 0 8px 24px rgba(0, 138, 126, 0.25);
+  box-shadow: 0 8px 24px rgba(var(--accent-rgb), 0.25);
 }
 
 [data-theme="light"] .topic-node-title {
@@ -115,7 +115,7 @@
 }
 
 [data-theme="dark"] .topic-node-progress-fill {
-  box-shadow: 0 0 10px rgba(0, 255, 245, 0.5);
+  box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.5);
 }
 
 .topic-node-container .handle {

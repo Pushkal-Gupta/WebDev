@@ -1,0 +1,21 @@
+{
+  "slug": "largest-even-number",
+  "leetcode_id": "4179",
+  "title": "Largest Even Number",
+  "difficulty": "Easy",
+  "tags": [
+    "string"
+  ],
+  "description_html": "<p>You are given a string <code>s</code> consisting only of the characters <code>&#39;1&#39;</code> and <code>&#39;2&#39;</code>.</p>\n\n<p>You may delete any number of characters from <code>s</code> without changing the order of the remaining characters.</p>\n\n<p>Return the <strong>largest possible resultant string</strong> that represents an <strong>even</strong> integer. If there is no such string, return the empty string <code>&quot;&quot;</code>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">s = &quot;1112&quot;</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">&quot;1112&quot;</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The string already represents the largest possible even number, so no deletions are needed.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">s = &quot;221&quot;</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">&quot;22&quot;</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>Deleting <code>&#39;1&#39;</code> results in the largest possible even number which is equal to 22.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">s = &quot;1&quot;</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">&quot;&quot;</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>There is no way to get an even number.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= s.length &lt;= 100</code></li>\n\t<li><code>s</code> consists only of the characters <code>&#39;1&#39;</code> and <code>&#39;2&#39;</code>.</li>\n</ul>\n",
+  "hints": [
+    "A number ending with <code>'1'</code> is odd.",
+    "Find the last <code>'2'</code> in <code>s</code>. If none, return <code>\"\"</code>. Otherwise return the prefix up to and including that <code>'2'</code>."
+  ],
+  "sample_test_cases": [
+    "\"1112\"",
+    "\"221\"",
+    "\"1\""
+  ],
+  "content_signature": "w68ifv",
+  "fetched_at": "2026-05-21T07:50:23.764Z"
+}

@@ -12,11 +12,16 @@
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
     "@supabase/supabase-js": "^2.101.1",
+    "@tanstack/query-sync-storage-persister": "^5.100.10",
+    "@tanstack/react-query": "^5.100.10",
+    "@tanstack/react-query-persist-client": "^5.100.10",
     "lucide-react": "^1.7.0",
+    "pg": "^8.21.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-router-dom": "^7.14.0",
-    "reactflow": "^11.11.4"
+    "reactflow": "^11.11.4",
+    "sql.js": "^1.14.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

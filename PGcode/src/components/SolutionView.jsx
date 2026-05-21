@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Copy, Check } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import DryRunViewer from './DryRunViewer';
+import { RICH_CONTENT } from '../content/problemContent';
 import './SolutionView.css';
 
 export default function SolutionView({ problem, activeLang: wsLang }) {
@@ -23,15 +24,16 @@ export default function SolutionView({ problem, activeLang: wsLang }) {
     }
   };
 
+  const problemId = problem?.id;
   useEffect(() => {
-    if (!problem) return;
+    if (!problemId) return;
     (async () => {
       setLoading(true);
       try {
         const { data } = await supabase
           .from('PGcode_solution_approaches')
           .select('*')
-          .eq('problem_id', problem.id)
+          .eq('problem_id', problemId)
           .order('approach_number', { ascending: true });
         setApproaches(data || []);
       } catch (err) {
@@ -40,9 +42,67 @@ export default function SolutionView({ problem, activeLang: wsLang }) {
         setLoading(false);
       }
     })();
-  }, [problem?.id]);
+  }, [problemId]);
 
   if (loading) return <div className="sv-loading">Loading solutions...</div>;
+
+  // Fallback to DB column problem.solutions, then to client-side RICH_CONTENT,
+  // when no rows exist in PGcode_solution_approaches.
+  const langLabels = { python: 'Python', javascript: 'JavaScript', java: 'Java', cpp: 'C++' };
+  const fallback = (problem.solutions && Object.keys(problem.solutions).length > 0)
+    ? problem.solutions
+    : (RICH_CONTENT[problem.id]?.solutions || null);
+
+  if (approaches.length === 0 && fallback) {
+    return (
+      <div className="sv-container">
+        <h2 className="sv-problem-title">{problem.name} — reference solution</h2>
+        <div className="sv-approach">
+          <div className="sv-subsection">
+            <div className="sv-code-header">
+              <div className="sv-lang-tabs">
+                {['python', 'javascript', 'java', 'cpp'].map(lang => (
+                  <button
+                    key={lang}
+                    className={`sv-lang-tab ${activeCodeLang === lang ? 'active' : ''}`}
+                    onClick={() => setActiveCodeLang(lang)}
+                    disabled={!fallback[lang]?.code}
+                  >
+                    {langLabels[lang]}
+                  </button>
+                ))}
+              </div>
+              <button
+                className={`sv-copy-btn ${copiedId === 'fb' ? 'copied' : ''}`}
+                onClick={() => handleCopy('fb', fallback[activeCodeLang]?.code)}
+                disabled={!fallback[activeCodeLang]?.code}
+              >
+                {copiedId === 'fb' ? <Check size={13} /> : <Copy size={13} />}
+                <span>{copiedId === 'fb' ? 'Copied' : 'Copy'}</span>
+              </button>
+            </div>
+            {fallback[activeCodeLang]?.code ? (
+              <pre className="sv-code-block"><code>{fallback[activeCodeLang].code}</code></pre>
+            ) : (
+              <div className="sv-code-empty">No {langLabels[activeCodeLang]} solution yet.</div>
+            )}
+          </div>
+          {fallback[activeCodeLang]?.approach && (
+            <div className="sv-subsection">
+              <h4 className="sv-subtitle">Approach</h4>
+              <p className="sv-text">{fallback[activeCodeLang].approach}</p>
+            </div>
+          )}
+          {fallback[activeCodeLang]?.complexity && (
+            <div className="sv-complexity">
+              <span><strong>Time:</strong> {fallback[activeCodeLang].complexity.time}</span>
+              <span><strong>Space:</strong> {fallback[activeCodeLang].complexity.space}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   if (approaches.length === 0) {
     return (
@@ -64,7 +124,6 @@ export default function SolutionView({ problem, activeLang: wsLang }) {
   }
 
   const langMap = { python: 'code_python', javascript: 'code_javascript', java: 'code_java', cpp: 'code_cpp' };
-  const langLabels = { python: 'Python', javascript: 'JavaScript', java: 'Java', cpp: 'C++' };
 
   return (
     <div className="sv-container">

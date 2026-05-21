@@ -1,6 +1,6 @@
 /* ═══ NeetCode-style Solution View ═══ */
 
-.sv-container { display: flex; flex-direction: column; gap: 1.5rem; }
+.sv-container { display: flex; flex-direction: column; gap: 1.75rem; padding-bottom: 2rem; }
 .sv-loading { padding: 2rem; text-align: center; color: var(--text-dim); font-family: var(--sans); font-size: 0.85rem; }
 
 .sv-problem-title {
@@ -35,13 +35,13 @@
 }
 
 .sv-text {
-  font-family: var(--sans); font-size: 0.85rem; line-height: 1.7;
+  font-family: var(--sans); font-size: 0.95rem; line-height: 1.7;
   color: var(--text-main); margin: 0;
 }
 
 .sv-algo-steps {
   padding-left: 1.3rem; margin: 0;
-  font-family: var(--sans); font-size: 0.84rem; line-height: 1.8;
+  font-family: var(--sans); font-size: 0.92rem; line-height: 1.75;
   color: var(--text-main);
 }
 .sv-algo-steps li { margin-bottom: 0.2rem; }
@@ -93,8 +93,8 @@
 .sv-code-block {
   background: var(--bg); border: 1px solid var(--border);
   border-top: none; border-radius: 0 0 8px 8px;
-  padding: 1rem; margin: 0; overflow-x: auto;
-  font-family: var(--mono); font-size: 0.8rem; line-height: 1.6;
+  padding: 1.1rem 1.2rem; margin: 0; overflow-x: auto;
+  font-family: var(--mono); font-size: 0.88rem; line-height: 1.65;
   color: var(--text-main); white-space: pre;
 }
 
@@ -106,5 +106,5 @@
 .sv-complexity strong { color: var(--text-main); }
 
 /* ── Light Mode ── */
-[data-theme="light"] .sv-approach { background: rgba(0, 138, 126, 0.03); }
+[data-theme="light"] .sv-approach { background: rgba(var(--accent-rgb), 0.03); }
 [data-theme="light"] .sv-code-block { background: #faf9f7; }

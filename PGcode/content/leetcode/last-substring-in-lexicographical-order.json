@@ -1,0 +1,23 @@
+{
+  "slug": "last-substring-in-lexicographical-order",
+  "leetcode_id": "1133",
+  "title": "Last Substring in Lexicographical Order",
+  "difficulty": "Hard",
+  "tags": [
+    "two-pointers",
+    "string"
+  ],
+  "description_html": "<p>Given a string <code>s</code>, return <em>the last substring of</em> <code>s</code> <em>in lexicographical order</em>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<pre>\n<strong>Input:</strong> s = &quot;abab&quot;\n<strong>Output:</strong> &quot;bab&quot;\n<strong>Explanation:</strong> The substrings are [&quot;a&quot;, &quot;ab&quot;, &quot;aba&quot;, &quot;abab&quot;, &quot;b&quot;, &quot;ba&quot;, &quot;bab&quot;]. The lexicographically maximum substring is &quot;bab&quot;.\n</pre>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<pre>\n<strong>Input:</strong> s = &quot;leetcode&quot;\n<strong>Output:</strong> &quot;tcode&quot;\n</pre>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= s.length &lt;= 4 * 10<sup>5</sup></code></li>\n\t<li><code>s</code> contains only lowercase English letters.</li>\n</ul>\n",
+  "hints": [
+    "Assume that the answer is a sub-string from index i to j. If you add the character at index j+1 you get a better answer.",
+    "The answer is always a suffix of the given string.",
+    "Since the limits are high, we need an efficient data structure.",
+    "Use suffix array."
+  ],
+  "sample_test_cases": [
+    "\"abab\"",
+    "\"leetcode\""
+  ],
+  "content_signature": "-q69nha",
+  "fetched_at": "2026-05-21T06:14:55.682Z"
+}

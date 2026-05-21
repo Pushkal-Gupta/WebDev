@@ -475,7 +475,7 @@ export default function LearningsSection({ topicId }) {
       </div>
 
       {/* Interleaved concepts + videos */}
-      {sections.map((section, i) => {
+      {sections.map((section, _i) => {
         if (section.type === 'concept') {
           return <ConceptCard key={`c-${section.idx}`} concept={section.data} idx={section.idx} />;
         }

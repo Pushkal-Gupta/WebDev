@@ -4,16 +4,25 @@ import { X, Settings } from 'lucide-react';
 import SettingsModal from './SettingsModal';
 import './LoginModal.css';
 
-export default function AccountModal({ session, onClose }) {
+export default function AccountModal({ session, onClose, theme, applyTheme, setPreferredLang, preferredLang }) {
   const [showSettings, setShowSettings] = useState(false);
 
   const handleLogout = async () => {
-    try { await supabase.auth.signOut(); } catch {}
+    try { await supabase.auth.signOut(); } catch { /* ignore */ }
     onClose();
   };
 
   if (showSettings) {
-    return <SettingsModal session={session} onClose={() => setShowSettings(false)} />;
+    return (
+      <SettingsModal
+        session={session}
+        theme={theme}
+        applyTheme={applyTheme}
+        setPreferredLang={setPreferredLang}
+        preferredLang={preferredLang}
+        onClose={() => setShowSettings(false)}
+      />
+    );
   }
 
   return (

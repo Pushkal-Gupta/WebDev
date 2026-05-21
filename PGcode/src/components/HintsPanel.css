@@ -1,0 +1,212 @@
+.hints-panel {
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  overflow-y: auto;
+}
+
+.hints-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hints-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-main);
+}
+
+.hints-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: color var(--t), border-color var(--t);
+}
+.hints-reset:hover { color: var(--accent); border-color: var(--accent); }
+
+.hints-warning {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  border-left: 2px solid var(--medium);
+  padding-left: 0.6rem;
+  line-height: 1.5;
+}
+
+.hints-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.hints-item {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  transition: border-color var(--t), background var(--t);
+}
+
+.hints-item.shown {
+  border-color: var(--accent);
+  background: var(--hover-box);
+}
+
+.hints-item.next {
+  border-color: var(--text-dim);
+}
+
+.hints-item-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.hints-item-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--text-main);
+  flex-shrink: 0;
+}
+
+.hints-item.shown .hints-item-num {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.hints-item-label {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-main);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.hints-item-body {
+  font-size: 0.85rem;
+  color: var(--text-main);
+  line-height: 1.55;
+  padding-left: 1.7rem;
+}
+
+.hints-reveal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: transparent;
+  border: 1px dashed var(--border);
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.4rem 0.7rem;
+  border-radius: 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-left: 1.7rem;
+  transition: color var(--t), border-color var(--t), background var(--t);
+}
+
+.hints-reveal-btn:hover:not(:disabled) {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--hover-box);
+}
+
+.hints-reveal-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.hints-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.hints-empty-icon {
+  color: var(--text-dim);
+  opacity: 0.6;
+  margin-bottom: 0.3rem;
+}
+
+.hints-empty-title {
+  font-family: var(--serif);
+  font-size: 1rem;
+  color: var(--text-main);
+}
+
+.hints-empty-sub {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  line-height: 1.55;
+  max-width: 320px;
+}
+
+/* ── AI hint section ── */
+.hints-ai {
+  margin-top: 0.5rem;
+  padding-top: 0.7rem;
+  border-top: 1px dashed var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.hints-ai-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.hints-ai-error {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--hard);
+}
+
+.hints-spin { animation: hints-spin 0.9s linear infinite; }
+@keyframes hints-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }

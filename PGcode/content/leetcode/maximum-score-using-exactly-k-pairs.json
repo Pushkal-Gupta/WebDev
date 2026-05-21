@@ -1,0 +1,29 @@
+{
+  "slug": "maximum-score-using-exactly-k-pairs",
+  "leetcode_id": "4202",
+  "title": "Maximum Score Using Exactly K Pairs",
+  "difficulty": "Hard",
+  "tags": [
+    "array",
+    "dynamic-programming"
+  ],
+  "description_html": "<p>You are given two integer arrays <code>nums1</code> and <code>nums2</code> of lengths <code>n</code> and <code>m</code> respectively, and an integer <code>k</code>.</p>\n\n<p>You must choose <strong>exactly</strong> <code>k</code> pairs of indices <code>(i<sub>1</sub>, j<sub>1</sub>), (i<sub>2</sub>, j<sub>2</sub>), ..., (i<sub>k</sub>, j<sub>k</sub>)</code> such that:</p>\n\n<ul>\n\t<li><code>0 &lt;= i<sub>1</sub> &lt; i<sub>2</sub> &lt; ... &lt; i<sub>k</sub> &lt; n</code></li>\n\t<li><code>0 &lt;= j<sub>1</sub> &lt; j<sub>2</sub> &lt; ... &lt; j<sub>k</sub> &lt; m</code></li>\n</ul>\n\n<p>For each chosen pair <code>(i, j)</code>, you gain a score of <code>nums1[i] * nums2[j]</code>.</p>\n\n<p>The total <strong>score</strong> is the <strong>sum</strong> of the products of all selected pairs.</p>\n\n<p>Return an integer representing the <strong>maximum</strong> achievable total score.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums1 = [1,3,2], nums2 = [4,5,1], k = 2</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">22</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>One optimal choice of index pairs is:</p>\n\n<ul>\n\t<li><code>(i<sub>1</sub>, j<sub>1</sub>) = (1, 0)</code> which scores <code>3 * 4 = 12</code></li>\n\t<li><code>(i<sub>2</sub>, j<sub>2</sub>) = (2, 1)</code> which scores <code>2 * 5 = 10</code></li>\n</ul>\n\n<p>This gives a total score of <code>12 + 10 = 22</code>.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums1 = [-2,0,5], nums2 = [-3,4,-1,2], k = 2</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">26</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>One optimal choice of index pairs is:</p>\n\n<ul>\n\t<li><code>(i<sub>1</sub>, j<sub>1</sub>) = (0, 0)</code> which scores <code>-2 * -3 = 6</code></li>\n\t<li><code>(i<sub>2</sub>, j<sub>2</sub>) = (2, 1)</code> which scores <code>5 * 4 = 20</code></li>\n</ul>\n\n<p>The total score is <code>6 + 20 = 26</code>.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums1 = [-3,-2], nums2 = [1,2], k = 2</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">-7</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The optimal choice of index pairs is:</p>\n\n<ul>\n\t<li><code>(i<sub>1</sub>, j<sub>1</sub>) = (0, 0)</code> which scores <code>-3 * 1 = -3</code></li>\n\t<li><code>(i<sub>2</sub>, j<sub>2</sub>) = (1, 1)</code> which scores <code>-2 * 2 = -4</code></li>\n</ul>\n\n<p>The total score is <code>-3 + (-4) = -7</code>.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= n == nums1.length &lt;= 100</code></li>\n\t<li><code>1 &lt;= m == nums2.length &lt;= 100</code></li>\n\t<li><code>-10<sup>6</sup> &lt;= nums1[i], nums2[i] &lt;= 10<sup>6</sup></code></li>\n\t<li><code>1 &lt;= k &lt;= min(n, m)</code></li>\n</ul>\n",
+  "hints": [
+    "Use dynamic programming",
+    "Let dynamic programming states <code>dp(i, j, k)</code>, denote the maximum <code>k-th</code> pair sum you can get from the first <code>nums1[0..i]</code> and <code>nums2[0..j]</code>",
+    "Transition: <code>dp(i, j, t) = max(dp(i - 1, j, t), dp(i, j - 1, t), dp(i - 1, j - 1, t - 1) + nums1[i] * nums2[j])</code>"
+  ],
+  "sample_test_cases": [
+    "[1,3,2]",
+    "[4,5,1]",
+    "2",
+    "[-2,0,5]",
+    "[-3,4,-1,2]",
+    "2",
+    "[-3,-2]",
+    "[1,2]",
+    "2"
+  ],
+  "content_signature": "810vyf",
+  "fetched_at": "2026-05-21T07:51:33.735Z"
+}

@@ -1,0 +1,27 @@
+{
+  "slug": "minimum-subarray-length-with-distinct-sum-at-least-k",
+  "leetcode_id": "4152",
+  "title": "Minimum Subarray Length With Distinct Sum At Least K",
+  "difficulty": "Medium",
+  "tags": [
+    "array",
+    "hash-table",
+    "sliding-window"
+  ],
+  "description_html": "<p>You are given an integer array <code>nums</code> and an integer <code>k</code>.</p>\n\n<p>Return the <strong>minimum</strong> length of a <strong><span data-keyword=\"subarray-nonempty\">subarray</span></strong> whose sum of the <strong>distinct</strong> values present in that subarray (each value counted once) is <strong>at least</strong> <code>k</code>. If no such subarray exists, return -1.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [2,2,3,1], k = 4</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">2</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The subarray <code>[2, 3]</code> has distinct elements <code>{2, 3}</code> whose sum is <code>2 + 3 = 5</code>, which is ​​​​​​​at least <code>k = 4</code>. Thus, the answer is 2.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [3,2,3,4], k = 5</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">2</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The subarray <code>[3, 2]</code> has distinct elements <code>{3, 2}</code> whose sum is <code>3 + 2 = 5</code>, which is ​​​​​​​at least <code>k = 5</code>. Thus, the answer is 2.</p>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [5,5,4], k = 5</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">1</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The subarray <code>[5]</code> has distinct elements <code>{5}</code> whose sum is <code>5</code>, which is at least <code>k = 5</code>. Thus, the answer is 1.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= nums.length &lt;= 10<sup>5</sup></code></li>\n\t<li><code>1 &lt;= nums[i] &lt;= 10<sup>5</sup></code></li>\n\t<li><code>1 &lt;= k &lt;= 10<sup>9</sup></code></li>\n</ul>\n",
+  "hints": [
+    "Use a two-pointer sliding window that expands the right end until the window's sum of values that occur exactly once reaches at least <code>k</code>.",
+    "When that happens, greedily advance the left pointer to shrink the window as much as possible while keeping the unique-sum <code>>= k</code>, updating the minimum length.",
+    "Maintain a frequency counter to update the unique-sum when an element's count flips between unique and non-unique"
+  ],
+  "sample_test_cases": [
+    "[2,2,3,1]",
+    "4",
+    "[3,2,3,4]",
+    "5",
+    "[5,5,4]",
+    "5"
+  ],
+  "content_signature": "-qlhszv",
+  "fetched_at": "2026-05-21T07:50:17.978Z"
+}

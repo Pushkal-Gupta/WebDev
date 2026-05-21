@@ -33,12 +33,15 @@ export default function ReviewQueue({ session }) {
   const [reviewItems, setReviewItems] = useState([]);
   const [problems, setProblems] = useState({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!session?.user) { setLoading(false); return; }
 
+    let cancelled = false;
     async function fetchReview() {
       setLoading(true);
+      setError(null);
       try {
         // Fetch all user progress with next_review_at set
         const { data: progressData } = await supabase
@@ -69,12 +72,13 @@ export default function ReviewQueue({ session }) {
         setProblems(problemMap);
         setReviewItems(progressData);
       } catch (err) {
-        console.error('Error fetching review queue:', err);
+        if (!cancelled) setError(err?.message || 'Failed to load review queue.');
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
     fetchReview();
+    return () => { cancelled = true; };
   }, [session]);
 
   const groupedItems = useMemo(() => {
@@ -116,6 +120,19 @@ export default function ReviewQueue({ session }) {
     );
   }
 
+  if (error) {
+    return (
+      <div className="rq-container">
+        <div className="rq-empty-auth">
+          <AlertCircle size={32} className="rq-empty-icon" />
+          <h2>Couldn&rsquo;t load your review queue</h2>
+          <p>{error}</p>
+          <button className="rq-cta" onClick={() => window.location.reload()}>Retry</button>
+        </div>
+      </div>
+    );
+  }
+
   const totalDue = reviewItems.length;
 
   return (
@@ -135,7 +152,7 @@ export default function ReviewQueue({ session }) {
           <CheckCircle size={40} className="rq-done-icon" />
           <h2>All caught up!</h2>
           <p>No problems due for review. Keep solving to build your review queue.</p>
-          <Link to="/problems" className="rq-cta">Browse Problems</Link>
+          <Link to="/practice" className="rq-cta">Browse Problems</Link>
         </div>
       ) : (
         <>

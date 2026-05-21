@@ -384,12 +384,12 @@
   letter-spacing: 0.1em;
   border-radius: 6px;
   transition: all var(--t);
-  box-shadow: 0 4px 20px rgba(0, 255, 245, 0.2);
+  box-shadow: 0 4px 20px rgba(var(--accent-rgb), 0.2);
 }
 
 .enterWorkspaceBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 255, 245, 0.3);
+  box-shadow: 0 8px 30px rgba(var(--accent-rgb), 0.3);
 }
 
 .emptyState, .loadingState {
@@ -422,12 +422,12 @@
 }
 
 [data-theme="light"] .tableHeader {
-  background: rgba(0, 138, 126, 0.04);
+  background: rgba(var(--accent-rgb), 0.04);
   color: #555;
 }
 
 [data-theme="light"] .tableRow:hover {
-  background: rgba(0, 138, 126, 0.03);
+  background: rgba(var(--accent-rgb), 0.03);
 }
 
 [data-theme="light"] .modalMainTitle {
@@ -436,8 +436,8 @@
 
 [data-theme="light"] .topicTag {
   color: #333;
-  background: rgba(0, 138, 126, 0.04);
-  border-color: rgba(0, 138, 126, 0.12);
+  background: rgba(var(--accent-rgb), 0.04);
+  border-color: rgba(var(--accent-rgb), 0.12);
 }
 
 [data-theme="light"] .status-todo,
@@ -446,5 +446,5 @@
 }
 
 [data-theme="light"] .enterWorkspaceBtn {
-  box-shadow: 0 4px 20px rgba(0, 138, 126, 0.2);
+  box-shadow: 0 4px 20px rgba(var(--accent-rgb), 0.2);
 }

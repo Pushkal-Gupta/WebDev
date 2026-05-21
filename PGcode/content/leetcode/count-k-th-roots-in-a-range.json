@@ -1,0 +1,27 @@
+{
+  "slug": "count-k-th-roots-in-a-range",
+  "leetcode_id": "4303",
+  "title": "Count K-th Roots in a Range",
+  "difficulty": "Medium",
+  "tags": [
+    "math",
+    "binary-search"
+  ],
+  "description_html": "<p>You are given three integers <code>l</code>, <code>r</code>, and <code>k</code>.</p>\n\n<p>An integer <code>y</code> is said to be a <strong>perfect k<sup>th</sup> power</strong> if there exists an integer <code>x</code> such that <code>y = x<sup>k</sup></code>.</p>\n\n<p>Return the number of integers <code>y</code> in the range <code>[l, r]</code> (inclusive) that are <strong>perfect k<sup>th</sup> powers</strong>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">l = 1, r = 9, k = 3</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">2</span></p>\n\n<p><strong>Explanation:</strong></p>\nThe perfect cubes in the range <code>[1, 9]</code> are:\n\n<ul>\n\t<li><code>1 = 1<sup>3</sup></code></li>\n\t<li><code>8 = 2<sup>3</sup></code></li>\n</ul>\nHence, the answer is 2.</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">l = 8, r = 30, k = 2</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">3</span></p>\n\n<p><strong>Explanation:</strong></p>\nThe perfect squares in the range <code>[8, 30]</code> are:\n\n<ul>\n\t<li><code>9 = 3<sup>2</sup></code></li>\n\t<li><code>16 = 4<sup>2</sup></code></li>\n\t<li><code>25 = 5<sup>2</sup></code></li>\n</ul>\nHence, the answer is 3.</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>0 &lt;= l &lt;= r &lt;= 10<sup>9</sup></code></li>\n\t<li><code>1 &lt;= k &lt;= 30</code></li>\n</ul>\n",
+  "hints": [
+    "Count how many perfect <code>k<sup>th</sup></code> powers are at most <code>r</code>, then subtract how many are less than <code>l</code>.",
+    "For <code>k >= 2</code>, we can bruteforce the largest <code>x</code> such that <code>x<sup>k</sup> <= r</code> .",
+    "Be careful of edge case: <code>k == 1</code>.",
+    "Be careful of this edge case: <code>l == 0</code>."
+  ],
+  "sample_test_cases": [
+    "1",
+    "9",
+    "3",
+    "8",
+    "30",
+    "2"
+  ],
+  "content_signature": "ltybab",
+  "fetched_at": "2026-05-21T07:54:56.789Z"
+}

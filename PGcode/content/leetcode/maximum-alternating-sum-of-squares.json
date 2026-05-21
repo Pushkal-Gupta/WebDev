@@ -1,0 +1,22 @@
+{
+  "slug": "maximum-alternating-sum-of-squares",
+  "leetcode_id": "4078",
+  "title": "Maximum Alternating Sum of Squares",
+  "difficulty": "Medium",
+  "tags": [
+    "array",
+    "greedy",
+    "sorting"
+  ],
+  "description_html": "<p>You are given an integer array <code>nums</code>. You may <strong>rearrange the elements</strong> in any order.</p>\n\n<p>The <strong>alternating score</strong> of an array <code>arr</code> is defined as:</p>\n\n<ul>\n\t<li><code>score = arr[0]<sup>2</sup> - arr[1]<sup>2</sup> + arr[2]<sup>2</sup> - arr[3]<sup>2</sup> + ...</code></li>\n</ul>\n\n<p>Return an integer denoting the <strong>maximum possible alternating score</strong> of <code>nums</code> after rearranging its elements.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,2,3]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">12</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>A possible rearrangement for <code>nums</code> is <code>[2,1,3]</code>, which gives the maximum alternating score among all possible rearrangements.</p>\n\n<p>The alternating score is calculated as:</p>\n\n<p><code>score = 2<sup>2</sup> - 1<sup>2</sup> + 3<sup>2</sup> = 4 - 1 + 9 = 12</code></p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,-1,2,-2,3,-3]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">16</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>A possible rearrangement for <code>nums</code> is <code>[-3,-1,-2,1,3,2]</code>, which gives the maximum alternating score among all possible rearrangements.</p>\n\n<p>The alternating score is calculated as:</p>\n\n<p><code>score = (-3)<sup>2</sup> - (-1)<sup>2</sup> + (-2)<sup>2</sup> - (1)<sup>2</sup> + (3)<sup>2</sup> - (2)<sup>2</sup> = 9 - 1 + 4 - 1 + 9 - 4 = 16</code></p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= nums.length &lt;= 10<sup>5</sup></code></li>\n\t<li><code>-4 * 10<sup>4</sup> &lt;= nums[i] &lt;= 4 * 10<sup>4</sup></code></li>\n</ul>\n",
+  "hints": [
+    "The score uses squares of values. The original signs of <code>nums</code> don't affect the squared terms.",
+    "In the alternating sum, even indices contribute positively and odd indices negatively."
+  ],
+  "sample_test_cases": [
+    "[1,2,3]",
+    "[1,-1,2,-2,3,-3]"
+  ],
+  "content_signature": "-vjdid6",
+  "fetched_at": "2026-05-21T07:48:33.142Z"
+}

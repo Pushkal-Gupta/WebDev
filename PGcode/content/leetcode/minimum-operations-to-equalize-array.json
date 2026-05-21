@@ -1,0 +1,23 @@
+{
+  "slug": "minimum-operations-to-equalize-array",
+  "leetcode_id": "3998",
+  "title": "Minimum Operations to Equalize Array",
+  "difficulty": "Easy",
+  "tags": [
+    "array",
+    "bit-manipulation",
+    "brainteaser"
+  ],
+  "description_html": "<p>You are given an integer array <code>nums</code> of length <code>n</code>.</p>\n\n<p>In one operation, choose any subarray <code>nums[l...r]</code> (<code>0 &lt;= l &lt;= r &lt; n</code>) and <strong>replace</strong> each element in that subarray with the <strong>bitwise AND</strong> of all elements.</p>\n\n<p>Return the <strong>minimum</strong> number of operations required to make all elements of <code>nums</code> equal.</p>\nA <strong>subarray</strong> is a contiguous <b>non-empty</b> sequence of elements within an array.\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,2]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">1</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>Choose <code>nums[0...1]</code>: <code>(1 AND 2) = 0</code>, so the array becomes <code>[0, 0]</code> and all elements are equal in 1 operation.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [5,5,5]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">0</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p><code>nums</code> is <code>[5, 5, 5]</code> which already has all elements equal, so 0 operations are required.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= n == nums.length &lt;= 100</code></li>\n\t<li><code>1 &lt;= nums[i] &lt;= 10<sup>5</sup></code></li>\n</ul>\n",
+  "hints": [
+    "If all elements of <code>nums</code> are already equal, how many operations are needed?",
+    "The answer is either <code>0</code> or <code>1</code>.",
+    "The answer is <code>0</code> if all values in the array are initially equal, and <code>1</code> otherwise, since you can apply the AND operation on the whole array in one step."
+  ],
+  "sample_test_cases": [
+    "[1,2]",
+    "[5,5,5]"
+  ],
+  "content_signature": "4frolj",
+  "fetched_at": "2026-05-21T07:47:04.171Z"
+}

@@ -1,0 +1,24 @@
+{
+  "slug": "minimum-increase-to-maximize-special-indices",
+  "leetcode_id": "4149",
+  "title": "Minimum Increase to Maximize Special Indices",
+  "difficulty": "Medium",
+  "tags": [
+    "array",
+    "dynamic-programming",
+    "greedy",
+    "prefix-sum"
+  ],
+  "description_html": "<p>You are given an integer array <code>nums</code> of length <code>n</code>.</p>\n\n<p>An index <code>i</code> (<code>0 &lt; i &lt; n - 1</code>) is <strong>special</strong> if <code>nums[i] &gt; nums[i - 1]</code> and <code>nums[i] &gt; nums[i + 1]</code>.</p>\n\n<p>You may perform operations where you choose <strong>any</strong> index <code>i</code> and <strong>increase</strong> <code>nums[i]</code> by 1.</p>\n\n<p>Your goal is to:</p>\n\n<ul>\n\t<li><strong>Maximize</strong> the number of <strong>special</strong> indices.</li>\n\t<li><strong>Minimize</strong> the total number of <strong>operations</strong> required to achieve that <strong>maximum</strong>.</li>\n</ul>\n\n<p>Return an integer denoting the <strong>minimum</strong> total number of operations required.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,2,2]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">1</span></p>\n\n<p><strong>Explanation:</strong>​​​​​​​</p>\n\n<ul>\n\t<li>Start with <code>nums = [1, 2, 2]</code>.</li>\n\t<li>Increase <code>nums[1]</code> by 1, array becomes <code>[1, 3, 2]</code>.</li>\n\t<li>The final array is <code>[1, 3, 2]</code> has 1 special index, which is the maximum achievable.</li>\n\t<li>It is impossible to achieve this number of special indices with fewer operations. Thus, the answer is 1.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [2,1,1,3]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">2</span></p>\n\n<p><strong>Explanation:</strong>​​​​​​​</p>\n\n<ul>\n\t<li>Start with <code>nums = [2, 1, 1, 3]</code>.</li>\n\t<li>Perform 2 operations at index 1, array becomes <code>[2, 3, 1, 3]</code>.</li>\n\t<li>The final array is <code>[2, 3, 1, 3]</code> has 1 special index, which is the maximum achievable. Thus, the answer is 2.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [5,2,1,4,3]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">4</span></p>\n\n<p><strong>Explanation:</strong>​​​​​​​​​​​​​​​​​​​​​</p>\n\n<ul>\n\t<li>Start with <code>nums = [5, 2, 1, 4, 3]</code>.</li>\n\t<li>Perform 4 operations at index 1, array becomes <code>[5, 6, 1, 4, 3]</code>.</li>\n\t<li>The final array is <code>[5, 6, 1, 4, 3]</code> has 2 special indices, which is the maximum achievable. Thus, the answer is 4.​​​​​​​</li>\n</ul>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>3 &lt;= n &lt;= 10<sup>5</sup></code></li>\n\t<li><code>1 &lt;= nums[i] &lt;= 10<sup>9</sup></code></li>\n</ul>\n",
+  "hints": [
+    "Use dynamic programming.",
+    "Let <code>dp[i] = (max_i, min_i)</code>, where <code>max_i</code> is the maximum number of special indices you can make using the first <code>i</code> elements, and <code>min_i</code> is the minimum number of operations needed to achieve that."
+  ],
+  "sample_test_cases": [
+    "[1,2,2]",
+    "[2,1,1,3]",
+    "[5,2,1,4,3]"
+  ],
+  "content_signature": "og6zz3",
+  "fetched_at": "2026-05-21T07:53:50.568Z"
+}

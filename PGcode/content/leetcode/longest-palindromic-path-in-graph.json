@@ -1,0 +1,33 @@
+{
+  "slug": "longest-palindromic-path-in-graph",
+  "leetcode_id": "3930",
+  "title": "Longest Palindromic Path in Graph",
+  "difficulty": "Hard",
+  "tags": [
+    "string",
+    "dynamic-programming",
+    "bit-manipulation",
+    "graph",
+    "bitmask"
+  ],
+  "description_html": "<p>You are given an integer <code>n</code> and an <strong>undirected</strong> graph with <code>n</code> nodes labeled from 0 to <code>n - 1</code> and a 2D array <code>edges</code>, where <code>edges[i] = [u<sub>i</sub>, v<sub>i</sub>]</code> indicates an edge between nodes <code>u<sub>i</sub></code> and <code>v<sub>i</sub></code>.</p>\n\n<p>You are also given a string <code>label</code> of length <code>n</code>, where <code>label[i]</code> is the character associated with node <code>i</code>.</p>\n\n<p>You may start at any node and move to any adjacent node, visiting each node <strong>at most</strong> once.</p>\n\n<p>Return the <strong>maximum</strong> possible length of a <strong><span data-keyword=\"palindrome-string\">palindrome</span></strong> that can be formed by visiting a set of <strong>unique</strong> nodes along a valid path.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">n = 3, edges = [[0,1],[1,2]], label = &quot;aba&quot;</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">3</span></p>\n\n<p><strong>Exp</strong><strong>lanation:</strong></p>\n\n<p><img src=\"https://assets.leetcode.com/uploads/2025/06/13/screenshot-2025-06-13-at-230714.png\" style=\"width: 250px; height: 85px;\" /></p>\n\n<ul>\n\t<li>The longest palindromic path is from node 0 to node 2 via node 1, following the path <code>0 &rarr; 1 &rarr; 2</code> forming string <code>&quot;aba&quot;</code>.</li>\n\t<li>This is a valid palindrome of length 3.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">n = 3, edges = [[0,1],[0,2]], label = &quot;abc&quot;</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">1</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p><img src=\"https://assets.leetcode.com/uploads/2025/06/13/screenshot-2025-06-13-at-230017.png\" style=\"width: 200px; height: 150px;\" /></p>\n\n<ul>\n\t<li>No path with more than one node forms a palindrome.</li>\n\t<li>The best option is any single node, giving a palindrome of length 1.</li>\n</ul>\n</div>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">n = 4, edges = [[0,2],[0,3],[3,1]], label = &quot;bbac&quot;</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">3</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p><img src=\"https://assets.leetcode.com/uploads/2025/06/13/screenshot-2025-06-13-at-230508.png\" style=\"width: 200px; height: 200px;\" /></p>\n\n<ul>\n\t<li>The longest palindromic path is from node 0 to node 1, following the path <code>0 &rarr; 3 &rarr; 1</code>, forming string <code>&quot;bcb&quot;</code>.</li>\n\t<li>This is a valid palindrome of length 3.</li>\n</ul>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= n &lt;= 14</code></li>\n\t<li><code>n - 1 &lt;= edges.length &lt;= n * (n - 1) / 2</code></li>\n\t<li><code>edges[i] == [u<sub>i</sub>, v<sub>i</sub>]</code></li>\n\t<li><code>0 &lt;= u<sub>i</sub>, v<sub>i</sub> &lt;= n - 1</code></li>\n\t<li><code>u<sub>i</sub> != v<sub>i</sub></code></li>\n\t<li><code>label.length == n</code></li>\n\t<li><code>label</code> consists of lowercase English letters.</li>\n\t<li>There are no duplicate edges.</li>\n</ul>\n",
+  "hints": [
+    "Use bitmask dynamic programming.",
+    "Build the palindrome by expanding from both endpoints: you can include a new pair of nodes as endpoints if neither is already in the current bitmask <code>mask</code>.",
+    "Before adding new endpoints to the current palindrome, ensure their labels match the labels at the previous endpoints <code>prev_l</code> and <code>prev_r</code>.",
+    "Memoize each state as <code>dp[mask][prev_l][prev_r]</code>, representing the maximum palindrome length achievable using the set of visited nodes in <code>mask</code> with current endpoints at <code>prev_l</code> and <code>prev_r</code>."
+  ],
+  "sample_test_cases": [
+    "3",
+    "[[0,1],[1,2]]",
+    "\"aba\"",
+    "3",
+    "[[0,1],[0,2]]",
+    "\"abc\"",
+    "4",
+    "[[0,2],[0,3],[3,1]]",
+    "\"bbac\""
+  ],
+  "content_signature": "-tvbx08",
+  "fetched_at": "2026-05-21T07:45:23.791Z"
+}
