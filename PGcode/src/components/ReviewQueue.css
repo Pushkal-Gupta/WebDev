@@ -1,9 +1,9 @@
 /* ── Review Queue Page ── */
 .rq-container {
   width: 94%;
-  max-width: 900px;
+  max-width: var(--container-w);
   margin: 0 auto;
-  padding: 2rem 0 3rem;
+  padding: 1.5rem 0 3rem;
   min-height: calc(100vh - 120px);
 }
 

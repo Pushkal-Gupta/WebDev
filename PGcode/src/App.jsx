@@ -58,6 +58,7 @@ const SqlPlayground = lazy(() => import('./components/SqlPlayground'));
 const CompaniesIndex = lazy(() => import('./components/company/CompaniesIndex'));
 const CompanyDetail = lazy(() => import('./components/company/CompanyDetail'));
 const AdminPanel = lazy(() => import('./components/admin/AdminPanel'));
+const AdminCompleteness = lazy(() => import('./components/admin/AdminCompleteness'));
 const ContestsIndex = lazy(() => import('./components/contests/ContestsIndex'));
 const ContestDetail = lazy(() => import('./components/contests/ContestDetail'));
 const PracticeHistory = lazy(() => import('./components/PracticeHistory'));
@@ -210,6 +211,7 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
           <Route path="/assessments" element={<Assessments session={session} roadmapMode={roadmapMode} />} />
           <Route path="/tutorial" element={<DsaTutorial session={session} />} />
           <Route path="/admin" element={<AdminPanel session={session} />} />
+          <Route path="/admin/completeness" element={<AdminCompleteness session={session} />} />
           <Route
             path="/category/:categoryId"
             element={<Workspace session={session} theme={theme} roadmapMode={roadmapMode} preferredLang={profile?.preferred_lang} />}

@@ -9,8 +9,15 @@ estimatedReadMinutes: 8
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Driscoll, Sarnak, Sleator, Tarjan (1986) — Making data structures persistent"
-    url: ""
+  - title: "Sedgewick & Wayne — Algorithms (4e), Princeton (companion site)"
+    url: "https://algs4.cs.princeton.edu/home/"
+    type: book
+  - title: "cp-algorithms — Persistent Segment Tree"
+    url: "https://cp-algorithms.com/data_structures/segment_tree.html#preserving-the-history-of-its-values-persistent-segment-tree"
+    type: blog
+  - title: "indy256/codelibrary — persistent data structures"
+    url: "https://github.com/indy256/codelibrary"
+    type: repo
 status: published
 ---
 

@@ -9,8 +9,15 @@ estimatedReadMinutes: 7
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Aspvall, Plass, Tarjan (1979) — A linear-time algorithm for testing the truth of certain quantified boolean formulas"
-    url: ""
+  - title: "CLRS — Part VI: Graph Algorithms (walkccc notes)"
+    url: "https://walkccc.me/CLRS/"
+    type: book
+  - title: "cp-algorithms — Graph algorithms"
+    url: "https://cp-algorithms.com/graph/all-submissions.html"
+    type: blog
+  - title: "TheAlgorithms/Python — graphs/"
+    url: "https://github.com/TheAlgorithms/Python/tree/master/graphs"
+    type: repo
 status: published
 ---
 

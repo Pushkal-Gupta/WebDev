@@ -8,6 +8,16 @@ position: 4
 estimatedReadMinutes: 6
 prereqs: []
 relatedProblems: []
+references:
+  - title: "CLRS — Chapter 6: Heapsort (walkccc notes)"
+    url: "https://walkccc.me/CLRS/Chap06/"
+    type: book
+  - title: "GeeksforGeeks — Heap"
+    url: "https://www.geeksforgeeks.org/heap-data-structure/"
+    type: blog
+  - title: "TheAlgorithms/Python — data_structures/heap/"
+    url: "https://github.com/TheAlgorithms/Python/tree/master/data_structures/heap"
+    type: repo
 status: published
 ---
 

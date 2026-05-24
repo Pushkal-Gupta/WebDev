@@ -8,6 +8,16 @@ position: 5
 estimatedReadMinutes: 7
 prereqs: []
 relatedProblems: []
+references:
+  - title: "Sedgewick & Wayne — Balanced Search Trees"
+    url: "https://algs4.cs.princeton.edu/33balanced/"
+    type: book
+  - title: "cp-algorithms — Trees and tree algorithms"
+    url: "https://cp-algorithms.com/graph/all-submissions.html"
+    type: blog
+  - title: "TheAlgorithms/Python — data_structures/binary_tree/"
+    url: "https://github.com/TheAlgorithms/Python/tree/master/data_structures/binary_tree"
+    type: repo
 status: published
 ---
 
@@ -23,15 +33,114 @@ Almost every graph problem reduces to "do BFS or DFS, while tracking X." Connect
 
 The *only* structural difference in the code is queue (BFS) vs stack/recursion (DFS). The visited set, the neighbor expansion, the loop structure — all identical.
 
+A useful mental model:
+1. Both algorithms maintain a `frontier` (queue or stack) of vertices "discovered but not yet processed" and a `visited` set of vertices "discovered."
+2. Each round: pop one vertex from the frontier, push its undiscovered neighbors, mark them visited.
+3. The pop order is the only difference. FIFO -> BFS waveform; LIFO -> DFS plunge.
+
+If you swap `queue.popleft()` for `stack.pop()` in the same loop body, BFS becomes DFS — that is literally the entire change.
+
+## walkthroughExample
+Graph (undirected):
+```
+            1 ----- 2
+           /         \
+          0           5
+           \         /
+            3 ----- 4
+```
+Adjacency: 0:[1,3], 1:[0,2], 2:[1,5], 3:[0,4], 4:[3,5], 5:[2,4]. Start vertex = 0.
+
+**BFS trace** (queue, FIFO). Mark visited on *enqueue*:
+```
+   step  action              queue            visited       dist
+   ----  ------------------  ---------------  ------------  ----
+   0     enqueue 0           [0]              {0}           0:0
+   1     pop 0, enq 1,3      [1, 3]           {0,1,3}       1:1, 3:1
+   2     pop 1, enq 2        [3, 2]           {0,1,3,2}     2:2
+   3     pop 3, enq 4        [2, 4]           {0,1,3,2,4}   4:2
+   4     pop 2, enq 5        [4, 5]           {...,5}       5:3
+   5     pop 4, (no new)     [5]              same          -
+   6     pop 5, (no new)     []               same          -
+   done                                                     dist done
+```
+Final distances from 0: `{0:0, 1:1, 3:1, 2:2, 4:2, 5:3}`. Visit order: `0, 1, 3, 2, 4, 5`.
+
+**DFS trace** (stack, LIFO). Mark visited on *pop*:
+```
+   step  action              stack                visited
+   ----  ------------------  -------------------  ------------------
+   0     push 0              [0]                  {}
+   1     pop 0, push 1,3     [1, 3]               {0}
+   2     pop 3, push 0,4     [1, 0, 4]            {0, 3}
+   3     pop 4, push 3,5     [1, 0, 3, 5]         {0, 3, 4}
+   4     pop 5, push 2,4     [1, 0, 3, 2, 4]      {0, 3, 4, 5}
+   5     pop 4 (visited)     [1, 0, 3, 2]         skip
+   6     pop 2, push 1,5     [1, 0, 3, 1, 5]      {0, 3, 4, 5, 2}
+   7     pop 5 (visited)     [1, 0, 3, 1]         skip
+   8     pop 1, push 0,2     [1, 0, 3, 0, 2]      {0, 3, 4, 5, 2, 1}
+   9     pop 2 (visited)     ...                  skip
+   ...   (skips until empty)
+```
+Visit order: `0, 3, 4, 5, 2, 1` — depth-first one branch at a time.
+
+Same graph, two different traversal trees:
+```
+   BFS tree (rooted at 0):              DFS tree (rooted at 0):
+                                                            
+              0                                  0
+            /   \                              /
+           1     3                            3
+           |     |                            |
+           2     4                            4
+                 |                            |
+                 5                            5
+                                              |
+                                              2
+                                              |
+                                              1
+```
+
 ## visualization
-Grid:
+Snapshot 1 — BFS wavefront from vertex 0 (distance shells):
 ```
-0 - 1 - 2
-|       |
-3 - 4 - 5
+   distance 0:                  [0]
+                              /     \
+   distance 1:               [1]    [3]
+                              |      |
+   distance 2:               [2]    [4]
+                                \  /
+   distance 3:                  [5]
 ```
-**BFS from 0:** visit 0, then {1, 3}, then {2, 4}, then {5}. Yields levels = distances.
-**DFS from 0:** visit 0, 1, 2, 5, 4, 3 (one possible order). Goes deep first.
+
+Snapshot 2 — DFS depth-first dive (arrows show recursion order, dashed = back):
+```
+                  0
+                  |
+                  v
+                  3 -----> 4 -----> 5 -----> 2 -----> 1
+                  ^.........................../
+                       backtrack chain
+```
+
+Snapshot 3 — BFS vs DFS on the SAME graph, frame by frame after each pop:
+```
+   round 0:   BFS visited = {0}              DFS visited = {0}
+   round 1:   BFS visited = {0,1,3}          DFS visited = {0,3}
+   round 2:   BFS visited = {0,1,3,2}        DFS visited = {0,3,4}
+   round 3:   BFS visited = {0,1,3,2,4}      DFS visited = {0,3,4,5}
+   round 4:   BFS visited = {0,1,3,2,4,5}    DFS visited = {0,3,4,5,2}
+   round 5:   done                           DFS visited = {0,3,4,5,2,1}
+```
+
+Snapshot 4 — when graphs disconnect, both algorithms need an outer loop:
+```
+   components:    {A,B,C}        {D,E}        {F}
+
+   for v in all_vertices:
+       if v not in visited:
+           bfs_or_dfs(v)           <- starts a new traversal per component
+```
 
 ## bruteForce
 Visit every (source, target) pair to answer reachability: O(V² × E). BFS/DFS answers it for a single source in O(V + E) — orders of magnitude faster.

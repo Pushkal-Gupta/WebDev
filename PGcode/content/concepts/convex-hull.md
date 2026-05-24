@@ -9,8 +9,15 @@ estimatedReadMinutes: 7
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Graham (1972) — An efficient algorithm for determining the convex hull of a finite planar set"
-    url: ""
+  - title: "de Berg, Cheong, van Kreveld, Overmars — Computational Geometry (book site, Utrecht)"
+    url: "https://www.cs.uu.nl/geobook/"
+    type: book
+  - title: "cp-algorithms — Convex Hull (Graham scan, monotone chain)"
+    url: "https://cp-algorithms.com/geometry/convex-hull.html"
+    type: blog
+  - title: "TheAlgorithms/Python — convex_hull"
+    url: "https://github.com/TheAlgorithms/Python/blob/master/divide_and_conquer/convex_hull.py"
+    type: repo
 status: published
 ---
 

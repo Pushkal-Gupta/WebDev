@@ -104,6 +104,44 @@ export default function SqlPlayground({ theme }) {
   const [elapsed, setElapsed] = useState(null);
   const dbRef = useRef(null);
 
+  const SPLIT_KEY = 'pgcode-sql-split';
+  const [editorPct, setEditorPct] = useState(() => {
+    const raw = Number(localStorage.getItem(SPLIT_KEY));
+    return Number.isFinite(raw) && raw >= 20 && raw <= 80 ? raw : 50;
+  });
+  const splitContainerRef = useRef(null);
+  const draggingRef = useRef(false);
+
+  useEffect(() => {
+    const onMove = (e) => {
+      if (!draggingRef.current) return;
+      const el = splitContainerRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const y = e.clientY - rect.top;
+      const pct = Math.min(80, Math.max(20, (y / rect.height) * 100));
+      setEditorPct(pct);
+    };
+    const onUp = () => {
+      if (!draggingRef.current) return;
+      draggingRef.current = false;
+      document.body.classList.remove('pg-resizing-row');
+      try { localStorage.setItem(SPLIT_KEY, String(editorPct)); } catch { /* ignore */ }
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+  }, [editorPct]);
+
+  const startSplitDrag = (e) => {
+    e.preventDefault();
+    draggingRef.current = true;
+    document.body.classList.add('pg-resizing-row');
+  };
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -203,7 +241,7 @@ export default function SqlPlayground({ theme }) {
           <p className="sql-pg-sub">
             <Database size={11} /> {course
               ? course.blurb
-              : 'SQLite (sql.js, WASM). Runs in your browser. Sample employees / departments database loaded.'}
+              : 'Write SQL against a sample employees and departments database. Results show below as you query.'}
           </p>
           {!courseMode && (
             <p className="sql-pg-sub" style={{ marginTop: '0.25rem' }}>
@@ -299,7 +337,8 @@ export default function SqlPlayground({ theme }) {
               )}
             </div>
           )}
-          <div className="sql-pg-editor">
+          <div className="sql-pg-split" ref={splitContainerRef}>
+          <div className="sql-pg-editor" style={{ flexBasis: `${editorPct}%` }}>
             <Editor
               height="100%"
               language="sql"
@@ -318,7 +357,15 @@ export default function SqlPlayground({ theme }) {
             />
           </div>
 
-          <div className="sql-pg-output">
+          <div
+            className="sql-pg-vsplitter"
+            role="separator"
+            aria-orientation="horizontal"
+            aria-label="Resize editor and results"
+            onMouseDown={startSplitDrag}
+          />
+
+          <div className="sql-pg-output" style={{ flexBasis: `${100 - editorPct}%` }}>
             <div className="sql-pg-output-head">
               <span className="sql-pg-output-label">Results</span>
               {elapsed != null && <span className="sql-pg-output-meta">{elapsed} ms</span>}
@@ -354,6 +401,7 @@ export default function SqlPlayground({ theme }) {
                 ))
               )}
             </div>
+          </div>
           </div>
         </div>
       </div>

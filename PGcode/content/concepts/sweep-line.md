@@ -9,8 +9,15 @@ estimatedReadMinutes: 7
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Shamos & Hoey (1976) — Geometric intersection problems"
-    url: ""
+  - title: "de Berg et al. — Computational Geometry (book site, Utrecht)"
+    url: "https://www.cs.uu.nl/geobook/"
+    type: book
+  - title: "cp-algorithms — Sweep Line (segment intersections)"
+    url: "https://cp-algorithms.com/geometry/intersecting_segments.html"
+    type: blog
+  - title: "indy256/codelibrary — geometry / sweep templates"
+    url: "https://github.com/indy256/codelibrary"
+    type: repo
 status: published
 ---
 

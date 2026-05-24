@@ -9,8 +9,15 @@ estimatedReadMinutes: 7
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Ji-Dong Tang (2016) — A simple approach to segment tree beats"
-    url: ""
+  - title: "Sedgewick & Wayne — Algorithms (4e), Princeton (companion site)"
+    url: "https://algs4.cs.princeton.edu/home/"
+    type: book
+  - title: "cp-algorithms — Segment Tree (advanced range updates)"
+    url: "https://cp-algorithms.com/data_structures/segment_tree.html"
+    type: blog
+  - title: "kth-competitive-programming/kactl — segment tree templates"
+    url: "https://github.com/kth-competitive-programming/kactl"
+    type: repo
 status: published
 ---
 

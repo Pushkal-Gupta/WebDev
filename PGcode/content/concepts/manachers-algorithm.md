@@ -9,8 +9,15 @@ estimatedReadMinutes: 9
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Reference Material — Module 5 — Manacher's Algorithm"
-    url: ""
+  - title: "Sedgewick & Wayne — Strings chapter"
+    url: "https://algs4.cs.princeton.edu/50strings/"
+    type: book
+  - title: "cp-algorithms — String processing"
+    url: "https://cp-algorithms.com/string/all-submissions.html"
+    type: blog
+  - title: "TheAlgorithms/Python — strings/"
+    url: "https://github.com/TheAlgorithms/Python/tree/master/strings"
+    type: repo
 status: published
 ---
 

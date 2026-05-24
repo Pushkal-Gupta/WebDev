@@ -9,8 +9,15 @@ estimatedReadMinutes: 8
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Mo's Algorithm — Codeforces Tutorial"
-    url: ""
+  - title: "Sedgewick & Wayne — Algorithms (4e), Princeton (companion site)"
+    url: "https://algs4.cs.princeton.edu/home/"
+    type: book
+  - title: "cp-algorithms — Sqrt Decomposition and Mo's Algorithm"
+    url: "https://cp-algorithms.com/data_structures/sqrt_decomposition.html"
+    type: blog
+  - title: "indy256/codelibrary — Mo's algorithm implementations"
+    url: "https://github.com/indy256/codelibrary"
+    type: repo
 status: published
 ---
 

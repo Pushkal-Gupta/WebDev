@@ -1,6 +1,6 @@
 .ph-container {
   width: 94%;
-  max-width: 1300px;
+  max-width: var(--container-w);
   margin: 0 auto;
   padding: 1.5rem 0 3rem;
   height: calc(100vh - 100px);
@@ -13,32 +13,45 @@
 /* ── Overview cards (top strip) ─────────────────────────────────────── */
 .ph-overview {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 0.9rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
-@media (max-width: 960px) { .ph-overview { grid-template-columns: 1fr 1fr; } }
+.ph-overview > * { min-width: 0; }
 @media (max-width: 560px) { .ph-overview { grid-template-columns: 1fr; } }
 
 .ph-streak-card {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: auto auto;
-  align-items: center;
-  gap: 0.25rem 0.85rem;
-  padding: 0.95rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.9rem 1rem;
   border: 1px solid var(--border);
   border-radius: 11px;
   background: var(--surface);
+  min-height: 5.7rem;
+  position: relative;
+  transition: border-color var(--t, 200ms) ease, background var(--t, 200ms) ease;
 }
-.ph-streak-flame { grid-row: 1 / span 2; color: var(--warning, var(--accent)); }
-.ph-streak-meta { display: flex; align-items: baseline; gap: 0.45rem; }
-.ph-streak-num {
+.ph-streak-card:hover { border-color: var(--accent); background: var(--hover-box); }
+.ph-streak-head {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
   font-family: var(--mono);
-  font-size: 1.7rem;
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+.ph-streak-flame { color: var(--warning, var(--accent)); }
+.ph-streak-meta { display: flex; align-items: baseline; gap: 0.5rem; }
+.ph-streak-num {
+  font-family: var(--serif);
+  font-size: 2rem;
   font-weight: 700;
   color: var(--text-main);
   line-height: 1;
+  letter-spacing: -0.01em;
 }
 .ph-streak-label {
   font-family: var(--mono);
@@ -48,12 +61,12 @@
   color: var(--text-dim);
 }
 .ph-streak-sub {
-  grid-column: 2;
   display: flex;
   gap: 1.2rem;
   font-family: var(--mono);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--text-dim);
+  margin-top: auto;
 }
 .ph-streak-sub b { color: var(--text-main); font-weight: 600; }
 
@@ -119,15 +132,18 @@
 /* ── Two-column grid (left table, right summary) ───────────────────── */
 .ph-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
+  grid-template-columns: minmax(0, 1.5fr) minmax(360px, 1fr);
   gap: 1.25rem;
   flex: 1;
   min-height: 0;
   align-items: start;
 }
 
-@media (max-width: 1000px) {
-  .ph-grid { grid-template-columns: 1fr; }
+@media (max-width: 1100px) {
+  .ph-grid {
+    grid-template-columns: 1fr;
+  }
+  .ph-side { position: static; width: 100%; }
 }
 
 /* ── Left column: tabs + table ─────────────────────────────────────── */
@@ -139,7 +155,7 @@
 }
 
 .ph-tabs {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 0.35rem;
   padding: 0;
@@ -148,6 +164,9 @@
 
 .ph-tab {
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
   padding: 0.55rem 0.9rem;
   background: transparent;
   border: none;
@@ -175,11 +194,25 @@
 .ph-tab.active::after { background: var(--accent); }
 
 .ph-tab-count {
-  margin-left: auto;
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  color: var(--text-dim);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.3rem;
+  height: 1.1rem;
   padding: 0 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  background: var(--hover-box);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  letter-spacing: 0;
+}
+.ph-tab.active .ph-tab-count {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--surface);
 }
 
 .ph-table {
@@ -411,7 +444,9 @@
   justify-content: center;
   align-items: center;
   padding: 0.3rem 0;
+  min-height: 220px;
 }
+.ph-bubble-wrap .bcl { width: 100%; max-width: 320px; height: 220px; }
 
 .ph-chart-head {
   display: flex;
@@ -450,7 +485,7 @@
 .ph-mini-tab.active,
 .ph-gran-btn.active { color: var(--bg); background: var(--accent); }
 
-.ph-gran-btn { padding: 0.35rem 0.55rem; min-width: 1.7rem; }
+.ph-gran-btn { padding: 0.35rem 0.7rem; min-width: 2rem; }
 
 .ph-chart-month {
   font-family: var(--mono);

@@ -12,8 +12,10 @@ export const queryClient = new QueryClient({
   },
 });
 
+// Bump the suffix whenever the concept/module/problem schemas change so users
+// don't see stale counts from a previous deploy's cache.
 export const persister = createSyncStoragePersister({
   storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-  key: 'pgcode-query-cache',
+  key: 'pgcode-query-cache-v3',
   throttleTime: 1000,
 });

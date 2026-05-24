@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Shield, BookOpen, Building2, Layers, AlertTriangle, RefreshCw, FileText } from 'lucide-react';
+import { Shield, BookOpen, Building2, Layers, AlertTriangle, RefreshCw, FileText, ListChecks } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useProfile, qk } from '../../lib/queries';
 import './Admin.css';
@@ -145,9 +145,14 @@ WHERE user_id = '${userId}';`}</pre>
           <h1 className="adm-title"><Shield size={18} /> Admin</h1>
           <p className="adm-sub">Content management surface for editors. Authored content lives as Markdown — see <code>content/concepts/</code> + <code>scripts/import-concepts.js</code>.</p>
         </div>
-        <button className="adm-btn" onClick={refreshAll} disabled={busy}>
-          <RefreshCw size={13} className={busy ? 'adm-spin' : ''} /> Refresh
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <Link to="/admin/completeness" className="adm-btn">
+            <ListChecks size={13} /> Completeness audit
+          </Link>
+          <button className="adm-btn" onClick={refreshAll} disabled={busy}>
+            <RefreshCw size={13} className={busy ? 'adm-spin' : ''} /> Refresh
+          </button>
+        </div>
       </header>
 
       {message && <div className="adm-message">{message}</div>}

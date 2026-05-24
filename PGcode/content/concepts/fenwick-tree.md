@@ -9,8 +9,15 @@ estimatedReadMinutes: 8
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Peter Fenwick — A New Data Structure for Cumulative Frequency Tables (1994)"
-    url: ""
+  - title: "Sedgewick & Wayne — Algorithms (4e), Princeton (companion site)"
+    url: "https://algs4.cs.princeton.edu/home/"
+    type: book
+  - title: "cp-algorithms — Fenwick Tree"
+    url: "https://cp-algorithms.com/data_structures/fenwick.html"
+    type: blog
+  - title: "indy256/codelibrary — Fenwick tree implementations"
+    url: "https://github.com/indy256/codelibrary"
+    type: repo
 status: published
 ---
 

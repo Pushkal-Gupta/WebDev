@@ -9,8 +9,15 @@ estimatedReadMinutes: 8
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Competitive Programming Handbook — Range Data Structures"
-    url: ""
+  - title: "Sedgewick & Wayne — Algorithms (4e), Princeton (companion site)"
+    url: "https://algs4.cs.princeton.edu/home/"
+    type: book
+  - title: "cp-algorithms — Segment Tree (lazy propagation)"
+    url: "https://cp-algorithms.com/data_structures/segment_tree.html"
+    type: blog
+  - title: "indy256/codelibrary — segment tree implementations"
+    url: "https://github.com/indy256/codelibrary"
+    type: repo
 status: published
 ---
 

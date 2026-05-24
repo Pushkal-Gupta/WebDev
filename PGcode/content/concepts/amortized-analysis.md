@@ -9,8 +9,15 @@ estimatedReadMinutes: 6
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Tarjan (1985) — Amortized computational complexity; CLRS Chapter 17"
-    url: ""
+  - title: "CLRS Chapter 17 — Amortized Analysis (worked solutions)"
+    url: "https://walkccc.me/CLRS/Chap17/17.1/"
+    type: book
+  - title: "GeeksforGeeks — Introduction to Amortized Analysis"
+    url: "https://www.geeksforgeeks.org/introduction-to-amortized-analysis/"
+    type: blog
+  - title: "TheAlgorithms/Python — reference implementations"
+    url: "https://github.com/TheAlgorithms/Python"
+    type: repo
 status: published
 ---
 

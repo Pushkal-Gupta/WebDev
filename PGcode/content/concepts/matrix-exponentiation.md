@@ -9,8 +9,15 @@ estimatedReadMinutes: 7
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Knuth — The Art of Computer Programming, Vol 2 (binary exponentiation chapter)"
-    url: ""
+  - title: "Sedgewick & Wayne — Algorithms (4e), Princeton (companion site)"
+    url: "https://algs4.cs.princeton.edu/home/"
+    type: book
+  - title: "cp-algorithms — Binary exponentiation (matrix power)"
+    url: "https://cp-algorithms.com/algebra/binary-exp.html"
+    type: blog
+  - title: "kth-competitive-programming/kactl — matrix templates"
+    url: "https://github.com/kth-competitive-programming/kactl"
+    type: repo
 status: published
 ---
 

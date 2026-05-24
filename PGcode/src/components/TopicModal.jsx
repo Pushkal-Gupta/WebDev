@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { X, Star, CheckCircle, ExternalLink, Video, FileText, ChevronLeft, Code2, Lightbulb } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { useTopicProblems, useUserProgress, filterByRoadmap, qk } from '../lib/queries';
+import { useTopicProblems, useUserProgress, useProblemsCompact, filterByRoadmap, qk } from '../lib/queries';
 import { primaryTopicLabel } from '../lib/topicLabel';
 import LearningsSection from './LearningsSection';
 import './TopicModal.css';
@@ -14,6 +14,7 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
   const queryClient = useQueryClient();
   const userId = session?.user?.id;
   const { data: rawProblems, isLoading } = useTopicProblems(topic?.id);
+  const { data: allProblems } = useProblemsCompact();
   const { data: progressBundle } = useUserProgress(userId);
   const userProgress = progressBundle?.byId || {};
   const loading = isLoading;
@@ -37,8 +38,17 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
     };
   }, []);
 
+  // Bug fix: TopicModal must intersect "this topic's problems" with "the
+  // globally-ranked top-N for the current roadmap mode" — NOT apply the rank
+  // limit on the topic-scoped subset (which would pick the top 100 problems
+  // IN this topic, not the topic-subset of the global top 100).
   const problems = useMemo(() => {
-    const filtered = filterByRoadmap(rawProblems, roadmapMode);
+    if (!rawProblems) return [];
+    let filtered = rawProblems;
+    if (roadmapMode !== 'all' && allProblems && allProblems.length) {
+      const allowed = new Set(filterByRoadmap(allProblems, roadmapMode).map(p => p.id));
+      filtered = rawProblems.filter(p => allowed.has(p.id));
+    }
     const isGeneric = (name) => /Pattern #\d+|Challenge #\d+/.test(name);
     return [...filtered].sort((a, b) => {
       const ag = isGeneric(a.name) ? 1 : 0;
@@ -46,7 +56,7 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
       if (ag !== bg) return ag - bg;
       return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
     });
-  }, [rawProblems, roadmapMode]);
+  }, [rawProblems, allProblems, roadmapMode]);
 
   const progressMutation = useMutation({
     mutationFn: async ({ problemId, patch }) => {

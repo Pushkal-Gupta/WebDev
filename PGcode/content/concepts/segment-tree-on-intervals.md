@@ -9,8 +9,15 @@ estimatedReadMinutes: 6
 prereqs: []
 relatedProblems: []
 references:
-  - title: "de Berg et al. — Computational Geometry: Algorithms and Applications, Ch 10"
-    url: ""
+  - title: "de Berg et al. — Computational Geometry (book site, Utrecht)"
+    url: "https://www.cs.uu.nl/geobook/"
+    type: book
+  - title: "GeeksforGeeks — Interval Tree"
+    url: "https://www.geeksforgeeks.org/interval-tree/"
+    type: blog
+  - title: "TheAlgorithms/Python — data structures"
+    url: "https://github.com/TheAlgorithms/Python/tree/master/data_structures"
+    type: repo
 status: published
 ---
 

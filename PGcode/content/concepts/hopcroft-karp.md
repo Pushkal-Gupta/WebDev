@@ -9,8 +9,15 @@ estimatedReadMinutes: 7
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Hopcroft & Karp (1973) — An n^(5/2) algorithm for maximum matchings in bipartite graphs"
-    url: ""
+  - title: "CLRS — Part VI: Graph Algorithms (walkccc notes)"
+    url: "https://walkccc.me/CLRS/"
+    type: book
+  - title: "cp-algorithms — Graph algorithms"
+    url: "https://cp-algorithms.com/graph/all-submissions.html"
+    type: blog
+  - title: "TheAlgorithms/Python — graphs/"
+    url: "https://github.com/TheAlgorithms/Python/tree/master/graphs"
+    type: repo
 status: published
 ---
 

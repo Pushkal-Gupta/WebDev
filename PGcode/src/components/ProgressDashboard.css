@@ -1,11 +1,16 @@
 .pd-container {
   width: 94%;
-  max-width: 1100px;
+  max-width: var(--container-w);
   margin: 0 auto;
   padding: 1.5rem 0 3rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  /* #root pins height: 100vh + overflow: hidden, so this container owns its
+     own scroll. min-height (NOT height) so child cards can grow tall and we
+     simply scroll the whole panel — no inner clipping. */
+  min-height: calc(100vh - 100px);
+  overflow-y: auto;
 }
 
 .pd-header {
@@ -25,6 +30,48 @@
 .pd-sub {
   font-size: 0.85rem;
   color: var(--text-dim);
+}
+
+.pd-tabs {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.pd-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 32px;
+  padding: 0 0.85rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color var(--t), border-color var(--t), background var(--t);
+}
+
+.pd-tab:hover {
+  color: var(--text-main);
+  border-color: var(--text-dim);
+}
+
+.pd-tab.active {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.08);
+}
+
+.pd-ach-full {
+  padding: 1rem 1.1rem;
 }
 
 .pd-top {
@@ -162,7 +209,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
-  overflow: hidden;
+  flex-shrink: 0;
   transition: border-color var(--t), box-shadow var(--t);
 }
 
@@ -197,6 +244,10 @@
 }
 
 .pd-card-action {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
   font-family: var(--mono);
   font-size: 0.62rem;
   color: var(--text-dim);

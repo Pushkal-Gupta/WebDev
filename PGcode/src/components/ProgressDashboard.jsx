@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { Flame, Trophy, Target, TrendingUp, Award } from 'lucide-react';
+import React, { useMemo, useState, useEffect, lazy, Suspense } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Flame, Target, TrendingUp, Award, History as HistoryIcon, BarChart3 } from 'lucide-react';
 import {
   useProblemsCompact,
   useUserProgress,
@@ -12,6 +12,12 @@ import {
 import { primaryTopicLabel } from '../lib/topicLabel';
 import Achievements from './Achievements';
 import './ProgressDashboard.css';
+
+// Lazy so the merged tab doesn't pull the full submission-history bundle on
+// first paint of /progress.
+const PracticeHistory = lazy(() => import('./PracticeHistory'));
+
+const TAB_KEYS = ['stats', 'history', 'achievements', 'mastery'];
 
 function ringStyle(pct) {
   const r = 36;
@@ -25,6 +31,8 @@ function ringStyle(pct) {
 
 export default function ProgressDashboard({ session, roadmapMode }) {
   const userId = session?.user?.id;
+  const location = useLocation();
+  const navigate = useNavigate();
   const { data: problemsData } = useProblemsCompact();
   const { data: topicsData = [] } = useTopics();
   const { data: progressBundle } = useUserProgress(userId);
@@ -32,6 +40,31 @@ export default function ProgressDashboard({ session, roadmapMode }) {
   // Server-aggregated path. Falls back to client reduce if the RPC isn't applied.
   const { data: serverStats, isError: rpcError } = useUserStatsRpc(userId);
   const useLegacy = rpcError || !serverStats;
+
+  // Tab is in the URL hash query string so deep links + back button work.
+  // HashRouter puts everything after `#/progress` — react-router exposes the
+  // search part of that hash via location.search.
+  const initialTab = (() => {
+    const sp = new URLSearchParams(location.search);
+    const t = sp.get('tab');
+    return TAB_KEYS.includes(t) ? t : 'stats';
+  })();
+  const [tab, setTab] = useState(initialTab);
+
+  useEffect(() => {
+    const sp = new URLSearchParams(location.search);
+    const t = sp.get('tab');
+    if (TAB_KEYS.includes(t) && t !== tab) setTab(t);
+  }, [location.search, tab]);
+
+  const setTabAndUrl = (next) => {
+    setTab(next);
+    const sp = new URLSearchParams(location.search);
+    if (next === 'stats') sp.delete('tab');
+    else sp.set('tab', next);
+    const qs = sp.toString();
+    navigate({ pathname: location.pathname, search: qs ? `?${qs}` : '' }, { replace: false });
+  };
 
   const byId = useMemo(() => progressBundle?.byId || {}, [progressBundle]);
   const filtered = useMemo(() => filterByRoadmap(problemsData, roadmapMode), [problemsData, roadmapMode]);
@@ -129,104 +162,148 @@ export default function ProgressDashboard({ session, roadmapMode }) {
   const overallPct = totals.total === 0 ? 0 : Math.round((totals.solved / totals.total) * 100);
   const ring = ringStyle(overallPct);
 
+  const TABS = [
+    { key: 'stats',        label: 'Stats',         icon: BarChart3 },
+    { key: 'history',      label: 'History',       icon: HistoryIcon },
+    { key: 'achievements', label: 'Achievements',  icon: Award },
+    { key: 'mastery',      label: 'Topic Mastery', icon: Target },
+  ];
+
   return (
     <div className="pd-container">
       <header className="pd-header">
-        <h1 className="pd-title">Progress</h1>
+        <h1 className="pd-title">Your Activity</h1>
         <p className="pd-sub">
-          Mastery breakdown across topics, difficulty, and recent activity for PGcode {roadmapMode}.
+          Stats, submission history, achievements and topic mastery — everything tracked across PGcode {roadmapMode}.
         </p>
       </header>
 
-      <section className="pd-top">
-        <div className="pd-overall">
-          <svg className="pd-ring" viewBox="0 0 96 96">
-            <circle cx="48" cy="48" r={ring.radius} fill="none" stroke="var(--border)" strokeWidth="8" />
-            <circle
-              cx="48" cy="48" r={ring.radius} fill="none"
-              stroke="var(--accent)" strokeWidth="8" strokeLinecap="round"
-              strokeDasharray={ring.circumference} strokeDashoffset={ring.offset}
-              transform="rotate(-90 48 48)"
-            />
-          </svg>
-          <div className="pd-overall-text">
-            <div className="pd-overall-pct">{overallPct}%</div>
-            <div className="pd-overall-frac">{totals.solved} / {totals.total} solved</div>
-          </div>
-        </div>
+      <nav className="pd-tabs" role="tablist">
+        {TABS.map(t => {
+          const Icon = t.icon;
+          return (
+            <button
+              key={t.key}
+              type="button"
+              role="tab"
+              aria-selected={tab === t.key}
+              className={`pd-tab ${tab === t.key ? 'active' : ''}`}
+              onClick={() => setTabAndUrl(t.key)}
+            >
+              <Icon size={13} />
+              <span>{t.label}</span>
+            </button>
+          );
+        })}
+      </nav>
 
-        <div className="pd-difficulty">
-          <div className="pd-diff-row">
-            <span className="pd-diff-label pd-diff-easy">Easy</span>
-            <span className="pd-diff-count">{totals.e} / {totals.eT}</span>
-            <div className="pd-diff-bar"><div className="pd-diff-fill pd-diff-fill-easy" style={{ width: `${totals.eT ? Math.round((totals.e / totals.eT) * 100) : 0}%` }} /></div>
-          </div>
-          <div className="pd-diff-row">
-            <span className="pd-diff-label pd-diff-med">Medium</span>
-            <span className="pd-diff-count">{totals.m} / {totals.mT}</span>
-            <div className="pd-diff-bar"><div className="pd-diff-fill pd-diff-fill-med" style={{ width: `${totals.mT ? Math.round((totals.m / totals.mT) * 100) : 0}%` }} /></div>
-          </div>
-          <div className="pd-diff-row">
-            <span className="pd-diff-label pd-diff-hard">Hard</span>
-            <span className="pd-diff-count">{totals.h} / {totals.hT}</span>
-            <div className="pd-diff-bar"><div className="pd-diff-fill pd-diff-fill-hard" style={{ width: `${totals.hT ? Math.round((totals.h / totals.hT) * 100) : 0}%` }} /></div>
-          </div>
-        </div>
-
-        <div className="pd-streak-card">
-          <div className="pd-streak-row">
-            <Flame size={16} className="pd-streak-icon" />
-            <div>
-              <div className="pd-streak-value">{profile?.current_streak || 0} day streak</div>
-              <div className="pd-streak-sub">Best: {profile?.longest_streak || 0}</div>
+      {tab === 'stats' && (
+        <>
+          <section className="pd-top">
+            <div className="pd-overall">
+              <svg className="pd-ring" viewBox="0 0 96 96">
+                <circle cx="48" cy="48" r={ring.radius} fill="none" stroke="var(--border)" strokeWidth="8" />
+                <circle
+                  cx="48" cy="48" r={ring.radius} fill="none"
+                  stroke="var(--accent)" strokeWidth="8" strokeLinecap="round"
+                  strokeDasharray={ring.circumference} strokeDashoffset={ring.offset}
+                  transform="rotate(-90 48 48)"
+                />
+              </svg>
+              <div className="pd-overall-text">
+                <div className="pd-overall-pct">{overallPct}%</div>
+                <div className="pd-overall-frac">{totals.solved} / {totals.total} solved</div>
+              </div>
             </div>
+
+            <div className="pd-difficulty">
+              <div className="pd-diff-row">
+                <span className="pd-diff-label pd-diff-easy">Easy</span>
+                <span className="pd-diff-count">{totals.e} / {totals.eT}</span>
+                <div className="pd-diff-bar"><div className="pd-diff-fill pd-diff-fill-easy" style={{ width: `${totals.eT ? Math.round((totals.e / totals.eT) * 100) : 0}%` }} /></div>
+              </div>
+              <div className="pd-diff-row">
+                <span className="pd-diff-label pd-diff-med">Medium</span>
+                <span className="pd-diff-count">{totals.m} / {totals.mT}</span>
+                <div className="pd-diff-bar"><div className="pd-diff-fill pd-diff-fill-med" style={{ width: `${totals.mT ? Math.round((totals.m / totals.mT) * 100) : 0}%` }} /></div>
+              </div>
+              <div className="pd-diff-row">
+                <span className="pd-diff-label pd-diff-hard">Hard</span>
+                <span className="pd-diff-count">{totals.h} / {totals.hT}</span>
+                <div className="pd-diff-bar"><div className="pd-diff-fill pd-diff-fill-hard" style={{ width: `${totals.hT ? Math.round((totals.h / totals.hT) * 100) : 0}%` }} /></div>
+              </div>
+            </div>
+
+            <div className="pd-streak-card">
+              <div className="pd-streak-row">
+                <Flame size={16} className="pd-streak-icon" />
+                <div>
+                  <div className="pd-streak-value">{profile?.current_streak || 0} day streak</div>
+                  <div className="pd-streak-sub">Best: {profile?.longest_streak || 0}</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="pd-card">
+            <div className="pd-card-head">
+              <h2 className="pd-card-title"><TrendingUp size={14} /> Last 12 weeks</h2>
+            </div>
+            <div className="pd-heatmap">
+              {heatmap.map((c) => (
+                <span
+                  key={c.date}
+                  className={`pd-heat-cell pd-heat-${c.level}`}
+                  title={`${c.count} solve${c.count === 1 ? '' : 's'} on ${c.date}`}
+                />
+              ))}
+            </div>
+          </section>
+
+          <section className="pd-card pd-ach-summary">
+            <div className="pd-card-head">
+              <h2 className="pd-card-title"><Award size={14} /> Achievements</h2>
+              <button type="button" className="pd-card-action" onClick={() => setTabAndUrl('achievements')}>See all →</button>
+            </div>
+            <Achievements session={session} roadmapMode={roadmapMode} compact limit={4} />
+          </section>
+        </>
+      )}
+
+      {tab === 'history' && (
+        <Suspense fallback={<p className="pd-empty">Loading history…</p>}>
+          <PracticeHistory session={session} roadmapMode={roadmapMode} />
+        </Suspense>
+      )}
+
+      {tab === 'achievements' && (
+        <section className="pd-card pd-ach-full">
+          <Achievements session={session} roadmapMode={roadmapMode} />
+        </section>
+      )}
+
+      {tab === 'mastery' && (
+        <section className="pd-card">
+          <div className="pd-card-head">
+            <h2 className="pd-card-title"><Target size={14} /> Topic mastery</h2>
+            <button type="button" className="pd-card-action" onClick={() => navigate('/practice')}>Open practice →</button>
           </div>
-        </div>
-      </section>
-
-      <section className="pd-card">
-        <div className="pd-card-head">
-          <h2 className="pd-card-title"><TrendingUp size={14} /> Last 12 weeks</h2>
-        </div>
-        <div className="pd-heatmap">
-          {heatmap.map((c) => (
-            <span
-              key={c.date}
-              className={`pd-heat-cell pd-heat-${c.level}`}
-              title={`${c.count} solve${c.count === 1 ? '' : 's'} on ${c.date}`}
-            />
-          ))}
-        </div>
-      </section>
-
-      <section className="pd-card pd-ach-summary">
-        <div className="pd-card-head">
-          <h2 className="pd-card-title"><Award size={14} /> Achievements</h2>
-          <Link to="/achievements" className="pd-card-action">See all →</Link>
-        </div>
-        <Achievements session={session} roadmapMode={roadmapMode} compact limit={4} />
-      </section>
-
-      <section className="pd-card">
-        <div className="pd-card-head">
-          <h2 className="pd-card-title"><Target size={14} /> Topic mastery</h2>
-          <Link to="/practice" className="pd-card-action">Open practice →</Link>
-        </div>
-        {topicStats.length === 0 ? (
-          <p className="pd-empty">No data yet. Solve some problems to see topic breakdown.</p>
-        ) : (
-          <ul className="pd-topic-list">
-            {topicStats.map(t => (
-              <li key={t.topicId} className="pd-topic-row">
-                <span className="pd-topic-name">{topicNameById[t.topicId] || t.topicId}</span>
-                <div className="pd-topic-bar"><div className="pd-topic-fill" style={{ width: `${Math.round(t.pct * 100)}%` }} /></div>
-                <span className="pd-topic-frac">{t.solved} / {t.total}</span>
-                <span className="pd-topic-pct">{Math.round(t.pct * 100)}%</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+          {topicStats.length === 0 ? (
+            <p className="pd-empty">No data yet. Solve some problems to see topic breakdown.</p>
+          ) : (
+            <ul className="pd-topic-list">
+              {topicStats.map(t => (
+                <li key={t.topicId} className="pd-topic-row">
+                  <span className="pd-topic-name">{topicNameById[t.topicId] || t.topicId}</span>
+                  <div className="pd-topic-bar"><div className="pd-topic-fill" style={{ width: `${Math.round(t.pct * 100)}%` }} /></div>
+                  <span className="pd-topic-frac">{t.solved} / {t.total}</span>
+                  <span className="pd-topic-pct">{Math.round(t.pct * 100)}%</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
     </div>
   );
 }

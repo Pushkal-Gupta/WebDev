@@ -522,6 +522,7 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
     }
 
     return [
+      'from __future__ import annotations',
       'import sys, json',
       'from typing import List, Optional, Dict, Tuple, Set',
       PY_HELPERS,

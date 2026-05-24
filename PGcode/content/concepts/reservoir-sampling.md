@@ -9,8 +9,15 @@ estimatedReadMinutes: 6
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Vitter (1985) — Random sampling with a reservoir"
-    url: ""
+  - title: "Knuth — The Art of Computer Programming, Vol 2 (TAOCP companion site)"
+    url: "https://www-cs-faculty.stanford.edu/~knuth/taocp.html"
+    type: book
+  - title: "GeeksforGeeks — Reservoir Sampling"
+    url: "https://www.geeksforgeeks.org/reservoir-sampling/"
+    type: blog
+  - title: "TheAlgorithms/Python — other algorithms"
+    url: "https://github.com/TheAlgorithms/Python"
+    type: repo
 status: published
 ---
 

@@ -9,8 +9,15 @@ estimatedReadMinutes: 7
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Bloom (1970) — Space/Time Trade-offs in Hash Coding with Allowable Errors"
-    url: ""
+  - title: "CLRS — Chapter 11: Hash Tables (walkccc notes)"
+    url: "https://walkccc.me/CLRS/Chap11/"
+    type: book
+  - title: "cp-algorithms — String hashing & hash maps"
+    url: "https://cp-algorithms.com/string/string-hashing.html"
+    type: blog
+  - title: "TheAlgorithms/Python — data_structures/hashing/"
+    url: "https://github.com/TheAlgorithms/Python/tree/master/data_structures/hashing"
+    type: repo
 status: published
 ---
 

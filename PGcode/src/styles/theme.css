@@ -56,6 +56,10 @@
 
   /* Accent in RGB triples so any rgba(var(--accent-rgb), 0.X) works. */
   --accent-rgb: 0, 255, 245;
+
+  /* Canonical content max-width. Pages that aren't intentionally full-bleed
+     (workspace, roadmap, playground canvases) should clamp to this. */
+  --container-w: 1200px;
 }
 
 [data-theme="light"] {

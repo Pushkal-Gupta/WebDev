@@ -177,8 +177,14 @@ export default function PracticeHistory({ session, roadmapMode }) {
       byTopic[p.topic_id].solved++;
       byTopic[p.topic_id].total++;
     });
-    return Object.values(byTopic);
-  }, [filteredProblems, byId, topicsData]);
+    const items = Object.values(byTopic);
+    if (items.length > 0) return items;
+    return [
+      { id: '__easy', label: 'Easy', solved: summary.easySolved, total: Math.max(1, summary.easySolved), kind: 'easy' },
+      { id: '__medium', label: 'Medium', solved: summary.medSolved, total: Math.max(1, summary.medSolved), kind: 'medium' },
+      { id: '__hard', label: 'Hard', solved: summary.hardSolved, total: Math.max(1, summary.hardSolved), kind: 'hard' },
+    ];
+  }, [filteredProblems, byId, topicsData, summary.easySolved, summary.medSolved, summary.hardSolved]);
 
   if (!userId) {
     return (
@@ -238,10 +244,13 @@ export default function PracticeHistory({ session, roadmapMode }) {
     <div className="ph-container">
       <section className="ph-overview">
         <div className="ph-streak-card">
-          <Flame size={24} className="ph-streak-flame" />
+          <header className="ph-streak-head">
+            <Flame size={12} className="ph-streak-flame" />
+            <span>Day streak</span>
+          </header>
           <div className="ph-streak-meta">
             <span className="ph-streak-num">{streak?.current ?? 0}</span>
-            <span className="ph-streak-label">day streak</span>
+            <span className="ph-streak-label">days</span>
           </div>
           <div className="ph-streak-sub">
             <span>Longest <b>{streak?.longest ?? 0}</b></span>
@@ -284,22 +293,28 @@ export default function PracticeHistory({ session, roadmapMode }) {
       <div className="ph-grid">
         <main className="ph-left">
           <div className="ph-tabs" role="tablist">
-            <button
-              role="tab"
-              className={`ph-tab ${filter === 'all' ? 'active' : ''}`}
-              onClick={() => setFilter('all')}
-            >All</button>
-            <button
-              role="tab"
-              className={`ph-tab ${filter === 'accepted' ? 'active' : ''}`}
-              onClick={() => setFilter('accepted')}
-            >Accepted</button>
-            <button
-              role="tab"
-              className={`ph-tab ${filter === 'failed' ? 'active' : ''}`}
-              onClick={() => setFilter('failed')}
-            >Failed</button>
-            <span className="ph-tab-count">{visibleGroups.length}</span>
+            {[
+              { key: 'all', label: 'All' },
+              { key: 'accepted', label: 'Accepted' },
+              { key: 'failed', label: 'Failed' },
+            ].map(t => {
+              const count = t.key === 'all'
+                ? groupedByProblem.length
+                : t.key === 'accepted'
+                  ? groupedByProblem.filter(g => isAcceptedVerdict(g.lastVerdict)).length
+                  : groupedByProblem.filter(g => !isAcceptedVerdict(g.lastVerdict)).length;
+              return (
+                <button
+                  key={t.key}
+                  role="tab"
+                  className={`ph-tab ${filter === t.key ? 'active' : ''}`}
+                  onClick={() => setFilter(t.key)}
+                >
+                  <span>{t.label}</span>
+                  <span className="ph-tab-count">{count}</span>
+                </button>
+              );
+            })}
           </div>
 
           {visibleGroups.length === 0 ? (
@@ -390,7 +405,7 @@ export default function PracticeHistory({ session, roadmapMode }) {
             </div>
 
             <div className="ph-bubble-wrap">
-              <BubbleCloud items={bubbleItems} width={280} height={210} />
+              <BubbleCloud items={bubbleItems} width={320} height={220} />
             </div>
 
             <div className="ph-chart-head">

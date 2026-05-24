@@ -9,8 +9,15 @@ estimatedReadMinutes: 6
 prereqs: []
 relatedProblems: []
 references:
-  - title: "LeetCode 146 — LRU Cache"
-    url: ""
+  - title: "CLRS — Chapter 11: Hash Tables (walkccc notes)"
+    url: "https://walkccc.me/CLRS/Chap11/"
+    type: book
+  - title: "cp-algorithms — String hashing & hash maps"
+    url: "https://cp-algorithms.com/string/string-hashing.html"
+    type: blog
+  - title: "TheAlgorithms/Python — data_structures/hashing/"
+    url: "https://github.com/TheAlgorithms/Python/tree/master/data_structures/hashing"
+    type: repo
 status: published
 ---
 

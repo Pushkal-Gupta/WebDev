@@ -9,8 +9,15 @@ estimatedReadMinutes: 6
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Knuth — TAOCP Vol 2; also CLRS Chapter 31"
-    url: ""
+  - title: "CLRS Chapter 31.5 — The Chinese Remainder Theorem (worked solutions)"
+    url: "https://walkccc.me/CLRS/Chap31/31.5/"
+    type: book
+  - title: "cp-algorithms — Chinese Remainder Theorem"
+    url: "https://cp-algorithms.com/algebra/chinese-remainder-theorem.html"
+    type: blog
+  - title: "kth-competitive-programming/kactl — number-theory templates"
+    url: "https://github.com/kth-competitive-programming/kactl"
+    type: repo
 status: published
 ---
 
