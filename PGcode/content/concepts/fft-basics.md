@@ -9,8 +9,15 @@ estimatedReadMinutes: 8
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Cooley & Tukey (1965) — An Algorithm for the Machine Calculation of Complex Fourier Series"
-    url: ""
+  - title: "CLRS Chapter 30 — Polynomials and the FFT (worked solutions)"
+    url: "https://walkccc.me/CLRS/Chap30/30.1/"
+    type: book
+  - title: "cp-algorithms — Fast Fourier Transform"
+    url: "https://cp-algorithms.com/algebra/fft.html"
+    type: blog
+  - title: "kth-competitive-programming/kactl — FFT/NTT templates"
+    url: "https://github.com/kth-competitive-programming/kactl"
+    type: repo
 status: published
 ---
 

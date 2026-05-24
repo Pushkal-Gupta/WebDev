@@ -9,8 +9,15 @@ estimatedReadMinutes: 5
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Competitive programming preprocessing technique"
-    url: ""
+  - title: "Sedgewick & Wayne — Algorithms (4e), Princeton (companion site)"
+    url: "https://algs4.cs.princeton.edu/home/"
+    type: book
+  - title: "GeeksforGeeks — Coordinate Compression"
+    url: "https://www.geeksforgeeks.org/coordinate-compression/"
+    type: blog
+  - title: "indy256/codelibrary — algorithms and data structures"
+    url: "https://github.com/indy256/codelibrary"
+    type: repo
 status: published
 ---
 

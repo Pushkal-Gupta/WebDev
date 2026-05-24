@@ -418,12 +418,12 @@
 
 /* ── Light Mode Contrast Fixes ── */
 [data-theme="light"] .problemName {
-  color: #1a1a1a;
+  color: var(--text-main);
 }
 
 [data-theme="light"] .tableHeader {
   background: rgba(var(--accent-rgb), 0.04);
-  color: #555;
+  color: var(--text-dim);
 }
 
 [data-theme="light"] .tableRow:hover {
@@ -431,11 +431,11 @@
 }
 
 [data-theme="light"] .modalMainTitle {
-  color: #111;
+  color: var(--text-main);
 }
 
 [data-theme="light"] .topicTag {
-  color: #333;
+  color: var(--text-main);
   background: rgba(var(--accent-rgb), 0.04);
   border-color: rgba(var(--accent-rgb), 0.12);
 }

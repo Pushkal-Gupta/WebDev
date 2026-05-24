@@ -1,6 +1,6 @@
 .bcl {
   width: 100%;
-  height: auto;
+  height: 100%;
   display: block;
   margin: 0.3rem 0;
 }
@@ -30,6 +30,21 @@
 
 .bcl-bubble-low text       { fill: var(--bg); opacity: 0.95; }
 .bcl-bubble-none text      { fill: var(--text-dim); }
+
+.bcl-bubble-kind-easy circle    { fill: var(--easy); opacity: 0.85; }
+.bcl-bubble-kind-medium circle  { fill: var(--medium); opacity: 0.85; }
+.bcl-bubble-kind-hard circle    { fill: var(--hard); opacity: 0.85; }
+.bcl-bubble-kind-easy text,
+.bcl-bubble-kind-medium text,
+.bcl-bubble-kind-hard text { fill: var(--bg); }
+
+.bcl-bubble-label {
+  font-family: var(--mono);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0.92;
+}
 
 .bcl-empty {
   font-family: var(--mono);

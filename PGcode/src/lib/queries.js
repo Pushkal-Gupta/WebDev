@@ -42,14 +42,61 @@ export function inRoadmapMode(problem, roadmapMode) {
   return true;
 }
 
-// PGcode 100 means literally the top 100 problems. PGcode 200 = top 200.
-// PGcode All = every problem. Sort is canonicalSort (rich-content first).
+// PGcode N means EXACTLY N problems. PGcode 'all' means the roadmap cap (1000)
+// in roadmap views; /practice ignores roadmapMode entirely and shows the full
+// catalog.
+//
+// Guarantee: every topic that has any problems at all gets at least one slot,
+// even at PGcode 100. We achieve this WITHOUT exceeding N by reserving one
+// slot per topic from the top down, then filling the remainder by canonical
+// rank.
+function selectExactlyN(problems, n) {
+  const sorted = canonicalSort(problems);
+  if (sorted.length <= n) return sorted;
+
+  // Group sorted picks by topic — first occurrence is the topic's top pick.
+  const topicTopPick = new Map();   // topic_id -> first sorted problem id
+  for (const p of sorted) {
+    if (p.topic_id && !topicTopPick.has(p.topic_id)) {
+      topicTopPick.set(p.topic_id, p);
+    }
+  }
+
+  const allTopicReps = [...topicTopPick.values()];
+  // Cap topic reps at n — for very small n + many topics, this is what fits.
+  const topicReps = allTopicReps.slice(0, n);
+  const repIds = new Set(topicReps.map(p => p.id));
+
+  // Fill remaining slots from sorted rank order, skipping already-included reps.
+  const out = [...topicReps];
+  for (const p of sorted) {
+    if (out.length >= n) break;
+    if (repIds.has(p.id)) continue;
+    out.push(p);
+    repIds.add(p.id);
+  }
+  // Final result re-sorted by canonical rank so order in the UI matches rank.
+  return canonicalSort(out);
+}
+
+export const ROADMAP_HARD_CAP = 1000;
+
 export function filterByRoadmap(problems, roadmapMode) {
   if (!problems) return [];
-  if (roadmapMode === 'all') return problems;
+  if (roadmapMode === 'all') {
+    // 'all' on the roadmap means the visualization cap; /practice doesn't call this.
+    return canonicalSort(problems).slice(0, ROADMAP_HARD_CAP);
+  }
   const limit = MODE_LIMITS[roadmapMode];
   if (!limit) return problems;
-  return canonicalSort(problems).slice(0, limit);
+  return selectExactlyN(problems, limit);
+}
+
+// Roadmap-specific filter: 'all' resolves to the 1000 cap above already; other
+// modes flow through `filterByRoadmap` and never exceed their declared N.
+export function filterForRoadmapView(problems, roadmapMode) {
+  if (!problems) return [];
+  return filterByRoadmap(problems, roadmapMode);
 }
 
 // ---- Server-side aggregate RPCs --------------------------------------------
@@ -80,6 +127,55 @@ export function usePracticeHistoryRpc(userId, limit = 200) {
     },
     enabled: !!userId,
     staleTime: 60 * 1000,
+  });
+}
+
+// Server-side paginated/filtered problem list. Postgres does the filter +
+// sort + slice; client receives only the visible page + total count. Cached
+// per (filters, page) so back/forward feels instant.
+export function useProblemPage({
+  page = 0,
+  pageSize = 100,
+  topicId = null,
+  difficulty = null,    // array | null
+  search = '',
+  sort = 'topic',
+} = {}) {
+  return useQuery({
+    queryKey: [
+      'problemPage',
+      page, pageSize,
+      topicId || 'all',
+      (difficulty || []).join(',') || 'any',
+      search || '',
+      sort,
+    ],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('pgcode_problem_page', {
+        p_limit:      pageSize,
+        p_offset:     page * pageSize,
+        p_topic_id:   topicId || null,
+        p_difficulty: difficulty && difficulty.length ? difficulty : null,
+        p_search:     search || null,
+        p_sort:       sort,
+      });
+      if (error) throw error;
+      return data || { rows: [], total: 0 };
+    },
+    staleTime: 60 * 1000,
+    keepPreviousData: true,    // page transitions show old data until new arrives
+  });
+}
+
+export function useProblemCompleteness() {
+  return useQuery({
+    queryKey: ['problemCompleteness'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('pgcode_problem_completeness');
+      if (error) throw error;
+      return data || [];
+    },
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -126,6 +222,7 @@ export const qk = {
   userStreak: (userId) => ['userStreak', userId || 'anon'],
   potd: (date) => ['potd', date || 'today'],
   randomUnsolved: (userId, diff) => ['randomUnsolved', userId || 'anon', diff || 'any'],
+  comments: (kind, id, userId) => ['comments', kind, id, userId || 'anon'],
 };
 
 // ---- Home dashboard RPCs (migrate-29) --------------------------------------
@@ -182,16 +279,28 @@ export function useRoadmapEdges() {
   });
 }
 
-// Compact problem list (used by roadmap progress aggregation, side panel, problem list)
+// Compact problem list (used by roadmap progress aggregation, side panel, problem list).
+// PostgREST's `db-max-rows` server config caps a single SELECT at 1000 — `.range()`
+// alone CANNOT override it. We paginate explicitly until a short page comes back.
 export function useProblemsCompact() {
   return useQuery({
     queryKey: qk.problems,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('PGcode_problems')
-        .select('id, name, topic_id, difficulty, roadmap_set, leetcode_url');
-      if (error) throw error;
-      return data || [];
+      const all = [];
+      const PAGE = 1000;
+      let page = 0;
+      while (page < 20) {
+        const { data, error } = await supabase
+          .from('PGcode_problems')
+          .select('id, name, topic_id, difficulty, roadmap_set, leetcode_url')
+          .range(page * PAGE, page * PAGE + PAGE - 1);
+        if (error) throw error;
+        if (!data?.length) break;
+        all.push(...data);
+        if (data.length < PAGE) break;
+        page += 1;
+      }
+      return all;
     },
     staleTime: 10 * 60 * 1000,
   });
@@ -410,6 +519,23 @@ export function useContestAttempt(userId, slug) {
   });
 }
 
+export function useMyContestAttempts(userId) {
+  return useQuery({
+    queryKey: ['myContestAttempts', userId || 'anon'],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data, error } = await supabase
+        .from('PGcode_user_contest_attempts')
+        .select('contest_slug, finished_at, started_at')
+        .eq('user_id', userId);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!userId,
+    staleTime: 60 * 1000,
+  });
+}
+
 // ---- Companies ------------------------------------------------------------
 
 export function useCompanies() {
@@ -578,6 +704,35 @@ export function useMyLists(userId) {
   });
 }
 
+// Counts every problem the user has across all their custom lists, grouped per
+// list. Used by the achievements engine to grant "Curator" once any list hits
+// 10+ entries.
+export function useMyListSizes(userId) {
+  return useQuery({
+    queryKey: ['userListSizes', userId || 'anon'],
+    queryFn: async () => {
+      if (!userId) return {};
+      const { data: lists, error: e1 } = await supabase
+        .from('PGcode_user_lists')
+        .select('id')
+        .eq('user_id', userId);
+      if (e1) throw e1;
+      const ids = (lists || []).map(l => l.id);
+      if (!ids.length) return {};
+      const { data: rels, error: e2 } = await supabase
+        .from('PGcode_user_list_problems')
+        .select('list_id')
+        .in('list_id', ids);
+      if (e2) throw e2;
+      const sizes = {};
+      (rels || []).forEach(r => { sizes[r.list_id] = (sizes[r.list_id] || 0) + 1; });
+      return sizes;
+    },
+    enabled: !!userId,
+    staleTime: 60 * 1000,
+  });
+}
+
 export function useMyListProblems(listId) {
   return useQuery({
     queryKey: ['userListProblems', listId || 'none'],
@@ -697,7 +852,8 @@ export function useAllConceptsCompact() {
       if (error) throw error;
       return data || [];
     },
-    staleTime: 30 * 60 * 1000,
+    // Concepts are added often; keep stale window short so /learn counts stay accurate.
+    staleTime: 60 * 1000,
   });
 }
 
@@ -902,6 +1058,97 @@ export function usePrefetch() {
   }, [queryClient]);
 
   return { prefetchTopicProblems, prefetchProblems, prefetchDryRun };
+}
+
+// ---- Discussion (comments + votes) -----------------------------------------
+
+export function useComments(targetKind, targetId, userId) {
+  return useQuery({
+    queryKey: qk.comments(targetKind, targetId, userId),
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('pgcode_comments_for_target', {
+        p_target_kind: targetKind,
+        p_target_id: String(targetId),
+        p_user_id: userId || null,
+      });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!targetKind && !!targetId,
+    staleTime: 30 * 1000,
+  });
+}
+
+export function usePostComment() {
+  const queryClient = useQueryClient();
+  return useCallback(async ({ targetKind, targetId, userId, body, parentId = null }) => {
+    if (!userId) throw new Error('Sign in to comment');
+    const text = (body || '').trim();
+    if (!text) throw new Error('Comment cannot be empty');
+    const { error } = await supabase
+      .from('PGcode_comments')
+      .insert({
+        target_kind: targetKind,
+        target_id: String(targetId),
+        user_id: userId,
+        body: text,
+        parent_id: parentId,
+      });
+    if (error) throw error;
+    queryClient.invalidateQueries({ queryKey: ['comments', targetKind, String(targetId)] });
+  }, [queryClient]);
+}
+
+export function useVoteComment() {
+  const queryClient = useQueryClient();
+  return useCallback(async ({ commentId, userId, value, targetKind, targetId }) => {
+    if (!userId) throw new Error('Sign in to vote');
+    const cacheKey = qk.comments(targetKind, targetId, userId);
+    const prev = queryClient.getQueryData(cacheKey);
+    if (Array.isArray(prev)) {
+      const next = prev.map((c) => {
+        if (c.id !== commentId) return c;
+        const old = c.my_vote || 0;
+        const newVote = old === value ? 0 : value;
+        const delta = newVote - old;
+        return { ...c, my_vote: newVote || null, score: (c.score || 0) + delta };
+      });
+      queryClient.setQueryData(cacheKey, next);
+    }
+    try {
+      if (value === 0) {
+        const { error } = await supabase
+          .from('PGcode_votes')
+          .delete()
+          .eq('user_id', userId)
+          .eq('target_kind', 'comment')
+          .eq('target_id', commentId);
+        if (error) throw error;
+      } else {
+        const existing = prev?.find?.((c) => c.id === commentId);
+        const wasSame = existing?.my_vote === value;
+        if (wasSame) {
+          const { error } = await supabase
+            .from('PGcode_votes')
+            .delete()
+            .eq('user_id', userId)
+            .eq('target_kind', 'comment')
+            .eq('target_id', commentId);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase
+            .from('PGcode_votes')
+            .upsert(
+              { user_id: userId, target_kind: 'comment', target_id: commentId, value },
+              { onConflict: 'user_id,target_kind,target_id' },
+            );
+          if (error) throw error;
+        }
+      }
+    } finally {
+      queryClient.invalidateQueries({ queryKey: ['comments', targetKind, String(targetId)] });
+    }
+  }, [queryClient]);
 }
 
 export { ROADMAP_MODES };

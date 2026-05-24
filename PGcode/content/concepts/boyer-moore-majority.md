@@ -8,6 +8,16 @@ position: 6
 estimatedReadMinutes: 5
 prereqs: []
 relatedProblems: []
+references:
+  - title: "Boyer & Moore — MJRTY: A Fast Majority Vote Algorithm (UT Austin)"
+    url: "https://www.cs.utexas.edu/~moore/best-ideas/mjrty/index.html"
+    type: book
+  - title: "GeeksforGeeks — Boyer-Moore Majority Voting Algorithm"
+    url: "https://www.geeksforgeeks.org/boyer-moore-majority-voting-algorithm/"
+    type: blog
+  - title: "TheAlgorithms/Python — reference implementations"
+    url: "https://github.com/TheAlgorithms/Python"
+    type: repo
 status: published
 ---
 

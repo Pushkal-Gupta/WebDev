@@ -9,8 +9,15 @@ estimatedReadMinutes: 6
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Hacker's Delight (Warren)"
-    url: ""
+  - title: "Sean Anderson — Bit Twiddling Hacks (Stanford)"
+    url: "https://graphics.stanford.edu/~seander/bithacks.html"
+    type: book
+  - title: "cp-algorithms — Bit manipulation"
+    url: "https://cp-algorithms.com/algebra/bit-manipulation.html"
+    type: blog
+  - title: "TheAlgorithms/Python — bit_manipulation/"
+    url: "https://github.com/TheAlgorithms/Python/tree/master/bit_manipulation"
+    type: repo
 status: published
 ---
 

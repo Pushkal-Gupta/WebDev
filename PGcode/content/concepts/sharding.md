@@ -9,8 +9,15 @@ estimatedReadMinutes: 8
 prereqs: []
 relatedProblems: []
 references:
-  - title: "MongoDB — sharding overview"
-    url: ""
+  - title: "Martin Fowler — Architecture & enterprise patterns"
+    url: "https://martinfowler.com/tags/application%20architecture.html"
+    type: book
+  - title: "High Scalability — All-time greatest hits"
+    url: "http://highscalability.com/all-time-favorites/"
+    type: blog
+  - title: "donnemartin/system-design-primer"
+    url: "https://github.com/donnemartin/system-design-primer"
+    type: repo
 status: published
 ---
 

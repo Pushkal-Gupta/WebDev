@@ -9,8 +9,15 @@ estimatedReadMinutes: 6
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Reference Material — Module 1 — Loop Detection (PDF)"
-    url: ""
+  - title: "CLRS Solutions — Chapter 10: Linked Lists"
+    url: "https://walkccc.me/CLRS/Chap10/10.2/"
+    type: book
+  - title: "Floyd's Cycle Finding Algorithm — GeeksforGeeks"
+    url: "https://www.geeksforgeeks.org/dsa/floyds-cycle-finding-algorithm/"
+    type: blog
+  - title: "TheAlgorithms/Python — floyds_cycle_detection.py"
+    url: "https://github.com/TheAlgorithms/Python/blob/master/data_structures/linked_list/floyds_cycle_detection.py"
+    type: repo
 status: published
 ---
 

@@ -1,0 +1,170 @@
+---
+slug: n-queens-backtrack
+module: recursion-bt
+title: N-Queens via Backtracking
+subtitle: Place n non-attacking queens on an n by n board using DFS with column and diagonal pruning.
+difficulty: Advanced
+position: 3
+estimatedReadMinutes: 8
+prereqs: []
+relatedProblems: []
+references:
+  - title: "Algorithms, 4th Edition — Sedgewick & Wayne"
+    url: "https://algs4.cs.princeton.edu/"
+    type: book
+  - title: "N Queen Problem — Backtracking — GeeksforGeeks"
+    url: "https://www.geeksforgeeks.org/n-queen-problem-backtracking-3/"
+    type: blog
+  - title: "TheAlgorithms/Python — n_queens.py"
+    url: "https://github.com/TheAlgorithms/Python/blob/master/backtracking/n_queens.py"
+    type: repo
+status: published
+---
+
+## intro
+The N-Queens problem asks you to place n queens on an n by n chessboard so that no two attack one another — no shared row, column, or diagonal. It is the canonical constraint-satisfaction problem and the perfect showcase for backtracking: enumerate candidates row by row, prune the moment any constraint is violated, recurse on what is left.
+
+## whyItMatters
+N-Queens teaches three skills you will keep reusing: encoding constraints in O(1) lookup structures, ordering decisions to maximize pruning, and recognizing when a partial assignment is already doomed. Every CSP — sudoku, graph coloring, schedule allocation — uses this same machinery. It is also a great place to show off bitmask optimizations for boards up to ~32.
+
+## intuition
+Place queens one row at a time, top to bottom. Each row needs exactly one queen, so the only question is which column. A column is legal if (a) no earlier queen is in that column, (b) no earlier queen shares the up-right diagonal (row - col constant), and (c) no earlier queen shares the down-right diagonal (row + col constant). Three sets — `cols`, `diag1`, `diag2` — answer all three in O(1).
+
+## visualization
+On a 4x4 board, place row 0 at col 1. Mark cols={1}, diag1={0-1=-1}, diag2={0+1=1}. Row 1: cols 0 and 2 are blocked by diagonals from the row-0 queen (diag1 hits col 0 via 1-0=1? no, 1-0=1 not in {-1}, but 1+0=1 is in diag2 — col 0 blocked; col 2 has 1-2=-1 in diag1 — blocked; col 3 is free). Continue similarly until row 3 either succeeds or the chain backtracks.
+
+## bruteForce
+Try every assignment of n columns to n rows — n^n possibilities — then filter for the no-attack condition. Even with the obvious "one queen per row" simplification you are down to n!, and for n=8 that is already 40,320; for n=12 it is 479 million. Without pruning the constants make this unusable by n=10 in interview time.
+
+## optimal
+DFS by row with three boolean (or bitmask) trackers. For each candidate column in the current row, check `cols`, `diag1[row-col]`, `diag2[row+col]`. If all clear, mark them, record the placement, recurse to row+1. On return, unmark. At row == n, the partial assignment is a complete solution. Using bitmasks (one int per set) and the `available = ~(cols | diag1 | diag2)` trick reduces each step to a few bit ops.
+
+## complexity
+time: O(n!) worst case, drastically less with diagonal pruning in practice
+space: O(n) for the row stack and the three constraint sets
+notes: The exact count of solutions is OEIS A000170; for n=8 there are 92 distinct solutions explored from roughly 15k recursion nodes. The bitmask variant runs roughly 5x faster than the array variant for n in [8, 14].
+
+## pitfalls
+- Indexing `diag1` with `row - col` without offsetting by n-1 — negative indices crash arrays in non-Python languages.
+- Forgetting to unmark on the way back up — the parent's next column sees stale conflicts.
+- Recomputing diagonal sets from the queens list every call — turns O(1) checks into O(n) checks.
+- Returning the first solution when the problem asked to count all of them — re-read the spec.
+
+## interviewTips
+- Start by drawing a 4x4 board on paper and walking the recursion until you find the first solution.
+- Mention the bitmask variant as a follow-up — interviewers like seeing you know it exists even if you do not code it.
+- For "count solutions" follow-ups, name the symmetry trick: solve half the first row and double (handle the center column carefully when n is odd).
+
+## code.python
+```python
+def solve_n_queens(n):
+    res = []
+    cols, d1, d2 = set(), set(), set()
+    queens = [-1] * n
+
+    def dfs(r):
+        if r == n:
+            board = ['.' * q + 'Q' + '.' * (n - q - 1) for q in queens]
+            res.append(board)
+            return
+        for c in range(n):
+            if c in cols or (r - c) in d1 or (r + c) in d2:
+                continue
+            cols.add(c); d1.add(r - c); d2.add(r + c)
+            queens[r] = c
+            dfs(r + 1)
+            cols.remove(c); d1.remove(r - c); d2.remove(r + c)
+
+    dfs(0)
+    return res
+```
+
+## code.javascript
+```javascript
+function solveNQueens(n) {
+  const res = [], queens = new Array(n).fill(-1);
+  const cols = new Set(), d1 = new Set(), d2 = new Set();
+  function dfs(r) {
+    if (r === n) {
+      res.push(queens.map(q => '.'.repeat(q) + 'Q' + '.'.repeat(n - q - 1)));
+      return;
+    }
+    for (let c = 0; c < n; c++) {
+      if (cols.has(c) || d1.has(r - c) || d2.has(r + c)) continue;
+      cols.add(c); d1.add(r - c); d2.add(r + c);
+      queens[r] = c;
+      dfs(r + 1);
+      cols.delete(c); d1.delete(r - c); d2.delete(r + c);
+    }
+  }
+  dfs(0);
+  return res;
+}
+```
+
+## code.java
+```java
+public List<List<String>> solveNQueens(int n) {
+    List<List<String>> res = new ArrayList<>();
+    int[] queens = new int[n];
+    Set<Integer> cols = new HashSet<>(), d1 = new HashSet<>(), d2 = new HashSet<>();
+    dfs(0, n, queens, cols, d1, d2, res);
+    return res;
+}
+
+private void dfs(int r, int n, int[] queens, Set<Integer> cols, Set<Integer> d1, Set<Integer> d2, List<List<String>> res) {
+    if (r == n) {
+        List<String> board = new ArrayList<>();
+        for (int q : queens) {
+            char[] row = new char[n];
+            Arrays.fill(row, '.');
+            row[q] = 'Q';
+            board.add(new String(row));
+        }
+        res.add(board);
+        return;
+    }
+    for (int c = 0; c < n; c++) {
+        if (cols.contains(c) || d1.contains(r - c) || d2.contains(r + c)) continue;
+        cols.add(c); d1.add(r - c); d2.add(r + c);
+        queens[r] = c;
+        dfs(r + 1, n, queens, cols, d1, d2, res);
+        cols.remove(c); d1.remove(r - c); d2.remove(r + c);
+    }
+}
+```
+
+## code.cpp
+```cpp
+class Solution {
+public:
+    vector<vector<string>> solveNQueens(int n) {
+        vector<vector<string>> res;
+        vector<int> queens(n, -1);
+        unordered_set<int> cols, d1, d2;
+        dfs(0, n, queens, cols, d1, d2, res);
+        return res;
+    }
+private:
+    void dfs(int r, int n, vector<int>& queens, unordered_set<int>& cols,
+             unordered_set<int>& d1, unordered_set<int>& d2, vector<vector<string>>& res) {
+        if (r == n) {
+            vector<string> board;
+            for (int q : queens) {
+                string row(n, '.');
+                row[q] = 'Q';
+                board.push_back(row);
+            }
+            res.push_back(board);
+            return;
+        }
+        for (int c = 0; c < n; c++) {
+            if (cols.count(c) || d1.count(r - c) || d2.count(r + c)) continue;
+            cols.insert(c); d1.insert(r - c); d2.insert(r + c);
+            queens[r] = c;
+            dfs(r + 1, n, queens, cols, d1, d2, res);
+            cols.erase(c); d1.erase(r - c); d2.erase(r + c);
+        }
+    }
+};
+```

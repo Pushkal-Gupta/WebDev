@@ -3,9 +3,16 @@
 // Each section has subsections; each subsection has a list of items. An item
 // is one of:
 //   - { kind: 'theory', label: 'Recursion', conceptSlug: 'recursion-intro' }
+//   - { kind: 'theory', label: 'Stack', body: { summary, sections, complexity, pitfalls } }
 //   - { kind: 'problem', label: 'Two Sum' }              // resolves by name
 //   - { kind: 'problem', label: 'Two Sum', id: 'two-sum' } // explicit problem id
 //   - { kind: 'topic', label: 'Array' }                  // soft pointer (no link)
+//
+// Theory items may carry a structured `body` so the row expands inline with
+// substantive editorial — definition + invariant, when to reach for it,
+// complexity, interview problems that use it, and common pitfalls. If both a
+// `body` and a `conceptSlug` are present, the inline panel wins and the
+// concept page is linked from the foot as "Read more".
 //
 // The /tutorial route resolves problem labels to entries in PGcode_problems by
 // case-insensitive name match. Unmatched items render as "Coming soon" so the
@@ -45,8 +52,44 @@ export const DSA_TUTORIAL = [
     subsections: [
       { id: 'theory', label: 'Theory',
         items: [
-          { kind: 'theory', label: 'Recursion' },
-          { kind: 'theory', label: 'Analysis of Recursion' },
+          { kind: 'theory', label: 'Recursion',
+            body: {
+              summary: 'A function that calls itself on a **smaller version** of the same problem, until a base case stops the descent and the partial answers fold back up the call stack.',
+              sections: [
+                { heading: 'The call-stack picture', body: '```ascii\n  factorial(4)\n   |--> factorial(3)\n   |     |--> factorial(2)\n   |     |     |--> factorial(1)\n   |     |     |     |--> return 1     <- base case\n   |     |     |--> return 2 * 1 = 2\n   |     |--> return 3 * 2 = 6\n   |--> return 4 * 6 = 24\n```\n\n> Note: Every recursive function needs **two** things — a **base case** (small enough to answer directly) and a **recursive case** (reduce + trust the smaller call).' },
+                { heading: 'Canonical operation — factorial', body: '```py\ndef factorial(n):\n    if n <= 1:                # base case\n        return 1\n    return n * factorial(n - 1)\n```\n\n> Tip: **Trust the recursion.** Verify the base case + the combine step; do not try to trace every frame in your head.' },
+                { heading: 'When to reach for it', body: 'The problem has obvious self-similarity: trees, divide-and-conquer (merge sort, quick sort), exhaustive search over choices (subsets, permutations, N-Queens), or a relation like `f(n) = f(n-1) + f(n-2)`.' },
+                { heading: 'Common interview problems', body: ['Reverse a linked list (recursive form), Fibonacci, factorial, tower of Hanoi.', 'Tree traversals and tree DP (diameter, max path sum).', 'Subsets, permutations, combinations, palindrome partitioning.'] },
+              ],
+              complexity: {
+                best: 'Linear recurrence `T(n) = T(n-1) + O(1)` → `O(n)`',
+                average: 'Divide-and-conquer `T(n) = 2T(n/2) + O(n)` → `O(n log n)` (merge sort)',
+                worst: 'Exhaustive search `T(n) = 2T(n-1) + O(1)` → `O(2^n)` (subsets, Hanoi)',
+                space: '`O(depth)` for the call stack — usually `O(log n)` balanced, `O(n)` linear',
+              },
+              pitfalls: [
+                'Missing or wrong base case causes infinite recursion and stack overflow.',
+                'Mutating shared state inside recursive calls without restoring on return — backtracking bugs come from forgetting to undo.',
+                'Exponential blow-up when overlapping subproblems exist — that is the cue to memoize and switch to DP.',
+                'Stack-depth limits (~`10^4` in Python / JS) — convert to iterative + explicit stack when the depth is too large.',
+              ],
+            },
+          },
+          { kind: 'theory', label: 'Analysis of Recursion',
+            body: {
+              summary: 'Recursion cost is captured by a recurrence T(n) = a·T(n/b) + f(n), or T(n) = T(n-1) + f(n) for linear recursion. You either solve the recurrence or apply the Master Theorem.',
+              sections: [
+                { heading: 'The recursion tree mental model', body: 'Draw the call tree. Sum the work at each level. The total time is the sum of (work per level) × (nodes at that level). Space is the maximum depth, not the total nodes — only the current path lives on the stack at any moment.' },
+                { heading: 'Master Theorem quick reference', body: ['T(n) = 2T(n/2) + O(n) → O(n log n) — merge sort.', 'T(n) = T(n/2) + O(1) → O(log n) — binary search.', 'T(n) = 2T(n-1) + O(1) → O(2^n) — subsets / Hanoi.', 'T(n) = T(n-1) + O(n) → O(n^2) — quicksort worst case.'] },
+                { heading: 'When recursion needs help', body: 'Pure recursion fails when subproblems overlap (Fibonacci recomputes f(2) exponentially many times) or when depth exceeds the stack limit (usually ~10^4 frames in Python/JS). The fix is memoization (top-down DP) or iterative conversion.' },
+              ],
+              complexity: 'Use the Master Theorem or recursion-tree summation; space is O(max depth).',
+              pitfalls: [
+                'Confusing time with space — depth is space, total work is time.',
+                'Forgetting that each recursive call also pays for its own local variables on the stack.',
+              ],
+            },
+          },
         ],
       },
       { id: 'easy-maths', label: 'Easy Maths',
@@ -107,9 +150,68 @@ export const DSA_TUTORIAL = [
     subsections: [
       { id: 'theory', label: 'Theory',
         items: [
-          { kind: 'theory', label: 'Array' },
-          { kind: 'theory', label: 'String' },
-          { kind: 'theory', label: 'Matrix' },
+          { kind: 'theory', label: 'Array',
+            body: {
+              summary: 'A contiguous block of memory holding fixed-size elements addressed by index. The contiguity is the whole point: it gives you `O(1)` random access and excellent cache locality, at the cost of `O(n)` insertion in the middle.',
+              sections: [
+                { heading: 'Memory layout', body: 'Every element sits at a fixed offset from the array base. `addr(arr[i]) = base + i × element_size`. The index arithmetic is constant-time, so reads and writes by index are `O(1)`.\n\n```ascii\nindex   0     1     2     3     4     5\n      +-----+-----+-----+-----+-----+-----+\n arr  |  7  |  3  | 14  |  9  |  2  | 11  |\n      +-----+-----+-----+-----+-----+-----+\naddr base  +4    +8   +12   +16   +20\n```\n\n> Note: Length is fixed at allocation. Dynamic arrays (`vector`, `ArrayList`, Python `list`) amortize a growable abstraction on top via doubling — append is amortized `O(1)`.' },
+                { heading: 'Canonical operation — insert at index k', body: 'Inserting in the middle shifts every element to the right by one slot. That is why middle-insert is `O(n)`, not `O(1)`.\n\n```py\ndef insert(arr, k, x):\n    arr.append(0)               # grow by one\n    for i in range(len(arr) - 1, k, -1):\n        arr[i] = arr[i - 1]     # shift right\n    arr[k] = x\n```\n\n> Tip: Walk **backwards** when shifting to avoid overwriting cells you still need to read.' },
+                { heading: 'When to reach for it', body: 'Default choice for any sequence of homogeneous data where you index, scan, or sort. Use a hash map only when lookups are by key. Use a linked list only when you genuinely need `O(1)` splice-in-the-middle, which is rare in real code.' },
+                { heading: 'Common interview problems', body: ['Two-pointer scans: Two Sum II, container with most water, three-sum.', 'In-place rewrites: remove duplicates, move zeros, next permutation.', 'Kadane, prefix-sum, sliding window — all assume array-style indexing.'] },
+              ],
+              complexity: {
+                best: 'Access / append amortized `O(1)`',
+                average: 'Search `O(n)` unsorted, `O(log n)` sorted with binary search',
+                worst: 'Insert / delete in the middle `O(n)` — every later element shifts',
+                space: '`O(n)` contiguous; `O(1)` extra for most in-place operations',
+              },
+              pitfalls: [
+                'Off-by-one on inclusive vs exclusive bounds — pick `[l, r)` or `[l, r]` and never mix the two.',
+                'Mutating an array while iterating forward without adjusting the index — easier to walk backwards or write to a new array.',
+                'Confusing reference and value semantics across languages — Python `b = a` shares, Java arrays share, C++ `std::vector` copies.',
+                'Assuming `arr.length` shrinks when you "remove" via assignment — most languages need an explicit `pop` / `splice` / `erase`.',
+              ],
+            },
+          },
+          { kind: 'theory', label: 'String',
+            body: {
+              summary: 'A sequence of characters. In most interview languages strings are **immutable** (Java, Python, JS), so every "modification" allocates a new string — that is the single most important performance fact.',
+              sections: [
+                { heading: 'Logical layout', body: 'Logically a `char` array. Internally many languages add hidden state — Python interns short strings, Java caches `hashCode`, V8 stores small strings inline.\n\n```ascii\nindex   0    1    2    3    4    5\n      +----+----+----+----+----+----+\n  s   | h  | e  | l  | l  | o  | \\0 |\n      +----+----+----+----+----+----+\n        ^                    ^\n        s[0]                 s[len-1]\n```\n\n> Warning: One **user-perceived character** can be multiple code points (combining marks, family emoji). `s.length` lies on non-BMP chars in Java/JS — iterate code points, not chars, when correctness matters.' },
+                { heading: 'Building strings correctly', body: 'Repeated `+=` in a loop quietly turns an `O(n)` problem into `O(n^2)` because each concat allocates a fresh buffer. Always use a builder.\n\n```py\n# Bad — O(n^2)\ns = ""\nfor c in chars:\n    s += c\n\n# Good — O(n)\nparts = []\nfor c in chars:\n    parts.append(c)\nresult = "".join(parts)\n```\n\n> Tip: Java → `StringBuilder`. C++ → `std::string` reserves and appends in `O(1)` amortized. JS → push to an array and `arr.join("")`.' },
+                { heading: 'When to reach for the right tool', body: 'Frequency map for anagram / permutation problems. Sliding window for "longest substring with property X." Two pointers from both ends for palindrome checks. KMP / Z / Rabin-Karp when you need substring search faster than `O(n·m)`.' },
+                { heading: 'Common interview problems', body: ['Valid anagram, group anagrams, longest substring without repeating characters.', 'Longest palindromic substring (expand around center or Manacher).', 'Implement `strStr` / `find` — naive vs KMP vs rolling hash.'] },
+              ],
+              complexity: {
+                best: 'Single-char lookup `O(1)`; comparison `O(min(n, m))`',
+                average: 'Concat `O(n + m)`, substring `O(k)`',
+                worst: 'Naive substring search `O(n · m)`; building with `+=` in a loop `O(n^2)`',
+                space: '`O(n)` for the buffer; `O(1)` extra for two-pointer scans',
+              },
+              pitfalls: [
+                'Repeated `+=` in a loop quietly turns an `O(n)` problem into `O(n^2)`.',
+                'Unicode: one user-perceived character can be multiple code points; `String.length` lies on non-BMP characters in Java / JS.',
+                'Comparing strings with `==` in Java compares references; use `.equals()`.',
+                'Forgetting that `substring` / slice on most languages allocates a copy — important inside tight loops.',
+              ],
+            },
+          },
+          { kind: 'theory', label: 'Matrix',
+            body: {
+              summary: 'A 2-D array — a contiguous (or array-of-arrays) layout where each cell is addressed by (row, col). The first thing to clarify in any matrix problem is whether the storage is row-major or column-major; cache misses live there.',
+              sections: [
+                { heading: 'Definition + invariant', body: 'For an m × n matrix stored row-major, M[i][j] sits at offset i·n + j. Walking row-by-row hits sequential memory and is fast; walking column-by-column strides by n and trashes the cache. Algorithmically the size is m·n, so any "linear in input" matrix solution is O(m·n).' },
+                { heading: 'When to reach for it', body: 'Grid problems (islands, shortest path in a grid), 2-D DP (unique paths, edit distance, longest common subsequence), spatial games (game of life, sudoku), and image-style operations (transpose, rotate, spiral, zig-zag).' },
+                { heading: 'Common interview problems', body: ['Rotate image by 90 degrees in place, set matrix zeros without extra space.', 'Search a row-and-column-sorted matrix in O(m + n).', 'Number of islands, shortest path in binary matrix, word search (DFS + backtracking).'] },
+              ],
+              complexity: 'Traverse O(m·n); search a sorted matrix O(m + n) via staircase; transpose in place O(m·n) with O(1) extra.',
+              pitfalls: [
+                'Off-the-grid indexing — always guard 0 <= r < m && 0 <= c < n before recursing.',
+                'Mutating cells used as input to later decisions — clone or encode in-place state with a sentinel.',
+                'Confusing matrix["row"]["col"] with (x, y) Cartesian convention.',
+              ],
+            },
+          },
         ],
       },
       { id: 'easy-array', label: 'Easy Array',
@@ -187,7 +289,24 @@ export const DSA_TUTORIAL = [
     slug: 'searching',
     title: 'Searching',
     subsections: [
-      { id: 'theory', label: 'Theory', items: [{ kind: 'theory', label: 'Searching' }] },
+      { id: 'theory', label: 'Theory', items: [
+        { kind: 'theory', label: 'Searching',
+          body: {
+            summary: 'The interview-relevant search algorithms collapse to three families: linear scan when nothing is sorted, binary search when the data (or the answer space) is monotonic, and hash-map lookup when you can preprocess for O(1) point queries.',
+            sections: [
+              { heading: 'How to pick', body: 'Unsorted data, one pass needed → linear, O(n). Sorted data or a monotonic predicate → binary, O(log n). Many queries against a static set → build a hash set / hash map once, then O(1) per lookup. If you also need ordered queries (next-greater, range), use a sorted structure like a BST or sorted array with binary search.' },
+              { heading: 'Binary search on the answer', body: 'A surprisingly large family of "minimize X such that ..." problems are solved by binary searching the answer. The trick: define a predicate is_feasible(mid) that is false-then-true (monotonic), then binary search the smallest mid that is true. Koko Eating Bananas, Aggressive Cows, Capacity to Ship Packages are textbook examples.' },
+              { heading: 'Common interview problems', body: ['First/last occurrence of a target — lower_bound / upper_bound.', 'Search in rotated sorted array — pivot-aware binary search.', 'Find peak element, find minimum in rotated sorted array, median of two sorted arrays.'] },
+            ],
+            complexity: 'Linear O(n). Binary O(log n). Hash O(1) average / O(n) worst (collisions).',
+            pitfalls: [
+              'Binary search overflow: use l + (r - l) / 2, not (l + r) / 2.',
+              'Off-by-one between [l, r] (inclusive) and [l, r) (exclusive) — pick one and never mix.',
+              'Forgetting the monotonicity check before applying binary search on the answer.',
+            ],
+          },
+        },
+      ] },
       { id: 'linear-search', label: 'Linear Search',
         items: [
           { kind: 'problem', label: 'Largest' },
@@ -197,7 +316,22 @@ export const DSA_TUTORIAL = [
       },
       { id: 'binary-search', label: 'Binary Search',
         items: [
-          { kind: 'theory', label: 'Binary Search', conceptSlug: 'binary-search' },
+          { kind: 'theory', label: 'Binary Search', conceptSlug: 'binary-search',
+            body: {
+              summary: 'Halve the search range on each comparison against a sorted array, or any predicate that is monotonic in the index / value. O(log n) by construction. The hard part is never the asymptotic — it is the invariant.',
+              sections: [
+                { heading: 'The canonical loop', body: 'while (l < r) { int mid = l + (r - l) / 2; if (pred(mid)) r = mid; else l = mid + 1; } return l. After the loop, l is the smallest index where pred is true. Use mid = l + (r - l) / 2 to avoid overflow. Decide whether the answer space is [l, r) (exclusive) or [l, r] (inclusive) and never mix them in the same function.' },
+                { heading: 'Binary search on the answer', body: 'When the problem asks "minimize X subject to ...", define feasibility(X). If feasibility is monotonic (false-then-true as X grows), binary search the smallest feasible X. Koko Eating Bananas, Capacity to Ship Packages, Aggressive Cows, Minimum Speed to Arrive on Time — same template, different feasibility check.' },
+                { heading: 'Common interview problems', body: ['First/last occurrence; lower_bound, upper_bound.', 'Search in rotated sorted array, find minimum in rotated array.', 'Median of two sorted arrays (binary search on partition).', 'Find peak element, square root with precision.'] },
+              ],
+              complexity: 'O(log n) comparisons, O(1) extra space.',
+              pitfalls: [
+                'Infinite loop when mid = l and the update rule does not advance l (use mid + 1 carefully).',
+                'Mixing inclusive and exclusive boundaries.',
+                'Applying binary search to non-monotonic predicates — silently returns wrong results.',
+              ],
+            },
+          },
           { kind: 'problem', label: 'Insertion Position' },
           { kind: 'problem', label: 'Lower Bound' },
           { kind: 'problem', label: 'Upper Bound' },
@@ -248,7 +382,24 @@ export const DSA_TUTORIAL = [
     slug: 'sorting',
     title: 'Sorting',
     subsections: [
-      { id: 'theory', label: 'Theory', items: [{ kind: 'theory', label: 'Sorting' }] },
+      { id: 'theory', label: 'Theory', items: [
+        { kind: 'theory', label: 'Sorting',
+          body: {
+            summary: 'Sorting rearranges a sequence into non-decreasing order under a comparator. Comparison-based sorts are bounded below by O(n log n); non-comparison sorts (counting, radix, bucket) get O(n) by exploiting the value domain.',
+            sections: [
+              { heading: 'The four you must know cold', body: ['Quick sort — average O(n log n), worst O(n^2) on bad pivot, in-place, not stable. Default in C++ std::sort (intro-sort) and Java Arrays.sort for primitives.', 'Merge sort — guaranteed O(n log n), stable, but O(n) extra space. Backbone of Tim sort (Python sorted, Java Arrays.sort for objects).', 'Heap sort — O(n log n) worst case, in-place, not stable. Rarely fastest in practice; good for priority-queue-flavored problems.', 'Counting / Radix sort — O(n + k) when the value range k is small. Use for "sort integers in [0, 10^5]" or bucket-style problems.'] },
+              { heading: 'When sorting is the right move', body: 'If the problem says "find pairs / triplets," "merge intervals," "k-th largest," "anagrams," or "median," sorting is usually either the solution or part of the prep step. Sorting also enables two-pointer scans on otherwise-unstructured arrays.' },
+              { heading: 'Stability matters when', body: 'You sort by multiple keys via successive stable sorts, or you need to preserve the original order of equal-key elements (e.g., sorting students by grade while keeping enrollment order).' },
+            ],
+            complexity: 'Comparison sorts O(n log n). Counting/radix O(n + k). Space ranges from O(1) (heap, in-place quick) to O(n) (merge).',
+            pitfalls: [
+              'Quick sort on already-sorted input with naive pivot — O(n^2). Randomize the pivot or use median-of-three.',
+              'Forgetting stability when sorting by composite keys.',
+              'Using a comparator that does not define a strict weak ordering — leads to undefined behavior in std::sort and InvalidArgumentException in Java.',
+            ],
+          },
+        },
+      ] },
       { id: 'easy', label: 'Easy',
         items: [
           { kind: 'problem', label: 'Wave Form' },
@@ -301,7 +452,24 @@ export const DSA_TUTORIAL = [
     slug: 'bit-manipulation',
     title: 'Bit Manipulation',
     subsections: [
-      { id: 'theory', label: 'Theory', items: [{ kind: 'theory', label: 'Bitwise' }] },
+      { id: 'theory', label: 'Theory', items: [
+        { kind: 'theory', label: 'Bitwise',
+          body: {
+            summary: 'Bit manipulation treats an integer as a fixed-width array of bits and uses AND, OR, XOR, NOT, and shifts to read, set, clear, or transform individual bits in O(1) per operation.',
+            sections: [
+              { heading: 'The seven moves you reuse forever', body: ['Check bit i: (x >> i) & 1.', 'Set bit i: x | (1 << i).', 'Clear bit i: x & ~(1 << i).', 'Toggle bit i: x ^ (1 << i).', 'Lowest set bit: x & -x (Brian Kernighan / Fenwick tree trick).', 'Strip lowest set bit: x & (x - 1) (counts set bits in O(popcount)).', 'XOR cancellation: x ^ x = 0, x ^ 0 = x — the foundation of single-number problems.'] },
+              { heading: 'When to reach for it', body: 'Subsets of a set up to size ~20 (bitmask DP). Single missing / duplicate number using XOR. Power-of-two checks. Compact state representation. Bitmask DP for TSP-flavored problems where the state is a subset of visited nodes.' },
+              { heading: 'Common interview problems', body: ['Single number (I, II, III) — XOR variants.', 'Count set bits, hamming distance.', 'Subsets via bitmask enumeration, sum of subset XORs.'] },
+            ],
+            complexity: 'Each bit op O(1) on word-size integers; popcount/loop over bits is O(log V).',
+            pitfalls: [
+              'Mixing signed and unsigned shifts — right-shift on negative numbers is implementation-defined in C/C++ and arithmetic in Java/JS; use >>> for logical shift in Java/JS.',
+              '1 << 31 overflows 32-bit signed int; use 1L << 31 or 1u << 31.',
+              'Operator precedence: a & b == c parses as a & (b == c). Always parenthesize.',
+            ],
+          },
+        },
+      ] },
       { id: 'easy', label: 'Easy',
         items: [
           { kind: 'problem', label: 'Swap without Third' },
@@ -352,7 +520,32 @@ export const DSA_TUTORIAL = [
     slug: 'hashing',
     title: 'Hashing',
     subsections: [
-      { id: 'theory', label: 'Theory', items: [{ kind: 'theory', label: 'Hashing' }] },
+      { id: 'theory', label: 'Theory', items: [
+        { kind: 'theory', label: 'Hashing',
+          body: {
+            summary: 'A hash function maps a key to a bucket in `O(1)`. A hash table layers collision resolution on top to give amortized `O(1)` insert, lookup, and delete — at the cost of no ordering and worst-case `O(n)` when the hash is adversarial.',
+            sections: [
+              { heading: 'Bucket layout', body: 'A good hash spreads keys uniformly across buckets and is deterministic for the same input.\n\n```ascii\n  key  --[ hash() ]-->  index in [0, capacity)\n\n  capacity = 8\n  bucket  |  contents\n  -------+--------------------\n    0    |  -\n    1    |  ("ada", 31)\n    2    |  ("ben", 12) -> ("zoe", 7)   <- chain on collision\n    3    |  -\n    4    |  ("mia", 19)\n    5    |  -\n    6    |  ("kai", 42)\n    7    |  -\n```\n\n> Note: The table maintains a **load-factor invariant** (`size / capacity ≤ ~0.75`). Breaching it triggers a rehash that doubles capacity and re-inserts — `O(n)` once, amortized `O(1)`.' },
+              { heading: 'Canonical operation — two-sum via hash map', body: '```py\ndef two_sum(nums, target):\n    seen = {}                           # value -> index\n    for i, x in enumerate(nums):\n        if target - x in seen:\n            return (seen[target - x], i)\n        seen[x] = i\n    return None\n```\n\n> Tip: One pass, `O(n)` time, `O(n)` space. The classic "trade memory for a quadratic factor of speed."' },
+              { heading: 'Collision resolution', body: ['**Separate chaining**: each bucket holds a linked list / dynamic array. Simple, robust, used in Java `HashMap`.', '**Open addressing** (linear / quadratic / double hashing): on collision, probe the next slot. Cache-friendly, used in Python `dict` and modern C++ flat hash maps.'] },
+              { heading: 'When to reach for it', body: 'Membership tests, frequency counts, deduplication, joining two arrays by key, memoization caches. Reach for an **ordered** map (`TreeMap` / `std::map`) only when you need range queries or sorted iteration.' },
+              { heading: 'Common interview problems', body: ['Two Sum, group anagrams, longest consecutive sequence.', 'Subarray sum equals `K` (prefix-sum + hash map).', 'LRU / LFU cache — hash map + linked list.'] },
+            ],
+            complexity: {
+              best: '`O(1)` insert, lookup, delete on average',
+              average: '`O(1)` per op assuming a good hash and load factor below threshold',
+              worst: '`O(n)` per op on adversarial keys that all collide into one bucket',
+              space: '`O(n)` for the entries + `O(capacity)` slack from the load factor',
+            },
+            pitfalls: [
+              'Mutating a key after insertion — the bucket no longer matches the recomputed hash; the entry is "lost."',
+              'Defining `hashCode` without `equals` (or vice versa) — breaks the contract; identical-looking objects collide unpredictably.',
+              'Counting on iteration order in old Java `HashMap` / `unordered_map` — it is not guaranteed.',
+              'Using a mutable type (list, set) as a dict key in Python — raises `TypeError`. Use a tuple or frozenset.',
+            ],
+          },
+        },
+      ] },
       { id: 'basic', label: 'Basic Hashing',
         items: [
           { kind: 'problem', label: 'Linear Probing' },
@@ -390,7 +583,31 @@ export const DSA_TUTORIAL = [
     slug: 'two-pointer',
     title: 'Two-Pointer',
     subsections: [
-      { id: 'theory', label: 'Theory', items: [{ kind: 'theory', label: 'Two-Pointer', conceptSlug: 'two-pointers' }] },
+      { id: 'theory', label: 'Theory', items: [
+        { kind: 'theory', label: 'Two-Pointer', conceptSlug: 'two-pointers',
+          body: {
+            summary: 'Maintain two indices over a (usually sorted or monotonic) sequence and move them based on a problem-specific rule — toward each other, in the same direction, or as window endpoints. Converts an apparent `O(n^2)` pair search into `O(n)`.',
+            sections: [
+              { heading: 'The three patterns', body: 'Opposing, same-direction, and window — each visualized below.\n\n```ascii\n Opposing (sorted):       Same-direction (slow/fast):\n  L ->            <- R     S ->     F ->\n [ . . . . . . . . . ]    [ . . . . . . . . . ]\n  shrink window inward     S writes, F reads ahead\n\n Sliding window:\n  L ->        R ->\n [ . . . . . . . . . ]\n  R expands; L follows when invariant breaks\n```\n\n> Tip: The rule that moves a pointer must be a function of the **current comparison**, not the loop index.' },
+              { heading: 'Canonical operation — two-sum on a sorted array', body: 'Walk inward from both ends. Move the pointer that can fix the imbalance.\n\n```py\ndef two_sum_sorted(a, target):\n    L, R = 0, len(a) - 1\n    while L < R:\n        s = a[L] + a[R]\n        if s == target: return (L, R)\n        if s < target:  L += 1   # need a bigger sum\n        else:           R -= 1   # need a smaller sum\n    return None\n```\n\n> Note: This works **only** because the array is sorted. On unsorted data the technique silently returns wrong answers.' },
+              { heading: 'When to reach for it', body: 'Sorted input + "find a pair / triple satisfying X." In-place array partitioning. Window-with-property problems. Palindrome checks. The two-pointer technique is what you reach for when the obvious solution is `O(n^2)` and you sense the constraints allow `O(n)`.' },
+              { heading: 'Common interview problems', body: ['Two Sum II (sorted), three-sum, four-sum.', 'Container with most water, trapping rain water.', 'Remove duplicates from sorted array, move zeros.', 'Sort colors / Dutch National Flag.'] },
+            ],
+            complexity: {
+              best: '`O(n)` after an `O(n log n)` sort if the input is unsorted',
+              average: '`O(n)` — each pointer advances at most `n` times',
+              worst: '`O(n)` — never worse, by construction',
+              space: '`O(1)` — only two indices',
+            },
+            pitfalls: [
+              'Forgetting to skip duplicate values when the problem asks for unique tuples (three-sum).',
+              'Moving the wrong pointer — the rule must be a function of the current comparison, not the loop index.',
+              'Two-pointer requires monotonic structure (sorted, or a one-way property); applying it to unstructured data silently gives wrong answers.',
+              'Mixing the `L < R` and `L <= R` termination conditions — pick one and stick to it.',
+            ],
+          },
+        },
+      ] },
       { id: 'easy', label: 'Easy',
         items: [
           { kind: 'problem', label: '2 Sum in Sorted' },
@@ -424,7 +641,31 @@ export const DSA_TUTORIAL = [
     slug: 'sliding-window',
     title: 'Sliding Window',
     subsections: [
-      { id: 'theory', label: 'Theory', items: [{ kind: 'theory', label: 'Sliding Window', conceptSlug: 'sliding-window' }] },
+      { id: 'theory', label: 'Theory', items: [
+        { kind: 'theory', label: 'Sliding Window', conceptSlug: 'sliding-window',
+          body: {
+            summary: 'A contiguous range over an array or string that slides forward, **growing on the right** and **shrinking on the left** to maintain an invariant. Turns an `O(n^2)` "examine every subarray" approach into `O(n)` with two pointers and an incrementally maintained aggregate.',
+            sections: [
+              { heading: 'Two endpoints, one direction', body: '```ascii\n  arr:  [ 2 , 5 , 1 , 3 , 4 , 7 , 1 , 2 ]\n               ^               ^\n               L               R   <- window = arr[L..R]\n             (left)         (right)\n\n  expand R -> grows the window\n  shrink L -> shrinks the window\n```\n\n> Note: Each index enters and leaves the window **at most once** → total work `O(n)` no matter how often L and R move.' },
+              { heading: 'Canonical operation — longest substring without repeating chars', body: 'Expand R unconditionally; while the window violates the invariant, contract L. The `while` loop is the heart of the technique.\n\n```py\ndef longest_unique(s):\n    last = {}\n    L = 0\n    best = 0\n    for R, ch in enumerate(s):\n        if ch in last and last[ch] >= L:\n            L = last[ch] + 1        # shrink past the duplicate\n        last[ch] = R\n        best = max(best, R - L + 1)\n    return best\n```\n\n> Warning: Use `while` to shrink, not `if`. A single expansion can break the invariant by more than one unit.' },
+              { heading: 'Fixed-length vs variable-length', body: 'Fixed window of size `K`: precompute the aggregate of the first `K`, then slide one position at a time, adding the new right and subtracting the leaving left in `O(1)` per step. Variable window: expand right unconditionally; while the window violates the invariant, contract left.' },
+              { heading: 'Common interview problems', body: ['Longest substring without repeating characters.', 'Minimum window substring, permutation in string.', 'Max sum subarray of size `K`, longest subarray with sum `K`.', 'Subarrays with `K` distinct integers.'] },
+            ],
+            complexity: {
+              best: '`O(n)` — both pointers march forward monotonically',
+              average: '`O(n)` regardless of input distribution',
+              worst: '`O(n)` — each index is touched at most twice (entry + exit)',
+              space: '`O(window-state)`, usually `O(alphabet)` or `O(distinct values)`',
+            },
+            pitfalls: [
+              'Forgetting to update the aggregate when shrinking — bugs that only show up when the answer is exactly at the boundary.',
+              'Using `if` instead of `while` to shrink — fails when one expansion violates the invariant by more than one unit.',
+              'Applying sliding window to a problem where the invariant is not monotonic in window length — the technique simply does not apply.',
+              'Storing values when the eviction check needs indices (or vice versa).',
+            ],
+          },
+        },
+      ] },
       { id: 'fixed', label: 'Fixed-Length Window',
         items: [
           { kind: 'problem', label: 'Max Sum Subarray of size K' },
@@ -480,7 +721,24 @@ export const DSA_TUTORIAL = [
     slug: 'prefix-sum',
     title: 'Prefix Sum',
     subsections: [
-      { id: 'theory', label: 'Theory', items: [{ kind: 'theory', label: 'Prefix Sum' }] },
+      { id: 'theory', label: 'Theory', items: [
+        { kind: 'theory', label: 'Prefix Sum',
+          body: {
+            summary: 'Precompute a running total P[i] = a[0] + a[1] + ... + a[i-1] so that any range sum sum(l..r) collapses to P[r+1] - P[l]. O(n) preprocessing buys O(1) range queries forever after.',
+            sections: [
+              { heading: 'Definition + invariant', body: 'P[0] = 0 and P[i] = P[i-1] + a[i-1]. The invariant: sum of a[l..r] (inclusive) equals P[r+1] - P[l]. Using a leading zero in P removes the special-case branch for l = 0.' },
+              { heading: 'When to reach for it', body: 'Many range-sum or "count subarrays with property X" problems. Combined with a hash map, prefix sums solve the entire "subarray sum equals K" / "subarray with given XOR" / "longest subarray with sum K" family by reducing them to two-sum on prefix values.' },
+              { heading: 'Common interview problems', body: ['Range sum query (1-D and 2-D immutable).', 'Subarray sum equals K, count subarrays divisible by K.', 'Product of array except self (prefix and suffix products).', 'Difference array — the dual: range updates in O(1), point query after one prefix scan.'] },
+            ],
+            complexity: 'Build O(n) (O(n·m) for 2-D), query O(1).',
+            pitfalls: [
+              'Off-by-one between inclusive/exclusive bounds when subtracting prefix values.',
+              'Integer overflow when summing large arrays — use long / int64.',
+              'Forgetting to seed the hash map with prefix 0 → count 1 when looking for subarrays starting at index 0.',
+            ],
+          },
+        },
+      ] },
       { id: 'prefix', label: 'Prefix Sum',
         items: [
           { kind: 'problem', label: 'Prefix Sum Array' },
@@ -528,7 +786,25 @@ export const DSA_TUTORIAL = [
     slug: 'backtracking',
     title: 'Backtracking',
     subsections: [
-      { id: 'theory', label: 'Theory', items: [{ kind: 'theory', label: 'Backtracking' }] },
+      { id: 'theory', label: 'Theory', items: [
+        { kind: 'theory', label: 'Backtracking',
+          body: {
+            summary: 'A controlled DFS over the space of partial solutions. You make a choice, recurse, and on return *undo* the choice — guaranteeing the call frame returns to the same state it entered. Add pruning so impossible branches are abandoned early.',
+            sections: [
+              { heading: 'The canonical template', body: 'def solve(state): if is_goal(state): record; return. for choice in choices(state): if is_valid(state, choice): apply(state, choice); solve(state); undo(state, choice). The "apply / recurse / undo" pattern is the entire trick — make sure undo perfectly mirrors apply, or state leaks between branches.' },
+              { heading: 'When to reach for it', body: 'Exhaustive enumeration: subsets, permutations, combinations, partitions. Constraint satisfaction: N-Queens, Sudoku, graph coloring, word search on a grid. Anywhere the problem says "find all" or "count the number of ways" and the input is small enough (n ≤ ~20) that exponential time is acceptable.' },
+              { heading: 'Pruning is non-optional', body: 'Sort the candidates and skip duplicates (subsets II, permutations II). Bound the partial cost against the best known solution (branch-and-bound). Use bitmasks to test column / diagonal conflicts in O(1) (N-Queens).' },
+              { heading: 'Common interview problems', body: ['Subsets, permutations, combinations, palindrome partitioning.', 'N-Queens, Sudoku solver, word search.', 'Letter combinations of a phone number, generate parentheses.'] },
+            ],
+            complexity: 'Bounded by the size of the search tree: typically O(n!) for permutations, O(2^n) for subsets, O(k^n) for constrained grids.',
+            pitfalls: [
+              'Forgetting to undo state on return — corrupts every later branch.',
+              'Appending the mutable state to the result list instead of a copy — every entry ends up pointing to the same final state.',
+              'Skipping duplicates incorrectly when the input has repeats — sort first, then skip a[i] if a[i] == a[i-1] && i > start.',
+            ],
+          },
+        },
+      ] },
       { id: 'medium', label: 'Medium',
         items: [
           { kind: 'problem', label: 'Permutations' },
@@ -556,8 +832,45 @@ export const DSA_TUTORIAL = [
     subsections: [
       { id: 'theory', label: 'Theory',
         items: [
-          { kind: 'theory', label: 'Linked List' },
-          { kind: 'theory', label: 'Singly, Doubly & Circular' },
+          { kind: 'theory', label: 'Linked List',
+            body: {
+              summary: 'A chain of nodes, each holding a value and a pointer to the next. Trades the `O(1)` random access of arrays for `O(1)` splice — insert and delete at a known position need only pointer rewiring.',
+              sections: [
+                { heading: 'Node layout', body: 'A node is `{ value, next }`. The list is identified by its `head` pointer; the tail\'s `next` is `null` (singly) or wraps back to head (circular).\n\n```ascii\n head\n  |\n  v\n +---+---+    +---+---+    +---+---+    +---+------+\n | 7 | *-+--->| 3 | *-+--->| 9 | *-+--->| 1 | null |\n +---+---+    +---+---+    +---+---+    +---+------+\n  node0        node1        node2        node3 (tail)\n```\n\n> Note: Operations never shift elements; they only **rewire pointers**. The invariant you maintain in every mutation is "every node is reachable from `head` exactly once."' },
+                { heading: 'Canonical operation — iterative reverse', body: 'The classic three-pointer dance: `prev`, `curr`, `next`. Save the next link before you overwrite it, point the current node back, and step.\n\n```py\ndef reverse(head):\n    prev = None\n    curr = head\n    while curr:\n        nxt = curr.next      # save before we clobber\n        curr.next = prev     # rewire\n        prev = curr          # step prev forward\n        curr = nxt           # step curr forward\n    return prev\n```\n\n> Warning: Forget to save `curr.next` first and you lose the rest of the list permanently.' },
+                { heading: 'When to reach for it', body: 'Frequent splicing in the middle without indexing (LRU cache eviction). Building stacks / queues with guaranteed worst-case `O(1)` (no rehash / regrowth). Algorithms with explicit pointer manipulation: Floyd cycle detection, merge two sorted lists. In modern code you usually still prefer dynamic arrays — the constant factor and cache behavior crush linked lists for sequential work.' },
+                { heading: 'Common interview problems', body: ['Reverse a linked list (iterative and recursive), reverse in groups of K.', 'Detect cycle, find cycle start (Floyd), find middle (slow / fast).', 'Merge two sorted lists, merge K sorted lists.', 'Copy list with random pointer, LRU cache.'] },
+              ],
+              complexity: {
+                best: 'Insert / delete at a known node `O(1)` — just rewire two pointers',
+                average: 'Access by position `O(n)` — must walk from head',
+                worst: 'Search by value `O(n)`; doubly-linked deletion still `O(1)` once node is in hand',
+                space: '`O(n)` for nodes; `O(1)` extra for traversal and most rewrite patterns',
+              },
+              pitfalls: [
+                'Losing the head when reversing — always save `curr.next` before rewiring.',
+                'Off-by-one when finding "the node before the deletion target" — a dummy node before head removes the special case for deleting the head.',
+                'Creating cycles accidentally and infinite-looping on traversal.',
+                'Not setting the new tail\'s `next` to `null` after a partial reverse / split.',
+              ],
+            },
+          },
+          { kind: 'theory', label: 'Singly, Doubly & Circular',
+            body: {
+              summary: 'Three flavors of linked list trading memory for richer navigation. Singly: forward only. Doubly: bidirectional, costs an extra pointer per node. Circular: tail loops to head, removes the "end of list" special case.',
+              sections: [
+                { heading: 'Singly linked', body: 'One pointer per node. Reverse and "node before X" are O(n) operations. Default in functional languages and for stack/queue implementations.' },
+                { heading: 'Doubly linked', body: 'Two pointers (prev and next). Lets you delete a known node in O(1) without re-traversal, and walk in either direction. Foundation of LRU caches (delete on access), browser history, deque implementations, and std::list.' },
+                { heading: 'Circular', body: 'Tail.next = head. Useful for round-robin schedulers, Josephus problem, and any "loop forever over a fixed set" pattern. Eliminates null-end checks at the cost of a termination invariant.' },
+                { heading: 'Common interview problems', body: ['Implement LRU cache (doubly linked + hash map).', 'Josephus problem (circular).', 'Flatten a multilevel doubly linked list.'] },
+              ],
+              complexity: 'All operations the same as singly linked, but doubly linked deletes at a known node are O(1).',
+              pitfalls: [
+                'Forgetting to update prev when inserting / deleting in a doubly linked list.',
+                'Infinite traversal in a circular list — always test for "back to start," not "next is null."',
+              ],
+            },
+          },
           { kind: 'theory', label: 'Loop Detection', conceptSlug: 'loop-detection' },
         ],
       },
@@ -610,7 +923,29 @@ export const DSA_TUTORIAL = [
     subsections: [
       { id: 'theory', label: 'Theory',
         items: [
-          { kind: 'theory', label: 'Stack' },
+          { kind: 'theory', label: 'Stack',
+            body: {
+              summary: '**LIFO** container. Push and pop on the same end (the top), both `O(1)`. Backed by an array or a singly linked list — the implementation rarely matters.',
+              sections: [
+                { heading: 'Mental model', body: 'A vertical pile of plates. You only touch the top. The invariant: the element returned by `pop` is always the **most recently pushed** un-popped element.\n\n```ascii\n  push(4)             pop() -> 4\n   |                       |\n   v                       v\n +---+               +---+\n | 4 | <- top        | 4 |  (gone)\n +---+               +---+\n | 3 |               | 3 | <- top\n +---+      ===>     +---+\n | 2 |               | 2 |\n +---+               +---+\n | 1 | <- bottom     | 1 | <- bottom\n +---+               +---+\n```\n\n> Note: The legal operations are exactly three: `push`, `pop`, `peek`. Anything else and it is not a stack.' },
+                { heading: 'Canonical operation — next greater element', body: 'Walk the array. Keep a stack of indices waiting for a larger value. When the current element beats the top of the stack, pop and resolve.\n\n```py\ndef next_greater(nums):\n    ans = [-1] * len(nums)\n    stack = []  # indices, values monotonically decreasing\n    for i, x in enumerate(nums):\n        while stack and nums[stack[-1]] < x:\n            ans[stack.pop()] = x\n        stack.append(i)\n    return ans\n```\n\n> Tip: Each index enters and leaves the stack at most once → amortized `O(n)` total.' },
+                { heading: 'When to reach for it', body: 'Whenever the algorithm needs **"most recent unmatched thing."** Parentheses matching, expression evaluation (Shunting-yard / postfix), undo histories, iterative DFS, call-stack simulation. The monotonic-stack pattern solves an entire class of "next greater / next smaller" problems in `O(n)`.' },
+                { heading: 'Common interview problems', body: ['Valid parentheses, min stack, evaluate Reverse Polish notation.', 'Largest rectangle in histogram (monotonic stack).', 'Daily temperatures, next greater element, trapping rain water.', 'Implement queue using two stacks.'] },
+              ],
+              complexity: {
+                best: '`push`, `pop`, `peek` all `O(1)` worst case',
+                average: 'Monotonic-stack scans amortize to `O(n)` across the whole array',
+                worst: 'No `O(log n)` regressions; deep recursion via stack still `O(depth)` space',
+                space: '`O(n)` for the stack itself; `O(1)` extra per operation',
+              },
+              pitfalls: [
+                'Popping from an empty stack — always guard with `isEmpty`.',
+                'Using a Python list as a stack but writing `list.pop(0)` (`O(n)`) instead of `list.pop()`.',
+                'Mixing up strictly vs. non-strictly monotonic on writes — `<` and `<=` flip whether equal elements pop.',
+                'Storing values when the eviction check needs indices (or vice versa).',
+              ],
+            },
+          },
           { kind: 'theory', label: 'Min Stack', conceptSlug: 'min-stack' },
         ],
       },
@@ -668,7 +1003,31 @@ export const DSA_TUTORIAL = [
     slug: 'queue',
     title: 'Queue',
     subsections: [
-      { id: 'theory', label: 'Theory', items: [{ kind: 'theory', label: 'Queue' }] },
+      { id: 'theory', label: 'Theory', items: [
+        { kind: 'theory', label: 'Queue',
+          body: {
+            summary: '**FIFO** container. Enqueue at the back, dequeue from the front, both `O(1)`. The canonical "process things in the order they arrived" data structure.',
+            sections: [
+              { heading: 'Mental model', body: 'Two pointers (`head` and `tail`) over either a circular array or a linked list. The invariant: `dequeue` returns the **oldest still-present** element.\n\n```ascii\n         dequeue            enqueue\n            <-                ->\n         +---+---+---+---+---+\n  queue  | 1 | 2 | 3 | 4 | 5 |\n         +---+---+---+---+---+\n           ^               ^\n          head            tail\n```\n\n> Warning: A naive array-shift queue is `O(n)` per dequeue. Use a circular buffer or a linked list for true `O(1)`.' },
+              { heading: 'Canonical operation — BFS over a grid', body: 'Use a queue to expand outward layer by layer. The first time a cell is reached, the distance equals the layer number.\n\n```py\nfrom collections import deque\n\ndef bfs(grid, start):\n    q = deque([start])\n    seen = {start}\n    dist = {start: 0}\n    while q:\n        r, c = q.popleft()\n        for dr, dc in [(-1,0),(1,0),(0,-1),(0,1)]:\n            nr, nc = r + dr, c + dc\n            if (nr, nc) in seen or not in_bounds(nr, nc):\n                continue\n            seen.add((nr, nc))\n            dist[(nr, nc)] = dist[(r, c)] + 1\n            q.append((nr, nc))\n    return dist\n```' },
+              { heading: 'When to reach for it', body: 'Breadth-first search (shortest path in unweighted graphs, level-order tree traversal). Task scheduling / job pipelines. Sliding-window patterns where you discard old elements as the window slides. Producer / consumer buffers in concurrent code.' },
+              { heading: 'Common interview problems', body: ['Implement queue using stacks; implement stack using queues.', 'BFS over a graph or grid (number of islands, rotten oranges, shortest path in binary matrix).', 'Sliding window maximum (with a deque).', 'First non-repeating character in a stream.'] },
+            ],
+            complexity: {
+              best: '`enqueue`, `dequeue`, `peek` all `O(1)` worst case',
+              average: 'BFS layer expansion `O(V + E)` over a graph',
+              worst: 'Iteration / search `O(n)` — a queue is not indexable',
+              space: '`O(n)` for the buffer; BFS holds at most one frontier in memory',
+            },
+            pitfalls: [
+              'Implementing a queue with two array indices but never wrapping → fake-leaks memory and breaks once `tail` exceeds the array length.',
+              'Using Java `LinkedList` as `Queue` — works, but `ArrayDeque` is faster and the idiomatic choice.',
+              'Confusing queue with priority queue — a queue is FIFO; a priority queue is a heap.',
+              'Marking nodes visited at **pop** instead of **push** during BFS — same node enqueued multiple times, blowing up memory.',
+            ],
+          },
+        },
+      ] },
       { id: 'easy', label: 'Easy',
         items: [
           { kind: 'problem', label: 'Circular Queue' },
@@ -693,7 +1052,24 @@ export const DSA_TUTORIAL = [
     slug: 'deque',
     title: 'Deque',
     subsections: [
-      { id: 'theory', label: 'Theory', items: [{ kind: 'theory', label: 'Deque' }] },
+      { id: 'theory', label: 'Theory', items: [
+        { kind: 'theory', label: 'Deque',
+          body: {
+            summary: 'Double-ended queue — push and pop on both ends in O(1). The most flexible linear container, and the unsung hero of sliding-window optimization problems.',
+            sections: [
+              { heading: 'Definition + invariant', body: 'Backed by a circular array (Java ArrayDeque, C++ deque) or a doubly linked list. The invariant: O(1) addFirst, addLast, removeFirst, removeLast — no ambiguity, no surprises.' },
+              { heading: 'When to reach for it', body: 'Sliding window maximum / minimum — keep a monotonic deque of candidate indices; pop the back while the new element invalidates it, pop the front when it leaves the window. Most "longest subarray such that ..." problems with a sliding constraint reduce to a deque scan. Also: undo / redo stacks, palindrome checks, level-order traversals that need both directions.' },
+              { heading: 'Common interview problems', body: ['Sliding window maximum (monotonic deque).', 'Shortest subarray with sum at least K.', '01-BFS over a graph with 0/1 edge weights (deque replaces priority queue for O(V+E)).'] },
+            ],
+            complexity: 'All endpoint operations O(1). Iteration O(n). Space O(n).',
+            pitfalls: [
+              'Confusing the front and the back when implementing monotonic deques.',
+              'Storing values instead of indices when the window-eviction check needs positions.',
+              'Forgetting to evict expired indices from the front before reading the max.',
+            ],
+          },
+        },
+      ] },
       { id: 'easy', label: 'Easy', items: [{ kind: 'problem', label: 'Circular Array Implementation' }] },
       { id: 'medium', label: 'Medium',
         items: [
@@ -719,7 +1095,29 @@ export const DSA_TUTORIAL = [
     subsections: [
       { id: 'theory', label: 'Theory',
         items: [
-          { kind: 'theory', label: 'Binary Tree' },
+          { kind: 'theory', label: 'Binary Tree',
+            body: {
+              summary: 'A hierarchical structure of nodes where each node has at most two children (`left` and `right`). The default search structure for ordered data and the substrate for every "tree" problem in interviews.',
+              sections: [
+                { heading: 'Shape & invariant', body: 'A binary tree is either empty or a node with a value and two child binary trees. Height = longest root-to-leaf path.\n\n```ascii\n           (1)             <- root,   level 0\n          /   \\\n        (2)    (3)         <-         level 1\n        / \\      \\\n      (4) (5)    (6)       <-         level 2\n             \\\n             (7)           <- leaf,   level 3\n```\n\n> Note: A **balanced** tree keeps height `= O(log n)`. An unbalanced one degenerates to `O(n)` and every "log n" guarantee evaporates.' },
+                { heading: 'Canonical operation — post-order DFS for height', body: 'Solve children first, combine at the parent. The recursion invariant: `solve(node)` returns the answer for the subtree rooted at `node`, given correct answers for `solve(left)` and `solve(right)`.\n\n```py\ndef height(node):\n    if node is None:\n        return 0                       # base case\n    L = height(node.left)\n    R = height(node.right)\n    return 1 + max(L, R)               # combine\n```\n\n> Tip: Trust the recursion. Verify the base case + the combine step; do not trace the whole call tree in your head.' },
+                { heading: 'Traversals you must memorize', body: ['**Pre-order** (root, left, right) — serialize, clone.', '**In-order** (left, root, right) — yields sorted order on a BST.', '**Post-order** (left, right, root) — compute aggregates from leaves up (height, subtree sum).', '**Level-order** (BFS) — width / level-by-level questions.'] },
+                { heading: 'Common interview problems', body: ['Diameter, height, balanced check.', 'LCA of two nodes, lowest common ancestor in BST.', 'Serialize / deserialize, build tree from preorder + inorder.', 'Level order, zig-zag traversal, right view.'] },
+              ],
+              complexity: {
+                best: 'Search / insert / delete `O(log n)` on a balanced tree',
+                average: 'Traversal `O(n)`; recursion depth `O(h)` on the call stack',
+                worst: 'Skewed tree degrades every operation to `O(n)`',
+                space: '`O(h)` for recursion + `O(n)` for the nodes themselves',
+              },
+              pitfalls: [
+                'Recursing into a `null` child — always null-guard at the top of the function.',
+                'Returning the wrong piece of information up the stack — separate "answer for the question" from "info the parent needs."',
+                'Mutating shared state during recursion without restoring on return — corrupts every later branch.',
+                'Assuming the tree is balanced when reporting `O(log n)` — without rotations (AVL, red-black) the worst case is `O(n)`.',
+              ],
+            },
+          },
           { kind: 'theory', label: 'BFS & DFS', conceptSlug: 'bfs-dfs' },
         ],
       },
@@ -785,7 +1183,24 @@ export const DSA_TUTORIAL = [
     slug: 'bst',
     title: 'Binary Search Tree',
     subsections: [
-      { id: 'theory', label: 'Theory', items: [{ kind: 'theory', label: 'Binary Search Tree' }] },
+      { id: 'theory', label: 'Theory', items: [
+        { kind: 'theory', label: 'Binary Search Tree',
+          body: {
+            summary: 'A binary tree with the ordering invariant: every node\'s value is greater than all values in its left subtree and less than all in its right. That single invariant turns search, insert, and delete into O(h) operations.',
+            sections: [
+              { heading: 'Definition + invariant', body: 'For every node v: max(left subtree of v) < v.value < min(right subtree of v). In-order traversal therefore visits keys in sorted order — a free witness of correctness. Unbalanced BSTs degenerate to a linked list (O(n) per op). Self-balancing variants (AVL, Red-Black) maintain h = O(log n) via rotations.' },
+              { heading: 'When to reach for it', body: 'Ordered map / set when you also need range queries, predecessor, successor, k-th smallest, or sorted iteration — features a hash map cannot provide. Java TreeMap, C++ std::map, Python sortedcontainers.SortedList all expose BST-flavored APIs (usually red-black internally).' },
+              { heading: 'Common interview problems', body: ['Validate BST (in-order check or min/max bounds).', 'Kth smallest in a BST.', 'Lowest common ancestor in BST (split at root).', 'Recover BST (two nodes swapped).', 'Insert / delete with rotations conceptually.'] },
+            ],
+            complexity: 'Average O(log n) per op on random insertions, O(h) in general, O(n) for an unbalanced (sorted-insertion) BST.',
+            pitfalls: [
+              'Validating a BST by only checking node.left.val < node.val < node.right.val locally — misses long-range violations. Pass down min/max bounds.',
+              'Deleting a node with two children — must promote the in-order successor (or predecessor) and recurse to delete it.',
+              'Building a BST by repeatedly inserting sorted data — degenerates to O(n) per op.',
+            ],
+          },
+        },
+      ] },
       { id: 'ops', label: 'Operations',
         items: [
           { kind: 'problem', label: 'Search' },
@@ -825,7 +1240,22 @@ export const DSA_TUTORIAL = [
     subsections: [
       { id: 'theory', label: 'Theory',
         items: [
-          { kind: 'theory', label: 'Heap' },
+          { kind: 'theory', label: 'Heap',
+            body: {
+              summary: 'A complete binary tree maintained as an array, satisfying the heap property: every parent is ≤ (min-heap) or ≥ (max-heap) all of its children. Lets you find the extreme element in O(1) and insert / remove it in O(log n).',
+              sections: [
+                { heading: 'Definition + invariant', body: 'For a 0-indexed array, parent(i) = (i-1)/2, left(i) = 2i+1, right(i) = 2i+2. The completeness invariant (every level full except possibly the last, left-filled) lets the heap live in a flat array — no pointers. The heap-order invariant is local, which is why sift-up / sift-down only need O(log n) swaps to restore it.' },
+                { heading: 'When to reach for it', body: 'Priority queue — anywhere "process the smallest / largest next" or "top K." Streaming K-th largest. Dijkstra\'s shortest path. Merge K sorted lists. Median of a stream (two heaps). Schedule tasks by deadline.' },
+                { heading: 'Common interview problems', body: ['Kth largest element in an array, top K frequent elements.', 'Merge K sorted lists / sorted streams.', 'Find median from a data stream (max-heap + min-heap).', 'Task scheduler, reorganize string.'] },
+              ],
+              complexity: 'Peek O(1); push, pop O(log n); build heap from array O(n) via Floyd; heapsort O(n log n).',
+              pitfalls: [
+                'Using the heap as a sorted set — it is not. You can only see the top; everything else is partially ordered.',
+                'Updating an element\'s priority in-place — most stdlib heaps do not support decrease-key. Push a new entry and lazily skip stale ones, or use indexed heaps.',
+                'Confusing min-heap and max-heap defaults (Java PriorityQueue and Python heapq are min-heaps; negate values for max-heap).',
+              ],
+            },
+          },
           { kind: 'theory', label: 'Heap Sort', conceptSlug: 'heap-sort' },
         ],
       },
@@ -865,7 +1295,23 @@ export const DSA_TUTORIAL = [
     subsections: [
       { id: 'theory', label: 'Theory',
         items: [
-          { kind: 'theory', label: 'Graph Representation' },
+          { kind: 'theory', label: 'Graph Representation',
+            body: {
+              summary: 'A graph G = (V, E) is encoded in code as either an adjacency list, an adjacency matrix, or an edge list. The right representation depends on |V|, |E|, and the operations the algorithm needs.',
+              sections: [
+                { heading: 'Adjacency list', body: 'Array (or map) of length V; entry i is the list of neighbors of i. Space O(V + E). Iterating neighbors of v is O(deg(v)). Default choice for sparse graphs and every graph traversal (BFS, DFS, Dijkstra).' },
+                { heading: 'Adjacency matrix', body: 'V × V boolean (or weight) matrix; M[i][j] = edge weight or 0. Space O(V^2). Edge lookup is O(1) — useful when the algorithm asks "is there an edge between i and j?" repeatedly (Floyd-Warshall, transitive closure). Wasteful when V is large and the graph is sparse.' },
+                { heading: 'Edge list', body: 'A flat list of (u, v, w) triples. Compact and the natural input format for Kruskal\'s MST and Bellman-Ford, both of which loop over edges.' },
+                { heading: 'When to reach for which', body: ['Sparse graph, traversal-heavy → adjacency list.', 'Dense graph or all-pairs queries → matrix.', 'Algorithm explicitly iterates edges → edge list (sort and union-find pattern).'] },
+              ],
+              complexity: 'List: O(V + E) space, O(deg(v)) to enumerate neighbors. Matrix: O(V^2) space, O(1) edge query, O(V) to enumerate neighbors.',
+              pitfalls: [
+                'Forgetting that an undirected edge needs two entries in an adjacency list.',
+                'Using a matrix when V = 10^5 — that is 10^10 cells, will OOM.',
+                'Not deduplicating edges in problems where multi-edges are not allowed.',
+              ],
+            },
+          },
           { kind: 'theory', label: 'BFS & DFS', conceptSlug: 'bfs-dfs' },
         ],
       },
@@ -931,7 +1377,22 @@ export const DSA_TUTORIAL = [
     subsections: [
       { id: 'theory', label: 'Theory',
         items: [
-          { kind: 'theory', label: 'Greedy' },
+          { kind: 'theory', label: 'Greedy',
+            body: {
+              summary: 'Make the locally best choice at every step and commit. Works only when the problem has the *greedy-choice property* — a local optimum is part of some global optimum — and *optimal substructure* — the remaining subproblem can be solved the same way.',
+              sections: [
+                { heading: 'Why greedy is dangerous', body: 'Most "obvious" greedy strategies are wrong on adversarial inputs. The correctness proof matters: either an exchange argument (swap any non-greedy choice for the greedy one without making the answer worse) or a matroid / structural argument. If you cannot sketch the proof, suspect the strategy.' },
+                { heading: 'When it actually works', body: 'Activity selection (sort by end time). Fractional knapsack (sort by value/weight). Huffman coding (build from least frequent). MST (Kruskal / Prim). Scheduling with deadlines. Interval problems where sorting by one endpoint linearizes the decision. Greedy NEVER works for 0/1 knapsack or coin change with arbitrary denominations — those need DP.' },
+                { heading: 'Common interview problems', body: ['Jump game (reach end with min jumps).', 'Gas station, minimum platforms.', 'Non-overlapping intervals, merge intervals, meeting rooms II.', 'Assign cookies, candy distribution.'] },
+              ],
+              complexity: 'Usually dominated by the sort: O(n log n). The greedy scan itself is O(n).',
+              pitfalls: [
+                'Applying greedy to a problem that needs DP (coin change US-coins is greedy; arbitrary denominations is not).',
+                'Sorting by the wrong key — activity selection sorts by *finish* time, not start time.',
+                'Ties in the greedy criterion can change the outcome; spell out the tie-break.',
+              ],
+            },
+          },
           { kind: 'theory', label: 'Huffman Coding', conceptSlug: 'huffman-coding' },
         ],
       },
@@ -973,7 +1434,29 @@ export const DSA_TUTORIAL = [
     subsections: [
       { id: 'theory', label: 'Theory',
         items: [
-          { kind: 'theory', label: 'Dynamic Programming' },
+          { kind: 'theory', label: 'Dynamic Programming',
+            body: {
+              summary: 'Solve problems with **optimal substructure** and **overlapping subproblems** by computing each subproblem once and caching its answer. DP = recursion + memoization, or equivalently, a bottom-up table fill in topological order of dependencies.',
+              sections: [
+                { heading: 'The shape of a DP table', body: '```ascii\n  dp[i][j] = best answer using first i items, capacity j\n\n     j ->   0   1   2   3   4   5\n        +----+---+---+---+---+---+\n   i=0  |  0 | 0 | 0 | 0 | 0 | 0 |   <- base row\n        +----+---+---+---+---+---+\n   i=1  |  0 | 1 | 1 | 1 | 1 | 1 |\n        +----+---+---+---+---+---+\n   i=2  |  0 | 1 | 6 | 7 | 7 | 7 |   <- depends on row i-1\n        +----+---+---+---+---+---+\n   i=3  |  0 | 1 | 6 | 7 | 8 | 9 |\n        +----+---+---+---+---+---+\n\n  each cell reads only cells above-left → fill row by row\n```\n\n> Note: The arrows of dependency must point **into already-filled cells**. Get the iteration order wrong and you read garbage.' },
+                { heading: 'The five-step DP recipe', body: ['**1. State**: what parameters fully describe a subproblem? `dp[i]` = answer for prefix ending at `i`, or `dp[i][j]` = answer using first `i` items with capacity `j`.', '**2. Transition**: how does the answer for state `S` depend on smaller states? Spell out the recurrence.', '**3. Base case**: what is the smallest state\'s answer?', '**4. Order**: in what order can the table be filled so every dependency is ready? (Topological order, usually inner→outer.)', '**5. Answer**: which state\'s value is the final answer?'] },
+                { heading: 'Canonical operation — coin change (min coins)', body: '```py\ndef coin_change(coins, amount):\n    INF = amount + 1\n    dp = [0] + [INF] * amount\n    for a in range(1, amount + 1):\n        for c in coins:\n            if c <= a:\n                dp[a] = min(dp[a], dp[a - c] + 1)\n    return dp[amount] if dp[amount] < INF else -1\n```\n\n> Tip: Start top-down with memoization to debug the recurrence. Convert to bottom-up tabulation once you trust it — usually faster and rollable to `O(width)` space.' },
+                { heading: 'Common interview problems', body: ['**1-D**: climbing stairs, house robber, coin change, longest increasing subsequence.', '**2-D**: edit distance, longest common subsequence, unique paths, 0/1 knapsack.', 'Stocks family (I, II, III, IV, with cooldown, with fee).', 'Partition / palindrome DP, matrix chain multiplication.'] },
+              ],
+              complexity: {
+                best: '`O(states)` when transitions are `O(1)` — e.g. climbing stairs',
+                average: '`O(states × work per transition)` — the standard formula',
+                worst: '`O(n · m · k)` for triple-state problems like edit-distance variants with extra constraints',
+                space: '`O(states)`, often rollable to `O(width)` by keeping only the previous row / two rows',
+              },
+              pitfalls: [
+                'Wrong state definition — if `dp[i]` depends on something not captured in `i`, the recurrence is wrong.',
+                'Iteration order that reads from a not-yet-computed cell.',
+                'Re-using the previous row in-place (1-D rolling) for a recurrence that needs the old value **and** the new one — for 0/1 knapsack iterate capacity **backwards**; for unbounded, forwards.',
+                'Confusing "min" base case (`+inf`) with "count" base case (`0`) — wrong base silently produces wrong totals.',
+              ],
+            },
+          },
           { kind: 'theory', label: "Kadane's Algorithm", conceptSlug: 'kadanes-algorithm' },
           { kind: 'theory', label: '0/1 Knapsack', conceptSlug: 'zero-one-knapsack' },
         ],
@@ -1092,7 +1575,24 @@ export const DSA_TUTORIAL = [
     slug: 'trie',
     title: 'Trie',
     subsections: [
-      { id: 'theory', label: 'Theory', items: [{ kind: 'theory', label: 'Trie', conceptSlug: 'trie' }] },
+      { id: 'theory', label: 'Theory', items: [
+        { kind: 'theory', label: 'Trie', conceptSlug: 'trie',
+          body: {
+            summary: 'A rooted tree where each edge is labeled with a character and each root-to-node path spells a prefix. Lets you insert, search, and prefix-query a set of strings in O(L) time per operation, independent of the dictionary size.',
+            sections: [
+              { heading: 'Definition + invariant', body: 'Each node has up to |alphabet| children plus an isEnd flag. Inserting "cat" creates a path root → c → a → t with isEnd on the final node. The invariant: any string in the trie corresponds to exactly one root-to-flagged-node path. Two strings share their longest common prefix as a shared path — that\'s why prefix queries are O(L).' },
+              { heading: 'When to reach for it', body: 'Autocomplete / typeahead. Spell-check / dictionary lookup. Word-search-in-grid with many target words (Trie + DFS pruning). XOR-maximum problems on integers (bit trie — fixed depth 32). Longest common prefix of a string set. Anywhere you have many strings and care about prefixes.' },
+              { heading: 'Common interview problems', body: ['Implement Trie (insert, search, startsWith).', 'Word search II — DFS over board with a trie of target words; prune branches early.', 'Maximum XOR of two numbers in an array (bit trie).', 'Replace words, longest word in dictionary, design search autocomplete.'] },
+            ],
+            complexity: 'Insert, search, prefix query: O(L). Space O(total chars across all strings), O(L · |alphabet|) per node in array-backed; less with hash map children.',
+            pitfalls: [
+              'Storing children as an array of length 26 when the alphabet might include digits, special chars, or Unicode — use a HashMap then.',
+              'Forgetting to set / check the isEnd flag — search will return true for any prefix, which is wrong.',
+              'Memory bloat: a trie over many long random strings uses a lot of nodes. Compressed (radix) tries save space at the cost of code complexity.',
+            ],
+          },
+        },
+      ] },
       { id: 'implementation', label: 'Implementation',
         items: [
           { kind: 'problem', label: 'Implement Trie' },
@@ -1121,7 +1621,24 @@ export const DSA_TUTORIAL = [
     slug: 'string-matching',
     title: 'String Matching',
     subsections: [
-      { id: 'theory', label: 'Theory', items: [{ kind: 'theory', label: 'Substring' }] },
+      { id: 'theory', label: 'Theory', items: [
+        { kind: 'theory', label: 'Substring',
+          body: {
+            summary: 'String matching asks: does pattern P (length m) occur in text T (length n), and where? Naive search is O(n·m); KMP, Z-algorithm, and Rabin-Karp each get to O(n + m) by exploiting structure of the pattern.',
+            sections: [
+              { heading: 'Naive vs. linear-time matchers', body: 'Naive: try every alignment, compare m chars — O(n·m). KMP precomputes the longest-proper-prefix-that-is-also-suffix array of P in O(m), then scans T once without backing up — total O(n + m). Z-algorithm computes the longest-substring-from-i-matching-prefix array in O(n) and solves the same problem. Rabin-Karp uses rolling hash for O(n + m) expected, with a tiny false-positive risk.' },
+              { heading: 'When to reach for which', body: ['Plain "find P in T," one shot → str.find / indexOf is fine in production.', 'Multiple patterns simultaneously → Aho-Corasick.', 'All occurrences of one pattern, long T → KMP / Z.', 'All palindromic substrings → Manacher in O(n).', 'Lots of substring equality queries → suffix array or string hashing for O(1) per query.'] },
+              { heading: 'Common interview problems', body: ['Implement strStr / indexOf.', 'Longest palindromic substring (expand around center or Manacher).', 'Repeated substring pattern, shortest palindrome.', 'Longest happy prefix (KMP failure array directly).'] },
+            ],
+            complexity: 'Naive O(n·m). KMP / Z / Rabin-Karp O(n + m). Manacher O(n) for all palindromes. Suffix array O(n log n) build, O(m log n) substring query.',
+            pitfalls: [
+              'Re-running naive search inside a loop turns an O(n + m) problem into O(n·m^2).',
+              'Hash collisions in Rabin-Karp — use a 64-bit mod or double hashing for adversarial inputs.',
+              'KMP failure-array off-by-one when transitioning on mismatch — handle the pattern[0] case explicitly.',
+            ],
+          },
+        },
+      ] },
       { id: 'standard', label: 'Standard Problems',
         items: [
           { kind: 'problem', label: 'Rabin-Karp' },
@@ -1146,7 +1663,24 @@ export const DSA_TUTORIAL = [
     slug: 'range-query',
     title: 'Range Query',
     subsections: [
-      { id: 'theory', label: 'Theory', items: [{ kind: 'theory', label: 'Segment Tree', conceptSlug: 'segment-tree' }] },
+      { id: 'theory', label: 'Theory', items: [
+        { kind: 'theory', label: 'Segment Tree', conceptSlug: 'segment-tree',
+          body: {
+            summary: 'A binary tree of intervals over an underlying array, where each node stores an aggregate (sum, min, max, gcd, ...) of its range. Supports both point updates and range queries in O(log n).',
+            sections: [
+              { heading: 'Definition + invariant', body: 'Each leaf corresponds to a single index; each internal node represents the union of its children\'s ranges and stores the aggregate. The invariant: a node\'s value equals f(left.value, right.value) for an associative f. Built bottom-up in O(n); point update walks one leaf-to-root path; range query splits into O(log n) maximal subranges that fit inside whole nodes.' },
+              { heading: 'When to reach for it', body: 'Range aggregates with point updates — sum of [l, r], min over [l, r] — when a Fenwick tree is not enough (need min, not just sum, or you need range updates). Lazy propagation extends it to range updates (add x to all of [l, r]) in O(log n). Indispensable for competitive programming and the more rigorous interview problems on ranges.' },
+              { heading: 'Common interview problems', body: ['Range sum query — mutable (LeetCode 307).', 'Count of smaller numbers after self.', 'My calendar III (range-add max).', 'Skyline problem (segment tree on coordinate-compressed x).'] },
+            ],
+            complexity: 'Build O(n). Point update, range query O(log n). Lazy range update O(log n). Space O(4n) — keep an array of size 4·n to be safe.',
+            pitfalls: [
+              'Off-by-one in the [l, r] vs [l, r) convention — pick one and never mix.',
+              'Forgetting to push the lazy tag down before reading children — silently returns stale answers.',
+              'Using a segment tree where a Fenwick tree suffices — Fenwick is shorter, faster, and sufficient for sum / xor.',
+            ],
+          },
+        },
+      ] },
       { id: 'basic-seg', label: 'Basic Segment Tree',
         items: [
           { kind: 'problem', label: 'Segment Tree' },

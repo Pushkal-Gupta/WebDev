@@ -9,8 +9,15 @@ estimatedReadMinutes: 8
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Aho & Corasick (1975) — Efficient String Matching: An Aid to Bibliographic Search"
-    url: ""
+  - title: "Sedgewick & Wayne — Substring Search (Algorithms, 4th Edition)"
+    url: "https://algs4.cs.princeton.edu/53substring/"
+    type: book
+  - title: "Aho-Corasick algorithm — Algorithms for Competitive Programming"
+    url: "https://cp-algorithms.com/string/aho_corasick.html"
+    type: blog
+  - title: "TheAlgorithms/Python — aho_corasick.py"
+    url: "https://github.com/TheAlgorithms/Python/blob/master/strings/aho_corasick.py"
+    type: repo
 status: published
 ---
 

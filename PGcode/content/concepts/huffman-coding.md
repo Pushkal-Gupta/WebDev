@@ -8,6 +8,16 @@ position: 6
 estimatedReadMinutes: 6
 prereqs: []
 relatedProblems: []
+references:
+  - title: "CLRS — Chapter 15: Greedy Algorithms (walkccc notes)"
+    url: "https://walkccc.me/CLRS/Chap15/"
+    type: book
+  - title: "GeeksforGeeks — Greedy Algorithms"
+    url: "https://www.geeksforgeeks.org/greedy-algorithms/"
+    type: blog
+  - title: "TheAlgorithms/Python — greedy_methods/"
+    url: "https://github.com/TheAlgorithms/Python/tree/master/greedy_methods"
+    type: repo
 status: published
 ---
 

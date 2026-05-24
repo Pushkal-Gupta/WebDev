@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Play, ExternalLink, 
 import SolutionView from './SolutionView';
 import ProblemVisualizer from './ProblemVisualizer';
 import HintsPanel from './HintsPanel';
+import Discussion from './Discussion';
 import StatusPill from './StatusPill';
 import AiExplainFailure from './AiExplainFailure';
 import Select from './Select';
@@ -124,6 +125,9 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
   };
   const [codeContent, setCodeContent] = useState('');
   const [leftTab, setLeftTab] = useState('description');
+  // Progressive hint reveal in Description tab — count of hints visible so far.
+  // Resets per active problem id (see effect below).
+  const [descHintsRevealed, setDescHintsRevealed] = useState(0);
   const [notes, setNotes] = useState('');
   const [confidence, setConfidence] = useState(0);
   const [consoleOutput, setConsoleOutput] = useState('');
@@ -133,6 +137,10 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
   const [activeTestIdx, setActiveTestIdx] = useState(0);
   const [testInputs, setTestInputs] = useState([]);
   const [pinnedCaseIndices, setPinnedCaseIndices] = useState([]);
+  // Run mode: 'cases' uses the problem's test cases, 'custom' pipes a free-form stdin.
+  // Persisted per-problem so the toggle and last input survive reloads.
+  const [stdinMode, setStdinMode] = useState('cases');
+  const [customStdin, setCustomStdin] = useState('');
   // Structured test/submit result
   const [runResult, setRunResult] = useState(null);
   const [resultCaseIdx, setResultCaseIdx] = useState(0);
@@ -232,6 +240,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
     setTimerSeconds(0);
     setTimerPaused(false);
     setTimerStopped(false);
+    setDescHintsRevealed(0);
   }, [activeProblem?.id]);
 
   // Topic info (cached)
@@ -345,6 +354,12 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
       const savedPinned = JSON.parse(localStorage.getItem(`pgcode_pinned_${activeProblem?.id}`) || '[]');
       setPinnedCaseIndices(Array.isArray(savedPinned) ? savedPinned : []);
     } catch { setPinnedCaseIndices([]); }
+    try {
+      const savedMode = localStorage.getItem(`pgcode_run_mode_${activeProblem?.id}`);
+      setStdinMode(savedMode === 'custom' ? 'custom' : 'cases');
+      const savedStdin = localStorage.getItem(`pgcode_run_stdin_${activeProblem?.id}`);
+      setCustomStdin(typeof savedStdin === 'string' ? savedStdin : '');
+    } catch { setStdinMode('cases'); setCustomStdin(''); }
   }, [activeProblem?.id, activeTestCases]);
 
   // Per-problem user progress (cached). MUST come before the editor-init
@@ -473,15 +488,20 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
   };
 
   const handleRun = async () => {
-    // Fall back to single raw execution for problems without driver metadata
-    if (!activeProblem.test_cases?.length || !activeProblem.method_name || !activeProblem.params) {
+    // Custom-stdin mode: bypass the test harness and run the user's raw source against
+    // whatever they typed in the textarea. Submit ignores this and always grades real cases.
+    const useCustomStdin = stdinMode === 'custom';
+
+    // Fall back to single raw execution for problems without driver metadata,
+    // or whenever the user has opted into custom-stdin mode.
+    if (useCustomStdin || !activeProblem.test_cases?.length || !activeProblem.method_name || !activeProblem.params) {
       setLeftTab('testresult');
       setRunning(true);
       setRunResult(null);
       setResultCaseIdx(0);
       setConsoleOutput('Running...');
       try {
-        const result = await runCode(codeContent, activeLang, '');
+        const result = await runCode(codeContent, activeLang, useCustomStdin ? customStdin : '');
         if (result.status !== 'success') {
           const statusMap = { compile_error: 'Compile Error', time_limit: 'Time Limit Exceeded', runtime_error: 'Runtime Error' };
           setRunResult({ status: 'error', statusText: statusMap[result.status] || 'Error', error: result.output, isSubmission: false });
@@ -733,6 +753,25 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
     }
   };
 
+  // Keyboard shortcut: Cmd/Ctrl+Enter runs code, Cmd/Ctrl+Shift+Enter submits.
+  // Use refs so the listener stays bound to the freshest handler without re-binding.
+  const runRef = useRef(handleRun);
+  const submitRef = useRef(handleSubmit);
+  runRef.current = handleRun;
+  submitRef.current = handleSubmit;
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        e.preventDefault();
+        if (running) return;
+        if (e.shiftKey) submitRef.current?.();
+        else runRef.current?.();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [running]);
+
   const setAndSaveConfidence = (val) => {
     setConfidence(val);
     saveProgress({
@@ -762,6 +801,20 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
     registerMonacoThemes(monaco);
     editor.onDidChangeCursorPosition((e) => {
       setCursorPos({ ln: e.position.lineNumber, col: e.position.column });
+    });
+    // Monaco swallows Cmd/Ctrl+Enter inside the editor surface; register it as
+    // an editor action so the shortcut works even when the user is typing code.
+    editor.addAction({
+      id: 'pgcode.run',
+      label: 'PGcode: Run',
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
+      run: () => { runRef.current?.(); },
+    });
+    editor.addAction({
+      id: 'pgcode.submit',
+      label: 'PGcode: Submit',
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.Enter],
+      run: () => { submitRef.current?.(); },
     });
   };
 
@@ -819,13 +872,25 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
     const tcs = Array.isArray(activeProblem.test_cases) ? activeProblem.test_cases : [];
     const samples = tcs.filter(t => t && (t.sample || t.is_sample || t.example));
     const pool = samples.length ? samples : tcs;
+    // Flagship test_cases use `inputs: [string]` (array, one per param). LC-imported
+    // sample_test_cases use `input` (singular string). Map both formats.
+    const formatInput = (t) => {
+      if (Array.isArray(t.inputs) && t.inputs.length) {
+        const params = Array.isArray(activeProblem.params) ? activeProblem.params : [];
+        return t.inputs.map((v, j) => {
+          const name = params[j]?.name || `arg${j}`;
+          return `${name} = ${typeof v === 'string' ? v : JSON.stringify(v)}`;
+        }).join(', ');
+      }
+      const v = t.input ?? t.in ?? t.stdin ?? '';
+      return typeof v === 'string' ? v : JSON.stringify(v);
+    };
     return pool.slice(0, 3).map((t, i) => {
-      const input = t.input ?? t.in ?? t.stdin ?? '';
       const output = t.expected ?? t.output ?? t.out ?? '';
       const explain = t.explanation || t.note || '';
       return {
         i: i + 1,
-        input: typeof input === 'string' ? input : JSON.stringify(input),
+        input: formatInput(t),
         output: typeof output === 'string' ? output : JSON.stringify(output),
         explain,
       };
@@ -892,6 +957,9 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
             <button className={`ws-tab ${leftTab === 'submissions' ? 'active' : ''}`} onClick={() => setLeftTab('submissions')}>
               <Award size={13} /> Submissions
             </button>
+            <button className={`ws-tab ${leftTab === 'discussion' ? 'active' : ''}`} onClick={() => setLeftTab('discussion')}>
+              <MessageSquare size={13} /> Discussion
+            </button>
             <button className={`ws-tab ${leftTab === 'testcase' ? 'active' : ''}`} onClick={() => setLeftTab('testcase')}>
               <TestTube size={13} /> Testcase
             </button>
@@ -906,21 +974,39 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
             {/* ── DESCRIPTION TAB ── */}
             {leftTab === 'description' && (
               <div className="ws-question">
-                <h1 className="ws-q-title">{displayName}</h1>
-                <div className="ws-q-tags">
+                <div className="ws-q-head">
+                  <h1 className="ws-q-title">{displayName}</h1>
                   <span className={`ws-diff-badge ws-diff-${activeProblem.difficulty?.toLowerCase()}`}>{activeProblem.difficulty}</span>
-                  {topic?.category && <span className="ws-tag-pill">{topic.category}</span>}
-                  {Array.isArray(activeProblem.tags) && activeProblem.tags.map(t => (
-                    <span key={t} className="ws-tag-pill ws-tag-pattern">{t}</span>
-                  ))}
                 </div>
+
+                {(topic?.category || (Array.isArray(activeProblem.tags) && activeProblem.tags.length > 0)) && (
+                  <div className="ws-q-tags">
+                    {topic?.category && (
+                      <span className="ws-tag-group">
+                        <span className="ws-tag-pill">{topic.category}</span>
+                      </span>
+                    )}
+                    {topic?.category && Array.isArray(activeProblem.tags) && activeProblem.tags.length > 0 && (
+                      <span className="ws-tag-sep" aria-hidden="true" />
+                    )}
+                    {Array.isArray(activeProblem.tags) && activeProblem.tags.length > 0 && (
+                      <span className="ws-tag-group">
+                        {activeProblem.tags.map(t => (
+                          <span key={t} className="ws-tag-pill ws-tag-pattern">{t}</span>
+                        ))}
+                      </span>
+                    )}
+                  </div>
+                )}
 
                 {problemCompanies.length > 0 && (
                   <div className="ws-companies">
                     <span className="ws-companies-label">Asked at</span>
-                    {problemCompanies.map(c => (
-                      <Link key={c.slug} to={`/company/${c.slug}`} className="ws-company-chip">{c.name}</Link>
-                    ))}
+                    <div className="ws-company-chips">
+                      {problemCompanies.map(c => (
+                        <Link key={c.slug} to={`/company/${c.slug}`} className="ws-company-chip">{c.name}</Link>
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -931,10 +1017,10 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                     {sampleCases.map(ex => (
                       <div key={ex.i} className="ws-example">
                         <div className="ws-example-title">Example {ex.i}</div>
-                        <div className="ws-example-row"><span className="ws-example-label">Input:</span><code>{ex.input}</code></div>
-                        <div className="ws-example-row"><span className="ws-example-label">Output:</span><code>{ex.output}</code></div>
+                        <div className="ws-example-row"><span className="ws-example-label">Input</span><code>{ex.input}</code></div>
+                        <div className="ws-example-row"><span className="ws-example-label">Output</span><code>{ex.output}</code></div>
                         {ex.explain && (
-                          <div className="ws-example-row"><span className="ws-example-label">Explanation:</span><span className="ws-example-explain">{ex.explain}</span></div>
+                          <div className="ws-example-row"><span className="ws-example-label">Explanation</span><span className="ws-example-explain">{ex.explain}</span></div>
                         )}
                       </div>
                     ))}
@@ -944,7 +1030,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                 {/* Constraints */}
                 {activeProblem.constraints && (
                   <div className="ws-constraints">
-                    <div className="ws-constraints-title">Constraints:</div>
+                    <div className="ws-constraints-title">Constraints</div>
                     <ul>
                       {(Array.isArray(activeProblem.constraints)
                         ? activeProblem.constraints
@@ -959,15 +1045,19 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                 {/* Follow-up */}
                 {activeProblem.follow_up && (
                   <div className="ws-followup">
-                    <div className="ws-followup-label">Follow-up:</div>
+                    <div className="ws-followup-label">Follow-up</div>
                     <p>{activeProblem.follow_up}</p>
                   </div>
                 )}
 
                 {/* Topics */}
                 {(activeProblem.topics?.length > 0 || topic?.category) && (
-                  <details className="ws-expandable">
-                    <summary>Topics</summary>
+                  <details className="ws-expandable ws-expandable-topics">
+                    <summary>
+                      <ChevronRight size={13} className="ws-expandable-caret" />
+                      <span>Topics</span>
+                      <span className="ws-expandable-count">{(activeProblem.topics || [topic?.category]).filter(Boolean).length}</span>
+                    </summary>
                     <div className="ws-topics-wrap">
                       {(activeProblem.topics || [topic?.category]).filter(Boolean).map((t, i) => (
                         <span key={i} className="ws-topic-pill">{t}</span>
@@ -976,13 +1066,48 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                   </details>
                 )}
 
-                {/* Hints */}
-                {activeProblem.hints?.length > 0 && activeProblem.hints.map((hint, i) => (
-                  <details key={`hint-${i}-${(hint || '').slice(0, 32)}`} className="ws-expandable">
-                    <summary>Hint {i + 1}</summary>
-                    <p>{hint}</p>
-                  </details>
-                ))}
+                {/* Hints — progressive reveal, numbered badges */}
+                {activeProblem.hints?.length > 0 && (
+                  <div className="ws-hints-block">
+                    <div className="ws-hints-head">
+                      <Lightbulb size={13} />
+                      <span className="ws-hints-title">Hints</span>
+                      <span className="ws-hints-count">{descHintsRevealed} / {activeProblem.hints.length}</span>
+                      {descHintsRevealed > 0 && (
+                        <button
+                          type="button"
+                          className="ws-hints-reset"
+                          onClick={() => setDescHintsRevealed(0)}
+                        >Reset</button>
+                      )}
+                    </div>
+                    <ol className="ws-hints-list">
+                      {activeProblem.hints.map((hint, i) => {
+                        const shown = i < descHintsRevealed;
+                        const isNext = i === descHintsRevealed;
+                        return (
+                          <li
+                            key={`hint-${i}-${(hint || '').slice(0, 24)}`}
+                            className={`ws-hint-item ${shown ? 'is-shown' : ''} ${isNext ? 'is-next' : ''}`}
+                          >
+                            <span className="ws-hint-badge">{i + 1}</span>
+                            {shown ? (
+                              <p className="ws-hint-text">{hint}</p>
+                            ) : isNext ? (
+                              <button
+                                type="button"
+                                className="ws-hint-reveal"
+                                onClick={() => setDescHintsRevealed(i + 1)}
+                              >Reveal hint {i + 1}</button>
+                            ) : (
+                              <span className="ws-hint-locked">Locked</span>
+                            )}
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  </div>
+                )}
 
                 {activeProblem.leetcode_url && (
                   <a href={activeProblem.leetcode_url} target="_blank" rel="noopener noreferrer" className="ws-lc-link">
@@ -993,15 +1118,15 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                 {similarProblems.length > 0 && (
                   <div className="ws-similar">
                     <h3 className="ws-similar-title">Similar problems</h3>
-                    <div className="ws-similar-list">
+                    <div className="ws-similar-grid">
                       {similarProblems.map(p => (
                         <Link
                           key={p.id}
                           to={`/category/${encodeURIComponent(p.topic_id)}/${encodeURIComponent(p.id)}`}
                           className="ws-similar-card"
                         >
-                          <span className={`ws-similar-diff ws-similar-diff-${p.difficulty?.toLowerCase()}`}>{p.difficulty}</span>
                           <span className="ws-similar-name">{p.name}</span>
+                          <span className={`ws-similar-diff ws-diff-${p.difficulty?.toLowerCase()}`}>{p.difficulty}</span>
                         </Link>
                       ))}
                     </div>
@@ -1112,6 +1237,13 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                     </div>
                   </>
                 )}
+              </div>
+            )}
+
+            {/* ── DISCUSSION TAB ── */}
+            {leftTab === 'discussion' && (
+              <div className="ws-discussion">
+                <Discussion targetKind="problem" targetId={activeProblem.id} session={session} />
               </div>
             )}
 
@@ -1341,17 +1473,40 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
               >
                 {String(Math.floor(timerSeconds / 60)).padStart(2, '0')}:{String(timerSeconds % 60).padStart(2, '0')}
               </span>
-              <Select
-                value={activeLang}
-                onChange={onLangChange}
-                options={[
-                  { value: 'python', label: 'Python 3' },
+              <div className="ws-lang-pills" role="tablist" aria-label="Language">
+                {[
+                  { value: 'python', label: 'Python' },
                   { value: 'javascript', label: 'JavaScript' },
                   { value: 'java', label: 'Java' },
                   { value: 'cpp', label: 'C++' },
-                ]}
-                size="sm"
-              />
+                ].map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    role="tab"
+                    aria-selected={activeLang === opt.value}
+                    className={`ws-lang-pill ${activeLang === opt.value ? 'active' : ''}`}
+                    onClick={() => onLangChange(opt.value)}
+                    title={opt.label}
+                  >
+                    <Code2 size={12} />
+                    <span className="ws-lang-pill-label">{opt.label}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="ws-lang-select-fallback">
+                <Select
+                  value={activeLang}
+                  onChange={onLangChange}
+                  options={[
+                    { value: 'python', label: 'Python 3' },
+                    { value: 'javascript', label: 'JavaScript' },
+                    { value: 'java', label: 'Java' },
+                    { value: 'cpp', label: 'C++' },
+                  ]}
+                  size="sm"
+                />
+              </div>
             </div>
           </div>
 
@@ -1374,12 +1529,55 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
               }} />
           </div>
 
+          {stdinMode === 'custom' && (
+            <div className="ws-stdin-panel">
+              <div className="ws-stdin-label">Custom stdin (each line is one parameter)</div>
+              <textarea
+                className="ws-stdin-textarea"
+                value={customStdin}
+                onChange={e => {
+                  const next = e.target.value;
+                  setCustomStdin(next);
+                  if (activeProblem) {
+                    try { localStorage.setItem(`pgcode_run_stdin_${activeProblem.id}`, next); } catch { /* ignore */ }
+                  }
+                }}
+                placeholder={'[2,7,11,15]\n9'}
+                spellCheck={false}
+                rows={3}
+              />
+            </div>
+          )}
+
           <div className="ws-editor-footer">
             <div className="ws-footer-left">
               <span className="ws-cursor-pos">Ln {cursorPos.ln}, Col {cursorPos.col}</span>
               {editorStatus && <span className="ws-editor-status">{editorStatus}</span>}
             </div>
             <div className="ws-footer-btns">
+              <div className="ws-run-mode" role="tablist" aria-label="Run mode">
+                {[
+                  { value: 'cases', label: 'Cases' },
+                  { value: 'custom', label: 'Custom' },
+                ].map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    role="tab"
+                    aria-selected={stdinMode === opt.value}
+                    className={`ws-run-mode-pill ${stdinMode === opt.value ? 'active' : ''}`}
+                    onClick={() => {
+                      setStdinMode(opt.value);
+                      if (activeProblem) {
+                        try { localStorage.setItem(`pgcode_run_mode_${activeProblem.id}`, opt.value); } catch { /* ignore */ }
+                      }
+                    }}
+                    title={opt.value === 'custom' ? 'Run with custom stdin' : 'Run with problem test cases'}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
               <button className="ws-run-btn" onClick={handleRun} disabled={running}>{running ? 'Running...' : 'Run'}</button>
               <button className="ws-submit-btn" onClick={handleSubmit} disabled={running}>Submit</button>
             </div>

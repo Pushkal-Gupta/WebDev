@@ -8,6 +8,16 @@ position: 3
 estimatedReadMinutes: 5
 prereqs: []
 relatedProblems: []
+references:
+  - title: "Sedgewick & Wayne — Bags, Queues, Stacks"
+    url: "https://algs4.cs.princeton.edu/13stacks/"
+    type: book
+  - title: "GeeksforGeeks — Stack & Queue"
+    url: "https://www.geeksforgeeks.org/stack-data-structure/"
+    type: blog
+  - title: "TheAlgorithms/Python — data_structures/stacks/"
+    url: "https://github.com/TheAlgorithms/Python/tree/master/data_structures/stacks"
+    type: repo
 status: published
 ---
 

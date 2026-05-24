@@ -9,8 +9,15 @@ estimatedReadMinutes: 7
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Use the Index, Luke! by Markus Winand"
-    url: ""
+  - title: "OSTEP — Operating Systems: Three Easy Pieces"
+    url: "https://pages.cs.wisc.edu/~remzi/OSTEP/"
+    type: book
+  - title: "Jepsen — Distributed-systems consistency analyses"
+    url: "https://jepsen.io/"
+    type: blog
+  - title: "donnemartin/system-design-primer"
+    url: "https://github.com/donnemartin/system-design-primer"
+    type: repo
 status: published
 ---
 

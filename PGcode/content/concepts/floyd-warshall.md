@@ -9,8 +9,15 @@ estimatedReadMinutes: 7
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Floyd (1962); Warshall (1962) — Algorithm 97"
-    url: ""
+  - title: "CLRS — Part VI: Graph Algorithms (walkccc notes)"
+    url: "https://walkccc.me/CLRS/"
+    type: book
+  - title: "cp-algorithms — Graph algorithms"
+    url: "https://cp-algorithms.com/graph/all-submissions.html"
+    type: blog
+  - title: "TheAlgorithms/Python — graphs/"
+    url: "https://github.com/TheAlgorithms/Python/tree/master/graphs"
+    type: repo
 status: published
 ---
 

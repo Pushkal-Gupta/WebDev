@@ -8,6 +8,16 @@ position: 7
 estimatedReadMinutes: 6
 prereqs: []
 relatedProblems: []
+references:
+  - title: "Sedgewick & Wayne — Balanced Search Trees"
+    url: "https://algs4.cs.princeton.edu/33balanced/"
+    type: book
+  - title: "cp-algorithms — Trees and tree algorithms"
+    url: "https://cp-algorithms.com/graph/all-submissions.html"
+    type: blog
+  - title: "TheAlgorithms/Python — data_structures/binary_tree/"
+    url: "https://github.com/TheAlgorithms/Python/tree/master/data_structures/binary_tree"
+    type: repo
 status: published
 ---
 

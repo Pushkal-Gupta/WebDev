@@ -9,8 +9,15 @@ estimatedReadMinutes: 8
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Bayer & McCreight (1972) — Organization and Maintenance of Large Ordered Indexes"
-    url: ""
+  - title: "Sedgewick & Wayne — Algorithms 4e: Balanced Search Trees"
+    url: "https://algs4.cs.princeton.edu/33balanced/"
+    type: book
+  - title: "Wikipedia — B-tree"
+    url: "https://en.wikipedia.org/wiki/B-tree"
+    type: blog
+  - title: "TheAlgorithms/Python — data_structures/binary_tree"
+    url: "https://github.com/TheAlgorithms/Python/tree/master/data_structures/binary_tree"
+    type: repo
 status: published
 ---
 

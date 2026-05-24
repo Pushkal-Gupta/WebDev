@@ -9,8 +9,15 @@ estimatedReadMinutes: 6
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Eddy (1977); Bykat (1978) — Quickhull"
-    url: ""
+  - title: "de Berg et al. — Computational Geometry (book site, Utrecht)"
+    url: "https://www.cs.uu.nl/geobook/"
+    type: book
+  - title: "GeeksforGeeks — Quickhull Algorithm for Convex Hull"
+    url: "https://www.geeksforgeeks.org/quickhull-algorithm-convex-hull/"
+    type: blog
+  - title: "TheAlgorithms/Python — convex hull implementations"
+    url: "https://github.com/TheAlgorithms/Python/blob/master/divide_and_conquer/convex_hull.py"
+    type: repo
 status: published
 ---
 

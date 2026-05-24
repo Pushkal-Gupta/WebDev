@@ -5,6 +5,9 @@ import {
   useProblemsCompact,
   useUserProgress,
   useProfile,
+  useSubmissionHistory,
+  useMyContestAttempts,
+  useMyListSizes,
   filterByRoadmap,
 } from '../lib/queries';
 import './Achievements.css';
@@ -14,6 +17,9 @@ export default function Achievements({ session, roadmapMode = '500', compact = f
   const { data: problems } = useProblemsCompact();
   const { data: progressBundle } = useUserProgress(userId);
   const { data: profile } = useProfile(userId);
+  const { data: submissions = [] } = useSubmissionHistory(userId, 500);
+  const { data: contestAttempts = [] } = useMyContestAttempts(userId);
+  const { data: listSizes = {} } = useMyListSizes(userId);
 
   // Filter chip + search — full page only. Compact mode (embedded in /progress)
   // hides the controls and just shows the first `limit` items.
@@ -26,9 +32,12 @@ export default function Achievements({ session, roadmapMode = '500', compact = f
       problems: filterByRoadmap(problems, roadmapMode),
       byId: progressBundle?.byId || {},
       profile,
+      submissions,
+      contestAttempts,
+      listSizes,
     });
     return new Set(computeEarned(ctx));
-  }, [userId, problems, progressBundle, profile, roadmapMode]);
+  }, [userId, problems, progressBundle, profile, roadmapMode, submissions, contestAttempts, listSizes]);
 
   const items = useMemo(() => {
     let list = [...ACHIEVEMENTS];

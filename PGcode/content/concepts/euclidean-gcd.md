@@ -8,6 +8,16 @@ position: 3
 estimatedReadMinutes: 4
 prereqs: []
 relatedProblems: []
+references:
+  - title: "CLRS Chapter 31.2 — Greatest Common Divisor (worked solutions)"
+    url: "https://walkccc.me/CLRS/Chap31/31.2/"
+    type: book
+  - title: "cp-algorithms — Euclidean algorithm for computing the greatest common divisor"
+    url: "https://cp-algorithms.com/algebra/euclid-algorithm.html"
+    type: blog
+  - title: "TheAlgorithms/Python — maths (GCD)"
+    url: "https://github.com/TheAlgorithms/Python/tree/master/maths"
+    type: repo
 status: published
 ---
 

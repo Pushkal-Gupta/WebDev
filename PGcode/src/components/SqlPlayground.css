@@ -142,17 +142,18 @@
   background: transparent;
   border: 1px solid transparent;
   border-radius: 5px;
-  padding: 0.4rem 0.55rem;
+  padding: 0.5rem 0.6rem;
   font-family: var(--mono);
   font-size: 0.72rem;
+  line-height: 1.45;
   color: var(--text-main);
   cursor: pointer;
   transition: background var(--t), border-color var(--t);
 }
 .sql-pg-q-link:hover { background: var(--hover-box); }
 .sql-pg-q-link.active { background: var(--hover-box); border-color: var(--accent); color: var(--accent); }
-.sql-pg-q-n { font-weight: 700; min-width: 24px; color: var(--accent); }
-.sql-pg-q-t { flex: 1; }
+.sql-pg-q-n { font-weight: 700; min-width: 24px; color: var(--accent); line-height: 1.45; }
+.sql-pg-q-t { flex: 1; min-width: 0; word-break: break-word; line-height: 1.45; }
 
 .sql-pg-prompt {
   border: 1px solid var(--border);
@@ -257,10 +258,18 @@
 }
 
 .sql-pg-main {
-  display: grid;
-  grid-template-rows: minmax(180px, 1fr) minmax(200px, 1fr);
-  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
   min-height: 0;
+}
+
+.sql-pg-split {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 0;
 }
 
 .sql-pg-editor {
@@ -268,7 +277,38 @@
   border-radius: 8px;
   overflow: hidden;
   background: var(--surface);
-  min-height: 0;
+  min-height: 120px;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+.sql-pg-vsplitter {
+  flex: 0 0 4px;
+  margin: 0.5rem 0;
+  border-radius: 2px;
+  background: var(--border);
+  cursor: row-resize;
+  transition: background var(--t);
+}
+.sql-pg-vsplitter:hover { background: var(--accent); }
+
+body.pg-resizing-row,
+body.pg-resizing-row * {
+  cursor: row-resize !important;
+  user-select: none !important;
+}
+
+body.pg-resizing-col,
+body.pg-resizing-col * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
+@media (max-width: 768px) {
+  .sql-pg-vsplitter { display: none; }
+  .sql-pg-editor,
+  .sql-pg-output { flex-basis: auto !important; flex: 1 1 0; }
+  .sql-pg-split { gap: 1rem; }
 }
 
 .sql-pg-output {
@@ -278,7 +318,9 @@
   border-radius: 8px;
   overflow: hidden;
   background: var(--surface);
-  min-height: 0;
+  min-height: 120px;
+  flex-grow: 0;
+  flex-shrink: 0;
 }
 
 .sql-pg-output-head {
@@ -328,18 +370,28 @@
 
 .sql-pg-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-family: var(--mono);
   font-size: 0.78rem;
+  line-height: 1.45;
 }
 
 .sql-pg-table th,
 .sql-pg-table td {
   text-align: left;
-  padding: 0.45rem 0.65rem;
-  border-bottom: 1px solid var(--border);
+  padding: 0.5rem 0.7rem;
   vertical-align: top;
+  line-height: 1.45;
 }
+
+.sql-pg-table td {
+  border-bottom: 1px solid var(--border);
+  color: var(--text-main);
+  background: var(--surface);
+}
+
+.sql-pg-table tbody tr:last-child td { border-bottom: none; }
 
 .sql-pg-table th {
   font-weight: 700;
@@ -347,13 +399,16 @@
   color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  background: var(--hover-box);
+  background: var(--surface);
+  background-clip: padding-box;
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 2;
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 0 0 var(--border), 0 2px 4px -2px rgba(var(--accent-rgb), 0.12);
 }
 
-.sql-pg-table tr:hover td { background: var(--hover-box); }
+.sql-pg-table tbody tr:hover td { background: var(--hover-box); }
 
 .sql-pg-null {
   color: var(--text-dim);

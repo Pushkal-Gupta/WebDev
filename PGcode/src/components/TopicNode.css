@@ -2,8 +2,8 @@
 .topic-node-container {
   padding: 20px 22px 24px 22px;
   border-radius: 20px;
-  min-width: 240px;
-  max-width: 280px;
+  min-width: 280px;
+  max-width: 320px;
 
   background: var(--surface);
   border: 1.5px solid var(--border);
@@ -61,7 +61,7 @@
 
 .topic-node-num {
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.15em;
@@ -76,10 +76,10 @@
 .topic-node-title {
   font-family: var(--serif);
   font-weight: 700;
-  font-size: 24px;
+  font-size: 30px;
   letter-spacing: -0.015em;
   color: var(--text-main);
-  line-height: 1.25;
+  line-height: 1.2;
 }
 
 /* ── Progress ── */
@@ -93,7 +93,7 @@
 
 .topic-node-stats {
   font-family: var(--mono);
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--text-dim);
   text-align: right;

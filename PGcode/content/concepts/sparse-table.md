@@ -9,8 +9,15 @@ estimatedReadMinutes: 7
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Bender & Farach-Colton — The LCA problem revisited"
-    url: ""
+  - title: "Sedgewick & Wayne — Algorithms (4e), Princeton (companion site)"
+    url: "https://algs4.cs.princeton.edu/home/"
+    type: book
+  - title: "cp-algorithms — Sparse Table"
+    url: "https://cp-algorithms.com/data_structures/sparse-table.html"
+    type: blog
+  - title: "kth-competitive-programming/kactl — sparse table templates"
+    url: "https://github.com/kth-competitive-programming/kactl"
+    type: repo
 status: published
 ---
 

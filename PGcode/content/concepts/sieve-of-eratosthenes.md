@@ -8,6 +8,16 @@ position: 1
 estimatedReadMinutes: 5
 prereqs: []
 relatedProblems: []
+references:
+  - title: "Sedgewick & Wayne — Algorithms (4e), Princeton (companion site)"
+    url: "https://algs4.cs.princeton.edu/home/"
+    type: book
+  - title: "cp-algorithms — Sieve of Eratosthenes"
+    url: "https://cp-algorithms.com/algebra/sieve-of-eratosthenes.html"
+    type: blog
+  - title: "TheAlgorithms/Python — maths (sieve)"
+    url: "https://github.com/TheAlgorithms/Python/blob/master/maths/sieve_of_eratosthenes.py"
+    type: repo
 status: published
 ---
 

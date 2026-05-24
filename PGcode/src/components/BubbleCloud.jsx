@@ -47,9 +47,11 @@ export default function BubbleCloud({ items, width = 260, height = 200 }) {
   // items: [{ id, label, solved, total }]
   const bubbles = useMemo(() => {
     const max = Math.max(1, ...items.map(i => i.total || 0));
+    const minR = items.length <= 4 ? Math.min(width, height) * 0.18 : 6;
+    const sizeFactor = items.length <= 4 ? 38 : 28;
     const scaled = items.map(i => ({
       ...i,
-      r: Math.max(6, 6 + Math.sqrt(Math.max(0, i.total)) * (28 / Math.sqrt(max))),
+      r: Math.max(minR, minR + Math.sqrt(Math.max(0, i.total)) * (sizeFactor / Math.sqrt(max))),
     }));
     return packBubbles(scaled, width, height);
   }, [items, width, height]);
@@ -61,10 +63,12 @@ export default function BubbleCloud({ items, width = 260, height = 200 }) {
   }
 
   return (
-    <svg className="bcl" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Solved problems by topic">
+    <svg className="bcl" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label="Solved problems by topic">
       {bubbles.map(b => {
         const fill = (b.solved || 0) / Math.max(1, b.total || 1);
-        const cls = fill >= 0.8 ? 'mastered' : fill >= 0.5 ? 'half' : fill > 0 ? 'low' : 'none';
+        const cls = b.kind
+          ? `kind-${b.kind}`
+          : fill >= 0.8 ? 'mastered' : fill >= 0.5 ? 'half' : fill > 0 ? 'low' : 'none';
         return (
           <g key={b.id} className={`bcl-bubble bcl-bubble-${cls}`}>
             <title>{b.label} — {b.solved}/{b.total} solved</title>
@@ -72,6 +76,17 @@ export default function BubbleCloud({ items, width = 260, height = 200 }) {
             {b.r >= 16 && (
               <text x={b.x} y={b.y} dy=".32em" textAnchor="middle" fontSize={Math.max(7, Math.min(11, b.r / 2.4))}>
                 {b.solved}
+              </text>
+            )}
+            {b.r >= 22 && b.label && (
+              <text
+                className="bcl-bubble-label"
+                x={b.x}
+                y={b.y + b.r / 2.6}
+                textAnchor="middle"
+                fontSize={Math.max(6, Math.min(8.5, b.r / 4))}
+              >
+                {b.label}
               </text>
             )}
           </g>

@@ -1,6 +1,6 @@
 .comp-container {
   width: 94%;
-  max-width: 1100px;
+  max-width: var(--container-w);
   margin: 0 auto;
   padding: 1.5rem 0 3rem;
   overflow-y: auto;

@@ -1,10 +1,10 @@
 .tut-container {
   width: 94%;
-  max-width: 1280px;
+  max-width: var(--container-w);
   margin: 0 auto;
   height: calc(100vh - 100px);
   overflow-y: auto;
-  padding: 1.4rem 0 3rem;
+  padding: 1.5rem 0 3rem;
   padding-right: calc(0 + 56px); /* leave room for the rail */
   position: relative;
 }
@@ -579,7 +579,18 @@
 .tut-diff-medium { color: var(--medium); background: var(--medium-bg); }
 .tut-diff-hard { color: var(--hard); background: var(--hard-bg); }
 
-.tut-item-topic { opacity: 0.7; }
+.tut-item-topic { opacity: 0.85; }
+.tut-item-topic-wrap.expanded .tut-item-topic { opacity: 1; }
+.tut-theory-placeholder {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 0.55rem;
+  color: var(--text-dim);
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  font-style: italic;
+}
 .tut-item-soon, .tut-item-theory-soft { color: var(--text-dim); }
 .tut-item-soon .tut-item-label, .tut-item-theory-soft .tut-item-label { color: var(--text-dim); }
 
@@ -603,3 +614,341 @@
   transition: transform var(--t);
 }
 .tut-back-top:hover { transform: translateY(-2px); }
+
+/* Inline-expandable theory rows. Click the row to expand a small editorial
+   panel rather than navigating away. If a Learn concept page exists we still
+   surface "Open full concept page" as a deep-link at the foot. */
+.tut-item-theory-wrap {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.tut-item-theory-button {
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.8rem;
+  font-family: var(--sans);
+  font-size: 0.92rem;
+  color: var(--text-main);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--t), border-color var(--t), padding-left var(--t);
+}
+.tut-item-theory-button:hover {
+  background: var(--hover-box);
+  border-color: var(--border);
+  padding-left: 1rem;
+}
+.tut-item-theory-button:hover .tut-item-label { color: var(--accent); }
+.tut-item-theory-wrap.expanded .tut-item-theory-button {
+  background: var(--hover-box);
+  border-color: var(--border);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.tut-item-theory-wrap.expanded .tut-item-theory-button .tut-item-icon { color: var(--accent); }
+
+.tut-theory-body {
+  margin: 0 0.15rem 0.45rem;
+  padding: 0.85rem 1.05rem 0.95rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  position: relative;
+}
+.tut-theory-body::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--accent);
+  opacity: 0.45;
+  border-radius: 0 0 0 8px;
+}
+
+.tut-theory-content {
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  line-height: 1.62;
+  color: var(--text-main);
+}
+.tut-theory-content p { margin: 0 0 0.65rem; }
+.tut-theory-content p:last-child { margin-bottom: 0; }
+.tut-theory-content ul {
+  margin: 0.25rem 0 0.7rem;
+  padding-left: 1.15rem;
+}
+.tut-theory-content li {
+  margin-bottom: 0.25rem;
+  line-height: 1.55;
+}
+
+.tut-theory-summary {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--text-main);
+  border-left: 2px solid var(--accent);
+  padding: 0.05rem 0 0.05rem 0.7rem;
+  margin: 0 0 0.85rem !important;
+}
+
+.tut-theory-section {
+  margin-top: 0.75rem;
+}
+.tut-theory-section:first-of-type { margin-top: 0; }
+
+.tut-theory-heading {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin: 0 0 0.35rem;
+}
+
+.tut-theory-complexity {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  margin-top: 0.65rem;
+  padding: 0.35rem 0.7rem;
+  background: var(--hover-box);
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+}
+.tut-theory-cx-label {
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  font-size: 0.6rem;
+}
+.tut-theory-cx-value { color: var(--text-main); }
+
+.tut-theory-readmore {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.85rem;
+  padding: 0.4rem 0.75rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  text-decoration: none;
+  transition: background var(--t), border-color var(--t), color var(--t);
+}
+.tut-theory-readmore:hover {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+/* Inline code spans inside theory prose */
+.tut-theory-code {
+  font-family: var(--mono);
+  font-size: 0.82em;
+  padding: 0.08em 0.4em;
+  background: var(--hover-box);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+/* Fenced code blocks (```ascii, ```py, etc.) — render as a monospace surface */
+.tut-theory-pre {
+  margin: 0.7rem 0;
+  padding: 0.85rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--text-main);
+  position: relative;
+}
+.tut-theory-pre code {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  padding: 0;
+  white-space: pre;
+  display: block;
+}
+.tut-theory-pre::before {
+  content: attr(data-lang);
+}
+.tut-theory-pre-ascii::before,
+.tut-theory-pre-py::before,
+.tut-theory-pre-python::before,
+.tut-theory-pre-js::before,
+.tut-theory-pre-javascript::before,
+.tut-theory-pre-cpp::before,
+.tut-theory-pre-java::before {
+  position: absolute;
+  top: 0;
+  right: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+  background: var(--hover-box);
+  padding: 0.1rem 0.4rem;
+  border-radius: 0 5px 0 5px;
+  font-weight: 700;
+}
+.tut-theory-pre-ascii::before  { content: 'ASCII'; }
+.tut-theory-pre-py::before,
+.tut-theory-pre-python::before { content: 'PYTHON'; }
+.tut-theory-pre-js::before,
+.tut-theory-pre-javascript::before { content: 'JS'; }
+.tut-theory-pre-cpp::before    { content: 'C++'; }
+.tut-theory-pre-java::before   { content: 'JAVA'; }
+
+/* Callout boxes — Note / Warning / Tip */
+.tut-callout {
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+  margin: 0.65rem 0;
+  padding: 0.55rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--hover-box);
+  font-family: var(--serif);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.tut-callout-icon {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  margin-top: 0.18rem;
+  color: var(--accent);
+}
+.tut-callout-body { color: var(--text-main); }
+.tut-callout-note    { border-left: 3px solid var(--accent); }
+.tut-callout-tip,
+.tut-callout-insight { border-left: 3px solid var(--easy); }
+.tut-callout-tip .tut-callout-icon,
+.tut-callout-insight .tut-callout-icon { color: var(--easy); }
+.tut-callout-warning,
+.tut-callout-caution { border-left: 3px solid var(--warning, var(--hard)); }
+.tut-callout-warning .tut-callout-icon,
+.tut-callout-caution .tut-callout-icon { color: var(--warning, var(--hard)); }
+
+/* Structured complexity table */
+.tut-theory-cx-card {
+  margin-top: 0.85rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.tut-theory-cx-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  background: var(--hover-box);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+.tut-theory-cx-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+}
+.tut-theory-cx-table th {
+  width: 6.5rem;
+  text-align: left;
+  padding: 0.35rem 0.75rem;
+  font-weight: 600;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.tut-theory-cx-table tr:last-child th,
+.tut-theory-cx-table tr:last-child td { border-bottom: none; }
+.tut-theory-cx-table td {
+  padding: 0.35rem 0.75rem;
+  color: var(--text-main);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Pitfalls card — left red accent */
+.tut-theory-pitfalls {
+  margin-top: 0.85rem;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--hard);
+  background: var(--surface);
+  border-radius: 6px;
+  padding: 0.55rem 0.85rem 0.65rem;
+}
+.tut-theory-pitfalls-head {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--hard);
+  margin-bottom: 0.35rem;
+}
+.tut-theory-pitfalls ul {
+  margin: 0;
+  padding-left: 1.05rem;
+}
+.tut-theory-pitfalls li {
+  font-family: var(--serif);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 0.25rem;
+  color: var(--text-main);
+}
+.tut-theory-pitfalls li:last-child { margin-bottom: 0; }
+
+/* Inline list used inside sections */
+.tut-theory-list {
+  margin: 0.25rem 0 0.7rem;
+  padding-left: 1.15rem;
+}
+.tut-theory-list li {
+  margin-bottom: 0.25rem;
+  line-height: 1.55;
+}

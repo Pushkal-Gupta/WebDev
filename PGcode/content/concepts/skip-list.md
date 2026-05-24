@@ -9,8 +9,15 @@ estimatedReadMinutes: 7
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Pugh (1990) — Skip Lists: A Probabilistic Alternative to Balanced Trees"
-    url: ""
+  - title: "CLRS — Chapter 10 (linked lists, walkccc notes)"
+    url: "https://walkccc.me/CLRS/Chap10/"
+    type: book
+  - title: "GeeksforGeeks — Linked List"
+    url: "https://www.geeksforgeeks.org/data-structures/linked-list/"
+    type: blog
+  - title: "TheAlgorithms/Python — data_structures/linked_list/"
+    url: "https://github.com/TheAlgorithms/Python/tree/master/data_structures/linked_list"
+    type: repo
 status: published
 ---
 

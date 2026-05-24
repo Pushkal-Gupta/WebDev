@@ -2,7 +2,8 @@ import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
   BookOpen, ChevronDown, ChevronRight, Search, CheckCircle2, Circle,
-  Lock, X, ArrowUp, Menu,
+  Lock, X, ArrowUp, Menu, ExternalLink, Info, AlertTriangle, Lightbulb,
+  Gauge, AlertCircle,
 } from 'lucide-react';
 import { DSA_TUTORIAL, countTutorialItems, countAll } from '../content/dsaTutorial';
 import {
@@ -75,9 +76,8 @@ export default function DsaTutorial({ session }) {
   const [search, setSearch] = useState('');
   const q = search.trim().toLowerCase();
 
-  // Default: open the first 2 sections so the user sees real content immediately;
-  // the rest are collapsed for fast scanning.
-  const [collapsed, setCollapsed] = useState(() => new Set(DSA_TUTORIAL.slice(2).map(s => s.slug)));
+  // Default: every chapter collapsed. User clicks to expand.
+  const [collapsed, setCollapsed] = useState(() => new Set(DSA_TUTORIAL.map(s => s.slug)));
   // Filter chip: 'all' | 'theory' | 'problems' | 'unsolved'
   const [filterKind, setFilterKind] = useState('all');
   // TOC drawer: hidden by default on every screen so the layout reads as a
@@ -351,22 +351,97 @@ function highlightLabel(label, q) {
 }
 
 function TutorialItem({ item, problemByName, conceptByName, byId, highlight }) {
+  const [expanded, setExpanded] = useState(false);
   if (item.kind === 'topic') {
+    const concept = item.conceptSlug
+      ? null
+      : conceptByName.get(normName(item.label));
+    const slug = item.conceptSlug || concept?.slug;
+    let moduleSlug = concept?.module_slug;
+    if (slug && !moduleSlug) {
+      const c = [...conceptByName.values()].find(c => c.slug === slug);
+      if (c) moduleSlug = c.module_slug;
+    }
+    const hasBody = !!item.body;
+    const hasLink = !!(slug && moduleSlug);
     return (
-      <li className="tut-item tut-item-topic">
-        <span className="tut-item-icon"><Circle size={10} /></span>
-        <span className="tut-item-label">{highlightLabel(item.label, highlight)}</span>
-        <span className="tut-item-kind">topic</span>
+      <li className={`tut-item-theory-wrap tut-item-topic-wrap ${expanded ? 'expanded' : ''}`}>
+        <button
+          type="button"
+          className="tut-item tut-item-topic tut-item-theory-button"
+          onClick={() => setExpanded(v => !v)}
+          aria-expanded={expanded}
+        >
+          <span className="tut-item-icon">
+            {expanded ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
+          </span>
+          <span className="tut-item-label">{highlightLabel(item.label, highlight)}</span>
+          <span className="tut-item-kind">topic</span>
+        </button>
+        {expanded && (
+          <div className="tut-theory-body">
+            {hasBody && <TheoryBody body={item.body} />}
+            {hasLink && (
+              <Link to={`/learn/${moduleSlug}/${slug}`} className="tut-theory-readmore">
+                <BookOpen size={11} /> Open full concept page
+                <ExternalLink size={10} />
+              </Link>
+            )}
+            {!hasBody && !hasLink && (
+              <p className="tut-theory-placeholder">
+                <Circle size={10} className="tut-inline-icon" />
+                See the related concepts above for in-depth coverage.
+              </p>
+            )}
+          </div>
+        )}
       </li>
     );
   }
   if (item.kind === 'theory') {
     const concept = item.conceptSlug
-      ? null  // we have an explicit slug; render below
+      ? null
       : conceptByName.get(normName(item.label));
     const slug = item.conceptSlug || concept?.slug;
-    const moduleSlug = concept?.module_slug;
-    if (slug && moduleSlug) {
+    let moduleSlug = concept?.module_slug;
+    if (slug && !moduleSlug) {
+      const c = [...conceptByName.values()].find(c => c.slug === slug);
+      if (c) moduleSlug = c.module_slug;
+    }
+    const hasBody = !!item.body;
+    const hasLink = !!(slug && moduleSlug);
+
+    if (hasBody) {
+      return (
+        <li className={`tut-item-theory-wrap ${expanded ? 'expanded' : ''}`}>
+          <button
+            type="button"
+            className="tut-item tut-item-theory tut-item-theory-button"
+            onClick={() => setExpanded(v => !v)}
+            aria-expanded={expanded}
+          >
+            <span className="tut-item-icon">
+              {expanded ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
+            </span>
+            <span className="tut-item-label">{highlightLabel(item.label, highlight)}</span>
+            <span className="tut-item-kind">theory</span>
+          </button>
+          {expanded && (
+            <div className="tut-theory-body">
+              <TheoryBody body={item.body} />
+              {hasLink && (
+                <Link to={`/learn/${moduleSlug}/${slug}`} className="tut-theory-readmore">
+                  <BookOpen size={11} /> Open full concept page
+                  <ExternalLink size={10} />
+                </Link>
+              )}
+            </div>
+          )}
+        </li>
+      );
+    }
+
+    if (hasLink) {
       return (
         <li className="tut-item tut-item-theory">
           <Link to={`/learn/${moduleSlug}/${slug}`} className="tut-item-link">
@@ -376,22 +451,6 @@ function TutorialItem({ item, problemByName, conceptByName, byId, highlight }) {
           </Link>
         </li>
       );
-    }
-    if (slug) {
-      // We have a concept slug but couldn't infer module. Best-effort fallback:
-      // search the conceptByName map for an exact slug match to grab its module.
-      const c = [...conceptByName.values()].find(c => c.slug === slug);
-      if (c) {
-        return (
-          <li className="tut-item tut-item-theory">
-            <Link to={`/learn/${c.module_slug}/${c.slug}`} className="tut-item-link">
-              <span className="tut-item-icon"><BookOpen size={11} /></span>
-              <span className="tut-item-label">{highlightLabel(item.label, highlight)}</span>
-              <span className="tut-item-kind">theory</span>
-            </Link>
-          </li>
-        );
-      }
     }
     return (
       <li className="tut-item tut-item-theory-soft">
@@ -428,5 +487,190 @@ function TutorialItem({ item, problemByName, conceptByName, byId, highlight }) {
       <span className="tut-item-label">{highlightLabel(item.label, highlight)}</span>
       <span className="tut-item-kind">soon</span>
     </li>
+  );
+}
+
+// Renders inline backtick spans as <code>. Splits a string into [text, <code>, text, ...].
+function renderInline(text, keyPrefix = '') {
+  if (text == null) return null;
+  const str = String(text);
+  if (!str.includes('`')) return str;
+  const parts = str.split('`');
+  return parts.map((part, i) => {
+    if (i % 2 === 1) {
+      return <code key={`${keyPrefix}-c-${i}`} className="tut-theory-code">{part}</code>;
+    }
+    return <React.Fragment key={`${keyPrefix}-t-${i}`}>{part}</React.Fragment>;
+  });
+}
+
+// Detect a leading callout marker (> Note:, > Warning:, > Tip:) and return parts.
+function parseCallout(line) {
+  const m = /^>\s*(Note|Warning|Tip|Insight|Caution):\s*(.*)$/i.exec(line.trim());
+  if (!m) return null;
+  return { kind: m[1].toLowerCase(), text: m[2] };
+}
+
+function Callout({ kind, children }) {
+  const icon = kind === 'warning' || kind === 'caution'
+    ? <AlertTriangle size={13} />
+    : kind === 'tip' || kind === 'insight'
+      ? <Lightbulb size={13} />
+      : <Info size={13} />;
+  return (
+    <aside className={`tut-callout tut-callout-${kind}`}>
+      <span className="tut-callout-icon">{icon}</span>
+      <span className="tut-callout-body">{children}</span>
+    </aside>
+  );
+}
+
+// Split a block of text into rendered parts: paragraphs, fenced code blocks (```), and callouts.
+function renderBlock(text, keyPrefix) {
+  if (!text) return null;
+  const lines = text.split('\n');
+  const out = [];
+  let buf = [];
+  let inFence = false;
+  let fenceLang = '';
+  let fenceBuf = [];
+
+  const flushBuf = () => {
+    if (!buf.length) return;
+    const joined = buf.join('\n').trim();
+    if (!joined) { buf = []; return; }
+    // Split into paragraphs by blank lines we may have left
+    joined.split(/\n{2,}/).forEach((para, i) => {
+      const trimmed = para.trim();
+      if (!trimmed) return;
+      const callout = parseCallout(trimmed);
+      if (callout) {
+        out.push(
+          <Callout key={`${keyPrefix}-cl-${out.length}-${i}`} kind={callout.kind}>
+            {renderInline(callout.text, `${keyPrefix}-cl-${out.length}`)}
+          </Callout>
+        );
+        return;
+      }
+      out.push(<p key={`${keyPrefix}-p-${out.length}-${i}`}>{renderInline(trimmed, `${keyPrefix}-p-${out.length}`)}</p>);
+    });
+    buf = [];
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const fenceMatch = /^```(\w*)\s*$/.exec(line);
+    if (fenceMatch) {
+      if (inFence) {
+        out.push(
+          <pre key={`${keyPrefix}-pre-${out.length}`} className={`tut-theory-pre tut-theory-pre-${fenceLang || 'plain'}`}>
+            <code>{fenceBuf.join('\n')}</code>
+          </pre>
+        );
+        inFence = false;
+        fenceLang = '';
+        fenceBuf = [];
+      } else {
+        flushBuf();
+        inFence = true;
+        fenceLang = fenceMatch[1] || '';
+      }
+      continue;
+    }
+    if (inFence) { fenceBuf.push(line); continue; }
+    buf.push(line);
+  }
+  if (inFence) {
+    out.push(
+      <pre key={`${keyPrefix}-pre-${out.length}`} className={`tut-theory-pre tut-theory-pre-${fenceLang || 'plain'}`}>
+        <code>{fenceBuf.join('\n')}</code>
+      </pre>
+    );
+  }
+  flushBuf();
+  return out;
+}
+
+function ComplexityTable({ complexity }) {
+  if (!complexity) return null;
+  if (typeof complexity === 'string') {
+    return (
+      <div className="tut-theory-complexity">
+        <span className="tut-theory-cx-label"><Gauge size={11} /> Complexity</span>
+        <span className="tut-theory-cx-value">{renderInline(complexity, 'cx-str')}</span>
+      </div>
+    );
+  }
+  const rows = [];
+  if (complexity.best) rows.push(['Best', complexity.best]);
+  if (complexity.average) rows.push(['Average', complexity.average]);
+  if (complexity.worst) rows.push(['Worst', complexity.worst]);
+  if (complexity.space) rows.push(['Space', complexity.space]);
+  if (complexity.notes) rows.push(['Notes', complexity.notes]);
+  return (
+    <div className="tut-theory-cx-card">
+      <div className="tut-theory-cx-head">
+        <Gauge size={12} />
+        <span>Complexity</span>
+      </div>
+      <table className="tut-theory-cx-table">
+        <tbody>
+          {rows.map(([k, v], i) => (
+            <tr key={i}>
+              <th>{k}</th>
+              <td>{renderInline(v, `cxr-${i}`)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function PitfallList({ items }) {
+  if (!items || !items.length) return null;
+  return (
+    <div className="tut-theory-pitfalls">
+      <div className="tut-theory-pitfalls-head">
+        <AlertCircle size={12} />
+        <span>Pitfalls</span>
+      </div>
+      <ul>
+        {items.map((p, j) => (
+          <li key={j}>{renderInline(p, `pf-${j}`)}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function TheoryBody({ body }) {
+  if (!body) return null;
+  if (typeof body === 'string') {
+    return <div className="tut-theory-content">{renderBlock(body, 'str')}</div>;
+  }
+  return (
+    <div className="tut-theory-content">
+      {body.summary && (
+        <p className="tut-theory-summary">{renderInline(body.summary, 'sum')}</p>
+      )}
+      {body.sections?.map((sec, i) => (
+        <div key={i} className="tut-theory-section">
+          <h4 className="tut-theory-heading">{sec.heading}</h4>
+          {Array.isArray(sec.body)
+            ? (
+              <ul className="tut-theory-list">
+                {sec.body.map((li, j) => (
+                  <li key={j}>{renderInline(li, `sec-${i}-li-${j}`)}</li>
+                ))}
+              </ul>
+            )
+            : renderBlock(sec.body, `sec-${i}`)
+          }
+        </div>
+      ))}
+      <ComplexityTable complexity={body.complexity} />
+      <PitfallList items={body.pitfalls} />
+    </div>
   );
 }

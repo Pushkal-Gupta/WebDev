@@ -9,8 +9,15 @@ estimatedReadMinutes: 7
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Russell & Norvig — Artificial Intelligence: A Modern Approach"
-    url: ""
+  - title: "CLRS — Chapter 4: Divide-and-Conquer (walkccc notes)"
+    url: "https://walkccc.me/CLRS/Chap04/"
+    type: book
+  - title: "cp-algorithms — Backtracking"
+    url: "https://cp-algorithms.com/combinatorics/all_combinations.html"
+    type: blog
+  - title: "TheAlgorithms/Python — backtracking/"
+    url: "https://github.com/TheAlgorithms/Python/tree/master/backtracking"
+    type: repo
 status: published
 ---
 

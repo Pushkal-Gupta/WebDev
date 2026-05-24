@@ -9,8 +9,15 @@ estimatedReadMinutes: 8
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Hart, Nilsson & Raphael (1968) — A Formal Basis for the Heuristic Determination of Minimum Cost Paths"
-    url: ""
+  - title: "Wikipedia — A* search algorithm (Hart, Nilsson, Raphael 1968)"
+    url: "https://en.wikipedia.org/wiki/A*_search_algorithm"
+    type: book
+  - title: "GeeksforGeeks — A* Search Algorithm"
+    url: "https://www.geeksforgeeks.org/dsa/a-search-algorithm/"
+    type: blog
+  - title: "TheAlgorithms/Python — graphs (A* and pathfinding implementations)"
+    url: "https://github.com/TheAlgorithms/Python/tree/master/graphs"
+    type: repo
 status: published
 ---
 

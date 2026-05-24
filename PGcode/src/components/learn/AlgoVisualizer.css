@@ -7,6 +7,7 @@
   flex-direction: column;
   gap: 0.7rem;
   margin: 0.7rem 0;
+  outline: none;
 }
 
 .viz-title {
@@ -19,6 +20,7 @@
 }
 
 .viz-cases {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
@@ -26,6 +28,7 @@
   border-bottom: 1px dashed var(--border);
 }
 .viz-case {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
@@ -38,13 +41,23 @@
   border: 1px solid var(--border);
   border-radius: 999px;
   cursor: pointer;
-  transition: color var(--t), border-color var(--t), background var(--t);
+  transition: color 0.25s ease-out, border-color 0.25s ease-out, background 0.25s ease-out, transform 0.18s ease-out;
 }
-.viz-case:hover { color: var(--text-main); border-color: var(--accent); }
+.viz-case:hover { color: var(--text-main); border-color: var(--accent); transform: translateY(-1px); }
 .viz-case.active {
   color: var(--accent);
   border-color: var(--accent);
   background: var(--hover-box);
+}
+.viz-case-underline {
+  position: absolute;
+  bottom: -1px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 2px;
+  pointer-events: none;
+  transition: left 0.32s cubic-bezier(0.4, 0, 0.2, 1), width 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 8px var(--accent);
 }
 
 .viz-custom {
@@ -111,6 +124,20 @@
   justify-content: center;
   padding: 0.5rem 0;
   overflow-x: auto;
+  position: relative;
+}
+
+.viz-stage-frame {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: viz-frame-in 0.3s ease-out;
+}
+
+@keyframes viz-frame-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .viz-caption {
@@ -123,9 +150,16 @@
   border-radius: 0 6px 6px 0;
   line-height: 1.55;
   margin: 0;
+  animation: viz-caption-in 0.28s ease-out;
+}
+
+@keyframes viz-caption-in {
+  from { opacity: 0; transform: translateX(-4px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 .viz-controls {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.35rem;
@@ -143,16 +177,33 @@
   border-radius: 5px;
   color: var(--text-main);
   cursor: pointer;
-  transition: border-color var(--t), color var(--t);
+  transition: border-color 0.2s ease-out, color 0.2s ease-out, background 0.2s ease-out, transform 0.15s ease-out;
 }
 
-.viz-controls button:hover { border-color: var(--accent); color: var(--accent); }
+.viz-controls button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+.viz-controls button:active { transform: translateY(0); }
 
 .viz-play {
+  width: 44px !important;
+  height: 44px !important;
   background: var(--accent) !important;
   color: var(--bg) !important;
   border-color: var(--accent) !important;
+  border-radius: 999px !important;
+  box-shadow: 0 2px 10px var(--hover-box), 0 0 0 0 var(--accent);
+  position: relative;
+  transition: transform 0.18s ease-out, box-shadow 0.25s ease-out, filter 0.2s ease-out !important;
 }
+.viz-play:hover {
+  transform: scale(1.08) !important;
+  filter: brightness(1.08);
+  box-shadow: 0 4px 16px var(--hover-box), 0 0 0 4px var(--hover-box);
+}
+.viz-play:active { transform: scale(0.96) !important; }
 
 .viz-progress {
   flex: 1;
@@ -176,15 +227,82 @@
 }
 .viz-step-label strong { color: var(--accent); }
 
-.viz-speed {
+.viz-tempo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.4rem 0.15rem 0.55rem;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 5px;
-  color: var(--text-main);
+  border-radius: 999px;
+  transition: border-color 0.2s ease-out;
+}
+.viz-tempo:hover { border-color: var(--accent); }
+.viz-tempo-label {
   font-family: var(--mono);
-  font-size: 0.66rem;
-  padding: 0.25rem 0.45rem;
-  cursor: pointer;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+
+.viz-help-btn {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 0.2rem;
+  width: auto !important;
+  padding: 0 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-dim) !important;
+}
+.viz-help-btn:hover { color: var(--accent) !important; }
+
+.viz-help-popover {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 0.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 6px 20px var(--hover-box);
+  z-index: 20;
+  min-width: 200px;
+  animation: viz-help-in 0.2s ease-out;
+}
+
+@keyframes viz-help-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.viz-help-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+.viz-help-row span { margin-left: auto; }
+.viz-help-row kbd {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-main);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: 0.1rem 0.35rem;
+  min-width: 1.2rem;
+  text-align: center;
 }
 
 /* ── Array bars ── */
@@ -193,6 +311,62 @@
   align-items: flex-end;
   gap: 4px;
   height: 160px;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  padding-bottom: 4px;
+}
+.viz-array::-webkit-scrollbar { height: 4px; }
+.viz-array::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* ── Array tiles (for non-numeric arrays — strings, structured labels) ── */
+.viz-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 160px;
+  align-items: flex-start;
+  align-content: flex-start;
+  padding: 0.5rem 0;
+}
+.viz-tile {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0.5rem 0.8rem;
+  min-width: 60px;
+  min-height: 60px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  transition: border-color 0.3s ease-out, background 0.3s ease-out, opacity 0.3s ease-out, transform 0.3s ease-out, box-shadow 0.3s ease-out;
+}
+.viz-tile-eliminated { opacity: 0.35; background: var(--bg); }
+.viz-tile-mid     { border-color: var(--accent); background: var(--hover-box); transform: translateY(-2px); box-shadow: 0 4px 12px var(--hover-box); }
+.viz-tile-low,
+.viz-tile-high    { border-color: var(--medium); }
+.viz-tile-match   { border-color: var(--easy); background: var(--easy-bg); transform: translateY(-2px); box-shadow: 0 4px 12px var(--hover-box); }
+.viz-tile-visited { border-color: var(--accent); }
+.viz-tile-current { border-color: var(--accent); background: var(--hover-box); transform: translateY(-2px); }
+.viz-tile-frontier{ border-color: var(--medium); }
+.viz-tile-done    { border-color: var(--easy); }
+.viz-tile-tree    { border-color: var(--accent); }
+.viz-tile-value {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-main);
+  text-align: center;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-width: 200px;
+}
+.viz-tile-idx {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  color: var(--text-dim);
 }
 
 .viz-bar {
@@ -203,7 +377,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  transition: background var(--t), height 0.3s ease, opacity var(--t);
+  transition: background 0.3s ease-out, height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-out, transform 0.3s ease-out, box-shadow 0.3s ease-out;
 }
 
 .viz-bar-eliminated {
@@ -211,10 +385,10 @@
   background: var(--text-dim);
 }
 
-.viz-bar-mid    { background: var(--accent); }
+.viz-bar-mid    { background: var(--accent); transform: translateY(-3px); box-shadow: 0 4px 10px var(--hover-box); }
 .viz-bar-left, .viz-bar-low  { background: var(--medium); }
 .viz-bar-right, .viz-bar-high { background: var(--medium); }
-.viz-bar-match  { background: var(--easy); }
+.viz-bar-match  { background: var(--easy); transform: translateY(-3px); box-shadow: 0 4px 10px var(--hover-box); }
 
 .viz-bar-value {
   position: absolute;
@@ -222,6 +396,7 @@
   font-family: var(--mono);
   font-size: 0.68rem;
   color: var(--text-main);
+  transition: color 0.3s ease-out;
 }
 
 .viz-bar-idx {
@@ -251,7 +426,7 @@
   font-family: var(--mono);
   font-size: 0.8rem;
   color: var(--text-main);
-  transition: border-color var(--t), background var(--t);
+  transition: border-color 0.3s ease-out, background 0.3s ease-out, transform 0.3s ease-out;
 }
 
 .viz-cell-window {
@@ -286,18 +461,22 @@
   border: 1px solid var(--border);
   border-radius: 4px;
   color: var(--text-main);
-  transition: background var(--t), border-color var(--t), color var(--t), opacity var(--t);
+  transition: background 0.3s ease-out, border-color 0.3s ease-out, color 0.3s ease-out, opacity 0.3s ease-out, transform 0.3s ease-out;
 }
 
 .viz-num-prime     { background: var(--easy-bg); border-color: var(--easy); color: var(--easy); font-weight: 700; }
 .viz-num-composite { opacity: 0.32; text-decoration: line-through; }
-.viz-num-current   { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 700; }
+.viz-num-current   { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 700; transform: scale(1.08); }
 .viz-num-cross     { background: var(--medium-bg); border-color: var(--medium); color: var(--medium); }
 
 /* ── Graph ── */
 .viz-graph { width: 100%; max-width: 360px; height: 240px; }
 
-.viz-edge { stroke: var(--border); stroke-width: 1.5; }
+.viz-edge {
+  stroke: var(--border);
+  stroke-width: 1.5;
+  transition: stroke 0.3s ease-out, stroke-width 0.3s ease-out;
+}
 .viz-edge-visited { stroke: var(--accent); stroke-width: 2.5; }
 .viz-edge-tree { stroke: var(--easy); stroke-width: 2.5; }
 .viz-edge-weight {
@@ -311,7 +490,7 @@
   fill: var(--surface);
   stroke: var(--border);
   stroke-width: 1.5;
-  transition: fill var(--t), stroke var(--t);
+  transition: fill 0.3s ease-out, stroke 0.3s ease-out, r 0.3s ease-out;
 }
 
 .viz-node text {
@@ -320,6 +499,7 @@
   font-weight: 600;
   fill: var(--text-main);
   pointer-events: none;
+  transition: fill 0.3s ease-out;
 }
 
 .viz-node-current circle { fill: var(--accent); stroke: var(--accent); }
@@ -327,3 +507,31 @@
 .viz-node-visited circle { fill: var(--hover-box); stroke: var(--accent); }
 .viz-node-frontier circle { fill: var(--medium-bg); stroke: var(--medium); }
 .viz-node-done circle { fill: var(--easy-bg); stroke: var(--easy); }
+
+/* ── Reduced motion: kill all viz transitions/animations ── */
+@media (prefers-reduced-motion: reduce) {
+  .viz-stage-frame,
+  .viz-caption,
+  .viz-help-popover { animation: none !important; }
+  .viz-case,
+  .viz-case-underline,
+  .viz-controls button,
+  .viz-play,
+  .viz-tempo,
+  .viz-tile,
+  .viz-bar,
+  .viz-bar-value,
+  .viz-cell,
+  .viz-num,
+  .viz-edge,
+  .viz-node circle,
+  .viz-node text {
+    transition: none !important;
+  }
+  .viz-tile-mid,
+  .viz-tile-match,
+  .viz-tile-current,
+  .viz-bar-mid,
+  .viz-bar-match,
+  .viz-num-current { transform: none !important; }
+}

@@ -107,4 +107,4 @@
 
 /* ── Light Mode ── */
 [data-theme="light"] .sv-approach { background: rgba(var(--accent-rgb), 0.03); }
-[data-theme="light"] .sv-code-block { background: #faf9f7; }
+[data-theme="light"] .sv-code-block { background: var(--surface); }

@@ -9,8 +9,15 @@ estimatedReadMinutes: 7
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Competitive programming standard — Held-Karp, Sridharan, et al."
-    url: ""
+  - title: "CLRS — Chapter 14: Dynamic Programming (walkccc notes)"
+    url: "https://walkccc.me/CLRS/Chap14/"
+    type: book
+  - title: "TopCoder — Dynamic Programming: From Novice to Advanced"
+    url: "https://www.topcoder.com/thrive/articles/Dynamic%20Programming:%20From%20Novice%20to%20Advanced"
+    type: blog
+  - title: "TheAlgorithms/Python — dynamic_programming/"
+    url: "https://github.com/TheAlgorithms/Python/tree/master/dynamic_programming"
+    type: repo
 status: published
 ---
 

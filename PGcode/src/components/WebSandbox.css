@@ -193,6 +193,6 @@
 .ws-sb-iframe {
   flex: 1;
   border: none;
-  background: white;
+  background: var(--surface);
   min-height: 0;
 }

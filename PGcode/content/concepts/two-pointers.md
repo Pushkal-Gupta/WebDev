@@ -8,6 +8,16 @@ position: 2
 estimatedReadMinutes: 5
 prereqs: []
 relatedProblems: []
+references:
+  - title: "Sedgewick & Wayne — Algorithms (4e), Princeton (companion site)"
+    url: "https://algs4.cs.princeton.edu/home/"
+    type: book
+  - title: "GeeksforGeeks — Two Pointers Technique"
+    url: "https://www.geeksforgeeks.org/two-pointers-technique/"
+    type: blog
+  - title: "TheAlgorithms/Python — reference implementations"
+    url: "https://github.com/TheAlgorithms/Python"
+    type: repo
 status: published
 ---
 

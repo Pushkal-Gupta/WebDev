@@ -9,8 +9,15 @@ estimatedReadMinutes: 8
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Reference Material — Module 4 — Bellman-Ford"
-    url: ""
+  - title: "Sedgewick & Wayne — Algorithms 4e: Shortest Paths"
+    url: "https://algs4.cs.princeton.edu/44sp/"
+    type: book
+  - title: "cp-algorithms — Bellman-Ford Algorithm"
+    url: "https://cp-algorithms.com/graph/bellman_ford.html"
+    type: blog
+  - title: "TheAlgorithms/Python — graphs"
+    url: "https://github.com/TheAlgorithms/Python/tree/master/graphs"
+    type: repo
 status: published
 ---
 

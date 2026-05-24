@@ -9,8 +9,15 @@ estimatedReadMinutes: 6
 prereqs: []
 relatedProblems: []
 references:
-  - title: "CLRS Chapter 2 (merge sort variant); standard competitive technique"
-    url: ""
+  - title: "CLRS Problem 2-4 — Inversions (worked solutions)"
+    url: "https://walkccc.me/CLRS/Chap02/Problems/2-4/"
+    type: book
+  - title: "GeeksforGeeks — Count inversions in an array"
+    url: "https://www.geeksforgeeks.org/counting-inversions/"
+    type: blog
+  - title: "TheAlgorithms/Python — inversions"
+    url: "https://github.com/TheAlgorithms/Python/blob/master/divide_and_conquer/inversions.py"
+    type: repo
 status: published
 ---
 

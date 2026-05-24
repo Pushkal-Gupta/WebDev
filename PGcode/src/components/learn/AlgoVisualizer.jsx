@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { Play, Pause, SkipBack, SkipForward, RotateCcw, ChevronsLeft, ChevronsRight, Wand2 } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback, useMemo, useLayoutEffect } from 'react';
+import { Play, Pause, SkipBack, SkipForward, RotateCcw, ChevronsLeft, ChevronsRight, Wand2, Keyboard } from 'lucide-react';
 import Select from '../Select';
 import './AlgoVisualizer.css';
 
@@ -120,7 +120,11 @@ export default function AlgoVisualizer({
   const [i, setI] = useState(0);
   const [playing, setPlaying] = useState(!!autoPlay);
   const [tempo, setTempo] = useState(speed);
+  const [showHelp, setShowHelp] = useState(false);
   const timerRef = useRef(null);
+  const rootRef = useRef(null);
+  const tablistRef = useRef(null);
+  const [underline, setUnderline] = useState({ left: 0, width: 0, visible: false });
 
   // Switching tab or re-running custom input resets the playback head.
   // Done inline (not via useEffect) to avoid a cascading-render warning.
@@ -145,19 +149,79 @@ export default function AlgoVisualizer({
   }, [playing, tempo, activeFrames.length]);
 
   const reset = useCallback(() => { setI(0); setPlaying(false); }, []);
-  const step = (delta) => { setPlaying(false); setI(p => Math.max(0, Math.min(activeFrames.length - 1, p + delta))); };
-  const seek = (idx) => { setPlaying(false); setI(idx); };
+  const step = useCallback((delta) => {
+    setPlaying(false);
+    setI(p => Math.max(0, Math.min(activeFrames.length - 1, p + delta)));
+  }, [activeFrames.length]);
+  const seek = useCallback((idx) => { setPlaying(false); setI(idx); }, []);
+
+  // Keyboard shortcuts — only active when the viz container has focus or
+  // contains the focused element. Avoids hijacking shortcuts from inputs.
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const onKey = (e) => {
+      const active = document.activeElement;
+      if (!root.contains(active)) return;
+      const tag = active?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || active?.isContentEditable) return;
+      if (!activeFrames.length) return;
+      if (e.key === ' ' || e.code === 'Space') {
+        e.preventDefault();
+        setPlaying(p => !p);
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        step(1);
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        step(-1);
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        step(-Infinity);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        step(Infinity);
+      } else if (e.key === '?') {
+        e.preventDefault();
+        setShowHelp(h => !h);
+      } else if (e.key === 'Escape' && showHelp) {
+        setShowHelp(false);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [activeFrames.length, step, showHelp]);
+
+  // Slide the underline pill under the active tab. Measurement-after-layout
+  // genuinely requires writing state from an effect — there is no way to know
+  // the DOM rect without reading it post-paint.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useLayoutEffect(() => {
+    const list = tablistRef.current;
+    if (!list) { setUnderline(u => ({ ...u, visible: false })); return; }
+    const idx = isCustom ? tabs.length : tabIdx;
+    const btn = list.querySelectorAll('.viz-case')[idx];
+    if (!btn) { setUnderline(u => ({ ...u, visible: false })); return; }
+    const listRect = list.getBoundingClientRect();
+    const btnRect = btn.getBoundingClientRect();
+    setUnderline({
+      left: btnRect.left - listRect.left,
+      width: btnRect.width,
+      visible: true,
+    });
+  }, [tabIdx, isCustom, tabs.length]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   if (!tabs.length) return null;
 
   const showCustomTab = !!(build && inputSchema);
 
   return (
-    <div className="viz">
+    <div className="viz" ref={rootRef} tabIndex={-1}>
       {title && <h4 className="viz-title">{title}</h4>}
 
       {(tabs.length > 1 || showCustomTab) && (
-        <div className="viz-cases" role="tablist">
+        <div className="viz-cases" role="tablist" ref={tablistRef}>
           {tabs.map((c, idx) => (
             <button
               key={idx}
@@ -181,6 +245,13 @@ export default function AlgoVisualizer({
               <Wand2 size={11} /> Custom
             </button>
           )}
+          {underline.visible && (
+            <span
+              className="viz-case-underline"
+              style={{ left: `${underline.left}px`, width: `${underline.width}px` }}
+              aria-hidden="true"
+            />
+          )}
         </div>
       )}
 
@@ -196,9 +267,15 @@ export default function AlgoVisualizer({
       {frame && !customErr && (
         <>
           <div className="viz-stage">
-            {render(frame, safeIdx)}
+            <div key={`${tabIdx}-${safeIdx}`} className="viz-stage-frame">
+              {render(frame, safeIdx)}
+            </div>
           </div>
-          {frame.caption && <p className="viz-caption">{frame.caption}</p>}
+          {frame.caption && (
+            <p key={`cap-${tabIdx}-${safeIdx}`} className="viz-caption">
+              {frame.caption}
+            </p>
+          )}
         </>
       )}
 
@@ -208,24 +285,24 @@ export default function AlgoVisualizer({
 
       {activeFrames.length > 0 && (
         <div className="viz-controls">
-          <button onClick={() => step(-Infinity)} aria-label="First step" title="First step">
+          <button onClick={() => step(-Infinity)} aria-label="First step" title="First step (Home)">
             <ChevronsLeft size={13} />
           </button>
-          <button onClick={() => step(-1)} aria-label="Previous step" title="Previous">
+          <button onClick={() => step(-1)} aria-label="Previous step" title="Previous (Left)">
             <SkipBack size={13} />
           </button>
           <button
             className="viz-play"
             onClick={() => setPlaying(p => !p)}
             aria-label={playing ? 'Pause' : 'Play'}
-            title={playing ? 'Pause' : 'Play'}
+            title={playing ? 'Pause (Space)' : 'Play (Space)'}
           >
-            {playing ? <Pause size={14} /> : <Play size={14} />}
+            {playing ? <Pause size={18} /> : <Play size={18} />}
           </button>
-          <button onClick={() => step(1)} aria-label="Next step" title="Next">
+          <button onClick={() => step(1)} aria-label="Next step" title="Next (Right)">
             <SkipForward size={13} />
           </button>
-          <button onClick={() => step(Infinity)} aria-label="Last step" title="Last step">
+          <button onClick={() => step(Infinity)} aria-label="Last step" title="Last step (End)">
             <ChevronsRight size={13} />
           </button>
           <button onClick={reset} aria-label="Reset" title="Reset">
@@ -244,17 +321,39 @@ export default function AlgoVisualizer({
               Step <strong>{safeIdx + 1}</strong> / {activeFrames.length}
             </span>
           </div>
-          <Select
-            value={String(tempo)}
-            onChange={(v) => setTempo(Number(v))}
-            options={[
-              { value: '2000', label: '0.5×' },
-              { value: '1200', label: '1×' },
-              { value: '800',  label: '1.5×' },
-              { value: '400',  label: '3×' },
-            ]}
-            size="sm"
-          />
+          <div className="viz-tempo">
+            <span className="viz-tempo-label">Speed</span>
+            <Select
+              value={String(tempo)}
+              onChange={(v) => setTempo(Number(v))}
+              options={[
+                { value: '2000', label: '0.5x' },
+                { value: '1200', label: '1x' },
+                { value: '800',  label: '1.5x' },
+                { value: '400',  label: '3x' },
+              ]}
+              size="sm"
+            />
+          </div>
+          <button
+            type="button"
+            className="viz-help-btn"
+            onClick={() => setShowHelp(h => !h)}
+            aria-label="Keyboard shortcuts"
+            aria-expanded={showHelp}
+            title="Keyboard shortcuts (?)"
+          >
+            <Keyboard size={12} />
+            <span>?</span>
+          </button>
+          {showHelp && (
+            <div className="viz-help-popover" role="dialog" aria-label="Keyboard shortcuts">
+              <div className="viz-help-row"><kbd>Space</kbd><span>Play / Pause</span></div>
+              <div className="viz-help-row"><kbd>{'←'}</kbd><kbd>{'→'}</kbd><span>Step</span></div>
+              <div className="viz-help-row"><kbd>Home</kbd><kbd>End</kbd><span>Jump to start / end</span></div>
+              <div className="viz-help-row"><kbd>?</kbd><span>Toggle this help</span></div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -269,22 +368,46 @@ export default function AlgoVisualizer({
 // Frame: { array, highlights?: { [index]: 'left'|'right'|'mid'|'low'|'high'|'match' }, eliminated?: Set<number> }
 export function ArrayBarRenderer({ frame }) {
   const arr = frame.array || [];
-  const max = Math.max(1, ...arr.map(Math.abs));
+  // Heuristic: if every value parses as a finite number, render as a bar chart;
+  // otherwise render labeled tiles (used by viz like treap, quickhull, persistent
+  // segment tree where each entry is a structured string).
+  const numeric = arr.length > 0 && arr.every(v => typeof v === 'number' && Number.isFinite(v));
+  if (numeric) {
+    const max = Math.max(1, ...arr.map(v => Math.abs(v)));
+    return (
+      <div className="viz-array">
+        {arr.map((v, idx) => {
+          const role = frame.highlights?.[idx];
+          const eliminated = frame.eliminated?.has?.(idx) || frame.eliminated?.includes?.(idx);
+          const height = Math.max(8, Math.round((Math.abs(v) / max) * 120));
+          return (
+            <div
+              key={idx}
+              className={`viz-bar ${role ? 'viz-bar-' + role : ''} ${eliminated ? 'viz-bar-eliminated' : ''}`}
+              style={{ height: `${height}px` }}
+              title={`arr[${idx}] = ${v}`}
+            >
+              <span className="viz-bar-value">{v}</span>
+              <span className="viz-bar-idx">{idx}</span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
   return (
-    <div className="viz-array">
+    <div className="viz-tiles">
       {arr.map((v, idx) => {
         const role = frame.highlights?.[idx];
         const eliminated = frame.eliminated?.has?.(idx) || frame.eliminated?.includes?.(idx);
-        const height = Math.max(8, Math.round((Math.abs(v) / max) * 120));
         return (
           <div
             key={idx}
-            className={`viz-bar ${role ? 'viz-bar-' + role : ''} ${eliminated ? 'viz-bar-eliminated' : ''}`}
-            style={{ height: `${height}px` }}
-            title={`arr[${idx}] = ${v}`}
+            className={`viz-tile ${role ? 'viz-tile-' + role : ''} ${eliminated ? 'viz-tile-eliminated' : ''}`}
+            title={`[${idx}] ${v}`}
           >
-            <span className="viz-bar-value">{v}</span>
-            <span className="viz-bar-idx">{idx}</span>
+            <span className="viz-tile-value">{String(v)}</span>
+            <span className="viz-tile-idx">{idx}</span>
           </div>
         );
       })}

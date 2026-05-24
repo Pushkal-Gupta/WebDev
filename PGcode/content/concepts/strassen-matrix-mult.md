@@ -9,8 +9,15 @@ estimatedReadMinutes: 6
 prereqs: []
 relatedProblems: []
 references:
-  - title: "Strassen (1969) — Gaussian elimination is not optimal"
-    url: ""
+  - title: "CLRS Chapter 4.2 — Strassen's algorithm for matrix multiplication (worked solutions)"
+    url: "https://walkccc.me/CLRS/Chap04/4.2/"
+    type: book
+  - title: "GeeksforGeeks — Strassen's Matrix Multiplication"
+    url: "https://www.geeksforgeeks.org/strassens-matrix-multiplication/"
+    type: blog
+  - title: "TheAlgorithms/Python — divide and conquer (Strassen)"
+    url: "https://github.com/TheAlgorithms/Python/blob/master/divide_and_conquer/strassen_matrix_multiplication.py"
+    type: repo
 status: published
 ---
 
