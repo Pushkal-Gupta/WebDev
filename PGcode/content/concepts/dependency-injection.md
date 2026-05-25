@@ -1,6 +1,6 @@
 ---
 slug: dependency-injection
-module: foundations
+module: foundations-analysis
 title: Dependency Injection
 subtitle: Invert control of object wiring so classes receive collaborators instead of constructing them — the keystone of testable architecture.
 difficulty: Intermediate
@@ -25,10 +25,14 @@ status: published
 Dependency Injection (DI) is the practice of supplying a class with the objects it needs rather than letting it create them internally. The class declares what it depends on through its constructor, a setter, or an interface; a separate piece of code (often a container) decides which concrete implementation to hand over. The result is loose coupling, swap-in test doubles, and code that reads like a wiring diagram instead of a tangle.
 
 ## whyItMatters
-Hard-coded `new` calls bind a class to a specific implementation forever. Want to swap a real payment gateway for a sandbox? Mock a database in a unit test? Run the same service against Postgres in prod and SQLite in CI? Without DI you patch globals, monkey-patch imports, or refactor every caller. With DI those swaps are one line of configuration. Frameworks like Spring, Angular, ASP.NET Core, NestJS, and FastAPI are built on this idea precisely because it scales to thousands of objects.
+Hard-coded `new` calls bind a class to a specific implementation forever. Want to swap a real payment gateway for a sandbox? Mock a database in a unit test? Run the same service against Postgres in prod and SQLite in CI? Without DI you patch globals, monkey-patch imports, or refactor every caller. With DI those swaps are one line of configuration. Frameworks like Spring (Java), Angular (TypeScript), ASP.NET Core (C#), NestJS (Node), Dagger (Android), and FastAPI (Python) are built on this idea because it scales to thousands of objects. Martin Fowler's 2004 essay *Inversion of Control Containers and the Dependency Injection pattern* is the canonical reference; Robert Martin's SOLID principles put the Dependency-Inversion Principle as the D, because it is the one that lets the other four breathe.
 
 ## intuition
-Think of a coffee machine. A bad design hard-wires the grinder, brewer, and milk frother inside the machine — to change any one you scrap the whole thing. A DI design exposes sockets: hand it any grinder that matches the socket and the machine works. The machine never knows or cares which brand of grinder is plugged in; it just calls `grinder.grind(beans)`. Your classes should behave the same way.
+A class needs collaborators — a logger, a database client, a payment gateway, a clock. If the class constructs them inside its own constructor (`self.db = PostgresClient("prod-host")`), it is now bound to that exact implementation and configuration. Tests have to spin up a real Postgres; staging has to ship the prod host; a new gateway requires editing every call site. The class secretly knows too much.
+
+Dependency injection flips the relationship: the class declares what it needs (often as constructor parameters) and an outside party provides instances. The class no longer constructs anything; it only consumes. Now tests can inject a fake database, staging can inject a staging gateway, and the class itself never changes. The outside party that wires real implementations into real classes is called the *composition root* (typically `main()` or a framework startup hook). Everything else is just plain code that takes parameters.
+
+The three flavors differ only in how dependencies arrive. **Constructor injection** passes them at construction time and is the safest because the object is immutable once built. **Setter injection** passes them after construction via mutators — useful when frameworks need to instantiate first and configure later. **Interface injection** is rare; the dependency itself calls an `inject(client)` method on the consumer. Constructor injection is the default in every modern framework.
 
 ## visualization
 Picture a `ReportService` that needs an `EmailSender`. Without DI: `ReportService` calls `new SmtpEmailSender(...)` inside its constructor — the two boxes are welded together. With DI: `ReportService` declares `EmailSender sender` as a constructor parameter. A composition root (or container) draws the arrow from `SmtpEmailSender` into that parameter at startup. In tests, the same arrow is redrawn from `FakeEmailSender` — without touching `ReportService` source.
@@ -37,7 +41,28 @@ Picture a `ReportService` that needs an `EmailSender`. Without DI: `ReportServic
 The non-DI baseline is the Service Locator or plain `new`. A class either instantiates its dependencies directly (`this.db = new PostgresClient()`) or fetches them from a global registry (`this.db = ServiceLocator.get("db")`). Both work, both feel simple, both rot quickly: every consumer learns the concrete type or the registry key, tests become harder than the code they cover, and configuration leaks into business logic. It is acceptable for tiny scripts and unacceptable for anything you intend to keep.
 
 ## optimal
-Use constructor injection by default: declare every collaborator as a constructor parameter and store them in `final`/`readonly` fields. The class becomes immutable, impossible to instantiate without its dependencies, and trivial to unit test by passing fakes. Wire the real graph in one place — the composition root at program startup. For large systems, delegate wiring to a DI container (Spring, Guice, Hilt, NestJS, ASP.NET Core, Dagger) that reads annotations or modules and resolves the graph automatically. Reserve setter injection for genuinely optional dependencies and avoid field injection except in framework-managed code that demands it.
+Constructor-inject everything a class needs, declared as interface types (or `Protocol` types in Python, traits in Rust). Wire concrete implementations in one composition root at process startup. Do not reach for a full DI container until the wiring code grows past a hundred lines or you need scope-bound lifecycles (per-request database connections, singleton config). For libraries, never assume a DI container; accept dependencies as plain parameters so callers can wire however they like.
+
+```python
+from typing import Protocol
+
+class PaymentGateway(Protocol):
+    def charge(self, amount_cents: int, token: str) -> str: ...
+
+class Checkout:
+    def __init__(self, gateway: PaymentGateway, clock):
+        self.gateway = gateway
+        self.clock = clock
+    def run(self, cart, token):
+        charge_id = self.gateway.charge(cart.total_cents, token)
+        return Receipt(charge_id, self.clock.now())
+
+# Composition root (one place, at process boot)
+gateway = StripeGateway(api_key=os.environ['STRIPE_KEY'])
+checkout = Checkout(gateway=gateway, clock=SystemClock())
+```
+
+The critical pattern is the `Protocol` declaration plus constructor parameters: `Checkout` knows nothing about Stripe, so a test can pass an in-memory `FakeGateway`, an integration suite can pass a Stripe sandbox client, and the prod composition root passes the real client. The wiring is centralized; the consumer is decoupled. For larger systems use a container (Spring's `@Component`, NestJS's `@Injectable`, FastAPI's `Depends`) to resolve transitive graphs automatically, but resist over-engineering: a plain `main()` that constructs and passes objects is often the most maintainable wiring you can write.
 
 ## complexity
 time: O(1) per resolution after container build

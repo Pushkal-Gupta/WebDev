@@ -1,6 +1,6 @@
 ---
 slug: avl-tree
-module: trees
+module: trees-balanced-disk
 title: AVL Tree
 subtitle: Height-balanced BST that uses balance factors and rotations to stay strictly logarithmic.
 difficulty: Advanced

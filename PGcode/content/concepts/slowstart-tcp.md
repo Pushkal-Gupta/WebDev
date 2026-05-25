@@ -1,6 +1,6 @@
 ---
 slug: slowstart-tcp
-module: cs-core
+module: cs-network-protocols
 title: TCP Congestion Control
 subtitle: Slow start, AIMD, fast retransmit, fast recovery — how TCP probes the network for spare capacity without collapsing it.
 difficulty: Intermediate

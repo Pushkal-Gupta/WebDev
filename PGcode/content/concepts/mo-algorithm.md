@@ -1,6 +1,6 @@
 ---
 slug: mo-algorithm
-module: arrays-searching
+module: arrays-counting-select
 title: Mo's Algorithm
 subtitle: Offline range queries via sqrt(n) bucket sort plus two-pointer maintenance, in O((n+q)*sqrt(n)).
 difficulty: Advanced

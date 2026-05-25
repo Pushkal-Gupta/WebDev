@@ -1,6 +1,6 @@
 ---
 slug: dp-matrix-exponentiation
-module: dp
+module: dp-advanced
 title: Matrix Exponentiation for Linear Recurrences
 subtitle: Compute the n-th term of any constant-coefficient linear recurrence in O(k^3 log n).
 difficulty: Advanced
@@ -32,7 +32,7 @@ Any constant-coefficient linear recurrence — Fibonacci, Tribonacci, "ways to t
 - Competitive programming: appears in roughly 1 in 20 hard problems.
 
 ## intuition
-A linear recurrence `f_n = a_1 f_{n-1} + a_2 f_{n-2} + ... + a_k f_{n-k}` *is* matrix multiplication in disguise. Stack the last k values into a column vector, build a companion matrix M whose action is "shift down and combine with the recurrence row," then `v_{n} = M^n · v_0`. Exponentiation by squaring turns n applications into log n applications.
+Iterating a linear recurrence `f_n = a_1 f_{n-1} + a_2 f_{n-2} + ... + a_k f_{n-k}` term by term costs O(n) — fine for n = 10^6 but hopeless for n = 10^18 (more cycles than the universe has had since the Big Bang). The matrix-exponentiation trick recognizes that the recurrence is just matrix multiplication in disguise. Stack the last k values into a column state vector `v = [f_{n}, f_{n-1}, ..., f_{n-k+1}]^T` and build a k by k companion matrix M whose top row encodes the coefficients `[a_1, a_2, ..., a_k]` and whose sub-diagonal is the identity-shift. Then `M * v_n = v_{n+1}` — one matrix multiplication advances the recurrence by one step. By associativity, `v_n = M^n * v_0`. Computing `M^n` by binary exponentiation (squaring) takes log n matrix multiplications, each O(k^3) in scalar operations, so total work is O(k^3 log n). At k = 2 (Fibonacci) and n = 10^18, that is about 60 multiplications of 2x2 matrices — instant. The deep insight is that polynomial-time recurrences hide algebraic structure that matrix algebra exposes. Any operation that is linear in some state vector (linear recurrences, graph adjacency walks, Markov chain transitions, finite-state automaton paths) can be exponentiated with this trick. Computing "number of length-n walks from u to v in graph G" is just `(A^n)[u][v]` where A is the adjacency matrix. Stationary distributions of Markov chains are eigenvectors of the transition matrix. Counting strings of length n avoiding a forbidden pattern is matrix-exponentiating the automaton's transition matrix. The square-and-multiply pattern is the same algorithmic skeleton everywhere — what changes is which matrix you raise to a power.
 
 ## visualization
 ```

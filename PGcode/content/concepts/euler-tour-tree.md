@@ -1,6 +1,6 @@
 ---
 slug: euler-tour-tree
-module: trees
+module: trees-advanced-queries
 title: Euler Tour on Trees
 subtitle: Flatten a tree into an array so subtree queries become range queries — combine with a Fenwick or segment tree.
 difficulty: Advanced

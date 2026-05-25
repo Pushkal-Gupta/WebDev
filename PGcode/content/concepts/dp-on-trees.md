@@ -1,6 +1,6 @@
 ---
 slug: dp-on-trees
-module: trees
+module: trees-advanced-queries
 title: DP on Trees
 subtitle: Compute per-subtree aggregates in O(n) via a single post-order DFS — the workhorse for tree problems with optimal-substructure.
 difficulty: Intermediate

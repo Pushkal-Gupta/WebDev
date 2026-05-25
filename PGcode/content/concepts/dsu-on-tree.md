@@ -1,6 +1,6 @@
 ---
 slug: dsu-on-tree
-module: trees
+module: trees-advanced-queries
 title: DSU on Tree (Small-to-Large)
 subtitle: Aggregate subtree statistics in O(n log n) by always merging the smaller set into the larger one.
 difficulty: Advanced

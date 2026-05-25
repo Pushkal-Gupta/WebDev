@@ -26,7 +26,7 @@ export default function ContestsIndex() {
           <Trophy size={32} className="ctx-empty-icon" />
           <h2 className="ctx-empty-title">No contests yet</h2>
           <p className="ctx-empty-sub">
-            Contests are being prepared. Check back soon.
+            New contests appear here as they go live.
           </p>
         </div>
       </div>
@@ -41,8 +41,8 @@ export default function ContestsIndex() {
       <header className="ctx-header">
         <h1 className="ctx-title">Contests</h1>
         <p className="ctx-sub">
-          Timed problem sets. Each is a virtual contest — start whenever you want; the clock runs
-          while you solve. Penalty time accrues for wrong submissions, ICPC-style.
+          Timed problem sets, virtual ICPC-style. Start whenever — the clock runs while you solve,
+          wrong submissions add penalty time.
         </p>
       </header>
 

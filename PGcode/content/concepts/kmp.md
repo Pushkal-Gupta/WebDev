@@ -1,6 +1,6 @@
 ---
 slug: kmp
-module: sorting-strings
+module: strings-matching
 title: KMP — Knuth-Morris-Pratt
 subtitle: Find a pattern inside a text in O(n + m) by precomputing where to jump after a mismatch.
 difficulty: Advanced

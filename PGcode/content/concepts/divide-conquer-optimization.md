@@ -1,6 +1,6 @@
 ---
 slug: divide-conquer-optimization
-module: dp
+module: dp-advanced
 title: Divide & Conquer DP Optimization
 subtitle: Reduce 1D DP from O(n·k) to O(n log n · k) when the optimal split point is monotonic across rows.
 difficulty: Advanced

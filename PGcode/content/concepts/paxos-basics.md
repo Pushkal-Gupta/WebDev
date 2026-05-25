@@ -1,6 +1,6 @@
 ---
 slug: paxos-basics
-module: system-design
+module: sd-consensus
 title: Paxos Basics
 subtitle: Single-decree Paxos — proposers, acceptors, learners, and the two-phase protocol.
 difficulty: Advanced

@@ -1,6 +1,6 @@
 ---
 slug: fan-out-fan-in
-module: system-design
+module: sd-microservices
 title: Fan-Out / Fan-In
 subtitle: Split a job across N workers, then collect their results into one ordered or aggregated stream.
 difficulty: Intermediate

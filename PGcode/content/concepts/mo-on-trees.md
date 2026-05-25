@@ -1,6 +1,6 @@
 ---
 slug: mo-on-trees
-module: graphs
+module: graphs-advanced
 title: Mo's Algorithm on Trees
 subtitle: Euler tour plus Mo's sqrt-decomposition for offline path-aggregate queries in O((N+Q) sqrt N).
 difficulty: Advanced

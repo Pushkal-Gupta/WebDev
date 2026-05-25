@@ -1,6 +1,6 @@
 ---
 slug: load-balancing-strategies
-module: system-design
+module: sd-reliability
 title: Load Balancing Strategies
 subtitle: Round-robin / least-connections / least-latency / consistent-hash / power-of-2 choices. Pick by traffic shape + backend state.
 difficulty: Intermediate

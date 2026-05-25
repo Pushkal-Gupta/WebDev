@@ -1,6 +1,6 @@
 ---
 slug: boyer-moore-string-search
-module: sorting-strings
+module: strings-matching
 title: Boyer-Moore String Search
 subtitle: Skip large chunks of the haystack by combining the bad-character and good-suffix heuristics.
 difficulty: Advanced

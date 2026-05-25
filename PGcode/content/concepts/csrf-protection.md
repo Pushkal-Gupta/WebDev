@@ -1,6 +1,6 @@
 ---
 slug: csrf-protection
-module: system-design
+module: sd-auth-security
 title: CSRF Protection
 subtitle: Stop another site's JS from making authenticated requests on the user's behalf — via SameSite cookies + CSRF tokens + origin checks.
 difficulty: Intermediate

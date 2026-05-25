@@ -1,6 +1,6 @@
 ---
 slug: lowest-common-ancestor-bst
-module: trees
+module: trees-traversal-bst
 title: Lowest Common Ancestor in a BST
 subtitle: One root-to-LCA walk in O(h) — the BST ordering does all the work the general-tree algorithm has to do twice.
 difficulty: Beginner

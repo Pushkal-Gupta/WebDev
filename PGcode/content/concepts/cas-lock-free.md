@@ -1,6 +1,6 @@
 ---
 slug: cas-lock-free
-module: cs-core
+module: cs-os-concurrency
 title: Compare-And-Swap (CAS)
 subtitle: The atomic primitive every lock-free data structure is built on — read-modify-write that fails if anyone else moved first.
 difficulty: Advanced

@@ -1,6 +1,6 @@
 ---
 slug: message-queues
-module: system-design
+module: sd-microservices
 title: Message Queues
 subtitle: Decouple producers from consumers so spikes are absorbed and slow work happens off the request path.
 difficulty: Intermediate

@@ -1,6 +1,6 @@
 ---
 slug: virtual-memory
-module: cs-core
+module: cs-os-concurrency
 title: Virtual Memory
 subtitle: Page tables, TLB, demand paging, and copy-on-write — how 4 GB of RAM serves processes that think they own 256 TB.
 difficulty: Intermediate

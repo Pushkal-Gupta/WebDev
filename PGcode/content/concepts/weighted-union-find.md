@@ -1,6 +1,6 @@
 ---
 slug: weighted-union-find
-module: graphs
+module: graphs-union-find
 title: Weighted Union-Find
 subtitle: Track "relative offset" between elements while merging — answer "is x at offset d from y in their component?"
 difficulty: Advanced

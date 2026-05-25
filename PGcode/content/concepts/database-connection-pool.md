@@ -1,6 +1,6 @@
 ---
 slug: database-connection-pool
-module: cs-core
+module: cs-db-transactions
 title: Database Connection Pool
 subtitle: Reuse N persistent DB connections across many app requests — avoid the 50ms+ TCP+TLS+auth per new connection.
 difficulty: Intermediate

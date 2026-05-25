@@ -1,6 +1,6 @@
 ---
 slug: validate-bst
-module: trees
+module: trees-traversal-bst
 title: Validate a Binary Search Tree
 subtitle: Recursive bounds (min, max) — the canonical interview trap that breaks naive "left smaller, right bigger" checks.
 difficulty: Beginner

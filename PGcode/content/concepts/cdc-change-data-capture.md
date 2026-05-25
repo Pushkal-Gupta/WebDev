@@ -1,6 +1,6 @@
 ---
 slug: cdc-change-data-capture
-module: system-design
+module: sd-microservices
 title: Change Data Capture
 subtitle: Stream every insert, update, and delete out of your database in near real time without dual-writes.
 difficulty: Advanced

@@ -1,6 +1,6 @@
 ---
 slug: read-write-lock
-module: cs-core
+module: cs-os-concurrency
 title: Read-Write Lock
 subtitle: One writer xor many readers — the lock that scales reads without breaking write safety.
 difficulty: Intermediate

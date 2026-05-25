@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 import { supabase } from './supabase';
 
@@ -42,40 +42,42 @@ export function inRoadmapMode(problem, roadmapMode) {
   return true;
 }
 
-// PGcode N means EXACTLY N problems. PGcode 'all' means the roadmap cap (1000)
-// in roadmap views; /practice ignores roadmapMode entirely and shows the full
-// catalog.
-//
-// Guarantee: every topic that has any problems at all gets at least one slot,
-// even at PGcode 100. We achieve this WITHOUT exceeding N by reserving one
-// slot per topic from the top down, then filling the remainder by canonical
-// rank.
+// PGcode N means EXACTLY N problems, distributed evenly across topics via
+// round-robin so every topic gets a fair slice (not one slot for Queue and
+// 50 for Arrays). At each pass, pick the next-best problem from each topic
+// in turn until N slots are filled.
 function selectExactlyN(problems, n) {
   const sorted = canonicalSort(problems);
   if (sorted.length <= n) return sorted;
 
-  // Group sorted picks by topic — first occurrence is the topic's top pick.
-  const topicTopPick = new Map();   // topic_id -> first sorted problem id
+  const byTopic = new Map();
+  const noTopic = [];
   for (const p of sorted) {
-    if (p.topic_id && !topicTopPick.has(p.topic_id)) {
-      topicTopPick.set(p.topic_id, p);
+    if (p.topic_id) {
+      if (!byTopic.has(p.topic_id)) byTopic.set(p.topic_id, []);
+      byTopic.get(p.topic_id).push(p);
+    } else {
+      noTopic.push(p);
     }
   }
 
-  const allTopicReps = [...topicTopPick.values()];
-  // Cap topic reps at n — for very small n + many topics, this is what fits.
-  const topicReps = allTopicReps.slice(0, n);
-  const repIds = new Set(topicReps.map(p => p.id));
-
-  // Fill remaining slots from sorted rank order, skipping already-included reps.
-  const out = [...topicReps];
-  for (const p of sorted) {
-    if (out.length >= n) break;
-    if (repIds.has(p.id)) continue;
-    out.push(p);
-    repIds.add(p.id);
+  const queues = [...byTopic.values()];
+  const positions = new Array(queues.length).fill(0);
+  const out = [];
+  while (out.length < n) {
+    let added = false;
+    for (let i = 0; i < queues.length && out.length < n; i++) {
+      if (positions[i] < queues[i].length) {
+        out.push(queues[i][positions[i]++]);
+        added = true;
+      }
+    }
+    if (!added) break;
   }
-  // Final result re-sorted by canonical rank so order in the UI matches rank.
+  for (const p of noTopic) {
+    if (out.length >= n) break;
+    out.push(p);
+  }
   return canonicalSort(out);
 }
 
@@ -163,7 +165,7 @@ export function useProblemPage({
       return data || { rows: [], total: 0 };
     },
     staleTime: 60 * 1000,
-    keepPreviousData: true,    // page transitions show old data until new arrives
+    placeholderData: keepPreviousData,    // page/filter transitions keep old rows until new arrive; v5 API
   });
 }
 

@@ -1,6 +1,6 @@
 ---
 slug: mst-boruvka
-module: graphs
+module: graphs-mst
 title: Borůvka's MST
 subtitle: Each iteration picks the cheapest edge out of every component — parallel-friendly and halves components per round.
 difficulty: Advanced
@@ -28,7 +28,15 @@ Borůvka's algorithm builds a minimum spanning tree by repeatedly contracting th
 Borůvka predates both Kruskal and Prim (1926, originally for electrifying Moravia) and is the foundation of the fastest known MST algorithms — the Karger-Klein-Tarjan randomized linear-time MST is essentially Borůvka with sampling. It's also the right pick when edges are distributed across machines or when you can parallelize per-component work; on graphs with structure (planar, bounded genus) it runs in linear time without modification.
 
 ## intuition
-For every component, the cheapest edge leaving it must be in some MST (cut property). So run the cut property in parallel: every component looks at all its outgoing edges, picks the cheapest, and you union the endpoints. After one phase, every component absorbs at least one neighbor, so the component count at most halves. Repeat until only one component remains — the chosen edges form the MST.
+The algorithm exists because the cut property of MSTs — "for any cut of the graph, the minimum-weight edge crossing it is in every MST" — can be applied not just once but to every connected component simultaneously. Kruskal and Prim apply the cut property serially (one edge at a time); Borůvka applies it in parallel across all components in each phase, doing as much work as the graph structure allows.
+
+The decisive observation: in any phase, the cheapest edge leaving a component v is safe to add to the MST because it is the minimum-weight edge crossing the cut (v, rest-of-graph). Every component decides its move independently — no coordination needed beyond a final union step — and after one phase, every component absorbs at least one neighbour. So the component count at most halves per phase, giving O(log V) phases. Each phase scans all E edges once to find the cheapest outgoing edge per component, costing O(E + V·α(V)) with union-find. Total: O(E log V).
+
+The parallel-friendly structure is what makes Borůvka special. Distributed implementations partition edges across workers, each worker computes per-component cheapest edges locally, then a single reduction phase combines results and performs unions. This is exactly how MST is computed at scale in Apache GraphX and Pregel-derived frameworks.
+
+Karger-Klein-Tarjan's 1995 randomised linear-time MST algorithm builds on Borůvka by interleaving phases with random sampling: run a Borůvka phase, sample F-light edges, recursively MST a sparser graph, and merge. The expected total cost is O(V + E), the best possible bound for MST in the comparison model. Borůvka is also linear-time *without* randomisation on planar graphs (and graphs of bounded genus more generally) because each phase removes a constant fraction of edges via contraction — a result due to Cheriton-Tarjan 1976 used in computational geometry MST applications.
+
+**Common bug**: forgetting the tie-break on edge weight causes the same edge to be picked from both endpoints, doubling its weight. Always tie-break on edge index (or by lexicographic endpoint order) to make the per-component choice deterministic.
 
 ## visualization
 Six vertices, edges with weights: (1,2,1), (2,3,2), (3,4,3), (4,5,4), (5,6,5), (6,1,6), (2,5,7). Phase 1: every singleton's cheapest edge is the smallest incident — 1 picks (1,2,1), 2 picks (1,2,1), 3 picks (2,3,2), 4 picks (3,4,3), 5 picks (4,5,4), 6 picks (5,6,5). After dedup and union: {1,2,3,4,5,6} all merge into one component. MST = {1,2,3,4,5} with total weight 15. One phase, done.
@@ -37,7 +45,39 @@ Six vertices, edges with weights: (1,2,1), (2,3,2), (3,4,3), (4,5,4), (5,6,5), (
 Run Kruskal-style: sort all E edges, then for each edge check if its endpoints are already connected and skip if so. O(E log E) — already optimal in the comparison model. The "brute" version of Borůvka itself would rescan every edge for every component every phase, costing O(E * V) — strictly worse than the standard implementation.
 
 ## optimal
-Maintain a union-find over V vertices. Repeat: for each component, find the cheapest edge whose endpoints lie in different components by scanning all E edges once and keeping `cheapest[root]` per component. Add each chosen edge to the MST (skip duplicates), union its endpoints. Loop until no edges are chosen in a phase (graph already a single component or disconnected). Each phase is O(E + V * α(V)); at most log V phases.
+**Technique: Borůvka's algorithm — parallel cut-property selection with union-find.** O(E log V) sequential, O(E log V / P) with P-way parallelism. Karger-Klein-Tarjan extends this to O(V + E) expected with random sampling — the asymptotically best MST known.
+
+```python
+def boruvka_mst(n, edges):
+    dsu = DSU(n)                                  # union-find with path compression + rank
+    mst_weight = 0
+    components = n
+    while components > 1:
+        cheapest = [-1] * n                       # cheapest[root] = edge index
+        for i, (u, v, w) in enumerate(edges):     # one full edge scan per phase
+            ru, rv = dsu.find(u), dsu.find(v)
+            if ru == rv: continue                 # intra-component edge, skip
+            if cheapest[ru] == -1 or edges[cheapest[ru]][2] > w:
+                cheapest[ru] = i
+            if cheapest[rv] == -1 or edges[cheapest[rv]][2] > w:
+                cheapest[rv] = i
+        added = False
+        for i in cheapest:                        # union phase
+            if i == -1: continue
+            u, v, w = edges[i]
+            if dsu.union(u, v):                   # may have been merged earlier in this phase
+                mst_weight += w
+                components -= 1
+                added = True
+        if not added: break                       # disconnected graph; MST is a forest
+    return mst_weight
+```
+
+Key lines: `cheapest = [-1] * n` is reset every phase — stale picks from prior phases would corrupt the cut-property logic. The edge scan `for i, (u, v, w) in enumerate(edges)` updates the cheapest outgoing edge for *both* endpoints' components, because either endpoint could be the deciding side. The `if dsu.union(u, v)` guard during the union phase handles the duplicate case: when two components both picked the same edge (one from each side), the second union attempt is a no-op. The `if not added: break` termination handles disconnected graphs — when no progress is made in a phase, the graph is a forest and the algorithm halts.
+
+Total per-phase cost: O(E) edge scan + O(V·α(V)) union work. After each phase, components at most halve (every component absorbs at least one neighbour), so at most O(log V) phases. Total: O(E log V) sequential.
+
+**Why not Kruskal?** Kruskal is O(E log E) for sorting all edges; Borůvka does no global sort. On distributed graphs where edges live on different machines, Borůvka avoids the all-to-all shuffle Kruskal requires. **Why not Prim?** Prim is O((V+E) log V) with a binary heap; competitive on dense graphs but inherently serial — extending one tree edge at a time. **Why not Karger-Klein-Tarjan?** It's the asymptotic winner but has large constants and is rarely used outside theoretical work. **Common bugs**: forgetting to tie-break on edge index causes double-counting; not resetting `cheapest` each phase corrupts subsequent rounds; stopping on `components > 1` instead of "no edge added" loops forever on disconnected graphs.
 
 ## complexity
 time: O(E log V)

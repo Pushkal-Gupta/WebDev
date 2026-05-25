@@ -1,6 +1,6 @@
 ---
 slug: xss-prevention
-module: system-design
+module: sd-auth-security
 title: XSS Prevention
 subtitle: Stop attacker JS from running in your users' browsers — context-aware output encoding + CSP + HttpOnly cookies.
 difficulty: Intermediate

@@ -1,6 +1,6 @@
 ---
 slug: power-of-two-choices
-module: system-design
+module: sd-reliability
 title: Power of Two Choices
 subtitle: Pick two servers at random, send the request to the less-loaded one. Cuts max load from O(log n) to O(log log n).
 difficulty: Intermediate

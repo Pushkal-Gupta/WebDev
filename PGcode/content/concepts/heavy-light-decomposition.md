@@ -1,6 +1,6 @@
 ---
 slug: heavy-light-decomposition
-module: trees
+module: trees-advanced-queries
 title: Heavy-Light Decomposition
 subtitle: Split a tree into O(log n) chains so path queries become a handful of range queries on a flat array.
 difficulty: Advanced

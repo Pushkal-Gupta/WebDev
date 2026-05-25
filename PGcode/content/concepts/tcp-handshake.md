@@ -1,6 +1,6 @@
 ---
 slug: tcp-handshake
-module: cs-core
+module: cs-network-protocols
 title: TCP Three-Way Handshake
 subtitle: SYN / SYN-ACK / ACK plus sequence numbers — how two peers agree on initial state and reject stale connections.
 difficulty: Beginner

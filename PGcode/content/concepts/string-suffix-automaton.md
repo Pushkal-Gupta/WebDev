@@ -1,6 +1,6 @@
 ---
 slug: string-suffix-automaton
-module: sorting-strings
+module: strings-advanced
 title: Suffix Automaton
 subtitle: A linear-size DFA accepting exactly the substrings of s; built online in O(n).
 difficulty: Advanced

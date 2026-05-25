@@ -1,6 +1,6 @@
 ---
 slug: merkle-tree
-module: system-design
+module: sd-storage
 title: Merkle Tree
 subtitle: Hash tree for tamper-evident storage — prove any leaf's membership in O(log n) hashes.
 difficulty: Intermediate

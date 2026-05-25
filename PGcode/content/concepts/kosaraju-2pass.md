@@ -1,6 +1,6 @@
 ---
 slug: kosaraju-2pass
-module: graphs
+module: graphs-advanced
 title: Kosaraju's Two-Pass SCC
 subtitle: Two DFS passes — one on the graph, one on its transpose — to find strongly connected components.
 difficulty: Advanced
@@ -25,10 +25,19 @@ status: published
 A strongly connected component (SCC) of a directed graph is a maximal set of vertices such that every vertex is reachable from every other. Kosaraju's algorithm finds all SCCs in linear time using two depth-first searches — one on the original graph and one on its transpose. It is simpler to remember and explain than Tarjan's algorithm, and only marginally slower in practice.
 
 ## whyItMatters
-SCCs are the building blocks of every directed-graph analysis: condensing a graph by SCC gives a DAG, which unlocks topological reasoning on cyclic inputs. Compilers use SCCs for recursive function clustering, 2-SAT solvers use them to extract truth assignments, and social-network analytics use them to find tightly knit groups. The two-pass version is the version interviewers expect when they ask "find the SCCs."
+- **2-SAT solving**: Aspvall-Plass-Tarjan 1979 reduces 2-SAT to SCC computation on an implication graph; tools like MiniSat, CryptoMiniSat, and Z3 use the same reduction for the 2-CNF fragment.
+- **Compiler call-graph analysis**: LLVM, GCC, and the Go compiler cluster mutually recursive functions into SCCs to schedule whole-function optimisations (inlining heuristics, register-allocation grouping).
+- **Web crawling and PageRank** initialisation use SCC condensation to identify "spider traps" — sink SCCs that absorb random-walk probability.
+- **Static analysis tools** (Pylint, dependency-cycle detectors in Bazel/Buck) flag cycles in module imports; the SCC condensation tells you which modules must be refactored together.
+- **Social-network community detection** uses SCCs as a baseline before more sophisticated metrics (modularity, Louvain) take over.
+- The two-pass Kosaraju-Sharir version is the version interviewers expect when they ask "find the SCCs" because it is easier to derive on a whiteboard than Tarjan's single-pass low-link algorithm.
 
 ## intuition
-Imagine the graph's condensation — the DAG whose nodes are SCCs. A reverse-postorder DFS on the original graph visits the "sink" SCCs last; equivalently, popping a finish-time stack in reverse pops "source" SCCs first. Running DFS on the transpose from a source SCC root cannot escape that SCC — because the only edges leaving it (in the transpose) lead to SCCs already discovered. Each transpose-DFS tree is exactly one SCC.
+The algorithm exists because identifying SCCs naively — running BFS/DFS from every vertex to find mutual reachability — costs Θ(V·(V+E)), which is quadratic on sparse graphs. Kosaraju (and equivalently Sharir 1981) brings it down to linear by exploiting a deep structural property: the *condensation DAG* of any directed graph (collapse each SCC to one super-node) is acyclic, and the finish-time ordering of a DFS on the original graph reveals a topological order on this DAG.
+
+The decisive observation is in two parts. First, in a DFS on the original graph, the vertex with the maximum finish time belongs to a *source* SCC of the condensation (an SCC with no incoming edges from other SCCs) — proof: a DFS started inside or outside a sink SCC cannot escape it once entered, so the last vertex to finish must be in a component that the DFS reached last in the condensation's topological order, which is a source. Second, in the *transpose* graph (every edge reversed), sources become sinks and vice versa. So running DFS on the transpose starting from the max-finish-time vertex of the original explores exactly one source SCC and cannot escape it.
+
+This lets us peel off SCCs one at a time. Pass 1 runs DFS on the original graph and pushes each vertex onto a stack when its DFS call finishes — the stack now holds vertices in reverse-finish-time order. Pass 2 reverses every edge to form the transpose, then pops vertices off the stack; each unvisited popped vertex starts a fresh DFS in the transpose that exactly enumerates one SCC, because edges leaving that SCC in the transpose go to already-discovered SCCs (which were popped earlier as their roots have larger finish times). The condensation's topological order falls out of the algorithm as the order of SCC discovery. Total work: two DFS passes plus one edge-flip — O(V + E).
 
 ## visualization
 Pass 1: DFS the original graph, push each vertex onto a stack when it finishes. Pass 2: reverse every edge to form the transpose. Pop vertices from the stack; for each unvisited vertex, DFS in the transpose — the tree it discovers is one SCC. Repeat until the stack is empty. The order of popped roots is exactly the topological order of the condensation DAG.
@@ -37,7 +46,51 @@ Pass 1: DFS the original graph, push each vertex onto a stack when it finishes. 
 For every pair (u, v) check reachability via two BFS/DFS runs. O(V * (V + E)) total — quadratic in V even on sparse graphs, and unable to enumerate SCCs without extra union-find bookkeeping. Useless beyond a few hundred vertices.
 
 ## optimal
-Two-pass Kosaraju: (1) Run DFS on the original graph, pushing vertices onto a stack as they finish; (2) Build the transposed graph by flipping every edge; (3) Pop vertices off the stack — each unvisited popped vertex starts a fresh DFS in the transpose that exactly enumerates one SCC. Total work is two graph traversals plus one edge-flip pass: O(V + E).
+**Technique: Kosaraju-Sharir two-pass DFS using finish-time stack and graph transposition.** Optimal at O(V + E) — any SCC algorithm must inspect every edge at least once, since an unread edge could merge two components and change every SCC assignment. Tarjan 1972 hits the same bound in a single pass with low-link values; Kosaraju trades one extra pass for cleaner derivation under interview pressure.
+
+```python
+def kosaraju(n, adj):
+    visited = [False] * n
+    order = []
+
+    def dfs(start):                         # iterative DFS, pushes onto `order` at finish
+        stack = [(start, iter(adj[start]))]
+        visited[start] = True
+        while stack:
+            node, it = stack[-1]
+            nxt = next(it, None)
+            if nxt is None:
+                order.append(node)          # finish time = position in `order`
+                stack.pop()
+            elif not visited[nxt]:
+                visited[nxt] = True
+                stack.append((nxt, iter(adj[nxt])))
+
+    for i in range(n):                      # pass 1: original graph
+        if not visited[i]: dfs(i)
+
+    transpose = [[] for _ in range(n)]      # pass 2 prep: reverse every edge
+    for u in range(n):
+        for v in adj[u]: transpose[v].append(u)
+
+    sccs = []
+    visited = [False] * n
+    while order:
+        u = order.pop()                     # pop in reverse-finish-time order
+        if visited[u]: continue
+        comp, stk = [], [u]
+        visited[u] = True
+        while stk:
+            x = stk.pop(); comp.append(x)
+            for y in transpose[x]:
+                if not visited[y]: visited[y] = True; stk.append(y)
+        sccs.append(comp)
+    return sccs
+```
+
+Key lines: `order.append(node)` runs at the moment DFS finishes processing a node — this is the finish-time push that produces the reverse-topological order on the condensation DAG. `transpose[v].append(u)` flips every edge so that source SCCs in the original become sink SCCs in the transpose. The inner `while stk` in the second pass is a contained DFS — it cannot escape its SCC because the only edges leaving in the transpose go to SCCs already discovered (which means their vertices are already visited).
+
+The iterative DFS (using an explicit stack of `(node, iter(adj[node]))`) is essential for Python and Java because graphs with 10⁵+ vertices easily overflow recursive call stacks. **Why not Tarjan?** Tarjan's algorithm achieves the same bound in one pass using low-link values, and is preferred in production libraries (NetworkX `strongly_connected_components` ships both). Kosaraju is preferred in interviews because the correctness argument (max-finish-time vertex is in a source SCC) is easier to explain than Tarjan's stack-based low-link bookkeeping. **Why not Gabow?** Gabow 2000 uses two stacks but is rarely seen outside competitive programming. The SCC discovery order from Kosaraju's second pass is exactly the condensation's topological order — a useful side effect for 2-SAT solution extraction.
 
 ## complexity
 time: O(V + E) for both passes plus transposition.

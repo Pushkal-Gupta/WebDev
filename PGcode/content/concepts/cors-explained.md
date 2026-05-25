@@ -1,6 +1,6 @@
 ---
 slug: cors-explained
-module: system-design
+module: sd-network
 title: CORS — Cross-Origin Resource Sharing
 subtitle: Browsers block cross-origin JS reads by default. Server opt-in via `Access-Control-Allow-*` headers. Preflight on non-simple requests.
 difficulty: Intermediate

@@ -1,6 +1,6 @@
 ---
 slug: union-find
-module: graphs
+module: graphs-union-find
 title: Union-Find (Disjoint Set)
 subtitle: Track connected components with near-constant time merges and queries.
 difficulty: Intermediate

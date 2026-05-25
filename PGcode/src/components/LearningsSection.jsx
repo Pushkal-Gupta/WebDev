@@ -446,7 +446,7 @@ export default function LearningsSection({ topicId }) {
         )}
         {videos.length === 0 && (
           <div className="learnings-empty">
-            <p>No learning resources available for this topic yet.</p>
+            <p>No learning resources for this topic.</p>
           </div>
         )}
       </div>

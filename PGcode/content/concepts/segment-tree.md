@@ -1,6 +1,6 @@
 ---
 slug: segment-tree
-module: trees
+module: trees-advanced-queries
 title: Segment Tree
 subtitle: Range queries and point updates in O(log n) on any associative operation.
 difficulty: Advanced

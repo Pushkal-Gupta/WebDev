@@ -1,6 +1,6 @@
 ---
 slug: event-sourcing
-module: system-design
+module: sd-microservices
 title: Event Sourcing + CQRS
 subtitle: Persist every change as an event, derive state by replay — perfect audit trail, time-travel debugging, easy projections.
 difficulty: Advanced

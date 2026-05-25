@@ -1,6 +1,6 @@
 ---
 slug: fenwick-tree
-module: arrays-searching
+module: arrays-range-structures
 title: Fenwick Tree
 subtitle: Binary Indexed Tree — prefix sums with point updates in O(log n), 20 lines of code.
 difficulty: Advanced

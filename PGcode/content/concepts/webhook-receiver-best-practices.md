@@ -1,6 +1,6 @@
 ---
 slug: webhook-receiver-best-practices
-module: system-design
+module: sd-api
 title: Webhook Receiver Best Practices
 subtitle: Verify signatures, dedupe by event id, queue async, ack fast — never do work inline.
 difficulty: Intermediate

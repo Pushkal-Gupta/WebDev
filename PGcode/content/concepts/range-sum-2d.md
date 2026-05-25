@@ -1,6 +1,6 @@
 ---
 slug: range-sum-2d
-module: arrays-searching
+module: arrays-range-structures
 title: 2D Prefix Sum for Rectangle Queries
 subtitle: Precompute a 2D prefix-sum grid so any axis-aligned rectangle sum answers in O(1).
 difficulty: Intermediate
@@ -25,10 +25,17 @@ status: published
 A 2D prefix-sum grid is the matrix analog of the 1D prefix-sum array. Build it once in O(rows × cols), and from then on any axis-aligned rectangle sum — defined by its top-left and bottom-right corners — can be answered in four table lookups, regardless of the rectangle's size.
 
 ## whyItMatters
-Image processing (integral images, used by Viola-Jones face detection), spreadsheet aggregation, heatmap queries, and computer-vision filters all rely on this primitive. It is also the gateway to higher-dimensional inclusion-exclusion tricks: once you understand the four-term subtraction in 2D, the eight-term version in 3D follows directly. Interviewers like it because it tests inclusion-exclusion intuition more than coding skill.
+- **Integral images** in computer vision: Viola and Jones' 2001 face detector evaluates millions of Haar features per frame; without summed-area tables it would be unshippable in real time. OpenCV exposes the same primitive as `cv2.integral`.
+- **Heatmap and OLAP queries**: dashboards over Postgres, Druid, and ClickHouse precompute summed-area tables across (region, time) grids so analysts get instant aggregations on hundreds of millions of cells.
+- **Game and physics engines** use 2D prefix sums on density grids for fluid-pressure solvers and collision broad-phase culling.
+- **CNN feature engineering**: SPP-net (He et al., 2014) and Fast R-CNN rely on integral images to pool variable-sized regions in O(1) per channel.
 
 ## intuition
-Let P[i][j] hold the sum of the rectangle from (0,0) to (i-1,j-1). Then P satisfies the recurrence P[i][j] = matrix[i-1][j-1] + P[i-1][j] + P[i][j-1] − P[i-1][j-1]. The subtraction undoes the double-counted top-left rectangle. To query the sum of any rectangle [(r1,c1), (r2,c2)] (inclusive), compute P[r2+1][c2+1] − P[r1][c2+1] − P[r2+1][c1] + P[r1][c1] — four lookups, constant work.
+The technique exists because querying axis-aligned rectangles is a constant-time inclusion-exclusion problem in disguise — once you know the cumulative mass of every "north-west wedge" anchored at the origin, every rectangle can be expressed as an arithmetic combination of four such wedges. That observation is what turns an O(area) scan into four memory loads.
+
+Define P[i][j] as the sum of every cell strictly north and west of (i, j), where row 0 and column 0 are a sentinel band of zeros so the recurrence has no border cases. Build P top-down: P[i][j] = matrix[i-1][j-1] + P[i-1][j] + P[i][j-1] − P[i-1][j-1]. The reason for the subtraction is double counting — the rectangle above and the rectangle to the left both include the upper-left rectangle, so it gets added twice and must be removed once.
+
+For a query rectangle with inclusive corners (r1, c1) to (r2, c2), think of the big NW wedge ending at (r2+1, c2+1). Subtract the wedge above (rows < r1) and the wedge to the left (cols < c1). Both of those wedges include the small wedge in the upper-left of the query rectangle, so it was removed twice — add it back once. That gives the canonical four-term formula. The same inclusion-exclusion structure generalizes to 3D (eight terms, alternating signs) and is the combinatorial dual of higher-dimensional integration.
 
 ## visualization
 For matrix [[3,0,1,4,2],[5,6,3,2,1],[1,2,0,1,5],[4,1,0,1,7],[1,0,3,0,5]], the prefix sum P at (5,5) totals 50. To query the sum of the rectangle (1,1) to (2,2), compute P[3][3] − P[1][3] − P[3][1] + P[1][1] = 17 − 4 − 8 + 3 = 8. The four corners encode an inclusion-exclusion sum.
@@ -37,7 +44,30 @@ For matrix [[3,0,1,4,2],[5,6,3,2,1],[1,2,0,1,5],[4,1,0,1,7],[1,0,3,0,5]], the pr
 For each query, iterate over every cell in the rectangle and accumulate. O((r2 − r1)(c2 − c1)) per query, which is fine for a single small query but blows up under repeated calls on a large grid. With q queries on a 1000×1000 matrix, the worst case is q × 10^6 operations — clearly unacceptable for interactive workloads.
 
 ## optimal
-Build P once in O(R × C) using the recurrence above (the extra row and column of zeros makes the formula border-free). Each query then runs in O(1). Memory cost is one extra row and column compared to the original matrix. If the matrix is mutated, you must either rebuild P (O(RC)) or switch to a 2D Fenwick tree for O(log R · log C) updates and queries.
+**Technique: 2D summed-area table (integral image).** Preprocess once in O(R·C), then answer every rectangle sum in O(1) with four array loads. The optimal bound is information-theoretic: with Q queries arriving online, you cannot beat Θ(R·C + Q) total time, because even reading the input is Ω(R·C); the prefix table saturates that lower bound.
+
+```python
+def build(matrix):
+    R, C = len(matrix), len(matrix[0])
+    P = [[0] * (C + 1) for _ in range(R + 1)]
+    for i in range(R):
+        for j in range(C):
+            P[i+1][j+1] = (matrix[i][j]
+                           + P[i][j+1]      # NW wedge ending one row up
+                           + P[i+1][j]      # NW wedge ending one col left
+                           - P[i][j])       # intersection counted twice
+    return P
+
+def query(P, r1, c1, r2, c2):
+    return (P[r2+1][c2+1]
+            - P[r1][c2+1]
+            - P[r2+1][c1]
+            + P[r1][c1])
+```
+
+Key lines: the `+1` shift creates a sentinel row/column of zeros so the build recurrence never indexes out of bounds; that single trick removes the if-else cascade at the borders. The query line is pure inclusion-exclusion — adding the big NW wedge, subtracting the two over-counted wedges, then adding the doubly-subtracted intersection back.
+
+**When the matrix mutates**: a static prefix table is useless because every update touches up to R·C cells of P. Switch to a 2D Fenwick (BIT) tree for O(log R · log C) per update and per query — the same primitive backing Apache Lucene's facet aggregation and many time-series stores. For very sparse updates against a mostly-static grid, a "delta map + base prefix" hybrid often wins.
 
 ## complexity
 time: O(R × C) preprocessing; O(1) per query

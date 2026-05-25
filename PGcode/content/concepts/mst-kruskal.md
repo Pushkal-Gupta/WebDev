@@ -1,6 +1,6 @@
 ---
 slug: mst-kruskal
-module: graphs
+module: graphs-mst
 title: Kruskal's Algorithm (MST)
 subtitle: Minimum spanning tree via global edge sort plus union-find cycle detection, O(E log E).
 difficulty: Intermediate

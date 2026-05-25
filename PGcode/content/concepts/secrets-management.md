@@ -1,6 +1,6 @@
 ---
 slug: secrets-management
-module: system-design
+module: sd-auth-security
 title: Secrets Management
 subtitle: Vault, KMS, sealed-secrets — rotation, least privilege, audit, dynamic credentials.
 difficulty: Intermediate

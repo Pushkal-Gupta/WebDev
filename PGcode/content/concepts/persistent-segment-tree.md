@@ -1,6 +1,6 @@
 ---
 slug: persistent-segment-tree
-module: arrays-searching
+module: arrays-range-structures
 title: Persistent Segment Tree
 subtitle: Functional segment trees — every update creates a new version sharing O(log n) nodes; query any historical version in O(log n).
 difficulty: Advanced

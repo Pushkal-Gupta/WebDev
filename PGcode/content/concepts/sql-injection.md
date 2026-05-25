@@ -1,6 +1,6 @@
 ---
 slug: sql-injection
-module: system-design
+module: sd-auth-security
 title: SQL Injection Prevention
 subtitle: Always use parameterized queries — concatenating user input into SQL is the #1 oldest, still-exploited web vuln.
 difficulty: Intermediate

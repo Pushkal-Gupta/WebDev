@@ -1,6 +1,6 @@
 ---
 slug: regex-engines
-module: sorting-strings
+module: strings-matching
 title: Regex Engines — NFA vs Backtracking
 subtitle: Why Thompson construction matches in linear time while PCRE-style backtracking can blow up exponentially on adversarial inputs.
 difficulty: Advanced

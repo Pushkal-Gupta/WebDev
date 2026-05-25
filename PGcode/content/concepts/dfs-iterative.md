@@ -1,6 +1,6 @@
 ---
 slug: dfs-iterative
-module: graphs
+module: graphs-traversal
 title: Iterative DFS via Explicit Stack
 subtitle: Replace recursion with a manually managed stack to avoid stack-overflow on deep or adversarial graphs.
 difficulty: Intermediate

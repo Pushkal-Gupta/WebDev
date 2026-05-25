@@ -1,6 +1,6 @@
 ---
 slug: dijkstra-on-grid
-module: graphs
+module: graphs-shortest-paths
 title: Dijkstra on a Grid
 subtitle: Shortest path on a 2D grid with weighted cells — coordinate-encoded priority queue.
 difficulty: Intermediate

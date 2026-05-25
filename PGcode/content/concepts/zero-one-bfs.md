@@ -1,6 +1,6 @@
 ---
 slug: zero-one-bfs
-module: graphs
+module: graphs-traversal
 title: 0-1 BFS
 subtitle: Shortest path on a graph with edge weights 0 or 1 in O(V + E) using a deque — Dijkstra without the log.
 difficulty: Intermediate
@@ -33,7 +33,7 @@ A surprising number of grid / graph problems have a natural 0/1 weighting:
 Dijkstra works but is slower. BFS doesn't work because edge weights differ. 0-1 BFS is the right tool.
 
 ## intuition
-Think of BFS levels as "distance buckets." With 0/1 weights, an edge of weight 0 takes you to the **same** bucket; weight 1 to the **next** bucket. A deque holds nodes sorted by distance: when you pull from the front, you get the closest unprocessed node. When you relax, weight 0 prepends, weight 1 appends — keeping the deque sorted.
+BFS works in O(V + E) when all edges have equal weight because each "level" of the BFS tree corresponds to a fixed distance from the source — nodes in level k are all at distance k. Dijkstra extends this to non-negative weights at the cost of a log V factor for the priority queue. When weights are restricted to just 0 or 1, neither tool fits perfectly: BFS gives wrong answers because edges have different weights, and Dijkstra is heavier than necessary. The 0-1 BFS gets the best of both worlds by replacing the priority queue with a double-ended queue (deque) and exploiting the structural property that 0-weight edges keep you in the same "distance bucket" while 1-weight edges push you to the next bucket. The deque holds nodes sorted by distance — pop from the front to process the closest unprocessed node. When relaxing an edge of weight 0, push the destination to the *front* (it shares the same bucket as the source); when relaxing weight 1, push to the *back* (it belongs to the next bucket). This insertion discipline keeps the deque distance-sorted automatically — no comparisons, no logarithms. Each edge is examined at most twice (once when relaxed, possibly once when the node is reprocessed with a better distance), giving total O(V + E). The deep insight is that distance-sorted ordering can be maintained cheaply when the weight set is small and bounded — for weights in {0, 1} a deque suffices; for weights in {0, ..., k} a k-bucket queue gives O(V + k * E); for arbitrary non-negative weights you need the full Dijkstra heap. This is the W = 1 special case of a broader monotonic-queue family.
 
 ## visualization
 ```

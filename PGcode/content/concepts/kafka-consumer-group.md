@@ -1,6 +1,6 @@
 ---
 slug: kafka-consumer-group
-module: system-design
+module: sd-microservices
 title: Kafka Consumer Groups
 subtitle: Partition assignment, rebalance protocols, and how to keep your group from thrashing.
 difficulty: Advanced
@@ -25,10 +25,21 @@ status: published
 A Kafka consumer group is the unit of horizontal scale on the read side. Members share a `group.id`, the broker assigns each member a disjoint subset of partitions, and the group as a whole reads every message exactly once (per its commit strategy). The fun part — and the source of most outages — is the *rebalance*: the choreographed handover that happens whenever a member joins, leaves, or stops responding to the coordinator's heartbeat.
 
 ## whyItMatters
-Rebalance storms are the silent killer of streaming pipelines. A pod that GC-pauses for 12 seconds gets kicked from the group, all partitions reshuffle, every consumer pauses, half-processed batches are reset to their last commit, downstream sees a latency spike, and the cycle repeats. Knowing the protocol — heartbeat thread vs poll thread, eager vs cooperative — lets you tune away 95 percent of these incidents instead of cargo-culting timeouts.
+- **Every streaming pipeline** at scale (Netflix's Mantis, LinkedIn's Brooklin, Confluent's Connect cluster, Pinterest's Singer) lives or dies on consumer-group rebalance behavior; rebalance storms are the textbook outage mode for streaming systems.
+- **KIP-429 (Cooperative Sticky Assignor, 2019)** and **KIP-345 (Static Membership, 2018)** were specifically designed to fix the rebalance-pause problem; **KIP-848 (Next-Gen Rebalance, 3.7+)** moves coordination server-side and eliminates the JoinGroup/SyncGroup dance entirely.
+- **Kafka Streams, Apache Flink with Kafka source, Spark Structured Streaming**, and **ksqlDB** all build on consumer-group semantics; their fault-tolerance models inherit the rebalance behavior of the underlying group protocol.
+- **Confluent's Documentation**, **"Designing Data-Intensive Applications" Chapter 11**, and **Jay Kreps's "The Log" article** are the canonical references; every senior Kafka interview probes "heartbeat thread vs poll thread" understanding.
 
 ## intuition
-The group coordinator (one broker, chosen by hashing `group.id` into `__consumer_offsets`) is the source of truth for who-owns-what. Members send periodic heartbeats on a background thread (`heartbeat.interval.ms`) and call `poll()` on the main thread (`max.poll.interval.ms`). Miss either deadline and you are evicted. On any membership change the coordinator runs a *rebalance*: members send a `JoinGroup` request, the leader (first to join) runs the configured assignor over partition metadata, the coordinator distributes the plan via `SyncGroup`.
+A Kafka consumer group is the **unit of horizontal scale on the read side**. Members share a `group.id`; the broker assigns each member a disjoint subset of partitions; the group as a whole reads every message exactly once (per its commit strategy). The fun part — and the source of most production outages — is the **rebalance**: the choreographed handover that happens whenever a member joins, leaves, or stops responding to the coordinator's heartbeat.
+
+The **group coordinator** is one broker (chosen by hashing `group.id` into the internal `__consumer_offsets` topic) that is the source of truth for who-owns-what. Each consumer maintains two timers: a **heartbeat thread** sending pings on `heartbeat.interval.ms` (default 3s), and a **poll thread** that must call `poll()` within `max.poll.interval.ms` (default 5min). Miss either deadline and the coordinator evicts you, triggering a rebalance.
+
+On any membership change (member joins, leaves, evicted, or topic adds partitions), the coordinator runs a **rebalance protocol**: members send a `JoinGroup` request; the first to join becomes the group leader; the leader runs the configured **PartitionAssignor** (Range, RoundRobin, Sticky, or CooperativeSticky) over the current partition metadata; the coordinator distributes the assignment plan via `SyncGroup`.
+
+The original 2014 **eager rebalance** protocol caused outage after outage: every membership change made every consumer revoke every partition, pause processing for hundreds of milliseconds to seconds, and reset uncommitted work. Teams worked around it by cranking `session.timeout.ms` to 30s+, which only delayed the eviction; when it eventually fired, the rebalance was worse because more uncommitted state was in flight.
+
+**KIP-429 (Cooperative Sticky Assignor, 2019)** fixed this with an incremental protocol: only the dying member's partitions move; everyone else keeps reading their existing partitions. Rebalance happens in two passes — first announce revocations, then in a follow-up rebalance assign the freed partitions — with no global pause. **KIP-345 (Static Membership, 2018)** added `group.instance.id`: if the same id rejoins within `session.timeout.ms`, the coordinator does not rebalance at all — perfect for rolling-restart scenarios where pods come back with the same identity. **KIP-848 (3.7+)** moves coordination server-side, eliminating the JoinGroup/SyncGroup dance entirely.
 
 ## visualization
 3 consumers, topic with 6 partitions, RangeAssignor → CooperativeStickyAssignor:
@@ -56,7 +67,67 @@ Cooperative does the rebalance in two passes: first announce revocations, then i
 Default Kafka up to 2.3 used the eager protocol with `RangeAssignor`. Every membership change revoked every partition from every member, paused processing for hundreds of milliseconds to seconds, and reset uncommitted work. Teams worked around it by setting `session.timeout.ms` extremely high (30s+) to mask GC pauses, which only delayed the eviction; when it eventually fired the rebalance was even more painful because more uncommitted state was in flight.
 
 ## optimal
-Switch to `CooperativeStickyAssignor` (available since 2.4, default in 3.x for new groups). Set `session.timeout.ms` to 10–15 seconds, `heartbeat.interval.ms` to one-third of that, and `max.poll.interval.ms` to slightly above your worst-case batch processing time (often 5 minutes for heavy workloads). Use static membership (`group.instance.id` set to a stable per-pod value) so a 30-second pod restart does *not* trigger a rebalance — the coordinator waits for the same id to come back. Implement `ConsumerRebalanceListener` to flush in-flight work on revoke and seek to your durable checkpoint on assign.
+The right configuration is **CooperativeStickyAssignor + static membership + tuned timeouts + a ConsumerRebalanceListener for graceful handoff**. This is the post-KIP-429, post-KIP-345 production default that eliminates 95% of rebalance-storm incidents.
+
+```python
+from confluent_kafka import Consumer, TopicPartition
+
+def on_assign(consumer, partitions):
+    """Seek to durable checkpoint on assignment — never trust auto-commit position."""
+    for p in partitions:
+        p.offset = load_checkpoint(p.topic, p.partition)
+    consumer.assign(partitions)
+
+def on_revoke(consumer, partitions):
+    """Flush in-flight work BEFORE the partition leaves -> no lost messages."""
+    flush_in_flight()
+    consumer.commit(asynchronous=False)
+
+c = Consumer({
+    "bootstrap.servers": "broker:9092",
+    "group.id": "billing",
+    "group.instance.id": "billing-pod-3",                    # STABLE per pod
+    "partition.assignment.strategy": "cooperative-sticky",   # incremental rebalance
+    "session.timeout.ms": 15000,                              # 3x heartbeat interval
+    "heartbeat.interval.ms": 5000,                            # liveness probe
+    "max.poll.interval.ms": 300000,                           # worst-case process time
+    "enable.auto.commit": False,                              # commit explicitly
+    "isolation.level": "read_committed",                      # skip aborted txns
+})
+c.subscribe(["orders"], on_assign=on_assign, on_revoke=on_revoke)
+
+while True:
+    msg = c.poll(1.0)
+    if msg and not msg.error():
+        try:
+            handle(msg)
+            save_checkpoint(msg.topic(), msg.partition(), msg.offset() + 1)
+            c.commit(asynchronous=False)                      # commit after success
+        except Exception:
+            log.exception("processing failed; will retry on rebalance")
+            raise
+```
+
+Why this is right: **CooperativeStickyAssignor** makes rebalances incremental — when a member dies, only its partitions move; the surviving members keep reading their existing partitions without pause. **Static membership** via `group.instance.id` means a 30-second pod restart (rolling deploy, GC pause that crossed the threshold) does NOT trigger a rebalance — the coordinator waits `session.timeout.ms` for the same id to come back. Combined, these eliminate the two most common rebalance triggers in production.
+
+**Timeout tuning rules**:
+- `heartbeat.interval.ms` = 3-5s; this is the liveness probe rate.
+- `session.timeout.ms` = 3-4x heartbeat interval; the coordinator evicts you if no heartbeat arrives in this window. Higher = more tolerance for GC; lower = faster failover.
+- `max.poll.interval.ms` = slightly above your worst-case batch processing time (5 min for heavy workloads). The coordinator evicts you if you do not call `poll()` within this window.
+- `fetch.max.bytes` and `max.poll.records` = bound the batch size so processing fits inside `max.poll.interval.ms`.
+
+**ConsumerRebalanceListener disciplines**:
+- **`onPartitionsRevoked`**: flush in-flight work (any messages already processed but not yet committed) and commit offsets BEFORE the partitions leave. Without this, the new owner re-reads already-processed messages.
+- **`onPartitionsAssigned`**: seek to your **durable checkpoint** (a position written to Postgres / S3 alongside the processed side effect), not the auto-committed offset. This handles the "committed but side effect failed" recovery case.
+
+**Anti-patterns**:
+- One partition can be owned by **only one consumer in a group at a time** — adding consumers past `partition_count` leaves the extras idle. Plan partition count upfront.
+- **Mismatched assignors across rolling deploy** (half on Range, half on Cooperative) leaves the group stuck in "preparing rebalance" forever. Roll out via Range -> Sticky -> CooperativeSticky in three deploys.
+- **Long processing inside `eachMessage` without bumping `max.poll.interval.ms`** -> eviction loops.
+- **Committing offsets before the side effect completes** -> crash makes the message look processed when it was not. Always: process side effect, write durable checkpoint, then commit.
+- **`group.instance.id` reused across two live pods** — both get fenced, group hangs. Ensure per-pod uniqueness (StatefulSet ordinal, Nomad allocation id).
+
+For **stateful consumers** (Kafka Streams, Flink), static membership is non-optional — rebuilding local state on every rebalance costs minutes. **Kafka Streams `processing.guarantee=exactly_once_v2`** wires this and the transactional producer pattern automatically.
 
 ## complexity
 time: Rebalance is O(P) protocol messages where P is partitions in the group; processing pauses are O(in-flight work) on the slowest consumer.

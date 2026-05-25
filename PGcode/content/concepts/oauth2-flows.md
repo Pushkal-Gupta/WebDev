@@ -1,6 +1,6 @@
 ---
 slug: oauth2-flows
-module: system-design
+module: sd-auth-security
 title: OAuth 2.0 Flows
 subtitle: Authorization code, PKCE, client credentials, device flow — which to pick and why "implicit" is dead.
 difficulty: Advanced

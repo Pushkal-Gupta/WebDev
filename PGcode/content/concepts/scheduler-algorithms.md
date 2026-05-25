@@ -1,6 +1,6 @@
 ---
 slug: scheduler-algorithms
-module: cs-core
+module: cs-os-concurrency
 title: OS Scheduler Algorithms
 subtitle: FIFO / SJF / RR / MLFQ / CFS — how the OS picks the next thread to run. Trade-offs between fairness, throughput, latency.
 difficulty: Intermediate

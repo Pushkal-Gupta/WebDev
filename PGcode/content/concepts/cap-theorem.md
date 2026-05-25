@@ -1,6 +1,6 @@
 ---
 slug: cap-theorem
-module: system-design
+module: sd-storage
 title: CAP Theorem
 subtitle: A distributed system can guarantee any two of consistency, availability, and partition tolerance — not all three.
 difficulty: Intermediate
@@ -25,14 +25,14 @@ status: published
 CAP is the famous tradeoff every distributed-system designer eventually meets. Given a network that *will* drop messages (partition), you must choose: serve a possibly stale read (favor Availability) or refuse the read until the network heals (favor Consistency). You don't get to pretend partitions never happen — over a long-enough time horizon they always do.
 
 ## whyItMatters
-Every modern database labels itself with a CAP stance. Knowing the label tells you what to expect during an outage: will your DB refuse writes? Serve old reads? Lose data quietly? The choice cascades into product decisions — a bank chooses C; a social-media timeline chooses A.
+Every distributed database labels itself with a CAP stance, and the label tells you what to expect during a network partition. Eric Brewer first stated the conjecture at PODC 2000; Gilbert and Lynch proved it in 2002 (*Brewer's Conjecture and the Feasibility of Consistent, Available, Partition-Tolerant Web Services*). Spanner and CockroachDB choose CP — they refuse writes when a majority cannot agree, accepting unavailability to preserve linearizability. DynamoDB, Cassandra, and Riak choose AP — they accept writes to any replica and reconcile later, accepting stale reads. Etcd, ZooKeeper, and Consul are CP because they back consensus on Raft/ZAB. Reading a database's CAP stance correctly is the difference between an engineer who designs reliable systems and one whose database silently loses data during the next partition.
 
 ## intuition
-Two cashiers, one branch, one shared ledger over a phone line. Phone line cuts.
-- **CP**: cashiers stop accepting transactions until the phone works again — never disagree, but customers wait.
-- **AP**: each cashier keeps taking transactions on their own copy of the ledger; they reconcile when the phone is back — always serve, but copies temporarily disagree.
+CAP says: when the network partitions, a distributed system can keep accepting writes (Availability) or keep all replicas in agreement (Consistency) — but not both. The proof is one paragraph: two nodes on opposite sides of a partition cannot communicate; if both accept a write, they diverge (no longer consistent); if one refuses writes, it is no longer available. Partition tolerance (P) is not a choice in real networks — links fail, switches reboot, cables get cut — so the practical question is "which one do I sacrifice when partitions happen?"
 
-You can't have both with the phone down. That's CAP.
+The theorem is often misread. "You can pick two of three" is wrong; partitions happen whether you pick them or not. The right framing is "during a partition you must pick between C and A." When the network is healthy, modern systems can deliver both — Spanner reads are linearizable and almost always available because Google's WAN partitions rarely. CAP only constrains behavior during failure, which is precisely when behavior matters most.
+
+Daniel Abadi's PACELC refinement (2010) extends the model to the steady state: "In case of Partition, choose A or C; Else, choose Latency or Consistency." That second axis is what separates strong-consistency systems with slow reads (Spanner reads at the leader) from weak-consistency systems with fast reads (DynamoDB's eventual-consistency reads). Most real database choices live in PACELC space, not the simpler CAP space.
 
 ## visualization
 ```
@@ -48,14 +48,20 @@ You can't have both with the phone down. That's CAP.
 Pretend the network never partitions, deploy in a single rack, and call it consistent + available. True until your first switch failure. Then it's nothing.
 
 ## optimal
-Categorize your data by need:
+Pick C when correctness is non-negotiable: financial ledgers (Stripe's PaymentIntent table, plaid transactions, settlement systems use CP databases or Raft-backed primaries), distributed locks, leader election, configuration stores. Pick A when staleness is tolerable and unavailability is not: shopping carts (Amazon's Dynamo paper, 2007, explicitly chose AP because empty-cart errors cost more than stale-cart UX), product catalogs, social-media timelines, session stores, cache layers. Modern systems often pick per-operation: a single Cassandra deployment can serve `QUORUM` reads (C-leaning) for critical paths and `ONE` reads (A-leaning) for telemetry.
 
-- **CP systems** (HBase, MongoDB with majority writes, ZooKeeper, etcd, Spanner with TrueTime): block reads/writes during partition rather than return stale data. Use for: financial ledgers, locks, leader election, configuration.
-- **AP systems** (Cassandra, DynamoDB default, Riak, CouchDB): always answer; resolve conflicts later via last-write-wins, vector clocks, or CRDTs. Use for: shopping carts, user activity feeds, sensor data, like counts.
+```python
+# Pseudo-code for the per-operation choice
+def checkout(user_id, cart_id):
+    # Money moves: refuse if we cannot reach quorum.
+    ledger.write(consistency="QUORUM", retry=False)
 
-Within AP, pick a **consistency level**: read-your-writes, eventual consistency, monotonic reads. Within CP, pick a **quorum**: majority writes, quorum reads (`W + R > N`).
+def view_cart(user_id):
+    # Show whatever a fast replica has; reconcile on next write.
+    return cart_store.read(consistency="ONE", read_repair=True)
+```
 
-PACELC refines CAP: even without a partition, you choose between **L**atency and **C**onsistency. Synchronous replication across regions = stronger consistency but +100ms latency. Async = the opposite.
+The critical line is the `consistency=` parameter — Cassandra, ScyllaDB, and DynamoDB all expose this per-call, which means CAP is not a database choice but an operation choice. For systems where mistakes cost real money, default to CP and only relax for paths you have explicitly reasoned about. The follow-up reading is Kleppmann's *Designing Data-Intensive Applications* chapter 9, which dissects every commercial database's PACELC posture with citations.
 
 ## complexity
 - **CP write latency**: bounded by slowest replica in the quorum (cross-region quorum = global RTT).

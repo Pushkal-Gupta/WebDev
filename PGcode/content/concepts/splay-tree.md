@@ -1,6 +1,6 @@
 ---
 slug: splay-tree
-module: trees
+module: trees-balanced-disk
 title: Splay Tree
 subtitle: A self-adjusting BST that rotates every accessed node to the root, giving O(log n) amortized operations.
 difficulty: Advanced

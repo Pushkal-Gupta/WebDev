@@ -1,6 +1,6 @@
 ---
 slug: dp-game-theory
-module: dp
+module: dp-advanced
 title: Game Theory DP
 subtitle: Minimax with alpha-beta on game trees; Nim and Sprague-Grundy.
 difficulty: Advanced
@@ -25,10 +25,14 @@ status: published
 Game-theory DP solves two-player, zero-sum, perfect-information games where both players play optimally. The value of a position is computed from the values of positions reachable in one move: max for the player to move, min for the opponent. For impartial games (same moves available to both), Sprague-Grundy reduces every position to a single integer XOR-combinable across independent sub-games.
 
 ## whyItMatters
-"Who wins if both play perfectly" is the canonical interview formulation: stone games, coin rows, divisor games, Nim variants. Beyond puzzles, minimax with alpha-beta pruning is the engine behind chess and Go (before neural nets), and Grundy numbers underpin every theoretical analysis of combinatorial games. Knowing the recurrence and the pruning trick is a competitive-programming staple.
+- Stockfish, Komodo, and pre-neural Houdini chess engines run minimax with alpha-beta pruning as their core search; AlphaZero and Lc0 wrap neural-net value estimates around the same skeleton.
+- AlphaGo (DeepMind), and now its successors KataGo and Leela Zero, use minimax tree search at inference time with policy/value networks pruning the branching factor.
+- Competitive programming Olympiads (Codeforces, AtCoder) use Sprague-Grundy theorem for Nim-variant problems where the XOR of pile Grundy numbers determines the winner — every serious competitor knows this trick.
+- Game-theoretic DPs power coin-row games, divisor games, partizan combinatorial games, and the entire analysis framework Conway built for Surreal Numbers.
+- "Who wins under optimal play?" is the canonical interview formulation across stone games, coin rows, and Nim variants — knowing both minimax DP and Grundy numbers is a competitive-programming staple.
 
 ## intuition
-At a node where it's your turn, you pick the child move that maximises your eventual score. The opponent at the next ply does the opposite. So value(node) = max(value(child)) on your turn, min(value(child)) on theirs. Alpha-beta tracks the best already-guaranteed score for max (alpha) and min (beta); if a branch can never improve on the current bound, prune it without exploring. For partisan-symmetric games like Nim, the position has a single Grundy number g; player to move wins iff XOR of pile Grundy numbers is non-zero.
+Two-player zero-sum games with perfect information have a recursive structure: the value of a position is fully determined by the values of positions reachable in one move. At a node where you (the maximizing player) are to move, you pick the child that maximizes your value; at a node where the opponent (minimizing) is to move, they pick the child that minimizes your value. This is the minimax recurrence: `value(node) = max(value(child))` on your turn, `min(value(child))` on theirs. The base case is terminal positions (game over) where the value is the final score. For finite games, this recurrence terminates and gives the game-theoretic value. The challenge is that the game tree has branching factor b and depth d, giving O(b^d) raw search — chess has b around 35 and d around 80, hopelessly large. Alpha-beta pruning exploits a structural fact: if a branch's running value already crosses what the opponent would allow at a higher level, exploring further is wasted because the opponent will steer away from this branch entirely. Tracking alpha (max's best guaranteed score so far) and beta (min's best guaranteed score so far) and pruning when `alpha >= beta` can shave the explored tree to O(b^(d/2)) under perfect move ordering — quadratic speedup. For impartial games (same moves available to both players, like Nim), Sprague-Grundy theorem reduces every position to a single integer "Grundy number" g(pos) defined as the mex (minimum excludant) of g over reachable positions. Independent subgames combine by XOR: the overall game is a loss for the player-to-move iff the XOR of Grundy numbers is zero. The deep insight is that game theory's recursive value is a generalization of minimax DP, and Grundy numbers collapse impartial games to a single integer that XOR-composes — a remarkable algebraic structure on top of recursive search.
 
 ## visualization
 Coin row [1, 5, 233, 7]: each player takes from either end. Build the table dp[i][j] = max points the current player can collect from coins[i..j] assuming optimal play. Base: dp[i][i] = coins[i]. Recurrence: dp[i][j] = max(coins[i] - dp[i+1][j], coins[j] - dp[i][j-1]) (the subtraction encodes "opponent then plays optimally"). For Nim with piles (3, 4, 5): grundy = 3 XOR 4 XOR 5 = 2 != 0 — first player wins.
@@ -37,11 +41,39 @@ Coin row [1, 5, 233, 7]: each player takes from either end. Build the table dp[i
 Recurse on the game tree, evaluating every leaf. Branching factor b, depth d gives O(b^d) — exponential. Fine for shallow toy games (tic-tac-toe 9!) but explodes on chess (b around 35, d around 80) without aggressive pruning.
 
 ## optimal
-Two complementary techniques:
+Three complementary techniques covering the spectrum of game-theory DP problems. (1) Memoized minimax DP for small finite-state games: hash the position to an integer key and store evaluated values in a table — the state count, not the depth, is the cost. (2) Alpha-beta pruning for large game trees: maintain alpha (max's best guaranteed score so far) and beta (min's best so far); prune when `alpha >= beta`, shaving search to O(b^(d/2)) under good move ordering. (3) Sprague-Grundy theorem for impartial games: compute Grundy numbers `g(pos) = mex of g over reachable positions` and XOR independent subgames — non-zero XOR means the player to move wins.
 
-1. **Memoised minimax DP.** Hash the position to an integer key, store evaluated values in a table. State count is the limit, not depth.
-2. **Alpha-beta on game trees.** Maintain alpha (max's best so far) and beta (min's best so far). Prune any branch where the running value crosses the bound — at best halves the explored tree to O(b^(d/2)).
-3. **Sprague-Grundy for impartial games.** Each independent sub-game has a Grundy number g(pos) = mex of g over reachable positions. XOR them; non-zero means the player to move wins, zero means they lose.
+```python
+def alpha_beta(state, depth, alpha, beta, maximizing, moves, evaluate):
+    """Alpha-beta search returning the value from the maximizer's perspective."""
+    if depth == 0 or not moves(state):
+        return evaluate(state)
+    if maximizing:
+        value = -10**9
+        for nxt in moves(state):
+            value = max(value, alpha_beta(nxt, depth - 1, alpha, beta, False, moves, evaluate))
+            alpha = max(alpha, value)
+            if alpha >= beta:           # prune: opponent will steer away
+                break
+        return value
+    else:
+        value = 10**9
+        for nxt in moves(state):
+            value = min(value, alpha_beta(nxt, depth - 1, alpha, beta, True, moves, evaluate))
+            beta = min(beta, value)
+            if alpha >= beta:
+                break
+        return value
+
+def nim_winner(piles):
+    """Sprague-Grundy XOR: first player wins iff XOR is non-zero."""
+    x = 0
+    for p in piles:
+        x ^= p
+    return "first" if x else "second"
+```
+
+The `alpha >= beta` prune is the load-bearing speedup — it skips entire subtrees that the opponent would never let happen. Move-ordering heuristics (try captures first, killer moves first) bring alpha-beta close to its O(b^(d/2)) best-case bound in practice. The Nim XOR trick is breathtakingly compact: Sprague-Grundy guarantees that any impartial game is equivalent to a Nim pile of size equal to its Grundy number, and XOR-composing independent subgames falls out of the theorem.
 
 ## complexity
 time: O(states) for memoised DP; O(b^d) worst-case, O(b^(d/2)) with perfect alpha-beta ordering; O(maxPile) for Nim Grundy precompute.

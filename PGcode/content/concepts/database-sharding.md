@@ -1,6 +1,6 @@
 ---
 slug: database-sharding
-module: system-design
+module: sd-storage
 title: Database Sharding
 subtitle: Range, hash, and directory-based partitioning for horizontal scale.
 difficulty: Advanced
@@ -25,10 +25,28 @@ status: published
 Sharding splits one logical dataset across N physical databases so that no single node holds the whole working set. The choice of shard key — and the mapping from key to shard — determines whether your system scales linearly or collapses under hotspots, rebalances, and cross-shard joins.
 
 ## whyItMatters
-A single Postgres instance maxes out around tens of thousands of writes per second and a few TB. Replication scales reads but not writes. Sharding is the lever that pushes write throughput and total dataset size past those limits — but it is a one-way door: queries that touched one node now touch many, transactions stop being free, and operational complexity multiplies.
+- **Vitess** (YouTube, Slack, GitHub, Shopify) shards MySQL transparently; **Citus** (Microsoft, integrated into Azure Database for PostgreSQL) shards Postgres; **CockroachDB, Spanner, YugabyteDB, FoundationDB** are sharded-by-default distributed databases.
+- **DynamoDB, Cassandra, MongoDB, ScyllaDB** all use hash or consistent-hash partitioning as the default; **Bigtable, HBase, TiKV** use range partitioning.
+- **The Dynamo paper (DeCandia et al., 2007)** introduced consistent hashing with virtual nodes for production at Amazon; the same technique underlies **Riak**, **Memcached client libraries (libketama)**, and **Akka Cluster Sharding**.
+- **Designing Data-Intensive Applications Chapter 6** is the canonical reference; every senior backend interview asks "how would you shard X?" because the shard-key choice is the single most consequential decision in a distributed storage design.
 
 ## intuition
-Three competing pressures shape every sharding decision: **even load distribution** (no hot shard), **query locality** (one shard answers most reads), and **rebalancing cost** (adding a shard shouldn't migrate the whole dataset). Each strategy below trades one of these against the others.
+Sharding partitions one logical dataset across N physical databases so that no single node holds the whole working set. The motivation is fundamental: a single Postgres or MySQL instance maxes out around tens of thousands of writes per second and a few terabytes of data; **replication scales reads but not writes** (every replica must apply every write); the only way to scale writes past one machine is to split the data so different writes go to different machines.
+
+Three competing pressures shape every sharding decision:
+
+1. **Even load distribution** — no hot shard. The shard key's distribution determines load; if it correlates with traffic (sharding by country with one country = 60% of users) you get a hot shard that defeats the whole point.
+2. **Query locality** — one shard answers most reads. A query that fans out to all shards has latency equal to the **slowest** shard, and you have re-built the original single-node bottleneck plus network overhead.
+3. **Rebalancing cost** — adding a shard should not migrate the whole dataset. Naive `shard = id mod N` reshuffles roughly all rows when N changes (because every key's residue changes); consistent hashing reshuffles only ~1/N keys.
+
+The four canonical strategies trade these pressures differently:
+
+- **Range sharding** (orders by order_id, time-series by timestamp): great query locality for range scans (`WHERE date BETWEEN ...`), terrible distribution because the newest range is always hot (writes pile on one shard). Used by HBase, BigTable, and time-series stores.
+- **Hash sharding** (orders by `hash(user_id) mod N`): excellent distribution (random spread), perfect locality for single-key lookups, but range scans must fan out to all shards. Used by Cassandra, DynamoDB, and most key-value stores.
+- **Consistent hashing** (a ring of 2^32 slots, each shard owns an arc, virtual nodes for smoothing): like hash sharding but resharding moves only K/N keys instead of all of them. Used by Dynamo, Riak, Cassandra (with vnodes), Memcached clients.
+- **Directory sharding** (lookup table mapping tenant -> shard): maximally flexible per-tenant placement (whale tenants get dedicated shards), at the cost of one extra hop per query and a coordination service that must stay highly available. Used by Vitess, YouTube's storage layer, and most multi-tenant SaaS at scale.
+
+The choice is one-way: queries that touched one node now touch many, transactions stop being free, and operational complexity multiplies. Reach for sharding only when vertical scaling, read replicas, caching, and archiving cold data have all been exhausted.
 
 ## visualization
 ```
@@ -57,14 +75,73 @@ directory sharding (lookup table):
 Pick `shard = id mod N`. It distributes evenly while N is fixed but resharding from N to N+1 reshuffles roughly all rows, because every key's residue changes. Acceptable for caches that can be cold-restarted; disastrous for primary stores that must stay online.
 
 ## optimal
-Decision tree by query pattern:
+The right approach is **a workload-driven strategy choice plus consistent hashing with virtual nodes for rebalance-friendliness**, paired with co-located transactional data, async cross-shard reconciliation, and a productized sharding layer (Vitess, Citus, Spanner) instead of hand-rolled routing.
+
+```python
+import bisect, hashlib
+
+class ConsistentHashRing:
+    def __init__(self, vnodes_per_shard: int = 200):
+        self.vnodes = vnodes_per_shard
+        self.ring: list[int] = []                   # sorted hash positions
+        self.owners: dict[int, str] = {}
+
+    def _hash(self, key: str) -> int:
+        # SHA256 / MD5 are uniform enough for distribution; MurmurHash is faster.
+        return int(hashlib.sha256(key.encode()).hexdigest(), 16)
+
+    def add_shard(self, shard_id: str) -> None:
+        # Virtual nodes (200/shard) smooth distribution and shrink the
+        # variance in per-shard load to within ~5% of uniform.
+        for i in range(self.vnodes):
+            h = self._hash(f"{shard_id}#{i}")
+            bisect.insort(self.ring, h)
+            self.owners[h] = shard_id
+
+    def shard_for(self, key: str) -> str:
+        h = self._hash(key)
+        idx = bisect.bisect_right(self.ring, h) % len(self.ring)
+        return self.owners[self.ring[idx]]
+
+# Workload-driven strategy selection:
+def pick_strategy(workload):
+    if workload.time_series_append_mostly:
+        return "range shard on time; route newest writes to a hot tier"
+    if workload.multi_tenant and workload.whale_tenants_exist:
+        return "directory shard on tenant_id; give whales dedicated shards"
+    if workload.high_fanout_per_user:
+        return "hash shard on user_id; co-locate per-user data"
+    return "consistent hash with 200 vnodes/shard"
 ```
-mostly time-series, append-mostly       -> range shard on time, route newest to a hot tier
-multi-tenant SaaS, tenant = unit of work-> directory shard on tenant_id (or hash if tenants are tiny)
-high-fanout reads by user               -> hash shard on user_id; co-locate per-user data
-unpredictable mix                       -> consistent hash with virtual nodes (200 vnodes / shard)
-```
-Co-locate data that must transact together (orders + order_items by `user_id`) so 95% of writes hit one shard. For the 5% cross-shard cases, use **two-phase commit** (slow, blocking) or saga + outbox + idempotent compensations (fast, eventually consistent). For analytics, ship CDC to a column store rather than fan-out queries to OLTP shards.
+
+Why this is right: **consistent hashing with virtual nodes** is the production default because it scales linearly with adding shards (only K/N keys move when adding 1 of N shards), virtual nodes (200-256 per physical shard) smooth load variance to within ~5% of uniform, and the ring data structure is O(log N) per lookup. Used by **Dynamo, Riak, Cassandra, Memcached clients (libketama), Akka cluster sharding**.
+
+**Co-location is the discipline that makes sharding survive contact with production**:
+
+- Group data that must transact together (orders + order_items + payments) under a single shard key (`user_id`), so 95% of writes hit one shard and use ordinary local transactions.
+- For the 5% cross-shard cases, use **saga + outbox + idempotent compensations** (eventually consistent, no blocking) or **two-phase commit** (consistent, blocking, slow). Saga is the modern default; 2PC is reserved for cases where partial failure is unacceptable and latency budget allows.
+- For analytics that need to scan all shards, **ship CDC to a column store** (Snowflake, ClickHouse, BigQuery) rather than fan-out queries to OLTP shards.
+
+**Strategy by workload pattern**:
+- **Time-series, append-mostly** (events, metrics, logs): range shard on time, route newest writes to a hot tier with more replicas; archive cold partitions to S3 (TimescaleDB hypertables, BigTable's time-based tablets).
+- **Multi-tenant SaaS** (tenants are units of work): directory shard on `tenant_id`. Give whale tenants dedicated shards; pack many small tenants into shared shards via hash. Vitess and Citus support this natively.
+- **High-fanout per-user** (social feeds, gaming): hash shard on `user_id`. Co-locate posts, likes, follows under the same key.
+- **Unpredictable mix**: consistent hash with virtual nodes, plus a directory layer for over-large keys.
+
+**Production reality checklist** (anti-patterns that bite):
+- **Shard key correlated with traffic**: sharding by country with one country = 60% of users guarantees a hot shard. Always validate the distribution before committing.
+- **Auto-increment IDs are not unique across shards**: use **UUIDv7, Snowflake IDs, or ULID** (sortable + globally unique) instead of `BIGSERIAL`.
+- **Cross-shard joins in the request path**: latency = max of all shard latencies. Denormalize, cache, or pre-compute via CDC.
+- **Unique indexes that the shard key does not cover**: uniqueness now requires a coordinator or a global secondary index. Either include the unique column in the shard key, or accept eventual consistency on uniqueness.
+- **Whale tenants without size caps**: one customer fills a whole shard. Enforce per-tenant size limits at the application layer or pre-emptively split.
+
+**Productized sharding layers** — prefer over hand-rolled routing:
+- **Vitess** (YouTube, Slack, GitHub): MySQL-compatible, transparent sharding, supports online resharding with shadow writes.
+- **Citus** (now part of Postgres via Microsoft): turns Postgres into a distributed database with hash-based sharding.
+- **CockroachDB, Spanner, YugabyteDB**: built-in distributed-by-default, range sharding with automatic rebalancing.
+- **MongoDB, DynamoDB, Cassandra**: NoSQL stores with native partitioning baked in.
+
+Online resharding with **shadow writes** (write to both old and new shard during migration, then cut over reads) is the only safe way to add shards to a production system; the Vitess `vreplication` and Citus `citus_split_shard` workflows formalize this.
 
 ## complexity
 time: single-shard query O(query) — same as unsharded; cross-shard query O(query) per shard + merge O(N log N)

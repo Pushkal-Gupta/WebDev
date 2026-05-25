@@ -1,6 +1,6 @@
 ---
 slug: blue-green-deployment
-module: system-design
+module: sd-reliability
 title: Blue-Green & Canary Deployment
 subtitle: Ship a new version without downtime — run the new version alongside the old, flip traffic when ready.
 difficulty: Intermediate

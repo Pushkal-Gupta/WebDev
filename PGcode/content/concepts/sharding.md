@@ -1,6 +1,6 @@
 ---
 slug: sharding
-module: system-design
+module: sd-storage
 title: Sharding
 subtitle: Split one giant dataset across many machines so each machine holds only a slice.
 difficulty: Intermediate

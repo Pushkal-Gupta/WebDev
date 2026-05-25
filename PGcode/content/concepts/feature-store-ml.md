@@ -1,6 +1,6 @@
 ---
 slug: feature-store-ml
-module: system-design
+module: sd-microservices
 title: ML Feature Store
 subtitle: Online + offline store for ML features — same SQL definition serves training (batch) AND inference (real-time) without skew.
 difficulty: Advanced

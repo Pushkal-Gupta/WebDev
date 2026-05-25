@@ -1,6 +1,6 @@
 ---
 slug: segment-tree-beats
-module: arrays-searching
+module: arrays-range-structures
 title: Segment Tree Beats
 subtitle: Range updates with min/max ceilings or floors — push the recursion only into nodes that actually change, O((n+q) log² n) amortized.
 difficulty: Advanced

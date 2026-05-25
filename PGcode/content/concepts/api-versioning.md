@@ -1,6 +1,6 @@
 ---
 slug: api-versioning
-module: system-design
+module: sd-api
 title: API Versioning
 subtitle: Evolve a public API without breaking existing clients — URI / header / accept-version strategies, deprecation lifecycle, payload contracts.
 difficulty: Intermediate

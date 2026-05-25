@@ -1,6 +1,6 @@
 ---
 slug: service-mesh
-module: system-design
+module: sd-microservices
 title: Service Mesh
 subtitle: Sidecar proxies (Envoy) handling mTLS, retries, traffic shaping, and observability.
 difficulty: Advanced
@@ -25,10 +25,21 @@ status: published
 A service mesh moves the cross-cutting concerns of service-to-service communication — mTLS, retries, timeouts, circuit-breaking, traffic shifting, telemetry — out of application code and into a sidecar proxy that sits next to every service. The control plane (Istio, Linkerd, Consul) pushes config; the data plane (typically Envoy) enforces it on every connection.
 
 ## whyItMatters
-Without a mesh, every service team re-implements the same five resiliency patterns in five languages, gets at least one of them wrong, and ships subtle production incidents. A mesh standardizes the runtime behavior across polyglot fleets and gives platform teams a single knob for security (mTLS everywhere) and progressive delivery (canary, mirror, blue-green) without code changes.
+- **Istio** (Google, IBM, Lyft) and **Linkerd** (Buoyant, CNCF graduate) are the dominant service-mesh platforms; **Consul Connect (HashiCorp)**, **AWS App Mesh**, and **Cilium Service Mesh (eBPF-based)** are the major alternatives.
+- **Envoy** (Lyft, 2016) is the de facto data-plane proxy — used by Istio, AWS App Mesh, gRPC's xDS support, and as a standalone L7 load balancer at Lyft, Reddit, Pinterest, Spotify.
+- **The xDS API** (LDS/RDS/CDS/EDS — Listener/Route/Cluster/Endpoint Discovery Service) is the cross-vendor standard for control-plane to data-plane communication; gRPC clients now speak xDS directly without a sidecar.
+- **SPIFFE/SPIRE** (the workload-identity standard backing mesh mTLS) and **William Morgan's "What's a service mesh?" blog series** are the canonical references; every senior microservices interview probes "why a mesh vs an API gateway" understanding.
 
 ## intuition
-Picture every pod as having a tiny load-balancer-and-firewall pinned to its hip. The app talks plain HTTP to `localhost:15001`; the sidecar terminates that, applies policy (auth, retries, rate limits), opens an mTLS connection to the destination's sidecar, and forwards. Both ends authenticate via short-lived SPIFFE certs issued by the control plane. Application code never sees TLS, never retries, never emits Prometheus counters by hand — the sidecar does.
+The mesh exists because **cross-cutting service-to-service concerns** — mTLS, retries, timeouts, circuit-breaking, traffic shifting, distributed tracing, telemetry — were being re-implemented in every microservice, in every language, by every team. Each repo configures retry budgets and circuit-breaker thresholds differently; a Go service and a Node service drift apart over quarters; SREs lose any global view; rotating a CA certificate requires a coordinated rebuild of every container image. Hystrix (Netflix, Java), Resilience4j (JVM), Polly (.NET), `go-resilience`, `tenacity` (Python) all exist for the same reason — and all live in application code.
+
+A service mesh moves all of that **out of application code and into a sidecar proxy** that runs next to every service. The application talks plain HTTP to `localhost:15001`; the sidecar (typically **Envoy**) intercepts the call, applies policy (JWT auth, rate limits, retries with budget), opens an **mTLS** connection to the destination's sidecar, and forwards. Both ends authenticate via short-lived **SPIFFE certs** issued by the control plane. Application code never sees TLS, never retries, never emits Prometheus counters by hand — the sidecar does, uniformly across the entire fleet.
+
+The architecture splits cleanly into **control plane** (Istiod, Linkerd Destination, Consul) and **data plane** (Envoy sidecars). The control plane pushes config via the **xDS API** family — Listener Discovery Service (LDS), Route Discovery Service (RDS), Cluster Discovery Service (CDS), Endpoint Discovery Service (EDS) — and aggregates telemetry (metrics, traces, logs) pulled from every sidecar. The data plane enforces the config on every connection, hot-reloading without dropping live traffic.
+
+The mental model: every pod has a tiny load-balancer-and-firewall pinned to its hip. Cross-cutting policy lives in one place per pod (the sidecar) and is configured centrally (the control plane), so security postures (mTLS everywhere), progressive delivery (canary, mirror, blue-green), and resilience policies (timeout = p99.9 + jitter, max-retries = 2, retry-on = 5xx) become global knobs the platform team can flip without code changes.
+
+The trade-off: every request now traverses two extra TCP/TLS terminations (one per sidecar), adding ~1 ms p50 / ~3 ms p99 per hop. For latency-critical workloads at scale, eBPF-based meshes (Cilium) bypass the userspace proxy by enforcing policy in the Linux kernel, recovering most of the overhead.
 
 ## visualization
 ```
@@ -64,6 +75,46 @@ data plane (per pod):
   - hot-reload config without dropping connections
 ```
 Pick traffic-shifting at the route level: `canary: 5%`, `mirror: 100% to v2 shadow`. Combine with timeout = p99.9 + jitter, max-retries = 2, retry-on = 5xx,gateway-error,connect-failure. Set per-service circuit-breaker on consecutive 5xx.
+
+```yaml
+# Istio VirtualService: canary traffic split with retries and timeouts.
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata: { name: billing }
+spec:
+  hosts: [billing]
+  http:
+    - route:
+        - destination: { host: billing, subset: v1 }
+          weight: 95                              # 95% to stable
+        - destination: { host: billing, subset: v2 }
+          weight: 5                               # 5% canary
+      timeout: 2s
+      retries:
+        attempts: 2
+        perTryTimeout: 500ms
+        retryOn: 5xx,reset,connect-failure,refused-stream
+```
+
+Why this architecture is right: the **control plane / data plane split** matches the natural separation between policy (rarely changes, lives in Git, code-reviewed) and enforcement (every request, must be fast). Envoy as the data plane is a battle-tested L7 proxy with first-class HTTP/2, gRPC, mTLS, and observability support; the xDS API family (LDS/RDS/CDS/EDS) is the industry-standard control plane protocol that gRPC clients can now speak directly. SPIFFE/SPIRE for workload identity replaces fragile shared secrets with short-lived (1-hour TTL) certificates rotated automatically.
+
+**Production disciplines that matter**:
+- **Retries are not free**: a 3-retry policy at every hop multiplicatively amplifies load during partial failures, causing **retry storms**. Use a **global retry budget** (Envoy supports `retry_budget` percentage) and exponential backoff with jitter.
+- **Timeouts must shrink as requests fan in**: child timeout > parent timeout invites cascading hangs. Set timeouts top-down: edge=10s, mid-tier=3s, leaf=1s.
+- **mTLS strict, not permissive**: Istio's `PeerAuthentication` defaults to `PERMISSIVE` (allows both mTLS and plaintext); always set `mode: STRICT` in production. Permissive leaves plaintext fallback enabled and undetected by audits.
+- **Sidecar tail latency**: a slow xDS push can blackhole new endpoints for seconds. Monitor sidecar config propagation lag as an SLI.
+- **Circuit breakers per upstream**: Envoy's `outlier_detection` ejects unhealthy backends from the load balancer pool; consecutive 5xx for N seconds = eject for M seconds.
+
+**When NOT to use a mesh**:
+- **Adding a mesh to fix bad service boundaries** — the mesh hides architectural problems behind retries; fix the design first.
+- **Low service count (<10)** — operational complexity of running Istio outweighs the benefits; gRPC built-in retries plus a simpler service discovery suffice.
+- **Latency-critical paths** — the 1-3 ms sidecar overhead matters; use eBPF-based meshes (**Cilium**) that enforce policy in the kernel and bypass userspace proxies.
+
+**Alternatives and the future**:
+- **gRPC xDS support**: gRPC clients can now talk to Istio's control plane directly without a sidecar, getting most of the mesh benefits with zero proxy overhead. Used at Google internally; becoming the default for gRPC-heavy fleets.
+- **Cilium Service Mesh** (CNCF): eBPF-based, runs policy enforcement in the Linux kernel; ~10x lower latency than Envoy-based meshes.
+- **Linkerd**: lighter than Istio (Rust-based `linkerd2-proxy` instead of C++ Envoy), simpler ops, smaller feature surface; good fit for teams that want a mesh without Istio's complexity.
+- **API-gateway-only architecture** (no mesh): suitable for north-south traffic (client-to-edge) without east-west complexity; pair with gRPC retries for internal calls.
 
 ## complexity
 time: adds ~1 ms p50 / ~3 ms p99 hop per request (two extra TCP/TLS terminations per RPC)

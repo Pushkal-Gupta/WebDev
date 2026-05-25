@@ -1,6 +1,6 @@
 ---
 slug: design-pattern-mediator
-module: foundations
+module: foundations-patterns
 title: Mediator Pattern
 subtitle: Centralize communication between decoupled components
 difficulty: Intermediate
@@ -19,10 +19,53 @@ status: published
 Mediator extracts the rules of how a set of components interact into a single coordinator object. Instead of each component holding direct references to every other, they all talk only to the mediator. The mediator translates events from one component into commands for others, keeping the components themselves ignorant of the larger choreography.
 
 ## whyItMatters
-Without a mediator, every new component must learn every other component it might affect. The graph of references grows quadratically, and small changes cascade. Mediator caps each component's knowledge at one collaborator (itself plus the mediator), turning a tangled mesh into a hub-and-spoke graph that is easy to understand and modify.
+- **Slack desktop client**: each chat widget (composer, sidebar, presence list, typing indicator) routes events through a single channel controller. Without it the typing indicator would need to know about every panel that might want to react.
+- **Aircraft cockpits (Boeing FMS, Airbus FCU)**: the Flight Management System is a literal mediator between autopilot, throttle, navigation database, and pilot inputs — each subsystem stays unaware of the others.
+- **Redux / NgRx / Vuex stores**: action dispatchers and reducers form a mediator between hundreds of view components, replacing N² prop drilling with a one-hop store.
+- **Air-traffic control TRACON consoles**: pilots talk only to the controller, never plane-to-plane; the FAA codifies it because direct coordination at scale doesn't terminate.
+- **Smart-home hubs (Home Assistant, Apple HomeKit)**: bulbs, switches, thermostats route through one controller so a "good night" scene doesn't need point-to-point wiring across vendors.
+
+The win is operational: a 12-component dialog has 66 possible directed edges; with a mediator it has 24 (each component holds one reference, mediator holds twelve back). That's the difference between a UI you can refactor in an afternoon and one you can't.
 
 ## intuition
-Air traffic control is the canonical metaphor. Pilots do not coordinate directly with every other plane. They radio the tower, which sees the whole picture and issues instructions. Add a new plane and only the tower needs updating; existing pilots keep flying their assigned headings.
+Start from the failure mode the pattern is built to prevent. With direct references, every interaction rule lives at the *edge* between two components. A chat composer that needs to "disable send while the upload widget is busy" reaches into the upload widget. The upload widget that needs to "show a toast on failure" reaches into the toast manager. After a year, the dependency graph is a hairball — no single file describes the dialog's behavior, every change ripples, and you can't reuse the composer in a different dialog because it's married to *this* upload widget.
+
+The mediator inverts the relationship. Each component publishes events outward ("checkbox toggled", "upload finished", "form submitted") and accepts commands inward ("disable yourself", "show this message"). It knows nothing about what triggers its commands or who receives its events. The mediator is the *only* object that knows the dialog has a checkbox AND a button AND a rule connecting them — when the checkbox emits `toggled`, the mediator translates that into `button.setEnabled(...)`.
+
+Two consequences follow. First, you can read the dialog's behavior by reading one class — the mediator — instead of crawling the component graph. Second, you can lift any component into a new dialog by writing a new mediator; the component itself stays the same. The metaphor everyone reaches for is air traffic control: pilots fly their planes, the tower owns the choreography. Add a new plane — only the tower's procedures change. That's the property you're buying.
+
+## optimal
+The implementation has three moving parts: a `Mediator` interface, a context (the concrete mediator that owns the rules), and components that hold a reference to their mediator and emit events through it.
+
+```python
+class Mediator:
+    def notify(self, sender, event, payload=None): ...
+
+class DialogMediator(Mediator):
+    def __init__(self):
+        self.checkbox = Checkbox(self)
+        self.button = Button(self)
+        self.toast = ToastBar(self)
+
+    def notify(self, sender, event, payload=None):
+        if sender is self.checkbox and event == "toggled":
+            self.button.set_enabled(self.checkbox.checked)
+        elif sender is self.button and event == "click":
+            try:
+                self.submit()
+            except ValidationError as e:
+                self.toast.show(str(e))
+
+class Component:
+    def __init__(self, mediator):
+        self._mediator = mediator
+    def emit(self, event, payload=None):
+        self._mediator.notify(self, event, payload)
+```
+
+Key invariants the pattern enforces: (1) components never import or reference each other — only the mediator imports them; (2) events flow one direction (component → mediator) and commands the other (mediator → component); (3) the mediator owns *all* cross-component rules, so a new rule is a one-place change.
+
+This is optimal in the sense that the *coupling graph* is minimized: each component has degree 1 (it knows only the mediator), the mediator has degree N. Total edges = N, not N(N-1)/2. You pay one extra dispatch per event (the `notify` call), which is irrelevant unless you're in a per-frame render loop — and even React/Vue render pipelines accept this overhead because the maintainability gain dominates. The pattern scales until the mediator itself becomes a god object; the standard fix is to split by sub-workflow (separate mediator per dialog, per wizard step, per room in a chat client).
 
 ## visualization
 Draw N components arranged in a circle with arrows pointing inward to one central node, the mediator. Compare to the same diagram without a mediator, where every component connects to every other — an O(N²) tangle. The mediator collapses it to O(N) connections.

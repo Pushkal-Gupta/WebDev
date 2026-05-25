@@ -1,6 +1,6 @@
 ---
 slug: skiplist-concurrent
-module: trees
+module: trees-balanced-disk
 title: Lock-free Concurrent Skip List
 subtitle: Build a sorted set that scales to many writer threads — no global lock, no rotations, just CAS on forward pointers.
 difficulty: Advanced

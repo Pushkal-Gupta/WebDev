@@ -1,6 +1,6 @@
 ---
 slug: monad-functor
-module: foundations
+module: foundations-analysis
 title: Functors and Monads
 subtitle: map and flatMap as design patterns — Maybe, Either, Future, and why they all share the same shape.
 difficulty: Advanced

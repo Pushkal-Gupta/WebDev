@@ -1,6 +1,6 @@
 ---
 slug: saml-vs-oidc
-module: system-design
+module: sd-auth-security
 title: SAML vs OpenID Connect
 subtitle: Enterprise XML federation vs modern JSON federation — when to ship which, and why most B2B SaaS still ships both.
 difficulty: Intermediate

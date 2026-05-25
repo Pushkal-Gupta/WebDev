@@ -1,6 +1,6 @@
 ---
 slug: centroid-decomposition
-module: trees
+module: trees-advanced-queries
 title: Centroid Decomposition
 subtitle: Recursive divide-and-conquer on trees — every path is captured at exactly one "centroid level," enabling O(n log n) path-counting problems.
 difficulty: Advanced

@@ -1,6 +1,6 @@
 ---
 slug: load-balancing
-module: system-design
+module: sd-reliability
 title: Load Balancing
 subtitle: Distribute incoming traffic across a pool of servers so no single node is the bottleneck.
 difficulty: Beginner

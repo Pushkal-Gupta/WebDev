@@ -1,6 +1,6 @@
 ---
 slug: two-phase-locking
-module: cs-core
+module: cs-db-transactions
 title: Two-Phase Locking
 subtitle: The classical concurrency control protocol — grow then shrink, with strict variants that prevent cascading aborts.
 difficulty: Advanced
@@ -25,10 +25,10 @@ status: published
 Two-Phase Locking (2PL) is a concurrency-control protocol that splits every transaction into a **growing phase** (only acquires locks) and a **shrinking phase** (only releases locks). Once any lock is released, no new lock can ever be acquired. This single rule is sufficient to guarantee **conflict-serializable** schedules — the strongest correctness property short of full serializability.
 
 ## whyItMatters
-Concurrent transactions that touch the same rows can interleave reads and writes in ways that violate invariants: lost updates, dirty reads, non-repeatable reads, phantom rows. 2PL is the textbook answer used by MySQL InnoDB (default), SQL Server (default at non-snapshot isolations), DB2, and many embedded engines. Even systems that prefer MVCC (Postgres, Oracle) fall back to range locks or predicate locks for SERIALIZABLE — same family of techniques.
+Concurrent transactions that touch the same rows can interleave reads and writes in ways that violate invariants: lost updates, dirty reads, non-repeatable reads, phantom rows. 2PL is the textbook answer used by MySQL InnoDB (default), SQL Server (default at non-snapshot isolations), DB2, and many embedded engines. Even systems that prefer MVCC (Postgres, Oracle) fall back to range locks or predicate locks for SERIALIZABLE — same family of techniques. ANSI SQL isolation levels (Read Committed, Repeatable Read, Serializable) map directly onto 2PL variants: hold S-locks until end of statement vs end of transaction, hold X-locks until commit vs end of statement.
 
 ## intuition
-Imagine a library where every book has a checkout card. Readers stamp out (shared lock) and writers must have everyone else cleared before stamping (exclusive). The rule: once you start putting any card back, you cannot stamp out a new one for the rest of your session. This forces every transaction to gather everything it might touch *before* relinquishing anything — which is why the resulting schedule is equivalent to running them one after another.
+The challenge of concurrent transactions is that interleaved reads and writes can produce schedules that no serial execution could ever produce — violating invariants like account balance conservation, foreign-key integrity, or read-your-writes consistency. Two-Phase Locking's correctness guarantee rests on a single discipline: every transaction has a growing phase (only acquires locks) and a shrinking phase (only releases locks), and once any lock is released the growing phase is over forever. This prevents a transaction from acquiring a lock after releasing one, which is the structural property that makes the resulting schedule conflict-serializable — equivalent to some serial order. Concretely, locks come in two modes: shared (S, multiple holders allowed, only for reads) and exclusive (X, single holder, required for writes). The compatibility table is the standard reader-writer: S and S coexist, X conflicts with everything. The serializability proof works by considering the wait-for graph: transactions are nodes, edges encode "T_i is blocked waiting for T_j's lock." Under 2PL, no cycle in this graph survives without deadlock detection forcing one transaction to abort, so the surviving schedule has a topological order that is exactly the conflict-serializable order. The library analogy: every book has a checkout card; readers stamp out (S-lock), writers need everyone cleared before stamping (X-lock); once you start putting any card back, you cannot stamp out a new one for the rest of your session. Plain 2PL allows cascading aborts (T1 releases a lock, T2 reads, T1 aborts, T2 must also abort), so production engines use stricter variants: Strict 2PL holds X-locks until commit (prevents cascades on writes), Rigorous 2PL holds all locks until commit (simpler, what InnoDB and SQL Server use). The deep insight is that correctness in concurrent systems often comes from discipline on *when* you give things up, not just on *what* you grab.
 
 ## visualization
 Two transactions, T1 transferring $10 from A to B, T2 reading A+B. Without 2PL: T1 reads A=100, T2 reads A=100, T2 reads B=50 (total=150), T1 writes A=90, T1 writes B=60, T1 commits. T2 saw a stale total — anomaly. With 2PL: T1 acquires X-lock on A and B before any release; T2 blocks on its S-lock for A until T1 commits and releases. T2 sees the post-transfer state — consistent.
@@ -37,7 +37,43 @@ Two transactions, T1 transferring $10 from A to B, T2 reading A+B. Without 2PL: 
 Run every transaction serially: take a global mutex, do the work, release. Trivially correct, terrible throughput. On a 32-core box you saturate one core and idle 31. Real systems need fine-grained locks per row/page/table so independent transactions on disjoint data run in parallel. 2PL is exactly that fine-grained discipline combined with a correctness proof.
 
 ## optimal
-Plain 2PL is correct but allows two bad behaviors. **Cascading aborts**: if T1 releases a lock then aborts, anyone who read T1's writes must also abort. **Strict 2PL (S2PL)** prevents this by holding all *exclusive* locks until commit/abort. **Rigorous 2PL** holds *all* locks (S and X) until commit — equivalent power, simpler reasoning, what most engines actually implement. Deadlocks become inevitable (T1 holds A wants B, T2 holds B wants A). Detection uses a **wait-for graph**: a node per transaction, edge T_i → T_j if T_i is blocked waiting on a lock held by T_j. A cycle = deadlock; abort the youngest transaction to break it. Prevention alternatives include WAIT-DIE and WOUND-WAIT timestamp protocols.
+Production engines use Rigorous 2PL (hold all locks until commit) plus deadlock detection via a wait-for graph. Each transaction acquires locks on demand during execution; when it commits or aborts, all locks are released atomically. Deadlocks are detected by maintaining a directed graph where node T_i has an edge to T_j when T_i is blocked waiting on a lock held by T_j. A cycle in this graph is a deadlock; resolve by aborting the youngest (or some other policy) transaction to break the cycle. Lock acquisition is O(log n) with hashed lock tables; deadlock detection is O(V + E) on the wait-for graph and is typically run on a 1-second timer rather than per-acquisition.
+
+```python
+from collections import defaultdict
+from threading import Lock, Condition
+
+class LockManager:
+    """Rigorous 2PL with wait-for-graph deadlock detection."""
+    def __init__(self):
+        self.locks = defaultdict(lambda: {"holders": {}})
+        self.mu = Lock()
+        self.cv = Condition(self.mu)
+        self.wait_for = defaultdict(set)
+
+    def acquire(self, tx, key, mode):
+        with self.cv:
+            while not self._compatible(tx, key, mode):
+                # Record this transaction as waiting for current holders.
+                for h in self.locks[key]["holders"]:
+                    if h != tx:
+                        self.wait_for[tx].add(h)
+                if self._has_cycle():
+                    self.wait_for.pop(tx, None)
+                    raise RuntimeError(f"deadlock: aborting {tx}")
+                self.cv.wait()
+            self.wait_for.pop(tx, None)
+            self.locks[key]["holders"][tx] = mode
+
+    def release_all(self, tx):
+        """Rigorous 2PL: release everything atomically at commit/abort."""
+        with self.cv:
+            for key in list(self.locks):
+                self.locks[key]["holders"].pop(tx, None)
+            self.cv.notify_all()
+```
+
+Throughput collapses under high contention (the "hot-row" problem). Mitigations include intent locks for table hierarchy (IS/IX) to avoid full-table-lock conflicts, lock escalation thresholds, and partition-by-key sharding. The 2PL family is the workhorse behind MySQL InnoDB, SQL Server, DB2, and serves as the SERIALIZABLE fallback in Postgres and Oracle when MVCC alone is insufficient.
 
 ## complexity
 time: lock acquire/release is O(log n) hashed; deadlock detection is O(V+E) on the wait-for graph, typically run every 1s

@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import {
   ChevronRight,
   ChevronLeft,
@@ -40,6 +42,7 @@ import AlgoVisualizer, {
   TreeRenderer,
 } from './AlgoVisualizer';
 import { VISUALIZATIONS } from './conceptVisualizations';
+import { highlight } from '../../lib/syntaxHighlight';
 import './Learn.css';
 
 const LANG_TABS = [
@@ -55,6 +58,33 @@ function hasContent(value) {
   if (Array.isArray(value)) return value.length > 0;
   if (typeof value === 'object') return Object.values(value).some(hasContent);
   return Boolean(value);
+}
+
+const MD_REMARK_PLUGINS = [remarkGfm];
+
+const MD_COMPONENTS = {
+  a: ({ node: _node, ...props }) => (
+    <a {...props} target="_blank" rel="noopener noreferrer" />
+  ),
+};
+
+const INLINE_MD_COMPONENTS = {
+  ...MD_COMPONENTS,
+  p: ({ node: _node, children }) => <>{children}</>,
+};
+
+function Markdown({ children, inline = false }) {
+  if (children == null) return null;
+  const source = typeof children === 'string' ? children : String(children);
+  if (!source.trim()) return null;
+  return (
+    <ReactMarkdown
+      remarkPlugins={MD_REMARK_PLUGINS}
+      components={inline ? INLINE_MD_COMPONENTS : MD_COMPONENTS}
+    >
+      {source}
+    </ReactMarkdown>
+  );
 }
 
 function estimateReadMinutes(body, code) {
@@ -103,11 +133,16 @@ function Section({ id, eyebrow, title, icon: Icon, variant, children }) {
   );
 }
 
-function CodeBlock({ code }) {
+function CodeBlock({ code, lang }) {
   if (!code) return <p className="learn-empty-sub">No code sample for this language yet.</p>;
+  const tokens = highlight(code, lang);
   return (
     <pre className="cp-code">
-      <code>{code}</code>
+      <code>
+        {tokens.map((tok, i) => (
+          <span key={i} className={`tok-${tok.cls}`}>{tok.text}</span>
+        ))}
+      </code>
     </pre>
   );
 }
@@ -119,13 +154,13 @@ function PitfallList({ items }) {
         {items.map((p, i) => (
           <li key={i}>
             <AlertTriangle size={13} className="cp-callout-bullet cp-callout-bullet-hard" />
-            <span>{p}</span>
+            <span><Markdown inline>{p}</Markdown></span>
           </li>
         ))}
       </ul>
     );
   }
-  return <p>{items}</p>;
+  return <Markdown>{items}</Markdown>;
 }
 
 function TipList({ items }) {
@@ -135,13 +170,13 @@ function TipList({ items }) {
         {items.map((t, i) => (
           <li key={i}>
             <Lightbulb size={13} className="cp-callout-bullet cp-callout-bullet-easy" />
-            <span>{t}</span>
+            <span><Markdown inline>{t}</Markdown></span>
           </li>
         ))}
       </ul>
     );
   }
-  return <p>{items}</p>;
+  return <Markdown>{items}</Markdown>;
 }
 
 export default function ConceptPage({ session }) {
@@ -274,7 +309,7 @@ export default function ConceptPage({ session }) {
         <div className="learn-empty">
           <h2 className="learn-empty-title">Concept not found</h2>
           <p className="learn-empty-sub">
-            This concept hasn&rsquo;t been published yet.{' '}
+            Nothing here for this slug.{' '}
             <Link to="/learn">Back to library</Link>.
           </p>
         </div>
@@ -331,7 +366,7 @@ export default function ConceptPage({ session }) {
       <div className="cp-grid">
         <main className="cp-main">
           <Section id="overview" eyebrow="01" title="Overview" icon={BookOpen} variant="plain">
-            {introText && <p>{introText}</p>}
+            {introText && <Markdown>{introText}</Markdown>}
           </Section>
 
           <Section
@@ -341,7 +376,7 @@ export default function ConceptPage({ session }) {
             icon={Sparkles}
             variant="why"
           >
-            {hasContent(body.whyItMatters) && <p>{body.whyItMatters}</p>}
+            {hasContent(body.whyItMatters) && <Markdown>{body.whyItMatters}</Markdown>}
           </Section>
 
           <Section
@@ -351,7 +386,7 @@ export default function ConceptPage({ session }) {
             icon={Lightbulb}
             variant="intuition"
           >
-            {hasContent(body.intuition) && <p>{body.intuition}</p>}
+            {hasContent(body.intuition) && <Markdown>{body.intuition}</Markdown>}
           </Section>
 
           {(hasContent(visualizationText) || viz) && (
@@ -394,7 +429,7 @@ export default function ConceptPage({ session }) {
             icon={Hammer}
             variant="plain"
           >
-            {hasContent(body.bruteForce) && <p>{body.bruteForce}</p>}
+            {hasContent(body.bruteForce) && <Markdown>{body.bruteForce}</Markdown>}
           </Section>
 
           <Section
@@ -404,7 +439,7 @@ export default function ConceptPage({ session }) {
             icon={Wand2}
             variant="plain"
           >
-            {hasContent(body.optimal) && <p>{body.optimal}</p>}
+            {hasContent(body.optimal) && <Markdown>{body.optimal}</Markdown>}
           </Section>
 
           {hasContent(body.complexity) && (
@@ -430,7 +465,9 @@ export default function ConceptPage({ session }) {
                 )}
               </div>
               {body.complexity.notes && (
-                <p className="learn-complexity-notes">{body.complexity.notes}</p>
+                <div className="learn-complexity-notes">
+                  <Markdown>{body.complexity.notes}</Markdown>
+                </div>
               )}
               {body.complexity.time && <ComplexityChart time={body.complexity.time} />}
             </Section>
@@ -462,7 +499,7 @@ export default function ConceptPage({ session }) {
                   );
                 })}
               </div>
-              <CodeBlock code={code[resolvedLang]} />
+              <CodeBlock code={code[resolvedLang]} lang={resolvedLang} />
             </Section>
           )}
 

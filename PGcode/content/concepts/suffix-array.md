@@ -1,6 +1,6 @@
 ---
 slug: suffix-array
-module: sorting-strings
+module: strings-advanced
 title: Suffix Array
 subtitle: Sorted array of all suffixes — powers fast substring search, longest repeated substring, longest common substring.
 difficulty: Advanced

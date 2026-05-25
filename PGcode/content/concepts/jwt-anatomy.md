@@ -1,6 +1,6 @@
 ---
 slug: jwt-anatomy
-module: system-design
+module: sd-auth-security
 title: JWT Anatomy
 subtitle: header.payload.signature, HS256 vs RS256, refresh tokens, and the JWT bombing attack.
 difficulty: Intermediate

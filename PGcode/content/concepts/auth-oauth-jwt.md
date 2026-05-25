@@ -1,6 +1,6 @@
 ---
 slug: auth-oauth-jwt
-module: system-design
+module: sd-auth-security
 title: Auth — OAuth, JWT, Sessions
 subtitle: Three modern authentication flavors, when each fits, and the bugs that bite you in production.
 difficulty: Intermediate

@@ -1,6 +1,6 @@
 ---
 slug: bst-iterator-inorder
-module: trees
+module: trees-traversal-bst
 title: BST Iterator (In-Order)
 subtitle: Stream the sorted keys of a BST one at a time with O(h) memory and O(1) amortized next().
 difficulty: Intermediate

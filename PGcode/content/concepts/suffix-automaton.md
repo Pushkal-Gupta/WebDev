@@ -1,6 +1,6 @@
 ---
 slug: suffix-automaton
-module: sorting-strings
+module: strings-advanced
 title: Suffix Automaton
 subtitle: The smallest DFA that accepts every substring of a string — O(n) build, instant substring queries.
 difficulty: Advanced

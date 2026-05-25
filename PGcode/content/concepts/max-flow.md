@@ -1,6 +1,6 @@
 ---
 slug: max-flow
-module: graphs
+module: graphs-flow-grids
 title: Maximum Flow (Ford-Fulkerson / Edmonds-Karp)
 subtitle: Find the maximum total flow from source to sink in a directed weighted graph by repeatedly augmenting along shortest paths.
 difficulty: Advanced

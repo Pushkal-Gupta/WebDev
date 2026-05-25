@@ -1,6 +1,6 @@
 ---
 slug: ip-vs-domain-routing
-module: cs-core
+module: cs-network-protocols
 title: IP vs Domain Routing
 subtitle: Anycast IP routing routes packets at the network layer; DNS-based routing decides at name-resolution time. When to pick which and why most large platforms use both.
 difficulty: Intermediate

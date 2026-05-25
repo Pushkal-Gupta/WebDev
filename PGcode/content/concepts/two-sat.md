@@ -1,6 +1,6 @@
 ---
 slug: two-sat
-module: graphs
+module: graphs-advanced
 title: 2-SAT
 subtitle: Solve a boolean satisfiability problem with 2 literals per clause in linear time via implication graph + SCC.
 difficulty: Advanced
@@ -34,9 +34,7 @@ A surprising number of scheduling / configuration problems reduce to 2-SAT:
 When you can frame the problem as "each variable has two choices and constraints come in pairs," 2-SAT lets you decide satisfiability AND retrieve a satisfying assignment in O(V + E).
 
 ## intuition
-Every 2-literal clause `(a ∨ b)` is equivalent to two implications: `¬a → b` and `¬b → a`. Build an implication graph with `2n` nodes (each variable and its negation). The formula is satisfiable **iff no variable and its negation are in the same strongly connected component** (otherwise you'd need both `x` and `¬x` to be true).
-
-For an assignment: condense the graph into SCCs (topological order). For each variable `x`, set `x = true` if the SCC of `x` comes after the SCC of `¬x` in topological order, false otherwise.
+General SAT (deciding satisfiability of an arbitrary boolean CNF formula) is NP-complete and one of the canonical hard problems of complexity theory. Restricting to 3 literals per clause is still NP-complete (3-SAT). But at exactly 2 literals per clause, the problem becomes polynomial — solvable in linear time. The reason is a clever graph translation. Every 2-literal clause `(a ∨ b)` is logically equivalent to two implications: `¬a → b` (if a is false, then b must be true) and `¬b → a` (if b is false, then a must be true). Build an implication graph on 2n nodes — one for each variable and one for each negation. For each clause, add the two edges. The formula is satisfiable iff no variable and its negation share a strongly connected component (SCC). Why? If `x` and `¬x` are in the same SCC, there is a cycle `x → ¬x → x`, which means `x → ¬x` and `¬x → x` both hold — implying `x` must equal both true and false, contradiction. Otherwise, SCCs can be topologically sorted, and a satisfying assignment is recovered by setting `x = true` iff `comp[x] > comp[¬x]` in reverse topological order (Tarjan's SCC numbers components in reverse topo order, so the inequality flips). The deep insight is that the boundary between 2-SAT (polynomial) and 3-SAT (NP-complete) is one of the sharpest complexity-theoretic dichotomies — adding even one more literal per clause loses the implication-graph structure that makes 2-SAT tractable. The algorithm runs in O(V + E) total — linear in the size of the formula — which matches what BFS or DFS on the same graph would cost. Real applications include box-stacking, two-color graph problems with pairwise constraints, and shift-assignment with conflict pairs.
 
 ## visualization
 ```

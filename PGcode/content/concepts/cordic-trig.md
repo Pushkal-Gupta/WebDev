@@ -1,6 +1,6 @@
 ---
 slug: cordic-trig
-module: math
+module: math-geom-sampling
 title: CORDIC Trigonometry
 subtitle: Compute sin and cos via iterative micro-rotations using only shifts, adds, and a small table.
 difficulty: Advanced

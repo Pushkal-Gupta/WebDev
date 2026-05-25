@@ -1,6 +1,6 @@
 ---
 slug: sparse-table
-module: arrays-searching
+module: arrays-range-structures
 title: Sparse Table
 subtitle: Answer immutable range queries (min, max, gcd) in O(1) after O(n log n) preprocessing.
 difficulty: Advanced

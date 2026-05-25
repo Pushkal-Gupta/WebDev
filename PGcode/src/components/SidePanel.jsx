@@ -50,7 +50,7 @@ export default function SidePanel({ session, roadmapMode, setRoadmapMode }) {
       '300': filterByRoadmap(all, '300').length,
       '400': filterByRoadmap(all, '400').length,
       '500': filterByRoadmap(all, '500').length,
-      all:   all.length,
+      all:   filterByRoadmap(all, 'all').length,
     };
   }, [problemsData]);
 

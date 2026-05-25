@@ -1,6 +1,6 @@
 ---
 slug: cdn-purge-strategies
-module: system-design
+module: sd-caching-cdn
 title: CDN Purge Strategies
 subtitle: TTL expiry, soft-purge, URL invalidation, and tag-based purge — picking the right blast radius for each change.
 difficulty: Intermediate

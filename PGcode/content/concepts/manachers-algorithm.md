@@ -1,6 +1,6 @@
 ---
 slug: manachers-algorithm
-module: sorting-strings
+module: strings-matching
 title: Manacher's Algorithm
 subtitle: Find every palindromic substring in linear time.
 difficulty: Advanced
@@ -25,10 +25,18 @@ status: published
 Manacher's algorithm finds the longest palindromic substring (and, with a small adaptation, every palindromic substring) in **O(n)** time. The naïve "check every centre, expand outward" approach is O(n²); Manacher's matches that lower bound by sharing work across overlapping palindromes.
 
 ## whyItMatters
-Linear-time palindrome detection underpins compression formats, DNA reverse-complement search, and the classic interview question "longest palindromic substring." Most candidates know the O(n²) centre-expansion idea; recognising when to escalate to Manacher's separates "good enough" from "production-grade."
+- **Bioinformatics**: DNA reverse-complement search (BWA, BLAST) and RNA secondary-structure prediction rely on linear-time palindrome enumeration over genomes with billions of base pairs — O(n²) is not survivable at that scale.
+- **Compression and pattern indexing**: the original LZ77 family and several entries in the Burrows-Wheeler transform pipeline benefit from palindrome runs; Manacher's appears in libdivsufsort-adjacent literature.
+- **Text-editor highlighting and code-formatter bracket-matching** apply palindrome detection on token streams for symmetric-construct visualisation.
+- **Competitive programming staple** — Codeforces and AtCoder problems regularly require linear-time palindrome processing inside larger string-DP pipelines, where escalating from O(n²) to Manacher's is the only path under tight 2-second limits.
+- The 1975 Manacher paper is also a teaching example for amortised analysis using the right-edge potential.
 
 ## intuition
-Centre-expansion repeats work: when you finish expanding around centre `i` and discover a palindrome of radius `r`, the palindromes inside that range are *mirrored*. So when you start expanding around a new centre `j` that falls inside `[i - r, i + r]`, you already know its radius — it equals the radius of its mirror centre `2i - j`, *unless* it would extend past the current palindrome's boundary, in which case you only need to verify the extension. That "skip ahead using the mirror" trick is what amortizes the cost to O(n).
+The algorithm exists because the obvious O(n²) centre-expansion algorithm wastes enormous amounts of work: it re-verifies characters that lie inside already-known palindromes, even though palindrome symmetry guarantees their match pattern is fixed. Manacher's exploits that symmetry: when you expand around centre `c` to a palindrome of radius `r`, every position `j` inside `[c-r, c+r]` is the mirror image of `2c-j`. So the palindromic radius at `j` is *at least* the minimum of (the mirror's radius, the distance from `j` to the right edge `c+r`). Only when the mirror's palindrome would extend past the current boundary do you need to verify the extension character by character.
+
+The key normalising trick is to insert a sentinel character between every pair of original characters (and at both ends): `abba` becomes `#a#b#b#a#`. After this transformation every palindrome — odd or even in the original — has odd length and a single centre, eliminating the two-pass / two-case code that plagues centre-expansion. Maintain a single state `(C, R)` — the centre and right edge of the rightmost-reaching palindrome found so far. For each new index `i`, mirror across `C` to get `2C - i` and read off the initial guess for `P[i]`.
+
+The amortised analysis is the beautiful part: across the entire sweep, every comparison either confirms `R` moving forward (charged to its destination, which only happens n times) or fails (charged to the position where the mismatch occurs, which only happens once per position). Total work is therefore Θ(n), matching the lower bound for any algorithm that must read the input. The 1975 result was a complete surprise — palindromes seemed inherently quadratic before this paper.
 
 ## visualization
 Insert sentinels between every character so even-length palindromes look odd: `abba` becomes `#a#b#b#a#`. Now every palindrome has an odd length and a single centre. Maintain `(C, R)` — the centre and right edge of the rightmost-reaching palindrome found so far. For each new index `i`, mirror it across `C` to get the initial radius guess `min(R - i, P[2C - i])`, then expand while characters match.
@@ -37,12 +45,34 @@ Insert sentinels between every character so even-length palindromes look odd: `a
 For every index, expand around it as a centre while characters mirror. Two passes (odd and even). Total work is the sum of radii, which is Θ(n²) in the worst case (string of all identical characters). Simple to implement, easy to explain, and the right baseline to mention before pivoting to Manacher's.
 
 ## optimal
-Transform the string with separators, then sweep left-to-right maintaining `(C, R)`. For each `i`:
-1. Initial radius `P[i] = min(R - i, P[2C - i])` if `i < R`, else 0.
-2. Expand outward while characters match.
-3. If the new palindrome extends past `R`, update `C` and `R`.
+**Technique: Manacher's algorithm (1975) with sentinel transformation and right-edge potential.** The Θ(n) bound is optimal because any algorithm must at least read every character of the input, and Manacher's matches that lower bound exactly. The amortised analysis charges every character comparison either to a forward step of the right edge `R` (which advances at most n times in total) or to a single mismatch at the comparison's position (one per position).
 
-Reconstruct the longest palindromic substring from the index of the maximum `P[i]`.
+```python
+def longest_palindrome(s):
+    if not s:
+        return ""
+    t = "#" + "#".join(s) + "#"          # sentinels make every palindrome odd
+    n = len(t)
+    P = [0] * n                           # P[i] = palindrome radius at centre i
+    C = R = 0                             # current rightmost palindrome (centre, right edge)
+    for i in range(n):
+        mirror = 2 * C - i
+        if i < R:
+            P[i] = min(R - i, P[mirror])  # symmetry shortcut, capped by boundary
+        a, b = i + P[i] + 1, i - P[i] - 1
+        while a < n and b >= 0 and t[a] == t[b]:
+            P[i] += 1                     # extend past the boundary if possible
+            a += 1; b -= 1
+        if i + P[i] > R:
+            C, R = i, i + P[i]            # we just found a new rightmost palindrome
+    best = max(range(n), key=lambda i: P[i])
+    start = (best - P[best]) // 2         # map back to original-string coordinates
+    return s[start:start + P[best]]
+```
+
+Key lines: the sentinel-injected `t` string normalises odd and even palindromes into a single odd-length case. `P[i] = min(R - i, P[mirror])` is the central reuse step — if the mirror's palindrome fits inside the current window, we copy its radius for free; if it would extend past the right edge, we cap it at the boundary and continue checking. The `while` loop only fires when the palindrome extends past `R`, which is the only case the symmetry shortcut cannot answer. The final `(best - P[best]) // 2` converts a sentinel-string index back to an original-string offset because every two characters of `t` correspond to one of `s` plus a `#`.
+
+For interview presentation, open with the O(n²) centre-expansion baseline and pivot to Manacher's only if asked. Aho-Corasick (1975) is the analogous linear-time pattern-matching algorithm — same era, same paradigm of trading preprocessing for amortised O(1) per character.
 
 ## complexity
 time: O(n)

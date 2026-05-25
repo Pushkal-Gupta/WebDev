@@ -1,6 +1,6 @@
 ---
 slug: raft-consensus
-module: system-design
+module: sd-consensus
 title: Raft Consensus
 subtitle: Strong leader replicated log — easier to understand than Paxos, used in etcd, Consul, CockroachDB.
 difficulty: Advanced

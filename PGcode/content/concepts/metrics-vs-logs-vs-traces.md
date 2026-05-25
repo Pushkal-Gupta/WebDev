@@ -1,6 +1,6 @@
 ---
 slug: metrics-vs-logs-vs-traces
-module: system-design
+module: sd-reliability
 title: Metrics vs Logs vs Traces (Three Pillars)
 subtitle: Different observability signals — metrics for trends, logs for narrative, traces for causality. Pick by cardinality + query pattern.
 difficulty: Intermediate

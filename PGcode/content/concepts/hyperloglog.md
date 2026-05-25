@@ -25,10 +25,14 @@ status: published
 HyperLogLog (HLL) answers "how many distinct items did I see?" using a few kilobytes of memory regardless of stream size. Redis's PFCOUNT, BigQuery's APPROX_COUNT_DISTINCT, and Presto's approx_distinct are all HLLs. The trade is exactness for memory: typical implementations use 12 KiB and return within 0.81% of the true cardinality.
 
 ## whyItMatters
-Exact counts of unique users, IPs, or queries require a set whose memory grows linearly with the cardinality — billions of uniques means gigabytes of RAM. HLL replaces the set with a fixed-size array of small registers and recovers a cardinality estimate by exploiting the statistics of leading-zero runs in hashed values. The same registers can be merged across shards, making HLL a natural fit for distributed aggregation.
+Exact counts of unique users, IPs, or queries require a set whose memory grows linearly with the cardinality — billions of uniques means gigabytes of RAM. Philippe Flajolet's HyperLogLog (2007, *HyperLogLog: the analysis of a near-optimal cardinality estimation algorithm*) replaces the set with a fixed-size array of small registers and recovers a cardinality estimate with around 1% standard error using only 12 KiB. The original paper was followed by Google's HLL++ (Heule, Nunkesser, Hall 2013), which adds bias correction and sparse representations. Redis ships `PFADD`/`PFCOUNT`, BigQuery exposes `HLL_COUNT.MERGE`, Presto/Trino expose `approx_distinct`, Apache Druid uses HLL as its default `cardinality` aggregator, and Snowflake's `APPROX_COUNT_DISTINCT` is HLL underneath.
 
 ## intuition
-Hash each item to a uniform bit string. The probability that a random hash starts with k zero bits is 1/2^(k+1), so observing a hash with many leading zeros suggests you have seen many items. The single longest run is noisy, so HLL partitions the stream into m buckets by the first log2(m) bits and stores the longest zero-run per bucket. A bias-corrected harmonic mean across buckets sharpens the estimate.
+Two facts power the trick. First, a good hash function makes its output indistinguishable from uniform random bits. Second, in a stream of uniform random bit-strings, the maximum number of leading zeros you have seen so far is roughly `log2(n)` where `n` is the number of distinct elements. So if you have seen `k` leading zeros, you can estimate that `n` is around `2^k`.
+
+A single counter from this trick has terrible variance — one unlucky hash with 30 leading zeros would suggest a billion uniques. HyperLogLog cures this with stochastic averaging: use the first `b` bits of each hash to pick one of `m = 2^b` buckets, and store the max-leading-zeros count *within* that bucket. The final estimate is the harmonic mean of `2^{register_i}` across all `m` registers, scaled by a bias constant `alpha_m` and `m^2`. Harmonic mean dampens outliers, the bias constant corrects for small-cardinality undercount, and the `m^2` scaling converts per-bucket estimates into a stream-wide one.
+
+The magic is that each register only needs to hold a small integer (the count of leading zeros, max 64 for a 64-bit hash, so 6 bits is plenty). With `m = 16384` registers at 6 bits each, you get 12 KiB total for any cardinality up to billions, with standard error `1.04 / sqrt(m) ~ 0.81%`. Merging two HLLs is element-wise max across registers — perfect for distributed aggregation.
 
 ## visualization
 Picture m = 16 registers, each initialized to 0. For a hashed item with prefix bits 0110 (bucket 6) and remaining bits 00010..., the leading-zero count in the suffix is 3, so register[6] = max(register[6], 3). After streaming millions of items, the register array might look like [4, 5, 3, 6, 4, 5, 3, 7, 4, 5, 4, 6, 5, 4, 5, 6]; the harmonic-mean formula maps this pattern back to an estimated cardinality.
@@ -37,7 +41,31 @@ Picture m = 16 registers, each initialized to 0. For a hashed item with prefix b
 Maintain a hash set of every distinct item. For a stream of n items with u uniques, this costs O(u) memory and O(1) average insert. It is exact, but a billion-unique stream costs gigabytes. Approximate alternatives like Linear Counting use a bit array sized to the upper bound and underperform HLL for large cardinalities.
 
 ## optimal
-Pick m = 2^p registers (typical p = 14, so m = 16384). For each item: hash to 64 bits, take the first p bits as the bucket index j, count the leading zeros in the remaining bits plus one as rho, and update register[j] = max(register[j], rho). Estimate cardinality as alpha_m * m^2 / sum(2^(-register[j])) where alpha_m is a constant ~0.7213. Apply small-range correction (linear counting on empty registers) below 2.5m and large-range correction near 2^32. Merging two HLLs is element-wise max of registers — perfectly distributable.
+Use a 64-bit hash function (xxHash, MurmurHash3, or Google's FarmHash). For each element, take the first `b` bits to index a register, then count the leading zeros in the remaining bits plus one. Update `register[idx]` to the running max. To estimate cardinality: compute `Z = sum(2^{-register[i]})`, then `E = alpha_m * m^2 / Z`. Apply linear-counting correction for low cardinalities (`E < 5m/2`) and a large-cardinality correction near `2^32` for 32-bit hashes (skip if using 64-bit).
+
+```python
+import hashlib
+
+class HLL:
+    def __init__(self, b=14):
+        self.b, self.m = b, 1 << b
+        self.registers = [0] * self.m
+        self.alpha = 0.7213 / (1 + 1.079 / self.m)
+    def add(self, x):
+        h = int.from_bytes(hashlib.sha1(str(x).encode()).digest()[:8], 'big')
+        idx = h >> (64 - self.b)
+        w = (h << self.b) & ((1 << 64) - 1)
+        rho = (w ^ ((1 << 64) - 1)).bit_length()  # leading zeros + 1
+        if rho > self.registers[idx]:
+            self.registers[idx] = rho
+    def estimate(self):
+        Z = sum(2 ** -r for r in self.registers)
+        return self.alpha * self.m * self.m / Z
+    def merge(self, other):
+        self.registers = [max(a, b) for a, b in zip(self.registers, other.registers)]
+```
+
+The critical line is `if rho > self.registers[idx]` — it makes the algorithm idempotent: adding the same value twice changes nothing because `rho` does not increase. That property is also what makes HLLs mergeable: union is element-wise max, intersection is inclusion-exclusion on cardinalities, and per-shard HLLs aggregate into a global HLL with the same error bound. Google's HLL++ adds two refinements that the production engines all use: a sparse representation that stays exact below `~10^4` uniques (giving 0% error for small streams), and an empirical bias correction table that tightens the estimate near the algorithm's threshold.
 
 ## complexity
 time: O(1) per insert, O(m) for estimate

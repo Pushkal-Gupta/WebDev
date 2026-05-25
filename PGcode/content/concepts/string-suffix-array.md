@@ -1,6 +1,6 @@
 ---
 slug: string-suffix-array
-module: sorting-strings
+module: strings-advanced
 title: Suffix Array
 subtitle: Sort all n suffixes of a string in O(n log n); pair with Kasai's LCP for substring queries.
 difficulty: Advanced
@@ -28,7 +28,17 @@ A suffix array is the array `sa[0..n-1]` of starting indices of a string's suffi
 Suffix arrays are the space-efficient cousin of suffix trees. They use 4n bytes of integers instead of pointer-heavy trees, are cache-friendly, and on real workloads beat suffix trees by a constant factor. Every serious bioinformatics pipeline (BWA, Bowtie, FM-index) sits on top of a suffix array. In interviews, they are the answer when "count distinct substrings of s" or "longest repeated substring" comes up.
 
 ## intuition
-Imagine writing every suffix on its own card and alphabetizing the deck. The order of the cards is the suffix array. Doubling-based construction sorts suffixes by their first 1 character, then their first 2, then 4, 8, …, doubling until the length covers the whole suffix. At each doubling step a suffix is a pair (rank of its first k chars, rank of its next k chars) — a 2-key sort by previous ranks suffices.
+The data structure exists because suffix trees (Weiner 1973, McCreight 1976, Ukkonen 1995) solve every classic string problem in linear time but use pointer-heavy node structures that consume 15–20× the input size and have terrible cache locality. Manber & Myers 1990 introduced the suffix array as the space-efficient cousin: it uses only 4n bytes of integers (the suffix-start positions in sorted order) plus the input string itself, and array access is cache-friendly.
+
+The decisive observation: instead of building a tree of suffixes, sort them lexicographically and store just their starting indices. That single array — `sa[i]` = starting index of the i-th lexicographically smallest suffix — encodes the same information as the suffix tree's leaf order. Pairing the suffix array with the **longest-common-prefix array** `lcp[i]` (length of the common prefix between `s[sa[i-1]:]` and `s[sa[i]:]`) recovers the inner structure of the suffix tree implicitly.
+
+Sorting n suffixes naïvely is Θ(n² log n) — n suffixes, each comparison up to n characters. The escape route is **prefix doubling** (the original Manber-Myers technique): sort suffixes by their first 1 character, then by their first 2, then 4, 8, …, doubling each round. At doubling step k, each suffix is characterised by a pair (rank of its first k characters, rank of its next k characters), and a 2-key sort using ranks from the previous round suffices. Each round is O(n log n) with comparison sort, O(n) with radix sort; total O(n log²n) or O(n log n) for ⌈log₂ n⌉ rounds.
+
+SA-IS (Suffix Array Induced Sorting, Nong-Zhang-Chan 2009) achieves true O(n) by classifying suffixes as L-type or S-type and inducing the sorted order via two linear passes. It is the asymptotic champion but ~200 lines of code, so prefix doubling with std::sort is the interview default for n ≤ 10⁶.
+
+The **Kasai algorithm** (Kasai et al. 2001) computes the LCP array in O(n) given the suffix array: walk the original string in order, maintain a running LCP value h, decrement by 1 when moving to the next suffix, then extend by direct comparison. The amortised analysis is tight: h decreases at most n times and increases at most n times, so the total comparison work is O(n).
+
+Production systems — BWA, Bowtie, FM-index, Lucene's term-index, Postgres' `tsvector` indexing — all use suffix-array variants as their foundation for substring search, distinct-substring counting, and longest-repeated-substring queries.
 
 ## visualization
 s = "banana$". Suffixes: 0:"banana$", 1:"anana$", 2:"nana$", 3:"ana$", 4:"na$", 5:"a$", 6:"$". Sorted: $, a$, ana$, anana$, banana$, na$, nana$ → sa = [6, 5, 3, 1, 0, 4, 2]. LCP between adjacent sorted pairs: [0, 1, 3, 0, 0, 2] — the "3" pinpoints "ana", the longest repeated substring.
@@ -37,7 +47,60 @@ s = "banana$". Suffixes: 0:"banana$", 1:"anana$", 2:"nana$", 3:"ana$", 4:"na$", 
 Materialize every suffix as a string and sort the list. O(n^2 log n) time (n suffixes, each up to n long, string comparison is O(n)) and O(n^2) memory. Dies on inputs above ~3000 characters.
 
 ## optimal
-Prefix-doubling SA-IS lite (the doubling trick) is O(n log^2 n) with std::sort and O(n log n) with radix sort. SA-IS itself achieves O(n) but is significantly more code. After SA is built, Kasai's algorithm computes the LCP array in O(n): walk the original string in order, maintain a running LCP value h, decrement it by one when you move to the next suffix, then extend it by direct comparison. The amortized cost is O(n) total because h decreases at most n times and increases at most n times.
+**Technique: prefix-doubling suffix-array construction + Kasai LCP algorithm.** O(n log n) construction with radix sort (O(n log²n) with std::sort), O(n) Kasai LCP. SA-IS hits O(n) construction but requires ~200 lines of code; prefix doubling is the interview default for n ≤ 10⁶.
+
+```python
+def suffix_array(s):
+    s += chr(0)                                        # sentinel: smaller than every other char
+    n = len(s)
+    sa = sorted(range(n), key=lambda i: s[i])          # initial sort by 1st char
+    rank = [0] * n
+    for i in range(1, n):
+        rank[sa[i]] = rank[sa[i-1]] + (1 if s[sa[i]] != s[sa[i-1]] else 0)
+    k = 1
+    tmp = [0] * n
+    while k < n:
+        # Sort by (rank[i], rank[i+k]) — a 2-key tuple sort
+        sa.sort(key=lambda i: (rank[i], rank[i+k] if i+k < n else -1))
+        tmp[sa[0]] = 0
+        for i in range(1, n):
+            prev, cur = sa[i-1], sa[i]
+            prev_key = (rank[prev], rank[prev+k] if prev+k < n else -1)
+            cur_key  = (rank[cur],  rank[cur+k]  if cur+k  < n else -1)
+            tmp[cur] = tmp[prev] + (1 if prev_key != cur_key else 0)
+        rank = tmp[:]
+        if rank[sa[n-1]] == n - 1: break               # all suffixes uniquely ranked
+        k *= 2
+    return sa
+
+def kasai_lcp(s, sa):
+    n = len(s)
+    rank = [0] * n
+    for i in range(n):
+        rank[sa[i]] = i
+    h = 0
+    lcp = [0] * n
+    for i in range(n):
+        if rank[i] > 0:
+            j = sa[rank[i] - 1]                         # previous suffix in sorted order
+            while i + h < n and j + h < n and s[i+h] == s[j+h]:
+                h += 1                                  # extend common prefix
+            lcp[rank[i]] = h
+            if h > 0: h -= 1                            # amortise: drop one before next i
+    return lcp
+```
+
+Key lines: `sa.sort(key=lambda i: (rank[i], rank[i+k] if i+k < n else -1))` is the doubling step. Each suffix is characterised by a tuple (rank of first k chars, rank of next k chars); sorting by this tuple gives the correct order for the first 2k characters. After ⌈log₂ n⌉ rounds, 2k ≥ n so all suffixes are uniquely ranked.
+
+In Kasai: `j = sa[rank[i] - 1]` is the suffix that appears just before `s[i:]` in sorted order — Kasai computes lcp[rank[i]] = LCP between `s[i:]` and `s[j:]`. The clever amortisation is `if h > 0: h -= 1` after recording — when we move to the next i (which is just the suffix `s[i+1:]`), the LCP with its predecessor is at least `h - 1` because dropping the leading character shifts both compared suffixes by one. So h decreases at most n times across the loop, even as it can increase many times — bounding total comparison work at O(n).
+
+**Applications via SA + LCP:**
+- **Substring search**: binary-search the suffix array for the pattern — O(m log n) per query, or O(m + log n) with extra LCP-aware bookkeeping (Manber-Myers 1990).
+- **Distinct substring count**: `n(n+1)/2 − Σ lcp[i]` — total possible substrings minus duplicates counted by LCP overlap.
+- **Longest repeated substring**: `max(lcp)`; the substring is `s[sa[argmax(lcp)] : sa[argmax(lcp)] + max(lcp)]`.
+- **Longest common substring of two strings**: concatenate `s + '#' + t + '$'`, build SA + LCP, find max lcp where adjacent suffixes come from different sides of the `#`.
+
+**Why not suffix tree?** 15–20× memory overhead and pointer-heavy structure with poor cache locality. **Why not suffix automaton?** Same O(n) construction; better for some online problems but worse for substring search and LCP-based queries. **Common bugs**: forgetting the sentinel (`$` or `chr(0)`) — without it, one suffix can be a prefix of another, breaking lexicographic comparison; off-by-one in Kasai (when rank[i] == 0 there's no predecessor, skip); naively re-sorting full suffix strings inside the doubling loop (defeats the asymptotic).
 
 ## complexity
 time: O(n log n) construction with radix sort; O(n) for LCP via Kasai

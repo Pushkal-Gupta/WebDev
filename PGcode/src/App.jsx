@@ -79,6 +79,8 @@ const CoursePage = lazy(() => import('./components/courses/CoursePage'));
 const Achievements = lazy(() => import('./components/Achievements'));
 const Notebook = lazy(() => import('./components/Notebook'));
 const ProgressDashboard = lazy(() => import('./components/ProgressDashboard'));
+const QuizIndex = lazy(() => import('./components/QuizIndex'));
+const QuizRunner = lazy(() => import('./components/QuizRunner'));
 
 const VALID_THEMES = ['dark', 'light', 'midnight', 'midnight-light', 'solarized', 'solarized-dark', 'dracula', 'dracula-light'];
 const normalizeTheme = (t) => (VALID_THEMES.includes(t) ? t : 'dark');
@@ -209,6 +211,8 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
           <Route path="/lists" element={<MyLists session={session} />} />
           <Route path="/lists/share/:slug" element={<PublicListView session={session} />} />
           <Route path="/assessments" element={<Assessments session={session} roadmapMode={roadmapMode} />} />
+          <Route path="/quiz" element={<QuizIndex />} />
+          <Route path="/quiz/:id" element={<QuizRunner />} />
           <Route path="/tutorial" element={<DsaTutorial session={session} />} />
           <Route path="/admin" element={<AdminPanel session={session} />} />
           <Route path="/admin/completeness" element={<AdminCompleteness session={session} />} />

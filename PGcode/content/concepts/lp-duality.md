@@ -1,6 +1,6 @@
 ---
 slug: lp-duality
-module: math
+module: math-number-theory
 title: LP Duality
 subtitle: Every linear program has a dual LP with mirror constraints; weak + strong duality + complementary slackness power flow/cut proofs.
 difficulty: Advanced

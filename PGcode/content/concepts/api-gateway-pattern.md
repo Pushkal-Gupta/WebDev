@@ -1,6 +1,6 @@
 ---
 slug: api-gateway-pattern
-module: system-design
+module: sd-api
 title: API Gateway Pattern
 subtitle: One edge layer for auth, rate-limit, routing, and response shaping across many backend services.
 difficulty: Intermediate
@@ -25,10 +25,17 @@ status: published
 An API gateway is a single front door that sits between clients and a fleet of internal services. It handles cross-cutting concerns — TLS termination, authentication, authorization, rate limiting, request routing, response aggregation, schema translation, and observability — so each downstream service can stay narrow and protocol-pure. Done right it turns "thirty services × five client types" from N×M into N+M.
 
 ## whyItMatters
-Without a gateway, every team reinvents auth middleware, every mobile client knows the topology of your microservices, and every breaking refactor becomes a coordinated multi-team release. With a gateway, the public contract is stable while internal services evolve freely. It is also the natural place to enforce abuse controls and SLO-aware throttling before bad traffic reaches your databases.
+- **Netflix's Zuul** (open-sourced from their edge fleet) handles billions of daily requests, terminating TLS, applying per-region throttles, and routing to hundreds of microservices — no app team owns that code.
+- **Stripe's API** sits behind a single edge layer that enforces API-key auth, idempotency keys, and rate limits before any payment-processing service sees the request.
+- **AWS API Gateway**, **Kong**, **Envoy** (the data plane behind Istio and AWS App Mesh), and **Cloudflare's Worker-based gateways** all exist because the cross-cutting layer is too valuable to reinvent per service.
+- **GitHub** routes all `api.github.com` traffic through an edge tier doing OAuth token validation, abuse heuristics, and webhook signing — refactoring a backend service never breaks the public contract.
 
 ## intuition
-Think of an airport. Without one, every airline would build its own security, customs, and gate signage. With one, passengers go through a single, consistent screening and dispatch — and the airlines (services) can focus on actually flying planes. The gateway is that terminal: opinionated about ingress, neutral about what happens past the gate.
+A microservices fleet without a gateway forces every downstream service to re-implement the same boring edge concerns: TLS, auth, throttling, CORS, logging, retries, observability headers. Worse, every external client — mobile app, web SPA, partner integration — has to know your internal topology, so any rename, split, or merge becomes a coordinated multi-team release. The gateway exists because cross-cutting concerns belong in one place, and because the public contract should be decoupled from the internal architecture.
+
+The mental model is an airport terminal. Passengers (clients) go through one security checkpoint, one customs hall, one set of gate signs. Airlines (services) focus on flying planes; they do not each build their own metal detectors. The terminal is opinionated about ingress — strict ID checks, baggage scans, queueing — and neutral about what happens past the gate. If a new airline (service) shows up, it plugs into the existing terminal; passengers do not learn a new building. If an airline retires a route, the signage updates; passengers never had its private hangar address.
+
+This pattern only makes sense at scale. For three internal services, a gateway is overkill; talk to them directly. By ten services, the duplicate auth code starts hurting; by thirty, mobile clients have stopped tracking which service moved where, and you are paying the gateway tax to recover sanity. The decision point is "how much cross-cutting behavior do we want to maintain once instead of N times."
 
 ## visualization
 Imagine `GET /v1/orders/123` hitting the gateway. Step 1: TLS terminates. Step 2: JWT verified against the issuer's JWKS. Step 3: rate-limit bucket for `user_42` decremented. Step 4: route table matches `/v1/orders/*` → `orders-svc`. Step 5: gateway calls `orders-svc/internal/orders/123`, attaches a tenant header, and times the response. Step 6: response shaped — strip internal fields, fold in user display name from `profile-svc` if requested. Step 7: structured access log emitted.
@@ -37,7 +44,22 @@ Imagine `GET /v1/orders/123` hitting the gateway. Step 1: TLS terminates. Step 2
 Expose every microservice directly. Each one runs its own auth library, its own throttling, its own CORS handler. The mobile app hardcodes ten hostnames. A 5xx in `profile-svc` returns a raw stack trace because nobody owned the public error contract. This works for a hackathon and becomes unmaintainable past three services.
 
 ## optimal
-Use a dedicated gateway (Kong, Envoy + a control plane, Apigee, AWS API Gateway, custom Express/Spring app) for the cross-cutting layer. For very different client types (mobile, web, partner), adopt the Backends-For-Frontends variant: one gateway per client persona so you do not bloat a single config trying to please everyone. Keep business logic out of the gateway — it routes, authenticates, throttles, and shapes; it should not own domain rules.
+The right architecture is a **dedicated gateway tier running a battle-tested data plane** (Envoy, Kong, NGINX, AWS API Gateway, Apigee) with a **declarative control plane** (Istio, Consul, or your own) pushing route, auth, and rate-limit config. The gateway owns four jobs: terminate TLS, authenticate (verify JWT or API key, fetch JWKS, cache the public key), throttle (token bucket or sliding window per principal), and route (path-prefix match → upstream cluster, with health-aware load balancing). It does not own business logic, domain models, or stateful session data — the moment it does, you have built a parallel monolith nobody owns.
+
+For divergent client personas (mobile, web, partner integrations), split into **Backends-For-Frontends**: one gateway per persona, each shaping responses for that client. The mobile BFF can collapse three backend calls into one trimmed payload; the partner BFF can enforce stricter schemas and signed webhooks. Sam Newman codified this pattern in *Building Microservices*.
+
+```
+Client → [Edge LB] → [Gateway Pool (3+ pods)] → [Service Mesh] → Microservices
+                       │
+                       ├── TLS termination (cert from ACM / cert-manager)
+                       ├── Auth (JWT verify via cached JWKS, mTLS for partners)
+                       ├── Rate limit (Redis-backed token bucket per user_id)
+                       ├── Route table (trie keyed by path prefix)
+                       ├── Circuit breaker per upstream (Hystrix-style)
+                       └── Observability (OpenTelemetry trace ID propagation)
+```
+
+Run at least three replicas across AZs behind an L4 load balancer; the gateway is a tier-zero dependency, so plan for zero-downtime config reloads (Envoy's xDS, Kong's database sync) and emergency bypass paths. Rate-limit state belongs in **Redis** or **DynamoDB**, not in-process memory — a pod restart should not reset every user's quota. Propagate W3C `traceparent` headers so a 502 can be traced across the gateway hop. Finally, instrument **per-route SLOs** (p99 latency, error rate) at the gateway — it is the only place where you see every public call.
 
 ## complexity
 time: O(1) per route lookup (trie or hashmap)

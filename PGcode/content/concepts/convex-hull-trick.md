@@ -1,6 +1,6 @@
 ---
 slug: convex-hull-trick
-module: dp
+module: dp-advanced
 title: Convex Hull Trick
 subtitle: Answer min(m_i * x + b_i) queries in amortized O(1) when slopes are monotonic.
 difficulty: Advanced

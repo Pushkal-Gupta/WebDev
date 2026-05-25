@@ -1,6 +1,6 @@
 ---
 slug: quorum-consensus
-module: system-design
+module: sd-consensus
 title: Quorum Consensus
 subtitle: Tune consistency with R + W > N — Dynamo-style sloppy quorums and hinted handoff.
 difficulty: Advanced

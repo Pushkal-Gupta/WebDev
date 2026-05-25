@@ -1,6 +1,6 @@
 ---
 slug: protocol-buffers
-module: system-design
+module: sd-network
 title: Protocol Buffers
 subtitle: Schema-defined binary serialization — varints, tag-length-value framing, and forward/backward compatible evolution.
 difficulty: Advanced
@@ -28,7 +28,15 @@ Protocol Buffers (protobuf) is Google's language-neutral, schema-driven binary s
 Most service-to-service latency is spent in serialization, not in business logic. JSON is human-readable but redundant: every field name is sent on every message, numbers are stringified, and the parser must allocate transient tokens. Protobuf trades human readability for a compact binary form where field identity is a small integer tag, integers use variable-length encoding, and parsing is a single forward pass. The schema doubles as a contract — adding a field can never break an old client if you follow the rules.
 
 ## intuition
-A protobuf message is a flat stream of `<tag, wire-type, payload>` records. The tag is the field's numeric id you declared (`name = 1`), the wire-type is a 3-bit hint at how to read the payload (varint, fixed-32, fixed-64, length-delimited), and the payload is the value. Unknown tags are skipped, not rejected — that's the magic behind backward compatibility. New fields are simply unknown to old code.
+JSON sends every field name as a string on every message. For a payload with `{"customer_id": 42, "amount_cents": 1999, "currency": "USD"}`, you ship the strings `customer_id`, `amount_cents`, `currency` plus their values, plus braces, quotes, colons, and commas — 65 bytes for 8 bytes of actual data. Multiply by billions of RPCs in a microservice fleet and the wire-format tax dominates real CPU and bandwidth budgets.
+
+Protobuf's solution: the schema is shared offline (the `.proto` file lives in version control), and on the wire each field is identified by a tiny integer **tag** (the `= 1` in `int32 customer_id = 1`). A protobuf message is a flat stream of records, each consisting of `<tag, wire-type, payload>`. The tag is the declared field number, the wire-type is a 3-bit hint at how to read the payload (varint, fixed-32, fixed-64, length-delimited, or group), and the payload is the encoded value. There are no field names on the wire; the receiver looks the tag up in the shared schema.
+
+Two encoding tricks make protobuf compact. **Varints** encode integers using 7 data bits per byte plus a 1-bit continuation flag, so small numbers (the common case — most ids are < 128) take one byte while large numbers take up to 10 bytes. Tag + wire-type are themselves encoded as a varint with the wire-type in the low 3 bits; field numbers 1-15 produce single-byte tags, which is why hot fields should reserve those ids. **Length-delimited** encoding prefixes strings and nested messages with their length as a varint, so decoders can skip unknown fields without parsing them.
+
+The "skip unknown fields" rule is the secret of **schema evolution**. When you add a new field with a new number, old clients receive the message, see a tag they do not recognize, read the length, and skip the payload — no crash, no data loss. When you remove a field, the old number gets `reserved` so no future field can accidentally reuse it. As long as you never renumber or change wire types, old binaries and new binaries can speak to each other forever. JSON has no equivalent — schema evolution is purely a social contract enforced at the application layer.
+
+The "language-neutral" part means `protoc` generates idiomatic stubs in C++, Java, Python, Go, Rust (via prost), Ruby, C#, Swift, Dart, Kotlin, JavaScript — so one `.proto` file produces refactor-safe APIs in every supported language without duplicating type definitions.
 
 ## visualization
 Encode `Person { id: 150, name: "Ada" }` where `id` is field 1 (varint) and `name` is field 2 (length-delimited). Bytes: `08 96 01 12 03 41 64 61`. `08` = tag 1, wire-type 0. `96 01` = varint for 150 (little-endian, 7 bits per byte, top bit signals "more"). `12` = tag 2, wire-type 2 (length-delimited). `03` = length 3. `41 64 61` = "Ada". Total: 8 bytes vs ~26 for `{"id":150,"name":"Ada"}`.
@@ -37,7 +45,55 @@ Encode `Person { id: 150, name: "Ada" }` where `id` is field 1 (varint) and `nam
 Send JSON. Field names are duplicated in every payload, numbers blow up (`12345` is 5 bytes instead of 2), and parsing requires a tokenizer plus a reflective object builder. Schema is enforced only at the application layer — a typo in a field name silently produces `undefined` on the receiver. Acceptable for browser-facing APIs where humans inspect traffic; wasteful for internal RPC at scale.
 
 ## optimal
-Define the schema once in `.proto`, run `protoc` to generate strongly typed accessors per language. At runtime, serialization is a memcpy-style loop over field tags. Use varints for small integers (most ids are < 128 and fit in one byte), fixed-width for already-large numbers (hashes, timestamps in nanos), and length-delimited for strings and nested messages. Reserve field numbers 1–15 for hot fields — they encode their tag in a single byte.
+The optimal approach is **schema-first definition in `.proto`, code-generated stubs via `protoc`, and strict adherence to schema-evolution rules**. The Google protobuf documentation, the protobuf encoding guide, and the gRPC reference implementations are the canonical sources; Buf (buf.build) provides linting, breaking-change detection, and a modern build toolchain.
+
+```proto
+syntax = "proto3";
+package payments.v1;
+
+// Versioning by package: never break v1; introduce v2 alongside.
+message Payment {
+  // Field numbers 1-15 cost one byte for tag; reserve them for hot fields.
+  int64  id            = 1;
+  string customer_id   = 2;
+  sint64 amount_cents  = 3;     // sint64 -> zigzag encoding for signed values
+  string currency      = 4;     // 3-char ISO 4217
+  google.protobuf.Timestamp created_at = 5;
+
+  // Deprecated field: never delete, mark reserved so no future field
+  // accidentally reuses the wire-incompatible id.
+  reserved 6;
+  reserved "old_field_name";
+
+  // New optional fields use field numbers >= 16 (2-byte tags).
+  optional string idempotency_key = 16;
+}
+
+service PaymentsService {
+  rpc CreatePayment(CreatePaymentRequest) returns (Payment);
+  rpc StreamPayments(StreamRequest) returns (stream Payment);   // server-stream
+}
+```
+
+Why this is right: the schema is **single-source-of-truth**, version-controlled, and code-generated into every consumer language, so renames refactor cleanly and the type system catches mismatches at compile time. The wire format is **3-10x smaller than JSON** (Google's published benchmarks; same ratio in the Confluent Avro-vs-JSON-vs-Protobuf studies) and **2-5x faster to parse** because the decoder is a single forward pass over `<tag, wire-type, payload>` records with no tokenizer. Combined with HTTP/2 multiplexing (gRPC) this is why service-to-service traffic inside large microservice fleets consistently chose protobuf since 2016.
+
+**Encoding choices that matter**:
+- **`int32` vs `sint32`**: plain `int32` encodes negative values as 10-byte varints (sign-extended); `sint32` uses zigzag encoding so small negatives stay small. Always pick `sint*` for fields that can be negative.
+- **`fixed32` / `fixed64`**: 4- and 8-byte fixed-width encodings; use for hashes, large timestamps, and any value where the average bit-length already exceeds the varint break-even point (~3 bytes).
+- **`packed = true`** for `repeated` numeric fields (default in proto3): packs all values into one length-delimited block, saving one tag byte per element.
+
+**Schema-evolution rules (non-negotiable)**:
+1. **Never renumber an existing field** — the wire tag is its identity. Renaming the field is fine; renumbering breaks every old client.
+2. **Never reuse a deleted field number** — mark it `reserved 7;` so the next developer cannot accidentally collide.
+3. **Never change a field's wire type** — `int32` and `int64` are wire-compatible (both varint), but `int32` and `sint32` are not (different encodings of negatives), and `string` and `bytes` are length-delimited but semantically different on receive.
+4. **Adding fields is always safe** (old clients skip unknown tags), removing fields requires `reserved`, and changing the package or message name is a breaking change.
+
+**Production tooling**:
+- **Buf CLI** (`buf lint`, `buf breaking`) enforces these rules in CI, preventing wire-breaking changes from ever merging.
+- **`protoc-gen-validate`** generates runtime validation from `.proto` annotations (range, length, regex, custom rules).
+- **`protoc-gen-grpc`** plugin generates gRPC stubs alongside message types; **gRPC-Web** plus Envoy's `grpc_json_transcoder` exposes the same `.proto` services to browsers and to JSON-only clients.
+
+**Alternatives to know**: **FlatBuffers** (Google) — zero-copy, no parse step, faster but larger payloads; used in games. **Cap'n Proto** (Kenton Varda, ex-Google) — zero-copy plus RPC, conceptually similar; used by Cloudflare. **Apache Avro** — schema embedded with the data (good for Kafka, where consumers may run different schema versions). Pick protobuf for general service-to-service RPC; FlatBuffers or Cap'n Proto for latency-critical paths; Avro for streaming with schema-evolution-per-message.
 
 ## complexity
 time: O(n) where n is payload size in bytes; both encode and decode are single passes.

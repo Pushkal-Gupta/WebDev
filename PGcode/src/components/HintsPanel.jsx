@@ -66,8 +66,8 @@ export default function HintsPanel({ hints = [], problemId, problemName, problem
     return (
       <div className="hints-empty">
         <Lightbulb size={20} className="hints-empty-icon" />
-        <p className="hints-empty-title">No hints written yet.</p>
-        <p className="hints-empty-sub">Hints are authored per problem — the editorial team adds them after the first wave of attempts.</p>
+        <p className="hints-empty-title">No hints for this one.</p>
+        <p className="hints-empty-sub">Try the editorial in the Solution tab, or work it out from the constraints.</p>
       </div>
     );
   }

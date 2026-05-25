@@ -1,6 +1,6 @@
 ---
 slug: reservoir-sampling
-module: math
+module: math-geom-sampling
 title: Reservoir Sampling
 subtitle: Pick k uniformly random items from a stream of unknown length in O(n) time and O(k) space.
 difficulty: Advanced

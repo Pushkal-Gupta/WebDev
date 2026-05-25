@@ -1,6 +1,6 @@
 ---
 slug: binary-lifting-lca
-module: trees
+module: trees-advanced-queries
 title: Binary Lifting for LCA
 subtitle: Lowest common ancestor via 2^k ancestor tables — preprocess O(n log n), query O(log n).
 difficulty: Advanced

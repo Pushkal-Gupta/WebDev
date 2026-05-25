@@ -167,9 +167,8 @@ export default function DsaTutorial({ session }) {
           </div>
         )}
         <p className="tut-sub">
-          Data structures + algorithms, end to end. Theory rows open the concept page; problem rows open
-          the solver. Items marked <Lock size={11} className="tut-inline-icon" /> aren't wired up yet but
-          stay in the outline so the curriculum is complete.
+          Data structures and algorithms, top to bottom. Theory rows open the concept page; problem rows
+          open the solver. Items marked <Lock size={11} className="tut-inline-icon" /> are coming soon.
         </p>
       </header>
 
@@ -494,14 +493,33 @@ function TutorialItem({ item, problemByName, conceptByName, byId, highlight }) {
 function renderInline(text, keyPrefix = '') {
   if (text == null) return null;
   const str = String(text);
-  if (!str.includes('`')) return str;
-  const parts = str.split('`');
-  return parts.map((part, i) => {
-    if (i % 2 === 1) {
-      return <code key={`${keyPrefix}-c-${i}`} className="tut-theory-code">{part}</code>;
+  // Token order matters: code first (literal, no further parsing), then links,
+  // then bold (**...**) so the single-asterisk italic doesn't eat it, then italic.
+  const pattern = /(`[^`]+`)|(\[[^\]]+\]\([^)]+\))|(\*\*[^*]+\*\*)|(\*[^*]+\*)/g;
+  const out = [];
+  let last = 0;
+  let i = 0;
+  let m;
+  while ((m = pattern.exec(str)) !== null) {
+    if (m.index > last) {
+      out.push(<React.Fragment key={`${keyPrefix}-t-${i++}`}>{str.slice(last, m.index)}</React.Fragment>);
     }
-    return <React.Fragment key={`${keyPrefix}-t-${i}`}>{part}</React.Fragment>;
-  });
+    if (m[1]) {
+      out.push(<code key={`${keyPrefix}-c-${i++}`} className="tut-theory-code">{m[1].slice(1, -1)}</code>);
+    } else if (m[2]) {
+      const linkMatch = /\[([^\]]+)\]\(([^)]+)\)/.exec(m[2]);
+      out.push(<a key={`${keyPrefix}-a-${i++}`} href={linkMatch[2]} target="_blank" rel="noopener noreferrer">{linkMatch[1]}</a>);
+    } else if (m[3]) {
+      out.push(<strong key={`${keyPrefix}-b-${i++}`}>{m[3].slice(2, -2)}</strong>);
+    } else if (m[4]) {
+      out.push(<em key={`${keyPrefix}-i-${i++}`}>{m[4].slice(1, -1)}</em>);
+    }
+    last = m.index + m[0].length;
+  }
+  if (last < str.length) {
+    out.push(<React.Fragment key={`${keyPrefix}-t-${i++}`}>{str.slice(last)}</React.Fragment>);
+  }
+  return out.length === 0 ? str : out;
 }
 
 // Detect a leading callout marker (> Note:, > Warning:, > Tip:) and return parts.

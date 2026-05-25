@@ -1,6 +1,6 @@
 ---
 slug: radix-tree
-module: trees
+module: trees-balanced-disk
 title: Radix Tree (Compressed Trie)
 subtitle: Like a trie, but consecutive single-child nodes collapse into one edge labelled with a string — O(k) lookup with much less memory.
 difficulty: Advanced

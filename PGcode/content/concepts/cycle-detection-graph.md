@@ -1,6 +1,6 @@
 ---
 slug: cycle-detection-graph
-module: graphs
+module: graphs-traversal
 title: Cycle Detection in Graphs
 subtitle: Directed graphs need three node colors (white/gray/black) for cycle detection; undirected just need a parent check.
 difficulty: Intermediate

@@ -1,6 +1,6 @@
 ---
 slug: acid-vs-base
-module: cs-core
+module: cs-db-transactions
 title: ACID vs BASE
 subtitle: Strict transactional guarantees vs eventual consistency — when each model wins and what trade-offs you accept.
 difficulty: Intermediate

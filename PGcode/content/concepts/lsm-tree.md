@@ -1,6 +1,6 @@
 ---
 slug: lsm-tree
-module: system-design
+module: sd-storage
 title: LSM Tree (Log-Structured Merge)
 subtitle: Write-optimized index — in-memory MemTable + immutable on-disk SSTables + background compaction. Powers LevelDB / RocksDB / Cassandra.
 difficulty: Advanced

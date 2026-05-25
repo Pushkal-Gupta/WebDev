@@ -1,6 +1,6 @@
 ---
 slug: string-hashing
-module: sorting-strings
+module: strings-matching
 title: String Hashing (Rabin-Karp)
 subtitle: Compare substrings in O(1) after O(n) preprocessing — polynomial rolling hash with mod p.
 difficulty: Intermediate

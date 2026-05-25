@@ -1,6 +1,6 @@
 ---
 slug: topk-streaming
-module: arrays-searching
+module: arrays-counting-select
 title: Top-K from a Stream
 subtitle: Min-heap of size K for exact top-K; Misra-Gries / Count-Min for approximate streaming counts.
 difficulty: Intermediate

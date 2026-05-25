@@ -75,6 +75,14 @@ export default function ProblemList({ session }) {
   const { data: lists = [] } = useLists();
 
   const [search, setSearch] = useState('');
+  // Debounced search keeps the input snappy while the server query waits 250ms
+  // after the last keystroke — typing stays at native speed; we only refetch
+  // once you pause.
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search), 250);
+    return () => clearTimeout(t);
+  }, [search]);
   const [topicFilter, setTopicFilter] = useState('all');
   const [diffFilter, setDiffFilter] = useState(new Set(['Easy', 'Medium', 'Hard']));
   const [statusFilter, setStatusFilter] = useState('all');
@@ -93,7 +101,7 @@ export default function ProblemList({ session }) {
     () => (diffFilter.size === 3 ? null : [...diffFilter]),
     [diffFilter],
   );
-  const filterSig = `${search}|${topicFilter}|${[...diffFilter].sort().join(',')}|${sortBy}`;
+  const filterSig = `${debouncedSearch}|${topicFilter}|${[...diffFilter].sort().join(',')}|${sortBy}`;
   const [lastSig, setLastSig] = useState(filterSig);
   if (lastSig !== filterSig) {
     setLastSig(filterSig);
@@ -105,7 +113,7 @@ export default function ProblemList({ session }) {
     pageSize: PAGE_SIZE,
     topicId: topicFilter === 'all' ? null : topicFilter,
     difficulty: diffArray,
-    search,
+    search: debouncedSearch,
     sort: sortBy,
   });
   const rawProblems = useMemo(() => pageData?.rows || [], [pageData]);
@@ -113,7 +121,13 @@ export default function ProblemList({ session }) {
 
   const topics = useMemo(() => (rawTopics || []).filter(t => t.id !== 'first-order'), [rawTopics]);
   const userProgress = useMemo(() => progressBundle?.byId || {}, [progressBundle]);
-  const loading = (problemsLoading && !pageData) || topicsLoading;
+  // Latch the initial-load skeleton: once we've shown the real shell, never
+  // swap back to it — otherwise debounced search refetches would unmount the
+  // input mid-typing and the user loses focus / pending characters.
+  const [hasShownShell, setHasShownShell] = useState(false);
+  const initialLoading = (problemsLoading && !pageData) || topicsLoading;
+  if (!initialLoading && !hasShownShell) setHasShownShell(true);
+  const loading = initialLoading && !hasShownShell;
 
   const topicNameMap = useMemo(() => {
     const map = {};
@@ -454,7 +468,7 @@ export default function ProblemList({ session }) {
               </h2>
               <p className="pl-practice-sub">
                 {practiceSet.problems.length} problems picked at random
-                {practiceSet.scope === 'filtered' ? ' from your current filters' : ' from the catalog'}. Work through them at your own pace — solves sync back automatically.
+                {practiceSet.scope === 'filtered' ? ' from your current filters' : ' from the catalog'}. Solves sync back automatically.
               </p>
             </div>
             <div className="pl-practice-actions">
@@ -588,7 +602,7 @@ export default function ProblemList({ session }) {
                 </div>
                 <p className="pl-empty-title">No problems match your filters</p>
                 <p className="pl-empty-sub">
-                  Try a different topic, change the difficulty mix, or clear everything to see the full catalog.
+                  Try a different topic, adjust the difficulty mix, or clear everything to see the full catalog.
                 </p>
                 <button className="pl-clear-btn" onClick={resetFilters}>
                   <FilterX size={13} />

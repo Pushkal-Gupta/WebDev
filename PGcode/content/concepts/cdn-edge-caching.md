@@ -1,6 +1,6 @@
 ---
 slug: cdn-edge-caching
-module: system-design
+module: sd-caching-cdn
 title: CDN + Edge Caching
 subtitle: Serve static + dynamic content from the geographically-closest data center — drops latency by 50-90%.
 difficulty: Intermediate

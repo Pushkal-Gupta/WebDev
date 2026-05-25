@@ -37,7 +37,7 @@ export default function CompaniesIndex() {
           <Building2 size={32} className="comp-empty-icon" />
           <h2 className="comp-empty-title">No companies yet</h2>
           <p className="comp-empty-sub">
-            Company-tagged problem lists haven't been seeded yet.
+            Company-tagged problem lists land here as they go live.
           </p>
         </div>
       </div>
@@ -49,8 +49,8 @@ export default function CompaniesIndex() {
       <header className="comp-header">
         <h1 className="comp-title">Companies</h1>
         <p className="comp-sub">
-          Interview-prep packs for {companies.length} companies. Each company page surfaces the most-frequently-asked
-          problems sorted by frequency score.
+          {companies.length} companies, each with their most-frequently-asked interview problems
+          ranked by frequency score.
         </p>
       </header>
 

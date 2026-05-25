@@ -1,6 +1,6 @@
 ---
 slug: snapshot-isolation
-module: cs-core
+module: cs-db-transactions
 title: Snapshot Isolation
 subtitle: MVCC-based concurrency control — every transaction reads a consistent point-in-time view, with write-skew as the trap.
 difficulty: Advanced

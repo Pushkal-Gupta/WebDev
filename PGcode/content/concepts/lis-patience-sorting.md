@@ -1,6 +1,6 @@
 ---
 slug: lis-patience-sorting
-module: dp
+module: dp-classical
 title: LIS via Patience Sorting
 subtitle: Longest increasing subsequence in O(n log n) using patience-sort piles + binary search.
 difficulty: Advanced
@@ -28,7 +28,7 @@ The longest increasing subsequence (LIS) of an array is the longest sequence of 
 LIS shows up directly (longest increasing subsequence problems), as a building block (Russian Doll Envelopes, Longest Chain of Pairs, Box Stacking), and indirectly: 2D longest chain, scheduling under precedence, and even the Erdős–Szekeres theorem rely on it. Knowing the O(n log n) algorithm separates "I can solve LIS on n=2500" candidates from "I can solve it on n=10^5" candidates. The technique — *replace a 1D DP scan with a sorted-by-some-key auxiliary structure and binary-search insertions* — generalizes to many DP-with-monotone-structure problems.
 
 ## intuition
-Imagine dealing cards left to right onto piles. Rule: each card must go on the leftmost pile whose top is greater than or equal to it; if none qualifies, start a new pile. After all cards are dealt, the *number of piles* equals the LIS length. Why? Each pile is a decreasing stack (no two equal tops in the same pile), and any increasing subsequence must take exactly one card from each pile (since two from the same pile would be decreasing). So LIS length is bounded above by pile count, and the dealing rule achieves that bound greedily.
+The naive O(n^2) DP defines `dp[i]` as the LIS ending at index i, scanning all previous indices j with `arr[j] < arr[i]` to find the best predecessor — quadratic and fine for n up to a few thousand but hopeless beyond. The O(n log n) patience-sorting algorithm reframes the problem combinatorially. Picture dealing cards left to right onto piles using a single rule: each card goes on the leftmost pile whose top card is greater than or equal to it; if no such pile exists, start a new pile. After all cards are dealt, the number of piles equals the LIS length. Why? Each pile is a decreasing stack (top-down order is non-increasing because the rule always places a card on a pile with a larger top). Any increasing subsequence in the input must take exactly one card from each pile — two cards from the same pile would be a decreasing pair, which an increasing subsequence cannot contain. So the LIS length is bounded above by the pile count, and the dealing rule achieves that bound greedily. The implementation does not need to physically maintain piles — only the pile tops matter for placement decisions. Store them in an array `tails` where `tails[k]` is the top (smallest possible value) of the k-th pile, equivalently the smallest tail of any length-(k+1) LIS seen so far. Binary search the leftmost pile to extend or replace via `bisect_left`. Append if no pile qualifies, otherwise overwrite that pile's top with the new (smaller) value — this preserves the LIS-tail invariant while leaving room for future extensions. The connection to Mirsky's theorem on partial orders gives the deep correctness: in any partial order, the minimum number of antichains in a chain decomposition equals the longest chain length. Patience sorting computes both simultaneously.
 
 ## visualization
 ```

@@ -1,6 +1,6 @@
 ---
 slug: kadanes-algorithm
-module: dp
+module: dp-classical
 title: Kadane's Algorithm
 subtitle: Maximum subarray sum in a single linear pass.
 difficulty: Beginner
@@ -115,7 +115,21 @@ All-negative edge case — `nums = [-3, -1, -4, -2]`. `current` and `best` simpl
 Enumerate every `(i, j)` subarray and compute its sum — O(n³) naïve, O(n²) with running sums. Useless beyond small n; mention it as the contrast.
 
 ## optimal
-Walk left to right. Maintain `current = max(nums[i], current + nums[i])` and `best = max(best, current)`. That's the whole algorithm. To also return the subarray bounds, track `start` and `end` indices: `start` resets to `i` whenever `current` resets to `nums[i]`.
+Single linear pass with two integer variables. Walk left to right maintaining `current` (best subarray sum ending exactly at index i) and `best` (best subarray sum seen anywhere up to index i). The recurrence `current = max(nums[i], current + nums[i])` encodes the binary local choice: either extend the previous subarray (adding nums[i] to current) or start fresh at i. The max decides which is better, with the structural meaning that when `nums[i]` wins, the previous prefix was net-negative and would only hurt us going forward. The update `best = max(best, current)` is a passive watcher that records the global maximum. Total time O(n), space O(1). This is asymptotically optimal because every element must be inspected to know it does not contain the maximum subarray's endpoint.
+
+```python
+def max_subarray(nums):
+    """Kadane's algorithm: max contiguous subarray sum in O(n) time, O(1) space."""
+    current = best = nums[0]                # init with nums[0], not 0 — handles all-negative arrays
+    for x in nums[1:]:
+        # Local choice: extend the previous subarray, or restart at x.
+        current = max(x, current + x)
+        # Passive global maximum watcher.
+        best = max(best, current)
+    return best
+```
+
+The `max(x, current + x)` is the load-bearing line — it both extends and restarts in one operation. Initializing `current = best = nums[0]` (not 0) is the all-negative-array correctness detail: a naive `max(0, current + nums[i])` would return 0 for an all-negative input instead of the largest (least-negative) single element. To recover the subarray indices, track `start_idx` and `end_idx`: reset `start_idx = i` whenever `current = nums[i]` wins the max, set `end_idx = i` whenever `current` becomes the new `best`. The same recurrence generalizes to 2D max-rectangle-sum by combining with column-prefix sums for an O(n^2 * m) algorithm, and to circular arrays by running Kadane twice (standard max plus `total - min_subarray`).
 
 ## complexity
 time: O(n)

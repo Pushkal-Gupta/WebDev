@@ -1,6 +1,6 @@
 ---
 slug: dynamo-paper-architecture
-module: system-design
+module: sd-consensus
 title: Amazon Dynamo — Quorums, Vector Clocks, Anti-Entropy
 subtitle: Inside the 2007 paper that invented the modern AP key-value store and seeded Cassandra, Riak, and DynamoDB.
 difficulty: Advanced

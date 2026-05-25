@@ -1,6 +1,6 @@
 ---
 slug: binary-lifting-general
-module: trees
+module: trees-advanced-queries
 title: Binary Lifting (Sparse Ancestor Tables)
 subtitle: Precompute 2^k-th ancestor of every node in O(n log n) to answer "k-th ancestor" / LCA / path-aggregates in O(log n).
 difficulty: Advanced
@@ -39,7 +39,17 @@ LCA is the canonical use, but binary lifting also solves:
 Whenever you have "follow this pointer k times" and k can be huge, binary lifting collapses it from O(k) to O(log k).
 
 ## intuition
-Any integer k decomposes into a sum of distinct powers of 2 (its binary representation). To jump k steps from v, jump by each set bit of k: 2^k_0, 2^k_1, ... To precompute, observe that `up[k][v] = up[k-1][ up[k-1][v] ]` — the 2^k-th ancestor is the 2^(k-1)-th ancestor of the 2^(k-1)-th ancestor.
+The technique exists because querying "k-th ancestor of v" naïvely costs O(k) per query — walk up the parent pointer k times. For trees with depth 10⁵ or functional graphs where k can be 10¹⁸, that is unacceptable. Binary lifting (Bender-Farach-Colton 2000 in the LCA context; the idea is older as "doubling" in functional-graph navigation) collapses queries to O(log k) by precomputing pointer jumps at every power-of-two distance.
+
+The decisive observation: any positive integer k decomposes uniquely into a sum of distinct powers of 2 (its binary representation). To jump k steps from v, jump by each set bit of k: if k = 13 = 1101₂, jump by 8, then 4, then 1. If we precompute the result of "jump 2^j steps" for every j and every starting node, each query becomes O(number of set bits in k) = O(log k) jumps.
+
+The precomputation uses self-application: `up[k][v]` = the 2^k-th ancestor of v = `up[k-1][ up[k-1][v] ]`. To jump 2^k steps from v, first jump 2^(k-1) steps to some intermediate node u, then jump another 2^(k-1) steps from u. So each layer doubles the reach of the previous; with K = ⌈log₂ n⌉ layers, the table covers any depth up to n. Total preprocessing: O(n · log n).
+
+The same trick generalises beyond ancestor lookup to **any associative aggregate along the path**. Store `up[k][v]` paired with the aggregate over the 2^k edges traversed — max edge weight, min edge weight, XOR of values, sum. When jumping, combine the per-step aggregates. This gives O(log n) per query for tree-path max / min / XOR / sum problems, no segment tree needed.
+
+The deeper principle is that any monoid (associative binary operation with identity) supports binary lifting. Functional graphs (each node has exactly one outgoing edge, like permutations or hash-collision chains) admit `f^k(x)` in O(log k) — useful for cycle detection in linked lists with random-access offsets, Pollard's rho factorisation, and FSM simulation under huge step counts. Permutation powers in group theory (`perm^k(x)` for game-of-life-like simulations) and "press this button k times, where do I land?" puzzles all collapse to the same template.
+
+LCA via binary lifting uses a slight extension: lift the deeper node to the depth of the shallower one (k = depth difference), then lift both simultaneously by decreasing powers of 2 while they remain distinct. Total O(log n) per LCA query after O(n log n) preprocessing — the workhorse for tree path queries in competitive programming.
 
 ## visualization
 ```
@@ -69,29 +79,50 @@ Find 3rd ancestor of 4:
 Walk up `k` steps one at a time: O(k) per query. For k = 10^18, useless. Binary lifting gives O(log k).
 
 ## optimal
-**Preprocessing**:
-```
-LOG = ceil(log2(n))
+**Technique: doubling table over the parent function — `up[k][v] = 2^k-th ancestor` precomputed via `up[k][v] = up[k-1][up[k-1][v]]`.** O(n log n) preprocessing, O(log k) per query. Optimal: the precomputation is information-theoretically tight because the table encodes one bit of "where do I land?" per (node, power) pair, and the binary decomposition of k means no query can answer in fewer than ⌈log₂ k⌉ jumps without additional structure.
+
+```python
+LOG = (n).bit_length()                    # ceil(log2(n))
 up = [[root] * n for _ in range(LOG)]
-# Base case: up[0][v] = parent[v]
-for v in range(n): up[0][v] = parent[v]
-# Recurrence
+for v in range(n):
+    up[0][v] = parent[v]                   # base: 2^0 = 1-step ancestor
+
 for k in range(1, LOG):
     for v in range(n):
-        up[k][v] = up[k-1][up[k-1][v]]
-```
+        up[k][v] = up[k-1][ up[k-1][v] ]   # doubling: 2^k = 2^(k-1) + 2^(k-1)
 
-**k-th ancestor query**:
-```
 def kth_ancestor(v, k):
     bit = 0
     while k > 0:
-        if k & 1: v = up[bit][v]
-        k >>= 1; bit += 1
+        if k & 1:
+            v = up[bit][v]                  # jump 2^bit steps when this bit set
+        k >>= 1
+        bit += 1
     return v
 ```
 
-**Path aggregate** (e.g., max value on the path from v to its k-th ancestor): store `max_up[k][v]` alongside `up[k][v]`. Update during the same recurrence. Query by combining the maxes during the jump.
+Key lines: `up[k][v] = up[k-1][ up[k-1][v] ]` is the entire algorithmic content — the 2^k-th ancestor is the 2^(k-1)-th ancestor of the 2^(k-1)-th ancestor. This recurrence builds each layer from the previous in O(n) per layer, giving O(n log n) total. The query loop walks the bits of k from LSB to MSB: when a bit is set, jump by that power of 2; when cleared, skip. With at most log₂ k iterations, the query is O(log k) in the worst case.
+
+The sentinel `up[0][root] = root` (root's parent is itself) avoids null checks at every jump — overshooting just stays at the root. This is the cleanest way to handle "k larger than depth" without per-step bounds checks.
+
+**Path aggregates** (max / min / XOR / sum along the 2^k path): store the aggregate alongside `up[k][v]`. During precomputation, combine the two halves: `agg[k][v] = combine(agg[k-1][v], agg[k-1][up[k-1][v]])`. During query, fold the partial aggregates as you jump:
+
+```python
+def path_max(v, k):
+    result = -float('inf')
+    bit = 0
+    while k > 0:
+        if k & 1:
+            result = max(result, max_up[bit][v])
+            v = up[bit][v]
+        k >>= 1
+        bit += 1
+    return result
+```
+
+**LCA via binary lifting** (Bender-Farach-Colton 2000): first lift the deeper node to the shallower's depth using `kth_ancestor`, then simultaneously lift both by decreasing powers of 2 while they remain distinct. The final common ancestor at one step above is the LCA. O(log n) per query.
+
+**Why not naive O(k) walk?** For k = 10⁵ in a deep tree with 10⁵ queries, that's 10¹⁰ ops; binary lifting gives 10⁵ × 17 = 1.7·10⁶ ops. **Why not Euler tour + sparse table RMQ?** Equivalent O(1)-LCA bound with different constants; sparse-table needs O(n log n) memory same as binary lifting but has slightly worse cache behaviour. **Why not Tarjan's offline LCA?** O(n + q·α(n)) — best when all queries are known upfront; binary lifting wins for online queries. **Memory at n = 10⁵, LOG = 17**: 1.7M entries × 4 bytes ≈ 7 MB, very comfortable. **Common bugs**: forgetting the root self-loop sentinel (null-pointer crashes); using `k >>= 1` without incrementing `bit` in lockstep; off-by-one in LCA (lift to *one above* the LCA, not the LCA itself); building the table with the inner loop over k instead of outer over k (each layer needs the previous one fully built).
 
 ## complexity
 - **Preprocessing**: O(n log n) time and space.

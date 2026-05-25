@@ -1,6 +1,6 @@
 ---
 slug: rate-limit-leaky-bucket
-module: system-design
+module: sd-api
 title: Rate Limiting — Leaky Bucket
 subtitle: Smoothing bursts into a steady outflow — leaky bucket vs token bucket, when each one wins.
 difficulty: Advanced

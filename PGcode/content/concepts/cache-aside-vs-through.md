@@ -1,6 +1,6 @@
 ---
 slug: cache-aside-vs-through
-module: system-design
+module: sd-caching-cdn
 title: Cache Patterns — Aside, Through, Behind
 subtitle: Read-through, write-through, write-behind, cache-aside — which one your storage path actually needs.
 difficulty: Intermediate

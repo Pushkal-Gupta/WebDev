@@ -1,6 +1,6 @@
 ---
 slug: read-replica-quorum
-module: system-design
+module: sd-storage
 title: Read / Write Quorum
 subtitle: Tune consistency by picking R and W so that R + W greater than N guarantees overlap.
 difficulty: Advanced

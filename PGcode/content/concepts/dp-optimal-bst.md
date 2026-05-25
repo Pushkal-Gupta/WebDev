@@ -1,6 +1,6 @@
 ---
 slug: dp-optimal-bst
-module: dp
+module: dp-classical
 title: Optimal Binary Search Tree
 subtitle: Build the BST that minimizes expected search cost given access probabilities; Knuth optimization cuts it to O(n^2).
 difficulty: Advanced
@@ -34,13 +34,7 @@ Database indexes, IDE symbol tables, and language-runtime hash dispatch caches a
 Interviews use it as the canonical "range DP with quartic→cubic→quadratic optimization" case study.
 
 ## intuition
-Pick a root r for the range [i..j]. Left subtree is the optimal BST on [i..r-1], right subtree is the optimal BST on [r+1..j]. Choosing r as root costs:
-```
-cost(i, j) = sum(freq[i..j])  +  cost(i, r-1) + cost(r+1, j)
-```
-The `sum(freq[i..j])` term accounts for the fact that *every* key in the range descends one level deeper because of the chosen root.
-
-Try every possible root r ∈ [i..j] and take the min. Memoize by range.
+A balanced BST minimizes worst-case search cost, but if access frequencies are non-uniform — and they almost always are in real workloads — a tree that puts hot keys near the root and cold keys deep beats balance every time. The expected search cost is the sum over keys of `freq[k] * depth[k]`, where depth counts comparisons from the root. The optimization is to pick the tree shape that minimizes this sum. The DP approach is range-indexed because BSTs respect key order: a BST on keys i..j has some root r, with the left subtree built from i..r-1 and the right subtree from r+1..j. Crucially, every key in the range descends exactly one level deeper because of the chosen root — so the cost contribution of "this root" is the sum of all frequencies in the range (since each key's depth increases by 1 below this new root). Formally: `cost(i, j) = sum(freq[i..j]) + cost(i, r-1) + cost(r+1, j)`. Try every r in [i..j] as the root and take the minimum. Fill by increasing interval length so subranges are ready when needed. The naive recurrence is O(n^3) — n^2 ranges times n root choices each. Knuth's optimization observes the monotone-root property: the optimal root r*(i, j) is sandwiched between r*(i, j-1) and r*(i+1, j). This bound, plus a telescoping argument across all ranges of fixed length, reduces total work to O(n^2). The deep skill is recognizing that range DPs often have monotone-optimum properties — when they do, the inner search range shrinks and total work drops by a factor of n. The Knuth-Yao quadrangle inequality is the general framework that captures when this acceleration applies; not every range DP satisfies it (Matrix Chain Multiplication does not), so check before reaching for the speedup.
 
 ## visualization
 ```
@@ -69,19 +63,44 @@ Optimal root for [A..D]: usually the high-frequency key (C).
 Try every BST shape on n nodes. Count of BSTs = Catalan(n) ≈ 4^n / n^1.5. Computing cost per shape is O(n). Total O(n · 4^n) — works to n = 10.
 
 ## optimal
-**O(n^3) range DP**:
-```
-let s[i][j] = freq[i] + ... + freq[j]   (prefix-sum lookup, O(1))
-dp[i][j] = 0 if i > j
-        = freq[i] if i == j
-        = s[i][j] + min over r ∈ [i..j] of (dp[i][r-1] + dp[r+1][j])
-```
-Fill by increasing range length. Total work: O(n^3).
+Range DP filled by increasing interval length, accelerated by Knuth's monotone-root optimization to O(n^2). Maintain `dp[i][j]` = minimum cost for the optimal BST on keys i..j, and `root[i][j]` = the optimal root index. Use a prefix-sum array for O(1) range-frequency lookup. The naive recurrence is O(n^3); Knuth observes that `root[i][j-1] <= root[i][j] <= root[i+1][j]`, bounding the inner scan for r to a shrinking range. Across all ranges of fixed length, total inner work telescopes to O(n^2) instead of O(n^3) — a remarkable speedup with a one-line code change.
 
-**Knuth's O(n^2) optimization**:
-Let `root[i][j]` be the smallest r that achieves the minimum for `dp[i][j]`. Knuth proved that for this DP `root[i][j-1] <= root[i][j] <= root[i+1][j]`. The root function is monotone in both endpoints. When computing `dp[i][j]`, only scan r in `[root[i][j-1] .. root[i+1][j]]` — over the whole table this sums to O(n^2).
+```python
+def optimal_bst(freq):
+    n = len(freq)
+    # Prefix sums for O(1) range-frequency lookup.
+    pref = [0] * (n + 1)
+    for i, f in enumerate(freq):
+        pref[i + 1] = pref[i] + f
+    rng = lambda i, j: pref[j + 1] - pref[i]
 
-Same trick (Knuth-Yao quadrangle inequality) applies to other monotone-root DPs: optimal alphabetic codes, certain greedy scheduling problems.
+    INF = float("inf")
+    dp = [[0] * n for _ in range(n + 1)]
+    root = [[0] * n for _ in range(n)]
+    # Base: single-key trees.
+    for i in range(n):
+        dp[i][i] = freq[i]
+        root[i][i] = i
+
+    for length in range(2, n + 1):
+        for i in range(n - length + 1):
+            j = i + length - 1
+            best, br = INF, i
+            # Knuth's bound: optimal root for [i, j] lies between root[i, j-1] and root[i+1, j].
+            lo, hi = (root[i][j - 1], root[i + 1][j]) if length > 2 else (i, j)
+            for r in range(lo, hi + 1):
+                left = dp[i][r - 1] if r > i else 0
+                right = dp[r + 1][j] if r < j else 0
+                # Every key in [i, j] descends one level deeper because of this new root.
+                cost = left + right + rng(i, j)
+                if cost < best:
+                    best, br = cost, r
+            dp[i][j] = best
+            root[i][j] = br
+    return dp[0][n - 1]
+```
+
+The `lo, hi = (root[i][j - 1], root[i + 1][j])` line is the Knuth optimization. Without it, the inner loop scans every r in [i, j] for O(n^3) total. With it, the inner range shrinks and the total work telescopes to O(n^2) — same answer, 10-100x faster on large inputs. The monotone-root property must be proved or verified for each DP before applying Knuth; the Knuth-Yao quadrangle inequality is the standard sufficient condition.
 
 ## complexity
 - **Naive**: O(n!), unusable.

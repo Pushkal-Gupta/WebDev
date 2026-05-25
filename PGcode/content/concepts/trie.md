@@ -1,6 +1,6 @@
 ---
 slug: trie
-module: trees
+module: trees-balanced-disk
 title: Trie (Prefix Tree)
 subtitle: O(L) lookup of strings sharing common prefixes.
 difficulty: Intermediate
@@ -25,10 +25,14 @@ status: published
 A trie ("retrieval tree") stores strings character-by-character along tree paths, sharing common prefixes. Inserting and looking up a string of length L cost O(L) — independent of how many strings are in the trie. It's the data structure of choice for autocomplete, spell-check, prefix-matching, IP routing, and DNA pattern indexing.
 
 ## whyItMatters
-A hash map gives O(L) lookup too, but only for *exact* match. A trie gives the same exact-match cost *and* answers "all strings with this prefix" or "all strings that match this wildcard" in time proportional to the result size — which is impossible with a hash. Every search-as-you-type UI, every code completion engine, every router with longest-prefix matching uses a trie or a close variant (radix tree, suffix tree).
+Hash maps give `O(L)` lookup but only for exact match. A trie gives the same exact-match cost and adds prefix queries in time proportional to the result size — impossible to match with a hash. Every search-as-you-type box (Google, GitHub code search, Slack channel switcher) sits on a trie or a close cousin. Linux's IP routing table is a compressed-trie (radix tree) so longest-prefix match runs in `O(32)` instead of `O(N)` across a million routes. Redis stores its key namespace as a radix tree for the same reason. Knuth credits Edward Fredkin (1960) with the structure; the name comes from re*trie*val. Spell-checkers, autocomplete, IP firewalls, and DNA-sequence aligners all run on tries.
 
 ## intuition
-Picture the dictionary `["car", "cat", "card", "dog"]` as a tree rooted at empty string. Two branches from root: 'c' and 'd'. Under 'c' → 'a' (shared by "car", "cat", "card"). Under 'a' → 'r' (shared by "car", "card") and 't' (just "cat"). Each node tracks whether it terminates a complete word. Insertion walks the path, creating nodes as needed; lookup walks the path returning false on a missing child.
+A trie is a tree where each edge is labeled with one character and each path from the root spells a prefix. Storing the words `cat`, `car`, `cart` puts a `c` edge at the root, an `a` edge below it, then two children — `t` (with `end = true` for `cat` and an `r → t` chain ending in another `end = true` for `cart`). Shared prefixes share nodes, which is why a dictionary of 200,000 English words compresses to roughly the same memory whether you store one word or all of them: most letters are reused.
+
+The key invariant is that every node represents exactly one prefix — the string spelled by following edges from the root. To look up a word, walk character by character; if you fall off the tree or end on a node that is not marked `is_word`, the word is absent. To list all words sharing a prefix, walk to the node for that prefix then DFS the subtree; you visit exactly as many nodes as there are matching characters. That `O(prefix + matches)` cost is what no hash can give you.
+
+Variants tighten the same idea. A radix (compressed) trie merges chains of single-child nodes into one edge labeled with a substring — 4x less memory on natural-language data. A ternary search tree replaces the per-node array with a small BST and is cache-friendlier on Unicode inputs.
 
 ## visualization
 After inserting `["car", "cat", "card"]`:
@@ -49,9 +53,32 @@ Asterisk marks terminal nodes. `search("car")` walks c → a → r, sees termina
 Store all strings in a list; for prefix queries, scan and filter. O(N × L) per query, where N is the total string count. For autocomplete on a 100,000-word dictionary, prohibitive. Trie collapses this to O(L + results).
 
 ## optimal
-A trie node = a dict (or array of size alphabet) from character to child node + a boolean `is_terminal`. Insertion / lookup / prefix-search are straight walks down the tree. For a small fixed alphabet (lowercase letters), use `child[26]` arrays for cache-friendliness; for arbitrary unicode, use a hash map.
+A node holds a children map (an array of 26 for ASCII lowercase, or a dict for arbitrary alphabets) and a boolean `is_end`. Insert walks the path, creating missing nodes along the way; lookup walks the path and reads `is_end` at the terminal; `startsWith` walks the path and returns true if no edge was missing. All three operations are `O(L)` where `L` is the length of the query string — they do not depend on `N`, the number of words stored.
 
-For memory-tight cases, a **compressed trie / radix tree** merges chains of single-child nodes into single edges labeled by substrings. Same big-O, much smaller constant.
+```python
+class Trie:
+    def __init__(self):
+        self.kids = {}
+        self.end = False
+    def insert(self, word):
+        node = self
+        for ch in word:
+            node = node.kids.setdefault(ch, Trie())
+        node.end = True
+    def search(self, word):
+        node = self._walk(word)
+        return node is not None and node.end
+    def startsWith(self, prefix):
+        return self._walk(prefix) is not None
+    def _walk(self, s):
+        node = self
+        for ch in s:
+            if ch not in node.kids: return None
+            node = node.kids[ch]
+        return node
+```
+
+The critical line is `node.kids.setdefault(ch, Trie())`, which combines lookup and lazy creation into one step; without it you write five lines of `if ch not in node.kids: node.kids[ch] = Trie(); node = node.kids[ch]`. For production code on a fixed ASCII alphabet, replace the dict with a length-26 array of references — cuts allocation overhead by 3-5x. For very large dictionaries (DNA databases, IP-prefix tables) switch to a radix trie that stores substring labels per edge; this is what Redis, Linux's FIB lookup, and Aho-Corasick's goto function use under the hood.
 
 ## complexity
 time: O(L) per insert, lookup, or `startsWith`, where L = string length.

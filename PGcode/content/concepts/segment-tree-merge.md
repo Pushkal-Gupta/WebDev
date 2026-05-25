@@ -1,6 +1,6 @@
 ---
 slug: segment-tree-merge
-module: arrays-searching
+module: arrays-range-structures
 title: Segment Tree Merging
 subtitle: Combine two segment trees in O(n) when their value sets are disjoint — enables small-to-large tricks on trees.
 difficulty: Advanced

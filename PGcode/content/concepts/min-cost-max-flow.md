@@ -1,6 +1,6 @@
 ---
 slug: min-cost-max-flow
-module: graphs
+module: graphs-flow-grids
 title: Min-Cost Max-Flow
 subtitle: Find the cheapest way to push maximum flow via successive shortest paths with reduced costs.
 difficulty: Advanced
@@ -25,10 +25,10 @@ status: published
 Min-cost max-flow (MCMF) generalizes max-flow: every edge has both a capacity and a per-unit cost, and we want the maximum flow whose total cost is minimum. The standard solution is the Successive Shortest Paths (SSP) algorithm — repeatedly push flow along the cheapest source-to-sink path in the residual graph until no augmenting path remains. The trick is handling the negative-cost edges introduced by residual arcs, which we solve with Johnson-style potentials so Dijkstra (not Bellman-Ford) can run every iteration.
 
 ## whyItMatters
-Transportation networks (warehouses to stores), staff scheduling (people to shifts), and bandwidth allocation under priced links all reduce directly to MCMF. Many DP problems with K-disjoint-paths flavor — "pick K non-overlapping intervals maximizing value" — have an MCMF formulation that beats the DP when K is large. It is also the standard tool for assignment problems when the Hungarian algorithm is too rigid (variable supply, capacities > 1).
+Transportation networks (warehouses to stores), staff scheduling (people to shifts), and bandwidth allocation under priced links all reduce directly to MCMF. Many DP problems with K-disjoint-paths flavor — "pick K non-overlapping intervals maximizing value" — have an MCMF formulation that beats the DP when K is large. It is also the standard tool for assignment problems when the Hungarian algorithm is too rigid (variable supply, capacities > 1). Operations-research libraries (Google OR-Tools, Gurobi, CPLEX) ship MCMF as a first-class primitive because it underlies real-world logistics — Amazon FBA inventory rebalancing, Uber driver-to-rider matching, and FedEx hub-to-hub freight routing all reduce to MCMF instances solved in production every minute.
 
 ## intuition
-Picture flow as water and cost as the price per liter through each pipe. Greedy: find the cheapest path from source to sink, send as much as fits, repeat. Sending flow along an edge u→v with cost c creates a virtual reverse edge v→u with cost -c representing the option to "cancel" that flow later. Negative costs would break Dijkstra, so we maintain a node potential h(v) — the distance found by the previous iteration. Reduced cost c'(u,v) = c(u,v) + h(u) - h(v) is provably non-negative, so Dijkstra works on every iteration after the first.
+Min-cost max-flow generalizes max-flow by adding a per-unit cost to each edge — the goal becomes "ship as much as possible at the cheapest aggregate price." The greedy intuition is: find the cheapest source-to-sink path in the residual graph, push as much flow as fits along it, repeat until no augmenting path remains. The subtlety is that pushing flow along an edge u to v with cost c creates a virtual reverse edge v to u with cost -c, representing the option to "cancel" that flow later if a better route appears. These negative-cost reverse edges break Dijkstra, which requires non-negative weights, so a naive implementation would have to use Bellman-Ford every iteration at O(V * E) per iteration — too slow. The Johnson-potentials trick saves us. Maintain a node potential h(v) initialized to 0 (or by one Bellman-Ford pass if the input graph has negative-cost edges). Define reduced cost `c'(u, v) = c(u, v) + h(u) - h(v)`. After each Dijkstra, update `h[v] += dist[v]` for all reachable v. The invariant maintained is that reduced costs are always non-negative — the previous Dijkstra established `h[v] <= h[u] + c(u, v)` for every edge, which rearranges to `c(u, v) + h[u] - h[v] >= 0`. So Dijkstra works on every iteration after the first, even though the residual graph contains negative-cost reverse edges. The deep insight is that potential functions can rewrite a weighted graph's edges to non-negative without changing shortest-path structure — a remarkable algebraic property that converts negative-edge problems into standard Dijkstra problems. The same trick powers Johnson's all-pairs shortest paths algorithm.
 
 ## visualization
 ```
@@ -48,19 +48,60 @@ Total flow: 7, total cost: 3*3 + 4*4 = 25.
 Run plain Ford-Fulkerson on capacities, ignoring cost — you get maximum flow but with no guarantee on price. Then try to rebalance: for every cycle in the residual graph with negative total cost, reroute flow around it (cycle-canceling). Correct but slow: finding a negative cycle is O(V·E), and the number of cancellation rounds can be large. SSP avoids ever creating a suboptimal flow in the first place.
 
 ## optimal
-SSP with Johnson potentials:
+Successive Shortest Paths (SSP) with Johnson potentials. Initialize h[v] = 0 (or run one Bellman-Ford if original graph has negative-cost edges). Repeatedly run Dijkstra from s using reduced costs `c'(u, v) = c(u, v) + h(u) - h(v)`; if t is unreachable, halt. Otherwise push bottleneck flow along the augmenting path, then update `h[v] += dist[v]` for all reachable v so the next Dijkstra remains valid. Each iteration is O((V + E) log V); total iterations are at most F (the max flow value) or O(V * E) for unit-capacity bipartite matching specializations. Store edges with explicit reverse companions (index XOR 1 trick) so cancellation works in O(1).
 
-```
-init h[v] = 0 (or Bellman-Ford if graph has negative-cost original edges)
-while True:
-    run Dijkstra from s using reduced costs c'(u,v) = c(u,v) + h(u) - h(v)
-    if t unreachable: break
-    push bottleneck flow along the path
-    h[v] += dist[v] for all reachable v
-return (total_flow, total_cost)
+```python
+import heapq
+
+class MCMF:
+    def __init__(self, n):
+        self.n = n
+        self.adj = [[] for _ in range(n)]
+        self.edges = []                              # flat array; edges[i ^ 1] is reverse
+
+    def add_edge(self, u, v, cap, cost):
+        self.adj[u].append(len(self.edges)); self.edges.append([v, cap, cost])
+        self.adj[v].append(len(self.edges)); self.edges.append([u, 0, -cost])  # reverse
+
+    def solve(self, s, t):
+        INF = float("inf")
+        h = [0] * self.n
+        total_flow = total_cost = 0
+        while True:
+            # Dijkstra with reduced costs c'(u,v) = c + h[u] - h[v] (non-negative).
+            dist = [INF] * self.n; dist[s] = 0
+            prev_edge = [-1] * self.n
+            pq = [(0, s)]
+            while pq:
+                d, u = heapq.heappop(pq)
+                if d > dist[u]: continue
+                for eid in self.adj[u]:
+                    v, cap, cost = self.edges[eid]
+                    if cap > 0:
+                        nd = d + cost + h[u] - h[v]   # reduced cost
+                        if nd < dist[v]:
+                            dist[v] = nd; prev_edge[v] = eid
+                            heapq.heappush(pq, (nd, v))
+            if dist[t] == INF: break
+            # Update potentials so reduced costs remain non-negative next iteration.
+            for v in range(self.n):
+                if dist[v] < INF: h[v] += dist[v]
+            # Find bottleneck along augmenting path, then push flow.
+            push = INF; v = t
+            while v != s:
+                push = min(push, self.edges[prev_edge[v]][1])
+                v = self.edges[prev_edge[v] ^ 1][0]
+            v = t
+            while v != s:
+                self.edges[prev_edge[v]][1] -= push
+                self.edges[prev_edge[v] ^ 1][1] += push
+                v = self.edges[prev_edge[v] ^ 1][0]
+            total_flow += push
+            total_cost += push * h[t]                # h[t] is the true path cost
+        return total_flow, total_cost
 ```
 
-Each Dijkstra is O((V+E) log V); SSP runs at most F iterations where F is the final flow value, or V·E for unit-capacity bipartite matching specializations. Always store each edge with an explicit reverse companion (index ^ 1 trick) so cancellation works.
+The `index XOR 1` trick relies on adding edges in pairs (forward, then reverse), so `edges[eid ^ 1]` is always the companion reverse edge — O(1) cancellation. The `total_cost += push * h[t]` uses the true (unreduced) cost because h[t] equals the cumulative true distance to t.
 
 ## complexity
 time: O(F · (V+E) log V) where F is the max flow value; O(V·E²) bound when F is polynomial in V

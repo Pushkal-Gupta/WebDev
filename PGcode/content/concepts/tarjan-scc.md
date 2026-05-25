@@ -1,6 +1,6 @@
 ---
 slug: tarjan-scc
-module: graphs
+module: graphs-advanced
 title: Tarjan's Strongly Connected Components
 subtitle: Find every SCC of a directed graph in a single DFS, O(V + E).
 difficulty: Advanced

@@ -1,6 +1,6 @@
 ---
 slug: topological-sort
-module: graphs
+module: graphs-traversal
 title: Topological Sort
 subtitle: Order a DAG so every edge points "forward."
 difficulty: Intermediate

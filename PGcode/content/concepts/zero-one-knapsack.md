@@ -1,6 +1,6 @@
 ---
 slug: zero-one-knapsack
-module: dp
+module: dp-classical
 title: 0/1 Knapsack
 subtitle: Pick items with weights and values to maximize value under a weight cap.
 difficulty: Intermediate

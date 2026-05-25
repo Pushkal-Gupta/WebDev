@@ -1,6 +1,6 @@
 ---
 slug: wavelet-matrix
-module: arrays-searching
+module: arrays-counting-select
 title: Wavelet Matrix
 subtitle: O(log σ) range queries — kth smallest, range count, quantile — on a static integer array with σ distinct values.
 difficulty: Advanced

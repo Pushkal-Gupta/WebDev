@@ -1,6 +1,6 @@
 ---
 slug: ternary-search
-module: arrays-searching
+module: arrays-binary-search
 title: Ternary Search
 subtitle: Find the extremum of a unimodal function in O(log n) — narrow down by thirds instead of halves.
 difficulty: Intermediate

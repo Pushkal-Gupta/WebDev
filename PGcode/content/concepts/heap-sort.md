@@ -41,9 +41,42 @@ Input `[4, 1, 3, 9, 7]`. After bottom-up heapify: `[9, 7, 3, 4, 1]` (a valid max
 Insertion sort: O(n²). Selection sort: O(n²). Both fine for ≤ 100 elements; useless at scale.
 
 ## optimal
-Two functions: `sift_down(i, n)` restores the heap property at subtree rooted at `i` within a heap of size `n`. `heap_sort(arr)` calls `sift_down` on indices `n/2 - 1` down to 0 (heapify), then repeatedly swaps `arr[0]` with `arr[--n]` and sift-downs.
+**Technique: in-place bottom-up max-heap construction (Floyd's algorithm, O(n)) + n−1 extract-max-and-sift-down rounds (O(n log n)).** Heap sort is one of the few comparison sorts achieving O(n log n) worst-case with O(1) extra memory.
 
-For just "get the top-k largest," you don't need to fully sort: heapify, then pop k times. O(n + k log n).
+```python
+def heap_sort(arr):
+    n = len(arr)
+
+    def sift_down(start, end):                    # restore heap property at subtree rooted at start
+        root = start
+        while 2 * root + 1 < end:
+            child = 2 * root + 1                   # left child
+            if child + 1 < end and arr[child] < arr[child + 1]:
+                child += 1                          # pick larger child
+            if arr[root] >= arr[child]:
+                return                              # heap property restored
+            arr[root], arr[child] = arr[child], arr[root]
+            root = child
+
+    # Phase 1: bottom-up heapify in O(n) using Floyd's algorithm
+    for start in range(n // 2 - 1, -1, -1):
+        sift_down(start, n)
+
+    # Phase 2: extract max n-1 times, place at end, shrink heap
+    for end in range(n - 1, 0, -1):
+        arr[0], arr[end] = arr[end], arr[0]        # max moves to its sorted position
+        sift_down(0, end)                           # restore heap on shrunk range
+```
+
+Key lines: `for start in range(n // 2 - 1, -1, -1): sift_down(start, n)` is Floyd's bottom-up heapify — start from the last non-leaf node (index `n//2 - 1`) and walk up to the root, sift-down each subtree. The amortised cost is O(n), not O(n log n), because most nodes are near the leaves where sift-down is cheap; the sum of sift-down depths is bounded by Σ (n / 2^h) · h = O(n). Most candidates incorrectly say O(n log n) for this phase — knowing the true bound is a depth signal.
+
+`for end in range(n - 1, 0, -1): arr[0], arr[end] = arr[end], arr[0]; sift_down(0, end)` is the extraction phase. Swap the max (root) with the last position of the current heap, shrinking the heap by one. The just-placed element is now in its final sorted position; the new root needs sift-down to restore the heap property. n-1 extractions × O(log n) each = O(n log n).
+
+Total: O(n) + O(n log n) = O(n log n) worst-case with O(1) extra memory. The heap *is* the input array — no auxiliary storage.
+
+**For top-k largest** (not full sort): heapify in O(n), then extract k times in O(k log n). Total O(n + k log n). For small k this beats sorting (O(n log n)) and beats nlargest from a min-heap of size k (O(n log k)) when k is large enough that the log-factor difference matters. **For streaming top-k** (elements arrive one at a time, no preprocessing): maintain a min-heap of size k, push each new element, pop if size > k. O(log k) per insert, O(n log k) total.
+
+**Why not quicksort?** Quicksort wins in practice due to better cache locality (sequential array access vs heap's index-doubling jumps) and the O(1) random pivot constant. But quicksort has O(n²) worst case on adversarial input (e.g., already-sorted with first-element pivot); heap sort is guaranteed O(n log n). Java's `Arrays.sort(int[])` uses dual-pivot quicksort with introspective fallback to heap sort exactly to bound the worst case. **Why not mergesort?** Mergesort is stable (heap sort is not) and has good cache behaviour but requires O(n) auxiliary memory. **Common bugs**: indexing off-by-one (children of i at 2i+1, 2i+2 if root is at 0); forgetting to shrink the heap after each extraction (infinite loop); using a min-heap for ascending sort (gives descending — use max-heap); confusing heapify (bulk build, O(n)) with sift-down/sift-up (single-node restore, O(log n)).
 
 ## complexity
 time: O(n log n) worst case; the heapify phase is O(n), and the extraction phase is O(n log n) (n extractions × log n sift each).

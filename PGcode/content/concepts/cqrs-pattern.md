@@ -1,6 +1,6 @@
 ---
 slug: cqrs-pattern
-module: system-design
+module: sd-microservices
 title: CQRS — Command Query Responsibility Segregation
 subtitle: Separate the write model (commands) from the read model (queries) — each can scale, optimize, and evolve independently.
 difficulty: Advanced

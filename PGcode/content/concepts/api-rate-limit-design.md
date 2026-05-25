@@ -1,6 +1,6 @@
 ---
 slug: api-rate-limit-design
-module: system-design
+module: sd-api
 title: API Rate Limit Design
 subtitle: Per-key / per-IP / per-endpoint quotas — fixed-window / sliding / token-bucket / leaky-bucket; distributed via Redis.
 difficulty: Intermediate

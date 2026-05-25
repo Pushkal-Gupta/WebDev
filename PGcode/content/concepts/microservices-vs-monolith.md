@@ -1,6 +1,6 @@
 ---
 slug: microservices-vs-monolith
-module: system-design
+module: sd-microservices
 title: Microservices vs Monolith
 subtitle: Two opposite architectures. Monolith for speed of iteration; microservices for independent scaling + team autonomy. Pick by team size + domain complexity.
 difficulty: Intermediate

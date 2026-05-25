@@ -1,6 +1,6 @@
 ---
 slug: coordinate-compression
-module: arrays-searching
+module: arrays-counting-select
 title: Coordinate Compression
 subtitle: Replace large coordinate values with their rank — so an algorithm that's O(range) becomes O(n) over the n distinct values used.
 difficulty: Beginner
@@ -25,13 +25,17 @@ status: published
 Many algorithms allocate arrays indexed by coordinate values: segment trees by index, Fenwick trees by index, sweep-line buckets by x. If your coordinates are in [0, 10^9] but you only ever touch n = 10^5 of them, you can't allocate 10^9 ints. **Coordinate compression** replaces each distinct coordinate with its rank in the sorted set of all coordinates, shrinking the indexing range to [0, n).
 
 ## whyItMatters
-The "huge coordinate space, few distinct values" pattern is everywhere: timestamps (Unix epoch), prices, geographic coordinates, sparse indices in segment-tree-based DPs. Without compression you'd need persistent / sparse segment trees or hash maps — heavier code and slower constants. With compression, the same algorithm runs on a dense [0, n) array.
+- **Competitive programming**: nearly every Codeforces problem with `1 ≤ a_i ≤ 10^9` and `n ≤ 10^5` solved via Fenwick or segment tree starts with a compression pass — the same idea appears in editorial solutions for SPOJ, AtCoder, and TopCoder.
+- **Sweep-line geometry**: rectangle-area union, skyline (LeetCode 218), point-in-rectangle queries all sweep over compressed x-coordinates; Bentley-Ottmann segment intersection assumes a discrete event set.
+- **Database query planners**: Postgres and SQLite build **dictionary encodings** (a coordinate compression in disguise) for low-cardinality columns; ClickHouse and Parquet use the same trick to make group-by O(distinct) instead of O(rows).
+- **Inversion counting**: the classic `count_inversions(arr)` for arbitrary integers needs compression + Fenwick — running `BIT[10^9]` is impossible, `BIT[n]` after compression is trivial.
 
 ## intuition
-Three steps:
-1. Collect every distinct coordinate value into a sorted, deduplicated list.
-2. Map each original value to its index in that list (binary search).
-3. Run your algorithm in the compressed space; un-map at the end if you need original values.
+The pattern that triggers coordinate compression is "I want an array indexed by some value, but the value space is huge while the number of distinct values I actually touch is tiny." A Fenwick tree over timestamps in the year 2024 needs 2^31 buckets if indexed by Unix epoch seconds, but only `n` of those buckets are ever touched in a problem with `n` events. Allocating two billion ints to use a few hundred thousand is wasteful in space and ruinous in cache behavior.
+
+The observation that makes it work: **most order-sensitive algorithms care about relative order, not absolute value**. Sorting, ranking, range queries on counts, prefix sums, sweep-line events — none of them need to know that x = 1,700,005,678. They need to know "this x is the third-smallest distinct x in the input." If we replace every coordinate with its rank in the sorted distinct set, the algorithm runs identically because the relative ordering is preserved. We have lost the absolute values, but we kept them in a side table for the final answer.
+
+Three mechanical steps. First, collect every coordinate that will ever be queried or updated (offline: scan the input). Second, sort and dedupe to get the rank table. Third, replace each original coordinate with its rank via binary search or hash lookup. Now your structure indexes from 0 to (distinct - 1), which is dense, cache-friendly, and small. Convert back to original values only at the boundary, when reporting answers to the user.
 
 ## visualization
 ```
@@ -47,21 +51,26 @@ Compressed indices:   [0, 2, 0, 3, 1]   (replace each original by its rank)
 Skip compression, use a hash map keyed by original value. Works correctly but loses the cache-friendly random access of a dense array. For Fenwick / segment trees specifically, the algorithm requires integer indexing — hash maps don't fit.
 
 ## optimal
-```
+The canonical offline pattern is **sort-dedupe-rank**, achieving O(n log n) preprocessing and O(1) or O(log n) lookup. Build the rank table once, then every downstream structure (Fenwick, segment tree, hash bucket) indexes into [0, n) — dense, cache-friendly, and asymptotically optimal. Knuth's *TAOCP* Vol. 3 discusses this under "rank sequences"; competitive programming libraries like `indy256/codelibrary` and `kactl` ship it as a one-liner.
+
+```python
+from bisect import bisect_left
+
 def compress(values):
-    sorted_unique = sorted(set(values))
-    rank = { v: i for i, v in enumerate(sorted_unique) }
-    return [rank[v] for v in values], sorted_unique
+    table = sorted(set(values))                 # O(n log n)
+    rank  = {v: i for i, v in enumerate(table)} # O(n)
+    return [rank[v] for v in values], table     # O(n)
 
-# Usage:
-# compressed, original = compress(timestamps)
-# Run segment-tree / Fenwick / sweep keyed by compressed[i].
-# Convert back: original_value = original[compressed_index].
+# For queries on a value q not necessarily in `values`:
+def rank_of(q, table):                          # O(log n)
+    return bisect_left(table, q)
 ```
 
-When updates introduce new values online, this technique breaks down — use a persistent / dynamic segment tree, or batch updates and recompress periodically.
+Why this is right: it preserves total order (so `compressed[i] < compressed[j]` iff `values[i] < values[j]`), it shrinks the index range to exactly `len(set(values))`, and it costs only one sort plus one pass. Any algorithm that depends on rank — Fenwick for inversion counting, segment-tree-on-sweep, K-th order statistic via persistent segment tree, range min/max queries — drops in unchanged.
 
-For sweep-line-with-segment-tree problems, compress the union of all x-coordinates that appear in any event before running the sweep.
+**When this is not enough**: if new values arrive online (you cannot enumerate them upfront), use a **dynamic segment tree** (lazy-allocated nodes, O(log V) per op where V is the value range) or a **balanced BST** keyed by raw value (`std::set` order statistics tree, or `policy_tree` from `__gnu_pbds`). Persistent segment trees (Krishna Reddy, Marjit) extend this to versioned queries — used in Quora's "K-th smallest in range" interview problem and Codeforces' persistent-BIT tutorials.
+
+**For sweep-line problems**: collect every x-coordinate that appears in any event (start or end of an interval), compress, then run the sweep over rank indices — this is exactly how the LeetCode 218 (Skyline) reference solution works, and how Bentley-Ottmann handles event scheduling. For 2D problems (rectangle union, KD-tree on integer grids), compress x and y independently.
 
 ## complexity
 - **Time**: O(n log n) for sort + map build, O(log n) per lookup if you binary-search the sorted list, O(1) if you use a hash map for `rank`.

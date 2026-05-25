@@ -1,6 +1,6 @@
 ---
 slug: matrix-exponentiation
-module: math
+module: math-number-theory
 title: Matrix Exponentiation
 subtitle: Compute the n-th term of any linear recurrence in O(k^3 log n) by raising the transition matrix to the n-th power.
 difficulty: Advanced

@@ -1,6 +1,6 @@
 ---
 slug: kahns-algorithm
-module: graphs
+module: graphs-traversal
 title: Kahn's Algorithm
 subtitle: Topological sort by repeatedly emitting zero in-degree nodes — a BFS over dependencies.
 difficulty: Intermediate

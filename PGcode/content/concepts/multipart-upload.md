@@ -1,6 +1,6 @@
 ---
 slug: multipart-upload
-module: system-design
+module: sd-api
 title: Multipart Upload
 subtitle: How to ship a 5 GB file over a flaky mobile network without restarting from byte zero when the connection drops at 4.8 GB.
 difficulty: Intermediate

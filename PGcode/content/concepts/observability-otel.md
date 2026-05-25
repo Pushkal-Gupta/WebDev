@@ -1,6 +1,6 @@
 ---
 slug: observability-otel
-module: system-design
+module: sd-reliability
 title: OpenTelemetry End-to-End
 subtitle: One SDK, three signals (metrics, logs, traces) — wire-protocol standardized (OTLP) so any backend works. Replaces APM lock-in.
 difficulty: Advanced

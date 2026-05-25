@@ -1,6 +1,6 @@
 ---
 slug: consistent-snapshot
-module: cs-core
+module: cs-os-concurrency
 title: Chandy-Lamport Consistent Snapshot
 subtitle: Capture a coherent global state of a distributed system without pausing it, using marker messages along FIFO channels.
 difficulty: Advanced

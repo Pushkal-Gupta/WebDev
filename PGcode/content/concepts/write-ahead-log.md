@@ -1,6 +1,6 @@
 ---
 slug: write-ahead-log
-module: cs-core
+module: cs-db-transactions
 title: Write-Ahead Logging
 subtitle: The durability primitive every database depends on — log first, mutate later, recover deterministically.
 difficulty: Advanced

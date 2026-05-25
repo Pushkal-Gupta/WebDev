@@ -1,6 +1,6 @@
 ---
 slug: graceful-degradation
-module: system-design
+module: sd-reliability
 title: Graceful Degradation
 subtitle: When dependencies fail, return partial / cached / stub responses instead of an error — keep the core experience working.
 difficulty: Intermediate

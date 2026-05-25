@@ -1,6 +1,6 @@
 ---
 slug: chaos-engineering
-module: system-design
+module: sd-reliability
 title: Chaos Engineering
 subtitle: Deliberately inject failure in production to discover weaknesses before customers do.
 difficulty: Advanced
@@ -25,10 +25,17 @@ status: published
 Chaos engineering is the discipline of running controlled experiments on a production-like system to surface weaknesses that hide under normal load. The classic example is Netflix's Chaos Monkey, which randomly terminates EC2 instances during business hours so every team is forced to build services that survive instance death. The practice has matured into a four-step scientific method: define steady state, hypothesize, inject, learn.
 
 ## whyItMatters
-Distributed systems fail in ways unit tests cannot catch: partial network partitions, slow disks, AZ brownouts, retry storms, dependency cascade. Reading post-mortems is cheap education; rehearsing failure on a Wednesday morning when your on-call team is fresh is dramatically cheaper than discovering it during Black Friday. Chaos engineering shifts incident discovery from "Saturday 2 AM" to "Tuesday 11 AM."
+- **Netflix's Chaos Monkey** (open-sourced 2012) randomly terminates EC2 instances during business hours; **Chaos Kong** takes out an entire AWS region. The whole Simian Army (Latency Monkey, Conformity Monkey, Janitor Monkey) institutionalized the practice.
+- **Amazon's GameDay exercises** (documented by Jesse Robbins) ran controlled regional failures every quarter; **AWS Fault Injection Simulator** productized the idea for any customer.
+- **Google's DiRT (Disaster Recovery Testing)** programs and **Microsoft's Azure Chaos Studio** prove the practice scaled across hyperscalers; **Gremlin**, **LitmusChaos** (CNCF), and **Chaos Mesh** are the open-source stack the rest of the industry runs.
+- **The 2017 S3 outage** (caused by a typo in a debugging command) and the **2021 Fastly CDN outage** are textbook examples of the failure modes chaos engineering surfaces — single-points-of-failure that nobody noticed until production found them.
 
 ## intuition
-Vaccines work by giving the body a controlled exposure to a pathogen so the immune system learns. Chaos engineering vaccinates production. A game day is the booster shot — a scheduled, observed exercise where engineers watch the system absorb a known failure and patch every weak link the experiment exposes.
+Distributed systems fail in modes that unit tests, integration tests, and even load tests cannot reach: a partial network partition where 30% of packets drop in one direction, a disk that suddenly responds in 5 seconds instead of 5 milliseconds, a downstream dependency that returns 200 OK with corrupt JSON, a clock that jumps backward 4 minutes after an NTP sync. These failures are emergent properties of the system topology, not of any single service's code, so the only place they manifest is in production.
+
+The traditional response — wait for real failures, write post-mortems, build runbooks — is reactive. You only patch failure modes you have already paid for in customer trust, and every new dependency or topology change resets the meter. Chaos engineering inverts this: deliberately inject the failures you suspect (or, eventually, the ones you cannot enumerate), watch the system absorb them, and patch the weak links before customers discover them.
+
+The vaccine analogy is precise. A vaccine gives the immune system a controlled exposure to a pathogen so it learns the response before the real infection. A chaos experiment gives an engineering org a controlled exposure to a failure mode so the system, runbooks, and on-call team learn the response before the real outage. The discipline is scientific: define steady-state (the metric that says "things are normal"), hypothesize the system holds that steady-state under a specific perturbation, inject the perturbation in a blast-radius-bounded way, observe, learn, fix, re-run. Game days are the booster shots — scheduled, observed exercises with stakeholder buy-in. The mature form runs continuously in production, like Netflix's, not as an annual stunt.
 
 ## visualization
 Steady state: checkout success rate over the last 5 minutes ≥ 99.5%. Hypothesis: killing one of three `payments` pods will not move that metric. Action: at 14:00 UTC, terminate `payments-7c4-x9` in the canary AZ. Observation: success rate dips to 98.2% for 22 seconds, then recovers — too long. Root cause: client retry budget tight, no warm connection pool to surviving pods. Fix: pre-warm pools, expand retry budget; re-run experiment next sprint to verify.
@@ -37,7 +44,25 @@ Steady state: checkout success rate over the last 5 minutes ≥ 99.5%. Hypothesi
 Wait for real failures and write retrospectives. Build runbooks based on what hurt last time. This is reactive — you only patch failure modes you have already paid for in customer trust. Every novel topology change resets the meter, and you are perpetually one new dependency away from the next P0.
 
 ## optimal
-Adopt the four principles: (1) define steady-state behavior with a meaningful business metric, not just CPU; (2) hypothesize the system holds steady under a specific perturbation; (3) inject realistic failures (pod kill, latency injection, dependency timeout, region loss, clock skew); (4) automate so the experiment runs continuously, not as a one-time stunt. Start in staging, graduate to a blast-radius-limited slice of production (one AZ, 1% of users), then expand. Tooling: Chaos Monkey, Gremlin, LitmusChaos, AWS Fault Injection Service, Toxiproxy for network-level chaos.
+The right approach follows the **Principles of Chaos Engineering** (principlesofchaos.org, authored by Casey Rosenthal and the Netflix team): (1) define **steady-state behavior** as a measurable business metric (checkout success rate, p99 latency, orders-per-second), not infrastructure metrics like CPU; (2) **hypothesize** the system holds that steady-state under a specific perturbation; (3) **inject realistic, real-world events** (pod kill, latency injection, dependency timeout, region loss, clock skew, DNS failure); (4) **automate continuously** in production, with **bounded blast radius** and an emergency kill switch.
+
+The blast-radius progression is non-negotiable: dev → staging → 1% of production → 10% → 100%. At each stage, the kill switch must work in under 60 seconds, the steady-state metric must be live in a dashboard, and stakeholders (on-call, product, customer support) must be notified before the experiment fires.
+
+```
+Experiment lifecycle (Chaos Monkey / LitmusChaos / Gremlin all follow this shape):
+
+1. Gate     ──► is on-call awake? in business hours? steady-state OK?
+2. Select   ──► pick a victim (random pod / latency target / dependency)
+3. Snapshot ──► record pre-experiment metric values
+4. Inject   ──► apply the fault (kill pod, inject 500ms latency, drop DNS)
+5. Observe  ──► poll steady-state metric for N minutes
+6. Decide   ──► auto-rollback if metric breaches; halt + page on-call
+7. Record   ──► structured log of hypothesis, outcome, fix-ticket
+```
+
+**Tooling**: **Chaos Monkey** (Netflix, simple instance kill), **Gremlin** (commercial, broad failure catalog), **LitmusChaos** and **Chaos Mesh** (CNCF, Kubernetes-native CRDs for declarative experiments), **AWS Fault Injection Simulator** (region/AZ-level faults), **Toxiproxy** (Shopify, TCP-level latency and corruption injection), **Pumba** (Docker container chaos), **PowerfulSeal** (k8s-native pod and node killer).
+
+Two production disciplines matter most. **Steady-state must be a business metric**: "CPU > 80%" is not steady-state, "checkout success rate > 99.5%" is. The whole point is to learn whether the failure has user impact, not whether infrastructure twitched. **The learning loop must close**: weakness found → ticket opened → fix shipped → experiment re-run to verify. Skipping the re-run means you find the same weakness next quarter. Netflix's culture explicitly rewards finding and fixing weaknesses, not running flashy experiments.
 
 ## complexity
 time: experiment scheduling is O(1); analysis bounded by observability tooling

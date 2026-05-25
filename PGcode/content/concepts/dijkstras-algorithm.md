@@ -1,6 +1,6 @@
 ---
 slug: dijkstras-algorithm
-module: graphs
+module: graphs-shortest-paths
 title: Dijkstra's Algorithm
 subtitle: Single-source shortest paths in a graph with non-negative weights.
 difficulty: Intermediate

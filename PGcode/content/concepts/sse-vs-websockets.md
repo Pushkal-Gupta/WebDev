@@ -1,6 +1,6 @@
 ---
 slug: sse-vs-websockets
-module: system-design
+module: sd-network
 title: Server-Sent Events vs WebSockets
 subtitle: Two browser-server push channels — SSE is one-way HTTP/1.1, WebSockets are bidirectional full-duplex. Pick per use case.
 difficulty: Intermediate

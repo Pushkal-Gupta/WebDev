@@ -1,6 +1,6 @@
 ---
 slug: pessimistic-locking
-module: cs-core
+module: cs-os-concurrency
 title: Pessimistic Locking
 subtitle: Lock-then-mutate — serialize access, prevent conflicts, detect deadlocks.
 difficulty: Intermediate

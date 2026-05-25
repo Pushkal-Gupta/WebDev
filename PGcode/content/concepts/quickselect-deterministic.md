@@ -1,6 +1,6 @@
 ---
 slug: quickselect-deterministic
-module: sorting-strings
+module: strings-advanced
 title: Deterministic Quickselect
 subtitle: Find the k-th smallest in worst-case O(n) using median-of-medians as the pivot.
 difficulty: Advanced

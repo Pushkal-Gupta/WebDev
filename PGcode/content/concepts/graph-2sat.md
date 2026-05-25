@@ -1,6 +1,6 @@
 ---
 slug: graph-2sat
-module: graphs
+module: graphs-advanced
 title: 2-SAT
 subtitle: Decide a conjunction of 2-literal clauses by building an implication graph and running SCC.
 difficulty: Advanced
@@ -28,7 +28,15 @@ status: published
 General SAT is NP-complete, but 2-SAT collapses to "find strongly connected components of an implication graph." That gives polynomial-time exact answers to scheduling problems (assign each task to one of two slots), graph 2-colouring under constraints, certain layout-with-conflicts puzzles, and contest classics like "feasible direction assignment of edges." Recognising a problem as 2-SAT is half the battle; the algorithm is mechanical once you see it.
 
 ## intuition
-A clause (a OR b) is logically equivalent to "if not a then b" and "if not b then a." Each variable splits into two literal nodes (x and not x). Each clause adds two directed implication edges. A satisfying assignment exists iff no variable and its negation lie in the same strongly connected component (because the component forces both x and not x to be true). When satisfiable, the assignment can be read off the topological order of the condensation: set literal x to true when comp(x) > comp(not x).
+The algorithm exists because general SAT (boolean satisfiability with arbitrary-length clauses) is NP-complete — the canonical hard problem since Cook 1971. But the 2-literal restriction (every clause has exactly two literals) admits a beautiful polynomial-time algorithm: Aspvall-Plass-Tarjan 1979 showed that 2-SAT collapses to strongly-connected-components on an implication graph.
+
+The decisive observation: a clause `(a ∨ b)` is logically equivalent to the two implications `(¬a → b)` and `(¬b → a)` — "if a is false, then b must be true (to satisfy the OR), and symmetrically". Encode each variable x as two literal nodes (x and ¬x) in a directed graph of 2n nodes, then for each clause add the two implication edges. The graph has 2n nodes and 2m edges; satisfiability becomes a structural question on this implication graph.
+
+The Krom theorem (1967, formalised in Aspvall-Plass-Tarjan 1979): a 2-SAT formula is satisfiable **iff no variable and its negation lie in the same strongly connected component** of the implication graph. Why? An SCC is a set of literals that mutually imply each other — if x and ¬x are both in the same SCC, then the formula forces both x→¬x and ¬x→x, meaning x must equal its own negation, an impossibility. Conversely, if no variable shares a component with its negation, a satisfying assignment exists and can be constructed.
+
+The assignment construction: run Tarjan's SCC algorithm, which emits components in **reverse topological order** of the condensation DAG. For each variable x, compare the component IDs of its two literals: set x = True iff x's literal-component-ID > ¬x's literal-component-ID (in Tarjan's reverse-topological numbering, that means x appears later in the topological order of the condensation). This rule ensures that any implication x → y respects the assignment: if x is True, then y's component is after x's, so y is also True. The proof is structural — Aspvall-Plass-Tarjan show no false implications are introduced.
+
+Many real problems reduce to 2-SAT once you spot the binary-choice structure: scheduling tasks to one of two slots without conflict, 2-colouring with constraints, layout-with-conflicts puzzles, "feasible direction assignment of edges in a graph", certain "either A or B but not both unless C" constraint problems. Recognising the reduction is half the battle; the algorithm is mechanical once the implication graph is built. MiniSat and similar SAT solvers special-case the 2-CNF fragment with this algorithm before falling back to general DPLL.
 
 ## visualization
 Variables x, y, z. Clauses: (x OR y), (not x OR z), (not y OR not z). Build 6 nodes: x, not x, y, not y, z, not z. Implications: (x OR y) -> "not x -> y", "not y -> x". (not x OR z) -> "x -> z", "not z -> not x". (not y OR not z) -> "y -> not z", "z -> not y". Run SCC: components might be {not x, y, not z} and {x, not y, z}. No variable shares a component with its negation -> satisfiable. Topological order yields x = true, y = false, z = true.
@@ -37,7 +45,78 @@ Variables x, y, z. Clauses: (x OR y), (not x OR z), (not y OR not z). Build 6 no
 Enumerate all 2^n variable assignments and verify clauses. O(2^n * m). Backtracking with unit propagation (DPLL) is faster in practice but still exponential worst case. None of these exploit the 2-literal structure.
 
 ## optimal
-Build the implication graph: for each clause (a OR b), add edges not(a) -> b and not(b) -> a. Run Tarjan's or Kosaraju's SCC on a graph with 2n nodes and 2m edges. If any variable's two literals share a component, output UNSAT. Otherwise, in the reverse topological order of components, assign each variable so that its true literal's component appears later than its false literal's component. This produces a valid assignment in O(n + m).
+**Technique: implication-graph construction + Tarjan/Kosaraju SCC + topological-order-based assignment.** O(n + m) — linear in variables and clauses. Optimal because any 2-SAT algorithm must inspect every clause at least once (Ω(m)) and SCC computation is the minimum work to detect the same-component obstruction.
+
+```python
+import sys
+sys.setrecursionlimit(10**6)
+
+class TwoSat:
+    def __init__(self, n):
+        self.n = n                                # number of variables
+        self.adj = [[] for _ in range(2 * n)]     # 2n nodes: 2i = x_i, 2i+1 = NOT x_i
+
+    def _neg(self, lit): return lit ^ 1            # flip lowest bit
+
+    def add_clause(self, a, b):
+        # Clause (a OR b) becomes (¬a → b) and (¬b → a)
+        self.adj[self._neg(a)].append(b)
+        self.adj[self._neg(b)].append(a)
+
+    def solve(self):
+        n2 = 2 * self.n
+        comp = [-1] * n2                          # SCC ID per literal
+        order = []
+        visited = [False] * n2
+
+        # Pass 1: DFS, push on finish (Kosaraju)
+        def dfs1(u):
+            stack = [(u, iter(self.adj[u]))]
+            visited[u] = True
+            while stack:
+                v, it = stack[-1]
+                nxt = next(it, None)
+                if nxt is None: order.append(v); stack.pop()
+                elif not visited[nxt]:
+                    visited[nxt] = True
+                    stack.append((nxt, iter(self.adj[nxt])))
+
+        for u in range(n2):
+            if not visited[u]: dfs1(u)
+
+        # Build transpose graph
+        tr = [[] for _ in range(n2)]
+        for u in range(n2):
+            for v in self.adj[u]: tr[v].append(u)
+
+        # Pass 2: DFS on transpose in reverse-finish order
+        c = 0
+        for u in reversed(order):
+            if comp[u] != -1: continue
+            stack = [u]; comp[u] = c
+            while stack:
+                v = stack.pop()
+                for nb in tr[v]:
+                    if comp[nb] == -1:
+                        comp[nb] = c; stack.append(nb)
+            c += 1
+
+        # Check satisfiability and extract assignment
+        assignment = [False] * self.n
+        for i in range(self.n):
+            if comp[2*i] == comp[2*i + 1]:
+                return None                       # UNSAT
+            # x_i = True iff its True-literal's component is LATER in topological order
+            # (Kosaraju emits in topological order of condensation, so smaller comp ID = earlier)
+            assignment[i] = comp[2*i] > comp[2*i + 1]
+        return assignment
+```
+
+Key lines: `_neg(lit) = lit ^ 1` is the literal-negation trick — pack `x_i` at index `2i` and `¬x_i` at `2i + 1`, so flipping the lowest bit toggles negation. `add_clause(a, b)` adds the two implication edges encoding `(a ∨ b)`. The SCC pass (Kosaraju here for clarity; Tarjan is equivalent and slightly faster) computes a component ID per literal. The satisfiability check `if comp[2*i] == comp[2*i + 1]: return None` enforces Krom's theorem — a variable in the same component as its negation makes the formula unsatisfiable.
+
+The assignment rule `assignment[i] = comp[2*i] > comp[2*i + 1]` exploits Kosaraju's output ordering (topological order of the condensation DAG, smaller IDs come first). Setting x to True when its true-literal's component has a *larger* ID means x's true-literal appears *later* in topological order than ¬x — which respects all implications x → y in the graph (y's component is at least as late as x's).
+
+**Why not brute force 2ⁿ?** Exponential — useless past n ≈ 25. Even DPLL-style backtracking with unit propagation is worst-case exponential. **Why not general SAT solvers (MiniSat, Z3)?** They work but bring industrial-strength machinery for a problem that has a clean linear-time algorithm; they internally detect 2-CNF and special-case it anyway. **Why not Krom's original O(n·m)?** Aspvall-Plass-Tarjan's SCC reduction is asymptotically better and conceptually cleaner. **Common bugs**: forgetting that each clause contributes TWO implication edges, not one; using `index XOR 1` for negation without sanity-checking the parity convention (variable at 2i, negation at 2i+1); reading SCC IDs in the wrong order — Tarjan emits in reverse topological order, Kosaraju in topological order, so the "set true when later" rule flips between the two; encoding unit clauses (just `x`) — use `add_clause(x, x)` so the implication `¬x → x` correctly forces x = True.
 
 ## complexity
 time: O(n + m) — build (O(m)) + SCC (O(n + m)) + assignment (O(n))

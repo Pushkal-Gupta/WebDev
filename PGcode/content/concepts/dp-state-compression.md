@@ -1,6 +1,6 @@
 ---
 slug: dp-state-compression
-module: dp
+module: dp-advanced
 title: DP State Compression
 subtitle: Many DPs only need O(1) or O(N) of the previous row — rolling arrays + bitmasks cut memory drastically.
 difficulty: Intermediate

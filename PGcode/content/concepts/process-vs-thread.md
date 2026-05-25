@@ -1,6 +1,6 @@
 ---
 slug: process-vs-thread
-module: cs-core
+module: cs-os-concurrency
 title: Process vs Thread
 subtitle: Processes have isolated memory; threads share it. Pick by what you need to share and protect.
 difficulty: Beginner

@@ -149,7 +149,7 @@ export default function DryRunViewer({ problemId }) {
   }
 
   if (steps.length === 0) {
-    return <div className="dryrun-placeholder">No visual dry run available for this problem yet.</div>;
+    return <div className="dryrun-placeholder">No visual dry run for this problem.</div>;
   }
 
   const currentStep = steps[currentStepIndex];

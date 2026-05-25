@@ -1,6 +1,6 @@
 ---
 slug: observability-slo
-module: system-design
+module: sd-reliability
 title: SLO / SLI / SLA / Error Budgets
 subtitle: Define reliability quantitatively — SLI measures, SLO is the target, SLA is the contract, error budget = (1 − SLO) × time.
 difficulty: Intermediate

@@ -1,6 +1,6 @@
 ---
 slug: master-theorem
-module: foundations
+module: foundations-analysis
 title: Master Theorem
 subtitle: Read the complexity of a divide-and-conquer recurrence T(n) = a·T(n/b) + f(n) by inspection — three cases cover almost everything.
 difficulty: Intermediate

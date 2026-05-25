@@ -1,6 +1,6 @@
 ---
 slug: link-cut-tree
-module: trees
+module: trees-advanced-queries
 title: Link-Cut Tree
 subtitle: Dynamic forests with O(log n) amortized link, cut, path-aggregate, and root queries.
 difficulty: Advanced
@@ -25,10 +25,21 @@ status: published
 A link-cut tree (LCT) is Sleator and Tarjan's data structure for maintaining a forest of rooted trees under online link, cut, and path queries. It represents each path in the represented forest as a splay tree (the "preferred path decomposition") and uses an access operation that re-splays nodes to expose a path in O(log n) amortized time.
 
 ## whyItMatters
-Heavy-light decomposition handles path queries only on static trees. Once edges can be inserted and deleted online — dynamic connectivity, online MST, max-flow blocking flow speedups, network simulation — you need a structure that supports the operations themselves, not just queries on top of them. LCTs answer "are u and v connected?" and "max edge on the path from u to v" in O(log n) amortized while edges churn.
+- **Sleator and Tarjan's 1983 paper** "A Data Structure for Dynamic Trees" introduced the link-cut tree; it is the textbook structure for **dynamic forests with path queries**, covered in Tarjan's *Data Structures and Network Algorithms* monograph.
+- **Online MST and dynamic connectivity** algorithms (Holm, Lichtenberg, Thorup 2001) rely on LCT-style auxiliary structures; **Boost Graph Library** and **kactl** ship implementations for competitive programming.
+- **Max-flow speedups** (Sleator-Tarjan's O(VE log V) max-flow), **network simulation** (incremental Steiner tree, online TSP heuristics), and **dynamic 2-edge-connectivity** all use LCT primitives.
+- Competitive-programming editorials at **Codeforces, AtCoder, and ICPC World Finals** use LCT for problems with edge updates on trees; it is the asymptotically optimal answer when heavy-light decomposition fails because the tree changes.
 
 ## intuition
-Decompose the tree into vertex-disjoint "preferred paths." Each preferred path is stored as a splay tree keyed by depth. Non-preferred children are dangling subtrees attached at their parent via a path-parent pointer. An `access(v)` operation walks from v to the represented root, splicing preferred paths so v ends up on the same splay tree as the root — then path aggregates over [root..v] become aggregates over one splay tree, which splaying solves.
+Static-tree algorithms (heavy-light decomposition, Euler tour + segment tree) answer path queries in O(log^2 n) or O(log n), but they assume the tree shape never changes. Once edges can be inserted (`link`) and deleted (`cut`) online — as in dynamic connectivity, online MST, max-flow blocking flows, or network simulation — you need a structure that supports the **mutations themselves**, not just queries on top of them. Link-cut trees answer "are u and v in the same tree?", "what is the root of v?", "what is the maximum edge weight on the path from u to v?", and "set the value of every node on the path u-v" — all in O(log n) amortized — while edges arrive and depart.
+
+The clever insight is **path decomposition**. Decompose the tree into vertex-disjoint **preferred paths**: each node has at most one preferred child (typically the most recently accessed). Each preferred path is stored as a **splay tree keyed by depth**, so the in-order traversal of the splay tree yields the path from shallowest to deepest node. Non-preferred children dangle off their parent via a **path-parent pointer** (logical pointer that does not appear in the splay tree's structural parent-child links).
+
+The pivotal operation is **`access(v)`**: walk from v upward, splay v in its current preferred path, then for each path-parent jump, splice v's preferred path into the parent's. After `access(v)`, the entire path from the represented root to v lives in **one splay tree**, with v at the deepest position. Any path-aggregate query (sum, max, count, custom monoid) reduces to a single splay-tree traversal in O(log n) amortized.
+
+**Lazy reversal flags** make root changes cheap: `makeRoot(v) = access(v); reverse-flag the splay tree containing v`. Flipping the flag swaps "shallow" and "deep" along the path; the reversal propagates lazily on subsequent splays. This is what allows `link(u, v)` to attach u as a child of v in any orientation without restructuring.
+
+The amortized O(log n) bound comes from the same potential argument that bounds splay trees — Sleator-Tarjan's access lemma. Worst-case single operation is O(n), but the average across any sequence of m operations is O(m log n). In practice the constants are small enough that LCTs handle 10^5 - 10^6 mixed operations per second on modern hardware.
 
 ## visualization
 ```
@@ -58,7 +69,17 @@ link(u, v): makeRoot(u); set u.pathParent = v
 cut(u, v): makeRoot(u); access(v); detach left child of v
 queryPath(u, v): makeRoot(u); access(v); aggregate of splay tree rooted at v
 ```
-Lazy reversal flags handle root changes without rewriting parent pointers.
+Lazy reversal flags handle root changes without rewriting parent pointers. The amortized O(log n) bound comes from Sleator-Tarjan's access lemma — the same potential argument that bounds splay-tree operations. Worst-case single operation is O(n), but average across m operations is O(m log n).
+
+**Why splay trees and not red-black or AVL?** Splay trees are uniquely suited because their access pattern (splaying the accessed node to the root) interacts cleanly with LCT's `access` operation, which already needs to bring `v` to the top of the path's splay tree. The amortized cost is paid for during the splay; balanced trees would force extra rebalancing work that splay's "self-adjusting" property avoids.
+
+**Production implementations** in `kactl`, `indy256/codelibrary`, and `Boost Graph Library` all use this skeleton, with subtree-aggregate variants for max-edge, sum, count, min, and custom monoid operators. For specific applications:
+- **Online MST** (Holm-Lichtenberg-Thorup 2001): maintain a spanning forest as edges arrive and depart; use LCT to detect cycles and find the max-weight edge on a cycle for replacement.
+- **Dynamic 2-edge-connectivity**: LCT plus an auxiliary forest of non-tree edges; query "are u and v in the same 2-edge-component?"
+- **Max-flow blocking flows** (Sleator-Tarjan's O(VE log V) max-flow): LCT replaces the path traversal in Dinic's algorithm with O(log V) per augmenting path operation.
+- **Network simulation, incremental Steiner tree, online TSP heuristics**: anywhere edges change online and you need O(log n) path queries.
+
+When the tree is **static** (no link/cut), use **Heavy-Light Decomposition (HLD)** or **Euler Tour + Sparse Table** instead — both are simpler and faster constants. LCT pays for the dynamism via larger constants (4-10x slower than HLD on equivalent path queries).
 
 ## complexity
 time: O(log n) amortized per operation (link, cut, access, makeRoot, queryPath)

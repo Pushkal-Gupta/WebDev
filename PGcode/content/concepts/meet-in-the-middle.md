@@ -1,6 +1,6 @@
 ---
 slug: meet-in-the-middle
-module: dp
+module: dp-advanced
 title: Meet in the Middle
 subtitle: Split the search space in two halves of n/2 — solve each, combine — O(2^(n/2)) instead of O(2^n).
 difficulty: Advanced
@@ -33,11 +33,7 @@ The standard trick when 2^n is too big but 2^(n/2) fits:
 - **CTF crypto** — meet-in-the-middle attacks on double-encryption.
 
 ## intuition
-Goal: find subset of items summing to T.
-1. Split items into halves A (size n/2) and B (size n/2).
-2. Enumerate all 2^(n/2) subset-sums of A → store in sorted array `sA`.
-3. Enumerate all 2^(n/2) subset-sums of B → for each `s`, binary-search `T - s` in `sA`. If found → answer is (that A-subset) ∪ (this B-subset).
-4. Done in 2·2^(n/2) work + 2^(n/2) lookups.
+The brute-force "enumerate all 2^n subsets and check sum" works but explodes past n = 30. At n = 40 it is 10^12 operations — infeasible. At the same time, the standard pseudo-polynomial knapsack DP runs in O(n * T) and is useless when T is huge (target sums up to 10^18 in cryptographic settings). Meet-in-the-middle attacks this gap by exploiting an algebraic decomposition. Any subset of n items can be split into "items chosen from the first half A" plus "items chosen from the second half B." If the full subset sums to T, then sum(A_chosen) + sum(B_chosen) = T, which rearranges to sum(A_chosen) = T - sum(B_chosen). The right side is a value we can compute by enumerating only B's subsets (2^(n/2) of them), and the left side is a value we can look up by enumerating only A's subsets and storing them in a sorted array (also 2^(n/2)). Combined work is 2 * 2^(n/2) for the two enumerations plus 2^(n/2) * log(2^(n/2)) = O(n * 2^(n/2)) for the lookups. For n = 40, this drops 10^12 ops to about 10^6 — a million-fold speedup. The square-root reduction in the exponent (2^n becomes 2^(n/2)) is the headline result. The same trick applies to k-sum problems (4Sum splits into two 2Sum lookups), shortest paths on bitmask states (search forward and backward, meet in middle), and cryptographic attacks on double-encryption (the original meet-in-the-middle attack on 2DES). The deep insight is that whenever an algorithm faces an exponential-in-n bound, ask if the problem decomposes additively into two halves — if yes, the exponent halves with a sort-and-lookup combine step.
 
 ## visualization
 ```

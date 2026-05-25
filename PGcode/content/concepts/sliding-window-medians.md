@@ -1,6 +1,6 @@
 ---
 slug: sliding-window-medians
-module: arrays-searching
+module: arrays-pointers-windows
 title: Sliding Window Median
 subtitle: Maintain the median of every length-k window in O(n log k) using two balanced heaps with lazy deletion.
 difficulty: Advanced

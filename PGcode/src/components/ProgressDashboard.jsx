@@ -7,7 +7,6 @@ import {
   useTopics,
   useProfile,
   useUserStatsRpc,
-  filterByRoadmap,
 } from '../lib/queries';
 import { primaryTopicLabel } from '../lib/topicLabel';
 import Achievements from './Achievements';
@@ -67,7 +66,9 @@ export default function ProgressDashboard({ session, roadmapMode }) {
   };
 
   const byId = useMemo(() => progressBundle?.byId || {}, [progressBundle]);
-  const filtered = useMemo(() => filterByRoadmap(problemsData, roadmapMode), [problemsData, roadmapMode]);
+  // Progress reflects the full catalog, not the active roadmap-mode subset —
+  // it's about your overall journey across all 3788 problems, not the top-N.
+  const filtered = useMemo(() => problemsData || [], [problemsData]);
 
   const topicNameById = useMemo(() => {
     const m = {};
@@ -159,8 +160,9 @@ export default function ProgressDashboard({ session, roadmapMode }) {
     return cells;
   }, [progressBundle]);
 
-  const overallPct = totals.total === 0 ? 0 : Math.round((totals.solved / totals.total) * 100);
-  const ring = ringStyle(overallPct);
+  const overallPctNum = totals.total === 0 ? 0 : (totals.solved / totals.total) * 100;
+  const overallPct = overallPctNum.toFixed(1);
+  const ring = ringStyle(overallPctNum);
 
   const TABS = [
     { key: 'stats',        label: 'Stats',         icon: BarChart3 },
@@ -174,7 +176,7 @@ export default function ProgressDashboard({ session, roadmapMode }) {
       <header className="pd-header">
         <h1 className="pd-title">Your Activity</h1>
         <p className="pd-sub">
-          Stats, submission history, achievements and topic mastery — everything tracked across PGcode {roadmapMode}.
+          Solves, streaks, submission history, achievements, topic mastery — tracked across every problem.
         </p>
       </header>
 
@@ -289,7 +291,7 @@ export default function ProgressDashboard({ session, roadmapMode }) {
             <button type="button" className="pd-card-action" onClick={() => navigate('/practice')}>Open practice →</button>
           </div>
           {topicStats.length === 0 ? (
-            <p className="pd-empty">No data yet. Solve some problems to see topic breakdown.</p>
+            <p className="pd-empty">Solve a few problems to see your per-topic breakdown.</p>
           ) : (
             <ul className="pd-topic-list">
               {topicStats.map(t => (
@@ -297,7 +299,7 @@ export default function ProgressDashboard({ session, roadmapMode }) {
                   <span className="pd-topic-name">{topicNameById[t.topicId] || t.topicId}</span>
                   <div className="pd-topic-bar"><div className="pd-topic-fill" style={{ width: `${Math.round(t.pct * 100)}%` }} /></div>
                   <span className="pd-topic-frac">{t.solved} / {t.total}</span>
-                  <span className="pd-topic-pct">{Math.round(t.pct * 100)}%</span>
+                  <span className="pd-topic-pct">{(t.pct * 100).toFixed(1)}%</span>
                 </li>
               ))}
             </ul>

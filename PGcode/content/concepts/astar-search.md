@@ -1,6 +1,6 @@
 ---
 slug: astar-search
-module: graphs
+module: graphs-shortest-paths
 title: A* Search
 subtitle: Best-first search guided by an admissible heuristic — optimal paths, far fewer expansions.
 difficulty: Advanced
@@ -28,7 +28,15 @@ A* is the textbook "informed" shortest-path algorithm. It generalizes Dijkstra b
 Path-finding on game maps, robot navigation, route planning, and puzzle solving all reduce to "shortest path in a graph that is too large to fully explore." A* is the standard answer. The catch is the heuristic — pick the wrong one and you either lose optimality or get no speedup at all. Understanding admissibility and consistency lets you design heuristics that actually work for the domain in front of you.
 
 ## intuition
-Dijkstra orders the frontier by `g(n)`, the best-known cost from the start to `n`. A* orders by `f(n) = g(n) + h(n)`, where `h(n)` estimates the remaining cost to the goal. As long as `h` never overestimates the true remaining cost — that is the admissibility condition — A* still finds the optimal path, but it expands nodes in an order that drives straight toward the goal instead of fanning out symmetrically.
+The algorithm exists because Dijkstra expands nodes in order of `g(n)` — the cost from the start — without any awareness of where the goal lies. On a graph with a million cells and a goal in the corner, Dijkstra expands every node whose distance from the start is less than the goal's distance, which is roughly half the entire graph. The expansion fans out symmetrically like a ripple on water — beautifully simple, wastefully uninformed.
+
+The decisive observation, due to Hart, Nilsson, and Raphael 1968, is that if you have any *estimate* `h(n)` of the remaining cost from n to the goal, you can use `f(n) = g(n) + h(n)` as the priority queue key instead. `f(n)` is an estimate of the total path cost through n; nodes with smaller `f` look more promising and get expanded first. As long as `h` never *overestimates* the true remaining cost — the **admissibility** condition — A* is provably optimal: the first time it pops the goal, the path cost is the true shortest path.
+
+The admissibility argument: at any moment when A* is about to expand a node n with f(n) = g(n) + h(n), there is some node n' on the optimal path that is currently in the open set. If h is admissible, f(n') = g(n') + h(n') ≤ g(n') + true_remaining(n') = optimal_cost. So if n is popped before the goal, then f(n) ≤ f(n') ≤ optimal_cost, meaning any path through n cannot be worse than optimal. When the goal is popped, its f-value equals g(goal) (because h(goal) = 0), and g(goal) is bounded by all the f-values popped before it, all ≤ optimal_cost. So g(goal) = optimal_cost.
+
+A stronger condition — **consistency** (monotonicity): for every edge (n, m), `h(n) ≤ cost(n, m) + h(m)` — guarantees that no node is ever reopened after being settled, simplifying implementation. Common consistent heuristics: Manhattan distance for 4-connected grids; Chebyshev for 8-connected grids with unit cost; Euclidean for grids allowing diagonal moves with cost √2; "great-circle distance" for road networks.
+
+The deeper principle: Dijkstra is the special case of A* with h ≡ 0 (no information). Best-first greedy search is the opposite extreme with g ≡ 0 (only the heuristic guides). A* sits in between, exactly leveraging both the actual cost-so-far and the estimated remaining cost. Production systems extend A* with bidirectional search (Dijkstra/A* from both endpoints), contraction hierarchies (precompute shortcut edges on road graphs), and IDA* (iterative deepening for memory-constrained puzzle solving).
 
 ## visualization
 On a 10x10 grid with start `(0,0)`, goal `(9,9)`, and a wall down column 5, Dijkstra expands an expanding diamond of roughly 100 cells before reaching the goal. A* with the Manhattan-distance heuristic expands a narrow corridor hugging the diagonal, peeling around the wall — about 25 cells. Same optimal path length, a quarter of the work.
@@ -37,7 +45,49 @@ On a 10x10 grid with start `(0,0)`, goal `(9,9)`, and a wall down column 5, Dijk
 Plain Dijkstra: priority queue keyed by `g(n)`. Pop the smallest, relax its neighbors, repeat. It is optimal and complete on graphs with non-negative weights, but it explores every node whose true distance is less than the goal's. On a million-cell map with a goal in the corner that is roughly the entire map. Correct, but wasteful when you already have a sense of which direction the goal lies.
 
 ## optimal
-Maintain an open set as a min-heap keyed by `f(n) = g(n) + h(n)` and a `g_score` map. Pop the smallest-`f` node. If it is the goal, reconstruct the path via a `came_from` map. Otherwise, for each neighbor `m`, compute `tentative = g[n] + w(n, m)`. If it improves `g[m]`, update `g[m]`, set `came_from[m] = n`, and push `(tentative + h(m), m)` onto the heap. A consistent heuristic guarantees a node is settled the first time it is popped, so no re-expansion is needed.
+**Technique: best-first search ordered by `f(n) = g(n) + h(n)` with admissible heuristic — Hart-Nilsson-Raphael 1968.** Worst-case O(E log V), same as Dijkstra; in practice dramatically fewer expansions on goal-directed graphs (Manhattan grid: ~quartile of Dijkstra's exploration). Optimal among informed-search algorithms when the heuristic is admissible.
+
+```python
+import heapq
+
+def astar(start, goal, neighbors, heuristic):
+    open_heap = [(heuristic(start, goal), 0, start)]
+    g_score = {start: 0}
+    came_from = {}
+    closed = set()                                          # only safe with consistent heuristic
+    while open_heap:
+        f, g, node = heapq.heappop(open_heap)
+        if node == goal:
+            path = [node]
+            while node in came_from:
+                node = came_from[node]
+                path.append(node)
+            return list(reversed(path)), g
+        if node in closed:                                   # lazy deletion of stale entries
+            continue
+        closed.add(node)
+        for m, w in neighbors(node):
+            tentative = g + w
+            if tentative < g_score.get(m, float('inf')):
+                g_score[m] = tentative
+                came_from[m] = node
+                heapq.heappush(open_heap, (tentative + heuristic(m, goal), tentative, m))
+    return None, float('inf')                                # goal unreachable
+```
+
+Key lines: `f, g, node = heapq.heappop(open_heap)` pops the node with smallest `f = g + h`. `closed.add(node)` is safe to use as "never revisit" *only* when the heuristic is consistent (Manhattan, Euclidean on appropriate grids, great-circle on road graphs); with an admissible-but-not-consistent heuristic, you must allow re-expansion (remove the `closed` check and instead skip entries where the popped `g` is worse than the stored `g_score`).
+
+The `g_score.get(m, float('inf'))` comparison handles both first-visit and revisit cases: if m has never been seen, its current g is infinity, so any tentative cost improves. If m has been seen with worse cost, the improvement is recorded and the node is re-pushed onto the heap. Stale entries get skipped via the `closed` check (consistent case) or via the lazy `if g > g_score[node]: continue` check (admissible case).
+
+**Choice of heuristic**:
+- **4-connected grid (up/down/left/right only)**: Manhattan distance `|dx| + |dy|`. Consistent.
+- **8-connected grid (with diagonal moves of cost √2)**: octile distance `(D1 - D2)·|dx-dy| + D1·max(|dx|, |dy|)` with D1 = √2, D2 = 1. Consistent.
+- **Road network with great-circle distance**: Haversine formula. Consistent on planar projections.
+- **Puzzle solving (8-puzzle, Rubik's cube)**: pattern databases, Manhattan distance over tile positions.
+- **h ≡ 0**: collapses to Dijkstra (always optimal but no speedup).
+- **Inflated h (e.g., 1.5 × Manhattan)**: weighted A*; faster but loses optimality guarantee (returns paths within the inflation factor of optimal).
+
+**Why not Dijkstra?** Dijkstra explores everything closer than the goal in *every direction*; A* explores preferentially toward the goal. On 1M-cell maps with corner goals, A* can be 100× faster. **Why not greedy best-first (`f = h`)?** Fast but not optimal — can return paths arbitrarily worse than optimal. **Why not bidirectional A***?  Bidirectional search (Dijkstra/A* from both endpoints, meeting in the middle) can halve expansions further; production routing engines (Google Maps, OSRM) use contraction hierarchies built on top of bidirectional A*. **Common bugs**: inadmissible heuristic (terminates but returns suboptimal path silently); h(goal) ≠ 0 (breaks the termination correctness); using closed set with non-consistent heuristic (misses re-expansion); forgetting to handle the unreachable case (return None when heap empties without finding goal).
 
 ## complexity
 time: O(E log V) with a binary heap, identical to Dijkstra worst case; in practice dominated by the heuristic's quality
