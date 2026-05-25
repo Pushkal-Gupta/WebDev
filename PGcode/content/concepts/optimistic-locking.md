@@ -25,10 +25,14 @@ status: published
 Optimistic locking lets every transaction read and modify shared state without acquiring any lock. At commit time the system checks whether the rows the transaction touched are still in the version it read; if so, commit succeeds; if not, the transaction aborts and the application retries. It assumes conflicts are rare — the optimism — and pays for that assumption only when assumption breaks.
 
 ## whyItMatters
-Pessimistic locks serialize access even when no conflict would have occurred. Under low contention this is pure waste: throughput drops, tail latency climbs because of lock queues, and long-running readers stall writers. Optimistic concurrency removes the lock from the hot path entirely, which is why it underlies most modern databases' MVCC (Postgres, Spanner, FoundationDB) and most distributed primitives (compare-and-swap, ETag conditional PUT).
+Pessimistic locks serialize access even when no conflict would have occurred. Under low contention this is pure waste: throughput drops, tail latency climbs because of lock queues, and long-running readers stall writers. Optimistic concurrency control (Kung and Robinson, 1981) removes the lock from the hot path entirely, which is why it underlies most modern databases' MVCC (Postgres, MySQL InnoDB, Spanner, FoundationDB, CockroachDB, YugabyteDB) and most distributed primitives (CAS, ETag conditional PUT, Dynamo's vector-clock siblings, Kubernetes' resourceVersion). Stripe's payment-intent flow, Linear's collaborative state, and every collaborative-editing system at Figma scale use optimistic concurrency for the same reason — locks would either kill throughput or deadlock across regions.
 
 ## intuition
-Every row gets a monotonically increasing version (or a content hash, or a timestamp). A transaction reads `(value, v)`, computes the new value, and writes back conditionally: "set value to v_new where version = v." The database increments the version atomically on success. If two transactions read the same v and both try to commit, exactly one wins; the loser sees "0 rows updated" and restarts. No blocking; the cost is occasional re-work.
+Every row gets a monotonically increasing version (or a content hash, or a timestamp). A transaction reads `(value, v)`, computes the new value, and writes back conditionally: "set value to v_new where version = v." The database increments the version atomically on success. If two transactions read the same `v` and both try to commit, exactly one wins; the loser sees "0 rows updated" and either retries the whole read-compute-write loop or surfaces a conflict to the user. No lock, no blocking; the cost is occasional re-work on the loser.
+
+The deeper insight is that optimism trades coordination for retries. Pessimistic locking assumes conflicts are common and pays the coordination cost up front (acquire the lock, do the work, release). Optimistic locking assumes conflicts are rare and only pays a cost when one actually happens (do the work speculatively, validate at commit, retry on failure). For typical OLTP workloads — many concurrent users editing different rows — the probability of conflict on a specific row is tiny, so the average cost is far lower than pessimistic locking.
+
+The pattern degrades when conflicts become common (hot rows like a counter incremented by every request). In that regime, optimistic retries livelock — the same row is fought over endlessly, throughput collapses. The fix is either to switch back to a short pessimistic lock for that specific path, or to redesign so the hot row no longer exists (sharded counters, append-only logs reduced offline, CRDT counters that always merge).
 
 ## visualization
 ```
@@ -46,23 +50,31 @@ T2 commit: UPDATE user SET balance=110, v=7 WHERE id=7 AND v=6   -> 1 row, wins
 Read-modify-write with no version check at all (the lost-update bug). T1 reads 100, T2 reads 100, T1 writes 80, T2 writes 130 — T1's debit silently disappears. This is the canonical race that optimistic locking exists to prevent. It is not slower than the broken version; it is the same speed with a safety net.
 
 ## optimal
-```
-transaction:
-    repeat:
-        snapshot = read(rows, with version)
-        new_state = compute(snapshot)
-        ok = atomic_update(rows, new_state, WHERE version = snapshot.version)
-        if ok: return success
-        if retries++ > MAX: return CONFLICT_ERROR
-        backoff(jitter)   # avoid livelock under heavy contention
-```
-Choose the version source by storage:
-- **SQL row**: `version BIGINT NOT NULL` column, incremented in the same UPDATE.
-- **HTTP resource**: `ETag` + `If-Match` — same idea over REST.
-- **Redis**: `WATCH key; MULTI; ... EXEC` — EXEC fails if any watched key changed.
-- **Cassandra / DynamoDB**: lightweight transactions / conditional writes.
+Read the row plus its version. Compute the new value. Issue a conditional update that requires the version to be unchanged and atomically bumps it. If zero rows were affected, the row changed under you; retry the whole loop with exponential backoff plus jitter. Cap the retry count and surface a 409 Conflict to the caller after a few rounds so the application can decide whether to re-read, merge, or ask the user.
 
-For multi-row transactions, track the version of every row read; commit succeeds only if all versions are unchanged.
+```sql
+-- SQL row version: the canonical implementation
+UPDATE accounts
+SET balance = $new_balance, version = version + 1
+WHERE id = $id AND version = $observed_version;
+-- 1 row updated => commit; 0 rows => conflict, retry
+```
+
+```python
+def transfer(db, from_id, to_id, amount, max_retries=5):
+    for attempt in range(max_retries):
+        rows = db.execute('SELECT id, balance, version FROM accounts WHERE id IN (%s, %s)', (from_id, to_id))
+        balances = {r.id: r for r in rows}
+        if balances[from_id].balance < amount: raise InsufficientFunds()
+        with db.transaction():
+            n1 = db.execute('UPDATE accounts SET balance = balance - %s, version = version + 1 WHERE id = %s AND version = %s', (amount, from_id, balances[from_id].version))
+            n2 = db.execute('UPDATE accounts SET balance = balance + %s, version = version + 1 WHERE id = %s AND version = %s', (amount, to_id, balances[to_id].version))
+            if n1 == 1 and n2 == 1: return
+        time.sleep(random.uniform(0, 0.05 * (2 ** attempt)))
+    raise ConflictError()
+```
+
+The critical clause is `WHERE id = %s AND version = %s` — the version predicate is what makes the UPDATE conditional. Choose the version source by storage: a `version BIGINT NOT NULL` column for SQL rows, `ETag` plus `If-Match` for HTTP resources (the conditional-PUT family in RFC 7232), `WATCH`/`MULTI`/`EXEC` for Redis (EXEC fails if any watched key changed), conditional writes in DynamoDB (`condition_expression='version = :v'`), lightweight transactions in Cassandra (the `IF` clause), and `resourceVersion` plus `Update()` in the Kubernetes API. For multi-row transactions, every read row's version must appear in the predicate of its update; the commit succeeds atomically only if every check holds. Pair with backoff plus jitter to avoid livelock during contention spikes.
 
 ## complexity
 time: O(work_per_attempt * expected_retries); expected retries ≈ 1 / (1 - contention_probability)

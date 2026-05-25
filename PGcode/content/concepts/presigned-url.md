@@ -25,10 +25,14 @@ status: published
 A presigned URL is a normal `https://bucket.s3.amazonaws.com/key?...` URL with extra query parameters: an expiration time, the HTTP method allowed, and an HMAC signature computed by your backend using its private S3 credentials. The browser uses this URL directly — no AWS SDK, no token, no IAM role. When the signature expires (or the method does not match), S3 returns 403. It is the standard way to let a browser upload a profile picture or download a private report without ever giving the browser permanent credentials.
 
 ## whyItMatters
-Without presigned URLs you have two bad choices: ship AWS credentials to the browser (instant total compromise) or proxy every byte through your own server (your API now needs the bandwidth and memory of a CDN). Presigned URLs offload all the bandwidth to S3 while keeping access strictly controlled. Every major SaaS — Notion, Linear, Figma, Slack — uses them for user uploads.
+Without presigned URLs you have two bad choices: ship long-lived AWS credentials to the browser (instant total compromise of the bucket) or proxy every upload byte through your own server (your API now needs the bandwidth, memory, and CPU of a CDN). Presigned URLs offload all the bandwidth to S3 (or GCS, Azure Blob, R2 — the model is identical across clouds) while keeping access strictly controlled by short expiries and tight policy bindings. Every major SaaS — Notion, Linear, Figma, Slack, GitHub, Loom — uses them for user uploads and for serving private documents. AWS S3's signature version 4 (`AWS4-HMAC-SHA256`) is the canonical implementation; GCP's V4 signing and Cloudflare R2 follow the same construction. The AWS SDK calls them `getSignedUrl`; the official spec is in AWS's *Signing AWS API Requests* documentation.
 
 ## intuition
-Your backend has the secret access key. It computes `HMAC(secret, canonical_request)` where canonical_request encodes the bucket, key, method, expiry, content-type, and content-length. It tacks the signature on as `X-Amz-Signature=...`. S3 receives the request, recomputes the HMAC with its copy of the secret, and compares. Match -> allowed. Mismatch or expired -> 403. The browser never sees the secret; it only sees the signed URL.
+Your backend has the secret access key. It computes `HMAC-SHA256(secret, canonical_request)` where `canonical_request` is a deterministic string encoding the HTTP method, the resource path, query parameters, expiry, content type, and content length. The HMAC becomes `X-Amz-Signature=...` on the URL. S3 receives the request, reconstructs the canonical string from the HTTP headers and query parameters, recomputes the HMAC with its copy of the secret, and constant-time-compares. Match means allowed; mismatch or past-expiry means 403. The browser never sees the secret, only the signed URL — and the URL only works for the exact request that was signed.
+
+The deeper insight is that the signature commits to every binding you choose. If you sign for `Content-Type: image/png`, the client cannot reuse the URL to upload a PDF — the canonical string mismatch makes the HMAC fail. If you sign for a 5-minute expiry, the URL stops working at minute six. If you bind `Content-Length`, the client cannot stream an unbounded body. The signing process is essentially a one-shot capability token: precisely scoped, time-limited, and unforgeable without the secret.
+
+For browser uploads, two flavors exist. `PUT` with a presigned URL is simplest and works for known-key uploads (you decide the key server-side). `POST` with a *policy document* is more flexible for unknown filenames — the policy lets you constrain key prefix (`uploads/${user_id}/`), max size (`content-length-range`), and allowed content types in one envelope, and the browser includes the matching fields in a multipart form.
 
 ## visualization
 ```
@@ -54,11 +58,26 @@ For downloads the shape is identical with `get_object` and the browser does a GE
 "Pipe the bytes through my Express server: `app.put('/upload', (req, res) => req.pipe(s3.upload()))`." Now your server pays the bandwidth bill, holds the bytes in memory or on a temp disk, and becomes the bottleneck. A 100 MB upload uses 100 MB of server memory and prevents that node from handling any other request for its duration.
 
 ## optimal
-- Expiration: 5-15 minutes for uploads, 1-24 hours for downloads (private documents).
-- Bind everything you can: exact `Content-Type`, exact `Content-Length`, and (for upload) `Content-MD5`. The signature covers these so a tampered request 403s.
-- Use `POST` with a *policy document* (browser-based POST upload) when you need to constrain the key prefix, content type, and max size in one signed envelope — better than PUT for unknown filenames.
-- For multipart uploads, presign each `UploadPart` URL individually; the browser parallelizes without your backend ever touching the bytes.
-- Pair with bucket policies: deny anything that is not a presigned request, deny anything from outside your CIDR allowlist for sensitive buckets.
+Sign the URL on the backend at request time. Use signature version 4 with SHA-256. Keep expirations short (5–15 minutes for uploads, 1–24 hours for downloads of private documents — never sign for days). Bind everything you can: exact `Content-Type`, exact `Content-Length` (or `content-length-range` for browser POSTs), and `Content-MD5` for tamper-detection on uploads. Pair with bucket policies that deny anything that is not a presigned request and deny anything from outside your CIDR allowlist for sensitive buckets.
+
+```python
+import boto3
+
+s3 = boto3.client('s3', region_name='us-east-1')
+upload_url = s3.generate_presigned_url(
+    'put_object',
+    Params={
+        'Bucket': 'private-uploads',
+        'Key': f'users/{user_id}/{uuid4()}.png',
+        'ContentType': 'image/png',
+        'ServerSideEncryption': 'AES256',
+    },
+    ExpiresIn=300,            # 5 minutes
+    HttpMethod='PUT',
+)
+```
+
+The critical parameters are `ExpiresIn=300` and the explicit `ContentType` binding: a leaked URL becomes useless in five minutes, and even within that window cannot be repurposed for a different MIME type. For multipart uploads, presign each `UploadPart` URL individually so the browser can parallelize 50 MiB chunks without your backend ever touching the bytes; the final `CompleteMultipartUpload` call stitches the parts on S3's side. For browser-based POST upload, generate a *policy document* that constrains key prefix, content type, and size range, then sign the policy with your secret — the official AWS docs include the canonical example. Always layer with bucket-level encryption (`SSE-S3` or `SSE-KMS`), an explicit `Bucket-Owner-Full-Control` ACL on uploaded objects, and CloudTrail / S3 access logs for audit.
 
 ## complexity
 time: O(1) signature compute on the backend (< 1 ms); zero backend bandwidth during the actual transfer.

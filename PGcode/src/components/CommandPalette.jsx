@@ -42,8 +42,12 @@ const NAV_COMMANDS = [
   { id: 'nav-playground',     label: 'Playground',        path: '/playground',                icon: Terminal,       keywords: 'compiler editor code run scratch' },
   { id: 'nav-playground-web', label: 'Web sandbox',       path: '/playground/web',            icon: Terminal,       keywords: 'html css js iframe live preview' },
   { id: 'nav-playground-sql', label: 'SQL playground',    path: '/playground/sql',            icon: Terminal,       keywords: 'sqlite database query' },
-  { id: 'nav-sql-basics',     label: 'SQL Basics course', path: '/playground/sql/sql-basics', icon: Terminal,       keywords: 'sql course beginner select join where' },
-  { id: 'nav-sql-usda',       label: 'SQL: USDA project', path: '/playground/sql/usda',       icon: Terminal,       keywords: 'sql course usda cheese milk honey' },
+  { id: 'nav-sql-basics',     label: 'SQL Basics course', path: '/courses/sql-basics',        icon: BookOpen,       keywords: 'sql course beginner select join where' },
+  { id: 'nav-sql-usda',       label: 'SQL: USDA project', path: '/playground/sql/usda',       icon: BookOpen,       keywords: 'sql course usda cheese milk honey project' },
+  { id: 'nav-sql-chinook',    label: 'SQL sample: Chinook',    path: '/playground/sql/chinook',    icon: Terminal, keywords: 'sql sample music store artists albums tracks' },
+  { id: 'nav-sql-sakila',     label: 'SQL sample: Sakila',     path: '/playground/sql/sakila',     icon: Terminal, keywords: 'sql sample movie rental films actors' },
+  { id: 'nav-sql-world',      label: 'SQL sample: World',      path: '/playground/sql/world',      icon: Terminal, keywords: 'sql sample countries cities languages geography' },
+  { id: 'nav-sql-ecommerce',  label: 'SQL sample: E-commerce', path: '/playground/sql/ecommerce',  icon: Terminal, keywords: 'sql sample orders products customers reviews' },
   { id: 'nav-admin-completeness', label: 'Admin: problem completeness audit', path: '/admin/completeness', icon: Shield, keywords: 'admin completeness audit quality metadata coverage' },
 ];
 

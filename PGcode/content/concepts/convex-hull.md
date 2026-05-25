@@ -25,10 +25,14 @@ status: published
 The convex hull of a set of 2D points is the smallest convex polygon containing all of them — imagine wrapping a rubber band around a scattering of pins. The Graham scan computes it in O(n log n) by sorting and a single linear stack-based walk. The Andrew monotone-chain variant is what most competitive coders memorize because it's even simpler to write.
 
 ## whyItMatters
-Geometry shows up in CAD, GIS, computer graphics, robotics path planning, and surprisingly often in competitive programming as a subroutine. Once you have a hull you can answer "is this point inside?" in O(log n), compute minimum bounding diameter (rotating calipers), and outline a region from a noisy set of samples. It also underlies the Quickhull algorithm and Voronoi/Delaunay computation.
+Geometry shows up in CAD (SolidWorks, Fusion 360 collision queries), GIS (PostGIS's `ST_ConvexHull`), computer graphics (frustum culling, shadow volumes), robotics path planning (configuration-space obstacles), machine learning (one-class SVM boundaries, dataset envelopes), and surprisingly often in competitive programming as a subroutine for rotating-calipers diameter, minimum bounding rectangles, and Andrew's monotone-chain warm-ups. Once you have the hull you can answer point-in-polygon in `O(log n)`, compute the diameter of a point set in `O(n)` after the hull, and outline a region from noisy samples. The same primitive underlies Quickhull (the QHull library shipping inside SciPy, MATLAB, and R) and is the prerequisite step for Delaunay triangulation and Voronoi diagrams via the lifting map.
 
 ## intuition
-Pick the lowest-leftmost point as a pivot. Sort the rest by polar angle around the pivot. Walk through them in that order, maintaining a stack: each new point should turn *counter-clockwise* relative to the previous two. If it turns clockwise or straight, the previous point can't be on the hull — pop it. The stack at the end IS the hull, in counter-clockwise order.
+A convex hull is the smallest convex polygon enclosing a set of points — imagine stretching a rubber band around all of them and letting it snap tight. The points it touches are the hull vertices; the rest are interior or on the edges. Two observations make computing it fast.
+
+First, the lowest-leftmost point is always on the hull (it cannot be inside any convex polygon that contains it). Use it as a pivot. Sort the remaining points by polar angle around the pivot — points seen first are at the right, points seen last sweep around to the left. Now walk the sorted list maintaining a stack of "hull-so-far" candidates. Each new point should turn *counter-clockwise* relative to the previous two; if it turns clockwise or is collinear, the previous candidate cannot be on the hull (a later point bypasses it) and you pop it. After one pass the stack is the upper-or-lower portion of the hull in order.
+
+Andrew's monotone-chain variant skips the polar sort by sorting on `(x, y)` and building the upper and lower hulls in two passes — easier to memorize and numerically more stable because it avoids `atan2`. The cross-product test `cross(a, b, c) = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)` returns positive for a counter-clockwise turn, negative for clockwise, zero for collinear; it is the entire geometric heart of the algorithm.
 
 ## visualization
 ```
@@ -46,30 +50,28 @@ Lowest pivot at bottom-left.                              final stack = hull
 For every triple of points, check if every other point lies on the same side of the line they form. O(n^4). Works for n ≤ 30; explodes anywhere meaningful.
 
 ## optimal
-**Andrew monotone chain** (cleanest to memorize):
-```
-sort points by (x, y) ascending
+Andrew's monotone chain is the cleanest implementation to memorize: sort once by `(x, y)`, sweep left-to-right building the lower hull, sweep right-to-left building the upper hull, concatenate.
 
-build LOWER hull:
+```python
+def convex_hull(points):
+    pts = sorted(set(map(tuple, points)))
+    if len(pts) <= 2: return pts
+    def cross(o, a, b):
+        return (a[0]-o[0])*(b[1]-o[1]) - (a[1]-o[1])*(b[0]-o[0])
     lower = []
-    for p in points:
+    for p in pts:
         while len(lower) >= 2 and cross(lower[-2], lower[-1], p) <= 0:
             lower.pop()
         lower.append(p)
-
-build UPPER hull:
     upper = []
-    for p in reversed(points):
+    for p in reversed(pts):
         while len(upper) >= 2 and cross(upper[-2], upper[-1], p) <= 0:
             upper.pop()
         upper.append(p)
-
-hull = lower[:-1] + upper[:-1]   # drop duplicates at the joins
+    return lower[:-1] + upper[:-1]
 ```
 
-`cross(O, A, B) = (A.x - O.x) * (B.y - O.y) - (A.y - O.y) * (B.x - O.x)` — positive = counter-clockwise turn, negative = clockwise, zero = collinear.
-
-Use `<` instead of `<=` if you want collinear points on the hull edge to be kept.
+The critical line is `cross(lower[-2], lower[-1], p) <= 0` — using `<=` removes collinear points from the hull, using `<` keeps them (you almost always want `<=`). The total cost is `O(n log n)` dominated by the sort; the sweeps are amortized `O(n)` because every point is pushed and popped at most once across both passes. For arbitrarily large inputs Chan's algorithm (1996) reaches `O(n log h)` where `h` is the output hull size — useful when the hull is a tiny fraction of the input (e.g. millions of points clustered in a small region). For 3D hulls or for the streaming case, switch to Quickhull (the QHull library used by SciPy's `scipy.spatial.ConvexHull`) which generalizes the same divide-and-conquer flavor.
 
 ## complexity
 - **Time**: O(n log n) — dominated by the sort. The two passes are O(n) amortized (each point is pushed/popped at most once).

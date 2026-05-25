@@ -25,10 +25,14 @@ status: published
 In a distributed system the question "did event A happen before event B?" has no global clock to answer it. Wall-clock timestamps drift; logical scalars (Lamport clocks) can't distinguish concurrent events from causally related ones. Vector clocks pin down the answer with a per-node integer vector that grows whenever a node acts or receives a message.
 
 ## whyItMatters
-Vector clocks are the math behind conflict detection in Dynamo, Riak, CRDTs, distributed debugging, snapshot algorithms, and causal-consistency databases. Whenever a system needs to ask "are these two updates concurrent or did one precede the other?" — without trusting wall clocks — vector clocks are the canonical tool.
+Vector clocks are the math behind conflict detection in Dynamo, Riak, CRDTs, distributed debugging, and causal-consistency databases. Amazon's Dynamo paper (DeCandia et al. SOSP 2007) introduced vector clocks to mainstream production systems; Riak and Voldemort copied the model verbatim. Cassandra's lightweight transactions use the same causality bookkeeping under the hood. Lamport's original paper (*Time, Clocks, and the Ordering of Events in a Distributed System*, CACM 1978) and Mattern's vector-clock follow-up (1988) sit at the foundation. Whenever a system needs to ask "are these two updates concurrent or did one precede the other?" without trusting wall clocks, vector clocks are the canonical tool.
 
 ## intuition
-Imagine N processes, each keeping a tally board of length N. Slot `i` on process `i`'s board counts its own local events. Slot `j` on process `i`'s board is "the latest count of process `j`'s events that process `i` has heard about." Every message piggybacks the sender's full board. On receive, the recipient takes the element-wise max, then bumps its own slot. Comparing two boards then tells you everything about causality.
+Imagine `N` processes, each keeping a tally board of length `N`. Slot `i` on process `i`'s board counts its own local events. Slot `j` on process `i`'s board is "the latest count of process `j`'s events that process `i` has heard about." Every message piggybacks the sender's full board. On receive, the recipient takes the element-wise max with the attached board, then bumps its own slot. Comparing two boards tells you everything about causality between the events that produced them.
+
+Why does element-wise max plus a self-bump capture causality exactly? Because the partial order "causally precedes" (Lamport's happens-before relation, written `→`) is the smallest relation that contains program order (within a process) and message order (send precedes receive). Element-wise max merges what the receiver already knew with what the sender just told it; the self-bump records the receive event itself. Any chain of causality is preserved because every step strictly increases at least one slot.
+
+The critical case is *concurrency*. If `V[k] <= U[k]` for all `k`, then `V` happened-before `U`. If `U[k] <= V[k]` for all `k`, then `U` happened-before `V`. If neither holds — some slots favor `V`, others favor `U` — the events are concurrent and must be resolved at the application layer (CRDT merge, last-write-wins with caveats, or surfacing siblings to the user).
 
 ## visualization
 ```
@@ -49,14 +53,31 @@ Use wall-clock timestamps. Cheap to compute, but two events less than your clock
 Maintain `V[1..N]` per process. Rules:
 1. On every local event on process `i`: `V[i] += 1`.
 2. On send from `i`: attach a copy of `V`.
-3. On receive at `j` of a message with attached `U`: `for k: V[k] = max(V[k], U[k])`, then `V[j] += 1`.
+3. On receive at `j` of a message with attached `U`: for every `k`, set `V[k] = max(V[k], U[k])`, then `V[j] += 1`.
 
-Comparison:
-- `V <= U` if `V[k] <= U[k]` for every `k`.
-- `V < U` if `V <= U` and `V != U` — meaning V's event causally precedes U's.
-- Neither holds → events are **concurrent**, and the application must resolve (siblings, merge, ask the user).
+Comparison: `V <= U` if `V[k] <= U[k]` for every `k`. `V < U` if `V <= U` and `V != U` — meaning `V`'s event causally precedes `U`'s. Neither holds: events are concurrent.
 
-Dynamo-style stores piggyback a vector clock on every value. On read, divergent vectors surface as conflicting siblings rather than being silently overwritten.
+```python
+class VectorClock:
+    def __init__(self, n, pid):
+        self.v, self.pid = [0] * n, pid
+    def tick(self):
+        self.v[self.pid] += 1
+    def send(self):
+        self.tick(); return list(self.v)
+    def receive(self, incoming):
+        self.v = [max(a, b) for a, b in zip(self.v, incoming)]
+        self.tick()
+    def compare(self, other):
+        le = all(a <= b for a, b in zip(self.v, other))
+        ge = all(a >= b for a, b in zip(self.v, other))
+        if le and ge: return 'equal'
+        if le: return 'before'
+        if ge: return 'after'
+        return 'concurrent'
+```
+
+The critical pattern is the receive rule's element-wise max followed by self-bump — the max merges shared knowledge, the bump records the new event. Dynamo-style stores piggyback the vector clock on every value; on read, divergent vectors surface as conflicting siblings rather than being silently overwritten. For systems with very many short-lived nodes (cloud autoscaling), pure vector clocks grow unboundedly; the production trick is *dotted version vectors* (Almeida et al. 2014) which Riak and Cassandra now use to prune retired actors. For wall-clock-tolerant ordering with smaller state, hybrid logical clocks (Kulkarni et al. 2014, used in CockroachDB and YugabyteDB) combine vector-clock causality with NTP-grade timestamps.
 
 ## complexity
 - **Storage per event/message**: O(N) for N participating nodes.

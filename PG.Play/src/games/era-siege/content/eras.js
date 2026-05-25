@@ -3,6 +3,7 @@
 // cross *while in the previous era* to unlock evolve into this one.
 
 import { PALETTES } from './palette.js';
+import { readSettings } from '../utils/settings.js';
 
 /**
  * @typedef {Object} Era
@@ -35,6 +36,9 @@ export const ERAS = [
     specialId: 'ember-volley',
     secondarySpecialId: 'meteor-rain',
     paletteId: 'ember-tribe',
+    themeLabels: {
+      v2: { name: 'Volcanic Basalt', gateName: 'Obsidian Gate' },
+    },
   },
   {
     id: 'iron-dominion', index: 1,
@@ -49,6 +53,9 @@ export const ERAS = [
     specialId: 'iron-rain',
     secondarySpecialId: 'iron-rampart',
     paletteId: 'iron-dominion',
+    themeLabels: {
+      v2: { name: 'Biolume Reef', gateName: 'Bio-Lume Gate' },
+    },
   },
   {
     id: 'sun-foundry', index: 2,
@@ -63,6 +70,9 @@ export const ERAS = [
     specialId: 'sun-forge',
     secondarySpecialId: 'foundry-mortar',
     paletteId: 'sun-foundry',
+    themeLabels: {
+      v2: { name: 'Sun Foundry', gateName: 'Sun Foundry Gate' },
+    },
   },
   {
     id: 'storm-republic', index: 3,
@@ -77,6 +87,9 @@ export const ERAS = [
     specialId: 'storm-fork',
     secondarySpecialId: 'voltaic-cascade',
     paletteId: 'storm-republic',
+    themeLabels: {
+      v2: { name: 'Storm Republic', gateName: 'Storm Republic Gate' },
+    },
   },
   {
     id: 'void-ascendancy', index: 4,
@@ -91,6 +104,9 @@ export const ERAS = [
     specialId: 'void-collapse',
     secondarySpecialId: 'event-horizon',
     paletteId: 'void-ascendancy',
+    themeLabels: {
+      v2: { name: 'Void Crystal', gateName: 'Void Crystal Gate' },
+    },
   },
 ];
 
@@ -105,4 +121,15 @@ export function nextEra(currentId) {
   if (!cur) return null;
   return ERAS[cur.index + 1] || null;
 }
-export function paletteFor(eraId)  { return PALETTES[ERAS_BY_ID[eraId]?.paletteId] || PALETTES['ember-tribe']; }
+export function paletteFor(eraId) {
+  const base = PALETTES[ERAS_BY_ID[eraId]?.paletteId] || PALETTES['ember-tribe'];
+  // Merge active theme-pack overrides over the base so the procedural
+  // battlefield recolours to match the selected theme even when no
+  // painted art has shipped yet. Tests pass 'classic' implicitly (no
+  // settings cache), which returns the base palette unchanged.
+  let pack = 'classic';
+  try { pack = readSettings().artPack || 'classic'; }
+  catch { /* swallow — happens in non-browser contexts */ }
+  const overrides = base.themePalettes?.[pack];
+  return overrides ? { ...base, ...overrides } : base;
+}

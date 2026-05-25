@@ -25,10 +25,14 @@ status: published
 A sparse table answers range-min queries (RMQ) — or any *idempotent* associative operation: min, max, gcd, bitwise AND/OR — on an immutable array in O(1) per query, after O(n log n) preprocessing. The trick: precompute the operation over every range whose length is a power of two; then any arbitrary range can be covered by two of these power-of-two ranges, possibly overlapping.
 
 ## whyItMatters
-When the array never changes and you have many queries, a sparse table is the fastest practical option — beats segment trees (O(log n) per query) and Fenwick trees by a constant factor, with simpler code. It's the workhorse behind LCA (lowest common ancestor) via Euler tour + RMQ, behind several suffix-array algorithms, and behind offline range-min subproblems that arise in DP optimization. For mutable arrays, sparse table is wrong — use a segment tree — but for read-heavy immutable workloads it's untouchable.
+When the array never changes and you have many queries, a sparse table is the fastest practical option — beats segment trees (`O(log n)` per query) and Fenwick trees by a constant factor, with simpler code. It is the workhorse behind LCA (lowest common ancestor) via Euler tour plus RMQ (Bender & Farach-Colton 2000), behind several suffix-array construction algorithms (kasai's LCP array uses it), and behind offline range-min subproblems that arise in DP optimization (the Knuth-Yao monotonicity speedup). Used in competitive-programming templates, in succinct data structures (the FM-index for full-text search), and in static analytics systems where the data is loaded once and queried many times. For mutable arrays sparse table is wrong — use a segment tree — but for read-heavy immutable workloads it is untouchable.
 
 ## intuition
-Define `st[k][i]` = min of arr[i ... i + 2^k - 1]. Build bottom-up: `st[0][i] = arr[i]`; `st[k][i] = min(st[k-1][i], st[k-1][i + 2^(k-1)])`. To query [L, R] of length len = R - L + 1, let k = floor(log2(len)). The two ranges [L, L + 2^k - 1] and [R - 2^k + 1, R] together cover [L, R] (they overlap). Because min is *idempotent* — min(x, x) = x — the overlap doesn't double-count. The answer is `min(st[k][L], st[k][R - 2^k + 1])`.
+Define `st[k][i]` = min of `arr[i .. i + 2^k - 1]`. Build bottom-up: `st[0][i] = arr[i]`; `st[k][i] = min(st[k-1][i], st[k-1][i + 2^{k-1}])`. There are `O(n log n)` table entries and each is the merge of two predecessors, so the whole table builds in `O(n log n)` time and space.
+
+To query an arbitrary range `[L, R]` of length `len = R - L + 1`, pick `k = floor(log2(len))`. The two precomputed intervals `[L, L + 2^k - 1]` and `[R - 2^k + 1, R]` both have length `2^k` and together cover `[L, R]` (they may overlap). Because min is *idempotent* — `min(x, x) = x` — the overlap does not double-count. The answer is `min(st[k][L], st[k][R - 2^k + 1])`.
+
+That overlap trick is the entire reason sparse table is `O(1)` per query instead of `O(log n)`. Segment trees and Fenwick trees cannot use it because they support sum, which is *not* idempotent — adding the same element twice double-counts. So sparse table trades flexibility (no point updates, only idempotent ops like min, max, gcd, bitwise AND, bitwise OR) for raw query speed and simplicity. Combined with the Euler-tour technique and Cartesian-tree linearization, you get true `O(n)` preprocessing and `O(1)` per RMQ query — optimal for the problem.
 
 ## visualization
 ```
@@ -50,26 +54,33 @@ query(L=2, R=6): len = 5, k = 2 (2^2 = 4 <= 5)
 Linear scan per query: for each [L, R], walk from L to R and track the running minimum. O(n) per query, O(n*q) total — fine for tiny inputs, fatal for n = q = 10^5. A segment tree gives O(log n) per query at O(n) preprocessing but is more code and more cache-miss-prone than sparse table for purely-read workloads.
 
 ## optimal
-Build `st[k][i]` for k = 0 .. floor(log2(n)) and i = 0 .. n - 2^k. Precompute `log2[len]` for fast lookup during queries.
+Build `st[k][i]` for `k = 0 .. floor(log2(n))` and `i = 0 .. n - 2^k`. Precompute `log2[len]` for fast lookup during queries.
 
+```python
+import math
+
+class SparseTableRMQ:
+    def __init__(self, arr):
+        n = len(arr)
+        K = max(1, n.bit_length())
+        self.log2 = [0] * (n + 1)
+        for i in range(2, n + 1):
+            self.log2[i] = self.log2[i // 2] + 1
+        self.st = [arr[:]]
+        for k in range(1, K):
+            prev = self.st[k - 1]
+            length = 1 << k
+            half = 1 << (k - 1)
+            row = []
+            for i in range(n - length + 1):
+                row.append(min(prev[i], prev[i + half]))
+            self.st.append(row)
+    def query(self, l, r):
+        k = self.log2[r - l + 1]
+        return min(self.st[k][l], self.st[k][r - (1 << k) + 1])
 ```
-build(arr):
-    n = len(arr)
-    K = floor(log2(n)) + 1
-    st = 2D array [K][n]
-    for i in 0..n-1: st[0][i] = arr[i]
-    for k in 1..K-1:
-        for i in 0..n - 2^k:
-            st[k][i] = min(st[k-1][i], st[k-1][i + 2^(k-1)])
-    return st
 
-log2 = [0] * (n + 1)
-for i in 2..n: log2[i] = log2[i/2] + 1
-
-query(L, R):
-    k = log2[R - L + 1]
-    return min(st[k][L], st[k][R - 2^k + 1])
-```
+The critical lines are the precomputed `log2` table (avoids a `math.log2` call inside the hot path) and the overlapping-windows pair `(self.st[k][l], self.st[k][r - (1 << k) + 1])`. The two windows of length `2^k` together cover `[l, r]` with overlap, which is fine for idempotent ops. Switch to a segment tree when you need point updates or non-idempotent ops (sum, product). For RMQ specifically, the Bender-Farach-Colton paper shows that combining sparse table with Cartesian-tree linearization gives true `O(n)` preprocessing and `O(1)` query — the optimal complexity, used inside every modern LCA implementation (linear preprocessing for the LCA, constant-time queries thereafter). For very large arrays where memory matters, switch to *succinct* representations like Fischer-Heun's `2n + o(n)`-bit RMQ structure, used inside the `sdsl-lite` library.
 
 ## complexity
 time: O(n log n) preprocessing, O(1) per query.

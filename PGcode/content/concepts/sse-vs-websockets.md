@@ -29,23 +29,14 @@ You need to push updates from server to browser in real time — stock prices, c
 Pick SSE for one-way push (notifications, live feed). Pick WebSockets when the client also pushes (chat, collaborative editing, game state sync).
 
 ## whyItMatters
-The wrong choice burns engineering time:
-- SSE for chat: extra HTTP round-trip per message in the client→server direction (worse latency, higher cost).
-- WebSockets for one-way notifications: more complex (separate protocol, harder to debug, no built-in auto-reconnect).
-
-Standardizing on the right tool simplifies infrastructure (load balancers, observability, retry logic).
+The wrong choice burns engineering time. SSE for chat means an extra HTTP round-trip per client-to-server message (worse latency, higher cost). WebSockets for one-way notifications means more complex infrastructure (separate protocol, harder to debug, no built-in auto-reconnect). Standardizing on the right tool simplifies load balancers, observability, and retry logic. SSE (HTML5 EventSource, WHATWG spec) powers ChatGPT's streamed responses, Vercel's deployment-log viewer, GitHub's live-checks UI, and OpenAI's `/v1/chat/completions` SSE endpoint. WebSockets (RFC 6455) power Slack, Discord, Figma's collaborative cursor, Google Docs, Linear's real-time updates, and every multiplayer game's lobby. Both ship in every modern browser; choosing between them is a real systems-design call.
 
 ## intuition
-**SSE flow**:
-1. Browser opens `GET /events` with `Accept: text/event-stream`.
-2. Server responds `200 OK` + headers `Content-Type: text/event-stream` + `Cache-Control: no-cache` + keeps connection open.
-3. Server writes `data: {"x":1}\n\n` chunks whenever it has news.
-4. Browser's `EventSource` parses chunks + fires `onmessage`. Auto-reconnects after disconnect.
+SSE is one-way: server pushes events to the client over a long-lived HTTP response. The client opens `GET /events` with `Accept: text/event-stream`; the server replies with `Content-Type: text/event-stream` and keeps the response open, writing `data: {...}\n\n` chunks whenever it has news. The browser's built-in `EventSource` parses chunks, fires `onmessage`, and *auto-reconnects* with the `Last-Event-ID` header on disconnect — that auto-reconnect plus event-replay is the killer feature of SSE.
 
-**WebSocket flow**:
-1. Browser sends HTTP `GET /ws` with `Upgrade: websocket` header.
-2. Server responds `101 Switching Protocols`.
-3. Both sides exchange framed binary/text messages over the same TCP connection, full-duplex.
+WebSockets are full-duplex: after a single HTTP `Upgrade` handshake, both sides exchange framed binary or text messages over the same TCP connection in either direction. The protocol is its own thing (RFC 6455 framing), so you need a WebSocket-aware load balancer, WebSocket-aware proxy logging, and your own reconnect/heartbeat logic.
+
+The decision rule: if the client mostly *listens* (notifications, log streams, AI token streams, dashboard updates, server-sent metrics), SSE is simpler and cheaper. If both sides regularly *talk* (chat, collaborative editing, multiplayer games, presence, voice signaling), WebSockets are the right tool. The hybrid pattern — SSE for downstream, plain HTTP POSTs for upstream — works perfectly for chat-style interfaces and avoids the WebSocket infrastructure tax. SSE also benefits from every HTTP feature you already pay for: standard auth headers, normal CORS, HTTP/2 stream multiplexing, ordinary CDN caching of the initial GET, and the entire ecosystem of proxy and load-balancer tooling. WebSockets need explicit upgrade-aware support at every hop and their own auth scheme since the protocol switch drops the original HTTP headers after the handshake.
 
 ## visualization
 ```
@@ -71,43 +62,41 @@ WebSocket:
 **Streaming over fetch** — manually parse `fetch().body.getReader()` chunks. Like SSE but you write the framing. Reinventing SSE.
 
 ## optimal
-**SSE — server (Node Express)**:
+Use SSE when the data flow is server-to-client and the client only occasionally sends back state (heartbeat, ack). Use WebSockets when both sides talk frequently and the message rate or interactive latency would make HTTP overhead noticeable. For chat in a browser, the SSE-plus-POST hybrid is almost always the right answer; for collaborative editing or real-time games, WebSockets win.
+
 ```javascript
+// SSE server (Node + Express)
 app.get('/events', (req, res) => {
-  res.writeHead(200, {
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive',
-  });
-  const interval = setInterval(() => {
-    res.write(`data: ${JSON.stringify({ time: Date.now() })}\n\n`);
-  }, 1000);
-  req.on('close', () => clearInterval(interval));
+    res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'X-Accel-Buffering': 'no',  // disable proxy buffering for Nginx
+    });
+    const id = subscribe(msg => {
+        res.write(`id: ${msg.id}\ndata: ${JSON.stringify(msg)}\n\n`);
+    });
+    req.on('close', () => unsubscribe(id));
 });
-```
 
-**SSE — browser**:
-```javascript
+// SSE client
 const es = new EventSource('/events');
-es.onmessage = (e) => console.log(JSON.parse(e.data));
-es.onerror = () => { /* auto-reconnects */ };
-```
+es.onmessage = (e) => render(JSON.parse(e.data));
 
-**WebSocket — server (Node `ws`)**:
-```javascript
+// WebSocket server (Node + ws)
 import { WebSocketServer } from 'ws';
 const wss = new WebSocketServer({ port: 8080 });
-wss.on('connection', (socket) => {
-  socket.on('message', (msg) => { socket.send(`echo: ${msg}`); });
+wss.on('connection', (ws) => {
+    ws.on('message', (data) => broadcast(data));
+    ws.on('pong', () => (ws.isAlive = true));
 });
+setInterval(() => wss.clients.forEach((ws) => {
+    if (!ws.isAlive) return ws.terminate();
+    ws.isAlive = false; ws.ping();
+}), 30000);
 ```
 
-**WebSocket — browser**:
-```javascript
-const ws = new WebSocket('wss://example.com/ws');
-ws.onmessage = (e) => console.log(e.data);
-ws.send('hello');
-```
+The critical SSE line is `'X-Accel-Buffering': 'no'` — without it, Nginx (the most common reverse proxy) buffers the response until the connection ends, which defeats the entire point of SSE. The critical WebSocket pattern is the ping/pong heartbeat with `terminate()` on missed pongs; WebSockets do not auto-reconnect, so the server must detect dead clients and the client must implement its own backoff-and-resubscribe logic. For SSE behind HTTP/1.1 keep an eye on the browser's 6-connection-per-origin cap — use HTTP/2 or HTTP/3 (where streams multiplex on one connection) for SSE-heavy SPAs.
 
 ## complexity
 - **SSE**: ~1KB overhead per chunk (HTTP headers reused; chunks small). Auto-reconnect built-in. Connection-per-tab capped at 6 over HTTP/1.1 (use HTTP/2 to multiplex).

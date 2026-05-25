@@ -25,10 +25,14 @@ status: published
 A load balancer sits in front of a fleet of servers and routes each incoming request to one of them. From the client's perspective there is a single endpoint; behind that endpoint, many instances share the work. This is the simplest piece of "make it scale horizontally" infrastructure — and it shows up in nearly every system design interview.
 
 ## whyItMatters
-A single web server handles maybe a few thousand requests per second before it tips over. A load balancer turns "scale up by buying a bigger box" (vertical, eventually capped) into "scale out by adding boxes" (horizontal, effectively unbounded). It also gives you health checks (route around dead servers), zero-downtime deploys (drain traffic from a node, restart it, rejoin), and a hook for SSL termination + DDoS mitigation.
+A single web server handles maybe a few thousand requests per second before it tips over. A load balancer turns "scale up by buying a bigger box" (vertical, eventually capped) into "scale out by adding boxes" (horizontal, effectively unbounded). It also delivers health checks (route around dead servers), zero-downtime deploys (drain traffic from a node, restart it, rejoin), TLS termination, header rewriting, request mirroring for shadow traffic, and a hook for DDoS mitigation. Every cloud provider's L4 / L7 LB (AWS ALB / NLB, GCP Cloud Load Balancing, Azure Front Door), every open-source proxy (HAProxy, Nginx, Envoy, Caddy, Traefik), and every service mesh (Istio, Linkerd, Consul Connect) implements some flavor of this. "Design Twitter, Uber, or YouTube" interview questions all start with a load balancer in the first sketch.
 
 ## intuition
-Think of a fast-food chain with one counter and ten registers behind it. A greeter at the counter looks at the queue at each register and routes you to the shortest one. The greeter doesn't cook anything — they just distribute work. If a register breaks, the greeter stops sending people there. If a busy lunch hits, you add more registers; the greeter doesn't need to change. That greeter is the load balancer.
+Think of a fast-food chain with one counter and ten registers behind it. A greeter at the counter looks at the queue at each register and routes you to the shortest one. The greeter does not cook anything; they just distribute work. If a register breaks, the greeter stops sending people there. If a busy lunch hits, you add more registers without changing the greeter. That greeter is the load balancer.
+
+Two families. **L4 load balancers** (NLB, HAProxy in TCP mode, Envoy `tcp_proxy`) operate at the transport layer — they see TCP connections and route them to backends without parsing the bytes. Fast (millions of connections per second per box), low CPU, suitable for TLS passthrough and non-HTTP protocols. **L7 load balancers** (ALB, Nginx, Envoy, Traefik) terminate the application protocol (HTTP, gRPC, WebSocket), see request paths and headers, and can route based on host, path, header, or weighted percentage. Slower per request but unlock canary deployments, A/B routing, header-based feature flags, and per-route timeouts.
+
+Algorithm choice matters less than it sounds. Round-robin is the default and works fine when backends are homogeneous. Least-connections is better when backend response times vary (long-tail requests pile up on slow backends with round-robin). Weighted variants handle heterogeneous backends (a beefier box gets a higher weight). Consistent hashing (Karger et al. 1997) is the right answer when you need session affinity or cache locality — it minimizes key remappings when backends come and go, which is why Memcached clients and shard-aware databases use it.
 
 ## visualization
 ```
@@ -43,13 +47,36 @@ Client ─┘                    ├─► Server B
 Skip the LB entirely and put one server's IP in DNS. Works at toy scale. Breaks the moment that server hits CPU/memory/connection limits, and any reboot is a full outage. Round-robin DNS is a small improvement — DNS hands out different IPs in rotation — but DNS TTLs make it slow to react to failure and gives you no real-time control.
 
 ## optimal
-Run a dedicated L4 or L7 load balancer (HAProxy, Nginx, ALB/NLB, Envoy) with these key knobs:
+Run a dedicated L4 or L7 load balancer at every layer of the stack. At the edge: an L7 LB that terminates TLS, routes by host or path, and emits access logs. Behind that: per-service L4 or L7 LBs for fine-grained traffic shaping. In a service mesh: sidecar L7 LBs (Envoy in Istio, Linkerd's microproxy) that handle service-to-service traffic with mTLS and per-route policy.
 
-- **Algorithm**: round-robin, least-connections, weighted (capacity-aware), consistent-hash (for session stickiness or cache locality).
-- **Health checks**: TCP, HTTP, or app-level. Pull unhealthy nodes out of rotation within seconds.
-- **Sticky sessions**: optional — needed only if your app stores per-user state on a single node (avoid this if you can; push state to a shared cache).
-- **TLS termination**: terminate HTTPS at the LB so backend servers can speak plaintext over the private network.
-- **Layered LBs**: a global anycast LB (DNS / GeoDNS) routes by region; a regional LB routes within the region.
+```yaml
+# Envoy: L7 LB with health checks, retries, outlier detection
+clusters:
+- name: backend
+  connect_timeout: 1s
+  type: STRICT_DNS
+  lb_policy: LEAST_REQUEST          # better tail than round-robin
+  load_assignment:
+    cluster_name: backend
+    endpoints: [{ lb_endpoints: [...] }]
+  health_checks:
+  - timeout: 1s
+    interval: 5s
+    unhealthy_threshold: 3
+    healthy_threshold: 2
+    http_health_check: { path: /healthz }
+  outlier_detection:
+    consecutive_5xx: 5
+    interval: 10s
+    base_ejection_time: 30s
+  circuit_breakers:
+    thresholds:
+    - max_connections: 1024
+      max_pending_requests: 256
+      max_requests: 1024
+```
+
+The critical settings are `health_checks` (probe each backend every 5 s on `/healthz` and eject after 3 failures so dead boxes leave rotation quickly), `outlier_detection` (eject backends that emit 5 consecutive 5xx responses for 30 seconds so a flaky node does not pollute traffic), and `circuit_breakers` (refuse new requests when the backend is overloaded rather than queuing forever). Layer with a global anycast LB (Cloudflare, Fastly, AWS Global Accelerator) for geographic routing and DDoS absorption, then regional LBs for intra-region distribution. Push session state into a shared cache (Redis, Memcached) so backends are stateless and the LB can route any user to any backend — sticky sessions are a smell that almost always indicates state in the wrong place.
 
 ## complexity
 - **Latency added**: typically <1ms for L4, ~1–5ms for L7.

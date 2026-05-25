@@ -25,18 +25,14 @@ status: published
 "SQL or NoSQL" is the wrong question. The right question: **what access pattern dominates?** Relational shines for ad-hoc joins + strong consistency. Document fits nested aggregates. Wide-column scales writes by partition. Key-value is fastest for lookups. Graph wins when traversal IS the query. Pick by shape of reads, not by hype.
 
 ## whyItMatters
-Wrong store choice = constant pain: forcing graph traversal through 10-way SQL joins, modeling normalized invoices in Mongo with five collections, paying for ACID you never use. Right choice = the database disappears; you write features instead of fighting your schema.
+Wrong store choice equals constant pain: forcing graph traversal through 10-way SQL joins, modeling normalized invoices in MongoDB with five collections, paying for ACID you never use, or running BI dashboards directly against eventually-consistent KV stores. Right choice equals the database disappears and you write features instead of fighting your schema. Every senior backend interview at Stripe, Uber, Airbnb, Netflix, and Meta probes for the ability to pick the right store per workload and to justify the choice with concrete trade-offs (consistency, query shape, latency, write throughput, cost per GB). Polyglot persistence is the norm at scale — Uber runs Postgres, Cassandra, Redis, and HBase concurrently because no single store handles all workloads well.
 
 ## intuition
-**Relational (Postgres, MySQL)** — rows + columns + foreign keys. Ad-hoc joins, transactions, strong schema. Best when: data is highly relational, queries unpredictable, you need ACID.
+Five families cover almost every workload. **Relational (Postgres, MySQL)**: rows, columns, foreign keys, ad-hoc joins, transactions, strong schema. Best when data is highly relational, queries are unpredictable, and you need ACID. **Document (MongoDB, DynamoDB single-table, Firestore)**: nested JSON keyed by id. Best when one aggregate is read together (an order plus its line items), schema evolves often, and there are no cross-document joins. **Wide-column (Cassandra, ScyllaDB, BigTable, HBase)**: partition key plus clustering key plus many columns. Best for write-heavy time-series, fanout writes, queries scoped to a partition, and no joins. **Key-value (Redis, DynamoDB simple, Memcached, etcd)**: `get(key) -> value` with microsecond latency. Best for session stores, caches, leaderboards, counters. **Graph (Neo4j, Neptune, ArangoDB, TigerGraph)**: nodes plus edges with properties. Best for recommendations, fraud rings, social graphs, IAM permission paths — traversal *is* the workload.
 
-**Document (Mongo, DynamoDB single-table)** — nested JSON keyed by id. Best when: one aggregate is read together (order + line items), schema evolves often, no cross-document joins.
+The second axis is the consistency model. Strong consistency (Postgres, Spanner, FoundationDB) versus tunable (Cassandra's `QUORUM` vs `ONE`) versus eventual (Dynamo, vanilla DNS). The third axis is operational maturity — Postgres has 30 years of tooling, BigQuery has Google operating it for you, but newer stores often ship with sparse ecosystem support.
 
-**Wide-column (Cassandra, ScyllaDB, BigTable)** — partition key + clustering key + many columns. Best when: write-heavy time-series, fanout writes, queries by partition, no joins.
-
-**Key-value (Redis, DynamoDB simple, Memcached)** — `get(key) -> value`. Best when: session store, cache, leaderboard, counter. Microsecond latency.
-
-**Graph (Neo4j, Neptune, ArangoDB)** — nodes + edges with properties. Best when: recommendations, fraud rings, social graphs, IAM permission paths — traversal IS the workload.
+The right way to choose is to write the read and write paths first, then pick a store whose primitives match exactly. "We need ad-hoc joins" rules out KV. "We need 50,000 writes/sec per partition" rules out single-leader SQL. "We have a graph and our hottest query is multi-hop" rules out everything except graph stores.
 
 ## visualization
 ```
@@ -55,14 +51,24 @@ Graph      | typed      | native   | hard     | tx          | recs, fraud, IAM
 **Default to Mongo for everything**: pleasant for first 6 months until cross-collection reporting requires application-side joins + you lose transactionality.
 
 ## optimal
-**Decision flow**:
-1. Are queries known up-front + bounded? -> document/KV.
-2. Are queries ad-hoc + analytic? -> relational (or warehouse).
-3. Is the dominant access traversal? -> graph.
-4. Is write throughput >50k/s per partition? -> wide-column.
-5. Need single-digit ms reads on hot data? -> KV cache in front of any of the above.
+**Decision flow**: (1) Are queries known up-front and bounded? Document or KV. (2) Are queries ad-hoc and analytic? Relational or warehouse. (3) Is the dominant access pattern graph traversal? Graph DB. (4) Is write throughput above 50k/s per partition? Wide-column. (5) Need single-digit-ms reads on hot data? KV cache in front of any of the above.
 
-**Polyglot persistence**: orders in Postgres (need ACID), sessions in Redis, audit log in Cassandra, recommendations in Neo4j. Each store does what it's best at; sync via CDC or events.
+```python
+# Polyglot persistence: each store does what it is best at
+orders_db    = Postgres(...)         # ACID, joins for reporting
+sessions     = Redis(...)            # sub-ms reads, TTL eviction
+audit_log    = Cassandra(...)        # write-heavy append-only
+recsys_graph = Neo4j(...)            # multi-hop traversal
+search_index = Elasticsearch(...)    # full-text and faceted search
+
+# Sync the stores via CDC or events (Debezium, Kafka Connect)
+def on_order_committed(order):
+    audit_log.append({'ts': now(), 'order_id': order.id, 'state': 'committed'})
+    recsys_graph.upsert_edge(order.user_id, order.product_id, 'bought')
+    search_index.index(order.to_search_doc())
+```
+
+The critical pattern is keeping the *system of record* in one canonical store (here, Postgres) and projecting derived views into specialized stores via change-data-capture or domain events. The system of record stays normalized and ACID; the projections are eventually consistent caches that can be rebuilt from the log if they ever drift. For new builds at small scale, start with Postgres for everything — it covers JSON documents (`jsonb`), full-text search (`tsvector`), key-value (`hstore`), time-series (TimescaleDB extension), and graph (`recursive CTE`s) at workloads up to roughly 10k QPS. Only split the workload when a specific access pattern outgrows what Postgres can sustain on the largest instance you can afford.
 
 ## complexity
 - **Relational lookup with index**: O(log n) on B-tree; joins O(n+m) hashed.

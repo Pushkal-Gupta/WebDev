@@ -25,10 +25,14 @@ status: published
 The Euler tour technique linearizes a rooted tree. DFS the tree; record the time you **enter** each node (`tin[v]`) and the time you **leave** it (`tout[v]`). The result: every subtree of node v corresponds to the contiguous index range `[tin[v], tout[v]]` in the tour. Now any subtree query is a *range* query — and you can use Fenwick trees, segment trees, or sparse tables to answer them.
 
 ## whyItMatters
-Without Euler tour, "sum of values in v's subtree" is O(size_of_subtree) per query. With Euler tour + Fenwick tree, it's O(log n) per query AND O(log n) per point update. Same trick supports "is u an ancestor of v?" in O(1) (check `tin[u] ≤ tin[v]` and `tout[u] ≥ tout[v]`), LCA in O(1) (with Euler-tour + sparse table on depth), and many path-decomposition algorithms.
+Without an Euler tour, "sum of values in `v`'s subtree" is `O(size_of_subtree)` per query. With Euler tour plus a Fenwick tree, it is `O(log n)` per query *and* `O(log n)` per point update. The same trick supports "is `u` an ancestor of `v`?" in `O(1)` (check `tin[u] <= tin[v]` and `tout[u] >= tout[v]`), LCA in `O(1)` with Euler tour plus sparse-table RMQ on the depth array (Bender & Farach-Colton 2000), and many heavy-light decomposition algorithms. Competitive-programming codebases at ICPC level, judges like Codeforces and CSES, and production tree-analytics workloads (Linux process trees, version-control commit graphs, CDN cache hierarchies) all use Euler tour as the workhorse linearization technique that turns tree queries into range queries.
 
 ## intuition
-DFS in pre-order. Increment a global clock on enter and on leave. Every node `v` owns a half-open range `[tin[v], tout[v]]` that includes every descendant. Want to update v's value? Point update at index `tin[v]`. Want subtree sum? Range sum `[tin[v], tout[v]]`.
+DFS the tree in pre-order. Maintain a global clock. On entry to a node, stamp `tin[v]` and increment the clock. On exit from a node (after all children are visited), stamp `tout[v]`. Every node `v` now owns a half-open range `[tin[v], tout[v]]` that includes exactly the indices stamped for `v` and its descendants — by definition of DFS, you only return from `v` after visiting every descendant.
+
+That single observation collapses every subtree query to a range query on a flat array of length `n`. Build an `order[]` array where `order[tin[v]] = v` (the linear order of pre-order visits). Point update on node `v` becomes a point update at index `tin[v]` in `order`. Subtree sum on `v` becomes a range sum `[tin[v], tout[v]]`. Subtree max, count of marked descendants, frequency of a value — all become range queries on `order` and are answered in `O(log n)` with a Fenwick tree or segment tree.
+
+The ancestor check is the cleanest application. If `tin[u] <= tin[v] <= tout[u]`, then `v` was discovered after `u` entered and before `u` exited — which means `v` is in `u`'s subtree, i.e. `u` is an ancestor of `v`. Pure constant time after the one-time `O(n)` DFS. Pair this with a depth array and Bender-Farach-Colton's RMQ trick for `O(1)` LCA queries.
 
 ## visualization
 ```
@@ -49,40 +53,50 @@ Tree:           tin/tout:                  Euler indices (in-order):
 For each subtree query, BFS/DFS from v and visit every descendant. O(n) per query, O(n·q) total. Dies at n = 10^5, q = 10^5.
 
 ## optimal
-**Build (one DFS, O(n))**:
-```
-clock = 0
-tin = [0]*n
-tout = [0]*n
-order = [0]*n            # array indexed by tin to enable range access
-stack = [(root, 0)]      # iterative to avoid recursion limits
-while stack:
-    v, i = stack.pop()
-    if i == 0:
-        tin[v] = clock
-        order[clock] = v
-        clock += 1
-        for child in children[v]:
-            stack.append((child, 0))
-    tout[v] = clock - 1  # last index assigned to v's descendants
+One DFS in `O(n)`. Maintain `tin[v]`, `tout[v]`, and `order[]`. Use an iterative DFS with an explicit stack to handle very deep trees without hitting recursion limits. For subtree-sum queries, place a Fenwick tree over the `order` indexing and translate every node operation into the appropriate `tin`-indexed range.
+
+```python
+def euler_tour(tree, root, n):
+    tin = [0] * n
+    tout = [0] * n
+    order = [0] * n
+    clock = 0
+    stack = [(root, iter(tree[root]), -1)]
+    tin[root] = clock; order[clock] = root; clock += 1
+    while stack:
+        v, it, parent = stack[-1]
+        nxt = next(it, None)
+        if nxt is None:
+            tout[v] = clock - 1
+            stack.pop()
+        elif nxt != parent:
+            tin[nxt] = clock; order[clock] = nxt; clock += 1
+            stack.append((nxt, iter(tree[nxt]), v))
+    return tin, tout, order
+
+class SubtreeSum:
+    def __init__(self, values, tin, tout, order):
+        self.tin, self.tout = tin, tout
+        n = len(values)
+        self.bit = [0] * (n + 1)
+        for i, v in enumerate(order):
+            self._update(i, values[v])
+    def _update(self, i, delta):
+        i += 1
+        while i < len(self.bit):
+            self.bit[i] += delta; i += i & -i
+    def _prefix(self, i):
+        s = 0; i += 1
+        while i > 0:
+            s += self.bit[i]; i -= i & -i
+        return s
+    def update(self, v, new_val, old_val):
+        self._update(self.tin[v], new_val - old_val)
+    def subtree_sum(self, v):
+        return self._prefix(self.tout[v]) - self._prefix(self.tin[v] - 1)
 ```
 
-**Point update for node v** with new value `x`:
-```
-fenwick.update(tin[v], x)
-```
-
-**Subtree-sum query** at node v:
-```
-fenwick.range_sum(tin[v], tout[v])
-```
-
-**Ancestor check** `u is ancestor of v` (O(1)):
-```
-return tin[u] <= tin[v] and tout[u] >= tout[v]
-```
-
-For **path queries** (sum on path u → v), use LCA + add/subtract: sum(root→u) + sum(root→v) - 2·sum(root→lca). With Euler-tour + sparse table on depth, LCA is O(1) after O(n log n) preprocessing.
+The critical line is `subtree_sum(v) = prefix(tout[v]) - prefix(tin[v] - 1)` — the range query on the flat `order` array corresponds exactly to the subtree of `v` because Euler tour groups every descendant's index between `tin[v]` and `tout[v]`. The iterative DFS in `euler_tour` is necessary for trees deeper than Python's default recursion limit (1000). For path queries (sum from root to `v`), use a separate "open/close" Euler tour that pushes `+v` on entry and `-v` on exit; the prefix sum at `tin[v]` is then the sum of values from the root to `v`. For dynamic trees with edge insertions and deletions, switch to Euler-tour trees backed by balanced BSTs (Henzinger-King 1995), used in dynamic connectivity algorithms.
 
 ## complexity
 - **Preprocessing**: O(n).

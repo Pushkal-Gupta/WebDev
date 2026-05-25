@@ -25,10 +25,14 @@ status: published
 Autocomplete is the canonical use case for a trie. Insert every dictionary word, store a frequency (or score) at each terminal, then on each keystroke walk the trie to the prefix node and DFS the subtree to gather candidates. Rank by score and emit the top K. The walk is O(prefix length); the gather is bounded by the number of matching words, not the dictionary size.
 
 ## whyItMatters
-Every search bar, IDE completion, command palette, address-line suggester, and shell tab-completion shares this exact pattern. A 10M-word dictionary served from a flat array would scan 10M entries per keystroke; the trie cuts each keystroke to "follow one pointer." For low-latency UX (sub-50ms response under finger speed), this is the only viable structure short of a server-side index.
+Every search bar, IDE completion, command palette, address-line suggester, and shell tab-completion shares this exact pattern. A 10 million word dictionary served from a flat array would scan 10 million entries per keystroke; the trie cuts each keystroke to "follow one pointer." For low-latency UX (sub-50 ms response under finger speed), the trie is the only viable structure short of a server-side index. Google's instant-search backend, JetBrains' IDE completion, GitHub's code-search drop-down, the macOS Spotlight launcher, and VS Code's command palette all use trie or radix-trie variants for the in-memory prefix index. Bash and zsh tab-completion frameworks use tries to suggest commands and arguments.
 
 ## intuition
-A trie node represents "all strings that share this prefix." If the user has typed `inte`, every continuation lives in the subtree rooted at the `inte` node. To rank suggestions you need a score on each terminal — search-log frequency, recency, edit distance, whatever. A small DFS over the subtree collects (word, score) pairs; a min-heap of size K keeps only the best.
+A trie node represents "all strings that share this prefix." If the user has typed `inte`, every continuation lives in the subtree rooted at the `inte` node. To rank suggestions you need a score on each terminal — search-log frequency, recency, edit distance, click-through rate, or any combination. A small DFS over the subtree collects `(word, score)` pairs; a min-heap of size `K` keeps only the best.
+
+The scoring step is where the design gets interesting. Naive DFS visits every word in the subtree, which is wasteful when the subtree has millions of entries and the user wants the top 10. The trick used by production engines is to *precompute and store the top-K words at each internal node during build*. Now a query walks to the prefix node in `O(|prefix|)` and immediately reads the cached top-K list — `O(|prefix| + K)` total, no DFS. The memory cost is `K` words per node, which for typical alphabets and dictionaries is fine.
+
+The second knob is the children-map representation. For hot ASCII paths use an array indexed by character (`O(1)` lookup, dense memory). For cold Unicode paths use a hash map (more memory, but only for nodes that need it). The hybrid representation is what every production trie uses; storing every node as a 65,536-entry array would be wasteful for nodes that have only a handful of children.
 
 ## visualization
 ```
@@ -61,16 +65,42 @@ Top-1 result:      "app"  (score 8)
 Linear scan: for each query prefix, iterate all N words, keep those starting with the prefix, sort by score, slice top K. Cost per keystroke: O(N · L) where L is average word length. At N = 10^6 this is 10^7+ ops per keystroke — UI feels frozen.
 
 ## optimal
-1. **Insert**: walk/create one node per character; on the terminal node store the word and its score.
-2. **Query(prefix, K)**:
-   - Walk to the prefix node in O(|prefix|). If missing, return [].
-   - DFS the subtree; for every terminal, push (word, score) into a size-K min-heap.
-   - Pop heap → reverse for descending order.
-3. **Updates**: incrementing a score is O(L) — walk to the terminal and add.
+Build a trie. On insert, walk or create one node per character and store `(word, score)` on the terminal node. On query, walk to the prefix node in `O(|prefix|)`; if it does not exist return empty. Otherwise read the precomputed top-K cache and return. For dynamic dictionaries (scores change continuously), maintain the top-K cache lazily and recompute on access if stale.
 
-Two further refinements when the dictionary is huge:
-- **Cap suggestions per node**: pre-compute and store the top-K words at each internal node during build. Queries become O(|prefix| + K), no DFS at all (this is what production engines do).
-- **Compressed children**: use an array indexed by character for hot ASCII paths, hash map for cold Unicode ones.
+```python
+class AutocompleteTrie:
+    def __init__(self, K=10):
+        self.kids = {}
+        self.word = None
+        self.score = 0
+        self.top_k = []
+        self.K = K
+    def insert(self, word, score):
+        node = self
+        path = [self]
+        for ch in word:
+            node = node.kids.setdefault(ch, AutocompleteTrie(self.K))
+            path.append(node)
+        node.word = word
+        node.score = score
+        for n in path:
+            n.top_k = self._merge(n.top_k, [(word, score)])
+    def _merge(self, a, b):
+        merged = a + b
+        seen = {}
+        for w, s in merged:
+            if w not in seen or seen[w] < s: seen[w] = s
+        ranked = sorted(seen.items(), key=lambda x: -x[1])
+        return ranked[:self.K]
+    def suggest(self, prefix):
+        node = self
+        for ch in prefix:
+            if ch not in node.kids: return []
+            node = node.kids[ch]
+        return [w for w, _ in node.top_k]
+```
+
+The critical pattern is the `for n in path: n.top_k = self._merge(...)` update inside `insert` — every ancestor caches the top-K of its subtree, so the query is `O(|prefix| + K)` with no subtree traversal. For very large dictionaries (`>10^7` words) switch to a radix trie (compressed paths) to cut memory by 4-5x, and store the top-K cache as fixed-size arrays for cache locality. For typo tolerance, add a finite-state automaton wrapper that walks the trie with a bounded edit distance (Schulz-Mihov 2002) — the technique Google's spell-checker and Algolia use under the hood. For frequency-updated scores in a live system, run a background job that recomputes top-K caches in batches rather than on every score update.
 
 ## complexity
 - **Build**: O(sum of word lengths).

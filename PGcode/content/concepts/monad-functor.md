@@ -25,10 +25,14 @@ status: published
 A functor is any container type that exposes `map`: given a value of type `F<A>` and a function `A -> B`, you get back an `F<B>` without unwrapping. A monad is a functor plus `flatMap` (also called `bind` or `then`): given `F<A>` and `A -> F<B>`, you get `F<B>` without ending up with a nested `F<F<B>>`. Functors compose, monads chain. Once you see the pattern, you stop writing nested if-checks for `null`, nested try-catch for errors, and nested `.then().then()` for async — you `map` and `flatMap` instead.
 
 ## whyItMatters
-Three of the most painful sources of bugs — null checks, error handling, and async coordination — are all the same shape: "I have a value that may or may not be there; I want to run a function on it; the function may also produce that same kind of uncertainty." Monads collapse all three into one vocabulary. Promise / Task is the async monad; Maybe / Option is the null monad; Either / Result is the error monad. Languages without first-class monads (Java, Go, Python) still ship them as `Optional`, `CompletableFuture`, and so on — because the pattern is too useful to skip.
+Three of the most painful sources of bugs — null checks, error handling, and async coordination — are all the same shape: I have a value that may or may not be there, I want to run a function on it, the function may also produce that same kind of uncertainty. Monads collapse all three into one vocabulary. `Promise` / `Task` is the async monad; `Maybe` / `Option` is the null monad; `Either` / `Result` is the error monad; `List` is the nondeterminism monad. Languages without first-class monads (Java, Go, Python) still ship them as `Optional`, `CompletableFuture`, `Stream`, and `Result` because the pattern is too useful to skip. Haskell's IO monad, Scala's `cats.effect.IO`, Rust's `Result` and `Option`, Swift's `Optional`, and TypeScript's `Promise` are all the same abstraction with different syntax. Eugenio Moggi's 1991 paper *Notions of Computation and Monads* introduced the idea to computer science.
 
 ## intuition
-Picture a `Maybe<Int>` as a box containing either a number or nothing. `map(f)` peeks inside: if there's a value, apply `f`; otherwise stay empty. That works perfectly until `f` itself returns `Maybe<Int>` — now `map` would hand you `Maybe<Maybe<Int>>`. `flatMap` is just `map` followed by flattening one layer. Same idea for `Future`: `then` is `flatMap` over time; the chain stays a single `Future` instead of nesting. Same for `Either<Error, A>`: `flatMap` short-circuits on the first error without explicit checks.
+Picture a `Maybe<Int>` as a box containing either a number or nothing. `map(f)` peeks inside: if there is a value, apply `f`; otherwise stay empty. That works perfectly until `f` itself returns `Maybe<Int>` — now `map` would hand you `Maybe<Maybe<Int>>` (a box inside a box), which is rarely what you want. `flatMap` is just `map` followed by flattening one layer; the result is always a single-level `Maybe<Int>`. Same idea for `Future` (`then` is `flatMap` over time; the chain stays a single `Future` instead of nesting), for `Either<Error, A>` (`flatMap` short-circuits on the first error without explicit checks), for `List<A>` (`flatMap` is `concatMap`, the bind operator for nondeterminism).
+
+A **functor** is anything you can `map` over: it has a single operation `map(fa, f) -> fb` that preserves identity (`map(fa, x => x) == fa`) and composition (`map(fa, g ∘ f) == map(map(fa, f), g)`). A **monad** is a functor with two extra operations: `of(a) -> fa` (lift a plain value into the monad) and `flatMap(fa, f) -> fb` where `f: A -> F<B>` (chain monadic computations). The three monad laws — left identity, right identity, associativity — guarantee that any chain of `flatMap` can be regrouped without changing meaning. That law-respecting composition is what makes monads worth the abstraction: you can refactor `do`-notation, async/await, or Result chains without changing the program's meaning.
+
+The practical benefit is *short-circuiting and composition*. Without monads, the equivalent code in Java or Go is a ladder of `if (err != null) return err;` checks. With monads (Rust's `?` operator, Haskell's `do` notation, Scala's `for`-comprehension, async/await), the short-circuit and the composition are invisible — you write the happy path and the framework propagates the failure case.
 
 ## visualization
 ```
@@ -48,19 +52,36 @@ Five lines of "if x is None: return None" disappear. The branching lives in flat
 Without functors, you re-implement the unwrap-check-rewrap dance every time. Code looks like a staircase of `if` and `try/except`, each level handling the same failure mode. It works, but the business logic is buried under defensive scaffolding. Every reader of the code has to mentally re-derive: "is this null-check necessary, or did the previous step already handle it?" The brute-force approach also forces sequential code on every async chain — `.then()` callbacks nest until they form the pyramid of doom.
 
 ## optimal
-Implement a small protocol:
-- `Functor.map(fa, f) -> fb` where `f: A -> B`
-- `Monad.flatMap(fa, f) -> fb` where `f: A -> F<B>`
-- `Monad.of(a) -> fa` (lift a plain value into the monad)
+Implement a small protocol per monadic type. Three operations: `map`, `flatMap`, `of`. Then satisfy the three laws: left identity (`flatMap(of(a), f) == f(a)`), right identity (`flatMap(m, of) == m`), and associativity (`flatMap(flatMap(m, f), g) == flatMap(m, x => flatMap(f(x), g))`). The laws are the contract that makes refactors safe: any chain of `flatMap` can be regrouped without changing meaning.
 
-Then satisfy the laws: left identity (`flatMap(of(a), f) == f(a)`), right identity (`flatMap(m, of) == m`), and associativity (`flatMap(flatMap(m, f), g) == flatMap(m, x => flatMap(f(x), g))`). Laws are the contract that makes refactors safe: any chain of `flatMap` can be regrouped without changing meaning.
+```python
+from dataclasses import dataclass
+from typing import Callable, Generic, TypeVar, Union
 
+A = TypeVar('A'); B = TypeVar('B')
+
+@dataclass(frozen=True)
+class Just(Generic[A]): value: A
+@dataclass(frozen=True)
+class Nothing: pass
+
+Maybe = Union[Just[A], Nothing]
+
+def of(a: A) -> Maybe[A]: return Just(a)
+def m_map(m: Maybe[A], f: Callable[[A], B]) -> Maybe[B]:
+    return Just(f(m.value)) if isinstance(m, Just) else m
+def flat_map(m: Maybe[A], f: Callable[[A], Maybe[B]]) -> Maybe[B]:
+    return f(m.value) if isinstance(m, Just) else m
+
+# Composition: lookup user, fetch profile, extract avatar URL
+# Each step may fail with Nothing; the chain short-circuits.
+def avatar_for_user(user_id):
+    return flat_map(lookup_user(user_id),
+        lambda user: flat_map(fetch_profile(user),
+            lambda profile: of(profile.avatar_url) if profile.avatar_url else Nothing()))
 ```
-class Maybe:
-    of(a) -> Just(a)
-    map(self, f) -> Just(f(value)) if Just else Nothing
-    flatMap(self, f) -> f(value) if Just else Nothing
-```
+
+The critical line is `flat_map` — it both runs the next step and flattens away the extra layer of `Maybe`, which is what lets the chain compose without spawning nested boxes. The pattern transfers verbatim to `Either` for error handling (Rust's `Result::and_then`), to `Future` for async (`Future::flatMap` in Scala or `await`-then-call in JavaScript), and to `List` for nondeterminism (`flatMap` over a list is `concatMap`). For real code, prefer language-level sugar when available (`?` in Rust, `do` in Haskell, `for`-yield in Scala, async/await for futures) — the underlying mechanics are exactly the same, but the sugar removes the visual noise of nested closures. The classic reading list is Wadler's *Monads for functional programming* (1992), Moggi's original 1991 paper, and any modern Haskell or Scala intro that builds the IO monad from scratch.
 
 ## complexity
 time: per-step cost is whatever `f` costs, plus O(1) overhead per `map` / `flatMap`. The pattern itself adds nothing to algorithmic complexity.

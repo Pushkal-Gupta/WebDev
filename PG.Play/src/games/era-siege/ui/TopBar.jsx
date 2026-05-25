@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from 'react';
 import { getEraByIndex, nextEra, ERAS } from '../content/eras.js';
 import { BALANCE } from '../content/balance.js';
 import { Icon } from '../../../icons.jsx';
+import { eraDisplayName } from '../utils/themeDisplay.js';
 
 const ROMAN = ['I', 'II', 'III', 'IV', 'V'];
 
@@ -53,7 +54,7 @@ export default function TopBar({
     <header className={`es-strip es-surface-plinth${lowHP ? ' is-low-hp' : ''}`} aria-label="Battle status">
       {/* L · player faction banner + economy */}
       <section className="es-strip-zone es-strip-l">
-        <FactionBanner index={eraIndex} name={era?.name} side="player"/>
+        <FactionBanner index={eraIndex} name={eraDisplayName(era)} side="player"/>
         <GoldPlinth gold={gold} rate={goldRate} capped={isCapped}/>
         <PopNotches population={population} max={popMax}/>
       </section>
@@ -67,7 +68,7 @@ export default function TopBar({
             ready={evolveReady}
             justReady={justReady}
             cost={next.evolveCost}
-            nextName={next.name}
+            nextName={eraDisplayName(next)}
             xpMet={xp >= next.xpToEvolve}
             onEvolve={onEvolve}
           />
@@ -76,7 +77,7 @@ export default function TopBar({
 
       {/* R · enemy summary + tools */}
       <section className="es-strip-zone es-strip-r">
-        <FactionBanner index={enemyEraIndex} name={enemyEra?.name} side="enemy"/>
+        <FactionBanner index={enemyEraIndex} name={eraDisplayName(enemyEra)} side="enemy"/>
         <EnemyHpPlate ratio={enemyR} hp={enemyHP} max={maxHP}/>
         <UtilityCluster
           timeSec={timeSec}

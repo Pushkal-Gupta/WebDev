@@ -25,15 +25,14 @@ status: published
 Given a rooted tree of `n` nodes, the **Lowest Common Ancestor** of two nodes `u` and `v` is the deepest node that is an ancestor of both. Binary lifting precomputes, for each node, its `2^k`-th ancestor for every relevant `k`. After O(n log n) preprocessing, every LCA query is O(log n).
 
 ## whyItMatters
-LCA underpins distance-on-tree queries (`dist(u, v) = depth(u) + depth(v) - 2·depth(lca)`), path-aggregation problems (combine sparse table on the path), tree DP, auto-completion in versioned tries, and reachability in DAGs after a tree decomposition. Once you have LCA, dozens of "given two tree nodes, compute X about the path between them" problems collapse to O(log n) each.
+LCA underpins distance-on-tree queries (`dist(u, v) = depth(u) + depth(v) - 2 * depth(lca)`), path-aggregation problems (sparse table on the path), tree DP, autocomplete in versioned tries, and reachability in DAGs after a tree decomposition. Once you have LCA, dozens of "given two tree nodes, compute X about the path between them" problems collapse to `O(log n)` each. The technique appears inside Git's `git merge-base` (binary lifting over the commit DAG), inside compiler dominator-tree analyses (Cooper-Harvey-Kennedy 2001), inside Kubernetes' resource-hierarchy lookups, and across competitive programming at ICPC and Codeforces level. The same `up` table also answers the k-th ancestor query, so one preprocessing pass solves two classic problems.
 
 ## intuition
-To find LCA(u, v):
-1. Lift the deeper of the two up to the depth of the other.
-2. Now both are at the same depth. If they're equal, that's the LCA.
-3. Otherwise, jump them up together by the largest power of two whose ancestors differ; repeat with smaller powers. They end up just below the LCA. Return either node's parent.
+To find LCA(u, v), do three things. First, lift the deeper of the two nodes up to the depth of the other. Both are now at the same depth in the tree. Second, if they are equal already, that node is the LCA — one was simply an ancestor of the other. Third, otherwise climb both nodes up together by the largest power of two whose ancestors *differ*; repeat with smaller powers. When the loop ends both nodes sit immediately below the LCA, so the answer is the parent (`up[0][u]`, which equals `up[0][v]`).
 
-The "lift by 2^k" jumps come from a precomputed table where `up[k][v] = v`'s ancestor 2^k steps up.
+The "lift by `2^k`" jumps come from a precomputed table where `up[k][v] = v`'s ancestor `2^k` steps up. Any non-negative integer can be written as a sum of distinct powers of two (its binary representation), so climbing exactly `m` steps decomposes into a series of `O(log m)` power-of-two jumps. The first phase (equalizing depths) uses this fact directly: each set bit of `depth[u] - depth[v]` corresponds to one jump.
+
+The second phase (climbing together) uses a clever inversion. Iterate `k` from `LOG` down to `0`. If `up[k][u]` and `up[k][v]` are equal, the LCA is at or above that ancestor — *do not jump*, because you might overshoot. If they differ, the LCA is strictly above that ancestor, so jumping both up by `2^k` is safe. After the descending loop, both nodes are siblings of the LCA and one more step up gives the answer.
 
 ## visualization
 ```
@@ -53,36 +52,41 @@ Both at depth 2: D vs F. Different. Lift both by 2 — both reach root. Lift bot
 For each query, walk both nodes up to the root recording ancestors, then walk one path noting which nodes appear in the other's set. O(n) per query, O(n·Q) total. Dies on n = Q = 10^5.
 
 ## optimal
-**Preprocessing** (DFS from root):
-```
-depth[root] = 0
-up[0][root] = root          # self-loop sentinel
-DFS(v):
-    for child c of v:
-        depth[c] = depth[v] + 1
-        up[0][c] = v
-        DFS(c)
+Preprocess: DFS from the root recording `depth[v]` and `up[0][v] = parent[v]`. For `k` from 1 to `LOG = ceil(log2(n))`, set `up[k][v] = up[k-1][up[k-1][v]]`. Preprocessing is `O(n log n)` time and space.
 
-for k from 1 to LOG-1:
-    for v from 0 to n-1:
-        up[k][v] = up[k-1][ up[k-1][v] ]
+Query LCA(u, v) in `O(log n)`: if `depth[u] < depth[v]` swap. Let `diff = depth[u] - depth[v]`; for each set bit `k` of `diff`, set `u = up[k][u]`. If `u == v` return `u`. Otherwise for `k` from `LOG` down to `0`, if `up[k][u] != up[k][v]` set `u = up[k][u]; v = up[k][v]`. Return `up[0][u]`.
+
+```python
+class LCA:
+    def __init__(self, n, root, tree):
+        self.LOG = max(1, (n - 1).bit_length())
+        self.depth = [0] * n
+        self.up = [[root] * n for _ in range(self.LOG + 1)]
+        stack = [(root, root, 0)]
+        while stack:
+            v, p, d = stack.pop()
+            self.depth[v] = d
+            self.up[0][v] = p
+            for w in tree[v]:
+                if w != p:
+                    stack.append((w, v, d + 1))
+        for k in range(1, self.LOG + 1):
+            for v in range(n):
+                self.up[k][v] = self.up[k - 1][self.up[k - 1][v]]
+    def lca(self, u, v):
+        if self.depth[u] < self.depth[v]: u, v = v, u
+        diff = self.depth[u] - self.depth[v]
+        for k in range(self.LOG + 1):
+            if (diff >> k) & 1:
+                u = self.up[k][u]
+        if u == v: return u
+        for k in range(self.LOG, -1, -1):
+            if self.up[k][u] != self.up[k][v]:
+                u = self.up[k][u]; v = self.up[k][v]
+        return self.up[0][u]
 ```
 
-**Query LCA(u, v)** in O(log n):
-```
-if depth[u] < depth[v]: swap(u, v)
-diff = depth[u] - depth[v]
-for k from 0 to LOG-1:
-    if (diff >> k) & 1: u = up[k][u]
-if u == v: return u
-for k from LOG-1 down to 0:
-    if up[k][u] != up[k][v]:
-        u = up[k][u]
-        v = up[k][v]
-return up[0][u]
-```
-
-Storage `O(n log n)` ints; query `O(log n)` time.
+The critical recurrence is `up[k][v] = up[k-1][up[k-1][v]]` — two half-jumps compose into one full jump, which is what makes the table fill in `O(n log n)` and the query in `O(log n)`. The descending-power-of-two second loop is essential: starting from the largest jump and only firing when the two nodes still differ guarantees you never overshoot the LCA. For `O(1)` LCA at the price of harder preprocessing, switch to the Euler-tour plus RMQ approach with Bender-Farach-Colton sparse table (`O(n)` preprocess, `O(1)` query); for dynamic trees with link/cut operations, link-cut trees give `O(log n)` per operation. For computing distances between arbitrary pairs on a static weighted tree, augment the binary-lifting table with prefix sums on edge weights along the lifted paths.
 
 ## complexity
 - **Preprocessing**: O(n log n) time and space.

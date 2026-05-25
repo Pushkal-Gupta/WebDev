@@ -25,10 +25,14 @@ status: published
 An articulation point (cut vertex) is a vertex whose removal disconnects the graph; a bridge (cut edge) is an edge with the same property. Tarjan's algorithm computes both in one DFS by tracking each vertex's discovery time `tin[v]` and `low[v]` — the smallest discovery time reachable from v's subtree via at most one back edge.
 
 ## whyItMatters
-Bridges and articulation points expose the single points of failure in any network — power grids, road networks, the internet at the AS level, social graphs at the trust level. Identifying them lets you reinforce critical links, compute 2-edge-connected and biconnected components, build block-cut trees, and reason about resilience. Tarjan's O(V + E) algorithm is the canonical answer; anything slower is a non-starter.
+Bridges and articulation points expose the single points of failure in any network — fiber backbones at the ISP level, road networks at the planning level, the Internet at the AS level, social graphs at the trust level, protein interaction networks at the biology level. Identifying them lets you reinforce critical links, compute 2-edge-connected and biconnected components, build block-cut trees for further structural analysis, and reason about resilience. Tarjan's 1973 `O(V + E)` algorithm (*Depth-First Search and Linear Graph Algorithms*) is the canonical answer; anything slower is a non-starter on graphs of millions of edges. The same low-link technique generalizes to Tarjan's strongly-connected-components algorithm for directed graphs and is taught as the second DFS-application after topological sort in every graph-theory course.
 
 ## intuition
-DFS the graph and stamp each vertex with `tin[v]` (discovery time) and `low[v]`, initialized to `tin[v]`. As DFS returns from a child c, update `low[v] = min(low[v], low[c])`. If `low[c] > tin[v]`, no back edge from c's subtree reaches v or earlier — the edge (v, c) is a bridge. If `low[c] >= tin[v]` and v is not the root, v is an articulation point (the subtree at c cannot escape v). The root is an articulation point iff it has two or more DFS children.
+Run a DFS and stamp each vertex with its discovery time `tin[v]` and a second value `low[v]` initialized to `tin[v]`. The `low[v]` is defined as the smallest discovery time reachable from `v`'s DFS subtree using tree edges going down and at most one back edge going up. Compute it during the DFS: after each child `c` returns, set `low[v] = min(low[v], low[c])`; whenever you see a back edge to an already-discovered ancestor `u`, set `low[v] = min(low[v], tin[u])`.
+
+The bridge condition falls out immediately: an edge `(v, c)` is a bridge if and only if `low[c] > tin[v]`. That inequality says "no back edge from `c`'s subtree reaches `v` or any earlier vertex," which means deleting `(v, c)` disconnects `c` and its subtree from the rest of the graph. The articulation condition is similar but `low[c] >= tin[v]`: if `c`'s subtree cannot reach above `v` even with one back edge, removing `v` disconnects that subtree.
+
+The root is a special case. The root is an articulation point if and only if it has *two or more DFS children*. The reasoning: if it has only one DFS child, removing the root still leaves that child's whole subtree connected to itself; if it has two or more, removing the root severs them. Handle parallel edges by tracking the edge index used to descend, not just the parent vertex — otherwise a parallel back edge is mistaken for the tree edge and the algorithm misses bridges.
 
 ## visualization
 Graph: 1-2, 2-3, 3-1, 3-4, 4-5, 5-6, 6-4. DFS from 1: tin = {1:1, 2:2, 3:3, 4:4, 5:5, 6:6}. Back edges: 3-1 (3's neighbor 1 with smaller tin) and 6-4. low values bubble up: low[6] = min(tin[6], tin[4]) = 4; low[5] = min(tin[5], low[6]) = 4; low[4] = min(tin[4], low[5]) = 4. For child 4 of 3: low[4]=4 > tin[3]=3, so edge (3,4) is a bridge. For child 3 of 2: low[3] = min(tin[3], tin[1]) = 1, not > tin[2], no bridge. Articulation points: 3 (low[4] >= tin[3] and 3 is non-root) and 4 (low[5] >= tin[4]).
@@ -37,7 +41,38 @@ Graph: 1-2, 2-3, 3-1, 3-4, 4-5, 5-6, 6-4. DFS from 1: tin = {1:1, 2:2, 3:3, 4:4,
 Try removing each vertex one at a time and run BFS/DFS to see if the remaining graph is connected; same for each edge. O(V * (V + E)) for vertices, O(E * (V + E)) for edges. On a graph with V = 10^4 and E = 10^5, that's 10^9 ops — too slow. The brute approach also misses the elegance of low-link: you'd recompute most of the same DFS state V times.
 
 ## optimal
-Run a single DFS storing tin[v] and low[v]. Maintain parent[v] to ignore the edge back to the parent. When visiting an edge to an unvisited child c, recurse, then update low[v] = min(low[v], low[c]) and check bridge/articulation conditions. When visiting an already-discovered neighbor u that is not the parent, update low[v] = min(low[v], tin[u]) — this is the back edge case. For the root, count DFS children explicitly; root is an articulation point only if it has 2+ DFS children. Handle parallel edges by tracking the edge id instead of the neighbor.
+One DFS with two timestamps per vertex. Maintain a timer; on first visit set `disc[v] = low[v] = timer++`. For each neighbor `u`: if `u` is unvisited, recurse on `u`, then `low[v] = min(low[v], low[u])` and check the bridge / articulation conditions. If `u` is already visited and `u` is not the parent, update `low[v] = min(low[v], disc[u])`. The whole traversal is `O(V + E)` and uses `O(V)` extra space.
+
+```python
+def bridges_and_articulations(graph, n):
+    disc, low = [-1] * n, [-1] * n
+    parent = [-1] * n
+    bridges, art = [], set()
+    timer = [0]
+    def dfs(u):
+        disc[u] = low[u] = timer[0]; timer[0] += 1
+        children = 0
+        for v in graph[u]:
+            if disc[v] == -1:
+                parent[v] = u
+                children += 1
+                dfs(v)
+                low[u] = min(low[u], low[v])
+                if low[v] > disc[u]:
+                    bridges.append((u, v))
+                if parent[u] != -1 and low[v] >= disc[u]:
+                    art.add(u)
+            elif v != parent[u]:
+                low[u] = min(low[u], disc[v])
+        if parent[u] == -1 and children > 1:
+            art.add(u)
+    for start in range(n):
+        if disc[start] == -1:
+            dfs(start)
+    return bridges, art
+```
+
+The critical lines are the two checks after the recursive call: `if low[v] > disc[u]` flags a bridge, `if parent[u] != -1 and low[v] >= disc[u]` flags a non-root articulation. The root handling lives in the post-loop `if parent[u] == -1 and children > 1` line. For very deep graphs (chains of millions) convert to iterative DFS with an explicit stack to avoid Python's recursion limit. For graphs with multi-edges, replace the `v != parent[u]` test with `edge_id != parent_edge[u]` so a parallel back edge is correctly counted as a back edge. The follow-up to bridges is the **block-cut tree**, which contracts each biconnected component into a node and joins them via articulation vertices; many tree-LCA tricks then apply to a graph that is no longer a tree.
 
 ## complexity
 time: O(V + E)

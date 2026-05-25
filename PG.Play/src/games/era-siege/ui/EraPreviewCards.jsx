@@ -9,6 +9,7 @@
 
 import { ERAS, paletteFor } from '../content/eras.js';
 import { getUnit } from '../content/units.js';
+import { eraDisplayName } from '../utils/themeDisplay.js';
 import '../styles.css';
 
 export default function EraPreviewCards() {
@@ -55,7 +56,7 @@ function EraCard({ era }) {
         />
       </div>
       <div className="es-era-card-body">
-        <h4 className="es-era-card-name">{era.name}</h4>
+        <h4 className="es-era-card-name">{eraDisplayName(era)}</h4>
         <p className="es-era-card-blurb">{era.blurb}</p>
       </div>
       <ul className="es-era-card-units">

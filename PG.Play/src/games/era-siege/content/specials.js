@@ -26,6 +26,7 @@ export const SPECIALS = [
     mode: 'lane', damage: 60, radius: 0,
     visual: { primary: '#ffe14f', secondary: '#ff8a3a', kind: 'volley' },
     audio: { chargeCue: 'whistle', impactCue: 'cheer' },
+    themeLabels: { v2: { name: 'Magma Burst' } },
   },
   {
     id: 'iron-rain', eraId: 'iron-dominion', name: 'Iron Rain',
@@ -34,6 +35,7 @@ export const SPECIALS = [
     mode: 'point', damage: 110, radius: 90,
     visual: { primary: '#ffe6c0', secondary: '#7c8a98', kind: 'volley' },
     audio: { chargeCue: 'whistle', impactCue: 'axeReveal' },
+    themeLabels: { v2: { name: 'Bio-Acid Bubble' } },
   },
   {
     id: 'sun-forge', eraId: 'sun-foundry', name: 'Sun Forge',
@@ -42,6 +44,7 @@ export const SPECIALS = [
     mode: 'aura', damage: 180, radius: 120,
     visual: { primary: '#ffcb6b', secondary: '#a26830', kind: 'aura' },
     audio: { chargeCue: 'whistle', impactCue: 'cheer' },
+    themeLabels: { v2: { name: 'Foundry Strike' } },
   },
   {
     id: 'storm-fork', eraId: 'storm-republic', name: 'Storm Fork',
@@ -50,6 +53,7 @@ export const SPECIALS = [
     mode: 'point', damage: 240, radius: 110,
     visual: { primary: '#bef3ff', secondary: '#7be3ff', kind: 'storm' },
     audio: { chargeCue: 'whistle', impactCue: 'shot' },
+    themeLabels: { v2: { name: 'Lightning Chain' } },
   },
   {
     id: 'void-collapse', eraId: 'void-ascendancy', name: 'Void Collapse',
@@ -58,6 +62,7 @@ export const SPECIALS = [
     mode: 'point', damage: 360, radius: 140,
     visual: { primary: '#e9c8ff', secondary: '#1a0a3a', kind: 'singularity' },
     audio: { chargeCue: 'branchCreak', impactCue: 'lose' },
+    themeLabels: { v2: { name: 'Void Rift' } },
   },
 
   // ── Secondary specials (W slot) — bigger swings, longer cooldowns.

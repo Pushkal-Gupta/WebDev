@@ -25,10 +25,14 @@ status: published
 A strongly connected component (SCC) of a directed graph is a maximal set of vertices in which every vertex can reach every other vertex. Tarjan's algorithm finds all SCCs in one DFS using low-link values; Kosaraju's algorithm uses two DFS passes — one on the graph, one on its transpose — and is often easier to remember. Both run in O(V + E).
 
 ## whyItMatters
-SCCs are the backbone of directed-graph analysis. Condensing each SCC to a single node yields the condensation DAG, on which you can run topological sort, dynamic programming, and reachability queries cheaply. SCCs are the engine inside 2-SAT solvers (Aspvall-Plass-Tarjan), implication-graph analysis, dependency cycle detection in build systems and module resolvers, and circuit feedback-set analysis.
+SCCs are the backbone of directed-graph analysis. Condensing each SCC to a single node yields the condensation DAG, on which you can run topological sort, DP, and reachability queries cheaply. SCCs are the engine inside 2-SAT solvers (Aspvall-Plass-Tarjan 1979), implication-graph analysis, dependency-cycle detection in build systems (Bazel, Buck, Cargo, Maven), module resolvers (npm, Go modules), circuit feedback-set analysis, and the cycle-detection passes inside compilers (LLVM's `SCCIterator`, GCC's loop nesting forest). Postgres's optimizer uses an SCC pass on its expression-equivalence graph to canonicalize predicates. Whenever a problem says "directed graph that may have cycles," the first move is almost always to compute SCCs and recurse on the DAG.
 
 ## intuition
-Tarjan: DFS the graph, push each vertex onto a stack on entry. Maintain `low[v]` — the smallest tin reachable from v's subtree via tree or back edges that stay inside the current SCC's portion of the stack. When you finish v and `low[v] == tin[v]`, v is the root of an SCC; pop everything above v (inclusive) off the stack as that SCC. Kosaraju: DFS the original graph and push each vertex onto a stack on finish. Then transpose the graph and DFS in reverse-finish order; each DFS tree on the transpose is one SCC.
+Two equivalent algorithms compute SCCs in `O(V + E)`. Kosaraju (1978) is conceptually simpler. Tarjan (1972) is more elegant and runs in one DFS pass.
+
+Kosaraju: do a DFS on the original graph and push each vertex onto a stack as it *finishes*. Now do DFSes on the *transpose* graph (every edge reversed), popping the stack as start vertices and visiting only unvisited nodes. Each DFS tree in the transpose pass is one SCC. The intuition: in the transpose, an SCC is still strongly connected, but the SCCs themselves are organized as a DAG. Finishing-order on the original is reverse-topological on that DAG, so popping the stack gives source-first order, and each DFS in the transpose stays inside one SCC.
+
+Tarjan: do one DFS on the original graph. Maintain a per-vertex `low[v]` value = the smallest discovery time reachable from `v`'s subtree via tree edges going down and back/cross edges *that lead to vertices currently on the DFS stack*. Push every vertex onto an explicit stack on entry. When you finish `v` and `low[v] == tin[v]`, `v` is the root of an SCC; pop the stack down to and including `v`, and emit that group as one component. The `on_stack` predicate is what restricts the `low` updates to back edges within the current SCC, ensuring the equality `low[v] == tin[v]` happens exactly at SCC roots.
 
 ## visualization
 Edges: 1→2, 2→3, 3→1, 3→4, 4→5, 5→6, 6→4. Tarjan from 1: tin = {1:1, 2:2, 3:3, 4:4, 5:5, 6:6}. From 3, back edge to 1 gives low[3]=1; from 6, back edge to 4 gives low[6]=4. Pop trail: at finish of 6, low[6]=4=tin[6]? No, low[6]=4 and tin[6]=6, low<tin, so 6 is not root. After finishing 5, low[5]=4, not root. Finishing 4, low[4]=4=tin[4], root — pop {6, 5, 4} as one SCC. Finishing 3, low[3]=1, not root. Finishing 2, low[2]=1, not root. Finishing 1, low[1]=1=tin[1], root — pop {3, 2, 1} as the other SCC.
@@ -37,7 +41,39 @@ Edges: 1→2, 2→3, 3→1, 3→4, 4→5, 5→6, 6→4. Tarjan from 1: tin = {1:
 For each pair (u, v), BFS from u to check reach(u, v), then BFS from v to check reach(v, u); union pairs that satisfy both. O(V * (V + E)) per starting vertex, O(V^2 * (V + E)) overall — fine for V = 100, hopeless for V = 10^5. Even smarter brute approaches (V BFSes from each vertex, intersect with V BFSes from the transpose) still cost O(V * (V + E)).
 
 ## optimal
-Tarjan in one DFS: maintain tin[], low[], an explicit stack of vertices in the current path, and an `on_stack[]` flag. On visiting an edge to neighbor w: if w unvisited, recurse then low[v] = min(low[v], low[w]); else if on_stack[w], low[v] = min(low[v], tin[w]). After processing v, if low[v] == tin[v], pop the stack down to v and emit as an SCC. Kosaraju: pass 1 DFS pushes each vertex on finish to a global stack; pass 2 pops the stack and does DFS on the reverse graph from each unvisited vertex; each tree is an SCC.
+Tarjan in one DFS. Maintain `tin[]`, `low[]`, an explicit stack of vertices currently on the DFS path, and an `on_stack[]` flag. On visiting an edge `(v, w)`: if `w` is unvisited, recurse then `low[v] = min(low[v], low[w])`; else if `on_stack[w]`, `low[v] = min(low[v], tin[w])`. After processing all children of `v`, if `low[v] == tin[v]`, pop the stack down to and including `v` and emit as one SCC.
+
+```python
+def tarjan_scc(graph, n):
+    tin = [-1] * n
+    low = [0] * n
+    on_stack = [False] * n
+    stack = []
+    sccs = []
+    timer = [0]
+    def dfs(v):
+        tin[v] = low[v] = timer[0]; timer[0] += 1
+        stack.append(v); on_stack[v] = True
+        for w in graph[v]:
+            if tin[w] == -1:
+                dfs(w)
+                low[v] = min(low[v], low[w])
+            elif on_stack[w]:
+                low[v] = min(low[v], tin[w])
+        if low[v] == tin[v]:
+            comp = []
+            while True:
+                u = stack.pop()
+                on_stack[u] = False
+                comp.append(u)
+                if u == v: break
+            sccs.append(comp)
+    for s in range(n):
+        if tin[s] == -1: dfs(s)
+    return sccs
+```
+
+The critical condition is `elif on_stack[w]: low[v] = min(low[v], tin[w])` — the `on_stack` test restricts back-edge updates to vertices in the *current* SCC stack, which is exactly what makes the SCC root condition `low[v] == tin[v]` hold at the right moment. For very deep graphs convert to iterative DFS with an explicit `(vertex, iterator)` stack to avoid recursion-limit crashes. Kosaraju is a fine alternative if you already have the transpose (`O(V + E)` total, two DFSes). Once you have SCCs, build the condensation DAG by mapping each vertex to its component id and merging parallel edges; the DAG is ready for topological sort, longest-path DP, and reachability via DAG-reachability indexes.
 
 ## complexity
 time: O(V + E)

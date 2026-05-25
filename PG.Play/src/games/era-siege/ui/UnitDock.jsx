@@ -176,6 +176,7 @@ function GeneralCard({ def, unlocked, unlockCost, cooldownMs, alive, gold, tipOp
         className={`es-card2 es-card2-general${disabled ? ' is-disabled' : ''}${tooPoor ? ' is-poor' : ''}${poorFlash ? ' is-flash' : ''}${!unlocked ? ' is-locked' : ''}`}
         onClick={onClick}
         disabled={disabled}
+        aria-disabled={disabled || tooPoor}
         aria-label={`${def.name} (general). ${unlocked ? sub : 'Locked. Click to unlock for ' + unlockCost + ' gold.'}`}
         title={unlocked ? `${def.name} · ${sub}` : `Unlock generals (${unlockCost}g)`}
         {...longPress}>

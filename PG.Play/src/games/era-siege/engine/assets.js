@@ -90,7 +90,10 @@ export const assets = {
   // injected; missing files 404 and fall back to the procedural
   // placeholder for that key.
   setArtPack(pack) {
-    const next = (pack === 'v1' || pack === 'v2') ? pack : 'classic';
+    // Allowlist of theme packs. Each pack mirrors `public/games/era-siege/<id>/`.
+    // Adding a tier? Drop its prefix here, create the folder, ship art.
+    const allow = new Set(['v1', 'v2', 'v3', 'v4', 'v5']);
+    const next = allow.has(pack) ? pack : 'classic';
     if (next === assets._artPack) return;
     assets._artPack = next;
     // Re-load anything that's already resolved so the new pack takes
@@ -158,10 +161,15 @@ export const assets = {
         const img = new Image();
         img.decoding = 'async';
         img.loading  = 'eager';
-        // Art-pack switch: when 'v1' or 'v2', rewrite unit/* +
-        // sprites/unit/* sources to the matching prefix.
+        // Art-pack switch: when a non-classic pack is active, route
+        // per-era asset paths through the pack subdir. Whitelist of
+        // prefixes that have per-pack art on disk: unit/, sprites/unit/,
+        // base/, bg/, special- (the special-eraN.png slots), ui/hp-bar-,
+        // vfx/hazard-, turret/. Non-era vfx (hit-spark, muzzle-flash,
+        // explosion-*) stay classic.
         const pack = assets._artPack;
-        const src = ((pack === 'v1' || pack === 'v2') && /^games\/era-siege\/(unit|sprites\/unit)\//.test(entry.src))
+        const PACK_PREFIX_RE = /^games\/era-siege\/(unit\/|sprites\/unit\/|base\/|bg\/|special-|ui\/hp-bar-|vfx\/hazard-|turret\/)/;
+        const src = (pack !== 'classic' && PACK_PREFIX_RE.test(entry.src))
           ? entry.src.replace('games/era-siege/', `games/era-siege/${pack}/`)
           : entry.src;
         const resolved = new URL(src, base).href;
@@ -371,9 +379,12 @@ reg('vfx/explosion-12', 'games/era-siege/vfx/explosion-12.png',
 // bio-acidic pool). Reserved here so the importer has a stable target;
 // no in-game hazard mechanic yet, but loading is harmless.
 for (let i = 0; i < 5; i++) {
-  reg(`ui/hp-bar-era${i + 1}`, `games/era-siege/v2/ui/hp-bar-era${i + 1}.png`,
+  // Canonical (classic-pack) paths. The art-pack URL rewrite below routes
+  // to v1/v2 subdirs when active; the classic-fallback path keeps loading
+  // graceful when the pack hasn't shipped that file yet.
+  reg(`ui/hp-bar-era${i + 1}`, `games/era-siege/ui/hp-bar-era${i + 1}.png`,
     (_ctx, _x, _y, _o) => { /* CSS bar is the placeholder */ });
-  reg(`vfx/hazard-era${i + 1}`, `games/era-siege/v2/vfx/hazard-era${i + 1}.png`,
+  reg(`vfx/hazard-era${i + 1}`, `games/era-siege/vfx/hazard-era${i + 1}.png`,
     (ctx, x, y, opts) => placeholderExplosion(ctx, x, y, (opts && opts.size) || 48));
 }
 

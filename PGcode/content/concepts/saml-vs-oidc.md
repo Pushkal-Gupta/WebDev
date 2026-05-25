@@ -25,10 +25,14 @@ status: published
 SAML 2.0 (2005) and OpenID Connect (2014) are both *federation* protocols — they let an Identity Provider (IdP) assert "this is Alice, here are her attributes" to a Service Provider (SP) the user wants to log into. SAML uses XML over browser POST redirects and was designed for enterprise web apps; OIDC sits on top of OAuth 2.0, uses JSON Web Tokens (JWT), and was designed for SPAs, mobile apps, and modern APIs. They solve the same problem with different ergonomics.
 
 ## whyItMatters
-If you are selling B2B SaaS, every enterprise procurement checklist asks for SAML — even in 2026. If you are building consumer-facing or API-first, OIDC is the only choice anyone considers. A senior engineer is expected to compare the two without flinching, pick the right one per audience, and not be surprised when a Fortune-500 customer demands SAML for the same product where prosumers use Google OIDC.
+If you sell B2B SaaS, every enterprise procurement checklist asks for SAML — even in 2026. If you build consumer-facing or API-first products, OIDC is the only choice anyone seriously considers. A senior engineer is expected to compare the two without flinching, pick the right one per audience, and not be surprised when a Fortune-500 customer demands SAML for the same product where prosumers use Google OIDC. SAML 2.0 (OASIS 2005) underlies every enterprise SSO platform — Okta, Microsoft Entra ID (formerly Azure AD), PingFederate, OneLogin, ADFS. OIDC (OpenID Foundation, 2014) layers identity on top of OAuth 2.0 (RFC 6749) and powers Google Sign-In, Apple Sign-In, GitHub OAuth, every login-with-X button on the modern web, and the entire mobile / SPA / API ecosystem. WorkOS, Auth0, Stytch, and Clerk all exist to abstract the difference between the two for SaaS vendors.
 
 ## intuition
-Both flows are the same shape: browser bounces from SP to IdP, user signs in, IdP signs an assertion about who the user is, browser carries it back to SP, SP validates the signature and creates a local session. The wire format differs (XML signed with XML-DSig vs JWT signed with JOSE), the discovery mechanism differs (a SAML metadata XML blob vs an OIDC `.well-known/openid-configuration` JSON), and the trust model differs (mutual metadata exchange vs OAuth client registration). Everything else — single sign-on, single logout, attribute mapping — is conceptually identical.
+Both flows are the same shape: the browser bounces from the Service Provider (SP) to the Identity Provider (IdP), the user signs in, the IdP signs an assertion about who the user is, the browser carries the assertion back to the SP, the SP validates the signature and creates a local session. What differs is the wire format and the trust-bootstrap.
+
+**Wire format**: SAML uses XML assertions signed with XML-DSig — verbose, fiddly canonicalization, easy to misvalidate. OIDC uses JSON Web Tokens (JWT) signed with JWS (JOSE family) — short, base64url-encoded, straightforward to validate. **Discovery**: SAML exchanges a metadata XML blob between SP and IdP that lists endpoints, signing certs, and supported bindings. OIDC publishes a JSON document at `/.well-known/openid-configuration` plus a JWKS endpoint, both fetched dynamically by clients. **Trust model**: SAML pre-shares metadata in a one-time enterprise onboarding (often manually). OIDC has a registration step (`client_id` + `client_secret`) plus dynamic JWKS rotation that clients re-fetch on key rollover.
+
+Everything else — single sign-on, single logout, attribute mapping, group claims — is conceptually identical. The protocols differ in ergonomics and lineage (SAML evolved from enterprise federation, OIDC from social login) but solve the same problem. The choice almost always comes down to what the IdP at the other end speaks: enterprise IT shops speak SAML, consumer / API integrations speak OIDC.
 
 ## visualization
 ```
@@ -52,11 +56,30 @@ Same six steps, different payloads.
 "Just roll our own — a signed cookie with the username." You instantly own every problem the protocols solved over 20 years: key rotation, replay defense, audience binding, logout propagation, group/role mapping, MFA assertion strength, session timeout coordination. Two months in you reinvent SAML badly.
 
 ## optimal
-- **OIDC** for new builds, SPAs, mobile, B2C, and any time you control both ends.
-- **SAML** when the buyer's IdP is Okta / Azure AD / PingFederate and the procurement form says "SAML 2.0 required."
-- Most B2B SaaS ships both: OIDC for the default Google/Microsoft login, SAML behind a per-tenant config screen for enterprise plans.
-- Use a battle-tested library (Auth0, WorkOS, Keycloak, Spring Security, Passport) — never hand-roll XML-DSig.
-- Match clock skew (5 min) across all parties; cache IdP signing keys but honor their JWKS rotation hints.
+OIDC for new builds, single-page apps, mobile, B2C, and any time you control both ends. SAML when the buyer's IdP is Okta or Microsoft Entra ID or PingFederate and the procurement form says "SAML 2.0 required." Most B2B SaaS ships both: OIDC for the default Google or Microsoft login, SAML behind a per-tenant config screen for enterprise plans. Never hand-roll either — use a battle-tested library (Auth0, WorkOS, Keycloak, Ory Hydra, Spring Security, Passport.js for OIDC; pysaml2, OneLogin's `python3-saml`, or the same managed services for SAML).
+
+```python
+# OIDC: validate an ID token against the IdP's JWKS
+import jwt, requests
+
+OIDC_ISSUER = 'https://accounts.google.com'
+DISCOVERY = requests.get(f'{OIDC_ISSUER}/.well-known/openid-configuration').json()
+JWKS = requests.get(DISCOVERY['jwks_uri']).json()
+
+def verify_id_token(id_token, audience):
+    header = jwt.get_unverified_header(id_token)
+    key = next(k for k in JWKS['keys'] if k['kid'] == header['kid'])
+    return jwt.decode(
+        id_token,
+        jwt.algorithms.RSAAlgorithm.from_jwk(key),
+        algorithms=['RS256'],
+        audience=audience,
+        issuer=OIDC_ISSUER,
+        leeway=300,        # 5-minute clock skew tolerance
+    )
+```
+
+The critical parameters are `audience` (must match the `client_id` you registered with the IdP) and `issuer` (must match the IdP's expected issuer URL) — without these checks an attacker can replay a token issued for a different application. Cache the JWKS for the duration the IdP advises (`Cache-Control` on the JWKS response) and re-fetch on `kid` mismatch to handle silent key rotation. For SAML, the equivalent dance is signature validation against the IdP's metadata cert plus audience-restriction and not-on-or-after checks on the assertion. Match clock skew (5 minutes by convention) across all parties; the single most common cause of "SSO broken in prod" is an NTP drift between the IdP and SP that pushes the assertion outside the validity window. For B2B SaaS rolling out per-tenant SSO, a thin wrapper like WorkOS or Stytch is almost always cheaper than building SAML and OIDC support in-house.
 
 ## complexity
 time: One redirect chain per login (3-4 HTTP hops); session cookie thereafter — zero IdP traffic until refresh / re-auth.
