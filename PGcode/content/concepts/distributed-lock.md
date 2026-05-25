@@ -1,6 +1,6 @@
 ---
 slug: distributed-lock
-module: system-design
+module: sd-consensus
 title: Distributed Locks
 subtitle: Coordinate exclusive access across N processes — Redis SETNX / Redlock / ZooKeeper / etcd. Fencing tokens prevent stale-lock bugs.
 difficulty: Advanced

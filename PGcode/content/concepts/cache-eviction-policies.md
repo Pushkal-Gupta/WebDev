@@ -1,6 +1,6 @@
 ---
 slug: cache-eviction-policies
-module: system-design
+module: sd-caching-cdn
 title: Cache Eviction Policies
 subtitle: When the cache is full, which entry do you evict? LRU / LFU / FIFO / TTL / W-TinyLFU. Hit ratio is everything.
 difficulty: Intermediate

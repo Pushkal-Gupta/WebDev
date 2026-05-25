@@ -1,6 +1,6 @@
 ---
 slug: articulation-bridges
-module: graphs
+module: graphs-advanced
 title: Articulation Points and Bridges
 subtitle: Tarjan's low-link DFS finds every cut vertex and cut edge in one linear pass.
 difficulty: Advanced

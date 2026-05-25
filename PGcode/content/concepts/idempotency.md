@@ -1,6 +1,6 @@
 ---
 slug: idempotency
-module: system-design
+module: sd-api
 title: Idempotency
 subtitle: Design APIs so that retrying a request produces the same outcome as making it once.
 difficulty: Intermediate

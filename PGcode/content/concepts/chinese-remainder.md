@@ -1,6 +1,6 @@
 ---
 slug: chinese-remainder
-module: math
+module: math-number-theory
 title: Chinese Remainder Theorem
 subtitle: Solve `x ≡ a_i (mod m_i)` for pairwise-coprime m_i in O(k log M) — useful for large-modulus arithmetic and number theory.
 difficulty: Advanced

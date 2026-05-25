@@ -1,6 +1,6 @@
 ---
 slug: range-update-range-query
-module: arrays-searching
+module: arrays-range-structures
 title: Range Update, Range Query
 subtitle: Difference array for offline ranges; segment tree with lazy propagation for online.
 difficulty: Advanced
@@ -15,8 +15,8 @@ references:
   - title: "cp-algorithms — Segment Tree (lazy propagation, range updates)"
     url: "https://cp-algorithms.com/data_structures/segment_tree.html"
     type: blog
-  - title: "indy256/codelibrary — segment tree with lazy propagation"
-    url: "https://github.com/indy256/codelibrary"
+  - title: "kactl — Segment Tree with Lazy Propagation"
+    url: "https://github.com/kth-competitive-programming/kactl"
     type: repo
 status: published
 ---
@@ -59,7 +59,7 @@ Segment tree with lazy (sum over interval):
 ## bruteForce
 Apply each update by looping over `[l, r]` and adding `x` cell by cell. Answer each sum query by looping over `[a, b]`. Code is 3 lines, but with `n = 10^5` and `q = 10^5`, you've hit `10^10` ops and TLE on any judge. Acceptable only when n*q < ~10^8.
 
-## optimal — Difference array (offline)
+## optimal
 ```
 build d[0..n]:
     for each update (l, r, x):
@@ -69,7 +69,7 @@ arr[i] = prefix-sum of d up to i
 ```
 For range *sum* queries after all updates, take a second prefix-sum `P` over `arr`; `sumQuery(a, b) = P[b + 1] - P[a]`. Update is `O(1)` each, finalize is `O(n)`, query is `O(1)`. Total `O(n + u + q)`. Works only when no query needs to see partial updates.
 
-## optimal — Segment tree with lazy propagation (online)
+### Segment tree with lazy propagation (online)
 Every internal node stores `sum` (the aggregated value over its interval) and `lazy` (a deferred add not yet pushed to children). On any traversal that visits a node, `push` first: apply `lazy` to both children's `sum`, propagate `lazy` to their `lazy` slot, clear the node's `lazy`.
 
 ```
@@ -101,13 +101,13 @@ The `push` step is the one most candidates botch — it's mandatory before recur
 - **Comparison**: difference array is unbeatable when the workload separates into "phase of updates, then phase of queries." Segment tree wins when phases interleave or when updates aren't simple adds (e.g. range assign, range multiply).
 
 ## pitfalls
-- **Difference array off-by-one**: `d[r + 1] -= x`, not `d[r] -= x`. Allocate `d` of length `n + 1`.
-- **Forgetting to `push` lazy** before recursing — children read stale `sum` and queries return wrong answers.
-- **Adding `x` to `sum` instead of `x * intervalSize`** when applying lazy — sum is over the interval, not a single cell.
-- **Range assign (set) + range add**: assignment must override pending adds (clear the add, set both `lazy_assign` and the value). Using only one lazy slot here is a classic bug.
-- **Integer overflow**: `x * 10^5 * 10^5` exceeds 32-bit. Use `long`/`long long`.
-- **Building a segment tree of the wrong size**: round up to `4 * n` to be safe.
-- **Iterative segment trees** (Fenwick-style) cannot do lazy propagation directly — Fenwick handles point update + range query, or via two BITs, range update + range sum, but not arbitrary lazy ops.
+- **Difference array off-by-one.** Writing `d[r] -= x` instead of `d[r + 1] -= x` un-applies the update one cell early, so cell `r` itself is missed. Fix: always allocate `d` of length `n + 1` and write `d[r + 1] -= x`; the trailing sentinel cell is never read directly but absorbs the cancellation cleanly.
+- **Forgetting to `push` lazy before recursing.** Children read a stale `sum` and queries silently return wrong totals. Fix: make `push` the first line of every recursive function that descends below the current node; treat it as a precondition, not an optimisation.
+- **Applying `x` instead of `x * intervalSize` to `sum`.** A lazy add of `+3` to an interval of size 10 must add 30 to that node's sum, not 3. Fix: always compute `sum += x * (nr - nl + 1)` in the `apply` helper, never in-line; the helper is the single source of truth.
+- **Mixing range-assign and range-add with one lazy slot.** A subsequent assign must wipe pending adds, but a subsequent add must compose with a pending assign. With one slot the two operations corrupt each other. Fix: store both `lazy_add` and `lazy_assign` plus an `has_assign` flag; on assign, clear `lazy_add` and set `lazy_assign`; on add, just accumulate into `lazy_add`.
+- **Integer overflow.** `x * n * q` quickly blows past `2^31` (e.g. `10^5 * 10^5 = 10^{10}`). Fix: use `long` in Java, `long long` in C++, and BigInt or `Number` carefully in JS; `sum`, `lazy`, and the multiplication in `apply` must all be 64-bit.
+- **Undersized tree array.** Using `2 * n` exactly is enough only when `n` is a power of two; otherwise the recursion writes past the end. Fix: allocate `4 * n` always; the wasted space is negligible compared to the safety.
+- **Reaching for a Fenwick tree for arbitrary lazy ops.** Fenwick supports point update + range query directly, and "range add + range sum" via two BITs, but it cannot do range assign or range max with lazy. Fix: pick segment tree + lazy when the update operation is anything beyond add or single-cell write; reserve Fenwick for its two narrow specialisations.
 
 ## interviewTips
 - Ask first: "Are updates and queries interleaved, or batched?" — that's the fork between difference array and segment tree.

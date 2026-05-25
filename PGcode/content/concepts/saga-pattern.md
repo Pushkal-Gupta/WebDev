@@ -1,6 +1,6 @@
 ---
 slug: saga-pattern
-module: system-design
+module: sd-microservices
 title: Saga Pattern
 subtitle: Coordinate distributed transactions via a sequence of local transactions + compensating actions — no 2PC required.
 difficulty: Advanced

@@ -1,6 +1,6 @@
 ---
 slug: migration-zero-downtime
-module: system-design
+module: sd-reliability
 title: Zero-Downtime DB Migrations
 subtitle: Expand-contract pattern — ADD new column, dual-write, backfill, switch reads, REMOVE old. Never block writes mid-deploy.
 difficulty: Advanced

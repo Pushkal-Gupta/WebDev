@@ -1,6 +1,6 @@
 ---
 slug: dijkstra-fibonacci-heap
-module: graphs
+module: graphs-shortest-paths
 title: Dijkstra with Fibonacci Heap
 subtitle: Theoretical O(E + V log V) shortest paths — and why nobody actually uses it.
 difficulty: Advanced
@@ -25,7 +25,15 @@ status: published
 The textbook Dijkstra implementation uses a binary heap for the priority queue and runs in O((V + E) log V). Replace the binary heap with a Fibonacci heap and the bound improves to O(E + V log V) — better whenever E is much larger than V. This is the theoretical-best comparison-based Dijkstra. In practice, the Fibonacci heap's huge constant factor makes it slower than a plain binary heap on every input that fits in memory.
 
 ## intuition
-Dijkstra spends time on two operations: extract-min (V times) and decrease-key (E times). A binary heap costs O(log V) for both, giving E log V total. A Fibonacci heap is *lazy*: it does only constant amortized work per decrease-key by parking each operation in a linked list and consolidating later, so decrease-keys cost O(1) amortized and only extract-mins do real work — O(log V) amortized each. Total: V log V from extracts + E from decrease-keys.
+The data structure exists because Dijkstra's time is dominated by two heap operations: V extract-min calls and E decrease-key calls (one per edge relaxation that improves a distance). A binary heap (Williams 1964) costs O(log V) for both, giving E log V total. The question Fredman & Tarjan asked in 1987: can we make decrease-key cheaper without sacrificing extract-min's amortised bound?
+
+The decisive observation: by storing the heap as a *forest* of min-heap-ordered trees instead of a single tree, you can make decrease-key essentially free. Instead of bubbling a decreased key up through its tree (O(log V)), just cut the node and its subtree from its parent and add it as a new root of the forest — O(1) work. The forest grows messy over time but is consolidated only during extract-min, which becomes the work-doer. Marking and cascading-cut bookkeeping ensures the amortised cost stays bounded.
+
+Concretely: insert drops a new tree of size 1 into the root list — O(1). Decrease-key cuts the affected node from its parent, marks the parent (potential for cascading cuts), and adds the cut subtree as a new root — O(1) amortised. Extract-min removes the minimum root, then *consolidates* the forest by repeatedly merging same-degree trees pairwise until each degree appears at most once. Consolidation is the expensive step — O(log V) amortised, paid for by the cheap inserts and decrease-keys that came before via potential-function accounting.
+
+Total cost: V extract-mins × O(log V) + E decrease-keys × O(1) = O(V log V + E). For dense graphs where E ~ V², this is O(V²) — same as the array-based Dijkstra — but for sparse graphs where E ~ V, it's O(V log V), strictly better than binary heap's O(V log V + E log V).
+
+In practice, Fibonacci heaps are slower than binary heaps on every input that fits in memory because their constant factors are enormous — pointer-heavy node structures, complex cascading-cut logic (~200 lines of bug-prone code), poor cache locality compared to array-backed binary heaps. Production code uses binary heaps with lazy deletion, pairing heaps (which achieve the same amortised bounds in simpler code), or radix heaps / Dial's algorithm when edge weights are small integers. The Fibonacci heap is one of computer science's classic "asymptotically optimal, practically irrelevant" data structures — important to understand for the analysis lesson, not for production use.
 
 ## whyItMatters
 The Fibonacci heap is one of computer science's classic "asymptotically optimal, practically irrelevant" data structures — students should understand both why the bound is right and why production code ignores it. Real systems use binary heaps, pairing heaps, or radix heaps (for integer weights). Knowing the analysis sharpens your understanding of amortized cost and prepares you for follow-up questions about why d-ary heaps with d = max(2, E/V) sit between the two extremes.
@@ -37,7 +45,44 @@ Imagine a forest of min-heap-ordered trees rather than a single heap. Insert: dr
 Linear-scan priority queue: extract-min is O(V), decrease-key is O(1), total O(V^2 + E). On dense graphs (E ~ V^2) this is actually competitive with the Fibonacci heap and beats binary-heap Dijkstra. On sparse graphs (E ~ V) it is much worse than binary heap (V log V + E log V). The brute-force version is also the one used in CLRS pseudocode, and the right default when V <= ~5000.
 
 ## optimal
-For competitive programming and production: binary heap (std::priority_queue, Python heapq, PriorityQueue in Java). For integer weights bounded by a constant W, a radix heap or Dial's algorithm gets O(E + V * W) or O(E + V * sqrt(log V)). The Fibonacci heap is optimal asymptotically but loses on constants. The pairing heap is the practical middle ground — O(log V) amortized extract-min, O(1) decrease-key in practice, with a much simpler implementation than Fibonacci.
+**Technique: priority-queue choice driven by graph density and weight structure.** Fibonacci heap gives the theoretical-best comparison bound O(E + V log V); binary heap with lazy deletion is the production sweet spot; radix heaps win on integer weights. Use the right tool for the constraints, not the asymptotic winner.
+
+```python
+import heapq
+
+def dijkstra(n, adj, src):
+    INF = float("inf")
+    dist = [INF] * n
+    dist[src] = 0
+    pq = [(0, src)]                              # (distance, node)
+    while pq:
+        d, u = heapq.heappop(pq)
+        if d > dist[u]:                          # lazy deletion: stale entry
+            continue
+        for v, w in adj[u]:
+            nd = d + w
+            if nd < dist[v]:
+                dist[v] = nd
+                heapq.heappush(pq, (nd, v))      # push duplicate instead of decrease-key
+    return dist
+```
+
+Key lines: the `if d > dist[u]: continue` line is **lazy deletion** — instead of supporting an explicit decrease-key operation (which Python's `heapq` doesn't expose), we push duplicates into the heap and skip stale entries on pop. This keeps each operation O(log V) and avoids the node-handle bookkeeping that Fibonacci heaps require. The heap can grow to O(E) entries in the worst case but practical performance is excellent because most stale entries are popped and skipped in tight succession.
+
+**Decision matrix:**
+
+| Graph shape | Best PQ | Total complexity |
+|---|---|---|
+| Sparse, comparison weights | Binary heap + lazy deletion | O(E log V) |
+| Dense (E ~ V²) | Array (linear scan) | O(V²) |
+| Sparse, integer weights ≤ W | Bucket queue / Dial's | O(E + V·W) |
+| Sparse, integer weights, generic | Radix heap | O(E + V·log(max weight)) |
+| Theoretical optimal | Fibonacci heap | O(E + V log V) |
+| Practical compromise | Pairing heap | O(E + V log V) amortised, simpler code |
+
+**Why not Fibonacci heap in practice?** Implementing the consolidation, marking, and cascading-cut logic is roughly 200 lines of pointer surgery that's brittle to get right; the constant factor is 3–5× worse than a binary heap on E ≈ 10·V workloads. Boost Graph Library and LEMON ship Fibonacci-heap Dijkstra for benchmarking purposes but recommend binary or pairing heap for production. **Why not always use radix heap?** Requires bounded-integer weights; falls back to binary heap for real-valued or unbounded weights.
+
+**For competitive programming**: `heapq` (Python), `std::priority_queue` (C++), `PriorityQueue` (Java) — all binary heaps with lazy deletion. **For interviews**: state the bound and immediately admit the constant: "Fibonacci heap gets E + V log V theoretically, but I'd use a binary heap in real code because the constants matter and decrease-key via lazy deletion is good enough." Mention pairing heaps as the practical middle ground if the interviewer pushes for the theoretical bound.
 
 ## complexity
 time: O(E + V log V) amortized with Fibonacci heap.

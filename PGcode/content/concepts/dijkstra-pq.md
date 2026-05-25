@@ -1,6 +1,6 @@
 ---
 slug: dijkstra-pq
-module: graphs
+module: graphs-shortest-paths
 title: Dijkstra's with Lazy Deletion
 subtitle: O((V + E) log V) shortest path from a source — using a priority queue and a "skip stale entries" trick instead of decrease-key.
 difficulty: Intermediate

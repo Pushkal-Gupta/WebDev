@@ -1,6 +1,6 @@
 ---
 slug: mst-prim
-module: graphs
+module: graphs-mst
 title: Prim's Algorithm (MST)
 subtitle: Minimum spanning tree by growing a single connected frontier with a priority queue, O(E log V).
 difficulty: Intermediate

@@ -1,6 +1,6 @@
 ---
 slug: design-pattern-observer
-module: foundations
+module: foundations-patterns
 title: Observer Pattern
 subtitle: Publish/subscribe between objects — one subject notifies many observers without knowing who they are.
 difficulty: Beginner
@@ -25,10 +25,17 @@ status: published
 The Observer pattern lets one object — the subject — broadcast state changes to any number of observers that have registered interest, without the subject knowing who they are or what they do with the news. The relationship is one-to-many and dynamic: observers may attach or detach at any time. Observer is the structural backbone of event systems, MVC view updates, reactive frameworks, and pub/sub middleware.
 
 ## whyItMatters
-Hard-wiring a subject to its consumers (`order.notifyEmail(); order.notifySlack(); order.updateDashboard();`) couples them forever and forces the subject to know every downstream side effect. Each new listener edits the subject. With Observer the subject only fires `notify(event)` and any registered listener reacts. UI frameworks (React state, Vue reactivity, Swing listeners), domain events in DDD, browser DOM events, and Kafka consumers all build on this pattern.
+- **React's `useState` / `useReducer`** schedules re-renders on every subscribed component when state changes; **Vue's `ref` and `reactive`** wire `Proxy` traps to observer lists; **Svelte's stores** and **RxJS `Subject`** are the same pattern at different layers.
+- **Java's `java.beans.PropertyChangeSupport`** and **Swing's listener model** ship Observer in the JDK; Spring's `ApplicationEventPublisher` and `@EventListener` make it the default for in-process domain events.
+- **DOM's `addEventListener`**, **Node's `EventEmitter`**, and **PostgreSQL's `LISTEN/NOTIFY`** are Observer variants — fan-out from one source to many sinks without the source knowing them.
+- **Apache Kafka consumer groups**, **Redis Pub/Sub**, and **AWS SNS** scale the pattern across processes; the original Gang of Four book (Gamma, Helm, Johnson, Vlissides, 1994) defined it for in-process Smalltalk MVC, but the shape generalizes to every messaging system since.
 
 ## intuition
-Think of a YouTube channel. The channel posts a video; every subscriber gets a notification; the channel has no idea which subscribers exist or what they do with the alert. New subscribers can join anytime; existing ones can unsubscribe. The channel's job is to push the event; the subscribers' job is to react.
+The problem Observer solves: an object's state change has many consequences, and you do not want the changing object to enumerate them. A YouTube channel uploading a video should not need a hand-coded list of every subscriber's email; it should fire one event and let the platform fan it out. A spreadsheet cell that changes should not know which dependent cells need recomputing; it should publish "I changed" and let the dependency graph propagate. A network packet arriving should not know which application handlers want to inspect it; it should hit a dispatch table.
+
+The mental shift is from **imperative push** (caller knows every callee by name) to **registration plus broadcast** (caller knows nothing about callees; callees opt in). This inverts the dependency arrow: instead of the subject depending on the concrete observers, the observers depend on the subject's event contract. The Hollywood Principle — "don't call us, we'll call you" — captures it.
+
+The trade you make: visibility for flexibility. With direct calls, you can read the source and see every consequence at the call site. With Observer, that consequence list is built at runtime from `attach()` calls scattered across the codebase. You gain the ability to add a fifth side effect without touching the subject (a closed-for-modification, open-for-extension boundary, in SOLID terms), but you lose static call-graph clarity. Frameworks fight this with event-bus instrumentation, devtools (React DevTools, Vue Devtools), and naming conventions.
 
 ## visualization
 Draw a `Subject` with three methods — `attach`, `detach`, `notify` — and a list of observer references. Three observers — `EmailObserver`, `SlackObserver`, `MetricsObserver` — each implement `update(event)`. When `subject.notify("order placed")` runs, the loop calls `update` on every observer in turn. Add or remove a listener by appending/removing from the list; the subject does not change.
@@ -45,7 +52,42 @@ def place_order(self):
 Adding a fifth side effect means editing this method. Removing one for tests means commenting it out. The Single Responsibility Principle is broken and the method becomes a list of imports from every corner of the system.
 
 ## optimal
-Define an `Observer` interface with an `update(event)` method. Give the `Subject` a list of observers plus `attach(observer)` and `detach(observer)`. On state change, iterate the list and call `update`. Choose between *push* (subject sends the full event payload) and *pull* (observer asks the subject for details). For thread-safety, copy the listener list before iteration. For unbounded async fanout, prefer an event bus or message broker, which is the same pattern at a different scale.
+The right structure is a **Subject** holding a registry of observers, plus `attach()`, `detach()`, and `notify()` methods. On state change, iterate a **snapshot** of the registry (not the live list) and call each observer's `update(event)`. The snapshot is critical — observers commonly detach themselves or attach new ones mid-notification, and mutating the list while iterating throws `ConcurrentModificationException` in Java or skips elements in Python. Defensive copy is one line; the bug is hours to debug.
+
+Choose **push** versus **pull**: push sends the full event payload (`update(event)`), pull sends a reference to the subject (`update(subject)`) so observers query what they need. Push is simpler and is what React, Redux, and Kafka use. Pull is more flexible when observers want different slices of subject state. Hybrid (event with a "fetch more from subject" handle) is common in DOM events — `event.target` lets handlers query the source.
+
+```python
+import weakref
+
+class Subject:
+    def __init__(self):
+        self._observers: list = []
+        self._notifying = False
+
+    def attach(self, fn):
+        self._observers.append(weakref.WeakMethod(fn) if hasattr(fn, "__self__") else fn)
+
+    def detach(self, fn):
+        self._observers = [o for o in self._observers if o != fn]
+
+    def notify(self, event):
+        if self._notifying:                  # cycle guard
+            return
+        self._notifying = True
+        try:
+            for obs in list(self._observers):  # snapshot
+                ref = obs() if isinstance(obs, weakref.WeakMethod) else obs
+                if ref is None:
+                    continue
+                try:
+                    ref(event)
+                except Exception as e:
+                    log.exception("observer failed", extra={"err": e})
+        finally:
+            self._notifying = False
+```
+
+Why this is right: it handles the four classical pitfalls in one structure. **Memory leaks** (observers held forever) are solved by `WeakMethod` references — Microsoft's WPF and Qt both ship this pattern. **Cyclic notification** (observer mutates subject, re-firing notify) is guarded by `_notifying`. **Observer exceptions** crashing the broadcast are caught per-listener and logged. **Iteration-time mutation** is avoided by the snapshot. For cross-process fan-out, the same shape scales to a message broker — Kafka topics, Redis Pub/Sub, AWS SNS, and Google Pub/Sub are Observer at infrastructure scale, with the broker owning the registry and guaranteeing at-least-once delivery.
 
 ## complexity
 time: O(k) per notification where k is the number of observers

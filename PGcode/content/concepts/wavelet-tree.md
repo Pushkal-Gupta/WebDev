@@ -1,6 +1,6 @@
 ---
 slug: wavelet-tree
-module: arrays-searching
+module: arrays-counting-select
 title: Wavelet Tree
 subtitle: k-th element in a range, range rank, and range quantile in O(log sigma) per query.
 difficulty: Advanced

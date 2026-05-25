@@ -1,6 +1,6 @@
 ---
 slug: quickhull
-module: math
+module: math-geom-sampling
 title: Quickhull
 subtitle: Divide-and-conquer convex hull — O(n log n) expected, O(n²) worst case. Like Quicksort but for points.
 difficulty: Advanced

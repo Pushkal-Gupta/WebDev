@@ -25,10 +25,14 @@ status: published
 A t-digest summarises a stream of real-valued samples into a compact set of weighted centroids so you can ask for any quantile (median, p99, p99.9) with bounded error. Unlike sketches that give uniform error across the distribution, t-digest tightens error at the tails — exactly where SLO percentiles live.
 
 ## whyItMatters
-Latency SLOs are written as p99 or p99.9. Exact percentiles need every sample sorted, which is impossible on a billion-RPS stream. Reservoir sampling is too coarse; histograms with fixed bins under-resolve the tails. t-digest gives ~50 KiB of state per stream, sub-millisecond merges, and relative error around 0.01% at p99 with a typical compression of 100.
+Latency SLOs are written as p99 or p99.9. Exact percentiles need every sample sorted, which is impossible on a billion-RPS stream. Ted Dunning's t-digest (2013, *Computing Extremely Accurate Quantiles Using t-Digests*) is the de-facto solution: roughly 50 KiB of state per stream, sub-millisecond merges, and relative error around 0.01% at p99 with a typical compression of 100. Elastic uses it for the `percentiles` aggregation, Apache Druid for its sketch-based percentile queries, Datadog ships it as the storage format for distribution metrics, Prometheus' Mimir and Cortex use it as a long-term store complement to native histograms, and Apache Cassandra's `nodetool tablehistograms` reports t-digest output. Reservoir sampling is too coarse for the tails; fixed-bin histograms under-resolve precisely where you need accuracy.
 
 ## intuition
-Sort the samples and group them into clusters along the empirical CDF. Near the median, big clusters are fine — one cluster covers many samples. Near q = 0 or q = 1, clusters must be small so the percentile estimate is sharp. t-digest chooses a "scale function" that maps quantile q to a notional position; cluster i may contain weight up to k^-1(k(q_i) + 1) - k^-1(k(q_i)), which shrinks toward the tails. Merging two digests is just combining their centroid lists and re-clustering.
+A t-digest summarizes a stream as a list of centroids, each one a `(mean, weight)` pair. Centroids near the tails (close to 0% or 100%) are allowed to hold only a few samples each, so their mean is a tight estimate of the underlying quantile. Centroids in the middle (around 50%) are allowed to hold many samples, because the median is robust and even a coarse estimate is fine there. This variable-resolution trick is the key insight: spend bits where they help your SLO (the tails) and save them where they do not (the middle).
+
+The shape that controls bin size is a scaling function `k(q)` that maps quantile `q in [0,1]` to a notional position on a number line. The function is shallow near `q = 0.5` and steep near `q = 0` or `q = 1`, so converting back gives wide bins in the middle and narrow bins in the tails. New samples are merged into the centroid whose `k` index sits closest, splitting if the merge would push it past a compression budget proportional to `1 / (q * (1 - q))`.
+
+Two properties make t-digest production-friendly. **Mergeable**: combining two digests is just centroid concatenation followed by a re-cluster pass, so per-shard digests can be aggregated cheaply at query time. **Order-independent error**: the bounds hold regardless of input order, unlike GK summaries which need careful sequencing.
 
 ## visualization
 Imagine the empirical CDF as a curve from (min, 0) to (max, 1). Sprinkle centroids along it. In the middle the centroids are spaced widely on the x-axis; near both ends they crowd together. To find p99, walk centroids accumulating weight until the cumulative weight crosses 0.99 * N, then linearly interpolate inside the straddling centroid. The denser tail-clustering keeps the interpolation interval small even when N is huge.
@@ -37,7 +41,26 @@ Imagine the empirical CDF as a curve from (min, 0) to (max, 1). Sprinkle centroi
 Buffer every sample and sort to answer a quantile. O(N log N) time and O(N) memory. For a stream this is infeasible after a few million points. A naive fix is to keep two heaps for the median (the "Find Median from Data Stream" pattern), but that only gives one quantile and still uses O(N) memory.
 
 ## optimal
-Maintain a sorted list of (mean, weight) centroids. For each incoming sample x: find the closest centroid whose total weight after absorbing x stays under its scale-bounded capacity, then update its mean as a weight-weighted average. If no such centroid exists, insert a new singleton centroid. Periodically compress: sort centroids, shuffle, and re-stream to merge under-capacity neighbours. To estimate quantile q, scan centroids accumulating weight and linearly interpolate at the crossing point. Merging two digests is appending centroid lists and running one compression pass.
+Use the reference C++/Java/Python implementations (`tdunning/t-digest`, `MetricsHub/t-digest`, `CamDavidsonPilon/tdigest`) with the default merging algorithm and a compression parameter `delta = 100` for most metrics. Insert is `O(log K)` amortized where `K` is the centroid count (typically a few hundred). Merge across shards is `O(K_1 + K_2)` and produces a digest that still meets the original error bound. Query is `O(log K)` by binary-searching the cumulative-weight prefix array.
+
+```python
+from tdigest import TDigest
+
+stream = TDigest(delta=100)
+for latency_ms in events():
+    stream.update(latency_ms)
+
+p50 = stream.percentile(50)
+p99 = stream.percentile(99)
+p999 = stream.percentile(99.9)
+
+shard_digests = [TDigest.from_bytes(b) for b in fetch_shard_blobs()]
+global_digest = TDigest()
+for d in shard_digests:
+    global_digest += d
+```
+
+The critical line is `global_digest += d`, the merge operator. It is the reason t-digest fits horizontally-scaled systems: every shard emits its own digest, the aggregator concatenates, and the answer is mathematically identical to a single-node digest fed the union of streams. The accuracy guarantee from Dunning's paper is: at compression `delta = 100`, error at p99 is below 1% relative; at `delta = 1000`, below 0.1%. Memory grows linearly in `delta` and is independent of the stream length — exactly the property you need for a metric that runs forever. For SLO dashboards ingesting hundreds of millions of samples per minute, set `delta = 200` and run a per-minute roll-up that merges per-shard digests into a single per-minute digest before persisting; storage stays flat while preserving the tail accuracy auditors care about.
 
 ## complexity
 time: O(log d) amortised per insert, O(d) per quantile query

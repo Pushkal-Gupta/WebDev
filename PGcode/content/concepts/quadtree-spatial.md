@@ -1,6 +1,6 @@
 ---
 slug: quadtree-spatial
-module: trees
+module: trees-balanced-disk
 title: Quadtree (Spatial Index)
 subtitle: Recursive quadrant subdivision for 2D points — log-time nearest-neighbor and range queries on planar data.
 difficulty: Advanced

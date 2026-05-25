@@ -1,6 +1,6 @@
 ---
 slug: vector-clocks
-module: cs-core
+module: cs-tools-encodings
 title: Vector Clocks
 subtitle: Track causality across distributed nodes with per-process integer counters.
 difficulty: Advanced

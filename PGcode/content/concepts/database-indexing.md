@@ -1,6 +1,6 @@
 ---
 slug: database-indexing
-module: system-design
+module: sd-storage
 title: Database Indexing
 subtitle: Trade write-time + storage for read-time — B-tree, hash, GIN, BRIN, partial, composite. Pick by query shape.
 difficulty: Intermediate

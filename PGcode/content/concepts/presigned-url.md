@@ -1,6 +1,6 @@
 ---
 slug: presigned-url
-module: system-design
+module: sd-caching-cdn
 title: Presigned URLs
 subtitle: A time-limited, signature-bound URL that lets a browser PUT or GET an object in S3 directly, without ever proxying bytes through your API server.
 difficulty: Intermediate

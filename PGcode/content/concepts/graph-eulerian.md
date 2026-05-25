@@ -1,6 +1,6 @@
 ---
 slug: graph-eulerian
-module: graphs
+module: graphs-advanced
 title: Eulerian Path / Circuit
 subtitle: Find a walk that uses every edge exactly once via Hierholzer's algorithm.
 difficulty: Advanced

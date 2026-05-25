@@ -1,6 +1,6 @@
 ---
 slug: data-lake-warehouse
-module: system-design
+module: sd-storage
 title: Data Lake vs Warehouse vs Lakehouse
 subtitle: Raw schema-on-read storage vs modeled schema-on-write — and the hybrid that wins.
 difficulty: Intermediate

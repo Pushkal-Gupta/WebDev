@@ -1,6 +1,6 @@
 ---
 slug: aho-corasick-failure
-module: sorting-strings
+module: strings-advanced
 title: Aho-Corasick Failure Links
 subtitle: Build a trie from a dictionary, then add BFS-computed failure links — match all patterns in a text in O(text + total pattern length + matches).
 difficulty: Advanced

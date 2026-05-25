@@ -1,6 +1,6 @@
 ---
 slug: dns-architecture
-module: system-design
+module: sd-network
 title: DNS Architecture
 subtitle: Hierarchical name → IP lookup — root servers → TLD → authoritative → resolver caches. Sub-50ms with caching, every web request depends on it.
 difficulty: Intermediate

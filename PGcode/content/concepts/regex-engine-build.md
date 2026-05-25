@@ -1,6 +1,6 @@
 ---
 slug: regex-engine-build
-module: sorting-strings
+module: strings-matching
 title: Build a Simple Regex Engine
 subtitle: Compile a pattern to an NFA via Thompson's construction, then simulate it on the input.
 difficulty: Advanced
@@ -25,10 +25,20 @@ status: published
 A regex engine answers the question "does this string match this pattern?" for a tiny language: literal characters, concatenation, alternation `a|b`, and Kleene star `a*`. The clean textbook approach compiles the pattern into a non-deterministic finite automaton (NFA) via Thompson's construction, then simulates that NFA on the input by tracking a set of currently active states.
 
 ## whyItMatters
-Every grep, lexer, tokenizer, and validation library leans on the same recursive idea: small NFAs glue together into bigger NFAs through three operators. Writing one from scratch teaches you why catastrophic backtracking happens in PCRE-style engines (they explore one path deeply) and why Thompson-style engines stay linear (they explore all paths in lockstep).
+- **grep, ripgrep, GNU sed**: ripgrep and Go's `regexp` package use Thompson-style NFA simulation specifically to avoid catastrophic backtracking on adversarial inputs. RE2 (the Google-authored library powering many of these) is the production reference.
+- **Lexers and tokenisers**: flex, the lexer behind countless compilers, and Lark / ANTLR generators all compile regular-expression rules into NFAs and then determinise into DFAs for token recognition.
+- **Validation libraries** for JSON Schema patterns, OpenAPI specs, and CloudFlare WAF rules use regex engines that must run on attacker-controlled input — backtracking engines have caused real outages (Cloudflare's 2019 global outage was a catastrophic-backtracking regex).
+- **The original Thompson 1968 paper** (Ken Thompson, "Regular Expression Search Algorithm") introduced this exact construction; it is the algorithmic ancestor of every modern regex engine.
+- Writing one from scratch teaches you why `(a+)+$` hangs in Java/Perl/Python (backtracking explores one path deeply) and why grep stays linear (NFA simulation explores all paths in lockstep). It is a top-tier system-design follow-up at Google, Cloudflare, and Datadog.
 
 ## intuition
-An NFA is a graph of states connected by labelled edges; some edges are free ("epsilon"). At every position in the input you maintain the set of states reachable so far. Reading a character advances every state that has a matching outgoing edge; epsilon-closure then expands that frontier. Acceptance is whether the final accept state is in the set after consuming the whole string.
+The algorithm exists because the naïve approach to matching — recursive backtracking — explores one match path at a time and can revisit the same `(pattern_position, input_position)` state exponentially many times. The escape route is Thompson 1968's insight: convert the pattern into an NFA whose states are pattern positions and whose transitions encode "what the next character must be", then simulate the NFA by tracking *all currently-active states* in parallel. Each input character advances every active state in lockstep, so the total work is bounded by O(m·n) regardless of how the pattern is shaped.
+
+An NFA is a graph of states connected by labelled edges; some edges are "epsilon" (free transitions taken without consuming input). At every position in the input you maintain the set of states reachable so far. Reading a character advances every active state that has a matching outgoing edge; epsilon-closure then expands the new frontier with any states reachable via free transitions. Acceptance is whether the final accept state is in the set after consuming the whole string.
+
+Thompson's construction builds the NFA compositionally from three operators. A literal `a` becomes a two-state edge labelled `a`. Concatenation `XY` wires X's accept to Y's start via epsilon. Alternation `X|Y` creates a fresh start with two epsilon edges into X and Y, and merges their accept states via epsilon into a fresh accept. Kleene star `X*` adds an epsilon loop from X's accept back to X's start plus a bypass epsilon from the loop start to the loop accept (allowing zero repetitions). The resulting NFA has at most O(m) states and O(m) edges.
+
+The deeper principle: by tracking sets of states instead of a single state with backtracking, you replace exponential exploration with set-update operations of bounded size. Each state appears at most once in the active set per step (dedup), so per-character work is O(m), giving O(m·n) total. This is precisely the "frontier of all possibilities" pattern that recurs in BFS, simulation, and dynamic-programming-as-graph-traversal.
 
 ## visualization
 For pattern `a(b|c)*` the NFA has five nodes. State 0 reads `a` to state 1. From 1 epsilons fork into two branches: one reads `b`, the other reads `c`, both rejoining at 1. Trace input `abcb`: active sets evolve `{0}` then read `a` so `{1}` then read `b` so `{1}` then read `c` so `{1}` then read `b` so `{1}` — accept.
@@ -37,7 +47,59 @@ For pattern `a(b|c)*` the NFA has five nodes. State 0 reads `a` to state 1. From
 Walk the pattern recursively and try every alternative at every position. For `a*` this means "try 0 copies, then 1, then 2 ..." with full back-tracking. For pathological inputs like `a*a*a*a*b` against `aaaaaa` this devolves into 2^n exploration. Correct but a productivity bomb for adversarial strings.
 
 ## optimal
-Compile once, simulate once. Compilation is recursive on the parsed pattern: literal becomes a two-state edge; concatenation `XY` wires X's accept to Y's start; alternation `X|Y` creates a fresh start with two epsilon edges and merges accepts via epsilons; Kleene star `X*` adds an epsilon loop from X.accept back to X.start plus a bypass epsilon. Simulation tracks a set of active states, advances it one input character at a time, and accepts if the final set contains the accept state.
+**Technique: Thompson NFA construction + parallel active-set simulation (no backtracking).** O(m·n) time, O(m) space. Optimal among NFA-simulation algorithms because each `(state, input_position)` pair is touched at most once — the set deduplication is the lever that prevents exponential exploration. RE2, Go's regexp, and ripgrep use precisely this design (or a derived DFA after on-the-fly subset construction).
+
+```python
+class State:
+    def __init__(self):
+        self.edges = []      # list of (char, dest_state) labelled transitions
+        self.eps = []        # list of free (epsilon) transitions
+        self.accept = False
+
+def compile_pattern(pat):
+    def parse(i):
+        start = accept = State()
+        while i < len(pat) and pat[i] not in ')|':
+            if pat[i] == '(':
+                sub_start, sub_accept, i = parse(i + 1); i += 1
+            else:
+                sub_start, sub_accept = State(), State()
+                sub_start.edges.append((pat[i], sub_accept)); i += 1
+            if i < len(pat) and pat[i] == '*':           # Kleene star: loop + bypass
+                loop = State()
+                loop.eps += [sub_start, accept]
+                sub_accept.eps.append(loop)
+                accept.eps.append(loop)
+                accept = loop; i += 1
+            else:                                          # concatenation
+                accept.eps.append(sub_start); accept = sub_accept
+        return start, accept, i
+    start, accept, _ = parse(0)
+    accept.accept = True
+    return start
+
+def closure(states):                                       # epsilon-closure: expand via free transitions
+    stack, seen = list(states), {id(s) for s in states}
+    while stack:
+        for n in stack.pop().eps:
+            if id(n) not in seen:
+                seen.add(id(n)); stack.append(n); states.add(n)
+    return states
+
+def matches(pat, text):
+    active = closure({compile_pattern(pat)})
+    for ch in text:
+        nxt = set()
+        for s in active:
+            for c, dst in s.edges:
+                if c == ch: nxt.add(dst)
+        active = closure(nxt)                              # advance every active state in lockstep
+    return any(s.accept for s in active)
+```
+
+Key lines: `loop.eps += [sub_start, accept]` is Thompson's Kleene-star construction — the loop state has free transitions both back into the sub-NFA (allowing more repetitions) and forward to the accept (allowing zero or termination). `closure()` is the epsilon-closure routine that expands the active set with every state reachable via free transitions; without it, alternation and star would silently lose matches. The simulation loop `for s in active: for c, dst in s.edges: if c == ch: nxt.add(dst)` advances every currently-active state simultaneously — the parallel-frontier idea that kills backtracking.
+
+**Why not regex with backtracking (Python `re`, Java `Pattern`, PCRE)?** Backtracking engines support more features (back-references, lookahead, lookbehind), but pay catastrophic worst-case exponential time. Cloudflare's 2019 global outage was caused by exactly this. **Why not DFA?** A DFA gives O(n) match time but O(2^m) construction in the worst case. Production engines like RE2 use a hybrid that lazily caches DFA states from the NFA on demand. **Why not Aho-Corasick?** Aho-Corasick (1975) is the multi-pattern analogue — same era, same paradigm — and is optimal when you have a fixed dictionary of patterns to scan for simultaneously.
 
 ## complexity
 time: O(m * n) where m = pattern length, n = input length

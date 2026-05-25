@@ -1,6 +1,6 @@
 ---
 slug: treap-randomized-bst
-module: trees
+module: trees-balanced-disk
 title: Treap — Randomized Balanced BST
 subtitle: BST on keys + heap on random priorities — expected O(log n) without rotations bookkeeping.
 difficulty: Advanced

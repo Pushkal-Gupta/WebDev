@@ -1,6 +1,6 @@
 ---
 slug: design-pattern-template-method
-module: foundations
+module: foundations-patterns
 title: Template Method Pattern
 subtitle: Algorithm skeleton with overridable steps
 difficulty: Beginner
@@ -19,10 +19,69 @@ status: published
 Template Method defines the skeleton of an algorithm in a base class while letting subclasses override specific steps without changing the overall structure. The base method orchestrates the order; subclasses fill in the variable parts. It is the Hollywood principle in code: do not call us, we will call you.
 
 ## whyItMatters
-Many workflows share the same outline but differ in details — parsing a report, processing a payment, rendering a page, training a model. Copy-pasting the skeleton across subclasses leads to drift when one variant changes the outline but others do not. Template Method enforces a single source of truth for the order and surfaces only the genuine variation points.
+- **JUnit / pytest test runners**: the base class enforces `setUp → run → tearDown` order; your test class overrides only the hooks. Without the pattern, every test author would re-implement teardown ordering and forget to release resources.
+- **Servlet API (`HttpServlet.service`)**: dispatches by method to `doGet`, `doPost`, `doPut`; your servlet overrides only the relevant verbs. The order — auth check, dispatch, response flush — is fixed by the container.
+- **React class-component lifecycle**: `componentDidMount`, `componentDidUpdate`, `componentWillUnmount` are template hooks the framework guarantees to call in a specific order.
+- **Spring Batch jobs**: `AbstractStep.doExecute` orchestrates open-reader → process-chunk → write-chunk → commit, with hooks for read, process, write that you supply.
+- **AWS Lambda runtime**: invokes your `handler` inside a fixed init → invoke → shutdown loop; you only override the invoke step.
+- **Compiler passes (LLVM `FunctionPass`, GCC plugins)**: pass infrastructure runs the schedule; you implement `runOnFunction` and inherit ordering, dominance analysis, and pass dependencies for free.
+
+The economic argument: a 5-step workflow used by 12 variants without the pattern costs 60 callsites to maintain; with Template Method it's one skeleton plus 12 small overrides — a 5× reduction in surface area when the workflow itself evolves.
 
 ## intuition
-Think of a recipe template for baked goods: gather ingredients, mix, bake, cool, frost. Every cake or bread follows that outline. What differs is which ingredients, what oven temperature, what frosting. The template is fixed; the substitutions are subclassed.
+The pattern exists to solve one specific problem: you have multiple workflows that *almost* share an algorithm, but each diverges at a handful of well-defined points. Naively, you write each variant top-to-bottom and live with the duplication. The first time you need to add a step — say, a logging hook between two phases — you discover the duplication has metastasised: the new step must be inserted in *every* variant, in *exactly* the same place, with *exactly* the same arguments, and any drift is silent.
+
+Template Method's move is to invert the locus of control. Instead of subclasses *containing* the workflow and *calling out* to shared helpers, the base class *owns* the workflow and *calls in* to subclass-supplied steps. This is the Hollywood Principle ("don't call us, we'll call you"). The skeleton lives in exactly one place and is therefore impossible to drift. New steps are inserted once, in the base class, and propagate to every subclass automatically. Hooks let subclasses optionally extend the workflow without rewriting it.
+
+The mental model that helps most is a recipe with blanks. The base class is a printed recipe card: "preheat to ___°F, mix ___ for ___ minutes, bake for ___ minutes, cool, top with ___". The order of operations and the structure are typeset in ink. The blanks are the abstract methods subclasses must fill. Hooks are optional steps the recipe mentions parenthetically — "(optionally brush with egg wash)" — that default to no-op. Subclasses cannot reorder the steps, cannot delete the bake step, cannot skip cooling. They can only fill blanks and opt into hooks.
+
+This rigidity is the point. Template Method is the right pattern when the *order* of operations is invariant and the *content* of operations varies. If both the order and the content vary, you want Strategy instead. The choice is determined by where you draw the stable / unstable boundary in your domain.
+
+## optimal
+The base class declares one `final` (or otherwise non-overridable) public method — the template — that orchestrates the workflow. Each varying step is a protected method, marked abstract when subclasses must provide it, given a default body when optional. Hooks are no-op virtuals subclasses may override.
+
+```python
+from abc import ABC, abstractmethod
+
+class DataPipeline(ABC):
+    def run(self):                          # the template; do not override
+        raw = self.extract()
+        validated = self.validate(raw)
+        self.before_transform(validated)    # optional hook, no-op by default
+        out = self.transform(validated)
+        self.load(out)
+        self.after_load(out)
+        return out
+
+    @abstractmethod
+    def extract(self): ...                  # required
+
+    def validate(self, rows):               # default = pass-through; override to add checks
+        return rows
+
+    @abstractmethod
+    def transform(self, rows): ...          # required
+
+    @abstractmethod
+    def load(self, rows): ...               # required
+
+    def before_transform(self, rows): pass  # hook
+    def after_load(self, rows): pass        # hook
+
+class CsvToPostgres(DataPipeline):
+    def __init__(self, path, conn): self.path, self.conn = path, conn
+    def extract(self):    return list(csv.DictReader(open(self.path)))
+    def transform(self, rows):
+        return [{**r, "ingested_at": datetime.utcnow()} for r in rows]
+    def load(self, rows):
+        execute_values(self.conn.cursor(), "INSERT INTO events VALUES %s", rows)
+    def after_load(self, rows):
+        log.info("loaded %d rows", len(rows))
+```
+
+Why this is the right shape: the *workflow* is asserted exactly once and cannot be subverted; the *variation points* are explicit in the type signature (abstract = must override, default = may override, hook = no-op extension); and the *execution order* is encoded as straight-line code in `run`, which is the easiest possible form to audit.
+
+Implementation discipline that distinguishes good template methods from sprawling ones: (1) mark the template `final` in Java/C#, or document the contract in Python — letting subclasses override the skeleton itself destroys the pattern; (2) keep abstract steps minimal — every required override is friction for new subclass authors, so prefer optional defaults plus hooks; (3) name hooks with `before_` / `after_` prefixes so override intent is obvious at the call site; (4) when variation explodes past five or six concrete subclasses, the workflow probably has multiple axes of variation and you should switch to Strategy + composition before the inheritance tree calcifies. The pattern has zero asymptotic cost — one virtual dispatch per step — so it's almost always free in production.
 
 ## visualization
 Picture a numbered list with some lines blank. The base class fills in the numbered structure and marks blanks as hooks. Subclasses fill the blanks. At runtime the base method walks the list in order, calling into the subclass at each hook.

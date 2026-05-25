@@ -1,6 +1,6 @@
 ---
 slug: tcp-vs-quic
-module: cs-core
+module: cs-network-protocols
 title: TCP vs QUIC
 subtitle: Head-of-line blocking, 0-RTT handshakes, and how multiplexed streams over UDP changed the modern internet.
 difficulty: Advanced

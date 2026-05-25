@@ -1,6 +1,6 @@
 ---
 slug: consistent-hashing
-module: system-design
+module: sd-storage
 title: Consistent Hashing
 subtitle: Map keys to nodes so adding or removing a node moves only 1/N of the keys.
 difficulty: Advanced

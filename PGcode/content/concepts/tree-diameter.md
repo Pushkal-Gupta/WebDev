@@ -1,6 +1,6 @@
 ---
 slug: tree-diameter
-module: trees
+module: trees-advanced-queries
 title: Tree Diameter
 subtitle: Find the longest path in a tree with two BFS / DFS passes in O(n).
 difficulty: Intermediate
@@ -25,10 +25,21 @@ status: published
 The diameter of a tree is the number of edges (or sum of edge weights) on the longest path between any two nodes. The two-pass algorithm computes it in O(n): pick any node, BFS to find the farthest node u; then BFS again from u to find the farthest node v. The path u → v is the diameter. Beautifully simple, proven correct in a few lines.
 
 ## whyItMatters
-Diameter shows up everywhere — network latency bounds, longest gene path in phylogenetic trees, longest dialogue chain in a call graph, longest "social distance" in a friendship tree. It is also the gateway to harder tree problems: tree center, k-th diameter, weighted diameter, and DP-style "longest path through node v."
+- **Network diameter analysis**: ISPs and CDNs (Cloudflare, Akamai, Fastly) compute graph diameters on their topology graphs to bound worst-case latency between PoPs; the same primitive feeds capacity planning.
+- **Phylogenetic tree analysis** (PHYLIP, MEGA, RAxML) uses tree diameter as a measure of evolutionary distance between the two most-diverged taxa in a clade.
+- **Social-network analysis** (Facebook Graph API, Twitter influence measurement) treats the diameter of subgraphs as a measure of "social distance" — the longest acquaintance chain within a community.
+- **Compiler call-graph optimisation**: GCC and LLVM use diameter-like metrics on inlining-decision graphs to predict worst-case inlining-cascade depth.
+- **Tree-DP problems**: tree center (the midpoint of the diameter, minimum-eccentricity vertex), k-th diameter, longest path through every node — all build on the same two-pass primitive.
+- **Game level-design**: roguelike map generators use tree diameter to size dungeons so that the longest required traversal is bounded — a play-balancing metric.
 
 ## intuition
-Why does BFSing twice work? Claim: the farthest node from any starting node x is one endpoint of some diameter. Proof sketch: let the diameter be (a, b). If x = a or x = b, done. Otherwise consider the path from x to its farthest node u; one shows by case analysis on where x's path meets the (a, b) path that u must be a or b. Once you have one diameter endpoint, BFS from it reaches the other endpoint by definition of "farthest."
+The algorithm exists because the naïve "for every pair, compute the path length" approach is O(n²) pair queries times O(n) BFS per query = O(n³), and even all-pairs shortest paths via repeated BFS is O(n²). The escape route — two BFS passes — exploits a non-obvious structural property: the farthest vertex from any starting vertex is always an endpoint of some diameter.
+
+The proof is by case analysis. Suppose the diameter is the path (a, b), and pick any starting vertex x. Let u be the farthest vertex from x. If x = a or x = b, then u = b or u = a respectively (by definition of farthest), and we're done. Otherwise consider where x's path meets the (a, b) path — call the meeting vertex y (it exists and is unique because trees have unique paths between any two vertices). Then dist(x, u) = dist(x, y) + dist(y, u), and dist(x, a) = dist(x, y) + dist(y, a), dist(x, b) = dist(x, y) + dist(y, b). Since u is the farthest from x, dist(y, u) ≥ max(dist(y, a), dist(y, b)). But if u were neither a nor b, then replacing one endpoint of the diameter with u would yield a strictly longer path, contradicting the diameter assumption. So u ∈ {a, b}.
+
+This is why "BFS from any vertex, then BFS from the farthest vertex found" computes the diameter in two passes. The first pass discovers one diameter endpoint; the second pass measures the distance from it to the other endpoint, which by the proof is the global maximum distance. Each pass is O(n + m) = O(n) on a tree (m = n − 1). Total: O(n) time, O(n) memory — information-theoretically tight because any algorithm must read every edge at least once.
+
+The two-pass theorem requires non-negative edge weights; for negative weights the case analysis breaks and you must fall back to tree-DP that computes "best down-path through every node" and aggregates. The DP variant is also useful when you need per-node diameter information (longest path through each vertex), not just the global maximum.
 
 ## visualization
 Tree: 1-2, 2-3, 2-4, 4-5, 4-6. BFS from 1: distances {1:0, 2:1, 3:2, 4:2, 5:3, 6:3}. Farthest = 5 (tie with 6; pick 5). BFS from 5: {5:0, 4:1, 2:2, 6:2, 1:3, 3:3}. Farthest = 1 or 3, distance 3. Diameter = 3, achieved by path 1-2-4-5 or 3-2-4-5.
@@ -37,9 +48,59 @@ Tree: 1-2, 2-3, 2-4, 4-5, 4-6. BFS from 1: distances {1:0, 2:1, 3:2, 4:2, 5:3, 6
 For every pair (u, v) compute the shortest path between them (it is unique in a tree) and take the max. O(n^2) pair-paths, O(n) each = O(n^3). Even with all-pairs shortest paths via repeated BFS, O(n^2). Acceptable to n ~ 10^4; useless above that.
 
 ## optimal
-Two passes: (1) BFS from any node s, track distance to every node, find argmax → u. (2) BFS from u, find the new argmax distance → that is the diameter and v is the other endpoint. Each BFS is O(n + m) = O(n) on a tree. Total O(n) time, O(n) memory.
+**Technique: two-pass BFS — discover one diameter endpoint, then measure from it.** O(n) time and O(n) space, information-theoretically optimal because any algorithm must read every edge at least once.
 
-For weighted trees with positive weights, replace BFS with DFS that accumulates edge weights. For trees with negative-weight edges the two-pass proof breaks; use DP-on-trees instead.
+```python
+from collections import deque
+
+def diameter(n, edges):
+    g = [[] for _ in range(n)]
+    for a, b in edges:
+        g[a].append(b); g[b].append(a)
+
+    def bfs(src):
+        dist = [-1] * n
+        dist[src] = 0
+        q = deque([src])
+        far = src                                  # tracks farthest-so-far node
+        while q:
+            v = q.popleft()
+            for u in g[v]:
+                if dist[u] == -1:
+                    dist[u] = dist[v] + 1
+                    if dist[u] > dist[far]:
+                        far = u
+                    q.append(u)
+        return far, dist[far]
+
+    u, _ = bfs(0)        # pass 1: from arbitrary start, find one diameter endpoint
+    v, d = bfs(u)        # pass 2: from u, the farthest distance is the diameter
+    return d
+```
+
+Key lines: `far` is updated inline during BFS — there's no need for a separate argmax pass over the distance array. The first call `u, _ = bfs(0)` returns one endpoint of *some* diameter (by the case-analysis proof in the intuition); the second call `v, d = bfs(u)` measures the longest distance from that endpoint, which by definition reaches the other diameter endpoint. The diameter value is `d`; the path itself can be recovered by recording parent pointers in the second BFS and walking back from `v` to `u`.
+
+For weighted trees with positive weights, replace BFS with DFS accumulating edge weights — the same two-pass theorem holds. For trees with negative-weight edges (rare but possible in transformation contexts), the two-pass proof breaks because dist(y, u) ≥ max(dist(y, a), dist(y, b)) can fail when negatives twist the metric; fall back to tree-DP:
+
+```python
+def diameter_dp(root, g):
+    best = [0]
+    def dfs(v, parent):
+        m1 = m2 = 0                                # two longest down-paths
+        for u in g[v]:
+            if u == parent: continue
+            depth = dfs(u, v) + 1
+            if depth > m1: m1, m2 = depth, m1
+            elif depth > m2: m2 = depth
+        best[0] = max(best[0], m1 + m2)            # longest path through v
+        return m1
+    dfs(root, -1)
+    return best[0]
+```
+
+The DP variant returns diameter as the max over all nodes of (best down-path through left subtree + best down-path through right subtree) — also O(n). It generalises to "longest path through every node" (useful for queries) and to weighted trees with arbitrary signs.
+
+**Why two BFS, not one?** A single BFS from an arbitrary start returns the farthest vertex *from that start* — which by the theorem is one diameter endpoint but the algorithm doesn't yet know what the diameter is. The second BFS measures from that endpoint, which yields the diameter. **Why not Floyd-Warshall?** O(n³) for what trees solve in O(n) — wasteful. **Common bugs**: doing only one BFS (returns wrong answer unless start happens to be on a diameter); using DFS recursion on a 10⁵-node tree in Python without raising recursion limit (stack overflow); forgetting that disconnected forests need per-component handling.
 
 ## complexity
 time: O(n) — two BFS / DFS traversals

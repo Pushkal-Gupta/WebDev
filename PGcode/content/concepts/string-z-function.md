@@ -1,6 +1,6 @@
 ---
 slug: string-z-function
-module: sorting-strings
+module: strings-matching
 title: Z-Function for Pattern Matching
 subtitle: Build a Z-array in O(n) to find every pattern occurrence — simpler to derive than KMP.
 difficulty: Advanced
@@ -25,10 +25,23 @@ status: published
 The Z-function of a string s is an array Z where Z[i] is the length of the longest substring starting at i that matches a prefix of s. Computed in O(n) time, it solves pattern matching ("find all occurrences of p in t") in O(n + m) — the same bound as KMP, but with a derivation most candidates find easier to keep straight under interview pressure.
 
 ## whyItMatters
-Pattern matching shows up everywhere: grep, search-and-replace, DNA sequence alignment, log analysis, plagiarism detection. The Z-function additionally answers prefix-overlap questions that KMP can't directly: it powers period detection, string compression, and the "longest prefix that is also a suffix of each substring" queries that arise in competitive programming.
+- **Pattern matching in editors and search tools**: `grep`, `ripgrep`, GNU `sed`, search-and-replace in every IDE — all use O(n+m) string-matching primitives; the Z-function is one of two textbook options (KMP being the other) for fixed-pattern search.
+- **Bioinformatics**: DNA sequence alignment (BWA, Bowtie's seed-and-extend), reverse-complement search, motif discovery — Z-function-based matching is used inside larger alignment pipelines.
+- **Log analysis and intrusion detection**: substring search over multi-gigabyte log files (Splunk, Elasticsearch query layer for fixed phrases) reduces to Z-function or KMP for the per-pattern case.
+- **Plagiarism detection** (MOSS, JPlag) uses Z-function-derived prefix-match arrays as a fast filter before more expensive shingling and rolling-hash comparison.
+- **Competitive programming**: the Z-function additionally answers prefix-overlap questions that KMP can't directly — period detection (string s has period p iff Z[p] = n − p), Lyndon decomposition support, longest-prefix-that-is-also-a-suffix queries, run-length-encoding of repeated prefix structures.
+- **The Gusfield 1997 book** introduced the modern Z-function presentation; the underlying algorithm dates to the same era as KMP (1977).
 
 ## intuition
-Z[i] = (length of the longest substring starting at i that equals a prefix of s). Computing each Z[i] from scratch is O(n^2). The clever observation: if we already know that some earlier interval [L, R] matches a prefix s[0..R-L], then for any i inside [L, R] we get a free starting estimate Z[i] = min(Z[i - L], R - i + 1) — because s[i..R] equals s[i-L..R-L], so the prefix-match length transfers.
+The algorithm exists because naïve "for each position i, walk forward comparing s[i+k] to s[k] until they differ" is Θ(n²) — the worst case being a string like "aaaa...aab" where each position scans nearly to the end. The escape route is the same amortised-expansion-bounded-by-moving-right-edge trick that powers KMP and Manacher: maintain a window [L, R] of the rightmost interval already proven to match a prefix of s, and reuse that knowledge to seed Z[i] for any i inside the window.
+
+The decisive observation: if `s[L..R]` equals `s[0..R-L]` (the window is a prefix-match), then for any i inside [L, R], the substring `s[i..R]` equals `s[i-L..R-L]` by direct character correspondence. The longest prefix-match starting at i is therefore at least min(Z[i-L], R-i+1) — bounded by Z[i-L] (the mirror's prefix-match length) and by R-i+1 (the remaining window size). This gives a free starting estimate for Z[i] without any character comparisons. If the seeded value exhausts the window (Z[i-L] ≥ R-i+1), we then extend by direct comparison past R, possibly advancing the window.
+
+The amortised analysis is the elegant part: across the entire algorithm, the right edge R only moves forward (it never retreats), and each "extension past R" performs exactly one character comparison per unit of R advancement. So total comparison work is O(n), regardless of how many characters get seeded for free via the mirror trick. The Z-function is built in O(n) — same asymptotic as KMP's prefix function but conceptually distinct.
+
+For pattern matching, the standard trick is to concatenate `pattern + '$' + text` (where `$` is any character not in either) and compute the Z-function once over the concatenation. Every position i in the text portion with Z[i] ≥ |pattern| is a pattern occurrence. The separator prevents Z-values from running past the pattern boundary and reporting false matches.
+
+The deeper structural symmetry: Z-function captures "longest prefix-of-s starting at i" (a forward-looking quantity); KMP's failure function captures "longest proper prefix of s[0..i] that is also a suffix" (a backward-looking quantity). The two are convertible into each other in O(n) and answer the same set of pattern-matching queries, but each is more natural for certain follow-up questions: Z for prefix-occurrence enumeration, KMP for automaton construction and Aho-Corasick.
 
 ## visualization
 For s = "aabcaabxaaaz", compute Z step by step. Z[0] is conventionally 0 (or n). Z[1] = 1 (s[1]='a' matches s[0]='a', then s[2]='b' breaks). Z[4..7] reuses Z[0..3]: s[4..7] = "aabx", s[0..3] = "aabc", so Z[4] = 3 because the first 3 chars match. The [L, R] window slides forward, and each character is compared at most twice — amortized O(n).

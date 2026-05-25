@@ -1,6 +1,6 @@
 ---
 slug: distributed-tracing
-module: system-design
+module: sd-reliability
 title: Distributed Tracing
 subtitle: Stitch a single request's spans across N services into one timeline — OpenTelemetry / Jaeger / Zipkin.
 difficulty: Intermediate

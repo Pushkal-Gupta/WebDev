@@ -1,6 +1,6 @@
 ---
 slug: caching
-module: system-design
+module: sd-caching-cdn
 title: Caching
 subtitle: Store the answer to expensive work close to the caller so the next caller gets it instantly.
 difficulty: Beginner

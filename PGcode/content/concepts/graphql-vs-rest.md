@@ -1,6 +1,6 @@
 ---
 slug: graphql-vs-rest
-module: system-design
+module: sd-api
 title: GraphQL vs REST
 subtitle: REST is N typed endpoints; GraphQL is one schema-typed query language. Pick per workload, not per fashion.
 difficulty: Intermediate

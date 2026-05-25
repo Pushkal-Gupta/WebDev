@@ -147,10 +147,9 @@ export default function RoadmapTrack({ session }) {
           ))
         ) : (
           <li className="rmx-empty">
-            <p className="rmx-empty-title">This track is empty</p>
+            <p className="rmx-empty-title">No problems on this track yet</p>
             <p className="rmx-empty-sub">
-              Nothing wired up yet. Check back soon, or jump into a different track from the
-              roadmaps page.
+              Try a different track from the roadmaps page.
             </p>
           </li>
         )}

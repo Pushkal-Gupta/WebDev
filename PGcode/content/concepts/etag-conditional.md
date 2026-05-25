@@ -1,6 +1,6 @@
 ---
 slug: etag-conditional
-module: system-design
+module: sd-caching-cdn
 title: ETag and Conditional Requests
 subtitle: HTTP ETag plus If-None-Match for cache validation that saves bandwidth without going stale.
 difficulty: Intermediate
@@ -25,10 +25,19 @@ status: published
 An ETag is an opaque server-issued identifier for a specific version of a resource. When the client re-requests the resource it sends the previous ETag in `If-None-Match`. If the resource has not changed, the server returns `304 Not Modified` with an empty body; the client serves its cached copy. ETags also gate writes through `If-Match` to prevent the lost-update problem in optimistic concurrency control.
 
 ## whyItMatters
-Most resources change infrequently, but clients hit them constantly — avatars, product catalogs, user profiles, feature configs. Without validation, every refresh re-downloads identical bytes. ETags collapse those repeat requests into a few-hundred-byte `304`, cutting bandwidth and latency dramatically. On the write side, `If-Match` is how a REST API rejects "save" calls that were composed against a now-stale view.
+- **RFC 9110 (HTTP Semantics, 2022)** standardizes `ETag`, `If-None-Match`, and `If-Match` as the canonical mechanisms for cache validation and optimistic concurrency control across the entire web.
+- **AWS S3, Azure Blob, and Google Cloud Storage** all return strong ETags on every `GET`, and S3's `If-Match` header on `PUT` is the documented way to prevent lost-update races between concurrent writers.
+- **Cloudflare, Akamai, and Fastly** CDNs honor `If-None-Match` revalidation against origin, turning repeat requests for unchanged resources into 200-byte `304` responses; this is the bandwidth-saving backbone of the modern web.
+- **GitHub's REST API and Stripe's API** use ETags on resource endpoints so polling clients (CI bots, webhook fallbacks) can long-poll without burning rate limits — and use `If-Match` on writes to prevent two engineers from simultaneously editing the same resource.
 
 ## intuition
-Imagine a library card glued to the inside cover of a book showing "edition 7." Whenever you want to re-read, you tell the librarian "I have edition 7" — if they say "still edition 7," you go straight to your shelf copy; if they say "no, edition 8," they hand you the new book. ETags are that edition stamp at HTTP scale.
+Most resources change infrequently, but clients hit them constantly — avatars, product catalogs, user profiles, feature flags, S3 objects. Without validation, every refresh re-downloads identical bytes, wasting bandwidth on the client, CPU on the server, and money on the CDN. The naive alternative — `Cache-Control: max-age=3600` and pray — trades stale data for performance and offers no way to know when the cached copy went stale.
+
+The HTTP cache-validation flow solves this with a versioned token. The server, on every response, computes an **ETag** — an opaque string that uniquely identifies the current version of the resource (typically a hash of the canonical payload or a logical version like `v17`). The client caches the body and the ETag. On the next request, the client sends `If-None-Match: "<etag>"`. The server compares: if the current ETag still matches, it replies `304 Not Modified` with no body (just headers); the client serves its cached copy. If the ETag has changed, the server replies `200 OK` with the new body and a new ETag. The expensive bytes travel only when content actually changed.
+
+The library-card analogy: each book has a card glued inside saying "edition 7." When you want to re-read, you tell the librarian "I have edition 7." If they say "still edition 7," you walk to your shelf copy; if they say "no, edition 8," they hand you the new book. The card transfer is cheap; the book transfer happens only when needed.
+
+The same primitive solves the **lost-update problem** on writes. The client reads a resource, gets ETag `v17`, edits locally, and PUTs with `If-Match: "v17"`. If another client already updated the resource to `v18`, the server replies `412 Precondition Failed` and the client must re-fetch, re-merge, and retry. This is HTTP-native optimistic concurrency control — no application-layer version field, no row-level lock, just a header.
 
 ## visualization
 Round 1: `GET /api/products/42` → `200 OK`, `ETag: "v17-9af3"`, body 12 KB. Browser caches body and tag. Round 2 (one minute later): `GET /api/products/42`, `If-None-Match: "v17-9af3"` → `304 Not Modified`, ~200 bytes total. Write path: `PUT /api/products/42` with `If-Match: "v17-9af3"`. Another client already updated to v18 → server replies `412 Precondition Failed`, your write is rejected, you re-fetch, merge, retry.
@@ -37,7 +46,53 @@ Round 1: `GET /api/products/42` → `200 OK`, `ETag: "v17-9af3"`, body 12 KB. Br
 Set a long `Cache-Control: max-age=3600` and hope. Fast when fresh, but stale data for up to an hour with no way to know it changed. Or set `no-store` and refetch every time — correct but wasteful, especially over mobile networks. Neither addresses the write-side lost-update race at all.
 
 ## optimal
-Generate strong ETags as a hash of the canonical serialized resource (e.g., `W/"sha256-of-payload-first-12"`). On reads, honor `If-None-Match` and return `304` with no body. On writes, require `If-Match` and return `412 Precondition Failed` when the supplied tag does not equal the current version. For collections, an ETag can be a hash of `(max(updated_at), count)` to invalidate when any member changes. Combine with `Cache-Control: private, max-age=N, must-revalidate` so the client uses the cached copy fresh for N seconds, then validates with an `If-None-Match` after.
+The right pattern is **strong, deterministic ETags computed from canonical payload content** (not random per response), paired with `Cache-Control: private, max-age=N, must-revalidate` for freshness windows and `If-Match` enforcement on writes for optimistic concurrency. RFC 9110 Section 8.8 is the normative reference; RFC 7232 covers conditional-request semantics.
+
+```python
+import hashlib, json
+from flask import Flask, request, abort, make_response
+
+app = Flask(__name__)
+STORE = {"42": {"name": "Widget", "price": 999, "version": 17}}
+
+def etag_for(obj):
+    # Canonical serialization: sorted keys -> byte-stable hash.
+    payload = json.dumps(obj, sort_keys=True, separators=(",", ":")).encode()
+    digest = hashlib.sha256(payload).hexdigest()[:16]
+    return f'W/"{digest}"'                           # weak: semantic equivalence
+
+@app.get("/api/products/<pid>")
+def get_product(pid):
+    obj = STORE.get(pid) or abort(404)
+    tag = etag_for(obj)
+    if request.headers.get("If-None-Match") == tag:
+        return ("", 304, {"ETag": tag,
+                          "Cache-Control": "private, max-age=60, must-revalidate"})
+    resp = make_response(json.dumps(obj))
+    resp.headers["ETag"] = tag
+    resp.headers["Cache-Control"] = "private, max-age=60, must-revalidate"
+    resp.headers["Vary"] = "Accept-Encoding, Accept-Language"
+    return resp
+
+@app.put("/api/products/<pid>")
+def put_product(pid):
+    obj = STORE.get(pid) or abort(404)
+    if_match = request.headers.get("If-Match")
+    if if_match is None:
+        abort(428)                                   # Precondition Required
+    if if_match != etag_for(obj):
+        abort(412)                                   # Precondition Failed
+    STORE[pid] = {**request.get_json(), "version": obj["version"] + 1}
+    return ("", 204, {"ETag": etag_for(STORE[pid])})
+```
+
+Why this is right: hashing the **canonical** serialization (sorted keys, compact separators) means two semantically identical resources produce the same ETag, so cache hits actually happen across server restarts and replica reboots. Random ETags defeat validation — every request would look "changed" and the entire optimization collapses. The `W/` prefix marks the ETag as **weak** (semantic equivalence, ignoring whitespace and key order); use strong ETags (no prefix) only when byte identity matters (binary deltas, signed payloads). `Vary: Accept-Encoding` is mandatory if you compress responses — a gzipped and identity copy must not share an ETag, or browsers will mis-cache.
+
+**Status codes**: `304 Not Modified` (cache hit on read), `412 Precondition Failed` (write rejected, stale ETag), `428 Precondition Required` (server demands `If-Match` to prevent silent overwrite — see RFC 6585). Returning a body with 304 violates the spec and breaks some clients.
+
+**For collections**: an ETag can be `sha256(max(updated_at), count)` so the list invalidates when any member changes; or use a monotonic counter bumped on every write. **For CDN-level invalidation**: surrogate keys (Fastly's `Surrogate-Key`, Cloudflare's Cache-Tag) extend the same idea — tag responses with logical keys and purge by tag, not by URL.
+
+**ETag vs Last-Modified**: ETag is finer-grained (sub-second changes), survives clock skew between replicas, and is the only correct choice when content can change multiple times per second. `Last-Modified`/`If-Modified-Since` is simpler but breaks on sub-second resolution and replica clock drift. RFC 9110 recommends ETag as the primary mechanism; Last-Modified is the legacy fallback.
 
 ## complexity
 time: O(B) to hash payload of size B once on response; O(1) compare on subsequent requests

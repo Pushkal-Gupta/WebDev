@@ -232,3 +232,44 @@ export async function aiQuizFromConcept({ conceptTitle, conceptBody }) {
     throw new Error('AI returned malformed JSON for the quiz.');
   }
 }
+
+// Generate a full multi-question quiz on demand. Shape mirrors the pre-built
+// quiz objects in src/content/quizzes.js so the same QuizRunner renders them.
+export async function aiCustomQuiz({ topic, difficulty = 'Intermediate', focus = '', count = 8 }) {
+  const n = Math.min(15, Math.max(4, Number(count) || 8));
+  const sys = `You generate technical multiple-choice quizzes for software engineering interview prep. Output STRICT JSON only — no markdown fence, no commentary. Shape:
+{
+  "id": "custom-<topic-slug>-<short>",
+  "title": "<topic> — <focus or generic angle>",
+  "topic": "<topic>",
+  "difficulty": "${difficulty}",
+  "summary": "<one-line description>",
+  "questions": [
+    { "id": "q1", "prompt": "...", "options": ["A","B","C","D"], "correct": 0, "explanation": "..." }
+  ]
+}
+Every question must have exactly 4 options, one unambiguously correct, "correct" is a 0-based index. Explanations under 60 words, focused on why the right answer is right (not just restating). Questions should test understanding, not trivia.`;
+  const focusLine = focus ? `Special focus: ${focus}.` : 'Cover the most interview-relevant angles.';
+  const user = `Topic: ${topic}\nDifficulty: ${difficulty}\nQuestion count: exactly ${n}\n${focusLine}\n\nReturn the quiz JSON.`;
+  const text = await callAi(sys, user, { maxTokens: 2400 });
+  let parsed;
+  try {
+    const cleaned = text.replace(/^```json\s*|\s*```$/g, '').replace(/^```\s*|\s*```$/g, '').trim();
+    parsed = JSON.parse(cleaned);
+  } catch {
+    throw new Error('AI returned malformed JSON for the custom quiz.');
+  }
+  if (!parsed?.questions?.length) throw new Error('AI quiz had no questions.');
+  // Normalize to the runner's expected shape.
+  parsed.questions = parsed.questions.map((q, i) => ({
+    id: q.id || `q${i + 1}`,
+    prompt: q.prompt || q.question || '',
+    options: Array.isArray(q.options) ? q.options.slice(0, 4) : [],
+    correct: Number.isInteger(q.correct) ? q.correct : Number(q.correctIndex) || 0,
+    explanation: q.explanation || '',
+  })).filter(q => q.prompt && q.options.length >= 2);
+  if (!parsed.questions.length) throw new Error('AI quiz had no usable questions.');
+  if (!parsed.title) parsed.title = `${topic} — Custom`;
+  if (!parsed.difficulty) parsed.difficulty = difficulty;
+  return parsed;
+}

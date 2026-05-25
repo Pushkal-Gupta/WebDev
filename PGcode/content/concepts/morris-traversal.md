@@ -1,6 +1,6 @@
 ---
 slug: morris-traversal
-module: trees
+module: trees-traversal-bst
 title: Morris Traversal
 subtitle: In-order traversal of a binary tree in O(1) extra space — temporarily rewire null right-pointers as threads.
 difficulty: Advanced

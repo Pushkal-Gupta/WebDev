@@ -305,13 +305,20 @@ export default function CoursePage() {
                 <span className="course-task-sub">Try it yourself</span>
               </div>
               <p className="course-task-prompt">{lesson.exercise.prompt}</p>
-              <button className="course-hint-btn" onClick={() => setShowHint(s => !s)}>
-                <Lightbulb size={12} /> {showHint ? 'Hide hint' : 'Show hint'}
-              </button>
-              {showHint && (
+              {lesson.exercise.expected && (
                 <p className="course-hint">
                   Expected output: <code>{lesson.exercise.expected}</code>
                 </p>
+              )}
+              {lesson.exercise.hint && (
+                <>
+                  <button className="course-hint-btn" onClick={() => setShowHint(s => !s)}>
+                    <Lightbulb size={12} /> {showHint ? 'Hide hint' : 'Show hint'}
+                  </button>
+                  {showHint && (
+                    <p className="course-hint">{lesson.exercise.hint}</p>
+                  )}
+                </>
               )}
             </section>
 

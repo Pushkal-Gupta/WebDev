@@ -1,6 +1,6 @@
 ---
 slug: database-replication
-module: system-design
+module: sd-storage
 title: Database Replication
 subtitle: Keep multiple copies of the data so reads scale out and a node failure isn't an outage.
 difficulty: Intermediate

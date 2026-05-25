@@ -1,6 +1,6 @@
 ---
 slug: dijkstra-stops
-module: graphs
+module: graphs-shortest-paths
 title: Dijkstra with K Stops
 subtitle: Cheapest path under a hop-count budget — relax states keyed by (node, stops used).
 difficulty: Advanced
@@ -28,7 +28,13 @@ Plain Dijkstra finds the cheapest path. Sometimes a real-world constraint caps t
 This is the canonical example of using state augmentation to make Dijkstra handle a side constraint that would otherwise break optimality. The pattern generalizes: cap on fuel, cap on toll roads, restriction on edge colors. Once you can recognize that the relevant state is `(node, resource_used)` instead of just `node`, dozens of LeetCode "shortest path with a twist" problems collapse into the same template.
 
 ## intuition
-Plain Dijkstra fails because a longer-but-cheaper path may be unusable under the cap, while a shorter-but-pricier one is the only feasible answer. Make hops part of the state and the contradiction disappears: `(v, s1)` and `(v, s2)` are now different vertices, each with its own best cost, and the algorithm can keep both alive in the heap simultaneously.
+The algorithm exists because Dijkstra's greedy-settle invariant — first time a node is popped its distance is final — breaks under hop constraints. The cheapest path may exceed the hop budget; the cheapest legal path may pass through nodes whose unconstrained cheapest is shorter, yet that shorter path uses too many hops to extend further. So a node's "best cost" is no longer a single number but a *function* of the hop budget remaining or used.
+
+The decisive observation: lift the state space from `node` to `(node, stops_used)`. Two visits to the same physical node with different hop counts are now treated as different vertices in a layered graph, each with its own best cost. The greedy-settle invariant is restored on this layered graph because `(v, s)` reached at cost c is final at that hop count — adding a positive-weight edge can only increase cost, so a later pop of `(v, s, c')` with c' > c is redundant. The heap operates on `(cost, node, stops_used)` triples and a `best[node][stops]` table prunes dominated pushes.
+
+Mental model: build a stack of K+2 copies of the graph; edges only go from layer `s` to layer `s+1`. Dijkstra on this layered graph recovers the cheapest path subject to the hop bound by construction. Total state space is V·(K+2), heap operations are O(log(VK)), and total cost is O(E·K·log(VK)) — practical for K up to a few hundred. The same pattern generalises to any resource-bounded shortest path: fuel caps, toll budgets, edge-color restrictions, time-of-day constraints. Recognising that "the relevant state is (node, resource_used)" collapses dozens of "shortest path with a twist" prompts into one template.
+
+Bellman-Ford with K+1 relaxation passes is the equivalent dual formulation: each pass extends the legal frontier by one hop, snapshot-based to prevent chaining within a pass. Pick Dijkstra when K is small relative to V (state space is bounded); pick Bellman-Ford when graph is dense and K is small.
 
 ## visualization
 Cities `0 -> 1` cost 100, `0 -> 2` cost 500, `1 -> 2` cost 100, `K = 0` stops allowed from 0 to 2. Plain Dijkstra picks `0 -> 1 -> 2` for 200, but that uses one stop and is illegal. With state `(node, stops)` we never reach `(2, 0)` from `(1, 1)`; we only reach `(2, 1)` from it, which violates the budget. The only feasible answer is the direct edge for 500.
@@ -37,7 +43,37 @@ Cities `0 -> 1` cost 100, `0 -> 2` cost 500, `1 -> 2` cost 100, `K = 0` stops al
 DFS every path from source to target, prune when cost exceeds the current best or hops exceed `K`, take the minimum. Correct but exponential in the worst case on dense graphs. Acceptable up to maybe a dozen nodes; falls over fast on anything larger. Memoizing on `(node, hops_remaining)` already buys you most of the win — at which point you have rediscovered the BFS-by-cost version of the algorithm below.
 
 ## optimal
-Min-heap of `(cost, node, stops_used)`. Push the source as `(0, src, 0)`. Pop the smallest cost. If `node == dst`, return cost. If `stops_used > K + 1` (counting hops, where `K` stops means `K + 1` edges), skip. For each outgoing edge `(node, nbr, w)`, push `(cost + w, nbr, stops_used + 1)`. Maintain `best[node][stops]` and only push if the new cost improves it. A `(V * (K + 2))` state space keeps the algorithm sound.
+**Technique: state-augmented Dijkstra on (node, stops_used) tuples.** O(E·K·log(V·K)) time, O(V·K) space. The lifted state space restores Dijkstra's greedy-settle invariant, so we get tightness equivalent to plain Dijkstra modulo the K-factor — optimal for any algorithm that must consider a hop budget as part of the state.
+
+```python
+import heapq
+
+def cheapest_with_k_stops(n, flights, src, dst, k):
+    graph = [[] for _ in range(n)]
+    for u, v, w in flights:
+        graph[u].append((v, w))
+    best = [[float('inf')] * (k + 2) for _ in range(n)]   # best[node][stops]
+    best[src][0] = 0
+    heap = [(0, src, 0)]                                   # (cost, node, stops_used)
+    while heap:
+        cost, node, stops = heapq.heappop(heap)
+        if node == dst:
+            return cost                                    # greedy: first pop of dst is optimal
+        if stops == k + 1:
+            continue                                       # already at hop limit
+        for nbr, w in graph[node]:
+            nc = cost + w
+            if nc < best[nbr][stops + 1]:                  # prune dominated states
+                best[nbr][stops + 1] = nc
+                heapq.heappush(heap, (nc, nbr, stops + 1))
+    return -1
+```
+
+Key lines: `best = [[inf] * (k+2) for _ in range(n)]` defines the lifted state space — one cost cell per (node, stops_used) pair. `if nc < best[nbr][stops + 1]` is the pruning that keeps the heap from filling with dominated states; without it, the heap grows to Θ(E·K) and operations slow down. The early return `if node == dst: return cost` works because the lifted state space restores Dijkstra's greedy invariant — the first pop of any (dst, *) is the cheapest legal path. The `stops == k + 1` guard reflects the "K stops means K+1 edges" convention.
+
+**Why not plain Dijkstra?** Plain Dijkstra commits to the cheapest distance on first settle, missing legal-but-pricier paths under the hop budget. **Why not Bellman-Ford with K+1 passes?** Equivalent asymptotic; cleaner for dense graphs with small K (no heap overhead), but Dijkstra wins on sparse graphs because the per-hop work is O((V+E)log V) rather than O(E). **Why not DFS with memoisation?** Same asymptotic O(V·E·K) but exponential stack-depth risk in Python; the iterative heap variant is the production-safe choice. **Common off-by-one**: "K stops" = K+1 edges (the source and destination don't count as stops); pick the convention and write it into the guard.
+
+For very small K (≤ 5), Bellman-Ford is shorter and faster; for large K and sparse graphs, the layered-Dijkstra is the right tool. The same pattern handles: cap on fuel (state = (node, fuel_remaining)), cap on edge colours, restrictions on direction changes.
 
 ## complexity
 time: O(E * K * log(V * K))

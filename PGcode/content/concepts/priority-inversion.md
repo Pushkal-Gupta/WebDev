@@ -1,6 +1,6 @@
 ---
 slug: priority-inversion
-module: cs-core
+module: cs-os-concurrency
 title: Priority Inversion
 subtitle: A low-priority task holds a lock the high-priority task needs; mitigation via priority inheritance.
 difficulty: Advanced

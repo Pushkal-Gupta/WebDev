@@ -1,6 +1,6 @@
 ---
 slug: pigeonhole-principle
-module: math
+module: math-number-theory
 title: Pigeonhole Principle
 subtitle: N+1 items in N boxes → at least one box has ≥2 items. Trivial-looking, devastatingly powerful in interview proofs.
 difficulty: Intermediate

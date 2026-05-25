@@ -1,6 +1,6 @@
 ---
 slug: serverless-vs-containers
-module: system-design
+module: sd-microservices
 title: Serverless vs Containers
 subtitle: Lambda / Cloud Run vs Kubernetes — cold starts, statefulness, cost crossover.
 difficulty: Intermediate

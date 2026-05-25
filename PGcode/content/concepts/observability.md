@@ -1,6 +1,6 @@
 ---
 slug: observability
-module: system-design
+module: sd-reliability
 title: Observability — SLI, SLO, SLA
 subtitle: Measure what users actually experience, set targets, and earn a budget for risk.
 difficulty: Intermediate

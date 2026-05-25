@@ -1,6 +1,6 @@
 ---
 slug: dp-tree
-module: dp
+module: dp-classical
 title: Tree DP
 subtitle: Subtree-based recurrences for problems like largest independent set and longest path.
 difficulty: Advanced
@@ -25,19 +25,43 @@ status: published
 Tree DP is dynamic programming where states are indexed by nodes of a rooted tree, and each node's answer is a deterministic function of its children's answers. Because a tree has no cycles, a single post-order DFS resolves dependencies in topological order — every child finishes before its parent begins.
 
 ## whyItMatters
-Many "max / min / count over a tree" problems collapse to a few lines of code once you spot the subtree recurrence: largest independent set, smallest vertex cover, longest path (diameter), counting matchings, scheduling deadlines on hierarchies, even tree-shaped knapsacks. The same shape generalises to rerooting DP, where you compute the answer rooted at every node in O(n) total instead of O(n^2).
+- LLVM's instruction selector uses tree DP (BURG-style tree pattern matching) to pick optimal machine instructions for expression trees during code generation.
+- Linux kernel cgroup hierarchies and Kubernetes resource quota trees aggregate child quotas into parents using subtree DP recurrences.
+- Bayesian network inference (used in Stan, PyMC, and Pearl's original tree-belief-propagation algorithm) is tree DP on the junction tree.
+- Decision-tree pruning in scikit-learn and XGBoost uses subtree DP to decide which internal nodes to collapse based on aggregate loss.
+- Tree diameter, largest independent set, vertex cover, tree knapsack — every "max/min/count over a rooted tree" question collapses to a few lines once you spot the recurrence, and rerooting DP extends the technique to "answer at every node in O(n) total."
 
 ## intuition
-Root the tree at any node. For each node u, define dp[u] as the answer for the subtree of u, possibly with a small extra dimension that records "did we use u itself?" The recurrence aggregates children with sum, max, or a knapsack-style merge. Because subtrees are disjoint, no double counting — the only thing you ever revisit is u's own decision.
+A tree has a property that arrays and graphs do not: pick any root and the remaining structure decomposes into disjoint subtrees that share no nodes. Disjointness is the magic — it means any quantity defined on a subtree can be combined with a sibling's quantity by simple aggregation (sum, max, knapsack merge) without double counting. The cycle-free structure also guarantees a topological order: post-order DFS visits every child before its parent, so the recurrence `dp[u] = f(dp[c1], dp[c2], ...)` is always evaluated after its inputs are ready. Compare this to general DP on graphs, where cycles force you to either compute fixed points iteratively or break cycles with SCC decomposition. With trees you get a single DFS and you are done. The state design follows a recipe: identify what choice each node makes, add a small extra dimension to record that choice, and aggregate children accordingly. For independent set, the choice is "include u or not," so `dp[u][0]` and `dp[u][1]` track both possibilities. For tree knapsack, the extra dimension records "how much capacity is used in u's subtree." For tree diameter, the extra information is "what is the deepest path going down from u," combined with sibling depths at each node to update a global best. The deep insight is that tree DP is just regular DP where the dependency DAG happens to be a tree — which makes the recurrence both easier to write and faster to evaluate than the general case.
+
+## optimal
+One post-order DFS, O(n) time for plain aggregations. Visit each child, recursively compute its dp value, then merge into the parent. For tree-knapsack variants the merge cost is O(size_u * size_v), but a "small-to-large" argument bounds the total merge work at O(n * k) for k-dimensional states (or O(n^2) in the worst case). For "answer the question rooted at every node," a rerooting DP does a second DFS that re-pushes the parent's contribution down, keeping total work at O(n).
+
+```python
+import sys
+sys.setrecursionlimit(1 << 25)                  # default 1000 overflows on 10^5 chains
+
+def largest_independent_set(n, adj):
+    dp = [[0, 0] for _ in range(n)]             # dp[u][0]=skip u, dp[u][1]=pick u
+    def dfs(u, parent):
+        dp[u][1] = 1                            # picking u contributes 1
+        for v in adj[u]:
+            if v == parent:                     # tree-as-undirected guard
+                continue
+            dfs(v, u)
+            dp[u][0] += max(dp[v][0], dp[v][1]) # if u is skipped, child is free
+            dp[u][1] += dp[v][0]                # if u is picked, child must be skipped
+    dfs(0, -1)
+    return max(dp[0])
+```
+
+The two-dimensional state is the canonical pattern — extend it with more entries for more decisions. The `parent` argument is the trick that lets you treat the tree as undirected without infinite recursion. Convert to iterative DFS when n exceeds 10^5 to avoid stack overflow even with raised recursion limits.
 
 ## visualization
 Take the largest independent set (no two chosen nodes share an edge). For each u track dp[u][0] = best when u is not picked, dp[u][1] = best when u is picked. Leaves: dp[u][0]=0, dp[u][1]=1. Internal u: dp[u][1] = 1 + sum of dp[c][0] over children, dp[u][0] = sum of max(dp[c][0], dp[c][1]). Walk a 5-node star with root r and leaves a,b,c,d: leaves give (0,1); root picks 1+0+0+0+0=1 or skips and takes 1+1+1+1=4 — answer 4.
 
 ## bruteForce
 Try every subset of nodes, check independence, keep the largest. 2^n subsets times O(n) per validity check is O(n * 2^n) — fine up to n around 20, useless beyond. For longest path you might run BFS from every node (O(n^2)). Both ignore the fact that subtree answers are reusable.
-
-## optimal
-One DFS, O(n) time. Visit children first, then combine. For trees with extra dimensions (knapsack on tree, k coloured nodes), the merge step becomes O(size_u * size_v), but a careful "small to large" or subtree-size argument keeps the total at O(n^2) or even O(n * k). For "answer rooted at every node," do a second DFS that re-pushes the parent's contribution downward (rerooting).
 
 ## complexity
 time: O(n) for plain aggregations; O(n^2) or O(n * k) for knapsack-on-tree variants

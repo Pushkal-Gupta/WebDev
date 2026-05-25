@@ -1,6 +1,6 @@
 ---
 slug: dp-knuth-optimization
-module: dp
+module: dp-advanced
 title: Knuth's Optimization
 subtitle: When opt(i, j) is monotonic in i and j, cut O(n^3) to O(n^2) by restricting the inner search.
 difficulty: Advanced
@@ -37,9 +37,7 @@ The O(n^3) → O(n^2) speedup turns intractable inputs into trivial ones for pro
 For n = 1000, n^3 = 10^9 (too slow); n^2 = 10^6 (instant).
 
 ## intuition
-For an interval DP that splits `[i, j]` at some k, the optimal split point usually drifts monotonically as the interval extends. If `opt[i][j-1] = a` (the best split for the shorter interval) and `opt[i+1][j] = b` (the best for a different shorter interval), then `opt[i][j]` lies somewhere in `[a, b]`. Iterate k only across that window instead of the full `[i, j)`.
-
-Across all i, j, the total work telescopes from n^3 to n^2.
+The standard interval DP `dp[i][j] = min over k of (dp[i][k] + dp[k+1][j]) + w(i, j)` runs in O(n^3) because the inner search over k scans the entire range `[i, j-1]` for every cell. For most interval DPs, this is the best you can do. But when the weight function `w` satisfies the Knuth-Yao quadrangle inequality, the optimal split point `opt[i][j]` becomes monotone in both endpoints: `opt[i][j-1] <= opt[i][j] <= opt[i+1][j]`. The intuition is that as the interval extends rightward (`j` grows), the best split also drifts rightward; symmetrically, as the interval grows leftward (`i` shrinks), the best split drifts leftward. So the inner search for `opt[i][j]` only needs to scan `[opt[i][j-1], opt[i+1][j]]` — a much smaller range. Why does the total work telescope to O(n^2)? Sum across all intervals of fixed length: the bounds `opt[i+1][j] - opt[i][j-1]` for consecutive cells overlap and cancel, leaving total inner work proportional to n per length. With n lengths to fill, total work is O(n^2). The dramatic O(n^3) to O(n^2) speedup is what makes Knuth optimization a competitive-programming staple — for n = 1000, n^3 = 10^9 (TLE) and n^2 = 10^6 (instant). The catch is that you must prove (or empirically verify) the quadrangle inequality before applying the optimization; many interval DPs that look similar do not satisfy it. Knuth's original 1971 result applied this to optimal BST construction; later work extended it to matrix chain multiplication, optimal alphabetic codes (Hu-Tucker), and a family of "merge piles of stones" problems. The deeper SMAWK algorithm generalizes Knuth's bound to a wider class of totally monotone matrices but is more complex to implement.
 
 ## visualization
 ```

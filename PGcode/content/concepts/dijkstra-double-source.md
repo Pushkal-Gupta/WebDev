@@ -1,6 +1,6 @@
 ---
 slug: dijkstra-double-source
-module: graphs
+module: graphs-shortest-paths
 title: Bidirectional Dijkstra
 subtitle: Search from source and target simultaneously; meet in the middle to halve the explored region.
 difficulty: Advanced

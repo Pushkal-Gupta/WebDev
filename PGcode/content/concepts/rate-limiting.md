@@ -1,6 +1,6 @@
 ---
 slug: rate-limiting
-module: system-design
+module: sd-api
 title: Rate Limiting
 subtitle: Cap how many requests a client can make per window so one caller can't starve the rest.
 difficulty: Intermediate

@@ -1,6 +1,6 @@
 ---
 slug: db-partitioning-strategies
-module: system-design
+module: sd-storage
 title: Database Partitioning Strategies
 subtitle: Range, hash, list, and composite partitioning in Postgres and MySQL — what each one optimizes and what it breaks.
 difficulty: Intermediate

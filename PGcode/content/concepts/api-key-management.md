@@ -1,6 +1,6 @@
 ---
 slug: api-key-management
-module: system-design
+module: sd-auth-security
 title: API Key Management
 subtitle: Issue, rotate, scope, revoke — store hashed only, never log, treat like passwords.
 difficulty: Intermediate

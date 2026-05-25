@@ -1,6 +1,6 @@
 ---
 slug: gossip-protocol
-module: system-design
+module: sd-consensus
 title: Gossip Protocol
 subtitle: Epidemic-style anti-entropy that propagates state through random peer exchanges — the heartbeat of Dynamo, Cassandra, and Consul.
 difficulty: Advanced

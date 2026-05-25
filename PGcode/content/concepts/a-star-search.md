@@ -1,6 +1,6 @@
 ---
 slug: a-star-search
-module: graphs
+module: graphs-shortest-paths
 title: A* Search
 subtitle: Dijkstra with a heuristic — finds the shortest path while exploring far fewer nodes when guidance is good.
 difficulty: Advanced

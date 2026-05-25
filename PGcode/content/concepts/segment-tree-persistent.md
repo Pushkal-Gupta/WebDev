@@ -1,6 +1,6 @@
 ---
 slug: segment-tree-persistent
-module: arrays-searching
+module: arrays-range-structures
 title: Persistent Segment Tree
 subtitle: A segment tree that retains every past version — answer queries on any prior state in O(log n) without storing N copies.
 difficulty: Advanced

@@ -1,6 +1,6 @@
 ---
 slug: sigv4-aws-signing
-module: system-design
+module: sd-auth-security
 title: AWS Signature V4
 subtitle: How every AWS request is signed — canonical request, string-to-sign, derived signing key.
 difficulty: Advanced

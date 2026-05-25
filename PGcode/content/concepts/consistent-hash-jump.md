@@ -1,6 +1,6 @@
 ---
 slug: consistent-hash-jump
-module: system-design
+module: sd-storage
 title: Jump Consistent Hash
 subtitle: O(1) memory, perfectly balanced shard assignment without a ring or virtual nodes.
 difficulty: Advanced

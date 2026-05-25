@@ -1,6 +1,6 @@
 ---
 slug: bit-dp
-module: dp
+module: dp-advanced
 title: Bitmask DP
 subtitle: Encode a subset of up to ~20 elements as a bitmask, then DP over bitmasks for problems with exponential state space made tractable.
 difficulty: Advanced

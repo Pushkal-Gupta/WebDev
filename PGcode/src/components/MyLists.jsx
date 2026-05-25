@@ -78,7 +78,7 @@ export default function MyLists({ session }) {
         <div className="ml-empty">
           <ListPlus size={28} className="ml-empty-icon" />
           <h2 className="ml-empty-title">Sign in to create custom lists</h2>
-          <p className="ml-empty-sub">Group problems however you want — "Revisit this week," "Trees mastery," "Pre-Google."</p>
+          <p className="ml-empty-sub">Group problems however you want — Revisit this week, Trees mastery, Pre-Google.</p>
         </div>
       </div>
     );
@@ -89,7 +89,7 @@ export default function MyLists({ session }) {
       <div className="ml-container">
         <header className="ml-header">
           <h1 className="ml-title">My Lists</h1>
-          <p className="ml-sub">Personal problem collections.</p>
+          <p className="ml-sub">Your saved problem collections.</p>
         </header>
         <div className="ml-skel-grid">
           {[0, 1, 2].map(i => (
@@ -111,7 +111,7 @@ export default function MyLists({ session }) {
     <div className="ml-container">
       <header className="ml-header">
         <h1 className="ml-title">My Lists</h1>
-        <p className="ml-sub">Personal problem collections. Each list is private to your account.</p>
+        <p className="ml-sub">Your private problem collections — group anything however you want.</p>
       </header>
 
       <div className="ml-create-row">

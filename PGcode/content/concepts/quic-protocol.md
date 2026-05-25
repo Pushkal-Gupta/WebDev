@@ -1,6 +1,6 @@
 ---
 slug: quic-protocol
-module: cs-core
+module: cs-network-protocols
 title: QUIC Protocol
 subtitle: A UDP-based transport with built-in TLS 1.3, real multiplexing without head-of-line blocking, and 0-RTT resumption — what HTTP/3 actually runs on.
 difficulty: Advanced

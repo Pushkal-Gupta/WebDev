@@ -1,6 +1,6 @@
 ---
 slug: sqrt-decomposition
-module: arrays-searching
+module: arrays-range-structures
 title: Square Root Decomposition
 subtitle: Bucket an array into √n blocks for O(√n) range queries + updates — simpler than segment tree, faster constants.
 difficulty: Intermediate

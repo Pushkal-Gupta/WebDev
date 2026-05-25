@@ -28,7 +28,15 @@ Classic Huffman coding builds a binary tree from a frequency table and reads off
 Standard Huffman has a problem at the file boundary: to decode, the receiver needs the exact tree the encoder built, and there are many trees with the same optimal length profile. Shipping the tree itself is expensive. Canonical Huffman makes the tree implicit in the lengths: given only the length-per-symbol table, both ends rebuild the identical codebook. That property is why DEFLATE's "dynamic Huffman" block header is just a packed length list.
 
 ## intuition
-Two prefix-code trees that produce the same set of codeword lengths are equally optimal in compressed size. So fix on a canonical assignment. Sort symbols by `(length, symbol)`. Start with the smallest code length: its first codeword is all zeros. To get the next codeword at the same length, increment by one. When the length grows by `k`, increment by one and then shift left by `k`. This rule produces unique prefix-free codes in O(n log n).
+The encoding exists because classic Huffman coding has a serialisation problem: many different prefix-code trees produce identical optimal codeword lengths, and the decoder must rebuild the *exact* tree the encoder used. Shipping the tree itself (bit shape, node weights, or full `(symbol, code)` mapping) costs more bytes than necessary. Canonical Huffman fixes this by making the tree implicit in the per-symbol code lengths — the decoder reconstructs an *identical* codebook from a length list alone.
+
+The decisive observation: two prefix-code trees with the same per-symbol length profile are equally optimal in compressed size (their information-theoretic cost is identical). So we can choose any canonical assignment that depends only on lengths, and both sender and receiver agree without negotiation. The chosen convention: sort symbols first by code length ascending, then by symbol ID ascending. The first code at the smallest length is all zeros. To get the next code at the same length, increment by one. When the length grows from L₁ to L₂, increment by one (still at length L₁) then shift left by L₂ − L₁ (now at length L₂). This rule produces unique prefix-free codes whose tree is bijectively determined by the length list.
+
+The deeper structural property: Kraft's inequality (Kraft 1949) guarantees that any set of positive integer code lengths satisfying Σ 2^(−Lᵢ) ≤ 1 corresponds to some prefix-free code. Huffman's algorithm produces a length assignment achieving equality (optimal) and the canonical procedure constructs the lexicographically-minimal representative of all trees with that length profile.
+
+DEFLATE (RFC 1951, used by zlib, gzip, PNG, HTTP `Content-Encoding: gzip`) ships canonical Huffman as the only Huffman variant — the dynamic-Huffman block header is just a run-length-encoded length list. JPEG (ITU-T T.81) does the same. MP3 (ISO/IEC 11172-3), JPEG-XL, and Zstandard's Huffman tables all use canonical form. Modern compressors typically constrain max code length (e.g., DEFLATE bounds at 15) so the decoder can use a single 2^L-entry lookup table indexed by the next L bits — turning decode into a single array index per code, not a tree walk.
+
+A length-skewed input can produce codes longer than the transport allows; the Package-Merge algorithm (Larmore & Hirschberg 1990) caps maximum length while preserving near-optimal compression and pairs naturally with canonical assignment.
 
 ## visualization
 Symbols `A:3, B:3, C:3, D:3, E:3, F:2, G:4, H:4`. Sort by `(length, symbol)`: `F(2), A(3), B(3), C(3), D(3), E(3), G(4), H(4)`. Codes: `F = 00`, then shift left and increment: `A = 100`, `B = 101`, `C = 110`, `D = 111` — wait, that overflows length 3. Re-derive: after `F = 00` at length 2, next code at length 3 is `(00 + 1) << 1 = 010`. So `A = 010`, `B = 011`, `C = 100`, `D = 101`, `E = 110`. Length 4: `(110 + 1) << 1 = 1110`. `G = 1110`, `H = 1111`. Pure mechanical output from the length list.
@@ -37,7 +45,43 @@ Symbols `A:3, B:3, C:3, D:3, E:3, F:2, G:4, H:4`. Sort by `(length, symbol)`: `F
 Build the Huffman tree from a priority queue of frequencies. Repeatedly extract the two smallest, merge into a new node whose weight is the sum, reinsert. Walk the final tree to assign codes — left child gets a 0 suffix, right gets 1. Correct and produces optimal codeword lengths. The "brute" part is that to serialize the codebook you must also write down the tree shape or the full `(symbol, code)` table, both of which are larger than the canonical length list.
 
 ## optimal
-Step 1: compute optimal code lengths via standard Huffman (heap-based, O(n log n)). Step 2: discard the tree, keep only the per-symbol length. Step 3: bucket symbols by length, sort each bucket lexicographically. Step 4: assign codes by the canonical rule — start `code = 0`, for symbols in sorted order, emit `code` padded to the current length, then `code = (code + 1) << (next_length - current_length)`. The decoder rebuilds the table from lengths alone.
+**Technique: standard Huffman for length computation + canonical assignment from length list.** O(n log n) — Huffman tree construction dominates; the canonical assignment pass is O(n log n) for the sort plus O(n) for emission. Optimal among prefix-free codes because Huffman lengths are information-theoretically tight (within 1 bit of Shannon entropy) and the canonical form preserves them exactly.
+
+```python
+import heapq
+
+def huffman_lengths(freq):
+    if len(freq) == 1:
+        sym = next(iter(freq))
+        return {sym: 1}                              # degenerate: 1 bit
+    heap = [(f, [(s, 0)]) for s, f in freq.items()]
+    heapq.heapify(heap)
+    while len(heap) > 1:
+        f1, n1 = heapq.heappop(heap)
+        f2, n2 = heapq.heappop(heap)
+        merged = [(s, d + 1) for s, d in n1] + [(s, d + 1) for s, d in n2]
+        heapq.heappush(heap, (f1 + f2, merged))
+    return {s: d for s, d in heap[0][1]}
+
+def canonical_codes(lengths):
+    items = sorted(lengths.items(), key=lambda kv: (kv[1], kv[0]))   # (length, symbol)
+    codes = {}
+    code = 0
+    prev_len = items[0][1]
+    for sym, length in items:
+        if length > prev_len:                        # length grew: shift left
+            code <<= (length - prev_len)
+            prev_len = length
+        codes[sym] = format(code, f'0{length}b')     # pad to current length
+        code += 1
+    return codes
+```
+
+Key lines: `sorted(lengths.items(), key=lambda kv: (kv[1], kv[0]))` is the canonical ordering — by length ascending, then by symbol ID ascending. This is the *only* sort key that makes the codebook deterministic across implementations. `code <<= (length - prev_len)` is the length-jump rule: when moving from length L₁ to L₂ > L₁, shift the running code left by L₂ − L₁ bits to expand it into the new length class. `code += 1` increments at the current length, producing the next codeword. The format specifier `f'0{length}b'` left-pads with zeros to the exact bit width — without this, codes like binary `1` at length 3 would display as `1` instead of `001`.
+
+The decoder rebuilds the table from the length list alone using the same canonical-assignment procedure — no tree transmission needed. DEFLATE compresses the length list itself with run-length encoding (a second Huffman code over the lengths), recursively shrinking the codebook header.
+
+**Why canonical and not classical Huffman?** Tree serialisation costs O(n log n) bits for n symbols (encoding tree shape); canonical needs only n lengths × log(max_length) bits. For a 256-symbol alphabet with max length 15, that's 256 × 4 = 128 bytes for the canonical header versus ~512 bytes for the tree. **Why not arithmetic coding?** Arithmetic coding achieves the Shannon bound exactly (Huffman is within 1 bit per symbol) but is patent-encumbered in some regions and slower per byte. DEFLATE deliberately uses Huffman for patent freedom and decode speed. **Why length-limited variants matter**: extremely skewed distributions can produce 30+ bit codes; DEFLATE caps at 15 bits so the decoder lookup table fits in 32 KB. Package-Merge (Larmore-Hirschberg 1990) caps lengths while preserving near-optimal compression. **Common bugs**: wrong sort key (must be (length, symbol)); off-by-one on length jump shift; using null byte as length-list delimiter (rejected by Postgres and many transports); forgetting that single-symbol alphabets need an explicit length-1 assignment because Huffman's tree degenerates.
 
 ## complexity
 time: O(n log n) to build the lengths, O(n log n) to sort the lookup table, O(n) for the assignment pass

@@ -1,6 +1,6 @@
 ---
 slug: strongly-connected
-module: graphs
+module: graphs-advanced
 title: Strongly Connected Components
 subtitle: Tarjan's single-pass SCC and Kosaraju's two-pass algorithm — both find SCCs in O(V + E).
 difficulty: Advanced

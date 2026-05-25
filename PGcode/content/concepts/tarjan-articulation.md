@@ -1,6 +1,6 @@
 ---
 slug: tarjan-articulation
-module: graphs
+module: graphs-advanced
 title: Tarjan's Articulation Points and Bridges
 subtitle: Find cut vertices and cut edges of an undirected graph in a single DFS using discovery and low-link values.
 difficulty: Advanced

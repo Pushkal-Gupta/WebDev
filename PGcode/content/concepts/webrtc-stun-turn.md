@@ -1,6 +1,6 @@
 ---
 slug: webrtc-stun-turn
-module: system-design
+module: sd-network
 title: WebRTC STUN and TURN
 subtitle: How two browsers behind different home NATs negotiate a peer-to-peer media path, and what to do when symmetric NAT says no.
 difficulty: Advanced

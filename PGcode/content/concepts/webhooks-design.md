@@ -1,6 +1,6 @@
 ---
 slug: webhooks-design
-module: system-design
+module: sd-api
 title: Webhooks Design
 subtitle: Server → client HTTP callbacks for events. Sign, retry, dedupe, idempotency-key — the four properties of a reliable webhook.
 difficulty: Intermediate

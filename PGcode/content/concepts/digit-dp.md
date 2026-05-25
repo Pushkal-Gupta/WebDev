@@ -1,6 +1,6 @@
 ---
 slug: digit-dp
-module: dp
+module: dp-advanced
 title: Digit DP
 subtitle: Count numbers in [L, R] satisfying digit-based predicates in O(log R · alphabet · states) — even for R = 10^18.
 difficulty: Advanced

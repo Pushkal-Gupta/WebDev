@@ -1,6 +1,6 @@
 ---
 slug: segment-tree-on-intervals
-module: arrays-searching
+module: arrays-range-structures
 title: Segment Tree on Intervals (Interval Tree)
 subtitle: Index a set of intervals so "which intervals contain point p?" or "which intervals overlap [l, r]?" run in O(log n + k).
 difficulty: Advanced

@@ -1,6 +1,6 @@
 ---
 slug: sweep-line
-module: arrays-searching
+module: arrays-binary-search
 title: Sweep Line
 subtitle: Sort events by coordinate, "sweep" a vertical line across them, maintain an active set — many geometry / interval problems in O(n log n).
 difficulty: Intermediate

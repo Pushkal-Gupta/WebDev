@@ -1,6 +1,6 @@
 ---
 slug: longest-increasing-subseq
-module: dp
+module: dp-classical
 title: Longest Increasing Subsequence
 subtitle: Find the longest strictly-increasing subsequence in O(n log n) using patience-sorting + binary search.
 difficulty: Intermediate
@@ -34,11 +34,7 @@ LIS is one of the most-asked DP problems and also the building block for:
 Knowing both the O(n²) DP and the O(n log n) patience version is interview-standard.
 
 ## intuition
-Maintain a `tails[]` array where `tails[i]` is the smallest tail value of any increasing subsequence of length `i + 1` seen so far. For each new element x:
-- If x is bigger than every tail: extend (append to tails).
-- Otherwise: replace the smallest tail ≥ x with x (binary search). This keeps `tails` sorted and gives shorter sequences a better chance to extend later.
-
-Length of LIS = length of `tails` at the end. The actual subsequence requires bookkeeping pointers.
+The naive O(n^2) DP defines `dp[i]` = LIS length ending at index i, with recurrence `dp[i] = 1 + max(dp[j] for j < i if arr[j] < arr[i])`. Correct but quadratic. The O(n log n) breakthrough uses a clever invariant: maintain a `tails` array where `tails[k]` is the smallest possible tail value of any increasing subsequence of length k + 1 seen so far. For each new element x, binary-search the leftmost position where `tails[pos] >= x` (using `bisect_left`). If `pos == len(tails)`, x extends the longest seen LIS — append it. Otherwise, replace `tails[pos]` with x, which keeps `tails` sorted and lowers the tail of length-(pos+1) sequences. Why does this work? Replacing a tail with a smaller value gives all future longer sequences a strictly better chance to extend — the smaller the tail, the more elements can come after it. The length of LIS is `len(tails)` at the end. The actual subsequence requires extra bookkeeping (predecessor pointers) because `tails` itself is not the LIS — its elements may come from positions that do not form a contiguous subsequence. The deep insight is the "patience sorting" connection. Picture dealing cards face-up onto piles by the rule "place each card on the leftmost pile whose top is bigger than the new card; otherwise start a new pile." The number of piles equals the LIS length. The binary search in our algorithm is "find the leftmost pile to place this card." This patience-sorting view also proves correctness: the piles encode a valid chain decomposition, and Mirsky's theorem on partial orders ensures the minimum number of piles equals the longest chain. For 2D problems (Russian doll envelopes), sort by one dimension and LIS on the other — with careful tie-breaking (sort second dim descending) to prevent equal-first-dim items from chaining.
 
 ## visualization
 ```
@@ -63,34 +59,45 @@ Step  arr[i]  tails
 **Recursive with memoization**: `lis(i)` = LIS ending at i. Same complexity, just framed differently.
 
 ## optimal
-**O(n log n) — patience sorting with binary search:**
-```
-tails = []
-for x in arr:
-    pos = bisect_left(tails, x)        # leftmost index with tails[i] >= x
-    if pos == len(tails):
-        tails.append(x)
-    else:
-        tails[pos] = x
-return len(tails)
+Patience sorting with binary search. For each element x in the input, binary-search the leftmost position in `tails` where the entry is `>= x`. Append x if it extends the longest sequence, else replace `tails[pos] = x` to lower the tail of length-(pos+1) sequences. Length of LIS is `len(tails)`. Time O(n log n), space O(n). This is asymptotically optimal — any comparison-based algorithm that finds the LIS length requires Omega(n log n) in the worst case (proven via decision-tree arguments on adversarial inputs).
+
+```python
+from bisect import bisect_left
+
+def lis_length(arr):
+    """O(n log n) LIS via patience sorting + binary search."""
+    tails = []                                  # tails[k] = smallest possible tail of len k+1 LIS
+    for x in arr:
+        # bisect_left finds the leftmost pos where tails[pos] >= x.
+        pos = bisect_left(tails, x)
+        if pos == len(tails):
+            tails.append(x)                     # x extends the longest LIS seen so far
+        else:
+            tails[pos] = x                      # lower the tail; gives future sequences more room
+    return len(tails)
+
+def lis_actual(arr):
+    """Reconstruct an actual LIS via predecessor pointers."""
+    if not arr: return []
+    tails_idx = []                              # indices in arr that produced each tail
+    prev = [-1] * len(arr)
+    for i, x in enumerate(arr):
+        lo, hi = 0, len(tails_idx)
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if arr[tails_idx[mid]] < x: lo = mid + 1
+            else: hi = mid
+        if lo == len(tails_idx): tails_idx.append(i)
+        else: tails_idx[lo] = i
+        if lo > 0: prev[i] = tails_idx[lo - 1]  # link to previous element in chain
+    out = []
+    k = tails_idx[-1]
+    while k != -1:
+        out.append(arr[k]); k = prev[k]
+    return out[::-1]
 ```
 
-**Reconstructing the actual subsequence** requires storing predecessor pointers:
-```
-indices_in_tails = []     # the index in arr that produced tails[i]
-prev = [-1] * len(arr)
-for i, x in enumerate(arr):
-    pos = bisect_left([arr[j] for j in indices_in_tails], x)
-    if pos == len(indices_in_tails):
-        indices_in_tails.append(i)
-    else:
-        indices_in_tails[pos] = i
-    if pos > 0:
-        prev[i] = indices_in_tails[pos - 1]
-# Walk prev[] back from indices_in_tails[-1] to reconstruct.
-```
-
-For **non-strict** increasing (allow equal), use `bisect_right` instead. For **longest decreasing**, negate the comparison.
+The `bisect_left` choice (strict less-than for ordering) gives strictly increasing LIS; swap to `bisect_right` for non-strict (allows equal consecutive elements). For longest decreasing, negate values before running the algorithm. The reconstruction predecessor-pointer trick is essential because `tails` itself is not the LIS — its values come from positions that may not form a valid subsequence; the `prev` array records the actual predecessor in the source array.
 
 ## complexity
 - **Time**: O(n log n).

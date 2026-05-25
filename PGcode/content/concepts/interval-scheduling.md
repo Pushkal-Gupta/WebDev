@@ -25,10 +25,23 @@ status: published
 Given a list of intervals (start, end), pick the largest subset where no two overlap. Counter-intuitively, the optimal strategy is *not* "shortest first" or "earliest start first" — it's "earliest finish first." Sort by `end`, then sweep left to right keeping every interval whose start is at least the previous chosen finish. Provably optimal, O(n log n), and the canonical example used to teach greedy exchange-argument proofs.
 
 ## whyItMatters
-Scheduling is the bread and butter of operations research: meeting rooms, CPU jobs, classroom assignments, ad slots, courtroom dockets. The earliest-finish rule generalizes to many variants — interval partitioning (minimum rooms), weighted interval scheduling (DP), and interval graph coloring. Recognizing the pattern lets you reach for the right tool instantly instead of jumping to DP.
+- **OS process scheduling**: classical non-preemptive interval scheduling appears in real-time OS literature (Liu & Layland 1973), reflected in Linux's `SCHED_DEADLINE` policy and RTOS schedulers for embedded systems.
+- **Cloud workload allocation**: Kubernetes batch-job scheduling, AWS Lambda warm-pool dispatch, and Borg/Mesos use interval-scheduling-style greedy assignment for non-conflicting jobs to slots.
+- **Ad-slot allocation in real-time bidding**: Google AdX, Facebook Ads use interval-scheduling variants to select the maximum number of compatible ad placements within a time window.
+- **Operations research staples**: meeting-room scheduling (Outlook FindTime), classroom assignment in university timetabling, courtroom docket optimisation, freight-loading scheduling.
+- **The classical paper** (Gavril 1972, Kleinberg & Tardos chapter 4.1) formalises this as the activity-selection problem with the cleanest exchange-argument proof in greedy-algorithms literature.
+- **Generalises directly to** weighted interval scheduling (DP), interval partitioning (minimum rooms via min-heap), interval graph colouring (chromatic number = max clique). Recognising the pattern lets you pick the right tool instantly instead of defaulting to DP.
 
 ## intuition
-Picking the interval that finishes earliest leaves the *most* room for future intervals. Any other choice either ends at the same time (tie — pick either) or later, which can only shrink the remaining feasible window. The exchange argument: if an optimal solution doesn't include the earliest-finishing interval, swap that interval in for the optimal's first; you can't lose any future intervals because you only freed up time, never took it. Iterate the swap and the greedy schedule matches optimal in count.
+The algorithm exists because the optimisation landscape — choose the largest non-overlapping subset — has a non-obvious greedy structure. Brute-force enumeration is 2ⁿ; DP works but is overkill for the unweighted version. The escape route is the earliest-finish-time rule, which turns the entire problem into a single sort-then-sweep.
+
+The counterintuitive part: "sort by length and pick shortest first" is wrong (counterexample with two short intervals straddling a long one); "sort by start and pick earliest start first" is also wrong (a long interval starting early blocks many later ones). The unique correct greedy rule is "sort by *finish* time ascending, pick the next interval whose start is after the current finish".
+
+The exchange-argument proof is the elegant part. Let OPT be any optimal solution and GREEDY be the greedy choice. Sort both by finish time. Claim: the i-th interval in GREEDY finishes no later than the i-th interval in OPT. Proof by induction on i. Base i=1: GREEDY picks the earliest-finishing interval globally, so its finish ≤ any other interval's finish, including OPT's first. Inductive step: assume GREEDY's first i finish no later than OPT's first i. OPT's (i+1)-th must start ≥ OPT's i-th finish ≥ GREEDY's i-th finish, so it is a valid candidate for GREEDY's (i+1)-th choice; GREEDY picks the earliest-finishing such candidate, so its finish ≤ OPT's (i+1)-th finish. By induction, GREEDY produces at least |OPT| intervals — and since |OPT| is maximum, GREEDY is optimal.
+
+The intuitive version: picking the earliest-finishing interval leaves the most room for future picks. Any other choice either ends at the same time (tie — pick either) or later, which can only shrink the remaining feasible window. The exchange argument formalises "leaving more room is never worse".
+
+The deeper principle is that greedy correctness for selection problems often comes from such exchange arguments — show that the greedy choice can be swapped into any optimal solution without making it worse, then iterate.
 
 ## visualization
 ```
@@ -58,20 +71,41 @@ Answer: {A, D, H}, size 3.
 Enumerate all 2ⁿ subsets, check each for non-overlap, keep the largest valid one. O(2ⁿ · n). Or DP over sorted intervals: for each interval, "take or skip" with weight 1 — that runs in O(n log n) using binary search for the next compatible interval, matching greedy in time but with O(n) memory and trickier code. For the unweighted version the greedy is strictly simpler.
 
 ## optimal
-```
-function maxNonOverlapping(intervals):
-    sort intervals by end ascending
-    last_end = -inf
-    count = 0
+**Technique: earliest-finish-time greedy (Gavril 1972 / classical activity selection).** O(n log n) — dominated by the sort; the sweep is O(n). Optimal for the unweighted problem, proven via exchange argument; no faster algorithm exists because sorting is the lower bound.
+
+```python
+def max_non_overlapping(intervals):
+    if not intervals:
+        return 0, []
+    intervals = sorted(intervals, key=lambda x: x[1])    # sort by FINISH time
     chosen = []
-    for (s, e) in intervals:
-        if s >= last_end:          # use > if intervals are open at the right
-            count += 1
+    last_end = float('-inf')
+    for s, e in intervals:
+        if s >= last_end:                                # non-overlapping (or touching)
             chosen.append((s, e))
-            last_end = e
-    return count, chosen
+            last_end = e                                  # advance the cursor
+    return len(chosen), chosen
 ```
-For "weighted interval scheduling" (each interval has a value, maximize sum) greedy is wrong — switch to DP with `dp[i] = max(dp[i-1], value[i] + dp[p(i)])` where `p(i)` is the latest interval finishing before `i.start`.
+
+Key lines: `sorted(intervals, key=lambda x: x[1])` is the entire algorithmic insight — sort by *end* (finish time), not start. This is the only ordering with a clean exchange-argument proof for the unweighted maximum-non-overlapping problem. `if s >= last_end` is the non-overlap check; use `>=` for closed intervals where touching endpoints don't overlap (`[1,4]` and `[4,7]` are picked together), use `>` for half-open intervals where they would. Document the convention. `last_end = e` advances the cursor; this is the entire state the greedy needs — no DP, no backtracking, no lookahead.
+
+For the **interval partitioning** variant (minimum number of rooms to schedule all intervals without overlap), the algorithm changes: sort by *start*, maintain a min-heap of end times. For each interval, if the heap's min end ≤ current start, pop it (room becomes free); push the new interval's end. Heap size at any point = rooms needed; max heap size = minimum rooms required.
+
+```python
+def min_rooms(intervals):
+    import heapq
+    intervals = sorted(intervals, key=lambda x: x[0])
+    heap = []
+    for s, e in intervals:
+        if heap and heap[0] <= s:
+            heapq.heappop(heap)
+        heapq.heappush(heap, e)
+    return len(heap)
+```
+
+For **weighted interval scheduling** (each interval has a value; maximise total value of non-overlapping picks), the greedy is wrong. Counterexample: intervals `(0,10,value=100)`, `(0,5,value=1)`, `(5,10,value=1)` — greedy picks the two unit-value intervals; optimal is the single 100-value. Switch to DP: sort by end, `dp[i] = max(dp[i-1], value[i] + dp[p(i)])` where `p(i)` is the latest interval finishing before `i.start` (found via binary search). O(n log n).
+
+**Why not sort by start?** Counterexample with three intervals: `(0,10)`, `(1,3)`, `(4,6)` — sort by start picks `(0,10)` first, blocking the other two; optimal is `(1,3) + (4,6)`. **Why not sort by length?** Counterexample: `(0,10)`, `(0,2)`, `(8,12)` — sort by length picks `(0,2)` and `(8,12)` (optimal) but also picks `(0,2)` and then can't extend; reverse the lengths and the heuristic fails. **Why not max-flow?** Bipartite matching reduces to max-flow at the cost of O(V·E) — vastly slower than O(n log n) greedy for unweighted intervals.
 
 ## complexity
 time: O(n log n) — dominated by the sort; the sweep is O(n)

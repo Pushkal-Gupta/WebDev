@@ -1,6 +1,6 @@
 ---
 slug: database-isolation-levels
-module: cs-core
+module: cs-db-transactions
 title: Database Isolation Levels
 subtitle: Read-uncommitted, read-committed, repeatable-read, serializable — and the anomalies (phantoms, write skew) that distinguish them.
 difficulty: Advanced

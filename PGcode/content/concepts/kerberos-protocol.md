@@ -1,6 +1,6 @@
 ---
 slug: kerberos-protocol
-module: system-design
+module: sd-network
 title: Kerberos Protocol
 subtitle: A trusted third party hands out time-limited tickets so two parties on a hostile network can authenticate without ever exchanging a password.
 difficulty: Advanced

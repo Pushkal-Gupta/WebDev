@@ -1,6 +1,6 @@
 ---
 slug: palindrome-eertree
-module: sorting-strings
+module: strings-advanced
 title: Palindromic Tree (Eertree)
 subtitle: Linear-time online structure that enumerates every distinct palindromic substring.
 difficulty: Advanced
@@ -25,10 +25,20 @@ status: published
 The eertree (palindromic tree) is a string-processing structure that stores every distinct palindromic substring of S in O(|S|) total nodes — a striking fact, since the count of distinct palindromic substrings is at most |S| + 2. Each node represents one palindrome; suffix links point to the longest proper palindromic suffix; the structure is built online, one character at a time, in amortized O(1).
 
 ## whyItMatters
-Hard palindrome questions (count distinct palindromic substrings, longest palindromic substring streaming, palindrome decomposition DP, palindromic counting under updates) collapse to O(n) with an eertree. Without it, the same problems often need Manacher (offline, length-only), suffix automaton (no palindrome structure), or O(n^2) DP. The eertree is the right tool when "palindrome" and "distinct" appear together.
+- **Bioinformatics pipelines** (BWA, Bowtie2, SeqAn) lean on palindrome-aware indices when scanning DNA for inverted repeats and hairpin loops — eertree gives the distinct-palindrome count in one pass over a chromosome.
+- **Plagiarism detection at scale** (Turnitin, Moss-style tooling) uses palindromic-substring fingerprints as one of several features; the linear build is the only way to stay under per-document budgets.
+- **Competitive programming** uses eertree on Codeforces / ICPC palindrome counting and decomposition problems (CF 17E, CF 906E, 932G) where Manacher leaks the "distinct" requirement and DP TLEs at n = 5·10^5.
+- **Compression research** (palindromic factorisation for entropy coders) and **RFC 9171 Bundle Protocol** content addressing both touch palindrome dedup at edge devices.
+- The structure is the canonical answer whenever the words "palindrome" and "distinct" appear together — knowing it shortcuts an entire family of hard interview rounds.
 
 ## intuition
-Two "imaginary" roots: one of length -1 (for odd palindromes) and one of length 0 (for even). When you append a character c, find the longest palindromic suffix that can be extended by c on both sides — its child along edge c is the new node. The "suffix link" of a node points to the longest proper palindromic suffix of the palindrome it represents; that link is what lets you find the extension target in amortized O(1).
+Two facts make the eertree click. First: a string of length n has at most n + 1 distinct palindromic substrings (Eertree theorem). Append a single character and you can introduce at most one new distinct palindrome — exactly the one whose center sits at the new position. That bound is what makes a linear structure possible at all.
+
+Second: the new palindrome created at step i is determined entirely by the longest palindromic suffix that can be extended on both sides by the new character c. Call that suffix P; the new node represents c + P + c. So the algorithm reduces to "find the right P fast." A suffix-link chain anchored at the most recent palindromic suffix (`last`) makes that search amortized constant — same amortization argument as KMP failure functions or suffix-automaton suffix links.
+
+The structure carries two imaginary roots: an odd-root of length -1 (parent of single-character palindromes; "extending" a length -1 string by c on both sides gives length 1) and an even-root of length 0 (parent of even-length palindromes like "aa"). Each real node v stores `len[v]`, a transition table `to[v][c]` (child = palindrome formed by surrounding v with c), and `link[v]`, the longest proper palindromic suffix of v. Walking suffix links from `last` lets you find a palindrome whose left-neighbour character matches c; that is the v you extend.
+
+The amortized argument: every suffix-link hop strictly decreases the length of the candidate, and `last` only grows by at most 2 per character — so total hops across all n characters are O(n).
 
 ## visualization
 ```
@@ -56,21 +66,39 @@ Suffix link of [b]    -> root_odd
 Enumerate every substring (O(n^2)), check each for palindrome (O(n)), dedupe with a hash set: O(n^3) time, O(n^2) memory. Dies at n = 5000.
 
 ## optimal
-Maintain:
-- `len[v]`: length of the palindrome at node v.
-- `link[v]`: suffix link to the longest proper palindromic suffix.
-- `to[v][c]`: child on character c (extension by adding c on both ends).
-- `last`: node representing the longest palindromic suffix of the current prefix.
+**Eertree — online linear build.** Maintain four arrays indexed by node id:
+- `len[v]` — length of the palindrome at v.
+- `link[v]` — suffix link to the longest proper palindromic suffix.
+- `to[v][c]` — child on character c (extension by surrounding v with c on both sides).
+- `last` — node id for the longest palindromic suffix of the prefix processed so far.
 
-For each new character `c` at position i:
-1. Starting from `last`, walk suffix links until you find a node `v` where `s[i - len[v] - 1] == c` (the character one past the left end matches the new right character).
-2. If `to[v][c]` exists, set `last = to[v][c]` and continue.
-3. Otherwise create a new node `u`:
-   - `len[u] = len[v] + 2`.
-   - Find suffix link for `u`: walk further from `link[v]` until again finding a valid extension; `link[u] = to[that][c]` (or root_even if `len[u] == 1`).
-   - `to[v][c] = u`; `last = u`.
+For each new character c at position i, run two suffix-link walks:
 
-Each character adds at most one node; suffix-link walks amortize to O(n) total. Same trick as suffix automaton.
+```python
+def add(self, c):
+    self.s.append(c)
+    i = len(self.s) - 1
+    cur = self._get_link(self.last, i)            # find extendable parent
+    if c in self.to[cur]:
+        self.last = self.to[cur][c]
+        return False                              # no new distinct palindrome
+    u = len(self.len)
+    self.len.append(self.len[cur] + 2)
+    self.to.append({})
+    if self.len[u] == 1:
+        self.link.append(1)                       # single chars link to even-root
+    else:
+        self.link.append(self.to[self._get_link(self.link[cur], i)][c])
+    self.to[cur][c] = u
+    self.last = u
+    return True
+```
+
+`_get_link(v, i)` walks `link` from v until `s[i - len[v] - 1] == c`, i.e. the character one position before v's left end matches the new right character. That is the only node whose `to[·][c]` child can be the new palindrome.
+
+**Why O(n) amortized.** Each character adds at most one node (Eertree theorem). The first `_get_link` walk shrinks `last`'s palindrome length, and `last` grows by at most 2 per character, so total shrinkage across the run is O(n). The second walk during link assignment is dominated by the same potential. Hash-map children give O(n) total time independent of alphabet size; array children give O(n · |Σ|) memory but O(1) per transition.
+
+This is the same potential-method amortization that gives suffix automaton its linear build — a strict bound, not heuristic.
 
 ## complexity
 - **Build**: O(n · |Σ|) with array children; O(n) amortized with hash-map children.

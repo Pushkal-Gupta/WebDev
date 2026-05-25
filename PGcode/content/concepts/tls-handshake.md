@@ -1,6 +1,6 @@
 ---
 slug: tls-handshake
-module: cs-core
+module: cs-network-protocols
 title: TLS 1.3 Handshake
 subtitle: 1-RTT key exchange with forward secrecy; 0-RTT for resumed sessions and its replay trade-offs.
 difficulty: Intermediate

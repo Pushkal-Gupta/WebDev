@@ -42,10 +42,9 @@ export default function Notebook({ session }) {
       <div className="nb-container">
         <header className="nb-header">
           <span className="nb-eyebrow"><NotebookIcon size={11} /> Notebook</span>
-          <h1 className="nb-title">Your personal review knowledge base</h1>
+          <h1 className="nb-title">All your problem notes, one place</h1>
           <p className="nb-sub">
-            Sign in to see all the notes you've written across problems — your personal
-            reviewable knowledge graph.
+            Sign in to see every note you've written, searchable and grouped by problem.
           </p>
         </header>
       </div>
@@ -71,8 +70,8 @@ export default function Notebook({ session }) {
         <span className="nb-eyebrow"><NotebookIcon size={11} /> Notebook</span>
         <h1 className="nb-title">Notes you've written</h1>
         <p className="nb-sub">
-          <strong>{noteRows.length}</strong> problem{noteRows.length === 1 ? '' : 's'} with notes.
-          Use this as your personal review wiki.
+          <strong>{noteRows.length}</strong> problem{noteRows.length === 1 ? '' : 's'} with notes,
+          newest first. Search by problem or note text.
         </p>
       </header>
 
@@ -99,7 +98,7 @@ export default function Notebook({ session }) {
           <h2>No notes yet</h2>
           <p>
             Open any problem and use the Notes tab to jot intuitions, edge cases, or your
-            preferred approach. They'll all collect here.
+            preferred approach. Everything you write collects here.
           </p>
           <Link to="/practice" className="nb-cta">Browse problems</Link>
         </div>

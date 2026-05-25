@@ -1,6 +1,6 @@
 ---
 slug: two-pointers
-module: arrays-searching
+module: arrays-pointers-windows
 title: Two Pointers
 subtitle: Linear scans from both ends — or one fast, one slow.
 difficulty: Beginner
@@ -25,11 +25,14 @@ status: published
 Two pointers is less an algorithm than a *technique*: maintain two indices that move through an array (or string, or linked list) under some discipline that lets you solve the problem in O(n) instead of O(n²). The two pointers can both move forward at different speeds (fast/slow), or move toward each other from both ends (left/right), or sweep a window (sliding window's first cousin).
 
 ## whyItMatters
-Two-pointer thinking is the single most common pattern across array/string problems: pair sums in sorted arrays, palindrome checks, removing duplicates in place, partitioning, container with most water, three-sum, trapping rainwater. Recognize it once and a huge problem class collapses from O(n²) brute force to O(n).
+- Quicksort's partition step (used in every standard library: glibc `qsort`, libc++ `std::sort`, Java's `Arrays.sort`) is two pointers walking toward each other from opposite ends.
+- TCP/IP stack buffer compaction in the Linux kernel uses a slow/fast pair to move live bytes left while a fast pointer scans forward — exact analog of in-place dedup.
+- Postgres heap vacuum walks pages with a "next free slot" pointer trailing a scan pointer to compact dead tuples.
+- Ring buffers in Kafka producers, jemalloc free lists, and DPDK packet rings all use producer/consumer pointer pairs moving at independent speeds.
+- Two-pointer technique is the single most common pattern across array and string problems: pair sums in sorted arrays, palindrome checks, in-place dedup, container with most water, three-sum, trapping rainwater. Recognize it and a huge problem class collapses from O(n^2) brute force to O(n).
 
 ## intuition
-- **Opposite ends (`left`/`right`):** when the input is sorted (or you can sort it). Each comparison either rules out the left end or the right end, never both — so you advance one pointer per step. Total steps = n.
-- **Fast/slow:** when you need to compare a value at position `i` with one at position `j > i`, and `j` only ever increases. The slow pointer marks "the next position to write" or "the start of the current candidate window"; the fast pointer scans ahead.
+The brute-force pair-sum solution tries all O(n^2) index pairs because it has no way to skip any pair without proving it cannot be the answer. Two-pointer succeeds by introducing an order — usually a sort — that lets each comparison rule out an entire family of pairs in one step. Consider sorted `arr` with target sum: place `l` at index 0 and `r` at the last index. If `arr[l] + arr[r] < target`, then any pair using `arr[l]` and an index `<= r` is also too small (because all candidate right values are `<= arr[r]`), so the entire left position is exhausted — advance `l`. Symmetrically, if the sum is too large, retreat `r`. Each step eliminates one index permanently, so the total work is O(n) — each pointer crosses the array at most once. The fast/slow variant works on a different invariant: the slow pointer marks "the next position to write a valid element" and the fast pointer scans ahead probing inputs. Because slow never moves past fast, the algorithm uses the array as both input (read by fast) and output (written through slow), achieving in-place compaction in linear time. The deep skill is recognizing the eliminating-an-index invariant — once you see that a comparison rules out a whole prefix or suffix, two pointers is almost certainly the right tool. When the input is not sorted but a sort would not change the answer (any problem whose answer is a count, a pair, or a sum), sort first and pay O(n log n); the two-pointer sweep then dominates only the larger inputs.
 
 ## visualization
 **Two-sum in sorted array** `[1, 3, 4, 6, 9]`, target 10:
@@ -42,10 +45,33 @@ Two-pointer thinking is the single most common pattern across array/string probl
 For each pair (i, j), compute. O(n²). Two-pointer technique trades exhaustive pairing for one disciplined sweep using a problem-specific invariant.
 
 ## optimal
-Pick the variant that matches the problem:
-- Sorted input + pair condition → opposite ends. `if sum < target: l++; else if sum > target: r--; else: hit`.
-- Need to compare value at index with something later in stream → fast/slow.
-- Window of "valid" elements that grows and shrinks → sliding window (covered separately).
+Pick the variant that matches the problem's invariant: opposite-ends for sorted-pair-sum style questions, fast/slow for in-place compaction or "is element later than slow useful?" stream tests, and sliding window (its close cousin) for "maintain a valid contiguous range." All three move at most n total pointer steps, giving O(n) time and O(1) auxiliary space. The bound is optimal because we must inspect every element to know it is not part of the answer.
+
+```python
+def two_sum_sorted(arr, target):
+    l, r = 0, len(arr) - 1
+    while l < r:
+        s = arr[l] + arr[r]
+        if s == target:
+            return (l, r)
+        if s < target:
+            l += 1                              # arr[l] too small to pair with anything <= arr[r]
+        else:
+            r -= 1                              # arr[r] too large for anything >= arr[l]
+    return None
+
+def remove_duplicates(arr):
+    if not arr:
+        return 0
+    slow = 0                                    # next write position
+    for fast in range(1, len(arr)):             # scan position
+        if arr[fast] != arr[slow]:
+            slow += 1
+            arr[slow] = arr[fast]               # compact in place
+    return slow + 1
+```
+
+The opposite-ends sweep terminates because `l < r` is invariant and at least one pointer moves each iteration. The fast/slow sweep maintains `slow <= fast` and never overwrites unread input because `slow` only advances when a distinct value is found.
 
 ## complexity
 time: O(n) for both flavors — each pointer moves at most n times.

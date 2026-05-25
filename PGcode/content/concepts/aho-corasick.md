@@ -1,6 +1,6 @@
 ---
 slug: aho-corasick
-module: sorting-strings
+module: strings-advanced
 title: Aho-Corasick
 subtitle: Match many patterns against a text in a single O(n + sum_of_pattern_lengths + matches) scan.
 difficulty: Advanced

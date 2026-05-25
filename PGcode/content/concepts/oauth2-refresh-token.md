@@ -1,6 +1,6 @@
 ---
 slug: oauth2-refresh-token
-module: system-design
+module: sd-auth-security
 title: OAuth 2 Refresh Token Rotation
 subtitle: One-time-use refresh tokens, replay detection, family revocation.
 difficulty: Advanced

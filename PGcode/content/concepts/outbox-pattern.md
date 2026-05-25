@@ -1,6 +1,6 @@
 ---
 slug: outbox-pattern
-module: system-design
+module: sd-microservices
 title: Transactional Outbox Pattern
 subtitle: Atomically write to DB + emit a message — by inserting the event into an "outbox" table in the same transaction, then publishing it asynchronously.
 difficulty: Intermediate

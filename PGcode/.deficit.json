@@ -1,0 +1,2557 @@
+[
+  {
+    "slug": "n-queens-backtrack",
+    "deficit": 270,
+    "fail": [
+      "whyItMatters:57/70",
+      "intuition:73/200",
+      "optimal:70/200"
+    ]
+  },
+  {
+    "slug": "subsets-power-set",
+    "deficit": 267,
+    "fail": [
+      "intuition:59/200",
+      "optimal:74/200"
+    ]
+  },
+  {
+    "slug": "trie",
+    "deficit": 256,
+    "fail": [
+      "intuition:69/200",
+      "optimal:75/200"
+    ]
+  },
+  {
+    "slug": "exponential-backoff-jitter",
+    "deficit": 252,
+    "fail": [
+      "whyItMatters:51/70",
+      "intuition:67/200",
+      "optimal:100/200"
+    ]
+  },
+  {
+    "slug": "t-digest-percentiles",
+    "deficit": 246,
+    "fail": [
+      "whyItMatters:56/70",
+      "intuition:84/200",
+      "optimal:84/200"
+    ]
+  },
+  {
+    "slug": "hyperloglog",
+    "deficit": 244,
+    "fail": [
+      "whyItMatters:68/70",
+      "intuition:70/200",
+      "optimal:88/200"
+    ]
+  },
+  {
+    "slug": "sieve-of-eratosthenes",
+    "deficit": 238,
+    "fail": [
+      "whyItMatters:55/70",
+      "intuition:81/200",
+      "optimal:96/200"
+    ]
+  },
+  {
+    "slug": "cap-theorem",
+    "deficit": 237,
+    "fail": [
+      "whyItMatters:47/70",
+      "intuition:69/200",
+      "optimal:117/200"
+    ]
+  },
+  {
+    "slug": "dependency-injection",
+    "deficit": 237,
+    "fail": [
+      "intuition:69/200",
+      "optimal:94/200"
+    ]
+  },
+  {
+    "slug": "foundations-iterator-pattern",
+    "deficit": 237,
+    "fail": [
+      "whyItMatters:68/70",
+      "intuition:63/200",
+      "optimal:102/200"
+    ]
+  },
+  {
+    "slug": "kerberos-protocol",
+    "deficit": 237,
+    "fail": [
+      "whyItMatters:57/70",
+      "intuition:102/200",
+      "optimal:74/200"
+    ]
+  },
+  {
+    "slug": "n-queens",
+    "deficit": 237,
+    "fail": [
+      "whyItMatters:60/70",
+      "intuition:86/200",
+      "optimal:87/200"
+    ]
+  },
+  {
+    "slug": "virtual-memory",
+    "deficit": 236,
+    "fail": [
+      "intuition:85/200",
+      "optimal:79/200"
+    ]
+  },
+  {
+    "slug": "bloom-filter-cascade",
+    "deficit": 235,
+    "fail": [
+      "whyItMatters:66/70",
+      "intuition:84/200",
+      "optimal:85/200"
+    ]
+  },
+  {
+    "slug": "redis-data-structures",
+    "deficit": 235,
+    "fail": [
+      "intuition:86/200",
+      "optimal:79/200"
+    ]
+  },
+  {
+    "slug": "vector-clocks",
+    "deficit": 234,
+    "fail": [
+      "whyItMatters:48/70",
+      "intuition:71/200",
+      "optimal:117/200"
+    ]
+  },
+  {
+    "slug": "presigned-url",
+    "deficit": 233,
+    "fail": [
+      "whyItMatters:63/70",
+      "intuition:64/200",
+      "optimal:110/200"
+    ]
+  },
+  {
+    "slug": "wavelet-tree",
+    "deficit": 233,
+    "fail": [
+      "whyItMatters:59/70",
+      "intuition:86/200",
+      "optimal:92/200"
+    ]
+  },
+  {
+    "slug": "http2-vs-http3",
+    "deficit": 232,
+    "fail": [
+      "intuition:63/200",
+      "optimal:105/200"
+    ]
+  },
+  {
+    "slug": "dfs-iterative",
+    "deficit": 231,
+    "fail": [
+      "whyItMatters:64/70",
+      "intuition:81/200",
+      "optimal:94/200"
+    ]
+  },
+  {
+    "slug": "convex-hull",
+    "deficit": 230,
+    "fail": [
+      "whyItMatters:60/70",
+      "intuition:64/200",
+      "optimal:116/200"
+    ]
+  },
+  {
+    "slug": "cors-explained",
+    "deficit": 230,
+    "fail": [
+      "whyItMatters:57/70",
+      "intuition:79/200",
+      "optimal:104/200"
+    ]
+  },
+  {
+    "slug": "dijkstra-with-path",
+    "deficit": 230,
+    "fail": [
+      "whyItMatters:49/70",
+      "intuition:81/200",
+      "optimal:110/200"
+    ]
+  },
+  {
+    "slug": "hash-rolling-rabin-karp",
+    "deficit": 230,
+    "fail": [
+      "whyItMatters:69/70",
+      "intuition:77/200",
+      "optimal:94/200"
+    ]
+  },
+  {
+    "slug": "mst-kruskal",
+    "deficit": 230,
+    "fail": [
+      "whyItMatters:67/70",
+      "intuition:83/200",
+      "optimal:90/200"
+    ]
+  },
+  {
+    "slug": "sse-vs-websockets",
+    "deficit": 230,
+    "fail": [
+      "whyItMatters:50/70",
+      "intuition:78/200",
+      "optimal:112/200"
+    ]
+  },
+  {
+    "slug": "articulation-bridges",
+    "deficit": 229,
+    "fail": [
+      "whyItMatters:63/70",
+      "intuition:86/200",
+      "optimal:92/200"
+    ]
+  },
+  {
+    "slug": "sparse-table",
+    "deficit": 229,
+    "fail": [
+      "whyItMatters:60/70",
+      "intuition:77/200",
+      "optimal:104/200"
+    ]
+  },
+  {
+    "slug": "binary-lifting-lca",
+    "deficit": 228,
+    "fail": [
+      "whyItMatters:67/70",
+      "intuition:91/200",
+      "optimal:84/200"
+    ]
+  },
+  {
+    "slug": "tarjan-articulation",
+    "deficit": 228,
+    "fail": [
+      "intuition:96/200",
+      "optimal:76/200"
+    ]
+  },
+  {
+    "slug": "optimistic-locking",
+    "deficit": 226,
+    "fail": [
+      "whyItMatters:62/70",
+      "intuition:73/200",
+      "optimal:109/200"
+    ]
+  },
+  {
+    "slug": "strongly-connected",
+    "deficit": 226,
+    "fail": [
+      "whyItMatters:54/70",
+      "intuition:95/200",
+      "optimal:95/200"
+    ]
+  },
+  {
+    "slug": "nosql-vs-sql",
+    "deficit": 224,
+    "fail": [
+      "whyItMatters:41/70",
+      "intuition:120/200",
+      "optimal:85/200"
+    ]
+  },
+  {
+    "slug": "cuckoo-hashing",
+    "deficit": 222,
+    "fail": [
+      "whyItMatters:59/70",
+      "intuition:84/200",
+      "optimal:105/200"
+    ]
+  },
+  {
+    "slug": "matrix-exponentiation",
+    "deficit": 222,
+    "fail": [
+      "intuition:58/200",
+      "optimal:120/200"
+    ]
+  },
+  {
+    "slug": "multipart-upload",
+    "deficit": 222,
+    "fail": [
+      "intuition:72/200",
+      "optimal:106/200"
+    ]
+  },
+  {
+    "slug": "quic-protocol",
+    "deficit": 222,
+    "fail": [
+      "whyItMatters:62/70",
+      "intuition:84/200",
+      "optimal:102/200"
+    ]
+  },
+  {
+    "slug": "trie-autocomplete",
+    "deficit": 222,
+    "fail": [
+      "whyItMatters:58/70",
+      "intuition:63/200",
+      "optimal:127/200"
+    ]
+  },
+  {
+    "slug": "compression-gzip-brotli",
+    "deficit": 221,
+    "fail": [
+      "whyItMatters:69/70",
+      "intuition:96/200",
+      "optimal:84/200"
+    ]
+  },
+  {
+    "slug": "saml-vs-oidc",
+    "deficit": 221,
+    "fail": [
+      "whyItMatters:67/70",
+      "intuition:91/200",
+      "optimal:91/200"
+    ]
+  },
+  {
+    "slug": "data-lake-warehouse",
+    "deficit": 220,
+    "fail": [
+      "whyItMatters:46/70",
+      "intuition:123/200",
+      "optimal:81/200"
+    ]
+  },
+  {
+    "slug": "write-ahead-log",
+    "deficit": 220,
+    "fail": [
+      "whyItMatters:69/70",
+      "intuition:69/200",
+      "optimal:112/200"
+    ]
+  },
+  {
+    "slug": "fan-out-fan-in",
+    "deficit": 219,
+    "fail": [
+      "intuition:54/200",
+      "optimal:127/200"
+    ]
+  },
+  {
+    "slug": "load-balancing",
+    "deficit": 219,
+    "fail": [
+      "whyItMatters:68/70",
+      "intuition:73/200",
+      "optimal:110/200"
+    ]
+  },
+  {
+    "slug": "sparse-table-rmq",
+    "deficit": 219,
+    "fail": [
+      "intuition:85/200",
+      "optimal:96/200"
+    ]
+  },
+  {
+    "slug": "euler-tour-tree",
+    "deficit": 218,
+    "fail": [
+      "whyItMatters:63/70",
+      "intuition:42/200",
+      "optimal:147/200"
+    ]
+  },
+  {
+    "slug": "lca-binary-lifting",
+    "deficit": 218,
+    "fail": [
+      "whyItMatters:57/70",
+      "intuition:80/200",
+      "optimal:115/200"
+    ]
+  },
+  {
+    "slug": "monad-functor",
+    "deficit": 218,
+    "fail": [
+      "intuition:79/200",
+      "optimal:103/200"
+    ]
+  },
+  {
+    "slug": "gossip-protocol",
+    "deficit": 217,
+    "fail": [
+      "whyItMatters:64/70",
+      "intuition:78/200",
+      "optimal:111/200"
+    ]
+  },
+  {
+    "slug": "power-of-two-choices",
+    "deficit": 217,
+    "fail": [
+      "intuition:87/200",
+      "optimal:96/200"
+    ]
+  },
+  {
+    "slug": "count-min-sketch",
+    "deficit": 216,
+    "fail": [
+      "whyItMatters:63/70",
+      "intuition:79/200",
+      "optimal:112/200"
+    ]
+  },
+  {
+    "slug": "tcp-vs-quic",
+    "deficit": 216,
+    "fail": [
+      "intuition:91/200",
+      "optimal:93/200"
+    ]
+  },
+  {
+    "slug": "cdc-change-data-capture",
+    "deficit": 214,
+    "fail": [
+      "intuition:82/200",
+      "optimal:104/200"
+    ]
+  },
+  {
+    "slug": "event-sourcing",
+    "deficit": 214,
+    "fail": [
+      "whyItMatters:59/70",
+      "intuition:75/200",
+      "optimal:122/200"
+    ]
+  },
+  {
+    "slug": "jwt-anatomy",
+    "deficit": 214,
+    "fail": [
+      "intuition:82/200",
+      "optimal:104/200"
+    ]
+  },
+  {
+    "slug": "bloom-cardinality-tradeoff",
+    "deficit": 213,
+    "fail": [
+      "intuition:95/200",
+      "optimal:92/200"
+    ]
+  },
+  {
+    "slug": "chinese-remainder",
+    "deficit": 213,
+    "fail": [
+      "intuition:62/200",
+      "optimal:125/200"
+    ]
+  },
+  {
+    "slug": "design-pattern-mvc",
+    "deficit": 213,
+    "fail": [
+      "intuition:77/200",
+      "optimal:110/200"
+    ]
+  },
+  {
+    "slug": "slowfast-cycle-entry",
+    "deficit": 212,
+    "fail": [
+      "whyItMatters:68/70",
+      "intuition:119/200",
+      "optimal:71/200"
+    ]
+  },
+  {
+    "slug": "topological-sort",
+    "deficit": 212,
+    "fail": [
+      "intuition:113/200",
+      "optimal:75/200"
+    ]
+  },
+  {
+    "slug": "union-find",
+    "deficit": 212,
+    "fail": [
+      "whyItMatters:50/70",
+      "intuition:100/200",
+      "optimal:108/200"
+    ]
+  },
+  {
+    "slug": "bloom-vs-cuckoo",
+    "deficit": 211,
+    "fail": [
+      "whyItMatters:68/70",
+      "intuition:80/200",
+      "optimal:111/200"
+    ]
+  },
+  {
+    "slug": "migration-zero-downtime",
+    "deficit": 211,
+    "fail": [
+      "whyItMatters:44/70",
+      "intuition:66/200",
+      "optimal:149/200"
+    ]
+  },
+  {
+    "slug": "priority-inversion",
+    "deficit": 211,
+    "fail": [
+      "whyItMatters:65/70",
+      "intuition:80/200",
+      "optimal:114/200"
+    ]
+  },
+  {
+    "slug": "bloom-filter-variants",
+    "deficit": 210,
+    "fail": [
+      "whyItMatters:69/70",
+      "intuition:79/200",
+      "optimal:112/200"
+    ]
+  },
+  {
+    "slug": "consistent-hash-jump",
+    "deficit": 210,
+    "fail": [
+      "whyItMatters:65/70",
+      "intuition:77/200",
+      "optimal:118/200"
+    ]
+  },
+  {
+    "slug": "graph-eulerian",
+    "deficit": 210,
+    "fail": [
+      "whyItMatters:63/70",
+      "intuition:102/200",
+      "optimal:95/200"
+    ]
+  },
+  {
+    "slug": "rate-limit-leaky-bucket",
+    "deficit": 210,
+    "fail": [
+      "whyItMatters:64/70",
+      "intuition:105/200",
+      "optimal:91/200"
+    ]
+  },
+  {
+    "slug": "lowest-common-ancestor-bst",
+    "deficit": 209,
+    "fail": [
+      "whyItMatters:53/70",
+      "intuition:128/200",
+      "optimal:80/200"
+    ]
+  },
+  {
+    "slug": "consistent-hashing",
+    "deficit": 207,
+    "fail": [
+      "whyItMatters:44/70",
+      "intuition:82/200",
+      "optimal:137/200"
+    ]
+  },
+  {
+    "slug": "fenwick-tree",
+    "deficit": 207,
+    "fail": [
+      "intuition:86/200",
+      "optimal:107/200"
+    ]
+  },
+  {
+    "slug": "design-pattern-singleton",
+    "deficit": 206,
+    "fail": [
+      "intuition:69/200",
+      "optimal:125/200"
+    ]
+  },
+  {
+    "slug": "huffman-coding",
+    "deficit": 206,
+    "fail": [
+      "whyItMatters:57/70",
+      "intuition:123/200",
+      "optimal:84/200"
+    ]
+  },
+  {
+    "slug": "sliding-window-medians",
+    "deficit": 206,
+    "fail": [
+      "intuition:89/200",
+      "optimal:105/200"
+    ]
+  },
+  {
+    "slug": "graph-bridges-articulation",
+    "deficit": 205,
+    "fail": [
+      "whyItMatters:65/70",
+      "intuition:95/200",
+      "optimal:105/200"
+    ]
+  },
+  {
+    "slug": "sharding",
+    "deficit": 205,
+    "fail": [
+      "whyItMatters:52/70",
+      "intuition:74/200",
+      "optimal:139/200"
+    ]
+  },
+  {
+    "slug": "aho-corasick",
+    "deficit": 204,
+    "fail": [
+      "whyItMatters:49/70",
+      "intuition:75/200",
+      "optimal:142/200"
+    ]
+  },
+  {
+    "slug": "string-suffix-automaton",
+    "deficit": 204,
+    "fail": [
+      "whyItMatters:57/70",
+      "intuition:94/200",
+      "optimal:115/200"
+    ]
+  },
+  {
+    "slug": "b-plus-tree",
+    "deficit": 203,
+    "fail": [
+      "intuition:78/200",
+      "optimal:119/200"
+    ]
+  },
+  {
+    "slug": "kahns-algorithm",
+    "deficit": 203,
+    "fail": [
+      "whyItMatters:62/70",
+      "intuition:84/200",
+      "optimal:121/200"
+    ]
+  },
+  {
+    "slug": "quickselect-deterministic",
+    "deficit": 203,
+    "fail": [
+      "whyItMatters:53/70",
+      "intuition:111/200",
+      "optimal:103/200"
+    ]
+  },
+  {
+    "slug": "acid-transactions",
+    "deficit": 202,
+    "fail": [
+      "intuition:73/200",
+      "optimal:125/200"
+    ]
+  },
+  {
+    "slug": "cqrs-pattern",
+    "deficit": 202,
+    "fail": [
+      "intuition:67/200",
+      "optimal:131/200"
+    ]
+  },
+  {
+    "slug": "cas-lock-free",
+    "deficit": 201,
+    "fail": [
+      "intuition:83/200",
+      "optimal:116/200"
+    ]
+  },
+  {
+    "slug": "cas-vs-paxos",
+    "deficit": 200,
+    "fail": [
+      "intuition:110/200",
+      "optimal:90/200"
+    ]
+  },
+  {
+    "slug": "cordic-trig",
+    "deficit": 200,
+    "fail": [
+      "whyItMatters:65/70",
+      "intuition:90/200",
+      "optimal:115/200"
+    ]
+  },
+  {
+    "slug": "euler-tour-flatten",
+    "deficit": 200,
+    "fail": [
+      "optimal:missing"
+    ]
+  },
+  {
+    "slug": "suffix-array",
+    "deficit": 199,
+    "fail": [
+      "intuition:45/200",
+      "optimal:156/200"
+    ]
+  },
+  {
+    "slug": "tcp-vs-udp",
+    "deficit": 199,
+    "fail": [
+      "whyItMatters:64/70",
+      "intuition:77/200",
+      "optimal:130/200"
+    ]
+  },
+  {
+    "slug": "merkle-tree",
+    "deficit": 198,
+    "fail": [
+      "intuition:64/200",
+      "optimal:138/200"
+    ]
+  },
+  {
+    "slug": "read-write-lock",
+    "deficit": 198,
+    "fail": [
+      "intuition:96/200",
+      "optimal:106/200"
+    ]
+  },
+  {
+    "slug": "snapshot-isolation",
+    "deficit": 198,
+    "fail": [
+      "intuition:83/200",
+      "optimal:119/200"
+    ]
+  },
+  {
+    "slug": "divide-conquer-optimization",
+    "deficit": 197,
+    "fail": [
+      "intuition:75/200",
+      "optimal:128/200"
+    ]
+  },
+  {
+    "slug": "fenwick-bit",
+    "deficit": 197,
+    "fail": [
+      "intuition:102/200",
+      "optimal:101/200"
+    ]
+  },
+  {
+    "slug": "mo-on-trees",
+    "deficit": 196,
+    "fail": [
+      "whyItMatters:62/70",
+      "intuition:107/200",
+      "optimal:105/200"
+    ]
+  },
+  {
+    "slug": "quadtree-spatial",
+    "deficit": 196,
+    "fail": [
+      "intuition:86/200",
+      "optimal:118/200"
+    ]
+  },
+  {
+    "slug": "skip-list",
+    "deficit": 196,
+    "fail": [
+      "intuition:87/200",
+      "optimal:117/200"
+    ]
+  },
+  {
+    "slug": "avl-tree",
+    "deficit": 194,
+    "fail": [
+      "whyItMatters:66/70",
+      "intuition:71/200",
+      "optimal:139/200"
+    ]
+  },
+  {
+    "slug": "caching",
+    "deficit": 194,
+    "fail": [
+      "whyItMatters:54/70",
+      "intuition:76/200",
+      "optimal:146/200"
+    ]
+  },
+  {
+    "slug": "pigeonhole-principle",
+    "deficit": 194,
+    "fail": [
+      "intuition:62/200",
+      "optimal:144/200"
+    ]
+  },
+  {
+    "slug": "read-replica-quorum",
+    "deficit": 194,
+    "fail": [
+      "intuition:86/200",
+      "optimal:120/200"
+    ]
+  },
+  {
+    "slug": "acid-vs-base",
+    "deficit": 193,
+    "fail": [
+      "intuition:82/200",
+      "optimal:125/200"
+    ]
+  },
+  {
+    "slug": "morris-traversal",
+    "deficit": 193,
+    "fail": [
+      "whyItMatters:66/70",
+      "intuition:90/200",
+      "optimal:121/200"
+    ]
+  },
+  {
+    "slug": "pessimistic-locking",
+    "deficit": 193,
+    "fail": [
+      "whyItMatters:59/70",
+      "intuition:67/200",
+      "optimal:151/200"
+    ]
+  },
+  {
+    "slug": "request-coalescing",
+    "deficit": 193,
+    "fail": [
+      "intuition:77/200",
+      "optimal:130/200"
+    ]
+  },
+  {
+    "slug": "graph-tarjan-scc",
+    "deficit": 192,
+    "fail": [
+      "whyItMatters:54/70",
+      "intuition:92/200",
+      "optimal:132/200"
+    ]
+  },
+  {
+    "slug": "segment-tree-persistent",
+    "deficit": 192,
+    "fail": [
+      "intuition:77/200",
+      "optimal:131/200"
+    ]
+  },
+  {
+    "slug": "oauth2-pkce",
+    "deficit": 191,
+    "fail": [
+      "whyItMatters:58/70",
+      "intuition:106/200",
+      "optimal:115/200"
+    ]
+  },
+  {
+    "slug": "process-vs-thread",
+    "deficit": 190,
+    "fail": [
+      "whyItMatters:64/70",
+      "intuition:77/200",
+      "optimal:139/200"
+    ]
+  },
+  {
+    "slug": "master-theorem",
+    "deficit": 189,
+    "fail": [
+      "intuition:60/200",
+      "optimal:151/200"
+    ]
+  },
+  {
+    "slug": "max-flow",
+    "deficit": 189,
+    "fail": [
+      "intuition:84/200",
+      "optimal:127/200"
+    ]
+  },
+  {
+    "slug": "queue-priority-fair-sched",
+    "deficit": 189,
+    "fail": [
+      "whyItMatters:59/70",
+      "intuition:105/200",
+      "optimal:117/200"
+    ]
+  },
+  {
+    "slug": "regex-engines",
+    "deficit": 189,
+    "fail": [
+      "intuition:121/200",
+      "optimal:90/200"
+    ]
+  },
+  {
+    "slug": "merkle-patricia-trie",
+    "deficit": 188,
+    "fail": [
+      "intuition:86/200",
+      "optimal:126/200"
+    ]
+  },
+  {
+    "slug": "mos-algorithm",
+    "deficit": 188,
+    "fail": [
+      "intuition:89/200",
+      "optimal:123/200"
+    ]
+  },
+  {
+    "slug": "secrets-rotation",
+    "deficit": 188,
+    "fail": [
+      "whyItMatters:57/70",
+      "intuition:98/200",
+      "optimal:127/200"
+    ]
+  },
+  {
+    "slug": "ternary-search",
+    "deficit": 188,
+    "fail": [
+      "whyItMatters:69/70",
+      "intuition:75/200",
+      "optimal:138/200"
+    ]
+  },
+  {
+    "slug": "gale-shapley",
+    "deficit": 187,
+    "fail": [
+      "whyItMatters:68/70",
+      "intuition:65/200",
+      "optimal:150/200"
+    ]
+  },
+  {
+    "slug": "graph-floyd-warshall",
+    "deficit": 187,
+    "fail": [
+      "intuition:66/200",
+      "optimal:147/200"
+    ]
+  },
+  {
+    "slug": "sigv4-aws-signing",
+    "deficit": 187,
+    "fail": [
+      "whyItMatters:41/70",
+      "intuition:128/200",
+      "optimal:114/200"
+    ]
+  },
+  {
+    "slug": "strangler-fig-migration",
+    "deficit": 187,
+    "fail": [
+      "whyItMatters:49/70",
+      "intuition:89/200",
+      "optimal:145/200"
+    ]
+  },
+  {
+    "slug": "three-pointer",
+    "deficit": 187,
+    "fail": [
+      "whyItMatters:57/70",
+      "intuition:84/200",
+      "optimal:142/200"
+    ]
+  },
+  {
+    "slug": "tree-morris-traversal",
+    "deficit": 187,
+    "fail": [
+      "whyItMatters:59/70",
+      "intuition:93/200",
+      "optimal:131/200"
+    ]
+  },
+  {
+    "slug": "a-star-search",
+    "deficit": 186,
+    "fail": [
+      "whyItMatters:56/70",
+      "intuition:73/200",
+      "optimal:155/200"
+    ]
+  },
+  {
+    "slug": "misra-gries",
+    "deficit": 186,
+    "fail": [
+      "whyItMatters:62/70",
+      "intuition:79/200",
+      "optimal:143/200"
+    ]
+  },
+  {
+    "slug": "mtls-mutual",
+    "deficit": 185,
+    "fail": [
+      "whyItMatters:41/70",
+      "intuition:116/200",
+      "optimal:128/200"
+    ]
+  },
+  {
+    "slug": "tarjan-scc",
+    "deficit": 185,
+    "fail": [
+      "intuition:90/200",
+      "optimal:125/200"
+    ]
+  },
+  {
+    "slug": "dijkstra-pq",
+    "deficit": 184,
+    "fail": [
+      "whyItMatters:69/70",
+      "intuition:65/200",
+      "optimal:152/200"
+    ]
+  },
+  {
+    "slug": "solid-principles",
+    "deficit": 184,
+    "fail": [
+      "intuition:120/200",
+      "optimal:96/200"
+    ]
+  },
+  {
+    "slug": "db-indexes",
+    "deficit": 181,
+    "fail": [
+      "whyItMatters:66/70",
+      "intuition:57/200",
+      "optimal:166/200"
+    ]
+  },
+  {
+    "slug": "sweep-line",
+    "deficit": 181,
+    "fail": [
+      "intuition:53/200",
+      "optimal:166/200"
+    ]
+  },
+  {
+    "slug": "tortoise-and-hare-multi",
+    "deficit": 181,
+    "fail": [
+      "whyItMatters:58/70",
+      "intuition:118/200",
+      "optimal:113/200"
+    ]
+  },
+  {
+    "slug": "db-partitioning-strategies",
+    "deficit": 180,
+    "fail": [
+      "whyItMatters:59/70",
+      "intuition:95/200",
+      "optimal:136/200"
+    ]
+  },
+  {
+    "slug": "dijkstra-double-source",
+    "deficit": 180,
+    "fail": [
+      "intuition:81/200",
+      "optimal:139/200"
+    ]
+  },
+  {
+    "slug": "quickhull",
+    "deficit": 180,
+    "fail": [
+      "whyItMatters:53/70",
+      "intuition:93/200",
+      "optimal:144/200"
+    ]
+  },
+  {
+    "slug": "kmp",
+    "deficit": 179,
+    "fail": [
+      "whyItMatters:59/70",
+      "intuition:91/200",
+      "optimal:141/200"
+    ]
+  },
+  {
+    "slug": "quorum-consensus",
+    "deficit": 179,
+    "fail": [
+      "whyItMatters:48/70",
+      "intuition:88/200",
+      "optimal:155/200"
+    ]
+  },
+  {
+    "slug": "bst-iterator-inorder",
+    "deficit": 178,
+    "fail": [
+      "intuition:126/200",
+      "optimal:96/200"
+    ]
+  },
+  {
+    "slug": "distributed-tracing",
+    "deficit": 178,
+    "fail": [
+      "intuition:91/200",
+      "optimal:131/200"
+    ]
+  },
+  {
+    "slug": "observability-otel",
+    "deficit": 177,
+    "fail": [
+      "whyItMatters:50/70",
+      "intuition:76/200",
+      "optimal:167/200"
+    ]
+  },
+  {
+    "slug": "red-black-tree",
+    "deficit": 177,
+    "fail": [
+      "intuition:87/200",
+      "optimal:136/200"
+    ]
+  },
+  {
+    "slug": "graphql-vs-rest",
+    "deficit": 176,
+    "fail": [
+      "intuition:80/200",
+      "optimal:144/200"
+    ]
+  },
+  {
+    "slug": "oauth2-flows",
+    "deficit": 175,
+    "fail": [
+      "intuition:89/200",
+      "optimal:136/200"
+    ]
+  },
+  {
+    "slug": "string-trie-radix",
+    "deficit": 175,
+    "fail": [
+      "whyItMatters:68/70",
+      "intuition:54/200",
+      "optimal:173/200"
+    ]
+  },
+  {
+    "slug": "bloom-filter",
+    "deficit": 174,
+    "fail": [
+      "intuition:78/200",
+      "optimal:148/200"
+    ]
+  },
+  {
+    "slug": "mo-algorithm",
+    "deficit": 174,
+    "fail": [
+      "intuition:104/200",
+      "optimal:122/200"
+    ]
+  },
+  {
+    "slug": "outbox-pattern",
+    "deficit": 174,
+    "fail": [
+      "whyItMatters:57/70",
+      "intuition:70/200",
+      "optimal:169/200"
+    ]
+  },
+  {
+    "slug": "segment-tree-on-intervals",
+    "deficit": 173,
+    "fail": [
+      "intuition:82/200",
+      "optimal:145/200"
+    ]
+  },
+  {
+    "slug": "bellman-ford-detection",
+    "deficit": 172,
+    "fail": [
+      "whyItMatters:64/70",
+      "intuition:95/200",
+      "optimal:139/200"
+    ]
+  },
+  {
+    "slug": "cdn-purge-strategies",
+    "deficit": 172,
+    "fail": [
+      "whyItMatters:68/70",
+      "intuition:83/200",
+      "optimal:147/200"
+    ]
+  },
+  {
+    "slug": "cs-core-cpu-cache-friendliness",
+    "deficit": 172,
+    "fail": [
+      "intuition:79/200",
+      "optimal:149/200"
+    ]
+  },
+  {
+    "slug": "ip-vs-domain-routing",
+    "deficit": 172,
+    "fail": [
+      "intuition:130/200",
+      "optimal:98/200"
+    ]
+  },
+  {
+    "slug": "message-queues",
+    "deficit": 172,
+    "fail": [
+      "intuition:64/200",
+      "optimal:164/200"
+    ]
+  },
+  {
+    "slug": "spanner-truetime",
+    "deficit": 172,
+    "fail": [
+      "intuition:78/200",
+      "optimal:150/200"
+    ]
+  },
+  {
+    "slug": "system-design-load-shedding",
+    "deficit": 171,
+    "fail": [
+      "intuition:85/200",
+      "optimal:144/200"
+    ]
+  },
+  {
+    "slug": "z-algorithm",
+    "deficit": 171,
+    "fail": [
+      "intuition:86/200",
+      "optimal:143/200"
+    ]
+  },
+  {
+    "slug": "metrics-vs-logs-vs-traces",
+    "deficit": 170,
+    "fail": [
+      "whyItMatters:57/70",
+      "intuition:101/200",
+      "optimal:142/200"
+    ]
+  },
+  {
+    "slug": "topk-streaming",
+    "deficit": 170,
+    "fail": [
+      "intuition:99/200",
+      "optimal:131/200"
+    ]
+  },
+  {
+    "slug": "median-of-medians",
+    "deficit": 169,
+    "fail": [
+      "whyItMatters:58/70",
+      "intuition:90/200",
+      "optimal:153/200"
+    ]
+  },
+  {
+    "slug": "observability-slo",
+    "deficit": 169,
+    "fail": [
+      "intuition:83/200",
+      "optimal:148/200"
+    ]
+  },
+  {
+    "slug": "serverless-vs-containers",
+    "deficit": 169,
+    "fail": [
+      "whyItMatters:43/70",
+      "intuition:139/200",
+      "optimal:119/200"
+    ]
+  },
+  {
+    "slug": "bfs-dfs",
+    "deficit": 168,
+    "fail": [
+      "whyItMatters:52/70",
+      "intuition:159/200",
+      "optimal:91/200"
+    ]
+  },
+  {
+    "slug": "segment-tree-lazy",
+    "deficit": 168,
+    "fail": [
+      "intuition:102/200",
+      "optimal:130/200"
+    ]
+  },
+  {
+    "slug": "treap",
+    "deficit": 168,
+    "fail": [
+      "intuition:68/200",
+      "optimal:164/200"
+    ]
+  },
+  {
+    "slug": "consistent-snapshot",
+    "deficit": 167,
+    "fail": [
+      "intuition:132/200",
+      "optimal:101/200"
+    ]
+  },
+  {
+    "slug": "event-bus-design",
+    "deficit": 167,
+    "fail": [
+      "whyItMatters:68/70",
+      "intuition:94/200",
+      "optimal:141/200"
+    ]
+  },
+  {
+    "slug": "bit-counting-tricks",
+    "deficit": 166,
+    "fail": [
+      "intuition:70/200",
+      "optimal:164/200"
+    ]
+  },
+  {
+    "slug": "dp-on-trees",
+    "deficit": 166,
+    "fail": [
+      "intuition:69/200",
+      "optimal:165/200"
+    ]
+  },
+  {
+    "slug": "strassen-matrix-mult",
+    "deficit": 166,
+    "fail": [
+      "intuition:151/200",
+      "optimal:83/200"
+    ]
+  },
+  {
+    "slug": "cache-aside-vs-through",
+    "deficit": 165,
+    "fail": [
+      "whyItMatters:65/70",
+      "intuition:71/200",
+      "optimal:169/200"
+    ]
+  },
+  {
+    "slug": "cdc-debezium",
+    "deficit": 165,
+    "fail": [
+      "intuition:96/200",
+      "optimal:139/200"
+    ]
+  },
+  {
+    "slug": "string-hashing",
+    "deficit": 165,
+    "fail": [
+      "intuition:89/200",
+      "optimal:146/200"
+    ]
+  },
+  {
+    "slug": "treap-randomized-bst",
+    "deficit": 165,
+    "fail": [
+      "intuition:76/200",
+      "optimal:159/200"
+    ]
+  },
+  {
+    "slug": "webrtc-stun-turn",
+    "deficit": 165,
+    "fail": [
+      "intuition:123/200",
+      "optimal:112/200"
+    ]
+  },
+  {
+    "slug": "validate-bst",
+    "deficit": 164,
+    "fail": [
+      "whyItMatters:60/70",
+      "intuition:167/200",
+      "optimal:79/200"
+    ]
+  },
+  {
+    "slug": "database-connection-pool",
+    "deficit": 163,
+    "fail": [
+      "intuition:70/200",
+      "optimal:167/200"
+    ]
+  },
+  {
+    "slug": "feature-store-ml",
+    "deficit": 163,
+    "fail": [
+      "whyItMatters:58/70",
+      "intuition:95/200",
+      "optimal:154/200"
+    ]
+  },
+  {
+    "slug": "segment-tree",
+    "deficit": 163,
+    "fail": [
+      "whyItMatters:59/70",
+      "intuition:93/200",
+      "optimal:155/200"
+    ]
+  },
+  {
+    "slug": "b-tree-classic",
+    "deficit": 162,
+    "fail": [
+      "intuition:79/200",
+      "optimal:159/200"
+    ]
+  },
+  {
+    "slug": "zero-one-knapsack",
+    "deficit": 162,
+    "fail": [
+      "whyItMatters:40/70",
+      "intuition:178/200",
+      "optimal:90/200"
+    ]
+  },
+  {
+    "slug": "disjoint-set-rank",
+    "deficit": 161,
+    "fail": [
+      "intuition:88/200",
+      "optimal:151/200"
+    ]
+  },
+  {
+    "slug": "graph-eulerian-path-circuit",
+    "deficit": 160,
+    "fail": [
+      "whyItMatters:50/70",
+      "intuition:153/200",
+      "optimal:107/200"
+    ]
+  },
+  {
+    "slug": "idempotency",
+    "deficit": 160,
+    "fail": [
+      "whyItMatters:53/70",
+      "intuition:61/200",
+      "optimal:196/200"
+    ]
+  },
+  {
+    "slug": "segment-tree-merge",
+    "deficit": 160,
+    "fail": [
+      "whyItMatters:64/70",
+      "intuition:76/200",
+      "optimal:170/200"
+    ]
+  },
+  {
+    "slug": "sql-injection",
+    "deficit": 160,
+    "fail": [
+      "whyItMatters:49/70",
+      "intuition:97/200",
+      "optimal:164/200"
+    ]
+  },
+  {
+    "slug": "heaps-median-from-stream",
+    "deficit": 159,
+    "fail": [
+      "whyItMatters:55/70",
+      "intuition:103/200",
+      "optimal:153/200"
+    ]
+  },
+  {
+    "slug": "raft-consensus",
+    "deficit": 159,
+    "fail": [
+      "whyItMatters:56/70",
+      "intuition:115/200",
+      "optimal:140/200"
+    ]
+  },
+  {
+    "slug": "b-tree",
+    "deficit": 158,
+    "fail": [
+      "whyItMatters:65/70",
+      "intuition:78/200",
+      "optimal:169/200"
+    ]
+  },
+  {
+    "slug": "reservoir-sampling",
+    "deficit": 158,
+    "fail": [
+      "whyItMatters:55/70",
+      "intuition:126/200",
+      "optimal:131/200"
+    ]
+  },
+  {
+    "slug": "dijkstra-on-grid",
+    "deficit": 157,
+    "fail": [
+      "whyItMatters:59/70",
+      "intuition:74/200",
+      "optimal:180/200"
+    ]
+  },
+  {
+    "slug": "mst-prim",
+    "deficit": 156,
+    "fail": [
+      "intuition:91/200",
+      "optimal:153/200"
+    ]
+  },
+  {
+    "slug": "api-pagination",
+    "deficit": 155,
+    "fail": [
+      "whyItMatters:58/70",
+      "intuition:132/200",
+      "optimal:125/200"
+    ]
+  },
+  {
+    "slug": "microservices-vs-monolith",
+    "deficit": 155,
+    "fail": [
+      "intuition:85/200",
+      "optimal:160/200"
+    ]
+  },
+  {
+    "slug": "radix-tree",
+    "deficit": 155,
+    "fail": [
+      "intuition:94/200",
+      "optimal:151/200"
+    ]
+  },
+  {
+    "slug": "xor-tricks",
+    "deficit": 155,
+    "fail": [
+      "whyItMatters:48/70",
+      "intuition:67/200"
+    ]
+  },
+  {
+    "slug": "blue-green-deployment",
+    "deficit": 154,
+    "fail": [
+      "whyItMatters:54/70",
+      "intuition:75/200",
+      "optimal:187/200"
+    ]
+  },
+  {
+    "slug": "monotonic-stack",
+    "deficit": 153,
+    "fail": [
+      "intuition:89/200",
+      "optimal:158/200"
+    ]
+  },
+  {
+    "slug": "cycle-detection-graph",
+    "deficit": 152,
+    "fail": [
+      "intuition:77/200",
+      "optimal:171/200"
+    ]
+  },
+  {
+    "slug": "segment-tree-beats",
+    "deficit": 152,
+    "fail": [
+      "whyItMatters:66/70",
+      "intuition:101/200",
+      "optimal:151/200"
+    ]
+  },
+  {
+    "slug": "dynamo-paper-architecture",
+    "deficit": 150,
+    "fail": [
+      "intuition:84/200",
+      "optimal:166/200"
+    ]
+  },
+  {
+    "slug": "network-flow-dinic",
+    "deficit": 150,
+    "fail": [
+      "whyItMatters:62/70",
+      "intuition:80/200",
+      "optimal:178/200"
+    ]
+  },
+  {
+    "slug": "convex-hull-trick",
+    "deficit": 148,
+    "fail": [
+      "intuition:88/200",
+      "optimal:164/200"
+    ]
+  },
+  {
+    "slug": "secrets-management",
+    "deficit": 148,
+    "fail": [
+      "whyItMatters:35/70",
+      "intuition:154/200",
+      "optimal:133/200"
+    ]
+  },
+  {
+    "slug": "webhooks-design",
+    "deficit": 147,
+    "fail": [
+      "whyItMatters:51/70",
+      "intuition:72/200"
+    ]
+  },
+  {
+    "slug": "xss-prevention",
+    "deficit": 147,
+    "fail": [
+      "whyItMatters:58/70",
+      "intuition:95/200",
+      "optimal:170/200"
+    ]
+  },
+  {
+    "slug": "database-replication",
+    "deficit": 146,
+    "fail": [
+      "whyItMatters:63/70",
+      "intuition:69/200",
+      "optimal:192/200"
+    ]
+  },
+  {
+    "slug": "dsu-on-tree",
+    "deficit": 146,
+    "fail": [
+      "whyItMatters:51/70",
+      "intuition:100/200",
+      "optimal:173/200"
+    ]
+  },
+  {
+    "slug": "database-isolation-levels",
+    "deficit": 145,
+    "fail": [
+      "intuition:124/200",
+      "optimal:131/200"
+    ]
+  },
+  {
+    "slug": "slowstart-tcp",
+    "deficit": 145,
+    "fail": [
+      "whyItMatters:65/70",
+      "intuition:60/200"
+    ]
+  },
+  {
+    "slug": "idempotency-key",
+    "deficit": 144,
+    "fail": [
+      "whyItMatters:62/70",
+      "intuition:84/200",
+      "optimal:180/200"
+    ]
+  },
+  {
+    "slug": "sd-auth-security-pkcs-jws",
+    "deficit": 144,
+    "fail": [
+      "intuition:84/200",
+      "optimal:172/200"
+    ]
+  },
+  {
+    "slug": "sqrt-decomposition",
+    "deficit": 144,
+    "fail": [
+      "intuition:68/200",
+      "optimal:188/200"
+    ]
+  },
+  {
+    "slug": "graph-bipartite-coloring",
+    "deficit": 143,
+    "fail": [
+      "whyItMatters:64/70",
+      "intuition:92/200",
+      "optimal:171/200"
+    ]
+  },
+  {
+    "slug": "suffix-automaton",
+    "deficit": 143,
+    "fail": [
+      "intuition:108/200",
+      "optimal:149/200"
+    ]
+  },
+  {
+    "slug": "bit-dp",
+    "deficit": 142,
+    "fail": [
+      "intuition:102/200",
+      "optimal:156/200"
+    ]
+  },
+  {
+    "slug": "persistent-segment-tree",
+    "deficit": 142,
+    "fail": [
+      "whyItMatters:55/70",
+      "intuition:77/200",
+      "optimal:196/200"
+    ]
+  },
+  {
+    "slug": "rate-limiting",
+    "deficit": 142,
+    "fail": [
+      "whyItMatters:66/70",
+      "intuition:73/200",
+      "optimal:189/200"
+    ]
+  },
+  {
+    "slug": "binary-search",
+    "deficit": 141,
+    "fail": [
+      "whyItMatters:47/70",
+      "intuition:160/200",
+      "optimal:122/200"
+    ]
+  },
+  {
+    "slug": "heavy-light-decomposition",
+    "deficit": 141,
+    "fail": [
+      "whyItMatters:63/70",
+      "intuition:86/200",
+      "optimal:180/200"
+    ]
+  },
+  {
+    "slug": "scheduler-algorithms",
+    "deficit": 141,
+    "fail": [
+      "whyItMatters:59/70",
+      "intuition:100/200",
+      "optimal:170/200"
+    ]
+  },
+  {
+    "slug": "centroid-decomposition",
+    "deficit": 140,
+    "fail": [
+      "intuition:83/200",
+      "optimal:177/200"
+    ]
+  },
+  {
+    "slug": "memory-mmap-vs-read",
+    "deficit": 138,
+    "fail": [
+      "whyItMatters:62/70",
+      "intuition:108/200",
+      "optimal:162/200"
+    ]
+  },
+  {
+    "slug": "webhook-receiver-best-practices",
+    "deficit": 136,
+    "fail": [
+      "whyItMatters:50/70",
+      "intuition:135/200",
+      "optimal:149/200"
+    ]
+  },
+  {
+    "slug": "hopcroft-karp",
+    "deficit": 134,
+    "fail": [
+      "intuition:66/200"
+    ]
+  },
+  {
+    "slug": "lsm-tree",
+    "deficit": 134,
+    "fail": [
+      "whyItMatters:68/70",
+      "intuition:118/200",
+      "optimal:150/200"
+    ]
+  },
+  {
+    "slug": "dp-edit-distance-levenshtein",
+    "deficit": 133,
+    "fail": [
+      "whyItMatters:67/70",
+      "intuition:73/200",
+      "optimal:197/200"
+    ]
+  },
+  {
+    "slug": "circuit-breaker",
+    "deficit": 132,
+    "fail": [
+      "intuition:69/200",
+      "optimal:199/200"
+    ]
+  },
+  {
+    "slug": "heap-binary",
+    "deficit": 132,
+    "fail": [
+      "whyItMatters:58/70",
+      "intuition:108/200",
+      "optimal:172/200"
+    ]
+  },
+  {
+    "slug": "dijkstras-algorithm",
+    "deficit": 131,
+    "fail": [
+      "whyItMatters:51/70",
+      "intuition:199/200",
+      "optimal:89/200"
+    ]
+  },
+  {
+    "slug": "dp-state-compression",
+    "deficit": 131,
+    "fail": [
+      "intuition:102/200",
+      "optimal:167/200"
+    ]
+  },
+  {
+    "slug": "minimax-game-theory",
+    "deficit": 131,
+    "fail": [
+      "intuition:69/200"
+    ]
+  },
+  {
+    "slug": "weighted-union-find",
+    "deficit": 131,
+    "fail": [
+      "intuition:83/200",
+      "optimal:186/200"
+    ]
+  },
+  {
+    "slug": "paxos-basics",
+    "deficit": 130,
+    "fail": [
+      "whyItMatters:57/70",
+      "intuition:83/200"
+    ]
+  },
+  {
+    "slug": "zero-downtime-deploys",
+    "deficit": 130,
+    "fail": [
+      "whyItMatters:61/70",
+      "intuition:129/200",
+      "optimal:150/200"
+    ]
+  },
+  {
+    "slug": "tcp-handshake",
+    "deficit": 129,
+    "fail": [
+      "intuition:71/200"
+    ]
+  },
+  {
+    "slug": "fft-basics",
+    "deficit": 128,
+    "fail": [
+      "intuition:95/200",
+      "optimal:177/200"
+    ]
+  },
+  {
+    "slug": "api-versioning",
+    "deficit": 127,
+    "fail": [
+      "whyItMatters:63/70",
+      "intuition:125/200",
+      "optimal:155/200"
+    ]
+  },
+  {
+    "slug": "cdn-edge-caching",
+    "deficit": 127,
+    "fail": [
+      "intuition:93/200",
+      "optimal:180/200"
+    ]
+  },
+  {
+    "slug": "saga-pattern",
+    "deficit": 127,
+    "fail": [
+      "intuition:96/200",
+      "optimal:177/200"
+    ]
+  },
+  {
+    "slug": "skiplist-concurrent",
+    "deficit": 127,
+    "fail": [
+      "intuition:85/200",
+      "optimal:188/200"
+    ]
+  },
+  {
+    "slug": "digit-dp",
+    "deficit": 126,
+    "fail": [
+      "intuition:116/200",
+      "optimal:158/200"
+    ]
+  },
+  {
+    "slug": "boyer-moore-string-search",
+    "deficit": 125,
+    "fail": [
+      "intuition:129/200",
+      "optimal:146/200"
+    ]
+  },
+  {
+    "slug": "dns-architecture",
+    "deficit": 124,
+    "fail": [
+      "intuition:119/200",
+      "optimal:157/200"
+    ]
+  },
+  {
+    "slug": "math-modular-inverse-fermat",
+    "deficit": 123,
+    "fail": [
+      "whyItMatters:62/70",
+      "intuition:85/200"
+    ]
+  },
+  {
+    "slug": "graceful-degradation",
+    "deficit": 122,
+    "fail": [
+      "whyItMatters:66/70",
+      "intuition:82/200"
+    ]
+  },
+  {
+    "slug": "amortized-analysis",
+    "deficit": 120,
+    "fail": [
+      "intuition:101/200",
+      "optimal:179/200"
+    ]
+  },
+  {
+    "slug": "sd-storage-acid-vs-base",
+    "deficit": 120,
+    "fail": [
+      "intuition:104/200",
+      "optimal:176/200"
+    ]
+  },
+  {
+    "slug": "system-design-tail-latency",
+    "deficit": 120,
+    "fail": [
+      "intuition:86/200",
+      "optimal:194/200"
+    ]
+  },
+  {
+    "slug": "cache-eviction-policies",
+    "deficit": 118,
+    "fail": [
+      "whyItMatters:54/70",
+      "intuition:147/200",
+      "optimal:151/200"
+    ]
+  },
+  {
+    "slug": "sd-network-grpc-vs-thrift",
+    "deficit": 118,
+    "fail": [
+      "whyItMatters:67/70",
+      "intuition:98/200",
+      "optimal:187/200"
+    ]
+  },
+  {
+    "slug": "auth-oauth-jwt",
+    "deficit": 116,
+    "fail": [
+      "whyItMatters:58/70",
+      "intuition:110/200",
+      "optimal:186/200"
+    ]
+  },
+  {
+    "slug": "aho-corasick-failure",
+    "deficit": 115,
+    "fail": [
+      "intuition:88/200",
+      "optimal:197/200"
+    ]
+  },
+  {
+    "slug": "wavelet-matrix",
+    "deficit": 115,
+    "fail": [
+      "intuition:98/200",
+      "optimal:187/200"
+    ]
+  },
+  {
+    "slug": "sd-storage-replication-lag",
+    "deficit": 114,
+    "fail": [
+      "whyItMatters:63/70",
+      "intuition:100/200",
+      "optimal:193/200"
+    ]
+  },
+  {
+    "slug": "tls-handshake",
+    "deficit": 112,
+    "fail": [
+      "intuition:88/200"
+    ]
+  },
+  {
+    "slug": "sd-reliability-canary-deployment",
+    "deficit": 110,
+    "fail": [
+      "whyItMatters:61/70",
+      "intuition:122/200",
+      "optimal:177/200"
+    ]
+  },
+  {
+    "slug": "oauth2-refresh-token",
+    "deficit": 108,
+    "fail": [
+      "whyItMatters:43/70",
+      "intuition:183/200",
+      "optimal:136/200"
+    ]
+  },
+  {
+    "slug": "observability",
+    "deficit": 107,
+    "fail": [
+      "whyItMatters:69/70",
+      "intuition:95/200",
+      "optimal:199/200"
+    ]
+  },
+  {
+    "slug": "sd-storage-write-amplification",
+    "deficit": 107,
+    "fail": [
+      "intuition:129/200",
+      "optimal:164/200"
+    ]
+  },
+  {
+    "slug": "csrf-protection",
+    "deficit": 105,
+    "fail": [
+      "intuition:143/200",
+      "optimal:152/200"
+    ]
+  },
+  {
+    "slug": "sd-microservices-circuit-breaker-states",
+    "deficit": 105,
+    "fail": [
+      "whyItMatters:62/70",
+      "intuition:103/200"
+    ]
+  },
+  {
+    "slug": "distributed-lock",
+    "deficit": 104,
+    "fail": [
+      "whyItMatters:53/70",
+      "intuition:113/200"
+    ]
+  },
+  {
+    "slug": "leader-election-patterns",
+    "deficit": 103,
+    "fail": [
+      "intuition:175/200",
+      "optimal:122/200"
+    ]
+  },
+  {
+    "slug": "lp-duality",
+    "deficit": 102,
+    "fail": [
+      "intuition:134/200",
+      "optimal:164/200"
+    ]
+  },
+  {
+    "slug": "splay-tree",
+    "deficit": 102,
+    "fail": [
+      "intuition:98/200"
+    ]
+  },
+  {
+    "slug": "merge-sort-algorithm",
+    "deficit": 98,
+    "fail": [
+      "intuition:180/200",
+      "optimal:122/200"
+    ]
+  },
+  {
+    "slug": "tree-iterative-traversals",
+    "deficit": 98,
+    "fail": [
+      "whyItMatters:66/70",
+      "intuition:127/200",
+      "optimal:179/200"
+    ]
+  },
+  {
+    "slug": "load-balancing-strategies",
+    "deficit": 97,
+    "fail": [
+      "whyItMatters:62/70",
+      "intuition:149/200",
+      "optimal:162/200"
+    ]
+  },
+  {
+    "slug": "api-key-management",
+    "deficit": 96,
+    "fail": [
+      "whyItMatters:53/70",
+      "intuition:124/200",
+      "optimal:197/200"
+    ]
+  },
+  {
+    "slug": "range-update-range-query",
+    "deficit": 96,
+    "fail": [
+      "whyItMatters:64/70",
+      "intuition:110/200"
+    ]
+  },
+  {
+    "slug": "cs-core-shell-redirection-pipes",
+    "deficit": 95,
+    "fail": [
+      "whyItMatters:50/70",
+      "intuition:144/200",
+      "optimal:181/200"
+    ]
+  },
+  {
+    "slug": "heap-sort",
+    "deficit": 94,
+    "fail": [
+      "whyItMatters:66/70",
+      "intuition:110/200"
+    ]
+  },
+  {
+    "slug": "foundations-iterator-vs-iterable",
+    "deficit": 90,
+    "fail": [
+      "intuition:132/200",
+      "optimal:178/200"
+    ]
+  },
+  {
+    "slug": "string-z-function",
+    "deficit": 86,
+    "fail": [
+      "optimal:114/200"
+    ]
+  },
+  {
+    "slug": "two-sat",
+    "deficit": 86,
+    "fail": [
+      "optimal:114/200"
+    ]
+  },
+  {
+    "slug": "edit-distance-algorithm",
+    "deficit": 82,
+    "fail": [
+      "whyItMatters:67/70",
+      "intuition:171/200",
+      "optimal:150/200"
+    ]
+  },
+  {
+    "slug": "lis-patience-sorting",
+    "deficit": 82,
+    "fail": [
+      "optimal:118/200"
+    ]
+  },
+  {
+    "slug": "zero-one-bfs",
+    "deficit": 70,
+    "fail": [
+      "optimal:130/200"
+    ]
+  },
+  {
+    "slug": "meet-in-the-middle",
+    "deficit": 66,
+    "fail": [
+      "whyItMatters:69/70",
+      "optimal:135/200"
+    ]
+  },
+  {
+    "slug": "api-rate-limit-design",
+    "deficit": 61,
+    "fail": [
+      "whyItMatters:67/70",
+      "intuition:149/200",
+      "optimal:193/200"
+    ]
+  },
+  {
+    "slug": "dp-knuth-optimization",
+    "deficit": 59,
+    "fail": [
+      "whyItMatters:63/70",
+      "optimal:148/200"
+    ]
+  },
+  {
+    "slug": "kadanes-algorithm",
+    "deficit": 52,
+    "fail": [
+      "whyItMatters:56/70",
+      "intuition:162/200"
+    ]
+  },
+  {
+    "slug": "dp-matrix-exponentiation",
+    "deficit": 47,
+    "fail": [
+      "optimal:153/200"
+    ]
+  },
+  {
+    "slug": "quicksort-algorithm",
+    "deficit": 35,
+    "fail": [
+      "optimal:165/200"
+    ]
+  },
+  {
+    "slug": "bitwise-bit-manipulation-tricks",
+    "deficit": 32,
+    "fail": [
+      "whyItMatters:38/70"
+    ]
+  },
+  {
+    "slug": "database-indexing",
+    "deficit": 32,
+    "fail": [
+      "whyItMatters:69/70",
+      "intuition:169/200"
+    ]
+  },
+  {
+    "slug": "topo-shortest-dag",
+    "deficit": 26,
+    "fail": [
+      "whyItMatters:44/70"
+    ]
+  },
+  {
+    "slug": "insertion-sort-algorithm",
+    "deficit": 24,
+    "fail": [
+      "intuition:192/200",
+      "optimal:184/200"
+    ]
+  },
+  {
+    "slug": "bellman-ford",
+    "deficit": 23,
+    "fail": [
+      "whyItMatters:47/70"
+    ]
+  },
+  {
+    "slug": "mst-rerooting",
+    "deficit": 22,
+    "fail": [
+      "whyItMatters:48/70"
+    ]
+  },
+  {
+    "slug": "random-weighted-sampling",
+    "deficit": 20,
+    "fail": [
+      "whyItMatters:50/70"
+    ]
+  },
+  {
+    "slug": "kahn-cycle-detect",
+    "deficit": 16,
+    "fail": [
+      "whyItMatters:54/70"
+    ]
+  },
+  {
+    "slug": "heaps-skew-leftist",
+    "deficit": 14,
+    "fail": [
+      "whyItMatters:56/70"
+    ]
+  },
+  {
+    "slug": "queue-using-stacks",
+    "deficit": 13,
+    "fail": [
+      "optimal:187/200"
+    ]
+  },
+  {
+    "slug": "priority-queue-array",
+    "deficit": 11,
+    "fail": [
+      "whyItMatters:59/70"
+    ]
+  },
+  {
+    "slug": "dijkstra-no-negative",
+    "deficit": 9,
+    "fail": [
+      "whyItMatters:61/70"
+    ]
+  },
+  {
+    "slug": "euclidean-gcd",
+    "deficit": 9,
+    "fail": [
+      "intuition:193/200",
+      "optimal:198/200"
+    ]
+  },
+  {
+    "slug": "topological-sort-dfs",
+    "deficit": 9,
+    "fail": [
+      "whyItMatters:61/70"
+    ]
+  },
+  {
+    "slug": "boyer-moore-majority",
+    "deficit": 8,
+    "fail": [
+      "whyItMatters:62/70"
+    ]
+  },
+  {
+    "slug": "bipartite-matching-kuhn",
+    "deficit": 6,
+    "fail": [
+      "whyItMatters:64/70"
+    ]
+  },
+  {
+    "slug": "dijkstra-stops",
+    "deficit": 6,
+    "fail": [
+      "whyItMatters:64/70"
+    ]
+  },
+  {
+    "slug": "mst-boruvka",
+    "deficit": 6,
+    "fail": [
+      "whyItMatters:64/70"
+    ]
+  },
+  {
+    "slug": "string-suffix-array",
+    "deficit": 6,
+    "fail": [
+      "whyItMatters:64/70"
+    ]
+  },
+  {
+    "slug": "graph-2sat",
+    "deficit": 5,
+    "fail": [
+      "whyItMatters:65/70"
+    ]
+  },
+  {
+    "slug": "binary-search-on-answer",
+    "deficit": 4,
+    "fail": [
+      "whyItMatters:66/70"
+    ]
+  }
+]

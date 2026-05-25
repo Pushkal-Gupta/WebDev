@@ -8,6 +8,41 @@ PGcode is a single-author DSA / interview-prep platform aiming to be measurably 
 
 Live: `https://pushkalgupta.com/PGcode/dist/index.html` (HashRouter; URLs use `#/`).
 
+## Content-quality bars (HARD)
+
+- **Concepts** must hit: intro 60+ w, whyItMatters 70+ w, **intuition ≥ 200 w**, **visualization ≥ 8 fenced ASCII lines**, bruteForce 60+ w, **optimal ≥ 200 w**, complexity 40+ w, pitfalls ≥ 4 items, interviewTips 3 items, code blocks for all 4 languages (Python / JS / Java / C++).
+- **Tutorial theory bodies** must hit: 500–800 w, the 5-section template (mental model + canonical operation + when to reach + variants + interview problems), `complexity` object with 4 keys, ≥4 `pitfalls` with the fix included, ASCII diagram + Python code block + at least one `> Note:` / `> Tip:` callout.
+- **Course lessons** must hit: 350+ w of theory, ≥1 worked example with code, ≥1 exercise, ≥1 common-mistake call-out. Each course or sub-module should hold **10–15 lessons**; if a course grows past 20, split into sub-modules or spin a new course.
+- **Module structure**: any concept-module with >40 entries needs **sub-modules** of 10–15 concepts each (system-design at 110 is the canonical offender — split by network / storage / consensus / caching / auth / API / reliability / microservices).
+
+## Voice & framing (HARD)
+
+**Every line of user-facing copy must be written FOR THE READER, not ABOUT THE PRODUCT.** Never describe what the site is to a hypothetical builder, PM, or investor. The reader is on the page to learn — write what they want to read, not what we want them to know about us.
+
+Forbidden phrasing (do not ship these or anything like them):
+- "Integrated DSA + algorithms syllabus" / "comprehensive curriculum" / "end-to-end learning path" — internal pitch language.
+- "We've built…" / "We're working on…" / "Let's build together" — builder voice.
+- "This platform offers…" / "This section contains…" — meta-description; just deliver the content.
+- "Welcome to X! In this guide we will…" — onboarding fluff; get to the point.
+
+Replace with reader-direct phrasing:
+- Tell them what they get ("Every data structure and algorithm you'll need — with intuition, complexity, code in four languages.")
+- Or describe the thing in front of them ("Sorted array search in O(log n).")
+- Use "you" sparingly; default to declarative. The reader is already here — no need to greet them.
+
+Scope: page subtitles, module descriptions, course intros, empty states, hero copy, modal headers, footer text. Tutorial / concept BODIES can use "you" for instructional voice (that's the customer-facing register). Visualization captions stay narration-style ("The pointer moves right…") — describe the action, not the build.
+
+Audit before shipping any new page: read every line aloud as a stranger. If it sounds like a product brief or an internal pitch, rewrite.
+
+## Triple-review policy
+
+For any new content batch (≥6 concepts OR a new course OR a tutorial-body rewrite), after the writer agent finishes, dispatch **two independent review agents in parallel**:
+- **Reviewer A** — content accuracy (algorithm correctness, code compiles, complexity claims right).
+- **Reviewer B** — quality bar enforcement (word counts, section presence, no shallow filler).
+- The writer agent counts as the 3rd pass.
+
+Reviewers report a punch list of fixes; a follow-up writer agent (or foreground edits) applies them.
+
 ## Tech stack
 
 - **Frontend:** Vite + React 19 SPA, React Router 7 (**HashRouter** — locked).

@@ -1,6 +1,6 @@
 ---
 slug: network-flow-dinic
-module: graphs
+module: graphs-flow-grids
 title: Dinic's Algorithm
 subtitle: Maximum flow in O(V^2 E) via BFS level graphs and blocking-flow DFS.
 difficulty: Advanced

@@ -1,6 +1,6 @@
 ---
 slug: idempotency-key
-module: system-design
+module: sd-api
 title: Idempotency Keys
 subtitle: Client-supplied unique key per request — server returns the cached response on retry, never re-executes the action.
 difficulty: Intermediate

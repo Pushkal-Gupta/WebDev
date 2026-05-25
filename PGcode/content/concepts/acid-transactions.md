@@ -1,6 +1,6 @@
 ---
 slug: acid-transactions
-module: cs-core
+module: cs-db-transactions
 title: ACID Transactions
 subtitle: Atomicity, Consistency, Isolation, Durability — the four guarantees that make databases trustworthy.
 difficulty: Intermediate

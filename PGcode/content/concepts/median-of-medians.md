@@ -1,6 +1,6 @@
 ---
 slug: median-of-medians
-module: arrays-searching
+module: arrays-counting-select
 title: Median of Medians (Deterministic Linear Selection)
 subtitle: Find the k-th smallest element in O(n) worst case — Quickselect with a guaranteed-good pivot.
 difficulty: Advanced

@@ -1,6 +1,6 @@
 ---
 slug: tcp-vs-udp
-module: cs-core
+module: cs-network-protocols
 title: TCP vs UDP
 subtitle: TCP gives a reliable byte stream; UDP gives unreliable datagrams. Pick by what the application can tolerate.
 difficulty: Beginner

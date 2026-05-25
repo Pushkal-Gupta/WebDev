@@ -1,6 +1,6 @@
 ---
 slug: mtls-mutual
-module: system-design
+module: sd-network
 title: Mutual TLS (mTLS)
 subtitle: Service-to-service auth with both sides presenting certificates — and how to rotate them.
 difficulty: Advanced

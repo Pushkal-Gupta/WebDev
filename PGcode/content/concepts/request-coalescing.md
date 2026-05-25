@@ -1,6 +1,6 @@
 ---
 slug: request-coalescing
-module: system-design
+module: sd-caching-cdn
 title: Request Coalescing — SingleFlight
 subtitle: Collapse N concurrent calls for the same key into one — the killer defense against thundering herds.
 difficulty: Intermediate

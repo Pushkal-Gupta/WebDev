@@ -1,6 +1,6 @@
 ---
 slug: kruskals-mst
-module: graphs
+module: graphs-mst
 title: Kruskal's Algorithm (MST)
 subtitle: Build a minimum spanning tree by greedy edge selection + union-find.
 difficulty: Intermediate
@@ -25,12 +25,22 @@ status: published
 Kruskal's algorithm finds a **minimum spanning tree (MST)** — a subset of edges that connects every vertex with the lowest total weight. The strategy is gloriously simple: sort all edges by weight, then add them one by one, skipping any edge that would create a cycle. The "would create a cycle?" check is what makes union-find indispensable.
 
 ## whyItMatters
-MSTs underpin network design (laying cable to connect cities with minimum wire), clustering (single-linkage hierarchical clustering is literally Kruskal's), and approximation algorithms (e.g., the 2-approximation for TSP starts from the MST). Beyond utility, Kruskal's is the standard interview vehicle for **union-find** practice.
+- **Network design**: laying minimum-cost fibre, water pipelines, electrical grids; the original 1956 Kruskal paper was motivated by AT&T circuit minimisation.
+- **Single-linkage hierarchical clustering**: scikit-learn's `linkage(method='single')` is mathematically equivalent to Kruskal's stopped at a chosen edge threshold; same primitive used in scipy `sparse.csgraph.minimum_spanning_tree`.
+- **TSP 2-approximation** (Christofides 1976 and the simpler MST-doubling bound) starts from the MST as the structural skeleton.
+- **Image segmentation** (Felzenszwalb-Huttenlocher 2004) uses MST-based region merging; ships in OpenCV's `cv::ximgproc`.
+- **Phylogenetic tree inference** in bioinformatics (PHYLIP, MEGA) builds minimum spanning forests over taxon distance matrices.
+- **Maze generation** in roguelike games uses Kruskal's variant on a grid graph for perfectly connected, single-path mazes.
+- Beyond utility, Kruskal's is the canonical interview vehicle for union-find practice — every senior graph interview at Google, Meta, Amazon includes some variant.
 
 ## intuition
-**Cut property:** for any partition of vertices into two sets, the cheapest edge crossing the partition belongs to some MST. Kruskal's exploits this greedily: the cheapest available edge that doesn't close a cycle is always safe to add. Total MST has exactly `V - 1` edges.
+The algorithm exists because finding the minimum-weight subset of edges that connects all vertices naively requires enumerating spanning trees — Cayley's formula gives n^(n−2) for complete graphs, hopelessly exponential. The escape route is greedy edge selection guided by the *cut property* of MSTs (Tarjan 1983 formalisation): for any partition of vertices into two non-empty sets, the cheapest edge crossing the partition belongs to some MST.
 
-The cycle check needs a union-find / disjoint-set structure: `find(u) == find(v)` means u and v are already in the same component → adding this edge would close a cycle. Otherwise, `union(u, v)` and accept the edge.
+The decisive observation: process edges in non-decreasing weight order. When you consider an edge (u, v) of weight w, one of two things is true. (1) u and v are in different connected components built so far — adding the edge connects them and is safe by the cut property (it is the cheapest edge crossing the cut between u's component and the rest). (2) u and v are in the same component — adding the edge would close a cycle, violating tree-ness, so skip. After processing in order, exactly V − 1 edges are accepted (assuming the graph is connected) and together they form the MST.
+
+The "are u and v in the same component?" check is what makes union-find indispensable. A naive BFS/DFS per edge costs O(E·(V+E)) = O(E²) in the worst case; union-find with path compression and union-by-rank reduces it to O(α(V)) amortised per query — effectively constant. Tarjan & van Leeuwen 1984 proved this is optimal in the pointer-machine model.
+
+The greedy choice rule is monotone in weight, which is why sorting upfront makes Kruskal's correct: at each step, the cheapest still-acceptable edge is provably in some MST. The MST weight is unique even when ties exist; the specific edge set can vary across MSTs but the total cost is invariant. For weight ties, any consistent tie-break (e.g., edge index) gives a valid MST. Total cost: O(E log E) for the sort + O(E·α(V)) for union-find ops = O(E log E).
 
 ## visualization
 Vertices A, B, C, D with edges:
@@ -49,14 +59,28 @@ Enumerate every spanning tree (combinatorial explosion: Cayley's formula gives n
 A naive cycle check (BFS from u after every candidate edge) gives `O(E²)`. With union-find both `find` and `union` are near-constant (inverse Ackermann), giving `O(E log E)` dominated by the sort.
 
 ## optimal
-1. **Sort** all edges by weight.
-2. Initialize union-find with each vertex in its own set.
-3. For each edge `(u, v, w)` in order:
-   - If `find(u) != find(v)`: include the edge in the MST and `union(u, v)`.
-   - Else: skip (would form a cycle).
-4. Stop when `V - 1` edges accepted or all edges exhausted.
+**Technique: Kruskal's greedy edge-sort + union-find cycle detection.** O(E log E) total — dominated by the sort; union-find operations are O(α(V)) amortised per edge, effectively constant. Optimal for the comparison model: sorting is Ω(E log E), and any MST algorithm must inspect every edge to confirm none is excluded by an unseen lighter alternative.
 
-If fewer than `V - 1` edges were accepted, the graph isn't connected — there's no spanning tree; you've found a minimum spanning *forest*.
+```python
+def kruskal(n, edges):
+    edges = sorted(edges, key=lambda e: e[2])    # by weight ascending
+    dsu = DSU(n)                                  # union-find with path compression + rank
+    total = 0
+    mst = []
+    for u, v, w in edges:
+        if dsu.union(u, v):                       # different components: safe to add (cut property)
+            total += w
+            mst.append((u, v, w))
+            if len(mst) == n - 1:                 # spanning tree is complete
+                break
+    return total, mst
+```
+
+Key lines: `edges = sorted(edges, key=lambda e: e[2])` sorts ascending by weight — the entire correctness of Kruskal's depends on processing in non-decreasing weight order. `if dsu.union(u, v)` is the cycle check: `union` returns True iff u and v were in different components, in which case adding the edge is safe (cut property) and unions them. If they were already in the same component, adding would close a cycle and we skip. `if len(mst) == n - 1: break` is the early termination — a spanning tree on n vertices has exactly n − 1 edges; once we have that many, the remaining sort is wasted work.
+
+The DSU class uses path compression (`p[x] = p[p[x]]` during find) and union-by-rank (smaller tree hangs under larger) to achieve O(α(V)) amortised per operation. Forgetting either degrades to O(log V) per op — still fine but measurably slower on adversarial inputs (Tarjan-style worst-case graphs).
+
+**Why not Prim?** Prim's O((V + E) log V) is faster on dense graphs (E ≈ V²) with adjacency-list + heap representation; Kruskal wins on sparse graphs and when edges arrive as a stream (no global vertex enumeration needed). **Why not Borůvka?** Borůvka is O(E log V) too, but is the right pick when edges are distributed across machines or when parallel-friendly structure matters; Kruskal's is the cleanest sequential code. **Why not enumerate spanning trees?** Cayley's formula gives n^(n−2) for complete graphs — exponential. **For directed graphs**, Kruskal does not apply — minimum arborescence requires Edmonds' algorithm (Chu-Liu/Edmonds 1965). **Common bugs**: forgetting path compression (works, but slower); using `<` instead of `≤` for weight comparison (irrelevant — tie-broken arbitrarily, MST weight is invariant); stopping at V − 1 edges before verifying connectivity — if fewer than V − 1 edges are accepted after processing all, the graph is disconnected and you have a minimum spanning *forest*.
 
 ## complexity
 time: O(E log E) = O(E log V), dominated by sorting; union-find ops are amortized near-constant via path compression + union-by-rank.

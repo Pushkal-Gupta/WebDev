@@ -1,6 +1,6 @@
 ---
 slug: euclidean-gcd
-module: math
+module: math-number-theory
 title: Euclid's Algorithm (GCD)
 subtitle: The greatest common divisor in O(log min(a, b)).
 difficulty: Beginner
@@ -25,10 +25,14 @@ status: published
 The Euclidean algorithm computes the greatest common divisor of two integers using only division (or modulo). It dates back to ~300 BCE and is still the fastest method known for arbitrary integers. Every number-theoretic algorithm — Bezout's coefficients, modular inverse, Chinese Remainder, RSA — relies on it.
 
 ## whyItMatters
-GCD is the most common subroutine in competitive programming and cryptography. Reducing fractions, computing LCM (`lcm(a, b) = a * b / gcd(a, b)`), modular inverses (`a⁻¹ mod m` only exists if `gcd(a, m) = 1`), and the entire chain of public-key cryptography all start here. Internalizing how Euclid's works also unlocks the *extended* version, which gives Bezout coefficients in the same complexity.
+GCD is the subroutine sitting under most of applied number theory. RSA key generation needs `gcd(e, phi(n)) = 1` to confirm the public exponent is invertible. Postgres's `numeric` type calls a Euclidean reduction whenever it normalizes fractions. The Chinese Remainder Theorem (used in CRT-RSA, the BLS signature aggregation in Ethereum 2.0, and the timing-safe modular arithmetic in libsodium) starts with extended Euclid. CLRS dedicates chapter 31.2 to it; Knuth TAOCP Volume 2 derives Lame's 1844 theorem that bounds it at `O(log_phi(min(a, b)))`. Every fraction reduction in `numpy.rational`, every modular inverse in elliptic-curve cryptography, every LCM computation in scheduling code routes through this single recurrence.
 
 ## intuition
-If `d` divides both `a` and `b`, it divides `a - b` (and therefore `a mod b`). So `gcd(a, b) = gcd(b, a mod b)`. Each step shrinks the second argument at least *halve*; after `O(log min(a, b))` steps, the second argument hits 0 and the first is the answer.
+The trick is one observation: any divisor of both `a` and `b` also divides `a - b`, and more usefully `a mod b`. So the set of common divisors of `(a, b)` equals the set of common divisors of `(b, a mod b)`. Their maximum element is the GCD, which means `gcd(a, b) = gcd(b, a mod b)`. The argument keeps shrinking and the recursion has to terminate, because the second argument strictly decreases on every step and is bounded below by zero.
+
+Why is it so fast? Lame showed in 1844 that the worst case happens on consecutive Fibonacci numbers, which means the second argument falls by a factor of the golden ratio `phi approx 1.618` on every step. After `k` steps the smaller argument has shrunk by `phi^k`, so termination needs `k = O(log_phi(min(a, b)))` iterations.
+
+Think of the mod step as repeated subtraction collapsed into one operation: `a mod b` is what you would get after subtracting `b` from `a` floor(a/b) times. Subtraction alone gives `gcd(48, 1) = gcd(47, 1) = ...`, an `O(a)` disaster. Modulo telescopes those subtractions, which is the whole reason Euclid beats trial division so badly. The same principle, written backwards as the Stern-Brocot tree, generates every rational in lowest terms exactly once. Whenever you see a fraction-reduction or modular-arithmetic step in a system, this recurrence is the engine underneath.
 
 ## visualization
 gcd(48, 18):
@@ -42,9 +46,23 @@ Four operations for two-digit numbers; ~30 operations for 32-bit integers.
 Loop `d` from `min(a, b)` down to 1 and return the first `d` dividing both. O(min(a, b)) — exponentially slower than Euclid's logarithmic version. Useless for any practical input.
 
 ## optimal
-Recursive: `gcd(a, b) = b == 0 ? a : gcd(b, a mod b)`. Iterative: while `b != 0`, do `(a, b) = (b, a mod b)`. Extended Euclidean tracks coefficients `(x, y)` such that `a*x + b*y = gcd(a, b)` — required for modular inverse.
+The iterative two-line loop is the canonical implementation: while `b` is nonzero, set `(a, b) = (b, a mod b)`. When `b` hits zero, `a` is the GCD. This runs in `O(log min(a, b))` time and `O(1)` space, which is asymptotically optimal because any GCD algorithm must read both inputs. The recursive form is mathematically cleaner but the iterative form avoids Python's default 1000-frame recursion limit and the equivalent JVM stack overflow on adversarial inputs.
 
-For very large integers (cryptography), the **binary GCD** variant uses only subtraction and bit shifts (no division) and is faster on hardware that lacks fast division.
+```python
+def gcd(a, b):
+    a, b = abs(a), abs(b)
+    while b:
+        a, b = b, a % b
+    return a
+
+def ext_gcd(a, b):
+    if b == 0:
+        return a, 1, 0
+    g, x1, y1 = ext_gcd(b, a % b)
+    return g, y1, x1 - (a // b) * y1
+```
+
+The critical line is `a, b = b, a % b` — it performs the substitution that collapses many subtractions into one modulo. The extended version tracks Bezout coefficients `(x, y)` such that `a*x + b*y = gcd(a, b)`, which is what you need to compute a modular inverse `a^{-1} mod m` whenever `gcd(a, m) = 1`. For arbitrary-precision integers (cryptographic key sizes around 2048 bits), the **binary GCD** algorithm (Stein 1967) replaces division with subtraction and bit shifts and runs noticeably faster on CPUs without a hardware divider; GMP and OpenSSL both ship it as the default for `mpz_gcd`.
 
 ## complexity
 time: O(log min(a, b)) — by Lamé's theorem, the worst case is consecutive Fibonacci numbers.

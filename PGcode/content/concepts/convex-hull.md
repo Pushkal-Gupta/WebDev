@@ -1,6 +1,6 @@
 ---
 slug: convex-hull
-module: math
+module: math-geom-sampling
 title: Convex Hull (Graham scan)
 subtitle: Find the smallest convex polygon enclosing a set of 2D points in O(n log n).
 difficulty: Advanced

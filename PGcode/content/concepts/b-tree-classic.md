@@ -1,6 +1,6 @@
 ---
 slug: b-tree-classic
-module: trees
+module: trees-balanced-disk
 title: B-Tree (Classic)
 subtitle: Multi-way balanced tree that minimizes disk seeks via wide fan-out and split-on-overflow.
 difficulty: Advanced

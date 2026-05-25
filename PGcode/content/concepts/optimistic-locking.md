@@ -1,6 +1,6 @@
 ---
 slug: optimistic-locking
-module: cs-core
+module: cs-os-concurrency
 title: Optimistic Locking
 subtitle: Version-based concurrency control — read freely, conflict only at commit.
 difficulty: Intermediate

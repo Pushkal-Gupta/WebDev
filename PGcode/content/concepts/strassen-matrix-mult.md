@@ -1,6 +1,6 @@
 ---
 slug: strassen-matrix-mult
-module: math
+module: math-number-theory
 title: Strassen's Matrix Multiplication
 subtitle: Multiply n×n matrices in O(n^2.807) by reducing 8 sub-multiplies to 7 via algebraic identity.
 difficulty: Advanced

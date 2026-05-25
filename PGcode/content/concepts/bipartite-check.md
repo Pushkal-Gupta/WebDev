@@ -1,6 +1,6 @@
 ---
 slug: bipartite-check
-module: graphs
+module: graphs-traversal
 title: Bipartite Graph Check
 subtitle: 2-color the graph via BFS or DFS — if every edge crosses colors, the graph is bipartite.
 difficulty: Intermediate
@@ -25,10 +25,16 @@ status: published
 A graph is bipartite if its vertices can be split into two sets so every edge has one endpoint in each set — equivalently, the graph is 2-colorable. The standard check runs a BFS or DFS from each unvisited vertex, coloring layer by layer; if any edge connects same-colored endpoints, the graph is not bipartite.
 
 ## whyItMatters
-Bipartite testing is the gateway to a whole family of problems: maximum bipartite matching (Hopcroft-Karp, Hungarian algorithm), 2-SAT via implication graphs, scheduling that needs two-shift assignments, and detecting odd cycles. A graph is bipartite if and only if it has no odd-length cycle — the same algorithm that 2-colors also proves the negative by surfacing the offending edge.
+- **Maximum bipartite matching** (Hopcroft-Karp 1973, Hungarian algorithm 1955) is the foundation of job-to-machine assignment, ad-to-slot allocation in real-time bidding (Google AdX, Meta Ads), kidney-exchange matching programs, and college admissions matching.
+- **2-SAT solving** reduces to strongly-connected-component analysis on an implication graph that must be bipartite-like; tools like MiniSat exploit this structure.
+- **Compiler register allocation** uses bipartite checks as a sub-step in interference-graph two-coloring decisions.
+- **Distributed-systems leader election** with two roles (master/replica) and **CRDT replica-pair conflict detection** assume the underlying interaction graph is bipartite.
+- The classical theorem (König 1936) — a graph is bipartite iff it contains no odd cycle — turns this routine 2-coloring traversal into a complete decision procedure.
 
 ## intuition
-Start BFS from any vertex, color it 0. Color every neighbor 1, every neighbor's neighbor 0, and so on — alternating with each layer. If two adjacent vertices ever end up the same color, then walking from one through their BFS parents to their lowest common ancestor and back produces an odd cycle, so 2-coloring is impossible. If no conflict appears across all components, the coloring witnesses bipartiteness.
+The technique exists because 2-colorability is a global property that the local structure of BFS layering can verify in a single sweep. Pick any vertex, color it 0, and treat the BFS frontier as a strict alternation between color classes. The decisive observation: in any traversal tree of an undirected graph, every non-tree edge is either a back edge or a cross edge, and in a bipartite graph all such edges connect vertices at distances of different parity from the root. If even one back edge connects vertices at the same parity, you have just constructed an odd cycle: travel from one endpoint up to the lowest common ancestor (an even number of edges if the parities match) then down to the other endpoint (the same parity again) plus the offending edge itself — odd total.
+
+This is why a single BFS or DFS suffices: any odd cycle must produce a same-color adjacency at some BFS layer, and the algorithm reports failure the instant it sees one. If no such adjacency appears across all components, you have a witnessing 2-coloring, which is itself a constructive proof of bipartiteness. Connected components are handled independently because bipartiteness is a per-component property — a graph is bipartite iff every connected component is. The algorithm therefore restarts from each unvisited vertex, just like any connected-components traversal.
 
 ## visualization
 Graph with edges 1-2, 2-3, 3-4, 4-1, 1-5. Start BFS at 1, color 0. Layer 1 neighbors: 2 → color 1, 5 → color 1. Layer 2: 2's neighbor 3 → color 0, 4 hasn't been seen yet but 1's neighbor list also yields 4 — actually 4 is a neighbor of 1, so 4 → color 1 in layer 1. Layer 2: 3's neighbor 4 — but 4 is color 1 and 3 is color 0, so edge (3, 4) is fine. Every edge crosses colors. Bipartite. Now add edge 2-4: 2 is color 1, 4 is color 1 — same color, conflict, not bipartite (odd cycle 1-2-4-1 of length 3).
@@ -37,7 +43,32 @@ Graph with edges 1-2, 2-3, 3-4, 4-1, 1-5. Start BFS at 1, color 0. Layer 1 neigh
 Try every 2-coloring of the n vertices and check whether each edge has endpoints of different colors. 2^n colorings, each checked in O(E). Exponential. Even with smart pruning, the asymptotic doesn't beat the linear BFS approach, so this is purely an exercise in why you reach for traversal.
 
 ## optimal
-Allocate color[v] = -1 (uncolored) for all v. For each uncolored vertex s, push it into a BFS queue and set color[s] = 0. Pop u, scan neighbors v: if color[v] == -1, set color[v] = 1 - color[u] and enqueue; if color[v] == color[u], return false. If every component completes without conflict, return true. The coloring itself doubles as the bipartition.
+**Technique: BFS-based 2-coloring with conflict detection.** Optimal because any algorithm that decides bipartiteness must look at every edge — an unread edge could connect two same-color vertices and flip the answer. BFS does exactly that work, so O(V + E) is information-theoretically tight.
+
+```python
+from collections import deque
+
+def is_bipartite(n, adj):
+    color = [-1] * n                           # -1 = unvisited
+    for s in range(n):                         # outer loop handles disconnected graphs
+        if color[s] != -1:
+            continue
+        color[s] = 0
+        q = deque([s])
+        while q:
+            u = q.popleft()
+            for v in adj[u]:
+                if color[v] == -1:
+                    color[v] = 1 - color[u]    # alternate parity per BFS layer
+                    q.append(v)
+                elif color[v] == color[u]:
+                    return False               # witnesses an odd cycle
+    return True
+```
+
+Key lines: `color[v] = 1 - color[u]` enforces the layered parity that defines a bipartition; toggling between 0 and 1 is the entire algorithmic content. `elif color[v] == color[u]: return False` is the König odd-cycle detector — a same-color adjacency is a constructive proof that no 2-coloring exists. The outer `for s in range(n)` loop ensures correctness on disconnected graphs; without it, an isolated odd cycle in another component would be missed.
+
+The same algorithm works with DFS, but iterative BFS is preferred in production because Python's default recursion limit (1000) and Java's bounded stack size break on graphs with long chains. For interview follow-ups: to extract a *witness odd cycle*, store BFS parents and, on conflict, walk both endpoints up to their LCA. To extend to multipartite (k-coloring), the answer changes — k-coloring for k ≥ 3 is NP-hard (Karp 1972). Bipartite testing is the rare graph-coloring problem that admits a linear-time decision procedure precisely because k = 2 hits the König equivalence with odd cycles.
 
 ## complexity
 time: O(V + E)

@@ -1,6 +1,6 @@
 ---
 slug: db-indexes
-module: cs-core
+module: cs-db-transactions
 title: Database Indexes
 subtitle: Add a B+tree (or hash) on the right column and queries go from O(n) scan to O(log n) lookup.
 difficulty: Intermediate

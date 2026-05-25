@@ -1,6 +1,6 @@
 ---
 slug: design-pattern-mvc
-module: foundations
+module: foundations-patterns
 title: Model-View-Controller (MVC)
 subtitle: Separate state, presentation, and input handling into three roles so each can evolve independently — the dominant UI architecture for fifty years.
 difficulty: Intermediate

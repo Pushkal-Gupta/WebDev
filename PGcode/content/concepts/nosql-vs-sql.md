@@ -1,6 +1,6 @@
 ---
 slug: nosql-vs-sql
-module: system-design
+module: sd-storage
 title: NoSQL vs SQL
 subtitle: When document, wide-column, key-value, graph, or relational stores each win.
 difficulty: Intermediate

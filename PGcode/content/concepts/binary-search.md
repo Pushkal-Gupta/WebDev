@@ -1,6 +1,6 @@
 ---
 slug: binary-search
-module: arrays-searching
+module: arrays-binary-search
 title: Binary Search
 subtitle: Halve the search space at every step — O(log n).
 difficulty: Beginner

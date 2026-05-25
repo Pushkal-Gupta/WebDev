@@ -1,6 +1,6 @@
 ---
 slug: spanner-truetime
-module: system-design
+module: sd-consensus
 title: Spanner and TrueTime — External Consistency
 subtitle: GPS plus atomic clocks turn bounded clock uncertainty into globally serializable transactions.
 difficulty: Advanced

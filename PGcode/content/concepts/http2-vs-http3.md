@@ -1,6 +1,6 @@
 ---
 slug: http2-vs-http3
-module: cs-core
+module: cs-network-protocols
 title: HTTP/2 vs HTTP/3
 subtitle: HTTP/2 multiplexed everything over one TCP connection — and got hit by head-of-line blocking. HTTP/3 moves to UDP+QUIC to fix it.
 difficulty: Intermediate

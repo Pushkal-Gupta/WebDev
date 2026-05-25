@@ -1,6 +1,6 @@
 ---
 slug: kafka-exactly-once
-module: system-design
+module: sd-microservices
 title: Kafka Exactly-Once Semantics
 subtitle: Idempotent producer plus transactional consumer makes end-to-end exactly-once finally tractable.
 difficulty: Advanced
@@ -25,10 +25,17 @@ status: published
 Exactly-once delivery is the white whale of distributed messaging. For years the canonical wisdom was "you cannot have it — pick at-least-once and make your consumer idempotent." Kafka 0.11 changed the calculation: the broker grew a producer id, a sequence number per partition, and a transaction coordinator. Stitched together you get end-to-end exactly-once across a read-process-write loop: read N messages, compute something, write M messages, commit consumer offsets — all or nothing.
 
 ## whyItMatters
-Double-charging a credit card is the textbook horror story. The naive at-least-once pipeline retries on network blips and the same payment event lands twice in your ledger topic. Exactly-once eliminates that class of bug at the framework boundary instead of asking every downstream handler to dedupe by event id. Interviews about payment systems, billing, or any "must not double-process" pipeline always come back to this primitive.
+- **Payment pipelines** (Stripe-style ledgers, PayPal's transaction logs, internal accounting at every fintech) must never double-process — KIP-98 (Exactly Once) was largely motivated by this class of system.
+- **Confluent's Kafka Streams** ships `processing.guarantee=exactly_once_v2` as the default for new applications; **Apache Flink with the Kafka connector** and **Spark Structured Streaming** integrate with Kafka transactions for end-to-end EOS.
+- **Outbox pattern implementations** (Debezium CDC -> Kafka -> downstream service) rely on Kafka EOS to avoid republishing already-emitted events when the publisher restarts mid-batch.
+- **Jepsen's Kafka analyses** (Kyle Kingsbury, 2017 and 2018) validated the EOS guarantees under failure injection; the original KIP-98 design doc and KIP-447 (per-instance fencing, 2019) are the canonical references.
 
 ## intuition
-Two pieces working together. The producer side: each producer gets a `PID` from the broker plus a monotonic sequence per partition; the broker rejects duplicates within a 5-message window. That removes producer-retry duplicates. The consumer side: wrap your read-process-write in `beginTransaction / send / sendOffsetsToTransaction / commitTransaction`. The transaction coordinator writes a control record that downstream consumers (in `read_committed` mode) only surface once committed. Aborted transactions vanish.
+Exactly-once delivery in distributed messaging was considered the white whale for years. The pragmatic advice was always "you cannot have it, pick at-least-once and make your consumer idempotent." The reason: a network round-trip from producer to broker can fail in three ways — the message never arrived (safe to retry), the message arrived but the ack was lost (retry creates a duplicate), or the broker crashed mid-write. Without coordination, the producer cannot tell case 1 from case 2, so retries inevitably create duplicates.
+
+Kafka 0.11 (2017, KIP-98) solved this with two coordinated mechanisms. **First**, every producer gets a permanent **Producer ID (PID)** from the broker plus a **monotonic sequence number per partition**; the broker rejects any incoming write whose `(PID, partition, seq)` it has already accepted. This eliminates producer-retry duplicates within a window of 5 in-flight requests. **Second**, a **Transaction Coordinator** writes commit/abort markers to the partition logs; downstream consumers configured with `isolation.level=read_committed` skip uncommitted records and aborted transactions entirely. Combining the two — wrap your read-process-write in `beginTransaction / produce / sendOffsetsToTransaction / commitTransaction` — gives true end-to-end exactly-once across multi-partition output plus the consumer offset commit.
+
+The third trick is **zombie fencing**. A `transactional.id` is a stable identifier (per logical processor, not per process). When a new instance calls `initTransactions()`, it bumps the producer epoch; any older zombie producer with the same `transactional.id` gets rejected by the broker on its next produce. This prevents a stalled GC-paused worker from writing duplicate records after a replacement has already taken over — the same protocol fencing that distributed locks need.
 
 ## visualization
 A read-process-write loop with a transaction boundary:
@@ -54,7 +61,52 @@ If the worker crashes between `produce` and `commitTransaction`, the next proces
 Application-level dedup: every consumer keeps a Redis set of `event_id` it has already processed and skips repeats. This works but every consumer must implement it, the dedup set is unbounded (or you pick a TTL and risk missing late duplicates), and it does not cover the producer side — your service can still publish the same event twice if its own retry logic fires. You also lose atomicity across multiple output topics in a single transaction.
 
 ## optimal
-Configure the producer with `enable.idempotence=true`, `acks=all`, `max.in.flight.requests.per.connection<=5`, and a stable `transactional.id` per logical processor (not per process — must survive restarts so fencing works). Call `initTransactions()` once at startup. Consumers read with `isolation.level=read_committed`. Commit consumer offsets *inside* the producer transaction via `sendOffsetsToTransaction`, never with `consumer.commitSync()`. Set the transaction timeout below the broker's `transaction.max.timeout.ms` (default 15 minutes) so zombie txns get reaped.
+The right configuration combines **idempotent producer, transactional grouping, and read-committed consumer** with a stable `transactional.id` per logical processor. The Kafka design doc (KIP-98), Confluent's transactional-messaging blog series, and Apache Kafka 3.x default settings codify the production pattern.
+
+```python
+from confluent_kafka import Producer, Consumer, TopicPartition
+
+p = Producer({
+    "bootstrap.servers": "broker:9092",
+    "enable.idempotence": True,                  # dedupe via (PID, partition, seq)
+    "acks": "all",                                # wait for all in-sync replicas
+    "max.in.flight.requests.per.connection": 5,   # bound dedupe window
+    "transactional.id": "payment-enricher-1",    # STABLE per processor (not per process)
+})
+p.init_transactions()                             # fences any zombie producer
+
+c = Consumer({
+    "bootstrap.servers": "broker:9092",
+    "group.id": "enricher",
+    "isolation.level": "read_committed",          # skip aborted/uncommitted txns
+    "enable.auto.commit": False,
+})
+c.subscribe(["payments-raw"])
+
+while True:
+    msgs = c.consume(num_messages=500, timeout=1.0)
+    if not msgs: continue
+    p.begin_transaction()
+    try:
+        for m in msgs:
+            p.produce("payments-enriched", enrich(m.value()))
+        # CRITICAL: commit consumer offsets INSIDE the producer transaction.
+        # Never use consumer.commitSync() with transactional producers.
+        offsets = [TopicPartition(m.topic(), m.partition(), m.offset() + 1) for m in msgs]
+        p.send_offsets_to_transaction(offsets, c.consumer_group_metadata())
+        p.commit_transaction()
+    except Exception:
+        p.abort_transaction()
+        raise
+```
+
+Why this is right: the three coordinated mechanisms close the three holes that break naive at-least-once. **Idempotent producer** (`enable.idempotence=true` + `acks=all`) eliminates producer-retry duplicates within a 5-in-flight window. **Transactions** (`begin/commit_transaction`) make multi-partition writes atomic — downstream consumers in `read_committed` mode see all output records or none. **`sendOffsetsToTransaction`** makes the consumer offset commit part of the producer transaction — if the transaction aborts, the offsets do not advance, and the next poll re-reads the same input records (which the idempotent producer will dedupe). Take any of the three away and exactly-once degrades to at-least-once.
+
+**Zombie fencing**: `init_transactions()` bumps the producer epoch for the given `transactional.id`. Any older producer with the same id (e.g., a GC-paused worker that a replacement has taken over from) gets rejected by the broker on its next produce. This is why `transactional.id` must be **stable per logical processor**, not per process — a random UUID per restart means fencing never happens and zombies linger.
+
+**For Kafka Streams**: set `processing.guarantee=exactly_once_v2` and the runtime wires all of this automatically. This is the recommended path for stream applications; KIP-447 (2019) made the per-partition producer overhead linear in active producers rather than partitions.
+
+**Hard limits**: exactly-once is **within Kafka**. If you write to Postgres after consuming, you need the **outbox pattern** (write the side effect to a DB table in the same transaction as the business state, then a CDC connector publishes to Kafka) or **2PC** (Kafka 3.5+ supports XA via the transactional API) to extend the guarantee. Set transaction timeout below `transaction.max.timeout.ms` (default 15 min) so zombie txns get reaped. Do not mix transactional and non-transactional writes from the same producer.
 
 ## complexity
 time: One extra round-trip per transaction (begin + commit markers). Throughput drops about 3 percent versus at-least-once when batches are reasonably sized (>=100 records per txn).

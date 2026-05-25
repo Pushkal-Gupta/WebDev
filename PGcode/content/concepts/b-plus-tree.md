@@ -1,6 +1,6 @@
 ---
 slug: b-plus-tree
-module: trees
+module: trees-balanced-disk
 title: B+ Tree
 subtitle: The disk-friendly tree behind every database index — high fan-out, leaf-linked, range-query optimal.
 difficulty: Advanced

@@ -1,6 +1,6 @@
 ---
 slug: compression-gzip-brotli
-module: cs-core
+module: cs-tools-encodings
 title: Compression — gzip, brotli, zstd
 subtitle: Picking the right encoder — ratio vs CPU vs latency, and why each ships in different places.
 difficulty: Intermediate

@@ -1,6 +1,6 @@
 ---
 slug: circuit-breaker
-module: system-design
+module: sd-reliability
 title: Circuit Breaker
 subtitle: Stop hammering a failing downstream — open the circuit, fail fast, retry occasionally, close when healthy.
 difficulty: Intermediate

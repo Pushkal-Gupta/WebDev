@@ -1,6 +1,6 @@
 ---
 slug: dijkstra-no-negative
-module: graphs
+module: graphs-shortest-paths
 title: Why Dijkstra Fails on Negative Edges
 subtitle: A counter-example walkthrough showing why the greedy assumption breaks.
 difficulty: Intermediate
@@ -28,7 +28,13 @@ Dijkstra's shortest-path algorithm is one of the most widely used graph algorith
 Whenever you hear "shortest path," the reflex is "Dijkstra." But real graphs sometimes carry negative edges legitimately — currency exchange arbitrage, profit/loss flows, time discounts. Reaching for Dijkstra in those settings silently returns the wrong answer instead of erroring. Knowing the failure mode tells you when to switch to Bellman-Ford (O(VE), handles negatives) or Johnson's (reweight then run Dijkstra V times).
 
 ## intuition
-Dijkstra is greedy: the moment it pops a vertex u from its min-heap, it declares dist[u] final. That works only when no future relaxation could discover a *shorter* path to u. With non-negative edges, any path discovered later must be at least as long as the one already known, so finality is safe. A negative edge invalidates that argument — a longer-so-far path that later traverses a negative edge can undercut the supposedly-final value.
+The failure mode exists because Dijkstra's algorithm rests on a **greedy-settle invariant**: the moment a vertex u is popped from the min-priority-queue, the algorithm declares dist[u] final and never reconsiders it. That invariant is justified by a single structural argument — with non-negative edge weights, any *future* path that discovers u must traverse at least as much edge weight as the path Dijkstra already found, so the future path cannot be shorter. The proof is by induction on extraction order: the popped vertex has the smallest tentative distance among unsettled vertices, and any alternate path to it must leave the settled set through another unsettled vertex with equal-or-greater distance, plus non-negative extension cost — so the alternate path is no better.
+
+A negative edge invalidates this argument because "extending a path can only increase its length" no longer holds. A longer-so-far path that later traverses a negative edge can undercut the value Dijkstra committed to. The concrete failure: take a graph with three vertices A, B, C and edges A→B (weight 5), A→C (weight 4), B→C (weight −3). True shortest distances from A: A=0, B=5, C=2 (via A→B→C). Dijkstra pops A (0), relaxes neighbours: dist[B]=5, dist[C]=4. Pops C next (4 is smaller than 5), locks dist[C]=4. Pops B (5), tries B→C: 5 + (−3) = 2, which is less than the supposedly-final 4 — but C is already settled. Dijkstra returns dist[C]=4. Wrong by 2.
+
+The deeper structural reason: Dijkstra's correctness requires the edge-weight space to form a non-negative-weight metric. With non-negative weights, the partial-order extension property holds: extending a path strictly weakly increases its length. Negative weights break this property locally; in graphs that lack negative cycles globally, alternative algorithms (Bellman-Ford O(V·E), Johnson's O(V·E + V·(V+E) log V) for all-pairs) restore correctness at the cost of more work.
+
+Crucially, "small negative weight" or "rare negative edges" do not rescue Dijkstra — a single misplaced negative edge anywhere on a relevant alternate path produces a wrong answer. The rule is **all weights must be non-negative**, not "mostly non-negative". Adding a constant to all edges to make them positive is also wrong because longer paths absorb more constant offset and the shortest path can shift. For DAGs with negative weights, topological-order DP correctly handles negatives in O(V + E); Bellman-Ford handles general graphs with negatives but no negative cycles; Johnson's reweights then runs Dijkstra V times for all-pairs.
 
 ## visualization
 Three vertices: A, B, C. Edges A->B weight 1, A->C weight 4, B->C weight -3. True shortest distances from A: A=0, B=1, C = 1 + (-3) = -2. Dijkstra: push A (0). Pop A, relax: dist[B]=1, dist[C]=4. Pop B (1), relax: dist[C] = min(4, 1 + (-3)) = -2. So far so good — Dijkstra got C right. Now swap: A->B = 5, A->C = 4, B->C = -3. True: A=0, C=4, B=5, but path A->B->C = 2 < 4. Dijkstra pops A, relaxes (dist[B]=5, dist[C]=4). Pops C next (4) — locks it. Pops B (5), tries B->C = 5 + (-3) = 2 < 4 — but C is already finalised. Returns dist[C]=4. Wrong answer.
@@ -37,13 +43,61 @@ Three vertices: A, B, C. Edges A->B weight 1, A->C weight 4, B->C weight -3. Tru
 Enumerate every path from source to target with DFS, sum their weights, pick the minimum. Exponential in path count. Bellman-Ford does it correctly in O(V * E) by relaxing all edges V - 1 times — slower than Dijkstra but immune to negative weights. SPFA (queue-based Bellman-Ford) is faster in practice on sparse graphs.
 
 ## optimal
-If you must run something Dijkstra-shaped on a graph with negative edges (but no negative cycles), use **Johnson's algorithm**:
-1. Add a virtual source s' connected to every node with weight 0.
-2. Run Bellman-Ford from s' to get a height h[v] for each node.
-3. Reweight each edge (u, v): w'(u, v) = w(u, v) + h[u] - h[v]. Now all w' are non-negative.
-4. Run Dijkstra from each source. Translate back: real_dist = computed_dist - h[source] + h[target].
+**Technique: choose the right shortest-path algorithm for the weight structure — Dijkstra only on non-negative graphs; Bellman-Ford for single-source with negatives; Johnson's for all-pairs with negatives.** Each saturates its respective lower bound for the graph class it targets.
 
-For single-source on a graph with negatives, Bellman-Ford alone in O(V * E) is the textbook answer.
+```python
+# Wrong: Dijkstra on a graph with negative edges
+# Right: Bellman-Ford for single-source with negatives, no negative cycles
+def bellman_ford(n, edges, src):
+    INF = float('inf')
+    dist = [INF] * n
+    dist[src] = 0
+    for _ in range(n - 1):                          # V-1 relaxation passes
+        for u, v, w in edges:
+            if dist[u] != INF and dist[u] + w < dist[v]:
+                dist[v] = dist[u] + w
+    # Negative-cycle detection: one more pass; if any update happens, cycle exists
+    for u, v, w in edges:
+        if dist[u] != INF and dist[u] + w < dist[v]:
+            return None                             # negative cycle reachable from src
+    return dist
+```
+
+```python
+# All-pairs with negatives: Johnson's (reweight + V·Dijkstra)
+def johnson(n, edges):
+    h = [0] * (n + 1)                                # virtual super-source s' = n
+    aug = edges + [(n, v, 0) for v in range(n)]
+    for _ in range(n):                               # Bellman-Ford from s'
+        updated = False
+        for u, v, w in aug:
+            if h[u] + w < h[v]:
+                h[v] = h[u] + w; updated = True
+        if not updated: break
+    for u, v, w in aug:                              # detect negative cycle
+        if h[u] + w < h[v]: return None
+    # Reweight: w'(u,v) = w + h[u] - h[v], guaranteed non-negative by triangle ineq.
+    reweighted = [(u, v, w + h[u] - h[v]) for u, v, w in edges]
+    # Run Dijkstra from each source on reweighted graph; translate distances back
+    # real_dist[s][t] = reweighted_dist[s][t] - h[s] + h[t]
+    ...
+```
+
+Key lines: in Bellman-Ford, `for _ in range(n - 1)` runs V−1 relaxation passes — the invariant after pass i is "dist[v] = shortest cost reaching v via at most i edges". After V−1 passes, all simple paths are covered (longest simple path has V−1 edges). The extra V-th pass detects negative cycles: if any edge still relaxes after V−1 passes, a negative cycle exists reachable from src. In Johnson's, the virtual super-source connected to every node with weight 0 guarantees every vertex gets a finite potential h[v]; the reweighting `w'(u,v) = w(u,v) + h[u] - h[v]` is non-negative by the triangle inequality (h[v] ≤ h[u] + w(u,v) from Bellman-Ford convergence).
+
+**Algorithm choice matrix:**
+
+| Graph properties | Algorithm | Complexity |
+|---|---|---|
+| Non-negative weights, single-source | Dijkstra (binary heap) | O((V+E) log V) |
+| Non-negative integer weights ≤ W | Dial's bucket queue | O(E + V·W) |
+| DAG (any weights) | Topological sort + relaxation | O(V + E) |
+| General weights, no negative cycle, single-source | Bellman-Ford | O(V·E) |
+| General weights, no negative cycle, all-pairs | Johnson's | O(V·E + V·(V+E) log V) |
+| Dense general weights, all-pairs | Floyd-Warshall | O(V³) |
+| Unweighted | BFS | O(V + E) |
+
+**Common bugs and decision questions**: always ask "can edge weights be negative?" before reaching for Dijkstra. For mixed-sign graphs without negative cycles, mention Bellman-Ford or Johnson's. For DAGs with negatives, mention topological-order DP. Never "add a constant" to make weights positive — that changes the relative cost of longer vs shorter paths. Don't confuse "no negative cycle" (BF/Johnson's OK) with "no negative edge" (Dijkstra requires the stronger condition). For currency-arbitrage detection, negative cycles are the *signal*; use BF inside Johnson's to flag them.
 
 ## complexity
 time: Dijkstra on positive weights with a binary heap is O((V + E) log V); Bellman-Ford is O(V * E); Johnson's is O(V * E + V * (V + E) log V).

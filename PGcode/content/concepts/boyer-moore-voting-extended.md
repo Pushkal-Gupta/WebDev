@@ -1,6 +1,6 @@
 ---
 slug: boyer-moore-voting-extended
-module: arrays-searching
+module: arrays-counting-select
 title: Boyer-Moore Voting — Extended to n/k
 subtitle: Generalize majority-vote to find all elements appearing more than n/k times in O(n) time, O(k) space.
 difficulty: Intermediate
@@ -25,10 +25,19 @@ status: published
 The classic Boyer-Moore voting algorithm finds an element appearing strictly more than n/2 times using a single counter. The generalization: at most `k - 1` elements can appear strictly more than n/k times, and you can find them all in O(n·k) time and O(k) extra space by running `k - 1` counters simultaneously. For the common k=3 case, exactly two counters are enough.
 
 ## whyItMatters
-n/k majority queries appear inside frequent-itemset mining, network packet sampling, and database histograms where you can only afford a single streaming pass. The technique is the cleanest example of "constant extra state, exact answer" for streaming — a category interviewers love because it forces you to defend correctness without storing the input.
+- **Network traffic analysis** (Misra-Gries 1982, originally Boyer-Moore 1981): identify heavy hitters in IP flows on backbone routers under tight memory constraints — implementations in Cisco's NetFlow, Snort IDS, and Linux `nftables` rate-limiting.
+- **Database query optimisers** (PostgreSQL, MySQL): build column histograms tracking the most-common values via streaming heavy-hitters algorithms; the Misra-Gries generalisation of Boyer-Moore is the textbook approach.
+- **Distributed counting** in Spark, Flink, and Dataflow uses the same n/k-majority sketch for approximate top-k aggregation over streams that exceed memory.
+- **Apache DataSketches** and Yahoo's streaming-quantiles libraries ship Misra-Gries / Boyer-Moore generalisations alongside Count-Min sketches as their canonical heavy-hitters primitive.
+- **Adversarial input streaming**: the algorithm gives exact answers (with a verification pass) where probabilistic sketches give only approximations — important when correctness matters more than memory.
+- It is the cleanest "constant extra state, exact answer" pattern in streaming, which is why interviewers love it.
 
 ## intuition
-A pigeonhole argument: if more than k - 1 elements each appeared more than n/k times, their total count would exceed n. So there are at most k - 1 candidates. Maintain k - 1 (candidate, count) slots. For each new value: if it matches a slot, increment that slot's count. Else if a free slot exists, use it. Else decrement every count by one (a "cancellation round") — this discards `k` distinct elements together and cannot harm any true >n/k majority, because each majority survives more cancellations than it can lose.
+The algorithm exists because a naïve hash-count over the stream uses O(n) memory in the worst case — fine in a 1 GB process, untenable on a 10 Gbit/s router. The escape route is a pigeonhole argument: if more than k − 1 distinct elements each appeared more than n/k times, their combined count would exceed n, which is impossible. So at most k − 1 elements can be >n/k majorities; we only need k − 1 candidate slots, regardless of n.
+
+Maintain k − 1 (candidate, count) slots. For each new value, one of three things happens. (1) The value matches a slot: increment that slot's count. (2) The value doesn't match but a free slot exists: seat it with count 1. (3) The value doesn't match and all slots are occupied: decrement every count by 1, removing any slot whose count hits 0. This third step — the "cancellation round" — is the core insight: we are pairing the new value with one element from each occupied slot and discarding all k of them together. The accounting is symmetric and total cancellations are bounded by n/k, since each round consumes k distinct values.
+
+The correctness argument: any true >n/k majority survives more increments than it can lose to cancellations. Concretely, if value v appears more than n/k times, at most n/k cancellation rounds can occur in total (each consumes k values), so v experiences at most n/k decrements; but v experiences more than n/k increments by assumption, so its slot can never be empty after a step that consumed v. The verification pass is necessary because the algorithm produces *candidates*: when no true majority exists, slots still fill up with arbitrary values. Pass 2 recounts each candidate's actual frequency and filters out false positives. Total: O(n·k) time, O(k) memory, exact answer in two streaming passes.
 
 ## visualization
 For k=3 with `[1,1,1,3,3,2,2,2]` we keep two slots. Stream:
@@ -38,7 +47,39 @@ For k=3 with `[1,1,1,3,3,2,2,2]` we keep two slots. Stream:
 Hash-map every element to its frequency, then return all keys with count > n/k. O(n) time but O(n) space — fine in most settings, but it loses the streaming property the generalization is specifically prized for.
 
 ## optimal
-Pass 1 (candidate selection): maintain k - 1 (candidate, count) pairs. For each value: match → increment; empty slot → seat; else decrement all. Pass 2 (verification): for each surviving candidate, recount actual occurrences in the array and report those exceeding n/k. Both passes are O(n·k); for fixed k (almost always k=3), this is linear. Memory is O(k).
+**Technique: Misra-Gries / Boyer-Moore n/k-majority candidate-selection + verification.** Two streaming passes, O(n·k) total time, O(k) extra memory. Information-theoretically optimal for the exact-heavy-hitters problem: any algorithm must touch every element at least once (Ω(n)) and must track up to k − 1 distinct candidates simultaneously (Ω(k) memory).
+
+```python
+def majority_n_over_k(nums, k):
+    counts = {}
+    # Pass 1: candidate selection (Misra-Gries)
+    for x in nums:
+        if x in counts:
+            counts[x] += 1                              # match: increment
+        elif len(counts) < k - 1:
+            counts[x] = 1                               # seat in free slot
+        else:                                            # cancellation round
+            for key in list(counts):
+                counts[key] -= 1
+                if counts[key] == 0:
+                    del counts[key]
+    # Pass 2: verify candidates by exact recount
+    threshold = len(nums) // k
+    return [c for c in counts if nums.count(c) > threshold]
+```
+
+Key lines: the three-branch `if/elif/else` is the entire Misra-Gries update rule — match-and-increment, seat-in-free-slot, or cancel-one-from-each-slot. The cancellation round (the `else` branch) is what bounds memory to k − 1 slots regardless of stream length. The verification pass (`nums.count(c) > threshold`) is non-negotiable: candidates from pass 1 are merely *possible* majorities; without recounting, you can return false positives when no true majority exists.
+
+For k = 2 (classic Boyer-Moore majority), the inner cancellation work is O(1) and the whole algorithm collapses to a single counter:
+
+```python
+candidate, count = None, 0
+for x in nums:
+    if count == 0: candidate = x
+    count += 1 if x == candidate else -1
+```
+
+**Why not hash-map frequency count?** O(n) memory in the worst case, useless on streaming workloads with billions of elements where memory is the binding constraint. **Why not Count-Min Sketch?** Count-Min gives *approximate* frequencies with bounded error; Misra-Gries gives *exact* answers for >n/k elements but no information about smaller frequencies. Pick by what the problem values. **Why not sort-then-count?** Θ(n log n) time and Θ(n) memory — slower and bigger than Misra-Gries on every axis. **Common bug**: using `≥ n/k` instead of `> n/k` violates the strict-majority requirement; the problem specifies strict inequality and the algorithm's pigeonhole argument requires it.
 
 ## complexity
 time: O(n·k) — two passes; the inner work per element is O(k) for the match/seat/decrement.

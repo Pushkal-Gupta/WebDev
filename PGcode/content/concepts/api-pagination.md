@@ -1,6 +1,6 @@
 ---
 slug: api-pagination
-module: system-design
+module: sd-api
 title: API Pagination Strategies
 subtitle: Offset / cursor / keyset / page-token — each has different trade-offs in correctness under writes, deep-pagination cost, and resumability.
 difficulty: Intermediate

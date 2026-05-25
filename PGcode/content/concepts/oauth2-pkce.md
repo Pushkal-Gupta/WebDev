@@ -1,6 +1,6 @@
 ---
 slug: oauth2-pkce
-module: system-design
+module: sd-auth-security
 title: OAuth 2.0 with PKCE
 subtitle: Authorization Code flow + PKCE — secure for public clients (SPAs, mobile apps) without storing a client secret.
 difficulty: Advanced

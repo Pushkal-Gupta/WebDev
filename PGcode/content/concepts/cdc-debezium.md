@@ -1,6 +1,6 @@
 ---
 slug: cdc-debezium
-module: system-design
+module: sd-microservices
 title: Change Data Capture (Debezium)
 subtitle: Stream DB row changes from the WAL into Kafka in real time — no app code; downstream consumers project, search, sync.
 difficulty: Intermediate

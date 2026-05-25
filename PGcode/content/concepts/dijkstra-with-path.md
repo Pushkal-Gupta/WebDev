@@ -1,6 +1,6 @@
 ---
 slug: dijkstra-with-path
-module: graphs
+module: graphs-shortest-paths
 title: Dijkstra with Path Reconstruction
 subtitle: Run Dijkstra's shortest-path algorithm and recover the actual edge sequence via a parent[] array.
 difficulty: Intermediate

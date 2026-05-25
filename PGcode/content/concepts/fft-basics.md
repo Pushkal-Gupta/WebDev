@@ -1,6 +1,6 @@
 ---
 slug: fft-basics
-module: math
+module: math-number-theory
 title: FFT — Fast Polynomial Multiplication
 subtitle: Multiply two polynomials (or large integers) in O(n log n) via Fast Fourier Transform on the roots of unity.
 difficulty: Advanced

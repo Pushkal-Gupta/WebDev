@@ -1,6 +1,6 @@
 ---
 slug: solid-principles
-module: foundations
+module: foundations-analysis
 title: SOLID Principles
 subtitle: Five object-oriented design rules — SRP, OCP, LSP, ISP, DIP — that keep large codebases changeable instead of fragile.
 difficulty: Intermediate

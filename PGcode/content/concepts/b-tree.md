@@ -1,6 +1,6 @@
 ---
 slug: b-tree
-module: trees
+module: trees-balanced-disk
 title: B-Tree
 subtitle: Self-balancing tree designed for disk — high fanout, all leaves at the same depth, O(log n) operations with few I/O hops.
 difficulty: Advanced

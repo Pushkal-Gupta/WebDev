@@ -1,6 +1,6 @@
 ---
 slug: segment-tree-lazy
-module: arrays-searching
+module: arrays-range-structures
 title: Segment Tree with Lazy Propagation
 subtitle: Range updates and range queries in O(log n) by deferring work until you must do it.
 difficulty: Advanced

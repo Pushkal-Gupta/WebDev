@@ -1,6 +1,6 @@
 ---
 slug: design-pattern-singleton
-module: foundations
+module: foundations-patterns
 title: Singleton Pattern
 subtitle: Guarantee one instance of a class with a global access point — useful, controversial, and notoriously tricky under multithreading.
 difficulty: Intermediate

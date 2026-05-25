@@ -1,6 +1,6 @@
 ---
 slug: mos-algorithm
-module: arrays-searching
+module: arrays-counting-select
 title: Mo's Algorithm
 subtitle: Reorder offline range queries to answer all of them in O((n + q) * sqrt(n)).
 difficulty: Advanced

@@ -1,6 +1,6 @@
 ---
 slug: bellman-ford-detection
-module: graphs
+module: graphs-shortest-paths
 title: Bellman-Ford Negative Cycle Detection
 subtitle: Use a final relaxation pass to prove a graph has no negative-weight cycle reachable from the source.
 difficulty: Advanced

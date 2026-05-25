@@ -1,6 +1,6 @@
 ---
 slug: lca-binary-lifting
-module: trees
+module: trees-advanced-queries
 title: LCA via Binary Lifting
 subtitle: Lowest Common Ancestor of any two nodes in O(log n) after O(n log n) preprocessing.
 difficulty: Advanced

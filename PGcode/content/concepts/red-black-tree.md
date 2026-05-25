@@ -1,6 +1,6 @@
 ---
 slug: red-black-tree
-module: trees
+module: trees-balanced-disk
 title: Red-Black Tree
 subtitle: Self-balancing BST with five color invariants and O(log n) worst-case operations.
 difficulty: Advanced

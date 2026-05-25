@@ -1,6 +1,6 @@
 ---
 slug: grpc-vs-rest
-module: system-design
+module: sd-network
 title: gRPC vs REST
 subtitle: HTTP/2 multiplexing, bidirectional streaming, and contract-first IDL — when gRPC beats JSON-over-HTTP and when it doesn't.
 difficulty: Advanced
@@ -25,10 +25,17 @@ status: published
 gRPC is a contract-first RPC framework: you define services and methods in a `.proto` file, the compiler generates client and server stubs in every supported language, and calls travel over HTTP/2 with protobuf payloads. REST is the looser web-native style: resources addressed by URL, verbs mapped to HTTP methods, JSON bodies. They overlap, but gRPC wins on internal service-to-service traffic and REST wins on browser-facing or human-debugged APIs.
 
 ## whyItMatters
-A typical microservice graph fires thousands of RPCs per user request. Every saved millisecond and every kilobyte of payload compounds across the fan-out. gRPC's combination of HTTP/2 multiplexing (no head-of-line blocking per TCP connection), protobuf compression, and code-generated stubs (no hand-written client) is why most large engineering orgs use it inside the data center. Outside the data center — public APIs, third-party integrations, browser clients — REST/JSON's debuggability and CDN-friendliness usually win.
+- **Google's internal Stubby** (gRPC's ancestor, predating the 2015 open-source release) carries every internal RPC in their fleet; the published Borg and Spanner papers show gRPC-scale traffic.
+- **Netflix, Square, Lyft, Dropbox, and CockroachDB** standardized on gRPC for service-to-service traffic; Lyft authored Envoy partly to be a great gRPC proxy, and **Istio's data plane** assumes HTTP/2.
+- **Kubernetes' `kubelet` ↔ `containerd` CRI**, **etcd's client/server protocol**, and **TensorFlow Serving** all expose gRPC because the IDL contract plus streaming primitives fit infrastructure control planes.
+- **REST/JSON still wins on the public edge**: GitHub, Stripe, Twilio, and AWS expose REST (or REST-adjacent) APIs because `curl`, browser DevTools, and CDN caching all assume HTTP/1.1 + JSON; the gRPC-Web shim exists precisely because browsers cannot speak raw HTTP/2 trailers.
 
 ## intuition
-Think of REST as sending postcards: each request is independent, addressed by URL, body in plain text. Think of gRPC as opening a phone line: an HTTP/2 channel multiplexes many concurrent streams, each carrying a typed method call. Once the line is open, individual calls are cheap, and you can stream in either direction — server-push, client-upload, or full duplex chat.
+REST and gRPC solve the same problem — "let one process call a method on another" — but optimize for different audiences. REST treats the network as a document store: every resource has a URL, you fetch/create/update/delete it with HTTP verbs, and the payload is human-readable JSON. This is great for humans, browsers, and any caching middlebox that already understands HTTP. The cost: hand-written clients per language, no schema enforcement, and one HTTP/1.1 TCP connection per concurrent request (or, with HTTP/2, multiplexing that JSON doesn't take full advantage of).
+
+gRPC treats the network as a typed function call. You declare your service in a `.proto` file: methods, request types, response types, all strongly typed. `protoc` generates idiomatic client and server stubs in every supported language (C++, Java, Go, Python, Ruby, C#, Node, Swift, Dart, Rust via tonic), so the wire contract is single-source-of-truth and refactor-safe. On the wire, payloads are binary protobuf (3-10× smaller than equivalent JSON), and the transport is HTTP/2 — one connection multiplexes hundreds of concurrent streams without head-of-line blocking, and four streaming modes (unary, server-streaming, client-streaming, bidirectional) give you full duplex on a single TCP connection.
+
+The mental contrast: REST is sending postcards (each request stands alone, addressed by URL, readable by anyone in transit). gRPC is opening a phone line (one channel, many concurrent calls, all typed, all binary). Choose by audience: human or browser → REST; service-to-service inside a data center → gRPC.
 
 ## visualization
 On the wire: a REST call is `GET /users/42` plus a JSON response of `~120` bytes. The same gRPC call is a single HTTP/2 DATA frame carrying a protobuf-encoded `GetUserRequest{id:42}` (~3 bytes) and a response of `~40` bytes. Add 99 more concurrent calls: REST opens up to 6 parallel HTTP/1.1 connections per host and queues the rest; gRPC reuses one HTTP/2 connection with 100 multiplexed streams.
@@ -37,7 +44,28 @@ On the wire: a REST call is `GET /users/42` plus a JSON response of `~120` bytes
 Build a REST API with JSON and call it from every service. Works fine until you hit: (1) versioning chaos when field names drift, (2) HOL blocking on slow endpoints sharing a connection, (3) hand-written clients per language that fall out of sync with the server, (4) per-request connection setup overhead, (5) no native streaming — you fake it with long-polling or WebSockets.
 
 ## optimal
-Use gRPC for internal RPC where: latency matters, types matter, polyglot services share contracts, or you need streaming. Use REST/JSON for: public APIs, browser clients, anything that benefits from HTTP caching middleboxes (CDNs, proxies), debugging via `curl`, or third-party developer experience. The hybrid model — gRPC inside, REST/GraphQL at the edge — is the most common production architecture.
+The right architecture for a modern service org is **hybrid**: gRPC inside the data center for service-to-service, REST (or GraphQL) at the public edge. This matches what Netflix, Lyft, and Square documented in their migration blog posts, and what every Istio-based mesh ships by default. The boundary is a translation layer — `grpc-gateway` (Go), Envoy's `grpc_json_transcoder`, or a thin BFF — that exposes a REST or GraphQL contract externally while speaking gRPC internally.
+
+Within a gRPC service, three production disciplines matter:
+
+```proto
+// greeter.proto — contract-first, versioned by package
+syntax = "proto3";
+package example.v1;
+
+service Greeter {
+  rpc Hello(HelloReq) returns (HelloResp);
+  rpc HelloStream(HelloReq) returns (stream HelloResp);   // server-stream
+}
+message HelloReq  { string name = 1; }                    // never reuse field 1
+message HelloResp { string message = 1; int64 ts = 2; }
+```
+
+**Deadline propagation**: every RPC carries a deadline; gRPC propagates it across hops automatically. Without deadlines, one slow downstream cascades into thread-pool exhaustion across the fleet (the Google SRE book's "deadline propagation" chapter is the canonical reference). **Retry budgets** (gRPC's `retryPolicy`) cap the multiplicative blow-up — without a budget, a partial outage becomes a self-DDoS as every client retries.
+
+**Schema evolution**: protobuf field numbers are permanent. Add fields with new numbers, never renumber, mark deleted fields `reserved`. Wire compatibility (old client + new server, new client + old server) holds as long as you obey this rule. JSON APIs need explicit `Accept-Version` headers or URL versioning to achieve the same guarantee.
+
+**When REST still wins**: public APIs (debugging via `curl`, CDN caching via `Cache-Control` + `ETag`, browser fetch without a shim), webhook receivers (third-party servers send POSTs, not gRPC streams), and admin tooling where humans paste responses into bug reports. RFC 9110 (HTTP semantics) and RFC 8259 (JSON) form a stable, universally-understood contract. The gRPC-Web shim closes the browser gap but adds an Envoy proxy you have to operate, so for a public API consumed by random third parties, REST/JSON is the lower-friction choice.
 
 ## complexity
 time: gRPC parsing is O(n) over the protobuf bytes; REST/JSON parsing is O(n) plus tokenization overhead — usually 2-5× slower in practice.

@@ -135,7 +135,7 @@ export default function Assessments({ session, roadmapMode = '500' }) {
       ) : topicCards.length === 0 ? (
         <div className="asm-empty">
           <p className="asm-empty-title">No topics with enough problems yet</p>
-          <p className="asm-empty-sub">Each topic needs at least 3 problems. Populate <code>PGcode_problems</code> or relax your tier filter.</p>
+          <p className="asm-empty-sub">Try widening your tier filter — each topic needs at least 3 problems to run an assessment.</p>
         </div>
       ) : (
         <ul className="asm-grid">

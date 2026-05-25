@@ -1,6 +1,6 @@
 ---
 slug: bfs-dfs
-module: trees
+module: trees-traversal-bst
 title: BFS & DFS
 subtitle: The two foundational graph/tree traversals — every harder algorithm builds on these.
 difficulty: Beginner

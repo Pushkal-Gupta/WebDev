@@ -25,10 +25,14 @@ status: published
 The power set of a collection of n elements is the set of all 2^n subsets, including the empty set and the full collection itself. Two equivalent constructions dominate: bitmask enumeration, which maps each integer in [0, 2^n) to a subset by reading its bits, and include/exclude recursion, which at each element branches into two recursive calls.
 
 ## intuition
-Each element is independently either in or out of a subset, giving 2^n configurations. A bitmask of n bits names each configuration directly: bit i set means element i is in the subset. The recursion view is equivalent: a binary tree of depth n where the left edge means "skip" and the right edge means "take." Leaves are subsets.
+For each element of the input you make a binary decision: include it or skip it. That choice tree is exactly `2^n` leaves deep, one leaf per subset of the original set, and the tree is balanced — every path from root to leaf has length `n`. Visit the tree depth-first and record the current path at every internal node; the collection of paths is the power set.
+
+There are two equivalent ways to write the recursion and you should understand both. The first is the include/exclude shape: at index `i`, first recurse with `i` excluded, then with `i` included; backtrack by popping after the included branch. The second is the for-loop shape: at each call, loop over `i` from `start` to `n-1`, append `nums[i]`, recurse with `start = i+1`, then pop. The include/exclude form makes the binary tree structure obvious and generalizes cleanly to constrained variants like subset-sum. The for-loop form fits combinations and permutations more naturally and is easier to extend with skip-duplicate logic.
+
+The third equivalent representation is bitmask iteration. Each integer from `0` to `2^n - 1` encodes one subset: bit `i` set means include `nums[i]`. This compresses the entire algorithm to one nested loop and is the version most competitive programmers reach for when `n <= 20`.
 
 ## whyItMatters
-Subset enumeration is the simplest possible backtracking shape — no constraints, no pruning, just two choices per element. It is the perfect place to internalize "for each element, branch on a binary decision," which is the structure of subset sum, partition equal subset sum, the 0/1 knapsack brute force, and bitmask DP. Recognizing 2^n in a problem's input bound (n ≤ 20) is often a hint that subset enumeration is intended.
+Subset enumeration is the simplest possible backtracking shape: no constraints, no pruning, just two choices per element. Mastering it is the prerequisite for every harder enumeration problem — subset sum, partition equal subset sum, the `O(2^n)` brute force of 0/1 knapsack, and the entire family of bitmask DP problems that appear in Codeforces Div-1 rounds and Google onsite finals. Recognizing `n <= 20` in a problem statement should reflexively suggest power-set or bitmask DP, because `2^20 = 1,048,576` is comfortably within a second of computation. The technique also underlies feature-selection in machine learning, Gray-code generation for combinatorial testing, and the powerset construction that converts an NFA to a DFA in compiler frontends.
 
 ## visualization
 For nums=[1,2,3], bitmasks 000..111 produce: 000={}, 001={1}, 010={2}, 011={1,2}, 100={3}, 101={1,3}, 110={2,3}, 111={1,2,3}. The recursion view: root → (skip 1, take 1) → (skip 2, take 2) → (skip 3, take 3). Eight leaves, eight subsets, one-to-one correspondence with bitmasks read in reverse bit order.
@@ -37,7 +41,31 @@ For nums=[1,2,3], bitmasks 000..111 produce: 000={}, 001={1}, 010={2}, 011={1,2}
 There is no "brute force vs optimal" split for power-set generation — you must enumerate all 2^n outputs because that is the answer size. The interesting comparison is between styles: bitmask enumeration is cache-friendly and trivially parallelizable; DFS is easier to extend when you want to prune (subset sum, partition).
 
 ## optimal
-For n ≤ 30 use a bitmask: loop mask from 0 to (1 << n) - 1, and for each mask iterate i from 0 to n-1 emitting nums[i] when (mask >> i) & 1. For n > 30 (rare in interviews) you must switch to recursion because mask no longer fits in an int. The recursive variant has the same Θ(n * 2^n) runtime and is the only style that supports early pruning.
+Two implementations are equivalent in asymptotic cost (`O(n * 2^n)` time and space because each subset must be written out). Choose by readability: backtracking for the cleanest mental model, bitmask iteration for the smallest constant factor and easiest extension to bitmask DP.
+
+```python
+# Backtracking, include/exclude shape
+def subsets(nums):
+    res, path = [], []
+    def dfs(i):
+        if i == len(nums):
+            res.append(path[:])
+            return
+        dfs(i + 1)              # exclude nums[i]
+        path.append(nums[i])    # include nums[i]
+        dfs(i + 1)
+        path.pop()
+    dfs(0)
+    return res
+
+# Bitmask iteration, same output in any order
+def subsets_bits(nums):
+    n = len(nums)
+    return [[nums[i] for i in range(n) if mask >> i & 1]
+            for mask in range(1 << n)]
+```
+
+The critical line in the bitmask form is `mask >> i & 1`, which checks bit `i` of `mask`; the comprehension extracts every element whose bit is set. The total cost is bounded by `O(n * 2^n)` because there are `2^n` subsets and each takes `O(n)` to write out, which is also the lower bound — any algorithm that returns the power set must touch every element at least once. For `n > 20` the output itself is larger than typical memory and you should switch to a generator / streaming variant, yielding one subset at a time.
 
 ## complexity
 time: O(n * 2^n)

@@ -1,6 +1,6 @@
 ---
 slug: sparse-table-rmq
-module: arrays-searching
+module: arrays-range-structures
 title: Sparse Table for RMQ
 subtitle: O(n log n) preprocess, O(1) range-min query — for idempotent operations on immutable arrays.
 difficulty: Advanced

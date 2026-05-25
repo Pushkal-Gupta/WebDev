@@ -1,6 +1,6 @@
 ---
 slug: disjoint-set-rank
-module: graphs
+module: graphs-union-find
 title: Union-Find with Rank + Path Compression
 subtitle: Disjoint-set union in O(α(n)) per op — inverse Ackermann, effectively constant. The workhorse for connectivity problems.
 difficulty: Intermediate

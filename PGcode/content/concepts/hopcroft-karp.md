@@ -1,6 +1,6 @@
 ---
 slug: hopcroft-karp
-module: graphs
+module: graphs-advanced
 title: Hopcroft-Karp Bipartite Matching
 subtitle: Maximum matching on a bipartite graph in O(E · sqrt(V)) — augmenting along multiple shortest paths per phase.
 difficulty: Advanced

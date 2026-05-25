@@ -1,6 +1,6 @@
 ---
 slug: z-algorithm
-module: sorting-strings
+module: strings-matching
 title: Z-Algorithm
 subtitle: Linear-time pattern matching via the Z-array — every prefix's longest reach in O(n+m).
 difficulty: Advanced

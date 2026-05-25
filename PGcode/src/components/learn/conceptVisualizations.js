@@ -7729,6 +7729,983 @@ function raftConsensusFrames(variant = 'default') {
   return frames;
 }
 
+// Dutch National Flag: 3-way partition into [0s | 1s | 2s] using low/mid/high pointers.
+function dutchNationalFlagFrames(input = [2, 0, 2, 1, 1, 0]) {
+  const a = [...input];
+  const n = a.length;
+  const frames = [];
+  let low = 0, mid = 0, high = n - 1;
+  const hi = () => ({ [low]: 'low', [mid]: 'mid', [high]: 'high' });
+
+  frames.push({ array: [...a], caption: `Dutch National Flag. Partition a 0/1/2 array into three regions in one pass: [0s | 1s | unknown | 2s], with low / mid / high pointers tracking the boundaries.` });
+  frames.push({ array: [...a], highlights: hi(), caption: `Invariants: a[0..low-1] all 0, a[low..mid-1] all 1, a[mid..high] unknown, a[high+1..n-1] all 2. Initially low=0, mid=0, high=${high}.` });
+
+  let step = 0;
+  while (mid <= high) {
+    step += 1;
+    const v = a[mid];
+    frames.push({ array: [...a], highlights: hi(), caption: `Step ${step}: inspect a[mid=${mid}] = ${v}. low=${low}, mid=${mid}, high=${high}.` });
+    if (v === 0) {
+      if (low !== mid) [a[low], a[mid]] = [a[mid], a[low]];
+      frames.push({ array: [...a], highlights: { [low]: 'match', [mid]: 'match', [high]: 'high' }, caption: `It's a 0 — swap a[low=${low}] ↔ a[mid=${mid}], then low++ and mid++. The 0 joins the left zone; whatever moved into mid was already 1 (scanned), so mid advances too.` });
+      low += 1; mid += 1;
+    } else if (v === 1) {
+      frames.push({ array: [...a], highlights: { [mid]: 'match', [low]: 'low', [high]: 'high' }, caption: `It's a 1 — it's already in the right place between the 0-zone and the unknown zone. Just mid++.` });
+      mid += 1;
+    } else {
+      [a[mid], a[high]] = [a[high], a[mid]];
+      frames.push({ array: [...a], highlights: { [mid]: 'match', [high]: 'match', [low]: 'low' }, caption: `It's a 2 — swap a[mid=${mid}] ↔ a[high=${high}] and high--. We do NOT advance mid: the value just swapped in from high is still unknown.` });
+      high -= 1;
+    }
+  }
+  frames.push({ array: [...a], highlights: Object.fromEntries(a.map((_, i) => [i, 'match'])), caption: `Done in one pass: [${a.join(', ')}]. mid (${mid}) crossed high (${high}) — unknown region is empty. O(n) time, O(1) space.` });
+  return frames;
+}
+
+// Cyclic sort: place every value v ∈ [1..n] at index v-1 using index-targeted swaps.
+function arrayCyclicSortFrames(input = [3, 1, 5, 4, 2]) {
+  const a = [...input];
+  const n = a.length;
+  const frames = [];
+  frames.push({ array: [...a], caption: `Cyclic sort. The array holds a permutation of 1..${n}. Each value v belongs at index v-1, so swap it home directly — no comparisons.` });
+  frames.push({ array: [...a], highlights: { 0: 'mid' }, caption: `Walk i from 0 to ${n - 1}. At each i, keep swapping a[i] to its home until a[i] == i+1 (already home).` });
+
+  let i = 0, step = 0;
+  while (i < n) {
+    const v = a[i];
+    const target = v - 1;
+    if (a[i] === i + 1) {
+      step += 1;
+      frames.push({ array: [...a], highlights: { [i]: 'match' }, caption: `Step ${step}: i=${i}, a[${i}] = ${v} = i+1. Already home — move on.` });
+      i += 1;
+    } else {
+      step += 1;
+      frames.push({ array: [...a], highlights: { [i]: 'mid', [target]: 'high' }, caption: `Step ${step}: i=${i}, a[${i}] = ${v}. Its home is index ${target}. Swap a[${i}] ↔ a[${target}].` });
+      [a[i], a[target]] = [a[target], a[i]];
+      frames.push({ array: [...a], highlights: { [i]: 'low', [target]: 'match' }, caption: `After swap: value ${v} now sits at its home index ${target}. Re-check a[${i}] = ${a[i]} — it may also need to be sent home before we advance i.` });
+    }
+  }
+  frames.push({ array: [...a], highlights: Object.fromEntries(a.map((_, k) => [k, 'match'])), caption: `Done. Each value sits at index value-1. At most 2n swaps total — every swap places at least one element permanently. O(n) time, O(1) space.` });
+  return frames;
+}
+
+// Binary search on the answer: monotone predicate over the integer answer axis.
+// Use the classic "min ship capacity for D days" framing on axis 1..50.
+function binarySearchOnAnswerFrames() {
+  const LO = 1, HI = 50;
+  const TRUE_AT = 24; // smallest capacity for which predicate(cap) is true
+  const frames = [];
+  const axis = Array.from({ length: HI - LO + 1 }, (_, i) => LO + i);
+  const eliminated = new Set();
+  const idxOf = (cap) => cap - LO;
+
+  frames.push({ array: axis, caption: `Binary search on the answer. Axis = candidate capacities 1..${HI}. Predicate P(cap) = "can finish in D days with ship capacity cap?" P is monotone: bigger ship -> still feasible.` });
+  frames.push({ array: axis, caption: `Because P flips false -> true exactly once on the axis, we can binary-search for the smallest cap with P(cap) = true — that's the minimum capacity.` });
+
+  let lo = LO, hi = HI, step = 0, ans = HI;
+  while (lo <= hi) {
+    const mid = Math.floor((lo + hi) / 2);
+    const ok = mid >= TRUE_AT;
+    step += 1;
+    frames.push({
+      array: axis,
+      highlights: { [idxOf(lo)]: 'low', [idxOf(hi)]: 'high', [idxOf(mid)]: 'mid' },
+      eliminated: new Set(eliminated),
+      caption: `Step ${step}: lo=${lo}, hi=${hi}, mid=${mid}. Evaluate predicate P(${mid}).`,
+    });
+    if (ok) {
+      ans = mid;
+      for (let k = mid; k <= hi; k++) eliminated.add(idxOf(k));
+      frames.push({
+        array: axis,
+        highlights: { [idxOf(mid)]: 'match' },
+        eliminated: new Set(eliminated),
+        caption: `P(${mid}) = true — ${mid} is feasible. Record ans=${mid}. The answer is ≤ ${mid}, so discard the right half (mid..${hi}) and search lo..${mid - 1}.`,
+      });
+      hi = mid - 1;
+    } else {
+      for (let k = lo; k <= mid; k++) eliminated.add(idxOf(k));
+      frames.push({
+        array: axis,
+        highlights: { [idxOf(mid)]: 'mid' },
+        eliminated: new Set(eliminated),
+        caption: `P(${mid}) = false — ${mid} is too small. The answer is > ${mid}. Discard the left half (${lo}..${mid}) and search ${mid + 1}..${hi}.`,
+      });
+      lo = mid + 1;
+    }
+  }
+  frames.push({
+    array: axis,
+    highlights: { [idxOf(ans)]: 'match' },
+    eliminated: new Set(eliminated),
+    caption: `Search space exhausted in ${step} probes (log2(${HI}) ≈ ${Math.ceil(Math.log2(HI))}). Minimum feasible capacity = ${ans}.`,
+  });
+  return frames;
+}
+
+// Coin change (min coins) — 1D DP fill over amount 0..target.
+function coinChangeVariantsFrames(coins = [1, 2, 5], amount = 11) {
+  const INF = Infinity;
+  const dp = Array(amount + 1).fill(INF);
+  const pick = Array(amount + 1).fill(null);
+  dp[0] = 0;
+  const frames = [];
+  const render = () => dp.map(v => v === INF ? 0 : v);
+
+  frames.push({ array: render(), caption: `Coin change (min coins). coins = [${coins.join(', ')}], amount = ${amount}. dp[x] = min coins to make x; dp[0] = 0; others start as ∞ (shown as 0-height empty bars).` });
+  frames.push({ array: render(), highlights: { 0: 'match' }, caption: `Recurrence: dp[x] = 1 + min over coin c in coins (where c ≤ x) of dp[x - c]. Fill left to right so subproblems are already solved.` });
+
+  for (let x = 1; x <= amount; x++) {
+    frames.push({ array: render(), highlights: { [x]: 'mid' }, caption: `x = ${x}. Try every coin and pick the one that leaves the smallest dp[x - c].` });
+    let best = INF, bestCoin = null;
+    for (const c of coins) {
+      if (c <= x && dp[x - c] !== INF) {
+        const cand = dp[x - c] + 1;
+        frames.push({
+          array: render(),
+          highlights: { [x]: 'mid', [x - c]: 'low' },
+          caption: `coin ${c}: dp[${x - c}] = ${dp[x - c]} -> candidate = ${dp[x - c]} + 1 = ${cand}.`,
+        });
+        if (cand < best) { best = cand; bestCoin = c; }
+      } else if (c > x) {
+        frames.push({ array: render(), highlights: { [x]: 'mid' }, caption: `coin ${c}: skip — coin > x.` });
+      }
+    }
+    dp[x] = best;
+    pick[x] = bestCoin;
+    frames.push({
+      array: render(),
+      highlights: { [x]: 'match', ...(bestCoin != null ? { [x - bestCoin]: 'low' } : {}) },
+      caption: bestCoin != null
+        ? `dp[${x}] = ${best} using coin ${bestCoin} on top of dp[${x - bestCoin}] = ${dp[x - bestCoin]}.`
+        : `dp[${x}] = ∞ — no coin combination reaches ${x}.`,
+    });
+  }
+
+  // Trace back the chosen coins for the final answer.
+  const chosen = [];
+  let cur = amount;
+  while (cur > 0 && pick[cur] != null) { chosen.push(pick[cur]); cur -= pick[cur]; }
+  frames.push({
+    array: render(),
+    highlights: Object.fromEntries(dp.map((_, i) => [i, 'match'])),
+    caption: dp[amount] === INF
+      ? `Done. dp[${amount}] = ∞ — amount ${amount} is unreachable with these coins.`
+      : `Done. dp[${amount}] = ${dp[amount]} coins, picked as [${chosen.join(' + ')}] = ${amount}. O(amount * |coins|) time, O(amount) space.`,
+  });
+  return frames;
+}
+
+// Rabin-Karp: rolling polynomial hash of a window over the text; compare with pattern hash.
+function hashRollingRabinKarpFrames(pattern = 'cd', text = 'abcabcd') {
+  const P = String(pattern);
+  const T = String(text);
+  const m = P.length, n = T.length;
+  const BASE = 26;
+  const MOD = 1000003;
+  const charVal = (c) => (c.toLowerCase().charCodeAt(0) - 'a'.charCodeAt(0) + 1);
+  const frames = [];
+
+  if (m === 0 || n < m) {
+    return [{ array: T.split(''), caption: `Pattern longer than text or empty — nothing to do.` }];
+  }
+
+  // High power for removing the leading char: BASE^(m-1) mod MOD.
+  let highPow = 1;
+  for (let k = 0; k < m - 1; k++) highPow = (highPow * BASE) % MOD;
+
+  // Initial pattern hash and first window hash.
+  let pHash = 0, wHash = 0;
+  for (let k = 0; k < m; k++) {
+    pHash = (pHash * BASE + charVal(P[k])) % MOD;
+    wHash = (wHash * BASE + charVal(T[k])) % MOD;
+  }
+
+  const windowHi = (i) => {
+    const h = {};
+    for (let k = i; k < i + m; k++) h[k] = 'mid';
+    return h;
+  };
+
+  frames.push({ array: T.split(''), caption: `Rabin-Karp. Pattern = "${P}" (length ${m}), text = "${T}" (length ${n}). Slide a window of length ${m} across the text; compare hashes first, characters only on a match.` });
+  frames.push({ array: T.split(''), caption: `Polynomial hash with base ${BASE}, mod ${MOD}. hash("${P}") = ${pHash}. Compute the first window hash directly, then update each step in O(1).` });
+  frames.push({ array: T.split(''), highlights: windowHi(0), caption: `Window i=0 → "${T.slice(0, m)}". hash = ${wHash}. Pattern hash = ${pHash}. ${wHash === pHash ? 'Match candidate — verify chars.' : 'No match — slide.'}` });
+
+  let i = 0;
+  let matchAt = -1;
+  while (true) {
+    if (wHash === pHash) {
+      const sub = T.slice(i, i + m);
+      if (sub === P) {
+        frames.push({
+          array: T.split(''),
+          highlights: Object.fromEntries(Array.from({ length: m }, (_, k) => [i + k, 'match'])),
+          caption: `Hash match AND char check passes: "${sub}" at i=${i}. Found "${P}" at index ${i}.`,
+        });
+        matchAt = i;
+        break;
+      } else {
+        frames.push({
+          array: T.split(''),
+          highlights: windowHi(i),
+          caption: `Hash collision at i=${i} (hashes match but "${sub}" ≠ "${P}"). Keep sliding.`,
+        });
+      }
+    }
+    if (i + m >= n) break;
+    // Roll the hash forward by one: drop T[i], add T[i+m].
+    const drop = charVal(T[i]);
+    const add = charVal(T[i + m]);
+    const before = wHash;
+    wHash = ((wHash - drop * highPow) % MOD + MOD) % MOD;
+    wHash = (wHash * BASE + add) % MOD;
+    i += 1;
+    frames.push({
+      array: T.split(''),
+      highlights: windowHi(i),
+      caption: `Roll: subtract T[${i - 1}]="${T[i - 1]}"·${BASE}^${m - 1}, multiply by ${BASE}, add T[${i + m - 1}]="${T[i + m - 1]}". hash ${before} -> ${wHash}. Pattern hash = ${pHash}. ${wHash === pHash ? 'Candidate.' : 'No match.'}`,
+    });
+  }
+  if (matchAt === -1) {
+    frames.push({ array: T.split(''), caption: `No occurrence of "${P}" found in "${T}". Total work O(n + m) average with a good hash; O(n·m) worst case if many collisions.` });
+  } else {
+    frames.push({
+      array: T.split(''),
+      highlights: Object.fromEntries(Array.from({ length: m }, (_, k) => [matchAt + k, 'match'])),
+      caption: `Done. "${P}" found at index ${matchAt} in "${T}". Each window hash updated in O(1); total O(n + m) on average.`,
+    });
+  }
+  return frames;
+}
+
+// ----------------------------------------------------------------------------
+// New visualization frame builders.
+// Pattern: each function returns a list of { ...rendererSpecificState, caption }.
+// Narrations are declarative — they describe what the algorithm does, not what
+// the reader/builder is doing.
+// ----------------------------------------------------------------------------
+
+// Find peak element: classic O(log n) binary search where the slope direction
+// tells which half hides a peak.
+function findPeakElementFrames(arr = [1, 2, 1, 3, 5, 6, 4]) {
+  const frames = [];
+  let lo = 0, hi = arr.length - 1;
+  const eliminated = new Set();
+  frames.push({ array: arr, caption: `Find a peak (any index strictly greater than its neighbors). Array length ${arr.length}. Edges are -infinity by convention.` });
+  frames.push({ array: arr, highlights: { [lo]: 'low', [hi]: 'high' }, caption: `Anchor lo = 0, hi = ${hi}. Invariant: a peak lives somewhere in [lo, hi].` });
+  let step = 0;
+  while (lo < hi) {
+    step += 1;
+    const mid = Math.floor((lo + hi) / 2);
+    frames.push({ array: arr, highlights: { [lo]: 'low', [hi]: 'high', [mid]: 'mid' }, eliminated: new Set(eliminated), caption: `Step ${step}. mid = ${mid}. Compare arr[${mid}] = ${arr[mid]} with arr[${mid + 1}] = ${arr[mid + 1]}.` });
+    if (arr[mid] < arr[mid + 1]) {
+      for (let k = lo; k <= mid; k++) eliminated.add(k);
+      lo = mid + 1;
+      frames.push({ array: arr, highlights: { [lo]: 'low', [hi]: 'high' }, eliminated: new Set(eliminated), caption: `Step ${step}. Slope rises to the right, so a peak must exist on indices ${lo}..${hi}. Drop the left half.` });
+    } else {
+      for (let k = mid + 1; k <= hi; k++) eliminated.add(k);
+      hi = mid;
+      frames.push({ array: arr, highlights: { [lo]: 'low', [hi]: 'high' }, eliminated: new Set(eliminated), caption: `Step ${step}. Slope falls to the right, so a peak is reachable on ${lo}..${hi} (mid itself is still a candidate).` });
+    }
+  }
+  frames.push({ array: arr, highlights: { [lo]: 'match' }, eliminated: new Set(eliminated), caption: `Converged at index ${lo} with value ${arr[lo]}. That is a peak: each neighbor is smaller or off the edge.` });
+  return frames;
+}
+
+// Next greater element using a monotonic decreasing stack scanned right to
+// left. Each bar holds its NGE once popped.
+function nextGreaterElementFrames(arr = [4, 5, 2, 25, 7, 8]) {
+  const frames = [];
+  const n = arr.length;
+  const result = Array(n).fill(-1);
+  const stack = [];
+  frames.push({ array: arr, caption: `Find the next greater element to the right of each index. Walk left to right with a monotonic decreasing stack of indices waiting for their answer.` });
+  for (let i = 0; i < n; i++) {
+    frames.push({ array: arr, highlights: { [i]: 'mid', ...Object.fromEntries(stack.map((idx) => [idx, 'low'])) }, caption: `Inspect index ${i} (value ${arr[i]}). Stack holds [${stack.join(', ') || 'empty'}] — indices still hunting for a larger value.` });
+    while (stack.length && arr[stack[stack.length - 1]] < arr[i]) {
+      const popped = stack.pop();
+      result[popped] = arr[i];
+      frames.push({ array: arr, highlights: { [popped]: 'match', [i]: 'mid', ...Object.fromEntries(stack.map((idx) => [idx, 'low'])) }, caption: `arr[${popped}] = ${arr[popped]} < ${arr[i]}, so NGE[${popped}] = ${arr[i]}. Pop index ${popped} off the stack — its quest is over.` });
+    }
+    stack.push(i);
+    frames.push({ array: arr, highlights: { [i]: 'low', ...Object.fromEntries(stack.slice(0, -1).map((idx) => [idx, 'low'])) }, caption: `Push index ${i}. Stack now [${stack.join(', ')}]. Values along the stack stay strictly decreasing.` });
+  }
+  for (const idx of stack) {
+    frames.push({ array: arr, highlights: { [idx]: 'eliminated' }, caption: `Index ${idx} (value ${arr[idx]}) finishes without a larger element to its right — NGE stays -1.` });
+  }
+  frames.push({ array: result.map(v => v === -1 ? 0 : v), caption: `Final NGE per index: [${result.join(', ')}]. Each index pushed and popped at most once, so total work is O(n).` });
+  return frames;
+}
+
+// Monotonic deque tracking the maximum of every fixed-size window.
+function monotonicDequeFrames(arr = [1, 3, -1, -3, 5, 3, 6, 7], k = 3) {
+  const frames = [];
+  const dq = [];
+  const out = [];
+  frames.push({ array: arr, caption: `Sliding window maximum, window size k = ${k}. Use a deque holding indices whose values stay strictly decreasing from front to back. The front is always the current max.` });
+  for (let i = 0; i < arr.length; i++) {
+    while (dq.length && dq[0] <= i - k) {
+      const dropped = dq.shift();
+      frames.push({ array: arr, highlights: { [i]: 'mid', [dropped]: 'eliminated' }, caption: `Index ${dropped} left the window (i = ${i}, window starts at ${i - k + 1}). Drop it from the front of the deque.` });
+    }
+    while (dq.length && arr[dq[dq.length - 1]] < arr[i]) {
+      const popped = dq.pop();
+      frames.push({ array: arr, highlights: { [i]: 'mid', [popped]: 'eliminated' }, caption: `arr[${popped}] = ${arr[popped]} is smaller than the new arr[${i}] = ${arr[i]}, so it can never be the max again. Pop it from the back.` });
+    }
+    dq.push(i);
+    frames.push({ array: arr, highlights: { [i]: 'low', [dq[0]]: 'match', ...Object.fromEntries(dq.slice(1, -1).map((idx) => [idx, 'mid'])) }, caption: `Push index ${i}. Deque now [${dq.join(', ')}]. Front index ${dq[0]} carries the current window max ${arr[dq[0]]}.` });
+    if (i >= k - 1) {
+      out.push(arr[dq[0]]);
+      frames.push({ array: arr, highlights: { [dq[0]]: 'match' }, caption: `Window [${i - k + 1}..${i}] complete. Record max = ${arr[dq[0]]}. Running output: [${out.join(', ')}].` });
+    }
+  }
+  frames.push({ array: out, caption: `Sliding window maxes: [${out.join(', ')}]. Each index is pushed and popped at most once, so total O(n).` });
+  return frames;
+}
+
+// Largest rectangle in histogram with a monotonic stack of indices whose bars
+// are strictly increasing.
+function largestRectangleHistogramFrames(arr = [2, 1, 5, 6, 2, 3]) {
+  const frames = [];
+  const stack = [];
+  let best = 0;
+  let bestRange = [-1, -1];
+  frames.push({ array: arr, caption: `Largest rectangle in a histogram. Scan left to right with a monotonic increasing stack of indices; when a shorter bar arrives, the popped bar is bounded on the right.` });
+  for (let i = 0; i <= arr.length; i++) {
+    const cur = i === arr.length ? 0 : arr[i];
+    frames.push({ array: arr.concat(i === arr.length ? [0] : []), highlights: i < arr.length ? { [i]: 'mid', ...Object.fromEntries(stack.map((idx) => [idx, 'low'])) } : { ...Object.fromEntries(stack.map((idx) => [idx, 'low'])) }, caption: i < arr.length ? `Index ${i}, height ${cur}. Stack [${stack.join(', ') || 'empty'}].` : `Sentinel 0 at end forces every remaining bar to pop.` });
+    while (stack.length && arr[stack[stack.length - 1]] > cur) {
+      const top = stack.pop();
+      const h = arr[top];
+      const left = stack.length ? stack[stack.length - 1] : -1;
+      const width = i - left - 1;
+      const area = h * width;
+      if (area > best) { best = area; bestRange = [left + 1, i - 1]; }
+      frames.push({ array: arr, highlights: { [top]: 'match', ...Object.fromEntries(Array.from({ length: width }, (_, k) => [left + 1 + k, 'mid'])) }, caption: `Pop index ${top} (height ${h}). Its rectangle spans columns ${left + 1}..${i - 1}, width ${width}, area ${h} x ${width} = ${area}. Best so far ${best}.` });
+    }
+    stack.push(i);
+  }
+  frames.push({ array: arr, highlights: Object.fromEntries(Array.from({ length: bestRange[1] - bestRange[0] + 1 }, (_, k) => [bestRange[0] + k, 'match'])), caption: `Maximum area ${best} spanning indices ${bestRange[0]}..${bestRange[1]}. Each index is pushed and popped at most once, total O(n).` });
+  return frames;
+}
+
+// Subarray sum equals K via prefix-sum hash counts.
+function subarraySumEqualsKFrames(arr = [1, 1, 1, 2, -1, 1], k = 2) {
+  const frames = [];
+  const counts = new Map();
+  counts.set(0, 1);
+  let prefix = 0, total = 0;
+  frames.push({ array: arr, caption: `Count subarrays whose sum equals k = ${k}. Walk left to right tracking the running prefix sum; for each prefix p, every earlier prefix equal to p - k closes one valid subarray.` });
+  frames.push({ array: arr, caption: `Seed the hashmap with prefix 0 -> 1, so subarrays that start at index 0 also count.` });
+  for (let i = 0; i < arr.length; i++) {
+    prefix += arr[i];
+    const need = prefix - k;
+    const got = counts.get(need) || 0;
+    total += got;
+    frames.push({ array: arr, highlights: { [i]: 'mid' }, caption: `Index ${i}. prefix = ${prefix}. Need earlier prefix equal to ${need}. Hashmap has ${got} such entry/entries; total subarrays so far = ${total}.` });
+    counts.set(prefix, (counts.get(prefix) || 0) + 1);
+    frames.push({ array: arr, highlights: { [i]: 'low' }, caption: `Record prefix ${prefix} in the hashmap (now count ${counts.get(prefix)}). Map state: {${[...counts.entries()].map(([a, b]) => `${a}:${b}`).join(', ')}}.` });
+  }
+  frames.push({ array: arr, caption: `Done. Total subarrays summing to ${k}: ${total}. One pass, O(n) time and space.` });
+  return frames;
+}
+
+// Jump Game II — minimum jumps to reach the end (greedy BFS-style layers).
+function jumpGameIIFrames(arr = [2, 3, 1, 1, 4]) {
+  const frames = [];
+  const n = arr.length;
+  let jumps = 0, curEnd = 0, farthest = 0;
+  frames.push({ array: arr, caption: `Minimum jumps to reach index ${n - 1}. Treat reachable indices as BFS layers: each "jump" advances to the farthest index reachable from the current layer.` });
+  for (let i = 0; i < n - 1; i++) {
+    farthest = Math.max(farthest, i + arr[i]);
+    frames.push({ array: arr, highlights: { [i]: 'mid', [Math.min(farthest, n - 1)]: 'low', [curEnd]: 'high' }, caption: `Index ${i}: max jump arr[${i}] = ${arr[i]} reaches up to ${i + arr[i]}. Layer farthest now ${farthest}. Current layer ends at ${curEnd}.` });
+    if (i === curEnd) {
+      jumps += 1;
+      curEnd = farthest;
+      frames.push({ array: arr, highlights: { [Math.min(curEnd, n - 1)]: 'high' }, caption: `Hit the end of the current layer at index ${i}. Commit one jump (total now ${jumps}). New layer ends at index ${curEnd}.` });
+    }
+  }
+  frames.push({ array: arr, highlights: { [n - 1]: 'match' }, caption: `Final answer: ${jumps} jump${jumps === 1 ? '' : 's'} to reach index ${n - 1}. Each index inspected once — O(n).` });
+  return frames;
+}
+
+// Merge overlapping intervals after sorting by start.
+function intervalMergeFrames(intervals = [[1, 3], [2, 6], [8, 10], [9, 11], [15, 18]]) {
+  const frames = [];
+  const sorted = [...intervals].sort((a, b) => a[0] - b[0]);
+  const labels = sorted.map(([s, e]) => `[${s},${e}]`);
+  frames.push({ array: labels, caption: `Merge overlapping intervals. Start by sorting by left endpoint: ${labels.join(' ')}.` });
+  const merged = [sorted[0].slice()];
+  frames.push({ array: labels, highlights: { 0: 'match' }, caption: `Seed the result with the first interval [${merged[0][0]},${merged[0][1]}].` });
+  for (let i = 1; i < sorted.length; i++) {
+    const [s, e] = sorted[i];
+    const last = merged[merged.length - 1];
+    frames.push({ array: labels, highlights: { [i]: 'mid', [i - 1]: 'low' }, caption: `Inspect interval ${i}: [${s},${e}]. Last merged is [${last[0]},${last[1]}].` });
+    if (s <= last[1]) {
+      const newEnd = Math.max(last[1], e);
+      frames.push({ array: labels, highlights: { [i]: 'mid' }, caption: `${s} <= ${last[1]}, so they overlap. Extend last to [${last[0]}, max(${last[1]}, ${e}) = ${newEnd}].` });
+      last[1] = newEnd;
+    } else {
+      merged.push([s, e]);
+      frames.push({ array: labels, highlights: { [i]: 'match' }, caption: `${s} > ${last[1]}, so the new interval starts after the previous one ended. Append [${s},${e}] as a fresh group.` });
+    }
+  }
+  frames.push({ array: merged.map(([s, e]) => `[${s},${e}]`), caption: `Merged result: ${merged.map(([s, e]) => `[${s},${e}]`).join(' ')}. Sort dominates at O(n log n); the sweep itself is O(n).` });
+  return frames;
+}
+
+// Gas station circular tour — single-pass tank tracker plus running deficit.
+function gasStationCircularFrames(gas = [1, 2, 3, 4, 5], cost = [3, 4, 5, 1, 2]) {
+  const frames = [];
+  const n = gas.length;
+  const net = gas.map((g, i) => g - cost[i]);
+  let total = 0, tank = 0, start = 0;
+  frames.push({ array: net, caption: `Circular gas-station tour. Net change at station i is gas[i] - cost[i] = [${net.join(', ')}]. If the total is negative, no solution exists.` });
+  for (let i = 0; i < n; i++) {
+    total += net[i];
+    tank += net[i];
+    frames.push({ array: net, highlights: { [i]: 'mid', [start]: 'low' }, caption: `Station ${i}: net ${net[i] >= 0 ? '+' + net[i] : net[i]}. Running tank from current start ${start} is ${tank}; total over all stations so far ${total}.` });
+    if (tank < 0) {
+      frames.push({ array: net, highlights: { [start]: 'eliminated', [i]: 'mid' }, caption: `Tank went negative at station ${i}. Any start in ${start}..${i} fails before reaching ${i + 1}, so reset start to ${i + 1} and empty the tank.` });
+      start = i + 1;
+      tank = 0;
+    }
+  }
+  if (total < 0) {
+    frames.push({ array: net, caption: `Total net = ${total} < 0. The full loop is impossible — return -1.` });
+  } else {
+    frames.push({ array: net, highlights: { [start]: 'match' }, caption: `Total ${total} >= 0 and the tank stayed non-negative from station ${start} onward. Answer: start at index ${start}. Single O(n) pass.` });
+  }
+  return frames;
+}
+
+// Best time to buy and sell stock — multiple transactions (greedy sum of
+// every positive day-to-day delta).
+function bestStockMultipleTxFrames(arr = [7, 1, 5, 3, 6, 4]) {
+  const frames = [];
+  let profit = 0;
+  frames.push({ array: arr, caption: `Stock prices. With unlimited transactions and no cooldown, the optimal profit is the sum of every positive day-to-day increase.` });
+  for (let i = 1; i < arr.length; i++) {
+    const diff = arr[i] - arr[i - 1];
+    if (diff > 0) {
+      profit += diff;
+      frames.push({ array: arr, highlights: { [i - 1]: 'low', [i]: 'match' }, caption: `Day ${i - 1} to ${i}: ${arr[i - 1]} -> ${arr[i]}, gain +${diff}. Add to profit (now ${profit}).` });
+    } else {
+      frames.push({ array: arr, highlights: { [i - 1]: 'low', [i]: 'eliminated' }, caption: `Day ${i - 1} to ${i}: ${arr[i - 1]} -> ${arr[i]}, change ${diff}. Skip this day pair.` });
+    }
+  }
+  frames.push({ array: arr, caption: `Done. Maximum profit = ${profit}. Each positive slope is captured exactly once, so total O(n).` });
+  return frames;
+}
+
+// Fisher-Yates shuffle — pick index from the unfixed suffix and swap.
+function fisherYatesShuffleFrames(arr = ['A', 'B', 'C', 'D', 'E', 'F']) {
+  const frames = [];
+  const a = [...arr];
+  const n = a.length;
+  // Deterministic pseudo-shuffle so the visualization is stable across renders.
+  const picks = [3, 1, 0, 2, 0, 0]; // chosen for the default length 6
+  frames.push({ array: a.slice(), caption: `Fisher-Yates shuffle. Walk i from ${n - 1} down to 1; at each step pick a random j in [0, i] and swap a[i] with a[j]. Every permutation ends up equally likely.` });
+  for (let i = n - 1; i > 0; i--) {
+    const j = picks[n - 1 - i] % (i + 1);
+    frames.push({ array: a.slice(), highlights: { [i]: 'high', [j]: 'mid' }, caption: `i = ${i}. Pick j = ${j} from [0, ${i}]. About to swap a[${i}] (${a[i]}) with a[${j}] (${a[j]}).` });
+    [a[i], a[j]] = [a[j], a[i]];
+    frames.push({ array: a.slice(), highlights: { [i]: 'match' }, eliminated: new Set(Array.from({ length: n - i }, (_, k) => i + k)), caption: `Swap complete. Index ${i} is now fixed (${a[i]}). The unfixed prefix shrinks to indices 0..${i - 1}.` });
+  }
+  frames.push({ array: a.slice(), caption: `Done. Shuffled order: ${a.join(' ')}. Total work O(n) with one random draw per step.` });
+  return frames;
+}
+
+// Trie autocomplete — insert words then prefix-walk + DFS collect.
+function trieAutocompleteFrames(words = ['cat', 'car', 'card', 'care', 'dog'], prefix = 'ca') {
+  const frames = [];
+  const root = { children: {}, end: false };
+  const repr = () => {
+    const out = ['root'];
+    const walk = (node, depth) => {
+      const keys = Object.keys(node.children).sort();
+      for (const k of keys) {
+        out.push('  '.repeat(depth) + '-> ' + k + (node.children[k].end ? '*' : ''));
+        walk(node.children[k], depth + 1);
+      }
+    };
+    walk(root, 1);
+    return out.join('\n');
+  };
+  frames.push({ array: words, caption: `Trie autocomplete. Insert ${words.length} words: ${words.join(', ')}. Each character is one edge; words ending here are marked with *.` });
+  for (const w of words) {
+    let cur = root;
+    for (const ch of w) {
+      if (!cur.children[ch]) cur.children[ch] = { children: {}, end: false };
+      cur = cur.children[ch];
+    }
+    cur.end = true;
+    frames.push({ array: repr().split('\n'), caption: `Insert "${w}". Walk character by character, allocating nodes as needed; mark final node with end = true.` });
+  }
+  // Prefix walk
+  let cur = root;
+  for (let i = 0; i < prefix.length; i++) {
+    const ch = prefix[i];
+    if (!cur.children[ch]) {
+      frames.push({ array: [prefix], caption: `Searching prefix "${prefix}" — no child '${ch}' at depth ${i}. No suggestions.` });
+      return frames;
+    }
+    cur = cur.children[ch];
+    frames.push({ array: [prefix.slice(0, i + 1)], caption: `Walk character '${ch}' (depth ${i + 1}). Stay on the path because the edge exists.` });
+  }
+  // DFS collect
+  const results = [];
+  const dfs = (node, path) => {
+    if (node.end) results.push(path);
+    for (const k of Object.keys(node.children).sort()) dfs(node.children[k], path + k);
+  };
+  dfs(cur, prefix);
+  frames.push({ array: results, caption: `DFS from the prefix node collects every descendant marked end = true. Suggestions for "${prefix}": ${results.join(', ') || 'none'}.` });
+  return frames;
+}
+
+// Island count — BFS flood fill over a grid.
+function islandCountBfsFrames() {
+  const grid = [
+    ['1', '1', '0', '0', '1'],
+    ['1', '0', '0', '1', '1'],
+    ['0', '0', '1', '1', '0'],
+    ['0', '1', '0', '0', '0'],
+  ];
+  const rows = grid.length, cols = grid[0].length;
+  const state = grid.map(row => row.map(c => c === '1' ? '#' : '.'));
+  const frames = [];
+  const snap = () => state.map(r => r.slice());
+  frames.push({ grid: snap(), caption: `Count islands in a ${rows} x ${cols} grid. '#' is land, '.' is water. Scan in row-major order; whenever an unvisited land cell appears, BFS its component to drown the whole island, then bump the count.` });
+  let count = 0;
+  const visited = Array.from({ length: rows }, () => Array(cols).fill(false));
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (state[r][c] === '#' && !visited[r][c]) {
+        count += 1;
+        const q = [[r, c]];
+        visited[r][c] = true;
+        state[r][c] = 'S';
+        frames.push({ grid: snap(), caption: `New island #${count} discovered at (${r}, ${c}). Seed BFS queue with this cell.` });
+        while (q.length) {
+          const [cr, cc] = q.shift();
+          state[cr][cc] = '*';
+          for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+            const nr = cr + dr, nc = cc + dc;
+            if (nr < 0 || nc < 0 || nr >= rows || nc >= cols) continue;
+            if (state[nr][nc] === '#' && !visited[nr][nc]) {
+              visited[nr][nc] = true;
+              state[nr][nc] = 'O';
+              q.push([nr, nc]);
+            }
+          }
+          frames.push({ grid: snap(), caption: `BFS dequeues (${cr}, ${cc}) and pushes its land neighbours onto the frontier ('O').` });
+        }
+        for (let i = 0; i < rows; i++) for (let j = 0; j < cols; j++) if (state[i][j] === 'O' || state[i][j] === 'S' || state[i][j] === '*') state[i][j] = 'C';
+        frames.push({ grid: snap(), caption: `Island #${count} fully drowned (marked 'C'). Continue scanning for the next unvisited land cell.` });
+      }
+    }
+  }
+  frames.push({ grid: snap(), caption: `Done. Total islands: ${count}. Every cell is enqueued at most once, total O(rows * cols).` });
+  return frames;
+}
+
+// Unique paths in m x n grid — DP fill (only right or down moves).
+function uniquePathsGridFrames(m = 3, n = 4) {
+  const frames = [];
+  const dp = Array.from({ length: m }, () => Array(n).fill(0));
+  const render = () => dp.map(r => r.map(v => v === 0 ? '.' : String(v)));
+  const cellLabel = { '.': '.', '0': '0', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '10': '10', '15': '15', '20': '20', '35': '35' };
+  frames.push({ grid: render(), cellLabel, caption: `Unique paths from (0,0) to (${m - 1}, ${n - 1}) using only right and down moves. dp[r][c] = ways to reach that cell.` });
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (r === 0 || c === 0) {
+        dp[r][c] = 1;
+      } else {
+        dp[r][c] = dp[r - 1][c] + dp[r][c - 1];
+      }
+      frames.push({ grid: render(), cellLabel, caption: `dp[${r}][${c}] = ${dp[r][c]}${r === 0 || c === 0 ? ' (boundary cell — exactly one path along the edge)' : ` = dp[${r - 1}][${c}] (${dp[r - 1][c]}) + dp[${r}][${c - 1}] (${dp[r][c - 1]})`}.` });
+    }
+  }
+  frames.push({ grid: render(), cellLabel, caption: `Done. Total unique paths to (${m - 1}, ${n - 1}) = ${dp[m - 1][n - 1]}. Fill is O(m * n).` });
+  return frames;
+}
+
+// Edit distance (Levenshtein) DP fill on a small string pair.
+function editDistanceFrames(a = 'kitten', b = 'sitting') {
+  const m = a.length, n = b.length;
+  const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+  const render = () => dp.map(r => r.map(v => v === 0 ? '0' : String(v)));
+  const cellLabel = {};
+  for (let i = 0; i < 20; i++) cellLabel[String(i)] = String(i);
+  cellLabel['.'] = '.';
+  const frames = [];
+  frames.push({ grid: render(), cellLabel, caption: `Edit distance from "${a}" to "${b}". Cell dp[i][j] = min edits to turn the first i chars of "${a}" into the first j chars of "${b}".` });
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  frames.push({ grid: render(), cellLabel, caption: `Seed boundaries: dp[i][0] = i (delete i chars), dp[0][j] = j (insert j chars).` });
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (a[i - 1] === b[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1];
+      } else {
+        dp[i][j] = 1 + Math.min(dp[i - 1][j - 1], dp[i - 1][j], dp[i][j - 1]);
+      }
+    }
+    frames.push({ grid: render(), cellLabel, caption: `Filled row ${i} (matching "${a[i - 1]}" against every prefix of "${b}"). Each cell takes the min of replace, delete, insert — plus 0 or 1 depending on whether the chars match.` });
+  }
+  frames.push({ grid: render(), cellLabel, caption: `Done. Edit distance from "${a}" to "${b}" is ${dp[m][n]}. Total work O(m * n).` });
+  return frames;
+}
+
+// 0/1 knapsack DP table fill.
+function knapsack01Frames(weights = [1, 3, 4, 5], values = [1, 4, 5, 7], W = 7) {
+  const n = weights.length;
+  const dp = Array.from({ length: n + 1 }, () => Array(W + 1).fill(0));
+  const render = () => dp.map(r => r.map(v => String(v)));
+  const cellLabel = {};
+  for (let i = 0; i < 30; i++) cellLabel[String(i)] = String(i);
+  const frames = [];
+  frames.push({ grid: render(), cellLabel, caption: `0/1 knapsack. Items: weights [${weights.join(', ')}], values [${values.join(', ')}], capacity ${W}. dp[i][w] = best value using only the first i items within capacity w.` });
+  for (let i = 1; i <= n; i++) {
+    for (let w = 0; w <= W; w++) {
+      if (weights[i - 1] > w) dp[i][w] = dp[i - 1][w];
+      else dp[i][w] = Math.max(dp[i - 1][w], dp[i - 1][w - weights[i - 1]] + values[i - 1]);
+    }
+    frames.push({ grid: render(), cellLabel, caption: `Row ${i}: decide for each capacity whether including item ${i} (weight ${weights[i - 1]}, value ${values[i - 1]}) beats skipping it.` });
+  }
+  frames.push({ grid: render(), cellLabel, caption: `Done. Optimal value = ${dp[n][W]} at dp[${n}][${W}]. Time and space O(n * W).` });
+  return frames;
+}
+
+// Coin change minimum coins — 1D DP fill across amounts.
+function coinChangeMinCoinsFrames(coins = [1, 2, 5], amount = 11) {
+  const dp = Array(amount + 1).fill(Infinity);
+  dp[0] = 0;
+  const render = () => dp.map(v => v === Infinity ? '∞' : v);
+  const frames = [];
+  frames.push({ array: render(), caption: `Min coins to make amount ${amount} with denominations [${coins.join(', ')}]. dp[a] = fewest coins summing to a; start with infinity except dp[0] = 0.` });
+  for (let a = 1; a <= amount; a++) {
+    for (const c of coins) {
+      if (c <= a && dp[a - c] + 1 < dp[a]) dp[a] = dp[a - c] + 1;
+    }
+    frames.push({ array: render(), highlights: { [a]: 'mid' }, caption: `dp[${a}] = ${dp[a] === Infinity ? '∞' : dp[a]}${dp[a] === Infinity ? ' (no combination reaches this yet)' : ' coins'}. Considered each coin c: dp[${a}] = min(dp[${a}], dp[${a} - c] + 1).` });
+  }
+  frames.push({ array: render(), highlights: { [amount]: 'match' }, caption: `Final answer: ${dp[amount] === Infinity ? 'impossible' : dp[amount] + ' coins'}. Total work O(amount * coins).` });
+  return frames;
+}
+
+// Tree diameter — DFS that bubbles up the deepest two paths per node.
+function treeDiameterFrames() {
+  // Sample tree:        1
+  //                  /    \
+  //                 2      3
+  //                / \      \
+  //               4   5      6
+  //                            \
+  //                             7
+  const build = (val, left = null, right = null) => ({ value: val, left, right, _id: val });
+  const make = () => build(1,
+    build(2, build(4), build(5)),
+    build(3, null, build(6, null, build(7))),
+  );
+  const frames = [];
+  const recolor = (root, fn) => {
+    const walk = (n) => { if (!n) return null; const nn = { ...n, state: fn(n) || undefined }; nn.left = walk(n.left); nn.right = walk(n.right); return nn; };
+    return walk(root);
+  };
+  let tree = make();
+  frames.push({ tree, caption: `Tree diameter. For each node, the longest path through it is (depth of left subtree) + (depth of right subtree). DFS post-order returns depth and updates a global best.` });
+  // Walk: depths of leaves first.
+  const visitOrder = [4, 5, 2, 7, 6, 3, 1];
+  const visited = new Set();
+  const best = { val: 0, via: 0 };
+  for (const id of visitOrder) {
+    visited.add(id);
+    tree = recolor(make(), (n) => visited.has(n.value) ? 'visited' : (n.value === id ? 'current' : undefined));
+    // Compute current best naively for caption.
+    if (id === 2) best.val = 2;
+    if (id === 3) best.val = 3;
+    if (id === 1) best.val = 5;
+    frames.push({ tree, caption: `Post-order visit node ${id}. Compute depth via max child depth + 1, update best diameter (currently ${best.val} edges).` });
+  }
+  tree = recolor(make(), (n) => [4, 5, 2, 7, 6, 3, 1].includes(n.value) ? 'visited' : undefined);
+  frames.push({ tree, caption: `Done. Longest path: 4 -> 2 -> 1 -> 3 -> 6 -> 7 = 5 edges. Single DFS, total O(n).` });
+  return frames;
+}
+
+// Validate BST — DFS with (min, max) bounds.
+function validateBstFrames() {
+  // Sample valid BST:        8
+  //                       /     \
+  //                      3       10
+  //                     / \        \
+  //                    1   6        14
+  //                       / \      /
+  //                      4   7    13
+  const build = (val, left = null, right = null) => ({ value: val, left, right, _id: val });
+  const make = () => build(8,
+    build(3, build(1), build(6, build(4), build(7))),
+    build(10, null, build(14, build(13), null)),
+  );
+  const visitOrder = [8, 3, 1, 6, 4, 7, 10, 14, 13];
+  const visited = new Set();
+  const frames = [];
+  const recolor = (cur) => {
+    const walk = (n) => { if (!n) return null; const s = visited.has(n.value) ? 'visited' : n.value === cur ? 'current' : undefined; return { ...n, state: s, left: walk(n.left), right: walk(n.right) }; };
+    return walk(make());
+  };
+  frames.push({ tree: recolor(null), caption: `Validate BST with DFS that carries (min, max) bounds. Each node must lie strictly between them; left child tightens max, right child tightens min.` });
+  const captions = {
+    8: 'Root 8 has bounds (-inf, +inf). OK. Recurse left with bounds (-inf, 8) and right with (8, +inf).',
+    3: 'Visit 3 under bounds (-inf, 8). 3 < 8, valid. Left bound becomes (-inf, 3); right bound becomes (3, 8).',
+    1: 'Leaf 1 under bounds (-inf, 3). OK.',
+    6: 'Visit 6 under bounds (3, 8). 3 < 6 < 8, valid. Recurse with (3, 6) and (6, 8).',
+    4: 'Leaf 4 under bounds (3, 6). OK.',
+    7: 'Leaf 7 under bounds (6, 8). OK.',
+    10: 'Visit 10 under bounds (8, +inf). OK.',
+    14: 'Visit 14 under bounds (10, +inf). OK.',
+    13: 'Leaf 13 under bounds (10, 14). 10 < 13 < 14, valid.',
+  };
+  for (const id of visitOrder) {
+    visited.add(id);
+    frames.push({ tree: recolor(id), caption: captions[id] });
+  }
+  frames.push({ tree: recolor(null), caption: `Every node satisfied its bound — this is a valid BST. Single DFS, total O(n).` });
+  return frames;
+}
+
+// Kth smallest in BST via in-order DFS counter.
+function kthSmallestBstFrames(k = 3) {
+  const build = (val, left = null, right = null) => ({ value: val, left, right, _id: val });
+  const make = () => build(5,
+    build(3, build(2, build(1), null), build(4)),
+    build(6),
+  );
+  const inorder = [1, 2, 3, 4, 5, 6];
+  const frames = [];
+  const visited = new Set();
+  const recolor = (cur) => {
+    const walk = (n) => { if (!n) return null; const s = visited.has(n.value) ? 'visited' : n.value === cur ? 'current' : undefined; return { ...n, state: s, left: walk(n.left), right: walk(n.right) }; };
+    return walk(make());
+  };
+  frames.push({ tree: recolor(null), caption: `Find the ${k}-th smallest in this BST. In-order DFS visits keys in sorted order; stop after the ${k}-th visit.` });
+  let count = 0;
+  for (const v of inorder) {
+    count += 1;
+    visited.add(v);
+    frames.push({ tree: recolor(v), caption: `Visit ${v} (in-order step ${count}). ${count < k ? `Need ${k - count} more.` : count === k ? `That is the ${k}-th smallest — return ${v} and stop.` : `Already past k — would not reach here in real run.`}` });
+    if (count === k) break;
+  }
+  frames.push({ tree: recolor(null), caption: `Done. ${k}-th smallest = ${inorder[k - 1]}. Iterative in-order with an explicit stack runs in O(h + k).` });
+  return frames;
+}
+
+// Binary tree right-side view via BFS, keeping last node of each level.
+function treeRightSideViewFrames() {
+  const build = (val, left = null, right = null) => ({ value: val, left, right, _id: val });
+  const root = () => build(1,
+    build(2, null, build(5)),
+    build(3, null, build(4)),
+  );
+  const frames = [];
+  const levels = [[1], [2, 3], [5, 4]];
+  const visited = new Set();
+  const recolor = (cur, rightmost) => {
+    const walk = (n) => { if (!n) return null; const s = n.value === rightmost ? 'match' : visited.has(n.value) ? 'visited' : cur.has(n.value) ? 'current' : undefined; return { ...n, state: s, left: walk(n.left), right: walk(n.right) }; };
+    return walk(root());
+  };
+  frames.push({ tree: recolor(new Set(), null), caption: `Right-side view = the rightmost node at every BFS level. Walk level by level; the last node dequeued at each level joins the answer.` });
+  const view = [];
+  for (let i = 0; i < levels.length; i++) {
+    const lvl = levels[i];
+    frames.push({ tree: recolor(new Set(lvl), null), caption: `Level ${i}: nodes [${lvl.join(', ')}]. Process every node, queueing its children.` });
+    const last = lvl[lvl.length - 1];
+    view.push(last);
+    for (const v of lvl) visited.add(v);
+    frames.push({ tree: recolor(new Set(), last), caption: `Rightmost on level ${i} is ${last}. Append to view: [${view.join(', ')}].` });
+  }
+  frames.push({ tree: recolor(new Set(), null), caption: `Done. Right-side view = [${view.join(', ')}]. BFS visits each node once, total O(n).` });
+  return frames;
+}
+
+// DFS iterative on a small graph using an explicit stack.
+function dfsIterativeFrames() {
+  const nodes = [
+    { id: 0, label: '0' }, { id: 1, label: '1' }, { id: 2, label: '2' },
+    { id: 3, label: '3' }, { id: 4, label: '4' }, { id: 5, label: '5' },
+  ];
+  const edges = [
+    { a: 0, b: 1 }, { a: 0, b: 2 },
+    { a: 1, b: 3 }, { a: 1, b: 4 },
+    { a: 2, b: 5 },
+  ];
+  const adj = { 0: [1, 2], 1: [3, 4], 2: [5], 3: [], 4: [], 5: [] };
+  const frames = [];
+  const visited = new Set();
+  const stack = [0];
+  const recolor = (cur) => nodes.map(n => ({ ...n, state: n.id === cur ? 'current' : visited.has(n.id) ? 'visited' : stack.includes(n.id) ? 'frontier' : undefined }));
+  frames.push({ nodes: recolor(null), edges, caption: `Iterative DFS from node 0 using an explicit stack instead of recursion. Push the source and loop while the stack is non-empty.` });
+  while (stack.length) {
+    const v = stack.pop();
+    if (visited.has(v)) {
+      frames.push({ nodes: recolor(v), edges, caption: `Pop node ${v}. Already visited — skip.` });
+      continue;
+    }
+    visited.add(v);
+    frames.push({ nodes: recolor(v), edges, caption: `Pop node ${v} and mark visited. Stack now [${stack.join(', ') || 'empty'}].` });
+    const neighbors = [...adj[v]].reverse();
+    for (const n of neighbors) if (!visited.has(n)) stack.push(n);
+    frames.push({ nodes: recolor(null), edges, caption: `Push unvisited neighbours of ${v} in reverse order so the algorithm explores them in original adjacency order. Stack: [${stack.join(', ') || 'empty'}].` });
+  }
+  frames.push({ nodes: nodes.map(n => ({ ...n, state: 'visited' })), edges, caption: `Done. Visited every reachable node from 0. Time O(V + E), space O(V) for the stack.` });
+  return frames;
+}
+
+// Bipartite check via BFS coloring.
+function bipartiteCheckFrames() {
+  const nodes = [
+    { id: 0, label: '0' }, { id: 1, label: '1' }, { id: 2, label: '2' },
+    { id: 3, label: '3' }, { id: 4, label: '4' }, { id: 5, label: '5' },
+  ];
+  const edges = [
+    { a: 0, b: 1 }, { a: 0, b: 3 },
+    { a: 1, b: 2 }, { a: 2, b: 5 },
+    { a: 3, b: 4 }, { a: 4, b: 5 },
+  ];
+  const adj = { 0: [1, 3], 1: [0, 2], 2: [1, 5], 3: [0, 4], 4: [3, 5], 5: [2, 4] };
+  const color = {};
+  const frames = [];
+  const repaint = (cur) => nodes.map(n => ({ ...n, state: n.id === cur ? 'current' : color[n.id] === 0 ? 'visited' : color[n.id] === 1 ? 'frontier' : undefined }));
+  color[0] = 0;
+  const q = [0];
+  frames.push({ nodes: repaint(0), edges, caption: `Two-color the graph with BFS. Source 0 gets color A; every neighbour must take color B; their neighbours go back to A; any conflict means the graph is not bipartite.` });
+  while (q.length) {
+    const v = q.shift();
+    frames.push({ nodes: repaint(v), edges, caption: `Dequeue ${v} (color ${color[v] === 0 ? 'A' : 'B'}). Inspect neighbours.` });
+    for (const n of adj[v]) {
+      if (color[n] === undefined) {
+        color[n] = 1 - color[v];
+        q.push(n);
+        frames.push({ nodes: repaint(n), edges, caption: `Neighbour ${n} unpainted — assign opposite color ${color[n] === 0 ? 'A' : 'B'} and enqueue.` });
+      } else if (color[n] === color[v]) {
+        frames.push({ nodes: repaint(n), edges, caption: `Neighbour ${n} already has the same colour as ${v} — conflict, graph is NOT bipartite.` });
+        return frames;
+      }
+    }
+  }
+  frames.push({ nodes: repaint(null), edges, caption: `Every edge connects nodes of opposite colours. The graph is bipartite. Total O(V + E).` });
+  return frames;
+}
+
+// Word ladder BFS — minimum transformations on a tiny dictionary.
+function wordLadderBfsFrames() {
+  const nodes = [
+    { id: 'hit', label: 'hit' }, { id: 'hot', label: 'hot' },
+    { id: 'dot', label: 'dot' }, { id: 'lot', label: 'lot' },
+    { id: 'dog', label: 'dog' }, { id: 'log', label: 'log' },
+    { id: 'cog', label: 'cog' },
+  ];
+  const edges = [
+    { a: 'hit', b: 'hot' }, { a: 'hot', b: 'dot' }, { a: 'hot', b: 'lot' },
+    { a: 'dot', b: 'dog' }, { a: 'lot', b: 'log' },
+    { a: 'dog', b: 'cog' }, { a: 'log', b: 'cog' }, { a: 'dot', b: 'lot' }, { a: 'dog', b: 'log' },
+  ];
+  const adj = {
+    hit: ['hot'], hot: ['hit', 'dot', 'lot'], dot: ['hot', 'dog', 'lot'], lot: ['hot', 'log', 'dot'],
+    dog: ['dot', 'cog', 'log'], log: ['lot', 'cog', 'dog'], cog: ['dog', 'log'],
+  };
+  const dist = { hit: 0 };
+  const parent = {};
+  const q = ['hit'];
+  const visited = new Set(['hit']);
+  const frames = [];
+  const paint = (cur) => nodes.map(n => ({ ...n, state: n.id === cur ? 'current' : visited.has(n.id) ? 'visited' : undefined }));
+  frames.push({ nodes: paint('hit'), edges, caption: `Word ladder from "hit" to "cog". Edges connect words that differ by exactly one letter. BFS finds the shortest transformation.` });
+  while (q.length) {
+    const v = q.shift();
+    frames.push({ nodes: paint(v), edges, caption: `Dequeue "${v}" at distance ${dist[v]}. ${v === 'cog' ? `Reached target.` : 'Enqueue unseen neighbours.'}` });
+    if (v === 'cog') break;
+    for (const n of adj[v]) {
+      if (!visited.has(n)) {
+        visited.add(n);
+        dist[n] = dist[v] + 1;
+        parent[n] = v;
+        q.push(n);
+        frames.push({ nodes: paint(n), edges, caption: `Discover "${n}" via "${v}" at distance ${dist[n]}.` });
+      }
+    }
+  }
+  const path = [];
+  let cur = 'cog';
+  while (cur) { path.unshift(cur); cur = parent[cur]; }
+  frames.push({ nodes: nodes.map(n => ({ ...n, state: path.includes(n.id) ? 'current' : visited.has(n.id) ? 'visited' : undefined })), edges, caption: `Shortest ladder length ${dist.cog} via ${path.join(' -> ')}. BFS guarantees minimum edges. Total O(V + E).` });
+  return frames;
+}
+
+// Minimum window substring — expand/shrink window with character demand map.
+function minWindowSubstringFrames(s = 'ADOBECODEBANC', t = 'ABC') {
+  const arr = s.split('');
+  const need = {};
+  for (const c of t) need[c] = (need[c] || 0) + 1;
+  const have = {};
+  let satisfied = 0, required = Object.keys(need).length;
+  let l = 0, bestLen = Infinity, bestRange = [0, -1];
+  const frames = [];
+  frames.push({ array: arr, window: [0, -1], caption: `Minimum window substring containing every character of "${t}". Use a sliding window plus a "need" multiset; the window is valid once it covers each required character with the right multiplicity.` });
+  for (let r = 0; r < arr.length; r++) {
+    const c = arr[r];
+    if (need[c] !== undefined) {
+      have[c] = (have[c] || 0) + 1;
+      if (have[c] === need[c]) satisfied += 1;
+    }
+    frames.push({ array: arr, window: [l, r], caption: `Expand right to index ${r} (char '${c}'). ${need[c] !== undefined ? `Now have ${have[c]} of needed ${need[c]} '${c}'s.` : `Not in target, ignore.`} Distinct chars satisfied: ${satisfied}/${required}.` });
+    while (satisfied === required) {
+      if (r - l + 1 < bestLen) { bestLen = r - l + 1; bestRange = [l, r]; }
+      frames.push({ array: arr, window: [l, r], caption: `Window [${l}, ${r}] is valid (length ${r - l + 1}). Best so far: "${arr.slice(bestRange[0], bestRange[1] + 1).join('')}" (length ${bestLen}). Try shrinking left.` });
+      const lc = arr[l];
+      if (need[lc] !== undefined) {
+        have[lc] -= 1;
+        if (have[lc] < need[lc]) satisfied -= 1;
+      }
+      l += 1;
+    }
+  }
+  if (bestLen === Infinity) {
+    frames.push({ array: arr, window: [0, -1], caption: `No window covers "${t}". Return "".` });
+  } else {
+    frames.push({ array: arr, window: bestRange, caption: `Minimum window: "${arr.slice(bestRange[0], bestRange[1] + 1).join('')}" at [${bestRange[0]}, ${bestRange[1]}]. Each index moves at most twice (one push, one pop) — total O(n).` });
+  }
+  return frames;
+}
+
+// Subarray product less than K — two-pointer with running product.
+function subarrayProductLessKFrames(arr = [10, 5, 2, 6], k = 100) {
+  const frames = [];
+  let prod = 1, l = 0, total = 0;
+  frames.push({ array: arr, window: [0, -1], caption: `Count subarrays whose product is < ${k}. Slide a window: extend right; while product is too large, advance left. Each right gives (r - l + 1) new valid subarrays ending at r.` });
+  for (let r = 0; r < arr.length; r++) {
+    prod *= arr[r];
+    frames.push({ array: arr, window: [l, r], caption: `Extend right to index ${r}. Window product = ${prod}.` });
+    while (prod >= k && l <= r) {
+      frames.push({ array: arr, window: [l, r], caption: `Product ${prod} >= ${k}. Shrink from the left: divide by arr[${l}] = ${arr[l]}.` });
+      prod = Math.floor(prod / arr[l]);
+      l += 1;
+    }
+    if (l <= r) {
+      const added = r - l + 1;
+      total += added;
+      frames.push({ array: arr, window: [l, r], caption: `Window [${l}, ${r}] has product ${prod} < ${k}. It contributes ${added} new subarrays ending at ${r}. Total = ${total}.` });
+    } else {
+      frames.push({ array: arr, window: [l, r], caption: `Single element arr[${r}] = ${arr[r]} already >= ${k}; skip.` });
+    }
+  }
+  frames.push({ array: arr, window: [0, arr.length - 1], caption: `Done. Subarrays with product < ${k}: ${total}. Each index moves at most twice — O(n).` });
+  return frames;
+}
+
+// ----------------------------------------------------------------------------
+
 export const VISUALIZATIONS = {
   'binary-search': {
     title: 'Binary search walkthrough', renderer: 'array',
@@ -8774,6 +9751,224 @@ export const VISUALIZATIONS = {
       { label: 'Default — clean re-election (5 nodes)', frames: raftConsensusFrames('default') },
       { label: 'Split vote — two rounds',                frames: raftConsensusFrames('split') },
       { label: 'Minimal 3-node cluster',                 frames: raftConsensusFrames('threeNode') },
+    ],
+  },
+  'dutch-national-flag': {
+    title: 'Dutch National Flag: 3-way partition with low/mid/high', renderer: 'array',
+    cases: [
+      { label: 'Sort 0/1/2', frames: dutchNationalFlagFrames([2, 0, 2, 1, 1, 0]) },
+    ],
+  },
+  'array-cyclic-sort': {
+    title: 'Cyclic sort: place every value at its home index', renderer: 'array',
+    cases: [
+      { label: 'Place i at i', frames: arrayCyclicSortFrames([3, 1, 5, 4, 2]) },
+    ],
+  },
+  'binary-search-on-answer': {
+    title: 'Binary search on the answer: monotone predicate on an integer axis', renderer: 'array',
+    cases: [
+      { label: 'Min capacity ships', frames: binarySearchOnAnswerFrames() },
+    ],
+  },
+  'coin-change-variants': {
+    title: 'Coin change (min coins): 1D DP fill', renderer: 'array',
+    cases: [
+      { label: 'Min coins for amount 11 with [1,2,5]', frames: coinChangeVariantsFrames([1, 2, 5], 11) },
+    ],
+  },
+  'mst-kruskal': {
+    title: "Kruskal's MST: sort edges, union-find for cycle check", renderer: 'graph',
+    cases: [
+      { label: '5 nodes', frames: kruskalFrames('default') },
+    ],
+  },
+  'hash-rolling-rabin-karp': {
+    title: 'Rabin-Karp: rolling polynomial hash for substring match', renderer: 'array',
+    cases: [
+      { label: "Match 'cd' in 'abcabcd'", frames: hashRollingRabinKarpFrames('cd', 'abcabcd') },
+    ],
+  },
+  'find-peak-element': {
+    title: 'Find peak element: O(log n) slope-following binary search', renderer: 'array',
+    cases: [
+      { label: 'Peak in the middle',   frames: findPeakElementFrames([1, 2, 1, 3, 5, 6, 4]) },
+      { label: 'Strictly increasing',  frames: findPeakElementFrames([1, 2, 3, 4, 5]) },
+      { label: 'Plateau-free zigzag',  frames: findPeakElementFrames([5, 1, 4, 2, 6, 3, 7]) },
+    ],
+  },
+  'next-greater-element': {
+    title: 'Next greater element with a monotonic stack', renderer: 'array',
+    cases: [
+      { label: 'Mixed values', frames: nextGreaterElementFrames([4, 5, 2, 25, 7, 8]) },
+      { label: 'Strictly decreasing (none found)', frames: nextGreaterElementFrames([9, 7, 5, 3, 1]) },
+      { label: 'Strictly increasing (immediate)',  frames: nextGreaterElementFrames([1, 3, 4, 6, 9]) },
+    ],
+  },
+  'monotonic-deque': {
+    title: 'Monotonic deque: sliding window maximum in O(n)', renderer: 'array',
+    cases: [
+      { label: 'Classic window k = 3', frames: monotonicDequeFrames([1, 3, -1, -3, 5, 3, 6, 7], 3) },
+      { label: 'Window k = 2',         frames: monotonicDequeFrames([4, 2, 12, 9, 3, 7, 1, 6], 2) },
+      { label: 'All increasing',       frames: monotonicDequeFrames([1, 2, 3, 4, 5, 6], 3) },
+    ],
+  },
+  'largest-rectangle-histogram': {
+    title: 'Largest rectangle in histogram via monotonic stack', renderer: 'array',
+    cases: [
+      { label: 'Classic [2,1,5,6,2,3]', frames: largestRectangleHistogramFrames([2, 1, 5, 6, 2, 3]) },
+      { label: 'Monotone increasing',   frames: largestRectangleHistogramFrames([1, 2, 3, 4, 5]) },
+      { label: 'Plateau in the middle', frames: largestRectangleHistogramFrames([3, 1, 3, 2, 2, 2]) },
+    ],
+  },
+  'subarray-sum-equals-k': {
+    title: 'Subarray sum equals K with prefix-sum hash counts', renderer: 'array',
+    cases: [
+      { label: 'Includes negatives', frames: subarraySumEqualsKFrames([1, 1, 1, 2, -1, 1], 2) },
+      { label: 'k = 3',              frames: subarraySumEqualsKFrames([3, 4, 7, 2, -3, 1, 4, 2], 7) },
+      { label: 'No solution',        frames: subarraySumEqualsKFrames([1, 2, 3], 100) },
+    ],
+  },
+  'jump-game-i-ii': {
+    title: 'Jump Game II: layered BFS for minimum jumps', renderer: 'array',
+    cases: [
+      { label: 'Mixed jumps',  frames: jumpGameIIFrames([2, 3, 1, 1, 4]) },
+      { label: 'Big first leap', frames: jumpGameIIFrames([5, 1, 1, 1, 1, 1]) },
+      { label: 'Tight chain',   frames: jumpGameIIFrames([1, 2, 1, 1, 1]) },
+    ],
+  },
+  'interval-merge': {
+    title: 'Merge overlapping intervals after sorting by start', renderer: 'array',
+    cases: [
+      { label: 'Classic 5 intervals', frames: intervalMergeFrames([[1, 3], [2, 6], [8, 10], [9, 11], [15, 18]]) },
+      { label: 'No overlaps',          frames: intervalMergeFrames([[1, 2], [3, 4], [5, 6], [7, 8]]) },
+      { label: 'All collapse',         frames: intervalMergeFrames([[1, 10], [2, 5], [3, 6], [4, 9]]) },
+    ],
+  },
+  'gas-station-circular': {
+    title: 'Gas station circular tour: single-pass start finder', renderer: 'array',
+    cases: [
+      { label: 'Default 5 stations', frames: gasStationCircularFrames([1, 2, 3, 4, 5], [3, 4, 5, 1, 2]) },
+      { label: 'Impossible loop',     frames: gasStationCircularFrames([2, 3, 4], [3, 4, 3]) },
+      { label: 'Tight margin',        frames: gasStationCircularFrames([5, 1, 2, 3, 4], [4, 4, 1, 5, 1]) },
+    ],
+  },
+  'best-stock-multiple-tx': {
+    title: 'Best time to buy and sell stock: sum of positive deltas', renderer: 'array',
+    cases: [
+      { label: 'Classic prices',       frames: bestStockMultipleTxFrames([7, 1, 5, 3, 6, 4]) },
+      { label: 'Monotone increasing',  frames: bestStockMultipleTxFrames([1, 2, 3, 4, 5]) },
+      { label: 'Monotone decreasing',  frames: bestStockMultipleTxFrames([7, 6, 4, 3, 1]) },
+    ],
+  },
+  'random-shuffle-fisher-yates': {
+    title: 'Fisher-Yates shuffle: in-place uniform permutation', renderer: 'array',
+    cases: [
+      { label: '6 cards', frames: fisherYatesShuffleFrames(['A', 'B', 'C', 'D', 'E', 'F']) },
+    ],
+  },
+  'trie-autocomplete': {
+    title: 'Trie autocomplete: prefix walk + DFS collect', renderer: 'array',
+    cases: [
+      { label: 'Prefix "ca"', frames: trieAutocompleteFrames(['cat', 'car', 'card', 'care', 'dog'], 'ca') },
+      { label: 'Prefix "do"', frames: trieAutocompleteFrames(['cat', 'car', 'card', 'care', 'dog'], 'do') },
+      { label: 'Missing prefix', frames: trieAutocompleteFrames(['cat', 'car', 'card', 'care', 'dog'], 'zz') },
+    ],
+  },
+  'island-count-bfs': {
+    title: 'Number of islands via BFS flood fill', renderer: 'grid',
+    cases: [
+      { label: 'Default 4 x 5 grid', frames: islandCountBfsFrames() },
+    ],
+  },
+  'unique-paths-grid': {
+    title: 'Unique paths in m x n grid: 2D DP fill', renderer: 'grid',
+    cases: [
+      { label: '3 x 4 grid', frames: uniquePathsGridFrames(3, 4) },
+      { label: '4 x 4 grid', frames: uniquePathsGridFrames(4, 4) },
+      { label: '2 x 5 grid', frames: uniquePathsGridFrames(2, 5) },
+    ],
+  },
+  'dp-edit-distance-levenshtein': {
+    title: 'Edit distance: Levenshtein DP table fill', renderer: 'grid',
+    cases: [
+      { label: '"kitten" -> "sitting"', frames: editDistanceFrames('kitten', 'sitting') },
+      { label: '"horse" -> "ros"',      frames: editDistanceFrames('horse', 'ros') },
+    ],
+  },
+  'dp-knapsack-bounded-unbounded': {
+    title: '0/1 knapsack: 2D capacity-by-item DP table', renderer: 'grid',
+    cases: [
+      { label: 'Default 4 items, W = 7', frames: knapsack01Frames([1, 3, 4, 5], [1, 4, 5, 7], 7) },
+      { label: 'Tight capacity',          frames: knapsack01Frames([2, 2, 3], [3, 4, 5], 5) },
+    ],
+  },
+  'dp-coin-change-min-coins': {
+    title: 'Coin change minimum coins: 1D DP fill', renderer: 'array',
+    cases: [
+      { label: 'Amount 11 with [1,2,5]', frames: coinChangeMinCoinsFrames([1, 2, 5], 11) },
+      { label: 'Amount 7 with [2,4]',    frames: coinChangeMinCoinsFrames([2, 4], 7) },
+      { label: 'Amount 6 with [1,3,4]',  frames: coinChangeMinCoinsFrames([1, 3, 4], 6) },
+    ],
+  },
+  'tree-diameter': {
+    title: 'Tree diameter: post-order DFS bubbling subtree depths', renderer: 'tree',
+    cases: [
+      { label: '7-node sample tree', frames: treeDiameterFrames() },
+    ],
+  },
+  'validate-bst': {
+    title: 'Validate BST: DFS with (min, max) bounds', renderer: 'tree',
+    cases: [
+      { label: 'Valid 9-node BST', frames: validateBstFrames() },
+    ],
+  },
+  'kth-smallest-bst': {
+    title: 'Kth smallest in BST via in-order DFS counter', renderer: 'tree',
+    cases: [
+      { label: 'k = 3', frames: kthSmallestBstFrames(3) },
+      { label: 'k = 1', frames: kthSmallestBstFrames(1) },
+      { label: 'k = 6', frames: kthSmallestBstFrames(6) },
+    ],
+  },
+  'tree-right-side-view': {
+    title: 'Right-side view via BFS, recording last node per level', renderer: 'tree',
+    cases: [
+      { label: 'Default sample tree', frames: treeRightSideViewFrames() },
+    ],
+  },
+  'dfs-iterative': {
+    title: 'Iterative DFS with an explicit stack', renderer: 'graph',
+    cases: [
+      { label: '6-node tree', frames: dfsIterativeFrames() },
+    ],
+  },
+  'bipartite-check': {
+    title: 'Bipartite check via BFS two-coloring', renderer: 'graph',
+    cases: [
+      { label: '6-cycle (bipartite)', frames: bipartiteCheckFrames() },
+    ],
+  },
+  'word-ladder-bfs': {
+    title: 'Word ladder shortest transformation via BFS', renderer: 'graph',
+    cases: [
+      { label: '"hit" -> "cog"', frames: wordLadderBfsFrames() },
+    ],
+  },
+  'string-min-window-substring': {
+    title: 'Minimum window substring: expand + shrink with character demand', renderer: 'window',
+    cases: [
+      { label: '"ADOBECODEBANC" / "ABC"', frames: minWindowSubstringFrames('ADOBECODEBANC', 'ABC') },
+      { label: '"aaaaaab" / "ab"',        frames: minWindowSubstringFrames('aaaaaab', 'ab') },
+      { label: '"abc" / "ad" (no window)', frames: minWindowSubstringFrames('abc', 'ad') },
+    ],
+  },
+  'subarray-product-less-k': {
+    title: 'Subarray product less than K: two-pointer sliding window', renderer: 'window',
+    cases: [
+      { label: 'Classic [10,5,2,6] k=100', frames: subarrayProductLessKFrames([10, 5, 2, 6], 100) },
+      { label: 'All under k',               frames: subarrayProductLessKFrames([1, 2, 3], 50) },
+      { label: 'All over k',                frames: subarrayProductLessKFrames([20, 30, 40], 10) },
     ],
   },
 };

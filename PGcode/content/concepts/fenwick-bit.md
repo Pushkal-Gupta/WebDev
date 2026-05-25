@@ -1,6 +1,6 @@
 ---
 slug: fenwick-bit
-module: arrays-searching
+module: arrays-range-structures
 title: Fenwick Tree (BIT)
 subtitle: Binary Indexed Tree for prefix sums with O(log n) point update and range query.
 difficulty: Intermediate

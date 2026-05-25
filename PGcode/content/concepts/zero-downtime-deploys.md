@@ -1,6 +1,6 @@
 ---
 slug: zero-downtime-deploys
-module: system-design
+module: sd-reliability
 title: Zero-Downtime Deploys
 subtitle: Roll new code without dropping connections — health checks + readiness probes + draining + graceful shutdown.
 difficulty: Intermediate

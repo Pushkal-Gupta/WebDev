@@ -1,6 +1,6 @@
 ---
 slug: cas-vs-paxos
-module: system-design
+module: sd-consensus
 title: CAS vs Paxos
 subtitle: Single-register compare-and-swap as the consensus baseline, then Paxos as the quorum-based extension across N replicas.
 difficulty: Advanced

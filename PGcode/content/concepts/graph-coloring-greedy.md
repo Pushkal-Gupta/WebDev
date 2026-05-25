@@ -1,6 +1,6 @@
 ---
 slug: graph-coloring-greedy
-module: graphs
+module: graphs-advanced
 title: Greedy Graph Coloring
 subtitle: Welsh-Powell — order vertices by degree, assign smallest available color.
 difficulty: Intermediate
@@ -25,10 +25,19 @@ status: published
 Graph coloring assigns each vertex a color such that no two adjacent vertices share a color. The chromatic number χ(G) is the minimum such count — and computing it exactly is NP-hard. The Welsh-Powell greedy algorithm trades optimality for speed: process vertices in non-increasing degree order, assign each the smallest color not used by an already-colored neighbor. The result uses at most Δ(G) + 1 colors, where Δ is the maximum degree.
 
 ## whyItMatters
-Coloring models conflict-avoidance everywhere: register allocation in compilers (variables that overlap in live-range must use different registers), exam timetabling (exams with shared students cannot share a slot), frequency assignment for cell towers, and even Sudoku (a 9-coloring of a graph with 81 vertices). Exact coloring is infeasible at scale, so production schedulers ship greedy variants and live with the small over-count.
+- **Compiler register allocation**: GCC, LLVM, and HotSpot JIT model variables-overlapping-in-live-range as a graph and color it greedily (Chaitin 1982) to assign CPU registers; uncolorable nodes spill to stack.
+- **Exam and university timetabling** (Cambridge, McGill scheduling systems) reduce to graph coloring where exams with shared students cannot share slots.
+- **Frequency assignment** for cell towers (GSM, LTE network planning) and Wi-Fi channel allocation use coloring variants to prevent interference.
+- **Sudoku** is precisely a 9-coloring problem on an 81-vertex graph with row/column/box adjacency.
+- **The famous Four Color Theorem** (Appel & Haken 1976) — every planar map is 4-colorable — formalises map-coloring as a graph problem; greedy can overshoot to 6 on planar inputs because exact 4-coloring is NP-hard at production speed.
+- Exact coloring is NP-hard (Karp 1972), so production schedulers ship greedy variants and accept a small over-count.
 
 ## intuition
-Imagine seating guests at a party where some pairs hate each other. Seat the most-connected (loudest) guests first — they constrain the most options. For each guest, pick the lowest-numbered table where none of their enemies are already seated. Quiet guests come last, when most tables are open, so they're easy. Degree-ordering puts the hardest decisions early when the most options are still available.
+The algorithm exists because exact graph coloring is NP-hard, but most real instances are far from worst-case and a fast approximation gives results within a constant factor of optimal almost always. Welsh-Powell (1967) is the canonical greedy: sort vertices by degree non-increasing, then assign each the smallest color not used by an already-colored neighbour. The decision to process by descending degree is what makes the algorithm competitive — colouring the most-constrained vertices first means later vertices, with fewer constraints, almost always find an existing color available.
+
+Mental model: seating guests at numbered tables where some pairs refuse to share a table. Seat the most-connected guests first — they have the most enemies and thus the strongest constraints. For each guest, pick the lowest-numbered table where none of their enemies are already seated. Quiet guests with few enemies come last, when most tables are already in use, so they almost always slot into an existing table without forcing a new one. The intuition is identical to the "Most Constrained Variable" heuristic in constraint satisfaction and to deadline-first scheduling in operating systems.
+
+The provable guarantee is that greedy uses at most Δ(G) + 1 colors, where Δ is the maximum degree (proof: any vertex has at most Δ colored neighbours, so among colors 1..Δ+1, at least one is free). Brooks' theorem (1941) strengthens this: for connected graphs that are neither complete nor odd cycles, χ ≤ Δ. So greedy is at worst one off optimal on those families. DSatur (Brélaz 1979) tightens the heuristic further by ordering on *saturation degree* (count of distinct colors among neighbours) instead of raw degree, and is provably optimal on bipartite graphs and cycles.
 
 ## visualization
 A graph with vertices A (degree 4), B (degree 3), C (degree 3), D (degree 2), E (degree 1). Sort by degree: A, B, C, D, E. Color A with 1. B is adjacent to A → color 2. C is adjacent to A only → color 2. D is adjacent to A and B → color 3. E is adjacent to D only → color 1. Total colors used: 3. (For comparison, the chromatic number happens to be 3 here as well — but in general greedy can exceed χ.)
@@ -37,7 +46,26 @@ A graph with vertices A (degree 4), B (degree 3), C (degree 3), D (degree 2), E 
 Try every assignment of k colors to V vertices and check feasibility. O(k^V) — exponential, only feasible for V ≤ ~20. Used to compute the true chromatic number on tiny inputs (Sudoku-style 81-vertex problems are at the upper edge with heavy pruning). Brute force does double duty as a textbook example of backtracking with constraint propagation.
 
 ## optimal
-Welsh-Powell: sort vertices by degree descending, walk in that order, assign each the smallest color not present in its neighbor set. For better-than-greedy bounds, use DSatur (saturation degree — break ties by counting distinct colors among neighbors), which is optimal for bipartite and cycle graphs and competitive elsewhere. For exact results, branch-and-bound on top of DSatur is the practical state of the art up to ~100 vertices.
+**Technique: Welsh-Powell greedy with degree-descending vertex ordering.** Runs in O(V log V + V·Δ) — sort cost plus per-vertex neighbour scan. Guaranteed to use at most Δ+1 colors. "Optimal" here is in the practical sense: no polynomial algorithm can guarantee χ exactly (NP-hard), so Welsh-Powell trades a small constant-factor overshoot for polynomial runtime.
+
+```python
+def welsh_powell(graph):
+    order = sorted(graph, key=lambda v: -len(graph[v]))   # most-constrained first
+    color = {}
+    for v in order:
+        used = {color[u] for u in graph[v] if u in color}  # colors already taken
+        c = 0
+        while c in used:                                    # smallest unused color
+            c += 1
+        color[v] = c
+    return color
+```
+
+Key lines: `sorted(graph, key=lambda v: -len(graph[v]))` is the entire algorithmic insight — handling high-degree vertices first means later, low-degree vertices almost never need a new color. The `used = {color[u] for u in graph[v] if u in color}` line builds the set of colors blocked by already-colored neighbours; `while c in used` finds the smallest non-blocked color via linear probing, which is O(deg(v)) per vertex.
+
+**Why descending degree?** Random order can use Δ+1 colors even on a tree (where χ = 2). Sorted descending puts the structural choke points where they belong — early, when all colors are still in play. **Why not DSatur?** DSatur (Brélaz 1979) breaks ties by *saturation degree* (number of distinct colors among neighbours), and is provably optimal on bipartite and cycle graphs; the cost is a priority queue and per-vertex saturation tracking, an O(V² log V) algorithm. Welsh-Powell is the sweet spot for production: fast, simple, almost always within one color of DSatur on real workloads.
+
+**For exact answers** on small instances (V ≤ 100), use branch-and-bound with DSatur as the upper-bound oracle and clique-finding as the lower bound. **For planar graphs**, the Four Color Theorem guarantees χ ≤ 4 but the Robertson-Sanders-Seymour-Thomas 1996 polynomial-time 4-coloring algorithm is too complex for production; greedy with planarity-aware ordering typically reaches 5–6 colors. **For register allocation specifically**, Chaitin's interference-graph coloring uses similar greedy logic with optimistic spilling — when greedy fails, evict the highest-degree node, color the rest, then retry.
 
 ## complexity
 time: O(V^2) or O(V log V + V * Δ) — dominated by the degree sort and the per-vertex neighbor scan.

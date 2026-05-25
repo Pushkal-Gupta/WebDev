@@ -1,6 +1,6 @@
 ---
 slug: merkle-patricia-trie
-module: trees
+module: trees-balanced-disk
 title: Merkle Patricia Trie
 subtitle: Ethereum's state tree — a hash-keyed radix trie that proves membership in O(log n).
 difficulty: Advanced

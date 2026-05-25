@@ -1,6 +1,6 @@
 ---
 slug: amortized-analysis
-module: foundations
+module: foundations-analysis
 title: Amortized Analysis
 subtitle: Sometimes an O(n) operation is "really" O(1) when spread across many calls — three lenses for proving it.
 difficulty: Intermediate

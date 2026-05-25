@@ -1,6 +1,6 @@
 ---
 slug: event-bus-design
-module: system-design
+module: sd-microservices
 title: Event Bus Design
 subtitle: Pub/sub layer between services — Kafka / RabbitMQ / SNS+SQS / Redpanda. Topics, ordering guarantees, fan-out, dead letters.
 difficulty: Intermediate

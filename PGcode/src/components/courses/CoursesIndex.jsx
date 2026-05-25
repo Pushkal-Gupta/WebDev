@@ -15,8 +15,8 @@ export default function CoursesIndex() {
         <span className="courses-eyebrow"><BookOpen size={11} /> Courses</span>
         <h1 className="courses-title">Learn by doing</h1>
         <p className="courses-sub">
-          Hands-on courses with runnable code in every lesson. Auto-graded against expected output.
-          Pick a language — or jump straight into the real-world SQL project.
+          Runnable code in every lesson, auto-graded against expected output. Pick a language, or
+          dive into the SQL project.
         </p>
       </header>
 
@@ -48,8 +48,8 @@ export default function CoursesIndex() {
 
       <div className="courses-foot">
         <p>
-          Looking for algorithm courses? See{' '}
-          <Link to="/learn">Concepts</Link> for explanations and{' '}
+          For algorithms, head to{' '}
+          <Link to="/learn">Concepts</Link> for written explanations or{' '}
           <Link to="/visualize">Visualizations</Link> for animated walkthroughs.
         </p>
       </div>

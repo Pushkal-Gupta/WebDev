@@ -1,6 +1,6 @@
 ---
 slug: dp-bitmask
-module: dp
+module: dp-advanced
 title: Bitmask DP
 subtitle: Encode a subset of up to 20 elements as an integer; iterate over all 2^n states.
 difficulty: Advanced
@@ -25,10 +25,14 @@ status: published
 Bitmask DP encodes a subset of a small universe (n at most 20 or so) as the bits of a single integer. The state is typically `dp[mask]` or `dp[mask][i]`, where `mask` records which elements have been used and `i` records the last decision. With 2^n masks and an inner loop of size n, you get O(2^n * n) or O(2^n * n^2), tractable up to n = 20.
 
 ## whyItMatters
-A surprising number of "assign every job to some worker," "visit every city exactly once," "partition into matched pairs" problems collapse to bitmask DP once you accept the exponential-in-n cost. It is the canonical answer to NP-hard problems on tiny inputs, and it is the basis for the Held-Karp algorithm for Travelling Salesman — still the fastest known exact TSP solver in O(n^2 * 2^n).
+- Held-Karp bitmask DP is the fastest known exact TSP solver — used by Concorde, OR-Tools, and the Uber routing pipeline as the final-mile optimizer on small clusters of stops.
+- Apache Calcite and DuckDB query optimizers run bitmask DP to compute optimal join orders on small joins (the DPsize and DPccp algorithms), trading 2^n exploration for an optimal plan instead of greedy heuristics.
+- Quantum-circuit synthesis tools (Qiskit, Cirq) use bitmask DP to find optimal gate orderings on small qubit sets where the synthesis problem is NP-hard but n is small.
+- Computational biology — multiple sequence alignment with up to ~15 sequences uses bitmask DP over the visited-set of alignment columns.
+- The canonical answer to "NP-hard on tiny inputs" — when n is at most 20, bitmask DP outruns every other exact technique by a wide margin.
 
 ## intuition
-Picture a checklist of n tasks. At each step you tick one more box. The future cost depends only on which boxes are ticked (and possibly which box you just ticked), not the order you ticked them in. That "set of done items" is exactly what the bitmask records, and DP over it eliminates the n! permutations of order.
+Many problems share a recurring structure: a fixed universe of n items, a decision at each step that consumes or visits exactly one item, and an objective that depends only on which items remain and which item was just chosen — not on the order earlier choices were made. The naive solver enumerates all n! orderings, which is hopeless for n > 12. The breakthrough is recognizing that the "ordering" carries far less information than it appears to. Most cost functions are order-independent given the visited set; they only need to know "which items are done" and possibly "what was the last choice." The visited set is what the bitmask records: bit i of mask is 1 iff item i has been processed. With n at most 20, the mask fits in a single integer and there are 2^n possible visited sets — vastly less than n!. The DP state becomes `dp[mask][last]` or just `dp[mask]`, depending on whether the transition depends on the last item. Transitions correspond to "add one more item to the visited set": from `dp[mask][i]`, you can move to `dp[mask | (1 << j)][j]` for any j not yet in mask. Iterating masks in increasing integer order ensures every subproblem is solved before it is read, because `mask | (1 << j) > mask`. The deep idea is that bitmask DP trades an n!-factor symmetry (permutations) for a 2^n-factor enumeration (subsets), which is dramatically better whenever the objective is permutation-invariant given the set. The Held-Karp algorithm for TSP is the canonical demonstration: O(n^2 * 2^n) beats O(n!) for every n above about 7.
 
 ## visualization
 n = 4 cities. Mask = 1011 means cities 0, 1, 3 have been visited. dp[1011][3] = shortest tour visiting exactly {0,1,3} ending at city 3. Transition: dp[1011][3] = min over j in {0,1} of dp[1011 ^ (1 << 3)][j] + dist[j][3]. Final answer: min over last city j of dp[1111][j] + dist[j][0].
@@ -37,7 +41,32 @@ n = 4 cities. Mask = 1011 means cities 0, 1, 3 have been visited. dp[1011][3] = 
 Enumerate every permutation of the n elements and score it: n! work. At n = 12 that is already 479 million; at n = 15 it is 1.3 trillion. Acceptable only for n at most 10 or 11 in a contest.
 
 ## optimal
-Define dp[mask][i] = best cost of a sequence whose used-set is `mask` and whose last element is i. Base case: dp[(1<<i)][i] = startCost(i). Transition: for every mask, for every i in mask, for every j not in mask, dp[mask | (1<<j)][j] = min(dp[mask | (1<<j)][j], dp[mask][i] + cost(i, j)). Iterate masks in increasing order so subproblems are filled before they are read. O(2^n * n^2) time, O(2^n * n) memory.
+Held-Karp style DP for TSP. Define `dp[mask][i]` as the minimum cost of a sequence whose visited-set is `mask` and whose last element is i. Base case: `dp[(1<<0)][0] = 0` (start at city 0). Transition: for each mask, each i in mask, each j not in mask, `dp[mask | (1<<j)][j] = min(dp[mask | (1<<j)][j], dp[mask][i] + dist[i][j])`. Iterate masks in ascending integer order so that all predecessor states are filled first (this works because `mask | (1<<j) > mask`). Final answer: `min over i of dp[full][i] + dist[i][0]`. Time is O(2^n * n^2) and space is O(2^n * n) — optimal for general-cost TSP, since the Exponential Time Hypothesis rules out anything substantially faster.
+
+```python
+def tsp(dist):
+    n = len(dist)
+    INF = float("inf")
+    dp = [[INF] * n for _ in range(1 << n)]
+    dp[1][0] = 0                                          # start at city 0
+    for mask in range(1, 1 << n):
+        if not (mask & 1):                                # require city 0 in mask
+            continue
+        for i in range(n):
+            if not ((mask >> i) & 1) or dp[mask][i] == INF:
+                continue
+            for j in range(n):
+                if (mask >> j) & 1:                       # skip already-visited
+                    continue
+                nm = mask | (1 << j)
+                cand = dp[mask][i] + dist[i][j]
+                if cand < dp[nm][j]:
+                    dp[nm][j] = cand                      # relax to successor state
+    full = (1 << n) - 1
+    return min(dp[full][i] + dist[i][0] for i in range(1, n))
+```
+
+The ascending mask iteration is the load-bearing invariant — it guarantees that `dp[mask][i]` is final before any transition out of it fires. For assignment-style problems where the transition depends only on the visited set (not the last element), drop the second dimension and shave a factor of n in both time and memory. Submask iteration via `s = (s - 1) & mask` enumerates the 3^n total (mask, submask) pairs in time proportional to their count.
 
 ## complexity
 time: O(2^n * n^2) for TSP-style transitions; O(2^n * n) for assignment-style
