@@ -6,6 +6,7 @@
 
 import { getEraByIndex } from '../content/eras.js';
 import { getSpecial } from '../content/specials.js';
+import { specialDisplayName } from '../utils/themeDisplay.js';
 
 const ICON_BASE = '/games/era-siege/ui';
 
@@ -18,14 +19,15 @@ export default function SpecialButton({ eraIndex, slot, cooldownMs, charging, on
   const cdR = cooldownMs > 0 ? cooldownMs / def.cooldownMs : 0;
   const disabled = cooldownMs > 0 || charging;
   const ready = !disabled;
+  const displayName = specialDisplayName(def);
   return (
     <button
       type="button"
       className={`es-special${isSecondary ? ' is-secondary' : ''}${charging ? ' is-charging' : ''}${disabled ? ' is-disabled' : ''}${ready ? ' is-ready' : ''}`}
       onClick={onFire}
       disabled={disabled}
-      title={`${def.name} — ${def.description}`}
-      aria-label={`${def.name}, special attack`}>
+      title={`${displayName} — ${def.description}`}
+      aria-label={`${displayName}, special attack`}>
       <img
         className="es-special-icon"
         src={`${ICON_BASE}/special-era${Math.min(5, Math.max(1, (eraIndex | 0) + 1))}${isSecondary ? '-2' : ''}.png`}
@@ -34,7 +36,7 @@ export default function SpecialButton({ eraIndex, slot, cooldownMs, charging, on
         onError={(e) => { e.currentTarget.style.display = 'none'; }}
       />
       <div className="es-special-name">
-        {def.name}
+        {displayName}
         {ready && <span className="es-special-ready">READY</span>}
       </div>
       <div className="es-special-cd-track">

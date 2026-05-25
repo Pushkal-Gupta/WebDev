@@ -25,10 +25,14 @@ status: published
 Kruskal's algorithm builds a minimum spanning tree (MST) by sorting *all* edges by weight and greedily adding each edge that does not create a cycle. Cycle detection uses a disjoint-set / union-find structure, which makes the "would adding this edge close a loop?" test effectively O(alpha(V)) per query. Total runtime is dominated by the sort: O(E log E) = O(E log V) since E <= V^2.
 
 ## whyItMatters
-Kruskal is the **MST algorithm of choice on sparse graphs** and on **edge-list inputs** — exactly the format competitive-programming problems and many real datasets provide. It's also the canonical introductory use of union-find. Bonus: Kruskal's natural by-product is a stream of "MST edges in increasing weight order," which directly drives single-linkage clustering — pause Kruskal after E - k edges have been added to get k clusters.
+Kruskal is the MST algorithm of choice on sparse graphs and on edge-list inputs — exactly the format competitive-programming problems and many real datasets provide. It is also the canonical introductory use of union-find (Tarjan 1975 inverse-Ackermann analysis) and produces a natural by-product: the MST edges arrive in increasing weight order, which directly drives **single-linkage hierarchical clustering** — pause Kruskal after `E - k` edges and you have a `k`-cluster partition. Boruvka's 1926 original, Prim 1957, and Kruskal 1956 are the three classical MST algorithms; modern systems use Kruskal for offline batch problems (network design, percolation, image segmentation in Felzenszwalb-Huttenlocher 2004) and Prim for streaming-edge inputs.
 
 ## intuition
-Sort the edges from cheapest to most expensive and walk them in order. For each edge (u, v, w), ask "are u and v already in the same connected component?" If yes, skip — adding the edge would create a cycle and waste weight. If no, accept the edge and *union* the two components. After V - 1 accepted edges, you have a spanning tree, and by the *cut property* of MSTs (cheapest edge across any cut is safe), it's a minimum one.
+Sort the edges from cheapest to most expensive and walk them in order. For each edge `(u, v, w)`, ask "are `u` and `v` already in the same connected component?" If yes, skip — adding the edge would create a cycle and waste weight. If no, accept the edge and **union** the two components. After `V - 1` accepted edges you have a spanning tree, and by the **cut property** of MSTs (the cheapest edge across any cut is safe to include), it is a minimum one.
+
+The correctness proof in one sentence: at every step the set of accepted edges is a subset of some MST. The cut property tells you that the cheapest edge crossing any cut between accepted vertices and unaccepted vertices must be in every MST; Kruskal's sort-then-scan order picks exactly that edge first. The cycle property tells you that skipping cycle-closing edges is safe because removing the heaviest edge of any cycle never breaks the MST.
+
+The performance hinges on the union-find data structure underneath. With *union by rank* (or size) plus *path compression*, each `find` and `union` runs in amortized `O(alpha(V))` where `alpha` is the inverse Ackermann function — effectively constant for any conceivable `V` (`alpha(2^65536) < 5`). The sort dominates, so total cost is `O(E log E)` which on sparse graphs (`E ≈ V`) beats Prim's `O(V^2)` and ties Prim's heap variant `O(E log V)`.
 
 ## visualization
 ```
@@ -58,23 +62,39 @@ MST: {A-B(1), B-C(2), C-D(3), D-E(6)}. Total = 12.
 Without union-find, cycle detection per edge takes a DFS or BFS through the current edge set — O(V + E') where E' is edges accepted so far. Across E candidate edges that's O(V * E). For dense graphs you might as well use the V^2 Prim variant. Brute "enumerate spanning trees" is exponential (Cayley's formula gives n^(n-2) trees on K_n) and never a real answer.
 
 ## optimal
-Sort edges by weight, scan with union-find, accept any edge whose endpoints are in different components. Stop after V - 1 accepts.
+Sort edges by weight, scan with union-find, accept any edge whose endpoints are in different components. Stop after `V - 1` accepts. Total cost is `O(E log E)` time dominated by the sort, plus `O(V)` space for the DSU. With path compression and union by rank the DSU operations are amortized `O(alpha(V))` — effectively constant.
 
-```
-kruskal(V, edges):
-    sort edges by weight ascending
+```python
+class DSU:
+    def __init__(self, n):
+        self.p = list(range(n))
+        self.r = [0] * n
+    def find(self, x):
+        while self.p[x] != x:
+            self.p[x] = self.p[self.p[x]]  # path compression (halving)
+            x = self.p[x]
+        return x
+    def union(self, x, y):
+        rx, ry = self.find(x), self.find(y)
+        if rx == ry: return False
+        if self.r[rx] < self.r[ry]: rx, ry = ry, rx
+        self.p[ry] = rx
+        if self.r[rx] == self.r[ry]: self.r[rx] += 1
+        return True
+
+def kruskal(V, edges):
+    edges.sort(key=lambda e: e[2])
     dsu = DSU(V)
-    mst = []
-    total = 0
-    for (u, v, w) in edges:
-        if dsu.find(u) != dsu.find(v):
-            dsu.union(u, v)
+    mst, total = [], 0
+    for u, v, w in edges:
+        if dsu.union(u, v):
             mst.append((u, v, w))
             total += w
             if len(mst) == V - 1: break
     return mst, total
 ```
-Use union-by-rank (or by size) plus path compression so that DSU operations are amortized O(alpha(V)) — effectively constant for any conceivable V.
+
+The critical line is `if dsu.union(u, v):` — the `union` returns `False` if the endpoints were already connected, in which case adding the edge would create a cycle. This is what enforces the cut and cycle properties simultaneously. For dense graphs (`E ≈ V^2`) Prim's algorithm with an adjacency-matrix representation is `O(V^2)` and outperforms Kruskal because the sort cost dominates. For very large graphs that do not fit in memory, use Boruvka's algorithm in parallel rounds: each component picks its cheapest outgoing edge in parallel, then merges; runs in `O(log V)` rounds and parallelizes naturally on GPUs and distributed clusters. For percolation studies and single-linkage clustering, Kruskal is the standard because the partial-MST stream is exactly the dendrogram.
 
 ## complexity
 time: O(E log E) for the sort, then O(E * alpha(V)) for DSU operations. alpha is the inverse-Ackermann function, < 5 for all practical V. Net: O(E log V).

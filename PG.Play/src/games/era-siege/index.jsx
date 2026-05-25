@@ -982,6 +982,9 @@ function cheapDiffers(a, b) {
   // Powerups change rarely (purchase only) — full shallow compare.
   const ap = a.powerups || {}, bp = b.powerups || {};
   if (ap.economy !== bp.economy || ap.base !== bp.base || ap.special !== bp.special || ap.turret !== bp.turret) return true;
+  if ((ap.troopDmg || 0) !== (bp.troopDmg || 0)) return true;
+  if ((ap.troopHp  || 0) !== (bp.troopHp  || 0)) return true;
+  if ((ap.troopRng || 0) !== (bp.troopRng || 0)) return true;
   return false;
 }
 

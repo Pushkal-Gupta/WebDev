@@ -25,25 +25,14 @@ status: published
 A **rolling hash** lets you compute the hash of every length-K window in a string in total O(N) time — each new window's hash derived from the previous one in O(1). Backbone of **Rabin-Karp** substring search, plagiarism detection (Moss), rsync's block deduplication, and competitive-programming string toolkits.
 
 ## whyItMatters
-Naive substring search: at each of N positions, compare K characters → O(NK). Rabin-Karp gets to O(N+K) average via hashing: compute the pattern's hash once, slide a same-length window across the text, compare hashes (O(1)), only do full character comparison on hash collision.
-
-Rolling hash also enables:
-- Finding longest common substring via binary search + hash comparison.
-- Detecting near-duplicate documents (Moss, Karp-Rabin fingerprinting).
-- rsync's content-defined chunking.
+Naive substring search compares `K` characters at each of `N` positions — `O(NK)`, which is too slow for log-scanning, deduplication, and content-defined chunking on production data. Rabin-Karp (Karp and Rabin 1987) gets to `O(N + K)` average via rolling hashes: compute the pattern hash once, slide a same-length window across the text, compare hashes in `O(1)`, only do full character comparison on hash collision. The same trick underlies rsync's content-defined chunking, restic and BorgBackup's deduplication, Git's pack-file delta detection, Aho-Corasick's multi-pattern extension, and the Karp-Rabin fingerprinting algorithm used by MOSS for plagiarism detection. Bioinformatics tools (Bowtie, BWA) use rolling hashes for fast seed lookup over the human genome.
 
 ## intuition
-**Polynomial hash** of string s[0..k-1]:
-```
-H = s[0]*p^(k-1) + s[1]*p^(k-2) + ... + s[k-1]*p^0   (mod m)
-```
-where `p` is a small prime (31, 53) and `m` is a large prime (~10^9 + 7) — or use modular arithmetic over 2^64 with unsigned overflow.
+Treat a length-`k` string as a base-`p` number modulo a large prime `m`: `H = s[0] * p^{k-1} + s[1] * p^{k-2} + ... + s[k-1] * p^0 (mod m)`. Two strings are equal iff their characters match. If the hash function is collision-resistant, two strings whose hashes differ are guaranteed unequal; two strings whose hashes match are *probably* equal — you confirm with a character-by-character compare.
 
-When the window slides right by one position (drop s[i], add s[i+k]):
-```
-H_new = (H_old - s[i]*p^(k-1)) * p + s[i+k]   (mod m)
-```
-O(1) update. Precompute `p^(k-1) mod m` once.
+The rolling part is what makes the algorithm fast. When the window slides right by one position (drop `s[i]`, add `s[i+k]`), the new hash can be computed from the old hash with two multiplications and one addition: `H_new = (H_old - s[i] * p^{k-1}) * p + s[i+k] (mod m)`. So each step costs `O(1)` instead of recomputing the whole hash in `O(k)`. Precompute `p^{k-1} mod m` once at the start and you never recompute it.
+
+The probabilistic guarantee depends on the modulus. With a single 30-bit prime, the false-positive rate is around `1 / 10^9` per comparison; over `N = 10^6` text positions you expect roughly one collision, which you handle with a full string compare. With *double hashing* (two `(p, m)` pairs and require both to match), the collision probability drops to `1 / (m_1 * m_2)` which for two `~10^9` primes is around `10^{-18}` — practically impossible. For adversarial inputs (e.g. competitive-programming hack rounds), randomize `p` so the attacker cannot pre-compute colliding strings.
 
 ## visualization
 ```
@@ -70,17 +59,37 @@ Window 5: "cd" → matches H(pattern) → verify char-by-char.
 **Use Python's str.find()**: typically optimized (Boyer-Moore variants) and is the right tool for one-off use; rolling hash is for the cases where you need *all* matches or *all* window hashes.
 
 ## optimal
-**Double-hashing**: hash with two (p, m) pairs → collision probability ~1/(m1*m2). For (10^9+7, 10^9+9), collisions essentially impossible.
+Use double hashing with two random primes. For each window, compare both hashes; only on a double match run the full character compare. Worst case is `O(NK)` (adversarial input forces full compares); expected and amortized case is `O(N + K)` for single-pattern search.
 
-**Modular arithmetic**: use `unsigned long long` overflow as a free mod-2^64 — fast, but susceptible to anti-hash attacks; choose random p in production.
+```python
+import random
 
-**Pattern matching loop**:
-1. Compute `H_pat` and `H_window` for first window.
-2. Compare; on match verify char-by-char.
-3. Slide window; update H_window in O(1).
-4. Continue to end.
+MOD1, MOD2 = 10**9 + 7, 10**9 + 9
+BASE1, BASE2 = random.randint(257, 10**8), random.randint(257, 10**8)
 
-**Rabin fingerprinting** (rsync): content-defined chunking — slide a 48-byte rolling hash across the file, declare a chunk boundary whenever last N bits of hash are 0.
+def rabin_karp(text, pattern):
+    n, k = len(text), len(pattern)
+    if k > n: return []
+    def hashes_of(s):
+        h1 = h2 = 0
+        for ch in s:
+            h1 = (h1 * BASE1 + ord(ch)) % MOD1
+            h2 = (h2 * BASE2 + ord(ch)) % MOD2
+        return h1, h2
+    p1, p2 = pow(BASE1, k - 1, MOD1), pow(BASE2, k - 1, MOD2)
+    tgt1, tgt2 = hashes_of(pattern)
+    cur1, cur2 = hashes_of(text[:k])
+    hits = []
+    for i in range(n - k + 1):
+        if cur1 == tgt1 and cur2 == tgt2 and text[i:i+k] == pattern:
+            hits.append(i)
+        if i + k < n:
+            cur1 = ((cur1 - ord(text[i]) * p1) * BASE1 + ord(text[i+k])) % MOD1
+            cur2 = ((cur2 - ord(text[i]) * p2) * BASE2 + ord(text[i+k])) % MOD2
+    return hits
+```
+
+The critical line is the rolling-hash update: `(cur - ord(text[i]) * p1) * BASE1 + ord(text[i+k])`. Subtract the outgoing character's contribution (premultiplied by `p1 = BASE^{k-1}`), multiply by the base to shift everything left, then add the incoming character. The `% MOD` at the end keeps the values bounded. Randomizing `BASE` at program startup defeats the standard anti-hash attack where an adversary crafts inputs that collide under a publicly known base. For multi-pattern search switch to Aho-Corasick (also `O(N + K + Z)` for `Z` matches); for plagiarism detection or content-defined chunking, use the Karp-Rabin fingerprint set (winnowing) which keeps a representative subset of hashes per document.
 
 ## complexity
 - **Time:** O(N + K) average, O(NK) worst case (adversarial collisions).

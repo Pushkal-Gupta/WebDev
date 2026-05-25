@@ -129,12 +129,12 @@ export default function SettingsDrawer({ open, onClose }) {
           </button>
         </Row>
 
-        <Row label="Art pack" hint="Switch between procedural art and hand-painted batches.">
-          <div className="es-segmented" role="radiogroup" aria-label="Art pack">
+        <Row label="Theme" hint="Same mechanics — different troops, bases, and backdrops.">
+          <div className="es-segmented" role="radiogroup" aria-label="Theme">
             {[
-              { v: 'classic', label: 'Classic' },
-              { v: 'v1',      label: 'Batch 1' },
-              { v: 'v2',      label: 'Batch 2' },
+              { v: 'classic', label: 'Procedural' },
+              { v: 'v1',      label: 'Painted I' },
+              { v: 'v2',      label: 'Painted II' },
             ].map(({ v, label }) => (
               <button
                 key={v}

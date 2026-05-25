@@ -61,7 +61,7 @@ def view_cart(user_id):
     return cart_store.read(consistency="ONE", read_repair=True)
 ```
 
-The critical line is the `consistency=` parameter — Cassandra, ScyllaDB, and DynamoDB all expose this per-call, which means CAP is not a database choice but an operation choice. For systems where mistakes cost real money, default to CP and only relax for paths you have explicitly reasoned about. The follow-up reading is Kleppmann's *Designing Data-Intensive Applications* chapter 9, which dissects every commercial database's PACELC posture with citations.
+The critical line is the `consistency=` parameter — Cassandra, ScyllaDB, and DynamoDB all expose this per-call, which means CAP is not a database choice but an operation choice. For systems where mistakes cost real money, default to CP and only relax for paths you have explicitly reasoned about. The follow-up reading is Kleppmann's *Designing Data-Intensive Applications* chapter 9, which dissects every commercial database's PACELC posture with citations, and the original Brewer keynote slides from PODC 2000 that started the discussion. A practical CAP audit for any new system asks three questions: which writes must never silently divert during a partition, which reads must never serve stale data, and which paths can tolerate either failure mode; the answers map directly onto the database's per-call consistency knobs.
 
 ## complexity
 - **CP write latency**: bounded by slowest replica in the quorum (cross-region quorum = global RTT).

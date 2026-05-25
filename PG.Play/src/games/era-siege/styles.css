@@ -4920,6 +4920,16 @@
   color: var(--es-mat-bone-dim) !important;
   font-size: 13px !important;
 }
+.es-banner-gate {
+  font-family: var(--es-f-display);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: var(--es-era-trim);
+  opacity: 0.85;
+  margin-top: -2px;
+}
 
 /* ── Tutorial overlay — parchment scroll ───────────────────── */
 .es-tutorial {

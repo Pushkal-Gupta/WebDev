@@ -25,10 +25,14 @@ status: published
 Virtual memory is the lie the kernel tells every process: "you have a private, contiguous, gigantic address space." Reality is a thin translation layer — page tables — mapping virtual page numbers to physical frame numbers (or to disk, or to nothing). The CPU walks this table on every memory access, accelerated by the TLB cache. Demand paging defers loading until first access; copy-on-write defers duplication until first write. Together they make `fork`, `mmap`, and modern process isolation possible.
 
 ## whyItMatters
-Every modern OS, every container runtime, every database mmap-based storage engine builds on this. When `malloc` returns instantly for 4 GB on a 16 GB machine, that's virtual memory. When `fork` doesn't actually duplicate the heap, that's COW. When your container OOMs despite having "free" memory, you're hitting overcommit limits. Interviewers ask this because it underlies questions about performance (TLB misses, page faults), security (process isolation, ASLR), and design (memory-mapped IO, shared libraries).
+Every modern OS, every container runtime, every database mmap-based storage engine builds on virtual memory. When `malloc` returns instantly for 4 GiB on a 16 GiB machine, that is virtual memory. When `fork` does not actually duplicate the heap, that is copy-on-write. When your container OOMs despite having "free" memory, you are hitting overcommit limits. Linux's `mmap`, Postgres's shared buffers, RocksDB's block cache, and Redis's `MAP_PRIVATE` snapshotting all depend on the kernel's paging machinery. Interviewers ask this because it underlies questions about performance (TLB misses, page faults), security (process isolation, ASLR, KASLR), and design (memory-mapped IO, shared libraries, JIT compilation pages). Bryant & O'Hallaron's *Computer Systems: A Programmer's Perspective* chapter 9 is the canonical reference; Drepper's *What Every Programmer Should Know About Memory* (2007) is the deep dive.
 
 ## intuition
-Imagine a library where each reader sees a private catalog numbered 1 to a billion — but the library only owns a few thousand actual books. The librarian (MMU) translates each request: catalog #42 → shelf B, slot 7. If shelf B is empty, the librarian fetches the book from the warehouse (disk) and updates the catalog. If two readers want the same book and only one reads it, they share; the moment one writes, the librarian makes a private copy. The reader never knows.
+Imagine a library where each reader sees a private catalog numbered 1 to a billion — but the library only owns a few thousand actual books. The librarian (the MMU) translates each request: catalog #42 maps to shelf B slot 7. If shelf B is empty, the librarian fetches the book from the warehouse (disk) and updates the catalog. If two readers want the same book and only one reads it, they share; the moment one writes, the librarian makes a private copy. The reader never knows the warehouse exists.
+
+The key abstraction is the *page table*: a per-process map from virtual page numbers to physical frame numbers (plus permission and dirty bits). Modern x86-64 uses a 4-level page table (PML4 → PDPT → PD → PT, each level having 512 entries) so the table itself is sparse — only pages that have been touched have entries. A page is typically 4 KiB but huge pages (2 MiB or 1 GiB) exist to reduce TLB pressure on workloads with large hot regions (Postgres `huge_pages = on`, JVM `-XX:+UseLargePages`).
+
+Three mechanisms make the abstraction efficient. **Demand paging** materializes pages on first access — `malloc(4 GiB)` only consumes one page initially. **Copy-on-write** lets `fork` duplicate the table with all writable pages flagged read-only; the first write traps and the kernel clones just that page. **The TLB** (typically 64–1024 entries) caches recent translations so the four-level walk happens only on misses.
 
 ## visualization
 Trace one load instruction: CPU issues `mov rax, [0x7fff1234]`. The MMU splits the address into VPN (virtual page number) and offset. It checks the TLB — cache hit, instant translation to physical frame 0x9000, fetch byte at offset, done in 1 cycle. Cache miss: the MMU walks the 4-level page table (PML4 → PDPT → PD → PT) — 4 memory loads. If the final PTE has present=0, the CPU raises a page fault; the kernel's handler either allocates a zero page, reads from swap, or maps a file-backed page from the page cache.
@@ -37,7 +41,18 @@ Trace one load instruction: CPU issues `mov rax, [0x7fff1234]`. The MMU splits t
 A system without virtual memory (early DOS, embedded MCUs) uses physical addresses directly. Processes share one flat space, so one bad pointer corrupts the kernel. Loading a 4 GB binary requires 4 GB of contiguous physical RAM. Forking duplicates the entire heap eagerly. Multitasking is fragile — you must trust every program never to scribble outside its allocation. Workable for single-purpose embedded code; catastrophic for multi-user servers.
 
 ## optimal
-Hardware-assisted paging plus on-demand mapping. The page table starts mostly empty; pages materialize on first access (demand paging). Shared libraries map the same physical frames into many processes (only one libc.so in RAM). Fork duplicates the page table with all writable pages marked read-only — the first write triggers a fault and the kernel clones only that one page (COW). Swap extends RAM with disk-backed pages. The TLB caches recent translations so the page-table walk is amortized to near-zero.
+Hardware-assisted paging plus on-demand mapping is the universal design. The page table starts mostly empty; pages materialize on first access (demand paging) via a minor page fault that the kernel handles in microseconds. Shared libraries map the same physical frames into many processes — only one `libc.so` lives in RAM regardless of how many processes use it. `fork` duplicates the page table with all writable pages marked read-only; the first write triggers a fault and the kernel clones only that one page (copy-on-write). Swap extends RAM with disk-backed pages so the kernel can reclaim memory under pressure. The TLB caches recent translations so the page-table walk amortizes to near-zero.
+
+```c
+// Linux: explicit huge pages for a database buffer pool
+void* buf = mmap(NULL, size,
+                 PROT_READ | PROT_WRITE,
+                 MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB,
+                 -1, 0);
+if (buf == MAP_FAILED) perror("mmap huge");
+```
+
+The critical flag is `MAP_HUGETLB`: it backs the region with 2 MiB pages, reducing TLB pressure by 512x for a workload that frequently touches the buffer. Postgres, MySQL InnoDB, and most JVMs expose configuration to opt into this. For typical applications the kernel default (4 KiB pages with transparent huge-page promotion via `khugepaged`) is good enough. Monitor `vmstat` `pgfault` / `pgmajfault` for working-set misses; major faults touch disk and cost milliseconds, minor faults stay in RAM and cost microseconds. Container OOM kills almost always trace back to misreading `MemAvailable` (kernel-tracked headroom) versus `MemFree` (truly idle pages).
 
 ## complexity
 time: TLB hit ~ 1 cycle; TLB miss + page-table walk ~ 100-300 cycles; page fault ~ 10K-1M cycles depending on disk

@@ -8,6 +8,14 @@ PGcode is a single-author DSA / interview-prep platform aiming to be measurably 
 
 Live: `https://pushkalgupta.com/PGcode/dist/index.html` (HashRouter; URLs use `#/`).
 
+## Planned expansion — ML / numerical / systems topics
+
+Next major expansion: replicate the structure + depth of https://www.tensortonic.com/ in the user's own voice, with original visualizations. Scope includes machine-learning foundations (linear algebra primitives, gradient descent, backprop, attention, transformers, optimizers, regularization, RL basics), numerical methods, and adjacent CS topics that don't fit DSA/interview-prep. **NOT a copy-paste** — same coverage, original writing, original ASCII + interactive visualizations matching the existing PGcode tone.
+
+How to slot it in is undecided — could be a new top-level area (`/ml`) with its own modules + sub-modules, or could fold into Concepts as a new module-of-modules. Decide with the user before starting.
+
+When the user gives the green light to start, they want to discuss the partitioning before any content lands. Until then: do not start writing ML content.
+
 ## Content-quality bars (HARD)
 
 - **Concepts** must hit: intro 60+ w, whyItMatters 70+ w, **intuition ≥ 200 w**, **visualization ≥ 8 fenced ASCII lines**, bruteForce 60+ w, **optimal ≥ 200 w**, complexity 40+ w, pitfalls ≥ 4 items, interviewTips 3 items, code blocks for all 4 languages (Python / JS / Java / C++).

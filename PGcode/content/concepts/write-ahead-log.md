@@ -25,10 +25,14 @@ status: published
 Write-Ahead Logging (WAL) is the rule that any change to persistent state must first be recorded in an append-only log on stable storage before the in-place data page is modified. Because the log is sequential and idempotent, a crashed system can replay the tail to redo committed changes and undo in-flight ones — restoring a consistent snapshot without scanning the entire dataset.
 
 ## whyItMatters
-Without WAL, a crash during a multi-page update can leave the database in an undefined hybrid state — some pages updated, some not, no way to tell. With WAL, recovery is mechanical: replay log records from the last checkpoint, redo everything marked committed, undo anything else. Postgres, MySQL InnoDB, SQLite WAL mode, RocksDB, Kafka, ext4 journal, ZFS ZIL — every serious storage system uses some flavor of this protocol.
+Without a write-ahead log, a crash during a multi-page update can leave the database in an undefined hybrid state — some pages updated, some not, no way to tell. With WAL, recovery is mechanical: replay log records from the last checkpoint, redo everything marked committed, undo anything else. The ARIES paper (Mohan et al. 1992) is the canonical reference; every serious storage system implements some flavor of it. Postgres, MySQL InnoDB, SQLite WAL mode, RocksDB, LevelDB, etcd, Kafka's commit log, ext4 journal, ZFS ZIL, and the entire LSM-tree family use WAL. Without it there is no notion of "committed"; with it durability becomes a single fsync away.
 
 ## intuition
-Think of a bank teller jotting every transaction in a paper ledger before touching account balances. If the teller faints mid-shift, the next teller reads the ledger, replays anything not yet posted, and rolls back anything obviously incomplete (no matching "committed" stamp). The ledger is append-only and sequential — fast to write and easy to replay; the actual balance book is random-access and slow, so we keep it lazy.
+Think of a bank teller jotting every transaction in a paper ledger *before* touching account balances. If the teller faints mid-shift, the next teller reads the ledger, replays anything not yet posted to the balance book, and rolls back anything obviously incomplete (no matching "committed" stamp). The ledger is append-only and sequential — fast to write and easy to replay; the actual balance book is random-access and slow, so we keep its updates lazy and let the next checkpoint catch them up.
+
+Three invariants make this work. **Log-before-data (the WAL rule)**: every log record describing a change is durable on disk before its corresponding data page is allowed to be flushed. If you flush the page first and crash before the log, recovery cannot tell whether the change should be redone or undone. **Commit equals log-flush**: a transaction is considered committed only after its `COMMIT` record is on stable storage; the data pages may still be dirty in memory at that point. **Checkpoints**: periodically flush all dirty pages and write a checkpoint marker, so recovery only needs to replay log from the last checkpoint, not from the dawn of time.
+
+The performance trick is group commit. A single fsync costs roughly 10 ms on a spinning disk (or hundreds of microseconds on NVMe). If every transaction fsyncs individually you cap throughput at a few hundred TPS. Group commit batches many transactions' `COMMIT` records into one fsync; throughput scales linearly with batch size at the cost of a small latency bump (a few hundred microseconds while the batch fills).
 
 ## visualization
 Timeline of four operations: T1 BEGIN, T1 SET x=5, T1 COMMIT, T2 BEGIN, T2 SET y=9, then crash. WAL on disk: `[T1.begin][T1.x=5][T1.commit][T2.begin][T2.y=9]`. Data pages on disk still show `x=0, y=0` because the dirty-page flush had not happened. Recovery: scan WAL forward, redo T1 (apply x=5), see T2 has no commit record, undo T2 (skip). Final state: `x=5, y=0`. Durability preserved using only the log.
@@ -37,7 +41,31 @@ Timeline of four operations: T1 BEGIN, T1 SET x=5, T1 COMMIT, T2 BEGIN, T2 SET y
 Update data pages in place and flush them synchronously on every write. Correct but ruinously slow: each commit triggers random-write I/O proportional to the number of pages touched. A multi-row insert touching 5 pages costs 5 random fsyncs — 50 ms on spinning disk, 5 ms even on SSD. WAL collapses that into one sequential append plus one fsync, regardless of how many pages the transaction dirtied.
 
 ## optimal
-Three invariants make WAL work. (1) **Log-before-data**: every log record describing a change is durable on disk before its corresponding page is flushed. (2) **Commit = log-flush**: a transaction is considered committed only after its COMMIT record is on stable storage. (3) **Checkpoints**: periodically flush all dirty pages and write a checkpoint marker so recovery only needs to replay log from the last checkpoint, not from the dawn of time. **Group commit** batches many transactions' COMMIT records into one fsync — instead of N fsyncs/sec ceiling, you get N × batch-size throughput. ARIES adds LSNs (Log Sequence Numbers) per page so recovery can skip a redo if the page already saw it.
+Three invariants, plus the operational machinery that makes WAL fast and recoverable. The WAL rule prevents torn states. Commit equals log-flush is what gives durability. Checkpoints bound recovery time. Group commit makes throughput acceptable. ARIES adds per-page Log Sequence Numbers (LSNs) so recovery's redo phase can skip a record if the page already saw it — the *page LSN* is stamped on every dirty page and compared against the log record's LSN during recovery.
+
+```python
+# Conceptual WAL implementation
+class WAL:
+    def __init__(self, path):
+        self.f = open(path, 'ab', buffering=0)
+        self.lsn = self._scan_max_lsn() + 1
+    def append(self, txn_id, kind, payload):
+        rec = (self.lsn, txn_id, kind, payload)
+        self.f.write(serialize(rec))
+        self.lsn += 1
+        return self.lsn - 1
+    def commit(self, txn_id):
+        self.append(txn_id, 'COMMIT', None)
+        os.fsync(self.f.fileno())  # durability barrier
+    def replay_from(self, checkpoint_lsn, page_table):
+        for rec in self._scan(start_lsn=checkpoint_lsn):
+            page = page_table.get(rec.page_id)
+            if page.lsn < rec.lsn:        # ARIES: skip if page already saw it
+                page.apply(rec)
+                page.lsn = rec.lsn
+```
+
+The critical line is `os.fsync(self.f.fileno())` inside `commit` — a write that has not been fsynced is not durable; it lives in the OS page cache and disappears on power loss. Postgres exposes `synchronous_commit = on` (per-transaction fsync, durable) versus `off` (group commit deferred; faster but loses at most a few hundred ms on crash). Group commit batches many transactions' fsyncs together: Postgres's `commit_delay` and InnoDB's `innodb_flush_log_at_trx_commit = 1` plus binlog group commit are the canonical knobs. For LSM-tree storage (RocksDB, LevelDB), the WAL plus an in-memory memtable plus periodic flush is the same pattern with different terminology. The follow-up reading is the ARIES paper, the Postgres `xlog.c` source, and the SQLite WAL whitepaper — all three are remarkably readable.
 
 ## complexity
 time: O(1) amortized per logged change (sequential append); recovery is O(log-size-since-checkpoint)

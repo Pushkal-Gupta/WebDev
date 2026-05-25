@@ -25,10 +25,14 @@ status: published
 The lowest common ancestor (LCA) of two nodes u and v in a rooted tree is the deepest node that is an ancestor of both. Binary lifting precomputes, for every node, its 2^0, 2^1, 2^2, ... ancestors, then answers any LCA query in O(log n) by jumping in powers of two.
 
 ## whyItMatters
-LCA underpins distance queries on trees (dist(u, v) = depth[u] + depth[v] - 2*depth[lca]), path-sum queries with prefix arrays, auxiliary structures like virtual trees, and offline algorithms like Tarjan's. Once you have O(log n) LCA, dozens of tree problems collapse to a few lines. Binary lifting is also the cleanest answer to the "k-th ancestor" interview question, so the same table solves two classic problems at once.
+LCA underpins distance queries on trees (`dist(u, v) = depth[u] + depth[v] - 2 * depth[lca]`), path-sum and path-max queries with prefix arrays, virtual-tree auxiliary structures, jump-pointer compression of long ancestor chains, and Tarjan's offline LCA algorithm. Once you have `O(log n)` LCA, dozens of tree problems collapse to a few lines: nearest-marked-ancestor, range-kth-on-path, level ancestor, and the entire family of heavy-light decomposition queries. Binary lifting is also the cleanest answer to the "k-th ancestor" interview question, so the same table solves two classic problems at once. Used inside compiler dominator-tree analyses (Cooper-Harvey-Kennedy 2001), version-control merge bases (`git merge-base` walks a binary-lifting table over the commit DAG), and competitive-programming solutions across Codeforces and ICPC.
 
 ## intuition
-Any positive integer k can be written as a sum of distinct powers of two — its binary representation. So to climb k steps from a node, climb 2^a steps, then 2^b steps, and so on for each set bit of k. If we store the 2^j-th ancestor of every node in a table `up[j][v]`, each jump is O(1). To find the LCA, first lift the deeper node to match depths, then lift both nodes together by the largest j that does not overshoot, until they are siblings of the LCA.
+Any non-negative integer `k` is the sum of distinct powers of two — its binary representation. To climb `k` steps from a node, climb `2^{a_1}` steps, then `2^{a_2}` steps, and so on for each set bit of `k`. If we store the `2^j`-th ancestor of every node in a table `up[j][v]`, each jump is `O(1)` and there are at most `log_2 n` jumps to perform — total `O(log n)` per `k`-th-ancestor query.
+
+LCA reduces to k-th ancestor in two steps. First, bring both query nodes to the same depth by lifting the deeper one up by `depth[u] - depth[v]` steps (the binary representation of the difference tells you which lifts to apply). After this both nodes are at the same level. If they are now the same node, that node is the LCA.
+
+Otherwise lift them in lockstep: for `j` from `LOG` down to `0`, if `up[j][u] != up[j][v]` then move both up by `2^j` (they are still below the LCA). When the loop ends both nodes sit immediately below the LCA, so the answer is `up[0][u]` (which equals `up[0][v]`). The top-down direction of the second loop is essential: it guarantees that you never overshoot the LCA, because each jump only fires when the two nodes are still distinct.
 
 ## visualization
 Picture a tree rooted at 1 with edges 1-2, 1-3, 2-4, 2-5, 4-6. Depths: 1:0, 2:1, 3:1, 4:2, 5:2, 6:3. Build up[0][.] = parent, up[1][.] = grandparent, up[2][.] = great-great-grandparent. To find LCA(6, 5): depth[6]=3, depth[5]=2, so lift 6 by 2^0 = 1 step → 4. Now both at depth 2. Lift both by largest power that keeps them distinct: 2^0 lifts 4 → 2 and 5 → 2, equal, so skip. They are direct children of LCA, so LCA = parent of 4 = 2.
@@ -37,7 +41,40 @@ Picture a tree rooted at 1 with edges 1-2, 1-3, 2-4, 2-5, 4-6. Depths: 1:0, 2:1,
 Walk both pointers up to the root one parent at a time, marking visited ancestors in a hash set; first node already in the set is the LCA. O(n) per query, O(1) preprocessing. For a single query this is fine, but Q queries on a tree of n = 10^5 nodes burn Q*n work — 10^10 ops at Q = 10^5, far too slow for typical contest limits.
 
 ## optimal
-Preprocess: DFS from the root recording depth[v] and up[0][v] = parent[v]. For j from 1 to LOG: up[j][v] = up[j-1][ up[j-1][v] ]. Query LCA(u, v): if depth[u] < depth[v], swap. Let diff = depth[u] - depth[v]; for each set bit j of diff, u = up[j][u]. If u == v, return u. Otherwise for j from LOG down to 0, if up[j][u] != up[j][v], move both up by 2^j. Return up[0][u]. Preprocessing is O(n log n) time and space; each query is O(log n).
+Preprocess in `O(n log n)` time and space: DFS from the root recording `depth[v]` and `up[0][v] = parent[v]`. For `j` from `1` to `LOG = ceil(log2(n))`, set `up[j][v] = up[j-1][up[j-1][v]]`. Query LCA(u, v) in `O(log n)`: if `depth[u] < depth[v]` swap. Let `diff = depth[u] - depth[v]`; for each set bit `j` of `diff` set `u = up[j][u]`. If `u == v` return `u`. Otherwise for `j` from `LOG` down to `0`, if `up[j][u] != up[j][v]` set `u = up[j][u]; v = up[j][v]`. Return `up[0][u]`.
+
+```python
+class LCA:
+    def __init__(self, n, root, tree):
+        self.LOG = max(1, (n - 1).bit_length())
+        self.depth = [0] * n
+        self.up = [[-1] * n for _ in range(self.LOG + 1)]
+        stack = [(root, -1, 0)]
+        while stack:
+            v, p, d = stack.pop()
+            self.depth[v] = d
+            self.up[0][v] = p
+            for w in tree[v]:
+                if w != p:
+                    stack.append((w, v, d + 1))
+        for j in range(1, self.LOG + 1):
+            for v in range(n):
+                if self.up[j-1][v] != -1:
+                    self.up[j][v] = self.up[j-1][self.up[j-1][v]]
+
+    def lca(self, u, v):
+        if self.depth[u] < self.depth[v]: u, v = v, u
+        diff = self.depth[u] - self.depth[v]
+        for j in range(self.LOG + 1):
+            if (diff >> j) & 1: u = self.up[j][u]
+        if u == v: return u
+        for j in range(self.LOG, -1, -1):
+            if self.up[j][u] != self.up[j][v]:
+                u = self.up[j][u]; v = self.up[j][v]
+        return self.up[0][u]
+```
+
+The critical recurrence is `up[j][v] = up[j-1][up[j-1][v]]` — the `2^j`-th ancestor is the `2^{j-1}`-th ancestor of the `2^{j-1}`-th ancestor. Two half-jumps compose into one full jump. The query is two passes: equalize depths via the set bits of the depth difference, then climb together via descending powers of two. For `O(1)` LCA at the price of harder preprocessing, switch to the Euler-tour + RMQ approach with Bender-Farach-Colton sparse table (`O(n)` preprocess, `O(1)` query); for dynamic trees with edge insertions and queries, link-cut trees give `O(log n)` per operation.
 
 ## complexity
 time: O(n log n) preprocess + O(log n) per query

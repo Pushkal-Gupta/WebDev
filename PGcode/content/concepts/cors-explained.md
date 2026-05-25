@@ -27,23 +27,14 @@ A browser at `https://app.example.com` makes a `fetch('https://api.bank.com/bala
 The model: same-origin is automatic; cross-origin requires server consent via `Access-Control-Allow-Origin` (and friends). Non-simple requests (custom headers, non-GET/POST/HEAD, etc.) get a **preflight OPTIONS** request first.
 
 ## whyItMatters
-CORS surprises every web developer at least once:
-- Local dev → API at different port → broken.
-- SaaS embedded widget → blocked on customer domains.
-- `fetch` returns a response that JS sees as opaque + can't read body.
-
-Understanding CORS unlocks: cross-origin APIs, third-party widgets, public CDN assets, embedded iframes, cookie-based auth across subdomains.
+CORS surprises every web developer at least once: local dev calling an API at a different port fails, a SaaS embed gets blocked on customer domains, a `fetch` returns a response that JavaScript sees as opaque and cannot read. Understanding CORS unlocks cross-origin APIs, third-party widgets, public CDN assets, embedded iframes, and cookie-based auth across subdomains. The model is specified in the *Fetch Living Standard* (WHATWG) with HTTP-side requirements in RFC 6454 (the Web Origin Concept) and the related preflight semantics maintained by the W3C. Every major SaaS platform (Stripe, Auth0, Plaid, Algolia) has to think about CORS for its embeddable widgets; every reverse-proxy config (Nginx, Envoy, Cloudflare Workers) ships CORS helpers; misconfiguring it is the cause of a substantial fraction of "my API works in curl but not in the browser" tickets.
 
 ## intuition
-**Origin** = scheme + host + port. `https://a.com` ≠ `http://a.com` ≠ `https://a.com:8080`.
+**Origin** = scheme + host + port. `https://a.com`, `http://a.com`, and `https://a.com:8080` are three different origins. The browser enforces the **Same-Origin Policy** (SOP): JavaScript can only read responses whose origin matches the page's origin. Cross-origin writes — form posts, image loads, script tags — have always been allowed because the early web was built that way; cross-origin *reads* are blocked unless the server opts in.
 
-**Same-origin**: read freely.
+CORS is the server's opt-in protocol. For a *simple* request (GET, HEAD, or POST with a basic content type, no custom headers), the browser sends it normally and then checks the response's `Access-Control-Allow-Origin` header. If the header allows the page's origin (or is `*`), JavaScript gets to read the body; otherwise the browser hides the response. For anything more interesting (PUT, DELETE, JSON content type, custom headers), the browser sends a **preflight** `OPTIONS` request first asking "would you allow this real request?" The server responds with the allowed methods, headers, and credentials policy; only then does the browser send the real request.
 
-**Cross-origin** writes (forms, navigation, image loads, script tags): always allowed — this is historical legacy.
-
-**Cross-origin JS reads** (fetch, XHR, EventSource): blocked unless server returns `Access-Control-Allow-Origin: <your-origin>` (or `*`).
-
-**Preflight**: for requests with non-default methods/headers (PUT, DELETE, custom headers, `Content-Type: application/json` triggers it too), browser FIRST sends `OPTIONS /resource` with `Access-Control-Request-Method` + `Access-Control-Request-Headers`. Server responds with allowed methods/headers; browser then sends the real request.
+The single most confusing piece is `Access-Control-Allow-Credentials: true`. Without it cookies and the `Authorization` header are stripped from cross-origin requests. With it the response must specify an explicit origin (`*` is forbidden), and the browser will send cookies — which is exactly when CSRF protection becomes relevant and you need `SameSite=Strict` or anti-CSRF tokens.
 
 ## visualization
 ```
@@ -78,29 +69,32 @@ POST with JSON body (preflight):
 The correct path: specific origin + `Access-Control-Allow-Credentials: true` if cookies/auth needed.
 
 ## optimal
-**Server response headers**:
-- `Access-Control-Allow-Origin: https://app.example.com` (specific origin OR `*`)
-- `Access-Control-Allow-Methods: GET, POST, PUT, DELETE`
-- `Access-Control-Allow-Headers: Content-Type, Authorization`
-- `Access-Control-Allow-Credentials: true` (if cookies/auth needed)
-- `Access-Control-Max-Age: 86400` (cache preflight for 24h to skip re-OPTIONS)
-- `Access-Control-Expose-Headers: X-Custom-Header` (JS can only read these custom response headers)
+Configure CORS at the edge (CDN, API gateway, reverse proxy) rather than inside every service so the policy lives in one place. Pin `Access-Control-Allow-Origin` to a specific origin list — never use `*` for endpoints that handle cookies or sensitive data, because `*` plus `Allow-Credentials: true` is forbidden by spec and would expose the API to any origin. Cache preflights with `Access-Control-Max-Age: 86400` to skip the extra `OPTIONS` round-trip for 24 hours.
 
-**Preflight cache** is critical: without `Max-Age`, every PUT/DELETE incurs a round-trip per request. With `Max-Age: 86400`, browser remembers for 24h.
+```nginx
+map $http_origin $cors_origin {
+    default "";
+    "~^https://(app|admin)\.example\.com$" $http_origin;
+}
 
-**Dynamic origin allowlist** (typical):
-```js
-// Express
-app.use(cors({
-  origin: (origin, callback) => {
-    const allowed = ['https://app.example.com', 'https://staging.example.com'];
-    if (!origin || allowed.includes(origin)) callback(null, true);
-    else callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true,
-  maxAge: 86400,
-}));
+server {
+    location /api/ {
+        if ($request_method = OPTIONS) {
+            add_header Access-Control-Allow-Origin $cors_origin always;
+            add_header Access-Control-Allow-Methods 'GET, POST, PUT, DELETE' always;
+            add_header Access-Control-Allow-Headers 'Content-Type, Authorization' always;
+            add_header Access-Control-Allow-Credentials 'true' always;
+            add_header Access-Control-Max-Age 86400 always;
+            return 204;
+        }
+        add_header Access-Control-Allow-Origin $cors_origin always;
+        add_header Access-Control-Allow-Credentials 'true' always;
+        proxy_pass http://backend;
+    }
+}
 ```
+
+The critical pattern is the `map` directive that whitelists exact origins via regex — never echo `$http_origin` back unconditionally or you have effectively disabled CORS protection. Pair this with `Access-Control-Expose-Headers` for any custom response headers JavaScript needs to read (the browser hides them by default), and remember that `Set-Cookie` always requires `Allow-Credentials: true` plus an explicit origin to actually land. For SaaS embeds whose customer origins are unknown ahead of time, the safest pattern is to load the widget from your own subdomain inside an iframe and communicate via `postMessage`, sidestepping CORS entirely.
 
 ## complexity
 - **Preflight overhead**: 1 extra round-trip per unique (method, origin, headers) combo. Mitigated by `Max-Age`.

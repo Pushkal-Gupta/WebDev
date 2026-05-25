@@ -25,10 +25,12 @@ status: published
 Kerberos is the SSO protocol that runs every Active Directory domain on Earth. It uses symmetric crypto and a trusted third party — the Key Distribution Center (KDC) — to let a user authenticate once and then hand short-lived, encrypted *tickets* to every service they need to call. No password crosses the wire, services never store user passwords, and replay attacks are blocked by timestamps and a tiny replay cache.
 
 ## whyItMatters
-If you run a Windows shop, Hadoop cluster, or PostgreSQL with `gssapi` auth, you are running Kerberos whether you read the RFC or not. Senior interviews ask "design enterprise SSO" expecting you to compare Kerberos (intranet, symmetric, AD-backed) against SAML (web, XML, federated) against OIDC (web, JSON, modern). Misreading Kerberos as "old and irrelevant" loses the question.
+If you run a Windows domain, a Hadoop or Spark cluster, a PostgreSQL deployment with `gssapi` auth, or any NFS-with-strong-security setup, you are running Kerberos whether you read RFC 4120 or not. Active Directory uses it for every workstation logon since Windows 2000. Cloudera's CDH, MIT Athena, MapR, and the Apache Hadoop security model all depend on it. Senior interviews at Microsoft, Google Cloud, and AWS Identity ask candidates to compare Kerberos (intranet, symmetric, AD-backed) against SAML 2.0 (web, XML, federated) against OIDC (web, JSON, modern) — misreading Kerberos as legacy is a fast way to fail the round. The protocol is also a model case study in symmetric-key cryptography and timestamp-based replay defense.
 
 ## intuition
 Three parties: the user (Client), the Authentication Server (AS), and a Service (e.g. a file share). The AS is split into two roles: the *AS* proper, which issues a Ticket-Granting Ticket (TGT) at login, and the *TGS* (Ticket-Granting Service), which trades the TGT for per-service tickets. Imagine an amusement park: at the gate you exchange your ID for a wristband (TGT). At each ride, you show the wristband to a turnstile (TGS), which gives you a one-ride coupon (service ticket). You hand the coupon to the ride operator (the service). Lose the wristband and you have to go back to the gate.
+
+The deeper insight is what each ticket actually contains. A TGT is a blob encrypted with the TGS's secret key, so only the TGS can decrypt it — the client carries it but cannot read it. Inside is a session key plus the user's identity and a lifetime. The client also receives a copy of the session key, separately encrypted with the user's password-derived key, so only the right user can extract it. Every subsequent request is authenticated by a fresh *authenticator* (a timestamp encrypted with the session key) that proves possession of the key without revealing it. Replay attacks fail because the timestamp must fall inside a 5-minute clock-skew window and the service caches recent authenticators to reject duplicates.
 
 ## visualization
 ```
@@ -52,7 +54,21 @@ The TGT lasts ~10 hours; service tickets last ~5 minutes. The session_key inside
 "Just give every service the user's password and let it check." This is the world Kerberos replaced. Every service now stores or sees passwords, password rotation is a fleet-wide outage, and a single compromised service leaks credentials for every other service the user touches. There is no SSO and no centralized revocation.
 
 ## optimal
-Run Kerberos with a hardened KDC pair (active + standby), strict clock sync (NTP within 5 minutes — Kerberos rejects requests outside the skew window), and AES-256 enctypes only (disable RC4 and DES). Use FAST (Flexible Authentication Secure Tunneling) for armored pre-authentication so the AS-REP cannot be offline-cracked. Pair with Constrained Delegation when one service needs to call another on the user's behalf. For non-AD shops, MIT Kerberos and Heimdal are the canonical implementations.
+Run Kerberos with a hardened KDC pair (active + standby) on a dedicated, locked-down host. Enforce strict NTP within 5 minutes — Kerberos rejects requests outside the skew window. Use AES-256 enctypes only; disable RC4, DES, and 3DES via the `permitted_enctypes` and `default_tkt_enctypes` settings. Enable FAST (Flexible Authentication Secure Tunneling, RFC 6113) for armored pre-authentication so the AS-REP cannot be offline-cracked from passive captures. Pair with Constrained Delegation (S4U2Self / S4U2Proxy) when one service needs to call another on the user's behalf without holding the user's password.
+
+```ini
+# /etc/krb5.conf — production-grade defaults
+[libdefaults]
+  default_realm = CORP.EXAMPLE.COM
+  default_tgs_enctypes = aes256-cts-hmac-sha384-192 aes256-cts-hmac-sha1-96
+  default_tkt_enctypes = aes256-cts-hmac-sha384-192 aes256-cts-hmac-sha1-96
+  permitted_enctypes  = aes256-cts-hmac-sha384-192 aes256-cts-hmac-sha1-96
+  forwardable = true
+  rdns = false
+  fast_required = true
+```
+
+The critical line is `fast_required = true` — it forces every AS-REQ to be FAST-armored, which closes the offline-cracking attack against weak passwords. For non-AD shops, the canonical implementations are MIT Kerberos (`krb5kdc`) and Heimdal; both ship with `kadmin` for principal management and `kinit` / `klist` for client testing. Modern deployments layer PKINIT (RFC 4556) for smart-card / certificate logon and use the GSSAPI binding (RFC 2743) so applications stay protocol-agnostic. Audit principal expirations, rotate the krbtgt account password twice (Microsoft's documented procedure to invalidate Golden Ticket persistence after compromise), and monitor `kadmin.log` for unusual ticket issuance patterns. Pair with SPN management: every service principal name (`HTTP/web01.corp.example.com`) must map to exactly one account or attackers can request tickets that decrypt under multiple keys.
 
 ## complexity
 time: 3 round trips at first login (AS, TGS, AP); subsequent service calls reuse the cached service ticket — zero KDC traffic for ~5 minutes.

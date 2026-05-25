@@ -434,15 +434,31 @@ function drawBaseHpAndLabel(ctx, x, groundY, side, isPlayer) {
 
   ctx.save();
 
-  // Glass panel — translucent carbon
-  ctx.fillStyle = 'rgba(12, 19, 32, 0.78)';
-  roundRect(ctx, frameX, frameY, frameW, frameH, 8);
-  ctx.fill();
-  // Hairline cyan stroke
-  ctx.strokeStyle = accent;
-  ctx.lineWidth = 1;
-  roundRect(ctx, frameX + 0.5, frameY + 0.5, frameW - 1, frameH - 1, 7.5);
-  ctx.stroke();
+  // Art-pack HP-bar underlay (v1/v2 only). When the era ships a painted
+  // bar, blit it behind the segments at frame size; the segmented fill +
+  // numerals stay on top for live HP feedback. Falls through to procedural
+  // glass panel when the asset isn't loaded.
+  const eraN = (side.eraIndex != null ? side.eraIndex : 0) + 1;
+  const hpBarKey = `ui/hp-bar-era${eraN}`;
+  const hasHpBarArt = assets.has(hpBarKey);
+
+  if (hasHpBarArt) {
+    // Painted plate fills the frame; renderer treats it as a slot-sized
+    // backplate so cropping just needs to match aspect ~7.6:1 (frame).
+    const cx = x;
+    const cy = frameY + frameH / 2;
+    assets.draw(ctx, hpBarKey, cx, cy, { w: frameW, h: frameH, flipX: !isPlayer });
+  } else {
+    // Glass panel — translucent carbon
+    ctx.fillStyle = 'rgba(12, 19, 32, 0.78)';
+    roundRect(ctx, frameX, frameY, frameW, frameH, 8);
+    ctx.fill();
+    // Hairline cyan stroke
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 1;
+    roundRect(ctx, frameX + 0.5, frameY + 0.5, frameW - 1, frameH - 1, 7.5);
+    ctx.stroke();
+  }
 
   // Nameplate text — Space Grotesk small-caps
   ctx.fillStyle = isPlayer ? '#cfe5f5' : '#ffcfe6';

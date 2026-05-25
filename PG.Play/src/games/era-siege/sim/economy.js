@@ -36,8 +36,14 @@ export function tickEconomy(state, dt) {
 
 export function awardKill(state, killerSide, deadUnit) {
   // Bounty in gold + xp goes to the killer's side. Stat tracking on both.
+  // Difficulty trims the *player*'s XP (and gold-from-kills could one day
+  // follow the same shape, but kill bounties currently stay full so the
+  // player feels rewarded for engagement).
+  const xpMul = (killerSide === state.player)
+    ? (state.difficulty?.playerXpRateMul ?? 1)
+    : 1;
   const goldGained = deadUnit.bountyGold | 0;
-  const xpGained   = deadUnit.bountyXp   | 0;
+  const xpGained   = Math.round((deadUnit.bountyXp | 0) * xpMul);
   killerSide.gold += goldGained;
   killerSide.xp   += xpGained;
   if (killerSide === state.player) state.statsPlayer.kills++;

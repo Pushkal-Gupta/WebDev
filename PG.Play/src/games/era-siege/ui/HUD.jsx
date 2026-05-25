@@ -1,9 +1,11 @@
 // Top bar — gold, base HPs, time, era pill (compact).
 
 import { getEraByIndex } from '../content/eras.js';
+import { eraDisplayName } from '../utils/themeDisplay.js';
 
 export default function HUD({ gold, playerHP, enemyHP, maxHP, eraIndex, timeSec }) {
   const era = getEraByIndex(eraIndex);
+  const eraName = eraDisplayName(era);
   return (
     <div className="es-topbar">
       <div className="es-stat">
@@ -17,7 +19,7 @@ export default function HUD({ gold, playerHP, enemyHP, maxHP, eraIndex, timeSec 
       </div>
       <div className="es-stat es-era-pill">
         <span className="es-stat-label">Era</span>
-        <b className="es-stat-num">{(era?.name || '').split(' ')[0]} {eraIndex + 1}</b>
+        <b className="es-stat-num">{(eraName || '').split(' ')[0]} {eraIndex + 1}</b>
       </div>
       <div className="es-stat es-hp es-enemy">
         <span className="es-stat-label">Enemy</span>

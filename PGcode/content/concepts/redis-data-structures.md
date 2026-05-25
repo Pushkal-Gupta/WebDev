@@ -25,10 +25,14 @@ status: published
 Redis is often introduced as "an in-memory key-value store," but that description hides what makes it powerful: each value is a typed data structure with its own operations and complexity guarantees. Strings, lists, sets, hashes, sorted-sets, and streams each map cleanly to a well-known interview data structure — a dynamic array, a doubly-linked list, a hash set, a hash map, a skip list keyed by score, and an append-only log. Knowing which primitive to pick is the difference between a 0.2 ms lookup and a five-second scan.
 
 ## whyItMatters
-Every backend interview at scale touches caching, rate-limiting, leaderboards, session storage, or pub-sub — all of which collapse to a Redis design question. Saying "I'd cache it in Redis" is not an answer; the follow-up is always "with which data structure, and what's the eviction policy?" Choosing the wrong structure (a list when you wanted a sorted-set, a hash when you wanted a set) turns an O(log n) operation into an O(n) one and burns CPU on a single-threaded server that the whole company depends on.
+Every backend interview at scale touches caching, rate-limiting, leaderboards, session storage, or pub-sub — all of which collapse to a Redis design question. Saying "I would cache it in Redis" is not an answer; the follow-up is always "with which data structure, and what is the eviction policy?" Choosing the wrong structure (a list when you wanted a sorted set, a hash when you wanted a set) turns an `O(log n)` operation into `O(n)` and burns CPU on a single-threaded server that the whole company depends on. Twitter's timeline service, Stack Overflow's hot-question cache, Instagram's session store, Discord's presence tracker, and GitHub's job queue all sit on Redis. The 2020 Redis 6 release added client-side caching (Tracking) which made it the default L1 cache for high-RPS services everywhere.
 
 ## intuition
-Treat Redis like a remote process whose memory you can program against with verbs instead of pointers. A `SET key value` is a remote `dict[key] = value`. An `LPUSH queue x` is `queue.appendleft(x)` over the network. A `ZADD leaderboard 1500 alice` is `heap.push((1500, "alice"))` but with O(log n) deletes and rank queries. Picture the underlying structures — a SDS string, a quicklist of listpacks, a dict + listpack hybrid for hashes, a skip list paired with a hash for sorted-sets — and the API memorizes itself.
+Treat Redis like a remote process whose memory you can program against with verbs instead of pointers. `SET key value` is a remote `dict[key] = value`. `LPUSH queue x` is `queue.appendleft(x)` over the network. `ZADD leaderboard 1500 alice` is `heap.push((1500, "alice"))` but with `O(log n)` deletes and rank queries. Picture the underlying structures — a SDS string for binary-safe text, a quicklist of listpacks for lists, a dict + listpack hybrid for hashes, a skip list paired with a hash for sorted sets, an intset or hashtable for sets — and the API memorizes itself.
+
+The single-threaded execution model is the second mental model worth holding. Redis runs one command at a time, so multi-step operations need to be atomic by construction: use `MULTI`/`EXEC` for transactions, or write a Lua script (`EVAL`) for read-modify-write. Pipelining batches many commands into one round-trip without changing their order or atomicity. Pub/Sub, Streams, and the keyspace-notification system are all built on the same event-loop and never block individual command execution.
+
+The third mental model is the memory pressure story. Redis is RAM-bound; when `used_memory` approaches `maxmemory` it evicts according to your `maxmemory-policy`. Get this wrong and your cache evicts the wrong keys or, worse, refuses new writes (`noeviction`). Picking `allkeys-lru` or `volatile-ttl` is the difference between a cache that helps and one that paralyzes traffic during memory crunches.
 
 ## visualization
 Imagine a status page with four widgets:
@@ -44,7 +48,20 @@ Each widget hits a different primitive; all are O(log n) or better.
 The "everything is a string" trap: serialize a JSON blob and stuff it into a single `SET user:42 '{...}'`. To update one field, you `GET` the blob, parse it, mutate it, and `SET` it back. Every read transfers the whole object; every write is a race condition unless wrapped in `WATCH`/`MULTI`. It works for 100 users and falls apart at 100k — the cache becomes a bottleneck instead of an accelerator.
 
 ## optimal
-Match the access pattern to a native type. Counters → `INCR` on a string. Per-field updates → `HSET`/`HINCRBY` on a hash. FIFO queues → `LPUSH` + `BRPOP` on a list. Membership checks → `SADD` / `SISMEMBER` on a set. Leaderboards or time-window indexes → `ZADD` / `ZRANGEBYSCORE` on a sorted-set. Event sourcing or fan-out logs with consumer groups → streams (`XADD`, `XREADGROUP`, `XACK`). Configure `maxmemory-policy` (`allkeys-lru`, `volatile-ttl`, `allkeys-lfu`) so the cache evicts the right entries when memory pressure hits.
+Match the access pattern to a native type. Counters and rate limiters: `INCR` / `INCRBY` on a string with TTL. Per-field updates: `HSET` / `HINCRBY` / `HGETALL` on a hash. FIFO queues: `LPUSH` plus blocking `BRPOP` on a list (or use Streams with consumer groups for durability). Membership checks and unique-set operations (intersections, unions): `SADD` / `SISMEMBER` / `SINTER` on a set. Leaderboards, time-window indexes, or any "top-k by score" query: `ZADD` / `ZRANGEBYSCORE` / `ZRANGEBYLEX` on a sorted set. Event sourcing or fan-out logs with consumer groups: `XADD` / `XREADGROUP` / `XACK` on a stream. Bitmap analytics on user IDs: `SETBIT` / `BITCOUNT` / `BITOP` on a string.
+
+```bash
+# Sliding-window rate limit: 100 req/min per user, atomic via Lua
+EVAL "local k=KEYS[1]; local n=redis.call('INCR',k);
+      if n==1 then redis.call('EXPIRE',k,60) end;
+      return n" 1 rate:user:42
+
+# Top-3 of a leaderboard with one round-trip
+ZADD scores 1500 alice 1450 bob 1600 carol
+ZREVRANGE scores 0 2 WITHSCORES
+```
+
+The critical pattern is the Lua-wrapped rate limiter: `INCR` plus conditional `EXPIRE` would be a race in a multi-shot client, but inside `EVAL` Redis guarantees atomicity because the script runs to completion on a single thread. Configure `maxmemory-policy` to `allkeys-lru` (general cache), `volatile-ttl` (sessions with explicit TTLs), or `allkeys-lfu` (read-heavy with stable hot keys) so memory pressure evicts the right entries. For multi-key transactions across shards use `WAIT` plus client-side retry; for cross-shard consistency switch to Redis Cluster's CRC16 slot routing and design keys with hash tags (`{user:42}:profile`) so related keys land on the same node.
 
 ## complexity
 time: SET/GET O(1); LPUSH/RPUSH/LPOP/RPOP O(1); LINDEX/LRANGE O(n); SADD/SREM/SISMEMBER O(1); HGET/HSET O(1); ZADD/ZREM/ZSCORE O(log n); ZRANGE O(log n + k); XADD O(1) amortized.

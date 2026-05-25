@@ -25,12 +25,14 @@ status: published
 N-Queens: place N chess queens on an N×N board so no two threaten each other (no shared row, column, or diagonal). The problem is small enough to grasp, large enough to *require* backtracking, and structured enough that every smart pruning trick reveals itself. It's the canonical "search with constraints" interview question.
 
 ## whyItMatters
-N-Queens is the gateway drug to backtracking. Once you internalize the search pattern — *place tentatively, recurse, undo if it doesn't work* — every other backtracking problem (Sudoku, word search, combinations, permutations, parenthesis generation) clicks. The bit-manipulation optimization also doubles as a great introduction to "represent a set as bits" thinking, which is foundational for state-space search and bitmask DP.
+N-Queens is the gateway drug to backtracking. Once you internalize the search pattern — place tentatively, recurse, undo if it does not work — every other backtracking problem (Sudoku, word search, combinations, permutations, parenthesis generation) clicks. The bit-manipulation optimization doubles as the canonical introduction to "represent a set as bits" thinking, which is foundational for bitmask DP and state-space search. Knuth's Dancing Links (DLX, TAOCP Volume 4A) uses N-Queens as its running example. Stockfish's move-generation pruning uses the same diagonal-bitmask trick. Google OR-Tools' CP-SAT solver internally instruments N-Queens as a regression benchmark because performance there correlates strongly with general CSP throughput.
 
 ## intuition
 Place one queen per row, top to bottom. For each row, try every column. A column is valid if no previously placed queen shares it, shares the same `/` diagonal (`row + col` equal), or shares the same `\` diagonal (`row - col` equal). Recurse to the next row. If no column works at the current row, backtrack to the previous row and try its next column.
 
-Three sets — `cols`, `posDiag` (`r + c`), `negDiag` (`r - c`) — make conflict checking O(1) per attempt.
+Three sets — `cols`, `posDiag` (`row + col`), `negDiag` (`row - col`) — make conflict checking `O(1)` per attempt. The single most important property of this representation is that adding and removing from a hash set are both `O(1)`, so the symmetric mark-recurse-unmark pattern stays tight. Without the sets you would scan all previously placed queens on every check, turning each conflict test into `O(row)` and the whole search into `O(n * n!)`.
+
+The deeper insight is that backtracking is depth-first search over a tree of partial assignments. The tree's root is the empty board; each child fixes the column for the next row; leaves at depth `n` are complete solutions. Pruning is what prevents the tree from being `n^n` — every illegal partial assignment is rejected immediately rather than after the whole board is placed. The same shape applies to Sudoku (depth = empty cells), graph coloring (depth = vertices), and any CSP you will see in interviews.
 
 ## visualization
 For N=4: row 0, try col 0 → place. Row 1, col 0 conflict (column), col 1 conflict (diagonal r+c=1 vs prev r+c=0... actually no), col 2 OK → place. Row 2: cols 0/2 taken, 1 conflicts diagonally, 3 OK → place. Row 3: all conflict → backtrack to row 2, try col 4 (none) → backtrack to row 1 col 3 → place. Row 2 col 1 OK. Row 3 col 4 (none)... You get the picture. The recursion tree is pruned aggressively by the three sets.
@@ -39,9 +41,28 @@ For N=4: row 0, try col 0 → place. Row 1, col 0 conflict (column), col 1 confl
 Place N queens in `N²` cells in every possible way (`N² choose N` placements) and check each for validity. Astronomically slow — for N=8, that's ~4.4 billion placements. Useless. Even "one queen per row" without diagonal pruning is N^N — for N=8, 16M. Backtracking with the three sets prunes to a few thousand recursive calls for N=8.
 
 ## optimal
-Row-by-row DFS with three boolean sets tracking column / `/`-diagonal / `\`-diagonal occupation. The `/` diagonal is identified by `row + col`; the `\` diagonal by `row - col` (offset by N-1 to keep it non-negative if you use an array instead of a hash set). Each successful row=N completes one solution; collect or count.
+Row-by-row DFS with three sets tracking column / `/`-diagonal / `\`-diagonal occupation. The `/` diagonal is identified by `row + col`; the `\` diagonal by `row - col` (offset by `n - 1` to keep it non-negative if you use an array instead of a hash set). Each successful `row == n` completes one solution; collect or count.
 
-The bit-manipulation variant uses three integers (cols, posDiag, negDiag) as bitmasks and `~(cols | (posDiag<<row) | (negDiag>>row))` to find available columns in one operation — the world-record solver for N=15+ uses this.
+```python
+def total_n_queens(n):
+    cols, pos, neg = set(), set(), set()
+    count = 0
+    def dfs(r):
+        nonlocal count
+        if r == n:
+            count += 1
+            return
+        for c in range(n):
+            if c in cols or (r + c) in pos or (r - c) in neg:
+                continue
+            cols.add(c); pos.add(r + c); neg.add(r - c)
+            dfs(r + 1)
+            cols.remove(c); pos.remove(r + c); neg.remove(r - c)
+    dfs(0)
+    return count
+```
+
+The critical pattern is the symmetric `add` / `remove` pair surrounding the recursive call — backtracking only works if every modification is undone on the way back up. The bit-manipulation variant uses three integers (cols, posDiag, negDiag) as bitmasks and `~(cols | (posDiag << row) | (negDiag >> row))` to find available columns in one operation; the world-record solver for `n >= 18` uses this representation plus symmetry breaking (only enumerate first-row columns `0..n/2 - 1` and double the count, handling the center column carefully when `n` is odd). The exact count of solutions is OEIS A000170; for `n = 12` it is 14,200 placements explored from about 30 million recursion nodes.
 
 ## complexity
 time: O(N!) worst case, but pruning brings it dramatically lower in practice.

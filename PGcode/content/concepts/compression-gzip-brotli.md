@@ -25,10 +25,14 @@ status: published
 HTTP responses, log files, package manifests, and database backups all compress well because text and structured data have massive redundancy. Three modern compressors dominate: **gzip** (DEFLATE, ubiquitous since 1992), **brotli** (Google, ships in every browser, best ratio for text), and **zstd** (Facebook, fastest decompression and tunable across the entire ratio/speed curve). Picking among them is a per-workload trade-off — there is no single winner.
 
 ## whyItMatters
-Bandwidth dominates page-load and API costs at scale. A 30% ratio improvement on HTML cuts CDN egress bills and improves Time-To-Interactive worldwide. The wrong choice (e.g., brotli-11 on dynamic API responses) burns server CPU and worsens latency. The right choice (brotli-4 for HTML, gzip for everything legacy clients touch, zstd for internal RPC and storage) is a senior infra decision interviewers probe for in CDN, performance, and platform roles.
+Bandwidth dominates page-load and API costs at scale. A 30% ratio improvement on HTML cuts CDN egress bills and improves Time-To-Interactive worldwide. The wrong choice (brotli-11 on dynamic API responses) burns server CPU and worsens latency. The right choice (brotli-4 for HTML, gzip for legacy clients, zstd for internal RPC and storage) is a senior infra decision interviewers probe in CDN, performance, and platform roles. gzip (Deutsch RFC 1952, 1996) shipped in every browser since the late 1990s. brotli (Google, RFC 7932, 2016) ships in every modern browser and is the default for static HTML on Cloudflare, Fastly, and most CDNs. zstd (Facebook, RFC 8478, 2018) is the default block compressor in RocksDB, Kafka 2.1+, Linux btrfs, and the Linux kernel itself for module compression.
 
 ## intuition
-Compression replaces repeated patterns with short codes. Imagine a dictionary that maps frequent phrases to one-byte tokens. gzip uses a small sliding window (32 KB) and a fixed coding scheme — fast to set up, modest ratio. brotli adds a 16 MB window plus a 120 KB *static dictionary* of common web text (HTML tags, English words, JS keywords) baked into the spec — that's why it crushes HTML in particular. zstd uses a tunable window (up to multi-GB) and a learned entropy model — adjusting one knob trades CPU for ratio across an enormous range.
+Compression replaces repeated patterns with short codes. Imagine a dictionary that maps frequent phrases to one-byte tokens. **gzip** uses a 32 KiB sliding window plus DEFLATE's fixed Huffman coding scheme — fast to set up, modest compression ratio, ubiquitously supported. **brotli** adds a 16 MiB window plus a 120 KiB *static dictionary* of common web text (HTML tags, English words, JavaScript keywords) baked into the spec — that pre-shared dictionary is why brotli crushes HTML in particular, typically 20-25% smaller than gzip at the same speed. **zstd** uses a tunable window (up to multi-GiB) and a learned entropy model that adjusts on the fly; one knob trades CPU for ratio across an enormous range, from sub-microsecond per byte to brotli-comparable ratios.
+
+The decode side matters as much as the encode side. gzip and brotli decode at roughly the same speed (a few hundred MB/s on modern x86). zstd decodes substantially faster (1-2 GB/s) because its format was designed for low-overhead streaming decompression — that is why Kafka, RocksDB, and storage engines pick zstd: the read path is the hot path and the encoder runs once in the background.
+
+Level selection is the other lever. `level=1` is real-time, `level=11` or `level=22` is offline batch. For HTTP responses, pick a level that fits inside your per-request CPU budget; brotli-4 and gzip-6 are common defaults. For static assets, precompress at the highest level at build time and serve the precompressed file from disk — the CDN never re-encodes.
 
 ## visualization
 Compress a 1 MB HTML page. gzip-6 (default): 200 KB output, 30 ms compress, 5 ms decompress. brotli-4: 170 KB, 50 ms compress, 6 ms decompress. brotli-11 (max): 150 KB, 5000 ms compress (!), 6 ms decompress — only worth it for static assets you compress once and serve a million times. zstd-3: 195 KB, 8 ms compress, 3 ms decompress — fastest of the three at comparable ratio. zstd-19: 165 KB, 800 ms compress, 4 ms decompress — closes the gap with brotli at far lower cost than brotli-11.
@@ -37,7 +41,26 @@ Compress a 1 MB HTML page. gzip-6 (default): 200 KB output, 30 ms compress, 5 ms
 Serve everything uncompressed. Every byte of HTML, JSON, JS, and CSS goes over the wire raw. Bandwidth costs 3-5× higher, mobile users on metered plans suffer, and Time-To-Interactive balloons. Acceptable only for already-compressed binary content (JPEG, MP4, encrypted blobs) where re-compression yields nothing and burns CPU. Even there, the `Content-Encoding: identity` header should be explicit.
 
 ## optimal
-Compress at the right time with the right encoder. Static assets: precompress with brotli-11 *and* gzip-9 at build time, ship both, let the CDN serve based on `Accept-Encoding`. Dynamic responses: on-the-fly brotli-4 or gzip-6 (a small CPU cost for a 70-80% size reduction). Internal RPC: zstd at its default level — best decode speed when both ends are yours. Backups and logs: zstd at a high level, with the long-range mode for cross-file dedup. Storage engines (RocksDB, Parquet): zstd as the default block compressor.
+Compress at the right time with the right encoder. Static assets: precompress with brotli-11 and gzip-9 at build time, ship both, let the CDN serve based on the client's `Accept-Encoding` header. Dynamic responses: on-the-fly brotli-4 or gzip-6 (small CPU cost for a 70-80% size reduction on text). Internal RPC: zstd at its default level (3) — fastest decode when both ends are yours. Backups and logs: zstd at a high level (19), with the long-range mode (`--long`) for cross-file dedup. Storage engine block compression (RocksDB, Parquet): zstd as the default at level 3.
+
+```nginx
+# Static assets pre-compressed at build time
+brotli_static on;
+gzip_static on;
+
+# Dynamic responses compressed on the fly
+brotli on;
+brotli_comp_level 4;
+brotli_types text/html text/css application/json application/javascript image/svg+xml;
+
+gzip on;
+gzip_comp_level 6;
+gzip_types text/html text/css application/json application/javascript image/svg+xml;
+brotli_min_length 1024;
+gzip_min_length 1024;
+```
+
+The critical pattern is the `*_static on` plus per-format `min_length` settings: serve pre-compressed files when they exist on disk (`foo.html.br`, `foo.html.gz`), only compress on the fly when no pre-compressed copy is available, and skip compression entirely for responses smaller than 1 KiB where the per-request CPU cost outweighs the bandwidth savings. Never compress already-compressed payloads (`image/jpeg`, `video/mp4`, `application/zip`); the ratio is negligible and you waste CPU. For internal microservice RPC where both ends are yours, switch from gzip to zstd — clients can advertise `Accept-Encoding: zstd, gzip` and modern servers will pick the best mutual algorithm. Cloudflare's Smart Compression and Fastly's compression policies all implement this exact decision tree out of the box.
 
 ## complexity
 time: compress: gzip-6 ~ 30 MB/s, brotli-4 ~ 20 MB/s, brotli-11 ~ 0.2 MB/s, zstd-3 ~ 500 MB/s, zstd-19 ~ 2 MB/s

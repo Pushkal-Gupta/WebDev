@@ -3,6 +3,7 @@
 
 import { useState } from 'react';
 import { getEraByIndex } from '../content/eras.js';
+import { eraDisplayName } from '../utils/themeDisplay.js';
 
 export default function ResultPanel({
   status, eraIndex, timeSec, score, stats, difficulty, seed,
@@ -10,11 +11,12 @@ export default function ResultPanel({
 }) {
   if (status !== 'won' && status !== 'lost') return null;
   const era = getEraByIndex(eraIndex);
+  const eraName = eraDisplayName(era);
   const summary = status === 'won'
-    ? `Enemy base destroyed in ${era.name}.`
+    ? `Enemy base destroyed in ${eraName}.`
     : eraIndex === 0
       ? 'Defeat — try saving 2 frontliners in the first 10s.'
-      : `Defeat in ${era.name}. Try ${eraIndex < 3 ? 'evolving sooner' : 'turtling a turret line'}.`;
+      : `Defeat in ${eraName}. Try ${eraIndex < 3 ? 'evolving sooner' : 'turtling a turret line'}.`;
 
   const bestScore = persistedStats?.bestScore?.[difficulty] || 0;
   const bestEra   = persistedStats?.bestEra?.[difficulty]   || 0;

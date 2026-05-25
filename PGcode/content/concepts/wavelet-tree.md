@@ -25,10 +25,14 @@ status: published
 A wavelet tree turns a sequence over an alphabet of size sigma into a balanced binary tree of bitvectors. Each level partitions values by one bit of their rank in the sorted alphabet. With rank/select on the bitvectors, you can answer "the k-th smallest element of A[l..r]" in O(log sigma) time using only O(n log sigma) bits of space.
 
 ## whyItMatters
-Range k-th, range frequency, and range quantile queries are bread-and-butter for analytics, search ranking, and competitive programming problems that segment-trees alone cannot solve. A wavelet tree replaces a stack of persistent segment trees with one compact, cache-friendly structure that handles a much wider query menu — including "how many values in A[l..r] lie inside [x..y]?" — in logarithmic time.
+Range k-th, range frequency, and range quantile queries are bread-and-butter for analytics, search ranking, succinct text indexing, and competitive programming problems that segment trees alone cannot solve. A wavelet tree (Grossi, Gupta, Vitter, SODA 2003) replaces a stack of persistent segment trees with one compact, cache-friendly structure that handles a much wider query menu — including "how many values in `A[l..r]` lie inside `[x..y]`?" — in `O(log sigma)` per query, where `sigma` is the alphabet size. The structure is the backbone of the FM-index used by Bowtie and BWA for DNA short-read alignment, and underlies the succinct full-text indexes shipped in `sdsl-lite`. Whenever a problem mentions "order statistics over a range" or "alphabet-restricted counts," the wavelet tree is the right answer.
 
 ## intuition
-Sort the alphabet. The root bitvector marks each position with 0 if its value falls in the lower half of the alphabet, 1 if it falls in the upper half. Recurse: the left child holds the subsequence of "0" positions, the right child holds the "1" positions, each split again by the next bit. Walking the tree from root to leaf using the input range [l..r] is essentially a binary search on the alphabet, guided by rank queries that re-map the range into the chosen child.
+Sort the alphabet. At the root, write a bitvector of the same length as the input: bit `i` is 0 if `A[i]` belongs to the lower half of the alphabet, 1 if upper half. The left child holds the subsequence of positions whose bit was 0, the right child the subsequence whose bit was 1; each child splits its half of the alphabet again. The tree has `log sigma` levels, each level storing a bitvector whose total length across siblings is exactly `n`. So the whole structure is `n * log sigma` bits — succinct.
+
+The magic of the structure is that *rank queries on the bitvector* re-map an input range `[l..r]` into the child range that contains the same elements. If you are looking for the k-th smallest in `[l..r]`, count the zeros in `bits[l..r]`. If `k <= zeros`, the answer lives in the left subtree among positions whose bit was 0; the new range is `[rank0(l), rank0(r+1)-1]`. Otherwise subtract `zeros` from `k` and descend right with the mirrored remap using `rank1`. Repeat for `log sigma` levels; you arrive at a leaf which is the answer.
+
+The same descent answers many query shapes by changing the stop condition. Range count of elements in `[x..y]` walks both children whenever the alphabet half intersects the query range and counts leaves. Range previous-smaller and range frequency follow the same template. With bitvector rank in `O(1)` (Jacobson 1989), every query costs `O(log sigma)` time and the entire structure occupies `n * log sigma + o(n log sigma)` bits.
 
 ## visualization
 ```
@@ -43,15 +47,30 @@ recurse on each child with its own midpoint until leaves represent single values
 Copy A[l..r], sort it, return the k-th entry — O((r-l+1) log(r-l+1)) per query. Acceptable for one-off scripts; catastrophic when q and n are both 1e5 and queries arrive online.
 
 ## optimal
-Build a balanced binary tree over the alphabet. At each internal node, store a bitvector of length equal to the node's subsequence with rank support precomputed. For a query "k-th smallest in A[l..r]":
+Build a balanced binary tree over the alphabet. At each internal node, store a bitvector of length equal to the node's subsequence with rank support precomputed (Jacobson's `O(1)` rank with `O(n)` extra bits). For a query "k-th smallest in `A[l..r]`":
+
+```python
+def kth_smallest(root, l, r, k):
+    node = root
+    lo, hi = 0, alphabet_size - 1
+    while lo < hi:
+        bits = node.bits
+        zeros_in_range = bits.rank0(r + 1) - bits.rank0(l)
+        if k <= zeros_in_range:
+            l = bits.rank0(l)
+            r = bits.rank0(r + 1) - 1
+            node = node.left
+            hi = (lo + hi) // 2
+        else:
+            k -= zeros_in_range
+            l = bits.rank1(l)
+            r = bits.rank1(r + 1) - 1
+            node = node.right
+            lo = (lo + hi) // 2 + 1
+    return lo
 ```
-node = root; while not leaf:
-  zeros = rank0(bits, r+1) - rank0(bits, l)
-  if k <= zeros: descend left, remap l,r using rank0
-  else: k -= zeros; descend right, remap l,r using rank1
-return node.value
-```
-Range-rank (how many entries in [l..r] are < x) and range-count in [x..y] follow the same descent pattern with different stop conditions.
+
+The critical lines are the `bits.rank0` / `bits.rank1` calls that remap the input range into the child range. They are what make the descent work; without `O(1)` rank the structure degrades to `O(log^2 n)` per query. Range-rank ("how many entries in `A[l..r]` are less than `x`?") and range-count in `[x..y]` follow the same descent with different stop conditions — both are also `O(log sigma)`. For very large alphabets (32-bit integers), use a wavelet matrix variant (Claude & Navarro 2012) which stores levels as parallel arrays instead of a recursive tree and is far cache-friendlier. The reference implementation is `sdsl-lite::wt_int`; for competitive programming, a hand-written wavelet tree on small alphabets (a few thousand) is short enough to type from memory.
 
 ## complexity
 time: O(log sigma) per query after O(n log sigma) construction

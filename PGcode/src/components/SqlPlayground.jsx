@@ -1,76 +1,80 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
-import { Play, Loader2, RotateCcw, Table, Database, Check, X, BookOpen, ChevronLeft } from 'lucide-react';
+import { Play, Loader2, RotateCcw, Table, Database, Check, X, BookOpen, ChevronLeft, ArrowRight } from 'lucide-react';
 import sqlWasmUrl from 'sql.js/dist/sql-wasm.wasm?url';
-import { SQL_COURSES, gradeResult } from '../content/sqlCourses';
+import { SQL_COURSES, gradeResult, listPlaygroundDbs } from '../content/sqlCourses';
 import PlaygroundSwitcher from './PlaygroundSwitcher';
 import './SqlPlayground.css';
 
-// Seed schema — a familiar employees/departments toy database. Used by ~80% of
-// SQL tutorials, so most "try this query" examples are immediately runnable.
-const SEED_SQL = `
-CREATE TABLE departments (
-  id INTEGER PRIMARY KEY,
-  name TEXT NOT NULL
-);
+// Per-DB starter snippets that demo the schema without giving away anything.
+const PLAYGROUND_STARTERS = {
+  'employees-dept': '-- Try editing this query, then hit Run (Cmd/Ctrl+Enter).\nSELECT d.name AS department,\n       COUNT(e.id)         AS headcount,\n       ROUND(AVG(e.salary)) AS avg_salary,\n       MAX(e.salary)        AS top_salary\nFROM employees e\nJOIN departments d ON d.id = e.department_id\nGROUP BY d.name\nORDER BY avg_salary DESC;\n',
+  chinook: "-- Top 5 best-selling tracks (by quantity).\nSELECT t.name AS track,\n       a.name AS artist,\n       SUM(ii.quantity) AS units_sold\nFROM invoice_items ii\nJOIN tracks  t ON t.id = ii.track_id\nJOIN albums  al ON al.id = t.album_id\nJOIN artists a ON a.id = al.artist_id\nGROUP BY t.id\nORDER BY units_sold DESC\nLIMIT 5;\n",
+  sakila: "-- Revenue per film category.\nSELECT c.name AS category,\n       ROUND(SUM(p.amount), 2) AS revenue\nFROM payments p\nJOIN rentals    r ON r.id = p.rental_id\nJOIN films      f ON f.id = r.film_id\nJOIN categories c ON c.id = f.category_id\nGROUP BY c.name\nORDER BY revenue DESC;\n",
+  world: "-- Largest city in each country, ranked by city population.\nSELECT co.name AS country,\n       ci.name AS largest_city,\n       ci.population\nFROM countries co\nJOIN cities    ci ON ci.country_code = co.code\nGROUP BY co.code\nHAVING ci.population = MAX(ci.population)\nORDER BY ci.population DESC;\n",
+  ecommerce: "-- Top-spending customers in the last 60 days.\nSELECT c.name,\n       COUNT(o.id) AS orders,\n       ROUND(SUM(o.total), 2) AS spent\nFROM customers c\nJOIN orders    o ON o.customer_id = c.id\nWHERE o.status = 'shipped'\nGROUP BY c.id\nORDER BY spent DESC\nLIMIT 5;\n",
+};
 
-CREATE TABLE employees (
-  id INTEGER PRIMARY KEY,
-  name TEXT NOT NULL,
-  department_id INTEGER REFERENCES departments(id),
-  salary INTEGER NOT NULL,
-  hire_date TEXT NOT NULL
-);
+const DEFAULT_FREE_STARTER = '-- Pick a sample database to start writing SQL.\n';
 
-INSERT INTO departments (id, name) VALUES
-  (1, 'Engineering'),
-  (2, 'Design'),
-  (3, 'Marketing'),
-  (4, 'Operations');
+const SAMPLE_QUERIES_BY_DB = {
+  'employees-dept': [
+    { label: 'All employees',           sql: 'SELECT * FROM employees ORDER BY salary DESC;' },
+    { label: 'Department headcount',    sql: 'SELECT d.name, COUNT(*) AS n FROM employees e JOIN departments d ON d.id = e.department_id GROUP BY d.name;' },
+    { label: 'Window: rank by salary',  sql: 'SELECT name, salary, RANK() OVER (ORDER BY salary DESC) AS rank FROM employees;' },
+    { label: 'CTE: above-avg earners',  sql: 'WITH avg_s AS (SELECT AVG(salary) AS a FROM employees)\nSELECT name, salary FROM employees, avg_s WHERE salary > a ORDER BY salary DESC;' },
+    { label: 'Schema',                  sql: "SELECT name, sql FROM sqlite_master WHERE type='table';" },
+  ],
+  chinook: [
+    { label: 'All artists',             sql: 'SELECT * FROM artists ORDER BY name;' },
+    { label: 'Tracks per album',        sql: 'SELECT a.title, COUNT(t.id) AS n_tracks\nFROM albums a LEFT JOIN tracks t ON t.album_id = a.id\nGROUP BY a.id ORDER BY n_tracks DESC;' },
+    { label: 'Revenue by country',      sql: 'SELECT billing_country, ROUND(SUM(total), 2) AS revenue\nFROM invoices GROUP BY billing_country ORDER BY revenue DESC;' },
+    { label: 'Avg track length by genre', sql: 'SELECT g.name, ROUND(AVG(t.milliseconds) / 1000.0) AS avg_seconds\nFROM tracks t JOIN genres g ON g.id = t.genre_id\nGROUP BY g.name ORDER BY avg_seconds DESC;' },
+    { label: 'Schema',                  sql: "SELECT name, sql FROM sqlite_master WHERE type='table';" },
+  ],
+  sakila: [
+    { label: 'Films by rating',         sql: 'SELECT rating, COUNT(*) AS n FROM films GROUP BY rating ORDER BY n DESC;' },
+    { label: 'Active customers by city', sql: 'SELECT city, COUNT(*) AS n FROM customers WHERE active = 1 GROUP BY city ORDER BY n DESC;' },
+    { label: 'Films per actor',         sql: 'SELECT a.first_name || \' \' || a.last_name AS actor, COUNT(fa.film_id) AS films\nFROM actors a LEFT JOIN film_actors fa ON fa.actor_id = a.id\nGROUP BY a.id ORDER BY films DESC;' },
+    { label: 'Schema',                  sql: "SELECT name, sql FROM sqlite_master WHERE type='table';" },
+  ],
+  world: [
+    { label: 'Top 5 by GDP',            sql: 'SELECT name, gdp_billion FROM countries ORDER BY gdp_billion DESC LIMIT 5;' },
+    { label: 'Cities per continent',    sql: 'SELECT co.continent, COUNT(ci.id) AS n_cities\nFROM countries co JOIN cities ci ON ci.country_code = co.code\nGROUP BY co.continent ORDER BY n_cities DESC;' },
+    { label: 'Multilingual countries',  sql: 'SELECT country_code, COUNT(*) AS langs\nFROM languages GROUP BY country_code\nHAVING COUNT(*) > 1 ORDER BY langs DESC;' },
+    { label: 'Schema',                  sql: "SELECT name, sql FROM sqlite_master WHERE type='table';" },
+  ],
+  ecommerce: [
+    { label: 'Revenue per category',    sql: 'SELECT p.category, ROUND(SUM(li.quantity * li.unit_price), 2) AS revenue\nFROM line_items li JOIN products p ON p.id = li.product_id\nGROUP BY p.category ORDER BY revenue DESC;' },
+    { label: 'Average rating per product', sql: 'SELECT p.name, ROUND(AVG(r.rating), 2) AS avg_rating, COUNT(r.id) AS reviews\nFROM products p LEFT JOIN reviews r ON r.product_id = p.id\nGROUP BY p.id ORDER BY avg_rating DESC NULLS LAST;' },
+    { label: 'Repeat customers',        sql: 'SELECT c.name, COUNT(o.id) AS orders\nFROM customers c JOIN orders o ON o.customer_id = c.id\nGROUP BY c.id HAVING COUNT(o.id) > 1 ORDER BY orders DESC;' },
+    { label: 'Schema',                  sql: "SELECT name, sql FROM sqlite_master WHERE type='table';" },
+  ],
+};
 
-INSERT INTO employees (id, name, department_id, salary, hire_date) VALUES
-  (1, 'Asha Mehta',      1, 145000, '2021-03-15'),
-  (2, 'Ben Carter',      1, 132000, '2022-07-01'),
-  (3, 'Chen Wei',        2, 118000, '2020-11-22'),
-  (4, 'Divya Iyer',      2, 124000, '2023-01-05'),
-  (5, 'Eli Rodriguez',   3,  98000, '2019-08-30'),
-  (6, 'Farah Hassan',    1, 158000, '2018-04-12'),
-  (7, 'Gabriel Souza',   3, 102000, '2021-10-18'),
-  (8, 'Hannah Park',     4,  87000, '2023-06-09'),
-  (9, 'Ivan Petrov',     1, 141000, '2020-02-25'),
-  (10,'Jamila Karam',    4,  95000, '2022-12-01');
-`;
-
-const STARTER_QUERY = `-- Try editing this query, then hit Run (Cmd/Ctrl+Enter).
-SELECT
-  d.name AS department,
-  COUNT(e.id)    AS headcount,
-  ROUND(AVG(e.salary)) AS avg_salary,
-  MAX(e.salary)  AS top_salary
-FROM employees e
-JOIN departments d ON d.id = e.department_id
-GROUP BY d.name
-ORDER BY avg_salary DESC;
-`;
-
-const SAMPLE_QUERIES = [
-  { label: 'All employees',
-    sql: 'SELECT * FROM employees ORDER BY salary DESC;' },
-  { label: 'Department headcount',
-    sql: 'SELECT d.name, COUNT(*) AS n FROM employees e JOIN departments d ON d.id = e.department_id GROUP BY d.name;' },
-  { label: 'Window: rank by salary',
-    sql: 'SELECT name, salary, RANK() OVER (ORDER BY salary DESC) AS rank FROM employees;' },
-  { label: 'CTE: above-avg earners',
-    sql: 'WITH avg_s AS (SELECT AVG(salary) AS a FROM employees)\nSELECT name, salary FROM employees, avg_s WHERE salary > a ORDER BY salary DESC;' },
-  { label: 'Schema',
-    sql: "SELECT name, sql FROM sqlite_master WHERE type='table';" },
-];
+const LAST_DB_KEY = 'pgcode_sql_last_playground_db';
 
 export default function SqlPlayground({ theme }) {
+  const navigate = useNavigate();
   const { courseSlug } = useParams();
-  const course = courseSlug ? SQL_COURSES[courseSlug] : null;
-  const courseMode = !!course;
+  const entry = courseSlug ? SQL_COURSES[courseSlug] : null;
+
+  // A course entry runs the graded surface (questions + grading panel).
+  // A playground entry runs the free-form editor against the seed DB.
+  // Missing entry = show the picker.
+  const courseMode = entry?.kind === 'course';
+  const playgroundMode = entry?.kind === 'playground';
+  const course = courseMode ? entry : null;
+  const playgroundDb = playgroundMode ? entry : null;
+
+  const playgroundDbs = useMemo(() => listPlaygroundDbs(), []);
+
+  useEffect(() => {
+    if (playgroundMode && courseSlug) {
+      try { localStorage.setItem(LAST_DB_KEY, courseSlug); } catch { /* ignore */ }
+    }
+  }, [playgroundMode, courseSlug]);
 
   // Per-course question pointer.
   const [questionIdx, setQuestionIdx] = useState(0);
@@ -78,14 +82,20 @@ export default function SqlPlayground({ theme }) {
   const [grade, setGrade] = useState(null); // { ok, reason } per question run
 
   // Effective seed + starter based on mode.
-  const effectiveSeed = course ? course.seedSql : SEED_SQL;
+  const effectiveSeed = entry?.seedSql || '';
   const localKey = course
     ? `pgcode_sql_course_${course.id}_${question?.id || 'q'}`
-    : 'pgcode_sql_pg';
+    : playgroundDb
+      ? `pgcode_sql_pg_${playgroundDb.id}`
+      : 'pgcode_sql_picker';
 
-  const initialSql = courseMode
-    ? (localStorage.getItem(localKey) || question?.starter || '-- write your query here')
-    : (localStorage.getItem(localKey) || STARTER_QUERY);
+  const defaultStarter = courseMode
+    ? (question?.starter || '-- write your query here')
+    : playgroundDb
+      ? (PLAYGROUND_STARTERS[playgroundDb.id] || DEFAULT_FREE_STARTER)
+      : DEFAULT_FREE_STARTER;
+
+  const initialSql = (typeof window !== 'undefined' && localStorage.getItem(localKey)) || defaultStarter;
   const [sql, setSql] = useState(initialSql);
 
   // When the question changes (course mode), swap the editor content.
@@ -96,6 +106,19 @@ export default function SqlPlayground({ theme }) {
     setSql(localStorage.getItem(k) || questionStarter || '-- write your query here');
     setGrade(null);
   }, [courseMode, course?.id, question, questionStarter]);
+
+  // Playground: when the user switches sample DB, reset editor to its starter
+  // (or restore the saved draft for that DB).
+  const playgroundDbId = playgroundDb?.id;
+  useEffect(() => {
+    if (!playgroundMode || !playgroundDbId) return;
+    const k = `pgcode_sql_pg_${playgroundDbId}`;
+    const starter = PLAYGROUND_STARTERS[playgroundDbId] || DEFAULT_FREE_STARTER;
+    setSql(localStorage.getItem(k) || starter);
+    setResults([]);
+    setError(null);
+    setElapsed(null);
+  }, [playgroundMode, playgroundDbId]);
 
   const [running, setRunning] = useState(false);
   const [dbReady, setDbReady] = useState(false);
@@ -143,6 +166,10 @@ export default function SqlPlayground({ theme }) {
   };
 
   useEffect(() => {
+    if (!effectiveSeed) {
+      setDbReady(false);
+      return undefined;
+    }
     let cancelled = false;
     (async () => {
       try {
@@ -228,24 +255,67 @@ export default function SqlPlayground({ theme }) {
 
   const monacoTheme = theme === 'light' || theme === 'solarized' ? 'light' : 'vs-dark';
 
+  // Picker view — no DB chosen yet. Mode-style grid of sample databases.
+  if (!courseMode && !playgroundMode) {
+    return (
+      <div className="sql-pg sql-pg-picker-page">
+        <header className="sql-pg-header">
+          <div className="sql-pg-title-row">
+            <PlaygroundSwitcher current="sql" />
+            <h1 className="sql-pg-title">SQL Playground</h1>
+            <p className="sql-pg-sub">
+              <Database size={11} /> Pick a sample database. Free-form editor, SQLite in your browser, results in milliseconds.
+            </p>
+          </div>
+        </header>
+        <div className="sql-pg-picker">
+          <div className="sql-pg-picker-grid">
+            {playgroundDbs.map(db => (
+              <button
+                key={db.id}
+                className="sql-pg-picker-card"
+                onClick={() => navigate(`/playground/sql/${db.id}`)}
+              >
+                <span className="sql-pg-picker-card-head">
+                  <Database size={13} />
+                  <span className="sql-pg-picker-card-title">{db.title}</span>
+                </span>
+                <span className="sql-pg-picker-card-blurb">{db.blurb}</span>
+                <span className="sql-pg-picker-card-tables">
+                  {db.tables.slice(0, 6).map(t => <code key={t}>{t}</code>)}
+                  {db.tables.length > 6 && <code>+{db.tables.length - 6}</code>}
+                </span>
+                <span className="sql-pg-picker-card-cta">
+                  Open <ArrowRight size={11} />
+                </span>
+              </button>
+            ))}
+          </div>
+          <p className="sql-pg-picker-foot">
+            <BookOpen size={11} /> Looking for graded exercises? Try the <Link to="/courses/sql-basics">SQL Basics course</Link> or the <Link to="/playground/sql/usda">USDA project</Link>.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const tablesList = entry?.tables || [];
+  const sampleQueries = playgroundDb ? (SAMPLE_QUERIES_BY_DB[playgroundDb.id] || []) : [];
+
   return (
     <div className="sql-pg">
       <header className="sql-pg-header">
         <div className="sql-pg-title-row">
-          {courseMode ? (
-            <Link to="/playground/sql" className="sql-pg-back"><ChevronLeft size={12} /> Free playground</Link>
-          ) : (
-            <PlaygroundSwitcher current="sql" />
-          )}
-          <h1 className="sql-pg-title">{course ? course.title : 'SQL Playground'}</h1>
+          <Link to="/playground/sql" className="sql-pg-back">
+            <ChevronLeft size={12} /> {courseMode ? 'Pick a sample database' : 'Change database'}
+          </Link>
+          <h1 className="sql-pg-title">{entry.title}</h1>
           <p className="sql-pg-sub">
-            <Database size={11} /> {course
-              ? course.blurb
-              : 'Write SQL against a sample employees and departments database. Results show below as you query.'}
+            <Database size={11} /> {entry.blurb}
           </p>
-          {!courseMode && (
+          {playgroundMode && (
             <p className="sql-pg-sub" style={{ marginTop: '0.25rem' }}>
-              <BookOpen size={11} /> Try the <Link to="/playground/sql/usda" style={{ color: 'var(--accent)' }}>USDA agricultural production course</Link> — 8 graded SQL questions on real-world tables.
+              <BookOpen size={11} /> Want guided drills against this schema? The <Link to="/courses/sql-basics" style={{ color: 'var(--accent)' }}>SQL Basics course</Link> walks ten graded steps.
             </p>
           )}
         </div>
@@ -269,24 +339,11 @@ export default function SqlPlayground({ theme }) {
         <aside className="sql-pg-side">
           <div className="sql-pg-side-section">
             <h3 className="sql-pg-side-title"><Table size={11} /> Tables</h3>
-            {courseMode ? (
-              <ul className="sql-pg-table-list">
-                {course.tables.map(t => (
-                  <li key={t}><code>{t}</code></li>
-                ))}
-              </ul>
-            ) : (
-              <ul className="sql-pg-table-list">
-                <li>
-                  <code>departments</code>
-                  <span className="sql-pg-cols">id, name</span>
-                </li>
-                <li>
-                  <code>employees</code>
-                  <span className="sql-pg-cols">id, name, department_id, salary, hire_date</span>
-                </li>
-              </ul>
-            )}
+            <ul className="sql-pg-table-list">
+              {tablesList.map(t => (
+                <li key={t}><code>{t}</code></li>
+              ))}
+            </ul>
           </div>
 
           {courseMode ? (
@@ -310,7 +367,7 @@ export default function SqlPlayground({ theme }) {
             <div className="sql-pg-side-section">
               <h3 className="sql-pg-side-title">Sample queries</h3>
               <ul className="sql-pg-sample-list">
-                {SAMPLE_QUERIES.map(q => (
+                {sampleQueries.map(q => (
                   <li key={q.label}>
                     <button onClick={() => setSql(q.sql)}>{q.label}</button>
                   </li>

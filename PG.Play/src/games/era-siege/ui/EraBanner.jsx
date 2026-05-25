@@ -4,6 +4,7 @@
 
 import { useEffect, useState } from 'react';
 import { getEraByIndex } from '../content/eras.js';
+import { eraDisplayName, eraGateName } from '../utils/themeDisplay.js';
 
 export default function EraBanner({ eraIndex, version }) {
   // `version` increments each time the parent wants to re-show the banner
@@ -20,11 +21,13 @@ export default function EraBanner({ eraIndex, version }) {
   if (!visible) return null;
   const era = getEraByIndex(eraIndex);
   if (!era) return null;
+  const gate = eraGateName(era);
   return (
     <div className="es-banner" role="status" aria-live="polite">
       <div className="es-banner-inner">
         <span className="es-banner-eyebrow">Era {eraIndex + 1} of 5</span>
-        <span className="es-banner-name">{era.name}</span>
+        <span className="es-banner-name">{eraDisplayName(era)}</span>
+        {gate && <span className="es-banner-gate">{gate}</span>}
         <span className="es-banner-blurb">{era.blurb}</span>
       </div>
     </div>

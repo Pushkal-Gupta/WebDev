@@ -25,14 +25,14 @@ status: published
 You have an array of `n` numbers and many queries asking for the min (or max, or gcd) over `[l, r]`. If the array never changes, you can answer each query in **O(1)** after a one-time `O(n log n)` preprocessing using a sparse table — a 2D structure that stores the answer for every power-of-two-length window.
 
 ## whyItMatters
-Sparse table is the gold standard for **static range queries on idempotent operations** — operations where querying overlapping halves gives the same answer as querying disjoint halves (min, max, gcd, bitwise AND/OR). For mutable arrays you'd use a segment tree (O(log n) per query/update); when the array is read-only, sparse table is strictly faster per query and simpler to code.
+Sparse table (Bender & Farach-Colton 2000, *The LCA Problem Revisited*) is the gold standard for static range queries on idempotent operations — operations where querying overlapping halves gives the same answer as querying disjoint halves (min, max, gcd, bitwise AND/OR). For mutable arrays you would use a segment tree at `O(log n)` per query and update; when the array is read-only, sparse table is `O(1)` per query at the price of `O(n log n)` preprocessing — strictly faster per query and simpler to code. Used inside competitive-programming templates for range-min queries, in static LCA preprocessing on trees (after Euler tour), in succinct data structures (the FM-index uses range-min-queries over LCP arrays), and in any analytics system that needs constant-time range aggregates on append-only or batch-loaded data.
 
 ## intuition
-For each position `i` and each power-of-two length `2^k`, precompute the answer over `arr[i..i+2^k-1]`. To answer `[l, r]`:
-1. Let `k = floor(log2(r - l + 1))` — the largest power of two that fits.
-2. Take the min (or whatever idempotent op) of the precomputed window starting at `l` and the one ending at `r`. They overlap, but for idempotent ops that's fine: `min(min(A), min(A)) = min(A)`.
+Precompute the answer for every interval whose length is a power of two. There are `O(n log n)` such intervals — `n` starting positions times `log n` lengths — and each is the merge of two half-length intervals, so the whole table builds in `O(n log n)` time and space with one DP pass.
 
-That overlap trick is what makes the query O(1).
+To query an arbitrary range `[l, r]`, pick the largest power of two `2^k` that fits in `r - l + 1`. That power of two has length `<= r - l + 1` and `2 * 2^k > r - l + 1`, so the two precomputed intervals `[l, l + 2^k - 1]` and `[r - 2^k + 1, r]` overlap and together cover `[l, r]`. For idempotent operations (min, max, gcd, AND, OR) the overlap is harmless: `min(min(A), min(B)) == min(A union B)` even when `A` and `B` intersect, because each element's contribution is identical whether you count it once or twice.
+
+That overlap trick is the entire reason sparse table is `O(1)` instead of `O(log n)`. Segment trees and Fenwick trees cannot use it because they support `sum`, which is *not* idempotent — adding the same element twice double-counts it. So sparse table trades flexibility (no point updates, only idempotent ops) for raw query speed and simplicity.
 
 ## visualization
 ```
@@ -52,24 +52,33 @@ Query [1, 6] → length 6, k = floor(log2(6)) = 2 → 2^k = 4
 Scan `arr[l..r]` for every query → O(n) per query, O(n·Q) total. Fine for small inputs, dies on Q = 10^5 with n = 10^5.
 
 ## optimal
-Preprocessing:
-```
-log2 = precompute floor(log2(i)) for i = 1..n
-table[0][i] = arr[i]
-for k from 1 while 2^k <= n:
-    for i from 0 while i + 2^k - 1 < n:
-        table[k][i] = min(table[k-1][i], table[k-1][i + 2^(k-1)])
-```
-Total cost `O(n log n)` time and space.
+Precompute `table[k][i]` = answer over `arr[i..i + 2^k - 1]` for each power of two `2^k <= n`. Use the recurrence `table[k][i] = op(table[k-1][i], table[k-1][i + 2^{k-1}])`. Total time and space `O(n log n)`. Query `[l, r]` in `O(1)` by `k = floor(log2(r - l + 1))` and `op(table[k][l], table[k][r - 2^k + 1])`.
 
-Query `[l, r]`:
-```
-k = log2[r - l + 1]
-return min(table[k][l], table[k][r - 2^k + 1])
-```
-O(1) after the precompute.
+```python
+import math
 
-Works for any **idempotent associative** operation: min, max, gcd, lcm (with overflow care), bitwise AND/OR. Does **not** work for sum, xor, product — for those you need a prefix array or segment tree.
+class SparseTable:
+    def __init__(self, arr, op=min):
+        n = len(arr)
+        self.op = op
+        self.log = [0] * (n + 1)
+        for i in range(2, n + 1):
+            self.log[i] = self.log[i // 2] + 1
+        K = self.log[n] + 1
+        self.t = [arr[:]]
+        for k in range(1, K):
+            row = []
+            length = 1 << k
+            for i in range(n - length + 1):
+                row.append(op(self.t[k-1][i], self.t[k-1][i + (length >> 1)]))
+            self.t.append(row)
+
+    def query(self, l, r):
+        k = self.log[r - l + 1]
+        return self.op(self.t[k][l], self.t[k][r - (1 << k) + 1])
+```
+
+The critical pieces are the precomputed `log` table (avoids a `math.log2` call inside the query hot path) and the overlapping-windows pair `(self.t[k][l], self.t[k][r - (1 << k) + 1])`. The two windows of length `2^k` together cover `[l, r]` with overlap, which is fine for idempotent ops. For non-idempotent operations (sum, product), use a Fenwick tree (`O(log n)` per query, point updates) or a segment tree (`O(log n)` per query, range updates with lazy propagation). For RMQ specifically, the Bender-Farach-Colton paper shows that combining sparse table with a Cartesian-tree linearization reduces query to true `O(1)` after `O(n)` preprocessing — the optimal complexity for range minimum, used inside every modern LCA implementation.
 
 ## complexity
 - **Preprocessing**: O(n log n) time and space.

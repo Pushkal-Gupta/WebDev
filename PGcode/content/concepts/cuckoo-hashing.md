@@ -25,10 +25,14 @@ status: published
 Cuckoo hashing is a closed-address scheme that delivers something most hash tables cannot: O(1) worst-case lookup, not just amortized. Each key has exactly two candidate slots — one in table T1 via hash h1, one in table T2 via hash h2. A search probes both slots and stops; an insert displaces whatever sat there, evicting it to its alternative slot, recursively, like a cuckoo chick kicking the host egg out of the nest.
 
 ## whyItMatters
-Routers, network switches, and JIT compiler symbol tables need predictable lookup latency — amortized bounds break real-time guarantees when a rare rehash spikes a request to milliseconds. Cuckoo hashing makes the worst case constant. It also underpins modern hardware-accelerated caches (DPDK, eBPF maps) and is the basis for the cuckoo filter, a replacement for Bloom filters that supports deletion.
+Routers, network switches, and JIT compiler symbol tables need predictable lookup latency — amortized bounds break real-time guarantees when a rare rehash spikes a request to milliseconds. Cuckoo hashing (Pagh and Rodler, 2001) makes the worst case constant: at most two cache-line reads to confirm a hit or miss, regardless of load. It also underpins modern hardware-accelerated caches (Intel DPDK's `rte_hash`, the Linux kernel's eBPF `LPM_TRIE`, Cloudflare's hot-path session table) and is the basis for the cuckoo filter (Fan et al. 2014), a Bloom-filter replacement that supports deletion. The technique appears in Memcached's slab allocator, in TLS session-resumption caches in Nginx and Envoy, and in the hardware hash tables of every modern smart NIC.
 
 ## intuition
-Imagine two parking lots, each spot indexed by a different hash of your license plate. When you arrive, you must occupy one of your two spots. If both are full, you park anyway in spot one, kick that car out, and force it to drive to its alternative spot. If that spot is also full, the displacement cascades. As long as the table is below ~50% load, the cascade terminates quickly. When it doesn't, you rebuild with new hash functions — rare, but possible.
+Imagine two parking lots, each spot indexed by a different hash of your license plate. When you arrive, you must occupy one of your two designated spots. If both are full, you take spot one anyway, kick that car out, and force it to drive to its alternative spot. If that spot is also full, the displacement cascades. As long as the combined table is below about 50% load, the cascade terminates quickly (geometric distribution of length); when it does not, you rebuild the whole table with new hash functions — rare, but possible.
+
+The lookup story is the entire point. Because every key lives in exactly one of two designated slots, looking up a key requires at most two memory accesses — `T1[h1(x)]` and `T2[h2(x)]`. Both addresses are known up front, so a smart implementation issues the two reads in parallel (or as a single 128-bit AVX load if the slots are adjacent). That is why cuckoo hashing is the structure of choice for hardware-accelerated lookup: the worst case is `O(1)` and the constant is exactly two cache lines.
+
+The insert story is where the complexity lives. Most inserts succeed in one or two moves; the long tail comes from cascading displacements. With three hash functions instead of two (Fotakis et al. 2003), load factors above 90% become achievable without rehashing — the trade-off is one extra memory access per lookup. Variants like bucket cuckoo (slots of size 4 instead of 1) get the best of both worlds and are what DPDK uses in production.
 
 ## visualization
 ```
@@ -48,22 +52,37 @@ Lookup B:  check T1[1] -> B. done in 2 probes max, always.
 A standard chained hash table handles collisions by linking entries in per-bucket lists. Inserts are O(1) amortized, but lookups degrade to O(k) when k keys collide, and adversarial keys can force every operation to O(n). Linear probing fares no better under heavy load: clustering means a lookup might walk dozens of slots. Both schemes give up worst-case guarantees in exchange for simpler code — fine for averages, fatal for real-time systems.
 
 ## optimal
-Maintain two tables T1, T2 of size m each (total 2m slots) and two independent hash functions h1, h2. Define a max-displacement constant MAX_LOOP (typically O(log m)).
+Maintain two tables `T1`, `T2` of size `m` each (total `2m` slots) and two independent hash functions `h1`, `h2`. Define a max-displacement constant `MAX_LOOP` (typically `O(log m)`, around 100 for `m = 10^6`).
 
+```python
+class CuckooHash:
+    def __init__(self, m=1024):
+        self.m = m
+        self.t1 = [None] * m
+        self.t2 = [None] * m
+        self.h1 = lambda x: hash((1, x)) % m
+        self.h2 = lambda x: hash((2, x)) % m
+        self.MAX_LOOP = max(100, int(2 * (m ** 0.5)))
+    def lookup(self, x):
+        return self.t1[self.h1(x)] == x or self.t2[self.h2(x)] == x
+    def insert(self, x):
+        for _ in range(self.MAX_LOOP):
+            i = self.h1(x)
+            if self.t1[i] is None:
+                self.t1[i] = x; return True
+            x, self.t1[i] = self.t1[i], x
+            j = self.h2(x)
+            if self.t2[j] is None:
+                self.t2[j] = x; return True
+            x, self.t2[j] = self.t2[j], x
+        self._rehash(); return self.insert(x)
+    def _rehash(self):
+        items = [y for y in self.t1 + self.t2 if y is not None]
+        self.__init__(self.m * 2)
+        for y in items: self.insert(y)
 ```
-lookup(x):
-    return T1[h1(x)] == x or T2[h2(x)] == x
 
-insert(x):
-    for i in 1..MAX_LOOP:
-        if T1[h1(x)] is empty: T1[h1(x)] = x; return
-        swap(x, T1[h1(x)])
-        if T2[h2(x)] is empty: T2[h2(x)] = x; return
-        swap(x, T2[h2(x)])
-    rehash with new h1, h2 and reinsert all keys including x
-```
-
-Lookups touch exactly two slots — worst case 2 cache-line reads. Inserts are amortized O(1) when load < 0.5. Rehash cost amortizes away because it happens at most O(1/m) per insert.
+The critical guarantee is in `lookup`: exactly two slots are inspected, so the worst case is `O(1)` time and two cache lines of memory traffic. Inserts are amortized `O(1)` when load stays below `0.5` (for 2-table cuckoo) or below `0.91` for bucket cuckoo with bucket size 4 and three hash functions — Memcached chose this last configuration after benchmarking. The rehash cost amortizes away because it happens at most `O(1 / m)` per insert. For multi-threaded use, optimistic concurrency with versioned slots (the *libcuckoo* design from Li, Andersen, Kaminsky 2014) gives lock-free reads and fine-grained writes; it powers the high-end JIT symbol tables in V8 and HotSpot.
 
 ## complexity
 time: lookup O(1) worst-case (2 probes); delete O(1) worst-case; insert O(1) amortized, expected O(log n) per displacement chain

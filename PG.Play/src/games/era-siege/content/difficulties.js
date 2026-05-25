@@ -22,13 +22,14 @@
  * @property {number} enemyDamageMul
  * @property {number} startingGold
  * @property {number} playerGoldRateMul   how fast passive gold trickles in
+ * @property {number} playerXpRateMul     bounty XP credited to player (mul)
  */
 
 export const DIFFICULTIES = {
   easy: {
     id: 'easy',
     label: 'Easy',
-    blurb: 'Forgiving pacing. AI is patient. Gold flows freely.',
+    blurb: 'Forgiving pacing. AI is patient. Gold and XP flow freely.',
     aiSpawnRateMul: 0.65,
     aiTechRateMul: 0.70,
     aiTurretChance: 0.15,
@@ -36,6 +37,7 @@ export const DIFFICULTIES = {
     enemyDamageMul: 0.85,
     startingGold: 150,
     playerGoldRateMul: 1.20,
+    playerXpRateMul: 1.20,
   },
   normal: {
     id: 'normal',
@@ -48,6 +50,7 @@ export const DIFFICULTIES = {
     enemyDamageMul: 1.00,
     startingGold: 110,
     playerGoldRateMul: 1.00,
+    playerXpRateMul: 1.00,
   },
   medium: {
     id: 'medium',
@@ -60,11 +63,12 @@ export const DIFFICULTIES = {
     enemyDamageMul: 1.05,
     startingGold: 95,
     playerGoldRateMul: 0.92,
+    playerXpRateMul: 0.92,
   },
   hard: {
     id: 'hard',
     label: 'Hard',
-    blurb: 'AI evolves early, hits harder. Player gold trickles slower.',
+    blurb: 'AI evolves early, hits harder. Player gold and XP trickle slower.',
     aiSpawnRateMul: 1.30,
     aiTechRateMul: 1.30,
     aiTurretChance: 0.60,
@@ -72,11 +76,12 @@ export const DIFFICULTIES = {
     enemyDamageMul: 1.15,
     startingGold: 85,
     playerGoldRateMul: 0.82,
+    playerXpRateMul: 0.80,
   },
   insane: {
     id: 'insane',
     label: 'Insane',
-    blurb: 'Full assault. AI floods the lane and out-techs you. Every gold piece counts.',
+    blurb: 'Full assault. AI floods the lane and out-techs you. Every gold and XP piece counts.',
     aiSpawnRateMul: 1.55,
     aiTechRateMul: 1.45,
     aiTurretChance: 0.75,
@@ -84,6 +89,7 @@ export const DIFFICULTIES = {
     enemyDamageMul: 1.30,
     startingGold: 70,
     playerGoldRateMul: 0.70,
+    playerXpRateMul: 0.65,
   },
 };
 

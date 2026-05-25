@@ -25,20 +25,14 @@ status: published
 A **data lake** is cheap object storage of raw, multi-format data — you decide schema when you read it. A **warehouse** is structured, modeled, columnar storage tuned for BI — schema enforced on write. A **lakehouse** (Delta, Iceberg, Hudi) puts ACID + schema on top of lake files, getting both. Most modern stacks land here.
 
 ## whyItMatters
-Pick the wrong tier and you either pay a fortune (warehousing terabytes of clickstream JSON nobody queries) or you bleed performance (running BI dashboards directly over S3 JSON with 30-second p95). Lake for raw + cheap + ML; warehouse for fast + curated; lakehouse for both.
+Pick the wrong tier and you either pay a fortune (warehousing terabytes of clickstream JSON nobody queries) or you bleed performance (running BI dashboards directly over S3 JSON with 30-second p95 latency). Lake for raw plus cheap plus ML; warehouse for fast plus curated; lakehouse for both. Every modern data team at Netflix, Uber, Airbnb, LinkedIn, and Pinterest runs some flavor of this stack; the canonical references are the Netflix Iceberg paper (Yin et al. 2017), Databricks's Delta Lake paper (Armbrust et al. 2020), and Uber's Hudi blog series. Snowflake, BigQuery, Redshift, and Databricks SQL Warehouse all support reading open table formats from S3 directly, so the lake-warehouse boundary has blurred into the lakehouse architecture most large companies now use.
 
 ## intuition
-**Lake** = S3/GCS/ADLS + Parquet/JSON/CSV/Avro. No engine, no enforcement. Anyone can dump anything. Read with Spark, Trino, Athena.
-- Pros: cheap ($23/TB/mo on S3), all formats, infinite scale, source of truth.
-- Cons: no schema enforcement, no transactions, easy to make a "data swamp".
+**Lake** = S3 / GCS / ADLS plus Parquet / JSON / CSV / Avro files. No engine, no enforcement. Anyone can dump anything. Query with Spark, Trino (formerly PrestoSQL), Athena, or DuckDB. Pros: cheap (around 2-3 cents per GiB per month on S3 Standard), every format supported, infinite horizontal scale, the canonical source of truth. Cons: no schema enforcement, no transactions, easy to make a data swamp where nobody knows what is where.
 
-**Warehouse** = Snowflake, BigQuery, Redshift, ClickHouse. Columnar storage, query optimizer, schema enforced.
-- Pros: 100ms BI queries, ACID, RBAC, mature tooling.
-- Cons: $$$$ at scale, ingest pipelines must clean + model first, vendor lock-in.
+**Warehouse** = Snowflake, BigQuery, Redshift, ClickHouse, Databricks SQL. Columnar storage, query optimizer, schema enforced, ACID transactions, role-based access control, mature BI tooling. Pros: 100 ms BI queries, ACID, RBAC, deep ecosystem (Looker, Tableau, dbt). Cons: expensive at scale (dollars per TB scanned for serverless, fixed warehouse costs otherwise), ingest pipelines must clean and model first, some vendor lock-in.
 
-**Lakehouse** = open table format (Delta, Iceberg, Hudi) on object storage + a query engine (Databricks, Trino, BigQuery external).
-- Adds ACID transactions, time travel, schema evolution, MERGE/UPSERT to a lake.
-- One copy of data serves SQL BI + Spark ML + streaming.
+**Lakehouse** = open table format (Delta, Iceberg, Hudi) on object storage plus a query engine (Databricks, Trino, BigQuery External Tables, Snowflake's Iceberg integration). Adds ACID transactions, time travel, schema evolution, and MERGE/UPSERT to a lake. One copy of data serves SQL BI plus Spark ML plus streaming. The Iceberg table-format spec gives you snapshot isolation across engines, so Trino can read tables that Spark is writing without seeing partial state.
 
 ## visualization
 ```
@@ -67,14 +61,30 @@ sources --> bronze (lake, raw)
 **Lake-only**: BI tool queries Parquet on S3 -> 20s dashboards, frustrated execs, no governance, "data swamp" within a year.
 
 ## optimal
-**Medallion architecture** (bronze/silver/gold) on a lakehouse:
-- **Bronze**: raw immutable append (`s3://bucket/raw/source/dt=.../...`). Cheap. Replayable.
-- **Silver**: cleaned, deduped, schema-enforced via Iceberg/Delta. ACID merges from CDC.
-- **Gold**: business-level aggregates, joined dims, served to BI (or materialized to a warehouse for low-latency).
+Medallion architecture (bronze / silver / gold) on a lakehouse. Each layer is a directory in object storage backed by an open table format (Iceberg or Delta), with progressively cleaner schemas and stronger guarantees as data flows downstream.
 
-**When pure warehouse still wins**: <10TB structured data, mostly BI, small team that doesn't want to operate Spark. Just buy Snowflake.
+```
+s3://lake/bronze/clickstream/dt=2026-05-25/...  # raw append, immutable
+s3://lake/silver/clickstream/                  # cleaned, deduped, Iceberg/Delta
+s3://lake/gold/daily_active_users/             # aggregates served to BI
+```
 
-**When pure lake still wins**: archive/compliance store, ML feature store with custom binary formats, ad-hoc analytics with no SLA.
+```sql
+-- Silver: CDC merge from a Kafka source into an Iceberg table
+MERGE INTO silver.orders t USING bronze.orders_cdc s
+  ON t.order_id = s.order_id
+WHEN MATCHED AND s.op = 'd' THEN DELETE
+WHEN MATCHED AND s.op = 'u' THEN UPDATE SET *
+WHEN NOT MATCHED AND s.op = 'c' THEN INSERT *;
+
+-- Gold: nightly aggregate served to dashboards in seconds
+CREATE OR REPLACE TABLE gold.dau AS
+SELECT date(event_ts) AS day, COUNT(DISTINCT user_id) AS dau
+FROM silver.events
+GROUP BY 1;
+```
+
+The critical pattern is the open table format (Delta or Iceberg) between bronze and silver — it gives you ACID merges, schema evolution, and snapshot isolation, none of which raw Parquet on S3 provides. Schedule small-file compaction nightly (`OPTIMIZE` for Delta, `rewrite_data_files` for Iceberg) so query engines do not spend their time opening tens of thousands of tiny files. When pure warehouse still wins: under 10 TiB of structured data, mostly BI, small team that does not want to operate Spark or Trino — just buy Snowflake or BigQuery and stop. When pure lake still wins: archive / compliance store, ML feature store with custom binary formats, ad-hoc analytics with no SLA. For everything in between, the lakehouse is the production default in 2026.
 
 ## complexity
 - **Lake scan**: O(files touched). Without partition pruning, full-table scan.
