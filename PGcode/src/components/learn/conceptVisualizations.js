@@ -2548,47 +2548,117 @@ function kruskalFrames(variant = 'default') {
 }
 
 // Manacher's algorithm for longest palindromic substring.
+// Renders the transformed string with '#' separators, the live p[] row beneath it,
+// arcs spanning each known palindrome (accent for current i, pink for the running best),
+// and pointer labels for center, right, mirror and i.
 function manacherFrames(input = 'babcbabcabbabcd') {
   const s = String(input ?? '');
   if (!s.length) return [{ array: [], caption: 'Empty string — no palindrome.' }];
-  // Transform: ^#a#b#c#$
+  // Transform: include the sentinels in the rendered array so indices match the p[] math.
+  // We render '^' and '$' as faint dots so the user perceives a clean row.
   const t = ['^'];
   for (const ch of s) { t.push('#'); t.push(ch); }
   t.push('#'); t.push('$');
+  const display = t.map((ch) => (ch === '^' || ch === '$') ? '·' : ch);
   const p = new Array(t.length).fill(0);
   let center = 0, right = 0, bestI = 0;
   const frames = [];
 
-  frames.push({ array: s.split(''), caption: `Manacher's algorithm finds the longest palindromic substring in O(n). Transform "${s}" with separators to handle even-length palindromes uniformly, then maintain a center/right-boundary and reuse past results.` });
-  frames.push({ array: t.slice(1, -1), caption: `Transformed string with '#' separators (length ${t.length - 2}). p[i] = radius of the palindrome centered at i in transformed coords.` });
+  const subValues = () => p.map((v, idx) => (idx === 0 || idx === t.length - 1) ? '' : String(v));
+
+  const snapshot = ({ i, mirror, role, caption }) => {
+    const highlights = {};
+    if (Number.isInteger(i) && i > 0 && i < t.length - 1) highlights[i] = role || 'current';
+    const pointers = {};
+    if (Number.isInteger(i) && i > 0 && i < t.length - 1) pointers[i] = 'i';
+    if (center > 0 && center < t.length - 1) {
+      pointers[center] = pointers[center] ? [].concat(pointers[center], 'C') : 'C';
+    }
+    if (right > 0 && right < t.length - 1) {
+      pointers[right] = pointers[right] ? [].concat(pointers[right], 'R') : 'R';
+    }
+    if (Number.isInteger(mirror) && mirror > 0 && mirror < t.length - 1 && mirror !== i) {
+      pointers[mirror] = pointers[mirror] ? [].concat(pointers[mirror], 'mirror') : 'mirror';
+    }
+    const arcs = [];
+    // The running best palindrome.
+    if (p[bestI] > 0) arcs.push({ center: bestI, radius: p[bestI], color: 'pink' });
+    // The currently-evaluated palindrome at i.
+    if (Number.isInteger(i) && p[i] > 0 && i !== bestI) arcs.push({ center: i, radius: p[i], color: 'accent' });
+    // The active center's known palindrome (mint).
+    if (center !== bestI && center !== i && p[center] > 0) arcs.push({ center, radius: p[center], color: 'mint' });
+    const bestLen = p[bestI];
+    const startInS = Math.max(0, Math.floor((bestI - bestLen) / 2));
+    const bestStr = s.slice(startInS, startInS + bestLen) || '—';
+    frames.push({
+      array: display,
+      highlights,
+      pointers,
+      arcs,
+      subRow: { values: subValues(), label: 'p[] (palindrome radius in transformed coords)' },
+      chip: [
+        { label: 'best', value: `"${bestStr}" (len ${bestLen})`, tone: 'pink' },
+        { label: 'center', value: center, tone: 'mint' },
+        { label: 'right', value: right, tone: 'sky' },
+      ],
+      caption,
+    });
+  };
+
+  frames.push({
+    array: s.split(''),
+    caption: `Manacher's algorithm finds the longest palindromic substring in O(n). The trick is two-fold: insert '#' between every character so odd- and even-length palindromes become uniformly odd, then exploit symmetry — every time we step into a previously-known palindrome we already know most of the answer.`,
+  });
+  frames.push({
+    array: display,
+    subRow: { values: subValues(), label: 'p[] (all zero — nothing computed yet)' },
+    pointers: { 1: 'start' },
+    caption: `Transformed string "${t.slice(1, -1).join('')}" (length ${t.length - 2}). p[i] will store the radius of the palindrome centered at index i — measured in transformed coordinates so single characters count as radius 0, three-wide palindromes as radius 1, etc.`,
+  });
 
   for (let i = 1; i < t.length - 1; i += 1) {
     const mirror = 2 * center - i;
-    if (i < right) p[i] = Math.min(right - i, p[mirror]);
+    let usedMirror = false;
+    if (i < right) { p[i] = Math.min(right - i, p[mirror]); usedMirror = true; }
     while (t[i + p[i] + 1] === t[i - p[i] - 1]) p[i] += 1;
     if (i + p[i] > right) { center = i; right = i + p[i]; }
-    if (p[i] > p[bestI]) bestI = i;
+    const newBest = p[i] > p[bestI];
+    if (newBest) bestI = i;
 
-    if (i % Math.max(1, Math.floor((t.length - 2) / 12)) === 0 || p[i] >= p[bestI] - 1) {
-      const sIdxApprox = Math.floor((i - 1) / 2);
-      const hi = {};
-      if (sIdxApprox >= 0 && sIdxApprox < s.length) hi[sIdxApprox] = 'mid';
-      frames.push({
-        array: s.split(''),
-        highlights: hi,
-        caption: `i=${i} (≈ original index ${sIdxApprox}): p[i]=${p[i]}. Current center=${center}, right=${right}. Best radius so far = ${p[bestI]}.`,
-      });
+    // Decide whether to emit a frame. Always emit on a new best, on use-of-mirror,
+    // and at a steady cadence so long inputs don't drown the viewer.
+    const cadence = Math.max(1, Math.floor((t.length - 2) / 14));
+    const emit = newBest || usedMirror || i % cadence === 0 || i === t.length - 2;
+    if (!emit) continue;
+    let caption;
+    if (newBest) {
+      caption = `i=${i}: expanded to p[i]=${p[i]} — new longest palindrome. center→${center}, right→${right}.`;
+    } else if (usedMirror) {
+      caption = `i=${i} is inside the current palindrome (i < right=${right}). Mirror at ${mirror} gives a head-start of min(right-i, p[mirror])=${p[i]} — only expand past that.`;
+    } else {
+      caption = `i=${i}: p[i]=${p[i]} after expansion. center=${center}, right=${right}.`;
     }
+    snapshot({ i, mirror: usedMirror ? mirror : null, role: newBest ? 'match' : 'current', caption });
   }
 
   const startInS = Math.floor((bestI - p[bestI]) / 2);
   const lenInS = p[bestI];
-  const hl = {};
-  for (let i = startInS; i < startInS + lenInS && i < s.length; i += 1) hl[i] = 'match';
+  const finalHl = {};
+  for (let k = 1; k < t.length - 1; k += 1) {
+    if (k >= bestI - p[bestI] && k <= bestI + p[bestI]) finalHl[k] = 'match';
+  }
   frames.push({
-    array: s.split(''),
-    highlights: hl,
-    caption: `Longest palindromic substring: "${s.slice(startInS, startInS + lenInS)}" (length ${lenInS}, starts at index ${startInS}). Total time O(n).`,
+    array: display,
+    highlights: finalHl,
+    pointers: { [bestI]: 'best' },
+    arcs: [{ center: bestI, radius: p[bestI], color: 'pink' }],
+    subRow: { values: subValues(), label: 'p[] (final)' },
+    chip: [
+      { label: 'answer', value: `"${s.slice(startInS, startInS + lenInS)}"`, tone: 'pink' },
+      { label: 'length', value: lenInS, tone: 'accent' },
+      { label: 'starts at', value: startInS, tone: 'sky' },
+    ],
+    caption: `Longest palindromic substring: "${s.slice(startInS, startInS + lenInS)}" (length ${lenInS}, original index ${startInS}). Each character was visited a constant number of times — total O(n).`,
   });
   return frames;
 }

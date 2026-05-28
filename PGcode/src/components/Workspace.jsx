@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useTopicProblems, filterByRoadmap, qk, useProblemCompanies, useSimilarProblems } from '../lib/queries';
 import Editor from '@monaco-editor/react';
-import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Play, ExternalLink, CheckCircle, RotateCcw, Code2, FileText, Award, MessageSquare, TestTube, Lightbulb, Pin } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Play, CheckCircle, RotateCcw, Code2, FileText, Award, MessageSquare, TestTube, Lightbulb, Pin } from 'lucide-react';
 import SolutionView from './SolutionView';
 import ProblemVisualizer from './ProblemVisualizer';
 import HintsPanel from './HintsPanel';
@@ -14,6 +14,12 @@ import AiExplainFailure from './AiExplainFailure';
 import Select from './Select';
 import { legacyToStatus } from '../lib/status';
 import { runCode, runCodeBatch, runCodeMultiCase } from '../lib/codeRunner';
+import { Plus, X, GripVertical } from 'lucide-react';
+
+// Default order of tabs in the left strip. Persisted per-user in localStorage so
+// users can drag tabs into their preferred order.
+const DEFAULT_LEFT_TABS = ['description', 'hints', 'solution', 'visualize', 'submissions', 'discussion', 'testcase'];
+const TAB_ORDER_KEY = 'pgcode_workspace_tab_order';
 
 // Translate raw exec errors into actionable messages for the user.
 // Network-y errors, Judge0 quirks, malformed responses — each gets a hint.
@@ -35,9 +41,51 @@ function humanizeRunError(err) {
 }
 import { generateTemplate, wrapWithDriver, buildStdin, compareOutput } from '../lib/driverCode';
 import { nextReviewAt } from '../lib/spacedRepetition';
+import { primaryTopicLabel } from '../lib/topicLabel';
+import { RICH_CONTENT } from '../content/problemContent';
 import '../styles/workspace.css';
 
 const VALID_LANGS = ['python', 'javascript', 'java', 'cpp'];
+
+// Defensive: a few legacy rows have `tags`/`topics`/`constraints` entries that
+// got stored as `{name: "...", ...}` objects instead of plain strings (mostly
+// older LC scrape rows). Rendering an object directly throws React error #31,
+// which crashes the entire Workspace page. Coerce to a display string here.
+function toText(v) {
+  if (v == null) return '';
+  if (typeof v === 'string' || typeof v === 'number') return String(v);
+  if (Array.isArray(v)) return v.map(toText).join(', ');
+  if (typeof v === 'object') return v.name || v.label || v.title || v.value || v.text || JSON.stringify(v);
+  return String(v);
+}
+
+// Build a sensible camelCase method name from the problem's display name.
+// Used as a starter-fallback when params/method_name are still null in DB.
+function methodNameFromTitle(name) {
+  if (!name) return 'solve';
+  const words = String(name).replace(/[^a-zA-Z0-9 ]/g, ' ').split(/\s+/).filter(Boolean);
+  if (!words.length) return 'solve';
+  return words[0].toLowerCase() + words.slice(1).map(w => w[0].toUpperCase() + w.slice(1).toLowerCase()).join('');
+}
+
+function fallbackStarter(lang, problemName) {
+  const m = methodNameFromTitle(problemName);
+  if (lang === 'python') return `class Solution:\n    def ${m}(self):\n        # Write your solution here\n        pass\n`;
+  if (lang === 'javascript') return `var ${m} = function() {\n    // Write your solution here\n};\n`;
+  if (lang === 'java') return `class Solution {\n    public void ${m}() {\n        // Write your solution here\n    }\n}\n`;
+  if (lang === 'cpp') return `class Solution {\npublic:\n    void ${m}() {\n        // Write your solution here\n    }\n};\n`;
+  return `// Write your solution for ${problemName || 'this problem'} here\n`;
+}
+
+// Mirror of the existence check inside ProblemVisualizer. Used to gate the
+// Visualize tab in the strip so problems without a viz don't show a dead tab.
+// Also shows the tab when test_cases exist (generic walkthrough fallback).
+function problemHasViz(problem) {
+  if (!problem) return false;
+  const viz = problem.viz_steps || RICH_CONTENT[problem.id]?.viz || null;
+  if (viz && Array.isArray(viz.frames) && viz.frames.length > 0) return true;
+  return Array.isArray(problem.test_cases) && problem.test_cases.length > 0;
+}
 
 // Map app theme preset → Monaco theme. Custom themes are registered on first
 // editor mount (registerMonacoThemes). Built-ins ('vs', 'vs-dark') are aliased
@@ -141,6 +189,25 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
   // Persisted per-problem so the toggle and last input survive reloads.
   const [stdinMode, setStdinMode] = useState('cases');
   const [customStdin, setCustomStdin] = useState('');
+  // Drag-reorderable left-tab order. Sanitized against DEFAULT_LEFT_TABS on load
+  // so a stale localStorage entry can't strand the user without a Description tab.
+  const [tabOrder, setTabOrder] = useState(() => {
+    try {
+      const raw = localStorage.getItem(TAB_ORDER_KEY);
+      if (!raw) return DEFAULT_LEFT_TABS;
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return DEFAULT_LEFT_TABS;
+      const filtered = parsed.filter(id => DEFAULT_LEFT_TABS.includes(id));
+      const missing = DEFAULT_LEFT_TABS.filter(id => !filtered.includes(id));
+      return [...filtered, ...missing];
+    } catch { return DEFAULT_LEFT_TABS; }
+  });
+  const [dragTabId, setDragTabId] = useState(null);
+  const [dragOverTabId, setDragOverTabId] = useState(null);
+  // User-authored custom test cases per problem (`{ id, stdin }[]`). Persisted in
+  // localStorage so they survive reloads alongside pinned cases.
+  const [customCases, setCustomCases] = useState([]);
+  const [activeCustomId, setActiveCustomId] = useState(null);
   // Structured test/submit result
   const [runResult, setRunResult] = useState(null);
   const [resultCaseIdx, setResultCaseIdx] = useState(0);
@@ -242,6 +309,14 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
     setTimerStopped(false);
     setDescHintsRevealed(0);
   }, [activeProblem?.id]);
+
+  // If the user lands on a problem without a visualization while the Visualize
+  // tab is selected, fall back to Description so they don't see a dead pane.
+  useEffect(() => {
+    if (leftTab === 'visualize' && activeProblem && !problemHasViz(activeProblem)) {
+      setLeftTab('description');
+    }
+  }, [leftTab, activeProblem]);
 
   // Topic info (cached)
   const { data: topic } = useQuery({
@@ -360,6 +435,11 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
       const savedStdin = localStorage.getItem(`pgcode_run_stdin_${activeProblem?.id}`);
       setCustomStdin(typeof savedStdin === 'string' ? savedStdin : '');
     } catch { setStdinMode('cases'); setCustomStdin(''); }
+    try {
+      const savedCustom = JSON.parse(localStorage.getItem(`pgcode_custom_cases_${activeProblem?.id}`) || '[]');
+      setCustomCases(Array.isArray(savedCustom) ? savedCustom : []);
+    } catch { setCustomCases([]); }
+    setActiveCustomId(null);
   }, [activeProblem?.id, activeTestCases]);
 
   // Per-problem user progress (cached). MUST come before the editor-init
@@ -399,11 +479,11 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
       localCode.includes('var solve = function(input)') ||
       localCode.includes('Object solve(')
     );
-    if (isStaleGeneric && hasMetadata) localStorage.removeItem(localKey);
+    if (isStaleGeneric) localStorage.removeItem(localKey);
 
     if (localCode && !isStaleGeneric) setCodeContent(localCode);
     else if (userProgress?.last_code?.[activeLang]) setCodeContent(userProgress.last_code[activeLang]);
-    else setCodeContent(generated || templates[activeLang] || `class Solution:\n    def solve(self, input):\n        # Write your solution here\n        pass`);
+    else setCodeContent(generated || templates[activeLang] || fallbackStarter(activeLang, activeProblem.name));
 
     initKeyRef.current = key;
   }, [activeProblem, activeLang, templates, userProgress]);
@@ -441,7 +521,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
     }
   };
 
-  const VISIBLE_DEFAULT_COUNT = 3;
+  const VISIBLE_DEFAULT_COUNT = 10;
 
   // Compute visible test case indices: first 3 + any pinned
   const visibleCaseIndices = React.useMemo(() => {
@@ -483,6 +563,102 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
       setActiveTestIdx(0);
       if (activeProblem?.test_cases?.[0]?.inputs) {
         setTestInputs([...activeProblem.test_cases[0].inputs]);
+      }
+    }
+  };
+
+  const persistTabOrder = (next) => {
+    try { localStorage.setItem(TAB_ORDER_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+  };
+
+  const handleTabDragStart = (id) => (e) => {
+    setDragTabId(id);
+    e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', id); } catch { /* Safari quirk */ }
+  };
+  const handleTabDragOver = (id) => (e) => {
+    if (!dragTabId) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (dragOverTabId !== id) setDragOverTabId(id);
+  };
+  const handleTabDrop = (id) => (e) => {
+    e.preventDefault();
+    if (!dragTabId || dragTabId === id) { setDragTabId(null); setDragOverTabId(null); return; }
+    setTabOrder(prev => {
+      const from = prev.indexOf(dragTabId);
+      const to = prev.indexOf(id);
+      if (from < 0 || to < 0) return prev;
+      const next = prev.slice();
+      next.splice(from, 1);
+      next.splice(to, 0, dragTabId);
+      persistTabOrder(next);
+      return next;
+    });
+    setDragTabId(null);
+    setDragOverTabId(null);
+  };
+  const handleTabDragEnd = () => { setDragTabId(null); setDragOverTabId(null); };
+
+  const persistCustomCases = (next) => {
+    if (!activeProblem) return;
+    try { localStorage.setItem(`pgcode_custom_cases_${activeProblem.id}`, JSON.stringify(next)); } catch { /* ignore */ }
+  };
+
+  const addCustomCase = () => {
+    if (!activeProblem) return;
+    const id = `custom_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    setCustomCases(prev => {
+      const next = [...prev, { id, stdin: '' }];
+      persistCustomCases(next);
+      return next;
+    });
+    setActiveCustomId(id);
+    setStdinMode('custom');
+    setCustomStdin('');
+    try { localStorage.setItem(`pgcode_run_mode_${activeProblem.id}`, 'custom'); } catch { /* ignore */ }
+  };
+
+  const selectCustomCase = (id) => {
+    const found = customCases.find(c => c.id === id);
+    if (!found) return;
+    setActiveCustomId(id);
+    setStdinMode('custom');
+    setCustomStdin(found.stdin || '');
+    if (activeProblem) {
+      try {
+        localStorage.setItem(`pgcode_run_mode_${activeProblem.id}`, 'custom');
+        localStorage.setItem(`pgcode_run_stdin_${activeProblem.id}`, found.stdin || '');
+      } catch { /* ignore */ }
+    }
+  };
+
+  const updateCustomCase = (id, stdin) => {
+    setCustomCases(prev => {
+      const next = prev.map(c => c.id === id ? { ...c, stdin } : c);
+      persistCustomCases(next);
+      return next;
+    });
+    if (id === activeCustomId) {
+      setCustomStdin(stdin);
+      if (activeProblem) {
+        try { localStorage.setItem(`pgcode_run_stdin_${activeProblem.id}`, stdin); } catch { /* ignore */ }
+      }
+    }
+  };
+
+  const removeCustomCase = (id) => {
+    setCustomCases(prev => {
+      const next = prev.filter(c => c.id !== id);
+      persistCustomCases(next);
+      return next;
+    });
+    if (activeCustomId === id) {
+      setActiveCustomId(null);
+      setStdinMode('cases');
+      setCustomStdin('');
+      if (activeProblem) {
+        try { localStorage.setItem(`pgcode_run_mode_${activeProblem.id}`, 'cases'); } catch { /* ignore */ }
       }
     }
   };
@@ -860,7 +1036,9 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
     return <div className="ws-loading">Loading… <Link to="/">Back to roadmap</Link></div>;
   }
 
-  const displayName = activeProblem.name.replace(/Pattern #(\d+)/, 'Problem #$1').replace(/Challenge #(\d+)/, 'Problem #$1');
+  const cleanedName = activeProblem.name.replace(/Pattern #(\d+)/, 'Problem #$1').replace(/Challenge #(\d+)/, 'Problem #$1');
+  const displayName = activeProblem.leetcode_number ? `${activeProblem.leetcode_number}. ${cleanedName}` : cleanedName;
+  const hasVizForActive = problemHasViz(activeProblem);
 
   // Examples to render below the description. We prefer the seeded description's
   // own examples (lots of legacy problems embed them as HTML); if it has none,
@@ -885,7 +1063,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
       const v = t.input ?? t.in ?? t.stdin ?? '';
       return typeof v === 'string' ? v : JSON.stringify(v);
     };
-    return pool.slice(0, 3).map((t, i) => {
+    return pool.slice(0, 5).map((t, i) => {
       const output = t.expected ?? t.output ?? t.out ?? '';
       const explain = t.explanation || t.note || '';
       return {
@@ -940,29 +1118,39 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
             })()}
           </div>
 
-          {/* LeetCode-style tabs */}
+          {/* LeetCode-style tabs — drag to reorder, order persists per-user.
+              Visualize is hidden when no walkthrough exists for this problem. */}
           <div className="ws-left-tabs">
-            <button className={`ws-tab ${leftTab === 'description' ? 'active' : ''}`} onClick={() => setLeftTab('description')}>
-              <FileText size={13} /> Description
-            </button>
-            <button className={`ws-tab ${leftTab === 'hints' ? 'active' : ''}`} onClick={() => setLeftTab('hints')}>
-              <Lightbulb size={13} /> Hints
-            </button>
-            <button className={`ws-tab ${leftTab === 'solution' ? 'active' : ''}`} onClick={() => setLeftTab('solution')}>
-              <Award size={13} /> Solution
-            </button>
-            <button className={`ws-tab ${leftTab === 'visualize' ? 'active' : ''}`} onClick={() => setLeftTab('visualize')}>
-              <Play size={13} /> Visualize
-            </button>
-            <button className={`ws-tab ${leftTab === 'submissions' ? 'active' : ''}`} onClick={() => setLeftTab('submissions')}>
-              <Award size={13} /> Submissions
-            </button>
-            <button className={`ws-tab ${leftTab === 'discussion' ? 'active' : ''}`} onClick={() => setLeftTab('discussion')}>
-              <MessageSquare size={13} /> Discussion
-            </button>
-            <button className={`ws-tab ${leftTab === 'testcase' ? 'active' : ''}`} onClick={() => setLeftTab('testcase')}>
-              <TestTube size={13} /> Testcase
-            </button>
+            {tabOrder.map(id => {
+              if (id === 'visualize' && !hasVizForActive) return null;
+              const def = {
+                description: { label: 'Description', Icon: FileText },
+                hints: { label: 'Hints', Icon: Lightbulb },
+                solution: { label: 'Solution', Icon: Award },
+                visualize: { label: 'Visualize', Icon: Play },
+                submissions: { label: 'Submissions', Icon: Award },
+                discussion: { label: 'Discussion', Icon: MessageSquare },
+                testcase: { label: 'Testcase', Icon: TestTube },
+              }[id];
+              if (!def) return null;
+              const { Icon } = def;
+              return (
+                <button
+                  key={id}
+                  className={`ws-tab ${leftTab === id ? 'active' : ''} ${dragTabId === id ? 'dragging' : ''} ${dragOverTabId === id && dragTabId && dragTabId !== id ? 'drag-over' : ''}`}
+                  onClick={() => setLeftTab(id)}
+                  draggable
+                  onDragStart={handleTabDragStart(id)}
+                  onDragOver={handleTabDragOver(id)}
+                  onDrop={handleTabDrop(id)}
+                  onDragEnd={handleTabDragEnd}
+                  title="Drag to reorder"
+                >
+                  <GripVertical size={11} className="ws-tab-grip" />
+                  <Icon size={13} /> {def.label}
+                </button>
+              );
+            })}
             {(consoleOutput || runResult || running) && (
               <button className={`ws-tab ${leftTab === 'testresult' ? 'active' : ''}`} onClick={() => setLeftTab('testresult')}>
                 Test Result
@@ -979,25 +1167,6 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                   <span className={`ws-diff-badge ws-diff-${activeProblem.difficulty?.toLowerCase()}`}>{activeProblem.difficulty}</span>
                 </div>
 
-                {(topic?.category || (Array.isArray(activeProblem.tags) && activeProblem.tags.length > 0)) && (
-                  <div className="ws-q-tags">
-                    {topic?.category && (
-                      <span className="ws-tag-group">
-                        <span className="ws-tag-pill">{topic.category}</span>
-                      </span>
-                    )}
-                    {topic?.category && Array.isArray(activeProblem.tags) && activeProblem.tags.length > 0 && (
-                      <span className="ws-tag-sep" aria-hidden="true" />
-                    )}
-                    {Array.isArray(activeProblem.tags) && activeProblem.tags.length > 0 && (
-                      <span className="ws-tag-group">
-                        {activeProblem.tags.map(t => (
-                          <span key={t} className="ws-tag-pill ws-tag-pattern">{t}</span>
-                        ))}
-                      </span>
-                    )}
-                  </div>
-                )}
 
                 {problemCompanies.length > 0 && (
                   <div className="ws-companies">
@@ -1034,10 +1203,16 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                     <ul>
                       {(Array.isArray(activeProblem.constraints)
                         ? activeProblem.constraints
-                        : activeProblem.constraints.split('\n').filter(Boolean)
-                      ).map((c, i) => (
-                        <li key={i} dangerouslySetInnerHTML={{ __html: c.replace(/`([^`]+)`/g, '<code>$1</code>') }} />
-                      ))}
+                        : (typeof activeProblem.constraints === 'string'
+                            ? activeProblem.constraints.split('\n').filter(Boolean)
+                            : [toText(activeProblem.constraints)])
+                      ).map((c, i) => {
+                        const text = toText(c);
+                        if (!text) return null;
+                        return (
+                          <li key={i} dangerouslySetInnerHTML={{ __html: text.replace(/`([^`]+)`/g, '<code>$1</code>') }} />
+                        );
+                      })}
                     </ul>
                   </div>
                 )}
@@ -1046,25 +1221,43 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                 {activeProblem.follow_up && (
                   <div className="ws-followup">
                     <div className="ws-followup-label">Follow-up</div>
-                    <p>{activeProblem.follow_up}</p>
+                    <p>{toText(activeProblem.follow_up)}</p>
                   </div>
                 )}
 
-                {/* Topics */}
-                {(activeProblem.topics?.length > 0 || topic?.category) && (
-                  <details className="ws-expandable ws-expandable-topics">
-                    <summary>
-                      <ChevronRight size={13} className="ws-expandable-caret" />
-                      <span>Topics</span>
-                      <span className="ws-expandable-count">{(activeProblem.topics || [topic?.category]).filter(Boolean).length}</span>
-                    </summary>
-                    <div className="ws-topics-wrap">
-                      {(activeProblem.topics || [topic?.category]).filter(Boolean).map((t, i) => (
-                        <span key={i} className="ws-topic-pill">{t}</span>
-                      ))}
-                    </div>
-                  </details>
-                )}
+                {/* Topics — merges explicit topics, tags, topic_id name, and category. */}
+                {(() => {
+                  const list = [];
+                  const seen = new Set();
+                  const add = (raw) => {
+                    const t = toText(raw);
+                    if (!t) return;
+                    const key = t.toLowerCase().trim();
+                    if (seen.has(key)) return;
+                    seen.add(key);
+                    list.push(t);
+                  };
+                  if (Array.isArray(activeProblem.topics)) activeProblem.topics.forEach(add);
+                  if (Array.isArray(activeProblem.tags)) activeProblem.tags.forEach(add);
+                  if (topic?.name) add(primaryTopicLabel(topic.name) || topic.name);
+                  if (topic?.category) add(topic.category);
+                  if (activeProblem.pattern) add(activeProblem.pattern);
+                  if (list.length === 0) return null;
+                  return (
+                    <details className="ws-expandable ws-expandable-topics">
+                      <summary>
+                        <ChevronRight size={13} className="ws-expandable-caret" />
+                        <span>Topics</span>
+                        <span className="ws-expandable-count">{list.length}</span>
+                      </summary>
+                      <div className="ws-topics-wrap">
+                        {list.map((label, i) => (
+                          <span key={i} className="ws-topic-pill">{label}</span>
+                        ))}
+                      </div>
+                    </details>
+                  );
+                })()}
 
                 {/* Hints — progressive reveal, numbered badges */}
                 {activeProblem.hints?.length > 0 && (
@@ -1092,7 +1285,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                           >
                             <span className="ws-hint-badge">{i + 1}</span>
                             {shown ? (
-                              <p className="ws-hint-text">{hint}</p>
+                              <p className="ws-hint-text">{toText(hint)}</p>
                             ) : isNext ? (
                               <button
                                 type="button"
@@ -1109,12 +1302,6 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                   </div>
                 )}
 
-                {activeProblem.leetcode_url && (
-                  <a href={activeProblem.leetcode_url} target="_blank" rel="noopener noreferrer" className="ws-lc-link">
-                    <ExternalLink size={13} /> Solve on LeetCode
-                  </a>
-                )}
-
                 {similarProblems.length > 0 && (
                   <div className="ws-similar">
                     <h3 className="ws-similar-title">Similar problems</h3>
@@ -1125,7 +1312,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                           to={`/category/${encodeURIComponent(p.topic_id)}/${encodeURIComponent(p.id)}`}
                           className="ws-similar-card"
                         >
-                          <span className="ws-similar-name">{p.name}</span>
+                          <span className="ws-similar-name">{p.leetcode_number ? `${p.leetcode_number}. ${p.name}` : p.name}</span>
                           <span className={`ws-similar-diff ws-diff-${p.difficulty?.toLowerCase()}`}>{p.difficulty}</span>
                         </Link>
                       ))}
@@ -1250,18 +1437,24 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
             {/* ── TESTCASE TAB ── */}
             {leftTab === 'testcase' && (
               <div className="ws-testcase">
-                {activeProblem.test_cases?.length > 0 ? (
+                {activeProblem.test_cases?.length > 0 || customCases.length > 0 ? (
                   <>
                     <div className="ws-tc-cases">
                       {visibleCaseIndices.map((originalIdx, i) => {
                         const isPinned = pinnedCaseIndices.includes(originalIdx);
+                        const isActive = !activeCustomId && activeTestIdx === originalIdx;
                         return (
-                          <div key={originalIdx} className={`ws-tc-case-wrap ${activeTestIdx === originalIdx ? 'active' : ''}`}>
+                          <div key={originalIdx} className={`ws-tc-case-wrap ${isActive ? 'active' : ''}`}>
                             <button
-                              className={`ws-tc-case ${activeTestIdx === originalIdx ? 'active' : ''} ${isPinned ? 'pinned' : ''}`}
+                              className={`ws-tc-case ${isActive ? 'active' : ''} ${isPinned ? 'pinned' : ''}`}
                               onClick={() => {
                                 setActiveTestIdx(originalIdx);
                                 setTestInputs([...activeProblem.test_cases[originalIdx].inputs]);
+                                setActiveCustomId(null);
+                                setStdinMode('cases');
+                                if (activeProblem) {
+                                  try { localStorage.setItem(`pgcode_run_mode_${activeProblem.id}`, 'cases'); } catch { /* ignore */ }
+                                }
                               }}>
                               {isPinned && <Pin size={11} className="ws-tc-pin-icon" />}
                               Case {i + 1}
@@ -1277,27 +1470,81 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                           </div>
                         );
                       })}
-                      {activeProblem.test_cases.length > visibleCaseIndices.length && (
+                      {customCases.map((cc, i) => {
+                        const isActive = activeCustomId === cc.id;
+                        return (
+                          <div key={cc.id} className={`ws-tc-case-wrap ws-tc-custom ${isActive ? 'active' : ''}`}>
+                            <button
+                              className={`ws-tc-case ${isActive ? 'active' : ''}`}
+                              onClick={() => selectCustomCase(cc.id)}>
+                              Custom {i + 1}
+                            </button>
+                            <button
+                              className="ws-tc-unpin"
+                              title="Remove custom case"
+                              onClick={(e) => { e.stopPropagation(); removeCustomCase(cc.id); }}>
+                              <X size={11} />
+                            </button>
+                          </div>
+                        );
+                      })}
+                      <button
+                        type="button"
+                        className="ws-tc-add-custom"
+                        onClick={addCustomCase}
+                        title="Add a custom test case with free-form stdin">
+                        <Plus size={12} /> Custom
+                      </button>
+                      {activeProblem.test_cases?.length > visibleCaseIndices.length && (
                         <span className="ws-tc-hidden-count">
                           + {activeProblem.test_cases.length - visibleCaseIndices.length} hidden
                         </span>
                       )}
                     </div>
-                    <div className="ws-tc-fields">
-                      {(activeProblem.params || []).map((param, i) => (
-                        <div key={i} className="ws-tc-field">
-                          <label>{param.name} =</label>
-                          <input type="text" value={testInputs[i] || ''} onChange={e => {
-                            const next = [...testInputs];
-                            next[i] = e.target.value;
-                            setTestInputs(next);
-                          }} className="ws-tc-input" />
+                    {activeCustomId ? (
+                      <div className="ws-tc-fields">
+                        <div className="ws-tc-field ws-tc-field-custom">
+                          <label>Custom stdin (each line is one parameter)</label>
+                          <textarea
+                            className="ws-tc-input ws-tc-textarea"
+                            value={customCases.find(c => c.id === activeCustomId)?.stdin || ''}
+                            onChange={e => updateCustomCase(activeCustomId, e.target.value)}
+                            placeholder={'[2,7,11,15]\n9'}
+                            spellCheck={false}
+                            rows={4}
+                          />
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    ) : (
+                      activeProblem.test_cases?.length > 0 && (
+                        <div className="ws-tc-fields">
+                          {(activeProblem.params || []).map((param, i) => (
+                            <div key={i} className="ws-tc-field">
+                              <label>{param.name} =</label>
+                              <input type="text" value={testInputs[i] || ''} onChange={e => {
+                                const next = [...testInputs];
+                                next[i] = e.target.value;
+                                setTestInputs(next);
+                              }} className="ws-tc-input" />
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    )}
                   </>
                 ) : (
-                  <p className="ws-empty-msg">No test cases available for this problem yet.</p>
+                  <>
+                    <div className="ws-tc-cases">
+                      <button
+                        type="button"
+                        className="ws-tc-add-custom"
+                        onClick={addCustomCase}
+                        title="Add a custom test case with free-form stdin">
+                        <Plus size={12} /> Custom
+                      </button>
+                    </div>
+                    <p className="ws-empty-msg">No test cases available for this problem yet. Add a Custom case to run with your own stdin.</p>
+                  </>
                 )}
               </div>
             )}
@@ -1373,18 +1620,21 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                       <div className="ws-pattern-breakdown">
                         <div className="ws-pb-header">Pattern Breakdown</div>
                         <div className="ws-pb-tags">
-                          {activeProblem.tags.map((t, i) => (
-                            <span key={t} className={`ws-pb-tag ${i === 0 ? 'primary' : ''}`}>
-                              {i === 0 ? 'Primary: ' : ''}{t}
-                            </span>
-                          ))}
+                          {activeProblem.tags.map((t, i) => {
+                            const label = toText(t);
+                            return label ? (
+                              <span key={`${label}-${i}`} className={`ws-pb-tag ${i === 0 ? 'primary' : ''}`}>
+                                {i === 0 ? 'Primary: ' : ''}{label}
+                              </span>
+                            ) : null;
+                          })}
                         </div>
                         {postSolveSimilar.length > 0 && (
                           <div className="ws-pb-similar">
                             <div className="ws-pb-similar-label">Similar problems using these patterns:</div>
                             {postSolveSimilar.map(sp => (
                               <Link key={sp.id} to={`/category/${encodeURIComponent(sp.topic_id)}/${encodeURIComponent(sp.id)}`} className="ws-pb-similar-item">
-                                <span className="ws-pb-similar-name">{sp.name}</span>
+                                <span className="ws-pb-similar-name">{sp.leetcode_number ? `${sp.leetcode_number}. ${sp.name}` : sp.name}</span>
                                 <span className={`ws-pb-similar-diff ws-diff-${sp.difficulty?.toLowerCase()}`}>{sp.difficulty}</span>
                               </Link>
                             ))}
@@ -1529,55 +1779,17 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
               }} />
           </div>
 
-          {stdinMode === 'custom' && (
-            <div className="ws-stdin-panel">
-              <div className="ws-stdin-label">Custom stdin (each line is one parameter)</div>
-              <textarea
-                className="ws-stdin-textarea"
-                value={customStdin}
-                onChange={e => {
-                  const next = e.target.value;
-                  setCustomStdin(next);
-                  if (activeProblem) {
-                    try { localStorage.setItem(`pgcode_run_stdin_${activeProblem.id}`, next); } catch { /* ignore */ }
-                  }
-                }}
-                placeholder={'[2,7,11,15]\n9'}
-                spellCheck={false}
-                rows={3}
-              />
-            </div>
-          )}
-
           <div className="ws-editor-footer">
             <div className="ws-footer-left">
               <span className="ws-cursor-pos">Ln {cursorPos.ln}, Col {cursorPos.col}</span>
               {editorStatus && <span className="ws-editor-status">{editorStatus}</span>}
+              {stdinMode === 'custom' && activeCustomId && (
+                <span className="ws-editor-status ws-editor-status-accent">
+                  Run uses Custom {customCases.findIndex(c => c.id === activeCustomId) + 1}
+                </span>
+              )}
             </div>
             <div className="ws-footer-btns">
-              <div className="ws-run-mode" role="tablist" aria-label="Run mode">
-                {[
-                  { value: 'cases', label: 'Cases' },
-                  { value: 'custom', label: 'Custom' },
-                ].map(opt => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    role="tab"
-                    aria-selected={stdinMode === opt.value}
-                    className={`ws-run-mode-pill ${stdinMode === opt.value ? 'active' : ''}`}
-                    onClick={() => {
-                      setStdinMode(opt.value);
-                      if (activeProblem) {
-                        try { localStorage.setItem(`pgcode_run_mode_${activeProblem.id}`, opt.value); } catch { /* ignore */ }
-                      }
-                    }}
-                    title={opt.value === 'custom' ? 'Run with custom stdin' : 'Run with problem test cases'}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
               <button className="ws-run-btn" onClick={handleRun} disabled={running}>{running ? 'Running...' : 'Run'}</button>
               <button className="ws-submit-btn" onClick={handleSubmit} disabled={running}>Submit</button>
             </div>

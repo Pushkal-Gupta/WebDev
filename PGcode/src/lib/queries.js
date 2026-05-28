@@ -294,7 +294,7 @@ export function useProblemsCompact() {
       while (page < 20) {
         const { data, error } = await supabase
           .from('PGcode_problems')
-          .select('id, name, topic_id, difficulty, roadmap_set, leetcode_url')
+          .select('id, name, topic_id, difficulty, roadmap_set, leetcode_url, leetcode_number')
           .range(page * PAGE, page * PAGE + PAGE - 1);
         if (error) throw error;
         if (!data?.length) break;
@@ -1036,7 +1036,7 @@ export function usePrefetch() {
       queryFn: async () => {
         const { data } = await supabase
           .from('PGcode_problems')
-          .select('id, name, topic_id, difficulty, roadmap_set, leetcode_url');
+          .select('id, name, topic_id, difficulty, roadmap_set, leetcode_url, leetcode_number');
         return data || [];
       },
       staleTime: 10 * 60 * 1000,

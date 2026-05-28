@@ -46,12 +46,20 @@ export default function SolutionView({ problem, activeLang: wsLang }) {
 
   if (loading) return <div className="sv-loading">Loading solutions...</div>;
 
-  // Fallback to DB column problem.solutions, then to client-side RICH_CONTENT,
-  // when no rows exist in PGcode_solution_approaches.
+  // Fallback to DB column problem.solutions, then to client-side RICH_CONTENT.
+  // `solutions` can be stored either as flat strings ({python: "code"}) from
+  // bulk import, or as nested objects ({python: {code, approach, complexity}})
+  // from RICH_CONTENT. Normalise to the nested shape here so the UI is uniform.
   const langLabels = { python: 'Python', javascript: 'JavaScript', java: 'Java', cpp: 'C++' };
-  const fallback = (problem.solutions && Object.keys(problem.solutions).length > 0)
+  const rawFallback = (problem.solutions && Object.keys(problem.solutions).length > 0)
     ? problem.solutions
     : (RICH_CONTENT[problem.id]?.solutions || null);
+  const fallback = rawFallback ? Object.fromEntries(
+    Object.entries(rawFallback).map(([lang, v]) => [
+      lang,
+      typeof v === 'string' ? { code: v } : v,
+    ])
+  ) : null;
 
   if (approaches.length === 0 && fallback) {
     return (

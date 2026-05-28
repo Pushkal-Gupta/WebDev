@@ -271,6 +271,14 @@ export default function AlgoVisualizer({
               {render(frame, safeIdx)}
             </div>
           </div>
+          {activeFrames.length > 0 && (
+            <div className="viz-progress-bar" aria-hidden="true">
+              <div
+                className="viz-progress-bar-fill"
+                style={{ width: `${((safeIdx + 1) / activeFrames.length) * 100}%` }}
+              />
+            </div>
+          )}
           {frame.caption && (
             <p key={`cap-${tabIdx}-${safeIdx}`} className="viz-caption">
               {frame.caption}
@@ -365,7 +373,117 @@ export default function AlgoVisualizer({
 // Each renderer expects a specific frame shape.
 // ─────────────────────────────────────────────────────────────────────────
 
-// Frame: { array, highlights?: { [index]: 'left'|'right'|'mid'|'low'|'high'|'match' }, eliminated?: Set<number> }
+// Frame: {
+//   array,
+//   highlights?: { [index]: 'left'|'right'|'mid'|'low'|'high'|'match'|'compared'|'pivot'|'visited'|'current'|'frontier'|'done'|'tree' },
+//   eliminated?: Set<number> | number[],
+//   pointers?: { [index]: string | string[] }   // labels above cells (lo / hi / i / j / mid)
+//   chip?: { label: string, value: string|number } | Array  // floating stat chip
+//   subRow?: { values: (string|number)[], label?: string }   // parallel row (p[] for Manacher, etc.)
+//   arcs?: [{ center: number, radius: number, color?: 'accent'|'mint'|'sky'|'pink'|'violet' }]
+// }
+function PointerLabels({ pointers, count, cellWidth, gap }) {
+  if (!pointers || count === 0) return null;
+  // Stack identical-cell labels vertically so they don't overlap.
+  const byIdx = {};
+  Object.entries(pointers).forEach(([k, v]) => {
+    const idx = Number(k);
+    if (!Number.isFinite(idx) || idx < 0 || idx >= count) return;
+    const labels = Array.isArray(v) ? v : [v];
+    byIdx[idx] = labels;
+  });
+  if (Object.keys(byIdx).length === 0) return null;
+  return (
+    <div className="viz-pointer-row" style={{ gap: `${gap}px` }}>
+      {Array.from({ length: count }).map((_, idx) => {
+        const labels = byIdx[idx];
+        return (
+          <div key={idx} className="viz-pointer-slot" style={{ width: `${cellWidth}px` }}>
+            {labels && (
+              <div className="viz-pointer-stack">
+                {labels.map((label, li) => (
+                  <span key={li} className="viz-pointer-label">{label}</span>
+                ))}
+                <span className="viz-pointer-arrow" aria-hidden="true" />
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function StatChip({ chip }) {
+  if (!chip) return null;
+  const list = Array.isArray(chip) ? chip : [chip];
+  if (!list.length) return null;
+  return (
+    <div className="viz-chip-row">
+      {list.map((c, i) => (
+        <span key={i} className={`viz-chip viz-chip-${c.tone || 'accent'}`}>
+          <span className="viz-chip-label">{c.label}</span>
+          <span className="viz-chip-value">{c.value}</span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function PalindromeArcs({ arcs, count, cellWidth, gap }) {
+  if (!arcs || !arcs.length || count === 0) return null;
+  const totalW = count * cellWidth + Math.max(0, count - 1) * gap;
+  const height = 30;
+  const cx = (idx) => idx * (cellWidth + gap) + cellWidth / 2;
+  return (
+    <svg
+      className="viz-arc-layer"
+      viewBox={`0 0 ${totalW} ${height}`}
+      width={totalW}
+      height={height}
+      aria-hidden="true"
+      preserveAspectRatio="none"
+    >
+      {arcs.map((a, i) => {
+        const center = a.center;
+        const radius = a.radius;
+        if (!Number.isFinite(center) || !Number.isFinite(radius) || radius < 0) return null;
+        const lo = Math.max(0, center - radius);
+        const hi = Math.min(count - 1, center + radius);
+        const x1 = cx(lo);
+        const x2 = cx(hi);
+        const mx = (x1 + x2) / 2;
+        const my = height - 4;
+        const top = 4;
+        const tone = a.color || 'accent';
+        return (
+          <path
+            key={i}
+            d={`M ${x1} ${my} Q ${mx} ${top} ${x2} ${my}`}
+            className={`viz-arc viz-arc-${tone}`}
+          />
+        );
+      })}
+    </svg>
+  );
+}
+
+function SubRow({ subRow, count, cellWidth, gap }) {
+  if (!subRow || !Array.isArray(subRow.values) || count === 0) return null;
+  return (
+    <div className="viz-subrow-wrap">
+      {subRow.label && <span className="viz-subrow-label">{subRow.label}</span>}
+      <div className="viz-subrow" style={{ gap: `${gap}px` }}>
+        {Array.from({ length: count }).map((_, idx) => (
+          <div key={idx} className="viz-subrow-cell" style={{ width: `${cellWidth}px` }}>
+            {subRow.values[idx] ?? ''}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function ArrayBarRenderer({ frame }) {
   const arr = frame.array || [];
   // Heuristic: if every value parses as a finite number, render as a bar chart;
@@ -374,94 +492,120 @@ export function ArrayBarRenderer({ frame }) {
   const numeric = arr.length > 0 && arr.every(v => typeof v === 'number' && Number.isFinite(v));
   if (numeric) {
     const max = Math.max(1, ...arr.map(v => Math.abs(v)));
+    const cellWidth = 44; const gap = 6;
     return (
-      <div className="viz-array">
+      <div className="viz-array-block">
+        <StatChip chip={frame.chip} />
+        <PointerLabels pointers={frame.pointers} count={arr.length} cellWidth={cellWidth} gap={gap} />
+        <div className="viz-array" style={{ gap: `${gap}px` }}>
+          {arr.map((v, idx) => {
+            const role = frame.highlights?.[idx];
+            const eliminated = frame.eliminated?.has?.(idx) || frame.eliminated?.includes?.(idx);
+            const height = Math.max(8, Math.round((Math.abs(v) / max) * 140));
+            return (
+              <div
+                key={idx}
+                className={`viz-bar ${role ? 'viz-bar-' + role : ''} ${eliminated ? 'viz-bar-eliminated' : ''}`}
+                style={{ height: `${height}px`, width: `${cellWidth}px` }}
+                title={`arr[${idx}] = ${v}`}
+              >
+                <span className="viz-bar-value">{v}</span>
+                <span className="viz-bar-idx">{idx}</span>
+              </div>
+            );
+          })}
+        </div>
+        <PalindromeArcs arcs={frame.arcs} count={arr.length} cellWidth={cellWidth} gap={gap} />
+        <SubRow subRow={frame.subRow} count={arr.length} cellWidth={cellWidth} gap={gap} />
+      </div>
+    );
+  }
+  const cellWidth = 56; const gap = 6;
+  return (
+    <div className="viz-array-block">
+      <StatChip chip={frame.chip} />
+      <PointerLabels pointers={frame.pointers} count={arr.length} cellWidth={cellWidth} gap={gap} />
+      <div className="viz-tiles" style={{ gap: `${gap}px` }}>
         {arr.map((v, idx) => {
           const role = frame.highlights?.[idx];
           const eliminated = frame.eliminated?.has?.(idx) || frame.eliminated?.includes?.(idx);
-          const height = Math.max(8, Math.round((Math.abs(v) / max) * 120));
           return (
             <div
               key={idx}
-              className={`viz-bar ${role ? 'viz-bar-' + role : ''} ${eliminated ? 'viz-bar-eliminated' : ''}`}
-              style={{ height: `${height}px` }}
-              title={`arr[${idx}] = ${v}`}
+              className={`viz-tile ${role ? 'viz-tile-' + role : ''} ${eliminated ? 'viz-tile-eliminated' : ''}`}
+              title={`[${idx}] ${v}`}
             >
-              <span className="viz-bar-value">{v}</span>
-              <span className="viz-bar-idx">{idx}</span>
+              <span className="viz-tile-value">{String(v)}</span>
+              <span className="viz-tile-idx">{idx}</span>
             </div>
           );
         })}
       </div>
-    );
-  }
-  return (
-    <div className="viz-tiles">
-      {arr.map((v, idx) => {
-        const role = frame.highlights?.[idx];
-        const eliminated = frame.eliminated?.has?.(idx) || frame.eliminated?.includes?.(idx);
-        return (
-          <div
-            key={idx}
-            className={`viz-tile ${role ? 'viz-tile-' + role : ''} ${eliminated ? 'viz-tile-eliminated' : ''}`}
-            title={`[${idx}] ${v}`}
-          >
-            <span className="viz-tile-value">{String(v)}</span>
-            <span className="viz-tile-idx">{idx}</span>
-          </div>
-        );
-      })}
+      <PalindromeArcs arcs={frame.arcs} count={arr.length} cellWidth={cellWidth} gap={gap} />
+      <SubRow subRow={frame.subRow} count={arr.length} cellWidth={cellWidth} gap={gap} />
     </div>
   );
 }
 
-// Frame: { nodes: [{ id, label, state? }], edges: [{ a, b, state? }] }
+// Frame: { nodes: [{ id, label, state? }], edges: [{ a, b, state?, w? }], chip? }
 export function GraphRenderer({ frame }) {
   const nodes = frame.nodes || [];
   const edges = frame.edges || [];
   if (nodes.length === 0) return null;
   // Place nodes in a circle for stability across frames.
-  const cx = 160, cy = 110, R = 80;
+  const cx = 200, cy = 140, R = 105;
   const positioned = nodes.map((n, i) => {
     const angle = (i / nodes.length) * 2 * Math.PI - Math.PI / 2;
     return { ...n, x: cx + R * Math.cos(angle), y: cy + R * Math.sin(angle) };
   });
   const posById = Object.fromEntries(positioned.map(n => [n.id, n]));
   return (
-    <svg className="viz-graph" viewBox="0 0 320 220" role="img" aria-label="graph">
-      {edges.map((e, i) => {
-        const a = posById[e.a]; const b = posById[e.b];
-        if (!a || !b) return null;
-        return (
-          <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y}
-            className={`viz-edge ${e.state ? 'viz-edge-' + e.state : ''}`} />
-        );
-      })}
-      {edges.map((e, i) => {
-        const a = posById[e.a]; const b = posById[e.b];
-        if (!a || !b || e.w == null) return null;
-        const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
-        return (
-          <text key={`w-${i}`} x={mx} y={my} dy="-4" textAnchor="middle" className="viz-edge-weight">
-            {e.w}
-          </text>
-        );
-      })}
-      {positioned.map(n => {
-        const lines = String(n.label ?? n.id).split('\n');
-        const r = lines.length > 1 ? 20 : 16;
-        return (
-          <g key={n.id} className={`viz-node ${n.state ? 'viz-node-' + n.state : ''}`}>
-            <circle cx={n.x} cy={n.y} r={r} />
-            <text x={n.x} y={n.y} dy={lines.length > 1 ? '-0.2em' : '.34em'} textAnchor="middle">
-              {lines.map((line, i) => (
-                <tspan key={i} x={n.x} dy={i === 0 ? 0 : '1em'}>{line}</tspan>
-              ))}
-            </text>
-          </g>
-        );
-      })}
-    </svg>
+    <div className="viz-graph-block">
+      <StatChip chip={frame.chip} />
+      <svg className="viz-graph" viewBox="0 0 400 280" role="img" aria-label="graph">
+        {/* Edges first (under nodes). */}
+        {edges.map((e, i) => {
+          const a = posById[e.a]; const b = posById[e.b];
+          if (!a || !b) return null;
+          return (
+            <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y}
+              className={`viz-edge ${e.state ? 'viz-edge-' + e.state : ''}`} />
+          );
+        })}
+        {edges.map((e, i) => {
+          const a = posById[e.a]; const b = posById[e.b];
+          if (!a || !b || e.w == null) return null;
+          const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+          const text = String(e.w);
+          const w = Math.max(16, 8 + text.length * 6);
+          return (
+            <g key={`w-${i}`} className={`viz-edge-weight-group ${e.state ? 'viz-edge-weight-' + e.state : ''}`}>
+              <rect x={mx - w / 2} y={my - 8} width={w} height={14} rx={7} className="viz-edge-weight-bg" />
+              <text x={mx} y={my} dy=".34em" textAnchor="middle" className="viz-edge-weight">{text}</text>
+            </g>
+          );
+        })}
+        {/* Nodes with optional accent ring for current. */}
+        {positioned.map(n => {
+          const lines = String(n.label ?? n.id).split('\n');
+          const r = lines.length > 1 ? 22 : 18;
+          const isCurrent = n.state === 'current';
+          const isFrontier = n.state === 'frontier';
+          return (
+            <g key={n.id} className={`viz-node ${n.state ? 'viz-node-' + n.state : ''}`}>
+              {isCurrent && <circle cx={n.x} cy={n.y} r={r + 6} className="viz-node-ring" />}
+              {isFrontier && <circle cx={n.x} cy={n.y} r={r + 4} className="viz-node-pulse" />}
+              <circle cx={n.x} cy={n.y} r={r} />
+              <text x={n.x} y={n.y} dy={lines.length > 1 ? '-0.2em' : '.34em'} textAnchor="middle">
+                {lines.map((line, i) => (
+                  <tspan key={i} x={n.x} dy={i === 0 ? 0 : '1em'}>{line}</tspan>
+                ))}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
   );
 }
 
@@ -520,7 +664,7 @@ export function NumberGridRenderer({ frame }) {
   );
 }
 
-// Frame: { tree: { value, state?, left, right }, caption? }
+// Frame: { tree: { value, state?, left, right }, traversal?: (string|number)[], chip?, caption? }
 // Each node's `value` is shown inside the circle; `state` matches viz-node-* states.
 export function TreeRenderer({ frame }) {
   const root = frame.tree;
@@ -538,8 +682,8 @@ export function TreeRenderer({ frame }) {
   collect(root, 0);
   if (slots.length === 0) return null;
   const maxDepth = Math.max(...slots.map(s => s.depth));
-  const xStep = 320 / Math.max(slots.length, 1);
-  const yStep = maxDepth === 0 ? 0 : 180 / maxDepth;
+  const xStep = 380 / Math.max(slots.length, 1);
+  const yStep = maxDepth === 0 ? 0 : 200 / maxDepth;
 
   // Map each node to its computed center.
   const pos = new Map();
@@ -557,46 +701,80 @@ export function TreeRenderer({ frame }) {
   };
   walk(root);
 
+  // Curved edges look more "treelike" than straight lines.
+  const edgePath = (a, b) => {
+    const my = (a.y + b.y) / 2;
+    return `M ${a.x} ${a.y} C ${a.x} ${my}, ${b.x} ${my}, ${b.x} ${b.y}`;
+  };
+
   return (
-    <svg className="viz-graph" viewBox="0 0 360 240" role="img" aria-label="tree">
-      {edges.map((e, i) => (
-        <line key={i} x1={e.a.x} y1={e.a.y} x2={e.b.x} y2={e.b.y}
-          className={`viz-edge ${e.state === 'current' || e.state === 'visited' ? 'viz-edge-tree' : ''}`} />
-      ))}
-      {slots.map(({ node }) => {
-        const p = pos.get(node);
-        return (
-          <g key={node._id ?? `${p.x}-${p.y}`} className={`viz-node ${node.state ? 'viz-node-' + node.state : ''}`}>
-            <circle cx={p.x} cy={p.y} r={14} />
-            <text x={p.x} y={p.y} dy=".34em" textAnchor="middle">{node.value}</text>
-          </g>
-        );
-      })}
-    </svg>
+    <div className="viz-tree-block">
+      <StatChip chip={frame.chip} />
+      <svg className="viz-graph" viewBox="0 0 420 260" role="img" aria-label="tree">
+        {edges.map((e, i) => (
+          <path key={i} d={edgePath(e.a, e.b)} fill="none"
+            className={`viz-edge ${e.state === 'current' || e.state === 'visited' ? 'viz-edge-tree' : ''}`} />
+        ))}
+        {slots.map(({ node }) => {
+          const p = pos.get(node);
+          const isCurrent = node.state === 'current';
+          return (
+            <g key={node._id ?? `${p.x}-${p.y}`} className={`viz-node ${node.state ? 'viz-node-' + node.state : ''}`}>
+              {isCurrent && <circle cx={p.x} cy={p.y} r={20} className="viz-node-ring" />}
+              <circle cx={p.x} cy={p.y} r={15} />
+              <text x={p.x} y={p.y} dy=".34em" textAnchor="middle">{node.value}</text>
+            </g>
+          );
+        })}
+      </svg>
+      {Array.isArray(frame.traversal) && frame.traversal.length > 0 && (
+        <div className="viz-traversal-row">
+          <span className="viz-traversal-label">Traversal</span>
+          <div className="viz-traversal-chips">
+            {frame.traversal.map((v, i) => (
+              <span key={i} className={`viz-traversal-chip ${i === frame.traversal.length - 1 ? 'viz-traversal-chip-last' : ''}`}>{v}</span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
-// Frame: { array, window: [l, r] (inclusive), state? }
+// Frame: { array, window: [l, r] (inclusive), chip?, pointers? }
 export function SlidingWindowRenderer({ frame }) {
   const arr = frame.array || [];
   const [l, r] = frame.window || [0, -1];
+  // Auto-add l/r labels if no explicit pointers provided.
+  const pointers = frame.pointers || (() => {
+    const auto = {};
+    if (l >= 0 && l < arr.length) auto[l] = l === r ? ['l', 'r'] : 'l';
+    if (r >= 0 && r < arr.length && r !== l) auto[r] = 'r';
+    return auto;
+  })();
+  const cellWidth = 52; const gap = 4;
   return (
-    <div className="viz-window">
-      {arr.map((v, idx) => {
-        const inWindow = idx >= l && idx <= r;
-        const isL = idx === l;
-        const isR = idx === r;
-        return (
-          <div
-            key={idx}
-            className={`viz-cell ${inWindow ? 'viz-cell-window' : ''} ${isL ? 'viz-cell-l' : ''} ${isR ? 'viz-cell-r' : ''}`}
-            title={`arr[${idx}] = ${v}`}
-          >
-            <span className="viz-cell-value">{v}</span>
-            <span className="viz-cell-idx">{idx}</span>
-          </div>
-        );
-      })}
+    <div className="viz-window-block">
+      <StatChip chip={frame.chip} />
+      <PointerLabels pointers={pointers} count={arr.length} cellWidth={cellWidth} gap={gap} />
+      <div className="viz-window" style={{ gap: `${gap}px` }}>
+        {arr.map((v, idx) => {
+          const inWindow = idx >= l && idx <= r;
+          const isL = idx === l;
+          const isR = idx === r;
+          return (
+            <div
+              key={idx}
+              className={`viz-cell ${inWindow ? 'viz-cell-window' : ''} ${isL ? 'viz-cell-l' : ''} ${isR ? 'viz-cell-r' : ''}`}
+              style={{ width: `${cellWidth}px` }}
+              title={`arr[${idx}] = ${v}`}
+            >
+              <span className="viz-cell-value">{v}</span>
+              <span className="viz-cell-idx">{idx}</span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
