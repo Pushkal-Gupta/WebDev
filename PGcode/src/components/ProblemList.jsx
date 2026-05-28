@@ -500,7 +500,7 @@ export default function ProblemList({ session }) {
                     to={`/category/${encodeURIComponent(p.topic_id)}/${encodeURIComponent(p.id)}`}
                     className="pl-practice-link"
                   >
-                    <span className="pl-practice-name">{p.name}</span>
+                    <span className="pl-practice-name">{p.leetcode_number ? `${p.leetcode_number}. ${p.name}` : p.name}</span>
                     <span className="pl-practice-topic">{topicNameMap[p.topic_id] || p.topic_id}</span>
                   </Link>
                   <span className={`pl-diff-tag pl-diff-${p.difficulty.toLowerCase()}`}>
@@ -560,7 +560,7 @@ export default function ProblemList({ session }) {
                     className="pl-problem-link"
                     title={p.name}
                   >
-                    {p.name}
+                    {p.leetcode_number ? `${p.leetcode_number}. ${p.name}` : p.name}
                   </Link>
                 </div>
                 <div className="pl-col-topic">

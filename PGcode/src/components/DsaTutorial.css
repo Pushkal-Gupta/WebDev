@@ -655,12 +655,12 @@
 .tut-item-theory-wrap.expanded .tut-item-theory-button .tut-item-icon { color: var(--accent); }
 
 .tut-theory-body {
-  margin: 0 0.15rem 0.45rem;
-  padding: 0.85rem 1.05rem 0.95rem;
+  margin: 0 0.15rem 0.6rem;
+  padding: 1.1rem 1.25rem 1.3rem;
   background: var(--bg);
   border: 1px solid var(--border);
   border-top: none;
-  border-radius: 0 0 8px 8px;
+  border-radius: 0 0 10px 10px;
   position: relative;
 }
 .tut-theory-body::before {
@@ -673,47 +673,112 @@
   border-radius: 0 0 0 8px;
 }
 
+/* Two-column theory layout: content + sticky right-rail TOC.
+   Collapses to a single column on narrow screens (<1100px). */
+.tut-theory-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+@media (min-width: 1100px) {
+  .tut-theory-layout {
+    grid-template-columns: minmax(0, 1fr) 168px;
+  }
+}
+
 .tut-theory-content {
   font-family: var(--serif);
-  font-size: 0.95rem;
-  line-height: 1.62;
+  font-size: 0.97rem;
+  line-height: 1.68;
   color: var(--text-main);
+  min-width: 0;
 }
-.tut-theory-content p { margin: 0 0 0.65rem; }
+.tut-theory-content > * + * { margin-top: 1.4rem; }
+.tut-theory-content p { margin: 0 0 0.9rem; }
 .tut-theory-content p:last-child { margin-bottom: 0; }
 .tut-theory-content ul {
-  margin: 0.25rem 0 0.7rem;
-  padding-left: 1.15rem;
+  margin: 0.4rem 0 0.9rem;
+  padding-left: 1.2rem;
 }
 .tut-theory-content li {
-  margin-bottom: 0.25rem;
-  line-height: 1.55;
+  margin-bottom: 0.45rem;
+  line-height: 1.6;
 }
 
 .tut-theory-summary {
   font-family: var(--serif);
   font-style: italic;
-  font-size: 1rem;
+  font-size: 1.05rem;
   color: var(--text-main);
-  border-left: 2px solid var(--accent);
-  padding: 0.05rem 0 0.05rem 0.7rem;
-  margin: 0 0 0.85rem !important;
+  line-height: 1.6;
+  border-left: 3px solid var(--accent);
+  padding: 0.4rem 0 0.4rem 0.9rem;
+  margin: 0 !important;
+  background: linear-gradient(
+    to right,
+    rgba(var(--accent-rgb), 0.04),
+    transparent 60%
+  );
 }
 
-.tut-theory-section {
-  margin-top: 0.75rem;
-}
-.tut-theory-section:first-of-type { margin-top: 0; }
+/* Section cards (Mental model / Canonical operation / etc.) */
+.tut-theory-section { margin-top: 0; }
 
-.tut-theory-heading {
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+.tut-theory-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
+  scroll-margin-top: 12px;
+  transition: border-color var(--t), box-shadow var(--t);
+}
+.tut-theory-card:hover {
+  border-color: var(--border);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.tut-theory-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.7rem 1rem;
+  background: linear-gradient(
+    to right,
+    rgba(var(--accent-rgb), 0.07),
+    rgba(var(--accent-rgb), 0.01) 70%,
+    transparent
+  );
+  border-bottom: 1px solid var(--border);
+}
+.tut-theory-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--bg);
   color: var(--accent);
-  margin: 0 0 0.35rem;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
 }
+.tut-theory-heading {
+  font-family: var(--sans);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-main);
+  margin: 0;
+  line-height: 1.2;
+}
+.tut-theory-card-body {
+  padding: 1rem 1.15rem 1.1rem;
+}
+.tut-theory-card-body > *:first-child { margin-top: 0; }
+.tut-theory-card-body > *:last-child { margin-bottom: 0; }
 
 .tut-theory-complexity {
   display: inline-flex;
@@ -772,20 +837,21 @@
   white-space: nowrap;
 }
 
-/* Fenced code blocks (```ascii, ```py, etc.) — render as a monospace surface */
+/* Fenced code blocks (```ascii, ```py, etc.) — distinct from prose */
 .tut-theory-pre {
-  margin: 0.7rem 0;
-  padding: 0.85rem 1rem;
+  margin: 1.1rem 0;
+  padding: 1.05rem 1.2rem 1.1rem;
   background: var(--surface);
   border: 1px solid var(--border);
   border-left: 3px solid var(--accent);
-  border-radius: 6px;
+  border-radius: 8px;
   overflow-x: auto;
   font-family: var(--mono);
-  font-size: 0.78rem;
-  line-height: 1.55;
+  font-size: 0.8rem;
+  line-height: 1.6;
   color: var(--text-main);
   position: relative;
+  box-shadow: inset 0 1px 0 rgba(var(--accent-rgb), 0.04);
 }
 .tut-theory-pre code {
   font-family: inherit;
@@ -797,158 +863,360 @@
   white-space: pre;
   display: block;
 }
+/* Language pill — top-right corner, visible for every fenced block */
 .tut-theory-pre::before {
-  content: attr(data-lang);
-}
-.tut-theory-pre-ascii::before,
-.tut-theory-pre-py::before,
-.tut-theory-pre-python::before,
-.tut-theory-pre-js::before,
-.tut-theory-pre-javascript::before,
-.tut-theory-pre-cpp::before,
-.tut-theory-pre-java::before {
   position: absolute;
   top: 0;
-  right: 0.5rem;
+  right: 0;
   font-family: var(--mono);
-  font-size: 0.55rem;
+  font-size: 0.58rem;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   color: var(--text-dim);
   background: var(--hover-box);
-  padding: 0.1rem 0.4rem;
-  border-radius: 0 5px 0 5px;
+  padding: 0.18rem 0.55rem;
+  border-radius: 0 7px 0 6px;
   font-weight: 700;
+  border-left: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
+.tut-theory-pre-plain::before  { content: 'CODE'; }
 .tut-theory-pre-ascii::before  { content: 'ASCII'; }
 .tut-theory-pre-py::before,
 .tut-theory-pre-python::before { content: 'PYTHON'; }
 .tut-theory-pre-js::before,
 .tut-theory-pre-javascript::before { content: 'JS'; }
+.tut-theory-pre-ts::before,
+.tut-theory-pre-typescript::before { content: 'TS'; }
 .tut-theory-pre-cpp::before    { content: 'C++'; }
+.tut-theory-pre-c::before      { content: 'C'; }
 .tut-theory-pre-java::before   { content: 'JAVA'; }
+.tut-theory-pre-go::before     { content: 'GO'; }
+.tut-theory-pre-rs::before,
+.tut-theory-pre-rust::before   { content: 'RUST'; }
+.tut-theory-pre-sh::before,
+.tut-theory-pre-bash::before,
+.tut-theory-pre-shell::before  { content: 'SHELL'; }
+.tut-theory-pre-sql::before    { content: 'SQL'; }
+.tut-theory-pre-json::before   { content: 'JSON'; }
 
-/* Callout boxes — Note / Warning / Tip */
+/* Callout boxes — Note (sky), Tip / Insight (mint), Warning / Caution (amber/red) */
 .tut-callout {
   display: flex;
-  gap: 0.55rem;
+  gap: 0.7rem;
   align-items: flex-start;
-  margin: 0.65rem 0;
-  padding: 0.55rem 0.8rem;
-  border-radius: 6px;
+  margin: 1.1rem 0;
+  padding: 0.75rem 0.95rem 0.75rem 0.9rem;
+  border-radius: 8px;
   border: 1px solid var(--border);
+  border-left-width: 3px;
   background: var(--hover-box);
   font-family: var(--serif);
-  font-size: 0.9rem;
-  line-height: 1.5;
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 .tut-callout-icon {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   flex: 0 0 auto;
-  margin-top: 0.18rem;
-  color: var(--accent);
+  margin-top: 0.1rem;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  background: var(--bg);
+  border: 1px solid var(--border);
 }
-.tut-callout-body { color: var(--text-main); }
-.tut-callout-note    { border-left: 3px solid var(--accent); }
+.tut-callout-body { color: var(--text-main); padding-left: 0.15rem; }
+
+/* Note — sky tint */
+.tut-callout-note {
+  border-left-color: var(--hue-sky);
+  background: linear-gradient(to right, rgba(var(--accent-rgb), 0.04), var(--hover-box) 40%);
+}
+.tut-callout-note .tut-callout-icon { color: var(--hue-sky); }
+
+/* Tip / Insight — mint tint */
 .tut-callout-tip,
-.tut-callout-insight { border-left: 3px solid var(--easy); }
+.tut-callout-insight {
+  border-left-color: var(--easy);
+  background: linear-gradient(to right, rgba(var(--accent-rgb), 0.03), var(--hover-box) 45%);
+}
 .tut-callout-tip .tut-callout-icon,
 .tut-callout-insight .tut-callout-icon { color: var(--easy); }
+
+/* Warning / Caution — amber tint */
 .tut-callout-warning,
-.tut-callout-caution { border-left: 3px solid var(--warning, var(--hard)); }
+.tut-callout-caution {
+  border-left-color: var(--warning, var(--hard));
+  background: linear-gradient(to right, rgba(var(--accent-rgb), 0.03), var(--hover-box) 45%);
+}
 .tut-callout-warning .tut-callout-icon,
 .tut-callout-caution .tut-callout-icon { color: var(--warning, var(--hard)); }
 
-/* Structured complexity table */
+/* Structured complexity table — proper 2-column textbook layout */
 .tut-theory-cx-card {
-  margin-top: 0.85rem;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
 }
 .tut-theory-cx-head {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.75rem;
-  background: var(--hover-box);
+  gap: 0.5rem;
+  padding: 0.7rem 1rem;
+  background: linear-gradient(
+    to right,
+    rgba(var(--accent-rgb), 0.06),
+    transparent 70%
+  );
   border-bottom: 1px solid var(--border);
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-main);
+}
+.tut-theory-cx-head svg { color: var(--accent); }
+.tut-theory-cx-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+.tut-theory-cx-table thead th {
+  text-align: left;
+  padding: 0.55rem 1rem;
   font-family: var(--mono);
   font-size: 0.62rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--accent);
-}
-.tut-theory-cx-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: var(--mono);
-  font-size: 0.78rem;
-}
-.tut-theory-cx-table th {
-  width: 6.5rem;
-  text-align: left;
-  padding: 0.35rem 0.75rem;
-  font-weight: 600;
-  font-size: 0.62rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
   color: var(--text-dim);
   background: var(--bg);
-  border-right: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
 }
-.tut-theory-cx-table tr:last-child th,
-.tut-theory-cx-table tr:last-child td { border-bottom: none; }
-.tut-theory-cx-table td {
-  padding: 0.35rem 0.75rem;
-  color: var(--text-main);
+.tut-theory-cx-table thead .tut-cx-col-cost { width: 60%; }
+.tut-theory-cx-table tbody tr {
   border-bottom: 1px solid var(--border);
+}
+.tut-theory-cx-table tbody tr:last-child { border-bottom: none; }
+.tut-theory-cx-table tbody tr.tut-cx-row-alt { background: var(--bg); }
+.tut-theory-cx-table .tut-cx-op {
+  padding: 0.7rem 1rem;
+  font-family: var(--sans);
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-main);
+  vertical-align: top;
+}
+.tut-theory-cx-table .tut-cx-cost {
+  padding: 0.7rem 1rem;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--text-main);
+}
+.tut-theory-cx-table .tut-cx-cost code,
+.tut-theory-cx-table .tut-cx-cost .tut-theory-code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--accent);
 }
 
-/* Pitfalls card — left red accent */
+/* Pitfalls — grid of cards */
 .tut-theory-pitfalls {
-  margin-top: 0.85rem;
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--hard);
-  background: var(--surface);
-  border-radius: 6px;
-  padding: 0.55rem 0.85rem 0.65rem;
+  background: transparent;
+  padding: 0;
 }
 .tut-theory-pitfalls-head {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.45rem;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-main);
+  margin-bottom: 0.65rem;
+}
+.tut-theory-pitfalls-head svg { color: var(--warning, var(--hard)); }
+.tut-pitfalls-count {
   font-family: var(--mono);
   font-size: 0.62rem;
+  color: var(--text-dim);
+  background: var(--hover-box);
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  margin-left: 0.2rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--hard);
-  margin-bottom: 0.35rem;
 }
-.tut-theory-pitfalls ul {
+
+.tut-pitfall-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+}
+@media (min-width: 720px) {
+  .tut-pitfall-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.tut-pitfall-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--warning, var(--hard));
+  border-radius: 8px;
+  padding: 0.75rem 0.9rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  transition: border-color var(--t), box-shadow var(--t), transform var(--t);
+}
+.tut-pitfall-card:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+.tut-pitfall-head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.3;
+}
+.tut-pitfall-head svg {
+  color: var(--warning, var(--hard));
+  flex-shrink: 0;
+}
+.tut-pitfall-desc {
   margin: 0;
-  padding-left: 1.05rem;
-}
-.tut-theory-pitfalls li {
   font-family: var(--serif);
   font-size: 0.9rem;
-  line-height: 1.5;
-  margin-bottom: 0.25rem;
+  line-height: 1.55;
   color: var(--text-main);
 }
-.tut-theory-pitfalls li:last-child { margin-bottom: 0; }
+.tut-pitfall-fix {
+  margin: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.5rem 0.65rem;
+  background: rgba(var(--accent-rgb), 0.06);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: var(--serif);
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--text-main);
+}
+.tut-pitfall-fix-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--easy);
+  flex-shrink: 0;
+  padding-top: 0.18rem;
+}
+.tut-pitfall-fix-label svg { color: var(--easy); }
+.tut-pitfall-fix-text { flex: 1; min-width: 0; }
 
 /* Inline list used inside sections */
 .tut-theory-list {
-  margin: 0.25rem 0 0.7rem;
-  padding-left: 1.15rem;
+  margin: 0.35rem 0 0.8rem;
+  padding-left: 1.25rem;
 }
 .tut-theory-list li {
-  margin-bottom: 0.25rem;
-  line-height: 1.55;
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+.tut-theory-list li:last-child { margin-bottom: 0; }
+
+/* Right-rail "On this page" TOC inside an expanded theory body */
+.tut-section-toc {
+  display: none;
+}
+@media (min-width: 1100px) {
+  .tut-section-toc {
+    display: block;
+    position: sticky;
+    top: 12px;
+    align-self: flex-start;
+    padding: 0.85rem 0.4rem 0.9rem 0.85rem;
+    border-left: 1px solid var(--border);
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+  }
+}
+.tut-section-toc-head {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+  margin-bottom: 0.65rem;
+  padding-left: 0.1rem;
+}
+.tut-section-toc-head svg { color: var(--accent); }
+.tut-section-toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.tut-section-toc-list a {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.4rem;
+  border-radius: 5px;
+  text-decoration: none;
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  line-height: 1.35;
+  transition: color var(--t), background var(--t);
+}
+.tut-section-toc-list a:hover {
+  color: var(--accent);
+  background: var(--hover-box);
+}
+.tut-section-toc-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--border);
+  flex-shrink: 0;
+  transition: background var(--t), transform var(--t);
+}
+.tut-section-toc-list .is-active a {
+  color: var(--accent);
+  font-weight: 600;
+}
+.tut-section-toc-list .is-active .tut-section-toc-dot {
+  background: var(--accent);
+  transform: scale(1.5);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.18);
+}
+.tut-section-toc-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

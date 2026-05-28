@@ -1,9 +1,10 @@
-import React, { useMemo, useState, useEffect, useRef } from 'react';
+import React, { useMemo, useState, useEffect, useRef, useId } from 'react';
 import { Link } from 'react-router-dom';
 import {
   BookOpen, ChevronDown, ChevronRight, Search, CheckCircle2, Circle,
   Lock, X, ArrowUp, Menu, ExternalLink, Info, AlertTriangle, Lightbulb,
-  Gauge, AlertCircle,
+  Gauge, AlertCircle, Brain, Cog, Target, GitBranch, ListChecks, Wrench,
+  ListOrdered,
 } from 'lucide-react';
 import { DSA_TUTORIAL, countTutorialItems, countAll } from '../content/dsaTutorial';
 import {
@@ -620,6 +621,10 @@ function ComplexityTable({ complexity }) {
     );
   }
   const rows = [];
+  // New canonical shape first, then legacy keys
+  if (complexity.time) rows.push(['Time', complexity.time]);
+  if (complexity.build) rows.push(['Build', complexity.build]);
+  if (complexity.operation) rows.push(['Operation', complexity.operation]);
   if (complexity.best) rows.push(['Best', complexity.best]);
   if (complexity.average) rows.push(['Average', complexity.average]);
   if (complexity.worst) rows.push(['Worst', complexity.worst]);
@@ -628,15 +633,21 @@ function ComplexityTable({ complexity }) {
   return (
     <div className="tut-theory-cx-card">
       <div className="tut-theory-cx-head">
-        <Gauge size={12} />
+        <Gauge size={13} />
         <span>Complexity</span>
       </div>
       <table className="tut-theory-cx-table">
+        <thead>
+          <tr>
+            <th className="tut-cx-col-op">Operation</th>
+            <th className="tut-cx-col-cost">Cost</th>
+          </tr>
+        </thead>
         <tbody>
           {rows.map(([k, v], i) => (
-            <tr key={i}>
-              <th>{k}</th>
-              <td>{renderInline(v, `cxr-${i}`)}</td>
+            <tr key={i} className={i % 2 ? 'tut-cx-row-alt' : ''}>
+              <td className="tut-cx-op">{k}</td>
+              <td className="tut-cx-cost">{renderInline(v, `cxr-${i}`)}</td>
             </tr>
           ))}
         </tbody>
@@ -645,50 +656,219 @@ function ComplexityTable({ complexity }) {
   );
 }
 
+// Pattern is "**Name.** Description sentence(s). Fix: remedy." — be liberal so a
+// missing "Fix:" still parses; in that case description gets everything.
+function parsePitfall(raw) {
+  if (!raw) return null;
+  const str = String(raw).trim();
+  // Pull leading **bolded name** off the front
+  const nameMatch = /^\*\*([^*]+?)\*\*\.?\s*/.exec(str);
+  let name = '';
+  let rest = str;
+  if (nameMatch) {
+    name = nameMatch[1].replace(/\.$/, '').trim();
+    rest = str.slice(nameMatch[0].length);
+  }
+  // Split off the "Fix:" tail (case-insensitive, optional leading dash)
+  const fixIdx = rest.search(/\b(?:Fix|Remedy|Solution)\s*:/i);
+  let desc = rest;
+  let fix = '';
+  if (fixIdx >= 0) {
+    desc = rest.slice(0, fixIdx).trim();
+    fix = rest.slice(fixIdx).replace(/^\s*(?:Fix|Remedy|Solution)\s*:\s*/i, '').trim();
+  }
+  desc = desc.replace(/\.\s*$/, '').trim();
+  return { name, desc, fix };
+}
+
 function PitfallList({ items }) {
   if (!items || !items.length) return null;
   return (
     <div className="tut-theory-pitfalls">
       <div className="tut-theory-pitfalls-head">
-        <AlertCircle size={12} />
+        <AlertCircle size={13} />
         <span>Pitfalls</span>
+        <span className="tut-pitfalls-count">{items.length}</span>
       </div>
-      <ul>
-        {items.map((p, j) => (
-          <li key={j}>{renderInline(p, `pf-${j}`)}</li>
-        ))}
-      </ul>
+      <div className="tut-pitfall-grid">
+        {items.map((raw, j) => {
+          const parsed = parsePitfall(raw);
+          if (!parsed) return null;
+          const { name, desc, fix } = parsed;
+          return (
+            <div key={j} className="tut-pitfall-card">
+              <div className="tut-pitfall-head">
+                <AlertTriangle size={13} />
+                <span>{name || `Pitfall ${j + 1}`}</span>
+              </div>
+              {desc && (
+                <p className="tut-pitfall-desc">{renderInline(desc, `pfd-${j}`)}</p>
+              )}
+              {fix && (
+                <p className="tut-pitfall-fix">
+                  <span className="tut-pitfall-fix-label"><Wrench size={11} /> Fix</span>
+                  <span className="tut-pitfall-fix-text">{renderInline(fix, `pff-${j}`)}</span>
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
+// Map a section heading string to a Lucide icon. Compares by lowercased
+// substring so authors don't need to use exact wording.
+function headingIconFor(heading) {
+  const h = (heading || '').toLowerCase();
+  if (h.includes('mental') || h.includes('intuition')) return Brain;
+  if (h.includes('canonical') || h.includes('operation') || h.includes('mechanic')) return Cog;
+  if (h.includes('when to') || h.includes('use case') || h.includes('reach')) return Target;
+  if (h.includes('variant') || h.includes('flavor')) return GitBranch;
+  if (h.includes('problem') || h.includes('interview') || h.includes('example')) return ListChecks;
+  return ChevronRight;
+}
+
+function slugifyHeading(s) {
+  return String(s || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+// Right-rail table of contents — sticky on wide screens. Lists every
+// section heading of the currently-open body plus Complexity / Pitfalls.
+function SectionTOC({ entries, parentId }) {
+  const [active, setActive] = useState(entries[0]?.id || null);
+  const tocRef = useRef(null);
+
+  useEffect(() => {
+    if (!entries.length) return;
+    const targets = entries
+      .map(e => document.getElementById(`${parentId}-${e.id}`))
+      .filter(Boolean);
+    if (!targets.length) return;
+    const obs = new IntersectionObserver(
+      (intersecting) => {
+        // Pick the topmost one currently intersecting.
+        const visible = intersecting
+          .filter(en => en.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]) {
+          const id = visible[0].target.id.replace(`${parentId}-`, '');
+          setActive(id);
+        }
+      },
+      { rootMargin: '-15% 0px -70% 0px', threshold: [0, 1] },
+    );
+    targets.forEach(t => obs.observe(t));
+    return () => obs.disconnect();
+  }, [entries, parentId]);
+
+  if (!entries.length) return null;
+
+  const handleClick = (id) => (e) => {
+    e.preventDefault();
+    const el = document.getElementById(`${parentId}-${id}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setActive(id);
+  };
+
+  return (
+    <aside className="tut-section-toc" ref={tocRef} aria-label="On this page">
+      <div className="tut-section-toc-head">
+        <ListOrdered size={11} />
+        <span>On this page</span>
+      </div>
+      <ol className="tut-section-toc-list">
+        {entries.map((e) => (
+          <li
+            key={e.id}
+            className={active === e.id ? 'is-active' : ''}
+          >
+            <a href={`#${parentId}-${e.id}`} onClick={handleClick(e.id)}>
+              <span className="tut-section-toc-dot" />
+              <span className="tut-section-toc-label">{e.label}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </aside>
+  );
+}
+
 function TheoryBody({ body }) {
+  // Stable id for anchor / TOC scoping. Each rendered theory body needs its
+  // own namespace so multiple expanded items don't collide. Strip colons —
+  // CSS / getElementById selectors choke on them.
+  const rawId = useId();
+  const parentId = `tb${rawId.replace(/:/g, '')}`;
+
   if (!body) return null;
   if (typeof body === 'string') {
     return <div className="tut-theory-content">{renderBlock(body, 'str')}</div>;
   }
+
+  // Build TOC entry list from structured body. Skip the summary itself.
+  const tocEntries = [];
+  if (Array.isArray(body.sections)) {
+    body.sections.forEach((sec, i) => {
+      tocEntries.push({
+        id: `sec-${i}-${slugifyHeading(sec.heading)}`,
+        label: sec.heading,
+      });
+    });
+  }
+  if (body.complexity) tocEntries.push({ id: 'complexity', label: 'Complexity' });
+  if (body.pitfalls?.length) tocEntries.push({ id: 'pitfalls', label: 'Pitfalls' });
+
   return (
-    <div className="tut-theory-content">
-      {body.summary && (
-        <p className="tut-theory-summary">{renderInline(body.summary, 'sum')}</p>
-      )}
-      {body.sections?.map((sec, i) => (
-        <div key={i} className="tut-theory-section">
-          <h4 className="tut-theory-heading">{sec.heading}</h4>
-          {Array.isArray(sec.body)
-            ? (
-              <ul className="tut-theory-list">
-                {sec.body.map((li, j) => (
-                  <li key={j}>{renderInline(li, `sec-${i}-li-${j}`)}</li>
-                ))}
-              </ul>
-            )
-            : renderBlock(sec.body, `sec-${i}`)
-          }
-        </div>
-      ))}
-      <ComplexityTable complexity={body.complexity} />
-      <PitfallList items={body.pitfalls} />
+    <div className="tut-theory-layout">
+      <div className="tut-theory-content">
+        {body.summary && (
+          <p className="tut-theory-summary">{renderInline(body.summary, 'sum')}</p>
+        )}
+        {body.sections?.map((sec, i) => {
+          const HeadingIcon = headingIconFor(sec.heading);
+          const anchor = `${parentId}-sec-${i}-${slugifyHeading(sec.heading)}`;
+          return (
+            <section
+              key={i}
+              id={anchor}
+              className="tut-theory-section tut-theory-card"
+            >
+              <div className="tut-theory-card-head">
+                <span className="tut-theory-card-icon"><HeadingIcon size={13} /></span>
+                <h4 className="tut-theory-heading">{sec.heading}</h4>
+              </div>
+              <div className="tut-theory-card-body">
+                {Array.isArray(sec.body)
+                  ? (
+                    <ul className="tut-theory-list">
+                      {sec.body.map((li, j) => (
+                        <li key={j}>{renderInline(li, `sec-${i}-li-${j}`)}</li>
+                      ))}
+                    </ul>
+                  )
+                  : renderBlock(sec.body, `sec-${i}`)
+                }
+              </div>
+            </section>
+          );
+        })}
+        {body.complexity && (
+          <div id={`${parentId}-complexity`}>
+            <ComplexityTable complexity={body.complexity} />
+          </div>
+        )}
+        {body.pitfalls?.length > 0 && (
+          <div id={`${parentId}-pitfalls`}>
+            <PitfallList items={body.pitfalls} />
+          </div>
+        )}
+      </div>
+      <SectionTOC entries={tocEntries} parentId={parentId} />
     </div>
   );
 }

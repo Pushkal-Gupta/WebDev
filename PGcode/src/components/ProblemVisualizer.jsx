@@ -4,6 +4,7 @@ import AlgoVisualizer, {
   NumberGridRenderer, TreeRenderer,
 } from './learn/AlgoVisualizer';
 import { RICH_CONTENT } from '../content/problemContent';
+import { buildGenericTestCaseFrames } from './genericTestCaseViz';
 
 const RENDERERS = {
   array:  ArrayBarRenderer,
@@ -14,11 +15,15 @@ const RENDERERS = {
 };
 
 // Tries (a) problem.viz_steps from the DB, (b) client-side RICH_CONTENT,
-// (c) shows a friendly fallback pointing to the closest concept walkthrough.
+// (c) generic test-case walkthrough generated from test_cases + params,
+// (d) friendly fallback when nothing is available.
 export default function ProblemVisualizer({ problem }) {
   if (!problem) return null;
 
-  const viz = problem.viz_steps || RICH_CONTENT[problem.id]?.viz || null;
+  let viz = problem.viz_steps || RICH_CONTENT[problem.id]?.viz || null;
+  if (!viz || !viz.frames?.length) {
+    viz = buildGenericTestCaseFrames(problem);
+  }
 
   if (!viz || !viz.frames?.length) {
     return (
