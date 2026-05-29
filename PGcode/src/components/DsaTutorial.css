@@ -1458,3 +1458,384 @@
   .tut-section-toc-list a,
   .tut-section-toc-dot { transition: none; }
 }
+
+/* ──────────────────────────────────────────────────────────────────
+   TOPIC INDEX (the new /tutorial landing page).
+   Hero + toolbar reuse the existing hero / search / filter styles.
+   ────────────────────────────────────────────────────────────────── */
+
+.tut-index {
+  width: 94%;
+  max-width: var(--container-w);
+  margin: 0 auto;
+  padding: 1.5rem 0 3rem;
+}
+
+.tut-index-header {
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+}
+
+.tut-index-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.tut-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+@media (max-width: 960px) {
+  .tut-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 620px) {
+  .tut-card-grid { grid-template-columns: 1fr; }
+}
+
+.tut-topic-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 1.1rem 1.15rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: transform var(--t), border-color var(--t), box-shadow var(--t), background var(--t);
+}
+.tut-topic-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+.tut-topic-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tut-topic-card { transition: none; }
+  .tut-topic-card:hover { transform: none; }
+}
+
+.tut-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.tut-card-num {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 0.15rem 0.45rem;
+  border-radius: 5px;
+}
+.tut-card-arrow {
+  color: var(--text-dim);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity var(--t), transform var(--t), color var(--t);
+}
+.tut-topic-card:hover .tut-card-arrow {
+  opacity: 1;
+  transform: translateX(0);
+  color: var(--accent);
+}
+
+.tut-card-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+.tut-topic-card:hover .tut-card-title { color: var(--accent); }
+
+.tut-card-sub {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tut-card-meta {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-top: 0.1rem;
+}
+.tut-card-meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.5rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
+}
+.tut-card-meta-done {
+  color: var(--easy);
+  border-color: rgba(var(--accent-rgb), 0.25);
+}
+
+.tut-card-progress {
+  margin-top: 0.5rem;
+  height: 3px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.tut-card-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tut-card-progress-fill { transition: none; }
+}
+
+.tut-index-empty {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: var(--text-dim);
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+}
+.tut-index-empty p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   TOPIC DETAIL PAGE (/tutorial/:topicSlug).
+   Sticky back-bar + topic header; full-width content below.
+   ────────────────────────────────────────────────────────────────── */
+
+.tut-topic {
+  width: 94%;
+  max-width: var(--container-w);
+  margin: 0 auto;
+  padding: 0 0 3rem;
+}
+
+.tut-topic-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--bg);
+  padding: 1rem 0 0.8rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.tut-topic-back {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.tut-topic-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem 0.3rem 0.4rem;
+  color: var(--text-dim);
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: color var(--t), background var(--t), border-color var(--t);
+}
+.tut-topic-back-link:hover {
+  color: var(--accent);
+  background: var(--hover-box);
+  border-color: var(--border);
+}
+.tut-topic-back-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.tut-topic-back-num {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+}
+
+.tut-topic-titlebar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.tut-topic-titlebar-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.tut-topic-eyebrow {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.tut-topic-title {
+  font-family: var(--serif);
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0;
+}
+@media (max-width: 620px) {
+  .tut-topic-title { font-size: 1.65rem; }
+}
+
+.tut-topic-pct {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+}
+.tut-topic-pct-num {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+}
+.tut-topic-pct-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tut-topic-progress {
+  margin-top: 0.9rem;
+  height: 3px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.tut-topic-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tut-topic-progress-fill { transition: none; }
+}
+
+.tut-topic-body {
+  padding-top: 0.25rem;
+}
+
+.tut-topic-note {
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--text-dim);
+  line-height: 1.55;
+  margin: 0 0 1.5rem;
+  padding-left: 0.85rem;
+  border-left: 2px solid var(--border);
+}
+
+.tut-topic-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.tut-topic-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.tut-topic-sub {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.tut-topic-sub-title {
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+  margin: 0 0 0.15rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.tut-topic-item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.tut-topic-notfound {
+  padding: 4rem 1.5rem;
+  text-align: center;
+  color: var(--text-dim);
+}
+.tut-topic-notfound h1 {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  color: var(--text-main);
+  margin: 0 0 0.6rem;
+}
+.tut-topic-notfound p {
+  margin: 0;
+  font-size: 0.9rem;
+}

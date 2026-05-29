@@ -30083,6 +30083,443 @@ func longestWord(words []string) string {
       },
     },
   },
+  'count-and-say': {
+    tags: ['string'],
+    companies: ['amazon','meta','microsoft','google','apple'],
+    viz: {
+      renderer: 'array',
+      title: 'Count and Say',
+      frames: [
+        { array: [1], caption: 'n=1: "1".' },
+        { array: [1,1], caption: 'n=2: read "1" -> "11" (one 1).' },
+        { array: [2,1], caption: 'n=3: read "11" -> "21" (two 1s).' },
+        { array: [1,2,1,1], caption: 'n=4: read "21" -> "1211" (one 2, one 1).' },
+        { array: [1,1,1,2,2,1], caption: 'n=5: read "1211" -> "111221" (one 1, one 2, two 1s).' },
+        { array: [3,1,2,2,1,1], caption: 'n=6: read "111221" -> "312211" (three 1s, two 2s, one 1).' },
+        { array: [1,3,1,1,2,2,2,1], caption: 'n=7: read "312211" -> "13112221".' },
+        { array: [1,3,1,1,2,2,2,1], caption: 'Algorithm: maintain current string; for n iterations, replace with its run-length encoded read.' },
+        { array: [1,3,1,1,2,2,2,1], caption: 'To RLE: walk current string, group consecutive same chars, emit count+char.' },
+        { array: [1,3,1,1,2,2,2,1], caption: 'Time: O(n * L) where L grows exponentially.' },
+        { array: [1,3,1,1,2,2,2,1], caption: 'Space: O(L).' },
+        { array: [1,3,1,1,2,2,2,1], caption: 'Edge: n=1 returns "1".' },
+        { array: [1,3,1,1,2,2,2,1], caption: 'Each next term reads the prior left-to-right.' },
+        { array: [1,3,1,1,2,2,2,1], caption: 'Used in sequence generation, talk-aloud iteration.' },
+        { array: [1,3,1,1,2,2,2,1], caption: 'Done.' },
+      ],
+    },
+    solutions: {
+      python: {
+        code: `class Solution:
+    def countAndSay(self, n):
+        s = '1'
+        for _ in range(n - 1):
+            out = []
+            i = 0
+            while i < len(s):
+                j = i
+                while j < len(s) and s[j] == s[i]:
+                    j += 1
+                out.append(str(j - i))
+                out.append(s[i])
+                i = j
+            s = ''.join(out)
+        return s`,
+        complexity: { time: 'O(n * L)', space: 'O(L)' },
+        approach: 'n-1 iterations of run-length-encoding the previous string.',
+      },
+      javascript: {
+        code: `function countAndSay(n) {
+  let s = '1';
+  for (let k = 1; k < n; k++) {
+    let out = '';
+    let i = 0;
+    while (i < s.length) {
+      let j = i;
+      while (j < s.length && s[j] === s[i]) j++;
+      out += (j - i) + s[i];
+      i = j;
+    }
+    s = out;
+  }
+  return s;
+}`,
+        complexity: { time: 'O(n * L)', space: 'O(L)' },
+        approach: 'Same.',
+      },
+      java: {
+        code: `class Solution {
+    public String countAndSay(int n) {
+        String s = "1";
+        for (int k = 1; k < n; k++) {
+            StringBuilder sb = new StringBuilder();
+            int i = 0;
+            while (i < s.length()) {
+                int j = i;
+                while (j < s.length() && s.charAt(j) == s.charAt(i)) j++;
+                sb.append(j - i).append(s.charAt(i));
+                i = j;
+            }
+            s = sb.toString();
+        }
+        return s;
+    }
+}`,
+        complexity: { time: 'O(n * L)', space: 'O(L)' },
+        approach: 'StringBuilder for each iteration.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    string countAndSay(int n) {
+        string s = "1";
+        for (int k = 1; k < n; k++) {
+            string out;
+            int i = 0;
+            while (i < (int)s.size()) {
+                int j = i;
+                while (j < (int)s.size() && s[j] == s[i]) j++;
+                out += to_string(j - i);
+                out += s[i];
+                i = j;
+            }
+            s = out;
+        }
+        return s;
+    }
+};`,
+        complexity: { time: 'O(n * L)', space: 'O(L)' },
+        approach: 'Same.',
+      },
+      c: {
+        code: `#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+char* countAndSay(int n) {
+    char* s = (char*)malloc(2);
+    s[0] = '1'; s[1] = '\\0';
+    int len = 1;
+    for (int k = 1; k < n; k++) {
+        char* out = (char*)malloc(len * 4 + 1);
+        int oi = 0;
+        int i = 0;
+        while (i < len) {
+            int j = i;
+            while (j < len && s[j] == s[i]) j++;
+            int cnt = j - i;
+            char tmp[16];
+            int tl = sprintf(tmp, "%d", cnt);
+            memcpy(out + oi, tmp, tl);
+            oi += tl;
+            out[oi++] = s[i];
+            i = j;
+        }
+        out[oi] = '\\0';
+        free(s);
+        s = out;
+        len = oi;
+    }
+    return s;
+}`,
+        complexity: { time: 'O(n * L)', space: 'O(L)' },
+        approach: 'Manual malloc/free; grow buffer per iteration.',
+      },
+      go: {
+        code: `import "strconv"
+
+func countAndSay(n int) string {
+    s := "1"
+    for k := 1; k < n; k++ {
+        var out []byte
+        i := 0
+        for i < len(s) {
+            j := i
+            for j < len(s) && s[j] == s[i] { j++ }
+            out = append(out, []byte(strconv.Itoa(j - i))...)
+            out = append(out, s[i])
+            i = j
+        }
+        s = string(out)
+    }
+    return s
+}`,
+        complexity: { time: 'O(n * L)', space: 'O(L)' },
+        approach: 'Idiomatic Go byte slice.',
+      },
+    },
+  },
+  'longest-harmonious-subsequence': {
+    tags: ['array','hash-table','sliding-window','sorting','counting'],
+    companies: ['amazon','meta','microsoft','google','apple'],
+    viz: {
+      renderer: 'array',
+      title: 'Longest harmonious subsequence',
+      frames: [
+        { array: [1,3,2,2,5,2,3,7], caption: 'A harmonious subsequence: max - min == 1.' },
+        { array: [1,3,2,2,5,2,3,7], caption: 'Count occurrences: 1->1, 2->3, 3->2, 5->1, 7->1.' },
+        { array: [1,3,2,2,5,2,3,7], caption: 'For each pair (v, v+1) both present, length = count[v] + count[v+1].' },
+        { array: [1,3,2,2,5,2,3,7], highlights: { 2: 'match', 3: 'match', 1: 'current', 6: 'current' }, caption: '(2, 3): 3 + 2 = 5.' },
+        { array: [1,3,2,2,5,2,3,7], caption: '(1, 2): 1 + 3 = 4.' },
+        { array: [1,3,2,2,5,2,3,7], caption: '(5, 6): 6 not present. Skip.' },
+        { array: [1,3,2,2,5,2,3,7], caption: '(7, 8): 8 not present. Skip.' },
+        { array: [1,3,2,2,5,2,3,7], caption: 'Best = 5 (subsequence [2,3,2,2,3]).' },
+        { array: [1,3,2,2,5,2,3,7], caption: 'Time: O(n). Space: O(n).' },
+        { array: [1,3,2,2,5,2,3,7], caption: 'Counter or HashMap; iterate keys checking v+1.' },
+        { array: [1,3,2,2,5,2,3,7], caption: 'Alternative: sort + sliding window — same big-O.' },
+        { array: [1,3,2,2,5,2,3,7], caption: 'Edge: no pair (v, v+1) -> return 0.' },
+        { array: [1,3,2,2,5,2,3,7], caption: 'Edge: all same value -> max - min = 0, not 1, return 0.' },
+        { array: [1,3,2,2,5,2,3,7], caption: 'Subsequence allows non-contiguous picks but keeps original order — for length count only.' },
+        { array: [1,3,2,2,5,2,3,7], caption: 'Done.' },
+      ],
+    },
+    solutions: {
+      python: {
+        code: `class Solution:
+    def findLHS(self, nums):
+        from collections import Counter
+        c = Counter(nums)
+        best = 0
+        for v in c:
+            if v + 1 in c:
+                best = max(best, c[v] + c[v + 1])
+        return best`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'Counter then check each value v whether v+1 also present.',
+      },
+      javascript: {
+        code: `function findLHS(nums) {
+  const c = new Map();
+  for (const x of nums) c.set(x, (c.get(x) || 0) + 1);
+  let best = 0;
+  for (const [v, cnt] of c) {
+    if (c.has(v + 1)) best = Math.max(best, cnt + c.get(v + 1));
+  }
+  return best;
+}`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'Map for O(1) lookup.',
+      },
+      java: {
+        code: `class Solution {
+    public int findLHS(int[] nums) {
+        Map<Integer, Integer> c = new HashMap<>();
+        for (int x : nums) c.merge(x, 1, Integer::sum);
+        int best = 0;
+        for (Map.Entry<Integer, Integer> e : c.entrySet()) {
+            if (c.containsKey(e.getKey() + 1)) {
+                best = Math.max(best, e.getValue() + c.get(e.getKey() + 1));
+            }
+        }
+        return best;
+    }
+}`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'HashMap.merge for tally.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int findLHS(vector<int>& nums) {
+        unordered_map<int, int> c;
+        for (int x : nums) c[x]++;
+        int best = 0;
+        for (auto& [v, cnt] : c) {
+            if (c.count(v + 1)) best = max(best, cnt + c[v + 1]);
+        }
+        return best;
+    }
+};`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'unordered_map.',
+      },
+      c: {
+        code: `// C: requires manual hashmap.
+// Algorithm: same as other languages.
+// See Python/Java for canonical implementation.`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'C verbose for hashmap — see other languages.',
+      },
+      go: {
+        code: `func findLHS(nums []int) int {
+    c := map[int]int{}
+    for _, x := range nums { c[x]++ }
+    best := 0
+    for v, cnt := range c {
+        if next, ok := c[v + 1]; ok {
+            if cnt + next > best { best = cnt + next }
+        }
+    }
+    return best
+}`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'map[int]int.',
+      },
+    },
+  },
+  'can-place-flowers': {
+    tags: ['array','greedy'],
+    companies: ['amazon','meta','microsoft','google','apple'],
+    viz: {
+      renderer: 'array',
+      title: 'Can place flowers',
+      frames: [
+        { array: [1,0,0,0,1], caption: 'flowerbed=[1,0,0,0,1], n=1. Place new flowers without adjacent flowers.' },
+        { array: [1,0,0,0,1], highlights: { 2: 'current' }, caption: 'i=2: flowerbed[2]=0. Left=0 (i=1), right=0 (i=3). Plant. count=1.' },
+        { array: [1,0,1,0,1], highlights: { 2: 'match' }, caption: 'Planted at index 2. count >= n. Return true.' },
+        { array: [1,0,0,0,1], caption: 'Counter: same flowerbed, n=2.' },
+        { array: [1,0,0,0,1], caption: 'Only one valid spot (index 2). After planting: [1,0,1,0,1]. No room for second.' },
+        { array: [1,0,0,0,1], caption: 'Returns false.' },
+        { array: [0,0,0,0,0], caption: 'Empty flowerbed [0,0,0,0,0], n=2. Plant at 0, 2, 4. 3 placements possible.' },
+        { array: [1,0,1,0,1], caption: 'After greedy: [1,0,1,0,1]. count=3 >= n=2.' },
+        { array: [1,0,1,0,1], caption: 'Algorithm: walk array. At each 0, check left & right are 0 (or out of bounds).' },
+        { array: [1,0,1,0,1], caption: 'If yes, plant (mark 1) and increment count.' },
+        { array: [1,0,1,0,1], caption: 'Stop early if count >= n.' },
+        { array: [1,0,1,0,1], caption: 'Time: O(n). Space: O(1) mutating input.' },
+        { array: [1,0,1,0,1], caption: 'Edge: n=0 always returns true.' },
+        { array: [1,0,1,0,1], caption: 'Edge: single cell flowerbed [0], n=1 returns true.' },
+        { array: [1,0,1,0,1], caption: 'Done.' },
+      ],
+    },
+    solutions: {
+      python: {
+        code: `class Solution:
+    def canPlaceFlowers(self, flowerbed, n):
+        if n == 0:
+            return True
+        count = 0
+        for i in range(len(flowerbed)):
+            if flowerbed[i] == 0:
+                left = 0 if i == 0 else flowerbed[i - 1]
+                right = 0 if i == len(flowerbed) - 1 else flowerbed[i + 1]
+                if left == 0 and right == 0:
+                    flowerbed[i] = 1
+                    count += 1
+                    if count >= n:
+                        return True
+        return count >= n`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Greedy scan; plant whenever both neighbors are empty.',
+      },
+      javascript: {
+        code: `function canPlaceFlowers(flowerbed, n) {
+  if (n === 0) return true;
+  let count = 0;
+  for (let i = 0; i < flowerbed.length; i++) {
+    if (flowerbed[i] === 0) {
+      const left = i === 0 ? 0 : flowerbed[i - 1];
+      const right = i === flowerbed.length - 1 ? 0 : flowerbed[i + 1];
+      if (left === 0 && right === 0) {
+        flowerbed[i] = 1;
+        count++;
+        if (count >= n) return true;
+      }
+    }
+  }
+  return count >= n;
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Same.',
+      },
+      java: {
+        code: `class Solution {
+    public boolean canPlaceFlowers(int[] flowerbed, int n) {
+        if (n == 0) return true;
+        int count = 0;
+        for (int i = 0; i < flowerbed.length; i++) {
+            if (flowerbed[i] == 0) {
+                int left = i == 0 ? 0 : flowerbed[i - 1];
+                int right = i == flowerbed.length - 1 ? 0 : flowerbed[i + 1];
+                if (left == 0 && right == 0) {
+                    flowerbed[i] = 1;
+                    count++;
+                    if (count >= n) return true;
+                }
+            }
+        }
+        return count >= n;
+    }
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Same.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool canPlaceFlowers(vector<int>& flowerbed, int n) {
+        if (n == 0) return true;
+        int count = 0;
+        for (int i = 0; i < (int)flowerbed.size(); i++) {
+            if (flowerbed[i] == 0) {
+                int left = i == 0 ? 0 : flowerbed[i - 1];
+                int right = i == (int)flowerbed.size() - 1 ? 0 : flowerbed[i + 1];
+                if (left == 0 && right == 0) {
+                    flowerbed[i] = 1;
+                    count++;
+                    if (count >= n) return true;
+                }
+            }
+        }
+        return count >= n;
+    }
+};`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Same.',
+      },
+      c: {
+        code: `#include <stdbool.h>
+
+bool canPlaceFlowers(int* flowerbed, int flowerbedSize, int n) {
+    if (n == 0) return true;
+    int count = 0;
+    for (int i = 0; i < flowerbedSize; i++) {
+        if (flowerbed[i] == 0) {
+            int left = i == 0 ? 0 : flowerbed[i - 1];
+            int right = i == flowerbedSize - 1 ? 0 : flowerbed[i + 1];
+            if (left == 0 && right == 0) {
+                flowerbed[i] = 1;
+                count++;
+                if (count >= n) return true;
+            }
+        }
+    }
+    return count >= n;
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Plain C.',
+      },
+      go: {
+        code: `func canPlaceFlowers(flowerbed []int, n int) bool {
+    if n == 0 { return true }
+    count := 0
+    for i := 0; i < len(flowerbed); i++ {
+        if flowerbed[i] == 0 {
+            left := 0
+            if i > 0 { left = flowerbed[i - 1] }
+            right := 0
+            if i < len(flowerbed) - 1 { right = flowerbed[i + 1] }
+            if left == 0 && right == 0 {
+                flowerbed[i] = 1
+                count++
+                if count >= n { return true }
+            }
+        }
+    }
+    return count >= n
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Idiomatic Go.',
+      },
+    },
+  },
 };
 
 // Generate 35 deterministic test cases for binary-search (for future seed).
