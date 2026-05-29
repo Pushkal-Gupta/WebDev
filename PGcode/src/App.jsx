@@ -66,6 +66,7 @@ const MyLists = lazy(() => import('./components/MyLists'));
 const PublicListView = lazy(() => import('./components/PublicListView'));
 const Assessments = lazy(() => import('./components/Assessments'));
 const DsaTutorial = lazy(() => import('./components/DsaTutorial'));
+const DsaTutorialTopic = lazy(() => import('./components/DsaTutorialTopic'));
 const ProblemList = lazy(() => import('./components/ProblemList'));
 const ReviewQueue = lazy(() => import('./components/ReviewQueue'));
 const Playground = lazy(() => import('./components/Playground'));
@@ -216,6 +217,7 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
           <Route path="/quiz" element={<QuizIndex />} />
           <Route path="/quiz/:id" element={<QuizRunner />} />
           <Route path="/tutorial" element={<DsaTutorial session={session} />} />
+          <Route path="/tutorial/:topicSlug" element={<DsaTutorialTopic session={session} />} />
           <Route path="/admin" element={<AdminPanel session={session} />} />
           <Route path="/admin/completeness" element={<AdminCompleteness session={session} />} />
           <Route

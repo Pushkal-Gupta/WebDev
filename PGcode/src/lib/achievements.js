@@ -51,6 +51,36 @@ function getLocalVisitCount(bucket) {
   } catch { return 0; }
 }
 
+const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
+
+// Generate monthly badges for the last 6 months + current month.
+// Kept in sync with the SQL seed by sharing the YYYYMM key convention.
+function buildMonthlyAchievements() {
+  const now = new Date();
+  const result = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const year = d.getFullYear();
+    const monthIdx = d.getMonth();
+    const yyyymm = `${year}${String(monthIdx + 1).padStart(2, '0')}`;
+    const pretty = `${MONTH_NAMES[monthIdx]} ${year}`;
+    result.push({
+      id: `monthly-${yyyymm}`,
+      title: `${pretty} Challenge`,
+      description: `Solve 30 problems during ${pretty}.`,
+      icon: CalendarDays,
+      color: 'accent',
+      category: 'monthly',
+      monthKey: yyyymm,
+      eligible: ctx => (ctx.solvesByMonth?.[yyyymm] || 0) >= 30,
+    });
+  }
+  return result;
+}
+
 export const ACHIEVEMENTS = [
   {
     id: 'first-solve',
@@ -346,36 +376,6 @@ export const ACHIEVEMENTS = [
   // PGcode_user_progress.last_solved_at timestamps.
   ...buildMonthlyAchievements(),
 ];
-
-const MONTH_NAMES = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
-];
-
-// Generate monthly badges for the last 6 months + current month.
-// Kept in sync with the SQL seed by sharing the YYYYMM key convention.
-function buildMonthlyAchievements() {
-  const now = new Date();
-  const result = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const year = d.getFullYear();
-    const monthIdx = d.getMonth();
-    const yyyymm = `${year}${String(monthIdx + 1).padStart(2, '0')}`;
-    const pretty = `${MONTH_NAMES[monthIdx]} ${year}`;
-    result.push({
-      id: `monthly-${yyyymm}`,
-      title: `${pretty} Challenge`,
-      description: `Solve 30 problems during ${pretty}.`,
-      icon: CalendarDays,
-      color: 'accent',
-      category: 'monthly',
-      monthKey: yyyymm,
-      eligible: ctx => (ctx.solvesByMonth?.[yyyymm] || 0) >= 30,
-    });
-  }
-  return result;
-}
 
 export const ACHIEVEMENT_BY_ID = Object.fromEntries(ACHIEVEMENTS.map(a => [a.id, a]));
 

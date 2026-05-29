@@ -152,6 +152,21 @@ export default function DryRunViewer({ problemId }) {
     return <div className="dryrun-placeholder">No visual dry run for this problem.</div>;
   }
 
+  // Detect placeholder-only data: rows whose array contents are short string
+  // labels like "step1"/"input"/"algo" rather than real values. Such rows were
+  // bulk-seeded with no real algorithmic content and produce a misleading viz.
+  const isPlaceholderShape = steps.every(s => {
+    const arr = s.visual_state_data?.array;
+    if (!Array.isArray(arr) || arr.length === 0) return false;
+    return arr.every(cell => {
+      const v = cell && typeof cell === 'object' ? cell.value : cell;
+      return typeof v === 'string' && /^(step\d+|input|algo|approach)$/i.test(v);
+    });
+  });
+  if (isPlaceholderShape) {
+    return <div className="dryrun-placeholder">No visual dry run for this problem.</div>;
+  }
+
   const currentStep = steps[currentStepIndex];
 
   return (
