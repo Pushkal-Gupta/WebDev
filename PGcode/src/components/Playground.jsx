@@ -6,6 +6,7 @@ import { runCode, PLAYGROUND_LANGS } from '../lib/codeRunner';
 import { supabase } from '../lib/supabase';
 import Select from './Select';
 import PlaygroundSwitcher from './PlaygroundSwitcher';
+import LanguageIcon from './LanguageIcon';
 import './Playground.css';
 
 // Lazy import - keeps pyodide (~10MB) out of the main bundle.
@@ -372,6 +373,7 @@ export default function Playground({ theme, preferredLang, session }) {
             onChange={switchLang}
             options={langOptions}
             icon={<Code2 size={12} />}
+            renderPrefix={(o) => <LanguageIcon lang={o.value} size={12} />}
             size="sm"
           />
           <button className="pg-pg-btn pg-pg-btn-ghost" onClick={handleShare} disabled={sharing} title="Save a shareable link">

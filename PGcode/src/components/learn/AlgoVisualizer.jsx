@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo, useLayoutEffect } from 'react';
 import { Play, Pause, SkipBack, SkipForward, RotateCcw, ChevronsLeft, ChevronsRight, Wand2, Keyboard } from 'lucide-react';
-import Select from '../Select';
 import './AlgoVisualizer.css';
+
+const SPEED_MAP = { 0.5: 2000, 1: 1200, 1.5: 800, 2: 500 };
 
 // Generic stepwise visualizer for concept-page algorithm walkthroughs.
 //
@@ -119,7 +120,12 @@ export default function AlgoVisualizer({
 
   const [i, setI] = useState(0);
   const [playing, setPlaying] = useState(!!autoPlay);
-  const [tempo, setTempo] = useState(speed);
+  const initialSpeedX = useMemo(() => {
+    const match = Object.entries(SPEED_MAP).find(([, ms]) => ms === speed);
+    return match ? Number(match[0]) : 1;
+  }, [speed]);
+  const [speedX, setSpeedX] = useState(initialSpeedX);
+  const tempo = SPEED_MAP[speedX] ?? 1200;
   const [showHelp, setShowHelp] = useState(false);
   const timerRef = useRef(null);
   const rootRef = useRef(null);
@@ -331,17 +337,18 @@ export default function AlgoVisualizer({
           </div>
           <div className="viz-tempo">
             <span className="viz-tempo-label">Speed</span>
-            <Select
-              value={String(tempo)}
-              onChange={(v) => setTempo(Number(v))}
-              options={[
-                { value: '2000', label: '0.5x' },
-                { value: '1200', label: '1x' },
-                { value: '800',  label: '1.5x' },
-                { value: '400',  label: '3x' },
-              ]}
-              size="sm"
-            />
+            <div className="viz-tempo-buttons" role="group">
+              {[0.5, 1, 1.5, 2].map(x => (
+                <button
+                  key={x}
+                  type="button"
+                  className={`viz-tempo-btn ${speedX === x ? 'active' : ''}`}
+                  onClick={() => setSpeedX(x)}
+                >
+                  {x}x
+                </button>
+              ))}
+            </div>
           </div>
           <button
             type="button"
@@ -492,7 +499,7 @@ export function ArrayBarRenderer({ frame }) {
   const numeric = arr.length > 0 && arr.every(v => typeof v === 'number' && Number.isFinite(v));
   if (numeric) {
     const max = Math.max(1, ...arr.map(v => Math.abs(v)));
-    const cellWidth = 44; const gap = 6;
+    const cellWidth = 52; const gap = 8;
     return (
       <div className="viz-array-block">
         <StatChip chip={frame.chip} />
@@ -520,7 +527,7 @@ export function ArrayBarRenderer({ frame }) {
       </div>
     );
   }
-  const cellWidth = 56; const gap = 6;
+  const cellWidth = 68; const gap = 10;
   return (
     <div className="viz-array-block">
       <StatChip chip={frame.chip} />
@@ -553,7 +560,7 @@ export function GraphRenderer({ frame }) {
   const edges = frame.edges || [];
   if (nodes.length === 0) return null;
   // Place nodes in a circle for stability across frames.
-  const cx = 200, cy = 140, R = 105;
+  const cx = 240, cy = 170, R = 130;
   const positioned = nodes.map((n, i) => {
     const angle = (i / nodes.length) * 2 * Math.PI - Math.PI / 2;
     return { ...n, x: cx + R * Math.cos(angle), y: cy + R * Math.sin(angle) };
@@ -562,7 +569,7 @@ export function GraphRenderer({ frame }) {
   return (
     <div className="viz-graph-block">
       <StatChip chip={frame.chip} />
-      <svg className="viz-graph" viewBox="0 0 400 280" role="img" aria-label="graph">
+      <svg className="viz-graph" viewBox="0 0 480 340" role="img" aria-label="graph">
         {/* Edges first (under nodes). */}
         {edges.map((e, i) => {
           const a = posById[e.a]; const b = posById[e.b];
@@ -633,7 +640,7 @@ export function NumberGridRenderer({ frame }) {
       '.': '·', '#': '█', 'S': 'S', 'G': 'G', 'O': 'O', 'C': 'C', '*': '*',
     };
     return (
-      <div className="viz-grid" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)`, maxWidth: `${cols * 32}px` }}>
+      <div className="viz-grid" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)`, maxWidth: `${cols * 38}px` }}>
         {Array.from({ length: rows * cols }, (_, k) => {
           const r = Math.floor(k / cols), c = k % cols;
           const raw = grid[r][c];
@@ -682,13 +689,13 @@ export function TreeRenderer({ frame }) {
   collect(root, 0);
   if (slots.length === 0) return null;
   const maxDepth = Math.max(...slots.map(s => s.depth));
-  const xStep = 380 / Math.max(slots.length, 1);
-  const yStep = maxDepth === 0 ? 0 : 200 / maxDepth;
+  const xStep = 440 / Math.max(slots.length, 1);
+  const yStep = maxDepth === 0 ? 0 : 270 / maxDepth;
 
   // Map each node to its computed center.
   const pos = new Map();
   for (const s of slots) {
-    pos.set(s.node, { x: 20 + (s.slot + 0.5) * xStep, y: 30 + s.depth * yStep });
+    pos.set(s.node, { x: 20 + (s.slot + 0.5) * xStep, y: 35 + s.depth * yStep });
   }
 
   const edges = [];
@@ -710,7 +717,7 @@ export function TreeRenderer({ frame }) {
   return (
     <div className="viz-tree-block">
       <StatChip chip={frame.chip} />
-      <svg className="viz-graph" viewBox="0 0 420 260" role="img" aria-label="tree">
+      <svg className="viz-graph" viewBox="0 0 480 340" role="img" aria-label="tree">
         {edges.map((e, i) => (
           <path key={i} d={edgePath(e.a, e.b)} fill="none"
             className={`viz-edge ${e.state === 'current' || e.state === 'visited' ? 'viz-edge-tree' : ''}`} />
@@ -752,7 +759,7 @@ export function SlidingWindowRenderer({ frame }) {
     if (r >= 0 && r < arr.length && r !== l) auto[r] = 'r';
     return auto;
   })();
-  const cellWidth = 52; const gap = 4;
+  const cellWidth = 60; const gap = 8;
   return (
     <div className="viz-window-block">
       <StatChip chip={frame.chip} />

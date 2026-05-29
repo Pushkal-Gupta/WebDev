@@ -35,6 +35,26 @@
   color: var(--accent);
 }
 
+.pg-select-prefix {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-main);
+  flex-shrink: 0;
+}
+
+.pg-select-option-prefix {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.pg-select-option.active .pg-select-option-prefix,
+.pg-select-option:hover .pg-select-option-prefix,
+.pg-select-option.hover .pg-select-option-prefix {
+  color: var(--accent);
+}
+
 .pg-select-label {
   flex: 1;
   text-align: left;

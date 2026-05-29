@@ -81,6 +81,7 @@ const Notebook = lazy(() => import('./components/Notebook'));
 const ProgressDashboard = lazy(() => import('./components/ProgressDashboard'));
 const QuizIndex = lazy(() => import('./components/QuizIndex'));
 const QuizRunner = lazy(() => import('./components/QuizRunner'));
+const PublicProfile = lazy(() => import('./components/profile/PublicProfile'));
 
 const VALID_THEMES = ['dark', 'light', 'midnight', 'midnight-light', 'solarized', 'solarized-dark', 'dracula', 'dracula-light'];
 const normalizeTheme = (t) => (VALID_THEMES.includes(t) ? t : 'dark');
@@ -198,6 +199,7 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
           <Route path="/notebook" element={<Notebook session={session} />} />
           <Route path="/review" element={<ReviewQueue session={session} />} />
           <Route path="/progress" element={<ProgressDashboard session={session} roadmapMode={roadmapMode} />} />
+          <Route path="/u/:username" element={<PublicProfile />} />
           <Route path="/playground" element={<Playground theme={theme} preferredLang={profile?.preferred_lang} session={session} />} />
           <Route path="/playground/share/:slug" element={<Playground theme={theme} preferredLang={profile?.preferred_lang} session={session} />} />
           <Route path="/playground/web" element={<WebSandbox theme={theme} />} />

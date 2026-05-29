@@ -15,7 +15,12 @@ const COURSE_IDS = [
   'python-basics', 'javascript-basics', 'java-basics', 'cpp-basics',
   'react-basics', 'typescript-basics', 'go-basics', 'node-basics',
   'sql-basics', 'rust-basics',
+  'git-basics', 'docker-basics', 'bash-basics', 'html-css-basics',
 ];
+
+// Top-level metadata for courses that may not yet exist in COURSES — used
+// when a /tmp/course-new-*.json includes the full top-level fields.
+const NEW_COURSE_DEFAULTS = {};
 
 // Load current COURSES via dynamic import to get the registry shape
 const currentMod = await import(path.join(__dirname, '..', 'src', 'content', 'courses.js'));
@@ -37,6 +42,19 @@ for (const id of COURSE_IDS) {
       continue;
     }
     newLessonsById[id] = j.lessons;
+    // If this is a fresh course (top-level title/language present + not in current COURSES),
+    // capture its metadata for later emit.
+    if (!currentCourses[id] && j.title && j.language) {
+      NEW_COURSE_DEFAULTS[id] = {
+        id,
+        title: j.title,
+        language: j.language,
+        color: j.color || '#888',
+        blurb: j.blurb || '',
+        estimatedHours: j.estimatedHours || 2,
+        externalResources: j.externalResources || [],
+      };
+    }
     foundCount++;
     const avg = j.lessons.reduce((s, l) => s + (l.intro || '').split(/\s+/).length, 0) / j.lessons.length;
     console.log(`  [ok] ${id} — ${j.lessons.length} lessons, avg intro ${avg.toFixed(0)} words`);
@@ -102,6 +120,10 @@ const LESSONS_CONST_NAME = {
   'node-basics':       'NODE_LESSONS',
   'sql-basics':        'SQL_LESSONS',
   'rust-basics':       'RUST_LESSONS',
+  'git-basics':        'GIT_LESSONS',
+  'docker-basics':     'DOCKER_LESSONS',
+  'bash-basics':       'BASH_LESSONS',
+  'html-css-basics':   'HTMLCSS_LESSONS',
 };
 
 // Compose new file
@@ -122,15 +144,20 @@ let body = header;
 for (const id of COURSE_IDS) {
   const name = LESSONS_CONST_NAME[id];
   const lessons = newLessonsById[id] || currentCourses[id]?.lessons || [];
-  body += `// ── ${currentCourses[id]?.title || id} ─────────────────────────────────────\n`;
+  if (!lessons.length) continue; // skip courses we don't have lessons for
+  const title = currentCourses[id]?.title || NEW_COURSE_DEFAULTS[id]?.title || id;
+  body += `// ── ${title} ─────────────────────────────────────\n`;
   body += emitLessonsConst(name, lessons) + '\n';
 }
 
 // Emit COURSES
 body += 'export const COURSES = {\n';
 for (const id of COURSE_IDS) {
-  const c = currentCourses[id];
+  const c = currentCourses[id] || NEW_COURSE_DEFAULTS[id];
   if (!c) continue;
+  // Skip if we have no lessons for this course
+  const lessons = newLessonsById[id] || currentCourses[id]?.lessons || [];
+  if (!lessons.length) continue;
   body += `  ${escapeJSStringLiteral(id)}: {\n`;
   body += `    id: ${escapeJSStringLiteral(c.id)},\n`;
   body += `    title: ${escapeJSStringLiteral(c.title)},\n`;
@@ -150,7 +177,7 @@ for (const id of COURSE_IDS) {
 }
 body += '};\n\n';
 
-// Emit COURSE_CARDS — derive from COURSES
+// Emit COURSE_CARDS — derive from COURSES (include href so CoursesIndex links work)
 body += 'export const COURSE_CARDS = Object.values(COURSES).map(c => ({\n';
 body += '  id: c.id,\n';
 body += '  title: c.title,\n';
@@ -159,6 +186,7 @@ body += '  color: c.color,\n';
 body += '  blurb: c.blurb,\n';
 body += '  estimatedHours: c.estimatedHours,\n';
 body += '  lessonCount: c.lessons.length,\n';
+body += "  href: '#/courses/' + c.id,\n";
 body += '}));\n';
 
 const outPath = path.join(__dirname, '..', 'src', 'content', 'courses.js');

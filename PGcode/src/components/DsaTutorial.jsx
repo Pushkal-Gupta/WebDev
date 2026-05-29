@@ -1,12 +1,24 @@
-import React, { useMemo, useState, useEffect, useRef, useId } from 'react';
+import React, { useMemo, useState, useEffect, useRef, useId, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
   BookOpen, ChevronDown, ChevronRight, Search, CheckCircle2, Circle,
-  Lock, X, ArrowUp, Menu, ExternalLink, Info, AlertTriangle, Lightbulb,
+  Lock, X, ArrowUp, ExternalLink, Info, AlertTriangle, Lightbulb,
   Gauge, AlertCircle, Brain, Cog, Target, GitBranch, ListChecks, Wrench,
-  ListOrdered,
+  ListOrdered, Copy, Check, Link as LinkIcon,
 } from 'lucide-react';
 import { DSA_TUTORIAL, countTutorialItems, countAll } from '../content/dsaTutorial';
+
+// Section grouping for sidebar dividers. Anything unmapped falls into "Other".
+const SECTION_GROUPS = [
+  { id: 'fundamentals', label: 'Fundamentals',
+    slugs: ['fundamentals', 'maths-pattern-recursion'] },
+  { id: 'patterns', label: 'Patterns',
+    slugs: ['two-pointer', 'sliding-window', 'prefix-sum', 'backtracking', 'bit-manipulation', 'hashing'] },
+  { id: 'data-structures', label: 'Data Structures',
+    slugs: ['array-string', 'linked-list', 'stack', 'queue', 'deque', 'binary-tree', 'bst', 'heap', 'graph', 'trie'] },
+  { id: 'algorithms', label: 'Algorithms',
+    slugs: ['searching', 'sorting', 'greedy', 'dp', 'number-theory', 'string-matching', 'range-query'] },
+];
 import {
   useProblemsCompact,
   useAllConceptsCompact,
@@ -107,14 +119,22 @@ export default function DsaTutorial({ session }) {
     return m;
   }, [q]);
 
-  // Show-the-back-to-top button after scrolling down
+  // Show-the-back-to-top button after scrolling down, plus a top-of-page
+  // reading-progress bar fed by the same scroll listener.
   const containerRef = useRef(null);
   const [showTop, setShowTop] = useState(false);
+  const [scrollPct, setScrollPct] = useState(0);
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    const onScroll = () => setShowTop(el.scrollTop > 600);
-    el.addEventListener('scroll', onScroll);
+    const onScroll = () => {
+      setShowTop(el.scrollTop > 600);
+      const max = el.scrollHeight - el.clientHeight;
+      const pct = max > 0 ? (el.scrollTop / max) * 100 : 0;
+      setScrollPct(Math.max(0, Math.min(100, pct)));
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
     return () => el.removeEventListener('scroll', onScroll);
   }, []);
 
@@ -142,52 +162,62 @@ export default function DsaTutorial({ session }) {
 
   return (
     <div className="tut-container" ref={containerRef}>
+      <div
+        className="tut-reading-progress"
+        aria-hidden="true"
+        style={{ width: `${scrollPct}%` }}
+      />
       <header className="tut-header">
-        <div className="tut-title-row">
-          <h1 className="tut-title"><BookOpen size={20} className="tut-title-icon" /> DSA Tutorial</h1>
-          <div className="tut-summary">
-            {userId ? (
-              <span>{totals.totalAll} items · {DSA_TUTORIAL.length} topics</span>
-            ) : (
-              <span>{totals.totalAll} items · {DSA_TUTORIAL.length} topics</span>
+        <div className="tut-hero">
+          <div className="tut-hero-left">
+            <h1 className="tut-title">DSA Tutorial</h1>
+            <p className="tut-sub">
+              Every data structure and algorithm, top to bottom — theory plus the problems that drill it.
+            </p>
+          </div>
+          <div className="tut-hero-right">
+            <div className="tut-stat">
+              <span className="tut-stat-num">{totals.totalAll}</span>
+              <span className="tut-stat-label">items</span>
+            </div>
+            <div className="tut-stat-divider" aria-hidden="true" />
+            <div className="tut-stat">
+              <span className="tut-stat-num">{DSA_TUTORIAL.length}</span>
+              <span className="tut-stat-label">topics</span>
+            </div>
+            {userId && (
+              <>
+                <div className="tut-stat-divider" aria-hidden="true" />
+                <div className="tut-stat tut-stat-progress">
+                  <span className="tut-stat-num tut-stat-num-accent">{overallPct}%</span>
+                  <span className="tut-stat-label">{totals.solved}/{totals.totalProblems} solved</span>
+                </div>
+              </>
             )}
           </div>
         </div>
         {userId && (
-          <div className="tut-progress">
-            <div className="tut-progress-meta">
-              <span className="tut-progress-label">Your progress</span>
-              <span className="tut-progress-value">
-                <strong>{totals.solved}</strong> / {totals.totalProblems} solved
-                <span className="tut-progress-pct">· {overallPct}%</span>
-              </span>
-            </div>
-            <div className="tut-progress-bar">
-              <div className="tut-progress-fill" style={{ width: `${overallPct}%` }} />
-            </div>
+          <div className="tut-progress-bar" aria-label={`${overallPct}% complete`}>
+            <div className="tut-progress-fill" style={{ width: `${overallPct}%` }} />
           </div>
         )}
-        <p className="tut-sub">
-          Data structures and algorithms, top to bottom. Theory rows open the concept page; problem rows
-          open the solver. Items marked <Lock size={11} className="tut-inline-icon" /> are coming soon.
-        </p>
       </header>
 
-      <div className="tut-controls">
+      <div className="tut-toolbar">
         <div className="tut-search">
-          <Search size={13} className="tut-search-icon" />
+          <Search size={14} className="tut-search-icon" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search across the entire syllabus..."
+            placeholder="Search the entire syllabus"
           />
           {search && (
             <button className="tut-search-clear" onClick={() => setSearch('')} aria-label="Clear">
-              <X size={12} />
+              <X size={14} />
             </button>
           )}
         </div>
-        <div className="tut-filters">
+        <div className="tut-filters" role="tablist" aria-label="Filter items">
           {[
             { id: 'all',      label: 'All' },
             { id: 'theory',   label: 'Theory' },
@@ -197,14 +227,17 @@ export default function DsaTutorial({ session }) {
             <button
               key={f.id}
               type="button"
+              role="tab"
+              aria-selected={filterKind === f.id}
               className={`tut-filter-chip ${filterKind === f.id ? 'active' : ''}`}
               onClick={() => setFilterKind(f.id)}
             >{f.label}</button>
           ))}
         </div>
         <div className="tut-actions">
-          <button onClick={expandAll}>Expand all</button>
-          <button onClick={collapseAll}>Collapse all</button>
+          <button type="button" onClick={expandAll}>Expand all</button>
+          <span className="tut-actions-sep" aria-hidden="true">·</span>
+          <button type="button" onClick={collapseAll}>Collapse all</button>
         </div>
       </div>
 
@@ -216,27 +249,50 @@ export default function DsaTutorial({ session }) {
             onClick={() => setTocOpen(false)}
           />
         )}
-        <aside className={`tut-toc ${tocOpen ? 'open' : ''}`}>
+        <aside className={`tut-toc ${tocOpen ? 'open' : ''}`} aria-label="Topics">
           <div className="tut-toc-head">
-            <h3 className="tut-toc-title">Contents</h3>
+            <h3 className="tut-toc-title">Topics</h3>
             <button className="tut-toc-close" onClick={() => setTocOpen(false)} aria-label="Close">
               <X size={12} />
             </button>
           </div>
-          <ol className="tut-toc-list">
-            {DSA_TUTORIAL.map((section, i) => {
-              const count = countTutorialItems(section);
+          <nav className="tut-toc-nav">
+            {SECTION_GROUPS.map((group) => {
+              const inGroup = DSA_TUTORIAL
+                .map((s, i) => ({ section: s, idx: i }))
+                .filter(({ section }) => group.slugs.includes(section.slug));
+              if (!inGroup.length) return null;
               return (
-                <li key={section.slug}>
-                  <button onClick={() => { scrollToSection(section.slug); setTocOpen(false); }}>
-                    <span className="tut-toc-num">{String(i + 1).padStart(2, '0')}</span>
-                    <span className="tut-toc-name">{section.title}</span>
-                    <span className="tut-toc-count">{count}</span>
-                  </button>
-                </li>
+                <div key={group.id} className="tut-toc-group">
+                  <div className="tut-toc-group-label">{group.label}</div>
+                  <ol className="tut-toc-list">
+                    {inGroup.map(({ section, idx }) => {
+                      const progress = sectionProgress[idx];
+                      const active = !collapsed.has(section.slug);
+                      const done = progress && progress.total > 0 && progress.solved === progress.total;
+                      const partial = progress && progress.solved > 0 && progress.solved < progress.total;
+                      const dotClass = done ? 'done' : (partial ? 'partial' : '');
+                      return (
+                        <li key={section.slug}>
+                          <button
+                            type="button"
+                            className={`tut-toc-row ${active ? 'is-active' : ''}`}
+                            onClick={() => { scrollToSection(section.slug); setTocOpen(false); }}
+                            title={section.title}
+                            aria-current={active ? 'true' : undefined}
+                          >
+                            <span className="tut-toc-num">{String(idx + 1).padStart(2, '0')}</span>
+                            <span className="tut-toc-name">{section.title}</span>
+                            <span className={`tut-toc-dot ${dotClass}`} aria-hidden="true" />
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </div>
               );
             })}
-          </ol>
+          </nav>
         </aside>
 
         <main className="tut-main">
@@ -247,38 +303,60 @@ export default function DsaTutorial({ session }) {
             if (!subsections) return null;
             const isCollapsed = collapsed.has(section.slug) && !sectionMatches;
             const total = countTutorialItems(section);
+            const progress = sectionProgress[sIdx];
+            const hasSolved = progress && progress.solved > 0;
             return (
-              <section key={section.slug} id={`tut-${section.slug}`} className="tut-section">
-                <header className="tut-section-head" onClick={() => toggle(section.slug)}>
+              <section
+                key={section.slug}
+                id={`tut-${section.slug}`}
+                className={`tut-section ${isCollapsed ? '' : 'is-expanded'}`}
+              >
+                <button
+                  type="button"
+                  className="tut-section-head"
+                  onClick={() => toggle(section.slug)}
+                  aria-expanded={!isCollapsed}
+                  aria-controls={`tut-${section.slug}-body`}
+                >
                   <span className="tut-section-num">{String(sIdx + 1).padStart(2, '0')}</span>
-                  {isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+                  <span className="tut-section-chev" aria-hidden="true">
+                    {isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+                  </span>
                   <h2 className="tut-section-title">{section.title}</h2>
-                  <span className="tut-section-count">{total}</span>
-                </header>
-                {section.note && !isCollapsed && (
-                  <p className="tut-section-note">{section.note}</p>
+                  <span className={`tut-section-count ${hasSolved ? 'has-solved' : ''}`}>
+                    {progress && progress.total > 0
+                      ? `${progress.solved}/${progress.total}`
+                      : total}
+                  </span>
+                </button>
+                {!isCollapsed && (
+                  <div id={`tut-${section.slug}-body`} className="tut-section-body">
+                    {section.note && (
+                      <p className="tut-section-note">{section.note}</p>
+                    )}
+                    {subsections.map(sub => {
+                      const visible = sub.items.filter(it => passesFilter(it, filterKind, problemByName, byId));
+                      if (visible.length === 0) return null;
+                      return (
+                        <div key={sub.id} className="tut-subsection">
+                          <h3 className="tut-subsection-title">{sub.label}</h3>
+                          <ul className="tut-item-list">
+                            {visible.map((item, idx) => (
+                              <TutorialItem
+                                key={`${sub.id}-${idx}`}
+                                item={item}
+                                problemByName={problemByName}
+                                conceptByName={conceptByName}
+                                byId={byId}
+                                highlight={q}
+                              />
+                            ))}
+                          </ul>
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
-                {!isCollapsed && subsections.map(sub => {
-                  const visible = sub.items.filter(it => passesFilter(it, filterKind, problemByName, byId));
-                  if (visible.length === 0) return null;
-                  return (
-                    <div key={sub.id} className="tut-subsection">
-                      <h3 className="tut-subsection-title">{sub.label}</h3>
-                      <ul className="tut-item-list">
-                        {visible.map((item, idx) => (
-                          <TutorialItem
-                            key={`${sub.id}-${idx}`}
-                            item={item}
-                            problemByName={problemByName}
-                            conceptByName={conceptByName}
-                            byId={byId}
-                            highlight={q}
-                          />
-                        ))}
-                      </ul>
-                    </div>
-                  );
-                })}
               </section>
             );
           })}
@@ -532,15 +610,85 @@ function parseCallout(line) {
 
 function Callout({ kind, children }) {
   const icon = kind === 'warning' || kind === 'caution'
-    ? <AlertTriangle size={13} />
+    ? <AlertTriangle size={14} />
     : kind === 'tip' || kind === 'insight'
-      ? <Lightbulb size={13} />
-      : <Info size={13} />;
+      ? <Lightbulb size={14} />
+      : <Info size={14} />;
+  const label = kind === 'warning' || kind === 'caution'
+    ? 'Warning'
+    : kind === 'tip' ? 'Tip'
+    : kind === 'insight' ? 'Insight'
+    : 'Note';
   return (
     <aside className={`tut-callout tut-callout-${kind}`}>
       <span className="tut-callout-icon">{icon}</span>
-      <span className="tut-callout-body">{children}</span>
+      <div className="tut-callout-body">
+        <span className="tut-callout-label">{label}</span>
+        <span className="tut-callout-text">{children}</span>
+      </div>
     </aside>
+  );
+}
+
+// Map a fenced-code language to its human display label. Anything not in the
+// map renders as uppercased raw value (still useful for languages we forgot).
+const LANG_LABELS = {
+  py: 'Python', python: 'Python',
+  js: 'JavaScript', javascript: 'JavaScript',
+  ts: 'TypeScript', typescript: 'TypeScript',
+  cpp: 'C++', c: 'C', java: 'Java', go: 'Go',
+  rs: 'Rust', rust: 'Rust',
+  sh: 'Shell', bash: 'Shell', shell: 'Shell',
+  sql: 'SQL', json: 'JSON',
+  ascii: 'Diagram', diagram: 'Diagram', txt: 'Diagram',
+  plain: 'Code', '': 'Code',
+};
+
+// Detect ASCII-art-ish blocks even without a `ascii` lang tag — most lines
+// contain box-drawing chars, arrows, or other diagram glyphs and very few
+// alphabetic letters.
+function looksLikeAscii(text) {
+  if (!text) return false;
+  const sample = text.slice(0, 800);
+  const glyphCount = (sample.match(/[│─┌┐└┘├┤┬┴┼╭╮╯╰═║╔╗╚╝→←↑↓⇒⇐|+\-*=>]/g) || []).length;
+  const alpha = (sample.match(/[a-zA-Z]/g) || []).length;
+  if (glyphCount < 6) return false;
+  return glyphCount > alpha * 0.25;
+}
+
+function CodeBlock({ lang, code }) {
+  const normLang = (lang || '').toLowerCase();
+  const isAscii = normLang === 'ascii' || normLang === 'diagram' || normLang === 'txt'
+    || (!normLang && looksLikeAscii(code));
+  const displayLang = isAscii
+    ? 'Diagram'
+    : LANG_LABELS[normLang] || (normLang ? normLang.toUpperCase() : 'Code');
+  const [copied, setCopied] = useState(false);
+  const onCopy = useCallback(() => {
+    if (!navigator.clipboard) return;
+    navigator.clipboard.writeText(code).then(() => {
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1400);
+    }).catch(() => {});
+  }, [code]);
+  return (
+    <div className={`tut-codeblock ${isAscii ? 'tut-codeblock-ascii' : ''}`}>
+      <div className="tut-codeblock-bar">
+        <span className="tut-codeblock-lang">{displayLang}</span>
+        <button
+          type="button"
+          className="tut-codeblock-copy"
+          onClick={onCopy}
+          aria-label={copied ? 'Copied' : 'Copy code'}
+        >
+          {copied ? <Check size={12} /> : <Copy size={12} />}
+          <span>{copied ? 'Copied' : 'Copy'}</span>
+        </button>
+      </div>
+      <pre className={`tut-theory-pre tut-theory-pre-${normLang || 'plain'}`}>
+        <code>{code}</code>
+      </pre>
+    </div>
   );
 }
 
@@ -582,9 +730,11 @@ function renderBlock(text, keyPrefix) {
     if (fenceMatch) {
       if (inFence) {
         out.push(
-          <pre key={`${keyPrefix}-pre-${out.length}`} className={`tut-theory-pre tut-theory-pre-${fenceLang || 'plain'}`}>
-            <code>{fenceBuf.join('\n')}</code>
-          </pre>
+          <CodeBlock
+            key={`${keyPrefix}-pre-${out.length}`}
+            lang={fenceLang}
+            code={fenceBuf.join('\n')}
+          />
         );
         inFence = false;
         fenceLang = '';
@@ -601,9 +751,11 @@ function renderBlock(text, keyPrefix) {
   }
   if (inFence) {
     out.push(
-      <pre key={`${keyPrefix}-pre-${out.length}`} className={`tut-theory-pre tut-theory-pre-${fenceLang || 'plain'}`}>
-        <code>{fenceBuf.join('\n')}</code>
-      </pre>
+      <CodeBlock
+        key={`${keyPrefix}-pre-${out.length}`}
+        lang={fenceLang}
+        code={fenceBuf.join('\n')}
+      />
     );
   }
   flushBuf();
@@ -798,6 +950,35 @@ function SectionTOC({ entries, parentId }) {
   );
 }
 
+// Hover-revealed `#` next to a heading. Click copies the deep link to the
+// clipboard so readers can share a specific section.
+function AnchorLink({ targetId, label }) {
+  const [copied, setCopied] = useState(false);
+  const onClick = (e) => {
+    e.preventDefault();
+    const url = `${window.location.origin}${window.location.pathname}${window.location.hash.split('#')[0] || ''}#${targetId}`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(() => {
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 1200);
+      }).catch(() => {});
+    }
+    const el = document.getElementById(targetId);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  return (
+    <button
+      type="button"
+      className="tut-anchor-link"
+      onClick={onClick}
+      aria-label={`Copy link to ${label || 'section'}`}
+      title={copied ? 'Link copied' : 'Copy link to section'}
+    >
+      {copied ? <Check size={12} /> : <LinkIcon size={12} />}
+    </button>
+  );
+}
+
 function TheoryBody({ body }) {
   // Stable id for anchor / TOC scoping. Each rendered theory body needs its
   // own namespace so multiple expanded items don't collide. Strip colons —
@@ -841,6 +1022,7 @@ function TheoryBody({ body }) {
               <div className="tut-theory-card-head">
                 <span className="tut-theory-card-icon"><HeadingIcon size={13} /></span>
                 <h4 className="tut-theory-heading">{sec.heading}</h4>
+                <AnchorLink targetId={anchor} label={sec.heading} />
               </div>
               <div className="tut-theory-card-body">
                 {Array.isArray(sec.body)

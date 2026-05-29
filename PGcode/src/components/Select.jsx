@@ -8,14 +8,15 @@ import './Select.css';
 // Props:
 //   - value: current value (string)
 //   - onChange(next: string)
-//   - options: Array<{ value, label, hint?, disabled? }>
+//   - options: Array<{ value, label, hint?, disabled?, prefix? }>
 //   - className?: extra class on trigger
 //   - placeholder?: shown when no value matches
 //   - size?: 'sm' | 'md'  (default 'md')
-//   - icon?: ReactNode rendered before the label
+//   - icon?: ReactNode rendered before the label on the trigger
+//   - renderPrefix?: (option) => ReactNode — per-row prefix (overrides option.prefix)
 export default function Select({
   value, onChange, options, className = '',
-  placeholder = 'Select…', size = 'md', icon,
+  placeholder = 'Select…', size = 'md', icon, renderPrefix,
 }) {
   const [open, setOpen] = useState(false);
   const [hoverIdx, setHoverIdx] = useState(-1);
@@ -70,6 +71,11 @@ export default function Select({
         onClick={() => setOpen(o => !o)}
       >
         {icon && <span className="pg-select-icon">{icon}</span>}
+        {current && (renderPrefix ? renderPrefix(current) : current.prefix) && (
+          <span className="pg-select-prefix">
+            {renderPrefix ? renderPrefix(current) : current.prefix}
+          </span>
+        )}
         <span className="pg-select-label">{current?.label || placeholder}</span>
         <ChevronDown size={12} className={`pg-select-chevron ${open ? 'open' : ''}`} />
       </button>
@@ -93,6 +99,11 @@ export default function Select({
                   close();
                 }}
               >
+                {(renderPrefix ? renderPrefix(o) : o.prefix) && (
+                  <span className="pg-select-option-prefix">
+                    {renderPrefix ? renderPrefix(o) : o.prefix}
+                  </span>
+                )}
                 <span className="pg-select-option-label">{o.label}</span>
                 {o.hint && <span className="pg-select-option-hint">{o.hint}</span>}
                 {active && <Check size={12} className="pg-select-option-check" />}

@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Copy, Check } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import DryRunViewer from './DryRunViewer';
+import ProblemVisualizer from './ProblemVisualizer';
+import LanguageIcon from './LanguageIcon';
 import { RICH_CONTENT } from '../content/problemContent';
 import './SolutionView.css';
+
+const LANG_ORDER = ['python', 'javascript', 'typescript', 'java', 'kotlin', 'cpp', 'c', 'go', 'rust', 'swift', 'csharp', 'ruby', 'php', 'bash'];
 
 export default function SolutionView({ problem, activeLang: wsLang }) {
   const [approaches, setApproaches] = useState([]);
@@ -48,65 +52,112 @@ export default function SolutionView({ problem, activeLang: wsLang }) {
 
   // Fallback to DB column problem.solutions, then to client-side RICH_CONTENT.
   // `solutions` can be stored either as flat strings ({python: "code"}) from
-  // bulk import, or as nested objects ({python: {code, approach, complexity}})
-  // from RICH_CONTENT. Normalise to the nested shape here so the UI is uniform.
-  const langLabels = { python: 'Python', javascript: 'JavaScript', java: 'Java', cpp: 'C++' };
+  // bulk import, nested objects ({python: {code, approach, complexity}}) from
+  // older RICH_CONTENT, or arrays of approach objects ({python: [{name, code,
+  // intuition, complexity}, ...]}) from new multi-approach entries.
+  // Normalise to {lang: [approach, ...]} so the UI is uniform.
+  const langLabels = {
+    python: 'Python', javascript: 'JavaScript', typescript: 'TypeScript',
+    java: 'Java', kotlin: 'Kotlin', cpp: 'C++', c: 'C', go: 'Go',
+    rust: 'Rust', swift: 'Swift', csharp: 'C#', ruby: 'Ruby', php: 'PHP', bash: 'Bash',
+  };
   const rawFallback = (problem.solutions && Object.keys(problem.solutions).length > 0)
     ? problem.solutions
     : (RICH_CONTENT[problem.id]?.solutions || null);
   const fallback = rawFallback ? Object.fromEntries(
-    Object.entries(rawFallback).map(([lang, v]) => [
-      lang,
-      typeof v === 'string' ? { code: v } : v,
-    ])
+    Object.entries(rawFallback).map(([lang, v]) => {
+      if (Array.isArray(v)) return [lang, v];
+      if (typeof v === 'string') return [lang, [{ code: v }]];
+      return [lang, [v]];
+    })
   ) : null;
 
   if (approaches.length === 0 && fallback) {
+    const availableLangs = LANG_ORDER.filter(l => fallback[l]?.length);
+    const langsToShow = availableLangs.length ? availableLangs : LANG_ORDER.slice(0, 6);
+    const currentLangApproaches = fallback[activeCodeLang] || [];
+    const numApproaches = Math.max(
+      ...Object.values(fallback).map(arr => arr?.length || 0),
+      1
+    );
+
     return (
       <div className="sv-container">
         <h2 className="sv-problem-title">{problem.name} — reference solution</h2>
-        <div className="sv-approach">
-          <div className="sv-subsection">
-            <div className="sv-code-header">
-              <div className="sv-lang-tabs">
-                {['python', 'javascript', 'java', 'cpp'].map(lang => (
+        {Array.from({ length: numApproaches }, (_, i) => i).map(idx => {
+          const ap = currentLangApproaches[idx];
+          // Pull approach metadata (name, intuition) from whichever language
+          // first defines it so descriptions persist when switching languages.
+          const meta = LANG_ORDER
+            .map(l => fallback[l]?.[idx])
+            .find(a => a && (a.name || a.intuition));
+          const approachName = ap?.name || meta?.name || `Approach ${idx + 1}`;
+          const intuition = ap?.intuition || meta?.intuition;
+          const complexity = ap?.complexity;
+          const code = ap?.code;
+          const copyKey = `fb-${idx}`;
+          return (
+            <div key={idx} className="sv-approach">
+              <h3 className="sv-approach-title">{idx + 1}. {approachName}</h3>
+
+              {intuition && (
+                <div className="sv-subsection">
+                  <h4 className="sv-subtitle">Intuition</h4>
+                  <p className="sv-text">{intuition}</p>
+                </div>
+              )}
+
+              <div className="sv-subsection">
+                <div className="sv-code-header">
+                  <div className="sv-lang-tabs">
+                    {langsToShow.map(lang => (
+                      <button
+                        key={lang}
+                        className={`sv-lang-tab ${activeCodeLang === lang ? 'active' : ''}`}
+                        onClick={() => setActiveCodeLang(lang)}
+                        disabled={!fallback[lang]?.[idx]?.code}
+                      >
+                        <LanguageIcon lang={lang} size={14} />
+                        <span>{langLabels[lang]}</span>
+                      </button>
+                    ))}
+                  </div>
                   <button
-                    key={lang}
-                    className={`sv-lang-tab ${activeCodeLang === lang ? 'active' : ''}`}
-                    onClick={() => setActiveCodeLang(lang)}
-                    disabled={!fallback[lang]?.code}
+                    className={`sv-copy-btn ${copiedId === copyKey ? 'copied' : ''}`}
+                    onClick={() => handleCopy(copyKey, code)}
+                    disabled={!code}
                   >
-                    {langLabels[lang]}
+                    {copiedId === copyKey ? <Check size={13} /> : <Copy size={13} />}
+                    <span>{copiedId === copyKey ? 'Copied' : 'Copy'}</span>
                   </button>
-                ))}
+                </div>
+                {code ? (
+                  <pre className="sv-code-block"><code>{code}</code></pre>
+                ) : (
+                  <div className="sv-code-empty">No {langLabels[activeCodeLang]} solution yet for this approach.</div>
+                )}
               </div>
-              <button
-                className={`sv-copy-btn ${copiedId === 'fb' ? 'copied' : ''}`}
-                onClick={() => handleCopy('fb', fallback[activeCodeLang]?.code)}
-                disabled={!fallback[activeCodeLang]?.code}
-              >
-                {copiedId === 'fb' ? <Check size={13} /> : <Copy size={13} />}
-                <span>{copiedId === 'fb' ? 'Copied' : 'Copy'}</span>
-              </button>
+
+              {ap?.approach && (
+                <div className="sv-subsection">
+                  <h4 className="sv-subtitle">Approach</h4>
+                  <p className="sv-text">{ap.approach}</p>
+                </div>
+              )}
+
+              {complexity && (
+                <div className="sv-complexity">
+                  <span><strong>Time:</strong> {complexity.time}</span>
+                  <span><strong>Space:</strong> {complexity.space}</span>
+                </div>
+              )}
             </div>
-            {fallback[activeCodeLang]?.code ? (
-              <pre className="sv-code-block"><code>{fallback[activeCodeLang].code}</code></pre>
-            ) : (
-              <div className="sv-code-empty">No {langLabels[activeCodeLang]} solution yet.</div>
-            )}
-          </div>
-          {fallback[activeCodeLang]?.approach && (
-            <div className="sv-subsection">
-              <h4 className="sv-subtitle">Approach</h4>
-              <p className="sv-text">{fallback[activeCodeLang].approach}</p>
-            </div>
-          )}
-          {fallback[activeCodeLang]?.complexity && (
-            <div className="sv-complexity">
-              <span><strong>Time:</strong> {fallback[activeCodeLang].complexity.time}</span>
-              <span><strong>Space:</strong> {fallback[activeCodeLang].complexity.space}</span>
-            </div>
-          )}
+          );
+        })}
+
+        <div className="sv-section">
+          <h3 className="sv-section-title">Step-by-step visualization</h3>
+          <ProblemVisualizer problem={problem} />
         </div>
       </div>
     );
@@ -124,6 +175,10 @@ export default function SolutionView({ problem, activeLang: wsLang }) {
           </div>
         )}
         <div className="sv-section">
+          <h3 className="sv-section-title">Step-by-step visualization</h3>
+          <ProblemVisualizer problem={problem} />
+        </div>
+        <div className="sv-section">
           <h3 className="sv-section-title">Visual Dry Run</h3>
           <DryRunViewer problemId={problem.id} />
         </div>
@@ -131,7 +186,7 @@ export default function SolutionView({ problem, activeLang: wsLang }) {
     );
   }
 
-  const langMap = { python: 'code_python', javascript: 'code_javascript', java: 'code_java', cpp: 'code_cpp' };
+  const langMap = { python: 'code_python', javascript: 'code_javascript', java: 'code_java', cpp: 'code_cpp', c: 'code_c', go: 'code_go' };
 
   return (
     <div className="sv-container">
@@ -179,25 +234,32 @@ export default function SolutionView({ problem, activeLang: wsLang }) {
               </ol>
             </div>
 
-            {/* Dry Run for the last/optimal approach */}
+            {/* Step-by-step visualization + Dry Run for the last/optimal approach */}
             {idx === approaches.length - 1 && (
-              <div className="sv-subsection">
-                <h4 className="sv-subtitle">Visual Dry Run</h4>
-                <DryRunViewer problemId={problem.id} />
-              </div>
+              <>
+                <div className="sv-subsection">
+                  <h4 className="sv-subtitle">Step-by-step visualization</h4>
+                  <ProblemVisualizer problem={problem} />
+                </div>
+                <div className="sv-subsection">
+                  <h4 className="sv-subtitle">Visual Dry Run</h4>
+                  <DryRunViewer problemId={problem.id} />
+                </div>
+              </>
             )}
 
             {/* Code */}
             <div className="sv-subsection">
               <div className="sv-code-header">
                 <div className="sv-lang-tabs">
-                  {['python', 'javascript', 'java', 'cpp'].map(lang => (
+                  {['python', 'javascript', 'java', 'cpp', 'c', 'go'].map(lang => (
                     <button
                       key={lang}
                       className={`sv-lang-tab ${activeCodeLang === lang ? 'active' : ''}`}
                       onClick={() => setActiveCodeLang(lang)}
                     >
-                      {langLabels[lang]}
+                      <LanguageIcon lang={lang} size={14} />
+                      <span>{langLabels[lang]}</span>
                     </button>
                   ))}
                 </div>

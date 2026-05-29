@@ -22,7 +22,7 @@
 import {
   Award, Flame, Mountain, Sparkles, Zap, BookOpen, Globe, GitFork, Trophy, Crown, Target, Layers,
   Languages, Swords, CalendarRange, Timer, Medal, Trees, NotebookPen, FilePen, ListChecks,
-  GraduationCap, BarChart3, MoonStar, Eye,
+  GraduationCap, BarChart3, MoonStar, Eye, CalendarDays,
 } from 'lucide-react';
 
 const VISIT_STORE_PREFIX = 'pgcode-visited-';
@@ -58,6 +58,7 @@ export const ACHIEVEMENTS = [
     description: 'You solved your first problem on PGcode.',
     icon: Sparkles,
     color: 'easy',
+    category: 'solves',
     eligible: ctx => ctx.solvedCount >= 1,
   },
   {
@@ -66,6 +67,7 @@ export const ACHIEVEMENTS = [
     description: 'Solved 10 problems.',
     icon: Target,
     color: 'medium',
+    category: 'solves',
     eligible: ctx => ctx.solvedCount >= 10,
   },
   {
@@ -74,6 +76,7 @@ export const ACHIEVEMENTS = [
     description: 'Solved 50 problems.',
     icon: Award,
     color: 'accent',
+    category: 'solves',
     eligible: ctx => ctx.solvedCount >= 50,
   },
   {
@@ -82,39 +85,53 @@ export const ACHIEVEMENTS = [
     description: 'Solved 100 problems.',
     icon: Trophy,
     color: 'accent',
+    category: 'solves',
     eligible: ctx => ctx.solvedCount >= 100,
   },
   {
     id: 'streak-7',
-    title: 'Week Strong',
-    description: 'Maintained a 7-day solve streak.',
+    title: 'Week Streak',
+    description: '7-day solve streak.',
     icon: Flame,
     color: 'hard',
+    category: 'streak',
     eligible: ctx => ctx.longestStreak >= 7,
   },
   {
     id: 'streak-30',
-    title: 'Month-long Marathon',
-    description: '30-day streak. You showed up.',
+    title: 'Month Streak',
+    description: '30-day solve streak.',
     icon: Flame,
     color: 'hard',
+    category: 'streak',
     eligible: ctx => ctx.longestStreak >= 30,
   },
   {
     id: 'streak-60',
     title: 'Streak 60',
-    description: 'Two straight months — 60 day streak.',
+    description: 'Two straight months — 60 days.',
     icon: Flame,
     color: 'hard',
+    category: 'streak',
     eligible: ctx => ctx.longestStreak >= 60,
   },
   {
     id: 'streak-100',
-    title: 'Streak 100',
-    description: 'A hundred consecutive days. Rare air.',
+    title: 'Century Streak',
+    description: '100-day solve streak. Rare air.',
     icon: Flame,
     color: 'hard',
+    category: 'streak',
     eligible: ctx => ctx.longestStreak >= 100,
+  },
+  {
+    id: 'streak-365',
+    title: 'Year Streak',
+    description: '365-day solve streak. A full year of showing up.',
+    icon: Flame,
+    color: 'hard',
+    category: 'streak',
+    eligible: ctx => ctx.longestStreak >= 365,
   },
   {
     id: 'hard-five',
@@ -122,6 +139,7 @@ export const ACHIEVEMENTS = [
     description: 'Solved 5 Hard-difficulty problems.',
     icon: Mountain,
     color: 'hard',
+    category: 'difficulty',
     eligible: ctx => ctx.hardCount >= 5,
   },
   {
@@ -130,6 +148,7 @@ export const ACHIEVEMENTS = [
     description: 'Cleared 10 Hard problems.',
     icon: Mountain,
     color: 'hard',
+    category: 'difficulty',
     eligible: ctx => ctx.hardCount >= 10,
   },
   {
@@ -138,6 +157,7 @@ export const ACHIEVEMENTS = [
     description: 'Twenty-five Hards down. The grind is real.',
     icon: Mountain,
     color: 'hard',
+    category: 'difficulty',
     eligible: ctx => ctx.hardCount >= 25,
   },
   {
@@ -146,6 +166,7 @@ export const ACHIEVEMENTS = [
     description: 'Solved at least one Easy, one Medium, and one Hard.',
     icon: Layers,
     color: 'accent',
+    category: 'difficulty',
     eligible: ctx => ctx.easyCount >= 1 && ctx.medCount >= 1 && ctx.hardCount >= 1,
   },
   {
@@ -154,6 +175,7 @@ export const ACHIEVEMENTS = [
     description: 'Reached 100% completion on any topic with 5+ problems.',
     icon: Crown,
     color: 'accent',
+    category: 'topic',
     eligible: ctx => Object.values(ctx.topicMastery || {}).some(t => t.total >= 5 && t.solved === t.total),
   },
   {
@@ -162,6 +184,7 @@ export const ACHIEVEMENTS = [
     description: 'Fully cleared three different topics (5+ problems each).',
     icon: Trees,
     color: 'accent',
+    category: 'topic',
     eligible: ctx => (ctx.topicsMasteredCount || 0) >= 3,
   },
   {
@@ -170,6 +193,7 @@ export const ACHIEVEMENTS = [
     description: 'Read 5 concept pages.',
     icon: BookOpen,
     color: 'medium',
+    category: 'discovery',
     eligible: ctx => (ctx.conceptsRead || 0) >= 5,
   },
   {
@@ -178,6 +202,7 @@ export const ACHIEVEMENTS = [
     description: 'Opened 25 concept pages in the Learn library.',
     icon: GraduationCap,
     color: 'medium',
+    category: 'discovery',
     eligible: ctx => (ctx.conceptsRead || 0) >= 25,
   },
   {
@@ -186,6 +211,7 @@ export const ACHIEVEMENTS = [
     description: 'Viewed 10 algorithm visualizations.',
     icon: Eye,
     color: 'medium',
+    category: 'discovery',
     eligible: ctx => (ctx.visualizationsViewed || 0) >= 10,
   },
   {
@@ -194,6 +220,7 @@ export const ACHIEVEMENTS = [
     description: 'Submitted code in 3+ different languages.',
     icon: Globe,
     color: 'accent',
+    category: 'language',
     eligible: ctx => (ctx.languagesUsed?.size || 0) >= 3,
   },
   {
@@ -202,6 +229,7 @@ export const ACHIEVEMENTS = [
     description: 'Shipped accepted solutions in 3 distinct languages.',
     icon: Languages,
     color: 'accent',
+    category: 'language',
     eligible: ctx => (ctx.acceptedLanguages?.size || 0) >= 3,
   },
   {
@@ -210,6 +238,7 @@ export const ACHIEVEMENTS = [
     description: 'Submitted in 5 different languages.',
     icon: Languages,
     color: 'accent',
+    category: 'language',
     eligible: ctx => (ctx.languagesUsed?.size || 0) >= 5,
   },
   {
@@ -218,6 +247,7 @@ export const ACHIEVEMENTS = [
     description: 'Created your first shareable playground link.',
     icon: GitFork,
     color: 'medium',
+    category: 'curation',
     eligible: ctx => (ctx.sharedSnippets || 0) >= 1,
   },
   {
@@ -226,6 +256,7 @@ export const ACHIEVEMENTS = [
     description: 'Solved 3 problems in a single day.',
     icon: Zap,
     color: 'medium',
+    category: 'habit',
     eligible: ctx => (ctx.maxSolvesInOneDay || 0) >= 3,
   },
   {
@@ -234,6 +265,7 @@ export const ACHIEVEMENTS = [
     description: 'Cracked a problem in under 5 minutes from first attempt to accepted.',
     icon: Timer,
     color: 'medium',
+    category: 'habit',
     eligible: ctx => (ctx.fastestSolveMinutes ?? Infinity) > 0 && ctx.fastestSolveMinutes < 5,
   },
   {
@@ -242,6 +274,7 @@ export const ACHIEVEMENTS = [
     description: 'Solved problems on both Saturday and Sunday of the same weekend.',
     icon: CalendarRange,
     color: 'accent',
+    category: 'habit',
     eligible: ctx => !!ctx.solvedWeekendPair,
   },
   {
@@ -250,6 +283,7 @@ export const ACHIEVEMENTS = [
     description: 'Submitted between midnight and 4 AM local time.',
     icon: MoonStar,
     color: 'medium',
+    category: 'habit',
     eligible: ctx => !!ctx.solvedAtNight,
   },
   {
@@ -258,6 +292,7 @@ export const ACHIEVEMENTS = [
     description: 'Entered your first PGcode contest.',
     icon: Swords,
     color: 'medium',
+    category: 'contest',
     eligible: ctx => (ctx.contestsFinished || 0) >= 1,
   },
   {
@@ -266,6 +301,7 @@ export const ACHIEVEMENTS = [
     description: 'Competed in 5 contests.',
     icon: Medal,
     color: 'accent',
+    category: 'contest',
     eligible: ctx => (ctx.contestsFinished || 0) >= 5,
   },
   {
@@ -274,6 +310,7 @@ export const ACHIEVEMENTS = [
     description: 'Wrote notes on 5 different problems.',
     icon: NotebookPen,
     color: 'medium',
+    category: 'curation',
     eligible: ctx => (ctx.noteCount || 0) >= 5,
   },
   {
@@ -282,6 +319,7 @@ export const ACHIEVEMENTS = [
     description: 'Wrote notes on 25 problems — the Notebook is a real archive now.',
     icon: FilePen,
     color: 'accent',
+    category: 'curation',
     eligible: ctx => (ctx.noteCount || 0) >= 25,
   },
   {
@@ -290,6 +328,7 @@ export const ACHIEVEMENTS = [
     description: 'Built a custom list containing 10+ problems.',
     icon: ListChecks,
     color: 'accent',
+    category: 'curation',
     eligible: ctx => (ctx.maxOwnedListSize || 0) >= 10,
   },
   {
@@ -298,9 +337,45 @@ export const ACHIEVEMENTS = [
     description: 'Hit 50 Mediums solved.',
     icon: BarChart3,
     color: 'medium',
+    category: 'difficulty',
     eligible: ctx => (ctx.medCount || 0) >= 50,
   },
+  // Monthly challenges — parametric, retroactive for last 6 months + current.
+  // ids match the catalog table seeded in scripts/migrate-45-streak-monthly-badges.sql.
+  // Eligibility reads ctx.solvesByMonth, a {YYYYMM: count} map built from
+  // PGcode_user_progress.last_solved_at timestamps.
+  ...buildMonthlyAchievements(),
 ];
+
+const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
+
+// Generate monthly badges for the last 6 months + current month.
+// Kept in sync with the SQL seed by sharing the YYYYMM key convention.
+function buildMonthlyAchievements() {
+  const now = new Date();
+  const result = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const year = d.getFullYear();
+    const monthIdx = d.getMonth();
+    const yyyymm = `${year}${String(monthIdx + 1).padStart(2, '0')}`;
+    const pretty = `${MONTH_NAMES[monthIdx]} ${year}`;
+    result.push({
+      id: `monthly-${yyyymm}`,
+      title: `${pretty} Challenge`,
+      description: `Solve 30 problems during ${pretty}.`,
+      icon: CalendarDays,
+      color: 'accent',
+      category: 'monthly',
+      monthKey: yyyymm,
+      eligible: ctx => (ctx.solvesByMonth?.[yyyymm] || 0) >= 30,
+    });
+  }
+  return result;
+}
 
 export const ACHIEVEMENT_BY_ID = Object.fromEntries(ACHIEVEMENTS.map(a => [a.id, a]));
 
@@ -353,8 +428,10 @@ export function buildAchievementContext({
     }
   });
 
-  // Max solves in one day + note count + weekend / night-owl flags + fastest solve.
+  // Max solves in one day + note count + weekend / night-owl flags + fastest solve
+  // + per-month solve totals (powers the monthly-YYYYMM badges).
   const solveCounts = {};
+  const solvesByMonth = {};
   let noteCount = 0;
   const solveDays = new Set();
   let solvedAtNight = false;
@@ -367,6 +444,8 @@ export function buildAchievementContext({
       solveDays.add(day);
       const hr = d.getHours();
       if (hr >= 0 && hr < 4) solvedAtNight = true;
+      const yyyymm = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}`;
+      solvesByMonth[yyyymm] = (solvesByMonth[yyyymm] || 0) + 1;
     }
   });
   const maxSolvesInOneDay = Math.max(0, ...Object.values(solveCounts));
@@ -432,5 +511,34 @@ export function buildAchievementContext({
     fastestSolveMinutes,
     solvedWeekendPair,
     solvedAtNight,
+    solvesByMonth,
   };
 }
+
+// Stable ordering for the category section headings in the Achievements UI.
+// Anything not in this list falls through to "Other".
+export const CATEGORY_ORDER = [
+  'solves',
+  'streak',
+  'monthly',
+  'difficulty',
+  'topic',
+  'language',
+  'contest',
+  'curation',
+  'discovery',
+  'habit',
+];
+
+export const CATEGORY_LABELS = {
+  solves: 'Solve milestones',
+  streak: 'Streaks',
+  monthly: 'Monthly challenges',
+  difficulty: 'Difficulty',
+  topic: 'Topic mastery',
+  language: 'Languages',
+  contest: 'Contests',
+  curation: 'Notes & lists',
+  discovery: 'Learn & visualize',
+  habit: 'Habits',
+};

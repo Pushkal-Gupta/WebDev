@@ -7,7 +7,8 @@
 // Request:  { problem_id: string, language: "python"|"javascript"|"java"|"cpp", code: string }
 // Response: { verdict: "accepted"|"wrong_answer"|"compile_error"|"runtime_error"|"time_limit",
 //             passed: number, total: number,
-//             cases: Array<{ index: number, status: string, hint?: string }> }
+//             cases: Array<{ index: number, status: string, hint?: string, is_sample: boolean }> }
+// Note: hidden (non-sample) case hints never include the test inputs or expected output.
 //
 // Env:
 //   SUPABASE_URL                — auto-set by Supabase Functions runtime
@@ -43,7 +44,7 @@ function judge0Headers(): HeadersInit {
 }
 
 type Param = { name: string; type: string };
-type TestCase = { inputs: string[]; expected: string };
+type TestCase = { inputs: string[]; expected: string; is_sample?: boolean };
 
 function pyLiteral(raw: string, type: string): string {
   // raw is the test-case input as serialised in the seed scripts (already a
@@ -321,8 +322,15 @@ serve(async (req) => {
     const tests: TestCase[] = problem.test_cases as TestCase[];
     const source = buildDriver(language, code, problem.method_name, params, problem.return_type);
 
+    // A case is "sample" (visible to the user) if explicitly flagged, OR — as a
+    // legacy fallback for problems whose test_cases haven't been backfilled —
+    // the first three indices. Everything else is hidden; failure hints for
+    // hidden cases must NOT leak inputs or expected output.
+    const anyFlagged = tests.some((t) => t && t.is_sample === true);
+    const isSample = (idx: number) => anyFlagged ? !!tests[idx]?.is_sample : idx < 3;
+
     const CHUNK = 20;
-    const cases: { index: number; status: string; hint?: string }[] = new Array(tests.length);
+    const cases: { index: number; status: string; hint?: string; is_sample: boolean }[] = new Array(tests.length);
 
     for (let start = 0; start < tests.length; start += CHUNK) {
       const chunk = tests.slice(start, start + CHUNK);
@@ -352,19 +360,28 @@ serve(async (req) => {
         const sub = byToken[t] || {};
         const idx = start + i;
         const sid = sub.status?.id;
+        const sample = isSample(idx);
         if (sid === 3) {
-          cases[idx] = { index: idx, status: "passed" };
+          cases[idx] = { index: idx, status: "passed", is_sample: sample };
         } else if (sid === 4) {
-          // Wrong answer (expected_output mismatch)
-          const got = normalise(sub.stdout || "");
-          const exp = normalise(tests[idx].expected);
-          cases[idx] = { index: idx, status: "wrong_answer", hint: `Expected ${exp.slice(0, 60)}, got ${got.slice(0, 60)}` };
+          // Wrong answer. For sample cases reveal expected/got so users can
+          // debug; for hidden cases mask everything to keep the test set private.
+          if (sample) {
+            const got = normalise(sub.stdout || "");
+            const exp = normalise(tests[idx].expected);
+            cases[idx] = { index: idx, status: "wrong_answer", hint: `Expected ${exp.slice(0, 60)}, got ${got.slice(0, 60)}`, is_sample: true };
+          } else {
+            cases[idx] = { index: idx, status: "wrong_answer", hint: `Hidden test case ${idx + 1} failed`, is_sample: false };
+          }
         } else if (sid === 6) {
-          cases[idx] = { index: idx, status: "compile_error", hint: (sub.compile_output || "").slice(0, 200) };
+          // Compile error is code-level (same for every case), no leak risk.
+          cases[idx] = { index: idx, status: "compile_error", hint: (sub.compile_output || "").slice(0, 200), is_sample: sample };
         } else if (sid === 5) {
-          cases[idx] = { index: idx, status: "time_limit" };
+          cases[idx] = { index: idx, status: "time_limit", is_sample: sample };
         } else {
-          cases[idx] = { index: idx, status: "runtime_error", hint: (sub.stderr || sub.message || "").slice(0, 200) };
+          // Runtime errors include stderr/stack traces; safe to surface even for
+          // hidden cases since they don't echo the inputs.
+          cases[idx] = { index: idx, status: "runtime_error", hint: (sub.stderr || sub.message || "").slice(0, 200), is_sample: sample };
         }
       });
     }

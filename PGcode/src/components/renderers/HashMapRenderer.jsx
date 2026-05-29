@@ -8,6 +8,13 @@ const stateStyles = {
   deleted: { background: 'rgba(239, 68, 68, 0.06)', borderLeft: '3px solid var(--hard)', opacity: 0.5 },
 };
 
+function cellText(v) {
+  if (v == null) return '';
+  if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') return String(v);
+  if (typeof v === 'object') return String(v.value ?? v.label ?? v.name ?? '');
+  return String(v);
+}
+
 export default function HashMapRenderer({ data }) {
   const { entries = [] } = data;
 
@@ -25,8 +32,8 @@ export default function HashMapRenderer({ data }) {
               className="hm-row"
               style={stateStyles[entry.state] || stateStyles.default}
             >
-              <span className="hm-key">{entry.key}</span>
-              <span className="hm-val">{entry.value}</span>
+              <span className="hm-key">{cellText(entry.key)}</span>
+              <span className="hm-val">{cellText(entry.value)}</span>
             </div>
           ))}
           {entries.length === 0 && (

@@ -1,30 +1,33 @@
 .viz {
+  --viz-section-gap: 1.4rem;
+  --viz-pad: 1.5rem;
   border: 1px solid var(--border);
   background: var(--bg);
   border-radius: 10px;
-  padding: 0.85rem 1rem;
+  padding: var(--viz-pad);
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
+  gap: var(--viz-section-gap);
   margin: 0.7rem 0;
   outline: none;
 }
 
 .viz-title {
   font-family: var(--mono);
-  font-size: 0.7rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  margin: 0 0 1rem;
 }
 
 .viz-cases {
   position: relative;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
-  padding-bottom: 0.4rem;
+  gap: 0.6rem;
+  padding-bottom: 0.6rem;
   border-bottom: 1px dashed var(--border);
 }
 .viz-case {
@@ -32,9 +35,9 @@
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.3rem 0.65rem;
+  padding: 0.5rem 0.9rem;
   font-family: var(--sans);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--text-dim);
   background: var(--surface);
@@ -118,11 +121,11 @@
 }
 
 .viz-stage {
-  min-height: 160px;
+  min-height: 280px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 0;
+  padding: 1.5rem 0;
   overflow-x: auto;
   position: relative;
 }
@@ -132,6 +135,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 1.5rem;
   animation: viz-frame-in 0.3s ease-out;
 }
 
@@ -144,11 +148,11 @@
   font-family: var(--mono);
   font-size: 0.92rem;
   color: var(--text-main);
-  background: var(--surface);
+  background: var(--hover-box);
   border-left: 3px solid var(--accent);
-  padding: 0.75rem 0.95rem;
-  border-radius: 0 6px 6px 0;
-  line-height: 1.6;
+  padding: 1rem 1.2rem;
+  border-radius: 8px;
+  line-height: 1.65;
   margin: 0;
   animation: viz-caption-in 0.28s ease-out;
 }
@@ -177,17 +181,21 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.7rem;
   flex-wrap: wrap;
+  padding: 0.8rem 0.9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
 }
 
 .viz-controls button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  background: var(--surface);
+  width: 38px;
+  height: 38px;
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 6px;
   color: var(--text-main);
@@ -203,8 +211,8 @@
 .viz-controls button:active { transform: translateY(0); }
 
 .viz-play {
-  width: 52px !important;
-  height: 52px !important;
+  width: 56px !important;
+  height: 56px !important;
   background: var(--accent) !important;
   color: var(--bg) !important;
   border-color: var(--accent) !important;
@@ -236,7 +244,7 @@
 
 .viz-step-label {
   font-family: var(--mono);
-  font-size: 0.65rem;
+  font-size: 0.78rem;
   color: var(--text-dim);
   white-space: nowrap;
 }
@@ -245,21 +253,49 @@
 .viz-tempo {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.15rem 0.4rem 0.15rem 0.55rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  transition: border-color 0.2s ease-out;
+  gap: 0.55rem;
 }
-.viz-tempo:hover { border-color: var(--accent); }
 .viz-tempo-label {
   font-family: var(--mono);
-  font-size: 0.6rem;
+  font-size: 0.66rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-dim);
+}
+.viz-tempo-buttons {
+  display: inline-flex;
+  gap: 0.25rem;
+  border-radius: 6px;
+  padding: 2px;
+  background: var(--hover-box);
+  border: 1px solid var(--border);
+}
+.viz-controls .viz-tempo-btn {
+  width: auto;
+  height: auto;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  padding: 0.3rem 0.55rem;
+  font-size: 0.7rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--mono);
+  transition: color 0.2s ease-out, background 0.2s ease-out;
+  transform: none;
+}
+.viz-controls .viz-tempo-btn:hover {
+  color: var(--text-main);
+  background: transparent;
+  border-color: transparent;
+  transform: none;
+}
+.viz-controls .viz-tempo-btn.active {
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 600;
+  border-color: transparent;
 }
 
 .viz-help-btn {
@@ -368,14 +404,14 @@
 }
 .viz-pointer-label {
   font-family: var(--mono);
-  font-size: 0.62rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: var(--accent);
   background: var(--hover-box);
   border: 1px solid var(--accent);
   border-radius: 3px;
-  padding: 0.05rem 0.3rem;
-  line-height: 1.2;
+  padding: 0.1rem 0.4rem;
+  line-height: 1.3;
   text-transform: lowercase;
 }
 .viz-pointer-arrow {
@@ -411,13 +447,16 @@
   to   { opacity: 1; transform: scale(1); }
 }
 .viz-chip-label {
-  font-size: 0.62rem;
+  font-size: 0.78rem;
+  line-height: 1.4;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--text-dim);
 }
 .viz-chip-value {
+  font-size: 0.78rem;
+  line-height: 1.4;
   font-weight: 700;
   color: var(--text-main);
 }
@@ -494,7 +533,7 @@
 .viz-array {
   display: flex;
   align-items: flex-end;
-  gap: 4px;
+  gap: 8px;
   height: 160px;
   max-width: 100%;
   overflow-x: auto;
@@ -508,7 +547,7 @@
 .viz-tiles {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 10px;
   min-height: 80px;
   align-items: flex-start;
   align-content: flex-start;
@@ -528,7 +567,7 @@
   justify-content: center;
   gap: 0.2rem;
   padding: 0.55rem 0.75rem;
-  min-width: 56px;
+  min-width: 68px;
   min-height: 64px;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -565,7 +604,7 @@
 
 .viz-bar {
   position: relative;
-  width: 44px;
+  width: 52px;
   background: var(--border);
   border-radius: 4px 4px 0 0;
   display: flex;
@@ -611,12 +650,12 @@
 /* ── Window cells ── */
 .viz-window {
   display: flex;
-  gap: 4px;
+  gap: 8px;
 }
 
 .viz-cell {
-  width: 52px;
-  height: 60px;
+  width: 60px;
+  height: 72px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -651,8 +690,8 @@
 /* ── Number grid (sieve / 2D grid) ── */
 .viz-grid {
   display: grid;
-  gap: 5px;
-  max-width: 480px;
+  gap: 8px;
+  max-width: 560px;
 }
 
 .viz-num {
@@ -682,7 +721,7 @@
 .viz-num-cross     { background: var(--medium-bg); border-color: var(--medium); color: var(--medium); }
 
 /* ── Graph ── */
-.viz-graph { width: 100%; max-width: 440px; height: 280px; }
+.viz-graph { width: 100%; max-width: 100%; height: auto; aspect-ratio: 520 / 340; }
 
 .viz-edge {
   stroke: var(--border);
