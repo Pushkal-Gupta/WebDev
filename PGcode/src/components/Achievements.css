@@ -110,6 +110,30 @@
   letter-spacing: 0.06em;
 }
 
+.ach-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ach-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ach-section-title {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin: 0;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--border);
+}
+
 .ach-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));

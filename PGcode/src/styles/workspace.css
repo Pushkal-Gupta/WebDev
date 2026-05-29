@@ -2,13 +2,13 @@
    PGcode Workspace — LeetCode Style
    ═══════════════════════════════════════ */
 
-.ws-container { height: calc(100dvh - var(--pg-nav-h, 120px) - 24px); overflow: hidden; background: var(--bg); display: flex; flex-direction: column; padding: 0 12px 12px; box-sizing: border-box; }
+.ws-container { height: calc(100dvh - var(--pg-nav-h, 120px)); overflow: hidden; background: var(--bg); display: flex; flex-direction: column; padding: 0 12px 0; box-sizing: border-box; }
 .ws-loading { padding: 3rem; text-align: center; color: var(--text-dim); font-family: var(--mono); }
 .ws-loading a { color: var(--accent); }
 .ws-main { display: flex; flex: 1; min-height: 0; overflow: hidden; }
 
 /* ═══ LEFT PANEL ═══ */
-.ws-left { display: flex; flex-direction: column; overflow: hidden; min-width: 0; border-right: 1px solid var(--border); }
+.ws-left { display: flex; flex-direction: column; overflow: hidden; min-width: 280px; border-right: 1px solid var(--border); }
 
 .ws-left-header { padding: 0.5rem 1rem; border-bottom: 1px solid var(--border); background: var(--surface); flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; }
 .ws-back { display: inline-flex; align-items: center; gap: 0.2rem; color: var(--text-dim); text-decoration: none; font-family: var(--sans); font-size: 0.75rem; transition: color var(--t); }
@@ -537,6 +537,14 @@
 .ws-tc-unpin { padding: 0 0.5rem; background: none; border: none; border-left: 1px solid var(--border); color: var(--text-dim); font-size: 1rem; cursor: pointer; transition: all var(--t); }
 .ws-tc-unpin:hover { color: var(--hard); background: var(--hover-box); }
 .ws-tc-hidden-count { padding: 0.4rem 0.6rem; font-family: var(--mono); font-size: 0.72rem; color: var(--text-dim); font-style: italic; }
+.ws-tc-hidden-badge {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.3rem 0.55rem;
+  font-family: var(--mono); font-size: 0.7rem;
+  color: var(--text-dim); background: var(--hover-box);
+  border-radius: 6px;
+}
+.ws-tc-hidden-badge svg { flex-shrink: 0; opacity: 0.75; }
 
 /* Pin failed hidden case button in test result */
 .ws-pin-case-btn { margin: 0.6rem 0; padding: 0.5rem 1rem; background: var(--hover-box); border: 1px dashed var(--accent); border-radius: 6px; color: var(--accent); font-family: var(--sans); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all var(--t); }
@@ -592,6 +600,8 @@
 .ws-result-section { display: flex; flex-direction: column; gap: 0.3rem; margin-top: 0.8rem; }
 .ws-result-label { font-family: var(--sans); font-size: 0.75rem; font-weight: 600; color: var(--text-dim); }
 .ws-result-value { padding: 0.6rem 0.8rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; font-family: var(--mono); font-size: 0.82rem; color: var(--text-main); line-height: 1.5; white-space: pre-wrap; }
+.ws-result-hidden-note { display: inline-flex; align-items: center; gap: 0.45rem; color: var(--text-dim); font-style: italic; }
+.ws-result-hidden-note svg { flex-shrink: 0; opacity: 0.8; }
 
 /* Submit result */
 .ws-submit-stats { display: flex; gap: 1.5rem; padding: 0.6rem 0; flex-wrap: wrap; }
@@ -630,7 +640,7 @@
 .ws-divider:hover { background: var(--accent); }
 
 /* ═══ RIGHT PANEL ═══ */
-.ws-right { display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+.ws-right { display: flex; flex-direction: column; overflow: hidden; min-width: 420px; }
 
 .ws-editor-header { display: flex; align-items: center; justify-content: space-between; padding: 0.4rem 0.8rem; border-bottom: 1px solid var(--border); background: var(--surface); flex-shrink: 0; }
 .ws-editor-label { display: flex; align-items: center; gap: 0.35rem; font-family: var(--sans); font-size: 0.82rem; font-weight: 600; color: var(--text-main); }
@@ -649,7 +659,7 @@
 .ws-timer.paused { opacity: 0.4; }
 .ws-timer.stopped { color: var(--accent); border-color: var(--accent); background: rgba(0, 138, 126, 0.08); }
 
-.ws-editor-area { flex: 1; min-height: 0; background: var(--bg); }
+.ws-editor-area { flex: 1; min-height: 0; min-width: 0; background: var(--bg); overflow: hidden; }
 
 /* ── Editor Footer ── */
 .ws-editor-footer { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border-top: 1px solid var(--border); background: var(--surface); flex-shrink: 0; min-height: 56px; }
@@ -833,8 +843,8 @@
 /* ═══ RESPONSIVE ═══ */
 @media (max-width: 768px) {
   .ws-main { flex-direction: column; }
-  .ws-left { width: 100% !important; max-height: 50vh; border-right: none; border-bottom: 1px solid var(--border); }
-  .ws-right { width: 100% !important; min-height: 50vh; display: flex; flex-direction: column; }
+  .ws-left { width: 100% !important; min-width: 0; max-height: 50vh; border-right: none; border-bottom: 1px solid var(--border); }
+  .ws-right { width: 100% !important; min-width: 0; min-height: 50vh; display: flex; flex-direction: column; }
   .ws-editor-area { min-height: 32vh; }
   .ws-divider { display: none; }
   .ws-left-tabs { flex-wrap: nowrap; overflow-x: auto; }

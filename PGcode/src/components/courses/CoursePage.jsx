@@ -25,6 +25,31 @@ function normalizeOutput(s) {
   return String(s).replace(/\r\n/g, '\n').trim();
 }
 
+// Render a paragraph string with inline `backtick` spans turned into <code>.
+function renderInlineParagraph(text, keyPrefix) {
+  if (!text) return null;
+  const parts = String(text).split(/(`[^`]+`)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('`') && part.endsWith('`') && part.length > 1) {
+      return <code key={`${keyPrefix}-c-${i}`} className="course-intro-code">{part.slice(1, -1)}</code>;
+    }
+    return <React.Fragment key={`${keyPrefix}-t-${i}`}>{part}</React.Fragment>;
+  });
+}
+
+// Split intro text into paragraphs on blank lines.
+function IntroBody({ text }) {
+  if (!text) return null;
+  const paragraphs = String(text).split(/\n{2,}/).map(s => s.trim()).filter(Boolean);
+  return (
+    <div className="course-lesson-intro">
+      {paragraphs.map((para, i) => (
+        <p key={`intro-${i}`}>{renderInlineParagraph(para, `intro-${i}`)}</p>
+      ))}
+    </div>
+  );
+}
+
 function estimateReadMinutes(lesson) {
   const parts = [
     lesson?.intro || '',
@@ -238,7 +263,7 @@ export default function CoursePage() {
               <Target size={11} /> {course.language.toUpperCase()}
             </span>
           </div>
-          <p className="course-lesson-intro">{lesson.intro}</p>
+          <IntroBody text={lesson.intro} />
         </header>
 
         {lesson.code && (

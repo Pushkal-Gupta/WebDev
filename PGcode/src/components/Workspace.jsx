@@ -4,9 +4,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useTopicProblems, filterByRoadmap, qk, useProblemCompanies, useSimilarProblems } from '../lib/queries';
 import Editor from '@monaco-editor/react';
-import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Play, CheckCircle, RotateCcw, Code2, FileText, Award, MessageSquare, TestTube, Lightbulb, Pin } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, CheckCircle, RotateCcw, Code2, FileText, Award, MessageSquare, TestTube, Lightbulb, Pin, Lock } from 'lucide-react';
 import SolutionView from './SolutionView';
-import ProblemVisualizer from './ProblemVisualizer';
+import LanguageIcon from './LanguageIcon';
 import HintsPanel from './HintsPanel';
 import Discussion from './Discussion';
 import StatusPill from './StatusPill';
@@ -18,7 +18,7 @@ import { Plus, X, GripVertical } from 'lucide-react';
 
 // Default order of tabs in the left strip. Persisted per-user in localStorage so
 // users can drag tabs into their preferred order.
-const DEFAULT_LEFT_TABS = ['description', 'hints', 'solution', 'visualize', 'submissions', 'discussion', 'testcase'];
+const DEFAULT_LEFT_TABS = ['description', 'hints', 'solution', 'submissions', 'discussion', 'testcase'];
 const TAB_ORDER_KEY = 'pgcode_workspace_tab_order';
 
 // Translate raw exec errors into actionable messages for the user.
@@ -42,10 +42,9 @@ function humanizeRunError(err) {
 import { generateTemplate, wrapWithDriver, buildStdin, compareOutput } from '../lib/driverCode';
 import { nextReviewAt } from '../lib/spacedRepetition';
 import { primaryTopicLabel } from '../lib/topicLabel';
-import { RICH_CONTENT } from '../content/problemContent';
 import '../styles/workspace.css';
 
-const VALID_LANGS = ['python', 'javascript', 'java', 'cpp'];
+const VALID_LANGS = ['python', 'javascript', 'java', 'cpp', 'c', 'go'];
 
 // Defensive: a few legacy rows have `tags`/`topics`/`constraints` entries that
 // got stored as `{name: "...", ...}` objects instead of plain strings (mostly
@@ -75,16 +74,6 @@ function fallbackStarter(lang, problemName) {
   if (lang === 'java') return `class Solution {\n    public void ${m}() {\n        // Write your solution here\n    }\n}\n`;
   if (lang === 'cpp') return `class Solution {\npublic:\n    void ${m}() {\n        // Write your solution here\n    }\n};\n`;
   return `// Write your solution for ${problemName || 'this problem'} here\n`;
-}
-
-// Mirror of the existence check inside ProblemVisualizer. Used to gate the
-// Visualize tab in the strip so problems without a viz don't show a dead tab.
-// Also shows the tab when test_cases exist (generic walkthrough fallback).
-function problemHasViz(problem) {
-  if (!problem) return false;
-  const viz = problem.viz_steps || RICH_CONTENT[problem.id]?.viz || null;
-  if (viz && Array.isArray(viz.frames) && viz.frames.length > 0) return true;
-  return Array.isArray(problem.test_cases) && problem.test_cases.length > 0;
 }
 
 // Map app theme preset → Monaco theme. Custom themes are registered on first
@@ -310,14 +299,6 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
     setDescHintsRevealed(0);
   }, [activeProblem?.id]);
 
-  // If the user lands on a problem without a visualization while the Visualize
-  // tab is selected, fall back to Description so they don't see a dead pane.
-  useEffect(() => {
-    if (leftTab === 'visualize' && activeProblem && !problemHasViz(activeProblem)) {
-      setLeftTab('description');
-    }
-  }, [leftTab, activeProblem]);
-
   // Topic info (cached)
   const { data: topic } = useQuery({
     queryKey: ['topic', categoryId],
@@ -521,14 +502,20 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
     }
   };
 
-  const VISIBLE_DEFAULT_COUNT = 10;
+  const SAMPLE_FALLBACK_COUNT = 3;
 
-  // Compute visible test case indices: first 3 + any pinned
+  // Sample = visible to the user. The rest are hidden and only the grader sees
+  // them on submit. Each test case carries an `is_sample` flag (backfilled by
+  // scripts/mark-sample-cases.js); for any legacy row missing the flag, fall
+  // back to the first 3 indices so the panel never renders empty.
   const visibleCaseIndices = React.useMemo(() => {
     if (!activeProblem?.test_cases?.length) return [];
     const total = activeProblem.test_cases.length;
-    const set = new Set();
-    for (let i = 0; i < Math.min(VISIBLE_DEFAULT_COUNT, total); i++) set.add(i);
+    const flagged = [];
+    for (let i = 0; i < total; i++) {
+      if (activeProblem.test_cases[i]?.is_sample === true) flagged.push(i);
+    }
+    const set = new Set(flagged.length ? flagged : Array.from({ length: Math.min(SAMPLE_FALLBACK_COUNT, total) }, (_, i) => i));
     pinnedCaseIndices.forEach(idx => { if (idx >= 0 && idx < total) set.add(idx); });
     return Array.from(set).sort((a, b) => a - b);
   }, [activeProblem?.test_cases, pinnedCaseIndices]);
@@ -843,7 +830,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
         if (!passed) {
           allPassed = false;
           failIdx = i;
-          const isHidden = i >= VISIBLE_DEFAULT_COUNT && !pinnedCaseIndices.includes(i);
+          const isHidden = !visibleCaseIndices.includes(i);
           // Show only the failing case (NeetCode/LeetCode style)
           setRunResult({
             status: 'wrong_answer',
@@ -1002,11 +989,14 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
     const onMove = (ev) => {
       const c = document.querySelector('.ws-main');
       if (!c) return;
-      const pct = startW + ((ev.clientX - startX) / c.offsetWidth) * 100;
-      if (pct >= 25 && pct <= 70) {
-        finalPct = pct;
-        setLeftWidth(pct);
-      }
+      const total = c.offsetWidth;
+      const MIN_LEFT_PX = 280;
+      const MIN_RIGHT_PX = 420;
+      const minPct = (MIN_LEFT_PX / total) * 100;
+      const maxPct = ((total - MIN_RIGHT_PX) / total) * 100;
+      const pct = Math.max(minPct, Math.min(maxPct, startW + ((ev.clientX - startX) / total) * 100));
+      finalPct = pct;
+      setLeftWidth(pct);
     };
     const onUp = () => {
       document.removeEventListener('mousemove', onMove);
@@ -1038,7 +1028,6 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
 
   const cleanedName = activeProblem.name.replace(/Pattern #(\d+)/, 'Problem #$1').replace(/Challenge #(\d+)/, 'Problem #$1');
   const displayName = activeProblem.leetcode_number ? `${activeProblem.leetcode_number}. ${cleanedName}` : cleanedName;
-  const hasVizForActive = problemHasViz(activeProblem);
 
   // Examples to render below the description. We prefer the seeded description's
   // own examples (lots of legacy problems embed them as HTML); if it has none,
@@ -1118,16 +1107,13 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
             })()}
           </div>
 
-          {/* LeetCode-style tabs — drag to reorder, order persists per-user.
-              Visualize is hidden when no walkthrough exists for this problem. */}
+          {/* LeetCode-style tabs — drag to reorder, order persists per-user. */}
           <div className="ws-left-tabs">
             {tabOrder.map(id => {
-              if (id === 'visualize' && !hasVizForActive) return null;
               const def = {
                 description: { label: 'Description', Icon: FileText },
                 hints: { label: 'Hints', Icon: Lightbulb },
                 solution: { label: 'Solution', Icon: Award },
-                visualize: { label: 'Visualize', Icon: Play },
                 submissions: { label: 'Submissions', Icon: Award },
                 discussion: { label: 'Discussion', Icon: MessageSquare },
                 testcase: { label: 'Testcase', Icon: TestTube },
@@ -1340,13 +1326,6 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
               </div>
             )}
 
-            {/* ── VISUALIZE TAB ── */}
-            {leftTab === 'visualize' && (
-              <div className="ws-solution">
-                <ProblemVisualizer problem={activeProblem} />
-              </div>
-            )}
-
             {/* ── SUBMISSIONS TAB ── */}
             {leftTab === 'submissions' && (
               <div className="ws-submissions">
@@ -1496,8 +1475,9 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                         <Plus size={12} /> Custom
                       </button>
                       {activeProblem.test_cases?.length > visibleCaseIndices.length && (
-                        <span className="ws-tc-hidden-count">
-                          + {activeProblem.test_cases.length - visibleCaseIndices.length} hidden
+                        <span className="ws-tc-hidden-badge" title="Hidden cases run only on Submit">
+                          <Lock size={11} />
+                          + {activeProblem.test_cases.length - visibleCaseIndices.length} hidden tests will run on submit
                         </span>
                       )}
                     </div>
@@ -1673,22 +1653,32 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                               + Add to test cases
                             </button>
                           )}
-                          <div className="ws-result-section">
-                            <div className="ws-result-label">Input</div>
-                            <div className="ws-result-value">
-                              {caseToShow.input.map((inp, j) => (
-                                <div key={j}>{inp.name} = {inp.value}</div>
-                              ))}
+                          {caseToShow.isHidden ? (
+                            <div className="ws-result-section">
+                              <div className="ws-result-value ws-result-hidden-note">
+                                <Lock size={12} /> Hidden test case {(caseToShow.originalIdx ?? 0) + 1} failed. Inputs are kept private — use the visible sample cases to debug.
+                              </div>
                             </div>
-                          </div>
-                          <div className="ws-result-section">
-                            <div className="ws-result-label">Output</div>
-                            <div className="ws-result-value">{caseToShow.output}</div>
-                          </div>
-                          <div className="ws-result-section">
-                            <div className="ws-result-label">Expected</div>
-                            <div className="ws-result-value">{caseToShow.expected}</div>
-                          </div>
+                          ) : (
+                            <>
+                              <div className="ws-result-section">
+                                <div className="ws-result-label">Input</div>
+                                <div className="ws-result-value">
+                                  {caseToShow.input.map((inp, j) => (
+                                    <div key={j}>{inp.name} = {inp.value}</div>
+                                  ))}
+                                </div>
+                              </div>
+                              <div className="ws-result-section">
+                                <div className="ws-result-label">Output</div>
+                                <div className="ws-result-value">{caseToShow.output}</div>
+                              </div>
+                              <div className="ws-result-section">
+                                <div className="ws-result-label">Expected</div>
+                                <div className="ws-result-value">{caseToShow.expected}</div>
+                              </div>
+                            </>
+                          )}
                         </>
                       );
                     })()}
@@ -1729,6 +1719,8 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                   { value: 'javascript', label: 'JavaScript' },
                   { value: 'java', label: 'Java' },
                   { value: 'cpp', label: 'C++' },
+                  { value: 'c', label: 'C' },
+                  { value: 'go', label: 'Go' },
                 ].map(opt => (
                   <button
                     key={opt.value}
@@ -1739,7 +1731,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                     onClick={() => onLangChange(opt.value)}
                     title={opt.label}
                   >
-                    <Code2 size={12} />
+                    <LanguageIcon lang={opt.value} size={12} />
                     <span className="ws-lang-pill-label">{opt.label}</span>
                   </button>
                 ))}
@@ -1753,7 +1745,10 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                     { value: 'javascript', label: 'JavaScript' },
                     { value: 'java', label: 'Java' },
                     { value: 'cpp', label: 'C++' },
+                    { value: 'c', label: 'C' },
+                    { value: 'go', label: 'Go' },
                   ]}
+                  renderPrefix={(o) => <LanguageIcon lang={o.value} size={12} />}
                   size="sm"
                 />
               </div>
