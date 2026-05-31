@@ -20,5 +20,102 @@
     "[3,0,0,0,0,2]"
   ],
   "content_signature": "-7hwjcz",
-  "fetched_at": "2026-05-21T06:26:20.815Z"
+  "fetched_at": "2026-05-30T06:57:13.487Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int eatenApples(vector<int>& apples, vector<int>& days) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int eatenApples(int[] apples, int[] days) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def eatenApples(self, apples: List[int], days: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def eatenApples(self, apples, days):\n        \"\"\"\n        :type apples: List[int]\n        :type days: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} apples\n * @param {number[]} days\n * @return {number}\n */\nvar eatenApples = function(apples, days) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function eatenApples(apples: number[], days: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int EatenApples(int[] apples, int[] days) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int eatenApples(int* apples, int applesSize, int* days, int daysSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func eatenApples(apples []int, days []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun eatenApples(apples: IntArray, days: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func eatenApples(_ apples: [Int], _ days: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn eaten_apples(apples: Vec<i32>, days: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} apples\n# @param {Integer[]} days\n# @return {Integer}\ndef eaten_apples(apples, days)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $apples\n     * @param Integer[] $days\n     * @return Integer\n     */\n    function eatenApples($apples, $days) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int eatenApples(List<int> apples, List<int> days) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def eatenApples(apples: Array[Int], days: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec eaten_apples(apples :: [integer], days :: [integer]) :: integer\n  def eaten_apples(apples, days) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec eaten_apples(Apples :: [integer()], Days :: [integer()]) -> integer().\neaten_apples(Apples, Days) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (eaten-apples apples days)\n  (-> (listof exact-integer?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

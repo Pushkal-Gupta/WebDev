@@ -23,5 +23,102 @@
     "[[1,4],[2,8]]"
   ],
   "content_signature": "-cjxkj1",
-  "fetched_at": "2026-05-21T07:54:09.379Z"
+  "fetched_at": "2026-05-30T05:50:32.150Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int countGoodSubseq(vector<int>& nums, int p, vector<vector<int>>& queries) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int countGoodSubseq(int[] nums, int p, int[][] queries) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def countGoodSubseq(self, nums: list[int], p: int, queries: list[list[int]]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def countGoodSubseq(self, nums, p, queries):\n        \"\"\"\n        :type nums: List[int]\n        :type p: int\n        :type queries: List[List[int]]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {number} p\n * @param {number[][]} queries\n * @return {number}\n */\nvar countGoodSubseq = function(nums, p, queries) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function countGoodSubseq(nums: number[], p: number, queries: number[][]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int CountGoodSubseq(int[] nums, int p, int[][] queries) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int countGoodSubseq(int* nums, int numsSize, int p, int** queries, int queriesSize, int* queriesColSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func countGoodSubseq(nums []int, p int, queries [][]int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun countGoodSubseq(nums: IntArray, p: Int, queries: Array<IntArray>): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func countGoodSubseq(_ nums: [Int], _ p: Int, _ queries: [[Int]]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn count_good_subseq(nums: Vec<i32>, p: i32, queries: Vec<Vec<i32>>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums\n# @param {Integer} p\n# @param {Integer[][]} queries\n# @return {Integer}\ndef count_good_subseq(nums, p, queries)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums\n     * @param Integer $p\n     * @param Integer[][] $queries\n     * @return Integer\n     */\n    function countGoodSubseq($nums, $p, $queries) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int countGoodSubseq(List<int> nums, int p, List<List<int>> queries) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def countGoodSubseq(nums: Array[Int], p: Int, queries: Array[Array[Int]]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec count_good_subseq(nums :: [integer], p :: integer, queries :: [[integer]]) :: integer\n  def count_good_subseq(nums, p, queries) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec count_good_subseq(Nums :: [integer()], P :: integer(), Queries :: [[integer()]]) -> integer().\ncount_good_subseq(Nums, P, Queries) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (count-good-subseq nums p queries)\n  (-> (listof exact-integer?) exact-integer? (listof (listof exact-integer?)) exact-integer?)\n  )"
+    }
+  ]
 }

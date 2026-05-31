@@ -12,5 +12,32 @@
     "{\"headers\":{\"Samples\":[\"sample_id\",\"dna_sequence\",\"species\"]},\"rows\":{\"Samples\":[[1,\"ATGCTAGCTAGCTAA\",\"Human\"],[2,\"GGGTCAATCATC\",\"Human\"],[3,\"ATATATCGTAGCTA\",\"Human\"],[4,\"ATGGGGTCATCATAA\",\"Mouse\"],[5,\"TCAGTCAGTCAG\",\"Mouse\"],[6,\"ATATCGCGCTAG\",\"Zebrafish\"],[7,\"CGTATGCGTCGTA\",\"Zebrafish\"]]}}"
   ],
   "content_signature": "p5ne8t",
-  "fetched_at": "2026-05-21T07:41:11.436Z"
+  "fetched_at": "2026-05-30T05:16:14.950Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef analyze_dna_patterns(samples: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

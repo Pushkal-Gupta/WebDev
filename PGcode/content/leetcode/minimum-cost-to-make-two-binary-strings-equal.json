@@ -34,5 +34,102 @@
     "5"
   ],
   "content_signature": "u9lvf3",
-  "fetched_at": "2026-05-21T07:50:27.451Z"
+  "fetched_at": "2026-05-30T07:26:05.695Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    long long minimumCost(string s, string t, int flipCost, int swapCost, int crossCost) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public long minimumCost(String s, String t, int flipCost, int swapCost, int crossCost) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minimumCost(self, s: str, t: str, flipCost: int, swapCost: int, crossCost: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minimumCost(self, s, t, flipCost, swapCost, crossCost):\n        \"\"\"\n        :type s: str\n        :type t: str\n        :type flipCost: int\n        :type swapCost: int\n        :type crossCost: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} s\n * @param {string} t\n * @param {number} flipCost\n * @param {number} swapCost\n * @param {number} crossCost\n * @return {number}\n */\nvar minimumCost = function(s, t, flipCost, swapCost, crossCost) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minimumCost(s: string, t: string, flipCost: number, swapCost: number, crossCost: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public long MinimumCost(string s, string t, int flipCost, int swapCost, int crossCost) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "long long minimumCost(char* s, char* t, int flipCost, int swapCost, int crossCost) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minimumCost(s string, t string, flipCost int, swapCost int, crossCost int) int64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minimumCost(s: String, t: String, flipCost: Int, swapCost: Int, crossCost: Int): Long {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minimumCost(_ s: String, _ t: String, _ flipCost: Int, _ swapCost: Int, _ crossCost: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn minimum_cost(s: String, t: String, flip_cost: i32, swap_cost: i32, cross_cost: i32) -> i64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} s\n# @param {String} t\n# @param {Integer} flip_cost\n# @param {Integer} swap_cost\n# @param {Integer} cross_cost\n# @return {Integer}\ndef minimum_cost(s, t, flip_cost, swap_cost, cross_cost)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $s\n     * @param String $t\n     * @param Integer $flipCost\n     * @param Integer $swapCost\n     * @param Integer $crossCost\n     * @return Integer\n     */\n    function minimumCost($s, $t, $flipCost, $swapCost, $crossCost) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minimumCost(String s, String t, int flipCost, int swapCost, int crossCost) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minimumCost(s: String, t: String, flipCost: Int, swapCost: Int, crossCost: Int): Long = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec minimum_cost(s :: String.t, t :: String.t, flip_cost :: integer, swap_cost :: integer, cross_cost :: integer) :: integer\n  def minimum_cost(s, t, flip_cost, swap_cost, cross_cost) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec minimum_cost(S :: unicode:unicode_binary(), T :: unicode:unicode_binary(), FlipCost :: integer(), SwapCost :: integer(), CrossCost :: integer()) -> integer().\nminimum_cost(S, T, FlipCost, SwapCost, CrossCost) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (minimum-cost s t flipCost swapCost crossCost)\n  (-> string? string? exact-integer? exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

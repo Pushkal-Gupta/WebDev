@@ -20,5 +20,102 @@
     "1"
   ],
   "content_signature": "wx4quy",
-  "fetched_at": "2026-05-21T06:13:13.951Z"
+  "fetched_at": "2026-05-30T05:32:14.457Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int maxSatisfied(vector<int>& customers, vector<int>& grumpy, int minutes) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int maxSatisfied(int[] customers, int[] grumpy, int minutes) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def maxSatisfied(self, customers: List[int], grumpy: List[int], minutes: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def maxSatisfied(self, customers, grumpy, minutes):\n        \"\"\"\n        :type customers: List[int]\n        :type grumpy: List[int]\n        :type minutes: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} customers\n * @param {number[]} grumpy\n * @param {number} minutes\n * @return {number}\n */\nvar maxSatisfied = function(customers, grumpy, minutes) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function maxSatisfied(customers: number[], grumpy: number[], minutes: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MaxSatisfied(int[] customers, int[] grumpy, int minutes) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int maxSatisfied(int* customers, int customersSize, int* grumpy, int grumpySize, int minutes) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func maxSatisfied(customers []int, grumpy []int, minutes int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun maxSatisfied(customers: IntArray, grumpy: IntArray, minutes: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func maxSatisfied(_ customers: [Int], _ grumpy: [Int], _ minutes: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn max_satisfied(customers: Vec<i32>, grumpy: Vec<i32>, minutes: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} customers\n# @param {Integer[]} grumpy\n# @param {Integer} minutes\n# @return {Integer}\ndef max_satisfied(customers, grumpy, minutes)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $customers\n     * @param Integer[] $grumpy\n     * @param Integer $minutes\n     * @return Integer\n     */\n    function maxSatisfied($customers, $grumpy, $minutes) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int maxSatisfied(List<int> customers, List<int> grumpy, int minutes) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def maxSatisfied(customers: Array[Int], grumpy: Array[Int], minutes: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec max_satisfied(customers :: [integer], grumpy :: [integer], minutes :: integer) :: integer\n  def max_satisfied(customers, grumpy, minutes) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec max_satisfied(Customers :: [integer()], Grumpy :: [integer()], Minutes :: integer()) -> integer().\nmax_satisfied(Customers, Grumpy, Minutes) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (max-satisfied customers grumpy minutes)\n  (-> (listof exact-integer?) (listof exact-integer?) exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

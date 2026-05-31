@@ -20,5 +20,102 @@
     "[0,1,0,1]"
   ],
   "content_signature": "ft89ww",
-  "fetched_at": "2026-05-21T07:15:49.158Z"
+  "fetched_at": "2026-05-30T05:32:15.976Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    char kthCharacter(long long k, vector<int>& operations) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public char kthCharacter(long k, int[] operations) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def kthCharacter(self, k: int, operations: List[int]) -> str:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def kthCharacter(self, k, operations):\n        \"\"\"\n        :type k: int\n        :type operations: List[int]\n        :rtype: str\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} k\n * @param {number[]} operations\n * @return {character}\n */\nvar kthCharacter = function(k, operations) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function kthCharacter(k: number, operations: number[]): string {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public char KthCharacter(long k, int[] operations) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "char kthCharacter(long long k, int* operations, int operationsSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func kthCharacter(k int64, operations []int) byte {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun kthCharacter(k: Long, operations: IntArray): Char {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func kthCharacter(_ k: Int, _ operations: [Int]) -> Character {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn kth_character(k: i64, operations: Vec<i32>) -> char {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} k\n# @param {Integer[]} operations\n# @return {Character}\ndef kth_character(k, operations)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $k\n     * @param Integer[] $operations\n     * @return String\n     */\n    function kthCharacter($k, $operations) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  String kthCharacter(int k, List<int> operations) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def kthCharacter(k: Long, operations: Array[Int]): Char = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec kth_character(k :: integer, operations :: [integer]) :: char\n  def kth_character(k, operations) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec kth_character(K :: integer(), Operations :: [integer()]) -> char().\nkth_character(K, Operations) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (kth-character k operations)\n  (-> exact-integer? (listof exact-integer?) char?)\n  )"
+    }
+  ]
 }

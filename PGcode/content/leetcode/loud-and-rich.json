@@ -18,5 +18,102 @@
     "[0]"
   ],
   "content_signature": "-5ndy11",
-  "fetched_at": "2026-05-21T06:07:49.069Z"
+  "fetched_at": "2026-05-30T06:53:10.186Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> loudAndRich(vector<vector<int>>& richer, vector<int>& quiet) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] loudAndRich(int[][] richer, int[] quiet) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def loudAndRich(self, richer: List[List[int]], quiet: List[int]) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def loudAndRich(self, richer, quiet):\n        \"\"\"\n        :type richer: List[List[int]]\n        :type quiet: List[int]\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} richer\n * @param {number[]} quiet\n * @return {number[]}\n */\nvar loudAndRich = function(richer, quiet) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function loudAndRich(richer: number[][], quiet: number[]): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] LoudAndRich(int[][] richer, int[] quiet) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* loudAndRich(int** richer, int richerSize, int* richerColSize, int* quiet, int quietSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func loudAndRich(richer [][]int, quiet []int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun loudAndRich(richer: Array<IntArray>, quiet: IntArray): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func loudAndRich(_ richer: [[Int]], _ quiet: [Int]) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn loud_and_rich(richer: Vec<Vec<i32>>, quiet: Vec<i32>) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} richer\n# @param {Integer[]} quiet\n# @return {Integer[]}\ndef loud_and_rich(richer, quiet)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $richer\n     * @param Integer[] $quiet\n     * @return Integer[]\n     */\n    function loudAndRich($richer, $quiet) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> loudAndRich(List<List<int>> richer, List<int> quiet) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def loudAndRich(richer: Array[Array[Int]], quiet: Array[Int]): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec loud_and_rich(richer :: [[integer]], quiet :: [integer]) :: [integer]\n  def loud_and_rich(richer, quiet) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec loud_and_rich(Richer :: [[integer()]], Quiet :: [integer()]) -> [integer()].\nloud_and_rich(Richer, Quiet) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (loud-and-rich richer quiet)\n  (-> (listof (listof exact-integer?)) (listof exact-integer?) (listof exact-integer?))\n  )"
+    }
+  ]
 }

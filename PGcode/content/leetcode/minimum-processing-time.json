@@ -20,5 +20,102 @@
     "[2,3,1,2,5,8,4,3]"
   ],
   "content_signature": "q8qcjo",
-  "fetched_at": "2026-05-21T07:07:13.859Z"
+  "fetched_at": "2026-05-30T05:37:28.663Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int minProcessingTime(vector<int>& processorTime, vector<int>& tasks) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int minProcessingTime(List<Integer> processorTime, List<Integer> tasks) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minProcessingTime(self, processorTime: List[int], tasks: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minProcessingTime(self, processorTime, tasks):\n        \"\"\"\n        :type processorTime: List[int]\n        :type tasks: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} processorTime\n * @param {number[]} tasks\n * @return {number}\n */\nvar minProcessingTime = function(processorTime, tasks) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minProcessingTime(processorTime: number[], tasks: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MinProcessingTime(IList<int> processorTime, IList<int> tasks) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int minProcessingTime(int* processorTime, int processorTimeSize, int* tasks, int tasksSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minProcessingTime(processorTime []int, tasks []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minProcessingTime(processorTime: List<Int>, tasks: List<Int>): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minProcessingTime(_ processorTime: [Int], _ tasks: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn min_processing_time(processor_time: Vec<i32>, tasks: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} processor_time\n# @param {Integer[]} tasks\n# @return {Integer}\ndef min_processing_time(processor_time, tasks)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $processorTime\n     * @param Integer[] $tasks\n     * @return Integer\n     */\n    function minProcessingTime($processorTime, $tasks) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minProcessingTime(List<int> processorTime, List<int> tasks) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minProcessingTime(processorTime: List[Int], tasks: List[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec min_processing_time(processor_time :: [integer], tasks :: [integer]) :: integer\n  def min_processing_time(processor_time, tasks) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec min_processing_time(ProcessorTime :: [integer()], Tasks :: [integer()]) -> integer().\nmin_processing_time(ProcessorTime, Tasks) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (min-processing-time processorTime tasks)\n  (-> (listof exact-integer?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

@@ -24,5 +24,102 @@
     "1993"
   ],
   "content_signature": "j2inic",
-  "fetched_at": "2026-05-21T06:15:15.611Z"
+  "fetched_at": "2026-05-30T07:34:27.755Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    string dayOfTheWeek(int day, int month, int year) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public String dayOfTheWeek(int day, int month, int year) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def dayOfTheWeek(self, day: int, month: int, year: int) -> str:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def dayOfTheWeek(self, day, month, year):\n        \"\"\"\n        :type day: int\n        :type month: int\n        :type year: int\n        :rtype: str\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} day\n * @param {number} month\n * @param {number} year\n * @return {string}\n */\nvar dayOfTheWeek = function(day, month, year) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function dayOfTheWeek(day: number, month: number, year: number): string {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public string DayOfTheWeek(int day, int month, int year) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "char* dayOfTheWeek(int day, int month, int year) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func dayOfTheWeek(day int, month int, year int) string {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun dayOfTheWeek(day: Int, month: Int, year: Int): String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func dayOfTheWeek(_ day: Int, _ month: Int, _ year: Int) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn day_of_the_week(day: i32, month: i32, year: i32) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} day\n# @param {Integer} month\n# @param {Integer} year\n# @return {String}\ndef day_of_the_week(day, month, year)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $day\n     * @param Integer $month\n     * @param Integer $year\n     * @return String\n     */\n    function dayOfTheWeek($day, $month, $year) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  String dayOfTheWeek(int day, int month, int year) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def dayOfTheWeek(day: Int, month: Int, year: Int): String = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec day_of_the_week(day :: integer, month :: integer, year :: integer) :: String.t\n  def day_of_the_week(day, month, year) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec day_of_the_week(Day :: integer(), Month :: integer(), Year :: integer()) -> unicode:unicode_binary().\nday_of_the_week(Day, Month, Year) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (day-of-the-week day month year)\n  (-> exact-integer? exact-integer? exact-integer? string?)\n  )"
+    }
+  ]
 }

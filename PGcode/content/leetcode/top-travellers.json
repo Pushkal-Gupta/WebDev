@@ -12,5 +12,32 @@
     "{\"headers\":{\"Users\":[\"id\",\"name\"],\"Rides\":[\"id\",\"user_id\",\"distance\"]},\"rows\":{\"Users\":[[1,\"Alice\"],[2,\"Bob\"],[3,\"Alex\"],[4,\"Donald\"],[7,\"Lee\"],[13,\"Jonathan\"],[19,\"Elvis\"]],\"Rides\":[[1,1,120],[2,2,317],[3,3,222],[4,7,100],[5,13,312],[6,19,50],[7,7,120],[8,19,400],[9,7,230]]}}"
   ],
   "content_signature": "37bd93",
-  "fetched_at": "2026-05-21T06:19:55.955Z"
+  "fetched_at": "2026-05-30T05:38:19.656Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef top_travellers(users: pd.DataFrame, rides: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

@@ -20,5 +20,17 @@
     "function (a, b) { return ({...a, ...b}); }"
   ],
   "content_signature": "-kgzz2e",
-  "fetched_at": "2026-05-21T07:02:01.165Z"
+  "fetched_at": "2026-05-30T07:22:32.857Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {Function} fn\n * @return {Function}\n */\nfunction memoize(fn) {\n    \n    return function() {\n        \n    }\n}\n\n\n/** \n * let callCount = 0;\n * const memoizedFn = memoize(function (a, b) {\n *\t callCount += 1;\n *   return a + b;\n * })\n * memoizedFn(2, 3) // 5\n * memoizedFn(2, 3) // 5\n * console.log(callCount) // 1 \n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "type Fn = (...params: any) => any\n\nfunction memoize(fn: Fn): Fn {\n    \n    return function() {\n        \n    }\n}\n\n\n/** \n * let callCount = 0;\n * const memoizedFn = memoize(function (a, b) {\n *\t callCount += 1;\n *   return a + b;\n * })\n * memoizedFn(2, 3) // 5\n * memoizedFn(2, 3) // 5\n * console.log(callCount) // 1 \n */"
+    }
+  ]
 }

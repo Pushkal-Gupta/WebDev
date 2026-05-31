@@ -20,5 +20,102 @@
     "[3,1,2]"
   ],
   "content_signature": "-gs5x4d",
-  "fetched_at": "2026-05-21T07:02:35.058Z"
+  "fetched_at": "2026-05-30T07:33:42.269Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> findThePrefixCommonArray(vector<int>& A, vector<int>& B) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] findThePrefixCommonArray(int[] A, int[] B) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def findThePrefixCommonArray(self, A: List[int], B: List[int]) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def findThePrefixCommonArray(self, A, B):\n        \"\"\"\n        :type A: List[int]\n        :type B: List[int]\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} A\n * @param {number[]} B\n * @return {number[]}\n */\nvar findThePrefixCommonArray = function(A, B) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function findThePrefixCommonArray(A: number[], B: number[]): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] FindThePrefixCommonArray(int[] A, int[] B) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* findThePrefixCommonArray(int* A, int ASize, int* B, int BSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func findThePrefixCommonArray(A []int, B []int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun findThePrefixCommonArray(A: IntArray, B: IntArray): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func findThePrefixCommonArray(_ A: [Int], _ B: [Int]) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn find_the_prefix_common_array(a: Vec<i32>, b: Vec<i32>) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} a\n# @param {Integer[]} b\n# @return {Integer[]}\ndef find_the_prefix_common_array(a, b)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $A\n     * @param Integer[] $B\n     * @return Integer[]\n     */\n    function findThePrefixCommonArray($A, $B) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> findThePrefixCommonArray(List<int> A, List<int> B) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def findThePrefixCommonArray(A: Array[Int], B: Array[Int]): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec find_the_prefix_common_array(a :: [integer], b :: [integer]) :: [integer]\n  def find_the_prefix_common_array(a, b) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec find_the_prefix_common_array(A :: [integer()], B :: [integer()]) -> [integer()].\nfind_the_prefix_common_array(A, B) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (find-the-prefix-common-array A B)\n  (-> (listof exact-integer?) (listof exact-integer?) (listof exact-integer?))\n  )"
+    }
+  ]
 }

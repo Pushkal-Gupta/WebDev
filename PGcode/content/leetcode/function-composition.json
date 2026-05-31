@@ -18,5 +18,17 @@
     "42"
   ],
   "content_signature": "1a79vm",
-  "fetched_at": "2026-05-21T07:01:59.549Z"
+  "fetched_at": "2026-05-30T05:51:00.714Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {Function[]} functions\n * @return {Function}\n */\nvar compose = function(functions) {\n    \n    return function(x) {\n        \n    }\n};\n\n/**\n * const fn = compose([x => x + 1, x => 2 * x])\n * fn(4) // 9\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "type F = (x: number) => number;\n\nfunction compose(functions: F[]): F {\n    \n    return function(x) {\n        \n    }\n};\n\n/**\n * const fn = compose([x => x + 1, x => 2 * x])\n * fn(4) // 9\n */"
+    }
+  ]
 }

@@ -21,5 +21,17 @@
     "25"
   ],
   "content_signature": "-x8rc2z",
-  "fetched_at": "2026-05-21T07:01:56.510Z"
+  "fetched_at": "2026-05-30T06:45:40.863Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {Function} fn\n * @param {number} init\n * @return {number}\n */\nvar reduce = function(nums, fn, init) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "type Fn = (accum: number, curr: number) => number\n\nfunction reduce(nums: number[], fn: Fn, init: number): number {\n    \n};"
+    }
+  ]
 }

@@ -21,5 +21,102 @@
     "5"
   ],
   "content_signature": "lp3t9v",
-  "fetched_at": "2026-05-21T06:30:44.519Z"
+  "fetched_at": "2026-05-30T07:21:31.549Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> earliestAndLatest(int n, int firstPlayer, int secondPlayer) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] earliestAndLatest(int n, int firstPlayer, int secondPlayer) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def earliestAndLatest(self, n: int, firstPlayer: int, secondPlayer: int) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def earliestAndLatest(self, n, firstPlayer, secondPlayer):\n        \"\"\"\n        :type n: int\n        :type firstPlayer: int\n        :type secondPlayer: int\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number} firstPlayer\n * @param {number} secondPlayer\n * @return {number[]}\n */\nvar earliestAndLatest = function(n, firstPlayer, secondPlayer) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function earliestAndLatest(n: number, firstPlayer: number, secondPlayer: number): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] EarliestAndLatest(int n, int firstPlayer, int secondPlayer) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* earliestAndLatest(int n, int firstPlayer, int secondPlayer, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func earliestAndLatest(n int, firstPlayer int, secondPlayer int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun earliestAndLatest(n: Int, firstPlayer: Int, secondPlayer: Int): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func earliestAndLatest(_ n: Int, _ firstPlayer: Int, _ secondPlayer: Int) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn earliest_and_latest(n: i32, first_player: i32, second_player: i32) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer} first_player\n# @param {Integer} second_player\n# @return {Integer[]}\ndef earliest_and_latest(n, first_player, second_player)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer $firstPlayer\n     * @param Integer $secondPlayer\n     * @return Integer[]\n     */\n    function earliestAndLatest($n, $firstPlayer, $secondPlayer) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> earliestAndLatest(int n, int firstPlayer, int secondPlayer) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def earliestAndLatest(n: Int, firstPlayer: Int, secondPlayer: Int): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec earliest_and_latest(n :: integer, first_player :: integer, second_player :: integer) :: [integer]\n  def earliest_and_latest(n, first_player, second_player) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec earliest_and_latest(N :: integer(), FirstPlayer :: integer(), SecondPlayer :: integer()) -> [integer()].\nearliest_and_latest(N, FirstPlayer, SecondPlayer) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (earliest-and-latest n firstPlayer secondPlayer)\n  (-> exact-integer? exact-integer? exact-integer? (listof exact-integer?))\n  )"
+    }
+  ]
 }

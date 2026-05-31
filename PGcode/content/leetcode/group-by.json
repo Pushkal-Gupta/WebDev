@@ -19,5 +19,17 @@
     "function (n) { return String(n > 5); }"
   ],
   "content_signature": "-ozji8y",
-  "fetched_at": "2026-05-21T07:02:02.737Z"
+  "fetched_at": "2026-05-30T05:52:06.188Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {Function} fn\n * @return {Object}\n */\nArray.prototype.groupBy = function(fn) {\n    \n};\n\n/**\n * [1,2,3].groupBy(String) // {\"1\":[1],\"2\":[2],\"3\":[3]}\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "interface Array<T> {\n    groupBy(fn: (item: T) => string): Record<string, T[]>\n}\n\n\nArray.prototype.groupBy = function(fn) {\n    \n}\n\n/**\n * [1,2,3].groupBy(String) // {\"1\":[1],\"2\":[2],\"3\":[3]}\n */"
+    }
+  ]
 }

@@ -28,5 +28,102 @@
     "0"
   ],
   "content_signature": "-tqyjm3",
-  "fetched_at": "2026-05-21T07:54:44.050Z"
+  "fetched_at": "2026-05-30T05:40:23.562Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int minimumThreshold(int n, vector<vector<int>>& edges, int source, int target, int k) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int minimumThreshold(int n, int[][] edges, int source, int target, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minimumThreshold(self, n: int, edges: List[List[int]], source: int, target: int, k: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minimumThreshold(self, n, edges, source, target, k):\n        \"\"\"\n        :type n: int\n        :type edges: List[List[int]]\n        :type source: int\n        :type target: int\n        :type k: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number[][]} edges\n * @param {number} source\n * @param {number} target\n * @param {number} k\n * @return {number}\n */\nvar minimumThreshold = function(n, edges, source, target, k) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minimumThreshold(n: number, edges: number[][], source: number, target: number, k: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MinimumThreshold(int n, int[][] edges, int source, int target, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int minimumThreshold(int n, int** edges, int edgesSize, int* edgesColSize, int source, int target, int k) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minimumThreshold(n int, edges [][]int, source int, target int, k int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minimumThreshold(n: Int, edges: Array<IntArray>, source: Int, target: Int, k: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minimumThreshold(_ n: Int, _ edges: [[Int]], _ source: Int, _ target: Int, _ k: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn minimum_threshold(n: i32, edges: Vec<Vec<i32>>, source: i32, target: i32, k: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer[][]} edges\n# @param {Integer} source\n# @param {Integer} target\n# @param {Integer} k\n# @return {Integer}\ndef minimum_threshold(n, edges, source, target, k)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer[][] $edges\n     * @param Integer $source\n     * @param Integer $target\n     * @param Integer $k\n     * @return Integer\n     */\n    function minimumThreshold($n, $edges, $source, $target, $k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minimumThreshold(int n, List<List<int>> edges, int source, int target, int k) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minimumThreshold(n: Int, edges: Array[Array[Int]], source: Int, target: Int, k: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec minimum_threshold(n :: integer, edges :: [[integer]], source :: integer, target :: integer, k :: integer) :: integer\n  def minimum_threshold(n, edges, source, target, k) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec minimum_threshold(N :: integer(), Edges :: [[integer()]], Source :: integer(), Target :: integer(), K :: integer()) -> integer().\nminimum_threshold(N, Edges, Source, Target, K) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (minimum-threshold n edges source target k)\n  (-> exact-integer? (listof (listof exact-integer?)) exact-integer? exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

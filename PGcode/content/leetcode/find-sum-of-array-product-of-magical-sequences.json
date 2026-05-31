@@ -32,5 +32,102 @@
     "[28]"
   ],
   "content_signature": "-l91y3r",
-  "fetched_at": "2026-05-21T07:42:52.113Z"
+  "fetched_at": "2026-05-30T05:28:35.868Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int magicalSum(int m, int k, vector<int>& nums) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int magicalSum(int m, int k, int[] nums) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def magicalSum(self, m: int, k: int, nums: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def magicalSum(self, m, k, nums):\n        \"\"\"\n        :type m: int\n        :type k: int\n        :type nums: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} m\n * @param {number} k\n * @param {number[]} nums\n * @return {number}\n */\nvar magicalSum = function(m, k, nums) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function magicalSum(m: number, k: number, nums: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MagicalSum(int m, int k, int[] nums) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int magicalSum(int m, int k, int* nums, int numsSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func magicalSum(m int, k int, nums []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun magicalSum(m: Int, k: Int, nums: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func magicalSum(_ m: Int, _ k: Int, _ nums: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn magical_sum(m: i32, k: i32, nums: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} m\n# @param {Integer} k\n# @param {Integer[]} nums\n# @return {Integer}\ndef magical_sum(m, k, nums)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $m\n     * @param Integer $k\n     * @param Integer[] $nums\n     * @return Integer\n     */\n    function magicalSum($m, $k, $nums) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int magicalSum(int m, int k, List<int> nums) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def magicalSum(m: Int, k: Int, nums: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec magical_sum(m :: integer, k :: integer, nums :: [integer]) :: integer\n  def magical_sum(m, k, nums) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec magical_sum(M :: integer(), K :: integer(), Nums :: [integer()]) -> integer().\nmagical_sum(M, K, Nums) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (magical-sum m k nums)\n  (-> exact-integer? exact-integer? (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

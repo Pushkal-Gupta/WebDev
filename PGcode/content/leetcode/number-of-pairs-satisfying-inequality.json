@@ -27,5 +27,102 @@
     "-1"
   ],
   "content_signature": "58wb47",
-  "fetched_at": "2026-05-21T06:42:25.161Z"
+  "fetched_at": "2026-05-30T06:38:24.773Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    long long numberOfPairs(vector<int>& nums1, vector<int>& nums2, int diff) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public long numberOfPairs(int[] nums1, int[] nums2, int diff) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def numberOfPairs(self, nums1: List[int], nums2: List[int], diff: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def numberOfPairs(self, nums1, nums2, diff):\n        \"\"\"\n        :type nums1: List[int]\n        :type nums2: List[int]\n        :type diff: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums1\n * @param {number[]} nums2\n * @param {number} diff\n * @return {number}\n */\nvar numberOfPairs = function(nums1, nums2, diff) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function numberOfPairs(nums1: number[], nums2: number[], diff: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public long NumberOfPairs(int[] nums1, int[] nums2, int diff) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "long long numberOfPairs(int* nums1, int nums1Size, int* nums2, int nums2Size, int diff) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func numberOfPairs(nums1 []int, nums2 []int, diff int) int64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun numberOfPairs(nums1: IntArray, nums2: IntArray, diff: Int): Long {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func numberOfPairs(_ nums1: [Int], _ nums2: [Int], _ diff: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn number_of_pairs(nums1: Vec<i32>, nums2: Vec<i32>, diff: i32) -> i64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums1\n# @param {Integer[]} nums2\n# @param {Integer} diff\n# @return {Integer}\ndef number_of_pairs(nums1, nums2, diff)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums1\n     * @param Integer[] $nums2\n     * @param Integer $diff\n     * @return Integer\n     */\n    function numberOfPairs($nums1, $nums2, $diff) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int numberOfPairs(List<int> nums1, List<int> nums2, int diff) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def numberOfPairs(nums1: Array[Int], nums2: Array[Int], diff: Int): Long = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec number_of_pairs(nums1 :: [integer], nums2 :: [integer], diff :: integer) :: integer\n  def number_of_pairs(nums1, nums2, diff) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec number_of_pairs(Nums1 :: [integer()], Nums2 :: [integer()], Diff :: integer()) -> integer().\nnumber_of_pairs(Nums1, Nums2, Diff) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (number-of-pairs nums1 nums2 diff)\n  (-> (listof exact-integer?) (listof exact-integer?) exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

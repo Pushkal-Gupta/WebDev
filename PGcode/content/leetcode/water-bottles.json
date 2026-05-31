@@ -18,5 +18,102 @@
     "4"
   ],
   "content_signature": "-9dqkif",
-  "fetched_at": "2026-05-21T06:22:15.858Z"
+  "fetched_at": "2026-05-30T05:44:15.132Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int numWaterBottles(int numBottles, int numExchange) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int numWaterBottles(int numBottles, int numExchange) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def numWaterBottles(self, numBottles: int, numExchange: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def numWaterBottles(self, numBottles, numExchange):\n        \"\"\"\n        :type numBottles: int\n        :type numExchange: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} numBottles\n * @param {number} numExchange\n * @return {number}\n */\nvar numWaterBottles = function(numBottles, numExchange) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function numWaterBottles(numBottles: number, numExchange: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int NumWaterBottles(int numBottles, int numExchange) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int numWaterBottles(int numBottles, int numExchange) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func numWaterBottles(numBottles int, numExchange int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun numWaterBottles(numBottles: Int, numExchange: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func numWaterBottles(_ numBottles: Int, _ numExchange: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn num_water_bottles(num_bottles: i32, num_exchange: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} num_bottles\n# @param {Integer} num_exchange\n# @return {Integer}\ndef num_water_bottles(num_bottles, num_exchange)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $numBottles\n     * @param Integer $numExchange\n     * @return Integer\n     */\n    function numWaterBottles($numBottles, $numExchange) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int numWaterBottles(int numBottles, int numExchange) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def numWaterBottles(numBottles: Int, numExchange: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec num_water_bottles(num_bottles :: integer, num_exchange :: integer) :: integer\n  def num_water_bottles(num_bottles, num_exchange) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec num_water_bottles(NumBottles :: integer(), NumExchange :: integer()) -> integer().\nnum_water_bottles(NumBottles, NumExchange) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (num-water-bottles numBottles numExchange)\n  (-> exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

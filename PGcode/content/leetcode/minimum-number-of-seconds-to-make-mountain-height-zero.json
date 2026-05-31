@@ -24,5 +24,102 @@
     "[1]"
   ],
   "content_signature": "-5nv2vl",
-  "fetched_at": "2026-05-21T07:15:29.763Z"
+  "fetched_at": "2026-05-30T05:14:38.767Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    long long minNumberOfSeconds(int mountainHeight, vector<int>& workerTimes) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public long minNumberOfSeconds(int mountainHeight, int[] workerTimes) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minNumberOfSeconds(self, mountainHeight: int, workerTimes: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minNumberOfSeconds(self, mountainHeight, workerTimes):\n        \"\"\"\n        :type mountainHeight: int\n        :type workerTimes: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} mountainHeight\n * @param {number[]} workerTimes\n * @return {number}\n */\nvar minNumberOfSeconds = function(mountainHeight, workerTimes) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minNumberOfSeconds(mountainHeight: number, workerTimes: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public long MinNumberOfSeconds(int mountainHeight, int[] workerTimes) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "long long minNumberOfSeconds(int mountainHeight, int* workerTimes, int workerTimesSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minNumberOfSeconds(mountainHeight int, workerTimes []int) int64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minNumberOfSeconds(mountainHeight: Int, workerTimes: IntArray): Long {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minNumberOfSeconds(_ mountainHeight: Int, _ workerTimes: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn min_number_of_seconds(mountain_height: i32, worker_times: Vec<i32>) -> i64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} mountain_height\n# @param {Integer[]} worker_times\n# @return {Integer}\ndef min_number_of_seconds(mountain_height, worker_times)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $mountainHeight\n     * @param Integer[] $workerTimes\n     * @return Integer\n     */\n    function minNumberOfSeconds($mountainHeight, $workerTimes) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minNumberOfSeconds(int mountainHeight, List<int> workerTimes) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minNumberOfSeconds(mountainHeight: Int, workerTimes: Array[Int]): Long = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec min_number_of_seconds(mountain_height :: integer, worker_times :: [integer]) :: integer\n  def min_number_of_seconds(mountain_height, worker_times) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec min_number_of_seconds(MountainHeight :: integer(), WorkerTimes :: [integer()]) -> integer().\nmin_number_of_seconds(MountainHeight, WorkerTimes) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (min-number-of-seconds mountainHeight workerTimes)\n  (-> exact-integer? (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

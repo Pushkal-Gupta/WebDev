@@ -29,5 +29,102 @@
     "[9,8]"
   ],
   "content_signature": "-ysb1gb",
-  "fetched_at": "2026-05-21T07:50:05.539Z"
+  "fetched_at": "2026-05-30T05:38:48.014Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    long long interactionCosts(int n, vector<vector<int>>& edges, vector<int>& group) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public long interactionCosts(int n, int[][] edges, int[] group) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def interactionCosts(self, n: int, edges: List[List[int]], group: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def interactionCosts(self, n, edges, group):\n        \"\"\"\n        :type n: int\n        :type edges: List[List[int]]\n        :type group: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number[][]} edges\n * @param {number[]} group\n * @return {number}\n */\nvar interactionCosts = function(n, edges, group) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function interactionCosts(n: number, edges: number[][], group: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public long InteractionCosts(int n, int[][] edges, int[] group) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "long long interactionCosts(int n, int** edges, int edgesSize, int* edgesColSize, int* group, int groupSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func interactionCosts(n int, edges [][]int, group []int) int64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun interactionCosts(n: Int, edges: Array<IntArray>, group: IntArray): Long {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func interactionCosts(_ n: Int, _ edges: [[Int]], _ group: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn interaction_costs(n: i32, edges: Vec<Vec<i32>>, group: Vec<i32>) -> i64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer[][]} edges\n# @param {Integer[]} group\n# @return {Integer}\ndef interaction_costs(n, edges, group)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer[][] $edges\n     * @param Integer[] $group\n     * @return Integer\n     */\n    function interactionCosts($n, $edges, $group) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int interactionCosts(int n, List<List<int>> edges, List<int> group) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def interactionCosts(n: Int, edges: Array[Array[Int]], group: Array[Int]): Long = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec interaction_costs(n :: integer, edges :: [[integer]], group :: [integer]) :: integer\n  def interaction_costs(n, edges, group) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec interaction_costs(N :: integer(), Edges :: [[integer()]], Group :: [integer()]) -> integer().\ninteraction_costs(N, Edges, Group) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (interaction-costs n edges group)\n  (-> exact-integer? (listof (listof exact-integer?)) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

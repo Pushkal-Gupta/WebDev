@@ -12,5 +12,12 @@
     "{\"headers\":{\"students\":[\"student_id\",\"name\",\"age\"]},\"rows\":{\"students\":[[32,\"Piper\",5],[217,null,19],[779,\"Georgia\",20],[849,\"Willow\",14]]}}"
   ],
   "content_signature": "exlaqx",
-  "fetched_at": "2026-05-21T07:06:58.123Z"
+  "fetched_at": "2026-05-30T06:37:59.902Z",
+  "code_snippets": [
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef dropMissingData(students: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

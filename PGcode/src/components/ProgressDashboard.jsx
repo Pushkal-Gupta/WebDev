@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect, lazy, Suspense } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Flame, Target, TrendingUp, Award, History as HistoryIcon, BarChart3 } from 'lucide-react';
+import { Flame, Target, TrendingUp, Award, History as HistoryIcon, BarChart3, Share2, X } from 'lucide-react';
+import ShareableCard from './ShareableCard';
 import {
   useProblemsCompact,
   useUserProgress,
@@ -49,6 +50,7 @@ export default function ProgressDashboard({ session, roadmapMode }) {
     return TAB_KEYS.includes(t) ? t : 'stats';
   })();
   const [tab, setTab] = useState(initialTab);
+  const [shareOpen, setShareOpen] = useState(false);
 
   useEffect(() => {
     const sp = new URLSearchParams(location.search);
@@ -174,11 +176,47 @@ export default function ProgressDashboard({ session, roadmapMode }) {
   return (
     <div className="pd-container">
       <header className="pd-header">
-        <h1 className="pd-title">Your Activity</h1>
-        <p className="pd-sub">
-          Solves, streaks, submission history, achievements, topic mastery — tracked across every problem.
-        </p>
+        <div className="pd-header-row">
+          <div>
+            <h1 className="pd-title">Your Activity</h1>
+            <p className="pd-sub">
+              Solves, streaks, submission history, achievements, topic mastery — tracked across every problem.
+            </p>
+          </div>
+          {profile?.username && (
+            <button
+              type="button"
+              className="pd-share-btn"
+              onClick={() => setShareOpen(true)}
+              title="Generate a sharable stat card"
+            >
+              <Share2 size={14} /> Share card
+            </button>
+          )}
+        </div>
       </header>
+
+      {shareOpen && (
+        <div className="sc-modal-backdrop" onClick={() => setShareOpen(false)}>
+          <div className="sc-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="sc-modal-head">
+              <div>
+                <div className="sc-modal-title">Your shareable stat card</div>
+                <div className="sc-modal-sub">Post to LinkedIn or Twitter at 1200 by 630. Theme matches your active palette.</div>
+              </div>
+              <button type="button" className="sc-modal-close" onClick={() => setShareOpen(false)} aria-label="Close">
+                <X size={14} />
+              </button>
+            </div>
+            <ShareableCard
+              embedded
+              presetUsername={profile?.username}
+              presetUserId={userId}
+              presetDisplayName={profile?.display_name || `@${profile?.username}`}
+            />
+          </div>
+        </div>
+      )}
 
       <nav className="pd-tabs" role="tablist">
         {TABS.map(t => {

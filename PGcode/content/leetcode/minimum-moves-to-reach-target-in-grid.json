@@ -27,5 +27,102 @@
     "2"
   ],
   "content_signature": "5x6t9o",
-  "fetched_at": "2026-05-21T07:45:12.759Z"
+  "fetched_at": "2026-05-30T05:25:15.636Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int minMoves(int sx, int sy, int tx, int ty) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int minMoves(int sx, int sy, int tx, int ty) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minMoves(self, sx: int, sy: int, tx: int, ty: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minMoves(self, sx, sy, tx, ty):\n        \"\"\"\n        :type sx: int\n        :type sy: int\n        :type tx: int\n        :type ty: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} sx\n * @param {number} sy\n * @param {number} tx\n * @param {number} ty\n * @return {number}\n */\nvar minMoves = function(sx, sy, tx, ty) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minMoves(sx: number, sy: number, tx: number, ty: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MinMoves(int sx, int sy, int tx, int ty) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int minMoves(int sx, int sy, int tx, int ty) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minMoves(sx int, sy int, tx int, ty int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minMoves(sx: Int, sy: Int, tx: Int, ty: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minMoves(_ sx: Int, _ sy: Int, _ tx: Int, _ ty: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn min_moves(sx: i32, sy: i32, tx: i32, ty: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} sx\n# @param {Integer} sy\n# @param {Integer} tx\n# @param {Integer} ty\n# @return {Integer}\ndef min_moves(sx, sy, tx, ty)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $sx\n     * @param Integer $sy\n     * @param Integer $tx\n     * @param Integer $ty\n     * @return Integer\n     */\n    function minMoves($sx, $sy, $tx, $ty) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minMoves(int sx, int sy, int tx, int ty) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minMoves(sx: Int, sy: Int, tx: Int, ty: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec min_moves(sx :: integer, sy :: integer, tx :: integer, ty :: integer) :: integer\n  def min_moves(sx, sy, tx, ty) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec min_moves(Sx :: integer(), Sy :: integer(), Tx :: integer(), Ty :: integer()) -> integer().\nmin_moves(Sx, Sy, Tx, Ty) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (min-moves sx sy tx ty)\n  (-> exact-integer? exact-integer? exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

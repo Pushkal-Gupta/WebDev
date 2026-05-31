@@ -15,5 +15,102 @@
     "[2,4,2]"
   ],
   "content_signature": "-y5heiv",
-  "fetched_at": "2026-05-21T07:54:05.991Z"
+  "fetched_at": "2026-05-30T06:40:23.087Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<double> internalAngles(vector<int>& sides) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public double[] internalAngles(int[] sides) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def internalAngles(self, sides: list[int]) -> list[float]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def internalAngles(self, sides):\n        \"\"\"\n        :type sides: List[int]\n        :rtype: List[float]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} sides\n * @return {number[]}\n */\nvar internalAngles = function(sides) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function internalAngles(sides: number[]): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public double[] InternalAngles(int[] sides) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\ndouble* internalAngles(int* sides, int sidesSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func internalAngles(sides []int) []float64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun internalAngles(sides: IntArray): DoubleArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func internalAngles(_ sides: [Int]) -> [Double] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn internal_angles(sides: Vec<i32>) -> Vec<f64> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} sides\n# @return {Float[]}\ndef internal_angles(sides)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $sides\n     * @return Float[]\n     */\n    function internalAngles($sides) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<double> internalAngles(List<int> sides) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def internalAngles(sides: Array[Int]): Array[Double] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec internal_angles(sides :: [integer]) :: [float]\n  def internal_angles(sides) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec internal_angles(Sides :: [integer()]) -> [float()].\ninternal_angles(Sides) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (internal-angles sides)\n  (-> (listof exact-integer?) (listof flonum?))\n  )"
+    }
+  ]
 }

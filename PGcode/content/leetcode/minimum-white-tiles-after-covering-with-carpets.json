@@ -23,5 +23,102 @@
     "3"
   ],
   "content_signature": "-ur4cox",
-  "fetched_at": "2026-05-21T06:37:27.323Z"
+  "fetched_at": "2026-05-30T06:41:41.855Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int minimumWhiteTiles(string floor, int numCarpets, int carpetLen) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int minimumWhiteTiles(String floor, int numCarpets, int carpetLen) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minimumWhiteTiles(self, floor: str, numCarpets: int, carpetLen: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minimumWhiteTiles(self, floor, numCarpets, carpetLen):\n        \"\"\"\n        :type floor: str\n        :type numCarpets: int\n        :type carpetLen: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} floor\n * @param {number} numCarpets\n * @param {number} carpetLen\n * @return {number}\n */\nvar minimumWhiteTiles = function(floor, numCarpets, carpetLen) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minimumWhiteTiles(floor: string, numCarpets: number, carpetLen: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MinimumWhiteTiles(string floor, int numCarpets, int carpetLen) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int minimumWhiteTiles(char* floor, int numCarpets, int carpetLen) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minimumWhiteTiles(floor string, numCarpets int, carpetLen int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minimumWhiteTiles(floor: String, numCarpets: Int, carpetLen: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minimumWhiteTiles(_ floor: String, _ numCarpets: Int, _ carpetLen: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn minimum_white_tiles(floor: String, num_carpets: i32, carpet_len: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} floor\n# @param {Integer} num_carpets\n# @param {Integer} carpet_len\n# @return {Integer}\ndef minimum_white_tiles(floor, num_carpets, carpet_len)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $floor\n     * @param Integer $numCarpets\n     * @param Integer $carpetLen\n     * @return Integer\n     */\n    function minimumWhiteTiles($floor, $numCarpets, $carpetLen) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minimumWhiteTiles(String floor, int numCarpets, int carpetLen) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minimumWhiteTiles(floor: String, numCarpets: Int, carpetLen: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec minimum_white_tiles(floor :: String.t, num_carpets :: integer, carpet_len :: integer) :: integer\n  def minimum_white_tiles(floor, num_carpets, carpet_len) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec minimum_white_tiles(Floor :: unicode:unicode_binary(), NumCarpets :: integer(), CarpetLen :: integer()) -> integer().\nminimum_white_tiles(Floor, NumCarpets, CarpetLen) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (minimum-white-tiles floor numCarpets carpetLen)\n  (-> string? exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

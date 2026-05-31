@@ -350,6 +350,18 @@ async function growForProblem(problem, opts = {}) {
     return { id, before: beforeCount, after: beforeCount, added: 0, dedupd: 0, skipped: 'nothing needed' };
   }
 
+  // Parse-check the canonical Python: if it doesn't compile, we can't trust any
+  // output it produces. Drop the whole problem rather than write bogus cases.
+  try {
+    const parseProbe = `import ast, sys\ntry:\n    ast.parse(sys.stdin.read())\n    print("OK")\nexcept SyntaxError as e:\n    print("ERR:" + str(e))\n    sys.exit(2)\n`;
+    const parseResult = await judgeRun(parseProbe, py);
+    if (!parseResult.startsWith('OK')) {
+      return { id, before: beforeCount, after: beforeCount, added: 0, dedupd: 0, skipped: `python parse failed: ${parseResult.slice(0, 80)}` };
+    }
+  } catch (e) {
+    return { id, before: beforeCount, after: beforeCount, added: 0, dedupd: 0, skipped: `python parse probe failed: ${e.message.slice(0, 80)}` };
+  }
+
   let wrapped;
   try {
     wrapped = wrapWithDriver(py, 'python', method_name, params, return_type);
@@ -360,6 +372,7 @@ async function growForProblem(problem, opts = {}) {
   const seen = new Set(existing.map(tc => JSON.stringify(tc.inputs)));
   const newCases = [];
   let dedupd = 0;
+  let droppedVerify = 0;
   let consecutiveFails = 0;
   const maxAttempts = need * 8 + 16;
 
@@ -375,6 +388,27 @@ async function growForProblem(problem, opts = {}) {
     try {
       const expected = await judgeRun(wrapped, stdin);
       if (expected === '' || expected.length > 4000) {
+        consecutiveFails++;
+        if (consecutiveFails > 12) break;
+        continue;
+      }
+      // VERIFY GATE — re-run the canonical solution against the same inputs and
+      // confirm we get a byte-identical result. Drops any case where the solution
+      // is non-deterministic, flaky, or otherwise can't be trusted.
+      await sleep(PAUSE_MS);
+      let verifyOutput;
+      try {
+        verifyOutput = await judgeRun(wrapped, stdin);
+      } catch (verr) {
+        droppedVerify++;
+        if (opts.verbose) console.log(`    drop verify-error inputs=${JSON.stringify(inputs)} (${verr.message.slice(0, 80)})`);
+        consecutiveFails++;
+        if (consecutiveFails > 12) break;
+        continue;
+      }
+      if (verifyOutput !== expected) {
+        droppedVerify++;
+        if (opts.verbose) console.log(`    drop mismatch inputs=${JSON.stringify(inputs)} expected=${expected.slice(0, 40)} verify=${verifyOutput.slice(0, 40)}`);
         consecutiveFails++;
         if (consecutiveFails > 12) break;
         continue;
@@ -395,10 +429,10 @@ async function growForProblem(problem, opts = {}) {
   if (!opts.dryCount && newCases.length > 0) {
     const { error } = await sb.from('PGcode_problems').update({ test_cases: merged }).eq('id', id);
     if (error) {
-      return { id, before: beforeCount, after: beforeCount, added: 0, dedupd, skipped: `db write failed: ${error.message}` };
+      return { id, before: beforeCount, after: beforeCount, added: 0, dedupd, droppedVerify, skipped: `db write failed: ${error.message}` };
     }
   }
-  return { id, before: beforeCount, after: merged.length, added: newCases.length, dedupd };
+  return { id, before: beforeCount, after: merged.length, added: newCases.length, dedupd, droppedVerify };
 }
 
 // ── candidate fetcher ────────────────────────────────────────────────────────

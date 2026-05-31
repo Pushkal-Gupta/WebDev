@@ -12,5 +12,32 @@
     "{\"headers\": {\"Users\": [\"account\", \"name\"], \"Transactions\": [\"trans_id\", \"account\", \"amount\", \"transacted_on\"]}, \"rows\": {\"Users\": [[900001, \"Alice\"], [900002, \"Bob\"], [900003, \"Charlie\"]], \"Transactions\": [[1, 900001, 7000, \"2020-08-01\"], [2, 900001, 7000, \"2020-09-01\"], [3, 900001, -3000, \"2020-09-02\"], [4, 900002, 1000, \"2020-09-12\"], [5, 900003, 6000, \"2020-08-07\"], [6, 900003, 6000, \"2020-09-07\"], [7, 900003, -4000, \"2020-09-11\"]]}}"
   ],
   "content_signature": "-jrrzan",
-  "fetched_at": "2026-05-21T06:23:44.511Z"
+  "fetched_at": "2026-05-30T07:28:49.994Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef account_summary(users: pd.DataFrame, transactions: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

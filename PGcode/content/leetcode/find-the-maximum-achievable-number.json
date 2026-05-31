@@ -17,5 +17,102 @@
     "2"
   ],
   "content_signature": "-btyg0u",
-  "fetched_at": "2026-05-21T07:04:44.718Z"
+  "fetched_at": "2026-05-30T07:23:05.418Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int theMaximumAchievableX(int num, int t) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int theMaximumAchievableX(int num, int t) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def theMaximumAchievableX(self, num: int, t: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def theMaximumAchievableX(self, num, t):\n        \"\"\"\n        :type num: int\n        :type t: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} num\n * @param {number} t\n * @return {number}\n */\nvar theMaximumAchievableX = function(num, t) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function theMaximumAchievableX(num: number, t: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int TheMaximumAchievableX(int num, int t) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int theMaximumAchievableX(int num, int t) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func theMaximumAchievableX(num int, t int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun theMaximumAchievableX(num: Int, t: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func theMaximumAchievableX(_ num: Int, _ t: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn the_maximum_achievable_x(num: i32, t: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} num\n# @param {Integer} t\n# @return {Integer}\ndef the_maximum_achievable_x(num, t)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $num\n     * @param Integer $t\n     * @return Integer\n     */\n    function theMaximumAchievableX($num, $t) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int theMaximumAchievableX(int num, int t) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def theMaximumAchievableX(num: Int, t: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec the_maximum_achievable_x(num :: integer, t :: integer) :: integer\n  def the_maximum_achievable_x(num, t) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec the_maximum_achievable_x(Num :: integer(), T :: integer()) -> integer().\nthe_maximum_achievable_x(Num, T) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (the-maximum-achievable-x num t)\n  (-> exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

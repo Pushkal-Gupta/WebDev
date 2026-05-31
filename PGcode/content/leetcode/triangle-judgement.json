@@ -12,5 +12,32 @@
     "{\"headers\":{\"Triangle\":[\"x\",\"y\",\"z\"]},\"rows\":{\"Triangle\":[[13,15,30],[10,20,15]]}}"
   ],
   "content_signature": "b6x69z",
-  "fetched_at": "2026-05-21T06:02:28.026Z"
+  "fetched_at": "2026-05-30T05:39:30.141Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef triangle_judgement(triangle: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

@@ -17,5 +17,102 @@
     "[1,2,3]"
   ],
   "content_signature": "-hwwzd0",
-  "fetched_at": "2026-05-21T06:07:44.314Z"
+  "fetched_at": "2026-05-30T07:00:35.513Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    string shiftingLetters(string s, vector<int>& shifts) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public String shiftingLetters(String s, int[] shifts) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def shiftingLetters(self, s: str, shifts: List[int]) -> str:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def shiftingLetters(self, s, shifts):\n        \"\"\"\n        :type s: str\n        :type shifts: List[int]\n        :rtype: str\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} s\n * @param {number[]} shifts\n * @return {string}\n */\nvar shiftingLetters = function(s, shifts) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function shiftingLetters(s: string, shifts: number[]): string {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public string ShiftingLetters(string s, int[] shifts) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "char* shiftingLetters(char* s, int* shifts, int shiftsSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func shiftingLetters(s string, shifts []int) string {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun shiftingLetters(s: String, shifts: IntArray): String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func shiftingLetters(_ s: String, _ shifts: [Int]) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn shifting_letters(s: String, shifts: Vec<i32>) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} s\n# @param {Integer[]} shifts\n# @return {String}\ndef shifting_letters(s, shifts)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $s\n     * @param Integer[] $shifts\n     * @return String\n     */\n    function shiftingLetters($s, $shifts) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  String shiftingLetters(String s, List<int> shifts) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def shiftingLetters(s: String, shifts: Array[Int]): String = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec shifting_letters(s :: String.t, shifts :: [integer]) :: String.t\n  def shifting_letters(s, shifts) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec shifting_letters(S :: unicode:unicode_binary(), Shifts :: [integer()]) -> unicode:unicode_binary().\nshifting_letters(S, Shifts) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (shifting-letters s shifts)\n  (-> string? (listof exact-integer?) string?)\n  )"
+    }
+  ]
 }

@@ -20,5 +20,82 @@
     "17"
   ],
   "content_signature": "flk7ah",
-  "fetched_at": "2026-05-21T06:06:27.412Z"
+  "fetched_at": "2026-05-30T07:02:13.407Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    double champagneTower(int poured, int query_row, int query_glass) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public double champagneTower(int poured, int query_row, int query_glass) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def champagneTower(self, poured: int, query_row: int, query_glass: int) -> float:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def champagneTower(self, poured, query_row, query_glass):\n        \"\"\"\n        :type poured: int\n        :type query_row: int\n        :type query_glass: int\n        :rtype: float\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} poured\n * @param {number} query_row\n * @param {number} query_glass\n * @return {number}\n */\nvar champagneTower = function(poured, query_row, query_glass) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function champagneTower(poured: number, query_row: number, query_glass: number): number {\n\n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public double ChampagneTower(int poured, int query_row, int query_glass) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "\n\ndouble champagneTower(int poured, int query_row, int query_glass){\n\n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func champagneTower(poured int, query_row int, query_glass int) float64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun champagneTower(poured: Int, query_row: Int, query_glass: Int): Double {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func champagneTower(_ poured: Int, _ query_row: Int, _ query_glass: Int) -> Double {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn champagne_tower(poured: i32, query_row: i32, query_glass: i32) -> f64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} poured\n# @param {Integer} query_row\n# @param {Integer} query_glass\n# @return {Float}\ndef champagne_tower(poured, query_row, query_glass)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $poured\n     * @param Integer $query_row\n     * @param Integer $query_glass\n     * @return Float\n     */\n    function champagneTower($poured, $query_row, $query_glass) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def champagneTower(poured: Int, query_row: Int, query_glass: Int): Double = {\n        \n    }\n}"
+    }
+  ]
 }

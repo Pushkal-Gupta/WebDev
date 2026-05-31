@@ -26,5 +26,102 @@
     "[]"
   ],
   "content_signature": "e6fbej",
-  "fetched_at": "2026-05-21T06:05:44.543Z"
+  "fetched_at": "2026-05-30T06:48:30.960Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<string> basicCalculatorIV(string expression, vector<string>& evalvars, vector<int>& evalints) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public List<String> basicCalculatorIV(String expression, String[] evalvars, int[] evalints) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def basicCalculatorIV(self, expression: str, evalvars: List[str], evalints: List[int]) -> List[str]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def basicCalculatorIV(self, expression, evalvars, evalints):\n        \"\"\"\n        :type expression: str\n        :type evalvars: List[str]\n        :type evalints: List[int]\n        :rtype: List[str]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} expression\n * @param {string[]} evalvars\n * @param {number[]} evalints\n * @return {string[]}\n */\nvar basicCalculatorIV = function(expression, evalvars, evalints) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function basicCalculatorIV(expression: string, evalvars: string[], evalints: number[]): string[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public IList<string> BasicCalculatorIV(string expression, string[] evalvars, int[] evalints) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nchar** basicCalculatorIV(char* expression, char** evalvars, int evalvarsSize, int* evalints, int evalintsSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func basicCalculatorIV(expression string, evalvars []string, evalints []int) []string {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun basicCalculatorIV(expression: String, evalvars: Array<String>, evalints: IntArray): List<String> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func basicCalculatorIV(_ expression: String, _ evalvars: [String], _ evalints: [Int]) -> [String] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn basic_calculator_iv(expression: String, evalvars: Vec<String>, evalints: Vec<i32>) -> Vec<String> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} expression\n# @param {String[]} evalvars\n# @param {Integer[]} evalints\n# @return {String[]}\ndef basic_calculator_iv(expression, evalvars, evalints)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $expression\n     * @param String[] $evalvars\n     * @param Integer[] $evalints\n     * @return String[]\n     */\n    function basicCalculatorIV($expression, $evalvars, $evalints) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<String> basicCalculatorIV(String expression, List<String> evalvars, List<int> evalints) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def basicCalculatorIV(expression: String, evalvars: Array[String], evalints: Array[Int]): List[String] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec basic_calculator_iv(expression :: String.t, evalvars :: [String.t], evalints :: [integer]) :: [String.t]\n  def basic_calculator_iv(expression, evalvars, evalints) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec basic_calculator_iv(Expression :: unicode:unicode_binary(), Evalvars :: [unicode:unicode_binary()], Evalints :: [integer()]) -> [unicode:unicode_binary()].\nbasic_calculator_iv(Expression, Evalvars, Evalints) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (basic-calculator-iv expression evalvars evalints)\n  (-> string? (listof string?) (listof exact-integer?) (listof string?))\n  )"
+    }
+  ]
 }

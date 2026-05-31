@@ -19,5 +19,102 @@
     "[8,6,8]"
   ],
   "content_signature": "ebd6fq",
-  "fetched_at": "2026-05-21T06:24:09.552Z"
+  "fetched_at": "2026-05-30T05:42:57.791Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<vector<int>> restoreMatrix(vector<int>& rowSum, vector<int>& colSum) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[][] restoreMatrix(int[] rowSum, int[] colSum) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def restoreMatrix(self, rowSum: List[int], colSum: List[int]) -> List[List[int]]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def restoreMatrix(self, rowSum, colSum):\n        \"\"\"\n        :type rowSum: List[int]\n        :type colSum: List[int]\n        :rtype: List[List[int]]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} rowSum\n * @param {number[]} colSum\n * @return {number[][]}\n */\nvar restoreMatrix = function(rowSum, colSum) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function restoreMatrix(rowSum: number[], colSum: number[]): number[][] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[][] RestoreMatrix(int[] rowSum, int[] colSum) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Return an array of arrays of size *returnSize.\n * The sizes of the arrays are returned as *returnColumnSizes array.\n * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().\n */\nint** restoreMatrix(int* rowSum, int rowSumSize, int* colSum, int colSumSize, int* returnSize, int** returnColumnSizes) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func restoreMatrix(rowSum []int, colSum []int) [][]int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun restoreMatrix(rowSum: IntArray, colSum: IntArray): Array<IntArray> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func restoreMatrix(_ rowSum: [Int], _ colSum: [Int]) -> [[Int]] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn restore_matrix(row_sum: Vec<i32>, col_sum: Vec<i32>) -> Vec<Vec<i32>> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} row_sum\n# @param {Integer[]} col_sum\n# @return {Integer[][]}\ndef restore_matrix(row_sum, col_sum)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $rowSum\n     * @param Integer[] $colSum\n     * @return Integer[][]\n     */\n    function restoreMatrix($rowSum, $colSum) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<List<int>> restoreMatrix(List<int> rowSum, List<int> colSum) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def restoreMatrix(rowSum: Array[Int], colSum: Array[Int]): Array[Array[Int]] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec restore_matrix(row_sum :: [integer], col_sum :: [integer]) :: [[integer]]\n  def restore_matrix(row_sum, col_sum) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec restore_matrix(RowSum :: [integer()], ColSum :: [integer()]) -> [[integer()]].\nrestore_matrix(RowSum, ColSum) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (restore-matrix rowSum colSum)\n  (-> (listof exact-integer?) (listof exact-integer?) (listof (listof exact-integer?)))\n  )"
+    }
+  ]
 }

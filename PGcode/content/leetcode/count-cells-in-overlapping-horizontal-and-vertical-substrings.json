@@ -25,5 +25,102 @@
     "\"a\""
   ],
   "content_signature": "-5st76b",
-  "fetched_at": "2026-05-21T07:42:37.095Z"
+  "fetched_at": "2026-05-30T07:02:19.552Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int countCells(vector<vector<char>>& grid, string pattern) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int countCells(char[][] grid, String pattern) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def countCells(self, grid: List[List[str]], pattern: str) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def countCells(self, grid, pattern):\n        \"\"\"\n        :type grid: List[List[str]]\n        :type pattern: str\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {character[][]} grid\n * @param {string} pattern\n * @return {number}\n */\nvar countCells = function(grid, pattern) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function countCells(grid: string[][], pattern: string): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int CountCells(char[][] grid, string pattern) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int countCells(char** grid, int gridSize, int* gridColSize, char* pattern) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func countCells(grid [][]byte, pattern string) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun countCells(grid: Array<CharArray>, pattern: String): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func countCells(_ grid: [[Character]], _ pattern: String) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn count_cells(grid: Vec<Vec<char>>, pattern: String) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Character[][]} grid\n# @param {String} pattern\n# @return {Integer}\ndef count_cells(grid, pattern)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[][] $grid\n     * @param String $pattern\n     * @return Integer\n     */\n    function countCells($grid, $pattern) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int countCells(List<List<String>> grid, String pattern) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def countCells(grid: Array[Array[Char]], pattern: String): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec count_cells(grid :: [[char]], pattern :: String.t) :: integer\n  def count_cells(grid, pattern) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec count_cells(Grid :: [[char()]], Pattern :: unicode:unicode_binary()) -> integer().\ncount_cells(Grid, Pattern) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (count-cells grid pattern)\n  (-> (listof (listof char?)) string? exact-integer?)\n  )"
+    }
+  ]
 }

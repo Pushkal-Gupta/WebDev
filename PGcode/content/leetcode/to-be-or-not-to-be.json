@@ -12,5 +12,17 @@
     "() => expect(5).notToBe(null)"
   ],
   "content_signature": "-kfnhkh",
-  "fetched_at": "2026-05-21T07:03:25.187Z"
+  "fetched_at": "2026-05-30T06:36:48.729Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} val\n * @return {Object}\n */\nvar expect = function(val) {\n    \n};\n\n/**\n * expect(5).toBe(5); // true\n * expect(5).notToBe(5); // throws \"Equal\"\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "type ToBeOrNotToBe = {\n    toBe: (val: any) => boolean;\n    notToBe: (val: any) => boolean;\n};\n\nfunction expect(val: any): ToBeOrNotToBe {\n    \n};\n\n/**\n * expect(5).toBe(5); // true\n * expect(5).notToBe(5); // throws \"Equal\"\n */"
+    }
+  ]
 }

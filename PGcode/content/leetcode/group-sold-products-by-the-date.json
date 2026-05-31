@@ -12,5 +12,32 @@
     "{\"headers\":{\"Activities\":[\"sell_date\",\"product\"]},\"rows\":{\"Activities\":[[\"2020-05-30\",\"Headphone\"],[\"2020-06-01\",\"Pencil\"],[\"2020-06-02\",\"Mask\"],[\"2020-05-30\",\"Basketball\"],[\"2020-06-01\",\"Bible\"],[\"2020-06-02\",\"Mask\"],[\"2020-05-30\",\"T-Shirt\"]]}}"
   ],
   "content_signature": "-fvj4jt",
-  "fetched_at": "2026-05-21T06:21:34.502Z"
+  "fetched_at": "2026-05-30T05:22:12.303Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef categorize_products(activities: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

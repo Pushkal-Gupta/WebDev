@@ -28,5 +28,102 @@
     "[1,2,3,4,5]"
   ],
   "content_signature": "himgx6",
-  "fetched_at": "2026-05-21T07:28:39.405Z"
+  "fetched_at": "2026-05-30T05:15:38.388Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int maxFreeTime(int eventTime, int k, vector<int>& startTime, vector<int>& endTime) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int maxFreeTime(int eventTime, int k, int[] startTime, int[] endTime) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def maxFreeTime(self, eventTime: int, k: int, startTime: List[int], endTime: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def maxFreeTime(self, eventTime, k, startTime, endTime):\n        \"\"\"\n        :type eventTime: int\n        :type k: int\n        :type startTime: List[int]\n        :type endTime: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} eventTime\n * @param {number} k\n * @param {number[]} startTime\n * @param {number[]} endTime\n * @return {number}\n */\nvar maxFreeTime = function(eventTime, k, startTime, endTime) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function maxFreeTime(eventTime: number, k: number, startTime: number[], endTime: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MaxFreeTime(int eventTime, int k, int[] startTime, int[] endTime) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int maxFreeTime(int eventTime, int k, int* startTime, int startTimeSize, int* endTime, int endTimeSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func maxFreeTime(eventTime int, k int, startTime []int, endTime []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun maxFreeTime(eventTime: Int, k: Int, startTime: IntArray, endTime: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func maxFreeTime(_ eventTime: Int, _ k: Int, _ startTime: [Int], _ endTime: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn max_free_time(event_time: i32, k: i32, start_time: Vec<i32>, end_time: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} event_time\n# @param {Integer} k\n# @param {Integer[]} start_time\n# @param {Integer[]} end_time\n# @return {Integer}\ndef max_free_time(event_time, k, start_time, end_time)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $eventTime\n     * @param Integer $k\n     * @param Integer[] $startTime\n     * @param Integer[] $endTime\n     * @return Integer\n     */\n    function maxFreeTime($eventTime, $k, $startTime, $endTime) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int maxFreeTime(int eventTime, int k, List<int> startTime, List<int> endTime) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def maxFreeTime(eventTime: Int, k: Int, startTime: Array[Int], endTime: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec max_free_time(event_time :: integer, k :: integer, start_time :: [integer], end_time :: [integer]) :: integer\n  def max_free_time(event_time, k, start_time, end_time) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec max_free_time(EventTime :: integer(), K :: integer(), StartTime :: [integer()], EndTime :: [integer()]) -> integer().\nmax_free_time(EventTime, K, StartTime, EndTime) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (max-free-time eventTime k startTime endTime)\n  (-> exact-integer? exact-integer? (listof exact-integer?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

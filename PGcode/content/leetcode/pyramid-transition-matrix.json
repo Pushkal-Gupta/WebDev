@@ -18,5 +18,102 @@
     "[\"AAB\",\"AAC\",\"BCD\",\"BBE\",\"DEF\"]"
   ],
   "content_signature": "-l26rtp",
-  "fetched_at": "2026-05-21T06:05:27.163Z"
+  "fetched_at": "2026-05-30T06:36:40.584Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool pyramidTransition(string bottom, vector<string>& allowed) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean pyramidTransition(String bottom, List<String> allowed) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def pyramidTransition(self, bottom: str, allowed: List[str]) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def pyramidTransition(self, bottom, allowed):\n        \"\"\"\n        :type bottom: str\n        :type allowed: List[str]\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} bottom\n * @param {string[]} allowed\n * @return {boolean}\n */\nvar pyramidTransition = function(bottom, allowed) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function pyramidTransition(bottom: string, allowed: string[]): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool PyramidTransition(string bottom, IList<string> allowed) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool pyramidTransition(char* bottom, char** allowed, int allowedSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func pyramidTransition(bottom string, allowed []string) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun pyramidTransition(bottom: String, allowed: List<String>): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func pyramidTransition(_ bottom: String, _ allowed: [String]) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn pyramid_transition(bottom: String, allowed: Vec<String>) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} bottom\n# @param {String[]} allowed\n# @return {Boolean}\ndef pyramid_transition(bottom, allowed)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $bottom\n     * @param String[] $allowed\n     * @return Boolean\n     */\n    function pyramidTransition($bottom, $allowed) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool pyramidTransition(String bottom, List<String> allowed) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def pyramidTransition(bottom: String, allowed: List[String]): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec pyramid_transition(bottom :: String.t, allowed :: [String.t]) :: boolean\n  def pyramid_transition(bottom, allowed) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec pyramid_transition(Bottom :: unicode:unicode_binary(), Allowed :: [unicode:unicode_binary()]) -> boolean().\npyramid_transition(Bottom, Allowed) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (pyramid-transition bottom allowed)\n  (-> string? (listof string?) boolean?)\n  )"
+    }
+  ]
 }

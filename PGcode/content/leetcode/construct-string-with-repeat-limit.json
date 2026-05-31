@@ -22,5 +22,102 @@
     "2"
   ],
   "content_signature": "d1sbg6",
-  "fetched_at": "2026-05-21T06:36:51.699Z"
+  "fetched_at": "2026-05-30T07:13:14.516Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    string repeatLimitedString(string s, int repeatLimit) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public String repeatLimitedString(String s, int repeatLimit) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def repeatLimitedString(self, s: str, repeatLimit: int) -> str:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def repeatLimitedString(self, s, repeatLimit):\n        \"\"\"\n        :type s: str\n        :type repeatLimit: int\n        :rtype: str\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} s\n * @param {number} repeatLimit\n * @return {string}\n */\nvar repeatLimitedString = function(s, repeatLimit) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function repeatLimitedString(s: string, repeatLimit: number): string {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public string RepeatLimitedString(string s, int repeatLimit) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "char* repeatLimitedString(char* s, int repeatLimit) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func repeatLimitedString(s string, repeatLimit int) string {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun repeatLimitedString(s: String, repeatLimit: Int): String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func repeatLimitedString(_ s: String, _ repeatLimit: Int) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn repeat_limited_string(s: String, repeat_limit: i32) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} s\n# @param {Integer} repeat_limit\n# @return {String}\ndef repeat_limited_string(s, repeat_limit)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $s\n     * @param Integer $repeatLimit\n     * @return String\n     */\n    function repeatLimitedString($s, $repeatLimit) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  String repeatLimitedString(String s, int repeatLimit) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def repeatLimitedString(s: String, repeatLimit: Int): String = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec repeat_limited_string(s :: String.t, repeat_limit :: integer) :: String.t\n  def repeat_limited_string(s, repeat_limit) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec repeat_limited_string(S :: unicode:unicode_binary(), RepeatLimit :: integer()) -> unicode:unicode_binary().\nrepeat_limited_string(S, RepeatLimit) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (repeat-limited-string s repeatLimit)\n  (-> string? exact-integer? string?)\n  )"
+    }
+  ]
 }

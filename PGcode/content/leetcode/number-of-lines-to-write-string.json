@@ -16,5 +16,82 @@
     "\"bbbcccdddaaa\""
   ],
   "content_signature": "l1rxyq",
-  "fetched_at": "2026-05-21T06:06:37.443Z"
+  "fetched_at": "2026-05-30T05:52:03.137Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> numberOfLines(vector<int>& widths, string s) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] numberOfLines(int[] widths, String s) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def numberOfLines(self, widths: List[int], s: str) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def numberOfLines(self, widths, s):\n        \"\"\"\n        :type widths: List[int]\n        :type s: str\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} widths\n * @param {string} s\n * @return {number[]}\n */\nvar numberOfLines = function(widths, s) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function numberOfLines(widths: number[], s: string): number[] {\n\n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] NumberOfLines(int[] widths, string s) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "\n\n/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* numberOfLines(int* widths, int widthsSize, char * s, int* returnSize){\n\n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func numberOfLines(widths []int, s string) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun numberOfLines(widths: IntArray, s: String): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func numberOfLines(_ widths: [Int], _ s: String) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn number_of_lines(widths: Vec<i32>, s: String) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} widths\n# @param {String} s\n# @return {Integer[]}\ndef number_of_lines(widths, s)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $widths\n     * @param String $s\n     * @return Integer[]\n     */\n    function numberOfLines($widths, $s) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def numberOfLines(widths: Array[Int], s: String): Array[Int] = {\n        \n    }\n}"
+    }
+  ]
 }

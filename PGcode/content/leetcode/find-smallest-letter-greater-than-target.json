@@ -20,5 +20,102 @@
     "\"z\""
   ],
   "content_signature": "slgpum",
-  "fetched_at": "2026-05-21T06:05:13.265Z"
+  "fetched_at": "2026-05-30T06:54:03.259Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    char nextGreatestLetter(vector<char>& letters, char target) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public char nextGreatestLetter(char[] letters, char target) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def nextGreatestLetter(self, letters: List[str], target: str) -> str:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def nextGreatestLetter(self, letters, target):\n        \"\"\"\n        :type letters: List[str]\n        :type target: str\n        :rtype: str\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {character[]} letters\n * @param {character} target\n * @return {character}\n */\nvar nextGreatestLetter = function(letters, target) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function nextGreatestLetter(letters: string[], target: string): string {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public char NextGreatestLetter(char[] letters, char target) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "char nextGreatestLetter(char* letters, int lettersSize, char target) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func nextGreatestLetter(letters []byte, target byte) byte {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun nextGreatestLetter(letters: CharArray, target: Char): Char {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func nextGreatestLetter(_ letters: [Character], _ target: Character) -> Character {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn next_greatest_letter(letters: Vec<char>, target: char) -> char {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Character[]} letters\n# @param {Character} target\n# @return {Character}\ndef next_greatest_letter(letters, target)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[] $letters\n     * @param String $target\n     * @return String\n     */\n    function nextGreatestLetter($letters, $target) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  String nextGreatestLetter(List<String> letters, String target) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def nextGreatestLetter(letters: Array[Char], target: Char): Char = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec next_greatest_letter(letters :: [char], target :: char) :: char\n  def next_greatest_letter(letters, target) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec next_greatest_letter(Letters :: [char()], Target :: char()) -> char().\nnext_greatest_letter(Letters, Target) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (next-greatest-letter letters target)\n  (-> (listof char?) char? char?)\n  )"
+    }
+  ]
 }

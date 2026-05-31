@@ -12,5 +12,32 @@
     "{\"headers\":{\"Queue\":[\"person_id\",\"person_name\",\"weight\",\"turn\"]},\"rows\":{\"Queue\":[[5,\"Alice\",250,1],[4,\"Bob\",175,5],[3,\"Alex\",350,2],[6,\"John Cena\",400,3],[1,\"Winston\",500,6],[2,\"Marie\",200,4]]}}"
   ],
   "content_signature": "83chre",
-  "fetched_at": "2026-05-21T06:15:36.329Z"
+  "fetched_at": "2026-05-30T05:24:43.835Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef last_passenger(queue: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

@@ -2806,13 +2806,46 @@ export function buildStdin(inputs) {
   return (inputs || []).join('\n');
 }
 
-export function compareOutput(actual, expected) {
-  const a = (actual || '').trim();
-  const e = (expected || '').trim();
-  if (a === e) return true;
-  try {
-    return JSON.stringify(JSON.parse(a)) === JSON.stringify(JSON.parse(e));
-  } catch {
-    return a.toLowerCase() === e.toLowerCase();
+// Deep structural equality for JSON-shaped values. Required because Judge0
+// returns canonical Python-formatted output ("[0, 7]") while seed test cases
+// store the compact form ("[0,7]") — a strict string compare flags WA on every
+// array/object result. Compares parsed shapes when both sides are valid JSON.
+function deepEqual(a, b) {
+  if (a === b) return true;
+  if (a === null || b === null) return a === b;
+  if (typeof a !== typeof b) return false;
+  if (typeof a !== 'object') return a === b;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  if (Array.isArray(a)) {
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) if (!deepEqual(a[i], b[i])) return false;
+    return true;
   }
+  const ak = Object.keys(a), bk = Object.keys(b);
+  if (ak.length !== bk.length) return false;
+  for (const k of ak) {
+    if (!Object.prototype.hasOwnProperty.call(b, k)) return false;
+    if (!deepEqual(a[k], b[k])) return false;
+  }
+  return true;
+}
+
+export function equalsNormalized(expected, actual) {
+  const a = (actual ?? '').toString().trim();
+  const e = (expected ?? '').toString().trim();
+  if (a === e) return true;
+  // Try JSON-parse both. If both succeed, deep-compare the shapes — this
+  // handles whitespace, key order, and nested arrays/objects.
+  let pa, pe, parsedA = false, parsedE = false;
+  try { pa = JSON.parse(a); parsedA = true; } catch { /* not JSON */ }
+  try { pe = JSON.parse(e); parsedE = true; } catch { /* not JSON */ }
+  if (parsedA && parsedE) return deepEqual(pa, pe);
+  // Fallback: whitespace-stripped, case-insensitive string compare.
+  const sa = a.replace(/\s+/g, '').toLowerCase();
+  const se = e.replace(/\s+/g, '').toLowerCase();
+  return sa === se;
+}
+
+export function compareOutput(actual, expected) {
+  return equalsNormalized(expected, actual);
 }

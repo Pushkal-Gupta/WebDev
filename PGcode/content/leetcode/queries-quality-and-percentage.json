@@ -12,5 +12,32 @@
     "{\"headers\":{\"Queries\":[\"query_name\",\"result\",\"position\",\"rating\"]},\"rows\":{\"Queries\":[[\"Dog\",\"Golden Retriever\",1,5],[\"Dog\",\"German Shepherd\",2,5],[\"Dog\",\"Mule\",200,1],[\"Cat\",\"Shirazi\",5,2],[\"Cat\",\"Siamese\",3,3],[\"Cat\",\"Sphynx\",7,4]]}}"
   ],
   "content_signature": "ppsnua",
-  "fetched_at": "2026-05-21T06:15:45.978Z"
+  "fetched_at": "2026-05-30T05:42:31.165Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef queries_stats(queries: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

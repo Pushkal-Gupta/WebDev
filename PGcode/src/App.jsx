@@ -83,6 +83,7 @@ const ProgressDashboard = lazy(() => import('./components/ProgressDashboard'));
 const QuizIndex = lazy(() => import('./components/QuizIndex'));
 const QuizRunner = lazy(() => import('./components/QuizRunner'));
 const PublicProfile = lazy(() => import('./components/profile/PublicProfile'));
+const ShareableCard = lazy(() => import('./components/ShareableCard'));
 
 const VALID_THEMES = ['dark', 'light', 'midnight', 'midnight-light', 'solarized', 'solarized-dark', 'dracula', 'dracula-light'];
 const normalizeTheme = (t) => (VALID_THEMES.includes(t) ? t : 'dark');
@@ -126,6 +127,7 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
     const mode = THEME_META[normalized]?.mode || 'dark';
     localStorage.setItem(`pg-theme-last-${mode}`, normalized);
     document.documentElement.setAttribute('data-theme', normalized);
+    document.documentElement.setAttribute('data-theme-mode', mode);
     const uid = session?.user?.id;
     if (uid) {
       queryClient.setQueryData(qk.profile(uid), (prev) => ({ ...(prev || { user_id: uid }), theme_preset: normalized }));
@@ -201,6 +203,7 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
           <Route path="/review" element={<ReviewQueue session={session} />} />
           <Route path="/progress" element={<ProgressDashboard session={session} roadmapMode={roadmapMode} />} />
           <Route path="/u/:username" element={<PublicProfile />} />
+          <Route path="/u/:username/card" element={<ShareableCard />} />
           <Route path="/playground" element={<Playground theme={theme} preferredLang={profile?.preferred_lang} session={session} />} />
           <Route path="/playground/share/:slug" element={<Playground theme={theme} preferredLang={profile?.preferred_lang} session={session} />} />
           <Route path="/playground/web" element={<WebSandbox theme={theme} />} />

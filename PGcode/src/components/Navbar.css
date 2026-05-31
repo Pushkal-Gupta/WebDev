@@ -128,11 +128,11 @@
   transition: transform var(--t), background var(--t);
 }
 
-[data-theme="dark"] .switch-base {
+[data-theme-mode="dark"] .switch-base {
   background: var(--accent);
 }
 
-[data-theme="dark"] .switch-base::after {
+[data-theme-mode="dark"] .switch-base::after {
   transform: translateX(15px);
   background: var(--bg);
 }

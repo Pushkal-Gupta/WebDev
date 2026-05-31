@@ -22,5 +22,102 @@
     "\"ac\""
   ],
   "content_signature": "2kqqte",
-  "fetched_at": "2026-05-21T06:25:30.568Z"
+  "fetched_at": "2026-05-30T07:01:03.341Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int maxRepeating(string sequence, string word) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int maxRepeating(String sequence, String word) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def maxRepeating(self, sequence: str, word: str) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def maxRepeating(self, sequence, word):\n        \"\"\"\n        :type sequence: str\n        :type word: str\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} sequence\n * @param {string} word\n * @return {number}\n */\nvar maxRepeating = function(sequence, word) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function maxRepeating(sequence: string, word: string): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MaxRepeating(string sequence, string word) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int maxRepeating(char* sequence, char* word) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func maxRepeating(sequence string, word string) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun maxRepeating(sequence: String, word: String): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func maxRepeating(_ sequence: String, _ word: String) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn max_repeating(sequence: String, word: String) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} sequence\n# @param {String} word\n# @return {Integer}\ndef max_repeating(sequence, word)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $sequence\n     * @param String $word\n     * @return Integer\n     */\n    function maxRepeating($sequence, $word) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int maxRepeating(String sequence, String word) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def maxRepeating(sequence: String, word: String): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec max_repeating(sequence :: String.t, word :: String.t) :: integer\n  def max_repeating(sequence, word) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec max_repeating(Sequence :: unicode:unicode_binary(), Word :: unicode:unicode_binary()) -> integer().\nmax_repeating(Sequence, Word) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (max-repeating sequence word)\n  (-> string? string? exact-integer?)\n  )"
+    }
+  ]
 }

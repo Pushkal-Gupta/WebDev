@@ -19,5 +19,102 @@
     "[[],[10,20],[15,25],[20,30]]"
   ],
   "content_signature": "-n0ycpc",
-  "fetched_at": "2026-05-21T06:04:54.736Z"
+  "fetched_at": "2026-05-30T05:31:31.344Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class MyCalendar {\npublic:\n    MyCalendar() {\n        \n    }\n    \n    bool book(int startTime, int endTime) {\n        \n    }\n};\n\n/**\n * Your MyCalendar object will be instantiated and called as such:\n * MyCalendar* obj = new MyCalendar();\n * bool param_1 = obj->book(startTime,endTime);\n */"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class MyCalendar {\n\n    public MyCalendar() {\n        \n    }\n    \n    public boolean book(int startTime, int endTime) {\n        \n    }\n}\n\n/**\n * Your MyCalendar object will be instantiated and called as such:\n * MyCalendar obj = new MyCalendar();\n * boolean param_1 = obj.book(startTime,endTime);\n */"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class MyCalendar:\n\n    def __init__(self):\n        \n\n    def book(self, startTime: int, endTime: int) -> bool:\n        \n\n\n# Your MyCalendar object will be instantiated and called as such:\n# obj = MyCalendar()\n# param_1 = obj.book(startTime,endTime)"
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class MyCalendar(object):\n\n    def __init__(self):\n        \n\n    def book(self, startTime, endTime):\n        \"\"\"\n        :type startTime: int\n        :type endTime: int\n        :rtype: bool\n        \"\"\"\n        \n\n\n# Your MyCalendar object will be instantiated and called as such:\n# obj = MyCalendar()\n# param_1 = obj.book(startTime,endTime)"
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "\nvar MyCalendar = function() {\n    \n};\n\n/** \n * @param {number} startTime \n * @param {number} endTime\n * @return {boolean}\n */\nMyCalendar.prototype.book = function(startTime, endTime) {\n    \n};\n\n/** \n * Your MyCalendar object will be instantiated and called as such:\n * var obj = new MyCalendar()\n * var param_1 = obj.book(startTime,endTime)\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "class MyCalendar {\n    constructor() {\n        \n    }\n\n    book(startTime: number, endTime: number): boolean {\n        \n    }\n}\n\n/**\n * Your MyCalendar object will be instantiated and called as such:\n * var obj = new MyCalendar()\n * var param_1 = obj.book(startTime,endTime)\n */"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class MyCalendar {\n\n    public MyCalendar() {\n        \n    }\n    \n    public bool Book(int startTime, int endTime) {\n        \n    }\n}\n\n/**\n * Your MyCalendar object will be instantiated and called as such:\n * MyCalendar obj = new MyCalendar();\n * bool param_1 = obj.Book(startTime,endTime);\n */"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "\n\n\ntypedef struct {\n    \n} MyCalendar;\n\n\nMyCalendar* myCalendarCreate() {\n    \n}\n\nbool myCalendarBook(MyCalendar* obj, int startTime, int endTime) {\n    \n}\n\nvoid myCalendarFree(MyCalendar* obj) {\n    \n}\n\n/**\n * Your MyCalendar struct will be instantiated and called as such:\n * MyCalendar* obj = myCalendarCreate();\n * bool param_1 = myCalendarBook(obj, startTime, endTime);\n \n * myCalendarFree(obj);\n*/"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "type MyCalendar struct {\n    \n}\n\n\nfunc Constructor() MyCalendar {\n    \n}\n\n\nfunc (this *MyCalendar) Book(startTime int, endTime int) bool {\n    \n}\n\n\n/**\n * Your MyCalendar object will be instantiated and called as such:\n * obj := Constructor();\n * param_1 := obj.Book(startTime,endTime);\n */"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class MyCalendar() {\n\n    fun book(startTime: Int, endTime: Int): Boolean {\n        \n    }\n\n}\n\n/**\n * Your MyCalendar object will be instantiated and called as such:\n * var obj = MyCalendar()\n * var param_1 = obj.book(startTime,endTime)\n */"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "\nclass MyCalendar {\n\n    init() {\n        \n    }\n    \n    func book(_ startTime: Int, _ endTime: Int) -> Bool {\n        \n    }\n}\n\n/**\n * Your MyCalendar object will be instantiated and called as such:\n * let obj = MyCalendar()\n * let ret_1: Bool = obj.book(startTime, endTime)\n */"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "struct MyCalendar {\n\n}\n\n\n/** \n * `&self` means the method takes an immutable reference.\n * If you need a mutable reference, change it to `&mut self` instead.\n */\nimpl MyCalendar {\n\n    fn new() -> Self {\n        \n    }\n    \n    fn book(&self, start_time: i32, end_time: i32) -> bool {\n        \n    }\n}\n\n/**\n * Your MyCalendar object will be instantiated and called as such:\n * let obj = MyCalendar::new();\n * let ret_1: bool = obj.book(startTime, endTime);\n */"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "class MyCalendar\n    def initialize()\n        \n    end\n\n\n=begin\n    :type start_time: Integer\n    :type end_time: Integer\n    :rtype: Boolean\n=end\n    def book(start_time, end_time)\n        \n    end\n\n\nend\n\n# Your MyCalendar object will be instantiated and called as such:\n# obj = MyCalendar.new()\n# param_1 = obj.book(start_time, end_time)"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class MyCalendar {\n    /**\n     */\n    function __construct() {\n        \n    }\n  \n    /**\n     * @param Integer $startTime\n     * @param Integer $endTime\n     * @return Boolean\n     */\n    function book($startTime, $endTime) {\n        \n    }\n}\n\n/**\n * Your MyCalendar object will be instantiated and called as such:\n * $obj = MyCalendar();\n * $ret_1 = $obj->book($startTime, $endTime);\n */"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class MyCalendar {\n\n  MyCalendar() {\n    \n  }\n  \n  bool book(int startTime, int endTime) {\n    \n  }\n}\n\n/**\n * Your MyCalendar object will be instantiated and called as such:\n * MyCalendar obj = MyCalendar();\n * bool param1 = obj.book(startTime,endTime);\n */"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "class MyCalendar() {\n\n    def book(startTime: Int, endTime: Int): Boolean = {\n        \n    }\n\n}\n\n/**\n * Your MyCalendar object will be instantiated and called as such:\n * val obj = new MyCalendar()\n * val param_1 = obj.book(startTime,endTime)\n */"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule MyCalendar do\n  @spec init_() :: any\n  def init_() do\n    \n  end\n\n  @spec book(start_time :: integer, end_time :: integer) :: boolean\n  def book(start_time, end_time) do\n    \n  end\nend\n\n# Your functions will be called as such:\n# MyCalendar.init_()\n# param_1 = MyCalendar.book(start_time, end_time)\n\n# MyCalendar.init_ will be called before every test case, in which you can do some necessary initializations."
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec my_calendar_init_() -> any().\nmy_calendar_init_() ->\n  .\n\n-spec my_calendar_book(StartTime :: integer(), EndTime :: integer()) -> boolean().\nmy_calendar_book(StartTime, EndTime) ->\n  .\n\n\n%% Your functions will be called as such:\n%% my_calendar_init_(),\n%% Param_1 = my_calendar_book(StartTime, EndTime),\n\n%% my_calendar_init_ will be called before every test case, in which you can do some necessary initializations."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define my-calendar%\n  (class object%\n    (super-new)\n    \n    (init-field)\n    \n    ; book : exact-integer? exact-integer? -> boolean?\n    (define/public (book start-time end-time)\n      )))\n\n;; Your my-calendar% object will be instantiated and called as such:\n;; (define obj (new my-calendar%))\n;; (define param_1 (send obj book start-time end-time))"
+    }
+  ]
 }

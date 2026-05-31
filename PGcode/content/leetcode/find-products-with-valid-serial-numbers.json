@@ -12,5 +12,32 @@
     "{\"headers\":{\"products\":[\"product_id\",\"product_name\",\"description\"]},\"rows\":{\"products\":[[1,\"Widget A\",\"This is a sample product with SN1234-5678\"],[2,\"Widget B\",\"A product with serial SN9876-1234 in the description\"],[3,\"Widget C\",\"Product SN1234-56789 is available now\"],[4,\"Widget D\",\"No serial number here\"],[5,\"Widget E\",\"Check out SN4321-8765 in this description\"]]}}"
   ],
   "content_signature": "2fuch9",
-  "fetched_at": "2026-05-21T07:30:08.761Z"
+  "fetched_at": "2026-05-30T05:27:53.975Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef find_valid_serial_products(products: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

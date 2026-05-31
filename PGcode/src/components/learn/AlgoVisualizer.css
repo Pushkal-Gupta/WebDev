@@ -363,20 +363,13 @@
 .viz-tree-block {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   gap: 6px;
   width: 100%;
   max-width: 100%;
-  overflow-x: auto;
-  scrollbar-width: thin;
   padding-bottom: 4px;
+  min-width: 0;
 }
-.viz-array-block::-webkit-scrollbar,
-.viz-window-block::-webkit-scrollbar { height: 4px; }
-.viz-array-block::-webkit-scrollbar-thumb,
-.viz-window-block::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-.viz-array-block > *,
-.viz-window-block > * { flex-shrink: 0; }
 
 /* ── Pointer labels (above cells) ── */
 .viz-pointer-row {
@@ -533,15 +526,14 @@
 .viz-array {
   display: flex;
   align-items: flex-end;
-  gap: 8px;
+  gap: 6px;
   height: 160px;
-  max-width: 100%;
-  overflow-x: auto;
-  scrollbar-width: thin;
+  width: 100%;
   padding-bottom: 4px;
 }
-.viz-array::-webkit-scrollbar { height: 4px; }
-.viz-array::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+@media (max-width: 720px) {
+  .viz-array { gap: 3px; height: 140px; }
+}
 
 /* ── Array tiles (for non-numeric arrays — strings, structured labels) ── */
 .viz-tiles {
@@ -604,7 +596,9 @@
 
 .viz-bar {
   position: relative;
-  width: 52px;
+  flex: 1 1 0;
+  min-width: 6px;
+  max-width: 52px;
   background: var(--border);
   border-radius: 4px 4px 0 0;
   display: flex;
@@ -650,11 +644,14 @@
 /* ── Window cells ── */
 .viz-window {
   display: flex;
-  gap: 8px;
+  gap: 6px;
+  width: 100%;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .viz-cell {
-  width: 60px;
+  width: clamp(28px, 4vw, 60px);
   height: 72px;
   display: flex;
   flex-direction: column;

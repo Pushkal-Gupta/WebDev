@@ -16,5 +16,102 @@
     "2"
   ],
   "content_signature": "-86hc6u",
-  "fetched_at": "2026-05-21T06:00:08.663Z"
+  "fetched_at": "2026-05-30T05:15:57.527Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int findPoisonedDuration(vector<int>& timeSeries, int duration) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int findPoisonedDuration(int[] timeSeries, int duration) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def findPoisonedDuration(self, timeSeries: List[int], duration: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def findPoisonedDuration(self, timeSeries, duration):\n        \"\"\"\n        :type timeSeries: List[int]\n        :type duration: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} timeSeries\n * @param {number} duration\n * @return {number}\n */\nvar findPoisonedDuration = function(timeSeries, duration) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function findPoisonedDuration(timeSeries: number[], duration: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int FindPoisonedDuration(int[] timeSeries, int duration) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int findPoisonedDuration(int* timeSeries, int timeSeriesSize, int duration) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func findPoisonedDuration(timeSeries []int, duration int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun findPoisonedDuration(timeSeries: IntArray, duration: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func findPoisonedDuration(_ timeSeries: [Int], _ duration: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn find_poisoned_duration(time_series: Vec<i32>, duration: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} time_series\n# @param {Integer} duration\n# @return {Integer}\ndef find_poisoned_duration(time_series, duration)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $timeSeries\n     * @param Integer $duration\n     * @return Integer\n     */\n    function findPoisonedDuration($timeSeries, $duration) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int findPoisonedDuration(List<int> timeSeries, int duration) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def findPoisonedDuration(timeSeries: Array[Int], duration: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec find_poisoned_duration(time_series :: [integer], duration :: integer) :: integer\n  def find_poisoned_duration(time_series, duration) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec find_poisoned_duration(TimeSeries :: [integer()], Duration :: integer()) -> integer().\nfind_poisoned_duration(TimeSeries, Duration) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (find-poisoned-duration timeSeries duration)\n  (-> (listof exact-integer?) exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

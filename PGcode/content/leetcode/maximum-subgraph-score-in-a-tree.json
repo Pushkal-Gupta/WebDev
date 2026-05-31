@@ -25,5 +25,102 @@
     "[0,0]"
   ],
   "content_signature": "fmpswm",
-  "fetched_at": "2026-05-21T07:49:43.017Z"
+  "fetched_at": "2026-05-30T07:20:28.170Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> maxSubgraphScore(int n, vector<vector<int>>& edges, vector<int>& good) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] maxSubgraphScore(int n, int[][] edges, int[] good) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def maxSubgraphScore(self, n: int, edges: List[List[int]], good: List[int]) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def maxSubgraphScore(self, n, edges, good):\n        \"\"\"\n        :type n: int\n        :type edges: List[List[int]]\n        :type good: List[int]\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number[][]} edges\n * @param {number[]} good\n * @return {number[]}\n */\nvar maxSubgraphScore = function(n, edges, good) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function maxSubgraphScore(n: number, edges: number[][], good: number[]): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] MaxSubgraphScore(int n, int[][] edges, int[] good) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* maxSubgraphScore(int n, int** edges, int edgesSize, int* edgesColSize, int* good, int goodSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func maxSubgraphScore(n int, edges [][]int, good []int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun maxSubgraphScore(n: Int, edges: Array<IntArray>, good: IntArray): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func maxSubgraphScore(_ n: Int, _ edges: [[Int]], _ good: [Int]) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn max_subgraph_score(n: i32, edges: Vec<Vec<i32>>, good: Vec<i32>) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer[][]} edges\n# @param {Integer[]} good\n# @return {Integer[]}\ndef max_subgraph_score(n, edges, good)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer[][] $edges\n     * @param Integer[] $good\n     * @return Integer[]\n     */\n    function maxSubgraphScore($n, $edges, $good) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> maxSubgraphScore(int n, List<List<int>> edges, List<int> good) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def maxSubgraphScore(n: Int, edges: Array[Array[Int]], good: Array[Int]): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec max_subgraph_score(n :: integer, edges :: [[integer]], good :: [integer]) :: [integer]\n  def max_subgraph_score(n, edges, good) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec max_subgraph_score(N :: integer(), Edges :: [[integer()]], Good :: [integer()]) -> [integer()].\nmax_subgraph_score(N, Edges, Good) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (max-subgraph-score n edges good)\n  (-> exact-integer? (listof (listof exact-integer?)) (listof exact-integer?) (listof exact-integer?))\n  )"
+    }
+  ]
 }

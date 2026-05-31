@@ -12,5 +12,32 @@
     "{\"headers\":{\"DailySales\":[\"date_id\",\"make_name\",\"lead_id\",\"partner_id\"]},\"rows\":{\"DailySales\":[[\"2020-12-8\",\"toyota\",0,1],[\"2020-12-8\",\"toyota\",1,0],[\"2020-12-8\",\"toyota\",1,2],[\"2020-12-7\",\"toyota\",0,2],[\"2020-12-7\",\"toyota\",0,1],[\"2020-12-8\",\"honda\",1,2],[\"2020-12-8\",\"honda\",2,1],[\"2020-12-7\",\"honda\",0,1],[\"2020-12-7\",\"honda\",1,2],[\"2020-12-7\",\"honda\",2,1]]}}"
   ],
   "content_signature": "-vxsqsv",
-  "fetched_at": "2026-05-21T06:26:04.827Z"
+  "fetched_at": "2026-05-30T05:17:48.310Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef daily_leads_and_partners(daily_sales: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

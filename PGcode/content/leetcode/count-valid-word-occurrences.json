@@ -20,5 +20,102 @@
     "[\"cat\",\"dog\",\"mouse\",\"cat-dog\"]"
   ],
   "content_signature": "-l6tycg",
-  "fetched_at": "2026-05-21T07:54:47.343Z"
+  "fetched_at": "2026-05-30T07:18:58.481Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> countWordOccurrences(vector<string>& chunks, vector<string>& queries) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] countWordOccurrences(String[] chunks, String[] queries) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def countWordOccurrences(self, chunks: list[str], queries: list[str]) -> list[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def countWordOccurrences(self, chunks, queries):\n        \"\"\"\n        :type chunks: List[str]\n        :type queries: List[str]\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string[]} chunks\n * @param {string[]} queries\n * @return {number[]}\n */\nvar countWordOccurrences = function(chunks, queries) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function countWordOccurrences(chunks: string[], queries: string[]): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] CountWordOccurrences(string[] chunks, string[] queries) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* countWordOccurrences(char** chunks, int chunksSize, char** queries, int queriesSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func countWordOccurrences(chunks []string, queries []string) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun countWordOccurrences(chunks: Array<String>, queries: Array<String>): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func countWordOccurrences(_ chunks: [String], _ queries: [String]) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn count_word_occurrences(chunks: Vec<String>, queries: Vec<String>) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String[]} chunks\n# @param {String[]} queries\n# @return {Integer[]}\ndef count_word_occurrences(chunks, queries)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[] $chunks\n     * @param String[] $queries\n     * @return Integer[]\n     */\n    function countWordOccurrences($chunks, $queries) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> countWordOccurrences(List<String> chunks, List<String> queries) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def countWordOccurrences(chunks: Array[String], queries: Array[String]): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec count_word_occurrences(chunks :: [String.t], queries :: [String.t]) :: [integer]\n  def count_word_occurrences(chunks, queries) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec count_word_occurrences(Chunks :: [unicode:unicode_binary()], Queries :: [unicode:unicode_binary()]) -> [integer()].\ncount_word_occurrences(Chunks, Queries) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (count-word-occurrences chunks queries)\n  (-> (listof string?) (listof string?) (listof exact-integer?))\n  )"
+    }
+  ]
 }

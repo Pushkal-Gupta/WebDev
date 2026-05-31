@@ -18,5 +18,17 @@
     "[{\"t\":50,\"inputs\":[1,2]},{\"t\":300,\"inputs\":[3,4]},{\"t\":300,\"inputs\":[5,6]}]"
   ],
   "content_signature": "8p8jr0",
-  "fetched_at": "2026-05-21T07:01:58.023Z"
+  "fetched_at": "2026-05-30T07:34:10.585Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {Function} fn\n * @param {number} t milliseconds\n * @return {Function}\n */\nvar debounce = function(fn, t) {\n    \n    return function(...args) {\n        \n    }\n};\n\n/**\n * const log = debounce(console.log, 100);\n * log('Hello'); // cancelled\n * log('Hello'); // cancelled\n * log('Hello'); // Logged at t=100ms\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "type F = (...args: number[]) => void\n\nfunction debounce(fn: F, t: number): F {\n    \n    return function(...args) {\n        \n    }\n};\n\n/**\n * const log = debounce(console.log, 100);\n * log('Hello'); // cancelled\n * log('Hello'); // cancelled\n * log('Hello'); // Logged at t=100ms\n */"
+    }
+  ]
 }

@@ -22,5 +22,102 @@
     "\"Eating\""
   ],
   "content_signature": "ixog4s",
-  "fetched_at": "2026-05-21T06:28:46.415Z"
+  "fetched_at": "2026-05-30T05:23:24.428Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool areSentencesSimilar(string sentence1, string sentence2) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean areSentencesSimilar(String sentence1, String sentence2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def areSentencesSimilar(self, sentence1: str, sentence2: str) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def areSentencesSimilar(self, sentence1, sentence2):\n        \"\"\"\n        :type sentence1: str\n        :type sentence2: str\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} sentence1\n * @param {string} sentence2\n * @return {boolean}\n */\nvar areSentencesSimilar = function(sentence1, sentence2) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function areSentencesSimilar(sentence1: string, sentence2: string): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool AreSentencesSimilar(string sentence1, string sentence2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool areSentencesSimilar(char* sentence1, char* sentence2) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func areSentencesSimilar(sentence1 string, sentence2 string) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun areSentencesSimilar(sentence1: String, sentence2: String): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func areSentencesSimilar(_ sentence1: String, _ sentence2: String) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn are_sentences_similar(sentence1: String, sentence2: String) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} sentence1\n# @param {String} sentence2\n# @return {Boolean}\ndef are_sentences_similar(sentence1, sentence2)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $sentence1\n     * @param String $sentence2\n     * @return Boolean\n     */\n    function areSentencesSimilar($sentence1, $sentence2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool areSentencesSimilar(String sentence1, String sentence2) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def areSentencesSimilar(sentence1: String, sentence2: String): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec are_sentences_similar(sentence1 :: String.t, sentence2 :: String.t) :: boolean\n  def are_sentences_similar(sentence1, sentence2) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec are_sentences_similar(Sentence1 :: unicode:unicode_binary(), Sentence2 :: unicode:unicode_binary()) -> boolean().\nare_sentences_similar(Sentence1, Sentence2) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (are-sentences-similar sentence1 sentence2)\n  (-> string? string? boolean?)\n  )"
+    }
+  ]
 }

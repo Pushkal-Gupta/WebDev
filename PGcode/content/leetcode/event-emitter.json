@@ -17,5 +17,17 @@
     "[[], [\"firstEvent\", \"x => x + 1\"], [\"firstEvent\", \"x => x + 2\"], [0], [\"firstEvent\", [5]]]"
   ],
   "content_signature": "65f6ah",
-  "fetched_at": "2026-05-21T07:03:14.201Z"
+  "fetched_at": "2026-05-30T07:08:51.856Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "class EventEmitter {\n    \n    /**\n     * @param {string} eventName\n     * @param {Function} callback\n     * @return {Object}\n     */\n    subscribe(eventName, callback) {\n        \n        return {\n            unsubscribe: () => {\n                \n            }\n        };\n    }\n    \n    /**\n     * @param {string} eventName\n     * @param {Array} args\n     * @return {Array}\n     */\n    emit(eventName, args = []) {\n        \n    }\n}\n\n/**\n * const emitter = new EventEmitter();\n *\n * // Subscribe to the onClick event with onClickCallback\n * function onClickCallback() { return 99 }\n * const sub = emitter.subscribe('onClick', onClickCallback);\n *\n * emitter.emit('onClick'); // [99]\n * sub.unsubscribe(); // undefined\n * emitter.emit('onClick'); // []\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "type Callback = (...args: any[]) => any;\ntype Subscription = {\n    unsubscribe: () => void\n}\n\nclass EventEmitter {\n    \n    subscribe(eventName: string, callback: Callback): Subscription {\n        \n        return {\n            unsubscribe: () => {\n                \n            }\n        };\n    }\n    \n    emit(eventName: string, args: any[] = []): any[] {\n        \n    }\n}\n\n/**\n * const emitter = new EventEmitter();\n *\n * // Subscribe to the onClick event with onClickCallback\n * function onClickCallback() { return 99 }\n * const sub = emitter.subscribe('onClick', onClickCallback);\n *\n * emitter.emit('onClick'); // [99]\n * sub.unsubscribe(); // undefined\n * emitter.emit('onClick'); // []\n */"
+    }
+  ]
 }

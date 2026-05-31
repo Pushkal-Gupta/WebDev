@@ -22,5 +22,102 @@
     "1"
   ],
   "content_signature": "uwmdkw",
-  "fetched_at": "2026-05-21T06:34:32.035Z"
+  "fetched_at": "2026-05-30T07:34:37.368Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    string decodeCiphertext(string encodedText, int rows) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public String decodeCiphertext(String encodedText, int rows) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def decodeCiphertext(self, encodedText: str, rows: int) -> str:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def decodeCiphertext(self, encodedText, rows):\n        \"\"\"\n        :type encodedText: str\n        :type rows: int\n        :rtype: str\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} encodedText\n * @param {number} rows\n * @return {string}\n */\nvar decodeCiphertext = function(encodedText, rows) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function decodeCiphertext(encodedText: string, rows: number): string {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public string DecodeCiphertext(string encodedText, int rows) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "char* decodeCiphertext(char* encodedText, int rows) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func decodeCiphertext(encodedText string, rows int) string {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun decodeCiphertext(encodedText: String, rows: Int): String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func decodeCiphertext(_ encodedText: String, _ rows: Int) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn decode_ciphertext(encoded_text: String, rows: i32) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} encoded_text\n# @param {Integer} rows\n# @return {String}\ndef decode_ciphertext(encoded_text, rows)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $encodedText\n     * @param Integer $rows\n     * @return String\n     */\n    function decodeCiphertext($encodedText, $rows) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  String decodeCiphertext(String encodedText, int rows) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def decodeCiphertext(encodedText: String, rows: Int): String = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec decode_ciphertext(encoded_text :: String.t, rows :: integer) :: String.t\n  def decode_ciphertext(encoded_text, rows) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec decode_ciphertext(EncodedText :: unicode:unicode_binary(), Rows :: integer()) -> unicode:unicode_binary().\ndecode_ciphertext(EncodedText, Rows) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (decode-ciphertext encodedText rows)\n  (-> string? exact-integer? string?)\n  )"
+    }
+  ]
 }

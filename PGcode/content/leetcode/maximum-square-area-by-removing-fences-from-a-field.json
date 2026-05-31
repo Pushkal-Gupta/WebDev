@@ -25,5 +25,102 @@
     "[4]"
   ],
   "content_signature": "-jvae32",
-  "fetched_at": "2026-05-21T07:09:03.322Z"
+  "fetched_at": "2026-05-30T07:20:13.848Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int maximizeSquareArea(int m, int n, vector<int>& hFences, vector<int>& vFences) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int maximizeSquareArea(int m, int n, int[] hFences, int[] vFences) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def maximizeSquareArea(self, m: int, n: int, hFences: List[int], vFences: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def maximizeSquareArea(self, m, n, hFences, vFences):\n        \"\"\"\n        :type m: int\n        :type n: int\n        :type hFences: List[int]\n        :type vFences: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} m\n * @param {number} n\n * @param {number[]} hFences\n * @param {number[]} vFences\n * @return {number}\n */\nvar maximizeSquareArea = function(m, n, hFences, vFences) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function maximizeSquareArea(m: number, n: number, hFences: number[], vFences: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MaximizeSquareArea(int m, int n, int[] hFences, int[] vFences) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int maximizeSquareArea(int m, int n, int* hFences, int hFencesSize, int* vFences, int vFencesSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func maximizeSquareArea(m int, n int, hFences []int, vFences []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun maximizeSquareArea(m: Int, n: Int, hFences: IntArray, vFences: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func maximizeSquareArea(_ m: Int, _ n: Int, _ hFences: [Int], _ vFences: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn maximize_square_area(m: i32, n: i32, h_fences: Vec<i32>, v_fences: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} m\n# @param {Integer} n\n# @param {Integer[]} h_fences\n# @param {Integer[]} v_fences\n# @return {Integer}\ndef maximize_square_area(m, n, h_fences, v_fences)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $m\n     * @param Integer $n\n     * @param Integer[] $hFences\n     * @param Integer[] $vFences\n     * @return Integer\n     */\n    function maximizeSquareArea($m, $n, $hFences, $vFences) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int maximizeSquareArea(int m, int n, List<int> hFences, List<int> vFences) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def maximizeSquareArea(m: Int, n: Int, hFences: Array[Int], vFences: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec maximize_square_area(m :: integer, n :: integer, h_fences :: [integer], v_fences :: [integer]) :: integer\n  def maximize_square_area(m, n, h_fences, v_fences) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec maximize_square_area(M :: integer(), N :: integer(), HFences :: [integer()], VFences :: [integer()]) -> integer().\nmaximize_square_area(M, N, HFences, VFences) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (maximize-square-area m n hFences vFences)\n  (-> exact-integer? exact-integer? (listof exact-integer?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

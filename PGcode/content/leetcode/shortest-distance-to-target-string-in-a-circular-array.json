@@ -25,5 +25,102 @@
     "0"
   ],
   "content_signature": "-inkr0v",
-  "fetched_at": "2026-05-21T06:56:56.387Z"
+  "fetched_at": "2026-05-30T07:02:27.444Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int closestTarget(vector<string>& words, string target, int startIndex) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int closestTarget(String[] words, String target, int startIndex) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def closestTarget(self, words: List[str], target: str, startIndex: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def closestTarget(self, words, target, startIndex):\n        \"\"\"\n        :type words: List[str]\n        :type target: str\n        :type startIndex: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string[]} words\n * @param {string} target\n * @param {number} startIndex\n * @return {number}\n */\nvar closestTarget = function(words, target, startIndex) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function closestTarget(words: string[], target: string, startIndex: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int ClosestTarget(string[] words, string target, int startIndex) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int closestTarget(char** words, int wordsSize, char* target, int startIndex) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func closestTarget(words []string, target string, startIndex int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun closestTarget(words: Array<String>, target: String, startIndex: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func closestTarget(_ words: [String], _ target: String, _ startIndex: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn closest_target(words: Vec<String>, target: String, start_index: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String[]} words\n# @param {String} target\n# @param {Integer} start_index\n# @return {Integer}\ndef closest_target(words, target, start_index)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[] $words\n     * @param String $target\n     * @param Integer $startIndex\n     * @return Integer\n     */\n    function closestTarget($words, $target, $startIndex) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int closestTarget(List<String> words, String target, int startIndex) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def closestTarget(words: Array[String], target: String, startIndex: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec closest_target(words :: [String.t], target :: String.t, start_index :: integer) :: integer\n  def closest_target(words, target, start_index) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec closest_target(Words :: [unicode:unicode_binary()], Target :: unicode:unicode_binary(), StartIndex :: integer()) -> integer().\nclosest_target(Words, Target, StartIndex) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (closest-target words target startIndex)\n  (-> (listof string?) string? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

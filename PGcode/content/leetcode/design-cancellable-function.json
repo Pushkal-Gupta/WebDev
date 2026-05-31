@@ -25,5 +25,17 @@
     "{\"cancelledAt\":null}"
   ],
   "content_signature": "-2k1peg",
-  "fetched_at": "2026-05-21T07:02:25.767Z"
+  "fetched_at": "2026-05-30T07:35:52.543Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {Generator} generator\n * @return {[Function, Promise]}\n */\nvar cancellable = function(generator) {\n    \n};\n\n/**\n * function* tasks() {\n *   const val = yield new Promise(resolve => resolve(2 + 2));\n *   yield new Promise(resolve => setTimeout(resolve, 100));\n *   return val + 1;\n * }\n * const [cancel, promise] = cancellable(tasks());\n * setTimeout(cancel, 50);\n * promise.catch(console.log); // logs \"Cancelled\" at t=50ms\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function cancellable<T>(generator: Generator<Promise<any>, T, unknown>): [() => void, Promise<T>] {\n    \n};\n\n/**\n * function* tasks() {\n *   const val = yield new Promise(resolve => resolve(2 + 2));\n *   yield new Promise(resolve => setTimeout(resolve, 100));\n *   return val + 1;\n * }\n * const [cancel, promise] = cancellable(tasks());\n * setTimeout(cancel, 50);\n * promise.catch(console.log); // logs \"Cancelled\" at t=50ms\n */"
+    }
+  ]
 }

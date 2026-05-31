@@ -12,5 +12,12 @@
     "Line 1\\nLine 2\\nLine 3\\nLine 4\\nLine 5\\nLine 6\\nLine 7\\nLine 8\\nLine 9\\nLine 10"
   ],
   "content_signature": "-b8hfk8",
-  "fetched_at": "2026-05-21T05:54:19.192Z"
+  "fetched_at": "2026-05-30T06:35:38.863Z",
+  "code_snippets": [
+    {
+      "lang": "Bash",
+      "langSlug": "bash",
+      "code": "# Read from the file file.txt and output the tenth line to stdout.\n"
+    }
+  ]
 }

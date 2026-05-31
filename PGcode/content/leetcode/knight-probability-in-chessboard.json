@@ -19,5 +19,102 @@
     "0"
   ],
   "content_signature": "-jc27a0",
-  "fetched_at": "2026-05-21T06:04:01.391Z"
+  "fetched_at": "2026-05-30T06:59:03.332Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    double knightProbability(int n, int k, int row, int column) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public double knightProbability(int n, int k, int row, int column) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def knightProbability(self, n: int, k: int, row: int, column: int) -> float:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def knightProbability(self, n, k, row, column):\n        \"\"\"\n        :type n: int\n        :type k: int\n        :type row: int\n        :type column: int\n        :rtype: float\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number} k\n * @param {number} row\n * @param {number} column\n * @return {number}\n */\nvar knightProbability = function(n, k, row, column) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function knightProbability(n: number, k: number, row: number, column: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public double KnightProbability(int n, int k, int row, int column) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "double knightProbability(int n, int k, int row, int column) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func knightProbability(n int, k int, row int, column int) float64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun knightProbability(n: Int, k: Int, row: Int, column: Int): Double {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func knightProbability(_ n: Int, _ k: Int, _ row: Int, _ column: Int) -> Double {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn knight_probability(n: i32, k: i32, row: i32, column: i32) -> f64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer} k\n# @param {Integer} row\n# @param {Integer} column\n# @return {Float}\ndef knight_probability(n, k, row, column)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer $k\n     * @param Integer $row\n     * @param Integer $column\n     * @return Float\n     */\n    function knightProbability($n, $k, $row, $column) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  double knightProbability(int n, int k, int row, int column) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def knightProbability(n: Int, k: Int, row: Int, column: Int): Double = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec knight_probability(n :: integer, k :: integer, row :: integer, column :: integer) :: float\n  def knight_probability(n, k, row, column) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec knight_probability(N :: integer(), K :: integer(), Row :: integer(), Column :: integer()) -> float().\nknight_probability(N, K, Row, Column) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (knight-probability n k row column)\n  (-> exact-integer? exact-integer? exact-integer? exact-integer? flonum?)\n  )"
+    }
+  ]
 }

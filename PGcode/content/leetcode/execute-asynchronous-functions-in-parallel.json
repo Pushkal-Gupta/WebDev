@@ -12,5 +12,17 @@
     "[() => new Promise(resolve => setTimeout(() => resolve(4), 50)), () => new Promise(resolve => setTimeout(() => resolve(10), 150)), () => new Promise(resolve => setTimeout(() => resolve(16), 100))]"
   ],
   "content_signature": "-quc0ws",
-  "fetched_at": "2026-05-21T07:03:48.069Z"
+  "fetched_at": "2026-05-30T05:17:51.310Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {Array<Function>} functions\n * @return {Promise<any>}\n */\nvar promiseAll = function(functions) {\n    \n};\n\n/**\n * const promise = promiseAll([() => new Promise(res => res(42))])\n * promise.then(console.log); // [42]\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "type Fn<T> = () => Promise<T>\n\nfunction promiseAll<T>(functions: Fn<T>[]): Promise<T[]> {\n    \n};\n\n/**\n * const promise = promiseAll([() => new Promise(res => res(42))])\n * promise.then(console.log); // [42]\n */"
+    }
+  ]
 }

@@ -18,5 +18,102 @@
     "4"
   ],
   "content_signature": "nefuol",
-  "fetched_at": "2026-05-21T06:07:40.646Z"
+  "fetched_at": "2026-05-30T05:52:21.983Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool isNStraightHand(vector<int>& hand, int groupSize) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean isNStraightHand(int[] hand, int groupSize) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def isNStraightHand(self, hand: List[int], groupSize: int) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def isNStraightHand(self, hand, groupSize):\n        \"\"\"\n        :type hand: List[int]\n        :type groupSize: int\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} hand\n * @param {number} groupSize\n * @return {boolean}\n */\nvar isNStraightHand = function(hand, groupSize) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function isNStraightHand(hand: number[], groupSize: number): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool IsNStraightHand(int[] hand, int groupSize) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool isNStraightHand(int* hand, int handSize, int groupSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func isNStraightHand(hand []int, groupSize int) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun isNStraightHand(hand: IntArray, groupSize: Int): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func isNStraightHand(_ hand: [Int], _ groupSize: Int) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn is_n_straight_hand(hand: Vec<i32>, group_size: i32) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} hand\n# @param {Integer} group_size\n# @return {Boolean}\ndef is_n_straight_hand(hand, group_size)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $hand\n     * @param Integer $groupSize\n     * @return Boolean\n     */\n    function isNStraightHand($hand, $groupSize) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool isNStraightHand(List<int> hand, int groupSize) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def isNStraightHand(hand: Array[Int], groupSize: Int): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec is_n_straight_hand(hand :: [integer], group_size :: integer) :: boolean\n  def is_n_straight_hand(hand, group_size) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec is_n_straight_hand(Hand :: [integer()], GroupSize :: integer()) -> boolean().\nis_n_straight_hand(Hand, GroupSize) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (is-n-straight-hand hand groupSize)\n  (-> (listof exact-integer?) exact-integer? boolean?)\n  )"
+    }
+  ]
 }

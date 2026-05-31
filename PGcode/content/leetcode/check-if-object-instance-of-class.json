@@ -18,5 +18,17 @@
     "() => checkIfInstanceOf(5, Number)"
   ],
   "content_signature": "d0oxm9",
-  "fetched_at": "2026-05-21T07:01:43.030Z"
+  "fetched_at": "2026-05-30T07:05:48.022Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {*} obj\n * @param {*} classFunction\n * @return {boolean}\n */\nvar checkIfInstanceOf = function(obj, classFunction) {\n    \n};\n\n/**\n * checkIfInstanceOf(new Date(), Date); // true\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function checkIfInstanceOf(obj: any, classFunction: any): boolean {\n    \n};\n\n/**\n * checkIfInstanceOf(new Date(), Date); // true\n */"
+    }
+  ]
 }

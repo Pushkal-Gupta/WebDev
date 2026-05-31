@@ -19,5 +19,102 @@
     "4"
   ],
   "content_signature": "-j6854f",
-  "fetched_at": "2026-05-21T07:27:43.235Z"
+  "fetched_at": "2026-05-30T05:26:30.491Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    string answerString(string word, int numFriends) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public String answerString(String word, int numFriends) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def answerString(self, word: str, numFriends: int) -> str:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def answerString(self, word, numFriends):\n        \"\"\"\n        :type word: str\n        :type numFriends: int\n        :rtype: str\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} word\n * @param {number} numFriends\n * @return {string}\n */\nvar answerString = function(word, numFriends) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function answerString(word: string, numFriends: number): string {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public string AnswerString(string word, int numFriends) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "char* answerString(char* word, int numFriends) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func answerString(word string, numFriends int) string {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun answerString(word: String, numFriends: Int): String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func answerString(_ word: String, _ numFriends: Int) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn answer_string(word: String, num_friends: i32) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} word\n# @param {Integer} num_friends\n# @return {String}\ndef answer_string(word, num_friends)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $word\n     * @param Integer $numFriends\n     * @return String\n     */\n    function answerString($word, $numFriends) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  String answerString(String word, int numFriends) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def answerString(word: String, numFriends: Int): String = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec answer_string(word :: String.t, num_friends :: integer) :: String.t\n  def answer_string(word, num_friends) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec answer_string(Word :: unicode:unicode_binary(), NumFriends :: integer()) -> unicode:unicode_binary().\nanswer_string(Word, NumFriends) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (answer-string word numFriends)\n  (-> string? exact-integer? string?)\n  )"
+    }
+  ]
 }

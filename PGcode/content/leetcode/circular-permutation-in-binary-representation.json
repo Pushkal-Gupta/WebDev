@@ -20,5 +20,82 @@
     "2"
   ],
   "content_signature": "-jvzbxy",
-  "fetched_at": "2026-05-21T06:16:12.504Z"
+  "fetched_at": "2026-05-30T07:08:42.636Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\r\npublic:\r\n    vector<int> circularPermutation(int n, int start) {\r\n        \r\n    }\r\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\r\n    public List<Integer> circularPermutation(int n, int start) {\r\n        \r\n    }\r\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\r\n    def circularPermutation(self, n: int, start: int) -> List[int]:"
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\r\n    def circularPermutation(self, n, start):\r\n        \"\"\"\r\n        :type n: int\r\n        :type start: int\r\n        :rtype: List[int]\r\n        \"\"\""
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\r\n * @param {number} n\r\n * @param {number} start\r\n * @return {number[]}\r\n */\r\nvar circularPermutation = function(n, start) {\r\n    \r\n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function circularPermutation(n: number, start: number): number[] {\r\n\r\n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\r\n    public IList<int> CircularPermutation(int n, int start) {\r\n        \r\n    }\r\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\r\n * Note: The returned array must be malloced, assume caller calls free().\r\n */\r\nint* circularPermutation(int n, int start, int* returnSize){\r\n\r\n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func circularPermutation(n int, start int) []int {\r\n    \r\n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\r\n    fun circularPermutation(n: Int, start: Int): List<Int> {\r\n        \r\n    }\r\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\r\n    func circularPermutation(_ n: Int, _ start: Int) -> [Int] {\r\n        \r\n    }\r\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\r\n    pub fn circular_permutation(n: i32, start: i32) -> Vec<i32> {\r\n        \r\n    }\r\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\r\n# @param {Integer} start\r\n# @return {Integer[]}\r\ndef circular_permutation(n, start)\r\n    \r\nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\r\n\r\n    /**\r\n     * @param Integer $n\r\n     * @param Integer $start\r\n     * @return Integer[]\r\n     */\r\n    function circularPermutation($n, $start) {\r\n        \r\n    }\r\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\r\n    def circularPermutation(n: Int, start: Int): List[Int] = {\r\n        \r\n    }\r\n}"
+    }
+  ]
 }

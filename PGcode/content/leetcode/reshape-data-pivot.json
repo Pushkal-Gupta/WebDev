@@ -12,5 +12,12 @@
     "{\"headers\":{\"weather\":[\"city\",\"month\",\"temperature\"]},\"rows\":{\"weather\":[[\"Jacksonville\",\"January\",13],[\"Jacksonville\",\"February\",23],[\"Jacksonville\",\"March\",38],[\"Jacksonville\",\"April\",5],[\"Jacksonville\",\"May\",34],[\"ElPaso\",\"January\",20],[\"ElPaso\",\"February\",6],[\"ElPaso\",\"March\",26],[\"ElPaso\",\"April\",2],[\"ElPaso\",\"May\",43]]}}"
   ],
   "content_signature": "-a7kgmd",
-  "fetched_at": "2026-05-21T07:07:07.589Z"
+  "fetched_at": "2026-05-30T05:43:47.686Z",
+  "code_snippets": [
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef pivotTable(weather: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

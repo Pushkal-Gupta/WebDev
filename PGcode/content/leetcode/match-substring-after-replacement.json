@@ -26,5 +26,102 @@
     "[[\"e\",\"3\"],[\"t\",\"7\"],[\"t\",\"8\"],[\"d\",\"b\"],[\"p\",\"b\"]]"
   ],
   "content_signature": "-i6392p",
-  "fetched_at": "2026-05-21T06:39:28.369Z"
+  "fetched_at": "2026-05-30T06:55:49.514Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool matchReplacement(string s, string sub, vector<vector<char>>& mappings) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean matchReplacement(String s, String sub, char[][] mappings) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def matchReplacement(self, s: str, sub: str, mappings: List[List[str]]) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def matchReplacement(self, s, sub, mappings):\n        \"\"\"\n        :type s: str\n        :type sub: str\n        :type mappings: List[List[str]]\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} s\n * @param {string} sub\n * @param {character[][]} mappings\n * @return {boolean}\n */\nvar matchReplacement = function(s, sub, mappings) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function matchReplacement(s: string, sub: string, mappings: string[][]): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool MatchReplacement(string s, string sub, char[][] mappings) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool matchReplacement(char* s, char* sub, char** mappings, int mappingsSize, int* mappingsColSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func matchReplacement(s string, sub string, mappings [][]byte) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun matchReplacement(s: String, sub: String, mappings: Array<CharArray>): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func matchReplacement(_ s: String, _ sub: String, _ mappings: [[Character]]) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn match_replacement(s: String, sub: String, mappings: Vec<Vec<char>>) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} s\n# @param {String} sub\n# @param {Character[][]} mappings\n# @return {Boolean}\ndef match_replacement(s, sub, mappings)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $s\n     * @param String $sub\n     * @param String[][] $mappings\n     * @return Boolean\n     */\n    function matchReplacement($s, $sub, $mappings) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool matchReplacement(String s, String sub, List<List<String>> mappings) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def matchReplacement(s: String, sub: String, mappings: Array[Array[Char]]): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec match_replacement(s :: String.t, sub :: String.t, mappings :: [[char]]) :: boolean\n  def match_replacement(s, sub, mappings) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec match_replacement(S :: unicode:unicode_binary(), Sub :: unicode:unicode_binary(), Mappings :: [[char()]]) -> boolean().\nmatch_replacement(S, Sub, Mappings) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (match-replacement s sub mappings)\n  (-> string? string? (listof (listof char?)) boolean?)\n  )"
+    }
+  ]
 }

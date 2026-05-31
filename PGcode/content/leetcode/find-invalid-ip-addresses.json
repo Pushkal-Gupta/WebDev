@@ -12,5 +12,32 @@
     "{\"headers\":{\"logs\":[\"log_id\",\"ip\",\"status_code\"]},\"rows\":{\"logs\":[[1,\"192.168.1.1\",200],[2,\"256.1.2.3\",404],[3,\"192.168.001.1\",200],[4,\"192.168.1.1\",200],[5,\"192.168.1\",500],[6,\"256.1.2.3\",404],[7,\"192.168.001.1\",200]]}}"
   ],
   "content_signature": "-ueorcj",
-  "fetched_at": "2026-05-21T07:29:47.182Z"
+  "fetched_at": "2026-05-30T05:23:51.122Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef find_invalid_ips(logs: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

@@ -12,5 +12,32 @@
     "{\"headers\":{\"Products\":[\"product_id\",\"new_price\",\"change_date\"]},\"rows\":{\"Products\":[[1,20,\"2019-08-14\"],[2,50,\"2019-08-14\"],[1,30,\"2019-08-15\"],[1,35,\"2019-08-16\"],[2,65,\"2019-08-17\"],[3,20,\"2019-08-18\"]]}}"
   ],
   "content_signature": "7v4tyd",
-  "fetched_at": "2026-05-21T06:14:57.428Z"
+  "fetched_at": "2026-05-30T06:50:42.481Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef price_at_given_date(products: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

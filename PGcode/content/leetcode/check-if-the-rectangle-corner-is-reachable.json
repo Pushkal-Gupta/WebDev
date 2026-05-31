@@ -33,5 +33,102 @@
     "[[5,5,1]]"
   ],
   "content_signature": "-urryg5",
-  "fetched_at": "2026-05-21T07:14:11.635Z"
+  "fetched_at": "2026-05-30T07:06:48.834Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool canReachCorner(int xCorner, int yCorner, vector<vector<int>>& circles) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean canReachCorner(int xCorner, int yCorner, int[][] circles) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def canReachCorner(self, xCorner: int, yCorner: int, circles: List[List[int]]) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def canReachCorner(self, xCorner, yCorner, circles):\n        \"\"\"\n        :type xCorner: int\n        :type yCorner: int\n        :type circles: List[List[int]]\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} xCorner\n * @param {number} yCorner\n * @param {number[][]} circles\n * @return {boolean}\n */\nvar canReachCorner = function(xCorner, yCorner, circles) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function canReachCorner(xCorner: number, yCorner: number, circles: number[][]): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool CanReachCorner(int xCorner, int yCorner, int[][] circles) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool canReachCorner(int xCorner, int yCorner, int** circles, int circlesSize, int* circlesColSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func canReachCorner(xCorner int, yCorner int, circles [][]int) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun canReachCorner(xCorner: Int, yCorner: Int, circles: Array<IntArray>): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func canReachCorner(_ xCorner: Int, _ yCorner: Int, _ circles: [[Int]]) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn can_reach_corner(x_corner: i32, y_corner: i32, circles: Vec<Vec<i32>>) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} x_corner\n# @param {Integer} y_corner\n# @param {Integer[][]} circles\n# @return {Boolean}\ndef can_reach_corner(x_corner, y_corner, circles)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $xCorner\n     * @param Integer $yCorner\n     * @param Integer[][] $circles\n     * @return Boolean\n     */\n    function canReachCorner($xCorner, $yCorner, $circles) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool canReachCorner(int xCorner, int yCorner, List<List<int>> circles) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def canReachCorner(xCorner: Int, yCorner: Int, circles: Array[Array[Int]]): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec can_reach_corner(x_corner :: integer, y_corner :: integer, circles :: [[integer]]) :: boolean\n  def can_reach_corner(x_corner, y_corner, circles) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec can_reach_corner(XCorner :: integer(), YCorner :: integer(), Circles :: [[integer()]]) -> boolean().\ncan_reach_corner(XCorner, YCorner, Circles) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (can-reach-corner xCorner yCorner circles)\n  (-> exact-integer? exact-integer? (listof (listof exact-integer?)) boolean?)\n  )"
+    }
+  ]
 }

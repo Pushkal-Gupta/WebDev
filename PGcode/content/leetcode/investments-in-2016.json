@@ -14,5 +14,32 @@
     "{\"headers\":{\"Insurance\":[\"pid\",\"tiv_2015\",\"tiv_2016\",\"lat\",\"lon\"]},\"rows\":{\"Insurance\":[[1,10,5,10,10],[2,20,20,20,20],[3,10,30,20,20],[4,10,40,40,40]]}}"
   ],
   "content_signature": "alap3d",
-  "fetched_at": "2026-05-21T06:01:54.756Z"
+  "fetched_at": "2026-05-30T06:45:47.772Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef find_investments(insurance: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

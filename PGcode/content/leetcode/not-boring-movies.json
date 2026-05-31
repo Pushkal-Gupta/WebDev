@@ -12,5 +12,32 @@
     "{\"headers\":{\"cinema\":[\"id\", \"movie\", \"description\", \"rating\"]},\"rows\":{\"cinema\":[[1, \"War\", \"great 3D\", 8.9], [2, \"Science\", \"fiction\", 8.5], [3, \"irish\", \"boring\", 6.2], [4, \"Ice song\", \"Fantacy\", 8.6], [5, \"House card\", \"Interesting\", 9.1]]}}"
   ],
   "content_signature": "poow3m",
-  "fetched_at": "2026-05-21T06:02:34.107Z"
+  "fetched_at": "2026-05-30T05:49:11.796Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef not_boring_movies(cinema: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

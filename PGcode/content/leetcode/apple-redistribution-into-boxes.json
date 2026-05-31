@@ -20,5 +20,102 @@
     "[2,4,2,7]"
   ],
   "content_signature": "eiwd17",
-  "fetched_at": "2026-05-21T07:10:47.417Z"
+  "fetched_at": "2026-05-30T06:54:27.016Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int minimumBoxes(vector<int>& apple, vector<int>& capacity) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int minimumBoxes(int[] apple, int[] capacity) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minimumBoxes(self, apple: List[int], capacity: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minimumBoxes(self, apple, capacity):\n        \"\"\"\n        :type apple: List[int]\n        :type capacity: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} apple\n * @param {number[]} capacity\n * @return {number}\n */\nvar minimumBoxes = function(apple, capacity) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minimumBoxes(apple: number[], capacity: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MinimumBoxes(int[] apple, int[] capacity) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int minimumBoxes(int* apple, int appleSize, int* capacity, int capacitySize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minimumBoxes(apple []int, capacity []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minimumBoxes(apple: IntArray, capacity: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minimumBoxes(_ apple: [Int], _ capacity: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn minimum_boxes(apple: Vec<i32>, capacity: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} apple\n# @param {Integer[]} capacity\n# @return {Integer}\ndef minimum_boxes(apple, capacity)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $apple\n     * @param Integer[] $capacity\n     * @return Integer\n     */\n    function minimumBoxes($apple, $capacity) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minimumBoxes(List<int> apple, List<int> capacity) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minimumBoxes(apple: Array[Int], capacity: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec minimum_boxes(apple :: [integer], capacity :: [integer]) :: integer\n  def minimum_boxes(apple, capacity) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec minimum_boxes(Apple :: [integer()], Capacity :: [integer()]) -> integer().\nminimum_boxes(Apple, Capacity) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (minimum-boxes apple capacity)\n  (-> (listof exact-integer?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

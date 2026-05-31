@@ -25,5 +25,102 @@
     "1"
   ],
   "content_signature": "fzqw91",
-  "fetched_at": "2026-05-21T06:01:46.830Z"
+  "fetched_at": "2026-05-30T06:38:32.436Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int findPaths(int m, int n, int maxMove, int startRow, int startColumn) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int findPaths(int m, int n, int maxMove, int startRow, int startColumn) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def findPaths(self, m: int, n: int, maxMove: int, startRow: int, startColumn: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def findPaths(self, m, n, maxMove, startRow, startColumn):\n        \"\"\"\n        :type m: int\n        :type n: int\n        :type maxMove: int\n        :type startRow: int\n        :type startColumn: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} m\n * @param {number} n\n * @param {number} maxMove\n * @param {number} startRow\n * @param {number} startColumn\n * @return {number}\n */\nvar findPaths = function(m, n, maxMove, startRow, startColumn) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function findPaths(m: number, n: number, maxMove: number, startRow: number, startColumn: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int FindPaths(int m, int n, int maxMove, int startRow, int startColumn) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int findPaths(int m, int n, int maxMove, int startRow, int startColumn) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func findPaths(m int, n int, maxMove int, startRow int, startColumn int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun findPaths(m: Int, n: Int, maxMove: Int, startRow: Int, startColumn: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func findPaths(_ m: Int, _ n: Int, _ maxMove: Int, _ startRow: Int, _ startColumn: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn find_paths(m: i32, n: i32, max_move: i32, start_row: i32, start_column: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} m\n# @param {Integer} n\n# @param {Integer} max_move\n# @param {Integer} start_row\n# @param {Integer} start_column\n# @return {Integer}\ndef find_paths(m, n, max_move, start_row, start_column)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $m\n     * @param Integer $n\n     * @param Integer $maxMove\n     * @param Integer $startRow\n     * @param Integer $startColumn\n     * @return Integer\n     */\n    function findPaths($m, $n, $maxMove, $startRow, $startColumn) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int findPaths(int m, int n, int maxMove, int startRow, int startColumn) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def findPaths(m: Int, n: Int, maxMove: Int, startRow: Int, startColumn: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec find_paths(m :: integer, n :: integer, max_move :: integer, start_row :: integer, start_column :: integer) :: integer\n  def find_paths(m, n, max_move, start_row, start_column) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec find_paths(M :: integer(), N :: integer(), MaxMove :: integer(), StartRow :: integer(), StartColumn :: integer()) -> integer().\nfind_paths(M, N, MaxMove, StartRow, StartColumn) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (find-paths m n maxMove startRow startColumn)\n  (-> exact-integer? exact-integer? exact-integer? exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

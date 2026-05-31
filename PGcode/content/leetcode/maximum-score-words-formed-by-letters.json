@@ -29,5 +29,102 @@
     "[0,0,1,1,1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,0,0]"
   ],
   "content_signature": "oi459u",
-  "fetched_at": "2026-05-21T06:16:29.967Z"
+  "fetched_at": "2026-05-30T05:18:40.274Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int maxScoreWords(vector<string>& words, vector<char>& letters, vector<int>& score) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int maxScoreWords(String[] words, char[] letters, int[] score) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def maxScoreWords(self, words: List[str], letters: List[str], score: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def maxScoreWords(self, words, letters, score):\n        \"\"\"\n        :type words: List[str]\n        :type letters: List[str]\n        :type score: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string[]} words\n * @param {character[]} letters\n * @param {number[]} score\n * @return {number}\n */\nvar maxScoreWords = function(words, letters, score) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function maxScoreWords(words: string[], letters: string[], score: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MaxScoreWords(string[] words, char[] letters, int[] score) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int maxScoreWords(char** words, int wordsSize, char* letters, int lettersSize, int* score, int scoreSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func maxScoreWords(words []string, letters []byte, score []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun maxScoreWords(words: Array<String>, letters: CharArray, score: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func maxScoreWords(_ words: [String], _ letters: [Character], _ score: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn max_score_words(words: Vec<String>, letters: Vec<char>, score: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String[]} words\n# @param {Character[]} letters\n# @param {Integer[]} score\n# @return {Integer}\ndef max_score_words(words, letters, score)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[] $words\n     * @param String[] $letters\n     * @param Integer[] $score\n     * @return Integer\n     */\n    function maxScoreWords($words, $letters, $score) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int maxScoreWords(List<String> words, List<String> letters, List<int> score) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def maxScoreWords(words: Array[String], letters: Array[Char], score: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec max_score_words(words :: [String.t], letters :: [char], score :: [integer]) :: integer\n  def max_score_words(words, letters, score) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec max_score_words(Words :: [unicode:unicode_binary()], Letters :: [char()], Score :: [integer()]) -> integer().\nmax_score_words(Words, Letters, Score) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (max-score-words words letters score)\n  (-> (listof string?) (listof char?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

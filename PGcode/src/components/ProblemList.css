@@ -4,10 +4,13 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 1.25rem 0 1.75rem;
-  min-height: calc(100vh - 100px);
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: calc(100dvh - 80px);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* ── Header ── */

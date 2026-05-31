@@ -19,5 +19,82 @@
     "3"
   ],
   "content_signature": "mqouqr",
-  "fetched_at": "2026-05-21T06:13:49.044Z"
+  "fetched_at": "2026-05-30T07:37:44.909Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "/**\n * // This is the MountainArray's API interface.\n * // You should not implement it, or speculate about its implementation\n * class MountainArray {\n *   public:\n *     int get(int index);\n *     int length();\n * };\n */\n\nclass Solution {\npublic:\n    int findInMountainArray(int target, MountainArray &mountainArr) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "/**\n * // This is MountainArray's API interface.\n * // You should not implement it, or speculate about its implementation\n * interface MountainArray {\n *     public int get(int index) {}\n *     public int length() {}\n * }\n */\n \nclass Solution {\n    public int findInMountainArray(int target, MountainArray mountainArr) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "# \"\"\"\n# This is MountainArray's API interface.\n# You should not implement it, or speculate about its implementation\n# \"\"\"\n#class MountainArray:\n#    def get(self, index: int) -> int:\n#    def length(self) -> int:\n\nclass Solution:\n    def findInMountainArray(self, target: int, mountainArr: 'MountainArray') -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "# \"\"\"\n# This is MountainArray's API interface.\n# You should not implement it, or speculate about its implementation\n# \"\"\"\n#class MountainArray(object):\n#    def get(self, index):\n#        \"\"\"\n#        :type index: int\n#        :rtype int\n#        \"\"\"\n#\n#    def length(self):\n#        \"\"\"\n#        :rtype int\n#        \"\"\"\n\nclass Solution(object):\n    def findInMountainArray(self, target, mountainArr):\n        \"\"\"\n        :type target: integer\n        :type mountain_arr: MountainArray\n        :rtype: integer\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * // This is the MountainArray's API interface.\n * // You should not implement it, or speculate about its implementation\n * function MountainArray() {\n *     @param {number} index\n *     @return {number}\n *     this.get = function(index) {\n *         ...\n *     };\n *\n *     @return {number}\n *     this.length = function() {\n *         ...\n *     };\n * };\n */\n\n/**\n * @param {number} target\n * @param {MountainArray} mountainArr\n * @return {number}\n */\nvar findInMountainArray = function(target, mountainArr) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "/**\n * // This is the MountainArray's API interface.\n * // You should not implement it, or speculate about its implementation\n * class MountainArray {\n *      get(index: number): number {}\n *\n *      length(): number {}\n * }\n */\n\nfunction findInMountainArray(target: number, mountainArr: MountainArray) {\n\t\n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "/**\n * // This is MountainArray's API interface.\n * // You should not implement it, or speculate about its implementation\n * class MountainArray {\n *     public int Get(int index) {}\n *     public int Length() {}\n * }\n */\n\nclass Solution {\n    public int FindInMountainArray(int target, MountainArray mountainArr) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * *********************************************************************\n * // This is the MountainArray's API interface.\n * // You should not implement it, or speculate about its implementation\n * *********************************************************************\n *\n * int get(MountainArray *, int index);\n * int length(MountainArray *);\n */\n\nint findInMountainArray(int target, MountainArray* mountainArr) {\n\t\n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "/**\n * // This is the MountainArray's API interface.\n * // You should not implement it, or speculate about its implementation\n * type MountainArray struct {\n * }\n *\n * func (this *MountainArray) get(index int) int {}\n * func (this *MountainArray) length() int {}\n */\n\nfunc findInMountainArray(target int, mountainArr *MountainArray) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "/**\n * // This is MountainArray's API interface.\n * // You should not implement it, or speculate about its implementation\n * class MountainArray {\n *     fun get(index: Int): Int {}\n *     fun length(): Int {}\n * }\n */\n\nclass Solution {\n    fun findInMountainArray(target: Int, mountainArr: MountainArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "/**\n * // This is MountainArray's API interface.\n * // You should not implement it, or speculate about its implementation\n * interface MountainArray {\n *     public func get(_ index: Int) -> Int {}\n *     public func length() -> Int {}\n * }\n */\n\nclass Solution {\n    func findInMountainArray(_ target: Int, _ mountainArr: MountainArray) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "/**\n * // This is the MountainArray's API interface.\n * // You should not implement it, or speculate about its implementation\n *  struct MountainArray;\n *  impl MountainArray {\n *     fn get(index:i32)->i32;\n *     fn length()->i32;\n * };\n */\n\nimpl Solution {\n    pub fn find_in_mountain_array(target: i32, mountainArr: &MountainArray) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# This is MountainArray's API interface.\n# You should not implement it, or speculate about its implementation\n# class MountainArray\n#    def get(index):\n#       \n#    end\n#\n#    def length()\n#\t\t\n#\t end\n# end\n\n# @param {int} int\n# @param {MountainArray} mountain_arr\n# @return {int}\ndef findInMountainArray(target, mountainArr)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "/**\n * // This is MountainArray's API interface.\n * // You should not implement it, or speculate about its implementation\n * class MountainArray {\n *     function get($index) {}\n *     function length() {}\n * }\n */\n\nclass Solution {\n    /**\n     * @param Integer $target\n     * @param MountainArray $mountainArr\n     * @return Integer\n     */\n    function findInMountainArray($target, $mountainArr) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "/**\n * // This is MountainArray's API interface.\n * // You should not implement it, or speculate about its implementation\n * class MountainArray {\n *     def get(index: Int): Int = {}\n *     def length(): Int = {}\n * }\n */\n\nobject Solution {\n    def findInMountainArray(value: Int, mountainArr: MountainArray): Int = {\n        \n\t}\n}"
+    }
+  ]
 }

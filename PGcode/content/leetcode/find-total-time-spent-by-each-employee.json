@@ -12,5 +12,32 @@
     "{\"headers\":{\"Employees\":[\"emp_id\",\"event_day\",\"in_time\",\"out_time\"]},\"rows\":{\"Employees\":[[\"1\",\"2020-11-28\",\"4\",\"32\"],[\"1\",\"2020-11-28\",\"55\",\"200\"],[\"1\",\"2020-12-3\",\"1\",\"42\"],[\"2\",\"2020-11-28\",\"3\",\"33\"],[\"2\",\"2020-12-9\",\"47\",\"74\"]]}}"
   ],
   "content_signature": "9oz8le",
-  "fetched_at": "2026-05-21T06:27:11.804Z"
+  "fetched_at": "2026-05-30T05:20:40.300Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef total_time(employees: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

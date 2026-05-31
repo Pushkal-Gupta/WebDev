@@ -12,5 +12,32 @@
     "{\"headers\":{\"Salary\":[\"id\",\"name\",\"sex\",\"salary\"]},\"rows\":{\"Salary\":[[1,\"A\",\"m\",2500],[2,\"B\",\"f\",1500],[3,\"C\",\"m\",5500],[4,\"D\",\"f\",500]]}}"
   ],
   "content_signature": "91z3l3",
-  "fetched_at": "2026-05-21T06:02:43.528Z"
+  "fetched_at": "2026-05-30T06:35:25.987Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef swap_salary(salary: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

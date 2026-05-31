@@ -24,5 +24,102 @@
     "5"
   ],
   "content_signature": "upf6t2",
-  "fetched_at": "2026-05-21T07:15:15.328Z"
+  "fetched_at": "2026-05-30T05:19:53.267Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool findSafeWalk(vector<vector<int>>& grid, int health) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean findSafeWalk(List<List<Integer>> grid, int health) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def findSafeWalk(self, grid: List[List[int]], health: int) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def findSafeWalk(self, grid, health):\n        \"\"\"\n        :type grid: List[List[int]]\n        :type health: int\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} grid\n * @param {number} health\n * @return {boolean}\n */\nvar findSafeWalk = function(grid, health) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function findSafeWalk(grid: number[][], health: number): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool FindSafeWalk(IList<IList<int>> grid, int health) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool findSafeWalk(int** grid, int gridSize, int* gridColSize, int health) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func findSafeWalk(grid [][]int, health int) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun findSafeWalk(grid: List<List<Int>>, health: Int): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func findSafeWalk(_ grid: [[Int]], _ health: Int) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn find_safe_walk(grid: Vec<Vec<i32>>, health: i32) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} grid\n# @param {Integer} health\n# @return {Boolean}\ndef find_safe_walk(grid, health)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $grid\n     * @param Integer $health\n     * @return Boolean\n     */\n    function findSafeWalk($grid, $health) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool findSafeWalk(List<List<int>> grid, int health) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def findSafeWalk(grid: List[List[Int]], health: Int): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec find_safe_walk(grid :: [[integer]], health :: integer) :: boolean\n  def find_safe_walk(grid, health) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec find_safe_walk(Grid :: [[integer()]], Health :: integer()) -> boolean().\nfind_safe_walk(Grid, Health) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (find-safe-walk grid health)\n  (-> (listof (listof exact-integer?)) exact-integer? boolean?)\n  )"
+    }
+  ]
 }

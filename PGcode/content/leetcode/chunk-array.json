@@ -17,5 +17,17 @@
     "1"
   ],
   "content_signature": "j1m3ka",
-  "fetched_at": "2026-05-21T07:02:57.888Z"
+  "fetched_at": "2026-05-30T07:08:15.601Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {Array} arr\n * @param {number} size\n * @return {Array}\n */\nvar chunk = function(arr, size) {\n    \n};\n"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "type JSONValue = null | boolean | number | string | JSONValue[] | { [key: string]: JSONValue };\ntype Obj = Record<string, JSONValue> | Array<JSONValue>;\n\nfunction chunk(arr: Obj[], size: number): Obj[][] {\n    \n};\n"
+    }
+  ]
 }

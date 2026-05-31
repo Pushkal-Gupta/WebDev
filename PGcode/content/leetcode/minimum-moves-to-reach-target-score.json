@@ -21,5 +21,102 @@
     "4"
   ],
   "content_signature": "-vbnzbg",
-  "fetched_at": "2026-05-21T06:35:56.623Z"
+  "fetched_at": "2026-05-30T07:31:06.569Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int minMoves(int target, int maxDoubles) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int minMoves(int target, int maxDoubles) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minMoves(self, target: int, maxDoubles: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minMoves(self, target, maxDoubles):\n        \"\"\"\n        :type target: int\n        :type maxDoubles: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} target\n * @param {number} maxDoubles\n * @return {number}\n */\nvar minMoves = function(target, maxDoubles) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minMoves(target: number, maxDoubles: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MinMoves(int target, int maxDoubles) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int minMoves(int target, int maxDoubles) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minMoves(target int, maxDoubles int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minMoves(target: Int, maxDoubles: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minMoves(_ target: Int, _ maxDoubles: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn min_moves(target: i32, max_doubles: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} target\n# @param {Integer} max_doubles\n# @return {Integer}\ndef min_moves(target, max_doubles)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $target\n     * @param Integer $maxDoubles\n     * @return Integer\n     */\n    function minMoves($target, $maxDoubles) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minMoves(int target, int maxDoubles) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minMoves(target: Int, maxDoubles: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec min_moves(target :: integer, max_doubles :: integer) :: integer\n  def min_moves(target, max_doubles) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec min_moves(Target :: integer(), MaxDoubles :: integer()) -> integer().\nmin_moves(Target, MaxDoubles) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (min-moves target maxDoubles)\n  (-> exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

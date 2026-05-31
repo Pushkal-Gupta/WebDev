@@ -22,5 +22,17 @@
     "[[5],[]]"
   ],
   "content_signature": "cct0jf",
-  "fetched_at": "2026-05-21T07:01:51.649Z"
+  "fetched_at": "2026-05-30T07:06:39.443Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {Function} fn\n * @return {Function}\n */\nfunction memoize(fn) {\n    \n    return function(...args) {\n        \n    }\n}\n\n\n/** \n * let callCount = 0;\n * const memoizedFn = memoize(function (a, b) {\n *\t callCount += 1;\n *   return a + b;\n * })\n * memoizedFn(2, 3) // 5\n * memoizedFn(2, 3) // 5\n * console.log(callCount) // 1 \n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "type Fn = (...params: number[]) => number\n\nfunction memoize(fn: Fn): Fn {\n    \n    return function(...args) {\n        \n    }\n}\n\n\n/** \n * let callCount = 0;\n * const memoizedFn = memoize(function (a, b) {\n *\t callCount += 1;\n *   return a + b;\n * })\n * memoizedFn(2, 3) // 5\n * memoizedFn(2, 3) // 5\n * console.log(callCount) // 1 \n */"
+    }
+  ]
 }

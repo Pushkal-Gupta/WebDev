@@ -12,5 +12,37 @@
     "1"
   ],
   "content_signature": "fiabhn",
-  "fetched_at": "2026-05-21T06:16:00.513Z"
+  "fetched_at": "2026-05-30T07:27:16.965Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class DiningPhilosophers {\npublic:\n    DiningPhilosophers() {\n        \n    }\n\n    void wantsToEat(int philosopher,\n                    function<void()> pickLeftFork,\n                    function<void()> pickRightFork,\n                    function<void()> eat,\n                    function<void()> putLeftFork,\n                    function<void()> putRightFork) {\n\t\t\n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class DiningPhilosophers {\n\n    public DiningPhilosophers() {\n        \n    }\n\n    // call the run() method of any runnable to execute its code\n    public void wantsToEat(int philosopher,\n                           Runnable pickLeftFork,\n                           Runnable pickRightFork,\n                           Runnable eat,\n                           Runnable putLeftFork,\n                           Runnable putRightFork) throws InterruptedException {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class DiningPhilosophers:\n\n    # call the functions directly to execute, for example, eat()\n    def wantsToEat(self,\n                   philosopher: int,\n                   pickLeftFork: 'Callable[[], None]',\n                   pickRightFork: 'Callable[[], None]',\n                   eat: 'Callable[[], None]',\n                   putLeftFork: 'Callable[[], None]',\n                   putRightFork: 'Callable[[], None]') -> None:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class DiningPhilosophers(object):\n\n    # call the functions directly to execute, for example, eat()\n    def wantsToEat(self, philosopher, pickLeftFork, pickRightFork, eat, putLeftFork, putRightFork):\n        \"\"\"\n        :type philosopher: int\n        :type pickLeftFork: method\n        :type pickRightFork: method\n        :type eat: method\n        :type putLeftFork: method\n        :type putRightFork: method\n        :rtype: void\n        \"\"\"\n        "
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "type DiningPhilosophers struct {\n}\n\nfunc (this *DiningPhilosophers) wantsToEat(\n    philosopher int,\n    pickLeftFork func(),\n    pickRightFork func(),\n    eat func(),\n    putLeftFork func(),\n    putRightFork func(),\n) {\n    // TODO: implement your solution here\n}\n"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "struct DiningPhilosophers;\n\nimpl DiningPhilosophers {\n    fn new() -> Self {\n        DiningPhilosophers\n    }\n\n    // Callbacks are like LeetCode: each used exactly once\n    fn wants_to_eat<F1, F2, F3, F4, F5>(\n        &self,\n        philosopher: i32,\n        pick_left_fork: F1,\n        pick_right_fork: F2,\n        eat: F3,\n        put_left_fork: F4,\n        put_right_fork: F5,\n    )\n    where\n        F1: FnOnce(),\n        F2: FnOnce(),\n        F3: FnOnce(),\n        F4: FnOnce(),\n        F5: FnOnce(),\n    {\n        // TODO: implement your dining philosophers solution here\n        // You can translate your C++ logic into Rust inside this function.\n    }\n}\n"
+    }
+  ]
 }

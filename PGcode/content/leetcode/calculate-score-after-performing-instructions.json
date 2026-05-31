@@ -23,5 +23,102 @@
     "[0]"
   ],
   "content_signature": "-bdt3k7",
-  "fetched_at": "2026-05-21T07:42:23.542Z"
+  "fetched_at": "2026-05-30T06:59:23.627Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    long long calculateScore(vector<string>& instructions, vector<int>& values) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public long calculateScore(String[] instructions, int[] values) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def calculateScore(self, instructions: List[str], values: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def calculateScore(self, instructions, values):\n        \"\"\"\n        :type instructions: List[str]\n        :type values: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string[]} instructions\n * @param {number[]} values\n * @return {number}\n */\nvar calculateScore = function(instructions, values) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function calculateScore(instructions: string[], values: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public long CalculateScore(string[] instructions, int[] values) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "long long calculateScore(char** instructions, int instructionsSize, int* values, int valuesSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func calculateScore(instructions []string, values []int) int64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun calculateScore(instructions: Array<String>, values: IntArray): Long {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func calculateScore(_ instructions: [String], _ values: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn calculate_score(instructions: Vec<String>, values: Vec<i32>) -> i64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String[]} instructions\n# @param {Integer[]} values\n# @return {Integer}\ndef calculate_score(instructions, values)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[] $instructions\n     * @param Integer[] $values\n     * @return Integer\n     */\n    function calculateScore($instructions, $values) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int calculateScore(List<String> instructions, List<int> values) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def calculateScore(instructions: Array[String], values: Array[Int]): Long = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec calculate_score(instructions :: [String.t], values :: [integer]) :: integer\n  def calculate_score(instructions, values) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec calculate_score(Instructions :: [unicode:unicode_binary()], Values :: [integer()]) -> integer().\ncalculate_score(Instructions, Values) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (calculate-score instructions values)\n  (-> (listof string?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

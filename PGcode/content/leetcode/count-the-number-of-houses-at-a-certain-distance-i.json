@@ -24,5 +24,102 @@
     "1"
   ],
   "content_signature": "bfs9f8",
-  "fetched_at": "2026-05-21T07:09:42.665Z"
+  "fetched_at": "2026-05-30T07:34:43.464Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> countOfPairs(int n, int x, int y) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] countOfPairs(int n, int x, int y) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def countOfPairs(self, n: int, x: int, y: int) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def countOfPairs(self, n, x, y):\n        \"\"\"\n        :type n: int\n        :type x: int\n        :type y: int\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number} x\n * @param {number} y\n * @return {number[]}\n */\nvar countOfPairs = function(n, x, y) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function countOfPairs(n: number, x: number, y: number): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] CountOfPairs(int n, int x, int y) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* countOfPairs(int n, int x, int y, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func countOfPairs(n int, x int, y int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun countOfPairs(n: Int, x: Int, y: Int): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func countOfPairs(_ n: Int, _ x: Int, _ y: Int) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn count_of_pairs(n: i32, x: i32, y: i32) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer} x\n# @param {Integer} y\n# @return {Integer[]}\ndef count_of_pairs(n, x, y)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer $x\n     * @param Integer $y\n     * @return Integer[]\n     */\n    function countOfPairs($n, $x, $y) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> countOfPairs(int n, int x, int y) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def countOfPairs(n: Int, x: Int, y: Int): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec count_of_pairs(n :: integer, x :: integer, y :: integer) :: [integer]\n  def count_of_pairs(n, x, y) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec count_of_pairs(N :: integer(), X :: integer(), Y :: integer()) -> [integer()].\ncount_of_pairs(N, X, Y) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (count-of-pairs n x y)\n  (-> exact-integer? exact-integer? exact-integer? (listof exact-integer?))\n  )"
+    }
+  ]
 }

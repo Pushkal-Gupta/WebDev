@@ -31,5 +31,102 @@
     "1"
   ],
   "content_signature": "vic3vj",
-  "fetched_at": "2026-05-21T07:01:34.814Z"
+  "fetched_at": "2026-05-30T05:40:03.175Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> minReverseOperations(int n, int p, vector<int>& banned, int k) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] minReverseOperations(int n, int p, int[] banned, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minReverseOperations(self, n: int, p: int, banned: List[int], k: int) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minReverseOperations(self, n, p, banned, k):\n        \"\"\"\n        :type n: int\n        :type p: int\n        :type banned: List[int]\n        :type k: int\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number} p\n * @param {number[]} banned\n * @param {number} k\n * @return {number[]}\n */\nvar minReverseOperations = function(n, p, banned, k) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minReverseOperations(n: number, p: number, banned: number[], k: number): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] MinReverseOperations(int n, int p, int[] banned, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* minReverseOperations(int n, int p, int* banned, int bannedSize, int k, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minReverseOperations(n int, p int, banned []int, k int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minReverseOperations(n: Int, p: Int, banned: IntArray, k: Int): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minReverseOperations(_ n: Int, _ p: Int, _ banned: [Int], _ k: Int) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn min_reverse_operations(n: i32, p: i32, banned: Vec<i32>, k: i32) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer} p\n# @param {Integer[]} banned\n# @param {Integer} k\n# @return {Integer[]}\ndef min_reverse_operations(n, p, banned, k)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer $p\n     * @param Integer[] $banned\n     * @param Integer $k\n     * @return Integer[]\n     */\n    function minReverseOperations($n, $p, $banned, $k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> minReverseOperations(int n, int p, List<int> banned, int k) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minReverseOperations(n: Int, p: Int, banned: Array[Int], k: Int): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec min_reverse_operations(n :: integer, p :: integer, banned :: [integer], k :: integer) :: [integer]\n  def min_reverse_operations(n, p, banned, k) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec min_reverse_operations(N :: integer(), P :: integer(), Banned :: [integer()], K :: integer()) -> [integer()].\nmin_reverse_operations(N, P, Banned, K) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (min-reverse-operations n p banned k)\n  (-> exact-integer? exact-integer? (listof exact-integer?) exact-integer? (listof exact-integer?))\n  )"
+    }
+  ]
 }

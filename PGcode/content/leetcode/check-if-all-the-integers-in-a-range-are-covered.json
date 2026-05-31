@@ -22,5 +22,102 @@
     "21"
   ],
   "content_signature": "-guseoq",
-  "fetched_at": "2026-05-21T06:30:32.349Z"
+  "fetched_at": "2026-05-30T07:04:18.137Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool isCovered(vector<vector<int>>& ranges, int left, int right) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean isCovered(int[][] ranges, int left, int right) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def isCovered(self, ranges: List[List[int]], left: int, right: int) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def isCovered(self, ranges, left, right):\n        \"\"\"\n        :type ranges: List[List[int]]\n        :type left: int\n        :type right: int\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} ranges\n * @param {number} left\n * @param {number} right\n * @return {boolean}\n */\nvar isCovered = function(ranges, left, right) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function isCovered(ranges: number[][], left: number, right: number): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool IsCovered(int[][] ranges, int left, int right) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool isCovered(int** ranges, int rangesSize, int* rangesColSize, int left, int right) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func isCovered(ranges [][]int, left int, right int) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun isCovered(ranges: Array<IntArray>, left: Int, right: Int): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func isCovered(_ ranges: [[Int]], _ left: Int, _ right: Int) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn is_covered(ranges: Vec<Vec<i32>>, left: i32, right: i32) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} ranges\n# @param {Integer} left\n# @param {Integer} right\n# @return {Boolean}\ndef is_covered(ranges, left, right)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $ranges\n     * @param Integer $left\n     * @param Integer $right\n     * @return Boolean\n     */\n    function isCovered($ranges, $left, $right) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool isCovered(List<List<int>> ranges, int left, int right) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def isCovered(ranges: Array[Array[Int]], left: Int, right: Int): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec is_covered(ranges :: [[integer]], left :: integer, right :: integer) :: boolean\n  def is_covered(ranges, left, right) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec is_covered(Ranges :: [[integer()]], Left :: integer(), Right :: integer()) -> boolean().\nis_covered(Ranges, Left, Right) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (is-covered ranges left right)\n  (-> (listof (listof exact-integer?)) exact-integer? exact-integer? boolean?)\n  )"
+    }
+  ]
 }

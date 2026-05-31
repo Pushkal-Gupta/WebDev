@@ -32,5 +32,102 @@
     "7"
   ],
   "content_signature": "-m3o5od",
-  "fetched_at": "2026-05-21T06:25:56.832Z"
+  "fetched_at": "2026-05-30T07:35:31.474Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int boxDelivering(vector<vector<int>>& boxes, int portsCount, int maxBoxes, int maxWeight) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int boxDelivering(int[][] boxes, int portsCount, int maxBoxes, int maxWeight) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def boxDelivering(self, boxes: List[List[int]], portsCount: int, maxBoxes: int, maxWeight: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def boxDelivering(self, boxes, portsCount, maxBoxes, maxWeight):\n        \"\"\"\n        :type boxes: List[List[int]]\n        :type portsCount: int\n        :type maxBoxes: int\n        :type maxWeight: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} boxes\n * @param {number} portsCount\n * @param {number} maxBoxes\n * @param {number} maxWeight\n * @return {number}\n */\nvar boxDelivering = function(boxes, portsCount, maxBoxes, maxWeight) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function boxDelivering(boxes: number[][], portsCount: number, maxBoxes: number, maxWeight: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int BoxDelivering(int[][] boxes, int portsCount, int maxBoxes, int maxWeight) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int boxDelivering(int** boxes, int boxesSize, int* boxesColSize, int portsCount, int maxBoxes, int maxWeight) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func boxDelivering(boxes [][]int, portsCount int, maxBoxes int, maxWeight int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun boxDelivering(boxes: Array<IntArray>, portsCount: Int, maxBoxes: Int, maxWeight: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func boxDelivering(_ boxes: [[Int]], _ portsCount: Int, _ maxBoxes: Int, _ maxWeight: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn box_delivering(boxes: Vec<Vec<i32>>, ports_count: i32, max_boxes: i32, max_weight: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} boxes\n# @param {Integer} ports_count\n# @param {Integer} max_boxes\n# @param {Integer} max_weight\n# @return {Integer}\ndef box_delivering(boxes, ports_count, max_boxes, max_weight)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $boxes\n     * @param Integer $portsCount\n     * @param Integer $maxBoxes\n     * @param Integer $maxWeight\n     * @return Integer\n     */\n    function boxDelivering($boxes, $portsCount, $maxBoxes, $maxWeight) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int boxDelivering(List<List<int>> boxes, int portsCount, int maxBoxes, int maxWeight) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def boxDelivering(boxes: Array[Array[Int]], portsCount: Int, maxBoxes: Int, maxWeight: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec box_delivering(boxes :: [[integer]], ports_count :: integer, max_boxes :: integer, max_weight :: integer) :: integer\n  def box_delivering(boxes, ports_count, max_boxes, max_weight) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec box_delivering(Boxes :: [[integer()]], PortsCount :: integer(), MaxBoxes :: integer(), MaxWeight :: integer()) -> integer().\nbox_delivering(Boxes, PortsCount, MaxBoxes, MaxWeight) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (box-delivering boxes portsCount maxBoxes maxWeight)\n  (-> (listof (listof exact-integer?)) exact-integer? exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

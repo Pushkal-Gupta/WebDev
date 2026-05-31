@@ -13,5 +13,32 @@
     "{\"headers\":{\"Employee\":[\"id\",\"salary\"]},\"rows\":{\"Employee\":[[1,100]]}}"
   ],
   "content_signature": "utnx6l",
-  "fetched_at": "2026-05-21T05:50:08.309Z"
+  "fetched_at": "2026-05-30T07:03:12.104Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef second_highest_salary(employee: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

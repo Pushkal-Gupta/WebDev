@@ -12,5 +12,12 @@
     "0"
   ],
   "content_signature": "u42y5f",
-  "fetched_at": "2026-05-21T05:54:15.419Z"
+  "fetched_at": "2026-05-30T05:42:11.452Z",
+  "code_snippets": [
+    {
+      "lang": "Bash",
+      "langSlug": "bash",
+      "code": "# Read from the file file.txt and output all valid phone numbers to stdout.\n"
+    }
+  ]
 }

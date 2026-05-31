@@ -12,5 +12,32 @@
     "{\"headers\":{\"Employees\":[\"employee_id\",\"employee_name\",\"manager_id\",\"salary\",\"department\"]},\"rows\":{\"Employees\":[[1,\"Alice\",null,12000,\"Executive\"],[2,\"Bob\",1,10000,\"Sales\"],[3,\"Charlie\",1,10000,\"Engineering\"],[4,\"David\",2,7500,\"Sales\"],[5,\"Eva\",2,7500,\"Sales\"],[6,\"Frank\",3,9000,\"Engineering\"],[7,\"Grace\",3,8500,\"Engineering\"],[8,\"Hank\",4,6000,\"Sales\"],[9,\"Ivy\",6,7000,\"Engineering\"],[10,\"Judy\",6,7000,\"Engineering\"]]}}"
   ],
   "content_signature": "-743knd",
-  "fetched_at": "2026-05-21T07:41:20.379Z"
+  "fetched_at": "2026-05-30T05:14:57.044Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef analyze_organization_hierarchy(employees: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

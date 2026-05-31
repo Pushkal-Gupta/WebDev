@@ -100,6 +100,7 @@ const Q_DETAIL = `
       exampleTestcases sampleTestCase
       similarQuestions
       isPaidOnly
+      codeSnippets { lang langSlug code }
     }
   }`;
 
@@ -155,6 +156,7 @@ async function fetchOne(slug) {
     description_html: q.content,
     hints: q.hints || [],
     sample_test_cases: parseExampleTestcases(q.exampleTestcases),
+    code_snippets: (q.codeSnippets || []).map(s => ({ lang: s.lang, langSlug: s.langSlug, code: s.code })),
     content_signature: hash(q.content || ''),
     fetched_at: new Date().toISOString(),
   };

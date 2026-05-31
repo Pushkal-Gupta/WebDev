@@ -23,5 +23,102 @@
     "1"
   ],
   "content_signature": "ib0v7g",
-  "fetched_at": "2026-05-21T06:41:41.354Z"
+  "fetched_at": "2026-05-30T07:24:08.521Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int maximumRows(vector<vector<int>>& matrix, int numSelect) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int maximumRows(int[][] matrix, int numSelect) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def maximumRows(self, matrix: List[List[int]], numSelect: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def maximumRows(self, matrix, numSelect):\n        \"\"\"\n        :type matrix: List[List[int]]\n        :type numSelect: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} matrix\n * @param {number} numSelect\n * @return {number}\n */\nvar maximumRows = function(matrix, numSelect) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function maximumRows(matrix: number[][], numSelect: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MaximumRows(int[][] matrix, int numSelect) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int maximumRows(int** matrix, int matrixSize, int* matrixColSize, int numSelect) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func maximumRows(matrix [][]int, numSelect int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun maximumRows(matrix: Array<IntArray>, numSelect: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func maximumRows(_ matrix: [[Int]], _ numSelect: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn maximum_rows(matrix: Vec<Vec<i32>>, num_select: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} matrix\n# @param {Integer} num_select\n# @return {Integer}\ndef maximum_rows(matrix, num_select)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $matrix\n     * @param Integer $numSelect\n     * @return Integer\n     */\n    function maximumRows($matrix, $numSelect) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int maximumRows(List<List<int>> matrix, int numSelect) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def maximumRows(matrix: Array[Array[Int]], numSelect: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec maximum_rows(matrix :: [[integer]], num_select :: integer) :: integer\n  def maximum_rows(matrix, num_select) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec maximum_rows(Matrix :: [[integer()]], NumSelect :: integer()) -> integer().\nmaximum_rows(Matrix, NumSelect) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (maximum-rows matrix numSelect)\n  (-> (listof (listof exact-integer?)) exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

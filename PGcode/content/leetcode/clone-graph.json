@@ -17,5 +17,77 @@
     "[]"
   ],
   "content_signature": "-mcef3w",
-  "fetched_at": "2026-05-21T05:46:00.964Z"
+  "fetched_at": "2026-05-30T05:25:33.295Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "/*\n// Definition for a Node.\nclass Node {\npublic:\n    int val;\n    vector<Node*> neighbors;\n    Node() {\n        val = 0;\n        neighbors = vector<Node*>();\n    }\n    Node(int _val) {\n        val = _val;\n        neighbors = vector<Node*>();\n    }\n    Node(int _val, vector<Node*> _neighbors) {\n        val = _val;\n        neighbors = _neighbors;\n    }\n};\n*/\n\nclass Solution {\npublic:\n    Node* cloneGraph(Node* node) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "/*\n// Definition for a Node.\nclass Node {\n    public int val;\n    public List<Node> neighbors;\n    public Node() {\n        val = 0;\n        neighbors = new ArrayList<Node>();\n    }\n    public Node(int _val) {\n        val = _val;\n        neighbors = new ArrayList<Node>();\n    }\n    public Node(int _val, ArrayList<Node> _neighbors) {\n        val = _val;\n        neighbors = _neighbors;\n    }\n}\n*/\n\nclass Solution {\n    public Node cloneGraph(Node node) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "\"\"\"\n# Definition for a Node.\nclass Node:\n    def __init__(self, val = 0, neighbors = None):\n        self.val = val\n        self.neighbors = neighbors if neighbors is not None else []\n\"\"\"\n\nfrom typing import Optional\nclass Solution:\n    def cloneGraph(self, node: Optional['Node']) -> Optional['Node']:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "\"\"\"\n# Definition for a Node.\nclass Node(object):\n    def __init__(self, val = 0, neighbors = None):\n        self.val = val\n        self.neighbors = neighbors if neighbors is not None else []\n\"\"\"\n\nclass Solution(object):\n    def cloneGraph(self, node):\n        \"\"\"\n        :type node: Node\n        :rtype: Node\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * // Definition for a _Node.\n * function _Node(val, neighbors) {\n *    this.val = val === undefined ? 0 : val;\n *    this.neighbors = neighbors === undefined ? [] : neighbors;\n * };\n */\n\n/**\n * @param {_Node} node\n * @return {_Node}\n */\nvar cloneGraph = function(node) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "/**\n * Definition for _Node.\n * class _Node {\n *     val: number\n *     neighbors: _Node[]\n * \n *     constructor(val?: number, neighbors?: _Node[]) {\n *         this.val = (val===undefined ? 0 : val)\n *         this.neighbors = (neighbors===undefined ? [] : neighbors)\n *     }\n * }\n * \n */\n\n\nfunction cloneGraph(node: _Node | null): _Node | null {\n\t\n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "/*\n// Definition for a Node.\npublic class Node {\n    public int val;\n    public IList<Node> neighbors;\n\n    public Node() {\n        val = 0;\n        neighbors = new List<Node>();\n    }\n\n    public Node(int _val) {\n        val = _val;\n        neighbors = new List<Node>();\n    }\n\n    public Node(int _val, List<Node> _neighbors) {\n        val = _val;\n        neighbors = _neighbors;\n    }\n}\n*/\n\npublic class Solution {\n    public Node CloneGraph(Node node) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Definition for a Node.\n * struct Node {\n *     int val;\n *     int numNeighbors;\n *     struct Node** neighbors;\n * };\n */\n\nstruct Node *cloneGraph(struct Node *s) {\n\t\n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "/**\n * Definition for a Node.\n * type Node struct {\n *     Val int\n *     Neighbors []*Node\n * }\n */\n\nfunc cloneGraph(node *Node) *Node {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "/**\n * Definition for a Node.\n * class Node(var `val`: Int) {\n *     var neighbors: ArrayList<Node?> = ArrayList<Node?>()\n * }\n */\n\nclass Solution {\n    fun cloneGraph(node: Node?): Node? {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "/**\n * Definition for a Node.\n * public class Node {\n *     public var val: Int\n *     public var neighbors: [Node?]\n *     public init(_ val: Int) {\n *         self.val = val\n *         self.neighbors = []\n *     }\n * }\n */\n\nclass Solution {\n    func cloneGraph(_ node: Node?) -> Node? {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# Definition for a Node.\n# class Node\n#     attr_accessor :val, :neighbors\n#     def initialize(val = 0, neighbors = nil)\n#\t\t  @val = val\n#\t\t  neighbors = [] if neighbors.nil?\n#         @neighbors = neighbors\n#     end\n# end\n\n# @param {Node} node\n# @return {Node}\ndef cloneGraph(node)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "/**\n * Definition for a Node.\n * class Node {\n *     public $val = null;\n *     public $neighbors = null;\n *     function __construct($val = 0) {\n *         $this->val = $val;\n *         $this->neighbors = array();\n *     }\n * }\n */\n\nclass Solution {\n    /**\n     * @param Node $node\n     * @return Node\n     */\n    function cloneGraph($node) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "/**\n * Definition for a Node.\n * class Node(var _value: Int) {\n *   var value: Int = _value\n *   var neighbors: List[Node] = List()\n * }\n */\n\nobject Solution {\n    def cloneGraph(graph: Node): Node = {\n        \n    }\n}"
+    }
+  ]
 }

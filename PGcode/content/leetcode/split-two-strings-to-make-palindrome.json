@@ -21,5 +21,102 @@
     "\"jizalu\""
   ],
   "content_signature": "-d4cjg8",
-  "fetched_at": "2026-05-21T06:24:23.036Z"
+  "fetched_at": "2026-05-30T07:14:16.844Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool checkPalindromeFormation(string a, string b) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean checkPalindromeFormation(String a, String b) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def checkPalindromeFormation(self, a: str, b: str) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def checkPalindromeFormation(self, a, b):\n        \"\"\"\n        :type a: str\n        :type b: str\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} a\n * @param {string} b\n * @return {boolean}\n */\nvar checkPalindromeFormation = function(a, b) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function checkPalindromeFormation(a: string, b: string): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool CheckPalindromeFormation(string a, string b) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool checkPalindromeFormation(char* a, char* b) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func checkPalindromeFormation(a string, b string) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun checkPalindromeFormation(a: String, b: String): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func checkPalindromeFormation(_ a: String, _ b: String) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn check_palindrome_formation(a: String, b: String) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} a\n# @param {String} b\n# @return {Boolean}\ndef check_palindrome_formation(a, b)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $a\n     * @param String $b\n     * @return Boolean\n     */\n    function checkPalindromeFormation($a, $b) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool checkPalindromeFormation(String a, String b) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def checkPalindromeFormation(a: String, b: String): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec check_palindrome_formation(a :: String.t, b :: String.t) :: boolean\n  def check_palindrome_formation(a, b) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec check_palindrome_formation(A :: unicode:unicode_binary(), B :: unicode:unicode_binary()) -> boolean().\ncheck_palindrome_formation(A, B) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (check-palindrome-formation a b)\n  (-> string? string? boolean?)\n  )"
+    }
+  ]
 }

@@ -24,5 +24,102 @@
     "[1,1]"
   ],
   "content_signature": "-skbh5j",
-  "fetched_at": "2026-05-21T07:49:41.192Z"
+  "fetched_at": "2026-05-30T05:18:00.505Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    long long totalScore(int hp, vector<int>& damage, vector<int>& requirement) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public long totalScore(int hp, int[] damage, int[] requirement) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def totalScore(self, hp: int, damage: List[int], requirement: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def totalScore(self, hp, damage, requirement):\n        \"\"\"\n        :type hp: int\n        :type damage: List[int]\n        :type requirement: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} hp\n * @param {number[]} damage\n * @param {number[]} requirement\n * @return {number}\n */\nvar totalScore = function(hp, damage, requirement) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function totalScore(hp: number, damage: number[], requirement: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public long TotalScore(int hp, int[] damage, int[] requirement) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "long long totalScore(int hp, int* damage, int damageSize, int* requirement, int requirementSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func totalScore(hp int, damage []int, requirement []int) int64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun totalScore(hp: Int, damage: IntArray, requirement: IntArray): Long {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func totalScore(_ hp: Int, _ damage: [Int], _ requirement: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn total_score(hp: i32, damage: Vec<i32>, requirement: Vec<i32>) -> i64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} hp\n# @param {Integer[]} damage\n# @param {Integer[]} requirement\n# @return {Integer}\ndef total_score(hp, damage, requirement)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $hp\n     * @param Integer[] $damage\n     * @param Integer[] $requirement\n     * @return Integer\n     */\n    function totalScore($hp, $damage, $requirement) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int totalScore(int hp, List<int> damage, List<int> requirement) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def totalScore(hp: Int, damage: Array[Int], requirement: Array[Int]): Long = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec total_score(hp :: integer, damage :: [integer], requirement :: [integer]) :: integer\n  def total_score(hp, damage, requirement) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec total_score(Hp :: integer(), Damage :: [integer()], Requirement :: [integer()]) -> integer().\ntotal_score(Hp, Damage, Requirement) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (total-score hp damage requirement)\n  (-> exact-integer? (listof exact-integer?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

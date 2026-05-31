@@ -19,5 +19,102 @@
     "[[\"#\",\"#\",\"*\",\".\",\"*\",\".\"],[\"#\",\"#\",\"#\",\"*\",\".\",\".\"],[\"#\",\"#\",\"#\",\".\",\"#\",\".\"]]"
   ],
   "content_signature": "-whk4o5",
-  "fetched_at": "2026-05-21T06:29:51.480Z"
+  "fetched_at": "2026-05-30T05:20:57.685Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<vector<char>> rotateTheBox(vector<vector<char>>& boxGrid) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public char[][] rotateTheBox(char[][] boxGrid) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def rotateTheBox(self, boxGrid: List[List[str]]) -> List[List[str]]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def rotateTheBox(self, boxGrid):\n        \"\"\"\n        :type boxGrid: List[List[str]]\n        :rtype: List[List[str]]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {character[][]} boxGrid\n * @return {character[][]}\n */\nvar rotateTheBox = function(boxGrid) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function rotateTheBox(boxGrid: string[][]): string[][] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public char[][] RotateTheBox(char[][] boxGrid) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Return an array of arrays of size *returnSize.\n * The sizes of the arrays are returned as *returnColumnSizes array.\n * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().\n */\nchar** rotateTheBox(char** boxGrid, int boxGridSize, int* boxGridColSize, int* returnSize, int** returnColumnSizes) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func rotateTheBox(boxGrid [][]byte) [][]byte {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun rotateTheBox(boxGrid: Array<CharArray>): Array<CharArray> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func rotateTheBox(_ boxGrid: [[Character]]) -> [[Character]] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn rotate_the_box(box_grid: Vec<Vec<char>>) -> Vec<Vec<char>> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Character[][]} box_grid\n# @return {Character[][]}\ndef rotate_the_box(box_grid)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[][] $boxGrid\n     * @return String[][]\n     */\n    function rotateTheBox($boxGrid) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<List<String>> rotateTheBox(List<List<String>> boxGrid) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def rotateTheBox(boxGrid: Array[Array[Char]]): Array[Array[Char]] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec rotate_the_box(box_grid :: [[char]]) :: [[char]]\n  def rotate_the_box(box_grid) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec rotate_the_box(BoxGrid :: [[char()]]) -> [[char()]].\nrotate_the_box(BoxGrid) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (rotate-the-box boxGrid)\n  (-> (listof (listof char?)) (listof (listof char?)))\n  )"
+    }
+  ]
 }

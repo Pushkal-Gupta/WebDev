@@ -13,5 +13,17 @@
     "[[5,7,4],[2,3,6],[4,6,8]]"
   ],
   "content_signature": "qk89k1",
-  "fetched_at": "2026-05-21T07:02:47.633Z"
+  "fetched_at": "2026-05-30T05:51:36.993Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {Function} fn\n * @return {Function}\n */\nvar once = function(fn) {\n    \n    return function(...args){\n        \n    }\n};\n\n/**\n * let fn = (a,b,c) => (a + b + c)\n * let onceFn = once(fn)\n *\n * onceFn(1,2,3); // 6\n * onceFn(2,3,6); // returns undefined without calling fn\n */\n"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "type JSONValue = null | boolean | number | string | JSONValue[] | { [key: string]: JSONValue };\ntype OnceFn = (...args: JSONValue[]) => JSONValue | undefined\n\nfunction once(fn: Function): OnceFn {\n    \n    return function (...args) {\n        \n    };\n}\n\n/**\n * let fn = (a,b,c) => (a + b + c)\n * let onceFn = once(fn)\n *\n * onceFn(1,2,3); // 6\n * onceFn(2,3,6); // returns undefined without calling fn\n */"
+    }
+  ]
 }

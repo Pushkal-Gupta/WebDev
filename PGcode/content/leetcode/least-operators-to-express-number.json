@@ -19,5 +19,102 @@
     "100000000"
   ],
   "content_signature": "jl4id8",
-  "fetched_at": "2026-05-21T06:10:50.397Z"
+  "fetched_at": "2026-05-30T06:45:50.826Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int leastOpsExpressTarget(int x, int target) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int leastOpsExpressTarget(int x, int target) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def leastOpsExpressTarget(self, x: int, target: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def leastOpsExpressTarget(self, x, target):\n        \"\"\"\n        :type x: int\n        :type target: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} x\n * @param {number} target\n * @return {number}\n */\nvar leastOpsExpressTarget = function(x, target) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function leastOpsExpressTarget(x: number, target: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int LeastOpsExpressTarget(int x, int target) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int leastOpsExpressTarget(int x, int target) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func leastOpsExpressTarget(x int, target int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun leastOpsExpressTarget(x: Int, target: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func leastOpsExpressTarget(_ x: Int, _ target: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn least_ops_express_target(x: i32, target: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} x\n# @param {Integer} target\n# @return {Integer}\ndef least_ops_express_target(x, target)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $x\n     * @param Integer $target\n     * @return Integer\n     */\n    function leastOpsExpressTarget($x, $target) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int leastOpsExpressTarget(int x, int target) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def leastOpsExpressTarget(x: Int, target: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec least_ops_express_target(x :: integer, target :: integer) :: integer\n  def least_ops_express_target(x, target) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec least_ops_express_target(X :: integer(), Target :: integer()) -> integer().\nleast_ops_express_target(X, Target) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (least-ops-express-target x target)\n  (-> exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

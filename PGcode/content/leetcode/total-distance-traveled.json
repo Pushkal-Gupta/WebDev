@@ -18,5 +18,102 @@
     "2"
   ],
   "content_signature": "1vd45x",
-  "fetched_at": "2026-05-21T07:04:12.388Z"
+  "fetched_at": "2026-05-30T07:25:14.106Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int distanceTraveled(int mainTank, int additionalTank) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int distanceTraveled(int mainTank, int additionalTank) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def distanceTraveled(self, mainTank: int, additionalTank: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def distanceTraveled(self, mainTank, additionalTank):\n        \"\"\"\n        :type mainTank: int\n        :type additionalTank: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} mainTank\n * @param {number} additionalTank\n * @return {number}\n */\nvar distanceTraveled = function(mainTank, additionalTank) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function distanceTraveled(mainTank: number, additionalTank: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int DistanceTraveled(int mainTank, int additionalTank) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int distanceTraveled(int mainTank, int additionalTank) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func distanceTraveled(mainTank int, additionalTank int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun distanceTraveled(mainTank: Int, additionalTank: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func distanceTraveled(_ mainTank: Int, _ additionalTank: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn distance_traveled(main_tank: i32, additional_tank: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} main_tank\n# @param {Integer} additional_tank\n# @return {Integer}\ndef distance_traveled(main_tank, additional_tank)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $mainTank\n     * @param Integer $additionalTank\n     * @return Integer\n     */\n    function distanceTraveled($mainTank, $additionalTank) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int distanceTraveled(int mainTank, int additionalTank) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def distanceTraveled(mainTank: Int, additionalTank: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec distance_traveled(main_tank :: integer, additional_tank :: integer) :: integer\n  def distance_traveled(main_tank, additional_tank) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec distance_traveled(MainTank :: integer(), AdditionalTank :: integer()) -> integer().\ndistance_traveled(MainTank, AdditionalTank) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (distance-traveled mainTank additionalTank)\n  (-> exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

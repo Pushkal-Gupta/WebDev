@@ -32,5 +32,102 @@
     "[5,5]"
   ],
   "content_signature": "-mjpmx5",
-  "fetched_at": "2026-05-21T07:06:25.263Z"
+  "fetched_at": "2026-05-30T07:07:38.623Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int maxNumberOfAlloys(int n, int k, int budget, vector<vector<int>>& composition, vector<int>& stock, vector<int>& cost) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int maxNumberOfAlloys(int n, int k, int budget, List<List<Integer>> composition, List<Integer> stock, List<Integer> cost) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def maxNumberOfAlloys(self, n: int, k: int, budget: int, composition: List[List[int]], stock: List[int], cost: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def maxNumberOfAlloys(self, n, k, budget, composition, stock, cost):\n        \"\"\"\n        :type n: int\n        :type k: int\n        :type budget: int\n        :type composition: List[List[int]]\n        :type stock: List[int]\n        :type cost: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number} k\n * @param {number} budget\n * @param {number[][]} composition\n * @param {number[]} stock\n * @param {number[]} cost\n * @return {number}\n */\nvar maxNumberOfAlloys = function(n, k, budget, composition, stock, cost) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function maxNumberOfAlloys(n: number, k: number, budget: number, composition: number[][], stock: number[], cost: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MaxNumberOfAlloys(int n, int k, int budget, IList<IList<int>> composition, IList<int> stock, IList<int> cost) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int maxNumberOfAlloys(int n, int k, int budget, int** composition, int compositionSize, int* compositionColSize, int* stock, int stockSize, int* cost, int costSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func maxNumberOfAlloys(n int, k int, budget int, composition [][]int, stock []int, cost []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun maxNumberOfAlloys(n: Int, k: Int, budget: Int, composition: List<List<Int>>, stock: List<Int>, cost: List<Int>): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func maxNumberOfAlloys(_ n: Int, _ k: Int, _ budget: Int, _ composition: [[Int]], _ stock: [Int], _ cost: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn max_number_of_alloys(n: i32, k: i32, budget: i32, composition: Vec<Vec<i32>>, stock: Vec<i32>, cost: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer} k\n# @param {Integer} budget\n# @param {Integer[][]} composition\n# @param {Integer[]} stock\n# @param {Integer[]} cost\n# @return {Integer}\ndef max_number_of_alloys(n, k, budget, composition, stock, cost)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer $k\n     * @param Integer $budget\n     * @param Integer[][] $composition\n     * @param Integer[] $stock\n     * @param Integer[] $cost\n     * @return Integer\n     */\n    function maxNumberOfAlloys($n, $k, $budget, $composition, $stock, $cost) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int maxNumberOfAlloys(int n, int k, int budget, List<List<int>> composition, List<int> stock, List<int> cost) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def maxNumberOfAlloys(n: Int, k: Int, budget: Int, composition: List[List[Int]], stock: List[Int], cost: List[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec max_number_of_alloys(n :: integer, k :: integer, budget :: integer, composition :: [[integer]], stock :: [integer], cost :: [integer]) :: integer\n  def max_number_of_alloys(n, k, budget, composition, stock, cost) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec max_number_of_alloys(N :: integer(), K :: integer(), Budget :: integer(), Composition :: [[integer()]], Stock :: [integer()], Cost :: [integer()]) -> integer().\nmax_number_of_alloys(N, K, Budget, Composition, Stock, Cost) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (max-number-of-alloys n k budget composition stock cost)\n  (-> exact-integer? exact-integer? exact-integer? (listof (listof exact-integer?)) (listof exact-integer?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

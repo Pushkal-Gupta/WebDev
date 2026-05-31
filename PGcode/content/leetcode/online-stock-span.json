@@ -16,5 +16,102 @@
     "[[],[100],[80],[60],[70],[60],[75],[85]]"
   ],
   "content_signature": "8vyb0q",
-  "fetched_at": "2026-05-21T06:09:08.672Z"
+  "fetched_at": "2026-05-30T05:51:13.047Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class StockSpanner {\npublic:\n    StockSpanner() {\n        \n    }\n    \n    int next(int price) {\n        \n    }\n};\n\n/**\n * Your StockSpanner object will be instantiated and called as such:\n * StockSpanner* obj = new StockSpanner();\n * int param_1 = obj->next(price);\n */"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class StockSpanner {\n\n    public StockSpanner() {\n        \n    }\n    \n    public int next(int price) {\n        \n    }\n}\n\n/**\n * Your StockSpanner object will be instantiated and called as such:\n * StockSpanner obj = new StockSpanner();\n * int param_1 = obj.next(price);\n */"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class StockSpanner:\n\n    def __init__(self):\n        \n\n    def next(self, price: int) -> int:\n        \n\n\n# Your StockSpanner object will be instantiated and called as such:\n# obj = StockSpanner()\n# param_1 = obj.next(price)"
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class StockSpanner(object):\n\n    def __init__(self):\n        \n\n    def next(self, price):\n        \"\"\"\n        :type price: int\n        :rtype: int\n        \"\"\"\n        \n\n\n# Your StockSpanner object will be instantiated and called as such:\n# obj = StockSpanner()\n# param_1 = obj.next(price)"
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "\nvar StockSpanner = function() {\n    \n};\n\n/** \n * @param {number} price\n * @return {number}\n */\nStockSpanner.prototype.next = function(price) {\n    \n};\n\n/** \n * Your StockSpanner object will be instantiated and called as such:\n * var obj = new StockSpanner()\n * var param_1 = obj.next(price)\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "class StockSpanner {\n    constructor() {\n        \n    }\n\n    next(price: number): number {\n        \n    }\n}\n\n/**\n * Your StockSpanner object will be instantiated and called as such:\n * var obj = new StockSpanner()\n * var param_1 = obj.next(price)\n */"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class StockSpanner {\n\n    public StockSpanner() {\n        \n    }\n    \n    public int Next(int price) {\n        \n    }\n}\n\n/**\n * Your StockSpanner object will be instantiated and called as such:\n * StockSpanner obj = new StockSpanner();\n * int param_1 = obj.Next(price);\n */"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "\n\n\ntypedef struct {\n    \n} StockSpanner;\n\n\nStockSpanner* stockSpannerCreate() {\n    \n}\n\nint stockSpannerNext(StockSpanner* obj, int price) {\n    \n}\n\nvoid stockSpannerFree(StockSpanner* obj) {\n    \n}\n\n/**\n * Your StockSpanner struct will be instantiated and called as such:\n * StockSpanner* obj = stockSpannerCreate();\n * int param_1 = stockSpannerNext(obj, price);\n \n * stockSpannerFree(obj);\n*/"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "type StockSpanner struct {\n    \n}\n\n\nfunc Constructor() StockSpanner {\n    \n}\n\n\nfunc (this *StockSpanner) Next(price int) int {\n    \n}\n\n\n/**\n * Your StockSpanner object will be instantiated and called as such:\n * obj := Constructor();\n * param_1 := obj.Next(price);\n */"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class StockSpanner() {\n\n    fun next(price: Int): Int {\n        \n    }\n\n}\n\n/**\n * Your StockSpanner object will be instantiated and called as such:\n * var obj = StockSpanner()\n * var param_1 = obj.next(price)\n */"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "\nclass StockSpanner {\n\n    init() {\n        \n    }\n    \n    func next(_ price: Int) -> Int {\n        \n    }\n}\n\n/**\n * Your StockSpanner object will be instantiated and called as such:\n * let obj = StockSpanner()\n * let ret_1: Int = obj.next(price)\n */"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "struct StockSpanner {\n\n}\n\n\n/** \n * `&self` means the method takes an immutable reference.\n * If you need a mutable reference, change it to `&mut self` instead.\n */\nimpl StockSpanner {\n\n    fn new() -> Self {\n        \n    }\n    \n    fn next(&self, price: i32) -> i32 {\n        \n    }\n}\n\n/**\n * Your StockSpanner object will be instantiated and called as such:\n * let obj = StockSpanner::new();\n * let ret_1: i32 = obj.next(price);\n */"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "class StockSpanner\n    def initialize()\n        \n    end\n\n\n=begin\n    :type price: Integer\n    :rtype: Integer\n=end\n    def next(price)\n        \n    end\n\n\nend\n\n# Your StockSpanner object will be instantiated and called as such:\n# obj = StockSpanner.new()\n# param_1 = obj.next(price)"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class StockSpanner {\n    /**\n     */\n    function __construct() {\n        \n    }\n  \n    /**\n     * @param Integer $price\n     * @return Integer\n     */\n    function next($price) {\n        \n    }\n}\n\n/**\n * Your StockSpanner object will be instantiated and called as such:\n * $obj = StockSpanner();\n * $ret_1 = $obj->next($price);\n */"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class StockSpanner {\n\n  StockSpanner() {\n    \n  }\n  \n  int next(int price) {\n    \n  }\n}\n\n/**\n * Your StockSpanner object will be instantiated and called as such:\n * StockSpanner obj = StockSpanner();\n * int param1 = obj.next(price);\n */"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "class StockSpanner() {\n\n    def next(price: Int): Int = {\n        \n    }\n\n}\n\n/**\n * Your StockSpanner object will be instantiated and called as such:\n * val obj = new StockSpanner()\n * val param_1 = obj.next(price)\n */"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule StockSpanner do\n  @spec init_() :: any\n  def init_() do\n    \n  end\n\n  @spec next(price :: integer) :: integer\n  def next(price) do\n    \n  end\nend\n\n# Your functions will be called as such:\n# StockSpanner.init_()\n# param_1 = StockSpanner.next(price)\n\n# StockSpanner.init_ will be called before every test case, in which you can do some necessary initializations."
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec stock_spanner_init_() -> any().\nstock_spanner_init_() ->\n  .\n\n-spec stock_spanner_next(Price :: integer()) -> integer().\nstock_spanner_next(Price) ->\n  .\n\n\n%% Your functions will be called as such:\n%% stock_spanner_init_(),\n%% Param_1 = stock_spanner_next(Price),\n\n%% stock_spanner_init_ will be called before every test case, in which you can do some necessary initializations."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define stock-spanner%\n  (class object%\n    (super-new)\n    \n    (init-field)\n    \n    ; next : exact-integer? -> exact-integer?\n    (define/public (next price)\n      )))\n\n;; Your stock-spanner% object will be instantiated and called as such:\n;; (define obj (new stock-spanner%))\n;; (define param_1 (send obj next price))"
+    }
+  ]
 }

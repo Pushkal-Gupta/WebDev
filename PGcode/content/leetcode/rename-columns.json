@@ -12,5 +12,12 @@
     "{\"headers\":{\"students\":[\"id\",\"first\",\"last\",\"age\"]},\"rows\":{\"employees\":[],\"students\":[[1,\"Mason\",\"King\",6],[2,\"Ava\",\"Wright\",7],[3,\"Taylor\",\"Hall\",16],[4,\"Georgia\",\"Thompson\",18],[5,\"Thomas\",\"Moore\",10]]}}"
   ],
   "content_signature": "akyqwz",
-  "fetched_at": "2026-05-21T07:07:01.232Z"
+  "fetched_at": "2026-05-30T06:34:54.110Z",
+  "code_snippets": [
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef renameColumns(students: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

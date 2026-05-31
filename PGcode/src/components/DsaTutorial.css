@@ -2,8 +2,11 @@
   width: 94%;
   max-width: var(--container-w);
   margin: 0 auto;
-  height: calc(100vh - 100px);
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: calc(100dvh - 80px);
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 1.5rem 0 3rem;
   position: relative;
 }
@@ -1469,6 +1472,11 @@
   max-width: var(--container-w);
   margin: 0 auto;
   padding: 1.5rem 0 3rem;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: calc(100dvh - 80px);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .tut-index-header {
@@ -1641,6 +1649,11 @@
   max-width: var(--container-w);
   margin: 0 auto;
   padding: 0 0 3rem;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: calc(100dvh - 80px);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .tut-topic-sticky {

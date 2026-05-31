@@ -21,5 +21,82 @@
     "10"
   ],
   "content_signature": "vxuha0",
-  "fetched_at": "2026-05-21T06:07:36.062Z"
+  "fetched_at": "2026-05-30T05:52:08.021Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "/**\n * // This is the Master's API interface.\n * // You should not implement it, or speculate about its implementation\n * class Master {\n *   public:\n *     int guess(string word);\n * };\n */\nclass Solution {\npublic:\n    void findSecretWord(vector<string>& words, Master& master) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "/**\n * // This is the Master's API interface.\n * // You should not implement it, or speculate about its implementation\n * interface Master {\n *     public int guess(String word) {}\n * }\n */\nclass Solution {\n    public void findSecretWord(String[] words, Master master) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "# \"\"\"\n# This is Master's API interface.\n# You should not implement it, or speculate about its implementation\n# \"\"\"\n# class Master:\n#     def guess(self, word: str) -> int:\n\nclass Solution:\n    def findSecretWord(self, words: List[str], master: 'Master') -> None:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "# \"\"\"\n# This is Master's API interface.\n# You should not implement it, or speculate about its implementation\n# \"\"\"\n#class Master(object):\n#    def guess(self, word):\n#        \"\"\"\n#        :type word: str\n#        :rtype int\n#        \"\"\"\n\nclass Solution(object):\n    def findSecretWord(self, words, master):\n        \"\"\"\n        :type words: List[Str]\n        :type master: Master\n        :rtype: None\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * // This is the master's API interface.\n * // You should not implement it, or speculate about its implementation\n * function Master() {\n *\n *     @param {string} word\n *     @return {integer}\n *     this.guess = function(word) {\n *         ...\n *     };\n * };\n */\n/**\n * @param {string[]} words\n * @param {Master} master\n * @return {void}\n */\nvar findSecretWord = function(words, master) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "/**\n * // This is the Master's API interface.\n * // You should not implement it, or speculate about its implementation\n * class Master {\n *      guess(word: string): number {}\n * }\n */\n\nfunction findSecretWord(words: string[], master: Master) {\n\n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "/**\n * // This is the Master's API interface.\n * // You should not implement it, or speculate about its implementation\n * class Master {\n *     public int Guess(string word);\n * }\n */\nclass Solution {\n    public void FindSecretWord(string[] words, Master master) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * *********************************************************************\n * // This is the Master's API interface.\n * // You should not implement it, or speculate about its implementation\n * *********************************************************************\n *\n * int guess(Master *, char *word);\n */\nvoid findSecretWord(char** words, int wordsSize, Master* master) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "/**\n * // This is the Master's API interface.\n * // You should not implement it, or speculate about its implementation\n * type Master struct {\n * }\n *\n * func (this *Master) Guess(word string) int {}\n */\nfunc findSecretWord(words []string, master *Master) {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "/**\n * // This is the Master's API interface.\n * // You should not implement it, or speculate about its implementation\n * interface Master {\n *     fun guess(word: String): Int {}\n * }\n */\nclass Solution {\n    fun findSecretWord(words: Array<String>, master: Master) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "/**\n * // This is the Master's API interface.\n * // You should not implement it, or speculate about its implementation\n * class Master {\n *     public func guess(word: String) -> Int {}\n * }\n */\nclass Solution {\n    func findSecretWord(_ words: [String], _ master: Master) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "/**\n * // This is the Master's API interface.\n * // You should not implement it, or speculate about its implementation\n * struct Master;\n * impl Master {\n *     fn guess(word:String)->int;\n * };\n */\n\nimpl Solution {\n    pub fn find_secret_word(words: Vec<String>, master: &Master) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "#    This is Master's API interface.\n#    You should not implement it, or speculate about its implementation\n#\n# class Master\n# =begin\n#     :type word: String\n#     :rtype: Integer\n# =end\n#     def guess(word)\n#         ...\n#     end\n# end\n#\n\n# @param {String[]} words\n# @param {Master} master\n# @return {Void}\ndef find_secret_word(words, master)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "/**\n * // This is the Master's API interface.\n * // You should not implement it, or speculate about its implementation\n * interface Master {\n *     function guess($word) {}\n * }\n */\n\nclass Solution {\n    /**\n     * @param String[] $words\n     * @param Master $master\n     * @return \n     */\n    function findSecretWord($words, $master) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "/**\n * // This is the Master's API interface.\n * // You should not implement it, or speculate about its implementation\n * class Master {\n *\n *   def guess(word: String): Int = {}\n *\n * }\n */\nobject Solution {\n    def findSecretWord(words: Array[String], master: Master): Unit = {\n        \n    }\n}"
+    }
+  ]
 }

@@ -33,5 +33,102 @@
     "[10.0]"
   ],
   "content_signature": "-9e48as",
-  "fetched_at": "2026-05-21T07:27:23.390Z"
+  "fetched_at": "2026-05-30T06:57:18.088Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    double maxAmount(string initialCurrency, vector<vector<string>>& pairs1, vector<double>& rates1, vector<vector<string>>& pairs2, vector<double>& rates2) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public double maxAmount(String initialCurrency, List<List<String>> pairs1, double[] rates1, List<List<String>> pairs2, double[] rates2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def maxAmount(self, initialCurrency: str, pairs1: List[List[str]], rates1: List[float], pairs2: List[List[str]], rates2: List[float]) -> float:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def maxAmount(self, initialCurrency, pairs1, rates1, pairs2, rates2):\n        \"\"\"\n        :type initialCurrency: str\n        :type pairs1: List[List[str]]\n        :type rates1: List[float]\n        :type pairs2: List[List[str]]\n        :type rates2: List[float]\n        :rtype: float\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} initialCurrency\n * @param {string[][]} pairs1\n * @param {number[]} rates1\n * @param {string[][]} pairs2\n * @param {number[]} rates2\n * @return {number}\n */\nvar maxAmount = function(initialCurrency, pairs1, rates1, pairs2, rates2) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function maxAmount(initialCurrency: string, pairs1: string[][], rates1: number[], pairs2: string[][], rates2: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public double MaxAmount(string initialCurrency, IList<IList<string>> pairs1, double[] rates1, IList<IList<string>> pairs2, double[] rates2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "double maxAmount(char* initialCurrency, char*** pairs1, int pairs1Size, int* pairs1ColSize, double* rates1, int rates1Size, char*** pairs2, int pairs2Size, int* pairs2ColSize, double* rates2, int rates2Size) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func maxAmount(initialCurrency string, pairs1 [][]string, rates1 []float64, pairs2 [][]string, rates2 []float64) float64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun maxAmount(initialCurrency: String, pairs1: List<List<String>>, rates1: DoubleArray, pairs2: List<List<String>>, rates2: DoubleArray): Double {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func maxAmount(_ initialCurrency: String, _ pairs1: [[String]], _ rates1: [Double], _ pairs2: [[String]], _ rates2: [Double]) -> Double {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn max_amount(initial_currency: String, pairs1: Vec<Vec<String>>, rates1: Vec<f64>, pairs2: Vec<Vec<String>>, rates2: Vec<f64>) -> f64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} initial_currency\n# @param {String[][]} pairs1\n# @param {Float[]} rates1\n# @param {String[][]} pairs2\n# @param {Float[]} rates2\n# @return {Float}\ndef max_amount(initial_currency, pairs1, rates1, pairs2, rates2)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $initialCurrency\n     * @param String[][] $pairs1\n     * @param Float[] $rates1\n     * @param String[][] $pairs2\n     * @param Float[] $rates2\n     * @return Float\n     */\n    function maxAmount($initialCurrency, $pairs1, $rates1, $pairs2, $rates2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  double maxAmount(String initialCurrency, List<List<String>> pairs1, List<double> rates1, List<List<String>> pairs2, List<double> rates2) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def maxAmount(initialCurrency: String, pairs1: List[List[String]], rates1: Array[Double], pairs2: List[List[String]], rates2: Array[Double]): Double = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec max_amount(initial_currency :: String.t, pairs1 :: [[String.t]], rates1 :: [float], pairs2 :: [[String.t]], rates2 :: [float]) :: float\n  def max_amount(initial_currency, pairs1, rates1, pairs2, rates2) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec max_amount(InitialCurrency :: unicode:unicode_binary(), Pairs1 :: [[unicode:unicode_binary()]], Rates1 :: [float()], Pairs2 :: [[unicode:unicode_binary()]], Rates2 :: [float()]) -> float().\nmax_amount(InitialCurrency, Pairs1, Rates1, Pairs2, Rates2) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (max-amount initialCurrency pairs1 rates1 pairs2 rates2)\n  (-> string? (listof (listof string?)) (listof flonum?) (listof (listof string?)) (listof flonum?) flonum?)\n  )"
+    }
+  ]
 }

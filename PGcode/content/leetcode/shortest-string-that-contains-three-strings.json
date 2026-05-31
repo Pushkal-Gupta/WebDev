@@ -22,5 +22,102 @@
     "\"aba\""
   ],
   "content_signature": "-d48igl",
-  "fetched_at": "2026-05-21T07:05:14.026Z"
+  "fetched_at": "2026-05-30T07:08:41.068Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    string minimumString(string a, string b, string c) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public String minimumString(String a, String b, String c) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minimumString(self, a: str, b: str, c: str) -> str:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minimumString(self, a, b, c):\n        \"\"\"\n        :type a: str\n        :type b: str\n        :type c: str\n        :rtype: str\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} a\n * @param {string} b\n * @param {string} c\n * @return {string}\n */\nvar minimumString = function(a, b, c) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minimumString(a: string, b: string, c: string): string {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public string MinimumString(string a, string b, string c) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "char* minimumString(char* a, char* b, char* c) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minimumString(a string, b string, c string) string {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minimumString(a: String, b: String, c: String): String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minimumString(_ a: String, _ b: String, _ c: String) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn minimum_string(a: String, b: String, c: String) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} a\n# @param {String} b\n# @param {String} c\n# @return {String}\ndef minimum_string(a, b, c)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $a\n     * @param String $b\n     * @param String $c\n     * @return String\n     */\n    function minimumString($a, $b, $c) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  String minimumString(String a, String b, String c) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minimumString(a: String, b: String, c: String): String = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec minimum_string(a :: String.t, b :: String.t, c :: String.t) :: String.t\n  def minimum_string(a, b, c) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec minimum_string(A :: unicode:unicode_binary(), B :: unicode:unicode_binary(), C :: unicode:unicode_binary()) -> unicode:unicode_binary().\nminimum_string(A, B, C) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (minimum-string a b c)\n  (-> string? string? string? string?)\n  )"
+    }
+  ]
 }

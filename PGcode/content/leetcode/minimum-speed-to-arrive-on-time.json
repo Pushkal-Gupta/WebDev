@@ -21,5 +21,102 @@
     "1.9"
   ],
   "content_signature": "-vabw4",
-  "fetched_at": "2026-05-21T06:30:02.400Z"
+  "fetched_at": "2026-05-30T05:24:26.334Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int minSpeedOnTime(vector<int>& dist, double hour) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int minSpeedOnTime(int[] dist, double hour) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minSpeedOnTime(self, dist: List[int], hour: float) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minSpeedOnTime(self, dist, hour):\n        \"\"\"\n        :type dist: List[int]\n        :type hour: float\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} dist\n * @param {number} hour\n * @return {number}\n */\nvar minSpeedOnTime = function(dist, hour) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minSpeedOnTime(dist: number[], hour: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MinSpeedOnTime(int[] dist, double hour) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int minSpeedOnTime(int* dist, int distSize, double hour) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minSpeedOnTime(dist []int, hour float64) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minSpeedOnTime(dist: IntArray, hour: Double): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minSpeedOnTime(_ dist: [Int], _ hour: Double) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn min_speed_on_time(dist: Vec<i32>, hour: f64) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} dist\n# @param {Float} hour\n# @return {Integer}\ndef min_speed_on_time(dist, hour)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $dist\n     * @param Float $hour\n     * @return Integer\n     */\n    function minSpeedOnTime($dist, $hour) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minSpeedOnTime(List<int> dist, double hour) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minSpeedOnTime(dist: Array[Int], hour: Double): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec min_speed_on_time(dist :: [integer], hour :: float) :: integer\n  def min_speed_on_time(dist, hour) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec min_speed_on_time(Dist :: [integer()], Hour :: float()) -> integer().\nmin_speed_on_time(Dist, Hour) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (min-speed-on-time dist hour)\n  (-> (listof exact-integer?) flonum? exact-integer?)\n  )"
+    }
+  ]
 }

@@ -25,5 +25,102 @@
     "[[2,2],[4,4],[4,2]]"
   ],
   "content_signature": "m4dbvi",
-  "fetched_at": "2026-05-21T07:10:28.621Z"
+  "fetched_at": "2026-05-30T05:32:45.480Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    long long largestSquareArea(vector<vector<int>>& bottomLeft, vector<vector<int>>& topRight) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public long largestSquareArea(int[][] bottomLeft, int[][] topRight) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def largestSquareArea(self, bottomLeft: List[List[int]], topRight: List[List[int]]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def largestSquareArea(self, bottomLeft, topRight):\n        \"\"\"\n        :type bottomLeft: List[List[int]]\n        :type topRight: List[List[int]]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} bottomLeft\n * @param {number[][]} topRight\n * @return {number}\n */\nvar largestSquareArea = function(bottomLeft, topRight) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function largestSquareArea(bottomLeft: number[][], topRight: number[][]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public long LargestSquareArea(int[][] bottomLeft, int[][] topRight) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "long long largestSquareArea(int** bottomLeft, int bottomLeftSize, int* bottomLeftColSize, int** topRight, int topRightSize, int* topRightColSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func largestSquareArea(bottomLeft [][]int, topRight [][]int) int64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun largestSquareArea(bottomLeft: Array<IntArray>, topRight: Array<IntArray>): Long {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func largestSquareArea(_ bottomLeft: [[Int]], _ topRight: [[Int]]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn largest_square_area(bottom_left: Vec<Vec<i32>>, top_right: Vec<Vec<i32>>) -> i64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} bottom_left\n# @param {Integer[][]} top_right\n# @return {Integer}\ndef largest_square_area(bottom_left, top_right)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $bottomLeft\n     * @param Integer[][] $topRight\n     * @return Integer\n     */\n    function largestSquareArea($bottomLeft, $topRight) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int largestSquareArea(List<List<int>> bottomLeft, List<List<int>> topRight) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def largestSquareArea(bottomLeft: Array[Array[Int]], topRight: Array[Array[Int]]): Long = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec largest_square_area(bottom_left :: [[integer]], top_right :: [[integer]]) :: integer\n  def largest_square_area(bottom_left, top_right) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec largest_square_area(BottomLeft :: [[integer()]], TopRight :: [[integer()]]) -> integer().\nlargest_square_area(BottomLeft, TopRight) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (largest-square-area bottomLeft topRight)\n  (-> (listof (listof exact-integer?)) (listof (listof exact-integer?)) exact-integer?)\n  )"
+    }
+  ]
 }

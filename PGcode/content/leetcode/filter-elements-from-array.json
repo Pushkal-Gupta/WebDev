@@ -19,5 +19,17 @@
     "[-2,-1,0,1,2]"
   ],
   "content_signature": "-xifv6q",
-  "fetched_at": "2026-05-21T07:02:04.262Z"
+  "fetched_at": "2026-05-30T05:18:55.881Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} arr\n * @param {Function} fn\n * @return {number[]}\n */\nvar filter = function(arr, fn) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "type Fn = (n: number, i: number) => any\n\nfunction filter(arr: number[], fn: Fn): number[] {\n    \n};"
+    }
+  ]
 }

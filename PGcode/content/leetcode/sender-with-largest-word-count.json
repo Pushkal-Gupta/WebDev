@@ -21,5 +21,102 @@
     "[\"Bob\",\"Charlie\"]"
   ],
   "content_signature": "-tn7f7w",
-  "fetched_at": "2026-05-21T06:39:05.015Z"
+  "fetched_at": "2026-05-30T07:17:37.106Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    string largestWordCount(vector<string>& messages, vector<string>& senders) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public String largestWordCount(String[] messages, String[] senders) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def largestWordCount(self, messages: List[str], senders: List[str]) -> str:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def largestWordCount(self, messages, senders):\n        \"\"\"\n        :type messages: List[str]\n        :type senders: List[str]\n        :rtype: str\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string[]} messages\n * @param {string[]} senders\n * @return {string}\n */\nvar largestWordCount = function(messages, senders) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function largestWordCount(messages: string[], senders: string[]): string {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public string LargestWordCount(string[] messages, string[] senders) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "char* largestWordCount(char** messages, int messagesSize, char** senders, int sendersSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func largestWordCount(messages []string, senders []string) string {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun largestWordCount(messages: Array<String>, senders: Array<String>): String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func largestWordCount(_ messages: [String], _ senders: [String]) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn largest_word_count(messages: Vec<String>, senders: Vec<String>) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String[]} messages\n# @param {String[]} senders\n# @return {String}\ndef largest_word_count(messages, senders)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[] $messages\n     * @param String[] $senders\n     * @return String\n     */\n    function largestWordCount($messages, $senders) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  String largestWordCount(List<String> messages, List<String> senders) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def largestWordCount(messages: Array[String], senders: Array[String]): String = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec largest_word_count(messages :: [String.t], senders :: [String.t]) :: String.t\n  def largest_word_count(messages, senders) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec largest_word_count(Messages :: [unicode:unicode_binary()], Senders :: [unicode:unicode_binary()]) -> unicode:unicode_binary().\nlargest_word_count(Messages, Senders) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (largest-word-count messages senders)\n  (-> (listof string?) (listof string?) string?)\n  )"
+    }
+  ]
 }

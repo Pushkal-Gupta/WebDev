@@ -20,5 +20,102 @@
     "2"
   ],
   "content_signature": "gbxjx5",
-  "fetched_at": "2026-05-21T06:16:42.274Z"
+  "fetched_at": "2026-05-30T05:50:21.410Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int numWays(int steps, int arrLen) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int numWays(int steps, int arrLen) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def numWays(self, steps: int, arrLen: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def numWays(self, steps, arrLen):\n        \"\"\"\n        :type steps: int\n        :type arrLen: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} steps\n * @param {number} arrLen\n * @return {number}\n */\nvar numWays = function(steps, arrLen) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function numWays(steps: number, arrLen: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int NumWays(int steps, int arrLen) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int numWays(int steps, int arrLen) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func numWays(steps int, arrLen int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun numWays(steps: Int, arrLen: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func numWays(_ steps: Int, _ arrLen: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn num_ways(steps: i32, arr_len: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} steps\n# @param {Integer} arr_len\n# @return {Integer}\ndef num_ways(steps, arr_len)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $steps\n     * @param Integer $arrLen\n     * @return Integer\n     */\n    function numWays($steps, $arrLen) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int numWays(int steps, int arrLen) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def numWays(steps: Int, arrLen: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec num_ways(steps :: integer, arr_len :: integer) :: integer\n  def num_ways(steps, arr_len) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec num_ways(Steps :: integer(), ArrLen :: integer()) -> integer().\nnum_ways(Steps, ArrLen) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (num-ways steps arrLen)\n  (-> exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

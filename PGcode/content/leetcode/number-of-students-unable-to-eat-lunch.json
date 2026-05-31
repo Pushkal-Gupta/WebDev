@@ -21,5 +21,102 @@
     "[1,0,0,0,1,1]"
   ],
   "content_signature": "yyosh6",
-  "fetched_at": "2026-05-21T06:26:12.652Z"
+  "fetched_at": "2026-05-30T06:34:29.195Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int countStudents(vector<int>& students, vector<int>& sandwiches) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int countStudents(int[] students, int[] sandwiches) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def countStudents(self, students: List[int], sandwiches: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def countStudents(self, students, sandwiches):\n        \"\"\"\n        :type students: List[int]\n        :type sandwiches: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} students\n * @param {number[]} sandwiches\n * @return {number}\n */\nvar countStudents = function(students, sandwiches) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function countStudents(students: number[], sandwiches: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int CountStudents(int[] students, int[] sandwiches) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int countStudents(int* students, int studentsSize, int* sandwiches, int sandwichesSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func countStudents(students []int, sandwiches []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun countStudents(students: IntArray, sandwiches: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func countStudents(_ students: [Int], _ sandwiches: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn count_students(students: Vec<i32>, sandwiches: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} students\n# @param {Integer[]} sandwiches\n# @return {Integer}\ndef count_students(students, sandwiches)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $students\n     * @param Integer[] $sandwiches\n     * @return Integer\n     */\n    function countStudents($students, $sandwiches) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int countStudents(List<int> students, List<int> sandwiches) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def countStudents(students: Array[Int], sandwiches: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec count_students(students :: [integer], sandwiches :: [integer]) :: integer\n  def count_students(students, sandwiches) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec count_students(Students :: [integer()], Sandwiches :: [integer()]) -> integer().\ncount_students(Students, Sandwiches) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (count-students students sandwiches)\n  (-> (listof exact-integer?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

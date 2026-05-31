@@ -18,5 +18,102 @@
     "[[3,50,[1,2,3,4,5,6,7],[100,200,300,400,300,200,100]],[[1,2],[1,2]],[[3,7],[10,10]],[[1,2,3,4,5,6,7],[1,1,1,1,1,1,1]],[[4],[10]],[[7,3],[10,10]],[[7,5,3,1,6,4,2],[10,10,10,9,9,9,7]],[[2,3,5],[5,3,2]]]"
   ],
   "content_signature": "yihg2m",
-  "fetched_at": "2026-05-21T06:18:42.743Z"
+  "fetched_at": "2026-05-30T07:27:15.225Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Cashier {\npublic:\n    Cashier(int n, int discount, vector<int>& products, vector<int>& prices) {\n        \n    }\n    \n    double getBill(vector<int> product, vector<int> amount) {\n        \n    }\n};\n\n/**\n * Your Cashier object will be instantiated and called as such:\n * Cashier* obj = new Cashier(n, discount, products, prices);\n * double param_1 = obj->getBill(product,amount);\n */"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Cashier {\n\n    public Cashier(int n, int discount, int[] products, int[] prices) {\n        \n    }\n    \n    public double getBill(int[] product, int[] amount) {\n        \n    }\n}\n\n/**\n * Your Cashier object will be instantiated and called as such:\n * Cashier obj = new Cashier(n, discount, products, prices);\n * double param_1 = obj.getBill(product,amount);\n */"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Cashier:\n\n    def __init__(self, n: int, discount: int, products: List[int], prices: List[int]):\n        \n\n    def getBill(self, product: List[int], amount: List[int]) -> float:\n        \n\n\n# Your Cashier object will be instantiated and called as such:\n# obj = Cashier(n, discount, products, prices)\n# param_1 = obj.getBill(product,amount)"
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Cashier(object):\n\n    def __init__(self, n, discount, products, prices):\n        \"\"\"\n        :type n: int\n        :type discount: int\n        :type products: List[int]\n        :type prices: List[int]\n        \"\"\"\n        \n\n    def getBill(self, product, amount):\n        \"\"\"\n        :type product: List[int]\n        :type amount: List[int]\n        :rtype: float\n        \"\"\"\n        \n\n\n# Your Cashier object will be instantiated and called as such:\n# obj = Cashier(n, discount, products, prices)\n# param_1 = obj.getBill(product,amount)"
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number} discount\n * @param {number[]} products\n * @param {number[]} prices\n */\nvar Cashier = function(n, discount, products, prices) {\n    \n};\n\n/** \n * @param {number[]} product \n * @param {number[]} amount\n * @return {number}\n */\nCashier.prototype.getBill = function(product, amount) {\n    \n};\n\n/** \n * Your Cashier object will be instantiated and called as such:\n * var obj = new Cashier(n, discount, products, prices)\n * var param_1 = obj.getBill(product,amount)\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "class Cashier {\n    constructor(n: number, discount: number, products: number[], prices: number[]) {\n        \n    }\n\n    getBill(product: number[], amount: number[]): number {\n        \n    }\n}\n\n/**\n * Your Cashier object will be instantiated and called as such:\n * var obj = new Cashier(n, discount, products, prices)\n * var param_1 = obj.getBill(product,amount)\n */"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Cashier {\n\n    public Cashier(int n, int discount, int[] products, int[] prices) {\n        \n    }\n    \n    public double GetBill(int[] product, int[] amount) {\n        \n    }\n}\n\n/**\n * Your Cashier object will be instantiated and called as such:\n * Cashier obj = new Cashier(n, discount, products, prices);\n * double param_1 = obj.GetBill(product,amount);\n */"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "\n\n\ntypedef struct {\n    \n} Cashier;\n\n\nCashier* cashierCreate(int n, int discount, int* products, int productsSize, int* prices, int pricesSize) {\n    \n}\n\ndouble cashierGetBill(Cashier* obj, int* product, int productSize, int* amount, int amountSize) {\n    \n}\n\nvoid cashierFree(Cashier* obj) {\n    \n}\n\n/**\n * Your Cashier struct will be instantiated and called as such:\n * Cashier* obj = cashierCreate(n, discount, products, productsSize, prices, pricesSize);\n * double param_1 = cashierGetBill(obj, product, productSize, amount, amountSize);\n \n * cashierFree(obj);\n*/"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "type Cashier struct {\n    \n}\n\n\nfunc Constructor(n int, discount int, products []int, prices []int) Cashier {\n    \n}\n\n\nfunc (this *Cashier) GetBill(product []int, amount []int) float64 {\n    \n}\n\n\n/**\n * Your Cashier object will be instantiated and called as such:\n * obj := Constructor(n, discount, products, prices);\n * param_1 := obj.GetBill(product,amount);\n */"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Cashier(n: Int, discount: Int, products: IntArray, prices: IntArray) {\n\n    fun getBill(product: IntArray, amount: IntArray): Double {\n        \n    }\n\n}\n\n/**\n * Your Cashier object will be instantiated and called as such:\n * var obj = Cashier(n, discount, products, prices)\n * var param_1 = obj.getBill(product,amount)\n */"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "\nclass Cashier {\n\n    init(_ n: Int, _ discount: Int, _ products: [Int], _ prices: [Int]) {\n        \n    }\n    \n    func getBill(_ product: [Int], _ amount: [Int]) -> Double {\n        \n    }\n}\n\n/**\n * Your Cashier object will be instantiated and called as such:\n * let obj = Cashier(n, discount, products, prices)\n * let ret_1: Double = obj.getBill(product, amount)\n */"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "struct Cashier {\n\n}\n\n\n/** \n * `&self` means the method takes an immutable reference.\n * If you need a mutable reference, change it to `&mut self` instead.\n */\nimpl Cashier {\n\n    fn new(n: i32, discount: i32, products: Vec<i32>, prices: Vec<i32>) -> Self {\n        \n    }\n    \n    fn get_bill(&self, product: Vec<i32>, amount: Vec<i32>) -> f64 {\n        \n    }\n}\n\n/**\n * Your Cashier object will be instantiated and called as such:\n * let obj = Cashier::new(n, discount, products, prices);\n * let ret_1: f64 = obj.get_bill(product, amount);\n */"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "class Cashier\n\n=begin\n    :type n: Integer\n    :type discount: Integer\n    :type products: Integer[]\n    :type prices: Integer[]\n=end\n    def initialize(n, discount, products, prices)\n        \n    end\n\n\n=begin\n    :type product: Integer[]\n    :type amount: Integer[]\n    :rtype: Float\n=end\n    def get_bill(product, amount)\n        \n    end\n\n\nend\n\n# Your Cashier object will be instantiated and called as such:\n# obj = Cashier.new(n, discount, products, prices)\n# param_1 = obj.get_bill(product, amount)"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Cashier {\n    /**\n     * @param Integer $n\n     * @param Integer $discount\n     * @param Integer[] $products\n     * @param Integer[] $prices\n     */\n    function __construct($n, $discount, $products, $prices) {\n        \n    }\n  \n    /**\n     * @param Integer[] $product\n     * @param Integer[] $amount\n     * @return Float\n     */\n    function getBill($product, $amount) {\n        \n    }\n}\n\n/**\n * Your Cashier object will be instantiated and called as such:\n * $obj = Cashier($n, $discount, $products, $prices);\n * $ret_1 = $obj->getBill($product, $amount);\n */"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Cashier {\n\n  Cashier(int n, int discount, List<int> products, List<int> prices) {\n    \n  }\n  \n  double getBill(List<int> product, List<int> amount) {\n    \n  }\n}\n\n/**\n * Your Cashier object will be instantiated and called as such:\n * Cashier obj = Cashier(n, discount, products, prices);\n * double param1 = obj.getBill(product,amount);\n */"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "class Cashier(_n: Int, _discount: Int, _products: Array[Int], _prices: Array[Int]) {\n\n    def getBill(product: Array[Int], amount: Array[Int]): Double = {\n        \n    }\n\n}\n\n/**\n * Your Cashier object will be instantiated and called as such:\n * val obj = new Cashier(n, discount, products, prices)\n * val param_1 = obj.getBill(product,amount)\n */"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Cashier do\n  @spec init_(n :: integer, discount :: integer, products :: [integer], prices :: [integer]) :: any\n  def init_(n, discount, products, prices) do\n    \n  end\n\n  @spec get_bill(product :: [integer], amount :: [integer]) :: float\n  def get_bill(product, amount) do\n    \n  end\nend\n\n# Your functions will be called as such:\n# Cashier.init_(n, discount, products, prices)\n# param_1 = Cashier.get_bill(product, amount)\n\n# Cashier.init_ will be called before every test case, in which you can do some necessary initializations."
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec cashier_init_(N :: integer(), Discount :: integer(), Products :: [integer()], Prices :: [integer()]) -> any().\ncashier_init_(N, Discount, Products, Prices) ->\n  .\n\n-spec cashier_get_bill(Product :: [integer()], Amount :: [integer()]) -> float().\ncashier_get_bill(Product, Amount) ->\n  .\n\n\n%% Your functions will be called as such:\n%% cashier_init_(N, Discount, Products, Prices),\n%% Param_1 = cashier_get_bill(Product, Amount),\n\n%% cashier_init_ will be called before every test case, in which you can do some necessary initializations."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define cashier%\n  (class object%\n    (super-new)\n    \n    ; n : exact-integer?\n    ; discount : exact-integer?\n    ; products : (listof exact-integer?)\n    ; prices : (listof exact-integer?)\n    (init-field\n      n\n      discount\n      products\n      prices)\n    \n    ; get-bill : (listof exact-integer?) (listof exact-integer?) -> flonum?\n    (define/public (get-bill product amount)\n      )))\n\n;; Your cashier% object will be instantiated and called as such:\n;; (define obj (new cashier% [n n] [discount discount] [products products] [prices prices]))\n;; (define param_1 (send obj get-bill product amount))"
+    }
+  ]
 }

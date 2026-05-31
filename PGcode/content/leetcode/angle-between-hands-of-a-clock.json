@@ -20,5 +20,102 @@
     "15"
   ],
   "content_signature": "ag1s8u",
-  "fetched_at": "2026-05-21T06:18:23.931Z"
+  "fetched_at": "2026-05-30T06:44:06.398Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    double angleClock(int hour, int minutes) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public double angleClock(int hour, int minutes) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def angleClock(self, hour: int, minutes: int) -> float:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def angleClock(self, hour, minutes):\n        \"\"\"\n        :type hour: int\n        :type minutes: int\n        :rtype: float\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} hour\n * @param {number} minutes\n * @return {number}\n */\nvar angleClock = function(hour, minutes) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function angleClock(hour: number, minutes: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public double AngleClock(int hour, int minutes) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "double angleClock(int hour, int minutes) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func angleClock(hour int, minutes int) float64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun angleClock(hour: Int, minutes: Int): Double {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func angleClock(_ hour: Int, _ minutes: Int) -> Double {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn angle_clock(hour: i32, minutes: i32) -> f64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} hour\n# @param {Integer} minutes\n# @return {Float}\ndef angle_clock(hour, minutes)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $hour\n     * @param Integer $minutes\n     * @return Float\n     */\n    function angleClock($hour, $minutes) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  double angleClock(int hour, int minutes) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def angleClock(hour: Int, minutes: Int): Double = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec angle_clock(hour :: integer, minutes :: integer) :: float\n  def angle_clock(hour, minutes) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec angle_clock(Hour :: integer(), Minutes :: integer()) -> float().\nangle_clock(Hour, Minutes) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (angle-clock hour minutes)\n  (-> exact-integer? exact-integer? flonum?)\n  )"
+    }
+  ]
 }

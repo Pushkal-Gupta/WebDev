@@ -13,5 +13,32 @@
     "{\"headers\": {\"Employee\": [\"id\", \"salary\"]}, \"argument\": 2, \"rows\": {\"Employee\": [[1, 100]]}}"
   ],
   "content_signature": "-cgr0og",
-  "fetched_at": "2026-05-21T05:50:09.833Z"
+  "fetched_at": "2026-05-30T05:49:18.293Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "CREATE FUNCTION getNthHighestSalary(N INT) RETURNS INT\nBEGIN\n  RETURN (\n      # Write your MySQL query statement below.\n\n  );\nEND"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "CREATE FUNCTION getNthHighestSalary(@N INT) RETURNS INT AS\nBEGIN\n    RETURN (\n        /* Write your T-SQL query statement below. */\n\n    );\nEND"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "CREATE OR REPLACE FUNCTION NthHighestSalary(N INT) RETURNS TABLE (Salary INT) AS $$\nBEGIN\n  RETURN QUERY (\n    -- Write your PostgreSQL query statement below.\n    \n      \n  );\nEND;\n$$ LANGUAGE plpgsql;"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "CREATE FUNCTION getNthHighestSalary(N IN NUMBER) RETURN NUMBER IS\nresult NUMBER;\nBEGIN\n    /* Write your PL/SQL query statement below */\n\n    RETURN result;\nEND;"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef nth_highest_salary(employee: pd.DataFrame, N: int) -> pd.DataFrame:"
+    }
+  ]
 }

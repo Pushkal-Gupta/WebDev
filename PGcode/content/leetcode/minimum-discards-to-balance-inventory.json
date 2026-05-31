@@ -26,5 +26,102 @@
     "2"
   ],
   "content_signature": "-od5int",
-  "fetched_at": "2026-05-21T07:47:13.409Z"
+  "fetched_at": "2026-05-30T07:19:29.274Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int minArrivalsToDiscard(vector<int>& arrivals, int w, int m) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int minArrivalsToDiscard(int[] arrivals, int w, int m) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minArrivalsToDiscard(self, arrivals: List[int], w: int, m: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minArrivalsToDiscard(self, arrivals, w, m):\n        \"\"\"\n        :type arrivals: List[int]\n        :type w: int\n        :type m: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} arrivals\n * @param {number} w\n * @param {number} m\n * @return {number}\n */\nvar minArrivalsToDiscard = function(arrivals, w, m) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minArrivalsToDiscard(arrivals: number[], w: number, m: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MinArrivalsToDiscard(int[] arrivals, int w, int m) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int minArrivalsToDiscard(int* arrivals, int arrivalsSize, int w, int m) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minArrivalsToDiscard(arrivals []int, w int, m int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minArrivalsToDiscard(arrivals: IntArray, w: Int, m: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minArrivalsToDiscard(_ arrivals: [Int], _ w: Int, _ m: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn min_arrivals_to_discard(arrivals: Vec<i32>, w: i32, m: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} arrivals\n# @param {Integer} w\n# @param {Integer} m\n# @return {Integer}\ndef min_arrivals_to_discard(arrivals, w, m)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $arrivals\n     * @param Integer $w\n     * @param Integer $m\n     * @return Integer\n     */\n    function minArrivalsToDiscard($arrivals, $w, $m) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minArrivalsToDiscard(List<int> arrivals, int w, int m) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minArrivalsToDiscard(arrivals: Array[Int], w: Int, m: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec min_arrivals_to_discard(arrivals :: [integer], w :: integer, m :: integer) :: integer\n  def min_arrivals_to_discard(arrivals, w, m) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec min_arrivals_to_discard(Arrivals :: [integer()], W :: integer(), M :: integer()) -> integer().\nmin_arrivals_to_discard(Arrivals, W, M) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (min-arrivals-to-discard arrivals w m)\n  (-> (listof exact-integer?) exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

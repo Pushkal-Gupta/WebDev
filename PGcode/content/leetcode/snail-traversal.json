@@ -21,5 +21,17 @@
     "2"
   ],
   "content_signature": "-49zgr1",
-  "fetched_at": "2026-05-21T07:01:53.338Z"
+  "fetched_at": "2026-05-30T05:27:52.485Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} rowsCount\n * @param {number} colsCount\n * @return {Array<Array<number>>}\n */\nArray.prototype.snail = function(rowsCount, colsCount) {\n    \n}\n\n/**\n * const arr = [1,2,3,4];\n * arr.snail(1,4); // [[1,2,3,4]]\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "interface Array<T> {\n    snail(rowsCount: number, colsCount: number): number[][];\n}\n\n\nArray.prototype.snail = function(rowsCount: number, colsCount: number): number[][] {\n    \n}\n\n/**\n * const arr = [1,2,3,4];\n * arr.snail(1,4); // [[1,2,3,4]]\n */"
+    }
+  ]
 }

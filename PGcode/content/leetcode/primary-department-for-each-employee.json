@@ -12,5 +12,32 @@
     "{\"headers\":{\"Employee\":[\"employee_id\",\"department_id\",\"primary_flag\"]},\"rows\":{\"Employee\":[[\"1\",\"1\",\"N\"],[\"2\",\"1\",\"Y\"],[\"2\",\"2\",\"N\"],[\"3\",\"3\",\"N\"],[\"4\",\"2\",\"N\"],[\"4\",\"3\",\"Y\"],[\"4\",\"4\",\"N\"]]}}"
   ],
   "content_signature": "-nox2q5",
-  "fetched_at": "2026-05-21T06:28:15.209Z"
+  "fetched_at": "2026-05-30T06:48:20.481Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef find_primary_department(employee: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

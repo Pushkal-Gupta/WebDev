@@ -10,5 +10,32 @@
     "{\"headers\":{\"reactions\":[\"user_id\",\"content_id\",\"reaction\"]},\"rows\":{\"reactions\":[[1,101,\"like\"],[1,102,\"like\"],[1,103,\"like\"],[1,104,\"wow\"],[1,105,\"like\"],[2,201,\"like\"],[2,202,\"wow\"],[2,203,\"sad\"],[2,204,\"like\"],[2,205,\"wow\"],[3,301,\"love\"],[3,302,\"love\"],[3,303,\"love\"],[3,304,\"love\"],[3,305,\"love\"]]}}"
   ],
   "content_signature": "-lete2z",
-  "fetched_at": "2026-05-21T07:50:38.183Z"
+  "fetched_at": "2026-05-30T05:52:01.646Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef find_emotionally_consistent_users(reactions: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

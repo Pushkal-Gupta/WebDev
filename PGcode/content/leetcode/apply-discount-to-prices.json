@@ -18,5 +18,102 @@
     "100"
   ],
   "content_signature": "-z8jrz5",
-  "fetched_at": "2026-05-21T06:39:11.996Z"
+  "fetched_at": "2026-05-30T06:39:12.908Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    string discountPrices(string sentence, int discount) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public String discountPrices(String sentence, int discount) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def discountPrices(self, sentence: str, discount: int) -> str:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def discountPrices(self, sentence, discount):\n        \"\"\"\n        :type sentence: str\n        :type discount: int\n        :rtype: str\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} sentence\n * @param {number} discount\n * @return {string}\n */\nvar discountPrices = function(sentence, discount) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function discountPrices(sentence: string, discount: number): string {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public string DiscountPrices(string sentence, int discount) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "char* discountPrices(char* sentence, int discount) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func discountPrices(sentence string, discount int) string {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun discountPrices(sentence: String, discount: Int): String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func discountPrices(_ sentence: String, _ discount: Int) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn discount_prices(sentence: String, discount: i32) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} sentence\n# @param {Integer} discount\n# @return {String}\ndef discount_prices(sentence, discount)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $sentence\n     * @param Integer $discount\n     * @return String\n     */\n    function discountPrices($sentence, $discount) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  String discountPrices(String sentence, int discount) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def discountPrices(sentence: String, discount: Int): String = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec discount_prices(sentence :: String.t, discount :: integer) :: String.t\n  def discount_prices(sentence, discount) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec discount_prices(Sentence :: unicode:unicode_binary(), Discount :: integer()) -> unicode:unicode_binary().\ndiscount_prices(Sentence, Discount) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (discount-prices sentence discount)\n  (-> string? exact-integer? string?)\n  )"
+    }
+  ]
 }

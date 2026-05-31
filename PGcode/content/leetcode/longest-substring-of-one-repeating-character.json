@@ -25,5 +25,102 @@
     "[2,1]"
   ],
   "content_signature": "-lntz19",
-  "fetched_at": "2026-05-21T06:37:33.532Z"
+  "fetched_at": "2026-05-30T06:52:19.916Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> longestRepeating(string s, string queryCharacters, vector<int>& queryIndices) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] longestRepeating(String s, String queryCharacters, int[] queryIndices) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def longestRepeating(self, s: str, queryCharacters: str, queryIndices: List[int]) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def longestRepeating(self, s, queryCharacters, queryIndices):\n        \"\"\"\n        :type s: str\n        :type queryCharacters: str\n        :type queryIndices: List[int]\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} s\n * @param {string} queryCharacters\n * @param {number[]} queryIndices\n * @return {number[]}\n */\nvar longestRepeating = function(s, queryCharacters, queryIndices) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function longestRepeating(s: string, queryCharacters: string, queryIndices: number[]): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] LongestRepeating(string s, string queryCharacters, int[] queryIndices) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* longestRepeating(char* s, char* queryCharacters, int* queryIndices, int queryIndicesSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func longestRepeating(s string, queryCharacters string, queryIndices []int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun longestRepeating(s: String, queryCharacters: String, queryIndices: IntArray): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func longestRepeating(_ s: String, _ queryCharacters: String, _ queryIndices: [Int]) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn longest_repeating(s: String, query_characters: String, query_indices: Vec<i32>) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} s\n# @param {String} query_characters\n# @param {Integer[]} query_indices\n# @return {Integer[]}\ndef longest_repeating(s, query_characters, query_indices)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $s\n     * @param String $queryCharacters\n     * @param Integer[] $queryIndices\n     * @return Integer[]\n     */\n    function longestRepeating($s, $queryCharacters, $queryIndices) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> longestRepeating(String s, String queryCharacters, List<int> queryIndices) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def longestRepeating(s: String, queryCharacters: String, queryIndices: Array[Int]): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec longest_repeating(s :: String.t, query_characters :: String.t, query_indices :: [integer]) :: [integer]\n  def longest_repeating(s, query_characters, query_indices) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec longest_repeating(S :: unicode:unicode_binary(), QueryCharacters :: unicode:unicode_binary(), QueryIndices :: [integer()]) -> [integer()].\nlongest_repeating(S, QueryCharacters, QueryIndices) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (longest-repeating s queryCharacters queryIndices)\n  (-> string? string? (listof exact-integer?) (listof exact-integer?))\n  )"
+    }
+  ]
 }

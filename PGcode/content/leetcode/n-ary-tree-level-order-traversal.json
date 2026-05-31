@@ -14,5 +14,77 @@
     "[1,null,2,3,4,5,null,null,6,7,null,8,null,9,10,null,null,11,null,12,null,13,null,null,14]"
   ],
   "content_signature": "im3o2",
-  "fetched_at": "2026-05-21T05:58:39.288Z"
+  "fetched_at": "2026-05-30T05:31:42.609Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "/*\n// Definition for a Node.\nclass Node {\npublic:\n    int val;\n    vector<Node*> children;\n\n    Node() {}\n\n    Node(int _val) {\n        val = _val;\n    }\n\n    Node(int _val, vector<Node*> _children) {\n        val = _val;\n        children = _children;\n    }\n};\n*/\n\nclass Solution {\npublic:\n    vector<vector<int>> levelOrder(Node* root) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "/*\n// Definition for a Node.\nclass Node {\n    public int val;\n    public List<Node> children;\n\n    public Node() {}\n\n    public Node(int _val) {\n        val = _val;\n    }\n\n    public Node(int _val, List<Node> _children) {\n        val = _val;\n        children = _children;\n    }\n};\n*/\n\nclass Solution {\n    public List<List<Integer>> levelOrder(Node root) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "\"\"\"\n# Definition for a Node.\nclass Node:\n    def __init__(self, val: Optional[int] = None, children: Optional[List['Node']] = None):\n        self.val = val\n        self.children = children\n\"\"\"\n\nclass Solution:\n    def levelOrder(self, root: 'Node') -> List[List[int]]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "\"\"\"\n# Definition for a Node.\nclass Node(object):\n    def __init__(self, val=None, children=None):\n        self.val = val\n        self.children = children\n\"\"\"\n\nclass Solution(object):\n    def levelOrder(self, root):\n        \"\"\"\n        :type root: Node\n        :rtype: List[List[int]]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * // Definition for a _Node.\n * function _Node(val,children) {\n *    this.val = val;\n *    this.children = children;\n * };\n */\n\n/**\n * @param {_Node|null} root\n * @return {number[][]}\n */\nvar levelOrder = function(root) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "/**\n * Definition for _Node.\n * class _Node {\n *     val: number\n *     children: _Node[]\n *     \n *     constructor(v: number) {\n *         this.val = v;\n *         this.children = [];\n *     }\n * }\n */\n\n\nfunction levelOrder(root: _Node | null): number[][] {\n\t\n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "/*\n// Definition for a Node.\npublic class Node {\n    public int val;\n    public IList<Node> children;\n\n    public Node() {}\n\n    public Node(int _val) {\n        val = _val;\n    }\n\n    public Node(int _val, IList<Node> _children) {\n        val = _val;\n        children = _children;\n    }\n}\n*/\n\npublic class Solution {\n    public IList<IList<int>> LevelOrder(Node root) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Definition for a Node.\n * struct Node {\n *     int val;\n *     int numChildren;\n *     struct Node** children;\n * };\n */\n\n/**\n * Return an array of arrays of size *returnSize.\n * The sizes of the arrays are returned as *returnColumnSizes array.\n * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().\n */\nint** levelOrder(struct Node* root, int* returnSize, int** returnColumnSizes) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "/**\n * Definition for a Node.\n * type Node struct {\n *     Val int\n *     Children []*Node\n * }\n */\n\nfunc levelOrder(root *Node) [][]int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "/**\n * Definition for a Node.\n * class Node(var `val`: Int) {\n *     var children: List<Node?> = listOf()\n * }\n */\n\nclass Solution {\n    fun levelOrder(root: Node?): List<List<Int>> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "/**\n * Definition for a Node.\n * public class Node {\n *     public var val: Int\n *     public var children: [Node]\n *     public init(_ val: Int) {\n *         self.val = val\n *         self.children = []\n *     }\n * }\n */\n\nclass Solution {\n    func levelOrder(_ root: Node?) -> [[Int]] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# Definition for a Node.\n# class Node\n#     attr_accessor :val, :children\n#     def initialize(val)\n#         @val = val\n#         @children = []\n#     end\n# end\n\n# @param {Node} root\n# @return {List[List[int]]}\ndef level_order(root)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "/**\n * Definition for a Node.\n * class Node {\n *     public $val = null;\n *     public $children = null;\n *     function __construct($val = 0) {\n *         $this->val = $val;\n *         $this->children = array();\n *     }\n * }\n */\n\nclass Solution {\n    /**\n     * @param Node $root\n     * @return integer[][]\n     */\n    function levelOrder($root) {\n\t\t\n    }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "/**\n * Definition for a Node.\n * class Node(var _value: Int) {\n *   var value: Int = _value\n *   var children: List[Node] = List()\n * }\n */\n\nobject Solution {\n    def levelOrder(root: Node): List[List[Int]] = {\n        \n    }\n}"
+    }
+  ]
 }

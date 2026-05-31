@@ -21,5 +21,102 @@
     "[[3,4],[5,4],[6,3],[9,1]]"
   ],
   "content_signature": "-39y8a0",
-  "fetched_at": "2026-05-21T06:28:00.309Z"
+  "fetched_at": "2026-05-30T07:01:19.236Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<double> getCollisionTimes(vector<vector<int>>& cars) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public double[] getCollisionTimes(int[][] cars) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def getCollisionTimes(self, cars: List[List[int]]) -> List[float]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def getCollisionTimes(self, cars):\n        \"\"\"\n        :type cars: List[List[int]]\n        :rtype: List[float]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} cars\n * @return {number[]}\n */\nvar getCollisionTimes = function(cars) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function getCollisionTimes(cars: number[][]): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public double[] GetCollisionTimes(int[][] cars) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\ndouble* getCollisionTimes(int** cars, int carsSize, int* carsColSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func getCollisionTimes(cars [][]int) []float64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun getCollisionTimes(cars: Array<IntArray>): DoubleArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func getCollisionTimes(_ cars: [[Int]]) -> [Double] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn get_collision_times(cars: Vec<Vec<i32>>) -> Vec<f64> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} cars\n# @return {Float[]}\ndef get_collision_times(cars)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $cars\n     * @return Float[]\n     */\n    function getCollisionTimes($cars) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<double> getCollisionTimes(List<List<int>> cars) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def getCollisionTimes(cars: Array[Array[Int]]): Array[Double] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec get_collision_times(cars :: [[integer]]) :: [float]\n  def get_collision_times(cars) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec get_collision_times(Cars :: [[integer()]]) -> [float()].\nget_collision_times(Cars) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (get-collision-times cars)\n  (-> (listof (listof exact-integer?)) (listof flonum?))\n  )"
+    }
+  ]
 }

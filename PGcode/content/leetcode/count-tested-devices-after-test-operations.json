@@ -18,5 +18,102 @@
     "[0,1,2]"
   ],
   "content_signature": "1e1beq",
-  "fetched_at": "2026-05-21T07:08:42.783Z"
+  "fetched_at": "2026-05-30T07:31:18.901Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int countTestedDevices(vector<int>& batteryPercentages) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int countTestedDevices(int[] batteryPercentages) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def countTestedDevices(self, batteryPercentages: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def countTestedDevices(self, batteryPercentages):\n        \"\"\"\n        :type batteryPercentages: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} batteryPercentages\n * @return {number}\n */\nvar countTestedDevices = function(batteryPercentages) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function countTestedDevices(batteryPercentages: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int CountTestedDevices(int[] batteryPercentages) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int countTestedDevices(int* batteryPercentages, int batteryPercentagesSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func countTestedDevices(batteryPercentages []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun countTestedDevices(batteryPercentages: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func countTestedDevices(_ batteryPercentages: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn count_tested_devices(battery_percentages: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} battery_percentages\n# @return {Integer}\ndef count_tested_devices(battery_percentages)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $batteryPercentages\n     * @return Integer\n     */\n    function countTestedDevices($batteryPercentages) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int countTestedDevices(List<int> batteryPercentages) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def countTestedDevices(batteryPercentages: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec count_tested_devices(battery_percentages :: [integer]) :: integer\n  def count_tested_devices(battery_percentages) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec count_tested_devices(BatteryPercentages :: [integer()]) -> integer().\ncount_tested_devices(BatteryPercentages) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (count-tested-devices batteryPercentages)\n  (-> (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

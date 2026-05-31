@@ -23,5 +23,102 @@
     "[[1,1],[2,3],[3,3],[2,3]]"
   ],
   "content_signature": "r4p7dq",
-  "fetched_at": "2026-05-21T07:30:12.962Z"
+  "fetched_at": "2026-05-30T07:05:26.438Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int countArrays(vector<int>& original, vector<vector<int>>& bounds) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int countArrays(int[] original, int[][] bounds) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def countArrays(self, original: List[int], bounds: List[List[int]]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def countArrays(self, original, bounds):\n        \"\"\"\n        :type original: List[int]\n        :type bounds: List[List[int]]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} original\n * @param {number[][]} bounds\n * @return {number}\n */\nvar countArrays = function(original, bounds) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function countArrays(original: number[], bounds: number[][]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int CountArrays(int[] original, int[][] bounds) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int countArrays(int* original, int originalSize, int** bounds, int boundsSize, int* boundsColSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func countArrays(original []int, bounds [][]int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun countArrays(original: IntArray, bounds: Array<IntArray>): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func countArrays(_ original: [Int], _ bounds: [[Int]]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn count_arrays(original: Vec<i32>, bounds: Vec<Vec<i32>>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} original\n# @param {Integer[][]} bounds\n# @return {Integer}\ndef count_arrays(original, bounds)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $original\n     * @param Integer[][] $bounds\n     * @return Integer\n     */\n    function countArrays($original, $bounds) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int countArrays(List<int> original, List<List<int>> bounds) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def countArrays(original: Array[Int], bounds: Array[Array[Int]]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec count_arrays(original :: [integer], bounds :: [[integer]]) :: integer\n  def count_arrays(original, bounds) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec count_arrays(Original :: [integer()], Bounds :: [[integer()]]) -> integer().\ncount_arrays(Original, Bounds) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (count-arrays original bounds)\n  (-> (listof exact-integer?) (listof (listof exact-integer?)) exact-integer?)\n  )"
+    }
+  ]
 }

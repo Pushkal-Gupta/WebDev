@@ -28,5 +28,102 @@
     "[8,3,9,3,3]"
   ],
   "content_signature": "-j75p0e",
-  "fetched_at": "2026-05-21T07:42:50.592Z"
+  "fetched_at": "2026-05-30T05:20:43.386Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int minTravelTime(int l, int n, int k, vector<int>& position, vector<int>& time) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int minTravelTime(int l, int n, int k, int[] position, int[] time) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minTravelTime(self, l: int, n: int, k: int, position: List[int], time: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minTravelTime(self, l, n, k, position, time):\n        \"\"\"\n        :type l: int\n        :type n: int\n        :type k: int\n        :type position: List[int]\n        :type time: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} l\n * @param {number} n\n * @param {number} k\n * @param {number[]} position\n * @param {number[]} time\n * @return {number}\n */\nvar minTravelTime = function(l, n, k, position, time) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minTravelTime(l: number, n: number, k: number, position: number[], time: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MinTravelTime(int l, int n, int k, int[] position, int[] time) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int minTravelTime(int l, int n, int k, int* position, int positionSize, int* time, int timeSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minTravelTime(l int, n int, k int, position []int, time []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minTravelTime(l: Int, n: Int, k: Int, position: IntArray, time: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minTravelTime(_ l: Int, _ n: Int, _ k: Int, _ position: [Int], _ time: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn min_travel_time(l: i32, n: i32, k: i32, position: Vec<i32>, time: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} l\n# @param {Integer} n\n# @param {Integer} k\n# @param {Integer[]} position\n# @param {Integer[]} time\n# @return {Integer}\ndef min_travel_time(l, n, k, position, time)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $l\n     * @param Integer $n\n     * @param Integer $k\n     * @param Integer[] $position\n     * @param Integer[] $time\n     * @return Integer\n     */\n    function minTravelTime($l, $n, $k, $position, $time) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minTravelTime(int l, int n, int k, List<int> position, List<int> time) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minTravelTime(l: Int, n: Int, k: Int, position: Array[Int], time: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec min_travel_time(l :: integer, n :: integer, k :: integer, position :: [integer], time :: [integer]) :: integer\n  def min_travel_time(l, n, k, position, time) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec min_travel_time(L :: integer(), N :: integer(), K :: integer(), Position :: [integer()], Time :: [integer()]) -> integer().\nmin_travel_time(L, N, K, Position, Time) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (min-travel-time l n k position time)\n  (-> exact-integer? exact-integer? exact-integer? (listof exact-integer?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

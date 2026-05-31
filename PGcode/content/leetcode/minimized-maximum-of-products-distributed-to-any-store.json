@@ -23,5 +23,102 @@
     "[100000]"
   ],
   "content_signature": "5yzgjr",
-  "fetched_at": "2026-05-21T06:34:18.782Z"
+  "fetched_at": "2026-05-30T07:10:20.744Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int minimizedMaximum(int n, vector<int>& quantities) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int minimizedMaximum(int n, int[] quantities) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minimizedMaximum(self, n: int, quantities: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minimizedMaximum(self, n, quantities):\n        \"\"\"\n        :type n: int\n        :type quantities: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number[]} quantities\n * @return {number}\n */\nvar minimizedMaximum = function(n, quantities) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minimizedMaximum(n: number, quantities: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MinimizedMaximum(int n, int[] quantities) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int minimizedMaximum(int n, int* quantities, int quantitiesSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minimizedMaximum(n int, quantities []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minimizedMaximum(n: Int, quantities: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minimizedMaximum(_ n: Int, _ quantities: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn minimized_maximum(n: i32, quantities: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer[]} quantities\n# @return {Integer}\ndef minimized_maximum(n, quantities)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer[] $quantities\n     * @return Integer\n     */\n    function minimizedMaximum($n, $quantities) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minimizedMaximum(int n, List<int> quantities) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minimizedMaximum(n: Int, quantities: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec minimized_maximum(n :: integer, quantities :: [integer]) :: integer\n  def minimized_maximum(n, quantities) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec minimized_maximum(N :: integer(), Quantities :: [integer()]) -> integer().\nminimized_maximum(N, Quantities) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (minimized-maximum n quantities)\n  (-> exact-integer? (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

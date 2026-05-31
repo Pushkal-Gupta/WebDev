@@ -26,5 +26,102 @@
     "[false,false,false,false,false,false,false]"
   ],
   "content_signature": "-9ozr7i",
-  "fetched_at": "2026-05-21T06:20:39.298Z"
+  "fetched_at": "2026-05-30T05:40:53.018Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int minTime(int n, vector<vector<int>>& edges, vector<bool>& hasApple) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int minTime(int n, int[][] edges, List<Boolean> hasApple) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minTime(self, n: int, edges: List[List[int]], hasApple: List[bool]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minTime(self, n, edges, hasApple):\n        \"\"\"\n        :type n: int\n        :type edges: List[List[int]]\n        :type hasApple: List[bool]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number[][]} edges\n * @param {boolean[]} hasApple\n * @return {number}\n */\nvar minTime = function(n, edges, hasApple) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minTime(n: number, edges: number[][], hasApple: boolean[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MinTime(int n, int[][] edges, IList<bool> hasApple) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int minTime(int n, int** edges, int edgesSize, int* edgesColSize, bool* hasApple, int hasAppleSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minTime(n int, edges [][]int, hasApple []bool) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minTime(n: Int, edges: Array<IntArray>, hasApple: List<Boolean>): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minTime(_ n: Int, _ edges: [[Int]], _ hasApple: [Bool]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn min_time(n: i32, edges: Vec<Vec<i32>>, has_apple: Vec<bool>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer[][]} edges\n# @param {Boolean[]} has_apple\n# @return {Integer}\ndef min_time(n, edges, has_apple)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer[][] $edges\n     * @param Boolean[] $hasApple\n     * @return Integer\n     */\n    function minTime($n, $edges, $hasApple) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minTime(int n, List<List<int>> edges, List<bool> hasApple) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minTime(n: Int, edges: Array[Array[Int]], hasApple: List[Boolean]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec min_time(n :: integer, edges :: [[integer]], has_apple :: [boolean]) :: integer\n  def min_time(n, edges, has_apple) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec min_time(N :: integer(), Edges :: [[integer()]], HasApple :: [boolean()]) -> integer().\nmin_time(N, Edges, HasApple) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (min-time n edges hasApple)\n  (-> exact-integer? (listof (listof exact-integer?)) (listof boolean?) exact-integer?)\n  )"
+    }
+  ]
 }

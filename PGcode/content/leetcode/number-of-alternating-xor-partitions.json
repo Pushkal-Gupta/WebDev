@@ -28,5 +28,102 @@
     "7"
   ],
   "content_signature": "-sr1d3b",
-  "fetched_at": "2026-05-21T07:50:44.568Z"
+  "fetched_at": "2026-05-30T05:37:25.678Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int alternatingXOR(vector<int>& nums, int target1, int target2) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int alternatingXOR(int[] nums, int target1, int target2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def alternatingXOR(self, nums: List[int], target1: int, target2: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def alternatingXOR(self, nums, target1, target2):\n        \"\"\"\n        :type nums: List[int]\n        :type target1: int\n        :type target2: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {number} target1\n * @param {number} target2\n * @return {number}\n */\nvar alternatingXOR = function(nums, target1, target2) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function alternatingXOR(nums: number[], target1: number, target2: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int AlternatingXOR(int[] nums, int target1, int target2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int alternatingXOR(int* nums, int numsSize, int target1, int target2) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func alternatingXOR(nums []int, target1 int, target2 int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun alternatingXOR(nums: IntArray, target1: Int, target2: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func alternatingXOR(_ nums: [Int], _ target1: Int, _ target2: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn alternating_xor(nums: Vec<i32>, target1: i32, target2: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums\n# @param {Integer} target1\n# @param {Integer} target2\n# @return {Integer}\ndef alternating_xor(nums, target1, target2)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums\n     * @param Integer $target1\n     * @param Integer $target2\n     * @return Integer\n     */\n    function alternatingXOR($nums, $target1, $target2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int alternatingXOR(List<int> nums, int target1, int target2) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def alternatingXOR(nums: Array[Int], target1: Int, target2: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec alternating_xor(nums :: [integer], target1 :: integer, target2 :: integer) :: integer\n  def alternating_xor(nums, target1, target2) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec alternating_xor(Nums :: [integer()], Target1 :: integer(), Target2 :: integer()) -> integer().\nalternating_xor(Nums, Target1, Target2) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (alternating-xor nums target1 target2)\n  (-> (listof exact-integer?) exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

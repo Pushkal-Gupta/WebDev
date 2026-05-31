@@ -16,5 +16,17 @@
     "[\"increment\",\"increment\",\"decrement\",\"reset\",\"reset\"]"
   ],
   "content_signature": "-luoh8k",
-  "fetched_at": "2026-05-21T07:02:46.140Z"
+  "fetched_at": "2026-05-30T07:20:53.242Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {integer} init\n * @return { increment: Function, decrement: Function, reset: Function }\n */\nvar createCounter = function(init) {\n    \n};\n\n/**\n * const counter = createCounter(5)\n * counter.increment(); // 6\n * counter.reset(); // 5\n * counter.decrement(); // 4\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "type Counter = {\n    increment: () => number,\n    decrement: () => number,\n    reset: () => number,\n}\n\nfunction createCounter(init: number): Counter {\n    \n};\n\n/**\n * const counter = createCounter(5)\n * counter.increment(); // 6\n * counter.reset(); // 5\n * counter.decrement(); // 4\n */"
+    }
+  ]
 }

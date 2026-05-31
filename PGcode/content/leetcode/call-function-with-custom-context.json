@@ -13,5 +13,17 @@
     "[{\"item\":\"burger\"},10,1.1]"
   ],
   "content_signature": "yakcth",
-  "fetched_at": "2026-05-21T07:03:12.694Z"
+  "fetched_at": "2026-05-30T06:48:04.774Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {Object} context\n * @param {Array} args\n * @return {null|boolean|number|string|Array|Object}\n */\nFunction.prototype.callPolyfill = function(context, ...args) {\n    \n}\n\n/**\n * function increment() { this.count++; return this.count; }\n * increment.callPolyfill({count: 1}); // 2\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "type JSONValue = null | boolean | number | string | JSONValue[] | { [key: string]: JSONValue };\n\ninterface Function {\n    callPolyfill(context: Record<string, JSONValue>, ...args: JSONValue[]): JSONValue;\n}\n\n\nFunction.prototype.callPolyfill = function(context, ...args): JSONValue {\n    \n}\n\n/**\n * function increment() { this.count++; return this.count; }\n * increment.callPolyfill({count: 1}); // 2\n */"
+    }
+  ]
 }

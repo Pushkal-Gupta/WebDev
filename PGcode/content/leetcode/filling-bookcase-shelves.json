@@ -18,5 +18,102 @@
     "6"
   ],
   "content_signature": "tfmq3q",
-  "fetched_at": "2026-05-21T06:13:56.003Z"
+  "fetched_at": "2026-05-30T05:17:42.126Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int minHeightShelves(vector<vector<int>>& books, int shelfWidth) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int minHeightShelves(int[][] books, int shelfWidth) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minHeightShelves(self, books: List[List[int]], shelfWidth: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minHeightShelves(self, books, shelfWidth):\n        \"\"\"\n        :type books: List[List[int]]\n        :type shelfWidth: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} books\n * @param {number} shelfWidth\n * @return {number}\n */\nvar minHeightShelves = function(books, shelfWidth) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minHeightShelves(books: number[][], shelfWidth: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MinHeightShelves(int[][] books, int shelfWidth) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int minHeightShelves(int** books, int booksSize, int* booksColSize, int shelfWidth) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minHeightShelves(books [][]int, shelfWidth int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minHeightShelves(books: Array<IntArray>, shelfWidth: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minHeightShelves(_ books: [[Int]], _ shelfWidth: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn min_height_shelves(books: Vec<Vec<i32>>, shelf_width: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} books\n# @param {Integer} shelf_width\n# @return {Integer}\ndef min_height_shelves(books, shelf_width)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $books\n     * @param Integer $shelfWidth\n     * @return Integer\n     */\n    function minHeightShelves($books, $shelfWidth) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minHeightShelves(List<List<int>> books, int shelfWidth) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minHeightShelves(books: Array[Array[Int]], shelfWidth: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec min_height_shelves(books :: [[integer]], shelf_width :: integer) :: integer\n  def min_height_shelves(books, shelf_width) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec min_height_shelves(Books :: [[integer()]], ShelfWidth :: integer()) -> integer().\nmin_height_shelves(Books, ShelfWidth) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (min-height-shelves books shelfWidth)\n  (-> (listof (listof exact-integer?)) exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

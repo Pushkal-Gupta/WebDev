@@ -16,5 +16,17 @@
     "[\"call\",\"call\",\"call\",\"call\",\"call\"]"
   ],
   "content_signature": "-oogotu",
-  "fetched_at": "2026-05-21T07:01:46.123Z"
+  "fetched_at": "2026-05-30T07:19:21.702Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @return {Function} counter\n */\nvar createCounter = function(n) {\n    \n    return function() {\n        \n    };\n};\n\n/** \n * const counter = createCounter(10)\n * counter() // 10\n * counter() // 11\n * counter() // 12\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function createCounter(n: number): () => number {\n    \n    return function() {\n        \n    }\n}\n\n\n/** \n * const counter = createCounter(10)\n * counter() // 10\n * counter() // 11\n * counter() // 12\n */"
+    }
+  ]
 }

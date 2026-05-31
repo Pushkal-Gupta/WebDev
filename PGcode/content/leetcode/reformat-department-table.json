@@ -12,5 +12,32 @@
     "{\"headers\":{\"Department\":[\"id\",\"revenue\",\"month\"]},\"rows\":{\"Department\":[[1,8000,\"Jan\"],[2,9000,\"Jan\"],[3,10000,\"Feb\"],[1,7000,\"Feb\"],[1,6000,\"Mar\"]]}}"
   ],
   "content_signature": "xxkxuk",
-  "fetched_at": "2026-05-21T06:15:12.537Z"
+  "fetched_at": "2026-05-30T05:43:02.401Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef reformat_table(department: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

@@ -13,5 +13,17 @@
     "new Promise(resolve => setTimeout(() => resolve(-12), 30))"
   ],
   "content_signature": "-l9zgce",
-  "fetched_at": "2026-05-21T07:03:51.132Z"
+  "fetched_at": "2026-05-30T06:40:15.791Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {Promise} promise1\n * @param {Promise} promise2\n * @return {Promise}\n */\nvar addTwoPromises = async function(promise1, promise2) {\n    \n};\n\n/**\n * addTwoPromises(Promise.resolve(2), Promise.resolve(2))\n *   .then(console.log); // 4\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "type P = Promise<number>\n\nasync function addTwoPromises(promise1: P, promise2: P): P {\n    \n};\n\n/**\n * addTwoPromises(Promise.resolve(2), Promise.resolve(2))\n *   .then(console.log); // 4\n */"
+    }
+  ]
 }

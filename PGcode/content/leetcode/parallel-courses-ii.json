@@ -23,5 +23,102 @@
     "2"
   ],
   "content_signature": "2szzhn",
-  "fetched_at": "2026-05-21T06:21:46.967Z"
+  "fetched_at": "2026-05-30T07:20:39.241Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int minNumberOfSemesters(int n, vector<vector<int>>& relations, int k) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int minNumberOfSemesters(int n, int[][] relations, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minNumberOfSemesters(self, n: int, relations: List[List[int]], k: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minNumberOfSemesters(self, n, relations, k):\n        \"\"\"\n        :type n: int\n        :type relations: List[List[int]]\n        :type k: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number[][]} relations\n * @param {number} k\n * @return {number}\n */\nvar minNumberOfSemesters = function(n, relations, k) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minNumberOfSemesters(n: number, relations: number[][], k: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MinNumberOfSemesters(int n, int[][] relations, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int minNumberOfSemesters(int n, int** relations, int relationsSize, int* relationsColSize, int k) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minNumberOfSemesters(n int, relations [][]int, k int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minNumberOfSemesters(n: Int, relations: Array<IntArray>, k: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minNumberOfSemesters(_ n: Int, _ relations: [[Int]], _ k: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn min_number_of_semesters(n: i32, relations: Vec<Vec<i32>>, k: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer[][]} relations\n# @param {Integer} k\n# @return {Integer}\ndef min_number_of_semesters(n, relations, k)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer[][] $relations\n     * @param Integer $k\n     * @return Integer\n     */\n    function minNumberOfSemesters($n, $relations, $k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minNumberOfSemesters(int n, List<List<int>> relations, int k) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minNumberOfSemesters(n: Int, relations: Array[Array[Int]], k: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec min_number_of_semesters(n :: integer, relations :: [[integer]], k :: integer) :: integer\n  def min_number_of_semesters(n, relations, k) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec min_number_of_semesters(N :: integer(), Relations :: [[integer()]], K :: integer()) -> integer().\nmin_number_of_semesters(N, Relations, K) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (min-number-of-semesters n relations k)\n  (-> exact-integer? (listof (listof exact-integer?)) exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

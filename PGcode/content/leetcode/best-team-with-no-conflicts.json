@@ -22,5 +22,102 @@
     "[8,9,10,1]"
   ],
   "content_signature": "-6fdu78",
-  "fetched_at": "2026-05-21T06:24:36.762Z"
+  "fetched_at": "2026-05-30T06:41:47.941Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int bestTeamScore(vector<int>& scores, vector<int>& ages) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int bestTeamScore(int[] scores, int[] ages) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def bestTeamScore(self, scores: List[int], ages: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def bestTeamScore(self, scores, ages):\n        \"\"\"\n        :type scores: List[int]\n        :type ages: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} scores\n * @param {number[]} ages\n * @return {number}\n */\nvar bestTeamScore = function(scores, ages) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function bestTeamScore(scores: number[], ages: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int BestTeamScore(int[] scores, int[] ages) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int bestTeamScore(int* scores, int scoresSize, int* ages, int agesSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func bestTeamScore(scores []int, ages []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun bestTeamScore(scores: IntArray, ages: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func bestTeamScore(_ scores: [Int], _ ages: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn best_team_score(scores: Vec<i32>, ages: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} scores\n# @param {Integer[]} ages\n# @return {Integer}\ndef best_team_score(scores, ages)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $scores\n     * @param Integer[] $ages\n     * @return Integer\n     */\n    function bestTeamScore($scores, $ages) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int bestTeamScore(List<int> scores, List<int> ages) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def bestTeamScore(scores: Array[Int], ages: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec best_team_score(scores :: [integer], ages :: [integer]) :: integer\n  def best_team_score(scores, ages) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec best_team_score(Scores :: [integer()], Ages :: [integer()]) -> integer().\nbest_team_score(Scores, Ages) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (best-team-score scores ages)\n  (-> (listof exact-integer?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }
