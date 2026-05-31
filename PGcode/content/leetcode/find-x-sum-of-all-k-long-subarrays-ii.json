@@ -24,5 +24,102 @@
     "2"
   ],
   "content_signature": "-91s1g2",
-  "fetched_at": "2026-05-21T07:16:11.191Z"
+  "fetched_at": "2026-05-30T06:38:12.497Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<long long> findXSum(vector<int>& nums, int k, int x) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public long[] findXSum(int[] nums, int k, int x) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def findXSum(self, nums: List[int], k: int, x: int) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def findXSum(self, nums, k, x):\n        \"\"\"\n        :type nums: List[int]\n        :type k: int\n        :type x: int\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {number} k\n * @param {number} x\n * @return {number[]}\n */\nvar findXSum = function(nums, k, x) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function findXSum(nums: number[], k: number, x: number): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public long[] FindXSum(int[] nums, int k, int x) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nlong long* findXSum(int* nums, int numsSize, int k, int x, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func findXSum(nums []int, k int, x int) []int64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun findXSum(nums: IntArray, k: Int, x: Int): LongArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func findXSum(_ nums: [Int], _ k: Int, _ x: Int) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn find_x_sum(nums: Vec<i32>, k: i32, x: i32) -> Vec<i64> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums\n# @param {Integer} k\n# @param {Integer} x\n# @return {Integer[]}\ndef find_x_sum(nums, k, x)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums\n     * @param Integer $k\n     * @param Integer $x\n     * @return Integer[]\n     */\n    function findXSum($nums, $k, $x) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> findXSum(List<int> nums, int k, int x) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def findXSum(nums: Array[Int], k: Int, x: Int): Array[Long] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec find_x_sum(nums :: [integer], k :: integer, x :: integer) :: [integer]\n  def find_x_sum(nums, k, x) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec find_x_sum(Nums :: [integer()], K :: integer(), X :: integer()) -> [integer()].\nfind_x_sum(Nums, K, X) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (find-x-sum nums k x)\n  (-> (listof exact-integer?) exact-integer? exact-integer? (listof exact-integer?))\n  )"
+    }
+  ]
 }

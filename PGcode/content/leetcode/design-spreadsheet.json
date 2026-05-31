@@ -22,5 +22,102 @@
     "[[3],[\"=5+7\"],[\"A1\",10],[\"=A1+6\"],[\"B2\",15],[\"=A1+B2\"],[\"A1\"],[\"=A1+B2\"]]"
   ],
   "content_signature": "-wokyei",
-  "fetched_at": "2026-05-21T07:41:23.606Z"
+  "fetched_at": "2026-05-30T07:36:06.314Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Spreadsheet {\npublic:\n    Spreadsheet(int rows) {\n        \n    }\n    \n    void setCell(string cell, int value) {\n        \n    }\n    \n    void resetCell(string cell) {\n        \n    }\n    \n    int getValue(string formula) {\n        \n    }\n};\n\n/**\n * Your Spreadsheet object will be instantiated and called as such:\n * Spreadsheet* obj = new Spreadsheet(rows);\n * obj->setCell(cell,value);\n * obj->resetCell(cell);\n * int param_3 = obj->getValue(formula);\n */"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Spreadsheet {\n\n    public Spreadsheet(int rows) {\n        \n    }\n    \n    public void setCell(String cell, int value) {\n        \n    }\n    \n    public void resetCell(String cell) {\n        \n    }\n    \n    public int getValue(String formula) {\n        \n    }\n}\n\n/**\n * Your Spreadsheet object will be instantiated and called as such:\n * Spreadsheet obj = new Spreadsheet(rows);\n * obj.setCell(cell,value);\n * obj.resetCell(cell);\n * int param_3 = obj.getValue(formula);\n */"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Spreadsheet:\n\n    def __init__(self, rows: int):\n        \n\n    def setCell(self, cell: str, value: int) -> None:\n        \n\n    def resetCell(self, cell: str) -> None:\n        \n\n    def getValue(self, formula: str) -> int:\n        \n\n\n# Your Spreadsheet object will be instantiated and called as such:\n# obj = Spreadsheet(rows)\n# obj.setCell(cell,value)\n# obj.resetCell(cell)\n# param_3 = obj.getValue(formula)"
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Spreadsheet(object):\n\n    def __init__(self, rows):\n        \"\"\"\n        :type rows: int\n        \"\"\"\n        \n\n    def setCell(self, cell, value):\n        \"\"\"\n        :type cell: str\n        :type value: int\n        :rtype: None\n        \"\"\"\n        \n\n    def resetCell(self, cell):\n        \"\"\"\n        :type cell: str\n        :rtype: None\n        \"\"\"\n        \n\n    def getValue(self, formula):\n        \"\"\"\n        :type formula: str\n        :rtype: int\n        \"\"\"\n        \n\n\n# Your Spreadsheet object will be instantiated and called as such:\n# obj = Spreadsheet(rows)\n# obj.setCell(cell,value)\n# obj.resetCell(cell)\n# param_3 = obj.getValue(formula)"
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} rows\n */\nvar Spreadsheet = function(rows) {\n    \n};\n\n/** \n * @param {string} cell \n * @param {number} value\n * @return {void}\n */\nSpreadsheet.prototype.setCell = function(cell, value) {\n    \n};\n\n/** \n * @param {string} cell\n * @return {void}\n */\nSpreadsheet.prototype.resetCell = function(cell) {\n    \n};\n\n/** \n * @param {string} formula\n * @return {number}\n */\nSpreadsheet.prototype.getValue = function(formula) {\n    \n};\n\n/** \n * Your Spreadsheet object will be instantiated and called as such:\n * var obj = new Spreadsheet(rows)\n * obj.setCell(cell,value)\n * obj.resetCell(cell)\n * var param_3 = obj.getValue(formula)\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "class Spreadsheet {\n    constructor(rows: number) {\n        \n    }\n\n    setCell(cell: string, value: number): void {\n        \n    }\n\n    resetCell(cell: string): void {\n        \n    }\n\n    getValue(formula: string): number {\n        \n    }\n}\n\n/**\n * Your Spreadsheet object will be instantiated and called as such:\n * var obj = new Spreadsheet(rows)\n * obj.setCell(cell,value)\n * obj.resetCell(cell)\n * var param_3 = obj.getValue(formula)\n */"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Spreadsheet {\n\n    public Spreadsheet(int rows) {\n        \n    }\n    \n    public void SetCell(string cell, int value) {\n        \n    }\n    \n    public void ResetCell(string cell) {\n        \n    }\n    \n    public int GetValue(string formula) {\n        \n    }\n}\n\n/**\n * Your Spreadsheet object will be instantiated and called as such:\n * Spreadsheet obj = new Spreadsheet(rows);\n * obj.SetCell(cell,value);\n * obj.ResetCell(cell);\n * int param_3 = obj.GetValue(formula);\n */"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "\n\n\ntypedef struct {\n    \n} Spreadsheet;\n\n\nSpreadsheet* spreadsheetCreate(int rows) {\n    \n}\n\nvoid spreadsheetSetCell(Spreadsheet* obj, char* cell, int value) {\n    \n}\n\nvoid spreadsheetResetCell(Spreadsheet* obj, char* cell) {\n    \n}\n\nint spreadsheetGetValue(Spreadsheet* obj, char* formula) {\n    \n}\n\nvoid spreadsheetFree(Spreadsheet* obj) {\n    \n}\n\n/**\n * Your Spreadsheet struct will be instantiated and called as such:\n * Spreadsheet* obj = spreadsheetCreate(rows);\n * spreadsheetSetCell(obj, cell, value);\n \n * spreadsheetResetCell(obj, cell);\n \n * int param_3 = spreadsheetGetValue(obj, formula);\n \n * spreadsheetFree(obj);\n*/"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "type Spreadsheet struct {\n    \n}\n\n\nfunc Constructor(rows int) Spreadsheet {\n    \n}\n\n\nfunc (this *Spreadsheet) SetCell(cell string, value int)  {\n    \n}\n\n\nfunc (this *Spreadsheet) ResetCell(cell string)  {\n    \n}\n\n\nfunc (this *Spreadsheet) GetValue(formula string) int {\n    \n}\n\n\n/**\n * Your Spreadsheet object will be instantiated and called as such:\n * obj := Constructor(rows);\n * obj.SetCell(cell,value);\n * obj.ResetCell(cell);\n * param_3 := obj.GetValue(formula);\n */"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Spreadsheet(rows: Int) {\n\n    fun setCell(cell: String, value: Int) {\n        \n    }\n\n    fun resetCell(cell: String) {\n        \n    }\n\n    fun getValue(formula: String): Int {\n        \n    }\n\n}\n\n/**\n * Your Spreadsheet object will be instantiated and called as such:\n * var obj = Spreadsheet(rows)\n * obj.setCell(cell,value)\n * obj.resetCell(cell)\n * var param_3 = obj.getValue(formula)\n */"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "\nclass Spreadsheet {\n\n    init(_ rows: Int) {\n        \n    }\n    \n    func setCell(_ cell: String, _ value: Int) {\n        \n    }\n    \n    func resetCell(_ cell: String) {\n        \n    }\n    \n    func getValue(_ formula: String) -> Int {\n        \n    }\n}\n\n/**\n * Your Spreadsheet object will be instantiated and called as such:\n * let obj = Spreadsheet(rows)\n * obj.setCell(cell, value)\n * obj.resetCell(cell)\n * let ret_3: Int = obj.getValue(formula)\n */"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "struct Spreadsheet {\n\n}\n\n\n/** \n * `&self` means the method takes an immutable reference.\n * If you need a mutable reference, change it to `&mut self` instead.\n */\nimpl Spreadsheet {\n\n    fn new(rows: i32) -> Self {\n        \n    }\n    \n    fn set_cell(&self, cell: String, value: i32) {\n        \n    }\n    \n    fn reset_cell(&self, cell: String) {\n        \n    }\n    \n    fn get_value(&self, formula: String) -> i32 {\n        \n    }\n}\n\n/**\n * Your Spreadsheet object will be instantiated and called as such:\n * let obj = Spreadsheet::new(rows);\n * obj.set_cell(cell, value);\n * obj.reset_cell(cell);\n * let ret_3: i32 = obj.get_value(formula);\n */"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "class Spreadsheet\n\n=begin\n    :type rows: Integer\n=end\n    def initialize(rows)\n        \n    end\n\n\n=begin\n    :type cell: String\n    :type value: Integer\n    :rtype: Void\n=end\n    def set_cell(cell, value)\n        \n    end\n\n\n=begin\n    :type cell: String\n    :rtype: Void\n=end\n    def reset_cell(cell)\n        \n    end\n\n\n=begin\n    :type formula: String\n    :rtype: Integer\n=end\n    def get_value(formula)\n        \n    end\n\n\nend\n\n# Your Spreadsheet object will be instantiated and called as such:\n# obj = Spreadsheet.new(rows)\n# obj.set_cell(cell, value)\n# obj.reset_cell(cell)\n# param_3 = obj.get_value(formula)"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Spreadsheet {\n    /**\n     * @param Integer $rows\n     */\n    function __construct($rows) {\n        \n    }\n  \n    /**\n     * @param String $cell\n     * @param Integer $value\n     * @return NULL\n     */\n    function setCell($cell, $value) {\n        \n    }\n  \n    /**\n     * @param String $cell\n     * @return NULL\n     */\n    function resetCell($cell) {\n        \n    }\n  \n    /**\n     * @param String $formula\n     * @return Integer\n     */\n    function getValue($formula) {\n        \n    }\n}\n\n/**\n * Your Spreadsheet object will be instantiated and called as such:\n * $obj = Spreadsheet($rows);\n * $obj->setCell($cell, $value);\n * $obj->resetCell($cell);\n * $ret_3 = $obj->getValue($formula);\n */"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Spreadsheet {\n\n  Spreadsheet(int rows) {\n    \n  }\n  \n  void setCell(String cell, int value) {\n    \n  }\n  \n  void resetCell(String cell) {\n    \n  }\n  \n  int getValue(String formula) {\n    \n  }\n}\n\n/**\n * Your Spreadsheet object will be instantiated and called as such:\n * Spreadsheet obj = Spreadsheet(rows);\n * obj.setCell(cell,value);\n * obj.resetCell(cell);\n * int param3 = obj.getValue(formula);\n */"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "class Spreadsheet(_rows: Int) {\n\n    def setCell(cell: String, value: Int): Unit = {\n        \n    }\n\n    def resetCell(cell: String): Unit = {\n        \n    }\n\n    def getValue(formula: String): Int = {\n        \n    }\n\n}\n\n/**\n * Your Spreadsheet object will be instantiated and called as such:\n * val obj = new Spreadsheet(rows)\n * obj.setCell(cell,value)\n * obj.resetCell(cell)\n * val param_3 = obj.getValue(formula)\n */"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Spreadsheet do\n  @spec init_(rows :: integer) :: any\n  def init_(rows) do\n    \n  end\n\n  @spec set_cell(cell :: String.t, value :: integer) :: any\n  def set_cell(cell, value) do\n    \n  end\n\n  @spec reset_cell(cell :: String.t) :: any\n  def reset_cell(cell) do\n    \n  end\n\n  @spec get_value(formula :: String.t) :: integer\n  def get_value(formula) do\n    \n  end\nend\n\n# Your functions will be called as such:\n# Spreadsheet.init_(rows)\n# Spreadsheet.set_cell(cell, value)\n# Spreadsheet.reset_cell(cell)\n# param_3 = Spreadsheet.get_value(formula)\n\n# Spreadsheet.init_ will be called before every test case, in which you can do some necessary initializations."
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec spreadsheet_init_(Rows :: integer()) -> any().\nspreadsheet_init_(Rows) ->\n  .\n\n-spec spreadsheet_set_cell(Cell :: unicode:unicode_binary(), Value :: integer()) -> any().\nspreadsheet_set_cell(Cell, Value) ->\n  .\n\n-spec spreadsheet_reset_cell(Cell :: unicode:unicode_binary()) -> any().\nspreadsheet_reset_cell(Cell) ->\n  .\n\n-spec spreadsheet_get_value(Formula :: unicode:unicode_binary()) -> integer().\nspreadsheet_get_value(Formula) ->\n  .\n\n\n%% Your functions will be called as such:\n%% spreadsheet_init_(Rows),\n%% spreadsheet_set_cell(Cell, Value),\n%% spreadsheet_reset_cell(Cell),\n%% Param_3 = spreadsheet_get_value(Formula),\n\n%% spreadsheet_init_ will be called before every test case, in which you can do some necessary initializations."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define spreadsheet%\n  (class object%\n    (super-new)\n    \n    ; rows : exact-integer?\n    (init-field\n      rows)\n    \n    ; set-cell : string? exact-integer? -> void?\n    (define/public (set-cell cell value)\n      )\n    ; reset-cell : string? -> void?\n    (define/public (reset-cell cell)\n      )\n    ; get-value : string? -> exact-integer?\n    (define/public (get-value formula)\n      )))\n\n;; Your spreadsheet% object will be instantiated and called as such:\n;; (define obj (new spreadsheet% [rows rows]))\n;; (send obj set-cell cell value)\n;; (send obj reset-cell cell)\n;; (define param_3 (send obj get-value formula))"
+    }
+  ]
 }

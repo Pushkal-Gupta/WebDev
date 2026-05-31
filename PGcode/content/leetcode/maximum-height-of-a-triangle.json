@@ -23,5 +23,102 @@
     "1"
   ],
   "content_signature": "gqmip0",
-  "fetched_at": "2026-05-21T07:13:25.857Z"
+  "fetched_at": "2026-05-30T06:55:51.002Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int maxHeightOfTriangle(int red, int blue) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int maxHeightOfTriangle(int red, int blue) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def maxHeightOfTriangle(self, red: int, blue: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def maxHeightOfTriangle(self, red, blue):\n        \"\"\"\n        :type red: int\n        :type blue: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} red\n * @param {number} blue\n * @return {number}\n */\nvar maxHeightOfTriangle = function(red, blue) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function maxHeightOfTriangle(red: number, blue: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MaxHeightOfTriangle(int red, int blue) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int maxHeightOfTriangle(int red, int blue) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func maxHeightOfTriangle(red int, blue int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun maxHeightOfTriangle(red: Int, blue: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func maxHeightOfTriangle(_ red: Int, _ blue: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn max_height_of_triangle(red: i32, blue: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} red\n# @param {Integer} blue\n# @return {Integer}\ndef max_height_of_triangle(red, blue)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $red\n     * @param Integer $blue\n     * @return Integer\n     */\n    function maxHeightOfTriangle($red, $blue) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int maxHeightOfTriangle(int red, int blue) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def maxHeightOfTriangle(red: Int, blue: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec max_height_of_triangle(red :: integer, blue :: integer) :: integer\n  def max_height_of_triangle(red, blue) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec max_height_of_triangle(Red :: integer(), Blue :: integer()) -> integer().\nmax_height_of_triangle(Red, Blue) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (max-height-of-triangle red blue)\n  (-> exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

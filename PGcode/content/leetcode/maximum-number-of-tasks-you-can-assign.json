@@ -32,5 +32,102 @@
     "10"
   ],
   "content_signature": "-wcqhnd",
-  "fetched_at": "2026-05-21T06:34:26.939Z"
+  "fetched_at": "2026-05-30T05:15:42.979Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int maxTaskAssign(vector<int>& tasks, vector<int>& workers, int pills, int strength) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int maxTaskAssign(int[] tasks, int[] workers, int pills, int strength) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def maxTaskAssign(self, tasks: List[int], workers: List[int], pills: int, strength: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def maxTaskAssign(self, tasks, workers, pills, strength):\n        \"\"\"\n        :type tasks: List[int]\n        :type workers: List[int]\n        :type pills: int\n        :type strength: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} tasks\n * @param {number[]} workers\n * @param {number} pills\n * @param {number} strength\n * @return {number}\n */\nvar maxTaskAssign = function(tasks, workers, pills, strength) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function maxTaskAssign(tasks: number[], workers: number[], pills: number, strength: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MaxTaskAssign(int[] tasks, int[] workers, int pills, int strength) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int maxTaskAssign(int* tasks, int tasksSize, int* workers, int workersSize, int pills, int strength) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func maxTaskAssign(tasks []int, workers []int, pills int, strength int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun maxTaskAssign(tasks: IntArray, workers: IntArray, pills: Int, strength: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func maxTaskAssign(_ tasks: [Int], _ workers: [Int], _ pills: Int, _ strength: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn max_task_assign(tasks: Vec<i32>, workers: Vec<i32>, pills: i32, strength: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} tasks\n# @param {Integer[]} workers\n# @param {Integer} pills\n# @param {Integer} strength\n# @return {Integer}\ndef max_task_assign(tasks, workers, pills, strength)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $tasks\n     * @param Integer[] $workers\n     * @param Integer $pills\n     * @param Integer $strength\n     * @return Integer\n     */\n    function maxTaskAssign($tasks, $workers, $pills, $strength) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int maxTaskAssign(List<int> tasks, List<int> workers, int pills, int strength) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def maxTaskAssign(tasks: Array[Int], workers: Array[Int], pills: Int, strength: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec max_task_assign(tasks :: [integer], workers :: [integer], pills :: integer, strength :: integer) :: integer\n  def max_task_assign(tasks, workers, pills, strength) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec max_task_assign(Tasks :: [integer()], Workers :: [integer()], Pills :: integer(), Strength :: integer()) -> integer().\nmax_task_assign(Tasks, Workers, Pills, Strength) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (max-task-assign tasks workers pills strength)\n  (-> (listof exact-integer?) (listof exact-integer?) exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

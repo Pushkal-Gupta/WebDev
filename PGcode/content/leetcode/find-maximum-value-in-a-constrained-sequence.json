@@ -23,5 +23,102 @@
     "[3,5,2,4,2,3,1]"
   ],
   "content_signature": "-s1fxcc",
-  "fetched_at": "2026-05-21T07:50:20.220Z"
+  "fetched_at": "2026-05-30T05:24:35.876Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int findMaxVal(int n, vector<vector<int>>& restrictions, vector<int>& diff) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int findMaxVal(int n, int[][] restrictions, int[] diff) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def findMaxVal(self, n: int, restrictions: List[List[int]], diff: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def findMaxVal(self, n, restrictions, diff):\n        \"\"\"\n        :type n: int\n        :type restrictions: List[List[int]]\n        :type diff: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number[][]} restrictions\n * @param {number[]} diff\n * @return {number}\n */\nvar findMaxVal = function(n, restrictions, diff) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function findMaxVal(n: number, restrictions: number[][], diff: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int FindMaxVal(int n, int[][] restrictions, int[] diff) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int findMaxVal(int n, int** restrictions, int restrictionsSize, int* restrictionsColSize, int* diff, int diffSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func findMaxVal(n int, restrictions [][]int, diff []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun findMaxVal(n: Int, restrictions: Array<IntArray>, diff: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func findMaxVal(_ n: Int, _ restrictions: [[Int]], _ diff: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn find_max_val(n: i32, restrictions: Vec<Vec<i32>>, diff: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer[][]} restrictions\n# @param {Integer[]} diff\n# @return {Integer}\ndef find_max_val(n, restrictions, diff)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer[][] $restrictions\n     * @param Integer[] $diff\n     * @return Integer\n     */\n    function findMaxVal($n, $restrictions, $diff) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int findMaxVal(int n, List<List<int>> restrictions, List<int> diff) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def findMaxVal(n: Int, restrictions: Array[Array[Int]], diff: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec find_max_val(n :: integer, restrictions :: [[integer]], diff :: [integer]) :: integer\n  def find_max_val(n, restrictions, diff) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec find_max_val(N :: integer(), Restrictions :: [[integer()]], Diff :: [integer()]) -> integer().\nfind_max_val(N, Restrictions, Diff) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (find-max-val n restrictions diff)\n  (-> exact-integer? (listof (listof exact-integer?)) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

@@ -25,5 +25,102 @@
     "5"
   ],
   "content_signature": "-nt7x3f",
-  "fetched_at": "2026-05-21T07:42:44.227Z"
+  "fetched_at": "2026-05-30T07:12:08.983Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> concatenatedDivisibility(vector<int>& nums, int k) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] concatenatedDivisibility(int[] nums, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def concatenatedDivisibility(self, nums: List[int], k: int) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def concatenatedDivisibility(self, nums, k):\n        \"\"\"\n        :type nums: List[int]\n        :type k: int\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {number} k\n * @return {number[]}\n */\nvar concatenatedDivisibility = function(nums, k) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function concatenatedDivisibility(nums: number[], k: number): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] ConcatenatedDivisibility(int[] nums, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* concatenatedDivisibility(int* nums, int numsSize, int k, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func concatenatedDivisibility(nums []int, k int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun concatenatedDivisibility(nums: IntArray, k: Int): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func concatenatedDivisibility(_ nums: [Int], _ k: Int) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn concatenated_divisibility(nums: Vec<i32>, k: i32) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums\n# @param {Integer} k\n# @return {Integer[]}\ndef concatenated_divisibility(nums, k)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums\n     * @param Integer $k\n     * @return Integer[]\n     */\n    function concatenatedDivisibility($nums, $k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> concatenatedDivisibility(List<int> nums, int k) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def concatenatedDivisibility(nums: Array[Int], k: Int): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec concatenated_divisibility(nums :: [integer], k :: integer) :: [integer]\n  def concatenated_divisibility(nums, k) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec concatenated_divisibility(Nums :: [integer()], K :: integer()) -> [integer()].\nconcatenated_divisibility(Nums, K) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (concatenated-divisibility nums k)\n  (-> (listof exact-integer?) exact-integer? (listof exact-integer?))\n  )"
+    }
+  ]
 }

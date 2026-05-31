@@ -28,5 +28,102 @@
     "50"
   ],
   "content_signature": "-zcbbbk",
-  "fetched_at": "2026-05-21T06:57:51.437Z"
+  "fetched_at": "2026-05-30T07:08:20.834Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int maxCount(vector<int>& banned, int n, int maxSum) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int maxCount(int[] banned, int n, int maxSum) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def maxCount(self, banned: List[int], n: int, maxSum: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def maxCount(self, banned, n, maxSum):\n        \"\"\"\n        :type banned: List[int]\n        :type n: int\n        :type maxSum: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} banned\n * @param {number} n\n * @param {number} maxSum\n * @return {number}\n */\nvar maxCount = function(banned, n, maxSum) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function maxCount(banned: number[], n: number, maxSum: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MaxCount(int[] banned, int n, int maxSum) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int maxCount(int* banned, int bannedSize, int n, int maxSum) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func maxCount(banned []int, n int, maxSum int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun maxCount(banned: IntArray, n: Int, maxSum: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func maxCount(_ banned: [Int], _ n: Int, _ maxSum: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn max_count(banned: Vec<i32>, n: i32, max_sum: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} banned\n# @param {Integer} n\n# @param {Integer} max_sum\n# @return {Integer}\ndef max_count(banned, n, max_sum)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $banned\n     * @param Integer $n\n     * @param Integer $maxSum\n     * @return Integer\n     */\n    function maxCount($banned, $n, $maxSum) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int maxCount(List<int> banned, int n, int maxSum) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def maxCount(banned: Array[Int], n: Int, maxSum: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec max_count(banned :: [integer], n :: integer, max_sum :: integer) :: integer\n  def max_count(banned, n, max_sum) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec max_count(Banned :: [integer()], N :: integer(), MaxSum :: integer()) -> integer().\nmax_count(Banned, N, MaxSum) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (max-count banned n maxSum)\n  (-> (listof exact-integer?) exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

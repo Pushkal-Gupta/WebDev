@@ -20,5 +20,102 @@
     "3"
   ],
   "content_signature": "-duexr4",
-  "fetched_at": "2026-05-21T07:10:37.048Z"
+  "fetched_at": "2026-05-30T07:07:21.789Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> countPairsOfConnectableServers(vector<vector<int>>& edges, int signalSpeed) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] countPairsOfConnectableServers(int[][] edges, int signalSpeed) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def countPairsOfConnectableServers(self, edges: List[List[int]], signalSpeed: int) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def countPairsOfConnectableServers(self, edges, signalSpeed):\n        \"\"\"\n        :type edges: List[List[int]]\n        :type signalSpeed: int\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} edges\n * @param {number} signalSpeed\n * @return {number[]}\n */\nvar countPairsOfConnectableServers = function(edges, signalSpeed) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function countPairsOfConnectableServers(edges: number[][], signalSpeed: number): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] CountPairsOfConnectableServers(int[][] edges, int signalSpeed) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* countPairsOfConnectableServers(int** edges, int edgesSize, int* edgesColSize, int signalSpeed, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func countPairsOfConnectableServers(edges [][]int, signalSpeed int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun countPairsOfConnectableServers(edges: Array<IntArray>, signalSpeed: Int): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func countPairsOfConnectableServers(_ edges: [[Int]], _ signalSpeed: Int) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn count_pairs_of_connectable_servers(edges: Vec<Vec<i32>>, signal_speed: i32) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} edges\n# @param {Integer} signal_speed\n# @return {Integer[]}\ndef count_pairs_of_connectable_servers(edges, signal_speed)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $edges\n     * @param Integer $signalSpeed\n     * @return Integer[]\n     */\n    function countPairsOfConnectableServers($edges, $signalSpeed) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> countPairsOfConnectableServers(List<List<int>> edges, int signalSpeed) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def countPairsOfConnectableServers(edges: Array[Array[Int]], signalSpeed: Int): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec count_pairs_of_connectable_servers(edges :: [[integer]], signal_speed :: integer) :: [integer]\n  def count_pairs_of_connectable_servers(edges, signal_speed) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec count_pairs_of_connectable_servers(Edges :: [[integer()]], SignalSpeed :: integer()) -> [integer()].\ncount_pairs_of_connectable_servers(Edges, SignalSpeed) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (count-pairs-of-connectable-servers edges signalSpeed)\n  (-> (listof (listof exact-integer?)) exact-integer? (listof exact-integer?))\n  )"
+    }
+  ]
 }

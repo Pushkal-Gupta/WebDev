@@ -18,5 +18,102 @@
     "3"
   ],
   "content_signature": "-apqe4n",
-  "fetched_at": "2026-05-21T06:13:52.347Z"
+  "fetched_at": "2026-05-30T07:36:21.978Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> distributeCandies(int candies, int num_people) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] distributeCandies(int candies, int num_people) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def distributeCandies(self, candies: int, num_people: int) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def distributeCandies(self, candies, num_people):\n        \"\"\"\n        :type candies: int\n        :type num_people: int\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} candies\n * @param {number} num_people\n * @return {number[]}\n */\nvar distributeCandies = function(candies, num_people) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function distributeCandies(candies: number, num_people: number): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] DistributeCandies(int candies, int num_people) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* distributeCandies(int candies, int num_people, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func distributeCandies(candies int, num_people int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun distributeCandies(candies: Int, num_people: Int): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func distributeCandies(_ candies: Int, _ num_people: Int) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn distribute_candies(candies: i32, num_people: i32) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} candies\n# @param {Integer} num_people\n# @return {Integer[]}\ndef distribute_candies(candies, num_people)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $candies\n     * @param Integer $num_people\n     * @return Integer[]\n     */\n    function distributeCandies($candies, $num_people) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> distributeCandies(int candies, int num_people) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def distributeCandies(candies: Int, num_people: Int): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec distribute_candies(candies :: integer, num_people :: integer) :: [integer]\n  def distribute_candies(candies, num_people) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec distribute_candies(Candies :: integer(), Num_people :: integer()) -> [integer()].\ndistribute_candies(Candies, Num_people) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (distribute-candies candies num_people)\n  (-> exact-integer? exact-integer? (listof exact-integer?))\n  )"
+    }
+  ]
 }

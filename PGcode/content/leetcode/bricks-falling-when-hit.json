@@ -17,5 +17,102 @@
     "[[1,1],[1,0]]"
   ],
   "content_signature": "-fad97p",
-  "fetched_at": "2026-05-21T06:06:32.513Z"
+  "fetched_at": "2026-05-30T06:43:58.673Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> hitBricks(vector<vector<int>>& grid, vector<vector<int>>& hits) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] hitBricks(int[][] grid, int[][] hits) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def hitBricks(self, grid: List[List[int]], hits: List[List[int]]) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def hitBricks(self, grid, hits):\n        \"\"\"\n        :type grid: List[List[int]]\n        :type hits: List[List[int]]\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} grid\n * @param {number[][]} hits\n * @return {number[]}\n */\nvar hitBricks = function(grid, hits) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function hitBricks(grid: number[][], hits: number[][]): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] HitBricks(int[][] grid, int[][] hits) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* hitBricks(int** grid, int gridSize, int* gridColSize, int** hits, int hitsSize, int* hitsColSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func hitBricks(grid [][]int, hits [][]int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun hitBricks(grid: Array<IntArray>, hits: Array<IntArray>): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func hitBricks(_ grid: [[Int]], _ hits: [[Int]]) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn hit_bricks(grid: Vec<Vec<i32>>, hits: Vec<Vec<i32>>) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} grid\n# @param {Integer[][]} hits\n# @return {Integer[]}\ndef hit_bricks(grid, hits)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $grid\n     * @param Integer[][] $hits\n     * @return Integer[]\n     */\n    function hitBricks($grid, $hits) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> hitBricks(List<List<int>> grid, List<List<int>> hits) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def hitBricks(grid: Array[Array[Int]], hits: Array[Array[Int]]): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec hit_bricks(grid :: [[integer]], hits :: [[integer]]) :: [integer]\n  def hit_bricks(grid, hits) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec hit_bricks(Grid :: [[integer()]], Hits :: [[integer()]]) -> [integer()].\nhit_bricks(Grid, Hits) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (hit-bricks grid hits)\n  (-> (listof (listof exact-integer?)) (listof (listof exact-integer?)) (listof exact-integer?))\n  )"
+    }
+  ]
 }

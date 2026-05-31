@@ -12,5 +12,32 @@
     "{\"headers\":{\"Transactions\":[\"id\",\"country\",\"state\",\"amount\",\"trans_date\"]},\"rows\":{\"Transactions\":[[121,\"US\",\"approved\",1000,\"2018-12-18\"],[122,\"US\",\"declined\",2000,\"2018-12-19\"],[123,\"US\",\"approved\",2000,\"2019-01-01\"],[124,\"DE\",\"approved\",2000,\"2019-01-07\"]]}}"
   ],
   "content_signature": "-kf2az0",
-  "fetched_at": "2026-05-21T06:15:26.882Z"
+  "fetched_at": "2026-05-30T05:44:06.395Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef monthly_transactions(transactions: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

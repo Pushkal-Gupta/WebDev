@@ -24,5 +24,102 @@
     "[\"abab\",\"ab\"]"
   ],
   "content_signature": "mbxqtg",
-  "fetched_at": "2026-05-21T07:10:25.439Z"
+  "fetched_at": "2026-05-30T07:11:36.250Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    long long countPrefixSuffixPairs(vector<string>& words) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public long countPrefixSuffixPairs(String[] words) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def countPrefixSuffixPairs(self, words: List[str]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def countPrefixSuffixPairs(self, words):\n        \"\"\"\n        :type words: List[str]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string[]} words\n * @return {number}\n */\nvar countPrefixSuffixPairs = function(words) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function countPrefixSuffixPairs(words: string[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public long CountPrefixSuffixPairs(string[] words) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "long long countPrefixSuffixPairs(char** words, int wordsSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func countPrefixSuffixPairs(words []string) int64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun countPrefixSuffixPairs(words: Array<String>): Long {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func countPrefixSuffixPairs(_ words: [String]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn count_prefix_suffix_pairs(words: Vec<String>) -> i64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String[]} words\n# @return {Integer}\ndef count_prefix_suffix_pairs(words)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[] $words\n     * @return Integer\n     */\n    function countPrefixSuffixPairs($words) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int countPrefixSuffixPairs(List<String> words) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def countPrefixSuffixPairs(words: Array[String]): Long = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec count_prefix_suffix_pairs(words :: [String.t]) :: integer\n  def count_prefix_suffix_pairs(words) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec count_prefix_suffix_pairs(Words :: [unicode:unicode_binary()]) -> integer().\ncount_prefix_suffix_pairs(Words) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (count-prefix-suffix-pairs words)\n  (-> (listof string?) exact-integer?)\n  )"
+    }
+  ]
 }

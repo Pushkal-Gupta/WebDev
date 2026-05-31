@@ -54,17 +54,44 @@ function pyLiteral(raw: string, type: string): string {
   return raw;
 }
 
+function isCycledListParams(params: Param[]): boolean {
+  return params.length === 2
+    && params[0]?.type === "List[int]" && params[0]?.name === "values"
+    && params[1]?.type === "int" && params[1]?.name === "pos";
+}
+
 function buildPythonDriver(code: string, methodName: string, params: Param[]): string {
-  const reads = params.map((p, i) => {
-    if (p.type === "bool") {
-      return `    _line = input()\n    args.append(_line == 'true')`;
-    }
-    if (p.type === "str") {
-      return `    args.append(input())`;
-    }
-    return `    args.append(__import__('ast').literal_eval(input()))`;
-  }).join("\n");
+  const cycled = isCycledListParams(params);
+  const reads = cycled
+    ? `    _values = __import__('ast').literal_eval(input())\n    _pos = int(input().strip())\n    args.append(_to_list_cycle(_values, _pos))`
+    : params.map((p) => {
+        if (p.type === "bool") {
+          return `    _line = input()\n    args.append(_line == 'true')`;
+        }
+        if (p.type === "str") {
+          return `    args.append(input())`;
+        }
+        return `    args.append(__import__('ast').literal_eval(input()))`;
+      }).join("\n");
+  const helpers = `
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+def _to_list_cycle(arr, pos):
+    if not arr:
+        return None
+    _nodes = [ListNode(arr[0])]
+    for _v in arr[1:]:
+        _nodes.append(ListNode(_v))
+        _nodes[-2].next = _nodes[-1]
+    if pos is not None and pos >= 0 and pos < len(_nodes):
+        _nodes[-1].next = _nodes[pos]
+    return _nodes[0]
+`;
   return `import sys
+${helpers}
 ${code}
 
 def _fmt(v):
@@ -86,12 +113,26 @@ ${reads}
 }
 
 function buildJsDriver(code: string, methodName: string, params: Param[]): string {
-  const reads = params.map((p) => {
-    if (p.type === "bool") return `args.push(lines.shift() === 'true');`;
-    if (p.type === "str") return `args.push(lines.shift());`;
-    return `args.push(JSON.parse(lines.shift()));`;
-  }).join("\n  ");
-  return `${code}
+  const cycled = isCycledListParams(params);
+  const reads = cycled
+    ? `const _values = JSON.parse(lines.shift());\n  const _pos = parseInt(lines.shift().trim(), 10);\n  args.push(_toListCycle(_values, _pos));`
+    : params.map((p) => {
+        if (p.type === "bool") return `args.push(lines.shift() === 'true');`;
+        if (p.type === "str") return `args.push(lines.shift());`;
+        return `args.push(JSON.parse(lines.shift()));`;
+      }).join("\n  ");
+  const helpers = `
+function ListNode(val, next) { this.val = val === undefined ? 0 : val; this.next = next === undefined ? null : next; }
+function _toListCycle(arr, pos) {
+  if (!arr || !arr.length) return null;
+  const nodes = [new ListNode(arr[0])];
+  for (let i = 1; i < arr.length; i++) { nodes.push(new ListNode(arr[i])); nodes[i-1].next = nodes[i]; }
+  if (pos != null && pos >= 0 && pos < nodes.length) nodes[nodes.length - 1].next = nodes[pos];
+  return nodes[0];
+}
+`;
+  return `${helpers}
+${code}
 const lines = require('fs').readFileSync(0, 'utf8').split('\\n');
 const args = [];
   ${reads}
@@ -100,8 +141,8 @@ function _fmt(v) {
   if (Array.isArray(v)) return '[' + v.map(_fmt).join(',') + ']';
   return String(v);
 }
-const sol = new Solution();
-const r = sol.${methodName}(...args);
+const sol = (typeof Solution !== 'undefined') ? new Solution() : { ${methodName}: (typeof ${methodName} !== 'undefined' ? ${methodName} : null) };
+const r = (sol.${methodName}).apply(sol, args);
 console.log(_fmt(r));
 `;
 }
@@ -269,6 +310,43 @@ function normalise(s: string): string {
   return (s || "").trim().replace(/\s+/g, "");
 }
 
+// Deep structural equality for JSON values. Required because Judge0/Python
+// emit "[0, 7]" while stored expected is "[0,7]" — strict string compare
+// (Judge0's expected_output mechanism) flags WA on every array result.
+function deepEqual(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (a === null || b === null) return a === b;
+  if (typeof a !== typeof b) return false;
+  if (typeof a !== "object") return a === b;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  if (Array.isArray(a)) {
+    const ba = b as unknown[];
+    if (a.length !== ba.length) return false;
+    for (let i = 0; i < a.length; i++) if (!deepEqual(a[i], ba[i])) return false;
+    return true;
+  }
+  const ao = a as Record<string, unknown>;
+  const bo = b as Record<string, unknown>;
+  const ak = Object.keys(ao), bk = Object.keys(bo);
+  if (ak.length !== bk.length) return false;
+  for (const k of ak) {
+    if (!Object.prototype.hasOwnProperty.call(bo, k)) return false;
+    if (!deepEqual(ao[k], bo[k])) return false;
+  }
+  return true;
+}
+
+function equalsNormalized(expected: string, actual: string): boolean {
+  const a = (actual ?? "").toString().trim();
+  const e = (expected ?? "").toString().trim();
+  if (a === e) return true;
+  let pa: unknown, pe: unknown, parsedA = false, parsedE = false;
+  try { pa = JSON.parse(a); parsedA = true; } catch { /* not JSON */ }
+  try { pe = JSON.parse(e); parsedE = true; } catch { /* not JSON */ }
+  if (parsedA && parsedE) return deepEqual(pa, pe);
+  return a.replace(/\s+/g, "").toLowerCase() === e.replace(/\s+/g, "").toLowerCase();
+}
+
 async function pollBatch(tokens: string[]): Promise<any[]> {
   const tokenParam = tokens.join(",");
   const fields = "status,stdout,stderr,compile_output,message,token";
@@ -334,12 +412,14 @@ serve(async (req) => {
 
     for (let start = 0; start < tests.length; start += CHUNK) {
       const chunk = tests.slice(start, start + CHUNK);
+      // Intentionally omit expected_output: Judge0's compare is strict-string,
+      // which flags "[0, 7]" vs "[0,7]" as WA. We run and decide pass/fail
+      // ourselves via equalsNormalized below.
       const body = {
         submissions: chunk.map((t) => ({
           language_id: langId,
           source_code: source,
           stdin: stdinFromTestCase(t),
-          expected_output: t.expected.trim() + "\n",
         })),
       };
       const createRes = await fetch(
@@ -362,11 +442,25 @@ serve(async (req) => {
         const sid = sub.status?.id;
         const sample = isSample(idx);
         if (sid === 3) {
-          cases[idx] = { index: idx, status: "passed", is_sample: sample };
+          // Program ran cleanly. Decide pass/fail ourselves via normalized
+          // compare — Judge0's expected_output check is too strict (whitespace,
+          // key order). Only flag WA if the JSON-normalized shapes differ.
+          if (equalsNormalized(tests[idx].expected, sub.stdout || "")) {
+            cases[idx] = { index: idx, status: "passed", is_sample: sample };
+          } else if (sample) {
+            const got = normalise(sub.stdout || "");
+            const exp = normalise(tests[idx].expected);
+            cases[idx] = { index: idx, status: "wrong_answer", hint: `Expected ${exp.slice(0, 60)}, got ${got.slice(0, 60)}`, is_sample: true };
+          } else {
+            cases[idx] = { index: idx, status: "wrong_answer", hint: `Hidden test case ${idx + 1} failed`, is_sample: false };
+          }
         } else if (sid === 4) {
-          // Wrong answer. For sample cases reveal expected/got so users can
-          // debug; for hidden cases mask everything to keep the test set private.
-          if (sample) {
+          // Defensive: shouldn't fire now that expected_output is omitted, but
+          // some Judge0 deployments still return 4 for stdout/stderr quirks.
+          // Re-check with our normalized compare before declaring WA.
+          if (equalsNormalized(tests[idx].expected, sub.stdout || "")) {
+            cases[idx] = { index: idx, status: "passed", is_sample: sample };
+          } else if (sample) {
             const got = normalise(sub.stdout || "");
             const exp = normalise(tests[idx].expected);
             cases[idx] = { index: idx, status: "wrong_answer", hint: `Expected ${exp.slice(0, 60)}, got ${got.slice(0, 60)}`, is_sample: true };

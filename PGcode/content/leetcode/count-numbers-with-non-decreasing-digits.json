@@ -21,5 +21,102 @@
     "2"
   ],
   "content_signature": "5sx5en",
-  "fetched_at": "2026-05-21T07:42:19.912Z"
+  "fetched_at": "2026-05-30T07:25:54.636Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int countNumbers(string l, string r, int b) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int countNumbers(String l, String r, int b) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def countNumbers(self, l: str, r: str, b: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def countNumbers(self, l, r, b):\n        \"\"\"\n        :type l: str\n        :type r: str\n        :type b: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} l\n * @param {string} r\n * @param {number} b\n * @return {number}\n */\nvar countNumbers = function(l, r, b) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function countNumbers(l: string, r: string, b: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int CountNumbers(string l, string r, int b) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int countNumbers(char* l, char* r, int b) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func countNumbers(l string, r string, b int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun countNumbers(l: String, r: String, b: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func countNumbers(_ l: String, _ r: String, _ b: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn count_numbers(l: String, r: String, b: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} l\n# @param {String} r\n# @param {Integer} b\n# @return {Integer}\ndef count_numbers(l, r, b)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $l\n     * @param String $r\n     * @param Integer $b\n     * @return Integer\n     */\n    function countNumbers($l, $r, $b) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int countNumbers(String l, String r, int b) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def countNumbers(l: String, r: String, b: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec count_numbers(l :: String.t, r :: String.t, b :: integer) :: integer\n  def count_numbers(l, r, b) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec count_numbers(L :: unicode:unicode_binary(), R :: unicode:unicode_binary(), B :: integer()) -> integer().\ncount_numbers(L, R, B) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (count-numbers l r b)\n  (-> string? string? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

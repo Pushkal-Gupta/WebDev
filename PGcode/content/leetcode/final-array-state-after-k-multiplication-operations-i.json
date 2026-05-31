@@ -23,5 +23,102 @@
     "4"
   ],
   "content_signature": "ttvohv",
-  "fetched_at": "2026-05-21T07:14:47.892Z"
+  "fetched_at": "2026-05-30T07:30:14.671Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> getFinalState(vector<int>& nums, int k, int multiplier) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] getFinalState(int[] nums, int k, int multiplier) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def getFinalState(self, nums: List[int], k: int, multiplier: int) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def getFinalState(self, nums, k, multiplier):\n        \"\"\"\n        :type nums: List[int]\n        :type k: int\n        :type multiplier: int\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {number} k\n * @param {number} multiplier\n * @return {number[]}\n */\nvar getFinalState = function(nums, k, multiplier) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function getFinalState(nums: number[], k: number, multiplier: number): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] GetFinalState(int[] nums, int k, int multiplier) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* getFinalState(int* nums, int numsSize, int k, int multiplier, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func getFinalState(nums []int, k int, multiplier int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun getFinalState(nums: IntArray, k: Int, multiplier: Int): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func getFinalState(_ nums: [Int], _ k: Int, _ multiplier: Int) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn get_final_state(nums: Vec<i32>, k: i32, multiplier: i32) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums\n# @param {Integer} k\n# @param {Integer} multiplier\n# @return {Integer[]}\ndef get_final_state(nums, k, multiplier)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums\n     * @param Integer $k\n     * @param Integer $multiplier\n     * @return Integer[]\n     */\n    function getFinalState($nums, $k, $multiplier) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> getFinalState(List<int> nums, int k, int multiplier) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def getFinalState(nums: Array[Int], k: Int, multiplier: Int): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec get_final_state(nums :: [integer], k :: integer, multiplier :: integer) :: [integer]\n  def get_final_state(nums, k, multiplier) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec get_final_state(Nums :: [integer()], K :: integer(), Multiplier :: integer()) -> [integer()].\nget_final_state(Nums, K, Multiplier) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (get-final-state nums k multiplier)\n  (-> (listof exact-integer?) exact-integer? exact-integer? (listof exact-integer?))\n  )"
+    }
+  ]
 }

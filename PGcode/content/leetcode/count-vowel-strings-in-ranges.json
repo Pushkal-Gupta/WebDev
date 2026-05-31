@@ -22,5 +22,102 @@
     "[[0,2],[0,1],[2,2]]"
   ],
   "content_signature": "-15xmz0",
-  "fetched_at": "2026-05-21T06:57:58.256Z"
+  "fetched_at": "2026-05-30T07:32:40.474Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> vowelStrings(vector<string>& words, vector<vector<int>>& queries) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] vowelStrings(String[] words, int[][] queries) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def vowelStrings(self, words: List[str], queries: List[List[int]]) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def vowelStrings(self, words, queries):\n        \"\"\"\n        :type words: List[str]\n        :type queries: List[List[int]]\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string[]} words\n * @param {number[][]} queries\n * @return {number[]}\n */\nvar vowelStrings = function(words, queries) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function vowelStrings(words: string[], queries: number[][]): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] VowelStrings(string[] words, int[][] queries) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* vowelStrings(char** words, int wordsSize, int** queries, int queriesSize, int* queriesColSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func vowelStrings(words []string, queries [][]int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun vowelStrings(words: Array<String>, queries: Array<IntArray>): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func vowelStrings(_ words: [String], _ queries: [[Int]]) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn vowel_strings(words: Vec<String>, queries: Vec<Vec<i32>>) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String[]} words\n# @param {Integer[][]} queries\n# @return {Integer[]}\ndef vowel_strings(words, queries)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[] $words\n     * @param Integer[][] $queries\n     * @return Integer[]\n     */\n    function vowelStrings($words, $queries) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> vowelStrings(List<String> words, List<List<int>> queries) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def vowelStrings(words: Array[String], queries: Array[Array[Int]]): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec vowel_strings(words :: [String.t], queries :: [[integer]]) :: [integer]\n  def vowel_strings(words, queries) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec vowel_strings(Words :: [unicode:unicode_binary()], Queries :: [[integer()]]) -> [integer()].\nvowel_strings(Words, Queries) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (vowel-strings words queries)\n  (-> (listof string?) (listof (listof exact-integer?)) (listof exact-integer?))\n  )"
+    }
+  ]
 }

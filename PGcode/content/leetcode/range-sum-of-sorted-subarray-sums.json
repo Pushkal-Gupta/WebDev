@@ -30,5 +30,102 @@
     "10"
   ],
   "content_signature": "-u5e0ud",
-  "fetched_at": "2026-05-21T06:22:02.834Z"
+  "fetched_at": "2026-05-30T06:52:46.565Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int rangeSum(vector<int>& nums, int n, int left, int right) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int rangeSum(int[] nums, int n, int left, int right) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def rangeSum(self, nums: List[int], n: int, left: int, right: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def rangeSum(self, nums, n, left, right):\n        \"\"\"\n        :type nums: List[int]\n        :type n: int\n        :type left: int\n        :type right: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {number} n\n * @param {number} left\n * @param {number} right\n * @return {number}\n */\nvar rangeSum = function(nums, n, left, right) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function rangeSum(nums: number[], n: number, left: number, right: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int RangeSum(int[] nums, int n, int left, int right) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int rangeSum(int* nums, int numsSize, int n, int left, int right) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func rangeSum(nums []int, n int, left int, right int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun rangeSum(nums: IntArray, n: Int, left: Int, right: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func rangeSum(_ nums: [Int], _ n: Int, _ left: Int, _ right: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn range_sum(nums: Vec<i32>, n: i32, left: i32, right: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums\n# @param {Integer} n\n# @param {Integer} left\n# @param {Integer} right\n# @return {Integer}\ndef range_sum(nums, n, left, right)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums\n     * @param Integer $n\n     * @param Integer $left\n     * @param Integer $right\n     * @return Integer\n     */\n    function rangeSum($nums, $n, $left, $right) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int rangeSum(List<int> nums, int n, int left, int right) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def rangeSum(nums: Array[Int], n: Int, left: Int, right: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec range_sum(nums :: [integer], n :: integer, left :: integer, right :: integer) :: integer\n  def range_sum(nums, n, left, right) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec range_sum(Nums :: [integer()], N :: integer(), Left :: integer(), Right :: integer()) -> integer().\nrange_sum(Nums, N, Left, Right) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (range-sum nums n left right)\n  (-> (listof exact-integer?) exact-integer? exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

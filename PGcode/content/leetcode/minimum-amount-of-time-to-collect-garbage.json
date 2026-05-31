@@ -20,5 +20,102 @@
     "[3,10]"
   ],
   "content_signature": "-mx6vp6",
-  "fetched_at": "2026-05-21T06:41:35.191Z"
+  "fetched_at": "2026-05-30T05:28:41.981Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int garbageCollection(vector<string>& garbage, vector<int>& travel) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int garbageCollection(String[] garbage, int[] travel) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def garbageCollection(self, garbage: List[str], travel: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def garbageCollection(self, garbage, travel):\n        \"\"\"\n        :type garbage: List[str]\n        :type travel: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string[]} garbage\n * @param {number[]} travel\n * @return {number}\n */\nvar garbageCollection = function(garbage, travel) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function garbageCollection(garbage: string[], travel: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int GarbageCollection(string[] garbage, int[] travel) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int garbageCollection(char** garbage, int garbageSize, int* travel, int travelSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func garbageCollection(garbage []string, travel []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun garbageCollection(garbage: Array<String>, travel: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func garbageCollection(_ garbage: [String], _ travel: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn garbage_collection(garbage: Vec<String>, travel: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String[]} garbage\n# @param {Integer[]} travel\n# @return {Integer}\ndef garbage_collection(garbage, travel)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[] $garbage\n     * @param Integer[] $travel\n     * @return Integer\n     */\n    function garbageCollection($garbage, $travel) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int garbageCollection(List<String> garbage, List<int> travel) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def garbageCollection(garbage: Array[String], travel: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec garbage_collection(garbage :: [String.t], travel :: [integer]) :: integer\n  def garbage_collection(garbage, travel) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec garbage_collection(Garbage :: [unicode:unicode_binary()], Travel :: [integer()]) -> integer().\ngarbage_collection(Garbage, Travel) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (garbage-collection garbage travel)\n  (-> (listof string?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

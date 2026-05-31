@@ -20,5 +20,102 @@
     "5"
   ],
   "content_signature": "yhbfs",
-  "fetched_at": "2026-05-21T07:12:34.803Z"
+  "fetched_at": "2026-05-30T05:25:04.394Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> occurrencesOfElement(vector<int>& nums, vector<int>& queries, int x) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] occurrencesOfElement(int[] nums, int[] queries, int x) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def occurrencesOfElement(self, nums: List[int], queries: List[int], x: int) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def occurrencesOfElement(self, nums, queries, x):\n        \"\"\"\n        :type nums: List[int]\n        :type queries: List[int]\n        :type x: int\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {number[]} queries\n * @param {number} x\n * @return {number[]}\n */\nvar occurrencesOfElement = function(nums, queries, x) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function occurrencesOfElement(nums: number[], queries: number[], x: number): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] OccurrencesOfElement(int[] nums, int[] queries, int x) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* occurrencesOfElement(int* nums, int numsSize, int* queries, int queriesSize, int x, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func occurrencesOfElement(nums []int, queries []int, x int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun occurrencesOfElement(nums: IntArray, queries: IntArray, x: Int): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func occurrencesOfElement(_ nums: [Int], _ queries: [Int], _ x: Int) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn occurrences_of_element(nums: Vec<i32>, queries: Vec<i32>, x: i32) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums\n# @param {Integer[]} queries\n# @param {Integer} x\n# @return {Integer[]}\ndef occurrences_of_element(nums, queries, x)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums\n     * @param Integer[] $queries\n     * @param Integer $x\n     * @return Integer[]\n     */\n    function occurrencesOfElement($nums, $queries, $x) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> occurrencesOfElement(List<int> nums, List<int> queries, int x) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def occurrencesOfElement(nums: Array[Int], queries: Array[Int], x: Int): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec occurrences_of_element(nums :: [integer], queries :: [integer], x :: integer) :: [integer]\n  def occurrences_of_element(nums, queries, x) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec occurrences_of_element(Nums :: [integer()], Queries :: [integer()], X :: integer()) -> [integer()].\noccurrences_of_element(Nums, Queries, X) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (occurrences-of-element nums queries x)\n  (-> (listof exact-integer?) (listof exact-integer?) exact-integer? (listof exact-integer?))\n  )"
+    }
+  ]
 }

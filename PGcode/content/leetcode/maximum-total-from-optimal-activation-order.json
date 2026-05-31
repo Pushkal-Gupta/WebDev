@@ -26,5 +26,102 @@
     "[3,3,2,3]"
   ],
   "content_signature": "ynm4hx",
-  "fetched_at": "2026-05-21T07:46:22.523Z"
+  "fetched_at": "2026-05-30T07:20:57.849Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    long long maxTotal(vector<int>& value, vector<int>& limit) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public long maxTotal(int[] value, int[] limit) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def maxTotal(self, value: List[int], limit: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def maxTotal(self, value, limit):\n        \"\"\"\n        :type value: List[int]\n        :type limit: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} value\n * @param {number[]} limit\n * @return {number}\n */\nvar maxTotal = function(value, limit) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function maxTotal(value: number[], limit: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public long MaxTotal(int[] value, int[] limit) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "long long maxTotal(int* value, int valueSize, int* limit, int limitSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func maxTotal(value []int, limit []int) int64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun maxTotal(value: IntArray, limit: IntArray): Long {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func maxTotal(_ value: [Int], _ limit: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn max_total(value: Vec<i32>, limit: Vec<i32>) -> i64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} value\n# @param {Integer[]} limit\n# @return {Integer}\ndef max_total(value, limit)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $value\n     * @param Integer[] $limit\n     * @return Integer\n     */\n    function maxTotal($value, $limit) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int maxTotal(List<int> value, List<int> limit) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def maxTotal(value: Array[Int], limit: Array[Int]): Long = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec max_total(value :: [integer], limit :: [integer]) :: integer\n  def max_total(value, limit) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec max_total(Value :: [integer()], Limit :: [integer()]) -> integer().\nmax_total(Value, Limit) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (max-total value limit)\n  (-> (listof exact-integer?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

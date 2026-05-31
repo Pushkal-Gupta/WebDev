@@ -14,5 +14,17 @@
     "[]"
   ],
   "content_signature": "huecxy",
-  "fetched_at": "2026-05-21T07:01:44.622Z"
+  "fetched_at": "2026-05-30T07:32:23.009Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @return {null|boolean|number|string|Array|Object}\n */\nArray.prototype.last = function() {\n    \n};\n\n/**\n * const arr = [1, 2, 3];\n * arr.last(); // 3\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "interface Array<T> {\n    last(): T | -1;\n}\n\nArray.prototype.last = function() {\n    \n};\n\n/**\n * const arr = [1, 2, 3];\n * arr.last(); // 3\n */\n"
+    }
+  ]
 }

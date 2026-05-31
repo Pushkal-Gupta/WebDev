@@ -22,5 +22,102 @@
     "2"
   ],
   "content_signature": "-tp242s",
-  "fetched_at": "2026-05-21T06:57:46.419Z"
+  "fetched_at": "2026-05-30T06:38:17.169Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    long long putMarbles(vector<int>& weights, int k) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public long putMarbles(int[] weights, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def putMarbles(self, weights: List[int], k: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def putMarbles(self, weights, k):\n        \"\"\"\n        :type weights: List[int]\n        :type k: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} weights\n * @param {number} k\n * @return {number}\n */\nvar putMarbles = function(weights, k) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function putMarbles(weights: number[], k: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public long PutMarbles(int[] weights, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "long long putMarbles(int* weights, int weightsSize, int k) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func putMarbles(weights []int, k int) int64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun putMarbles(weights: IntArray, k: Int): Long {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func putMarbles(_ weights: [Int], _ k: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn put_marbles(weights: Vec<i32>, k: i32) -> i64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} weights\n# @param {Integer} k\n# @return {Integer}\ndef put_marbles(weights, k)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $weights\n     * @param Integer $k\n     * @return Integer\n     */\n    function putMarbles($weights, $k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int putMarbles(List<int> weights, int k) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def putMarbles(weights: Array[Int], k: Int): Long = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec put_marbles(weights :: [integer], k :: integer) :: integer\n  def put_marbles(weights, k) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec put_marbles(Weights :: [integer()], K :: integer()) -> integer().\nput_marbles(Weights, K) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (put-marbles weights k)\n  (-> (listof exact-integer?) exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

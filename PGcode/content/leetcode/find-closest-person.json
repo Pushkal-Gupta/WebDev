@@ -22,5 +22,102 @@
     "3"
   ],
   "content_signature": "cngly3",
-  "fetched_at": "2026-05-21T07:42:14.561Z"
+  "fetched_at": "2026-05-30T05:22:07.209Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int findClosest(int x, int y, int z) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int findClosest(int x, int y, int z) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def findClosest(self, x: int, y: int, z: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def findClosest(self, x, y, z):\n        \"\"\"\n        :type x: int\n        :type y: int\n        :type z: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} x\n * @param {number} y\n * @param {number} z\n * @return {number}\n */\nvar findClosest = function(x, y, z) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function findClosest(x: number, y: number, z: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int FindClosest(int x, int y, int z) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int findClosest(int x, int y, int z) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func findClosest(x int, y int, z int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun findClosest(x: Int, y: Int, z: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func findClosest(_ x: Int, _ y: Int, _ z: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn find_closest(x: i32, y: i32, z: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} x\n# @param {Integer} y\n# @param {Integer} z\n# @return {Integer}\ndef find_closest(x, y, z)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $x\n     * @param Integer $y\n     * @param Integer $z\n     * @return Integer\n     */\n    function findClosest($x, $y, $z) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int findClosest(int x, int y, int z) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def findClosest(x: Int, y: Int, z: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec find_closest(x :: integer, y :: integer, z :: integer) :: integer\n  def find_closest(x, y, z) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec find_closest(X :: integer(), Y :: integer(), Z :: integer()) -> integer().\nfind_closest(X, Y, Z) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (find-closest x y z)\n  (-> exact-integer? exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

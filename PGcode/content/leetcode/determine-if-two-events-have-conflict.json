@@ -21,5 +21,102 @@
     "[\"14:00\",\"15:00\"]"
   ],
   "content_signature": "ulz774",
-  "fetched_at": "2026-05-21T06:42:53.300Z"
+  "fetched_at": "2026-05-30T05:26:39.866Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool haveConflict(vector<string>& event1, vector<string>& event2) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean haveConflict(String[] event1, String[] event2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def haveConflict(self, event1: List[str], event2: List[str]) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def haveConflict(self, event1, event2):\n        \"\"\"\n        :type event1: List[str]\n        :type event2: List[str]\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string[]} event1\n * @param {string[]} event2\n * @return {boolean}\n */\nvar haveConflict = function(event1, event2) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function haveConflict(event1: string[], event2: string[]): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool HaveConflict(string[] event1, string[] event2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool haveConflict(char** event1, int event1Size, char** event2, int event2Size) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func haveConflict(event1 []string, event2 []string) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun haveConflict(event1: Array<String>, event2: Array<String>): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func haveConflict(_ event1: [String], _ event2: [String]) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn have_conflict(event1: Vec<String>, event2: Vec<String>) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String[]} event1\n# @param {String[]} event2\n# @return {Boolean}\ndef have_conflict(event1, event2)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[] $event1\n     * @param String[] $event2\n     * @return Boolean\n     */\n    function haveConflict($event1, $event2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool haveConflict(List<String> event1, List<String> event2) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def haveConflict(event1: Array[String], event2: Array[String]): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec have_conflict(event1 :: [String.t], event2 :: [String.t]) :: boolean\n  def have_conflict(event1, event2) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec have_conflict(Event1 :: [unicode:unicode_binary()], Event2 :: [unicode:unicode_binary()]) -> boolean().\nhave_conflict(Event1, Event2) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (have-conflict event1 event2)\n  (-> (listof string?) (listof string?) boolean?)\n  )"
+    }
+  ]
 }

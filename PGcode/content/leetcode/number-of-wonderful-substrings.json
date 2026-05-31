@@ -20,5 +20,87 @@
     "\"he\""
   ],
   "content_signature": "-1yh8ji",
-  "fetched_at": "2026-05-21T06:31:05.710Z"
+  "fetched_at": "2026-05-30T05:50:44.758Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\r\npublic:\r\n    long long wonderfulSubstrings(string word) {\r\n        \r\n    }\r\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\r\n    public long wonderfulSubstrings(String word) {\r\n        \r\n    }\r\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\r\n    def wonderfulSubstrings(self, word: str) -> int:"
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\r\n    def wonderfulSubstrings(self, word):\r\n        \"\"\"\r\n        :type word: str\r\n        :rtype: int\r\n        \"\"\""
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\r\n * @param {string} word\r\n * @return {number}\r\n */\r\nvar wonderfulSubstrings = function(word) {\r\n    \r\n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function wonderfulSubstrings(word: string): number {\r\n\r\n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\r\n    public long WonderfulSubstrings(string word) {\r\n        \r\n    }\r\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "long long wonderfulSubstrings(char * word){\r\n\r\n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func wonderfulSubstrings(word string) int64 {\r\n    \r\n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\r\n    fun wonderfulSubstrings(word: String): Long {\r\n        \r\n    }\r\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\r\n    func wonderfulSubstrings(_ word: String) -> Int {\r\n        \r\n    }\r\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\r\n    pub fn wonderful_substrings(word: String) -> i64 {\r\n        \r\n    }\r\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} word\r\n# @return {Integer}\r\ndef wonderful_substrings(word)\r\n    \r\nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\r\n\r\n    /**\r\n     * @param String $word\r\n     * @return Integer\r\n     */\r\n    function wonderfulSubstrings($word) {\r\n        \r\n    }\r\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\r\n    def wonderfulSubstrings(word: String): Long = {\r\n        \r\n    }\r\n}"
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (wonderful-substrings word)\r\n  (-> string? exact-integer?)\r\n\r\n  )"
+    }
+  ]
 }

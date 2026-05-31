@@ -159,9 +159,10 @@ export default function LearnIndex({ session: _session }) {
       </header>
 
       <div className="learn-module-grid">
-        {topLevelModules.map(m => {
+        {topLevelModules.map((m, mIdx) => {
           const children = childrenByParent[m.slug] || [];
           const directCount = (conceptsByModule[m.slug] || []).length;
+          const displayNum = String(mIdx + 1).padStart(2, '0');
 
           if (children.length > 0) {
             const totalConcepts = children.reduce(
@@ -171,7 +172,7 @@ export default function LearnIndex({ session: _session }) {
             return (
               <section key={m.slug} className="learn-module-card learn-module-card-parent">
                 <div className="learn-module-card-head">
-                  <span className="learn-module-card-num">{String(m.position).padStart(2, '0')}</span>
+                  <span className="learn-module-card-num">{displayNum}</span>
                   <h2 className="learn-module-card-title">{m.name}</h2>
                 </div>
                 {m.description && <p className="learn-module-card-desc">{m.description}</p>}
@@ -216,7 +217,7 @@ export default function LearnIndex({ session: _session }) {
           return (
             <Link key={m.slug} to={`/learn/${m.slug}`} className="learn-module-card">
               <div className="learn-module-card-head">
-                <span className="learn-module-card-num">{String(m.position).padStart(2, '0')}</span>
+                <span className="learn-module-card-num">{displayNum}</span>
                 <h2 className="learn-module-card-title">{m.name}</h2>
               </div>
               {m.description && <p className="learn-module-card-desc">{m.description}</p>}

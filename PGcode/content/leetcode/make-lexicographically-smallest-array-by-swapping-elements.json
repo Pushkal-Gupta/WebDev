@@ -25,5 +25,102 @@
     "3"
   ],
   "content_signature": "-hfndmj",
-  "fetched_at": "2026-05-21T07:08:26.860Z"
+  "fetched_at": "2026-05-30T06:46:09.716Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> lexicographicallySmallestArray(vector<int>& nums, int limit) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] lexicographicallySmallestArray(int[] nums, int limit) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def lexicographicallySmallestArray(self, nums: List[int], limit: int) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def lexicographicallySmallestArray(self, nums, limit):\n        \"\"\"\n        :type nums: List[int]\n        :type limit: int\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {number} limit\n * @return {number[]}\n */\nvar lexicographicallySmallestArray = function(nums, limit) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function lexicographicallySmallestArray(nums: number[], limit: number): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] LexicographicallySmallestArray(int[] nums, int limit) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* lexicographicallySmallestArray(int* nums, int numsSize, int limit, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func lexicographicallySmallestArray(nums []int, limit int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun lexicographicallySmallestArray(nums: IntArray, limit: Int): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func lexicographicallySmallestArray(_ nums: [Int], _ limit: Int) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn lexicographically_smallest_array(nums: Vec<i32>, limit: i32) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums\n# @param {Integer} limit\n# @return {Integer[]}\ndef lexicographically_smallest_array(nums, limit)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums\n     * @param Integer $limit\n     * @return Integer[]\n     */\n    function lexicographicallySmallestArray($nums, $limit) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> lexicographicallySmallestArray(List<int> nums, int limit) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def lexicographicallySmallestArray(nums: Array[Int], limit: Int): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec lexicographically_smallest_array(nums :: [integer], limit :: integer) :: [integer]\n  def lexicographically_smallest_array(nums, limit) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec lexicographically_smallest_array(Nums :: [integer()], Limit :: integer()) -> [integer()].\nlexicographically_smallest_array(Nums, Limit) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (lexicographically-smallest-array nums limit)\n  (-> (listof exact-integer?) exact-integer? (listof exact-integer?))\n  )"
+    }
+  ]
 }

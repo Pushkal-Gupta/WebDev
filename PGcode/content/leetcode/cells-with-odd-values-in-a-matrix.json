@@ -22,5 +22,102 @@
     "[[1,1],[0,0]]"
   ],
   "content_signature": "cc7y46",
-  "fetched_at": "2026-05-21T06:16:25.281Z"
+  "fetched_at": "2026-05-30T06:47:17.272Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int oddCells(int m, int n, vector<vector<int>>& indices) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int oddCells(int m, int n, int[][] indices) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def oddCells(self, m: int, n: int, indices: List[List[int]]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def oddCells(self, m, n, indices):\n        \"\"\"\n        :type m: int\n        :type n: int\n        :type indices: List[List[int]]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} m\n * @param {number} n\n * @param {number[][]} indices\n * @return {number}\n */\nvar oddCells = function(m, n, indices) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function oddCells(m: number, n: number, indices: number[][]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int OddCells(int m, int n, int[][] indices) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int oddCells(int m, int n, int** indices, int indicesSize, int* indicesColSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func oddCells(m int, n int, indices [][]int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun oddCells(m: Int, n: Int, indices: Array<IntArray>): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func oddCells(_ m: Int, _ n: Int, _ indices: [[Int]]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn odd_cells(m: i32, n: i32, indices: Vec<Vec<i32>>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} m\n# @param {Integer} n\n# @param {Integer[][]} indices\n# @return {Integer}\ndef odd_cells(m, n, indices)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $m\n     * @param Integer $n\n     * @param Integer[][] $indices\n     * @return Integer\n     */\n    function oddCells($m, $n, $indices) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int oddCells(int m, int n, List<List<int>> indices) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def oddCells(m: Int, n: Int, indices: Array[Array[Int]]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec odd_cells(m :: integer, n :: integer, indices :: [[integer]]) :: integer\n  def odd_cells(m, n, indices) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec odd_cells(M :: integer(), N :: integer(), Indices :: [[integer()]]) -> integer().\nodd_cells(M, N, Indices) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (odd-cells m n indices)\n  (-> exact-integer? exact-integer? (listof (listof exact-integer?)) exact-integer?)\n  )"
+    }
+  ]
 }

@@ -22,5 +22,102 @@
     "[1,2,1]"
   ],
   "content_signature": "mg4cxq",
-  "fetched_at": "2026-05-21T06:02:56.900Z"
+  "fetched_at": "2026-05-30T07:01:04.877Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int shoppingOffers(vector<int>& price, vector<vector<int>>& special, vector<int>& needs) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int shoppingOffers(List<Integer> price, List<List<Integer>> special, List<Integer> needs) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def shoppingOffers(self, price: List[int], special: List[List[int]], needs: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def shoppingOffers(self, price, special, needs):\n        \"\"\"\n        :type price: List[int]\n        :type special: List[List[int]]\n        :type needs: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} price\n * @param {number[][]} special\n * @param {number[]} needs\n * @return {number}\n */\nvar shoppingOffers = function(price, special, needs) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function shoppingOffers(price: number[], special: number[][], needs: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int ShoppingOffers(IList<int> price, IList<IList<int>> special, IList<int> needs) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int shoppingOffers(int* price, int priceSize, int** special, int specialSize, int* specialColSize, int* needs, int needsSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func shoppingOffers(price []int, special [][]int, needs []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun shoppingOffers(price: List<Int>, special: List<List<Int>>, needs: List<Int>): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func shoppingOffers(_ price: [Int], _ special: [[Int]], _ needs: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn shopping_offers(price: Vec<i32>, special: Vec<Vec<i32>>, needs: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} price\n# @param {Integer[][]} special\n# @param {Integer[]} needs\n# @return {Integer}\ndef shopping_offers(price, special, needs)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $price\n     * @param Integer[][] $special\n     * @param Integer[] $needs\n     * @return Integer\n     */\n    function shoppingOffers($price, $special, $needs) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int shoppingOffers(List<int> price, List<List<int>> special, List<int> needs) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def shoppingOffers(price: List[Int], special: List[List[Int]], needs: List[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec shopping_offers(price :: [integer], special :: [[integer]], needs :: [integer]) :: integer\n  def shopping_offers(price, special, needs) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec shopping_offers(Price :: [integer()], Special :: [[integer()]], Needs :: [integer()]) -> integer().\nshopping_offers(Price, Special, Needs) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (shopping-offers price special needs)\n  (-> (listof exact-integer?) (listof (listof exact-integer?)) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

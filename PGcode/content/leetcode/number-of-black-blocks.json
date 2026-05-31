@@ -24,5 +24,102 @@
     "[[0,0],[1,1],[0,2]]"
   ],
   "content_signature": "-stmz6u",
-  "fetched_at": "2026-05-21T07:04:43.195Z"
+  "fetched_at": "2026-05-30T07:34:20.013Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<long long> countBlackBlocks(int m, int n, vector<vector<int>>& coordinates) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public long[] countBlackBlocks(int m, int n, int[][] coordinates) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def countBlackBlocks(self, m: int, n: int, coordinates: List[List[int]]) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def countBlackBlocks(self, m, n, coordinates):\n        \"\"\"\n        :type m: int\n        :type n: int\n        :type coordinates: List[List[int]]\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} m\n * @param {number} n\n * @param {number[][]} coordinates\n * @return {number[]}\n */\nvar countBlackBlocks = function(m, n, coordinates) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function countBlackBlocks(m: number, n: number, coordinates: number[][]): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public long[] CountBlackBlocks(int m, int n, int[][] coordinates) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nlong long* countBlackBlocks(int m, int n, int** coordinates, int coordinatesSize, int* coordinatesColSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func countBlackBlocks(m int, n int, coordinates [][]int) []int64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun countBlackBlocks(m: Int, n: Int, coordinates: Array<IntArray>): LongArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func countBlackBlocks(_ m: Int, _ n: Int, _ coordinates: [[Int]]) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn count_black_blocks(m: i32, n: i32, coordinates: Vec<Vec<i32>>) -> Vec<i64> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} m\n# @param {Integer} n\n# @param {Integer[][]} coordinates\n# @return {Integer[]}\ndef count_black_blocks(m, n, coordinates)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $m\n     * @param Integer $n\n     * @param Integer[][] $coordinates\n     * @return Integer[]\n     */\n    function countBlackBlocks($m, $n, $coordinates) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> countBlackBlocks(int m, int n, List<List<int>> coordinates) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def countBlackBlocks(m: Int, n: Int, coordinates: Array[Array[Int]]): Array[Long] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec count_black_blocks(m :: integer, n :: integer, coordinates :: [[integer]]) :: [integer]\n  def count_black_blocks(m, n, coordinates) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec count_black_blocks(M :: integer(), N :: integer(), Coordinates :: [[integer()]]) -> [integer()].\ncount_black_blocks(M, N, Coordinates) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (count-black-blocks m n coordinates)\n  (-> exact-integer? exact-integer? (listof (listof exact-integer?)) (listof exact-integer?))\n  )"
+    }
+  ]
 }

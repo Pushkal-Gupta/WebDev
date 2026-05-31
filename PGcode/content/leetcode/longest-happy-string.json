@@ -22,5 +22,102 @@
     "0"
   ],
   "content_signature": "l3m139",
-  "fetched_at": "2026-05-21T06:19:52.323Z"
+  "fetched_at": "2026-05-30T06:50:11.017Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    string longestDiverseString(int a, int b, int c) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public String longestDiverseString(int a, int b, int c) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def longestDiverseString(self, a: int, b: int, c: int) -> str:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def longestDiverseString(self, a, b, c):\n        \"\"\"\n        :type a: int\n        :type b: int\n        :type c: int\n        :rtype: str\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} a\n * @param {number} b\n * @param {number} c\n * @return {string}\n */\nvar longestDiverseString = function(a, b, c) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function longestDiverseString(a: number, b: number, c: number): string {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public string LongestDiverseString(int a, int b, int c) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "char* longestDiverseString(int a, int b, int c) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func longestDiverseString(a int, b int, c int) string {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun longestDiverseString(a: Int, b: Int, c: Int): String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func longestDiverseString(_ a: Int, _ b: Int, _ c: Int) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn longest_diverse_string(a: i32, b: i32, c: i32) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} a\n# @param {Integer} b\n# @param {Integer} c\n# @return {String}\ndef longest_diverse_string(a, b, c)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $a\n     * @param Integer $b\n     * @param Integer $c\n     * @return String\n     */\n    function longestDiverseString($a, $b, $c) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  String longestDiverseString(int a, int b, int c) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def longestDiverseString(a: Int, b: Int, c: Int): String = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec longest_diverse_string(a :: integer, b :: integer, c :: integer) :: String.t\n  def longest_diverse_string(a, b, c) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec longest_diverse_string(A :: integer(), B :: integer(), C :: integer()) -> unicode:unicode_binary().\nlongest_diverse_string(A, B, C) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (longest-diverse-string a b c)\n  (-> exact-integer? exact-integer? exact-integer? string?)\n  )"
+    }
+  ]
 }

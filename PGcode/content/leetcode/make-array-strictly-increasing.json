@@ -23,5 +23,102 @@
     "[1,6,3,3]"
   ],
   "content_signature": "-fy0ahw",
-  "fetched_at": "2026-05-21T06:15:18.709Z"
+  "fetched_at": "2026-05-30T06:54:30.114Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int makeArrayIncreasing(vector<int>& arr1, vector<int>& arr2) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int makeArrayIncreasing(int[] arr1, int[] arr2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def makeArrayIncreasing(self, arr1: List[int], arr2: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def makeArrayIncreasing(self, arr1, arr2):\n        \"\"\"\n        :type arr1: List[int]\n        :type arr2: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} arr1\n * @param {number[]} arr2\n * @return {number}\n */\nvar makeArrayIncreasing = function(arr1, arr2) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function makeArrayIncreasing(arr1: number[], arr2: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MakeArrayIncreasing(int[] arr1, int[] arr2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int makeArrayIncreasing(int* arr1, int arr1Size, int* arr2, int arr2Size) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func makeArrayIncreasing(arr1 []int, arr2 []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun makeArrayIncreasing(arr1: IntArray, arr2: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func makeArrayIncreasing(_ arr1: [Int], _ arr2: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn make_array_increasing(arr1: Vec<i32>, arr2: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} arr1\n# @param {Integer[]} arr2\n# @return {Integer}\ndef make_array_increasing(arr1, arr2)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $arr1\n     * @param Integer[] $arr2\n     * @return Integer\n     */\n    function makeArrayIncreasing($arr1, $arr2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int makeArrayIncreasing(List<int> arr1, List<int> arr2) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def makeArrayIncreasing(arr1: Array[Int], arr2: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec make_array_increasing(arr1 :: [integer], arr2 :: [integer]) :: integer\n  def make_array_increasing(arr1, arr2) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec make_array_increasing(Arr1 :: [integer()], Arr2 :: [integer()]) -> integer().\nmake_array_increasing(Arr1, Arr2) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (make-array-increasing arr1 arr2)\n  (-> (listof exact-integer?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

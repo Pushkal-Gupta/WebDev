@@ -28,5 +28,102 @@
     "[1,1]"
   ],
   "content_signature": "r7l2u2",
-  "fetched_at": "2026-05-21T06:24:16.632Z"
+  "fetched_at": "2026-05-30T05:43:49.181Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int visiblePoints(vector<vector<int>>& points, int angle, vector<int>& location) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int visiblePoints(List<List<Integer>> points, int angle, List<Integer> location) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def visiblePoints(self, points: List[List[int]], angle: int, location: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def visiblePoints(self, points, angle, location):\n        \"\"\"\n        :type points: List[List[int]]\n        :type angle: int\n        :type location: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} points\n * @param {number} angle\n * @param {number[]} location\n * @return {number}\n */\nvar visiblePoints = function(points, angle, location) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function visiblePoints(points: number[][], angle: number, location: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int VisiblePoints(IList<IList<int>> points, int angle, IList<int> location) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int visiblePoints(int** points, int pointsSize, int* pointsColSize, int angle, int* location, int locationSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func visiblePoints(points [][]int, angle int, location []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun visiblePoints(points: List<List<Int>>, angle: Int, location: List<Int>): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func visiblePoints(_ points: [[Int]], _ angle: Int, _ location: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn visible_points(points: Vec<Vec<i32>>, angle: i32, location: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} points\n# @param {Integer} angle\n# @param {Integer[]} location\n# @return {Integer}\ndef visible_points(points, angle, location)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $points\n     * @param Integer $angle\n     * @param Integer[] $location\n     * @return Integer\n     */\n    function visiblePoints($points, $angle, $location) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int visiblePoints(List<List<int>> points, int angle, List<int> location) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def visiblePoints(points: List[List[Int]], angle: Int, location: List[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec visible_points(points :: [[integer]], angle :: integer, location :: [integer]) :: integer\n  def visible_points(points, angle, location) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec visible_points(Points :: [[integer()]], Angle :: integer(), Location :: [integer()]) -> integer().\nvisible_points(Points, Angle, Location) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (visible-points points angle location)\n  (-> (listof (listof exact-integer?)) exact-integer? (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

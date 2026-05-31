@@ -12,5 +12,12 @@
     "{\"headers\":{\"employees\":[\"name\",\"salary\"]},\"rows\":{\"employees\":[[\"Piper\",4548],[\"Grace\",28150],[\"Georgia\",1103],[\"Willow\",6593],[\"Finn\",74576],[\"Thomas\",24433]]}}"
   ],
   "content_signature": "-v67a5u",
-  "fetched_at": "2026-05-21T07:06:55.071Z"
+  "fetched_at": "2026-05-30T07:33:34.698Z",
+  "code_snippets": [
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef createBonusColumn(employees: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

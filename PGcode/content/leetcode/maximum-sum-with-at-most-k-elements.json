@@ -24,5 +24,102 @@
     "3"
   ],
   "content_signature": "-3f3ax0",
-  "fetched_at": "2026-05-21T07:30:03.683Z"
+  "fetched_at": "2026-05-30T07:06:34.534Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    long long maxSum(vector<vector<int>>& grid, vector<int>& limits, int k) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public long maxSum(int[][] grid, int[] limits, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def maxSum(self, grid: List[List[int]], limits: List[int], k: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def maxSum(self, grid, limits, k):\n        \"\"\"\n        :type grid: List[List[int]]\n        :type limits: List[int]\n        :type k: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} grid\n * @param {number[]} limits\n * @param {number} k\n * @return {number}\n */\nvar maxSum = function(grid, limits, k) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function maxSum(grid: number[][], limits: number[], k: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public long MaxSum(int[][] grid, int[] limits, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "long long maxSum(int** grid, int gridSize, int* gridColSize, int* limits, int limitsSize, int k) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func maxSum(grid [][]int, limits []int, k int) int64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun maxSum(grid: Array<IntArray>, limits: IntArray, k: Int): Long {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func maxSum(_ grid: [[Int]], _ limits: [Int], _ k: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn max_sum(grid: Vec<Vec<i32>>, limits: Vec<i32>, k: i32) -> i64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} grid\n# @param {Integer[]} limits\n# @param {Integer} k\n# @return {Integer}\ndef max_sum(grid, limits, k)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $grid\n     * @param Integer[] $limits\n     * @param Integer $k\n     * @return Integer\n     */\n    function maxSum($grid, $limits, $k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int maxSum(List<List<int>> grid, List<int> limits, int k) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def maxSum(grid: Array[Array[Int]], limits: Array[Int], k: Int): Long = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec max_sum(grid :: [[integer]], limits :: [integer], k :: integer) :: integer\n  def max_sum(grid, limits, k) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec max_sum(Grid :: [[integer()]], Limits :: [integer()], K :: integer()) -> integer().\nmax_sum(Grid, Limits, K) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (max-sum grid limits k)\n  (-> (listof (listof exact-integer?)) (listof exact-integer?) exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

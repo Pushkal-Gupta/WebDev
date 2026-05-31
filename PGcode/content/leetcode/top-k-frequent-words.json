@@ -22,5 +22,102 @@
     "4"
   ],
   "content_signature": "-dwllza",
-  "fetched_at": "2026-05-21T06:04:07.562Z"
+  "fetched_at": "2026-05-30T05:40:29.570Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<string> topKFrequent(vector<string>& words, int k) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public List<String> topKFrequent(String[] words, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def topKFrequent(self, words: List[str], k: int) -> List[str]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def topKFrequent(self, words, k):\n        \"\"\"\n        :type words: List[str]\n        :type k: int\n        :rtype: List[str]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string[]} words\n * @param {number} k\n * @return {string[]}\n */\nvar topKFrequent = function(words, k) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function topKFrequent(words: string[], k: number): string[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public IList<string> TopKFrequent(string[] words, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nchar** topKFrequent(char** words, int wordsSize, int k, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func topKFrequent(words []string, k int) []string {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun topKFrequent(words: Array<String>, k: Int): List<String> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func topKFrequent(_ words: [String], _ k: Int) -> [String] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn top_k_frequent(words: Vec<String>, k: i32) -> Vec<String> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String[]} words\n# @param {Integer} k\n# @return {String[]}\ndef top_k_frequent(words, k)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[] $words\n     * @param Integer $k\n     * @return String[]\n     */\n    function topKFrequent($words, $k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<String> topKFrequent(List<String> words, int k) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def topKFrequent(words: Array[String], k: Int): List[String] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec top_k_frequent(words :: [String.t], k :: integer) :: [String.t]\n  def top_k_frequent(words, k) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec top_k_frequent(Words :: [unicode:unicode_binary()], K :: integer()) -> [unicode:unicode_binary()].\ntop_k_frequent(Words, K) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (top-k-frequent words k)\n  (-> (listof string?) exact-integer? (listof string?))\n  )"
+    }
+  ]
 }

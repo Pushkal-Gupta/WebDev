@@ -22,5 +22,102 @@
     "[1,0,-1]"
   ],
   "content_signature": "ix3qjt",
-  "fetched_at": "2026-05-21T07:10:12.402Z"
+  "fetched_at": "2026-05-30T07:21:03.966Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int countMatchingSubarrays(vector<int>& nums, vector<int>& pattern) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int countMatchingSubarrays(int[] nums, int[] pattern) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def countMatchingSubarrays(self, nums: List[int], pattern: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def countMatchingSubarrays(self, nums, pattern):\n        \"\"\"\n        :type nums: List[int]\n        :type pattern: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {number[]} pattern\n * @return {number}\n */\nvar countMatchingSubarrays = function(nums, pattern) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function countMatchingSubarrays(nums: number[], pattern: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int CountMatchingSubarrays(int[] nums, int[] pattern) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int countMatchingSubarrays(int* nums, int numsSize, int* pattern, int patternSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func countMatchingSubarrays(nums []int, pattern []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun countMatchingSubarrays(nums: IntArray, pattern: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func countMatchingSubarrays(_ nums: [Int], _ pattern: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn count_matching_subarrays(nums: Vec<i32>, pattern: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums\n# @param {Integer[]} pattern\n# @return {Integer}\ndef count_matching_subarrays(nums, pattern)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums\n     * @param Integer[] $pattern\n     * @return Integer\n     */\n    function countMatchingSubarrays($nums, $pattern) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int countMatchingSubarrays(List<int> nums, List<int> pattern) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def countMatchingSubarrays(nums: Array[Int], pattern: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec count_matching_subarrays(nums :: [integer], pattern :: [integer]) :: integer\n  def count_matching_subarrays(nums, pattern) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec count_matching_subarrays(Nums :: [integer()], Pattern :: [integer()]) -> integer().\ncount_matching_subarrays(Nums, Pattern) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (count-matching-subarrays nums pattern)\n  (-> (listof exact-integer?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

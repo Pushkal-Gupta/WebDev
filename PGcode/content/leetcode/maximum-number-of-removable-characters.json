@@ -26,5 +26,102 @@
     "[0,1,2,3,4]"
   ],
   "content_signature": "-d4v0hn",
-  "fetched_at": "2026-05-21T06:30:41.298Z"
+  "fetched_at": "2026-05-30T07:17:35.591Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int maximumRemovals(string s, string p, vector<int>& removable) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int maximumRemovals(String s, String p, int[] removable) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def maximumRemovals(self, s: str, p: str, removable: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def maximumRemovals(self, s, p, removable):\n        \"\"\"\n        :type s: str\n        :type p: str\n        :type removable: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} s\n * @param {string} p\n * @param {number[]} removable\n * @return {number}\n */\nvar maximumRemovals = function(s, p, removable) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function maximumRemovals(s: string, p: string, removable: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MaximumRemovals(string s, string p, int[] removable) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int maximumRemovals(char* s, char* p, int* removable, int removableSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func maximumRemovals(s string, p string, removable []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun maximumRemovals(s: String, p: String, removable: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func maximumRemovals(_ s: String, _ p: String, _ removable: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn maximum_removals(s: String, p: String, removable: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} s\n# @param {String} p\n# @param {Integer[]} removable\n# @return {Integer}\ndef maximum_removals(s, p, removable)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $s\n     * @param String $p\n     * @param Integer[] $removable\n     * @return Integer\n     */\n    function maximumRemovals($s, $p, $removable) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int maximumRemovals(String s, String p, List<int> removable) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def maximumRemovals(s: String, p: String, removable: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec maximum_removals(s :: String.t, p :: String.t, removable :: [integer]) :: integer\n  def maximum_removals(s, p, removable) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec maximum_removals(S :: unicode:unicode_binary(), P :: unicode:unicode_binary(), Removable :: [integer()]) -> integer().\nmaximum_removals(S, P, Removable) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (maximum-removals s p removable)\n  (-> string? string? (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

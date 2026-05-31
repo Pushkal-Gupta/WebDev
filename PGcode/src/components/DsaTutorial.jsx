@@ -93,8 +93,8 @@ export default function DsaTutorial({ session }) {
   }, [sectionInfo, filterKind, q]);
 
   const overallPct = totals.totalProblems
-    ? Math.round((totals.solved / totals.totalProblems) * 100)
-    : 0;
+    ? ((totals.solved / totals.totalProblems) * 100).toFixed(1)
+    : '0.0';
 
   return (
     <div className="tut-index">

@@ -12,5 +12,32 @@
     "{\"headers\":{\"drivers\":[\"driver_id\",\"driver_name\"],\"trips\":[\"trip_id\",\"driver_id\",\"trip_date\",\"distance_km\",\"fuel_consumed\"]},\"rows\":{\"drivers\":[[1,\"Alice Johnson\"],[2,\"Bob Smith\"],[3,\"Carol Davis\"],[4,\"David Wilson\"],[5,\"Emma Brown\"]],\"trips\":[[1,1,\"2023-02-15\",120.5,10.2],[2,1,\"2023-03-20\",200.0,16.5],[3,1,\"2023-08-10\",150.0,11.0],[4,1,\"2023-09-25\",180.0,12.5],[5,2,\"2023-01-10\",100.0,9.0],[6,2,\"2023-04-15\",250.0,22.0],[7,2,\"2023-10-05\",200.0,15.0],[8,3,\"2023-03-12\",80.0,8.5],[9,3,\"2023-05-18\",90.0,9.2],[10,4,\"2023-07-22\",160.0,12.8],[11,4,\"2023-11-30\",140.0,11.0],[12,5,\"2023-02-28\",110.0,11.5]]}}"
   ],
   "content_signature": "-5zaepq",
-  "fetched_at": "2026-05-21T07:44:33.869Z"
+  "fetched_at": "2026-05-30T06:41:37.291Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef find_improved_efficiency_drivers(drivers: pd.DataFrame, trips: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

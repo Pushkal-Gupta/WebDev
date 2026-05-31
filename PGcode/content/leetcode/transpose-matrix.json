@@ -17,5 +17,102 @@
     "[[1,2,3],[4,5,6]]"
   ],
   "content_signature": "7q4mrp",
-  "fetched_at": "2026-05-21T06:08:15.040Z"
+  "fetched_at": "2026-05-30T05:39:01.719Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<vector<int>> transpose(vector<vector<int>>& matrix) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[][] transpose(int[][] matrix) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def transpose(self, matrix: List[List[int]]) -> List[List[int]]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def transpose(self, matrix):\n        \"\"\"\n        :type matrix: List[List[int]]\n        :rtype: List[List[int]]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} matrix\n * @return {number[][]}\n */\nvar transpose = function(matrix) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function transpose(matrix: number[][]): number[][] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[][] Transpose(int[][] matrix) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Return an array of arrays of size *returnSize.\n * The sizes of the arrays are returned as *returnColumnSizes array.\n * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().\n */\nint** transpose(int** matrix, int matrixSize, int* matrixColSize, int* returnSize, int** returnColumnSizes) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func transpose(matrix [][]int) [][]int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun transpose(matrix: Array<IntArray>): Array<IntArray> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func transpose(_ matrix: [[Int]]) -> [[Int]] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn transpose(matrix: Vec<Vec<i32>>) -> Vec<Vec<i32>> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} matrix\n# @return {Integer[][]}\ndef transpose(matrix)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $matrix\n     * @return Integer[][]\n     */\n    function transpose($matrix) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<List<int>> transpose(List<List<int>> matrix) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def transpose(matrix: Array[Array[Int]]): Array[Array[Int]] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec transpose(matrix :: [[integer]]) :: [[integer]]\n  def transpose(matrix) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec transpose(Matrix :: [[integer()]]) -> [[integer()]].\ntranspose(Matrix) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (transpose matrix)\n  (-> (listof (listof exact-integer?)) (listof (listof exact-integer?)))\n  )"
+    }
+  ]
 }

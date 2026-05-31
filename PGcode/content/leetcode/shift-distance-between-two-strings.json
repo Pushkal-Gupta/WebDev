@@ -24,5 +24,102 @@
     "[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]"
   ],
   "content_signature": "-2ow2n6",
-  "fetched_at": "2026-05-21T07:17:02.808Z"
+  "fetched_at": "2026-05-30T06:59:43.664Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    long long shiftDistance(string s, string t, vector<int>& nextCost, vector<int>& previousCost) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public long shiftDistance(String s, String t, int[] nextCost, int[] previousCost) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def shiftDistance(self, s: str, t: str, nextCost: List[int], previousCost: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def shiftDistance(self, s, t, nextCost, previousCost):\n        \"\"\"\n        :type s: str\n        :type t: str\n        :type nextCost: List[int]\n        :type previousCost: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} s\n * @param {string} t\n * @param {number[]} nextCost\n * @param {number[]} previousCost\n * @return {number}\n */\nvar shiftDistance = function(s, t, nextCost, previousCost) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function shiftDistance(s: string, t: string, nextCost: number[], previousCost: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public long ShiftDistance(string s, string t, int[] nextCost, int[] previousCost) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "long long shiftDistance(char* s, char* t, int* nextCost, int nextCostSize, int* previousCost, int previousCostSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func shiftDistance(s string, t string, nextCost []int, previousCost []int) int64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun shiftDistance(s: String, t: String, nextCost: IntArray, previousCost: IntArray): Long {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func shiftDistance(_ s: String, _ t: String, _ nextCost: [Int], _ previousCost: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn shift_distance(s: String, t: String, next_cost: Vec<i32>, previous_cost: Vec<i32>) -> i64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} s\n# @param {String} t\n# @param {Integer[]} next_cost\n# @param {Integer[]} previous_cost\n# @return {Integer}\ndef shift_distance(s, t, next_cost, previous_cost)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $s\n     * @param String $t\n     * @param Integer[] $nextCost\n     * @param Integer[] $previousCost\n     * @return Integer\n     */\n    function shiftDistance($s, $t, $nextCost, $previousCost) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int shiftDistance(String s, String t, List<int> nextCost, List<int> previousCost) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def shiftDistance(s: String, t: String, nextCost: Array[Int], previousCost: Array[Int]): Long = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec shift_distance(s :: String.t, t :: String.t, next_cost :: [integer], previous_cost :: [integer]) :: integer\n  def shift_distance(s, t, next_cost, previous_cost) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec shift_distance(S :: unicode:unicode_binary(), T :: unicode:unicode_binary(), NextCost :: [integer()], PreviousCost :: [integer()]) -> integer().\nshift_distance(S, T, NextCost, PreviousCost) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (shift-distance s t nextCost previousCost)\n  (-> string? string? (listof exact-integer?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

@@ -21,5 +21,102 @@
     "[[\"a\",\"b\",\"b\"],[\"b\",\"z\",\"b\"],[\"b\",\"b\",\"a\"]]"
   ],
   "content_signature": "lofsak",
-  "fetched_at": "2026-05-21T06:23:08.706Z"
+  "fetched_at": "2026-05-30T07:36:12.503Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool containsCycle(vector<vector<char>>& grid) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean containsCycle(char[][] grid) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def containsCycle(self, grid: List[List[str]]) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def containsCycle(self, grid):\n        \"\"\"\n        :type grid: List[List[str]]\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {character[][]} grid\n * @return {boolean}\n */\nvar containsCycle = function(grid) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function containsCycle(grid: string[][]): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool ContainsCycle(char[][] grid) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool containsCycle(char** grid, int gridSize, int* gridColSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func containsCycle(grid [][]byte) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun containsCycle(grid: Array<CharArray>): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func containsCycle(_ grid: [[Character]]) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn contains_cycle(grid: Vec<Vec<char>>) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Character[][]} grid\n# @return {Boolean}\ndef contains_cycle(grid)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[][] $grid\n     * @return Boolean\n     */\n    function containsCycle($grid) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool containsCycle(List<List<String>> grid) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def containsCycle(grid: Array[Array[Char]]): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec contains_cycle(grid :: [[char]]) :: boolean\n  def contains_cycle(grid) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec contains_cycle(Grid :: [[char()]]) -> boolean().\ncontains_cycle(Grid) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (contains-cycle grid)\n  (-> (listof (listof char?)) boolean?)\n  )"
+    }
+  ]
 }

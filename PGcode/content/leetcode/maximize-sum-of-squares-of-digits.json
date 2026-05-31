@@ -21,5 +21,102 @@
     "10"
   ],
   "content_signature": "-5gkzam",
-  "fetched_at": "2026-05-21T07:48:25.373Z"
+  "fetched_at": "2026-05-30T06:57:34.747Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    string maxSumOfSquares(int num, int sum) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public String maxSumOfSquares(int num, int sum) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def maxSumOfSquares(self, num: int, sum: int) -> str:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def maxSumOfSquares(self, num, sum):\n        \"\"\"\n        :type num: int\n        :type sum: int\n        :rtype: str\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} num\n * @param {number} sum\n * @return {string}\n */\nvar maxSumOfSquares = function(num, sum) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function maxSumOfSquares(num: number, sum: number): string {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public string MaxSumOfSquares(int num, int sum) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "char* maxSumOfSquares(int num, int sum) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func maxSumOfSquares(num int, sum int) string {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun maxSumOfSquares(num: Int, sum: Int): String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func maxSumOfSquares(_ num: Int, _ sum: Int) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn max_sum_of_squares(num: i32, sum: i32) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} num\n# @param {Integer} sum\n# @return {String}\ndef max_sum_of_squares(num, sum)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $num\n     * @param Integer $sum\n     * @return String\n     */\n    function maxSumOfSquares($num, $sum) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  String maxSumOfSquares(int num, int sum) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def maxSumOfSquares(num: Int, sum: Int): String = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec max_sum_of_squares(num :: integer, sum :: integer) :: String.t\n  def max_sum_of_squares(num, sum) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec max_sum_of_squares(Num :: integer(), Sum :: integer()) -> unicode:unicode_binary().\nmax_sum_of_squares(Num, Sum) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (max-sum-of-squares num sum)\n  (-> exact-integer? exact-integer? string?)\n  )"
+    }
+  ]
 }

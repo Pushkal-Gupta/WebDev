@@ -27,5 +27,102 @@
     "10"
   ],
   "content_signature": "-51ybml",
-  "fetched_at": "2026-05-21T07:52:09.372Z"
+  "fetched_at": "2026-05-30T05:32:03.021Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int sumOfNumbers(int l, int r, int k) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int sumOfNumbers(int l, int r, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def sumOfNumbers(self, l: int, r: int, k: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def sumOfNumbers(self, l, r, k):\n        \"\"\"\n        :type l: int\n        :type r: int\n        :type k: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} l\n * @param {number} r\n * @param {number} k\n * @return {number}\n */\nvar sumOfNumbers = function(l, r, k) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function sumOfNumbers(l: number, r: number, k: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int SumOfNumbers(int l, int r, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int sumOfNumbers(int l, int r, int k) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func sumOfNumbers(l int, r int, k int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun sumOfNumbers(l: Int, r: Int, k: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func sumOfNumbers(_ l: Int, _ r: Int, _ k: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn sum_of_numbers(l: i32, r: i32, k: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} l\n# @param {Integer} r\n# @param {Integer} k\n# @return {Integer}\ndef sum_of_numbers(l, r, k)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $l\n     * @param Integer $r\n     * @param Integer $k\n     * @return Integer\n     */\n    function sumOfNumbers($l, $r, $k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int sumOfNumbers(int l, int r, int k) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def sumOfNumbers(l: Int, r: Int, k: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec sum_of_numbers(l :: integer, r :: integer, k :: integer) :: integer\n  def sum_of_numbers(l, r, k) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec sum_of_numbers(L :: integer(), R :: integer(), K :: integer()) -> integer().\nsum_of_numbers(L, R, K) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (sum-of-numbers l r k)\n  (-> exact-integer? exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

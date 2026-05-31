@@ -12,5 +12,32 @@
     "{\"headers\": {\"Courses\": [\"student\", \"class\"]}, \"rows\": {\"Courses\": [[\"A\", \"Math\"], [\"B\", \"English\"], [\"C\", \"Math\"], [\"D\", \"Biology\"], [\"E\", \"Math\"], [\"F\", \"Computer\"], [\"G\", \"Math\"], [\"H\", \"Math\"], [\"I\", \"Math\"]]}}"
   ],
   "content_signature": "z8kigw",
-  "fetched_at": "2026-05-21T06:02:10.109Z"
+  "fetched_at": "2026-05-30T07:09:04.550Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef find_classes(courses: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

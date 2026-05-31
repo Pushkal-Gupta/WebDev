@@ -12,5 +12,32 @@
     "{\"headers\":{\"Employees\":[\"employee_id\",\"name\",\"salary\"]},\"rows\":{\"Employees\":[[2,\"Meir\",3000],[3,\"Michael\",3800],[7,\"Addilyn\",7400],[8,\"Juan\",6100],[9,\"Kannon\",7700]]}}"
   ],
   "content_signature": "lw3b2r",
-  "fetched_at": "2026-05-21T06:30:07.922Z"
+  "fetched_at": "2026-05-30T05:15:33.867Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef calculate_special_bonus(employees: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

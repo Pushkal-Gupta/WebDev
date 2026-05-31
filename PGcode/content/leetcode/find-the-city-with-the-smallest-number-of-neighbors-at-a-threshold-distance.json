@@ -22,5 +22,102 @@
     "2"
   ],
   "content_signature": "-eb4f8v",
-  "fetched_at": "2026-05-21T06:18:09.927Z"
+  "fetched_at": "2026-05-30T05:29:34.478Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int findTheCity(int n, vector<vector<int>>& edges, int distanceThreshold) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int findTheCity(int n, int[][] edges, int distanceThreshold) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def findTheCity(self, n: int, edges: List[List[int]], distanceThreshold: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def findTheCity(self, n, edges, distanceThreshold):\n        \"\"\"\n        :type n: int\n        :type edges: List[List[int]]\n        :type distanceThreshold: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number[][]} edges\n * @param {number} distanceThreshold\n * @return {number}\n */\nvar findTheCity = function(n, edges, distanceThreshold) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function findTheCity(n: number, edges: number[][], distanceThreshold: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int FindTheCity(int n, int[][] edges, int distanceThreshold) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int findTheCity(int n, int** edges, int edgesSize, int* edgesColSize, int distanceThreshold) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func findTheCity(n int, edges [][]int, distanceThreshold int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun findTheCity(n: Int, edges: Array<IntArray>, distanceThreshold: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func findTheCity(_ n: Int, _ edges: [[Int]], _ distanceThreshold: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn find_the_city(n: i32, edges: Vec<Vec<i32>>, distance_threshold: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer[][]} edges\n# @param {Integer} distance_threshold\n# @return {Integer}\ndef find_the_city(n, edges, distance_threshold)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer[][] $edges\n     * @param Integer $distanceThreshold\n     * @return Integer\n     */\n    function findTheCity($n, $edges, $distanceThreshold) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int findTheCity(int n, List<List<int>> edges, int distanceThreshold) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def findTheCity(n: Int, edges: Array[Array[Int]], distanceThreshold: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec find_the_city(n :: integer, edges :: [[integer]], distance_threshold :: integer) :: integer\n  def find_the_city(n, edges, distance_threshold) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec find_the_city(N :: integer(), Edges :: [[integer()]], DistanceThreshold :: integer()) -> integer().\nfind_the_city(N, Edges, DistanceThreshold) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (find-the-city n edges distanceThreshold)\n  (-> exact-integer? (listof (listof exact-integer?)) exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

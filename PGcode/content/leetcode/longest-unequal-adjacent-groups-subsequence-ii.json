@@ -22,5 +22,102 @@
     "[1,2,3,4]"
   ],
   "content_signature": "f0ydwv",
-  "fetched_at": "2026-05-21T07:07:21.639Z"
+  "fetched_at": "2026-05-30T06:52:08.973Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<string> getWordsInLongestSubsequence(vector<string>& words, vector<int>& groups) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public List<String> getWordsInLongestSubsequence(String[] words, int[] groups) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def getWordsInLongestSubsequence(self, words: List[str], groups: List[int]) -> List[str]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def getWordsInLongestSubsequence(self, words, groups):\n        \"\"\"\n        :type words: List[str]\n        :type groups: List[int]\n        :rtype: List[str]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string[]} words\n * @param {number[]} groups\n * @return {string[]}\n */\nvar getWordsInLongestSubsequence = function(words, groups) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function getWordsInLongestSubsequence(words: string[], groups: number[]): string[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public IList<string> GetWordsInLongestSubsequence(string[] words, int[] groups) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nchar** getWordsInLongestSubsequence(char** words, int wordsSize, int* groups, int groupsSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func getWordsInLongestSubsequence(words []string, groups []int) []string {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun getWordsInLongestSubsequence(words: Array<String>, groups: IntArray): List<String> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func getWordsInLongestSubsequence(_ words: [String], _ groups: [Int]) -> [String] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn get_words_in_longest_subsequence(words: Vec<String>, groups: Vec<i32>) -> Vec<String> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String[]} words\n# @param {Integer[]} groups\n# @return {String[]}\ndef get_words_in_longest_subsequence(words, groups)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[] $words\n     * @param Integer[] $groups\n     * @return String[]\n     */\n    function getWordsInLongestSubsequence($words, $groups) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<String> getWordsInLongestSubsequence(List<String> words, List<int> groups) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def getWordsInLongestSubsequence(words: Array[String], groups: Array[Int]): List[String] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec get_words_in_longest_subsequence(words :: [String.t], groups :: [integer]) :: [String.t]\n  def get_words_in_longest_subsequence(words, groups) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec get_words_in_longest_subsequence(Words :: [unicode:unicode_binary()], Groups :: [integer()]) -> [unicode:unicode_binary()].\nget_words_in_longest_subsequence(Words, Groups) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (get-words-in-longest-subsequence words groups)\n  (-> (listof string?) (listof exact-integer?) (listof string?))\n  )"
+    }
+  ]
 }

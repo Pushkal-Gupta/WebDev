@@ -20,5 +20,102 @@
     "[[\"king\"],[\"king\",\"andy\"],[\"king\",\"bob\"],[\"king\",\"catherine\"],[\"andy\",\"matthew\"],[\"bob\",\"alex\"],[\"bob\",\"asha\"],[null],[\"bob\"],[null]]"
   ],
   "content_signature": "424wy3",
-  "fetched_at": "2026-05-21T06:24:02.601Z"
+  "fetched_at": "2026-05-30T07:23:15.104Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class ThroneInheritance {\npublic:\n    ThroneInheritance(string kingName) {\n        \n    }\n    \n    void birth(string parentName, string childName) {\n        \n    }\n    \n    void death(string name) {\n        \n    }\n    \n    vector<string> getInheritanceOrder() {\n        \n    }\n};\n\n/**\n * Your ThroneInheritance object will be instantiated and called as such:\n * ThroneInheritance* obj = new ThroneInheritance(kingName);\n * obj->birth(parentName,childName);\n * obj->death(name);\n * vector<string> param_3 = obj->getInheritanceOrder();\n */"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class ThroneInheritance {\n\n    public ThroneInheritance(String kingName) {\n        \n    }\n    \n    public void birth(String parentName, String childName) {\n        \n    }\n    \n    public void death(String name) {\n        \n    }\n    \n    public List<String> getInheritanceOrder() {\n        \n    }\n}\n\n/**\n * Your ThroneInheritance object will be instantiated and called as such:\n * ThroneInheritance obj = new ThroneInheritance(kingName);\n * obj.birth(parentName,childName);\n * obj.death(name);\n * List<String> param_3 = obj.getInheritanceOrder();\n */"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class ThroneInheritance:\n\n    def __init__(self, kingName: str):\n        \n\n    def birth(self, parentName: str, childName: str) -> None:\n        \n\n    def death(self, name: str) -> None:\n        \n\n    def getInheritanceOrder(self) -> List[str]:\n        \n\n\n# Your ThroneInheritance object will be instantiated and called as such:\n# obj = ThroneInheritance(kingName)\n# obj.birth(parentName,childName)\n# obj.death(name)\n# param_3 = obj.getInheritanceOrder()"
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class ThroneInheritance(object):\n\n    def __init__(self, kingName):\n        \"\"\"\n        :type kingName: str\n        \"\"\"\n        \n\n    def birth(self, parentName, childName):\n        \"\"\"\n        :type parentName: str\n        :type childName: str\n        :rtype: None\n        \"\"\"\n        \n\n    def death(self, name):\n        \"\"\"\n        :type name: str\n        :rtype: None\n        \"\"\"\n        \n\n    def getInheritanceOrder(self):\n        \"\"\"\n        :rtype: List[str]\n        \"\"\"\n        \n\n\n# Your ThroneInheritance object will be instantiated and called as such:\n# obj = ThroneInheritance(kingName)\n# obj.birth(parentName,childName)\n# obj.death(name)\n# param_3 = obj.getInheritanceOrder()"
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} kingName\n */\nvar ThroneInheritance = function(kingName) {\n    \n};\n\n/** \n * @param {string} parentName \n * @param {string} childName\n * @return {void}\n */\nThroneInheritance.prototype.birth = function(parentName, childName) {\n    \n};\n\n/** \n * @param {string} name\n * @return {void}\n */\nThroneInheritance.prototype.death = function(name) {\n    \n};\n\n/**\n * @return {string[]}\n */\nThroneInheritance.prototype.getInheritanceOrder = function() {\n    \n};\n\n/** \n * Your ThroneInheritance object will be instantiated and called as such:\n * var obj = new ThroneInheritance(kingName)\n * obj.birth(parentName,childName)\n * obj.death(name)\n * var param_3 = obj.getInheritanceOrder()\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "class ThroneInheritance {\n    constructor(kingName: string) {\n        \n    }\n\n    birth(parentName: string, childName: string): void {\n        \n    }\n\n    death(name: string): void {\n        \n    }\n\n    getInheritanceOrder(): string[] {\n        \n    }\n}\n\n/**\n * Your ThroneInheritance object will be instantiated and called as such:\n * var obj = new ThroneInheritance(kingName)\n * obj.birth(parentName,childName)\n * obj.death(name)\n * var param_3 = obj.getInheritanceOrder()\n */"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class ThroneInheritance {\n\n    public ThroneInheritance(string kingName) {\n        \n    }\n    \n    public void Birth(string parentName, string childName) {\n        \n    }\n    \n    public void Death(string name) {\n        \n    }\n    \n    public IList<string> GetInheritanceOrder() {\n        \n    }\n}\n\n/**\n * Your ThroneInheritance object will be instantiated and called as such:\n * ThroneInheritance obj = new ThroneInheritance(kingName);\n * obj.Birth(parentName,childName);\n * obj.Death(name);\n * IList<string> param_3 = obj.GetInheritanceOrder();\n */"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "\n\n\ntypedef struct {\n    \n} ThroneInheritance;\n\n\nThroneInheritance* throneInheritanceCreate(char* kingName) {\n    \n}\n\nvoid throneInheritanceBirth(ThroneInheritance* obj, char* parentName, char* childName) {\n    \n}\n\nvoid throneInheritanceDeath(ThroneInheritance* obj, char* name) {\n    \n}\n\nchar** throneInheritanceGetInheritanceOrder(ThroneInheritance* obj, int* retSize) {\n    \n}\n\nvoid throneInheritanceFree(ThroneInheritance* obj) {\n    \n}\n\n/**\n * Your ThroneInheritance struct will be instantiated and called as such:\n * ThroneInheritance* obj = throneInheritanceCreate(kingName);\n * throneInheritanceBirth(obj, parentName, childName);\n \n * throneInheritanceDeath(obj, name);\n \n * char** param_3 = throneInheritanceGetInheritanceOrder(obj, retSize);\n \n * throneInheritanceFree(obj);\n*/"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "type ThroneInheritance struct {\n    \n}\n\n\nfunc Constructor(kingName string) ThroneInheritance {\n    \n}\n\n\nfunc (this *ThroneInheritance) Birth(parentName string, childName string)  {\n    \n}\n\n\nfunc (this *ThroneInheritance) Death(name string)  {\n    \n}\n\n\nfunc (this *ThroneInheritance) GetInheritanceOrder() []string {\n    \n}\n\n\n/**\n * Your ThroneInheritance object will be instantiated and called as such:\n * obj := Constructor(kingName);\n * obj.Birth(parentName,childName);\n * obj.Death(name);\n * param_3 := obj.GetInheritanceOrder();\n */"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class ThroneInheritance(kingName: String) {\n\n    fun birth(parentName: String, childName: String) {\n        \n    }\n\n    fun death(name: String) {\n        \n    }\n\n    fun getInheritanceOrder(): List<String> {\n        \n    }\n\n}\n\n/**\n * Your ThroneInheritance object will be instantiated and called as such:\n * var obj = ThroneInheritance(kingName)\n * obj.birth(parentName,childName)\n * obj.death(name)\n * var param_3 = obj.getInheritanceOrder()\n */"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "\nclass ThroneInheritance {\n\n    init(_ kingName: String) {\n        \n    }\n    \n    func birth(_ parentName: String, _ childName: String) {\n        \n    }\n    \n    func death(_ name: String) {\n        \n    }\n    \n    func getInheritanceOrder() -> [String] {\n        \n    }\n}\n\n/**\n * Your ThroneInheritance object will be instantiated and called as such:\n * let obj = ThroneInheritance(kingName)\n * obj.birth(parentName, childName)\n * obj.death(name)\n * let ret_3: [String] = obj.getInheritanceOrder()\n */"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "struct ThroneInheritance {\n\n}\n\n\n/** \n * `&self` means the method takes an immutable reference.\n * If you need a mutable reference, change it to `&mut self` instead.\n */\nimpl ThroneInheritance {\n\n    fn new(kingName: String) -> Self {\n        \n    }\n    \n    fn birth(&self, parent_name: String, child_name: String) {\n        \n    }\n    \n    fn death(&self, name: String) {\n        \n    }\n    \n    fn get_inheritance_order(&self) -> Vec<String> {\n        \n    }\n}\n\n/**\n * Your ThroneInheritance object will be instantiated and called as such:\n * let obj = ThroneInheritance::new(kingName);\n * obj.birth(parentName, childName);\n * obj.death(name);\n * let ret_3: Vec<String> = obj.get_inheritance_order();\n */"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "class ThroneInheritance\n\n=begin\n    :type king_name: String\n=end\n    def initialize(king_name)\n        \n    end\n\n\n=begin\n    :type parent_name: String\n    :type child_name: String\n    :rtype: Void\n=end\n    def birth(parent_name, child_name)\n        \n    end\n\n\n=begin\n    :type name: String\n    :rtype: Void\n=end\n    def death(name)\n        \n    end\n\n\n=begin\n    :rtype: String[]\n=end\n    def get_inheritance_order()\n        \n    end\n\n\nend\n\n# Your ThroneInheritance object will be instantiated and called as such:\n# obj = ThroneInheritance.new(king_name)\n# obj.birth(parent_name, child_name)\n# obj.death(name)\n# param_3 = obj.get_inheritance_order()"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class ThroneInheritance {\n    /**\n     * @param String $kingName\n     */\n    function __construct($kingName) {\n        \n    }\n  \n    /**\n     * @param String $parentName\n     * @param String $childName\n     * @return NULL\n     */\n    function birth($parentName, $childName) {\n        \n    }\n  \n    /**\n     * @param String $name\n     * @return NULL\n     */\n    function death($name) {\n        \n    }\n  \n    /**\n     * @return String[]\n     */\n    function getInheritanceOrder() {\n        \n    }\n}\n\n/**\n * Your ThroneInheritance object will be instantiated and called as such:\n * $obj = ThroneInheritance($kingName);\n * $obj->birth($parentName, $childName);\n * $obj->death($name);\n * $ret_3 = $obj->getInheritanceOrder();\n */"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class ThroneInheritance {\n\n  ThroneInheritance(String kingName) {\n    \n  }\n  \n  void birth(String parentName, String childName) {\n    \n  }\n  \n  void death(String name) {\n    \n  }\n  \n  List<String> getInheritanceOrder() {\n    \n  }\n}\n\n/**\n * Your ThroneInheritance object will be instantiated and called as such:\n * ThroneInheritance obj = ThroneInheritance(kingName);\n * obj.birth(parentName,childName);\n * obj.death(name);\n * List<String> param3 = obj.getInheritanceOrder();\n */"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "class ThroneInheritance(_kingName: String) {\n\n    def birth(parentName: String, childName: String): Unit = {\n        \n    }\n\n    def death(name: String): Unit = {\n        \n    }\n\n    def getInheritanceOrder(): List[String] = {\n        \n    }\n\n}\n\n/**\n * Your ThroneInheritance object will be instantiated and called as such:\n * val obj = new ThroneInheritance(kingName)\n * obj.birth(parentName,childName)\n * obj.death(name)\n * val param_3 = obj.getInheritanceOrder()\n */"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule ThroneInheritance do\n  @spec init_(king_name :: String.t) :: any\n  def init_(king_name) do\n    \n  end\n\n  @spec birth(parent_name :: String.t, child_name :: String.t) :: any\n  def birth(parent_name, child_name) do\n    \n  end\n\n  @spec death(name :: String.t) :: any\n  def death(name) do\n    \n  end\n\n  @spec get_inheritance_order() :: [String.t]\n  def get_inheritance_order() do\n    \n  end\nend\n\n# Your functions will be called as such:\n# ThroneInheritance.init_(king_name)\n# ThroneInheritance.birth(parent_name, child_name)\n# ThroneInheritance.death(name)\n# param_3 = ThroneInheritance.get_inheritance_order()\n\n# ThroneInheritance.init_ will be called before every test case, in which you can do some necessary initializations."
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec throne_inheritance_init_(KingName :: unicode:unicode_binary()) -> any().\nthrone_inheritance_init_(KingName) ->\n  .\n\n-spec throne_inheritance_birth(ParentName :: unicode:unicode_binary(), ChildName :: unicode:unicode_binary()) -> any().\nthrone_inheritance_birth(ParentName, ChildName) ->\n  .\n\n-spec throne_inheritance_death(Name :: unicode:unicode_binary()) -> any().\nthrone_inheritance_death(Name) ->\n  .\n\n-spec throne_inheritance_get_inheritance_order() -> [unicode:unicode_binary()].\nthrone_inheritance_get_inheritance_order() ->\n  .\n\n\n%% Your functions will be called as such:\n%% throne_inheritance_init_(KingName),\n%% throne_inheritance_birth(ParentName, ChildName),\n%% throne_inheritance_death(Name),\n%% Param_3 = throne_inheritance_get_inheritance_order(),\n\n%% throne_inheritance_init_ will be called before every test case, in which you can do some necessary initializations."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define throne-inheritance%\n  (class object%\n    (super-new)\n    \n    ; king-name : string?\n    (init-field\n      king-name)\n    \n    ; birth : string? string? -> void?\n    (define/public (birth parent-name child-name)\n      )\n    ; death : string? -> void?\n    (define/public (death name)\n      )\n    ; get-inheritance-order : -> (listof string?)\n    (define/public (get-inheritance-order)\n      )))\n\n;; Your throne-inheritance% object will be instantiated and called as such:\n;; (define obj (new throne-inheritance% [king-name king-name]))\n;; (send obj birth parent-name child-name)\n;; (send obj death name)\n;; (define param_3 (send obj get-inheritance-order))"
+    }
+  ]
 }

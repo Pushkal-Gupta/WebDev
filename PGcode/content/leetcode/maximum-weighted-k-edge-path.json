@@ -29,5 +29,102 @@
     "6"
   ],
   "content_signature": "-408028",
-  "fetched_at": "2026-05-21T07:42:57.897Z"
+  "fetched_at": "2026-05-30T07:21:30.033Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int maxWeight(int n, vector<vector<int>>& edges, int k, int t) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int maxWeight(int n, int[][] edges, int k, int t) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def maxWeight(self, n: int, edges: List[List[int]], k: int, t: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def maxWeight(self, n, edges, k, t):\n        \"\"\"\n        :type n: int\n        :type edges: List[List[int]]\n        :type k: int\n        :type t: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number[][]} edges\n * @param {number} k\n * @param {number} t\n * @return {number}\n */\nvar maxWeight = function(n, edges, k, t) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function maxWeight(n: number, edges: number[][], k: number, t: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MaxWeight(int n, int[][] edges, int k, int t) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int maxWeight(int n, int** edges, int edgesSize, int* edgesColSize, int k, int t) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func maxWeight(n int, edges [][]int, k int, t int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun maxWeight(n: Int, edges: Array<IntArray>, k: Int, t: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func maxWeight(_ n: Int, _ edges: [[Int]], _ k: Int, _ t: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn max_weight(n: i32, edges: Vec<Vec<i32>>, k: i32, t: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer[][]} edges\n# @param {Integer} k\n# @param {Integer} t\n# @return {Integer}\ndef max_weight(n, edges, k, t)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer[][] $edges\n     * @param Integer $k\n     * @param Integer $t\n     * @return Integer\n     */\n    function maxWeight($n, $edges, $k, $t) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int maxWeight(int n, List<List<int>> edges, int k, int t) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def maxWeight(n: Int, edges: Array[Array[Int]], k: Int, t: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec max_weight(n :: integer, edges :: [[integer]], k :: integer, t :: integer) :: integer\n  def max_weight(n, edges, k, t) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec max_weight(N :: integer(), Edges :: [[integer()]], K :: integer(), T :: integer()) -> integer().\nmax_weight(N, Edges, K, T) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (max-weight n edges k t)\n  (-> exact-integer? (listof (listof exact-integer?)) exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

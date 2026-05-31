@@ -34,5 +34,102 @@
     "[10000]"
   ],
   "content_signature": "bmvie9",
-  "fetched_at": "2026-05-21T07:09:04.946Z"
+  "fetched_at": "2026-05-30T07:12:32.972Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    long long minimumCost(string source, string target, vector<char>& original, vector<char>& changed, vector<int>& cost) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public long minimumCost(String source, String target, char[] original, char[] changed, int[] cost) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minimumCost(self, source: str, target: str, original: List[str], changed: List[str], cost: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minimumCost(self, source, target, original, changed, cost):\n        \"\"\"\n        :type source: str\n        :type target: str\n        :type original: List[str]\n        :type changed: List[str]\n        :type cost: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} source\n * @param {string} target\n * @param {character[]} original\n * @param {character[]} changed\n * @param {number[]} cost\n * @return {number}\n */\nvar minimumCost = function(source, target, original, changed, cost) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minimumCost(source: string, target: string, original: string[], changed: string[], cost: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public long MinimumCost(string source, string target, char[] original, char[] changed, int[] cost) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "long long minimumCost(char* source, char* target, char* original, int originalSize, char* changed, int changedSize, int* cost, int costSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minimumCost(source string, target string, original []byte, changed []byte, cost []int) int64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minimumCost(source: String, target: String, original: CharArray, changed: CharArray, cost: IntArray): Long {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minimumCost(_ source: String, _ target: String, _ original: [Character], _ changed: [Character], _ cost: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn minimum_cost(source: String, target: String, original: Vec<char>, changed: Vec<char>, cost: Vec<i32>) -> i64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} source\n# @param {String} target\n# @param {Character[]} original\n# @param {Character[]} changed\n# @param {Integer[]} cost\n# @return {Integer}\ndef minimum_cost(source, target, original, changed, cost)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $source\n     * @param String $target\n     * @param String[] $original\n     * @param String[] $changed\n     * @param Integer[] $cost\n     * @return Integer\n     */\n    function minimumCost($source, $target, $original, $changed, $cost) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minimumCost(String source, String target, List<String> original, List<String> changed, List<int> cost) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minimumCost(source: String, target: String, original: Array[Char], changed: Array[Char], cost: Array[Int]): Long = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec minimum_cost(source :: String.t, target :: String.t, original :: [char], changed :: [char], cost :: [integer]) :: integer\n  def minimum_cost(source, target, original, changed, cost) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec minimum_cost(Source :: unicode:unicode_binary(), Target :: unicode:unicode_binary(), Original :: [char()], Changed :: [char()], Cost :: [integer()]) -> integer().\nminimum_cost(Source, Target, Original, Changed, Cost) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (minimum-cost source target original changed cost)\n  (-> string? string? (listof char?) (listof char?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

@@ -23,5 +23,102 @@
     "[7,6,8]"
   ],
   "content_signature": "-wi1evk",
-  "fetched_at": "2026-05-21T06:38:51.919Z"
+  "fetched_at": "2026-05-30T07:14:15.334Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int maxConsecutive(int bottom, int top, vector<int>& special) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int maxConsecutive(int bottom, int top, int[] special) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def maxConsecutive(self, bottom: int, top: int, special: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def maxConsecutive(self, bottom, top, special):\n        \"\"\"\n        :type bottom: int\n        :type top: int\n        :type special: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} bottom\n * @param {number} top\n * @param {number[]} special\n * @return {number}\n */\nvar maxConsecutive = function(bottom, top, special) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function maxConsecutive(bottom: number, top: number, special: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MaxConsecutive(int bottom, int top, int[] special) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int maxConsecutive(int bottom, int top, int* special, int specialSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func maxConsecutive(bottom int, top int, special []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun maxConsecutive(bottom: Int, top: Int, special: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func maxConsecutive(_ bottom: Int, _ top: Int, _ special: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn max_consecutive(bottom: i32, top: i32, special: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} bottom\n# @param {Integer} top\n# @param {Integer[]} special\n# @return {Integer}\ndef max_consecutive(bottom, top, special)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $bottom\n     * @param Integer $top\n     * @param Integer[] $special\n     * @return Integer\n     */\n    function maxConsecutive($bottom, $top, $special) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int maxConsecutive(int bottom, int top, List<int> special) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def maxConsecutive(bottom: Int, top: Int, special: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec max_consecutive(bottom :: integer, top :: integer, special :: [integer]) :: integer\n  def max_consecutive(bottom, top, special) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec max_consecutive(Bottom :: integer(), Top :: integer(), Special :: [integer()]) -> integer().\nmax_consecutive(Bottom, Top, Special) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (max-consecutive bottom top special)\n  (-> exact-integer? exact-integer? (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

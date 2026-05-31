@@ -12,5 +12,32 @@
     "{\"headers\":{\"Users\":[\"user_id\",\"name\"]},\"rows\":{\"Users\":[[1,\"aLice\"],[2,\"bOB\"]]}}"
   ],
   "content_signature": "-qfnj3w",
-  "fetched_at": "2026-05-21T06:25:28.595Z"
+  "fetched_at": "2026-05-30T07:01:31.186Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef fix_names(users: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

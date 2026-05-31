@@ -28,5 +28,17 @@
     "1000"
   ],
   "content_signature": "ls7wki",
-  "fetched_at": "2026-05-21T07:02:07.436Z"
+  "fetched_at": "2026-05-30T06:50:54.253Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {Function} fn\n * @param {number} t\n * @return {Function}\n */\nvar timeLimit = function(fn, t) {\n    \n    return async function(...args) {\n        \n    }\n};\n\n/**\n * const limited = timeLimit((t) => new Promise(res => setTimeout(res, t)), 100);\n * limited(150).catch(console.log) // \"Time Limit Exceeded\" at t=100ms\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "type Fn = (...params: any[]) => Promise<any>;\n\nfunction timeLimit(fn: Fn, t: number): Fn {\n    \n    return async function(...args) {\n        \n    }\n};\n\n/**\n * const limited = timeLimit((t) => new Promise(res => setTimeout(res, t)), 100);\n * limited(150).catch(console.log) // \"Time Limit Exceeded\" at t=100ms\n */"
+    }
+  ]
 }

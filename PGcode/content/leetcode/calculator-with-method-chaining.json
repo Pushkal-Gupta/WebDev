@@ -15,5 +15,17 @@
     "[20, 0]"
   ],
   "content_signature": "-v6qph3",
-  "fetched_at": "2026-05-21T07:03:56.008Z"
+  "fetched_at": "2026-05-30T06:59:51.440Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "class Calculator {\n    \n    /** \n     * @param {number} value\n     */\n    constructor(value) {\n        \n    }\n    \n    /** \n     * @param {number} value\n     * @return {Calculator}\n     */\n    add(value){\n        \n    }\n    \n    /** \n     * @param {number} value\n     * @return {Calculator}\n     */\n    subtract(value){\n        \n    }\n    \n    /** \n     * @param {number} value\n     * @return {Calculator}\n     */  \n    multiply(value) {\n        \n    }\n    \n    /** \n     * @param {number} value\n     * @return {Calculator}\n     */\n    divide(value) {\n        \n    }\n    \n    /** \n     * @param {number} value\n     * @return {Calculator}\n     */\n    power(value) {\n        \n    }\n    \n    /** \n     * @return {number}\n     */\n    getResult() {\n        \n    }\n}"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "class Calculator {\n    \n    constructor(value: number) {\n        \n    }\n    \n    add(value: number): Calculator {\n        \n    }\n    \n    subtract(value: number): Calculator {\n        \n    }\n    \n    multiply(value: number): Calculator {\n        \n    }\n    \n    divide(value: number): Calculator {\n        \n    }\n    \n    power(value: number): Calculator {\n        \n    }\n    \n    getResult(): number {\n        \n    }\n}"
+    }
+  ]
 }

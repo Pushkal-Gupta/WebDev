@@ -16,5 +16,82 @@
     "1"
   ],
   "content_signature": "-aw8vpz",
-  "fetched_at": "2026-05-21T05:55:52.054Z"
+  "fetched_at": "2026-05-30T06:55:04.247Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "// The API isBadVersion is defined for you.\n// bool isBadVersion(int version);\n\nclass Solution {\npublic:\n    int firstBadVersion(int n) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "/* The isBadVersion API is defined in the parent class VersionControl.\n      boolean isBadVersion(int version); */\n\npublic class Solution extends VersionControl {\n    public int firstBadVersion(int n) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "# The isBadVersion API is already defined for you.\n# def isBadVersion(version: int) -> bool:\n\nclass Solution:\n    def firstBadVersion(self, n: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "# The isBadVersion API is already defined for you.\n# @param version, an integer\n# @return a bool\n# def isBadVersion(version):\n\nclass Solution(object):\n    def firstBadVersion(self, n):\n        \"\"\"\n        :type n: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * Definition for isBadVersion()\n * \n * @param {integer} version number\n * @return {boolean} whether the version is bad\n * isBadVersion = function(version) {\n *     ...\n * };\n */\n\n/**\n * @param {function} isBadVersion()\n * @return {function}\n */\nvar solution = function(isBadVersion) {\n    /**\n     * @param {integer} n Total versions\n     * @return {integer} The first bad version\n     */\n    return function(n) {\n        \n    };\n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "/**\n * The knows API is defined in the parent class Relation.\n * isBadVersion(version: number): boolean {\n *     ...\n * };\n */\n\nvar solution = function(isBadVersion: any) {\n\n    return function(n: number): number {\n        \n    };\n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "/* The isBadVersion API is defined in the parent class VersionControl.\n      bool IsBadVersion(int version); */\n\npublic class Solution : VersionControl {\n    public int FirstBadVersion(int n) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "// The API isBadVersion is defined for you.\n// bool isBadVersion(int version);\n\nint firstBadVersion(int n) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "/** \n * Forward declaration of isBadVersion API.\n * @param   version   your guess about first bad version\n * @return \t \t      true if current version is bad \n *\t\t\t          false if current version is good\n * func isBadVersion(version int) bool;\n */\n\nfunc firstBadVersion(n int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "/* The isBadVersion API is defined in the parent class VersionControl.\n      fun isBadVersion(version: Int) : Boolean {} */\n\nclass Solution: VersionControl() {\n    override fun firstBadVersion(n: Int) : Int {\n        \n\t}\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "/**\n * The knows API is defined in the parent class VersionControl.\n *     func isBadVersion(_ version: Int) -> Bool{}\n */\n\nclass Solution : VersionControl {\n    func firstBadVersion(_ n: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "// The API isBadVersion is defined for you.\n// isBadVersion(version:i32)-> bool;\n// to call it use self.isBadVersion(version)\n\nimpl Solution {\n    pub fn first_bad_version(&self, n: i32) -> i32 {\n\t\t\n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# The is_bad_version API is already defined for you.\n# @param {Integer} version\n# @return {boolean} whether the version is bad\n# def is_bad_version(version):\n\n# @param {Integer} n\n# @return {Integer}\ndef first_bad_version(n)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "/* The isBadVersion API is defined in the parent class VersionControl.\n      public function isBadVersion($version){} */\n\nclass Solution extends VersionControl {\n    /**\n     * @param Integer $n\n     * @return Integer\n     */\n    function firstBadVersion($n) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "/* The isBadVersion API is defined in the parent class VersionControl.\n      def isBadVersion(version: Int): Boolean = {} */\n\nclass Solution extends VersionControl {\n    def firstBadVersion(n: Int): Int = {\n        \n    }\n}"
+    }
+  ]
 }

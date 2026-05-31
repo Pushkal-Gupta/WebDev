@@ -22,5 +22,102 @@
     "[3,7,11]"
   ],
   "content_signature": "nkzh6f",
-  "fetched_at": "2026-05-21T06:21:01.794Z"
+  "fetched_at": "2026-05-30T06:55:11.191Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool canBeEqual(vector<int>& target, vector<int>& arr) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean canBeEqual(int[] target, int[] arr) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def canBeEqual(self, target: List[int], arr: List[int]) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def canBeEqual(self, target, arr):\n        \"\"\"\n        :type target: List[int]\n        :type arr: List[int]\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} target\n * @param {number[]} arr\n * @return {boolean}\n */\nvar canBeEqual = function(target, arr) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function canBeEqual(target: number[], arr: number[]): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool CanBeEqual(int[] target, int[] arr) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool canBeEqual(int* target, int targetSize, int* arr, int arrSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func canBeEqual(target []int, arr []int) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun canBeEqual(target: IntArray, arr: IntArray): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func canBeEqual(_ target: [Int], _ arr: [Int]) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn can_be_equal(target: Vec<i32>, arr: Vec<i32>) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} target\n# @param {Integer[]} arr\n# @return {Boolean}\ndef can_be_equal(target, arr)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $target\n     * @param Integer[] $arr\n     * @return Boolean\n     */\n    function canBeEqual($target, $arr) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool canBeEqual(List<int> target, List<int> arr) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def canBeEqual(target: Array[Int], arr: Array[Int]): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec can_be_equal(target :: [integer], arr :: [integer]) :: boolean\n  def can_be_equal(target, arr) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec can_be_equal(Target :: [integer()], Arr :: [integer()]) -> boolean().\ncan_be_equal(Target, Arr) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (can-be-equal target arr)\n  (-> (listof exact-integer?) (listof exact-integer?) boolean?)\n  )"
+    }
+  ]
 }

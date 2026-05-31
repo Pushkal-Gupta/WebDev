@@ -15,5 +15,17 @@
     "\"Add\""
   ],
   "content_signature": "6zymxi",
-  "fetched_at": "2026-05-21T07:03:15.706Z"
+  "fetched_at": "2026-05-30T07:33:26.569Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @return {void}\n */\nvar ArrayWrapper = function(nums) {\n    \n};\n\n/**\n * @return {number}\n */\nArrayWrapper.prototype.valueOf = function() {\n    \n}\n\n/**\n * @return {string}\n */\nArrayWrapper.prototype.toString = function() {\n    \n}\n\n/**\n * const obj1 = new ArrayWrapper([1,2]);\n * const obj2 = new ArrayWrapper([3,4]);\n * obj1 + obj2; // 10\n * String(obj1); // \"[1,2]\"\n * String(obj2); // \"[3,4]\"\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "class ArrayWrapper {\n    \n    constructor(nums: number[]) {\n        \n    }\n    \n    valueOf(): number {\n        \n    }\n    \n    toString(): string {\n        \n    }\n};\n\n/**\n * const obj1 = new ArrayWrapper([1,2]);\n * const obj2 = new ArrayWrapper([3,4]);\n * obj1 + obj2; // 10\n * String(obj1); // \"[1,2]\"\n * String(obj2); // \"[3,4]\"\n */"
+    }
+  ]
 }

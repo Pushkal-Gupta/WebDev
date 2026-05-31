@@ -23,5 +23,102 @@
     "[1,1,0,2]"
   ],
   "content_signature": "tok0p5",
-  "fetched_at": "2026-05-21T07:41:28.457Z"
+  "fetched_at": "2026-05-30T06:51:50.807Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> longestSpecialPath(vector<vector<int>>& edges, vector<int>& nums) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] longestSpecialPath(int[][] edges, int[] nums) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def longestSpecialPath(self, edges: List[List[int]], nums: List[int]) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def longestSpecialPath(self, edges, nums):\n        \"\"\"\n        :type edges: List[List[int]]\n        :type nums: List[int]\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} edges\n * @param {number[]} nums\n * @return {number[]}\n */\nvar longestSpecialPath = function(edges, nums) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function longestSpecialPath(edges: number[][], nums: number[]): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] LongestSpecialPath(int[][] edges, int[] nums) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* longestSpecialPath(int** edges, int edgesSize, int* edgesColSize, int* nums, int numsSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func longestSpecialPath(edges [][]int, nums []int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun longestSpecialPath(edges: Array<IntArray>, nums: IntArray): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func longestSpecialPath(_ edges: [[Int]], _ nums: [Int]) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn longest_special_path(edges: Vec<Vec<i32>>, nums: Vec<i32>) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} edges\n# @param {Integer[]} nums\n# @return {Integer[]}\ndef longest_special_path(edges, nums)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $edges\n     * @param Integer[] $nums\n     * @return Integer[]\n     */\n    function longestSpecialPath($edges, $nums) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> longestSpecialPath(List<List<int>> edges, List<int> nums) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def longestSpecialPath(edges: Array[Array[Int]], nums: Array[Int]): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec longest_special_path(edges :: [[integer]], nums :: [integer]) :: [integer]\n  def longest_special_path(edges, nums) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec longest_special_path(Edges :: [[integer()]], Nums :: [integer()]) -> [integer()].\nlongest_special_path(Edges, Nums) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (longest-special-path edges nums)\n  (-> (listof (listof exact-integer?)) (listof exact-integer?) (listof exact-integer?))\n  )"
+    }
+  ]
 }

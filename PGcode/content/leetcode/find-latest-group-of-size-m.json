@@ -22,5 +22,102 @@
     "2"
   ],
   "content_signature": "tpz0f2",
-  "fetched_at": "2026-05-21T06:23:13.774Z"
+  "fetched_at": "2026-05-30T05:23:57.712Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int findLatestStep(vector<int>& arr, int m) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int findLatestStep(int[] arr, int m) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def findLatestStep(self, arr: List[int], m: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def findLatestStep(self, arr, m):\n        \"\"\"\n        :type arr: List[int]\n        :type m: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} arr\n * @param {number} m\n * @return {number}\n */\nvar findLatestStep = function(arr, m) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function findLatestStep(arr: number[], m: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int FindLatestStep(int[] arr, int m) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int findLatestStep(int* arr, int arrSize, int m) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func findLatestStep(arr []int, m int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun findLatestStep(arr: IntArray, m: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func findLatestStep(_ arr: [Int], _ m: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn find_latest_step(arr: Vec<i32>, m: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} arr\n# @param {Integer} m\n# @return {Integer}\ndef find_latest_step(arr, m)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $arr\n     * @param Integer $m\n     * @return Integer\n     */\n    function findLatestStep($arr, $m) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int findLatestStep(List<int> arr, int m) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def findLatestStep(arr: Array[Int], m: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec find_latest_step(arr :: [integer], m :: integer) :: integer\n  def find_latest_step(arr, m) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec find_latest_step(Arr :: [integer()], M :: integer()) -> integer().\nfind_latest_step(Arr, M) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (find-latest-step arr m)\n  (-> (listof exact-integer?) exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

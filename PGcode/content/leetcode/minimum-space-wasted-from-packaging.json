@@ -23,5 +23,102 @@
     "[[12],[11,9],[10,5,14]]"
   ],
   "content_signature": "d6o5m7",
-  "fetched_at": "2026-05-21T06:30:29.297Z"
+  "fetched_at": "2026-05-30T05:39:00.203Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int minWastedSpace(vector<int>& packages, vector<vector<int>>& boxes) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int minWastedSpace(int[] packages, int[][] boxes) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minWastedSpace(self, packages: List[int], boxes: List[List[int]]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minWastedSpace(self, packages, boxes):\n        \"\"\"\n        :type packages: List[int]\n        :type boxes: List[List[int]]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} packages\n * @param {number[][]} boxes\n * @return {number}\n */\nvar minWastedSpace = function(packages, boxes) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minWastedSpace(packages: number[], boxes: number[][]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MinWastedSpace(int[] packages, int[][] boxes) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int minWastedSpace(int* packages, int packagesSize, int** boxes, int boxesSize, int* boxesColSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minWastedSpace(packages []int, boxes [][]int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minWastedSpace(packages: IntArray, boxes: Array<IntArray>): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minWastedSpace(_ packages: [Int], _ boxes: [[Int]]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn min_wasted_space(packages: Vec<i32>, boxes: Vec<Vec<i32>>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} packages\n# @param {Integer[][]} boxes\n# @return {Integer}\ndef min_wasted_space(packages, boxes)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $packages\n     * @param Integer[][] $boxes\n     * @return Integer\n     */\n    function minWastedSpace($packages, $boxes) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minWastedSpace(List<int> packages, List<List<int>> boxes) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minWastedSpace(packages: Array[Int], boxes: Array[Array[Int]]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec min_wasted_space(packages :: [integer], boxes :: [[integer]]) :: integer\n  def min_wasted_space(packages, boxes) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec min_wasted_space(Packages :: [integer()], Boxes :: [[integer()]]) -> integer().\nmin_wasted_space(Packages, Boxes) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (min-wasted-space packages boxes)\n  (-> (listof exact-integer?) (listof (listof exact-integer?)) exact-integer?)\n  )"
+    }
+  ]
 }

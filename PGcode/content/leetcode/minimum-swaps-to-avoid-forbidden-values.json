@@ -29,5 +29,102 @@
     "[2,1]"
   ],
   "content_signature": "cqidy6",
-  "fetched_at": "2026-05-21T07:50:03.693Z"
+  "fetched_at": "2026-05-30T07:37:52.541Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int minSwaps(vector<int>& nums, vector<int>& forbidden) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int minSwaps(int[] nums, int[] forbidden) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minSwaps(self, nums: List[int], forbidden: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minSwaps(self, nums, forbidden):\n        \"\"\"\n        :type nums: List[int]\n        :type forbidden: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {number[]} forbidden\n * @return {number}\n */\nvar minSwaps = function(nums, forbidden) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minSwaps(nums: number[], forbidden: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MinSwaps(int[] nums, int[] forbidden) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int minSwaps(int* nums, int numsSize, int* forbidden, int forbiddenSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minSwaps(nums []int, forbidden []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minSwaps(nums: IntArray, forbidden: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minSwaps(_ nums: [Int], _ forbidden: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn min_swaps(nums: Vec<i32>, forbidden: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums\n# @param {Integer[]} forbidden\n# @return {Integer}\ndef min_swaps(nums, forbidden)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums\n     * @param Integer[] $forbidden\n     * @return Integer\n     */\n    function minSwaps($nums, $forbidden) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minSwaps(List<int> nums, List<int> forbidden) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minSwaps(nums: Array[Int], forbidden: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec min_swaps(nums :: [integer], forbidden :: [integer]) :: integer\n  def min_swaps(nums, forbidden) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec min_swaps(Nums :: [integer()], Forbidden :: [integer()]) -> integer().\nmin_swaps(Nums, Forbidden) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (min-swaps nums forbidden)\n  (-> (listof exact-integer?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

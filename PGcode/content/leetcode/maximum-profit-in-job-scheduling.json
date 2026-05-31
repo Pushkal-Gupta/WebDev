@@ -27,5 +27,102 @@
     "[5,6,4]"
   ],
   "content_signature": "drcdnq",
-  "fetched_at": "2026-05-21T06:16:08.905Z"
+  "fetched_at": "2026-05-30T07:19:09.335Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int jobScheduling(vector<int>& startTime, vector<int>& endTime, vector<int>& profit) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int jobScheduling(int[] startTime, int[] endTime, int[] profit) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def jobScheduling(self, startTime: List[int], endTime: List[int], profit: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def jobScheduling(self, startTime, endTime, profit):\n        \"\"\"\n        :type startTime: List[int]\n        :type endTime: List[int]\n        :type profit: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} startTime\n * @param {number[]} endTime\n * @param {number[]} profit\n * @return {number}\n */\nvar jobScheduling = function(startTime, endTime, profit) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function jobScheduling(startTime: number[], endTime: number[], profit: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int JobScheduling(int[] startTime, int[] endTime, int[] profit) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int jobScheduling(int* startTime, int startTimeSize, int* endTime, int endTimeSize, int* profit, int profitSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func jobScheduling(startTime []int, endTime []int, profit []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun jobScheduling(startTime: IntArray, endTime: IntArray, profit: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func jobScheduling(_ startTime: [Int], _ endTime: [Int], _ profit: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn job_scheduling(start_time: Vec<i32>, end_time: Vec<i32>, profit: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} start_time\n# @param {Integer[]} end_time\n# @param {Integer[]} profit\n# @return {Integer}\ndef job_scheduling(start_time, end_time, profit)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $startTime\n     * @param Integer[] $endTime\n     * @param Integer[] $profit\n     * @return Integer\n     */\n    function jobScheduling($startTime, $endTime, $profit) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int jobScheduling(List<int> startTime, List<int> endTime, List<int> profit) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def jobScheduling(startTime: Array[Int], endTime: Array[Int], profit: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec job_scheduling(start_time :: [integer], end_time :: [integer], profit :: [integer]) :: integer\n  def job_scheduling(start_time, end_time, profit) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec job_scheduling(StartTime :: [integer()], EndTime :: [integer()], Profit :: [integer()]) -> integer().\njob_scheduling(StartTime, EndTime, Profit) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (job-scheduling startTime endTime profit)\n  (-> (listof exact-integer?) (listof exact-integer?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

@@ -21,5 +21,102 @@
     "15"
   ],
   "content_signature": "51ix1n",
-  "fetched_at": "2026-05-21T07:43:35.903Z"
+  "fetched_at": "2026-05-30T07:03:40.312Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool checkEqualPartitions(vector<int>& nums, long long target) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean checkEqualPartitions(int[] nums, long target) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def checkEqualPartitions(self, nums: List[int], target: int) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def checkEqualPartitions(self, nums, target):\n        \"\"\"\n        :type nums: List[int]\n        :type target: int\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {number} target\n * @return {boolean}\n */\nvar checkEqualPartitions = function(nums, target) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function checkEqualPartitions(nums: number[], target: number): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool CheckEqualPartitions(int[] nums, long target) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool checkEqualPartitions(int* nums, int numsSize, long long target) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func checkEqualPartitions(nums []int, target int64) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun checkEqualPartitions(nums: IntArray, target: Long): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func checkEqualPartitions(_ nums: [Int], _ target: Int) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn check_equal_partitions(nums: Vec<i32>, target: i64) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums\n# @param {Integer} target\n# @return {Boolean}\ndef check_equal_partitions(nums, target)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums\n     * @param Integer $target\n     * @return Boolean\n     */\n    function checkEqualPartitions($nums, $target) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool checkEqualPartitions(List<int> nums, int target) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def checkEqualPartitions(nums: Array[Int], target: Long): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec check_equal_partitions(nums :: [integer], target :: integer) :: boolean\n  def check_equal_partitions(nums, target) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec check_equal_partitions(Nums :: [integer()], Target :: integer()) -> boolean().\ncheck_equal_partitions(Nums, Target) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (check-equal-partitions nums target)\n  (-> (listof exact-integer?) exact-integer? boolean?)\n  )"
+    }
+  ]
 }

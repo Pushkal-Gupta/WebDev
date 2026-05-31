@@ -25,5 +25,102 @@
     "[[1,2],[0,1],[2,0]]"
   ],
   "content_signature": "-zhntk7",
-  "fetched_at": "2026-05-21T07:15:53.255Z"
+  "fetched_at": "2026-05-30T07:36:30.000Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> remainingMethods(int n, int k, vector<vector<int>>& invocations) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public List<Integer> remainingMethods(int n, int k, int[][] invocations) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def remainingMethods(self, n: int, k: int, invocations: List[List[int]]) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def remainingMethods(self, n, k, invocations):\n        \"\"\"\n        :type n: int\n        :type k: int\n        :type invocations: List[List[int]]\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number} k\n * @param {number[][]} invocations\n * @return {number[]}\n */\nvar remainingMethods = function(n, k, invocations) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function remainingMethods(n: number, k: number, invocations: number[][]): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public IList<int> RemainingMethods(int n, int k, int[][] invocations) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* remainingMethods(int n, int k, int** invocations, int invocationsSize, int* invocationsColSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func remainingMethods(n int, k int, invocations [][]int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun remainingMethods(n: Int, k: Int, invocations: Array<IntArray>): List<Int> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func remainingMethods(_ n: Int, _ k: Int, _ invocations: [[Int]]) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn remaining_methods(n: i32, k: i32, invocations: Vec<Vec<i32>>) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer} k\n# @param {Integer[][]} invocations\n# @return {Integer[]}\ndef remaining_methods(n, k, invocations)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer $k\n     * @param Integer[][] $invocations\n     * @return Integer[]\n     */\n    function remainingMethods($n, $k, $invocations) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> remainingMethods(int n, int k, List<List<int>> invocations) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def remainingMethods(n: Int, k: Int, invocations: Array[Array[Int]]): List[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec remaining_methods(n :: integer, k :: integer, invocations :: [[integer]]) :: [integer]\n  def remaining_methods(n, k, invocations) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec remaining_methods(N :: integer(), K :: integer(), Invocations :: [[integer()]]) -> [integer()].\nremaining_methods(N, K, Invocations) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (remaining-methods n k invocations)\n  (-> exact-integer? exact-integer? (listof (listof exact-integer?)) (listof exact-integer?))\n  )"
+    }
+  ]
 }

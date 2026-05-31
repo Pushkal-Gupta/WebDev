@@ -25,5 +25,102 @@
     "[-7280,2350]"
   ],
   "content_signature": "-bitaju",
-  "fetched_at": "2026-05-21T06:50:19.854Z"
+  "fetched_at": "2026-05-30T05:45:07.326Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int mostProfitablePath(vector<vector<int>>& edges, int bob, vector<int>& amount) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int mostProfitablePath(int[][] edges, int bob, int[] amount) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def mostProfitablePath(self, edges: List[List[int]], bob: int, amount: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def mostProfitablePath(self, edges, bob, amount):\n        \"\"\"\n        :type edges: List[List[int]]\n        :type bob: int\n        :type amount: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} edges\n * @param {number} bob\n * @param {number[]} amount\n * @return {number}\n */\nvar mostProfitablePath = function(edges, bob, amount) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function mostProfitablePath(edges: number[][], bob: number, amount: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MostProfitablePath(int[][] edges, int bob, int[] amount) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int mostProfitablePath(int** edges, int edgesSize, int* edgesColSize, int bob, int* amount, int amountSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func mostProfitablePath(edges [][]int, bob int, amount []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun mostProfitablePath(edges: Array<IntArray>, bob: Int, amount: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func mostProfitablePath(_ edges: [[Int]], _ bob: Int, _ amount: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn most_profitable_path(edges: Vec<Vec<i32>>, bob: i32, amount: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} edges\n# @param {Integer} bob\n# @param {Integer[]} amount\n# @return {Integer}\ndef most_profitable_path(edges, bob, amount)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $edges\n     * @param Integer $bob\n     * @param Integer[] $amount\n     * @return Integer\n     */\n    function mostProfitablePath($edges, $bob, $amount) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int mostProfitablePath(List<List<int>> edges, int bob, List<int> amount) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def mostProfitablePath(edges: Array[Array[Int]], bob: Int, amount: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec most_profitable_path(edges :: [[integer]], bob :: integer, amount :: [integer]) :: integer\n  def most_profitable_path(edges, bob, amount) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec most_profitable_path(Edges :: [[integer()]], Bob :: integer(), Amount :: [integer()]) -> integer().\nmost_profitable_path(Edges, Bob, Amount) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (most-profitable-path edges bob amount)\n  (-> (listof (listof exact-integer?)) exact-integer? (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

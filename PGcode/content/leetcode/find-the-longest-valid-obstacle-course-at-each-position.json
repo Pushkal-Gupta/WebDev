@@ -19,5 +19,102 @@
     "[3,1,5,6,4,2]"
   ],
   "content_signature": "-5pqpsh",
-  "fetched_at": "2026-05-21T06:32:08.923Z"
+  "fetched_at": "2026-05-30T05:33:03.098Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> longestObstacleCourseAtEachPosition(vector<int>& obstacles) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] longestObstacleCourseAtEachPosition(int[] obstacles) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def longestObstacleCourseAtEachPosition(self, obstacles: List[int]) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def longestObstacleCourseAtEachPosition(self, obstacles):\n        \"\"\"\n        :type obstacles: List[int]\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} obstacles\n * @return {number[]}\n */\nvar longestObstacleCourseAtEachPosition = function(obstacles) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function longestObstacleCourseAtEachPosition(obstacles: number[]): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] LongestObstacleCourseAtEachPosition(int[] obstacles) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* longestObstacleCourseAtEachPosition(int* obstacles, int obstaclesSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func longestObstacleCourseAtEachPosition(obstacles []int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun longestObstacleCourseAtEachPosition(obstacles: IntArray): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func longestObstacleCourseAtEachPosition(_ obstacles: [Int]) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn longest_obstacle_course_at_each_position(obstacles: Vec<i32>) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} obstacles\n# @return {Integer[]}\ndef longest_obstacle_course_at_each_position(obstacles)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $obstacles\n     * @return Integer[]\n     */\n    function longestObstacleCourseAtEachPosition($obstacles) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> longestObstacleCourseAtEachPosition(List<int> obstacles) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def longestObstacleCourseAtEachPosition(obstacles: Array[Int]): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec longest_obstacle_course_at_each_position(obstacles :: [integer]) :: [integer]\n  def longest_obstacle_course_at_each_position(obstacles) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec longest_obstacle_course_at_each_position(Obstacles :: [integer()]) -> [integer()].\nlongest_obstacle_course_at_each_position(Obstacles) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (longest-obstacle-course-at-each-position obstacles)\n  (-> (listof exact-integer?) (listof exact-integer?))\n  )"
+    }
+  ]
 }

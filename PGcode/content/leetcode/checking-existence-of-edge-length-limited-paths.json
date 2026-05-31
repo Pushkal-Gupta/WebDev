@@ -23,5 +23,102 @@
     "[[0,4,14],[1,4,13]]"
   ],
   "content_signature": "-34pqhs",
-  "fetched_at": "2026-05-21T06:26:11.146Z"
+  "fetched_at": "2026-05-30T07:08:06.139Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<bool> distanceLimitedPathsExist(int n, vector<vector<int>>& edgeList, vector<vector<int>>& queries) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean[] distanceLimitedPathsExist(int n, int[][] edgeList, int[][] queries) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def distanceLimitedPathsExist(self, n: int, edgeList: List[List[int]], queries: List[List[int]]) -> List[bool]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def distanceLimitedPathsExist(self, n, edgeList, queries):\n        \"\"\"\n        :type n: int\n        :type edgeList: List[List[int]]\n        :type queries: List[List[int]]\n        :rtype: List[bool]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number[][]} edgeList\n * @param {number[][]} queries\n * @return {boolean[]}\n */\nvar distanceLimitedPathsExist = function(n, edgeList, queries) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function distanceLimitedPathsExist(n: number, edgeList: number[][], queries: number[][]): boolean[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool[] DistanceLimitedPathsExist(int n, int[][] edgeList, int[][] queries) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nbool* distanceLimitedPathsExist(int n, int** edgeList, int edgeListSize, int* edgeListColSize, int** queries, int queriesSize, int* queriesColSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func distanceLimitedPathsExist(n int, edgeList [][]int, queries [][]int) []bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun distanceLimitedPathsExist(n: Int, edgeList: Array<IntArray>, queries: Array<IntArray>): BooleanArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func distanceLimitedPathsExist(_ n: Int, _ edgeList: [[Int]], _ queries: [[Int]]) -> [Bool] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn distance_limited_paths_exist(n: i32, edge_list: Vec<Vec<i32>>, queries: Vec<Vec<i32>>) -> Vec<bool> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer[][]} edge_list\n# @param {Integer[][]} queries\n# @return {Boolean[]}\ndef distance_limited_paths_exist(n, edge_list, queries)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer[][] $edgeList\n     * @param Integer[][] $queries\n     * @return Boolean[]\n     */\n    function distanceLimitedPathsExist($n, $edgeList, $queries) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<bool> distanceLimitedPathsExist(int n, List<List<int>> edgeList, List<List<int>> queries) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def distanceLimitedPathsExist(n: Int, edgeList: Array[Array[Int]], queries: Array[Array[Int]]): Array[Boolean] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec distance_limited_paths_exist(n :: integer, edge_list :: [[integer]], queries :: [[integer]]) :: [boolean]\n  def distance_limited_paths_exist(n, edge_list, queries) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec distance_limited_paths_exist(N :: integer(), EdgeList :: [[integer()]], Queries :: [[integer()]]) -> [boolean()].\ndistance_limited_paths_exist(N, EdgeList, Queries) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (distance-limited-paths-exist n edgeList queries)\n  (-> exact-integer? (listof (listof exact-integer?)) (listof (listof exact-integer?)) (listof boolean?))\n  )"
+    }
+  ]
 }

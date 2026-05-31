@@ -22,5 +22,102 @@
     "[3,2,5,5,2,3]"
   ],
   "content_signature": "9slx7j",
-  "fetched_at": "2026-05-21T07:06:31.862Z"
+  "fetched_at": "2026-05-30T06:49:21.030Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    long long maximumSumOfHeights(vector<int>& maxHeights) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public long maximumSumOfHeights(List<Integer> maxHeights) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def maximumSumOfHeights(self, maxHeights: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def maximumSumOfHeights(self, maxHeights):\n        \"\"\"\n        :type maxHeights: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} maxHeights\n * @return {number}\n */\nvar maximumSumOfHeights = function(maxHeights) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function maximumSumOfHeights(maxHeights: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public long MaximumSumOfHeights(IList<int> maxHeights) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "long long maximumSumOfHeights(int* maxHeights, int maxHeightsSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func maximumSumOfHeights(maxHeights []int) int64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun maximumSumOfHeights(maxHeights: List<Int>): Long {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func maximumSumOfHeights(_ maxHeights: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn maximum_sum_of_heights(max_heights: Vec<i32>) -> i64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} max_heights\n# @return {Integer}\ndef maximum_sum_of_heights(max_heights)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $maxHeights\n     * @return Integer\n     */\n    function maximumSumOfHeights($maxHeights) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int maximumSumOfHeights(List<int> maxHeights) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def maximumSumOfHeights(maxHeights: List[Int]): Long = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec maximum_sum_of_heights(max_heights :: [integer]) :: integer\n  def maximum_sum_of_heights(max_heights) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec maximum_sum_of_heights(MaxHeights :: [integer()]) -> integer().\nmaximum_sum_of_heights(MaxHeights) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (maximum-sum-of-heights maxHeights)\n  (-> (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

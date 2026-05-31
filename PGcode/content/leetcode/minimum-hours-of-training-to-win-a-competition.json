@@ -23,5 +23,102 @@
     "[3]"
   ],
   "content_signature": "-8ba9yc",
-  "fetched_at": "2026-05-21T06:41:11.587Z"
+  "fetched_at": "2026-05-30T07:25:09.002Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int minNumberOfHours(int initialEnergy, int initialExperience, vector<int>& energy, vector<int>& experience) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int minNumberOfHours(int initialEnergy, int initialExperience, int[] energy, int[] experience) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minNumberOfHours(self, initialEnergy: int, initialExperience: int, energy: List[int], experience: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minNumberOfHours(self, initialEnergy, initialExperience, energy, experience):\n        \"\"\"\n        :type initialEnergy: int\n        :type initialExperience: int\n        :type energy: List[int]\n        :type experience: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} initialEnergy\n * @param {number} initialExperience\n * @param {number[]} energy\n * @param {number[]} experience\n * @return {number}\n */\nvar minNumberOfHours = function(initialEnergy, initialExperience, energy, experience) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minNumberOfHours(initialEnergy: number, initialExperience: number, energy: number[], experience: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MinNumberOfHours(int initialEnergy, int initialExperience, int[] energy, int[] experience) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int minNumberOfHours(int initialEnergy, int initialExperience, int* energy, int energySize, int* experience, int experienceSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minNumberOfHours(initialEnergy int, initialExperience int, energy []int, experience []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minNumberOfHours(initialEnergy: Int, initialExperience: Int, energy: IntArray, experience: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minNumberOfHours(_ initialEnergy: Int, _ initialExperience: Int, _ energy: [Int], _ experience: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn min_number_of_hours(initial_energy: i32, initial_experience: i32, energy: Vec<i32>, experience: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} initial_energy\n# @param {Integer} initial_experience\n# @param {Integer[]} energy\n# @param {Integer[]} experience\n# @return {Integer}\ndef min_number_of_hours(initial_energy, initial_experience, energy, experience)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $initialEnergy\n     * @param Integer $initialExperience\n     * @param Integer[] $energy\n     * @param Integer[] $experience\n     * @return Integer\n     */\n    function minNumberOfHours($initialEnergy, $initialExperience, $energy, $experience) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minNumberOfHours(int initialEnergy, int initialExperience, List<int> energy, List<int> experience) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minNumberOfHours(initialEnergy: Int, initialExperience: Int, energy: Array[Int], experience: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec min_number_of_hours(initial_energy :: integer, initial_experience :: integer, energy :: [integer], experience :: [integer]) :: integer\n  def min_number_of_hours(initial_energy, initial_experience, energy, experience) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec min_number_of_hours(InitialEnergy :: integer(), InitialExperience :: integer(), Energy :: [integer()], Experience :: [integer()]) -> integer().\nmin_number_of_hours(InitialEnergy, InitialExperience, Energy, Experience) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (min-number-of-hours initialEnergy initialExperience energy experience)\n  (-> exact-integer? exact-integer? (listof exact-integer?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

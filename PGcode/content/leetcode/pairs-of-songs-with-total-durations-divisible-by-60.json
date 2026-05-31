@@ -18,5 +18,102 @@
     "[60,60,60]"
   ],
   "content_signature": "9di7tb",
-  "fetched_at": "2026-05-21T06:12:05.132Z"
+  "fetched_at": "2026-05-30T05:51:44.683Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int numPairsDivisibleBy60(vector<int>& time) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int numPairsDivisibleBy60(int[] time) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def numPairsDivisibleBy60(self, time: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def numPairsDivisibleBy60(self, time):\n        \"\"\"\n        :type time: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} time\n * @return {number}\n */\nvar numPairsDivisibleBy60 = function(time) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function numPairsDivisibleBy60(time: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int NumPairsDivisibleBy60(int[] time) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int numPairsDivisibleBy60(int* time, int timeSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func numPairsDivisibleBy60(time []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun numPairsDivisibleBy60(time: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func numPairsDivisibleBy60(_ time: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn num_pairs_divisible_by60(time: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} time\n# @return {Integer}\ndef num_pairs_divisible_by60(time)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $time\n     * @return Integer\n     */\n    function numPairsDivisibleBy60($time) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int numPairsDivisibleBy60(List<int> time) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def numPairsDivisibleBy60(time: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec num_pairs_divisible_by60(time :: [integer]) :: integer\n  def num_pairs_divisible_by60(time) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec num_pairs_divisible_by60(Time :: [integer()]) -> integer().\nnum_pairs_divisible_by60(Time) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (num-pairs-divisible-by60 time)\n  (-> (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

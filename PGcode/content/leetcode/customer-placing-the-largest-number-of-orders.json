@@ -14,5 +14,32 @@
     "{\"headers\":{\"orders\":[\"order_number\",\"customer_number\"]},\"rows\":{\"orders\":[[1,1],[2,2],[3,3],[4,3]]}}"
   ],
   "content_signature": "-z9ir7o",
-  "fetched_at": "2026-05-21T06:01:56.268Z"
+  "fetched_at": "2026-05-30T06:58:59.683Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef largest_orders(orders: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

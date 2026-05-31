@@ -24,5 +24,102 @@
     "4"
   ],
   "content_signature": "5uz6kw",
-  "fetched_at": "2026-05-21T07:17:07.563Z"
+  "fetched_at": "2026-05-30T05:34:14.926Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int minimumSumSubarray(vector<int>& nums, int l, int r) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int minimumSumSubarray(List<Integer> nums, int l, int r) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minimumSumSubarray(self, nums: List[int], l: int, r: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minimumSumSubarray(self, nums, l, r):\n        \"\"\"\n        :type nums: List[int]\n        :type l: int\n        :type r: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {number} l\n * @param {number} r\n * @return {number}\n */\nvar minimumSumSubarray = function(nums, l, r) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minimumSumSubarray(nums: number[], l: number, r: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MinimumSumSubarray(IList<int> nums, int l, int r) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int minimumSumSubarray(int* nums, int numsSize, int l, int r) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minimumSumSubarray(nums []int, l int, r int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minimumSumSubarray(nums: List<Int>, l: Int, r: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minimumSumSubarray(_ nums: [Int], _ l: Int, _ r: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn minimum_sum_subarray(nums: Vec<i32>, l: i32, r: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums\n# @param {Integer} l\n# @param {Integer} r\n# @return {Integer}\ndef minimum_sum_subarray(nums, l, r)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums\n     * @param Integer $l\n     * @param Integer $r\n     * @return Integer\n     */\n    function minimumSumSubarray($nums, $l, $r) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minimumSumSubarray(List<int> nums, int l, int r) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minimumSumSubarray(nums: List[Int], l: Int, r: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec minimum_sum_subarray(nums :: [integer], l :: integer, r :: integer) :: integer\n  def minimum_sum_subarray(nums, l, r) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec minimum_sum_subarray(Nums :: [integer()], L :: integer(), R :: integer()) -> integer().\nminimum_sum_subarray(Nums, L, R) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (minimum-sum-subarray nums l r)\n  (-> (listof exact-integer?) exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

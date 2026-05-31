@@ -25,5 +25,102 @@
     "[1,1]"
   ],
   "content_signature": "1q7x29",
-  "fetched_at": "2026-05-21T07:11:38.038Z"
+  "fetched_at": "2026-05-30T05:41:35.806Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> minimumTime(int n, vector<vector<int>>& edges, vector<int>& disappear) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] minimumTime(int n, int[][] edges, int[] disappear) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minimumTime(self, n: int, edges: List[List[int]], disappear: List[int]) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minimumTime(self, n, edges, disappear):\n        \"\"\"\n        :type n: int\n        :type edges: List[List[int]]\n        :type disappear: List[int]\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number[][]} edges\n * @param {number[]} disappear\n * @return {number[]}\n */\nvar minimumTime = function(n, edges, disappear) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minimumTime(n: number, edges: number[][], disappear: number[]): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] MinimumTime(int n, int[][] edges, int[] disappear) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* minimumTime(int n, int** edges, int edgesSize, int* edgesColSize, int* disappear, int disappearSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minimumTime(n int, edges [][]int, disappear []int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minimumTime(n: Int, edges: Array<IntArray>, disappear: IntArray): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minimumTime(_ n: Int, _ edges: [[Int]], _ disappear: [Int]) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn minimum_time(n: i32, edges: Vec<Vec<i32>>, disappear: Vec<i32>) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer[][]} edges\n# @param {Integer[]} disappear\n# @return {Integer[]}\ndef minimum_time(n, edges, disappear)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer[][] $edges\n     * @param Integer[] $disappear\n     * @return Integer[]\n     */\n    function minimumTime($n, $edges, $disappear) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> minimumTime(int n, List<List<int>> edges, List<int> disappear) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minimumTime(n: Int, edges: Array[Array[Int]], disappear: Array[Int]): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec minimum_time(n :: integer, edges :: [[integer]], disappear :: [integer]) :: [integer]\n  def minimum_time(n, edges, disappear) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec minimum_time(N :: integer(), Edges :: [[integer()]], Disappear :: [integer()]) -> [integer()].\nminimum_time(N, Edges, Disappear) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (minimum-time n edges disappear)\n  (-> exact-integer? (listof (listof exact-integer?)) (listof exact-integer?) (listof exact-integer?))\n  )"
+    }
+  ]
 }

@@ -15,5 +15,102 @@
     "[[1,0],[0,0],[0,1]]"
   ],
   "content_signature": "-oafrn2",
-  "fetched_at": "2026-05-21T06:06:46.883Z"
+  "fetched_at": "2026-05-30T06:09:28.199Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    double largestTriangleArea(vector<vector<int>>& points) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public double largestTriangleArea(int[][] points) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def largestTriangleArea(self, points: List[List[int]]) -> float:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def largestTriangleArea(self, points):\n        \"\"\"\n        :type points: List[List[int]]\n        :rtype: float\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} points\n * @return {number}\n */\nvar largestTriangleArea = function(points) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function largestTriangleArea(points: number[][]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public double LargestTriangleArea(int[][] points) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "double largestTriangleArea(int** points, int pointsSize, int* pointsColSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func largestTriangleArea(points [][]int) float64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun largestTriangleArea(points: Array<IntArray>): Double {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func largestTriangleArea(_ points: [[Int]]) -> Double {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn largest_triangle_area(points: Vec<Vec<i32>>) -> f64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} points\n# @return {Float}\ndef largest_triangle_area(points)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $points\n     * @return Float\n     */\n    function largestTriangleArea($points) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  double largestTriangleArea(List<List<int>> points) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def largestTriangleArea(points: Array[Array[Int]]): Double = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec largest_triangle_area(points :: [[integer]]) :: float\n  def largest_triangle_area(points) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec largest_triangle_area(Points :: [[integer()]]) -> float().\nlargest_triangle_area(Points) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (largest-triangle-area points)\n  (-> (listof (listof exact-integer?)) flonum?)\n  )"
+    }
+  ]
 }

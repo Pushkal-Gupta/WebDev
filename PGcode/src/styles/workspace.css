@@ -617,6 +617,23 @@
 .ws-submit-progress-text { font-family: var(--sans); font-size: 0.78rem; color: var(--text-dim); margin-bottom: 0.3rem; }
 .ws-submit-progress-track { height: 6px; background: var(--hover-box); border-radius: 3px; overflow: hidden; }
 .ws-submit-progress-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.2s ease; }
+.ws-submit-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.85rem;
+}
+.ws-spinner {
+  animation: ws-spin 0.9s linear infinite;
+  color: var(--accent);
+}
+@keyframes ws-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
 
 /* Legacy fallback */
 .ws-result-output { font-family: var(--mono); font-size: 0.8rem; color: var(--easy); line-height: 1.6; white-space: pre-wrap; margin: 0; }

@@ -27,5 +27,102 @@
     "1"
   ],
   "content_signature": "g8ybqr",
-  "fetched_at": "2026-05-21T07:50:21.948Z"
+  "fetched_at": "2026-05-30T07:28:53.015Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int numberOfRoutes(vector<string>& grid, int d) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int numberOfRoutes(String[] grid, int d) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def numberOfRoutes(self, grid: List[str], d: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def numberOfRoutes(self, grid, d):\n        \"\"\"\n        :type grid: List[str]\n        :type d: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string[]} grid\n * @param {number} d\n * @return {number}\n */\nvar numberOfRoutes = function(grid, d) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function numberOfRoutes(grid: string[], d: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int NumberOfRoutes(string[] grid, int d) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int numberOfRoutes(char** grid, int gridSize, int d) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func numberOfRoutes(grid []string, d int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun numberOfRoutes(grid: Array<String>, d: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func numberOfRoutes(_ grid: [String], _ d: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn number_of_routes(grid: Vec<String>, d: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String[]} grid\n# @param {Integer} d\n# @return {Integer}\ndef number_of_routes(grid, d)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[] $grid\n     * @param Integer $d\n     * @return Integer\n     */\n    function numberOfRoutes($grid, $d) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int numberOfRoutes(List<String> grid, int d) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def numberOfRoutes(grid: Array[String], d: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec number_of_routes(grid :: [String.t], d :: integer) :: integer\n  def number_of_routes(grid, d) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec number_of_routes(Grid :: [unicode:unicode_binary()], D :: integer()) -> integer().\nnumber_of_routes(Grid, D) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (number-of-routes grid d)\n  (-> (listof string?) exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

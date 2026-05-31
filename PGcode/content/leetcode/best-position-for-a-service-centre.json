@@ -19,5 +19,102 @@
     "[[1,1],[3,3]]"
   ],
   "content_signature": "-655mn7",
-  "fetched_at": "2026-05-21T06:22:12.726Z"
+  "fetched_at": "2026-05-30T06:43:00.371Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    double getMinDistSum(vector<vector<int>>& positions) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public double getMinDistSum(int[][] positions) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def getMinDistSum(self, positions: List[List[int]]) -> float:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def getMinDistSum(self, positions):\n        \"\"\"\n        :type positions: List[List[int]]\n        :rtype: float\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} positions\n * @return {number}\n */\nvar getMinDistSum = function(positions) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function getMinDistSum(positions: number[][]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public double GetMinDistSum(int[][] positions) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "double getMinDistSum(int** positions, int positionsSize, int* positionsColSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func getMinDistSum(positions [][]int) float64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun getMinDistSum(positions: Array<IntArray>): Double {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func getMinDistSum(_ positions: [[Int]]) -> Double {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn get_min_dist_sum(positions: Vec<Vec<i32>>) -> f64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} positions\n# @return {Float}\ndef get_min_dist_sum(positions)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $positions\n     * @return Float\n     */\n    function getMinDistSum($positions) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  double getMinDistSum(List<List<int>> positions) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def getMinDistSum(positions: Array[Array[Int]]): Double = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec get_min_dist_sum(positions :: [[integer]]) :: float\n  def get_min_dist_sum(positions) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec get_min_dist_sum(Positions :: [[integer()]]) -> float().\nget_min_dist_sum(Positions) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (get-min-dist-sum positions)\n  (-> (listof (listof exact-integer?)) flonum?)\n  )"
+    }
+  ]
 }

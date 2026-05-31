@@ -24,5 +24,102 @@
     "11"
   ],
   "content_signature": "w595kj",
-  "fetched_at": "2026-05-21T06:58:04.744Z"
+  "fetched_at": "2026-05-30T07:31:59.202Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    long long countFairPairs(vector<int>& nums, int lower, int upper) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public long countFairPairs(int[] nums, int lower, int upper) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def countFairPairs(self, nums: List[int], lower: int, upper: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def countFairPairs(self, nums, lower, upper):\n        \"\"\"\n        :type nums: List[int]\n        :type lower: int\n        :type upper: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {number} lower\n * @param {number} upper\n * @return {number}\n */\nvar countFairPairs = function(nums, lower, upper) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function countFairPairs(nums: number[], lower: number, upper: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public long CountFairPairs(int[] nums, int lower, int upper) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "long long countFairPairs(int* nums, int numsSize, int lower, int upper) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func countFairPairs(nums []int, lower int, upper int) int64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun countFairPairs(nums: IntArray, lower: Int, upper: Int): Long {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func countFairPairs(_ nums: [Int], _ lower: Int, _ upper: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn count_fair_pairs(nums: Vec<i32>, lower: i32, upper: i32) -> i64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums\n# @param {Integer} lower\n# @param {Integer} upper\n# @return {Integer}\ndef count_fair_pairs(nums, lower, upper)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums\n     * @param Integer $lower\n     * @param Integer $upper\n     * @return Integer\n     */\n    function countFairPairs($nums, $lower, $upper) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int countFairPairs(List<int> nums, int lower, int upper) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def countFairPairs(nums: Array[Int], lower: Int, upper: Int): Long = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec count_fair_pairs(nums :: [integer], lower :: integer, upper :: integer) :: integer\n  def count_fair_pairs(nums, lower, upper) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec count_fair_pairs(Nums :: [integer()], Lower :: integer(), Upper :: integer()) -> integer().\ncount_fair_pairs(Nums, Lower, Upper) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (count-fair-pairs nums lower upper)\n  (-> (listof exact-integer?) exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

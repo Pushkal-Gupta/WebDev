@@ -17,5 +17,102 @@
     "[\"YellOw\"]"
   ],
   "content_signature": "c4w373",
-  "fetched_at": "2026-05-21T06:10:53.494Z"
+  "fetched_at": "2026-05-30T06:36:27.975Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<string> spellchecker(vector<string>& wordlist, vector<string>& queries) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public String[] spellchecker(String[] wordlist, String[] queries) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def spellchecker(self, wordlist: List[str], queries: List[str]) -> List[str]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def spellchecker(self, wordlist, queries):\n        \"\"\"\n        :type wordlist: List[str]\n        :type queries: List[str]\n        :rtype: List[str]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string[]} wordlist\n * @param {string[]} queries\n * @return {string[]}\n */\nvar spellchecker = function(wordlist, queries) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function spellchecker(wordlist: string[], queries: string[]): string[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public string[] Spellchecker(string[] wordlist, string[] queries) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nchar** spellchecker(char** wordlist, int wordlistSize, char** queries, int queriesSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func spellchecker(wordlist []string, queries []string) []string {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun spellchecker(wordlist: Array<String>, queries: Array<String>): Array<String> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func spellchecker(_ wordlist: [String], _ queries: [String]) -> [String] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn spellchecker(wordlist: Vec<String>, queries: Vec<String>) -> Vec<String> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String[]} wordlist\n# @param {String[]} queries\n# @return {String[]}\ndef spellchecker(wordlist, queries)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[] $wordlist\n     * @param String[] $queries\n     * @return String[]\n     */\n    function spellchecker($wordlist, $queries) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<String> spellchecker(List<String> wordlist, List<String> queries) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def spellchecker(wordlist: Array[String], queries: Array[String]): Array[String] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec spellchecker(wordlist :: [String.t], queries :: [String.t]) :: [String.t]\n  def spellchecker(wordlist, queries) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec spellchecker(Wordlist :: [unicode:unicode_binary()], Queries :: [unicode:unicode_binary()]) -> [unicode:unicode_binary()].\nspellchecker(Wordlist, Queries) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (spellchecker wordlist queries)\n  (-> (listof string?) (listof string?) (listof string?))\n  )"
+    }
+  ]
 }

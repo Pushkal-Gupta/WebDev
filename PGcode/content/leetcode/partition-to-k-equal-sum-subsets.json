@@ -22,5 +22,102 @@
     "3"
   ],
   "content_signature": "-y1noja",
-  "fetched_at": "2026-05-21T06:04:15.356Z"
+  "fetched_at": "2026-05-30T06:42:43.357Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool canPartitionKSubsets(vector<int>& nums, int k) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean canPartitionKSubsets(int[] nums, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def canPartitionKSubsets(self, nums: List[int], k: int) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def canPartitionKSubsets(self, nums, k):\n        \"\"\"\n        :type nums: List[int]\n        :type k: int\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {number} k\n * @return {boolean}\n */\nvar canPartitionKSubsets = function(nums, k) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function canPartitionKSubsets(nums: number[], k: number): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool CanPartitionKSubsets(int[] nums, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool canPartitionKSubsets(int* nums, int numsSize, int k) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func canPartitionKSubsets(nums []int, k int) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun canPartitionKSubsets(nums: IntArray, k: Int): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func canPartitionKSubsets(_ nums: [Int], _ k: Int) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn can_partition_k_subsets(nums: Vec<i32>, k: i32) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums\n# @param {Integer} k\n# @return {Boolean}\ndef can_partition_k_subsets(nums, k)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums\n     * @param Integer $k\n     * @return Boolean\n     */\n    function canPartitionKSubsets($nums, $k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool canPartitionKSubsets(List<int> nums, int k) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def canPartitionKSubsets(nums: Array[Int], k: Int): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec can_partition_k_subsets(nums :: [integer], k :: integer) :: boolean\n  def can_partition_k_subsets(nums, k) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec can_partition_k_subsets(Nums :: [integer()], K :: integer()) -> boolean().\ncan_partition_k_subsets(Nums, K) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (can-partition-k-subsets nums k)\n  (-> (listof exact-integer?) exact-integer? boolean?)\n  )"
+    }
+  ]
 }

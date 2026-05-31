@@ -23,5 +23,102 @@
     "2"
   ],
   "content_signature": "ltybab",
-  "fetched_at": "2026-05-21T07:54:56.789Z"
+  "fetched_at": "2026-05-30T07:22:52.765Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int countKthRoots(int l, int r, int k) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int countKthRoots(int l, int r, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def countKthRoots(self, l: int, r: int, k: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def countKthRoots(self, l, r, k):\n        \"\"\"\n        :type l: int\n        :type r: int\n        :type k: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} l\n * @param {number} r\n * @param {number} k\n * @return {number}\n */\nvar countKthRoots = function(l, r, k) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function countKthRoots(l: number, r: number, k: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int CountKthRoots(int l, int r, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int countKthRoots(int l, int r, int k) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func countKthRoots(l int, r int, k int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun countKthRoots(l: Int, r: Int, k: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func countKthRoots(_ l: Int, _ r: Int, _ k: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn count_kth_roots(l: i32, r: i32, k: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} l\n# @param {Integer} r\n# @param {Integer} k\n# @return {Integer}\ndef count_kth_roots(l, r, k)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $l\n     * @param Integer $r\n     * @param Integer $k\n     * @return Integer\n     */\n    function countKthRoots($l, $r, $k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int countKthRoots(int l, int r, int k) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def countKthRoots(l: Int, r: Int, k: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec count_kth_roots(l :: integer, r :: integer, k :: integer) :: integer\n  def count_kth_roots(l, r, k) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec count_kth_roots(L :: integer(), R :: integer(), K :: integer()) -> integer().\ncount_kth_roots(L, R, K) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (count-kth-roots l r k)\n  (-> exact-integer? exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

@@ -931,35 +931,58 @@ export function useProblemCompanies(problemId) {
   });
 }
 
-// Problems sharing a concept with this one. Find concepts via
-// PGcode_concept_problems → then other problems for those concepts.
+// Problems sharing a concept with this one, with a topic-based fallback so
+// every problem renders at least a handful of related items.
 export function useSimilarProblems(problemId) {
   return useQuery({
     queryKey: qk.problemSimilar(problemId),
     queryFn: async () => {
-      // Concepts this problem is linked to
-      const { data: cps, error: e1 } = await supabase
+      const collected = new Map();
+
+      // 1) Concept-linked siblings
+      const { data: cps } = await supabase
         .from('PGcode_concept_problems')
         .select('concept_slug')
         .eq('problem_id', problemId);
-      if (e1) throw e1;
-      const slugs = [...new Set((cps || []).map(r => r.concept_slug))];
-      if (!slugs.length) return [];
-      // Other problems for those concepts
-      const { data: siblings, error: e2 } = await supabase
-        .from('PGcode_concept_problems')
-        .select('concept_slug, problem_id')
-        .in('concept_slug', slugs)
-        .neq('problem_id', problemId);
-      if (e2) throw e2;
-      const ids = [...new Set((siblings || []).map(r => r.problem_id))].slice(0, 8);
-      if (!ids.length) return [];
-      const { data: problems, error: e3 } = await supabase
-        .from('PGcode_problems')
-        .select('id, name, topic_id, difficulty')
-        .in('id', ids);
-      if (e3) throw e3;
-      return problems || [];
+      const conceptSlugs = [...new Set((cps || []).map(r => r.concept_slug))];
+      if (conceptSlugs.length) {
+        const { data: siblings } = await supabase
+          .from('PGcode_concept_problems')
+          .select('problem_id')
+          .in('concept_slug', conceptSlugs)
+          .neq('problem_id', problemId);
+        const ids = [...new Set((siblings || []).map(r => r.problem_id))].slice(0, 8);
+        if (ids.length) {
+          const { data: problems } = await supabase
+            .from('PGcode_problems')
+            .select('id, name, topic_id, difficulty, leetcode_number, frequency_score')
+            .in('id', ids);
+          (problems || []).forEach(p => collected.set(p.id, p));
+        }
+      }
+
+      // 2) Topic-based fallback when we still need more
+      if (collected.size < 8) {
+        const { data: self } = await supabase
+          .from('PGcode_problems')
+          .select('topic_id, difficulty')
+          .eq('id', problemId)
+          .maybeSingle();
+        if (self?.topic_id) {
+          const { data: topicSiblings } = await supabase
+            .from('PGcode_problems')
+            .select('id, name, topic_id, difficulty, leetcode_number, frequency_score')
+            .eq('topic_id', self.topic_id)
+            .neq('id', problemId)
+            .order('frequency_score', { ascending: false, nullsFirst: false })
+            .limit(20);
+          (topicSiblings || []).forEach(p => {
+            if (!collected.has(p.id) && collected.size < 8) collected.set(p.id, p);
+          });
+        }
+      }
+
+      return [...collected.values()].slice(0, 8);
     },
     enabled: !!problemId,
     staleTime: 30 * 60 * 1000,

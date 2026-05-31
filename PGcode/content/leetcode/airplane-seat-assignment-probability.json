@@ -20,5 +20,102 @@
     "2"
   ],
   "content_signature": "p7l2h9",
-  "fetched_at": "2026-05-21T06:16:02.054Z"
+  "fetched_at": "2026-05-30T05:50:50.861Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    double nthPersonGetsNthSeat(int n) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public double nthPersonGetsNthSeat(int n) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def nthPersonGetsNthSeat(self, n: int) -> float:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def nthPersonGetsNthSeat(self, n):\n        \"\"\"\n        :type n: int\n        :rtype: float\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @return {number}\n */\nvar nthPersonGetsNthSeat = function(n) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function nthPersonGetsNthSeat(n: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public double NthPersonGetsNthSeat(int n) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "double nthPersonGetsNthSeat(int n) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func nthPersonGetsNthSeat(n int) float64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun nthPersonGetsNthSeat(n: Int): Double {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func nthPersonGetsNthSeat(_ n: Int) -> Double {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn nth_person_gets_nth_seat(n: i32) -> f64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @return {Float}\ndef nth_person_gets_nth_seat(n)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @return Float\n     */\n    function nthPersonGetsNthSeat($n) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  double nthPersonGetsNthSeat(int n) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def nthPersonGetsNthSeat(n: Int): Double = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec nth_person_gets_nth_seat(n :: integer) :: float\n  def nth_person_gets_nth_seat(n) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec nth_person_gets_nth_seat(N :: integer()) -> float().\nnth_person_gets_nth_seat(N) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (nth-person-gets-nth-seat n)\n  (-> exact-integer? flonum?)\n  )"
+    }
+  ]
 }

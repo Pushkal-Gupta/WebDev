@@ -24,5 +24,102 @@
     "4"
   ],
   "content_signature": "fdu9nj",
-  "fetched_at": "2026-05-21T07:07:24.781Z"
+  "fetched_at": "2026-05-30T05:23:41.503Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> findIndices(vector<int>& nums, int indexDifference, int valueDifference) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] findIndices(int[] nums, int indexDifference, int valueDifference) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def findIndices(self, nums: List[int], indexDifference: int, valueDifference: int) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def findIndices(self, nums, indexDifference, valueDifference):\n        \"\"\"\n        :type nums: List[int]\n        :type indexDifference: int\n        :type valueDifference: int\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {number} indexDifference\n * @param {number} valueDifference\n * @return {number[]}\n */\nvar findIndices = function(nums, indexDifference, valueDifference) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function findIndices(nums: number[], indexDifference: number, valueDifference: number): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] FindIndices(int[] nums, int indexDifference, int valueDifference) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* findIndices(int* nums, int numsSize, int indexDifference, int valueDifference, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func findIndices(nums []int, indexDifference int, valueDifference int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun findIndices(nums: IntArray, indexDifference: Int, valueDifference: Int): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func findIndices(_ nums: [Int], _ indexDifference: Int, _ valueDifference: Int) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn find_indices(nums: Vec<i32>, index_difference: i32, value_difference: i32) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums\n# @param {Integer} index_difference\n# @param {Integer} value_difference\n# @return {Integer[]}\ndef find_indices(nums, index_difference, value_difference)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums\n     * @param Integer $indexDifference\n     * @param Integer $valueDifference\n     * @return Integer[]\n     */\n    function findIndices($nums, $indexDifference, $valueDifference) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> findIndices(List<int> nums, int indexDifference, int valueDifference) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def findIndices(nums: Array[Int], indexDifference: Int, valueDifference: Int): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec find_indices(nums :: [integer], index_difference :: integer, value_difference :: integer) :: [integer]\n  def find_indices(nums, index_difference, value_difference) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec find_indices(Nums :: [integer()], IndexDifference :: integer(), ValueDifference :: integer()) -> [integer()].\nfind_indices(Nums, IndexDifference, ValueDifference) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (find-indices nums indexDifference valueDifference)\n  (-> (listof exact-integer?) exact-integer? exact-integer? (listof exact-integer?))\n  )"
+    }
+  ]
 }

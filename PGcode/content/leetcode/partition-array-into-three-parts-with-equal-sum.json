@@ -17,5 +17,102 @@
     "[3,3,6,5,-2,2,5,1,-9,4]"
   ],
   "content_signature": "vs3wo5",
-  "fetched_at": "2026-05-21T06:12:09.743Z"
+  "fetched_at": "2026-05-30T06:40:58.240Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool canThreePartsEqualSum(vector<int>& arr) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean canThreePartsEqualSum(int[] arr) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def canThreePartsEqualSum(self, arr: List[int]) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def canThreePartsEqualSum(self, arr):\n        \"\"\"\n        :type arr: List[int]\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} arr\n * @return {boolean}\n */\nvar canThreePartsEqualSum = function(arr) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function canThreePartsEqualSum(arr: number[]): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool CanThreePartsEqualSum(int[] arr) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool canThreePartsEqualSum(int* arr, int arrSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func canThreePartsEqualSum(arr []int) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun canThreePartsEqualSum(arr: IntArray): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func canThreePartsEqualSum(_ arr: [Int]) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn can_three_parts_equal_sum(arr: Vec<i32>) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} arr\n# @return {Boolean}\ndef can_three_parts_equal_sum(arr)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $arr\n     * @return Boolean\n     */\n    function canThreePartsEqualSum($arr) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool canThreePartsEqualSum(List<int> arr) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def canThreePartsEqualSum(arr: Array[Int]): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec can_three_parts_equal_sum(arr :: [integer]) :: boolean\n  def can_three_parts_equal_sum(arr) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec can_three_parts_equal_sum(Arr :: [integer()]) -> boolean().\ncan_three_parts_equal_sum(Arr) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (can-three-parts-equal-sum arr)\n  (-> (listof exact-integer?) boolean?)\n  )"
+    }
+  ]
 }

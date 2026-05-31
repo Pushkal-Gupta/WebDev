@@ -18,5 +18,102 @@
     "\"L\""
   ],
   "content_signature": "9gpj55",
-  "fetched_at": "2026-05-21T06:05:52.284Z"
+  "fetched_at": "2026-05-30T07:32:24.500Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool canTransform(string start, string result) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean canTransform(String start, String result) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def canTransform(self, start: str, result: str) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def canTransform(self, start, result):\n        \"\"\"\n        :type start: str\n        :type result: str\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} start\n * @param {string} result\n * @return {boolean}\n */\nvar canTransform = function(start, result) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function canTransform(start: string, result: string): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool CanTransform(string start, string result) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool canTransform(char* start, char* result) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func canTransform(start string, result string) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun canTransform(start: String, result: String): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func canTransform(_ start: String, _ result: String) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn can_transform(start: String, result: String) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} start\n# @param {String} result\n# @return {Boolean}\ndef can_transform(start, result)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $start\n     * @param String $result\n     * @return Boolean\n     */\n    function canTransform($start, $result) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool canTransform(String start, String result) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def canTransform(start: String, result: String): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec can_transform(start :: String.t, result :: String.t) :: boolean\n  def can_transform(start, result) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec can_transform(Start :: unicode:unicode_binary(), Result :: unicode:unicode_binary()) -> boolean().\ncan_transform(Start, Result) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (can-transform start result)\n  (-> string? string? boolean?)\n  )"
+    }
+  ]
 }

@@ -21,5 +21,102 @@
     "2"
   ],
   "content_signature": "-5nm79w",
-  "fetched_at": "2026-05-21T06:40:52.818Z"
+  "fetched_at": "2026-05-30T05:39:47.931Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int arithmeticTriplets(vector<int>& nums, int diff) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int arithmeticTriplets(int[] nums, int diff) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def arithmeticTriplets(self, nums: List[int], diff: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def arithmeticTriplets(self, nums, diff):\n        \"\"\"\n        :type nums: List[int]\n        :type diff: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {number} diff\n * @return {number}\n */\nvar arithmeticTriplets = function(nums, diff) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function arithmeticTriplets(nums: number[], diff: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int ArithmeticTriplets(int[] nums, int diff) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int arithmeticTriplets(int* nums, int numsSize, int diff) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func arithmeticTriplets(nums []int, diff int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun arithmeticTriplets(nums: IntArray, diff: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func arithmeticTriplets(_ nums: [Int], _ diff: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn arithmetic_triplets(nums: Vec<i32>, diff: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums\n# @param {Integer} diff\n# @return {Integer}\ndef arithmetic_triplets(nums, diff)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums\n     * @param Integer $diff\n     * @return Integer\n     */\n    function arithmeticTriplets($nums, $diff) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int arithmeticTriplets(List<int> nums, int diff) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def arithmeticTriplets(nums: Array[Int], diff: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec arithmetic_triplets(nums :: [integer], diff :: integer) :: integer\n  def arithmetic_triplets(nums, diff) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec arithmetic_triplets(Nums :: [integer()], Diff :: integer()) -> integer().\narithmetic_triplets(Nums, Diff) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (arithmetic-triplets nums diff)\n  (-> (listof exact-integer?) exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

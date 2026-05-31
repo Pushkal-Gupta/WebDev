@@ -12,5 +12,32 @@
     "{\"headers\":{\"Stocks\":[\"stock_name\",\"operation\",\"operation_day\",\"price\"]},\"rows\":{\"Stocks\":[[\"Leetcode\",\"Buy\",1,1000],[\"Corona Masks\",\"Buy\",2,10],[\"Leetcode\",\"Sell\",5,9000],[\"Handbags\",\"Buy\",17,30000],[\"Corona Masks\",\"Sell\",3,1010],[\"Corona Masks\",\"Buy\",4,1000],[\"Corona Masks\",\"Sell\",5,500],[\"Corona Masks\",\"Buy\",6,1000],[\"Handbags\",\"Sell\",29,7000],[\"Corona Masks\",\"Sell\",10,10000]]}}"
   ],
   "content_signature": "8k90l8",
-  "fetched_at": "2026-05-21T06:19:34.949Z"
+  "fetched_at": "2026-05-30T07:00:54.060Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef capital_gainloss(stocks: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

@@ -27,5 +27,102 @@
     "1"
   ],
   "content_signature": "-2i6x0i",
-  "fetched_at": "2026-05-21T06:40:07.840Z"
+  "fetched_at": "2026-05-30T06:37:19.469Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    long long minSumSquareDiff(vector<int>& nums1, vector<int>& nums2, int k1, int k2) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public long minSumSquareDiff(int[] nums1, int[] nums2, int k1, int k2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minSumSquareDiff(self, nums1: List[int], nums2: List[int], k1: int, k2: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minSumSquareDiff(self, nums1, nums2, k1, k2):\n        \"\"\"\n        :type nums1: List[int]\n        :type nums2: List[int]\n        :type k1: int\n        :type k2: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums1\n * @param {number[]} nums2\n * @param {number} k1\n * @param {number} k2\n * @return {number}\n */\nvar minSumSquareDiff = function(nums1, nums2, k1, k2) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minSumSquareDiff(nums1: number[], nums2: number[], k1: number, k2: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public long MinSumSquareDiff(int[] nums1, int[] nums2, int k1, int k2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "long long minSumSquareDiff(int* nums1, int nums1Size, int* nums2, int nums2Size, int k1, int k2) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minSumSquareDiff(nums1 []int, nums2 []int, k1 int, k2 int) int64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minSumSquareDiff(nums1: IntArray, nums2: IntArray, k1: Int, k2: Int): Long {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minSumSquareDiff(_ nums1: [Int], _ nums2: [Int], _ k1: Int, _ k2: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn min_sum_square_diff(nums1: Vec<i32>, nums2: Vec<i32>, k1: i32, k2: i32) -> i64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums1\n# @param {Integer[]} nums2\n# @param {Integer} k1\n# @param {Integer} k2\n# @return {Integer}\ndef min_sum_square_diff(nums1, nums2, k1, k2)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums1\n     * @param Integer[] $nums2\n     * @param Integer $k1\n     * @param Integer $k2\n     * @return Integer\n     */\n    function minSumSquareDiff($nums1, $nums2, $k1, $k2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minSumSquareDiff(List<int> nums1, List<int> nums2, int k1, int k2) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minSumSquareDiff(nums1: Array[Int], nums2: Array[Int], k1: Int, k2: Int): Long = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec min_sum_square_diff(nums1 :: [integer], nums2 :: [integer], k1 :: integer, k2 :: integer) :: integer\n  def min_sum_square_diff(nums1, nums2, k1, k2) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec min_sum_square_diff(Nums1 :: [integer()], Nums2 :: [integer()], K1 :: integer(), K2 :: integer()) -> integer().\nmin_sum_square_diff(Nums1, Nums2, K1, K2) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (min-sum-square-diff nums1 nums2 k1 k2)\n  (-> (listof exact-integer?) (listof exact-integer?) exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

@@ -18,5 +18,102 @@
     "[[5,2],[5,4],[10,3],[20,1]]"
   ],
   "content_signature": "shkpwc",
-  "fetched_at": "2026-05-21T06:26:14.207Z"
+  "fetched_at": "2026-05-30T07:08:07.752Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    double averageWaitingTime(vector<vector<int>>& customers) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public double averageWaitingTime(int[][] customers) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def averageWaitingTime(self, customers: List[List[int]]) -> float:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def averageWaitingTime(self, customers):\n        \"\"\"\n        :type customers: List[List[int]]\n        :rtype: float\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} customers\n * @return {number}\n */\nvar averageWaitingTime = function(customers) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function averageWaitingTime(customers: number[][]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public double AverageWaitingTime(int[][] customers) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "double averageWaitingTime(int** customers, int customersSize, int* customersColSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func averageWaitingTime(customers [][]int) float64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun averageWaitingTime(customers: Array<IntArray>): Double {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func averageWaitingTime(_ customers: [[Int]]) -> Double {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn average_waiting_time(customers: Vec<Vec<i32>>) -> f64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} customers\n# @return {Float}\ndef average_waiting_time(customers)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $customers\n     * @return Float\n     */\n    function averageWaitingTime($customers) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  double averageWaitingTime(List<List<int>> customers) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def averageWaitingTime(customers: Array[Array[Int]]): Double = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec average_waiting_time(customers :: [[integer]]) :: float\n  def average_waiting_time(customers) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec average_waiting_time(Customers :: [[integer()]]) -> float().\naverage_waiting_time(Customers) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (average-waiting-time customers)\n  (-> (listof (listof exact-integer?)) flonum?)\n  )"
+    }
+  ]
 }

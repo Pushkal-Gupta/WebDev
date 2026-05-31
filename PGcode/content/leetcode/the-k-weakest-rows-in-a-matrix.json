@@ -21,5 +21,102 @@
     "2"
   ],
   "content_signature": "fuy397",
-  "fetched_at": "2026-05-21T06:18:12.967Z"
+  "fetched_at": "2026-05-30T05:34:02.085Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> kWeakestRows(vector<vector<int>>& mat, int k) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] kWeakestRows(int[][] mat, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def kWeakestRows(self, mat: List[List[int]], k: int) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def kWeakestRows(self, mat, k):\n        \"\"\"\n        :type mat: List[List[int]]\n        :type k: int\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} mat\n * @param {number} k\n * @return {number[]}\n */\nvar kWeakestRows = function(mat, k) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function kWeakestRows(mat: number[][], k: number): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] KWeakestRows(int[][] mat, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* kWeakestRows(int** mat, int matSize, int* matColSize, int k, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func kWeakestRows(mat [][]int, k int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun kWeakestRows(mat: Array<IntArray>, k: Int): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func kWeakestRows(_ mat: [[Int]], _ k: Int) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn k_weakest_rows(mat: Vec<Vec<i32>>, k: i32) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} mat\n# @param {Integer} k\n# @return {Integer[]}\ndef k_weakest_rows(mat, k)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $mat\n     * @param Integer $k\n     * @return Integer[]\n     */\n    function kWeakestRows($mat, $k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> kWeakestRows(List<List<int>> mat, int k) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def kWeakestRows(mat: Array[Array[Int]], k: Int): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec k_weakest_rows(mat :: [[integer]], k :: integer) :: [integer]\n  def k_weakest_rows(mat, k) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec k_weakest_rows(Mat :: [[integer()]], K :: integer()) -> [integer()].\nk_weakest_rows(Mat, K) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (k-weakest-rows mat k)\n  (-> (listof (listof exact-integer?)) exact-integer? (listof exact-integer?))\n  )"
+    }
+  ]
 }

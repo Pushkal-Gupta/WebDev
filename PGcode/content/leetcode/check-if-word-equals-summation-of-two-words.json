@@ -23,5 +23,102 @@
     "\"aaaa\""
   ],
   "content_signature": "-h7t5is",
-  "fetched_at": "2026-05-21T06:30:16.487Z"
+  "fetched_at": "2026-05-30T07:07:16.944Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool isSumEqual(string firstWord, string secondWord, string targetWord) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean isSumEqual(String firstWord, String secondWord, String targetWord) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def isSumEqual(self, firstWord: str, secondWord: str, targetWord: str) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def isSumEqual(self, firstWord, secondWord, targetWord):\n        \"\"\"\n        :type firstWord: str\n        :type secondWord: str\n        :type targetWord: str\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} firstWord\n * @param {string} secondWord\n * @param {string} targetWord\n * @return {boolean}\n */\nvar isSumEqual = function(firstWord, secondWord, targetWord) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function isSumEqual(firstWord: string, secondWord: string, targetWord: string): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool IsSumEqual(string firstWord, string secondWord, string targetWord) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool isSumEqual(char* firstWord, char* secondWord, char* targetWord) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func isSumEqual(firstWord string, secondWord string, targetWord string) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun isSumEqual(firstWord: String, secondWord: String, targetWord: String): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func isSumEqual(_ firstWord: String, _ secondWord: String, _ targetWord: String) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn is_sum_equal(first_word: String, second_word: String, target_word: String) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} first_word\n# @param {String} second_word\n# @param {String} target_word\n# @return {Boolean}\ndef is_sum_equal(first_word, second_word, target_word)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $firstWord\n     * @param String $secondWord\n     * @param String $targetWord\n     * @return Boolean\n     */\n    function isSumEqual($firstWord, $secondWord, $targetWord) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool isSumEqual(String firstWord, String secondWord, String targetWord) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def isSumEqual(firstWord: String, secondWord: String, targetWord: String): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec is_sum_equal(first_word :: String.t, second_word :: String.t, target_word :: String.t) :: boolean\n  def is_sum_equal(first_word, second_word, target_word) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec is_sum_equal(FirstWord :: unicode:unicode_binary(), SecondWord :: unicode:unicode_binary(), TargetWord :: unicode:unicode_binary()) -> boolean().\nis_sum_equal(FirstWord, SecondWord, TargetWord) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (is-sum-equal firstWord secondWord targetWord)\n  (-> string? string? string? boolean?)\n  )"
+    }
+  ]
 }

@@ -19,5 +19,102 @@
     "\"abcdefghijklmnopqrstuvwxyz\""
   ],
   "content_signature": "-v2dhkf",
-  "fetched_at": "2026-05-21T06:10:33.202Z"
+  "fetched_at": "2026-05-30T07:29:50.670Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool isAlienSorted(vector<string>& words, string order) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean isAlienSorted(String[] words, String order) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def isAlienSorted(self, words: List[str], order: str) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def isAlienSorted(self, words, order):\n        \"\"\"\n        :type words: List[str]\n        :type order: str\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string[]} words\n * @param {string} order\n * @return {boolean}\n */\nvar isAlienSorted = function(words, order) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function isAlienSorted(words: string[], order: string): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool IsAlienSorted(string[] words, string order) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool isAlienSorted(char** words, int wordsSize, char* order) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func isAlienSorted(words []string, order string) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun isAlienSorted(words: Array<String>, order: String): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func isAlienSorted(_ words: [String], _ order: String) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn is_alien_sorted(words: Vec<String>, order: String) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String[]} words\n# @param {String} order\n# @return {Boolean}\ndef is_alien_sorted(words, order)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[] $words\n     * @param String $order\n     * @return Boolean\n     */\n    function isAlienSorted($words, $order) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool isAlienSorted(List<String> words, String order) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def isAlienSorted(words: Array[String], order: String): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec is_alien_sorted(words :: [String.t], order :: String.t) :: boolean\n  def is_alien_sorted(words, order) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec is_alien_sorted(Words :: [unicode:unicode_binary()], Order :: unicode:unicode_binary()) -> boolean().\nis_alien_sorted(Words, Order) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (is-alien-sorted words order)\n  (-> (listof string?) string? boolean?)\n  )"
+    }
+  ]
 }

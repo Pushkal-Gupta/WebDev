@@ -25,5 +25,102 @@
     "[3,3,2]"
   ],
   "content_signature": "-rq7f63",
-  "fetched_at": "2026-05-21T06:38:22.860Z"
+  "fetched_at": "2026-05-30T07:32:15.383Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> fullBloomFlowers(vector<vector<int>>& flowers, vector<int>& people) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] fullBloomFlowers(int[][] flowers, int[] people) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def fullBloomFlowers(self, flowers: List[List[int]], people: List[int]) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def fullBloomFlowers(self, flowers, people):\n        \"\"\"\n        :type flowers: List[List[int]]\n        :type people: List[int]\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} flowers\n * @param {number[]} people\n * @return {number[]}\n */\nvar fullBloomFlowers = function(flowers, people) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function fullBloomFlowers(flowers: number[][], people: number[]): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] FullBloomFlowers(int[][] flowers, int[] people) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* fullBloomFlowers(int** flowers, int flowersSize, int* flowersColSize, int* people, int peopleSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func fullBloomFlowers(flowers [][]int, people []int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun fullBloomFlowers(flowers: Array<IntArray>, people: IntArray): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func fullBloomFlowers(_ flowers: [[Int]], _ people: [Int]) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn full_bloom_flowers(flowers: Vec<Vec<i32>>, people: Vec<i32>) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} flowers\n# @param {Integer[]} people\n# @return {Integer[]}\ndef full_bloom_flowers(flowers, people)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $flowers\n     * @param Integer[] $people\n     * @return Integer[]\n     */\n    function fullBloomFlowers($flowers, $people) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> fullBloomFlowers(List<List<int>> flowers, List<int> people) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def fullBloomFlowers(flowers: Array[Array[Int]], people: Array[Int]): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec full_bloom_flowers(flowers :: [[integer]], people :: [integer]) :: [integer]\n  def full_bloom_flowers(flowers, people) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec full_bloom_flowers(Flowers :: [[integer()]], People :: [integer()]) -> [integer()].\nfull_bloom_flowers(Flowers, People) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (full-bloom-flowers flowers people)\n  (-> (listof (listof exact-integer?)) (listof exact-integer?) (listof exact-integer?))\n  )"
+    }
+  ]
 }

@@ -20,5 +20,102 @@
     "[\"a\",\"b\",\"c\",\"d\",\"e\"]"
   ],
   "content_signature": "-c6fxm2",
-  "fetched_at": "2026-05-21T06:38:50.297Z"
+  "fetched_at": "2026-05-30T05:27:58.556Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<string> removeAnagrams(vector<string>& words) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public List<String> removeAnagrams(String[] words) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def removeAnagrams(self, words: List[str]) -> List[str]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def removeAnagrams(self, words):\n        \"\"\"\n        :type words: List[str]\n        :rtype: List[str]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string[]} words\n * @return {string[]}\n */\nvar removeAnagrams = function(words) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function removeAnagrams(words: string[]): string[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public IList<string> RemoveAnagrams(string[] words) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nchar** removeAnagrams(char** words, int wordsSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func removeAnagrams(words []string) []string {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun removeAnagrams(words: Array<String>): List<String> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func removeAnagrams(_ words: [String]) -> [String] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn remove_anagrams(words: Vec<String>) -> Vec<String> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String[]} words\n# @return {String[]}\ndef remove_anagrams(words)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[] $words\n     * @return String[]\n     */\n    function removeAnagrams($words) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<String> removeAnagrams(List<String> words) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def removeAnagrams(words: Array[String]): List[String] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec remove_anagrams(words :: [String.t]) :: [String.t]\n  def remove_anagrams(words) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec remove_anagrams(Words :: [unicode:unicode_binary()]) -> [unicode:unicode_binary()].\nremove_anagrams(Words) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (remove-anagrams words)\n  (-> (listof string?) (listof string?))\n  )"
+    }
+  ]
 }

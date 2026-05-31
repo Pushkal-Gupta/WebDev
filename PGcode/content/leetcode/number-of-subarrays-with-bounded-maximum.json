@@ -18,5 +18,102 @@
     "8"
   ],
   "content_signature": "-f9v804",
-  "fetched_at": "2026-05-21T06:06:20.456Z"
+  "fetched_at": "2026-05-30T07:12:55.370Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int numSubarrayBoundedMax(vector<int>& nums, int left, int right) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int numSubarrayBoundedMax(int[] nums, int left, int right) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def numSubarrayBoundedMax(self, nums: List[int], left: int, right: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def numSubarrayBoundedMax(self, nums, left, right):\n        \"\"\"\n        :type nums: List[int]\n        :type left: int\n        :type right: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {number} left\n * @param {number} right\n * @return {number}\n */\nvar numSubarrayBoundedMax = function(nums, left, right) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function numSubarrayBoundedMax(nums: number[], left: number, right: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int NumSubarrayBoundedMax(int[] nums, int left, int right) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int numSubarrayBoundedMax(int* nums, int numsSize, int left, int right) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func numSubarrayBoundedMax(nums []int, left int, right int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun numSubarrayBoundedMax(nums: IntArray, left: Int, right: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func numSubarrayBoundedMax(_ nums: [Int], _ left: Int, _ right: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn num_subarray_bounded_max(nums: Vec<i32>, left: i32, right: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums\n# @param {Integer} left\n# @param {Integer} right\n# @return {Integer}\ndef num_subarray_bounded_max(nums, left, right)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums\n     * @param Integer $left\n     * @param Integer $right\n     * @return Integer\n     */\n    function numSubarrayBoundedMax($nums, $left, $right) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int numSubarrayBoundedMax(List<int> nums, int left, int right) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def numSubarrayBoundedMax(nums: Array[Int], left: Int, right: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec num_subarray_bounded_max(nums :: [integer], left :: integer, right :: integer) :: integer\n  def num_subarray_bounded_max(nums, left, right) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec num_subarray_bounded_max(Nums :: [integer()], Left :: integer(), Right :: integer()) -> integer().\nnum_subarray_bounded_max(Nums, Left, Right) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (num-subarray-bounded-max nums left right)\n  (-> (listof exact-integer?) exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

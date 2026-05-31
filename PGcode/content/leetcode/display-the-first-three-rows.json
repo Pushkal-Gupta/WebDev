@@ -12,5 +12,12 @@
     "{\"headers\":{\"employees\":[\"employee_id\",\"name\",\"department\",\"salary\"]},\"rows\":{\"employees\":[[3,\"Bob\",\"Operations\",48675],[90,\"Alice\",\"Sales\",11096],[9,\"Tatiana\",\"Engineering\",33805],[60,\"Annabelle\",\"InformationTechnology\",37678],[49,\"Jonathan\",\"HumanResources\",23793],[43,\"Khaled\",\"Administration\",40454]]}}"
   ],
   "content_signature": "62tlz5",
-  "fetched_at": "2026-05-21T07:06:51.931Z"
+  "fetched_at": "2026-05-30T05:18:18.502Z",
+  "code_snippets": [
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef selectFirstRows(employees: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

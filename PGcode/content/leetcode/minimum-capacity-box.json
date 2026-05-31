@@ -21,5 +21,102 @@
     "5"
   ],
   "content_signature": "j7hi24",
-  "fetched_at": "2026-05-21T07:52:20.915Z"
+  "fetched_at": "2026-05-30T05:22:56.451Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int minimumIndex(vector<int>& capacity, int itemSize) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int minimumIndex(int[] capacity, int itemSize) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minimumIndex(self, capacity: list[int], itemSize: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minimumIndex(self, capacity, itemSize):\n        \"\"\"\n        :type capacity: List[int]\n        :type itemSize: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} capacity\n * @param {number} itemSize\n * @return {number}\n */\nvar minimumIndex = function(capacity, itemSize) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minimumIndex(capacity: number[], itemSize: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MinimumIndex(int[] capacity, int itemSize) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int minimumIndex(int* capacity, int capacitySize, int itemSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minimumIndex(capacity []int, itemSize int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minimumIndex(capacity: IntArray, itemSize: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minimumIndex(_ capacity: [Int], _ itemSize: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn minimum_index(capacity: Vec<i32>, item_size: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} capacity\n# @param {Integer} item_size\n# @return {Integer}\ndef minimum_index(capacity, item_size)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $capacity\n     * @param Integer $itemSize\n     * @return Integer\n     */\n    function minimumIndex($capacity, $itemSize) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minimumIndex(List<int> capacity, int itemSize) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minimumIndex(capacity: Array[Int], itemSize: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec minimum_index(capacity :: [integer], item_size :: integer) :: integer\n  def minimum_index(capacity, item_size) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec minimum_index(Capacity :: [integer()], ItemSize :: integer()) -> integer().\nminimum_index(Capacity, ItemSize) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (minimum-index capacity itemSize)\n  (-> (listof exact-integer?) exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

@@ -23,5 +23,102 @@
     "[1]"
   ],
   "content_signature": "ddghmm",
-  "fetched_at": "2026-05-21T06:41:18.150Z"
+  "fetched_at": "2026-05-30T05:31:58.637Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> answerQueries(vector<int>& nums, vector<int>& queries) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] answerQueries(int[] nums, int[] queries) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def answerQueries(self, nums: List[int], queries: List[int]) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def answerQueries(self, nums, queries):\n        \"\"\"\n        :type nums: List[int]\n        :type queries: List[int]\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {number[]} queries\n * @return {number[]}\n */\nvar answerQueries = function(nums, queries) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function answerQueries(nums: number[], queries: number[]): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] AnswerQueries(int[] nums, int[] queries) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* answerQueries(int* nums, int numsSize, int* queries, int queriesSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func answerQueries(nums []int, queries []int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun answerQueries(nums: IntArray, queries: IntArray): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func answerQueries(_ nums: [Int], _ queries: [Int]) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn answer_queries(nums: Vec<i32>, queries: Vec<i32>) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums\n# @param {Integer[]} queries\n# @return {Integer[]}\ndef answer_queries(nums, queries)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums\n     * @param Integer[] $queries\n     * @return Integer[]\n     */\n    function answerQueries($nums, $queries) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> answerQueries(List<int> nums, List<int> queries) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def answerQueries(nums: Array[Int], queries: Array[Int]): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec answer_queries(nums :: [integer], queries :: [integer]) :: [integer]\n  def answer_queries(nums, queries) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec answer_queries(Nums :: [integer()], Queries :: [integer()]) -> [integer()].\nanswer_queries(Nums, Queries) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (answer-queries nums queries)\n  (-> (listof exact-integer?) (listof exact-integer?) (listof exact-integer?))\n  )"
+    }
+  ]
 }

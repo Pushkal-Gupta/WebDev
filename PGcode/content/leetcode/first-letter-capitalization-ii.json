@@ -12,5 +12,32 @@
     "{\"headers\":{\"user_content\":[\"content_id\",\"content_text\"]},\"rows\":{\"user_content\":[[1,\"hello world of SQL\"],[2,\"the QUICK-brown fox\"],[3,\"modern-day DATA science\"],[4,\"web-based FRONT-end development\"]]}}"
   ],
   "content_signature": "djpxaq",
-  "fetched_at": "2026-05-21T07:18:43.936Z"
+  "fetched_at": "2026-05-30T06:38:45.494Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef capitalize_content(user_content: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

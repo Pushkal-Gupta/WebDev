@@ -23,5 +23,102 @@
     "3"
   ],
   "content_signature": "95zsff",
-  "fetched_at": "2026-05-21T07:47:48.044Z"
+  "fetched_at": "2026-05-30T05:50:55.673Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int zigZagArrays(int n, int l, int r) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int zigZagArrays(int n, int l, int r) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def zigZagArrays(self, n: int, l: int, r: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def zigZagArrays(self, n, l, r):\n        \"\"\"\n        :type n: int\n        :type l: int\n        :type r: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number} l\n * @param {number} r\n * @return {number}\n */\nvar zigZagArrays = function(n, l, r) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function zigZagArrays(n: number, l: number, r: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int ZigZagArrays(int n, int l, int r) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int zigZagArrays(int n, int l, int r) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func zigZagArrays(n int, l int, r int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun zigZagArrays(n: Int, l: Int, r: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func zigZagArrays(_ n: Int, _ l: Int, _ r: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn zig_zag_arrays(n: i32, l: i32, r: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer} l\n# @param {Integer} r\n# @return {Integer}\ndef zig_zag_arrays(n, l, r)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer $l\n     * @param Integer $r\n     * @return Integer\n     */\n    function zigZagArrays($n, $l, $r) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int zigZagArrays(int n, int l, int r) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def zigZagArrays(n: Int, l: Int, r: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec zig_zag_arrays(n :: integer, l :: integer, r :: integer) :: integer\n  def zig_zag_arrays(n, l, r) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec zig_zag_arrays(N :: integer(), L :: integer(), R :: integer()) -> integer().\nzig_zag_arrays(N, L, R) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (zig-zag-arrays n l r)\n  (-> exact-integer? exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

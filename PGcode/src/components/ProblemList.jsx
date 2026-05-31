@@ -87,7 +87,7 @@ export default function ProblemList({ session }) {
   const [diffFilter, setDiffFilter] = useState(new Set(['Easy', 'Medium', 'Hard']));
   const [statusFilter, setStatusFilter] = useState('all');
   const [listFilter, setListFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('topic');
+  const [sortBy, setSortBy] = useState('number');
   const [pulseMap, setPulseMap] = useState({});
   const [practiceSet, setPracticeSet] = useState(null);
   const [page, setPage] = useState(0);
@@ -162,6 +162,7 @@ export default function ProblemList({ session }) {
   ], [lists]);
 
   const sortOptions = [
+    { value: 'number', label: 'Number' },
     { value: 'topic', label: 'Topic' },
     { value: 'difficulty', label: 'Difficulty' },
     { value: 'name', label: 'Name' },
@@ -339,9 +340,15 @@ export default function ProblemList({ session }) {
   }, [totalServer, userProgress]);
 
   const visibleProblems = filteredProblems;
-  const totalPages = Math.max(1, Math.ceil(totalServer / PAGE_SIZE));
-  const showingFrom = totalServer === 0 ? 0 : page * PAGE_SIZE + 1;
-  const showingTo = Math.min(totalServer, (page + 1) * PAGE_SIZE);
+  // Client-side filters (status, list) further narrow the page; reflect that
+  // in the count so we never show "1-100 of 3,788" when only 2 rows render.
+  const clientFiltered = statusFilter !== 'all' || listFilter !== 'all';
+  const effectiveTotal = clientFiltered ? visibleProblems.length : totalServer;
+  const totalPages = Math.max(1, Math.ceil(effectiveTotal / PAGE_SIZE));
+  const showingFrom = effectiveTotal === 0 ? 0 : page * PAGE_SIZE + 1;
+  const showingTo = clientFiltered
+    ? visibleProblems.length
+    : Math.min(totalServer, (page + 1) * PAGE_SIZE);
 
   if (loading) {
     return (
@@ -617,7 +624,7 @@ export default function ProblemList({ session }) {
         <div className="pl-table-footer">
           <span className="pl-count">
             <strong>{showingFrom.toLocaleString()}–{showingTo.toLocaleString()}</strong>
-            <span className="pl-count-label">of {totalServer.toLocaleString()} {totalServer === 1 ? 'problem' : 'problems'}</span>
+            <span className="pl-count-label">of {effectiveTotal.toLocaleString()} {effectiveTotal === 1 ? 'problem' : 'problems'}</span>
             {isFetching && (
               <span className="pl-count-extra"><span className="pl-count-sep">·</span>loading…</span>
             )}

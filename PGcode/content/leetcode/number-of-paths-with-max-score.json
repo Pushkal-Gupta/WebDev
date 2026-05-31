@@ -19,5 +19,82 @@
     "[\"E11\",\"XXX\",\"11S\"]\r"
   ],
   "content_signature": "-1rfsdy",
-  "fetched_at": "2026-05-21T06:17:21.226Z"
+  "fetched_at": "2026-05-30T05:51:43.079Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> pathsWithMaxScore(vector<string>& board) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] pathsWithMaxScore(List<String> board) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def pathsWithMaxScore(self, board: List[str]) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def pathsWithMaxScore(self, board):\n        \"\"\"\n        :type board: List[str]\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string[]} board\n * @return {number[]}\n */\nvar pathsWithMaxScore = function(board) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function pathsWithMaxScore(board: string[]): number[] {\n\n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] PathsWithMaxScore(IList<string> board) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "\n\n/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* pathsWithMaxScore(char ** board, int boardSize, int* returnSize){\n\n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func pathsWithMaxScore(board []string) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun pathsWithMaxScore(board: List<String>): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func pathsWithMaxScore(_ board: [String]) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn paths_with_max_score(board: Vec<String>) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String[]} board\n# @return {Integer[]}\ndef paths_with_max_score(board)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[] $board\n     * @return Integer[]\n     */\n    function pathsWithMaxScore($board) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def pathsWithMaxScore(board: List[String]): Array[Int] = {\n        \n    }\n}"
+    }
+  ]
 }

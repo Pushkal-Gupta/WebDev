@@ -22,5 +22,102 @@
     "5"
   ],
   "content_signature": "-y8mqzq",
-  "fetched_at": "2026-05-21T06:36:59.968Z"
+  "fetched_at": "2026-05-30T05:23:44.705Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int minimumFinishTime(vector<vector<int>>& tires, int changeTime, int numLaps) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int minimumFinishTime(int[][] tires, int changeTime, int numLaps) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minimumFinishTime(self, tires: List[List[int]], changeTime: int, numLaps: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minimumFinishTime(self, tires, changeTime, numLaps):\n        \"\"\"\n        :type tires: List[List[int]]\n        :type changeTime: int\n        :type numLaps: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} tires\n * @param {number} changeTime\n * @param {number} numLaps\n * @return {number}\n */\nvar minimumFinishTime = function(tires, changeTime, numLaps) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minimumFinishTime(tires: number[][], changeTime: number, numLaps: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MinimumFinishTime(int[][] tires, int changeTime, int numLaps) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int minimumFinishTime(int** tires, int tiresSize, int* tiresColSize, int changeTime, int numLaps) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minimumFinishTime(tires [][]int, changeTime int, numLaps int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minimumFinishTime(tires: Array<IntArray>, changeTime: Int, numLaps: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minimumFinishTime(_ tires: [[Int]], _ changeTime: Int, _ numLaps: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn minimum_finish_time(tires: Vec<Vec<i32>>, change_time: i32, num_laps: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} tires\n# @param {Integer} change_time\n# @param {Integer} num_laps\n# @return {Integer}\ndef minimum_finish_time(tires, change_time, num_laps)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $tires\n     * @param Integer $changeTime\n     * @param Integer $numLaps\n     * @return Integer\n     */\n    function minimumFinishTime($tires, $changeTime, $numLaps) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minimumFinishTime(List<List<int>> tires, int changeTime, int numLaps) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minimumFinishTime(tires: Array[Array[Int]], changeTime: Int, numLaps: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec minimum_finish_time(tires :: [[integer]], change_time :: integer, num_laps :: integer) :: integer\n  def minimum_finish_time(tires, change_time, num_laps) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec minimum_finish_time(Tires :: [[integer()]], ChangeTime :: integer(), NumLaps :: integer()) -> integer().\nminimum_finish_time(Tires, ChangeTime, NumLaps) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (minimum-finish-time tires changeTime numLaps)\n  (-> (listof (listof exact-integer?)) exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

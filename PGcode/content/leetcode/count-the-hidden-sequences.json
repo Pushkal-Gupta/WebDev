@@ -26,5 +26,102 @@
     "6"
   ],
   "content_signature": "-rnlxcx",
-  "fetched_at": "2026-05-21T06:36:03.041Z"
+  "fetched_at": "2026-05-30T07:31:29.689Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int numberOfArrays(vector<int>& differences, int lower, int upper) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int numberOfArrays(int[] differences, int lower, int upper) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def numberOfArrays(self, differences: List[int], lower: int, upper: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def numberOfArrays(self, differences, lower, upper):\n        \"\"\"\n        :type differences: List[int]\n        :type lower: int\n        :type upper: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} differences\n * @param {number} lower\n * @param {number} upper\n * @return {number}\n */\nvar numberOfArrays = function(differences, lower, upper) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function numberOfArrays(differences: number[], lower: number, upper: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int NumberOfArrays(int[] differences, int lower, int upper) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int numberOfArrays(int* differences, int differencesSize, int lower, int upper) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func numberOfArrays(differences []int, lower int, upper int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun numberOfArrays(differences: IntArray, lower: Int, upper: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func numberOfArrays(_ differences: [Int], _ lower: Int, _ upper: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn number_of_arrays(differences: Vec<i32>, lower: i32, upper: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} differences\n# @param {Integer} lower\n# @param {Integer} upper\n# @return {Integer}\ndef number_of_arrays(differences, lower, upper)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $differences\n     * @param Integer $lower\n     * @param Integer $upper\n     * @return Integer\n     */\n    function numberOfArrays($differences, $lower, $upper) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int numberOfArrays(List<int> differences, int lower, int upper) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def numberOfArrays(differences: Array[Int], lower: Int, upper: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec number_of_arrays(differences :: [integer], lower :: integer, upper :: integer) :: integer\n  def number_of_arrays(differences, lower, upper) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec number_of_arrays(Differences :: [integer()], Lower :: integer(), Upper :: integer()) -> integer().\nnumber_of_arrays(Differences, Lower, Upper) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (number-of-arrays differences lower upper)\n  (-> (listof exact-integer?) exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

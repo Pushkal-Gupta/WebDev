@@ -13,5 +13,42 @@
     "\"OOHHHH\""
   ],
   "content_signature": "tfj9ox",
-  "fetched_at": "2026-05-21T06:14:10.312Z"
+  "fetched_at": "2026-05-30T06:58:13.208Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class H2O {\npublic:\n    H2O() {\n        \n    }\n\n    void hydrogen(function<void()> releaseHydrogen) {\n        \n        // releaseHydrogen() outputs \"H\". Do not change or remove this line.\n        releaseHydrogen();\n    }\n\n    void oxygen(function<void()> releaseOxygen) {\n        \n        // releaseOxygen() outputs \"O\". Do not change or remove this line.\n        releaseOxygen();\n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class H2O {\n\n    public H2O() {\n        \n    }\n\n    public void hydrogen(Runnable releaseHydrogen) throws InterruptedException {\n\t\t\n        // releaseHydrogen.run() outputs \"H\". Do not change or remove this line.\n        releaseHydrogen.run();\n    }\n\n    public void oxygen(Runnable releaseOxygen) throws InterruptedException {\n        \n        // releaseOxygen.run() outputs \"O\". Do not change or remove this line.\n\t\treleaseOxygen.run();\n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class H2O:\n    def __init__(self):\n        pass\n\n\n    def hydrogen(self, releaseHydrogen: 'Callable[[], None]') -> None:\n        \n        # releaseHydrogen() outputs \"H\". Do not change or remove this line.\n        releaseHydrogen()\n\n\n    def oxygen(self, releaseOxygen: 'Callable[[], None]') -> None:\n        \n        # releaseOxygen() outputs \"O\". Do not change or remove this line.\n        releaseOxygen()"
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class H2O(object):\n    def __init__(self):\n        pass\n\n\n    def hydrogen(self, releaseHydrogen):\n        \"\"\"\n        :type releaseHydrogen: method\n        :rtype: void\n        \"\"\"\n        \n        # releaseHydrogen() outputs \"H\". Do not change or remove this line.\n        releaseHydrogen()\n\n\n    def oxygen(self, releaseOxygen):\n        \"\"\"\n        :type releaseOxygen: method\n        :rtype: void\n        \"\"\"\n        \n        # releaseOxygen() outputs \"O\". Do not change or remove this line.\n        releaseOxygen()"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class H2O {\n\n    public H2O() {\n        \n    }\n\n    public void Hydrogen(Action releaseHydrogen) {\n\t\t\n        // releaseHydrogen() outputs \"H\". Do not change or remove this line.\n        releaseHydrogen();\n    }\n\n    public void Oxygen(Action releaseOxygen) {\n        \n        // releaseOxygen() outputs \"O\". Do not change or remove this line.\n\t\treleaseOxygen();\n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "typedef struct {\n    // User defined data may be declared here.\n    \n} H2O;\n\nvoid releaseHydrogen();\n\nvoid releaseOxygen();\n\nH2O* h2oCreate() {\n    H2O* obj = (H2O*) malloc(sizeof(H2O));\n    \n    // Initialize user defined data here.\n    \n    return obj;\n}\n\nvoid hydrogen(H2O* obj) {\n    \n    // releaseHydrogen() outputs \"H\". Do not change or remove this line.\n    releaseHydrogen();\n}\n\nvoid oxygen(H2O* obj) {\n    \n    // releaseOxygen() outputs \"O\". Do not change or remove this line.\n    releaseOxygen();\n}\n\nvoid h2oFree(H2O* obj) {\n    // User defined data may be cleaned up here.\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "type H2O struct {\n\n}\n\nfunc NewH2O() *H2O {\n\th := &H2O{}\n\treturn h\n}\n\nfunc (h *H2O) Hydrogen(releaseHydrogen func()) {\n\t// releaseHydrogen() outputs \"H\". Do not change or remove this line.\n\treleaseHydrogen()\n}\n\nfunc (h *H2O) Oxygen(releaseOxygen func()) {\n\t// releaseOxygen() outputs \"H\". Do not change or remove this line.\n\treleaseOxygen()\n}"
+    }
+  ]
 }

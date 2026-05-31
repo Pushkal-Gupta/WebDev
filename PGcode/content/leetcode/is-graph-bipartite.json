@@ -16,5 +16,102 @@
     "[[1,3],[0,2],[1,3],[0,2]]"
   ],
   "content_signature": "-p0e2pl",
-  "fetched_at": "2026-05-21T06:06:04.633Z"
+  "fetched_at": "2026-05-30T06:37:43.959Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool isBipartite(vector<vector<int>>& graph) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean isBipartite(int[][] graph) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def isBipartite(self, graph: List[List[int]]) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def isBipartite(self, graph):\n        \"\"\"\n        :type graph: List[List[int]]\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} graph\n * @return {boolean}\n */\nvar isBipartite = function(graph) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function isBipartite(graph: number[][]): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool IsBipartite(int[][] graph) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool isBipartite(int** graph, int graphSize, int* graphColSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func isBipartite(graph [][]int) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun isBipartite(graph: Array<IntArray>): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func isBipartite(_ graph: [[Int]]) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn is_bipartite(graph: Vec<Vec<i32>>) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} graph\n# @return {Boolean}\ndef is_bipartite(graph)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $graph\n     * @return Boolean\n     */\n    function isBipartite($graph) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool isBipartite(List<List<int>> graph) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def isBipartite(graph: Array[Array[Int]]): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec is_bipartite(graph :: [[integer]]) :: boolean\n  def is_bipartite(graph) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec is_bipartite(Graph :: [[integer()]]) -> boolean().\nis_bipartite(Graph) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (is-bipartite graph)\n  (-> (listof (listof exact-integer?)) boolean?)\n  )"
+    }
+  ]
 }

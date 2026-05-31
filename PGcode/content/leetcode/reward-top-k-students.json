@@ -29,5 +29,102 @@
     "2"
   ],
   "content_signature": "nh4l09",
-  "fetched_at": "2026-05-21T06:56:51.732Z"
+  "fetched_at": "2026-05-30T05:19:50.240Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> topStudents(vector<string>& positive_feedback, vector<string>& negative_feedback, vector<string>& report, vector<int>& student_id, int k) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public List<Integer> topStudents(String[] positive_feedback, String[] negative_feedback, String[] report, int[] student_id, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def topStudents(self, positive_feedback: List[str], negative_feedback: List[str], report: List[str], student_id: List[int], k: int) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def topStudents(self, positive_feedback, negative_feedback, report, student_id, k):\n        \"\"\"\n        :type positive_feedback: List[str]\n        :type negative_feedback: List[str]\n        :type report: List[str]\n        :type student_id: List[int]\n        :type k: int\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string[]} positive_feedback\n * @param {string[]} negative_feedback\n * @param {string[]} report\n * @param {number[]} student_id\n * @param {number} k\n * @return {number[]}\n */\nvar topStudents = function(positive_feedback, negative_feedback, report, student_id, k) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function topStudents(positive_feedback: string[], negative_feedback: string[], report: string[], student_id: number[], k: number): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public IList<int> TopStudents(string[] positive_feedback, string[] negative_feedback, string[] report, int[] student_id, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* topStudents(char** positive_feedback, int positive_feedbackSize, char** negative_feedback, int negative_feedbackSize, char** report, int reportSize, int* student_id, int student_idSize, int k, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func topStudents(positive_feedback []string, negative_feedback []string, report []string, student_id []int, k int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun topStudents(positive_feedback: Array<String>, negative_feedback: Array<String>, report: Array<String>, student_id: IntArray, k: Int): List<Int> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func topStudents(_ positive_feedback: [String], _ negative_feedback: [String], _ report: [String], _ student_id: [Int], _ k: Int) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn top_students(positive_feedback: Vec<String>, negative_feedback: Vec<String>, report: Vec<String>, student_id: Vec<i32>, k: i32) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String[]} positive_feedback\n# @param {String[]} negative_feedback\n# @param {String[]} report\n# @param {Integer[]} student_id\n# @param {Integer} k\n# @return {Integer[]}\ndef top_students(positive_feedback, negative_feedback, report, student_id, k)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[] $positive_feedback\n     * @param String[] $negative_feedback\n     * @param String[] $report\n     * @param Integer[] $student_id\n     * @param Integer $k\n     * @return Integer[]\n     */\n    function topStudents($positive_feedback, $negative_feedback, $report, $student_id, $k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> topStudents(List<String> positive_feedback, List<String> negative_feedback, List<String> report, List<int> student_id, int k) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def topStudents(positive_feedback: Array[String], negative_feedback: Array[String], report: Array[String], student_id: Array[Int], k: Int): List[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec top_students(positive_feedback :: [String.t], negative_feedback :: [String.t], report :: [String.t], student_id :: [integer], k :: integer) :: [integer]\n  def top_students(positive_feedback, negative_feedback, report, student_id, k) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec top_students(Positive_feedback :: [unicode:unicode_binary()], Negative_feedback :: [unicode:unicode_binary()], Report :: [unicode:unicode_binary()], Student_id :: [integer()], K :: integer()) -> [integer()].\ntop_students(Positive_feedback, Negative_feedback, Report, Student_id, K) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (top-students positive_feedback negative_feedback report student_id k)\n  (-> (listof string?) (listof string?) (listof string?) (listof exact-integer?) exact-integer? (listof exact-integer?))\n  )"
+    }
+  ]
 }

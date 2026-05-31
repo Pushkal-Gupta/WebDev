@@ -22,5 +22,102 @@
     "\"z\""
   ],
   "content_signature": "-m5m1ed",
-  "fetched_at": "2026-05-21T06:32:54.197Z"
+  "fetched_at": "2026-05-30T05:18:29.377Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    string reversePrefix(string word, char ch) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public String reversePrefix(String word, char ch) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def reversePrefix(self, word: str, ch: str) -> str:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def reversePrefix(self, word, ch):\n        \"\"\"\n        :type word: str\n        :type ch: str\n        :rtype: str\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} word\n * @param {character} ch\n * @return {string}\n */\nvar reversePrefix = function(word, ch) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function reversePrefix(word: string, ch: string): string {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public string ReversePrefix(string word, char ch) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "char* reversePrefix(char* word, char ch) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func reversePrefix(word string, ch byte) string {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun reversePrefix(word: String, ch: Char): String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func reversePrefix(_ word: String, _ ch: Character) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn reverse_prefix(word: String, ch: char) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} word\n# @param {Character} ch\n# @return {String}\ndef reverse_prefix(word, ch)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $word\n     * @param String $ch\n     * @return String\n     */\n    function reversePrefix($word, $ch) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  String reversePrefix(String word, String ch) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def reversePrefix(word: String, ch: Char): String = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec reverse_prefix(word :: String.t, ch :: char) :: String.t\n  def reverse_prefix(word, ch) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec reverse_prefix(Word :: unicode:unicode_binary(), Ch :: char()) -> unicode:unicode_binary().\nreverse_prefix(Word, Ch) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (reverse-prefix word ch)\n  (-> string? char? string?)\n  )"
+    }
+  ]
 }

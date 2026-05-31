@@ -16,5 +16,102 @@
     "4"
   ],
   "content_signature": "ede63v",
-  "fetched_at": "2026-05-21T05:57:16.616Z"
+  "fetched_at": "2026-05-30T05:43:56.778Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool canMeasureWater(int x, int y, int target) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean canMeasureWater(int x, int y, int target) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def canMeasureWater(self, x: int, y: int, target: int) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def canMeasureWater(self, x, y, target):\n        \"\"\"\n        :type x: int\n        :type y: int\n        :type target: int\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} x\n * @param {number} y\n * @param {number} target\n * @return {boolean}\n */\nvar canMeasureWater = function(x, y, target) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function canMeasureWater(x: number, y: number, target: number): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool CanMeasureWater(int x, int y, int target) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool canMeasureWater(int x, int y, int target) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func canMeasureWater(x int, y int, target int) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun canMeasureWater(x: Int, y: Int, target: Int): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func canMeasureWater(_ x: Int, _ y: Int, _ target: Int) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn can_measure_water(x: i32, y: i32, target: i32) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} x\n# @param {Integer} y\n# @param {Integer} target\n# @return {Boolean}\ndef can_measure_water(x, y, target)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $x\n     * @param Integer $y\n     * @param Integer $target\n     * @return Boolean\n     */\n    function canMeasureWater($x, $y, $target) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool canMeasureWater(int x, int y, int target) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def canMeasureWater(x: Int, y: Int, target: Int): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec can_measure_water(x :: integer, y :: integer, target :: integer) :: boolean\n  def can_measure_water(x, y, target) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec can_measure_water(X :: integer(), Y :: integer(), Target :: integer()) -> boolean().\ncan_measure_water(X, Y, Target) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (can-measure-water x y target)\n  (-> exact-integer? exact-integer? exact-integer? boolean?)\n  )"
+    }
+  ]
 }

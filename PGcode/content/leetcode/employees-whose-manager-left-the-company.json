@@ -12,5 +12,32 @@
     "{\"headers\": {\"Employees\": [\"employee_id\", \"name\", \"manager_id\", \"salary\"]}, \"rows\": {\"Employees\": [[3, \"Mila\", 9, 60301], [12, \"Antonella\", null, 31000], [13, \"Emery\", null, 67084], [1, \"Kalel\", 11, 21241], [9, \"Mikaela\", null, 50937], [11, \"Joziah\", 6, 28485]]}}"
   ],
   "content_signature": "9tmlki",
-  "fetched_at": "2026-05-21T06:32:26.700Z"
+  "fetched_at": "2026-05-30T05:49:08.723Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef find_employees(employees: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

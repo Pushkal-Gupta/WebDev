@@ -23,5 +23,102 @@
     "[[0,1],[0,2],[0,3],[2,4],[2,5],[3,6],[2,7]]"
   ],
   "content_signature": "b7etp9",
-  "fetched_at": "2026-05-21T07:13:30.672Z"
+  "fetched_at": "2026-05-30T07:21:17.745Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int minimumDiameterAfterMerge(vector<vector<int>>& edges1, vector<vector<int>>& edges2) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int minimumDiameterAfterMerge(int[][] edges1, int[][] edges2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minimumDiameterAfterMerge(self, edges1: List[List[int]], edges2: List[List[int]]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minimumDiameterAfterMerge(self, edges1, edges2):\n        \"\"\"\n        :type edges1: List[List[int]]\n        :type edges2: List[List[int]]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} edges1\n * @param {number[][]} edges2\n * @return {number}\n */\nvar minimumDiameterAfterMerge = function(edges1, edges2) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minimumDiameterAfterMerge(edges1: number[][], edges2: number[][]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MinimumDiameterAfterMerge(int[][] edges1, int[][] edges2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int minimumDiameterAfterMerge(int** edges1, int edges1Size, int* edges1ColSize, int** edges2, int edges2Size, int* edges2ColSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minimumDiameterAfterMerge(edges1 [][]int, edges2 [][]int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minimumDiameterAfterMerge(edges1: Array<IntArray>, edges2: Array<IntArray>): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minimumDiameterAfterMerge(_ edges1: [[Int]], _ edges2: [[Int]]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn minimum_diameter_after_merge(edges1: Vec<Vec<i32>>, edges2: Vec<Vec<i32>>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} edges1\n# @param {Integer[][]} edges2\n# @return {Integer}\ndef minimum_diameter_after_merge(edges1, edges2)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $edges1\n     * @param Integer[][] $edges2\n     * @return Integer\n     */\n    function minimumDiameterAfterMerge($edges1, $edges2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minimumDiameterAfterMerge(List<List<int>> edges1, List<List<int>> edges2) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minimumDiameterAfterMerge(edges1: Array[Array[Int]], edges2: Array[Array[Int]]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec minimum_diameter_after_merge(edges1 :: [[integer]], edges2 :: [[integer]]) :: integer\n  def minimum_diameter_after_merge(edges1, edges2) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec minimum_diameter_after_merge(Edges1 :: [[integer()]], Edges2 :: [[integer()]]) -> integer().\nminimum_diameter_after_merge(Edges1, Edges2) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (minimum-diameter-after-merge edges1 edges2)\n  (-> (listof (listof exact-integer?)) (listof (listof exact-integer?)) exact-integer?)\n  )"
+    }
+  ]
 }

@@ -25,5 +25,102 @@
     "1"
   ],
   "content_signature": "h9n2al",
-  "fetched_at": "2026-05-21T07:50:40.577Z"
+  "fetched_at": "2026-05-30T06:49:45.730Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> bestTower(vector<vector<int>>& towers, vector<int>& center, int radius) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] bestTower(int[][] towers, int[] center, int radius) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def bestTower(self, towers: List[List[int]], center: List[int], radius: int) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def bestTower(self, towers, center, radius):\n        \"\"\"\n        :type towers: List[List[int]]\n        :type center: List[int]\n        :type radius: int\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} towers\n * @param {number[]} center\n * @param {number} radius\n * @return {number[]}\n */\nvar bestTower = function(towers, center, radius) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function bestTower(towers: number[][], center: number[], radius: number): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] BestTower(int[][] towers, int[] center, int radius) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* bestTower(int** towers, int towersSize, int* towersColSize, int* center, int centerSize, int radius, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func bestTower(towers [][]int, center []int, radius int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun bestTower(towers: Array<IntArray>, center: IntArray, radius: Int): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func bestTower(_ towers: [[Int]], _ center: [Int], _ radius: Int) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn best_tower(towers: Vec<Vec<i32>>, center: Vec<i32>, radius: i32) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} towers\n# @param {Integer[]} center\n# @param {Integer} radius\n# @return {Integer[]}\ndef best_tower(towers, center, radius)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $towers\n     * @param Integer[] $center\n     * @param Integer $radius\n     * @return Integer[]\n     */\n    function bestTower($towers, $center, $radius) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> bestTower(List<List<int>> towers, List<int> center, int radius) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def bestTower(towers: Array[Array[Int]], center: Array[Int], radius: Int): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec best_tower(towers :: [[integer]], center :: [integer], radius :: integer) :: [integer]\n  def best_tower(towers, center, radius) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec best_tower(Towers :: [[integer()]], Center :: [integer()], Radius :: integer()) -> [integer()].\nbest_tower(Towers, Center, Radius) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (best-tower towers center radius)\n  (-> (listof (listof exact-integer?)) (listof exact-integer?) exact-integer? (listof exact-integer?))\n  )"
+    }
+  ]
 }

@@ -12,5 +12,17 @@
     "[null, false, 0]"
   ],
   "content_signature": "-nvmt6",
-  "fetched_at": "2026-05-21T07:03:57.510Z"
+  "fetched_at": "2026-05-30T06:38:03.123Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {Object|Array} obj\n * @return {boolean}\n */\nvar isEmpty = function(obj) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "type JSONValue = null | boolean | number | string | JSONValue[] | { [key: string]: JSONValue };\ntype Obj = Record<string, JSONValue> | JSONValue[]\n\nfunction isEmpty(obj: Obj): boolean {\n    \n};"
+    }
+  ]
 }

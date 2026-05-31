@@ -21,5 +21,102 @@
     "[[0,2,2,4],[1,0,3,2],[2,2,3,4],[3,0,4,2],[3,2,4,4]]"
   ],
   "content_signature": "wyrs4q",
-  "fetched_at": "2026-05-21T07:27:32.180Z"
+  "fetched_at": "2026-05-30T07:08:39.563Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool checkValidCuts(int n, vector<vector<int>>& rectangles) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean checkValidCuts(int n, int[][] rectangles) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def checkValidCuts(self, n: int, rectangles: List[List[int]]) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def checkValidCuts(self, n, rectangles):\n        \"\"\"\n        :type n: int\n        :type rectangles: List[List[int]]\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number[][]} rectangles\n * @return {boolean}\n */\nvar checkValidCuts = function(n, rectangles) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function checkValidCuts(n: number, rectangles: number[][]): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool CheckValidCuts(int n, int[][] rectangles) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool checkValidCuts(int n, int** rectangles, int rectanglesSize, int* rectanglesColSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func checkValidCuts(n int, rectangles [][]int) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun checkValidCuts(n: Int, rectangles: Array<IntArray>): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func checkValidCuts(_ n: Int, _ rectangles: [[Int]]) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn check_valid_cuts(n: i32, rectangles: Vec<Vec<i32>>) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer[][]} rectangles\n# @return {Boolean}\ndef check_valid_cuts(n, rectangles)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer[][] $rectangles\n     * @return Boolean\n     */\n    function checkValidCuts($n, $rectangles) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool checkValidCuts(int n, List<List<int>> rectangles) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def checkValidCuts(n: Int, rectangles: Array[Array[Int]]): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec check_valid_cuts(n :: integer, rectangles :: [[integer]]) :: boolean\n  def check_valid_cuts(n, rectangles) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec check_valid_cuts(N :: integer(), Rectangles :: [[integer()]]) -> boolean().\ncheck_valid_cuts(N, Rectangles) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (check-valid-cuts n rectangles)\n  (-> exact-integer? (listof (listof exact-integer?)) boolean?)\n  )"
+    }
+  ]
 }

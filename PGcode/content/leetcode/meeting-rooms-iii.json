@@ -24,5 +24,102 @@
     "[[1,20],[2,10],[3,5],[4,9],[6,8]]"
   ],
   "content_signature": "6gley0",
-  "fetched_at": "2026-05-21T06:41:49.373Z"
+  "fetched_at": "2026-05-30T07:22:24.716Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int mostBooked(int n, vector<vector<int>>& meetings) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int mostBooked(int n, int[][] meetings) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def mostBooked(self, n: int, meetings: List[List[int]]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def mostBooked(self, n, meetings):\n        \"\"\"\n        :type n: int\n        :type meetings: List[List[int]]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number[][]} meetings\n * @return {number}\n */\nvar mostBooked = function(n, meetings) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function mostBooked(n: number, meetings: number[][]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MostBooked(int n, int[][] meetings) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int mostBooked(int n, int** meetings, int meetingsSize, int* meetingsColSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func mostBooked(n int, meetings [][]int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun mostBooked(n: Int, meetings: Array<IntArray>): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func mostBooked(_ n: Int, _ meetings: [[Int]]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn most_booked(n: i32, meetings: Vec<Vec<i32>>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer[][]} meetings\n# @return {Integer}\ndef most_booked(n, meetings)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer[][] $meetings\n     * @return Integer\n     */\n    function mostBooked($n, $meetings) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int mostBooked(int n, List<List<int>> meetings) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def mostBooked(n: Int, meetings: Array[Array[Int]]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec most_booked(n :: integer, meetings :: [[integer]]) :: integer\n  def most_booked(n, meetings) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec most_booked(N :: integer(), Meetings :: [[integer()]]) -> integer().\nmost_booked(N, Meetings) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (most-booked n meetings)\n  (-> exact-integer? (listof (listof exact-integer?)) exact-integer?)\n  )"
+    }
+  ]
 }

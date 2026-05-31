@@ -33,5 +33,102 @@
     "2"
   ],
   "content_signature": "hqp84f",
-  "fetched_at": "2026-05-21T06:22:11.151Z"
+  "fetched_at": "2026-05-30T06:44:11.140Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    double maxProbability(int n, vector<vector<int>>& edges, vector<double>& succProb, int start_node, int end_node) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public double maxProbability(int n, int[][] edges, double[] succProb, int start_node, int end_node) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def maxProbability(self, n: int, edges: List[List[int]], succProb: List[float], start_node: int, end_node: int) -> float:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def maxProbability(self, n, edges, succProb, start_node, end_node):\n        \"\"\"\n        :type n: int\n        :type edges: List[List[int]]\n        :type succProb: List[float]\n        :type start_node: int\n        :type end_node: int\n        :rtype: float\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number[][]} edges\n * @param {number[]} succProb\n * @param {number} start_node\n * @param {number} end_node\n * @return {number}\n */\nvar maxProbability = function(n, edges, succProb, start_node, end_node) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function maxProbability(n: number, edges: number[][], succProb: number[], start_node: number, end_node: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public double MaxProbability(int n, int[][] edges, double[] succProb, int start_node, int end_node) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "double maxProbability(int n, int** edges, int edgesSize, int* edgesColSize, double* succProb, int succProbSize, int start_node, int end_node) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func maxProbability(n int, edges [][]int, succProb []float64, start_node int, end_node int) float64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun maxProbability(n: Int, edges: Array<IntArray>, succProb: DoubleArray, start_node: Int, end_node: Int): Double {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func maxProbability(_ n: Int, _ edges: [[Int]], _ succProb: [Double], _ start_node: Int, _ end_node: Int) -> Double {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn max_probability(n: i32, edges: Vec<Vec<i32>>, succ_prob: Vec<f64>, start_node: i32, end_node: i32) -> f64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer[][]} edges\n# @param {Float[]} succ_prob\n# @param {Integer} start_node\n# @param {Integer} end_node\n# @return {Float}\ndef max_probability(n, edges, succ_prob, start_node, end_node)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer[][] $edges\n     * @param Float[] $succProb\n     * @param Integer $start_node\n     * @param Integer $end_node\n     * @return Float\n     */\n    function maxProbability($n, $edges, $succProb, $start_node, $end_node) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  double maxProbability(int n, List<List<int>> edges, List<double> succProb, int start_node, int end_node) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def maxProbability(n: Int, edges: Array[Array[Int]], succProb: Array[Double], start_node: Int, end_node: Int): Double = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec max_probability(n :: integer, edges :: [[integer]], succ_prob :: [float], start_node :: integer, end_node :: integer) :: float\n  def max_probability(n, edges, succ_prob, start_node, end_node) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec max_probability(N :: integer(), Edges :: [[integer()]], SuccProb :: [float()], Start_node :: integer(), End_node :: integer()) -> float().\nmax_probability(N, Edges, SuccProb, Start_node, End_node) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (max-probability n edges succProb start_node end_node)\n  (-> exact-integer? (listof (listof exact-integer?)) (listof flonum?) exact-integer? exact-integer? flonum?)\n  )"
+    }
+  ]
 }

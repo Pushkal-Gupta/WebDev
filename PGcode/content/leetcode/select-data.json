@@ -12,5 +12,12 @@
     "{\"headers\":{\"students\":[\"student_id\",\"name\",\"age\"]},\"rows\":{\"students\":[[101,\"Ulysses\",13],[53,\"William\",10],[128,\"Henry\",6],[3,\"Henry\",11]]}}"
   ],
   "content_signature": "-c1a9zd",
-  "fetched_at": "2026-05-21T07:06:53.567Z"
+  "fetched_at": "2026-05-30T07:34:26.254Z",
+  "code_snippets": [
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef selectData(students: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

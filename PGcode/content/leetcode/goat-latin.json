@@ -13,5 +13,102 @@
     "\"The quick brown fox jumped over the lazy dog\""
   ],
   "content_signature": "xe1qo3",
-  "fetched_at": "2026-05-21T06:07:05.984Z"
+  "fetched_at": "2026-05-30T05:50:02.802Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    string toGoatLatin(string sentence) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public String toGoatLatin(String sentence) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def toGoatLatin(self, sentence: str) -> str:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def toGoatLatin(self, sentence):\n        \"\"\"\n        :type sentence: str\n        :rtype: str\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} sentence\n * @return {string}\n */\nvar toGoatLatin = function(sentence) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function toGoatLatin(sentence: string): string {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public string ToGoatLatin(string sentence) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "char* toGoatLatin(char* sentence) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func toGoatLatin(sentence string) string {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun toGoatLatin(sentence: String): String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func toGoatLatin(_ sentence: String) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn to_goat_latin(sentence: String) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} sentence\n# @return {String}\ndef to_goat_latin(sentence)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $sentence\n     * @return String\n     */\n    function toGoatLatin($sentence) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  String toGoatLatin(String sentence) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def toGoatLatin(sentence: String): String = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec to_goat_latin(sentence :: String.t) :: String.t\n  def to_goat_latin(sentence) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec to_goat_latin(Sentence :: unicode:unicode_binary()) -> unicode:unicode_binary().\nto_goat_latin(Sentence) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (to-goat-latin sentence)\n  (-> string? string?)\n  )"
+    }
+  ]
 }

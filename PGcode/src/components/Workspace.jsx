@@ -4,13 +4,12 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useTopicProblems, filterByRoadmap, qk, useProblemCompanies, useSimilarProblems } from '../lib/queries';
 import Editor from '@monaco-editor/react';
-import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, CheckCircle, RotateCcw, Code2, FileText, Award, MessageSquare, TestTube, Lightbulb, Pin, Lock } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, CheckCircle, RotateCcw, Code2, FileText, Award, MessageSquare, TestTube, Lightbulb, Pin, Lock, Loader2 } from 'lucide-react';
 import SolutionView from './SolutionView';
 import LanguageIcon from './LanguageIcon';
 import HintsPanel from './HintsPanel';
 import Discussion from './Discussion';
 import StatusPill from './StatusPill';
-import AiExplainFailure from './AiExplainFailure';
 import Select from './Select';
 import { legacyToStatus } from '../lib/status';
 import { runCode, runCodeBatch, runCodeMultiCase } from '../lib/codeRunner';
@@ -162,9 +161,6 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
   };
   const [codeContent, setCodeContent] = useState('');
   const [leftTab, setLeftTab] = useState('description');
-  // Progressive hint reveal in Description tab — count of hints visible so far.
-  // Resets per active problem id (see effect below).
-  const [descHintsRevealed, setDescHintsRevealed] = useState(0);
   const [notes, setNotes] = useState('');
   const [confidence, setConfidence] = useState(0);
   const [consoleOutput, setConsoleOutput] = useState('');
@@ -296,7 +292,6 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
     setTimerSeconds(0);
     setTimerPaused(false);
     setTimerStopped(false);
-    setDescHintsRevealed(0);
   }, [activeProblem?.id]);
 
   // Topic info (cached)
@@ -894,7 +889,8 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
         }
       }
 
-      // Save submission to history
+      // Save submission to history with a code snapshot so the user can
+      // re-load the exact submission by clicking it in the Submissions tab.
       const sub = {
         id: (crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`),
         status: allPassed ? 'Accepted' : (failIdx >= 0 ? 'Wrong Answer' : 'Error'),
@@ -903,6 +899,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
         passed: allPassed ? total : (failIdx >= 0 ? failIdx : 0),
         total,
         date: new Date().toISOString(),
+        code: codeContent,
       };
       const newSubs = [sub, ...submissions].slice(0, 20);
       setSubmissions(newSubs);
@@ -1183,28 +1180,30 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                 )}
 
                 {/* Constraints */}
-                {activeProblem.constraints && (
-                  <div className="ws-constraints">
-                    <div className="ws-constraints-title">Constraints</div>
-                    <ul>
-                      {(Array.isArray(activeProblem.constraints)
-                        ? activeProblem.constraints
-                        : (typeof activeProblem.constraints === 'string'
-                            ? activeProblem.constraints.split('\n').filter(Boolean)
-                            : [toText(activeProblem.constraints)])
-                      ).map((c, i) => {
-                        const text = toText(c);
-                        if (!text) return null;
-                        return (
+                {(() => {
+                  const raw = activeProblem.constraints;
+                  if (!raw) return null;
+                  const arr = Array.isArray(raw)
+                    ? raw
+                    : (typeof raw === 'string'
+                        ? raw.split('\n').filter(Boolean)
+                        : [toText(raw)]);
+                  const constraintItems = arr.map(toText).filter(t => t && t.trim().length > 0);
+                  if (constraintItems.length === 0) return null;
+                  return (
+                    <div className="ws-constraints">
+                      <div className="ws-constraints-title">Constraints</div>
+                      <ul>
+                        {constraintItems.map((text, i) => (
                           <li key={i} dangerouslySetInnerHTML={{ __html: text.replace(/`([^`]+)`/g, '<code>$1</code>') }} />
-                        );
-                      })}
-                    </ul>
-                  </div>
-                )}
+                        ))}
+                      </ul>
+                    </div>
+                  );
+                })()}
 
                 {/* Follow-up */}
-                {activeProblem.follow_up && (
+                {activeProblem.follow_up && toText(activeProblem.follow_up).trim().length > 0 && (
                   <div className="ws-followup">
                     <div className="ws-followup-label">Follow-up</div>
                     <p>{toText(activeProblem.follow_up)}</p>
@@ -1244,49 +1243,6 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                     </details>
                   );
                 })()}
-
-                {/* Hints — progressive reveal, numbered badges */}
-                {activeProblem.hints?.length > 0 && (
-                  <div className="ws-hints-block">
-                    <div className="ws-hints-head">
-                      <Lightbulb size={13} />
-                      <span className="ws-hints-title">Hints</span>
-                      <span className="ws-hints-count">{descHintsRevealed} / {activeProblem.hints.length}</span>
-                      {descHintsRevealed > 0 && (
-                        <button
-                          type="button"
-                          className="ws-hints-reset"
-                          onClick={() => setDescHintsRevealed(0)}
-                        >Reset</button>
-                      )}
-                    </div>
-                    <ol className="ws-hints-list">
-                      {activeProblem.hints.map((hint, i) => {
-                        const shown = i < descHintsRevealed;
-                        const isNext = i === descHintsRevealed;
-                        return (
-                          <li
-                            key={`hint-${i}-${(hint || '').slice(0, 24)}`}
-                            className={`ws-hint-item ${shown ? 'is-shown' : ''} ${isNext ? 'is-next' : ''}`}
-                          >
-                            <span className="ws-hint-badge">{i + 1}</span>
-                            {shown ? (
-                              <p className="ws-hint-text">{toText(hint)}</p>
-                            ) : isNext ? (
-                              <button
-                                type="button"
-                                className="ws-hint-reveal"
-                                onClick={() => setDescHintsRevealed(i + 1)}
-                              >Reveal hint {i + 1}</button>
-                            ) : (
-                              <span className="ws-hint-locked">Locked</span>
-                            )}
-                          </li>
-                        );
-                      })}
-                    </ol>
-                  </div>
-                )}
 
                 {similarProblems.length > 0 && (
                   <div className="ws-similar">
@@ -1364,44 +1320,41 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                       <span className="ws-sub-col ws-sub-col-time">Runtime</span>
                       <span className="ws-sub-col">Date</span>
                     </div>
-                    {submissions.map((sub, i) => (
-                      <div key={sub.id ?? `${sub.date}-${i}`} className="ws-sub-history-row">
-                        <span className={`ws-sub-col-status ${sub.status === 'Accepted' ? 'accepted' : 'failed'}`}>
-                          {sub.status}
-                          <span className="ws-sub-pass-count">
-                            {sub.passed}/{sub.total}
+                    {submissions.map((sub, i) => {
+                      const loadSubmission = () => {
+                        if (sub.code) setCodeContent(sub.code);
+                        if (sub.language && sub.language !== activeLang) {
+                          onLangChange(sub.language);
+                        }
+                        if (sub.result) setRunResult(sub.result);
+                      };
+                      return (
+                        <div
+                          key={sub.id ?? `${sub.date}-${i}`}
+                          className="ws-sub-history-row ws-sub-history-row-click"
+                          role="button"
+                          tabIndex={0}
+                          onClick={loadSubmission}
+                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); loadSubmission(); } }}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          <span className={`ws-sub-col-status ${sub.status === 'Accepted' ? 'accepted' : 'failed'}`}>
+                            {sub.status}
+                            <span className="ws-sub-pass-count">
+                              {sub.passed}/{sub.total}
+                            </span>
                           </span>
-                        </span>
-                        <span className="ws-sub-col ws-sub-col-lang">{sub.language}</span>
-                        <span className="ws-sub-col ws-sub-col-time">{sub.runtime}</span>
-                        <span className="ws-sub-col">{new Date(sub.date).toLocaleDateString()}</span>
-                      </div>
-                    ))}
+                          <span className="ws-sub-col ws-sub-col-lang">{sub.language}</span>
+                          <span className="ws-sub-col ws-sub-col-time">{sub.runtime}</span>
+                          <span className="ws-sub-col">{new Date(sub.date).toLocaleDateString()}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
 
                 {submissions.length === 0 && (
                   <p className="ws-empty-msg">No submissions yet. Submit your code to see results here.</p>
-                )}
-
-                {session && (
-                  <>
-                    <div className="ws-sub-section">
-                      <span className="ws-sub-label">Confidence</span>
-                      <div className="ws-conf-dots">
-                        {[1,2,3,4,5].map(v => (
-                          <button key={v} className={`ws-conf-dot ${confidence >= v ? 'active' : ''}`}
-                            onClick={() => setAndSaveConfidence(v)} title={['Again','Hard','Good','Easy','Mastered'][v-1]}>{v}</button>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="ws-sub-section">
-                      <span className="ws-sub-label">Personal Notes</span>
-                      <textarea className="ws-notes-ta" value={notes} onChange={e => setNotes(e.target.value)}
-                        placeholder="Your approach, edge cases, things to remember..." rows={5} />
-                      <button className="ws-notes-save" onClick={saveNotes}>Save Notes</button>
-                    </div>
-                  </>
                 )}
               </div>
             )}
@@ -1535,11 +1488,9 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                 {/* Submit progress */}
                 {running && submitProgress && (
                   <div className="ws-submit-progress">
-                    <div className="ws-submit-progress-text">
-                      Running test case {submitProgress.current} / {submitProgress.total}...
-                    </div>
-                    <div className="ws-submit-progress-track">
-                      <div className="ws-submit-progress-fill" style={{ width: `${(submitProgress.current / submitProgress.total) * 100}%` }} />
+                    <div className="ws-submit-loading">
+                      <Loader2 size={16} className="ws-spinner" />
+                      <span>{submitProgress.current === 0 ? 'Setting up runtime environment...' : 'Running test cases...'}</span>
                     </div>
                   </div>
                 )}
@@ -1580,47 +1531,9 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                       <div className="ws-result-error">{runResult.error}</div>
                     )}
 
-                    {/* AI explain-failure button — only when the submission failed and AI is configured */}
-                    {runResult.isSubmission && runResult.status !== 'accepted' && (
-                      <AiExplainFailure
-                        problem={activeProblem}
-                        result={runResult}
-                        code={codeContent}
-                        language={activeLang}
-                      />
-                    )}
-
                     {/* Success message for accepted submit with no cases array */}
                     {runResult.isSubmission && runResult.status === 'accepted' && !runResult.cases?.length && (
                       <p className="ws-success-msg">You have successfully completed this problem!</p>
-                    )}
-
-                    {/* Pattern Breakdown — shown after accepted submission */}
-                    {runResult.isSubmission && runResult.status === 'accepted' && activeProblem?.tags?.length > 0 && (
-                      <div className="ws-pattern-breakdown">
-                        <div className="ws-pb-header">Pattern Breakdown</div>
-                        <div className="ws-pb-tags">
-                          {activeProblem.tags.map((t, i) => {
-                            const label = toText(t);
-                            return label ? (
-                              <span key={`${label}-${i}`} className={`ws-pb-tag ${i === 0 ? 'primary' : ''}`}>
-                                {i === 0 ? 'Primary: ' : ''}{label}
-                              </span>
-                            ) : null;
-                          })}
-                        </div>
-                        {postSolveSimilar.length > 0 && (
-                          <div className="ws-pb-similar">
-                            <div className="ws-pb-similar-label">Similar problems using these patterns:</div>
-                            {postSolveSimilar.map(sp => (
-                              <Link key={sp.id} to={`/category/${encodeURIComponent(sp.topic_id)}/${encodeURIComponent(sp.id)}`} className="ws-pb-similar-item">
-                                <span className="ws-pb-similar-name">{sp.leetcode_number ? `${sp.leetcode_number}. ${sp.name}` : sp.name}</span>
-                                <span className={`ws-pb-similar-diff ws-diff-${sp.difficulty?.toLowerCase()}`}>{sp.difficulty}</span>
-                              </Link>
-                            ))}
-                          </div>
-                        )}
-                      </div>
                     )}
 
                     {/* Case tabs — only shown for Run (not Submit). Submit shows only the failing case directly. */}

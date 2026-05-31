@@ -26,5 +26,102 @@
     "[10,12,11]"
   ],
   "content_signature": "-bqd7om",
-  "fetched_at": "2026-05-21T06:24:11.344Z"
+  "fetched_at": "2026-05-30T05:28:16.920Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> busiestServers(int k, vector<int>& arrival, vector<int>& load) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public List<Integer> busiestServers(int k, int[] arrival, int[] load) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def busiestServers(self, k: int, arrival: List[int], load: List[int]) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def busiestServers(self, k, arrival, load):\n        \"\"\"\n        :type k: int\n        :type arrival: List[int]\n        :type load: List[int]\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} k\n * @param {number[]} arrival\n * @param {number[]} load\n * @return {number[]}\n */\nvar busiestServers = function(k, arrival, load) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function busiestServers(k: number, arrival: number[], load: number[]): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public IList<int> BusiestServers(int k, int[] arrival, int[] load) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* busiestServers(int k, int* arrival, int arrivalSize, int* load, int loadSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func busiestServers(k int, arrival []int, load []int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun busiestServers(k: Int, arrival: IntArray, load: IntArray): List<Int> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func busiestServers(_ k: Int, _ arrival: [Int], _ load: [Int]) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn busiest_servers(k: i32, arrival: Vec<i32>, load: Vec<i32>) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} k\n# @param {Integer[]} arrival\n# @param {Integer[]} load\n# @return {Integer[]}\ndef busiest_servers(k, arrival, load)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $k\n     * @param Integer[] $arrival\n     * @param Integer[] $load\n     * @return Integer[]\n     */\n    function busiestServers($k, $arrival, $load) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> busiestServers(int k, List<int> arrival, List<int> load) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def busiestServers(k: Int, arrival: Array[Int], load: Array[Int]): List[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec busiest_servers(k :: integer, arrival :: [integer], load :: [integer]) :: [integer]\n  def busiest_servers(k, arrival, load) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec busiest_servers(K :: integer(), Arrival :: [integer()], Load :: [integer()]) -> [integer()].\nbusiest_servers(K, Arrival, Load) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (busiest-servers k arrival load)\n  (-> exact-integer? (listof exact-integer?) (listof exact-integer?) (listof exact-integer?))\n  )"
+    }
+  ]
 }

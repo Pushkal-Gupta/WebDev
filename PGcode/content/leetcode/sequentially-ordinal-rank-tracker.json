@@ -22,5 +22,102 @@
     "[[],[\"bradford\",2],[\"branford\",3],[],[\"alps\",2],[],[\"orland\",2],[],[\"orlando\",3],[],[\"alpine\",2],[],[]]"
   ],
   "content_signature": "-3urjyy",
-  "fetched_at": "2026-05-21T06:35:06.623Z"
+  "fetched_at": "2026-05-30T06:55:38.841Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class SORTracker {\npublic:\n    SORTracker() {\n        \n    }\n    \n    void add(string name, int score) {\n        \n    }\n    \n    string get() {\n        \n    }\n};\n\n/**\n * Your SORTracker object will be instantiated and called as such:\n * SORTracker* obj = new SORTracker();\n * obj->add(name,score);\n * string param_2 = obj->get();\n */"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class SORTracker {\n\n    public SORTracker() {\n        \n    }\n    \n    public void add(String name, int score) {\n        \n    }\n    \n    public String get() {\n        \n    }\n}\n\n/**\n * Your SORTracker object will be instantiated and called as such:\n * SORTracker obj = new SORTracker();\n * obj.add(name,score);\n * String param_2 = obj.get();\n */"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class SORTracker:\n\n    def __init__(self):\n        \n\n    def add(self, name: str, score: int) -> None:\n        \n\n    def get(self) -> str:\n        \n\n\n# Your SORTracker object will be instantiated and called as such:\n# obj = SORTracker()\n# obj.add(name,score)\n# param_2 = obj.get()"
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class SORTracker(object):\n\n    def __init__(self):\n        \n\n    def add(self, name, score):\n        \"\"\"\n        :type name: str\n        :type score: int\n        :rtype: None\n        \"\"\"\n        \n\n    def get(self):\n        \"\"\"\n        :rtype: str\n        \"\"\"\n        \n\n\n# Your SORTracker object will be instantiated and called as such:\n# obj = SORTracker()\n# obj.add(name,score)\n# param_2 = obj.get()"
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "\nvar SORTracker = function() {\n    \n};\n\n/** \n * @param {string} name \n * @param {number} score\n * @return {void}\n */\nSORTracker.prototype.add = function(name, score) {\n    \n};\n\n/**\n * @return {string}\n */\nSORTracker.prototype.get = function() {\n    \n};\n\n/** \n * Your SORTracker object will be instantiated and called as such:\n * var obj = new SORTracker()\n * obj.add(name,score)\n * var param_2 = obj.get()\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "class SORTracker {\n    constructor() {\n        \n    }\n\n    add(name: string, score: number): void {\n        \n    }\n\n    get(): string {\n        \n    }\n}\n\n/**\n * Your SORTracker object will be instantiated and called as such:\n * var obj = new SORTracker()\n * obj.add(name,score)\n * var param_2 = obj.get()\n */"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class SORTracker {\n\n    public SORTracker() {\n        \n    }\n    \n    public void Add(string name, int score) {\n        \n    }\n    \n    public string Get() {\n        \n    }\n}\n\n/**\n * Your SORTracker object will be instantiated and called as such:\n * SORTracker obj = new SORTracker();\n * obj.Add(name,score);\n * string param_2 = obj.Get();\n */"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "\n\n\ntypedef struct {\n    \n} SORTracker;\n\n\nSORTracker* sORTrackerCreate() {\n    \n}\n\nvoid sORTrackerAdd(SORTracker* obj, char* name, int score) {\n    \n}\n\nchar* sORTrackerGet(SORTracker* obj) {\n    \n}\n\nvoid sORTrackerFree(SORTracker* obj) {\n    \n}\n\n/**\n * Your SORTracker struct will be instantiated and called as such:\n * SORTracker* obj = sORTrackerCreate();\n * sORTrackerAdd(obj, name, score);\n \n * char* param_2 = sORTrackerGet(obj);\n \n * sORTrackerFree(obj);\n*/"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "type SORTracker struct {\n    \n}\n\n\nfunc Constructor() SORTracker {\n    \n}\n\n\nfunc (this *SORTracker) Add(name string, score int)  {\n    \n}\n\n\nfunc (this *SORTracker) Get() string {\n    \n}\n\n\n/**\n * Your SORTracker object will be instantiated and called as such:\n * obj := Constructor();\n * obj.Add(name,score);\n * param_2 := obj.Get();\n */"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class SORTracker() {\n\n    fun add(name: String, score: Int) {\n        \n    }\n\n    fun get(): String {\n        \n    }\n\n}\n\n/**\n * Your SORTracker object will be instantiated and called as such:\n * var obj = SORTracker()\n * obj.add(name,score)\n * var param_2 = obj.get()\n */"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "\nclass SORTracker {\n\n    init() {\n        \n    }\n    \n    func add(_ name: String, _ score: Int) {\n        \n    }\n    \n    func get() -> String {\n        \n    }\n}\n\n/**\n * Your SORTracker object will be instantiated and called as such:\n * let obj = SORTracker()\n * obj.add(name, score)\n * let ret_2: String = obj.get()\n */"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "struct SORTracker {\n\n}\n\n\n/** \n * `&self` means the method takes an immutable reference.\n * If you need a mutable reference, change it to `&mut self` instead.\n */\nimpl SORTracker {\n\n    fn new() -> Self {\n        \n    }\n    \n    fn add(&self, name: String, score: i32) {\n        \n    }\n    \n    fn get(&self) -> String {\n        \n    }\n}\n\n/**\n * Your SORTracker object will be instantiated and called as such:\n * let obj = SORTracker::new();\n * obj.add(name, score);\n * let ret_2: String = obj.get();\n */"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "class SORTracker\n    def initialize()\n        \n    end\n\n\n=begin\n    :type name: String\n    :type score: Integer\n    :rtype: Void\n=end\n    def add(name, score)\n        \n    end\n\n\n=begin\n    :rtype: String\n=end\n    def get()\n        \n    end\n\n\nend\n\n# Your SORTracker object will be instantiated and called as such:\n# obj = SORTracker.new()\n# obj.add(name, score)\n# param_2 = obj.get()"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class SORTracker {\n    /**\n     */\n    function __construct() {\n        \n    }\n  \n    /**\n     * @param String $name\n     * @param Integer $score\n     * @return NULL\n     */\n    function add($name, $score) {\n        \n    }\n  \n    /**\n     * @return String\n     */\n    function get() {\n        \n    }\n}\n\n/**\n * Your SORTracker object will be instantiated and called as such:\n * $obj = SORTracker();\n * $obj->add($name, $score);\n * $ret_2 = $obj->get();\n */"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class SORTracker {\n\n  SORTracker() {\n    \n  }\n  \n  void add(String name, int score) {\n    \n  }\n  \n  String get() {\n    \n  }\n}\n\n/**\n * Your SORTracker object will be instantiated and called as such:\n * SORTracker obj = SORTracker();\n * obj.add(name,score);\n * String param2 = obj.get();\n */"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "class SORTracker() {\n\n    def add(name: String, score: Int): Unit = {\n        \n    }\n\n    def get(): String = {\n        \n    }\n\n}\n\n/**\n * Your SORTracker object will be instantiated and called as such:\n * val obj = new SORTracker()\n * obj.add(name,score)\n * val param_2 = obj.get()\n */"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule SORTracker do\n  @spec init_() :: any\n  def init_() do\n    \n  end\n\n  @spec add(name :: String.t, score :: integer) :: any\n  def add(name, score) do\n    \n  end\n\n  @spec get() :: String.t\n  def get() do\n    \n  end\nend\n\n# Your functions will be called as such:\n# SORTracker.init_()\n# SORTracker.add(name, score)\n# param_2 = SORTracker.get()\n\n# SORTracker.init_ will be called before every test case, in which you can do some necessary initializations."
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec sor_tracker_init_() -> any().\nsor_tracker_init_() ->\n  .\n\n-spec sor_tracker_add(Name :: unicode:unicode_binary(), Score :: integer()) -> any().\nsor_tracker_add(Name, Score) ->\n  .\n\n-spec sor_tracker_get() -> unicode:unicode_binary().\nsor_tracker_get() ->\n  .\n\n\n%% Your functions will be called as such:\n%% sor_tracker_init_(),\n%% sor_tracker_add(Name, Score),\n%% Param_2 = sor_tracker_get(),\n\n%% sor_tracker_init_ will be called before every test case, in which you can do some necessary initializations."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define sor-tracker%\n  (class object%\n    (super-new)\n    \n    (init-field)\n    \n    ; add : string? exact-integer? -> void?\n    (define/public (add name score)\n      )\n    ; get : -> string?\n    (define/public (get)\n      )))\n\n;; Your sor-tracker% object will be instantiated and called as such:\n;; (define obj (new sor-tracker%))\n;; (send obj add name score)\n;; (define param_2 (send obj get))"
+    }
+  ]
 }

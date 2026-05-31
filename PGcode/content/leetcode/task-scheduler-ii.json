@@ -20,5 +20,102 @@
     "2"
   ],
   "content_signature": "fnmwmt",
-  "fetched_at": "2026-05-21T06:40:49.291Z"
+  "fetched_at": "2026-05-30T07:32:57.697Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    long long taskSchedulerII(vector<int>& tasks, int space) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public long taskSchedulerII(int[] tasks, int space) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def taskSchedulerII(self, tasks: List[int], space: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def taskSchedulerII(self, tasks, space):\n        \"\"\"\n        :type tasks: List[int]\n        :type space: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} tasks\n * @param {number} space\n * @return {number}\n */\nvar taskSchedulerII = function(tasks, space) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function taskSchedulerII(tasks: number[], space: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public long TaskSchedulerII(int[] tasks, int space) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "long long taskSchedulerII(int* tasks, int tasksSize, int space) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func taskSchedulerII(tasks []int, space int) int64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun taskSchedulerII(tasks: IntArray, space: Int): Long {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func taskSchedulerII(_ tasks: [Int], _ space: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn task_scheduler_ii(tasks: Vec<i32>, space: i32) -> i64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} tasks\n# @param {Integer} space\n# @return {Integer}\ndef task_scheduler_ii(tasks, space)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $tasks\n     * @param Integer $space\n     * @return Integer\n     */\n    function taskSchedulerII($tasks, $space) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int taskSchedulerII(List<int> tasks, int space) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def taskSchedulerII(tasks: Array[Int], space: Int): Long = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec task_scheduler_ii(tasks :: [integer], space :: integer) :: integer\n  def task_scheduler_ii(tasks, space) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec task_scheduler_ii(Tasks :: [integer()], Space :: integer()) -> integer().\ntask_scheduler_ii(Tasks, Space) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (task-scheduler-ii tasks space)\n  (-> (listof exact-integer?) exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

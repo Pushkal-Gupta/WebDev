@@ -24,5 +24,102 @@
     "10"
   ],
   "content_signature": "-rz2ph3",
-  "fetched_at": "2026-05-21T06:30:21.554Z"
+  "fetched_at": "2026-05-30T05:38:57.163Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int minSkips(vector<int>& dist, int speed, int hoursBefore) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int minSkips(int[] dist, int speed, int hoursBefore) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minSkips(self, dist: List[int], speed: int, hoursBefore: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minSkips(self, dist, speed, hoursBefore):\n        \"\"\"\n        :type dist: List[int]\n        :type speed: int\n        :type hoursBefore: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} dist\n * @param {number} speed\n * @param {number} hoursBefore\n * @return {number}\n */\nvar minSkips = function(dist, speed, hoursBefore) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minSkips(dist: number[], speed: number, hoursBefore: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MinSkips(int[] dist, int speed, int hoursBefore) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int minSkips(int* dist, int distSize, int speed, int hoursBefore) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minSkips(dist []int, speed int, hoursBefore int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minSkips(dist: IntArray, speed: Int, hoursBefore: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minSkips(_ dist: [Int], _ speed: Int, _ hoursBefore: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn min_skips(dist: Vec<i32>, speed: i32, hours_before: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} dist\n# @param {Integer} speed\n# @param {Integer} hours_before\n# @return {Integer}\ndef min_skips(dist, speed, hours_before)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $dist\n     * @param Integer $speed\n     * @param Integer $hoursBefore\n     * @return Integer\n     */\n    function minSkips($dist, $speed, $hoursBefore) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minSkips(List<int> dist, int speed, int hoursBefore) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minSkips(dist: Array[Int], speed: Int, hoursBefore: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec min_skips(dist :: [integer], speed :: integer, hours_before :: integer) :: integer\n  def min_skips(dist, speed, hours_before) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec min_skips(Dist :: [integer()], Speed :: integer(), HoursBefore :: integer()) -> integer().\nmin_skips(Dist, Speed, HoursBefore) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (min-skips dist speed hoursBefore)\n  (-> (listof exact-integer?) exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

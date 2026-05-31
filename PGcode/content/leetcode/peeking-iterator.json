@@ -20,5 +20,77 @@
     "[[[1,2,3]],[],[],[],[],[]]"
   ],
   "content_signature": "bfr5b7",
-  "fetched_at": "2026-05-21T05:55:58.176Z"
+  "fetched_at": "2026-05-30T06:44:38.644Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "/*\n * Below is the interface for Iterator, which is already defined for you.\n * **DO NOT** modify the interface for Iterator.\n *\n *  class Iterator {\n *\t\tstruct Data;\n * \t\tData* data;\n *  public:\n *\t\tIterator(const vector<int>& nums);\n * \t\tIterator(const Iterator& iter);\n *\n * \t\t// Returns the next element in the iteration.\n *\t\tint next();\n *\n *\t\t// Returns true if the iteration has more elements.\n *\t\tbool hasNext() const;\n *\t};\n */\n\nclass PeekingIterator : public Iterator {\npublic:\n\tPeekingIterator(const vector<int>& nums) : Iterator(nums) {\n\t    // Initialize any member here.\n\t    // **DO NOT** save a copy of nums and manipulate it directly.\n\t    // You should only use the Iterator interface methods.\n\t    \n\t}\n\t\n    // Returns the next element in the iteration without advancing the iterator.\n\tint peek() {\n        \n\t}\n\t\n\t// hasNext() and next() should behave the same as in the Iterator interface.\n\t// Override them if needed.\n\tint next() {\n\t    \n\t}\n\t\n\tbool hasNext() const {\n\t    \n\t}\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "// Java Iterator interface reference:\n// https://docs.oracle.com/javase/8/docs/api/java/util/Iterator.html\n\nclass PeekingIterator implements Iterator<Integer> {\n\tpublic PeekingIterator(Iterator<Integer> iterator) {\n\t    // initialize any member here.\n\t    \n\t}\n\t\n    // Returns the next element in the iteration without advancing the iterator.\n\tpublic Integer peek() {\n        \n\t}\n\t\n\t// hasNext() and next() should behave the same as in the Iterator interface.\n\t// Override them if needed.\n\t@Override\n\tpublic Integer next() {\n\t    \n\t}\n\t\n\t@Override\n\tpublic boolean hasNext() {\n\t    \n\t}\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "# Below is the interface for Iterator, which is already defined for you.\n#\n# class Iterator:\n#     def __init__(self, nums):\n#         \"\"\"\n#         Initializes an iterator object to the beginning of a list.\n#         :type nums: List[int]\n#         \"\"\"\n#\n#     def hasNext(self):\n#         \"\"\"\n#         Returns true if the iteration has more elements.\n#         :rtype: bool\n#         \"\"\"\n#\n#     def next(self):\n#         \"\"\"\n#         Returns the next element in the iteration.\n#         :rtype: int\n#         \"\"\"\n\nclass PeekingIterator:\n    def __init__(self, iterator):\n        \"\"\"\n        Initialize your data structure here.\n        :type iterator: Iterator\n        \"\"\"\n        \n\n    def peek(self):\n        \"\"\"\n        Returns the next element in the iteration without advancing the iterator.\n        :rtype: int\n        \"\"\"\n        \n\n    def next(self):\n        \"\"\"\n        :rtype: int\n        \"\"\"\n        \n\n    def hasNext(self):\n        \"\"\"\n        :rtype: bool\n        \"\"\"\n        \n\n# Your PeekingIterator object will be instantiated and called as such:\n# iter = PeekingIterator(Iterator(nums))\n# while iter.hasNext():\n#     val = iter.peek()   # Get the next element but not advance the iterator.\n#     iter.next()         # Should return the same value as [val]."
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "# Below is the interface for Iterator, which is already defined for you.\n#\n# class Iterator(object):\n#     def __init__(self, nums):\n#         \"\"\"\n#         Initializes an iterator object to the beginning of a list.\n#         :type nums: List[int]\n#         \"\"\"\n#\n#     def hasNext(self):\n#         \"\"\"\n#         Returns true if the iteration has more elements.\n#         :rtype: bool\n#         \"\"\"\n#\n#     def next(self):\n#         \"\"\"\n#         Returns the next element in the iteration.\n#         :rtype: int\n#         \"\"\"\n\nclass PeekingIterator(object):\n    def __init__(self, iterator):\n        \"\"\"\n        Initialize your data structure here.\n        :type iterator: Iterator\n        \"\"\"\n        \n\n    def peek(self):\n        \"\"\"\n        Returns the next element in the iteration without advancing the iterator.\n        :rtype: int\n        \"\"\"\n        \n\n    def next(self):\n        \"\"\"\n        :rtype: int\n        \"\"\"\n        \n\n    def hasNext(self):\n        \"\"\"\n        :rtype: bool\n        \"\"\"\n        \n\n# Your PeekingIterator object will be instantiated and called as such:\n# iter = PeekingIterator(Iterator(nums))\n# while iter.hasNext():\n#     val = iter.peek()   # Get the next element but not advance the iterator.\n#     iter.next()         # Should return the same value as [val]."
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * // This is the Iterator's API interface.\n * // You should not implement it, or speculate about its implementation.\n * function Iterator() {\n *    @ return {number}\n *    this.next = function() { // return the next number of the iterator\n *       ...\n *    }; \n *\n *    @return {boolean}\n *    this.hasNext = function() { // return true if it still has numbers\n *       ...\n *    };\n * };\n */\n\n/**\n * @param {Iterator} iterator\n */\nvar PeekingIterator = function(iterator) {\n    \n};\n\n/**\n * @return {number}\n */\nPeekingIterator.prototype.peek = function() {\n    \n};\n\n/**\n * @return {number}\n */\nPeekingIterator.prototype.next = function() {\n    \n};\n\n/**\n * @return {boolean}\n */\nPeekingIterator.prototype.hasNext = function() {\n    \n};\n\n/** \n * Your PeekingIterator object will be instantiated and called as such:\n * var obj = new PeekingIterator(arr)\n * var param_1 = obj.peek()\n * var param_2 = obj.next()\n * var param_3 = obj.hasNext()\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "/**\n * // This is the Iterator's API interface.\n * // You should not implement it, or speculate about its implementation\n * class Iterator {\n *      hasNext(): boolean {}\n *\n *      next(): number {}\n * }\n */\n\nclass PeekingIterator {\n    constructor(iterator: Iterator) {\n\n    }\n\n    peek(): number {\n\n    }\n\n    next(): number {\n\n    }\n\n    hasNext(): boolean {\n\n    }\n}\n\n/**\n * Your PeekingIterator object will be instantiated and called as such:\n * var obj = new PeekingIterator(iterator)\n * var param_1 = obj.peek()\n * var param_2 = obj.next()\n * var param_3 = obj.hasNext()\n */"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "// C# IEnumerator interface reference:\n// https://docs.microsoft.com/en-us/dotnet/api/system.collections.ienumerator?view=netframework-4.8\n\nclass PeekingIterator {\n    // iterators refers to the first element of the array.\n    public PeekingIterator(IEnumerator<int> iterator) {\n        // initialize any member here.\n    }\n    \n    // Returns the next element in the iteration without advancing the iterator.\n    public int Peek() {\n        \n    }\n    \n    // Returns the next element in the iteration and advances the iterator.\n    public int Next() {\n        \n    }\n    \n    // Returns false if the iterator is refering to the end of the array of true otherwise.\n    public bool HasNext() {\n\t\t\n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/*\n *\tstruct Iterator {\n *\t\t// Returns true if the iteration has more elements.\n *\t\tbool (*hasNext)();\n *\n * \t\t// Returns the next element in the iteration.\n *\t\tint (*next)();\n *\t};\n */\n\nstruct PeekingIterator {\n    \n};\n\nstruct PeekingIterator* Constructor(struct Iterator* iter) {\n    struct PeekingIterator* piter = malloc(sizeof(struct PeekingIterator));\n    piter->iterator = iter;\n    piter->hasPeeked = false;\n    return piter;\n}\n\nint peek(struct PeekingIterator* obj) {\n    \n}\n\nint next(struct PeekingIterator* obj) {\n    \n}\n\nbool hasNext(struct PeekingIterator* obj) {\n    \n}\n\n/**\n * Your PeekingIterator struct will be instantiated and called as such:\n * PeekingIterator* obj = peekingIteratorCreate(arr, arrSize);\n * int param_1 = peek(obj);\n * int param_2 = next(obj);\n * bool param_3 = hasNext(obj);\n * peekingIteratorFree(obj);\n*/"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "/*   Below is the interface for Iterator, which is already defined for you.\n *\n *   type Iterator struct {\n *       \n *   }\n *\n *   func (this *Iterator) hasNext() bool {\n *\t\t// Returns true if the iteration has more elements.\n *   }\n *\n *   func (this *Iterator) next() int {\n *\t\t// Returns the next element in the iteration.\n *   }\n */\n\ntype PeekingIterator struct {\n    \n}\n\nfunc Constructor(iter *Iterator) *PeekingIterator {\n    \n}\n\nfunc (this *PeekingIterator) hasNext() bool {\n    \n}\n\nfunc (this *PeekingIterator) next() int {\n    \n}\n\nfunc (this *PeekingIterator) peek() int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "// Kotlin Iterator reference:\n// https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-iterator/\n\nclass PeekingIterator(iterator:Iterator<Int>):Iterator<Int> {\n    fun peek(): Int {\n    \t\n    }\n    \n    override fun next(): Int {\n        \n    }\n    \n    override fun hasNext(): Boolean {\n        \n    }\n}\n\n/**\n * Your PeekingIterator object will be instantiated and called as such:\n * var obj = PeekingIterator(arr)\n * var param_1 = obj.next()\n * var param_2 = obj.peek()\n * var param_3 = obj.hasNext()\n */"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "// Swift IndexingIterator refernence:\n// https://developer.apple.com/documentation/swift/indexingiterator\n\nclass PeekingIterator {\n    init(_ arr: IndexingIterator<Array<Int>>) {\n        \n    }\n    \n    func next() -> Int {\n        \n    }\n    \n    func peek() -> Int {\n        \n    }\n    \n    func hasNext() -> Bool {\n        \n    }\n}\n\n/**\n * Your PeekingIterator object will be instantiated and called as such:\n * let obj = PeekingIterator(arr)\n * let ret_1: Int = obj.next()\n * let ret_2: Int = obj.peek()\n * let ret_3: Bool = obj.hasNext()\n */"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# Below is the interface for Iterator, which is already defined for you.\n#\n# class Iterator\n# \tdef initialize(v)\n#   \n#   end\n#\n#   def hasNext()\n#\t\tReturns true if the iteration has more elements.\n#   end\n#\n#   def next()\n#   \tReturns the next element in the iteration.\n#   end\n# end\n\nclass PeekingIterator\n    # @param {Iterator} iter\n    def initialize(iter)\n    \t\n    end\n    \n    # Returns true if the iteration has more elements.\n    # @return {boolean}\n    def hasNext()\n    \t\n    end\n    \n    # Returns the next element in the iteration.\n    # @return {integer}\n    def next()\n    \t\n    end\n    \n    # Returns the next element in the iteration without advancing the iterator.\n    # @return {integer}\n    def peek()\n    \t\n    end\nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "// PHP ArrayIterator reference:\n// https://www.php.net/arrayiterator\n\nclass PeekingIterator {\n    /**\n     * @param ArrayIterator $arr\n     */\n    function __construct($arr) {\n        \n    }\n    \n    /**\n     * @return Integer\n     */\n    function next() {\n        \n    }\n    \n    /**\n     * @return Integer\n     */\n    function peek() {\n        \n    }\n    \n    /**\n     * @return Boolean\n     */\n    function hasNext() {\n        \n    }\n}\n\n/**\n * Your PeekingIterator object will be instantiated and called as such:\n * $obj = PeekingIterator($arr);\n * $ret_1 = $obj->next();\n * $ret_2 = $obj->peek();\n * $ret_3 = $obj->hasNext();\n */"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "// Scala Iterator reference:\n// https://www.scala-lang.org/api/2.12.2/scala/collection/Iterator.html\n\nclass PeekingIterator(_iterator: Iterator[Int]) {\n    def peek(): Int = {\n        \n    }\n    \n    def next(): Int = {\n        \n    }\n    \n    def hasNext(): Boolean = {\n        \n    }\n}\n\n/**\n * Your PeekingIterator object will be instantiated and called as such:\n * var obj = new PeekingIterator(arr)\n * var param_1 = obj.next()\n * var param_2 = obj.peek()\n * var param_3 = obj.hasNext()\n */"
+    }
+  ]
 }

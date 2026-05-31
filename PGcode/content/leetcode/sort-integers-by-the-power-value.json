@@ -22,5 +22,102 @@
     "4"
   ],
   "content_signature": "88fhcs",
-  "fetched_at": "2026-05-21T06:19:25.451Z"
+  "fetched_at": "2026-05-30T07:18:31.653Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int getKth(int lo, int hi, int k) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int getKth(int lo, int hi, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def getKth(self, lo: int, hi: int, k: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def getKth(self, lo, hi, k):\n        \"\"\"\n        :type lo: int\n        :type hi: int\n        :type k: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} lo\n * @param {number} hi\n * @param {number} k\n * @return {number}\n */\nvar getKth = function(lo, hi, k) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function getKth(lo: number, hi: number, k: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int GetKth(int lo, int hi, int k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int getKth(int lo, int hi, int k) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func getKth(lo int, hi int, k int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun getKth(lo: Int, hi: Int, k: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func getKth(_ lo: Int, _ hi: Int, _ k: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn get_kth(lo: i32, hi: i32, k: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} lo\n# @param {Integer} hi\n# @param {Integer} k\n# @return {Integer}\ndef get_kth(lo, hi, k)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $lo\n     * @param Integer $hi\n     * @param Integer $k\n     * @return Integer\n     */\n    function getKth($lo, $hi, $k) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int getKth(int lo, int hi, int k) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def getKth(lo: Int, hi: Int, k: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec get_kth(lo :: integer, hi :: integer, k :: integer) :: integer\n  def get_kth(lo, hi, k) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec get_kth(Lo :: integer(), Hi :: integer(), K :: integer()) -> integer().\nget_kth(Lo, Hi, K) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (get-kth lo hi k)\n  (-> exact-integer? exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

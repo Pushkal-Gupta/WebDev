@@ -21,5 +21,102 @@
     "3"
   ],
   "content_signature": "-4cd7q0",
-  "fetched_at": "2026-05-21T06:18:11.443Z"
+  "fetched_at": "2026-05-30T07:27:00.596Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int minDifficulty(vector<int>& jobDifficulty, int d) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int minDifficulty(int[] jobDifficulty, int d) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minDifficulty(self, jobDifficulty: List[int], d: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minDifficulty(self, jobDifficulty, d):\n        \"\"\"\n        :type jobDifficulty: List[int]\n        :type d: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} jobDifficulty\n * @param {number} d\n * @return {number}\n */\nvar minDifficulty = function(jobDifficulty, d) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minDifficulty(jobDifficulty: number[], d: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MinDifficulty(int[] jobDifficulty, int d) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int minDifficulty(int* jobDifficulty, int jobDifficultySize, int d) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minDifficulty(jobDifficulty []int, d int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minDifficulty(jobDifficulty: IntArray, d: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minDifficulty(_ jobDifficulty: [Int], _ d: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn min_difficulty(job_difficulty: Vec<i32>, d: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} job_difficulty\n# @param {Integer} d\n# @return {Integer}\ndef min_difficulty(job_difficulty, d)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $jobDifficulty\n     * @param Integer $d\n     * @return Integer\n     */\n    function minDifficulty($jobDifficulty, $d) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minDifficulty(List<int> jobDifficulty, int d) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minDifficulty(jobDifficulty: Array[Int], d: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec min_difficulty(job_difficulty :: [integer], d :: integer) :: integer\n  def min_difficulty(job_difficulty, d) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec min_difficulty(JobDifficulty :: [integer()], D :: integer()) -> integer().\nmin_difficulty(JobDifficulty, D) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (min-difficulty jobDifficulty d)\n  (-> (listof exact-integer?) exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

@@ -24,5 +24,102 @@
     "[]"
   ],
   "content_signature": "-irpmka",
-  "fetched_at": "2026-05-21T07:47:41.757Z"
+  "fetched_at": "2026-05-30T06:48:12.767Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    long long maxAlternatingSum(vector<int>& nums, vector<vector<int>>& swaps) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public long maxAlternatingSum(int[] nums, int[][] swaps) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def maxAlternatingSum(self, nums: List[int], swaps: List[List[int]]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def maxAlternatingSum(self, nums, swaps):\n        \"\"\"\n        :type nums: List[int]\n        :type swaps: List[List[int]]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {number[][]} swaps\n * @return {number}\n */\nvar maxAlternatingSum = function(nums, swaps) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function maxAlternatingSum(nums: number[], swaps: number[][]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public long MaxAlternatingSum(int[] nums, int[][] swaps) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "long long maxAlternatingSum(int* nums, int numsSize, int** swaps, int swapsSize, int* swapsColSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func maxAlternatingSum(nums []int, swaps [][]int) int64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun maxAlternatingSum(nums: IntArray, swaps: Array<IntArray>): Long {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func maxAlternatingSum(_ nums: [Int], _ swaps: [[Int]]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn max_alternating_sum(nums: Vec<i32>, swaps: Vec<Vec<i32>>) -> i64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums\n# @param {Integer[][]} swaps\n# @return {Integer}\ndef max_alternating_sum(nums, swaps)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums\n     * @param Integer[][] $swaps\n     * @return Integer\n     */\n    function maxAlternatingSum($nums, $swaps) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int maxAlternatingSum(List<int> nums, List<List<int>> swaps) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def maxAlternatingSum(nums: Array[Int], swaps: Array[Array[Int]]): Long = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec max_alternating_sum(nums :: [integer], swaps :: [[integer]]) :: integer\n  def max_alternating_sum(nums, swaps) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec max_alternating_sum(Nums :: [integer()], Swaps :: [[integer()]]) -> integer().\nmax_alternating_sum(Nums, Swaps) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (max-alternating-sum nums swaps)\n  (-> (listof exact-integer?) (listof (listof exact-integer?)) exact-integer?)\n  )"
+    }
+  ]
 }

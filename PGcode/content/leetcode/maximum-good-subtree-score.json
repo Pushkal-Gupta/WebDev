@@ -27,5 +27,102 @@
     "[-1,0,1]"
   ],
   "content_signature": "-eotw2e",
-  "fetched_at": "2026-05-21T07:43:49.632Z"
+  "fetched_at": "2026-05-30T07:05:52.914Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int goodSubtreeSum(vector<int>& vals, vector<int>& par) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int goodSubtreeSum(int[] vals, int[] par) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def goodSubtreeSum(self, vals: List[int], par: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def goodSubtreeSum(self, vals, par):\n        \"\"\"\n        :type vals: List[int]\n        :type par: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} vals\n * @param {number[]} par\n * @return {number}\n */\nvar goodSubtreeSum = function(vals, par) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function goodSubtreeSum(vals: number[], par: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int GoodSubtreeSum(int[] vals, int[] par) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int goodSubtreeSum(int* vals, int valsSize, int* par, int parSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func goodSubtreeSum(vals []int, par []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun goodSubtreeSum(vals: IntArray, par: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func goodSubtreeSum(_ vals: [Int], _ par: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn good_subtree_sum(vals: Vec<i32>, par: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} vals\n# @param {Integer[]} par\n# @return {Integer}\ndef good_subtree_sum(vals, par)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $vals\n     * @param Integer[] $par\n     * @return Integer\n     */\n    function goodSubtreeSum($vals, $par) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int goodSubtreeSum(List<int> vals, List<int> par) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def goodSubtreeSum(vals: Array[Int], par: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec good_subtree_sum(vals :: [integer], par :: [integer]) :: integer\n  def good_subtree_sum(vals, par) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec good_subtree_sum(Vals :: [integer()], Par :: [integer()]) -> integer().\ngood_subtree_sum(Vals, Par) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (good-subtree-sum vals par)\n  (-> (listof exact-integer?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

@@ -19,5 +19,102 @@
     "\"aaaaaaaa\""
   ],
   "content_signature": "-813jwe",
-  "fetched_at": "2026-05-21T06:13:44.458Z"
+  "fetched_at": "2026-05-30T07:02:07.264Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    string shortestCommonSupersequence(string str1, string str2) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public String shortestCommonSupersequence(String str1, String str2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def shortestCommonSupersequence(self, str1: str, str2: str) -> str:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def shortestCommonSupersequence(self, str1, str2):\n        \"\"\"\n        :type str1: str\n        :type str2: str\n        :rtype: str\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} str1\n * @param {string} str2\n * @return {string}\n */\nvar shortestCommonSupersequence = function(str1, str2) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function shortestCommonSupersequence(str1: string, str2: string): string {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public string ShortestCommonSupersequence(string str1, string str2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "char* shortestCommonSupersequence(char* str1, char* str2) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func shortestCommonSupersequence(str1 string, str2 string) string {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun shortestCommonSupersequence(str1: String, str2: String): String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func shortestCommonSupersequence(_ str1: String, _ str2: String) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn shortest_common_supersequence(str1: String, str2: String) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} str1\n# @param {String} str2\n# @return {String}\ndef shortest_common_supersequence(str1, str2)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $str1\n     * @param String $str2\n     * @return String\n     */\n    function shortestCommonSupersequence($str1, $str2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  String shortestCommonSupersequence(String str1, String str2) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def shortestCommonSupersequence(str1: String, str2: String): String = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec shortest_common_supersequence(str1 :: String.t, str2 :: String.t) :: String.t\n  def shortest_common_supersequence(str1, str2) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec shortest_common_supersequence(Str1 :: unicode:unicode_binary(), Str2 :: unicode:unicode_binary()) -> unicode:unicode_binary().\nshortest_common_supersequence(Str1, Str2) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (shortest-common-supersequence str1 str2)\n  (-> string? string? string?)\n  )"
+    }
+  ]
 }

@@ -41,5 +41,102 @@
     "7"
   ],
   "content_signature": "-nuqdjb",
-  "fetched_at": "2026-05-21T07:43:30.501Z"
+  "fetched_at": "2026-05-30T05:17:05.673Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int maxProfit(int n, vector<int>& present, vector<int>& future, vector<vector<int>>& hierarchy, int budget) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int maxProfit(int n, int[] present, int[] future, int[][] hierarchy, int budget) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def maxProfit(self, n: int, present: List[int], future: List[int], hierarchy: List[List[int]], budget: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def maxProfit(self, n, present, future, hierarchy, budget):\n        \"\"\"\n        :type n: int\n        :type present: List[int]\n        :type future: List[int]\n        :type hierarchy: List[List[int]]\n        :type budget: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number[]} present\n * @param {number[]} future\n * @param {number[][]} hierarchy\n * @param {number} budget\n * @return {number}\n */\nvar maxProfit = function(n, present, future, hierarchy, budget) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function maxProfit(n: number, present: number[], future: number[], hierarchy: number[][], budget: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MaxProfit(int n, int[] present, int[] future, int[][] hierarchy, int budget) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int maxProfit(int n, int* present, int presentSize, int* future, int futureSize, int** hierarchy, int hierarchySize, int* hierarchyColSize, int budget) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func maxProfit(n int, present []int, future []int, hierarchy [][]int, budget int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun maxProfit(n: Int, present: IntArray, future: IntArray, hierarchy: Array<IntArray>, budget: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func maxProfit(_ n: Int, _ present: [Int], _ future: [Int], _ hierarchy: [[Int]], _ budget: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn max_profit(n: i32, present: Vec<i32>, future: Vec<i32>, hierarchy: Vec<Vec<i32>>, budget: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer[]} present\n# @param {Integer[]} future\n# @param {Integer[][]} hierarchy\n# @param {Integer} budget\n# @return {Integer}\ndef max_profit(n, present, future, hierarchy, budget)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer[] $present\n     * @param Integer[] $future\n     * @param Integer[][] $hierarchy\n     * @param Integer $budget\n     * @return Integer\n     */\n    function maxProfit($n, $present, $future, $hierarchy, $budget) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int maxProfit(int n, List<int> present, List<int> future, List<List<int>> hierarchy, int budget) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def maxProfit(n: Int, present: Array[Int], future: Array[Int], hierarchy: Array[Array[Int]], budget: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec max_profit(n :: integer, present :: [integer], future :: [integer], hierarchy :: [[integer]], budget :: integer) :: integer\n  def max_profit(n, present, future, hierarchy, budget) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec max_profit(N :: integer(), Present :: [integer()], Future :: [integer()], Hierarchy :: [[integer()]], Budget :: integer()) -> integer().\nmax_profit(N, Present, Future, Hierarchy, Budget) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (max-profit n present future hierarchy budget)\n  (-> exact-integer? (listof exact-integer?) (listof exact-integer?) (listof (listof exact-integer?)) exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

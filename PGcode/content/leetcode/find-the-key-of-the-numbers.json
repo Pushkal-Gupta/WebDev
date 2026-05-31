@@ -20,5 +20,102 @@
     "3"
   ],
   "content_signature": "-ainyrx",
-  "fetched_at": "2026-05-21T07:14:54.236Z"
+  "fetched_at": "2026-05-30T05:31:15.128Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int generateKey(int num1, int num2, int num3) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int generateKey(int num1, int num2, int num3) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def generateKey(self, num1: int, num2: int, num3: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def generateKey(self, num1, num2, num3):\n        \"\"\"\n        :type num1: int\n        :type num2: int\n        :type num3: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} num1\n * @param {number} num2\n * @param {number} num3\n * @return {number}\n */\nvar generateKey = function(num1, num2, num3) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function generateKey(num1: number, num2: number, num3: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int GenerateKey(int num1, int num2, int num3) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int generateKey(int num1, int num2, int num3) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func generateKey(num1 int, num2 int, num3 int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun generateKey(num1: Int, num2: Int, num3: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func generateKey(_ num1: Int, _ num2: Int, _ num3: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn generate_key(num1: i32, num2: i32, num3: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} num1\n# @param {Integer} num2\n# @param {Integer} num3\n# @return {Integer}\ndef generate_key(num1, num2, num3)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $num1\n     * @param Integer $num2\n     * @param Integer $num3\n     * @return Integer\n     */\n    function generateKey($num1, $num2, $num3) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int generateKey(int num1, int num2, int num3) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def generateKey(num1: Int, num2: Int, num3: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec generate_key(num1 :: integer, num2 :: integer, num3 :: integer) :: integer\n  def generate_key(num1, num2, num3) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec generate_key(Num1 :: integer(), Num2 :: integer(), Num3 :: integer()) -> integer().\ngenerate_key(Num1, Num2, Num3) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (generate-key num1 num2 num3)\n  (-> exact-integer? exact-integer? exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

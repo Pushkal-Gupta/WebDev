@@ -23,5 +23,102 @@
     "1"
   ],
   "content_signature": "-gkak",
-  "fetched_at": "2026-05-21T06:56:07.188Z"
+  "fetched_at": "2026-05-30T07:27:50.102Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    long long minimumFuelCost(vector<vector<int>>& roads, int seats) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public long minimumFuelCost(int[][] roads, int seats) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minimumFuelCost(self, roads: List[List[int]], seats: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minimumFuelCost(self, roads, seats):\n        \"\"\"\n        :type roads: List[List[int]]\n        :type seats: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} roads\n * @param {number} seats\n * @return {number}\n */\nvar minimumFuelCost = function(roads, seats) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minimumFuelCost(roads: number[][], seats: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public long MinimumFuelCost(int[][] roads, int seats) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "long long minimumFuelCost(int** roads, int roadsSize, int* roadsColSize, int seats) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minimumFuelCost(roads [][]int, seats int) int64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minimumFuelCost(roads: Array<IntArray>, seats: Int): Long {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minimumFuelCost(_ roads: [[Int]], _ seats: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn minimum_fuel_cost(roads: Vec<Vec<i32>>, seats: i32) -> i64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} roads\n# @param {Integer} seats\n# @return {Integer}\ndef minimum_fuel_cost(roads, seats)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $roads\n     * @param Integer $seats\n     * @return Integer\n     */\n    function minimumFuelCost($roads, $seats) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minimumFuelCost(List<List<int>> roads, int seats) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minimumFuelCost(roads: Array[Array[Int]], seats: Int): Long = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec minimum_fuel_cost(roads :: [[integer]], seats :: integer) :: integer\n  def minimum_fuel_cost(roads, seats) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec minimum_fuel_cost(Roads :: [[integer()]], Seats :: integer()) -> integer().\nminimum_fuel_cost(Roads, Seats) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (minimum-fuel-cost roads seats)\n  (-> (listof (listof exact-integer?)) exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

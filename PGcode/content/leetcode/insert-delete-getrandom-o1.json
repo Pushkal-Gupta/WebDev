@@ -17,5 +17,102 @@
     "[[],[1],[2],[2],[],[1],[2],[]]"
   ],
   "content_signature": "ujsh8c",
-  "fetched_at": "2026-05-21T05:57:34.059Z"
+  "fetched_at": "2026-05-30T06:34:23.015Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class RandomizedSet {\npublic:\n    RandomizedSet() {\n        \n    }\n    \n    bool insert(int val) {\n        \n    }\n    \n    bool remove(int val) {\n        \n    }\n    \n    int getRandom() {\n        \n    }\n};\n\n/**\n * Your RandomizedSet object will be instantiated and called as such:\n * RandomizedSet* obj = new RandomizedSet();\n * bool param_1 = obj->insert(val);\n * bool param_2 = obj->remove(val);\n * int param_3 = obj->getRandom();\n */"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class RandomizedSet {\n\n    public RandomizedSet() {\n        \n    }\n    \n    public boolean insert(int val) {\n        \n    }\n    \n    public boolean remove(int val) {\n        \n    }\n    \n    public int getRandom() {\n        \n    }\n}\n\n/**\n * Your RandomizedSet object will be instantiated and called as such:\n * RandomizedSet obj = new RandomizedSet();\n * boolean param_1 = obj.insert(val);\n * boolean param_2 = obj.remove(val);\n * int param_3 = obj.getRandom();\n */"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class RandomizedSet:\n\n    def __init__(self):\n        \n\n    def insert(self, val: int) -> bool:\n        \n\n    def remove(self, val: int) -> bool:\n        \n\n    def getRandom(self) -> int:\n        \n\n\n# Your RandomizedSet object will be instantiated and called as such:\n# obj = RandomizedSet()\n# param_1 = obj.insert(val)\n# param_2 = obj.remove(val)\n# param_3 = obj.getRandom()"
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class RandomizedSet(object):\n\n    def __init__(self):\n        \n\n    def insert(self, val):\n        \"\"\"\n        :type val: int\n        :rtype: bool\n        \"\"\"\n        \n\n    def remove(self, val):\n        \"\"\"\n        :type val: int\n        :rtype: bool\n        \"\"\"\n        \n\n    def getRandom(self):\n        \"\"\"\n        :rtype: int\n        \"\"\"\n        \n\n\n# Your RandomizedSet object will be instantiated and called as such:\n# obj = RandomizedSet()\n# param_1 = obj.insert(val)\n# param_2 = obj.remove(val)\n# param_3 = obj.getRandom()"
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "\nvar RandomizedSet = function() {\n    \n};\n\n/** \n * @param {number} val\n * @return {boolean}\n */\nRandomizedSet.prototype.insert = function(val) {\n    \n};\n\n/** \n * @param {number} val\n * @return {boolean}\n */\nRandomizedSet.prototype.remove = function(val) {\n    \n};\n\n/**\n * @return {number}\n */\nRandomizedSet.prototype.getRandom = function() {\n    \n};\n\n/** \n * Your RandomizedSet object will be instantiated and called as such:\n * var obj = new RandomizedSet()\n * var param_1 = obj.insert(val)\n * var param_2 = obj.remove(val)\n * var param_3 = obj.getRandom()\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "class RandomizedSet {\n    constructor() {\n        \n    }\n\n    insert(val: number): boolean {\n        \n    }\n\n    remove(val: number): boolean {\n        \n    }\n\n    getRandom(): number {\n        \n    }\n}\n\n/**\n * Your RandomizedSet object will be instantiated and called as such:\n * var obj = new RandomizedSet()\n * var param_1 = obj.insert(val)\n * var param_2 = obj.remove(val)\n * var param_3 = obj.getRandom()\n */"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class RandomizedSet {\n\n    public RandomizedSet() {\n        \n    }\n    \n    public bool Insert(int val) {\n        \n    }\n    \n    public bool Remove(int val) {\n        \n    }\n    \n    public int GetRandom() {\n        \n    }\n}\n\n/**\n * Your RandomizedSet object will be instantiated and called as such:\n * RandomizedSet obj = new RandomizedSet();\n * bool param_1 = obj.Insert(val);\n * bool param_2 = obj.Remove(val);\n * int param_3 = obj.GetRandom();\n */"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "\n\n\ntypedef struct {\n    \n} RandomizedSet;\n\n\nRandomizedSet* randomizedSetCreate() {\n    \n}\n\nbool randomizedSetInsert(RandomizedSet* obj, int val) {\n    \n}\n\nbool randomizedSetRemove(RandomizedSet* obj, int val) {\n    \n}\n\nint randomizedSetGetRandom(RandomizedSet* obj) {\n    \n}\n\nvoid randomizedSetFree(RandomizedSet* obj) {\n    \n}\n\n/**\n * Your RandomizedSet struct will be instantiated and called as such:\n * RandomizedSet* obj = randomizedSetCreate();\n * bool param_1 = randomizedSetInsert(obj, val);\n \n * bool param_2 = randomizedSetRemove(obj, val);\n \n * int param_3 = randomizedSetGetRandom(obj);\n \n * randomizedSetFree(obj);\n*/"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "type RandomizedSet struct {\n    \n}\n\n\nfunc Constructor() RandomizedSet {\n    \n}\n\n\nfunc (this *RandomizedSet) Insert(val int) bool {\n    \n}\n\n\nfunc (this *RandomizedSet) Remove(val int) bool {\n    \n}\n\n\nfunc (this *RandomizedSet) GetRandom() int {\n    \n}\n\n\n/**\n * Your RandomizedSet object will be instantiated and called as such:\n * obj := Constructor();\n * param_1 := obj.Insert(val);\n * param_2 := obj.Remove(val);\n * param_3 := obj.GetRandom();\n */"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class RandomizedSet() {\n\n    fun insert(`val`: Int): Boolean {\n        \n    }\n\n    fun remove(`val`: Int): Boolean {\n        \n    }\n\n    fun getRandom(): Int {\n        \n    }\n\n}\n\n/**\n * Your RandomizedSet object will be instantiated and called as such:\n * var obj = RandomizedSet()\n * var param_1 = obj.insert(`val`)\n * var param_2 = obj.remove(`val`)\n * var param_3 = obj.getRandom()\n */"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "\nclass RandomizedSet {\n\n    init() {\n        \n    }\n    \n    func insert(_ val: Int) -> Bool {\n        \n    }\n    \n    func remove(_ val: Int) -> Bool {\n        \n    }\n    \n    func getRandom() -> Int {\n        \n    }\n}\n\n/**\n * Your RandomizedSet object will be instantiated and called as such:\n * let obj = RandomizedSet()\n * let ret_1: Bool = obj.insert(val)\n * let ret_2: Bool = obj.remove(val)\n * let ret_3: Int = obj.getRandom()\n */"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "struct RandomizedSet {\n\n}\n\n\n/** \n * `&self` means the method takes an immutable reference.\n * If you need a mutable reference, change it to `&mut self` instead.\n */\nimpl RandomizedSet {\n\n    fn new() -> Self {\n        \n    }\n    \n    fn insert(&self, val: i32) -> bool {\n        \n    }\n    \n    fn remove(&self, val: i32) -> bool {\n        \n    }\n    \n    fn get_random(&self) -> i32 {\n        \n    }\n}\n\n/**\n * Your RandomizedSet object will be instantiated and called as such:\n * let obj = RandomizedSet::new();\n * let ret_1: bool = obj.insert(val);\n * let ret_2: bool = obj.remove(val);\n * let ret_3: i32 = obj.get_random();\n */"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "class RandomizedSet\n    def initialize()\n        \n    end\n\n\n=begin\n    :type val: Integer\n    :rtype: Boolean\n=end\n    def insert(val)\n        \n    end\n\n\n=begin\n    :type val: Integer\n    :rtype: Boolean\n=end\n    def remove(val)\n        \n    end\n\n\n=begin\n    :rtype: Integer\n=end\n    def get_random()\n        \n    end\n\n\nend\n\n# Your RandomizedSet object will be instantiated and called as such:\n# obj = RandomizedSet.new()\n# param_1 = obj.insert(val)\n# param_2 = obj.remove(val)\n# param_3 = obj.get_random()"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class RandomizedSet {\n    /**\n     */\n    function __construct() {\n        \n    }\n  \n    /**\n     * @param Integer $val\n     * @return Boolean\n     */\n    function insert($val) {\n        \n    }\n  \n    /**\n     * @param Integer $val\n     * @return Boolean\n     */\n    function remove($val) {\n        \n    }\n  \n    /**\n     * @return Integer\n     */\n    function getRandom() {\n        \n    }\n}\n\n/**\n * Your RandomizedSet object will be instantiated and called as such:\n * $obj = RandomizedSet();\n * $ret_1 = $obj->insert($val);\n * $ret_2 = $obj->remove($val);\n * $ret_3 = $obj->getRandom();\n */"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class RandomizedSet {\n\n  RandomizedSet() {\n    \n  }\n  \n  bool insert(int val) {\n    \n  }\n  \n  bool remove(int val) {\n    \n  }\n  \n  int getRandom() {\n    \n  }\n}\n\n/**\n * Your RandomizedSet object will be instantiated and called as such:\n * RandomizedSet obj = RandomizedSet();\n * bool param1 = obj.insert(val);\n * bool param2 = obj.remove(val);\n * int param3 = obj.getRandom();\n */"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "class RandomizedSet() {\n\n    def insert(`val`: Int): Boolean = {\n        \n    }\n\n    def remove(`val`: Int): Boolean = {\n        \n    }\n\n    def getRandom(): Int = {\n        \n    }\n\n}\n\n/**\n * Your RandomizedSet object will be instantiated and called as such:\n * val obj = new RandomizedSet()\n * val param_1 = obj.insert(`val`)\n * val param_2 = obj.remove(`val`)\n * val param_3 = obj.getRandom()\n */"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule RandomizedSet do\n  @spec init_() :: any\n  def init_() do\n    \n  end\n\n  @spec insert(val :: integer) :: boolean\n  def insert(val) do\n    \n  end\n\n  @spec remove(val :: integer) :: boolean\n  def remove(val) do\n    \n  end\n\n  @spec get_random() :: integer\n  def get_random() do\n    \n  end\nend\n\n# Your functions will be called as such:\n# RandomizedSet.init_()\n# param_1 = RandomizedSet.insert(val)\n# param_2 = RandomizedSet.remove(val)\n# param_3 = RandomizedSet.get_random()\n\n# RandomizedSet.init_ will be called before every test case, in which you can do some necessary initializations."
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec randomized_set_init_() -> any().\nrandomized_set_init_() ->\n  .\n\n-spec randomized_set_insert(Val :: integer()) -> boolean().\nrandomized_set_insert(Val) ->\n  .\n\n-spec randomized_set_remove(Val :: integer()) -> boolean().\nrandomized_set_remove(Val) ->\n  .\n\n-spec randomized_set_get_random() -> integer().\nrandomized_set_get_random() ->\n  .\n\n\n%% Your functions will be called as such:\n%% randomized_set_init_(),\n%% Param_1 = randomized_set_insert(Val),\n%% Param_2 = randomized_set_remove(Val),\n%% Param_3 = randomized_set_get_random(),\n\n%% randomized_set_init_ will be called before every test case, in which you can do some necessary initializations."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define randomized-set%\n  (class object%\n    (super-new)\n    \n    (init-field)\n    \n    ; insert : exact-integer? -> boolean?\n    (define/public (insert val)\n      )\n    ; remove : exact-integer? -> boolean?\n    (define/public (remove val)\n      )\n    ; get-random : -> exact-integer?\n    (define/public (get-random)\n      )))\n\n;; Your randomized-set% object will be instantiated and called as such:\n;; (define obj (new randomized-set%))\n;; (define param_1 (send obj insert val))\n;; (define param_2 (send obj remove val))\n;; (define param_3 (send obj get-random))"
+    }
+  ]
 }

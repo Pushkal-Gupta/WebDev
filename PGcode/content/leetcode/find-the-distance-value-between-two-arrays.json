@@ -25,5 +25,102 @@
     "6"
   ],
   "content_signature": "-xv0ttt",
-  "fetched_at": "2026-05-21T06:19:22.305Z"
+  "fetched_at": "2026-05-30T05:30:22.690Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int findTheDistanceValue(vector<int>& arr1, vector<int>& arr2, int d) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int findTheDistanceValue(int[] arr1, int[] arr2, int d) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def findTheDistanceValue(self, arr1: List[int], arr2: List[int], d: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def findTheDistanceValue(self, arr1, arr2, d):\n        \"\"\"\n        :type arr1: List[int]\n        :type arr2: List[int]\n        :type d: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} arr1\n * @param {number[]} arr2\n * @param {number} d\n * @return {number}\n */\nvar findTheDistanceValue = function(arr1, arr2, d) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function findTheDistanceValue(arr1: number[], arr2: number[], d: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int FindTheDistanceValue(int[] arr1, int[] arr2, int d) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int findTheDistanceValue(int* arr1, int arr1Size, int* arr2, int arr2Size, int d) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func findTheDistanceValue(arr1 []int, arr2 []int, d int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun findTheDistanceValue(arr1: IntArray, arr2: IntArray, d: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func findTheDistanceValue(_ arr1: [Int], _ arr2: [Int], _ d: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn find_the_distance_value(arr1: Vec<i32>, arr2: Vec<i32>, d: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} arr1\n# @param {Integer[]} arr2\n# @param {Integer} d\n# @return {Integer}\ndef find_the_distance_value(arr1, arr2, d)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $arr1\n     * @param Integer[] $arr2\n     * @param Integer $d\n     * @return Integer\n     */\n    function findTheDistanceValue($arr1, $arr2, $d) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int findTheDistanceValue(List<int> arr1, List<int> arr2, int d) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def findTheDistanceValue(arr1: Array[Int], arr2: Array[Int], d: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec find_the_distance_value(arr1 :: [integer], arr2 :: [integer], d :: integer) :: integer\n  def find_the_distance_value(arr1, arr2, d) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec find_the_distance_value(Arr1 :: [integer()], Arr2 :: [integer()], D :: integer()) -> integer().\nfind_the_distance_value(Arr1, Arr2, D) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (find-the-distance-value arr1 arr2 d)\n  (-> (listof exact-integer?) (listof exact-integer?) exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

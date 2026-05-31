@@ -12,5 +12,32 @@
     "{\"headers\":{\"Users\":[\"user_id\",\"user_name\"],\"Register\":[\"contest_id\",\"user_id\"]},\"rows\":{\"Users\":[[6,\"Alice\"],[2,\"Bob\"],[7,\"Alex\"]],\"Register\":[[215,6],[209,2],[208,2],[210,6],[208,6],[209,7],[209,6],[215,7],[208,7],[210,2],[207,2],[210,7]]}}"
   ],
   "content_signature": "-r2p1ko",
-  "fetched_at": "2026-05-21T06:24:46.221Z"
+  "fetched_at": "2026-05-30T06:45:00.779Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef users_percentage(users: pd.DataFrame, register: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

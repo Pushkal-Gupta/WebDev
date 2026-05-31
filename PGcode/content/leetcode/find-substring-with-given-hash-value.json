@@ -27,5 +27,102 @@
     "32"
   ],
   "content_signature": "-gtw2o6",
-  "fetched_at": "2026-05-21T06:36:18.604Z"
+  "fetched_at": "2026-05-30T05:28:59.998Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    string subStrHash(string s, int power, int modulo, int k, int hashValue) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public String subStrHash(String s, int power, int modulo, int k, int hashValue) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def subStrHash(self, s: str, power: int, modulo: int, k: int, hashValue: int) -> str:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def subStrHash(self, s, power, modulo, k, hashValue):\n        \"\"\"\n        :type s: str\n        :type power: int\n        :type modulo: int\n        :type k: int\n        :type hashValue: int\n        :rtype: str\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} s\n * @param {number} power\n * @param {number} modulo\n * @param {number} k\n * @param {number} hashValue\n * @return {string}\n */\nvar subStrHash = function(s, power, modulo, k, hashValue) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function subStrHash(s: string, power: number, modulo: number, k: number, hashValue: number): string {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public string SubStrHash(string s, int power, int modulo, int k, int hashValue) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "char* subStrHash(char* s, int power, int modulo, int k, int hashValue) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func subStrHash(s string, power int, modulo int, k int, hashValue int) string {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun subStrHash(s: String, power: Int, modulo: Int, k: Int, hashValue: Int): String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func subStrHash(_ s: String, _ power: Int, _ modulo: Int, _ k: Int, _ hashValue: Int) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn sub_str_hash(s: String, power: i32, modulo: i32, k: i32, hash_value: i32) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} s\n# @param {Integer} power\n# @param {Integer} modulo\n# @param {Integer} k\n# @param {Integer} hash_value\n# @return {String}\ndef sub_str_hash(s, power, modulo, k, hash_value)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $s\n     * @param Integer $power\n     * @param Integer $modulo\n     * @param Integer $k\n     * @param Integer $hashValue\n     * @return String\n     */\n    function subStrHash($s, $power, $modulo, $k, $hashValue) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  String subStrHash(String s, int power, int modulo, int k, int hashValue) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def subStrHash(s: String, power: Int, modulo: Int, k: Int, hashValue: Int): String = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec sub_str_hash(s :: String.t, power :: integer, modulo :: integer, k :: integer, hash_value :: integer) :: String.t\n  def sub_str_hash(s, power, modulo, k, hash_value) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec sub_str_hash(S :: unicode:unicode_binary(), Power :: integer(), Modulo :: integer(), K :: integer(), HashValue :: integer()) -> unicode:unicode_binary().\nsub_str_hash(S, Power, Modulo, K, HashValue) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (sub-str-hash s power modulo k hashValue)\n  (-> string? exact-integer? exact-integer? exact-integer? exact-integer? string?)\n  )"
+    }
+  ]
 }

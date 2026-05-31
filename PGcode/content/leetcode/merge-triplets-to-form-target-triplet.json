@@ -21,5 +21,102 @@
     "[5,5,5]"
   ],
   "content_signature": "-k9c3er",
-  "fetched_at": "2026-05-21T06:30:42.925Z"
+  "fetched_at": "2026-05-30T05:20:56.151Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool mergeTriplets(vector<vector<int>>& triplets, vector<int>& target) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean mergeTriplets(int[][] triplets, int[] target) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def mergeTriplets(self, triplets: List[List[int]], target: List[int]) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def mergeTriplets(self, triplets, target):\n        \"\"\"\n        :type triplets: List[List[int]]\n        :type target: List[int]\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} triplets\n * @param {number[]} target\n * @return {boolean}\n */\nvar mergeTriplets = function(triplets, target) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function mergeTriplets(triplets: number[][], target: number[]): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool MergeTriplets(int[][] triplets, int[] target) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool mergeTriplets(int** triplets, int tripletsSize, int* tripletsColSize, int* target, int targetSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func mergeTriplets(triplets [][]int, target []int) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun mergeTriplets(triplets: Array<IntArray>, target: IntArray): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func mergeTriplets(_ triplets: [[Int]], _ target: [Int]) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn merge_triplets(triplets: Vec<Vec<i32>>, target: Vec<i32>) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} triplets\n# @param {Integer[]} target\n# @return {Boolean}\ndef merge_triplets(triplets, target)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $triplets\n     * @param Integer[] $target\n     * @return Boolean\n     */\n    function mergeTriplets($triplets, $target) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool mergeTriplets(List<List<int>> triplets, List<int> target) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def mergeTriplets(triplets: Array[Array[Int]], target: Array[Int]): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec merge_triplets(triplets :: [[integer]], target :: [integer]) :: boolean\n  def merge_triplets(triplets, target) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec merge_triplets(Triplets :: [[integer()]], Target :: [integer()]) -> boolean().\nmerge_triplets(Triplets, Target) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (merge-triplets triplets target)\n  (-> (listof (listof exact-integer?)) (listof exact-integer?) boolean?)\n  )"
+    }
+  ]
 }

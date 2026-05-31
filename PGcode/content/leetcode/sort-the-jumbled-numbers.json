@@ -19,5 +19,102 @@
     "[789,456,123]"
   ],
   "content_signature": "-ofwazy",
-  "fetched_at": "2026-05-21T06:37:03.171Z"
+  "fetched_at": "2026-05-30T07:32:21.526Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> sortJumbled(vector<int>& mapping, vector<int>& nums) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] sortJumbled(int[] mapping, int[] nums) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def sortJumbled(self, mapping: List[int], nums: List[int]) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def sortJumbled(self, mapping, nums):\n        \"\"\"\n        :type mapping: List[int]\n        :type nums: List[int]\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} mapping\n * @param {number[]} nums\n * @return {number[]}\n */\nvar sortJumbled = function(mapping, nums) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function sortJumbled(mapping: number[], nums: number[]): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] SortJumbled(int[] mapping, int[] nums) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* sortJumbled(int* mapping, int mappingSize, int* nums, int numsSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func sortJumbled(mapping []int, nums []int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun sortJumbled(mapping: IntArray, nums: IntArray): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func sortJumbled(_ mapping: [Int], _ nums: [Int]) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn sort_jumbled(mapping: Vec<i32>, nums: Vec<i32>) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} mapping\n# @param {Integer[]} nums\n# @return {Integer[]}\ndef sort_jumbled(mapping, nums)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $mapping\n     * @param Integer[] $nums\n     * @return Integer[]\n     */\n    function sortJumbled($mapping, $nums) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> sortJumbled(List<int> mapping, List<int> nums) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def sortJumbled(mapping: Array[Int], nums: Array[Int]): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec sort_jumbled(mapping :: [integer], nums :: [integer]) :: [integer]\n  def sort_jumbled(mapping, nums) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec sort_jumbled(Mapping :: [integer()], Nums :: [integer()]) -> [integer()].\nsort_jumbled(Mapping, Nums) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (sort-jumbled mapping nums)\n  (-> (listof exact-integer?) (listof exact-integer?) (listof exact-integer?))\n  )"
+    }
+  ]
 }

@@ -19,5 +19,102 @@
     "[]"
   ],
   "content_signature": "10hpiv",
-  "fetched_at": "2026-05-21T07:54:21.377Z"
+  "fetched_at": "2026-05-30T07:37:28.012Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int evenSumSubgraphs(vector<int>& nums, vector<vector<int>>& edges) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int evenSumSubgraphs(int[] nums, int[][] edges) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def evenSumSubgraphs(self, nums: list[int], edges: list[list[int]]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def evenSumSubgraphs(self, nums, edges):\n        \"\"\"\n        :type nums: List[int]\n        :type edges: List[List[int]]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {number[][]} edges\n * @return {number}\n */\nvar evenSumSubgraphs = function(nums, edges) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function evenSumSubgraphs(nums: number[], edges: number[][]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int EvenSumSubgraphs(int[] nums, int[][] edges) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int evenSumSubgraphs(int* nums, int numsSize, int** edges, int edgesSize, int* edgesColSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func evenSumSubgraphs(nums []int, edges [][]int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun evenSumSubgraphs(nums: IntArray, edges: Array<IntArray>): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func evenSumSubgraphs(_ nums: [Int], _ edges: [[Int]]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn even_sum_subgraphs(nums: Vec<i32>, edges: Vec<Vec<i32>>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums\n# @param {Integer[][]} edges\n# @return {Integer}\ndef even_sum_subgraphs(nums, edges)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums\n     * @param Integer[][] $edges\n     * @return Integer\n     */\n    function evenSumSubgraphs($nums, $edges) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int evenSumSubgraphs(List<int> nums, List<List<int>> edges) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def evenSumSubgraphs(nums: Array[Int], edges: Array[Array[Int]]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec even_sum_subgraphs(nums :: [integer], edges :: [[integer]]) :: integer\n  def even_sum_subgraphs(nums, edges) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec even_sum_subgraphs(Nums :: [integer()], Edges :: [[integer()]]) -> integer().\neven_sum_subgraphs(Nums, Edges) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (even-sum-subgraphs nums edges)\n  (-> (listof exact-integer?) (listof (listof exact-integer?)) exact-integer?)\n  )"
+    }
+  ]
 }

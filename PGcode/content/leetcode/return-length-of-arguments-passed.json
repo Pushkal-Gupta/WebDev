@@ -11,5 +11,17 @@
     "[{},null,\"3\"]"
   ],
   "content_signature": "oto5q1",
-  "fetched_at": "2026-05-21T07:03:23.675Z"
+  "fetched_at": "2026-05-30T05:15:59.081Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {...(null|boolean|number|string|Array|Object)} args\n * @return {number}\n */\nvar argumentsLength = function(...args) {\n    \n};\n\n/**\n * argumentsLength(1, 2, 3); // 3\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "type JSONValue = null | boolean | number | string | JSONValue[] | { [key: string]: JSONValue };\n\nfunction argumentsLength(...args: JSONValue[]): number {\n    \n};\n\n/**\n * argumentsLength(1, 2, 3); // 3\n */"
+    }
+  ]
 }

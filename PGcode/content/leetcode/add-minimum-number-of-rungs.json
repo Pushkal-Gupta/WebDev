@@ -22,5 +22,102 @@
     "2"
   ],
   "content_signature": "9y01vw",
-  "fetched_at": "2026-05-21T06:31:32.514Z"
+  "fetched_at": "2026-05-30T06:42:11.880Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int addRungs(vector<int>& rungs, int dist) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int addRungs(int[] rungs, int dist) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def addRungs(self, rungs: List[int], dist: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def addRungs(self, rungs, dist):\n        \"\"\"\n        :type rungs: List[int]\n        :type dist: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} rungs\n * @param {number} dist\n * @return {number}\n */\nvar addRungs = function(rungs, dist) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function addRungs(rungs: number[], dist: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int AddRungs(int[] rungs, int dist) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int addRungs(int* rungs, int rungsSize, int dist) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func addRungs(rungs []int, dist int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun addRungs(rungs: IntArray, dist: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func addRungs(_ rungs: [Int], _ dist: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn add_rungs(rungs: Vec<i32>, dist: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} rungs\n# @param {Integer} dist\n# @return {Integer}\ndef add_rungs(rungs, dist)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $rungs\n     * @param Integer $dist\n     * @return Integer\n     */\n    function addRungs($rungs, $dist) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int addRungs(List<int> rungs, int dist) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def addRungs(rungs: Array[Int], dist: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec add_rungs(rungs :: [integer], dist :: integer) :: integer\n  def add_rungs(rungs, dist) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec add_rungs(Rungs :: [integer()], Dist :: integer()) -> integer().\nadd_rungs(Rungs, Dist) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (add-rungs rungs dist)\n  (-> (listof exact-integer?) exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

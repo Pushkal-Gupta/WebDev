@@ -15,5 +15,17 @@
     "200"
   ],
   "content_signature": "-6ogswn",
-  "fetched_at": "2026-05-21T07:01:47.625Z"
+  "fetched_at": "2026-05-30T07:10:00.975Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} millis\n * @return {Promise}\n */\nasync function sleep(millis) {\n    \n}\n\n/** \n * let t = Date.now()\n * sleep(100).then(() => console.log(Date.now() - t)) // 100\n */"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "async function sleep(millis: number): Promise<void> {\n    \n}\n\n\n/** \n * let t = Date.now()\n * sleep(100).then(() => console.log(Date.now() - t)) // 100\n */"
+    }
+  ]
 }

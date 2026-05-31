@@ -24,5 +24,102 @@
     "\"RRRDDD\""
   ],
   "content_signature": "-9unzui",
-  "fetched_at": "2026-05-21T07:54:16.405Z"
+  "fetched_at": "2026-05-30T07:22:08.434Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    long long countGoodIntegersOnPath(long long l, long long r, string directions) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public long countGoodIntegersOnPath(long l, long r, String directions) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def countGoodIntegersOnPath(self, l: int, r: int, directions: str) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def countGoodIntegersOnPath(self, l, r, directions):\n        \"\"\"\n        :type l: int\n        :type r: int\n        :type directions: str\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} l\n * @param {number} r\n * @param {string} directions\n * @return {number}\n */\nvar countGoodIntegersOnPath = function(l, r, directions) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function countGoodIntegersOnPath(l: number, r: number, directions: string): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public long CountGoodIntegersOnPath(long l, long r, string directions) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "long long countGoodIntegersOnPath(long long l, long long r, char* directions) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func countGoodIntegersOnPath(l int64, r int64, directions string) int64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun countGoodIntegersOnPath(l: Long, r: Long, directions: String): Long {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func countGoodIntegersOnPath(_ l: Int, _ r: Int, _ directions: String) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn count_good_integers_on_path(l: i64, r: i64, directions: String) -> i64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} l\n# @param {Integer} r\n# @param {String} directions\n# @return {Integer}\ndef count_good_integers_on_path(l, r, directions)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $l\n     * @param Integer $r\n     * @param String $directions\n     * @return Integer\n     */\n    function countGoodIntegersOnPath($l, $r, $directions) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int countGoodIntegersOnPath(int l, int r, String directions) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def countGoodIntegersOnPath(l: Long, r: Long, directions: String): Long = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec count_good_integers_on_path(l :: integer, r :: integer, directions :: String.t) :: integer\n  def count_good_integers_on_path(l, r, directions) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec count_good_integers_on_path(L :: integer(), R :: integer(), Directions :: unicode:unicode_binary()) -> integer().\ncount_good_integers_on_path(L, R, Directions) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (count-good-integers-on-path l r directions)\n  (-> exact-integer? exact-integer? string? exact-integer?)\n  )"
+    }
+  ]
 }

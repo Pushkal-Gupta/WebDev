@@ -18,5 +18,102 @@
     "[[\"good\",\"ok\",\"good\"],[\"ok\",\"bad\"],[\"bad\",\"notsure\"],[\"great\",\"good\"]]"
   ],
   "content_signature": "-tp8h4h",
-  "fetched_at": "2026-05-21T07:42:32.541Z"
+  "fetched_at": "2026-05-30T05:38:10.378Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    string findCommonResponse(vector<vector<string>>& responses) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public String findCommonResponse(List<List<String>> responses) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def findCommonResponse(self, responses: List[List[str]]) -> str:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def findCommonResponse(self, responses):\n        \"\"\"\n        :type responses: List[List[str]]\n        :rtype: str\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string[][]} responses\n * @return {string}\n */\nvar findCommonResponse = function(responses) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function findCommonResponse(responses: string[][]): string {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public string FindCommonResponse(IList<IList<string>> responses) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "char* findCommonResponse(char*** responses, int responsesSize, int* responsesColSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func findCommonResponse(responses [][]string) string {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun findCommonResponse(responses: List<List<String>>): String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func findCommonResponse(_ responses: [[String]]) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn find_common_response(responses: Vec<Vec<String>>) -> String {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String[][]} responses\n# @return {String}\ndef find_common_response(responses)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[][] $responses\n     * @return String\n     */\n    function findCommonResponse($responses) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  String findCommonResponse(List<List<String>> responses) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def findCommonResponse(responses: List[List[String]]): String = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec find_common_response(responses :: [[String.t]]) :: String.t\n  def find_common_response(responses) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec find_common_response(Responses :: [[unicode:unicode_binary()]]) -> unicode:unicode_binary().\nfind_common_response(Responses) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (find-common-response responses)\n  (-> (listof (listof string?)) string?)\n  )"
+    }
+  ]
 }

@@ -21,5 +21,102 @@
     "[6,4,7]"
   ],
   "content_signature": "-vuarro",
-  "fetched_at": "2026-05-21T07:41:12.952Z"
+  "fetched_at": "2026-05-30T05:48:26.532Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int numOfUnplacedFruits(vector<int>& fruits, vector<int>& baskets) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int numOfUnplacedFruits(int[] fruits, int[] baskets) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def numOfUnplacedFruits(self, fruits: List[int], baskets: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def numOfUnplacedFruits(self, fruits, baskets):\n        \"\"\"\n        :type fruits: List[int]\n        :type baskets: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} fruits\n * @param {number[]} baskets\n * @return {number}\n */\nvar numOfUnplacedFruits = function(fruits, baskets) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function numOfUnplacedFruits(fruits: number[], baskets: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int NumOfUnplacedFruits(int[] fruits, int[] baskets) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int numOfUnplacedFruits(int* fruits, int fruitsSize, int* baskets, int basketsSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func numOfUnplacedFruits(fruits []int, baskets []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun numOfUnplacedFruits(fruits: IntArray, baskets: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func numOfUnplacedFruits(_ fruits: [Int], _ baskets: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn num_of_unplaced_fruits(fruits: Vec<i32>, baskets: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} fruits\n# @param {Integer[]} baskets\n# @return {Integer}\ndef num_of_unplaced_fruits(fruits, baskets)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $fruits\n     * @param Integer[] $baskets\n     * @return Integer\n     */\n    function numOfUnplacedFruits($fruits, $baskets) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int numOfUnplacedFruits(List<int> fruits, List<int> baskets) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def numOfUnplacedFruits(fruits: Array[Int], baskets: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec num_of_unplaced_fruits(fruits :: [integer], baskets :: [integer]) :: integer\n  def num_of_unplaced_fruits(fruits, baskets) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec num_of_unplaced_fruits(Fruits :: [integer()], Baskets :: [integer()]) -> integer().\nnum_of_unplaced_fruits(Fruits, Baskets) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (num-of-unplaced-fruits fruits baskets)\n  (-> (listof exact-integer?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

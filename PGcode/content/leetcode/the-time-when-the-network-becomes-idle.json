@@ -21,5 +21,102 @@
     "[0,10,10]"
   ],
   "content_signature": "rkyjcs",
-  "fetched_at": "2026-05-21T06:33:45.423Z"
+  "fetched_at": "2026-05-30T07:23:02.399Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int networkBecomesIdle(vector<vector<int>>& edges, vector<int>& patience) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int networkBecomesIdle(int[][] edges, int[] patience) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def networkBecomesIdle(self, edges: List[List[int]], patience: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def networkBecomesIdle(self, edges, patience):\n        \"\"\"\n        :type edges: List[List[int]]\n        :type patience: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} edges\n * @param {number[]} patience\n * @return {number}\n */\nvar networkBecomesIdle = function(edges, patience) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function networkBecomesIdle(edges: number[][], patience: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int NetworkBecomesIdle(int[][] edges, int[] patience) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int networkBecomesIdle(int** edges, int edgesSize, int* edgesColSize, int* patience, int patienceSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func networkBecomesIdle(edges [][]int, patience []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun networkBecomesIdle(edges: Array<IntArray>, patience: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func networkBecomesIdle(_ edges: [[Int]], _ patience: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn network_becomes_idle(edges: Vec<Vec<i32>>, patience: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} edges\n# @param {Integer[]} patience\n# @return {Integer}\ndef network_becomes_idle(edges, patience)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $edges\n     * @param Integer[] $patience\n     * @return Integer\n     */\n    function networkBecomesIdle($edges, $patience) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int networkBecomesIdle(List<List<int>> edges, List<int> patience) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def networkBecomesIdle(edges: Array[Array[Int]], patience: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec network_becomes_idle(edges :: [[integer]], patience :: [integer]) :: integer\n  def network_becomes_idle(edges, patience) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec network_becomes_idle(Edges :: [[integer()]], Patience :: [integer()]) -> integer().\nnetwork_becomes_idle(Edges, Patience) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (network-becomes-idle edges patience)\n  (-> (listof (listof exact-integer?)) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

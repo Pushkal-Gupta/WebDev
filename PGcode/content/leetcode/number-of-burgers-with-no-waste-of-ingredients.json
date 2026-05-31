@@ -23,5 +23,102 @@
     "17"
   ],
   "content_signature": "-svld1x",
-  "fetched_at": "2026-05-21T06:16:45.652Z"
+  "fetched_at": "2026-05-30T05:38:16.644Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> numOfBurgers(int tomatoSlices, int cheeseSlices) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public List<Integer> numOfBurgers(int tomatoSlices, int cheeseSlices) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def numOfBurgers(self, tomatoSlices: int, cheeseSlices: int) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def numOfBurgers(self, tomatoSlices, cheeseSlices):\n        \"\"\"\n        :type tomatoSlices: int\n        :type cheeseSlices: int\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} tomatoSlices\n * @param {number} cheeseSlices\n * @return {number[]}\n */\nvar numOfBurgers = function(tomatoSlices, cheeseSlices) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function numOfBurgers(tomatoSlices: number, cheeseSlices: number): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public IList<int> NumOfBurgers(int tomatoSlices, int cheeseSlices) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* numOfBurgers(int tomatoSlices, int cheeseSlices, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func numOfBurgers(tomatoSlices int, cheeseSlices int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun numOfBurgers(tomatoSlices: Int, cheeseSlices: Int): List<Int> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func numOfBurgers(_ tomatoSlices: Int, _ cheeseSlices: Int) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn num_of_burgers(tomato_slices: i32, cheese_slices: i32) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} tomato_slices\n# @param {Integer} cheese_slices\n# @return {Integer[]}\ndef num_of_burgers(tomato_slices, cheese_slices)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $tomatoSlices\n     * @param Integer $cheeseSlices\n     * @return Integer[]\n     */\n    function numOfBurgers($tomatoSlices, $cheeseSlices) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> numOfBurgers(int tomatoSlices, int cheeseSlices) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def numOfBurgers(tomatoSlices: Int, cheeseSlices: Int): List[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec num_of_burgers(tomato_slices :: integer, cheese_slices :: integer) :: [integer]\n  def num_of_burgers(tomato_slices, cheese_slices) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec num_of_burgers(TomatoSlices :: integer(), CheeseSlices :: integer()) -> [integer()].\nnum_of_burgers(TomatoSlices, CheeseSlices) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (num-of-burgers tomatoSlices cheeseSlices)\n  (-> exact-integer? exact-integer? (listof exact-integer?))\n  )"
+    }
+  ]
 }

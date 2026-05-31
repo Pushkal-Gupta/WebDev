@@ -719,6 +719,7 @@ async function growForProblem(problem, opts = {}) {
   const seen = new Set(existing.map(tc => JSON.stringify(tc.inputs)));
   const newCases = [];
   let dedupd = 0;
+  let droppedVerify = 0;
   let consecutiveFails = 0;
   const need = opts.dryCount || (TARGET - beforeCount);
   const maxAttempts = need * 6 + 12;
@@ -738,6 +739,27 @@ async function growForProblem(problem, opts = {}) {
         if (consecutiveFails > 10) break;
         continue;
       }
+      // VERIFY GATE — re-run the canonical solution against the same inputs and
+      // confirm we get a byte-identical result. Drops any case where the solution
+      // is non-deterministic, flaky, or otherwise can't be trusted.
+      await sleep(PAUSE_MS);
+      let verifyOutput;
+      try {
+        verifyOutput = await judgeRun(wrapped, stdin);
+      } catch (verr) {
+        droppedVerify++;
+        if (opts.verbose) console.log(`    drop verify-error inputs=${JSON.stringify(inputs)} (${verr.message.slice(0, 80)})`);
+        consecutiveFails++;
+        if (consecutiveFails > 10) break;
+        continue;
+      }
+      if (verifyOutput !== expected) {
+        droppedVerify++;
+        if (opts.verbose) console.log(`    drop mismatch inputs=${JSON.stringify(inputs)} expected=${expected.slice(0, 40)} verify=${verifyOutput.slice(0, 40)}`);
+        consecutiveFails++;
+        if (consecutiveFails > 10) break;
+        continue;
+      }
       consecutiveFails = 0;
       newCases.push({ inputs, expected });
       if (opts.onCase) opts.onCase({ inputs, expected });
@@ -753,10 +775,10 @@ async function growForProblem(problem, opts = {}) {
   if (!opts.dryCount && newCases.length > 0) {
     const { error } = await sb.from('PGcode_problems').update({ test_cases: merged }).eq('id', id);
     if (error) {
-      return { id, before: beforeCount, after: beforeCount, added: 0, dedupd, skipped: `db write failed: ${error.message}` };
+      return { id, before: beforeCount, after: beforeCount, added: 0, dedupd, droppedVerify, skipped: `db write failed: ${error.message}` };
     }
   }
-  return { id, before: beforeCount, after: merged.length, added: newCases.length, dedupd };
+  return { id, before: beforeCount, after: merged.length, added: newCases.length, dedupd, droppedVerify };
 }
 
 // ── main ────────────────────────────────────────────────────────────────────

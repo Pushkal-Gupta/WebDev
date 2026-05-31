@@ -21,5 +21,102 @@
     "8"
   ],
   "content_signature": "fnjhnh",
-  "fetched_at": "2026-05-21T06:09:10.577Z"
+  "fetched_at": "2026-05-30T06:37:25.522Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int atMostNGivenDigitSet(vector<string>& digits, int n) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int atMostNGivenDigitSet(String[] digits, int n) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def atMostNGivenDigitSet(self, digits: List[str], n: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def atMostNGivenDigitSet(self, digits, n):\n        \"\"\"\n        :type digits: List[str]\n        :type n: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string[]} digits\n * @param {number} n\n * @return {number}\n */\nvar atMostNGivenDigitSet = function(digits, n) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function atMostNGivenDigitSet(digits: string[], n: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int AtMostNGivenDigitSet(string[] digits, int n) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int atMostNGivenDigitSet(char** digits, int digitsSize, int n) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func atMostNGivenDigitSet(digits []string, n int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun atMostNGivenDigitSet(digits: Array<String>, n: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func atMostNGivenDigitSet(_ digits: [String], _ n: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn at_most_n_given_digit_set(digits: Vec<String>, n: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String[]} digits\n# @param {Integer} n\n# @return {Integer}\ndef at_most_n_given_digit_set(digits, n)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[] $digits\n     * @param Integer $n\n     * @return Integer\n     */\n    function atMostNGivenDigitSet($digits, $n) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int atMostNGivenDigitSet(List<String> digits, int n) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def atMostNGivenDigitSet(digits: Array[String], n: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec at_most_n_given_digit_set(digits :: [String.t], n :: integer) :: integer\n  def at_most_n_given_digit_set(digits, n) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec at_most_n_given_digit_set(Digits :: [unicode:unicode_binary()], N :: integer()) -> integer().\nat_most_n_given_digit_set(Digits, N) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (at-most-n-given-digit-set digits n)\n  (-> (listof string?) exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

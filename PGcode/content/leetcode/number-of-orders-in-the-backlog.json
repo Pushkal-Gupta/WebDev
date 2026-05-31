@@ -18,5 +18,87 @@
     "[[7,1000000000,1],[15,3,0],[5,999999995,0],[5,1,1]]"
   ],
   "content_signature": "rh14ov",
-  "fetched_at": "2026-05-21T06:28:33.184Z"
+  "fetched_at": "2026-05-30T05:52:58.344Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int getNumberOfBacklogOrders(vector<vector<int>>& orders) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int getNumberOfBacklogOrders(int[][] orders) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def getNumberOfBacklogOrders(self, orders: List[List[int]]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def getNumberOfBacklogOrders(self, orders):\n        \"\"\"\n        :type orders: List[List[int]]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} orders\n * @return {number}\n */\nvar getNumberOfBacklogOrders = function(orders) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function getNumberOfBacklogOrders(orders: number[][]): number {\n\n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int GetNumberOfBacklogOrders(int[][] orders) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "\n\nint getNumberOfBacklogOrders(int** orders, int ordersSize, int* ordersColSize){\n\n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func getNumberOfBacklogOrders(orders [][]int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun getNumberOfBacklogOrders(orders: Array<IntArray>): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func getNumberOfBacklogOrders(_ orders: [[Int]]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn get_number_of_backlog_orders(orders: Vec<Vec<i32>>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} orders\n# @return {Integer}\ndef get_number_of_backlog_orders(orders)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $orders\n     * @return Integer\n     */\n    function getNumberOfBacklogOrders($orders) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def getNumberOfBacklogOrders(orders: Array[Array[Int]]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (get-number-of-backlog-orders orders)\n  (-> (listof (listof exact-integer?)) exact-integer?)\n\n  )"
+    }
+  ]
 }

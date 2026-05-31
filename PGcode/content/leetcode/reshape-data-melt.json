@@ -12,5 +12,12 @@
     "{\"headers\":{\"report\":[\"product\",\"quarter_1\",\"quarter_2\",\"quarter_3\",\"quarter_4\"]},\"rows\":{\"report\":[[\"Umbrella\",417,224,379,611],[\"SleepingBag\",800,936,93,875]]}}"
   ],
   "content_signature": "-v68768",
-  "fetched_at": "2026-05-21T07:07:09.103Z"
+  "fetched_at": "2026-05-30T07:34:24.553Z",
+  "code_snippets": [
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef meltTable(report: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

@@ -22,5 +22,102 @@
     "[[1,1],[1,1],[1,1]]"
   ],
   "content_signature": "-qycci9",
-  "fetched_at": "2026-05-21T06:31:47.053Z"
+  "fetched_at": "2026-05-30T07:14:09.104Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int maxCompatibilitySum(vector<vector<int>>& students, vector<vector<int>>& mentors) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int maxCompatibilitySum(int[][] students, int[][] mentors) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def maxCompatibilitySum(self, students: List[List[int]], mentors: List[List[int]]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def maxCompatibilitySum(self, students, mentors):\n        \"\"\"\n        :type students: List[List[int]]\n        :type mentors: List[List[int]]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} students\n * @param {number[][]} mentors\n * @return {number}\n */\nvar maxCompatibilitySum = function(students, mentors) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function maxCompatibilitySum(students: number[][], mentors: number[][]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MaxCompatibilitySum(int[][] students, int[][] mentors) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int maxCompatibilitySum(int** students, int studentsSize, int* studentsColSize, int** mentors, int mentorsSize, int* mentorsColSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func maxCompatibilitySum(students [][]int, mentors [][]int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun maxCompatibilitySum(students: Array<IntArray>, mentors: Array<IntArray>): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func maxCompatibilitySum(_ students: [[Int]], _ mentors: [[Int]]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn max_compatibility_sum(students: Vec<Vec<i32>>, mentors: Vec<Vec<i32>>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} students\n# @param {Integer[][]} mentors\n# @return {Integer}\ndef max_compatibility_sum(students, mentors)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $students\n     * @param Integer[][] $mentors\n     * @return Integer\n     */\n    function maxCompatibilitySum($students, $mentors) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int maxCompatibilitySum(List<List<int>> students, List<List<int>> mentors) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def maxCompatibilitySum(students: Array[Array[Int]], mentors: Array[Array[Int]]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec max_compatibility_sum(students :: [[integer]], mentors :: [[integer]]) :: integer\n  def max_compatibility_sum(students, mentors) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec max_compatibility_sum(Students :: [[integer()]], Mentors :: [[integer()]]) -> integer().\nmax_compatibility_sum(Students, Mentors) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (max-compatibility-sum students mentors)\n  (-> (listof (listof exact-integer?)) (listof (listof exact-integer?)) exact-integer?)\n  )"
+    }
+  ]
 }

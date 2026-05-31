@@ -23,5 +23,102 @@
     "\"d\""
   ],
   "content_signature": "-ueu4h6",
-  "fetched_at": "2026-05-21T07:05:39.095Z"
+  "fetched_at": "2026-05-30T06:55:07.307Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool canMakeSubsequence(string str1, string str2) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean canMakeSubsequence(String str1, String str2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def canMakeSubsequence(self, str1: str, str2: str) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def canMakeSubsequence(self, str1, str2):\n        \"\"\"\n        :type str1: str\n        :type str2: str\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string} str1\n * @param {string} str2\n * @return {boolean}\n */\nvar canMakeSubsequence = function(str1, str2) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function canMakeSubsequence(str1: string, str2: string): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool CanMakeSubsequence(string str1, string str2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool canMakeSubsequence(char* str1, char* str2) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func canMakeSubsequence(str1 string, str2 string) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun canMakeSubsequence(str1: String, str2: String): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func canMakeSubsequence(_ str1: String, _ str2: String) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn can_make_subsequence(str1: String, str2: String) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String} str1\n# @param {String} str2\n# @return {Boolean}\ndef can_make_subsequence(str1, str2)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String $str1\n     * @param String $str2\n     * @return Boolean\n     */\n    function canMakeSubsequence($str1, $str2) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool canMakeSubsequence(String str1, String str2) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def canMakeSubsequence(str1: String, str2: String): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec can_make_subsequence(str1 :: String.t, str2 :: String.t) :: boolean\n  def can_make_subsequence(str1, str2) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec can_make_subsequence(Str1 :: unicode:unicode_binary(), Str2 :: unicode:unicode_binary()) -> boolean().\ncan_make_subsequence(Str1, Str2) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (can-make-subsequence str1 str2)\n  (-> string? string? boolean?)\n  )"
+    }
+  ]
 }

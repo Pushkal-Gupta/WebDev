@@ -12,5 +12,32 @@
     "{\"headers\": {\"Employee\": [\"id\", \"name\", \"salary\", \"departmentId\"], \"Department\": [\"id\", \"name\"]}, \"rows\": {\"Employee\": [[1, \"Joe\", 85000, 1], [2, \"Henry\", 80000, 2], [3, \"Sam\", 60000, 2], [4, \"Max\", 90000, 1], [5, \"Janet\", 69000, 1], [6, \"Randy\", 85000, 1], [7, \"Will\", 70000, 1]], \"Department\": [[1, \"IT\"], [2, \"Sales\"]]}}"
   ],
   "content_signature": "-2ahdlr",
-  "fetched_at": "2026-05-21T05:54:04.674Z"
+  "fetched_at": "2026-05-30T07:35:42.419Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef top_three_salaries(employee: pd.DataFrame, department: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

@@ -24,5 +24,102 @@
     "\"LRUD\""
   ],
   "content_signature": "sno62h",
-  "fetched_at": "2026-05-21T06:35:29.807Z"
+  "fetched_at": "2026-05-30T05:17:02.638Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> executeInstructions(int n, vector<int>& startPos, string s) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] executeInstructions(int n, int[] startPos, String s) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def executeInstructions(self, n: int, startPos: List[int], s: str) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def executeInstructions(self, n, startPos, s):\n        \"\"\"\n        :type n: int\n        :type startPos: List[int]\n        :type s: str\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number[]} startPos\n * @param {string} s\n * @return {number[]}\n */\nvar executeInstructions = function(n, startPos, s) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function executeInstructions(n: number, startPos: number[], s: string): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] ExecuteInstructions(int n, int[] startPos, string s) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* executeInstructions(int n, int* startPos, int startPosSize, char* s, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func executeInstructions(n int, startPos []int, s string) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun executeInstructions(n: Int, startPos: IntArray, s: String): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func executeInstructions(_ n: Int, _ startPos: [Int], _ s: String) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn execute_instructions(n: i32, start_pos: Vec<i32>, s: String) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer[]} start_pos\n# @param {String} s\n# @return {Integer[]}\ndef execute_instructions(n, start_pos, s)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer[] $startPos\n     * @param String $s\n     * @return Integer[]\n     */\n    function executeInstructions($n, $startPos, $s) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> executeInstructions(int n, List<int> startPos, String s) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def executeInstructions(n: Int, startPos: Array[Int], s: String): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec execute_instructions(n :: integer, start_pos :: [integer], s :: String.t) :: [integer]\n  def execute_instructions(n, start_pos, s) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec execute_instructions(N :: integer(), StartPos :: [integer()], S :: unicode:unicode_binary()) -> [integer()].\nexecute_instructions(N, StartPos, S) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (execute-instructions n startPos s)\n  (-> exact-integer? (listof exact-integer?) string? (listof exact-integer?))\n  )"
+    }
+  ]
 }

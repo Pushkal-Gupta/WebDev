@@ -20,5 +20,82 @@
     "5"
   ],
   "content_signature": "ovqwv0",
-  "fetched_at": "2026-05-21T06:16:10.419Z"
+  "fetched_at": "2026-05-30T07:03:49.997Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "/*\n * // This is the custom function interface.\n * // You should not implement it, or speculate about its implementation\n * class CustomFunction {\n * public:\n *     // Returns f(x, y) for any given positive integers x and y.\n *     // Note that f(x, y) is increasing with respect to both x and y.\n *     // i.e. f(x, y) < f(x + 1, y), f(x, y) < f(x, y + 1)\n *     int f(int x, int y);\n * };\n */\n\nclass Solution {\npublic:\n    vector<vector<int>> findSolution(CustomFunction& customfunction, int z) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "/*\n * // This is the custom function interface.\n * // You should not implement it, or speculate about its implementation\n * class CustomFunction {\n *     // Returns f(x, y) for any given positive integers x and y.\n *     // Note that f(x, y) is increasing with respect to both x and y.\n *     // i.e. f(x, y) < f(x + 1, y), f(x, y) < f(x, y + 1)\n *     public int f(int x, int y);\n * };\n */\n\nclass Solution {\n    public List<List<Integer>> findSolution(CustomFunction customfunction, int z) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "\"\"\"\n   This is the custom function interface.\n   You should not implement it, or speculate about its implementation\n   class CustomFunction:\n       # Returns f(x, y) for any given positive integers x and y.\n       # Note that f(x, y) is increasing with respect to both x and y.\n       # i.e. f(x, y) < f(x + 1, y), f(x, y) < f(x, y + 1)\n       def f(self, x, y):\n  \n\"\"\"\n\nclass Solution:\n    def findSolution(self, customfunction: 'CustomFunction', z: int) -> List[List[int]]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "\"\"\"\n   This is the custom function interface.\n   You should not implement it, or speculate about its implementation\n   class CustomFunction:\n       # Returns f(x, y) for any given positive integers x and y.\n       # Note that f(x, y) is increasing with respect to both x and y.\n       # i.e. f(x, y) < f(x + 1, y), f(x, y) < f(x, y + 1)\n       def f(self, x, y):\n\"\"\"\n\nclass Solution(object):\n    def findSolution(self, customfunction, z):\n        \"\"\"\n        :type num: int\n        :type z: int\n        :rtype: List[List[int]]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * // This is the CustomFunction's API interface.\n * // You should not implement it, or speculate about its implementation\n * function CustomFunction() {\n *     @param {integer, integer} x, y\n *     @return {integer}\n *     this.f = function(x, y) {\n *         ...\n *     };\n * };\n */\n\n/**\n * @param {CustomFunction} customfunction\n * @param {integer} z\n * @return {integer[][]}\n */\nvar findSolution = function(customfunction, z) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "/**\n * // This is the CustomFunction's API interface.\n * // You should not implement it, or speculate about its implementation\n * class CustomFunction {\n *      f(x: number, y: number): number {}\n * }\n */\n\nfunction findSolution(customfunction: CustomFunction, z: number): number[][] {\n\t\n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "/*\n * // This is the custom function interface.\n * // You should not implement it, or speculate about its implementation\n * public class CustomFunction {\n *     // Returns f(x, y) for any given positive integers x and y.\n *     // Note that f(x, y) is increasing with respect to both x and y.\n *     // i.e. f(x, y) < f(x + 1, y), f(x, y) < f(x, y + 1)\n *     public int f(int x, int y);\n * };\n */\n\npublic class Solution {\n    public IList<IList<int>> FindSolution(CustomFunction customfunction, int z) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/*\n * // This is the definition for customFunction API.\n * // You should not implement it, or speculate about its implementation\n *\n * // Returns f(x, y) for any given positive integers x and y.\n * // Note that f(x, y) is increasing with respect to both x and y.\n * // i.e. f(x, y) < f(x + 1, y), f(x, y) < f(x, y + 1)\n */\n\n/**\n * Return an array of arrays of size *returnSize.\n * The sizes of the arrays are returned as *returnColumnSizes array.\n * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().\n */\nint** findSolution(int (*customFunction)(int, int), int z, int* returnSize, int** returnColumnSizes) {\n\t\n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "/** \n * This is the declaration of customFunction API.\n * @param  x    int\n * @param  x    int\n * @return \t    Returns f(x, y) for any given positive integers x and y.\n *\t\t\t    Note that f(x, y) is increasing with respect to both x and y.\n *              i.e. f(x, y) < f(x + 1, y), f(x, y) < f(x, y + 1)\n */\n\nfunc findSolution(customFunction func(int, int) int, z int) [][]int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "/*\n * // This is the custom function interface.\n * // You should not implement it, or speculate about its implementation\n * class CustomFunction {\n *     // Returns f(x, y) for any given positive integers x and y.\n *     // Note that f(x, y) is increasing with respect to both x and y.\n *     // i.e. f(x, y) < f(x + 1, y), f(x, y) < f(x, y + 1)\n *     fun f(x:Int, y:Int):Int {}\n * };\n */\n\nclass Solution {\n\tfun findSolution(customfunction:CustomFunction, z:Int):List<List<Int>> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "/*\n * // This is the custom function interface.\n * // You should not implement it, or speculate about its implementation\n * class CustomFunction {\n *     // Returns f(x, y) for any given positive integers x and y.\n *     // Note that f(x, y) is increasing with respect to both x and y.\n *     // i.e. f(x, y) < f(x + 1, y), f(x, y) < f(x, y + 1)\n *     func f(_ x: Int, _ y: Int) -> Int {}\n * }\n */\n\nclass Solution {\n    func findSolution(_ customfunction: CustomFunction, _ z: Int) -> [[Int]] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "/*\n * // This is the custom function interface.\n * // You should not implement it, or speculate about its implementation\n * struct CustomFunction;\n * impl CustomFunction {\n *    pub fn f(x:i32,y:i32)->i32{}\n * }\n */\n\nimpl Solution {\n    pub fn find_solution(customfunction: &CustomFunction, z: i32) -> Vec<Vec<i32>> {\n\t\n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# \tThis is the custom function interface.\n#\tYou should not implement it, or speculate about its implementation\n#\tclass CustomFunction:\n#\t\tdef f(self, x, y):\n# \t\t\tReturns f(x, y) for any given positive integers x and y.\n# \t\t\tNote that f(x, y) is increasing with respect to both x and y.\n# \t\t\ti.e. f(x, y) < f(x + 1, y), f(x, y) < f(x, y + 1)\n# \t\tend\n# \tend\n# \n\n# @param {CustomFunction} customfunction\n# @param {Integer} z\n# @return {List[List[Integer]]}\ndef findSolution(customfunction, z)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "/*\n * // This is the custom function interface.\n * // You should not implement it, or speculate about its implementation\n * class CustomFunction {\n *     // Returns f(x, y) for any given positive integers x and y.\n *     // Note that f(x, y) is increasing with respect to both x and y.\n *     // i.e. f(x, y) < f(x + 1, y), f(x, y) < f(x, y + 1)\n *     public function f($x, $y){}\n * };\n */\n\nclass Solution {\n    /**\n     * @param  CustomFunction  $customfunction\n     * @param  Integer  $z\n     * @return Integer[][]\n     */\n    function findSolution($customfunction, $n) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "/*\n * // This is the custom function interface.\n * // You should not implement it, or speculate about its implementation\n * class CustomFunction {\n *     // Returns f(x, y) for any given positive integers x and y.\n *     // Note that f(x, y) is increasing with respect to both x and y.\n *     // i.e. f(x, y) < f(x + 1, y), f(x, y) < f(x, y + 1)\n *     def f(x: Int, y: Int): Int = {}\n * };\n */\n\nobject Solution {\n    def findSolution(customfunction: CustomFunction, z: Int): List[List[Int]] = {\n        \n    }\n}"
+    }
+  ]
 }

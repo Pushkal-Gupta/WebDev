@@ -25,5 +25,102 @@
     "10000000000"
   ],
   "content_signature": "-whsvip",
-  "fetched_at": "2026-05-21T07:49:09.205Z"
+  "fetched_at": "2026-05-30T06:35:56.255Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> lexSmallestNegatedPerm(int n, long long target) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] lexSmallestNegatedPerm(int n, long target) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def lexSmallestNegatedPerm(self, n: int, target: int) -> List[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def lexSmallestNegatedPerm(self, n, target):\n        \"\"\"\n        :type n: int\n        :type target: int\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number} target\n * @return {number[]}\n */\nvar lexSmallestNegatedPerm = function(n, target) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function lexSmallestNegatedPerm(n: number, target: number): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] LexSmallestNegatedPerm(int n, long target) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* lexSmallestNegatedPerm(int n, long long target, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func lexSmallestNegatedPerm(n int, target int64) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun lexSmallestNegatedPerm(n: Int, target: Long): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func lexSmallestNegatedPerm(_ n: Int, _ target: Int) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn lex_smallest_negated_perm(n: i32, target: i64) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer} target\n# @return {Integer[]}\ndef lex_smallest_negated_perm(n, target)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer $target\n     * @return Integer[]\n     */\n    function lexSmallestNegatedPerm($n, $target) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> lexSmallestNegatedPerm(int n, int target) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def lexSmallestNegatedPerm(n: Int, target: Long): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec lex_smallest_negated_perm(n :: integer, target :: integer) :: [integer]\n  def lex_smallest_negated_perm(n, target) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec lex_smallest_negated_perm(N :: integer(), Target :: integer()) -> [integer()].\nlex_smallest_negated_perm(N, Target) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (lex-smallest-negated-perm n target)\n  (-> exact-integer? exact-integer? (listof exact-integer?))\n  )"
+    }
+  ]
 }

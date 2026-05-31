@@ -18,5 +18,17 @@
     "[10,20,30]"
   ],
   "content_signature": "-qw7jf1",
-  "fetched_at": "2026-05-21T07:02:05.864Z"
+  "fetched_at": "2026-05-30T06:44:57.709Z",
+  "code_snippets": [
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} arr\n * @param {Function} fn\n * @return {number[]}\n */\nvar map = function(arr, fn) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function map(arr: number[], fn: (n: number, i: number) => number): number[] {\n    \n};"
+    }
+  ]
 }

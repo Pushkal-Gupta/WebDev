@@ -22,5 +22,102 @@
     "[8,2,6,10]"
   ],
   "content_signature": "-ank1w6",
-  "fetched_at": "2026-05-21T06:40:22.566Z"
+  "fetched_at": "2026-05-30T07:18:49.228Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int minOperations(vector<int>& nums, vector<int>& numsDivide) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int minOperations(int[] nums, int[] numsDivide) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minOperations(self, nums: List[int], numsDivide: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minOperations(self, nums, numsDivide):\n        \"\"\"\n        :type nums: List[int]\n        :type numsDivide: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {number[]} numsDivide\n * @return {number}\n */\nvar minOperations = function(nums, numsDivide) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minOperations(nums: number[], numsDivide: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int MinOperations(int[] nums, int[] numsDivide) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int minOperations(int* nums, int numsSize, int* numsDivide, int numsDivideSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minOperations(nums []int, numsDivide []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minOperations(nums: IntArray, numsDivide: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minOperations(_ nums: [Int], _ numsDivide: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn min_operations(nums: Vec<i32>, nums_divide: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums\n# @param {Integer[]} nums_divide\n# @return {Integer}\ndef min_operations(nums, nums_divide)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums\n     * @param Integer[] $numsDivide\n     * @return Integer\n     */\n    function minOperations($nums, $numsDivide) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int minOperations(List<int> nums, List<int> numsDivide) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minOperations(nums: Array[Int], numsDivide: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec min_operations(nums :: [integer], nums_divide :: [integer]) :: integer\n  def min_operations(nums, nums_divide) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec min_operations(Nums :: [integer()], NumsDivide :: [integer()]) -> integer().\nmin_operations(Nums, NumsDivide) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (min-operations nums numsDivide)\n  (-> (listof exact-integer?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
 }

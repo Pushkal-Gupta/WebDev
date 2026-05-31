@@ -21,5 +21,102 @@
     "0"
   ],
   "content_signature": "wdgg67",
-  "fetched_at": "2026-05-21T06:39:31.725Z"
+  "fetched_at": "2026-05-30T06:59:15.629Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    double calculateTax(vector<vector<int>>& brackets, int income) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public double calculateTax(int[][] brackets, int income) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def calculateTax(self, brackets: List[List[int]], income: int) -> float:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def calculateTax(self, brackets, income):\n        \"\"\"\n        :type brackets: List[List[int]]\n        :type income: int\n        :rtype: float\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} brackets\n * @param {number} income\n * @return {number}\n */\nvar calculateTax = function(brackets, income) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function calculateTax(brackets: number[][], income: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public double CalculateTax(int[][] brackets, int income) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "double calculateTax(int** brackets, int bracketsSize, int* bracketsColSize, int income) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func calculateTax(brackets [][]int, income int) float64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun calculateTax(brackets: Array<IntArray>, income: Int): Double {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func calculateTax(_ brackets: [[Int]], _ income: Int) -> Double {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn calculate_tax(brackets: Vec<Vec<i32>>, income: i32) -> f64 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} brackets\n# @param {Integer} income\n# @return {Float}\ndef calculate_tax(brackets, income)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $brackets\n     * @param Integer $income\n     * @return Float\n     */\n    function calculateTax($brackets, $income) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  double calculateTax(List<List<int>> brackets, int income) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def calculateTax(brackets: Array[Array[Int]], income: Int): Double = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec calculate_tax(brackets :: [[integer]], income :: integer) :: float\n  def calculate_tax(brackets, income) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec calculate_tax(Brackets :: [[integer()]], Income :: integer()) -> float().\ncalculate_tax(Brackets, Income) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (calculate-tax brackets income)\n  (-> (listof (listof exact-integer?)) exact-integer? flonum?)\n  )"
+    }
+  ]
 }

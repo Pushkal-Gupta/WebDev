@@ -22,5 +22,102 @@
     "1"
   ],
   "content_signature": "oysnwe",
-  "fetched_at": "2026-05-21T05:59:30.716Z"
+  "fetched_at": "2026-05-30T06:56:30.284Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool canIWin(int maxChoosableInteger, int desiredTotal) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean canIWin(int maxChoosableInteger, int desiredTotal) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def canIWin(self, maxChoosableInteger: int, desiredTotal: int) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def canIWin(self, maxChoosableInteger, desiredTotal):\n        \"\"\"\n        :type maxChoosableInteger: int\n        :type desiredTotal: int\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} maxChoosableInteger\n * @param {number} desiredTotal\n * @return {boolean}\n */\nvar canIWin = function(maxChoosableInteger, desiredTotal) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function canIWin(maxChoosableInteger: number, desiredTotal: number): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool CanIWin(int maxChoosableInteger, int desiredTotal) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool canIWin(int maxChoosableInteger, int desiredTotal) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func canIWin(maxChoosableInteger int, desiredTotal int) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun canIWin(maxChoosableInteger: Int, desiredTotal: Int): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func canIWin(_ maxChoosableInteger: Int, _ desiredTotal: Int) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn can_i_win(max_choosable_integer: i32, desired_total: i32) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} max_choosable_integer\n# @param {Integer} desired_total\n# @return {Boolean}\ndef can_i_win(max_choosable_integer, desired_total)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $maxChoosableInteger\n     * @param Integer $desiredTotal\n     * @return Boolean\n     */\n    function canIWin($maxChoosableInteger, $desiredTotal) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool canIWin(int maxChoosableInteger, int desiredTotal) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def canIWin(maxChoosableInteger: Int, desiredTotal: Int): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec can_i_win(max_choosable_integer :: integer, desired_total :: integer) :: boolean\n  def can_i_win(max_choosable_integer, desired_total) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec can_i_win(MaxChoosableInteger :: integer(), DesiredTotal :: integer()) -> boolean().\ncan_i_win(MaxChoosableInteger, DesiredTotal) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (can-i-win maxChoosableInteger desiredTotal)\n  (-> exact-integer? exact-integer? boolean?)\n  )"
+    }
+  ]
 }

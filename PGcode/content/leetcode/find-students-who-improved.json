@@ -12,5 +12,32 @@
     "{\"headers\":{\"Scores\":[\"student_id\",\"subject\",\"score\",\"exam_date\"]},\"rows\":{\"Scores\":[[101,\"Math\",70,\"2023-01-15\"],[101,\"Math\",85,\"2023-02-15\"],[101,\"Physics\",65,\"2023-01-15\"],[101,\"Physics\",60,\"2023-02-15\"],[102,\"Math\",80,\"2023-01-15\"],[102,\"Math\",85,\"2023-02-15\"],[103,\"Math\",90,\"2023-01-15\"],[104,\"Physics\",75,\"2023-01-15\"],[104,\"Physics\",85,\"2023-02-15\"]]}}"
   ],
   "content_signature": "5uwukr",
-  "fetched_at": "2026-05-21T07:28:13.606Z"
+  "fetched_at": "2026-05-30T07:35:47.114Z",
+  "code_snippets": [
+    {
+      "lang": "MySQL",
+      "langSlug": "mysql",
+      "code": "# Write your MySQL query statement below\n"
+    },
+    {
+      "lang": "MS SQL Server",
+      "langSlug": "mssql",
+      "code": "/* Write your T-SQL query statement below */\n"
+    },
+    {
+      "lang": "PostgreSQL",
+      "langSlug": "postgresql",
+      "code": "-- Write your PostgreSQL query statement below\n"
+    },
+    {
+      "lang": "Oracle",
+      "langSlug": "oraclesql",
+      "code": "/* Write your PL/SQL query statement below */\n"
+    },
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef find_students_who_improved(scores: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
 }

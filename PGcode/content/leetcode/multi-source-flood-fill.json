@@ -27,5 +27,102 @@
     "[[1,1,5]]"
   ],
   "content_signature": "-4npccw",
-  "fetched_at": "2026-05-21T07:54:14.654Z"
+  "fetched_at": "2026-05-30T05:45:45.969Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<vector<int>> colorGrid(int n, int m, vector<vector<int>>& sources) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[][] colorGrid(int n, int m, int[][] sources) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def colorGrid(self, n: int, m: int, sources: list[list[int]]) -> list[list[int]]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def colorGrid(self, n, m, sources):\n        \"\"\"\n        :type n: int\n        :type m: int\n        :type sources: List[List[int]]\n        :rtype: List[List[int]]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number} n\n * @param {number} m\n * @param {number[][]} sources\n * @return {number[][]}\n */\nvar colorGrid = function(n, m, sources) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function colorGrid(n: number, m: number, sources: number[][]): number[][] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[][] ColorGrid(int n, int m, int[][] sources) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Return an array of arrays of size *returnSize.\n * The sizes of the arrays are returned as *returnColumnSizes array.\n * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().\n */\nint** colorGrid(int n, int m, int** sources, int sourcesSize, int* sourcesColSize, int* returnSize, int** returnColumnSizes) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func colorGrid(n int, m int, sources [][]int) [][]int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun colorGrid(n: Int, m: Int, sources: Array<IntArray>): Array<IntArray> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func colorGrid(_ n: Int, _ m: Int, _ sources: [[Int]]) -> [[Int]] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn color_grid(n: i32, m: i32, sources: Vec<Vec<i32>>) -> Vec<Vec<i32>> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer} n\n# @param {Integer} m\n# @param {Integer[][]} sources\n# @return {Integer[][]}\ndef color_grid(n, m, sources)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer $n\n     * @param Integer $m\n     * @param Integer[][] $sources\n     * @return Integer[][]\n     */\n    function colorGrid($n, $m, $sources) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<List<int>> colorGrid(int n, int m, List<List<int>> sources) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def colorGrid(n: Int, m: Int, sources: Array[Array[Int]]): Array[Array[Int]] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec color_grid(n :: integer, m :: integer, sources :: [[integer]]) :: [[integer]]\n  def color_grid(n, m, sources) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec color_grid(N :: integer(), M :: integer(), Sources :: [[integer()]]) -> [[integer()]].\ncolor_grid(N, M, Sources) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (color-grid n m sources)\n  (-> exact-integer? exact-integer? (listof (listof exact-integer?)) (listof (listof exact-integer?)))\n  )"
+    }
+  ]
 }

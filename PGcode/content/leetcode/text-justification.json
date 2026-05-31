@@ -19,5 +19,102 @@
     "20"
   ],
   "content_signature": "-t0o01i",
-  "fetched_at": "2026-05-21T05:44:13.838Z"
+  "fetched_at": "2026-05-30T07:19:41.745Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<string> fullJustify(vector<string>& words, int maxWidth) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public List<String> fullJustify(String[] words, int maxWidth) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def fullJustify(self, words: List[str], maxWidth: int) -> List[str]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def fullJustify(self, words, maxWidth):\n        \"\"\"\n        :type words: List[str]\n        :type maxWidth: int\n        :rtype: List[str]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {string[]} words\n * @param {number} maxWidth\n * @return {string[]}\n */\nvar fullJustify = function(words, maxWidth) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function fullJustify(words: string[], maxWidth: number): string[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public IList<string> FullJustify(string[] words, int maxWidth) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nchar** fullJustify(char** words, int wordsSize, int maxWidth, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func fullJustify(words []string, maxWidth int) []string {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun fullJustify(words: Array<String>, maxWidth: Int): List<String> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func fullJustify(_ words: [String], _ maxWidth: Int) -> [String] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn full_justify(words: Vec<String>, max_width: i32) -> Vec<String> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {String[]} words\n# @param {Integer} max_width\n# @return {String[]}\ndef full_justify(words, max_width)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param String[] $words\n     * @param Integer $maxWidth\n     * @return String[]\n     */\n    function fullJustify($words, $maxWidth) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<String> fullJustify(List<String> words, int maxWidth) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def fullJustify(words: Array[String], maxWidth: Int): List[String] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec full_justify(words :: [String.t], max_width :: integer) :: [String.t]\n  def full_justify(words, max_width) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec full_justify(Words :: [unicode:unicode_binary()], MaxWidth :: integer()) -> [unicode:unicode_binary()].\nfull_justify(Words, MaxWidth) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (full-justify words maxWidth)\n  (-> (listof string?) exact-integer? (listof string?))\n  )"
+    }
+  ]
 }

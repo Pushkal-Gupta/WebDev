@@ -23,5 +23,102 @@
     "2"
   ],
   "content_signature": "bgi777",
-  "fetched_at": "2026-05-21T06:40:05.604Z"
+  "fetched_at": "2026-05-30T05:34:11.904Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int latestTimeCatchTheBus(vector<int>& buses, vector<int>& passengers, int capacity) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int latestTimeCatchTheBus(int[] buses, int[] passengers, int capacity) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def latestTimeCatchTheBus(self, buses: List[int], passengers: List[int], capacity: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def latestTimeCatchTheBus(self, buses, passengers, capacity):\n        \"\"\"\n        :type buses: List[int]\n        :type passengers: List[int]\n        :type capacity: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} buses\n * @param {number[]} passengers\n * @param {number} capacity\n * @return {number}\n */\nvar latestTimeCatchTheBus = function(buses, passengers, capacity) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function latestTimeCatchTheBus(buses: number[], passengers: number[], capacity: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int LatestTimeCatchTheBus(int[] buses, int[] passengers, int capacity) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int latestTimeCatchTheBus(int* buses, int busesSize, int* passengers, int passengersSize, int capacity) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func latestTimeCatchTheBus(buses []int, passengers []int, capacity int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun latestTimeCatchTheBus(buses: IntArray, passengers: IntArray, capacity: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func latestTimeCatchTheBus(_ buses: [Int], _ passengers: [Int], _ capacity: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn latest_time_catch_the_bus(buses: Vec<i32>, passengers: Vec<i32>, capacity: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} buses\n# @param {Integer[]} passengers\n# @param {Integer} capacity\n# @return {Integer}\ndef latest_time_catch_the_bus(buses, passengers, capacity)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $buses\n     * @param Integer[] $passengers\n     * @param Integer $capacity\n     * @return Integer\n     */\n    function latestTimeCatchTheBus($buses, $passengers, $capacity) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int latestTimeCatchTheBus(List<int> buses, List<int> passengers, int capacity) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def latestTimeCatchTheBus(buses: Array[Int], passengers: Array[Int], capacity: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec latest_time_catch_the_bus(buses :: [integer], passengers :: [integer], capacity :: integer) :: integer\n  def latest_time_catch_the_bus(buses, passengers, capacity) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec latest_time_catch_the_bus(Buses :: [integer()], Passengers :: [integer()], Capacity :: integer()) -> integer().\nlatest_time_catch_the_bus(Buses, Passengers, Capacity) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (latest-time-catch-the-bus buses passengers capacity)\n  (-> (listof exact-integer?) (listof exact-integer?) exact-integer? exact-integer?)\n  )"
+    }
+  ]
 }

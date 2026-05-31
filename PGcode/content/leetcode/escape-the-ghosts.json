@@ -18,5 +18,102 @@
     "[1,0]"
   ],
   "content_signature": "9pqrf7",
-  "fetched_at": "2026-05-21T06:06:10.962Z"
+  "fetched_at": "2026-05-30T05:17:17.202Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    bool escapeGhosts(vector<vector<int>>& ghosts, vector<int>& target) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public boolean escapeGhosts(int[][] ghosts, int[] target) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def escapeGhosts(self, ghosts: List[List[int]], target: List[int]) -> bool:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def escapeGhosts(self, ghosts, target):\n        \"\"\"\n        :type ghosts: List[List[int]]\n        :type target: List[int]\n        :rtype: bool\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[][]} ghosts\n * @param {number[]} target\n * @return {boolean}\n */\nvar escapeGhosts = function(ghosts, target) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function escapeGhosts(ghosts: number[][], target: number[]): boolean {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public bool EscapeGhosts(int[][] ghosts, int[] target) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "bool escapeGhosts(int** ghosts, int ghostsSize, int* ghostsColSize, int* target, int targetSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func escapeGhosts(ghosts [][]int, target []int) bool {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun escapeGhosts(ghosts: Array<IntArray>, target: IntArray): Boolean {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func escapeGhosts(_ ghosts: [[Int]], _ target: [Int]) -> Bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn escape_ghosts(ghosts: Vec<Vec<i32>>, target: Vec<i32>) -> bool {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[][]} ghosts\n# @param {Integer[]} target\n# @return {Boolean}\ndef escape_ghosts(ghosts, target)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[][] $ghosts\n     * @param Integer[] $target\n     * @return Boolean\n     */\n    function escapeGhosts($ghosts, $target) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  bool escapeGhosts(List<List<int>> ghosts, List<int> target) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def escapeGhosts(ghosts: Array[Array[Int]], target: Array[Int]): Boolean = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec escape_ghosts(ghosts :: [[integer]], target :: [integer]) :: boolean\n  def escape_ghosts(ghosts, target) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec escape_ghosts(Ghosts :: [[integer()]], Target :: [integer()]) -> boolean().\nescape_ghosts(Ghosts, Target) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (escape-ghosts ghosts target)\n  (-> (listof (listof exact-integer?)) (listof exact-integer?) boolean?)\n  )"
+    }
+  ]
 }
