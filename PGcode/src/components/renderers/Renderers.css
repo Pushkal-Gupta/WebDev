@@ -240,12 +240,13 @@
   display: flex;
   justify-content: center;
   width: 100%;
-  overflow-x: auto;
 }
 
 .ll-chain {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   gap: 0;
   padding-bottom: 2.5rem;
 }

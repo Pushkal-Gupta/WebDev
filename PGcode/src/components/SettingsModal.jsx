@@ -4,6 +4,7 @@ import { X, UserPlus, Users, Check, Clock, Trash2, Palette, Code2, Sparkles, Rot
 import {
   getAiKey, setAiKey, getProxyUrl, setProxyUrl,
   getAiProvider, setAiProvider, getAiModel, setAiModel,
+  getAiEnabledPref, setAiEnabledPref,
   AI_PROVIDERS,
 } from '../lib/ai';
 import { loadCustomColors, saveCustomColors, applyCustomColors } from '../lib/customColors';
@@ -197,6 +198,13 @@ function AiSettings({ onMessage }) {
           ))}
         </div>
 
+        <p className="sm-ai-explainer">
+          AI is optional. Enable it to use these helpers across the platform:
+          <br />• <strong>Workspace</strong>: explain why a submission failed.
+          <br />• <strong>Solving</strong>: ask for a hint without revealing the full answer.
+          <br />• <strong>Concepts</strong>: generate practice quizzes on the fly.
+          <br />Your API key is stored locally only — never sent to our server.
+        </p>
         <label className="settings-label" style={{ marginTop: '0.6rem' }}>{providerLabel} API key</label>
         <div style={{ display: 'flex', gap: '0.4rem' }}>
           <input

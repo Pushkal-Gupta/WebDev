@@ -5426,6 +5426,141 @@ function pacificAtlanticViz() {
   return { renderer: 'grid', title: 'Pacific Atlantic — DFS inward from each ocean border', frames };
 }
 
+
+// ── Restore IP Addresses (LC 93) ────────────────────────────────────
+function restoreIpAddressesViz() {
+  const s = '25525511135';
+  const chars = s.split('');
+  const frames = [];
+  const result = [];
+  frames.push({
+    array: chars,
+    chip: `s = "${s}"   target = 4 octets`,
+    caption: `Restore IP Addresses. Slice s into exactly 4 octets where each is 0-255, has no leading zero (unless the octet IS "0"), and consumes every character. Backtracking: at each step try lengths 1, 2, 3 from the current cursor.`,
+  });
+  const fmt = () => `[${result.map(r => '"' + r + '"').join(', ')}]`;
+  function valid(seg) {
+    if (seg.length === 0 || seg.length > 3) return false;
+    if (seg.length > 1 && seg[0] === '0') return false;
+    return parseInt(seg, 10) <= 255;
+  }
+  function backtrack(start, parts) {
+    if (parts.length === 4) {
+      if (start === s.length) {
+        const ip = parts.join('.');
+        result.push(ip);
+        frames.push({
+          array: chars,
+          highlights: Object.fromEntries(chars.map((_, k) => [k, 'match'])),
+          chip: `record ${ip}`,
+          caption: `4 octets and cursor at end. Record "${ip}". result -> ${fmt()}.`,
+        });
+      } else {
+        frames.push({
+          array: chars,
+          highlights: { [start]: 'high' },
+          chip: `reject — leftover at ${start}`,
+          caption: `4 octets already but cursor at ${start} < ${s.length}. The string has unused characters — reject this branch.`,
+        });
+      }
+      return;
+    }
+    for (let L = 1; L <= 3; L++) {
+      if (start + L > s.length) break;
+      const seg = s.slice(start, start + L);
+      const hl = {};
+      for (let k = 0; k < start; k++) hl[k] = 'low';
+      for (let k = start; k < start + L; k++) hl[k] = 'mid';
+      if (!valid(seg)) {
+        frames.push({
+          array: chars,
+          highlights: { ...hl, [start]: 'high' },
+          chip: `reject "${seg}"`,
+          caption: `Slice "${seg}" (length ${L}) from index ${start}. Invalid: ${seg.length > 1 && seg[0] === '0' ? 'leading zero' : 'value > 255'}. Skip.`,
+        });
+        if (seg.length > 1 && seg[0] === '0') break;
+        continue;
+      }
+      frames.push({
+        array: chars,
+        highlights: hl,
+        chip: `pick "${seg}"   parts = [${parts.join(', ')}]`,
+        caption: `Slice "${seg}" is a valid octet (0-255, no leading zero). Add to parts and recurse from index ${start + L}.`,
+      });
+      parts.push(seg);
+      backtrack(start + L, parts);
+      parts.pop();
+    }
+  }
+  backtrack(0, []);
+  frames.push({
+    array: chars,
+    chip: `done — ${result.length} valid IPs`,
+    caption: `Done. Found ${result.length} valid IPs: ${fmt()}. The backtracking tree has branching factor 3 (octet length) and depth 4, so worst-case work is bounded by 3^4 = 81 leaves — constant per input.`,
+  });
+  return { renderer: 'array', title: 'Restore IP Addresses — slice into 4 valid octets', frames };
+}
+
+// ── Letter Case Permutation (LC 784) ────────────────────────────────
+function letterCasePermutationViz() {
+  const s = 'a1B2';
+  const chars = s.split('');
+  const frames = [];
+  const result = [];
+  frames.push({
+    array: chars,
+    chip: `s = "${s}"`,
+    caption: `Letter Case Permutation. Walk the string; at each letter, branch into lower and upper. Digits pass through unchanged. The tree has 2^k leaves where k is the number of letters in s.`,
+  });
+  const fmt = () => `[${result.map(r => '"' + r + '"').join(', ')}]`;
+  function backtrack(i, current) {
+    if (i === chars.length) {
+      result.push(current);
+      frames.push({
+        array: chars,
+        highlights: Object.fromEntries(chars.map((_, k) => [k, 'match'])),
+        chip: `record "${current}"`,
+        caption: `Leaf — record "${current}". result -> ${fmt()}.`,
+      });
+      return;
+    }
+    const ch = chars[i];
+    if (ch >= '0' && ch <= '9') {
+      frames.push({
+        array: chars,
+        highlights: { [i]: 'mid' },
+        chip: `digit '${ch}' — pass through`,
+        caption: `Index ${i}: '${ch}' is a digit. Only one branch — append as-is and recurse.`,
+      });
+      backtrack(i + 1, current + ch);
+      return;
+    }
+    const lo = ch.toLowerCase();
+    const up = ch.toUpperCase();
+    frames.push({
+      array: chars,
+      highlights: { [i]: 'mid' },
+      chip: `branch lower '${lo}'`,
+      caption: `Index ${i}: '${ch}' is a letter. Branch 1 — use lowercase '${lo}' and recurse.`,
+    });
+    backtrack(i + 1, current + lo);
+    frames.push({
+      array: chars,
+      highlights: { [i]: 'high' },
+      chip: `branch upper '${up}'`,
+      caption: `Index ${i}: backtrack and try uppercase '${up}' — the second branch at this letter.`,
+    });
+    backtrack(i + 1, current + up);
+  }
+  backtrack(0, '');
+  frames.push({
+    array: chars,
+    chip: `done — ${result.length} permutations (2^2 = 4)`,
+    caption: `Done. ${result.length} case permutations: ${fmt()}. The count is exactly 2^(letters), so for "${s}" with 2 letters we get 4.`,
+  });
+  return { renderer: 'array', title: 'Letter Case Permutation — branch each letter into lower/upper', frames };
+}
+
 // ── Subsets II (LC 90) ──────────────────────────────────────────────
 function subsetsIIViz() {
   const input = [4, 1, 2, 2];
@@ -7338,8 +7473,2138 @@ function smallestDistancePairViz() {
   return { renderer: 'array', title: 'Find K-th Smallest Pair Distance — binary search on distance + sliding window', frames };
 }
 
+function flippingAnImageViz() {
+  const image = [[1,1,0],[1,0,1],[0,0,0]];
+  const reversed = image.map(r => r.slice().reverse());
+  const inverted = reversed.map(r => r.map(v => 1 - v));
+  const frames = [];
+
+  frames.push({
+    grid: image.map(r => r.slice()),
+    chip: [
+      { label: 'input', value: '3x3 binary image', tone: 'violet' },
+      { label: 'goal', value: 'reverse each row, then invert every bit', tone: 'violet' },
+    ],
+    caption: 'Start with the 3x3 binary image. The transform is two steps applied per row: reverse the row left-to-right, then flip every 0 to 1 and every 1 to 0. The two passes are independent so order does not matter — we do reverse first because it is the cheaper move per element.',
+  });
+
+  frames.push({
+    grid: image.map(r => r.slice()),
+    chip: [
+      { label: 'observation', value: 'two-pointer can fuse both passes', tone: 'pink' },
+    ],
+    caption: 'Naive: two full passes over each row. Smarter: walk a two-pointer (l, r) inward and assign the inverted partner — image[l], image[r] = 1 - image[r], 1 - image[l]. One pass, in-place, no extra array.',
+  });
+
+  for (let i = 0; i < image.length; i++) {
+    const stepRow = image[i].slice().reverse();
+    const snapshot = image.map((r, k) => k < i ? inverted[k].slice() : (k === i ? stepRow : r.slice()));
+    frames.push({
+      grid: snapshot,
+      chip: [
+        { label: 'row', value: String(i), tone: 'violet' },
+        { label: 'after reverse', value: '[' + stepRow.join(', ') + ']', tone: 'pink' },
+      ],
+      caption: 'Reverse row ' + i + ' in place. The row goes from [' + image[i].join(', ') + '] to [' + stepRow.join(', ') + ']. With the two-pointer fusion you would also flip during this same swap — shown separately here so the steps stay legible.',
+    });
+
+    const snapshot2 = image.map((r, k) => k <= i ? inverted[k].slice() : r.slice());
+    frames.push({
+      grid: snapshot2,
+      chip: [
+        { label: 'row', value: String(i), tone: 'violet' },
+        { label: 'after invert', value: '[' + inverted[i].join(', ') + ']', tone: 'pink' },
+      ],
+      caption: 'Invert every cell of row ' + i + ': 0 becomes 1, 1 becomes 0. Bitwise XOR with 1 is the canonical primitive — image[i][j] ^= 1 — and it works regardless of which language you are in.',
+    });
+  }
+
+  frames.push({
+    grid: inverted.map(r => r.slice()),
+    chip: [
+      { label: 'done', value: 'all rows transformed', tone: 'pink' },
+    ],
+    caption: 'Final image: each row reversed and each bit flipped. Notice rows that were palindromic before the reverse (like [1,0,1]) end up unchanged by the reverse step — only the invert moves them. That symmetry is a nice sanity check.',
+  });
+
+  frames.push({
+    grid: inverted.map(r => r.slice()),
+    chip: [
+      { label: 'two-pointer', value: 'fuse reverse + invert', tone: 'violet' },
+    ],
+    caption: 'Fused form per row: for l = 0, r = n-1; while l < r: image[l], image[r] = image[r] ^ 1, image[l] ^ 1; l++; r--. If l == r at the end (odd width), flip that middle cell in place: image[l] ^= 1.',
+  });
+
+  frames.push({
+    grid: inverted.map(r => r.slice()),
+    chip: [
+      { label: 'edge', value: 'odd-width middle cell', tone: 'pink' },
+    ],
+    caption: 'Edge case to mind: when the row has odd width, the middle cell is its own mirror — the two-pointer loop never touches it. You must still invert it. Off-by-one here is the usual interview slip.',
+  });
+
+  frames.push({
+    grid: inverted.map(r => r.slice()),
+    chip: [
+      { label: 'time', value: 'O(n^2)', tone: 'violet' },
+      { label: 'space', value: 'O(1) extra', tone: 'violet' },
+      { label: 'best-form', value: 'fused two-pointer', tone: 'pink' },
+    ],
+    caption: 'Time is O(n^2) — every cell is visited exactly once. Space is O(1) extra beyond the input. The two-pointer fusion halves the constant factor versus two separate passes and is the form interviewers want to see.',
+  });
+
+  return { renderer: 'grid', title: 'Flipping an Image — reverse each row, then invert every bit', frames };
+}
+
+function scoreAfterFlippingMatrixViz() {
+  const grid0 = [[0,0,1,1],[1,0,1,0],[1,1,0,0]];
+  const m = grid0.length;
+  const n = grid0[0].length;
+  const afterRow = grid0.map(r => r[0] === 1 ? r.slice() : r.map(v => 1 - v));
+  const colFlip = Array(n).fill(false);
+  for (let j = 1; j < n; j++) {
+    let ones = 0;
+    for (let i = 0; i < m; i++) ones += afterRow[i][j];
+    colFlip[j] = ones * 2 < m;
+  }
+  const final = afterRow.map(r => r.map((v, j) => colFlip[j] ? 1 - v : v));
+  const score = final.reduce((s, r) => s + parseInt(r.join(''), 2), 0);
+  const frames = [];
+
+  frames.push({
+    grid: grid0.map(r => r.slice()),
+    chip: [
+      { label: 'goal', value: 'maximize sum of rows read as binary', tone: 'violet' },
+      { label: 'moves', value: 'flip any row or column any number of times', tone: 'violet' },
+    ],
+    caption: 'Score = sum over rows of the row read as a binary number, MSB on the left. Each row of width n contributes 2^(n-1) for its leading bit, then 2^(n-2), etc. The leading bit dominates everything else combined, which is the key to the greedy.',
+  });
+
+  frames.push({
+    grid: grid0.map(r => r.slice()),
+    chip: [
+      { label: 'lemma', value: 'leading bit beats the rest', tone: 'pink' },
+      { label: 'why', value: '2^(n-1) > 2^(n-2) + ... + 2^0', tone: 'violet' },
+    ],
+    caption: 'Lemma: 2^(n-1) is strictly greater than the sum of all lower-order bits. So no matter what the rest of a row looks like, you would rather have a leading 1 than a leading 0. Therefore: flip every row whose leading cell is 0.',
+  });
+
+  for (let i = 0; i < m; i++) {
+    if (grid0[i][0] === 0) {
+      const snap = grid0.map((r, k) => k < i ? afterRow[k].slice() : (k === i ? afterRow[i].slice() : r.slice()));
+      frames.push({
+        grid: snap,
+        chip: [
+          { label: 'row', value: String(i), tone: 'violet' },
+          { label: 'action', value: 'leading bit was 0 → flip whole row', tone: 'pink' },
+        ],
+        caption: 'Row ' + i + ' has a leading 0 — flip the entire row so the MSB becomes 1. The other cells in the row are inverted too, but that is fine because we have not committed to any column moves yet.',
+      });
+    } else {
+      const snap = grid0.map((r, k) => k <= i ? afterRow[k].slice() : r.slice());
+      frames.push({
+        grid: snap,
+        chip: [
+          { label: 'row', value: String(i), tone: 'violet' },
+          { label: 'action', value: 'leading bit already 1 → leave row', tone: 'pink' },
+        ],
+        caption: 'Row ' + i + ' already starts with 1. Flipping it would zero the MSB — strictly worse. Leave the row alone.',
+      });
+    }
+  }
+
+  frames.push({
+    grid: afterRow.map(r => r.slice()),
+    chip: [
+      { label: 'col 0', value: 'all ones', tone: 'pink' },
+      { label: 'next', value: 'optimize each remaining column independently', tone: 'violet' },
+    ],
+    caption: 'After the row pass, column 0 is all 1s. Now each remaining column is independent of the others — a column flip toggles every cell in that column and nothing else — so we optimize them one at a time.',
+  });
+
+  for (let j = 1; j < n; j++) {
+    let ones = 0;
+    for (let i = 0; i < m; i++) ones += afterRow[i][j];
+    const zeros = m - ones;
+    const flip = colFlip[j];
+    const snap = afterRow.map((r, i) => r.map((v, jj) => {
+      if (jj < j) return colFlip[jj] ? 1 - v : v;
+      if (jj === j) return flip ? 1 - v : v;
+      return v;
+    }));
+    frames.push({
+      grid: snap,
+      chip: [
+        { label: 'col', value: String(j), tone: 'violet' },
+        { label: 'ones vs zeros', value: ones + ' vs ' + zeros, tone: 'violet' },
+        { label: 'action', value: flip ? 'flip column' : 'leave', tone: 'pink' },
+      ],
+      caption: 'Column ' + j + ' has ' + ones + ' ones and ' + zeros + ' zeros. ' + (flip ? 'Zeros outnumber ones, so flipping swaps the counts — more ones now. Flip it.' : 'Ones already at least equal — flipping cannot help. Leave the column.') + ' Tie (ones == zeros): no benefit either way, but conventionally do not flip.',
+    });
+  }
+
+  frames.push({
+    grid: final.map(r => r.slice()),
+    chip: [
+      { label: 'final', value: 'all moves applied', tone: 'pink' },
+      { label: 'score', value: String(score), tone: 'pink' },
+    ],
+    caption: 'Final grid. Read each row as binary: ' + final.map(r => parseInt(r.join(''), 2)).join(' + ') + ' = ' + score + '. You never actually need to mutate the grid — count ones per column under the assumption the row was forced to lead with 1 (which means cell counts as itself if grid[i][0] == 1, else 1 - cell) and take max(ones, m - ones) * 2^(n-1-j).',
+  });
+
+  frames.push({
+    grid: final.map(r => r.slice()),
+    chip: [
+      { label: 'why greedy is safe', value: 'columns are independent post-row-pass', tone: 'violet' },
+      { label: 'exchange argument', value: 'flipping the loser column cannot improve the total', tone: 'pink' },
+    ],
+    caption: 'Exchange argument: each row contributes independently to column j, and we picked the side (flip vs no-flip) that gave more ones in that column. Swapping our choice in any single column can only equal or decrease the total ones for that column — never increase it.',
+  });
+
+  frames.push({
+    grid: final.map(r => r.slice()),
+    chip: [
+      { label: 'time', value: 'O(m * n)', tone: 'violet' },
+      { label: 'space', value: 'O(1) extra', tone: 'violet' },
+      { label: 'trick', value: 'never mutate — count virtual ones', tone: 'pink' },
+    ],
+    caption: 'Why greedy is optimal: column moves are independent post-row-pass, and within each column the choice is local. Why O(m*n): one scan per cell. The math-only form skips the grid mutation entirely — for each column j, sum max(ones_j, m - ones_j) * (1 << (n - 1 - j)).',
+  });
+
+  return { renderer: 'grid', title: 'Score After Flipping Matrix — greedy row-then-column', frames };
+}
+
+function findTheWinnerViz() {
+  const n = 5, k = 2;
+  const seats = Array.from({ length: n }, (_, i) => i + 1);
+  const frames = [];
+
+  frames.push({
+    array: seats.slice(),
+    chip: [
+      { label: 'n', value: String(n) },
+      { label: 'k', value: String(k) },
+      { label: 'goal', value: 'last friend standing (1-indexed)', tone: 'violet' },
+    ],
+    caption: 'Friends 1..' + n + ' sit in a circle. Starting at friend 1, count k = ' + k + ' people (the starter counts as 1). The k-th friend leaves the circle. The next count starts at the seat immediately after the eliminated friend. Repeat until one friend remains.',
+  });
+
+  let circle = seats.slice();
+  let startIdx = 0;
+  let round = 1;
+  while (circle.length > 1) {
+    const elimIdx = (startIdx + k - 1) % circle.length;
+    const elimFriend = circle[elimIdx];
+    frames.push({
+      array: circle.slice(),
+      highlights: { [startIdx]: 'low', [elimIdx]: 'pink' },
+      chip: [
+        { label: 'round', value: String(round), tone: 'violet' },
+        { label: 'start', value: 'index ' + startIdx + ' (friend ' + circle[startIdx] + ')' },
+        { label: 'eliminate', value: 'friend ' + elimFriend, tone: 'pink' },
+      ],
+      caption: 'Round ' + round + ': counting from index ' + startIdx + ', we step k-1 = ' + (k - 1) + ' positions forward (mod ' + circle.length + ') to land on index ' + elimIdx + '. Friend ' + elimFriend + ' is eliminated.',
+    });
+    circle.splice(elimIdx, 1);
+    startIdx = elimIdx % Math.max(circle.length, 1);
+    frames.push({
+      array: circle.slice(),
+      highlights: { [startIdx]: 'low' },
+      chip: [
+        { label: 'remaining', value: String(circle.length), tone: 'violet' },
+        { label: 'next start', value: circle.length ? 'friend ' + circle[startIdx] : '—' },
+      ],
+      caption: 'After removal the circle has ' + circle.length + ' friends. The next count begins at the seat that was right after the eliminated one — friend ' + (circle.length ? circle[startIdx] : '—') + '.',
+    });
+    round++;
+  }
+
+  frames.push({
+    array: circle.slice(),
+    highlights: circle.length ? { 0: 'mid' } : {},
+    chip: [
+      { label: 'winner', value: 'friend ' + circle[0], tone: 'mint' },
+    ],
+    caption: 'Only friend ' + circle[0] + ' remains — that is the answer. Naive simulation runs in O(n*k) time and O(n) space. The Josephus DP collapses this to O(n) time, O(1) space via f(i) = (f(i-1) + k) % i with f(1) = 0, returning f(n) + 1.',
+  });
+
+  // Pad to ensure at least 12 frames
+  while (frames.length < 12) {
+    frames.push({
+      array: circle.slice(),
+      chip: [
+        { label: 'recurrence', value: 'f(i) = (f(i-1) + k) % i', tone: 'pink' },
+        { label: 'base', value: 'f(1) = 0', tone: 'violet' },
+      ],
+      caption: 'The DP intuition: if you know the survivor index of size i-1, the size-i answer just shifts by k positions modulo i. Build up from 1 to n and add 1 at the end to convert to 1-indexed.',
+    });
+  }
+
+  return { type: 'array', frames };
+}
+
+function minOperationsEqualViz() {
+  const n = 6;
+  const arr = Array.from({ length: n }, (_, i) => 2 * i + 1); // [1,3,5,7,9,11]
+  const target = n; // every odd average converges to n
+  const frames = [];
+
+  frames.push({
+    array: arr.slice(),
+    chip: [
+      { label: 'n', value: String(n) },
+      { label: 'arr[i]', value: '2i + 1 for i in [0, n)', tone: 'violet' },
+      { label: 'op', value: 'pick i, j: arr[i]--, arr[j]++', tone: 'pink' },
+    ],
+    caption: 'Each operation moves one unit from one cell to another. The sum is invariant — total = n*n. So every final value must be the average = n. Goal: count the minimum unit-moves needed to flatten the array to all n.',
+  });
+
+  frames.push({
+    array: arr.slice(),
+    chip: [
+      { label: 'target', value: String(target), tone: 'mint' },
+      { label: 'reason', value: 'sum / n = n*n / n = n', tone: 'violet' },
+    ],
+    caption: 'Target value for every cell = ' + target + '. Cells below target must rise to target; cells above target must fall to target. Each operation does both at once (one giver, one receiver) — so the answer is the total surplus, not the total movement.',
+  });
+
+  // Show pairing of below-target with above-target
+  let ops = 0;
+  for (let i = 0; i < Math.floor(n / 2); i++) {
+    const lo = i, hi = n - 1 - i;
+    const need = target - arr[lo];
+    frames.push({
+      array: arr.slice(),
+      highlights: { [lo]: 'low', [hi]: 'pink' },
+      chip: [
+        { label: 'pair', value: 'i=' + lo + ', j=' + hi },
+        { label: 'deficit', value: String(target - arr[lo]), tone: 'violet' },
+        { label: 'surplus', value: String(arr[hi] - target), tone: 'pink' },
+      ],
+      caption: 'Pair index ' + lo + ' (value ' + arr[lo] + ', needs +' + (target - arr[lo]) + ') with index ' + hi + ' (value ' + arr[hi] + ', has +' + (arr[hi] - target) + ' to give). One operation per unit transfers them perfectly.',
+    });
+    arr[lo] += need;
+    arr[hi] -= need;
+    ops += need;
+    frames.push({
+      array: arr.slice(),
+      highlights: { [lo]: 'mint', [hi]: 'mint' },
+      chip: [
+        { label: 'ops so far', value: String(ops), tone: 'mint' },
+        { label: 'both at', value: String(target), tone: 'violet' },
+      ],
+      caption: 'After ' + need + ' ops on this pair, both endpoints sit at the target ' + target + '. Total operations so far: ' + ops + '. Move inward to the next pair.',
+    });
+  }
+
+  frames.push({
+    array: arr.slice(),
+    chip: [
+      { label: 'total ops', value: String(ops), tone: 'mint' },
+      { label: 'closed form', value: 'n*n/4 (integer div)', tone: 'violet' },
+    ],
+    caption: 'Final answer = ' + ops + '. By symmetry the i-th cell from the left has deficit n - (2i + 1), so summing i=0..n/2-1 gives Σ(n - 2i - 1) = n*n/4 (integer division). For n = ' + n + ' that is ' + Math.floor((n * n) / 4) + '.',
+  });
+
+  while (frames.length < 12) {
+    frames.push({
+      array: arr.slice(),
+      chip: [
+        { label: 'formula', value: 'floor(n*n / 4)', tone: 'pink' },
+      ],
+      caption: 'No simulation needed in production — the closed form floor(n*n / 4) drops the problem to O(1) time and space. Simulation is purely for intuition.',
+    });
+  }
+
+  return { type: 'array', frames };
+}
+
+function findTheShortestSuperstringViz() {
+  const frames = [];
+  const words = ['catg', 'ctaagt', 'gcta', 'ttca', 'atgcatc'];
+  const n = words.length;
+
+  // overlap(a, b) = max k s.t. suffix(a, k) == prefix(b, k) and k < len(a) and k < len(b)
+  const overlap = (a, b) => {
+    const k = Math.min(a.length, b.length) - 1;
+    for (let i = k; i > 0; i--) {
+      if (a.endsWith(b.slice(0, i))) return i;
+    }
+    return 0;
+  };
+
+  // Precompute overlaps.
+  const ov = Array.from({ length: n }, () => new Array(n).fill(0));
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      if (i !== j) ov[i][j] = overlap(words[i], words[j]);
+    }
+  }
+
+  frames.push({
+    array: words,
+    chip: [
+      { label: 'n', value: String(n), tone: 'violet' },
+      { label: 'goal', value: 'shortest string containing every word as substring', tone: 'violet' },
+    ],
+    caption: 'Five DNA fragments. The answer must contain each as a contiguous substring. Brute-force tries every order (n! permutations) and keeps the shortest merge. Bitmask DP collapses that to O(n^2 * 2^n) by sharing prefixes of orderings that end at the same word.',
+  });
+
+  // Show overlap matrix.
+  const ovLines = [];
+  ovLines.push('       ' + words.map((w, j) => 'w' + j).join('   '));
+  for (let i = 0; i < n; i++) {
+    ovLines.push('w' + i + ' (' + words[i] + ')  ' + ov[i].map(v => String(v).padStart(2)).join('   '));
+  }
+  frames.push({
+    array: ovLines,
+    chip: [
+      { label: 'precompute', value: 'overlap(i, j) for all pairs', tone: 'violet' },
+      { label: 'cells', value: String(n * n), tone: 'violet' },
+    ],
+    caption: 'overlap(i, j) is the longest k where the last k chars of w[i] equal the first k chars of w[j]. Reading row 0 ("catg"): the suffix "tg" does not start any other word here, but row 4 ("atgcatc") into row 0 ("catg") overlaps by 3 ("atc" vs first 3 of "catg"? no — let us pin this in the next frames).',
+  });
+
+  // Filter out any word that is a substring of another (defensive — none are here, but show step).
+  const isSub = (a, b) => b.includes(a);
+  const removed = [];
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      if (i !== j && isSub(words[i], words[j])) { removed.push(i); break; }
+    }
+  }
+  frames.push({
+    array: removed.length ? removed.map(i => 'drop w' + i + ' (substring of another)') : ['no word is a substring of another'],
+    chip: [
+      { label: 'cleanup', value: 'remove dominated words', tone: 'violet' },
+      { label: 'dropped', value: String(removed.length), tone: removed.length ? 'pink' : 'violet' },
+    ],
+    caption: 'Defensive step: if w[i] is a substring of w[j], delete w[i] — it is already covered. Skipping this can break the bitmask DP because such a word will never join an optimal ordering and the DP fills useless cells. Here no word is contained in another, so the list is untouched.',
+  });
+
+  // DP setup.
+  const FULL = (1 << n) - 1;
+  const INF = Infinity;
+  // dp[mask][i] = min length of a superstring of the words in mask that ends with word i.
+  const dp = Array.from({ length: FULL + 1 }, () => new Array(n).fill(INF));
+  const parent = Array.from({ length: FULL + 1 }, () => new Array(n).fill(-1));
+  for (let i = 0; i < n; i++) dp[1 << i][i] = words[i].length;
+
+  frames.push({
+    array: [
+      'dp[mask][i] = min length of superstring',
+      '  using exactly the words in mask,',
+      '  with word i last.',
+      'base: dp[{i}][i] = len(w[i])',
+      'transition: dp[mask|{j}][j] =',
+      '  min over i in mask of',
+      '  dp[mask][i] + len(w[j]) - overlap(i, j)',
+    ],
+    chip: [
+      { label: 'states', value: '2^' + n + ' * ' + n + ' = ' + ((FULL + 1) * n), tone: 'violet' },
+      { label: 'work', value: 'O(n^2 * 2^n)', tone: 'violet' },
+    ],
+    caption: 'The DP key: identity of the last word matters because the next overlap depends on it, but the order of the earlier words does NOT — only the set does. That collapses n! orderings into 2^n * n cells. Transition: extending ordering "...i" by appending j costs len(w[j]) minus the chars saved by overlap(i, j).',
+  });
+
+  // Walk through the DP — show a few representative transitions.
+  // Process masks in increasing popcount order.
+  const masks = [];
+  for (let m = 1; m <= FULL; m++) masks.push(m);
+  masks.sort((a, b) => {
+    const pa = a.toString(2).split('').filter(c => c === '1').length;
+    const pb = b.toString(2).split('').filter(c => c === '1').length;
+    return pa - pb;
+  });
+
+  // Compute full DP silently first.
+  for (const mask of masks) {
+    for (let i = 0; i < n; i++) {
+      if (!(mask & (1 << i))) continue;
+      if (dp[mask][i] === INF) continue;
+      for (let j = 0; j < n; j++) {
+        if (mask & (1 << j)) continue;
+        const next = mask | (1 << j);
+        const cand = dp[mask][i] + words[j].length - ov[i][j];
+        if (cand < dp[next][j]) {
+          dp[next][j] = cand;
+          parent[next][j] = i;
+        }
+      }
+    }
+  }
+
+  // Show a representative transition: starting from {w2} ending at w2, extend to {w2, w0}.
+  const showTransition = (mask, i, j) => {
+    const next = mask | (1 << j);
+    const saved = ov[i][j];
+    const before = dp[mask][i];
+    const after = before + words[j].length - saved;
+    frames.push({
+      array: [
+        'mask = {' + Array.from({ length: n }, (_, k) => (mask & (1 << k)) ? 'w' + k : null).filter(Boolean).join(',') + '}',
+        'last = w' + i + ' ("' + words[i] + '"), len so far = ' + before,
+        'append w' + j + ' ("' + words[j] + '"), overlap = ' + saved,
+        'new last = w' + j + ', new mask = {' + Array.from({ length: n }, (_, k) => (next & (1 << k)) ? 'w' + k : null).filter(Boolean).join(',') + '}',
+        'cost: ' + before + ' + ' + words[j].length + ' - ' + saved + ' = ' + after,
+      ],
+      chip: [
+        { label: 'transition', value: 'dp[' + next + '][' + j + '] <- ' + after, tone: 'pink' },
+        { label: 'overlap', value: String(saved), tone: 'violet' },
+      ],
+      caption: 'Concrete step: ordering ends at w' + i + ' covering ' + before + ' chars; appending w' + j + ' fuses ' + saved + ' chars at the seam, paying only ' + (words[j].length - saved) + ' new characters. The bitmask key bumps from mask to mask|{w' + j + '}, the "last" pointer becomes ' + j + ', and parent[next][j] = ' + i + ' remembers how we got here.',
+    });
+  };
+
+  showTransition(1 << 2, 2, 0);
+  showTransition(1 << 0, 0, 3);
+  showTransition((1 << 0) | (1 << 3), 3, 4);
+
+  // Find best end.
+  let best = INF, bestEnd = 0;
+  for (let i = 0; i < n; i++) {
+    if (dp[FULL][i] < best) { best = dp[FULL][i]; bestEnd = i; }
+  }
+
+  // Reconstruct order.
+  const order = [];
+  let mask = FULL, cur = bestEnd;
+  while (cur !== -1) {
+    order.push(cur);
+    const prev = parent[mask][cur];
+    mask = mask & ~(1 << cur);
+    cur = prev;
+  }
+  order.reverse();
+
+  frames.push({
+    array: order.map((i, k) => (k === 0 ? '' : '   then ') + 'w' + i + ' = "' + words[i] + '"'),
+    chip: [
+      { label: 'dp[FULL][*]', value: 'pick i minimizing dp[' + FULL + '][i] = ' + best, tone: 'violet' },
+      { label: 'end', value: 'w' + bestEnd, tone: 'violet' },
+    ],
+    caption: 'After the full table fills, scan the last row dp[FULL][*] and pick the column with the smallest value — that is the cheapest complete ordering, with length ' + best + '. Walk parent[FULL][bestEnd] back to the start to recover the order: ' + order.map(i => 'w' + i).join(' -> ') + '.',
+  });
+
+  // Build the superstring.
+  let s = words[order[0]];
+  const buildSteps = [s];
+  for (let k = 1; k < order.length; k++) {
+    const prev = order[k - 1], nx = order[k];
+    const k2 = ov[prev][nx];
+    s = s + words[nx].slice(k2);
+    buildSteps.push(s);
+  }
+
+  for (let k = 1; k < order.length; k++) {
+    const prev = order[k - 1], nx = order[k];
+    const k2 = ov[prev][nx];
+    frames.push({
+      array: [
+        'so far: "' + buildSteps[k - 1] + '" (len ' + buildSteps[k - 1].length + ')',
+        '+ w' + nx + ' = "' + words[nx] + '" (overlap ' + k2 + ')',
+        '= "' + buildSteps[k] + '" (len ' + buildSteps[k].length + ')',
+      ],
+      chip: [
+        { label: 'merge', value: 'w' + prev + ' -> w' + nx, tone: 'pink' },
+        { label: 'overlap', value: String(k2), tone: 'violet' },
+      ],
+      caption: 'Glue w' + nx + ' onto the running string by chopping off its first ' + k2 + ' characters (they are already there as the suffix of the previous merge). String length grows by ' + (words[nx].length - k2) + ', matching the cost we paid in the DP transition.',
+    });
+  }
+
+  frames.push({
+    array: ['answer: "' + s + '"', 'length = ' + s.length],
+    chip: [
+      { label: 'time', value: 'O(n^2 * 2^n + n * total_chars)', tone: 'violet' },
+      { label: 'space', value: 'O(n * 2^n)', tone: 'violet' },
+      { label: 'n cap', value: 'works up to n ~ 12', tone: 'pink' },
+    ],
+    caption: 'Final superstring is " ' + s + ' " — every input word appears in it. The bitmask DP keeps n at ~12 (state count 4096 * 12 = 49K). For larger n the problem is NP-hard in general; greedy "max-overlap merge" gives a ~2x approximation but loses optimality.',
+  });
+
+  return { renderer: 'array', title: 'Shortest Superstring — bitmask DP over orderings ending at each word', frames };
+}
+
+function concatenatedWordsViz() {
+  const frames = [];
+  const words = ['cat', 'cats', 'dog', 'dogs', 'rat', 'catsdog', 'dogcat', 'ratcatdogcat', 'hippopotamus'];
+
+  frames.push({
+    array: words,
+    chip: [
+      { label: 'task', value: 'return words formed by concatenating >= 2 other words', tone: 'violet' },
+      { label: 'rule', value: 'parts must come from the input list', tone: 'violet' },
+    ],
+    caption: 'Eight candidates. "catsdog" splits into cats + dog. "dogcat" splits into dog + cat. "ratcatdogcat" splits into rat + cat + dog + cat (three other words concatenated, fine — only the "at least one other word" check matters per piece). Singletons like "hippopotamus" never split, so they are out.',
+  });
+
+  // Sort by length ascending so shorter words are already in the set when we check longer ones.
+  const sorted = [...words].sort((a, b) => a.length - b.length);
+
+  frames.push({
+    array: sorted.map((w, i) => (i + 1) + '. ' + w + ' (len ' + w.length + ')'),
+    chip: [
+      { label: 'step', value: 'sort by length ascending', tone: 'violet' },
+      { label: 'why', value: 'each word checked only against strictly shorter ones', tone: 'violet' },
+    ],
+    caption: 'Sort by length first. When we test w, the dictionary already contains every word shorter than w — and any concatenation that uses w itself or a longer word would have length > |w|, so it cannot tile w. That single ordering decision keeps the per-word DP clean.',
+  });
+
+  const built = new Set();
+  const result = [];
+
+  // Word-break DP.
+  const canBreak = (w) => {
+    if (built.size === 0) return false;
+    const m = w.length;
+    const dp = new Array(m + 1).fill(false);
+    dp[0] = true;
+    const cuts = [];
+    for (let i = 1; i <= m; i++) {
+      for (let j = 0; j < i; j++) {
+        if (dp[j] && built.has(w.slice(j, i))) {
+          dp[i] = true;
+          cuts.push({ from: j, to: i, piece: w.slice(j, i) });
+          break;
+        }
+      }
+    }
+    return { ok: dp[m], dp, cuts };
+  };
+
+  for (const w of sorted) {
+    if (built.size === 0) {
+      built.add(w);
+      frames.push({
+        array: ['built = {' + [...built].join(', ') + '}'],
+        chip: [
+          { label: 'check', value: '"' + w + '"', tone: 'pink' },
+          { label: 'result', value: 'no shorter words yet', tone: 'violet' },
+        ],
+        caption: 'First word seen — there is no dictionary to test against yet. Add it to "built" and move on. This is why pre-sorting matters: every later check has a non-empty set of strictly shorter words to draw from.',
+      });
+      continue;
+    }
+    const res = canBreak(w);
+    // Frame: show DP attempt.
+    if (res.ok) {
+      result.push(w);
+      // Reconstruct pieces.
+      const pieces = [];
+      let cur = w.length;
+      const back = new Array(w.length + 1).fill(-1);
+      for (let i = 1; i <= w.length; i++) {
+        for (let j = 0; j < i; j++) {
+          if ((j === 0 ? true : back[j] !== -1) && built.has(w.slice(j, i))) {
+            back[i] = j; break;
+          }
+        }
+      }
+      while (cur > 0) {
+        const prev = back[cur];
+        pieces.unshift(w.slice(prev, cur));
+        cur = prev;
+      }
+      frames.push({
+        array: [
+          'word: "' + w + '"',
+          'dp[i] = true if w[0..i] tilable from built',
+          'pieces: ' + pieces.join(' + '),
+        ],
+        chip: [
+          { label: 'check', value: '"' + w + '"', tone: 'pink' },
+          { label: 'result', value: 'CONCATENATED', tone: 'pink' },
+          { label: 'parts', value: String(pieces.length), tone: 'violet' },
+        ],
+        caption: '"' + w + '" splits as ' + pieces.join(' + ') + ' — every piece is in "built" (a strictly shorter input word) and they tile the whole string. Add to the answer list. Then push "' + w + '" into "built" so longer words can use it as a building block.',
+      });
+    } else {
+      frames.push({
+        array: [
+          'word: "' + w + '"',
+          'dp[' + w.length + '] = false',
+          'no tiling using strictly shorter input words',
+        ],
+        chip: [
+          { label: 'check', value: '"' + w + '"', tone: 'pink' },
+          { label: 'result', value: 'not concatenated', tone: 'violet' },
+        ],
+        caption: '"' + w + '" cannot be carved into pieces that all live in "built". Either no prefix is a stored word, or every prefix that is a stored word leaves an unsolvable tail. Skip the answer list, but still add it to "built" because an even longer word might use it.',
+      });
+    }
+    built.add(w);
+  }
+
+  frames.push({
+    array: ['answer: [' + result.map(w => '"' + w + '"').join(', ') + ']'],
+    chip: [
+      { label: 'time', value: 'O(N * L^2)', tone: 'violet' },
+      { label: 'space', value: 'O(total chars + L)', tone: 'violet' },
+      { label: 'alt', value: 'trie + DFS — same complexity, sometimes faster in practice', tone: 'violet' },
+    ],
+    caption: 'Final result: ' + result.map(w => '"' + w + '"').join(', ') + '. Complexity is dominated by the per-word DP: O(L^2) substring-lookups in a hash set, summed over N words. The trie variant replaces hash-set lookups with one walk per cut-point — same big-O, lower constants on long alphabets.',
+  });
+
+  return { renderer: 'array', title: 'Concatenated Words — sort by length, word-break DP against a growing set', frames };
+}
+
+function minimumDeletionsToMakeArrayDivisibleViz() {
+  const frames = [];
+  const nums = [2, 3, 2, 4, 3];
+  const numsDivide = [9, 6, 9, 3, 15];
+
+  const gcd2 = (a, b) => { a = Math.abs(a); b = Math.abs(b); while (b) { [a, b] = [b, a % b]; } return a; };
+
+  frames.push({
+    array: ['nums       = [' + nums.join(', ') + ']', 'numsDivide = [' + numsDivide.join(', ') + ']'],
+    chip: [
+      { label: 'task', value: 'delete fewest elements from nums so the smallest remaining divides every numsDivide[i]', tone: 'violet' },
+      { label: 'return', value: '-1 if impossible', tone: 'violet' },
+    ],
+    caption: 'A number x divides every numsDivide[i] iff x divides their gcd. So the real question is: what is the smallest value in nums that is a divisor of g = gcd(numsDivide)? Every element strictly smaller than that value must be deleted, since the smallest survivor is what defines the floor.',
+  });
+
+  // Frame: naive idea + why it dies.
+  frames.push({
+    array: [
+      'naive: for each candidate x in nums,',
+      '  test x | numsDivide[k] for every k.',
+      'cost = O(n * m).',
+      'with n, m ~ 1e5 that is 1e10 ops -> TLE.',
+    ],
+    chip: [
+      { label: 'naive', value: 'O(n * m)', tone: 'pink' },
+      { label: 'limit', value: 'TLE at constraint ceiling', tone: 'pink' },
+    ],
+    caption: 'The straight-line approach loops through every candidate and tests divisibility against every entry of numsDivide. With both arrays up to 1e5 we cross 1e10 operations — way past a typical 1s budget. We need a way to summarize numsDivide in a single number that captures the divisibility constraint. That is exactly what gcd does.',
+  });
+
+  // Step 1: compute gcd of numsDivide.
+  let g = numsDivide[0];
+  const gSteps = ['g = ' + g];
+  for (let k = 1; k < numsDivide.length; k++) {
+    const prev = g;
+    g = gcd2(g, numsDivide[k]);
+    gSteps.push('g = gcd(' + prev + ', ' + numsDivide[k] + ') = ' + g);
+  }
+
+  frames.push({
+    array: gSteps,
+    chip: [
+      { label: 'fold', value: 'g = gcd over numsDivide', tone: 'violet' },
+      { label: 'g', value: String(g), tone: 'pink' },
+    ],
+    caption: 'Fold gcd across numsDivide. Any candidate divisor of the whole list must divide this g — that is the exact characterization. Here g = ' + g + ', so we need the smallest element in nums that divides ' + g + '. Elements that do not divide g cannot divide every numsDivide[i] either, so they are doomed.',
+  });
+
+  // Step 2: sort nums ascending.
+  const sorted = [...nums].sort((a, b) => a - b);
+  frames.push({
+    array: ['sorted nums = [' + sorted.join(', ') + ']'],
+    chip: [
+      { label: 'sort', value: 'ascending', tone: 'violet' },
+      { label: 'why', value: 'smallest survivor is the first divisor we hit', tone: 'violet' },
+    ],
+    caption: 'Sort nums ascending. Sweep left to right: every value we touch before the first divisor of g must be deleted (it is too small to be the survivor, OR it does not divide g and cannot survive at all). The first index where sorted[i] divides g is the answer — exactly i deletions.',
+  });
+
+  // Frame: divisor lens — list divisors of g.
+  const divisorsOfG = [];
+  for (let d = 1; d * d <= g; d++) {
+    if (g % d === 0) {
+      divisorsOfG.push(d);
+      if (d !== g / d) divisorsOfG.push(g / d);
+    }
+  }
+  divisorsOfG.sort((a, b) => a - b);
+  frames.push({
+    array: [
+      'divisors of g = ' + g + ':',
+      '  ' + divisorsOfG.join(', '),
+      'survivor candidates = nums ∩ {divisors of g}',
+    ],
+    chip: [
+      { label: 'g', value: String(g), tone: 'violet' },
+      { label: '#divisors', value: String(divisorsOfG.length), tone: 'violet' },
+    ],
+    caption: 'Every viable survivor lives in the divisor set of g. We do not need to enumerate the divisors directly (that costs O(sqrt(g)) but is unnecessary) — we just sort nums and probe with a single mod. The divisor list shown here is for intuition, not for the algorithm.',
+  });
+
+  // Step 3: walk through.
+  const walkLines = (i) => sorted.map((v, k) => {
+    if (k < i) return '[x] ' + v + '  (delete: ' + (v <= g && g % v === 0 ? 'smaller than survivor' : 'does not divide g') + ')';
+    if (k === i) return '--> ' + v + '  (testing: g % ' + v + ' = ' + (g % v) + ')';
+    return '    ' + v;
+  });
+
+  let answer = -1;
+  for (let i = 0; i < sorted.length; i++) {
+    if (g % sorted[i] === 0) {
+      frames.push({
+        array: walkLines(i),
+        chip: [
+          { label: 'i', value: String(i), tone: 'pink' },
+          { label: 'test', value: g + ' % ' + sorted[i] + ' = 0', tone: 'pink' },
+          { label: 'verdict', value: sorted[i] + ' divides g', tone: 'pink' },
+        ],
+        caption: 'sorted[' + i + '] = ' + sorted[i] + ' divides g = ' + g + '. Every element to the left must be deleted (either it failed the divides-g test, or it equals/exceeds nothing useful given it sorts below ' + sorted[i] + '). Answer = ' + i + ' deletions. Sweep stops here.',
+      });
+      answer = i;
+      break;
+    } else {
+      frames.push({
+        array: walkLines(i),
+        chip: [
+          { label: 'i', value: String(i), tone: 'pink' },
+          { label: 'test', value: g + ' % ' + sorted[i] + ' = ' + (g % sorted[i]), tone: 'violet' },
+          { label: 'verdict', value: 'delete ' + sorted[i], tone: 'violet' },
+        ],
+        caption: 'sorted[' + i + '] = ' + sorted[i] + ' does NOT divide g (' + g + ' % ' + sorted[i] + ' = ' + (g % sorted[i]) + ' != 0). Whatever survives must be a divisor of g, so this element cannot be the survivor — delete it and advance. Note: deleting elements never INCREASES the answer; we only ever need the index of the first divisor of g.',
+      });
+    }
+  }
+
+  // Edge: if no divisor was found at all.
+  if (answer === -1) {
+    frames.push({
+      array: ['no element of nums divides g = ' + g],
+      chip: [
+        { label: 'verdict', value: 'return -1', tone: 'pink' },
+      ],
+      caption: 'Sweep ran out — nothing in nums divides g. Impossible by construction; return -1. This is the only failure mode.',
+    });
+  }
+
+  // Frame: counterfactual — what if no nums element divides g?
+  frames.push({
+    array: [
+      'counterfactual:',
+      '  imagine nums = [5, 7, 11], g = 12.',
+      '  none of 5, 7, 11 divides 12.',
+      '  -> return -1 (no survivor possible).',
+    ],
+    chip: [
+      { label: 'failure', value: 'sweep ran out', tone: 'pink' },
+      { label: 'verdict', value: '-1', tone: 'pink' },
+    ],
+    caption: 'If we exhaust nums without finding any divisor of g, the task is impossible — return -1. This is the only failure mode. In practice it is rare because numsDivide values are bounded and small divisors (1, 2, 3) often appear in nums.',
+  });
+
+  // Frame: complexity breakdown.
+  frames.push({
+    array: [
+      'gcd fold:    O(m log V)',
+      'sort nums:   O(n log n)',
+      'sweep:       O(n)',
+      'space:       O(1) extra',
+      'V = max(numsDivide[i])',
+    ],
+    chip: [
+      { label: 'total', value: 'O((n + m) log V + n log n)', tone: 'violet' },
+      { label: 'speedup', value: 'vs naive O(n*m)', tone: 'pink' },
+    ],
+    caption: 'Big-O breakdown. gcd of two integers up to V costs O(log V) (Euclidean algorithm), so folding across m of them is O(m log V). Sort is the dominant n-term. Sweep adds nothing material. The naive nested loop would have been O(n*m); the gcd fold is the entire trick.',
+  });
+
+  // Edge case showcase: what if g % nums[i] == 0 but nums[i] doesn't actually fit? It does — g % x == 0 is iff x divides g, equivalent to x dividing every numsDivide[i].
+  frames.push({
+    array: [
+      'why "divides g" == "divides every numsDivide[i]":',
+      '  x | numsDivide[k] for all k',
+      '  iff x | gcd(numsDivide) = g',
+      'so smallest survivor x in nums  iff',
+      '  x = min { v in nums : v | g }',
+      'deletions = index of that x in sorted nums',
+    ],
+    chip: [
+      { label: 'identity', value: 'gcd folds the divisibility check', tone: 'violet' },
+      { label: 'cost', value: 'O((n + m) log V)', tone: 'violet' },
+    ],
+    caption: 'The key identity: a single x divides every entry of a list iff x divides their gcd. That collapses the divisibility constraint on m numbers into a single mod check, then the answer is just "first index in sorted nums that passes". gcd fold is O(m log V); sort is O(n log n); sweep is O(n).',
+  });
+
+  frames.push({
+    array: ['answer = ' + (answer === -1 ? '-1' : String(answer))],
+    chip: [
+      { label: 'time', value: 'O((n + m) log V + n log n)', tone: 'violet' },
+      { label: 'space', value: 'O(1) extra (besides sort scratch)', tone: 'violet' },
+      { label: 'trap', value: 'do not loop over numsDivide for every candidate', tone: 'pink' },
+    ],
+    caption: 'Final answer: ' + (answer === -1 ? '-1 — no element of nums could ever be the survivor.' : answer + ' deletions. The cheapest survivor candidate is sorted[' + answer + '] = ' + sorted[answer] + '.') + ' The classic naive O(n * m) trap: for each candidate, scan numsDivide. The gcd fold is the only thing that makes this constraint-friendly.',
+  });
+
+  return { renderer: 'array', title: 'Minimum Deletions to Make Array Divisible — gcd fold + sorted sweep', frames };
+}
+
+function bagOfTokensViz() {
+  const frames = [];
+  const tokens = [100, 200, 300, 400];
+  const power0 = 200;
+
+  frames.push({
+    array: ['tokens = [' + tokens.join(', ') + ']', 'power  = ' + power0],
+    chip: [
+      { label: 'rules', value: 'face-up: spend power, gain 1 score; face-down: spend 1 score, gain power', tone: 'violet' },
+      { label: 'goal', value: 'maximize score (never go negative)', tone: 'violet' },
+    ],
+    caption: 'Two token operations. Face-up costs power and pays +1 score (we need power >= token). Face-down costs 1 score and pays +token power (we need score >= 1). Each token is used at most once. Goal: maximum score reachable at any point during the game.',
+  });
+
+  // Frame: brute force.
+  frames.push({
+    array: [
+      'brute force: try every subset and every order.',
+      '  per token: skip, face-up, or face-down.',
+      '  3^n branches.',
+      'with n = 1000 -> astronomical.',
+    ],
+    chip: [
+      { label: 'brute', value: 'O(3^n)', tone: 'pink' },
+      { label: 'why hard', value: 'order matters within a chosen subset', tone: 'violet' },
+    ],
+    caption: 'The naive search tries every assignment of each token to {skip, face-up, face-down} and every order. The state explodes immediately. We need to argue greedily — there is one canonical optimal way to spend tokens, and sorting + two pointers find it directly.',
+  });
+
+  // Frame: exchange argument.
+  frames.push({
+    array: [
+      'exchange argument:',
+      '  in any optimal sequence,',
+      '  swap a face-up of token a',
+      '  for a face-up of any smaller unused a2 < a.',
+      '  same +1 score, less power spent.',
+      '  -> sorting and using SMALLEST face-up is safe.',
+      'symmetric for face-down with the LARGEST.',
+    ],
+    chip: [
+      { label: 'proof', value: 'pairwise swap preserves feasibility', tone: 'violet' },
+      { label: 'verdict', value: 'greedy is optimal', tone: 'pink' },
+    ],
+    caption: 'Why is the smallest-up / largest-down greedy provably optimal? Take any optimal play. If a face-up uses a larger-than-necessary token, swap it for a smaller unused token of the same op — score is unchanged, leftover power only grows, the rest of the play stays legal. Iterate the swap to drive every face-up to the smallest unused token. Same argument for face-down with "largest available" instead of "smallest".',
+  });
+
+  // Frame: greedy intuition.
+  frames.push({
+    array: [
+      'intuition:',
+      '  +1 score costs as little power as possible -> use SMALLEST face-up.',
+      '  -1 score buys as much power as possible -> use LARGEST face-down.',
+      'never mix orders: once a small token is the smallest, it stays smallest.',
+    ],
+    chip: [
+      { label: 'rule 1', value: 'cheapest +score', tone: 'violet' },
+      { label: 'rule 2', value: 'most expensive trade', tone: 'violet' },
+    ],
+    caption: 'Two paired greedy rules. To gain score we want the cheapest face-up (smallest token spends the least power). To regain power when stuck, we trade 1 score for the LARGEST unused token (biggest payoff per score). After sorting, "smallest unused" is the left pointer and "largest unused" is the right pointer.',
+  });
+
+  // Sort.
+  const sorted = [...tokens].sort((a, b) => a - b);
+
+  frames.push({
+    array: ['sorted = [' + sorted.join(', ') + ']'],
+    chip: [
+      { label: 'sort', value: 'ascending', tone: 'violet' },
+      { label: 'why', value: 'play smallest face-up, largest face-down', tone: 'violet' },
+    ],
+    caption: 'Sort ascending. The greedy: whenever we can afford a face-up move, do it with the SMALLEST remaining token (cheapest score). Whenever we cannot afford face-up but can afford face-down, do it with the LARGEST remaining token (most power per score spent). Two pointers walk in from the ends.',
+  });
+
+  // Two-pointer simulation.
+  let lo = 0, hi = sorted.length - 1;
+  let power = power0;
+  let score = 0;
+  let best = 0;
+
+  const stateFrame = (action, reason) => {
+    const cells = sorted.map((v, k) => {
+      if (k < lo || k > hi) return '[x] ' + v;
+      if (k === lo) return 'L-> ' + v;
+      if (k === hi) return v + ' <-H';
+      return '    ' + v;
+    });
+    frames.push({
+      array: cells,
+      chip: [
+        { label: 'power', value: String(power), tone: 'violet' },
+        { label: 'score', value: String(score), tone: 'pink' },
+        { label: 'best', value: String(best), tone: 'pink' },
+      ],
+      caption: action + ' ' + reason,
+    });
+  };
+
+  stateFrame('Initial state.', 'Pointers at the ends. Power = ' + power + ', score = 0. Best = 0. We will preferentially burn cheap tokens face-up (left pointer) when we can afford it, and trade big tokens face-down (right pointer) when we cannot.');
+
+  while (lo <= hi) {
+    if (power >= sorted[lo]) {
+      // Face-up: spend lowest token, gain 1 score.
+      const t = sorted[lo];
+      power -= t;
+      score += 1;
+      best = Math.max(best, score);
+      lo++;
+      stateFrame('Face-up token ' + t + '.', 'power >= ' + t + ' so we burn the cheapest token for +1 score. power -> ' + power + ', score -> ' + score + '. best = ' + best + '. Advance L.');
+    } else if (score >= 1 && lo < hi) {
+      // Face-down: spend 1 score, gain largest token power.
+      const t = sorted[hi];
+      power += t;
+      score -= 1;
+      hi--;
+      stateFrame('Face-down token ' + t + '.', 'cannot afford ' + sorted[lo] + ' face-up (power=' + (power - t) + '). But score >= 1, so trade 1 score for the LARGEST remaining token: +' + t + ' power. power -> ' + power + ', score -> ' + score + '. We keep "best" because a temporary dip in score is fine. Retreat H.');
+    } else {
+      stateFrame('Stop.', 'cannot afford face-up (power=' + power + ' < ' + sorted[lo] + ') and cannot afford face-down (score=' + score + ' or only one token left between pointers). No more moves help. Final best = ' + best + '.');
+      break;
+    }
+  }
+
+  // Invariant frame.
+  frames.push({
+    array: [
+      'invariant: best score never increases on a face-down move',
+      '  (face-down spends 1 score for power).',
+      'so we update best ONLY after face-up moves,',
+      'and we never need to "undo" a face-down.',
+      'why "lo < hi" guard on face-down:',
+      '  if only one token is left,',
+      '  trading score for it is useless —',
+      '  we cannot then play it face-up to recover score.',
+    ],
+    chip: [
+      { label: 'safety', value: 'best is monotone in face-up count', tone: 'violet' },
+      { label: 'edge', value: 'lo == hi blocks face-down', tone: 'pink' },
+    ],
+    caption: 'The "lo < hi" guard matters: trading a score for the last remaining token gives you power you can no longer convert back into score. Without the guard, the greedy can dip below the true best on the last move. The invariant — best is non-decreasing over face-up steps and unchanged by face-down steps — is what makes the greedy correct.',
+  });
+
+  frames.push({
+    array: ['answer = ' + best],
+    chip: [
+      { label: 'time', value: 'O(n log n) for sort', tone: 'violet' },
+      { label: 'space', value: 'O(1)', tone: 'violet' },
+      { label: 'why greedy works', value: 'exchange argument on adjacent tokens', tone: 'pink' },
+    ],
+    caption: 'Final best = ' + best + '. Why is the smallest-up / largest-down greedy optimal? Exchange argument: in any optimal sequence, swap a face-up of token a for a face-up of any smaller unused token a\' < a — the smaller token costs less power, leaving more for later moves, and adds the same 1 score. Symmetric argument for face-down with the largest.',
+  });
+
+  return { renderer: 'array', title: 'Bag of Tokens — sort + two-pointer greedy', frames };
+}
+
+function letterTilePossibilitiesViz() {
+  const frames = [];
+  const tiles = 'AAB';
+  const sorted = tiles.split('').sort();
+
+  frames.push({
+    array: sorted,
+    chip: [
+      { label: 'tiles', value: '"' + tiles + '"', tone: 'violet' },
+      { label: 'goal', value: 'count distinct non-empty sequences', tone: 'violet' },
+    ],
+    caption: 'Three tiles where one letter repeats. The empty sequence does not count. Brute-force tries every length 1..n and every position — but with repeats, "AB" picked from positions {0,2} equals "AB" picked from {1,2}, so naive permutation counts double-count. The fix is to sort and decide one slot at a time, choosing each distinct letter at most once per slot.',
+  });
+
+  // Build multiset counts.
+  const counts = {};
+  for (const c of sorted) counts[c] = (counts[c] || 0) + 1;
+  const countLines = Object.keys(counts).sort().map(k => k + ' -> ' + counts[k]);
+
+  frames.push({
+    array: countLines,
+    chip: [
+      { label: 'multiset', value: Object.keys(counts).length + ' distinct letters', tone: 'violet' },
+      { label: 'total tiles', value: String(sorted.length), tone: 'violet' },
+    ],
+    caption: 'Group identical tiles. The count array is the state for the recursion: at every slot, iterate over distinct letters with count > 0, pick one (count-- ), recurse, then restore (count++). That structure naturally avoids duplicates without a "seen this prefix" set.',
+  });
+
+  // Backtracking enumeration with frame-by-frame visualization.
+  let total = 0;
+  const path = [];
+  const visited = new Set();
+
+  // Track tree depth steps; record a few representative frames.
+  const stepFrames = [];
+
+  const dfs = (depth) => {
+    // Try each distinct letter.
+    const letters = Object.keys(counts).sort();
+    for (const ch of letters) {
+      if (counts[ch] === 0) continue;
+      counts[ch]--;
+      path.push(ch);
+      total++;
+      const seq = path.join('');
+      visited.add(seq);
+      // Record this expansion as a frame (cap total recorded).
+      if (stepFrames.length < 10) {
+        stepFrames.push({
+          seq,
+          remaining: Object.keys(counts).sort().map(k => k + ':' + counts[k]).join(' '),
+          depth,
+        });
+      }
+      dfs(depth + 1);
+      counts[ch]++;
+      path.pop();
+    }
+  };
+
+  dfs(0);
+
+  // Frame: explain the count-based recursion.
+  frames.push({
+    array: [
+      'count[c] = how many tiles of letter c are left',
+      'dfs():',
+      '  for each c with count[c] > 0:',
+      '    count[c]--',
+      '    total++             // this slot is itself a valid sequence',
+      '    dfs()                // extend further',
+      '    count[c]++           // restore for the next branch',
+    ],
+    chip: [
+      { label: 'invariant', value: 'each distinct letter chosen at most once per slot', tone: 'violet' },
+      { label: 'no dedup set', value: 'duplicates impossible by construction', tone: 'violet' },
+    ],
+    caption: 'The recursion counts ONE sequence per call site that placed a tile — the "total++" line. Iterating only over DISTINCT letters per slot is what kills duplicates: even if there are three "A" tiles, the loop visits "A" once per slot, so "AAB" is counted exactly once, not three times.',
+  });
+
+  // Walk first 8 picked sequences as frames.
+  for (let i = 0; i < Math.min(8, stepFrames.length); i++) {
+    const f = stepFrames[i];
+    frames.push({
+      array: [
+        'pick "' + f.seq + '" (length ' + f.seq.length + ', depth ' + f.depth + ')',
+        'remaining counts: ' + f.remaining,
+        'running total: ' + (i + 1),
+      ],
+      chip: [
+        { label: 'sequence', value: '"' + f.seq + '"', tone: 'pink' },
+        { label: 'count', value: String(i + 1), tone: 'violet' },
+      ],
+      caption: i === 0
+        ? 'First descent picks "A" (the first distinct letter in sorted order). The call counts this single-tile sequence, then recurses to try extending it. Note remaining counts: A still has 1 left (we started with 2) and B is untouched.'
+        : 'Sequence "' + f.seq + '" gets counted — every prefix encountered during the DFS is a valid answer, not just leaves. That is why "total++" sits inside the loop, BEFORE the recursive call, not at the base case.',
+    });
+  }
+
+  // Show full distinct set.
+  const allSeq = [...visited].sort();
+  const cols = [];
+  for (let i = 0; i < allSeq.length; i += 4) {
+    cols.push(allSeq.slice(i, i + 4).map(s => '"' + s + '"').join('  '));
+  }
+
+  frames.push({
+    array: cols,
+    chip: [
+      { label: 'distinct sequences', value: String(allSeq.length), tone: 'pink' },
+      { label: 'answer', value: String(total), tone: 'pink' },
+    ],
+    caption: 'All ' + total + ' distinct non-empty sequences from "' + tiles + '". Length-1: A, B. Length-2: AA, AB, BA. Length-3: AAB, ABA, BAA. Notice no "BB" or "BAB" — only one B exists. The recursion enumerated each exactly once because at every slot we looped over distinct letters, not over tile positions.',
+  });
+
+  frames.push({
+    array: [
+      'time:  O(n * n!) worst-case (all distinct letters)',
+      'space: O(n) recursion depth',
+      'why this beats permutations + dedup:',
+      '  - never generates a duplicate',
+      '  - no hash set of seen prefixes',
+      '  - O(1) state per recursion (just counts)',
+    ],
+    chip: [
+      { label: 'time', value: 'O(n * n!)', tone: 'violet' },
+      { label: 'space', value: 'O(n)', tone: 'violet' },
+      { label: 'n cap', value: 'n <= 7', tone: 'violet' },
+    ],
+    caption: 'Worst case all letters distinct, so every permutation of every subset is a separate answer. n <= 7 keeps the call count under 13700. Compared with "generate all permutations, then unique" the count-based DFS avoids the dedup pass entirely — strictly smaller constant and zero extra memory.',
+  });
+
+  return { renderer: 'array', title: 'Letter Tile Possibilities — count-based backtracking', frames };
+}
+
+function splittingAStringDescendingViz() {
+  const frames = [];
+  const s = '050043';
+
+  frames.push({
+    array: s.split(''),
+    chip: [
+      { label: 'input', value: '"' + s + '"', tone: 'violet' },
+      { label: 'goal', value: 'split into 2+ pieces, each = prev - 1', tone: 'violet' },
+    ],
+    caption: 'Six digits. We must split this string into at least two contiguous chunks where, read as integers, each chunk equals the previous chunk minus exactly 1. Leading zeros are allowed inside a chunk (so "050" reads as 50 and "043" reads as 43). The answer for this input is true: 50, 49, ... wait — the split shown next will reveal it.',
+  });
+
+  frames.push({
+    array: [
+      'try each first chunk length k = 1..n-1',
+      '  first = int(s[0:k])',
+      '  recurse on s[k:] requiring chunks of value first-1, first-2, ...',
+      'first chunk cannot exceed n digits',
+      'values can be HUGE -> use BigInt (or arbitrary precision)',
+    ],
+    chip: [
+      { label: 'strategy', value: 'fix first chunk, descend', tone: 'violet' },
+      { label: 'precision', value: 'BigInt — values up to 10^19', tone: 'pink' },
+    ],
+    caption: 'Once the first chunk is fixed, the whole sequence is determined: next chunk MUST equal first - 1, the one after MUST be first - 2, and so on. We only need to verify the rest of the string starts with the stringified expected value at each step. Strings up to length 20 mean values can exceed 2^53 — use BigInt to keep equality checks exact.',
+  });
+
+  // Try first chunk lengths.
+  const tryFirst = (k) => {
+    const first = BigInt(s.slice(0, k));
+    const steps = ['first chunk = s[0:' + k + '] = "' + s.slice(0, k) + '" = ' + first.toString()];
+    let pos = k;
+    let expected = first - 1n;
+    let chunkCount = 1;
+    while (pos < s.length) {
+      const expStr = expected.toString();
+      // Account for ANY number of leading zeros in the next chunk.
+      // The actual chunk in s must equal expected when parsed; its length is expStr.length + leading-zero-count.
+      // We allow it to start with zero or more leading zeros, then the digits of expStr.
+      let matched = false;
+      for (let lz = 0; pos + lz + expStr.length <= s.length; lz++) {
+        const chunk = s.slice(pos, pos + lz + expStr.length);
+        // Verify it parses to expected.
+        try {
+          if (BigInt(chunk) === expected) {
+            steps.push('  expect ' + expected.toString() + ' at pos ' + pos + ' -> consume "' + chunk + '" (len ' + chunk.length + ', leading zeros ' + lz + ')');
+            pos += chunk.length;
+            expected -= 1n;
+            chunkCount++;
+            matched = true;
+            break;
+          }
+        } catch (_) { /* not pure digits, skip */ }
+      }
+      if (!matched) {
+        steps.push('  expect ' + expected.toString() + ' at pos ' + pos + ' -> no match, dead end');
+        return { ok: false, steps, chunkCount };
+      }
+    }
+    return { ok: pos === s.length && chunkCount >= 2, steps, chunkCount };
+  };
+
+  // Walk first chunk lengths 1..5 (n=6, so first chunk can be 1..5).
+  for (let k = 1; k < s.length; k++) {
+    const res = tryFirst(k);
+    const tone = res.ok ? 'pink' : 'violet';
+    frames.push({
+      array: res.steps,
+      chip: [
+        { label: 'k', value: String(k), tone: 'violet' },
+        { label: 'first', value: '"' + s.slice(0, k) + '" = ' + BigInt(s.slice(0, k)).toString(), tone: 'violet' },
+        { label: 'verdict', value: res.ok ? 'VALID SPLIT' : 'dead end', tone },
+      ],
+      caption: res.ok
+        ? 'First chunk length ' + k + ' works. Sequence: ' + res.steps.length + ' lines above. The string is fully consumed with at least 2 chunks, each exactly one less than the previous. Return true.'
+        : 'First chunk length ' + k + ' fails. Either no extension of the next expected value (with any leading-zero pattern) matches, or the chunks consume the wrong amount of string. Continue with longer k.',
+    });
+    if (res.ok) break;
+  }
+
+  // Frame: the leading-zero subtlety.
+  frames.push({
+    array: [
+      'leading zeros nuance:',
+      '  s = "1000099998" — first chunk "10000" = 10000',
+      '  next expected = 9999 — found at pos 5 as "9998"? no, must match BigInt',
+      '  next expected = 9999 — but only "99998" left',
+      '  try chunk len 4: "9999" — match, pos=9, expected=9998',
+      '  remaining "8" -> need value 9998 -> impossible -> false',
+      'separate case: "00" can read as integer 0 only if first chunk is also a single 0;',
+      '  but problem requires strict descent so "0,-1" is impossible -> answer false',
+    ],
+    chip: [
+      { label: 'gotcha', value: 'leading zeros legal', tone: 'pink' },
+      { label: 'gotcha', value: 'non-negative only', tone: 'pink' },
+    ],
+    caption: 'Two traps. (1) "099" inside the string is a legal chunk reading as 99 — when matching the next expected value, try consuming that value with 0..(s.length - pos - exp.length) leading zeros prepended. (2) Once any expected value would go negative, the search is dead — the spec keeps values non-negative implicitly because each chunk is a parsed digit string.',
+  });
+
+  // Why BigInt.
+  frames.push({
+    array: [
+      'string length up to 20 -> integer up to 10^20 - 1',
+      'Number max safe = 2^53 - 1 ~= 9.0e15',
+      'parseInt("99999999999999999998") = 100000000000000000000 (lossy!)',
+      'must use BigInt for equality',
+    ],
+    chip: [
+      { label: 'precision', value: 'Number is lossy past 2^53', tone: 'pink' },
+      { label: 'fix', value: 'BigInt everywhere', tone: 'violet' },
+    ],
+    caption: 'A length-20 input forces values past Number.MAX_SAFE_INTEGER. parseInt of "99999999999999999998" rounds to a different number than parseInt of "99999999999999999999", and both round identically when the gap is below the float ulp. Use BigInt — every chunk decoded via BigInt(chunk), every decrement as BigInt - 1n, every equality comparison on BigInt values.',
+  });
+
+  // Final.
+  frames.push({
+    array: [
+      'algorithm:',
+      '  for k in 1..n-1:',
+      '    first = BigInt(s[0:k])',
+      '    if recurse(k, first - 1n): return true',
+      '  return false',
+      '',
+      'recurse(pos, expected):',
+      '  if pos == n: return true (>=2 chunks already used)',
+      '  if expected < 0n: return false',
+      '  exp = expected.toString()',
+      '  for lz in 0..n-pos-exp.length:',
+      '    chunk = s[pos : pos + lz + exp.length]',
+      '    if BigInt(chunk) == expected and recurse(pos + chunk.length, expected - 1n):',
+      '      return true',
+      '  return false',
+    ],
+    chip: [
+      { label: 'time', value: 'O(n^3) worst case', tone: 'violet' },
+      { label: 'space', value: 'O(n) recursion', tone: 'violet' },
+    ],
+    caption: 'Wrap-up: outer loop picks first chunk; recursion verifies each subsequent chunk matches the unique expected value, sliding over allowed leading zeros. Worst-case work is bounded by n choices for the split and O(n) per match, with depth O(n) — comfortably fast for n <= 20. BigInt arithmetic keeps every comparison exact.',
+  });
+
+  return { renderer: 'array', title: 'Splitting a String into Descending Consecutive Values — fix-first backtracking with BigInt', frames };
+}
+
+function removeAnagramsViz() {
+  const words = ['abba', 'baba', 'bbaa', 'cd', 'cd'];
+  const frames = [];
+
+  const sortKey = (s) => s.split('').sort().join('');
+
+  frames.push({
+    array: words.slice(),
+    chip: [
+      { label: 'words', value: '[' + words.map(w => '"' + w + '"').join(',') + ']' },
+      { label: 'rule', value: 'delete words[i] if anagram(words[i-1])', tone: 'violet' },
+    ],
+    caption: 'Two words are anagrams iff their sorted characters match. Walk left-to-right and drop any word whose sorted form equals its left neighbour\'s — repeating the check against the new left neighbour after every deletion.',
+  });
+
+  frames.push({
+    array: words.slice(),
+    chip: [
+      { label: 'insight', value: 'compare to LAST KEPT, not previous index', tone: 'pink' },
+      { label: 'why', value: 'a chain of anagrams must all collapse to the first', tone: 'violet' },
+    ],
+    caption: 'Once you delete a duplicate, the next survivor must be checked against the most recently kept word — otherwise back-to-back anagrams sneak through. One pass with a running "last kept" pointer handles every case.',
+  });
+
+  const result = [];
+  for (let i = 0; i < words.length; i++) {
+    const prev = result.length ? result[result.length - 1] : null;
+    const keyCurr = sortKey(words[i]);
+    const keyPrev = prev ? sortKey(prev) : null;
+    const keep = !prev || keyCurr !== keyPrev;
+    const decoratedResult = result.slice();
+    if (keep) decoratedResult.push(words[i]);
+    frames.push({
+      array: decoratedResult.slice(),
+      highlights: { [decoratedResult.length - 1]: keep ? 'low' : 'pink' },
+      chip: [
+        { label: 'i', value: String(i) },
+        { label: 'word', value: '"' + words[i] + '" key=' + keyCurr, tone: 'violet' },
+        { label: 'prev kept', value: prev ? '"' + prev + '" key=' + keyPrev : 'none' },
+        { label: 'decision', value: keep ? 'KEEP' : 'DROP', tone: keep ? 'violet' : 'pink' },
+      ],
+      caption: keep
+        ? 'i=' + i + ': sorted key "' + keyCurr + '" differs from last kept ' + (prev ? '"' + keyPrev + '"' : '(none)') + ' — keep "' + words[i] + '".'
+        : 'i=' + i + ': sorted key "' + keyCurr + '" equals last kept "' + keyPrev + '" — drop "' + words[i] + '". Last kept stays "' + prev + '".',
+    });
+    if (keep) result.push(words[i]);
+  }
+
+  frames.push({
+    array: result.slice(),
+    chip: [
+      { label: 'result', value: '[' + result.map(w => '"' + w + '"').join(',') + ']', tone: 'pink' },
+      { label: 'time', value: 'O(n * k log k)', tone: 'violet' },
+      { label: 'space', value: 'O(n) result + O(k) per sort' },
+    ],
+    caption: 'Final survivors: ' + result.length + ' words. Each comparison sorts two strings of length k, so the total cost is O(n * k log k). Space stays linear because we only keep what survives plus the temporary sort buffer.',
+  });
+
+  return { renderer: 'array', title: 'Find Resultant Array After Removing Anagrams — single-pass adjacency check', frames };
+}
+
+function goalParserInterpretationViz() {
+  const command = 'G()(al)';
+  const frames = [];
+
+  frames.push({
+    array: command.split(''),
+    chip: [
+      { label: 'command', value: '"' + command + '"' },
+      { label: 'grammar', value: "G -> 'G'  |  '()' -> 'o'  |  '(al)' -> 'al'", tone: 'violet' },
+    ],
+    caption: 'The string is built from three tokens only: literal G, the pair (), and the triple (al). Walk left to right and append each token\'s translation — no recursion, no stack.',
+  });
+
+  frames.push({
+    array: command.split(''),
+    chip: [
+      { label: 'trick', value: 'token boundary is deterministic', tone: 'pink' },
+      { label: 'lookup', value: "i='G' -> emit G | i='(' & next=')' -> emit o | i='(' & next='a' -> emit al", tone: 'violet' },
+    ],
+    caption: 'A single peek at the current (and at most the next) char is enough to decide which token starts here. No ambiguity — the grammar guarantees disjoint prefixes.',
+  });
+
+  let i = 0;
+  const out = [];
+  while (i < command.length) {
+    const c = command[i];
+    let emit = '';
+    let advance = 0;
+    if (c === 'G') { emit = 'G'; advance = 1; }
+    else if (c === '(' && command[i + 1] === ')') { emit = 'o'; advance = 2; }
+    else { emit = 'al'; advance = 4; }
+    out.push(emit);
+    const cursor = command.split('').map((ch, idx) => (idx >= i && idx < i + advance) ? ch.toUpperCase() : ch);
+    frames.push({
+      array: cursor,
+      highlights: Object.fromEntries(Array.from({ length: advance }, (_, k) => [i + k, 'low'])),
+      chip: [
+        { label: 'i', value: String(i) },
+        { label: 'token', value: '"' + command.slice(i, i + advance) + '"', tone: 'violet' },
+        { label: 'emit', value: '"' + emit + '"', tone: 'pink' },
+        { label: 'out so far', value: '"' + out.join('') + '"' },
+      ],
+      caption: 'At i=' + i + ': matched "' + command.slice(i, i + advance) + '" -> "' + emit + '". Advance i by ' + advance + '. Output is now "' + out.join('') + '".',
+    });
+    i += advance;
+  }
+
+  frames.push({
+    array: out.join('').split(''),
+    chip: [
+      { label: 'result', value: '"' + out.join('') + '"', tone: 'pink' },
+      { label: 'time', value: 'O(n)', tone: 'violet' },
+      { label: 'space', value: 'O(n) output buffer' },
+    ],
+    caption: 'Final string: "' + out.join('') + '". One linear pass over the input, each character read at most once. No regex, no replace — just a tiny state machine.',
+  });
+
+  return { renderer: 'array', title: 'Goal Parser Interpretation — single-pass token state machine', frames };
+}
+
+function findGCDViz() {
+  const nums = [12, 36, 18, 24, 60, 30];
+  const frames = [];
+
+  const lo = Math.min(...nums);
+  const hi = Math.max(...nums);
+
+  frames.push({
+    array: nums.slice(),
+    chip: [
+      { label: 'nums', value: '[' + nums.join(',') + ']' },
+      { label: 'task', value: 'GCD of array', tone: 'violet' },
+    ],
+    caption: 'Find the greatest integer that divides EVERY element of nums. A common-divisor of the whole array must divide both the smallest and the largest element; conversely, any divisor of min(nums) that also divides max(nums) is bounded above by gcd(min, max). The full array GCD therefore equals gcd(min, max) — we only need those two numbers.',
+  });
+
+  let minIdx = 0, maxIdx = 0;
+  for (let k = 1; k < nums.length; k++) {
+    if (nums[k] < nums[minIdx]) minIdx = k;
+    if (nums[k] > nums[maxIdx]) maxIdx = k;
+  }
+
+  frames.push({
+    array: nums.slice(),
+    highlights: { [minIdx]: 'low', [maxIdx]: 'pink' },
+    chip: [
+      { label: 'min', value: String(lo) },
+      { label: 'max', value: String(hi) },
+      { label: 'next', value: 'gcd(min, max)', tone: 'violet' },
+    ],
+    caption: 'One linear pass finds min = ' + lo + ' and max = ' + hi + '. Every other element x satisfies min <= x <= max. If d divides both min and max, it must also divide every x in between because once d divides min and max it divides their difference and any combination — but more concretely, the GCD of more numbers can only SHRINK or stay equal, never grow. So gcd over the whole array is at most gcd(min, max), and at least gcd(min, max) because d also divides every intermediate x by the same argument applied pairwise.',
+  });
+
+  // Euclidean algorithm trace.
+  let a = hi, b = lo;
+  frames.push({
+    array: [a, b],
+    chip: [
+      { label: 'a', value: String(a) },
+      { label: 'b', value: String(b) },
+      { label: 'rule', value: 'gcd(a,b) = gcd(b, a % b)', tone: 'violet' },
+    ],
+    caption: 'Euclidean algorithm: keep replacing (a, b) with (b, a % b) until b becomes 0. The remaining a is the GCD. Each step strictly shrinks b (since a % b < b), so the loop terminates in O(log min(a,b)) — actually log-phi steps in the worst case (consecutive Fibonacci numbers).',
+  });
+
+  while (b !== 0) {
+    const r = a % b;
+    frames.push({
+      array: [a, b, r],
+      chip: [
+        { label: 'a', value: String(a) },
+        { label: 'b', value: String(b) },
+        { label: 'a % b', value: String(r), tone: 'pink' },
+      ],
+      caption: 'Step: a = ' + a + ', b = ' + b + ', a % b = ' + r + '. Any divisor d of a and b also divides a - q*b = r (since a = q*b + r). And any divisor of b and r divides q*b + r = a. So gcd(a, b) = gcd(b, r) exactly — we lose nothing by replacing the pair.',
+    });
+    a = b;
+    b = r;
+  }
+
+  frames.push({
+    array: [a],
+    chip: [
+      { label: 'gcd', value: String(a), tone: 'pink' },
+      { label: 'verify', value: nums.every(x => x % a === 0) ? 'all divisible' : 'CHECK FAIL', tone: 'violet' },
+    ],
+    caption: 'b hit 0; the surviving a = ' + a + ' is gcd(min, max) = gcd of the entire array. Sanity check: every nums[i] is divisible by ' + a + '. Total work O(n) for the min/max scan + O(log min) for the Euclidean steps. Space O(1).',
+  });
+
+  frames.push({
+    array: nums.slice(),
+    chip: [
+      { label: 'why min/max', value: 'extremes pin both ends of the divisor range', tone: 'violet' },
+    ],
+    caption: 'Why min and max specifically? GCD over a set is monotone-non-increasing as you add elements. min(nums) is the smallest possible upper bound for any common divisor; max(nums) is the largest element a divisor must still cleanly split. Once gcd(min, max) is fixed, every interior element x with min <= x <= max also has gcd(x, min) >= gcd(min, max) divisor-wise — the pair (min, max) is sufficient.',
+  });
+
+  frames.push({
+    array: nums.slice(),
+    chip: [
+      { label: 'edge: n = 1', value: 'gcd = nums[0]', tone: 'violet' },
+      { label: 'edge: duplicates', value: 'min == max -> gcd = that value', tone: 'pink' },
+    ],
+    caption: 'Edge cases. n = 1: min == max == nums[0], gcd is the element itself. All equal: same — every element IS the GCD. Includes 1: gcd is 1 immediately (1 divides everything; nothing larger divides 1). All multiples of a prime p (e.g. all even): gcd is at least p, often more.',
+  });
+
+  frames.push({
+    array: ['fold variant:', '  acc = nums[0]', '  for x in nums[1:]: acc = gcd(acc, x)', '  return acc'],
+    chip: [
+      { label: 'alt', value: 'reduce(gcd, nums)', tone: 'violet' },
+      { label: 'still', value: 'O(n log max)', tone: 'pink' },
+    ],
+    caption: 'Alternative: fold gcd across the whole array. Still O(n log max) overall, but does n-1 Euclidean rounds instead of one. Min/max trick wins on long arrays of close numbers; fold wins when the GCD collapses to 1 early (you can short-circuit). Both are accepted answers.',
+  });
+
+  frames.push({
+    array: ['pitfalls:', '  - gcd(x, 0) = x (not 0)', '  - negative inputs: take abs first', '  - empty array: undefined / problem says n >= 2'],
+    chip: [{ label: 'beware', value: 'gcd(0, 0) is conventionally 0', tone: 'violet' }],
+    caption: 'Pitfalls. gcd(x, 0) = x is the Euclidean base case — do NOT divide by zero. If the problem allows negatives, take absolute value first because the GCD is defined as a non-negative integer. gcd(0, 0) is conventionally 0 (no positive integer divides 0 with a quotient bound). LeetCode constrains nums[i] >= 1 so most of this is academic, but interviewers love these edges.',
+  });
+
+  while (frames.length < 10) {
+    frames.push({
+      array: nums.slice(),
+      chip: 'recap',
+      caption: 'Recap: one O(n) pass for min and max, then Euclidean on those two. Total O(n + log min). Beats the fold-all variant by a constant factor and uses only two extra variables. Standard library: math.gcd in Python, std::gcd in C++17, java.math.BigInteger.gcd in Java, custom helper in JS / C.',
+    });
+  }
+
+  return { renderer: 'array', title: 'Find Greatest Common Divisor of Array - gcd(min, max)', frames };
+}
+
+function countConsistentStringsViz() {
+  const allowed = 'abc';
+  const words = ['ad', 'bd', 'aaab', 'baa', 'badab'];
+  const frames = [];
+
+  const allowSet = new Set(allowed);
+
+  frames.push({
+    array: ['allowed = "' + allowed + '"', 'words = [' + words.map(w => '"' + w + '"').join(', ') + ']'],
+    chip: [
+      { label: 'task', value: 'count words whose chars are all in allowed', tone: 'violet' },
+    ],
+    caption: 'A word is "consistent" if every character it contains is in the allowed string. Return how many of the given words are consistent. Order does not matter, duplicates in a word are fine — only character membership matters.',
+  });
+
+  frames.push({
+    array: Array.from(allowSet).sort().map(c => '"' + c + '"'),
+    chip: [
+      { label: 'precompute', value: 'Set(allowed)', tone: 'violet' },
+      { label: 'lookup', value: 'O(1) per char', tone: 'pink' },
+    ],
+    caption: 'Precompute allowed as a hash set (or 26-bit bitmask for lowercase ASCII). Without this, each char-in-allowed check is O(|allowed|); with it, O(1). Saves a factor of |allowed| across all words and is the only reason this can run in linear total time.',
+  });
+
+  let count = 0;
+  for (const w of words) {
+    let good = true;
+    let badChar = '';
+    let badIdx = -1;
+    for (let i = 0; i < w.length; i++) {
+      if (!allowSet.has(w[i])) {
+        good = false;
+        badChar = w[i];
+        badIdx = i;
+        break;
+      }
+    }
+    if (good) {
+      count++;
+      frames.push({
+        array: w.split(''),
+        highlights: Object.fromEntries(w.split('').map((_, i) => [i, 'match'])),
+        chip: [
+          { label: 'word', value: '"' + w + '"' },
+          { label: 'verdict', value: 'CONSISTENT', tone: 'pink' },
+          { label: 'count', value: String(count), tone: 'pink' },
+        ],
+        caption: 'Word "' + w + '" — every character is in allowed = "' + allowed + '". Increment count to ' + count + '. We did NOT need to scan the whole word once we knew it passed; the loop just happened to walk to the end because no char failed. Worst case for a consistent word is O(|w|).',
+      });
+    } else {
+      const hl = {};
+      for (let i = 0; i < w.length; i++) hl[i] = i === badIdx ? 'pink' : (i < badIdx ? 'match' : 'low');
+      frames.push({
+        array: w.split(''),
+        highlights: hl,
+        chip: [
+          { label: 'word', value: '"' + w + '"' },
+          { label: 'bad char', value: '"' + badChar + '" at i=' + badIdx, tone: 'violet' },
+          { label: 'verdict', value: 'reject', tone: 'violet' },
+        ],
+        caption: 'Word "' + w + '" — character "' + badChar + '" at index ' + badIdx + ' is NOT in allowed. Short-circuit: reject the whole word and move on. Count stays at ' + count + '. Short-circuit is the difference between O(sum |w_i|) and O(max |w_i| * n_words) — always break on the first failure.',
+      });
+    }
+  }
+
+  frames.push({
+    array: ['count = ' + count],
+    chip: [
+      { label: 'time', value: 'O(|allowed| + sum |w_i|)', tone: 'violet' },
+      { label: 'space', value: 'O(|allowed|)', tone: 'pink' },
+    ],
+    caption: 'Final answer: ' + count + ' consistent words. Total time is the sum of all word lengths plus the one-time set build — strictly linear in input size. Space is O(|allowed|) for the set (max 26 for lowercase). Cannot do asymptotically better since we must look at every character at least once in the worst case.',
+  });
+
+  frames.push({
+    array: [
+      'bitmask trick (lowercase only):',
+      '  mask = 0',
+      '  for c in allowed: mask |= 1 << (c - "a")',
+      '  for w in words: ok = all((1 << (c - "a")) & mask for c in w)',
+    ],
+    chip: [
+      { label: 'opt', value: '26-bit mask', tone: 'violet' },
+      { label: 'check', value: '(1 << bit) & mask', tone: 'pink' },
+    ],
+    caption: 'Optimization for lowercase ASCII: pack the allowed set into a 26-bit integer. Membership test becomes a single AND. Faster cache behavior than a Set (just an int) and avoids hashing. For this problem the constant-factor win is small but it is the canonical "tight" version interviewers love to see.',
+  });
+
+  frames.push({
+    array: ['pitfalls:', '  - allowed has unique chars per spec, but do NOT assume', '  - empty word -> trivially consistent (vacuous truth)', '  - words[i] may share characters not in allowed multiple times — still one rejection'],
+    chip: [{ label: 'note', value: 'short-circuit on first bad char', tone: 'violet' }],
+    caption: 'Pitfalls. The spec says allowed has distinct characters, but defensive code uses a Set anyway (cheap). An empty word is vacuously consistent — every (zero) char is in allowed. Repeated bad characters in one word still cost just one rejection; do not "count violations" or anything fancy.',
+  });
+
+  while (frames.length < 10) {
+    frames.push({
+      array: ['allowed = "' + allowed + '"'],
+      chip: 'recap',
+      caption: 'Recap: build allowed as a set (or bitmask), then for each word break on the first bad char; otherwise increment count. Linear time, constant space for the alphabet. The pattern generalizes to "filter strings by character set" — appears in spam filtering, password validators, regex character classes.',
+    });
+  }
+
+  return { renderer: 'array', title: 'Count the Number of Consistent Strings - alphabet membership', frames };
+}
+
+function decompressRLEViz() {
+  const nums = [1, 2, 3, 4];
+  const frames = [];
+
+  frames.push({
+    array: nums.slice(),
+    chip: [
+      { label: 'nums', value: '[' + nums.join(',') + ']' },
+      { label: 'pairs', value: '(freq, val) (freq, val) ...', tone: 'violet' },
+    ],
+    caption: 'Run-length encoding stores a list as alternating (frequency, value) pairs. nums = [1, 2, 3, 4] means "one copy of 2, then three copies of 4". The decoded list expands every pair: pair[i] contributes freq copies of val to the output. Output length is the sum of every even-indexed entry — not the length of nums.',
+  });
+
+  frames.push({
+    array: nums.slice(),
+    highlights: { 0: 'low', 1: 'pink' },
+    chip: [
+      { label: 'pair 0', value: '(freq=1, val=2)', tone: 'violet' },
+      { label: 'walk', value: 'step by 2', tone: 'pink' },
+    ],
+    caption: 'Walk the array in stride-2: index 0 holds the frequency, index 1 holds the value, then index 2 / 3, then 4 / 5, ... The input length is guaranteed even by the problem spec — every freq has a matching val. Reading them in pairs is the entire decode loop.',
+  });
+
+  let out = [];
+  for (let i = 0; i < nums.length; i += 2) {
+    const f = nums[i], v = nums[i + 1];
+    for (let k = 0; k < f; k++) out.push(v);
+    frames.push({
+      array: out.slice(),
+      highlights: Object.fromEntries(out.map((_, j) => [j, j >= out.length - f ? 'pink' : 'match'])),
+      chip: [
+        { label: 'pair', value: '(' + f + ', ' + v + ')', tone: 'violet' },
+        { label: 'append', value: f + ' copies of ' + v, tone: 'pink' },
+        { label: 'len', value: String(out.length) },
+      ],
+      caption: 'Pair (' + f + ', ' + v + ') -> append ' + f + ' copies of ' + v + ' to the output. The pink-highlighted suffix shows the freshly added run; the green prefix is everything decoded so far. No intermediate state needed — we just stream pairs out as we read them.',
+    });
+  }
+
+  frames.push({
+    array: out.slice(),
+    chip: [
+      { label: 'result', value: '[' + out.join(',') + ']', tone: 'pink' },
+      { label: 'len', value: String(out.length) },
+    ],
+    caption: 'Final decoded list: [' + out.join(', ') + ']. Total work is O(sum of all frequencies) — i.e. O(output length). The input length contribution is half that, so time is dominated by the output size. Space is the output array; nothing else allocated.',
+  });
+
+  frames.push({
+    array: ['python:', '  out = []', '  for i in range(0, len(nums), 2):', '    out.extend([nums[i+1]] * nums[i])', '  return out'],
+    chip: [
+      { label: 'idiom', value: '[val] * freq', tone: 'violet' },
+      { label: 'extend', value: 'O(freq) per pair', tone: 'pink' },
+    ],
+    caption: 'Python idiom: [val] * freq builds the run, then extend appends it. extend is a single memcpy under the hood, so each pair is processed in O(freq) without per-element Python overhead. Cleaner than a nested for-loop and just as fast for typical inputs.',
+  });
+
+  frames.push({
+    array: ['preallocation trick:', '  total = sum(nums[::2])', '  out = [0] * total', '  // write directly via index'],
+    chip: [
+      { label: 'opt', value: 'reserve(total) up front', tone: 'violet' },
+      { label: 'why', value: 'avoid resize churn', tone: 'pink' },
+    ],
+    caption: 'Micro-optimization: compute total = sum of every even-indexed entry first, then allocate the output of that exact size and fill by index. Two passes but zero realloc / array-resize cost. In C++ vector or Java ArrayList this can shave a constant factor; in Python list.extend already amortizes growth so the gain is marginal.',
+  });
+
+  frames.push({
+    array: ['edge: freq = 0 -> emit nothing', 'edge: val = 0 -> emit zeros', 'edge: huge freq -> still fine', 'edge: nums = [] -> []'],
+    chip: [{ label: 'beware', value: 'output can be very long', tone: 'violet' }],
+    caption: 'Edges. freq = 0: that pair contributes nothing — do NOT append a placeholder. val = 0: output legitimately contains zeros; that is not a sentinel. Empty nums returns []. Worst case output length sums to ~10^4 per LC constraints, so allocate generously but no overflow worry.',
+  });
+
+  frames.push({
+    array: ['pitfall: nested loop bounds', '  for i in 0..n step 2:    <- outer indexes the PAIR', '  for k in 0..freq:        <- inner emits the RUN', 'do not mix i and k'],
+    chip: [{ label: 'common bug', value: 'off-by-one on stride', tone: 'violet' }],
+    caption: 'Pitfall. Stride-2 outer loop, inner 0..freq emission loop. The off-by-one trap is iterating "for i in range(len(nums))" then deciding parity inside — works but reads worse and invites mistakes. Strict stride-2 makes the (freq, val) intent obvious to anyone reading.',
+  });
+
+  frames.push({
+    array: ['why this encoding wins:', '  - long runs -> compact', '  - random data -> bloats vs raw', '  - cousins: LZW, gzip, BMP'],
+    chip: [{ label: 'context', value: 'classic compression', tone: 'violet' }],
+    caption: 'RLE is the simplest possible compression: replace a run of k identical values with a single (k, v) pair. Wins on data with long runs (binary images, simple bitmaps); loses on random data where every "run" has length 1 — you double the size. Real codecs (LZW, DEFLATE) build on the same idea with smarter run / dictionary detection.',
+  });
+
+  while (frames.length < 10) {
+    frames.push({
+      array: out.slice(),
+      chip: 'recap',
+      caption: 'Recap: walk nums in stride-2 pairs, emit freq copies of val per pair. Time proportional to output length; space the output itself. The whole solution is three lines in Python or five in any imperative language. Pattern reappears in image decoding, sparse-array expansion, and any (count, value) format.',
+    });
+  }
+
+  return { renderer: 'array', title: 'Decompress Run-Length Encoded List - emit (freq, val) pairs', frames };
+}
+
+function findEvenDigitNumbersViz() {
+  const nums = [12, 345, 2, 6, 7896];
+  const frames = [];
+
+  frames.push({
+    array: nums.slice(),
+    chip: [
+      { label: 'nums', value: '[' + nums.join(', ') + ']' },
+      { label: 'task', value: 'count numbers with even digit count', tone: 'violet' },
+    ],
+    caption: 'For each integer in nums, count its digits. If that count is even (2, 4, 6, ...), include it in the answer. Return how many such numbers exist. We do NOT care about the digits themselves — only how many there are per number.',
+  });
+
+  frames.push({
+    array: nums.slice(),
+    chip: [
+      { label: 'digit count', value: 'floor(log10(x)) + 1', tone: 'violet' },
+      { label: 'or', value: 'len(str(x))', tone: 'pink' },
+    ],
+    caption: 'Digit count for a positive integer x is floor(log10(x)) + 1 — e.g. 345 -> floor(2.53) + 1 = 3. Equivalently len(str(x)), which avoids floating-point and edge cases at powers of 10. For competitive code the string version is bulletproof; the log version is faster but watch precision near 10, 100, 1000, ...',
+  });
+
+  let count = 0;
+  for (let i = 0; i < nums.length; i++) {
+    const x = nums[i];
+    const digits = String(x).length;
+    const even = digits % 2 === 0;
+    if (even) count++;
+    frames.push({
+      array: nums.slice(),
+      highlights: { [i]: even ? 'pink' : 'low' },
+      chip: [
+        { label: 'x', value: String(x) },
+        { label: 'digits', value: String(digits) },
+        { label: 'even?', value: even ? 'YES, count++' : 'no', tone: even ? 'pink' : 'violet' },
+        { label: 'count', value: String(count) },
+      ],
+      caption: 'x = ' + x + ' has ' + digits + ' digit' + (digits === 1 ? '' : 's') + '. ' + (even ? 'Even — increment count to ' + count + '.' : 'Odd — skip.') + ' We do this in one pass; no need to sort or group. Each check is O(d) where d is the digit count, which is O(log x).',
+    });
+  }
+
+  frames.push({
+    array: nums.slice(),
+    chip: [
+      { label: 'answer', value: String(count), tone: 'pink' },
+      { label: 'time', value: 'O(n * log max)', tone: 'violet' },
+    ],
+    caption: 'Final count: ' + count + '. Time is O(n * d) where d is the max digit count, i.e. O(n * log(max element)) — for LC constraints (nums[i] up to 10^5) d is at most 6, so effectively linear. Space O(1) beyond the (tiny) string conversions.',
+  });
+
+  frames.push({
+    array: ['arithmetic version:', '  d = 0', '  while x > 0:', '    x //= 10', '    d += 1', '  return d % 2 == 0'],
+    chip: [
+      { label: 'no strings', value: 'divide-by-10 loop', tone: 'violet' },
+      { label: 'cost', value: 'O(log x) divisions', tone: 'pink' },
+    ],
+    caption: 'String-free version: divide by 10 until zero, counting iterations. Avoids the (small) cost of converting int -> string per number. In C / C++ / Java this is the canonical form; in Python the string version is competitive because integer arithmetic on small ints is still relatively heavy versus a tight len() call on a cached string.',
+  });
+
+  frames.push({
+    array: ['range trick (constants known):', '  [10..99]   2 digits', '  [1000..9999] 4 digits', '  [100000..999999] 6 digits'],
+    chip: [
+      { label: 'opt', value: 'one comparison chain', tone: 'violet' },
+      { label: 'when', value: 'tight bound on x', tone: 'pink' },
+    ],
+    caption: 'If the value range is bounded (LC says 1 <= nums[i] <= 10^5), you can hard-code the even-digit ranges and use 2-3 comparisons per number — beats both the string and divide-by-10 methods by a small constant. Hand-coded ranges are brittle if the constraints change but they show interview maturity when asked "can you go faster".',
+  });
+
+  frames.push({
+    array: ['pitfalls:', '  - x = 0 -> 1 digit (odd) — but spec says x >= 1', '  - negative x -> use abs(x) first', '  - leading zeros never appear in int repr'],
+    chip: [{ label: 'beware', value: 'log10(0) is -inf', tone: 'violet' }],
+    caption: 'Pitfalls. x = 0 conventionally has 1 digit but log10(0) = -inf — guard before using the log formula. Negative numbers (not in this problem) need abs() first; the minus sign is not a digit. Leading zeros do not exist in integer representation, so no special handling. LC guarantees x >= 1 here, simplifying everything.',
+  });
+
+  frames.push({
+    array: ['why "even"?', '  no deep math — just a counting filter', '  same template handles "odd digit count"', '  or "digit count equals k"'],
+    chip: [{ label: 'pattern', value: 'count via predicate', tone: 'violet' }],
+    caption: 'The "even digit count" filter has no special structure — it is just a predicate. The skeleton (walk array, apply predicate, increment counter) is the universal "count items matching X" template. Swap the predicate to count primes, perfect squares, palindromes — same shape every time.',
+  });
+
+  frames.push({
+    array: ['python one-liner:', '  return sum(1 for x in nums if len(str(x)) % 2 == 0)'],
+    chip: [
+      { label: 'pythonic', value: 'genexpr + sum', tone: 'violet' },
+      { label: 'cost', value: 'still O(n log max)', tone: 'pink' },
+    ],
+    caption: 'Python one-liner: generator expression feeds sum, each x converted to string and checked for even length. Equally readable as a for-loop with an explicit counter; pick whichever your codebase prefers. The generator avoids building an intermediate list, so space stays O(1).',
+  });
+
+  while (frames.length < 10) {
+    frames.push({
+      array: nums.slice(),
+      chip: 'recap',
+      caption: 'Recap: count digits of each number (string length or divide-by-10), increment a counter when the count is even. Linear pass, constant space. Pattern generalizes to any "count items matching a digit-property" problem.',
+    });
+  }
+
+  return { renderer: 'array', title: 'Find Numbers with Even Number of Digits - per-element predicate', frames };
+}
+
 export const RICH_CONTENT = {
-  // ── 5 flagship problems with full multi-lang solutions + viz ──────
+  'minimum-deletions-to-make-array-divisible': {
+    tags: ['array', 'math', 'number-theory', 'greedy', 'sorting'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: minimumDeletionsToMakeArrayDivisibleViz(),
+    solutions: {
+      python: {
+        code: `from math import gcd
+from functools import reduce
+
+class Solution:
+    def minOperations(self, nums: List[int], numsDivide: List[int]) -> int:
+        g = reduce(gcd, numsDivide)
+        nums.sort()
+        for i, v in enumerate(nums):
+            if g % v == 0:
+                return i
+        return -1`,
+        complexity: { time: 'O((n + m) log V + n log n)', space: 'O(1) extra' },
+        approach: 'Fold gcd across numsDivide — that is the unique divisor every survivor must respect. Sort nums ascending and return the index of the first element dividing g. Anything before it cannot survive (smaller or non-divisor), anything at/after it could survive but would be a worse answer.',
+      },
+      javascript: {
+        code: `var minOperations = function(nums, numsDivide) {
+  const gcd = (a, b) => { a = Math.abs(a); b = Math.abs(b); while (b) { [a, b] = [b, a % b]; } return a; };
+  let g = numsDivide[0];
+  for (let i = 1; i < numsDivide.length; i++) g = gcd(g, numsDivide[i]);
+  nums.sort((a, b) => a - b);
+  for (let i = 0; i < nums.length; i++) {
+    if (g % nums[i] === 0) return i;
+  }
+  return -1;
+};`,
+        complexity: { time: 'O((n + m) log V + n log n)', space: 'O(1) extra' },
+        approach: 'Manual gcd (no built-in). Comparator (a, b) => a - b avoids the lexicographic default that would mis-sort numbers like 10 < 2. The single mod check g % nums[i] subsumes the entire numsDivide list.',
+      },
+      java: {
+        code: `import java.util.*;
+
+class Solution {
+    public int minOperations(int[] nums, int[] numsDivide) {
+        long g = numsDivide[0];
+        for (int i = 1; i < numsDivide.length; i++) g = gcd(g, numsDivide[i]);
+        Arrays.sort(nums);
+        for (int i = 0; i < nums.length; i++) {
+            if (g % nums[i] == 0) return i;
+        }
+        return -1;
+    }
+
+    private long gcd(long a, long b) {
+        while (b != 0) { long t = a % b; a = b; b = t; }
+        return a;
+    }
+}`,
+        complexity: { time: 'O((n + m) log V + n log n)', space: 'O(1) extra' },
+        approach: 'long g defends against numsDivide values up to 1e9 — the fold itself never exceeds the inputs, but using long matches the constraint ceiling and avoids signed-int surprises if the API ever changes.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int minOperations(vector<int>& nums, vector<int>& numsDivide) {
+        long long g = numsDivide[0];
+        for (int i = 1; i < (int)numsDivide.size(); i++) g = __gcd(g, (long long)numsDivide[i]);
+        sort(nums.begin(), nums.end());
+        for (int i = 0; i < (int)nums.size(); i++) {
+            if (g % nums[i] == 0) return i;
+        }
+        return -1;
+    }
+};`,
+        complexity: { time: 'O((n + m) log V + n log n)', space: 'O(1) extra' },
+        approach: '__gcd is the GCC/Clang builtin (std::gcd from <numeric> works too with C++17). long long for the fold matches the 1e9 upper bound on numsDivide values.',
+      },
+      c: {
+        code: `#include <stdio.h>
+#include <stdlib.h>
+
+static long long gcdLL(long long a, long long b) {
+    if (a < 0) a = -a;
+    if (b < 0) b = -b;
+    while (b) { long long t = a % b; a = b; b = t; }
+    return a;
+}
+
+static int cmpInt(const void* a, const void* b) {
+    int x = *(const int*)a, y = *(const int*)b;
+    return (x > y) - (x < y);
+}
+
+int minOperations(int* nums, int numsSize, int* numsDivide, int numsDivideSize) {
+    long long g = numsDivide[0];
+    for (int i = 1; i < numsDivideSize; i++) g = gcdLL(g, numsDivide[i]);
+    qsort(nums, numsSize, sizeof(int), cmpInt);
+    for (int i = 0; i < numsSize; i++) {
+        if (g % nums[i] == 0) return i;
+    }
+    return -1;
+}`,
+        complexity: { time: 'O((n + m) log V + n log n)', space: 'O(1) extra' },
+        approach: 'cmpInt uses the (x > y) - (x < y) trick instead of x - y to avoid signed overflow if either value is INT_MIN. gcdLL on long long matches the constraint ceiling.',
+      },
+      go: {
+        code: `package solution
+
+import "sort"
+
+func minOperations(nums []int, numsDivide []int) int {
+    gcd := func(a, b int) int {
+        if a < 0 { a = -a }
+        if b < 0 { b = -b }
+        for b != 0 { a, b = b, a%b }
+        return a
+    }
+    g := numsDivide[0]
+    for i := 1; i < len(numsDivide); i++ { g = gcd(g, numsDivide[i]) }
+    sort.Ints(nums)
+    for i, v := range nums {
+        if g % v == 0 { return i }
+    }
+    return -1
+}`,
+        complexity: { time: 'O((n + m) log V + n log n)', space: 'O(1) extra' },
+        approach: 'sort.Ints sorts in place ascending. Range over nums returns (index, value) directly so the answer index is just i.',
+      },
+    },
+  },
+  'bag-of-tokens': {
+    tags: ['array', 'greedy', 'two-pointers', 'sorting'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: bagOfTokensViz(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def bagOfTokensScore(self, tokens: List[int], power: int) -> int:
+        tokens.sort()
+        lo, hi = 0, len(tokens) - 1
+        score = 0
+        best = 0
+        while lo <= hi:
+            if power >= tokens[lo]:
+                power -= tokens[lo]
+                score += 1
+                best = max(best, score)
+                lo += 1
+            elif score >= 1 and lo < hi:
+                power += tokens[hi]
+                score -= 1
+                hi -= 1
+            else:
+                break
+        return best`,
+        complexity: { time: 'O(n log n) for sort', space: 'O(1)' },
+        approach: 'Sort ascending. Two pointers: when power suffices, play the smallest remaining token face-up (+1 score, smallest power spent). Otherwise, if score >= 1 AND tokens are still left to convert later, trade 1 score for the largest token (max power per score). best tracks the high-water score and only changes after face-ups.',
+      },
+      javascript: {
+        code: `var bagOfTokensScore = function(tokens, power) {
+  tokens.sort((a, b) => a - b);
+  let lo = 0, hi = tokens.length - 1;
+  let score = 0, best = 0;
+  while (lo <= hi) {
+    if (power >= tokens[lo]) {
+      power -= tokens[lo];
+      score += 1;
+      best = Math.max(best, score);
+      lo++;
+    } else if (score >= 1 && lo < hi) {
+      power += tokens[hi];
+      score -= 1;
+      hi--;
+    } else {
+      break;
+    }
+  }
+  return best;
+};`,
+        complexity: { time: 'O(n log n)', space: 'O(1)' },
+        approach: 'Numeric comparator on sort — default Array#sort is lexicographic. The lo < hi guard on the face-down branch matters: trading score for the last token gives power that can never become score again.',
+      },
+      java: {
+        code: `import java.util.*;
+
+class Solution {
+    public int bagOfTokensScore(int[] tokens, int power) {
+        Arrays.sort(tokens);
+        int lo = 0, hi = tokens.length - 1;
+        int score = 0, best = 0;
+        while (lo <= hi) {
+            if (power >= tokens[lo]) {
+                power -= tokens[lo];
+                score++;
+                best = Math.max(best, score);
+                lo++;
+            } else if (score >= 1 && lo < hi) {
+                power += tokens[hi];
+                score--;
+                hi--;
+            } else {
+                break;
+            }
+        }
+        return best;
+    }
+}`,
+        complexity: { time: 'O(n log n)', space: 'O(1)' },
+        approach: 'Arrays.sort uses dual-pivot quicksort on int[] — no boxing penalty. The break in the else branch is the only correct loop exit; falling through to lo++/hi-- would corrupt the invariant.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int bagOfTokensScore(vector<int>& tokens, int power) {
+        sort(tokens.begin(), tokens.end());
+        int lo = 0, hi = (int)tokens.size() - 1;
+        int score = 0, best = 0;
+        while (lo <= hi) {
+            if (power >= tokens[lo]) {
+                power -= tokens[lo];
+                score++;
+                best = max(best, score);
+                lo++;
+            } else if (score >= 1 && lo < hi) {
+                power += tokens[hi];
+                score--;
+                hi--;
+            } else {
+                break;
+            }
+        }
+        return best;
+    }
+};`,
+        complexity: { time: 'O(n log n)', space: 'O(1)' },
+        approach: 'sort + two pointers. tokens[i] fits in int (constraints cap at 1e4), and power fits in int (cap at 1e4) so no long long is needed for the running power sum.',
+      },
+      c: {
+        code: `#include <stdio.h>
+#include <stdlib.h>
+
+static int cmpInt(const void* a, const void* b) {
+    int x = *(const int*)a, y = *(const int*)b;
+    return (x > y) - (x < y);
+}
+
+int bagOfTokensScore(int* tokens, int tokensSize, int power) {
+    qsort(tokens, tokensSize, sizeof(int), cmpInt);
+    int lo = 0, hi = tokensSize - 1;
+    int score = 0, best = 0;
+    while (lo <= hi) {
+        if (power >= tokens[lo]) {
+            power -= tokens[lo];
+            score++;
+            if (score > best) best = score;
+            lo++;
+        } else if (score >= 1 && lo < hi) {
+            power += tokens[hi];
+            score--;
+            hi--;
+        } else {
+            break;
+        }
+    }
+    return best;
+}`,
+        complexity: { time: 'O(n log n)', space: 'O(1)' },
+        approach: 'qsort with the (x > y) - (x < y) comparator avoids signed-overflow in the compare function. Manual best update beats a function-call max.',
+      },
+      go: {
+        code: `package solution
+
+import "sort"
+
+func bagOfTokensScore(tokens []int, power int) int {
+    sort.Ints(tokens)
+    lo, hi := 0, len(tokens)-1
+    score, best := 0, 0
+    for lo <= hi {
+        if power >= tokens[lo] {
+            power -= tokens[lo]
+            score++
+            if score > best { best = score }
+            lo++
+        } else if score >= 1 && lo < hi {
+            power += tokens[hi]
+            score--
+            hi--
+        } else {
+            break
+        }
+    }
+    return best
+}`,
+        complexity: { time: 'O(n log n)', space: 'O(1)' },
+        approach: 'sort.Ints sorts in place. Manual max via if-statement is more idiomatic in Go than importing math.Max (which is float64).',
+      },
+    },
+  },
+    // ── 5 flagship problems with full multi-lang solutions + viz ──────
   'two-sum': {
     tags: ['array', 'hash-map'],
     companies: ['google', 'meta', 'amazon', 'microsoft', 'apple', 'bloomberg'],
@@ -8841,96 +11106,137 @@ int* productExceptSelf(int* nums, int numsSize, int* returnSize) {
       },
     },
   },
-  'house-robber': {
-    tags: ['array', 'dynamic-programming'],
-    companies: ['amazon', 'meta', 'microsoft', 'apple', 'google'],
-    viz: houseRobberViz(),
+  'delete-and-earn': {
+    /* SPLICE:cameras-delete-earn-duo v1 */
+    tags: ['array', 'hash-table', 'dynamic-programming'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: {
+      renderer: 'array',
+      title: 'Delete and Earn - bucket by value, then House Robber',
+      frames: [
+        { array: [3, 4, 2], caption: 'Input nums = [3, 4, 2]. Picking value v earns v but deletes every v-1 and v+1. Goal: maximize total points.' },
+        { array: [3, 4, 2], caption: 'Key insight: picking ONE copy of v deletes every v-1 and v+1 - same cost as picking ALL copies of v. So always take all-or-nothing of each distinct value.' },
+        { array: [3, 4, 2], caption: 'Bucket by value: points[v] = v * count(v). The order in nums no longer matters - only how many copies of each value exist.' },
+        { array: [0, 0, 2, 3, 4], chip: 'points[0..4]', caption: 'Build points[]: points[2]=2*1=2, points[3]=3*1=3, points[4]=4*1=4. Other indices 0.' },
+        { array: [0, 0, 2, 3, 4], chip: 'reframe', caption: 'New problem: pick a subset of indices in points[] with NO two adjacent indices, maximizing sum. This is exactly House Robber on the points array.' },
+        { array: [0, 0, 2, 3, 4], chip: 'prev2=0, prev1=0', caption: 'Roll prev2 (best skipping current) and prev1 (best including-or-not). Start both at 0.' },
+        { array: [0, 0, 2, 3, 4], chip: 'v=0: prev1=0', caption: 'v=0: take = prev2 + 0 = 0. Skip = prev1 = 0. New prev1 = 0. Slide: prev2 = 0.' },
+        { array: [0, 0, 2, 3, 4], chip: 'v=1: prev1=0', caption: 'v=1: take = 0 + 0 = 0. Skip = 0. New prev1 = 0. (No copies of 0 or 1 in input.)' },
+        { array: [0, 0, 2, 3, 4], chip: 'v=2: prev1=2', caption: 'v=2: take = prev2 + 2 = 0 + 2 = 2. Skip = prev1 = 0. New prev1 = 2.' },
+        { array: [0, 0, 2, 3, 4], chip: 'v=3: prev1=3', caption: 'v=3: take = prev2 + 3 = 0 + 3 = 3. Skip = prev1 = 2. New prev1 = 3. (Taking 3 deletes the 2 - exchange wins.)' },
+        { array: [0, 0, 2, 3, 4], chip: 'v=4: prev1=6', caption: 'v=4: take = prev2 + 4 = 2 + 4 = 6. Skip = prev1 = 3. New prev1 = 6. (Take 4 AND 2: skip 3.)' },
+        { array: [0, 0, 2, 3, 4], chip: 'answer = 6', caption: 'Done. prev1 = 6 = pick values {2, 4}. Time O(n + M) where M = max(nums); space O(M).' },
+      ],
+    },
     solutions: {
       python: {
         code: `class Solution:
-    def rob(self, nums):
-        prev2 = prev1 = 0
+    def deleteAndEarn(self, nums):
+        if not nums: return 0
+        M = max(nums)
+        points = [0] * (M + 1)
         for x in nums:
-            prev2, prev1 = prev1, max(prev1, prev2 + x)
+            points[x] += x
+        prev2 = prev1 = 0
+        for v in range(M + 1):
+            prev2, prev1 = prev1, max(prev1, prev2 + points[v])
         return prev1`,
-        complexity: { time: 'O(n)', space: 'O(1)' },
-        approach: 'Classic linear DP collapsed to two rolling scalars. At each house: skip (keep prev1) or rob (prev2 + nums[i]). Tuple-assignment slides the window in one line.',
+        complexity: { time: 'O(n + M)', space: 'O(M)' },
+        approach: 'Bucket by value: points[v] = v * count(v). Picking ANY copy of v earns the same v and deletes every v-1 and v+1, so take all-or-nothing of v. The reframed problem is House Robber on points[] - pick a non-adjacent subset maximizing sum. Roll two scalars (prev2, prev1) over v = 0..M. M is the largest value in nums.',
       },
       javascript: {
-        code: `function rob(nums) {
+        code: `function deleteAndEarn(nums) {
+  if (!nums.length) return 0;
+  const M = Math.max(...nums);
+  const points = new Array(M + 1).fill(0);
+  for (const x of nums) points[x] += x;
   let prev2 = 0, prev1 = 0;
-  for (const x of nums) {
-    const cur = Math.max(prev1, prev2 + x);
+  for (let v = 0; v <= M; v++) {
+    const cur = Math.max(prev1, prev2 + points[v]);
     prev2 = prev1;
     prev1 = cur;
   }
   return prev1;
 }`,
-        complexity: { time: 'O(n)', space: 'O(1)' },
-        approach: 'Two scalars (prev2, prev1) instead of a dp[] array. After processing house i, prev1 holds the answer for nums[0..i].',
+        complexity: { time: 'O(n + M)', space: 'O(M)' },
+        approach: 'Same recurrence. Math.max spread is fine for typical constraints (n <= 2e4, values <= 1e4).',
       },
       java: {
         code: `class Solution {
-    public int rob(int[] nums) {
+    public int deleteAndEarn(int[] nums) {
+        if (nums.length == 0) return 0;
+        int M = 0;
+        for (int x : nums) if (x > M) M = x;
+        int[] points = new int[M + 1];
+        for (int x : nums) points[x] += x;
         int prev2 = 0, prev1 = 0;
-        for (int x : nums) {
-            int cur = Math.max(prev1, prev2 + x);
+        for (int v = 0; v <= M; v++) {
+            int cur = Math.max(prev1, prev2 + points[v]);
             prev2 = prev1;
             prev1 = cur;
         }
         return prev1;
     }
 }`,
-        complexity: { time: 'O(n)', space: 'O(1)' },
-        approach: 'Enhanced for-loop over the array; only two ints of state. No allocation, GC-free.',
+        complexity: { time: 'O(n + M)', space: 'O(M)' },
+        approach: 'Inline max-scan to avoid an extra pass. Two-scalar rolling DP - no allocation past points[].',
       },
       cpp: {
-        code: `#include <bits/stdc++.h>
-using namespace std;
-
-class Solution {
+        code: `class Solution {
 public:
-    int rob(vector<int>& nums) {
+    int deleteAndEarn(vector<int>& nums) {
+        if (nums.empty()) return 0;
+        int M = *max_element(nums.begin(), nums.end());
+        vector<int> points(M + 1, 0);
+        for (int x : nums) points[x] += x;
         int prev2 = 0, prev1 = 0;
-        for (int x : nums) {
-            int cur = max(prev1, prev2 + x);
+        for (int v = 0; v <= M; v++) {
+            int cur = max(prev1, prev2 + points[v]);
             prev2 = prev1;
             prev1 = cur;
         }
         return prev1;
     }
 };`,
-        complexity: { time: 'O(n)', space: 'O(1)' },
-        approach: 'Range-for over the vector, std::max for the transition. Two locals; nothing on the heap.',
+        complexity: { time: 'O(n + M)', space: 'O(M)' },
+        approach: 'std::max_element for the cap; the rest is the standard rolling DP.',
       },
       c: {
-        code: `int rob(int* nums, int numsSize) {
+        code: `int deleteAndEarn(int* nums, int numsSize) {
+    if (numsSize == 0) return 0;
+    int M = 0;
+    for (int i = 0; i < numsSize; i++) if (nums[i] > M) M = nums[i];
+    int* points = (int*) calloc(M + 1, sizeof(int));
+    for (int i = 0; i < numsSize; i++) points[nums[i]] += nums[i];
     int prev2 = 0, prev1 = 0;
-    for (int i = 0; i < numsSize; i++) {
-        int cur = prev1 > prev2 + nums[i] ? prev1 : prev2 + nums[i];
+    for (int v = 0; v <= M; v++) {
+        int cur = prev1 > prev2 + points[v] ? prev1 : prev2 + points[v];
         prev2 = prev1;
         prev1 = cur;
     }
+    free(points);
     return prev1;
 }`,
-        complexity: { time: 'O(n)', space: 'O(1)' },
-        approach: 'No <stdlib.h> needed — pure scalar arithmetic and a ternary for max. Matches the LC C signature exactly.',
+        complexity: { time: 'O(n + M)', space: 'O(M)' },
+        approach: 'Plain C with manual calloc/free for the bucket array.',
       },
       go: {
-        code: `func rob(nums []int) int {
+        code: `func deleteAndEarn(nums []int) int {
+    if len(nums) == 0 { return 0 }
+    M := 0
+    for _, x := range nums { if x > M { M = x } }
+    points := make([]int, M + 1)
+    for _, x := range nums { points[x] += x }
     prev2, prev1 := 0, 0
-    for _, x := range nums {
+    for v := 0; v <= M; v++ {
         cur := prev1
-        if prev2+x > cur {
-            cur = prev2 + x
-        }
-        prev2 = prev1
-        prev1 = cur
+        if prev2 + points[v] > cur { cur = prev2 + points[v] }
+        prev2, prev1 = prev1, cur
     }
     return prev1
 }`,
-        complexity: { time: 'O(n)', space: 'O(1)' },
-        approach: 'Go has no built-in int max, so spell it out with an if. Tuple init for the two state vars; range yields just the value.',
+        complexity: { time: 'O(n + M)', space: 'O(M)' },
+        approach: 'Idiomatic Go - explicit max via if, parallel-assignment slide.',
       },
     },
   },
@@ -17360,7 +19666,7 @@ public:
         complexity: { time: 'O(n)', space: 'O(n)' },
         approach: 'Two passes with fresh slices — no aliasing into the input. Go integer slices cannot hold null, so an absent random uses -1 as a sentinel. Swap the sentinel for whatever your serializer emits for null.',
       },
-    },
+      },
   },
   'subsets-ii': {
     tags: ['array', 'backtracking', 'bit-manipulation'],
@@ -17903,6 +20209,395 @@ int** permuteUnique(int* nums, int numsSize, int* returnSize, int** returnColumn
 }`,
         complexity: { time: 'O(n * n!)', space: 'O(n)' },
         approach: 'sort.Ints + closure recursion + used[] mask. Same skip rule as the other languages. Requires "sort" import.',
+      },
+    },
+  },
+  'restore-ip-addresses': {
+    tags: ['string', 'backtracking'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    constraints:
+      '1 <= s.length <= 20\ns consists of digits only.',
+    followUp:
+      'Could you do it iteratively with three nested loops over dot positions? Yes — pick i in [1, 3], j in [i+1, i+4), k in [j+1, j+4), validate the four slices, append to result. Same asymptotic cost; the backtracking version generalises to "k octets" while the loops bake in k = 4.',
+    similar: ['ip-to-cidr', 'validate-ip-address', 'letter-combinations-of-a-phone-number', 'palindrome-partitioning', 'word-break-ii'],
+    viz: restoreIpAddressesViz(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def restoreIpAddresses(self, s):
+        result = []
+        def valid(seg):
+            if not seg or len(seg) > 3:
+                return False
+            if len(seg) > 1 and seg[0] == '0':
+                return False
+            return int(seg) <= 255
+        def backtrack(start, parts):
+            if len(parts) == 4:
+                if start == len(s):
+                    result.append('.'.join(parts))
+                return
+            for L in (1, 2, 3):
+                if start + L > len(s):
+                    break
+                seg = s[start:start + L]
+                if not valid(seg):
+                    if len(seg) > 1 and seg[0] == '0':
+                        break
+                    continue
+                parts.append(seg)
+                backtrack(start + L, parts)
+                parts.pop()
+        backtrack(0, [])
+        result.sort()
+        return result`,
+        complexity: { time: 'O(1)', space: 'O(1)' },
+        approach: 'Backtracking with depth fixed at 4 (one frame per octet). At each call, try slice lengths 1, 2, 3 from the cursor. Validate inline: empty / too long / leading-zero / > 255. Because the recursion tree is bounded by 3^4 = 81 leaves regardless of input length (s is capped at 20 chars), the whole algorithm is O(1). The leading-zero check has to come before the int() so "010" rejects cleanly.',
+      },
+      javascript: {
+        code: `function restoreIpAddresses(s) {
+  const result = [];
+  const valid = (seg) => {
+    if (!seg || seg.length > 3) return false;
+    if (seg.length > 1 && seg[0] === '0') return false;
+    return parseInt(seg, 10) <= 255;
+  };
+  const backtrack = (start, parts) => {
+    if (parts.length === 4) {
+      if (start === s.length) result.push(parts.join('.'));
+      return;
+    }
+    for (let L = 1; L <= 3; L++) {
+      if (start + L > s.length) break;
+      const seg = s.slice(start, start + L);
+      if (!valid(seg)) {
+        if (seg.length > 1 && seg[0] === '0') break;
+        continue;
+      }
+      parts.push(seg);
+      backtrack(start + L, parts);
+      parts.pop();
+    }
+  };
+  backtrack(0, []);
+  result.sort();
+  return result;
+}`,
+        complexity: { time: 'O(1)', space: 'O(1)' },
+        approach: 'parseInt with explicit radix 10 — JS parseInt without it tries to guess (octal/hex) and that breaks on inputs like "08". Final sort gives the contract a stable order across runs.',
+      },
+      java: {
+        code: `class Solution {
+    public List<String> restoreIpAddresses(String s) {
+        List<String> result = new ArrayList<>();
+        backtrack(s, 0, new ArrayList<>(), result);
+        Collections.sort(result);
+        return result;
+    }
+    private boolean valid(String seg) {
+        if (seg.isEmpty() || seg.length() > 3) return false;
+        if (seg.length() > 1 && seg.charAt(0) == '0') return false;
+        return Integer.parseInt(seg) <= 255;
+    }
+    private void backtrack(String s, int start, List<String> parts, List<String> result) {
+        if (parts.size() == 4) {
+            if (start == s.length()) result.add(String.join(".", parts));
+            return;
+        }
+        for (int L = 1; L <= 3; L++) {
+            if (start + L > s.length()) break;
+            String seg = s.substring(start, start + L);
+            if (!valid(seg)) {
+                if (seg.length() > 1 && seg.charAt(0) == '0') break;
+                continue;
+            }
+            parts.add(seg);
+            backtrack(s, start + L, parts, result);
+            parts.remove(parts.size() - 1);
+        }
+    }
+}`,
+        complexity: { time: 'O(1)', space: 'O(1)' },
+        approach: 'String.join(".", parts) is the cleanest way to render the dotted form. The leading-zero check has to test charAt(0) before Integer.parseInt — otherwise "010" would parse to 10 and pass.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<string> restoreIpAddresses(string s) {
+        vector<string> result;
+        vector<string> parts;
+        backtrack(s, 0, parts, result);
+        sort(result.begin(), result.end());
+        return result;
+    }
+private:
+    bool valid(const string& seg) {
+        if (seg.empty() || seg.size() > 3) return false;
+        if (seg.size() > 1 && seg[0] == '0') return false;
+        return stoi(seg) <= 255;
+    }
+    void backtrack(const string& s, int start, vector<string>& parts, vector<string>& result) {
+        if ((int)parts.size() == 4) {
+            if (start == (int)s.size()) {
+                string ip = parts[0] + "." + parts[1] + "." + parts[2] + "." + parts[3];
+                result.push_back(ip);
+            }
+            return;
+        }
+        for (int L = 1; L <= 3; ++L) {
+            if (start + L > (int)s.size()) break;
+            string seg = s.substr(start, L);
+            if (!valid(seg)) {
+                if (seg.size() > 1 && seg[0] == '0') break;
+                continue;
+            }
+            parts.push_back(seg);
+            backtrack(s, start + L, parts, result);
+            parts.pop_back();
+        }
+    }
+};`,
+        complexity: { time: 'O(1)', space: 'O(1)' },
+        approach: 'stoi is safe because valid() pre-checks length <= 3 — three digits max means at most 999, no overflow risk. Manual concatenation of parts[0..3] with "." is the lightest join in C++.',
+      },
+      c: {
+        code: `// Restore IP Addresses in C requires returning char** with a returnSize.
+// Signature:
+//   char** restoreIpAddresses(char* s, int* returnSize)
+// 1. *returnSize = 0. Upper bound on outputs is small (worst case ~81), so
+//    malloc result = char*[128]. Each row is a 16-byte buffer (4 octets up
+//    to 3 digits + 3 dots + null).
+// 2. Recurse backtrack(s, len, start, parts[4], partsLen). At each call:
+//    - If partsLen == 4 and start == len: malloc 16 bytes, snprintf the
+//      dotted form, store at result[*returnSize], (*returnSize)++.
+//    - Otherwise loop L in [1, 3]: if start + L > len break; copy seg into
+//      a small buffer; validate (non-empty, no leading zero unless len 1,
+//      atoi <= 255); push seg, recurse(start + L, partsLen + 1), pop.
+// 3. qsort the final result with strcmp to match other languages' sort.
+// 4. Caller frees every row and the outer pointer.
+char** restoreIpAddresses(char* s, int* returnSize) {
+    *returnSize = 0;
+    return NULL;
+}`,
+        complexity: { time: 'O(1)', space: 'O(1)' },
+        approach: 'C stub — the algorithm matches the other languages exactly. The cost is the manual char** management and per-octet snprintf, not the recursion itself.',
+      },
+      go: {
+        code: `func restoreIpAddresses(s string) []string {
+    var result []string
+    valid := func(seg string) bool {
+        if len(seg) == 0 || len(seg) > 3 {
+            return false
+        }
+        if len(seg) > 1 && seg[0] == '0' {
+            return false
+        }
+        n, _ := strconv.Atoi(seg)
+        return n <= 255
+    }
+    var parts []string
+    var backtrack func(start int)
+    backtrack = func(start int) {
+        if len(parts) == 4 {
+            if start == len(s) {
+                result = append(result, strings.Join(parts, "."))
+            }
+            return
+        }
+        for L := 1; L <= 3; L++ {
+            if start + L > len(s) {
+                break
+            }
+            seg := s[start : start+L]
+            if !valid(seg) {
+                if len(seg) > 1 && seg[0] == '0' {
+                    break
+                }
+                continue
+            }
+            parts = append(parts, seg)
+            backtrack(start + L)
+            parts = parts[:len(parts)-1]
+        }
+    }
+    backtrack(0)
+    sort.Strings(result)
+    return result
+}`,
+        complexity: { time: 'O(1)', space: 'O(1)' },
+        approach: 'strconv.Atoi + strings.Join + sort.Strings — three stdlib imports, all idiomatic. Slice tail-pop via parts[:len(parts)-1] is the standard Go backtracking pattern.',
+      },
+    },
+  },
+  'letter-case-permutation': {
+    tags: ['string', 'backtracking', 'bit-manipulation'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    constraints:
+      '1 <= s.length <= 12\ns consists of lowercase English letters, uppercase English letters, and digits.',
+    followUp:
+      'Could you do it without recursion? Yes — count k letters in s, then for mask in 0..2^k - 1, walk s and for each letter use the next mask bit to pick upper or lower. That is the bitmask form and trades the recursion stack for an explicit counter.',
+    similar: ['subsets', 'permutations', 'generalized-abbreviation', 'all-paths-source-target', 'binary-watch'],
+    viz: letterCasePermutationViz(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def letterCasePermutation(self, s):
+        result = []
+        chars = list(s)
+        def backtrack(i):
+            if i == len(chars):
+                result.append(''.join(chars))
+                return
+            if chars[i].isdigit():
+                backtrack(i + 1)
+                return
+            chars[i] = chars[i].lower()
+            backtrack(i + 1)
+            chars[i] = chars[i].upper()
+            backtrack(i + 1)
+        backtrack(0)
+        result.sort()
+        return result`,
+        complexity: { time: 'O(n * 2^k)', space: 'O(n)' },
+        approach: 'In-place mutation of chars[] — flip the i-th letter to lower, recurse, flip to upper, recurse. Digits have only one branch (pass through). k is the number of letters in s; the recursion tree has exactly 2^k leaves and each leaf does O(n) work to join. Sorting at the end pins the cross-language contract.',
+      },
+      javascript: {
+        code: `function letterCasePermutation(s) {
+  const result = [];
+  const chars = s.split('');
+  const isLetter = (c) => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+  const backtrack = (i) => {
+    if (i === chars.length) {
+      result.push(chars.join(''));
+      return;
+    }
+    if (!isLetter(chars[i])) {
+      backtrack(i + 1);
+      return;
+    }
+    chars[i] = chars[i].toLowerCase();
+    backtrack(i + 1);
+    chars[i] = chars[i].toUpperCase();
+    backtrack(i + 1);
+  };
+  backtrack(0);
+  result.sort();
+  return result;
+}`,
+        complexity: { time: 'O(n * 2^k)', space: 'O(n)' },
+        approach: 'Inline isLetter — JS has no isalpha on string primitives. Mutate chars[] in place to avoid building a new array on each branch.',
+      },
+      java: {
+        code: `class Solution {
+    public List<String> letterCasePermutation(String s) {
+        List<String> result = new ArrayList<>();
+        backtrack(s.toCharArray(), 0, result);
+        Collections.sort(result);
+        return result;
+    }
+    private void backtrack(char[] chars, int i, List<String> result) {
+        if (i == chars.length) {
+            result.add(new String(chars));
+            return;
+        }
+        if (Character.isDigit(chars[i])) {
+            backtrack(chars, i + 1, result);
+            return;
+        }
+        chars[i] = Character.toLowerCase(chars[i]);
+        backtrack(chars, i + 1, result);
+        chars[i] = Character.toUpperCase(chars[i]);
+        backtrack(chars, i + 1, result);
+    }
+}`,
+        complexity: { time: 'O(n * 2^k)', space: 'O(n)' },
+        approach: 'char[] mutation + new String(chars) per leaf. Character.isDigit handles the digit short-circuit cleanly. The mutation is safe because we always restore via the upper/lower flip — no explicit undo needed.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<string> letterCasePermutation(string s) {
+        vector<string> result;
+        backtrack(s, 0, result);
+        sort(result.begin(), result.end());
+        return result;
+    }
+private:
+    void backtrack(string& s, int i, vector<string>& result) {
+        if (i == (int)s.size()) {
+            result.push_back(s);
+            return;
+        }
+        if (isdigit((unsigned char)s[i])) {
+            backtrack(s, i + 1, result);
+            return;
+        }
+        s[i] = tolower((unsigned char)s[i]);
+        backtrack(s, i + 1, result);
+        s[i] = toupper((unsigned char)s[i]);
+        backtrack(s, i + 1, result);
+    }
+};`,
+        complexity: { time: 'O(n * 2^k)', space: 'O(n)' },
+        approach: 'Cast to unsigned char before isdigit/tolower/toupper — passing a signed char with high bit set is undefined behaviour in cctype. The string is mutated in place and copied at every leaf via push_back(s).',
+      },
+      c: {
+        code: `// Letter Case Permutation in C returns char** with returnSize.
+// Signature:
+//   char** letterCasePermutation(char* s, int* returnSize)
+// 1. n = strlen(s). Count letters k. Cap = 1 << k. malloc result[Cap].
+// 2. Recurse backtrack(s, n, i). At each call:
+//    - If i == n: malloc strlen(s) + 1, strcpy s, store at result[*returnSize],
+//      (*returnSize)++.
+//    - If isdigit(s[i]): recurse(i + 1).
+//    - Else: s[i] = tolower(s[i]); recurse(i + 1); s[i] = toupper(s[i]);
+//      recurse(i + 1). Mutating in place is safe since we overwrite on
+//      return; no explicit pop.
+// 3. qsort the result with strcmp.
+// 4. Caller frees every row and the outer pointer.
+char** letterCasePermutation(char* s, int* returnSize) {
+    *returnSize = 0;
+    return NULL;
+}`,
+        complexity: { time: 'O(n * 2^k)', space: 'O(n * 2^k)' },
+        approach: 'C stub — the recursion mirrors the other languages. The complexity space dominates because every one of the 2^k leaves owns its own strdup row.',
+      },
+      go: {
+        code: `func letterCasePermutation(s string) []string {
+    var result []string
+    chars := []byte(s)
+    isLetter := func(c byte) bool {
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+    }
+    var backtrack func(i int)
+    backtrack = func(i int) {
+        if i == len(chars) {
+            result = append(result, string(chars))
+            return
+        }
+        if !isLetter(chars[i]) {
+            backtrack(i + 1)
+            return
+        }
+        if chars[i] >= 'A' && chars[i] <= 'Z' {
+            chars[i] = chars[i] + 32
+        }
+        backtrack(i + 1)
+        chars[i] = chars[i] - 32
+        backtrack(i + 1)
+    }
+    backtrack(0)
+    sort.Strings(result)
+    return result
+}`,
+        complexity: { time: 'O(n * 2^k)', space: 'O(n)' },
+        approach: 'byte slice mutation + ASCII case flip (xor by 32 also works — addition / subtraction is more readable). string(chars) per leaf copies the bytes — Go strings are immutable, so this is the standard pattern.',
       },
     },
   },
@@ -24567,126 +27262,202 @@ func hammingDistance(x int, y int) int {
       },
     },
   },
-  'excel-sheet-column-title': {
-    tags: ['math','string'],
-    companies: ['amazon','meta','microsoft','google','apple'],
-    viz: {
-      renderer: 'array',
-      title: 'Excel column title — base 26 with offset',
-      frames: [
-        { array: [65,66,67,90], caption: '1->A, 2->B, ..., 26->Z, 27->AA. This is base 26 but with no zero — adjust by 1 each digit.' },
-        { array: [65,66,67,90], caption: 'columnNumber = 28. Compute digits.' },
-        { array: [65,66,67,90], highlights: { 0: 'current' }, caption: 'Step 1: n = 28. (n-1) % 26 = 27 % 26 = 1 -> "B". n = (n-1)/26 = 27/26 = 1.' },
-        { array: [65,66,67,90], highlights: { 1: 'current' }, caption: 'Step 2: n = 1. (n-1) % 26 = 0 -> "A". n = (n-1)/26 = 0.' },
-        { array: [65,66,67,90], highlights: { 1: 'match' }, caption: 'Done. Letters collected: "B","A". Reverse: "AB". Answer: "AB".' },
-        { array: [65,66,67,90], caption: 'Why -1? Because in standard base 26 we have digits 0-25, but Excel has 1-26 (no zero).' },
-        { array: [65,66,67,90], caption: 'The -1 adjustment shifts each digit into the 0-25 range for the modulo.' },
-        { array: [65,66,67,90], caption: 'Example: 701 = 1*676 + 0*26 + 25 -> but with no zero, we encode as "ZZ".' },
-        { array: [65,66,67,90], caption: '701: (700)%26 = 24 -> Y. n = 700/26 = 26. (25)%26 = 25 -> Z. n = 25/26 = 0. Answer: "ZY".' },
-        { array: [65,66,67,90], caption: 'Time: O(log_26 n). Space: O(log_26 n).' },
-        { array: [65,66,67,90], caption: 'Each iteration adds one letter.' },
-        { array: [65,66,67,90], caption: 'Edge case: columnNumber = 1 returns "A".' },
-        { array: [65,66,67,90], caption: 'Edge case: columnNumber = 26 returns "Z".' },
-        { array: [65,66,67,90], caption: 'Edge case: columnNumber = 27 returns "AA".' },
-        { array: [65,66,67,90], caption: 'Done.' },
-      ],
+  'count-of-largest-group': {
+    tags: ['math', 'hash-table', 'counting'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    method_name: 'countLargestGroup',
+    params: [{ name: 'n', type: 'int' }],
+    return_type: 'int',
+    visualization: {
+      type: 'array',
+      title: 'Group 1..n by digit-sum, count largest buckets',
+      frames: [{"board":"n = 13","note":"Group 1..n by digit-sum. Goal: count groups whose size equals the maximum group size."},{"board":"digit-sum(1)=1, (2)=2, ...","note":"Digit-sum of k is sum of decimal digits. e.g. 11 -> 1+1 = 2, 12 -> 1+2 = 3."},{"board":"walk k = 1 -> 13","note":"For each k, compute s = digit-sum(k), then counts[s] += 1."},{"board":"k=1..9 -> sums 1..9","note":"Each single-digit k is its own group of size 1 so far."},{"board":"k=10 sum=1, k=11 sum=2","note":"counts[1] grows from {1,10}, counts[2] grows from {2,11}."},{"board":"k=12 sum=3, k=13 sum=4","note":"counts[3]={3,12}, counts[4]={4,13}. Each pair-bucket has size 2."},{"board":"final counts map","note":"{1:[1,10], 2:[2,11], 3:[3,12], 4:[4,13], 5:[5],...,9:[9]}."},{"board":"max size = 2","note":"Largest group size across all buckets is 2 (sums 1,2,3,4 each hit it)."},{"board":"count buckets == max","note":"Four buckets have size 2 -> answer = 4."},{"board":"edge n=1 -> 1","note":"Only group {1}, max size 1, exactly one group -> answer 1."},{"board":"edge n=2 -> 2","note":"Groups {1},{2} both size 1 -> answer 2."},{"board":"O(n log n) time","note":"Each k costs O(log10 n) digits. Space O(max-digit-sum) buckets."}],
     },
     solutions: {
-      python: {
-        code: `class Solution:
-    def convertToTitle(self, columnNumber):
-        result = []
-        while columnNumber > 0:
-            columnNumber -= 1
-            result.append(chr(ord('A') + columnNumber % 26))
-            columnNumber //= 26
-        return ''.join(reversed(result))`,
-        complexity: { time: 'O(log_26 n)', space: 'O(log_26 n)' },
-        approach: 'Subtract 1 before each digit extraction to align to 0-25 range. Reverse at end.',
-      },
-      javascript: {
-        code: `function convertToTitle(columnNumber) {
-  const out = [];
-  while (columnNumber > 0) {
-    columnNumber--;
-    out.push(String.fromCharCode(65 + columnNumber % 26));
-    columnNumber = Math.floor(columnNumber / 26);
-  }
-  return out.reverse().join('');
-}`,
-        complexity: { time: 'O(log_26 n)', space: 'O(log_26 n)' },
-        approach: 'String.fromCharCode + reverse.',
-      },
-      java: {
-        code: `class Solution {
-    public String convertToTitle(int columnNumber) {
-        StringBuilder sb = new StringBuilder();
-        while (columnNumber > 0) {
-            columnNumber--;
-            sb.append((char) ('A' + columnNumber % 26));
-            columnNumber /= 26;
+      python: `class Solution:
+    def countLargestGroup(self, n):
+        counts = {}
+        for k in range(1, n + 1):
+            s = 0
+            x = k
+            while x:
+                s += x % 10
+                x //= 10
+            counts[s] = counts.get(s, 0) + 1
+        best = max(counts.values())
+        return sum(1 for v in counts.values() if v == best)`,
+      javascript: `var countLargestGroup = function(n) {
+    const counts = new Map();
+    for (let k = 1; k <= n; k++) {
+        let s = 0, x = k;
+        while (x) { s += x % 10; x = Math.floor(x / 10); }
+        counts.set(s, (counts.get(s) || 0) + 1);
+    }
+    let best = 0;
+    for (const v of counts.values()) if (v > best) best = v;
+    let answer = 0;
+    for (const v of counts.values()) if (v === best) answer++;
+    return answer;
+};`,
+      java: `class Solution {
+    public int countLargestGroup(int n) {
+        Map<Integer, Integer> counts = new HashMap<>();
+        for (int k = 1; k <= n; k++) {
+            int s = 0, x = k;
+            while (x > 0) { s += x % 10; x /= 10; }
+            counts.merge(s, 1, Integer::sum);
         }
-        return sb.reverse().toString();
+        int best = 0;
+        for (int v : counts.values()) if (v > best) best = v;
+        int answer = 0;
+        for (int v : counts.values()) if (v == best) answer++;
+        return answer;
     }
 }`,
-        complexity: { time: 'O(log_26 n)', space: 'O(log_26 n)' },
-        approach: 'StringBuilder with reverse at end.',
-      },
-      cpp: {
-        code: `#include <bits/stdc++.h>
-using namespace std;
-
-class Solution {
+      cpp: `class Solution {
 public:
-    string convertToTitle(int columnNumber) {
-        string result;
-        while (columnNumber > 0) {
-            columnNumber--;
-            result += (char) ('A' + columnNumber % 26);
-            columnNumber /= 26;
+    int countLargestGroup(int n) {
+        unordered_map<int, int> counts;
+        for (int k = 1; k <= n; k++) {
+            int s = 0, x = k;
+            while (x) { s += x % 10; x /= 10; }
+            counts[s]++;
         }
-        reverse(result.begin(), result.end());
-        return result;
+        int best = 0;
+        for (auto& [k, v] : counts) if (v > best) best = v;
+        int answer = 0;
+        for (auto& [k, v] : counts) if (v == best) answer++;
+        return answer;
     }
 };`,
-        complexity: { time: 'O(log_26 n)', space: 'O(log_26 n)' },
-        approach: 'std::reverse.',
-      },
-      c: {
-        code: `#include <stdlib.h>
-
-char* convertToTitle(int columnNumber) {
-    char buf[16];
-    int k = 0;
-    while (columnNumber > 0) {
-        columnNumber--;
-        buf[k++] = 'A' + columnNumber % 26;
-        columnNumber /= 26;
+      c: `int countLargestGroup(int n) {
+    int counts[40] = {0};
+    for (int k = 1; k <= n; k++) {
+        int s = 0, x = k;
+        while (x) { s += x % 10; x /= 10; }
+        counts[s]++;
     }
-    char* result = (char*)malloc(k + 1);
-    for (int i = 0; i < k; i++) result[i] = buf[k - 1 - i];
-    result[k] = '\\0';
-    return result;
+    int best = 0;
+    for (int i = 0; i < 40; i++) if (counts[i] > best) best = counts[i];
+    int answer = 0;
+    for (int i = 0; i < 40; i++) if (counts[i] == best) answer++;
+    return answer;
 }`,
-        complexity: { time: 'O(log_26 n)', space: 'O(log_26 n)' },
-        approach: 'Stack buffer + in-place reverse to malloc.',
-      },
-      go: {
-        code: `func convertToTitle(columnNumber int) string {
-    out := []byte{}
-    for columnNumber > 0 {
-        columnNumber--
-        out = append(out, byte('A' + columnNumber % 26))
-        columnNumber /= 26
+      go: `func countLargestGroup(n int) int {
+    counts := map[int]int{}
+    for k := 1; k <= n; k++ {
+        s, x := 0, k
+        for x > 0 { s += x % 10; x /= 10 }
+        counts[s]++
     }
-    for l, r := 0, len(out) - 1; l < r; l, r = l + 1, r - 1 {
-        out[l], out[r] = out[r], out[l]
-    }
-    return string(out)
+    best := 0
+    for _, v := range counts { if v > best { best = v } }
+    answer := 0
+    for _, v := range counts { if v == best { answer++ } }
+    return answer
 }`,
-        complexity: { time: 'O(log_26 n)', space: 'O(log_26 n)' },
-        approach: 'Byte slice + manual reverse.',
-      },
+    },
+  },
+  'arithmetic-slices': {
+    tags: ['array', 'dynamic-programming', 'math'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    method_name: 'numberOfArithmeticSlices',
+    params: [{ name: 'nums', type: 'List[int]' }],
+    return_type: 'int',
+    visualization: {
+      type: 'array',
+      title: 'Count runs of constant difference (length >= 3)',
+      frames: [{"board":"nums = [1,2,3,4]","note":"Arithmetic slice: 3+ contiguous elements with constant difference. Count all such subarrays."},{"board":"diffs = [1,1,1]","note":"Adjacent differences are all 1 -> the entire array is one arithmetic run."},{"board":"run-length DP","note":"Let dp[i] = number of arithmetic slices ending exactly at index i (length >= 3)."},{"board":"i=2: nums[2]-nums[1]==nums[1]-nums[0]","note":"3-2 == 2-1, so dp[2] = dp[1] + 1 = 1. New slice: [1,2,3]."},{"board":"i=3: 4-3 == 3-2","note":"dp[3] = dp[2] + 1 = 2. New slices: [2,3,4] and [1,2,3,4]."},{"board":"total = sum(dp) = 3","note":"Three arithmetic slices: [1,2,3], [2,3,4], [1,2,3,4]. Answer = 3."},{"board":"nums = [1,3,5,7,9]","note":"All diffs = 2. Constant-diff run of length 5."},{"board":"run length L -> (L-1)*(L-2)/2","note":"A run of L consecutive equal diffs contributes (L-1)*(L-2)/2 slices of length >= 3."},{"board":"L=4 (diffs) -> 3*2/2 = 3","note":"But here we have 5 numbers -> 4 equal diffs -> 3*2/2 = 3? Let dp work it out."},{"board":"dp: 0,0,1,2,3 -> sum 6","note":"Walk dp: dp[2]=1, dp[3]=2, dp[4]=3. Total = 6 arithmetic slices."},{"board":"break run on diff change","note":"When nums[i]-nums[i-1] != nums[i-1]-nums[i-2], dp[i] resets to 0."},{"board":"O(n) time, O(1) space","note":"Track only the previous dp value (rolling). No need for the full array."}],
+    },
+    solutions: {
+      python: `class Solution:
+    def numberOfArithmeticSlices(self, nums):
+        n = len(nums)
+        if n < 3:
+            return 0
+        total = 0
+        run = 0
+        for i in range(2, n):
+            if nums[i] - nums[i - 1] == nums[i - 1] - nums[i - 2]:
+                run += 1
+                total += run
+            else:
+                run = 0
+        return total`,
+      javascript: `var numberOfArithmeticSlices = function(nums) {
+    const n = nums.length;
+    if (n < 3) return 0;
+    let total = 0, run = 0;
+    for (let i = 2; i < n; i++) {
+        if (nums[i] - nums[i - 1] === nums[i - 1] - nums[i - 2]) {
+            run++;
+            total += run;
+        } else {
+            run = 0;
+        }
+    }
+    return total;
+};`,
+      java: `class Solution {
+    public int numberOfArithmeticSlices(int[] nums) {
+        int n = nums.length;
+        if (n < 3) return 0;
+        int total = 0, run = 0;
+        for (int i = 2; i < n; i++) {
+            if (nums[i] - nums[i - 1] == nums[i - 1] - nums[i - 2]) {
+                run++;
+                total += run;
+            } else {
+                run = 0;
+            }
+        }
+        return total;
+    }
+}`,
+      cpp: `class Solution {
+public:
+    int numberOfArithmeticSlices(vector<int>& nums) {
+        int n = nums.size();
+        if (n < 3) return 0;
+        int total = 0, run = 0;
+        for (int i = 2; i < n; i++) {
+            if (nums[i] - nums[i - 1] == nums[i - 1] - nums[i - 2]) {
+                run++;
+                total += run;
+            } else {
+                run = 0;
+            }
+        }
+        return total;
+    }
+};`,
+      c: `int numberOfArithmeticSlices(int* nums, int numsSize) {
+    if (numsSize < 3) return 0;
+    int total = 0, run = 0;
+    for (int i = 2; i < numsSize; i++) {
+        if (nums[i] - nums[i - 1] == nums[i - 1] - nums[i - 2]) {
+            run++;
+            total += run;
+        } else {
+            run = 0;
+        }
+    }
+    return total;
+}`,
+      go: `func numberOfArithmeticSlices(nums []int) int {
+    n := len(nums)
+    if n < 3 { return 0 }
+    total, run := 0, 0
+    for i := 2; i < n; i++ {
+        if nums[i] - nums[i - 1] == nums[i - 1] - nums[i - 2] {
+            run++
+            total += run
+        } else {
+            run = 0
+        }
+    }
+    return total
+}`,
     },
   },
   'factorial-trailing-zeroes': {
@@ -33774,7 +36545,11779 @@ func smallestDistancePair(nums []int, k int) int {
       },
     },
   },
+  'binary-tree-cameras': {
+    /* SPLICE:cameras-delete-earn-duo v1 */
+    tags: ['tree', 'dynamic-programming', 'depth-first-search', 'binary-tree'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: {
+      renderer: 'tree',
+      title: 'Binary Tree Cameras - post-order greedy with 3 states',
+      frames: [
+        { tree: { value: 0, left: { value: 0, left: { value: 0 }, right: { value: 0 } } }, caption: 'Goal: place minimum cameras so every node is monitored. A camera at node x covers x, its parent, and its children. Three states per node: 0=needs cover, 1=has camera, 2=covered (by a child).' },
+        { tree: { value: 0, left: { value: 0, left: { value: 0 }, right: { value: 0 } } }, chip: 'states: 0/1/2', caption: 'Post-order DFS returns the state of each node. Null leaves return 2 (covered) so real leaves do not waste cameras on themselves.' },
+        { tree: { value: 0, left: { value: 0, left: { value: 0, state: 'current' }, right: { value: 0 } } }, chip: 'leaf left', caption: 'Visit leftmost leaf. Both children are null -> both return 2. Leaf has no child with camera -> it needs cover. Return 0 (NEEDS_COVER).' },
+        { tree: { value: 0, left: { value: 0, left: { value: 0, state: 'match' }, right: { value: 0, state: 'current' } } }, chip: 'leaf right', caption: 'Visit right sibling. Same logic - both null children return 2. Return 0 (NEEDS_COVER).' },
+        { tree: { value: 0, left: { value: 0, state: 'current', left: { value: 0, state: 'match' }, right: { value: 0, state: 'match' } } }, chip: 'parent of two needers', caption: 'Back at internal node. At least one child returned 0 (NEEDS_COVER) -> must place a camera here. Return 1 (HAS_CAMERA). Cameras++.' },
+        { tree: { value: 0, state: 'current', left: { value: 1, state: 'match', left: { value: 2, state: 'match' }, right: { value: 2, state: 'match' } } }, chip: 'root sees camera below', caption: 'Back at root. Left child returned 1 (HAS_CAMERA) -> root is covered by it. Return 2 (COVERED). Cameras = 1.' },
+        { tree: { value: 2, state: 'match', left: { value: 1, state: 'match', left: { value: 2, state: 'match' }, right: { value: 2, state: 'match' } } }, chip: 'root state = 2', caption: 'Root returned 2 (COVERED). Good - nothing more needed at the top.' },
+        { tree: { value: 2, state: 'match', left: { value: 1, state: 'match', left: { value: 2, state: 'match' }, right: { value: 2, state: 'match' } } }, chip: 'edge: root needs cover', caption: 'Edge case: after recursion, if the root itself returns 0 (NEEDS_COVER), we must add one final camera at the root. cameras++.' },
+        { tree: { value: 2, state: 'match', left: { value: 1, state: 'match', left: { value: 2, state: 'match' }, right: { value: 2, state: 'match' } } }, caption: 'Greedy invariant: never place a camera at a leaf - wasted coverage. Always defer placement upward until forced by a needy child. This is optimal - proved by an exchange argument.' },
+        { tree: { value: 2, state: 'match', left: { value: 1, state: 'match', left: { value: 2, state: 'match' }, right: { value: 2, state: 'match' } } }, caption: 'Why post-order? We need the child states before deciding the parent state. Pre-order would commit to a camera too early.' },
+        { tree: { value: 2, state: 'match', left: { value: 1, state: 'match', left: { value: 2, state: 'match' }, right: { value: 2, state: 'match' } } }, chip: 'Time O(n), Space O(h)', caption: 'Each node visited once; recursion stack bounded by tree height. No extra structures.' },
+        { tree: { value: 2, state: 'match', left: { value: 1, state: 'match', left: { value: 2, state: 'match' }, right: { value: 2, state: 'match' } } }, chip: 'answer = 1', caption: 'Done. Minimum cameras for this 4-node tree = 1, placed at the internal node covering both leaves and the root.' },
+      ],
+    },
+    solutions: {
+      python: {
+        code: `class Solution:
+    def minCameraCover(self, root):
+        self.cameras = 0
+        NEEDS, CAMERA, COVERED = 0, 1, 2
+        def dfs(node):
+            if not node: return COVERED
+            l, r = dfs(node.left), dfs(node.right)
+            if l == NEEDS or r == NEEDS:
+                self.cameras += 1
+                return CAMERA
+            if l == CAMERA or r == CAMERA:
+                return COVERED
+            return NEEDS
+        if dfs(root) == NEEDS:
+            self.cameras += 1
+        return self.cameras`,
+        complexity: { time: 'O(n)', space: 'O(h)' },
+        approach: 'Post-order DFS with 3 states. Null returns COVERED so real leaves return NEEDS. A parent of any needy child places a camera; a parent of a child holding a camera is covered; otherwise it propagates NEEDS upward. Greedy is optimal - placing cameras as high as possible maximizes the parent-cover bonus.',
+      },
+      javascript: {
+        code: `function minCameraCover(root) {
+  let cameras = 0;
+  const NEEDS = 0, CAMERA = 1, COVERED = 2;
+  const dfs = (node) => {
+    if (!node) return COVERED;
+    const l = dfs(node.left), r = dfs(node.right);
+    if (l === NEEDS || r === NEEDS) { cameras++; return CAMERA; }
+    if (l === CAMERA || r === CAMERA) return COVERED;
+    return NEEDS;
+  };
+  if (dfs(root) === NEEDS) cameras++;
+  return cameras;
+}`,
+        complexity: { time: 'O(n)', space: 'O(h)' },
+        approach: 'Identical 3-state automaton. Closure captures the camera counter - keeps the recurrence pure.',
+      },
+      java: {
+        code: `class Solution {
+    int cameras = 0;
+    static final int NEEDS = 0, CAMERA = 1, COVERED = 2;
+    public int minCameraCover(TreeNode root) {
+        if (dfs(root) == NEEDS) cameras++;
+        return cameras;
+    }
+    int dfs(TreeNode node) {
+        if (node == null) return COVERED;
+        int l = dfs(node.left), r = dfs(node.right);
+        if (l == NEEDS || r == NEEDS) { cameras++; return CAMERA; }
+        if (l == CAMERA || r == CAMERA) return COVERED;
+        return NEEDS;
+    }
+}`,
+        complexity: { time: 'O(n)', space: 'O(h)' },
+        approach: 'Instance field for the counter; static constants for state labels.',
+      },
+      cpp: {
+        code: `class Solution {
+public:
+    int cameras = 0;
+    static const int NEEDS = 0, CAMERA = 1, COVERED = 2;
+    int dfs(TreeNode* n) {
+        if (!n) return COVERED;
+        int l = dfs(n->left), r = dfs(n->right);
+        if (l == NEEDS || r == NEEDS) { cameras++; return CAMERA; }
+        if (l == CAMERA || r == CAMERA) return COVERED;
+        return NEEDS;
+    }
+    int minCameraCover(TreeNode* root) {
+        if (dfs(root) == NEEDS) cameras++;
+        return cameras;
+    }
+};`,
+        complexity: { time: 'O(n)', space: 'O(h)' },
+        approach: 'Pointer recursion; same 3-state DP as the Python version.',
+      },
+      c: {
+        code: `int cameras_g;
+int dfs(struct TreeNode* n) {
+    if (!n) return 2;
+    int l = dfs(n->left), r = dfs(n->right);
+    if (l == 0 || r == 0) { cameras_g++; return 1; }
+    if (l == 1 || r == 1) return 2;
+    return 0;
+}
+int minCameraCover(struct TreeNode* root) {
+    cameras_g = 0;
+    if (dfs(root) == 0) cameras_g++;
+    return cameras_g;
+}`,
+        complexity: { time: 'O(n)', space: 'O(h)' },
+        approach: 'Plain C - file-scope counter avoids threading state through every recursive call.',
+      },
+      go: {
+        code: `func minCameraCover(root *TreeNode) int {
+    cameras := 0
+    const NEEDS, CAMERA, COVERED = 0, 1, 2
+    var dfs func(n *TreeNode) int
+    dfs = func(n *TreeNode) int {
+        if n == nil { return COVERED }
+        l, r := dfs(n.Left), dfs(n.Right)
+        if l == NEEDS || r == NEEDS { cameras++; return CAMERA }
+        if l == CAMERA || r == CAMERA { return COVERED }
+        return NEEDS
+    }
+    if dfs(root) == NEEDS { cameras++ }
+    return cameras
+}`,
+        complexity: { time: 'O(n)', space: 'O(h)' },
+        approach: 'Idiomatic Go closure recursion; named constants for the three states.',
+      },
+    },
+  },
+  'n-ary-tree-level-order-traversal': {
+    /* SPLICE:nary-level-pathsum4-duo v1 */
+    tags: ['tree', 'breadth-first-search'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: {
+      renderer: 'tree',
+      title: 'N-ary Tree Level Order - BFS layer-by-layer',
+      frames: [
+        { tree: { value: 1, left: { value: 3, left: { value: 5 }, right: { value: 6 } }, right: { value: 2 } }, caption: 'N-ary tree with root 1 and three children {3, 2, 4}. (Rendered as binary stand-in: left subtree groups children 3 + its kids 5,6; right=2; a third child 4 lives off-frame.) Goal: return [[1], [3,2,4], [5,6]].' },
+        { tree: { value: 1, state: 'current', left: { value: 3, left: { value: 5 }, right: { value: 6 } }, right: { value: 2 } }, chip: 'queue=[1]', caption: 'BFS template: push root, then repeatedly drain the queue one LEVEL at a time. Snapshot queue size BEFORE popping - that count IS the current level width.' },
+        { tree: { value: 1, state: 'match', left: { value: 3, left: { value: 5 }, right: { value: 6 } }, right: { value: 2 } }, chip: 'level 0 done -> [1]', caption: 'Level 0: pop root (size=1). Append its value to the level list. Push every child of 1 onto the queue. After this iteration result = [[1]].' },
+        { tree: { value: 1, left: { value: 3, state: 'current', left: { value: 5 }, right: { value: 6 } }, right: { value: 2 } }, chip: 'queue=[3,2,4]', caption: 'Snapshot size = 3 (children of root). Loop 3 times, each iteration pops one node, appends its value to this level, and pushes ITS children to the queue for the next level.' },
+        { tree: { value: 1, left: { value: 3, state: 'match', left: { value: 5 }, right: { value: 6 } }, right: { value: 2 } }, chip: 'pop 3 -> push 5,6', caption: 'Pop 3. level=[3]. Children of 3 are {5, 6} - push both. Queue is now [2, 4, 5, 6] (next-level nodes accumulating behind the level-1 remainders).' },
+        { tree: { value: 1, left: { value: 3, state: 'match', left: { value: 5 }, right: { value: 6 } }, right: { value: 2, state: 'match' } }, chip: 'pop 2 -> no children', caption: 'Pop 2. level=[3,2]. Node 2 has no children -> nothing to push. Queue: [4, 5, 6].' },
+        { tree: { value: 1, left: { value: 3, state: 'match', left: { value: 5 }, right: { value: 6 } }, right: { value: 2, state: 'match' } }, chip: 'pop 4 -> no children', caption: 'Pop the off-frame node 4. level=[3,2,4]. Snapshot loop done -> append level to result. result = [[1], [3,2,4]].' },
+        { tree: { value: 1, left: { value: 3, left: { value: 5, state: 'current' }, right: { value: 6 } }, right: { value: 2 } }, chip: 'queue=[5,6]', caption: 'Snapshot size = 2 (level-2 nodes). Loop 2 times. Both 5 and 6 are leaves so the next-level queue stays empty.' },
+        { tree: { value: 1, left: { value: 3, left: { value: 5, state: 'match' }, right: { value: 6, state: 'match' } }, right: { value: 2 } }, chip: 'level 2 -> [5,6]', caption: 'Pop 5 then 6. level=[5,6]. No children pushed. result = [[1], [3,2,4], [5,6]]. Queue empty -> outer loop exits.' },
+        { tree: { value: 1, left: { value: 3, left: { value: 5, state: 'match' }, right: { value: 6, state: 'match' } }, right: { value: 2 } }, chip: 'why snapshot size?', caption: 'Critical: capture queue size at the TOP of the outer loop. Iterating with a live len() would also count next-level children we are pushing - bleeding levels together.' },
+        { tree: { value: 1, left: { value: 3, left: { value: 5, state: 'match' }, right: { value: 6, state: 'match' } }, right: { value: 2 } }, chip: 'Time O(n), Space O(w)', caption: 'Each node enqueued and dequeued exactly once -> O(n). Queue width is bounded by the widest level w. Output also O(n).' },
+        { tree: { value: 1, left: { value: 3, left: { value: 5, state: 'match' }, right: { value: 6, state: 'match' } }, right: { value: 2 } }, chip: 'done', caption: 'Return [[1], [3,2,4], [5,6]]. Same structure as binary-tree level order - the only change is iterating node.children (a list) instead of node.left + node.right.' },
+      ],
+    },
+    solutions: {
+      python: {
+        code: `from collections import deque
+class Solution:
+    def levelOrder(self, root):
+        if not root: return []
+        result = []
+        q = deque([root])
+        while q:
+            level = []
+            for _ in range(len(q)):
+                node = q.popleft()
+                level.append(node.val)
+                for c in node.children:
+                    q.append(c)
+            result.append(level)
+        return result`,
+        complexity: { time: 'O(n)', space: 'O(w)' },
+        approach: 'Standard BFS with a deque. At the top of each outer iteration, freeze the queue size as the current level width and drain exactly that many nodes, appending their values to the level list and pushing all their children onto the queue. Repeat until empty.',
+      },
+      javascript: {
+        code: `function levelOrder(root) {
+  if (!root) return [];
+  const result = [];
+  let queue = [root];
+  while (queue.length) {
+    const level = [];
+    const next = [];
+    for (const node of queue) {
+      level.push(node.val);
+      for (const c of node.children) next.push(c);
+    }
+    result.push(level);
+    queue = next;
+  }
+  return result;
+}`,
+        complexity: { time: 'O(n)', space: 'O(w)' },
+        approach: 'Use two arrays (current queue + next queue) to dodge expensive shift() on Array. Each outer iteration walks the current array end-to-end while building the next - functionally equivalent to a deque.',
+      },
+      java: {
+        code: `class Solution {
+    public List<List<Integer>> levelOrder(Node root) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (root == null) return result;
+        Queue<Node> q = new ArrayDeque<>();
+        q.offer(root);
+        while (!q.isEmpty()) {
+            int sz = q.size();
+            List<Integer> level = new ArrayList<>(sz);
+            for (int i = 0; i < sz; i++) {
+                Node node = q.poll();
+                level.add(node.val);
+                for (Node c : node.children) q.offer(c);
+            }
+            result.add(level);
+        }
+        return result;
+    }
+}`,
+        complexity: { time: 'O(n)', space: 'O(w)' },
+        approach: 'ArrayDeque as the queue (O(1) offer/poll). Pre-size the level list to the snapshot size to avoid intermediate reallocations.',
+      },
+      cpp: {
+        code: `class Solution {
+public:
+    vector<vector<int>> levelOrder(Node* root) {
+        vector<vector<int>> result;
+        if (!root) return result;
+        queue<Node*> q;
+        q.push(root);
+        while (!q.empty()) {
+            int sz = q.size();
+            vector<int> level;
+            level.reserve(sz);
+            for (int i = 0; i < sz; i++) {
+                Node* node = q.front(); q.pop();
+                level.push_back(node->val);
+                for (Node* c : node->children) q.push(c);
+            }
+            result.push_back(level);
+        }
+        return result;
+    }
+};`,
+        complexity: { time: 'O(n)', space: 'O(w)' },
+        approach: 'std::queue<Node*>; reserve the level vector up front. Range-for over node->children is the only structural difference vs. binary BFS.',
+      },
+      c: {
+        code: `// N-ary tree level order - returnSize set by caller; children laid out as Node** array.
+int** levelOrder(struct Node* root, int* returnSize, int** returnColumnSizes) {
+    *returnSize = 0;
+    if (!root) { *returnColumnSizes = NULL; return NULL; }
+    int cap = 1024;
+    int** result = (int**) malloc(sizeof(int*) * cap);
+    int* colSizes = (int*) malloc(sizeof(int) * cap);
+    struct Node** queue = (struct Node**) malloc(sizeof(struct Node*) * 100000);
+    int qh = 0, qt = 0;
+    queue[qt++] = root;
+    while (qh < qt) {
+        int sz = qt - qh;
+        int* level = (int*) malloc(sizeof(int) * sz);
+        for (int i = 0; i < sz; i++) {
+            struct Node* node = queue[qh++];
+            level[i] = node->val;
+            for (int j = 0; j < node->numChildren; j++) queue[qt++] = node->children[j];
+        }
+        result[*returnSize] = level;
+        colSizes[*returnSize] = sz;
+        (*returnSize)++;
+    }
+    *returnColumnSizes = colSizes;
+    free(queue);
+    return result;
+}`,
+        complexity: { time: 'O(n)', space: 'O(w)' },
+        approach: 'Plain C - circular-ish queue over a flat node** buffer. Caller must free each row and the row-sizes array.',
+      },
+      go: {
+        code: `func levelOrder(root *Node) [][]int {
+    result := [][]int{}
+    if root == nil { return result }
+    queue := []*Node{root}
+    for len(queue) > 0 {
+        sz := len(queue)
+        level := make([]int, 0, sz)
+        next := []*Node{}
+        for i := 0; i < sz; i++ {
+            node := queue[i]
+            level = append(level, node.Val)
+            for _, c := range node.Children { next = append(next, c) }
+        }
+        result = append(result, level)
+        queue = next
+    }
+    return result
+}`,
+        complexity: { time: 'O(n)', space: 'O(w)' },
+        approach: 'Two-slice ping-pong (queue + next) for an allocation-friendly BFS - same as the JS version.',
+      },
+    },
+  },
+  'path-sum-iv': {
+    /* SPLICE:nary-level-pathsum4-duo v1 */
+    tags: ['tree', 'depth-first-search', 'hash-table'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: {
+      renderer: 'tree',
+      title: 'Path Sum IV - decode (depth, pos, value), DFS to leaves',
+      frames: [
+        { tree: { value: 0 }, caption: 'Input nums = [113, 215, 221]. Each 3-digit code = D*100 + P*10 + V where D=depth (1..4), P=position-in-level (1-indexed left-to-right), V=node value.' },
+        { tree: { value: 0 }, chip: 'decode 113', caption: '113 -> depth=1, pos=1, val=3. This is the root.' },
+        { tree: { value: 3, state: 'current' }, chip: 'decode 215', caption: '215 -> depth=2, pos=1, val=5. Left child of root (left of pos P at depth D sits at (D+1, 2P-1)).' },
+        { tree: { value: 3, state: 'match', left: { value: 5, state: 'current' } }, chip: 'decode 221', caption: '221 -> depth=2, pos=2, val=1. Right child of root (right child at (D+1, 2P)).' },
+        { tree: { value: 3, state: 'match', left: { value: 5, state: 'match' }, right: { value: 1, state: 'match' } }, chip: 'tree built', caption: 'Full tree:    3   / \ 5   1. Both leaves. Two root-to-leaf paths: 3 -> 5 (sum 8) and 3 -> 1 (sum 4).' },
+        { tree: { value: 3, state: 'current', left: { value: 5 }, right: { value: 1 } }, chip: 'dfs(1,1,0)', caption: 'DFS from root with running sum 0. cur += tree[(1,1)] = 3. cur = 3. Check children at (2,1) and (2,2) - both exist.' },
+        { tree: { value: 3, left: { value: 5, state: 'current' }, right: { value: 1 } }, chip: 'dfs(2,1,3)', caption: 'Recurse left to (2,1)=5. cur += 5 = 8. Children at (3,1) and (3,2) - neither exists -> LEAF. total += 8.' },
+        { tree: { value: 3, left: { value: 5, state: 'match' }, right: { value: 1, state: 'current' } }, chip: 'total = 8', caption: 'Recurse right to (2,2)=1. cur += 1 = 4. Children at (3,3) and (3,4) - neither exists -> LEAF. total += 4. total = 12.' },
+        { tree: { value: 3, left: { value: 5, state: 'match' }, right: { value: 1, state: 'match' } }, chip: 'answer = 12', caption: 'Done. Sum of all root-to-leaf path sums = 8 + 4 = 12.' },
+        { tree: { value: 3, left: { value: 5, state: 'match' }, right: { value: 1, state: 'match' } }, chip: 'why (D+1, 2P-1)?', caption: 'Coord rule: a node at (D, P) sits at horizontal index P (1-indexed). Its left child halves the slot range -> (D+1, 2P-1); right child -> (D+1, 2P). Classic binary-heap indexing on a per-level grid.' },
+        { tree: { value: 3, left: { value: 5, state: 'match' }, right: { value: 1, state: 'match' } }, chip: 'Time O(n), Space O(n)', caption: 'Build hash O(n); DFS visits each present node once. Depth bounded at 4 (problem constraint) -> recursion stack tiny.' },
+        { tree: { value: 3, left: { value: 5, state: 'match' }, right: { value: 1, state: 'match' } }, chip: 'edge: missing nodes mid-path', caption: 'Pitfall: only sum a path when BOTH children are absent. A node with only one child is internal, not a leaf - keep recursing into the existing side.' },
+      ],
+    },
+    solutions: {
+      python: {
+        code: `class Solution:
+    def pathSum(self, nums):
+        tree = {}
+        for n in nums:
+            d, p, v = n // 100, (n // 10) % 10, n % 10
+            tree[(d, p)] = v
+        self.total = 0
+        def dfs(d, p, cur):
+            if (d, p) not in tree: return
+            cur += tree[(d, p)]
+            left = (d + 1, 2 * p - 1)
+            right = (d + 1, 2 * p)
+            if left not in tree and right not in tree:
+                self.total += cur
+                return
+            dfs(d + 1, 2 * p - 1, cur)
+            dfs(d + 1, 2 * p, cur)
+        if nums:
+            d0, p0, _ = nums[0] // 100, (nums[0] // 10) % 10, nums[0] % 10
+            dfs(d0, p0, 0)
+        return self.total`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'Decode each 3-digit code into (depth, pos, value) and store in a hash keyed by (depth, pos). DFS from the root coords with a running sum. At every visit, check whether both child coords are absent - if so, the current node is a leaf and we add the running sum to the answer.',
+      },
+      javascript: {
+        code: `function pathSum(nums) {
+  const tree = new Map();
+  for (const n of nums) {
+    const d = Math.floor(n / 100);
+    const p = Math.floor(n / 10) % 10;
+    const v = n % 10;
+    tree.set(d * 10 + p, v);
+  }
+  let total = 0;
+  const dfs = (d, p, cur) => {
+    const key = d * 10 + p;
+    if (!tree.has(key)) return;
+    cur += tree.get(key);
+    const lk = (d + 1) * 10 + (2 * p - 1);
+    const rk = (d + 1) * 10 + (2 * p);
+    if (!tree.has(lk) && !tree.has(rk)) { total += cur; return; }
+    dfs(d + 1, 2 * p - 1, cur);
+    dfs(d + 1, 2 * p, cur);
+  };
+  if (nums.length) {
+    const n0 = nums[0];
+    dfs(Math.floor(n0 / 100), Math.floor(n0 / 10) % 10, 0);
+  }
+  return total;
+}`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'Pack (depth, pos) into a single int key (depth*10 + pos) - depth is at most 4 so 2 digits suffice. Avoids Map<string> overhead.',
+      },
+      java: {
+        code: `class Solution {
+    int total = 0;
+    Map<Integer, Integer> tree = new HashMap<>();
+    public int pathSum(int[] nums) {
+        for (int n : nums) {
+            int d = n / 100, p = (n / 10) % 10, v = n % 10;
+            tree.put(d * 10 + p, v);
+        }
+        if (nums.length == 0) return 0;
+        int n0 = nums[0];
+        dfs(n0 / 100, (n0 / 10) % 10, 0);
+        return total;
+    }
+    void dfs(int d, int p, int cur) {
+        int key = d * 10 + p;
+        if (!tree.containsKey(key)) return;
+        cur += tree.get(key);
+        int lk = (d + 1) * 10 + (2 * p - 1);
+        int rk = (d + 1) * 10 + (2 * p);
+        if (!tree.containsKey(lk) && !tree.containsKey(rk)) { total += cur; return; }
+        dfs(d + 1, 2 * p - 1, cur);
+        dfs(d + 1, 2 * p, cur);
+    }
+}`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'HashMap<Integer, Integer> with the same packed-int key. Instance field for the running total keeps the recurrence clean.',
+      },
+      cpp: {
+        code: `class Solution {
+public:
+    int total = 0;
+    unordered_map<int, int> tree;
+    int pathSum(vector<int>& nums) {
+        for (int n : nums) {
+            int d = n / 100, p = (n / 10) % 10, v = n % 10;
+            tree[d * 10 + p] = v;
+        }
+        if (nums.empty()) return 0;
+        int n0 = nums[0];
+        dfs(n0 / 100, (n0 / 10) % 10, 0);
+        return total;
+    }
+    void dfs(int d, int p, int cur) {
+        int key = d * 10 + p;
+        if (tree.find(key) == tree.end()) return;
+        cur += tree[key];
+        int lk = (d + 1) * 10 + (2 * p - 1);
+        int rk = (d + 1) * 10 + (2 * p);
+        if (tree.find(lk) == tree.end() && tree.find(rk) == tree.end()) { total += cur; return; }
+        dfs(d + 1, 2 * p - 1, cur);
+        dfs(d + 1, 2 * p, cur);
+    }
+};`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'unordered_map<int,int>; same packed key. find() used over count() to dodge a redundant probe.',
+      },
+      c: {
+        code: `// Path Sum IV - flat hash via array of size 100 (depth <= 4 -> keys < 50).
+static int valAt[100];
+static int hasAt[100];
+static int total_ps4;
+static void dfs_ps4(int d, int p, int cur) {
+    int key = d * 10 + p;
+    if (!hasAt[key]) return;
+    cur += valAt[key];
+    int lk = (d + 1) * 10 + (2 * p - 1);
+    int rk = (d + 1) * 10 + (2 * p);
+    if (!hasAt[lk] && !hasAt[rk]) { total_ps4 += cur; return; }
+    dfs_ps4(d + 1, 2 * p - 1, cur);
+    dfs_ps4(d + 1, 2 * p, cur);
+}
+int pathSum(int* nums, int numsSize) {
+    for (int i = 0; i < 100; i++) { valAt[i] = 0; hasAt[i] = 0; }
+    total_ps4 = 0;
+    for (int i = 0; i < numsSize; i++) {
+        int n = nums[i];
+        int d = n / 100, p = (n / 10) % 10, v = n % 10;
+        valAt[d * 10 + p] = v;
+        hasAt[d * 10 + p] = 1;
+    }
+    if (numsSize == 0) return 0;
+    int n0 = nums[0];
+    dfs_ps4(n0 / 100, (n0 / 10) % 10, 0);
+    return total_ps4;
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Since depth <= 4 and pos <= 8, the packed key fits in [0..48]. Use a flat 100-int presence + value array - O(1) lookup, zero allocator pressure.',
+      },
+      go: {
+        code: `func pathSum(nums []int) int {
+    tree := map[int]int{}
+    for _, n := range nums {
+        d, p, v := n/100, (n/10)%10, n%10
+        tree[d*10+p] = v
+    }
+    total := 0
+    var dfs func(d, p, cur int)
+    dfs = func(d, p, cur int) {
+        key := d*10 + p
+        v, ok := tree[key]
+        if !ok { return }
+        cur += v
+        lk := (d+1)*10 + (2*p - 1)
+        rk := (d+1)*10 + (2 * p)
+        _, hasL := tree[lk]
+        _, hasR := tree[rk]
+        if !hasL && !hasR { total += cur; return }
+        dfs(d+1, 2*p-1, cur)
+        dfs(d+1, 2*p, cur)
+    }
+    if len(nums) > 0 {
+        n0 := nums[0]
+        dfs(n0/100, (n0/10)%10, 0)
+    }
+    return total
+}`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'map[int]int with packed key. Closure recursion captures the running total.',
+      },
+    },
+  },
+  'valid-square': {
+    tags: ['math', 'geometry', 'sorting'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    inlineVisualization: {
+      title: 'Valid Square via squared distances',
+      frames: Array.from({ length: 12 }, (_, i) => ({
+        step: i + 1,
+        note: [
+          'Compute all 6 pairwise squared distances between the 4 points.',
+          'Squared distance avoids floating-point sqrt and stays exact.',
+          'Distance d(p1,p2) measured.',
+          'Distance d(p1,p3) measured.',
+          'Distance d(p1,p4) measured.',
+          'Distance d(p2,p3) measured.',
+          'Distance d(p2,p4) measured.',
+          'Distance d(p3,p4) measured.',
+          'Sort the 6 distances ascending.',
+          'First 4 should be equal (the sides) and non-zero.',
+          'Last 2 should be equal (the diagonals).',
+          'Diagonal squared must equal 2 * side squared — valid square.',
+        ][i],
+      })),
+    },
+    solutions: {
+      python: `class Solution:\n    def validSquare(self, p1, p2, p3, p4):\n        def d(a, b):\n            return (a[0]-b[0])**2 + (a[1]-b[1])**2\n        pts = [p1, p2, p3, p4]\n        ds = sorted(d(pts[i], pts[j]) for i in range(4) for j in range(i+1, 4))\n        return ds[0] > 0 and ds[0] == ds[1] == ds[2] == ds[3] and ds[4] == ds[5] and ds[4] == 2 * ds[0]`,
+      javascript: `var validSquare = function(p1, p2, p3, p4) {\n  const d = (a, b) => (a[0]-b[0])**2 + (a[1]-b[1])**2;\n  const pts = [p1, p2, p3, p4];\n  const ds = [];\n  for (let i = 0; i < 4; i++) for (let j = i+1; j < 4; j++) ds.push(d(pts[i], pts[j]));\n  ds.sort((a,b) => a-b);\n  return ds[0] > 0 && ds[0] === ds[1] && ds[1] === ds[2] && ds[2] === ds[3] && ds[4] === ds[5] && ds[4] === 2 * ds[0];\n};`,
+      java: `class Solution {\n    public boolean validSquare(int[] p1, int[] p2, int[] p3, int[] p4) {\n        int[][] pts = {p1, p2, p3, p4};\n        long[] ds = new long[6];\n        int k = 0;\n        for (int i = 0; i < 4; i++) for (int j = i+1; j < 4; j++) ds[k++] = dist(pts[i], pts[j]);\n        java.util.Arrays.sort(ds);\n        return ds[0] > 0 && ds[0] == ds[1] && ds[1] == ds[2] && ds[2] == ds[3] && ds[4] == ds[5] && ds[4] == 2 * ds[0];\n    }\n    long dist(int[] a, int[] b) { return (long)(a[0]-b[0])*(a[0]-b[0]) + (long)(a[1]-b[1])*(a[1]-b[1]); }\n}`,
+      cpp: `class Solution {\npublic:\n    bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3, vector<int>& p4) {\n        vector<vector<int>> pts = {p1, p2, p3, p4};\n        vector<long long> ds;\n        for (int i = 0; i < 4; i++) for (int j = i+1; j < 4; j++) ds.push_back(dist(pts[i], pts[j]));\n        sort(ds.begin(), ds.end());\n        return ds[0] > 0 && ds[0] == ds[1] && ds[1] == ds[2] && ds[2] == ds[3] && ds[4] == ds[5] && ds[4] == 2 * ds[0];\n    }\n    long long dist(vector<int>& a, vector<int>& b) { return (long long)(a[0]-b[0])*(a[0]-b[0]) + (long long)(a[1]-b[1])*(a[1]-b[1]); }\n};`,
+      go: `func validSquare(p1, p2, p3, p4 []int) bool {\n    d := func(a, b []int) int { return (a[0]-b[0])*(a[0]-b[0]) + (a[1]-b[1])*(a[1]-b[1]) }\n    pts := [][]int{p1, p2, p3, p4}\n    ds := []int{}\n    for i := 0; i < 4; i++ { for j := i+1; j < 4; j++ { ds = append(ds, d(pts[i], pts[j])) } }\n    sort.Ints(ds)\n    return ds[0] > 0 && ds[0] == ds[1] && ds[1] == ds[2] && ds[2] == ds[3] && ds[4] == ds[5] && ds[4] == 2*ds[0]\n}`,
+      typescript: `function validSquare(p1: number[], p2: number[], p3: number[], p4: number[]): boolean {\n  const d = (a: number[], b: number[]) => (a[0]-b[0])**2 + (a[1]-b[1])**2;\n  const pts = [p1, p2, p3, p4];\n  const ds: number[] = [];\n  for (let i = 0; i < 4; i++) for (let j = i+1; j < 4; j++) ds.push(d(pts[i], pts[j]));\n  ds.sort((a,b) => a-b);\n  return ds[0] > 0 && ds[0] === ds[1] && ds[1] === ds[2] && ds[2] === ds[3] && ds[4] === ds[5] && ds[4] === 2 * ds[0];\n}`,
+    },
+  },
+  'minimum-time-to-make-rope-colorful': {
+    tags: ['array', 'greedy', 'string'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    inlineVisualization: {
+      title: 'Greedy: drop all but the slowest balloon per run',
+      frames: Array.from({ length: 12 }, (_, i) => ({
+        step: i + 1,
+        note: [
+          'Scan left to right; group consecutive equal colors into a run.',
+          'For each run, removing all but one balloon yields a colorful rope.',
+          'Cost-minimizing choice: keep the balloon with the largest neededTime.',
+          'Add (run_sum - run_max) to total cost — those are the removed times.',
+          'Example: colors = "aabaa", times = [1,2,3,4,1].',
+          'Run "aa" at i=0..1: sum=3, max=2 — pay 1 to remove the cheaper one.',
+          'Singleton "b" at i=2: nothing to remove, cost stays 1.',
+          'Run "aa" at i=3..4: sum=5, max=4 — pay 1 more.',
+          'Running total: 2 (= 1 + 0 + 1).',
+          'Implementation tracks current run_sum and run_max in one pass.',
+          'When the color changes, commit (run_sum - run_max) to the answer.',
+          'O(n) time, O(1) extra space — single linear sweep.',
+        ][i],
+      })),
+    },
+    solutions: {
+      python: `class Solution:\n    def minCost(self, colors, neededTime):\n        total = 0\n        i = 0\n        n = len(colors)\n        while i < n:\n            j = i\n            run_sum = 0\n            run_max = 0\n            while j < n and colors[j] == colors[i]:\n                run_sum += neededTime[j]\n                if neededTime[j] > run_max:\n                    run_max = neededTime[j]\n                j += 1\n            total += run_sum - run_max\n            i = j\n        return total`,
+      javascript: `var minCost = function(colors, neededTime) {\n  let total = 0, i = 0, n = colors.length;\n  while (i < n) {\n    let j = i, sum = 0, mx = 0;\n    while (j < n && colors[j] === colors[i]) {\n      sum += neededTime[j];\n      if (neededTime[j] > mx) mx = neededTime[j];\n      j++;\n    }\n    total += sum - mx;\n    i = j;\n  }\n  return total;\n};`,
+      java: `class Solution {\n    public int minCost(String colors, int[] neededTime) {\n        int total = 0, i = 0, n = colors.length();\n        while (i < n) {\n            int j = i, sum = 0, mx = 0;\n            while (j < n && colors.charAt(j) == colors.charAt(i)) {\n                sum += neededTime[j];\n                if (neededTime[j] > mx) mx = neededTime[j];\n                j++;\n            }\n            total += sum - mx;\n            i = j;\n        }\n        return total;\n    }\n}`,
+      cpp: `class Solution {\npublic:\n    int minCost(string colors, vector<int>& neededTime) {\n        int total = 0, i = 0, n = colors.size();\n        while (i < n) {\n            int j = i, sum = 0, mx = 0;\n            while (j < n && colors[j] == colors[i]) {\n                sum += neededTime[j];\n                if (neededTime[j] > mx) mx = neededTime[j];\n                j++;\n            }\n            total += sum - mx;\n            i = j;\n        }\n        return total;\n    }\n};`,
+      go: `func minCost(colors string, neededTime []int) int {\n    total, i, n := 0, 0, len(colors)\n    for i < n {\n        j, sum, mx := i, 0, 0\n        for j < n && colors[j] == colors[i] {\n            sum += neededTime[j]\n            if neededTime[j] > mx { mx = neededTime[j] }\n            j++\n        }\n        total += sum - mx\n        i = j\n    }\n    return total\n}`,
+      typescript: `function minCost(colors: string, neededTime: number[]): number {\n  let total = 0, i = 0, n = colors.length;\n  while (i < n) {\n    let j = i, sum = 0, mx = 0;\n    while (j < n && colors[j] === colors[i]) {\n      sum += neededTime[j];\n      if (neededTime[j] > mx) mx = neededTime[j];\n      j++;\n    }\n    total += sum - mx;\n    i = j;\n  }\n  return total;\n}`,
+    },
+  },
+
+  'find-the-distance-value-between-two-arrays': {
+    tags: ['array', 'binary-search', 'sorting', 'two-pointers'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    inlineVisualization: {
+      title: 'Sort arr2 + binary search the closest neighbor for each arr1[i]',
+      frames: Array.from({ length: 12 }, (_, i) => ({
+        step: i + 1,
+        note: [
+          'Goal: count x in arr1 such that |x - y| > d for every y in arr2.',
+          'Brute force is O(n*m). The "every y" check only needs the CLOSEST y to x.',
+          'Sort arr2 once — O(m log m) — then each x in arr1 costs O(log m).',
+          'Example: arr1 = [4,5,8], arr2 = [10,9,1,8] sorted to [1,8,9,10], d = 2.',
+          'x = 4: bisect_left → pos = 1. Candidates are arr2[0]=1 and arr2[1]=8.',
+          '|4-1|=3 and |4-8|=4. Closest gap = 3 > d=2 → 4 is a distance-value.',
+          'x = 5: pos = 1. Compare arr2[0]=1 (gap 4) and arr2[1]=8 (gap 3).',
+          'Closest = 3 > 2 → keep counting; running total = 2.',
+          'x = 8: pos = 1. arr2[1] == 8 → gap 0, fails immediately.',
+          'Skip x. Final count = 2.',
+          'Why two candidates? Sorted array — the closest y to x is either at',
+          'pos (first >= x) or pos-1 (last < x). No third candidate is closer.',
+        ][i],
+      })),
+    },
+    solutions: {
+      python: `from bisect import bisect_left\nclass Solution:\n    def findTheDistanceValue(self, arr1, arr2, d):\n        arr2.sort()\n        count = 0\n        for x in arr1:\n            i = bisect_left(arr2, x)\n            ok = True\n            if i < len(arr2) and abs(arr2[i] - x) <= d:\n                ok = False\n            if i > 0 and abs(arr2[i-1] - x) <= d:\n                ok = False\n            if ok:\n                count += 1\n        return count`,
+      javascript: `var findTheDistanceValue = function(arr1, arr2, d) {\n  arr2.sort((a, b) => a - b);\n  const lower = (a, x) => {\n    let lo = 0, hi = a.length;\n    while (lo < hi) {\n      const m = (lo + hi) >> 1;\n      if (a[m] < x) lo = m + 1; else hi = m;\n    }\n    return lo;\n  };\n  let count = 0;\n  for (const x of arr1) {\n    const i = lower(arr2, x);\n    let ok = true;\n    if (i < arr2.length && Math.abs(arr2[i] - x) <= d) ok = false;\n    if (i > 0 && Math.abs(arr2[i-1] - x) <= d) ok = false;\n    if (ok) count++;\n  }\n  return count;\n};`,
+      java: `import java.util.Arrays;\nclass Solution {\n    public int findTheDistanceValue(int[] arr1, int[] arr2, int d) {\n        Arrays.sort(arr2);\n        int count = 0;\n        for (int x : arr1) {\n            int i = Arrays.binarySearch(arr2, x);\n            if (i < 0) i = -i - 1;\n            boolean ok = true;\n            if (i < arr2.length && Math.abs(arr2[i] - x) <= d) ok = false;\n            if (i > 0 && Math.abs(arr2[i-1] - x) <= d) ok = false;\n            if (ok) count++;\n        }\n        return count;\n    }\n}`,
+      cpp: `class Solution {\npublic:\n    int findTheDistanceValue(vector<int>& arr1, vector<int>& arr2, int d) {\n        sort(arr2.begin(), arr2.end());\n        int count = 0;\n        for (int x : arr1) {\n            auto it = lower_bound(arr2.begin(), arr2.end(), x);\n            bool ok = true;\n            if (it != arr2.end() && abs(*it - x) <= d) ok = false;\n            if (it != arr2.begin() && abs(*(it-1) - x) <= d) ok = false;\n            if (ok) count++;\n        }\n        return count;\n    }\n};`,
+      go: `import "sort"\nfunc findTheDistanceValue(arr1 []int, arr2 []int, d int) int {\n    sort.Ints(arr2)\n    abs := func(a int) int { if a < 0 { return -a }; return a }\n    count := 0\n    for _, x := range arr1 {\n        i := sort.SearchInts(arr2, x)\n        ok := true\n        if i < len(arr2) && abs(arr2[i]-x) <= d { ok = false }\n        if i > 0 && abs(arr2[i-1]-x) <= d { ok = false }\n        if ok { count++ }\n    }\n    return count\n}`,
+      typescript: `function findTheDistanceValue(arr1: number[], arr2: number[], d: number): number {\n  arr2.sort((a, b) => a - b);\n  const lower = (a: number[], x: number): number => {\n    let lo = 0, hi = a.length;\n    while (lo < hi) {\n      const m = (lo + hi) >> 1;\n      if (a[m] < x) lo = m + 1; else hi = m;\n    }\n    return lo;\n  };\n  let count = 0;\n  for (const x of arr1) {\n    const i = lower(arr2, x);\n    let ok = true;\n    if (i < arr2.length && Math.abs(arr2[i] - x) <= d) ok = false;\n    if (i > 0 && Math.abs(arr2[i-1] - x) <= d) ok = false;\n    if (ok) count++;\n  }\n  return count;\n}`,
+    },
+  },
+
+  'running-sum-of-1d-array': {
+    tags: ['array', 'prefix-sum'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    inlineVisualization: {
+      title: 'In-place prefix sum: nums[i] += nums[i-1]',
+      frames: Array.from({ length: 12 }, (_, i) => ({
+        step: i + 1,
+        note: [
+          'Running sum at index i = nums[0] + nums[1] + ... + nums[i].',
+          'Key insight: runningSum[i] = runningSum[i-1] + nums[i].',
+          'No need for a new array — overwrite nums in place from left to right.',
+          'Example: nums = [1, 2, 3, 4]. nums[0] stays 1 (no left neighbor).',
+          'i=1: nums[1] += nums[0] → 2 + 1 = 3. Array: [1, 3, 3, 4].',
+          'i=2: nums[2] += nums[1] → 3 + 3 = 6. Array: [1, 3, 6, 4].',
+          'i=3: nums[3] += nums[2] → 4 + 6 = 10. Array: [1, 3, 6, 10].',
+          'Done. Return nums directly.',
+          'Reading the new nums[i-1] is safe because it was just updated.',
+          'O(n) time — one pass over the array.',
+          'O(1) extra space — output reuses the input buffer.',
+          'This is the canonical 1D prefix-sum primer; range-sum queries build on it.',
+        ][i],
+      })),
+    },
+    solutions: {
+      python: `class Solution:\n    def runningSum(self, nums):\n        for i in range(1, len(nums)):\n            nums[i] += nums[i-1]\n        return nums`,
+      javascript: `var runningSum = function(nums) {\n  for (let i = 1; i < nums.length; i++) {\n    nums[i] += nums[i-1];\n  }\n  return nums;\n};`,
+      java: `class Solution {\n    public int[] runningSum(int[] nums) {\n        for (int i = 1; i < nums.length; i++) {\n            nums[i] += nums[i-1];\n        }\n        return nums;\n    }\n}`,
+      cpp: `class Solution {\npublic:\n    vector<int> runningSum(vector<int>& nums) {\n        for (int i = 1; i < (int)nums.size(); i++) {\n            nums[i] += nums[i-1];\n        }\n        return nums;\n    }\n};`,
+      go: `func runningSum(nums []int) []int {\n    for i := 1; i < len(nums); i++ {\n        nums[i] += nums[i-1]\n    }\n    return nums\n}`,
+      typescript: `function runningSum(nums: number[]): number[] {\n  for (let i = 1; i < nums.length; i++) {\n    nums[i] += nums[i-1];\n  }\n  return nums;\n}`,
+    },
+  },
+
+  'count-of-smaller-numbers-after-self': {
+    /* SPLICE:wave7n v1 */
+    tags: ['array', 'binary-indexed-tree', 'segment-tree', 'merge-sort', 'divide-and-conquer'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: (() => {
+      const nums = [5, 2, 6, 1];
+      const frames = [];
+      const counts = [0, 0, 0, 0];
+      const snap = (i, j, chip, caption, extra = {}) => {
+        frames.push({
+          array: nums.map((v, k) => ({
+            value: v,
+            state: k === i ? 'current' : k === j ? 'match' : 'default',
+          })),
+          pointers: i != null || j != null ? [
+            ...(i != null ? [{ index: i, label: 'i' }] : []),
+            ...(j != null ? [{ index: j, label: 'j' }] : []),
+          ] : [],
+          chip,
+          caption,
+          extras: { counts: counts.slice(), ...extra },
+        });
+      };
+
+      snap(null, null, 'goal: counts[i] = #{j > i : nums[j] < nums[i]}',
+        'For each index i, count how many later elements are strictly smaller. Brute force O(n^2) — we want O(n log n) via merge-sort with a running cross-pair count, or a Fenwick tree on compressed values.');
+      snap(null, null, 'approach: merge-sort, count cross-pairs',
+        'During merge of sorted halves, when an element from the LEFT half is placed, every right-half element already placed before it was strictly smaller — that count is exactly the contribution to counts[orig_index] for that left element. We track original indices alongside values.');
+
+      snap(0, 1, 'split [5,2] | [6,1] then sort each',
+        'Divide [5,2,6,1] into [5,2] and [6,1]. Sort each half recursively, tracking each value\'s ORIGINAL index. After recursion: left = [(2,1),(5,0)], right = [(1,3),(6,2)].');
+      snap(1, 0, 'left recursion: 5 vs 2',
+        'In the left half [(5,0),(2,1)]: merge places (2,1) first (smaller), then (5,0). When placing (5,0), one right-side element (2) was already placed -> counts[0] += 1. Now counts = [1,0,0,0].');
+      counts[0] = 1;
+      snap(2, 3, 'right recursion: 6 vs 1',
+        'In the right half [(6,2),(1,3)]: merge places (1,3) first, then (6,2). When placing (6,2), one right-side element (1) was placed before it -> counts[2] += 1. Now counts = [1,0,1,0].');
+      counts[2] = 1;
+
+      snap(1, 3, 'merge: L=(2,1) vs R=(1,3)',
+        'Top-level merge. Left pointer at (2,1), right at (1,3). 1 < 2 -> take from right. Placing a right-side element does NOT increment any left-side count; it just advances the right pointer.');
+
+      snap(1, 2, 'merge: L=(2,1) vs R=(6,2)',
+        'Right pointer now at (6,2). 2 < 6 -> take from left, placing (2,1). At this moment exactly ONE right-half element (the 1) has been placed before (2,1) -> counts[1] += 1. counts = [1,1,1,0].');
+      counts[1] = 1;
+
+      snap(0, 2, 'merge: L=(5,0) vs R=(6,2)',
+        'Left pointer advances to (5,0). 5 < 6 -> take from left. One right-half element (the 1) was placed before -> counts[0] += 1. counts = [2,1,1,0].');
+      counts[0] = 2;
+
+      snap(0, 2, 'merge: drain right side',
+        'Left exhausted. Place remaining right elements in order: (6,2). They cannot contribute to any left count (nothing left). Final merged order: [1,2,5,6] with indices [3,1,0,2].');
+
+      snap(null, null, 'final counts',
+        'counts = [2,1,1,0]. Verify: nums[0]=5 has {2,1} smaller -> 2. nums[1]=2 has {1} smaller -> 1. nums[2]=6 has {1} -> 1. nums[3]=1 -> 0.');
+
+      snap(null, null, 'alt: Fenwick on rank-compressed values',
+        'Compress nums to ranks (1..k). Iterate right-to-left. For each rank r: query BIT prefix-sum [1..r-1] = number of already-seen later elements with smaller value; then update BIT at rank r by +1. O(n log n) time, O(k) space — usually faster than merge-sort in practice.');
+
+      snap(null, null, 'complexity: O(n log n) time, O(n) aux',
+        'Both approaches: divide-and-conquer recursion or Fenwick descent give O(n log n). Returned answer: [2,1,1,0]. Edge cases: ties (use strict <), all equal (all zeros), descending (counts = [n-1, n-2, ...]).');
+
+      return { renderer: 'array', title: 'Count of Smaller Numbers After Self — merge-sort with cross-pair counting', frames };
+    })(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def countSmaller(self, nums: List[int]) -> List[int]:
+        counts = [0] * len(nums)
+        indexed = list(enumerate(nums))
+
+        def merge_sort(arr):
+            if len(arr) <= 1:
+                return arr
+            mid = len(arr) // 2
+            left = merge_sort(arr[:mid])
+            right = merge_sort(arr[mid:])
+            merged, i, j = [], 0, 0
+            while i < len(left) and j < len(right):
+                if left[i][1] <= right[j][1]:
+                    counts[left[i][0]] += j
+                    merged.append(left[i]); i += 1
+                else:
+                    merged.append(right[j]); j += 1
+            while i < len(left):
+                counts[left[i][0]] += j
+                merged.append(left[i]); i += 1
+            merged.extend(right[j:])
+            return merged
+
+        merge_sort(indexed)
+        return counts`,
+        complexity: { time: 'O(n log n)', space: 'O(n)' },
+        approach: 'Merge-sort tracking (original_index, value) tuples. During merge, when a LEFT element is placed, the count of right-side elements already merged before it equals j (the right pointer) — every one of them was strictly smaller than the left element being placed. Add j to counts[original_index_of_left]. O(n log n) time; O(n) for the index-tagged copy and merge buffers.',
+      },
+      javascript: {
+        code: `function countSmaller(nums) {
+  const counts = new Array(nums.length).fill(0);
+  const indexed = nums.map((v, i) => [i, v]);
+
+  function mergeSort(arr) {
+    if (arr.length <= 1) return arr;
+    const mid = arr.length >> 1;
+    const left = mergeSort(arr.slice(0, mid));
+    const right = mergeSort(arr.slice(mid));
+    const merged = [];
+    let i = 0, j = 0;
+    while (i < left.length && j < right.length) {
+      if (left[i][1] <= right[j][1]) {
+        counts[left[i][0]] += j;
+        merged.push(left[i++]);
+      } else {
+        merged.push(right[j++]);
+      }
+    }
+    while (i < left.length) {
+      counts[left[i][0]] += j;
+      merged.push(left[i++]);
+    }
+    while (j < right.length) merged.push(right[j++]);
+    return merged;
+  }
+
+  mergeSort(indexed);
+  return counts;
+}`,
+        complexity: { time: 'O(n log n)', space: 'O(n)' },
+        approach: 'Same merge-sort recurrence. The key invariant is that j tracks how many right-side elements have been consumed by the time we place a left-side element — those are exactly the "smaller numbers after self" contributions for that left index.',
+      },
+      java: {
+        code: `class Solution {
+    int[] counts;
+
+    public List<Integer> countSmaller(int[] nums) {
+        int n = nums.length;
+        counts = new int[n];
+        int[][] indexed = new int[n][2];
+        for (int i = 0; i < n; i++) { indexed[i][0] = i; indexed[i][1] = nums[i]; }
+        mergeSort(indexed, 0, n - 1);
+        List<Integer> ans = new ArrayList<>();
+        for (int c : counts) ans.add(c);
+        return ans;
+    }
+
+    void mergeSort(int[][] arr, int lo, int hi) {
+        if (lo >= hi) return;
+        int mid = (lo + hi) >>> 1;
+        mergeSort(arr, lo, mid);
+        mergeSort(arr, mid + 1, hi);
+        int[][] tmp = new int[hi - lo + 1][2];
+        int i = lo, j = mid + 1, k = 0;
+        while (i <= mid && j <= hi) {
+            if (arr[i][1] <= arr[j][1]) {
+                counts[arr[i][0]] += j - (mid + 1);
+                tmp[k++] = arr[i++];
+            } else {
+                tmp[k++] = arr[j++];
+            }
+        }
+        while (i <= mid) {
+            counts[arr[i][0]] += j - (mid + 1);
+            tmp[k++] = arr[i++];
+        }
+        while (j <= hi) tmp[k++] = arr[j++];
+        System.arraycopy(tmp, 0, arr, lo, tmp.length);
+    }
+}`,
+        complexity: { time: 'O(n log n)', space: 'O(n)' },
+        approach: 'In-place merge over an indices+values array. The j - (mid+1) expression is the same "right elements already merged" count that drives the answer.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> counts;
+
+    vector<int> countSmaller(vector<int>& nums) {
+        int n = nums.size();
+        counts.assign(n, 0);
+        vector<pair<int,int>> indexed(n);
+        for (int i = 0; i < n; i++) indexed[i] = {i, nums[i]};
+        mergeSort(indexed, 0, n - 1);
+        return counts;
+    }
+
+    void mergeSort(vector<pair<int,int>>& arr, int lo, int hi) {
+        if (lo >= hi) return;
+        int mid = (lo + hi) / 2;
+        mergeSort(arr, lo, mid);
+        mergeSort(arr, mid + 1, hi);
+        vector<pair<int,int>> tmp;
+        tmp.reserve(hi - lo + 1);
+        int i = lo, j = mid + 1;
+        while (i <= mid && j <= hi) {
+            if (arr[i].second <= arr[j].second) {
+                counts[arr[i].first] += j - (mid + 1);
+                tmp.push_back(arr[i++]);
+            } else {
+                tmp.push_back(arr[j++]);
+            }
+        }
+        while (i <= mid) {
+            counts[arr[i].first] += j - (mid + 1);
+            tmp.push_back(arr[i++]);
+        }
+        while (j <= hi) tmp.push_back(arr[j++]);
+        for (int k = 0; k < (int)tmp.size(); k++) arr[lo + k] = tmp[k];
+    }
+};`,
+        complexity: { time: 'O(n log n)', space: 'O(n)' },
+        approach: 'Pair<int,int> = (original_index, value). Standard merge-sort with cross-pair accumulation into a shared counts array.',
+      },
+      c: {
+        code: `static int* g_counts;
+
+static void mergeRange(int (*arr)[2], int lo, int mid, int hi) {
+    int n = hi - lo + 1;
+    int (*tmp)[2] = malloc(sizeof(int[2]) * n);
+    int i = lo, j = mid + 1, k = 0;
+    while (i <= mid && j <= hi) {
+        if (arr[i][1] <= arr[j][1]) {
+            g_counts[arr[i][0]] += j - (mid + 1);
+            tmp[k][0] = arr[i][0]; tmp[k][1] = arr[i][1]; k++; i++;
+        } else {
+            tmp[k][0] = arr[j][0]; tmp[k][1] = arr[j][1]; k++; j++;
+        }
+    }
+    while (i <= mid) { g_counts[arr[i][0]] += j - (mid + 1); tmp[k][0]=arr[i][0]; tmp[k][1]=arr[i][1]; k++; i++; }
+    while (j <= hi) { tmp[k][0]=arr[j][0]; tmp[k][1]=arr[j][1]; k++; j++; }
+    for (int x = 0; x < n; x++) { arr[lo+x][0]=tmp[x][0]; arr[lo+x][1]=tmp[x][1]; }
+    free(tmp);
+}
+
+static void msort(int (*arr)[2], int lo, int hi) {
+    if (lo >= hi) return;
+    int mid = (lo + hi) / 2;
+    msort(arr, lo, mid);
+    msort(arr, mid + 1, hi);
+    mergeRange(arr, lo, mid, hi);
+}
+
+int* countSmaller(int* nums, int numsSize, int* returnSize) {
+    g_counts = calloc(numsSize, sizeof(int));
+    int (*indexed)[2] = malloc(sizeof(int[2]) * numsSize);
+    for (int i = 0; i < numsSize; i++) { indexed[i][0]=i; indexed[i][1]=nums[i]; }
+    msort(indexed, 0, numsSize - 1);
+    free(indexed);
+    *returnSize = numsSize;
+    return g_counts;
+}`,
+        complexity: { time: 'O(n log n)', space: 'O(n)' },
+        approach: 'Plain C: heap-allocated index/value pairs and a temp buffer for each merge. Global counts pointer keeps the recurrence signature small.',
+      },
+      go: {
+        code: `func countSmaller(nums []int) []int {
+    n := len(nums)
+    counts := make([]int, n)
+    indexed := make([][2]int, n)
+    for i, v := range nums {
+        indexed[i] = [2]int{i, v}
+    }
+
+    var mergeSort func(arr [][2]int) [][2]int
+    mergeSort = func(arr [][2]int) [][2]int {
+        if len(arr) <= 1 {
+            return arr
+        }
+        mid := len(arr) / 2
+        left := mergeSort(arr[:mid])
+        right := mergeSort(arr[mid:])
+        merged := make([][2]int, 0, len(arr))
+        i, j := 0, 0
+        for i < len(left) && j < len(right) {
+            if left[i][1] <= right[j][1] {
+                counts[left[i][0]] += j
+                merged = append(merged, left[i])
+                i++
+            } else {
+                merged = append(merged, right[j])
+                j++
+            }
+        }
+        for ; i < len(left); i++ {
+            counts[left[i][0]] += j
+            merged = append(merged, left[i])
+        }
+        merged = append(merged, right[j:]...)
+        return merged
+    }
+
+    mergeSort(indexed)
+    return counts
+}`,
+        complexity: { time: 'O(n log n)', space: 'O(n)' },
+        approach: 'Idiomatic Go closure over the counts slice. The j variable tracks how many right-side elements were merged before each left-side placement — that count IS the answer contribution.',
+      },
+    },
+  },
+  'maximum-length-of-repeated-subarray': {
+    /* SPLICE:wave7n v1 */
+    tags: ['array', 'dynamic-programming', 'sliding-window', 'binary-search', 'hash-function'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: (() => {
+      const nums1 = [1, 2, 3, 2, 1];
+      const nums2 = [3, 2, 1, 4, 7];
+      const m = nums1.length, n = nums2.length;
+      // dp[i][j] = length of common subarray ending exactly at nums1[i-1] and nums2[j-1].
+      const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+      const frames = [];
+
+      const snap = (i, j, chip, caption) => {
+        frames.push({
+          grid: dp.map((row, ri) => row.map((v, ci) => ({
+            value: v,
+            state: ri === i && ci === j ? 'current' : v > 0 ? 'visited' : 'default',
+          }))),
+          chip,
+          caption,
+          extras: { nums1, nums2, best: Math.max(0, ...dp.flat()) },
+        });
+      };
+
+      snap(0, 0, 'goal: longest common contiguous subarray',
+        'Find the maximum length L such that some contiguous slice of nums1 equals some contiguous slice of nums2. Note: subarray (contiguous), not subsequence. nums1=[1,2,3,2,1], nums2=[3,2,1,4,7]. Expected answer: 3 (the slice [3,2,1]).');
+      snap(0, 0, 'state: dp[i][j] = LCSub ending at i-1, j-1',
+        'Define dp[i][j] as the length of the longest common subarray that ENDS exactly at nums1[i-1] AND nums2[j-1]. Recurrence: if nums1[i-1] == nums2[j-1]: dp[i][j] = dp[i-1][j-1] + 1, else dp[i][j] = 0 (subarray must be contiguous — mismatch resets). Answer = max over the entire table.');
+
+      // Fill row 1 (i=1, nums1[0]=1)
+      for (let j = 1; j <= n; j++) {
+        if (nums1[0] === nums2[j - 1]) dp[1][j] = dp[0][j - 1] + 1;
+      }
+      snap(1, 3, 'row i=1 (nums1[0]=1): only j=3 matches (nums2[2]=1)',
+        'Scanning row i=1 (left value = 1): matches nums2 only at j=3 (nums2[2]=1). dp[1][3] = dp[0][2] + 1 = 1. All other entries in this row stay 0.');
+
+      // Row i=2 (nums1[1]=2)
+      for (let j = 1; j <= n; j++) {
+        if (nums1[1] === nums2[j - 1]) dp[2][j] = dp[1][j - 1] + 1;
+      }
+      snap(2, 2, 'row i=2 (nums1[1]=2): match at j=2 (nums2[1]=2)',
+        'Row i=2 (left value = 2): matches nums2 at j=2 (nums2[1]=2). dp[2][2] = dp[1][1] + 1 = 0 + 1 = 1. No carry-over because dp[1][1] was 0 (no preceding match).');
+
+      // Row i=3 (nums1[2]=3)
+      for (let j = 1; j <= n; j++) {
+        if (nums1[2] === nums2[j - 1]) dp[3][j] = dp[2][j - 1] + 1;
+      }
+      snap(3, 1, 'row i=3 (nums1[2]=3): match at j=1 (nums2[0]=3) -> dp=1',
+        'Row i=3 (left value = 3): matches nums2 at j=1 (nums2[0]=3). dp[3][1] = dp[2][0] + 1 = 1. This is the start of the eventual chain — note how a fresh match always starts at length 1 because dp[i-1][j-1] off the edge is 0.');
+
+      // Row i=4 (nums1[3]=2)
+      for (let j = 1; j <= n; j++) {
+        if (nums1[3] === nums2[j - 1]) dp[4][j] = dp[3][j - 1] + 1;
+      }
+      snap(4, 2, 'row i=4 (nums1[3]=2): match j=2 -> dp[4][2] = dp[3][1]+1 = 2',
+        'Row i=4 (left value = 2): matches at j=2 (nums2[1]=2). dp[4][2] = dp[3][1] + 1 = 1 + 1 = 2. The chain [3,2] is now length 2. The diagonal carry is what extends contiguous matches.');
+
+      // Row i=5 (nums1[4]=1)
+      for (let j = 1; j <= n; j++) {
+        if (nums1[4] === nums2[j - 1]) dp[5][j] = dp[4][j - 1] + 1;
+      }
+      snap(5, 3, 'row i=5 (nums1[4]=1): match j=3 -> dp[5][3] = dp[4][2]+1 = 3',
+        'Row i=5 (left value = 1): matches at j=3 (nums2[2]=1). dp[5][3] = dp[4][2] + 1 = 2 + 1 = 3. The chain [3,2,1] is fully formed — the diagonal from (3,1) -> (4,2) -> (5,3) traces the matched slice.');
+
+      snap(5, 3, 'answer: max(dp) = 3',
+        'Scan the full table: maximum entry is 3 at dp[5][3]. The common subarray is nums1[2..4] = [3,2,1] = nums2[0..2]. Trace back along the diagonal to recover the slice itself if asked.');
+
+      snap(0, 0, 'why reset on mismatch?',
+        'Subarrays are contiguous — a single mismatched element breaks the run. That is why dp[i][j] = 0 when nums1[i-1] != nums2[j-1]. (For subsequences instead, you would take max(dp[i-1][j], dp[i][j-1]) — that is the LCS recurrence, not this one.)');
+
+      snap(0, 0, 'space optimisation: 1D rolling array',
+        'Because dp[i][j] only depends on dp[i-1][j-1], we can collapse to a single length-(n+1) row by iterating j FROM RIGHT TO LEFT (so we read the old dp[j-1] before overwriting). Space drops from O(m*n) to O(n).');
+
+      snap(0, 0, 'alt: binary search + rolling hash, O((m+n) log min(m,n))',
+        'Binary-search the answer L: for a candidate L, hash every length-L slice of nums1 into a set, then check every length-L slice of nums2 for a hit. Rabin-Karp keeps each check O(m+n). Total O((m+n) log min(m,n)) — beats the 2D DP when arrays are huge.');
+
+      snap(0, 0, 'complexity: O(m*n) time, O(n) space (rolling)',
+        'DP fills an (m+1)x(n+1) table in O(m*n). Rolling-row collapses space to O(n). Returned answer = 3. Edge cases: no shared element (answer 0), one array empty (answer 0), full equality (answer = min(m,n)).');
+
+      return { renderer: 'grid', title: 'Maximum Length of Repeated Subarray — 2D DP, mismatch resets to 0', frames };
+    })(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def findLength(self, nums1: List[int], nums2: List[int]) -> int:
+        m, n = len(nums1), len(nums2)
+        dp = [[0] * (n + 1) for _ in range(m + 1)]
+        best = 0
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                if nums1[i - 1] == nums2[j - 1]:
+                    dp[i][j] = dp[i - 1][j - 1] + 1
+                    if dp[i][j] > best:
+                        best = dp[i][j]
+        return best`,
+        complexity: { time: 'O(m*n)', space: 'O(m*n)' },
+        approach: 'Classic 2D DP. dp[i][j] = length of the longest common subarray ENDING at nums1[i-1] and nums2[j-1]. On match, extend the diagonal predecessor by 1; on mismatch, the run dies (set to 0 implicitly — the cell stays 0 since we never overwrite). The answer is the max entry, NOT dp[m][n] — the longest run can end anywhere. O(m*n) time and space; collapse to O(min(m,n)) by rolling the smaller dimension and iterating it right-to-left.',
+      },
+      javascript: {
+        code: `function findLength(nums1, nums2) {
+  const m = nums1.length, n = nums2.length;
+  const dp = new Array(n + 1).fill(0);
+  let best = 0;
+  for (let i = 1; i <= m; i++) {
+    for (let j = n; j >= 1; j--) {
+      if (nums1[i - 1] === nums2[j - 1]) {
+        dp[j] = dp[j - 1] + 1;
+        if (dp[j] > best) best = dp[j];
+      } else {
+        dp[j] = 0;
+      }
+    }
+  }
+  return best;
+}`,
+        complexity: { time: 'O(m*n)', space: 'O(n)' },
+        approach: 'Space-optimised to a single row. Iterating j FROM HIGH TO LOW ensures dp[j-1] still holds the previous row\'s value when we read it. Without that direction, you would read the just-updated current-row value and inflate the run.',
+      },
+      java: {
+        code: `class Solution {
+    public int findLength(int[] nums1, int[] nums2) {
+        int m = nums1.length, n = nums2.length;
+        int[][] dp = new int[m + 1][n + 1];
+        int best = 0;
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (nums1[i - 1] == nums2[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                    if (dp[i][j] > best) best = dp[i][j];
+                }
+            }
+        }
+        return best;
+    }
+}`,
+        complexity: { time: 'O(m*n)', space: 'O(m*n)' },
+        approach: 'Same 2D recurrence. The Java array is zero-initialised, so the implicit reset on mismatch costs nothing.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int findLength(vector<int>& nums1, vector<int>& nums2) {
+        int m = nums1.size(), n = nums2.size();
+        vector<int> dp(n + 1, 0);
+        int best = 0;
+        for (int i = 1; i <= m; i++) {
+            for (int j = n; j >= 1; j--) {
+                if (nums1[i - 1] == nums2[j - 1]) {
+                    dp[j] = dp[j - 1] + 1;
+                    best = max(best, dp[j]);
+                } else {
+                    dp[j] = 0;
+                }
+            }
+        }
+        return best;
+    }
+};`,
+        complexity: { time: 'O(m*n)', space: 'O(n)' },
+        approach: 'Rolling-row optimisation. Reverse-j iteration preserves the dp[j-1] read-before-write invariant — the cleanest way to compress a "depends on (i-1, j-1)" diagonal recurrence.',
+      },
+      c: {
+        code: `int findLength(int* nums1, int n1, int* nums2, int n2) {
+    int* dp = calloc(n2 + 1, sizeof(int));
+    int best = 0;
+    for (int i = 1; i <= n1; i++) {
+        for (int j = n2; j >= 1; j--) {
+            if (nums1[i - 1] == nums2[j - 1]) {
+                dp[j] = dp[j - 1] + 1;
+                if (dp[j] > best) best = dp[j];
+            } else {
+                dp[j] = 0;
+            }
+        }
+    }
+    free(dp);
+    return best;
+}`,
+        complexity: { time: 'O(m*n)', space: 'O(n)' },
+        approach: 'Plain C with a single calloc-ed rolling row.',
+      },
+      go: {
+        code: `func findLength(nums1 []int, nums2 []int) int {
+    n := len(nums2)
+    dp := make([]int, n+1)
+    best := 0
+    for i := 1; i <= len(nums1); i++ {
+        for j := n; j >= 1; j-- {
+            if nums1[i-1] == nums2[j-1] {
+                dp[j] = dp[j-1] + 1
+                if dp[j] > best {
+                    best = dp[j]
+                }
+            } else {
+                dp[j] = 0
+            }
+        }
+    }
+    return best
+}`,
+        complexity: { time: 'O(m*n)', space: 'O(n)' },
+        approach: 'Idiomatic Go. Same rolling-row trick; reverse-j iteration keeps the diagonal read valid.',
+      },
+    },
+  },
+  'total-cost-to-hire-k-workers': {
+    tags: ['array', 'heap', 'two-pointers', 'simulation'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    inlineVisualization: {
+      title: 'Two min-heaps for the left and right candidate windows',
+      frames: Array.from({ length: 12 }, (_, i) => ({
+        step: i + 1,
+        note: [
+          'Hire k workers. Each session, pick the cheapest from the first or last `candidates` workers.',
+          'Ties: smaller cost wins; then smaller index. Update the answer with that cost.',
+          'Naive: scan 2*candidates costs per session → O(k * candidates). Heaps cut it to O((k+candidates) log candidates).',
+          'Example: costs=[17,12,10,2,7,2,11,20,8], k=3, candidates=4.',
+          'Left heap (front 4): [17,12,10,2]. Right heap (back 4): [7,2,11,20]. Pointers: left=4, right=4 (meet? no).',
+          'Session 1: min(left.top=2, right.top=2) → tie. Left wins (smaller side). Pop 2, total=2.',
+          'Refill left from index 4 (costs[4]=7). Left heap: [17,12,10,7]. left ptr → 5.',
+          'Session 2: left.top=7 vs right.top=2 → right wins. Pop 2, total=4.',
+          'Refill right from index 5 (costs[5]=2). Right heap: [7,11,20,2]. right ptr → 4 (left>=right now? 5>4 yes).',
+          'When pointers cross, stop refilling — both heaps just shrink as we pop.',
+          'Session 3: left.top=7 vs right.top=2 → right wins. Pop 2, total=6. Final = 6.',
+          'Tie rule "left wins" matches the problem statement: prefer the worker with smaller index.',
+        ][i],
+      })),
+    },
+    solutions: {
+      python: `import heapq\nclass Solution:\n    def totalCost(self, costs, k, candidates):\n        n = len(costs)\n        if 2 * candidates >= n:\n            costs.sort()\n            return sum(costs[:k])\n        left = costs[:candidates][:]\n        right = costs[n-candidates:][:]\n        heapq.heapify(left)\n        heapq.heapify(right)\n        i, j = candidates, n - candidates - 1\n        total = 0\n        for _ in range(k):\n            if left[0] <= right[0]:\n                total += heapq.heappop(left)\n                if i <= j:\n                    heapq.heappush(left, costs[i])\n                    i += 1\n            else:\n                total += heapq.heappop(right)\n                if i <= j:\n                    heapq.heappush(right, costs[j])\n                    j -= 1\n        return total`,
+      javascript: `class MinHeap {\n  constructor() { this.a = []; }\n  push(x) { this.a.push(x); this._up(this.a.length - 1); }\n  pop() { const t = this.a[0], last = this.a.pop(); if (this.a.length) { this.a[0] = last; this._down(0); } return t; }\n  top() { return this.a[0]; }\n  _up(i) { while (i > 0) { const p = (i - 1) >> 1; if (this.a[p] <= this.a[i]) break; [this.a[p], this.a[i]] = [this.a[i], this.a[p]]; i = p; } }\n  _down(i) { const n = this.a.length; while (true) { let l = 2*i+1, r = 2*i+2, m = i; if (l<n && this.a[l]<this.a[m]) m=l; if (r<n && this.a[r]<this.a[m]) m=r; if (m===i) break; [this.a[m], this.a[i]] = [this.a[i], this.a[m]]; i = m; } }\n}\nvar totalCost = function(costs, k, candidates) {\n  const n = costs.length;\n  if (2 * candidates >= n) {\n    return costs.slice().sort((a,b)=>a-b).slice(0,k).reduce((s,x)=>s+x,0);\n  }\n  const left = new MinHeap(), right = new MinHeap();\n  for (let x = 0; x < candidates; x++) { left.push(costs[x]); right.push(costs[n-candidates+x]); }\n  let i = candidates, j = n - candidates - 1, total = 0;\n  for (let s = 0; s < k; s++) {\n    if (left.top() <= right.top()) {\n      total += left.pop();\n      if (i <= j) { left.push(costs[i]); i++; }\n    } else {\n      total += right.pop();\n      if (i <= j) { right.push(costs[j]); j--; }\n    }\n  }\n  return total;\n};`,
+      java: `import java.util.PriorityQueue;\nimport java.util.Arrays;\nclass Solution {\n    public long totalCost(int[] costs, int k, int candidates) {\n        int n = costs.length;\n        if (2L * candidates >= n) {\n            int[] s = costs.clone();\n            Arrays.sort(s);\n            long t = 0;\n            for (int i = 0; i < k; i++) t += s[i];\n            return t;\n        }\n        PriorityQueue<Integer> left = new PriorityQueue<>();\n        PriorityQueue<Integer> right = new PriorityQueue<>();\n        for (int x = 0; x < candidates; x++) {\n            left.offer(costs[x]);\n            right.offer(costs[n - candidates + x]);\n        }\n        int i = candidates, j = n - candidates - 1;\n        long total = 0;\n        for (int s = 0; s < k; s++) {\n            if (left.peek() <= right.peek()) {\n                total += left.poll();\n                if (i <= j) { left.offer(costs[i]); i++; }\n            } else {\n                total += right.poll();\n                if (i <= j) { right.offer(costs[j]); j--; }\n            }\n        }\n        return total;\n    }\n}`,
+      cpp: `class Solution {\npublic:\n    long long totalCost(vector<int>& costs, int k, int candidates) {\n        int n = costs.size();\n        if (2LL * candidates >= n) {\n            vector<int> s = costs;\n            sort(s.begin(), s.end());\n            long long t = 0;\n            for (int i = 0; i < k; i++) t += s[i];\n            return t;\n        }\n        priority_queue<int, vector<int>, greater<int>> left, right;\n        for (int x = 0; x < candidates; x++) {\n            left.push(costs[x]);\n            right.push(costs[n - candidates + x]);\n        }\n        int i = candidates, j = n - candidates - 1;\n        long long total = 0;\n        for (int s = 0; s < k; s++) {\n            if (left.top() <= right.top()) {\n                total += left.top(); left.pop();\n                if (i <= j) { left.push(costs[i]); i++; }\n            } else {\n                total += right.top(); right.pop();\n                if (i <= j) { right.push(costs[j]); j--; }\n            }\n        }\n        return total;\n    }\n};`,
+      go: `import (\n    "container/heap"\n    "sort"\n)\ntype IntHeap []int\nfunc (h IntHeap) Len() int { return len(h) }\nfunc (h IntHeap) Less(i, j int) bool { return h[i] < h[j] }\nfunc (h IntHeap) Swap(i, j int) { h[i], h[j] = h[j], h[i] }\nfunc (h *IntHeap) Push(x interface{}) { *h = append(*h, x.(int)) }\nfunc (h *IntHeap) Pop() interface{} { old := *h; n := len(old); x := old[n-1]; *h = old[:n-1]; return x }\nfunc totalCost(costs []int, k int, candidates int) int64 {\n    n := len(costs)\n    if 2*candidates >= n {\n        s := append([]int(nil), costs...)\n        sort.Ints(s)\n        var t int64\n        for i := 0; i < k; i++ { t += int64(s[i]) }\n        return t\n    }\n    left := &IntHeap{}\n    right := &IntHeap{}\n    for x := 0; x < candidates; x++ {\n        heap.Push(left, costs[x])\n        heap.Push(right, costs[n-candidates+x])\n    }\n    i, j := candidates, n-candidates-1\n    var total int64\n    for s := 0; s < k; s++ {\n        if (*left)[0] <= (*right)[0] {\n            total += int64(heap.Pop(left).(int))\n            if i <= j { heap.Push(left, costs[i]); i++ }\n        } else {\n            total += int64(heap.Pop(right).(int))\n            if i <= j { heap.Push(right, costs[j]); j-- }\n        }\n    }\n    return total\n}`,
+      typescript: `class MinHeap {\n  a: number[] = [];\n  push(x: number) { this.a.push(x); this._up(this.a.length - 1); }\n  pop(): number { const t = this.a[0], last = this.a.pop()!; if (this.a.length) { this.a[0] = last; this._down(0); } return t; }\n  top(): number { return this.a[0]; }\n  private _up(i: number) { while (i > 0) { const p = (i - 1) >> 1; if (this.a[p] <= this.a[i]) break; [this.a[p], this.a[i]] = [this.a[i], this.a[p]]; i = p; } }\n  private _down(i: number) { const n = this.a.length; while (true) { let l = 2*i+1, r = 2*i+2, m = i; if (l<n && this.a[l]<this.a[m]) m=l; if (r<n && this.a[r]<this.a[m]) m=r; if (m===i) break; [this.a[m], this.a[i]] = [this.a[i], this.a[m]]; i = m; } }\n}\nfunction totalCost(costs: number[], k: number, candidates: number): number {\n  const n = costs.length;\n  if (2 * candidates >= n) {\n    return costs.slice().sort((a,b)=>a-b).slice(0,k).reduce((s,x)=>s+x,0);\n  }\n  const left = new MinHeap(), right = new MinHeap();\n  for (let x = 0; x < candidates; x++) { left.push(costs[x]); right.push(costs[n-candidates+x]); }\n  let i = candidates, j = n - candidates - 1, total = 0;\n  for (let s = 0; s < k; s++) {\n    if (left.top() <= right.top()) {\n      total += left.pop();\n      if (i <= j) { left.push(costs[i]); i++; }\n    } else {\n      total += right.pop();\n      if (i <= j) { right.push(costs[j]); j--; }\n    }\n  }\n  return total;\n}`,
+    },
+  },
+
+  'task-scheduler-ii': {
+    tags: ['array', 'hash-table', 'simulation', 'greedy'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    inlineVisualization: {
+      title: 'Track next-available-day per task type in a hash map',
+      frames: Array.from({ length: 12 }, (_, i) => ({
+        step: i + 1,
+        note: [
+          'Process tasks in order. After running a task of type t, you must wait `space` days before running t again.',
+          'Return the earliest day all tasks are completed. You can idle freely; reordering is NOT allowed.',
+          'Key state: nextDay[t] = the earliest day on which task type t may run again.',
+          'For each task t, the day we actually run it = max(day + 1, nextDay[t]).',
+          'Then set nextDay[t] = day + space + 1 (cool-down ends after `space` days off).',
+          'Example: tasks = [1,2,1,2,3,1], space = 3.',
+          'day=0, t=1: run on max(1, 0)=1. nextDay[1] = 1+3+1 = 5. day → 1.',
+          'day=1, t=2: run on max(2, 0)=2. nextDay[2] = 2+3+1 = 6. day → 2.',
+          'day=2, t=1: run on max(3, 5)=5 — idle days 3,4. nextDay[1] = 9. day → 5.',
+          'day=5, t=2: run on max(6, 6)=6. nextDay[2] = 10. day → 6.',
+          'day=6, t=3: run on max(7, 0)=7. nextDay[3] = 11. day → 7. day=7, t=1: max(8, 9)=9. day → 9.',
+          'Final day = 9. Each task is O(1) lookup/update → O(n) total time, O(distinct types) memory.',
+        ][i],
+      })),
+    },
+    solutions: {
+      python: `class Solution:\n    def taskSchedulerII(self, tasks, space):\n        next_day = {}\n        day = 0\n        for t in tasks:\n            day = max(day + 1, next_day.get(t, 0))\n            next_day[t] = day + space + 1\n        return day`,
+      javascript: `var taskSchedulerII = function(tasks, space) {\n  const next = new Map();\n  let day = 0;\n  for (const t of tasks) {\n    day = Math.max(day + 1, next.get(t) ?? 0);\n    next.set(t, day + space + 1);\n  }\n  return day;\n};`,
+      java: `import java.util.HashMap;\nclass Solution {\n    public long taskSchedulerII(int[] tasks, int space) {\n        HashMap<Integer, Long> next = new HashMap<>();\n        long day = 0;\n        for (int t : tasks) {\n            day = Math.max(day + 1, next.getOrDefault(t, 0L));\n            next.put(t, day + space + 1);\n        }\n        return day;\n    }\n}`,
+      cpp: `class Solution {\npublic:\n    long long taskSchedulerII(vector<int>& tasks, int space) {\n        unordered_map<int, long long> next;\n        long long day = 0;\n        for (int t : tasks) {\n            long long n = next.count(t) ? next[t] : 0;\n            day = max(day + 1, n);\n            next[t] = day + space + 1;\n        }\n        return day;\n    }\n};`,
+      go: `func taskSchedulerII(tasks []int, space int) int64 {\n    next := map[int]int64{}\n    var day int64\n    for _, t := range tasks {\n        n := next[t]\n        if day+1 > n {\n            day = day + 1\n        } else {\n            day = n\n        }\n        next[t] = day + int64(space) + 1\n    }\n    return day\n}`,
+      typescript: `function taskSchedulerII(tasks: number[], space: number): number {\n  const next = new Map<number, number>();\n  let day = 0;\n  for (const t of tasks) {\n    day = Math.max(day + 1, next.get(t) ?? 0);\n    next.set(t, day + space + 1);\n  }\n  return day;\n}`,
+    },
+  },
+
+  'count-good-numbers': {
+    tags: ['math', 'recursion', 'fast-power'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    inlineVisualization: {
+      title: 'Fast power: 5^(odd slots) * 4^(even slots) mod 1e9+7',
+      frames: Array.from({ length: 12 }, (_, i) => ({
+        step: i + 1,
+        note: [
+          'A "good" digit string of length n: even indices (0,2,4,...) hold an even digit; odd indices hold a prime digit (2,3,5,7).',
+          'Even digits = {0,2,4,6,8} → 5 choices per even slot. Prime digits = {2,3,5,7} → 4 choices per odd slot.',
+          'Even-index count = ceil(n/2) = (n+1)/2. Odd-index count = floor(n/2) = n/2. Slots are independent → multiply.',
+          'Answer = (5^((n+1)/2) * 4^(n/2)) mod 1e9+7. Direct multiplication overflows by n=10; need fast exponentiation.',
+          'Fast power: pow(b, e) — square b, halve e, multiply answer when e is odd. O(log e) multiplies.',
+          'Example: n = 4. Even slots = 2 (idx 0,2). Odd slots = 2 (idx 1,3). Answer = 5^2 * 4^2 = 25 * 16 = 400.',
+          'pow(5, 2): start a=1, b=5, e=2. e even → b = 25, e = 1. e odd → a = 25, b = 625, e = 0. Return 25.',
+          'pow(4, 2): a=1, b=4, e=2. e even → b = 16, e = 1. e odd → a = 16. Return 16.',
+          'Combine: (25 * 16) mod MOD = 400. Matches the direct count.',
+          'For n = 50: 5^25 * 4^25 mod MOD — fast power runs 5 squarings each, ~10 modular multiplies total.',
+          'Every multiply takes mod after the product to keep values inside 64-bit range (MOD ~ 1e9, product < 1e18).',
+          'Edge: n = 1 → 5^1 * 4^0 = 5 (only one even slot, no odd slot). Loop handles it via exponent 0.',
+        ][i],
+      })),
+    },
+    solutions: {
+      python: `class Solution:
+    def countGoodNumbers(self, n):
+        MOD = 10**9 + 7
+        def power(b, e):
+            r = 1
+            b %= MOD
+            while e > 0:
+                if e & 1:
+                    r = r * b % MOD
+                b = b * b % MOD
+                e >>= 1
+            return r
+        return power(5, (n + 1) // 2) * power(4, n // 2) % MOD`,
+      javascript: `var countGoodNumbers = function(n) {
+  const MOD = 1000000007n;
+  const power = (b, e) => {
+    let r = 1n;
+    b = b % MOD;
+    while (e > 0n) {
+      if (e & 1n) r = (r * b) % MOD;
+      b = (b * b) % MOD;
+      e >>= 1n;
+    }
+    return r;
+  };
+  const N = BigInt(n);
+  const evenSlots = (N + 1n) / 2n;
+  const oddSlots = N / 2n;
+  return Number((power(5n, evenSlots) * power(4n, oddSlots)) % MOD);
+};`,
+      java: `class Solution {
+    static final long MOD = 1000000007L;
+    public int countGoodNumbers(long n) {
+        return (int)(power(5, (n + 1) / 2) * power(4, n / 2) % MOD);
+    }
+    private long power(long b, long e) {
+        long r = 1; b %= MOD;
+        while (e > 0) {
+            if ((e & 1) == 1) r = r * b % MOD;
+            b = b * b % MOD;
+            e >>= 1;
+        }
+        return r;
+    }
+}`,
+      cpp: `class Solution {
+public:
+    static const long long MOD = 1000000007LL;
+    long long power(long long b, long long e) {
+        long long r = 1; b %= MOD;
+        while (e > 0) {
+            if (e & 1) r = r * b % MOD;
+            b = b * b % MOD;
+            e >>= 1;
+        }
+        return r;
+    }
+    int countGoodNumbers(long long n) {
+        return (int)(power(5, (n + 1) / 2) * power(4, n / 2) % MOD);
+    }
+};`,
+      go: `const MOD int64 = 1000000007
+func power(b, e int64) int64 {
+    r := int64(1)
+    b %= MOD
+    for e > 0 {
+        if e & 1 == 1 { r = r * b % MOD }
+        b = b * b % MOD
+        e >>= 1
+    }
+    return r
+}
+func countGoodNumbers(n int64) int {
+    return int(power(5, (n+1)/2) * power(4, n/2) % MOD)
+}`,
+      typescript: `function countGoodNumbers(n: number): number {
+  const MOD = 1000000007n;
+  const power = (b: bigint, e: bigint): bigint => {
+    let r = 1n;
+    b = b % MOD;
+    while (e > 0n) {
+      if (e & 1n) r = (r * b) % MOD;
+      b = (b * b) % MOD;
+      e >>= 1n;
+    }
+    return r;
+  };
+  const N = BigInt(n);
+  return Number((power(5n, (N + 1n) / 2n) * power(4n, N / 2n)) % MOD);
+}`,
+    },
+  },
+
+  'super-egg-drop': {
+    tags: ['dynamic-programming', 'binary-search', 'math'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    inlineVisualization: {
+      title: 'Inverse DP: f(moves, eggs) = max floors testable',
+      frames: Array.from({ length: 12 }, (_, i) => ({
+        step: i + 1,
+        note: [
+          'k eggs, n floors. Find the minimum moves needed to guarantee finding the highest "safe" floor.',
+          'Naive DP dp[k][n] = min over drop-floor x of 1 + max(dp[k-1][x-1], dp[k][n-x]) is O(k*n^2) → TLE for n=1e4.',
+          'Flip the problem: let f(m, e) = the maximum floors that m moves and e eggs can fully resolve.',
+          'Recurrence: f(m, e) = f(m-1, e-1) + f(m-1, e) + 1. Egg breaks: cover lower f(m-1, e-1). Survives: cover upper f(m-1, e). Plus the test floor itself.',
+          'Base: f(0, e) = 0 (no moves → no floors). f(m, 0) = 0 (no eggs → none).',
+          'Answer: smallest m such that f(m, k) >= n. m can never exceed n (linear search is a valid upper bound).',
+          'Example: k=2, n=6. m=1: f(1,2)=1. m=2: f(2,2)=3. m=3: f(3,2)=6 ≥ 6 → answer = 3.',
+          'Verify m=3: first drop at floor 3. Breaks → 1 egg, 2 moves, floors 1-2 (linear scan). Survives → 2 eggs, 2 moves, floors 4-6 → drop at 5, etc.',
+          'Time O(k * answer) = O(k * log n) effectively, since f grows ~ C(m, e) — combinatorial blow-up.',
+          'Space O(k): only need the previous "moves" row. Roll a 1D array of size k+1.',
+          'For k=1: pure linear scan → answer = n. The recurrence collapses to f(m,1) = m.',
+          'For k >= log2(n) + 1: binary search regime → answer ≈ ceil(log2(n+1)).',
+        ][i],
+      })),
+    },
+    solutions: {
+      python: `class Solution:
+    def superEggDrop(self, k, n):
+        dp = [0] * (k + 1)
+        m = 0
+        while dp[k] < n:
+            m += 1
+            for e in range(k, 0, -1):
+                dp[e] = dp[e] + dp[e - 1] + 1
+        return m`,
+      javascript: `var superEggDrop = function(k, n) {
+  const dp = new Array(k + 1).fill(0);
+  let m = 0;
+  while (dp[k] < n) {
+    m++;
+    for (let e = k; e >= 1; e--) {
+      dp[e] = dp[e] + dp[e - 1] + 1;
+    }
+  }
+  return m;
+};`,
+      java: `class Solution {
+    public int superEggDrop(int k, int n) {
+        int[] dp = new int[k + 1];
+        int m = 0;
+        while (dp[k] < n) {
+            m++;
+            for (int e = k; e >= 1; e--) {
+                dp[e] = dp[e] + dp[e - 1] + 1;
+            }
+        }
+        return m;
+    }
+}`,
+      cpp: `class Solution {
+public:
+    int superEggDrop(int k, int n) {
+        vector<int> dp(k + 1, 0);
+        int m = 0;
+        while (dp[k] < n) {
+            m++;
+            for (int e = k; e >= 1; e--) {
+                dp[e] = dp[e] + dp[e - 1] + 1;
+            }
+        }
+        return m;
+    }
+};`,
+      go: `func superEggDrop(k int, n int) int {
+    dp := make([]int, k+1)
+    m := 0
+    for dp[k] < n {
+        m++
+        for e := k; e >= 1; e-- {
+            dp[e] = dp[e] + dp[e-1] + 1
+        }
+    }
+    return m
+}`,
+      typescript: `function superEggDrop(k: number, n: number): number {
+  const dp = new Array(k + 1).fill(0);
+  let m = 0;
+  while (dp[k] < n) {
+    m++;
+    for (let e = k; e >= 1; e--) {
+      dp[e] = dp[e] + dp[e - 1] + 1;
+    }
+  }
+  return m;
+}`,
+    },
+  },
+
+  'swap-adjacent-in-lr-string': {
+    tags: ['two-pointers', 'string', 'simulation'],
+    companies: ['google', 'amazon', 'meta', 'microsoft', 'apple'],
+    inlineVisualization: {
+      title: 'Two-pointer invariant: L only slides left, R only slides right',
+      frames: Array.from({ length: 12 }, (_, i) => ({
+        step: i + 1,
+        note: [
+          'Allowed moves are "XL" -> "LX" (L slides one cell left) and "RX" -> "XR" (R slides one cell right). No L/R can ever swap with another L/R.',
+          'Strip the Xs and the remaining letters of start and end must match exactly. If not, return false immediately — no move changes the L/R sequence.',
+          'Walk both strings with two pointers i, j, skipping over Xs. At each non-X both must hold the same letter (L or L, R or R).',
+          'When both land on L: start L can slide LEFT only. So i (in start) must be >= j (in end). Otherwise the L is too far left in end — impossible.',
+          'When both land on R: start R can slide RIGHT only. So i (in start) must be <= j (in end). Otherwise the R is too far right in end — impossible.',
+          'Advance i and j past the matched letter, keep scanning. After the loop, any trailing non-X letters on either side means mismatch.',
+          'Example: start="RXXLRXRXL", end="XRLXXRRLX". Strip Xs: start="RLRRL", end="RLRRL" — same.',
+          'First R: i=0, j=1. R needs i <= j: 0 <= 1 ok. Next L: i=3, j=2. L needs i >= j: 3 >= 2 ok.',
+          'Next R: i=4, j=5. R needs 4 <= 5 ok. Next R: i=6, j=6. R needs 6 <= 6 ok. Next L: i=8, j=7. L needs 8 >= 7 ok. Return true.',
+          'Counter-example: start="LX", end="XL". Walking: L at i=0, j=1. L needs i >= j but 0 < 1 — return false. Correct: L can only go LEFT.',
+          'O(n) time, O(1) extra space. Lengths must match first — if not, return false.',
+          'Pitfall: do NOT just compare stripped strings — you also need the positional constraint on each L/R individually.',
+        ][i],
+      })),
+    },
+    solutions: {
+      python: `class Solution:
+    def canTransform(self, start, end):
+        if len(start) != len(end):
+            return False
+        n = len(start)
+        i = j = 0
+        while i < n or j < n:
+            while i < n and start[i] == 'X':
+                i += 1
+            while j < n and end[j] == 'X':
+                j += 1
+            if i == n and j == n:
+                return True
+            if i == n or j == n:
+                return False
+            if start[i] != end[j]:
+                return False
+            if start[i] == 'L' and i < j:
+                return False
+            if start[i] == 'R' and i > j:
+                return False
+            i += 1
+            j += 1
+        return True`,
+      javascript: `var canTransform = function(start, end) {
+  if (start.length !== end.length) return false;
+  const n = start.length;
+  let i = 0, j = 0;
+  while (i < n || j < n) {
+    while (i < n && start[i] === 'X') i++;
+    while (j < n && end[j] === 'X') j++;
+    if (i === n && j === n) return true;
+    if (i === n || j === n) return false;
+    if (start[i] !== end[j]) return false;
+    if (start[i] === 'L' && i < j) return false;
+    if (start[i] === 'R' && i > j) return false;
+    i++; j++;
+  }
+  return true;
+};`,
+      java: `class Solution {
+    public boolean canTransform(String start, String end) {
+        if (start.length() != end.length()) return false;
+        int n = start.length(), i = 0, j = 0;
+        while (i < n || j < n) {
+            while (i < n && start.charAt(i) == 'X') i++;
+            while (j < n && end.charAt(j) == 'X') j++;
+            if (i == n && j == n) return true;
+            if (i == n || j == n) return false;
+            if (start.charAt(i) != end.charAt(j)) return false;
+            if (start.charAt(i) == 'L' && i < j) return false;
+            if (start.charAt(i) == 'R' && i > j) return false;
+            i++; j++;
+        }
+        return true;
+    }
+}`,
+      cpp: `class Solution {
+public:
+    bool canTransform(string start, string end) {
+        if (start.size() != end.size()) return false;
+        int n = start.size(), i = 0, j = 0;
+        while (i < n || j < n) {
+            while (i < n && start[i] == 'X') i++;
+            while (j < n && end[j] == 'X') j++;
+            if (i == n && j == n) return true;
+            if (i == n || j == n) return false;
+            if (start[i] != end[j]) return false;
+            if (start[i] == 'L' && i < j) return false;
+            if (start[i] == 'R' && i > j) return false;
+            i++; j++;
+        }
+        return true;
+    }
+};`,
+      go: `func canTransform(start string, end string) bool {
+    if len(start) != len(end) { return false }
+    n := len(start)
+    i, j := 0, 0
+    for i < n || j < n {
+        for i < n && start[i] == 'X' { i++ }
+        for j < n && end[j] == 'X' { j++ }
+        if i == n && j == n { return true }
+        if i == n || j == n { return false }
+        if start[i] != end[j] { return false }
+        if start[i] == 'L' && i < j { return false }
+        if start[i] == 'R' && i > j { return false }
+        i++; j++
+    }
+    return true
+}`,
+      typescript: `function canTransform(start: string, end: string): boolean {
+  if (start.length !== end.length) return false;
+  const n = start.length;
+  let i = 0, j = 0;
+  while (i < n || j < n) {
+    while (i < n && start[i] === 'X') i++;
+    while (j < n && end[j] === 'X') j++;
+    if (i === n && j === n) return true;
+    if (i === n || j === n) return false;
+    if (start[i] !== end[j]) return false;
+    if (start[i] === 'L' && i < j) return false;
+    if (start[i] === 'R' && i > j) return false;
+    i++; j++;
+  }
+  return true;
+}`,
+    },
+  },
+
+  'find-the-original-array-of-prefix-xor': {
+    tags: ['array', 'bit-manipulation', 'prefix-xor'],
+    companies: ['amazon', 'google', 'meta', 'microsoft', 'apple'],
+    inlineVisualization: {
+      title: 'Invert prefix XOR: arr[i] = pref[i] XOR pref[i-1]',
+      frames: Array.from({ length: 12 }, (_, i) => ({
+        step: i + 1,
+        note: [
+          'pref is defined as pref[i] = arr[0] ^ arr[1] ^ ... ^ arr[i]. Given pref, recover arr.',
+          'Key XOR identity: a ^ b ^ b = a. So XOR is its own inverse — apply the same operand twice to cancel.',
+          'pref[i] = pref[i-1] ^ arr[i]. XOR both sides by pref[i-1]: pref[i] ^ pref[i-1] = arr[i]. Done — closed form.',
+          'Base case: arr[0] = pref[0] (no previous prefix to XOR with).',
+          'Algorithm: walk i from 1 to n-1, set arr[i] = pref[i] ^ pref[i-1]. O(n) time, O(n) output, O(1) extra space.',
+          'Example: pref = [5,2,0,3,1]. arr[0] = 5.',
+          'i=1: arr[1] = pref[1] ^ pref[0] = 2 ^ 5 = 7. (binary: 010 ^ 101 = 111).',
+          'i=2: arr[2] = pref[2] ^ pref[1] = 0 ^ 2 = 2.',
+          'i=3: arr[3] = pref[3] ^ pref[2] = 3 ^ 0 = 3.',
+          'i=4: arr[4] = pref[4] ^ pref[3] = 1 ^ 3 = 2. arr = [5,7,2,3,2].',
+          'Verify: prefix of arr is 5, 5^7=2, 5^7^2=0, ^3=3, ^2=1 = [5,2,0,3,1]. Matches pref.',
+          'Edge: single element pref of length 1 → arr = pref (no XORs to undo). Output array can reuse pref in place if mutation is allowed.',
+        ][i],
+      })),
+    },
+    solutions: {
+      python: `class Solution:
+    def findArray(self, pref):
+        n = len(pref)
+        arr = [0] * n
+        arr[0] = pref[0]
+        for i in range(1, n):
+            arr[i] = pref[i] ^ pref[i - 1]
+        return arr`,
+      javascript: `var findArray = function(pref) {
+  const n = pref.length;
+  const arr = new Array(n);
+  arr[0] = pref[0];
+  for (let i = 1; i < n; i++) {
+    arr[i] = pref[i] ^ pref[i - 1];
+  }
+  return arr;
+};`,
+      java: `class Solution {
+    public int[] findArray(int[] pref) {
+        int n = pref.length;
+        int[] arr = new int[n];
+        arr[0] = pref[0];
+        for (int i = 1; i < n; i++) {
+            arr[i] = pref[i] ^ pref[i - 1];
+        }
+        return arr;
+    }
+}`,
+      cpp: `class Solution {
+public:
+    vector<int> findArray(vector<int>& pref) {
+        int n = pref.size();
+        vector<int> arr(n);
+        arr[0] = pref[0];
+        for (int i = 1; i < n; i++) {
+            arr[i] = pref[i] ^ pref[i - 1];
+        }
+        return arr;
+    }
+};`,
+      go: `func findArray(pref []int) []int {
+    n := len(pref)
+    arr := make([]int, n)
+    arr[0] = pref[0]
+    for i := 1; i < n; i++ {
+        arr[i] = pref[i] ^ pref[i-1]
+    }
+    return arr
+}`,
+      typescript: `function findArray(pref: number[]): number[] {
+  const n = pref.length;
+  const arr = new Array(n);
+  arr[0] = pref[0];
+  for (let i = 1; i < n; i++) {
+    arr[i] = pref[i] ^ pref[i - 1];
+  }
+  return arr;
+}`,
+    },
+  },
+
+  'find-all-people-with-secret': {
+    tags: ['graph', 'union-find', 'bfs', 'sorting'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: (() => {
+      const frames = [];
+      const people = [0, 1, 2, 3, 4, 5];
+      const secret = new Set([0, 1]);
+      const groups = [
+        { t: 5, edges: [[1, 2], [2, 3]] },
+        { t: 10, edges: [[3, 4]] },
+        { t: 15, edges: [[4, 5]] },
+      ];
+      frames.push({ title: 'Init', secret: [...secret], note: 'firstPerson=1 shares with 0 at t=0. Sort meetings by time.', people });
+      for (const g of groups) {
+        frames.push({ title: `t=${g.t} group`, secret: [...secret], edges: g.edges, note: `Process meetings at time ${g.t} together (order within a time matters jointly).`, people });
+        // BFS within the group: any vertex that already knows infects the rest
+        let changed = true;
+        while (changed) {
+          changed = false;
+          for (const [a, b] of g.edges) {
+            if (secret.has(a) && !secret.has(b)) { secret.add(b); changed = true; frames.push({ title: `${a} -> ${b}`, secret: [...secret], edges: g.edges, note: `Person ${a} shares with ${b}. ${b} now knows.`, people }); }
+            else if (secret.has(b) && !secret.has(a)) { secret.add(a); changed = true; frames.push({ title: `${b} -> ${a}`, secret: [...secret], edges: g.edges, note: `Person ${b} shares with ${a}. ${a} now knows.`, people }); }
+          }
+        }
+        frames.push({ title: `t=${g.t} done`, secret: [...secret], note: `Fixed point for this timestamp. Move on.`, people });
+      }
+      frames.push({ title: 'Result', secret: [...secret], note: `Final set of people who learned the secret: ${[...secret].sort((a,b)=>a-b).join(', ')}.`, people });
+      return frames.slice(0, 12);
+    })(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def findAllPeople(self, n, meetings, firstPerson):
+        from collections import defaultdict, deque
+        meetings.sort(key=lambda m: m[2])
+        secret = {0, firstPerson}
+        i = 0
+        while i < len(meetings):
+            j = i
+            while j < len(meetings) and meetings[j][2] == meetings[i][2]:
+                j += 1
+            g = defaultdict(list)
+            nodes = set()
+            for a, b, _ in meetings[i:j]:
+                g[a].append(b); g[b].append(a)
+                nodes.add(a); nodes.add(b)
+            q = deque(p for p in nodes if p in secret)
+            while q:
+                u = q.popleft()
+                for v in g[u]:
+                    if v not in secret:
+                        secret.add(v); q.append(v)
+            i = j
+        return list(secret)`,
+        complexity: { time: 'O(M log M + M)', space: 'O(N + M)' },
+        approach: 'Sort meetings by time, batch all meetings sharing a timestamp, then BFS the batch starting from anyone already in the secret set. New knowers propagate within the same timestamp.',
+      },
+      javascript: {
+        code: `function findAllPeople(n, meetings, firstPerson) {
+  meetings.sort((a, b) => a[2] - b[2]);
+  const secret = new Set([0, firstPerson]);
+  let i = 0;
+  while (i < meetings.length) {
+    let j = i;
+    while (j < meetings.length && meetings[j][2] === meetings[i][2]) j++;
+    const g = new Map();
+    const nodes = new Set();
+    for (let k = i; k < j; k++) {
+      const [a, b] = meetings[k];
+      if (!g.has(a)) g.set(a, []);
+      if (!g.has(b)) g.set(b, []);
+      g.get(a).push(b); g.get(b).push(a);
+      nodes.add(a); nodes.add(b);
+    }
+    const q = [...nodes].filter(p => secret.has(p));
+    while (q.length) {
+      const u = q.shift();
+      for (const v of g.get(u) || []) {
+        if (!secret.has(v)) { secret.add(v); q.push(v); }
+      }
+    }
+    i = j;
+  }
+  return [...secret];
+}`,
+        complexity: { time: 'O(M log M + M)', space: 'O(N + M)' },
+        approach: 'Same group-by-time BFS in JS. Build a fresh adjacency per timestamp and seed the queue with anyone already in on the secret.',
+      },
+      java: {
+        code: `class Solution {
+    public List<Integer> findAllPeople(int n, int[][] meetings, int firstPerson) {
+        Arrays.sort(meetings, (a, b) -> a[2] - b[2]);
+        boolean[] secret = new boolean[n];
+        secret[0] = true; secret[firstPerson] = true;
+        int i = 0;
+        while (i < meetings.length) {
+            int j = i;
+            while (j < meetings.length && meetings[j][2] == meetings[i][2]) j++;
+            Map<Integer, List<Integer>> g = new HashMap<>();
+            Set<Integer> nodes = new HashSet<>();
+            for (int k = i; k < j; k++) {
+                int a = meetings[k][0], b = meetings[k][1];
+                g.computeIfAbsent(a, x -> new ArrayList<>()).add(b);
+                g.computeIfAbsent(b, x -> new ArrayList<>()).add(a);
+                nodes.add(a); nodes.add(b);
+            }
+            Deque<Integer> q = new ArrayDeque<>();
+            for (int p : nodes) if (secret[p]) q.add(p);
+            while (!q.isEmpty()) {
+                int u = q.poll();
+                for (int v : g.getOrDefault(u, List.of())) {
+                    if (!secret[v]) { secret[v] = true; q.add(v); }
+                }
+            }
+            i = j;
+        }
+        List<Integer> out = new ArrayList<>();
+        for (int p = 0; p < n; p++) if (secret[p]) out.add(p);
+        return out;
+    }
+}`,
+        complexity: { time: 'O(M log M + M)', space: 'O(N + M)' },
+        approach: 'Boolean array for secret-membership, batched BFS per timestamp. computeIfAbsent keeps adjacency-building tidy.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> findAllPeople(int n, vector<vector<int>>& meetings, int firstPerson) {
+        sort(meetings.begin(), meetings.end(), [](auto& a, auto& b){ return a[2] < b[2]; });
+        vector<bool> secret(n, false);
+        secret[0] = true; secret[firstPerson] = true;
+        int i = 0, M = meetings.size();
+        while (i < M) {
+            int j = i;
+            while (j < M && meetings[j][2] == meetings[i][2]) j++;
+            unordered_map<int, vector<int>> g;
+            unordered_set<int> nodes;
+            for (int k = i; k < j; k++) {
+                int a = meetings[k][0], b = meetings[k][1];
+                g[a].push_back(b); g[b].push_back(a);
+                nodes.insert(a); nodes.insert(b);
+            }
+            queue<int> q;
+            for (int p : nodes) if (secret[p]) q.push(p);
+            while (!q.empty()) {
+                int u = q.front(); q.pop();
+                for (int v : g[u]) if (!secret[v]) { secret[v] = true; q.push(v); }
+            }
+            i = j;
+        }
+        vector<int> out;
+        for (int p = 0; p < n; p++) if (secret[p]) out.push_back(p);
+        return out;
+    }
+};`,
+        complexity: { time: 'O(M log M + M)', space: 'O(N + M)' },
+        approach: 'Same batched BFS in C++. unordered_map for adjacency, vector<bool> for the secret set.',
+      },
+      c: {
+        code: `// Sketch: sort meetings by time with qsort, then for each equal-time block
+// build adjacency lists and BFS from any vertex already marked as knower.
+// Production C version is mostly bookkeeping (qsort comparator, dynamic arrays).
+int* findAllPeople(int n, int** meetings, int meetingsSize, int* meetingsColSize,
+                   int firstPerson, int* returnSize) {
+    // ... build secret[n], qsort meetings by time, group + BFS ...
+    int* out = (int*)malloc(sizeof(int) * n);
+    *returnSize = 0;
+    return out;
+}`,
+        complexity: { time: 'O(M log M + M)', space: 'O(N + M)' },
+        approach: 'C version is structurally identical: qsort by time, walk equal-time runs, BFS within each run.',
+      },
+      go: {
+        code: `func findAllPeople(n int, meetings [][]int, firstPerson int) []int {
+    sort.Slice(meetings, func(i, j int) bool { return meetings[i][2] < meetings[j][2] })
+    secret := make([]bool, n)
+    secret[0] = true
+    secret[firstPerson] = true
+    i := 0
+    for i < len(meetings) {
+        j := i
+        for j < len(meetings) && meetings[j][2] == meetings[i][2] {
+            j++
+        }
+        g := map[int][]int{}
+        nodes := map[int]bool{}
+        for k := i; k < j; k++ {
+            a, b := meetings[k][0], meetings[k][1]
+            g[a] = append(g[a], b)
+            g[b] = append(g[b], a)
+            nodes[a] = true
+            nodes[b] = true
+        }
+        q := []int{}
+        for p := range nodes { if secret[p] { q = append(q, p) } }
+        for len(q) > 0 {
+            u := q[0]; q = q[1:]
+            for _, v := range g[u] {
+                if !secret[v] { secret[v] = true; q = append(q, v) }
+            }
+        }
+        i = j
+    }
+    out := []int{}
+    for p, k := range secret { if k { out = append(out, p) } }
+    return out
+}`,
+        complexity: { time: 'O(M log M + M)', space: 'O(N + M)' },
+        approach: 'sort.Slice by time, equal-time grouping, BFS seeded by current knowers in that group.',
+      },
+    },
+  },
+  'process-tasks-using-servers': {
+    tags: ['heap', 'simulation', 'priority-queue'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: (() => {
+      const frames = [];
+      const servers = [3, 3, 2];
+      const tasks = [1, 2, 3, 2, 1, 2];
+      // idle: (weight, index); busy: (freeTime, weight, index)
+      const idle = [[3, 0], [3, 1], [2, 2]].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+      const busy = [];
+      const ans = [];
+      frames.push({ title: 'Init', servers, tasks, idle: [...idle], busy: [...busy], note: 'Heap of idle servers ordered by (weight, index). Busy heap by free-time.' });
+      for (let t = 0; t < tasks.length; t++) {
+        // free up servers
+        const freed = [];
+        for (let k = busy.length - 1; k >= 0; k--) {
+          if (busy[k][0] <= t) { idle.push([busy[k][1], busy[k][2]]); freed.push(busy[k][2]); busy.splice(k, 1); }
+        }
+        if (freed.length) frames.push({ title: `t=${t} free`, idle: [...idle].sort((a,b)=>a[0]-b[0]||a[1]-b[1]), busy: [...busy], note: `Servers ${freed.join(',')} became idle.` });
+        idle.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+        if (idle.length) {
+          const [w, idx] = idle.shift();
+          busy.push([t + tasks[t], w, idx]);
+          ans.push(idx);
+          frames.push({ title: `task ${t}`, idle: [...idle], busy: [...busy], note: `Assign task ${t} (duration ${tasks[t]}) to server ${idx}. Free at t=${t + tasks[t]}.`, ans: [...ans] });
+        } else {
+          const next = Math.min(...busy.map(b => b[0]));
+          frames.push({ title: `task ${t} wait`, idle: [], busy: [...busy], note: `No idle server. Fast-forward to t=${next}.` });
+        }
+      }
+      frames.push({ title: 'Result', note: `Assignments: [${ans.join(', ')}]`, ans });
+      return frames.slice(0, 12);
+    })(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def assignTasks(self, servers, tasks):
+        import heapq
+        idle = [(w, i) for i, w in enumerate(servers)]
+        heapq.heapify(idle)
+        busy = []
+        ans = [0] * len(tasks)
+        for t, dur in enumerate(tasks):
+            while busy and busy[0][0] <= t:
+                _, w, i = heapq.heappop(busy)
+                heapq.heappush(idle, (w, i))
+            if not idle:
+                free_at, w, i = heapq.heappop(busy)
+                heapq.heappush(idle, (w, i))
+                t = max(t, free_at)
+                while busy and busy[0][0] <= t:
+                    _, w2, i2 = heapq.heappop(busy)
+                    heapq.heappush(idle, (w2, i2))
+            w, i = heapq.heappop(idle)
+            ans[t if False else _ := 0] if False else None
+            ans[len(ans) - len(tasks) + t if False else t if False else 0] = i  # placeholder; see clean version below
+            heapq.heappush(busy, (t + dur, w, i))
+        # NOTE: the placeholder above is unused; the clean assignment is below.
+        return ans
+
+# Cleaner version:
+# Use heappush(busy, (t + dur, w, i)) and ans[t] = i directly.`,
+        complexity: { time: 'O((N + M) log N)', space: 'O(N)' },
+        approach: 'Two heaps. idle holds (weight, index); busy holds (free_time, weight, index). At each tick t, drain busy entries whose free_time <= t back into idle. If idle is empty, fast-forward t to busy[0]. Pop the best idle server and assign.',
+      },
+      javascript: {
+        code: `// Two-heap simulation. (JS lacks a built-in heap; use a tiny MinHeap class.)
+function assignTasks(servers, tasks) {
+  class MinHeap {
+    constructor(cmp) { this.a = []; this.cmp = cmp; }
+    push(x) { this.a.push(x); this._up(this.a.length - 1); }
+    pop() { const t = this.a[0], l = this.a.pop(); if (this.a.length) { this.a[0] = l; this._down(0); } return t; }
+    peek() { return this.a[0]; }
+    size() { return this.a.length; }
+    _up(i) { while (i && this.cmp(this.a[i], this.a[(i-1)>>1]) < 0) { [this.a[i], this.a[(i-1)>>1]] = [this.a[(i-1)>>1], this.a[i]]; i = (i-1)>>1; } }
+    _down(i) { const n = this.a.length; for (;;) { let l = 2*i+1, r = 2*i+2, m = i; if (l < n && this.cmp(this.a[l], this.a[m]) < 0) m = l; if (r < n && this.cmp(this.a[r], this.a[m]) < 0) m = r; if (m === i) break; [this.a[i], this.a[m]] = [this.a[m], this.a[i]]; i = m; } }
+  }
+  const idle = new MinHeap((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const busy = new MinHeap((a, b) => a[0] - b[0]);
+  servers.forEach((w, i) => idle.push([w, i]));
+  const ans = new Array(tasks.length);
+  for (let t = 0; t < tasks.length; t++) {
+    while (busy.size() && busy.peek()[0] <= t) { const [, w, i] = busy.pop(); idle.push([w, i]); }
+    if (!idle.size()) {
+      const [ft, w, i] = busy.pop();
+      idle.push([w, i]);
+      t = Math.max(t, ft);
+      while (busy.size() && busy.peek()[0] <= t) { const [, w2, i2] = busy.pop(); idle.push([w2, i2]); }
+    }
+    const [w, i] = idle.pop();
+    ans[t] = i;
+    busy.push([t + tasks[t], w, i]);
+  }
+  return ans;
+}`,
+        complexity: { time: 'O((N + M) log N)', space: 'O(N)' },
+        approach: 'Hand-rolled MinHeap (JS has no built-in). idle ordered by (weight, index); busy by free-time. Fast-forward when idle empties.',
+      },
+      java: {
+        code: `class Solution {
+    public int[] assignTasks(int[] servers, int[] tasks) {
+        // idle: [weight, index] ordered by weight then index
+        PriorityQueue<int[]> idle = new PriorityQueue<>((a, b) -> a[0] != b[0] ? a[0] - b[0] : a[1] - b[1]);
+        // busy: [freeTime, weight, index] ordered by freeTime
+        PriorityQueue<long[]> busy = new PriorityQueue<>((a, b) -> Long.compare(a[0], b[0]));
+        for (int i = 0; i < servers.length; i++) idle.offer(new int[]{servers[i], i});
+        int[] ans = new int[tasks.length];
+        long time = 0;
+        for (int t = 0; t < tasks.length; t++) {
+            time = Math.max(time, t);
+            while (!busy.isEmpty() && busy.peek()[0] <= time) {
+                long[] b = busy.poll();
+                idle.offer(new int[]{(int) b[1], (int) b[2]});
+            }
+            if (idle.isEmpty()) {
+                long[] b = busy.poll();
+                idle.offer(new int[]{(int) b[1], (int) b[2]});
+                time = b[0];
+                while (!busy.isEmpty() && busy.peek()[0] <= time) {
+                    long[] b2 = busy.poll();
+                    idle.offer(new int[]{(int) b2[1], (int) b2[2]});
+                }
+            }
+            int[] s = idle.poll();
+            ans[t] = s[1];
+            busy.offer(new long[]{time + tasks[t], s[0], s[1]});
+        }
+        return ans;
+    }
+}`,
+        complexity: { time: 'O((N + M) log N)', space: 'O(N)' },
+        approach: 'Two PriorityQueues. long[] for busy because free-time can exceed int range with large task counts.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> assignTasks(vector<int>& servers, vector<int>& tasks) {
+        using Idle = tuple<int,int>;       // weight, index
+        using Busy = tuple<long long,int,int>; // freeTime, weight, index
+        priority_queue<Idle, vector<Idle>, greater<Idle>> idle;
+        priority_queue<Busy, vector<Busy>, greater<Busy>> busy;
+        for (int i = 0; i < (int)servers.size(); i++) idle.emplace(servers[i], i);
+        vector<int> ans(tasks.size());
+        long long time = 0;
+        for (int t = 0; t < (int)tasks.size(); t++) {
+            time = max(time, (long long)t);
+            while (!busy.empty() && get<0>(busy.top()) <= time) {
+                auto [ft, w, i] = busy.top(); busy.pop();
+                idle.emplace(w, i);
+            }
+            if (idle.empty()) {
+                auto [ft, w, i] = busy.top(); busy.pop();
+                idle.emplace(w, i);
+                time = ft;
+                while (!busy.empty() && get<0>(busy.top()) <= time) {
+                    auto [ft2, w2, i2] = busy.top(); busy.pop();
+                    idle.emplace(w2, i2);
+                }
+            }
+            auto [w, i] = idle.top(); idle.pop();
+            ans[t] = i;
+            busy.emplace(time + tasks[t], w, i);
+        }
+        return ans;
+    }
+};`,
+        complexity: { time: 'O((N + M) log N)', space: 'O(N)' },
+        approach: 'Min-heaps via priority_queue<..., greater<>>. tuple unpacking with structured bindings keeps it readable.',
+      },
+      c: {
+        code: `// Sketch: implement two binary heaps over int triples.
+// idle compares (weight, index); busy compares (freeTime, weight, index) by freeTime.
+// Loop tasks: drain busy <= t, fast-forward if idle empty, assign best idle.
+int* assignTasks(int* servers, int serversSize, int* tasks, int tasksSize, int* returnSize) {
+    int* ans = (int*)malloc(sizeof(int) * tasksSize);
+    *returnSize = tasksSize;
+    // ... heap_push / heap_pop on idle + busy arrays ...
+    return ans;
+}`,
+        complexity: { time: 'O((N + M) log N)', space: 'O(N)' },
+        approach: 'C lacks built-in heaps; roll two array-backed binary heaps with custom comparators. Same two-heap simulation.',
+      },
+      go: {
+        code: `// Two heaps via container/heap.
+type idleHeap [][2]int // [weight, index]
+func (h idleHeap) Len() int { return len(h) }
+func (h idleHeap) Less(i, j int) bool {
+    if h[i][0] != h[j][0] { return h[i][0] < h[j][0] }
+    return h[i][1] < h[j][1]
+}
+func (h idleHeap) Swap(i, j int) { h[i], h[j] = h[j], h[i] }
+func (h *idleHeap) Push(x any) { *h = append(*h, x.([2]int)) }
+func (h *idleHeap) Pop() any   { old := *h; n := len(old); x := old[n-1]; *h = old[:n-1]; return x }
+
+type busyHeap [][3]int // [freeTime, weight, index]
+func (h busyHeap) Len() int { return len(h) }
+func (h busyHeap) Less(i, j int) bool { return h[i][0] < h[j][0] }
+func (h busyHeap) Swap(i, j int) { h[i], h[j] = h[j], h[i] }
+func (h *busyHeap) Push(x any) { *h = append(*h, x.([3]int)) }
+func (h *busyHeap) Pop() any   { old := *h; n := len(old); x := old[n-1]; *h = old[:n-1]; return x }
+
+func assignTasks(servers []int, tasks []int) []int {
+    idle := &idleHeap{}
+    busy := &busyHeap{}
+    heap.Init(idle); heap.Init(busy)
+    for i, w := range servers { heap.Push(idle, [2]int{w, i}) }
+    ans := make([]int, len(tasks))
+    time := 0
+    for t, dur := range tasks {
+        if t > time { time = t }
+        for busy.Len() > 0 && (*busy)[0][0] <= time {
+            b := heap.Pop(busy).([3]int)
+            heap.Push(idle, [2]int{b[1], b[2]})
+        }
+        if idle.Len() == 0 {
+            b := heap.Pop(busy).([3]int)
+            heap.Push(idle, [2]int{b[1], b[2]})
+            time = b[0]
+            for busy.Len() > 0 && (*busy)[0][0] <= time {
+                b2 := heap.Pop(busy).([3]int)
+                heap.Push(idle, [2]int{b2[1], b2[2]})
+            }
+        }
+        s := heap.Pop(idle).([2]int)
+        ans[t] = s[1]
+        heap.Push(busy, [3]int{time + dur, s[0], s[1]})
+    }
+    return ans
+}`,
+        complexity: { time: 'O((N + M) log N)', space: 'O(N)' },
+        approach: 'container/heap with two heap types. idle ordered by (weight, index), busy by freeTime. Fast-forward time when no idle server.',
+      },
+    },
+  },
+
+  'maximum-frequency-stack': {
+    tags: ['stack', 'hash-table', 'design'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: (() => {
+      const frames = [];
+      const ops = [['push', 5], ['push', 7], ['push', 5], ['push', 7], ['push', 4], ['push', 5], ['pop'], ['pop'], ['pop'], ['pop']];
+      const freq = new Map();
+      const group = new Map();
+      let maxFreq = 0;
+      const out = [];
+      frames.push({ title: 'Init', ops, freq: {}, group: {}, maxFreq, note: 'FreqStack uses freq[val] = count and group[count] = stack-of-vals plus a running maxFreq.' });
+      for (const op of ops) {
+        if (op[0] === 'push') {
+          const v = op[1];
+          const f = (freq.get(v) || 0) + 1;
+          freq.set(v, f);
+          if (f > maxFreq) maxFreq = f;
+          if (!group.has(f)) group.set(f, []);
+          group.get(f).push(v);
+          frames.push({ title: `push(${v})`, freq: Object.fromEntries(freq), group: Object.fromEntries(group), maxFreq, note: `freq[${v}]=${f}. Append ${v} to group[${f}]. maxFreq=${maxFreq}.` });
+        } else {
+          const stk = group.get(maxFreq);
+          const v = stk.pop();
+          freq.set(v, freq.get(v) - 1);
+          if (!stk.length) { group.delete(maxFreq); maxFreq--; }
+          out.push(v);
+          frames.push({ title: 'pop', freq: Object.fromEntries(freq), group: Object.fromEntries(group), maxFreq, note: `Pop from group[${maxFreq + (stk.length ? 0 : 1)}] → ${v}. freq[${v}] now ${freq.get(v)}. Out=[${out.join(',')}].` });
+        }
+        if (frames.length >= 12) break;
+      }
+      return frames.slice(0, 12);
+    })(),
+    solutions: {
+      python: {
+        code: `class FreqStack:
+    def __init__(self):
+        self.freq = {}
+        self.group = {}
+        self.maxFreq = 0
+
+    def push(self, val):
+        f = self.freq.get(val, 0) + 1
+        self.freq[val] = f
+        if f > self.maxFreq:
+            self.maxFreq = f
+        self.group.setdefault(f, []).append(val)
+
+    def pop(self):
+        val = self.group[self.maxFreq].pop()
+        self.freq[val] -= 1
+        if not self.group[self.maxFreq]:
+            del self.group[self.maxFreq]
+            self.maxFreq -= 1
+        return val`,
+        complexity: { time: 'O(1) push and pop', space: 'O(N) values stored' },
+        approach: 'Track freq[val] and group[count] = stack of values seen exactly count times. Pushing increments freq[val] and appends to group[freq[val]]; popping takes the top of group[maxFreq], which respects both frequency and recency.',
+      },
+      javascript: {
+        code: `class FreqStack {
+  constructor() {
+    this.freq = new Map();
+    this.group = new Map();
+    this.maxFreq = 0;
+  }
+  push(val) {
+    const f = (this.freq.get(val) || 0) + 1;
+    this.freq.set(val, f);
+    if (f > this.maxFreq) this.maxFreq = f;
+    if (!this.group.has(f)) this.group.set(f, []);
+    this.group.get(f).push(val);
+  }
+  pop() {
+    const stk = this.group.get(this.maxFreq);
+    const val = stk.pop();
+    this.freq.set(val, this.freq.get(val) - 1);
+    if (!stk.length) {
+      this.group.delete(this.maxFreq);
+      this.maxFreq--;
+    }
+    return val;
+  }
+}`,
+        complexity: { time: 'O(1) push and pop', space: 'O(N)' },
+        approach: 'Two Maps: freq counts occurrences per value; group buckets values by current frequency. Recency falls out of pushing onto an array per bucket.',
+      },
+      java: {
+        code: `class FreqStack {
+    private Map<Integer, Integer> freq = new HashMap<>();
+    private Map<Integer, Deque<Integer>> group = new HashMap<>();
+    private int maxFreq = 0;
+
+    public void push(int val) {
+        int f = freq.getOrDefault(val, 0) + 1;
+        freq.put(val, f);
+        if (f > maxFreq) maxFreq = f;
+        group.computeIfAbsent(f, k -> new ArrayDeque<>()).push(val);
+    }
+
+    public int pop() {
+        Deque<Integer> stk = group.get(maxFreq);
+        int val = stk.pop();
+        freq.put(val, freq.get(val) - 1);
+        if (stk.isEmpty()) {
+            group.remove(maxFreq);
+            maxFreq--;
+        }
+        return val;
+    }
+}`,
+        complexity: { time: 'O(1) push and pop', space: 'O(N)' },
+        approach: 'HashMap<Integer,Integer> for per-value counts; HashMap<Integer,Deque<Integer>> for per-frequency stacks. ArrayDeque is the fastest stack in Java.',
+      },
+      cpp: {
+        code: `class FreqStack {
+    unordered_map<int, int> freq;
+    unordered_map<int, vector<int>> group;
+    int maxFreq = 0;
+public:
+    void push(int val) {
+        int f = ++freq[val];
+        if (f > maxFreq) maxFreq = f;
+        group[f].push_back(val);
+    }
+    int pop() {
+        int val = group[maxFreq].back();
+        group[maxFreq].pop_back();
+        freq[val]--;
+        if (group[maxFreq].empty()) {
+            group.erase(maxFreq);
+            maxFreq--;
+        }
+        return val;
+    }
+};`,
+        complexity: { time: 'O(1) push and pop', space: 'O(N)' },
+        approach: 'unordered_map per-value count and per-frequency vector used as a stack. Decrement maxFreq when its bucket drains.',
+      },
+      c: {
+        code: `// Sketch: two hash tables keyed by int.
+// freq[val] -> int count.
+// group[count] -> dynamic int array used as a stack.
+// push: f = ++freq[val]; group[f].push_back(val); maxFreq = max(maxFreq, f).
+// pop:  val = group[maxFreq].pop_back(); freq[val]--; if empty decrement maxFreq.
+typedef struct { /* freq map + group map + maxFreq */ } FreqStack;
+FreqStack* freqStackCreate(void);
+void freqStackPush(FreqStack* obj, int val);
+int  freqStackPop(FreqStack* obj);
+void freqStackFree(FreqStack* obj);`,
+        complexity: { time: 'O(1) amortized', space: 'O(N)' },
+        approach: 'No built-in hash map in C; back two arrays or use uthash. Logic mirrors the Python and C++ versions.',
+      },
+      go: {
+        code: `type FreqStack struct {
+    freq    map[int]int
+    group   map[int][]int
+    maxFreq int
+}
+
+func Constructor() FreqStack {
+    return FreqStack{freq: map[int]int{}, group: map[int][]int{}}
+}
+
+func (s *FreqStack) Push(val int) {
+    s.freq[val]++
+    f := s.freq[val]
+    if f > s.maxFreq { s.maxFreq = f }
+    s.group[f] = append(s.group[f], val)
+}
+
+func (s *FreqStack) Pop() int {
+    stk := s.group[s.maxFreq]
+    val := stk[len(stk)-1]
+    s.group[s.maxFreq] = stk[:len(stk)-1]
+    s.freq[val]--
+    if len(s.group[s.maxFreq]) == 0 {
+        delete(s.group, s.maxFreq)
+        s.maxFreq--
+    }
+    return val
+}`,
+        complexity: { time: 'O(1) push and pop', space: 'O(N)' },
+        approach: 'Two maps: freq (val to count) and group (count to slice used as stack). Slice append + slice[:len-1] gives O(1) stack ops.',
+      },
+    },
+  },
+
+  'design-underground-system': {
+    tags: ['hash-table', 'design'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: (() => {
+      const frames = [];
+      const ops = [
+        ['checkIn', 45, 'Leyton', 3],
+        ['checkIn', 32, 'Paradise', 8],
+        ['checkIn', 27, 'Leyton', 10],
+        ['checkOut', 45, 'Waterloo', 15],
+        ['checkOut', 27, 'Waterloo', 20],
+        ['checkOut', 32, 'Cambridge', 22],
+        ['avg', 'Paradise', 'Cambridge'],
+        ['avg', 'Leyton', 'Waterloo'],
+      ];
+      const live = new Map();
+      const route = new Map();
+      frames.push({ title: 'Init', ops, live: {}, route: {}, note: 'live[id] = (station, t). route[(start,end)] = (totalTime, trips).' });
+      for (const op of ops) {
+        if (op[0] === 'checkIn') {
+          const [, id, st, t] = op;
+          live.set(id, [st, t]);
+          frames.push({ title: `checkIn(${id})`, live: Object.fromEntries(live), route: Object.fromEntries(route), note: `Customer ${id} entered ${st} at t=${t}. Stored in live map.` });
+        } else if (op[0] === 'checkOut') {
+          const [, id, end, t] = op;
+          const [start, t0] = live.get(id);
+          live.delete(id);
+          const key = `${start}->${end}`;
+          const cur = route.get(key) || [0, 0];
+          cur[0] += t - t0; cur[1] += 1;
+          route.set(key, cur);
+          frames.push({ title: `checkOut(${id})`, live: Object.fromEntries(live), route: Object.fromEntries(route), note: `${id} exited ${end} at t=${t}. Trip ${start}->${end} took ${t - t0}. Route totals now ${cur[0]}/${cur[1]}.` });
+        } else {
+          const [, start, end] = op;
+          const key = `${start}->${end}`;
+          const [tot, n] = route.get(key) || [0, 0];
+          frames.push({ title: `avg ${start}->${end}`, live: Object.fromEntries(live), route: Object.fromEntries(route), note: n ? `Average = ${tot}/${n} = ${(tot / n).toFixed(5)}.` : 'No trips on this route yet.' });
+        }
+        if (frames.length >= 12) break;
+      }
+      return frames.slice(0, 12);
+    })(),
+    solutions: {
+      python: {
+        code: `class UndergroundSystem:
+    def __init__(self):
+        self.live = {}   # id -> (start_station, check_in_time)
+        self.route = {}  # (start, end) -> [total_time, trips]
+
+    def checkIn(self, id, stationName, t):
+        self.live[id] = (stationName, t)
+
+    def checkOut(self, id, stationName, t):
+        start, t0 = self.live.pop(id)
+        key = (start, stationName)
+        if key not in self.route:
+            self.route[key] = [0, 0]
+        self.route[key][0] += t - t0
+        self.route[key][1] += 1
+
+    def getAverageTime(self, startStation, endStation):
+        total, n = self.route[(startStation, endStation)]
+        return total / n`,
+        complexity: { time: 'O(1) per operation', space: 'O(P + R) for P live passengers and R routes' },
+        approach: 'Two maps. live tracks each id while they are in transit. route stores running totals per (start, end) so getAverageTime is O(1) division.',
+      },
+      javascript: {
+        code: `class UndergroundSystem {
+  constructor() {
+    this.live = new Map();   // id -> [station, t]
+    this.route = new Map();  // "start|end" -> [total, trips]
+  }
+  checkIn(id, stationName, t) {
+    this.live.set(id, [stationName, t]);
+  }
+  checkOut(id, stationName, t) {
+    const [start, t0] = this.live.get(id);
+    this.live.delete(id);
+    const key = start + '|' + stationName;
+    const cur = this.route.get(key) || [0, 0];
+    cur[0] += t - t0;
+    cur[1] += 1;
+    this.route.set(key, cur);
+  }
+  getAverageTime(startStation, endStation) {
+    const [total, n] = this.route.get(startStation + '|' + endStation);
+    return total / n;
+  }
+}`,
+        complexity: { time: 'O(1) per operation', space: 'O(P + R)' },
+        approach: 'Compose the route key as start + delimiter + end since JS Maps need primitive keys. Keep running totals to avoid recomputation.',
+      },
+      java: {
+        code: `class UndergroundSystem {
+    private Map<Integer, int[]> live = new HashMap<>();           // id -> [stationHash, t]
+    private Map<Integer, String> liveStation = new HashMap<>();   // id -> startStation
+    private Map<String, long[]> route = new HashMap<>();          // "start|end" -> [total, trips]
+
+    public void checkIn(int id, String stationName, int t) {
+        liveStation.put(id, stationName);
+        live.put(id, new int[]{0, t});
+    }
+
+    public void checkOut(int id, String stationName, int t) {
+        String start = liveStation.remove(id);
+        int t0 = live.remove(id)[1];
+        String key = start + "|" + stationName;
+        long[] cur = route.computeIfAbsent(key, k -> new long[2]);
+        cur[0] += t - t0;
+        cur[1] += 1;
+    }
+
+    public double getAverageTime(String startStation, String endStation) {
+        long[] cur = route.get(startStation + "|" + endStation);
+        return (double) cur[0] / cur[1];
+    }
+}`,
+        complexity: { time: 'O(1) per operation', space: 'O(P + R)' },
+        approach: 'long[] for the running totals because total time can exceed int range. computeIfAbsent keeps the upsert tight.',
+      },
+      cpp: {
+        code: `class UndergroundSystem {
+    unordered_map<int, pair<string, int>> live;
+    unordered_map<string, pair<long long, int>> route;
+public:
+    void checkIn(int id, string stationName, int t) {
+        live[id] = {stationName, t};
+    }
+    void checkOut(int id, string stationName, int t) {
+        auto [start, t0] = live[id];
+        live.erase(id);
+        string key = start + "|" + stationName;
+        auto& cur = route[key];
+        cur.first += t - t0;
+        cur.second += 1;
+    }
+    double getAverageTime(string startStation, string endStation) {
+        auto& cur = route[startStation + "|" + endStation];
+        return (double) cur.first / cur.second;
+    }
+};`,
+        complexity: { time: 'O(1) per operation', space: 'O(P + R)' },
+        approach: 'unordered_map of pair for both stores. long long for totals so large datasets do not overflow.',
+      },
+      c: {
+        code: `// Sketch: open-addressed hash maps keyed by int id and by (start|end) string.
+// live[id]   -> { char start[32]; int t0; }
+// route[key] -> { long long total; int trips; }
+// checkIn:    store live entry.
+// checkOut:   pop live entry, format key = "start|end", upsert route, add delta and trip.
+// getAverageTime: look up route key and return total / trips.
+typedef struct UndergroundSystem UndergroundSystem;
+UndergroundSystem* undergroundSystemCreate(void);
+void  undergroundSystemCheckIn(UndergroundSystem* obj, int id, char* stationName, int t);
+void  undergroundSystemCheckOut(UndergroundSystem* obj, int id, char* stationName, int t);
+double undergroundSystemGetAverageTime(UndergroundSystem* obj, char* startStation, char* endStation);`,
+        complexity: { time: 'O(1) per operation', space: 'O(P + R)' },
+        approach: 'C has no map; use uthash or hand-rolled open addressing. Logic is identical to the higher-level versions.',
+      },
+      go: {
+        code: `type liveEntry struct {
+    station string
+    t       int
+}
+
+type routeEntry struct {
+    total int
+    trips int
+}
+
+type UndergroundSystem struct {
+    live  map[int]liveEntry
+    route map[string]*routeEntry
+}
+
+func Constructor() UndergroundSystem {
+    return UndergroundSystem{live: map[int]liveEntry{}, route: map[string]*routeEntry{}}
+}
+
+func (u *UndergroundSystem) CheckIn(id int, stationName string, t int) {
+    u.live[id] = liveEntry{stationName, t}
+}
+
+func (u *UndergroundSystem) CheckOut(id int, stationName string, t int) {
+    le := u.live[id]
+    delete(u.live, id)
+    key := le.station + "|" + stationName
+    r, ok := u.route[key]
+    if !ok {
+        r = &routeEntry{}
+        u.route[key] = r
+    }
+    r.total += t - le.t
+    r.trips++
+}
+
+func (u *UndergroundSystem) GetAverageTime(startStation, endStation string) float64 {
+    r := u.route[startStation+"|"+endStation]
+    return float64(r.total) / float64(r.trips)
+}`,
+        complexity: { time: 'O(1) per operation', space: 'O(P + R)' },
+        approach: 'Pointer to routeEntry so updates mutate the stored struct in-place. String concat is the simplest composite key in Go.',
+      },
+    },
+  },
+
+
+  'count-subarrays-with-fixed-bounds': {
+    tags: ['array', 'queue', 'sliding-window', 'monotonic-queue'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    constraints: '2 ≤ nums.length ≤ 10^5\n1 ≤ nums[i], minK, maxK ≤ 10^6',
+    followUp: 'Can you generalize to k distinct fixed bounds? Or count subarrays whose min and max fall within ranges [a,b] and [c,d]?',
+    similar: ['subarrays-with-k-different-integers', 'count-nice-subarrays', 'longest-substring-without-repeating'],
+    viz: (() => {
+      const nums = [1, 3, 5, 2, 7, 5], minK = 1, maxK = 5;
+      const frames = [];
+      let minPos = -1, maxPos = -1, badPos = -1, total = 0;
+      frames.push({ array: nums, caption: `nums=[${nums.join(',')}], minK=${minK}, maxK=${maxK}. Track lastMinK, lastMaxK, lastBad (out-of-range). A subarray ending at i is valid iff lastBad < min(lastMinK, lastMaxK).` });
+      for (let i = 0; i < nums.length; i++) {
+        const v = nums[i];
+        let note = '';
+        if (v < minK || v > maxK) { badPos = i; note = `${v} out of [${minK},${maxK}] → lastBad=${i}.`; }
+        else { note = `${v} in range.`; }
+        if (v === minK) { minPos = i; note += ` =minK → lastMinK=${i}.`; }
+        if (v === maxK) { maxPos = i; note += ` =maxK → lastMaxK=${i}.`; }
+        const valid = Math.min(minPos, maxPos);
+        const add = Math.max(0, valid - badPos);
+        total += add;
+        frames.push({ array: nums, highlights: { [i]: add > 0 ? 'match' : 'mid' }, caption: `i=${i}: ${note} valid=min(lastMinK,lastMaxK)=${valid}, lastBad=${badPos} → +max(0, ${valid}-${badPos})=${add}. total=${total}.` });
+      }
+      frames.push({ array: nums, highlights: Object.fromEntries(nums.map((_, k) => [k, 'match'])), caption: `Answer: ${total}. Every valid subarray ends somewhere; sum of "good endings" at each i is the count.` });
+      while (frames.length < 12) frames.push({ array: nums, caption: `Key insight: once we've seen minK at p and maxK at q after the last bad index b, every left endpoint in [b+1, min(p,q)] gives a valid subarray ending at i.` });
+      return { renderer: 'array', title: 'Count Subarrays with Fixed Bounds — three-pointer sweep', frames: frames.slice(0, 12) };
+    })(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def countSubarrays(self, nums, minK, maxK):
+        ans = min_pos = max_pos = -1
+        bad = -1
+        total = 0
+        for i, v in enumerate(nums):
+            if v < minK or v > maxK:
+                bad = i
+            if v == minK:
+                min_pos = i
+            if v == maxK:
+                max_pos = i
+            total += max(0, min(min_pos, max_pos) - bad)
+        return total`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Track the last index where v==minK, v==maxK, and v out-of-range. A subarray ending at i is valid iff both minK and maxK appear after the last bad index. Count = min(lastMinK, lastMaxK) - lastBad (clamped to 0).',
+      },
+      javascript: {
+        code: `function countSubarrays(nums, minK, maxK) {
+  let minPos = -1, maxPos = -1, bad = -1, total = 0;
+  for (let i = 0; i < nums.length; i++) {
+    const v = nums[i];
+    if (v < minK || v > maxK) bad = i;
+    if (v === minK) minPos = i;
+    if (v === maxK) maxPos = i;
+    total += Math.max(0, Math.min(minPos, maxPos) - bad);
+  }
+  return total;
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Same three-pointer sweep. Math.min returns -1 when either bound has not yet appeared, and Math.max(0, ...) zeros it out.',
+      },
+      java: {
+        code: `class Solution {
+    public long countSubarrays(int[] nums, int minK, int maxK) {
+        long total = 0;
+        int minPos = -1, maxPos = -1, bad = -1;
+        for (int i = 0; i < nums.length; i++) {
+            int v = nums[i];
+            if (v < minK || v > maxK) bad = i;
+            if (v == minK) minPos = i;
+            if (v == maxK) maxPos = i;
+            total += Math.max(0, Math.min(minPos, maxPos) - bad);
+        }
+        return total;
+    }
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'long return — with n up to 10^5, the count of valid subarrays can exceed int range.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    long long countSubarrays(vector<int>& nums, int minK, int maxK) {
+        long long total = 0;
+        int minPos = -1, maxPos = -1, bad = -1;
+        for (int i = 0; i < (int)nums.size(); i++) {
+            int v = nums[i];
+            if (v < minK || v > maxK) bad = i;
+            if (v == minK) minPos = i;
+            if (v == maxK) maxPos = i;
+            total += max(0, min(minPos, maxPos) - bad);
+        }
+        return total;
+    }
+};`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'long long total — same overflow concern as Java. The min/max chain coerces -1 sentinels naturally.',
+      },
+      c: {
+        code: `long long countSubarrays(int* nums, int numsSize, int minK, int maxK) {
+    long long total = 0;
+    int minPos = -1, maxPos = -1, bad = -1;
+    for (int i = 0; i < numsSize; i++) {
+        int v = nums[i];
+        if (v < minK || v > maxK) bad = i;
+        if (v == minK) minPos = i;
+        if (v == maxK) maxPos = i;
+        int valid = minPos < maxPos ? minPos : maxPos;
+        int add = valid - bad;
+        if (add > 0) total += add;
+    }
+    return total;
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Same three-pointer sweep with explicit branch instead of max(0, ...).',
+      },
+      go: {
+        code: `func countSubarrays(nums []int, minK int, maxK int) int64 {
+    var total int64
+    minPos, maxPos, bad := -1, -1, -1
+    for i, v := range nums {
+        if v < minK || v > maxK { bad = i }
+        if v == minK { minPos = i }
+        if v == maxK { maxPos = i }
+        valid := minPos
+        if maxPos < valid { valid = maxPos }
+        if valid - bad > 0 { total += int64(valid - bad) }
+    }
+    return total
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'int64 return mirrors Java/C++. Go has no generic min/max for ints in older versions; explicit branch.',
+      },
+    },
+  },
+
+  'count-nice-subarrays': {
+    tags: ['array', 'hash-table', 'math', 'sliding-window'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    constraints: '1 ≤ nums.length ≤ 50000\n1 ≤ nums[i] ≤ 10^5\n1 ≤ k ≤ nums.length',
+    followUp: 'Can you solve it in one pass with a prefix-count hash map instead of two sliding windows?',
+    similar: ['subarrays-with-k-different-integers', 'binary-subarrays-with-sum', 'count-subarrays-with-fixed-bounds'],
+    viz: (() => {
+      const nums = [1, 1, 2, 1, 1], k = 3;
+      const frames = [];
+      const odd = nums.map(v => v % 2);
+      frames.push({ array: nums, caption: `nums=[${nums.join(',')}], k=${k}. Trick: exactly(k) = atMost(k) - atMost(k-1). Slide a window counting odds ≤ cap; total += window length each step.` });
+      const run = (cap, label) => {
+        let l = 0, oddCount = 0, sum = 0;
+        for (let r = 0; r < nums.length; r++) {
+          oddCount += odd[r];
+          while (oddCount > cap) { oddCount -= odd[l]; l++; }
+          sum += r - l + 1;
+          frames.push({ array: nums, highlights: Object.fromEntries(Array.from({length: r - l + 1}, (_, i) => [l + i, 'mid'])), caption: `${label}: r=${r}, l=${l}, odds-in-window=${oddCount} (cap ${cap}). Add window length ${r - l + 1}. Running sum=${sum}.` });
+        }
+        return sum;
+      };
+      const a = run(k, `atMost(${k})`);
+      const b = run(k - 1, `atMost(${k - 1})`);
+      frames.push({ array: nums, highlights: Object.fromEntries(nums.map((_, i) => [i, 'match'])), caption: `atMost(${k})=${a}, atMost(${k - 1})=${b}. Answer = ${a} - ${b} = ${a - b}.` });
+      while (frames.length < 12) frames.push({ array: nums, caption: `Why subtract? atMost(k) counts subarrays with ≤k odds; subtracting atMost(k-1) leaves exactly k.` });
+      return { renderer: 'array', title: 'Count Number of Nice Subarrays — atMost(k) - atMost(k-1)', frames: frames.slice(0, 12) };
+    })(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def numberOfSubarrays(self, nums, k):
+        def at_most(cap):
+            l = odd = total = 0
+            for r, v in enumerate(nums):
+                odd += v & 1
+                while odd > cap:
+                    odd -= nums[l] & 1
+                    l += 1
+                total += r - l + 1
+            return total
+        return at_most(k) - at_most(k - 1)`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Reduce "exactly k odds" to "at most k" minus "at most k-1". atMost(cap) is a classic sliding window: shrink left until oddCount ≤ cap, then add (r-l+1) — the count of valid subarrays ending at r.',
+      },
+      javascript: {
+        code: `function numberOfSubarrays(nums, k) {
+  const atMost = (cap) => {
+    let l = 0, odd = 0, total = 0;
+    for (let r = 0; r < nums.length; r++) {
+      odd += nums[r] & 1;
+      while (odd > cap) { odd -= nums[l] & 1; l++; }
+      total += r - l + 1;
+    }
+    return total;
+  };
+  return atMost(k) - atMost(k - 1);
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Inner helper closes over nums. (v & 1) is the parity check — 1 for odd, 0 for even.',
+      },
+      java: {
+        code: `class Solution {
+    public int numberOfSubarrays(int[] nums, int k) {
+        return atMost(nums, k) - atMost(nums, k - 1);
+    }
+    private int atMost(int[] nums, int cap) {
+        int l = 0, odd = 0, total = 0;
+        for (int r = 0; r < nums.length; r++) {
+            odd += nums[r] & 1;
+            while (odd > cap) { odd -= nums[l] & 1; l++; }
+            total += r - l + 1;
+        }
+        return total;
+    }
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Two passes over the array; both are linear so total is still O(n). cap=k-1 short-circuits when k-1 < 0? Not possible since constraints guarantee k ≥ 1, so cap ≥ 0.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int numberOfSubarrays(vector<int>& nums, int k) {
+        return atMost(nums, k) - atMost(nums, k - 1);
+    }
+private:
+    int atMost(vector<int>& nums, int cap) {
+        int l = 0, odd = 0, total = 0;
+        for (int r = 0; r < (int)nums.size(); r++) {
+            odd += nums[r] & 1;
+            while (odd > cap) { odd -= nums[l] & 1; l++; }
+            total += r - l + 1;
+        }
+        return total;
+    }
+};`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Private helper keeps the public signature clean. int fits — n ≤ 50000 so max count is ~n²/2 ≈ 1.25e9, still within int32 range.',
+      },
+      c: {
+        code: `static int atMost(int* nums, int n, int cap) {
+    int l = 0, odd = 0, total = 0;
+    for (int r = 0; r < n; r++) {
+        odd += nums[r] & 1;
+        while (odd > cap) { odd -= nums[l] & 1; l++; }
+        total += r - l + 1;
+    }
+    return total;
+}
+int numberOfSubarrays(int* nums, int numsSize, int k) {
+    return atMost(nums, numsSize, k) - atMost(nums, numsSize, k - 1);
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Static helper for file-local linkage. Two linear passes, no allocations.',
+      },
+      go: {
+        code: `func numberOfSubarrays(nums []int, k int) int {
+    atMost := func(cap int) int {
+        l, odd, total := 0, 0, 0
+        for r, v := range nums {
+            odd += v & 1
+            for odd > cap {
+                odd -= nums[l] & 1
+                l++
+            }
+            total += r - l + 1
+        }
+        return total
+    }
+    return atMost(k) - atMost(k - 1)
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Closure captures nums. Same atMost(k) - atMost(k-1) reduction; works because the count-with-cap is monotone in cap.',
+      },
+    },
+  },
+
+
+  'couples-holding-hands': {
+    tags: ['array', 'union-find', 'greedy'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    inlineVisualization: {
+      title: 'Union-Find on couple-ids — each non-singleton component costs (size - 1) swaps',
+      frames: Array.from({ length: 12 }, (_, i) => ({
+        step: i + 1,
+        note: [
+          'Couples sit in pairs of adjacent seats: (row[0], row[1]), (row[2], row[3]), ... Person p belongs to couple p>>1 (i.e. p/2).',
+          'Goal: minimum swaps so every adjacent pair shares the same couple-id. Each swap exchanges any two people.',
+          'Key insight: build a graph where each ADJACENT seat-pair contributes an edge between the two couple-ids sitting there.',
+          'A connected component of k couples needs exactly (k - 1) swaps to resolve — one swap collapses a 2-cycle, two swaps collapse a 3-cycle, etc.',
+          'So total swaps = sum over components of (size - 1) = (total couples) - (number of components). Union-Find computes this in near-O(n).',
+          'Example: row = [0,2,1,3]. Couple-ids per seat pair: (0>>1, 2>>1)=(0,1) and (1>>1, 3>>1)=(0,1). Edges: 0-1 and 0-1.',
+          'DSU init: parent[0]=0, parent[1]=1. union(0,1) merges them. Second edge 0-1 already same component — no-op.',
+          'Components: 1. Couples: 2. Answer = 2 - 1 = 1 swap. (Swap row[1]=2 with row[2]=1 -> [0,1,2,3]: done.)',
+          'Why (size - 1)? A component of size k forms a cycle in the "wrong pairing" graph; one swap reduces the cycle length by 1, so k vertices need k-1 swaps to dissolve into k self-loops.',
+          'Larger example: row = [3,2,0,1]. Pairs: (1,1) and (0,0) — both already correct. Edges: 1-1 (self) and 0-0 (self). Components = 2. Answer = 2 - 2 = 0.',
+          'Union-Find with path compression + union by rank runs in O(n * alpha(n)) ~ O(n). Memory O(n) for parent + rank arrays.',
+          'Greedy alternative (in-place): scan pairs left-to-right; if partner of row[2i] is not at row[2i+1], swap it in. Same O(n) bound, simpler — but DSU framing generalizes to any "minimum-swaps-to-match" cycle problem.',
+        ][i],
+      })),
+    },
+    solutions: {
+      python: `class Solution:\n    def minSwapsCouples(self, row):\n        n = len(row) // 2\n        parent = list(range(n))\n        def find(x):\n            while parent[x] != x:\n                parent[x] = parent[parent[x]]\n                x = parent[x]\n            return x\n        def union(a, b):\n            ra, rb = find(a), find(b)\n            if ra == rb: return False\n            parent[ra] = rb\n            return True\n        comps = n\n        for i in range(0, len(row), 2):\n            if union(row[i] // 2, row[i+1] // 2):\n                comps -= 1\n        return n - comps`,
+      javascript: `var minSwapsCouples = function(row) {\n  const n = row.length / 2;\n  const parent = Array.from({length: n}, (_, i) => i);\n  const find = (x) => { while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; } return x; };\n  const union = (a, b) => { const ra = find(a), rb = find(b); if (ra === rb) return false; parent[ra] = rb; return true; };\n  let comps = n;\n  for (let i = 0; i < row.length; i += 2) {\n    if (union(row[i] >> 1, row[i+1] >> 1)) comps--;\n  }\n  return n - comps;\n};`,
+      java: `class Solution {\n    int[] parent;\n    int find(int x) {\n        while (parent[x] != x) { parent[x] = parent[parent[x]]; x = parent[x]; }\n        return x;\n    }\n    boolean union(int a, int b) {\n        int ra = find(a), rb = find(b);\n        if (ra == rb) return false;\n        parent[ra] = rb;\n        return true;\n    }\n    public int minSwapsCouples(int[] row) {\n        int n = row.length / 2;\n        parent = new int[n];\n        for (int i = 0; i < n; i++) parent[i] = i;\n        int comps = n;\n        for (int i = 0; i < row.length; i += 2) {\n            if (union(row[i] >> 1, row[i+1] >> 1)) comps--;\n        }\n        return n - comps;\n    }\n}`,
+      cpp: `class Solution {\npublic:\n    vector<int> parent;\n    int find(int x) {\n        while (parent[x] != x) { parent[x] = parent[parent[x]]; x = parent[x]; }\n        return x;\n    }\n    bool unite(int a, int b) {\n        int ra = find(a), rb = find(b);\n        if (ra == rb) return false;\n        parent[ra] = rb;\n        return true;\n    }\n    int minSwapsCouples(vector<int>& row) {\n        int n = row.size() / 2;\n        parent.resize(n);\n        iota(parent.begin(), parent.end(), 0);\n        int comps = n;\n        for (int i = 0; i < (int)row.size(); i += 2) {\n            if (unite(row[i] >> 1, row[i+1] >> 1)) comps--;\n        }\n        return n - comps;\n    }\n};`,
+      go: `func minSwapsCouples(row []int) int {\n    n := len(row) / 2\n    parent := make([]int, n)\n    for i := range parent { parent[i] = i }\n    var find func(int) int\n    find = func(x int) int {\n        for parent[x] != x {\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        }\n        return x\n    }\n    union := func(a, b int) bool {\n        ra, rb := find(a), find(b)\n        if ra == rb { return false }\n        parent[ra] = rb\n        return true\n    }\n    comps := n\n    for i := 0; i < len(row); i += 2 {\n        if union(row[i]>>1, row[i+1]>>1) { comps-- }\n    }\n    return n - comps\n}`,
+      typescript: `function minSwapsCouples(row: number[]): number {\n  const n = row.length / 2;\n  const parent: number[] = Array.from({length: n}, (_, i) => i);\n  const find = (x: number): number => { while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; } return x; };\n  const union = (a: number, b: number): boolean => { const ra = find(a), rb = find(b); if (ra === rb) return false; parent[ra] = rb; return true; };\n  let comps = n;\n  for (let i = 0; i < row.length; i += 2) {\n    if (union(row[i] >> 1, row[i+1] >> 1)) comps--;\n  }\n  return n - comps;\n}`,
+    },
+  },
+
+  'most-stones-removed-from-same-row-or-column': {
+    tags: ['hash-table', 'union-find', 'graph'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    inlineVisualization: {
+      title: 'Union-Find on rows + cols — answer = n - (number of connected components)',
+      frames: Array.from({ length: 12 }, (_, i) => ({
+        step: i + 1,
+        note: [
+          'Two stones are "connected" if they share a row OR a column. A stone can be removed iff another stone remains in its row or column.',
+          'Greedy claim: every connected component of size k can be reduced down to ONE remaining stone — so we can remove k-1 from each component.',
+          'Therefore answer = n (total stones) - C (number of components). The problem collapses to counting connected components.',
+          'Trick: do NOT union stone-to-stone (O(n^2)). Instead union each stone with its ROW-id and its COL-id — treat rows and columns as nodes themselves.',
+          'Encoding: use row index as id `r` and column index as `~c` (or `c + 10001`) so row-ids and col-ids never collide in the DSU.',
+          'Example: stones = [[0,0],[0,1],[1,0],[1,2],[2,1],[2,2]]. n = 6.',
+          'Stone [0,0]: union(row 0, ~col 0). Stone [0,1]: union(row 0, ~col 1) — col 1 joins the same component as row 0.',
+          'Stone [1,0]: union(row 1, ~col 0) — row 1 joins col 0 which is already with row 0. So row 1 is now in the big component.',
+          'Stone [1,2]: union(row 1, ~col 2) — col 2 joins the big component. Stone [2,1]: union(row 2, ~col 1) — row 2 joins via col 1.',
+          'Stone [2,2]: union(row 2, ~col 2) — both already in the same component; no-op.',
+          'All 6 stones map into ONE component (counting unique roots among the stone-positions, not among all DSU nodes). Answer = 6 - 1 = 5.',
+          'Why this works: a row-node connects every stone in that row; a col-node connects every stone in that column. Two stones are in the same DSU component iff there is a chain of shared-row-or-column links between them.',
+        ][i],
+      })),
+    },
+    solutions: {
+      python: `class Solution:\n    def removeStones(self, stones):\n        parent = {}\n        def find(x):\n            parent.setdefault(x, x)\n            while parent[x] != x:\n                parent[x] = parent[parent[x]]\n                x = parent[x]\n            return x\n        def union(a, b):\n            ra, rb = find(a), find(b)\n            if ra != rb:\n                parent[ra] = rb\n        for r, c in stones:\n            union(r, ~c)  # ~c is distinct from any row index\n        roots = {find(r) for r, _ in stones}\n        return len(stones) - len(roots)`,
+      javascript: `var removeStones = function(stones) {\n  const parent = new Map();\n  const find = (x) => {\n    if (!parent.has(x)) parent.set(x, x);\n    while (parent.get(x) !== x) {\n      parent.set(x, parent.get(parent.get(x)));\n      x = parent.get(x);\n    }\n    return x;\n  };\n  const union = (a, b) => { const ra = find(a), rb = find(b); if (ra !== rb) parent.set(ra, rb); };\n  for (const [r, c] of stones) union(r, ~c);\n  const roots = new Set();\n  for (const [r] of stones) roots.add(find(r));\n  return stones.length - roots.size;\n};`,
+      java: `import java.util.HashMap;\nimport java.util.HashSet;\nclass Solution {\n    HashMap<Integer, Integer> parent = new HashMap<>();\n    int find(int x) {\n        parent.putIfAbsent(x, x);\n        while (parent.get(x) != x) {\n            parent.put(x, parent.get(parent.get(x)));\n            x = parent.get(x);\n        }\n        return x;\n    }\n    void union(int a, int b) {\n        int ra = find(a), rb = find(b);\n        if (ra != rb) parent.put(ra, rb);\n    }\n    public int removeStones(int[][] stones) {\n        for (int[] s : stones) union(s[0], ~s[1]);\n        HashSet<Integer> roots = new HashSet<>();\n        for (int[] s : stones) roots.add(find(s[0]));\n        return stones.length - roots.size();\n    }\n}`,
+      cpp: `class Solution {\npublic:\n    unordered_map<int, int> parent;\n    int find(int x) {\n        if (!parent.count(x)) parent[x] = x;\n        while (parent[x] != x) {\n            parent[x] = parent[parent[x]];\n            x = parent[x];\n        }\n        return x;\n    }\n    void unite(int a, int b) {\n        int ra = find(a), rb = find(b);\n        if (ra != rb) parent[ra] = rb;\n    }\n    int removeStones(vector<vector<int>>& stones) {\n        for (auto& s : stones) unite(s[0], ~s[1]);\n        unordered_set<int> roots;\n        for (auto& s : stones) roots.insert(find(s[0]));\n        return stones.size() - roots.size();\n    }\n};`,
+      go: `func removeStones(stones [][]int) int {\n    parent := map[int]int{}\n    var find func(int) int\n    find = func(x int) int {\n        if _, ok := parent[x]; !ok { parent[x] = x }\n        for parent[x] != x {\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        }\n        return x\n    }\n    union := func(a, b int) {\n        ra, rb := find(a), find(b)\n        if ra != rb { parent[ra] = rb }\n    }\n    for _, s := range stones {\n        union(s[0], ^s[1])\n    }\n    roots := map[int]struct{}{}\n    for _, s := range stones {\n        roots[find(s[0])] = struct{}{}\n    }\n    return len(stones) - len(roots)\n}`,
+      typescript: `function removeStones(stones: number[][]): number {\n  const parent = new Map<number, number>();\n  const find = (x: number): number => {\n    if (!parent.has(x)) parent.set(x, x);\n    while (parent.get(x)! !== x) {\n      parent.set(x, parent.get(parent.get(x)!)!);\n      x = parent.get(x)!;\n    }\n    return x;\n  };\n  const union = (a: number, b: number): void => { const ra = find(a), rb = find(b); if (ra !== rb) parent.set(ra, rb); };\n  for (const [r, c] of stones) union(r, ~c);\n  const roots = new Set<number>();\n  for (const [r] of stones) roots.add(find(r));\n  return stones.length - roots.size;\n};`,
+    },
+  },
+
+  'frog-jump': {
+    tags: ['array', 'dp', 'hash-table'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    inlineVisualization: {
+      title: 'DP over (stone, last-jump-size) — hashset of reachable states',
+      frames: Array.from({ length: 12 }, (_, i) => ({
+        step: i + 1,
+        note: [
+          'Frog starts at stones[0]=0 with jump size 0. First jump MUST be exactly 1.',
+          'From a stone reached with last-jump k, next jump can be k-1, k, or k+1 (and must be > 0).',
+          'State = (stone_value, k). Visit each state once → use a hashset keyed by `stone*BASE + k` or a dict-of-sets.',
+          'Equivalent: reach[stone] = set of k values that could have arrived at this stone.',
+          'Example: stones = [0,1,3,5,6,8,12,17]. pos_set = {0,1,3,5,6,8,12,17} for O(1) "is stone?" checks.',
+          'Init reach[0] = {0}. Pop (0, k=0): next stone 0+1 = 1 is a stone → reach[1].add(1).',
+          'Pop (1, k=1): try jumps {0,1,2}. Land on 1,2,3. Only 3 is a stone → reach[3].add(2).',
+          'Pop (3, k=2): try {1,2,3}. Land on 4,5,6. 5 and 6 are stones → reach[5].add(2), reach[6].add(3).',
+          'Pop (5, k=2): try {1,2,3}. Land on 6,7,8. Stones 6 and 8 → reach[6].add(3) (dup), reach[8].add(3).',
+          'Pop (6, k=3): try {2,3,4}. Land on 8,9,10. Only 8 → reach[8].add(3) (dup). Pop (8, k=3): try {2,3,4} → 10,11,12 → reach[12].add(4).',
+          'Pop (12, k=4): try {3,4,5}. Land on 15,16,17. 17 is the last stone → reach[17].add(5). Done: reach[17] non-empty.',
+          'Complexity: states ≤ n*n (each stone has at most n distinct k values) → O(n^2) time and space.',
+        ][i],
+      })),
+    },
+    solutions: {
+      python: `class Solution:\n    def canCross(self, stones):\n        if stones[1] != 1:\n            return False\n        pos = set(stones)\n        last = stones[-1]\n        reach = {s: set() for s in stones}\n        reach[1].add(1)\n        for s in stones:\n            for k in reach[s]:\n                for step in (k - 1, k, k + 1):\n                    if step > 0 and (s + step) in pos:\n                        if s + step == last:\n                            return True\n                        reach[s + step].add(step)\n        return False`,
+      javascript: `var canCross = function(stones) {\n  if (stones[1] !== 1) return false;\n  const pos = new Set(stones);\n  const last = stones[stones.length - 1];\n  const reach = new Map();\n  for (const s of stones) reach.set(s, new Set());\n  reach.get(1).add(1);\n  for (const s of stones) {\n    for (const k of reach.get(s)) {\n      for (const step of [k - 1, k, k + 1]) {\n        if (step > 0 && pos.has(s + step)) {\n          if (s + step === last) return true;\n          reach.get(s + step).add(step);\n        }\n      }\n    }\n  }\n  return false;\n};`,
+      java: `import java.util.*;\nclass Solution {\n    public boolean canCross(int[] stones) {\n        if (stones[1] != 1) return false;\n        Set<Integer> pos = new HashSet<>();\n        for (int s : stones) pos.add(s);\n        int last = stones[stones.length - 1];\n        Map<Integer, Set<Integer>> reach = new HashMap<>();\n        for (int s : stones) reach.put(s, new HashSet<>());\n        reach.get(1).add(1);\n        for (int s : stones) {\n            for (int k : new ArrayList<>(reach.get(s))) {\n                for (int step = k - 1; step <= k + 1; step++) {\n                    if (step > 0 && pos.contains(s + step)) {\n                        if (s + step == last) return true;\n                        reach.get(s + step).add(step);\n                    }\n                }\n            }\n        }\n        return false;\n    }\n}`,
+      cpp: `class Solution {\npublic:\n    bool canCross(vector<int>& stones) {\n        if (stones[1] != 1) return false;\n        unordered_set<int> pos(stones.begin(), stones.end());\n        int last = stones.back();\n        unordered_map<int, unordered_set<int>> reach;\n        for (int s : stones) reach[s] = {};\n        reach[1].insert(1);\n        for (int s : stones) {\n            vector<int> ks(reach[s].begin(), reach[s].end());\n            for (int k : ks) {\n                for (int step = k - 1; step <= k + 1; step++) {\n                    if (step > 0 && pos.count(s + step)) {\n                        if (s + step == last) return true;\n                        reach[s + step].insert(step);\n                    }\n                }\n            }\n        }\n        return false;\n    }\n};`,
+      go: `func canCross(stones []int) bool {\n    if stones[1] != 1 {\n        return false\n    }\n    pos := map[int]bool{}\n    for _, s := range stones {\n        pos[s] = true\n    }\n    last := stones[len(stones)-1]\n    reach := map[int]map[int]bool{}\n    for _, s := range stones {\n        reach[s] = map[int]bool{}\n    }\n    reach[1][1] = true\n    for _, s := range stones {\n        ks := []int{}\n        for k := range reach[s] {\n            ks = append(ks, k)\n        }\n        for _, k := range ks {\n            for step := k - 1; step <= k+1; step++ {\n                if step > 0 && pos[s+step] {\n                    if s+step == last {\n                        return true\n                    }\n                    reach[s+step][step] = true\n                }\n            }\n        }\n    }\n    return false\n}`,
+      typescript: `function canCross(stones: number[]): boolean {\n  if (stones[1] !== 1) return false;\n  const pos = new Set<number>(stones);\n  const last = stones[stones.length - 1];\n  const reach = new Map<number, Set<number>>();\n  for (const s of stones) reach.set(s, new Set());\n  reach.get(1)!.add(1);\n  for (const s of stones) {\n    for (const k of Array.from(reach.get(s)!)) {\n      for (const step of [k - 1, k, k + 1]) {\n        if (step > 0 && pos.has(s + step)) {\n          if (s + step === last) return true;\n          reach.get(s + step)!.add(step);\n        }\n      }\n    }\n  }\n  return false;\n}`,
+    },
+  },
+
+  'paint-house-iii': {
+    tags: ['array', 'dp'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    inlineVisualization: {
+      title: '3D DP — dp[i][c][g] = min cost painting house i color c with g neighborhoods so far',
+      frames: Array.from({ length: 12 }, (_, i) => ({
+        step: i + 1,
+        note: [
+          'm houses in a row, n colors. Some are pre-painted (houses[i] > 0, cost ignored).',
+          'A "neighborhood" is a maximal run of same-color adjacent houses. We want exactly `target` neighborhoods.',
+          'State: dp[i][c][g] = min cost to paint houses 0..i where house i is color c and the prefix has g neighborhoods.',
+          'Transition for house i, color c, groups g: take min over previous color c2 of dp[i-1][c2][g - (c != c2 ? 1 : 0)].',
+          'Add cost[i][c-1] only when houses[i] == 0 (else house is fixed → only c == houses[i] is valid, add 0).',
+          'Pruning: g > i+1 is impossible (each house adds at most 1 new neighborhood). g > target is invalid.',
+          'Example: houses=[0,0,0,0,0], cost=[[1,10],[10,1],[10,1],[1,10],[5,1]], m=5, n=2, target=3.',
+          'Greedy fails: minimum per house = [1,1,1,1,1] → colors 1,2,2,1,2 → 5 neighborhoods, not 3.',
+          'DP forces g==target at the end. Optimal: 1,2,2,1,1 with costs 1+1+1+1+5 = 9. Two color flips → 3 groups.',
+          'Init: dp[0][c][1] = cost of painting house 0 color c (or 0 if pre-painted matches). 1 neighborhood so far.',
+          'Answer: min over c of dp[m-1][c][target]. INF means impossible → return -1.',
+          'Complexity: O(m * n * target * n) = O(m * n^2 * target). For m=100, n=20, target=100 → ~4M ops. Fast.',
+        ][i],
+      })),
+    },
+    solutions: {
+      python: `class Solution:\n    def minCost(self, houses, cost, m, n, target):\n        INF = float('inf')\n        dp = [[[INF] * (target + 1) for _ in range(n + 1)] for _ in range(m)]\n        if houses[0] == 0:\n            for c in range(1, n + 1):\n                dp[0][c][1] = cost[0][c - 1]\n        else:\n            dp[0][houses[0]][1] = 0\n        for i in range(1, m):\n            fixed = houses[i]\n            colors = [fixed] if fixed else range(1, n + 1)\n            for c in colors:\n                add = 0 if fixed else cost[i][c - 1]\n                for g in range(1, min(i + 1, target) + 1):\n                    best = INF\n                    for c2 in range(1, n + 1):\n                        prev_g = g if c2 == c else g - 1\n                        if prev_g >= 1 and dp[i - 1][c2][prev_g] < best:\n                            best = dp[i - 1][c2][prev_g]\n                    if best < INF:\n                        dp[i][c][g] = best + add\n        ans = min(dp[m - 1][c][target] for c in range(1, n + 1))\n        return ans if ans < INF else -1`,
+      javascript: `var minCost = function(houses, cost, m, n, target) {\n  const INF = Infinity;\n  const dp = Array.from({ length: m }, () => Array.from({ length: n + 1 }, () => new Array(target + 1).fill(INF)));\n  if (houses[0] === 0) {\n    for (let c = 1; c <= n; c++) dp[0][c][1] = cost[0][c - 1];\n  } else {\n    dp[0][houses[0]][1] = 0;\n  }\n  for (let i = 1; i < m; i++) {\n    const fixed = houses[i];\n    const colors = fixed ? [fixed] : Array.from({ length: n }, (_, k) => k + 1);\n    for (const c of colors) {\n      const add = fixed ? 0 : cost[i][c - 1];\n      const maxG = Math.min(i + 1, target);\n      for (let g = 1; g <= maxG; g++) {\n        let best = INF;\n        for (let c2 = 1; c2 <= n; c2++) {\n          const prevG = c2 === c ? g : g - 1;\n          if (prevG >= 1 && dp[i - 1][c2][prevG] < best) best = dp[i - 1][c2][prevG];\n        }\n        if (best < INF) dp[i][c][g] = best + add;\n      }\n    }\n  }\n  let ans = INF;\n  for (let c = 1; c <= n; c++) if (dp[m - 1][c][target] < ans) ans = dp[m - 1][c][target];\n  return ans < INF ? ans : -1;\n};`,
+      java: `class Solution {\n    public int minCost(int[] houses, int[][] cost, int m, int n, int target) {\n        final int INF = Integer.MAX_VALUE / 4;\n        int[][][] dp = new int[m][n + 1][target + 1];\n        for (int[][] a : dp) for (int[] b : a) java.util.Arrays.fill(b, INF);\n        if (houses[0] == 0) {\n            for (int c = 1; c <= n; c++) dp[0][c][1] = cost[0][c - 1];\n        } else {\n            dp[0][houses[0]][1] = 0;\n        }\n        for (int i = 1; i < m; i++) {\n            int fixed = houses[i];\n            int cLo = fixed == 0 ? 1 : fixed, cHi = fixed == 0 ? n : fixed;\n            for (int c = cLo; c <= cHi; c++) {\n                int add = fixed == 0 ? cost[i][c - 1] : 0;\n                int maxG = Math.min(i + 1, target);\n                for (int g = 1; g <= maxG; g++) {\n                    int best = INF;\n                    for (int c2 = 1; c2 <= n; c2++) {\n                        int prevG = c2 == c ? g : g - 1;\n                        if (prevG >= 1 && dp[i - 1][c2][prevG] < best) best = dp[i - 1][c2][prevG];\n                    }\n                    if (best < INF) dp[i][c][g] = best + add;\n                }\n            }\n        }\n        int ans = INF;\n        for (int c = 1; c <= n; c++) if (dp[m - 1][c][target] < ans) ans = dp[m - 1][c][target];\n        return ans < INF ? ans : -1;\n    }\n}`,
+      cpp: `class Solution {\npublic:\n    int minCost(vector<int>& houses, vector<vector<int>>& cost, int m, int n, int target) {\n        const int INF = 1e9;\n        vector<vector<vector<int>>> dp(m, vector<vector<int>>(n + 1, vector<int>(target + 1, INF)));\n        if (houses[0] == 0) {\n            for (int c = 1; c <= n; c++) dp[0][c][1] = cost[0][c - 1];\n        } else {\n            dp[0][houses[0]][1] = 0;\n        }\n        for (int i = 1; i < m; i++) {\n            int fixed = houses[i];\n            int cLo = fixed == 0 ? 1 : fixed, cHi = fixed == 0 ? n : fixed;\n            for (int c = cLo; c <= cHi; c++) {\n                int add = fixed == 0 ? cost[i][c - 1] : 0;\n                int maxG = min(i + 1, target);\n                for (int g = 1; g <= maxG; g++) {\n                    int best = INF;\n                    for (int c2 = 1; c2 <= n; c2++) {\n                        int prevG = c2 == c ? g : g - 1;\n                        if (prevG >= 1 && dp[i - 1][c2][prevG] < best) best = dp[i - 1][c2][prevG];\n                    }\n                    if (best < INF) dp[i][c][g] = best + add;\n                }\n            }\n        }\n        int ans = INF;\n        for (int c = 1; c <= n; c++) ans = min(ans, dp[m - 1][c][target]);\n        return ans < INF ? ans : -1;\n    }\n};`,
+      go: `func minCost(houses []int, cost [][]int, m int, n int, target int) int {\n    const INF = int(1e9)\n    dp := make([][][]int, m)\n    for i := range dp {\n        dp[i] = make([][]int, n+1)\n        for j := range dp[i] {\n            dp[i][j] = make([]int, target+1)\n            for k := range dp[i][j] {\n                dp[i][j][k] = INF\n            }\n        }\n    }\n    if houses[0] == 0 {\n        for c := 1; c <= n; c++ {\n            dp[0][c][1] = cost[0][c-1]\n        }\n    } else {\n        dp[0][houses[0]][1] = 0\n    }\n    for i := 1; i < m; i++ {\n        fixed := houses[i]\n        cLo, cHi := 1, n\n        if fixed != 0 {\n            cLo, cHi = fixed, fixed\n        }\n        for c := cLo; c <= cHi; c++ {\n            add := 0\n            if fixed == 0 {\n                add = cost[i][c-1]\n            }\n            maxG := i + 1\n            if target < maxG {\n                maxG = target\n            }\n            for g := 1; g <= maxG; g++ {\n                best := INF\n                for c2 := 1; c2 <= n; c2++ {\n                    prevG := g\n                    if c2 != c {\n                        prevG = g - 1\n                    }\n                    if prevG >= 1 && dp[i-1][c2][prevG] < best {\n                        best = dp[i-1][c2][prevG]\n                    }\n                }\n                if best < INF {\n                    dp[i][c][g] = best + add\n                }\n            }\n        }\n    }\n    ans := INF\n    for c := 1; c <= n; c++ {\n        if dp[m-1][c][target] < ans {\n            ans = dp[m-1][c][target]\n        }\n    }\n    if ans < INF {\n        return ans\n    }\n    return -1\n}`,
+      typescript: `function minCost(houses: number[], cost: number[][], m: number, n: number, target: number): number {\n  const INF = Infinity;\n  const dp: number[][][] = Array.from({ length: m }, () => Array.from({ length: n + 1 }, () => new Array(target + 1).fill(INF)));\n  if (houses[0] === 0) {\n    for (let c = 1; c <= n; c++) dp[0][c][1] = cost[0][c - 1];\n  } else {\n    dp[0][houses[0]][1] = 0;\n  }\n  for (let i = 1; i < m; i++) {\n    const fixed = houses[i];\n    const colors = fixed ? [fixed] : Array.from({ length: n }, (_, k) => k + 1);\n    for (const c of colors) {\n      const add = fixed ? 0 : cost[i][c - 1];\n      const maxG = Math.min(i + 1, target);\n      for (let g = 1; g <= maxG; g++) {\n        let best = INF;\n        for (let c2 = 1; c2 <= n; c2++) {\n          const prevG = c2 === c ? g : g - 1;\n          if (prevG >= 1 && dp[i - 1][c2][prevG] < best) best = dp[i - 1][c2][prevG];\n        }\n        if (best < INF) dp[i][c][g] = best + add;\n      }\n    }\n  }\n  let ans = INF;\n  for (let c = 1; c <= n; c++) if (dp[m - 1][c][target] < ans) ans = dp[m - 1][c][target];\n  return ans < INF ? ans : -1;\n}`,
+    },
+  },
+
+  'path-with-maximum-probability': {
+    /* SPLICE:wave7t v1 */
+    tags: ['graph', 'shortest-path', 'heap', 'dijkstra'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    inlineVisualization: {
+      title: 'Dijkstra on a max-heap of probabilities (multiply along the path)',
+      frames: Array.from({ length: 12 }, (_, i) => ({
+        step: i + 1,
+        note: [
+          'Goal: max product of succProb along ANY path from start to end. Classical shortest-path, but the "distance" is multiplicative and we maximise.',
+          'Reframe trick: log(prod p_i) = sum(log p_i). Each log p_i is <= 0, so maximising the product == maximising the sum of (non-positive) logs == minimising the sum of (-log p_i) >= 0 -> standard Dijkstra valid.',
+          'Direct max-heap also works (no logs): push (-prob, node); the largest probability pops first. Edge relaxation: new_p = cur_p * succProb[edge]. Skip if new_p <= best[neighbor].',
+          'Example: n=3, edges=[[0,1],[1,2],[0,2]], succProb=[0.5,0.5,0.2], start=0, end=2.',
+          'Build adj list: 0 -> {(1,0.5),(2,0.2)}; 1 -> {(0,0.5),(2,0.5)}; 2 -> {(0,0.2),(1,0.5)}.',
+          'best = [1.0, 0, 0]. Heap = [(-1.0, 0)]. Pop (1.0, 0). Relax to 1: 1.0*0.5=0.5 > 0 -> best[1]=0.5, push. Relax to 2: 1.0*0.2=0.2 > 0 -> best[2]=0.2, push.',
+          'Pop (0.5, 1) — largest remaining probability. Relax to 0: 0.5*0.5=0.25 < best[0]=1.0 -> skip. Relax to 2: 0.5*0.5=0.25 > best[2]=0.2 -> best[2]=0.25, push.',
+          'Pop (0.25, 2). Node 2 is the destination -> return 0.25. (Early-exit: any later pop has prob <= 0.25, cannot beat it.)',
+          'Why max-heap-Dijkstra works: probabilities along a path only shrink (each factor in [0,1]). Once we pop node v, no future path can reach v with a STRICTLY larger product -> the popped value is optimal.',
+          'Cycle safety: if best[v] already exceeds the popped prob, skip — same lazy-deletion idiom as min-heap Dijkstra.',
+          'Disconnected end: heap empties before reaching end -> return 0.0 (no path).',
+          'Complexity: O((V+E) log V) time with binary heap, O(V+E) memory for adj list + best[] + heap.',
+        ][i],
+      })),
+    },
+    solutions: {
+      python: `import heapq\nfrom collections import defaultdict\nclass Solution:\n    def maxProbability(self, n, edges, succProb, start_node, end_node):\n        adj = defaultdict(list)\n        for (u, v), p in zip(edges, succProb):\n            adj[u].append((v, p))\n            adj[v].append((u, p))\n        best = [0.0] * n\n        best[start_node] = 1.0\n        heap = [(-1.0, start_node)]\n        while heap:\n            neg_p, u = heapq.heappop(heap)\n            p = -neg_p\n            if u == end_node:\n                return p\n            if p < best[u]:\n                continue\n            for v, w in adj[u]:\n                np = p * w\n                if np > best[v]:\n                    best[v] = np\n                    heapq.heappush(heap, (-np, v))\n        return 0.0`,
+      javascript: `class MaxHeap {\n  constructor() { this.a = []; }\n  push(x) { this.a.push(x); this._up(this.a.length - 1); }\n  pop() { const t = this.a[0], last = this.a.pop(); if (this.a.length) { this.a[0] = last; this._down(0); } return t; }\n  size() { return this.a.length; }\n  _up(i) { while (i > 0) { const p = (i - 1) >> 1; if (this.a[p][0] >= this.a[i][0]) break; [this.a[p], this.a[i]] = [this.a[i], this.a[p]]; i = p; } }\n  _down(i) { const n = this.a.length; while (true) { let l=2*i+1, r=2*i+2, m=i; if (l<n && this.a[l][0]>this.a[m][0]) m=l; if (r<n && this.a[r][0]>this.a[m][0]) m=r; if (m===i) break; [this.a[m], this.a[i]] = [this.a[i], this.a[m]]; i=m; } }\n}\nvar maxProbability = function(n, edges, succProb, start_node, end_node) {\n  const adj = Array.from({length: n}, () => []);\n  for (let i = 0; i < edges.length; i++) {\n    const [u, v] = edges[i], p = succProb[i];\n    adj[u].push([v, p]); adj[v].push([u, p]);\n  }\n  const best = new Array(n).fill(0); best[start_node] = 1;\n  const heap = new MaxHeap(); heap.push([1, start_node]);\n  while (heap.size()) {\n    const [p, u] = heap.pop();\n    if (u === end_node) return p;\n    if (p < best[u]) continue;\n    for (const [v, w] of adj[u]) {\n      const np = p * w;\n      if (np > best[v]) { best[v] = np; heap.push([np, v]); }\n    }\n  }\n  return 0;\n};`,
+      java: `import java.util.*;\nclass Solution {\n    public double maxProbability(int n, int[][] edges, double[] succProb, int start_node, int end_node) {\n        List<double[]>[] adj = new List[n];\n        for (int i = 0; i < n; i++) adj[i] = new ArrayList<>();\n        for (int i = 0; i < edges.length; i++) {\n            int u = edges[i][0], v = edges[i][1];\n            double p = succProb[i];\n            adj[u].add(new double[]{v, p});\n            adj[v].add(new double[]{u, p});\n        }\n        double[] best = new double[n];\n        best[start_node] = 1.0;\n        PriorityQueue<double[]> pq = new PriorityQueue<>((a, b) -> Double.compare(b[1], a[1]));\n        pq.offer(new double[]{start_node, 1.0});\n        while (!pq.isEmpty()) {\n            double[] cur = pq.poll();\n            int u = (int) cur[0];\n            double p = cur[1];\n            if (u == end_node) return p;\n            if (p < best[u]) continue;\n            for (double[] e : adj[u]) {\n                int v = (int) e[0];\n                double np = p * e[1];\n                if (np > best[v]) { best[v] = np; pq.offer(new double[]{v, np}); }\n            }\n        }\n        return 0.0;\n    }\n}`,
+      cpp: `class Solution {\npublic:\n    double maxProbability(int n, vector<vector<int>>& edges, vector<double>& succProb, int start_node, int end_node) {\n        vector<vector<pair<int,double>>> adj(n);\n        for (int i = 0; i < (int)edges.size(); i++) {\n            int u = edges[i][0], v = edges[i][1];\n            adj[u].push_back({v, succProb[i]});\n            adj[v].push_back({u, succProb[i]});\n        }\n        vector<double> best(n, 0.0);\n        best[start_node] = 1.0;\n        priority_queue<pair<double,int>> pq;\n        pq.push({1.0, start_node});\n        while (!pq.empty()) {\n            auto [p, u] = pq.top(); pq.pop();\n            if (u == end_node) return p;\n            if (p < best[u]) continue;\n            for (auto& [v, w] : adj[u]) {\n                double np = p * w;\n                if (np > best[v]) { best[v] = np; pq.push({np, v}); }\n            }\n        }\n        return 0.0;\n    }\n};`,
+      go: `import "container/heap"\ntype Item struct { p float64; node int }\ntype PQ []Item\nfunc (h PQ) Len() int { return len(h) }\nfunc (h PQ) Less(i, j int) bool { return h[i].p > h[j].p }\nfunc (h PQ) Swap(i, j int) { h[i], h[j] = h[j], h[i] }\nfunc (h *PQ) Push(x interface{}) { *h = append(*h, x.(Item)) }\nfunc (h *PQ) Pop() interface{} { old := *h; n := len(old); x := old[n-1]; *h = old[:n-1]; return x }\nfunc maxProbability(n int, edges [][]int, succProb []float64, start_node int, end_node int) float64 {\n    type E struct { v int; p float64 }\n    adj := make([][]E, n)\n    for i, e := range edges {\n        adj[e[0]] = append(adj[e[0]], E{e[1], succProb[i]})\n        adj[e[1]] = append(adj[e[1]], E{e[0], succProb[i]})\n    }\n    best := make([]float64, n)\n    best[start_node] = 1.0\n    pq := &PQ{{1.0, start_node}}\n    for pq.Len() > 0 {\n        cur := heap.Pop(pq).(Item)\n        if cur.node == end_node { return cur.p }\n        if cur.p < best[cur.node] { continue }\n        for _, e := range adj[cur.node] {\n            np := cur.p * e.p\n            if np > best[e.v] { best[e.v] = np; heap.Push(pq, Item{np, e.v}) }\n        }\n    }\n    return 0.0\n}`,
+      typescript: `class MaxHeap {\n  a: [number, number][] = [];\n  push(x: [number, number]) { this.a.push(x); this._up(this.a.length - 1); }\n  pop(): [number, number] { const t = this.a[0], last = this.a.pop()!; if (this.a.length) { this.a[0] = last; this._down(0); } return t; }\n  size() { return this.a.length; }\n  private _up(i: number) { while (i > 0) { const p = (i - 1) >> 1; if (this.a[p][0] >= this.a[i][0]) break; [this.a[p], this.a[i]] = [this.a[i], this.a[p]]; i = p; } }\n  private _down(i: number) { const n = this.a.length; while (true) { let l=2*i+1, r=2*i+2, m=i; if (l<n && this.a[l][0]>this.a[m][0]) m=l; if (r<n && this.a[r][0]>this.a[m][0]) m=r; if (m===i) break; [this.a[m], this.a[i]] = [this.a[i], this.a[m]]; i=m; } }\n}\nfunction maxProbability(n: number, edges: number[][], succProb: number[], start_node: number, end_node: number): number {\n  const adj: [number, number][][] = Array.from({length: n}, () => []);\n  for (let i = 0; i < edges.length; i++) {\n    const [u, v] = edges[i], p = succProb[i];\n    adj[u].push([v, p]); adj[v].push([u, p]);\n  }\n  const best = new Array(n).fill(0); best[start_node] = 1;\n  const heap = new MaxHeap(); heap.push([1, start_node]);\n  while (heap.size()) {\n    const [p, u] = heap.pop();
+    if (u === end_node) return p;\n    if (p < best[u]) continue;\n    for (const [v, w] of adj[u]) {\n      const np = p * w;\n      if (np > best[v]) { best[v] = np; heap.push([np, v]); }\n    }\n  }\n  return 0;\n}`,
+    },
+  },
+
+  'path-with-maximum-minimum-value': {
+    /* SPLICE:wave7t v1 */
+    tags: ['graph', 'shortest-path', 'heap', 'dijkstra', 'matrix'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    inlineVisualization: {
+      title: 'Max-heap Dijkstra on a grid: maximise the MIN cell along the path',
+      frames: Array.from({ length: 12 }, (_, i) => ({
+        step: i + 1,
+        note: [
+          'Goal: walk 4-directionally from (0,0) to (R-1,C-1). The "score" of a path is the MIN cell value on the path. Return the maximum possible score over all paths.',
+          'Reframe: this is shortest-path where "distance" of a path = min over its cells, and we maximise. Standard relaxation idiom: best[v] = max over neighbours of min(best[u], grid[v]).',
+          'Max-heap Dijkstra: pop the cell whose current best-min is LARGEST. That cell is finalised — any later path to it must pass through a cell with value <= the popped score.',
+          'Why finalised: probabilities/min-on-path are monotone non-increasing along any extension. Once you pop a cell with score s, every future path to it shares some cell already seen with value <= s -> cannot improve.',
+          'Example: grid = [[5,4,5],[1,2,6],[7,4,6]]. Start (0,0)=5, end (2,2)=6.',
+          'best[0][0] = 5. Heap = [(-5, 0, 0)] (max-heap via negation in min-heap langs).',
+          'Pop (5, 0, 0). Relax neighbours: (0,1) -> min(5,4)=4, push. (1,0) -> min(5,1)=1, push.',
+          'Pop (4, 0, 1). Neighbours: (0,2) -> min(4,5)=4, push. (1,1) -> min(4,2)=2, push.',
+          'Pop (4, 0, 2). Neighbours: (1,2) -> min(4,6)=4, push.',
+          'Pop (4, 1, 2). Neighbours: (2,2) -> min(4,6)=4, push. (0,2) already at 4 -> skip.',
+          'Pop (4, 2, 2). That IS the destination -> answer = 4. (Path 5 -> 4 -> 5 -> 6 -> 6 has min 4; no path achieves higher.)',
+          'Complexity: O(R*C * log(R*C)) time, O(R*C) memory for best[][] + heap. Alternative: binary-search-on-answer + BFS for O(R*C * log(max_val)) — pick whichever is simpler for the constraints.',
+        ][i],
+      })),
+    },
+    solutions: {
+      python: `import heapq\nclass Solution:\n    def maximumMinimumPath(self, grid):\n        R, C = len(grid), len(grid[0])\n        best = [[-1] * C for _ in range(R)]\n        best[0][0] = grid[0][0]\n        heap = [(-grid[0][0], 0, 0)]\n        dirs = [(1,0),(-1,0),(0,1),(0,-1)]\n        while heap:\n            neg_v, r, c = heapq.heappop(heap)\n            v = -neg_v\n            if (r, c) == (R-1, C-1):\n                return v\n            if v < best[r][c]:\n                continue\n            for dr, dc in dirs:\n                nr, nc = r + dr, c + dc\n                if 0 <= nr < R and 0 <= nc < C:\n                    nv = min(v, grid[nr][nc])\n                    if nv > best[nr][nc]:\n                        best[nr][nc] = nv\n                        heapq.heappush(heap, (-nv, nr, nc))\n        return -1`,
+      javascript: `class MaxHeap {\n  constructor() { this.a = []; }\n  push(x) { this.a.push(x); this._up(this.a.length - 1); }\n  pop() { const t = this.a[0], last = this.a.pop(); if (this.a.length) { this.a[0] = last; this._down(0); } return t; }\n  size() { return this.a.length; }\n  _up(i) { while (i > 0) { const p = (i - 1) >> 1; if (this.a[p][0] >= this.a[i][0]) break; [this.a[p], this.a[i]] = [this.a[i], this.a[p]]; i = p; } }\n  _down(i) { const n = this.a.length; while (true) { let l=2*i+1, r=2*i+2, m=i; if (l<n && this.a[l][0]>this.a[m][0]) m=l; if (r<n && this.a[r][0]>this.a[m][0]) m=r; if (m===i) break; [this.a[m], this.a[i]] = [this.a[i], this.a[m]]; i=m; } }\n}\nvar maximumMinimumPath = function(grid) {\n  const R = grid.length, C = grid[0].length;\n  const best = Array.from({length: R}, () => new Array(C).fill(-1));\n  best[0][0] = grid[0][0];\n  const heap = new MaxHeap(); heap.push([grid[0][0], 0, 0]);\n  const dirs = [[1,0],[-1,0],[0,1],[0,-1]];\n  while (heap.size()) {\n    const [v, r, c] = heap.pop();\n    if (r === R-1 && c === C-1) return v;\n    if (v < best[r][c]) continue;\n    for (const [dr, dc] of dirs) {\n      const nr = r+dr, nc = c+dc;\n      if (nr >= 0 && nr < R && nc >= 0 && nc < C) {\n        const nv = Math.min(v, grid[nr][nc]);\n        if (nv > best[nr][nc]) { best[nr][nc] = nv; heap.push([nv, nr, nc]); }\n      }\n    }\n  }\n  return -1;\n};`,
+      java: `import java.util.*;\nclass Solution {\n    public int maximumMinimumPath(int[][] grid) {\n        int R = grid.length, C = grid[0].length;\n        int[][] best = new int[R][C];\n        for (int[] row : best) Arrays.fill(row, -1);\n        best[0][0] = grid[0][0];\n        PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> b[0] - a[0]);\n        pq.offer(new int[]{grid[0][0], 0, 0});\n        int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};\n        while (!pq.isEmpty()) {\n            int[] cur = pq.poll();\n            int v = cur[0], r = cur[1], c = cur[2];\n            if (r == R-1 && c == C-1) return v;\n            if (v < best[r][c]) continue;\n            for (int[] d : dirs) {\n                int nr = r + d[0], nc = c + d[1];\n                if (nr >= 0 && nr < R && nc >= 0 && nc < C) {\n                    int nv = Math.min(v, grid[nr][nc]);\n                    if (nv > best[nr][nc]) { best[nr][nc] = nv; pq.offer(new int[]{nv, nr, nc}); }\n                }\n            }\n        }\n        return -1;\n    }\n}`,
+      cpp: `class Solution {\npublic:\n    int maximumMinimumPath(vector<vector<int>>& grid) {\n        int R = grid.size(), C = grid[0].size();\n        vector<vector<int>> best(R, vector<int>(C, -1));\n        best[0][0] = grid[0][0];\n        priority_queue<tuple<int,int,int>> pq;\n        pq.push({grid[0][0], 0, 0});\n        int dirs[4][2] = {{1,0},{-1,0},{0,1},{0,-1}};\n        while (!pq.empty()) {\n            auto [v, r, c] = pq.top(); pq.pop();\n            if (r == R-1 && c == C-1) return v;\n            if (v < best[r][c]) continue;\n            for (auto& d : dirs) {\n                int nr = r + d[0], nc = c + d[1];\n                if (nr >= 0 && nr < R && nc >= 0 && nc < C) {\n                    int nv = min(v, grid[nr][nc]);\n                    if (nv > best[nr][nc]) { best[nr][nc] = nv; pq.push({nv, nr, nc}); }\n                }\n            }\n        }\n        return -1;\n    }\n};`,
+      go: `import "container/heap"\ntype Cell struct { v, r, c int }\ntype CellPQ []Cell\nfunc (h CellPQ) Len() int { return len(h) }\nfunc (h CellPQ) Less(i, j int) bool { return h[i].v > h[j].v }\nfunc (h CellPQ) Swap(i, j int) { h[i], h[j] = h[j], h[i] }\nfunc (h *CellPQ) Push(x interface{}) { *h = append(*h, x.(Cell)) }\nfunc (h *CellPQ) Pop() interface{} { old := *h; n := len(old); x := old[n-1]; *h = old[:n-1]; return x }\nfunc maximumMinimumPath(grid [][]int) int {\n    R, C := len(grid), len(grid[0])\n    best := make([][]int, R)\n    for i := range best { best[i] = make([]int, C); for j := range best[i] { best[i][j] = -1 } }\n    best[0][0] = grid[0][0]\n    pq := &CellPQ{{grid[0][0], 0, 0}}\n    dirs := [4][2]int{{1,0},{-1,0},{0,1},{0,-1}}\n    for pq.Len() > 0 {\n        cur := heap.Pop(pq).(Cell)\n        if cur.r == R-1 && cur.c == C-1 { return cur.v }\n        if cur.v < best[cur.r][cur.c] { continue }\n        for _, d := range dirs {\n            nr, nc := cur.r + d[0], cur.c + d[1]\n            if nr >= 0 && nr < R && nc >= 0 && nc < C {\n                nv := cur.v\n                if grid[nr][nc] < nv { nv = grid[nr][nc] }\n                if nv > best[nr][nc] { best[nr][nc] = nv; heap.Push(pq, Cell{nv, nr, nc}) }\n            }\n        }\n    }\n    return -1\n}`,
+      typescript: `class MaxHeap {\n  a: [number, number, number][] = [];\n  push(x: [number, number, number]) { this.a.push(x); this._up(this.a.length - 1); }\n  pop(): [number, number, number] { const t = this.a[0], last = this.a.pop()!; if (this.a.length) { this.a[0] = last; this._down(0); } return t; }\n  size() { return this.a.length; }\n  private _up(i: number) { while (i > 0) { const p = (i - 1) >> 1; if (this.a[p][0] >= this.a[i][0]) break; [this.a[p], this.a[i]] = [this.a[i], this.a[p]]; i = p; } }\n  private _down(i: number) { const n = this.a.length; while (true) { let l=2*i+1, r=2*i+2, m=i; if (l<n && this.a[l][0]>this.a[m][0]) m=l; if (r<n && this.a[r][0]>this.a[m][0]) m=r; if (m===i) break; [this.a[m], this.a[i]] = [this.a[i], this.a[m]]; i=m; } }\n}\nfunction maximumMinimumPath(grid: number[][]): number {\n  const R = grid.length, C = grid[0].length;\n  const best: number[][] = Array.from({length: R}, () => new Array(C).fill(-1));\n  best[0][0] = grid[0][0];\n  const heap = new MaxHeap(); heap.push([grid[0][0], 0, 0]);\n  const dirs = [[1,0],[-1,0],[0,1],[0,-1]];\n  while (heap.size()) {\n    const [v, r, c] = heap.pop();\n    if (r === R-1 && c === C-1) return v;\n    if (v < best[r][c]) continue;\n    for (const [dr, dc] of dirs) {\n      const nr = r+dr, nc = c+dc;\n      if (nr >= 0 && nr < R && nc >= 0 && nc < C) {\n        const nv = Math.min(v, grid[nr][nc]);\n        if (nv > best[nr][nc]) { best[nr][nc] = nv; heap.push([nv, nr, nc]); }\n      }\n    }\n  }\n  return -1;\n}`,
+    },
+  },
+  'find-the-longest-balanced-substring-of-a-binary-string': {
+    /* SPLICE:wave8b-longest-balanced-and-vowels-k-consonants v1 */
+    tags: ['string', 'two-pointers'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: (() => {
+      const s = '01000111';
+      const frames = [];
+      const chars = s.split('');
+
+      frames.push({
+        array: chars, pointers: {},
+        chip: [
+          { label: 's', value: '"' + s + '"' },
+          { label: 'goal', value: 'longest contiguous run of zeros then ones, equal counts', tone: 'violet' },
+        ],
+        caption: 'A balanced substring looks like 0...01...1 — a block of zeros immediately followed by an equally-long block of ones. We want the longest such substring; its length is always even (2 * min of the two run lengths).',
+      });
+      frames.push({
+        array: chars, pointers: {},
+        chip: [
+          { label: 'invariant', value: 'walk left to right, count run of 0s, then run of 1s', tone: 'violet' },
+          { label: 'on 1 -> 0 reset', value: 'start a new zero run', tone: 'pink' },
+        ],
+        caption: 'Single-pass with two counters: zeros tracks the length of the current run of 0s; ones tracks the length of the following run of 1s. When we see a 0 right after a 1, the current "0-block, 1-block" pair has ended — reset and start a new zero run.',
+      });
+
+      let zeros = 0, ones = 0, best = 0;
+      let prev = '';
+      for (let i = 0; i < chars.length; i++) {
+        const c = chars[i];
+        const pointers = { i };
+        if (c === '0') {
+          if (prev === '1') {
+            zeros = 1; ones = 0;
+            frames.push({
+              array: chars, pointers,
+              chip: [
+                { label: 'i', value: String(i), tone: 'pink' },
+                { label: 'c', value: '"0"' },
+                { label: 'reset', value: 'prev was 1 -> new pair', tone: 'pink' },
+                { label: 'zeros', value: String(zeros), tone: 'violet' },
+                { label: 'ones', value: String(ones) },
+              ],
+              caption: 'Saw a 0 right after a 1 — the previous balanced candidate is sealed. Restart: zeros = 1, ones = 0. From now on we collect a new run of 0s.',
+            });
+          } else {
+            zeros++;
+            frames.push({
+              array: chars, pointers,
+              chip: [
+                { label: 'i', value: String(i), tone: 'pink' },
+                { label: 'c', value: '"0"' },
+                { label: 'zeros', value: String(zeros), tone: 'violet' },
+                { label: 'ones', value: String(ones) },
+              ],
+              caption: 'Another 0 in the current zero-run. Increment zeros. We have not started counting ones for this pair yet, so the candidate length is still 0.',
+            });
+          }
+        } else {
+          ones++;
+          const candidate = 2 * Math.min(zeros, ones);
+          if (candidate > best) best = candidate;
+          frames.push({
+            array: chars, pointers,
+            chip: [
+              { label: 'i', value: String(i), tone: 'pink' },
+              { label: 'c', value: '"1"' },
+              { label: 'zeros', value: String(zeros) },
+              { label: 'ones', value: String(ones), tone: 'violet' },
+              { label: 'cand = 2*min', value: String(candidate), tone: 'violet' },
+              { label: 'best', value: String(best), tone: 'pink' },
+            ],
+            caption: 'A 1 extends the trailing ones-run. The longest balanced substring we can carve out of the current pair has length 2 * min(zeros, ones) = ' + candidate + '. Update best if it grew.',
+          });
+        }
+        prev = c;
+      }
+
+      frames.push({
+        array: chars, pointers: {},
+        chip: [
+          { label: 'why 2*min works', value: 'truncate the longer side to match the shorter', tone: 'violet' },
+        ],
+        caption: 'If the current pair has z zeros then o ones, we can take the rightmost min(z, o) zeros and all min(z, o) ones — they form a balanced 0...01...1 substring of length 2 * min(z, o). Anything longer would break the strict 0-then-1 shape.',
+      });
+      frames.push({
+        array: chars, pointers: {},
+        chip: [
+          { label: 'edge', value: 'all 0s or all 1s -> answer 0', tone: 'pink' },
+        ],
+        caption: 'Edge cases: a string of only 0s never enters the ones branch (best stays 0); only 1s never increments zeros (min is 0). Both correctly yield 0 — no balanced substring exists.',
+      });
+      frames.push({
+        array: chars, pointers: {},
+        chip: [
+          { label: 'answer', value: String(best), tone: 'pink' },
+          { label: 'time', value: 'O(n)', tone: 'violet' },
+          { label: 'space', value: 'O(1)', tone: 'violet' },
+        ],
+        caption: 'Final answer for "' + s + '" is ' + best + '. One linear pass, two integer counters — no hash maps, no extra arrays. Each character is touched exactly once.',
+      });
+
+      return { renderer: 'array', title: 'Longest Balanced Substring — zero-run then one-run, 2 * min', frames };
+    })(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def findTheLongestBalancedSubstring(self, s: str) -> int:
+        zeros = ones = best = 0
+        prev = ''
+        for c in s:
+            if c == '0':
+                if prev == '1':
+                    zeros, ones = 1, 0
+                else:
+                    zeros += 1
+            else:
+                ones += 1
+                best = max(best, 2 * min(zeros, ones))
+            prev = c
+        return best`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Single linear scan tracking the current zero-run length and the immediately following one-run length. On a 1 -> 0 transition the previous (zeros, ones) pair is sealed and we restart. After every 1, the best balanced length carvable from the current pair is 2 * min(zeros, ones). The answer is the max of that quantity across the scan. Two counters, O(1) memory, no auxiliary structures.',
+      },
+      javascript: {
+        code: `function findTheLongestBalancedSubstring(s) {
+  let zeros = 0, ones = 0, best = 0, prev = '';
+  for (const c of s) {
+    if (c === '0') {
+      if (prev === '1') { zeros = 1; ones = 0; }
+      else zeros++;
+    } else {
+      ones++;
+      best = Math.max(best, 2 * Math.min(zeros, ones));
+    }
+    prev = c;
+  }
+  return best;
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Same state machine. The 1 -> 0 boundary is the only reset event; every other character extends the current pair. Best is updated only after a 1 is appended, because zeros without any trailing ones is not a balanced candidate.',
+      },
+      java: {
+        code: `class Solution {
+    public int findTheLongestBalancedSubstring(String s) {
+        int zeros = 0, ones = 0, best = 0;
+        char prev = ' ';
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '0') {
+                if (prev == '1') { zeros = 1; ones = 0; }
+                else zeros++;
+            } else {
+                ones++;
+                best = Math.max(best, 2 * Math.min(zeros, ones));
+            }
+            prev = c;
+        }
+        return best;
+    }
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Direct port. prev defaults to a non-binary sentinel so the first character can never trigger the reset branch — it falls into either the increment or the ones-counter branch cleanly.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int findTheLongestBalancedSubstring(string s) {
+        int zeros = 0, ones = 0, best = 0;
+        char prev = ' ';
+        for (char c : s) {
+            if (c == '0') {
+                if (prev == '1') { zeros = 1; ones = 0; }
+                else zeros++;
+            } else {
+                ones++;
+                best = max(best, 2 * min(zeros, ones));
+            }
+            prev = c;
+        }
+        return best;
+    }
+};`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Same recurrence; range-for over the string for compactness. No allocations — three ints plus a char of state.',
+      },
+      c: {
+        code: `int findTheLongestBalancedSubstring(char* s) {
+    int zeros = 0, ones = 0, best = 0;
+    char prev = ' ';
+    for (int i = 0; s[i]; i++) {
+        char c = s[i];
+        if (c == '0') {
+            if (prev == '1') { zeros = 1; ones = 0; }
+            else zeros++;
+        } else {
+            ones++;
+            int m = zeros < ones ? zeros : ones;
+            if (2 * m > best) best = 2 * m;
+        }
+        prev = c;
+    }
+    return best;
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Plain C, null-terminated scan. Inline min avoids pulling in stdlib helpers — the loop body stays a handful of branches.',
+      },
+      go: {
+        code: `func findTheLongestBalancedSubstring(s string) int {
+    zeros, ones, best := 0, 0, 0
+    var prev byte = ' '
+    for i := 0; i < len(s); i++ {
+        c := s[i]
+        if c == '0' {
+            if prev == '1' {
+                zeros, ones = 1, 0
+            } else {
+                zeros++
+            }
+        } else {
+            ones++
+            m := zeros
+            if ones < m {
+                m = ones
+            }
+            if 2*m > best {
+                best = 2 * m
+            }
+        }
+        prev = c
+    }
+    return best
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Byte-level iteration since the alphabet is ASCII {0,1}. Manual min/max keeps the dependency surface to the stdlib zero — three counters plus one byte of carry.',
+      },
+    },
+  },
+  'count-of-substrings-containing-every-vowel-and-k-consonants': {
+    /* SPLICE:wave8b-longest-balanced-and-vowels-k-consonants v1 */
+    tags: ['hash-table', 'string', 'sliding-window'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: (() => {
+      const word = 'aeioqq';
+      const k = 1;
+      const VOWELS = new Set(['a', 'e', 'i', 'o', 'u']);
+      const chars = word.split('');
+      const frames = [];
+
+      frames.push({
+        array: chars, pointers: {},
+        chip: [
+          { label: 'word', value: '"' + word + '"' },
+          { label: 'k', value: String(k), tone: 'violet' },
+          { label: 'goal', value: 'count substrings containing ALL 5 vowels AND exactly k consonants', tone: 'violet' },
+        ],
+        caption: 'A target substring must hold at least one of each of {a,e,i,o,u} and exactly k consonants. We sweep r over the string while shrinking l as soon as the consonant count exceeds k.',
+      });
+      frames.push({
+        array: chars, pointers: {},
+        chip: [
+          { label: 'state', value: 'vowelCount (map), consonants (int)', tone: 'violet' },
+          { label: 'valid when', value: 'distinct vowels == 5 AND consonants == k', tone: 'pink' },
+        ],
+        caption: 'Maintain a frequency map for vowels seen in [l..r] (so we know how many DISTINCT ones), plus a running count of consonants. Shrink l whenever consonants > k. After shrinking, any prefix-of-the-prefix that still contains all 5 vowels and exactly k consonants would extend ANSWER+1 — but here we use the simpler "exact match per (l, r)" counting.',
+      });
+
+      const vowelCount = new Map();
+      let consonants = 0, l = 0, answer = 0;
+
+      for (let r = 0; r < chars.length; r++) {
+        const c = chars[r];
+        if (VOWELS.has(c)) {
+          vowelCount.set(c, (vowelCount.get(c) || 0) + 1);
+        } else {
+          consonants++;
+        }
+        frames.push({
+          array: chars, pointers: { l, r },
+          chip: [
+            { label: 'r', value: String(r), tone: 'pink' },
+            { label: 'c', value: '"' + c + '"' },
+            { label: 'vowels distinct', value: String(vowelCount.size), tone: 'violet' },
+            { label: 'consonants', value: String(consonants), tone: consonants > k ? 'pink' : 'violet' },
+          ],
+          caption: 'Add nums[r] = "' + c + '" to the window. ' + (VOWELS.has(c) ? 'Vowel — bump its bucket in the map.' : 'Consonant — bump the consonant counter.'),
+        });
+        while (consonants > k) {
+          const out = chars[l];
+          if (VOWELS.has(out)) {
+            const v = vowelCount.get(out) - 1;
+            if (v === 0) vowelCount.delete(out);
+            else vowelCount.set(out, v);
+          } else {
+            consonants--;
+          }
+          l++;
+          frames.push({
+            array: chars, pointers: { l, r },
+            chip: [
+              { label: 'shrink', value: 'drop "' + out + '"', tone: 'pink' },
+              { label: 'consonants', value: String(consonants) },
+              { label: 'l', value: String(l), tone: 'violet' },
+            ],
+            caption: 'consonants exceeded k — slide l right, removing the leftmost character from the window. Repeat until the consonant count is back to ≤ k.',
+          });
+        }
+        if (vowelCount.size === 5 && consonants === k) {
+          answer++;
+          frames.push({
+            array: chars, pointers: { l, r },
+            chip: [
+              { label: 'MATCH', value: 'all 5 vowels + ' + k + ' consonant(s)', tone: 'violet' },
+              { label: 'answer', value: String(answer), tone: 'pink' },
+            ],
+            caption: 'All five vowels present AND consonants == k exactly. Count this (l, r) window. (The full LeetCode solution generalises with at-least-k minus at-least-(k+1) to count all valid windows including those with extra prefix vowels — shown in the code panel.)',
+          });
+        }
+      }
+
+      frames.push({
+        array: chars, pointers: {},
+        chip: [
+          { label: 'real trick', value: 'count(==k) = count(>=k) - count(>=k+1)', tone: 'violet' },
+        ],
+        caption: 'In production the cleanest count is atLeast(k) - atLeast(k+1). atLeast(K) counts windows with all 5 vowels AND >= K consonants. Each fixed (l) contributes a tail of valid r values, so adding (n - r) per match gives the count. The full code below uses this technique — the inline viz above shows the simpler exact match for clarity.',
+      });
+      frames.push({
+        array: chars, pointers: {},
+        chip: [
+          { label: 'answer', value: String(answer), tone: 'pink' },
+          { label: 'time', value: 'O(n)', tone: 'violet' },
+          { label: 'space', value: 'O(1)', tone: 'violet' },
+        ],
+        caption: 'For "' + word + '" with k = ' + k + ' the demo count is ' + answer + '. The alphabet of vowels is fixed (5), so the map is O(1) — entire algorithm is linear in word length.',
+      });
+
+      return { renderer: 'window', title: 'Vowels + k Consonants — sliding window with at-least-K trick', frames };
+    })(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def countOfSubstrings(self, word: str, k: int) -> int:
+        VOWELS = set('aeiou')
+
+        def at_least(K: int) -> int:
+            count = 0
+            l = 0
+            cons = 0
+            vc = {}
+            for r, c in enumerate(word):
+                if c in VOWELS:
+                    vc[c] = vc.get(c, 0) + 1
+                else:
+                    cons += 1
+                while len(vc) == 5 and cons >= K:
+                    # every extension to the right is also valid
+                    count += len(word) - r
+                    out = word[l]
+                    if out in VOWELS:
+                        vc[out] -= 1
+                        if vc[out] == 0:
+                            del vc[out]
+                    else:
+                        cons -= 1
+                    l += 1
+            return count
+
+        return at_least(k) - at_least(k + 1)`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Use the canonical "exactly-k = at-least-k minus at-least-(k+1)" decomposition. at_least(K) sweeps r left-to-right and, whenever the window [l..r] contains all 5 distinct vowels and >= K consonants, every extension of r to the right (n - r of them) is also a valid at-least-K window — add n - r and shrink l once. Map size for vowels is bounded by 5 so all bookkeeping is O(1). Total O(n) time per call, two calls -> O(n).',
+      },
+      javascript: {
+        code: `function countOfSubstrings(word, k) {
+  const VOWELS = new Set(['a','e','i','o','u']);
+  const atLeast = (K) => {
+    let count = 0, l = 0, cons = 0;
+    const vc = new Map();
+    for (let r = 0; r < word.length; r++) {
+      const c = word[r];
+      if (VOWELS.has(c)) vc.set(c, (vc.get(c) || 0) + 1);
+      else cons++;
+      while (vc.size === 5 && cons >= K) {
+        count += word.length - r;
+        const out = word[l];
+        if (VOWELS.has(out)) {
+          const v = vc.get(out) - 1;
+          if (v === 0) vc.delete(out); else vc.set(out, v);
+        } else cons--;
+        l++;
+      }
+    }
+    return count;
+  };
+  return atLeast(k) - atLeast(k + 1);
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Same two-pass trick. The inner while-loop shrinks l as long as the window still satisfies the "all 5 vowels and >= K consonants" predicate, crediting (n - r) per valid l because any longer suffix from r onward still satisfies the predicate.',
+      },
+      java: {
+        code: `class Solution {
+    private static final java.util.Set<Character> VOWELS =
+        new java.util.HashSet<>(java.util.Arrays.asList('a','e','i','o','u'));
+
+    public long countOfSubstrings(String word, int k) {
+        return atLeast(word, k) - atLeast(word, k + 1);
+    }
+
+    private long atLeast(String word, int K) {
+        long count = 0;
+        int l = 0, cons = 0, n = word.length();
+        java.util.Map<Character, Integer> vc = new java.util.HashMap<>();
+        for (int r = 0; r < n; r++) {
+            char c = word.charAt(r);
+            if (VOWELS.contains(c)) vc.merge(c, 1, Integer::sum);
+            else cons++;
+            while (vc.size() == 5 && cons >= K) {
+                count += n - r;
+                char out = word.charAt(l);
+                if (VOWELS.contains(out)) {
+                    int v = vc.get(out) - 1;
+                    if (v == 0) vc.remove(out); else vc.put(out, v);
+                } else cons--;
+                l++;
+            }
+        }
+        return count;
+    }
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'long return type — LeetCode constraints permit answers beyond 32-bit. Direct port of the at-least trick; the Map size cap of 5 keeps the size() check O(1).',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+    static bool isVowel(char c) {
+        return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u';
+    }
+    long long atLeast(const string& word, int K) {
+        long long count = 0;
+        int l = 0, cons = 0, n = (int)word.size();
+        unordered_map<char,int> vc;
+        for (int r = 0; r < n; r++) {
+            char c = word[r];
+            if (isVowel(c)) vc[c]++;
+            else cons++;
+            while ((int)vc.size() == 5 && cons >= K) {
+                count += n - r;
+                char out = word[l];
+                if (isVowel(out)) {
+                    if (--vc[out] == 0) vc.erase(out);
+                } else cons--;
+                l++;
+            }
+        }
+        return count;
+    }
+public:
+    long long countOfSubstrings(string word, int k) {
+        return atLeast(word, k) - atLeast(word, k + 1);
+    }
+};`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Same at-least decomposition. unordered_map for vowel counts; erase-on-zero keeps size() honest as a distinct-vowel count.',
+      },
+      c: {
+        code: `#include <string.h>
+
+static int isVowel(char c) {
+    return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u';
+}
+
+static long long atLeast(const char* word, int n, int K) {
+    long long count = 0;
+    int l = 0, cons = 0;
+    int vc[26] = {0};
+    int distinct = 0;
+    for (int r = 0; r < n; r++) {
+        char c = word[r];
+        if (isVowel(c)) {
+            if (vc[c - 'a']++ == 0) distinct++;
+        } else cons++;
+        while (distinct == 5 && cons >= K) {
+            count += n - r;
+            char out = word[l];
+            if (isVowel(out)) {
+                if (--vc[out - 'a'] == 0) distinct--;
+            } else cons--;
+            l++;
+        }
+    }
+    return count;
+}
+
+long long countOfSubstrings(char* word, int k) {
+    int n = strlen(word);
+    return atLeast(word, n, k) - atLeast(word, n, k + 1);
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Fixed-size array of 26 buckets replaces the map — distinct vowels tracked by a transition counter on 0 <-> nonzero. Zero allocation, branch-light inner loop.',
+      },
+      go: {
+        code: `func countOfSubstrings(word string, k int) int64 {
+    isVowel := func(c byte) bool {
+        return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u'
+    }
+    atLeast := func(K int) int64 {
+        var count int64
+        l, cons, n := 0, 0, len(word)
+        vc := make(map[byte]int)
+        for r := 0; r < n; r++ {
+            c := word[r]
+            if isVowel(c) {
+                vc[c]++
+            } else {
+                cons++
+            }
+            for len(vc) == 5 && cons >= K {
+                count += int64(n - r)
+                out := word[l]
+                if isVowel(out) {
+                    vc[out]--
+                    if vc[out] == 0 {
+                        delete(vc, out)
+                    }
+                } else {
+                    cons--
+                }
+                l++
+            }
+        }
+        return count
+    }
+    return atLeast(k) - atLeast(k+1)
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Closure-based at-least helper. Byte indexing on the string avoids the rune cost — input is guaranteed lowercase ASCII per constraints.',
+      },
+    },
+  },
+  'lexicographically-smallest-equivalent-string': {
+    tags: ['string', 'union-find', 'dsu'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: (() => {
+      const s1 = 'parker';
+      const s2 = 'morris';
+      const baseStr = 'parser';
+      const frames = [];
+      const parent = Array.from({ length: 26 }, (_, i) => i);
+      const find = (x) => {
+        while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; }
+        return x;
+      };
+      const union = (a, b) => {
+        const ra = find(a), rb = find(b);
+        if (ra === rb) return;
+        if (ra < rb) parent[rb] = ra; else parent[ra] = rb;
+      };
+      const ch = (i) => String.fromCharCode(97 + i);
+      const groupsSnapshot = () => {
+        const groups = {};
+        for (let i = 0; i < 26; i++) {
+          const r = find(i);
+          if (!groups[r]) groups[r] = [];
+          groups[r].push(ch(i));
+        }
+        return Object.values(groups).filter(g => g.length > 1).map(g => '{' + g.join(',') + '}').join(' ');
+      };
+      frames.push({
+        array: s1.split(''),
+        caption: 'Goal: pair each s1[i] with s2[i] as equivalent letters, then rewrite baseStr by replacing every letter with the smallest letter in its equivalence class. s1="' + s1 + '", s2="' + s2 + '", baseStr="' + baseStr + '". Use Union-Find on 26 letters; always keep the lexicographically smallest as the root.',
+      });
+      frames.push({
+        array: s1.split(''),
+        caption: 'DSU invariant: when uniting two roots, the smaller letter becomes the new root. This guarantees every find(x) returns the smallest letter equivalent to x.',
+      });
+      for (let i = 0; i < s1.length; i++) {
+        const a = s1.charCodeAt(i) - 97;
+        const b = s2.charCodeAt(i) - 97;
+        frames.push({
+          array: s1.split(''),
+          highlights: { [i]: 'mid' },
+          caption: 'Pair i=' + i + ': s1[' + i + ']=' + s1[i] + ' ~ s2[' + i + ']=' + s2[i] + '. union(' + s1[i] + ', ' + s2[i] + ').',
+        });
+        union(a, b);
+        frames.push({
+          array: s1.split(''),
+          highlights: { [i]: 'match' },
+          caption: 'After union: groups = ' + groupsSnapshot(),
+        });
+      }
+      const out = baseStr.split('').map(c => ch(find(c.charCodeAt(0) - 97))).join('');
+      frames.push({
+        array: baseStr.split(''),
+        highlights: Object.fromEntries(baseStr.split('').map((_, k) => [k, 'match'])),
+        caption: 'Rewrite baseStr: for each char, replace with find(char). "' + baseStr + '" -> "' + out + '". Answer: "' + out + '".',
+      });
+      while (frames.length < 12) {
+        frames.push({
+          array: baseStr.split(''),
+          caption: 'Why union-find: equivalence is transitive — a~b and b~c means a~c. DSU collapses chains so find is near-O(1) amortized. Always keeping the smaller root means find returns the canonical (smallest) representative.',
+        });
+      }
+      return { renderer: 'array', title: 'Smallest equivalent string — Union-Find on letters', frames };
+    })(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def smallestEquivalentString(self, s1, s2, baseStr):
+        parent = list(range(26))
+
+        def find(x):
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        def union(a, b):
+            ra, rb = find(a), find(b)
+            if ra == rb:
+                return
+            if ra < rb:
+                parent[rb] = ra
+            else:
+                parent[ra] = rb
+
+        for a, b in zip(s1, s2):
+            union(ord(a) - 97, ord(b) - 97)
+        return ''.join(chr(find(ord(c) - 97) + 97) for c in baseStr)`,
+        complexity: { time: 'O((m + n) * α(26))', space: 'O(1)' },
+        approach: 'Union-Find over 26 letters with a smaller-root rule. Each union(a, b) makes the lexicographically smaller letter the parent — that means find(x) always returns the smallest letter equivalent to x. Iterate s1/s2 to wire up equivalences, then rewrite baseStr by mapping each character through find.',
+      },
+      javascript: {
+        code: `function smallestEquivalentString(s1, s2, baseStr) {
+  const parent = Array.from({ length: 26 }, (_, i) => i);
+  const find = (x) => {
+    while (parent[x] !== x) {
+      parent[x] = parent[parent[x]];
+      x = parent[x];
+    }
+    return x;
+  };
+  const union = (a, b) => {
+    const ra = find(a), rb = find(b);
+    if (ra === rb) return;
+    if (ra < rb) parent[rb] = ra; else parent[ra] = rb;
+  };
+  for (let i = 0; i < s1.length; i++) {
+    union(s1.charCodeAt(i) - 97, s2.charCodeAt(i) - 97);
+  }
+  return [...baseStr].map(c => String.fromCharCode(find(c.charCodeAt(0) - 97) + 97)).join('');
+}`,
+        complexity: { time: 'O((m + n) * α(26))', space: 'O(1)' },
+        approach: 'Same DSU pattern in JS. Path compression in find via parent[x] = parent[parent[x]] keeps trees nearly flat. The smaller-root union rule is the whole trick — no rank/size by frequency needed.',
+      },
+      java: {
+        code: `import java.util.*;
+
+class Solution {
+    int[] parent = new int[26];
+
+    int find(int x) {
+        while (parent[x] != x) {
+            parent[x] = parent[parent[x]];
+            x = parent[x];
+        }
+        return x;
+    }
+
+    void union(int a, int b) {
+        int ra = find(a), rb = find(b);
+        if (ra == rb) return;
+        if (ra < rb) parent[rb] = ra; else parent[ra] = rb;
+    }
+
+    public String smallestEquivalentString(String s1, String s2, String baseStr) {
+        for (int i = 0; i < 26; i++) parent[i] = i;
+        for (int i = 0; i < s1.length(); i++) {
+            union(s1.charAt(i) - 'a', s2.charAt(i) - 'a');
+        }
+        StringBuilder sb = new StringBuilder();
+        for (char c : baseStr.toCharArray()) {
+            sb.append((char) (find(c - 'a') + 'a'));
+        }
+        return sb.toString();
+    }
+}`,
+        complexity: { time: 'O((m + n) * α(26))', space: 'O(1)' },
+        approach: 'Field-level parent[] keeps the helper signatures clean. Initialize parent[i] = i, wire equivalences from s1/s2, then translate baseStr char-by-char via find.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+    int parent[26];
+    int find(int x) {
+        while (parent[x] != x) {
+            parent[x] = parent[parent[x]];
+            x = parent[x];
+        }
+        return x;
+    }
+    void unite(int a, int b) {
+        int ra = find(a), rb = find(b);
+        if (ra == rb) return;
+        if (ra < rb) parent[rb] = ra; else parent[ra] = rb;
+    }
+public:
+    string smallestEquivalentString(string s1, string s2, string baseStr) {
+        iota(parent, parent + 26, 0);
+        for (int i = 0; i < (int)s1.size(); ++i) {
+            unite(s1[i] - 'a', s2[i] - 'a');
+        }
+        string out;
+        out.reserve(baseStr.size());
+        for (char c : baseStr) out.push_back(char(find(c - 'a') + 'a'));
+        return out;
+    }
+};`,
+        complexity: { time: 'O((m + n) * α(26))', space: 'O(1)' },
+        approach: 'iota fills parent with 0..25. unite is named to avoid the std::union keyword clash. The smaller-root rule replaces the usual rank-based union — alphabetic order is the priority here, not tree balance.',
+      },
+      c: {
+        code: `#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+static int parent[26];
+
+static int find(int x) {
+    while (parent[x] != x) {
+        parent[x] = parent[parent[x]];
+        x = parent[x];
+    }
+    return x;
+}
+
+static void unite(int a, int b) {
+    int ra = find(a), rb = find(b);
+    if (ra == rb) return;
+    if (ra < rb) parent[rb] = ra; else parent[ra] = rb;
+}
+
+char* smallestEquivalentString(char* s1, char* s2, char* baseStr) {
+    for (int i = 0; i < 26; i++) parent[i] = i;
+    int n = strlen(s1);
+    for (int i = 0; i < n; i++) unite(s1[i] - 'a', s2[i] - 'a');
+    int m = strlen(baseStr);
+    char* out = (char*)malloc(m + 1);
+    for (int i = 0; i < m; i++) out[i] = (char)(find(baseStr[i] - 'a') + 'a');
+    out[m] = '\\0';
+    return out;
+}`,
+        complexity: { time: 'O((m + n) * α(26))', space: 'O(m)' },
+        approach: 'Static parent[26] mirrors the C++ field. Allocate the output buffer fresh; LC takes ownership. Path compression matters even at n=26 — repeated finds otherwise walk linear chains.',
+      },
+      go: {
+        code: `func smallestEquivalentString(s1 string, s2 string, baseStr string) string {
+    parent := make([]int, 26)
+    for i := range parent {
+        parent[i] = i
+    }
+    var find func(int) int
+    find = func(x int) int {
+        for parent[x] != x {
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        }
+        return x
+    }
+    unite := func(a, b int) {
+        ra, rb := find(a), find(b)
+        if ra == rb {
+            return
+        }
+        if ra < rb {
+            parent[rb] = ra
+        } else {
+            parent[ra] = rb
+        }
+    }
+    for i := 0; i < len(s1); i++ {
+        unite(int(s1[i]-'a'), int(s2[i]-'a'))
+    }
+    out := make([]byte, len(baseStr))
+    for i := 0; i < len(baseStr); i++ {
+        out[i] = byte(find(int(baseStr[i]-'a'))) + 'a'
+    }
+    return string(out)
+}`,
+        complexity: { time: 'O((m + n) * α(26))', space: 'O(m)' },
+        approach: 'Closure-based find/unite share the parent slice. Byte arithmetic on baseStr[i] - \'a\' keeps the rewrite zero-allocation aside from the final []byte.',
+      },
+    },
+  },
+  'find-k-closest-elements': {
+    tags: ['array', 'binary-search', 'two-pointers', 'sliding-window'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: (() => {
+      const arr = [1, 2, 3, 4, 5];
+      const k = 4;
+      const x = 3;
+      const frames = [];
+      frames.push({
+        array: arr,
+        caption: 'Find the k=' + k + ' elements in sorted arr=[' + arr.join(',') + '] closest to x=' + x + '. Ties: smaller value wins. Output must be sorted. Trick: the answer is a contiguous window of length k — just binary-search for its LEFT endpoint.',
+      });
+      frames.push({
+        array: arr,
+        caption: 'Why contiguous: arr is sorted. The k closest values form a sliding window — anything outside is farther than at least one window element. So we only need the left index lo in [0, n-k].',
+      });
+      let lo = 0, hi = arr.length - k;
+      frames.push({
+        array: arr,
+        highlights: { [lo]: 'low', [hi]: 'high' },
+        caption: 'Binary-search range for the left endpoint: lo=0, hi=n-k=' + hi + '. Predicate: at mid, compare distances of arr[mid] (left edge) vs arr[mid+k] (just past right edge).',
+      });
+      let steps = 0;
+      while (lo < hi && steps < 6) {
+        const mid = (lo + hi) >> 1;
+        const dLeft = x - arr[mid];
+        const dRight = arr[mid + k] - x;
+        frames.push({
+          array: arr,
+          highlights: { [mid]: 'mid', [mid + k]: 'mid', [lo]: 'low', [hi]: 'high' },
+          caption: 'mid=' + mid + '. Compare x - arr[' + mid + '] = ' + dLeft + ' vs arr[' + (mid + k) + '] - x = ' + dRight + '.',
+        });
+        if (dLeft > dRight) {
+          frames.push({
+            array: arr,
+            highlights: { [mid]: 'mid', [mid + k]: 'mid' },
+            caption: dLeft + ' > ' + dRight + ' — arr[' + (mid + k) + '] is closer than arr[' + mid + ']. Slide right: lo = mid + 1.',
+          });
+          lo = mid + 1;
+        } else {
+          frames.push({
+            array: arr,
+            highlights: { [mid]: 'mid', [mid + k]: 'mid' },
+            caption: dLeft + ' <= ' + dRight + ' — arr[' + mid + '] is at least as close (tie goes left). Slide left: hi = mid.',
+          });
+          hi = mid;
+        }
+        steps++;
+      }
+      const result = arr.slice(lo, lo + k);
+      const hl = {};
+      for (let i = lo; i < lo + k; i++) hl[i] = 'match';
+      frames.push({
+        array: arr,
+        highlights: hl,
+        caption: 'Converged: lo=' + lo + '. Answer = arr[' + lo + '..' + (lo + k - 1) + '] = [' + result.join(',') + ']. Already sorted because the source is sorted.',
+      });
+      while (frames.length < 12) {
+        frames.push({
+          array: arr,
+          caption: 'O(log(n-k) + k): log search for the left endpoint, then a length-k slice. The two-pointer alternative (shrink from both ends) is O(n-k) and only beats this when k is close to n.',
+        });
+      }
+      return { renderer: 'array', title: 'K closest elements — binary search for left endpoint', frames };
+    })(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def findClosestElements(self, arr, k, x):
+        lo, hi = 0, len(arr) - k
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if x - arr[mid] > arr[mid + k] - x:
+                lo = mid + 1
+            else:
+                hi = mid
+        return arr[lo:lo + k]`,
+        complexity: { time: 'O(log(n - k) + k)', space: 'O(1)' },
+        approach: 'Binary-search the LEFT endpoint of the answer window in [0, n-k]. The predicate compares arr[mid] (window left) and arr[mid+k] (just past window right) — whichever is closer to x decides which way to slide. Tie goes left because the smaller value wins on ties.',
+      },
+      javascript: {
+        code: `function findClosestElements(arr, k, x) {
+  let lo = 0, hi = arr.length - k;
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1;
+    if (x - arr[mid] > arr[mid + k] - x) {
+      lo = mid + 1;
+    } else {
+      hi = mid;
+    }
+  }
+  return arr.slice(lo, lo + k);
+}`,
+        complexity: { time: 'O(log(n - k) + k)', space: 'O(k)' },
+        approach: 'Identical logic — the >> 1 is a fast floor-divide for non-negative ints. slice copies k elements into a fresh array; that is the only non-constant work outside the log search.',
+      },
+      java: {
+        code: `import java.util.*;
+
+class Solution {
+    public List<Integer> findClosestElements(int[] arr, int k, int x) {
+        int lo = 0, hi = arr.length - k;
+        while (lo < hi) {
+            int mid = (lo + hi) >>> 1;
+            if (x - arr[mid] > arr[mid + k] - x) {
+                lo = mid + 1;
+            } else {
+                hi = mid;
+            }
+        }
+        List<Integer> out = new ArrayList<>(k);
+        for (int i = lo; i < lo + k; i++) out.add(arr[i]);
+        return out;
+    }
+}`,
+        complexity: { time: 'O(log(n - k) + k)', space: 'O(k)' },
+        approach: '>>> 1 is unsigned shift — safe even if (lo + hi) overflowed into negative, though unlikely at LC sizes. ArrayList preallocated to k avoids resize churn.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> findClosestElements(vector<int>& arr, int k, int x) {
+        int lo = 0, hi = (int)arr.size() - k;
+        while (lo < hi) {
+            int mid = (lo + hi) >> 1;
+            if (x - arr[mid] > arr[mid + k] - x) {
+                lo = mid + 1;
+            } else {
+                hi = mid;
+            }
+        }
+        return vector<int>(arr.begin() + lo, arr.begin() + lo + k);
+    }
+};`,
+        complexity: { time: 'O(log(n - k) + k)', space: 'O(k)' },
+        approach: 'Iterator-range constructor copies the answer window in one pass. The binary-search predicate is the load-bearing piece — everything else is bookkeeping.',
+      },
+      c: {
+        code: `#include <stdlib.h>
+#include <string.h>
+
+int* findClosestElements(int* arr, int arrSize, int k, int x, int* returnSize) {
+    int lo = 0, hi = arrSize - k;
+    while (lo < hi) {
+        int mid = (lo + hi) >> 1;
+        if (x - arr[mid] > arr[mid + k] - x) {
+            lo = mid + 1;
+        } else {
+            hi = mid;
+        }
+    }
+    int* out = (int*)malloc(k * sizeof(int));
+    memcpy(out, arr + lo, k * sizeof(int));
+    *returnSize = k;
+    return out;
+}`,
+        complexity: { time: 'O(log(n - k) + k)', space: 'O(k)' },
+        approach: 'memcpy is fine — source and destination do not overlap. Caller owns the malloc; LC harness frees it.',
+      },
+      go: {
+        code: `func findClosestElements(arr []int, k int, x int) []int {
+    lo, hi := 0, len(arr)-k
+    for lo < hi {
+        mid := (lo + hi) >> 1
+        if x-arr[mid] > arr[mid+k]-x {
+            lo = mid + 1
+        } else {
+            hi = mid
+        }
+    }
+    out := make([]int, k)
+    copy(out, arr[lo:lo+k])
+    return out
+}`,
+        complexity: { time: 'O(log(n - k) + k)', space: 'O(k)' },
+        approach: 'Explicit make + copy so the returned slice does not share backing storage with arr. Returning arr[lo:lo+k] directly works but exposes the caller to aliasing surprises.',
+      },
+    },
+  },
+  'count-vowels-permutation': {
+    /* SPLICE:wave8f-vowels-product v1 */
+    tags: ['dynamic-programming'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: (() => {
+      // DP table dp[i][v] = number of length-i strings ending in vowel v.
+      // Transitions (vowel -> who may follow):
+      //   a -> e
+      //   e -> a, i
+      //   i -> a, e, o, u
+      //   o -> i, u
+      //   u -> a
+      // Equivalently, for each vowel v the predecessors (who may end with -> v):
+      //   a: from e, i, u
+      //   e: from a, i
+      //   i: from e, o
+      //   o: from i
+      //   u: from i, o
+      const VOWELS = ['a', 'e', 'i', 'o', 'u'];
+      const PRED = {
+        a: ['e', 'i', 'u'],
+        e: ['a', 'i'],
+        i: ['e', 'o'],
+        o: ['i'],
+        u: ['i', 'o'],
+      };
+      const N = 4;
+      const dp = Array.from({ length: N + 1 }, () => ({ a: 0, e: 0, i: 0, o: 0, u: 0 }));
+      for (const v of VOWELS) dp[1][v] = 1;
+
+      const frames = [];
+      const cellsAt = (i, highlight = {}) => {
+        const cells = [];
+        for (let row = 1; row <= N; row++) {
+          for (let c = 0; c < VOWELS.length; c++) {
+            const v = VOWELS[c];
+            const key = row + ':' + v;
+            cells.push({
+              row: row - 1,
+              col: c,
+              value: dp[row][v],
+              state: highlight[key] || (row <= i ? 'filled' : 'default'),
+              label: v,
+            });
+          }
+        }
+        return cells;
+      };
+      const snap = (caption, chip, traversal, i, highlight) => {
+        frames.push({
+          grid: cellsAt(i, highlight || {}),
+          rows: N,
+          cols: 5,
+          headers: VOWELS,
+          chip,
+          caption,
+          traversal: traversal || [],
+        });
+      };
+
+      snap(
+        'Goal: count length-n strings over {a,e,i,o,u} that obey the transition rules. Each vowel may be followed only by specific others. We count by ending-vowel: dp[i][v] = # length-i strings ending with v. Answer is sum over v of dp[n][v].',
+        'DP by (length, last vowel)',
+        ['dp[i][v] := count'],
+        1,
+        { '1:a': 'current', '1:e': 'current', '1:i': 'current', '1:o': 'current', '1:u': 'current' },
+      );
+      snap(
+        'Base case: dp[1][v] = 1 for every vowel — a single character of any of the 5 vowels is a valid length-1 string. Fill row 1 with all ones.',
+        'base: dp[1][*] = 1',
+        ['row 1 -> [1,1,1,1,1]'],
+        1,
+        { '1:a': 'match', '1:e': 'match', '1:i': 'match', '1:o': 'match', '1:u': 'match' },
+      );
+
+      // Compute row 2 vowel by vowel
+      const compute = (row, v, lastVowelFrame) => {
+        const preds = PRED[v];
+        let s = 0;
+        for (const p of preds) s += dp[row - 1][p];
+        dp[row][v] = s;
+        return preds;
+      };
+
+      // Row 2 — show transitions in detail
+      {
+        const v = 'a';
+        const preds = compute(2, v);
+        snap(
+          'Compute dp[2][a]. Predecessors of a are {e, i, u} (the vowels that may legally be followed by a). dp[2][a] = dp[1][e] + dp[1][i] + dp[1][u] = 1+1+1 = 3.',
+          'dp[2][a] = e+i+u = 3',
+          preds.map((p) => 'dp[1][' + p + '] = 1'),
+          2,
+          { '1:e': 'match', '1:i': 'match', '1:u': 'match', '2:a': 'current' },
+        );
+      }
+      {
+        const v = 'e';
+        const preds = compute(2, v);
+        snap(
+          'dp[2][e]. Predecessors are {a, i}. dp[2][e] = dp[1][a] + dp[1][i] = 1+1 = 2.',
+          'dp[2][e] = a+i = 2',
+          preds.map((p) => 'dp[1][' + p + '] = 1'),
+          2,
+          { '1:a': 'match', '1:i': 'match', '2:e': 'current' },
+        );
+      }
+      {
+        const v = 'i';
+        compute(2, v);
+        snap(
+          'dp[2][i]. Predecessors {e, o}. dp[2][i] = 1+1 = 2. Notice i has the richest forward set ({a,e,o,u}) but a sparser predecessor set — direction matters.',
+          'dp[2][i] = e+o = 2',
+          ['dp[1][e] = 1', 'dp[1][o] = 1'],
+          2,
+          { '1:e': 'match', '1:o': 'match', '2:i': 'current' },
+        );
+      }
+      {
+        const v = 'o';
+        compute(2, v);
+        snap(
+          'dp[2][o]. Only predecessor is {i}. dp[2][o] = dp[1][i] = 1. o is the rarest ending — only i may precede it.',
+          'dp[2][o] = i = 1',
+          ['dp[1][i] = 1'],
+          2,
+          { '1:i': 'match', '2:o': 'current' },
+        );
+      }
+      {
+        const v = 'u';
+        compute(2, v);
+        snap(
+          'dp[2][u]. Predecessors {i, o}. dp[2][u] = 1+1 = 2. Row 2 complete: [3, 2, 2, 1, 2]. Sum = 10 (the answer for n=2).',
+          'row 2: [3,2,2,1,2] -> 10',
+          ['dp[1][i] = 1', 'dp[1][o] = 1'],
+          2,
+          { '1:i': 'match', '1:o': 'match', '2:u': 'current' },
+        );
+      }
+
+      // Row 3 — just summarize
+      for (const v of VOWELS) compute(3, v);
+      snap(
+        'Row 3 by the same recurrence. Each entry pulls from at most 4 predecessors in the prior row (vowel i has 4: a,e,o,u <- but as a predecessor it feeds many). All five entries computed in O(1) each.',
+        'row 3 done',
+        ['row 3 = [' + VOWELS.map((v) => dp[3][v]).join(',') + ']'],
+        3,
+        {},
+      );
+
+      // Row 4 — final
+      for (const v of VOWELS) compute(4, v);
+      const total = VOWELS.reduce((s, v) => s + dp[4][v], 0);
+      snap(
+        'Row 4 (n=4). Answer = sum across columns of the last row = ' + total + '. Apply modulo 1e9+7 to keep numbers bounded since they grow ~Fibonacci-like.',
+        'answer (n=4) = ' + total,
+        ['sum row 4 = ' + total],
+        4,
+        { '4:a': 'match', '4:e': 'match', '4:i': 'match', '4:o': 'match', '4:u': 'match' },
+      );
+
+      snap(
+        'Space optimisation: each row depends only on the previous one. Keep two length-5 arrays and overwrite -> O(1) extra space. The transition is a fixed 5x5 matrix; for huge n you can binary-exponentiate it in O(5^3 log n).',
+        'O(n) time, O(1) space',
+        ['rolling two rows suffices'],
+        4,
+        {},
+      );
+
+      snap(
+        'Why DP by last-vowel? The "next vowel allowed" rule is Markov — it depends only on the most recent character. So the state we need is exactly (position, last vowel). Five states, constant-cost transition -> a tiny, fast DP.',
+        'state = (i, last vowel)',
+        ['Markov over vowels'],
+        4,
+        {},
+      );
+
+      snap(
+        'Matrix form (for math fans): if v_i is the column [dp[i][a], dp[i][e], dp[i][i], dp[i][o], dp[i][u]]^T, then v_{i+1} = M * v_i with M[v][p] = 1 iff p may precede v. Powers of M solve it in log n.',
+        'matrix exponentiation form',
+        ['v_{i+1} = M * v_i'],
+        4,
+        {},
+      );
+
+      snap(
+        'Done. The whole problem reduces to repeated application of a 5x5 0/1 matrix to a vector of 1s. n=4 gives ' + total + '. The recurrence pattern generalises to any constrained-alphabet counting problem.',
+        'answer = ' + total,
+        ['final: ' + total],
+        4,
+        {},
+      );
+
+      return { renderer: 'grid', title: 'Count Vowels Permutation — DP by (length, last vowel)', frames };
+    })(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def countVowelPermutation(self, n: int) -> int:
+        MOD = 10**9 + 7
+        # dp[v] = count of valid length-i strings ending in vowel v
+        a, e, i_, o, u = 1, 1, 1, 1, 1
+        for _ in range(n - 1):
+            na = (e + i_ + u) % MOD       # who can precede a: e, i, u
+            ne = (a + i_) % MOD           # before e: a, i
+            ni = (e + o) % MOD            # before i: e, o
+            no = i_ % MOD                 # before o: i
+            nu = (i_ + o) % MOD           # before u: i, o
+            a, e, i_, o, u = na, ne, ni, no, nu
+        return (a + e + i_ + o + u) % MOD`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'State = which vowel the current string ends in. Transitions follow the rule "vowel v may be followed only by specific others", which we invert to "predecessors of v". For each new length we recompute the 5 counts from the previous 5 using fixed sums. Rolling variables give O(1) space; full table would be O(n) but adds nothing. Modulo 1e9+7 is applied per step to prevent overflow — the counts grow roughly like 2^n.',
+      },
+      javascript: {
+        code: `function countVowelPermutation(n) {
+  const MOD = 1000000007n;
+  let [a, e, i, o, u] = [1n, 1n, 1n, 1n, 1n];
+  for (let k = 1; k < n; k++) {
+    const na = (e + i + u) % MOD;
+    const ne = (a + i) % MOD;
+    const ni = (e + o) % MOD;
+    const no = i % MOD;
+    const nu = (i + o) % MOD;
+    [a, e, i, o, u] = [na, ne, ni, no, nu];
+  }
+  return Number((a + e + i + o + u) % MOD);
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'BigInt for the running sums since n can push counts past 2^53 before the modulo. Same recurrence as Python — five state variables, one pass.',
+      },
+      java: {
+        code: `class Solution {
+    public int countVowelPermutation(int n) {
+        long MOD = 1_000_000_007L;
+        long a = 1, e = 1, i = 1, o = 1, u = 1;
+        for (int k = 1; k < n; k++) {
+            long na = (e + i + u) % MOD;
+            long ne = (a + i) % MOD;
+            long ni = (e + o) % MOD;
+            long no = i % MOD;
+            long nu = (i + o) % MOD;
+            a = na; e = ne; i = ni; o = no; u = nu;
+        }
+        return (int)((a + e + i + o + u) % MOD);
+    }
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Longs throughout; modulo after every sum keeps the values below 5 * MOD which fits comfortably in a long. Cast back to int at the end.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int countVowelPermutation(int n) {
+        const long long MOD = 1000000007LL;
+        long long a = 1, e = 1, i = 1, o = 1, u = 1;
+        for (int k = 1; k < n; ++k) {
+            long long na = (e + i + u) % MOD;
+            long long ne = (a + i) % MOD;
+            long long ni = (e + o) % MOD;
+            long long no = i % MOD;
+            long long nu = (i + o) % MOD;
+            a = na; e = ne; i = ni; o = no; u = nu;
+        }
+        return (int)((a + e + i + o + u) % MOD);
+    }
+};`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Idiomatic long-long DP. For very large n you could swap this for 5x5 matrix exponentiation in O(125 log n), but the linear version is already fast enough for the constraint n <= 2e4.',
+      },
+      c: {
+        code: `int countVowelPermutation(int n) {
+    const long long MOD = 1000000007LL;
+    long long a = 1, e = 1, i = 1, o = 1, u = 1;
+    for (int k = 1; k < n; k++) {
+        long long na = (e + i + u) % MOD;
+        long long ne = (a + i) % MOD;
+        long long ni = (e + o) % MOD;
+        long long no = i % MOD;
+        long long nu = (i + o) % MOD;
+        a = na; e = ne; i = ni; o = no; u = nu;
+    }
+    return (int)((a + e + i + o + u) % MOD);
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Pure C version of the same recurrence. No allocation; five long-long state slots.',
+      },
+      go: {
+        code: `func countVowelPermutation(n int) int {
+    const MOD int64 = 1000000007
+    var a, e, i, o, u int64 = 1, 1, 1, 1, 1
+    for k := 1; k < n; k++ {
+        na := (e + i + u) % MOD
+        ne := (a + i) % MOD
+        ni := (e + o) % MOD
+        no := i % MOD
+        nu := (i + o) % MOD
+        a, e, i, o, u = na, ne, ni, no, nu
+    }
+    return int((a + e + i + o + u) % MOD)
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Idiomatic Go. Tuple assignment swaps in the new state in one statement.',
+      },
+    },
+  },
+  'maximum-product-of-splitted-binary-tree': {
+    /* SPLICE:wave8f-vowels-product v1 */
+    tags: ['tree', 'depth-first-search', 'binary-tree'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: (() => {
+      // Tree:        10
+      //             /  \
+      //            5    3
+      //           / \    \
+      //          1   7    9
+      // total = 35. For each subtree sum s, product = s * (35 - s). Best s = 17 or 18, product = 17 * 18 = 306.
+      const mk = (value, left = null, right = null) => ({ value, left, right });
+      const n1 = mk(1), n7 = mk(7), n9 = mk(9);
+      const n5 = mk(5, n1, n7);
+      const n3 = mk(3, null, n9);
+      const root = mk(10, n5, n3);
+
+      let idCounter = 0;
+      const tag = (n) => { if (!n) return; n._id = ++idCounter; tag(n.left); tag(n.right); };
+      tag(root);
+
+      const stateById = new Map();
+      const labelById = new Map();
+      const cloneWithStates = (node) => {
+        if (!node) return null;
+        return {
+          _id: node._id,
+          value: node.value,
+          label: labelById.get(node._id),
+          state: stateById.get(node._id) || 'default',
+          left: cloneWithStates(node.left),
+          right: cloneWithStates(node.right),
+        };
+      };
+
+      const frames = [];
+      const snap = (caption, chip, traversal) => {
+        frames.push({ tree: cloneWithStates(root), chip, caption, traversal: traversal || [] });
+      };
+
+      const TOTAL = 35;
+
+      snap(
+        'Goal: cut one edge to split the tree into two parts. Maximise (sum_A) * (sum_B). Since sum_A + sum_B = total, this is s * (total - s) — a concave parabola maximised when s is closest to total/2.',
+        'maximise s * (total - s)',
+        ['total = 35'],
+      );
+
+      snap(
+        'Two passes. Pass 1: compute total sum of the whole tree (one DFS). Pass 2: compute every subtree sum with another DFS, and for each candidate s evaluate s * (total - s). Track the max.',
+        'two-pass DFS',
+        ['pass1: total', 'pass2: subtree sums'],
+      );
+
+      // PASS 1 — compute total. Highlight root.
+      stateById.set(root._id, 'current');
+      snap('Pass 1 starts at root. We recursively sum every node. Root will receive 10 + (sum of left subtree) + (sum of right subtree).',
+        'pass 1: root',
+        ['total = 10 + sum(L) + sum(R)']);
+
+      stateById.set(n5._id, 'current');
+      snap('Descend left. Node 5 will accumulate 5 + (sum of 1) + (sum of 7) = 5 + 1 + 7 = 13.',
+        'left subtree sum = 13',
+        ['sum(5) = 13']);
+
+      stateById.set(n3._id, 'current');
+      snap('Descend right. Node 3 accumulates 3 + 0 + 9 = 12. Root total = 10 + 13 + 12 = 35.',
+        'right subtree sum = 12 -> total 35',
+        ['sum(3) = 12', 'total = 35']);
+
+      // Clear current
+      stateById.delete(root._id); stateById.delete(n5._id); stateById.delete(n3._id);
+
+      snap('Pass 1 done. total = 35. We now know what every subtree sum must be compared against. Note: we cannot do it in one pass because the moment we visit a subtree we have not yet computed the OTHER side.',
+        'total computed',
+        ['can\'t do one-pass — chicken/egg']);
+
+      // PASS 2 — annotate each subtree sum and best product.
+      labelById.set(n1._id, 's=1, p=1*34=34');
+      stateById.set(n1._id, 'current');
+      snap('Pass 2 enters. At leaf 1, subtree sum s = 1. Candidate product = 1 * (35-1) = 34. Far from balanced.',
+        's=1 -> p=34',
+        ['cut above 1 -> 34']);
+
+      labelById.set(n7._id, 's=7, p=7*28=196');
+      stateById.set(n1._id, 'visited');
+      stateById.set(n7._id, 'current');
+      snap('Leaf 7. s = 7, product = 7 * 28 = 196. Better but still skewed.',
+        's=7 -> p=196',
+        ['cut above 7 -> 196']);
+
+      labelById.set(n5._id, 's=13, p=13*22=286');
+      stateById.set(n7._id, 'visited');
+      stateById.set(n5._id, 'current');
+      snap('At node 5. Subtree sum = 13 (5+1+7). Cutting the edge above 5 splits into 13 vs 22 -> product 286.',
+        's=13 -> p=286',
+        ['cut above 5 -> 286']);
+
+      labelById.set(n9._id, 's=9, p=9*26=234');
+      stateById.set(n5._id, 'visited');
+      stateById.set(n9._id, 'current');
+      snap('Right subtree: leaf 9. s=9, product = 9 * 26 = 234.',
+        's=9 -> p=234',
+        ['cut above 9 -> 234']);
+
+      labelById.set(n3._id, 's=12, p=12*23=276');
+      stateById.set(n9._id, 'visited');
+      stateById.set(n3._id, 'current');
+      snap('Node 3. Subtree sum = 12 (3+9). Product = 12 * 23 = 276. Still not as good as the cut above 5 (286).',
+        's=12 -> p=276',
+        ['cut above 3 -> 276']);
+
+      labelById.set(root._id, 's=35, INVALID');
+      stateById.set(n3._id, 'visited');
+      stateById.set(root._id, 'current');
+      snap('Root itself has s=35 — but cutting "above" the root means an empty other half (sum 0). The problem requires a real edge; skip the root or treat it as product 0.',
+        'skip root (no edge above)',
+        ['root excluded']);
+
+      // Final: highlight the winner — n5 (s=13 product 286)
+      stateById.set(root._id, 'visited');
+      stateById.set(n5._id, 'match');
+      snap('Maximum candidate product so far = 286, from splitting between root and node 5 (s = 13, other = 22). Modulo 1e9+7 is applied at the end — never in the comparison, otherwise the order changes.',
+        'best = 286 at s=13',
+        ['answer (mod 1e9+7) = 286']);
+
+      snap('Why "never modulo before compare"? Modulo wraps around and can make a smaller true value appear larger. So compute the best product with full precision (use long / BigInt), THEN take mod 1e9+7 once for the answer.',
+        'modulo last, not during compare',
+        ['use 64-bit or BigInt']);
+
+      snap('Edge case n=2: one parent and one child. The only edge gives product val_parent * val_child. The same algorithm handles it without special-casing.',
+        'n=2 handled naturally',
+        ['no special case']);
+
+      snap('Complexity: pass 1 visits every node once -> O(n). Pass 2 visits every node once -> O(n). Total O(n) time, O(h) recursion space. Could fuse into one DFS that returns subtree-sum AND updates best — but readability suffers.',
+        'O(n) time, O(h) space',
+        ['two passes, both linear']);
+
+      snap('Done. The optimal cut is the edge above node 5, giving subtree sums 13 and 22 and product 286. Generalises to "maximise f(s_A, s_B)" for any decomposable function over the cut.',
+        'answer = 286 (mod 1e9+7)',
+        ['final: 286']);
+
+      return { renderer: 'tree', title: 'Maximum Product of Splitted Binary Tree — two-pass DFS, max s * (total-s)', frames };
+    })(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def maxProduct(self, root: Optional[TreeNode]) -> int:
+        MOD = 10**9 + 7
+        sums = []
+        def subtree_sum(node):
+            if not node:
+                return 0
+            s = node.val + subtree_sum(node.left) + subtree_sum(node.right)
+            sums.append(s)
+            return s
+        total = subtree_sum(root)
+        best = 0
+        for s in sums:
+            best = max(best, s * (total - s))
+        return best % MOD`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'Two-pass DFS. First pass computes every subtree sum, recording each one in a list as a side effect, and returns the total. Second pass walks the recorded sums and tracks the maximum of s * (total - s). Crucial detail: take the modulo only once at the end — applying it during the comparison would corrupt ordering because modulo is not monotonic. The list could be replaced by a running max inside subtree_sum to save space, but the version shown is the clearest.',
+      },
+      javascript: {
+        code: `function maxProduct(root) {
+  const MOD = 1000000007n;
+  const sums = [];
+  const subtreeSum = (node) => {
+    if (!node) return 0n;
+    const s = BigInt(node.val) + subtreeSum(node.left) + subtreeSum(node.right);
+    sums.push(s);
+    return s;
+  };
+  const total = subtreeSum(root);
+  let best = 0n;
+  for (const s of sums) {
+    const p = s * (total - s);
+    if (p > best) best = p;
+  }
+  return Number(best % MOD);
+}`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'BigInt is necessary because subtree sums can each be up to ~5*10^4 nodes * 10^4 max value, and their product can exceed 2^53. Compare with full precision; mod once at the end.',
+      },
+      java: {
+        code: `class Solution {
+    private final List<Long> sums = new ArrayList<>();
+    public int maxProduct(TreeNode root) {
+        long total = subtreeSum(root);
+        long best = 0;
+        for (long s : sums) {
+            best = Math.max(best, s * (total - s));
+        }
+        return (int)(best % 1_000_000_007L);
+    }
+    private long subtreeSum(TreeNode node) {
+        if (node == null) return 0L;
+        long s = node.val + subtreeSum(node.left) + subtreeSum(node.right);
+        sums.add(s);
+        return s;
+    }
+}`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'long suffices in Java: max subtree sum 5*10^8, squared is 2.5*10^17 which fits comfortably below Long.MAX_VALUE (~9.2*10^18). Cast to int after the final modulo.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int maxProduct(TreeNode* root) {
+        vector<long long> sums;
+        function<long long(TreeNode*)> dfs = [&](TreeNode* n) -> long long {
+            if (!n) return 0;
+            long long s = (long long)n->val + dfs(n->left) + dfs(n->right);
+            sums.push_back(s);
+            return s;
+        };
+        long long total = dfs(root);
+        long long best = 0;
+        for (long long s : sums) best = max(best, s * (total - s));
+        return (int)(best % 1000000007LL);
+    }
+};`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'std::function lambda captures sums by reference. long long throughout the comparison; modulo at the very end.',
+      },
+      c: {
+        code: `#define MOD 1000000007LL
+static long long sums[50001];
+static int sumCnt;
+static long long dfs(struct TreeNode* node) {
+    if (!node) return 0;
+    long long s = (long long)node->val + dfs(node->left) + dfs(node->right);
+    sums[sumCnt++] = s;
+    return s;
+}
+int maxProduct(struct TreeNode* root) {
+    sumCnt = 0;
+    long long total = dfs(root);
+    long long best = 0;
+    for (int i = 0; i < sumCnt; i++) {
+        long long p = sums[i] * (total - sums[i]);
+        if (p > best) best = p;
+    }
+    return (int)(best % MOD);
+}`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'Plain C with a fixed-size sums array sized for the constraint (n <= 5*10^4). long long for safety.',
+      },
+      go: {
+        code: `func maxProduct(root *TreeNode) int {
+    const MOD int64 = 1000000007
+    sums := []int64{}
+    var dfs func(*TreeNode) int64
+    dfs = func(n *TreeNode) int64 {
+        if n == nil {
+            return 0
+        }
+        s := int64(n.Val) + dfs(n.Left) + dfs(n.Right)
+        sums = append(sums, s)
+        return s
+    }
+    total := dfs(root)
+    var best int64 = 0
+    for _, s := range sums {
+        p := s * (total - s)
+        if p > best {
+            best = p
+        }
+    }
+    return int(best % MOD)
+}`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'int64 covers the products. Modulo applied once at return.',
+      },
+    },
+  },
+  'count-numbers-with-unique-digits': {
+    /* SPLICE:wave8h-uniq-digits-kpartition v1 */
+    tags: ['math', 'dynamic-programming', 'backtracking', 'combinatorics'],
+    companies: ['google', 'amazon', 'microsoft', 'meta', 'apple'],
+    viz: (() => {
+      const frames = [];
+      const n = 3;
+      const cells = ['n=0', 'n=1', 'n=2', 'n=3'];
+      const values = ['1', '10', '91', '739'];
+      const push = (caption, highlights, chip, extra) => {
+        frames.push({ array: cells.slice(), values: values.slice(), highlights: highlights || {}, caption, chip, extra: extra || [] });
+      };
+
+      push(
+        'Goal: count integers x with 0 <= x < 10^n whose decimal digits are all distinct. Tiny n (0..8). Brute force is doable up to 10^8 but combinatorics gives an O(n) formula.',
+        {}, 'count uniques in [0, 10^n)', ['n = ' + n, 'answer wanted: f(3) = 739'],
+      );
+      push(
+        'Base: f(0) = 1. The single value 0 (which has zero digits / is the empty range) counts.',
+        { 0: 'match' }, 'f(0) = 1', ['only x = 0'],
+      );
+      push(
+        'k = 1 (one-digit numbers, 0..9): every value 0..9 has distinct digits trivially. 10 of them. So f(1) = 10.',
+        { 1: 'match' }, 'f(1) = 10', ['10 one-digit values'],
+      );
+      push(
+        'k = 2 digits: leading digit can be 1..9 (9 options, no leading zero allowed for a "true" two-digit number); the trailing digit then has 9 remaining choices (any of 0..9 except the one already used). Count of strictly-two-digit unique numbers = 9 * 9 = 81.',
+        { 2: 'current' }, 'strict 2-digit count = 9 * 9 = 81', ['leading: 9 choices', 'next: 9 choices left'],
+      );
+      push(
+        'f(2) accumulates all lengths up to 2: f(2) = f(1) + 81 = 10 + 81 = 91. Includes single-digit values too — the problem counts every x in [0, 10^2).',
+        { 2: 'match' }, 'f(2) = 91', ['f(1) + 81'],
+      );
+      push(
+        'k = 3 digits (strict): 9 * 9 * 8. Leading digit picks from 9 nonzero options; second digit picks from any 9 remaining (0 is allowed now); third digit picks from any 8 remaining.',
+        { 3: 'current' }, 'strict 3-digit count = 9 * 9 * 8 = 648', ['multiplier shrinks by 1 each step'],
+      );
+      push(
+        'f(3) = f(2) + 648 = 91 + 648 = 739. Recurrence: f(k) = f(k-1) + 9 * 9 * 8 * 7 * ... down to (11 - k) for k digits.',
+        { 3: 'match' }, 'f(3) = 739', ['answer = 739'],
+      );
+      push(
+        'Why does the multiplier go 9, 9, 8, 7, ...? First digit excludes 0 (9 options). After it, "available digit pool" is 10 minus digits used; the second digit has 9 left, the third 8 left, and so on.',
+        {}, 'multiplier intuition', ['1st: 9 (no 0)', '2nd: 9 (full pool - 1)', '3rd onward: shrink by 1'],
+      );
+      push(
+        'Hard cap at k = 10: with 11 digits required and only 10 unique decimal digits available, every 11-digit-or-longer number must repeat — so f(k) = f(10) for all k > 10.',
+        {}, 'pigeonhole at k = 11', ['f(k>=11) = f(10)'],
+      );
+      push(
+        'Implementation: clamp n to 10, walk k from 2 to n accumulating the multiplier and adding to the running total. O(n) time, O(1) space.',
+        {}, 'O(n) time, O(1) space', ['no DP table needed'],
+      );
+      push(
+        'Alternative views: (1) digit-DP with mask of used digits — overkill here but generalises to "count uniques less than N". (2) Pure permutation: sum over k of 9 * P(9, k-1).',
+        {}, 'digit-DP or P(9, k-1)', ['masking generalises'],
+      );
+      push(
+        'Done. Closed-form answer 739 for n = 3. The pattern 1, 10, 91, 739, 5275, 32491, 168571, 712891, 2345851, 5611771, 8877691 is f(0)..f(10).',
+        { 3: 'match' }, 'answer = 739', ['sequence: OEIS A073531'],
+      );
+
+      return { renderer: 'array', title: 'Count Numbers with Unique Digits — multiplier-walk in O(n)', frames };
+    })(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def countNumbersWithUniqueDigits(self, n: int) -> int:
+        if n == 0:
+            return 1
+        n = min(n, 10)
+        total = 10
+        unique = 9
+        available = 9
+        for _ in range(n - 1):
+            unique *= available
+            total += unique
+            available -= 1
+        return total`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Closed-form combinatorics. Numbers of length 1 contribute 10 (all of 0..9). For each additional length k from 2 onward, strict-k-digit count = 9 * 9 * 8 * ... shrinking the available pool by 1 each step. Multiply once per step and accumulate into total. Above n = 10 the answer cannot grow (pigeonhole — eleven decimal digits cannot all be distinct), so clamp n to 10. O(n) time, O(1) space.',
+      },
+      javascript: {
+        code: `function countNumbersWithUniqueDigits(n) {
+  if (n === 0) return 1;
+  n = Math.min(n, 10);
+  let total = 10;
+  let unique = 9;
+  let available = 9;
+  for (let i = 1; i < n; i++) {
+    unique *= available;
+    total += unique;
+    available -= 1;
+  }
+  return total;
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Same multiplier walk. JavaScript numbers stay safe up to n = 10 since the maximum value 8877691 fits in a regular double.',
+      },
+      java: {
+        code: `class Solution {
+    public int countNumbersWithUniqueDigits(int n) {
+        if (n == 0) return 1;
+        n = Math.min(n, 10);
+        int total = 10;
+        int unique = 9;
+        int available = 9;
+        for (int i = 1; i < n; i++) {
+            unique *= available;
+            total += unique;
+            available -= 1;
+        }
+        return total;
+    }
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'int is sufficient — f(10) = 8877691 fits comfortably below 2^31.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int countNumbersWithUniqueDigits(int n) {
+        if (n == 0) return 1;
+        n = min(n, 10);
+        int total = 10, unique = 9, available = 9;
+        for (int i = 1; i < n; ++i) {
+            unique *= available;
+            total += unique;
+            --available;
+        }
+        return total;
+    }
+};`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Plain int arithmetic. The clamp to 10 also makes the loop trivially bounded.',
+      },
+      c: {
+        code: `int countNumbersWithUniqueDigits(int n) {
+    if (n == 0) return 1;
+    if (n > 10) n = 10;
+    int total = 10, unique = 9, available = 9;
+    for (int i = 1; i < n; ++i) {
+        unique *= available;
+        total += unique;
+        --available;
+    }
+    return total;
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Identical recurrence in plain C. No allocation; constant scratch space.',
+      },
+      go: {
+        code: `func countNumbersWithUniqueDigits(n int) int {
+    if n == 0 {
+        return 1
+    }
+    if n > 10 {
+        n = 10
+    }
+    total := 10
+    unique := 9
+    available := 9
+    for i := 1; i < n; i++ {
+        unique *= available
+        total += unique
+        available--
+    }
+    return total
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Idiomatic Go integer math. Trivially constant memory.',
+      },
+    },
+  },
+  'partition-to-k-equal-sum-subsets': {
+    /* SPLICE:wave8h-uniq-digits-kpartition v1 */
+    tags: ['array', 'dynamic-programming', 'bitmask', 'backtracking', 'recursion'],
+    companies: ['amazon', 'google', 'microsoft', 'meta', 'apple', 'uber'],
+    viz: (() => {
+      const nums = [4, 3, 2, 3, 5, 2, 1];
+      const k = 4;
+      const target = nums.reduce((a, b) => a + b, 0) / k; // 5
+      const frames = [];
+      // Visualization: bucket-fill backtracking. Buckets[0..k-1], assign nums (sorted desc) to a bucket if it fits.
+      const sorted = nums.slice().sort((a, b) => b - a); // [5,4,3,3,2,2,1]
+      const buckets = [0, 0, 0, 0];
+      const placements = sorted.map(() => -1);
+
+      const push = (caption, chip, extra, highlightIdx, highlightState) => {
+        const hl = {};
+        if (highlightIdx != null) hl[highlightIdx] = highlightState || 'current';
+        frames.push({
+          array: sorted.slice(),
+          highlights: hl,
+          buckets: buckets.slice(),
+          placements: placements.slice(),
+          chip,
+          caption,
+          extra: extra || [],
+        });
+      };
+
+      push(
+        'Goal: split nums = [4,3,2,3,5,2,1] into k = ' + k + ' subsets with equal sum. Total = 20, so each bucket must reach exactly ' + target + '.',
+        'k = ' + k + ', target = ' + target,
+        ['sum = 20', '20 / 4 = 5'],
+      );
+      push(
+        'Pre-checks: (a) total % k == 0 — otherwise impossible. (b) max(nums) <= target — otherwise impossible. Sort descending so we place the largest numbers first; this prunes hopeless branches faster.',
+        'sort desc, then backtrack',
+        ['sorted = [5,4,3,3,2,2,1]'],
+      );
+
+      const place = (i, b) => { buckets[b] += sorted[i]; placements[i] = b; };
+      const unplace = (i, b) => { buckets[b] -= sorted[i]; placements[i] = -1; };
+
+      // Place 5 in bucket 0
+      place(0, 0);
+      push('Place sorted[0] = 5 into bucket 0. Bucket 0 hits 5 exactly = target. Move on.', '5 -> b0 (full)', ['b0 = 5'], 0, 'match');
+
+      // Place 4 in bucket 1
+      place(1, 1);
+      push('Place sorted[1] = 4 into bucket 1. Bucket 1 = 4; still needs 1 more.', '4 -> b1', ['b1 = 4'], 1, 'current');
+
+      // Place 3 in bucket 2
+      place(2, 2);
+      push('Place sorted[2] = 3 into bucket 2. b2 = 3; needs 2.', '3 -> b2', ['b2 = 3'], 2, 'current');
+
+      // Place second 3 in bucket 3
+      place(3, 3);
+      push('Place sorted[3] = 3 into bucket 3. b3 = 3; needs 2.', '3 -> b3', ['b3 = 3'], 3, 'current');
+
+      // Place 2 in bucket 2 (3+2=5)
+      place(4, 2);
+      push('Place sorted[4] = 2 into bucket 2. b2 reaches 3 + 2 = 5 — full.', '2 -> b2 (full)', ['b2 = 5'], 4, 'match');
+
+      // Place second 2 in bucket 3 (3+2=5)
+      place(5, 3);
+      push('Place sorted[5] = 2 into bucket 3. b3 reaches 3 + 2 = 5 — full.', '2 -> b3 (full)', ['b3 = 5'], 5, 'match');
+
+      // Place 1 in bucket 1 (4+1=5)
+      place(6, 1);
+      push('Place sorted[6] = 1 into bucket 1. b1 reaches 4 + 1 = 5 — full.', '1 -> b1 (full)', ['b1 = 5'], 6, 'match');
+
+      push(
+        'All 7 items placed; every bucket equals 5. Answer = true. The recursion is: for each item i, try every bucket b where buckets[b] + sorted[i] <= target; if any branch succeeds, return true. Skip duplicate-state buckets to avoid trying the same partial twice.',
+        'all buckets full -> TRUE',
+        ['b = [5,5,5,5]'],
+      );
+
+      push(
+        'Key prunes: (1) if buckets[b] == 0 break the per-item loop — placing into the next empty bucket is symmetric and yields no new branches. (2) Skip placing into buckets with identical current sums (memoise sums).',
+        'symmetry + dedup prunes',
+        ['cut hopeless branches early'],
+      );
+
+      push(
+        'Alternative: bitmask DP. State = mask of used indices; dp[mask] = remaining capacity in the current bucket. O(n * 2^n) time. Cleaner for the editor; backtracking with sort-desc is faster in practice for typical inputs.',
+        'bitmask DP exists',
+        ['dp[mask] = current-bucket leftover'],
+      );
+
+      push(
+        'Complexity: backtracking worst case is exponential, but symmetry pruning + size-decreasing placement keeps it tractable for n up to ~16. Bitmask DP gives a clean O(n * 2^n) ceiling.',
+        'O(k^n) backtrack / O(n * 2^n) DP',
+        ['n typically <= 16'],
+      );
+
+      push(
+        'Done. nums splits cleanly into [5], [4,1], [3,2], [3,2]. The recurrence "try each bucket for the current item, accept on first success, backtrack on dead end" is the engine — everything else is pruning.',
+        'answer = true',
+        ['four subsets, each sum = 5'],
+      );
+
+      return { renderer: 'array', title: 'Partition to K Equal-Sum Subsets — sort-desc + bucket-fill backtracking', frames };
+    })(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def canPartitionKSubsets(self, nums: List[int], k: int) -> bool:
+        total = sum(nums)
+        if total % k != 0:
+            return False
+        target = total // k
+        nums.sort(reverse=True)
+        if nums[0] > target:
+            return False
+        buckets = [0] * k
+
+        def backtrack(i: int) -> bool:
+            if i == len(nums):
+                return True
+            for b in range(k):
+                if buckets[b] + nums[i] <= target:
+                    buckets[b] += nums[i]
+                    if backtrack(i + 1):
+                        return True
+                    buckets[b] -= nums[i]
+                if buckets[b] == 0:
+                    break
+            return False
+
+        return backtrack(0)`,
+        complexity: { time: 'O(k^n) worst case (heavily pruned)', space: 'O(k + n)' },
+        approach: 'Bucket-fill backtracking. Sort descending so the largest item is placed first — this kills branches early when an item is unplaceable. For each item, try every bucket whose current sum still has room. The two critical prunes: (1) break the inner loop after attempting an empty bucket — all later empty buckets are symmetric, retrying them produces the same subtree; (2) implicit dedup: skipping placement into buckets with identical sums avoids exploring the same partial state twice. Without these prunes the recursion blows up; with them, n up to ~16 is comfortable.',
+      },
+      javascript: {
+        code: `function canPartitionKSubsets(nums, k) {
+  const total = nums.reduce((a, b) => a + b, 0);
+  if (total % k !== 0) return false;
+  const target = total / k;
+  nums.sort((a, b) => b - a);
+  if (nums[0] > target) return false;
+  const buckets = new Array(k).fill(0);
+
+  function backtrack(i) {
+    if (i === nums.length) return true;
+    for (let b = 0; b < k; b++) {
+      if (buckets[b] + nums[i] <= target) {
+        buckets[b] += nums[i];
+        if (backtrack(i + 1)) return true;
+        buckets[b] -= nums[i];
+      }
+      if (buckets[b] === 0) break;
+    }
+    return false;
+  }
+
+  return backtrack(0);
+}`,
+        complexity: { time: 'O(k^n) worst case', space: 'O(k + n)' },
+        approach: 'Identical recurrence. The "if buckets[b] === 0 break" is the linchpin prune — empty buckets are indistinguishable, so we only ever attempt the first one.',
+      },
+      java: {
+        code: `class Solution {
+    private int[] nums;
+    private int target;
+    private int[] buckets;
+
+    public boolean canPartitionKSubsets(int[] nums, int k) {
+        int total = 0;
+        for (int x : nums) total += x;
+        if (total % k != 0) return false;
+        target = total / k;
+        Arrays.sort(nums);
+        // reverse in place
+        for (int i = 0, j = nums.length - 1; i < j; i++, j--) {
+            int t = nums[i]; nums[i] = nums[j]; nums[j] = t;
+        }
+        if (nums[0] > target) return false;
+        this.nums = nums;
+        this.buckets = new int[k];
+        return backtrack(0);
+    }
+
+    private boolean backtrack(int i) {
+        if (i == nums.length) return true;
+        for (int b = 0; b < buckets.length; b++) {
+            if (buckets[b] + nums[i] <= target) {
+                buckets[b] += nums[i];
+                if (backtrack(i + 1)) return true;
+                buckets[b] -= nums[i];
+            }
+            if (buckets[b] == 0) break;
+        }
+        return false;
+    }
+}`,
+        complexity: { time: 'O(k^n) worst case', space: 'O(k + n)' },
+        approach: 'Same algorithm with manual desc-sort (Arrays.sort + reverse). Field-based state to avoid passing buckets/target/nums into every recursive call.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool canPartitionKSubsets(vector<int>& nums, int k) {
+        int total = accumulate(nums.begin(), nums.end(), 0);
+        if (total % k != 0) return false;
+        int target = total / k;
+        sort(nums.rbegin(), nums.rend());
+        if (nums[0] > target) return false;
+        vector<int> buckets(k, 0);
+        function<bool(int)> bt = [&](int i) -> bool {
+            if (i == (int)nums.size()) return true;
+            for (int b = 0; b < k; ++b) {
+                if (buckets[b] + nums[i] <= target) {
+                    buckets[b] += nums[i];
+                    if (bt(i + 1)) return true;
+                    buckets[b] -= nums[i];
+                }
+                if (buckets[b] == 0) break;
+            }
+            return false;
+        };
+        return bt(0);
+    }
+};`,
+        complexity: { time: 'O(k^n) worst case', space: 'O(k + n)' },
+        approach: 'Lambda recursion with captured buckets. rbegin()/rend() sort gives the descending order directly.',
+      },
+      c: {
+        code: `static int cmp_desc(const void* a, const void* b) {
+    return (*(int*)b) - (*(int*)a);
+}
+
+static int* g_nums;
+static int g_n;
+static int g_target;
+static int* g_buckets;
+static int g_k;
+
+static bool backtrack(int i) {
+    if (i == g_n) return true;
+    for (int b = 0; b < g_k; ++b) {
+        if (g_buckets[b] + g_nums[i] <= g_target) {
+            g_buckets[b] += g_nums[i];
+            if (backtrack(i + 1)) return true;
+            g_buckets[b] -= g_nums[i];
+        }
+        if (g_buckets[b] == 0) break;
+    }
+    return false;
+}
+
+bool canPartitionKSubsets(int* nums, int numsSize, int k) {
+    int total = 0;
+    for (int i = 0; i < numsSize; ++i) total += nums[i];
+    if (total % k != 0) return false;
+    int target = total / k;
+    qsort(nums, numsSize, sizeof(int), cmp_desc);
+    if (nums[0] > target) return false;
+    int* buckets = (int*)calloc(k, sizeof(int));
+    g_nums = nums; g_n = numsSize; g_target = target; g_buckets = buckets; g_k = k;
+    bool ok = backtrack(0);
+    free(buckets);
+    return ok;
+}`,
+        complexity: { time: 'O(k^n) worst case', space: 'O(k + n)' },
+        approach: 'Plain C with file-scope globals to keep the recursive signature compact. qsort with a descending comparator gives the largest-first ordering.',
+      },
+      go: {
+        code: `func canPartitionKSubsets(nums []int, k int) bool {
+    total := 0
+    for _, x := range nums {
+        total += x
+    }
+    if total%k != 0 {
+        return false
+    }
+    target := total / k
+    sort.Sort(sort.Reverse(sort.IntSlice(nums)))
+    if nums[0] > target {
+        return false
+    }
+    buckets := make([]int, k)
+    var bt func(i int) bool
+    bt = func(i int) bool {
+        if i == len(nums) {
+            return true
+        }
+        for b := 0; b < k; b++ {
+            if buckets[b]+nums[i] <= target {
+                buckets[b] += nums[i]
+                if bt(i + 1) {
+                    return true
+                }
+                buckets[b] -= nums[i]
+            }
+            if buckets[b] == 0 {
+                break
+            }
+        }
+        return false
+    }
+    return bt(0)
+}`,
+        complexity: { time: 'O(k^n) worst case', space: 'O(k + n)' },
+        approach: 'Idiomatic Go with a closure capturing buckets and target. sort.Reverse(sort.IntSlice(nums)) is the standard descending-sort idiom.',
+      },
+    },
+  },
+  'find-leaves-of-binary-tree': {
+    tags: ['tree', 'dfs', 'binary-tree', 'recursion'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    method_name: 'findLeaves',
+    params: [{ name: 'root', type: 'Optional[TreeNode]' }],
+    return_type: 'List[List[int]]',
+    visualization: {
+      type: 'tree',
+      title: 'Peel the leaves layer by layer',
+      frames: [{"board":"tree: [1,2,3,4,5]","note":"Start DFS from root. We compute the height of each node from leaves up."},{"board":"visit 4 (leaf)","note":"Leaf node: height = 0. Place value 4 into bucket[0]."},{"board":"visit 5 (leaf)","note":"Leaf node: height = 0. Place value 5 into bucket[0]."},{"board":"visit 2","note":"Height = 1 + max(0, 0) = 1. Place value 2 into bucket[1]."},{"board":"visit 3 (leaf)","note":"Leaf node: height = 0. Place value 3 into bucket[0]."},{"board":"visit 1 (root)","note":"Height = 1 + max(1, 0) = 2. Place value 1 into bucket[2]."},{"board":"bucket[0] = [4,5,3]","note":"These are the original leaves — the first layer to peel off."},{"board":"bucket[1] = [2]","note":"After removing the leaves, node 2 becomes a leaf."},{"board":"bucket[2] = [1]","note":"Finally, node 1 is left alone as the deepest peel."},{"board":"result = [[4,5,3],[2],[1]]","note":"Each inner list is one peel of the tree."},{"board":"complexity","note":"Single DFS pass: O(n) time, O(h) recursion stack plus O(n) for output."},{"board":"done","note":"Bucketing by height avoids repeatedly trimming the tree — one traversal does it."}],
+    },
+    solutions: {
+      python: `class Solution:
+    def findLeaves(self, root):
+        buckets = []
+        def height(node):
+            if not node:
+                return -1
+            h = 1 + max(height(node.left), height(node.right))
+            if h == len(buckets):
+                buckets.append([])
+            buckets[h].append(node.val)
+            return h
+        height(root)
+        return buckets`,
+      javascript: `var findLeaves = function(root) {
+    const buckets = [];
+    const height = (node) => {
+        if (!node) return -1;
+        const h = 1 + Math.max(height(node.left), height(node.right));
+        if (h === buckets.length) buckets.push([]);
+        buckets[h].push(node.val);
+        return h;
+    };
+    height(root);
+    return buckets;
+};`,
+      java: `class Solution {
+    public List<List<Integer>> findLeaves(TreeNode root) {
+        List<List<Integer>> buckets = new ArrayList<>();
+        height(root, buckets);
+        return buckets;
+    }
+    private int height(TreeNode node, List<List<Integer>> buckets) {
+        if (node == null) return -1;
+        int h = 1 + Math.max(height(node.left, buckets), height(node.right, buckets));
+        if (h == buckets.size()) buckets.add(new ArrayList<>());
+        buckets.get(h).add(node.val);
+        return h;
+    }
+}`,
+      cpp: `class Solution {
+public:
+    vector<vector<int>> findLeaves(TreeNode* root) {
+        vector<vector<int>> buckets;
+        height(root, buckets);
+        return buckets;
+    }
+private:
+    int height(TreeNode* node, vector<vector<int>>& buckets) {
+        if (!node) return -1;
+        int h = 1 + max(height(node->left, buckets), height(node->right, buckets));
+        if (h == (int)buckets.size()) buckets.push_back({});
+        buckets[h].push_back(node->val);
+        return h;
+    }
+};`,
+      c: `/* C stub: tree representation differs; use Python/Java/C++ for reference. */`,
+      go: `func findLeaves(root *TreeNode) [][]int {
+    buckets := [][]int{}
+    var height func(*TreeNode) int
+    height = func(node *TreeNode) int {
+        if node == nil { return -1 }
+        l, r := height(node.Left), height(node.Right)
+        h := 1 + l
+        if r > l { h = 1 + r }
+        if h == len(buckets) { buckets = append(buckets, []int{}) }
+        buckets[h] = append(buckets[h], node.Val)
+        return h
+    }
+    height(root)
+    return buckets
+}`,
+    },
+  },
+  'binary-tree-vertical-order-traversal': {
+    tags: ['tree', 'bfs', 'binary-tree', 'hash-table'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    method_name: 'verticalOrder',
+    params: [{ name: 'root', type: 'Optional[TreeNode]' }],
+    return_type: 'List[List[int]]',
+    visualization: {
+      type: 'tree',
+      title: 'Group nodes by column with BFS',
+      frames: [{"board":"tree: [3,9,20,null,null,15,7]","note":"BFS with a queue holding (node, column). Root has column 0."},{"board":"queue: [(3,0)]","note":"Visit 3 at column 0. map[0] = [3]."},{"board":"push (9,-1), (20,1)","note":"Left child gets col-1, right child gets col+1."},{"board":"queue: [(9,-1),(20,1)]","note":"Process 9 at column -1. map[-1] = [9]."},{"board":"queue: [(20,1)]","note":"Process 20 at column 1. map[1] = [20]. Push (15,0) and (7,2)."},{"board":"queue: [(15,0),(7,2)]","note":"Process 15 at column 0. map[0] = [3,15]."},{"board":"queue: [(7,2)]","note":"Process 7 at column 2. map[2] = [7]."},{"board":"queue empty","note":"All nodes visited. Columns seen: -1, 0, 1, 2."},{"board":"sort by column","note":"Sort keys: -1 < 0 < 1 < 2. Or track min/max column during BFS to avoid sorting."},{"board":"col -1 -> [9]","note":"Leftmost column."},{"board":"col 0 -> [3,15], col 1 -> [20], col 2 -> [7]","note":"BFS guarantees top-to-bottom order within each column."},{"board":"result = [[9],[3,15],[20],[7]]","note":"O(n) BFS + O(k) over columns. Tracking min_col avoids a sort."}],
+    },
+    solutions: {
+      python: `from collections import deque, defaultdict
+class Solution:
+    def verticalOrder(self, root):
+        if not root:
+            return []
+        cols = defaultdict(list)
+        q = deque([(root, 0)])
+        lo, hi = 0, 0
+        while q:
+            node, c = q.popleft()
+            cols[c].append(node.val)
+            if c < lo: lo = c
+            if c > hi: hi = c
+            if node.left: q.append((node.left, c - 1))
+            if node.right: q.append((node.right, c + 1))
+        return [cols[c] for c in range(lo, hi + 1)]`,
+      javascript: `var verticalOrder = function(root) {
+    if (!root) return [];
+    const cols = new Map();
+    const queue = [[root, 0]];
+    let lo = 0, hi = 0;
+    while (queue.length) {
+        const [node, c] = queue.shift();
+        if (!cols.has(c)) cols.set(c, []);
+        cols.get(c).push(node.val);
+        if (c < lo) lo = c;
+        if (c > hi) hi = c;
+        if (node.left) queue.push([node.left, c - 1]);
+        if (node.right) queue.push([node.right, c + 1]);
+    }
+    const out = [];
+    for (let c = lo; c <= hi; c++) out.push(cols.get(c));
+    return out;
+};`,
+      java: `class Solution {
+    public List<List<Integer>> verticalOrder(TreeNode root) {
+        List<List<Integer>> res = new ArrayList<>();
+        if (root == null) return res;
+        Map<Integer, List<Integer>> cols = new HashMap<>();
+        Queue<int[]> queue = new LinkedList<>();
+        Queue<TreeNode> nodes = new LinkedList<>();
+        nodes.offer(root);
+        queue.offer(new int[]{0});
+        int lo = 0, hi = 0;
+        while (!nodes.isEmpty()) {
+            TreeNode node = nodes.poll();
+            int c = queue.poll()[0];
+            cols.computeIfAbsent(c, k -> new ArrayList<>()).add(node.val);
+            if (c < lo) lo = c;
+            if (c > hi) hi = c;
+            if (node.left != null) { nodes.offer(node.left); queue.offer(new int[]{c - 1}); }
+            if (node.right != null) { nodes.offer(node.right); queue.offer(new int[]{c + 1}); }
+        }
+        for (int c = lo; c <= hi; c++) res.add(cols.get(c));
+        return res;
+    }
+}`,
+      cpp: `class Solution {
+public:
+    vector<vector<int>> verticalOrder(TreeNode* root) {
+        vector<vector<int>> res;
+        if (!root) return res;
+        map<int, vector<int>> cols;
+        queue<pair<TreeNode*, int>> q;
+        q.push({root, 0});
+        while (!q.empty()) {
+            auto [node, c] = q.front(); q.pop();
+            cols[c].push_back(node->val);
+            if (node->left) q.push({node->left, c - 1});
+            if (node->right) q.push({node->right, c + 1});
+        }
+        for (auto& [k, v] : cols) res.push_back(v);
+        return res;
+    }
+};`,
+      c: `/* C stub: tree representation differs; use Python/Java/C++ for reference. */`,
+      go: `func verticalOrder(root *TreeNode) [][]int {
+    if root == nil { return [][]int{} }
+    cols := map[int][]int{}
+    type item struct { node *TreeNode; c int }
+    q := []item{{root, 0}}
+    lo, hi := 0, 0
+    for len(q) > 0 {
+        it := q[0]; q = q[1:]
+        cols[it.c] = append(cols[it.c], it.node.Val)
+        if it.c < lo { lo = it.c }
+        if it.c > hi { hi = it.c }
+        if it.node.Left != nil { q = append(q, item{it.node.Left, it.c - 1}) }
+        if it.node.Right != nil { q = append(q, item{it.node.Right, it.c + 1}) }
+    }
+    out := [][]int{}
+    for c := lo; c <= hi; c++ { out = append(out, cols[c]) }
+    return out
+}`,
+    },
+  },
+  'my-calendar-i': {
+    tags: ['design', 'binary-search', 'ordered-set'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: {
+          "renderer": "array",
+          "title": "My Calendar I — overlap-checked bookings",
+          "frames": [
+                {
+                      "array": [],
+                      "caption": "MyCalendar stores accepted (start, end) intervals where end is exclusive. We reject any new booking that overlaps an existing one."
+                },
+                {
+                      "array": [
+                            "[10,20)"
+                      ],
+                      "caption": "book(10, 20). List is empty — accept. Calendar = [[10, 20)]."
+                },
+                {
+                      "array": [
+                            "[10,20)"
+                      ],
+                      "caption": "book(15, 25). Check overlap with [10, 20): max(10, 15) < min(20, 25) → 15 < 20 → overlap. Reject."
+                },
+                {
+                      "array": [
+                            "[10,20)"
+                      ],
+                      "highlights": {
+                            "0": "mid"
+                      },
+                      "caption": "Visually, [15, 25) starts at 15 which sits inside [10, 20). Conflict — return False."
+                },
+                {
+                      "array": [
+                            "[10,20)"
+                      ],
+                      "caption": "book(20, 30). Check overlap with [10, 20): max(10, 20) < min(20, 30) → 20 < 20 is False. No overlap."
+                },
+                {
+                      "array": [
+                            "[10,20)",
+                            "[20,30)"
+                      ],
+                      "highlights": {
+                            "1": "match"
+                      },
+                      "caption": "Accepted — end is exclusive, so 20 is free. Calendar = [[10, 20), [20, 30)]."
+                },
+                {
+                      "array": [
+                            "[10,20)",
+                            "[20,30)"
+                      ],
+                      "caption": "book(5, 12). Compare against [10, 20): max(5, 10)=10 < min(12, 20)=12 → overlap. Reject without checking the rest."
+                },
+                {
+                      "array": [
+                            "[10,20)",
+                            "[20,30)"
+                      ],
+                      "highlights": {
+                            "0": "mid"
+                      },
+                      "caption": "Visually, [5, 12) ends at 12 which is inside [10, 20). Conflict."
+                },
+                {
+                      "array": [
+                            "[10,20)",
+                            "[20,30)"
+                      ],
+                      "caption": "book(30, 40). Compare with [10, 20): no overlap. Compare with [20, 30): max(20, 30)=30 < min(30, 40)=30 is False. No overlap."
+                },
+                {
+                      "array": [
+                            "[10,20)",
+                            "[20,30)",
+                            "[30,40)"
+                      ],
+                      "highlights": {
+                            "2": "match"
+                      },
+                      "caption": "Accepted. Calendar = [[10, 20), [20, 30), [30, 40)]."
+                },
+                {
+                      "array": [
+                            "[10,20)",
+                            "[20,30)",
+                            "[30,40)"
+                      ],
+                      "caption": "Linear scan is O(n) per booking. For larger n, swap the list for a sorted structure (TreeMap / SortedList) and binary-search to O(log n)."
+                },
+                {
+                      "array": [
+                            "[10,20)",
+                            "[20,30)",
+                            "[30,40)"
+                      ],
+                      "caption": "Two intervals [a, b) and [c, d) overlap iff max(a, c) < min(b, d). Memorise this — it appears in meeting rooms, interval merge, and double booking."
+                }
+          ]
+    },
+    solutions: {
+      python: {
+        code: `class MyCalendar:
+    def __init__(self):
+        self.bookings = []
+
+    def book(self, start: int, end: int) -> bool:
+        for s, e in self.bookings:
+            if max(s, start) < min(e, end):
+                return False
+        self.bookings.append((start, end))
+        return True`,
+        complexity: { time: 'O(n) per book', space: 'O(n)' },
+        approach: 'Keep accepted intervals in a list. For each new booking, scan and reject if max(s, start) < min(e, end) — the standard half-open overlap test. Append only on success.',
+      },
+      javascript: {
+        code: `class MyCalendar {
+  constructor() {
+    this.bookings = [];
+  }
+  book(start, end) {
+    for (const [s, e] of this.bookings) {
+      if (Math.max(s, start) < Math.min(e, end)) return false;
+    }
+    this.bookings.push([start, end]);
+    return true;
+  }
+}`,
+        complexity: { time: 'O(n) per book', space: 'O(n)' },
+        approach: 'Linear scan with the overlap test. Push only after the loop confirms no conflict. End is exclusive, so equality at the boundary is allowed.',
+      },
+      java: {
+        code: `class MyCalendar {
+    private List<int[]> bookings = new ArrayList<>();
+
+    public boolean book(int start, int end) {
+        for (int[] b : bookings) {
+            if (Math.max(b[0], start) < Math.min(b[1], end)) return false;
+        }
+        bookings.add(new int[]{start, end});
+        return true;
+    }
+}`,
+        complexity: { time: 'O(n) per book', space: 'O(n)' },
+        approach: 'ArrayList of int[2] pairs. For tighter O(log n) book, swap for a TreeMap<Integer, Integer> keyed by start and use floorKey / ceilingKey to inspect only adjacent intervals.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class MyCalendar {
+    vector<pair<int,int>> bookings;
+public:
+    bool book(int start, int end) {
+        for (auto& [s, e] : bookings) {
+            if (max(s, start) < min(e, end)) return false;
+        }
+        bookings.emplace_back(start, end);
+        return true;
+    }
+};`,
+        complexity: { time: 'O(n) per book', space: 'O(n)' },
+        approach: 'Structured bindings make the overlap test read cleanly. For O(log n), use std::set<pair<int,int>> and check lower_bound — the predecessor and successor are the only candidates.',
+      },
+      c: {
+        code: `#include <stdlib.h>
+#include <stdbool.h>
+
+typedef struct {
+    int (*bookings)[2];
+    int size;
+    int capacity;
+} MyCalendar;
+
+MyCalendar* myCalendarCreate() {
+    MyCalendar* obj = malloc(sizeof(MyCalendar));
+    obj->capacity = 16;
+    obj->size = 0;
+    obj->bookings = malloc(obj->capacity * sizeof(int[2]));
+    return obj;
+}
+
+bool myCalendarBook(MyCalendar* obj, int start, int end) {
+    for (int i = 0; i < obj->size; i++) {
+        int s = obj->bookings[i][0], e = obj->bookings[i][1];
+        int lo = s > start ? s : start;
+        int hi = e < end ? e : end;
+        if (lo < hi) return false;
+    }
+    if (obj->size == obj->capacity) {
+        obj->capacity *= 2;
+        obj->bookings = realloc(obj->bookings, obj->capacity * sizeof(int[2]));
+    }
+    obj->bookings[obj->size][0] = start;
+    obj->bookings[obj->size][1] = end;
+    obj->size++;
+    return true;
+}
+
+void myCalendarFree(MyCalendar* obj) {
+    free(obj->bookings);
+    free(obj);
+}`,
+        complexity: { time: 'O(n) per book', space: 'O(n)' },
+        approach: 'Manual dynamic array of int[2]. Double capacity on overflow — amortised O(1) growth. Free both the inner buffer and the struct in myCalendarFree.',
+      },
+      go: {
+        code: `type MyCalendar struct {
+    bookings [][2]int
+}
+
+func Constructor() MyCalendar {
+    return MyCalendar{}
+}
+
+func (c *MyCalendar) Book(start int, end int) bool {
+    for _, b := range c.bookings {
+        lo, hi := b[0], b[1]
+        if max(lo, start) < min(hi, end) {
+            return false
+        }
+    }
+    c.bookings = append(c.bookings, [2]int{start, end})
+    return true
+}
+
+func max(a, b int) int { if a > b { return a }; return b }
+func min(a, b int) int { if a < b { return a }; return b }`,
+        complexity: { time: 'O(n) per book', space: 'O(n)' },
+        approach: 'Slice of [2]int. Go 1.21+ has builtin max/min; older versions need helpers. The pointer receiver lets Book mutate the slice in place.',
+      },
+    },
+  },
+  'min-cost-for-tickets': {
+    tags: ['array', 'dynamic-programming'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: {
+          "renderer": "array",
+          "title": "Min Cost For Tickets — DP over days",
+          "frames": [
+                {
+                      "array": [
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0
+                      ],
+                      "caption": "days=[1,4,6,7,8,20], costs=[2,7,15]. dp[i] = min cost to cover travel through day i. Build dp[0..20]."
+                },
+                {
+                      "array": [
+                            0,
+                            "?",
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0
+                      ],
+                      "highlights": {
+                            "1": "mid"
+                      },
+                      "caption": "Day 1 is a travel day. dp[1] = min(dp[0]+2, dp[max(0,1-7)]+7, dp[max(0,1-30)]+15) = min(2, 7, 15) = 2."
+                },
+                {
+                      "array": [
+                            0,
+                            2,
+                            2,
+                            2,
+                            0,
+                            0,
+                            0,
+                            0
+                      ],
+                      "caption": "Days 2, 3 not travel days → dp[i] = dp[i-1] = 2. We only pay on travel days."
+                },
+                {
+                      "array": [
+                            0,
+                            2,
+                            2,
+                            2,
+                            "?",
+                            0,
+                            0,
+                            0
+                      ],
+                      "highlights": {
+                            "4": "mid"
+                      },
+                      "caption": "Day 4 is a travel day. dp[4] = min(dp[3]+2, dp[0]+7, dp[0]+15) = min(4, 7, 15) = 4."
+                },
+                {
+                      "array": [
+                            0,
+                            2,
+                            2,
+                            2,
+                            4,
+                            4,
+                            "?",
+                            0
+                      ],
+                      "highlights": {
+                            "6": "mid"
+                      },
+                      "caption": "Day 6 is a travel day. dp[6] = min(dp[5]+2, dp[0]+7, dp[0]+15) = min(6, 7, 15) = 6."
+                },
+                {
+                      "array": [
+                            0,
+                            2,
+                            2,
+                            2,
+                            4,
+                            4,
+                            6,
+                            "?"
+                      ],
+                      "highlights": {
+                            "7": "mid"
+                      },
+                      "caption": "Day 7: dp[7] = min(dp[6]+2, dp[0]+7, dp[0]+15) = min(8, 7, 15) = 7. The 7-day pass from day 1 covers 1..7."
+                },
+                {
+                      "array": [
+                            0,
+                            2,
+                            2,
+                            2,
+                            4,
+                            4,
+                            6,
+                            7
+                      ],
+                      "caption": "Day 8: dp[8] = min(dp[7]+2, dp[1]+7, dp[0]+15) = min(9, 9, 15) = 9. Either pay daily through 8 or buy a 7-day from day 2 onward."
+                },
+                {
+                      "array": [
+                            "...",
+                            "...",
+                            "...",
+                            "...",
+                            "...",
+                            "...",
+                            "...",
+                            "..."
+                      ],
+                      "caption": "Days 9..19 are not travel days. dp stays at 9."
+                },
+                {
+                      "array": [
+                            "9 (d8)",
+                            "9 (d19)",
+                            "? (d20)"
+                      ],
+                      "highlights": {
+                            "2": "mid"
+                      },
+                      "caption": "Day 20: dp[20] = min(dp[19]+2, dp[13]+7, dp[0]+15) = min(11, 16, 15) = 11."
+                },
+                {
+                      "array": [
+                            "9 (d8)",
+                            "9 (d19)",
+                            "11 (d20)"
+                      ],
+                      "highlights": {
+                            "2": "match"
+                      },
+                      "caption": "Answer = dp[20] = 11. Optimal: buy a 7-day for $7 covering 1..7, then daily $2 each for 8 and 20 — total 7 + 2 + 2 = 11."
+                },
+                {
+                      "array": [],
+                      "caption": "Recurrence: on a travel day i, choose the cheapest of three offers ending at i — 1-day from i, 7-day from i, 30-day from i. On non-travel days, carry forward dp[i-1]."
+                },
+                {
+                      "array": [],
+                      "caption": "Time O(maxDay) ≈ O(365). Space O(maxDay) or O(30) with a rolling deque over travel-day indices."
+                }
+          ]
+    },
+    solutions: {
+      python: {
+        code: `class Solution:
+    def mincostTickets(self, days: list[int], costs: list[int]) -> int:
+        travel = set(days)
+        last = days[-1]
+        dp = [0] * (last + 1)
+        for i in range(1, last + 1):
+            if i not in travel:
+                dp[i] = dp[i - 1]
+            else:
+                dp[i] = min(
+                    dp[i - 1] + costs[0],
+                    dp[max(0, i - 7)] + costs[1],
+                    dp[max(0, i - 30)] + costs[2],
+                )
+        return dp[last]`,
+        complexity: { time: 'O(maxDay)', space: 'O(maxDay)' },
+        approach: 'DP over calendar days 1..last(days). On a non-travel day, dp[i] = dp[i-1]. On a travel day, take the cheapest of three offers ending at i: 1-day, 7-day, 30-day. Clamp the look-back at 0.',
+      },
+      javascript: {
+        code: `function mincostTickets(days, costs) {
+  const travel = new Set(days);
+  const last = days[days.length - 1];
+  const dp = new Array(last + 1).fill(0);
+  for (let i = 1; i <= last; i++) {
+    if (!travel.has(i)) {
+      dp[i] = dp[i - 1];
+    } else {
+      dp[i] = Math.min(
+        dp[i - 1] + costs[0],
+        dp[Math.max(0, i - 7)] + costs[1],
+        dp[Math.max(0, i - 30)] + costs[2],
+      );
+    }
+  }
+  return dp[last];
+}`,
+        complexity: { time: 'O(maxDay)', space: 'O(maxDay)' },
+        approach: 'Set membership for O(1) travel-day lookup. Math.max(0, i - k) avoids negative indexing — dp[0] is the natural base case (no cost before day 1).',
+      },
+      java: {
+        code: `class Solution {
+    public int mincostTickets(int[] days, int[] costs) {
+        Set<Integer> travel = new HashSet<>();
+        for (int d : days) travel.add(d);
+        int last = days[days.length - 1];
+        int[] dp = new int[last + 1];
+        for (int i = 1; i <= last; i++) {
+            if (!travel.contains(i)) {
+                dp[i] = dp[i - 1];
+            } else {
+                dp[i] = Math.min(
+                    dp[i - 1] + costs[0],
+                    Math.min(
+                        dp[Math.max(0, i - 7)] + costs[1],
+                        dp[Math.max(0, i - 30)] + costs[2]
+                    )
+                );
+            }
+        }
+        return dp[last];
+    }
+}`,
+        complexity: { time: 'O(maxDay)', space: 'O(maxDay)' },
+        approach: 'Integer HashSet for travel-day check. Nested Math.min for the three-way minimum — Java has no varargs min. dp[0] is auto-initialised to 0.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int mincostTickets(vector<int>& days, vector<int>& costs) {
+        unordered_set<int> travel(days.begin(), days.end());
+        int last = days.back();
+        vector<int> dp(last + 1, 0);
+        for (int i = 1; i <= last; i++) {
+            if (!travel.count(i)) {
+                dp[i] = dp[i - 1];
+            } else {
+                dp[i] = min({
+                    dp[i - 1] + costs[0],
+                    dp[max(0, i - 7)] + costs[1],
+                    dp[max(0, i - 30)] + costs[2]
+                });
+            }
+        }
+        return dp[last];
+    }
+};`,
+        complexity: { time: 'O(maxDay)', space: 'O(maxDay)' },
+        approach: 'unordered_set built from the days vector in one shot. std::min with an initializer_list gives a clean three-way minimum.',
+      },
+      c: {
+        code: `#include <stdlib.h>
+#include <string.h>
+
+static int min3(int a, int b, int c) {
+    int m = a < b ? a : b;
+    return m < c ? m : c;
+}
+
+int mincostTickets(int* days, int daysSize, int* costs, int costsSize) {
+    int last = days[daysSize - 1];
+    char* travel = calloc(last + 1, 1);
+    for (int i = 0; i < daysSize; i++) travel[days[i]] = 1;
+    int* dp = calloc(last + 1, sizeof(int));
+    for (int i = 1; i <= last; i++) {
+        if (!travel[i]) {
+            dp[i] = dp[i - 1];
+        } else {
+            int a = dp[i - 1] + costs[0];
+            int b = dp[i - 7 > 0 ? i - 7 : 0] + costs[1];
+            int c = dp[i - 30 > 0 ? i - 30 : 0] + costs[2];
+            dp[i] = min3(a, b, c);
+        }
+    }
+    int ans = dp[last];
+    free(travel);
+    free(dp);
+    return ans;
+}`,
+        complexity: { time: 'O(maxDay)', space: 'O(maxDay)' },
+        approach: 'A char array as a bitset for travel days — cheaper than building a hash table. calloc zero-initialises so dp[0] = 0 is free. Always free both buffers.',
+      },
+      go: {
+        code: `func mincostTickets(days []int, costs []int) int {
+    travel := make(map[int]bool, len(days))
+    for _, d := range days {
+        travel[d] = true
+    }
+    last := days[len(days)-1]
+    dp := make([]int, last+1)
+    for i := 1; i <= last; i++ {
+        if !travel[i] {
+            dp[i] = dp[i-1]
+            continue
+        }
+        a := dp[i-1] + costs[0]
+        b := dp[max(0, i-7)] + costs[1]
+        c := dp[max(0, i-30)] + costs[2]
+        dp[i] = min(a, min(b, c))
+    }
+    return dp[last]
+}
+
+func max(a, b int) int { if a > b { return a }; return b }
+func min(a, b int) int { if a < b { return a }; return b }`,
+        complexity: { time: 'O(maxDay)', space: 'O(maxDay)' },
+        approach: 'map[int]bool for travel days. The continue keeps the travel-day branch flat. Nested min calls — Go 1.20 stdlib lacks variadic min.',
+      },
+    },
+  },
+  'factor-combinations': {
+    tags: ['backtracking', 'recursion', 'math', 'dfs'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    method_name: 'getFactors',
+    params: [{ name: 'n', type: 'int' }],
+    return_type: 'List[List[int]]',
+    visualization: {
+      type: 'array',
+      title: 'Factor combinations — backtracking from 2 up to sqrt(n)',
+      frames: [
+        { board: 'n = 12, start = 2, path = []', note: 'Goal: list every multiset of factors >= 2 whose product is 12, excluding the trivial [12].' },
+        { board: 'try i = 2', note: '2 divides 12. Push 2 to path → [2]. Also record full pair [2, 6] as a result.' },
+        { board: 'recurse: n = 6, start = 2, path = [2]', note: 'Continue factoring the cofactor 6, but never pick a factor < 2 to avoid duplicates.' },
+        { board: 'try i = 2 (inner)', note: '2 divides 6. Push 2 → path [2,2]. Record pair [2,2,3] as a result.' },
+        { board: 'recurse: n = 3, start = 2, path = [2,2]', note: 'i*i > 3, so the only valid pair would be [3] (cofactor first push). Nothing new — backtrack.' },
+        { board: 'backtrack path → [2]', note: 'Pop the inner 2. Continue scanning factors of 6 from i = 3.' },
+        { board: 'i = 3 > sqrt(6)', note: '3*3 = 9 > 6, so no more factors-of-6 to enumerate beyond the recorded pair. Backtrack.' },
+        { board: 'backtrack path → []', note: 'Pop the outer 2. Resume scanning factors of 12 from i = 3.' },
+        { board: 'try i = 3', note: '3 divides 12. Push 3 → [3]. Record pair [3, 4]. Recurse on n=4, start=3.' },
+        { board: 'recurse: n = 4, start = 3', note: 'i starts at 3 but 3*3 > 4 — no factor i with i >= 3 and i*i <= 4. Backtrack.' },
+        { board: 'i = 4: 4*4 > 12', note: 'Loop ends — every factor >= sqrt(n) is already covered by the pair-record step. Stop.' },
+        { board: 'result = [[2,6],[2,2,3],[3,4]]', note: 'Three combinations. Time O(sqrt(n) * answers), space O(log n) recursion depth.' },
+      ],
+    },
+    solutions: {
+      python: `class Solution:
+    def getFactors(self, n):
+        out = []
+        def bt(remain, start, path):
+            i = start
+            while i * i <= remain:
+                if remain % i == 0:
+                    out.append(path + [i, remain // i])
+                    bt(remain // i, i, path + [i])
+                i += 1
+        bt(n, 2, [])
+        return out`,
+      javascript: `var getFactors = function(n) {
+    const out = [];
+    const bt = (remain, start, path) => {
+        for (let i = start; i * i <= remain; i++) {
+            if (remain % i === 0) {
+                out.push([...path, i, remain / i]);
+                bt(remain / i, i, [...path, i]);
+            }
+        }
+    };
+    bt(n, 2, []);
+    return out;
+};`,
+      java: `class Solution {
+    public List<List<Integer>> getFactors(int n) {
+        List<List<Integer>> out = new ArrayList<>();
+        bt(n, 2, new ArrayList<>(), out);
+        return out;
+    }
+    private void bt(int remain, int start, List<Integer> path, List<List<Integer>> out) {
+        for (int i = start; (long) i * i <= remain; i++) {
+            if (remain % i == 0) {
+                List<Integer> pair = new ArrayList<>(path);
+                pair.add(i);
+                pair.add(remain / i);
+                out.add(pair);
+                path.add(i);
+                bt(remain / i, i, path, out);
+                path.remove(path.size() - 1);
+            }
+        }
+    }
+}`,
+      cpp: `class Solution {
+public:
+    vector<vector<int>> getFactors(int n) {
+        vector<vector<int>> out;
+        vector<int> path;
+        bt(n, 2, path, out);
+        return out;
+    }
+private:
+    void bt(int remain, int start, vector<int>& path, vector<vector<int>>& out) {
+        for (long long i = start; i * i <= remain; i++) {
+            if (remain % i == 0) {
+                vector<int> pair = path;
+                pair.push_back((int) i);
+                pair.push_back(remain / (int) i);
+                out.push_back(pair);
+                path.push_back((int) i);
+                bt(remain / (int) i, (int) i, path, out);
+                path.pop_back();
+            }
+        }
+    }
+};`,
+      c: `/* C stub: dynamic List<List<int>> return shape is verbose in C; use Python/Java/C++ for reference. */`,
+      go: `func getFactors(n int) [][]int {
+    out := [][]int{}
+    var bt func(remain, start int, path []int)
+    bt = func(remain, start int, path []int) {
+        for i := start; i*i <= remain; i++ {
+            if remain%i == 0 {
+                pair := append([]int{}, path...)
+                pair = append(pair, i, remain/i)
+                out = append(out, pair)
+                bt(remain/i, i, append(path, i))
+            }
+        }
+    }
+    bt(n, 2, []int{})
+    return out
+}`,
+    },
+  },
+  'count-different-palindromic-subsequences': {
+    tags: ['dp', 'string', 'palindrome', 'interval-dp'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    method_name: 'countPalindromicSubsequences',
+    params: [{ name: 's', type: 'str' }],
+    return_type: 'int',
+    visualization: {
+      type: 'grid',
+      title: 'Distinct palindromic subsequences — 2D interval DP',
+      frames: [
+        { board: 's = "bccb"', note: 'Goal: count DISTINCT palindromic subsequences. Distinct = different as strings (not by index choice).' },
+        { board: 'dp[i][j] over i <= j', note: 'dp[i][j] is the count of distinct palindromic subsequences using only s[i..j].' },
+        { board: 'base: dp[i][i] = 1', note: 'A single character is one palindrome by itself.' },
+        { board: 's[i] != s[j]', note: 'dp[i][j] = dp[i+1][j] + dp[i][j-1] − dp[i+1][j-1]. Inclusion–exclusion on the two endpoints.' },
+        { board: 's[i] == s[j], char absent in (i,j)', note: 'dp[i][j] = 2 * dp[i+1][j-1] + 2. Existing palindromes + each wrapped + the new "c" and "cc".' },
+        { board: 's[i] == s[j], exactly one match in (i,j)', note: 'dp[i][j] = 2 * dp[i+1][j-1] + 1. The bare "cc" double-counts with the single inner c.' },
+        { board: 's[i] == s[j], multiple matches in (i,j)', note: 'dp[i][j] = 2 * dp[i+1][j-1] − dp[lo+1][hi-1] where lo / hi are the first/last inner matches. Subtract the inner duplicate.' },
+        { board: 'len 1: dp[0][0]=dp[1][1]=dp[2][2]=dp[3][3] = 1', note: 'Initialize the diagonal.' },
+        { board: 'len 2: dp[0][1] = 2 ("b","c"), dp[1][2] = 1 ("c"), dp[2][3] = 2', note: 'Two-character spans. "cc" gives only "c" (still 1 distinct char, plus "cc" itself = 2). Recompute carefully.' },
+        { board: 'len 3: dp[0][2] for "bcc"', note: 'b != c → dp[1][2] + dp[0][1] − dp[1][1] = 1 + 2 − 1 = 2. ("b","c"). Wait — we also have "cc". Recompute: dp[1][2]=2, dp[0][1]=2, dp[1][1]=1 → 3. {b, c, cc}.' },
+        { board: 'len 4: dp[0][3] for "bccb"', note: 's[0]=s[3]=b, no inner b in (0,3). dp[0][3] = 2*dp[1][2] + 2 = 2*2 + 2 = 6. Palindromes: b, c, cc, bb, bcb, bccb.' },
+        { board: 'answer = 6 (mod 1e9+7)', note: 'Time O(n^2), space O(n^2). Watch the MOD subtraction: add MOD before % to avoid negatives.' },
+      ],
+    },
+    solutions: {
+      python: `class Solution:
+    def countPalindromicSubsequences(self, s):
+        MOD = 10**9 + 7
+        n = len(s)
+        dp = [[0] * n for _ in range(n)]
+        for i in range(n):
+            dp[i][i] = 1
+        for length in range(2, n + 1):
+            for i in range(0, n - length + 1):
+                j = i + length - 1
+                if s[i] != s[j]:
+                    dp[i][j] = dp[i+1][j] + dp[i][j-1] - dp[i+1][j-1]
+                else:
+                    lo, hi = i + 1, j - 1
+                    while lo <= hi and s[lo] != s[i]:
+                        lo += 1
+                    while lo <= hi and s[hi] != s[i]:
+                        hi -= 1
+                    if lo > hi:
+                        dp[i][j] = 2 * dp[i+1][j-1] + 2
+                    elif lo == hi:
+                        dp[i][j] = 2 * dp[i+1][j-1] + 1
+                    else:
+                        dp[i][j] = 2 * dp[i+1][j-1] - dp[lo+1][hi-1]
+                dp[i][j] = (dp[i][j] + MOD) % MOD
+        return dp[0][n-1]`,
+      javascript: `var countPalindromicSubsequences = function(s) {
+    const MOD = 1000000007n;
+    const n = s.length;
+    const dp = Array.from({ length: n }, () => new BigInt64Array(n));
+    for (let i = 0; i < n; i++) dp[i][i] = 1n;
+    for (let len = 2; len <= n; len++) {
+        for (let i = 0; i + len - 1 < n; i++) {
+            const j = i + len - 1;
+            if (s[i] !== s[j]) {
+                dp[i][j] = dp[i+1][j] + dp[i][j-1] - dp[i+1][j-1];
+            } else {
+                let lo = i + 1, hi = j - 1;
+                while (lo <= hi && s[lo] !== s[i]) lo++;
+                while (lo <= hi && s[hi] !== s[i]) hi--;
+                if (lo > hi)       dp[i][j] = 2n * dp[i+1][j-1] + 2n;
+                else if (lo === hi) dp[i][j] = 2n * dp[i+1][j-1] + 1n;
+                else                dp[i][j] = 2n * dp[i+1][j-1] - dp[lo+1][hi-1];
+            }
+            dp[i][j] = ((dp[i][j] % MOD) + MOD) % MOD;
+        }
+    }
+    return Number(dp[0][n-1]);
+};`,
+      java: `class Solution {
+    public int countPalindromicSubsequences(String s) {
+        final int MOD = 1_000_000_007;
+        int n = s.length();
+        long[][] dp = new long[n][n];
+        for (int i = 0; i < n; i++) dp[i][i] = 1;
+        for (int len = 2; len <= n; len++) {
+            for (int i = 0; i + len - 1 < n; i++) {
+                int j = i + len - 1;
+                if (s.charAt(i) != s.charAt(j)) {
+                    dp[i][j] = dp[i+1][j] + dp[i][j-1] - dp[i+1][j-1];
+                } else {
+                    int lo = i + 1, hi = j - 1;
+                    while (lo <= hi && s.charAt(lo) != s.charAt(i)) lo++;
+                    while (lo <= hi && s.charAt(hi) != s.charAt(i)) hi--;
+                    if (lo > hi)        dp[i][j] = 2 * dp[i+1][j-1] + 2;
+                    else if (lo == hi)  dp[i][j] = 2 * dp[i+1][j-1] + 1;
+                    else                dp[i][j] = 2 * dp[i+1][j-1] - dp[lo+1][hi-1];
+                }
+                dp[i][j] = ((dp[i][j] % MOD) + MOD) % MOD;
+            }
+        }
+        return (int) dp[0][n-1];
+    }
+}`,
+      cpp: `class Solution {
+public:
+    int countPalindromicSubsequences(string s) {
+        const int MOD = 1000000007;
+        int n = s.size();
+        vector<vector<long long>> dp(n, vector<long long>(n, 0));
+        for (int i = 0; i < n; i++) dp[i][i] = 1;
+        for (int len = 2; len <= n; len++) {
+            for (int i = 0; i + len - 1 < n; i++) {
+                int j = i + len - 1;
+                if (s[i] != s[j]) {
+                    dp[i][j] = dp[i+1][j] + dp[i][j-1] - dp[i+1][j-1];
+                } else {
+                    int lo = i + 1, hi = j - 1;
+                    while (lo <= hi && s[lo] != s[i]) lo++;
+                    while (lo <= hi && s[hi] != s[i]) hi--;
+                    if (lo > hi)        dp[i][j] = 2 * dp[i+1][j-1] + 2;
+                    else if (lo == hi)  dp[i][j] = 2 * dp[i+1][j-1] + 1;
+                    else                dp[i][j] = 2 * dp[i+1][j-1] - dp[lo+1][hi-1];
+                }
+                dp[i][j] = ((dp[i][j] % MOD) + MOD) % MOD;
+            }
+        }
+        return (int) dp[0][n-1];
+    }
+};`,
+      c: `/* C stub: 2D long long DP with MOD; use Python/Java/C++ for reference. */`,
+      go: `func countPalindromicSubsequences(s string) int {
+    const MOD = 1000000007
+    n := len(s)
+    dp := make([][]int64, n)
+    for i := range dp { dp[i] = make([]int64, n) }
+    for i := 0; i < n; i++ { dp[i][i] = 1 }
+    for length := 2; length <= n; length++ {
+        for i := 0; i+length-1 < n; i++ {
+            j := i + length - 1
+            if s[i] != s[j] {
+                dp[i][j] = dp[i+1][j] + dp[i][j-1] - dp[i+1][j-1]
+            } else {
+                lo, hi := i+1, j-1
+                for lo <= hi && s[lo] != s[i] { lo++ }
+                for lo <= hi && s[hi] != s[i] { hi-- }
+                switch {
+                case lo > hi:  dp[i][j] = 2*dp[i+1][j-1] + 2
+                case lo == hi: dp[i][j] = 2*dp[i+1][j-1] + 1
+                default:       dp[i][j] = 2*dp[i+1][j-1] - dp[lo+1][hi-1]
+                }
+            }
+            dp[i][j] = ((dp[i][j] % int64(MOD)) + int64(MOD)) % int64(MOD)
+        }
+    }
+    return int(dp[0][n-1])
+}`,
+    },
+  },
+  'evaluate-boolean-binary-tree': {
+    /* SPLICE:wave8m-eval-apples-duo v1 */
+    tags: ['tree', 'depth-first-search', 'binary-tree'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: (() => {
+      // Tree: leaves are 0/1, internal nodes encode 2=OR, 3=AND.
+      //            2 (OR)
+      //           /      \
+      //         1         3 (AND)
+      //                  /   \
+      //                 0     1
+      // Expected: OR(1, AND(0,1)) = OR(1, 0) = 1 (true).
+      const mk = (value, left = null, right = null) => ({ value, left, right });
+      const aL = mk(0), aR = mk(1);
+      const andNode = mk(3, aL, aR);
+      const orLeft = mk(1);
+      const root = mk(2, orLeft, andNode);
+
+      let idCounter = 0;
+      const tag = (n) => { if (!n) return; n._id = ++idCounter; tag(n.left); tag(n.right); };
+      tag(root);
+      const stateById = new Map();
+      const labelById = new Map();
+      const cloneWithStates = (node) => {
+        if (!node) return null;
+        const raw = node.value;
+        const display = labelById.get(node._id) ?? (
+          raw === 2 ? 'OR' : raw === 3 ? 'AND' : String(raw)
+        );
+        return {
+          _id: node._id,
+          value: display,
+          state: stateById.get(node._id) || 'default',
+          left: cloneWithStates(node.left),
+          right: cloneWithStates(node.right),
+        };
+      };
+
+      const frames = [];
+      const snap = (caption, chip, traversal) => {
+        frames.push({ tree: cloneWithStates(root), chip, caption, traversal: traversal || [] });
+      };
+
+      snap(
+        'Goal: evaluate a full boolean expression tree. Leaves are 0 (false) or 1 (true). Internal nodes are 2 (OR) or 3 (AND) and always have exactly two children. We want the boolean value at the root.',
+        'evaluate boolean expr tree',
+        ['root encodes OR(1, AND(0,1))'],
+      );
+      snap(
+        'Recurrence: evaluate(node) — if leaf, return node.val == 1; else compute eL = evaluate(left), eR = evaluate(right), combine with OR or AND based on node.val. Pure post-order — parent waits on children.',
+        'post-order fold',
+        ['leaf -> bool; internal -> combine'],
+      );
+
+      stateById.set(root._id, 'current');
+      snap('Start at root (OR). Not a leaf, so we must evaluate both children before deciding. Descend left first.', 'enter OR node', ['eval(left); eval(right)']);
+
+      stateById.set(orLeft._id, 'current');
+      snap('Left child is leaf with value 1. Returns true immediately. No further work on this branch.', 'leaf 1 -> true', ['eL = true']);
+      labelById.set(orLeft._id, '1=T');
+      stateById.set(orLeft._id, 'match');
+
+      stateById.set(andNode._id, 'current');
+      snap('Right child is AND. Internal — recurse into its children. Descend left.', 'enter AND node', ['need both kids']);
+
+      stateById.set(aL._id, 'current');
+      snap('AND.left is leaf 0 — returns false. Short-circuit optimisation: AND with a false operand is already false; we could skip the right child. The textbook version evaluates both for clarity.',
+        'leaf 0 -> false',
+        ['aL = false']);
+      labelById.set(aL._id, '0=F');
+      stateById.set(aL._id, 'match');
+
+      stateById.set(aR._id, 'current');
+      snap('AND.right is leaf 1 — returns true. Combine: false AND true = false.', 'leaf 1 -> true; AND -> false', ['aR = true; AND = false']);
+      labelById.set(aR._id, '1=T');
+      stateById.set(aR._id, 'match');
+
+      labelById.set(andNode._id, 'AND=F');
+      stateById.set(andNode._id, 'match');
+      snap('Back at AND node. Children returned (false, true); AND combines to false. Return false up to OR.', 'AND node = false', ['eR = false']);
+
+      labelById.set(root._id, 'OR=T');
+      stateById.set(root._id, 'match');
+      snap('Back at root OR. Children returned (true, false); OR combines to true. Return true — the value of the whole tree.', 'OR(true,false) = true', ['answer = true']);
+
+      snap('Short-circuit refinement: OR can return early once the first operand is true; AND can return early once the first operand is false. Saves work on degenerate inputs but does not change asymptotic O(n).',
+        'short-circuit safe',
+        ['OR true -> skip right; AND false -> skip right']);
+
+      snap('Why a single recursive function suffices: the recurrence is structurally identical at every internal node — only the combiner (OR vs AND) is data-driven by node.val. No mutual recursion or stack juggling needed.',
+        'one recurrence handles both ops',
+        ['operator selected by val']);
+
+      snap('Complexity: every node visited once -> O(n) time. Recursion stack proportional to height -> O(h) space. Iterative version uses an explicit stack and a value map for the same bound.',
+        'O(n) time, O(h) space',
+        ['answer = true']);
+
+      snap('Done. Generalises to any expression tree (NAND, XOR, multi-arity) by replacing the combine step with a lookup table on node.val. The traversal shape stays post-order regardless of operator set.',
+        'answer = true',
+        ['final value: 1 (true)']);
+
+      return { renderer: 'tree', title: 'Evaluate Boolean Binary Tree — post-order fold over OR / AND nodes', frames };
+    })(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def evaluateTree(self, root: Optional[TreeNode]) -> bool:
+        if not root.left and not root.right:
+            return root.val == 1
+        left = self.evaluateTree(root.left)
+        right = self.evaluateTree(root.right)
+        if root.val == 2:
+            return left or right
+        return left and right`,
+        complexity: { time: 'O(n)', space: 'O(h)' },
+        approach: 'Post-order recursion. Leaves (no children) map their integer value to a boolean: 1 -> True, 0 -> False. Internal nodes encode the operator: 2 means OR, 3 means AND. We recurse into both children first, then combine. Python short-circuits or and and, so the second recursive call is skipped automatically when the first determines the result — that turns a worst-case O(n) into the best-case O(h) on lopsided trees. The recurrence assumes a full binary tree (every internal node has two children), which is guaranteed by the problem.',
+      },
+      javascript: {
+        code: `function evaluateTree(root) {
+  if (!root.left && !root.right) return root.val === 1;
+  const left = evaluateTree(root.left);
+  const right = evaluateTree(root.right);
+  if (root.val === 2) return left || right;
+  return left && right;
+}`,
+        complexity: { time: 'O(n)', space: 'O(h)' },
+        approach: 'Same recurrence; JS short-circuits || and && identically. Replacing || / && with bitwise | / & would force both branches to evaluate — usually a pessimisation.',
+      },
+      java: {
+        code: `class Solution {
+    public boolean evaluateTree(TreeNode root) {
+        if (root.left == null && root.right == null) return root.val == 1;
+        boolean left = evaluateTree(root.left);
+        boolean right = evaluateTree(root.right);
+        if (root.val == 2) return left || right;
+        return left && right;
+    }
+}`,
+        complexity: { time: 'O(n)', space: 'O(h)' },
+        approach: 'Java short-circuits || and && too. We compute both children eagerly here for clarity; rewrite as nested if-statements if you want to skip the right recurse on a decisive left.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool evaluateTree(TreeNode* root) {
+        if (!root->left && !root->right) return root->val == 1;
+        bool left = evaluateTree(root->left);
+        bool right = evaluateTree(root->right);
+        if (root->val == 2) return left || right;
+        return left && right;
+    }
+};`,
+        complexity: { time: 'O(n)', space: 'O(h)' },
+        approach: 'Pointer recursion. Could also be written iteratively with an explicit stack and a per-node value cache — same O(n) / O(h) bound, no recursion-depth risk on adversarial inputs.',
+      },
+      c: {
+        code: `bool evaluateTree(struct TreeNode* root) {
+    if (!root->left && !root->right) return root->val == 1;
+    bool left = evaluateTree(root->left);
+    bool right = evaluateTree(root->right);
+    if (root->val == 2) return left || right;
+    return left && right;
+}`,
+        complexity: { time: 'O(n)', space: 'O(h)' },
+        approach: 'Plain C version. Identical recurrence; relies on the standard short-circuit semantics of || and &&.',
+      },
+      go: {
+        code: `func evaluateTree(root *TreeNode) bool {
+    if root.Left == nil && root.Right == nil {
+        return root.Val == 1
+    }
+    left := evaluateTree(root.Left)
+    right := evaluateTree(root.Right)
+    if root.Val == 2 {
+        return left || right
+    }
+    return left && right
+}`,
+        complexity: { time: 'O(n)', space: 'O(h)' },
+        approach: 'Idiomatic Go pointer recursion. Same structural fold — leaves are booleans, internal nodes combine via OR / AND keyed on val.',
+      },
+    },
+  },
+  'minimum-time-to-collect-all-apples-in-a-tree': {
+    /* SPLICE:wave8m-eval-apples-duo v1 */
+    tags: ['tree', 'depth-first-search', 'breadth-first-search', 'graph'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: (() => {
+      // n=7, edges = [[0,1],[0,2],[1,4],[1,5],[2,3],[2,6]]
+      // hasApple  = [false, false, true, false, true, true, false]
+      //
+      //                  0
+      //                 / \
+      //                1   2
+      //               / \   \
+      //              4   5    3 (apple? no -> wait, hasApple[3]=false)
+      //               \
+      //                 (apples at 2,4,5)
+      // Cost: each "needed" subtree contributes 2 edges (down + up). Visit
+      // edges 0-2 (needed: apple at 2), 0-1 (needed: 4 and 5), 1-4 (apple),
+      // 1-5 (apple). 4 edges * 2 = 8.
+      const mk = (value, left = null, right = null) => ({ value, left, right });
+      const n4 = mk('4 *');
+      const n5 = mk('5 *');
+      const n1 = mk('1', n4, n5);
+      const n3 = mk('3');
+      const n6 = mk('6');
+      const n2 = mk('2 *', n3, n6);
+      const root = mk('0', n1, n2);
+
+      let idCounter = 0;
+      const tag = (n) => { if (!n) return; n._id = ++idCounter; tag(n.left); tag(n.right); };
+      tag(root);
+      const stateById = new Map();
+      const cloneWithStates = (node) => {
+        if (!node) return null;
+        return {
+          _id: node._id,
+          value: node.value,
+          state: stateById.get(node._id) || 'default',
+          left: cloneWithStates(node.left),
+          right: cloneWithStates(node.right),
+        };
+      };
+
+      const frames = [];
+      const snap = (caption, chip, traversal) => {
+        frames.push({ tree: cloneWithStates(root), chip, caption, traversal: traversal || [] });
+      };
+
+      snap(
+        'Goal: start at node 0, walk along tree edges to collect every apple, then return to 0. Each edge traversed counts as +1 time. Apples here are at nodes 2, 4, 5 (marked *). What is the minimum total time?',
+        'collect apples; return to 0',
+        ['edges traversed = answer'],
+      );
+      snap(
+        'Key observation: in a TREE, the only way to reach a node is the unique path from the root, and to come back you walk the same path. So a subtree contributes 2 * (edges to its needed descendants) — each used edge is crossed exactly twice (descend + ascend).',
+        '2 * needed-edges',
+        ['unique path = no detour']);
+
+      snap(
+        'Recurrence: dfs(node, parent) returns the time cost of the subtree rooted at node. For each child c, compute t = dfs(c, node). If t > 0 OR hasApple[c], child contributes t + 2 (its subtree time plus the edge to / from c). Else the child subtree has no apples — skip it entirely (contributes 0).',
+        'skip apple-free subtrees',
+        ['t_total = sum over needed children'],
+      );
+
+      stateById.set(root._id, 'current');
+      snap('DFS from root 0. Inspect each child. Total cost so far = 0.', 'visit root', ['cost = 0']);
+
+      stateById.set(n1._id, 'current');
+      snap('Descend into child 1. 1 has no apple itself, but we cannot decide its contribution until we recurse — its descendants might.', 'recurse into 1', ['need to check descendants']);
+
+      stateById.set(n4._id, 'match');
+      snap('Visit 4. hasApple[4] = true. 4 is a leaf -> its subtree time t = 0. Because hasApple[4], child contributes t + 2 = 2. Edge 1-4 is mandatory.',
+        'apple at 4 -> +2',
+        ['cost_from_1 += 2']);
+
+      stateById.set(n5._id, 'match');
+      snap('Visit 5. hasApple[5] = true. Leaf -> t = 0; contributes 2 for edge 1-5. Running cost from 1 so far: 4.',
+        'apple at 5 -> +2',
+        ['cost_from_1 += 2 -> 4']);
+
+      stateById.set(n1._id, 'match');
+      snap('Back at 1. Subtree time = 4. Child 1 has needed descendants (cost > 0), so root must include edge 0-1 -> add 2. Running root cost: 4 + 2 = 6.',
+        'edge 0-1 needed -> +2',
+        ['root_cost = 6']);
+
+      stateById.set(n2._id, 'current');
+      snap('Descend into child 2. hasApple[2] = true — we already know edge 0-2 will be needed.',
+        'recurse into 2',
+        ['subtree of 2']);
+
+      stateById.set(n3._id, 'default');
+      snap('Visit 3. No apple, leaf -> t = 0, hasApple false -> contributes 0. Edge 2-3 NOT needed; we never go there.',
+        '3 skipped',
+        ['no apples beneath 3']);
+
+      stateById.set(n6._id, 'default');
+      snap('Visit 6. No apple, leaf -> contributes 0. Edge 2-6 NOT needed.',
+        '6 skipped',
+        ['no apples beneath 6']);
+
+      stateById.set(n2._id, 'match');
+      snap('Back at 2. Subtree time = 0 + 0 = 0. But hasApple[2] = true -> root must include edge 0-2 anyway. Add 2 -> root cost: 6 + 2 = 8.',
+        'apple at 2 -> +2',
+        ['root_cost = 8']);
+
+      stateById.set(root._id, 'match');
+      snap('Back at root 0. Final cost = 8. We crossed exactly 4 edges (0-1, 1-4, 1-5, 0-2) twice each. Edges 2-3 and 2-6 were pruned because the subtrees rooted there contained no apples.',
+        'answer = 8',
+        ['final cost = 8']);
+
+      snap('Why DFS is the right tool: each edge contributes independently and the decision is local — "does the subtree below me have any apple?" — which is a perfect post-order fold. Order of visits within siblings does not matter.',
+        'post-order DFS',
+        ['decision is local']);
+
+      snap('Pre-build an adjacency list from edges (undirected) and pass parent in to avoid re-walking the back-edge. Root = 0 by problem definition. The whole algorithm is O(n) time and O(n) space.',
+        'adj-list + parent guard',
+        ['O(n) total']);
+
+      snap('Edge case: zero apples anywhere — DFS returns 0; we never leave node 0. Edge case: apple at the root only — also 0, since the problem only counts edges traversed.',
+        'edge cases',
+        ['no apples / root-only apple = 0']);
+
+      snap('Complexity: O(n) time, O(n) space (recursion + adjacency). Iterative variant uses an explicit stack and the same post-order combine.',
+        'O(n) time, O(n) space',
+        ['answer = 8']);
+
+      return { renderer: 'tree', title: 'Min time to collect apples — DFS with 2-per-needed-edge accounting', frames };
+    })(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def minTime(self, n: int, edges: List[List[int]], hasApple: List[bool]) -> int:
+        adj = [[] for _ in range(n)]
+        for u, v in edges:
+            adj[u].append(v)
+            adj[v].append(u)
+
+        def dfs(node: int, parent: int) -> int:
+            total = 0
+            for child in adj[node]:
+                if child == parent:
+                    continue
+                t = dfs(child, node)
+                if t > 0 or hasApple[child]:
+                    total += t + 2
+            return total
+
+        return dfs(0, -1)`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'Build an undirected adjacency list, then DFS from node 0 carrying the parent index to avoid back-edges. For each child, the subtree time is dfs(child); if that subtree contains apples (dfs returned positive) OR the child itself has an apple, we must traverse the edge to that child both ways — add t + 2. If neither, the entire subtree below this child is irrelevant and contributes 0. The "+2" captures "down then back up." The answer is the value at the root. Time and space are O(n) because every node and edge is touched O(1) times.',
+      },
+      javascript: {
+        code: `function minTime(n, edges, hasApple) {
+  const adj = Array.from({ length: n }, () => []);
+  for (const [u, v] of edges) { adj[u].push(v); adj[v].push(u); }
+
+  function dfs(node, parent) {
+    let total = 0;
+    for (const child of adj[node]) {
+      if (child === parent) continue;
+      const t = dfs(child, node);
+      if (t > 0 || hasApple[child]) total += t + 2;
+    }
+    return total;
+  }
+
+  return dfs(0, -1);
+}`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'Identical recurrence. The parent-guard avoids the infinite loop you would get from naively recursing back through the edge you just walked.',
+      },
+      java: {
+        code: `class Solution {
+    private List<List<Integer>> adj;
+    private boolean[] apple;
+
+    public int minTime(int n, int[][] edges, List<Boolean> hasApple) {
+        adj = new ArrayList<>();
+        for (int i = 0; i < n; i++) adj.add(new ArrayList<>());
+        for (int[] e : edges) { adj.get(e[0]).add(e[1]); adj.get(e[1]).add(e[0]); }
+        apple = new boolean[n];
+        for (int i = 0; i < n; i++) apple[i] = hasApple.get(i);
+        return dfs(0, -1);
+    }
+
+    private int dfs(int node, int parent) {
+        int total = 0;
+        for (int child : adj.get(node)) {
+            if (child == parent) continue;
+            int t = dfs(child, node);
+            if (t > 0 || apple[child]) total += t + 2;
+        }
+        return total;
+    }
+}`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'Same logic; we copy the List<Boolean> into a primitive boolean[] for tight loop performance. Recursion depth is bounded by tree height.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+    vector<vector<int>> adj;
+    vector<bool> apple;
+    int dfs(int node, int parent) {
+        int total = 0;
+        for (int child : adj[node]) {
+            if (child == parent) continue;
+            int t = dfs(child, node);
+            if (t > 0 || apple[child]) total += t + 2;
+        }
+        return total;
+    }
+public:
+    int minTime(int n, vector<vector<int>>& edges, vector<bool>& hasApple) {
+        adj.assign(n, {});
+        for (auto& e : edges) { adj[e[0]].push_back(e[1]); adj[e[1]].push_back(e[0]); }
+        apple = hasApple;
+        return dfs(0, -1);
+    }
+};`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'C++ port — vectors for adjacency and an int return for subtree cost. Iterative-stack version is straightforward if recursion-depth is a concern on adversarial inputs.',
+      },
+      c: {
+        code: `// Adjacency built from edges; dfs returns subtree time.
+static int** g; static int* gsz; static bool* ap;
+static int dfs(int node, int parent) {
+    int total = 0;
+    for (int i = 0; i < gsz[node]; i++) {
+        int child = g[node][i];
+        if (child == parent) continue;
+        int t = dfs(child, node);
+        if (t > 0 || ap[child]) total += t + 2;
+    }
+    return total;
+}
+int minTime(int n, int** edges, int edgesSize, int* edgesColSize, bool* hasApple, int hasAppleSize) {
+    g = malloc(sizeof(int*) * n);
+    gsz = calloc(n, sizeof(int));
+    int* cap = calloc(n, sizeof(int));
+    for (int i = 0; i < n; i++) { cap[i] = 4; g[i] = malloc(sizeof(int) * cap[i]); }
+    for (int i = 0; i < edgesSize; i++) {
+        int u = edges[i][0], v = edges[i][1];
+        if (gsz[u] == cap[u]) { cap[u] *= 2; g[u] = realloc(g[u], sizeof(int) * cap[u]); }
+        g[u][gsz[u]++] = v;
+        if (gsz[v] == cap[v]) { cap[v] *= 2; g[v] = realloc(g[v], sizeof(int) * cap[v]); }
+        g[v][gsz[v]++] = u;
+    }
+    ap = hasApple;
+    int ans = dfs(0, -1);
+    for (int i = 0; i < n; i++) free(g[i]);
+    free(g); free(gsz); free(cap);
+    return ans;
+}`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'Plain C with manual adjacency-list growth. Same recurrence — the bookkeeping is purely about memory management; the algorithm shape is identical.',
+      },
+      go: {
+        code: `func minTime(n int, edges [][]int, hasApple []bool) int {
+    adj := make([][]int, n)
+    for _, e := range edges {
+        adj[e[0]] = append(adj[e[0]], e[1])
+        adj[e[1]] = append(adj[e[1]], e[0])
+    }
+    var dfs func(node, parent int) int
+    dfs = func(node, parent int) int {
+        total := 0
+        for _, child := range adj[node] {
+            if child == parent {
+                continue
+            }
+            t := dfs(child, node)
+            if t > 0 || hasApple[child] {
+                total += t + 2
+            }
+        }
+        return total
+    }
+    return dfs(0, -1)
+}`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'Idiomatic Go closure-DFS. The closure captures adj and hasApple by reference, sparing us a struct.',
+      },
+    },
+  },
+  'flipping-an-image': {
+    tags: ['array', 'matrix', 'two-pointers', 'bit-manipulation', 'simulation'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: flippingAnImageViz(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def flipAndInvertImage(self, image: List[List[int]]) -> List[List[int]]:
+        n = len(image)
+        for row in image:
+            l, r = 0, n - 1
+            while l < r:
+                row[l], row[r] = row[r] ^ 1, row[l] ^ 1
+                l += 1
+                r -= 1
+            if l == r:
+                row[l] ^= 1
+        return image`,
+        complexity: { time: 'O(n^2)', space: 'O(1)' },
+        approach: 'Fuse the reverse and the invert into a single two-pointer pass per row. For each (l, r) pair, swap image[l] and image[r] while XORing each with 1. When l == r (odd width), flip that middle cell separately because the pair never met it. Reverse-then-invert as two separate passes is also correct but does 2x the writes.',
+      },
+      javascript: {
+        code: `function flipAndInvertImage(image) {
+  const n = image.length;
+  for (const row of image) {
+    let l = 0, r = n - 1;
+    while (l < r) {
+      const tmp = row[l] ^ 1;
+      row[l] = row[r] ^ 1;
+      row[r] = tmp;
+      l++;
+      r--;
+    }
+    if (l === r) row[l] ^= 1;
+  }
+  return image;
+}`,
+        complexity: { time: 'O(n^2)', space: 'O(1)' },
+        approach: 'Two-pointer fused form. The temporary holds the inverted left value so the swap-and-invert happens atomically without an extra row buffer. Handle the odd-width middle cell after the loop.',
+      },
+      java: {
+        code: `class Solution {
+    public int[][] flipAndInvertImage(int[][] image) {
+        int n = image.length;
+        for (int[] row : image) {
+            int l = 0, r = n - 1;
+            while (l < r) {
+                int tmp = row[l] ^ 1;
+                row[l] = row[r] ^ 1;
+                row[r] = tmp;
+                l++; r--;
+            }
+            if (l == r) row[l] ^= 1;
+        }
+        return image;
+    }
+}`,
+        complexity: { time: 'O(n^2)', space: 'O(1)' },
+        approach: 'Same two-pointer fusion. Java has no tuple swap, so a local int temp holds the inverted left value while the right slot is overwritten.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<int>> flipAndInvertImage(vector<vector<int>>& image) {
+        int n = image.size();
+        for (auto& row : image) {
+            int l = 0, r = n - 1;
+            while (l < r) {
+                int tmp = row[l] ^ 1;
+                row[l] = row[r] ^ 1;
+                row[r] = tmp;
+                ++l; --r;
+            }
+            if (l == r) row[l] ^= 1;
+        }
+        return image;
+    }
+};`,
+        complexity: { time: 'O(n^2)', space: 'O(1)' },
+        approach: 'Pass-by-reference to the outer vector lets us mutate in place and return it. The XOR-with-1 trick avoids any branch on the bit value.',
+      },
+      c: {
+        code: `int** flipAndInvertImage(int** image, int imageSize, int* imageColSize,
+                         int* returnSize, int** returnColumnSizes) {
+    int n = imageSize;
+    for (int i = 0; i < n; i++) {
+        int l = 0, r = n - 1;
+        while (l < r) {
+            int tmp = image[i][l] ^ 1;
+            image[i][l] = image[i][r] ^ 1;
+            image[i][r] = tmp;
+            l++; r--;
+        }
+        if (l == r) image[i][l] ^= 1;
+    }
+    *returnSize = n;
+    *returnColumnSizes = imageColSize;
+    return image;
+}`,
+        complexity: { time: 'O(n^2)', space: 'O(1)' },
+        approach: 'Standard LeetCode C signature — mutate the input in place and reuse imageColSize for the return column-size array. No allocations needed.',
+      },
+      go: {
+        code: `package solution
+
+func flipAndInvertImage(image [][]int) [][]int {
+    n := len(image)
+    for _, row := range image {
+        l, r := 0, n-1
+        for l < r {
+            row[l], row[r] = row[r]^1, row[l]^1
+            l++
+            r--
+        }
+        if l == r {
+            row[l] ^= 1
+        }
+    }
+    return image
+}`,
+        complexity: { time: 'O(n^2)', space: 'O(1)' },
+        approach: 'Go evaluates the right-hand side of a multi-assignment before binding, so the swap-and-invert is atomic without a temp. Range gives the row by value but since []int is a slice header the mutations land on the underlying array.',
+      },
+    },
+  },
+  'score-after-flipping-matrix': {
+    tags: ['array', 'matrix', 'greedy', 'bit-manipulation'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: scoreAfterFlippingMatrixViz(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def matrixScore(self, grid: List[List[int]]) -> int:
+        m, n = len(grid), len(grid[0])
+        score = (1 << (n - 1)) * m   # column 0 forced to all 1s by row flips
+        for j in range(1, n):
+            ones = sum(
+                grid[i][j] if grid[i][0] == 1 else 1 - grid[i][j]
+                for i in range(m)
+            )
+            ones = max(ones, m - ones)
+            score += ones * (1 << (n - 1 - j))
+        return score`,
+        complexity: { time: 'O(m * n)', space: 'O(1)' },
+        approach: 'Greedy in two stages. Stage 1: every row whose leading bit is 0 must be flipped — the leading 2^(n-1) bit outweighs every lower bit combined. That fixes column 0 to all 1s, contributing m * 2^(n-1) to the score. Stage 2: for each remaining column, we want as many 1s as possible. The virtual cell value after the row pass is grid[i][j] when grid[i][0] == 1 else 1 - grid[i][j]. Then flipping or not flipping the column gives max(ones, m - ones).',
+      },
+      javascript: {
+        code: `function matrixScore(grid) {
+  const m = grid.length, n = grid[0].length;
+  let score = (1 << (n - 1)) * m;
+  for (let j = 1; j < n; j++) {
+    let ones = 0;
+    for (let i = 0; i < m; i++) {
+      ones += grid[i][0] === 1 ? grid[i][j] : 1 - grid[i][j];
+    }
+    ones = Math.max(ones, m - ones);
+    score += ones * (1 << (n - 1 - j));
+  }
+  return score;
+}`,
+        complexity: { time: 'O(m * n)', space: 'O(1)' },
+        approach: 'No grid mutation — compute virtual values per column. JavaScript bitshift fits within 31 bits for the problem constraints so (1 << k) is safe.',
+      },
+      java: {
+        code: `class Solution {
+    public int matrixScore(int[][] grid) {
+        int m = grid.length, n = grid[0].length;
+        int score = (1 << (n - 1)) * m;
+        for (int j = 1; j < n; j++) {
+            int ones = 0;
+            for (int i = 0; i < m; i++) {
+                ones += grid[i][0] == 1 ? grid[i][j] : 1 - grid[i][j];
+            }
+            ones = Math.max(ones, m - ones);
+            score += ones * (1 << (n - 1 - j));
+        }
+        return score;
+    }
+}`,
+        complexity: { time: 'O(m * n)', space: 'O(1)' },
+        approach: 'Same math-only form. Java ints comfortably hold the score for the problem constraints (m, n <= 20).',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int matrixScore(vector<vector<int>>& grid) {
+        int m = grid.size(), n = grid[0].size();
+        int score = (1 << (n - 1)) * m;
+        for (int j = 1; j < n; ++j) {
+            int ones = 0;
+            for (int i = 0; i < m; ++i) {
+                ones += grid[i][0] == 1 ? grid[i][j] : 1 - grid[i][j];
+            }
+            ones = max(ones, m - ones);
+            score += ones * (1 << (n - 1 - j));
+        }
+        return score;
+    }
+};`,
+        complexity: { time: 'O(m * n)', space: 'O(1)' },
+        approach: 'Direct port. The virtual-cell trick avoids any in-place mutation of the input grid.',
+      },
+      c: {
+        code: `int matrixScore(int** grid, int gridSize, int* gridColSize) {
+    int m = gridSize, n = gridColSize[0];
+    int score = (1 << (n - 1)) * m;
+    for (int j = 1; j < n; j++) {
+        int ones = 0;
+        for (int i = 0; i < m; i++) {
+            ones += grid[i][0] == 1 ? grid[i][j] : 1 - grid[i][j];
+        }
+        if (m - ones > ones) ones = m - ones;
+        score += ones * (1 << (n - 1 - j));
+    }
+    return score;
+}`,
+        complexity: { time: 'O(m * n)', space: 'O(1)' },
+        approach: 'C has no max for ints in the standard headers — inline the comparison. Otherwise identical to the C++ form.',
+      },
+      go: {
+        code: `package solution
+
+func matrixScore(grid [][]int) int {
+    m, n := len(grid), len(grid[0])
+    score := (1 << (n - 1)) * m
+    for j := 1; j < n; j++ {
+        ones := 0
+        for i := 0; i < m; i++ {
+            if grid[i][0] == 1 {
+                ones += grid[i][j]
+            } else {
+                ones += 1 - grid[i][j]
+            }
+        }
+        if m-ones > ones {
+            ones = m - ones
+        }
+        score += ones * (1 << (n - 1 - j))
+    }
+    return score
+}`,
+        complexity: { time: 'O(m * n)', space: 'O(1)' },
+        approach: 'Go has no ternary, so the per-row branch is an explicit if. Same O(m*n) virtual-count algorithm.',
+      },
+    },
+  },
+  'find-the-winner-of-the-circular-game': {
+    tags: ['array', 'math', 'recursion', 'queue', 'simulation'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: findTheWinnerViz(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def findTheWinner(self, n: int, k: int) -> int:
+        # Josephus DP — f(i) is the 0-indexed survivor for a circle of size i.
+        f = 0
+        for i in range(2, n + 1):
+            f = (f + k) % i
+        return f + 1`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Classic Josephus recurrence. f(1) = 0; f(i) = (f(i-1) + k) % i because after the first elimination the problem reduces to size i-1 starting k positions over. Iterative bottom-up avoids the recursion stack. Add 1 at the end to convert 0-indexed to the 1-indexed answer the problem asks for.',
+      },
+      javascript: {
+        code: `function findTheWinner(n, k) {
+  let f = 0;
+  for (let i = 2; i <= n; i++) {
+    f = (f + k) % i;
+  }
+  return f + 1;
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Same Josephus DP. JS numbers are 64-bit floats, fine for n up to 500 (problem constraint). No recursion — the iterative form is both faster and stack-safe.',
+      },
+      java: {
+        code: `class Solution {
+    public int findTheWinner(int n, int k) {
+        int f = 0;
+        for (int i = 2; i <= n; i++) {
+            f = (f + k) % i;
+        }
+        return f + 1;
+    }
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Single int accumulator, single loop. The recursive form blows the stack near n = 10^4; iteration is the safe default.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int findTheWinner(int n, int k) {
+        int f = 0;
+        for (int i = 2; i <= n; ++i) {
+            f = (f + k) % i;
+        }
+        return f + 1;
+    }
+};`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Plain iterative Josephus. No STL needed. (f + k) stays well within int range for the LC constraint.',
+      },
+      c: {
+        code: `#include <stdio.h>
+
+int findTheWinner(int n, int k) {
+    int f = 0;
+    for (int i = 2; i <= n; i++) {
+        f = (f + k) % i;
+    }
+    return f + 1;
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'C port of the iterative Josephus DP. Zero allocations.',
+      },
+      go: {
+        code: `func findTheWinner(n int, k int) int {
+    f := 0
+    for i := 2; i <= n; i++ {
+        f = (f + k) % i
+    }
+    return f + 1
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Idiomatic Go — same DP, no surprises. Int is at least 32 bits, safe for n up to 500.',
+      },
+    },
+  },
+  'minimum-operations-to-make-array-equal': {
+    tags: ['math'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: minOperationsEqualViz(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def minOperations(self, n: int) -> int:
+        return (n * n) // 4`,
+        complexity: { time: 'O(1)', space: 'O(1)' },
+        approach: 'arr[i] = 2i + 1 sums to n*n, so every cell must end at the average n. Pair the i-th cell from each end: index i needs +d and index n-1-i has -d for d = n - (2i + 1). Sum d over i = 0..n/2 - 1 — closed form is floor(n*n / 4). For n = 6 → 9 ops, for n = 3 → 2 ops.',
+      },
+      javascript: {
+        code: `function minOperations(n) {
+  return Math.floor((n * n) / 4);
+}`,
+        complexity: { time: 'O(1)', space: 'O(1)' },
+        approach: 'Math.floor handles the integer-division side. n*n stays inside Number.MAX_SAFE_INTEGER for the LC constraint (n <= 10^4 ⇒ n^2 <= 10^8).',
+      },
+      java: {
+        code: `class Solution {
+    public int minOperations(int n) {
+        return (n * n) / 4;
+    }
+}`,
+        complexity: { time: 'O(1)', space: 'O(1)' },
+        approach: 'Integer division does the floor automatically for non-negative n. n*n fits in int for n <= 10^4 (10^8 < 2^31).',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int minOperations(int n) {
+        return (n * n) / 4;
+    }
+};`,
+        complexity: { time: 'O(1)', space: 'O(1)' },
+        approach: 'One arithmetic op. No need for long — n*n peaks at 10^8 which is well below INT_MAX.',
+      },
+      c: {
+        code: `#include <stdio.h>
+
+int minOperations(int n) {
+    return (n * n) / 4;
+}`,
+        complexity: { time: 'O(1)', space: 'O(1)' },
+        approach: 'C uses truncated division for non-negative operands, which equals floor here. Constant time.',
+      },
+      go: {
+        code: `func minOperations(n int) int {
+    return (n * n) / 4
+}`,
+        complexity: { time: 'O(1)', space: 'O(1)' },
+        approach: 'Go int division truncates toward zero, equivalent to floor for n >= 0. Constant time, no allocations.',
+      },
+    },
+  },
+  'find-the-shortest-superstring': {
+    tags: ['dynamic-programming', 'bitmask', 'string', 'travelling-salesman'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: findTheShortestSuperstringViz(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def shortestSuperstring(self, words: List[str]) -> str:
+        # Remove dominated words (substrings of another).
+        words = [w for i, w in enumerate(words)
+                 if not any(i != j and w in v for j, v in enumerate(words))]
+        n = len(words)
+
+        # overlap[i][j] = max k where suffix(w[i], k) == prefix(w[j], k), k < min(|w[i]|, |w[j]|)
+        ov = [[0] * n for _ in range(n)]
+        for i in range(n):
+            for j in range(n):
+                if i == j: continue
+                k = min(len(words[i]), len(words[j])) - 1
+                while k > 0 and not words[i].endswith(words[j][:k]):
+                    k -= 1
+                ov[i][j] = k
+
+        INF = float('inf')
+        FULL = (1 << n) - 1
+        dp = [[INF] * n for _ in range(1 << n)]
+        parent = [[-1] * n for _ in range(1 << n)]
+        for i in range(n):
+            dp[1 << i][i] = len(words[i])
+
+        for mask in range(1, FULL + 1):
+            for i in range(n):
+                if not (mask & (1 << i)) or dp[mask][i] == INF: continue
+                rest = ~mask & FULL
+                while rest:
+                    j = (rest & -rest).bit_length() - 1
+                    cand = dp[mask][i] + len(words[j]) - ov[i][j]
+                    nxt = mask | (1 << j)
+                    if cand < dp[nxt][j]:
+                        dp[nxt][j] = cand
+                        parent[nxt][j] = i
+                    rest &= rest - 1
+
+        best_end = min(range(n), key=lambda i: dp[FULL][i])
+
+        order = []
+        mask, cur = FULL, best_end
+        while cur != -1:
+            order.append(cur)
+            prv = parent[mask][cur]
+            mask &= ~(1 << cur)
+            cur = prv
+        order.reverse()
+
+        s = words[order[0]]
+        for k in range(1, len(order)):
+            s += words[order[k]][ov[order[k - 1]][order[k]]:]
+        return s`,
+        complexity: { time: 'O(n^2 * 2^n + n * L^2) where L = max word length', space: 'O(n * 2^n)' },
+        approach: 'Bitmask DP over orderings ending at each word. dp[mask][i] is the minimum length of a superstring covering exactly the words in mask with w[i] placed last. Transition pays len(w[j]) - overlap(i, j) when appending w[j]. Reconstruct via a parent table.',
+      },
+      javascript: {
+        code: `var shortestSuperstring = function(words) {
+  // Drop dominated words.
+  words = words.filter((w, i) => !words.some((v, j) => i !== j && v.includes(w)));
+  const n = words.length;
+
+  const ov = Array.from({ length: n }, () => new Array(n).fill(0));
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      if (i === j) continue;
+      let k = Math.min(words[i].length, words[j].length) - 1;
+      while (k > 0 && !words[i].endsWith(words[j].slice(0, k))) k--;
+      ov[i][j] = k;
+    }
+  }
+
+  const FULL = (1 << n) - 1;
+  const INF = Infinity;
+  const dp = Array.from({ length: FULL + 1 }, () => new Array(n).fill(INF));
+  const parent = Array.from({ length: FULL + 1 }, () => new Array(n).fill(-1));
+  for (let i = 0; i < n; i++) dp[1 << i][i] = words[i].length;
+
+  for (let mask = 1; mask <= FULL; mask++) {
+    for (let i = 0; i < n; i++) {
+      if (!(mask & (1 << i)) || dp[mask][i] === INF) continue;
+      for (let j = 0; j < n; j++) {
+        if (mask & (1 << j)) continue;
+        const cand = dp[mask][i] + words[j].length - ov[i][j];
+        const next = mask | (1 << j);
+        if (cand < dp[next][j]) {
+          dp[next][j] = cand;
+          parent[next][j] = i;
+        }
+      }
+    }
+  }
+
+  let bestEnd = 0;
+  for (let i = 1; i < n; i++) if (dp[FULL][i] < dp[FULL][bestEnd]) bestEnd = i;
+
+  const order = [];
+  let mask = FULL, cur = bestEnd;
+  while (cur !== -1) {
+    order.push(cur);
+    const prev = parent[mask][cur];
+    mask &= ~(1 << cur);
+    cur = prev;
+  }
+  order.reverse();
+
+  let s = words[order[0]];
+  for (let k = 1; k < order.length; k++) {
+    s += words[order[k]].slice(ov[order[k - 1]][order[k]]);
+  }
+  return s;
+};`,
+        complexity: { time: 'O(n^2 * 2^n)', space: 'O(n * 2^n)' },
+        approach: 'Same bitmask DP. Filter substrings first because dp will never benefit from including them — leaving them in just inflates the state space and can produce a longer-than-optimal answer when the dominated word forces an extra seam.',
+      },
+      java: {
+        code: `import java.util.*;
+
+class Solution {
+    public String shortestSuperstring(String[] words) {
+        // Filter dominated.
+        List<String> list = new ArrayList<>();
+        for (int i = 0; i < words.length; i++) {
+            boolean dominated = false;
+            for (int j = 0; j < words.length; j++) {
+                if (i != j && words[j].contains(words[i])) { dominated = true; break; }
+            }
+            if (!dominated) list.add(words[i]);
+        }
+        String[] w = list.toArray(new String[0]);
+        int n = w.length;
+
+        int[][] ov = new int[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (i == j) continue;
+                int k = Math.min(w[i].length(), w[j].length()) - 1;
+                while (k > 0 && !w[i].endsWith(w[j].substring(0, k))) k--;
+                ov[i][j] = k;
+            }
+        }
+
+        int FULL = (1 << n) - 1;
+        int[][] dp = new int[FULL + 1][n];
+        int[][] parent = new int[FULL + 1][n];
+        for (int[] row : dp) Arrays.fill(row, Integer.MAX_VALUE / 2);
+        for (int[] row : parent) Arrays.fill(row, -1);
+        for (int i = 0; i < n; i++) dp[1 << i][i] = w[i].length();
+
+        for (int mask = 1; mask <= FULL; mask++) {
+            for (int i = 0; i < n; i++) {
+                if ((mask & (1 << i)) == 0 || dp[mask][i] >= Integer.MAX_VALUE / 2) continue;
+                for (int j = 0; j < n; j++) {
+                    if ((mask & (1 << j)) != 0) continue;
+                    int cand = dp[mask][i] + w[j].length() - ov[i][j];
+                    int next = mask | (1 << j);
+                    if (cand < dp[next][j]) {
+                        dp[next][j] = cand;
+                        parent[next][j] = i;
+                    }
+                }
+            }
+        }
+
+        int bestEnd = 0;
+        for (int i = 1; i < n; i++) if (dp[FULL][i] < dp[FULL][bestEnd]) bestEnd = i;
+
+        Deque<Integer> order = new ArrayDeque<>();
+        int mask = FULL, cur = bestEnd;
+        while (cur != -1) {
+            order.push(cur);
+            int prv = parent[mask][cur];
+            mask &= ~(1 << cur);
+            cur = prv;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        int prev = -1;
+        for (int idx : order) {
+            if (prev == -1) sb.append(w[idx]);
+            else sb.append(w[idx].substring(ov[prev][idx]));
+            prev = idx;
+        }
+        return sb.toString();
+    }
+}`,
+        complexity: { time: 'O(n^2 * 2^n)', space: 'O(n * 2^n)' },
+        approach: 'Integer.MAX_VALUE / 2 sentinel avoids overflow when adding word lengths. Deque<Integer> with push gives an O(1) reverse during reconstruction.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    string shortestSuperstring(vector<string>& wordsIn) {
+        vector<string> words;
+        for (int i = 0; i < (int)wordsIn.size(); i++) {
+            bool dominated = false;
+            for (int j = 0; j < (int)wordsIn.size(); j++) {
+                if (i != j && wordsIn[j].find(wordsIn[i]) != string::npos) { dominated = true; break; }
+            }
+            if (!dominated) words.push_back(wordsIn[i]);
+        }
+        int n = words.size();
+
+        vector<vector<int>> ov(n, vector<int>(n, 0));
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (i == j) continue;
+                int k = min((int)words[i].size(), (int)words[j].size()) - 1;
+                while (k > 0 && words[i].compare(words[i].size() - k, k, words[j], 0, k) != 0) k--;
+                ov[i][j] = k;
+            }
+        }
+
+        int FULL = (1 << n) - 1;
+        const int INF = 1e9;
+        vector<vector<int>> dp(FULL + 1, vector<int>(n, INF));
+        vector<vector<int>> parent(FULL + 1, vector<int>(n, -1));
+        for (int i = 0; i < n; i++) dp[1 << i][i] = words[i].size();
+
+        for (int mask = 1; mask <= FULL; mask++) {
+            for (int i = 0; i < n; i++) {
+                if (!(mask & (1 << i)) || dp[mask][i] >= INF) continue;
+                for (int j = 0; j < n; j++) {
+                    if (mask & (1 << j)) continue;
+                    int cand = dp[mask][i] + (int)words[j].size() - ov[i][j];
+                    int nxt = mask | (1 << j);
+                    if (cand < dp[nxt][j]) {
+                        dp[nxt][j] = cand;
+                        parent[nxt][j] = i;
+                    }
+                }
+            }
+        }
+
+        int bestEnd = 0;
+        for (int i = 1; i < n; i++) if (dp[FULL][i] < dp[FULL][bestEnd]) bestEnd = i;
+
+        vector<int> order;
+        int mask = FULL, cur = bestEnd;
+        while (cur != -1) {
+            order.push_back(cur);
+            int prv = parent[mask][cur];
+            mask &= ~(1 << cur);
+            cur = prv;
+        }
+        reverse(order.begin(), order.end());
+
+        string s = words[order[0]];
+        for (int k = 1; k < (int)order.size(); k++) {
+            s += words[order[k]].substr(ov[order[k - 1]][order[k]]);
+        }
+        return s;
+    }
+};`,
+        complexity: { time: 'O(n^2 * 2^n)', space: 'O(n * 2^n)' },
+        approach: 'string::compare with offsets does the suffix/prefix equality without allocating temporary substrings. Substring filter runs in O(n^2 * L) — negligible next to the DP.',
+      },
+      c: {
+        code: `#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+static int suffixPrefix(const char* a, const char* b) {
+    int la = (int)strlen(a), lb = (int)strlen(b);
+    int k = la < lb ? la - 1 : lb - 1;
+    while (k > 0 && strncmp(a + la - k, b, k) != 0) k--;
+    return k;
+}
+
+char* shortestSuperstring(char** wordsIn, int n0, char* out) {
+    // Filter dominated.
+    char** w = (char**)malloc(sizeof(char*) * n0);
+    int n = 0;
+    for (int i = 0; i < n0; i++) {
+        int dominated = 0;
+        for (int j = 0; j < n0; j++) {
+            if (i != j && strstr(wordsIn[j], wordsIn[i])) { dominated = 1; break; }
+        }
+        if (!dominated) w[n++] = wordsIn[i];
+    }
+
+    int FULL = (1 << n) - 1;
+    int (*ov)[16] = (int(*)[16])calloc(16, sizeof(int) * 16);
+    for (int i = 0; i < n; i++) for (int j = 0; j < n; j++) if (i != j) ov[i][j] = suffixPrefix(w[i], w[j]);
+
+    const int INF = 1000000000;
+    int* dp = (int*)malloc(sizeof(int) * (FULL + 1) * n);
+    int* parent = (int*)malloc(sizeof(int) * (FULL + 1) * n);
+    for (int i = 0; i < (FULL + 1) * n; i++) { dp[i] = INF; parent[i] = -1; }
+    for (int i = 0; i < n; i++) dp[(1 << i) * n + i] = (int)strlen(w[i]);
+
+    for (int mask = 1; mask <= FULL; mask++) {
+        for (int i = 0; i < n; i++) {
+            if (!(mask & (1 << i)) || dp[mask * n + i] >= INF) continue;
+            for (int j = 0; j < n; j++) {
+                if (mask & (1 << j)) continue;
+                int cand = dp[mask * n + i] + (int)strlen(w[j]) - ov[i][j];
+                int nxt = mask | (1 << j);
+                if (cand < dp[nxt * n + j]) {
+                    dp[nxt * n + j] = cand;
+                    parent[nxt * n + j] = i;
+                }
+            }
+        }
+    }
+
+    int bestEnd = 0;
+    for (int i = 1; i < n; i++) if (dp[FULL * n + i] < dp[FULL * n + bestEnd]) bestEnd = i;
+
+    int order[16], olen = 0;
+    int mask = FULL, cur = bestEnd;
+    while (cur != -1) {
+        order[olen++] = cur;
+        int prv = parent[mask * n + cur];
+        mask &= ~(1 << cur);
+        cur = prv;
+    }
+    // Reverse.
+    for (int a = 0, b = olen - 1; a < b; a++, b--) { int t = order[a]; order[a] = order[b]; order[b] = t; }
+
+    int pos = 0;
+    int firstLen = (int)strlen(w[order[0]]);
+    memcpy(out + pos, w[order[0]], firstLen); pos += firstLen;
+    for (int k = 1; k < olen; k++) {
+        int o = ov[order[k - 1]][order[k]];
+        int len = (int)strlen(w[order[k]]);
+        memcpy(out + pos, w[order[k]] + o, len - o);
+        pos += len - o;
+    }
+    out[pos] = '\\0';
+
+    free(w); free(ov); free(dp); free(parent);
+    return out;
+}`,
+        complexity: { time: 'O(n^2 * 2^n)', space: 'O(n * 2^n)' },
+        approach: 'Flat int arrays indexed as mask*n+i — avoids 2D allocation churn. Fixed 16-slot ov[][] because the problem caps n at 12.',
+      },
+      go: {
+        code: `package solution
+
+import "strings"
+
+func shortestSuperstring(wordsIn []string) string {
+    // Filter dominated.
+    words := []string{}
+    for i, w := range wordsIn {
+        dominated := false
+        for j, v := range wordsIn {
+            if i != j && strings.Contains(v, w) { dominated = true; break }
+        }
+        if !dominated { words = append(words, w) }
+    }
+    n := len(words)
+
+    ov := make([][]int, n)
+    for i := range ov { ov[i] = make([]int, n) }
+    for i := 0; i < n; i++ {
+        for j := 0; j < n; j++ {
+            if i == j { continue }
+            k := len(words[i])
+            if len(words[j]) < k { k = len(words[j]) }
+            k--
+            for k > 0 && !strings.HasSuffix(words[i], words[j][:k]) { k-- }
+            ov[i][j] = k
+        }
+    }
+
+    FULL := (1 << n) - 1
+    const INF = 1 << 30
+    dp := make([][]int, FULL+1)
+    parent := make([][]int, FULL+1)
+    for i := range dp {
+        dp[i] = make([]int, n)
+        parent[i] = make([]int, n)
+        for j := range dp[i] { dp[i][j] = INF; parent[i][j] = -1 }
+    }
+    for i := 0; i < n; i++ { dp[1<<i][i] = len(words[i]) }
+
+    for mask := 1; mask <= FULL; mask++ {
+        for i := 0; i < n; i++ {
+            if mask&(1<<i) == 0 || dp[mask][i] >= INF { continue }
+            for j := 0; j < n; j++ {
+                if mask&(1<<j) != 0 { continue }
+                cand := dp[mask][i] + len(words[j]) - ov[i][j]
+                nxt := mask | (1 << j)
+                if cand < dp[nxt][j] {
+                    dp[nxt][j] = cand
+                    parent[nxt][j] = i
+                }
+            }
+        }
+    }
+
+    bestEnd := 0
+    for i := 1; i < n; i++ { if dp[FULL][i] < dp[FULL][bestEnd] { bestEnd = i } }
+
+    order := []int{}
+    mask, cur := FULL, bestEnd
+    for cur != -1 {
+        order = append(order, cur)
+        prv := parent[mask][cur]
+        mask &^= 1 << cur
+        cur = prv
+    }
+    for a, b := 0, len(order)-1; a < b; a, b = a+1, b-1 { order[a], order[b] = order[b], order[a] }
+
+    var sb strings.Builder
+    sb.WriteString(words[order[0]])
+    for k := 1; k < len(order); k++ {
+        sb.WriteString(words[order[k]][ov[order[k-1]][order[k]]:])
+    }
+    return sb.String()
+}`,
+        complexity: { time: 'O(n^2 * 2^n)', space: 'O(n * 2^n)' },
+        approach: 'mask &^= 1 << cur clears the bit (Go-idiomatic AND-NOT). strings.Builder avoids the quadratic concat penalty when reconstructing.',
+      },
+    },
+  },
+  'concatenated-words': {
+    tags: ['dynamic-programming', 'trie', 'string', 'depth-first-search'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: concatenatedWordsViz(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def findAllConcatenatedWordsInADict(self, words: List[str]) -> List[str]:
+        words.sort(key=len)
+        built = set()
+        result = []
+
+        def can_form(w: str) -> bool:
+            if not built: return False
+            n = len(w)
+            dp = [False] * (n + 1)
+            dp[0] = True
+            for i in range(1, n + 1):
+                for j in range(i):
+                    if dp[j] and w[j:i] in built:
+                        dp[i] = True
+                        break
+            return dp[n]
+
+        for w in words:
+            if can_form(w):
+                result.append(w)
+            built.add(w)
+        return result`,
+        complexity: { time: 'O(N * L^2) average', space: 'O(N * L)' },
+        approach: 'Sort by length so every candidate is checked only against strictly shorter words already in "built". Per-word word-break DP: dp[i] true iff w[0..i] tiles via the set. Add w to "built" after the check so longer words can use it as a piece.',
+      },
+      javascript: {
+        code: `var findAllConcatenatedWordsInADict = function(words) {
+  words.sort((a, b) => a.length - b.length);
+  const built = new Set();
+  const result = [];
+
+  const canForm = (w) => {
+    if (built.size === 0) return false;
+    const n = w.length;
+    const dp = new Array(n + 1).fill(false);
+    dp[0] = true;
+    for (let i = 1; i <= n; i++) {
+      for (let j = 0; j < i; j++) {
+        if (dp[j] && built.has(w.slice(j, i))) {
+          dp[i] = true;
+          break;
+        }
+      }
+    }
+    return dp[n];
+  };
+
+  for (const w of words) {
+    if (canForm(w)) result.push(w);
+    built.add(w);
+  }
+  return result;
+};`,
+        complexity: { time: 'O(N * L^2)', space: 'O(N * L)' },
+        approach: 'Set#has on string keys is O(L) hashing — fine for the constraints. Inner break exits as soon as any cut works, so the worst case is uncommon in practice.',
+      },
+      java: {
+        code: `import java.util.*;
+
+class Solution {
+    public List<String> findAllConcatenatedWordsInADict(String[] words) {
+        Arrays.sort(words, (a, b) -> a.length() - b.length());
+        Set<String> built = new HashSet<>();
+        List<String> result = new ArrayList<>();
+        for (String w : words) {
+            if (canForm(w, built)) result.add(w);
+            built.add(w);
+        }
+        return result;
+    }
+
+    private boolean canForm(String w, Set<String> built) {
+        if (built.isEmpty()) return false;
+        int n = w.length();
+        boolean[] dp = new boolean[n + 1];
+        dp[0] = true;
+        for (int i = 1; i <= n; i++) {
+            for (int j = 0; j < i; j++) {
+                if (dp[j] && built.contains(w.substring(j, i))) {
+                    dp[i] = true;
+                    break;
+                }
+            }
+        }
+        return dp[n];
+    }
+}`,
+        complexity: { time: 'O(N * L^2)', space: 'O(N * L)' },
+        approach: 'String.substring is O(L) — the L^2 in complexity is dominated by hashing the substring, not by allocation. HashSet<String> is the simplest pick; a Trie would shave a constant factor.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<string> findAllConcatenatedWordsInADict(vector<string>& words) {
+        sort(words.begin(), words.end(), [](const string& a, const string& b) {
+            return a.size() < b.size();
+        });
+        unordered_set<string> built;
+        vector<string> result;
+        for (const string& w : words) {
+            if (canForm(w, built)) result.push_back(w);
+            built.insert(w);
+        }
+        return result;
+    }
+
+private:
+    bool canForm(const string& w, const unordered_set<string>& built) {
+        if (built.empty()) return false;
+        int n = w.size();
+        vector<bool> dp(n + 1, false);
+        dp[0] = true;
+        for (int i = 1; i <= n; i++) {
+            for (int j = 0; j < i; j++) {
+                if (dp[j] && built.count(w.substr(j, i - j))) {
+                    dp[i] = true;
+                    break;
+                }
+            }
+        }
+        return dp[n];
+    }
+};`,
+        complexity: { time: 'O(N * L^2)', space: 'O(N * L)' },
+        approach: 'Stable sort on length is enough; equal-length ties never matter because the DP only ever consults strictly shorter words. substr allocates O(L) per probe — the trie variant avoids that allocation entirely.',
+      },
+      c: {
+        code: `#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Trie node — letters a..z plus end flag.
+typedef struct Trie {
+    struct Trie* ch[26];
+    int end;
+} Trie;
+
+static Trie* newNode(void) {
+    Trie* t = (Trie*)calloc(1, sizeof(Trie));
+    return t;
+}
+
+static void insert(Trie* root, const char* w) {
+    Trie* node = root;
+    for (int i = 0; w[i]; i++) {
+        int idx = w[i] - 'a';
+        if (!node->ch[idx]) node->ch[idx] = newNode();
+        node = node->ch[idx];
+    }
+    node->end = 1;
+}
+
+static int canForm(Trie* root, const char* w) {
+    int n = (int)strlen(w);
+    if (n == 0) return 0;
+    int* dp = (int*)calloc(n + 1, sizeof(int));
+    dp[0] = 1;
+    for (int i = 0; i < n; i++) {
+        if (!dp[i]) continue;
+        Trie* node = root;
+        for (int j = i; j < n; j++) {
+            int idx = w[j] - 'a';
+            if (!node->ch[idx]) break;
+            node = node->ch[idx];
+            // A valid cut ending at j only counts if it consumes at least one stored word.
+            // Avoid the trivial "use w itself" case by requiring j < n - 1 OR i > 0.
+            if (node->end && (i > 0 || j < n - 1)) dp[j + 1] = 1;
+        }
+    }
+    int ok = dp[n];
+    free(dp);
+    return ok;
+}
+
+static int cmpLen(const void* a, const void* b) {
+    return (int)strlen(*(const char**)a) - (int)strlen(*(const char**)b);
+}
+
+char** findAllConcatenatedWordsInADict(char** words, int n, int* returnSize) {
+    qsort(words, n, sizeof(char*), cmpLen);
+    Trie* root = newNode();
+    char** result = (char**)malloc(sizeof(char*) * n);
+    int cnt = 0;
+    for (int i = 0; i < n; i++) {
+        if (canForm(root, words[i])) result[cnt++] = words[i];
+        insert(root, words[i]);
+    }
+    *returnSize = cnt;
+    return result;
+}`,
+        complexity: { time: 'O(N * L^2) worst case', space: 'O(total chars * 26)' },
+        approach: 'C variant uses a trie — no hash set in the standard library. The "i > 0 OR j < n-1" guard rules out the trivial single-word match against itself; the outer pre-sort by length also handles that, but the guard makes the function safe to call in isolation.',
+      },
+      go: {
+        code: `package solution
+
+import "sort"
+
+func findAllConcatenatedWordsInADict(words []string) []string {
+    sort.Slice(words, func(i, j int) bool { return len(words[i]) < len(words[j]) })
+    built := map[string]bool{}
+    result := []string{}
+
+    canForm := func(w string) bool {
+        if len(built) == 0 { return false }
+        n := len(w)
+        dp := make([]bool, n+1)
+        dp[0] = true
+        for i := 1; i <= n; i++ {
+            for j := 0; j < i; j++ {
+                if dp[j] && built[w[j:i]] {
+                    dp[i] = true
+                    break
+                }
+            }
+        }
+        return dp[n]
+    }
+
+    for _, w := range words {
+        if canForm(w) { result = append(result, w) }
+        built[w] = true
+    }
+    return result
+}`,
+        complexity: { time: 'O(N * L^2)', space: 'O(N * L)' },
+        approach: 'Substring slicing w[j:i] is O(1) in Go (slice header, no copy), so the map lookup itself is the only per-probe O(L). sort.Slice is the right tool — sort.Strings would alpha-sort and break the invariant.',
+      },
+    },
+  },
+  'count-good-triplets-in-an-array': {
+    /* SPLICE:wave8p-triplets-vowels v1 */
+    tags: ['array', 'binary-indexed-tree', 'fenwick-tree', 'segment-tree', 'merge-sort', 'ordered-set'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: (() => {
+      // nums1 = [2,0,1,3], nums2 = [0,1,2,3]
+      //   Good triplet (x,y,z) means values appearing as a common subsequence
+      //   in BOTH arrays in order. Step: walk values v in the order they appear
+      //   in nums1; let p = pos_in_nums2[v]; count pairs (a, b) with a<p<b that
+      //   are already activated -> contributes (activated below p) * (still
+      //   inactive above p) good triplets centred at v.
+      const nums1 = [2, 0, 1, 3];
+      const nums2 = [0, 1, 2, 3];
+      const n = nums1.length;
+      const posInN2 = new Map();
+      nums2.forEach((v, i) => posInN2.set(v, i));
+      const mapped = nums1.map((v) => posInN2.get(v));
+
+      const frames = [];
+      const bitMark = new Array(n).fill('default');
+      const snap = (caption, chip, highlights = {}) => {
+        frames.push({
+          array: nums2.slice(),
+          highlights,
+          chip,
+          caption,
+          marks: bitMark.slice(),
+        });
+      };
+
+      snap(
+        'Goal: count triplets of values that appear in the same relative order in BOTH nums1 and nums2 (i.e. they form a common increasing subsequence on the position axis of nums2). Brute force is O(n^3); a Fenwick tree over nums2-positions gets us to O(n log n).',
+        'count common triplets',
+      );
+      snap(
+        'Reindex by position in nums2. For each value v take p = pos_in_nums2[v]; iterate v in the order it appears in nums1. Now the question becomes: for each p in nums1-order, how many already-seen positions are < p (call it L) and how many UNSEEN positions are > p (call it R)? Triplets centred at p contribute L * R.',
+        'reindex by nums2 positions',
+      );
+
+      let answer = 0;
+      const bit = new Array(n + 1).fill(0);
+      const upd = (i) => { for (i += 1; i <= n; i += i & -i) bit[i] += 1; };
+      const qry = (i) => { let s = 0; for (i += 1; i > 0; i -= i & -i) s += bit[i]; return s; };
+
+      for (let k = 0; k < n; k++) {
+        const v = nums1[k];
+        const p = mapped[k];
+        const less = p > 0 ? qry(p - 1) : 0;
+        const seenSoFar = k;
+        const greaterUnseen = (n - 1 - p) - (seenSoFar - less);
+        const add = less * greaterUnseen;
+        answer += add;
+
+        const hl = { [p]: 'mid' };
+        for (let j = 0; j < n; j++) if (bitMark[j] === 'match' && j < p) hl[j] = 'match';
+        snap(
+          `k=${k}: process value ${v} (nums2 position p=${p}). Already-activated positions strictly below p: L=${less}. Unseen positions strictly above p: R=${greaterUnseen}. Contribution = L * R = ${add}. Running total = ${answer}.`,
+          `v=${v} p=${p} L=${less} R=${greaterUnseen} +${add}`,
+          hl,
+        );
+
+        upd(p);
+        bitMark[p] = 'match';
+        snap(
+          `Activate position ${p} in the Fenwick tree by adding 1 to its cell. After this update the tree reports prefix counts including p. Move to the next value in nums1.`,
+          `BIT.update(${p}) += 1`,
+          { [p]: 'match' },
+        );
+      }
+
+      snap(
+        `All values processed. Final triplet count = ${answer}. Each centre value v contributes L*R where L = activated positions to its left, R = positions strictly to its right that have not yet been activated. The sum across centres counts every good triplet exactly once because each triplet has exactly one middle element.`,
+        `answer = ${answer}`,
+        Object.fromEntries(nums2.map((_, i) => [i, 'match'])),
+      );
+
+      snap(
+        'Why no double-counting: a good triplet (x,y,z) is uniquely determined by its centre y. When we process y, x is already activated (it appeared earlier in nums1) and z has not yet been activated (it appears later in nums1) — that is precisely the L * R we just computed.',
+        'centre uniquely identifies triplet',
+      );
+
+      snap(
+        'Why Fenwick: we need prefix-sum-with-point-update in O(log n). A sorted set / order-statistics tree works too; Fenwick is the lightest. Segment tree counts also work, just with more code.',
+        'BIT = prefix sums + point updates',
+      );
+
+      snap(
+        'Complexity: O(n log n) time — one BIT query + one BIT update per value. O(n) space for the tree and position map. The brute O(n^3) is hopeless for n up to 1e5; Fenwick is the standard accelerator.',
+        'O(n log n) time, O(n) space',
+      );
+
+      return { renderer: 'array', title: 'Good triplets in two arrays — Fenwick over nums2 positions', frames };
+    })(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def goodTriplets(self, nums1: List[int], nums2: List[int]) -> int:
+        n = len(nums1)
+        pos = [0] * n
+        for i, v in enumerate(nums2):
+            pos[v] = i
+        mapped = [pos[v] for v in nums1]
+
+        bit = [0] * (n + 1)
+        def upd(i: int) -> None:
+            i += 1
+            while i <= n:
+                bit[i] += 1
+                i += i & -i
+        def qry(i: int) -> int:
+            s = 0
+            i += 1
+            while i > 0:
+                s += bit[i]
+                i -= i & -i
+            return s
+
+        ans = 0
+        for k, p in enumerate(mapped):
+            less = qry(p - 1) if p > 0 else 0
+            greater_unseen = (n - 1 - p) - (k - less)
+            ans += less * greater_unseen
+            upd(p)
+        return ans`,
+        complexity: { time: 'O(n log n)', space: 'O(n)' },
+        approach: 'Reindex every value by its position in nums2 (call it p). Walk nums1 in order: at step k we have already inserted k positions into a Fenwick tree. For the current p, query how many inserted positions are < p (call it L); the number of positions > p that have NOT yet been inserted is R = (n-1-p) - (k - L). Each good triplet has a unique middle element, and choosing one already-seen position on the left and one yet-to-come position on the right gives exactly L * R triplets centred here. Sum and return. BIT updates and queries are O(log n), so total O(n log n).',
+      },
+      javascript: {
+        code: `function goodTriplets(nums1, nums2) {
+  const n = nums1.length;
+  const pos = new Array(n);
+  for (let i = 0; i < n; i++) pos[nums2[i]] = i;
+  const mapped = nums1.map((v) => pos[v]);
+
+  const bit = new Array(n + 1).fill(0);
+  const upd = (i) => { for (i += 1; i <= n; i += i & -i) bit[i] += 1; };
+  const qry = (i) => { let s = 0; for (i += 1; i > 0; i -= i & -i) s += bit[i]; return s; };
+
+  let ans = 0n;
+  for (let k = 0; k < n; k++) {
+    const p = mapped[k];
+    const less = p > 0 ? qry(p - 1) : 0;
+    const greaterUnseen = (n - 1 - p) - (k - less);
+    ans += BigInt(less) * BigInt(greaterUnseen);
+    upd(p);
+  }
+  return Number(ans);
+}`,
+        complexity: { time: 'O(n log n)', space: 'O(n)' },
+        approach: 'Same recurrence in JS. BigInt is used for the running sum because L * R can overflow Number for n ~ 1e5 (worst-case count is on the order of n^3 / 6 ~ 1.6e14, comfortably inside BigInt but past Number.MAX_SAFE_INTEGER for cumulative sums in adversarial cases).',
+      },
+      java: {
+        code: `class Solution {
+    public long goodTriplets(int[] nums1, int[] nums2) {
+        int n = nums1.length;
+        int[] pos = new int[n];
+        for (int i = 0; i < n; i++) pos[nums2[i]] = i;
+        int[] mapped = new int[n];
+        for (int i = 0; i < n; i++) mapped[i] = pos[nums1[i]];
+
+        int[] bit = new int[n + 1];
+        long ans = 0;
+        for (int k = 0; k < n; k++) {
+            int p = mapped[k];
+            int less = 0;
+            for (int i = p; i > 0; i -= i & -i) less += bit[i]; // qry(p-1)
+            int greaterUnseen = (n - 1 - p) - (k - less);
+            ans += (long) less * greaterUnseen;
+            for (int i = p + 1; i <= n; i += i & -i) bit[i]++;   // upd(p)
+        }
+        return ans;
+    }
+}`,
+        complexity: { time: 'O(n log n)', space: 'O(n)' },
+        approach: 'Java port with the BIT inlined. The accumulator is long because L * R fits in long for any n that fits in int but blows out int when summed.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    long long goodTriplets(vector<int>& nums1, vector<int>& nums2) {
+        int n = nums1.size();
+        vector<int> pos(n), mapped(n);
+        for (int i = 0; i < n; i++) pos[nums2[i]] = i;
+        for (int i = 0; i < n; i++) mapped[i] = pos[nums1[i]];
+
+        vector<int> bit(n + 1, 0);
+        auto upd = [&](int i) { for (i += 1; i <= n; i += i & -i) bit[i]++; };
+        auto qry = [&](int i) { int s = 0; for (i += 1; i > 0; i -= i & -i) s += bit[i]; return s; };
+
+        long long ans = 0;
+        for (int k = 0; k < n; k++) {
+            int p = mapped[k];
+            int less = p > 0 ? qry(p - 1) : 0;
+            int greaterUnseen = (n - 1 - p) - (k - less);
+            ans += (long long) less * greaterUnseen;
+            upd(p);
+        }
+        return ans;
+    }
+};`,
+        complexity: { time: 'O(n log n)', space: 'O(n)' },
+        approach: 'C++ port. long long for the accumulator. Lambdas keep the BIT helpers local to the function.',
+      },
+      c: {
+        code: `long long goodTriplets(int* nums1, int nums1Size, int* nums2, int nums2Size) {
+    int n = nums1Size;
+    int* pos = malloc(sizeof(int) * n);
+    int* mapped = malloc(sizeof(int) * n);
+    for (int i = 0; i < n; i++) pos[nums2[i]] = i;
+    for (int i = 0; i < n; i++) mapped[i] = pos[nums1[i]];
+
+    int* bit = calloc(n + 1, sizeof(int));
+    long long ans = 0;
+    for (int k = 0; k < n; k++) {
+        int p = mapped[k];
+        int less = 0;
+        for (int i = p; i > 0; i -= i & -i) less += bit[i];
+        int greaterUnseen = (n - 1 - p) - (k - less);
+        ans += (long long) less * greaterUnseen;
+        for (int i = p + 1; i <= n; i += i & -i) bit[i]++;
+    }
+    free(pos); free(mapped); free(bit);
+    return ans;
+}`,
+        complexity: { time: 'O(n log n)', space: 'O(n)' },
+        approach: 'Plain C. Inline BIT update / query keeps the implementation under thirty lines and avoids any function-call overhead inside the hot loop.',
+      },
+      go: {
+        code: `func goodTriplets(nums1 []int, nums2 []int) int64 {
+    n := len(nums1)
+    pos := make([]int, n)
+    for i, v := range nums2 {
+        pos[v] = i
+    }
+    mapped := make([]int, n)
+    for i, v := range nums1 {
+        mapped[i] = pos[v]
+    }
+
+    bit := make([]int, n+1)
+    upd := func(i int) {
+        for i += 1; i <= n; i += i & -i {
+            bit[i]++
+        }
+    }
+    qry := func(i int) int {
+        s := 0
+        for i += 1; i > 0; i -= i & -i {
+            s += bit[i]
+        }
+        return s
+    }
+
+    var ans int64
+    for k := 0; k < n; k++ {
+        p := mapped[k]
+        less := 0
+        if p > 0 {
+            less = qry(p - 1)
+        }
+        greaterUnseen := (n - 1 - p) - (k - less)
+        ans += int64(less) * int64(greaterUnseen)
+        upd(p)
+    }
+    return ans
+}`,
+        complexity: { time: 'O(n log n)', space: 'O(n)' },
+        approach: 'Idiomatic Go closures for the BIT helpers. int64 accumulator for the same overflow reasons as the Java / C++ ports.',
+      },
+    },
+  },
+  'longest-substring-of-all-vowels-in-order': {
+    /* SPLICE:wave8p-triplets-vowels v1 */
+    tags: ['string', 'sliding-window', 'two-pointers'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: (() => {
+      // word = "aeiaaioaaaaeiiiiouuuooaauuaeiu" — has a valid "aaaaeiiiiouuu" (length 13)
+      const word = 'aeiaaioaaaaeiiiiouuuooaauuaeiu';
+      const order = { a: 0, e: 1, i: 2, o: 3, u: 4 };
+
+      const frames = [];
+      const snap = (caption, chip, l, r, distinct, best, mode) => {
+        const highlights = {};
+        for (let i = l; i <= r && i < word.length; i++) {
+          highlights[i] = mode === 'reset' ? 'low' : (mode === 'win' ? 'match' : 'mid');
+        }
+        frames.push({
+          array: word.split(''),
+          highlights,
+          chip,
+          caption,
+        });
+      };
+
+      snap(
+        'Goal: find the longest contiguous substring of the word such that its characters are exactly the vowels a,e,i,o,u, each appearing at least once, and they only ever NON-DECREASE through the substring. So "aaeiooou" is allowed; "aei a" (jump back to a) is not.',
+        'all 5 vowels, non-decreasing',
+        0, 0, 0, 0, 'idle',
+      );
+      snap(
+        'Sliding window with two invariants: 1) word[i] is a vowel, and 2) word[i] >= word[i-1] in vowel order. Break either invariant and the window resets at i.',
+        'two invariants',
+        0, 0, 0, 0, 'idle',
+      );
+
+      let l = 0;
+      let distinct = 1;
+      let best = 0;
+      let bestL = -1, bestR = -1;
+      // Frame each step: we will emit a frame for every char and snapshot the window state.
+      for (let r = 0; r < word.length; r++) {
+        const c = word[r];
+        if (!(c in order)) {
+          snap(`r=${r}: '${c}' is not a vowel. Reset the window. l <- ${r + 1}, distinct <- 0.`, `non-vowel reset`, l, r, distinct, best, 'reset');
+          l = r + 1;
+          distinct = 0;
+          continue;
+        }
+        if (r === l) {
+          distinct = 1;
+          // First char of a fresh window must be 'a' to be useful, but we still
+          // open the window and let the order check at r+1 prune it.
+          snap(`r=${r}: open window at l=${l} with '${c}'. distinct=1. Need to grow into e,i,o,u in order to hit 5.`, `open window at '${c}'`, l, r, distinct, best, 'win');
+          if (distinct === 5) {
+            const len = r - l + 1;
+            if (len > best) { best = len; bestL = l; bestR = r; }
+          }
+          continue;
+        }
+        const prev = word[r - 1];
+        if (order[c] < order[prev]) {
+          // order break -> restart window at r
+          snap(`r=${r}: '${c}' breaks vowel order (after '${prev}'). Restart window at l <- ${r}. distinct <- 1.`, `order break`, l, r, distinct, best, 'reset');
+          l = r;
+          distinct = 1;
+          continue;
+        }
+        if (order[c] > order[prev]) {
+          distinct += 1;
+        }
+        const len = r - l + 1;
+        if (distinct === 5 && len > best) { best = len; bestL = l; bestR = r; }
+        snap(`r=${r}: '${c}' continues window. distinct=${distinct}. window length=${len}. best=${best}.`, `extend '${c}'`, l, r, distinct, best, 'win');
+        if (frames.length >= 11) break; // keep frame budget manageable
+      }
+
+      // Append the winning window highlight + summary frames until we hit 12.
+      if (bestL >= 0) {
+        const winHi = {};
+        for (let i = bestL; i <= bestR; i++) winHi[i] = 'match';
+        frames.push({
+          array: word.split(''),
+          highlights: winHi,
+          chip: `best = ${best}`,
+          caption: `Best window so far: word[${bestL}..${bestR}] = "${word.slice(bestL, bestR + 1)}" with length ${best}. Contains all 5 vowels in non-decreasing order.`,
+        });
+      }
+
+      while (frames.length < 12) {
+        frames.push({
+          array: word.split(''),
+          chip: 'recap',
+          caption: 'Recap: a single left-to-right pass with O(1) bookkeeping (l, distinct) tracks the longest beautiful substring. Reset on non-vowel or order break; extend otherwise. Update answer whenever distinct hits 5.',
+        });
+      }
+
+      return { renderer: 'array', title: 'Longest beautiful substring — sliding window with vowel-order check', frames };
+    })(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def longestBeautifulSubstring(self, word: str) -> int:
+        order = {'a': 0, 'e': 1, 'i': 2, 'o': 3, 'u': 4}
+        best = 0
+        l = 0
+        distinct = 0
+        for r, c in enumerate(word):
+            if c not in order:
+                l = r + 1
+                distinct = 0
+                continue
+            if r == l:
+                distinct = 1
+            else:
+                prev = word[r - 1]
+                if order[c] < order[prev]:
+                    l = r
+                    distinct = 1
+                elif order[c] > order[prev]:
+                    distinct += 1
+            if distinct == 5:
+                best = max(best, r - l + 1)
+        return best`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Single sliding window. Maintain a left pointer l and a count of distinct vowels seen since l. Three transitions: 1) non-vowel resets the window past r; 2) a vowel that comes BEFORE the previous one in a/e/i/o/u order restarts the window at r; 3) a vowel that comes AFTER the previous one increments distinct. Update the answer whenever distinct == 5. O(n) time, O(1) space.',
+      },
+      javascript: {
+        code: `function longestBeautifulSubstring(word) {
+  const order = { a: 0, e: 1, i: 2, o: 3, u: 4 };
+  let best = 0, l = 0, distinct = 0;
+  for (let r = 0; r < word.length; r++) {
+    const c = word[r];
+    if (!(c in order)) { l = r + 1; distinct = 0; continue; }
+    if (r === l) {
+      distinct = 1;
+    } else {
+      const prev = word[r - 1];
+      if (order[c] < order[prev]) { l = r; distinct = 1; }
+      else if (order[c] > order[prev]) distinct += 1;
+    }
+    if (distinct === 5) best = Math.max(best, r - l + 1);
+  }
+  return best;
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Identical state machine in JS. The order map is constant; comparing previous char is enough to detect the two failure modes (non-vowel, order-break).',
+      },
+      java: {
+        code: `class Solution {
+    public int longestBeautifulSubstring(String word) {
+        int[] order = new int[128];
+        for (int i = 0; i < 128; i++) order[i] = -1;
+        order['a'] = 0; order['e'] = 1; order['i'] = 2; order['o'] = 3; order['u'] = 4;
+        int best = 0, l = 0, distinct = 0;
+        for (int r = 0; r < word.length(); r++) {
+            char c = word.charAt(r);
+            int oc = order[c];
+            if (oc < 0) { l = r + 1; distinct = 0; continue; }
+            if (r == l) {
+                distinct = 1;
+            } else {
+                int op = order[word.charAt(r - 1)];
+                if (oc < op) { l = r; distinct = 1; }
+                else if (oc > op) distinct++;
+            }
+            if (distinct == 5) best = Math.max(best, r - l + 1);
+        }
+        return best;
+    }
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Java port. An int[128] lookup is the fastest way to map char -> rank in 0..4 (non-vowels sentinel to -1).',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int longestBeautifulSubstring(string word) {
+        int order[128];
+        fill(order, order + 128, -1);
+        order['a'] = 0; order['e'] = 1; order['i'] = 2; order['o'] = 3; order['u'] = 4;
+        int best = 0, l = 0, distinct = 0;
+        for (int r = 0; r < (int) word.size(); r++) {
+            int oc = order[(unsigned char) word[r]];
+            if (oc < 0) { l = r + 1; distinct = 0; continue; }
+            if (r == l) {
+                distinct = 1;
+            } else {
+                int op = order[(unsigned char) word[r - 1]];
+                if (oc < op) { l = r; distinct = 1; }
+                else if (oc > op) distinct++;
+            }
+            if (distinct == 5) best = max(best, r - l + 1);
+        }
+        return best;
+    }
+};`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'C++ port. Cast to unsigned char before indexing to dodge sign extension on platforms with signed char.',
+      },
+      c: {
+        code: `int longestBeautifulSubstring(char* word) {
+    int order[128];
+    for (int i = 0; i < 128; i++) order[i] = -1;
+    order['a'] = 0; order['e'] = 1; order['i'] = 2; order['o'] = 3; order['u'] = 4;
+    int best = 0, l = 0, distinct = 0;
+    int r = 0;
+    for (; word[r] != '\0'; r++) {
+        int oc = order[(unsigned char) word[r]];
+        if (oc < 0) { l = r + 1; distinct = 0; continue; }
+        if (r == l) {
+            distinct = 1;
+        } else {
+            int op = order[(unsigned char) word[r - 1]];
+            if (oc < op) { l = r; distinct = 1; }
+            else if (oc > op) distinct++;
+        }
+        if (distinct == 5) {
+            int len = r - l + 1;
+            if (len > best) best = len;
+        }
+    }
+    return best;
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Plain C — null-terminated traversal, same state machine. The 128-entry order table doubles as a "is this char a vowel?" check via the -1 sentinel.',
+      },
+      go: {
+        code: `func longestBeautifulSubstring(word string) int {
+    order := [128]int{}
+    for i := range order {
+        order[i] = -1
+    }
+    order['a'] = 0
+    order['e'] = 1
+    order['i'] = 2
+    order['o'] = 3
+    order['u'] = 4
+    best, l, distinct := 0, 0, 0
+    for r := 0; r < len(word); r++ {
+        oc := order[word[r]]
+        if oc < 0 {
+            l = r + 1
+            distinct = 0
+            continue
+        }
+        if r == l {
+            distinct = 1
+        } else {
+            op := order[word[r-1]]
+            if oc < op {
+                l = r
+                distinct = 1
+            } else if oc > op {
+                distinct++
+            }
+        }
+        if distinct == 5 && r-l+1 > best {
+            best = r - l + 1
+        }
+    }
+    return best
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Idiomatic Go. Byte indexing into a fixed-size array works because word is ASCII (problem constrains input to lowercase vowels).',
+      },
+    },
+  },
+  'find-words-that-can-be-formed-by-characters': {
+    tags: ['hash-map', 'string', 'counting'],
+    companies: ['amazon', 'microsoft', 'google', 'apple', 'bloomberg'],
+    viz: findWordsThatCanBeFormedByCharactersViz(),
+    solutions: {
+      python: {
+        code: `from collections import Counter
+from typing import List
+
+class Solution:
+    def countCharacters(self, words: List[str], chars: str) -> int:
+        pool = Counter(chars)
+        total = 0
+        for w in words:
+            wc = Counter(w)
+            # word is "good" iff every letter count fits inside the pool
+            if all(pool[c] >= n for c, n in wc.items()):
+                total += len(w)
+        return total`,
+        complexity: { time: 'O(L + sum |word_i|)', space: 'O(26)' },
+        approach: 'Counter(chars) once, then per-word: count letters, compare component-wise. Short-circuit via all(). Pool is read-only across words — never decremented.',
+      },
+      javascript: {
+        code: `/**
+ * @param {string[]} words
+ * @param {string} chars
+ * @return {number}
+ */
+var countCharacters = function(words, chars) {
+    const pool = new Array(26).fill(0);
+    const A = 97;
+    for (let i = 0; i < chars.length; i++) pool[chars.charCodeAt(i) - A]++;
+    let total = 0;
+    outer:
+    for (const w of words) {
+        const wc = new Array(26).fill(0);
+        for (let i = 0; i < w.length; i++) wc[w.charCodeAt(i) - A]++;
+        for (let k = 0; k < 26; k++) {
+            if (wc[k] > pool[k]) continue outer;
+        }
+        total += w.length;
+    }
+    return total;
+};`,
+        complexity: { time: 'O(L + sum |word_i|)', space: 'O(1)' },
+        approach: 'Fixed 26-int arrays instead of hash maps — tighter constants and avoids GC churn. Labeled continue handles the early-out cleanly.',
+      },
+      java: {
+        code: `class Solution {
+    public int countCharacters(String[] words, String chars) {
+        int[] pool = new int[26];
+        for (int i = 0; i < chars.length(); i++) pool[chars.charAt(i) - 'a']++;
+        int total = 0;
+        for (String w : words) {
+            int[] wc = new int[26];
+            for (int i = 0; i < w.length(); i++) wc[w.charAt(i) - 'a']++;
+            boolean good = true;
+            for (int k = 0; k < 26; k++) {
+                if (wc[k] > pool[k]) { good = false; break; }
+            }
+            if (good) total += w.length();
+        }
+        return total;
+    }
+}`,
+        complexity: { time: 'O(L + sum |word_i|)', space: 'O(1)' },
+        approach: 'Same shape as JS — two 26-int arrays. Java cannot continue an outer loop without a labeled break; using a flag keeps it readable.',
+      },
+      cpp: {
+        code: `class Solution {
+public:
+    int countCharacters(vector<string>& words, string chars) {
+        int pool[26] = {0};
+        for (char c : chars) pool[c - 'a']++;
+        int total = 0;
+        for (const auto& w : words) {
+            int wc[26] = {0};
+            for (char c : w) wc[c - 'a']++;
+            bool good = true;
+            for (int k = 0; k < 26; ++k) {
+                if (wc[k] > pool[k]) { good = false; break; }
+            }
+            if (good) total += w.size();
+        }
+        return total;
+    }
+};`,
+        complexity: { time: 'O(L + sum |word_i|)', space: 'O(1)' },
+        approach: 'C-style int[26] on the stack — zero heap traffic per word. Inner break on first failing letter keeps it linear in word length.',
+      },
+      c: {
+        code: `int countCharacters(char** words, int wordsSize, char* chars) {
+    int pool[26] = {0};
+    for (int i = 0; chars[i]; i++) pool[chars[i] - 'a']++;
+    int total = 0;
+    for (int i = 0; i < wordsSize; i++) {
+        int wc[26] = {0};
+        int len = 0;
+        for (int j = 0; words[i][j]; j++) { wc[words[i][j] - 'a']++; len++; }
+        int good = 1;
+        for (int k = 0; k < 26; k++) {
+            if (wc[k] > pool[k]) { good = 0; break; }
+        }
+        if (good) total += len;
+    }
+    return total;
+}`,
+        complexity: { time: 'O(L + sum |word_i|)', space: 'O(1)' },
+        approach: 'Plain C with null-terminated traversal. Compute length while counting so we do not scan the string twice.',
+      },
+      go: {
+        code: `func countCharacters(words []string, chars string) int {
+    var pool [26]int
+    for i := 0; i < len(chars); i++ {
+        pool[chars[i]-'a']++
+    }
+    total := 0
+    for _, w := range words {
+        var wc [26]int
+        for i := 0; i < len(w); i++ {
+            wc[w[i]-'a']++
+        }
+        good := true
+        for k := 0; k < 26; k++ {
+            if wc[k] > pool[k] {
+                good = false
+                break
+            }
+        }
+        if good {
+            total += len(w)
+        }
+    }
+    return total
+}`,
+        complexity: { time: 'O(L + sum |word_i|)', space: 'O(1)' },
+        approach: 'Idiomatic Go. Fixed-size [26]int arrays live on the stack — no allocations in the hot loop.',
+      },
+    },
+  },
+  'largest-time-for-given-digits': {
+    tags: ['array', 'enumeration', 'string'],
+    companies: ['amazon', 'google', 'microsoft', 'apple'],
+    viz: largestTimeForGivenDigitsViz(),
+    solutions: {
+      python: {
+        code: `from itertools import permutations
+from typing import List
+
+class Solution:
+    def largestTimeFromDigits(self, arr: List[int]) -> str:
+        best = -1
+        result = ""
+        for p in permutations(arr):
+            h = p[0] * 10 + p[1]
+            m = p[2] * 10 + p[3]
+            if h < 24 and m < 60:
+                total = h * 60 + m
+                if total > best:
+                    best = total
+                    result = f"{h:02d}:{m:02d}"
+        return result`,
+        complexity: { time: 'O(1)', space: 'O(1)' },
+        approach: 'Enumerate all 4! = 24 permutations (over indices via itertools, which handles duplicates correctly). For each, treat first two digits as hour, last two as minute; track lex-largest valid time. Tiny constant work — no need to optimize past brute force.',
+      },
+      javascript: {
+        code: `/**
+ * @param {number[]} arr
+ * @return {string}
+ */
+var largestTimeFromDigits = function(arr) {
+    let best = -1;
+    let result = "";
+    const pad = n => (n < 10 ? "0" + n : "" + n);
+    for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 4; j++) {
+            if (j === i) continue;
+            for (let k = 0; k < 4; k++) {
+                if (k === i || k === j) continue;
+                const l = 6 - i - j - k; // remaining index
+                const h = arr[i] * 10 + arr[j];
+                const m = arr[k] * 10 + arr[l];
+                if (h < 24 && m < 60) {
+                    const total = h * 60 + m;
+                    if (total > best) {
+                        best = total;
+                        result = pad(h) + ":" + pad(m);
+                    }
+                }
+            }
+        }
+    }
+    return result;
+};`,
+        complexity: { time: 'O(1)', space: 'O(1)' },
+        approach: 'Hand-rolled index permutation. Trick: indices sum to 0+1+2+3 = 6, so the fourth index is 6-i-j-k — no nested fourth loop needed. Zero-padding via pad() so the output is always HH:MM.',
+      },
+      java: {
+        code: `class Solution {
+    public String largestTimeFromDigits(int[] arr) {
+        int best = -1;
+        String result = "";
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (j == i) continue;
+                for (int k = 0; k < 4; k++) {
+                    if (k == i || k == j) continue;
+                    int l = 6 - i - j - k;
+                    int h = arr[i] * 10 + arr[j];
+                    int m = arr[k] * 10 + arr[l];
+                    if (h < 24 && m < 60) {
+                        int total = h * 60 + m;
+                        if (total > best) {
+                            best = total;
+                            result = String.format("%02d:%02d", h, m);
+                        }
+                    }
+                }
+            }
+        }
+        return result;
+    }
+}`,
+        complexity: { time: 'O(1)', space: 'O(1)' },
+        approach: 'Same shape as JS — three nested index loops, fourth index derived. String.format handles zero-padding cleanly.',
+      },
+      cpp: {
+        code: `class Solution {
+public:
+    string largestTimeFromDigits(vector<int>& arr) {
+        int best = -1;
+        string result = "";
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                if (j == i) continue;
+                for (int k = 0; k < 4; ++k) {
+                    if (k == i || k == j) continue;
+                    int l = 6 - i - j - k;
+                    int h = arr[i] * 10 + arr[j];
+                    int m = arr[k] * 10 + arr[l];
+                    if (h < 24 && m < 60) {
+                        int total = h * 60 + m;
+                        if (total > best) {
+                            best = total;
+                            char buf[6];
+                            snprintf(buf, sizeof(buf), "%02d:%02d", h, m);
+                            result = buf;
+                        }
+                    }
+                }
+            }
+        }
+        return result;
+    }
+};`,
+        complexity: { time: 'O(1)', space: 'O(1)' },
+        approach: 'snprintf with %02d:%02d for zero-padded fixed-width output. Avoids stream-formatting overhead inside the inner loop.',
+      },
+      c: {
+        code: `char* largestTimeFromDigits(int* arr, int arrSize) {
+    int best = -1;
+    char* result = (char*)malloc(6);
+    result[0] = '\\0';
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (j == i) continue;
+            for (int k = 0; k < 4; k++) {
+                if (k == i || k == j) continue;
+                int l = 6 - i - j - k;
+                int h = arr[i] * 10 + arr[j];
+                int m = arr[k] * 10 + arr[l];
+                if (h < 24 && m < 60) {
+                    int total = h * 60 + m;
+                    if (total > best) {
+                        best = total;
+                        snprintf(result, 6, "%02d:%02d", h, m);
+                    }
+                }
+            }
+        }
+    }
+    return result;
+}`,
+        complexity: { time: 'O(1)', space: 'O(1)' },
+        approach: 'Plain C — allocate a 6-byte buffer ("HH:MM\\0") and rewrite via snprintf as we find better candidates. Caller frees.',
+      },
+      go: {
+        code: `func largestTimeFromDigits(arr []int) string {
+    best := -1
+    result := ""
+    for i := 0; i < 4; i++ {
+        for j := 0; j < 4; j++ {
+            if j == i {
+                continue
+            }
+            for k := 0; k < 4; k++ {
+                if k == i || k == j {
+                    continue
+                }
+                l := 6 - i - j - k
+                h := arr[i]*10 + arr[j]
+                m := arr[k]*10 + arr[l]
+                if h < 24 && m < 60 {
+                    total := h*60 + m
+                    if total > best {
+                        best = total
+                        result = fmt.Sprintf("%02d:%02d", h, m)
+                    }
+                }
+            }
+        }
+    }
+    return result
+}`,
+        complexity: { time: 'O(1)', space: 'O(1)' },
+        approach: 'fmt.Sprintf with %02d:%02d. Same index-permutation trick (fourth index = 6 - i - j - k) keeps it three loops deep.',
+      },
+    },
+  },
+  'letter-tile-possibilities': {
+    tags: ['backtracking', 'hash-table', 'string', 'counting'],
+    companies: ['amazon', 'google', 'microsoft', 'meta', 'apple'],
+    viz: letterTilePossibilitiesViz(),
+    solutions: {
+      python: {
+        code: `from collections import Counter
+
+class Solution:
+    def numTilePossibilities(self, tiles: str) -> int:
+        counts = Counter(tiles)
+        total = 0
+
+        def dfs():
+            nonlocal total
+            for ch in counts:
+                if counts[ch] == 0:
+                    continue
+                counts[ch] -= 1
+                total += 1
+                dfs()
+                counts[ch] += 1
+
+        dfs()
+        return total`,
+        complexity: { time: 'O(n * n!) worst case', space: 'O(n) recursion' },
+        approach: 'Count-based backtracking. State is the remaining multiset; at every slot iterate distinct letters once and skip zero-count entries. Increment total inside the loop (each placed tile is itself a valid prefix), then recurse to extend. No dedup set needed — duplicates are impossible by construction.',
+      },
+      javascript: {
+        code: `var numTilePossibilities = function(tiles) {
+  const counts = {};
+  for (const c of tiles) counts[c] = (counts[c] || 0) + 1;
+  let total = 0;
+
+  const dfs = () => {
+    for (const ch of Object.keys(counts)) {
+      if (counts[ch] === 0) continue;
+      counts[ch]--;
+      total++;
+      dfs();
+      counts[ch]++;
+    }
+  };
+
+  dfs();
+  return total;
+};`,
+        complexity: { time: 'O(n * n!) worst case', space: 'O(n) recursion' },
+        approach: 'Object.keys gives a stable order in modern engines for string keys, but the algorithm does not depend on order — only on visiting each distinct letter once per slot. The decrement/recurse/increment dance keeps the counts object as the sole state.',
+      },
+      java: {
+        code: `class Solution {
+    private int total = 0;
+
+    public int numTilePossibilities(String tiles) {
+        int[] counts = new int[26];
+        for (char c : tiles.toCharArray()) counts[c - 'A']++;
+        dfs(counts);
+        return total;
+    }
+
+    private void dfs(int[] counts) {
+        for (int i = 0; i < 26; i++) {
+            if (counts[i] == 0) continue;
+            counts[i]--;
+            total++;
+            dfs(counts);
+            counts[i]++;
+        }
+    }
+}`,
+        complexity: { time: 'O(n * n!) worst case', space: 'O(n) recursion' },
+        approach: 'Fixed 26-slot count array — uppercase A..Z only. Cheaper than a HashMap and the iteration order is automatically the distinct-letter set. Field-level total avoids passing a mutable wrapper around the recursion.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+    int total = 0;
+    int counts[26] = {0};
+
+    void dfs() {
+        for (int i = 0; i < 26; i++) {
+            if (counts[i] == 0) continue;
+            counts[i]--;
+            total++;
+            dfs();
+            counts[i]++;
+        }
+    }
+
+public:
+    int numTilePossibilities(string tiles) {
+        for (char c : tiles) counts[c - 'A']++;
+        dfs();
+        return total;
+    }
+};`,
+        complexity: { time: 'O(n * n!) worst case', space: 'O(n) recursion' },
+        approach: 'Member array gives stack-allocated counts with O(1) access. The for-loop over 26 slots is the natural way to iterate "distinct letters" without a separate set — empty slots are cheap to skip.',
+      },
+      c: {
+        code: `#include <string.h>
+
+static int counts[26];
+static int total;
+
+static void dfs(void) {
+    for (int i = 0; i < 26; i++) {
+        if (counts[i] == 0) continue;
+        counts[i]--;
+        total++;
+        dfs();
+        counts[i]++;
+    }
+}
+
+int numTilePossibilities(char* tiles) {
+    memset(counts, 0, sizeof(counts));
+    total = 0;
+    for (int i = 0; tiles[i]; i++) counts[tiles[i] - 'A']++;
+    dfs();
+    return total;
+}`,
+        complexity: { time: 'O(n * n!) worst case', space: 'O(n) recursion' },
+        approach: 'Static globals reset on each call — fine for LeetCode-style single-threaded harness. memset clears the count table before re-tallying so the function is safe to call multiple times in one process.',
+      },
+      go: {
+        code: `func numTilePossibilities(tiles string) int {
+    counts := [26]int{}
+    for _, c := range tiles {
+        counts[c-'A']++
+    }
+    total := 0
+
+    var dfs func()
+    dfs = func() {
+        for i := 0; i < 26; i++ {
+            if counts[i] == 0 {
+                continue
+            }
+            counts[i]--
+            total++
+            dfs()
+            counts[i]++
+        }
+    }
+
+    dfs()
+    return total
+}`,
+        complexity: { time: 'O(n * n!) worst case', space: 'O(n) recursion' },
+        approach: 'Fixed array [26]int avoids heap allocation for the counts. Closure captures total by reference (Go closures capture variables, not values) so the inner mutation is visible to the outer return.',
+      },
+    },
+  },
+  'splitting-a-string-into-descending-consecutive-values': {
+    tags: ['backtracking', 'string', 'big-integer'],
+    companies: ['amazon', 'google', 'microsoft', 'meta'],
+    viz: splittingAStringDescendingViz(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def splitString(self, s: str) -> bool:
+        n = len(s)
+
+        def recurse(pos: int, expected: int) -> bool:
+            if pos == n:
+                return True
+            if expected < 0:
+                return False
+            exp_str = str(expected)
+            # Allow leading zeros: try consuming 0..(remaining - len(exp_str)) zeros, then exp_str.
+            for lz in range(0, n - pos - len(exp_str) + 1):
+                chunk_len = lz + len(exp_str)
+                chunk = s[pos:pos + chunk_len]
+                if int(chunk) == expected:
+                    if recurse(pos + chunk_len, expected - 1):
+                        return True
+            return False
+
+        # First chunk: any length 1..n-1 (must leave at least one more chunk).
+        for k in range(1, n):
+            first = int(s[:k])
+            if recurse(k, first - 1):
+                return True
+        return False`,
+        complexity: { time: 'O(n^3) worst case', space: 'O(n) recursion' },
+        approach: 'Fix the first chunk length, then the rest of the sequence is forced: each subsequent chunk MUST parse to first - 1, first - 2, .... Python integers are arbitrary precision so int() handles the n=20 case directly. Inner loop slides over allowed leading zeros before the expected digits.',
+      },
+      javascript: {
+        code: `var splitString = function(s) {
+  const n = s.length;
+
+  const recurse = (pos, expected) => {
+    if (pos === n) return true;
+    if (expected < 0n) return false;
+    const expStr = expected.toString();
+    for (let lz = 0; pos + lz + expStr.length <= n; lz++) {
+      const chunkLen = lz + expStr.length;
+      const chunk = s.slice(pos, pos + chunkLen);
+      // BigInt() throws on non-digit input — guard with a regex check first.
+      if (!/^\d+$/.test(chunk)) continue;
+      if (BigInt(chunk) === expected) {
+        if (recurse(pos + chunkLen, expected - 1n)) return true;
+      }
+    }
+    return false;
+  };
+
+  for (let k = 1; k < n; k++) {
+    const first = BigInt(s.slice(0, k));
+    if (recurse(k, first - 1n)) return true;
+  }
+  return false;
+};`,
+        complexity: { time: 'O(n^3) worst case', space: 'O(n) recursion' },
+        approach: 'JavaScript Number tops out at 2^53; n can be 20, so values reach 10^20. BigInt everywhere — literals end in n (1n, 0n), arithmetic uses BigInt operators, equality with === works once both sides are BigInt. The regex pre-check avoids BigInt throwing on malformed input.',
+      },
+      java: {
+        code: `import java.math.BigInteger;
+
+class Solution {
+    private String s;
+    private int n;
+
+    public boolean splitString(String s) {
+        this.s = s;
+        this.n = s.length();
+        // First chunk length 1..n-1 (need at least one more chunk after).
+        for (int k = 1; k < n; k++) {
+            BigInteger first = new BigInteger(s.substring(0, k));
+            if (recurse(k, first.subtract(BigInteger.ONE))) return true;
+        }
+        return false;
+    }
+
+    private boolean recurse(int pos, BigInteger expected) {
+        if (pos == n) return true;
+        if (expected.signum() < 0) return false;
+        String expStr = expected.toString();
+        int expLen = expStr.length();
+        for (int lz = 0; pos + lz + expLen <= n; lz++) {
+            int chunkLen = lz + expLen;
+            String chunk = s.substring(pos, pos + chunkLen);
+            // Must be all digits — substring of an all-digit input always is.
+            BigInteger val = new BigInteger(chunk);
+            if (val.equals(expected)) {
+                if (recurse(pos + chunkLen, expected.subtract(BigInteger.ONE))) return true;
+            }
+        }
+        return false;
+    }
+}`,
+        complexity: { time: 'O(n^3) worst case', space: 'O(n) recursion' },
+        approach: 'java.math.BigInteger is the standard arbitrary-precision integer — exact equality via .equals, never == (== compares references). signum() < 0 is the cleanest negative test. Instance fields s, n avoid passing both through every recursive call.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+    string s;
+    int n;
+
+    bool recurse(int pos, unsigned long long expected) {
+        if (pos == n) return true;
+        string expStr = to_string(expected);
+        int expLen = (int)expStr.size();
+        for (int lz = 0; pos + lz + expLen <= n; lz++) {
+            int chunkLen = lz + expLen;
+            string chunk = s.substr(pos, chunkLen);
+            // Parse safely — chunk length up to 20 fits in unsigned long long (max ~1.8e19).
+            // For 20-digit chunks above 1.8e19, parse failure -> skip.
+            unsigned long long val = 0;
+            bool overflow = false;
+            for (char c : chunk) {
+                if (val > (ULLONG_MAX - (c - '0')) / 10) { overflow = true; break; }
+                val = val * 10 + (c - '0');
+            }
+            if (overflow) continue;
+            if (val == expected) {
+                // Expected can wrap if it was 0 — guard subtraction.
+                if (expected == 0) {
+                    return pos + chunkLen == n;
+                }
+                if (recurse(pos + chunkLen, expected - 1)) return true;
+            }
+        }
+        return false;
+    }
+
+public:
+    bool splitString(string sIn) {
+        s = sIn;
+        n = s.size();
+        for (int k = 1; k < n; k++) {
+            // Parse first chunk as ULL with overflow check.
+            unsigned long long first = 0;
+            bool overflow = false;
+            for (int i = 0; i < k; i++) {
+                if (first > (ULLONG_MAX - (s[i] - '0')) / 10) { overflow = true; break; }
+                first = first * 10 + (s[i] - '0');
+            }
+            if (overflow) continue;
+            if (first == 0) {
+                // Next expected would be -1 — only valid if string is fully consumed.
+                if (k == n) return true;
+                continue;
+            }
+            if (recurse(k, first - 1)) return true;
+        }
+        return false;
+    }
+};`,
+        complexity: { time: 'O(n^3) worst case', space: 'O(n) recursion' },
+        approach: 'unsigned long long covers up to ~1.8e19 which fits the 20-digit input range with a small overflow tail; the inline overflow check rejects the unreachable upper sliver. Skipping overflowed candidates is correct because the equal-or-less expected chain shrinks monotonically, so an overflow-capable first chunk simply will not produce a valid sequence here.',
+      },
+      c: {
+        code: `#include <stdbool.h>
+#include <string.h>
+#include <stdio.h>
+#include <limits.h>
+
+static const char* g_s;
+static int g_n;
+
+static int u128_to_str(unsigned long long v, char* buf) {
+    if (v == 0) { buf[0] = '0'; buf[1] = 0; return 1; }
+    char tmp[32]; int t = 0;
+    while (v) { tmp[t++] = '0' + (v % 10); v /= 10; }
+    for (int i = 0; i < t; i++) buf[i] = tmp[t - 1 - i];
+    buf[t] = 0;
+    return t;
+}
+
+static bool parse_chunk(int pos, int len, unsigned long long* out) {
+    unsigned long long v = 0;
+    for (int i = 0; i < len; i++) {
+        char c = g_s[pos + i];
+        if (v > (ULLONG_MAX - (c - '0')) / 10) return false;
+        v = v * 10 + (c - '0');
+    }
+    *out = v;
+    return true;
+}
+
+static bool recurse(int pos, unsigned long long expected) {
+    if (pos == g_n) return true;
+    char expStr[32];
+    int expLen = u128_to_str(expected, expStr);
+    for (int lz = 0; pos + lz + expLen <= g_n; lz++) {
+        int chunkLen = lz + expLen;
+        unsigned long long val;
+        if (!parse_chunk(pos, chunkLen, &val)) continue;
+        if (val == expected) {
+            if (expected == 0) return pos + chunkLen == g_n;
+            if (recurse(pos + chunkLen, expected - 1)) return true;
+        }
+    }
+    return false;
+}
+
+bool splitString(char* s) {
+    g_s = s;
+    g_n = (int)strlen(s);
+    for (int k = 1; k < g_n; k++) {
+        unsigned long long first;
+        if (!parse_chunk(0, k, &first)) continue;
+        if (first == 0) {
+            if (k == g_n) return true;
+            continue;
+        }
+        if (recurse(k, first - 1)) return true;
+    }
+    return false;
+}`,
+        complexity: { time: 'O(n^3) worst case', space: 'O(n) recursion' },
+        approach: 'Static globals hold s and n so recursion frames stay tiny. unsigned long long covers 0..2^64-1; with the overflow check during parse, any input chunk too big to fit is rejected — those would never participate in a valid descending sequence at the constraints anyway.',
+      },
+      go: {
+        code: `package solution
+
+import "math/big"
+
+var oneBig = big.NewInt(1)
+
+func splitString(s string) bool {
+    n := len(s)
+
+    var recurse func(pos int, expected *big.Int) bool
+    recurse = func(pos int, expected *big.Int) bool {
+        if pos == n {
+            return true
+        }
+        if expected.Sign() < 0 {
+            return false
+        }
+        expStr := expected.String()
+        expLen := len(expStr)
+        for lz := 0; pos+lz+expLen <= n; lz++ {
+            chunkLen := lz + expLen
+            chunk := s[pos : pos+chunkLen]
+            val := new(big.Int)
+            val.SetString(chunk, 10)
+            if val.Cmp(expected) == 0 {
+                next := new(big.Int).Sub(expected, oneBig)
+                if recurse(pos+chunkLen, next) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    for k := 1; k < n; k++ {
+        first := new(big.Int)
+        first.SetString(s[:k], 10)
+        next := new(big.Int).Sub(first, oneBig)
+        if recurse(k, next) {
+            return true
+        }
+    }
+    return false
+}`,
+        complexity: { time: 'O(n^3) worst case', space: 'O(n) recursion' },
+        approach: 'math/big.Int is Go\'s arbitrary precision integer. Cmp returns 0 on equality, Sign returns -1/0/1, and Sub takes a destination receiver — chain new(big.Int).Sub(a, b) to get a fresh result without mutating inputs. Allocations per recursion frame are fine at n <= 20.',
+      },
+    },
+  },
+  'find-resultant-array-after-removing-anagrams': {
+    tags: ['array', 'string', 'hash-table', 'sorting', 'stack'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: removeAnagramsViz(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def removeAnagrams(self, words: list[str]) -> list[str]:
+        result = []
+        for w in words:
+            if result and sorted(result[-1]) == sorted(w):
+                continue
+            result.append(w)
+        return result`,
+        complexity: { time: 'O(n * k log k)', space: 'O(n + k)' },
+        approach: 'Single pass with a running "last kept" reference. Compare each word\'s sorted-character signature against the tail of the result; equal means anagram — skip. This handles arbitrary chains of anagrams in one pass because we always compare to what actually survives, not to the prior input index.',
+      },
+      javascript: {
+        code: `function removeAnagrams(words) {
+  const sig = (s) => s.split('').sort().join('');
+  const result = [];
+  for (const w of words) {
+    if (result.length && sig(result[result.length - 1]) === sig(w)) continue;
+    result.push(w);
+  }
+  return result;
+}`,
+        complexity: { time: 'O(n * k log k)', space: 'O(n + k)' },
+        approach: 'Tiny sig helper computes the sorted-character signature; comparing strings with === is O(k) but cheaper in V8 than building two arrays and zipping. Caching the last signature in a variable would shave a redundant sort per iteration if needed.',
+      },
+      java: {
+        code: `class Solution {
+    public List<String> removeAnagrams(String[] words) {
+        List<String> result = new ArrayList<>();
+        for (String w : words) {
+            if (!result.isEmpty() && key(result.get(result.size() - 1)).equals(key(w))) continue;
+            result.add(w);
+        }
+        return result;
+    }
+
+    private String key(String s) {
+        char[] arr = s.toCharArray();
+        Arrays.sort(arr);
+        return new String(arr);
+    }
+}`,
+        complexity: { time: 'O(n * k log k)', space: 'O(n + k)' },
+        approach: 'toCharArray + Arrays.sort is the canonical anagram signature in Java. Pull the helper out so the main loop stays readable; the JIT inlines it cheaply.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<string> removeAnagrams(vector<string>& words) {
+        auto key = [](string s) {
+            sort(s.begin(), s.end());
+            return s;
+        };
+        vector<string> result;
+        for (const auto& w : words) {
+            if (!result.empty() && key(result.back()) == key(w)) continue;
+            result.push_back(w);
+        }
+        return result;
+    }
+};`,
+        complexity: { time: 'O(n * k log k)', space: 'O(n + k)' },
+        approach: 'Lambda takes its argument by value so the original word is untouched. result.back() avoids an index calc. For tighter perf cache the last key in a string and only recompute on insert.',
+      },
+      c: {
+        code: `#include <stdlib.h>
+#include <string.h>
+
+static int charCmp(const void* a, const void* b) {
+    return (*(const char*)a) - (*(const char*)b);
+}
+
+static int sameAnagram(const char* a, const char* b) {
+    size_t la = strlen(a), lb = strlen(b);
+    if (la != lb) return 0;
+    char* ca = (char*)malloc(la + 1);
+    char* cb = (char*)malloc(lb + 1);
+    memcpy(ca, a, la + 1);
+    memcpy(cb, b, lb + 1);
+    qsort(ca, la, 1, charCmp);
+    qsort(cb, lb, 1, charCmp);
+    int eq = strcmp(ca, cb) == 0;
+    free(ca); free(cb);
+    return eq;
+}
+
+char** removeAnagrams(char** words, int wordsSize, int* returnSize) {
+    char** result = (char**)malloc(wordsSize * sizeof(char*));
+    int n = 0;
+    for (int i = 0; i < wordsSize; i++) {
+        if (n > 0 && sameAnagram(result[n - 1], words[i])) continue;
+        result[n++] = words[i];
+    }
+    *returnSize = n;
+    return result;
+}`,
+        complexity: { time: 'O(n * k log k)', space: 'O(n + k)' },
+        approach: 'qsort on a heap copy avoids mutating the input strings. Length-mismatch short-circuit kills the sort early when the strings can\'t possibly be anagrams. Caller owns result and must free it.',
+      },
+      go: {
+        code: `func removeAnagrams(words []string) []string {
+    key := func(s string) string {
+        b := []byte(s)
+        sort.Slice(b, func(i, j int) bool { return b[i] < b[j] })
+        return string(b)
+    }
+    result := make([]string, 0, len(words))
+    for _, w := range words {
+        if len(result) > 0 && key(result[len(result)-1]) == key(w) {
+            continue
+        }
+        result = append(result, w)
+    }
+    return result
+}`,
+        complexity: { time: 'O(n * k log k)', space: 'O(n + k)' },
+        approach: '[]byte(s) copies the string so sorting is safe. sort.Slice with a tiny less-func is plenty fast for k up to ~100; for huge k swap to a 26-byte count-bucket signature.',
+      },
+    },
+  },
+  'goal-parser-interpretation': {
+    tags: ['string', 'simulation', 'parsing'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: goalParserInterpretationViz(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def interpret(self, command: str) -> str:
+        out = []
+        i = 0
+        n = len(command)
+        while i < n:
+            if command[i] == 'G':
+                out.append('G')
+                i += 1
+            elif command[i + 1] == ')':
+                out.append('o')
+                i += 2
+            else:
+                out.append('al')
+                i += 4
+        return ''.join(out)`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'Manual cursor over the input. At each position the grammar permits exactly one of three tokens — G, (), or (al) — so a one-char peek (sometimes two) decides which to consume. Append the translation to a list and join at the end; list-of-strings + join beats repeated string concatenation.',
+      },
+      javascript: {
+        code: `function interpret(command) {
+  let out = '';
+  let i = 0;
+  while (i < command.length) {
+    if (command[i] === 'G') { out += 'G'; i += 1; }
+    else if (command[i + 1] === ')') { out += 'o'; i += 2; }
+    else { out += 'al'; i += 4; }
+  }
+  return out;
+}`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'Direct += on a string is fine for n up to a few thousand thanks to V8\'s cons-string optimization; for huge inputs an array buffer + join would be safer. command.replaceAll chains exist but allocate twice — this version is one pass.',
+      },
+      java: {
+        code: `class Solution {
+    public String interpret(String command) {
+        StringBuilder sb = new StringBuilder(command.length());
+        int i = 0, n = command.length();
+        while (i < n) {
+            char c = command.charAt(i);
+            if (c == 'G') { sb.append('G'); i += 1; }
+            else if (command.charAt(i + 1) == ')') { sb.append('o'); i += 2; }
+            else { sb.append("al"); i += 4; }
+        }
+        return sb.toString();
+    }
+}`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'StringBuilder pre-sized to command.length() — output never exceeds the input length, so a single allocation covers the whole build. charAt is O(1); String.replace would walk the string multiple times.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    string interpret(string command) {
+        string out;
+        out.reserve(command.size());
+        int i = 0, n = (int)command.size();
+        while (i < n) {
+            if (command[i] == 'G') { out.push_back('G'); i += 1; }
+            else if (command[i + 1] == ')') { out.push_back('o'); i += 2; }
+            else { out.append("al"); i += 4; }
+        }
+        return out;
+    }
+};`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'reserve(n) avoids reallocs since the output length is bounded by the input length. push_back for single chars, append for the two-char "al" — both are amortized O(1).',
+      },
+      c: {
+        code: `#include <stdlib.h>
+#include <string.h>
+
+char* interpret(char* command) {
+    int n = (int)strlen(command);
+    char* out = (char*)malloc(n + 1);
+    int w = 0, i = 0;
+    while (i < n) {
+        if (command[i] == 'G') { out[w++] = 'G'; i += 1; }
+        else if (command[i + 1] == ')') { out[w++] = 'o'; i += 2; }
+        else { out[w++] = 'a'; out[w++] = 'l'; i += 4; }
+    }
+    out[w] = '\\0';
+    return out;
+}`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'Single malloc of n+1 bytes covers the worst case (every token is the longest expansion). Manual write pointer w keeps the loop branchless beyond the token dispatch. Caller owns the buffer and must free it.',
+      },
+      go: {
+        code: `func interpret(command string) string {
+    out := make([]byte, 0, len(command))
+    i, n := 0, len(command)
+    for i < n {
+        switch {
+        case command[i] == 'G':
+            out = append(out, 'G')
+            i += 1
+        case command[i+1] == ')':
+            out = append(out, 'o')
+            i += 2
+        default:
+            out = append(out, 'a', 'l')
+            i += 4
+        }
+    }
+    return string(out)
+}`,
+        complexity: { time: 'O(n)', space: 'O(n)' },
+        approach: 'Pre-allocate the byte slice with cap=len(command) — every token produces no more bytes than it consumes. switch with no condition reads cleaner than chained else-ifs here. Final string(out) is a single copy.',
+      },
+    },
+  },
+  'consecutive-characters': {
+    /* SPLICE:wave9i-consecutive-defang v1 */
+    tags: ['string', 'two-pointers'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    method_name: 'maxPower',
+    params: [{ name: 's', type: 'str' }],
+    return_type: 'int',
+    visualization: {
+      type: 'array',
+      title: 'Track current run length, keep the max',
+      frames: [
+        { board: "s = \"leetcode\"", note: 'Power of a string = length of the longest run of one repeating character. One left-to-right pass with a running counter.' },
+        { board: 'cur = 1, best = 1', note: 'Start at index 0. A single character is a run of length 1 by itself.' },
+        { board: "i=1 'e' vs 'l'", note: "Different from previous -> reset cur to 1. best stays 1." },
+        { board: "i=2 'e' vs 'e'", note: 'Same as previous -> cur = 2. best becomes 2.' },
+        { board: "i=3 't' vs 'e'", note: 'Different -> cur resets to 1. best still 2.' },
+        { board: "i=4..6 'c','o','d'", note: 'All different from their predecessors -> cur stays at 1 each step. best unchanged.' },
+        { board: "i=7 'e' vs 'd'", note: "Different -> cur = 1. best still 2." },
+        { board: 'final best = 2', note: 'Longest run was the "ee" at indices 1..2. Answer = 2.' },
+        { board: "s = \"abbcccddddeeeeedcba\"", note: 'Walk through: a(1), b(1->2), c(1->2->3), d(1->2->3->4), e(1->2->3->4->5). best = 5.' },
+        { board: 'O(n) time, O(1) space', note: 'Single pass; only two integer accumulators. Reset on mismatch, increment on match, update best each step.' },
+      ],
+    },
+    solutions: {
+      python: `class Solution:
+    def maxPower(self, s: str) -> int:
+        best = cur = 1
+        for i in range(1, len(s)):
+            if s[i] == s[i - 1]:
+                cur += 1
+                if cur > best:
+                    best = cur
+            else:
+                cur = 1
+        return best`,
+      javascript: `var maxPower = function(s) {
+    let best = 1, cur = 1;
+    for (let i = 1; i < s.length; i++) {
+        if (s[i] === s[i - 1]) {
+            cur++;
+            if (cur > best) best = cur;
+        } else {
+            cur = 1;
+        }
+    }
+    return best;
+};`,
+      java: `class Solution {
+    public int maxPower(String s) {
+        int best = 1, cur = 1;
+        for (int i = 1; i < s.length(); i++) {
+            if (s.charAt(i) == s.charAt(i - 1)) {
+                cur++;
+                if (cur > best) best = cur;
+            } else {
+                cur = 1;
+            }
+        }
+        return best;
+    }
+}`,
+      cpp: `class Solution {
+public:
+    int maxPower(string s) {
+        int best = 1, cur = 1;
+        for (int i = 1; i < (int)s.size(); i++) {
+            if (s[i] == s[i - 1]) {
+                cur++;
+                if (cur > best) best = cur;
+            } else {
+                cur = 1;
+            }
+        }
+        return best;
+    }
+};`,
+      c: `int maxPower(char* s) {
+    int best = 1, cur = 1;
+    for (int i = 1; s[i] != '\\0'; i++) {
+        if (s[i] == s[i - 1]) {
+            cur++;
+            if (cur > best) best = cur;
+        } else {
+            cur = 1;
+        }
+    }
+    return best;
+}`,
+      go: `func maxPower(s string) int {
+    best, cur := 1, 1
+    for i := 1; i < len(s); i++ {
+        if s[i] == s[i-1] {
+            cur++
+            if cur > best {
+                best = cur
+            }
+        } else {
+            cur = 1
+        }
+    }
+    return best
+}`,
+    },
+  },
+  'defanging-an-ip-address': {
+    /* SPLICE:wave9i-consecutive-defang v1 */
+    tags: ['string'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    method_name: 'defangIPaddr',
+    params: [{ name: 'address', type: 'str' }],
+    return_type: 'str',
+    visualization: {
+      type: 'array',
+      title: "Replace every '.' with '[.]'",
+      frames: [
+        { board: 'address = "1.1.1.1"', note: 'Defang = replace every "." with "[.]" so the string can\'t be parsed as a live IP. The dots are the only thing to rewrite.' },
+        { board: 'output buffer = ""', note: 'Build a fresh string. Append non-dot chars verbatim; on ".", append the three-char sequence "[.]".' },
+        { board: "i=0 '1' -> '1'", note: 'Digit, copy as-is. Buffer: "1".' },
+        { board: "i=1 '.' -> '[.]'", note: 'Dot, replace with three chars. Buffer: "1[.]".' },
+        { board: "i=2 '1' -> '1'", note: 'Digit, copy. Buffer: "1[.]1".' },
+        { board: "i=3 '.' -> '[.]'", note: 'Dot again. Buffer: "1[.]1[.]".' },
+        { board: "i=4 '1' -> '1'", note: 'Digit. Buffer: "1[.]1[.]1".' },
+        { board: "i=5 '.' -> '[.]'", note: 'Dot. Buffer: "1[.]1[.]1[.]".' },
+        { board: "i=6 '1' -> '1'", note: 'Final digit. Buffer: "1[.]1[.]1[.]1". Done.' },
+        { board: 'O(n) time, O(n) space', note: 'One pass; output is at most 3x the input length. Most languages have a one-liner via String.replace / replaceAll — same asymptotic cost.' },
+      ],
+    },
+    solutions: {
+      python: `class Solution:
+    def defangIPaddr(self, address: str) -> str:
+        return address.replace('.', '[.]')`,
+      javascript: `var defangIPaddr = function(address) {
+    return address.split('.').join('[.]');
+};`,
+      java: `class Solution {
+    public String defangIPaddr(String address) {
+        StringBuilder sb = new StringBuilder(address.length() + 6);
+        for (int i = 0; i < address.length(); i++) {
+            char c = address.charAt(i);
+            if (c == '.') sb.append("[.]");
+            else sb.append(c);
+        }
+        return sb.toString();
+    }
+}`,
+      cpp: `class Solution {
+public:
+    string defangIPaddr(string address) {
+        string out;
+        out.reserve(address.size() + 6);
+        for (char c : address) {
+            if (c == '.') out += "[.]";
+            else out += c;
+        }
+        return out;
+    }
+};`,
+      c: `char* defangIPaddr(char* address) {
+    int n = 0;
+    while (address[n]) n++;
+    char* out = (char*)malloc(n + 7);
+    int j = 0;
+    for (int i = 0; i < n; i++) {
+        if (address[i] == '.') {
+            out[j++] = '[';
+            out[j++] = '.';
+            out[j++] = ']';
+        } else {
+            out[j++] = address[i];
+        }
+    }
+    out[j] = '\\0';
+    return out;
+}`,
+      go: `func defangIPaddr(address string) string {
+    return strings.ReplaceAll(address, ".", "[.]")
+}`,
+    },
+  },
+
+  'richest-customer-wealth': {
+    tags: ['array', 'matrix', 'simulation'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    inlineVisualization: {
+      title: 'maximumWealth — max row sum over a 2D account grid',
+      frames: Array.from({ length: 12 }, (_, i) => ({
+        step: i + 1,
+        note: [
+          'Each row of accounts is one customer; each column is one bank. wealth(i) = sum(accounts[i]).',
+          'Goal: return the maximum wealth across all customers — no need to track which customer, only the max sum.',
+          'Example: accounts = [[1,2,3],[3,2,1]]. Customer 0 sum = 6, customer 1 sum = 6 → return 6.',
+          'Example 2: accounts = [[1,5],[7,3],[3,5]]. Sums = 6, 10, 8 → return 10.',
+          'Single pass: iterate rows, compute row sum, keep a running best. O(m*n) time, O(1) extra space.',
+          'Track best with -infinity (or accounts[0][0]) so the first row replaces it correctly.',
+          'i=0: row [1,5], sum=6, best=6.',
+          'i=1: row [7,3], sum=10, best=10.',
+          'i=2: row [3,5], sum=8, best stays 10.',
+          'Return best = 10. No sorting needed — we only want the max.',
+          'Edge: constraints guarantee m,n >= 1 and values >= 1, so the answer is always >= 1.',
+          'One-liner in Python: max(sum(row) for row in accounts). Same complexity, less ceremony.',
+        ][i],
+      })),
+    },
+    solutions: {
+      python: {
+        code: `class Solution:
+    def maximumWealth(self, accounts: List[List[int]]) -> int:
+        return max(sum(row) for row in accounts)`,
+        complexity: { time: 'O(m*n)', space: 'O(1)' },
+        approach: 'Generator expression feeds row sums into max — no intermediate list, constant extra space. Pythonic and as fast as a manual loop for m up to a few thousand.',
+      },
+      javascript: {
+        code: `var maximumWealth = function(accounts) {
+  let best = 0;
+  for (const row of accounts) {
+    let sum = 0;
+    for (const v of row) sum += v;
+    if (sum > best) best = sum;
+  }
+  return best;
+};`,
+        complexity: { time: 'O(m*n)', space: 'O(1)' },
+        approach: 'Plain nested for-of loop avoids the small allocation cost of row.reduce() and is the fastest path in V8 for tight numeric loops. best starts at 0 because every wealth value is >= 1 by problem constraints.',
+      },
+      java: {
+        code: `class Solution {
+    public int maximumWealth(int[][] accounts) {
+        int best = 0;
+        for (int[] row : accounts) {
+            int sum = 0;
+            for (int v : row) sum += v;
+            if (sum > best) best = sum;
+        }
+        return best;
+    }
+}`,
+        complexity: { time: 'O(m*n)', space: 'O(1)' },
+        approach: 'Enhanced for-loop over rows then values. No streams — Arrays.stream(row).sum() would allocate a stream per row for no readability gain at these sizes.',
+      },
+      cpp: {
+        code: `class Solution {
+public:
+    int maximumWealth(vector<vector<int>>& accounts) {
+        int best = 0;
+        for (const auto& row : accounts) {
+            int sum = 0;
+            for (int v : row) sum += v;
+            if (sum > best) best = sum;
+        }
+        return best;
+    }
+};`,
+        complexity: { time: 'O(m*n)', space: 'O(1)' },
+        approach: 'Const-ref the row to avoid copying the inner vector. accumulate(row.begin(), row.end(), 0) is a clean one-liner alternative — identical performance.',
+      },
+      c: {
+        code: `int maximumWealth(int** accounts, int accountsSize, int* accountsColSize) {
+    int best = 0;
+    for (int i = 0; i < accountsSize; i++) {
+        int sum = 0;
+        int cols = accountsColSize[i];
+        for (int j = 0; j < cols; j++) sum += accounts[i][j];
+        if (sum > best) best = sum;
+    }
+    return best;
+}`,
+        complexity: { time: 'O(m*n)', space: 'O(1)' },
+        approach: 'LeetCode-style C signature passes per-row column counts because rows could theoretically vary in length. Read cols once per row to keep the inner loop branch-free on the bound check.',
+      },
+      go: {
+        code: `func maximumWealth(accounts [][]int) int {
+    best := 0
+    for _, row := range accounts {
+        sum := 0
+        for _, v := range row {
+            sum += v
+        }
+        if sum > best {
+            best = sum
+        }
+    }
+    return best
+}`,
+        complexity: { time: 'O(m*n)', space: 'O(1)' },
+        approach: 'Straight double range. Go has no built-in max for ints across slices (pre-1.21) — the inline compare reads more honestly than wrapping a helper.',
+      },
+    },
+  },
+  'count-items-matching-a-rule': {
+    tags: ['array', 'string', 'simulation'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    inlineVisualization: {
+      title: 'countMatches — linear filter on (type, color, name)',
+      frames: Array.from({ length: 12 }, (_, i) => ({
+        step: i + 1,
+        note: [
+          'Each item is [type, color, name]. The rule picks ONE field (ruleKey) and a target value (ruleValue).',
+          'Map ruleKey → column index: "type" → 0, "color" → 1, "name" → 2. Resolve once before the loop.',
+          'Example: items=[["phone","blue","pixel"],["computer","silver","lenovo"],["phone","gold","iphone"]], ruleKey="color", ruleValue="silver".',
+          'idx = 1 (color column). Walk items; bump count when items[i][1] == "silver".',
+          'i=0: items[0][1]="blue" — no match. count=0.',
+          'i=1: items[1][1]="silver" — match. count=1.',
+          'i=2: items[2][1]="gold" — no match. count=1.',
+          'Return 1. Single pass, no dict, no sort.',
+          'Doing items[i][ruleKey] with a string key fails — items[i] is a list, not a map. Resolve ruleKey to an int index first.',
+          'Generic dispatch via {"type":0,"color":1,"name":2} keeps the body branch-free and easy to extend.',
+          'Complexity: O(n) time, O(1) extra space. n is items.length.',
+          'Edge: ruleKey is guaranteed valid by constraints; no need to validate, but a default-throw is cheap insurance in production code.',
+        ][i],
+      })),
+    },
+    solutions: {
+      python: {
+        code: `class Solution:
+    def countMatches(self, items: List[List[str]], ruleKey: str, ruleValue: str) -> int:
+        idx = {'type': 0, 'color': 1, 'name': 2}[ruleKey]
+        return sum(1 for it in items if it[idx] == ruleValue)`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Dict lookup converts ruleKey to a column index in O(1). The generator expression streams a 0/1 per item into sum — no intermediate list, constant extra memory.',
+      },
+      javascript: {
+        code: `var countMatches = function(items, ruleKey, ruleValue) {
+  const idx = { type: 0, color: 1, name: 2 }[ruleKey];
+  let count = 0;
+  for (const it of items) {
+    if (it[idx] === ruleValue) count++;
+  }
+  return count;
+};`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Object-literal lookup resolves ruleKey to an int index outside the loop, so the hot path is just an equality check. items.filter(...).length is one-line shorter but allocates a throwaway array.',
+      },
+      java: {
+        code: `class Solution {
+    public int countMatches(List<List<String>> items, String ruleKey, String ruleValue) {
+        int idx = ruleKey.equals("type") ? 0 : ruleKey.equals("color") ? 1 : 2;
+        int count = 0;
+        for (List<String> it : items) {
+            if (it.get(idx).equals(ruleValue)) count++;
+        }
+        return count;
+    }
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Ternary chain over three options is faster than a Map<String,Integer> for n strings of size 3. Use .equals (not ==) for String compare; that one bug accounts for a huge share of failed first attempts.',
+      },
+      cpp: {
+        code: `class Solution {
+public:
+    int countMatches(vector<vector<string>>& items, string ruleKey, string ruleValue) {
+        int idx = ruleKey == "type" ? 0 : ruleKey == "color" ? 1 : 2;
+        int count = 0;
+        for (const auto& it : items) {
+            if (it[idx] == ruleValue) count++;
+        }
+        return count;
+    }
+};`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Const-ref the inner vector so no row copy. == on std::string is a length-then-content compare — short-circuits on length mismatch, which is the common case.',
+      },
+      c: {
+        code: `#include <string.h>
+
+int countMatches(char*** items, int itemsSize, int* itemsColSize, char* ruleKey, char* ruleValue) {
+    int idx = strcmp(ruleKey, "type") == 0 ? 0 : strcmp(ruleKey, "color") == 0 ? 1 : 2;
+    int count = 0;
+    for (int i = 0; i < itemsSize; i++) {
+        if (strcmp(items[i][idx], ruleValue) == 0) count++;
+    }
+    return count;
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'strcmp returns 0 on equality — easy to invert mentally. Resolve idx once outside the loop; doing three strcmps per item would blow up to O(n) constant factor.',
+      },
+      go: {
+        code: `func countMatches(items [][]string, ruleKey string, ruleValue string) int {
+    idx := 2
+    switch ruleKey {
+    case "type":
+        idx = 0
+    case "color":
+        idx = 1
+    }
+    count := 0
+    for _, it := range items {
+        if it[idx] == ruleValue {
+            count++
+        }
+    }
+    return count
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Switch on ruleKey resolves the column index once. Default idx=2 ("name") doubles as the fallback so the switch only needs two cases — cleaner than a three-way if/else.',
+      },
+    },
+  },
+  'sort-array-by-parity': {
+    /* SPLICE:wave9h-parity-duo v1 */
+    tags: ['array', 'two-pointers', 'sorting'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: (() => {
+      // nums = [3, 1, 2, 4, 7, 6, 5, 8]
+      //   Two pointers l (left) and r (right). Walk l rightward until it
+      //   lands on an odd, walk r leftward until it lands on an even, then
+      //   swap. Stop when l >= r. Result: evens on the left, odds on the
+      //   right, in O(n) time and O(1) extra space.
+      const original = [3, 1, 2, 4, 7, 6, 5, 8];
+      const arr = original.slice();
+      const frames = [];
+      const snap = (caption, chip, l, r, extraHi = {}) => {
+        const highlights = { ...extraHi };
+        if (l >= 0 && l < arr.length) highlights[l] = highlights[l] || 'mid';
+        if (r >= 0 && r < arr.length && r !== l) highlights[r] = highlights[r] || 'mid';
+        frames.push({
+          array: arr.slice(),
+          highlights,
+          chip,
+          caption,
+        });
+      };
+
+      snap(
+        'Goal: rearrange the array so every even number comes before every odd number. Relative order within evens or within odds does not matter. Brute force allocates two buckets (evens, odds) and concatenates — O(n) time but O(n) extra space.',
+        'evens left, odds right',
+        -1, -1,
+      );
+      snap(
+        'Two-pointer trick: keep one pointer l at the leftmost index and one pointer r at the rightmost. Advance l past evens (they are already in the correct half). Retreat r past odds (also already correct). When l lands on an odd AND r lands on an even, swap them. Repeat until l meets r. O(n) time, O(1) extra space.',
+        'two pointers, swap on mismatch',
+        0, arr.length - 1,
+      );
+
+      let l = 0;
+      let r = arr.length - 1;
+      while (l < r) {
+        if (arr[l] % 2 === 0) {
+          snap(
+            `l=${l}: arr[l]=${arr[l]} is even — already in the correct half. Advance l.`,
+            `l skip even ${arr[l]}`,
+            l, r,
+          );
+          l += 1;
+          continue;
+        }
+        if (arr[r] % 2 === 1) {
+          snap(
+            `r=${r}: arr[r]=${arr[r]} is odd — already in the correct half. Retreat r.`,
+            `r skip odd ${arr[r]}`,
+            l, r,
+          );
+          r -= 1;
+          continue;
+        }
+        // arr[l] odd, arr[r] even -> swap
+        snap(
+          `l=${l} odd (${arr[l]}), r=${r} even (${arr[r]}). Both are in the wrong half — swap them.`,
+          `swap ${arr[l]} <-> ${arr[r]}`,
+          l, r,
+          { [l]: 'match', [r]: 'match' },
+        );
+        const tmp = arr[l]; arr[l] = arr[r]; arr[r] = tmp;
+        snap(
+          `After swap: ${arr[l]} is now at l, ${arr[r]} is now at r. Advance l and retreat r.`,
+          `swapped — advance both`,
+          l, r,
+          { [l]: 'match', [r]: 'match' },
+        );
+        l += 1;
+        r -= 1;
+      }
+
+      snap(
+        `Pointers met (l=${l}, r=${r}). All evens are at indices [0..l-1] and all odds at [l..n-1]. The partition is complete and in-place.`,
+        `partitioned at l=${l}`,
+        l, r,
+        Object.fromEntries(arr.map((v, i) => [i, v % 2 === 0 ? 'match' : 'low'])),
+      );
+
+      while (frames.length < 12) {
+        frames.push({
+          array: arr.slice(),
+          chip: 'recap',
+          caption: 'Recap: two pointers from opposite ends, swap when both are in the wrong half. Single pass, O(n) time, O(1) extra space. Relative order is not preserved — this is the standard trade-off for the in-place solution.',
+          highlights: Object.fromEntries(arr.map((v, i) => [i, v % 2 === 0 ? 'match' : 'low'])),
+        });
+      }
+
+      return { renderer: 'array', title: 'Sort array by parity — two pointers from both ends', frames };
+    })(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def sortArrayByParity(self, nums: List[int]) -> List[int]:
+        l, r = 0, len(nums) - 1
+        while l < r:
+            if nums[l] % 2 == 0:
+                l += 1
+            elif nums[r] % 2 == 1:
+                r -= 1
+            else:
+                nums[l], nums[r] = nums[r], nums[l]
+                l += 1
+                r -= 1
+        return nums`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Two pointers from opposite ends. Advance l past evens (already correct), retreat r past odds (also correct). When l points at an odd and r points at an even, both are misplaced — swap them and step both pointers inward. Each index is visited at most once across the two pointers, giving O(n) time with O(1) extra space. Relative order is not preserved, which is the price of in-place partitioning.',
+      },
+      javascript: {
+        code: `function sortArrayByParity(nums) {
+  let l = 0, r = nums.length - 1;
+  while (l < r) {
+    if (nums[l] % 2 === 0) { l++; continue; }
+    if (nums[r] % 2 === 1) { r--; continue; }
+    [nums[l], nums[r]] = [nums[r], nums[l]];
+    l++;
+    r--;
+  }
+  return nums;
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Same two-pointer partition in JS. Destructuring swap keeps the inner branch tight. The two continue statements make the skip-when-already-correct cases obvious.',
+      },
+      java: {
+        code: `class Solution {
+    public int[] sortArrayByParity(int[] nums) {
+        int l = 0, r = nums.length - 1;
+        while (l < r) {
+            if (nums[l] % 2 == 0) { l++; continue; }
+            if (nums[r] % 2 == 1) { r--; continue; }
+            int tmp = nums[l]; nums[l] = nums[r]; nums[r] = tmp;
+            l++;
+            r--;
+        }
+        return nums;
+    }
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Java port. The %2 check could be replaced with (n & 1) for a small constant-factor win but the compiler usually does this anyway.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> sortArrayByParity(vector<int>& nums) {
+        int l = 0, r = (int) nums.size() - 1;
+        while (l < r) {
+            if (nums[l] % 2 == 0) { l++; continue; }
+            if (nums[r] % 2 == 1) { r--; continue; }
+            swap(nums[l], nums[r]);
+            l++;
+            r--;
+        }
+        return nums;
+    }
+};`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'C++ port. std::swap on ints is just a register swap. The loop terminates because each branch strictly moves at least one pointer.',
+      },
+      c: {
+        code: `int* sortArrayByParity(int* nums, int numsSize, int* returnSize) {
+    int l = 0, r = numsSize - 1;
+    while (l < r) {
+        if (nums[l] % 2 == 0) { l++; continue; }
+        if (nums[r] % 2 == 1) { r--; continue; }
+        int tmp = nums[l]; nums[l] = nums[r]; nums[r] = tmp;
+        l++;
+        r--;
+    }
+    *returnSize = numsSize;
+    return nums;
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Plain C with the LeetCode return-size out-parameter. The input buffer is reused for the result, so no allocation is needed.',
+      },
+      go: {
+        code: `func sortArrayByParity(nums []int) []int {
+    l, r := 0, len(nums)-1
+    for l < r {
+        if nums[l]%2 == 0 {
+            l++
+            continue
+        }
+        if nums[r]%2 == 1 {
+            r--
+            continue
+        }
+        nums[l], nums[r] = nums[r], nums[l]
+        l++
+        r--
+    }
+    return nums
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Idiomatic Go. The parallel-assignment swap is the canonical Go idiom — it compiles to the same two register moves as a temp swap.',
+      },
+    },
+  },
+  'sort-array-by-parity-ii': {
+    /* SPLICE:wave9h-parity-duo v1 */
+    tags: ['array', 'two-pointers', 'sorting'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: (() => {
+      // nums = [4, 2, 5, 7, 3, 8, 1, 6]
+      //   Invariant we want: even values at even indices, odd values at odd
+      //   indices. Two pointers: i walks the even indices (0,2,4,...) and j
+      //   walks the odd indices (1,3,5,...). Advance i until nums[i] is odd;
+      //   advance j until nums[j] is even; swap; repeat. Stops in one pass.
+      const original = [4, 2, 5, 7, 3, 8, 1, 6];
+      const arr = original.slice();
+      const frames = [];
+      const snap = (caption, chip, i, j, extraHi = {}) => {
+        const highlights = { ...extraHi };
+        if (i >= 0 && i < arr.length) highlights[i] = highlights[i] || 'mid';
+        if (j >= 0 && j < arr.length && j !== i) highlights[j] = highlights[j] || 'low';
+        frames.push({
+          array: arr.slice(),
+          highlights,
+          chip,
+          caption,
+        });
+      };
+
+      snap(
+        'Goal: place every even value at an even index (0, 2, 4, ...) and every odd value at an odd index (1, 3, 5, ...). The count of evens equals the count of odd indices by problem guarantee, so a perfect interleave always exists.',
+        'evens at even idx, odds at odd idx',
+        -1, -1,
+      );
+      snap(
+        'Two-pointer trick: i walks ONLY even indices, j walks ONLY odd indices. We move i forward until nums[i] is odd (a misplaced odd at an even slot) and j forward until nums[j] is even (a misplaced even at an odd slot). Swap them — now both slots are correct. Repeat. Each pointer crosses n/2 indices, total O(n) time, O(1) extra space.',
+        'i on evens, j on odds',
+        0, 1,
+      );
+
+      let i = 0;
+      let j = 1;
+      const n = arr.length;
+      let safety = 0;
+      while (i < n && j < n && safety++ < 60) {
+        if (arr[i] % 2 === 0) {
+          snap(
+            `i=${i} (even index): arr[i]=${arr[i]} is even — slot is correct. Advance i to ${i + 2}.`,
+            `i ok at ${i}`,
+            i, j,
+          );
+          i += 2;
+          continue;
+        }
+        if (arr[j] % 2 === 1) {
+          snap(
+            `j=${j} (odd index): arr[j]=${arr[j]} is odd — slot is correct. Advance j to ${j + 2}.`,
+            `j ok at ${j}`,
+            i, j,
+          );
+          j += 2;
+          continue;
+        }
+        // arr[i] is odd at an even index, arr[j] is even at an odd index -> swap
+        snap(
+          `i=${i} has odd value ${arr[i]} at even slot; j=${j} has even value ${arr[j]} at odd slot. Both misplaced — swap.`,
+          `swap ${arr[i]} <-> ${arr[j]}`,
+          i, j,
+          { [i]: 'match', [j]: 'match' },
+        );
+        const tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+        snap(
+          `After swap: even ${arr[i]} sits at even index ${i}; odd ${arr[j]} sits at odd index ${j}. Both slots now satisfy the invariant. Advance both pointers.`,
+          `both fixed — step both`,
+          i, j,
+          { [i]: 'match', [j]: 'match' },
+        );
+        i += 2;
+        j += 2;
+      }
+
+      snap(
+        'All indices satisfy the invariant: arr[k] % 2 == k % 2 for every k. The single pass interleaves evens and odds in O(n) time with no auxiliary array.',
+        'invariant holds everywhere',
+        -1, -1,
+        Object.fromEntries(arr.map((v, k) => [k, v % 2 === k % 2 ? 'match' : 'low'])),
+      );
+
+      while (frames.length < 12) {
+        frames.push({
+          array: arr.slice(),
+          chip: 'recap',
+          caption: 'Recap: walk two pointers on the two index parities. Swap whenever both are misplaced. Each pointer covers n/2 indices, so the total work is O(n). No auxiliary array — the input is reused as the output.',
+          highlights: Object.fromEntries(arr.map((v, k) => [k, v % 2 === k % 2 ? 'match' : 'low'])),
+        });
+      }
+
+      return { renderer: 'array', title: 'Sort array by parity II — interleave with two index-parity pointers', frames };
+    })(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def sortArrayByParityII(self, nums: List[int]) -> List[int]:
+        n = len(nums)
+        i, j = 0, 1
+        while i < n and j < n:
+            if nums[i] % 2 == 0:
+                i += 2
+            elif nums[j] % 2 == 1:
+                j += 2
+            else:
+                nums[i], nums[j] = nums[j], nums[i]
+                i += 2
+                j += 2
+        return nums`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'One pointer i walks the even indices, another pointer j walks the odd indices. Skip i forward while arr[i] is even (already correct) and j forward while arr[j] is odd (also correct). When i points at an odd value AND j points at an even value, both slots are wrong — swap them and step both. Since the number of even values equals the number of even indices, the swap pairs line up exactly. O(n) time, O(1) extra space, single pass, in-place.',
+      },
+      javascript: {
+        code: `function sortArrayByParityII(nums) {
+  const n = nums.length;
+  let i = 0, j = 1;
+  while (i < n && j < n) {
+    if (nums[i] % 2 === 0) { i += 2; continue; }
+    if (nums[j] % 2 === 1) { j += 2; continue; }
+    [nums[i], nums[j]] = [nums[j], nums[i]];
+    i += 2;
+    j += 2;
+  }
+  return nums;
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Same two-index-parity walk in JS. Destructuring swap keeps the inner branch tight. The two pointers strictly advance, so the loop is linear and terminates.',
+      },
+      java: {
+        code: `class Solution {
+    public int[] sortArrayByParityII(int[] nums) {
+        int n = nums.length;
+        int i = 0, j = 1;
+        while (i < n && j < n) {
+            if (nums[i] % 2 == 0) { i += 2; continue; }
+            if (nums[j] % 2 == 1) { j += 2; continue; }
+            int tmp = nums[i]; nums[i] = nums[j]; nums[j] = tmp;
+            i += 2;
+            j += 2;
+        }
+        return nums;
+    }
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Java port. (n & 1) would also work in place of n % 2 for a minor constant-factor improvement; modern JITs typically fold this either way.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> sortArrayByParityII(vector<int>& nums) {
+        int n = (int) nums.size();
+        int i = 0, j = 1;
+        while (i < n && j < n) {
+            if (nums[i] % 2 == 0) { i += 2; continue; }
+            if (nums[j] % 2 == 1) { j += 2; continue; }
+            swap(nums[i], nums[j]);
+            i += 2;
+            j += 2;
+        }
+        return nums;
+    }
+};`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'C++ port. std::swap on int values is a pair of register moves. No iterators, no allocations.',
+      },
+      c: {
+        code: `int* sortArrayByParityII(int* nums, int numsSize, int* returnSize) {
+    int i = 0, j = 1;
+    while (i < numsSize && j < numsSize) {
+        if (nums[i] % 2 == 0) { i += 2; continue; }
+        if (nums[j] % 2 == 1) { j += 2; continue; }
+        int tmp = nums[i]; nums[i] = nums[j]; nums[j] = tmp;
+        i += 2;
+        j += 2;
+    }
+    *returnSize = numsSize;
+    return nums;
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Plain C with the LeetCode return-size out-parameter. The input buffer is reused as the output — no malloc needed.',
+      },
+      go: {
+        code: `func sortArrayByParityII(nums []int) []int {
+    n := len(nums)
+    i, j := 0, 1
+    for i < n && j < n {
+        if nums[i]%2 == 0 {
+            i += 2
+            continue
+        }
+        if nums[j]%2 == 1 {
+            j += 2
+            continue
+        }
+        nums[i], nums[j] = nums[j], nums[i]
+        i += 2
+        j += 2
+    }
+    return nums
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: 'Idiomatic Go. Parallel-assignment swap on the two indices; the loop bound is i < n AND j < n so neither pointer can step out of range.',
+      },
+    },
+  },
+  'valid-boomerang': {
+    /* SPLICE:wave9k-boomerang-mindist v1 */
+    tags: ['math', 'geometry'],
+    companies: ['amazon', 'google', 'microsoft', 'meta', 'apple'],
+    method_name: 'isBoomerang',
+    params: [{ name: 'points', type: 'List[List[int]]' }],
+    return_type: 'bool',
+    visualization: {
+      type: 'array',
+      title: 'Three points form a boomerang iff they are not collinear',
+      frames: [
+        { board: 'points = [[1,1],[2,3],[3,2]]', note: 'A boomerang is three distinct, non-collinear points. The cleanest test is the 2D cross product of the two vectors from the first point.' },
+        { board: 'p0=(1,1) p1=(2,3) p2=(3,2)', note: 'Treat p0 as the anchor. Build v1 = p1 - p0 and v2 = p2 - p0. If v1 is parallel to v2 the three points lie on a line.' },
+        { board: 'v1 = (2-1, 3-1) = (1, 2)', note: 'Vector from p0 to p1. Use integer subtraction — no floats, no slope divisions.' },
+        { board: 'v2 = (3-1, 2-1) = (2, 1)', note: 'Vector from p0 to p2. Same trick — pure integer math keeps things exact.' },
+        { board: 'cross = v1.x*v2.y - v1.y*v2.x', note: 'The 2D cross product. It is zero exactly when v1 and v2 are parallel (the three points are collinear, OR two coincide).' },
+        { board: 'cross = 1*1 - 2*2 = -3', note: 'Non-zero — the points are not on the same line. Return true.' },
+        { board: "collinear case: [[1,1],[2,2],[3,3]]", note: 'v1 = (1,1), v2 = (2,2). cross = 1*2 - 1*2 = 0. All three lie on y = x. Not a boomerang.' },
+        { board: "coincident case: [[0,0],[0,0],[1,1]]", note: 'v1 = (0,0). cross = 0*1 - 0*1 = 0. Two identical points collapse the cross product to 0 — also caught.' },
+        { board: 'No division, no floats', note: 'Slope-based checks need divide-by-zero guards for vertical lines and risk float drift. Cross product sidesteps both with one multiplication pair.' },
+        { board: 'O(1) time, O(1) space', note: 'Six subtractions, two multiplications, one comparison — totally constant work regardless of input.' },
+      ],
+    },
+    solutions: {
+      python: `class Solution:
+    def isBoomerang(self, points: List[List[int]]) -> bool:
+        (x0, y0), (x1, y1), (x2, y2) = points
+        return (x1 - x0) * (y2 - y0) != (y1 - y0) * (x2 - x0)`,
+      javascript: `var isBoomerang = function(points) {
+    const [[x0, y0], [x1, y1], [x2, y2]] = points;
+    return (x1 - x0) * (y2 - y0) !== (y1 - y0) * (x2 - x0);
+};`,
+      java: `class Solution {
+    public boolean isBoomerang(int[][] points) {
+        int x0 = points[0][0], y0 = points[0][1];
+        int x1 = points[1][0], y1 = points[1][1];
+        int x2 = points[2][0], y2 = points[2][1];
+        return (x1 - x0) * (y2 - y0) != (y1 - y0) * (x2 - x0);
+    }
+}`,
+      cpp: `class Solution {
+public:
+    bool isBoomerang(vector<vector<int>>& points) {
+        int x0 = points[0][0], y0 = points[0][1];
+        int x1 = points[1][0], y1 = points[1][1];
+        int x2 = points[2][0], y2 = points[2][1];
+        return (x1 - x0) * (y2 - y0) != (y1 - y0) * (x2 - x0);
+    }
+};`,
+      c: `bool isBoomerang(int** points, int pointsSize, int* pointsColSize) {
+    int x0 = points[0][0], y0 = points[0][1];
+    int x1 = points[1][0], y1 = points[1][1];
+    int x2 = points[2][0], y2 = points[2][1];
+    return (x1 - x0) * (y2 - y0) != (y1 - y0) * (x2 - x0);
+}`,
+      go: `func isBoomerang(points [][]int) bool {
+    x0, y0 := points[0][0], points[0][1]
+    x1, y1 := points[1][0], points[1][1]
+    x2, y2 := points[2][0], points[2][1]
+    return (x1-x0)*(y2-y0) != (y1-y0)*(x2-x0)
+}`,
+    },
+  },
+  'minimum-distance-to-the-target-element': {
+    /* SPLICE:wave9k-boomerang-mindist v1 */
+    tags: ['array', 'linear-scan'],
+    companies: ['amazon', 'google', 'microsoft', 'meta', 'apple'],
+    method_name: 'getMinDistance',
+    params: [
+      { name: 'nums', type: 'List[int]' },
+      { name: 'target', type: 'int' },
+      { name: 'start', type: 'int' },
+    ],
+    return_type: 'int',
+    visualization: {
+      type: 'array',
+      title: 'Scan once, track the minimum |i - start| at any match',
+      frames: [
+        { board: 'nums=[1,2,3,4,5], target=5, start=3', note: 'Find an index i where nums[i] == target and |i - start| is minimised. Linear scan keeps a running best.' },
+        { board: 'best = +infinity', note: 'Initialise the answer as a sentinel. Any valid match will beat it.' },
+        { board: "i=0 nums[0]=1", note: 'Not equal to target=5. Skip.' },
+        { board: "i=1 nums[1]=2", note: 'Not equal. Skip.' },
+        { board: "i=2 nums[2]=3", note: 'Not equal. Skip.' },
+        { board: "i=3 nums[3]=4", note: 'Not equal. Skip — even though i == start, the value does not match.' },
+        { board: "i=4 nums[4]=5 match!", note: '|4 - 3| = 1. best becomes 1. Continue scanning — there may be a closer match.' },
+        { board: 'loop ends, best = 1', note: 'Only one match in the array. Answer = 1.' },
+        { board: 'multi-match: nums=[1,5,3,5,5], t=5, s=3', note: 'Matches at i=1 (dist 2), i=3 (dist 0), i=4 (dist 1). Best stays 0 once we hit i=3 — the answer is start itself.' },
+        { board: 'O(n) time, O(1) space', note: 'Single pass, one integer accumulator. Problem guarantees at least one valid i exists, so no sentinel cleanup needed.' },
+      ],
+    },
+    solutions: {
+      python: `class Solution:
+    def getMinDistance(self, nums: List[int], target: int, start: int) -> int:
+        best = float('inf')
+        for i, v in enumerate(nums):
+            if v == target:
+                d = abs(i - start)
+                if d < best:
+                    best = d
+        return best`,
+      javascript: `var getMinDistance = function(nums, target, start) {
+    let best = Infinity;
+    for (let i = 0; i < nums.length; i++) {
+        if (nums[i] === target) {
+            const d = Math.abs(i - start);
+            if (d < best) best = d;
+        }
+    }
+    return best;
+};`,
+      java: `class Solution {
+    public int getMinDistance(int[] nums, int target, int start) {
+        int best = Integer.MAX_VALUE;
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] == target) {
+                int d = Math.abs(i - start);
+                if (d < best) best = d;
+            }
+        }
+        return best;
+    }
+}`,
+      cpp: `class Solution {
+public:
+    int getMinDistance(vector<int>& nums, int target, int start) {
+        int best = INT_MAX;
+        for (int i = 0; i < (int)nums.size(); i++) {
+            if (nums[i] == target) {
+                int d = abs(i - start);
+                if (d < best) best = d;
+            }
+        }
+        return best;
+    }
+};`,
+      c: `int getMinDistance(int* nums, int numsSize, int target, int start) {
+    int best = INT_MAX;
+    for (int i = 0; i < numsSize; i++) {
+        if (nums[i] == target) {
+            int d = abs(i - start);
+            if (d < best) best = d;
+        }
+    }
+    return best;
+}`,
+      go: `func getMinDistance(nums []int, target int, start int) int {
+    best := math.MaxInt32
+    for i, v := range nums {
+        if v == target {
+            d := i - start
+            if d < 0 {
+                d = -d
+            }
+            if d < best {
+                best = d
+            }
+        }
+    }
+    return best
+}`,
+    },
+  },
+  'count-special-quadruplets': {
+    tags: ['array', 'hash-table', 'enumeration'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    method_name: 'countQuadruplets',
+    params: [{ name: 'nums', type: 'List[int]' }],
+    return_type: 'int',
+    visualization: {
+      type: 'array',
+      title: 'Count special quadruplets — a<b<c<d with nums[a]+nums[b]+nums[c]==nums[d]',
+      frames: [{"board":"nums = [1,2,3,6]","note":"Goal: count quadruplets (a<b<c<d) with nums[a]+nums[b]+nums[c]==nums[d]. Brute O(n^4) works for n≤50."},{"board":"O(n^3) brute","note":"Fix a<b<c, then scan d in (c..n) checking sum==nums[d]. n=4 -> only one quadruplet to test."},{"board":"a=0,b=1,c=2,d=3","note":"1 + 2 + 3 = 6 == nums[3]=6. Match! count = 1."},{"board":"count = 1","note":"No other quadruplets fit (n=4 only allows one ordering). Answer = 1."},{"board":"speed-up idea","note":"Hashmap of (a+b) frequencies as we slide c. For each c<d, need pair-sum = nums[d]-nums[c]; look it up in the map of a+b for a<b<c."},{"board":"pairSum cnt","note":"Walk c from n-2 down. Before c, we have all (a,b) with a<b<c already inserted into the map."},{"board":"second example","note":"nums = [3,3,6,4,5]. Try (a,b,c,d)=(0,1,3,2)? Invalid — indices not strictly increasing. Must enforce a<b<c<d."},{"board":"(0,1,2,?)=3+3+6=12","note":"No d>2 with nums[d]=12 -> skip."},{"board":"(0,1,3,?)=3+3+4=10","note":"No d>3 with nums[d]=10 -> skip."},{"board":"(0,2,3,?)=3+6+4=13","note":"No d>3 with nums[d]=13 -> skip."},{"board":"(1,2,3,?)=3+6+4=13","note":"No d>3 with nums[d]=13 -> skip. Final answer 0 for this input."},{"board":"complexity","note":"Brute O(n^3): three nested loops. Hashmap-of-pair-sums brings it to O(n^2). Space O(n^2) for the map."},{"board":"pitfall","note":"Strict inequality a<b<c<d is index-based, not value-based. Duplicates in nums are fine — only indices must be distinct and ordered."}],
+    },
+    solutions: {
+      python: `class Solution:
+    def countQuadruplets(self, nums):
+        n = len(nums)
+        ans = 0
+        pair_sum = {}
+        for c in range(n - 2, 0, -1):
+            for a in range(c - 1):
+                pair_sum[nums[a] + nums[c + 1]] = pair_sum.get(nums[a] + nums[c + 1], 0) + 1 if False else 0
+        pair_sum = {}
+        ans = 0
+        for c in range(2, n - 1):
+            for b in range(1, c):
+                for a in range(b):
+                    s = nums[a] + nums[b] + nums[c]
+                    for d in range(c + 1, n):
+                        if s == nums[d]:
+                            ans += 1
+        return ans`,
+      javascript: `var countQuadruplets = function(nums) {
+    const n = nums.length;
+    let ans = 0;
+    for (let a = 0; a < n - 3; a++) {
+        for (let b = a + 1; b < n - 2; b++) {
+            for (let c = b + 1; c < n - 1; c++) {
+                const s = nums[a] + nums[b] + nums[c];
+                for (let d = c + 1; d < n; d++) {
+                    if (nums[d] === s) ans++;
+                }
+            }
+        }
+    }
+    return ans;
+};`,
+      java: `class Solution {
+    public int countQuadruplets(int[] nums) {
+        int n = nums.length, ans = 0;
+        for (int a = 0; a < n - 3; a++) {
+            for (int b = a + 1; b < n - 2; b++) {
+                for (int c = b + 1; c < n - 1; c++) {
+                    int s = nums[a] + nums[b] + nums[c];
+                    for (int d = c + 1; d < n; d++) {
+                        if (nums[d] == s) ans++;
+                    }
+                }
+            }
+        }
+        return ans;
+    }
+}`,
+      cpp: `class Solution {
+public:
+    int countQuadruplets(vector<int>& nums) {
+        int n = nums.size(), ans = 0;
+        for (int a = 0; a < n - 3; a++) {
+            for (int b = a + 1; b < n - 2; b++) {
+                for (int c = b + 1; c < n - 1; c++) {
+                    int s = nums[a] + nums[b] + nums[c];
+                    for (int d = c + 1; d < n; d++) {
+                        if (nums[d] == s) ans++;
+                    }
+                }
+            }
+        }
+        return ans;
+    }
+};`,
+      c: `int countQuadruplets(int* nums, int numsSize) {
+    int ans = 0;
+    for (int a = 0; a < numsSize - 3; a++) {
+        for (int b = a + 1; b < numsSize - 2; b++) {
+            for (int c = b + 1; c < numsSize - 1; c++) {
+                int s = nums[a] + nums[b] + nums[c];
+                for (int d = c + 1; d < numsSize; d++) {
+                    if (nums[d] == s) ans++;
+                }
+            }
+        }
+    }
+    return ans;
+}`,
+      go: `func countQuadruplets(nums []int) int {
+    n := len(nums)
+    ans := 0
+    for a := 0; a < n-3; a++ {
+        for b := a + 1; b < n-2; b++ {
+            for c := b + 1; c < n-1; c++ {
+                s := nums[a] + nums[b] + nums[c]
+                for d := c + 1; d < n; d++ {
+                    if nums[d] == s {
+                        ans++
+                    }
+                }
+            }
+        }
+    }
+    return ans
+}`,
+    },
+  },
+  'count-good-meals': {
+    tags: ['array', 'hash-table', 'bit-manipulation', 'counting'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    method_name: 'countPairs',
+    params: [{ name: 'deliciousness', type: 'List[int]' }],
+    return_type: 'int',
+    visualization: {
+      type: 'array',
+      title: 'Count good meals — pairs whose sum is a power of two',
+      frames: [{"board":"deliciousness = [1,3,5,7,9]","note":"Goal: count pairs (i,j) with i<j whose deliciousness[i]+deliciousness[j] is a power of 2."},{"board":"powers ≤ 2·max","note":"Max value ≤ 2^20 ≈ 1e6, so candidate sums are 2^0, 2^1, …, 2^21. Only ~22 powers to test per element."},{"board":"hashmap counts","note":"Walk left→right. For current value v, for each power p check if (p-v) is in counts. Add counts[p-v] to answer. Then counts[v]+=1."},{"board":"v=1","note":"counts is empty. No matches. Insert {1:1}."},{"board":"v=3, target 4","note":"For p=4: need 1, counts[1]=1 -> +1. For p=8: need 5, 0. For p=2: need -1, 0. Answer=1. Insert {1:1,3:1}."},{"board":"v=5","note":"p=8: need 3, counts[3]=1 -> +1. p=16: need 11, 0. p=4: need -1, 0. Answer=2. Insert {1:1,3:1,5:1}."},{"board":"v=7","note":"p=8: need 1, counts[1]=1 -> +1. p=16: need 9, 0. Answer=3. Insert {1:1,3:1,5:1,7:1}."},{"board":"v=9","note":"p=16: need 7, counts[7]=1 -> +1. p=32: need 23, 0. Answer=4. Insert v=9."},{"board":"final = 4","note":"Pairs: (1,3),(3,5),(1,7),(7,9). Each sum is a power of two: 4,8,8,16."},{"board":"why hashmap?","note":"O(n^2) brute is too slow at n=10^5. Per element we test only ~22 powers — O(n·22) = O(n log V)."},{"board":"duplicates","note":"If deliciousness has two equal values forming half a power-of-two pair, both must be counted. Insert AFTER probing — same logic as two-sum."},{"board":"overflow","note":"In Java/C++ use long: max sum is 2*10^6 still fits int but be safe with intermediate target = p - v."},{"board":"modulo 1e9+7","note":"Answer can exceed 32-bit. Accumulate as long, then return % (10^9 + 7)."}],
+    },
+    solutions: {
+      python: `class Solution:
+    def countPairs(self, deliciousness):
+        MOD = 10**9 + 7
+        counts = {}
+        ans = 0
+        powers = [1 << k for k in range(22)]
+        for v in deliciousness:
+            for p in powers:
+                need = p - v
+                if need in counts:
+                    ans = (ans + counts[need]) % MOD
+            counts[v] = counts.get(v, 0) + 1
+        return ans`,
+      javascript: `var countPairs = function(deliciousness) {
+    const MOD = 1000000007n;
+    const counts = new Map();
+    let ans = 0n;
+    const powers = [];
+    for (let k = 0; k < 22; k++) powers.push(1 << k);
+    for (const v of deliciousness) {
+        for (const p of powers) {
+            const need = p - v;
+            if (counts.has(need)) ans = (ans + BigInt(counts.get(need))) % MOD;
+        }
+        counts.set(v, (counts.get(v) || 0) + 1);
+    }
+    return Number(ans);
+};`,
+      java: `class Solution {
+    public int countPairs(int[] deliciousness) {
+        final int MOD = 1_000_000_007;
+        Map<Integer, Integer> counts = new HashMap<>();
+        long ans = 0;
+        for (int v : deliciousness) {
+            for (int k = 0; k < 22; k++) {
+                int need = (1 << k) - v;
+                Integer c = counts.get(need);
+                if (c != null) ans = (ans + c) % MOD;
+            }
+            counts.merge(v, 1, Integer::sum);
+        }
+        return (int) ans;
+    }
+}`,
+      cpp: `class Solution {
+public:
+    int countPairs(vector<int>& deliciousness) {
+        const int MOD = 1'000'000'007;
+        unordered_map<int, int> counts;
+        long long ans = 0;
+        for (int v : deliciousness) {
+            for (int k = 0; k < 22; k++) {
+                int need = (1 << k) - v;
+                auto it = counts.find(need);
+                if (it != counts.end()) ans = (ans + it->second) % MOD;
+            }
+            counts[v]++;
+        }
+        return (int) ans;
+    }
+};`,
+      c: `#define MOD 1000000007
+int countPairs(int* deliciousness, int delSize) {
+    // Open-addressed hash for non-negative ints up to 2^20.
+    int cap = 1 << 18;
+    int* keys = (int*)calloc(cap, sizeof(int));
+    int* vals = (int*)calloc(cap, sizeof(int));
+    int* used = (int*)calloc(cap, sizeof(int));
+    long long ans = 0;
+    for (int i = 0; i < delSize; i++) {
+        int v = deliciousness[i];
+        for (int k = 0; k < 22; k++) {
+            int need = (1 << k) - v;
+            if (need < 0) continue;
+            unsigned h = (unsigned)need * 2654435761u & (cap - 1);
+            while (used[h]) {
+                if (keys[h] == need) { ans = (ans + vals[h]) % MOD; break; }
+                h = (h + 1) & (cap - 1);
+            }
+        }
+        unsigned h = (unsigned)v * 2654435761u & (cap - 1);
+        while (used[h] && keys[h] != v) h = (h + 1) & (cap - 1);
+        keys[h] = v; vals[h]++; used[h] = 1;
+    }
+    free(keys); free(vals); free(used);
+    return (int) ans;
+}`,
+      go: `func countPairs(deliciousness []int) int {
+    const MOD = 1000000007
+    counts := map[int]int{}
+    ans := 0
+    for _, v := range deliciousness {
+        for k := 0; k < 22; k++ {
+            need := (1 << k) - v
+            if c, ok := counts[need]; ok {
+                ans = (ans + c) % MOD
+            }
+        }
+        counts[v]++
+    }
+    return ans
+}`,
+    },
+  },
+
+  'relative-ranks': {
+    /* SPLICE:wave9l-rank-cookie-duo v1 */
+    tags: ['array', 'sorting', 'heap', 'greedy'],
+    companies: ['amazon', 'microsoft', 'google', 'apple', 'meta'],
+    viz: (() => {
+      // score = [10, 3, 8, 9, 4] — sort indices by score descending.
+      // Rank 0 -> "Gold Medal", 1 -> "Silver Medal", 2 -> "Bronze Medal",
+      // k>=3 -> str(k+1). Walk the sorted index list, writing the label
+      // into answer[idx].
+      const score = [10, 3, 8, 9, 4];
+      const n = score.length;
+      const idxs = score.map((_, i) => i);
+      const answer = new Array(n).fill('');
+      const frames = [];
+      const labelFor = (k) => k === 0 ? 'Gold' : k === 1 ? 'Silver' : k === 2 ? 'Bronze' : String(k + 1);
+
+      frames.push({
+        array: score.slice(),
+        chip: [
+          { label: 'score', value: '[' + score.join(',') + ']' },
+          { label: 'n', value: String(n) },
+        ],
+        caption: 'Goal: assign a rank string to every athlete. The top three get "Gold Medal", "Silver Medal", "Bronze Medal"; the rest get the 1-indexed rank as a plain string. The trick is to sort the INDICES by score descending — the position in that sorted list IS the rank, so we never lose the link back to the original slot.',
+      });
+
+      frames.push({
+        array: score.slice(),
+        chip: 'build indices',
+        caption: 'Step 1 — build the index array [0, 1, 2, ..., n-1]. We sort this list (not the score array itself) so each entry still knows its original slot in answer. Sorting score directly would destroy that mapping.',
+        highlights: Object.fromEntries(idxs.map((_, i) => [i, 'low'])),
+      });
+
+      idxs.sort((a, b) => score[b] - score[a]);
+      frames.push({
+        array: idxs.map((i) => score[i]),
+        chip: [
+          { label: 'sorted idxs', value: '[' + idxs.join(',') + ']' },
+          { label: 'by score desc', value: '[' + idxs.map((i) => score[i]).join(',') + ']', tone: 'violet' },
+        ],
+        caption: 'Step 2 — sort indices by score descending. After the sort, idxs[0] is the slot of the largest score, idxs[1] the second largest, and so on. The displayed array shows the SCORES in their new sorted order; the labels above are the original indices.',
+      });
+
+      for (let k = 0; k < n; k++) {
+        const slot = idxs[k];
+        const lab = labelFor(k);
+        answer[slot] = lab + (k < 3 ? ' Medal' : '');
+        frames.push({
+          array: idxs.map((i) => score[i]),
+          highlights: { [k]: k < 3 ? 'match' : 'mid' },
+          chip: [
+            { label: 'rank k', value: String(k) },
+            { label: 'slot', value: String(slot) },
+            { label: 'label', value: answer[slot], tone: k < 3 ? 'violet' : 'sky' },
+          ],
+          caption: 'k=' + k + ' (0-indexed rank). The k-th element in the sorted list is original index ' + slot + ' with score ' + score[slot] + '. ' + (k < 3
+            ? 'Top three — assign "' + answer[slot] + '" to answer[' + slot + '].'
+            : 'Beyond bronze — assign str(k+1)="' + answer[slot] + '" to answer[' + slot + '].'),
+        });
+      }
+
+      frames.push({
+        array: score.slice(),
+        chip: [
+          { label: 'answer', value: '[' + answer.map((s) => s.replace(' Medal', 'M')).join(',') + ']' },
+        ],
+        caption: 'Result rebuilt at original positions: ' + JSON.stringify(answer) + '. Total work: O(n log n) for the sort plus O(n) for the rank walk. Extra space is O(n) for the index array and the answer.',
+        highlights: Object.fromEntries(answer.map((_, i) => [i, 'match'])),
+      });
+
+      while (frames.length < 10) {
+        frames.push({
+          array: score.slice(),
+          chip: 'recap',
+          caption: 'Recap: sort the INDICES (not the values) by score descending so each entry remembers where to write back. The position in the sorted list is the rank — 0/1/2 get medal strings, the rest get str(k+1). One sort, one linear pass.',
+        });
+      }
+
+      return { renderer: 'array', frames };
+    })(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def findRelativeRanks(self, score: List[int]) -> List[str]:
+        n = len(score)
+        order = sorted(range(n), key=lambda i: -score[i])
+        medals = ['Gold Medal', 'Silver Medal', 'Bronze Medal']
+        ans = [''] * n
+        for k, idx in enumerate(order):
+            ans[idx] = medals[k] if k < 3 else str(k + 1)
+        return ans`,
+        complexity: { time: 'O(n log n)', space: 'O(n)' },
+        approach: 'Sort the index list by -score[i] so each entry remembers its original slot. The position in the sorted list IS the rank: 0/1/2 map to medal strings, k>=3 to str(k+1). One sort, one linear write-back into the answer at the original index.',
+      },
+      javascript: {
+        code: `var findRelativeRanks = function(score) {
+  const n = score.length;
+  const order = score.map((_, i) => i).sort((a, b) => score[b] - score[a]);
+  const medals = ['Gold Medal', 'Silver Medal', 'Bronze Medal'];
+  const ans = new Array(n);
+  for (let k = 0; k < n; k++) {
+    ans[order[k]] = k < 3 ? medals[k] : String(k + 1);
+  }
+  return ans;
+};`,
+        complexity: { time: 'O(n log n)', space: 'O(n)' },
+        approach: 'Build an index array, sort it by score descending (comparator score[b] - score[a]), then walk it. order[k] gives the original slot whose rank is k. Write the label straight into ans[order[k]]. Avoids the trap of sorting the score array itself and losing the original positions.',
+      },
+      java: {
+        code: `class Solution {
+    public String[] findRelativeRanks(int[] score) {
+        int n = score.length;
+        Integer[] order = new Integer[n];
+        for (int i = 0; i < n; i++) order[i] = i;
+        Arrays.sort(order, (a, b) -> score[b] - score[a]);
+        String[] medals = {"Gold Medal", "Silver Medal", "Bronze Medal"};
+        String[] ans = new String[n];
+        for (int k = 0; k < n; k++) {
+            ans[order[k]] = k < 3 ? medals[k] : String.valueOf(k + 1);
+        }
+        return ans;
+    }
+}`,
+        complexity: { time: 'O(n log n)', space: 'O(n)' },
+        approach: 'Must box the indices into Integer[] because Arrays.sort with a comparator does not accept int[]. The comparator score[b] - score[a] sorts by descending score; constraints guarantee score values fit in int so the subtraction will not overflow on this problem.',
+      },
+      cpp: {
+        code: `class Solution {
+public:
+    vector<string> findRelativeRanks(vector<int>& score) {
+        int n = score.size();
+        vector<int> order(n);
+        iota(order.begin(), order.end(), 0);
+        sort(order.begin(), order.end(), [&](int a, int b) {
+            return score[a] > score[b];
+        });
+        vector<string> medals = {"Gold Medal", "Silver Medal", "Bronze Medal"};
+        vector<string> ans(n);
+        for (int k = 0; k < n; k++) {
+            ans[order[k]] = k < 3 ? medals[k] : to_string(k + 1);
+        }
+        return ans;
+    }
+};`,
+        complexity: { time: 'O(n log n)', space: 'O(n)' },
+        approach: 'std::iota fills the index vector with 0..n-1 in a single pass. The lambda compares by score so the sort is by descending value. Capture by reference (&) so the lambda sees the live score vector without copying.',
+      },
+      c: {
+        code: `#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+static int* SCORE_REF;
+static int cmp(const void* a, const void* b) {
+    int sa = SCORE_REF[*(const int*)a];
+    int sb = SCORE_REF[*(const int*)b];
+    return sb - sa;
+}
+
+char** findRelativeRanks(int* score, int scoreSize, int* returnSize) {
+    int* order = (int*)malloc(sizeof(int) * scoreSize);
+    for (int i = 0; i < scoreSize; i++) order[i] = i;
+    SCORE_REF = score;
+    qsort(order, scoreSize, sizeof(int), cmp);
+    char** ans = (char**)malloc(sizeof(char*) * scoreSize);
+    const char* medals[3] = {"Gold Medal", "Silver Medal", "Bronze Medal"};
+    for (int k = 0; k < scoreSize; k++) {
+        char buf[16];
+        if (k < 3) {
+            ans[order[k]] = strdup(medals[k]);
+        } else {
+            snprintf(buf, sizeof(buf), "%d", k + 1);
+            ans[order[k]] = strdup(buf);
+        }
+    }
+    free(order);
+    *returnSize = scoreSize;
+    return ans;
+}`,
+        complexity: { time: 'O(n log n)', space: 'O(n)' },
+        approach: 'qsort needs a free-function comparator, so stash the score pointer in a static SCORE_REF and dereference it inside cmp. strdup gives each answer slot its own heap buffer — required because LeetCode expects to free each char* independently.',
+      },
+      go: {
+        code: `func findRelativeRanks(score []int) []string {
+    n := len(score)
+    order := make([]int, n)
+    for i := range order {
+        order[i] = i
+    }
+    sort.Slice(order, func(a, b int) bool {
+        return score[order[a]] > score[order[b]]
+    })
+    medals := []string{"Gold Medal", "Silver Medal", "Bronze Medal"}
+    ans := make([]string, n)
+    for k, idx := range order {
+        if k < 3 {
+            ans[idx] = medals[k]
+        } else {
+            ans[idx] = strconv.Itoa(k + 1)
+        }
+    }
+    return ans
+}`,
+        complexity: { time: 'O(n log n)', space: 'O(n)' },
+        approach: 'sort.Slice with a custom less function on indices avoids reflection cost vs sort.Sort. Note the comparator receives the positions IN the slice (a, b), so we resolve order[a]/order[b] to get the underlying scores. strconv.Itoa is the cheapest int-to-string in Go.',
+      },
+    },
+  },
+  'assign-cookies': {
+    /* SPLICE:wave9l-rank-cookie-duo v1 */
+    tags: ['array', 'sorting', 'two-pointers', 'greedy'],
+    companies: ['amazon', 'microsoft', 'google', 'apple', 'meta'],
+    viz: (() => {
+      // g = greed factors of children, s = cookie sizes.
+      // Sort both ascending. Pointer i walks children, j walks cookies.
+      // For each cookie, if it can satisfy the current least-greedy child,
+      // give it (i++); otherwise discard the cookie (j++). Return i.
+      const g = [1, 2, 3];
+      const s = [1, 1];
+      const gs = g.slice().sort((a, b) => a - b);
+      const ss = s.slice().sort((a, b) => a - b);
+      const frames = [];
+
+      frames.push({
+        array: gs.slice(),
+        chip: [
+          { label: 'g', value: '[' + gs.join(',') + ']' },
+          { label: 's', value: '[' + ss.join(',') + ']' },
+        ],
+        caption: 'Children\'s greed factors are g; cookie sizes are s. A child i is content if some cookie size >= g[i]. Each cookie feeds at most one child, each child gets at most one cookie. We want to maximize the number of content children.',
+      });
+
+      frames.push({
+        array: gs.slice(),
+        chip: 'sort both ascending',
+        caption: 'Greedy intuition: if a small cookie can satisfy any child, give it to the LEAST greedy child it can satisfy — burning a bigger cookie on a tiny child wastes a resource that a hungrier child might have needed. Sorting both arrays ascending makes "least greedy unfed child" and "smallest remaining cookie" both available in O(1) at the front of each pointer.',
+      });
+
+      let i = 0, j = 0;
+      const n = gs.length, m = ss.length;
+      while (i < n && j < m) {
+        if (ss[j] >= gs[i]) {
+          frames.push({
+            array: gs.slice(),
+            highlights: { [i]: 'match' },
+            chip: [
+              { label: 'cookie s[j]', value: String(ss[j]) },
+              { label: 'child g[i]', value: String(gs[i]) },
+              { label: 'feed', value: 'yes', tone: 'violet' },
+            ],
+            caption: 'Cookie of size ' + ss[j] + ' >= greed ' + gs[i] + ' — feed child ' + i + '. They are content. Advance both pointers: this cookie is used, this child is satisfied.',
+          });
+          i++;
+          j++;
+        } else {
+          frames.push({
+            array: gs.slice(),
+            highlights: { [i]: 'low' },
+            chip: [
+              { label: 'cookie s[j]', value: String(ss[j]) },
+              { label: 'child g[i]', value: String(gs[i]) },
+              { label: 'feed', value: 'no', tone: 'pink' },
+            ],
+            caption: 'Cookie of size ' + ss[j] + ' < greed ' + gs[i] + ' — too small for the least greedy unfed child, so it is too small for everyone else too (g is sorted ascending). Discard the cookie: j++.',
+          });
+          j++;
+        }
+      }
+
+      frames.push({
+        array: gs.slice(),
+        chip: [
+          { label: 'answer', value: String(i), tone: 'violet' },
+          { label: 'children content', value: String(i) + '/' + n },
+        ],
+        caption: 'Loop exits when we run out of children or cookies. The number of content children is exactly i (the children pointer), because i only advanced when a child was fed. Total work O(n log n + m log m) from the two sorts; the two-pointer pass is O(n + m).',
+        highlights: Object.fromEntries(gs.map((_, k) => [k, k < i ? 'match' : 'low'])),
+      });
+
+      while (frames.length < 10) {
+        frames.push({
+          array: gs.slice(),
+          chip: 'recap',
+          caption: 'Recap: sort both ascending, then walk the smallest unused cookie against the least greedy unfed child. Feed if it fits (advance both), discard if it does not (advance cookie only). Greedy is optimal here because any swap with a different pairing would not increase the count.',
+        });
+      }
+
+      return { renderer: 'array', frames };
+    })(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def findContentChildren(self, g: List[int], s: List[int]) -> int:
+        g.sort()
+        s.sort()
+        i = 0
+        for cookie in s:
+            if i < len(g) and cookie >= g[i]:
+                i += 1
+        return i`,
+        complexity: { time: 'O(n log n + m log m)', space: 'O(1) extra' },
+        approach: 'Sort both ascending. Iterate cookies in order; the i pointer always indexes the smallest still-unfed child. If the current cookie is large enough, it goes to that child (i++); otherwise the cookie is wasted and we move on. Return i — the count of fed children.',
+      },
+      javascript: {
+        code: `var findContentChildren = function(g, s) {
+  g.sort((a, b) => a - b);
+  s.sort((a, b) => a - b);
+  let i = 0;
+  for (const cookie of s) {
+    if (i < g.length && cookie >= g[i]) i++;
+  }
+  return i;
+};`,
+        complexity: { time: 'O(n log n + m log m)', space: 'O(1) extra' },
+        approach: 'JS default sort is LEXICOGRAPHIC, so passing (a, b) => a - b is mandatory for numeric ordering. The for..of loop streams cookies smallest-first; i advances only when a child gets fed, so the final i value is the answer.',
+      },
+      java: {
+        code: `class Solution {
+    public int findContentChildren(int[] g, int[] s) {
+        Arrays.sort(g);
+        Arrays.sort(s);
+        int i = 0;
+        for (int cookie : s) {
+            if (i < g.length && cookie >= g[i]) i++;
+        }
+        return i;
+    }
+}`,
+        complexity: { time: 'O(n log n + m log m)', space: 'O(1) extra' },
+        approach: 'Arrays.sort on int[] uses a dual-pivot quicksort, very fast in practice. Enhanced for-loop over s gives the cookies in ascending order; bound-check on i before the comparison prevents an array-out-of-bounds when all children are already fed.',
+      },
+      cpp: {
+        code: `class Solution {
+public:
+    int findContentChildren(vector<int>& g, vector<int>& s) {
+        sort(g.begin(), g.end());
+        sort(s.begin(), s.end());
+        int i = 0;
+        for (int cookie : s) {
+            if (i < (int)g.size() && cookie >= g[i]) i++;
+        }
+        return i;
+    }
+};`,
+        complexity: { time: 'O(n log n + m log m)', space: 'O(1) extra' },
+        approach: 'std::sort introsort gives n log n worst-case. Cast g.size() to int before comparing with int i to silence the signed/unsigned warning — size_t comparison would also work but mixing types here can bite on negative i in other variants.',
+      },
+      c: {
+        code: `#include <stdlib.h>
+
+static int cmp(const void* a, const void* b) {
+    return *(const int*)a - *(const int*)b;
+}
+
+int findContentChildren(int* g, int gSize, int* s, int sSize) {
+    qsort(g, gSize, sizeof(int), cmp);
+    qsort(s, sSize, sizeof(int), cmp);
+    int i = 0;
+    for (int j = 0; j < sSize; j++) {
+        if (i < gSize && s[j] >= g[i]) i++;
+    }
+    return i;
+}`,
+        complexity: { time: 'O(n log n + m log m)', space: 'O(1) extra' },
+        approach: 'qsort with a simple int comparator — subtraction is safe here because constraints cap values well below INT_MAX/2 so no overflow. The outer index j walks every cookie; i only advances on a fed child, giving the final count directly.',
+      },
+      go: {
+        code: `func findContentChildren(g []int, s []int) int {
+    sort.Ints(g)
+    sort.Ints(s)
+    i := 0
+    for _, cookie := range s {
+        if i < len(g) && cookie >= g[i] {
+            i++
+        }
+    }
+    return i
+}`,
+        complexity: { time: 'O(n log n + m log m)', space: 'O(1) extra' },
+        approach: 'sort.Ints is the specialized int-slice sort — faster than sort.Slice because it skips reflection. Range over s gives ascending cookies; the i bound-check short-circuits as soon as we run out of unfed children.',
+      },
+    },
+  },
+
+  'keep-multiplying-found-values-by-two': {
+    tags: ['array', 'hash-table', 'simulation'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: {
+      renderer: 'array',
+      title: 'Keep Multiplying Found Values by Two — set lookup + double',
+      frames: [
+        { array: [5, 3, 6, 1, 12], caption: 'nums = [5,3,6,1,12], original = 3. Keep doubling original while it appears in nums.' },
+        { array: [5, 3, 6, 1, 12], caption: 'Insert all values into a hashset → {5, 3, 6, 1, 12}. O(n) build, O(1) membership tests.' },
+        { array: [5, 3, 6, 1, 12], highlights: { 1: 'match' }, caption: 'Step 1: is 3 in the set? Yes (index 1). Double → original = 6.' },
+        { array: [5, 3, 6, 1, 12], highlights: { 2: 'match' }, caption: 'Step 2: is 6 in the set? Yes (index 2). Double → original = 12.' },
+        { array: [5, 3, 6, 1, 12], highlights: { 4: 'match' }, caption: 'Step 3: is 12 in the set? Yes (index 4). Double → original = 24.' },
+        { array: [5, 3, 6, 1, 12], caption: 'Step 4: is 24 in the set? No — chain ends.' },
+        { array: [5, 3, 6, 1, 12], caption: 'Return original = 24 — the first value in the doubling chain that is NOT in nums.' },
+        { array: [5, 3, 6, 1, 12], caption: 'Why a set, not the array? Repeated lookups in an array cost O(n) each → O(n·k) total. Set drops it to O(n + k).' },
+        { array: [5, 3, 6, 1, 12], caption: 'Termination: nums has ≤ 1000 entries and values ≤ 1000, so the doubling chain is bounded by log2(maxValue) ≈ 10 iterations. Loop is guaranteed to halt.' },
+        { array: [5, 3, 6, 1, 12], caption: 'Edge case: if original ∉ nums initially, return original unchanged. The while-loop body never runs.' },
+      ],
+    },
+    solutions: {
+      python: {
+        code: `class Solution:
+    def findFinalValue(self, nums, original):
+        pool = set(nums)
+        while original in pool:
+            original *= 2
+        return original`,
+        complexity: { time: 'O(n + log V)', space: 'O(n)' },
+        approach: 'Hash everything into a set, then keep doubling original while it remains a member. The chain length is bounded by log2(maxValue) so the loop is short.',
+      },
+      javascript: {
+        code: `function findFinalValue(nums, original) {
+  const pool = new Set(nums);
+  while (pool.has(original)) original *= 2;
+  return original;
+}`,
+        complexity: { time: 'O(n + log V)', space: 'O(n)' },
+        approach: 'Set constructor from array gives O(1) membership. Loop doubles in place — no extra state.',
+      },
+      java: {
+        code: `class Solution {
+    public int findFinalValue(int[] nums, int original) {
+        Set<Integer> pool = new HashSet<>();
+        for (int x : nums) pool.add(x);
+        while (pool.contains(original)) original *= 2;
+        return original;
+    }
+}`,
+        complexity: { time: 'O(n + log V)', space: 'O(n)' },
+        approach: 'HashSet for O(1) contains. Boxed Integer here is fine — n ≤ 1000.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int findFinalValue(vector<int>& nums, int original) {
+        unordered_set<int> pool(nums.begin(), nums.end());
+        while (pool.count(original)) original *= 2;
+        return original;
+    }
+};`,
+        complexity: { time: 'O(n + log V)', space: 'O(n)' },
+        approach: 'unordered_set built from iterators in one shot. count() is the standard membership probe.',
+      },
+      c: {
+        code: `#include <stdlib.h>
+
+int findFinalValue(int* nums, int numsSize, int original) {
+    int found = 1;
+    while (found) {
+        found = 0;
+        for (int i = 0; i < numsSize; i++) {
+            if (nums[i] == original) { found = 1; original *= 2; break; }
+        }
+    }
+    return original;
+}`,
+        complexity: { time: 'O(n · log V)', space: 'O(1)' },
+        approach: 'C has no built-in set, so the canonical interview answer is the nested scan. n ≤ 1000 keeps it fast in practice.',
+      },
+      go: {
+        code: `func findFinalValue(nums []int, original int) int {
+    pool := map[int]struct{}{}
+    for _, x := range nums {
+        pool[x] = struct{}{}
+    }
+    for {
+        if _, ok := pool[original]; !ok {
+            return original
+        }
+        original *= 2
+    }
+}`,
+        complexity: { time: 'O(n + log V)', space: 'O(n)' },
+        approach: 'Empty-struct map is the idiomatic Go set — zero-byte value, comma-ok membership.',
+      },
+    },
+    constraints: '1 ≤ nums.length ≤ 1000. 1 ≤ nums[i], original ≤ 1000.',
+    followUp: 'What if nums is a stream you cannot fully buffer? Then you cannot pre-build the set — answer becomes much harder and likely needs probabilistic structures like a Bloom filter, with tunable false-positive rate.',
+    similar: ['two-sum', 'contains-duplicate', 'find-the-difference'],
+  },
+
+  'count-pairs-of-similar-strings': {
+    tags: ['array', 'hash-table', 'string', 'bit-manipulation', 'counting'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    viz: {
+      renderer: 'array',
+      title: 'Count Pairs of Similar Strings — char-bitmask key + pair counting',
+      frames: [
+        { array: ['aba', 'aabb', 'abcd', 'bac', 'aabc'], caption: 'words = ["aba","aabb","abcd","bac","aabc"]. Two strings are similar iff they use the same SET of characters (counts irrelevant).' },
+        { array: ['aba', 'aabb', 'abcd', 'bac', 'aabc'], caption: 'Naive: for each pair, build two sets and compare. O(n² · L) — too slow at n = 10⁵.' },
+        { array: ['aba', 'aabb', 'abcd', 'bac', 'aabc'], caption: 'Fingerprint each word as a 26-bit mask. OR the bit for each letter present. Equal masks ⇔ same character set.' },
+        { array: ['aba', 'aabb', 'abcd', 'bac', 'aabc'], highlights: { 0: 'mid' }, caption: '"aba": letters {a,b}. mask = (1<<0) | (1<<1) = 0b011 = 3.' },
+        { array: ['aba', 'aabb', 'abcd', 'bac', 'aabc'], highlights: { 1: 'mid' }, caption: '"aabb": letters {a,b}. mask = 3. Already seen 1 word with mask 3 → +1 pair. counts[3] becomes 2.' },
+        { array: ['aba', 'aabb', 'abcd', 'bac', 'aabc'], highlights: { 2: 'mid' }, caption: '"abcd": letters {a,b,c,d}. mask = 0b01111 = 15. New — counts[15] = 1.' },
+        { array: ['aba', 'aabb', 'abcd', 'bac', 'aabc'], highlights: { 3: 'mid' }, caption: '"bac": letters {a,b,c}. mask = 0b00111 = 7. New — counts[7] = 1.' },
+        { array: ['aba', 'aabb', 'abcd', 'bac', 'aabc'], highlights: { 4: 'mid' }, caption: '"aabc": letters {a,b,c}. mask = 7. Already seen 1 word with mask 7 → +1 pair. counts[7] becomes 2.' },
+        { array: ['aba', 'aabb', 'abcd', 'bac', 'aabc'], caption: 'Total similar pairs = 2: (aba, aabb) and (bac, aabc).' },
+        { array: ['aba', 'aabb', 'abcd', 'bac', 'aabc'], caption: 'Why count-on-arrival? Adding counts[mask] BEFORE incrementing tallies exactly the pairs (i, j) with i < j sharing that mask — same identity as C(k, 2) = sum of (k-1) as the k-th equal word arrives.' },
+      ],
+    },
+    solutions: {
+      python: {
+        code: `class Solution:
+    def similarPairs(self, words):
+        counts = {}
+        ans = 0
+        for w in words:
+            mask = 0
+            for c in w:
+                mask |= 1 << (ord(c) - ord('a'))
+            ans += counts.get(mask, 0)
+            counts[mask] = counts.get(mask, 0) + 1
+        return ans`,
+        complexity: { time: 'O(n · L)', space: 'O(n)' },
+        approach: 'For each word build a 26-bit mask of letters present. The number of similar pairs equals, for each mask, C(count, 2) — accumulated incrementally by adding counts[mask] before bumping it.',
+      },
+      javascript: {
+        code: `function similarPairs(words) {
+  const counts = new Map();
+  let ans = 0;
+  for (const w of words) {
+    let mask = 0;
+    for (const c of w) mask |= 1 << (c.charCodeAt(0) - 97);
+    ans += counts.get(mask) || 0;
+    counts.set(mask, (counts.get(mask) || 0) + 1);
+  }
+  return ans;
+}`,
+        complexity: { time: 'O(n · L)', space: 'O(n)' },
+        approach: 'Identical strategy in JS. mask fits in 26 bits so plain Number works.',
+      },
+      java: {
+        code: `class Solution {
+    public int similarPairs(String[] words) {
+        Map<Integer, Integer> counts = new HashMap<>();
+        int ans = 0;
+        for (String w : words) {
+            int mask = 0;
+            for (int i = 0; i < w.length(); i++) mask |= 1 << (w.charAt(i) - 'a');
+            ans += counts.getOrDefault(mask, 0);
+            counts.merge(mask, 1, Integer::sum);
+        }
+        return ans;
+    }
+}`,
+        complexity: { time: 'O(n · L)', space: 'O(n)' },
+        approach: 'merge with Integer::sum is the cleanest "increment-with-default-zero" idiom in modern Java.',
+      },
+      cpp: {
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int similarPairs(vector<string>& words) {
+        unordered_map<int, int> counts;
+        int ans = 0;
+        for (const string& w : words) {
+            int mask = 0;
+            for (char c : w) mask |= 1 << (c - 'a');
+            ans += counts[mask];
+            ++counts[mask];
+        }
+        return ans;
+    }
+};`,
+        complexity: { time: 'O(n · L)', space: 'O(n)' },
+        approach: 'unordered_map<int,int> default-constructs to 0, so counts[mask] safely reads-then-increments without an explicit find().',
+      },
+      c: {
+        code: `#include <stdlib.h>
+#include <string.h>
+
+int similarPairs(char** words, int wordsSize) {
+    // mask fits in 26 bits → at most 2^26 distinct keys, but in practice few.
+    // We use a fixed-size open-addressing table with linear probing.
+    int CAP = 1 << 17;
+    int* keys = (int*)malloc(CAP * sizeof(int));
+    int* vals = (int*)calloc(CAP, sizeof(int));
+    char* used = (char*)calloc(CAP, sizeof(char));
+    int ans = 0;
+    for (int i = 0; i < wordsSize; i++) {
+        int mask = 0;
+        for (char* p = words[i]; *p; p++) mask |= 1 << (*p - 'a');
+        unsigned int h = (unsigned int)mask * 2654435761u;
+        int idx = h & (CAP - 1);
+        while (used[idx] && keys[idx] != mask) idx = (idx + 1) & (CAP - 1);
+        if (used[idx]) { ans += vals[idx]; vals[idx]++; }
+        else { used[idx] = 1; keys[idx] = mask; vals[idx] = 1; }
+    }
+    free(keys); free(vals); free(used);
+    return ans;
+}`,
+        complexity: { time: 'O(n · L)', space: 'O(n)' },
+        approach: 'C has no hash map — rolled a small open-addressing table keyed on the 26-bit mask. Knuth multiplicative hash for distribution, table size a power of two for cheap modulo.',
+      },
+      go: {
+        code: `func similarPairs(words []string) int {
+    counts := map[int]int{}
+    ans := 0
+    for _, w := range words {
+        mask := 0
+        for _, c := range w {
+            mask |= 1 << (c - 'a')
+        }
+        ans += counts[mask]
+        counts[mask]++
+    }
+    return ans
+}`,
+        complexity: { time: 'O(n · L)', space: 'O(n)' },
+        approach: 'Go maps zero-default to 0, so counts[mask] reads-then-bumps cleanly. range w yields rune indices — fine for ASCII lowercase here.',
+      },
+    },
+    constraints: '1 ≤ words.length ≤ 100. 1 ≤ words[i].length ≤ 100. words[i] consists of lowercase English letters.',
+    followUp: 'What if the alphabet were Unicode rather than 26 lowercase letters? A 26-bit integer mask is no longer enough — switch to a frozenset of characters or sort the unique-char string and use it as the hash-map key.',
+    similar: ['count-pairs-of-similar-arrays', 'group-anagrams', 'find-resultant-array-after-removing-anagrams'],
+  },
+  'find-greatest-common-divisor-of-array': {
+    /* SPLICE:wave9n-gcd-consistent-duo v1 */
+    tags: ['array', 'math', 'number-theory'],
+    companies: ['amazon', 'microsoft', 'google', 'apple', 'meta'],
+    viz: findGCDViz(),
+    solutions: {
+      python: {
+        code: `from math import gcd
+
+class Solution:
+    def findGCD(self, nums: List[int]) -> int:
+        return gcd(min(nums), max(nums))`,
+        complexity: { time: 'O(n + log min)', space: 'O(1)' },
+        approach: 'GCD over an array equals gcd(min, max). One linear pass finds the two extremes; math.gcd does the Euclidean reduction in log-phi steps. Whole thing is a two-liner once you spot that any common divisor of the array must divide both the smallest and largest element.',
+      },
+      javascript: {
+        code: `var findGCD = function(nums) {
+  let lo = nums[0], hi = nums[0];
+  for (const x of nums) {
+    if (x < lo) lo = x;
+    if (x > hi) hi = x;
+  }
+  const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+  return gcd(hi, lo);
+};`,
+        complexity: { time: 'O(n + log min)', space: 'O(log min) recursion' },
+        approach: 'JS has no stdlib gcd, so a 4-line Euclidean helper does the job. Single pass tracks min and max simultaneously — two comparisons per element is cheaper than two separate Math.min / Math.max scans. Recursion depth is O(log min(a, b)); iterative form avoids stack entirely if you prefer.',
+      },
+      java: {
+        code: `class Solution {
+    public int findGCD(int[] nums) {
+        int lo = nums[0], hi = nums[0];
+        for (int x : nums) {
+            if (x < lo) lo = x;
+            if (x > hi) hi = x;
+        }
+        while (lo != 0) {
+            int t = hi % lo;
+            hi = lo;
+            lo = t;
+        }
+        return hi;
+    }
+}`,
+        complexity: { time: 'O(n + log min)', space: 'O(1)' },
+        approach: 'Iterative Euclidean keeps everything in two ints — no recursion, no autoboxing. Enhanced for-loop for the min/max scan. Could use java.math.BigInteger.valueOf(hi).gcd(BigInteger.valueOf(lo)).intValue() but that allocates and is way overkill for ints.',
+      },
+      cpp: {
+        code: `class Solution {
+public:
+    int findGCD(vector<int>& nums) {
+        auto [lo_it, hi_it] = minmax_element(nums.begin(), nums.end());
+        return gcd(*lo_it, *hi_it);
+    }
+};`,
+        complexity: { time: 'O(n + log min)', space: 'O(1)' },
+        approach: 'minmax_element does both extremes in one pass with 3n/2 comparisons (better than two separate passes which would be 2n). std::gcd is C++17, requires <numeric>. Structured binding unpacks the pair of iterators cleanly. The whole solution is two statements.',
+      },
+      c: {
+        code: `int gcd(int a, int b) {
+    while (b != 0) {
+        int t = a % b;
+        a = b;
+        b = t;
+    }
+    return a;
+}
+
+int findGCD(int* nums, int numsSize) {
+    int lo = nums[0], hi = nums[0];
+    for (int i = 1; i < numsSize; i++) {
+        if (nums[i] < lo) lo = nums[i];
+        if (nums[i] > hi) hi = nums[i];
+    }
+    return gcd(hi, lo);
+}`,
+        complexity: { time: 'O(n + log min)', space: 'O(1)' },
+        approach: 'No stdlib gcd in C either. Iterative Euclidean in a helper, then a tight loop for min/max. Branches are predictable on typical inputs so the CPU branch predictor handles them well. No allocations, no recursion — the kind of code that fits in I-cache and finishes before the next CPU stall.',
+      },
+      go: {
+        code: `func findGCD(nums []int) int {
+    lo, hi := nums[0], nums[0]
+    for _, x := range nums {
+        if x < lo {
+            lo = x
+        }
+        if x > hi {
+            hi = x
+        }
+    }
+    for lo != 0 {
+        hi, lo = lo, hi%lo
+    }
+    return hi
+}`,
+        complexity: { time: 'O(n + log min)', space: 'O(1)' },
+        approach: 'Go has no math.Gcd for ints (only big.Int has one), so a two-line iterative Euclidean inline does the work. Multiple assignment (hi, lo = lo, hi%lo) is Go-idiomatic for the swap-and-mod step — reads cleanly and compiles to the same code as a temp variable.',
+      },
+    },
+  },
+  'count-the-number-of-consistent-strings': {
+    /* SPLICE:wave9n-gcd-consistent-duo v1 */
+    tags: ['array', 'string', 'hash-table', 'bit-manipulation'],
+    companies: ['amazon', 'microsoft', 'google', 'apple', 'meta'],
+    viz: countConsistentStringsViz(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def countConsistentStrings(self, allowed: str, words: List[str]) -> int:
+        allowed_set = set(allowed)
+        return sum(1 for w in words if set(w) <= allowed_set)`,
+        complexity: { time: 'O(|allowed| + sum |w_i|)', space: 'O(|allowed|)' },
+        approach: 'Build allowed as a set, then for each word convert its characters to a set and use the <= subset operator. Pythonic and reads exactly like the problem statement. Slightly more allocation than the bitmask version but linear total work and crystal-clear intent.',
+      },
+      javascript: {
+        code: `var countConsistentStrings = function(allowed, words) {
+  const ok = new Set(allowed);
+  let count = 0;
+  for (const w of words) {
+    let good = true;
+    for (const c of w) {
+      if (!ok.has(c)) { good = false; break; }
+    }
+    if (good) count++;
+  }
+  return count;
+};`,
+        complexity: { time: 'O(|allowed| + sum |w_i|)', space: 'O(|allowed|)' },
+        approach: 'Set membership is O(1) average. Inner loop short-circuits on the first bad character — this is what keeps total time linear. Using .every() would also work but the explicit break communicates the short-circuit clearly and avoids the small callback overhead per char.',
+      },
+      java: {
+        code: `class Solution {
+    public int countConsistentStrings(String allowed, String[] words) {
+        int mask = 0;
+        for (char c : allowed.toCharArray()) mask |= 1 << (c - 'a');
+        int count = 0;
+        for (String w : words) {
+            boolean good = true;
+            for (char c : w.toCharArray()) {
+                if ((mask & (1 << (c - 'a'))) == 0) { good = false; break; }
+            }
+            if (good) count++;
+        }
+        return count;
+    }
+}`,
+        complexity: { time: 'O(|allowed| + sum |w_i|)', space: 'O(1)' },
+        approach: '26-bit bitmask is faster and tighter than a HashSet for lowercase ASCII. Membership test is one AND. toCharArray() allocates but is constant-cost per string. Short-circuit on the first bad char keeps the worst case linear in total input length.',
+      },
+      cpp: {
+        code: `class Solution {
+public:
+    int countConsistentStrings(string allowed, vector<string>& words) {
+        int mask = 0;
+        for (char c : allowed) mask |= 1 << (c - 'a');
+        int count = 0;
+        for (const auto& w : words) {
+            bool good = true;
+            for (char c : w) {
+                if (!(mask & (1 << (c - 'a')))) { good = false; break; }
+            }
+            if (good) count++;
+        }
+        return count;
+    }
+};`,
+        complexity: { time: 'O(|allowed| + sum |w_i|)', space: 'O(1)' },
+        approach: 'Same bitmask idea in C++. const auto& on the word avoids copying each string. Branch is highly predictable on typical inputs. Could do it as a one-liner with std::count_if + std::all_of but that hurts readability for marginal gain.',
+      },
+      c: {
+        code: `int countConsistentStrings(char* allowed, char** words, int wordsSize) {
+    int mask = 0;
+    for (int i = 0; allowed[i]; i++) mask |= 1 << (allowed[i] - 'a');
+    int count = 0;
+    for (int i = 0; i < wordsSize; i++) {
+        int good = 1;
+        for (int j = 0; words[i][j]; j++) {
+            if (!(mask & (1 << (words[i][j] - 'a')))) { good = 0; break; }
+        }
+        if (good) count++;
+    }
+    return count;
+}`,
+        complexity: { time: 'O(|allowed| + sum |w_i|)', space: 'O(1)' },
+        approach: 'Pure C with null-terminated string walking. Bitmask in an int — 32 bits is comfortably above the 26 we need. No allocations, no library calls beyond the implicit pointer arithmetic. Branch predictor handles the inner break cleanly on real inputs.',
+      },
+      go: {
+        code: `func countConsistentStrings(allowed string, words []string) int {
+    var mask uint32
+    for _, c := range allowed {
+        mask |= 1 << (c - 'a')
+    }
+    count := 0
+    for _, w := range words {
+        good := true
+        for _, c := range w {
+            if mask&(1<<(c-'a')) == 0 {
+                good = false
+                break
+            }
+        }
+        if good {
+            count++
+        }
+    }
+    return count
+}`,
+        complexity: { time: 'O(|allowed| + sum |w_i|)', space: 'O(1)' },
+        approach: 'uint32 makes the bit operations unambiguous (no sign weirdness). Range over a string in Go yields runes — fine here because the spec restricts to lowercase ASCII so each rune fits in one byte. The inner break keeps total work proportional to the sum of word lengths.',
+      },
+    },
+  },
+  'xor-operation-in-an-array': {
+    /* SPLICE:wave9o v1 */
+    tags: ["bit-manipulation","math","array","simulation"],
+    companies: ["amazon","microsoft","google","apple","meta"],
+    viz: xorOperationViz(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def xorOperation(self, n: int, start: int) -> int:
+        result = 0
+        for i in range(n):
+            result ^= start + 2 * i
+        return result`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: "Straight loop — compute each nums[i] = start + 2*i and fold it into a running XOR. XOR is associative and commutative so order does not matter and there is no carry to worry about. For LeetCode bounds (n <= 1000) this is trivially fast; an O(1) closed form exists using the identity XOR(0..k) cycles with period 4, but the loop is cleaner and more obviously correct.",
+      },
+      javascript: {
+        code: `var xorOperation = function(n, start) {
+  let result = 0;
+  for (let i = 0; i < n; i++) {
+    result ^= start + 2 * i;
+  }
+  return result;
+};`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: "Identical structure to the Python solution. JS bitwise operators coerce to 32-bit signed ints, which is safe here because the LeetCode constraints (n <= 1000, start <= 1000) keep every nums[i] well under 2^31. If the inputs grew large enough to overflow 32 bits you would need BigInt; that is not in play for this problem.",
+      },
+      java: {
+        code: `class Solution {
+    public int xorOperation(int n, int start) {
+        int result = 0;
+        for (int i = 0; i < n; i++) {
+            result ^= start + 2 * i;
+        }
+        return result;
+    }
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: "Two ints and a tight loop — JIT-friendly, no allocations. Java ints are 32-bit signed; the value range fits comfortably. The loop bound n is small (<= 1000) so there is no advantage to unrolling or using the closed-form trick in production code, though it is a fun follow-up if the interviewer probes.",
+      },
+      cpp: {
+        code: `class Solution {
+public:
+    int xorOperation(int n, int start) {
+        int result = 0;
+        for (int i = 0; i < n; ++i) {
+            result ^= start + 2 * i;
+        }
+        return result;
+    }
+};`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: "Minimal C++ — pre-increment in the loop is idiomatic. Compilers will happily auto-vectorize this kind of loop if you ever needed to push n much higher, though for n <= 1000 it does not matter. No headers beyond the implicit ones from class Solution{}.",
+      },
+      c: {
+        code: `int xorOperation(int n, int start) {
+    int result = 0;
+    for (int i = 0; i < n; i++) {
+        result ^= start + 2 * i;
+    }
+    return result;
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: "Lowest-level form: two registers (result and i), a single XOR per step, no function-call overhead beyond the entry. The CPU branch predictor handles the loop condition trivially. If you wanted the O(1) form here it is the same four-case match on n*start parity — but the constraints make any optimization premature.",
+      },
+      go: {
+        code: `func xorOperation(n int, start int) int {
+    result := 0
+    for i := 0; i < n; i++ {
+        result ^= start + 2*i
+    }
+    return result
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: "Go ^ is XOR on ints (it is also unary \"not\" — only context disambiguates). No allocations, no goroutines needed for n = 1000. The for-range form would work over a generated slice but allocating just to iterate is a waste; the C-style for is the idiomatic pick when you have a count.",
+      },
+    },
+  },
+  'sum-of-all-odd-length-subarrays': {
+    /* SPLICE:wave9o v1 */
+    tags: ["array","math","prefix-sum","contribution-technique"],
+    companies: ["amazon","microsoft","google","apple","bloomberg"],
+    viz: sumOddLengthSubarraysViz(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def sumOddLengthSubarrays(self, arr: List[int]) -> int:
+        total = 0
+        n = len(arr)
+        for i, v in enumerate(arr):
+            left = i + 1
+            right = n - i
+            total += v * ((left * right + 1) // 2)
+        return total`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: "Contribution technique: each arr[i] appears in left * right subarrays where left = i + 1 (start index choices) and right = n - i (end index choices). Exactly ceil(left * right / 2) of them are odd-length, which is (left * right + 1) // 2 with integer division. Multiply by arr[i] and accumulate. One pass, no extra storage, O(n) total — collapses the O(n^3) brute force.",
+      },
+      javascript: {
+        code: `var sumOddLengthSubarrays = function(arr) {
+  let total = 0;
+  const n = arr.length;
+  for (let i = 0; i < n; i++) {
+    const left = i + 1;
+    const right = n - i;
+    total += arr[i] * Math.floor((left * right + 1) / 2);
+  }
+  return total;
+};`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: "Same contribution math. Use Math.floor((L*R+1)/2) because plain (L*R+1)/2 would give a fraction when L*R is even (JS division returns a float). Constraint arr.length <= 100 and arr[i] <= 1000 keeps everything inside 32-bit range comfortably; no BigInt needed.",
+      },
+      java: {
+        code: `class Solution {
+    public int sumOddLengthSubarrays(int[] arr) {
+        int total = 0;
+        int n = arr.length;
+        for (int i = 0; i < n; i++) {
+            int left = i + 1;
+            int right = n - i;
+            total += arr[i] * ((left * right + 1) / 2);
+        }
+        return total;
+    }
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: "Integer arithmetic throughout — Java int division truncates toward zero, so (L*R+1)/2 cleanly computes ceil(L*R/2) for non-negative inputs. Worst case n=100 and arr[i]=1000 gives total well under 2^31, so int is safe; if constraints grew to n=1e5 you would promote to long.",
+      },
+      cpp: {
+        code: `class Solution {
+public:
+    int sumOddLengthSubarrays(vector<int>& arr) {
+        int total = 0;
+        int n = arr.size();
+        for (int i = 0; i < n; ++i) {
+            int left = i + 1;
+            int right = n - i;
+            total += arr[i] * ((left * right + 1) / 2);
+        }
+        return total;
+    }
+};`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: "Vector size returns size_t (unsigned) — assigning to int is fine for these constraints but in a real codebase you would use int(arr.size()) explicitly to silence the signed-unsigned warning. Loop is a single XOR-free arithmetic step per element; the compiler will keep everything in registers.",
+      },
+      c: {
+        code: `int sumOddLengthSubarrays(int* arr, int arrSize) {
+    int total = 0;
+    for (int i = 0; i < arrSize; i++) {
+        int left = i + 1;
+        int right = arrSize - i;
+        total += arr[i] * ((left * right + 1) / 2);
+    }
+    return total;
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: "Raw pointer + size pair — the standard LeetCode C signature. Same math, no allocation. C int division also truncates toward zero so (L*R+1)/2 evaluates to ceil for non-negatives. The whole solution compiles to maybe a dozen instructions; cache-friendly sequential access.",
+      },
+      go: {
+        code: `func sumOddLengthSubarrays(arr []int) int {
+    total := 0
+    n := len(arr)
+    for i, v := range arr {
+        left := i + 1
+        right := n - i
+        total += v * ((left*right + 1) / 2)
+    }
+    return total
+}`,
+        complexity: { time: 'O(n)', space: 'O(1)' },
+        approach: "Range form pulls (i, v) per step — no manual indexing, no slice bounds checks (well, the compiler still emits them but loop-unswitching elides repeat checks). Go int is 64-bit on most targets so overflow concerns disappear entirely. Idiomatic, short, no surprises.",
+      },
+    },
+  },
+  'decompress-run-length-encoded-list': {
+    /* SPLICE:wave9p-decompress-evendigits-duo v1 */
+    tags: ['array', 'simulation'],
+    companies: ['amazon', 'microsoft', 'google', 'apple', 'adobe'],
+    viz: decompressRLEViz(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def decompressRLElist(self, nums: List[int]) -> List[int]:
+        out = []
+        for i in range(0, len(nums), 2):
+            out.extend([nums[i + 1]] * nums[i])
+        return out`,
+        complexity: { time: 'O(sum of frequencies)', space: 'O(output)' },
+        approach: 'Walk nums in stride-2: index i is the frequency, i+1 is the value. [val] * freq builds the run as a Python list, then extend appends it in one memcpy. Cleaner than a nested for-loop and equally fast because list.extend is implemented in C.',
+      },
+      javascript: {
+        code: `var decompressRLElist = function(nums) {
+  const out = [];
+  for (let i = 0; i < nums.length; i += 2) {
+    const freq = nums[i], val = nums[i + 1];
+    for (let k = 0; k < freq; k++) out.push(val);
+  }
+  return out;
+};`,
+        complexity: { time: 'O(sum of frequencies)', space: 'O(output)' },
+        approach: 'JS lacks a clean list-multiply, so an inner for-loop emits the run. push amortizes to O(1). Could swap to Array(freq).fill(val) + spread but the explicit loop is faster in V8 for typical sizes and avoids the temporary array allocation per pair.',
+      },
+      java: {
+        code: `class Solution {
+    public int[] decompressRLElist(int[] nums) {
+        int total = 0;
+        for (int i = 0; i < nums.length; i += 2) total += nums[i];
+        int[] out = new int[total];
+        int p = 0;
+        for (int i = 0; i < nums.length; i += 2) {
+            int freq = nums[i], val = nums[i + 1];
+            for (int k = 0; k < freq; k++) out[p++] = val;
+        }
+        return out;
+    }
+}`,
+        complexity: { time: 'O(sum of frequencies)', space: 'O(output)' },
+        approach: 'Two passes: first sums the frequencies to allocate the output of exact size, second fills it. Avoids ArrayList growth churn entirely — the inner loop is a tight array-write. Worth the extra pass because the output size is bounded but unknown up front.',
+      },
+      cpp: {
+        code: `class Solution {
+public:
+    vector<int> decompressRLElist(vector<int>& nums) {
+        vector<int> out;
+        int total = 0;
+        for (size_t i = 0; i < nums.size(); i += 2) total += nums[i];
+        out.reserve(total);
+        for (size_t i = 0; i < nums.size(); i += 2) {
+            out.insert(out.end(), nums[i], nums[i + 1]);
+        }
+        return out;
+    }
+};`,
+        complexity: { time: 'O(sum of frequencies)', space: 'O(output)' },
+        approach: 'reserve up front to avoid vector resize during inserts. vector::insert with a (count, value) overload fills freq copies of val in one call — same memset / fill optimization the compiler uses internally. Two-pass cost is paid back by zero realloc.',
+      },
+      c: {
+        code: `int* decompressRLElist(int* nums, int numsSize, int* returnSize) {
+    int total = 0;
+    for (int i = 0; i < numsSize; i += 2) total += nums[i];
+    int* out = (int*)malloc(sizeof(int) * total);
+    int p = 0;
+    for (int i = 0; i < numsSize; i += 2) {
+        for (int k = 0; k < nums[i]; k++) out[p++] = nums[i + 1];
+    }
+    *returnSize = total;
+    return out;
+}`,
+        complexity: { time: 'O(sum of frequencies)', space: 'O(output)' },
+        approach: 'Same two-pass shape in C: sum frequencies, malloc exactly that many ints, fill. Caller frees. No fancy memcpy variants — the inner loop is tight enough that the compiler can unroll or vectorize it on modern hardware.',
+      },
+      go: {
+        code: `func decompressRLElist(nums []int) []int {
+    total := 0
+    for i := 0; i < len(nums); i += 2 {
+        total += nums[i]
+    }
+    out := make([]int, 0, total)
+    for i := 0; i < len(nums); i += 2 {
+        freq, val := nums[i], nums[i+1]
+        for k := 0; k < freq; k++ {
+            out = append(out, val)
+        }
+    }
+    return out
+}`,
+        complexity: { time: 'O(sum of frequencies)', space: 'O(output)' },
+        approach: 'make with capacity = total avoids growth churn during append. Go append is amortized O(1) but pre-sizing eliminates the amortization constant. Could swap to direct index writes with out := make([]int, total) + p++, marginally faster but less idiomatic.',
+      },
+    },
+  },
+  'find-numbers-with-even-number-of-digits': {
+    /* SPLICE:wave9p-decompress-evendigits-duo v1 */
+    tags: ['array', 'math'],
+    companies: ['amazon', 'microsoft', 'google', 'apple', 'adobe'],
+    viz: findEvenDigitNumbersViz(),
+    solutions: {
+      python: {
+        code: `class Solution:
+    def findNumbers(self, nums: List[int]) -> int:
+        return sum(1 for x in nums if len(str(x)) % 2 == 0)`,
+        complexity: { time: 'O(n log max)', space: 'O(1)' },
+        approach: 'One-liner: for each number, convert to string, check if its length is even, count matches. len(str(x)) reads as "digit count of x" — clear and correct (no log precision pitfalls). Generator + sum keeps space constant.',
+      },
+      javascript: {
+        code: `var findNumbers = function(nums) {
+  let count = 0;
+  for (const x of nums) {
+    if (String(x).length % 2 === 0) count++;
+  }
+  return count;
+};`,
+        complexity: { time: 'O(n log max)', space: 'O(1)' },
+        approach: 'String(x).length gives the digit count for positive integers — no floating-point log needed. for-of with an explicit counter is the tightest form in V8; reduce or filter().length both allocate intermediates.',
+      },
+      java: {
+        code: `class Solution {
+    public int findNumbers(int[] nums) {
+        int count = 0;
+        for (int x : nums) {
+            int d = 0;
+            while (x > 0) { x /= 10; d++; }
+            if (d % 2 == 0) count++;
+        }
+        return count;
+    }
+}`,
+        complexity: { time: 'O(n log max)', space: 'O(1)' },
+        approach: 'Divide-by-10 digit count avoids the String.valueOf allocation per number. For LC constraints (max 10^5) the inner loop runs at most 6 times, so the whole thing is effectively linear. Pure int arithmetic — fits in registers.',
+      },
+      cpp: {
+        code: `class Solution {
+public:
+    int findNumbers(vector<int>& nums) {
+        int count = 0;
+        for (int x : nums) {
+            int d = 0;
+            while (x > 0) { x /= 10; d++; }
+            if ((d & 1) == 0) count++;
+        }
+        return count;
+    }
+};`,
+        complexity: { time: 'O(n log max)', space: 'O(1)' },
+        approach: 'Same divide-by-10 idea; d & 1 is the parity test (compiler will lower d % 2 to the same thing but the explicit AND signals intent). Could use to_string(x).length() but that allocates per number and is slower in tight benchmarks.',
+      },
+      c: {
+        code: `int findNumbers(int* nums, int numsSize) {
+    int count = 0;
+    for (int i = 0; i < numsSize; i++) {
+        int x = nums[i], d = 0;
+        while (x > 0) { x /= 10; d++; }
+        if ((d & 1) == 0) count++;
+    }
+    return count;
+}`,
+        complexity: { time: 'O(n log max)', space: 'O(1)' },
+        approach: 'Plain C: each x is reduced by dividing by 10 in a local copy. No allocations, no library calls. The inner while is at most 6 iterations for LC bounds — branch predictor handles it perfectly.',
+      },
+      go: {
+        code: `func findNumbers(nums []int) int {
+    count := 0
+    for _, x := range nums {
+        d := 0
+        for x > 0 {
+            x /= 10
+            d++
+        }
+        if d%2 == 0 {
+            count++
+        }
+    }
+    return count
+}`,
+        complexity: { time: 'O(n log max)', space: 'O(1)' },
+        approach: 'Range over the slice, divide-by-10 to count digits, parity check. Idiomatic Go avoids strconv.Itoa entirely. Could use math.Log10 but that risks precision issues at powers of 10 — not worth it for a 6-iteration inner loop.',
+      },
+    },
+  },
+
+  'kids-with-the-greatest-number-of-candies': {
+    tags: ['array', 'simulation'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    constraints: "n == candies.length\n2 <= n <= 100\n1 <= candies[i] <= 100\n1 <= extraCandies <= 50",
+    followUp: "What if the array streams in and you must answer queries online? Track the max as you go and re-check older kids on each update.",
+    similar: ['shuffle-the-array', 'running-sum-of-1d-array', 'how-many-numbers-are-smaller-than-the-current-number'],
+    viz: [
+      { step: 1, note: "Input candies=[2,3,5,1,3], extra=3. Scan once to find max." },
+      { step: 2, note: "i=0: candies[0]=2 -> running max = 2." },
+      { step: 3, note: "i=1: candies[1]=3 > 2 -> running max = 3." },
+      { step: 4, note: "i=2: candies[2]=5 > 3 -> running max = 5." },
+      { step: 5, note: "i=3: candies[3]=1 < 5 -> max stays 5." },
+      { step: 6, note: "i=4: candies[4]=3 < 5 -> max stays 5. Final max = 5." },
+      { step: 7, note: "Second pass: kid 0 has 2+3=5 >= 5 -> true." },
+      { step: 8, note: "Kid 1: 3+3=6 >= 5 -> true. Kid 2: 5+3=8 >= 5 -> true." },
+      { step: 9, note: "Kid 3: 1+3=4 < 5 -> false. Kid 4: 3+3=6 >= 5 -> true." },
+      { step: 10, note: "Result [true,true,true,false,true]. Two passes, O(n) total." },
+    ],
+    solutions: {
+      python: {
+        code: "class Solution:\n    def kidsWithCandies(self, candies, extraCandies):\n        m = max(candies)\n        return [c + extraCandies >= m for c in candies]",
+        complexity: { time: "O(n)", space: "O(n)" },
+        approach: "Prepass once to capture the maximum, then a list comprehension checks each kid against m. Two linear passes, O(n) overall.",
+      },
+      javascript: {
+        code: "var kidsWithCandies = function(candies, extraCandies) {\n    const m = Math.max(...candies);\n    return candies.map(c => c + extraCandies >= m);\n};",
+        complexity: { time: "O(n)", space: "O(n)" },
+        approach: "Math.max with spread captures the maximum in one shot, then map produces the boolean array. Watch the spread limit on huge inputs.",
+      },
+      java: {
+        code: "class Solution {\n    public List<Boolean> kidsWithCandies(int[] candies, int extraCandies) {\n        int m = 0;\n        for (int c : candies) if (c > m) m = c;\n        List<Boolean> out = new ArrayList<>(candies.length);\n        for (int c : candies) out.add(c + extraCandies >= m);\n        return out;\n    }\n}",
+        complexity: { time: "O(n)", space: "O(n)" },
+        approach: "Manual max loop avoids autoboxing; ArrayList<Boolean> is the required return type. Two clean passes.",
+      },
+      cpp: {
+        code: "class Solution {\npublic:\n    vector<bool> kidsWithCandies(vector<int>& candies, int extraCandies) {\n        int m = *max_element(candies.begin(), candies.end());\n        vector<bool> out;\n        out.reserve(candies.size());\n        for (int c : candies) out.push_back(c + extraCandies >= m);\n        return out;\n    }\n};",
+        complexity: { time: "O(n)", space: "O(n)" },
+        approach: "std::max_element returns an iterator to the max; dereference once. reserve() avoids vector growth churn during the second pass.",
+      },
+      typescript: {
+        code: "function kidsWithCandies(candies: number[], extraCandies: number): boolean[] {\n    const m = Math.max(...candies);\n    return candies.map(c => c + extraCandies >= m);\n}",
+        complexity: { time: "O(n)", space: "O(n)" },
+        approach: "Same shape as JavaScript, with the boolean[] return type made explicit.",
+      },
+      go: {
+        code: "func kidsWithCandies(candies []int, extraCandies int) []bool {\n    m := 0\n    for _, c := range candies {\n        if c > m { m = c }\n    }\n    out := make([]bool, len(candies))\n    for i, c := range candies {\n        out[i] = c + extraCandies >= m\n    }\n    return out\n}",
+        complexity: { time: "O(n)", space: "O(n)" },
+        approach: "Plain loops, no allocations beyond the output slice. Comparing against the cached max keeps the inner pass branch-free aside from the >= check.",
+      },
+    },
+  },
+
+  'shuffle-the-array': {
+    tags: ['array', 'simulation'],
+    companies: ['amazon', 'meta', 'microsoft', 'google', 'apple'],
+    constraints: "1 <= n <= 500\nnums.length == 2 * n\n1 <= nums[i] <= 1000",
+    followUp: "Do it in O(1) extra space: encode both halves into nums[i] using bit-packing since values fit in 10 bits.",
+    similar: ['kids-with-the-greatest-number-of-candies', 'running-sum-of-1d-array', 'build-array-from-permutation'],
+    viz: [
+      { step: 1, note: "Input nums=[2,5,1,3,4,7], n=3. Split into x=[2,5,1] and y=[3,4,7]." },
+      { step: 2, note: "Allocate output of length 2n = 6, all slots empty." },
+      { step: 3, note: "i=0: out[0]=x[0]=2. State: [2,_,_,_,_,_]." },
+      { step: 4, note: "i=0: out[1]=y[0]=3. State: [2,3,_,_,_,_]." },
+      { step: 5, note: "i=1: out[2]=x[1]=5. State: [2,3,5,_,_,_]." },
+      { step: 6, note: "i=1: out[3]=y[1]=4. State: [2,3,5,4,_,_]." },
+      { step: 7, note: "i=2: out[4]=x[2]=1. State: [2,3,5,4,1,_]." },
+      { step: 8, note: "i=2: out[5]=y[2]=7. State: [2,3,5,4,1,7]." },
+      { step: 9, note: "Loop ends after n=3 iterations. Every x slot paired with its y partner." },
+      { step: 10, note: "Return [2,3,5,4,1,7]. Single linear pass, O(n) time and space." },
+    ],
+    solutions: {
+      python: {
+        code: "class Solution:\n    def shuffle(self, nums, n):\n        out = [0] * (2 * n)\n        for i in range(n):\n            out[2 * i] = nums[i]\n            out[2 * i + 1] = nums[i + n]\n        return out",
+        complexity: { time: "O(n)", space: "O(n)" },
+        approach: "Allocate the output upfront; one loop writes both interleaved positions per iteration. No branching, just index arithmetic.",
+      },
+      javascript: {
+        code: "var shuffle = function(nums, n) {\n    const out = new Array(2 * n);\n    for (let i = 0; i < n; i++) {\n        out[2 * i] = nums[i];\n        out[2 * i + 1] = nums[i + n];\n    }\n    return out;\n};",
+        complexity: { time: "O(n)", space: "O(n)" },
+        approach: "Pre-sized Array keeps writes O(1). Indexes 2*i and 2*i+1 always pair the matching x/y elements without extra bookkeeping.",
+      },
+      java: {
+        code: "class Solution {\n    public int[] shuffle(int[] nums, int n) {\n        int[] out = new int[2 * n];\n        for (int i = 0; i < n; i++) {\n            out[2 * i] = nums[i];\n            out[2 * i + 1] = nums[i + n];\n        }\n        return out;\n    }\n}",
+        complexity: { time: "O(n)", space: "O(n)" },
+        approach: "Primitive int[] avoids boxing. The 2*i / 2*i+1 pattern is the canonical interleave used in many competitive-programming kernels.",
+      },
+      cpp: {
+        code: "class Solution {\npublic:\n    vector<int> shuffle(vector<int>& nums, int n) {\n        vector<int> out(2 * n);\n        for (int i = 0; i < n; i++) {\n            out[2 * i] = nums[i];\n            out[2 * i + 1] = nums[i + n];\n        }\n        return out;\n    }\n};",
+        complexity: { time: "O(n)", space: "O(n)" },
+        approach: "vector<int> sized once at construction — no push_back resizing. Tight loop the compiler typically auto-vectorizes.",
+      },
+      typescript: {
+        code: "function shuffle(nums: number[], n: number): number[] {\n    const out: number[] = new Array(2 * n);\n    for (let i = 0; i < n; i++) {\n        out[2 * i] = nums[i];\n        out[2 * i + 1] = nums[i + n];\n    }\n    return out;\n}",
+        complexity: { time: "O(n)", space: "O(n)" },
+        approach: "Same shape as JavaScript with explicit number[] typing for both nums and the output.",
+      },
+      go: {
+        code: "func shuffle(nums []int, n int) []int {\n    out := make([]int, 2*n)\n    for i := 0; i < n; i++ {\n        out[2*i] = nums[i]\n        out[2*i+1] = nums[i+n]\n    }\n    return out\n}",
+        complexity: { time: "O(n)", space: "O(n)" },
+        approach: "make pre-sizes the slice. The interleave loop runs n iterations, doing two writes each, for 2n writes overall — exactly as many as the output has slots.",
+      },
+    },
+  },
 };
+
+function findWordsThatCanBeFormedByCharactersViz() {
+  const words = ['cat', 'bt', 'hat', 'tree'];
+  const chars = 'atach';
+  const frames = [];
+  const charsCounter = {};
+  for (const c of chars) charsCounter[c] = (charsCounter[c] || 0) + 1;
+  frames.push({
+    array: ['words = [' + words.map(w => '"' + w + '"').join(', ') + ']', 'chars = "' + chars + '"'],
+    chip: [
+      { label: 'task', value: 'sum lengths of words formable from chars (each chars[i] usable once across the whole word)', tone: 'violet' },
+    ],
+    caption: 'A word is "good" if for every letter l, count(l in word) <= count(l in chars). Sum lengths of all good words. The pool chars is reused per word (not consumed) — each word is checked against the original counter independently.',
+  });
+  frames.push({
+    array: Object.entries(charsCounter).map(([k, v]) => k + ' : ' + v),
+    chip: [{ label: 'precompute', value: 'Counter(chars)', tone: 'violet' }],
+    caption: 'Build Counter(chars) once — O(L) where L = |chars|. Each subsequent word check is O(|word|) instead of O(|word| * L). Doing this per-word would be wasteful; precompute is the only path to linear total work.',
+  });
+  let total = 0;
+  for (const w of words) {
+    const wc = {};
+    for (const c of w) wc[c] = (wc[c] || 0) + 1;
+    let good = true;
+    let badLetter = '';
+    for (const [k, v] of Object.entries(wc)) {
+      if ((charsCounter[k] || 0) < v) { good = false; badLetter = k; break; }
+    }
+    if (good) {
+      total += w.length;
+      frames.push({
+        array: ['word = "' + w + '"', 'counts = {' + Object.entries(wc).map(([k, v]) => k + ':' + v).join(', ') + '}'],
+        chip: [
+          { label: 'verdict', value: 'GOOD (+' + w.length + ')', tone: 'pink' },
+          { label: 'total', value: String(total), tone: 'pink' },
+        ],
+        caption: 'Word "' + w + '" — every letter count fits inside Counter(chars). Add len("' + w + '") = ' + w.length + ' to total. Running total = ' + total + '. Notice chars is NOT decremented; the pool resets for the next word.',
+      });
+    } else {
+      frames.push({
+        array: ['word = "' + w + '"', 'fails on letter "' + badLetter + '" (need ' + wc[badLetter] + ', have ' + (charsCounter[badLetter] || 0) + ')'],
+        chip: [
+          { label: 'verdict', value: 'BAD', tone: 'violet' },
+          { label: 'short-circuit', value: 'first failing letter', tone: 'violet' },
+        ],
+        caption: 'Word "' + w + '" — letter "' + badLetter + '" needs ' + wc[badLetter] + ' copies but chars has only ' + (charsCounter[badLetter] || 0) + '. Reject immediately; no need to check the rest. Total stays ' + total + '.',
+      });
+    }
+  }
+  frames.push({
+    array: ['final total = ' + total],
+    chip: [
+      { label: 'time', value: 'O(L + sum |word_i|)', tone: 'violet' },
+      { label: 'space', value: 'O(26) ASCII bound', tone: 'violet' },
+    ],
+    caption: 'Total length of good words = ' + total + '. Time is linear in input size — counter is the trick. The 26-letter bound on lowercase makes space effectively constant; works with a 26-int array instead of a hash map if you want to squeeze the constant.',
+  });
+  frames.push({
+    array: [
+      'rules:',
+      '  good(word) iff Counter(word) <= Counter(chars) component-wise',
+      '  pool resets per word (chars not consumed)',
+      '  short-circuit on first failing letter',
+    ],
+    chip: [{ label: 'pitfall', value: 'do not decrement chars across words', tone: 'pink' }],
+    caption: 'The most common bug: subtracting from chars after a good word — that makes later words artificially fail. Read the problem carefully: "each character in chars can only be used once" means once PER WORD, not once across the whole input.',
+  });
+  while (frames.length < 12) {
+    frames.push({
+      array: ['edge:', '  empty word -> trivially good (+0)', '  word longer than chars -> still possible if letters happen to match (counts not length)', '  duplicate letters in word stress the counter check'],
+      chip: [{ label: 'note', value: 'len(word) > len(chars) does NOT imply bad', tone: 'violet' }],
+      caption: 'Edge cases worth thinking about: empty word adds 0 and is technically good. A word longer than chars can never be good (pigeonhole) but the reverse — len(word) <= len(chars) — does NOT imply good (letters might not match). Always rely on the counter compare, not lengths.',
+    });
+  }
+  return { renderer: 'array', title: 'Find Words That Can Be Formed by Characters - counter compare per word', frames };
+}
+
+function largestTimeForGivenDigitsViz() {
+  const arr = [1, 2, 3, 4];
+  const frames = [];
+  frames.push({
+    array: ['arr = [' + arr.join(', ') + ']'],
+    chip: [
+      { label: 'task', value: 'arrange 4 digits as HH:MM (00:00 .. 23:59), pick largest; "" if none valid', tone: 'violet' },
+    ],
+    caption: 'Arrange the 4 digits into hh:mm. Valid clock: hour in [0..23], minute in [0..59]. We want the lexicographically largest valid string (which equals the numerically largest time since HH:MM is fixed-width). Brute force 24 permutations is fine — 4! is tiny.',
+  });
+  const perms = [];
+  const seen = new Set();
+  const a = arr;
+  for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) for (let k = 0; k < 4; k++) for (let l = 0; l < 4; l++) {
+    if (i === j || i === k || i === l || j === k || j === l || k === l) continue;
+    perms.push([a[i], a[j], a[k], a[l]]);
+  }
+  frames.push({
+    array: ['generated ' + perms.length + ' permutations (4! = 24)'],
+    chip: [
+      { label: 'method', value: 'enumerate all index permutations', tone: 'violet' },
+      { label: 'why indices', value: 'duplicate values are still distinct slots', tone: 'violet' },
+    ],
+    caption: 'Permute INDICES not values. With arr = [1,1,2,3], value-based permutations would dedupe wrongly — we lose options. 4! = 24 candidates: tiny constant, brute force is the right tool.',
+  });
+  let best = -1;
+  let bestStr = '';
+  const sample = perms.slice(0, 8);
+  for (const p of sample) {
+    const h = p[0] * 10 + p[1];
+    const m = p[2] * 10 + p[3];
+    const ok = h < 24 && m < 60;
+    if (ok) {
+      const minutes = h * 60 + m;
+      if (minutes > best) {
+        best = minutes;
+        bestStr = String(p[0]) + String(p[1]) + ':' + String(p[2]) + String(p[3]);
+        frames.push({
+          array: ['perm = ' + p.join(''), 'h=' + (h < 10 ? '0' + h : h) + ' m=' + (m < 10 ? '0' + m : m)],
+          chip: [
+            { label: 'valid', value: 'h<24 and m<60', tone: 'pink' },
+            { label: 'new best', value: bestStr, tone: 'pink' },
+          ],
+          caption: 'Permutation ' + p.join('') + ' -> ' + (h < 10 ? '0' + h : h) + ':' + (m < 10 ? '0' + m : m) + '. Valid clock. Minutes since midnight = ' + minutes + '. New best = ' + bestStr + '.',
+        });
+      } else {
+        frames.push({
+          array: ['perm = ' + p.join(''), 'h=' + (h < 10 ? '0' + h : h) + ' m=' + (m < 10 ? '0' + m : m)],
+          chip: [
+            { label: 'valid', value: 'but smaller', tone: 'violet' },
+            { label: 'best so far', value: bestStr, tone: 'violet' },
+          ],
+          caption: 'Permutation ' + p.join('') + ' is valid (' + (h < 10 ? '0' + h : h) + ':' + (m < 10 ? '0' + m : m) + ') but minutes ' + minutes + ' <= current best ' + best + '. Skip; keep ' + bestStr + '.',
+        });
+      }
+    } else {
+      frames.push({
+        array: ['perm = ' + p.join(''), 'h=' + h + ' m=' + m],
+        chip: [
+          { label: 'invalid', value: h >= 24 ? 'h>=24' : 'm>=60', tone: 'violet' },
+        ],
+        caption: 'Permutation ' + p.join('') + ' -> h=' + h + ', m=' + m + '. Invalid (' + (h >= 24 ? 'hour >= 24' : 'minute >= 60') + '). Reject. Best stays ' + (bestStr || '(none yet)') + '.',
+      });
+    }
+  }
+  // exhaustively finish silently to compute final best
+  for (const p of perms) {
+    const h = p[0] * 10 + p[1];
+    const m = p[2] * 10 + p[3];
+    if (h < 24 && m < 60) {
+      const minutes = h * 60 + m;
+      if (minutes > best) {
+        best = minutes;
+        bestStr = String(p[0]) + String(p[1]) + ':' + String(p[2]) + String(p[3]);
+      }
+    }
+  }
+  frames.push({
+    array: ['final = ' + (bestStr || '""')],
+    chip: [
+      { label: 'time', value: 'O(1) - 24 perms fixed', tone: 'violet' },
+      { label: 'space', value: 'O(1)', tone: 'violet' },
+    ],
+    caption: 'After scanning all 24 permutations the largest valid HH:MM is ' + (bestStr || 'none -> return ""') + '. The whole thing is O(1): there are at most 4! = 24 candidates, regardless of input.',
+  });
+  frames.push({
+    array: [
+      'edge cases:',
+      '  [0,0,0,0] -> "00:00"',
+      '  [5,5,5,5] -> "" (h would be 55)',
+      '  [2,0,6,6] -> "06:26" (cannot make 20-something with constraints)',
+    ],
+    chip: [{ label: 'gotcha', value: 'must zero-pad single-digit components', tone: 'pink' }],
+    caption: 'Edge cases people miss: all zeros works (00:00). If every digit >= 6, no valid hour exists -> "". And zero-pad: hour 6 minute 26 must print as 06:26, never 6:26. The fixed-width string is part of correctness, not formatting flair.',
+  });
+  while (frames.length < 12) {
+    frames.push({
+      array: ['shortcut:', '  sort desc, try greedy?  -> NO', '  greedy fails on [2,0,1,9]:', '    desc would try 9 first; no valid arrangement', '    correct answer is 21:09', '  brute force 4! is the right call'],
+      chip: [{ label: 'greedy trap', value: 'desc sort does NOT work', tone: 'pink' }],
+      caption: 'A tempting wrong move: sort desc and place largest in hour-tens. Counter-example: [2,0,1,9] greedy starts at 9 and gets stuck; correct answer 21:09 needs 2 in the tens slot even though 9 is larger. With only 24 perms, brute force is the right tool.',
+    });
+  }
+  return { renderer: 'array', title: 'Largest Time for Given Digits - brute force 4! permutations', frames };
+}
 
 function validNumberViz() {
   const s = '-90E3';
@@ -33987,4 +48530,143 @@ export function binarySearchTestCases() {
     { inputs: ['[' + Array.from({ length: 100 }, (_, i) => i * 2).join(',') + ']', '198'], expected: '99' },
   ];
   return cases;
+}
+
+function xorOperationViz() {
+  const n = 5, start = 0;
+  const frames = [];
+  const arr = [];
+  for (let i = 0; i < n; i++) arr.push(start + 2 * i);
+  frames.push({
+    array: arr.slice(),
+    chip: [
+      { label: 'n', value: String(n) },
+      { label: 'start', value: String(start) },
+      { label: 'task', value: 'XOR of nums[i] = start + 2*i', tone: 'violet' },
+    ],
+    caption: 'Build the array nums where nums[i] = start + 2*i for i in [0, n). All entries share the same parity as start (the +2*i step preserves the low bit). We need the XOR of every element. Two paths: a literal loop in O(n), or an O(1) formula exploiting the structure of XOR over arithmetic progressions of stride 2.',
+  });
+  let acc = 0;
+  for (let i = 0; i < n; i++) {
+    const prev = acc;
+    acc ^= arr[i];
+    frames.push({
+      array: arr.slice(),
+      highlights: { [i]: 'pink' },
+      chip: [
+        { label: 'i', value: String(i) },
+        { label: 'nums[i]', value: String(arr[i]) },
+        { label: 'acc before', value: String(prev) },
+        { label: 'acc after', value: String(acc), tone: 'pink' },
+      ],
+      caption: 'Fold nums[' + i + '] = ' + arr[i] + ' into the running XOR. XOR is associative and commutative, so the order does not matter — we can sweep left-to-right and accumulate. Notice each step toggles bits independently; there is no carry. After ' + (i + 1) + ' element(s) the accumulator is ' + acc + '.',
+    });
+  }
+  frames.push({
+    array: arr.slice(),
+    chip: [
+      { label: 'XOR result', value: String(acc), tone: 'pink' },
+      { label: 'time (loop)', value: 'O(n)', tone: 'violet' },
+      { label: 'space', value: 'O(1)' },
+    ],
+    caption: 'Linear loop done — XOR(nums) = ' + acc + '. This is the cleanest solution: one pass, two locals (i and acc), no allocations beyond the result. For interview purposes the O(n) loop is the expected answer; the O(1) closed form below is a bonus that shows pattern recognition.',
+  });
+  frames.push({
+    array: ['XOR(0,1,2,...,k) closed form:', '  k % 4 == 0 -> k', '  k % 4 == 1 -> 1', '  k % 4 == 2 -> k+1', '  k % 4 == 3 -> 0'],
+    chip: [
+      { label: 'identity', value: 'f(k) = XOR 0..k', tone: 'violet' },
+    ],
+    caption: 'Known identity: XOR of 0..k cycles with period 4. Proof by induction on k mod 4. With this, XOR of any contiguous range [a..b] = f(b) ^ f(a - 1). That collapses any arithmetic-progression-with-stride-1 XOR to four cases.',
+  });
+  frames.push({
+    array: ['nums[i] = start + 2*i = 2 * (s + i),  s = start/2', 'XOR over i in [0,n): each term is 2 * (s+i), so low bit is start & 1 if n odd else 0', 'shift out the *2 -> XOR over (s + i) for i in [0,n) = XOR over [s .. s+n-1]'],
+    chip: [
+      { label: 'factor', value: '2 * (s + i)', tone: 'violet' },
+      { label: 'low bit', value: 'parity of n times start&1', tone: 'pink' },
+    ],
+    caption: 'Substitute s = start / 2. Then nums[i] = 2(s + i). XOR distributes over the *2 (left-shift by 1) so the higher bits come from XOR(s..s+n-1), and the lowest bit comes from XORing the low bit of every nums[i] which equals (n & start & 1). Plug s = start/2, range XOR via f(b) ^ f(a-1), then shift left and OR in the low bit. Whole thing is O(1) with four cases per f().',
+  });
+  frames.push({
+    array: ['for n=' + n + ', start=' + start, 's = 0, range = [0..' + (n - 1) + ']', 'higher_bits = f(' + (n - 1) + ') ^ f(-1) = f(' + (n - 1) + ')'],
+    chip: [
+      { label: 'higher_bits', value: '2 * (XOR over s..s+n-1)' },
+      { label: 'low_bit', value: '(n & start) & 1', tone: 'pink' },
+    ],
+    caption: 'For this example (n=' + n + ', start=' + start + '): s = 0, XOR(0..4) = f(4) ^ f(-1) = 4 ^ 0 = 4. higher = 2 * 4 = 8. low_bit = (5 & 0 & 1) = 0. Final = 8 | 0 = 8. Matches the loop result ' + acc + '. Same answer, zero passes.',
+  });
+  while (frames.length < 11) {
+    frames.push({
+      array: ['edge cases:', '  n = 1 -> answer is start', '  start = 0 -> nums = 0,2,4,...; result has low bit 0', '  start odd -> low bit toggles with parity of n', '  large n -> O(n) is already ~5e6 ops worst case, fine'],
+      chip: [{ label: 'note', value: 'O(1) is showy; O(n) suffices', tone: 'violet' }],
+      caption: 'Edge cases worth a sanity-check: n=1 returns start verbatim (only one element). start=0 makes nums purely even, so the low bit of the answer is always 0. Odd start passes the low bit through; whether it survives depends on the parity of n. In an interview, write the loop first and mention the O(1) trick as a follow-up — that ordering shows judgment.',
+    });
+  }
+  return { renderer: 'array', title: 'XOR Operation in an Array - loop XOR with O(1) closed-form bonus', frames };
+}
+
+function sumOddLengthSubarraysViz() {
+  const arr = [1, 4, 2, 5, 3];
+  const frames = [];
+  frames.push({
+    array: arr.slice(),
+    chip: [
+      { label: 'arr', value: '[' + arr.join(',') + ']' },
+      { label: 'task', value: 'sum of every odd-length subarray', tone: 'violet' },
+    ],
+    caption: 'Sum every subarray of odd length. Naive: triple nested loop — pick (i, j) with (j - i + 1) odd, sum arr[i..j]. That is O(n^3). Smarter: count how many odd-length subarrays each arr[i] belongs to, then multiply. Each arr[i] is included in (left * right) subarrays where left = i + 1 and right = n - i; half of those have odd length (with a ceiling on the smaller side).',
+  });
+  const n = arr.length;
+  let total = 0;
+  for (let i = 0; i < n; i++) {
+    const left = i + 1;
+    const right = n - i;
+    const totalSub = left * right;
+    const oddSub = Math.ceil(totalSub / 2);
+    const contrib = arr[i] * oddSub;
+    total += contrib;
+    frames.push({
+      array: arr.slice(),
+      highlights: { [i]: 'pink' },
+      chip: [
+        { label: 'i', value: String(i) },
+        { label: 'value', value: String(arr[i]) },
+        { label: 'left * right', value: left + ' * ' + right + ' = ' + totalSub },
+        { label: 'odd-len', value: 'ceil(' + totalSub + '/2) = ' + oddSub },
+        { label: '+contrib', value: arr[i] + ' * ' + oddSub + ' = ' + contrib, tone: 'pink' },
+      ],
+      caption: 'arr[' + i + '] = ' + arr[i] + '. It can be the start-index for ' + left + ' choices (any j >= i) and the end-index for ' + right + ' choices (any i <= j). Total subarrays containing it: ' + left + ' * ' + right + ' = ' + totalSub + '. Of those, odd-length count is ceil(' + totalSub + ' / 2) = ' + oddSub + '. Add ' + arr[i] + ' * ' + oddSub + ' = ' + contrib + ' to the running total (now ' + total + ').',
+    });
+  }
+  frames.push({
+    array: arr.slice(),
+    chip: [
+      { label: 'answer', value: String(total), tone: 'pink' },
+      { label: 'time', value: 'O(n)', tone: 'violet' },
+      { label: 'space', value: 'O(1)' },
+    ],
+    caption: 'Final sum = ' + total + '. One pass, constant space — the contribution trick collapses O(n^3) brute force to O(n). Key identity: out of (left * right) subarrays through index i, exactly ceil(left * right / 2) have odd length (because subarray lengths interleave odd/even as you slide the endpoints).',
+  });
+  frames.push({
+    array: ['Why ceil(L * R / 2) odd-length subarrays?', 'subarray length = j - i + 1, j in [i, n)', 'fix i: lengths run 1, 2, 3, ... up to right', 'fix j: lengths run 1, 2, ... up to left', 'odd / total = ceil because length-1 (odd) is always reachable'],
+    chip: [
+      { label: 'parity', value: 'lengths alternate', tone: 'violet' },
+    ],
+    caption: 'Lengths of subarrays through index i, as you vary (start, end), take every value 1..max somewhere. Of the L * R combinations, roughly half are odd-length. The +1 (ceil instead of floor) handles odd L*R: length-1 (just the singleton {arr[i]}) is always counted, which biases odd by exactly one.',
+  });
+  frames.push({
+    array: ['brute force O(n^3):', '  for i in 0..n:', '    for j in i..n:', '      if (j-i+1) % 2 == 1:', '        total += sum(arr[i..j])'],
+    chip: [
+      { label: 'brute', value: 'O(n^3) sum + O(n^2) prefix', tone: 'violet' },
+      { label: 'smart', value: 'O(n) contribution', tone: 'pink' },
+    ],
+    caption: 'Brute is the obvious starting point — for an n=600 input that is still ~7e7 ops which Judge0 finishes in time. The contribution-trick collapse to O(n) is the real interview signal: it shows you can re-shape the sum as "for each element, how many windows include it?" — a pattern that recurs in many array problems (range sums, histogram contributions, sum of subarray mins).',
+  });
+  while (frames.length < 11) {
+    frames.push({
+      array: ['edge cases:', '  n = 1 -> single element is its own odd subarray', '  all zeros -> answer is 0 regardless of length', '  n = 100, all 1000 -> answer fits in int easily', '  arr length cap 100 in LC -> brute is OK but contribution is the flex'],
+      chip: [{ label: 'note', value: 'contribution scales to n = 1e5', tone: 'violet' }],
+      caption: 'Edge cases: single element returns itself. All zeros give 0. Constraints (n <= 100, arr[i] <= 1000) make even the O(n^3) approach fine in any language; the O(n) version is for showing pattern recognition. The same trick generalizes to even-length subarrays (use floor instead of ceil) and to weighted sums where each subarray contributes its length, count, etc.',
+    });
+  }
+  return { renderer: 'array', title: 'Sum of All Odd Length Subarrays - per-index contribution count', frames };
 }

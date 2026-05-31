@@ -73,10 +73,50 @@ const INLINE_MD_COMPONENTS = {
   p: ({ node: _node, children }) => <>{children}</>,
 };
 
+const SUPERSCRIPT_MAP = {
+  '0': '⁰',
+  '1': '¹',
+  '2': '²',
+  '3': '³',
+  '4': '⁴',
+  '5': '⁵',
+  '6': '⁶',
+  '7': '⁷',
+  '8': '⁸',
+  '9': '⁹',
+  '-': '⁻',
+  n: 'ⁿ',
+  k: 'ᵏ',
+  i: 'ⁱ',
+};
+
+function toSuperscript(exp) {
+  let out = '';
+  for (const ch of exp) {
+    out += SUPERSCRIPT_MAP[ch] ?? ch;
+  }
+  return out;
+}
+
+function formatPowers(text) {
+  if (typeof text !== 'string' || text.indexOf('^') === -1) return text;
+  // Skip code fences/inline code by splitting on backticks and only transforming even segments.
+  const parts = text.split(/(`+[^`]*`+)/g);
+  for (let i = 0; i < parts.length; i++) {
+    if (i % 2 === 1) continue; // inline code chunk, leave as-is
+    parts[i] = parts[i].replace(
+      /([A-Za-z0-9\)\]])\^(-?[0-9]+|[nki])\b/g,
+      (_m, base, exp) => `${base}${toSuperscript(exp)}`,
+    );
+  }
+  return parts.join('');
+}
+
 function Markdown({ children, inline = false }) {
   if (children == null) return null;
-  const source = typeof children === 'string' ? children : String(children);
-  if (!source.trim()) return null;
+  const raw = typeof children === 'string' ? children : String(children);
+  if (!raw.trim()) return null;
+  const source = formatPowers(raw);
   return (
     <ReactMarkdown
       remarkPlugins={MD_REMARK_PLUGINS}

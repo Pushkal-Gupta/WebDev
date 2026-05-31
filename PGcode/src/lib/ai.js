@@ -82,7 +82,24 @@ export function setProxyUrl(url) {
   else localStorage.removeItem('pgcode-ai-proxy-url');
 }
 
+// Master on/off toggle controlled from Settings → AI. Defaults to ON so users
+// who configured a key before this gate landed don't suddenly lose AI features;
+// they can flip it off explicitly. Stored client-side only.
+const AI_ENABLED_KEY = 'pg-ai-enabled';
+
+export function getAiEnabledPref() {
+  const v = localStorage.getItem(AI_ENABLED_KEY);
+  // Treat missing as enabled to preserve prior behaviour for existing users.
+  if (v === null) return true;
+  return v === 'true';
+}
+
+export function setAiEnabledPref(on) {
+  localStorage.setItem(AI_ENABLED_KEY, on ? 'true' : 'false');
+}
+
 export function isAiEnabled() {
+  if (!getAiEnabledPref()) return false;
   if (getProxyUrl()) return true;
   // Any provider with a key is enough.
   return Object.values(PROVIDERS).some(p => Boolean(localStorage.getItem(p.keyStorage)));

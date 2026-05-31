@@ -890,3 +890,5 @@
   .ws-cursor-pos { display: none; }
   .ws-timer { font-size: 0.7rem; }
 }
+
+.ws-viz-wrap { padding: 1rem; }
