@@ -126,7 +126,8 @@
   align-items: center;
   justify-content: center;
   padding: 1.5rem 0;
-  overflow-x: auto;
+  overflow-x: hidden;
+  overflow-y: visible;
   position: relative;
 }
 
@@ -687,8 +688,9 @@
 /* ── Number grid (sieve / 2D grid) ── */
 .viz-grid {
   display: grid;
-  gap: 8px;
-  max-width: 560px;
+  gap: 6px;
+  width: 100%;
+  max-width: 100%;
 }
 
 .viz-num {

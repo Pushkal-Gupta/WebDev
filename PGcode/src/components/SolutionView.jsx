@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, ChevronRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import DryRunViewer from './DryRunViewer';
 import ProblemVisualizer from './ProblemVisualizer';
@@ -96,69 +96,74 @@ export default function SolutionView({ problem, activeLang: wsLang }) {
           const complexity = ap?.complexity;
           const code = ap?.code;
           const copyKey = `fb-${idx}`;
+          const isLast = idx === numApproaches - 1;
           return (
-            <div key={idx} className="sv-approach">
-              <h3 className="sv-approach-title">{idx + 1}. {approachName}</h3>
-
-              {intuition && (
-                <div className="sv-subsection">
-                  <h4 className="sv-subtitle">Intuition</h4>
-                  <p className="sv-text">{intuition}</p>
-                </div>
-              )}
-
-              <div className="sv-subsection">
-                <div className="sv-code-header">
-                  <div className="sv-lang-tabs">
-                    {langsToShow.map(lang => (
-                      <button
-                        key={lang}
-                        className={`sv-lang-tab ${activeCodeLang === lang ? 'active' : ''}`}
-                        onClick={() => setActiveCodeLang(lang)}
-                        disabled={!fallback[lang]?.[idx]?.code}
-                      >
-                        <LanguageIcon lang={lang} size={14} />
-                        <span>{langLabels[lang]}</span>
-                      </button>
-                    ))}
+            <details key={idx} className="sv-approach" open={idx === 0}>
+              <summary className="sv-approach-summary">
+                <ChevronRight size={16} className="sv-chevron" />
+                <span className="sv-approach-title">{idx + 1}. {approachName}</span>
+                {complexity && (
+                  <span className="sv-complexity-badge">
+                    {complexity.time} time &middot; {complexity.space} space
+                  </span>
+                )}
+              </summary>
+              <div className="sv-approach-body">
+                {intuition && (
+                  <div className="sv-subsection">
+                    <h4 className="sv-subtitle">Intuition</h4>
+                    <p className="sv-text">{intuition}</p>
                   </div>
-                  <button
-                    className={`sv-copy-btn ${copiedId === copyKey ? 'copied' : ''}`}
-                    onClick={() => handleCopy(copyKey, code)}
-                    disabled={!code}
-                  >
-                    {copiedId === copyKey ? <Check size={13} /> : <Copy size={13} />}
-                    <span>{copiedId === copyKey ? 'Copied' : 'Copy'}</span>
-                  </button>
+                )}
+
+                {ap?.approach && (
+                  <div className="sv-subsection">
+                    <h4 className="sv-subtitle">Approach</h4>
+                    <p className="sv-text">{ap.approach}</p>
+                  </div>
+                )}
+
+                <div className="sv-subsection">
+                  <div className="sv-code-header">
+                    <div className="sv-lang-tabs">
+                      {langsToShow.map(lang => (
+                        <button
+                          key={lang}
+                          className={`sv-lang-tab ${activeCodeLang === lang ? 'active' : ''}`}
+                          onClick={() => setActiveCodeLang(lang)}
+                          disabled={!fallback[lang]?.[idx]?.code}
+                        >
+                          <LanguageIcon lang={lang} size={14} />
+                          <span>{langLabels[lang]}</span>
+                        </button>
+                      ))}
+                    </div>
+                    <button
+                      className={`sv-copy-btn ${copiedId === copyKey ? 'copied' : ''}`}
+                      onClick={() => handleCopy(copyKey, code)}
+                      disabled={!code}
+                    >
+                      {copiedId === copyKey ? <Check size={13} /> : <Copy size={13} />}
+                      <span>{copiedId === copyKey ? 'Copied' : 'Copy'}</span>
+                    </button>
+                  </div>
+                  {code ? (
+                    <pre className="sv-code-block"><code>{code}</code></pre>
+                  ) : (
+                    <div className="sv-code-empty">No {langLabels[activeCodeLang]} solution yet for this approach.</div>
+                  )}
                 </div>
-                {code ? (
-                  <pre className="sv-code-block"><code>{code}</code></pre>
-                ) : (
-                  <div className="sv-code-empty">No {langLabels[activeCodeLang]} solution yet for this approach.</div>
+
+                {isLast && (
+                  <div className="sv-subsection">
+                    <h4 className="sv-subtitle">Step-by-step visualization</h4>
+                    <ProblemVisualizer problem={problem} />
+                  </div>
                 )}
               </div>
-
-              {ap?.approach && (
-                <div className="sv-subsection">
-                  <h4 className="sv-subtitle">Approach</h4>
-                  <p className="sv-text">{ap.approach}</p>
-                </div>
-              )}
-
-              {complexity && (
-                <div className="sv-complexity">
-                  <span><strong>Time:</strong> {complexity.time}</span>
-                  <span><strong>Space:</strong> {complexity.space}</span>
-                </div>
-              )}
-            </div>
+            </details>
           );
         })}
-
-        <div className="sv-section">
-          <h3 className="sv-section-title">Step-by-step visualization</h3>
-          <ProblemVisualizer problem={problem} />
-        </div>
       </div>
     );
   }
@@ -213,82 +218,88 @@ export default function SolutionView({ problem, activeLang: wsLang }) {
           steps = Array.isArray(raw) ? raw : (raw?.steps || []);
         } catch { /* malformed JSON — show empty steps */ }
         const code = ap[langMap[activeCodeLang]] || ap.code_python || '';
+        const isLast = idx === approaches.length - 1;
 
         return (
-          <div key={ap.id} className="sv-approach">
-            <h3 className="sv-approach-title">{idx + 1}. {ap.approach_name}</h3>
-
-            {/* Intuition */}
-            <div className="sv-subsection">
-              <h4 className="sv-subtitle">Intuition</h4>
-              <p className="sv-text">{ap.intuition}</p>
-            </div>
-
-            {/* Algorithm */}
-            <div className="sv-subsection">
-              <h4 className="sv-subtitle">Algorithm</h4>
-              <ol className="sv-algo-steps">
-                {steps.map((step, i) => (
-                  <li key={i}>{step}</li>
-                ))}
-              </ol>
-            </div>
-
-            {/* Step-by-step visualization + Dry Run for the last/optimal approach */}
-            {idx === approaches.length - 1 && (
-              <>
-                <div className="sv-subsection">
-                  <h4 className="sv-subtitle">Step-by-step visualization</h4>
-                  <ProblemVisualizer problem={problem} />
-                </div>
-                <div className="sv-subsection">
-                  <h4 className="sv-subtitle">Visual Dry Run</h4>
-                  <DryRunViewer problemId={problem.id} />
-                </div>
-              </>
-            )}
-
-            {/* Code */}
-            <div className="sv-subsection">
-              <div className="sv-code-header">
-                <div className="sv-lang-tabs">
-                  {['python', 'javascript', 'java', 'cpp', 'c', 'go'].map(lang => (
-                    <button
-                      key={lang}
-                      className={`sv-lang-tab ${activeCodeLang === lang ? 'active' : ''}`}
-                      onClick={() => setActiveCodeLang(lang)}
-                    >
-                      <LanguageIcon lang={lang} size={14} />
-                      <span>{langLabels[lang]}</span>
-                    </button>
-                  ))}
-                </div>
-                <button
-                  className={`sv-copy-btn ${copiedId === ap.id ? 'copied' : ''}`}
-                  onClick={() => handleCopy(ap.id, code)}
-                  disabled={!code}
-                  title={code ? 'Copy code' : 'No code to copy'}
-                  aria-label="Copy code"
-                >
-                  {copiedId === ap.id ? <Check size={13} /> : <Copy size={13} />}
-                  <span>{copiedId === ap.id ? 'Copied' : 'Copy'}</span>
-                </button>
+          <details key={ap.id} className="sv-approach" open={idx === 0}>
+            <summary className="sv-approach-summary">
+              <ChevronRight size={16} className="sv-chevron" />
+              <span className="sv-approach-title">{idx + 1}. {ap.approach_name}</span>
+              {(ap.time_complexity || ap.space_complexity) && (
+                <span className="sv-complexity-badge">
+                  {ap.time_complexity} time &middot; {ap.space_complexity} space
+                </span>
+              )}
+            </summary>
+            <div className="sv-approach-body">
+              {/* Intuition */}
+              <div className="sv-subsection">
+                <h4 className="sv-subtitle">Intuition</h4>
+                <p className="sv-text">{ap.intuition}</p>
               </div>
-              {code ? (
-                <pre className="sv-code-block"><code>{code}</code></pre>
-              ) : (
-                <div className="sv-code-empty">
-                  No {langLabels[activeCodeLang]} reference yet for this approach.
+
+              {/* Algorithm */}
+              {steps.length > 0 && (
+                <div className="sv-subsection">
+                  <h4 className="sv-subtitle">Algorithm</h4>
+                  <ol className="sv-algo-steps">
+                    {steps.map((step, i) => (
+                      <li key={i}>{step}</li>
+                    ))}
+                  </ol>
                 </div>
               )}
-            </div>
 
-            {/* Complexity */}
-            <div className="sv-complexity">
-              <span><strong>Time:</strong> {ap.time_complexity}</span>
-              <span><strong>Space:</strong> {ap.space_complexity}</span>
+              {/* Code */}
+              <div className="sv-subsection">
+                <div className="sv-code-header">
+                  <div className="sv-lang-tabs">
+                    {['python', 'javascript', 'java', 'cpp', 'c', 'go'].map(lang => (
+                      <button
+                        key={lang}
+                        className={`sv-lang-tab ${activeCodeLang === lang ? 'active' : ''}`}
+                        onClick={() => setActiveCodeLang(lang)}
+                      >
+                        <LanguageIcon lang={lang} size={14} />
+                        <span>{langLabels[lang]}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    className={`sv-copy-btn ${copiedId === ap.id ? 'copied' : ''}`}
+                    onClick={() => handleCopy(ap.id, code)}
+                    disabled={!code}
+                    title={code ? 'Copy code' : 'No code to copy'}
+                    aria-label="Copy code"
+                  >
+                    {copiedId === ap.id ? <Check size={13} /> : <Copy size={13} />}
+                    <span>{copiedId === ap.id ? 'Copied' : 'Copy'}</span>
+                  </button>
+                </div>
+                {code ? (
+                  <pre className="sv-code-block"><code>{code}</code></pre>
+                ) : (
+                  <div className="sv-code-empty">
+                    No {langLabels[activeCodeLang]} reference yet for this approach.
+                  </div>
+                )}
+              </div>
+
+              {/* Step-by-step visualization + Dry Run for the last/optimal approach */}
+              {isLast && (
+                <>
+                  <div className="sv-subsection">
+                    <h4 className="sv-subtitle">Step-by-step visualization</h4>
+                    <ProblemVisualizer problem={problem} />
+                  </div>
+                  <div className="sv-subsection">
+                    <h4 className="sv-subtitle">Visual Dry Run</h4>
+                    <DryRunViewer problemId={problem.id} />
+                  </div>
+                </>
+              )}
             </div>
-          </div>
+          </details>
         );
       })}
     </div>

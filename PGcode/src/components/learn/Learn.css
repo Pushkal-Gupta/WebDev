@@ -1212,9 +1212,9 @@
   color: var(--text-main);
   padding: 0;
   font-size: 0.8rem;
-  white-space: pre;
-  word-break: normal;
-  overflow-wrap: normal;
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow-wrap: anywhere;
   display: block;
 }
 
@@ -1374,8 +1374,9 @@
   font-size: 0.82rem;
   line-height: 1.55;
   color: var(--text-main);
-  white-space: pre;
-  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* variant: pitfalls → hard red callout */

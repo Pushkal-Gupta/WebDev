@@ -1,11 +1,24 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Flame, Trophy, ArrowLeft, Download, Link2, Check } from 'lucide-react';
+import { Flame, Trophy, ArrowLeft, Download, Link2, Check, Linkedin, Twitter, Github, Globe, Code2, ExternalLink } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useTopics, useProblemsCompact } from '../lib/queries';
 import { primaryTopicLabel } from '../lib/topicLabel';
 import './ShareableCard.css';
+
+// Map a personal-links URL to an icon component. Falls back to ExternalLink.
+function iconForLink(url, label) {
+  const u = String(url || '').toLowerCase();
+  const l = String(label || '').toLowerCase();
+  if (u.includes('github.com') || l.includes('github')) return Github;
+  if (u.includes('linkedin.com') || l.includes('linkedin')) return Linkedin;
+  if (u.includes('twitter.com') || u.includes('x.com') || l.includes('twitter') || l === 'x') return Twitter;
+  if (u.includes('leetcode.com') || l.includes('leetcode')) return Code2;
+  if (u.includes('codeforces.com') || l.includes('codeforces')) return Code2;
+  if (u.includes('codolio.com') || l.includes('codolio')) return Code2;
+  return Globe;
+}
 
 // Public-read profile by username — same shape PublicProfile uses.
 function useProfileByUsername(username) {
@@ -269,12 +282,28 @@ export default function ShareableCard({ embedded = false, presetUsername = null,
     return `${base}#/u/${profile?.username || username || ''}/card`;
   }, [profile, username]);
 
+  const cardUrl = useMemo(() => {
+    if (typeof window === 'undefined') return '';
+    const uname = profile?.username || username || '';
+    return `${window.location.origin}/PGcode/dist/index.html#/u/${uname}/card`;
+  }, [profile, username]);
+
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
     } catch { /* ignore */ }
+  };
+
+  const handleShareLinkedIn = () => {
+    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(cardUrl)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleShareTwitter = () => {
+    const url = `https://twitter.com/intent/tweet?text=Check%20out%20my%20PGcode%20stats!&url=${encodeURIComponent(cardUrl)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   if (isLoading && !embedded) {
@@ -357,6 +386,12 @@ export default function ShareableCard({ embedded = false, presetUsername = null,
           <button type="button" className="sc-btn" onClick={handleCopy}>
             {copied ? <Check size={14} /> : <Link2 size={14} />} {copied ? 'Copied' : 'Copy share link'}
           </button>
+          <button type="button" className="sc-btn" onClick={handleShareLinkedIn}>
+            <Linkedin size={14} /> Share on LinkedIn
+          </button>
+          <button type="button" className="sc-btn" onClick={handleShareTwitter}>
+            <Twitter size={14} /> Share on X
+          </button>
         </div>
       </div>
     );
@@ -371,6 +406,12 @@ export default function ShareableCard({ embedded = false, presetUsername = null,
         <div className="sc-toolbar-actions">
           <button type="button" className="sc-btn" onClick={handleCopy}>
             {copied ? <Check size={14} /> : <Link2 size={14} />} {copied ? 'Copied' : 'Copy link'}
+          </button>
+          <button type="button" className="sc-btn" onClick={handleShareLinkedIn}>
+            <Linkedin size={14} /> Share on LinkedIn
+          </button>
+          <button type="button" className="sc-btn" onClick={handleShareTwitter}>
+            <Twitter size={14} /> Share on X
           </button>
           <button type="button" className="sc-btn sc-btn-primary" onClick={handleDownload}>
             <Download size={14} /> Download PNG

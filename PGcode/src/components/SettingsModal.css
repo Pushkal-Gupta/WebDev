@@ -14,12 +14,68 @@
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 12px;
-  width: 560px;
-  max-width: 92vw;
+  width: 720px;
+  max-width: 720px;
   max-height: 86vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+/* AI section explainer card */
+.ai-explainer {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.9rem;
+}
+.ai-explainer-lead {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  color: var(--text-main);
+  margin: 0 0 0.55rem;
+}
+.ai-explainer-list {
+  margin: 0 0 0.55rem;
+  padding-left: 1.1rem;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  color: var(--text-main);
+  line-height: 1.55;
+}
+.ai-explainer-list li { margin-bottom: 0.2rem; }
+.ai-explainer-foot {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.ai-master-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  margin-bottom: 0.9rem;
+}
+.ai-master-row .ai-master-name {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-main);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.ai-master-row .ai-master-sub {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  margin-top: 0.15rem;
 }
 
 .settings-header {
@@ -91,7 +147,7 @@
 
 /* ── Body ── */
 .settings-body {
-  padding: 1.5rem 2rem;
+  padding: 2rem;
   overflow-y: auto;
   flex: 1;
 }
@@ -561,3 +617,15 @@
   left: 18px;
   background: var(--bg);
 }
+
+.sm-ai-explainer {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin: 0 0 0.85rem;
+  padding: 0.75rem;
+  background: var(--hover-box);
+  border-left: 2px solid var(--accent);
+  border-radius: 4px;
+}
+.sm-ai-explainer strong { color: var(--text-main); }

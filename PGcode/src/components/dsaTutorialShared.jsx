@@ -1,13 +1,65 @@
-import React, { useState, useEffect, useRef, useId, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useId, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   BookOpen, ChevronDown, ChevronRight, CheckCircle2, Circle,
   Lock, ExternalLink, Info, AlertTriangle, Lightbulb,
   Gauge, AlertCircle, Brain, Cog, Target, GitBranch, ListChecks, Wrench,
-  ListOrdered, Copy, Check, Link as LinkIcon,
+  ListOrdered, Copy, Check, Link as LinkIcon, Film,
 } from 'lucide-react';
 
 import { normName } from './dsaTutorialUtils';
+import AlgoVisualizer, {
+  ArrayBarRenderer, GraphRenderer, SlidingWindowRenderer,
+  NumberGridRenderer, TreeRenderer,
+} from './learn/AlgoVisualizer';
+import { VISUALIZATIONS } from './learn/conceptVisualizations';
+
+// Cache a normalized-label -> viz-slug map so theory items without an explicit
+// `conceptSlug` can still resolve to a registered visualization.
+const VIZ_BY_NORM_LABEL = (() => {
+  const m = new Map();
+  Object.keys(VISUALIZATIONS).forEach(slug => m.set(normName(slug), slug));
+  return m;
+})();
+
+function resolveVizSlug({ explicitSlug, conceptSlug, label }) {
+  const candidates = [explicitSlug, conceptSlug];
+  for (const c of candidates) {
+    if (c && VISUALIZATIONS[c]) return c;
+  }
+  const n = normName(label);
+  if (VIZ_BY_NORM_LABEL.has(n)) return VIZ_BY_NORM_LABEL.get(n);
+  return null;
+}
+
+function renderForSlug(slug, frame) {
+  const r = VISUALIZATIONS[slug]?.renderer;
+  if (r === 'graph')  return <GraphRenderer frame={frame} />;
+  if (r === 'window') return <SlidingWindowRenderer frame={frame} />;
+  if (r === 'grid')   return <NumberGridRenderer frame={frame} />;
+  if (r === 'tree')   return <TreeRenderer frame={frame} />;
+  return <ArrayBarRenderer frame={frame} />;
+}
+
+function InlineVisualizer({ slug }) {
+  const viz = useMemo(() => VISUALIZATIONS[slug], [slug]);
+  if (!viz) return null;
+  return (
+    <div className="tut-theory-viz">
+      <div className="tut-theory-viz-head">
+        <Film size={12} />
+        <span>{viz.title || 'Visualization'}</span>
+      </div>
+      <AlgoVisualizer
+        frames={viz.frames}
+        cases={viz.cases}
+        build={viz.build}
+        inputSchema={viz.inputSchema}
+        render={(frame) => renderForSlug(slug, frame)}
+      />
+    </div>
+  );
+}
 
 function highlightLabel(label, q) {
   if (!q) return label;

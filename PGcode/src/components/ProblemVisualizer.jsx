@@ -14,6 +14,25 @@ const RENDERERS = {
   tree:   TreeRenderer,
 };
 
+// Auto-generated frames from raw test inputs only make sense for the array renderer;
+// tree / graph / grid need structured shapes we can't infer from a stringified input.
+const AUTO_FRAME_RENDERERS = new Set(['array', 'window']);
+
+function inferRendererFromTags(tags) {
+  if (!Array.isArray(tags) || tags.length === 0) return 'array';
+  const norm = tags
+    .map((t) => (typeof t === 'string' ? t : t?.slug || t?.name || ''))
+    .filter(Boolean)
+    .map((t) => t.toLowerCase());
+  const has = (needle) => norm.some((t) => t.includes(needle));
+
+  if (has('tree') || has('binary-tree') || has('bst') || has('trie')) return 'tree';
+  if (has('graph') || has('dfs') || has('bfs') || has('topological')) return 'graph';
+  if (has('sliding-window') || has('sliding window')) return 'window';
+  if (has('matrix') || has('grid')) return 'grid';
+  return 'array';
+}
+
 // Tries (a) problem.viz_steps from the DB, (b) client-side RICH_CONTENT,
 // (c) generic test-case walkthrough generated from test_cases + params,
 // (d) friendly fallback when nothing is available.
@@ -21,8 +40,21 @@ export default function ProblemVisualizer({ problem }) {
   if (!problem) return null;
 
   let viz = problem.viz_steps || RICH_CONTENT[problem.id]?.viz || null;
+
   if (!viz || !viz.frames?.length) {
-    viz = buildGenericTestCaseFrames(problem);
+    const inferred = inferRendererFromTags(problem.tags);
+    if (AUTO_FRAME_RENDERERS.has(inferred)) {
+      viz = buildGenericTestCaseFrames(problem);
+      if (viz && inferred === 'window') viz = { ...viz, renderer: 'window' };
+    } else {
+      return (
+        <div style={{ padding: '1.2rem' }}>
+          <p style={{ fontFamily: 'var(--mono)', fontSize: '0.78rem', color: 'var(--text-dim)', lineHeight: 1.6 }}>
+            No visualization available for <strong style={{ color: 'var(--text-main)' }}>{problem.name}</strong> yet — open any test case to view inputs.
+          </p>
+        </div>
+      );
+    }
   }
 
   if (!viz || !viz.frames?.length) {
