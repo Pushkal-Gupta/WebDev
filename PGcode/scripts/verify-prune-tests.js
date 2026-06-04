@@ -48,31 +48,109 @@ if (!slug) {
 }
 
 function buildHarness(solutionPy, methodName, params) {
-  const argParse = params.map((p, i) => {
-    const t = String(p.type).toLowerCase();
-    if (t.includes('list') || t.includes('[') || t.includes('matrix')) {
-      return `arg${i} = json.loads(sys.stdin.readline().strip())`;
-    }
-    if (t === 'int' || t === 'integer' || t === 'long') {
-      return `arg${i} = int(sys.stdin.readline().strip())`;
-    }
-    if (t === 'bool' || t === 'boolean') {
-      return `arg${i} = sys.stdin.readline().strip().lower() == 'true'`;
-    }
-    return `arg${i} = sys.stdin.readline().rstrip('\\n')`;
-  }).join('\n');
-  const argList = params.map((_, i) => `arg${i}`).join(', ');
+  const cycledInput = params.length === 2
+    && params[0]?.type === 'List[int]' && params[0]?.name === 'values'
+    && params[1]?.type === 'int' && params[1]?.name === 'pos';
+  const isListNode = (t) => t === 'ListNode' || t === 'Optional[ListNode]';
+  const isTreeNode = (t) => t === 'TreeNode' || t === 'Optional[TreeNode]';
+  const readLine = (t) => {
+    const lt = String(t).toLowerCase();
+    if (lt.includes('list') || lt.includes('[') || lt.includes('matrix'))
+      return `json.loads(sys.stdin.readline().strip())`;
+    if (lt === 'int' || lt === 'integer' || lt === 'long')
+      return `int(sys.stdin.readline().strip())`;
+    if (lt === 'bool' || lt === 'boolean')
+      return `sys.stdin.readline().strip().lower() == 'true'`;
+    return `sys.stdin.readline().rstrip('\\n')`;
+  };
+
+  let argParse, argList;
+  if (cycledInput) {
+    argParse = `_vals = ${readLine('List[int]')}\n_pos = ${readLine('int')}\narg0 = _to_list_cycle(_vals, _pos)`;
+    argList = 'arg0';
+  } else {
+    argParse = params.map((p, i) => {
+      if (isListNode(p.type)) return `_raw${i} = json.loads(sys.stdin.readline().strip())\narg${i} = _to_list(_raw${i})`;
+      if (isTreeNode(p.type)) return `_raw${i} = json.loads(sys.stdin.readline().strip())\narg${i} = _to_tree(_raw${i})`;
+      return `arg${i} = ${readLine(p.type)}`;
+    }).join('\n');
+    argList = params.map((_, i) => `arg${i}`).join(', ');
+  }
+
   const usesClassSolution = /\bclass\s+Solution\b/.test(solutionPy);
   const callExpr = usesClassSolution
     ? `Solution().${methodName}(${argList})`
     : `${methodName}(${argList})`;
+
+  const PY_HELPERS = `
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val; self.next = next
+def _to_list(arr):
+    if not arr: return None
+    h = ListNode(arr[0]); c = h
+    for v in arr[1:]:
+        c.next = ListNode(v); c = c.next
+    return h
+def _to_list_cycle(arr, pos):
+    if not arr: return None
+    ns = [ListNode(v) for v in arr]
+    for i in range(len(ns)-1): ns[i].next = ns[i+1]
+    if pos is not None and 0 <= pos < len(ns): ns[-1].next = ns[pos]
+    return ns[0]
+def _from_list(h):
+    out = []
+    seen = set()
+    while h and id(h) not in seen:
+        seen.add(id(h)); out.append(h.val); h = h.next
+    return out
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val; self.left = left; self.right = right
+def _to_tree(arr):
+    if not arr or arr[0] is None: return None
+    root = TreeNode(arr[0])
+    q = [root]; i = 1
+    while q and i < len(arr):
+        node = q.pop(0)
+        if i < len(arr) and arr[i] is not None:
+            node.left = TreeNode(arr[i]); q.append(node.left)
+        i += 1
+        if i < len(arr) and arr[i] is not None:
+            node.right = TreeNode(arr[i]); q.append(node.right)
+        i += 1
+    return root
+def _from_tree(root):
+    if not root: return []
+    out, q = [], [root]
+    while q:
+        n = q.pop(0)
+        if n is None: out.append(None); continue
+        out.append(n.val)
+        q.append(n.left); q.append(n.right)
+    while out and out[-1] is None: out.pop()
+    return out
+`;
+
   return `from __future__ import annotations
+import sys, json
+${PY_HELPERS}
 ${solutionPy}
 
-import sys, json
 ${argParse}
 res = ${callExpr}
-print(json.dumps(res, separators=(',', ':'), default=str))
+if res.__class__.__name__ == 'ListNode':
+    res = _from_list(res)
+if res.__class__.__name__ == 'TreeNode':
+    res = _from_tree(res)
+if isinstance(res, bool):
+    print(str(res).lower())
+elif res is None:
+    print("null")
+elif isinstance(res, str):
+    print(res)
+else:
+    print(json.dumps(res, separators=(',', ':'), default=str))
 `;
 }
 

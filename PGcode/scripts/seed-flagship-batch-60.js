@@ -149,6 +149,198 @@ const FLAGSHIPS = [
       { inputs: ['10'], expected: '1' },
     ],
   },
+  {
+    id: 'next-greater-element-iii',
+    method_name: 'nextGreaterElement',
+    params: [{ name: 'n', type: 'int' }],
+    return_type: 'int',
+    pattern: 'Next Permutation on Digits',
+    tags: ['math', 'string', 'two-pointers', 'next-permutation'],
+    companies: ["amazon","meta","microsoft","google","apple"],
+    constraints: [
+      '1 <= n <= 2^31 - 1',
+      'Return -1 if no valid answer exists or the result overflows 32-bit signed int.',
+    ],
+    follow_up: 'How does this generalize to next-permutation on any sequence? What if digits could repeat with constraints?',
+    hints: [
+      'Convert n into its digit array and apply the standard next-permutation algorithm.',
+      'Step 1: scan from the right and find the first index i where digits[i] < digits[i+1]. If none, no greater number exists.',
+      'Step 2: scan from the right again and find the smallest digit > digits[i] in the suffix. Swap them.',
+      'Step 3: reverse the suffix starting at i+1 to make it the smallest possible.',
+      'Final check: if the resulting integer exceeds 2^31 - 1, return -1.',
+    ],
+    test_cases: [
+      { inputs: ['12'], expected: '21' },
+      { inputs: ['21'], expected: '-1' },
+      { inputs: ['12443322'], expected: '13222344' },
+      { inputs: ['1'], expected: '-1' },
+      { inputs: ['11'], expected: '-1' },
+      { inputs: ['123456789'], expected: '123456798' },
+      { inputs: ['987654321'], expected: '-1' },
+      { inputs: ['230241'], expected: '230412' },
+      { inputs: ['2147483486'], expected: '-1' },
+      { inputs: ['1999999999'], expected: '-1' },
+    ],
+    visualization: {
+      type: 'array',
+      frames: [
+        { array: [1,2,4,4,3,3,2,2], highlights: [], pointers: {}, status: 'n = 12443322. Convert to digits and apply next-permutation.' },
+        { array: [1,2,4,4,3,3,2,2], highlights: [6,7], pointers: { i: 7 }, status: 'Scan right -> left: digits[6]=2, digits[7]=2. Not strictly increasing (2 < 2 is false). Continue.' },
+        { array: [1,2,4,4,3,3,2,2], highlights: [5,6], pointers: { i: 6 }, status: 'digits[5]=3, digits[6]=2. 3 < 2 false. Continue.' },
+        { array: [1,2,4,4,3,3,2,2], highlights: [2,3], pointers: { i: 2 }, status: 'Find first i where digits[i] < digits[i+1]. Here i=2: digits[2]=4? No, look at digits[1]=2 < digits[2]=4 -> i=1.' },
+        { array: [1,2,4,4,3,3,2,2], highlights: [1], pointers: { i: 1 }, status: 'Pivot index i=1, digits[i]=2. Suffix is [4,4,3,3,2,2].' },
+        { array: [1,2,4,4,3,3,2,2], highlights: [5], pointers: { i: 1, j: 5 }, status: 'Scan suffix from right for smallest digit > 2. digits[7]=2 no, digits[6]=2 no, digits[5]=3 yes -> j=5.' },
+        { array: [1,3,4,4,3,2,2,2], highlights: [1,5], pointers: { i: 1, j: 5 }, status: 'Swap digits[1] and digits[5]. Array: [1,3,4,4,3,2,2,2].' },
+        { array: [1,3,2,2,2,3,4,4], highlights: [2,3,4,5,6,7], pointers: {}, status: 'Reverse suffix [4,4,3,2,2,2] -> [2,2,2,3,4,4]. Result digits: [1,3,2,2,2,3,4,4].' },
+        { array: [1,3,2,2,2,3,4,4], highlights: [], pointers: {}, status: 'Convert back: 13222344. Check overflow: 13222344 <= 2^31-1 -> valid.' },
+        { array: [1,3,2,2,2,3,4,4], highlights: [], pointers: {}, status: 'Answer = 13222344. Time O(d) where d = number of digits (at most 10). Space O(d).' },
+      ],
+    },
+    solutions: [
+      {
+        language: 'python',
+        approach: 'Next-permutation on digit list',
+        code: `class Solution:
+    def nextGreaterElement(self, n: int) -> int:
+        digits = list(str(n))
+        k = len(digits)
+        # Step 1: find pivot
+        i = k - 2
+        while i >= 0 and digits[i] >= digits[i + 1]:
+            i -= 1
+        if i < 0:
+            return -1
+        # Step 2: find swap target
+        j = k - 1
+        while digits[j] <= digits[i]:
+            j -= 1
+        digits[i], digits[j] = digits[j], digits[i]
+        # Step 3: reverse suffix
+        digits[i + 1:] = reversed(digits[i + 1:])
+        result = int(''.join(digits))
+        return result if result <= 2**31 - 1 else -1`,
+      },
+      {
+        language: 'javascript',
+        approach: 'Next-permutation on digit array',
+        code: `/**
+ * @param {number} n
+ * @return {number}
+ */
+var nextGreaterElement = function(n) {
+    const digits = String(n).split('');
+    const k = digits.length;
+    let i = k - 2;
+    while (i >= 0 && digits[i] >= digits[i + 1]) i--;
+    if (i < 0) return -1;
+    let j = k - 1;
+    while (digits[j] <= digits[i]) j--;
+    [digits[i], digits[j]] = [digits[j], digits[i]];
+    // reverse suffix in place
+    let l = i + 1, r = k - 1;
+    while (l < r) { [digits[l], digits[r]] = [digits[r], digits[l]]; l++; r--; }
+    const result = Number(digits.join(''));
+    return result > 2147483647 ? -1 : result;
+};`,
+      },
+      {
+        language: 'java',
+        approach: 'Char array + long overflow check',
+        code: `class Solution {
+    public int nextGreaterElement(int n) {
+        char[] d = String.valueOf(n).toCharArray();
+        int k = d.length, i = k - 2;
+        while (i >= 0 && d[i] >= d[i + 1]) i--;
+        if (i < 0) return -1;
+        int j = k - 1;
+        while (d[j] <= d[i]) j--;
+        char tmp = d[i]; d[i] = d[j]; d[j] = tmp;
+        // reverse suffix
+        for (int l = i + 1, r = k - 1; l < r; l++, r--) {
+            tmp = d[l]; d[l] = d[r]; d[r] = tmp;
+        }
+        long result = Long.parseLong(new String(d));
+        return result > Integer.MAX_VALUE ? -1 : (int) result;
+    }
+}`,
+      },
+      {
+        language: 'cpp',
+        approach: 'std::next_permutation + overflow check',
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int nextGreaterElement(int n) {
+        string s = to_string(n);
+        if (!next_permutation(s.begin(), s.end())) return -1;
+        long long result = stoll(s);
+        return result > INT_MAX ? -1 : (int) result;
+    }
+};`,
+      },
+      {
+        language: 'go',
+        approach: 'Byte slice next-permutation',
+        code: `import (
+    "strconv"
+    "math"
+)
+
+func nextGreaterElement(n int) int {
+    d := []byte(strconv.Itoa(n))
+    k := len(d)
+    i := k - 2
+    for i >= 0 && d[i] >= d[i+1] {
+        i--
+    }
+    if i < 0 {
+        return -1
+    }
+    j := k - 1
+    for d[j] <= d[i] {
+        j--
+    }
+    d[i], d[j] = d[j], d[i]
+    // reverse suffix
+    for l, r := i+1, k-1; l < r; l, r = l+1, r-1 {
+        d[l], d[r] = d[r], d[l]
+    }
+    result, _ := strconv.ParseInt(string(d), 10, 64)
+    if result > math.MaxInt32 {
+        return -1
+    }
+    return int(result)
+}`,
+      },
+      {
+        language: 'rust',
+        approach: 'Vec<u8> next-permutation',
+        code: `impl Solution {
+    pub fn next_greater_element(n: i32) -> i32 {
+        let mut d: Vec<u8> = n.to_string().into_bytes();
+        let k = d.len();
+        if k < 2 { return -1; }
+        let mut i = k as i32 - 2;
+        while i >= 0 && d[i as usize] >= d[i as usize + 1] {
+            i -= 1;
+        }
+        if i < 0 { return -1; }
+        let mut j = k - 1;
+        while d[j] <= d[i as usize] { j -= 1; }
+        d.swap(i as usize, j);
+        d[(i as usize + 1)..].reverse();
+        let s: String = String::from_utf8(d).unwrap();
+        match s.parse::<i64>() {
+            Ok(v) if v <= i32::MAX as i64 => v as i32,
+            _ => -1,
+        }
+    }
+}`,
+      },
+    ],
+  },
 ];
 
 let updated = 0;

@@ -254,6 +254,19 @@ export default function ConceptPage({ session }) {
     return availableLangs[0].value;
   }, [availableLangs, activeLang]);
 
+  const { showComplexityTime, showComplexitySpace, showComplexitySection } = useMemo(() => {
+    const isNA = (val) => {
+      if (!val || typeof val !== 'string') return true;
+      const v = val.toLowerCase().trim();
+      return !v || v.includes('not applicable') || v === 'n/a' || v === 'na' || v.startsWith('n/a');
+    };
+    const time = !!(body.complexity?.time) && !isNA(body.complexity.time);
+    const space = !!(body.complexity?.space) && !isNA(body.complexity.space);
+    const show =
+      hasContent(body.complexity) && (time || space || !!body.complexity?.notes);
+    return { showComplexityTime: time, showComplexitySpace: space, showComplexitySection: show };
+  }, [body.complexity]);
+
   const sectionDefs = useMemo(() => {
     if (!concept) return [];
     const defs = [];
@@ -263,7 +276,7 @@ export default function ConceptPage({ session }) {
     if (hasContent(body.visualization) || viz) defs.push({ id: 'visualization', label: 'Visualization' });
     if (hasContent(body.bruteForce)) defs.push({ id: 'brute', label: 'Brute force' });
     if (hasContent(body.optimal)) defs.push({ id: 'optimal', label: 'Optimal' });
-    if (hasContent(body.complexity)) defs.push({ id: 'complexity', label: 'Complexity' });
+    if (showComplexitySection) defs.push({ id: 'complexity', label: 'Complexity' });
     if (availableLangs.length) defs.push({ id: 'code', label: 'Code' });
     if (hasContent(body.pitfalls)) defs.push({ id: 'pitfalls', label: 'Pitfalls' });
     if (hasContent(body.interviewTips)) defs.push({ id: 'tips', label: 'Interview tips' });
@@ -271,7 +284,7 @@ export default function ConceptPage({ session }) {
     defs.push({ id: 'quiz', label: 'Check understanding' });
     defs.push({ id: 'discussion', label: 'Discussion' });
     return defs;
-  }, [concept, body, viz, availableLangs, problems]);
+  }, [concept, body, viz, availableLangs, problems, showComplexitySection]);
 
   const observerRef = useRef(null);
   useEffect(() => {
@@ -482,7 +495,7 @@ export default function ConceptPage({ session }) {
             {hasContent(body.optimal) && <Markdown>{body.optimal}</Markdown>}
           </Section>
 
-          {hasContent(body.complexity) && (
+          {showComplexitySection && (
             <Section
               id="complexity"
               eyebrow="07"
@@ -491,13 +504,13 @@ export default function ConceptPage({ session }) {
               variant="plain"
             >
               <div className="learn-complexity">
-                {body.complexity.time && (
+                {showComplexityTime && (
                   <div className="learn-complexity-cell">
                     <span className="learn-complexity-label">Time</span>
                     <code className="learn-complexity-value">{body.complexity.time}</code>
                   </div>
                 )}
-                {body.complexity.space && (
+                {showComplexitySpace && (
                   <div className="learn-complexity-cell">
                     <span className="learn-complexity-label">Space</span>
                     <code className="learn-complexity-value">{body.complexity.space}</code>
@@ -509,7 +522,7 @@ export default function ConceptPage({ session }) {
                   <Markdown>{body.complexity.notes}</Markdown>
                 </div>
               )}
-              {body.complexity.time && <ComplexityChart time={body.complexity.time} />}
+              {showComplexityTime && <ComplexityChart time={body.complexity.time} />}
             </Section>
           )}
 

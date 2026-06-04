@@ -152,37 +152,154 @@ const FLAGSHIPS = [
     ],
   },
   {
-    id: 'power-of-three',
-    method_name: 'isPowerOfThree',
-    params: [{ name: 'n', type: 'int' }],
-    return_type: 'bool',
-    hints: [
-      'n is a power of 3 iff n > 0 AND repeatedly dividing by 3 reaches 1 exactly.',
-      'Loop: while n % 3 == 0, n /= 3. Then check n == 1.',
-      'O(1) trick: the largest 32-bit power of 3 is 3^19 = 1162261467. If 1162261467 % n == 0, n is a power of 3.',
-      'Logarithm-based check is unreliable due to floating point.',
-      'O(log_3 n) for the loop; O(1) for the divisor trick.',
+    id: 'prime-number-of-set-bits-in-binary-representation',
+    method_name: 'countPrimeSetBits',
+    params: [{ name: 'left', type: 'int' }, { name: 'right', type: 'int' }],
+    return_type: 'int',
+    pattern: 'Bit Manipulation + Number Theory',
+    tags: ['bit-manipulation', 'math', 'number-theory', 'popcount'],
+    companies: ["amazon","meta","microsoft","google","apple"],
+    constraints: [
+      '1 <= left <= right <= 10^6',
+      '0 <= right - left <= 10^4',
     ],
-    tags: ['math', 'recursion'],
-    constraints: '-2^31 ≤ n ≤ 2^31 − 1',
-    follow_up: '"Power of Four" — also has a bit trick: power of 2 AND set bit is in an "even" position.',
-    pattern: 'repeated-division',
+    follow_up: 'Can you precompute primes once and reuse for many queries? What about Brian Kernighan popcount vs builtin?',
+    hints: [
+      'For each n in [left, right], count the number of set bits (popcount).',
+      'Then check whether that count is a prime number.',
+      'Since right <= 10^6, the popcount of n fits in at most 20 bits, so primes are tiny.',
+      'You only need to know primality for values 0..20. Precompute a small set: {2,3,5,7,11,13,17,19}.',
+      'Brian Kernighan trick: n &= n - 1 clears the lowest set bit; loop until n == 0 counting iterations.',
+    ],
     test_cases: [
-      { inputs: ['27'], expected: 'true' },
-      { inputs: ['0'], expected: 'false' },
-      { inputs: ['9'], expected: 'true' },
-      { inputs: ['45'], expected: 'false' },
-      { inputs: ['1'], expected: 'true' },
-      { inputs: ['3'], expected: 'true' },
-      { inputs: ['81'], expected: 'true' },
-      { inputs: ['243'], expected: 'true' },
-      { inputs: ['1162261467'], expected: 'true' },
-      { inputs: ['-3'], expected: 'false' },
-      { inputs: ['-27'], expected: 'false' },
-      { inputs: ['6'], expected: 'false' },
-      { inputs: ['12'], expected: 'false' },
-      { inputs: ['18'], expected: 'false' },
-      { inputs: ['2147483647'], expected: 'false' },
+      { inputs: ['6', '10'], expected: '4' },
+      { inputs: ['10', '15'], expected: '5' },
+      { inputs: ['1', '1'], expected: '0' },
+      { inputs: ['2', '2'], expected: '1' },
+      { inputs: ['3', '3'], expected: '1' },
+      { inputs: ['842', '888'], expected: '23' },
+      { inputs: ['567', '607'], expected: '21' },
+      { inputs: ['1', '10'], expected: '6' },
+      { inputs: ['100', '200'], expected: '52' },
+      { inputs: ['999990', '1000000'], expected: '6' },
+    ],
+    visualization: {
+      type: 'array',
+      frames: [
+        { array: [6,7,8,9,10], highlights: [], pointers: {}, status: 'Range [6,10]. For each n compute popcount, then check primality.' },
+        { array: [6,7,8,9,10], highlights: [0], pointers: { n: 0 }, status: 'n=6 = 0b110 -> popcount=2. 2 is prime -> count=1.' },
+        { array: [6,7,8,9,10], highlights: [1], pointers: { n: 1 }, status: 'n=7 = 0b111 -> popcount=3. 3 is prime -> count=2.' },
+        { array: [6,7,8,9,10], highlights: [2], pointers: { n: 2 }, status: 'n=8 = 0b1000 -> popcount=1. 1 is NOT prime -> skip.' },
+        { array: [6,7,8,9,10], highlights: [3], pointers: { n: 3 }, status: 'n=9 = 0b1001 -> popcount=2. 2 is prime -> count=3.' },
+        { array: [6,7,8,9,10], highlights: [4], pointers: { n: 4 }, status: 'n=10 = 0b1010 -> popcount=2. 2 is prime -> count=4.' },
+        { array: [6,7,8,9,10], highlights: [], pointers: {}, status: 'Brian Kernighan: n &= n-1 strips lowest set bit. 10=0b1010 -> 0b1000 -> 0 (2 iterations).' },
+        { array: [6,7,8,9,10], highlights: [], pointers: {}, status: 'Primes in popcount range (1..20): {2,3,5,7,11,13,17,19}. Lookup is O(1).' },
+        { array: [6,7,8,9,10], highlights: [], pointers: {}, status: 'Time O((R-L) * log R). Space O(1).' },
+        { array: [6,7,8,9,10], highlights: [], pointers: {}, status: 'Answer = 4. Numbers with prime-popcount: 6, 7, 9, 10.' },
+      ],
+    },
+    solutions: [
+      {
+        language: 'python',
+        approach: 'Popcount + small prime set',
+        code: `class Solution:
+    def countPrimeSetBits(self, left: int, right: int) -> int:
+        primes = {2, 3, 5, 7, 11, 13, 17, 19}
+        count = 0
+        for n in range(left, right + 1):
+            if bin(n).count('1') in primes:
+                count += 1
+        return count`,
+      },
+      {
+        language: 'javascript',
+        approach: 'Brian Kernighan popcount',
+        code: `/**
+ * @param {number} left
+ * @param {number} right
+ * @return {number}
+ */
+var countPrimeSetBits = function(left, right) {
+    const primes = new Set([2, 3, 5, 7, 11, 13, 17, 19]);
+    let count = 0;
+    for (let n = left; n <= right; n++) {
+        let bits = 0, x = n;
+        while (x) { x &= x - 1; bits++; }
+        if (primes.has(bits)) count++;
+    }
+    return count;
+};`,
+      },
+      {
+        language: 'java',
+        approach: 'Integer.bitCount + small prime set',
+        code: `class Solution {
+    public int countPrimeSetBits(int left, int right) {
+        // Bitmask: bit i set means i is prime. Covers 0..21.
+        int primeMask = (1 << 2) | (1 << 3) | (1 << 5) | (1 << 7)
+                      | (1 << 11) | (1 << 13) | (1 << 17) | (1 << 19);
+        int count = 0;
+        for (int n = left; n <= right; n++) {
+            int bits = Integer.bitCount(n);
+            if ((primeMask & (1 << bits)) != 0) count++;
+        }
+        return count;
+    }
+}`,
+      },
+      {
+        language: 'cpp',
+        approach: '__builtin_popcount + prime mask',
+        code: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int countPrimeSetBits(int left, int right) {
+        int primeMask = (1<<2)|(1<<3)|(1<<5)|(1<<7)|(1<<11)|(1<<13)|(1<<17)|(1<<19);
+        int count = 0;
+        for (int n = left; n <= right; ++n) {
+            int bits = __builtin_popcount(n);
+            if (primeMask & (1 << bits)) ++count;
+        }
+        return count;
+    }
+};`,
+      },
+      {
+        language: 'go',
+        approach: 'bits.OnesCount + prime set',
+        code: `import "math/bits"
+
+func countPrimeSetBits(left int, right int) int {
+    primes := map[int]bool{2: true, 3: true, 5: true, 7: true, 11: true, 13: true, 17: true, 19: true}
+    count := 0
+    for n := left; n <= right; n++ {
+        if primes[bits.OnesCount(uint(n))] {
+            count++
+        }
+    }
+    return count
+}`,
+      },
+      {
+        language: 'rust',
+        approach: 'count_ones + prime set',
+        code: `use std::collections::HashSet;
+
+impl Solution {
+    pub fn count_prime_set_bits(left: i32, right: i32) -> i32 {
+        let primes: HashSet<u32> = [2u32, 3, 5, 7, 11, 13, 17, 19].into_iter().collect();
+        let mut count = 0;
+        for n in left..=right {
+            if primes.contains(&(n as u32).count_ones()) {
+                count += 1;
+            }
+        }
+        count
+    }
+}`,
+      },
     ],
   },
 ];

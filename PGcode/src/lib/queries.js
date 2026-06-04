@@ -225,6 +225,7 @@ export const qk = {
   potd: (date) => ['potd', date || 'today'],
   randomUnsolved: (userId, diff) => ['randomUnsolved', userId || 'anon', diff || 'any'],
   comments: (kind, id, userId) => ['comments', kind, id, userId || 'anon'],
+  submissionsForProblem: (userId, problemId) => ['submissionsForProblem', userId || 'anon', problemId || 'none'],
 };
 
 // ---- Home dashboard RPCs (migrate-29) --------------------------------------
@@ -785,6 +786,54 @@ export function usePublicList(shareSlug) {
 }
 
 // ---- Practice history / submissions ---------------------------------------
+
+// All submissions for one (user, problem). Powers the Workspace Submissions
+// tab detail panel: includes source_code, runtime_ms, memory_kb, notes so the
+// row can render full LeetCode-style stats + per-submission notes editor.
+export function useSubmissionsForProblem(userId, problemId) {
+  return useQuery({
+    queryKey: qk.submissionsForProblem(userId, problemId),
+    queryFn: async () => {
+      if (!userId || !problemId) return [];
+      const { data, error } = await supabase
+        .from('PGcode_user_submissions')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('problem_id', problemId)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!userId && !!problemId,
+    staleTime: 30 * 1000,
+  });
+}
+
+// Updates a single submission's notes column. Optimistic write into the
+// `submissionsForProblem` cache, then invalidate on settle so the source of
+// truth wins.
+export function useUpdateSubmissionNotes() {
+  const queryClient = useQueryClient();
+  return useCallback(async ({ submissionId, userId, problemId, notes }) => {
+    if (!submissionId || !userId) throw new Error('Missing submission or user');
+    const cacheKey = qk.submissionsForProblem(userId, problemId);
+    const prev = queryClient.getQueryData(cacheKey);
+    if (Array.isArray(prev)) {
+      const next = prev.map((s) => (s.id === submissionId ? { ...s, notes } : s));
+      queryClient.setQueryData(cacheKey, next);
+    }
+    try {
+      const { error } = await supabase
+        .from('PGcode_user_submissions')
+        .update({ notes })
+        .eq('id', submissionId)
+        .eq('user_id', userId);
+      if (error) throw error;
+    } finally {
+      queryClient.invalidateQueries({ queryKey: cacheKey });
+    }
+  }, [queryClient]);
+}
 
 export function useSubmissionHistory(userId, limit = 200) {
   return useQuery({

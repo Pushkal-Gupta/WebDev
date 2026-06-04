@@ -1843,6 +1843,8 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
         '    print(str(_result).lower())',
         'elif _result is None:',
         '    print("null")',
+        'elif isinstance(_result, str):',
+        '    print(_result)',
         'else:',
         '    print(json.dumps(_result))',
       ].join('\n');
