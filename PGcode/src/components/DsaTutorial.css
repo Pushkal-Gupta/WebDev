@@ -1285,12 +1285,9 @@
 }
 
 .tut-pitfall-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.7rem;
-}
-@media (min-width: 720px) {
-  .tut-pitfall-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
 }
 
 .tut-pitfall-card {
@@ -1298,11 +1295,18 @@
   border: 1px solid var(--border);
   border-left: 3px solid var(--warning, var(--hard));
   border-radius: 8px;
-  padding: 1rem 1.1rem 1.1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+  padding: 0.7rem 0.95rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.45rem;
   transition: border-color var(--t);
+}
+@media (min-width: 820px) {
+  .tut-pitfall-card {
+    grid-template-columns: minmax(140px, 0.8fr) minmax(0, 1.6fr) minmax(0, 1.4fr);
+    align-items: center;
+    gap: 0.9rem;
+  }
 }
 .tut-pitfall-card:hover {
   border-color: var(--warning, var(--hard));
@@ -1310,12 +1314,13 @@
 .tut-pitfall-head {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.5rem;
   font-family: var(--sans);
-  font-size: 0.98rem;
+  font-size: 0.94rem;
   font-weight: 700;
   color: var(--text-main);
-  line-height: 1.35;
+  line-height: 1.3;
+  min-width: 0;
 }
 .tut-pitfall-head svg {
   color: var(--warning, var(--hard));
@@ -1324,24 +1329,26 @@
 .tut-pitfall-desc {
   margin: 0;
   font-family: var(--serif);
-  font-size: 1rem;
-  line-height: 1.65;
+  font-size: 0.96rem;
+  line-height: 1.55;
   color: var(--text-main);
+  min-width: 0;
 }
 .tut-pitfall-fix {
   margin: 0;
   display: flex;
   align-items: flex-start;
-  gap: 0.7rem;
-  padding: 0.65rem 0.85rem;
+  gap: 0.55rem;
+  padding: 0.5rem 0.7rem;
   background: rgba(var(--accent-rgb), 0.07);
   border: none;
   border-left: 3px solid var(--easy);
   border-radius: 6px;
   font-family: var(--serif);
-  font-size: 0.98rem;
-  line-height: 1.65;
+  font-size: 0.94rem;
+  line-height: 1.55;
   color: var(--text-main);
+  min-width: 0;
 }
 .tut-pitfall-fix-label {
   display: inline-flex;

@@ -552,6 +552,13 @@
   padding: 0;
   min-height: 0;
 }
+.viz-array-block .viz-tile {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.viz-array-block .viz-tile-value {
+  max-width: 100%;
+}
 .viz-tile {
   position: relative;
   display: inline-flex;

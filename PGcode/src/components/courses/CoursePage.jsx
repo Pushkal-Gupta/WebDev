@@ -18,7 +18,32 @@ import {
 } from 'lucide-react';
 import { COURSES } from '../../content/courses';
 import { runCode } from '../../lib/codeRunner';
+import AlgoVisualizer, {
+  ArrayBarRenderer,
+  GraphRenderer,
+  SlidingWindowRenderer,
+  NumberGridRenderer,
+  TreeRenderer,
+} from '../learn/AlgoVisualizer';
 import './Courses.css';
+
+function LessonViz({ viz }) {
+  if (!viz || !Array.isArray(viz.frames) || viz.frames.length === 0) return null;
+  const r = viz.renderer || 'array';
+  const render = (frame) => {
+    if (r === 'graph') return <GraphRenderer frame={frame} />;
+    if (r === 'window') return <SlidingWindowRenderer frame={frame} />;
+    if (r === 'grid') return <NumberGridRenderer frame={frame} />;
+    if (r === 'tree') return <TreeRenderer frame={frame} />;
+    return <ArrayBarRenderer frame={frame} />;
+  };
+  return (
+    <section className="course-block course-block-viz">
+      <div className="course-block-head">{viz.title || 'Walkthrough'}</div>
+      <AlgoVisualizer frames={viz.frames} render={render} />
+    </section>
+  );
+}
 
 function normalizeOutput(s) {
   if (s == null) return '';
@@ -265,6 +290,8 @@ export default function CoursePage() {
           </div>
           <IntroBody text={lesson.intro} />
         </header>
+
+        <LessonViz viz={lesson.viz} />
 
         {lesson.code && (
           <section className="course-block course-block-example">

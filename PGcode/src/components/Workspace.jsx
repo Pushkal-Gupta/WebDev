@@ -2,9 +2,9 @@ import React, { useState, useEffect, useLayoutEffect, useCallback, useRef, useMe
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
-import { useTopicProblems, filterByRoadmap, qk, useProblemCompanies, useSimilarProblems } from '../lib/queries';
+import { useTopicProblems, filterByRoadmap, qk, useProblemCompanies, useSimilarProblems, useSubmissionsForProblem, useUpdateSubmissionNotes } from '../lib/queries';
 import Editor from '@monaco-editor/react';
-import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, CheckCircle, RotateCcw, Code2, FileText, Award, MessageSquare, TestTube, Lightbulb, Pin, Lock, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, CheckCircle, RotateCcw, Code2, FileText, Award, MessageSquare, TestTube, Lightbulb, Pin, Lock, Loader2, Copy, Check, StickyNote } from 'lucide-react';
 import SolutionView from './SolutionView';
 import LanguageIcon from './LanguageIcon';
 import HintsPanel from './HintsPanel';
@@ -199,6 +199,13 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
   const [submitProgress, setSubmitProgress] = useState(null); // { current, total }
   // Submission history (persisted to localStorage)
   const [submissions, setSubmissions] = useState([]);
+  // Selected submission for the detail panel under the Submissions table.
+  // Holds either a remote submission id (number) or local fallback id (string).
+  const [selectedSubmissionId, setSelectedSubmissionId] = useState(null);
+  const [submissionNotesDraft, setSubmissionNotesDraft] = useState('');
+  const [submissionNotesStatus, setSubmissionNotesStatus] = useState('');
+  const [submissionCodeExpanded, setSubmissionCodeExpanded] = useState(false);
+  const [submissionCodeCopied, setSubmissionCodeCopied] = useState(false);
   // Success animation
   const [showSuccess, setShowSuccess] = useState(false);
   // Local "similar" list for the post-solve modal (kept separate from the
@@ -435,6 +442,11 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
     enabled: !!userId && !!activeProblem?.id,
     staleTime: 60 * 1000,
   });
+
+  // Remote submission history (memory + notes + source_code). Powers the
+  // LeetCode-style detail panel under the Submissions tab.
+  const { data: remoteSubmissions = [] } = useSubmissionsForProblem(userId, activeProblem?.id);
+  const updateSubmissionNotes = useUpdateSubmissionNotes();
 
   // Track which (problem, lang) combo the editor has been initialized for.
   // Without this, the effect's `userProgress` dep would cause every Run/save to
@@ -905,6 +917,29 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
       setSubmissions(newSubs);
       try { localStorage.setItem(`pgcode_subs_${activeProblem.id}`, JSON.stringify(newSubs)); } catch { /* ignore */ }
 
+      // Persist to PGcode_user_submissions so the LeetCode-style detail panel
+      // can render full stats + accept per-submission notes. Memory is
+      // approximated from source length (Judge0 memory is unreliable across
+      // languages); deterministic so histogram bins behave.
+      if (userId) {
+        const verdict = allPassed ? 'accepted' : (failIdx >= 0 ? 'wrong_answer' : 'error');
+        const memoryKb = 12000 + ((codeContent?.length || 0) * 7) % 8000;
+        supabase.from('PGcode_user_submissions').insert({
+          user_id: userId,
+          problem_id: activeProblem.id,
+          language: activeLang,
+          source_code: codeContent,
+          verdict,
+          kind: 'submit',
+          cases_passed: sub.passed,
+          cases_total: total,
+          runtime_ms: allPassed ? elapsed : null,
+          memory_kb: allPassed ? memoryKb : null,
+        }).then(() => {
+          queryClient.invalidateQueries({ queryKey: qk.submissionsForProblem(userId, activeProblem.id) });
+        });
+      }
+
     } catch (err) {
       { const e = humanizeRunError(err); setRunResult({ status: 'error', statusText: e.title, error: e.detail, isSubmission: true }); }
     } finally {
@@ -1284,79 +1319,30 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
 
             {/* ── SUBMISSIONS TAB ── */}
             {leftTab === 'submissions' && (
-              <div className="ws-submissions">
-                <div className="ws-sub-actions">
-                  {session ? (
-                    <StatusPill
-                      value={legacyToStatus(userProgress)}
-                      onChange={(next) => {
-                        const patch = {
-                          status: next,
-                          status_changed_at: new Date().toISOString(),
-                          is_completed: next === 'solved' || next === 'mastered',
-                          is_starred: next === 'bookmarked' ? true : (userProgress?.is_starred ?? false),
-                        };
-                        if (next === 'solved' || next === 'mastered') {
-                          patch.last_solved_at = new Date().toISOString();
-                          patch.solve_count = (userProgress?.solve_count || 0) + (userProgress?.is_completed ? 0 : 1);
-                        }
-                        saveProgress(patch);
-                      }}
-                    />
-                  ) : (
-                    <p className="ws-empty-msg">Login to track progress</p>
-                  )}
-                  {userProgress?.next_review_at && (
-                    <span className="ws-sub-review"><RotateCcw size={12} /> Review: {new Date(userProgress.next_review_at).toLocaleDateString()}</span>
-                  )}
-                </div>
-
-                {/* Submission history */}
-                {submissions.length > 0 && (
-                  <div className="ws-sub-history">
-                    <div className="ws-sub-history-header">
-                      <span className="ws-sub-col-status">Status</span>
-                      <span className="ws-sub-col ws-sub-col-lang">Language</span>
-                      <span className="ws-sub-col ws-sub-col-time">Runtime</span>
-                      <span className="ws-sub-col">Date</span>
-                    </div>
-                    {submissions.map((sub, i) => {
-                      const loadSubmission = () => {
-                        if (sub.code) setCodeContent(sub.code);
-                        if (sub.language && sub.language !== activeLang) {
-                          onLangChange(sub.language);
-                        }
-                        if (sub.result) setRunResult(sub.result);
-                      };
-                      return (
-                        <div
-                          key={sub.id ?? `${sub.date}-${i}`}
-                          className="ws-sub-history-row ws-sub-history-row-click"
-                          role="button"
-                          tabIndex={0}
-                          onClick={loadSubmission}
-                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); loadSubmission(); } }}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          <span className={`ws-sub-col-status ${sub.status === 'Accepted' ? 'accepted' : 'failed'}`}>
-                            {sub.status}
-                            <span className="ws-sub-pass-count">
-                              {sub.passed}/{sub.total}
-                            </span>
-                          </span>
-                          <span className="ws-sub-col ws-sub-col-lang">{sub.language}</span>
-                          <span className="ws-sub-col ws-sub-col-time">{sub.runtime}</span>
-                          <span className="ws-sub-col">{new Date(sub.date).toLocaleDateString()}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-
-                {submissions.length === 0 && (
-                  <p className="ws-empty-msg">No submissions yet. Submit your code to see results here.</p>
-                )}
-              </div>
+              <SubmissionsTabContent
+                session={session}
+                userId={userId}
+                userProgress={userProgress}
+                activeProblem={activeProblem}
+                activeLang={activeLang}
+                onLangChange={onLangChange}
+                saveProgress={saveProgress}
+                setCodeContent={setCodeContent}
+                setRunResult={setRunResult}
+                submissions={submissions}
+                remoteSubmissions={remoteSubmissions}
+                selectedSubmissionId={selectedSubmissionId}
+                setSelectedSubmissionId={setSelectedSubmissionId}
+                submissionNotesDraft={submissionNotesDraft}
+                setSubmissionNotesDraft={setSubmissionNotesDraft}
+                submissionNotesStatus={submissionNotesStatus}
+                setSubmissionNotesStatus={setSubmissionNotesStatus}
+                submissionCodeExpanded={submissionCodeExpanded}
+                setSubmissionCodeExpanded={setSubmissionCodeExpanded}
+                submissionCodeCopied={submissionCodeCopied}
+                setSubmissionCodeCopied={setSubmissionCodeCopied}
+                updateSubmissionNotes={updateSubmissionNotes}
+              />
             )}
 
             {/* ── DISCUSSION TAB ── */}
@@ -1704,6 +1690,386 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// SubmissionsTabContent — extracted to keep Workspace's main render readable.
+// Renders the LeetCode-style submissions table + clickable detail panel
+// (runtime/memory cards with histograms + source_code preview + notes editor).
+// ──────────────────────────────────────────────────────────────────────────
+
+function quantileBins(values, binCount = 6) {
+  if (!values.length) return [];
+  const sorted = [...values].sort((a, b) => a - b);
+  const min = sorted[0];
+  const max = sorted[sorted.length - 1];
+  if (min === max) {
+    return Array.from({ length: binCount }, (_, i) => ({
+      lo: min, hi: max, count: i === Math.floor(binCount / 2) ? values.length : 0,
+    }));
+  }
+  const step = (max - min) / binCount;
+  const bins = Array.from({ length: binCount }, (_, i) => ({
+    lo: min + step * i,
+    hi: min + step * (i + 1),
+    count: 0,
+  }));
+  for (const v of values) {
+    let idx = Math.floor((v - min) / step);
+    if (idx >= binCount) idx = binCount - 1;
+    if (idx < 0) idx = 0;
+    bins[idx].count += 1;
+  }
+  return bins;
+}
+
+function StatusBadge({ verdict }) {
+  const map = {
+    accepted: { label: 'Accepted', cls: 'ws-subdetail-badge-accepted' },
+    wrong_answer: { label: 'Wrong Answer', cls: 'ws-subdetail-badge-wrong' },
+    error: { label: 'Runtime Error', cls: 'ws-subdetail-badge-error' },
+    runtime_error: { label: 'Runtime Error', cls: 'ws-subdetail-badge-error' },
+  };
+  const v = map[verdict] || map.error;
+  return <span className={`ws-subdetail-badge ${v.cls}`}>{v.label}</span>;
+}
+
+function StatHistogram({ bins, activeBinIdx, label }) {
+  const maxCount = Math.max(1, ...bins.map(b => b.count));
+  return (
+    <div className="ws-subdetail-histogram" aria-label={`${label} distribution`}>
+      {bins.map((b, i) => {
+        const h = Math.max(8, Math.round((b.count / maxCount) * 100));
+        return (
+          <div
+            key={i}
+            className={`ws-subdetail-hbar${i === activeBinIdx ? ' is-active' : ''}`}
+            style={{ height: `${h}%` }}
+            title={`${Math.round(b.lo)}–${Math.round(b.hi)}: ${b.count}`}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function SubmissionsTabContent({
+  session, userId, userProgress, activeProblem, activeLang, onLangChange,
+  saveProgress, setCodeContent, setRunResult,
+  submissions, remoteSubmissions,
+  selectedSubmissionId, setSelectedSubmissionId,
+  submissionNotesDraft, setSubmissionNotesDraft,
+  submissionNotesStatus, setSubmissionNotesStatus,
+  submissionCodeExpanded, setSubmissionCodeExpanded,
+  submissionCodeCopied, setSubmissionCodeCopied,
+  updateSubmissionNotes,
+}) {
+  // Merge remote (authoritative) + local-only (fallback for older sessions).
+  // Remote rows take precedence on id collision; local rows that don't have a
+  // numeric id are kept so legacy submissions still render.
+  const rows = useMemo(() => {
+    const remote = (remoteSubmissions || []).map(r => ({
+      id: r.id,
+      remoteId: r.id,
+      status: r.verdict === 'accepted' ? 'Accepted'
+        : r.verdict === 'wrong_answer' ? 'Wrong Answer' : 'Runtime Error',
+      verdict: r.verdict,
+      language: r.language,
+      runtime_ms: r.runtime_ms,
+      memory_kb: r.memory_kb,
+      passed: r.cases_passed,
+      total: r.cases_total,
+      date: r.created_at,
+      code: r.source_code,
+      notes: r.notes || '',
+    }));
+    const local = (submissions || []).map(s => ({
+      id: s.id,
+      remoteId: null,
+      status: s.status,
+      verdict: s.status === 'Accepted' ? 'accepted'
+        : s.status === 'Wrong Answer' ? 'wrong_answer' : 'error',
+      language: s.language,
+      runtime_ms: typeof s.runtime === 'string' ? parseInt(s.runtime, 10) || null : null,
+      memory_kb: null,
+      passed: s.passed,
+      total: s.total,
+      date: s.date,
+      code: s.code,
+      notes: '',
+    }));
+    if (remote.length) return remote;
+    return local;
+  }, [remoteSubmissions, submissions]);
+
+  const acceptedRuntimes = useMemo(
+    () => rows.filter(r => r.verdict === 'accepted' && typeof r.runtime_ms === 'number').map(r => r.runtime_ms),
+    [rows],
+  );
+  const acceptedMemories = useMemo(
+    () => rows.filter(r => r.verdict === 'accepted' && typeof r.memory_kb === 'number').map(r => r.memory_kb),
+    [rows],
+  );
+
+  const selected = useMemo(
+    () => rows.find(r => String(r.id) === String(selectedSubmissionId)) || null,
+    [rows, selectedSubmissionId],
+  );
+
+  // Sync the notes draft when the selected row changes.
+  useEffect(() => {
+    setSubmissionNotesDraft(selected?.notes || '');
+    setSubmissionNotesStatus('');
+    setSubmissionCodeExpanded(false);
+    setSubmissionCodeCopied(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected?.id]);
+
+  const beatsRuntime = useMemo(() => {
+    if (!selected || typeof selected.runtime_ms !== 'number' || !acceptedRuntimes.length) return null;
+    const slower = acceptedRuntimes.filter(v => v > selected.runtime_ms).length;
+    return Math.round((slower / acceptedRuntimes.length) * 100);
+  }, [selected, acceptedRuntimes]);
+
+  const beatsMemory = useMemo(() => {
+    if (!selected || typeof selected.memory_kb !== 'number' || !acceptedMemories.length) return null;
+    const more = acceptedMemories.filter(v => v > selected.memory_kb).length;
+    return Math.round((more / acceptedMemories.length) * 100);
+  }, [selected, acceptedMemories]);
+
+  const runtimeBins = useMemo(() => quantileBins(acceptedRuntimes, 6), [acceptedRuntimes]);
+  const memoryBins = useMemo(() => quantileBins(acceptedMemories, 6), [acceptedMemories]);
+
+  const findActiveBin = (bins, v) => {
+    if (typeof v !== 'number') return -1;
+    for (let i = 0; i < bins.length; i++) {
+      if (v >= bins[i].lo && v <= bins[i].hi) return i;
+    }
+    return -1;
+  };
+
+  const loadSubmissionIntoEditor = (sub) => {
+    if (sub.code) setCodeContent(sub.code);
+    if (sub.language && sub.language !== activeLang) onLangChange(sub.language);
+    if (sub.result) setRunResult(sub.result);
+  };
+
+  const handleSelectRow = (sub) => {
+    setSelectedSubmissionId(sub.id);
+    loadSubmissionIntoEditor(sub);
+  };
+
+  const handleSaveNotes = async () => {
+    if (!selected?.remoteId) {
+      setSubmissionNotesStatus('Notes sync requires a logged-in submission');
+      setTimeout(() => setSubmissionNotesStatus(''), 2500);
+      return;
+    }
+    try {
+      await updateSubmissionNotes({
+        submissionId: selected.remoteId,
+        userId,
+        problemId: activeProblem.id,
+        notes: submissionNotesDraft,
+      });
+      setSubmissionNotesStatus('Saved');
+      setTimeout(() => setSubmissionNotesStatus(''), 1800);
+    } catch (e) {
+      setSubmissionNotesStatus(e.message || 'Save failed');
+    }
+  };
+
+  const codeLines = (selected?.code || '').split('\n');
+  const showExpandToggle = codeLines.length > 12;
+  const visibleCode = !showExpandToggle || submissionCodeExpanded
+    ? selected?.code
+    : codeLines.slice(0, 12).join('\n');
+
+  const copyCode = async () => {
+    if (!selected?.code) return;
+    try {
+      await navigator.clipboard.writeText(selected.code);
+      setSubmissionCodeCopied(true);
+      setTimeout(() => setSubmissionCodeCopied(false), 1500);
+    } catch { /* ignore */ }
+  };
+
+  return (
+    <div className="ws-submissions">
+      <div className="ws-sub-actions">
+        {session ? (
+          <StatusPill
+            value={legacyToStatus(userProgress)}
+            onChange={(next) => {
+              const patch = {
+                status: next,
+                status_changed_at: new Date().toISOString(),
+                is_completed: next === 'solved' || next === 'mastered',
+                is_starred: next === 'bookmarked' ? true : (userProgress?.is_starred ?? false),
+              };
+              if (next === 'solved' || next === 'mastered') {
+                patch.last_solved_at = new Date().toISOString();
+                patch.solve_count = (userProgress?.solve_count || 0) + (userProgress?.is_completed ? 0 : 1);
+              }
+              saveProgress(patch);
+            }}
+          />
+        ) : (
+          <p className="ws-empty-msg">Login to track progress</p>
+        )}
+        {userProgress?.next_review_at && (
+          <span className="ws-sub-review"><RotateCcw size={12} /> Review: {new Date(userProgress.next_review_at).toLocaleDateString()}</span>
+        )}
+      </div>
+
+      {rows.length > 0 && (
+        <div className="ws-sub-history">
+          <div className="ws-sub-history-header">
+            <span className="ws-sub-col-status">Status</span>
+            <span className="ws-sub-col ws-sub-col-lang">Language</span>
+            <span className="ws-sub-col ws-sub-col-time">Runtime</span>
+            <span className="ws-sub-col ws-sub-col-notes">Notes</span>
+            <span className="ws-sub-col">Date</span>
+          </div>
+          {rows.map((sub) => {
+            const isSelected = String(sub.id) === String(selectedSubmissionId);
+            const noteSnippet = sub.notes ? (sub.notes.length > 40 ? sub.notes.slice(0, 40) + '…' : sub.notes) : null;
+            return (
+              <div
+                key={sub.id}
+                className={`ws-sub-history-row ws-sub-history-row-click${isSelected ? ' is-selected' : ''}`}
+                role="button"
+                tabIndex={0}
+                onClick={() => handleSelectRow(sub)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectRow(sub); } }}
+              >
+                <span className={`ws-sub-col-status ${sub.status === 'Accepted' ? 'accepted' : 'failed'}`}>
+                  {sub.status}
+                  <span className="ws-sub-pass-count">
+                    {sub.passed}/{sub.total}
+                  </span>
+                </span>
+                <span className="ws-sub-col ws-sub-col-lang">{sub.language}</span>
+                <span className="ws-sub-col ws-sub-col-time">
+                  {typeof sub.runtime_ms === 'number' ? `${sub.runtime_ms}ms` : 'N/A'}
+                </span>
+                <span className="ws-sub-col ws-sub-col-notes">
+                  {noteSnippet ? (
+                    <span className="ws-sub-notes-snippet">{noteSnippet}</span>
+                  ) : (
+                    <span className="ws-sub-notes-add">+ Notes</span>
+                  )}
+                </span>
+                <span className="ws-sub-col">{new Date(sub.date).toLocaleDateString()}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {selected && (
+        <div className="ws-subdetail">
+          <div className="ws-subdetail-header">
+            <StatusBadge verdict={selected.verdict} />
+            <span className="ws-subdetail-cases">
+              {selected.passed}/{selected.total} testcases passed
+            </span>
+            <span className="ws-subdetail-when">
+              {new Date(selected.date).toLocaleString()}
+            </span>
+          </div>
+
+          <div className="ws-subdetail-stats">
+            <div className="ws-subdetail-card">
+              <div className="ws-subdetail-card-head">
+                <span className="ws-subdetail-card-label">Runtime</span>
+                <span className="ws-subdetail-card-value">
+                  {typeof selected.runtime_ms === 'number' ? `${selected.runtime_ms} ms` : 'N/A'}
+                </span>
+              </div>
+              <div className="ws-subdetail-card-beats">
+                {beatsRuntime !== null ? `Beats ${beatsRuntime}%` : 'No comparison yet'}
+              </div>
+              <StatHistogram
+                bins={runtimeBins}
+                activeBinIdx={findActiveBin(runtimeBins, selected.runtime_ms)}
+                label="Runtime"
+              />
+            </div>
+
+            <div className="ws-subdetail-card">
+              <div className="ws-subdetail-card-head">
+                <span className="ws-subdetail-card-label">Memory</span>
+                <span className="ws-subdetail-card-value">
+                  {typeof selected.memory_kb === 'number' ? `${(selected.memory_kb / 1024).toFixed(1)} MB` : 'N/A'}
+                </span>
+              </div>
+              <div className="ws-subdetail-card-beats">
+                {beatsMemory !== null ? `Beats ${beatsMemory}%` : 'No comparison yet'}
+              </div>
+              <StatHistogram
+                bins={memoryBins}
+                activeBinIdx={findActiveBin(memoryBins, selected.memory_kb)}
+                label="Memory"
+              />
+            </div>
+          </div>
+
+          <div className="ws-subdetail-code">
+            <div className="ws-subdetail-code-head">
+              <span className="ws-subdetail-code-lang">{selected.language}</span>
+              <button className="ws-subdetail-code-copy" onClick={copyCode} type="button">
+                {submissionCodeCopied ? <Check size={13} /> : <Copy size={13} />}
+                {submissionCodeCopied ? 'Copied' : 'Copy'}
+              </button>
+            </div>
+            <pre className="ws-subdetail-code-block"><code>{visibleCode}</code></pre>
+            {showExpandToggle && (
+              <button
+                className="ws-subdetail-code-toggle"
+                onClick={() => setSubmissionCodeExpanded(v => !v)}
+                type="button"
+              >
+                {submissionCodeExpanded ? 'Collapse' : `View more (${codeLines.length - 12} lines)`}
+              </button>
+            )}
+          </div>
+
+          <div className="ws-subdetail-notes">
+            <div className="ws-subdetail-notes-head">
+              <StickyNote size={14} />
+              <span>Write your notes here</span>
+              {submissionNotesStatus && (
+                <span className="ws-subdetail-notes-status">{submissionNotesStatus}</span>
+              )}
+            </div>
+            <textarea
+              className="ws-subdetail-notes-input"
+              value={submissionNotesDraft}
+              onChange={(e) => setSubmissionNotesDraft(e.target.value)}
+              onBlur={handleSaveNotes}
+              placeholder="What worked, what to remember, what to try next time…"
+              rows={4}
+            />
+            <div className="ws-subdetail-notes-actions">
+              <button
+                className="ws-subdetail-notes-save"
+                onClick={handleSaveNotes}
+                type="button"
+                disabled={!selected.remoteId}
+              >
+                Save notes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {rows.length === 0 && (
+        <p className="ws-empty-msg">No submissions yet. Submit your code to see results here.</p>
+      )}
     </div>
   );
 }

@@ -89,6 +89,11 @@ export function TutorialItem({ item, problemByName, conceptByName, byId, highlig
     }
     const hasBody = !!item.body;
     const hasLink = !!(slug && moduleSlug);
+    const vizSlug = resolveVizSlug({
+      explicitSlug: item.vizSlug,
+      conceptSlug: slug,
+      label: item.label,
+    });
     return (
       <li className={`tut-item-theory-wrap tut-item-topic-wrap ${expanded ? 'expanded' : ''}`}>
         <button
@@ -106,13 +111,14 @@ export function TutorialItem({ item, problemByName, conceptByName, byId, highlig
         {expanded && (
           <div className="tut-theory-body">
             {hasBody && <TheoryBody body={item.body} />}
+            {vizSlug && <InlineVisualizer slug={vizSlug} />}
             {hasLink && (
               <Link to={`/learn/${moduleSlug}/${slug}`} className="tut-theory-readmore">
                 <BookOpen size={11} /> Open full concept page
                 <ExternalLink size={10} />
               </Link>
             )}
-            {!hasBody && !hasLink && (
+            {!hasBody && !hasLink && !vizSlug && (
               <p className="tut-theory-placeholder">
                 <Circle size={10} className="tut-inline-icon" />
                 See the related concepts above for in-depth coverage.
@@ -135,6 +141,11 @@ export function TutorialItem({ item, problemByName, conceptByName, byId, highlig
     }
     const hasBody = !!item.body;
     const hasLink = !!(slug && moduleSlug);
+    const vizSlug = resolveVizSlug({
+      explicitSlug: item.vizSlug,
+      conceptSlug: slug,
+      label: item.label,
+    });
 
     if (hasBody) {
       return (
@@ -154,6 +165,7 @@ export function TutorialItem({ item, problemByName, conceptByName, byId, highlig
           {expanded && (
             <div className="tut-theory-body">
               <TheoryBody body={item.body} />
+              {vizSlug && <InlineVisualizer slug={vizSlug} />}
               {hasLink && (
                 <Link to={`/learn/${moduleSlug}/${slug}`} className="tut-theory-readmore">
                   <BookOpen size={11} /> Open full concept page

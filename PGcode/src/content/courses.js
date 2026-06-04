@@ -1498,6 +1498,71 @@ const CPP_LESSONS = [
   {
     id: "cpp6",
     title: "6. Sort & algorithms",
+    viz: {
+      renderer: "array",
+      title: "binary_search on a sorted vector — finding 9",
+      frames: [
+        {
+          array: [1, 2, 4, 5, 7, 9, 11, 13, 15, 18],
+          pointers: { 0: "lo", 9: "hi" },
+          caption: "Sorted range. lo = 0, hi = 9. Target = 9.",
+        },
+        {
+          array: [1, 2, 4, 5, 7, 9, 11, 13, 15, 18],
+          highlights: { 4: "mid" },
+          pointers: { 0: "lo", 4: "mid", 9: "hi" },
+          chip: { label: "mid", value: "4" },
+          caption: "mid = (0 + 9) / 2 = 4. Compare v[4] = 7 with target 9.",
+        },
+        {
+          array: [1, 2, 4, 5, 7, 9, 11, 13, 15, 18],
+          highlights: { 4: "compared" },
+          eliminated: [0, 1, 2, 3, 4],
+          pointers: { 5: "lo", 9: "hi" },
+          caption: "7 < 9, so discard the left half. lo moves to mid + 1 = 5.",
+        },
+        {
+          array: [1, 2, 4, 5, 7, 9, 11, 13, 15, 18],
+          highlights: { 7: "mid" },
+          eliminated: [0, 1, 2, 3, 4],
+          pointers: { 5: "lo", 7: "mid", 9: "hi" },
+          chip: { label: "mid", value: "7" },
+          caption: "New mid = (5 + 9) / 2 = 7. Compare v[7] = 13 with target 9.",
+        },
+        {
+          array: [1, 2, 4, 5, 7, 9, 11, 13, 15, 18],
+          highlights: { 7: "compared" },
+          eliminated: [0, 1, 2, 3, 4, 7, 8, 9],
+          pointers: { 5: "lo", 6: "hi" },
+          caption: "13 > 9, so discard the right half. hi moves to mid - 1 = 6.",
+        },
+        {
+          array: [1, 2, 4, 5, 7, 9, 11, 13, 15, 18],
+          highlights: { 5: "mid" },
+          eliminated: [0, 1, 2, 3, 4, 7, 8, 9],
+          pointers: { 5: ["lo", "mid"], 6: "hi" },
+          chip: { label: "mid", value: "5" },
+          caption: "mid = (5 + 6) / 2 = 5. Compare v[5] = 9 with target 9.",
+        },
+        {
+          array: [1, 2, 4, 5, 7, 9, 11, 13, 15, 18],
+          highlights: { 5: "match" },
+          eliminated: [0, 1, 2, 3, 4, 7, 8, 9],
+          pointers: { 5: "found" },
+          chip: { label: "result", value: "true" },
+          caption: "Match. std::binary_search returns true; lower_bound would return the iterator at index 5.",
+        },
+        {
+          array: [1, 2, 4, 5, 7, 9, 11, 13, 15, 18],
+          highlights: { 5: "done" },
+          chip: [
+            { label: "comparisons", value: "3" },
+            { label: "complexity", value: "O(log n)" },
+          ],
+          caption: "Three comparisons to search a 10-element range — log2(10) is the asymptotic bound.",
+        },
+      ],
+    },
     intro: "The `<algorithm>` header is the closest thing C++ has to a functional standard library — a long list of one-shot operations that take iterator ranges and do something useful. The pattern is consistent: pass `container.begin()` and `container.end()`, optionally a third iterator or a predicate. `std::sort(begin, end)` is the workhorse, intro-sort under the hood (a quicksort that bails to heapsort on pathological inputs), O(n log n) worst case, not stable. When stability matters, `std::stable_sort` keeps the relative order of equal elements at the cost of O(n log n) extra memory. `std::partial_sort(begin, mid, end)` sorts only the first `mid - begin` elements; `std::nth_element(begin, nth, end)` partitions so that `*nth` is the value that would be there if fully sorted — both faster than a full sort when you only need a prefix or a single position. Searching: `std::find`, `std::find_if`, and on sorted ranges `std::lower_bound` / `std::upper_bound` / `std::binary_search` (the last returns only a `bool` — usually you want the bound iterator so you can read or insert at that position). Aggregation lives partly in `<numeric>`, not `<algorithm>` — `std::accumulate(begin, end, init)` folds with `+` by default or a custom binary op, `std::reduce` (C++17) is the parallelizable cousin that requires associativity of the operation. Pay attention to the init value: `accumulate(v.begin(), v.end(), 0)` returns `int` even if `v` is `vector<long long>` — pass `0LL` to keep the precision, otherwise large sums silently overflow. Transformations: `std::transform`, `std::copy`, `std::copy_if`, `std::remove_if` (note: `remove_if` returns the new logical end but does not shrink the container — pair with `v.erase(it, v.end())`, the so-called erase-remove idiom, or use the C++20 `std::erase_if` which does both in one call). Predicates: `std::all_of`, `std::any_of`, `std::none_of`, `std::count_if`. Comparators must produce a strict weak ordering — returning `true` for equal items violates that contract and is undefined behaviour, often manifesting as an infinite loop or a crash deep inside the sort. The default for `sort` is `<`; pass `std::greater<>()` for descending or a lambda for custom keys, for example sorting structs by a member. `<algorithm>` plus a lambda turns most loops into a single readable line — the modern C++ idiom is to reach for the algorithm first and only write a hand loop when nothing fits. Ranges (C++20) make this even nicer by piping `views::filter`, `views::transform`, and `views::take` together without intermediate containers.",
     code: "#include <iostream>\n#include <vector>\n#include <algorithm>\n#include <numeric>\nusing namespace std;\nint main() {\n  vector<int> v = {3, 1, 4, 1, 5, 9, 2, 6};\n  sort(v.begin(), v.end());\n  cout << \"min=\" << v.front() << \" max=\" << v.back() << endl;\n  cout << \"sum=\" << accumulate(v.begin(), v.end(), 0) << endl;\n}",
     exercise: {
