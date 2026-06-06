@@ -1,88 +1,98 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Brain, Sigma, Network, Workflow, ArrowRight, Zap, Layers } from 'lucide-react';
+import { Brain, Sigma, Workflow, ArrowRight } from 'lucide-react';
+import { PILLARS as REGISTRY } from '../../content/mlContent';
 import './MLHub.css';
 
-const PILLARS = [
+const GROUPS = [
   {
-    to: '/ml/foundations',
     icon: Sigma,
-    title: 'Linear Algebra & Calculus',
-    summary: 'Vectors, matrices, dot products, norms, derivatives, gradients, Jacobians, Hessians. The bedrock every ML formula stands on, written without the academic fog.',
-    items: ['Vector / matrix operations', 'Eigenvalues + SVD intuition', 'Gradients & directional derivatives', 'Chain rule for deep nets'],
-    status: 'planned',
+    title: 'Foundations',
+    summary: 'The math every model runs on — vectors, matrices, gradients, numerical stability.',
+    members: [
+      { slug: 'foundations', label: 'Linear Algebra & Calculus' },
+      { slug: 'numerical', label: 'Numerical Methods' },
+    ],
+    items: [
+      'Vectors, dot products, projections',
+      'Eigenvalues, SVD, PCA intuition',
+      'Gradients, Jacobians, chain rule',
+      'Floating-point pitfalls and stable computation',
+    ],
   },
   {
-    to: '/ml/optimization',
     icon: Workflow,
-    title: 'Optimization',
-    summary: 'Gradient descent and its zoo of variants — SGD, momentum, RMSprop, Adam, AdamW, Lion. Why each one exists, what it fixes, when it breaks.',
-    items: ['Convex vs non-convex landscapes', 'Learning-rate schedules', 'Second-order methods', 'Adaptive optimizers'],
-    status: 'planned',
+    title: 'Training & Tuning',
+    summary: 'How models actually learn — and what to do when they refuse to.',
+    members: [
+      { slug: 'optimization', label: 'Optimization' },
+      { slug: 'regularization', label: 'Regularization & Generalization' },
+    ],
+    items: [
+      'SGD, momentum, RMSprop, Adam, Lion',
+      'Learning-rate schedules, warmup, cosine',
+      'L1 / L2, dropout, batch / layer norm',
+      'Convex vs non-convex landscapes',
+    ],
   },
   {
-    to: '/ml/regularization',
-    icon: Layers,
-    title: 'Regularization & Generalization',
-    summary: 'Overfitting is the default. L1, L2, dropout, batch norm, layer norm, early stopping, data augmentation — pick the right knob for the right symptom.',
-    items: ['L1 / L2 / elastic-net', 'Dropout & DropConnect', 'BatchNorm vs LayerNorm', 'Label smoothing'],
-    status: 'planned',
-  },
-  {
-    to: '/ml/transformers',
     icon: Brain,
-    title: 'Attention & Transformers',
-    summary: 'Scaled dot-product attention, multi-head attention, positional encodings, encoder/decoder stacks, KV cache, RoPE, grouped-query attention — the architecture that ate the field.',
-    items: ['Self-attention from scratch', 'Multi-head & masked attention', 'Position encodings (sinus, RoPE, ALiBi)', 'KV cache + inference math'],
-    status: 'planned',
-  },
-  {
-    to: '/ml/rl',
-    icon: Zap,
-    title: 'Reinforcement Learning',
-    summary: 'Bellman equations, policy gradients, Q-learning, actor-critic, PPO. From bandits to robots to RLHF — one framework, many faces.',
-    items: ['Markov Decision Processes', 'Q-learning + Deep Q-Networks', 'Policy gradients (REINFORCE, A2C)', 'PPO / GRPO / RLHF'],
-    status: 'planned',
-  },
-  {
-    to: '/ml/numerical',
-    icon: Network,
-    title: 'Numerical Methods',
-    summary: 'Floating-point gotchas, root finding, ODE solvers, linear-system tricks, FFT. The "why is my loss NaN" toolkit.',
-    items: ['Floating-point pitfalls', 'Newton + bisection', 'ODE / PDE numerical solvers', 'Fast Fourier Transform'],
-    status: 'planned',
+    title: 'Architectures & Agents',
+    summary: 'The architectures that ate the field, plus the framework that learns from reward.',
+    members: [
+      { slug: 'transformers', label: 'Attention & Transformers' },
+      { slug: 'rl', label: 'Reinforcement Learning' },
+    ],
+    items: [
+      'Self-attention, multi-head, masking',
+      'Position encodings (sinus, RoPE, ALiBi)',
+      'KV cache + inference math',
+      'Q-learning, policy gradients, PPO, RLHF',
+    ],
   },
 ];
+
+function totalLessons(slugs) {
+  return slugs.reduce((acc, slug) => acc + (REGISTRY[slug]?.lessons?.length || 0), 0);
+}
 
 export default function MLHub() {
   return (
     <div className="mlhub">
       <header className="mlhub-hero">
-        <span className="mlhub-eyebrow">In development — content not written yet</span>
-        <h1 className="mlhub-title">ML / DL / AI</h1>
+        <h1 className="mlhub-title">ML-DL-AI</h1>
         <p className="mlhub-sub">Linear algebra, optimization, deep nets, attention, RL, numerical methods.</p>
       </header>
 
-      <section className="mlhub-pillars">
-        {PILLARS.map(p => {
-          const Icon = p.icon;
+      <section className="mlhub-pillars mlhub-pillars-3">
+        {GROUPS.map(g => {
+          const Icon = g.icon;
+          const lessonCount = totalLessons(g.members.map(m => m.slug));
+          const status = lessonCount > 0 ? `${lessonCount} lesson${lessonCount === 1 ? '' : 's'}` : 'planned';
           return (
-            <Link key={p.to} to={p.to} className="mlhub-pillar">
+            <article key={g.title} className="mlhub-pillar mlhub-pillar-group">
               <div className="mlhub-pillar-head">
-                <Icon size={22} />
-                <span className="mlhub-pillar-status">{p.status}</span>
+                <Icon size={26} />
+                <span className="mlhub-pillar-status">{status}</span>
               </div>
-              <h2 className="mlhub-pillar-title">{p.title}</h2>
-              <p className="mlhub-pillar-summary">{p.summary}</p>
+              <h2 className="mlhub-pillar-title">{g.title}</h2>
+              <p className="mlhub-pillar-summary">{g.summary}</p>
+
               <ul className="mlhub-pillar-items">
-                {p.items.map(i => <li key={i}>{i}</li>)}
+                {g.items.map(i => <li key={i}>{i}</li>)}
               </ul>
-              <span className="mlhub-pillar-cta">Preview <ArrowRight size={13} /></span>
-            </Link>
+
+              <div className="mlhub-group-modules">
+                {g.members.map(m => (
+                  <Link key={m.slug} to={`/ml/${m.slug}`} className="mlhub-group-chip">
+                    {m.label} <ArrowRight size={12} />
+                  </Link>
+                ))}
+              </div>
+            </article>
           );
         })}
       </section>
-
     </div>
   );
 }

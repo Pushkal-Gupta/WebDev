@@ -1,0 +1,408 @@
+.hiv-root {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  color: var(--text-main);
+}
+
+.hiv-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.hiv-title {
+  margin: 0 0 4px 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-main);
+}
+
+.hiv-sub {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--text-dim);
+  max-width: 56ch;
+}
+
+.hiv-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.hiv-input-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.hiv-input {
+  width: 84px;
+  padding: 6px 10px;
+  font-family: var(--mono);
+  font-size: 0.88rem;
+  background: var(--surface);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.hiv-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.18);
+}
+
+.hiv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  background: var(--surface);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.05s ease;
+}
+
+.hiv-btn:hover:not(:disabled) {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+
+.hiv-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.hiv-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.hiv-btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.hiv-btn-primary:hover:not(:disabled) {
+  background: rgba(var(--accent-rgb), 0.88);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.hiv-control-divider {
+  width: 1px;
+  height: 22px;
+  background: var(--border);
+  margin: 0 4px;
+}
+
+.hiv-stage {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.hiv-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+}
+
+.hiv-edge {
+  stroke: var(--border);
+  stroke-width: 1.5;
+  transition: stroke 0.3s ease, stroke-width 0.3s ease;
+}
+
+.hiv-edge-active {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 4px rgba(var(--accent-rgb), 0.45));
+}
+
+.hiv-cmp-arrow {
+  stroke: var(--accent);
+  stroke-width: 2;
+  fill: none;
+  stroke-dasharray: 4 3;
+  animation: hiv-dash 1.2s linear infinite;
+}
+
+.hiv-arrow-head {
+  fill: var(--accent);
+}
+
+@keyframes hiv-dash {
+  to {
+    stroke-dashoffset: -14;
+  }
+}
+
+.hiv-cmp-pill {
+  fill: var(--surface);
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+
+.hiv-cmp-text {
+  fill: var(--text-main);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.hiv-node {
+  transition: transform 0.35s ease;
+}
+
+.hiv-node circle {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.5;
+  transition: fill 0.3s ease, stroke 0.3s ease, stroke-width 0.3s ease;
+}
+
+.hiv-node-value {
+  fill: var(--text-main);
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.hiv-node-index {
+  fill: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+}
+
+.hiv-node-ring {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  opacity: 0.55;
+  animation: hiv-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes hiv-pulse {
+  0%, 100% {
+    opacity: 0.25;
+    transform: scale(1);
+    transform-origin: center;
+  }
+  50% {
+    opacity: 0.65;
+  }
+}
+
+.hiv-node-current circle {
+  fill: rgba(var(--accent-rgb), 0.22);
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+
+.hiv-node-current .hiv-node-value {
+  fill: var(--text-main);
+}
+
+.hiv-node-parent circle {
+  fill: rgba(var(--accent-rgb), 0.08);
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-dasharray: 4 3;
+}
+
+.hiv-node-swap circle {
+  animation: hiv-swap-flash 0.55s ease;
+}
+
+@keyframes hiv-swap-flash {
+  0% {
+    fill: rgba(var(--accent-rgb), 0.05);
+  }
+  50% {
+    fill: rgba(var(--accent-rgb), 0.45);
+  }
+  100% {
+    fill: rgba(var(--accent-rgb), 0.22);
+  }
+}
+
+.hiv-node-append circle {
+  animation: hiv-append-pop 0.5s ease;
+}
+
+@keyframes hiv-append-pop {
+  0% {
+    transform: scale(0.4);
+    transform-origin: center;
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.hiv-array-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+.hiv-array-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.hiv-array-cells {
+  display: flex;
+  gap: 6px;
+}
+
+.hiv-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 52px;
+  padding: 4px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  transition: background 0.3s ease, border-color 0.3s ease, transform 0.25s ease;
+}
+
+.hiv-cell-value {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+  line-height: 1;
+}
+
+.hiv-cell-index {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+  letter-spacing: 0.04em;
+}
+
+.hiv-cell-current {
+  background: rgba(var(--accent-rgb), 0.22);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.hiv-cell-parent {
+  background: rgba(var(--accent-rgb), 0.08);
+  border-color: var(--accent);
+  border-style: dashed;
+}
+
+.hiv-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.hiv-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 120px;
+  padding: 4px 10px;
+  border-left: 2px solid var(--accent);
+}
+
+.hiv-stat-grow {
+  flex: 1 1 200px;
+}
+
+.hiv-stat-label {
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.hiv-stat-value {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-main);
+  line-height: 1.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hiv-node,
+  .hiv-edge,
+  .hiv-edge-active,
+  .hiv-cell,
+  .hiv-cmp-arrow,
+  .hiv-node-ring,
+  .hiv-node circle,
+  .hiv-node-swap circle,
+  .hiv-node-append circle {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .hiv-root {
+    padding: 14px;
+  }
+  .hiv-controls {
+    gap: 6px;
+  }
+  .hiv-stat {
+    min-width: 100px;
+  }
+}

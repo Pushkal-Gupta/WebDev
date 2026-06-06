@@ -99,8 +99,10 @@ export default function DsaTutorial({ session }) {
   return (
     <div className="tut-index">
       <header className="tut-index-header">
-        <Link to="/learning" className="tut-crumb">
+        <Link to="/learning" className="learn-crumb">
           <ArrowLeft size={13} /> <span>Learning</span>
+          <span className="learn-crumb-sep">/</span>
+          <span className="learn-crumb-here">DSA Tutorial</span>
         </Link>
         <div className="tut-hero">
           <div className="tut-hero-left">

@@ -22,7 +22,7 @@ const TABS = [
     // Learning hub groups Tutorial + Concepts + Courses, so light up the tab
     // anywhere under those routes too.
     matches: ['/learning', '/tutorial', '/learn', '/courses'] },
-  { to: '/ml',                      icon: Brain,         label: 'ML / DL / AI' },
+  { to: '/ml',                      icon: Brain,         label: 'ML-DL-AI' },
   { to: '/visualize',               icon: Play,          label: 'Visualize' },
   { to: '/review',                  icon: RotateCcw,     label: 'Review', badge: true },
   { to: '/company',                 icon: Building2,     label: 'Companies' },
