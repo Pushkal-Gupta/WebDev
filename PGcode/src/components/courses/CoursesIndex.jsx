@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, ArrowRight, Clock, Layers } from 'lucide-react';
+import { BookOpen, ArrowRight, Clock, Layers, ArrowLeft } from 'lucide-react';
 import { COURSE_CARDS } from '../../content/courses';
 import './Courses.css';
 
@@ -12,6 +12,11 @@ export default function CoursesIndex() {
   return (
     <div className="courses-container">
       <header className="courses-header">
+        <Link to="/learning" className="learn-crumb">
+          <ArrowLeft size={13} /> <span>Learning</span>
+          <span className="learn-crumb-sep">/</span>
+          <span className="learn-crumb-here">Courses</span>
+        </Link>
         <span className="courses-eyebrow"><BookOpen size={11} /> Courses</span>
         <h1 className="courses-title">Learn by doing</h1>
         <p className="courses-sub">

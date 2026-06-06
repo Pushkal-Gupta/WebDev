@@ -78,24 +78,24 @@ export default function ProgressDashboard({ session, roadmapMode }) {
     return m;
   }, [topicsData]);
 
-  // Topic mastery: server returns per-topic { solved, total } already aggregated;
-  // we just need the full list of topic ids from `filtered` to surface zero-progress topics too.
+  // Topic mastery: denominator (`total`) is derived from the full client catalog so
+  // each topic's count reflects every problem that lives under that topic_id, not
+  // a sparse server bucket. The RPC may only return rows for topics the user has
+  // touched — its `total` would undercount in that case (e.g. Stack showing 1/1
+  // when the catalog has dozens). We trust the server for `solved` only.
   const topicStats = useMemo(() => {
+    const byTopicSize = {};
+    filtered.forEach(p => { byTopicSize[p.topic_id] = (byTopicSize[p.topic_id] || 0) + 1; });
     if (!useLegacy && serverStats?.by_topic) {
-      const seen = new Set();
-      const rows = [];
+      const solvedByTopic = {};
       Object.entries(serverStats.by_topic).forEach(([topicId, v]) => {
-        seen.add(topicId);
-        rows.push({ topicId, solved: Number(v.solved || 0), total: Number(v.total || 0) });
+        solvedByTopic[topicId] = Number(v.solved || 0);
       });
-      // Fill in topics the user has zero attempts on, so the dashboard isn't sparse.
-      const byTopicSize = {};
-      filtered.forEach(p => { byTopicSize[p.topic_id] = (byTopicSize[p.topic_id] || 0) + 1; });
-      Object.entries(byTopicSize).forEach(([topicId, total]) => {
-        if (!seen.has(topicId)) rows.push({ topicId, solved: 0, total });
-      });
-      return rows
-        .map(r => ({ ...r, pct: r.solved / Math.max(1, r.total) }))
+      return Object.entries(byTopicSize)
+        .map(([topicId, total]) => {
+          const solved = Math.min(total, solvedByTopic[topicId] || 0);
+          return { topicId, solved, total, pct: solved / Math.max(1, total) };
+        })
         .sort((a, b) => b.pct - a.pct);
     }
     // Legacy client reduce

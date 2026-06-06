@@ -157,7 +157,12 @@ else:
 // Normalize an output string for comparison. Matches the Workspace flow's
 // lenience around JSON whitespace ([0, 7] vs [0,7]) and trailing newlines.
 function normalize(s) {
-  const t = String(s).trim();
+  // Older cases stored Python-style "True"/"False" while the driver now prints
+  // JSON-style "true"/"false". Both are semantically the same — collapse before
+  // JSON.parse so we don't wipe correct cases over a casing artifact.
+  let t = String(s).trim();
+  if (t === 'True') t = 'true';
+  else if (t === 'False') t = 'false';
   try {
     return JSON.stringify(JSON.parse(t));
   } catch {

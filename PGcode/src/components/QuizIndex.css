@@ -231,8 +231,13 @@
   padding: 0;
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 0.7rem;
+}
+/* When a topic only has a single quiz, cap card width so it doesn't stretch
+   across the full viewport. Multi-card rows still flex naturally. */
+.quiz-grid:has(> li:only-child) {
+  grid-template-columns: repeat(auto-fill, minmax(240px, 280px));
 }
 
 .quiz-card {

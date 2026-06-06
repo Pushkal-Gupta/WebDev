@@ -88,6 +88,16 @@ export default function ProblemList({ session }) {
   const [statusFilter, setStatusFilter] = useState('all');
   const [listFilter, setListFilter] = useState('all');
   const [sortBy, setSortBy] = useState('number');
+  // Topic column visibility is opt-in. Default off — column unlocks once the
+  // user flips the switch, and the choice survives reloads.
+  const [showTopics, setShowTopics] = useState(() => {
+    try { return localStorage.getItem('pgcode_show_topics') === '1'; }
+    catch { return false; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem('pgcode_show_topics', showTopics ? '1' : '0'); }
+    catch { /* storage unavailable */ }
+  }, [showTopics]);
   const [pulseMap, setPulseMap] = useState({});
   const [practiceSet, setPracticeSet] = useState(null);
   const [page, setPage] = useState(0);
@@ -380,6 +390,19 @@ export default function ProblemList({ session }) {
           <div className="pl-title-actions">
             <button
               type="button"
+              className={`pl-generate-btn pl-topic-switch ${showTopics ? 'on' : ''}`}
+              onClick={() => setShowTopics(v => !v)}
+              role="switch"
+              aria-checked={showTopics}
+              title={showTopics ? 'Hide topic column' : 'Show topic column'}
+            >
+              <span className="pl-topic-switch-track" aria-hidden="true">
+                <span className="pl-topic-switch-thumb" />
+              </span>
+              <span>Topics</span>
+            </button>
+            <button
+              type="button"
               className="pl-generate-btn"
               onClick={generatePracticeSet}
               title={hasActiveFilters ? 'Pick 10 random problems from your current filters' : 'Pick 10 random problems from the full catalog'}
@@ -522,7 +545,7 @@ export default function ProblemList({ session }) {
         </div>
       )}
 
-      <div className="pl-table-wrap">
+      <div className={`pl-table-wrap${showTopics ? '' : ' pl-hide-topic'}`}>
         <div className="pl-table-header">
           <div className="pl-col-status">Done</div>
           <div className="pl-col-name">Problem</div>

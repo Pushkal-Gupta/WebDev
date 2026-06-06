@@ -77,7 +77,7 @@ export default function Select({
           </span>
         )}
         <span className="pg-select-label">{current?.label || placeholder}</span>
-        <ChevronDown size={12} className={`pg-select-chevron ${open ? 'open' : ''}`} />
+        <ChevronDown size={14} className={`pg-select-chevron ${open ? 'open' : ''}`} />
       </button>
       {open && (
         <div ref={panelRef} className="pg-select-panel" role="listbox">
@@ -106,7 +106,7 @@ export default function Select({
                 )}
                 <span className="pg-select-option-label">{o.label}</span>
                 {o.hint && <span className="pg-select-option-hint">{o.hint}</span>}
-                {active && <Check size={12} className="pg-select-option-check" />}
+                {active && <Check size={14} className="pg-select-option-check" />}
               </button>
             );
           })}

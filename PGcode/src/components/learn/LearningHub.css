@@ -1,0 +1,190 @@
+.lhub {
+  max-width: var(--container-w, 1200px);
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+  font-family: var(--mono);
+}
+
+.lhub-hero {
+  margin-bottom: 2.5rem;
+}
+
+.lhub-title {
+  font-family: var(--serif);
+  font-size: 2.6rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+
+.lhub-sub {
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  line-height: 1.65;
+  max-width: 70ch;
+  margin: 0;
+}
+
+.lhub-verticals {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+}
+
+.lhub-vert {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem 1.4rem 1.4rem;
+  color: var(--text-main);
+  text-decoration: none;
+  min-height: 360px;
+  transition: border-color var(--t), transform var(--t), box-shadow var(--t);
+  overflow: hidden;
+}
+
+.lhub-vert::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: var(--accent-grad, var(--accent));
+}
+
+.lhub-vert.hue-violet::before { background: var(--hue-violet, #a78bfa); }
+.lhub-vert.hue-sky::before    { background: var(--hue-sky, #38bdf8); }
+.lhub-vert.hue-mint::before   { background: var(--hue-mint, #34d399); }
+
+.lhub-vert:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+}
+
+.lhub-vert-head {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+
+.lhub-vert.hue-violet .lhub-vert-head { color: var(--hue-violet, #a78bfa); }
+.lhub-vert.hue-sky    .lhub-vert-head { color: var(--hue-sky, #38bdf8); }
+.lhub-vert.hue-mint   .lhub-vert-head { color: var(--hue-mint, #34d399); }
+
+.lhub-vert-tag {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.lhub-vert-title {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.7rem;
+  letter-spacing: -0.01em;
+}
+
+.lhub-vert-summary {
+  font-size: 0.83rem;
+  line-height: 1.65;
+  color: var(--text-dim);
+  margin: 0 0 1rem;
+  flex: 1;
+}
+
+.lhub-vert-bullets {
+  list-style: none;
+  margin: 0 0 1.1rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.lhub-vert-bullets li {
+  font-size: 0.78rem;
+  color: var(--text-main);
+  padding-left: 0.9rem;
+  position: relative;
+}
+
+.lhub-vert-bullets li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.7;
+}
+
+.lhub-vert.hue-violet .lhub-vert-bullets li::before { background: var(--hue-violet, #a78bfa); }
+.lhub-vert.hue-sky    .lhub-vert-bullets li::before { background: var(--hue-sky, #38bdf8); }
+.lhub-vert.hue-mint   .lhub-vert-bullets li::before { background: var(--hue-mint, #34d399); }
+
+.lhub-vert-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+}
+
+.lhub-vert.hue-violet .lhub-vert-cta { color: var(--hue-violet, #a78bfa); }
+.lhub-vert.hue-sky    .lhub-vert-cta { color: var(--hue-sky, #38bdf8); }
+.lhub-vert.hue-mint   .lhub-vert-cta { color: var(--hue-mint, #34d399); }
+
+.lhub-secondary {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.lhub-side {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  text-decoration: none;
+  color: var(--text-main);
+  transition: border-color var(--t);
+}
+
+.lhub-side:hover { border-color: var(--accent); }
+
+.lhub-side-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+
+.lhub-side p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+
+@media (max-width: 920px) {
+  .lhub-verticals { grid-template-columns: 1fr; }
+  .lhub-secondary { grid-template-columns: 1fr; }
+}

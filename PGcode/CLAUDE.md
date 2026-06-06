@@ -8,6 +8,23 @@ PGcode is a single-author DSA / interview-prep platform aiming to be measurably 
 
 Live: `https://pushkalgupta.com/PGcode/dist/index.html` (HashRouter; URLs use `#/`).
 
+## PRIMARY GOAL (HARD — overrides everything else when ambiguous)
+
+**Operate as the team lead.** Do not idle, do not wait. Continuously dispatch parallel sub-agents to build, verify, test, document, and grow content until every problem is shippable. The bar for "shippable" on a problem is:
+
+1. **Solutions correct.** Canonical Python solution compiles and passes EVERY test case in the registry — verified via Judge0 (`scripts/verify-prune-tests.js` or `verify-all.mjs`). Any solution that fails on a real test case is a P0 fix.
+2. **Test cases trustworthy.** Every test case has been graded by the canonical solution. Bad cases (wrong `expected`, malformed `inputs`) are pruned, not patched-around. Hidden cases (every case past index 2) must work identically to samples.
+3. **Coverage ≥ LeetCode.** Each problem must hold at least as many test cases as the LC problem of the same number, and the curated set should *include* the canonical LC samples plus aggressive edge cases (empty, single, all-equal, negatives, ints at int32 bounds, off-by-one neighbours, max-length input, adversarial sequences). Catching a wrong submission that LC would have rejected is the floor. **If a wrong solution slips through our grader, that's a P0 incident.**
+4. **All four required languages.** Python, JS, Java, C++ solutions must compile and pass.
+
+How to actually run the work:
+- **Always have ≥4 sub-agents in flight** when the user is in pipeline mode ("continue", "build", "do not stop") — pick a mix from: new-problem content waves, verify-prune sweeps, bulk-grow rounds, edge-case seeding, missing-language backfill, viz upgrades.
+- After each batch lands, **push** (`node scripts/push-rich-content.js`) then immediately dispatch the next batch — do not stop to ask. The user has standing approval for this loop.
+- Track waves in TaskCreate/TaskUpdate so progress is visible.
+- If an agent stalls (600s watchdog), hand-write the script directly with the `lcg()` + `JSON.stringify(code)` template — never rely on a single stuck agent.
+
+**Never let the queue go empty unless the user explicitly stops.** Idle = failure.
+
 ## Planned expansion — ML / numerical / systems topics
 
 Next major expansion: replicate the structure + depth of https://www.tensortonic.com/ in the user's own voice, with original visualizations. Scope includes machine-learning foundations (linear algebra primitives, gradient descent, backprop, attention, transformers, optimizers, regularization, RL basics), numerical methods, and adjacent CS topics that don't fit DSA/interview-prep. **NOT a copy-paste** — same coverage, original writing, original ASCII + interactive visualizations matching the existing PGcode tone.
@@ -41,6 +58,23 @@ Replace with reader-direct phrasing:
 Scope: page subtitles, module descriptions, course intros, empty states, hero copy, modal headers, footer text. Tutorial / concept BODIES can use "you" for instructional voice (that's the customer-facing register). Visualization captions stay narration-style ("The pointer moves right…") — describe the action, not the build.
 
 Audit before shipping any new page: read every line aloud as a stranger. If it sounds like a product brief or an internal pitch, rewrite.
+
+## One-line rule (HARD — overrides any urge to "set the stage")
+
+**Page headers are page headers, not pitch decks.** Every page intro is **one short line** describing what's on it — then the content starts immediately. No multi-sentence hero paragraph. No stat row that says "6 pillars / 60+ planned essays / Original visualizations". No "What you'll actually get" promise section listing what makes us great. The page itself is the proof — content beats narration.
+
+What to do:
+- Hero copy: a single descriptive sentence under the title. 12-25 words max.
+- Drop the "stats triple" pattern (count / count / superlative) unless every value is a real, useful number a reader would scan for.
+- Drop "promise" / "what we believe" / "what you'll actually get" sections entirely. The reader sees what they get by scrolling.
+
+What to delete on sight:
+- "Every X you actually need, in plain English, with original visualizations and runnable code."
+- "Same depth and tone as the DSA side, written for the reader who wants to understand the math."
+- "What you'll actually get" lists bragging about no-fluff writing.
+- Anything that reads like a product manifesto rather than a section heading.
+
+This rule applies to **already-shipped pages too** — audit hubs, indexes, and any landing pages on each pass; trim until only the one-line intro plus the actual content remains.
 
 ## Triple-review policy
 
