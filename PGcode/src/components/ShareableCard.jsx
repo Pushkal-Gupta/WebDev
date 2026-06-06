@@ -1,7 +1,11 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Flame, Trophy, ArrowLeft, Download, Link2, Check, Linkedin, Twitter, Github, Globe, Code2, ExternalLink } from 'lucide-react';
+import { Flame, Trophy, ArrowLeft, Download, Link2, Check, GitBranch, Globe, Code2, ExternalLink } from 'lucide-react';
+// Lucide dropped brand icons (Linkedin, Twitter, Github) in recent versions —
+// fall back to Globe so the link still renders cleanly.
+const Linkedin = Globe;
+const Twitter = Globe;
 import { supabase } from '../lib/supabase';
 import { useTopics, useProblemsCompact } from '../lib/queries';
 import { primaryTopicLabel } from '../lib/topicLabel';
@@ -11,7 +15,7 @@ import './ShareableCard.css';
 function iconForLink(url, label) {
   const u = String(url || '').toLowerCase();
   const l = String(label || '').toLowerCase();
-  if (u.includes('github.com') || l.includes('github')) return Github;
+  if (u.includes('github.com') || l.includes('github')) return GitBranch;
   if (u.includes('linkedin.com') || l.includes('linkedin')) return Linkedin;
   if (u.includes('twitter.com') || u.includes('x.com') || l.includes('twitter') || l === 'x') return Twitter;
   if (u.includes('leetcode.com') || l.includes('leetcode')) return Code2;

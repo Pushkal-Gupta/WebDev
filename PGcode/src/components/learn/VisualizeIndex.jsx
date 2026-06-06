@@ -1,6 +1,6 @@
 import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowRight, Play, Search, X, Code2, Film } from 'lucide-react';
+import { ArrowRight, Play, Search, X, Code2, Film, ArrowLeft } from 'lucide-react';
 import AlgoVisualizer, { ArrayBarRenderer, GraphRenderer, SlidingWindowRenderer, NumberGridRenderer, TreeRenderer } from './AlgoVisualizer';
 import { VISUALIZATIONS } from './conceptVisualizations';
 import { INTERACTIVE_TEMPLATES } from './interactiveTemplates';
@@ -414,10 +414,13 @@ function VisualizeIndexList() {
   return (
     <div className="learn-container viz-index-container" ref={containerRef}>
       <div className="learn-header">
-        <h1 className="learn-title">Algorithm visualizations</h1>
-        <p className="learn-sub">
-          Step through canonical algorithms frame by frame. Play, pause, scrub. {totalCount} visualizations across {orderedKeys.length} groups.
-        </p>
+        <Link to="/learning" className="learn-crumb">
+          <ArrowLeft size={13} /> <span>Learning</span>
+          <span className="learn-crumb-sep">/</span>
+          <span className="learn-crumb-here">Visualize</span>
+        </Link>
+        <h1 className="learn-title">Visualize</h1>
+        <p className="learn-sub">Step through algorithms frame by frame.</p>
         <div className="viz-search">
           <Search size={14} className="viz-search-icon" aria-hidden="true" />
           <input

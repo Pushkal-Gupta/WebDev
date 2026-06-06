@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, X, ArrowRight, BookOpen, Hash, CheckCircle2 } from 'lucide-react';
+import { Search, X, ArrowRight, ArrowLeft, BookOpen, Hash, CheckCircle2 } from 'lucide-react';
 import { DSA_TUTORIAL, countTutorialItems, countAll } from '../content/dsaTutorial';
 import {
   useProblemsCompact,
@@ -99,6 +99,9 @@ export default function DsaTutorial({ session }) {
   return (
     <div className="tut-index">
       <header className="tut-index-header">
+        <Link to="/learning" className="tut-crumb">
+          <ArrowLeft size={13} /> <span>Learning</span>
+        </Link>
         <div className="tut-hero">
           <div className="tut-hero-left">
             <h1 className="tut-title">DSA Tutorial</h1>

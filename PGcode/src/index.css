@@ -1,3 +1,20 @@
+/* ── Shared breadcrumb for pages that live under /learning ── */
+.learn-crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.85rem;
+  transition: color var(--t);
+}
+.learn-crumb:hover { color: var(--accent); }
+.learn-crumb .learn-crumb-sep { color: var(--text-dim); opacity: 0.55; }
+.learn-crumb .learn-crumb-here { color: var(--text-main); }
+
 /* ── ReactFlow Overrides ── */
 .react-flow__edge-path {
   filter: drop-shadow(0 0 3px rgba(148, 163, 184, 0.3));

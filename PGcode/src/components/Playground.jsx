@@ -372,9 +372,9 @@ export default function Playground({ theme, preferredLang, session }) {
             value={lang}
             onChange={switchLang}
             options={langOptions}
-            icon={<Code2 size={12} />}
-            renderPrefix={(o) => <LanguageIcon lang={o.value} size={12} />}
-            size="sm"
+            icon={<Code2 size={14} />}
+            renderPrefix={(o) => <LanguageIcon lang={o.value} size={16} />}
+            size="md"
           />
           <button className="pg-pg-btn pg-pg-btn-ghost" onClick={handleShare} disabled={sharing} title="Save a shareable link">
             {sharing ? <Loader2 size={14} className="pg-pg-spin" /> : <Share2 size={14} />}

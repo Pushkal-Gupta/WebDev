@@ -73,6 +73,8 @@ const Playground = lazy(() => import('./components/Playground'));
 const Workspace = lazy(() => import('./components/Workspace'));
 const SolutionPage = lazy(() => import('./components/SolutionPage'));
 const LearnIndex = lazy(() => import('./components/learn/LearnIndex'));
+const LearningHub = lazy(() => import('./components/learn/LearningHub'));
+const MLHub = lazy(() => import('./components/ml/MLHub'));
 const ConceptPage = lazy(() => import('./components/learn/ConceptPage'));
 const VisualizeIndex = lazy(() => import('./components/learn/VisualizeIndex'));
 const CoursesIndex = lazy(() => import('./components/courses/CoursesIndex'));
@@ -190,6 +192,8 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
           <Route path="/practice" element={<ProblemList session={session} roadmapMode={roadmapMode} />} />
           {/* Legacy alias */}
           <Route path="/problems" element={<ProblemList session={session} roadmapMode={roadmapMode} />} />
+          <Route path="/learning" element={<LearningHub />} />
+          <Route path="/ml" element={<MLHub />} />
           <Route path="/learn" element={<LearnIndex session={session} />} />
           <Route path="/learn/:moduleSlug" element={<LearnIndex session={session} />} />
           <Route path="/learn/:moduleSlug/:conceptSlug" element={<ConceptPage session={session} />} />

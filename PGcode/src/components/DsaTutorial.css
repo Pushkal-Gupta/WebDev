@@ -766,6 +766,21 @@
 }
 .tut-back-top:hover { transform: translateY(-2px); }
 
+.tut-crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.85rem;
+  transition: color var(--t);
+}
+
+.tut-crumb:hover { color: var(--accent); }
+
 /* Inline-expandable theory rows. Click the row to expand a small editorial
    panel rather than navigating away. If a Learn concept page exists we still
    surface "Open full concept page" as a deep-link at the foot. */

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { BookOpen, ArrowRight, ChevronRight, Layers } from 'lucide-react';
+import { BookOpen, ArrowRight, ChevronRight, Layers, ArrowLeft } from 'lucide-react';
 import { useModules, useAllConceptsCompact } from '../../lib/queries';
 import './Learn.css';
 
@@ -151,11 +151,13 @@ export default function LearnIndex({ session: _session }) {
   return (
     <div className="learn-container">
       <header className="learn-header">
-        <h1 className="learn-title">Learn</h1>
-        <p className="learn-sub">
-          Every data structure and algorithm you'll need — explained with intuition, complexity, code in
-          four languages, and linked practice problems.
-        </p>
+        <Link to="/learning" className="learn-crumb">
+          <ArrowLeft size={13} /> <span>Learning</span>
+          <span className="learn-crumb-sep">/</span>
+          <span className="learn-crumb-here">Concepts</span>
+        </Link>
+        <h1 className="learn-title">Concepts</h1>
+        <p className="learn-sub">Every DS/algo you'll need — intuition, complexity, four-language code.</p>
       </header>
 
       <div className="learn-module-grid">

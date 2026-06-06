@@ -1,6 +1,6 @@
 import React, { useMemo, useState, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
-import { Brain, Sparkles, ArrowRight, ListChecks, Lock } from 'lucide-react';
+import { Brain, Sparkles, ArrowRight, ListChecks, Lock, ArrowLeft } from 'lucide-react';
 import { QUIZZES, QUIZZES_BY_TOPIC, TOPIC_LABELS } from '../content/quizzes';
 import { isAiEnabled } from '../lib/ai';
 import './QuizIndex.css';
@@ -28,13 +28,15 @@ export default function QuizIndex() {
   return (
     <div className="quiz-container">
       <header className="quiz-page-header">
+        <Link to="/learning" className="learn-crumb">
+          <ArrowLeft size={13} /> <span>Learning</span>
+          <span className="learn-crumb-sep">/</span>
+          <span className="learn-crumb-here">Quizzes</span>
+        </Link>
         <h1 className="quiz-page-title">
           <Brain size={20} className="quiz-page-icon" /> Quizzes
         </h1>
-        <p className="quiz-page-sub">
-          Pre-built multiple-choice sets across {QUIZZES.length} topics — pick a quiz, answer one
-          question at a time, see the explanation as soon as you commit. No setup, nothing to install.
-        </p>
+        <p className="quiz-page-sub">Pick a quiz, answer one at a time, see why right after each commit.</p>
       </header>
 
       <section className="quiz-custom-row">

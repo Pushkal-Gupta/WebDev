@@ -127,6 +127,51 @@
   border-color: var(--accent);
 }
 
+/* Topic-column slide-switch — reuses .pl-generate-btn shell so it sits
+   next to "Generate practice set" with matching height/style. */
+.pl-topic-switch {
+  gap: 0.5rem;
+  padding-left: 0.45rem;
+  opacity: 0.7;
+}
+
+.pl-topic-switch.on {
+  opacity: 1;
+  background: rgba(var(--accent-rgb), 0.16);
+}
+
+.pl-topic-switch-track {
+  position: relative;
+  display: inline-block;
+  width: 22px;
+  height: 11px;
+  background: rgba(var(--accent-rgb), 0.25);
+  border-radius: 999px;
+  transition: background var(--t);
+  flex-shrink: 0;
+}
+
+.pl-topic-switch.on .pl-topic-switch-track {
+  background: var(--accent);
+}
+
+.pl-topic-switch-thumb {
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 9px;
+  height: 9px;
+  background: var(--surface);
+  border-radius: 50%;
+  transition: transform var(--t), background var(--t);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.pl-topic-switch.on .pl-topic-switch-thumb {
+  transform: translateX(11px);
+  background: var(--bg);
+}
+
 .pl-practice-set {
   margin-bottom: 1rem;
   padding: 1rem 1.1rem;
@@ -1027,4 +1072,79 @@
 .pl-pager-info {
   padding: 0 0.4rem;
   letter-spacing: 0.02em;
+}
+
+/* ── Topic-column toggle (slide switch) ── */
+.pl-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem 0.35rem 0.4rem;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+
+.pl-switch:hover {
+  border-color: var(--accent);
+  color: var(--text-main);
+}
+
+.pl-switch.on {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--hover-box);
+}
+
+.pl-switch-track {
+  position: relative;
+  display: inline-block;
+  width: 28px;
+  height: 14px;
+  background: var(--border);
+  border-radius: 999px;
+  transition: background var(--t);
+  flex-shrink: 0;
+}
+
+.pl-switch.on .pl-switch-track {
+  background: var(--accent);
+}
+
+.pl-switch-thumb {
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 12px;
+  height: 12px;
+  background: var(--surface);
+  border-radius: 50%;
+  transition: transform var(--t), background var(--t);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.pl-switch.on .pl-switch-thumb {
+  transform: translateX(14px);
+  background: var(--bg);
+}
+
+.pl-switch-label {
+  white-space: nowrap;
+}
+
+/* When topic is hidden, collapse the column out of the grid + drop its cells. */
+.pl-hide-topic .pl-table-header,
+.pl-hide-topic .pl-row {
+  grid-template-columns: 56px 1fr 130px 130px;
+}
+
+.pl-hide-topic .pl-col-topic {
+  display: none;
 }
