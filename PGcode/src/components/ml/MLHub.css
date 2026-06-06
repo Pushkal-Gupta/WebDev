@@ -3,6 +3,7 @@
   margin: 0 auto;
   padding: 2.5rem 1.5rem 4rem;
   font-family: var(--mono);
+  min-height: 0;
 }
 
 .mlhub-hero {
@@ -71,6 +72,54 @@
   grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
   gap: 1.1rem;
   margin-bottom: 2.5rem;
+}
+
+.mlhub-pillars-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 980px) {
+  .mlhub-pillars-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mlhub-pillar-group {
+  padding: 1.6rem 1.4rem 1.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.mlhub-group-modules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: auto;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+}
+
+.mlhub-group-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: var(--mono);
+  padding: 0.42rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-main);
+  text-decoration: none;
+  transition: border-color var(--t), background var(--t), color var(--t);
+}
+
+.mlhub-group-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--hover-box);
 }
 
 .mlhub-pillar {

@@ -1,5 +1,8 @@
 /* ── Shared breadcrumb for pages that live under /learning ── */
-.learn-crumb {
+.learn-crumb,
+.learn-crumb:link,
+.learn-crumb:visited,
+.learn-crumb:active {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -12,6 +15,11 @@
   transition: color var(--t);
 }
 .learn-crumb:hover { color: var(--accent); }
+.tut-crumb,
+.tut-crumb:link,
+.tut-crumb:visited,
+.tut-crumb:active { color: var(--text-dim); text-decoration: none; }
+.tut-crumb:hover { color: var(--accent); }
 .learn-crumb .learn-crumb-sep { color: var(--text-dim); opacity: 0.55; }
 .learn-crumb .learn-crumb-here { color: var(--text-main); }
 
@@ -34,7 +42,12 @@
   background: var(--bg);
   border-radius: 6px;
   overflow: hidden;
+  left: 1rem !important;
+  bottom: 1rem !important;
+  max-width: calc(100vw - 2rem);
 }
+/* Hide the attribution chip in the bottom-right that hangs off-screen on some sizes. */
+.react-flow__attribution { display: none !important; }
 
 .react-flow__controls-button {
   background: var(--surface) !important;

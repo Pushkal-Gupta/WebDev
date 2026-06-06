@@ -42,6 +42,7 @@ import AlgoVisualizer, {
   TreeRenderer,
 } from './AlgoVisualizer';
 import { VISUALIZATIONS } from './conceptVisualizations';
+import { INTERACTIVE_VIZ } from './interactiveViz';
 import { highlight } from '../../lib/syntaxHighlight';
 import './Learn.css';
 
@@ -232,6 +233,7 @@ export default function ConceptPage({ session }) {
   const body = useMemo(() => concept?.body || {}, [concept]);
   const code = useMemo(() => concept?.code || {}, [concept]);
   const viz = concept ? VISUALIZATIONS[concept.slug] : null;
+  const InteractiveViz = concept ? INTERACTIVE_VIZ[concept.slug] : null;
 
   useEffect(() => {
     if (conceptSlug) recordLocalVisit('concepts', conceptSlug);
@@ -273,7 +275,7 @@ export default function ConceptPage({ session }) {
     if (hasContent(body.intro)) defs.push({ id: 'overview', label: 'Overview' });
     if (hasContent(body.whyItMatters)) defs.push({ id: 'why', label: 'Why it matters' });
     if (hasContent(body.intuition)) defs.push({ id: 'intuition', label: 'Intuition' });
-    if (hasContent(body.visualization) || viz) defs.push({ id: 'visualization', label: 'Visualization' });
+    if (hasContent(body.visualization) || viz || InteractiveViz) defs.push({ id: 'visualization', label: 'Visualization' });
     if (hasContent(body.bruteForce)) defs.push({ id: 'brute', label: 'Brute force' });
     if (hasContent(body.optimal)) defs.push({ id: 'optimal', label: 'Optimal' });
     if (showComplexitySection) defs.push({ id: 'complexity', label: 'Complexity' });
@@ -284,7 +286,7 @@ export default function ConceptPage({ session }) {
     defs.push({ id: 'quiz', label: 'Check understanding' });
     defs.push({ id: 'discussion', label: 'Discussion' });
     return defs;
-  }, [concept, body, viz, availableLangs, problems, showComplexitySection]);
+  }, [concept, body, viz, InteractiveViz, availableLangs, problems, showComplexitySection]);
 
   const observerRef = useRef(null);
   useEffect(() => {
@@ -442,7 +444,7 @@ export default function ConceptPage({ session }) {
             {hasContent(body.intuition) && <Markdown>{body.intuition}</Markdown>}
           </Section>
 
-          {(hasContent(visualizationText) || viz) && (
+          {(hasContent(visualizationText) || viz || InteractiveViz) && (
             <Section
               id="visualization"
               eyebrow="04"
@@ -471,6 +473,12 @@ export default function ConceptPage({ session }) {
                     return <ArrayBarRenderer frame={frame} />;
                   }}
                 />
+              )}
+              {InteractiveViz && (
+                <div className="cp-interactive-viz">
+                  <h3 className="cp-interactive-viz-title">Try it yourself</h3>
+                  <InteractiveViz />
+                </div>
               )}
             </Section>
           )}

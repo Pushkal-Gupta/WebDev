@@ -1,0 +1,381 @@
+.bfsviz {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.4rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin: 0.7rem 0;
+}
+
+.bfsviz-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.bfsviz-title {
+  font-family: var(--mono);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.bfsviz-start {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.6rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.bfsviz-start label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+
+.bfsviz-start select {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-main);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.bfsviz-start select:focus { border-color: var(--accent); }
+
+.bfsviz-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.bfsviz-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.bfsviz-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  display: inline-block;
+}
+
+.bfsviz-dot-unvisited { background: var(--surface); border-color: var(--border); }
+.bfsviz-dot-frontier  { background: var(--surface); border-color: var(--hue-sky); }
+.bfsviz-dot-current   { background: var(--accent); border-color: var(--accent); }
+.bfsviz-dot-visited   { background: rgba(var(--accent-rgb), 0.18); border-color: var(--easy); }
+
+.bfsviz-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.bfsviz-svg {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 560 / 420;
+  display: block;
+}
+
+.bfsviz-edge {
+  stroke: var(--border);
+  stroke-width: 1.6;
+  fill: none;
+  transition: stroke 0.3s ease-out, stroke-width 0.3s ease-out;
+}
+
+.bfsviz-edge-tree {
+  stroke: var(--hue-mint);
+  stroke-width: 2.8;
+}
+
+.bfsviz-node {
+  cursor: pointer;
+  outline: none;
+}
+
+.bfsviz-node:focus-visible .bfsviz-node-circle {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+
+.bfsviz-node-circle {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.8;
+  transition: fill 0.3s ease-out, stroke 0.3s ease-out, stroke-width 0.3s ease-out;
+}
+
+.bfsviz-node text {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--text-main);
+  pointer-events: none;
+  transition: fill 0.3s ease-out;
+  user-select: none;
+}
+
+.bfsviz-start-tag {
+  font-family: var(--mono);
+  font-size: 9.5px !important;
+  font-weight: 700;
+  fill: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.bfsviz-node-unvisited .bfsviz-node-circle { fill: var(--surface); stroke: var(--border); }
+.bfsviz-node-frontier  .bfsviz-node-circle { fill: var(--surface); stroke: var(--hue-sky); stroke-width: 2.4; }
+.bfsviz-node-current   .bfsviz-node-circle { fill: var(--accent); stroke: var(--accent); }
+.bfsviz-node-current   text { fill: var(--bg); }
+.bfsviz-node-visited   .bfsviz-node-circle { fill: rgba(var(--accent-rgb), 0.18); stroke: var(--easy); stroke-width: 2.2; }
+
+.bfsviz-node-ring {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  opacity: 0.8;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: bfsviz-ring-pulse 1.4s ease-in-out infinite;
+}
+
+.bfsviz-node-pulse {
+  fill: var(--hue-sky);
+  opacity: 0.15;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: bfsviz-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes bfsviz-ring-pulse {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(1.08); }
+}
+
+@keyframes bfsviz-pulse {
+  0%, 100% { opacity: 0.15; }
+  50%      { opacity: 0.32; }
+}
+
+.bfsviz-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.bfsviz-status-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.bfsviz-status-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.bfsviz-status-value {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.bfsviz-muted {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.bfsviz-queue {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.75rem 0.85rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.bfsviz-queue-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.bfsviz-queue-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 32px;
+}
+
+.bfsviz-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  padding: 0.25rem 0.55rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--hue-sky);
+  background: rgba(var(--accent-rgb), 0.06);
+  border: 1px solid var(--hue-sky);
+  border-radius: 999px;
+  animation: bfsviz-chip-in 0.22s ease-out;
+}
+
+.bfsviz-chip-head {
+  color: var(--accent);
+  background: var(--hover-box);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent) inset;
+}
+
+@keyframes bfsviz-chip-in {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.bfsviz-caption {
+  font-family: var(--mono);
+  font-size: 0.88rem;
+  color: var(--text-main);
+  background: var(--hover-box);
+  border-left: 3px solid var(--accent);
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  line-height: 1.6;
+  margin: 0;
+  animation: bfsviz-caption-in 0.28s ease-out;
+}
+
+@keyframes bfsviz-caption-in {
+  from { opacity: 0; transform: translateX(-4px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.bfsviz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.75rem 0.85rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.bfsviz-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.9rem;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.2s ease-out, color 0.2s ease-out, background 0.2s ease-out, transform 0.15s ease-out, filter 0.2s ease-out;
+}
+
+.bfsviz-btn-secondary {
+  color: var(--text-main);
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.bfsviz-btn-secondary:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.bfsviz-btn-primary {
+  color: var(--bg);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.bfsviz-btn-primary:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.bfsviz-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
+@media (max-width: 600px) {
+  .bfsviz { padding: 1rem; }
+  .bfsviz-title { font-size: 0.95rem; }
+  .bfsviz-btn { padding: 0.45rem 0.7rem; font-size: 0.72rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bfsviz-node-ring,
+  .bfsviz-node-pulse,
+  .bfsviz-chip,
+  .bfsviz-caption { animation: none !important; }
+  .bfsviz-edge,
+  .bfsviz-node-circle,
+  .bfsviz-node text,
+  .bfsviz-btn { transition: none !important; }
+  .bfsviz-btn-secondary:hover,
+  .bfsviz-btn-primary:hover { transform: none !important; }
+}

@@ -2007,3 +2007,19 @@
   .viz-chip-bar { display: flex; }
   .viz-side { display: none; }
 }
+
+.cp-interactive-viz {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px dashed var(--border);
+}
+
+.cp-interactive-viz-title {
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin: 0 0 0.85rem;
+}
