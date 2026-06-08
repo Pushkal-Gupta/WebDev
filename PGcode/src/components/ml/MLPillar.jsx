@@ -48,12 +48,12 @@ export default function MLPillar() {
           <p>Lessons land here as they are written.</p>
         </section>
       ) : (
-        <section className="mlhub-pillars">
+        <section className="mlhub-pillars mlhub-pillars-3">
           {lessons.map(l => (
             <Link
               key={l.slug}
               to={`/ml/${pillarSlug}/${l.slug}`}
-              className="mlhub-pillar"
+              className="mlhub-pillar mlhub-pillar-group"
             >
               <div className="mlhub-pillar-head">
                 <span className="mlhub-pillar-status">{l.difficulty}</span>

@@ -1,8 +1,8 @@
 .pg-playground {
   display: flex;
   flex-direction: column;
-  width: 94%;
-  max-width: var(--container-w);
+  width: 96%;
+  max-width: 1700px;
   margin: 0 auto;
   height: calc(100vh - 100px);
   padding: 1.25rem 0 1.5rem;

@@ -2,11 +2,39 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## NO EMPTY SPACE (HARD)
+
+**Every page must FILL the viewport.** Empty whitespace below content, content squeezed into half the available width, lists that bottom out at 60% screen height — all of it is a bug. The reader's eye should hit something useful at every point on the page, especially the bottom.
+
+Apply everywhere:
+- **Lists/tables**: page container = flex-column filling viewport height. Header+filters take natural height. List region gets `flex: 1 1 auto; min-height: 0; overflow-y: auto`. Pagination/footer sits at viewport bottom (sticky-bottom or in flex tail). Don't let the table end at 600px when the viewport is 900px.
+- **Grids**: use full container width. Don't cap at 1200px if the viewport is 1600px and the content can scale. Prefer `repeat(auto-fit, minmax(...))`.
+- **Hero sections**: don't pad a small headline with 40vh of whitespace. Either pack more content (subtitle, stats, CTA, preview chips) or shorten the hero.
+- **Cards**: if 3 cards fit per row on a wide screen, render 3 columns. Don't show at 280px in a 1500px viewport.
+- **Mobile**: still fill vertically; sticky footer applies.
+
+Audit at 1920×1080 desktop AND 1440×900 laptop. If there's a band of empty space below content that isn't intentional breathing room, fix it. Empty pixels are wasted learning surface.
+
 ## What this is
 
 PGcode is a single-author DSA / interview-prep platform aiming to be measurably better than NeetCode + GeeksforGeeks + Programiz combined — broader catalog, deeper editorial, more polished UI, server-side grading, multi-language support. Design quality and editorial depth outrank feature count.
 
 Live: `https://pushkalgupta.com/PGcode/dist/index.html` (HashRouter; URLs use `#/`).
+
+## The thesis — why PGcode exists (HARD — north star)
+
+The content has always existed. Linear algebra, gradient descent, attention, segment trees — every concept here has been taught a thousand times. What's changed is the toolkit for **delivering** that content: SVG animation, interactive React components, KaTeX rendering, MANIM-style step-throughs, embeddable visualizers. The libraries available in 2025 are off the charts compared to even 2020.
+
+**That gap is our entire reason for existing.** We are not a content site competing on writing quality alone — every concept has a 3B1B video and a Wikipedia article. We are the place where every concept has an **interactive, visual, intuitive** explanation built using the modern tools, sitting inline next to the prose so the reader can *do* something with each idea instead of just reading about it.
+
+Concrete consequences for every task on this codebase:
+- **Default to visuals over prose.** If you can show it with an SVG component, ship the component; the prose around it should narrate the picture, not replace it.
+- **Default to interactive over static.** If the reader can drag a vector, slide a parameter, step through an algorithm — let them. Live readouts beat captioned screenshots.
+- **Default to intuitive framing over formal definition.** Geometric reframe → worked example → formula, in that order. Khan's careful pacing + 3B1B's geometric eye.
+- **Reach for the right tool.** Inline SVG for diagrams, KaTeX for math, MANIM-style animation for processes, embedded videos when a 3B1B clip is the clearest explanation that exists. Use the whole modern toolkit; don't hand-draw what a library can render.
+- **The lesson page is the proof.** A learner who lands here and can manipulate the concept in real time has gotten something they can't get from a textbook or a video alone. That's the wedge.
+
+When a content task lands ambiguously phrased — "improve this lesson" / "add a section" — choose the variant that adds an interactive visual element. That's always the right call.
 
 ## PRIMARY GOAL (HARD — overrides everything else when ambiguous)
 
@@ -76,14 +104,104 @@ What to delete on sight:
 
 This rule applies to **already-shipped pages too** — audit hubs, indexes, and any landing pages on each pass; trim until only the one-line intro plus the actual content remains.
 
-## Triple-review policy
+## Markdown + math rendering (HARD — repeated bug)
 
-For any new content batch (≥6 concepts OR a new course OR a tutorial-body rewrite), after the writer agent finishes, dispatch **two independent review agents in parallel**:
-- **Reviewer A** — content accuracy (algorithm correctness, code compiles, complexity claims right).
-- **Reviewer B** — quality bar enforcement (word counts, section presence, no shallow filler).
+This bug has bitten the user multiple times. Always check:
+
+- **Inline math** uses `\(...\)` — must render via **KaTeX** (`katex.renderToString`), not a `<code>` tag. Raw `\|v\|`, `\sqrt{...}`, `\sum_i`, etc. showing as monospace text is the bug.
+- **Display math** uses `\[...\]` — must render via KaTeX in **display mode**, not `<pre>` of raw LaTeX.
+- Bare formulas in prose (without `\(...\)` wrapping) — STILL must render. If a writer drops in `\sum_i p_i \log q_i` without delimiters, the renderer should either detect-and-katex or our content guide should reject it. NEVER ship a page that shows raw LaTeX backslashes to the reader.
+- Both `MLLesson` and `ConceptPage` MUST use the same KaTeX renderer; never half-wire one without the other.
+- After any change to the markdown renderer in either file, render a page with mixed `**bold**`, `` `code` ``, `\(inline\)`, `\[display\]`, bullet/ordered lists, and a `### h3` heading — verify ALL render correctly, not just the one you touched.
+- Lesson/concept SOURCE files (`mlContent.js`, `content/concepts/*.md`) are written with LaTeX syntax. Do NOT rewrite them to Unicode as a "fix" — fix the renderer instead. KaTeX is already installed.
+- Test: open `/ml/foundations/vectors` in dev — if you see literal `\|v\|_2 = \sqrt{...}` text, the renderer is broken.
+
+Renderers to keep in sync:
+- `src/components/ml/MLLesson.jsx` → `renderInline` (inline math), `MathBlock` (kind=math sections), `renderProseBody` (display math inside prose).
+- `src/components/learn/ConceptPage.jsx` → `Markdown` component + `preprocessInlineMath` step.
+
+## No horizontal scrollbars (HARD — repeated bug)
+
+**The only scrollbar allowed on any learning page is the vertical page scroll.** Horizontal scrollbars on viz blocks, math blocks, code blocks, ASCII diagrams, tables, or anything else are a layout failure.
+
+Causes to check on sight:
+- `<pre>` blocks of ASCII that exceed container width — wrap or scale, don't `overflow-x: auto`.
+- SVG `viewBox` mismatched to `width` — set `width: 100%` and use a viewBox that fits naturally, or rescale.
+- KaTeX `\[...\]` blocks too wide — wrap into multiple lines or use smaller font-size.
+- Math containers using `overflow-x: auto` — replace with content reflow.
+
+Audit: open every lesson and concept page in dev. If ANY inner element shows a horizontal scrollbar, that's a P1 to fix in the same pass.
+
+## Manager role — never stop assigning (HARD)
+
+You are the manager. The user's standing instruction: do not stop deploying agents. Pipeline mode is the default.
+
+- **Always have ≥4 sub-agents in flight.** If a batch finishes, dispatch the next immediately. If you're waiting on one agent's output, dispatch other independent agents in parallel rather than idling.
+- **Even when a long task is in flight**, schedule whatever can run alongside: content writing while a viz agent works, a verify-prune sweep while a wave agent works, a markdown audit while a UI agent works.
+- **When an agent reports back**: verify the output (read files, build, render check), then assign the NEXT sequential task immediately. No "pipeline complete" pauses.
+- **When you discover a bug from user feedback**: dispatch a fix agent + a verifier agent + continue the pipeline. Three things at once.
+- **Pipeline never goes empty** unless the user explicitly stops, even if you think there's nothing obvious to do. Default to one of: more curated problem waves, more MANIM viz, more lesson depth, more verify-prune sweeps, more content rewrites.
+- Triple-review (Reviewer A + B) is part of this, not a separate step.
+
+## Verify resources before linking (HARD — repeated bug)
+
+When adding external references to lessons (3B1B videos, Khan units, papers, book PDFs):
+
+- **Paste the exact topic URL**, never a generic playlist or homepage. For 3B1B: the specific video on THAT topic (e.g. vectors → `https://www.youtube.com/watch?v=fNk_zzaMoSs`, the actual "Vectors, what even are they?" video). For Khan Academy: the specific unit URL, not `khanacademy.org/math/linear-algebra` as a catch-all.
+- **Verify each link resolves to the intended content.** Use WebFetch to confirm the page exists and matches the topic. A broken or off-topic link is worse than no link.
+- **Fall back to alternatives** if no precise free resource exists: arxiv paper, distill.pub article, book PDF (arxiv.org, gwern.net, public textbook hosts), MIT OCW, Coursera lecture, Andrej Karpathy's blog, etc. Whatever is the BEST resource for this exact topic.
+- Lessons differ in topic — copy-pasting the same link across 25 lessons is a failure. Each lesson gets its own carefully chosen resource(s).
+
+## No ASCII art for visual diagrams (HARD — repeated bug)
+
+ASCII art with `+--*--+----+--> x`, `|`, `--` etc. looks terrible in a browser. Forbidden on lesson pages.
+
+Allowed `kind: 'ascii'` content:
+- Pseudo-code listings, code snippets, tabular text where mono alignment matters.
+- That's it.
+
+Forbidden as ASCII — use a real SVG viz component instead:
+- Vector arrows, plane axes, grids (build a dedicated SVG viz like `VectorAdditionViz`).
+- Tree diagrams (SVG with node circles + edges).
+- Graph drawings, flow charts (SVG).
+- Coordinate systems with labels (SVG with `<text>`).
+- Anything where alignment depends on monospace spacing being interpreted geometrically.
+
+When you find an ASCII diagram that should be a real picture:
+1. Build a small SVG component under `src/components/ml/viz/<Topic>Viz.jsx`.
+2. Register it in `VIZ_REGISTRY` in `MLLesson.jsx`.
+3. Replace the lesson's `kind: 'ascii'` section with `{ kind: 'viz', heading: '...', component: 'TopicViz' }`.
+4. Each viz: theme tokens only, lucide icons only, no emoji, no external deps, controls + live readouts when relevant.
+
+26 ASCII sections currently in `mlContent.js` — convert them to viz components on each content pass.
+
+## Interactive · Visual · Intuitive (HARD — three words that govern all learning content)
+
+Every learning page must hit all three:
+
+- **Interactive** — readers should be able to DO something on every page: drag, slide, step, click, hover, sample. Static walls of text are a failure. If a concept has a viz registered, the page must show it inline, not gate it behind a link.
+- **Visual** — a learning page without imagery is a placeholder. Diagrams, animations, graphs, side-by-side comparisons. If an idea has a canonical visual (3B1B's vector arrows, Khan's number-line stepping, the loss landscape), it must be in the lesson, not "left as an exercise". Use MANIM-style SVG viz, embed a relevant 3B1B YouTube clip as a fallback for things we haven't built ourselves, or generate an inline diagram. NEVER ship raw text where a visual would land harder.
+- **Intuitive** — every lesson must answer "what's actually happening" before the formula appears. Geometric reframe, physical analogy, worked tiny example with concrete numbers. Math first = lost reader. Reframe + example + math = retained reader.
+
+Audit before shipping: if a page is text-only, no viz, no embedded video, no inline diagram — it does not ship. Either build the viz, embed a 3B1B clip (with `<iframe>` to youtube.com/embed/`<id>` and a fallback caption explaining what to watch), or write an inline ASCII visual that earns its space.
+
+Future content tasks should default to: build the viz first, then write the prose around it.
+
+## Triple-review policy (HARD — applies to UI/viz too)
+
+Triple-review is **MANDATORY** after every batch — content, viz, or UI. Not optional. Dispatch **two independent review agents in parallel** as soon as the writer/builder pass completes:
+- **Reviewer A** — content accuracy (algorithm correctness, code compiles, complexity claims right, UI renders, routes resolve, nothing orphaned).
+- **Reviewer B** — quality bar enforcement (word counts, section presence, no shallow filler; no hardcoded colors, no emoji, theme tokens used, controls present, MANIM feel for viz).
 - The writer agent counts as the 3rd pass.
 
-Reviewers report a punch list of fixes; a follow-up writer agent (or foreground edits) applies them.
+**When to dispatch reviewers (not just for ≥6 concepts):**
+- Any ≥1 new viz component (MANIM/SVG visualization).
+- Any ≥1 new ML lesson or tutorial body.
+- Any UI restructure (route/layout/hub redesign — render must be checked, not just build).
+- Any markdown / rendering pipeline change.
+- Any change to a shared layout file (MLHub, ProblemList, ConceptPage, Workspace).
+
+Reviewers report a PUNCH LIST of fixes (file:line refs, max ~250 words); a follow-up writer agent or foreground edits apply them. Do NOT mark a wave shipped without the review pass — the user will catch what reviewers caught.
 
 ## Tech stack
 

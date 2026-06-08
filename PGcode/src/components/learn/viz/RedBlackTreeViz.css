@@ -1,0 +1,418 @@
+.rbviz-root {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  color: var(--text-main);
+}
+
+.rbviz-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.rbviz-title {
+  margin: 0 0 4px 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-main);
+}
+
+.rbviz-sub {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--text-dim);
+  max-width: 72ch;
+}
+
+.rbviz-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.rbviz-control-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rbviz-input-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.rbviz-input {
+  width: 84px;
+  padding: 6px 10px;
+  font-family: var(--mono);
+  font-size: 0.88rem;
+  background: var(--surface);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.rbviz-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.18);
+}
+
+.rbviz-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  background: var(--surface);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.05s ease;
+}
+
+.rbviz-btn:hover:not(:disabled) {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+
+.rbviz-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.rbviz-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.rbviz-btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.rbviz-btn-primary:hover:not(:disabled) {
+  background: rgba(var(--accent-rgb), 0.88);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.rbviz-control-divider {
+  width: 1px;
+  height: 22px;
+  background: var(--border);
+  margin: 0 4px;
+}
+
+.rbviz-stage {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px;
+  overflow: hidden;
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rbviz-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 500px;
+}
+
+.rbviz-empty {
+  padding: 40px 20px;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.rbviz-edge {
+  stroke: var(--border);
+  stroke-width: 1.5;
+  transition: stroke 0.3s ease, stroke-width 0.3s ease;
+}
+
+.rbviz-edge-active {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 4px rgba(var(--accent-rgb), 0.45));
+}
+
+.rbviz-edge-nil {
+  stroke-dasharray: 3 4;
+  opacity: 0.55;
+}
+
+.rbviz-node {
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.rbviz-node-circle {
+  stroke: var(--text-main);
+  stroke-width: 1.5;
+  transition: fill 0.6s ease, stroke 0.3s ease, stroke-width 0.3s ease;
+}
+
+.rbviz-node-red .rbviz-node-circle {
+  fill: var(--hard);
+  stroke: var(--hard);
+}
+
+.rbviz-node-black .rbviz-node-circle {
+  fill: var(--text-main);
+  stroke: var(--text-main);
+}
+
+.rbviz-node-value {
+  fill: var(--bg);
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.rbviz-node-ring {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  opacity: 0.55;
+  animation: rbviz-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes rbviz-pulse {
+  0%, 100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.75;
+  }
+}
+
+.rbviz-node-highlight .rbviz-node-circle {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+
+.rbviz-node-new .rbviz-node-circle {
+  animation: rbviz-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center;
+}
+
+@keyframes rbviz-pop {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.18);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.rbviz-node-flash .rbviz-node-circle {
+  animation: rbviz-flash 0.75s ease;
+}
+
+@keyframes rbviz-flash {
+  0% {
+    filter: brightness(1);
+  }
+  45% {
+    filter: brightness(1.6) drop-shadow(0 0 8px rgba(var(--accent-rgb), 0.85));
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+
+.rbviz-node-recolor .rbviz-node-circle {
+  animation: rbviz-recolor 0.7s ease;
+}
+
+@keyframes rbviz-recolor {
+  0% {
+    stroke-width: 1.5;
+  }
+  50% {
+    stroke-width: 4;
+    filter: drop-shadow(0 0 6px rgba(var(--accent-rgb), 0.55));
+  }
+  100% {
+    stroke-width: 1.5;
+  }
+}
+
+.rbviz-nil-node {
+  transition: transform 0.5s ease;
+}
+
+.rbviz-nil-rect {
+  fill: var(--text-main);
+  stroke: var(--text-main);
+  stroke-width: 1;
+}
+
+.rbviz-nil-label {
+  fill: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.08em;
+  pointer-events: none;
+}
+
+.rbviz-caption {
+  margin: 0;
+  padding: 12px 14px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--text-main);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  font-family: var(--mono);
+}
+
+.rbviz-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 10px 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.rbviz-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rbviz-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+}
+
+.rbviz-swatch-red {
+  background: var(--hard);
+  border-color: var(--hard);
+}
+
+.rbviz-swatch-black {
+  background: var(--text-main);
+  border-color: var(--text-main);
+}
+
+.rbviz-swatch-nil {
+  background: var(--text-main);
+  border-radius: 2px;
+  width: 12px;
+  height: 12px;
+}
+
+.rbviz-swatch-hl {
+  background: transparent;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.25);
+}
+
+.rbviz-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.rbviz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 110px;
+  padding: 4px 10px;
+  border-left: 2px solid var(--accent);
+}
+
+.rbviz-stat-grow {
+  flex: 1 1 220px;
+}
+
+.rbviz-stat-label {
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.rbviz-stat-value {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-main);
+  line-height: 1.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rbviz-node,
+  .rbviz-node-circle,
+  .rbviz-edge,
+  .rbviz-node-ring,
+  .rbviz-node-new .rbviz-node-circle,
+  .rbviz-node-flash .rbviz-node-circle,
+  .rbviz-node-recolor .rbviz-node-circle,
+  .rbviz-nil-node {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .rbviz-root {
+    padding: 14px;
+  }
+  .rbviz-controls {
+    gap: 6px;
+  }
+  .rbviz-control-group {
+    flex-wrap: wrap;
+  }
+  .rbviz-stat {
+    min-width: 100px;
+  }
+}

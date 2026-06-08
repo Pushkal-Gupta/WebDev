@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
 import {
   ChevronRight,
   ChevronLeft,
@@ -63,10 +65,42 @@ function hasContent(value) {
 
 const MD_REMARK_PLUGINS = [remarkGfm];
 
+// Sentinels for math: pre-processor swaps \(EXPR\) → `​MATH​<EXPR>​` and \[EXPR\] → `​DMATH​<EXPR>​`
+// inside an inline code span so react-markdown leaves it intact; the code component
+// detects the sentinel and renders KaTeX HTML instead of normal inline code.
+const MATH_SENTINEL = '​MATH​';
+const DMATH_SENTINEL = '​DMATH​';
+
+function katexHtml(tex, displayMode = false) {
+  return katex.renderToString(tex, { throwOnError: false, displayMode, output: 'html' });
+}
+
 const MD_COMPONENTS = {
   a: ({ node: _node, ...props }) => (
     <a {...props} target="_blank" rel="noopener noreferrer" />
   ),
+  code: ({ node: _node, className, children, ...props }) => {
+    const text = Array.isArray(children) ? children.join('') : String(children ?? '');
+    if (text.startsWith(DMATH_SENTINEL)) {
+      const expr = text.slice(DMATH_SENTINEL.length);
+      return (
+        <span
+          className="cp-math"
+          dangerouslySetInnerHTML={{ __html: katexHtml(expr, true) }}
+        />
+      );
+    }
+    if (text.startsWith(MATH_SENTINEL)) {
+      const expr = text.slice(MATH_SENTINEL.length);
+      return (
+        <span
+          className="cp-imath"
+          dangerouslySetInnerHTML={{ __html: katexHtml(expr, false) }}
+        />
+      );
+    }
+    return <code className={className} {...props}>{children}</code>;
+  },
 };
 
 const INLINE_MD_COMPONENTS = {
@@ -113,11 +147,33 @@ function formatPowers(text) {
   return parts.join('');
 }
 
+// Replace \(EXPR\) with `​MATH​EXPR​` and \[EXPR\] with `​DMATH​EXPR​` so react-markdown
+// treats them as inline code, then the custom `code` component renders them via KaTeX.
+// Skips matches inside backticks.
+function preprocessInlineMath(text) {
+  if (typeof text !== 'string') return text;
+  if (text.indexOf('\\(') === -1 && text.indexOf('\\[') === -1) return text;
+  const parts = text.split(/(`+[^`]*`+)/g);
+  for (let i = 0; i < parts.length; i++) {
+    if (i % 2 === 1) continue;
+    // Display math first (so \[ doesn't get mis-consumed by \( handler later).
+    parts[i] = parts[i].replace(/\\\[([\s\S]+?)\\\]/g, (_m, expr) => {
+      const safe = expr.replace(/`/g, '').replace(/\n/g, ' ');
+      return `\n\n\`${DMATH_SENTINEL}${safe}\`\n\n`;
+    });
+    parts[i] = parts[i].replace(/\\\(([\s\S]+?)\\\)/g, (_m, expr) => {
+      const safe = expr.replace(/`/g, '').replace(/\n/g, ' ');
+      return `\`${MATH_SENTINEL}${safe}\``;
+    });
+  }
+  return parts.join('');
+}
+
 function Markdown({ children, inline = false }) {
   if (children == null) return null;
   const raw = typeof children === 'string' ? children : String(children);
   if (!raw.trim()) return null;
-  const source = formatPowers(raw);
+  const source = preprocessInlineMath(formatPowers(raw));
   return (
     <ReactMarkdown
       remarkPlugins={MD_REMARK_PLUGINS}

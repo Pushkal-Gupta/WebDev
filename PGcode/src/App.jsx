@@ -75,6 +75,7 @@ const SolutionPage = lazy(() => import('./components/SolutionPage'));
 const LearnIndex = lazy(() => import('./components/learn/LearnIndex'));
 const LearningHub = lazy(() => import('./components/learn/LearningHub'));
 const MLHub = lazy(() => import('./components/ml/MLHub'));
+const MLGroup = lazy(() => import('./components/ml/MLGroup'));
 const MLPillar = lazy(() => import('./components/ml/MLPillar'));
 const MLLesson = lazy(() => import('./components/ml/MLLesson'));
 const ConceptPage = lazy(() => import('./components/learn/ConceptPage'));
@@ -196,6 +197,7 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
           <Route path="/problems" element={<ProblemList session={session} roadmapMode={roadmapMode} />} />
           <Route path="/learning" element={<LearningHub />} />
           <Route path="/ml" element={<MLHub />} />
+          <Route path="/ml/g/:groupSlug" element={<MLGroup />} />
           <Route path="/ml/:pillarSlug" element={<MLPillar />} />
           <Route path="/ml/:pillarSlug/:lessonSlug" element={<MLLesson />} />
           <Route path="/learn" element={<LearnIndex session={session} />} />

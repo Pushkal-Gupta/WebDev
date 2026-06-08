@@ -1,16 +1,15 @@
 /* ── Problem List Page ── */
 .pl-container {
   width: 94%;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 1.25rem 0 1.75rem;
+  padding: 1.25rem 0 0;
   flex: 1 1 auto;
+  height: 100%;
   min-height: 0;
-  max-height: calc(100dvh - 80px);
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 /* ── Header ── */

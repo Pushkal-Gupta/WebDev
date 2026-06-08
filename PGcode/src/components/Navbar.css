@@ -39,6 +39,15 @@
   cursor: pointer;
   font-weight: 600;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.brand-link .brand-text {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: baseline;
 }
 
 .brand-suffix {
