@@ -59,87 +59,102 @@
     </div>
 
     <!-- Auth Modal (login / signup / reset / otp / new-password) -->
-    <div id="auth-modal" class="modal-overlay hidden">
-      <div class="modal-content">
-        <h3 id="modal-title">Welcome Back</h3>
-
-        <!-- Screen 1: normal login / signup / reset-email-request -->
-        <div id="screen-main">
-          <button class="google-login-btn" onclick="loginWithGoogle()">
-            <img
-              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-              alt="G"
-              width="18"
-              height="18"
-            />
-            Continue with Google
-          </button>
-          <div class="divider"><span>or use email</span></div>
-          <input type="email" id="auth-email" placeholder="Email address" />
-          <div id="password-container">
-            <input type="password" id="auth-password" placeholder="Password" />
+    <div id="auth-modal" class="pgauth-overlay hidden">
+      <button onclick="closeAuthModal()" class="pgauth-close" aria-label="Close">&times;</button>
+      <div class="pgauth-stack">
+        <div class="pgauth-brand">
+          <div class="pgauth-brand-row">
+            <svg class="pgauth-mark" width="40" height="36" viewBox="0 0 36 32" aria-hidden="true">
+              <path d="M3 4 L3 28 M3 4 L10.5 4 Q15.5 4 15.5 10 Q15.5 16 10.5 16 L3 16" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M33 9.5 Q33 4 27 4 Q20.5 4 20.5 11.5 L20.5 20.5 Q20.5 28 27 28 Q33 28 33 22.5 L33 18.5 L27.5 18.5" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="pgauth-wordmark">Pushkal Gupta <span class="accent">Blog</span></span>
           </div>
-          <button onclick="submitAuth()" id="submit-auth-btn" class="primary-btn">
-            Continue
-          </button>
-          <div class="modal-footer">
-            <p id="auth-switch-text">
-              New here?
-              <span onclick="setAuthMode('signup')">Create account</span>
-            </p>
-            <p id="forgot-password-link">
-              <span onclick="setAuthMode('reset')">Forgot password?</span>
-            </p>
-          </div>
+          <span class="pgauth-tagline">Exploring systems from first principles. Writing to understand things clearly.</span>
         </div>
 
-        <!-- Screen 2: OTP entry (after reset email sent) -->
-        <div id="screen-otp" class="hidden">
-          <p class="otp-hint">
-            Enter the 8-digit code sent to
-            <strong id="otp-email-display"></strong>
-          </p>
-          <input
-            type="text"
-            id="otp-input"
-            class="otp-input"
-            maxlength="8"
-            placeholder="00000000"
-            autocomplete="one-time-code"
-            inputmode="numeric"
-          />
-          <button onclick="submitOtp()" id="submit-otp-btn" class="primary-btn">
-            Verify Code
-          </button>
-          <div class="modal-footer">
-            <p><span onclick="setAuthMode('reset')">Resend code</span></p>
-            <p><span onclick="setAuthMode('login')">Back to login</span></p>
+        <div class="pgauth-card">
+          <!-- Screen 1: normal login / signup / reset-email-request -->
+          <div id="screen-main">
+            <div class="pgauth-head">
+              <h3 id="modal-title">Welcome back</h3>
+              <p class="pgauth-sub" id="modal-subtitle">Enter your credentials to continue</p>
+            </div>
+            <div class="pgauth-form">
+              <div class="pgauth-field">
+                <label for="auth-email">Email</label>
+                <input type="email" id="auth-email" class="pgauth-input" placeholder="me@example.com" />
+              </div>
+              <div class="pgauth-field" id="password-container">
+                <div class="pgauth-label-row">
+                  <label for="auth-password">Password</label>
+                  <button type="button" class="pgauth-link" id="forgot-password-link" onclick="setAuthMode('reset')">Forgot password?</button>
+                </div>
+                <div class="pgauth-passwrap">
+                  <input type="password" id="auth-password" class="pgauth-input" placeholder="Enter your password" />
+                  <button type="button" class="pgauth-eye" onclick="togglePassVis(this, 'auth-password')" aria-label="Show password">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                </div>
+              </div>
+              <button onclick="submitAuth()" id="submit-auth-btn" class="pgauth-primary">Sign in</button>
+              <div class="pgauth-divider"><span>Or continue with</span></div>
+              <div class="pgauth-social">
+                <button type="button" class="pgauth-social-btn" onclick="loginWithGoogle()">
+                  <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" width="16" height="16" />
+                  Google
+                </button>
+                <button type="button" class="pgauth-social-btn" onclick="loginWithGithub()">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+                    <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.4-5.25 5.68.41.36.78 1.06.78 2.13v3.16c0 .31.21.68.8.56C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z" />
+                  </svg>
+                  GitHub
+                </button>
+              </div>
+              <p class="pgauth-foot" id="auth-switch-text">
+                New here? <span onclick="setAuthMode('signup')">Create account</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Screen 2: OTP entry (after reset email sent) -->
+          <div id="screen-otp" class="hidden">
+            <div class="pgauth-head">
+              <h3>Check your email</h3>
+              <p class="pgauth-sub">Enter the code we just sent</p>
+            </div>
+            <div class="pgauth-form">
+              <p class="pgauth-hint">We sent an 8-digit code to <strong id="otp-email-display"></strong>.</p>
+              <div class="pgauth-field">
+                <label for="otp-input">Recovery code</label>
+                <input type="text" id="otp-input" class="pgauth-input" maxlength="8" placeholder="00000000" autocomplete="one-time-code" inputmode="numeric" />
+              </div>
+              <button onclick="submitOtp()" id="submit-otp-btn" class="pgauth-primary">Verify code</button>
+              <p class="pgauth-foot">
+                <span onclick="setAuthMode('reset')">Resend code</span> &nbsp;·&nbsp; <span onclick="setAuthMode('login')">Back to login</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Screen 3: set new password (after OTP verified) -->
+          <div id="screen-new-pass" class="hidden">
+            <div class="pgauth-head">
+              <h3>Set a new password</h3>
+              <p class="pgauth-sub">Pick something memorable</p>
+            </div>
+            <div class="pgauth-form">
+              <div class="pgauth-field">
+                <label for="reset-new-pass">New password</label>
+                <input type="password" id="reset-new-pass" class="pgauth-input" placeholder="At least 6 characters" />
+              </div>
+              <div class="pgauth-field">
+                <label for="reset-confirm-pass">Confirm password</label>
+                <input type="password" id="reset-confirm-pass" class="pgauth-input" placeholder="Re-enter it" />
+              </div>
+              <button onclick="submitNewPassword()" id="submit-newpass-btn" class="pgauth-primary">Set password</button>
+            </div>
           </div>
         </div>
-
-        <!-- Screen 3: set new password (after OTP verified) -->
-        <div id="screen-new-pass" class="hidden">
-          <p class="otp-hint">Choose your new password</p>
-          <input
-            type="password"
-            id="reset-new-pass"
-            placeholder="New password"
-          />
-          <input
-            type="password"
-            id="reset-confirm-pass"
-            placeholder="Confirm new password"
-          />
-          <button
-            onclick="submitNewPassword()"
-            id="submit-newpass-btn"
-            class="primary-btn"
-          >
-            Set Password
-          </button>
-        </div>
-
-        <button onclick="closeAuthModal()" class="close-x">×</button>
       </div>
     </div>
 
