@@ -3586,8 +3586,10 @@ function updatePopupMode() {
   const toggleLink = document.getElementById("toggleLink");
   const forgotLink = document.getElementById("forgotLink");
   const backToLoginLink = document.getElementById("backToLoginLink");
+  const subtitle = document.getElementById("login-subtitle");
 
   if (authMode === "signup") {
+    if (subtitle) subtitle.textContent = "A few details and you're in";
     title.textContent = "Create an account";
     confirmInput.style.display = "block";
     passContainer.style.display = "";
@@ -3598,6 +3600,7 @@ function updatePopupMode() {
     forgotLink.style.display = "none";
     backToLoginLink.style.display = "none";
   } else if (authMode === "reset") {
+    if (subtitle) subtitle.textContent = "We'll email you a recovery code";
     title.textContent = "Reset Password";
     confirmInput.style.display = "none";
     passContainer.style.display = "none";
@@ -3607,6 +3610,7 @@ function updatePopupMode() {
     forgotLink.style.display = "none";
     backToLoginLink.style.display = "";
   } else {
+    if (subtitle) subtitle.textContent = "Enter your credentials to continue";
     title.textContent = "Login to continue";
     confirmInput.style.display = "none";
     passContainer.style.display = "";
@@ -3625,6 +3629,24 @@ async function loginWithGoogle() {
     options: { redirectTo: window.location.href },
   });
   if (error) showCustomAlert("Google sign-in error: " + error.message);
+}
+
+async function loginWithGithub() {
+  const { error } = await supabaseClient.auth.signInWithOAuth({
+    provider: "github",
+    options: { redirectTo: window.location.href },
+  });
+  if (error) showCustomAlert("GitHub sign-in error: " + error.message);
+}
+
+function togglePassVis(btn, inputId) {
+  const input = document.getElementById(inputId);
+  const showing = input.type === "password";
+  input.type = showing ? "text" : "password";
+  btn.setAttribute("aria-label", showing ? "Hide password" : "Show password");
+  btn.innerHTML = showing
+    ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>'
+    : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
 }
 
 async function submitLoginOrSignup() {

@@ -35,6 +35,24 @@ async function loginWithGoogle() {
   if (error) alert("Google sign-in error: " + error.message);
 }
 
+async function loginWithGithub() {
+  const { error } = await supabaseClient.auth.signInWithOAuth({
+    provider: "github",
+    options: { redirectTo: window.location.href },
+  });
+  if (error) alert("GitHub sign-in error: " + error.message);
+}
+
+function togglePassVis(btn, inputId) {
+  const input = document.getElementById(inputId);
+  const showing = input.type === "password";
+  input.type = showing ? "text" : "password";
+  btn.setAttribute("aria-label", showing ? "Hide password" : "Show password");
+  btn.innerHTML = showing
+    ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>'
+    : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+}
+
 function showScreen(name) {
   ["screen-main", "screen-otp", "screen-new-pass"].forEach((id) =>
     document.getElementById(id).classList.toggle("hidden", id !== name),
@@ -66,19 +84,28 @@ function setAuthMode(mode) {
   }
 
   showScreen("screen-main");
+  const sub = document.getElementById("modal-subtitle");
+  const submitBtn = document.getElementById("submit-auth-btn");
+
   if (mode === "signup") {
-    title.innerText = "Create Account";
+    title.innerText = "Create your account";
+    sub.innerText = "A few details and you're in";
+    submitBtn.innerText = "Create account";
     passContainer.classList.remove("hidden");
     forgotLink.classList.add("hidden");
-    switchText.innerHTML = `Already have an account? <span onclick="setAuthMode('login')">Login</span>`;
+    switchText.innerHTML = `Already have an account? <span onclick="setAuthMode('login')">Sign in</span>`;
   } else if (mode === "reset") {
-    title.innerText = "Reset Password";
+    title.innerText = "Reset password";
+    sub.innerText = "We'll email you a recovery code";
+    submitBtn.innerText = "Send code";
     passContainer.classList.add("hidden");
     forgotLink.classList.add("hidden");
-    switchText.innerHTML = `Remembered it? <span onclick="setAuthMode('login')">Login</span>`;
+    switchText.innerHTML = `Remembered it? <span onclick="setAuthMode('login')">Sign in</span>`;
     document.getElementById("auth-email").value = resetPendingEmail || "";
   } else {
-    title.innerText = "Welcome Back";
+    title.innerText = "Welcome back";
+    sub.innerText = "Enter your credentials to continue";
+    submitBtn.innerText = "Sign in";
     passContainer.classList.remove("hidden");
     forgotLink.classList.remove("hidden");
     switchText.innerHTML = `New here? <span onclick="setAuthMode('signup')">Create account</span>`;
@@ -143,7 +170,12 @@ async function submitAuth() {
   } catch (err) {
     alert("System error: " + err.message);
   } finally {
-    btn.innerText = "Continue";
+    btn.innerText =
+      currentAuthMode === "signup"
+        ? "Create account"
+        : currentAuthMode === "reset"
+          ? "Send code"
+          : "Sign in";
     btn.disabled = false;
   }
 }
@@ -205,6 +237,12 @@ async function submitNewPassword() {
 function showAccountModal() {
   document.getElementById("account-email-display").innerText = user.email;
   const isOAuth = user.app_metadata?.provider !== "email";
+  if (isOAuth) {
+    const provider = user.app_metadata?.provider || "OAuth";
+    const providerName = provider.charAt(0).toUpperCase() + provider.slice(1);
+    document.getElementById("oauth-note").innerText =
+      `Signed in with ${providerName} — password change not available.`;
+  }
   document
     .getElementById("change-password-section")
     .classList.toggle("hidden", isOAuth);

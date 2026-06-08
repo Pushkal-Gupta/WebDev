@@ -64,6 +64,14 @@ const useAuthStore = create((set, get) => ({
     if (error) throw error;
   },
 
+  loginWithGithub: async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'github',
+      options: { redirectTo: window.location.href },
+    });
+    if (error) throw error;
+  },
+
   resetPasswordForEmail: async (email) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email);
     if (error) throw error;
