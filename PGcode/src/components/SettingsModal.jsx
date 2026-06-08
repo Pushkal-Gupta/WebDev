@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { X, UserPlus, Users, Check, Clock, Trash2, Palette, Code2, Sparkles, RotateCcw } from 'lucide-react';
+import { X, UserPlus, Users, Check, Clock, Trash2, Palette, Code2, Sparkles, RotateCcw, LogOut, RefreshCw, Star, GitBranch, Users as UsersIcon } from 'lucide-react';
+import ShareableCard from './ShareableCard';
 import {
   getAiKey, setAiKey, getProxyUrl, setProxyUrl,
   getAiProvider, setAiProvider, getAiModel, setAiModel,
@@ -254,13 +255,57 @@ function AiSettings({ onMessage }) {
 }
 
 export default function SettingsModal({ session, onClose, theme, applyTheme, setPreferredLang, preferredLang }) {
-  const [activeTab, setActiveTab] = useState('appearance');
+  const [activeTab, setActiveTab] = useState('profile');
   const [friendEmail, setFriendEmail] = useState('');
   const [friends, setFriends] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [friendProgress, setFriendProgress] = useState({});
   const [displayName, setDisplayName] = useState('');
+  const [profileUsername, setProfileUsername] = useState('');
   const [message, setMessage] = useState(null);
+  const [githubUsername, setGithubUsername] = useState(() => localStorage.getItem('pg-github-username') || '');
+  const [ghStats, setGhStats] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('pg-github-stats') || 'null'); } catch { return null; }
+  });
+  const [ghLoading, setGhLoading] = useState(false);
+  const [ghError, setGhError] = useState(null);
+
+  const fetchGithubStats = async (uname) => {
+    const name = (uname ?? githubUsername).trim();
+    if (!name) { setGhError('Add a GitHub username first.'); return; }
+    setGhLoading(true);
+    setGhError(null);
+    try {
+      const userRes = await fetch(`https://api.github.com/users/${encodeURIComponent(name)}`);
+      if (!userRes.ok) throw new Error(userRes.status === 404 ? 'GitHub user not found.' : `GitHub API ${userRes.status}`);
+      const user = await userRes.json();
+      const reposRes = await fetch(`https://api.github.com/users/${encodeURIComponent(name)}/repos?per_page=100&sort=updated`);
+      const repos = reposRes.ok ? await reposRes.json() : [];
+      const stars = repos.reduce((s, r) => s + (r.stargazers_count || 0), 0);
+      const langs = {};
+      repos.forEach(r => { if (r.language) langs[r.language] = (langs[r.language] || 0) + 1; });
+      const topLangs = Object.entries(langs).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k]) => k);
+      const next = {
+        login: user.login,
+        name: user.name,
+        avatar: user.avatar_url,
+        bio: user.bio,
+        publicRepos: user.public_repos,
+        followers: user.followers,
+        following: user.following,
+        stars,
+        topLangs,
+        fetchedAt: new Date().toISOString(),
+      };
+      setGhStats(next);
+      localStorage.setItem('pg-github-stats', JSON.stringify(next));
+      localStorage.setItem('pg-github-username', name);
+    } catch (err) {
+      setGhError(err.message);
+    } finally {
+      setGhLoading(false);
+    }
+  };
   const [localPreferredLang, setLocalPreferredLang] = useState(preferredLang || 'python');
   // Editor-customization knobs stored in localStorage only (no backend yet).
   const [editorFontSize, setEditorFontSize] = useState(() => Number(localStorage.getItem('pg-editor-font-size')) || 14);
@@ -283,7 +328,10 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
         .select('*')
         .eq('user_id', session.user.id)
         .maybeSingle();
-      if (data) setDisplayName(data.display_name || '');
+      if (data) {
+        setDisplayName(data.display_name || '');
+        setProfileUsername(data.username || '');
+      }
     };
     const loadFriends = async () => {
       try {
@@ -390,14 +438,29 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
     }
   };
 
+  const handleLogout = async () => {
+    try { await supabase.auth.signOut(); } catch { /* ignore */ }
+    onClose();
+  };
+
   return (
     <div className="settings-overlay" onClick={(e) => {
       if (e.target === e.currentTarget) onClose();
     }}>
       <div className="settings-content">
         <div className="settings-header">
-          <h2>Settings</h2>
-          <button className="settings-close" onClick={onClose}><X size={20} /></button>
+          <div className="settings-header-text">
+            <h2>Settings</h2>
+            {session?.user?.email && <span className="settings-email">{session.user.email}</span>}
+          </div>
+          <div className="settings-header-actions">
+            {session && (
+              <button className="settings-logout" onClick={handleLogout} type="button">
+                <LogOut size={14} /> Log out
+              </button>
+            )}
+            <button className="settings-close" onClick={onClose}><X size={20} /></button>
+          </div>
         </div>
 
         <div className="settings-tabs">
@@ -543,16 +606,60 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
 
           {activeTab === 'profile' && (
             <div className="profile-section">
-              <label className="settings-label">Display Name</label>
-              <input
-                type="text"
-                className="settings-input"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="Your display name"
-              />
-              <p className="settings-hint">Email: {session?.user?.email}</p>
-              <button className="settings-save-btn" onClick={saveProfile}>Save Profile</button>
+              <div className="github-connect">
+                <div className="github-connect-label">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true">
+                    <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.4-5.25 5.68.41.36.78 1.06.78 2.13v3.16c0 .31.21.68.8.56C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z"/>
+                  </svg>
+                  Connect GitHub to enrich your card
+                </div>
+                <div className="github-connect-row">
+                  <input
+                    type="text"
+                    className="settings-input"
+                    value={githubUsername}
+                    onChange={(e) => setGithubUsername(e.target.value)}
+                    placeholder="your-github-username"
+                    spellCheck={false}
+                  />
+                  <button
+                    type="button"
+                    className="github-fetch-btn"
+                    onClick={() => fetchGithubStats()}
+                    disabled={ghLoading || !githubUsername.trim()}
+                  >
+                    {ghLoading ? <RefreshCw size={13} className="spin" /> : <RefreshCw size={13} />}
+                    {ghStats ? 'Refresh' : 'Connect'}
+                  </button>
+                </div>
+                {ghError && <p className="github-error">{ghError}</p>}
+                {ghStats && <p className="github-meta">Last updated {new Date(ghStats.fetchedAt).toLocaleString()} · stats below appear on your card</p>}
+              </div>
+
+              {session?.user && (
+                <div className="profile-card-block">
+                  <ShareableCard
+                    embedded
+                    presetUserId={session.user.id}
+                    presetUsername={profileUsername || session.user.email?.split('@')[0]}
+                    presetDisplayName={displayName || session.user.user_metadata?.full_name || session.user.email?.split('@')[0]}
+                    githubStats={ghStats}
+                  />
+                </div>
+              )}
+
+              <div className="profile-edit-block">
+                <label className="settings-label">Display Name</label>
+                <input
+                  type="text"
+                  className="settings-input"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  placeholder="Your display name"
+                />
+                <p className="settings-hint">Email: {session?.user?.email}</p>
+                <button className="settings-save-btn" onClick={saveProfile}>Save Profile</button>
+              </div>
             </div>
           )}
 

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import LoginModal from './LoginModal';
-import AccountModal from './AccountModal';
+import SettingsModal from './SettingsModal';
+import Logo from './Logo';
 import './Navbar.css';
 
 export default function Navbar({ session, theme, toggleTheme, applyTheme, setPreferredLang, preferredLang }) {
@@ -23,7 +24,8 @@ export default function Navbar({ session, theme, toggleTheme, applyTheme, setPre
         <div className="nav-group">
           <div className="nav-left">
             <a href={brandHref} className="brand-link">
-              Pushkal Gupta <span className="brand-suffix">Code</span>
+              <Logo size={28} />
+              <span className="brand-text">Pushkal Gupta <span className="brand-suffix">Code</span></span>
             </a>
           </div>
 
@@ -54,7 +56,7 @@ export default function Navbar({ session, theme, toggleTheme, applyTheme, setPre
 
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
       {showAccount && (
-        <AccountModal
+        <SettingsModal
           session={session}
           theme={theme}
           applyTheme={applyTheme}

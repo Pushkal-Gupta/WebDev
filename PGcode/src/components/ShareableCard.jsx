@@ -89,6 +89,38 @@ function useProfileStreak(userId) {
   });
 }
 
+function useProfileLearn(userId) {
+  return useQuery({
+    queryKey: ['cardLearn', userId || 'anon'],
+    queryFn: async () => {
+      if (!userId) return { concepts: 0, mastered: 0, achievements: 0 };
+      let concepts = 0;
+      let mastered = 0;
+      let achievements = 0;
+      try {
+        const { data: cp } = await supabase
+          .from('PGcode_user_concept_progress')
+          .select('status')
+          .eq('user_id', userId);
+        if (cp) {
+          concepts = cp.length;
+          mastered = cp.filter(r => r.status === 'mastered').length;
+        }
+      } catch { /* table absent / RLS */ }
+      try {
+        const { count } = await supabase
+          .from('PGcode_user_achievements')
+          .select('achievement_id', { count: 'exact', head: true })
+          .eq('user_id', userId);
+        if (typeof count === 'number') achievements = count;
+      } catch { /* table absent / RLS */ }
+      return { concepts, mastered, achievements };
+    },
+    enabled: !!userId,
+    staleTime: 60 * 1000,
+  });
+}
+
 // Resolves a theme-token CSS variable from the live DOM. Falls back to a
 // reasonable hex so SVG export works even outside a themed shell.
 function readToken(name, fallback) {
@@ -238,7 +270,7 @@ async function downloadAsPng(svgString, filename) {
   }
 }
 
-export default function ShareableCard({ embedded = false, presetUsername = null, presetUserId = null, presetDisplayName = null }) {
+export default function ShareableCard({ embedded = false, presetUsername = null, presetUserId = null, presetDisplayName = null, githubStats = null }) {
   const params = useParams();
   const username = presetUsername || params.username;
 
@@ -247,6 +279,7 @@ export default function ShareableCard({ embedded = false, presetUsername = null,
 
   const { data: solves } = useProfileSolves(ownerId);
   const { data: streakData } = useProfileStreak(ownerId);
+  const { data: learn } = useProfileLearn(ownerId);
   const { data: topics = [] } = useTopics();
   const { data: allProblems = [] } = useProblemsCompact();
 
@@ -368,6 +401,49 @@ export default function ShareableCard({ embedded = false, presetUsername = null,
           ))}
         </div>
       </div>
+
+      <div className="sc-learn">
+        <div className="sc-eyebrow">Learning</div>
+        <div className="sc-mini-row">
+          <div className="sc-mini">
+            <div className="sc-mini-num">{learn?.mastered ?? 0}</div>
+            <div className="sc-mini-label">concepts mastered</div>
+          </div>
+          <div className="sc-mini">
+            <div className="sc-mini-num">{learn?.concepts ?? 0}</div>
+            <div className="sc-mini-label">lessons opened</div>
+          </div>
+          <div className="sc-mini">
+            <div className="sc-mini-num">{learn?.achievements ?? 0}</div>
+            <div className="sc-mini-label">achievements</div>
+          </div>
+        </div>
+      </div>
+
+      {githubStats && (
+        <div className="sc-github">
+          <div className="sc-eyebrow">
+            <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true" style={{ verticalAlign: '-1px', marginRight: 4 }}>
+              <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.4-5.25 5.68.41.36.78 1.06.78 2.13v3.16c0 .31.21.68.8.56C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z"/>
+            </svg>
+            GitHub · @{githubStats.login}
+          </div>
+          <div className="sc-gh-row">
+            {githubStats.avatar && <img src={githubStats.avatar} alt="" className="sc-gh-avatar" crossOrigin="anonymous" />}
+            <div className="sc-gh-stats">
+              <div className="sc-gh-stat"><strong>{githubStats.publicRepos ?? 0}</strong><span>repos</span></div>
+              <div className="sc-gh-stat"><strong>{githubStats.stars ?? 0}</strong><span>stars</span></div>
+              <div className="sc-gh-stat"><strong>{githubStats.followers ?? 0}</strong><span>followers</span></div>
+              <div className="sc-gh-stat"><strong>{githubStats.following ?? 0}</strong><span>following</span></div>
+            </div>
+          </div>
+          {githubStats.topLangs?.length > 0 && (
+            <div className="sc-gh-langs">
+              {githubStats.topLangs.map(l => <span key={l} className="sc-gh-lang">{l}</span>)}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="sc-foot">
         <span className="sc-date">{dateStr}</span>

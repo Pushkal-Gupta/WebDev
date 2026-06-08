@@ -1,17 +1,22 @@
 .ml-lesson {
-  max-width: var(--container-w, 1200px);
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  width: 100%;
+  max-width: 1680px;
   margin: 0 auto;
-  padding: 2rem 1.5rem 5rem;
+  padding: 1.2rem 2rem 4rem;
   font-family: var(--mono);
 }
 
 .ml-lesson-hero {
-  margin-bottom: 1.8rem;
-  padding-bottom: 1.4rem;
+  margin-bottom: 1.4rem;
+  padding-bottom: 1.2rem;
   border-bottom: 1px solid var(--border);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
-  gap: 2rem;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 2.4rem;
   align-items: end;
 }
 
@@ -34,25 +39,25 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-dim);
-  margin-bottom: 0.7rem;
+  margin-bottom: 0.55rem;
 }
 
 .ml-lesson-title {
   font-family: var(--serif);
-  font-size: 3rem;
+  font-size: 3.4rem;
   font-weight: 700;
-  margin: 0 0 0.5rem;
-  letter-spacing: -0.03em;
+  margin: 0 0 0.4rem;
+  letter-spacing: -0.035em;
   color: var(--text-main);
-  line-height: 1.05;
+  line-height: 1.02;
 }
 
 .ml-lesson-sub {
-  font-size: 1.05rem;
-  line-height: 1.55;
+  font-size: 1.15rem;
+  line-height: 1.5;
   color: var(--text-dim);
   margin: 0;
-  max-width: 60ch;
+  max-width: 68ch;
 }
 
 .ml-lesson-toc {
@@ -114,16 +119,16 @@
 /* ── Row pattern: prose on left, figure on right ── */
 .ml-row {
   display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  gap: 2.2rem;
-  padding: 1.6rem 0;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
+  gap: 2.8rem;
+  padding: 1.5rem 0;
   border-top: 1px solid var(--border);
   align-items: start;
 }
 
 .ml-row:first-child {
   border-top: none;
-  padding-top: 0.6rem;
+  padding-top: 0.4rem;
 }
 
 .ml-row.ml-row-solo {
@@ -163,56 +168,95 @@
 
 .ml-h {
   font-family: var(--serif);
-  font-size: 1.6rem;
+  font-size: 1.85rem;
   font-weight: 700;
   color: var(--text-main);
-  margin: 0 0 0.3rem;
-  letter-spacing: -0.015em;
-  line-height: 1.25;
+  margin: 0 0 0.35rem;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
 .ml-h::before {
   content: '';
   display: block;
-  width: 2.2rem;
+  width: 2.4rem;
   height: 2px;
   background: var(--accent);
-  margin-bottom: 0.7rem;
+  margin-bottom: 0.65rem;
 }
 
 .ml-p {
-  font-size: 0.98rem;
-  line-height: 1.78;
+  font-size: 1.05rem;
+  line-height: 1.72;
   color: var(--text-main);
   margin: 0;
 }
 
 .ml-imath {
+  display: inline-block;
+  color: var(--text-main);
+  vertical-align: baseline;
+}
+
+.ml-imath .katex { font-size: 1em; color: var(--text-main); }
+.ml-math .katex-display { margin: 0; }
+.ml-math .katex { color: var(--text-main); font-size: 1.05em; }
+
+.ml-icode {
   font-family: var(--mono);
-  font-size: 0.86em;
-  padding: 0.05em 0.4em;
+  font-size: 0.85em;
+  padding: 0.08em 0.42em;
   border-radius: 4px;
-  background: var(--hover-box);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+}
+
+.ml-ul,
+.ml-ol {
+  margin: 0;
+  padding-left: 1.3rem;
+  color: var(--text-main);
+  font-size: 1.02rem;
+  line-height: 1.7;
+  display: flex;
+  flex-direction: column;
+  gap: 0.34rem;
+}
+
+.ml-ul li::marker { color: var(--accent); }
+.ml-ol li::marker { color: var(--accent); font-weight: 700; }
+
+.ml-h3 {
+  font-family: var(--serif);
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0.35rem 0 0.15rem;
+  letter-spacing: -0.012em;
+}
+
+.ml-lesson-body a {
   color: var(--accent);
-  white-space: nowrap;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .ml-math {
   display: block;
-  font-family: var(--mono);
   font-size: 1.05rem;
-  line-height: 1.5;
   padding: 1.2rem 1.3rem;
-  background: linear-gradient(135deg, rgba(var(--accent-rgb, 0,255,245), 0.08), rgba(var(--accent-rgb, 0,255,245), 0.02));
+  background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.08), rgba(var(--accent-rgb), 0.02));
   border: 1px solid var(--border);
   border-left: 3px solid var(--accent);
   border-radius: 8px;
   color: var(--text-main);
-  text-align: center;
-  white-space: pre-wrap;
-  overflow-x: auto;
+  overflow: hidden;
   margin: 0.4rem 0;
 }
+
+.ml-math .katex-display { margin: 0; overflow-x: hidden; }
+.ml-math .katex { white-space: normal; }
 
 .ml-ascii-wrap {
   border: 1px solid var(--border);
@@ -223,22 +267,40 @@
 
 .ml-ascii-head {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
-  padding: 0.5rem 0.9rem;
+  gap: 0.8rem;
+  padding: 0.55rem 0.9rem;
   border-bottom: 1px solid var(--border);
   background: var(--surface);
-  font-size: 0.66rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  font-weight: 700;
+  color: var(--text-main);
+}
+
+.ml-ascii-head > span:last-child {
+  font-family: var(--serif);
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-main);
+  letter-spacing: -0.005em;
+  text-transform: none;
+  text-align: right;
+  line-height: 1.3;
 }
 
 .ml-ascii-head-dot {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.35rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  background: rgba(var(--accent-rgb), 0.1);
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .ml-ascii-head-dot::before {
@@ -256,8 +318,9 @@
   line-height: 1.55;
   padding: 1rem 1.1rem;
   color: var(--text-main);
-  overflow-x: auto;
-  white-space: pre;
+  overflow: hidden;
+  white-space: pre-wrap;
+  word-break: break-word;
   margin: 0;
 }
 
@@ -304,12 +367,13 @@
   line-height: 1.6;
   padding: 1rem 1.1rem;
   color: var(--text-main);
-  overflow-x: auto;
+  overflow: hidden;
   margin: 0;
 }
 
 .ml-code code {
-  white-space: pre;
+  white-space: pre-wrap;
+  word-break: break-word;
   display: block;
 }
 
@@ -349,13 +413,21 @@
 
 .ml-viz-head {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
-  font-size: 0.66rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  font-weight: 700;
+  gap: 0.8rem;
+  padding: 0 0.1rem 0.45rem;
+}
+
+.ml-viz-head > span:last-child {
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+  letter-spacing: -0.005em;
+  text-transform: none;
+  text-align: right;
+  line-height: 1.3;
 }
 
 .ml-empty {

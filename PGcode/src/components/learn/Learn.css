@@ -1195,6 +1195,41 @@
   overflow-wrap: anywhere;
 }
 
+.cp-section-body .cp-imath {
+  display: inline-block;
+  color: var(--text-main);
+  vertical-align: baseline;
+}
+
+.cp-section-body .cp-imath .katex {
+  font-size: 1em;
+  color: var(--text-main);
+}
+
+.cp-section-body .cp-math {
+  display: block;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  padding: 1.2rem 1.3rem;
+  background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.08), rgba(var(--accent-rgb), 0.02));
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  color: var(--text-main);
+  text-align: center;
+  overflow-x: auto;
+  margin: 0.8rem 0;
+}
+
+.cp-section-body .cp-math .katex-display {
+  margin: 0;
+}
+
+.cp-section-body .cp-math .katex {
+  color: var(--text-main);
+  font-size: 1.05em;
+}
+
 .cp-section-body pre {
   max-width: 100%;
   overflow-x: auto;

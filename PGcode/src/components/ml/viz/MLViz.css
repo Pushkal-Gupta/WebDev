@@ -594,7 +594,7 @@
 }
 
 .cv-mini-cell-kernel {
-  background: rgba(94, 203, 255, 0.1);
+  background: rgba(var(--accent-rgb), 0.1);
   color: var(--text-main);
 }
 
@@ -629,5 +629,431 @@
   background: rgba(var(--accent-rgb, 0, 255, 245), 0.08);
   min-width: 3.2rem;
   text-align: center;
+}
+
+/* ConvKernelViz — 16x16 input, editable kernel with sliders */
+.ckv-wrap .cv-svg {
+  max-width: 760px;
+}
+
+.ckv-kernel-row {
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.ckv-div {
+  color: var(--text-dim);
+  font-weight: 500;
+  margin-left: 0.25rem;
+}
+
+.ckv-kernel-grid {
+  gap: 0.45rem;
+}
+
+.ckv-kernel-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.ckv-kernel-input {
+  width: 2.6rem;
+  text-align: center;
+}
+
+.ckv-kernel-slider {
+  width: 3rem;
+  height: 12px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  margin: 0;
+}
+
+.ckv-kernel-slider::-webkit-slider-runnable-track {
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+}
+
+.ckv-kernel-slider::-moz-range-track {
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+}
+
+.ckv-kernel-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 1px solid var(--surface);
+  margin-top: -4px;
+  cursor: pointer;
+}
+
+.ckv-kernel-slider::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 1px solid var(--surface);
+  cursor: pointer;
+}
+
+.ckv-presets {
+  max-width: 420px;
+}
+
+.ckv-product-strip {
+  gap: 0.85rem;
+}
+
+/* ConvNet viz — wide multi-layer stage */
+.cn-wrap {
+  background: var(--surface);
+}
+
+.cn-stage {
+  padding: 0.6rem 0.4rem 0.3rem;
+}
+
+.cn-svg {
+  width: 100%;
+  max-width: 1080px;
+  aspect-ratio: 1080 / 380;
+  height: auto;
+}
+
+/* ===== ReceptiveFieldViz ===== */
+
+.rfv-wrap {
+  background: var(--surface);
+}
+
+.rfv-stage {
+  padding: 0.5rem 0.4rem 0.3rem;
+}
+
+.rfv-svg {
+  width: 100%;
+  max-width: 820px;
+  aspect-ratio: 760 / 520;
+  height: auto;
+}
+
+.rfv-controls {
+  padding: 0.75rem 1rem 0.85rem;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.rfv-controls-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+  justify-content: space-between;
+}
+
+.rfv-section-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.rfv-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.rfv-layer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.6rem;
+}
+
+.rfv-layer-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  padding: 0.55rem 0.7rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.rfv-layer-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border-bottom: 1px dashed var(--border);
+  padding-bottom: 0.35rem;
+}
+
+.rfv-layer-name {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+}
+
+.rfv-layer-stat {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
+}
+
+.rfv-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rfv-slider-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  min-width: 3.6rem;
+}
+
+.rfv-slider {
+  flex: 1;
+  accent-color: var(--accent);
+  cursor: pointer;
+  min-width: 60px;
+}
+
+.rfv-slider-val {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--accent);
+  font-weight: 700;
+  min-width: 1.4rem;
+  text-align: right;
+}
+
+.rfv-formula {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding-top: 0.4rem;
+  border-top: 1px dashed var(--border);
+  margin-top: 0.2rem;
+}
+
+.rfv-formula-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.rfv-formula code {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--text-main);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+}
+
+.rfv-formula-chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  padding-top: 0.2rem;
+}
+
+.rfv-rf-chip {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  background: var(--bg);
+}
+
+.rfv-rf-chip-sel {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: rgba(var(--accent-rgb, 0, 255, 245), 0.1);
+  font-weight: 700;
+}
+
+.rfv-arrow {
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+}
+
+/* ===== DotProductSignViz ===== */
+
+.dps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(var(--accent-rgb, 0,255,245), 0.05), transparent 60%),
+    var(--bg);
+}
+
+.dps-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  padding: 0.5rem 0.4rem 0.6rem;
+}
+
+.dps-panel-label {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.dps-svg {
+  width: 100%;
+  max-width: 220px;
+  aspect-ratio: 1;
+  display: block;
+}
+
+.dps-readout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  margin-top: 0.3rem;
+}
+
+.dps-readout-num {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.dps-readout-sub {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+
+/* ===== MatrixColumnsViz ===== */
+
+.mcv-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(var(--accent-rgb, 0,255,245), 0.05), transparent 60%),
+    var(--bg);
+}
+
+.mcv-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  padding: 0.55rem 0.4rem 0.45rem;
+}
+
+.mcv-panel-label {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-dim);
+  margin-bottom: 0.2rem;
+}
+
+.mcv-svg {
+  width: 100%;
+  max-width: 260px;
+  aspect-ratio: 1;
+  display: block;
+}
+
+.mcv-matrix-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0;
+  font-family: var(--serif);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+  .mcv-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== LogLossCurveViz ===== */
+
+.llc-stage {
+  position: relative;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(var(--accent-rgb, 0,255,245), 0.05), transparent 60%),
+    var(--bg);
+  padding: 0.4rem;
+  display: flex;
+  justify-content: center;
+}
+
+.llc-svg {
+  width: 100%;
+  max-width: 520px;
+  aspect-ratio: 520 / 320;
+  display: block;
+  cursor: crosshair;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mt-cell-input,
+  .mt-preset-btn,
+  .mlviz-btn,
+  .ah-input,
+  .mlviz-toggle,
+  .mlviz-toggle-dot {
+    animation: none;
+    transition: none;
+  }
 }
 

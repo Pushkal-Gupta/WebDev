@@ -74,41 +74,42 @@
 .sc-card {
   position: relative;
   width: 1200px;
-  height: 630px;
+  height: 820px;
   flex-shrink: 0;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 24px;
   overflow: hidden;
-  padding: 48px 56px;
+  padding: 44px 56px 40px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto 1fr auto;
+  grid-template-rows: auto auto auto auto auto;
   grid-template-areas:
     "head head"
     "big streak"
     "diff topics"
+    "learn github"
     "foot foot";
-  gap: 28px 40px;
+  gap: 22px 36px;
   transform-origin: top center;
   transform: scale(var(--sc-scale, 1));
 }
 
 /* Down-scale the 1200-wide card to fit narrower viewports without distorting. */
 @media (max-width: 1280px) {
-  .sc-card { --sc-scale: 0.88; margin-bottom: -76px; }
+  .sc-card { --sc-scale: 0.88; margin-bottom: -98px; }
 }
 @media (max-width: 1100px) {
-  .sc-card { --sc-scale: 0.74; margin-bottom: -164px; }
+  .sc-card { --sc-scale: 0.74; margin-bottom: -213px; }
 }
 @media (max-width: 900px) {
-  .sc-card { --sc-scale: 0.58; margin-bottom: -266px; }
+  .sc-card { --sc-scale: 0.58; margin-bottom: -344px; }
 }
 @media (max-width: 700px) {
-  .sc-card { --sc-scale: 0.42; margin-bottom: -366px; }
+  .sc-card { --sc-scale: 0.42; margin-bottom: -476px; }
 }
 @media (max-width: 500px) {
-  .sc-card { --sc-scale: 0.3; margin-bottom: -442px; }
+  .sc-card { --sc-scale: 0.3; margin-bottom: -574px; }
 }
 
 .sc-card-bg {
@@ -249,6 +250,95 @@
   border-style: dashed;
 }
 
+.sc-learn {
+  grid-area: learn;
+  position: relative;
+  z-index: 1;
+  align-self: start;
+}
+.sc-mini-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.sc-mini {
+  padding: 14px 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.sc-mini-num {
+  font-family: var(--serif);
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.sc-mini-label {
+  font-size: 12px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 4px;
+}
+
+.sc-github {
+  grid-area: github;
+  position: relative;
+  z-index: 1;
+  align-self: start;
+}
+.sc-gh-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.sc-gh-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sc-gh-stats {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  gap: 8px 16px;
+  flex: 1;
+}
+.sc-gh-stat {
+  display: flex;
+  flex-direction: column;
+}
+.sc-gh-stat strong {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1;
+}
+.sc-gh-stat span {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.sc-gh-langs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.sc-gh-lang {
+  font-size: 11px;
+  padding: 3px 9px;
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent);
+  border-radius: 999px;
+  font-weight: 600;
+}
+
 .sc-foot {
   grid-area: foot;
   display: flex;
@@ -282,12 +372,12 @@
   align-items: center;
   gap: 20px;
 }
-.sc-embed .sc-card { --sc-scale: 0.55; margin-bottom: -284px; }
+.sc-embed .sc-card { --sc-scale: 0.55; margin-bottom: -369px; }
 @media (max-width: 900px) {
-  .sc-embed .sc-card { --sc-scale: 0.45; margin-bottom: -347px; }
+  .sc-embed .sc-card { --sc-scale: 0.45; margin-bottom: -451px; }
 }
 @media (max-width: 600px) {
-  .sc-embed .sc-card { --sc-scale: 0.3; margin-bottom: -442px; }
+  .sc-embed .sc-card { --sc-scale: 0.3; margin-bottom: -574px; }
 }
 
 .sc-actions {
