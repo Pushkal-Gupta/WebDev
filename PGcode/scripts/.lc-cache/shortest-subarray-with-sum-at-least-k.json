@@ -1,0 +1,8 @@
+{
+  "questionId": "892",
+  "titleSlug": "shortest-subarray-with-sum-at-least-k",
+  "title": "Shortest Subarray with Sum at Least K",
+  "exampleTestcases": "[1]\n1\n[1,2]\n4\n[2,-1,2]\n3",
+  "sampleTestCase": "[1]\n1",
+  "metaData": "{\n  \"name\": \"shortestSubarray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

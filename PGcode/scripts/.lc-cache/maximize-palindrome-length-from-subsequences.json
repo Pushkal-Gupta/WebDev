@@ -1,0 +1,8 @@
+{
+  "questionId": "1897",
+  "titleSlug": "maximize-palindrome-length-from-subsequences",
+  "title": "Maximize Palindrome Length From Subsequences",
+  "exampleTestcases": "\"cacb\"\n\"cbba\"\n\"ab\"\n\"ab\"\n\"aa\"\n\"bb\"",
+  "sampleTestCase": "\"cacb\"\n\"cbba\"",
+  "metaData": "{\n  \"name\": \"longestPalindrome\",\n  \"params\": [\n    {\n      \"name\": \"word1\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"word2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

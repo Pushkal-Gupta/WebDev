@@ -1,0 +1,8 @@
+{
+  "questionId": "2751",
+  "titleSlug": "sliding-subarray-beauty",
+  "title": "Sliding Subarray Beauty",
+  "exampleTestcases": "[1,-1,-3,-2,3]\n3\n2\n[-1,-2,-3,-4,-5]\n2\n2\n[-3,1,2,-3,0,-3]\n2\n1",
+  "sampleTestCase": "[1,-1,-3,-2,3]\n3\n2",
+  "metaData": "{\n  \"name\": \"getSubarrayBeauty\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"x\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

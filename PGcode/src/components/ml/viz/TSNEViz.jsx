@@ -353,21 +353,38 @@ export default function TSNEViz() {
     clearTimers();
   }, [clearTimers]);
 
-  const resetState = useCallback((seed) => {
-    runningRef.current = false;
+  // State-only reset (safe at render-phase); imperative ref/timer cleanup lives
+  // in the sibling effect below.
+  const resetStateOnly = useCallback((seed) => {
     setRunning(false);
-    clearTimers();
     setY(generateInitY(seed));
     const v = new Array(N_POINTS);
     for (let i = 0; i < N_POINTS; i++) v[i] = [0, 0];
     setV(v);
     setIter(0);
     setKl(null);
-  }, [clearTimers]);
+  }, []);
+
+  const resetState = useCallback((seed) => {
+    runningRef.current = false;
+    clearTimers();
+    resetStateOnly(seed);
+  }, [clearTimers, resetStateOnly]);
+
+  // Reset on dep changes. Tracked-dep render-phase reset for state; effect
+  // handles ref/timer cleanup (React's recommended pattern over setState-in-
+  // effect cascades).
+  const resetKey = `${initSeed}|${dataSeed}|${perplexity}`;
+  const [lastResetKey, setLastResetKey] = useState(resetKey);
+  if (resetKey !== lastResetKey) {
+    setLastResetKey(resetKey);
+    resetStateOnly(initSeed);
+  }
 
   useEffect(() => {
-    resetState(initSeed);
-  }, [initSeed, dataSeed, perplexity, resetState]);
+    runningRef.current = false;
+    clearTimers();
+  }, [initSeed, dataSeed, perplexity, clearTimers]);
 
   const doStep = useCallback((curY, curV, curIter) => {
     const momentum = curIter < 50 ? 0.5 : 0.8;

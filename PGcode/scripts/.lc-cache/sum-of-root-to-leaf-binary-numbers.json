@@ -1,0 +1,8 @@
+{
+  "questionId": "1079",
+  "titleSlug": "sum-of-root-to-leaf-binary-numbers",
+  "title": "Sum of Root To Leaf Binary Numbers",
+  "exampleTestcases": "[1,0,1,0,1,0,1]\n[0]",
+  "sampleTestCase": "[1,0,1,0,1,0,1]",
+  "metaData": "{\r\n  \"name\": \"sumRootToLeaf\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"root\",\r\n      \"type\": \"TreeNode\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

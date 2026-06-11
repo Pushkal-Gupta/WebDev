@@ -1,0 +1,8 @@
+{
+  "questionId": "1497",
+  "titleSlug": "design-a-stack-with-increment-operation",
+  "title": "Design a Stack With Increment Operation",
+  "exampleTestcases": "[\"CustomStack\",\"push\",\"push\",\"pop\",\"push\",\"push\",\"push\",\"increment\",\"increment\",\"pop\",\"pop\",\"pop\",\"pop\"]\n[[3],[1],[2],[],[2],[3],[4],[5,100],[2,100],[],[],[],[]]",
+  "sampleTestCase": "[\"CustomStack\",\"push\",\"push\",\"pop\",\"push\",\"push\",\"push\",\"increment\",\"increment\",\"pop\",\"pop\",\"pop\",\"pop\"]\n[[3],[1],[2],[],[2],[3],[4],[5,100],[2,100],[],[],[],[]]",
+  "metaData": "{\n  \"classname\": \"CustomStack\",\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"integer\",\n        \"name\": \"maxSize\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"x\"\n        }\n      ],\n      \"name\": \"push\",\n      \"return\": {\n        \"type\": \"void\"\n      }\n    },\n    {\n      \"params\": [],\n      \"name\": \"pop\",\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"k\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"val\"\n        }\n      ],\n      \"name\": \"increment\",\n      \"return\": {\n        \"type\": \"void\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true,\n  \"manual\": false\n}"
+}

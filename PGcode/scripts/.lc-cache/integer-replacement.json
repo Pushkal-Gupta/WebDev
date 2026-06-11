@@ -1,0 +1,8 @@
+{
+  "questionId": "397",
+  "titleSlug": "integer-replacement",
+  "title": "Integer Replacement",
+  "exampleTestcases": "8\n7\n4",
+  "sampleTestCase": "8",
+  "metaData": "{\r\n  \"name\": \"integerReplacement\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

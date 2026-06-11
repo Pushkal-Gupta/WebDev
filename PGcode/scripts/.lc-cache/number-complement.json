@@ -1,0 +1,8 @@
+{
+  "questionId": "476",
+  "titleSlug": "number-complement",
+  "title": "Number Complement",
+  "exampleTestcases": "5\n1",
+  "sampleTestCase": "5",
+  "metaData": "{\n  \"name\": \"findComplement\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"manual\": false\n}"
+}

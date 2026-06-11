@@ -1,0 +1,8 @@
+{
+  "questionId": "1331",
+  "titleSlug": "path-with-maximum-gold",
+  "title": "Path with Maximum Gold",
+  "exampleTestcases": "[[0,6,0],[5,8,7],[0,9,0]]\n[[1,0,7],[2,0,6],[3,4,5],[0,3,0],[9,0,20]]",
+  "sampleTestCase": "[[0,6,0],[5,8,7],[0,9,0]]",
+  "metaData": "{\n  \"name\": \"getMaximumGold\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

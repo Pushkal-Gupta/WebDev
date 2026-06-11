@@ -1,0 +1,8 @@
+{
+  "questionId": "3709",
+  "titleSlug": "find-special-substring-of-length-k",
+  "title": "Find Special Substring of Length K",
+  "exampleTestcases": "\"aaabaaa\"\n3\n\"abc\"\n2",
+  "sampleTestCase": "\"aaabaaa\"\n3",
+  "metaData": "{\n  \"name\": \"hasSpecialSubstring\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

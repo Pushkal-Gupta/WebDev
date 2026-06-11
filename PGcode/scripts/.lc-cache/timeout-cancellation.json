@@ -1,0 +1,8 @@
+{
+  "questionId": "2821",
+  "titleSlug": "timeout-cancellation",
+  "title": "Timeout Cancellation",
+  "exampleTestcases": "(x) => x * 5\n[2]\n20\n50\n(x) => x**2\n[2]\n100\n50\n(x1, x2) => x1 * x2\n[2,4]\n30\n100",
+  "sampleTestCase": "(x) => x * 5\n[2]\n20\n50",
+  "metaData": "{\n  \"name\": \"cancellable\",\n  \"params\": [\n    {\n      \"name\": \"fn\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"args\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"t\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"cancelTimeMs\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
+}

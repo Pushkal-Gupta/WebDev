@@ -1,0 +1,8 @@
+{
+  "questionId": "1567",
+  "titleSlug": "maximum-number-of-vowels-in-a-substring-of-given-length",
+  "title": "Maximum Number of Vowels in a Substring of Given Length",
+  "exampleTestcases": "\"abciiidef\"\n3\n\"aeiou\"\n2\n\"leetcode\"\n3",
+  "sampleTestCase": "\"abciiidef\"\n3",
+  "metaData": "{\n  \"name\": \"maxVowels\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

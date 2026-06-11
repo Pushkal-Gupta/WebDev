@@ -1,0 +1,8 @@
+{
+  "questionId": "4072",
+  "titleSlug": "total-sum-of-interaction-cost-in-tree-groups",
+  "title": "Total Sum of Interaction Cost in Tree Groups",
+  "exampleTestcases": "3\n[[0,1],[1,2]]\n[1,1,1]\n3\n[[0,1],[1,2]]\n[3,2,3]\n4\n[[0,1],[0,2],[0,3]]\n[1,1,4,4]\n2\n[[0,1]]\n[9,8]",
+  "sampleTestCase": "3\n[[0,1],[1,2]]\n[1,1,1]",
+  "metaData": "{\n  \"name\": \"interactionCosts\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"group\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

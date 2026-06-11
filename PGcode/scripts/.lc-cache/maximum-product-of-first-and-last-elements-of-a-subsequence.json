@@ -1,0 +1,8 @@
+{
+  "questionId": "3755",
+  "titleSlug": "maximum-product-of-first-and-last-elements-of-a-subsequence",
+  "title": "Maximum Product of First and Last Elements of a Subsequence",
+  "exampleTestcases": "[-1,-9,2,3,-2,-3,1]\n1\n[1,3,-5,5,6,-4]\n3\n[2,-1,2,-6,5,2,-5,7]\n2",
+  "sampleTestCase": "[-1,-9,2,3,-2,-3,1]\n1",
+  "metaData": "{\n  \"name\": \"maximumProduct\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"m\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

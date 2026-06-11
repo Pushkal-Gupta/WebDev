@@ -338,7 +338,7 @@ function VisualizeIndexList() {
   const [activeMod, setActiveMod] = useState(null);
   const containerRef = useRef(null);
 
-  const { groups, orderedKeys, totalCount } = useMemo(() => {
+  const { groups, orderedKeys } = useMemo(() => {
     const entries = Object.entries(VISUALIZATIONS);
     const g = {};
     for (const [s, viz] of entries) {
@@ -347,7 +347,7 @@ function VisualizeIndexList() {
       g[mod].push([s, viz]);
     }
     const keys = Object.keys(MODULE_LABEL).filter(k => g[k]?.length);
-    return { groups: g, orderedKeys: keys, totalCount: entries.length };
+    return { groups: g, orderedKeys: keys };
   }, []);
 
   const q = query.trim().toLowerCase();

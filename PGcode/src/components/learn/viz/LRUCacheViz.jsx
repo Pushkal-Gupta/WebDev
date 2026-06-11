@@ -265,7 +265,6 @@ export default function LRUCacheViz() {
   const [getKey, setGetKey] = useState('2');
   const [frames, setFrames] = useState([]);
   const [frameIdx, setFrameIdx] = useState(-1);
-  const [pendingCache, setPendingCache] = useState(null);
   const [resultPill, setResultPill] = useState(null);
   const [operation, setOperation] = useState(
     `Pre-loaded ${INITIAL_CAPACITY} entries. Head = MRU, Tail = LRU`,
@@ -285,13 +284,6 @@ export default function LRUCacheViz() {
     playRef.current = setTimeout(() => setFrameIdx((i) => i + 1), STEP_MS);
     return () => clearTimeout(playRef.current);
   }, [frameIdx, frames]);
-
-  useEffect(() => {
-    if (frames.length === 0 || pendingCache === null) return;
-    if (frameIdx !== frames.length - 1) return;
-    setCache(pendingCache);
-    setPendingCache(null);
-  }, [frameIdx, frames, pendingCache]);
 
   const parseIntKey = (raw) => {
     const trimmed = String(raw).trim();
@@ -314,7 +306,9 @@ export default function LRUCacheViz() {
   const startAnimation = (newFrames, finalCache, pill, opLabel) => {
     setFrames(newFrames);
     setFrameIdx(0);
-    setPendingCache(finalCache);
+    // Commit the final cache up front; the animation's renderCache reads from
+    // the frame snapshot, so the visual transition still plays correctly.
+    setCache(finalCache);
     setResultPill(pill);
     setOperation(opLabel);
   };
@@ -386,7 +380,6 @@ export default function LRUCacheViz() {
     setCache(fresh);
     setFrames([]);
     setFrameIdx(-1);
-    setPendingCache(null);
     setResultPill(null);
     setOpLog([]);
     setStats({ gets: 0, hits: 0, puts: 0, evictions: 0 });
@@ -397,7 +390,6 @@ export default function LRUCacheViz() {
     setCache([]);
     setFrames([]);
     setFrameIdx(-1);
-    setPendingCache(null);
     setResultPill(null);
     setOperation('Cache cleared');
   }, []);
@@ -407,7 +399,6 @@ export default function LRUCacheViz() {
     setCapacity(c);
     setFrames([]);
     setFrameIdx(-1);
-    setPendingCache(null);
     setResultPill(null);
     setCache((prev) => prev.slice(0, c));
     setOperation(`Capacity set to ${c}`);

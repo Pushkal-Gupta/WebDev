@@ -1,0 +1,8 @@
+{
+  "questionId": "3181",
+  "titleSlug": "find-building-where-alice-and-bob-can-meet",
+  "title": "Find Building Where Alice and Bob Can Meet",
+  "exampleTestcases": "[6,4,8,5,2,7]\n[[0,1],[0,3],[2,4],[3,4],[2,2]]\n[5,3,8,2,6,1,4,6]\n[[0,7],[3,5],[5,2],[3,0],[1,6]]",
+  "sampleTestCase": "[6,4,8,5,2,7]\n[[0,1],[0,3],[2,4],[3,4],[2,2]]",
+  "metaData": "{\n  \"name\": \"leftmostBuildingQueries\",\n  \"params\": [\n    {\n      \"name\": \"heights\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

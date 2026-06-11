@@ -1,0 +1,8 @@
+{
+  "questionId": "1155",
+  "titleSlug": "product-sales-analysis-iii",
+  "title": "Product Sales Analysis III",
+  "exampleTestcases": "{\"headers\":{\"Sales\":[\"sale_id\",\"product_id\",\"year\",\"quantity\",\"price\"]},\"rows\":{\"Sales\":[[1,100,2008,10,5000],[2,100,2009,12,5000],[7,200,2011,15,9000]]}}",
+  "sampleTestCase": "{\"headers\":{\"Sales\":[\"sale_id\",\"product_id\",\"year\",\"quantity\",\"price\"]},\"rows\":{\"Sales\":[[1,100,2008,10,5000],[2,100,2009,12,5000],[7,200,2011,15,9000]]}}",
+  "metaData": "{\"mysql\": [\"Create table If Not Exists Sales (sale_id int, product_id int, year int, quantity int, price int)\"], \"mssql\": [\"Create table Sales (sale_id int, product_id int, year int, quantity int, price int)\"], \"oraclesql\": [\"Create table Sales (sale_id int, product_id int, year int, quantity int, price int)\"], \"database\": true, \"name\": \"sales_analysis\", \"pythondata\": [\"Sales = pd.DataFrame([], columns=['sale_id', 'product_id', 'year', 'quantity', 'price']).astype({'sale_id':'Int64', 'product_id':'Int64', 'year':'Int64', 'quantity':'Int64', 'price':'Int64'})\"], \"postgresql\": [\"Create table If Not Exists Sales (sale_id int, product_id int, year int, quantity int, price int)\\n\"], \"database_schema\": {\"Sales\": {\"sale_id\": \"INT\", \"product_id\": \"INT\", \"year\": \"INT\", \"quantity\": \"INT\", \"price\": \"INT\"}}}"
+}

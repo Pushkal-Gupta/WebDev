@@ -1,0 +1,8 @@
+{
+  "questionId": "619",
+  "titleSlug": "biggest-single-number",
+  "title": "Biggest Single Number",
+  "exampleTestcases": "{\"headers\": {\"MyNumbers\": [\"num\"]}, \"rows\": {\"MyNumbers\": [[8],[8],[3],[3],[1],[4],[5],[6]]}}\n{\"headers\": {\"MyNumbers\": [\"num\"]}, \"rows\": {\"MyNumbers\": [[8],[8],[7],[7],[3],[3],[3]]}}",
+  "sampleTestCase": "{\"headers\": {\"MyNumbers\": [\"num\"]}, \"rows\": {\"MyNumbers\": [[8],[8],[3],[3],[1],[4],[5],[6]]}}",
+  "metaData": "{\"mysql\": [\"Create table If Not Exists MyNumbers (num int)\"], \"mssql\": [\"Create table MyNumbers (num int)\"], \"oraclesql\": [\"Create table MyNumbers (num int)\"], \"database\": true, \"name\": \"biggest_single_number\", \"pythondata\": [\"MyNumbers = pd.DataFrame([], columns=['num']).astype({'num':'Int64'})\"], \"postgresql\": [\"Create table If Not Exists MyNumbers (num int)\"], \"database_schema\": {\"MyNumbers\": {\"num\": \"INT\"}}}"
+}

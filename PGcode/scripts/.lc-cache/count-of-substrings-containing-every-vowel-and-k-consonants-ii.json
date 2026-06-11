@@ -1,0 +1,8 @@
+{
+  "questionId": "3569",
+  "titleSlug": "count-of-substrings-containing-every-vowel-and-k-consonants-ii",
+  "title": "Count of Substrings Containing Every Vowel and K Consonants II",
+  "exampleTestcases": "\"aeioqq\"\n1\n\"aeiou\"\n0\n\"ieaouqqieaouqq\"\n1",
+  "sampleTestCase": "\"aeioqq\"\n1",
+  "metaData": "{\n  \"name\": \"countOfSubstrings\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

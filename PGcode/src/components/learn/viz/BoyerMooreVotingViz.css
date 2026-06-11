@@ -122,7 +122,6 @@
 /* Stage */
 .bmvv-stage-wrap {
   width: 100%;
-  overflow-x: auto;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -132,7 +131,6 @@
   width: 100%;
   height: auto;
   display: block;
-  min-width: 720px;
 }
 .bmvv-empty {
   padding: 2rem 1rem;

@@ -1,0 +1,8 @@
+{
+  "questionId": "2105",
+  "titleSlug": "the-number-of-good-subsets",
+  "title": "The Number of Good Subsets",
+  "exampleTestcases": "[1,2,3,4]\n[4,2,3,15]",
+  "sampleTestCase": "[1,2,3,4]",
+  "metaData": "{\n  \"name\": \"numberOfGoodSubsets\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

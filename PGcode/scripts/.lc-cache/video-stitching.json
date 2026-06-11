@@ -1,0 +1,8 @@
+{
+  "questionId": "1081",
+  "titleSlug": "video-stitching",
+  "title": "Video Stitching",
+  "exampleTestcases": "[[0,2],[4,6],[8,10],[1,9],[1,5],[5,9]]\n10\n[[0,1],[1,2]]\n5\n[[0,1],[6,8],[0,2],[5,6],[0,4],[0,3],[6,7],[1,3],[4,7],[1,4],[2,5],[2,6],[3,4],[4,5],[5,7],[6,9]]\n9",
+  "sampleTestCase": "[[0,2],[4,6],[8,10],[1,9],[1,5],[5,9]]\n10",
+  "metaData": "{\n  \"name\": \"videoStitching\",\n  \"params\": [\n    {\n      \"name\": \"clips\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"name\": \"time\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

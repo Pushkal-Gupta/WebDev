@@ -1,0 +1,8 @@
+{
+  "questionId": "2697",
+  "titleSlug": "minimum-number-of-visited-cells-in-a-grid",
+  "title": "Minimum Number of Visited Cells in a Grid",
+  "exampleTestcases": "[[3,4,2,1],[4,2,3,1],[2,1,0,0],[2,4,0,0]]\n[[3,4,2,1],[4,2,1,1],[2,1,1,0],[3,4,1,0]]\n[[2,1,0],[1,0,0]]",
+  "sampleTestCase": "[[3,4,2,1],[4,2,3,1],[2,1,0,0],[2,4,0,0]]",
+  "metaData": "{\n  \"name\": \"minimumVisitedCells\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

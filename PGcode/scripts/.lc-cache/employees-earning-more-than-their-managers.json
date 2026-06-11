@@ -1,0 +1,8 @@
+{
+  "questionId": "181",
+  "titleSlug": "employees-earning-more-than-their-managers",
+  "title": "Employees Earning More Than Their Managers",
+  "exampleTestcases": "{\"headers\": {\"Employee\": [\"id\", \"name\", \"salary\", \"managerId\"]}, \"rows\": {\"Employee\": [[1, \"Joe\", 70000, 3], [2, \"Henry\", 80000, 4], [3, \"Sam\", 60000, null], [4, \"Max\", 90000, null]]}}",
+  "sampleTestCase": "{\"headers\": {\"Employee\": [\"id\", \"name\", \"salary\", \"managerId\"]}, \"rows\": {\"Employee\": [[1, \"Joe\", 70000, 3], [2, \"Henry\", 80000, 4], [3, \"Sam\", 60000, null], [4, \"Max\", 90000, null]]}}",
+  "metaData": "{\"mysql\": [\"Create table If Not Exists Employee (id int, name varchar(255), salary int, managerId int)\"], \"mssql\": [\"Create table Employee (id int, name varchar(255), salary int, managerId int)\"], \"oraclesql\": [\"Create table Employee (id int, name varchar(255), salary int, managerId int)\"], \"database\": true, \"name\": \"find_employees\", \"pythondata\": [\"Employee = pd.DataFrame([], columns=['id', 'name', 'salary', 'managerId']).astype({'id':'Int64', 'name':'object', 'salary':'Int64', 'managerId':'Int64'})\\n\"], \"postgresql\": [\"Create table If Not Exists Employee (id int, name varchar(255), salary int, managerId int)\"], \"database_schema\": {\"Employee\": {\"id\": \"INT\", \"name\": \"VARCHAR(255)\", \"salary\": \"INT\", \"managerId\": \"INT\"}}}"
+}

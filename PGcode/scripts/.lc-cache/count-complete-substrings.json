@@ -1,0 +1,8 @@
+{
+  "questionId": "3223",
+  "titleSlug": "count-complete-substrings",
+  "title": "Count Complete Substrings",
+  "exampleTestcases": "\"igigee\"\n2\n\"aaabbbccc\"\n3",
+  "sampleTestCase": "\"igigee\"\n2",
+  "metaData": "{\n  \"name\": \"countCompleteSubstrings\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

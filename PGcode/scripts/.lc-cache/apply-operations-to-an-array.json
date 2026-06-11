@@ -1,0 +1,8 @@
+{
+  "questionId": "2551",
+  "titleSlug": "apply-operations-to-an-array",
+  "title": "Apply Operations to an Array",
+  "exampleTestcases": "[1,2,2,1,1,0]\n[0,1]",
+  "sampleTestCase": "[1,2,2,1,1,0]",
+  "metaData": "{\n  \"name\": \"applyOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

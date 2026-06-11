@@ -1,0 +1,8 @@
+{
+  "questionId": "331",
+  "titleSlug": "verify-preorder-serialization-of-a-binary-tree",
+  "title": "Verify Preorder Serialization of a Binary Tree",
+  "exampleTestcases": "\"9,3,4,#,#,1,#,#,2,#,6,#,#\"\n\"1,#\"\n\"9,#,#,1\"",
+  "sampleTestCase": "\"9,3,4,#,#,1,#,#,2,#,6,#,#\"",
+  "metaData": "{\r\n  \"name\": \"isValidSerialization\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"preorder\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1612",
+  "titleSlug": "avoid-flood-in-the-city",
+  "title": "Avoid Flood in The City",
+  "exampleTestcases": "[1,2,3,4]\n[1,2,0,0,2,1]\n[1,2,0,1,2]",
+  "sampleTestCase": "[1,2,3,4]",
+  "metaData": "{\n  \"name\": \"avoidFlood\",\n  \"params\": [\n    {\n      \"name\": \"rains\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

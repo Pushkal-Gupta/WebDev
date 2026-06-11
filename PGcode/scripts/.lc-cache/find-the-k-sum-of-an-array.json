@@ -1,0 +1,8 @@
+{
+  "questionId": "2462",
+  "titleSlug": "find-the-k-sum-of-an-array",
+  "title": "Find the K-Sum of an Array",
+  "exampleTestcases": "[2,4,-2]\n5\n[1,-2,3,4,-10,12]\n16",
+  "sampleTestCase": "[2,4,-2]\n5",
+  "metaData": "{\n  \"name\": \"kSum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

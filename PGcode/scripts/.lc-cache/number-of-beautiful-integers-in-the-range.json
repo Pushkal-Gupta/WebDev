@@ -1,0 +1,8 @@
+{
+  "questionId": "3017",
+  "titleSlug": "number-of-beautiful-integers-in-the-range",
+  "title": "Number of Beautiful Integers in the Range",
+  "exampleTestcases": "10\n20\n3\n1\n10\n1\n5\n5\n2",
+  "sampleTestCase": "10\n20\n3",
+  "metaData": "{\n  \"name\": \"numberOfBeautifulIntegers\",\n  \"params\": [\n    {\n      \"name\": \"low\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"high\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

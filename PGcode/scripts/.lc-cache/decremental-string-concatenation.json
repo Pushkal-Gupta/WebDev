@@ -1,0 +1,8 @@
+{
+  "questionId": "2854",
+  "titleSlug": "decremental-string-concatenation",
+  "title": "Decremental String Concatenation",
+  "exampleTestcases": "[\"aa\",\"ab\",\"bc\"]\n[\"ab\",\"b\"]\n[\"aaa\",\"c\",\"aba\"]",
+  "sampleTestCase": "[\"aa\",\"ab\",\"bc\"]",
+  "metaData": "{\n  \"name\": \"minimizeConcatenatedLength\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

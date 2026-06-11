@@ -1,0 +1,8 @@
+{
+  "questionId": "2388",
+  "titleSlug": "replace-elements-in-an-array",
+  "title": "Replace Elements in an Array",
+  "exampleTestcases": "[1,2,4,6]\n[[1,3],[4,7],[6,1]]\n[1,2]\n[[1,3],[2,1],[3,2]]",
+  "sampleTestCase": "[1,2,4,6]\n[[1,3],[4,7],[6,1]]",
+  "metaData": "{\n  \"name\": \"arrayChange\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"operations\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

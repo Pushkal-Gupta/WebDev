@@ -1,0 +1,8 @@
+{
+  "questionId": "8",
+  "titleSlug": "string-to-integer-atoi",
+  "title": "String to Integer (atoi)",
+  "exampleTestcases": "\"42\"\n\"   -042\"\n\"1337c0d3\"\n\"0-1\"\n\"words and 987\"",
+  "sampleTestCase": "\"42\"",
+  "metaData": "{\n  \"name\": \"myAtoi\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

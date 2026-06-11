@@ -93,12 +93,6 @@ function svd2(M) {
   return { U, S: [s1, s2], V, thetaU, thetaV };
 }
 
-/* Slerp between two rotation matrices by angle blend.
-   Each is parameterized by its rotation angle; for a possible reflection
-   we keep the columns of V/U as-is and interpolate angle. (Determinant sign
-   flips visually as a clean rotation at the start of stage 1/3.) */
-function rotInterp(theta, t) { return rot(theta * t); }
-
 /* Build the stage-aware transform applied to the unit circle. */
 function stageTransform(svd, stage, t) {
   // stage 0: identity (unit circle), no animation

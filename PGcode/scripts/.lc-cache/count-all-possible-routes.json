@@ -1,0 +1,8 @@
+{
+  "questionId": "1680",
+  "titleSlug": "count-all-possible-routes",
+  "title": "Count All Possible Routes",
+  "exampleTestcases": "[2,3,6,8,4]\n1\n3\n5\n[4,3,1]\n1\n0\n6\n[5,2,1]\n0\n2\n3",
+  "sampleTestCase": "[2,3,6,8,4]\n1\n3\n5",
+  "metaData": "{\n  \"name\": \"countRoutes\",\n  \"params\": [\n    {\n      \"name\": \"locations\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"start\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"finish\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"fuel\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

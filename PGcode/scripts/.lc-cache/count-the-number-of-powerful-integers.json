@@ -1,0 +1,8 @@
+{
+  "questionId": "3243",
+  "titleSlug": "count-the-number-of-powerful-integers",
+  "title": "Count the Number of Powerful Integers",
+  "exampleTestcases": "1\n6000\n4\n\"124\"\n15\n215\n6\n\"10\"\n1000\n2000\n4\n\"3000\"",
+  "sampleTestCase": "1\n6000\n4\n\"124\"",
+  "metaData": "{\n  \"name\": \"numberOfPowerfulInt\",\n  \"params\": [\n    {\n      \"name\": \"start\",\n      \"type\": \"long\"\n    },\n    {\n      \"type\": \"long\",\n      \"name\": \"finish\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"limit\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"s\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

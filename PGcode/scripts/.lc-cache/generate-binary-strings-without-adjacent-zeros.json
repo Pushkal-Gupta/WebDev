@@ -1,0 +1,8 @@
+{
+  "questionId": "3453",
+  "titleSlug": "generate-binary-strings-without-adjacent-zeros",
+  "title": "Generate Binary Strings Without Adjacent Zeros",
+  "exampleTestcases": "3\n1",
+  "sampleTestCase": "3",
+  "metaData": "{\n  \"name\": \"validStrings\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\"\n  }\n}"
+}

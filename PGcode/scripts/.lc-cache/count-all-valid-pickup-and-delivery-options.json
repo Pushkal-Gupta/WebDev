@@ -1,0 +1,8 @@
+{
+  "questionId": "1461",
+  "titleSlug": "count-all-valid-pickup-and-delivery-options",
+  "title": "Count All Valid Pickup and Delivery Options",
+  "exampleTestcases": "1\n2\n3",
+  "sampleTestCase": "1",
+  "metaData": "{\n  \"name\": \"countOrders\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

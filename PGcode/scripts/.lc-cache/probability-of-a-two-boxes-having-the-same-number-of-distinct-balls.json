@@ -1,0 +1,8 @@
+{
+  "questionId": "1577",
+  "titleSlug": "probability-of-a-two-boxes-having-the-same-number-of-distinct-balls",
+  "title": "Probability of a Two Boxes Having The Same Number of Distinct Balls",
+  "exampleTestcases": "[1,1]\n[2,1,1]\n[1,2,1,2]",
+  "sampleTestCase": "[1,1]",
+  "metaData": "{\n  \"name\": \"getProbability\",\n  \"params\": [\n    {\n      \"name\": \"balls\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"double\"\n  }\n}"
+}

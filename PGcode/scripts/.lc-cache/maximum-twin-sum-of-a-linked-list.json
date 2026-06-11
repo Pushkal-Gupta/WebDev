@@ -1,0 +1,8 @@
+{
+  "questionId": "2236",
+  "titleSlug": "maximum-twin-sum-of-a-linked-list",
+  "title": "Maximum Twin Sum of a Linked List",
+  "exampleTestcases": "[5,4,2,1]\n[4,2,2,3]\n[1,100000]",
+  "sampleTestCase": "[5,4,2,1]",
+  "metaData": "{\n  \"name\": \"pairSum\",\n  \"params\": [\n    {\n      \"name\": \"head\",\n      \"type\": \"ListNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

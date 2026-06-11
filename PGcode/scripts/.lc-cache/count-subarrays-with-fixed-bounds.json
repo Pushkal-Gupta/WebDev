@@ -1,0 +1,8 @@
+{
+  "questionId": "2527",
+  "titleSlug": "count-subarrays-with-fixed-bounds",
+  "title": "Count Subarrays With Fixed Bounds",
+  "exampleTestcases": "[1,3,5,2,7,5]\n1\n5\n[1,1,1,1]\n1\n1",
+  "sampleTestCase": "[1,3,5,2,7,5]\n1\n5",
+  "metaData": "{\n  \"name\": \"countSubarrays\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"minK\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"maxK\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

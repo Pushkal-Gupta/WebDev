@@ -1,0 +1,8 @@
+{
+  "questionId": "1014",
+  "titleSlug": "k-closest-points-to-origin",
+  "title": "K Closest Points to Origin",
+  "exampleTestcases": "[[1,3],[-2,2]]\n1\n[[3,3],[5,-1],[-2,4]]\n2",
+  "sampleTestCase": "[[1,3],[-2,2]]\n1",
+  "metaData": "{\n  \"name\": \"kClosest\",\n  \"params\": [\n    {\n      \"name\": \"points\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  }\n}"
+}

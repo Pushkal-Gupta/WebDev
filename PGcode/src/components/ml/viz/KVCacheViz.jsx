@@ -177,9 +177,7 @@ export default function KVCacheViz() {
   const tokX = 16;
   const tokY = 56;
   const kX = tokX + TOKEN_W + 28;
-  const kY = tokY;
   const vX = kX + CACHE_W;
-  const vY = tokY;
   const aX = vX + CACHE_W + 28;
   const aY = tokY;
 

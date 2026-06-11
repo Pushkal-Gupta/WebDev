@@ -1,0 +1,8 @@
+{
+  "questionId": "836",
+  "titleSlug": "race-car",
+  "title": "Race Car",
+  "exampleTestcases": "3\n6",
+  "sampleTestCase": "3",
+  "metaData": "{\r\n  \"name\": \"racecar\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"target\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

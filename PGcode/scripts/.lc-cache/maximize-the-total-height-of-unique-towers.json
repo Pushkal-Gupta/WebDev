@@ -1,0 +1,8 @@
+{
+  "questionId": "3510",
+  "titleSlug": "maximize-the-total-height-of-unique-towers",
+  "title": "Maximize the Total Height of Unique Towers",
+  "exampleTestcases": "[2,3,4,3]\n[15,10]\n[2,2,1]",
+  "sampleTestCase": "[2,3,4,3]",
+  "metaData": "{\n  \"name\": \"maximumTotalSum\",\n  \"params\": [\n    {\n      \"name\": \"maximumHeight\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

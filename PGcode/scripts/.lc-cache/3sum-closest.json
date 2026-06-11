@@ -1,0 +1,8 @@
+{
+  "questionId": "16",
+  "titleSlug": "3sum-closest",
+  "title": "3Sum Closest",
+  "exampleTestcases": "[-1,2,1,-4]\n1\n[0,0,0]\n1",
+  "sampleTestCase": "[-1,2,1,-4]\n1",
+  "metaData": "{\r\n  \"name\": \"threeSumClosest\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"target\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

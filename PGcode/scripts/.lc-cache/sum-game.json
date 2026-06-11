@@ -1,0 +1,8 @@
+{
+  "questionId": "2039",
+  "titleSlug": "sum-game",
+  "title": "Sum Game",
+  "exampleTestcases": "\"5023\"\n\"25??\"\n\"?3295???\"",
+  "sampleTestCase": "\"5023\"",
+  "metaData": "{\n  \"name\": \"sumGame\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

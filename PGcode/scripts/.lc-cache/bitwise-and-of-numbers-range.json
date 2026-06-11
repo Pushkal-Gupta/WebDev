@@ -1,0 +1,8 @@
+{
+  "questionId": "201",
+  "titleSlug": "bitwise-and-of-numbers-range",
+  "title": "Bitwise AND of Numbers Range",
+  "exampleTestcases": "5\n7\n0\n0\n1\n2147483647",
+  "sampleTestCase": "5\n7",
+  "metaData": "{\n  \"name\": \"rangeBitwiseAnd\",\n  \"params\": [\n    {\n      \"name\": \"left\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"right\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

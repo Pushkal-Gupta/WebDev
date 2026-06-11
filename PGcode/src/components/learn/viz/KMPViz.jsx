@@ -154,14 +154,21 @@ export default function KMPViz() {
   const frames = useMemo(() => buildFrames(text, pattern, lps), [text, pattern, lps]);
 
   const [step, setStep] = useState(0);
-  const [running, setRunning] = useState(false);
+  const [runningRaw, setRunning] = useState(false);
   const timerRef = useRef(null);
 
-  useEffect(() => {
+  // Reset playhead when the input changes. Comparing prev state during render is
+  // the React-recommended pattern over a setState-in-effect cascade.
+  const [prevText, setPrevText] = useState(text);
+  const [prevPattern, setPrevPattern] = useState(pattern);
+  if (prevText !== text || prevPattern !== pattern) {
+    setPrevText(text);
+    setPrevPattern(pattern);
     setStep(0);
     setRunning(false);
-  }, [text, pattern]);
+  }
 
+  const running = runningRaw && step < frames.length - 1;
   useEffect(() => {
     if (!running) {
       if (timerRef.current) {
@@ -170,21 +177,13 @@ export default function KMPViz() {
       }
       return undefined;
     }
-    if (step >= frames.length - 1) {
-      setRunning(false);
-      return undefined;
-    }
     timerRef.current = setTimeout(() => {
-      setStep((s) => {
-        const next = Math.min(s + 1, frames.length - 1);
-        if (next >= frames.length - 1) setRunning(false);
-        return next;
-      });
+      setStep((s) => Math.min(s + 1, frames.length - 1));
     }, TICK_MS);
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [running, step, frames.length]);
+  }, [running, frames.length]);
 
   const handleStep = useCallback(() => {
     setRunning(false);
@@ -214,7 +213,6 @@ export default function KMPViz() {
   const totalSteps = Math.max(frames.length, 1);
 
   const textLen = Math.max(text.length, 1);
-  const patternLen = Math.max(pattern.length, 1);
 
   const widthSvg = PAD_X * 2 + textLen * CELL_W + (textLen - 1) * CELL_GAP;
   const heightSvg = PAD_TOP + CELL_H + ROW_GAP + CELL_H + LPS_GAP + CELL_H + PAD_BOTTOM;

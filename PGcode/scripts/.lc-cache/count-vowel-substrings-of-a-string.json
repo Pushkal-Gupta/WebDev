@@ -1,0 +1,8 @@
+{
+  "questionId": "2186",
+  "titleSlug": "count-vowel-substrings-of-a-string",
+  "title": "Count Vowel Substrings of a String",
+  "exampleTestcases": "\"aeiouu\"\n\"unicornarihan\"\n\"cuaieuouac\"",
+  "sampleTestCase": "\"aeiouu\"",
+  "metaData": "{\n  \"name\": \"countVowelSubstrings\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3451",
+  "titleSlug": "string-compression-iii",
+  "title": "String Compression III",
+  "exampleTestcases": "\"abcde\"\n\"aaaaaaaaaaaaaabb\"",
+  "sampleTestCase": "\"abcde\"",
+  "metaData": "{\n  \"name\": \"compressedString\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

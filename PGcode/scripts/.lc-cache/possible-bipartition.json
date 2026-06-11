@@ -1,0 +1,8 @@
+{
+  "questionId": "922",
+  "titleSlug": "possible-bipartition",
+  "title": "Possible Bipartition",
+  "exampleTestcases": "4\n[[1,2],[1,3],[2,4]]\n3\n[[1,2],[1,3],[2,3]]",
+  "sampleTestCase": "4\n[[1,2],[1,3],[2,4]]",
+  "metaData": "{\n  \"name\": \"possibleBipartition\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"dislikes\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

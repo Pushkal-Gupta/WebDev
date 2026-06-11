@@ -1,0 +1,8 @@
+{
+  "questionId": "258",
+  "titleSlug": "add-digits",
+  "title": "Add Digits",
+  "exampleTestcases": "38\n0",
+  "sampleTestCase": "38",
+  "metaData": "{\r\n  \"name\": \"addDigits\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"num\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "516",
+  "titleSlug": "longest-palindromic-subsequence",
+  "title": "Longest Palindromic Subsequence",
+  "exampleTestcases": "\"bbbab\"\n\"cbbd\"",
+  "sampleTestCase": "\"bbbab\"",
+  "metaData": "{\r\n  \"name\": \"longestPalindromeSubseq\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

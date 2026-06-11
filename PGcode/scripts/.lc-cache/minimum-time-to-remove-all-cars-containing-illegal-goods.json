@@ -1,0 +1,8 @@
+{
+  "questionId": "2286",
+  "titleSlug": "minimum-time-to-remove-all-cars-containing-illegal-goods",
+  "title": "Minimum Time to Remove All Cars Containing Illegal Goods",
+  "exampleTestcases": "\"1100101\"\n\"0010\"",
+  "sampleTestCase": "\"1100101\"",
+  "metaData": "{\n  \"name\": \"minimumTime\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

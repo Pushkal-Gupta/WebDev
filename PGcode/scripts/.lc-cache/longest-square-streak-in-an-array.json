@@ -1,0 +1,8 @@
+{
+  "questionId": "2586",
+  "titleSlug": "longest-square-streak-in-an-array",
+  "title": "Longest Square Streak in an Array",
+  "exampleTestcases": "[4,3,6,16,8,2]\n[2,3,5,6,7]",
+  "sampleTestCase": "[4,3,6,16,8,2]",
+  "metaData": "{\n  \"name\": \"longestSquareStreak\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

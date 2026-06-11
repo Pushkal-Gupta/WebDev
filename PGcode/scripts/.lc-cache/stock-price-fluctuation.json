@@ -1,0 +1,8 @@
+{
+  "questionId": "2161",
+  "titleSlug": "stock-price-fluctuation",
+  "title": "Stock Price Fluctuation ",
+  "exampleTestcases": "[\"StockPrice\",\"update\",\"update\",\"current\",\"maximum\",\"update\",\"maximum\",\"update\",\"minimum\"]\n[[],[1,10],[2,5],[],[],[1,3],[],[4,2],[]]",
+  "sampleTestCase": "[\"StockPrice\",\"update\",\"update\",\"current\",\"maximum\",\"update\",\"maximum\",\"update\",\"minimum\"]\n[[],[1,10],[2,5],[],[],[1,3],[],[4,2],[]]",
+  "metaData": "{\n  \"classname\": \"StockPrice\",\n  \"constructor\": {\n    \"params\": []\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"timestamp\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"price\"\n        }\n      ],\n      \"name\": \"update\",\n      \"return\": {\n        \"type\": \"void\"\n      }\n    },\n    {\n      \"params\": [],\n      \"name\": \"current\",\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    },\n    {\n      \"params\": [],\n      \"name\": \"maximum\",\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    },\n    {\n      \"params\": [],\n      \"name\": \"minimum\",\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
+}

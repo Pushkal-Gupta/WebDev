@@ -1,0 +1,8 @@
+{
+  "questionId": "1880",
+  "titleSlug": "largest-merge-of-two-strings",
+  "title": "Largest Merge Of Two Strings",
+  "exampleTestcases": "\"cabaa\"\n\"bcaaa\"\n\"abcabc\"\n\"abdcaba\"",
+  "sampleTestCase": "\"cabaa\"\n\"bcaaa\"",
+  "metaData": "{\n  \"name\": \"largestMerge\",\n  \"params\": [\n    {\n      \"name\": \"word1\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"word2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

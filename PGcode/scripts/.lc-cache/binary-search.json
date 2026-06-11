@@ -1,0 +1,8 @@
+{
+  "questionId": "792",
+  "titleSlug": "binary-search",
+  "title": "Binary Search",
+  "exampleTestcases": "[-1,0,3,5,9,12]\n9\n[-1,0,3,5,9,12]\n2",
+  "sampleTestCase": "[-1,0,3,5,9,12]\n9",
+  "metaData": "{\r\n  \"name\": \"search\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"target\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

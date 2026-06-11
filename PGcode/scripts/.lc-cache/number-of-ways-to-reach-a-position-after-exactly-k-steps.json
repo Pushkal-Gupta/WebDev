@@ -1,0 +1,8 @@
+{
+  "questionId": "2477",
+  "titleSlug": "number-of-ways-to-reach-a-position-after-exactly-k-steps",
+  "title": "Number of Ways to Reach a Position After Exactly k Steps",
+  "exampleTestcases": "1\n2\n3\n2\n5\n10",
+  "sampleTestCase": "1\n2\n3",
+  "metaData": "{\n  \"name\": \"numberOfWays\",\n  \"params\": [\n    {\n      \"name\": \"startPos\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"endPos\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

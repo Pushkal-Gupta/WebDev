@@ -1,0 +1,8 @@
+{
+  "questionId": "1285",
+  "titleSlug": "balance-a-binary-search-tree",
+  "title": "Balance a Binary Search Tree",
+  "exampleTestcases": "[1,null,2,null,3,null,4]\n[2,1,3]",
+  "sampleTestCase": "[1,null,2,null,3,null,4]",
+  "metaData": "{\n  \"name\": \"balanceBST\",\n  \"params\": [\n    {\n      \"name\": \"root\",\n      \"type\": \"TreeNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"TreeNode\"\n  }\n}"
+}

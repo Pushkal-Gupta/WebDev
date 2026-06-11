@@ -1,0 +1,8 @@
+{
+  "questionId": "1228",
+  "titleSlug": "minimum-cost-tree-from-leaf-values",
+  "title": "Minimum Cost Tree From Leaf Values",
+  "exampleTestcases": "[6,2,4]\n[4,11]",
+  "sampleTestCase": "[6,2,4]",
+  "metaData": "{\n  \"name\": \"mctFromLeafValues\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

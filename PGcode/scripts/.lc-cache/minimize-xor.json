@@ -1,0 +1,8 @@
+{
+  "questionId": "2509",
+  "titleSlug": "minimize-xor",
+  "title": "Minimize XOR",
+  "exampleTestcases": "3\n5\n1\n12",
+  "sampleTestCase": "3\n5",
+  "metaData": "{\n  \"name\": \"minimizeXor\",\n  \"params\": [\n    {\n      \"name\": \"num1\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"num2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

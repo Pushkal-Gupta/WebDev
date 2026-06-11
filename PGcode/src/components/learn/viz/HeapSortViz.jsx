@@ -205,13 +205,16 @@ export default function HeapSortViz() {
   const [baseArray, setBaseArray] = useState(DEFAULT_ARRAY);
   const [frames, setFrames] = useState(() => buildFrames(DEFAULT_ARRAY));
   const [idx, setIdx] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  const [playingRaw, setPlaying] = useState(false);
   const playRef = useRef(null);
 
   const currentFrame = frames[idx] || frames[0];
   const displayArr = currentFrame ? currentFrame.array : baseArray;
   const heapSize = currentFrame ? currentFrame.heapSize : baseArray.length;
   const sortedFromIdx = currentFrame ? currentFrame.sortedFromIdx : baseArray.length;
+  // Derive `playing` from the raw toggle + bounds so the auto-run effect never
+  // needs to call setPlaying(false) when we hit the end.
+  const playing = playingRaw && idx < frames.length - 1;
 
   const rebuild = useCallback((arr) => {
     setFrames(buildFrames(arr));
@@ -232,10 +235,6 @@ export default function HeapSortViz() {
 
   useEffect(() => {
     if (!playing) return;
-    if (idx >= frames.length - 1) {
-      setPlaying(false);
-      return;
-    }
     playRef.current = setTimeout(() => setIdx((i) => i + 1), STEP_MS);
     return () => clearTimeout(playRef.current);
   }, [playing, idx, frames]);

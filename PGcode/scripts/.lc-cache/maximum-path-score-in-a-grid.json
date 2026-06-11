@@ -1,0 +1,8 @@
+{
+  "questionId": "3986",
+  "titleSlug": "maximum-path-score-in-a-grid",
+  "title": "Maximum Path Score in a Grid",
+  "exampleTestcases": "[[0, 1],[2, 0]]\n1\n[[0, 1],[1, 2]]\n1",
+  "sampleTestCase": "[[0, 1],[2, 0]]\n1",
+  "metaData": "{\n  \"name\": \"maxPathScore\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

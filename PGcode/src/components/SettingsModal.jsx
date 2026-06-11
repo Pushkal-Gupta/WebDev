@@ -5,7 +5,6 @@ import ShareableCard from './ShareableCard';
 import {
   getAiKey, setAiKey, getProxyUrl, setProxyUrl,
   getAiProvider, setAiProvider, getAiModel, setAiModel,
-  getAiEnabledPref, setAiEnabledPref,
   AI_PROVIDERS,
 } from '../lib/ai';
 import { loadCustomColors, saveCustomColors, applyCustomColors } from '../lib/customColors';
@@ -317,7 +316,6 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
   useEffect(() => { localStorage.setItem('pg-editor-minimap', String(editorMinimap)); }, [editorMinimap]);
   useEffect(() => { localStorage.setItem('pg-editor-word-wrap', String(editorWordWrap)); }, [editorWordWrap]);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setLocalPreferredLang(preferredLang || 'python'); }, [preferredLang]);
 
   useEffect(() => {
@@ -442,6 +440,22 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
     try { await supabase.auth.signOut(); } catch { /* ignore */ }
     onClose();
   };
+
+  const [linkMsg, setLinkMsg] = useState(null);
+  const handleLinkGithub = async () => {
+    setLinkMsg(null);
+    try {
+      const { error } = await supabase.auth.linkIdentity({
+        provider: 'github',
+        options: { redirectTo: window.location.href.split('#')[0] },
+      });
+      if (error) throw error;
+    } catch (err) {
+      setLinkMsg(err.message || 'Could not start the GitHub link flow.');
+    }
+  };
+  const linkedProviders = (session?.user?.identities || []).map(i => i.provider);
+  const hasGithubIdentity = linkedProviders.includes('github');
 
   return (
     <div className="settings-overlay" onClick={(e) => {
@@ -606,6 +620,22 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
 
           {activeTab === 'profile' && (
             <div className="profile-section">
+              {session?.user && !hasGithubIdentity && (
+                <div className="github-link-row">
+                  <div className="github-link-text">
+                    <strong>Link your GitHub account</strong>
+                    <span>Sign in once with GitHub to fetch stats automatically and skip the username field.</span>
+                  </div>
+                  <button type="button" className="github-link-btn" onClick={handleLinkGithub}>
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true">
+                      <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.4-5.25 5.68.41.36.78 1.06.78 2.13v3.16c0 .31.21.68.8.56C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z"/>
+                    </svg>
+                    Link GitHub
+                  </button>
+                </div>
+              )}
+              {linkMsg && <p className="github-error">{linkMsg}</p>}
+
               <div className="github-connect">
                 <div className="github-connect-label">
                   <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true">

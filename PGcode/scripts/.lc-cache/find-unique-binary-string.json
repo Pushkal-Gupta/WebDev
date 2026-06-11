@@ -1,0 +1,8 @@
+{
+  "questionId": "2107",
+  "titleSlug": "find-unique-binary-string",
+  "title": "Find Unique Binary String",
+  "exampleTestcases": "[\"01\",\"10\"]\n[\"00\",\"01\"]\n[\"111\",\"011\",\"001\"]",
+  "sampleTestCase": "[\"01\",\"10\"]",
+  "metaData": "{\n  \"name\": \"findDifferentBinaryString\",\n  \"params\": [\n    {\n      \"type\": \"string[]\",\n      \"name\": \"nums\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

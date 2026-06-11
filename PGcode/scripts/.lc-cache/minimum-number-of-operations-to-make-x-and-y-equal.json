@@ -1,0 +1,8 @@
+{
+  "questionId": "3239",
+  "titleSlug": "minimum-number-of-operations-to-make-x-and-y-equal",
+  "title": "Minimum Number of Operations to Make X and Y Equal",
+  "exampleTestcases": "26\n1\n54\n2\n25\n30",
+  "sampleTestCase": "26\n1",
+  "metaData": "{\n  \"name\": \"minimumOperationsToMakeEqual\",\n  \"params\": [\n    {\n      \"name\": \"x\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"y\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

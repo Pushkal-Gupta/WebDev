@@ -1,0 +1,8 @@
+{
+  "questionId": "1195",
+  "titleSlug": "distribute-candies-to-people",
+  "title": "Distribute Candies to People",
+  "exampleTestcases": "7\n4\n10\n3",
+  "sampleTestCase": "7\n4",
+  "metaData": "{\n  \"name\": \"distributeCandies\",\n  \"params\": [\n    {\n      \"name\": \"candies\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"num_people\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

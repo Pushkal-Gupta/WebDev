@@ -1,0 +1,8 @@
+{
+  "questionId": "1834",
+  "titleSlug": "minimum-number-of-people-to-teach",
+  "title": "Minimum Number of People to Teach",
+  "exampleTestcases": "2\n[[1],[2],[1,2]]\n[[1,2],[1,3],[2,3]]\n3\n[[2],[1,3],[1,2],[3]]\n[[1,4],[1,2],[3,4],[2,3]]",
+  "sampleTestCase": "2\n[[1],[2],[1,2]]\n[[1,2],[1,3],[2,3]]",
+  "metaData": "{\n  \"name\": \"minimumTeachings\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"languages\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"friendships\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

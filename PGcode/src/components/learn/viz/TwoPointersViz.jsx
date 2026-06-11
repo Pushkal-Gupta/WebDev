@@ -39,7 +39,7 @@ function TwoPointersViz() {
   const [array, setArray] = useState(DEFAULT_ARRAY);
   const [target, setTarget] = useState(DEFAULT_TARGET);
   const [state, setState] = useState(() => buildInitialState(DEFAULT_ARRAY));
-  const [running, setRunning] = useState(false);
+  const [runningRaw, setRunning] = useState(false);
   const [inputError, setInputError] = useState(null);
 
   const timerRef = useRef(null);
@@ -100,12 +100,11 @@ function TwoPointersViz() {
     });
   }, [array, target]);
 
+  // Derive `running` so the effect never has to call setRunning(false) when the
+  // search terminates — avoids cascading-render lint.
+  const running = runningRaw && state.status !== 'found' && state.status !== 'none';
   useEffect(() => {
     if (!running) return undefined;
-    if (state.status === 'found' || state.status === 'none') {
-      setRunning(false);
-      return undefined;
-    }
     timerRef.current = window.setTimeout(stepOnce, TICK_MS);
     return () => {
       if (timerRef.current) {
@@ -113,7 +112,7 @@ function TwoPointersViz() {
         timerRef.current = null;
       }
     };
-  }, [running, state, stepOnce]);
+  }, [running, stepOnce]);
 
   const applyInputs = useCallback(() => {
     const parsed = parseArray(arrayInput);

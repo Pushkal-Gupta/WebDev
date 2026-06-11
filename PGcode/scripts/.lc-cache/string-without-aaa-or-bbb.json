@@ -1,0 +1,8 @@
+{
+  "questionId": "1026",
+  "titleSlug": "string-without-aaa-or-bbb",
+  "title": "String Without AAA or BBB",
+  "exampleTestcases": "1\n2\n4\n1",
+  "sampleTestCase": "1\n2",
+  "metaData": "{\n  \"name\": \"strWithout3a3b\",\n  \"params\": [\n    {\n      \"name\": \"a\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"b\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

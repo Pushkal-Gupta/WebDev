@@ -1,0 +1,8 @@
+{
+  "questionId": "2746",
+  "titleSlug": "filter-elements-from-array",
+  "title": "Filter Elements from Array",
+  "exampleTestcases": "function greaterThan10(n) { return n > 10; }\n[0,10,20,30]\nfunction firstIndex(n, i) { return i === 0; }\n[1,2,3]\nfunction plusOne(n) { return n + 1 }\n[-2,-1,0,1,2]",
+  "sampleTestCase": "function greaterThan10(n) { return n > 10; }\n[0,10,20,30]",
+  "metaData": "{\n  \"name\": \"filter\",\n  \"params\": [\n    {\n      \"name\": \"fn\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"arr\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  },\n  \"manual\": true,\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ]\n}"
+}

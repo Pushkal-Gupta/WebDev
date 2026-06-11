@@ -1,0 +1,8 @@
+{
+  "questionId": "151",
+  "titleSlug": "reverse-words-in-a-string",
+  "title": "Reverse Words in a String",
+  "exampleTestcases": "\"the sky is blue\"\n\"  hello world  \"\n\"a good   example\"",
+  "sampleTestCase": "\"the sky is blue\"",
+  "metaData": "{\r\n  \"name\": \"reverseWords\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}"
+}

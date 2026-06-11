@@ -1,0 +1,8 @@
+{
+  "questionId": "424",
+  "titleSlug": "longest-repeating-character-replacement",
+  "title": "Longest Repeating Character Replacement",
+  "exampleTestcases": "\"ABAB\"\n2\n\"AABABBA\"\n1",
+  "sampleTestCase": "\"ABAB\"\n2",
+  "metaData": "{ \r\n  \"name\": \"characterReplacement\",\r\n  \"params\": [\r\n    { \r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n        \"name\": \"k\",\r\n        \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

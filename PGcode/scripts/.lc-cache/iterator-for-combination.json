@@ -1,0 +1,8 @@
+{
+  "questionId": "1211",
+  "titleSlug": "iterator-for-combination",
+  "title": "Iterator for Combination",
+  "exampleTestcases": "[\"CombinationIterator\",\"next\",\"hasNext\",\"next\",\"hasNext\",\"next\",\"hasNext\"]\n[[\"abc\",2],[],[],[],[],[],[]]",
+  "sampleTestCase": "[\"CombinationIterator\",\"next\",\"hasNext\",\"next\",\"hasNext\",\"next\",\"hasNext\"]\n[[\"abc\",2],[],[],[],[],[],[]]",
+  "metaData": "{\n  \"classname\": \"CombinationIterator\",\n  \"maxbytesperline\": 200000,\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"string\",\n        \"name\": \"characters\"\n      },\n      {\n        \"type\": \"integer\",\n        \"name\": \"combinationLength\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"name\": \"next\",\n      \"params\": [],\n      \"return\": {\n        \"type\": \"string\"\n      }\n    },\n    {\n      \"name\": \"hasNext\",\n      \"params\": [],\n      \"return\": {\n        \"type\": \"boolean\"\n      }\n    }\n  ],\n  \"systemdesign\": true,\n  \"params\": [\n    {\n      \"name\": \"inputs\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"inputs\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<String>\",\n    \"dealloc\": true\n  }\n}"
+}

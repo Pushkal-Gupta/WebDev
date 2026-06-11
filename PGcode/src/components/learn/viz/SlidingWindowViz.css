@@ -137,13 +137,13 @@
 
 .sw-viz-stage {
   width: 100%;
-  overflow-x: auto;
   padding: 0.5rem 0.25rem 0.25rem;
 }
 
 .sw-viz-svg {
   display: block;
-  min-width: 640px;
+  width: 100%;
+  height: auto;
 }
 
 .sw-viz-window {

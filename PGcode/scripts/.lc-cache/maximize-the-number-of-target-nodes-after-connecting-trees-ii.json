@@ -1,0 +1,8 @@
+{
+  "questionId": "3645",
+  "titleSlug": "maximize-the-number-of-target-nodes-after-connecting-trees-ii",
+  "title": "Maximize the Number of Target Nodes After Connecting Trees II",
+  "exampleTestcases": "[[0,1],[0,2],[2,3],[2,4]]\n[[0,1],[0,2],[0,3],[2,7],[1,4],[4,5],[4,6]]\n[[0,1],[0,2],[0,3],[0,4]]\n[[0,1],[1,2],[2,3]]",
+  "sampleTestCase": "[[0,1],[0,2],[2,3],[2,4]]\n[[0,1],[0,2],[0,3],[2,7],[1,4],[4,5],[4,6]]",
+  "metaData": "{\n  \"name\": \"maxTargetNodes\",\n  \"params\": [\n    {\n      \"name\": \"edges1\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

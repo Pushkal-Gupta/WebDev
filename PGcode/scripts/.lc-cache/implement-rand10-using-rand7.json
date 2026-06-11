@@ -1,0 +1,8 @@
+{
+  "questionId": "903",
+  "titleSlug": "implement-rand10-using-rand7",
+  "title": "Implement Rand10() Using Rand7()",
+  "exampleTestcases": "1\n2\n3",
+  "sampleTestCase": "1",
+  "metaData": "{\n  \"name\": \"rand10\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"manual\": true,\n  \"typescriptCustomType\":\"function rand7(): number {\\n    return Math.floor(Math.random() * (7)) + 1;\\n}\"\n}"
+}

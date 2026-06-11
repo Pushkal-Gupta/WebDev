@@ -1,0 +1,8 @@
+{
+  "questionId": "1901",
+  "titleSlug": "equal-sum-arrays-with-minimum-number-of-operations",
+  "title": "Equal Sum Arrays With Minimum Number of Operations",
+  "exampleTestcases": "[1,2,3,4,5,6]\n[1,1,2,2,2,2]\n[1,1,1,1,1,1,1]\n[6]\n[6,6]\n[1]",
+  "sampleTestCase": "[1,2,3,4,5,6]\n[1,1,2,2,2,2]",
+  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

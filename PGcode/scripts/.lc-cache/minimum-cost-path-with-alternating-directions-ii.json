@@ -1,0 +1,8 @@
+{
+  "questionId": "3927",
+  "titleSlug": "minimum-cost-path-with-alternating-directions-ii",
+  "title": "Minimum Cost Path with Alternating Directions II",
+  "exampleTestcases": "1\n2\n[[1,2]]\n2\n2\n[[3,5],[2,4]]\n2\n3\n[[6,1,4],[3,2,5]]",
+  "sampleTestCase": "1\n2\n[[1,2]]",
+  "metaData": "{\n  \"name\": \"minCost\",\n  \"params\": [\n    {\n      \"name\": \"m\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"n\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"waitCost\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

@@ -301,17 +301,24 @@ export default function MCMCViz() {
   }, [stopTimer]);
 
   // Reset whenever the seed changes; keep sigma reactive without reset.
-  useEffect(() => {
-    stopTimer();
+  // Tracked-dep render-phase reset for state; effect handles timer/ref cleanup.
+  const [lastSeed, setLastSeed] = useState(seed);
+  if (seed !== lastSeed) {
+    setLastSeed(seed);
+    setRunning(false);
     setSamples([]);
     setTrail([]);
     setProposed(0);
     setAccepted(0);
     setProposal(null);
+  }
+
+  useEffect(() => {
+    if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
     currRef.current = null;
     rngRef.current = null;
     remainingRef.current = 0;
-  }, [seed, stopTimer]);
+  }, [seed]);
 
   const cellPx = PLOT_W / HEAT_BINS;
   const yAxisBase = yToPx(DOM_MIN);

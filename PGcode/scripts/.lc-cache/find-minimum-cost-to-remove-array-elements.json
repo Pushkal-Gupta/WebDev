@@ -1,0 +1,8 @@
+{
+  "questionId": "3776",
+  "titleSlug": "find-minimum-cost-to-remove-array-elements",
+  "title": "Find Minimum Cost to Remove Array Elements",
+  "exampleTestcases": "[6,2,8,4]\n[2,1,3,3]",
+  "sampleTestCase": "[6,2,8,4]",
+  "metaData": "{\n  \"name\": \"minCost\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -47,7 +47,7 @@ function buildSteps(start) {
 
   steps.push({
     kind: 'init',
-    current: null,
+    cur: null,
     queue: [...queue],
     visited: [...visited],
     frontier: [...seen],
@@ -60,7 +60,7 @@ function buildSteps(start) {
     visited.add(node);
     steps.push({
       kind: 'visit',
-      current: node,
+      cur: node,
       queue: [...queue],
       visited: [...visited],
       frontier: [...seen].filter((n) => !visited.has(n)),
@@ -82,7 +82,7 @@ function buildSteps(start) {
     if (newlyAdded.length > 0) {
       steps.push({
         kind: 'expand',
-        current: node,
+        cur: node,
         queue: [...queue],
         visited: [...visited],
         frontier: [...seen].filter((n) => !visited.has(n)),
@@ -92,7 +92,7 @@ function buildSteps(start) {
     } else {
       steps.push({
         kind: 'noop',
-        current: node,
+        cur: node,
         queue: [...queue],
         visited: [...visited],
         frontier: [...seen].filter((n) => !visited.has(n)),
@@ -104,7 +104,7 @@ function buildSteps(start) {
 
   steps.push({
     kind: 'done',
-    current: null,
+    cur: null,
     queue: [],
     visited: [...visited],
     frontier: [],
@@ -119,27 +119,25 @@ const edgeKey = (u, v) => (u < v ? `${u}-${v}` : `${v}-${u}`);
 
 export default function BFSViz() {
   const [start, setStart] = useState('A');
-  const [steps, setSteps] = useState(() => buildSteps('A'));
+  const steps = useMemo(() => buildSteps(start), [start]);
   const [idx, setIdx] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  const [playingRaw, setPlaying] = useState(false);
   const timerRef = useRef(null);
 
-  useEffect(() => {
-    setSteps(buildSteps(start));
+  const [prevSteps, setPrevSteps] = useState(steps);
+  if (prevSteps !== steps) {
+    setPrevSteps(steps);
     setIdx(0);
     setPlaying(false);
-  }, [start]);
+  }
 
   const step = steps[idx];
+  // Derive `playing` from the raw toggle + bounds so the auto-run effect never
+  // needs to call setPlaying(false) when we hit the end.
+  const playing = playingRaw && idx < steps.length - 1;
 
   const next = useCallback(() => {
-    setIdx((i) => {
-      if (i >= steps.length - 1) {
-        setPlaying(false);
-        return i;
-      }
-      return i + 1;
-    });
+    setIdx((i) => (i >= steps.length - 1 ? i : i + 1));
   }, [steps.length]);
 
   useEffect(() => {
@@ -158,10 +156,6 @@ export default function BFSViz() {
     };
   }, [playing, next]);
 
-  useEffect(() => {
-    if (idx >= steps.length - 1 && playing) setPlaying(false);
-  }, [idx, steps.length, playing]);
-
   const handleReset = () => {
     setPlaying(false);
     setIdx(0);
@@ -177,7 +171,7 @@ export default function BFSViz() {
     NODES.forEach((n) => { map[n.id] = 'unvisited'; });
     step.frontier.forEach((n) => { map[n] = 'frontier'; });
     step.visited.forEach((n) => { map[n] = 'visited'; });
-    if (step.current) map[step.current] = 'current';
+    if (step.cur) map[step.cur] = 'current';
     return map;
   }, [step]);
 
@@ -301,7 +295,7 @@ export default function BFSViz() {
         <div className="bfsviz-status-row">
           <span className="bfsviz-status-label">Processing</span>
           <span className="bfsviz-status-value">
-            {step.current ? step.current : <span className="bfsviz-muted">—</span>}
+            {step.cur ? step.cur : <span className="bfsviz-muted">—</span>}
           </span>
         </div>
       </div>

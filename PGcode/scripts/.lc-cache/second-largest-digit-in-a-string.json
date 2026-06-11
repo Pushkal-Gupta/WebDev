@@ -1,0 +1,8 @@
+{
+  "questionId": "1904",
+  "titleSlug": "second-largest-digit-in-a-string",
+  "title": "Second Largest Digit in a String",
+  "exampleTestcases": "\"dfa12321afd\"\n\"abc1111\"",
+  "sampleTestCase": "\"dfa12321afd\"",
+  "metaData": "{\n  \"name\": \"secondHighest\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2780",
+  "titleSlug": "make-costs-of-paths-equal-in-a-binary-tree",
+  "title": "Make Costs of Paths Equal in a Binary Tree",
+  "exampleTestcases": "7\n[1,5,2,2,3,3,1]\n3\n[5,3,3]",
+  "sampleTestCase": "7\n[1,5,2,2,3,3,1]",
+  "metaData": "{\n  \"name\": \"minIncrements\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"cost\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

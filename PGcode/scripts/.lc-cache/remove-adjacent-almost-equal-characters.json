@@ -1,0 +1,8 @@
+{
+  "questionId": "3230",
+  "titleSlug": "remove-adjacent-almost-equal-characters",
+  "title": "Remove Adjacent Almost-Equal Characters",
+  "exampleTestcases": "\"aaaaa\"\n\"abddez\"\n\"zyxyxyz\"",
+  "sampleTestCase": "\"aaaaa\"",
+  "metaData": "{\n  \"name\": \"removeAlmostEqualCharacters\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3643",
+  "titleSlug": "zero-array-transformation-ii",
+  "title": "Zero Array Transformation II",
+  "exampleTestcases": "[2,0,2]\n[[0,2,1],[0,2,1],[1,1,3]]\n[4,3,2,1]\n[[1,3,2],[0,2,1]]",
+  "sampleTestCase": "[2,0,2]\n[[0,2,1],[0,2,1],[1,1,3]]",
+  "metaData": "{\n  \"name\": \"minZeroArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

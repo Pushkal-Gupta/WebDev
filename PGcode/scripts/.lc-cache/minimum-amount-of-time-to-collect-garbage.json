@@ -1,0 +1,8 @@
+{
+  "questionId": "2471",
+  "titleSlug": "minimum-amount-of-time-to-collect-garbage",
+  "title": "Minimum Amount of Time to Collect Garbage",
+  "exampleTestcases": "[\"G\",\"P\",\"GP\",\"GG\"]\n[2,4,3]\n[\"MMM\",\"PGM\",\"GP\"]\n[3,10]",
+  "sampleTestCase": "[\"G\",\"P\",\"GP\",\"GG\"]\n[2,4,3]",
+  "metaData": "{\n  \"name\": \"garbageCollection\",\n  \"params\": [\n    {\n      \"name\": \"garbage\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"travel\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

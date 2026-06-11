@@ -1,0 +1,8 @@
+{
+  "questionId": "3309",
+  "titleSlug": "count-prefix-and-suffix-pairs-i",
+  "title": "Count Prefix and Suffix Pairs I",
+  "exampleTestcases": "[\"a\",\"aba\",\"ababa\",\"aa\"]\n[\"pa\",\"papa\",\"ma\",\"mama\"]\n[\"abab\",\"ab\"]",
+  "sampleTestCase": "[\"a\",\"aba\",\"ababa\",\"aa\"]",
+  "metaData": "{\n  \"name\": \"countPrefixSuffixPairs\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

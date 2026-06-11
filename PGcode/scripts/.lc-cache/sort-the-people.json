@@ -1,0 +1,8 @@
+{
+  "questionId": "2502",
+  "titleSlug": "sort-the-people",
+  "title": "Sort the People",
+  "exampleTestcases": "[\"Mary\",\"John\",\"Emma\"]\n[180,165,170]\n[\"Alice\",\"Bob\",\"Bob\"]\n[155,185,150]",
+  "sampleTestCase": "[\"Mary\",\"John\",\"Emma\"]\n[180,165,170]",
+  "metaData": "{\n  \"name\": \"sortPeople\",\n  \"params\": [\n    {\n      \"type\": \"string[]\",\n      \"name\": \"names\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"heights\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string[]\"\n  }\n}"
+}

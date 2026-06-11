@@ -98,9 +98,11 @@ export default function AutogradTraceViz() {
 
   useEffect(() => () => clearTimer(), []);
 
-  useEffect(() => {
+  const [prevTrigger, setPrevTrigger] = useState({ x, y, phase });
+  if (prevTrigger.x !== x || prevTrigger.y !== y || prevTrigger.phase !== phase) {
+    setPrevTrigger({ x, y, phase });
     if (phase === 'idle') setStepIdx(-1);
-  }, [x, y, phase]);
+  }
 
   const handleReset = useCallback(() => {
     clearTimer();
@@ -194,7 +196,7 @@ export default function AutogradTraceViz() {
 
   // edge active for forward animation (only on the step where the *to* node is computed)
   const fwdEdgeActive = (from, to) => phase === 'forward' && FORWARD_STEPS[stepIdx] === to;
-  const bwdEdgeActive = (from, to) => phase === 'backward' && BACKWARD_STEPS[stepIdx] === from;
+  const bwdEdgeActive = (from, _to) => phase === 'backward' && BACKWARD_STEPS[stepIdx] === from;
 
   // forward edges are lit when the destination has been reached
   const fwdEdgeLit = (to) => {

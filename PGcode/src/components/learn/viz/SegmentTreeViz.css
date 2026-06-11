@@ -150,7 +150,7 @@
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 10px;
-  overflow-x: auto;
+  flex-wrap: wrap;
 }
 
 .stv-array-label {

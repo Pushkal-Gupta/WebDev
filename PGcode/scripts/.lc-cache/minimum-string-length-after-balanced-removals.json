@@ -1,0 +1,8 @@
+{
+  "questionId": "4090",
+  "titleSlug": "minimum-string-length-after-balanced-removals",
+  "title": "Minimum String Length After Balanced Removals",
+  "exampleTestcases": "\"aabbab\"\n\"aaaa\"\n\"aaabb\"",
+  "sampleTestCase": "\"aabbab\"",
+  "metaData": "{\n  \"name\": \"minLengthAfterRemovals\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"manual\": false\n}"
+}

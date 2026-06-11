@@ -1,0 +1,8 @@
+{
+  "questionId": "1699",
+  "titleSlug": "number-of-ways-where-square-of-number-is-equal-to-product-of-two-numbers",
+  "title": "Number of Ways Where Square of Number Is Equal to Product of Two Numbers",
+  "exampleTestcases": "[7,4]\n[5,2,8,9]\n[1,1]\n[1,1,1]\n[7,7,8,3]\n[1,2,9,7]",
+  "sampleTestCase": "[7,4]\n[5,2,8,9]",
+  "metaData": "{\n  \"name\": \"numTriplets\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

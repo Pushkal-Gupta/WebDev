@@ -1,0 +1,8 @@
+{
+  "questionId": "1811",
+  "titleSlug": "fix-names-in-a-table",
+  "title": "Fix Names in a Table",
+  "exampleTestcases": "{\"headers\":{\"Users\":[\"user_id\",\"name\"]},\"rows\":{\"Users\":[[1,\"aLice\"],[2,\"bOB\"]]}}",
+  "sampleTestCase": "{\"headers\":{\"Users\":[\"user_id\",\"name\"]},\"rows\":{\"Users\":[[1,\"aLice\"],[2,\"bOB\"]]}}",
+  "metaData": "{\"mysql\": [\"Create table If Not Exists Users (user_id int, name varchar(40))\"], \"mssql\": [\"Create table Users (user_id int, name varchar(40))\"], \"oraclesql\": [\"Create table Users  (user_id int, name varchar(40))\"], \"database\": true, \"name\": \"fix_names\", \"pythondata\": [\"Users = pd.DataFrame([], columns=['user_id', 'name']).astype({'user_id':'Int64', 'name':'object'})\"], \"postgresql\": [\"\\nCreate table If Not Exists Users (user_id int, name varchar(40))\"], \"database_schema\": {\"Users\": {\"user_id\": \"INT\", \"name\": \"VARCHAR(40)\"}}}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2614",
+  "titleSlug": "maximum-count-of-positive-integer-and-negative-integer",
+  "title": "Maximum Count of Positive Integer and Negative Integer",
+  "exampleTestcases": "[-2,-1,-1,1,2,3]\n[-3,-2,-1,0,0,1,2]\n[5,20,66,1314]",
+  "sampleTestCase": "[-2,-1,-1,1,2,3]",
+  "metaData": "{\n  \"name\": \"maximumCount\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

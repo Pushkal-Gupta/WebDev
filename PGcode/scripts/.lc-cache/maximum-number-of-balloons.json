@@ -1,0 +1,8 @@
+{
+  "questionId": "1297",
+  "titleSlug": "maximum-number-of-balloons",
+  "title": "Maximum Number of Balloons",
+  "exampleTestcases": "\"nlaebolko\"\n\"loonbalxballpoon\"\n\"leetcode\"",
+  "sampleTestCase": "\"nlaebolko\"",
+  "metaData": "{\n  \"name\": \"maxNumberOfBalloons\",\n  \"params\": [\n    {\n      \"name\": \"text\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

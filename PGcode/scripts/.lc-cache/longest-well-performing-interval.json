@@ -1,0 +1,8 @@
+{
+  "questionId": "1219",
+  "titleSlug": "longest-well-performing-interval",
+  "title": "Longest Well-Performing Interval",
+  "exampleTestcases": "[9,9,6,0,6,6,9]\n[6,6,6]",
+  "sampleTestCase": "[9,9,6,0,6,6,9]",
+  "metaData": "{\n  \"name\": \"longestWPI\",\n  \"params\": [\n    {\n      \"name\": \"hours\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -50,6 +50,17 @@ export default function SolutionView({ problem, activeLang: wsLang }) {
 
   if (loading) return <div className="sv-loading">Loading solutions...</div>;
 
+  // If any explained_samples entry sets `viz_anchor`, hand the FIRST anchor to
+  // ProblemVisualizer so the viz steps through that exact case. No-op when
+  // missing — the viz just falls back to its default test-case walkthrough.
+  const vizAnchor = (() => {
+    const samples = Array.isArray(problem?.explained_samples) ? problem.explained_samples : [];
+    for (const s of samples) {
+      if (s && typeof s.viz_anchor === 'string' && s.viz_anchor.trim()) return s.viz_anchor.trim();
+    }
+    return null;
+  })();
+
   // Fallback to DB column problem.solutions, then to client-side RICH_CONTENT.
   // `solutions` can be stored either as flat strings ({python: "code"}) from
   // bulk import, nested objects ({python: {code, approach, complexity}}) from
@@ -157,7 +168,7 @@ export default function SolutionView({ problem, activeLang: wsLang }) {
                 {isLast && (
                   <div className="sv-subsection">
                     <h4 className="sv-subtitle">Step-by-step visualization</h4>
-                    <ProblemVisualizer problem={problem} />
+                    <ProblemVisualizer problem={problem} vizAnchor={vizAnchor} />
                   </div>
                 )}
               </div>
@@ -181,7 +192,7 @@ export default function SolutionView({ problem, activeLang: wsLang }) {
         )}
         <div className="sv-section">
           <h3 className="sv-section-title">Step-by-step visualization</h3>
-          <ProblemVisualizer problem={problem} />
+          <ProblemVisualizer problem={problem} vizAnchor={vizAnchor} />
         </div>
         <div className="sv-section">
           <h3 className="sv-section-title">Visual Dry Run</h3>
@@ -290,7 +301,7 @@ export default function SolutionView({ problem, activeLang: wsLang }) {
                 <>
                   <div className="sv-subsection">
                     <h4 className="sv-subtitle">Step-by-step visualization</h4>
-                    <ProblemVisualizer problem={problem} />
+                    <ProblemVisualizer problem={problem} vizAnchor={vizAnchor} />
                   </div>
                   <div className="sv-subsection">
                     <h4 className="sv-subtitle">Visual Dry Run</h4>

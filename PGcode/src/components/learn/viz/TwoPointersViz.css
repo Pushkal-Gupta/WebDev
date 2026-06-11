@@ -117,13 +117,11 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 0.5rem 0.6rem;
-  overflow-x: auto;
 }
 
 .tp-viz-svg {
   display: block;
   width: 100%;
-  min-width: 540px;
   height: auto;
 }
 

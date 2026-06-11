@@ -1,0 +1,8 @@
+{
+  "questionId": "3958",
+  "titleSlug": "minimum-removals-to-balance-array",
+  "title": "Minimum Removals to Balance Array",
+  "exampleTestcases": "[2,1,5]\n2\n[1,6,2,9]\n3\n[4,6]\n2",
+  "sampleTestCase": "[2,1,5]\n2",
+  "metaData": "{\n  \"name\": \"minRemoval\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1923",
+  "titleSlug": "sentence-similarity-iii",
+  "title": "Sentence Similarity III",
+  "exampleTestcases": "\"My name is Haley\"\n\"My Haley\"\n\"of\"\n\"A lot of words\"\n\"Eating right now\"\n\"Eating\"",
+  "sampleTestCase": "\"My name is Haley\"\n\"My Haley\"",
+  "metaData": "{\n  \"name\": \"areSentencesSimilar\",\n  \"params\": [\n    {\n      \"name\": \"sentence1\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"sentence2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

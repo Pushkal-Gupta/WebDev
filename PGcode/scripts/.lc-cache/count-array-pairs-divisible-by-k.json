@@ -1,0 +1,8 @@
+{
+  "questionId": "2301",
+  "titleSlug": "count-array-pairs-divisible-by-k",
+  "title": "Count Array Pairs Divisible by K",
+  "exampleTestcases": "[1,2,3,4,5]\n2\n[1,2,3,4]\n5",
+  "sampleTestCase": "[1,2,3,4,5]\n2",
+  "metaData": "{\n  \"name\": \"countPairs\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "30",
+  "titleSlug": "substring-with-concatenation-of-all-words",
+  "title": "Substring with Concatenation of All Words",
+  "exampleTestcases": "\"barfoothefoobarman\"\n[\"foo\",\"bar\"]\n\"wordgoodgoodgoodbestword\"\n[\"word\",\"good\",\"best\",\"word\"]\n\"barfoofoobarthefoobarman\"\n[\"bar\",\"foo\",\"the\"]",
+  "sampleTestCase": "\"barfoothefoobarman\"\n[\"foo\",\"bar\"]",
+  "metaData": "{\r\n  \"name\": \"findSubstring\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"words\",\r\n      \"type\": \"string[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<integer>\"\r\n  }\r\n}"
+}

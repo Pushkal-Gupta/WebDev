@@ -103,14 +103,22 @@ export default function FFTViz() {
   const timerRef = useRef(null);
 
   // Reset reveal whenever a wave parameter changes so the spectrum is honest.
-  useEffect(() => {
+  // Tracked-dep render-phase reset — React's recommended pattern to avoid the
+  // cascading setState-in-effect anti-pattern. Imperative ref/timer cleanup
+  // stays in a small effect below.
+  const [lastWavesId, setLastWavesId] = useState(waves);
+  if (waves !== lastWavesId) {
+    setLastWavesId(waves);
     setRevealed(0);
+    setComputing(false);
+  }
+
+  useEffect(() => {
     revealRef.current = 0;
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
-    setComputing(false);
   }, [waves]);
 
   useEffect(() => () => {

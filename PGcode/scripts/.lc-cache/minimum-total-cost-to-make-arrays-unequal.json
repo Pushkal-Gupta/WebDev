@@ -1,0 +1,8 @@
+{
+  "questionId": "2592",
+  "titleSlug": "minimum-total-cost-to-make-arrays-unequal",
+  "title": "Minimum Total Cost to Make Arrays Unequal",
+  "exampleTestcases": "[1,2,3,4,5]\n[1,2,3,4,5]\n[2,2,2,1,3]\n[1,2,2,3,3]\n[1,2,2]\n[1,2,2]",
+  "sampleTestCase": "[1,2,3,4,5]\n[1,2,3,4,5]",
+  "metaData": "{\n  \"name\": \"minimumTotalCost\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

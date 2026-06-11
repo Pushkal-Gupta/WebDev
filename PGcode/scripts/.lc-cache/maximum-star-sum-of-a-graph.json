@@ -1,0 +1,8 @@
+{
+  "questionId": "2590",
+  "titleSlug": "maximum-star-sum-of-a-graph",
+  "title": "Maximum Star Sum of a Graph",
+  "exampleTestcases": "[1,2,3,4,10,-10,-20]\n[[0,1],[1,2],[1,3],[3,4],[3,5],[3,6]]\n2\n[-5]\n[]\n0",
+  "sampleTestCase": "[1,2,3,4,10,-10,-20]\n[[0,1],[1,2],[1,3],[3,4],[3,5],[3,6]]\n2",
+  "metaData": "{\n  \"name\": \"maxStarSum\",\n  \"params\": [\n    {\n      \"name\": \"vals\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

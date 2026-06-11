@@ -1,0 +1,8 @@
+{
+  "questionId": "889",
+  "titleSlug": "buddy-strings",
+  "title": "Buddy Strings",
+  "exampleTestcases": "\"ab\"\n\"ba\"\n\"ab\"\n\"ab\"\n\"aa\"\n\"aa\"",
+  "sampleTestCase": "\"ab\"\n\"ba\"",
+  "metaData": "{\n  \"name\": \"buddyStrings\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"goal\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

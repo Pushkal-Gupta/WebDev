@@ -177,8 +177,6 @@
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 8px;
-  overflow-x: auto;
-  overflow-y: hidden;
 }
 
 .rtv-svg {
@@ -387,7 +385,6 @@
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 10px;
-  overflow-x: auto;
   flex-wrap: wrap;
 }
 

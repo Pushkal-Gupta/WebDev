@@ -1,0 +1,8 @@
+{
+  "questionId": "1402",
+  "titleSlug": "count-square-submatrices-with-all-ones",
+  "title": "Count Square Submatrices with All Ones",
+  "exampleTestcases": "[[0,1,1,1],[1,1,1,1],[0,1,1,1]]\n[[1,0,1],[1,1,0],[1,1,0]]",
+  "sampleTestCase": "[[0,1,1,1],[1,1,1,1],[0,1,1,1]]",
+  "metaData": "{\n  \"name\": \"countSquares\",\n  \"params\": [\n    {\n      \"name\": \"matrix\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"manual\": false\n}"
+}

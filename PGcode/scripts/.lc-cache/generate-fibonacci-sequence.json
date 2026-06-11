@@ -1,0 +1,8 @@
+{
+  "questionId": "2775",
+  "titleSlug": "generate-fibonacci-sequence",
+  "title": "Generate Fibonacci Sequence",
+  "exampleTestcases": "5\n0",
+  "sampleTestCase": "5",
+  "metaData": "{\n  \"name\": \"fibGenerator\",\n  \"params\": [\n    {\n      \"name\": \"callCount\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  },\n  \"languages\": [\n    \"typescript\",\n    \"javascript\"\n  ],\n  \"manual\": true\n}"
+}

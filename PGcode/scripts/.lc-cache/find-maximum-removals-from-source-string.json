@@ -1,0 +1,8 @@
+{
+  "questionId": "3487",
+  "titleSlug": "find-maximum-removals-from-source-string",
+  "title": "Find Maximum Removals From Source String",
+  "exampleTestcases": "\"abbaa\"\n\"aba\"\n[0,1,2]\n\"bcda\"\n\"d\"\n[0,3]\n\"dda\"\n\"dda\"\n[0,1,2]\n\"yeyeykyded\"\n\"yeyyd\"\n[0,2,3,4]",
+  "sampleTestCase": "\"abbaa\"\n\"aba\"\n[0,1,2]",
+  "metaData": "{\n  \"name\": \"maxRemovals\",\n  \"params\": [\n    {\n      \"name\": \"source\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"pattern\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"targetIndices\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

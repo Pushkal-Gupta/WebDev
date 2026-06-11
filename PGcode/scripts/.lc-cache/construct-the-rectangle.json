@@ -1,0 +1,8 @@
+{
+  "questionId": "492",
+  "titleSlug": "construct-the-rectangle",
+  "title": "Construct the Rectangle",
+  "exampleTestcases": "4\n37\n122122",
+  "sampleTestCase": "4",
+  "metaData": "{\r\n  \"name\": \"constructRectangle\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"area\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer[]\"\r\n  }\r\n}\r\n"
+}

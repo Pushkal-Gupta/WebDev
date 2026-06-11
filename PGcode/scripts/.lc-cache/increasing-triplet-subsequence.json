@@ -1,0 +1,8 @@
+{
+  "questionId": "334",
+  "titleSlug": "increasing-triplet-subsequence",
+  "title": "Increasing Triplet Subsequence",
+  "exampleTestcases": "[1,2,3,4,5]\n[5,4,3,2,1]\n[2,1,5,0,4,6]",
+  "sampleTestCase": "[1,2,3,4,5]",
+  "metaData": "{\r\n  \"name\": \"increasingTriplet\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
+}

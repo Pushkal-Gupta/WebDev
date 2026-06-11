@@ -1,0 +1,8 @@
+{
+  "questionId": "1757",
+  "titleSlug": "minimum-jumps-to-reach-home",
+  "title": "Minimum Jumps to Reach Home",
+  "exampleTestcases": "[14,4,18,1,15]\n3\n15\n9\n[8,3,16,6,12,20]\n15\n13\n11\n[1,6,2,14,5,17,4]\n16\n9\n7",
+  "sampleTestCase": "[14,4,18,1,15]\n3\n15\n9",
+  "metaData": "{\n  \"name\": \"minimumJumps\",\n  \"params\": [\n    {\n      \"name\": \"forbidden\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"a\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"b\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"x\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

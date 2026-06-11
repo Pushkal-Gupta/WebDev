@@ -1,0 +1,8 @@
+{
+  "questionId": "781",
+  "titleSlug": "basic-calculator-iv",
+  "title": "Basic Calculator IV",
+  "exampleTestcases": "\"e + 8 - a + 5\"\n[\"e\"]\n[1]\n\"e - 8 + temperature - pressure\"\n[\"e\", \"temperature\"]\n[1, 12]\n\"(e + 8) * (e - 8)\"\n[]\n[]",
+  "sampleTestCase": "\"e + 8 - a + 5\"\n[\"e\"]\n[1]",
+  "metaData": "{\r\n  \"name\": \"basicCalculatorIV\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"expression\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"evalvars\",\r\n      \"type\": \"string[]\"\r\n    },\r\n    {\r\n      \"name\": \"evalints\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<string>\"\r\n  }\r\n}\r\n"
+}

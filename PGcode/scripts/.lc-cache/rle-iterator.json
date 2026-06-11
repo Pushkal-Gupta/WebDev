@@ -1,0 +1,8 @@
+{
+  "questionId": "936",
+  "titleSlug": "rle-iterator",
+  "title": "RLE Iterator",
+  "exampleTestcases": "[\"RLEIterator\",\"next\",\"next\",\"next\",\"next\"]\n[[[3,8,0,9,2,5]],[2],[1],[1],[2]]",
+  "sampleTestCase": "[\"RLEIterator\",\"next\",\"next\",\"next\",\"next\"]\n[[[3,8,0,9,2,5]],[2],[1],[1],[2]]",
+  "metaData": "{\n  \"classname\": \"RLEIterator\",\n  \"maxbytesperline\": 200000,\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"integer[]\",\n        \"name\": \"encoding\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"name\": \"next\",\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"n\"\n        }\n      ],\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    }\n  ],\n  \"systemdesign\": true,\n  \"params\": [\n    {\n      \"name\": \"inputs\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"inputs\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<String>\",\n    \"dealloc\": true\n  }\n}"
+}

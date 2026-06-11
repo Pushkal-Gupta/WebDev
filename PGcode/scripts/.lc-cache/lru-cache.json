@@ -1,0 +1,8 @@
+{
+  "questionId": "146",
+  "titleSlug": "lru-cache",
+  "title": "LRU Cache",
+  "exampleTestcases": "[\"LRUCache\",\"put\",\"put\",\"get\",\"put\",\"get\",\"put\",\"get\",\"get\",\"get\"]\n[[2],[1,1],[2,2],[1],[3,3],[2],[4,4],[1],[3],[4]]",
+  "sampleTestCase": "[\"LRUCache\",\"put\",\"put\",\"get\",\"put\",\"get\",\"put\",\"get\",\"get\",\"get\"]\n[[2],[1,1],[2,2],[1],[3,3],[2],[4,4],[1],[3],[4]]",
+  "metaData": "{\n    \"classname\": \"LRUCache\",\n    \"maxbytesperline\": 200000,\n    \"constructor\": {\n        \"params\": [\n            {\n                \"type\": \"integer\",\n                \"name\": \"capacity\"\n            }\n        ]\n    },\n    \"methods\": [\n        {\n            \"name\" : \"get\",\n            \"params\": [\n                {\n                    \"type\": \"integer\",\n                    \"name\": \"key\"\n                }\n            ],\n            \"return\": {\n                \"type\": \"integer\"\n            }\n        },\n        {\n            \"name\" : \"put\",\n            \"params\": [\n                {\n                    \"type\": \"integer\",\n                    \"name\": \"key\"\n                },\n                {\n                    \"type\": \"integer\",\n                    \"name\": \"value\"\n                }\n            ],\n            \"return\": {\n                \"type\": \"void\"\n            }\n        }\n    ],\n    \"systemdesign\": true,\n    \"params\": [\n        {\n            \"name\": \"inputs\",\n            \"type\": \"integer[]\"\n        },\n        {\n            \"name\": \"inputs\",\n            \"type\": \"integer[]\"\n        }\n    ],\n    \"return\": {\n        \"type\": \"list<String>\",\n        \"dealloc\": true\n    }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "229",
+  "titleSlug": "majority-element-ii",
+  "title": "Majority Element II",
+  "exampleTestcases": "[3,2,3]\n[1]\n[1,2]",
+  "sampleTestCase": "[3,2,3]",
+  "metaData": "{\r\n  \"name\": \"majorityElement\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<integer>\"\r\n  }\r\n}"
+}

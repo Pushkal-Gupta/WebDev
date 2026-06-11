@@ -1,0 +1,8 @@
+{
+  "questionId": "346",
+  "titleSlug": "moving-average-from-data-stream",
+  "title": "Moving Average from Data Stream",
+  "exampleTestcases": "[\"MovingAverage\",\"next\",\"next\",\"next\",\"next\"]\n[[3],[1],[10],[3],[5]]",
+  "sampleTestCase": "[\"MovingAverage\",\"next\",\"next\",\"next\",\"next\"]\n[[3],[1],[10],[3],[5]]",
+  "metaData": "{\n  \"classname\": \"MovingAverage\",\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"integer\",\n        \"name\": \"size\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"val\"\n        }\n      ],\n      \"name\": \"next\",\n      \"return\": {\n        \"type\": \"double\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
+}

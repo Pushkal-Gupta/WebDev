@@ -1,0 +1,8 @@
+{
+  "questionId": "1020",
+  "titleSlug": "longest-turbulent-subarray",
+  "title": "Longest Turbulent Subarray",
+  "exampleTestcases": "[9,4,2,10,7,8,8,1,9]\n[4,8,12,16]\n[100]",
+  "sampleTestCase": "[9,4,2,10,7,8,8,1,9]",
+  "metaData": "{\n  \"name\": \"maxTurbulenceSize\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

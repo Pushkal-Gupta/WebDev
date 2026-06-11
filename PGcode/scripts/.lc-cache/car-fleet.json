@@ -1,0 +1,8 @@
+{
+  "questionId": "883",
+  "titleSlug": "car-fleet",
+  "title": "Car Fleet",
+  "exampleTestcases": "12\n[10,8,0,5,3]\n[2,4,1,1,3]\n10\n[3]\n[3]\n100\n[0,2,4]\n[4,2,1]",
+  "sampleTestCase": "12\n[10,8,0,5,3]\n[2,4,1,1,3]",
+  "metaData": "{\r\n  \"name\": \"carFleet\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"target\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"position\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"speed\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

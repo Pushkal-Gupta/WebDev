@@ -1,0 +1,8 @@
+{
+  "questionId": "3907",
+  "titleSlug": "count-prime-gap-balanced-subarrays",
+  "title": "Count Prime-Gap Balanced Subarrays",
+  "exampleTestcases": "[1,2,3]\n1\n[2,3,5,7]\n3",
+  "sampleTestCase": "[1,2,3]\n1",
+  "metaData": "{\n  \"name\": \"primeSubarray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

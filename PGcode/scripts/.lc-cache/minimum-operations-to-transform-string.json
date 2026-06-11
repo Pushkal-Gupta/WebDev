@@ -1,0 +1,8 @@
+{
+  "questionId": "3999",
+  "titleSlug": "minimum-operations-to-transform-string",
+  "title": "Minimum Operations to Transform String",
+  "exampleTestcases": "\"yz\"\n\"a\"",
+  "sampleTestCase": "\"yz\"",
+  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

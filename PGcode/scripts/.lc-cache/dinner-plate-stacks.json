@@ -1,0 +1,8 @@
+{
+  "questionId": "1270",
+  "titleSlug": "dinner-plate-stacks",
+  "title": "Dinner Plate Stacks",
+  "exampleTestcases": "[\"DinnerPlates\",\"push\",\"push\",\"push\",\"push\",\"push\",\"popAtStack\",\"push\",\"push\",\"popAtStack\",\"popAtStack\",\"pop\",\"pop\",\"pop\",\"pop\",\"pop\"]\n[[2],[1],[2],[3],[4],[5],[0],[20],[21],[0],[2],[],[],[],[],[]]",
+  "sampleTestCase": "[\"DinnerPlates\",\"push\",\"push\",\"push\",\"push\",\"push\",\"popAtStack\",\"push\",\"push\",\"popAtStack\",\"popAtStack\",\"pop\",\"pop\",\"pop\",\"pop\",\"pop\"]\n[[2],[1],[2],[3],[4],[5],[0],[20],[21],[0],[2],[],[],[],[],[]]",
+  "metaData": "{\n  \"classname\": \"DinnerPlates\",\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"integer\",\n        \"name\": \"capacity\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"val\"\n        }\n      ],\n      \"name\": \"push\",\n      \"return\": {\n        \"type\": \"void\"\n      }\n    },\n    {\n      \"params\": [],\n      \"name\": \"pop\",\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"index\"\n        }\n      ],\n      \"return\": {\n        \"type\": \"integer\"\n      },\n      \"name\": \"popAtStack\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3478",
+  "titleSlug": "check-if-the-rectangle-corner-is-reachable",
+  "title": "Check if the Rectangle Corner Is Reachable",
+  "exampleTestcases": "3\n4\n[[2,1,1]]\n3\n3\n[[1,1,2]]\n3\n3\n[[2,1,1],[1,2,1]]\n4\n4\n[[5,5,1]]",
+  "sampleTestCase": "3\n4\n[[2,1,1]]",
+  "metaData": "{\n  \"name\": \"canReachCorner\",\n  \"params\": [\n    {\n      \"name\": \"xCorner\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"yCorner\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"circles\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

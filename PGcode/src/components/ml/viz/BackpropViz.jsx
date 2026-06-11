@@ -124,13 +124,20 @@ export default function BackpropViz() {
   }, []);
 
   // re-reset transient lighting when sliders move during idle
-  useEffect(() => {
+  const [prevTrigger, setPrevTrigger] = useState({ a, b, c, phase });
+  if (
+    prevTrigger.a !== a ||
+    prevTrigger.b !== b ||
+    prevTrigger.c !== c ||
+    prevTrigger.phase !== phase
+  ) {
+    setPrevTrigger({ a, b, c, phase });
     if (phase === 'idle') {
       setFwdLit(new Set());
       setBwdLitNodes(new Set());
       setBwdLitEdges(new Set());
     }
-  }, [a, b, c, phase]);
+  }
 
   const runForward = useCallback(() => {
     clearTimer();

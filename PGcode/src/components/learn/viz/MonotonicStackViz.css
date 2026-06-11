@@ -124,13 +124,13 @@
 
 .ms-viz-stage {
   width: 100%;
-  overflow-x: auto;
   padding: 0.5rem 0.25rem 0.25rem;
 }
 
 .ms-viz-svg {
   display: block;
-  min-width: 780px;
+  width: 100%;
+  height: auto;
 }
 
 .ms-viz-baseline {

@@ -1,0 +1,8 @@
+{
+  "questionId": "1264",
+  "titleSlug": "maximum-number-of-words-you-can-type",
+  "title": "Maximum Number of Words You Can Type",
+  "exampleTestcases": "\"hello world\"\n\"ad\"\n\"leet code\"\n\"lt\"\n\"leet code\"\n\"e\"",
+  "sampleTestCase": "\"hello world\"\n\"ad\"",
+  "metaData": "{\n  \"name\": \"canBeTypedWords\",\n  \"params\": [\n    {\n      \"name\": \"text\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"brokenLetters\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

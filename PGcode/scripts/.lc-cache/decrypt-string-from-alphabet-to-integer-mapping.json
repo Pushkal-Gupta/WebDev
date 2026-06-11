@@ -1,0 +1,8 @@
+{
+  "questionId": "1434",
+  "titleSlug": "decrypt-string-from-alphabet-to-integer-mapping",
+  "title": "Decrypt String from Alphabet to Integer Mapping",
+  "exampleTestcases": "\"10#11#12\"\n\"1326#\"",
+  "sampleTestCase": "\"10#11#12\"",
+  "metaData": "{\n  \"name\": \"freqAlphabets\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1054",
+  "titleSlug": "complement-of-base-10-integer",
+  "title": "Complement of Base 10 Integer",
+  "exampleTestcases": "5\n7\n10",
+  "sampleTestCase": "5",
+  "metaData": "{\n  \"name\": \"bitwiseComplement\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

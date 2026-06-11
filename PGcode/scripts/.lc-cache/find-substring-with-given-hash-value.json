@@ -1,0 +1,8 @@
+{
+  "questionId": "2275",
+  "titleSlug": "find-substring-with-given-hash-value",
+  "title": "Find Substring With Given Hash Value",
+  "exampleTestcases": "\"leetcode\"\n7\n20\n2\n0\n\"fbxzaad\"\n31\n100\n3\n32",
+  "sampleTestCase": "\"leetcode\"\n7\n20\n2\n0",
+  "metaData": "{\n  \"name\": \"subStrHash\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"power\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"modulo\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"hashValue\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

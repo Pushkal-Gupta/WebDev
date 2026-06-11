@@ -193,7 +193,6 @@ export default function GaussianViz() {
       const s = samples[i];
       if (s.x < X_MIN || s.x > X_MAX) continue;
       const px = xToPx(s.x);
-      const py = PAD_T + PLOT_H + (s.y - 0.5) * 0;
       // Place dots in the lower 18px strip above the axis, jitter by stored y.
       const stripTop = yAxisBase - 16;
       const stripH = 12;
@@ -363,7 +362,6 @@ export default function GaussianViz() {
           {/* percentage labels above sigma bands */}
           {(() => {
             const labels = [];
-            const yLabel1 = yToPx(pdf(mu + sigma, mu, sigma)) - 6;
             const yLabel2 = yToPx(pdf(mu + 2 * sigma, mu, sigma)) - 6;
             const yLabel3 = yToPx(pdf(mu + 3 * sigma, mu, sigma)) - 6;
             const pushLbl = (x, y, txt, key) => {

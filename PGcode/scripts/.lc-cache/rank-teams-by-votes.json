@@ -1,0 +1,8 @@
+{
+  "questionId": "1483",
+  "titleSlug": "rank-teams-by-votes",
+  "title": "Rank Teams by Votes",
+  "exampleTestcases": "[\"ABC\",\"ACB\",\"ABC\",\"ACB\",\"ACB\"]\n[\"WXYZ\",\"XYZW\"]\n[\"ZMNAGUEDSJYLBOPHRQICWFXTVK\"]",
+  "sampleTestCase": "[\"ABC\",\"ACB\",\"ABC\",\"ACB\",\"ACB\"]",
+  "metaData": "{\n  \"name\": \"rankTeams\",\n  \"params\": [\n    {\n      \"name\": \"votes\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1778",
+  "titleSlug": "maximize-grid-happiness",
+  "title": "Maximize Grid Happiness",
+  "exampleTestcases": "2\n3\n1\n2\n3\n1\n2\n1\n2\n2\n4\n0",
+  "sampleTestCase": "2\n3\n1\n2",
+  "metaData": "{\n  \"name\": \"getMaxGridHappiness\",\n  \"params\": [\n    {\n      \"name\": \"m\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"n\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"introvertsCount\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"extrovertsCount\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

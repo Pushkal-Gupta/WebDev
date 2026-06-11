@@ -1,0 +1,8 @@
+{
+  "questionId": "3760",
+  "titleSlug": "assign-elements-to-groups-with-constraints",
+  "title": "Assign Elements to Groups with Constraints",
+  "exampleTestcases": "[8,4,3,2,4]\n[4,2]\n[2,3,5,7]\n[5,3,3]\n[10,21,30,41]\n[2,1]",
+  "sampleTestCase": "[8,4,3,2,4]\n[4,2]",
+  "metaData": "{\n  \"name\": \"assignElements\",\n  \"params\": [\n    {\n      \"name\": \"groups\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"elements\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

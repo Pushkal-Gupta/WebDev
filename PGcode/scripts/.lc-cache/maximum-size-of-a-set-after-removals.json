@@ -1,0 +1,8 @@
+{
+  "questionId": "3228",
+  "titleSlug": "maximum-size-of-a-set-after-removals",
+  "title": "Maximum Size of a Set After Removals",
+  "exampleTestcases": "[1,2,1,2]\n[1,1,1,1]\n[1,2,3,4,5,6]\n[2,3,2,3,2,3]\n[1,1,2,2,3,3]\n[4,4,5,5,6,6]",
+  "sampleTestCase": "[1,2,1,2]\n[1,1,1,1]",
+  "metaData": "{\n  \"name\": \"maximumSetSize\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

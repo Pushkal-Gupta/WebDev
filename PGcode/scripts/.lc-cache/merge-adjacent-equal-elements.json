@@ -1,0 +1,8 @@
+{
+  "questionId": "4213",
+  "titleSlug": "merge-adjacent-equal-elements",
+  "title": "Merge Adjacent Equal Elements",
+  "exampleTestcases": "[3,1,1,2]\n[2,2,4]\n[3,7,5]",
+  "sampleTestCase": "[3,1,1,2]",
+  "metaData": "{\n  \"name\": \"mergeAdjacent\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<long>\"\n  }\n}"
+}

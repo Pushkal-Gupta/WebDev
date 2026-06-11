@@ -1,0 +1,8 @@
+{
+  "questionId": "1290",
+  "titleSlug": "make-array-strictly-increasing",
+  "title": "Make Array Strictly Increasing",
+  "exampleTestcases": "[1,5,3,6,7]\n[1,3,2,4]\n[1,5,3,6,7]\n[4,3,1]\n[1,5,3,6,7]\n[1,6,3,3]",
+  "sampleTestCase": "[1,5,3,6,7]\n[1,3,2,4]",
+  "metaData": "{\n  \"name\": \"makeArrayIncreasing\",\n  \"params\": [\n    {\n      \"name\": \"arr1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"arr2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

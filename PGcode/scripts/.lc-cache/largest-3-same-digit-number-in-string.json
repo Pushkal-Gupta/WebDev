@@ -1,0 +1,8 @@
+{
+  "questionId": "2346",
+  "titleSlug": "largest-3-same-digit-number-in-string",
+  "title": "Largest 3-Same-Digit Number in String",
+  "exampleTestcases": "\"6777133339\"\n\"2300019\"\n\"42352338\"",
+  "sampleTestCase": "\"6777133339\"",
+  "metaData": "{\n  \"name\": \"largestGoodInteger\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

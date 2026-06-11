@@ -1,0 +1,8 @@
+{
+  "questionId": "3778",
+  "titleSlug": "transform-array-by-parity",
+  "title": "Transform Array by Parity",
+  "exampleTestcases": "[4,3,2,1]\n[1,5,1,4,2]",
+  "sampleTestCase": "[4,3,2,1]",
+  "metaData": "{\n  \"name\": \"transformArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1737",
+  "titleSlug": "maximum-nesting-depth-of-the-parentheses",
+  "title": "Maximum Nesting Depth of the Parentheses",
+  "exampleTestcases": "\"(1+(2*3)+((8)/4))+1\"\n\"(1)+((2))+(((3)))\"\n\"()(())((()()))\"",
+  "sampleTestCase": "\"(1+(2*3)+((8)/4))+1\"",
+  "metaData": "{\n  \"name\": \"maxDepth\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

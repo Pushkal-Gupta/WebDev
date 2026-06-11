@@ -1,0 +1,8 @@
+{
+  "questionId": "1429",
+  "titleSlug": "verbal-arithmetic-puzzle",
+  "title": "Verbal Arithmetic Puzzle",
+  "exampleTestcases": "[\"SEND\",\"MORE\"]\n\"MONEY\"\n[\"SIX\",\"SEVEN\",\"SEVEN\"]\n\"TWENTY\"\n[\"LEET\",\"CODE\"]\n\"POINT\"",
+  "sampleTestCase": "[\"SEND\",\"MORE\"]\n\"MONEY\"",
+  "metaData": "{\n  \"name\": \"isSolvable\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"result\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

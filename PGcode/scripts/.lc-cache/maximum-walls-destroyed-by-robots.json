@@ -1,0 +1,8 @@
+{
+  "questionId": "3982",
+  "titleSlug": "maximum-walls-destroyed-by-robots",
+  "title": "Maximum Walls Destroyed by Robots",
+  "exampleTestcases": "[4]\n[3]\n[1,10]\n[10,2]\n[5,1]\n[5,2,7]\n[1,2]\n[100,1]\n[10]",
+  "sampleTestCase": "[4]\n[3]\n[1,10]",
+  "metaData": "{\n  \"name\": \"maxWalls\",\n  \"params\": [\n    {\n      \"name\": \"robots\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"distance\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"walls\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

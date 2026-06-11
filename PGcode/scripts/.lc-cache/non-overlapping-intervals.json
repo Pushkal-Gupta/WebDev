@@ -1,0 +1,8 @@
+{
+  "questionId": "435",
+  "titleSlug": "non-overlapping-intervals",
+  "title": "Non-overlapping Intervals",
+  "exampleTestcases": "[[1,2],[2,3],[3,4],[1,3]]\n[[1,2],[1,2],[1,2]]\n[[1,2],[2,3]]",
+  "sampleTestCase": "[[1,2],[2,3],[3,4],[1,3]]",
+  "metaData": "{\r\n  \"name\": \"eraseOverlapIntervals\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"intervals\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

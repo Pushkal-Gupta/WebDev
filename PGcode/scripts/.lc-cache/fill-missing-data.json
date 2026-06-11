@@ -1,0 +1,8 @@
+{
+  "questionId": "3070",
+  "titleSlug": "fill-missing-data",
+  "title": "Fill Missing Data",
+  "exampleTestcases": "{\"headers\":{\"products\":[\"name\",\"quantity\",\"price\"]},\"rows\":{\"products\":[[\"Wristwatch\",null,135],[\"WirelessEarbuds\",null,821],[\"GolfClubs\",779,9319],[\"Printer\",849,3051]]}}",
+  "sampleTestCase": "{\"headers\":{\"products\":[\"name\",\"quantity\",\"price\"]},\"rows\":{\"products\":[[\"Wristwatch\",null,135],[\"WirelessEarbuds\",null,821],[\"GolfClubs\",779,9319],[\"Printer\",849,3051]]}}",
+  "metaData": "{\n  \"pythondata\": [\n    \"products = pd.DataFrame([], columns=['name', 'quantity', 'price']).astype({'name':'object', 'quantity':'Int64', 'price':'Int64'})\"\n  ],\n  \"database\": true,\n  \"name\": \"fillMissingValues\",\n  \"languages\": [\n    \"pythondata\"\n  ]\n}"
+}

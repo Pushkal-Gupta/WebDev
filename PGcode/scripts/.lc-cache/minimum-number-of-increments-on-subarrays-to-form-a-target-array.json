@@ -1,0 +1,8 @@
+{
+  "questionId": "1633",
+  "titleSlug": "minimum-number-of-increments-on-subarrays-to-form-a-target-array",
+  "title": "Minimum Number of Increments on Subarrays to Form a Target Array",
+  "exampleTestcases": "[1,2,3,2,1]\n[3,1,1,2]\n[3,1,5,4,2]",
+  "sampleTestCase": "[1,2,3,2,1]",
+  "metaData": "{\n  \"name\": \"minNumberOperations\",\n  \"params\": [\n    {\n      \"name\": \"target\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

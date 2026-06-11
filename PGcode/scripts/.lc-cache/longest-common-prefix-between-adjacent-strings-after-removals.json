@@ -1,0 +1,8 @@
+{
+  "questionId": "3800",
+  "titleSlug": "longest-common-prefix-between-adjacent-strings-after-removals",
+  "title": "Longest Common Prefix Between Adjacent Strings After Removals",
+  "exampleTestcases": "[\"jump\",\"run\",\"run\",\"jump\",\"run\"]\n[\"dog\",\"racer\",\"car\"]",
+  "sampleTestCase": "[\"jump\",\"run\",\"run\",\"jump\",\"run\"]",
+  "metaData": "{\n  \"name\": \"longestCommonPrefix\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1530",
+  "titleSlug": "check-if-a-string-can-break-another-string",
+  "title": "Check If a String Can Break Another String",
+  "exampleTestcases": "\"abc\"\n\"xya\"\n\"abe\"\n\"acd\"\n\"leetcodee\"\n\"interview\"",
+  "sampleTestCase": "\"abc\"\n\"xya\"",
+  "metaData": "{\n  \"name\": \"checkIfCanBreak\",\n  \"params\": [\n    {\n      \"name\": \"s1\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"s2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

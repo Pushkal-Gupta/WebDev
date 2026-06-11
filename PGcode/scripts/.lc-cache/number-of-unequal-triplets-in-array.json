@@ -1,0 +1,8 @@
+{
+  "questionId": "2566",
+  "titleSlug": "number-of-unequal-triplets-in-array",
+  "title": "Number of Unequal Triplets in Array",
+  "exampleTestcases": "[4,4,2,4,3]\n[1,1,1,1,1]",
+  "sampleTestCase": "[4,4,2,4,3]",
+  "metaData": "{\n  \"name\": \"unequalTriplets\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

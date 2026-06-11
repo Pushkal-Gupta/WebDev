@@ -219,7 +219,6 @@ export default function RNNUnrollViz() {
             const isCur = k === t;
             const isPast = k < t;
             const hVals = states[k];
-            const xVals = xs[k];
             const tokY = cellY + cellH + 78;
             const stateColor = hiddenColor;
 

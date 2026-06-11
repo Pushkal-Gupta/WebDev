@@ -1,0 +1,8 @@
+{
+  "questionId": "2812",
+  "titleSlug": "find-the-maximum-achievable-number",
+  "title": "Find the Maximum Achievable Number",
+  "exampleTestcases": "4\n1\n3\n2",
+  "sampleTestCase": "4\n1",
+  "metaData": "{\n  \"name\": \"theMaximumAchievableX\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"t\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

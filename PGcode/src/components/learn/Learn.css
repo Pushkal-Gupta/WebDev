@@ -731,8 +731,8 @@
   font-size: 0.82rem;
   line-height: 1.55;
   color: var(--text-main);
-  overflow: auto;
-  white-space: pre;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .learn-concept-aside {
@@ -1217,12 +1217,15 @@
   border-radius: 8px;
   color: var(--text-main);
   text-align: center;
-  overflow-x: auto;
   margin: 0.8rem 0;
 }
 
 .cp-section-body .cp-math .katex-display {
   margin: 0;
+}
+.cp-section-body .cp-math .katex-display > .katex {
+  white-space: normal;
+  max-width: 100%;
 }
 
 .cp-section-body .cp-math .katex {
@@ -1232,16 +1235,14 @@
 
 .cp-section-body pre {
   max-width: 100%;
-  overflow-x: auto;
   background: var(--hover-box);
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 0.75rem 0.9rem;
   margin: 0.85rem 0;
-  scrollbar-width: thin;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
-.cp-section-body pre::-webkit-scrollbar { height: 4px; }
-.cp-section-body pre::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 .cp-section-body pre code {
   background: transparent;
   color: var(--text-main);
@@ -1507,8 +1508,8 @@
   font-size: 0.82rem;
   line-height: 1.55;
   color: var(--text-main);
-  overflow: auto;
-  white-space: pre;
+  white-space: pre-wrap;
+  word-break: break-word;
   margin: 0;
 }
 
@@ -1986,13 +1987,10 @@
 .viz-chip-bar {
   display: none;
   gap: 0.45rem;
-  overflow-x: auto;
+  flex-wrap: wrap;
   padding: 0.5rem 0.25rem 0.6rem;
   margin: 0 -0.25rem 1rem;
-  scrollbar-width: thin;
 }
-.viz-chip-bar::-webkit-scrollbar { height: 4px; }
-.viz-chip-bar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
 .viz-chip {
   display: inline-flex;

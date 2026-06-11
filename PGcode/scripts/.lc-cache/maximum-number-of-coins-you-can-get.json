@@ -1,0 +1,8 @@
+{
+  "questionId": "1683",
+  "titleSlug": "maximum-number-of-coins-you-can-get",
+  "title": "Maximum Number of Coins You Can Get",
+  "exampleTestcases": "[2,4,1,2,7,8]\n[2,4,5]\n[9,8,7,6,5,1,2,3,4]",
+  "sampleTestCase": "[2,4,1,2,7,8]",
+  "metaData": "{\n  \"name\": \"maxCoins\",\n  \"params\": [\n    {\n      \"name\": \"piles\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

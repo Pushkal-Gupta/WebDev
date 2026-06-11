@@ -1,0 +1,8 @@
+{
+  "questionId": "3446",
+  "titleSlug": "find-the-number-of-good-pairs-i",
+  "title": "Find the Number of Good Pairs I",
+  "exampleTestcases": "[1,3,4]\n[1,3,4]\n1\n[1,2,4,12]\n[2,4]\n3",
+  "sampleTestCase": "[1,3,4]\n[1,3,4]\n1",
+  "metaData": "{\n  \"name\": \"numberOfPairs\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

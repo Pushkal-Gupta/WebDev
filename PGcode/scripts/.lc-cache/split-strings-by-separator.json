@@ -1,0 +1,8 @@
+{
+  "questionId": "2881",
+  "titleSlug": "split-strings-by-separator",
+  "title": "Split Strings by Separator",
+  "exampleTestcases": "[\"one.two.three\",\"four.five\",\"six\"]\n\".\"\n[\"$easy$\",\"$problem$\"]\n\"$\"\n[\"|||\"]\n\"|\"",
+  "sampleTestCase": "[\"one.two.three\",\"four.five\",\"six\"]\n\".\"",
+  "metaData": "{\n  \"name\": \"splitWordsBySeparator\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"list<string>\"\n    },\n    {\n      \"type\": \"character\",\n      \"name\": \"separator\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\"\n  }\n}"
+}

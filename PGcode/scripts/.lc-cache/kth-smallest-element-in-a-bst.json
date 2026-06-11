@@ -1,0 +1,8 @@
+{
+  "questionId": "230",
+  "titleSlug": "kth-smallest-element-in-a-bst",
+  "title": "Kth Smallest Element in a BST",
+  "exampleTestcases": "[3,1,4,null,2]\n1\n[5,3,6,2,4,null,null,1]\n3",
+  "sampleTestCase": "[3,1,4,null,2]\n1",
+  "metaData": "{\r\n  \"name\": \"kthSmallest\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"root\",\r\n      \"type\": \"TreeNode\"\r\n    },\r\n    {\r\n      \"name\": \"k\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3716",
+  "titleSlug": "longest-subsequence-with-decreasing-adjacent-difference",
+  "title": "Longest Subsequence With Decreasing Adjacent Difference",
+  "exampleTestcases": "[16,6,3]\n[6,5,3,4,2,1]\n[10,20,10,19,10,20]",
+  "sampleTestCase": "[16,6,3]",
+  "metaData": "{\n  \"name\": \"longestSubsequence\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

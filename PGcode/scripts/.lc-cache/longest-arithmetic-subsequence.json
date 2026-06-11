@@ -1,0 +1,8 @@
+{
+  "questionId": "1087",
+  "titleSlug": "longest-arithmetic-subsequence",
+  "title": "Longest Arithmetic Subsequence",
+  "exampleTestcases": "[3,6,9,12]\n[9,4,7,2,10]\n[20,1,15,3,10,5,8]",
+  "sampleTestCase": "[3,6,9,12]",
+  "metaData": "{\n  \"name\": \"longestArithSeqLength\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

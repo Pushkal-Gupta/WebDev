@@ -1,0 +1,8 @@
+{
+  "questionId": "4257",
+  "titleSlug": "sum-of-sortable-integers",
+  "title": "Sum of Sortable Integers",
+  "exampleTestcases": "[3,1,2]\n[7,6,5]\n[5,8]",
+  "sampleTestCase": "[3,1,2]",
+  "metaData": "{\n  \"name\": \"sortableIntegers\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

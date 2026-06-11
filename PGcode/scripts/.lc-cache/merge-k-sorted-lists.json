@@ -1,0 +1,8 @@
+{
+  "questionId": "23",
+  "titleSlug": "merge-k-sorted-lists",
+  "title": "Merge k Sorted Lists",
+  "exampleTestcases": "[[1,4,5],[1,3,4],[2,6]]\n[]\n[[]]",
+  "sampleTestCase": "[[1,4,5],[1,3,4],[2,6]]",
+  "metaData": "{\r\n  \"name\": \"mergeKLists\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"lists\",\r\n      \"type\": \"ListNode[]\",\r\n      \"dealloc\": false\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"ListNode\",\r\n    \"dealloc\": true\r\n  }\r\n}"
+}

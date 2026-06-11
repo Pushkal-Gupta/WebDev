@@ -1,0 +1,8 @@
+{
+  "questionId": "2027",
+  "titleSlug": "maximum-number-of-removable-characters",
+  "title": "Maximum Number of Removable Characters",
+  "exampleTestcases": "\"abcacb\"\n\"ab\"\n[3,1,0]\n\"abcbddddd\"\n\"abcd\"\n[3,2,1,4,5,6]\n\"abcab\"\n\"abc\"\n[0,1,2,3,4]",
+  "sampleTestCase": "\"abcacb\"\n\"ab\"\n[3,1,0]",
+  "metaData": "{\n  \"name\": \"maximumRemovals\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"p\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"removable\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

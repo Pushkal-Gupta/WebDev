@@ -1,0 +1,8 @@
+{
+  "questionId": "1140",
+  "titleSlug": "distant-barcodes",
+  "title": "Distant Barcodes",
+  "exampleTestcases": "[1,1,1,2,2,2]\n[1,1,1,1,2,2,3,3]",
+  "sampleTestCase": "[1,1,1,2,2,2]",
+  "metaData": "{\n  \"name\": \"rearrangeBarcodes\",\n  \"params\": [\n    {\n      \"name\": \"barcodes\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}\n"
+}

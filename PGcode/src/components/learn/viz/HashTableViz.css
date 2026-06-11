@@ -244,15 +244,12 @@
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 8px;
-  overflow-x: auto;
-  overflow-y: hidden;
 }
 
 .hv-svg {
   display: block;
   width: 100%;
   height: auto;
-  min-width: 560px;
   max-height: 620px;
 }
 
@@ -458,7 +455,7 @@
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 10px;
-  overflow-x: auto;
+  flex-wrap: wrap;
 }
 
 .hv-key-row-label {

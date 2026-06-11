@@ -1,0 +1,8 @@
+{
+  "questionId": "503",
+  "titleSlug": "next-greater-element-ii",
+  "title": "Next Greater Element II",
+  "exampleTestcases": "[1,2,1]\n[1,2,3,4,3]",
+  "sampleTestCase": "[1,2,1]",
+  "metaData": "{\r\n  \"name\": \"nextGreaterElements\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer[]\"\r\n  }\r\n}\r\n"
+}

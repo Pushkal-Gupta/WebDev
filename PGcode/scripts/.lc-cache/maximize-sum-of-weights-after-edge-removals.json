@@ -1,0 +1,8 @@
+{
+  "questionId": "3675",
+  "titleSlug": "maximize-sum-of-weights-after-edge-removals",
+  "title": "Maximize Sum of Weights after Edge Removals",
+  "exampleTestcases": "[[0,1,4],[0,2,2],[2,3,12],[2,4,6]]\n2\n[[0,1,5],[1,2,10],[0,3,15],[3,4,20],[3,5,5],[0,6,10]]\n3",
+  "sampleTestCase": "[[0,1,4],[0,2,2],[2,3,12],[2,4,6]]\n2",
+  "metaData": "{\n  \"name\": \"maximizeSumOfWeights\",\n  \"params\": [\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

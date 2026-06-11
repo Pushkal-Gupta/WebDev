@@ -1,0 +1,8 @@
+{
+  "questionId": "1751",
+  "titleSlug": "slowest-key",
+  "title": "Slowest Key",
+  "exampleTestcases": "[9,29,49,50]\n\"cbcd\"\n[12,23,36,46,62]\n\"spuda\"",
+  "sampleTestCase": "[9,29,49,50]\n\"cbcd\"",
+  "metaData": "{\n  \"name\": \"slowestKey\",\n  \"params\": [\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"releaseTimes\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"keysPressed\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"character\"\n  },\n  \"manual\": false\n}"
+}

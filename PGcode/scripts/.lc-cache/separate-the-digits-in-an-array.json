@@ -1,0 +1,8 @@
+{
+  "questionId": "2639",
+  "titleSlug": "separate-the-digits-in-an-array",
+  "title": "Separate the Digits in an Array",
+  "exampleTestcases": "[13,25,83,77]\n[7,1,3,9]",
+  "sampleTestCase": "[13,25,83,77]",
+  "metaData": "{\n  \"name\": \"separateDigits\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "4054",
+  "titleSlug": "count-distinct-integers-after-removing-zeros",
+  "title": "Count Distinct Integers After Removing Zeros",
+  "exampleTestcases": "10\n3",
+  "sampleTestCase": "10",
+  "metaData": "{\n  \"name\": \"countDistinct\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"long\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

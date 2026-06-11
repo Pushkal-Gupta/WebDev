@@ -1,0 +1,8 @@
+{
+  "questionId": "1941",
+  "titleSlug": "minimum-number-of-operations-to-make-string-sorted",
+  "title": "Minimum Number of Operations to Make String Sorted",
+  "exampleTestcases": "\"cba\"\n\"aabaa\"",
+  "sampleTestCase": "\"cba\"",
+  "metaData": "{\n  \"name\": \"makeStringSorted\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

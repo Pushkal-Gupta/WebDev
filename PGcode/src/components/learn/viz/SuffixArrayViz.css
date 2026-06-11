@@ -144,13 +144,13 @@
 
 .sa-viz-stage {
   width: 100%;
-  overflow-x: auto;
   padding: 0.5rem 0.25rem 0.25rem;
 }
 
 .sa-viz-svg {
   display: block;
-  min-width: 520px;
+  width: 100%;
+  height: auto;
 }
 
 .sa-viz-row-label {

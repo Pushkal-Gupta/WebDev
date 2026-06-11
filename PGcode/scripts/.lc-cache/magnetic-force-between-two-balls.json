@@ -1,0 +1,8 @@
+{
+  "questionId": "1675",
+  "titleSlug": "magnetic-force-between-two-balls",
+  "title": "Magnetic Force Between Two Balls",
+  "exampleTestcases": "[1,2,3,4,7]\n3\n[5,4,3,2,1,1000000000]\n2",
+  "sampleTestCase": "[1,2,3,4,7]\n3",
+  "metaData": "{\n  \"name\": \"maxDistance\",\n  \"params\": [\n    {\n      \"name\": \"position\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"m\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

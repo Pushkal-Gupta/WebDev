@@ -1,0 +1,8 @@
+{
+  "questionId": "1242",
+  "titleSlug": "matrix-block-sum",
+  "title": "Matrix Block Sum",
+  "exampleTestcases": "[[1,2,3],[4,5,6],[7,8,9]]\n1\n[[1,2,3],[4,5,6],[7,8,9]]\n2",
+  "sampleTestCase": "[[1,2,3],[4,5,6],[7,8,9]]\n1",
+  "metaData": "{\n  \"name\": \"matrixBlockSum\",\n  \"params\": [\n    {\n      \"name\": \"mat\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  }\n}"
+}

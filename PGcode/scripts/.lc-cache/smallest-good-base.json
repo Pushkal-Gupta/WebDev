@@ -1,0 +1,8 @@
+{
+  "questionId": "483",
+  "titleSlug": "smallest-good-base",
+  "title": "Smallest Good Base",
+  "exampleTestcases": "\"13\"\n\"4681\"\n\"1000000000000000000\"",
+  "sampleTestCase": "\"13\"",
+  "metaData": "{\r\n  \"name\": \"smallestGoodBase\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}\r\n"
+}

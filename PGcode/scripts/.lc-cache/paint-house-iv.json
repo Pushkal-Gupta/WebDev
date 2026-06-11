@@ -1,0 +1,8 @@
+{
+  "questionId": "3737",
+  "titleSlug": "paint-house-iv",
+  "title": "Paint House IV",
+  "exampleTestcases": "4\n[[3,5,7],[6,2,9],[4,8,1],[7,3,5]]\n6\n[[2,4,6],[5,3,8],[7,1,9],[4,6,2],[3,5,7],[8,2,4]]",
+  "sampleTestCase": "4\n[[3,5,7],[6,2,9],[4,8,1],[7,3,5]]",
+  "metaData": "{\n  \"name\": \"minCost\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"cost\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

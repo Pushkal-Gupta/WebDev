@@ -1,0 +1,8 @@
+{
+  "questionId": "2042",
+  "titleSlug": "maximum-product-difference-between-two-pairs",
+  "title": "Maximum Product Difference Between Two Pairs",
+  "exampleTestcases": "[5,6,2,7,4]\n[4,2,5,9,7,4,8]",
+  "sampleTestCase": "[5,6,2,7,4]",
+  "metaData": "{\n  \"name\": \"maxProductDifference\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

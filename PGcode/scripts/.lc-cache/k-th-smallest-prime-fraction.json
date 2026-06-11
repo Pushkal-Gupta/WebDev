@@ -1,0 +1,8 @@
+{
+  "questionId": "802",
+  "titleSlug": "k-th-smallest-prime-fraction",
+  "title": "K-th Smallest Prime Fraction",
+  "exampleTestcases": "[1,2,3,5]\n3\n[1,7]\n1",
+  "sampleTestCase": "[1,2,3,5]\n3",
+  "metaData": "{\n  \"name\": \"kthSmallestPrimeFraction\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

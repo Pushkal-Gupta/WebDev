@@ -1,0 +1,8 @@
+{
+  "questionId": "2599",
+  "titleSlug": "take-k-of-each-character-from-left-and-right",
+  "title": "Take K of Each Character From Left and Right",
+  "exampleTestcases": "\"aabaaaacaabc\"\n2\n\"a\"\n1",
+  "sampleTestCase": "\"aabaaaacaabc\"\n2",
+  "metaData": "{\n  \"name\": \"takeCharacters\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "733",
+  "titleSlug": "flood-fill",
+  "title": "Flood Fill",
+  "exampleTestcases": "[[1,1,1],[1,1,0],[1,0,1]]\n1\n1\n2\n[[0,0,0],[0,0,0]]\n0\n0\n0",
+  "sampleTestCase": "[[1,1,1],[1,1,0],[1,0,1]]\n1\n1\n2",
+  "metaData": "{\n  \"name\": \"floodFill\",\n  \"params\": [\n    {\n      \"name\": \"image\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"name\": \"sr\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"sc\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"color\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  }\n}"
+}

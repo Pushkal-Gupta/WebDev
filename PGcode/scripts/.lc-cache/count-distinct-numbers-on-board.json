@@ -1,0 +1,8 @@
+{
+  "questionId": "2679",
+  "titleSlug": "count-distinct-numbers-on-board",
+  "title": "Count Distinct Numbers on Board",
+  "exampleTestcases": "5\n3",
+  "sampleTestCase": "5",
+  "metaData": "{\n  \"name\": \"distinctIntegers\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

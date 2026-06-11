@@ -1,0 +1,8 @@
+{
+  "questionId": "3470",
+  "titleSlug": "maximum-score-from-grid-operations",
+  "title": "Maximum Score From Grid Operations",
+  "exampleTestcases": "[[0,0,0,0,0],[0,0,3,0,0],[0,1,0,0,0],[5,0,0,3,0],[0,0,0,0,2]]\n[[10,9,0,0,15],[7,1,0,8,0],[5,20,0,11,0],[0,0,0,1,2],[8,12,1,10,3]]",
+  "sampleTestCase": "[[0,0,0,0,0],[0,0,3,0,0],[0,1,0,0,0],[5,0,0,3,0],[0,0,0,0,2]]",
+  "metaData": "{\n  \"name\": \"maximumScore\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "289",
+  "titleSlug": "game-of-life",
+  "title": "Game of Life",
+  "exampleTestcases": "[[0,1,0],[0,0,1],[1,1,1],[0,0,0]]\n[[1,1],[1,0]]",
+  "sampleTestCase": "[[0,1,0],[0,0,1],[1,1,1],[0,0,0]]",
+  "metaData": "{\r\n  \"name\": \"gameOfLife\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"board\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"void\"\r\n  },\r\n  \"output\": {\r\n    \"paramindex\": 0\r\n  }\r\n}"
+}

@@ -8775,6 +8775,737 @@ function subarrayProductLessKFrames(arr = [10, 5, 2, 6], k = 100) {
 }
 
 // ----------------------------------------------------------------------------
+// LeetCode-style sliding-window frame builders. Each returns an array of
+// { array, window:[l,r], caption, ...stateFields } — the renderer only reads
+// array/window/caption, so the extra fields are documentation that mirrors
+// the algorithm's actual variables for anyone reading the source.
+// ----------------------------------------------------------------------------
+
+// Longest Substring Without Repeating Characters (LC 3).
+// Expand r until we see a char already in the window, then jump l past the
+// previous occurrence. Each index visits at most twice → O(n).
+function longestSubstrFrames(s = 'abcabcbb') {
+  const str = String(s ?? '');
+  if (!str.length) {
+    return [{ array: [], window: [0, -1], caption: 'Empty string — longest substring length is 0.' }];
+  }
+  const arr = str.split('');
+  const frames = [];
+  const seen = new Map();
+  let left = 0, maxLen = 0, bestRange = [0, 0];
+  frames.push({
+    array: arr,
+    window: [0, -1],
+    left: 0, right: -1, windowStr: '', charMap: {}, currentLen: 0, maxLen: 0, action: 'init',
+    caption: `Goal: longest substring of "${str}" with all distinct characters. Window state = a map char → last index seen.`,
+  });
+  frames.push({
+    array: arr,
+    window: [0, -1],
+    left: 0, right: -1, windowStr: '', charMap: {}, currentLen: 0, maxLen: 0, action: 'init',
+    caption: `Pattern: expand right; if the new char is already inside the window, jump left to (prev index + 1). Track the widest window seen.`,
+  });
+  for (let r = 0; r < arr.length; r++) {
+    const ch = arr[r];
+    if (seen.has(ch) && seen.get(ch) >= left) {
+      const prev = seen.get(ch);
+      const oldL = left;
+      left = prev + 1;
+      seen.set(ch, r);
+      const currentLen = r - left + 1;
+      const windowStr = str.slice(left, r + 1);
+      frames.push({
+        array: arr,
+        window: [left, r],
+        left, right: r, windowStr,
+        charMap: Object.fromEntries(seen),
+        currentLen, maxLen, action: 'shrink',
+        caption: `r=${r}: '${ch}' already inside window at index ${prev}. Shrink: jump left ${oldL} → ${left} so the duplicate falls out. Window = "${windowStr}" (length ${currentLen}).`,
+      });
+    } else {
+      seen.set(ch, r);
+      const currentLen = r - left + 1;
+      const windowStr = str.slice(left, r + 1);
+      const wasMax = maxLen;
+      const improved = currentLen > maxLen;
+      if (improved) { maxLen = currentLen; bestRange = [left, r]; }
+      frames.push({
+        array: arr,
+        window: [left, r],
+        left, right: r, windowStr,
+        charMap: Object.fromEntries(seen),
+        currentLen, maxLen, action: 'expand',
+        caption: `r=${r}: '${ch}' is new — expand. Window = "${windowStr}" (length ${currentLen}).${improved ? ` New best maxLen = ${maxLen}.` : ''}`,
+      });
+      if (improved) {
+        frames.push({
+          array: arr,
+          window: bestRange,
+          left: bestRange[0], right: bestRange[1],
+          windowStr: str.slice(bestRange[0], bestRange[1] + 1),
+          charMap: Object.fromEntries(seen),
+          currentLen: maxLen, maxLen, action: 'best',
+          caption: `Best window so far: "${str.slice(bestRange[0], bestRange[1] + 1)}" at [${bestRange[0]}..${bestRange[1]}], length ${maxLen} (was ${wasMax}).`,
+        });
+      }
+    }
+  }
+  frames.push({
+    array: arr,
+    window: bestRange,
+    left: bestRange[0], right: bestRange[1],
+    windowStr: str.slice(bestRange[0], bestRange[1] + 1),
+    charMap: Object.fromEntries(seen),
+    currentLen: maxLen, maxLen, action: 'done',
+    caption: `Done. Longest substring without repeats in "${str}" = "${str.slice(bestRange[0], bestRange[1] + 1)}" (length ${maxLen}). Both pointers crossed the string once → O(n).`,
+  });
+  return frames;
+}
+
+// Longest Repeating Character Replacement (LC 424).
+// Window is valid while (windowLen - maxFreqInWindow) <= k. Otherwise shrink.
+// Note: maxFreqInWindow doesn't need to be perfectly recomputed on shrink — the
+// answer never improves on a stale max, so we let it drift. Captions still show
+// the actual max for clarity.
+function longestRepeatingReplacementFrames(s = 'AABABBA', k = 1) {
+  const str = String(s ?? '');
+  if (!str.length) {
+    return [{ array: [], window: [0, -1], caption: `Empty string — answer is 0 (k=${k}).` }];
+  }
+  const arr = str.split('');
+  const freq = {};
+  const frames = [];
+  let left = 0, best = 0, bestRange = [0, 0];
+  const trueMaxFreq = () => {
+    let m = 0;
+    for (const v of Object.values(freq)) if (v > m) m = v;
+    return m;
+  };
+  const freqStr = () => Object.entries(freq).filter(([, v]) => v > 0).map(([c, v]) => `${c}×${v}`).join(', ') || '∅';
+  frames.push({
+    array: arr,
+    window: [0, -1],
+    left: 0, right: -1, charFreq: {}, maxFreqInWindow: 0, windowLen: 0,
+    replacementsAllowed: k, action: 'init',
+    caption: `Goal: longest substring of "${str}" you can make uniform by replacing ≤ ${k} characters. Window valid while (windowLen − maxFreqChar) ≤ ${k}.`,
+  });
+  frames.push({
+    array: arr,
+    window: [0, -1],
+    left: 0, right: -1, charFreq: {}, maxFreqInWindow: 0, windowLen: 0,
+    replacementsAllowed: k, action: 'init',
+    caption: `Window state = a count of each char inside [l..r]. (windowLen − maxFreq) is how many replacements the window currently demands.`,
+  });
+  for (let r = 0; r < arr.length; r++) {
+    const ch = arr[r];
+    freq[ch] = (freq[ch] || 0) + 1;
+    let windowLen = r - left + 1;
+    let maxFreq = trueMaxFreq();
+    frames.push({
+      array: arr,
+      window: [left, r],
+      left, right: r, charFreq: { ...freq }, maxFreqInWindow: maxFreq,
+      windowLen, replacementsAllowed: k - (windowLen - maxFreq), action: 'expand',
+      caption: `r=${r}: add '${ch}'. Window = "${str.slice(left, r + 1)}", freq = { ${freqStr()} }, maxFreq = ${maxFreq}, replacements needed = ${windowLen - maxFreq}.`,
+    });
+    if (windowLen - maxFreq > k) {
+      const dropped = arr[left];
+      freq[dropped] -= 1;
+      if (freq[dropped] === 0) delete freq[dropped];
+      left += 1;
+      windowLen = r - left + 1;
+      maxFreq = trueMaxFreq();
+      frames.push({
+        array: arr,
+        window: [left, r],
+        left, right: r, charFreq: { ...freq }, maxFreqInWindow: maxFreq,
+        windowLen, replacementsAllowed: k - (windowLen - maxFreq), action: 'shrink',
+        caption: `Needed ${windowLen - maxFreq + 1} > k=${k}. Shrink: drop arr[${left - 1}]='${dropped}', left → ${left}. Window = "${str.slice(left, r + 1)}" (length ${windowLen}).`,
+      });
+    }
+    if (windowLen > best) { best = windowLen; bestRange = [left, r]; }
+  }
+  frames.push({
+    array: arr,
+    window: bestRange,
+    left: bestRange[0], right: bestRange[1],
+    charFreq: { ...freq }, maxFreqInWindow: trueMaxFreq(),
+    windowLen: best, replacementsAllowed: k, action: 'done',
+    caption: `Done. Longest replaceable run = "${str.slice(bestRange[0], bestRange[1] + 1)}" (length ${best}) with k=${k} swaps. Each index advances at most twice → O(n).`,
+  });
+  return frames;
+}
+
+// Minimum Window Substring (LC 76).
+// Two-phase: expand right until every required char is satisfied (formed === need),
+// then shrink left as far as possible while still valid. Track the smallest valid range.
+function minimumWindowSubstringFrames(s = 'ADOBECODEBANC', t = 'ABC') {
+  const str = String(s ?? '');
+  const target = String(t ?? '');
+  if (!str.length || !target.length) {
+    return [{ array: str.split(''), window: [0, -1], caption: 'Empty input — no window exists.' }];
+  }
+  const arr = str.split('');
+  const needMap = {};
+  for (const c of target) needMap[c] = (needMap[c] || 0) + 1;
+  const need = Object.keys(needMap).length;
+  const have = {};
+  let formed = 0, left = 0;
+  let bestL = -1, bestR = -1, bestLen = Infinity;
+  const frames = [];
+  const haveStr = () => Object.entries(have).filter(([, v]) => v > 0).map(([c, v]) => `${c}×${v}`).join(', ') || '∅';
+
+  frames.push({
+    array: arr,
+    window: [0, -1],
+    left: 0, right: -1, have: {}, need, formed: 0,
+    bestL: -1, bestR: -1, action: 'init',
+    caption: `Goal: smallest window of "${str}" that covers every character of "${target}" (with multiplicity). need = ${need} distinct chars: { ${Object.entries(needMap).map(([c, v]) => `${c}×${v}`).join(', ')} }.`,
+  });
+  frames.push({
+    array: arr,
+    window: [0, -1],
+    left: 0, right: -1, have: {}, need, formed: 0,
+    bestL: -1, bestR: -1, action: 'init',
+    caption: `Two-phase loop: expand right until formed === need (window is valid), then shrink left while still valid. Track the smallest valid (l, r) seen.`,
+  });
+
+  for (let r = 0; r < arr.length; r++) {
+    const ch = arr[r];
+    if (needMap[ch] !== undefined) {
+      have[ch] = (have[ch] || 0) + 1;
+      if (have[ch] === needMap[ch]) formed += 1;
+    }
+    frames.push({
+      array: arr,
+      window: [left, r],
+      left, right: r, have: { ...have }, need, formed,
+      bestL, bestR, action: 'expand',
+      caption: `r=${r}: expand to '${ch}'. ${needMap[ch] !== undefined ? `Now have ${have[ch]} of needed ${needMap[ch]} '${ch}'.` : `'${ch}' isn't in target — skip.`} formed = ${formed}/${need}.`,
+    });
+    while (formed === need) {
+      const len = r - left + 1;
+      if (len < bestLen) {
+        bestLen = len; bestL = left; bestR = r;
+        frames.push({
+          array: arr,
+          window: [left, r],
+          left, right: r, have: { ...have }, need, formed,
+          bestL, bestR, action: 'shrink',
+          caption: `Window [${left}..${r}] valid — length ${len}. New best: "${str.slice(bestL, bestR + 1)}". Try shrinking from the left.`,
+        });
+      } else {
+        frames.push({
+          array: arr,
+          window: [left, r],
+          left, right: r, have: { ...have }, need, formed,
+          bestL, bestR, action: 'shrink',
+          caption: `Window [${left}..${r}] valid — length ${len}, not better than best ${bestLen}. Shrink anyway.`,
+        });
+      }
+      const lc = arr[left];
+      if (needMap[lc] !== undefined) {
+        have[lc] -= 1;
+        if (have[lc] < needMap[lc]) formed -= 1;
+      }
+      left += 1;
+      frames.push({
+        array: arr,
+        window: [left, r],
+        left, right: r, have: { ...have }, need, formed,
+        bestL, bestR, action: 'shrink',
+        caption: `Drop arr[${left - 1}]='${lc}', left → ${left}. have = { ${haveStr()} }, formed = ${formed}/${need}.`,
+      });
+    }
+  }
+  if (bestL === -1) {
+    frames.push({
+      array: arr,
+      window: [0, -1],
+      left, right: arr.length - 1, have: { ...have }, need, formed,
+      bestL: -1, bestR: -1, action: 'done',
+      caption: `Done. No window of "${str}" covers "${target}". Answer = "".`,
+    });
+  } else {
+    frames.push({
+      array: arr,
+      window: [bestL, bestR],
+      left: bestL, right: bestR, have: { ...have }, need, formed,
+      bestL, bestR, action: 'done',
+      caption: `Done. Smallest window = "${str.slice(bestL, bestR + 1)}" at [${bestL}..${bestR}], length ${bestLen}. Each index pushed once, popped once → O(|s| + |t|).`,
+    });
+  }
+  return frames;
+}
+
+// Permutation in String (LC 567).
+// Fixed-width window of |s1| over s2. Compare character-count vectors; advance
+// the window one step at a time.
+function permutationInStringFrames(s1 = 'ab', s2 = 'eidbaooo') {
+  const pattern = String(s1 ?? '');
+  const text = String(s2 ?? '');
+  if (!pattern.length || text.length < pattern.length) {
+    return [{ array: text.split(''), window: [0, -1], caption: 'Pattern empty or longer than text — no permutation match possible.' }];
+  }
+  const arr = text.split('');
+  const k = pattern.length;
+  const s1Count = {};
+  for (const c of pattern) s1Count[c] = (s1Count[c] || 0) + 1;
+  const windowCount = {};
+  const frames = [];
+  let matches = 0;
+  let foundAt = -1;
+  const distinctNeeded = Object.keys(s1Count).length;
+  const countStr = (m) => Object.entries(m).filter(([, v]) => v > 0).map(([c, v]) => `${c}×${v}`).join(', ') || '∅';
+
+  frames.push({
+    array: arr,
+    window: [0, -1],
+    left: 0, right: -1,
+    s1Count: { ...s1Count }, windowCount: {}, matches: 0, action: 'init',
+    caption: `Goal: does some permutation of "${pattern}" appear as a contiguous substring of "${text}"? Same characters in any order, exactly ${k} of them.`,
+  });
+  frames.push({
+    array: arr,
+    window: [0, -1],
+    left: 0, right: -1,
+    s1Count: { ...s1Count }, windowCount: {}, matches: 0, action: 'init',
+    caption: `Use a fixed window of width ${k}. Compare its char-count vector to s1's. matches counts how many distinct chars have the exact required count.`,
+  });
+
+  for (let r = 0; r < arr.length; r++) {
+    const inc = arr[r];
+    windowCount[inc] = (windowCount[inc] || 0) + 1;
+    if (s1Count[inc] !== undefined && windowCount[inc] === s1Count[inc]) matches += 1;
+    else if (s1Count[inc] !== undefined && windowCount[inc] === s1Count[inc] + 1) matches -= 1;
+
+    let left = Math.max(0, r - k + 1);
+    if (r >= k) {
+      const dec = arr[r - k];
+      if (s1Count[dec] !== undefined && windowCount[dec] === s1Count[dec]) matches -= 1;
+      else if (s1Count[dec] !== undefined && windowCount[dec] === s1Count[dec] + 1) matches += 1;
+      windowCount[dec] -= 1;
+      if (windowCount[dec] === 0) delete windowCount[dec];
+    }
+
+    if (r < k - 1) {
+      frames.push({
+        array: arr,
+        window: [0, r],
+        left: 0, right: r,
+        s1Count: { ...s1Count }, windowCount: { ...windowCount },
+        matches, action: 'expand',
+        caption: `r=${r}: filling initial window with '${inc}'. windowCount = { ${countStr(windowCount)} }, matches = ${matches}/${distinctNeeded}.`,
+      });
+    } else {
+      const isMatch = matches === distinctNeeded;
+      if (isMatch && foundAt === -1) foundAt = left;
+      const action = isMatch ? 'match' : 'slide';
+      frames.push({
+        array: arr,
+        window: [left, r],
+        left, right: r,
+        s1Count: { ...s1Count }, windowCount: { ...windowCount },
+        matches, action,
+        caption: `Window [${left}..${r}] = "${text.slice(left, r + 1)}". windowCount = { ${countStr(windowCount)} }, matches = ${matches}/${distinctNeeded}.${isMatch ? ' All counts equal — permutation found!' : ' Slide right.'}`,
+      });
+    }
+  }
+  if (foundAt >= 0) {
+    frames.push({
+      array: arr,
+      window: [foundAt, foundAt + k - 1],
+      left: foundAt, right: foundAt + k - 1,
+      s1Count: { ...s1Count }, windowCount: { ...windowCount },
+      matches, action: 'done',
+      caption: `Done. "${text.slice(foundAt, foundAt + k)}" at [${foundAt}..${foundAt + k - 1}] is a permutation of "${pattern}". Return true. Each index entered + exited the window once → O(|s2|).`,
+    });
+  } else {
+    frames.push({
+      array: arr,
+      window: [arr.length - k, arr.length - 1],
+      left: arr.length - k, right: arr.length - 1,
+      s1Count: { ...s1Count }, windowCount: { ...windowCount },
+      matches, action: 'done',
+      caption: `Done. Scanned every window of width ${k} — no permutation of "${pattern}" found in "${text}". Return false.`,
+    });
+  }
+  return frames;
+}
+
+// ----------------------------------------------------------------------------
+// Trie insert + search — build a prefix tree for a list of words, then search.
+// The tree renderer binds to binary `left`/`right`; we model each character node
+// as left = first child, right = second child (works for fan-out ≤ 2; we
+// fall back to chaining additional children down the right spine).
+function trieInsertSearchFrames(words = ['apple', 'app', 'apricot'], search = 'app') {
+  const wordList = (Array.isArray(words) ? words : [])
+    .map(w => String(w || '').trim().toLowerCase())
+    .filter(Boolean)
+    .slice(0, 4);
+  const query = String(search || '').trim().toLowerCase();
+  if (!wordList.length) return [{ tree: null, caption: 'No words supplied — nothing to insert.' }];
+
+  let nextId = 1;
+  const mkNode = (ch, state) => ({ _id: ++nextId, value: ch, _children: {}, _end: false, state, left: null, right: null });
+  const root = { _id: 0, value: '·', _children: {}, _end: false, state: 'visited', left: null, right: null };
+
+  // Re-layout the binary left/right pointers from each node's _children map
+  // so the renderer can draw it. First child → left, second → right; any extra
+  // child is hung off the right-spine of the second to keep the layout legal.
+  const relayout = (node) => {
+    if (!node) return;
+    const kids = Object.keys(node._children).sort();
+    node.left = null; node.right = null;
+    if (kids.length > 0) {
+      node.left = node._children[kids[0]];
+      relayout(node.left);
+    }
+    if (kids.length > 1) {
+      // Chain remaining children down the right side.
+      let cur = node;
+      for (let i = 1; i < kids.length; i++) {
+        cur.right = node._children[kids[i]];
+        relayout(node._children[kids[i]]);
+        cur = node._children[kids[i]];
+      }
+    }
+  };
+
+  const snapshot = (caption) => {
+    relayout(root);
+    // Deep clone so highlights on later frames don't leak backward.
+    const clone = (n) => n ? {
+      _id: n._id, value: n._end ? `${n.value}*` : n.value, state: n.state,
+      left: clone(n.left), right: clone(n.right),
+    } : null;
+    frames.push({ tree: clone(root), caption });
+  };
+
+  const clearStates = () => {
+    const walk = (n) => { if (!n) return; if (n._id !== 0) n.state = 'visited'; for (const k of Object.keys(n._children)) walk(n._children[k]); };
+    walk(root);
+  };
+
+  const frames = [];
+  snapshot(`Trie: every node = one character, every path from root = a prefix. We will insert [${wordList.map(w => `"${w}"`).join(', ')}] then search "${query}".`);
+  snapshot(`Start with an empty root (shown as "·"). End-of-word markers will be drawn as a trailing "*" on a node's letter.`);
+
+  for (const word of wordList) {
+    clearStates();
+    let cur = root;
+    cur.state = 'current';
+    // One framing snapshot per word, then a single end-mark snapshot at the
+    // close — per-char snapshots only when something interesting happens
+    // (creating a new node), so the frame count stays under 25.
+    snapshot(`Insert "${word}". Walk character by character from root, creating missing children as we go.`);
+    let lastCreatedSnapshot = false;
+    for (let i = 0; i < word.length; i++) {
+      const ch = word[i];
+      if (cur._children[ch]) {
+        cur._children[ch].state = 'current';
+        cur.state = 'visited';
+        cur = cur._children[ch];
+        lastCreatedSnapshot = false;
+      } else {
+        const child = mkNode(ch, 'current');
+        cur._children[ch] = child;
+        cur.state = 'visited';
+        cur = child;
+        snapshot(`Insert "${word}" — char ${i + 1}/${word.length} '${ch}'. No '${ch}' child, create it and descend.`);
+        lastCreatedSnapshot = true;
+      }
+    }
+    if (!lastCreatedSnapshot) snapshot(`Insert "${word}" — reached '${cur.value}'. All chars walked along existing edges.`);
+    cur._end = true;
+    cur.state = 'done';
+    snapshot(`Mark end=true on '${cur.value}' so "${word}" is recognized as a complete word (the "*" suffix means end-of-word).`);
+  }
+
+  // Search.
+  clearStates();
+  let cur = root;
+  cur.state = 'current';
+  snapshot(`All ${wordList.length} word${wordList.length === 1 ? '' : 's'} inserted. Now search for "${query}".`);
+  let found = true;
+  for (let i = 0; i < query.length; i++) {
+    const ch = query[i];
+    if (cur._children[ch]) {
+      cur._children[ch].state = 'current';
+      cur.state = 'visited';
+      cur = cur._children[ch];
+      snapshot(`Search "${query}" — char ${i + 1}/${query.length} '${ch}'. Found edge '${ch}', descend.`);
+    } else {
+      cur.state = 'visited';
+      found = false;
+      snapshot(`Search "${query}" — char ${i + 1}/${query.length} '${ch}'. No '${ch}' child. "${query}" is not present as any prefix.`);
+      break;
+    }
+  }
+  if (found) {
+    if (cur._end) {
+      cur.state = 'done';
+      snapshot(`Reached node '${cur.value}' with end=true. "${query}" is stored as a complete word. Return true.`);
+    } else {
+      snapshot(`Reached node '${cur.value}' but end=false. "${query}" is a prefix of stored word(s) but not itself a stored word.`);
+    }
+  }
+  return frames;
+}
+
+// Topological sort (Kahn's algorithm) on a small DAG with explicit in-degree /
+// queue / processed-order state narration in every frame.
+function topoSortKahnFrames(edgesIn = [[0, 1], [0, 2], [1, 3], [2, 3], [3, 4], [4, 5]], nNodes = 6) {
+  const n = Math.max(1, Math.min(12, Math.floor(Number(nNodes) || 6)));
+  const rawEdges = Array.isArray(edgesIn) ? edgesIn : [];
+  const edges = [];
+  for (const e of rawEdges) {
+    if (!Array.isArray(e) || e.length < 2) continue;
+    const a = Math.floor(Number(e[0])); const b = Math.floor(Number(e[1]));
+    if (a >= 0 && a < n && b >= 0 && b < n && a !== b) edges.push({ a, b });
+  }
+  const indeg = new Array(n).fill(0);
+  edges.forEach(e => { indeg[e.b] += 1; });
+
+  const frames = [];
+  const order = [];
+  let queue = [];
+  for (let i = 0; i < n; i++) if (indeg[i] === 0) queue.push(i);
+
+  const snapshot = (currentId, processedSet, caption, highlightEdges = new Set()) => {
+    const ns = Array.from({ length: n }, (_, i) => ({
+      id: i,
+      label: `${i}\nin=${indeg[i]}`,
+      state: i === currentId ? 'current'
+        : processedSet.has(i) ? 'done'
+        : queue.includes(i) ? 'frontier'
+        : undefined,
+    }));
+    const es = edges.map((e, idx) => ({ ...e, state: highlightEdges.has(idx) ? 'current' : undefined }));
+    frames.push({ nodes: ns, edges: es, caption });
+  };
+
+  snapshot(null, new Set(), `Kahn's algorithm. A DAG of ${n} nodes; each node's badge shows its current in-degree. Goal: emit a linear order respecting every directed edge.`);
+  snapshot(null, new Set(), `Initialize: scan in-degrees, seed the queue with every node that has in=0 (no prerequisites). Queue = [${queue.join(', ')}].`);
+
+  let step = 0;
+  while (queue.length) {
+    const u = queue.shift();
+    step += 1;
+    order.push(u);
+    const out = edges.map((e, i) => ({ e, i })).filter(x => x.e.a === u);
+    const outHL = new Set(out.map(x => x.i));
+    snapshot(u, new Set(order), `Step ${step}: pop ${u} from queue. Append to order: [${order.join(' → ')}]. Out-neighbors of ${u}: [${out.map(x => x.e.b).join(', ') || 'none'}]. Queue now [${queue.join(', ')}].`, outHL);
+    const newlyZero = [];
+    for (const { e } of out) {
+      indeg[e.b] -= 1;
+      if (indeg[e.b] === 0) { queue.push(e.b); newlyZero.push(e.b); }
+    }
+    if (out.length) {
+      const desc = newlyZero.length
+        ? `Decrement in-degrees of ${out.map(x => x.e.b).join(', ')}. Newly zero: [${newlyZero.join(', ')}] → push to queue. Queue [${queue.join(', ')}].`
+        : `Decrement in-degrees of ${out.map(x => x.e.b).join(', ')}. None hit zero yet. Queue [${queue.join(', ')}].`;
+      snapshot(null, new Set(order), `Step ${step}: ${desc}`);
+    }
+  }
+  if (order.length === n) {
+    snapshot(null, new Set(order), `Topological order: [${order.join(' → ')}]. Every edge points from an earlier index to a later one.`);
+  } else {
+    snapshot(null, new Set(order), `Only ${order.length}/${n} nodes processed — remaining nodes form a cycle (their in-degrees never hit zero).`);
+  }
+  return frames;
+}
+
+// Union-Find with rank + path compression. Tracks parent[] and rank[] every step.
+function unionFindRankFrames(opsIn = [['union', 0, 1], ['union', 2, 3], ['union', 0, 2], ['find', 3]], nIn = 6) {
+  const n = Math.max(2, Math.min(10, Math.floor(Number(nIn) || 6)));
+  const parent = Array.from({ length: n }, (_, i) => i);
+  const rank = new Array(n).fill(0);
+  const ops = (Array.isArray(opsIn) ? opsIn : []).filter(op => Array.isArray(op) && op.length >= 2);
+
+  // Path-compressing find that records each node on the path so we can
+  // narrate it in the snapshot.
+  const findWithPath = (x) => {
+    const path = [];
+    let cur = x;
+    while (parent[cur] !== cur) { path.push(cur); cur = parent[cur]; }
+    path.push(cur);
+    for (const p of path) parent[p] = cur;
+    return { root: cur, path };
+  };
+  const findNoCompress = (x) => {
+    let cur = x;
+    while (parent[cur] !== cur) cur = parent[cur];
+    return cur;
+  };
+
+  const frames = [];
+  const snapshot = (caption, currentId = null, highlightEdges = new Set()) => {
+    const ns = Array.from({ length: n }, (_, i) => ({
+      id: i,
+      label: `${i}\np=${parent[i]} r=${rank[i]}`,
+      state: i === currentId ? 'current'
+        : parent[i] === i ? 'frontier'
+        : undefined,
+    }));
+    const es = [];
+    for (let i = 0; i < n; i++) {
+      if (parent[i] !== i) es.push({ a: i, b: parent[i], state: highlightEdges.has(i) ? 'current' : undefined });
+    }
+    frames.push({ nodes: ns, edges: es, caption });
+  };
+
+  snapshot(`Union-Find with rank + path compression. ${n} singleton sets. parent[]=[${parent.join(',')}], rank[]=[${rank.join(',')}]. Roots are highlighted (frontier).`);
+  snapshot(`Strategy: union-by-rank attaches the shorter tree under the taller one (keeps depth O(log n)); find collapses every node on the lookup path straight to the root (path compression).`);
+
+  let opNum = 0;
+  for (const op of ops) {
+    opNum += 1;
+    const kind = String(op[0]).toLowerCase();
+    if (kind === 'union') {
+      const a = Math.max(0, Math.min(n - 1, Math.floor(Number(op[1]) || 0)));
+      const b = Math.max(0, Math.min(n - 1, Math.floor(Number(op[2]) || 0)));
+      const ra = findNoCompress(a);
+      const rb = findNoCompress(b);
+      snapshot(`Op ${opNum}: union(${a}, ${b}). Find each root first: find(${a})=${ra}, find(${b})=${rb}.`, a);
+      if (ra === rb) {
+        snapshot(`Same root (${ra}) — ${a} and ${b} are already in the same component. No-op.`, ra);
+        continue;
+      }
+      // Union by rank.
+      if (rank[ra] < rank[rb]) {
+        parent[ra] = rb;
+        snapshot(`Compare ranks: rank[${ra}]=${rank[ra]} < rank[${rb}]=${rank[rb]}. Attach the shallower tree (root ${ra}) under ${rb}. parent[]=[${parent.join(',')}], rank[]=[${rank.join(',')}].`, rb, new Set([ra]));
+      } else if (rank[ra] > rank[rb]) {
+        parent[rb] = ra;
+        snapshot(`Compare ranks: rank[${ra}]=${rank[ra]} > rank[${rb}]=${rank[rb]}. Attach the shallower tree (root ${rb}) under ${ra}. parent[]=[${parent.join(',')}], rank[]=[${rank.join(',')}].`, ra, new Set([rb]));
+      } else {
+        parent[rb] = ra;
+        rank[ra] += 1;
+        snapshot(`Equal ranks (${rank[ra] - 1}). Attach ${rb} under ${ra} and bump rank[${ra}] to ${rank[ra]}. parent[]=[${parent.join(',')}], rank[]=[${rank.join(',')}].`, ra, new Set([rb]));
+      }
+    } else if (kind === 'find') {
+      const x = Math.max(0, Math.min(n - 1, Math.floor(Number(op[1]) || 0)));
+      const beforeParent = [...parent];
+      const { root, path } = findWithPath(x);
+      const reparented = path.filter(p => beforeParent[p] !== parent[p]);
+      snapshot(`Op ${opNum}: find(${x}). Walk path ${path.join(' → ')} to root ${root}.`, x, new Set(path));
+      if (reparented.length) {
+        snapshot(`Path compression: re-point ${reparented.join(', ')} directly at root ${root}. parent[]=[${parent.join(',')}]. Next find on this branch is O(1).`, root, new Set(reparented));
+      } else {
+        snapshot(`Already direct — no compression needed. parent[]=[${parent.join(',')}].`, root);
+      }
+    }
+  }
+
+  // Final component count.
+  const roots = new Set();
+  for (let i = 0; i < n; i++) roots.add(findNoCompress(i));
+  snapshot(`After ${ops.length} op${ops.length === 1 ? '' : 's'}: ${roots.size} component${roots.size === 1 ? '' : 's'}. parent[]=[${parent.join(',')}], rank[]=[${rank.join(',')}]. Amortized cost per op: α(n) (effectively constant).`);
+  return frames;
+}
+
+// Segment tree (range-sum) build + a point-inclusive range query, drawn as a
+// binary tree over a 1-indexed segment-tree array layout.
+function segmentTreeRangeSumFrames(arr = [1, 3, 5, 7, 9, 11], qL = 1, qR = 4) {
+  const a = (Array.isArray(arr) ? arr : []).map(x => Number(x) || 0);
+  if (!a.length) return [{ tree: null, caption: 'Empty array — nothing to build.' }];
+  const n = a.length;
+  const lo = Math.max(0, Math.min(n - 1, Math.floor(Number(qL) || 0)));
+  const hi = Math.max(lo, Math.min(n - 1, Math.floor(Number(qR) || 0)));
+  const seg = new Array(4 * n).fill(0);
+  const segL = new Array(4 * n).fill(0);
+  const segR = new Array(4 * n).fill(0);
+
+  // Build a renderable tree mirror of the seg-tree (with binary left/right).
+  const treeNode = (idx, l, r) => ({ _id: idx, value: null, _l: l, _r: r, state: undefined, left: null, right: null });
+  let root = null;
+  const buildTree = (idx, l, r) => {
+    const node = treeNode(idx, l, r);
+    if (l === r) {
+      seg[idx] = a[l];
+      node.value = `[${l},${l}]=${a[l]}`;
+      segL[idx] = l; segR[idx] = r;
+      return node;
+    }
+    const mid = (l + r) >> 1;
+    node.left = buildTree(2 * idx, l, mid);
+    node.right = buildTree(2 * idx + 1, mid + 1, r);
+    seg[idx] = seg[2 * idx] + seg[2 * idx + 1];
+    segL[idx] = l; segR[idx] = r;
+    node.value = `[${l},${r}]=${seg[idx]}`;
+    return node;
+  };
+
+  const frames = [];
+  const snapshot = (caption, highlightIdx = new Set(), state = 'current') => {
+    const clone = (n) => {
+      if (!n) return null;
+      const s = highlightIdx.has(n._id) ? state : undefined;
+      return { _id: n._id, value: n.value, state: s, left: clone(n.left), right: clone(n.right) };
+    };
+    frames.push({ tree: clone(root), caption });
+  };
+
+  // Frame 1: pre-build narration shown over the (empty) tree we are about to build.
+  root = buildTree(1, 0, n - 1);
+  // Reset everything visited then narrate.
+  frames.push({ tree: { _id: 1, value: 'build…', state: 'current', left: null, right: null }, caption: `Segment tree (range-sum) on arr=[${a.join(', ')}]. Each node stores the sum of a contiguous sub-range; leaves cover one index each.` });
+  frames.push({ tree: { _id: 1, value: 'build…', state: 'current', left: null, right: null }, caption: `We index nodes 1..4n in a flat array (heap layout): node i's children are 2i and 2i+1. The root holds the whole-array sum.` });
+  snapshot(`Built. Root [0,${n - 1}] = ${seg[1]}. Internal node label = "[l,r]=sum"; leaves are single-element ranges.`, new Set([1]), 'done');
+
+  // Walk the tree top-down to narrate the build order.
+  const buildOrder = [];
+  const collectPost = (idx) => {
+    if (idx >= seg.length || (segL[idx] === 0 && segR[idx] === 0 && idx > 1 && seg[idx] === 0)) return;
+    const node = (function find(n) { if (!n) return null; if (n._id === idx) return n; return find(n.left) || find(n.right); })(root);
+    if (!node) return;
+    if (node.left) collectPost(2 * idx);
+    if (node.right) collectPost(2 * idx + 1);
+    buildOrder.push(idx);
+  };
+  collectPost(1);
+
+  const narrate = buildOrder.slice(0, Math.min(6, buildOrder.length));
+  for (const idx of narrate) {
+    const l = segL[idx], r = segR[idx];
+    if (l === r) {
+      snapshot(`Build leaf #${idx} → range [${l},${l}] = arr[${l}] = ${a[l]}.`, new Set([idx]), 'current');
+    } else {
+      snapshot(`Build internal #${idx} → range [${l},${r}] = #${2 * idx}.sum + #${2 * idx + 1}.sum = ${seg[2 * idx]} + ${seg[2 * idx + 1]} = ${seg[idx]}.`, new Set([idx]), 'current');
+    }
+  }
+
+  // Query.
+  snapshot(`Build complete. Now query sum over [${lo}, ${hi}].`, new Set([1]), 'done');
+
+  let acc = 0;
+  const visited = new Set();
+  const query = (idx, nl, nr) => {
+    if (nr < lo || nl > hi) {
+      visited.add(idx);
+      snapshot(`Node #${idx} covers [${nl},${nr}] — fully outside query [${lo},${hi}]. Return 0 (no contribution).`, new Set([idx]), 'visited');
+      return 0;
+    }
+    if (lo <= nl && nr <= hi) {
+      acc += seg[idx];
+      visited.add(idx);
+      snapshot(`Node #${idx} covers [${nl},${nr}] — fully inside query [${lo},${hi}]. Take its stored sum ${seg[idx]}. Accumulated = ${acc}.`, new Set([idx]), 'done');
+      return seg[idx];
+    }
+    visited.add(idx);
+    snapshot(`Node #${idx} covers [${nl},${nr}] — partially overlaps query [${lo},${hi}]. Recurse into both children.`, new Set([idx]), 'current');
+    const mid = (nl + nr) >> 1;
+    const ls = query(2 * idx, nl, mid);
+    const rs = query(2 * idx + 1, mid + 1, nr);
+    return ls + rs;
+  };
+  const total = query(1, 0, n - 1);
+  snapshot(`Query sum([${lo},${hi}]) = ${total}. Visited ${visited.size} of ${(function count(n) { return n ? 1 + count(n.left) + count(n.right) : 0; })(root)} nodes — O(log n) per query, far better than the O(n) naive scan.`, new Set([1]), 'done');
+  return frames;
+}
+
+// ----------------------------------------------------------------------------
 
 export const VISUALIZATIONS = {
   'binary-search': {
@@ -10040,5 +10771,150 @@ export const VISUALIZATIONS = {
       { label: 'All under k',               frames: subarrayProductLessKFrames([1, 2, 3], 50) },
       { label: 'All over k',                frames: subarrayProductLessKFrames([20, 30, 40], 10) },
     ],
+  },
+  'longest-substring-without-repeating-characters': {
+    title: 'Longest Substring Without Repeating Characters',
+    renderer: 'window',
+    cases: [
+      { label: '"abcabcbb"', frames: longestSubstrFrames('abcabcbb') },
+      { label: '"pwwkew"',   frames: longestSubstrFrames('pwwkew') },
+      { label: '"bbbbb"',    frames: longestSubstrFrames('bbbbb') },
+      { label: '"dvdf"',     frames: longestSubstrFrames('dvdf') },
+    ],
+    build: ({ s }) => longestSubstrFrames(s),
+    inputSchema: {
+      fields: [
+        { name: 's', label: 'String', type: 'string', default: 'abcabcbb', max: 30, placeholder: 'abcabcbb' },
+      ],
+    },
+  },
+  'longest-repeating-character-replacement': {
+    title: 'Longest Repeating Character Replacement',
+    renderer: 'window',
+    cases: [
+      { label: '"AABABBA", k=1', frames: longestRepeatingReplacementFrames('AABABBA', 1) },
+      { label: '"ABAB", k=2',    frames: longestRepeatingReplacementFrames('ABAB', 2) },
+      { label: '"AAAA", k=0',    frames: longestRepeatingReplacementFrames('AAAA', 0) },
+      { label: '"ABCDE", k=1',   frames: longestRepeatingReplacementFrames('ABCDE', 1) },
+    ],
+    build: ({ s, k }) => longestRepeatingReplacementFrames(s, k),
+    inputSchema: {
+      fields: [
+        { name: 's', label: 'String (uppercase)', type: 'string', default: 'AABABBA', max: 30, placeholder: 'AABABBA' },
+        { name: 'k', label: 'Replacements allowed (k)', type: 'int', default: 1, max: 20 },
+      ],
+    },
+  },
+  'minimum-window-substring': {
+    title: 'Minimum Window Substring',
+    renderer: 'window',
+    cases: [
+      { label: '"ADOBECODEBANC" / "ABC"', frames: minimumWindowSubstringFrames('ADOBECODEBANC', 'ABC') },
+      { label: '"a" / "a"',                frames: minimumWindowSubstringFrames('a', 'a') },
+      { label: '"a" / "aa" (no window)',   frames: minimumWindowSubstringFrames('a', 'aa') },
+      { label: '"aaaaaab" / "ab"',         frames: minimumWindowSubstringFrames('aaaaaab', 'ab') },
+    ],
+    build: ({ s, t }) => minimumWindowSubstringFrames(s, t),
+    inputSchema: {
+      fields: [
+        { name: 's', label: 'Source string s', type: 'string', default: 'ADOBECODEBANC', max: 40 },
+        { name: 't', label: 'Target string t', type: 'string', default: 'ABC', max: 20 },
+      ],
+    },
+  },
+  'permutation-in-string': {
+    title: 'Permutation in String',
+    renderer: 'window',
+    cases: [
+      { label: '"ab" in "eidbaooo"', frames: permutationInStringFrames('ab', 'eidbaooo') },
+      { label: '"ab" in "eidboaoo"', frames: permutationInStringFrames('ab', 'eidboaoo') },
+      { label: '"abc" in "ccccbabcaa"', frames: permutationInStringFrames('abc', 'ccccbabcaa') },
+      { label: '"adc" in "dcda"',    frames: permutationInStringFrames('adc', 'dcda') },
+    ],
+    build: ({ s1, s2 }) => permutationInStringFrames(s1, s2),
+    inputSchema: {
+      fields: [
+        { name: 's1', label: 'Pattern s1', type: 'string', default: 'ab', max: 20 },
+        { name: 's2', label: 'Text s2',    type: 'string', default: 'eidbaooo', max: 40 },
+      ],
+    },
+  },
+  'trie-insertion-search': {
+    title: 'Trie: insert words, then search',
+    renderer: 'tree',
+    cases: [
+      { label: 'Insert apple, app, apricot — search "app"', frames: trieInsertSearchFrames(['apple', 'app', 'apricot'], 'app') },
+      { label: 'Search miss — "apx"',                       frames: trieInsertSearchFrames(['apple', 'app', 'apricot'], 'apx') },
+      { label: 'Prefix-only hit — "ap"',                    frames: trieInsertSearchFrames(['apple', 'app', 'apricot'], 'ap') },
+    ],
+    build: ({ words, search }) => trieInsertSearchFrames(String(words || '').split(',').map(s => s.trim()).filter(Boolean), search),
+    inputSchema: {
+      fields: [
+        { name: 'words', label: 'Words to insert (comma-sep)', type: 'string', default: 'apple,app,apricot', max: 60, placeholder: 'apple,app,apricot' },
+        { name: 'search', label: 'Search query', type: 'string', default: 'app', max: 20, placeholder: 'app' },
+      ],
+    },
+  },
+  'topological-sort-kahn': {
+    title: "Kahn's topological sort (in-degree BFS)",
+    renderer: 'graph',
+    cases: [
+      { label: '6-node DAG (default)', frames: topoSortKahnFrames([[0, 1], [0, 2], [1, 3], [2, 3], [3, 4], [4, 5]], 6) },
+      { label: 'Linear chain (5 nodes)', frames: topoSortKahnFrames([[0, 1], [1, 2], [2, 3], [3, 4]], 5) },
+      { label: 'Diamond (4 nodes)',      frames: topoSortKahnFrames([[0, 1], [0, 2], [1, 3], [2, 3]], 4) },
+    ],
+    build: ({ edges, n }) => {
+      const parsed = String(edges || '').split(/[,;]\s*/).map(p => p.split(/\s*-\s*|\s*->\s*|\s+/).map(Number)).filter(x => x.length === 2 && x.every(Number.isFinite));
+      return topoSortKahnFrames(parsed, n);
+    },
+    inputSchema: {
+      fields: [
+        { name: 'n', label: 'Number of nodes', type: 'int', default: 6, max: 10 },
+        { name: 'edges', label: 'Directed edges (e.g. "0-1, 0-2, 1-3")', type: 'string', default: '0-1, 0-2, 1-3, 2-3, 3-4, 4-5', max: 100, placeholder: '0-1, 0-2, 1-3' },
+      ],
+    },
+  },
+  'union-find-with-rank': {
+    title: 'Union-Find: rank + path compression',
+    renderer: 'graph',
+    cases: [
+      { label: 'Default — 3 unions + find(3)', frames: unionFindRankFrames([['union', 0, 1], ['union', 2, 3], ['union', 0, 2], ['find', 3]], 6) },
+      { label: 'Sequential chain',             frames: unionFindRankFrames([['union', 0, 1], ['union', 1, 2], ['union', 2, 3], ['find', 0]], 5) },
+      { label: 'Already connected (no-op)',    frames: unionFindRankFrames([['union', 0, 1], ['union', 0, 1], ['find', 1]], 4) },
+    ],
+    build: ({ n, ops }) => {
+      const parsed = String(ops || '').split(/[,;]\s*/).map(t => {
+        const parts = t.trim().split(/\s+/);
+        if (!parts.length) return null;
+        const kind = parts[0].toLowerCase();
+        if (kind === 'union' && parts.length >= 3) return ['union', Number(parts[1]), Number(parts[2])];
+        if (kind === 'find' && parts.length >= 2) return ['find', Number(parts[1])];
+        return null;
+      }).filter(Boolean);
+      return unionFindRankFrames(parsed, n);
+    },
+    inputSchema: {
+      fields: [
+        { name: 'n', label: 'Number of elements', type: 'int', default: 6, max: 10 },
+        { name: 'ops', label: 'Ops (e.g. "union 0 1; union 2 3; find 3")', type: 'string', default: 'union 0 1; union 2 3; union 0 2; find 3', max: 120, placeholder: 'union 0 1; find 0' },
+      ],
+    },
+  },
+  'segment-tree-range-sum': {
+    title: 'Segment tree: build, then range-sum query',
+    renderer: 'tree',
+    cases: [
+      { label: 'arr=[1,3,5,7,9,11], query(1,4)', frames: segmentTreeRangeSumFrames([1, 3, 5, 7, 9, 11], 1, 4) },
+      { label: 'Single-element query (2,2)',     frames: segmentTreeRangeSumFrames([1, 3, 5, 7, 9, 11], 2, 2) },
+      { label: 'Full range (0,5)',               frames: segmentTreeRangeSumFrames([1, 3, 5, 7, 9, 11], 0, 5) },
+    ],
+    build: ({ array, qL, qR }) => segmentTreeRangeSumFrames(array, qL, qR),
+    inputSchema: {
+      fields: [
+        { name: 'array', label: 'Array', type: 'intArray', default: [1, 3, 5, 7, 9, 11], placeholder: '1, 3, 5, 7, 9, 11' },
+        { name: 'qL', label: 'Query left index', type: 'int', default: 1 },
+        { name: 'qR', label: 'Query right index', type: 'int', default: 4 },
+      ],
+    },
   },
 };

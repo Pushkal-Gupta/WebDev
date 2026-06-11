@@ -161,8 +161,10 @@ export default function ConvKernelViz() {
 
   const runningRef = useRef(false);
   const timeoutRef = useRef(null);
-  const posRef = useRef({ r: 0, c: 0 });
-  posRef.current = pos;
+  const posRef = useRef(pos);
+  useEffect(() => {
+    posRef.current = pos;
+  }, [pos]);
 
   const fullOutput = useMemo(() => convolveAll(input, kernel, divisor), [input, kernel, divisor]);
   const maxAbsOut = useMemo(() => {
@@ -188,11 +190,16 @@ export default function ConvKernelViz() {
     clearTimers();
   }, [clearTimers]);
 
-  useEffect(() => {
+  const [prevReset, setPrevReset] = useState({ kernel, divisor });
+  if (prevReset.kernel !== kernel || prevReset.divisor !== divisor) {
+    setPrevReset({ kernel, divisor });
     setComputed(Array.from({ length: OUT_N }, () => Array(OUT_N).fill(null)));
     setPos({ r: 0, c: 0 });
-    runningRef.current = false;
     setRunning(false);
+  }
+
+  useEffect(() => {
+    runningRef.current = false;
     clearTimers();
   }, [kernel, divisor, clearTimers]);
 

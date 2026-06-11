@@ -1,0 +1,8 @@
+{
+  "questionId": "4209",
+  "titleSlug": "palindromic-path-queries-in-a-tree",
+  "title": "Palindromic Path Queries in a Tree",
+  "exampleTestcases": "3\n[[0,1],[1,2]]\n\"aac\"\n[\"query 0 2\",\"update 1 b\",\"query 0 2\"]\n4\n[[0,1],[0,2],[0,3]]\n\"abca\"\n[\"query 1 2\",\"update 0 b\",\"query 2 3\",\"update 3 a\",\"query 1 3\"]",
+  "sampleTestCase": "3\n[[0,1],[1,2]]\n\"aac\"\n[\"query 0 2\",\"update 1 b\",\"query 0 2\"]",
+  "metaData": "{\n  \"name\": \"palindromePath\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"s\"\n    },\n    {\n      \"type\": \"string[]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<boolean>\"\n  }\n}"
+}

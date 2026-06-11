@@ -1,0 +1,8 @@
+{
+  "questionId": "1387",
+  "titleSlug": "find-elements-in-a-contaminated-binary-tree",
+  "title": "Find Elements in a Contaminated Binary Tree",
+  "exampleTestcases": "[\"FindElements\",\"find\",\"find\"]\n[[[-1,null,-1]],[1],[2]]\n[\"FindElements\",\"find\",\"find\",\"find\"]\n[[[-1,-1,-1,-1,-1]],[1],[3],[5]]\n[\"FindElements\",\"find\",\"find\",\"find\",\"find\"]\n[[[-1,null,-1,-1,null,-1]],[2],[3],[4],[5]]",
+  "sampleTestCase": "[\"FindElements\",\"find\",\"find\"]\n[[[-1,null,-1]],[1],[2]]",
+  "metaData": "{\n  \"classname\": \"FindElements\",\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"TreeNode\",\n        \"name\": \"root\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"target\"\n        }\n      ],\n      \"name\": \"find\",\n      \"return\": {\n        \"type\": \"boolean\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true,\n  \"manual\": false\n}"
+}

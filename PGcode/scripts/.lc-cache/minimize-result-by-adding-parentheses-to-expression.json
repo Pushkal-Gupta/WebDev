@@ -1,0 +1,8 @@
+{
+  "questionId": "2328",
+  "titleSlug": "minimize-result-by-adding-parentheses-to-expression",
+  "title": "Minimize Result by Adding Parentheses to Expression",
+  "exampleTestcases": "\"247+38\"\n\"12+34\"\n\"999+999\"",
+  "sampleTestCase": "\"247+38\"",
+  "metaData": "{\n  \"name\": \"minimizeResult\",\n  \"params\": [\n    {\n      \"name\": \"expression\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

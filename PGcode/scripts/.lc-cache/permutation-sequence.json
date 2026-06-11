@@ -1,0 +1,8 @@
+{
+  "questionId": "60",
+  "titleSlug": "permutation-sequence",
+  "title": "Permutation Sequence",
+  "exampleTestcases": "3\n3\n4\n9\n3\n1",
+  "sampleTestCase": "3\n3",
+  "metaData": "{\r\n  \"name\": \"getPermutation\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"k\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}"
+}

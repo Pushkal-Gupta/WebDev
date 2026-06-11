@@ -1,0 +1,8 @@
+{
+  "questionId": "3508",
+  "titleSlug": "number-of-bit-changes-to-make-two-integers-equal",
+  "title": "Number of Bit Changes to Make Two Integers Equal",
+  "exampleTestcases": "13\n4\n21\n21\n14\n13",
+  "sampleTestCase": "13\n4",
+  "metaData": "{\n  \"name\": \"minChanges\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

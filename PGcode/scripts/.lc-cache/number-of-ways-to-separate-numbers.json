@@ -1,0 +1,8 @@
+{
+  "questionId": "2091",
+  "titleSlug": "number-of-ways-to-separate-numbers",
+  "title": "Number of Ways to Separate Numbers",
+  "exampleTestcases": "\"327\"\n\"094\"\n\"0\"",
+  "sampleTestCase": "\"327\"",
+  "metaData": "{\n  \"name\": \"numberOfCombinations\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -133,9 +133,9 @@
   font-family: var(--mono);
   font-size: 0.82rem;
   line-height: 1.75;
-  overflow-x: auto;
   margin: 0.5rem 0 1.15rem;
   white-space: pre-wrap;
+  word-break: break-word;
   color: var(--text-main);
 }
 /* Accent the inline labels LeetCode embeds in <pre>: "Input:", "Output:", "Explanation:". */
@@ -218,7 +218,7 @@
   letter-spacing: 0.05em;
   padding-top: 0.18rem;
 }
-.ws-example-row code { color: var(--text-main); background: var(--hover-box); padding: 0.18rem 0.5rem; border-radius: 4px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+.ws-example-row code { color: var(--text-main); background: var(--hover-box); padding: 0.18rem 0.5rem; border-radius: 4px; white-space: pre-wrap; word-break: break-word; }
 .ws-example-explain { color: var(--text-dim); font-family: var(--sans); line-height: 1.6; }
 
 /* ── Constraints section: monospace block with bullet hierarchy ── */
@@ -825,8 +825,8 @@
   font-size: 0.78rem;
   line-height: 1.55;
   color: var(--text-main);
-  white-space: pre;
-  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
   background: var(--bg);
 }
 .ws-subdetail-code-toggle {

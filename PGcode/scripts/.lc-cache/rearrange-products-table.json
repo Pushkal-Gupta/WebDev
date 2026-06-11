@@ -1,0 +1,8 @@
+{
+  "questionId": "1948",
+  "titleSlug": "rearrange-products-table",
+  "title": "Rearrange Products Table",
+  "exampleTestcases": "{\"headers\":{\"Products\":[\"product_id\",\"store1\",\"store2\",\"store3\"]},\"rows\":{\"Products\":[[0, 95, 100, 105], [1, 70, null, 80]]}}",
+  "sampleTestCase": "{\"headers\":{\"Products\":[\"product_id\",\"store1\",\"store2\",\"store3\"]},\"rows\":{\"Products\":[[0, 95, 100, 105], [1, 70, null, 80]]}}",
+  "metaData": "{\"mysql\": [\"Create table If Not Exists Products (product_id int, store1 int, store2 int, store3 int)\"], \"mssql\": [\"Create table Products (product_id int, store1 int, store2 int, store3 int)\"], \"oraclesql\": [\"Create table Products (product_id int, store1 int, store2 int, store3 int)\"], \"database\": true, \"name\": \"rearrange_products_table\", \"pythondata\": [\"Products = pd.DataFrame([], columns=['product_id', 'store1', 'store2', 'store3']).astype({'product_id':'Int64', 'store1':'Int64', 'store2':'Int64', 'store3':'Int64'})\"], \"manual\": false, \"postgresql\": [\"Create table If Not Exists Products (product_id int, store1 int, store2 int, store3 int)\\n\"], \"database_schema\": {\"Products\": {\"product_id\": \"INT\", \"store1\": \"INT\", \"store2\": \"INT\", \"store3\": \"INT\"}}}"
+}

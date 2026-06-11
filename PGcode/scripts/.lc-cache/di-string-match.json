@@ -1,0 +1,8 @@
+{
+  "questionId": "979",
+  "titleSlug": "di-string-match",
+  "title": "DI String Match",
+  "exampleTestcases": "\"IDID\"\n\"III\"\n\"DDI\"",
+  "sampleTestCase": "\"IDID\"",
+  "metaData": "{\n  \"name\": \"diStringMatch\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

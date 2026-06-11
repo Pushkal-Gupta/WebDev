@@ -1,0 +1,8 @@
+{
+  "questionId": "992",
+  "titleSlug": "delete-columns-to-make-sorted-ii",
+  "title": "Delete Columns to Make Sorted II",
+  "exampleTestcases": "[\"ca\",\"bb\",\"ac\"]\n[\"xc\",\"yb\",\"za\"]\n[\"zyx\",\"wvu\",\"tsr\"]",
+  "sampleTestCase": "[\"ca\",\"bb\",\"ac\"]",
+  "metaData": "{\n  \"name\": \"minDeletionSize\",\n  \"params\": [\n    {\n      \"name\": \"strs\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

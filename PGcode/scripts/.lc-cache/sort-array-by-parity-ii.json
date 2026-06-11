@@ -1,0 +1,8 @@
+{
+  "questionId": "958",
+  "titleSlug": "sort-array-by-parity-ii",
+  "title": "Sort Array By Parity II",
+  "exampleTestcases": "[4,2,5,7]\n[2,3]",
+  "sampleTestCase": "[4,2,5,7]",
+  "metaData": "{\n  \"name\": \"sortArrayByParityII\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

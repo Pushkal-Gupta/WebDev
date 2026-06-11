@@ -1,0 +1,8 @@
+{
+  "questionId": "4019",
+  "titleSlug": "remove-k-balanced-substrings",
+  "title": "Remove K-Balanced Substrings",
+  "exampleTestcases": "\"(())\"\n1\n\"(()(\"\n1\n\"((()))()()()\"\n3",
+  "sampleTestCase": "\"(())\"\n1",
+  "metaData": "{\n  \"name\": \"removeSubstring\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1025",
+  "titleSlug": "minimum-cost-for-tickets",
+  "title": "Minimum Cost For Tickets",
+  "exampleTestcases": "[1,4,6,7,8,20]\n[2,7,15]\n[1,2,3,4,5,6,7,8,9,10,30,31]\n[2,7,15]",
+  "sampleTestCase": "[1,4,6,7,8,20]\n[2,7,15]",
+  "metaData": "{\r\n  \"name\": \"mincostTickets\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"days\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"costs\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "76",
+  "titleSlug": "minimum-window-substring",
+  "title": "Minimum Window Substring",
+  "exampleTestcases": "\"ADOBECODEBANC\"\n\"ABC\"\n\"a\"\n\"a\"\n\"a\"\n\"aa\"",
+  "sampleTestCase": "\"ADOBECODEBANC\"\n\"ABC\"",
+  "metaData": "{ \r\n  \"name\": \"minWindow\",\r\n  \"params\": [\r\n    { \r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    },\r\n    { \r\n      \"name\": \"t\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}"
+}

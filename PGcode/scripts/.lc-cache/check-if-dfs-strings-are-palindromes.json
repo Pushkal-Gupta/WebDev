@@ -1,0 +1,8 @@
+{
+  "questionId": "3603",
+  "titleSlug": "check-if-dfs-strings-are-palindromes",
+  "title": "Check if DFS Strings Are Palindromes",
+  "exampleTestcases": "[-1,0,0,1,1,2]\n\"aababa\"\n[-1,0,0,0,0]\n\"aabcb\"",
+  "sampleTestCase": "[-1,0,0,1,1,2]\n\"aababa\"",
+  "metaData": "{\n  \"name\": \"findAnswer\",\n  \"params\": [\n    {\n      \"name\": \"parent\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"s\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean[]\"\n  }\n}"
+}

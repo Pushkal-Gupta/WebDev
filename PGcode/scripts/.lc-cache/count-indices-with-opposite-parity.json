@@ -1,0 +1,8 @@
+{
+  "questionId": "4295",
+  "titleSlug": "count-indices-with-opposite-parity",
+  "title": "Count Indices With Opposite Parity",
+  "exampleTestcases": "[1,2,3,4]\n[1]",
+  "sampleTestCase": "[1,2,3,4]",
+  "metaData": "{\n  \"name\": \"countOppositeParity\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

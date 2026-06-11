@@ -1,0 +1,8 @@
+{
+  "questionId": "1845",
+  "titleSlug": "largest-submatrix-with-rearrangements",
+  "title": "Largest Submatrix With Rearrangements",
+  "exampleTestcases": "[[0,0,1],[1,1,1],[1,0,1]]\n[[1,0,1,0,1]]\n[[1,1,0],[1,0,1]]",
+  "sampleTestCase": "[[0,0,1],[1,1,1],[1,0,1]]",
+  "metaData": "{\n  \"name\": \"largestSubmatrix\",\n  \"params\": [\n    {\n      \"name\": \"matrix\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

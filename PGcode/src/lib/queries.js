@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 import { supabase } from './supabase';
 
@@ -1223,6 +1223,53 @@ export function useVoteComment() {
       queryClient.invalidateQueries({ queryKey: ['comments', targetKind, String(targetId)] });
     }
   }, [queryClient]);
+}
+
+// Full problem row by id, including explained_samples + test_cases + viz_steps.
+// Workspace + SolutionPage do their own fetches today; this hook is the path
+// forward for admin/author flows that need a single canonical loader.
+export function useProblem(problemId) {
+  return useQuery({
+    queryKey: qk.problemFull(problemId),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('PGcode_problems')
+        .select('*')
+        .eq('id', problemId)
+        .maybeSingle();
+      if (error) throw error;
+      return data || null;
+    },
+    enabled: !!problemId,
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+// Admin/author mutation: replace the explained_samples array on a problem.
+// `samples` is an array of { inputs, expected, explanation_md, viz_anchor }.
+export function useUpdateExplainedSamples(problemId) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (samples) => {
+      const payload = Array.isArray(samples) ? samples : [];
+      const { data, error } = await supabase
+        .from('PGcode_problems')
+        .update({ explained_samples: payload })
+        .eq('id', problemId)
+        .select('id, explained_samples')
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      if (!data) return;
+      queryClient.setQueryData(qk.problemFull(problemId), (prev) => (
+        prev ? { ...prev, explained_samples: data.explained_samples } : prev
+      ));
+      queryClient.invalidateQueries({ queryKey: qk.problemFull(problemId) });
+      queryClient.invalidateQueries({ queryKey: ['problemById', problemId] });
+    },
+  });
 }
 
 export { ROADMAP_MODES };

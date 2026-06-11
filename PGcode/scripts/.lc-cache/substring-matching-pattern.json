@@ -1,0 +1,8 @@
+{
+  "questionId": "3684",
+  "titleSlug": "substring-matching-pattern",
+  "title": "Substring Matching Pattern",
+  "exampleTestcases": "\"leetcode\"\n\"ee*e\"\n\"car\"\n\"c*v\"\n\"luck\"\n\"u*\"",
+  "sampleTestCase": "\"leetcode\"\n\"ee*e\"",
+  "metaData": "{\n  \"name\": \"hasMatch\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"p\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

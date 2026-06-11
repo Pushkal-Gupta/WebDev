@@ -1,0 +1,8 @@
+{
+  "questionId": "1482",
+  "titleSlug": "how-many-numbers-are-smaller-than-the-current-number",
+  "title": "How Many Numbers Are Smaller Than the Current Number",
+  "exampleTestcases": "[8,1,2,2,3]\n[6,5,4,8]\n[7,7,7,7]",
+  "sampleTestCase": "[8,1,2,2,3]",
+  "metaData": "{\n  \"name\": \"smallerNumbersThanCurrent\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1094",
+  "titleSlug": "matrix-cells-in-distance-order",
+  "title": "Matrix Cells in Distance Order",
+  "exampleTestcases": "1\n2\n0\n0\n2\n2\n0\n1\n2\n3\n1\n2",
+  "sampleTestCase": "1\n2\n0\n0",
+  "metaData": "{\n  \"name\": \"allCellsDistOrder\",\n  \"params\": [\n    {\n      \"name\": \"rows\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"cols\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"rCenter\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"cCenter\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  }\n}"
+}

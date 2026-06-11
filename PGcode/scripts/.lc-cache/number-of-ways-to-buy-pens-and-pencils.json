@@ -1,0 +1,8 @@
+{
+  "questionId": "2351",
+  "titleSlug": "number-of-ways-to-buy-pens-and-pencils",
+  "title": "Number of Ways to Buy Pens and Pencils",
+  "exampleTestcases": "20\n10\n5\n5\n10\n10",
+  "sampleTestCase": "20\n10\n5",
+  "metaData": "{\n  \"name\": \"waysToBuyPensPencils\",\n  \"params\": [\n    {\n      \"name\": \"total\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"cost1\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"cost2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

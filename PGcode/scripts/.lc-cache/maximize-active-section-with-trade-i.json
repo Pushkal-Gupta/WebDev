@@ -1,0 +1,8 @@
+{
+  "questionId": "3805",
+  "titleSlug": "maximize-active-section-with-trade-i",
+  "title": "Maximize Active Section with Trade I",
+  "exampleTestcases": "\"01\"\n\"0100\"\n\"1000100\"\n\"01010\"",
+  "sampleTestCase": "\"01\"",
+  "metaData": "{\n  \"name\": \"maxActiveSectionsAfterTrade\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1116",
+  "titleSlug": "maximum-level-sum-of-a-binary-tree",
+  "title": "Maximum Level Sum of a Binary Tree",
+  "exampleTestcases": "[1,7,0,7,-8,null,null]\n[989,null,10250,98693,-89388,null,null,null,-32127]",
+  "sampleTestCase": "[1,7,0,7,-8,null,null]",
+  "metaData": "{\r\n  \"name\": \"maxLevelSum\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"root\",\r\n      \"type\": \"TreeNode\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

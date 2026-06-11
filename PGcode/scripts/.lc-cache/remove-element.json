@@ -1,0 +1,8 @@
+{
+  "questionId": "27",
+  "titleSlug": "remove-element",
+  "title": "Remove Element",
+  "exampleTestcases": "[3,2,2,3]\n3\n[0,1,2,2,3,0,4,2]\n2",
+  "sampleTestCase": "[3,2,2,3]\n3",
+  "metaData": "{\r\n  \"name\": \"removeElement\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"val\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  },\r\n  \"output\": {\r\n    \"paramindex\": 0,\r\n    \"size\": \"ret\"\r\n  }\r\n}"
+}

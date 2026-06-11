@@ -1,0 +1,8 @@
+{
+  "questionId": "1255",
+  "titleSlug": "reverse-subarray-to-maximize-array-value",
+  "title": "Reverse Subarray To Maximize Array Value",
+  "exampleTestcases": "[2,3,1,5,4]\n[2,4,9,24,2,1,10]",
+  "sampleTestCase": "[2,3,1,5,4]",
+  "metaData": "{\n  \"name\": \"maxValueAfterReverse\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

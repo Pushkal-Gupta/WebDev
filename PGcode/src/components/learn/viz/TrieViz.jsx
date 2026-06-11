@@ -178,7 +178,6 @@ export default function TrieViz() {
   const [operation, setOperation] = useState('Pre-loaded with 6 words');
   const [searchFrames, setSearchFrames] = useState([]);
   const [searchIdx, setSearchIdx] = useState(-1);
-  const [searchResult, setSearchResult] = useState(null); // 'found' | 'not_found' | null
   const playRef = useRef(null);
 
   // Build the trie + layout from the current word list.
@@ -197,14 +196,13 @@ export default function TrieViz() {
     return () => clearTimeout(playRef.current);
   }, [searchIdx, searchFrames]);
 
-  // When animation reaches the last frame, fix the result label.
-  useEffect(() => {
-    if (searchFrames.length === 0) return;
-    if (searchIdx !== searchFrames.length - 1) return;
+  // Derive the result label from the last frame when we land on it.
+  const searchResult = (() => {
+    if (searchFrames.length === 0) return null;
+    if (searchIdx !== searchFrames.length - 1) return null;
     const last = searchFrames[searchFrames.length - 1];
-    if (last.status === 'found') setSearchResult('found');
-    else setSearchResult('not_found');
-  }, [searchIdx, searchFrames]);
+    return last.status === 'found' ? 'found' : 'not_found';
+  })();
 
   const sanitize = (raw) => raw.toLowerCase().replace(/[^a-z]/g, '');
 
@@ -222,7 +220,6 @@ export default function TrieViz() {
     setOperation(`Inserted "${w}"`);
     setSearchFrames([]);
     setSearchIdx(-1);
-    setSearchResult(null);
   }, [insertInput, words]);
 
   const onSearch = useCallback(() => {
@@ -234,7 +231,6 @@ export default function TrieViz() {
     const frames = buildSearchFrames(layout, w);
     setSearchFrames(frames);
     setSearchIdx(0);
-    setSearchResult(null);
     setOperation(`Searching "${w}"…`);
   }, [searchInput, layout]);
 
@@ -243,7 +239,6 @@ export default function TrieViz() {
     setOperation('Trie cleared');
     setSearchFrames([]);
     setSearchIdx(-1);
-    setSearchResult(null);
     setInsertInput('');
     setSearchInput('');
   }, []);
@@ -253,7 +248,6 @@ export default function TrieViz() {
     setOperation('Reloaded default words');
     setSearchFrames([]);
     setSearchIdx(-1);
-    setSearchResult(null);
   }, []);
 
   const totalNodes = layout.nodes.length;

@@ -1,0 +1,8 @@
+{
+  "questionId": "1499",
+  "titleSlug": "maximum-performance-of-a-team",
+  "title": "Maximum Performance of a Team",
+  "exampleTestcases": "6\n[2,10,3,1,5,8]\n[5,4,3,9,7,2]\n2\n6\n[2,10,3,1,5,8]\n[5,4,3,9,7,2]\n3\n6\n[2,10,3,1,5,8]\n[5,4,3,9,7,2]\n4",
+  "sampleTestCase": "6\n[2,10,3,1,5,8]\n[5,4,3,9,7,2]\n2",
+  "metaData": "{\n  \"name\": \"maxPerformance\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"speed\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"efficiency\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

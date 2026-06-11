@@ -1,0 +1,8 @@
+{
+  "questionId": "3576",
+  "titleSlug": "find-subtree-sizes-after-changes",
+  "title": "Find Subtree Sizes After Changes",
+  "exampleTestcases": "[-1,0,0,1,1,1]\n\"abaabc\"\n[-1,0,4,0,1]\n\"abbba\"",
+  "sampleTestCase": "[-1,0,0,1,1,1]\n\"abaabc\"",
+  "metaData": "{\n  \"name\": \"findSubtreeSizes\",\n  \"params\": [\n    {\n      \"name\": \"parent\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"s\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

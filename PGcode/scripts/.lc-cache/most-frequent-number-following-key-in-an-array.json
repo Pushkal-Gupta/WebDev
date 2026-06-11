@@ -1,0 +1,8 @@
+{
+  "questionId": "2312",
+  "titleSlug": "most-frequent-number-following-key-in-an-array",
+  "title": "Most Frequent Number Following Key In an Array",
+  "exampleTestcases": "[1,100,200,1,100]\n1\n[2,2,2,2,3]\n2",
+  "sampleTestCase": "[1,100,200,1,100]\n1",
+  "metaData": "{\n  \"name\": \"mostFrequent\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"key\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3462",
+  "titleSlug": "vowels-game-in-a-string",
+  "title": "Vowels Game in a String",
+  "exampleTestcases": "\"leetcoder\"\n\"bbcd\"",
+  "sampleTestCase": "\"leetcoder\"",
+  "metaData": "{\n  \"name\": \"doesAliceWin\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

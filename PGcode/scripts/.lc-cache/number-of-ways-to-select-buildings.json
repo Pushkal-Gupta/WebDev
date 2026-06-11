@@ -1,0 +1,8 @@
+{
+  "questionId": "2325",
+  "titleSlug": "number-of-ways-to-select-buildings",
+  "title": "Number of Ways to Select Buildings",
+  "exampleTestcases": "\"001101\"\n\"11100\"",
+  "sampleTestCase": "\"001101\"",
+  "metaData": "{\n  \"name\": \"numberOfWays\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

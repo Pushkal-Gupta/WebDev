@@ -1,0 +1,8 @@
+{
+  "questionId": "2576",
+  "titleSlug": "minimum-penalty-for-a-shop",
+  "title": "Minimum Penalty for a Shop",
+  "exampleTestcases": "\"YYNY\"\n\"NNNNN\"\n\"YYYY\"",
+  "sampleTestCase": "\"YYNY\"",
+  "metaData": "{\n  \"name\": \"bestClosingTime\",\n  \"params\": [\n    {\n      \"name\": \"customers\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

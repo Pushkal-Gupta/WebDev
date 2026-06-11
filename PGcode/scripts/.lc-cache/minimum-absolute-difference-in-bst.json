@@ -1,0 +1,8 @@
+{
+  "questionId": "530",
+  "titleSlug": "minimum-absolute-difference-in-bst",
+  "title": "Minimum Absolute Difference in BST",
+  "exampleTestcases": "[4,2,6,1,3]\n[1,0,48,null,null,12,49]",
+  "sampleTestCase": "[4,2,6,1,3]",
+  "metaData": "{\r\n  \"name\": \"getMinimumDifference\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"root\",\r\n      \"type\": \"TreeNode\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

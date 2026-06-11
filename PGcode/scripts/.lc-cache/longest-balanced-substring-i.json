@@ -1,0 +1,8 @@
+{
+  "questionId": "4055",
+  "titleSlug": "longest-balanced-substring-i",
+  "title": "Longest Balanced Substring I",
+  "exampleTestcases": "\"abbac\"\n\"zzabccy\"\n\"aba\"",
+  "sampleTestCase": "\"abbac\"",
+  "metaData": "{\n  \"name\": \"longestBalanced\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

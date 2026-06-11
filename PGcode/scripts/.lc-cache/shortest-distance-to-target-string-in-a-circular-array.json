@@ -1,0 +1,8 @@
+{
+  "questionId": "2598",
+  "titleSlug": "shortest-distance-to-target-string-in-a-circular-array",
+  "title": "Shortest Distance to Target String in a Circular Array",
+  "exampleTestcases": "[\"hello\",\"i\",\"am\",\"leetcode\",\"hello\"]\n\"hello\"\n1\n[\"a\",\"b\",\"leetcode\"]\n\"leetcode\"\n0\n[\"i\",\"eat\",\"leetcode\"]\n\"ate\"\n0",
+  "sampleTestCase": "[\"hello\",\"i\",\"am\",\"leetcode\",\"hello\"]\n\"hello\"\n1",
+  "metaData": "{\n  \"name\": \"closestTarget\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"target\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"startIndex\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

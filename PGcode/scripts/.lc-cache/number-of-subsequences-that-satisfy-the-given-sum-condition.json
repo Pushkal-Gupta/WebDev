@@ -1,0 +1,8 @@
+{
+  "questionId": "1621",
+  "titleSlug": "number-of-subsequences-that-satisfy-the-given-sum-condition",
+  "title": "Number of Subsequences That Satisfy the Given Sum Condition",
+  "exampleTestcases": "[3,5,6,7]\n9\n[3,3,6,8]\n10\n[2,3,3,4,6,7]\n12",
+  "sampleTestCase": "[3,5,6,7]\n9",
+  "metaData": "{\n  \"name\": \"numSubseq\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

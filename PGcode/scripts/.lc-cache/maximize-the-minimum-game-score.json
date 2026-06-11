@@ -1,0 +1,8 @@
+{
+  "questionId": "3762",
+  "titleSlug": "maximize-the-minimum-game-score",
+  "title": "Maximize the Minimum Game Score",
+  "exampleTestcases": "[2,4]\n3\n[1,2,3]\n5",
+  "sampleTestCase": "[2,4]\n3",
+  "metaData": "{\n  \"name\": \"maxScore\",\n  \"params\": [\n    {\n      \"name\": \"points\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"m\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

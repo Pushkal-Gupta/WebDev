@@ -1,0 +1,8 @@
+{
+  "questionId": "2748",
+  "titleSlug": "calculate-delayed-arrival-time",
+  "title": "Calculate Delayed Arrival Time",
+  "exampleTestcases": "15\n5\n13\n11",
+  "sampleTestCase": "15\n5",
+  "metaData": "{\n  \"name\": \"findDelayedArrivalTime\",\n  \"params\": [\n    {\n      \"name\": \"arrivalTime\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"delayedTime\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

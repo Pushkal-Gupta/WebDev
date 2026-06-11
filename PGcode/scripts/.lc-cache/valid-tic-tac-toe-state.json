@@ -1,0 +1,8 @@
+{
+  "questionId": "810",
+  "titleSlug": "valid-tic-tac-toe-state",
+  "title": "Valid Tic-Tac-Toe State",
+  "exampleTestcases": "[\"O  \",\"   \",\"   \"]\n[\"XOX\",\" X \",\"   \"]\n[\"XOX\",\"O O\",\"XOX\"]",
+  "sampleTestCase": "[\"O  \",\"   \",\"   \"]",
+  "metaData": "{\r\n  \"name\": \"validTicTacToe\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"board\",\r\n      \"type\": \"string[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
+}

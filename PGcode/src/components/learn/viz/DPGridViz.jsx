@@ -104,30 +104,28 @@ function formulaForStep(step) {
 export default function DPGridViz() {
   const [m, setM] = useState(DEFAULT_M);
   const [n, setN] = useState(DEFAULT_N);
-  const [steps, setSteps] = useState(() => buildSteps(DEFAULT_M, DEFAULT_N));
+  const steps = useMemo(() => buildSteps(m, n), [m, n]);
   const [idx, setIdx] = useState(-1);
-  const [playing, setPlaying] = useState(false);
+  const [playingRaw, setPlaying] = useState(false);
   const timerRef = useRef(null);
 
-  useEffect(() => {
-    setSteps(buildSteps(m, n));
+  const [prevSteps, setPrevSteps] = useState(steps);
+  if (prevSteps !== steps) {
+    setPrevSteps(steps);
     setIdx(-1);
     setPlaying(false);
-  }, [m, n]);
+  }
 
   const total = steps.length;
   const current = idx >= 0 ? steps[idx] : null;
   const finalAnswer = steps.length > 0 ? steps[steps.length - 1].value : 0;
   const atEnd = idx >= total - 1;
+  // Derive `playing` from the raw toggle + bounds so the auto-run effect never
+  // needs to call setPlaying(false) when we hit the end.
+  const playing = playingRaw && idx < total - 1;
 
   const next = useCallback(() => {
-    setIdx((i) => {
-      if (i >= total - 1) {
-        setPlaying(false);
-        return i;
-      }
-      return i + 1;
-    });
+    setIdx((i) => (i >= total - 1 ? i : i + 1));
   }, [total]);
 
   useEffect(() => {
@@ -145,10 +143,6 @@ export default function DPGridViz() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [playing, next]);
-
-  useEffect(() => {
-    if (idx >= total - 1 && playing) setPlaying(false);
-  }, [idx, total, playing]);
 
   const handleReset = () => {
     setPlaying(false);

@@ -1,0 +1,8 @@
+{
+  "questionId": "3429",
+  "titleSlug": "special-array-i",
+  "title": "Special Array I",
+  "exampleTestcases": "[1]\n[2,1,4]\n[4,3,1,6]",
+  "sampleTestCase": "[1]",
+  "metaData": "{\n  \"name\": \"isArraySpecial\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

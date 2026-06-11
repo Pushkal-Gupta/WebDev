@@ -1,0 +1,8 @@
+{
+  "questionId": "2229",
+  "titleSlug": "maximum-fruits-harvested-after-at-most-k-steps",
+  "title": "Maximum Fruits Harvested After at Most K Steps",
+  "exampleTestcases": "[[2,8],[6,3],[8,6]]\n5\n4\n[[0,9],[4,1],[5,7],[6,2],[7,4],[10,9]]\n5\n4\n[[0,3],[6,4],[8,5]]\n3\n2",
+  "sampleTestCase": "[[2,8],[6,3],[8,6]]\n5\n4",
+  "metaData": "{\n  \"name\": \"maxTotalFruits\",\n  \"params\": [\n    {\n      \"name\": \"fruits\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"startPos\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

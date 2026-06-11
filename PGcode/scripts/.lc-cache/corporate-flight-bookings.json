@@ -1,0 +1,8 @@
+{
+  "questionId": "1206",
+  "titleSlug": "corporate-flight-bookings",
+  "title": "Corporate Flight Bookings",
+  "exampleTestcases": "[[1,2,10],[2,3,20],[2,5,25]]\n5\n[[1,2,10],[2,2,15]]\n2",
+  "sampleTestCase": "[[1,2,10],[2,3,20],[2,5,25]]\n5",
+  "metaData": "{\n  \"name\": \"corpFlightBookings\",\n  \"params\": [\n    {\n      \"name\": \"bookings\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"n\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

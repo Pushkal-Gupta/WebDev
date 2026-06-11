@@ -1,0 +1,8 @@
+{
+  "questionId": "2872",
+  "titleSlug": "largest-element-in-an-array-after-merge-operations",
+  "title": "Largest Element in an Array after Merge Operations",
+  "exampleTestcases": "[2,3,7,9,3]\n[5,3,3]",
+  "sampleTestCase": "[2,3,7,9,3]",
+  "metaData": "{\n  \"name\": \"maxArrayValue\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

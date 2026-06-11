@@ -1,0 +1,8 @@
+{
+  "questionId": "3166",
+  "titleSlug": "minimum-number-of-groups-to-create-a-valid-assignment",
+  "title": "Minimum Number of Groups to Create a Valid Assignment",
+  "exampleTestcases": "[3,2,3,2,3]",
+  "sampleTestCase": "[3,2,3,2,3]",
+  "metaData": "{\n  \"name\": \"minGroupsForValidAssignment\",\n  \"params\": [\n    {\n      \"name\": \"balls\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

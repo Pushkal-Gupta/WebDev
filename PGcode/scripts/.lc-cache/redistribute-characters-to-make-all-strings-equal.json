@@ -1,0 +1,8 @@
+{
+  "questionId": "2025",
+  "titleSlug": "redistribute-characters-to-make-all-strings-equal",
+  "title": "Redistribute Characters to Make All Strings Equal",
+  "exampleTestcases": "[\"abc\",\"aabc\",\"bc\"]\n[\"ab\",\"a\"]",
+  "sampleTestCase": "[\"abc\",\"aabc\",\"bc\"]",
+  "metaData": "{\n  \"name\": \"makeEqual\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"manual\": false\n}"
+}

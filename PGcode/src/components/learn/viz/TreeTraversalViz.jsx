@@ -43,14 +43,14 @@ function buildPreorder() {
   const root = NODES[0].id;
 
   pushStep(steps, {}, {
-    current: null, stack: [], queue: null, visited: [], output: [],
+    cur: null, stack: [], queue: null, visited: [], output: [],
     caption: 'Pre-order: visit the node, then recurse left, then recurse right. Start by calling preorder(root).',
   });
 
   const walk = (id, depth) => {
     if (id === null) {
       pushStep(steps, {}, {
-        current: null, stack: [...stack], queue: null, visited: [...visited], output: [...output],
+        cur: null, stack: [...stack], queue: null, visited: [...visited], output: [...output],
         caption: 'Null child — return immediately without visiting.',
       });
       return;
@@ -58,32 +58,32 @@ function buildPreorder() {
     const node = NODE_BY_ID[id];
     stack.push(id);
     pushStep(steps, {}, {
-      current: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
+      cur: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
       caption: `Enter preorder(${node.value}). Push call frame onto the stack.`,
     });
 
     visited.push(id);
     output.push(node.value);
     pushStep(steps, {}, {
-      current: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
+      cur: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
       caption: `Visit ${node.value}. Pre-order writes the node BEFORE descending. Append to output.`,
     });
 
     pushStep(steps, {}, {
-      current: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
+      cur: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
       caption: `Recurse left from ${node.value}.`,
     });
     walk(node.left, depth + 1);
 
     pushStep(steps, {}, {
-      current: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
+      cur: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
       caption: `Recurse right from ${node.value}.`,
     });
     walk(node.right, depth + 1);
 
     stack.pop();
     pushStep(steps, {}, {
-      current: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
+      cur: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
       caption: `Return from preorder(${node.value}). Pop call frame.`,
     });
   };
@@ -91,7 +91,7 @@ function buildPreorder() {
   walk(root, 0);
 
   pushStep(steps, {}, {
-    current: null, stack: [], queue: null, visited: [...visited], output: [...output],
+    cur: null, stack: [], queue: null, visited: [...visited], output: [...output],
     caption: `Done. Pre-order sequence: ${output.join(', ')}.`,
   });
   return steps;
@@ -105,14 +105,14 @@ function buildInorder() {
   const root = NODES[0].id;
 
   pushStep(steps, {}, {
-    current: null, stack: [], queue: null, visited: [], output: [],
+    cur: null, stack: [], queue: null, visited: [], output: [],
     caption: 'In-order: recurse left, then visit the node, then recurse right. For a BST this yields sorted order.',
   });
 
   const walk = (id) => {
     if (id === null) {
       pushStep(steps, {}, {
-        current: null, stack: [...stack], queue: null, visited: [...visited], output: [...output],
+        cur: null, stack: [...stack], queue: null, visited: [...visited], output: [...output],
         caption: 'Null child — return without visiting.',
       });
       return;
@@ -120,12 +120,12 @@ function buildInorder() {
     const node = NODE_BY_ID[id];
     stack.push(id);
     pushStep(steps, {}, {
-      current: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
+      cur: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
       caption: `Enter inorder(${node.value}). Push call frame.`,
     });
 
     pushStep(steps, {}, {
-      current: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
+      cur: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
       caption: `Recurse left from ${node.value} first.`,
     });
     walk(node.left);
@@ -133,19 +133,19 @@ function buildInorder() {
     visited.push(id);
     output.push(node.value);
     pushStep(steps, {}, {
-      current: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
+      cur: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
       caption: `Visit ${node.value}. In-order writes the node BETWEEN the two subtrees.`,
     });
 
     pushStep(steps, {}, {
-      current: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
+      cur: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
       caption: `Now recurse right from ${node.value}.`,
     });
     walk(node.right);
 
     stack.pop();
     pushStep(steps, {}, {
-      current: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
+      cur: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
       caption: `Return from inorder(${node.value}). Pop call frame.`,
     });
   };
@@ -153,7 +153,7 @@ function buildInorder() {
   walk(root);
 
   pushStep(steps, {}, {
-    current: null, stack: [], queue: null, visited: [...visited], output: [...output],
+    cur: null, stack: [], queue: null, visited: [...visited], output: [...output],
     caption: `Done. In-order sequence: ${output.join(', ')}. Sorted because the tree is a BST.`,
   });
   return steps;
@@ -167,14 +167,14 @@ function buildPostorder() {
   const root = NODES[0].id;
 
   pushStep(steps, {}, {
-    current: null, stack: [], queue: null, visited: [], output: [],
+    cur: null, stack: [], queue: null, visited: [], output: [],
     caption: 'Post-order: recurse left, then recurse right, then visit the node. Children print before their parent.',
   });
 
   const walk = (id) => {
     if (id === null) {
       pushStep(steps, {}, {
-        current: null, stack: [...stack], queue: null, visited: [...visited], output: [...output],
+        cur: null, stack: [...stack], queue: null, visited: [...visited], output: [...output],
         caption: 'Null child — return without visiting.',
       });
       return;
@@ -182,18 +182,18 @@ function buildPostorder() {
     const node = NODE_BY_ID[id];
     stack.push(id);
     pushStep(steps, {}, {
-      current: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
+      cur: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
       caption: `Enter postorder(${node.value}). Push call frame.`,
     });
 
     pushStep(steps, {}, {
-      current: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
+      cur: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
       caption: `Recurse left from ${node.value}.`,
     });
     walk(node.left);
 
     pushStep(steps, {}, {
-      current: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
+      cur: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
       caption: `Recurse right from ${node.value}.`,
     });
     walk(node.right);
@@ -201,13 +201,13 @@ function buildPostorder() {
     visited.push(id);
     output.push(node.value);
     pushStep(steps, {}, {
-      current: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
+      cur: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
       caption: `Visit ${node.value}. Post-order writes the node AFTER both subtrees finish.`,
     });
 
     stack.pop();
     pushStep(steps, {}, {
-      current: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
+      cur: id, stack: [...stack], queue: null, visited: [...visited], output: [...output],
       caption: `Return from postorder(${node.value}). Pop call frame.`,
     });
   };
@@ -215,7 +215,7 @@ function buildPostorder() {
   walk(root);
 
   pushStep(steps, {}, {
-    current: null, stack: [], queue: null, visited: [...visited], output: [...output],
+    cur: null, stack: [], queue: null, visited: [...visited], output: [...output],
     caption: `Done. Post-order sequence: ${output.join(', ')}.`,
   });
   return steps;
@@ -230,7 +230,7 @@ function buildLevelOrder() {
   const rootNode = NODE_BY_ID[root];
 
   pushStep(steps, {}, {
-    current: null, stack: null, queue: [...queue], visited: [], output: [],
+    cur: null, stack: null, queue: [...queue], visited: [], output: [],
     caption: `Level-order (BFS): enqueue the root (${rootNode.value}). Process the queue front-to-back.`,
   });
 
@@ -239,14 +239,14 @@ function buildLevelOrder() {
     const node = NODE_BY_ID[id];
 
     pushStep(steps, {}, {
-      current: id, stack: null, queue: [...queue], visited: [...visited], output: [...output],
+      cur: id, stack: null, queue: [...queue], visited: [...visited], output: [...output],
       caption: `Dequeue ${node.value} from the front. Visit it.`,
     });
 
     visited.push(id);
     output.push(node.value);
     pushStep(steps, {}, {
-      current: id, stack: null, queue: [...queue], visited: [...visited], output: [...output],
+      cur: id, stack: null, queue: [...queue], visited: [...visited], output: [...output],
       caption: `Append ${node.value} to the output. Next: enqueue its children left-to-right.`,
     });
 
@@ -256,19 +256,19 @@ function buildLevelOrder() {
 
     if (added.length) {
       pushStep(steps, {}, {
-        current: id, stack: null, queue: [...queue], visited: [...visited], output: [...output],
+        cur: id, stack: null, queue: [...queue], visited: [...visited], output: [...output],
         caption: `Enqueue children of ${node.value}: ${added.join(', ')}.`,
       });
     } else {
       pushStep(steps, {}, {
-        current: id, stack: null, queue: [...queue], visited: [...visited], output: [...output],
+        cur: id, stack: null, queue: [...queue], visited: [...visited], output: [...output],
         caption: `${node.value} is a leaf — no children to enqueue.`,
       });
     }
   }
 
   pushStep(steps, {}, {
-    current: null, stack: null, queue: [], visited: [...visited], output: [...output],
+    cur: null, stack: null, queue: [], visited: [...visited], output: [...output],
     caption: `Queue empty. Level-order sequence: ${output.join(', ')}.`,
   });
   return steps;
@@ -283,27 +283,26 @@ const BUILDERS = {
 
 export default function TreeTraversalViz() {
   const [mode, setMode] = useState('preorder');
-  const [steps, setSteps] = useState(() => BUILDERS.preorder());
+  const steps = useMemo(() => BUILDERS[mode](), [mode]);
   const [idx, setIdx] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  const [playingRaw, setPlaying] = useState(false);
   const timerRef = useRef(null);
 
-  useEffect(() => {
-    setSteps(BUILDERS[mode]());
+  const [prevMode, setPrevMode] = useState(mode);
+  if (prevMode !== mode) {
+    setPrevMode(mode);
     setIdx(0);
     setPlaying(false);
-  }, [mode]);
+  }
 
   const step = steps[idx];
 
+  // Derive `playing` so the interval effect never has to setPlaying(false) on
+  // reaching the last step — avoids cascading-render lint.
+  const playing = playingRaw && idx < steps.length - 1;
+
   const next = useCallback(() => {
-    setIdx((i) => {
-      if (i >= steps.length - 1) {
-        setPlaying(false);
-        return i;
-      }
-      return i + 1;
-    });
+    setIdx((i) => (i >= steps.length - 1 ? i : i + 1));
   }, [steps.length]);
 
   useEffect(() => {
@@ -322,10 +321,6 @@ export default function TreeTraversalViz() {
     };
   }, [playing, next]);
 
-  useEffect(() => {
-    if (idx >= steps.length - 1 && playing) setPlaying(false);
-  }, [idx, steps.length, playing]);
-
   const handleReset = () => {
     setPlaying(false);
     setIdx(0);
@@ -335,7 +330,7 @@ export default function TreeTraversalViz() {
     const map = {};
     NODES.forEach((n) => { map[n.id] = 'idle'; });
     (step.visited || []).forEach((id) => { map[id] = 'visited'; });
-    if (step.current !== null && step.current !== undefined) map[step.current] = 'current';
+    if (step.cur !== null && step.cur !== undefined) map[step.cur] = 'current';
     return map;
   }, [step]);
 
@@ -345,7 +340,7 @@ export default function TreeTraversalViz() {
     const visitedSet = new Set(step.visited || []);
     EDGES.forEach((e) => {
       if (visitedSet.has(e.from) && visitedSet.has(e.to)) map[e.key] = 'visited';
-      else if (step.current === e.to && visitedSet.has(e.from)) map[e.key] = 'active';
+      else if (step.cur === e.to && visitedSet.has(e.from)) map[e.key] = 'active';
     });
     return map;
   }, [step]);
@@ -442,8 +437,8 @@ export default function TreeTraversalViz() {
         <div className="ttviz-status-row">
           <span className="ttviz-status-label">Visiting</span>
           <span className="ttviz-status-value">
-            {step.current !== null && step.current !== undefined
-              ? NODE_BY_ID[step.current].value
+            {step.cur !== null && step.cur !== undefined
+              ? NODE_BY_ID[step.cur].value
               : <span className="ttviz-muted">—</span>}
           </span>
         </div>

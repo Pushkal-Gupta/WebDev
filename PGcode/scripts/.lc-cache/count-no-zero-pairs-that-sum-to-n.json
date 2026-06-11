@@ -1,0 +1,8 @@
+{
+  "questionId": "4049",
+  "titleSlug": "count-no-zero-pairs-that-sum-to-n",
+  "title": "Count No-Zero Pairs That Sum to N",
+  "exampleTestcases": "2\n3\n11",
+  "sampleTestCase": "2",
+  "metaData": "{\n  \"name\": \"countNoZeroPairs\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"long\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

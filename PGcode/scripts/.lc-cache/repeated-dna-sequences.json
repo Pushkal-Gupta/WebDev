@@ -1,0 +1,8 @@
+{
+  "questionId": "187",
+  "titleSlug": "repeated-dna-sequences",
+  "title": "Repeated DNA Sequences",
+  "exampleTestcases": "\"AAAAACCCCCAAAAACCCCCCAAAAAGGGTTT\"\n\"AAAAAAAAAAAAA\"",
+  "sampleTestCase": "\"AAAAACCCCCAAAAACCCCCCAAAAAGGGTTT\"",
+  "metaData": "{\r\n  \"name\": \"findRepeatedDnaSequences\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<string>\"\r\n  }\r\n}"
+}

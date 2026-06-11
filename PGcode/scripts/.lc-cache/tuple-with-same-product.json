@@ -1,0 +1,8 @@
+{
+  "questionId": "1364",
+  "titleSlug": "tuple-with-same-product",
+  "title": "Tuple with Same Product",
+  "exampleTestcases": "[2,3,4,6]\n[1,2,4,5,10]",
+  "sampleTestCase": "[2,3,4,6]",
+  "metaData": "{\n  \"name\": \"tupleSameProduct\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1231",
+  "titleSlug": "replace-elements-with-greatest-element-on-right-side",
+  "title": "Replace Elements with Greatest Element on Right Side",
+  "exampleTestcases": "[17,18,5,4,6,1]\n[400]",
+  "sampleTestCase": "[17,18,5,4,6,1]",
+  "metaData": "{\n  \"name\": \"replaceElements\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "4299",
+  "titleSlug": "concatenate-array-with-reverse",
+  "title": "Concatenate Array With Reverse",
+  "exampleTestcases": "[1,2,3]\n[1]",
+  "sampleTestCase": "[1,2,3]",
+  "metaData": "{\n  \"name\": \"concatWithReverse\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

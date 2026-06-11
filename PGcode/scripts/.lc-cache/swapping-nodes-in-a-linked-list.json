@@ -1,0 +1,8 @@
+{
+  "questionId": "528",
+  "titleSlug": "swapping-nodes-in-a-linked-list",
+  "title": "Swapping Nodes in a Linked List",
+  "exampleTestcases": "[1,2,3,4,5]\n2\n[7,9,6,6,7,8,3,0,9,5]\n5",
+  "sampleTestCase": "[1,2,3,4,5]\n2",
+  "metaData": "{\r\n  \"name\": \"swapNodes\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"head\",\r\n      \"type\": \"ListNode\"\r\n    },\r\n    {\r\n        \"name\": \"k\",\r\n        \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"ListNode\"\r\n  }\r\n}\r\n"
+}

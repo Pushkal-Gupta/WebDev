@@ -1,0 +1,8 @@
+{
+  "questionId": "388",
+  "titleSlug": "longest-absolute-file-path",
+  "title": "Longest Absolute File Path",
+  "exampleTestcases": "\"dir\\n\\tsubdir1\\n\\tsubdir2\\n\\t\\tfile.ext\"\n\"dir\\n\\tsubdir1\\n\\t\\tfile1.ext\\n\\t\\tsubsubdir1\\n\\tsubdir2\\n\\t\\tsubsubdir2\\n\\t\\t\\tfile2.ext\"\n\"a\"",
+  "sampleTestCase": "\"dir\\n\\tsubdir1\\n\\tsubdir2\\n\\t\\tfile.ext\"",
+  "metaData": "{\r\n  \"name\": \"lengthLongestPath\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"input\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

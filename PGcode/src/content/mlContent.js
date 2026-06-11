@@ -2732,19 +2732,10 @@ The update direction is \\(\\pm 1\\) on every coordinate. Magnitude information 
 Why anyone uses it: the optimiser state is *half* the size of Adam (one buffer instead of two), and on the large transformer training runs Google evaluated, Lion matched or beat AdamW with smaller hyperparameter budgets. The catch: learning rates need to be roughly 3× to 10× smaller than what you would use with Adam, because the sign-only update is much more aggressive than a scaled gradient when the gradient is small. Lion is not yet a universal drop-in, but on memory-bound large-model training it is a real contender.`,
           },
           {
-            kind: 'ascii',
+            kind: 'viz',
             heading: 'The zoo at a glance',
-            caption: 'State per parameter, hyperparameters, and the one-line "when to use it".',
-            body: `   optimizer       state/param   key hyperparams              best for
-   -------------   -----------   --------------------------   ------------------------------
-   SGD             0             η                            tuned schedules, vision SOTA
-   SGD+momentum    1 (v)         η, β=0.9                     same, with less LR pain
-   Nesterov        1 (v)         η, β=0.9                     drop-in for momentum, free win
-   AdaGrad         1 (G)         η                            convex + sparse + short runs
-   RMSprop         1 (G)         η, ρ=0.9                     RNNs (historical default)
-   Adam            2 (m, v)      η, β1=0.9, β2=0.999          everything else, default
-   AdamW           2 (m, v)      η, β1=0.9, β2=0.999, λ       transformers, modern default
-   Lion            1 (m)         η (3-10× smaller), β1, β2    memory-bound large models`,
+            component: 'OptimizerZooViz',
+            props: {},
           },
           {
             kind: 'viz',
@@ -3058,22 +3049,10 @@ He's fix is to double the weight variance so the post-ReLU variance comes out ri
 In standard-deviation form: scale by \\(\\sqrt{2 / n_{\\text{in}}}\\). This is the right default for any ReLU-family activation — plain ReLU, leaky ReLU (with a small slope-correction factor in the constant), GELU, SiLU. Run the per-layer variance accounting again with this \\(\\sigma_W^2\\) and the factor of two from the doubled weight variance cancels the factor of one-half from the ReLU, leaving \\(\\mathrm{Var}(a) = \\sigma_x^2\\) layer to layer. Deep ReLU networks become trainable from scratch.`,
           },
           {
-            kind: 'ascii',
+            kind: 'viz',
             heading: 'What goes wrong without the right scale',
-            caption: 'Per-layer activation standard deviation through a 10-layer width-1000 ReLU MLP, three init choices.',
-            body: `   layer index  →   0    1    2    3    4    5    6    7    8    9   10
-
-   all-zero init    1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
-                         every neuron computes the same thing forever
-
-   N(0, 0.01²)      1.0  0.32 0.10 0.03 0.01 0.00 0.00 0.00 0.00 0.00 0.00
-                         forward signal vanishes — gradient vanishes with it
-
-   Xavier 1/n_in    1.0  0.71 0.50 0.35 0.25 0.18 0.13 0.09 0.06 0.04 0.03
-                         right rule for tanh; halves every ReLU layer
-
-   He 2/n_in        1.0  1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00
-                         variance preserved layer to layer — trainable`,
+            component: 'InitVarianceViz',
+            props: {},
           },
           {
             kind: 'prose',
@@ -3108,6 +3087,12 @@ Zero is the right default for almost every layer. The one notable exception is t
 The mitigation is to initialise ReLU biases at a small positive constant — \\(0.01\\) or \\(0.1\\) — so the pre-activation starts on the active side of zero with high probability. The cost is essentially nothing; the upside is that fewer neurons die in the first few hundred steps before the data has had a chance to push them around. PyTorch's default for \`nn.Linear\` is uniform-in-\\([-1/\\sqrt{n}, 1/\\sqrt{n}]\\) for *both* weights and bias, which is harmless but neither optimal nor scary — the explicit positive-bias trick is one extra line for ReLU stacks and worth doing on architectures where you have seen dead neurons.
 
 The other special case is the **forget-gate bias of an LSTM**, traditionally initialised to \\(+1\\) so the network remembers by default at the start of training. The general principle: when a sigmoid-gated unit has a "do nothing / pass through" mode at one end of its range, bias the unit toward that mode at init so the gradient signal has a chance to teach the gate the cases where it should do something else.`,
+          },
+          {
+            kind: 'viz',
+            heading: 'Slide the bias — watch dead neurons disappear',
+            component: 'DeadReLUViz',
+            props: {},
           },
           {
             kind: 'code',
@@ -3776,7 +3761,7 @@ The trouble arrives at the boundaries where the network downsamples spatially (s
 - **Identity with padding / pooling.** Average-pool \\(x\\) by stride 2 to match the spatial size and zero-pad the channel dimension from 64 to 128. Zero parameters, but the new channels start at zero and have to be filled in by \\(F\\) alone. This is the original ResNet paper's "option A".
 - **Projection shortcut.** Replace the bare skip with a \\(1 \\times 1\\) convolution of stride 2 that maps \\((B, 64, 56, 56) \\to (B, 128, 28, 28)\\) directly. This adds a small number of learnable parameters (one per \\((in, out)\\) channel pair) and is what every modern implementation actually uses — the paper's "option B". The extra cost is negligible and the network learns a slightly better mapping than the zero-padded identity.
 
-Inside a stage where the shape does not change, the skip stays a literal identity. Between stages — every place the network downsamples — the skip is a projection. The block's \"residual\" structure is preserved; only the wire carrying \\(x\\) gets a tiny linear adapter so the shapes line up. This is the same pattern any place residuals show up in a network with shape transitions: in a Transformer the embedding dimension stays constant across the entire encoder so the skip is always pure identity, which is why transformer code never has to worry about projection shortcuts.`,
+Inside a stage where the shape does not change, the skip stays a literal identity. Between stages — every place the network downsamples — the skip is a projection. The block's "residual" structure is preserved; only the wire carrying \\(x\\) gets a tiny linear adapter so the shapes line up. This is the same pattern any place residuals show up in a network with shape transitions: in a Transformer the embedding dimension stays constant across the entire encoder so the skip is always pure identity, which is why transformer code never has to worry about projection shortcuts.`,
           },
           {
             kind: 'prose',
@@ -3860,9 +3845,9 @@ print(f"gradient norm at first layer after 50 blocks: {first_grad_norm:.4f}")
             heading: 'Residuals everywhere — Transformer, U-Net, diffusion',
             body: `Once you have seen the pattern you cannot un-see it. The *Attention* lesson's transformer block is two residual connections in a row: one around the multi-head attention layer, one around the position-wise feed-forward layer. Strip those skips out and a 12-layer transformer becomes untrainable — the same degradation problem ResNets fixed, in a different guise. Every modern language model is, structurally, a stack of residual blocks where \\(F\\) happens to be attention or an MLP instead of convolutions.
 
-The U-Net family — the workhorse of medical image segmentation and the backbone of every diffusion model — is residual in a different way. It has the same \"add the input back\" trick across each encoder-decoder pair: features at a given resolution on the encoder side are concatenated (or added) to features at the same resolution on the decoder side, giving the decoder direct access to the high-resolution information without forcing it through the bottleneck. Stable Diffusion's UNet, the SDXL backbone, and every video diffusion model in the wild are built on top of residual blocks at every resolution, with attention layers (themselves residual) wired in at the deeper stages.
+The U-Net family — the workhorse of medical image segmentation and the backbone of every diffusion model — is residual in a different way. It has the same "add the input back" trick across each encoder-decoder pair: features at a given resolution on the encoder side are concatenated (or added) to features at the same resolution on the decoder side, giving the decoder direct access to the high-resolution information without forcing it through the bottleneck. Stable Diffusion's UNet, the SDXL backbone, and every video diffusion model in the wild are built on top of residual blocks at every resolution, with attention layers (themselves residual) wired in at the deeper stages.
 
-DenseNets generalise the idea further: instead of \\(y = F(x) + x\\), use \\(y = F(x, x_{\\text{prev1}}, x_{\\text{prev2}}, \\ldots)\\) where every block has access to the outputs of every previous block at the same resolution. More parameter-efficient than ResNet at small scales; the residual sum is just the simplest member of a family of \"give the next layer direct access to earlier features\" tricks. ResNet won because it is the easiest version of the idea to implement and reason about, and because the simple sum has the cleanest gradient algebra.
+DenseNets generalise the idea further: instead of \\(y = F(x) + x\\), use \\(y = F(x, x_{\\text{prev1}}, x_{\\text{prev2}}, \\ldots)\\) where every block has access to the outputs of every previous block at the same resolution. More parameter-efficient than ResNet at small scales; the residual sum is just the simplest member of a family of "give the next layer direct access to earlier features" tricks. ResNet won because it is the easiest version of the idea to implement and reason about, and because the simple sum has the cleanest gradient algebra.
 
 The takeaway is general: any time you find yourself stacking many homogeneous transformations and finding that the optimiser struggles past a certain depth, the residual trick is the first thing to try. It is one line of code, has near-zero compute cost (an addition), and converts a problem that needs careful initialisation, normalisation, and learning-rate scheduling into one that "just works."`,
           },
@@ -4826,6 +4811,330 @@ The *Attention* and *Weight initialization* lessons explain why the base model h
             body: `- [Hu et al. — LoRA paper](https://arxiv.org/abs/2106.09685) — "LoRA: Low-Rank Adaptation of Large Language Models"; the original paper with the rank ablation tables and the parameter-count math.
 - [Hugging Face — PEFT documentation](https://huggingface.co/docs/peft) — the production-ready library: LoRA, QLoRA, IA³, prompt tuning, adapter merging, all with code snippets.
 - [Dettmers et al. — QLoRA paper](https://arxiv.org/abs/2305.14314) — "QLoRA: Efficient Finetuning of Quantized LLMs"; how 4-bit base weights + LoRA adapters fit a 65B fine-tune onto a single 48 GB GPU.`,
+          },
+        ],
+      },
+      {
+        slug: 'quantization',
+        title: 'Model quantization',
+        oneLiner: 'Drop weights from fp32 to int8 or int4 and a 14 GB model fits in 3.5 GB — the dominant compression trick behind every served LLM.',
+        difficulty: 'intermediate',
+        readMinutes: 13,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'What quantization actually is',
+            body: `Quantization is the practice of representing a neural network's weights and activations with fewer bits than the precision it was trained in. A model trained in fp32 stores every weight as a 32-bit floating-point number; quantizing it to int8 replaces each weight with an 8-bit integer plus a small per-tensor or per-channel scale factor, and quantizing to int4 cuts another bit-width in half. The arithmetic at inference time is then performed in the lower precision — int8 matmuls on tensor cores, int4 with custom kernels — and a final dequantization brings activations back to fp16 or fp32 wherever the next layer needs them.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Why it matters for serving',
+            body: `A Llama-7B model in fp16 occupies roughly 14 GB of weights — 7 billion parameters times 2 bytes per parameter. Quantize the same weights to int4 and the footprint drops to about 3.5 GB, with 4-bit storage plus a tiny scale overhead per group. The same model now fits comfortably on a single consumer GPU with 8 GB of VRAM, or two of them on a 16 GB card with room for the kv-cache and activations. Llama-70B sits at 140 GB in fp16 and around 35 GB in int4 — the difference between an eight-GPU node and a single A100. Memory bandwidth, not compute, is the bottleneck at batch size one, so a 4x reduction in weight size translates almost directly into a 2-3x speedup on autoregressive token generation.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Intuition — picking a smart grid where the weights actually live',
+            body: `A trained network's weights are not uniformly distributed across the fp32 range. Plot the histogram of any well-trained layer and you will see a tight cluster around zero with an approximately Gaussian shape, often with a standard deviation in the range of \\(0.01\\) to \\(0.1\\). Almost every weight has magnitude below \\(0.5\\); a handful of outliers sit out past \\(1.0\\) or \\(2.0\\). fp32 spends 32 bits of precision uniformly across an enormous dynamic range — from \\(10^{-38}\\) to \\(10^{38}\\) — and the network uses approximately none of that range. The bits encoding the exponent are almost all wasted, and the bits encoding the mantissa are giving you precision down to the eighth decimal place on weights that the optimizer was never going to land within \\(10^{-3}\\) of the next gradient step anyway.
+
+The 3B1B-style reframe: imagine the number line stretched across the page, and the trained weights as dust scattered across it. fp32 lays down a ruler with \\(2^{32}\\) tick marks evenly spaced from \\(-3.4 \\times 10^{38}\\) to \\(+3.4 \\times 10^{38}\\); the dust occupies a microscopic interval near the origin and ignores the rest of the ruler entirely. Quantization is the act of *throwing away the ruler and drawing a new, much shorter one* — say, 256 evenly spaced tick marks (int8) or 16 tick marks (int4) — sized exactly to cover where the dust actually sits. Each weight then snaps to its nearest tick.
+
+The grid is parameterised by a single number, the **scale** \\(s\\), which says how wide each tick is in floating-point units. Choose \\(s\\) too large and the grid is coarse; small weights all collapse onto the same tick and the model loses its fine-grained structure. Choose \\(s\\) too small and the outliers fall off the end of the grid; they get clipped to the maximum representable integer and the model loses its tails. The whole craft of quantization is finding the \\(s\\) that balances these two failures — and then doing it per-tensor, per-channel, or per-group depending on how much the optimum varies across the weight matrix.`,
+          },
+          {
+            kind: 'viz',
+            heading: 'Weights → quantization grid → dequantized weights',
+            component: 'QuantizationViz',
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked tiny example — eight weights through int8',
+            body: `Take the weight vector \\(w = [-0.84, -0.21, 0.05, 0.13, 0.42, 0.67, 1.02, 1.45]\\) and walk it through symmetric int8 quantization by hand.
+
+**Step 1 — pick the scale.** Symmetric quantization uses the max absolute value of the tensor as the reference: \\(\\max(|w|) = 1.45\\). The int8 range covers \\([-127, 127]\\) (we exclude \\(-128\\) to keep the grid symmetric around zero). Scale is \\(s = 1.45 / 127 = 0.011417\\). Each integer tick is worth about \\(0.0114\\) in floating-point units.
+
+**Step 2 — quantize each weight.** Compute \\(q_i = \\mathrm{round}(w_i / s)\\). For \\(-0.84\\): \\(-0.84 / 0.011417 = -73.57\\), rounds to \\(-74\\). Run the same on every entry: \\(q = [-74, -18, 4, 11, 37, 59, 89, 127]\\). All eight values fit inside the \\([-127, 127]\\) range; no clipping needed. Notice that \\(1.45\\) lands exactly on \\(127\\) — that is the boundary case the symmetric scheme is designed for.
+
+**Step 3 — dequantize back to floats.** Multiply by the scale: \\(\\hat{w}_i = q_i \\cdot s\\). For \\(-74\\): \\(-74 \\cdot 0.011417 = -0.8449\\). The full reconstruction is \\(\\hat{w} \\approx [-0.8449, -0.2055, 0.0457, 0.1256, 0.4224, 0.6736, 1.0162, 1.4500]\\).
+
+**Step 4 — measure the error.** Per-entry differences are \\(w - \\hat{w} \\approx [0.0049, -0.0045, 0.0043, 0.0044, -0.0024, -0.0036, 0.0038, 0.0000]\\). The max absolute error is about \\(0.005\\) — half the tick width, as you would expect from rounding. The mean squared error is on the order of \\(10^{-5}\\). For a weight tensor where typical values are in the tenths, a per-weight perturbation of \\(0.005\\) is well below the noise floor the model already absorbed during stochastic training.
+
+Notice what would have happened if a single outlier of magnitude \\(10\\) had been hiding in the same tensor: the scale would have jumped to \\(10/127 \\approx 0.079\\), every other weight would have lost an order of magnitude of resolution, and the small weights would have collapsed onto a handful of grid points. That is the outlier problem the more advanced methods all fight in different ways.`,
+          },
+          {
+            kind: 'math',
+            heading: 'Quantize and dequantize, formally',
+            body: `Symmetric uniform quantization is two equations. The forward map sends a float \\(w\\) to an integer \\(q\\):
+
+\\[
+q = \\mathrm{round}\\!\\left( \\frac{w}{s} \\right), \\qquad s = \\frac{\\max(|w|)}{2^{b-1} - 1}
+\\]
+
+The reverse map (used at inference time, or to inspect reconstruction error) recovers an approximation \\(\\hat{w}\\):
+
+\\[
+\\hat{w} = q \\cdot s
+\\]
+
+For asymmetric quantization the grid is shifted by a zero-point \\(z\\) so the minimum and maximum of the tensor land at \\(0\\) and \\(2^{b} - 1\\) respectively:
+
+\\[
+q = \\mathrm{round}\\!\\left( \\frac{w}{s} \\right) + z, \\qquad \\hat{w} = (q - z) \\cdot s
+\\]`,
+          },
+          {
+            kind: 'callout',
+            tone: 'note',
+            body: `**Symbols.** \\(w\\) is the original floating-point weight (fp32 or fp16). \\(q\\) is its quantized integer representation, stored in \\(b\\) bits (typically \\(b \\in \\{8, 4\\}\\)). \\(s > 0\\) is the **scale**, a single floating-point number per tensor (or per channel, or per group of \\(g\\) consecutive weights) that says how wide each integer tick is in float units. \\(z\\) is the **zero-point**, the integer value that decodes to floating-point zero; in symmetric quantization \\(z = 0\\) by construction. \\(\\hat{w}\\) is the dequantized weight — what the model effectively uses at inference time. The reconstruction error \\(w - \\hat{w}\\) is bounded by \\(s/2\\) per weight.`,
+          },
+          {
+            kind: 'callout',
+            tone: 'tip',
+            body: `**Symmetric vs asymmetric.** Symmetric quantization fixes \\(z = 0\\) and uses a grid centred on the origin: \\(q = \\mathrm{round}(w/s)\\). It is the natural fit for weights, which are roughly zero-centred after training, and the int8 matmul kernels on tensor cores assume zero-point zero so symmetric weights compile to the fastest possible paths. Asymmetric quantization picks both a scale and a zero-point so the grid can shift; \\(q = \\mathrm{round}(w/s) + z\\). It is the right choice for **activations**, which are often non-negative (post-ReLU) or otherwise lop-sided, because symmetric grids waste half their bits on a range the activation never visits. Modern stacks default to symmetric weights, asymmetric activations.`,
+          },
+          {
+            kind: 'callout',
+            tone: 'tip',
+            body: `**Per-tensor vs per-channel vs per-group.** Per-tensor uses one scale for the entire weight matrix — cheapest to store, worst when channels have wildly different magnitudes. Per-channel (per-row for the output dimension of a linear layer) gives each channel its own scale — far better quality, costs one extra fp16 number per output channel. Per-group splits each row into groups of \\(g\\) consecutive weights (typical \\(g \\in \\{32, 64, 128\\}\\)) and stores a scale per group — the GPTQ / AWQ default, recovers most of per-channel's accuracy at int4 while keeping the scale overhead under 5% of the storage budget. Granularity is a knob you tune against accuracy on a held-out calibration set.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Post-training quantization (PTQ)',
+            body: `Post-training quantization is the path of least resistance. Take an already-trained fp16 or fp32 checkpoint, run a few hundred unlabelled samples through it to collect activation statistics, fit the per-tensor or per-channel scales to those statistics, and write out the integer weights. No gradient steps, no labels, no optimizer state — calibration finishes in minutes on a single GPU even for a 70B model. The catch is that PTQ commits to whatever scale the calibration distribution implied, and any drift between calibration data and production traffic shows up as accuracy loss. For int8 weights on transformers PTQ is usually within a fraction of a point of the fp16 baseline; at int4 the gap widens, which is what GPTQ and AWQ exist to close. PTQ is the right call whenever you do not have access to the training pipeline — closed-source weights, no labelled data, no compute budget for retraining.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Quantization-aware training (QAT)',
+            body: `Quantization-aware training inserts **fake-quant** operators into the forward pass at training time. Each weight (and optionally each activation) is rounded to its int8 or int4 grid in the forward pass, then dequantized back to float before the matmul, so the model sees the rounding error during training. The backward pass uses the **straight-through estimator**: gradients flow through the round as if it were the identity, so the optimizer can still update the underlying fp32 master weights. Over a few hundred to a few thousand steps the master weights drift to positions where their quantized projections produce small loss — the network actively learns to compensate for the rounding it knows is coming. QAT closes most of the accuracy gap at int4 and is the standard recipe whenever the training pipeline is in reach: int4 QAT often matches int8 PTQ on accuracy at half the storage. Cost is a fine-tuning run, not a from-scratch retrain.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'GPTQ, AWQ, SmoothQuant — what beats round-to-nearest',
+            body: `Round-to-nearest (RTN) — quantize every weight independently to its closest grid point — is the naive baseline and the floor everything else must beat. **GPTQ** (Frantar et al. 2022) reframes quantization as a layerwise reconstruction problem: for each linear layer, find the integer weights that minimise the squared error of the layer's output on a small calibration set, solving a quadratic with the inverse Hessian via OBS-style updates. The result is a one-shot int3 or int4 quantization that loses under 1% on perplexity for OPT-175B in about four GPU-hours. **AWQ** (Lin et al. 2023) starts from the observation that only a tiny fraction (~1%) of weight channels are *salient* — the channels feeding the activations with the largest magnitude. Scale those channels up before quantizing and back down after, and the quantization error on the channels that matter shrinks dramatically; AWQ runs without backprop, finishes faster than GPTQ, and matches or beats it at int4. **SmoothQuant** (Xiao et al. 2022) attacks the dual problem — activations have nastier outliers than weights — by migrating difficulty from activations to weights via a per-channel multiplicative rescaling, making int8 PTQ feasible for activations on transformer architectures that would otherwise need int16.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Mixed precision — pick a precision per tensor, not per model',
+            body: `Most production stacks do not quantize uniformly. A typical 4-bit serving setup might keep weights in int4 with per-group scales, run activations in fp16, hold the kv-cache in int8 (or int4 with NF4 tiles), and leave layer-norm, softmax, and embedding layers at full precision. The kv-cache split alone matters disproportionately: at long context, the cache dominates memory, and int8 kv-cache nearly doubles the maximum sequence length on a fixed GPU. Outlier-prone layers — the first and last transformer block, the attention output projection — sometimes get bumped back to int8 even when the rest of the model runs at int4, because the few extra bits there protect the layers that everything else flows through. Mixed precision is the rule, not the exception, on any model big enough to need quantizing in the first place.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'PyTorch QAT skeleton with FX-graph fake-quant',
+            body: `import torch
+import torch.nn as nn
+from torch.ao.quantization import get_default_qat_qconfig_mapping
+from torch.ao.quantization.quantize_fx import prepare_qat_fx, convert_fx
+
+def quantize_aware_train(model, train_loader, calib_batch, epochs=3, lr=1e-5):
+    model.train()
+    qconfig_mapping = get_default_qat_qconfig_mapping("x86")
+
+    prepared = prepare_qat_fx(model, qconfig_mapping, example_inputs=calib_batch)
+
+    optimizer = torch.optim.AdamW(prepared.parameters(), lr=lr)
+    loss_fn = nn.CrossEntropyLoss()
+
+    for _ in range(epochs):
+        for x, y in train_loader:
+            optimizer.zero_grad()
+            logits = prepared(x)
+            loss_fn(logits, y).backward()
+            optimizer.step()
+
+    prepared.eval()
+    quantized = convert_fx(prepared)
+    return quantized
+
+# Dynamic int8 PTQ alternative — one line, no calibration data needed
+ptq_model = torch.ao.quantization.quantize_dynamic(
+    model, {nn.Linear}, dtype=torch.qint8
+)`,
+          },
+          {
+            kind: 'callout',
+            tone: 'note',
+            body: `**Pitfalls.**
+
+- **Outliers destroy the scale.** A single weight of magnitude \\(10\\) in a tensor whose other values sit under \\(0.5\\) blows the scale up 20x and squashes every other weight onto a handful of grid points. Clip the tensor to a percentile (\\(99.9\\%\\) is a safe default) before fitting the scale, or use per-group quantization so the outlier only contaminates its own group.
+- **Activations are harder than weights.** Weights are static and roughly Gaussian; activations are sample-dependent and have heavy tails — single tokens can push activation magnitudes 10–100x above the mean. Symmetric int8 on activations often fails where the same scheme on weights succeeds. SmoothQuant exists precisely to migrate this difficulty back into the weights, where it is easier to handle.
+- **Layer-norm and softmax need full precision.** Layer-norm computes a per-token mean and variance that are sensitive to small numerical perturbations; softmax has an \\(\\exp\\) that is unstable in low precision. Keep both in fp16 or fp32. The matmuls around them can still quantize freely.
+- **Do not quantize the embedding layer naively.** Token-embedding rows for rare tokens can drift far from the typical scale, and quantizing the whole table per-tensor crushes the rare-token rows. Either leave the embedding in fp16 or quantize per-row (per-token), never per-tensor.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Variants and frontier — int4, FP8, BitNet',
+            body: `Int4 weight-only quantization with GPTQ or AWQ is now the default for open-weight LLM serving in 2025 — the bitsandbytes, llama.cpp, vLLM, and TensorRT-LLM stacks all ship int4 paths and the accuracy cost is negligible for most chat workloads. **FP8** (E4M3 for weights, E5M2 for gradients) is the precision Hopper-class GPUs train in natively; H100 and B100 expose FP8 tensor cores, and frontier-lab pretraining runs are increasingly FP8 end-to-end, with fp16 master weights only for the optimizer state. **BitNet b1.58** (Ma et al. 2024) trains the network with ternary weights \\(\\{-1, 0, +1\\}\\) from scratch and shows that, at scale, a 1.58-bit model can match an fp16 model of the same parameter count — replacing every multiplication with addition and unlocking a hypothetical custom-hardware regime where serving a 70B model costs roughly what serving a 7B model costs today. The frontier is moving toward fewer bits at every layer of the stack.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'When NOT to quantize',
+            body: `Quantize for inference; do not quantize a training run unless you know exactly what you are doing — gradients have wider dynamic range than weights and quantization noise compounds across steps. Skip quantization on tiny models where the absolute memory savings do not justify the kernel complexity (a 50M-parameter model is 100 MB in fp16; int4 buys you 75 MB, not worth the calibration). Be cautious with models that lean heavily on rare-token embeddings or domain-specific vocabularies, where the embedding table is both large and lopsided; per-row quantization handles this but per-tensor will silently destroy accuracy on the tail.`,
+          },
+          {
+            kind: 'callout',
+            tone: 'tip',
+            body: `**Further reading.**
+
+- [Jacob et al. — "Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference" (2017)](https://arxiv.org/abs/1712.05877) — the foundational paper that put int8 inference into MobileNet and every on-device CV stack since; symmetric/asymmetric schemes, per-channel scales, and the co-designed training procedure all originate here.
+- [Frantar et al. — "GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers" (2022)](https://arxiv.org/abs/2210.17323) — the layerwise OBS-style PTQ algorithm that made int3/int4 quantization of 175B-parameter models a four-GPU-hour job.
+- [Lin et al. — "AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration" (2023)](https://arxiv.org/abs/2306.00978) — the salient-channel scaling trick that beats GPTQ on most chat workloads and powers the TinyChat / mobile-GPU Llama-2-70B demos.
+- [Hugging Face — "A Gentle Introduction to 8-bit Matrix Multiplication" (Dettmers et al.)](https://huggingface.co/blog/hf-bitsandbytes-integration) — the bitsandbytes integration blog covering the LLM.int8() outlier-aware scheme that fits BLOOM-176B on a single 8x A100 node instead of three.`,
+          },
+        ],
+      },
+      {
+        slug: 'knowledge-distillation',
+        title: 'Knowledge distillation',
+        oneLiner: 'A small student model learns to mimic a big teacher’s soft probability distribution — not just its top guess.',
+        difficulty: 'intermediate',
+        readMinutes: 11,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'The compression problem distillation solves',
+            body: `A trained model the size of GPT-4 or a 70B LLaMA is wonderful on a benchmark and impossible to serve on a phone. The serving budget — latency, memory, energy per request — is set by the *deployed* model, not the trained one. The classical answer was to retrain a smaller architecture from scratch with the same labels and accept that it would be worse. Knowledge distillation is the observation that the smaller architecture does not have to learn from the labels alone. It can learn from the *outputs of the larger model*, and those outputs carry strictly more information than the labels do.
+
+That extra information is the difference between a teacher writing "the answer is C" on the board and a teacher saying "I am 91% sure the answer is C, 7% on B, 1% on D, and 1% on A". The first line is the hard label. The second line is the *soft distribution*. Both agree on the right answer; only the second tells you that B was a near miss and A was obviously wrong. A student that fits only the hard label has no way to know which mistakes are forgivable and which are absurd; a student that fits the soft distribution inherits that judgement for free.
+
+Hinton, Vinyals and Dean's 2015 paper formalised this: train the small model to match a temperature-softened version of the large model's logits, mix that loss with the usual hard-label cross-entropy, and a 1–1000x smaller network ends up within a percent or two of the teacher on the held-out set. The technique now sits at the bottom of every "phone-sized LLM" pipeline — DistilBERT, DistilGPT, TinyLLaMA, Gemma 2, the Phi family — and is the standard partner to quantisation and pruning when a model has to ship.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Intuition: the dark knowledge in soft labels',
+            body: `Picture a teacher network that has spent millions of GPU-hours internalising the geometry of its label space. For an image of a husky it does not output \\([0, 0, 1, 0, \\ldots]\\) on the one-hot axis "husky". It outputs something like \\([0.001, 0.04, 0.91, 0.04, 0.005, \\ldots]\\) — huge mass on husky, a sliver on malamute, another sliver on Siberian wolf, near zero on goldfish. Those non-zero entries are the teacher quietly admitting *which classes live near each other in its internal feature space*. The teacher has not just learned "this is a husky"; it has learned "this is a husky, and if it weren’t, malamute would be the second-best guess". That side information is sometimes called **dark knowledge** — it is invisible in the argmax but rich in the full vector.
+
+The student is a much smaller network trying to learn the same task. If you train it on hard labels only, the only signal it ever sees is "the right index is 2"; every wrong class is treated as equally wrong. The student has to rediscover the husky/malamute proximity from scratch, with far less capacity than the teacher used, and usually fails. If you train it on the teacher’s full soft distribution instead, every gradient step pushes the student’s probabilities to be close to the teacher’s probabilities — including the near-misses. The student is no longer learning the labels; it is learning the *teacher’s view of the label geometry*. That is why a 60M-parameter DistilBERT keeps 97% of a 110M-parameter BERT’s GLUE score, even though training a 60M model from scratch on the same labels lands far worse.
+
+The 3B1B-style reframe: hard labels are arrows pointing at a single corner of the probability simplex. Soft labels are points *inside* the simplex, and the location inside encodes the full similarity structure the teacher learned. The student’s job is to land at the same point, not just in the same corner.`,
+          },
+          {
+            kind: 'viz',
+            heading: 'Teacher softens → student matches',
+            component: 'KnowledgeDistillationViz',
+          },
+          {
+            kind: 'math',
+            heading: 'The distillation loss',
+            body: `Let \\(z_T\\) be the teacher’s logits on an input and \\(z_S\\) be the student’s logits. Define the temperature-softened probability distributions
+
+\\[
+p^T_i = \\frac{\\exp(z_{T,i} / T)}{\\sum_j \\exp(z_{T,j} / T)}, \\qquad p^S_i = \\frac{\\exp(z_{S,i} / T)}{\\sum_j \\exp(z_{S,j} / T)}
+\\]
+
+with a temperature \\(T \\geq 1\\). The full distillation objective combines a soft-target term that matches the teacher and a hard-target term that anchors to the true label \\(y\\):
+
+\\[
+\\mathcal{L} = \\alpha \\cdot T^2 \\cdot \\mathrm{KL}\\!\\left(p^T \\;\\|\\; p^S\\right) \\;+\\; (1 - \\alpha) \\cdot \\mathrm{CE}\\!\\left(y, \\; p^S_{T=1}\\right)
+\\]
+
+The \\(T^2\\) multiplier on the KL term is the Hinton trick — derivatives through the softmax with temperature \\(T\\) scale as \\(1/T^2\\), so multiplying by \\(T^2\\) keeps the gradient magnitude comparable to the hard-label term and lets you change \\(T\\) without re-tuning the learning rate.`,
+          },
+          {
+            kind: 'callout',
+            tone: 'note',
+            body: `**Symbols in the loss.** \\(z_T, z_S\\) are the pre-softmax logits of teacher and student; \\(p^T, p^S\\) are their temperature-softened distributions over classes. \\(T\\) is the temperature — raise it to flatten, drop it to sharpen. \\(\\alpha \\in [0, 1]\\) is the mixing weight on the soft loss; common practice is \\(\\alpha \\in [0.5, 0.9]\\) when the teacher is strong. \\(\\mathrm{KL}(p \\| q) = \\sum_i p_i \\log(p_i / q_i)\\) is the Kullback–Leibler divergence — zero when the student matches the teacher, positive otherwise. \\(\\mathrm{CE}(y, p) = -\\log p_y\\) is the usual hard-label cross-entropy, evaluated at \\(T = 1\\) so the hard-label gradient is not also flattened.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked tiny example — three classes, end to end',
+            body: `Take a 3-class problem with teacher logits \\(z_T = [4, 2, -1]\\) and student logits \\(z_S = [3, 2.5, -2]\\) on the same input. The true label is class 0. Set \\(T = 2\\), \\(\\alpha = 0.7\\), and walk the loss in numbers.
+
+**Step 1 — temperature-softened teacher.** Divide each logit by \\(T = 2\\): \\(z_T / T = [2.0, 1.0, -0.5]\\). Exponentiate: \\([e^{2.0}, e^{1.0}, e^{-0.5}] = [7.389, 2.718, 0.607]\\). Sum is \\(10.714\\). Normalise: \\(p^T = [0.690, 0.254, 0.057]\\). Compare to the \\(T = 1\\) distribution \\(\\mathrm{softmax}(z_T) = [0.866, 0.117, 0.018]\\): the temperature smeared mass away from class 0 onto classes 1 and 2, exactly the dark-knowledge effect the lesson keeps describing.
+
+**Step 2 — temperature-softened student.** \\(z_S / T = [1.5, 1.25, -1.0]\\), exponentiated \\([4.482, 3.490, 0.368]\\), sum \\(8.340\\), \\(p^S = [0.537, 0.418, 0.044]\\). The student’s peak is in the right place but considerably flatter than the teacher’s.
+
+**Step 3 — KL divergence.** \\(\\mathrm{KL}(p^T \\| p^S) = \\sum_i p^T_i \\log(p^T_i / p^S_i)\\):
+\\(0.690 \\log(0.690/0.537) = 0.690 \\cdot 0.2509 = 0.1731\\),
+\\(0.254 \\log(0.254/0.418) = 0.254 \\cdot (-0.4972) = -0.1263\\),
+\\(0.057 \\log(0.057/0.044) = 0.057 \\cdot 0.2595 = 0.0148\\).
+Sum: \\(\\mathrm{KL} \\approx 0.0616\\). Multiply by \\(T^2 = 4\\): the soft-loss contribution is \\(\\approx 0.2465\\).
+
+**Step 4 — hard-label cross-entropy.** Compute \\(\\mathrm{softmax}(z_S)\\) at \\(T = 1\\): \\(e^{z_S} = [20.086, 12.182, 0.135]\\), sum \\(32.403\\), so \\(p^S_{T=1} = [0.620, 0.376, 0.004]\\). True label is class 0, so \\(\\mathrm{CE} = -\\log(0.620) \\approx 0.4780\\).
+
+**Step 5 — combine.** \\(\\mathcal{L} = 0.7 \\cdot 0.2465 + 0.3 \\cdot 0.4780 \\approx 0.1726 + 0.1434 = 0.3160\\). The student’s gradient comes from two simultaneous signals: drive the soft distribution toward the teacher’s flatter shape (KL term, where the student’s 0.418 on class 1 is the largest single contribution) and stay confident on the true label (CE term). Drop the KL term and the student converges on a one-hot answer with no sense of class 1 being a near miss; drop the CE term and the student trusts the teacher even when the teacher is wrong.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Why temperature — flattening the distribution to expose the structure',
+            body: `Temperature is the single knob that turns distillation from a re-run of cross-entropy into something genuinely different. The softmax with temperature is
+
+\\[
+p_i(T) = \\frac{\\exp(z_i / T)}{\\sum_j \\exp(z_j / T)}
+\\]
+
+Three regimes are worth memorising. **At \\(T = 1\\)** you get the usual softmax; if the teacher is confident the soft distribution looks almost like a one-hot vector and the student gets very little extra signal beyond what the hard label gave it. **At \\(T \\to \\infty\\)** the distribution collapses to uniform; every class looks equally likely and the dark knowledge is gone. **At \\(T\\) in the sweet spot — typically 2 to 5 —** the peaks remain peaks but the tails inflate, and the relative ratios between non-peak classes become large enough that the student’s KL gradient can actually move them.
+
+Pictorially: \\(T\\) is the spread of the distribution along the probability simplex. Crank \\(T\\) up and the teacher’s point in the simplex drifts toward the centroid — the same answer, but with all the runner-up information visible. Crank \\(T\\) down and the teacher’s point snaps to a corner, indistinguishable from the hard label. The student learns from whatever shape is on offer, which is why a wrong \\(T\\) silently kills distillation: too high and you are matching uniform-with-noise, too low and you have re-derived hard-label training with extra steps.
+
+Hinton’s practical recipe: try \\(T \\in \\{2, 4, 8\\}\\) with the \\(T^2\\) loss rescaling, pick the one that gives the best held-out accuracy. For image classification \\(T = 4\\) is a defensible default; for language models with much larger vocabularies, \\(T = 2\\) is usually enough because the logit scale is already larger.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'Distillation loss in PyTorch',
+            body: `import torch
+import torch.nn.functional as F
+
+def distillation_loss(student_logits, teacher_logits, labels, T=4.0, alpha=0.7):
+    soft_targets = F.softmax(teacher_logits / T, dim=-1)
+    soft_pred    = F.log_softmax(student_logits / T, dim=-1)
+    kl = F.kl_div(soft_pred, soft_targets, reduction="batchmean") * (T * T)
+
+    ce = F.cross_entropy(student_logits, labels)
+
+    return alpha * kl + (1.0 - alpha) * ce
+
+# Typical training step
+teacher.eval()
+with torch.no_grad():
+    teacher_logits = teacher(x)
+
+student_logits = student(x)
+loss = distillation_loss(student_logits, teacher_logits, y, T=4.0, alpha=0.7)
+loss.backward()
+optimizer.step()`,
+          },
+          {
+            kind: 'callout',
+            tone: 'tip',
+            body: `**\`teacher.eval()\` and \`torch.no_grad()\` are not optional.** The teacher is a frozen reference; if it is in training mode its dropout and batch-norm running stats will drift every step, and if you forget \`torch.no_grad()\` you will allocate a full backward graph through a model whose gradients you will never use. The *Backprop* lesson covered the same pattern from the autograd side — use \`detach\` or \`no_grad\` whenever you want a value but not its history.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Common pitfalls',
+            body: `Distillation looks like cross-entropy and acts like cross-entropy, which is exactly why it goes wrong in subtle ways. The four failure modes below cover most of the bugs in real distillation runs.`,
+          },
+          {
+            kind: 'callout',
+            tone: 'note',
+            body: `**Pitfall 1 — \\(T\\) too high.** Raising the temperature past the useful range pushes \\(p^T\\) toward uniform; the student’s KL gradient now points at "every class is equally likely" plus a small perturbation. The student’s peak softens toward the centroid, held-out accuracy drops, and looking at the soft loss alone you would think training was going fine because the KL number is small. Fix: sweep \\(T \\in \\{1, 2, 4, 8\\}\\) at fixed \\(\\alpha\\) and pick on validation accuracy, not training loss.
+
+**Pitfall 2 — \\(\\alpha\\) miscalibrated.** \\(\\alpha\\) too high makes the student copy the teacher’s mistakes verbatim and inherit any calibration issues the teacher has. \\(\\alpha\\) too low collapses to hard-label training, throwing away the dark knowledge that was the whole point. A safe default is \\(\\alpha = 0.7\\) when the teacher is much stronger than the student; drop to \\(\\alpha = 0.5\\) when teacher and student are close in capacity and you trust the labels.
+
+**Pitfall 3 — the teacher is overconfident.** A teacher trained with no label smoothing on clean labels often outputs \\(p^T_i > 0.99\\) on its top class even at \\(T = 4\\). The "soft" distribution is then almost one-hot and distillation collapses to a noisy version of hard-label training. Fix: train the teacher with label smoothing, raise \\(T\\) further, or distill from an ensemble whose averaged logits are naturally flatter.
+
+**Pitfall 4 — student capacity mismatch.** A student that is too small (less than ~10% of the teacher’s parameter count) cannot represent the teacher’s function class, and no amount of soft labels will close the gap. A student that is too large is wasting capacity and would have done better with plain supervised training. The DistilBERT recipe — cut depth in half, keep width — was chosen because halving depth halves latency on the dominant attention cost while leaving enough capacity for the teacher’s representations to survive.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Variants — where the field went after Hinton',
+            body: `The 2015 loss matches output distributions. Almost every subsequent variant matches *more* of the teacher’s internals. **Feature distillation** (FitNets, Romero et al. 2014) adds an MSE penalty between an intermediate teacher layer and a projected student layer, so the student’s representations are pulled toward the teacher’s and not just its outputs. **Attention transfer** (Zagoruyko & Komodakis 2017) matches the spatial attention maps of teacher and student CNNs, which preserves where in the input the model is looking. **Patient knowledge distillation** (Sun et al. 2019) distils from every transformer layer of BERT into the corresponding student layer, not just the final one — the source of DistilBERT’s strong GLUE numbers.
+
+In LLM-land the same idea drives current frontier model compression. **Sequence-level distillation** for translation and summarisation has the student match the teacher’s decoded sequence, not just per-token logits. **Self-distillation** (a model distils into a fresh copy of itself, sometimes repeatedly) gives a free 1–2 point bump on language and vision benchmarks with no architecture change. **RLHF-as-distillation** views supervised fine-tuning on outputs from a reward-tuned teacher as plain distillation with the teacher’s logits; this is essentially how Alpaca, Vicuna, and most early open-source instruction-tuned LLaMAs were built. Across all of these the underlying signal is the same one Hinton named: the teacher’s soft outputs encode more than the labels do, and the student’s job is to inherit that structure.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'What to take away',
+            body: `Hard labels are corners of the probability simplex; soft labels from a trained teacher are points inside it, and the location encodes a similarity structure the teacher spent its entire training run discovering. Knowledge distillation lets a small student inherit that structure for free by matching a temperature-softened version of the teacher’s distribution while staying anchored to the true label through a smaller cross-entropy term. The loss \\(\\mathcal{L} = \\alpha T^2 \\mathrm{KL}(p^T \\| p^S) + (1 - \\alpha) \\mathrm{CE}(y, p^S)\\) is two lines of PyTorch and the dominant compression technique behind every "smaller, faster" production model since 2019.
+
+Temperature controls how much dark knowledge is visible, \\(\\alpha\\) controls how much of it the student trusts, and the student’s capacity decides how much it can absorb. Get any of the three wrong and distillation degenerates: too-high \\(T\\) bleaches the signal, too-high \\(\\alpha\\) copies the teacher’s mistakes, too-small a student cannot represent the function at all. Pair distillation with quantisation and pruning when a model has to ship, and pair it with LoRA on the *teacher* when you cannot afford to retrain the full teacher per task. The earlier lessons on *Attention*, *LoRA*, and *Cross-entropy* are the prerequisites; this lesson is the bridge from "I have trained a giant model" to "I can serve a useful fraction of it on a phone".`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Further reading',
+            body: `- [Hinton, Vinyals & Dean — "Distilling the Knowledge in a Neural Network" (2015)](https://arxiv.org/abs/1503.02531) — the original paper; the temperature, the \\(T^2\\) scaling, and the dark-knowledge intuition all come from here.
+- [Sanh et al. — DistilBERT paper (2019)](https://arxiv.org/abs/1910.01108) — the production-grade application that put distillation on every LLM serving roadmap; 40% smaller, 60% faster, 97% of BERT’s GLUE score.
+- [Victor Sanh — "Smaller, faster, cheaper, lighter: introducing DistilBERT"](https://medium.com/huggingface/distilbert-8cf3380435b5) — the author’s own blog walkthrough of the DistilBERT recipe, including the soft-target loss, the cosine embedding loss, and the layer-init trick.`,
           },
         ],
       },
@@ -6673,27 +6982,10 @@ Three patterns to know:
 Watch especially for \`exp(-x)\` of *large positive* \\(x\\): this underflows to zero in fp16 above \\(x = 11\\) and contaminates anything you divide by it (Bahdanau attention's exponential decay, RBF kernels with small bandwidth, importance sampling with small probability ratios).`,
           },
           {
-            kind: 'ascii',
+            kind: 'viz',
             heading: 'Mixed-precision tradeoffs at a glance',
-            caption: 'fp32 vs bf16 vs fp16 vs fp8 — the bits, the range, the precision, the engineering cost.',
-            body: `   format     sign  exp  mant   max value     min normal      eps (~)     dec. digits   notes
-   ----------------------------------------------------------------------------------------------
-   fp32         1     8    23   3.4e+38       1.18e-38        1.2e-7       ~7.2         baseline; the safe default
-   bf16         1     8     7   3.4e+38       1.18e-38        7.8e-3       ~2.3         same range as fp32; A100+ / TPU favourite
-   fp16         1     5    10   65504         6.10e-5         9.8e-4       ~3.3         needs a grad scaler; overflows easily
-   fp8 (E4M3)   1     4     3   448           1.95e-3         1.2e-1       ~1.1         needs per-tensor scaling
-   fp8 (E5M2)   1     5     2   57344         6.10e-5         2.5e-1       ~0.7         used for gradient tensors
-
-   the practical takeaway:
-
-     range:     fp32 == bf16 >>> fp16 >>> fp8
-     precision: fp32 >>> fp16 > bf16 >>> fp8
-
-   bf16 is fp32 with the bottom mantissa bits cut off.
-   fp16 is half the exponent range of fp32 — that is why it overflows so easily.
-   fp8 needs explicit scale factors per tensor; nobody runs it bare.
-
-   for training in 2024+:  bf16 wins on H100/B200, A100, TPU.   fp16 only if your card lacks bf16.`,
+            component: 'FloatFormatGridViz',
+            props: {},
           },
           {
             kind: 'prose',

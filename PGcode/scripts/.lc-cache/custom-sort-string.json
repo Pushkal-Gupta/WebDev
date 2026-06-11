@@ -1,0 +1,8 @@
+{
+  "questionId": "807",
+  "titleSlug": "custom-sort-string",
+  "title": "Custom Sort String",
+  "exampleTestcases": "\"cba\"\n\"abcd\"\n\"bcafg\"\n\"abcd\"",
+  "sampleTestCase": "\"cba\"\n\"abcd\"",
+  "metaData": "{\n  \"name\": \"customSortString\",\n  \"params\": [\n    {\n      \"name\": \"order\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

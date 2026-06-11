@@ -1,0 +1,8 @@
+{
+  "questionId": "2618",
+  "titleSlug": "maximize-the-minimum-powered-city",
+  "title": "Maximize the Minimum Powered City",
+  "exampleTestcases": "[1,2,4,5,0]\n1\n2\n[4,4,4,4]\n0\n3",
+  "sampleTestCase": "[1,2,4,5,0]\n1\n2",
+  "metaData": "{\n  \"name\": \"maxPower\",\n  \"params\": [\n    {\n      \"name\": \"stations\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"r\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

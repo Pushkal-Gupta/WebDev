@@ -182,9 +182,12 @@ export default function Word2VecViz() {
   const [running, setRunning] = useState(false); // batch training in progress
   const [animating, setAnimating] = useState(false);
 
-  // Current training plan (for the upcoming step) — drives the rendered highlight.
+  // Current training plan (for the upcoming step) — drives the rendered
+  // highlight. Use a one-shot RNG for the initial plan so we don't pass a ref
+  // to a function during render (the live rngRef is mutated by the training
+  // loop and reset).
   const [plan, setPlan] = useState(() =>
-    buildTrainingPlan(vocab, wordToIdx, 0, rngRef.current)
+    buildTrainingPlan(vocab, wordToIdx, 0, mulberry32(424242))
   );
 
   // Animation refs.

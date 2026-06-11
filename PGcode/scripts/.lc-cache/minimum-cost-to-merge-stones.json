@@ -1,0 +1,8 @@
+{
+  "questionId": "1042",
+  "titleSlug": "minimum-cost-to-merge-stones",
+  "title": "Minimum Cost to Merge Stones",
+  "exampleTestcases": "[3,2,4,1]\n2\n[3,2,4,1]\n3\n[3,5,1,2,6]\n3",
+  "sampleTestCase": "[3,2,4,1]\n2",
+  "metaData": "{\n  \"name\": \"mergeStones\",\n  \"params\": [\n    {\n      \"name\": \"stones\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

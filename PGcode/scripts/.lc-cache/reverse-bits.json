@@ -1,0 +1,8 @@
+{
+  "questionId": "190",
+  "titleSlug": "reverse-bits",
+  "title": "Reverse Bits",
+  "exampleTestcases": "43261596\n2147483644",
+  "sampleTestCase": "43261596",
+  "metaData": "{\n  \"name\": \"reverseBits\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"manual\": false\n}"
+}

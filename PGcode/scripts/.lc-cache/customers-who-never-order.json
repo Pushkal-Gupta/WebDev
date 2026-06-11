@@ -1,0 +1,8 @@
+{
+  "questionId": "183",
+  "titleSlug": "customers-who-never-order",
+  "title": "Customers Who Never Order",
+  "exampleTestcases": "{\"headers\": {\"Customers\": [\"id\", \"name\"], \"Orders\": [\"id\", \"customerId\"]}, \"rows\": {\"Customers\": [[1, \"Joe\"], [2, \"Henry\"], [3, \"Sam\"], [4, \"Max\"]], \"Orders\": [[1, 3], [2, 1]]}}",
+  "sampleTestCase": "{\"headers\": {\"Customers\": [\"id\", \"name\"], \"Orders\": [\"id\", \"customerId\"]}, \"rows\": {\"Customers\": [[1, \"Joe\"], [2, \"Henry\"], [3, \"Sam\"], [4, \"Max\"]], \"Orders\": [[1, 3], [2, 1]]}}",
+  "metaData": "{\"mysql\": [\"Create table If Not Exists Customers (id int, name varchar(255))\", \"Create table If Not Exists Orders (id int, customerId int)\"], \"mssql\": [\"Create table Customers (id int, name varchar(255))\", \"Create table Orders (id int, customerId int)\"], \"oraclesql\": [\"Create table Customers (id int, name varchar(255))\", \"Create table Orders (id int, customerId int)\"], \"database\": true, \"name\": \"find_customers\", \"pythondata\": [\"Customers = pd.DataFrame([], columns=['id', 'name']).astype({'id':'Int64', 'name':'object'})\", \"Orders = pd.DataFrame([], columns=['id', 'customerId']).astype({'id':'Int64', 'customerId':'Int64'})\"], \"manual\": false, \"postgresql\": [\"Create table If Not Exists Customers (id int, name varchar(255))\", \"Create table If Not Exists Orders (id int, customerId int)\"], \"database_schema\": {\"Customers\": {\"id\": \"INT\", \"name\": \"VARCHAR(255)\"}, \"Orders\": {\"id\": \"INT\", \"customerId\": \"INT\"}}}"
+}

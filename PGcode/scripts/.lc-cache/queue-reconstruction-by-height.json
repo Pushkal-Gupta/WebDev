@@ -1,0 +1,8 @@
+{
+  "questionId": "406",
+  "titleSlug": "queue-reconstruction-by-height",
+  "title": "Queue Reconstruction by Height",
+  "exampleTestcases": "[[7,0],[4,4],[7,1],[5,0],[6,1],[5,2]]\n[[6,0],[5,0],[4,0],[3,2],[2,2],[1,4]]",
+  "sampleTestCase": "[[7,0],[4,4],[7,1],[5,0],[6,1],[5,2]]",
+  "metaData": "{\r\n  \"name\": \"reconstructQueue\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"people\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer[][]\",\r\n    \"colsize\": \"2\"\r\n  }\r\n}"
+}

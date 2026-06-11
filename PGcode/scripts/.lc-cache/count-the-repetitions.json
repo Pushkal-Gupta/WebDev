@@ -1,0 +1,8 @@
+{
+  "questionId": "466",
+  "titleSlug": "count-the-repetitions",
+  "title": "Count The Repetitions",
+  "exampleTestcases": "\"acb\"\n4\n\"ab\"\n2\n\"acb\"\n1\n\"acb\"\n1",
+  "sampleTestCase": "\"acb\"\n4\n\"ab\"\n2",
+  "metaData": "{\r\n  \"name\": \"getMaxRepetitions\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"s1\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"n1\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"s2\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"n2\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

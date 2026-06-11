@@ -1,0 +1,8 @@
+{
+  "questionId": "2445",
+  "titleSlug": "reachable-nodes-with-restrictions",
+  "title": "Reachable Nodes With Restrictions",
+  "exampleTestcases": "7\n[[0,1],[1,2],[3,1],[4,0],[0,5],[5,6]]\n[4,5]\n7\n[[0,1],[0,2],[0,5],[0,4],[3,2],[6,5]]\n[4,2,1]",
+  "sampleTestCase": "7\n[[0,1],[1,2],[3,1],[4,0],[0,5],[5,6]]\n[4,5]",
+  "metaData": "{\n  \"name\": \"reachableNodes\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"restricted\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

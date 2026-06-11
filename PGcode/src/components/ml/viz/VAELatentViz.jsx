@@ -22,14 +22,6 @@ function mulberry32(seed) {
   };
 }
 
-function randn(rng) {
-  let u = 0;
-  let v = 0;
-  while (u === 0) u = rng();
-  while (v === 0) v = rng();
-  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
-}
-
 function snap(v, p = 2) {
   const m = Math.pow(10, p);
   return Math.round(v * m) / m;

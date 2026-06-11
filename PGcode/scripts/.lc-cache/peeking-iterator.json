@@ -1,0 +1,8 @@
+{
+  "questionId": "284",
+  "titleSlug": "peeking-iterator",
+  "title": "Peeking Iterator",
+  "exampleTestcases": "[\"PeekingIterator\",\"next\",\"peek\",\"next\",\"next\",\"hasNext\"]\n[[[1,2,3]],[],[],[],[],[]]",
+  "sampleTestCase": "[\"PeekingIterator\",\"next\",\"peek\",\"next\",\"next\",\"hasNext\"]\n[[[1,2,3]],[],[],[],[],[]]",
+  "metaData": "{\n  \"name\": \"PeekingIterator\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"list<integer>\"\n    },\n    {\n      \"name\": \"commands\",\n      \"type\": \"list<integer>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\",\n    \"dealloc\": true\n  },\n  \"languages\": [\n    \"cpp\",\n    \"java\",\n    \"python\",\n    \"python3\",\n    \"csharp\",\n    \"golang\",\n    \"ruby\",\n    \"kotlin\",\n    \"scala\",\n    \"swift\",\n    \"php\",\n    \"c\",\n    \"javascript\",\n    \"typescript\"\n  ],\n  \"manual\": true,\n \"typescriptCustomType\" : \"class Iterator {\\n    data: number[];\\n    index: number;\\n    constructor(data: number[]) {\\n        this.data = data;\\n        this.index = 0;\\n    }\\n\\n    hasNext(): boolean {\\n        return this.index != this.data.length;\\n    }\\n\\n    next(): number {\\n        var ret = -100000000;\\n        if (this.hasNext()) {\\n            ret = this.data[this.index];\\n            this.index++;\\n        }\\n        return ret;\\n    }\\n};\\n\" \n}"
+}

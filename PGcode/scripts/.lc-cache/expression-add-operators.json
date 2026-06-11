@@ -1,0 +1,8 @@
+{
+  "questionId": "282",
+  "titleSlug": "expression-add-operators",
+  "title": "Expression Add Operators",
+  "exampleTestcases": "\"123\"\n6\n\"232\"\n8\n\"3456237490\"\n9191",
+  "sampleTestCase": "\"123\"\n6",
+  "metaData": "{\r\n    \"name\":\"addOperators\",\r\n    \"params\":[\r\n        {\r\n            \"name\":\"num\",\r\n            \"type\":\"string\"\r\n        },\r\n        {\r\n            \"name\":\"target\",\r\n            \"type\":\"integer\"\r\n        }\r\n    ],\r\n    \"return\":{\r\n        \"type\":\"list<string>\"\r\n    }\r\n}"
+}

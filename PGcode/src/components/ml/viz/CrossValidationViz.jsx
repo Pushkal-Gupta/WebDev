@@ -101,14 +101,19 @@ export default function CrossValidationViz({ initialN = DEFAULT_N, initialK = DE
   // foldAccs[i] = number once fold i has been graded; null otherwise.
   const [foldAccs, setFoldAccs] = useState(() => new Array(k).fill(null));
   const [currentFold, setCurrentFold] = useState(0);
-  const [running, setRunning] = useState(false);
+  const [runningRaw, setRunning] = useState(false);
   const runningRef = useRef(false);
 
   // Whenever k changes, reset the run.
-  useEffect(() => {
+  const [prevK, setPrevK] = useState(k);
+  if (prevK !== k) {
+    setPrevK(k);
     setFoldAccs(new Array(k).fill(null));
     setCurrentFold(0);
     setRunning(false);
+  }
+
+  useEffect(() => {
     runningRef.current = false;
   }, [k]);
 
@@ -117,6 +122,9 @@ export default function CrossValidationViz({ initialN = DEFAULT_N, initialK = DE
     [foldAccs]
   );
   const allDone = completedCount === k;
+  // Derive `running` so the interval effect never has to call setRunning(false)
+  // when all folds finish — avoids cascading-render lint.
+  const running = runningRaw && !allDone;
 
   // Display the fold being shown: the next-to-run fold while in progress,
   // or the final fold once everything has been graded.
@@ -187,7 +195,6 @@ export default function CrossValidationViz({ initialN = DEFAULT_N, initialK = DE
         const idx = prev.findIndex((a) => a == null);
         if (idx < 0) {
           runningRef.current = false;
-          setRunning(false);
           return prev;
         }
         const acc = fakeAccuracy(folds[idx].test);
@@ -196,13 +203,12 @@ export default function CrossValidationViz({ initialN = DEFAULT_N, initialK = DE
         setCurrentFold(Math.min(k - 1, idx + 1));
         if (idx + 1 >= prev.length) {
           runningRef.current = false;
-          setRunning(false);
         }
         return next;
       });
     }, STEP_DELAY);
     return () => clearInterval(id);
-  }, [running, folds]);
+  }, [running, folds, k]);
 
   const cellW = (SW - STRIP_PAD_X * 2) / n;
   const cellGap = Math.min(2, cellW * 0.12);

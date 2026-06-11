@@ -1,0 +1,8 @@
+{
+  "questionId": "494",
+  "titleSlug": "target-sum",
+  "title": "Target Sum",
+  "exampleTestcases": "[1,1,1,1,1]\n3\n[1]\n1",
+  "sampleTestCase": "[1,1,1,1,1]\n3",
+  "metaData": "{\n  \"name\": \"findTargetSumWays\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"target\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

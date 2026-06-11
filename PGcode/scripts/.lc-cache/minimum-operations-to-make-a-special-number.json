@@ -1,0 +1,8 @@
+{
+  "questionId": "3046",
+  "titleSlug": "minimum-operations-to-make-a-special-number",
+  "title": "Minimum Operations to Make a Special Number",
+  "exampleTestcases": "\"2245047\"\n\"2908305\"\n\"10\"",
+  "sampleTestCase": "\"2245047\"",
+  "metaData": "{\n  \"name\": \"minimumOperations\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

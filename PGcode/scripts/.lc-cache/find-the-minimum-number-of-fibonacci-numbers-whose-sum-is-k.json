@@ -1,0 +1,8 @@
+{
+  "questionId": "1515",
+  "titleSlug": "find-the-minimum-number-of-fibonacci-numbers-whose-sum-is-k",
+  "title": "Find the Minimum Number of Fibonacci Numbers Whose Sum Is K",
+  "exampleTestcases": "7\n10\n19",
+  "sampleTestCase": "7",
+  "metaData": "{\n  \"name\": \"findMinFibonacciNumbers\",\n  \"params\": [\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

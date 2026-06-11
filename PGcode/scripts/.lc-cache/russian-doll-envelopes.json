@@ -1,0 +1,8 @@
+{
+  "questionId": "354",
+  "titleSlug": "russian-doll-envelopes",
+  "title": "Russian Doll Envelopes",
+  "exampleTestcases": "[[5,4],[6,4],[6,7],[2,3]]\n[[1,1],[1,1],[1,1]]",
+  "sampleTestCase": "[[5,4],[6,4],[6,7],[2,3]]",
+  "metaData": "{\r\n  \"name\": \"maxEnvelopes\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"envelopes\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

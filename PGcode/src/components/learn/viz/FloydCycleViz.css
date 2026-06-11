@@ -40,13 +40,11 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 0.6rem 0.7rem;
-  overflow-x: auto;
 }
 
 .fcv-svg {
   display: block;
   width: 100%;
-  min-width: 880px;
   height: auto;
 }
 

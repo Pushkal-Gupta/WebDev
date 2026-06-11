@@ -1,0 +1,8 @@
+{
+  "questionId": "1830",
+  "titleSlug": "count-good-meals",
+  "title": "Count Good Meals",
+  "exampleTestcases": "[1,3,5,7,9]\n[1,1,1,3,3,3,7]",
+  "sampleTestCase": "[1,3,5,7,9]",
+  "metaData": "{\n  \"name\": \"countPairs\",\n  \"params\": [\n    {\n      \"name\": \"deliciousness\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3533",
+  "titleSlug": "snake-in-matrix",
+  "title": "Snake in Matrix",
+  "exampleTestcases": "2\n[\"RIGHT\",\"DOWN\"]\n3\n[\"DOWN\",\"RIGHT\",\"UP\"]",
+  "sampleTestCase": "2\n[\"RIGHT\",\"DOWN\"]",
+  "metaData": "{\n  \"name\": \"finalPositionOfSnake\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"list<string>\",\n      \"name\": \"commands\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

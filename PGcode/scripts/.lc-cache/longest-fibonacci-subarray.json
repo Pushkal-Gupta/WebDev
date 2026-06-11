@@ -1,0 +1,8 @@
+{
+  "questionId": "4003",
+  "titleSlug": "longest-fibonacci-subarray",
+  "title": "Longest Fibonacci Subarray",
+  "exampleTestcases": "[1,1,1,1,2,3,5,1]\n[5,2,7,9,16]\n[1000000000,1000000000,1000000000]",
+  "sampleTestCase": "[1,1,1,1,2,3,5,1]",
+  "metaData": "{\n  \"name\": \"longestSubarray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

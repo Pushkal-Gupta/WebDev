@@ -120,17 +120,22 @@ Renderers to keep in sync:
 - `src/components/ml/MLLesson.jsx` → `renderInline` (inline math), `MathBlock` (kind=math sections), `renderProseBody` (display math inside prose).
 - `src/components/learn/ConceptPage.jsx` → `Markdown` component + `preprocessInlineMath` step.
 
-## No horizontal scrollbars (HARD — repeated bug)
+## No scrollbars anywhere except the vertical page scroll (HARD — restated multiple times, the user HATES this)
 
-**The only scrollbar allowed on any learning page is the vertical page scroll.** Horizontal scrollbars on viz blocks, math blocks, code blocks, ASCII diagrams, tables, or anything else are a layout failure.
+**The vertical page scroll is the ONLY allowed scrollbar.** Not horizontal. Not vertical inside a section. Not inside a viz. Not inside code blocks. Not inside math. Not inside tables. Not inside cards. Not inside modals. Not anywhere.
 
-Causes to check on sight:
-- `<pre>` blocks of ASCII that exceed container width — wrap or scale, don't `overflow-x: auto`.
-- SVG `viewBox` mismatched to `width` — set `width: 100%` and use a viewBox that fits naturally, or rescale.
-- KaTeX `\[...\]` blocks too wide — wrap into multiple lines or use smaller font-size.
-- Math containers using `overflow-x: auto` — replace with content reflow.
+If something doesn't fit: **make it smaller, reflow, scale the viewBox, drop the font-size, wrap text, split the math, redraw the SVG.** NEVER reach for `overflow: auto` or `overflow-x: auto` or `overflow-y: auto` on inner content. The fix is always "make the content fit," not "let the user scroll inside the content."
 
-Audit: open every lesson and concept page in dev. If ANY inner element shows a horizontal scrollbar, that's a P1 to fix in the same pass.
+Causes to check on sight (every one of these has bitten us at least once):
+- `<pre>` blocks of ASCII / code that exceed container width — wrap, scale the font, or shrink.
+- SVG `viewBox` mismatched to container — set `width: 100%`, `preserveAspectRatio="xMidYMid meet"`, rebalance the viewBox so 100% width fills.
+- KaTeX `\[...\]` blocks too wide — wrap into multiple lines, drop the font-size, or rewrite the math.
+- Math / code containers using `overflow-x: auto` — DELETE that property; replace with content reflow.
+- Workspace tabs / panel children with `overflow-y: auto` on inner divs — let the outer page handle scroll instead.
+- Modal bodies wider than viewport — shrink the modal width or wrap content.
+- Tables wider than container — rewrite as stacked rows on narrow widths.
+
+Audit every change: if ANY inner element shows a scrollbar of any kind, it's a P0 fix in the same pass. No exceptions for "but the content is just that big" — make the content smaller.
 
 ## Manager role — never stop assigning (HARD)
 

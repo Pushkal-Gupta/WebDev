@@ -1,0 +1,8 @@
+{
+  "questionId": "3980",
+  "titleSlug": "best-time-to-buy-and-sell-stock-using-strategy",
+  "title": "Best Time to Buy and Sell Stock using Strategy",
+  "exampleTestcases": "[4,2,8]\n[-1,0,1]\n2\n[5,4,3]\n[1,1,0]\n2",
+  "sampleTestCase": "[4,2,8]\n[-1,0,1]\n2",
+  "metaData": "{\n  \"name\": \"maxProfit\",\n  \"params\": [\n    {\n      \"name\": \"prices\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"strategy\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

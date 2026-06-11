@@ -1,0 +1,8 @@
+{
+  "questionId": "3626",
+  "titleSlug": "smallest-divisible-digit-product-i",
+  "title": "Smallest Divisible Digit Product I",
+  "exampleTestcases": "10\n2\n15\n3",
+  "sampleTestCase": "10\n2",
+  "metaData": "{\n  \"name\": \"smallestNumber\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"t\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

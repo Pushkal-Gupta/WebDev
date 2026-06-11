@@ -1,0 +1,8 @@
+{
+  "questionId": "371",
+  "titleSlug": "sum-of-two-integers",
+  "title": "Sum of Two Integers",
+  "exampleTestcases": "1\n2\n2\n3",
+  "sampleTestCase": "1\n2",
+  "metaData": "{\r\n  \"name\": \"getSum\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"a\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"b\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

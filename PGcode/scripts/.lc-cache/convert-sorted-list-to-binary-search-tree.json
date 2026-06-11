@@ -1,0 +1,8 @@
+{
+  "questionId": "109",
+  "titleSlug": "convert-sorted-list-to-binary-search-tree",
+  "title": "Convert Sorted List to Binary Search Tree",
+  "exampleTestcases": "[-10,-3,0,5,9]\n[]",
+  "sampleTestCase": "[-10,-3,0,5,9]",
+  "metaData": "{\n  \"name\": \"sortedListToBST\",\n  \"params\": [\n    {\n      \"name\": \"head\",\n      \"type\": \"ListNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"TreeNode\",\n    \"dealloc\": true\n  }\n}"
+}

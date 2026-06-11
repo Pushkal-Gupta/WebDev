@@ -1,0 +1,8 @@
+{
+  "questionId": "4126",
+  "titleSlug": "minimum-number-of-flips-to-reverse-binary-string",
+  "title": "Minimum Number of Flips to Reverse Binary String",
+  "exampleTestcases": "7\n10",
+  "sampleTestCase": "7",
+  "metaData": "{\n  \"name\": \"minimumFlips\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

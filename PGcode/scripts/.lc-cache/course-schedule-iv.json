@@ -1,0 +1,8 @@
+{
+  "questionId": "1558",
+  "titleSlug": "course-schedule-iv",
+  "title": "Course Schedule IV",
+  "exampleTestcases": "2\n[[1,0]]\n[[0,1],[1,0]]\n2\n[]\n[[1,0],[0,1]]\n3\n[[1,2],[1,0],[2,0]]\n[[1,0],[1,2]]",
+  "sampleTestCase": "2\n[[1,0]]\n[[0,1],[1,0]]",
+  "metaData": "{\n  \"name\": \"checkIfPrerequisite\",\n  \"params\": [\n    {\n      \"name\": \"numCourses\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"prerequisites\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<boolean>\"\n  }\n}"
+}

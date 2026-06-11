@@ -1,0 +1,8 @@
+{
+  "questionId": "2887",
+  "titleSlug": "sort-vowels-in-a-string",
+  "title": "Sort Vowels in a String",
+  "exampleTestcases": "\"lEetcOde\"\n\"lYmpH\"",
+  "sampleTestCase": "\"lEetcOde\"",
+  "metaData": "{\n  \"name\": \"sortVowels\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

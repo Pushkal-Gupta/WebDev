@@ -1,0 +1,8 @@
+{
+  "questionId": "3775",
+  "titleSlug": "separate-squares-ii",
+  "title": "Separate Squares II",
+  "exampleTestcases": "[[0,0,1],[2,2,1]]\n[[0,0,2],[1,1,1]]",
+  "sampleTestCase": "[[0,0,1],[2,2,1]]",
+  "metaData": "{\n  \"name\": \"separateSquares\",\n  \"params\": [\n    {\n      \"name\": \"squares\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"double\"\n  }\n}"
+}

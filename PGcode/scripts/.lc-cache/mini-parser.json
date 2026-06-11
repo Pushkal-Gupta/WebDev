@@ -1,0 +1,8 @@
+{
+  "questionId": "385",
+  "titleSlug": "mini-parser",
+  "title": "Mini Parser",
+  "exampleTestcases": "\"324\"\n\"[123,[456,[789]]]\"",
+  "sampleTestCase": "\"324\"",
+  "metaData": "{\n  \"name\": \"deserialize\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"NestedInteger\"\n  },\n  \"manual\": false\n}"
+}

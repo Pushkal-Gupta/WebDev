@@ -1,0 +1,8 @@
+{
+  "questionId": "3822",
+  "titleSlug": "fill-a-special-grid",
+  "title": "Fill a Special Grid",
+  "exampleTestcases": "0\n1\n2",
+  "sampleTestCase": "0",
+  "metaData": "{\n  \"name\": \"specialGrid\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  }\n}"
+}

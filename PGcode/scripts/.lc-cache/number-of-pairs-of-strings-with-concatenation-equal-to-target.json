@@ -1,0 +1,8 @@
+{
+  "questionId": "2133",
+  "titleSlug": "number-of-pairs-of-strings-with-concatenation-equal-to-target",
+  "title": "Number of Pairs of Strings With Concatenation Equal to Target",
+  "exampleTestcases": "[\"777\",\"7\",\"77\",\"77\"]\n\"7777\"\n[\"123\",\"4\",\"12\",\"34\"]\n\"1234\"\n[\"1\",\"1\",\"1\"]\n\"11\"",
+  "sampleTestCase": "[\"777\",\"7\",\"77\",\"77\"]\n\"7777\"",
+  "metaData": "{\n  \"name\": \"numOfPairs\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2480",
+  "titleSlug": "find-subarrays-with-equal-sum",
+  "title": "Find Subarrays With Equal Sum",
+  "exampleTestcases": "[4,2,4]\n[1,2,3,4,5]\n[0,0,0]",
+  "sampleTestCase": "[4,2,4]",
+  "metaData": "{\n  \"name\": \"findSubarrays\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

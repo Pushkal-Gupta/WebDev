@@ -1,0 +1,8 @@
+{
+  "questionId": "4291",
+  "titleSlug": "minimum-cost-to-move-between-indices",
+  "title": "Minimum Cost to Move Between Indices",
+  "exampleTestcases": "[-5,-2,3]\n[[0,2],[2,0],[1,2]]\n[0,2,3,9]\n[[3,0],[1,2],[2,0]]",
+  "sampleTestCase": "[-5,-2,3]\n[[0,2],[2,0],[1,2]]",
+  "metaData": "{\n  \"name\": \"minCost\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

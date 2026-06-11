@@ -202,7 +202,7 @@ export default function BoyerMooreViz({ initialArray = DEFAULT_ARR }) {
   const [arr, setArr] = useState(initialArray);
   const [addInput, setAddInput] = useState('');
   const [stepIdx, setStepIdx] = useState(0);
-  const [isRunning, setIsRunning] = useState(false);
+  const [isRunningRaw, setIsRunning] = useState(false);
   const runTimer = useRef(null);
 
   const steps = useMemo(() => buildSteps(arr), [arr]);
@@ -212,6 +212,7 @@ export default function BoyerMooreViz({ initialArray = DEFAULT_ARR }) {
     current.phase === 'done-majority' ||
     current.phase === 'done-no-majority' ||
     current.phase === 'done-empty';
+  const isRunning = isRunningRaw && stepIdx < totalSteps - 1;
 
   useEffect(() => {
     return () => {
@@ -239,13 +240,10 @@ export default function BoyerMooreViz({ initialArray = DEFAULT_ARR }) {
     setStepIdx(0);
   }, [stop]);
 
-  // Auto-run loop
+  // Auto-run loop. `isRunning` is derived above from a raw toggle + bounds check
+  // so the effect never needs to call setIsRunning(false) at the end.
   useEffect(() => {
     if (!isRunning) return;
-    if (stepIdx >= totalSteps - 1) {
-      setIsRunning(false);
-      return;
-    }
     runTimer.current = setTimeout(() => {
       setStepIdx((i) => Math.min(i + 1, totalSteps - 1));
     }, RUN_DELAY_MS);
@@ -255,7 +253,7 @@ export default function BoyerMooreViz({ initialArray = DEFAULT_ARR }) {
         runTimer.current = null;
       }
     };
-  }, [isRunning, stepIdx, totalSteps]);
+  }, [isRunning, totalSteps]);
 
   const handleRunToggle = () => {
     if (isRunning) {

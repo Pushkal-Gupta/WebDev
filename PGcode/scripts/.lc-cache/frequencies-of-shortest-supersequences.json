@@ -1,0 +1,8 @@
+{
+  "questionId": "3713",
+  "titleSlug": "frequencies-of-shortest-supersequences",
+  "title": "Frequencies of Shortest Supersequences",
+  "exampleTestcases": "[\"ab\",\"ba\"]\n[\"aa\",\"ac\"]\n[\"aa\",\"bb\",\"cc\"]",
+  "sampleTestCase": "[\"ab\",\"ba\"]",
+  "metaData": "{\n  \"name\": \"supersequences\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<list<integer>>\"\n  }\n}"
+}

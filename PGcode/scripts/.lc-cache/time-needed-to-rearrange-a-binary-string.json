@@ -1,0 +1,8 @@
+{
+  "questionId": "2464",
+  "titleSlug": "time-needed-to-rearrange-a-binary-string",
+  "title": "Time Needed to Rearrange a Binary String",
+  "exampleTestcases": "\"0110101\"\n\"11100\"",
+  "sampleTestCase": "\"0110101\"",
+  "metaData": "{\n  \"name\": \"secondsToRemoveOccurrences\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

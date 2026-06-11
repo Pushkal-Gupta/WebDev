@@ -1,0 +1,8 @@
+{
+  "questionId": "1169",
+  "titleSlug": "largest-values-from-labels",
+  "title": "Largest Values From Labels",
+  "exampleTestcases": "[5,4,3,2,1]\n[1,1,2,2,3]\n3\n1\n[5,4,3,2,1]\n[1,3,3,3,2]\n3\n2\n[9,8,8,7,6]\n[0,0,0,1,1]\n3\n1",
+  "sampleTestCase": "[5,4,3,2,1]\n[1,1,2,2,3]\n3\n1",
+  "metaData": "{\n  \"name\": \"largestValsFromLabels\",\n  \"params\": [\n    {\n      \"name\": \"values\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"labels\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"numWanted\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"useLimit\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -332,7 +332,6 @@ export default function TransformerBlockFullViz() {
   // ===== Layout =====
   const left = 32;
   const colGap = 18;
-  const rowGap = 26;
 
   // ---- Section 1: Input embeddings (top) ----
   const inputY = 56;
@@ -352,7 +351,6 @@ export default function TransformerBlockFullViz() {
   // ---- Section 3: Scores ----
   const scoresY = qkvY + N * (qkvCellH + 4) + 56;
   const scoreCell = 26;
-  const scoreGroupW = N * scoreCell + 18;
 
   // ---- Section 4: Softmax weights (same row visually next to scores) ----
   // Place softmax to the right of scores

@@ -1,0 +1,8 @@
+{
+  "questionId": "3092",
+  "titleSlug": "minimum-moves-to-spread-stones-over-grid",
+  "title": "Minimum Moves to Spread Stones Over Grid",
+  "exampleTestcases": "[[1,1,0],[1,1,1],[1,2,1]]\n[[1,3,0],[1,0,0],[1,0,3]]",
+  "sampleTestCase": "[[1,1,0],[1,1,1],[1,2,1]]",
+  "metaData": "{\n  \"name\": \"minimumMoves\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

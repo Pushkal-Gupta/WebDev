@@ -1,0 +1,8 @@
+{
+  "questionId": "1714",
+  "titleSlug": "rearrange-spaces-between-words",
+  "title": "Rearrange Spaces Between Words",
+  "exampleTestcases": "\"  this   is  a sentence \"\n\" practice   makes   perfect\"",
+  "sampleTestCase": "\"  this   is  a sentence \"",
+  "metaData": "{\n  \"name\": \"reorderSpaces\",\n  \"params\": [\n    {\n      \"name\": \"text\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

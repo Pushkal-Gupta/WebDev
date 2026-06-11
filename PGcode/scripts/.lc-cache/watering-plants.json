@@ -1,0 +1,8 @@
+{
+  "questionId": "1310",
+  "titleSlug": "watering-plants",
+  "title": "Watering Plants",
+  "exampleTestcases": "[2,2,3,3]\n5\n[1,1,1,4,2,3]\n4\n[7,7,7,7,7,7,7]\n8",
+  "sampleTestCase": "[2,2,3,3]\n5",
+  "metaData": "{\n  \"name\": \"wateringPlants\",\n  \"params\": [\n    {\n      \"name\": \"plants\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"capacity\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

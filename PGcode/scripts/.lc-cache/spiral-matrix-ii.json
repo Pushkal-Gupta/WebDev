@@ -1,0 +1,8 @@
+{
+  "questionId": "59",
+  "titleSlug": "spiral-matrix-ii",
+  "title": "Spiral Matrix II",
+  "exampleTestcases": "3\n1",
+  "sampleTestCase": "3",
+  "metaData": "{\r\n  \"name\": \"generateMatrix\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer[][]\",\r\n    \"rowsize\": \"param_1\",\r\n    \"colsize\": \"param_1\",\r\n    \"dealloc\": true\r\n  }\r\n}"
+}

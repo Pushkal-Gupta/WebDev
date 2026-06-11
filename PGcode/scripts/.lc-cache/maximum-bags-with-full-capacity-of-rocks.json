@@ -1,0 +1,8 @@
+{
+  "questionId": "2366",
+  "titleSlug": "maximum-bags-with-full-capacity-of-rocks",
+  "title": "Maximum Bags With Full Capacity of Rocks",
+  "exampleTestcases": "[2,3,4,5]\n[1,2,4,4]\n2\n[10,2,2]\n[2,2,0]\n100",
+  "sampleTestCase": "[2,3,4,5]\n[1,2,4,4]\n2",
+  "metaData": "{\n  \"name\": \"maximumBags\",\n  \"params\": [\n    {\n      \"name\": \"capacity\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"rocks\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"additionalRocks\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

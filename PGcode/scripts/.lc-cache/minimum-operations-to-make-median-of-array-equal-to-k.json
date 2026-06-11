@@ -1,0 +1,8 @@
+{
+  "questionId": "3387",
+  "titleSlug": "minimum-operations-to-make-median-of-array-equal-to-k",
+  "title": "Minimum Operations to Make Median of Array Equal to K",
+  "exampleTestcases": "[2,5,6,8,5]\n4\n[2,5,6,8,5]\n7\n[1,2,3,4,5,6]\n4",
+  "sampleTestCase": "[2,5,6,8,5]\n4",
+  "metaData": "{\n  \"name\": \"minOperationsToMakeMedianK\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

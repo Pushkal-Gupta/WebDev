@@ -1,0 +1,8 @@
+{
+  "questionId": "881",
+  "titleSlug": "loud-and-rich",
+  "title": "Loud and Rich",
+  "exampleTestcases": "[[1,0],[2,1],[3,1],[3,7],[4,3],[5,3],[6,3]]\n[3,2,5,4,6,1,7,0]\n[]\n[0]",
+  "sampleTestCase": "[[1,0],[2,1],[3,1],[3,7],[4,3],[5,3],[6,3]]\n[3,2,5,4,6,1,7,0]",
+  "metaData": "{\n  \"name\": \"loudAndRich\",\n  \"params\": [\n    {\n      \"name\": \"richer\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"name\": \"quiet\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}\n"
+}

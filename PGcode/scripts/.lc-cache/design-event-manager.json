@@ -1,0 +1,8 @@
+{
+  "questionId": "4267",
+  "titleSlug": "design-event-manager",
+  "title": "Design Event Manager",
+  "exampleTestcases": "[\"EventManager\",\"pollHighest\",\"updatePriority\",\"pollHighest\",\"pollHighest\"]\n[[[[5,7],[2,7],[9,4]]],[],[9,7],[],[]]\n[\"EventManager\",\"pollHighest\",\"pollHighest\",\"pollHighest\"]\n[[[[4,1],[7,2]]],[],[],[]]",
+  "sampleTestCase": "[\"EventManager\",\"pollHighest\",\"updatePriority\",\"pollHighest\",\"pollHighest\"]\n[[[[5,7],[2,7],[9,4]]],[],[9,7],[],[]]",
+  "metaData": "{\n  \"classname\": \"EventManager\",\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"integer[][]\",\n        \"name\": \"events\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"eventId\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"newPriority\"\n        }\n      ],\n      \"name\": \"updatePriority\",\n      \"return\": {\n        \"type\": \"void\"\n      }\n    },\n    {\n      \"params\": [],\n      \"return\": {\n        \"type\": \"integer\"\n      },\n      \"name\": \"pollHighest\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
+}

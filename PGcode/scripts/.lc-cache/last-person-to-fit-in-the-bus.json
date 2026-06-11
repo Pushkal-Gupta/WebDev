@@ -1,0 +1,8 @@
+{
+  "questionId": "1327",
+  "titleSlug": "last-person-to-fit-in-the-bus",
+  "title": "Last Person to Fit in the Bus",
+  "exampleTestcases": "{\"headers\":{\"Queue\":[\"person_id\",\"person_name\",\"weight\",\"turn\"]},\"rows\":{\"Queue\":[[5,\"Alice\",250,1],[4,\"Bob\",175,5],[3,\"Alex\",350,2],[6,\"John Cena\",400,3],[1,\"Winston\",500,6],[2,\"Marie\",200,4]]}}",
+  "sampleTestCase": "{\"headers\":{\"Queue\":[\"person_id\",\"person_name\",\"weight\",\"turn\"]},\"rows\":{\"Queue\":[[5,\"Alice\",250,1],[4,\"Bob\",175,5],[3,\"Alex\",350,2],[6,\"John Cena\",400,3],[1,\"Winston\",500,6],[2,\"Marie\",200,4]]}}",
+  "metaData": "{\"manual\": false, \"mysql\": [\"Create table If Not Exists Queue (person_id int, person_name varchar(30), weight int, turn int)\"], \"mssql\": [\"Create table Queue (person_id int, person_name varchar(30), weight int, turn int)\"], \"oraclesql\": [\"Create table Queue (person_id int, person_name varchar(30), weight int, turn int)\"], \"database\": true, \"name\": \"last_passenger\", \"pythondata\": [\"Queue = pd.DataFrame([], columns=['person_id', 'person_name', 'weight', 'turn']).astype({'person_id':'Int64', 'person_name':'object', 'weight':'Int64', 'turn':'Int64'})\"], \"postgresql\": [\"\\nCreate table If Not Exists Queue (person_id int, person_name varchar(30), weight int, turn int)\"], \"database_schema\": {\"Queue\": {\"person_id\": \"INT\", \"person_name\": \"VARCHAR(30)\", \"weight\": \"INT\", \"turn\": \"INT\"}}}"
+}

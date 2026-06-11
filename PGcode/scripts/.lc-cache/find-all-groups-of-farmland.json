@@ -1,0 +1,8 @@
+{
+  "questionId": "2103",
+  "titleSlug": "find-all-groups-of-farmland",
+  "title": "Find All Groups of Farmland",
+  "exampleTestcases": "[[1,0,0],[0,1,1],[0,1,1]]\n[[1,1],[1,1]]\n[[0]]",
+  "sampleTestCase": "[[1,0,0],[0,1,1],[0,1,1]]",
+  "metaData": "{\n  \"name\": \"findFarmland\",\n  \"params\": [\n    {\n      \"name\": \"land\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  },\n  \"manual\": false\n}"
+}

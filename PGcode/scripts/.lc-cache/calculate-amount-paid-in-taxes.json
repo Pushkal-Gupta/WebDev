@@ -1,0 +1,8 @@
+{
+  "questionId": "1382",
+  "titleSlug": "calculate-amount-paid-in-taxes",
+  "title": "Calculate Amount Paid in Taxes",
+  "exampleTestcases": "[[3,50],[7,10],[12,25]]\n10\n[[1,0],[4,25],[5,50]]\n2\n[[2,50]]\n0",
+  "sampleTestCase": "[[3,50],[7,10],[12,25]]\n10",
+  "metaData": "{\n  \"name\": \"calculateTax\",\n  \"params\": [\n    {\n      \"name\": \"brackets\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"income\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"double\"\n  }\n}"
+}

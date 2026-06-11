@@ -1,0 +1,8 @@
+{
+  "questionId": "3937",
+  "titleSlug": "number-of-integers-with-popcount-depth-equal-to-k-i",
+  "title": "Number of Integers With Popcount-Depth Equal to K I",
+  "exampleTestcases": "4\n1\n7\n2",
+  "sampleTestCase": "4\n1",
+  "metaData": "{\n  \"name\": \"popcountDepth\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"long\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

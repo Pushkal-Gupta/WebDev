@@ -1,0 +1,8 @@
+{
+  "questionId": "1704",
+  "titleSlug": "special-positions-in-a-binary-matrix",
+  "title": "Special Positions in a Binary Matrix",
+  "exampleTestcases": "[[1,0,0],[0,0,1],[1,0,0]]\n[[1,0,0],[0,1,0],[0,0,1]]",
+  "sampleTestCase": "[[1,0,0],[0,0,1],[1,0,0]]",
+  "metaData": "{\n  \"name\": \"numSpecial\",\n  \"params\": [\n    {\n      \"name\": \"mat\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

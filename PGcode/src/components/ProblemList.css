@@ -1011,7 +1011,7 @@
 
   .pl-filter-group {
     width: 100%;
-    overflow-x: auto;
+    flex-wrap: wrap;
   }
 
   .pl-title {

@@ -94,14 +94,20 @@ export default function SlidingWindowViz() {
   const frames = useMemo(() => buildFrames(array, windowSize), [array, windowSize]);
 
   const [step, setStep] = useState(0);
-  const [running, setRunning] = useState(false);
+  const [runningRaw, setRunning] = useState(false);
   const timerRef = useRef(null);
 
-  useEffect(() => {
+  // Reset playhead when the input changes (prev-state-during-render pattern).
+  const [prevArray, setPrevArray] = useState(array);
+  const [prevWindow, setPrevWindow] = useState(windowSize);
+  if (prevArray !== array || prevWindow !== windowSize) {
+    setPrevArray(array);
+    setPrevWindow(windowSize);
     setStep(0);
     setRunning(false);
-  }, [array, windowSize]);
+  }
 
+  const running = runningRaw && step < frames.length - 1;
   useEffect(() => {
     if (!running) {
       if (timerRef.current) {
@@ -110,21 +116,13 @@ export default function SlidingWindowViz() {
       }
       return undefined;
     }
-    if (step >= frames.length - 1) {
-      setRunning(false);
-      return undefined;
-    }
     timerRef.current = setTimeout(() => {
-      setStep((s) => {
-        const next = Math.min(s + 1, frames.length - 1);
-        if (next >= frames.length - 1) setRunning(false);
-        return next;
-      });
+      setStep((s) => Math.min(s + 1, frames.length - 1));
     }, TICK_MS);
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [running, step, frames.length]);
+  }, [running, frames.length]);
 
   const handleStep = useCallback(() => {
     setRunning(false);

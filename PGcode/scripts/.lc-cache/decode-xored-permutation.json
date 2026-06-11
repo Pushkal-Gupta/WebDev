@@ -1,0 +1,8 @@
+{
+  "questionId": "1835",
+  "titleSlug": "decode-xored-permutation",
+  "title": "Decode XORed Permutation",
+  "exampleTestcases": "[3,1]\n[6,5,4,6]",
+  "sampleTestCase": "[3,1]",
+  "metaData": "{\n  \"name\": \"decode\",\n  \"params\": [\n    {\n      \"name\": \"encoded\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

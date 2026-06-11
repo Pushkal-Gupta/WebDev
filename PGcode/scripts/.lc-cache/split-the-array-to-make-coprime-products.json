@@ -1,0 +1,8 @@
+{
+  "questionId": "2647",
+  "titleSlug": "split-the-array-to-make-coprime-products",
+  "title": "Split the Array to Make Coprime Products",
+  "exampleTestcases": "[4,7,8,15,3,5]\n[4,7,15,8,3,5]",
+  "sampleTestCase": "[4,7,8,15,3,5]",
+  "metaData": "{\n  \"name\": \"findValidSplit\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

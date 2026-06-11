@@ -1,0 +1,8 @@
+{
+  "questionId": "1234",
+  "titleSlug": "number-of-paths-with-max-score",
+  "title": "Number of Paths with Max Score",
+  "exampleTestcases": "[\"E23\",\"2X2\",\"12S\"]\r\n[\"E12\",\"1X1\",\"21S\"]\r\n[\"E11\",\"XXX\",\"11S\"]\r",
+  "sampleTestCase": "[\"E23\",\"2X2\",\"12S\"]\r",
+  "metaData": "{\n  \"name\": \"pathsWithMaxScore\",\n  \"params\": [\n    {\n      \"name\": \"board\",\n      \"type\": \"list<string>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

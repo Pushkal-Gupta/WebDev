@@ -1,0 +1,8 @@
+{
+  "questionId": "3360",
+  "titleSlug": "minimum-deletions-to-make-string-k-special",
+  "title": "Minimum Deletions to Make String K-Special",
+  "exampleTestcases": "\"aabcaba\"\n0\n\"dabdcbdcdcd\"\n2\n\"aaabaaa\"\n2",
+  "sampleTestCase": "\"aabcaba\"\n0",
+  "metaData": "{\n  \"name\": \"minimumDeletions\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "930",
+  "titleSlug": "all-possible-full-binary-trees",
+  "title": "All Possible Full Binary Trees",
+  "exampleTestcases": "7\n3",
+  "sampleTestCase": "7",
+  "metaData": "{\n  \"name\": \"allPossibleFBT\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<TreeNode>\"\n  }\n}"
+}

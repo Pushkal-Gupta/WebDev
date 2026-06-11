@@ -1,0 +1,8 @@
+{
+  "questionId": "53",
+  "titleSlug": "maximum-subarray",
+  "title": "Maximum Subarray",
+  "exampleTestcases": "[-2,1,-3,4,-1,2,1,-5,4]\n[1]\n[5,4,-1,7,8]",
+  "sampleTestCase": "[-2,1,-3,4,-1,2,1,-5,4]",
+  "metaData": "{\r\n  \"name\": \"maxSubArray\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

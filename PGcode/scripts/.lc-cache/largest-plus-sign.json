@@ -1,0 +1,8 @@
+{
+  "questionId": "769",
+  "titleSlug": "largest-plus-sign",
+  "title": "Largest Plus Sign",
+  "exampleTestcases": "5\n[[4,2]]\n1\n[[0,0]]",
+  "sampleTestCase": "5\n[[4,2]]",
+  "metaData": "{\n  \"name\": \"orderOfLargestPlusSign\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"mines\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

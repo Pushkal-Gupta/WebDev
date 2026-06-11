@@ -1,0 +1,8 @@
+{
+  "questionId": "4138",
+  "titleSlug": "minimum-deletion-cost-to-make-all-characters-equal",
+  "title": "Minimum Deletion Cost to Make All Characters Equal",
+  "exampleTestcases": "\"aabaac\"\n[1,2,3,4,1,10]\n\"abc\"\n[10,5,8]\n\"zzzzz\"\n[67,67,67,67,67]",
+  "sampleTestCase": "\"aabaac\"\n[1,2,3,4,1,10]",
+  "metaData": "{\n  \"name\": \"minCost\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"cost\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

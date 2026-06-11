@@ -116,7 +116,7 @@ export default function ForwardBackwardGraphViz() {
     const dLda = dLds * 1;
     const dLdb = dLds * 1;
     return { a: dLda, b: dLdb, c: dLdc, s: dLds, y: dLdy };
-  }, [a, b, c, sVal]);
+  }, [c, sVal]);
 
   const isFwd = mode === 'forward';
   const fwdColor = 'var(--accent)';

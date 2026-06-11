@@ -1,0 +1,8 @@
+{
+  "questionId": "495",
+  "titleSlug": "teemo-attacking",
+  "title": "Teemo Attacking",
+  "exampleTestcases": "[1,4]\n2\n[1,2]\n2",
+  "sampleTestCase": "[1,4]\n2",
+  "metaData": "{\r\n  \"name\": \"findPoisonedDuration\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"timeSeries\",\r\n      \"type\": \"integer[]\"\r\n    }, \r\n    {\r\n      \"name\": \"duration\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

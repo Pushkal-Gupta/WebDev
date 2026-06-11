@@ -1,0 +1,8 @@
+{
+  "questionId": "2341",
+  "titleSlug": "count-prefixes-of-a-given-string",
+  "title": "Count Prefixes of a Given String",
+  "exampleTestcases": "[\"a\",\"b\",\"c\",\"ab\",\"bc\",\"abc\"]\n\"abc\"\n[\"a\",\"a\"]\n\"aa\"",
+  "sampleTestCase": "[\"a\",\"b\",\"c\",\"ab\",\"bc\",\"abc\"]\n\"abc\"",
+  "metaData": "{\n  \"name\": \"countPrefixes\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"s\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

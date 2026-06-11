@@ -1,0 +1,8 @@
+{
+  "questionId": "1313",
+  "titleSlug": "count-ways-to-build-rooms-in-an-ant-colony",
+  "title": "Count Ways to Build Rooms in an Ant Colony",
+  "exampleTestcases": "[-1,0,1]\n[-1,0,0,1,2]",
+  "sampleTestCase": "[-1,0,1]",
+  "metaData": "{\n  \"name\": \"waysToBuildRooms\",\n  \"params\": [\n    {\n      \"name\": \"prevRoom\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

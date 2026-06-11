@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { RotateCcw, Sparkles, Trash2 } from 'lucide-react';
 import './MLViz.css';
 
@@ -236,10 +236,17 @@ export default function GaussianProcessViz() {
   );
 
   // Sampled curves stay valid only while points / hyperparams are unchanged.
-  // Drop stale samples whenever the posterior changes.
-  useEffect(() => {
+  // Drop stale samples whenever the posterior changes. Tracked-dep render-phase
+  // reset (React's recommended pattern over setState-in-effect).
+  const [lastPoints, setLastPoints] = useState(points);
+  const [lastEll, setLastEll] = useState(ell);
+  const [lastNoise2, setLastNoise2] = useState(noise2);
+  if (points !== lastPoints || ell !== lastEll || noise2 !== lastNoise2) {
+    setLastPoints(points);
+    setLastEll(ell);
+    setLastNoise2(noise2);
     setSampleCurves([]);
-  }, [points, ell, noise2]);
+  }
 
   const meanPath = useMemo(
     () => buildLinePath(gridXs, posterior.mean),

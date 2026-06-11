@@ -119,8 +119,10 @@ export default function PageRankViz() {
   const [iter, setIter] = useState(0);
   const [delta, setDelta] = useState(0);
   const [converged, setConverged] = useState(false);
-  const [playing, setPlaying] = useState(false);
+  const [playingRaw, setPlaying] = useState(false);
   const [lastAction, setLastAction] = useState('init');
+  // Derive playing from convergence so the effect never has to call setPlaying(false).
+  const playing = playingRaw && !converged;
   const timerRef = useRef(null);
 
   const handleStep = useCallback(() => {
@@ -190,10 +192,6 @@ export default function PageRankViz() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [playing, handleStep]);
-
-  useEffect(() => {
-    if (converged && playing) setPlaying(false);
-  }, [converged, playing]);
 
   const ranking = useMemo(() => {
     const arr = NODES.map((n) => ({ id: n.id, score: scores[n.id] }));

@@ -1,0 +1,8 @@
+{
+  "questionId": "123",
+  "titleSlug": "best-time-to-buy-and-sell-stock-iii",
+  "title": "Best Time to Buy and Sell Stock III",
+  "exampleTestcases": "[3,3,5,0,0,3,1,4]\n[1,2,3,4,5]\n[7,6,4,3,1]",
+  "sampleTestCase": "[3,3,5,0,0,3,1,4]",
+  "metaData": "{\r\n  \"name\": \"maxProfit\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"prices\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

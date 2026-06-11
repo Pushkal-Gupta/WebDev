@@ -1,0 +1,8 @@
+{
+  "questionId": "2793",
+  "titleSlug": "count-the-number-of-complete-components",
+  "title": "Count the Number of Complete Components",
+  "exampleTestcases": "6\n[[0,1],[0,2],[1,2],[3,4]]\n6\n[[0,1],[0,2],[1,2],[3,4],[3,5]]",
+  "sampleTestCase": "6\n[[0,1],[0,2],[1,2],[3,4]]",
+  "metaData": "{\n  \"name\": \"countCompleteComponents\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

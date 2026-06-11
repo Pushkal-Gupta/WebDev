@@ -86,10 +86,14 @@ export default function ResidualGradientViz() {
   };
   useEffect(() => () => clearTimer(), []);
 
-  // Reset step whenever layout / mult change while idle.
-  useEffect(() => {
+  // Reset step whenever layout / mult change while idle. Tracked-dep render-
+  // phase reset (avoids setState-in-effect cascade).
+  const layoutKey = `${numLayers}|${mult}`;
+  const [lastLayoutKey, setLastLayoutKey] = useState(layoutKey);
+  if (layoutKey !== lastLayoutKey) {
+    setLastLayoutKey(layoutKey);
     if (!running) setStep(0);
-  }, [numLayers, mult, running]);
+  }
 
   const handleReset = useCallback(() => {
     clearTimer();
@@ -131,7 +135,6 @@ export default function ResidualGradientViz() {
   const inputPlain = plain[0];
   const inputResid = resid[0];
 
-  const plainStatus = gradStatus(plain[numLayers - visitedCount] ?? plain[0]);
   const finalPlainStatus = gradStatus(inputPlain);
 
   // Build per-block colors / state
@@ -191,7 +194,6 @@ export default function ResidualGradientViz() {
             const layerIdx = numLayers - 1 - idx;
             const visited = isLayerVisited(layerIdx);
             const g = plain[layerIdx];
-            const st = gradStatus(g);
             const color = plainBlockColor(layerIdx);
             const yCenter = y;
             return (

@@ -1,0 +1,8 @@
+{
+  "questionId": "1103",
+  "titleSlug": "moving-stones-until-consecutive",
+  "title": "Moving Stones Until Consecutive",
+  "exampleTestcases": "1\n2\n5\n4\n3\n2\n3\n5\n1",
+  "sampleTestCase": "1\n2\n5",
+  "metaData": "{\r\n  \"name\": \"numMovesStones\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"a\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"b\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"c\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer[]\"\r\n  }\r\n}\r\n"
+}

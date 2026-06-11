@@ -1,0 +1,8 @@
+{
+  "questionId": "1188",
+  "titleSlug": "brace-expansion-ii",
+  "title": "Brace Expansion II",
+  "exampleTestcases": "\"{a,b}{c,{d,e}}\"\n\"{{a,z},a{b,c},{ab,z}}\"",
+  "sampleTestCase": "\"{a,b}{c,{d,e}}\"",
+  "metaData": "{\n  \"name\": \"braceExpansionII\",\n  \"params\": [\n    {\n      \"name\": \"expression\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\"\n  }\n}\n"
+}

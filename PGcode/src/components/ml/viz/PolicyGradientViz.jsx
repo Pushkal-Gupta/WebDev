@@ -348,7 +348,6 @@ export default function PolicyGradientViz() {
     setCurrentTraj(traj);
     for (let i = 0; i < traj.length; i++) {
       setAnimStep(i);
-      // eslint-disable-next-line no-await-in-loop
       await new Promise((res) => {
         timerRef.current = setTimeout(res, STEP_DELAY);
       });
@@ -400,10 +399,8 @@ export default function PolicyGradientViz() {
     for (let i = 0; i < RUN_BATCH; i++) {
       if (!runningRef.current) break;
       // Animate the first few episodes, then run fast (skip animation) for the rest.
-      // eslint-disable-next-line no-await-in-loop
       await stepOnce(i < 2);
       if (!runningRef.current) break;
-      // eslint-disable-next-line no-await-in-loop
       await new Promise((res) => {
         timerRef.current = setTimeout(res, i < 2 ? 60 : 14);
       });

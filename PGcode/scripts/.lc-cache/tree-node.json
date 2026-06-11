@@ -1,0 +1,8 @@
+{
+  "questionId": "608",
+  "titleSlug": "tree-node",
+  "title": "Tree Node",
+  "exampleTestcases": "{\"headers\":{\"Tree\":[\"id\",\"p_id\"]},\"rows\":{\"Tree\":[[1,null],[2,1],[3,1],[4,2],[5,2]]}}\n{\"headers\":{\"Tree\":[\"id\",\"p_id\"]},\"rows\":{\"Tree\":[[1,null]]}}",
+  "sampleTestCase": "{\"headers\":{\"Tree\":[\"id\",\"p_id\"]},\"rows\":{\"Tree\":[[1,null],[2,1],[3,1],[4,2],[5,2]]}}",
+  "metaData": "{\"mysql\": [\"Create table If Not Exists Tree (id int, p_id int)\"], \"mssql\": [\"Create table Tree (id int, p_id int)\"], \"oraclesql\": [\"Create table Tree (id int, p_id int)\"], \"database\": true, \"name\": \"tree_node\", \"pythondata\": [\"Tree = pd.DataFrame([], columns=['id', 'p_id']).astype({'id':'Int64', 'p_id':'Int64'})\"], \"postgresql\": [\"\\nCreate table If Not Exists Tree (id int, p_id int)\"], \"database_schema\": {\"Tree\": {\"id\": \"INT\", \"p_id\": \"INT\"}}}"
+}

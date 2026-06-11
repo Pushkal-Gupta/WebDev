@@ -195,15 +195,12 @@
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 8px;
-  overflow-x: auto;
-  overflow-y: hidden;
 }
 
 .lru-svg {
   display: block;
   width: 100%;
   height: auto;
-  min-width: 640px;
   max-height: 540px;
 }
 

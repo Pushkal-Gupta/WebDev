@@ -1,0 +1,8 @@
+{
+  "questionId": "1951",
+  "titleSlug": "find-the-winner-of-the-circular-game",
+  "title": "Find the Winner of the Circular Game",
+  "exampleTestcases": "5\n2\n6\n5",
+  "sampleTestCase": "5\n2",
+  "metaData": "{\n  \"name\": \"findTheWinner\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

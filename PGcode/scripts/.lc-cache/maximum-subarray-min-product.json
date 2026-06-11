@@ -1,0 +1,8 @@
+{
+  "questionId": "1985",
+  "titleSlug": "maximum-subarray-min-product",
+  "title": "Maximum Subarray Min-Product",
+  "exampleTestcases": "[1,2,3,2]\n[2,3,3,1,2]\n[3,1,5,6,4,2]",
+  "sampleTestCase": "[1,2,3,2]",
+  "metaData": "{\n  \"name\": \"maxSumMinProduct\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

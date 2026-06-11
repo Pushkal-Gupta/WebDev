@@ -1,0 +1,8 @@
+{
+  "questionId": "3857",
+  "titleSlug": "find-maximum-number-of-non-intersecting-substrings",
+  "title": "Find Maximum Number of Non Intersecting Substrings",
+  "exampleTestcases": "\"abcdeafdef\"\n\"bcdaaaab\"",
+  "sampleTestCase": "\"abcdeafdef\"",
+  "metaData": "{\n  \"name\": \"maxSubstrings\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

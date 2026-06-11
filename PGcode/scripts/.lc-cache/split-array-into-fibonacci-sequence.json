@@ -1,0 +1,8 @@
+{
+  "questionId": "872",
+  "titleSlug": "split-array-into-fibonacci-sequence",
+  "title": "Split Array into Fibonacci Sequence",
+  "exampleTestcases": "\"1101111\"\n\"112358130\"\n\"0123\"",
+  "sampleTestCase": "\"1101111\"",
+  "metaData": "{\n  \"name\": \"splitIntoFibonacci\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
+}

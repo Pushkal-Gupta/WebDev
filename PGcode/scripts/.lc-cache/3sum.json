@@ -1,0 +1,8 @@
+{
+  "questionId": "15",
+  "titleSlug": "3sum",
+  "title": "3Sum",
+  "exampleTestcases": "[-1,0,1,2,-1,-4]\n[0,1,1]\n[0,0,0]",
+  "sampleTestCase": "[-1,0,1,2,-1,-4]",
+  "metaData": "{\n  \"name\": \"threeSum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<list<integer>>\",\n    \"colsize\": 3,\n    \"dealloc\": true\n  }\n}"
+}

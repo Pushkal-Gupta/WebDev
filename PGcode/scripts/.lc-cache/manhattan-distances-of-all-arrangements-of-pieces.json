@@ -1,0 +1,8 @@
+{
+  "questionId": "3739",
+  "titleSlug": "manhattan-distances-of-all-arrangements-of-pieces",
+  "title": "Manhattan Distances of All Arrangements of Pieces",
+  "exampleTestcases": "2\n2\n2\n1\n4\n3",
+  "sampleTestCase": "2\n2\n2",
+  "metaData": "{\n  \"name\": \"distanceSum\",\n  \"params\": [\n    {\n      \"name\": \"m\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"n\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

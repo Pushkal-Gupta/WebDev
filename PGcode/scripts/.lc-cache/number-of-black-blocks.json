@@ -1,0 +1,8 @@
+{
+  "questionId": "2889",
+  "titleSlug": "number-of-black-blocks",
+  "title": "Number of Black Blocks",
+  "exampleTestcases": "3\n3\n[[0,0]]\n3\n3\n[[0,0],[1,1],[0,2]]",
+  "sampleTestCase": "3\n3\n[[0,0]]",
+  "metaData": "{\n  \"name\": \"countBlackBlocks\",\n  \"params\": [\n    {\n      \"name\": \"m\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"n\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"coordinates\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long[]\"\n  }\n}"
+}

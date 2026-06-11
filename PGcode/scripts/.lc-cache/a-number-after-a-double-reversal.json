@@ -1,0 +1,8 @@
+{
+  "questionId": "2238",
+  "titleSlug": "a-number-after-a-double-reversal",
+  "title": "A Number After a Double Reversal",
+  "exampleTestcases": "526\n1800\n0",
+  "sampleTestCase": "526",
+  "metaData": "{\n  \"name\": \"isSameAfterReversals\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

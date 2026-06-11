@@ -1,0 +1,8 @@
+{
+  "questionId": "4245",
+  "titleSlug": "count-commas-in-range",
+  "title": "Count Commas in Range",
+  "exampleTestcases": "1002\n998",
+  "sampleTestCase": "1002",
+  "metaData": "{\n  \"name\": \"countCommas\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

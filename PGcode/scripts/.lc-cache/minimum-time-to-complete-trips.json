@@ -1,0 +1,8 @@
+{
+  "questionId": "2294",
+  "titleSlug": "minimum-time-to-complete-trips",
+  "title": "Minimum Time to Complete Trips",
+  "exampleTestcases": "[1,2,3]\n5\n[2]\n1",
+  "sampleTestCase": "[1,2,3]\n5",
+  "metaData": "{\n  \"name\": \"minimumTime\",\n  \"params\": [\n    {\n      \"name\": \"time\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"totalTrips\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

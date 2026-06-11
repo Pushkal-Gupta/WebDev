@@ -1,0 +1,8 @@
+{
+  "questionId": "3658",
+  "titleSlug": "minimize-the-maximum-adjacent-element-difference",
+  "title": "Minimize the Maximum Adjacent Element Difference",
+  "exampleTestcases": "[1,2,-1,10,8]\n[-1,-1,-1]\n[-1,10,-1,8]",
+  "sampleTestCase": "[1,2,-1,10,8]",
+  "metaData": "{\n  \"name\": \"minDifference\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

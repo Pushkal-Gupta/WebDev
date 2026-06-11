@@ -1,0 +1,8 @@
+{
+  "questionId": "1976",
+  "titleSlug": "splitting-a-string-into-descending-consecutive-values",
+  "title": "Splitting a String Into Descending Consecutive Values",
+  "exampleTestcases": "\"1234\"\n\"050043\"\n\"9080701\"",
+  "sampleTestCase": "\"1234\"",
+  "metaData": "{\n  \"name\": \"splitString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

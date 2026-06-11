@@ -1,0 +1,8 @@
+{
+  "questionId": "1197",
+  "titleSlug": "parsing-a-boolean-expression",
+  "title": "Parsing A Boolean Expression",
+  "exampleTestcases": "\"&(|(f))\"\n\"|(f,f,f,t)\"\n\"!(&(f,t))\"",
+  "sampleTestCase": "\"&(|(f))\"",
+  "metaData": "{\n  \"name\": \"parseBoolExpr\",\n  \"params\": [\n    {\n      \"name\": \"expression\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

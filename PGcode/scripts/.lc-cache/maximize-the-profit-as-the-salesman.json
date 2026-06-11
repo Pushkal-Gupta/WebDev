@@ -1,0 +1,8 @@
+{
+  "questionId": "2979",
+  "titleSlug": "maximize-the-profit-as-the-salesman",
+  "title": "Maximize the Profit as the Salesman",
+  "exampleTestcases": "5\n[[0,0,1],[0,2,2],[1,3,2]]\n5\n[[0,0,1],[0,2,10],[1,3,2]]",
+  "sampleTestCase": "5\n[[0,0,1],[0,2,2],[1,3,2]]",
+  "metaData": "{\n  \"name\": \"maximizeTheProfit\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"list<list<integer>>\",\n      \"name\": \"offers\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

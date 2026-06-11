@@ -1,0 +1,8 @@
+{
+  "questionId": "2902",
+  "titleSlug": "max-pair-sum-in-an-array",
+  "title": "Max Pair Sum in an Array",
+  "exampleTestcases": "[112,131,411]\n[2536,1613,3366,162]\n[51,71,17,24,42]",
+  "sampleTestCase": "[112,131,411]",
+  "metaData": "{\n  \"name\": \"maxSum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

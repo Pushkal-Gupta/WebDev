@@ -1,0 +1,8 @@
+{
+  "questionId": "2783",
+  "titleSlug": "nested-array-generator",
+  "title": "Nested Array Generator",
+  "exampleTestcases": "[[[6]],[1,3],[]]\n[]",
+  "sampleTestCase": "[[[6]],[1,3],[]]",
+  "metaData": "{\n  \"name\": \"inorderTraveral\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  },\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
+}

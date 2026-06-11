@@ -1,0 +1,8 @@
+{
+  "questionId": "1262",
+  "titleSlug": "online-majority-element-in-subarray",
+  "title": "Online Majority Element In Subarray",
+  "exampleTestcases": "[\"MajorityChecker\",\"query\",\"query\",\"query\"]\n[[[1,1,2,2,1,1]],[0,5,4],[0,3,3],[2,3,2]]",
+  "sampleTestCase": "[\"MajorityChecker\",\"query\",\"query\",\"query\"]\n[[[1,1,2,2,1,1]],[0,5,4],[0,3,3],[2,3,2]]",
+  "metaData": "{\n  \"classname\": \"MajorityChecker\",\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"integer[]\",\n        \"name\": \"arr\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"left\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"right\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"threshold\"\n        }\n      ],\n      \"name\": \"query\",\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
+}

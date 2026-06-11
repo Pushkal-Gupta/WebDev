@@ -1,0 +1,8 @@
+{
+  "questionId": "1814",
+  "titleSlug": "jump-game-vi",
+  "title": "Jump Game VI",
+  "exampleTestcases": "[1,-1,-2,4,-7,3]\n2\n[10,-5,-2,4,0,3]\n3\n[1,-5,-20,4,-1,3,-6,-3]\n2",
+  "sampleTestCase": "[1,-1,-2,4,-7,3]\n2",
+  "metaData": "{\n  \"name\": \"maxResult\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

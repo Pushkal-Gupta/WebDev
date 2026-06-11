@@ -1,0 +1,8 @@
+{
+  "questionId": "3786",
+  "titleSlug": "longest-palindromic-subsequence-after-at-most-k-operations",
+  "title": "Longest Palindromic Subsequence After at Most K Operations",
+  "exampleTestcases": "\"abced\"\n2\n\"aaazzz\"\n4",
+  "sampleTestCase": "\"abced\"\n2",
+  "metaData": "{\n  \"name\": \"longestPalindromicSubsequence\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

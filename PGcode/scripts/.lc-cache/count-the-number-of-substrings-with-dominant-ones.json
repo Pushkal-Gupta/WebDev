@@ -1,0 +1,8 @@
+{
+  "questionId": "3479",
+  "titleSlug": "count-the-number-of-substrings-with-dominant-ones",
+  "title": "Count the Number of Substrings With Dominant Ones",
+  "exampleTestcases": "\"00011\"\n\"101101\"",
+  "sampleTestCase": "\"00011\"",
+  "metaData": "{\n  \"name\": \"numberOfSubstrings\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

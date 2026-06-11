@@ -1,0 +1,8 @@
+{
+  "questionId": "1660",
+  "titleSlug": "thousand-separator",
+  "title": "Thousand Separator",
+  "exampleTestcases": "987\n1234",
+  "sampleTestCase": "987",
+  "metaData": "{\n  \"name\": \"thousandSeparator\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

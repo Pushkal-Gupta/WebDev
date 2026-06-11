@@ -1,0 +1,8 @@
+{
+  "questionId": "3212",
+  "titleSlug": "count-the-number-of-good-partitions",
+  "title": "Count the Number of Good Partitions",
+  "exampleTestcases": "[1,2,3,4]\n[1,1,1,1]\n[1,2,1,3]",
+  "sampleTestCase": "[1,2,3,4]",
+  "metaData": "{\n  \"name\": \"numberOfGoodPartitions\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3974",
+  "titleSlug": "xor-after-range-multiplication-queries-i",
+  "title": "XOR After Range Multiplication Queries I",
+  "exampleTestcases": "[1,1,1]\n[[0,2,1,4]]\n[2,3,1,5,4]\n[[1,4,2,3],[0,2,1,2]]",
+  "sampleTestCase": "[1,1,1]\n[[0,2,1,4]]",
+  "metaData": "{\n  \"name\": \"xorAfterQueries\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

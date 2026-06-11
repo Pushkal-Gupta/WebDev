@@ -225,6 +225,55 @@
   border-top: 1px solid var(--border);
 }
 
+.github-link-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.08), rgba(var(--accent-rgb), 0.02));
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.github-link-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  min-width: 0;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+}
+
+.github-link-text strong {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.github-link-text span {
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+.github-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.95rem;
+  background: var(--text-main);
+  color: var(--bg);
+  border: none;
+  border-radius: 8px;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity var(--t);
+}
+.github-link-btn:hover { opacity: 0.88; }
+
 .github-connect {
   display: flex;
   flex-direction: column;

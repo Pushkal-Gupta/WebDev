@@ -1,0 +1,8 @@
+{
+  "questionId": "3526",
+  "titleSlug": "minimum-number-of-flips-to-make-binary-grid-palindromic-i",
+  "title": "Minimum Number of Flips to Make Binary Grid Palindromic I",
+  "exampleTestcases": "[[1,0,0],[0,0,0],[0,0,1]]\n[[0,1],[0,1],[0,0]]\n[[1],[0]]",
+  "sampleTestCase": "[[1,0,0],[0,0,0],[0,0,1]]",
+  "metaData": "{\n  \"name\": \"minFlips\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

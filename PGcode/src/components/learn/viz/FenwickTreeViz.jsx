@@ -276,13 +276,16 @@ export default function FenwickTreeViz() {
   const [rr, setRr] = useState('6');
   const [frames, setFrames] = useState([]);
   const [idx, setIdx] = useState(-1);
-  const [playing, setPlaying] = useState(false);
+  const [playingRaw, setPlaying] = useState(false);
   const playRef = useRef(null);
 
   const n = arr.length;
   const baseBIT = useMemo(() => buildBIT(arr), [arr]);
 
   const currentFrame = idx >= 0 && idx < frames.length ? frames[idx] : null;
+  // Derive `playing` from the raw toggle + bounds so the auto-run effect never
+  // needs to call setPlaying(false) when we hit the end.
+  const playing = playingRaw && idx >= 0 && idx < frames.length - 1;
 
   // Updates mutate bit + arr; prefix/range queries read the static baseBIT.
   const displayBIT = currentFrame && currentFrame.kind === 'update' ? currentFrame.bit : baseBIT;
@@ -345,15 +348,15 @@ export default function FenwickTreeViz() {
 
   useEffect(() => {
     if (!playing) return;
-    if (idx < 0 || idx >= frames.length - 1) {
-      if (idx === frames.length - 1 && frames.length > 0) {
-        const last = frames[frames.length - 1];
-        if (last.kind === 'update') setArr(last.arr);
+    playRef.current = setTimeout(() => {
+      const nextIdx = idx + 1;
+      setIdx(nextIdx);
+      // Commit `update` frames to the live array when we land on the final frame.
+      if (nextIdx === frames.length - 1) {
+        const last = frames[nextIdx];
+        if (last && last.kind === 'update') setArr(last.arr);
       }
-      setPlaying(false);
-      return;
-    }
-    playRef.current = setTimeout(() => setIdx((i) => i + 1), STEP_MS);
+    }, STEP_MS);
     return () => clearTimeout(playRef.current);
   }, [playing, idx, frames]);
 

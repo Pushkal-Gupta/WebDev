@@ -1,0 +1,8 @@
+{
+  "questionId": "2601",
+  "titleSlug": "number-of-great-partitions",
+  "title": "Number of Great Partitions",
+  "exampleTestcases": "[1,2,3,4]\n4\n[3,3,3]\n4\n[6,6]\n2",
+  "sampleTestCase": "[1,2,3,4]\n4",
+  "metaData": "{\n  \"name\": \"countPartitions\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

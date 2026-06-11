@@ -1,0 +1,8 @@
+{
+  "questionId": "648",
+  "titleSlug": "replace-words",
+  "title": "Replace Words",
+  "exampleTestcases": "[\"cat\",\"bat\",\"rat\"]\n\"the cattle was rattled by the battery\"\n[\"a\",\"b\",\"c\"]\n\"aadsfasf absbs bbab cadsfafs\"",
+  "sampleTestCase": "[\"cat\",\"bat\",\"rat\"]\n\"the cattle was rattled by the battery\"",
+  "metaData": "{\n  \"name\": \"replaceWords\",\n  \"params\": [\n    {\n      \"name\": \"dictionary\",\n      \"type\": \"list<string>\"\n    },\n    {\n      \"name\": \"sentence\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

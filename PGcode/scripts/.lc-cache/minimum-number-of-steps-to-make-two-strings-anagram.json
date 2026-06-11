@@ -1,0 +1,8 @@
+{
+  "questionId": "1469",
+  "titleSlug": "minimum-number-of-steps-to-make-two-strings-anagram",
+  "title": "Minimum Number of Steps to Make Two Strings Anagram",
+  "exampleTestcases": "\"bab\"\n\"aba\"\n\"leetcode\"\n\"practice\"\n\"anagram\"\n\"mangaar\"",
+  "sampleTestCase": "\"bab\"\n\"aba\"",
+  "metaData": "{\n  \"name\": \"minSteps\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"t\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

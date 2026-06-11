@@ -1,0 +1,8 @@
+{
+  "questionId": "4242",
+  "titleSlug": "sum-of-gcd-of-formed-pairs",
+  "title": "Sum of GCD of Formed Pairs",
+  "exampleTestcases": "[2,6,4]\n[3,6,2,8]",
+  "sampleTestCase": "[2,6,4]",
+  "metaData": "{\n  \"name\": \"gcdSum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

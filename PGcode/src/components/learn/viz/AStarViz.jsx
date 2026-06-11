@@ -40,7 +40,7 @@ function manhattan(a, b) {
   return Math.abs(a.r - b.r) + Math.abs(a.c - b.c);
 }
 
-function makeEmptyWalls(dim) {
+function makeEmptyWalls() {
   return new Set();
 }
 
@@ -155,7 +155,6 @@ function buildSteps({ dim, start, goal, walls }) {
   let seq = 0;
 
   const startKey = key(start.r, start.c);
-  const goalKey = key(goal.r, goal.c);
   const h0 = manhattan(start, goal);
   gScore[startKey] = 0;
   hScore[startKey] = h0;
@@ -186,8 +185,6 @@ function buildSteps({ dim, start, goal, walls }) {
   ];
 
   let found = false;
-  let noPath = false;
-  let finalPath = [];
 
   const MAX_STEPS = dim * dim * 8 + 64;
   let safety = 0;
@@ -226,7 +223,6 @@ function buildSteps({ dim, start, goal, walls }) {
         k = cameFrom[k];
       }
       path.reverse();
-      finalPath = path;
       found = true;
       steps.push({
         kind: 'found',
@@ -288,7 +284,6 @@ function buildSteps({ dim, start, goal, walls }) {
   }
 
   if (!found) {
-    noPath = true;
     steps.push({
       kind: 'no-path',
       open: [],
@@ -316,7 +311,7 @@ export default function AStarViz() {
   const [walls, setWalls] = useState(() => defaultWalls(DEFAULT_DIM));
   const [dragPaint, setDragPaint] = useState(null); // 'add' | 'remove' | null
   const [idx, setIdx] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  const [playingRaw, setPlaying] = useState(false);
   const timerRef = useRef(null);
 
   const steps = useMemo(
@@ -325,22 +320,21 @@ export default function AStarViz() {
   );
 
   // Reset playhead when grid or set of obstacles changes.
-  useEffect(() => {
+  const [prevStepsRef, setPrevStepsRef] = useState(steps);
+  if (prevStepsRef !== steps) {
+    setPrevStepsRef(steps);
     setIdx(0);
     setPlaying(false);
-  }, [dim, start, goal, walls]);
+  }
 
   const step = steps[Math.min(idx, steps.length - 1)] || steps[0];
   const atEnd = idx >= steps.length - 1;
+  // Derive `playing` from the raw toggle + bounds so the auto-run effect never
+  // needs to call setPlaying(false) when we hit the end.
+  const playing = playingRaw && idx < steps.length - 1;
 
   const next = useCallback(() => {
-    setIdx((i) => {
-      if (i >= steps.length - 1) {
-        setPlaying(false);
-        return i;
-      }
-      return i + 1;
-    });
+    setIdx((i) => (i >= steps.length - 1 ? i : i + 1));
   }, [steps.length]);
 
   useEffect(() => {
@@ -358,10 +352,6 @@ export default function AStarViz() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [playing, next]);
-
-  useEffect(() => {
-    if (idx >= steps.length - 1 && playing) setPlaying(false);
-  }, [idx, steps.length, playing]);
 
   const handleDimChange = (raw) => {
     const next = clampDim(raw);

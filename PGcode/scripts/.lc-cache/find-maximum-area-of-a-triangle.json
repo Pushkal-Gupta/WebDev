@@ -1,0 +1,8 @@
+{
+  "questionId": "3868",
+  "titleSlug": "find-maximum-area-of-a-triangle",
+  "title": "Find Maximum Area of a Triangle",
+  "exampleTestcases": "[[1,1],[1,2],[3,2],[3,3]]\n[[1,1],[2,2],[3,3]]",
+  "sampleTestCase": "[[1,1],[1,2],[3,2],[3,3]]",
+  "metaData": "{\n  \"name\": \"maxArea\",\n  \"params\": [\n    {\n      \"name\": \"coords\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

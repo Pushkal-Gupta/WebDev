@@ -1,0 +1,8 @@
+{
+  "questionId": "3081",
+  "titleSlug": "minimum-array-length-after-pair-removals",
+  "title": "Minimum Array Length After Pair Removals",
+  "exampleTestcases": "[1,2,3,4]\n[1,1,2,2,3,3]\n[1000000000,1000000000]\n[2,3,4,4,4]",
+  "sampleTestCase": "[1,2,3,4]",
+  "metaData": "{\n  \"name\": \"minLengthAfterRemovals\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"list<integer>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

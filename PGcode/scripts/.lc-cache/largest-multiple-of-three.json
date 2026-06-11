@@ -1,0 +1,8 @@
+{
+  "questionId": "1277",
+  "titleSlug": "largest-multiple-of-three",
+  "title": "Largest Multiple of Three",
+  "exampleTestcases": "[8,1,9]\n[8,6,7,1,0]\n[1]",
+  "sampleTestCase": "[8,1,9]",
+  "metaData": "{\n  \"name\": \"largestMultipleOfThree\",\n  \"params\": [\n    {\n      \"name\": \"digits\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

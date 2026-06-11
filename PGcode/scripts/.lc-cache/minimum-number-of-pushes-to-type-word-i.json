@@ -1,0 +1,8 @@
+{
+  "questionId": "3275",
+  "titleSlug": "minimum-number-of-pushes-to-type-word-i",
+  "title": "Minimum Number of Pushes to Type Word I",
+  "exampleTestcases": "\"abcde\"\n\"xycdefghij\"",
+  "sampleTestCase": "\"abcde\"",
+  "metaData": "{\n  \"name\": \"minimumPushes\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

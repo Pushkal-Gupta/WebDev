@@ -1,0 +1,8 @@
+{
+  "questionId": "677",
+  "titleSlug": "map-sum-pairs",
+  "title": "Map Sum Pairs",
+  "exampleTestcases": "[\"MapSum\",\"insert\",\"sum\",\"insert\",\"sum\"]\n[[],[\"apple\",3],[\"ap\"],[\"app\",2],[\"ap\"]]",
+  "sampleTestCase": "[\"MapSum\",\"insert\",\"sum\",\"insert\",\"sum\"]\n[[],[\"apple\",3],[\"ap\"],[\"app\",2],[\"ap\"]]",
+  "metaData": "{\n  \"classname\": \"MapSum\",\n  \"constructor\": {\n    \"params\": []\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"string\",\n          \"name\": \"key\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"val\"\n        }\n      ],\n      \"return\": {\n        \"type\": \"void\"\n      },\n      \"name\": \"insert\"\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"string\",\n          \"name\": \"prefix\"\n        }\n      ],\n      \"return\": {\n        \"type\": \"integer\"\n      },\n      \"name\": \"sum\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
+}

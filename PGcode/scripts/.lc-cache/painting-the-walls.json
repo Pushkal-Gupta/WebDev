@@ -1,0 +1,8 @@
+{
+  "questionId": "2808",
+  "titleSlug": "painting-the-walls",
+  "title": "Painting the Walls",
+  "exampleTestcases": "[1,2,3,2]\n[1,2,3,2]\n[2,3,4,2]\n[1,1,1,1]",
+  "sampleTestCase": "[1,2,3,2]\n[1,2,3,2]",
+  "metaData": "{\n  \"name\": \"paintWalls\",\n  \"params\": [\n    {\n      \"name\": \"cost\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"time\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2121",
+  "titleSlug": "find-if-path-exists-in-graph",
+  "title": "Find if Path Exists in Graph",
+  "exampleTestcases": "3\n[[0,1],[1,2],[2,0]]\n0\n2\n6\n[[0,1],[0,2],[3,5],[5,4],[4,3]]\n0\n5",
+  "sampleTestCase": "3\n[[0,1],[1,2],[2,0]]\n0\n2",
+  "metaData": "{\n  \"name\": \"validPath\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"source\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"destination\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

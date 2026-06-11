@@ -1,0 +1,8 @@
+{
+  "questionId": "2791",
+  "titleSlug": "find-the-losers-of-the-circular-game",
+  "title": "Find the Losers of the Circular Game",
+  "exampleTestcases": "5\n2\n4\n4",
+  "sampleTestCase": "5\n2",
+  "metaData": "{\n  \"name\": \"circularGameLosers\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

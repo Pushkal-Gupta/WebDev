@@ -1,0 +1,8 @@
+{
+  "questionId": "2165",
+  "titleSlug": "plates-between-candles",
+  "title": "Plates Between Candles",
+  "exampleTestcases": "\"**|**|***|\"\n[[2,5],[5,9]]\n\"***|**|*****|**||**|*\"\n[[1,17],[4,5],[14,17],[5,11],[15,16]]",
+  "sampleTestCase": "\"**|**|***|\"\n[[2,5],[5,9]]",
+  "metaData": "{\n  \"name\": \"platesBetweenCandles\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

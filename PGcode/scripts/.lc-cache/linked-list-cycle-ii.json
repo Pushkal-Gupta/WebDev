@@ -1,0 +1,8 @@
+{
+  "questionId": "142",
+  "titleSlug": "linked-list-cycle-ii",
+  "title": "Linked List Cycle II",
+  "exampleTestcases": "[3,2,0,-4]\n1\n[1,2]\n0\n[1]\n-1",
+  "sampleTestCase": "[3,2,0,-4]\n1",
+  "metaData": "{\n  \"name\": \"detectCycle\",\n  \"params\": [\n    {\n      \"name\": \"head\",\n      \"type\": \"ListNode\"\n    },\n    {\n      \"name\": \"pos\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"ListNode\"\n  },\n  \"languages\": [\n    \"cpp\",\n    \"java\",\n    \"python\",\n    \"c\",\n    \"csharp\",\n    \"javascript\",\n    \"golang\",\n    \"python3\",\n    \"swift\",\n    \"kotlin\",\n    \"php\",\n    \"ruby\",\n    \"scala\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
+}

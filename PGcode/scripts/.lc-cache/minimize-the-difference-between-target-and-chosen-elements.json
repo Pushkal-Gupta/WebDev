@@ -1,0 +1,8 @@
+{
+  "questionId": "2108",
+  "titleSlug": "minimize-the-difference-between-target-and-chosen-elements",
+  "title": "Minimize the Difference Between Target and Chosen Elements",
+  "exampleTestcases": "[[1,2,3],[4,5,6],[7,8,9]]\n13\n[[1],[2],[3]]\n100\n[[1,2,9,8,7]]\n6",
+  "sampleTestCase": "[[1,2,3],[4,5,6],[7,8,9]]\n13",
+  "metaData": "{\n  \"name\": \"minimizeTheDifference\",\n  \"params\": [\n    {\n      \"name\": \"mat\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

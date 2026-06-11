@@ -1,0 +1,8 @@
+{
+  "questionId": "779",
+  "titleSlug": "max-chunks-to-make-sorted-ii",
+  "title": "Max Chunks To Make Sorted II",
+  "exampleTestcases": "[5,4,3,2,1]\n[2,1,3,4,4]",
+  "sampleTestCase": "[5,4,3,2,1]",
+  "metaData": "{\r\n  \"name\": \"maxChunksToSorted\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"arr\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

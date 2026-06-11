@@ -1,0 +1,8 @@
+{
+  "questionId": "3697",
+  "titleSlug": "minimum-increments-for-target-multiples-in-an-array",
+  "title": "Minimum Increments for Target Multiples in an Array",
+  "exampleTestcases": "[1,2,3]\n[4]\n[8,4]\n[10,5]\n[7,9,10]\n[7]",
+  "sampleTestCase": "[1,2,3]\n[4]",
+  "metaData": "{\n  \"name\": \"minimumIncrements\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

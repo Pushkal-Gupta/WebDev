@@ -1,0 +1,8 @@
+{
+  "questionId": "3837",
+  "titleSlug": "grid-teleportation-traversal",
+  "title": "Grid Teleportation Traversal",
+  "exampleTestcases": "[\"A..\",\".A.\",\"...\"]\n[\".#...\",\".#.#.\",\".#.#.\",\"...#.\"]",
+  "sampleTestCase": "[\"A..\",\".A.\",\"...\"]",
+  "metaData": "{\n  \"name\": \"minMoves\",\n  \"params\": [\n    {\n      \"name\": \"matrix\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

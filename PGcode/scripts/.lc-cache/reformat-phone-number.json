@@ -1,0 +1,8 @@
+{
+  "questionId": "1812",
+  "titleSlug": "reformat-phone-number",
+  "title": "Reformat Phone Number",
+  "exampleTestcases": "\"1-23-45 6\"\n\"123 4-567\"\n\"123 4-5678\"",
+  "sampleTestCase": "\"1-23-45 6\"",
+  "metaData": "{\n  \"name\": \"reformatNumber\",\n  \"params\": [\n    {\n      \"name\": \"number\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

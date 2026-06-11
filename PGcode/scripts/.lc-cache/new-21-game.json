@@ -1,0 +1,8 @@
+{
+  "questionId": "867",
+  "titleSlug": "new-21-game",
+  "title": "New 21 Game",
+  "exampleTestcases": "10\n1\n10\n6\n1\n10\n21\n17\n10",
+  "sampleTestCase": "10\n1\n10",
+  "metaData": "{\n  \"name\": \"new21Game\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"maxPts\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"double\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "4297",
+  "titleSlug": "sum-of-primes-between-number-and-its-reverse",
+  "title": "Sum of Primes Between Number and Its Reverse",
+  "exampleTestcases": "13\n10\n8",
+  "sampleTestCase": "13",
+  "metaData": "{\n  \"name\": \"sumOfPrimesInRange\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

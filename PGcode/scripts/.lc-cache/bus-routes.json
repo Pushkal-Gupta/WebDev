@@ -1,0 +1,8 @@
+{
+  "questionId": "833",
+  "titleSlug": "bus-routes",
+  "title": "Bus Routes",
+  "exampleTestcases": "[[1,2,7],[3,6,7]]\n1\n6\n[[7,12],[4,5,15],[6],[15,19],[9,12,13]]\n15\n12",
+  "sampleTestCase": "[[1,2,7],[3,6,7]]\n1\n6",
+  "metaData": "{\n  \"name\": \"numBusesToDestination\",\n  \"params\": [\n    {\n      \"name\": \"routes\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"name\": \"source\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"target\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

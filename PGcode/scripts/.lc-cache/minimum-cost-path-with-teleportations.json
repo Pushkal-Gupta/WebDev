@@ -1,0 +1,8 @@
+{
+  "questionId": "3889",
+  "titleSlug": "minimum-cost-path-with-teleportations",
+  "title": "Minimum Cost Path with Teleportations",
+  "exampleTestcases": "[[1,3,3],[2,5,4],[4,3,5]]\n2\n[[1,2],[2,3],[3,4]]\n1",
+  "sampleTestCase": "[[1,3,3],[2,5,4],[4,3,5]]\n2",
+  "metaData": "{\n  \"name\": \"minCost\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2327",
+  "titleSlug": "largest-number-after-digit-swaps-by-parity",
+  "title": "Largest Number After Digit Swaps by Parity",
+  "exampleTestcases": "1234\n65875",
+  "sampleTestCase": "1234",
+  "metaData": "{\n  \"name\": \"largestInteger\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

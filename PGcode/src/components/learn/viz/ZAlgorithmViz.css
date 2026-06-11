@@ -1,0 +1,271 @@
+.zalg {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.zalg-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.zalg-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.zalg-sub {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.zalg-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.zalg-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.zalg-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.zalg-input {
+  padding: 0.4rem 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  outline: none;
+  min-width: 220px;
+  transition: border-color 0.15s;
+}
+.zalg-input:focus {
+  border-color: var(--accent);
+}
+
+.zalg-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+
+.zalg-buttons {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.zalg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.zalg-btn:hover:not(:disabled) {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.zalg-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.zalg-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.zalg-btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  background: var(--accent);
+}
+
+.zalg-speed {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.zalg-speed-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.zalg-speed-range {
+  width: 120px;
+  accent-color: var(--accent);
+}
+
+.zalg-speed-value {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-main);
+  min-width: 3em;
+  text-align: right;
+}
+
+.zalg-stepcount {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-left: auto;
+}
+.zalg-stepcount strong {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.zalg-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.zalg-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.zalg-cell-rect {
+  transition: fill 0.18s, stroke 0.18s;
+}
+
+.zalg-cell-value {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.zalg-cell-index {
+  font-family: var(--mono);
+  font-size: 10px;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+.zalg-row-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+}
+
+.zalg-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 0.6rem;
+}
+
+.zalg-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.zalg-metric-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.zalg-metric-value {
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.zalg-metric-dim {
+  background: var(--bg);
+}
+
+.zalg-metric-dimval {
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.zalg-arith {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.zalg-arith-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.zalg-arith-vals {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-main);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zalg-cell-rect,
+  .zalg-btn,
+  .zalg-input {
+    transition: none;
+  }
+}

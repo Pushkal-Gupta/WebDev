@@ -1,0 +1,8 @@
+{
+  "questionId": "3531",
+  "titleSlug": "minimum-amount-of-damage-dealt-to-bob",
+  "title": "Minimum Amount of Damage Dealt to Bob",
+  "exampleTestcases": "4\n[1,2,3,4]\n[4,5,6,8]\n1\n[1,1,1,1]\n[1,2,3,4]\n8\n[40]\n[59]",
+  "sampleTestCase": "4\n[1,2,3,4]\n[4,5,6,8]",
+  "metaData": "{\n  \"name\": \"minDamage\",\n  \"params\": [\n    {\n      \"name\": \"power\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"damage\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"health\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

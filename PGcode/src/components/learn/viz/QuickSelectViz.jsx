@@ -341,7 +341,7 @@ export default function QuickSelectViz() {
   const [seed, setSeed] = useState(() => randomArray());
   const [k, setK] = useState(() => Math.ceil(ARR_SIZE / 2));
   const [stepIdx, setStepIdx] = useState(0);
-  const [isRunning, setIsRunning] = useState(false);
+  const [isRunningRaw, setIsRunning] = useState(false);
   const runTimer = useRef(null);
 
   const { frames, finalValue, finalIdx } = useMemo(
@@ -354,6 +354,7 @@ export default function QuickSelectViz() {
   const safeStep = Math.min(stepIdx, totalSteps - 1);
   const frame = frames[safeStep];
   const isTerminal = safeStep >= totalSteps - 1;
+  const isRunning = isRunningRaw && stepIdx < totalSteps - 1;
 
   useEffect(() => {
     return () => {
@@ -362,22 +363,19 @@ export default function QuickSelectViz() {
     };
   }, []);
 
-  // Reset playhead whenever the input or k changes.
-  useEffect(() => {
+  // Reset playhead when seed or k changes (prev-state-during-render pattern).
+  // The active run-loop effect's cleanup handles the timer; no need to touch it here.
+  const [prevSeed, setPrevSeed] = useState(seed);
+  const [prevK, setPrevK] = useState(k);
+  if (prevSeed !== seed || prevK !== k) {
+    setPrevSeed(seed);
+    setPrevK(k);
     setStepIdx(0);
     setIsRunning(false);
-    if (runTimer.current) {
-      clearTimeout(runTimer.current);
-      runTimer.current = null;
-    }
-  }, [seed, k]);
+  }
 
   useEffect(() => {
     if (!isRunning) return;
-    if (stepIdx >= totalSteps - 1) {
-      setIsRunning(false);
-      return;
-    }
     runTimer.current = setTimeout(() => {
       setStepIdx(i => Math.min(i + 1, totalSteps - 1));
     }, RUN_DELAY_MS);
@@ -385,7 +383,7 @@ export default function QuickSelectViz() {
       if (runTimer.current) clearTimeout(runTimer.current);
       runTimer.current = null;
     };
-  }, [isRunning, stepIdx, totalSteps]);
+  }, [isRunning, totalSteps]);
 
   const stop = useCallback(() => {
     if (runTimer.current) {

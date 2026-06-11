@@ -107,7 +107,7 @@ export default function NeuralNetViz() {
     clearTimers();
   }, [clearTimers]);
 
-  const { hiddenPre, hiddenAct, outputLogits, outputProbs } = useMemo(() => {
+  const { hiddenAct, outputLogits, outputProbs } = useMemo(() => {
     const hPre = B1.map((b, i) =>
       b + W1[i][0] * inputs[0] + W1[i][1] * inputs[1] + W1[i][2] * inputs[2]
     );
@@ -119,12 +119,16 @@ export default function NeuralNetViz() {
     return { hiddenPre: hPre, hiddenAct: hAct, outputLogits: oLog, outputProbs: oProb };
   }, [inputs]);
 
-  // Animate pulse traversal during phases 1 & 3.
+  // Animate pulse traversal during phases 1 & 3. Reset pulseT at render-phase
+  // when leaving an animating phase to avoid setState-in-effect cascade.
+  const isAnimatingPhase = phase === 1 || phase === 3;
+  const [lastPhase, setLastPhase] = useState(phase);
+  if (phase !== lastPhase) {
+    setLastPhase(phase);
+    if (!isAnimatingPhase) setPulseT(0);
+  }
   useEffect(() => {
-    if (phase !== 1 && phase !== 3) {
-      setPulseT(0);
-      return;
-    }
+    if (!isAnimatingPhase) return;
     phaseStartRef.current = performance.now();
     const tick = () => {
       const dt = (performance.now() - phaseStartRef.current) / PHASE_DURATIONS[phase];
@@ -141,7 +145,7 @@ export default function NeuralNetViz() {
         rafRef.current = null;
       }
     };
-  }, [phase]);
+  }, [phase, isAnimatingPhase]);
 
   const runForward = useCallback(() => {
     clearTimers();

@@ -1,0 +1,8 @@
+{
+  "questionId": "2184",
+  "titleSlug": "check-if-an-original-string-exists-given-two-encoded-strings",
+  "title": "Check if an Original String Exists Given Two Encoded Strings",
+  "exampleTestcases": "\"internationalization\"\n\"i18n\"\n\"l123e\"\n\"44\"\n\"a5b\"\n\"c5b\"",
+  "sampleTestCase": "\"internationalization\"\n\"i18n\"",
+  "metaData": "{\n  \"name\": \"possiblyEquals\",\n  \"params\": [\n    {\n      \"name\": \"s1\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"s2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

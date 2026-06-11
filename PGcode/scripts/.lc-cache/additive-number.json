@@ -1,0 +1,8 @@
+{
+  "questionId": "306",
+  "titleSlug": "additive-number",
+  "title": "Additive Number",
+  "exampleTestcases": "\"112358\"\n\"199100199\"",
+  "sampleTestCase": "\"112358\"",
+  "metaData": "{ \r\n  \"name\": \"isAdditiveNumber\",\r\n  \"params\": [\r\n    { \r\n      \"name\": \"num\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
+}

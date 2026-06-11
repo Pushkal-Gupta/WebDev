@@ -1,0 +1,8 @@
+{
+  "questionId": "273",
+  "titleSlug": "integer-to-english-words",
+  "title": "Integer to English Words",
+  "exampleTestcases": "123\n12345\n1234567",
+  "sampleTestCase": "123",
+  "metaData": "{\r\n  \"name\": \"numberToWords\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"num\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}"
+}

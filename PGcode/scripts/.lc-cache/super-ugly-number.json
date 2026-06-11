@@ -1,0 +1,8 @@
+{
+  "questionId": "313",
+  "titleSlug": "super-ugly-number",
+  "title": "Super Ugly Number",
+  "exampleTestcases": "12\n[2,7,13,19]\n1\n[2,3,5]",
+  "sampleTestCase": "12\n[2,7,13,19]",
+  "metaData": "{\n  \"name\": \"nthSuperUglyNumber\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"primes\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

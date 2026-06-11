@@ -1,0 +1,8 @@
+{
+  "questionId": "4226",
+  "titleSlug": "check-digitorial-permutation",
+  "title": "Check Digitorial Permutation",
+  "exampleTestcases": "145\n10",
+  "sampleTestCase": "145",
+  "metaData": "{\n  \"name\": \"isDigitorialPermutation\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

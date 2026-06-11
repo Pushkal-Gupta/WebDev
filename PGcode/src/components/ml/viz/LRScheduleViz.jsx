@@ -47,11 +47,6 @@ function clamp(v, lo, hi) {
   return v < lo ? lo : v > hi ? hi : v;
 }
 
-function snap(v, p = 4) {
-  const m = Math.pow(10, p);
-  return Math.round(v * m) / m;
-}
-
 function lrAt(id, step, params) {
   const { baseLr, warmupSteps, totalSteps } = params;
   const t = clamp(step, 0, totalSteps);

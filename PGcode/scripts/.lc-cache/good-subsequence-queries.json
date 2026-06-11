@@ -1,0 +1,8 @@
+{
+  "questionId": "4215",
+  "titleSlug": "good-subsequence-queries",
+  "title": "Good Subsequence Queries",
+  "exampleTestcases": "[4,8,12,16]\n2\n[[0,3],[2,6]]\n[4,5,7,8]\n3\n[[0,6],[1,9],[2,3]]\n[5,7,9]\n2\n[[1,4],[2,8]]",
+  "sampleTestCase": "[4,8,12,16]\n2\n[[0,3],[2,6]]",
+  "metaData": "{\n  \"name\": \"countGoodSubseq\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"p\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

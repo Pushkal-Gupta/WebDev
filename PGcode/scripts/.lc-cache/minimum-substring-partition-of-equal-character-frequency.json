@@ -1,0 +1,8 @@
+{
+  "questionId": "3403",
+  "titleSlug": "minimum-substring-partition-of-equal-character-frequency",
+  "title": "Minimum Substring Partition of Equal Character Frequency",
+  "exampleTestcases": "\"fabccddg\"\n\"abababaccddb\"",
+  "sampleTestCase": "\"fabccddg\"",
+  "metaData": "{\n  \"name\": \"minimumSubstringsInPartition\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

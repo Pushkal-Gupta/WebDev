@@ -1,0 +1,8 @@
+{
+  "questionId": "2879",
+  "titleSlug": "minimum-changes-to-make-k-semi-palindromes",
+  "title": "Minimum Changes to Make K Semi-palindromes",
+  "exampleTestcases": "\"abcac\"\n2",
+  "sampleTestCase": "\"abcac\"\n2",
+  "metaData": "{\n  \"name\": \"minimumChanges\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3498",
+  "titleSlug": "minimum-array-changes-to-make-differences-equal",
+  "title": "Minimum Array Changes to Make Differences Equal",
+  "exampleTestcases": "[1,0,1,2,4,3]\n4\n[0,1,2,3,3,6,5,4]\n6",
+  "sampleTestCase": "[1,0,1,2,4,3]\n4",
+  "metaData": "{\n  \"name\": \"minChanges\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

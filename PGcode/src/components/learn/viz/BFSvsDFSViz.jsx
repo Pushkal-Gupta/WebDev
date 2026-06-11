@@ -56,7 +56,7 @@ function buildBFSSteps(start) {
 
   steps.push({
     kind: 'init',
-    current: null,
+    cur: null,
     container: [...queue],
     visited: [...visited],
     frontier: [...seen],
@@ -71,7 +71,7 @@ function buildBFSSteps(start) {
     order.push(node);
     steps.push({
       kind: 'visit',
-      current: node,
+      cur: node,
       container: [...queue],
       visited: [...visited],
       frontier: [...seen].filter((n) => !visited.has(n)),
@@ -92,7 +92,7 @@ function buildBFSSteps(start) {
     if (added.length) {
       steps.push({
         kind: 'expand',
-        current: node,
+        cur: node,
         container: [...queue],
         visited: [...visited],
         frontier: [...seen].filter((n) => !visited.has(n)),
@@ -105,7 +105,7 @@ function buildBFSSteps(start) {
 
   steps.push({
     kind: 'done',
-    current: null,
+    cur: null,
     container: [],
     visited: [...visited],
     frontier: [],
@@ -128,7 +128,7 @@ function buildDFSSteps(start) {
 
   steps.push({
     kind: 'init',
-    current: null,
+    cur: null,
     container: [...stack],
     visited: [...visited],
     frontier: [...onStack],
@@ -145,7 +145,7 @@ function buildDFSSteps(start) {
     order.push(node);
     steps.push({
       kind: 'visit',
-      current: node,
+      cur: node,
       container: [...stack],
       visited: [...visited],
       frontier: [...onStack],
@@ -168,7 +168,7 @@ function buildDFSSteps(start) {
     if (added.length) {
       steps.push({
         kind: 'expand',
-        current: node,
+        cur: node,
         container: [...stack],
         visited: [...visited],
         frontier: [...onStack],
@@ -181,7 +181,7 @@ function buildDFSSteps(start) {
 
   steps.push({
     kind: 'done',
-    current: null,
+    cur: null,
     container: [],
     visited: [...visited],
     frontier: [],
@@ -203,7 +203,7 @@ function TraversalPanel({ kind, step, start }) {
     NODES.forEach((n) => { map[n.id] = 'unvisited'; });
     step.frontier.forEach((n) => { map[n] = 'frontier'; });
     step.visited.forEach((n) => { map[n] = 'visited'; });
-    if (step.current) map[step.current] = 'current';
+    if (step.cur) map[step.cur] = 'current';
     return map;
   }, [step]);
 
@@ -217,7 +217,7 @@ function TraversalPanel({ kind, step, start }) {
   // BFS ring overlay: shows the current "wave" being explored.
   const activeRing = useMemo(() => {
     if (!isBFS) return null;
-    if (!step.visited.length && !step.current) return 0;
+    if (!step.visited.length && !step.cur) return 0;
     const visitedNodes = NODES.filter((n) => step.visited.includes(n.id));
     if (!visitedNodes.length) return 0;
     return Math.max(...visitedNodes.map((n) => n.ring));
@@ -259,11 +259,11 @@ function TraversalPanel({ kind, step, start }) {
               ))}
             </g>
           )}
-          {!isBFS && step.current && (
+          {!isBFS && step.cur && (
             <g className="bvd-spine">
               {(() => {
                 const path = [];
-                let cur = step.current;
+                let cur = step.cur;
                 while (cur) {
                   path.push(cur);
                   const parentEdge = [...step.treeEdges].find((k) => {
@@ -405,26 +405,28 @@ function TraversalPanel({ kind, step, start }) {
 // ---------- Main side-by-side component ----------
 export default function BFSvsDFSViz() {
   const [start, setStart] = useState('A');
-  const [bfsSteps, setBfsSteps] = useState(() => buildBFSSteps('A'));
-  const [dfsSteps, setDfsSteps] = useState(() => buildDFSSteps('A'));
+  const bfsSteps = useMemo(() => buildBFSSteps(start), [start]);
+  const dfsSteps = useMemo(() => buildDFSSteps(start), [start]);
   const [bfsIdx, setBfsIdx] = useState(0);
   const [dfsIdx, setDfsIdx] = useState(0);
-  const [racing, setRacing] = useState(false);
+  const [racingRaw, setRacing] = useState(false);
   const timerRef = useRef(null);
 
-  useEffect(() => {
-    setBfsSteps(buildBFSSteps(start));
-    setDfsSteps(buildDFSSteps(start));
+  const [prevStart, setPrevStart] = useState(start);
+  if (prevStart !== start) {
+    setPrevStart(start);
     setBfsIdx(0);
     setDfsIdx(0);
     setRacing(false);
-  }, [start]);
+  }
 
   const bfsStep = bfsSteps[bfsIdx];
   const dfsStep = dfsSteps[dfsIdx];
   const bfsAtEnd = bfsIdx >= bfsSteps.length - 1;
   const dfsAtEnd = dfsIdx >= dfsSteps.length - 1;
   const bothAtEnd = bfsAtEnd && dfsAtEnd;
+  // Derive racing so the timer effect never has to call setRacing(false) on completion.
+  const racing = racingRaw && !bothAtEnd;
 
   const stepBoth = useCallback(() => {
     setBfsIdx((i) => (i < bfsSteps.length - 1 ? i + 1 : i));
@@ -447,10 +449,6 @@ export default function BFSvsDFSViz() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [racing, bfsSteps.length, dfsSteps.length]);
-
-  useEffect(() => {
-    if (bothAtEnd && racing) setRacing(false);
-  }, [bothAtEnd, racing]);
 
   const handleReset = () => {
     setRacing(false);

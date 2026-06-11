@@ -1,0 +1,8 @@
+{
+  "questionId": "224",
+  "titleSlug": "basic-calculator",
+  "title": "Basic Calculator",
+  "exampleTestcases": "\"1 + 1\"\n\" 2-1 + 2 \"\n\"(1+(4+5+2)-3)+(6+8)\"",
+  "sampleTestCase": "\"1 + 1\"",
+  "metaData": "{\r\n  \"name\": \"calculate\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

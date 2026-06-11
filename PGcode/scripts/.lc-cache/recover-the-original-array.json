@@ -1,0 +1,8 @@
+{
+  "questionId": "2241",
+  "titleSlug": "recover-the-original-array",
+  "title": "Recover the Original Array",
+  "exampleTestcases": "[2,10,6,4,8,12]\n[1,1,3,3]\n[5,435]",
+  "sampleTestCase": "[2,10,6,4,8,12]",
+  "metaData": "{\n  \"name\": \"recoverArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

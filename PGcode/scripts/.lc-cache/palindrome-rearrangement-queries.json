@@ -1,0 +1,8 @@
+{
+  "questionId": "3203",
+  "titleSlug": "palindrome-rearrangement-queries",
+  "title": "Palindrome Rearrangement Queries",
+  "exampleTestcases": "\"abcabc\"\n[[1,1,3,5],[0,2,5,5]]\n\"abbcdecbba\"\n[[0,2,7,9]]\n\"acbcab\"\n[[1,2,4,5]]",
+  "sampleTestCase": "\"abcabc\"\n[[1,1,3,5],[0,2,5,5]]",
+  "metaData": "{\n  \"name\": \"canMakePalindromeQueries\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean[]\"\n  }\n}"
+}

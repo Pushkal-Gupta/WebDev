@@ -1,0 +1,8 @@
+{
+  "questionId": "3552",
+  "titleSlug": "find-the-largest-palindrome-divisible-by-k",
+  "title": "Find the Largest Palindrome Divisible by K",
+  "exampleTestcases": "3\n5\n1\n4\n5\n6",
+  "sampleTestCase": "3\n5",
+  "metaData": "{\n  \"name\": \"largestPalindrome\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

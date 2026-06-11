@@ -1,0 +1,8 @@
+{
+  "questionId": "2651",
+  "titleSlug": "count-ways-to-group-overlapping-ranges",
+  "title": "Count Ways to Group Overlapping Ranges",
+  "exampleTestcases": "[[6,10],[5,15]]\n[[1,3],[10,20],[2,5],[4,8]]",
+  "sampleTestCase": "[[6,10],[5,15]]",
+  "metaData": "{\n  \"name\": \"countWays\",\n  \"params\": [\n    {\n      \"name\": \"ranges\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

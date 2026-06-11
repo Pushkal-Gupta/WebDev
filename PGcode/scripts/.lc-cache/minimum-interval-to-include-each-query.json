@@ -1,0 +1,8 @@
+{
+  "questionId": "1977",
+  "titleSlug": "minimum-interval-to-include-each-query",
+  "title": "Minimum Interval to Include Each Query",
+  "exampleTestcases": "[[1,4],[2,4],[3,6],[4,4]]\n[2,3,4,5]\n[[2,3],[2,5],[1,8],[20,25]]\n[2,19,5,22]",
+  "sampleTestCase": "[[1,4],[2,4],[3,6],[4,4]]\n[2,3,4,5]",
+  "metaData": "{\n  \"name\": \"minInterval\",\n  \"params\": [\n    {\n      \"name\": \"intervals\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

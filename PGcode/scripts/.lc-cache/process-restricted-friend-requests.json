@@ -1,0 +1,8 @@
+{
+  "questionId": "2198",
+  "titleSlug": "process-restricted-friend-requests",
+  "title": "Process Restricted Friend Requests",
+  "exampleTestcases": "3\n[[0,1]]\n[[0,2],[2,1]]\n3\n[[0,1]]\n[[1,2],[0,2]]\n5\n[[0,1],[1,2],[2,3]]\n[[0,4],[1,2],[3,1],[3,4]]",
+  "sampleTestCase": "3\n[[0,1]]\n[[0,2],[2,1]]",
+  "metaData": "{\n  \"name\": \"friendRequests\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"restrictions\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"requests\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean[]\"\n  }\n}"
+}

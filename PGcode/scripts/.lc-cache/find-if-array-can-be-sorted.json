@@ -1,0 +1,8 @@
+{
+  "questionId": "3291",
+  "titleSlug": "find-if-array-can-be-sorted",
+  "title": "Find if Array Can Be Sorted",
+  "exampleTestcases": "[8,4,2,30,15]\n[1,2,3,4,5]\n[3,16,8,4,2]",
+  "sampleTestCase": "[8,4,2,30,15]",
+  "metaData": "{\n  \"name\": \"canSortArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

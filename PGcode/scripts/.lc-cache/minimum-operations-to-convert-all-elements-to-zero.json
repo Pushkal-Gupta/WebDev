@@ -1,0 +1,8 @@
+{
+  "questionId": "3834",
+  "titleSlug": "minimum-operations-to-convert-all-elements-to-zero",
+  "title": "Minimum Operations to Convert All Elements to Zero",
+  "exampleTestcases": "[0,2]\n[3,1,2,1]\n[1,2,1,2,1,2]",
+  "sampleTestCase": "[0,2]",
+  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

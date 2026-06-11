@@ -1,0 +1,8 @@
+{
+  "questionId": "1012",
+  "titleSlug": "equal-rational-numbers",
+  "title": "Equal Rational Numbers",
+  "exampleTestcases": "\"0.(52)\"\n\"0.5(25)\"\n\"0.1666(6)\"\n\"0.166(66)\"\n\"0.9(9)\"\n\"1.\"",
+  "sampleTestCase": "\"0.(52)\"\n\"0.5(25)\"",
+  "metaData": "{\n  \"name\": \"isRationalEqual\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"t\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

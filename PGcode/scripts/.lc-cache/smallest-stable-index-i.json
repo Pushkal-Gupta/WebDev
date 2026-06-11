@@ -1,0 +1,8 @@
+{
+  "questionId": "4284",
+  "titleSlug": "smallest-stable-index-i",
+  "title": "Smallest Stable Index I",
+  "exampleTestcases": "[5,0,1,4]\n3\n[3,2,1]\n1\n[0]\n0",
+  "sampleTestCase": "[5,0,1,4]\n3",
+  "metaData": "{\n  \"name\": \"firstStableIndex\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

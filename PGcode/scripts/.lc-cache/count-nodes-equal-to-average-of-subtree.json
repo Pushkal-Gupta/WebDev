@@ -1,0 +1,8 @@
+{
+  "questionId": "2347",
+  "titleSlug": "count-nodes-equal-to-average-of-subtree",
+  "title": "Count Nodes Equal to Average of Subtree",
+  "exampleTestcases": "[4,8,5,0,1,null,6]\n[1]",
+  "sampleTestCase": "[4,8,5,0,1,null,6]",
+  "metaData": "{\n  \"name\": \"averageOfSubtree\",\n  \"params\": [\n    {\n      \"name\": \"root\",\n      \"type\": \"TreeNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"manual\": true\n}"
+}

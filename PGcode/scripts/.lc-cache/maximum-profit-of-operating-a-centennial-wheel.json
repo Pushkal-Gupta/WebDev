@@ -1,0 +1,8 @@
+{
+  "questionId": "1721",
+  "titleSlug": "maximum-profit-of-operating-a-centennial-wheel",
+  "title": "Maximum Profit of Operating a Centennial Wheel",
+  "exampleTestcases": "[8,3]\n5\n6\n[10,9,6]\n6\n4\n[3,4,0,5,1]\n1\n92",
+  "sampleTestCase": "[8,3]\n5\n6",
+  "metaData": "{\n  \"name\": \"minOperationsMaxProfit\",\n  \"params\": [\n    {\n      \"name\": \"customers\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"boardingCost\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"runningCost\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

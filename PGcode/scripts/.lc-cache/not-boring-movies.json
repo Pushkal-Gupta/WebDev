@@ -1,0 +1,8 @@
+{
+  "questionId": "620",
+  "titleSlug": "not-boring-movies",
+  "title": "Not Boring Movies",
+  "exampleTestcases": "{\"headers\":{\"cinema\":[\"id\", \"movie\", \"description\", \"rating\"]},\"rows\":{\"cinema\":[[1, \"War\", \"great 3D\", 8.9], [2, \"Science\", \"fiction\", 8.5], [3, \"irish\", \"boring\", 6.2], [4, \"Ice song\", \"Fantacy\", 8.6], [5, \"House card\", \"Interesting\", 9.1]]}}",
+  "sampleTestCase": "{\"headers\":{\"cinema\":[\"id\", \"movie\", \"description\", \"rating\"]},\"rows\":{\"cinema\":[[1, \"War\", \"great 3D\", 8.9], [2, \"Science\", \"fiction\", 8.5], [3, \"irish\", \"boring\", 6.2], [4, \"Ice song\", \"Fantacy\", 8.6], [5, \"House card\", \"Interesting\", 9.1]]}}",
+  "metaData": "{\"mysql\": [\"Create table If Not Exists cinema (id int, movie varchar(255), description varchar(255), rating float(2, 1))\"], \"mssql\": [\"Create table cinema (id int, movie varchar(255), description varchar(255), rating decimal(2, 1))\"], \"oraclesql\": [\"Create table cinema (id int, movie varchar(255), description varchar(255), rating number(2, 1))\"], \"database\": true, \"name\": \"not_boring_movies\", \"pythondata\": [\"cinema = pd.DataFrame([], columns=['id', 'movie', 'description', 'rating']).astype({'id':'Int64', 'movie':'object', 'description':'object', 'rating':'Float64'})\"], \"postgresql\": [\"Create table If Not Exists cinema (id int, movie varchar(255), description varchar(255), rating NUMERIC(3, 1))\"], \"manual\": false, \"database_schema\": {\"cinema\": {\"id\": \"INT\", \"movie\": \"VARCHAR(255)\", \"description\": \"VARCHAR(255)\", \"rating\": \"FLOAT(2, 1)\"}}}"
+}

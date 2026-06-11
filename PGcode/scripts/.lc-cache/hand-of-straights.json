@@ -1,0 +1,8 @@
+{
+  "questionId": "876",
+  "titleSlug": "hand-of-straights",
+  "title": "Hand of Straights",
+  "exampleTestcases": "[1,2,3,6,2,3,4,7,8]\n3\n[1,2,3,4,5]\n4",
+  "sampleTestCase": "[1,2,3,6,2,3,4,7,8]\n3",
+  "metaData": "{\n  \"name\": \"isNStraightHand\",\n  \"params\": [\n    {\n      \"name\": \"hand\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"groupSize\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

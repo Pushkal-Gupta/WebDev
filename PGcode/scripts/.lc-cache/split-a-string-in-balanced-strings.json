@@ -1,0 +1,8 @@
+{
+  "questionId": "1341",
+  "titleSlug": "split-a-string-in-balanced-strings",
+  "title": "Split a String in Balanced Strings",
+  "exampleTestcases": "\"RLRRLLRLRL\"\n\"RLRRRLLRLL\"\n\"LLLLRRRR\"",
+  "sampleTestCase": "\"RLRRLLRLRL\"",
+  "metaData": "{\n  \"name\": \"balancedStringSplit\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

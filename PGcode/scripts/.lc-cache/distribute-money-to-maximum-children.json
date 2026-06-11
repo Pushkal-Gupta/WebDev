@@ -1,0 +1,8 @@
+{
+  "questionId": "2663",
+  "titleSlug": "distribute-money-to-maximum-children",
+  "title": "Distribute Money to Maximum Children",
+  "exampleTestcases": "20\n3\n16\n2",
+  "sampleTestCase": "20\n3",
+  "metaData": "{\n  \"name\": \"distMoney\",\n  \"params\": [\n    {\n      \"name\": \"money\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"children\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -225,7 +225,7 @@ function LinkedListOpsViz() {
       });
     }
     return arr;
-  }, [nodes, n, nullX, highlight.rerouteFromId, highlight.rerouteToId]);
+  }, [nodes, n, nullX, nodeCenterY, highlight.rerouteFromId, highlight.rerouteToId]);
 
   const findCursorX =
     highlight.findIdx >= 0 && highlight.findIdx < n
@@ -433,7 +433,7 @@ function LinkedListOpsViz() {
               textAnchor="middle"
               className="llo-empty"
             >
-              head -> NULL (list is empty)
+              {'head -> NULL (list is empty)'}
             </text>
           )}
         </svg>

@@ -576,8 +576,6 @@ export default function NormalizationCompareViz() {
           display: flex;
           flex-direction: column;
           gap: 2px;
-          max-height: 168px;
-          overflow-y: auto;
         }
         .ncv-group-row {
           display: grid;

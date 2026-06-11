@@ -1,0 +1,8 @@
+{
+  "questionId": "383",
+  "titleSlug": "ransom-note",
+  "title": "Ransom Note",
+  "exampleTestcases": "\"a\"\n\"b\"\n\"aa\"\n\"ab\"\n\"aa\"\n\"aab\"",
+  "sampleTestCase": "\"a\"\n\"b\"",
+  "metaData": "{\r\n  \"name\": \"canConstruct\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"ransomNote\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"magazine\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
+}

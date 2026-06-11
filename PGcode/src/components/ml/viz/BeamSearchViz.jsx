@@ -72,38 +72,6 @@ function mockLLM(prefix, seed) {
   return ranked.map((r, i) => ({ tok: r.tok, prob: exps[i] / Z }));
 }
 
-// --- Beam search step. Given current hypotheses (each with tokens, logp), expand
-// each by 5 next tokens, then keep the top-k overall.
-function expandBeams(hypotheses, k, seed) {
-  const candidates = [];
-  hypotheses.forEach((h, parentIdx) => {
-    const dist = mockLLM(h.tokens, seed);
-    dist.forEach((d) => {
-      candidates.push({
-        tokens: [...h.tokens, d.tok],
-        logp: h.logp + Math.log(d.prob),
-        parentIdx,
-        prob: d.prob,
-        parentLogp: h.logp,
-      });
-    });
-  });
-  candidates.sort((a, b) => b.logp - a.logp);
-  return candidates.slice(0, k);
-}
-
-// --- Greedy step: pick the single highest-prob next token from the current path.
-function greedyStep(path, seed) {
-  const dist = mockLLM(path.tokens, seed);
-  // Already sorted by score, but be defensive.
-  const best = dist.reduce((a, b) => (b.prob > a.prob ? b : a));
-  return {
-    tokens: [...path.tokens, best.tok],
-    logp: path.logp + Math.log(best.prob),
-    prob: best.prob,
-  };
-}
-
 // --- Build the full tree of expansions across all steps. Each level contains
 // nodes that were generated (kept or pruned). We render kept beams highlighted.
 function buildTree(seed, beamWidth, depth) {
@@ -204,7 +172,7 @@ function layoutTree(levels, depth) {
     const childSpacing = Math.min(56, maxSpacing);
 
     // First pass: each group claims a slot centered under its parent.
-    parentXs.forEach(({ pid, px, children }) => {
+    parentXs.forEach(({ pid: _pid, px, children }) => {
       const groupW = (children.length - 1) * childSpacing;
       let startX = px - groupW / 2;
       // Clamp to viewport.

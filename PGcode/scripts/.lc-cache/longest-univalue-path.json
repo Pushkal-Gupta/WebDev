@@ -1,0 +1,8 @@
+{
+  "questionId": "687",
+  "titleSlug": "longest-univalue-path",
+  "title": "Longest Univalue Path",
+  "exampleTestcases": "[5,4,5,1,1,null,5]\n[1,4,5,4,4,null,5]",
+  "sampleTestCase": "[5,4,5,1,1,null,5]",
+  "metaData": "{\r\n  \"name\": \"longestUnivaluePath\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"root\",\r\n      \"type\": \"TreeNode\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

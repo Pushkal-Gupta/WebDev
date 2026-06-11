@@ -1,0 +1,8 @@
+{
+  "questionId": "4279",
+  "titleSlug": "count-connected-subgraphs-with-even-node-sum",
+  "title": "Count Connected Subgraphs with Even Node Sum",
+  "exampleTestcases": "[1,0,1]\n[[0,1],[1,2]]\n[1]\n[]",
+  "sampleTestCase": "[1,0,1]\n[[0,1],[1,2]]",
+  "metaData": "{\n  \"name\": \"evenSumSubgraphs\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -86,11 +86,18 @@ export default function ChainRuleViz() {
   useEffect(() => () => clearTimer(), []);
 
   // when inputs change in idle, clear any prior lighting
-  useEffect(() => {
+  const [prevTrigger, setPrevTrigger] = useState({ x, fKey, gKey, phase });
+  if (
+    prevTrigger.x !== x ||
+    prevTrigger.fKey !== fKey ||
+    prevTrigger.gKey !== gKey ||
+    prevTrigger.phase !== phase
+  ) {
+    setPrevTrigger({ x, fKey, gKey, phase });
     if (phase === 'idle') {
       setStepIdx(-1);
     }
-  }, [x, fKey, gKey, phase]);
+  }
 
   const handleReset = useCallback(() => {
     clearTimer();

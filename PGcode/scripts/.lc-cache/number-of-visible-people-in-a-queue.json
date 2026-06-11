@@ -1,0 +1,8 @@
+{
+  "questionId": "1305",
+  "titleSlug": "number-of-visible-people-in-a-queue",
+  "title": "Number of Visible People in a Queue",
+  "exampleTestcases": "[10,6,8,5,11,9]\n[5,1,2,3,10]",
+  "sampleTestCase": "[10,6,8,5,11,9]",
+  "metaData": "{\n  \"name\": \"canSeePersonsCount\",\n  \"params\": [\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"heights\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

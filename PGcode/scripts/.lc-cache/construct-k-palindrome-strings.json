@@ -1,0 +1,8 @@
+{
+  "questionId": "1502",
+  "titleSlug": "construct-k-palindrome-strings",
+  "title": "Construct K Palindrome Strings",
+  "exampleTestcases": "\"annabelle\"\n2\n\"leetcode\"\n3\n\"true\"\n4",
+  "sampleTestCase": "\"annabelle\"\n2",
+  "metaData": "{\n  \"name\": \"canConstruct\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2434",
+  "titleSlug": "design-a-number-container-system",
+  "title": "Design a Number Container System",
+  "exampleTestcases": "[\"NumberContainers\",\"find\",\"change\",\"change\",\"change\",\"change\",\"find\",\"change\",\"find\"]\n[[],[10],[2,10],[1,10],[3,10],[5,10],[10],[1,20],[10]]",
+  "sampleTestCase": "[\"NumberContainers\",\"find\",\"change\",\"change\",\"change\",\"change\",\"find\",\"change\",\"find\"]\n[[],[10],[2,10],[1,10],[3,10],[5,10],[10],[1,20],[10]]",
+  "metaData": "{\n  \"classname\": \"NumberContainers\",\n  \"constructor\": {\n    \"params\": []\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"index\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"number\"\n        }\n      ],\n      \"name\": \"change\",\n      \"return\": {\n        \"type\": \"void\"\n      }\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"number\"\n        }\n      ],\n      \"name\": \"find\",\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
+}

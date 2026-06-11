@@ -1,0 +1,8 @@
+{
+  "questionId": "999",
+  "titleSlug": "regions-cut-by-slashes",
+  "title": "Regions Cut By Slashes",
+  "exampleTestcases": "[\" /\",\"/ \"]\n[\" /\",\"  \"]\n[\"/\\\\\",\"\\\\/\"]",
+  "sampleTestCase": "[\" /\",\"/ \"]",
+  "metaData": "{\r\n  \"name\": \"regionsBySlashes\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"grid\",\r\n      \"type\": \"string[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

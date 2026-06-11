@@ -1,0 +1,55 @@
+{
+  "at": "2026-06-11T02:29:16.595Z",
+  "total": 3788,
+  "python": 3382,
+  "fourLang": 3382,
+  "harness": 3787,
+  "tc1": 3674,
+  "tc10": 1102,
+  "tc25": 325,
+  "tc40": 284,
+  "tc50": 278,
+  "explainedAny": 658,
+  "explained3": 658,
+  "byDiff": {
+    "Easy": {
+      "total": 911,
+      "python": 749,
+      "fourLang": 749,
+      "harness": 911,
+      "tc1": 901,
+      "tc10": 275,
+      "tc25": 102,
+      "tc40": 83,
+      "tc50": 79,
+      "explainedAny": 159,
+      "explained3": 159
+    },
+    "Medium": {
+      "total": 2067,
+      "python": 1858,
+      "fourLang": 1858,
+      "harness": 2067,
+      "tc1": 1985,
+      "tc10": 706,
+      "tc25": 188,
+      "tc40": 169,
+      "tc50": 167,
+      "explainedAny": 366,
+      "explained3": 366
+    },
+    "Hard": {
+      "total": 810,
+      "python": 775,
+      "fourLang": 775,
+      "harness": 809,
+      "tc1": 788,
+      "tc10": 121,
+      "tc25": 35,
+      "tc40": 32,
+      "tc50": 32,
+      "explainedAny": 133,
+      "explained3": 133
+    }
+  }
+}

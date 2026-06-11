@@ -1,0 +1,8 @@
+{
+  "questionId": "3653",
+  "titleSlug": "maximum-subarray-sum-with-length-divisible-by-k",
+  "title": "Maximum Subarray Sum With Length Divisible by K",
+  "exampleTestcases": "[1,2]\n1\n[-1,-2,-3,-4,-5]\n4\n[-5,1,2,-3,4]\n2",
+  "sampleTestCase": "[1,2]\n1",
+  "metaData": "{\n  \"name\": \"maxSubarraySum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

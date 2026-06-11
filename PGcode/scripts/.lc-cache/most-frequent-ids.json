@@ -1,0 +1,8 @@
+{
+  "questionId": "3363",
+  "titleSlug": "most-frequent-ids",
+  "title": "Most Frequent IDs",
+  "exampleTestcases": "[2,3,2,1]\n[3,2,-3,1]\n[5,5,3]\n[2,-2,1]",
+  "sampleTestCase": "[2,3,2,1]\n[3,2,-3,1]",
+  "metaData": "{\n  \"name\": \"mostFrequentIDs\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"freq\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long[]\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3567",
+  "titleSlug": "convert-date-to-binary",
+  "title": "Convert Date to Binary",
+  "exampleTestcases": "\"2080-02-29\"\n\"1900-01-01\"",
+  "sampleTestCase": "\"2080-02-29\"",
+  "metaData": "{\n  \"name\": \"convertDateToBinary\",\n  \"params\": [\n    {\n      \"name\": \"date\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

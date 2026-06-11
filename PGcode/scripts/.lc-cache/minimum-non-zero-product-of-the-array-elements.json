@@ -1,0 +1,8 @@
+{
+  "questionId": "2100",
+  "titleSlug": "minimum-non-zero-product-of-the-array-elements",
+  "title": "Minimum Non-Zero Product of the Array Elements",
+  "exampleTestcases": "1\n2\n3",
+  "sampleTestCase": "1",
+  "metaData": "{\n  \"name\": \"minNonZeroProduct\",\n  \"params\": [\n    {\n      \"name\": \"p\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

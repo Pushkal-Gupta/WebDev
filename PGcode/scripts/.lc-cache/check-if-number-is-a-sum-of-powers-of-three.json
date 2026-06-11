@@ -1,0 +1,8 @@
+{
+  "questionId": "1889",
+  "titleSlug": "check-if-number-is-a-sum-of-powers-of-three",
+  "title": "Check if Number is a Sum of Powers of Three",
+  "exampleTestcases": "12\n91\n21",
+  "sampleTestCase": "12",
+  "metaData": "{\n  \"name\": \"checkPowersOfThree\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

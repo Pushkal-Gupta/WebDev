@@ -1,0 +1,8 @@
+{
+  "questionId": "269",
+  "titleSlug": "alien-dictionary",
+  "title": "Alien Dictionary",
+  "exampleTestcases": "[\"wrt\",\"wrf\",\"er\",\"ett\",\"rftt\"]\n[\"z\",\"x\"]\n[\"z\",\"x\",\"z\"]",
+  "sampleTestCase": "[\"wrt\",\"wrf\",\"er\",\"ett\",\"rftt\"]",
+  "metaData": "{\r\n  \"name\": \"alienOrder\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"words\",\r\n      \"type\": \"string[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}"
+}

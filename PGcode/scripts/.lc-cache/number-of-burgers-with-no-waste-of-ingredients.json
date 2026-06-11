@@ -1,0 +1,8 @@
+{
+  "questionId": "1401",
+  "titleSlug": "number-of-burgers-with-no-waste-of-ingredients",
+  "title": "Number of Burgers with No Waste of Ingredients",
+  "exampleTestcases": "16\n7\n17\n4\n4\n17",
+  "sampleTestCase": "16\n7",
+  "metaData": "{\n  \"name\": \"numOfBurgers\",\n  \"params\": [\n    {\n      \"name\": \"tomatoSlices\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"cheeseSlices\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
+}

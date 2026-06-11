@@ -252,8 +252,6 @@
 }
 
 .ph-rows {
-  overflow-y: auto;
-  max-height: 100%;
   display: flex;
   flex-direction: column;
 }

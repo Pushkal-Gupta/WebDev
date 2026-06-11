@@ -1,0 +1,8 @@
+{
+  "questionId": "220",
+  "titleSlug": "contains-duplicate-iii",
+  "title": "Contains Duplicate III",
+  "exampleTestcases": "[1,2,3,1]\n3\n0\n[1,5,9,1,5,9]\n2\n3",
+  "sampleTestCase": "[1,2,3,1]\n3\n0",
+  "metaData": "{\n  \"name\": \"containsNearbyAlmostDuplicate\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"indexDiff\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"valueDiff\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

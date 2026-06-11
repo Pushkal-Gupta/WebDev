@@ -1,0 +1,8 @@
+{
+  "questionId": "1918",
+  "titleSlug": "maximum-score-of-a-good-subarray",
+  "title": "Maximum Score of a Good Subarray",
+  "exampleTestcases": "[1,4,3,7,4,5]\n3\n[5,5,4,5,4,1,1,1]\n0",
+  "sampleTestCase": "[1,4,3,7,4,5]\n3",
+  "metaData": "{\n  \"name\": \"maximumScore\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

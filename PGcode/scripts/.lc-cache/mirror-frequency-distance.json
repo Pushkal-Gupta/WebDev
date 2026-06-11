@@ -1,0 +1,8 @@
+{
+  "questionId": "4273",
+  "titleSlug": "mirror-frequency-distance",
+  "title": "Mirror Frequency Distance",
+  "exampleTestcases": "\"ab1z9\"\n\"4m7n\"\n\"byby\"",
+  "sampleTestCase": "\"ab1z9\"",
+  "metaData": "{\n  \"name\": \"mirrorFrequency\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

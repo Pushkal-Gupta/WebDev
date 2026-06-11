@@ -1,0 +1,8 @@
+{
+  "questionId": "647",
+  "titleSlug": "palindromic-substrings",
+  "title": "Palindromic Substrings",
+  "exampleTestcases": "\"abc\"\n\"aaa\"",
+  "sampleTestCase": "\"abc\"",
+  "metaData": "{\n  \"name\": \"countSubstrings\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}\n"
+}

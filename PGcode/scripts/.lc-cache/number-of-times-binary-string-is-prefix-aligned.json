@@ -1,0 +1,8 @@
+{
+  "questionId": "1491",
+  "titleSlug": "number-of-times-binary-string-is-prefix-aligned",
+  "title": "Number of Times Binary String Is Prefix-Aligned",
+  "exampleTestcases": "[3,2,4,1,5]\n[4,1,2,3]",
+  "sampleTestCase": "[3,2,4,1,5]",
+  "metaData": "{\n  \"name\": \"numTimesAllBlue\",\n  \"params\": [\n    {\n      \"name\": \"flips\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3852",
+  "titleSlug": "path-existence-queries-in-a-graph-ii",
+  "title": "Path Existence Queries in a Graph II",
+  "exampleTestcases": "5\n[1,8,3,4,2]\n3\n[[0,3],[2,4]]\n5\n[5,3,1,9,10]\n2\n[[0,1],[0,2],[2,3],[4,3]]\n3\n[3,6,1]\n1\n[[0,0],[0,1],[1,2]]",
+  "sampleTestCase": "5\n[1,8,3,4,2]\n3\n[[0,3],[2,4]]",
+  "metaData": "{\n  \"name\": \"pathExistenceQueries\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"maxDiff\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

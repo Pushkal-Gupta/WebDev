@@ -1,0 +1,8 @@
+{
+  "questionId": "3073",
+  "titleSlug": "reshape-data-melt",
+  "title": "Reshape Data: Melt",
+  "exampleTestcases": "{\"headers\":{\"report\":[\"product\",\"quarter_1\",\"quarter_2\",\"quarter_3\",\"quarter_4\"]},\"rows\":{\"report\":[[\"Umbrella\",417,224,379,611],[\"SleepingBag\",800,936,93,875]]}}",
+  "sampleTestCase": "{\"headers\":{\"report\":[\"product\",\"quarter_1\",\"quarter_2\",\"quarter_3\",\"quarter_4\"]},\"rows\":{\"report\":[[\"Umbrella\",417,224,379,611],[\"SleepingBag\",800,936,93,875]]}}",
+  "metaData": "{\n  \"pythondata\": [\n    \"report = pd.DataFrame([], columns=['product', 'quarter_1', 'quarter_2', 'quarter_3', 'quarter_4']).astype({'product':'object', 'quarter_1':'Int64', 'quarter_2':'Int64', 'quarter_3':'Int64', 'quarter_4':'Int64'})\"\n  ],\n  \"database\": true,\n  \"name\": \"meltTable\",\n  \"languages\": [\n    \"pythondata\"\n  ]\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "820",
+  "titleSlug": "find-eventual-safe-states",
+  "title": "Find Eventual Safe States",
+  "exampleTestcases": "[[1,2],[2,3],[5],[0],[5],[],[]]\n[[1,2,3,4],[1,2],[3,4],[0,4],[]]",
+  "sampleTestCase": "[[1,2],[2,3],[5],[0],[5],[],[]]",
+  "metaData": "{\r\n  \"name\": \"eventualSafeNodes\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"graph\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<integer>\"\r\n  }\r\n}\r\n"
+}

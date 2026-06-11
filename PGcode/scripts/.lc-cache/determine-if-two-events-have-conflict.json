@@ -1,0 +1,8 @@
+{
+  "questionId": "2536",
+  "titleSlug": "determine-if-two-events-have-conflict",
+  "title": "Determine if Two Events Have Conflict",
+  "exampleTestcases": "[\"01:15\",\"02:00\"]\n[\"02:00\",\"03:00\"]\n[\"01:00\",\"02:00\"]\n[\"01:20\",\"03:00\"]\n[\"10:00\",\"11:00\"]\n[\"14:00\",\"15:00\"]",
+  "sampleTestCase": "[\"01:15\",\"02:00\"]\n[\"02:00\",\"03:00\"]",
+  "metaData": "{\n  \"name\": \"haveConflict\",\n  \"params\": [\n    {\n      \"name\": \"event1\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"string[]\",\n      \"name\": \"event2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

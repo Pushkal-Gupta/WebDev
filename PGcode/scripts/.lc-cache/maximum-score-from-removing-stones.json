@@ -1,0 +1,8 @@
+{
+  "questionId": "1879",
+  "titleSlug": "maximum-score-from-removing-stones",
+  "title": "Maximum Score From Removing Stones",
+  "exampleTestcases": "2\n4\n6\n4\n4\n6\n1\n8\n8",
+  "sampleTestCase": "2\n4\n6",
+  "metaData": "{\n  \"name\": \"maximumScore\",\n  \"params\": [\n    {\n      \"name\": \"a\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"b\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"c\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -215,12 +215,15 @@ function layoutQueue(queueIds) {
 export default function HuffmanViz() {
   const [inputStr, setInputStr] = useState(DEFAULT_INPUT);
   const [committed, setCommitted] = useState(DEFAULT_INPUT);
-  const [{ frames, nodes, rootId, codes }, setData] = useState(() => buildFrames(DEFAULT_INPUT));
+  const [{ frames, nodes, codes }, setData] = useState(() => buildFrames(DEFAULT_INPUT));
   const [idx, setIdx] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  const [playingRaw, setPlaying] = useState(false);
   const playRef = useRef(null);
 
   const currentFrame = frames[idx] || frames[frames.length - 1] || null;
+  // Derive `playing` from the raw toggle + bounds so the auto-run effect never
+  // needs to call setPlaying(false) when we hit the end.
+  const playing = playingRaw && idx < frames.length - 1;
 
   const rebuild = useCallback((str) => {
     const cleaned = (str || '').replace(/\s+/g, '').toUpperCase();
@@ -242,10 +245,6 @@ export default function HuffmanViz() {
 
   useEffect(() => {
     if (!playing) return;
-    if (idx >= frames.length - 1) {
-      setPlaying(false);
-      return;
-    }
     playRef.current = setTimeout(() => setIdx((i) => i + 1), STEP_MS);
     return () => clearTimeout(playRef.current);
   }, [playing, idx, frames]);
@@ -339,15 +338,6 @@ export default function HuffmanViz() {
     const ids = currentFrame.queue.filter((id) => !visibleTreeIds.has(id));
     return layoutQueue(ids);
   }, [currentFrame, visibleTreeIds]);
-
-  // also need positions for picked nodes that are leaving the queue
-  const allNodePositions = useMemo(() => {
-    if (!currentFrame) return {};
-    const combined = { ...queueLayout, ...treePositions };
-    // For picked nodes (during 'pop' action), they should still be at queue position
-    // For merge action, picked nodes fly up to their tree positions (which they have if children are in tree)
-    return combined;
-  }, [currentFrame, queueLayout, treePositions]);
 
   const freqsList = useMemo(() => countFreqs(committed), [committed]);
   const inputLen = committed.length;

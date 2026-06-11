@@ -1,0 +1,8 @@
+{
+  "questionId": "4137",
+  "titleSlug": "number-of-prefix-connected-groups",
+  "title": "Number of Prefix Connected Groups",
+  "exampleTestcases": "[\"apple\",\"apply\",\"banana\",\"bandit\"]\n2\n[\"car\",\"cat\",\"cartoon\"]\n3\n[\"bat\",\"dog\",\"dog\",\"doggy\",\"bat\"]\n3",
+  "sampleTestCase": "[\"apple\",\"apply\",\"banana\",\"bandit\"]\n2",
+  "metaData": "{\n  \"name\": \"prefixConnected\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

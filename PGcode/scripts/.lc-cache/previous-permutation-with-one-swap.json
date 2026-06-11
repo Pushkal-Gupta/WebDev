@@ -1,0 +1,8 @@
+{
+  "questionId": "1139",
+  "titleSlug": "previous-permutation-with-one-swap",
+  "title": "Previous Permutation With One Swap",
+  "exampleTestcases": "[3,2,1]\n[1,1,5]\n[1,9,4,6,7]",
+  "sampleTestCase": "[3,2,1]",
+  "metaData": "{\n  \"name\": \"prevPermOpt1\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

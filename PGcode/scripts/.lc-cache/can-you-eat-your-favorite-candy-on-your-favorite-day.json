@@ -1,0 +1,8 @@
+{
+  "questionId": "1872",
+  "titleSlug": "can-you-eat-your-favorite-candy-on-your-favorite-day",
+  "title": "Can You Eat Your Favorite Candy on Your Favorite Day?",
+  "exampleTestcases": "[7,4,5,3,8]\n[[0,2,2],[4,2,4],[2,13,1000000000]]\n[5,2,6,4,1]\n[[3,1,2],[4,10,3],[3,10,100],[4,100,30],[1,3,1]]",
+  "sampleTestCase": "[7,4,5,3,8]\n[[0,2,2],[4,2,4],[2,13,1000000000]]",
+  "metaData": "{\n  \"name\": \"canEat\",\n  \"params\": [\n    {\n      \"name\": \"candiesCount\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean[]\"\n  }\n}"
+}

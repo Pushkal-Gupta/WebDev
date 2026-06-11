@@ -1,0 +1,8 @@
+{
+  "questionId": "643",
+  "titleSlug": "maximum-average-subarray-i",
+  "title": "Maximum Average Subarray I",
+  "exampleTestcases": "[1,12,-5,-6,50,3]\n4\n[5]\n1",
+  "sampleTestCase": "[1,12,-5,-6,50,3]\n4",
+  "metaData": "{\r\n  \"name\": \"findMaxAverage\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"k\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"double\"\r\n  }\r\n}\r\n"
+}

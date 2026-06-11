@@ -1,0 +1,8 @@
+{
+  "questionId": "166",
+  "titleSlug": "fraction-to-recurring-decimal",
+  "title": "Fraction to Recurring Decimal",
+  "exampleTestcases": "1\n2\n2\n1\n4\n333",
+  "sampleTestCase": "1\n2",
+  "metaData": "{\n  \"name\": \"fractionToDecimal\",\n  \"params\": [\n    {\n      \"name\": \"numerator\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"denominator\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

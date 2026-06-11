@@ -1,0 +1,8 @@
+{
+  "questionId": "345",
+  "titleSlug": "reverse-vowels-of-a-string",
+  "title": "Reverse Vowels of a String",
+  "exampleTestcases": "\"IceCreAm\"\n\"leetcode\"",
+  "sampleTestCase": "\"IceCreAm\"",
+  "metaData": "{ \r\n  \"name\": \"reverseVowels\",\r\n  \"params\": [\r\n    { \r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}"
+}

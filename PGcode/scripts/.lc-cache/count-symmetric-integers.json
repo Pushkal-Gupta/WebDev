@@ -1,0 +1,8 @@
+{
+  "questionId": "2998",
+  "titleSlug": "count-symmetric-integers",
+  "title": "  Count Symmetric Integers",
+  "exampleTestcases": "1\n100\n1200\n1230",
+  "sampleTestCase": "1\n100",
+  "metaData": "{\n  \"name\": \"countSymmetricIntegers\",\n  \"params\": [\n    {\n      \"name\": \"low\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"high\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

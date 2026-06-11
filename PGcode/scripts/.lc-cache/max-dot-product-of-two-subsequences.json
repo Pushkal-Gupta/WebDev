@@ -1,0 +1,8 @@
+{
+  "questionId": "1569",
+  "titleSlug": "max-dot-product-of-two-subsequences",
+  "title": "Max Dot Product of Two Subsequences",
+  "exampleTestcases": "[2,1,-2,5]\n[3,0,-6]\n[3,-2]\n[2,-6,7]\n[-1,-1]\n[1,1]",
+  "sampleTestCase": "[2,1,-2,5]\n[3,0,-6]",
+  "metaData": "{\n  \"name\": \"maxDotProduct\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"manual\": false\n}"
+}

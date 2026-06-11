@@ -1,0 +1,8 @@
+{
+  "questionId": "372",
+  "titleSlug": "super-pow",
+  "title": "Super Pow",
+  "exampleTestcases": "2\n[3]\n2\n[1,0]\n1\n[4,3,3,8,5,2]",
+  "sampleTestCase": "2\n[3]",
+  "metaData": "{\r\n  \"name\": \"superPow\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"a\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"b\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

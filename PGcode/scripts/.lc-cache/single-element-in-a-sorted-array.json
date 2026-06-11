@@ -1,0 +1,8 @@
+{
+  "questionId": "540",
+  "titleSlug": "single-element-in-a-sorted-array",
+  "title": "Single Element in a Sorted Array",
+  "exampleTestcases": "[1,1,2,3,3,4,4,8,8]\n[3,3,7,7,10,11,11]",
+  "sampleTestCase": "[1,1,2,3,3,4,4,8,8]",
+  "metaData": "{\n  \"name\": \"singleNonDuplicate\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"manual\": false\n}"
+}

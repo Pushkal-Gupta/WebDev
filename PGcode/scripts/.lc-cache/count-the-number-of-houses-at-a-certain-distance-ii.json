@@ -1,0 +1,8 @@
+{
+  "questionId": "3310",
+  "titleSlug": "count-the-number-of-houses-at-a-certain-distance-ii",
+  "title": "Count the Number of Houses at a Certain Distance II",
+  "exampleTestcases": "3\n1\n3\n5\n2\n4\n4\n1\n1",
+  "sampleTestCase": "3\n1\n3",
+  "metaData": "{\n  \"name\": \"countOfPairs\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"x\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"y\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long[]\"\n  }\n}"
+}

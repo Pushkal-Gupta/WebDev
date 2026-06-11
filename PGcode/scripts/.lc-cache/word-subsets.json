@@ -1,0 +1,8 @@
+{
+  "questionId": "952",
+  "titleSlug": "word-subsets",
+  "title": "Word Subsets",
+  "exampleTestcases": "[\"amazon\",\"apple\",\"facebook\",\"google\",\"leetcode\"]\n[\"e\",\"o\"]\n[\"amazon\",\"apple\",\"facebook\",\"google\",\"leetcode\"]\n[\"lc\",\"eo\"]\n[\"acaac\",\"cccbb\",\"aacbb\",\"caacc\",\"bcbbb\"]\n[\"c\",\"cc\",\"b\"]",
+  "sampleTestCase": "[\"amazon\",\"apple\",\"facebook\",\"google\",\"leetcode\"]\n[\"e\",\"o\"]",
+  "metaData": "{\n  \"name\": \"wordSubsets\",\n  \"params\": [\n    {\n      \"name\": \"words1\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"name\": \"words2\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\"\n  }\n}"
+}

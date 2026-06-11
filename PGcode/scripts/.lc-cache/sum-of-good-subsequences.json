@@ -1,0 +1,8 @@
+{
+  "questionId": "3646",
+  "titleSlug": "sum-of-good-subsequences",
+  "title": "Sum of Good Subsequences",
+  "exampleTestcases": "[1,2,1]\n[3,4,5]",
+  "sampleTestCase": "[1,2,1]",
+  "metaData": "{\n  \"name\": \"sumOfGoodSubsequences\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

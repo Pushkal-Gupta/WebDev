@@ -1,0 +1,8 @@
+{
+  "questionId": "4087",
+  "titleSlug": "maximum-substrings-with-distinct-start",
+  "title": "Maximum Substrings With Distinct Start",
+  "exampleTestcases": "\"abab\"\n\"abcd\"\n\"aaaa\"",
+  "sampleTestCase": "\"abab\"",
+  "metaData": "{\n  \"name\": \"maxDistinct\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

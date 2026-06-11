@@ -1,0 +1,8 @@
+{
+  "questionId": "438",
+  "titleSlug": "find-all-anagrams-in-a-string",
+  "title": "Find All Anagrams in a String",
+  "exampleTestcases": "\"cbaebabacd\"\n\"abc\"\n\"abab\"\n\"ab\"",
+  "sampleTestCase": "\"cbaebabacd\"\n\"abc\"",
+  "metaData": "{\r\n  \"name\": \"findAnagrams\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n        \"name\": \"p\",\r\n        \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<integer>\"\r\n  }\r\n}"
+}

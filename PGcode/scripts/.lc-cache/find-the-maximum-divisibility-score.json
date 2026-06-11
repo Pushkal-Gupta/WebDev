@@ -1,0 +1,8 @@
+{
+  "questionId": "2694",
+  "titleSlug": "find-the-maximum-divisibility-score",
+  "title": "Find the Maximum Divisibility Score",
+  "exampleTestcases": "[2,9,15,50]\n[5,3,7,2]\n[4,7,9,3,9]\n[5,2,3]\n[20,14,21,10]\n[10,16,20]",
+  "sampleTestCase": "[2,9,15,50]\n[5,3,7,2]",
+  "metaData": "{\n  \"name\": \"maxDivScore\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"divisors\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

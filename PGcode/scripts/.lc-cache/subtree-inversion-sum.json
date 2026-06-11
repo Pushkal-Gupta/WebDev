@@ -1,0 +1,8 @@
+{
+  "questionId": "3858",
+  "titleSlug": "subtree-inversion-sum",
+  "title": "Subtree Inversion Sum",
+  "exampleTestcases": "[[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]]\n[4,-8,-6,3,7,-2,5]\n2\n[[0,1],[1,2],[2,3],[3,4]]\n[-1,3,-2,4,-5]\n2\n[[0,1],[0,2]]\n[0,-1,-2]\n3",
+  "sampleTestCase": "[[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]]\n[4,-8,-6,3,7,-2,5]\n2",
+  "metaData": "{\n  \"name\": \"subtreeInversionSum\",\n  \"params\": [\n    {\n      \"name\": \"edges\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

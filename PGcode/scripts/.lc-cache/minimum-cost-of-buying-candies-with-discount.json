@@ -1,0 +1,8 @@
+{
+  "questionId": "2248",
+  "titleSlug": "minimum-cost-of-buying-candies-with-discount",
+  "title": "Minimum Cost of Buying Candies With Discount",
+  "exampleTestcases": "[1,2,3]\n[6,5,7,9,2,2]\n[5,5]",
+  "sampleTestCase": "[1,2,3]",
+  "metaData": "{\n  \"name\": \"minimumCost\",\n  \"params\": [\n    {\n      \"name\": \"cost\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

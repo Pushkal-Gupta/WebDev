@@ -1,0 +1,8 @@
+{
+  "questionId": "1963",
+  "titleSlug": "find-xor-sum-of-all-pairs-bitwise-and",
+  "title": "Find XOR Sum of All Pairs Bitwise AND",
+  "exampleTestcases": "[1,2,3]\n[6,5]\n[12]\n[4]",
+  "sampleTestCase": "[1,2,3]\n[6,5]",
+  "metaData": "{\n  \"name\": \"getXORSum\",\n  \"params\": [\n    {\n      \"name\": \"arr1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"arr2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "879",
+  "titleSlug": "maximize-distance-to-closest-person",
+  "title": "Maximize Distance to Closest Person",
+  "exampleTestcases": "[1,0,0,0,1,0,1]\n[1,0,0,0]\n[0,1]",
+  "sampleTestCase": "[1,0,0,0,1,0,1]",
+  "metaData": "{\r\n  \"name\": \"maxDistToClosest\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"seats\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

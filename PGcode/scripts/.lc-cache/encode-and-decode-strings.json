@@ -1,0 +1,8 @@
+{
+  "questionId": "271",
+  "titleSlug": "encode-and-decode-strings",
+  "title": "Encode and Decode Strings",
+  "exampleTestcases": "[\"Hello\",\"World\"]\n[\"\"]",
+  "sampleTestCase": "[\"Hello\",\"World\"]",
+  "metaData": "{\n  \"name\": \"encode\",\n  \"params\": [\n    {\n      \"name\": \"dummy_input\",\n      \"type\": \"list<string>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\"\n  },\n  \"manual\": true\n}"
+}
