@@ -1,0 +1,8 @@
+{
+  "questionId": "2561",
+  "titleSlug": "number-of-distinct-averages",
+  "title": "Number of Distinct Averages",
+  "exampleTestcases": "[4,1,4,0,3,5]\n[1,100]",
+  "sampleTestCase": "[4,1,4,0,3,5]",
+  "metaData": "{\n  \"name\": \"distinctAverages\",\n  \"params\": [\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

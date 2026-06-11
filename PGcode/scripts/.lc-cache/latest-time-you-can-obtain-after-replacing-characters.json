@@ -1,0 +1,8 @@
+{
+  "questionId": "3361",
+  "titleSlug": "latest-time-you-can-obtain-after-replacing-characters",
+  "title": "Latest Time You Can Obtain After Replacing Characters",
+  "exampleTestcases": "\"1?:?4\"\n\"0?:5?\"",
+  "sampleTestCase": "\"1?:?4\"",
+  "metaData": "{\n  \"name\": \"findLatestTime\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

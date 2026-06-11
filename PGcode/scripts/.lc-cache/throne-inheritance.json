@@ -1,0 +1,8 @@
+{
+  "questionId": "1722",
+  "titleSlug": "throne-inheritance",
+  "title": "Throne Inheritance",
+  "exampleTestcases": "[\"ThroneInheritance\",\"birth\",\"birth\",\"birth\",\"birth\",\"birth\",\"birth\",\"getInheritanceOrder\",\"death\",\"getInheritanceOrder\"]\n[[\"king\"],[\"king\",\"andy\"],[\"king\",\"bob\"],[\"king\",\"catherine\"],[\"andy\",\"matthew\"],[\"bob\",\"alex\"],[\"bob\",\"asha\"],[null],[\"bob\"],[null]]",
+  "sampleTestCase": "[\"ThroneInheritance\",\"birth\",\"birth\",\"birth\",\"birth\",\"birth\",\"birth\",\"getInheritanceOrder\",\"death\",\"getInheritanceOrder\"]\n[[\"king\"],[\"king\",\"andy\"],[\"king\",\"bob\"],[\"king\",\"catherine\"],[\"andy\",\"matthew\"],[\"bob\",\"alex\"],[\"bob\",\"asha\"],[null],[\"bob\"],[null]]",
+  "metaData": "{\n  \"classname\": \"ThroneInheritance\",\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"string\",\n        \"name\": \"kingName\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"string\",\n          \"name\": \"parentName\"\n        },\n        {\n          \"type\": \"string\",\n          \"name\": \"childName\"\n        }\n      ],\n      \"name\": \"birth\",\n      \"return\": {\n        \"type\": \"void\"\n      }\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"string\",\n          \"name\": \"name\"\n        }\n      ],\n      \"name\": \"death\",\n      \"return\": {\n        \"type\": \"void\"\n      }\n    },\n    {\n      \"params\": [],\n      \"return\": {\n        \"type\": \"list<string>\"\n      },\n      \"name\": \"getInheritanceOrder\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
+}

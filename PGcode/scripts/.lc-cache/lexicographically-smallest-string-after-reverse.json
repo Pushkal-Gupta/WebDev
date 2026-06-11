@@ -1,0 +1,8 @@
+{
+  "questionId": "4073",
+  "titleSlug": "lexicographically-smallest-string-after-reverse",
+  "title": "Lexicographically Smallest String After Reverse",
+  "exampleTestcases": "\"dcab\"\n\"abba\"\n\"zxy\"",
+  "sampleTestCase": "\"dcab\"",
+  "metaData": "{\n  \"name\": \"lexSmallest\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

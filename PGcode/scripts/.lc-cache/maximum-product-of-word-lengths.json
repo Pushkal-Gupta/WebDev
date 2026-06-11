@@ -1,0 +1,8 @@
+{
+  "questionId": "318",
+  "titleSlug": "maximum-product-of-word-lengths",
+  "title": "Maximum Product of Word Lengths",
+  "exampleTestcases": "[\"abcw\",\"baz\",\"foo\",\"bar\",\"xtfn\",\"abcdef\"]\n[\"a\",\"ab\",\"abc\",\"d\",\"cd\",\"bcd\",\"abcd\"]\n[\"a\",\"aa\",\"aaa\",\"aaaa\"]",
+  "sampleTestCase": "[\"abcw\",\"baz\",\"foo\",\"bar\",\"xtfn\",\"abcdef\"]",
+  "metaData": "{\r\n  \"name\": \"maxProduct\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"words\",\r\n      \"type\": \"string[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

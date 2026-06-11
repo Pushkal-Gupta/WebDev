@@ -1,0 +1,8 @@
+{
+  "questionId": "1078",
+  "titleSlug": "remove-outermost-parentheses",
+  "title": "Remove Outermost Parentheses",
+  "exampleTestcases": "\"(()())(())\"\n\"(()())(())(()(()))\"\n\"()()\"",
+  "sampleTestCase": "\"(()())(())\"",
+  "metaData": "{\n  \"name\": \"removeOuterParentheses\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

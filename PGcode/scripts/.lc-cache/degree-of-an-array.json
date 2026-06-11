@@ -1,0 +1,8 @@
+{
+  "questionId": "697",
+  "titleSlug": "degree-of-an-array",
+  "title": "Degree of an Array",
+  "exampleTestcases": "[1,2,2,3,1]\n[1,2,2,3,1,4,2]",
+  "sampleTestCase": "[1,2,2,3,1]",
+  "metaData": "{\r\n  \"name\": \"findShortestSubArray\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

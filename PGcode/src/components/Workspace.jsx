@@ -1065,6 +1065,33 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
   // own examples (lots of legacy problems embed them as HTML); if it has none,
   // synthesize from the first ~3 sample test cases so the user always sees concrete
   // I/O instead of a wall of prose.
+  // Curated, prose-explained samples authored per-problem. Shape:
+  // [{ inputs: [string], expected: string, explanation_md: string, viz_anchor: string|null }, ...].
+  // When present, these render ABOVE the auto-synthesized examples below.
+  const explainedSamples = Array.isArray(activeProblem.explained_samples)
+    ? activeProblem.explained_samples.filter(s => s && (Array.isArray(s.inputs) || s.expected !== undefined))
+    : [];
+  const formatExplainedInput = (s) => {
+    if (!Array.isArray(s.inputs) || !s.inputs.length) return '';
+    const params = Array.isArray(activeProblem.params) ? activeProblem.params : [];
+    return s.inputs.map((v, j) => {
+      const name = params[j]?.name || `arg${j}`;
+      return `${name} = ${typeof v === 'string' ? v : JSON.stringify(v)}`;
+    }).join(', ');
+  };
+  // Minimal markdown for explained_samples — bold, inline code, and line breaks.
+  // Avoids pulling in a parser dep; explanations are short prose, not full docs.
+  const renderExplanationMd = (md) => {
+    const safe = String(md || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    return safe
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br />');
+  };
+
   const descHasExamples = /\bexample\s*\d*\s*:?/i.test(activeProblem.description || '');
   const sampleCases = (() => {
     if (descHasExamples) return [];
@@ -1199,7 +1226,34 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
 
                 <div className="ws-q-desc" dangerouslySetInnerHTML={{ __html: activeProblem.description }} />
 
-                {sampleCases.length > 0 && (
+                {explainedSamples.length > 0 && (
+                  <div className="ws-examples ws-examples-explained">
+                    {explainedSamples.map((s, i) => {
+                      const inputStr = formatExplainedInput(s);
+                      const expectedStr = typeof s.expected === 'string' ? s.expected : JSON.stringify(s.expected);
+                      return (
+                        <div key={`exp-${i}`} className="ws-example">
+                          <div className="ws-example-title">Example {i + 1}</div>
+                          {inputStr && (
+                            <div className="ws-example-row"><span className="ws-example-label">Input</span><code>{inputStr}</code></div>
+                          )}
+                          <div className="ws-example-row"><span className="ws-example-label">Output</span><code>{expectedStr}</code></div>
+                          {s.explanation_md && (
+                            <div className="ws-example-row">
+                              <span className="ws-example-label">Explanation</span>
+                              <span
+                                className="ws-example-explain"
+                                dangerouslySetInnerHTML={{ __html: renderExplanationMd(s.explanation_md) }}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {explainedSamples.length === 0 && sampleCases.length > 0 && (
                   <div className="ws-examples">
                     {sampleCases.map(ex => (
                       <div key={ex.i} className="ws-example">

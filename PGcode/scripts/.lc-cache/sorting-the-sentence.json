@@ -1,0 +1,8 @@
+{
+  "questionId": "1970",
+  "titleSlug": "sorting-the-sentence",
+  "title": "Sorting the Sentence",
+  "exampleTestcases": "\"is2 sentence4 This1 a3\"\n\"Myself2 Me1 I4 and3\"",
+  "sampleTestCase": "\"is2 sentence4 This1 a3\"",
+  "metaData": "{\n  \"name\": \"sortSentence\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1257",
+  "titleSlug": "rank-transform-of-a-matrix",
+  "title": "Rank Transform of a Matrix",
+  "exampleTestcases": "[[1,2],[3,4]]\n[[7,7],[7,7]]\n[[20,-21,14],[-19,4,19],[22,-47,24],[-19,4,19]]",
+  "sampleTestCase": "[[1,2],[3,4]]",
+  "metaData": "{\n  \"name\": \"matrixRankTransform\",\n  \"params\": [\n    {\n      \"name\": \"matrix\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  }\n}"
+}

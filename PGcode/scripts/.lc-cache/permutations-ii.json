@@ -1,0 +1,8 @@
+{
+  "questionId": "47",
+  "titleSlug": "permutations-ii",
+  "title": "Permutations II",
+  "exampleTestcases": "[1,1,2]\n[1,2,3]",
+  "sampleTestCase": "[1,1,2]",
+  "metaData": "{\r\n  \"name\": \"permuteUnique\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<list<integer>>\",\r\n    \"colsize\": \"size_1\",\r\n    \"dealloc\": true\r\n  }\r\n}"
+}

@@ -48,7 +48,7 @@ function buildSteps(edges) {
 
   steps.push({
     kind: 'init',
-    current: null,
+    cur: null,
     queue: [...initialQueue],
     indeg: { ...indeg },
     settled: [],
@@ -71,7 +71,7 @@ function buildSteps(edges) {
 
     steps.push({
       kind: 'pop',
-      current: node,
+      cur: node,
       queue: [...queue],
       indeg: { ...indeg },
       settled: [...settled],
@@ -87,7 +87,7 @@ function buildSteps(edges) {
 
     steps.push({
       kind: 'settle',
-      current: node,
+      cur: node,
       queue: [...queue],
       indeg: { ...indeg },
       settled: [...settled],
@@ -110,7 +110,7 @@ function buildSteps(edges) {
     if (flashes.length > 0) {
       steps.push({
         kind: 'relax',
-        current: node,
+        cur: node,
         queue: [...queue],
         indeg: { ...indeg },
         settled: [...settled],
@@ -128,7 +128,7 @@ function buildSteps(edges) {
         newlyZero.forEach((id) => queue.push(id));
         steps.push({
           kind: 'enqueue',
-          current: node,
+          cur: node,
           queue: [...queue],
           indeg: { ...indeg },
           settled: [...settled],
@@ -142,7 +142,7 @@ function buildSteps(edges) {
     } else {
       steps.push({
         kind: 'leaf',
-        current: node,
+        cur: node,
         queue: [...queue],
         indeg: { ...indeg },
         settled: [...settled],
@@ -158,7 +158,7 @@ function buildSteps(edges) {
   if (result.length === NODES.length) {
     steps.push({
       kind: 'done',
-      current: null,
+      cur: null,
       queue: [],
       indeg: { ...indeg },
       settled: [...settled],
@@ -172,7 +172,7 @@ function buildSteps(edges) {
     const stuck = NODES.map((n) => n.id).filter((id) => !settled.has(id));
     steps.push({
       kind: 'cycle',
-      current: null,
+      cur: null,
       queue: [],
       indeg: { ...indeg },
       settled: [...settled],
@@ -194,27 +194,26 @@ export default function TopoSortViz() {
     () => (cyclic ? [...BASE_EDGES, CYCLE_EDGE] : BASE_EDGES),
     [cyclic],
   );
-  const [steps, setSteps] = useState(() => buildSteps(BASE_EDGES));
+  const steps = useMemo(() => buildSteps(edges), [edges]);
   const [idx, setIdx] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  const [playingRaw, setPlaying] = useState(false);
   const timerRef = useRef(null);
 
-  useEffect(() => {
-    setSteps(buildSteps(edges));
+  const [prevSteps, setPrevSteps] = useState(steps);
+  if (prevSteps !== steps) {
+    setPrevSteps(steps);
     setIdx(0);
     setPlaying(false);
-  }, [edges]);
+  }
 
   const step = steps[idx];
 
+  // Derive `playing` so we don't have to call setPlaying(false) from inside the
+  // interval effect when we hit the last step — avoids cascading-render lint.
+  const playing = playingRaw && idx < steps.length - 1;
+
   const next = useCallback(() => {
-    setIdx((i) => {
-      if (i >= steps.length - 1) {
-        setPlaying(false);
-        return i;
-      }
-      return i + 1;
-    });
+    setIdx((i) => (i >= steps.length - 1 ? i : i + 1));
   }, [steps.length]);
 
   useEffect(() => {
@@ -233,10 +232,6 @@ export default function TopoSortViz() {
     };
   }, [playing, next]);
 
-  useEffect(() => {
-    if (idx >= steps.length - 1 && playing) setPlaying(false);
-  }, [idx, steps.length, playing]);
-
   const handleReset = () => {
     setPlaying(false);
     setIdx(0);
@@ -249,7 +244,7 @@ export default function TopoSortViz() {
     NODES.forEach((n) => { map[n.id] = 'idle'; });
     step.queue.forEach((n) => { map[n] = 'queued'; });
     step.settled.forEach((n) => { map[n] = 'settled'; });
-    if (step.current) map[step.current] = 'current';
+    if (step.cur) map[step.cur] = 'current';
     if (step.kind === 'cycle' && step.stuck) {
       step.stuck.forEach((n) => { map[n] = 'stuck'; });
     }
@@ -442,7 +437,7 @@ export default function TopoSortViz() {
         <div className="tsviz-status-row">
           <span className="tsviz-status-label">Processing</span>
           <span className="tsviz-status-value">
-            {step.current ? step.current : <span className="tsviz-muted">—</span>}
+            {step.cur ? step.cur : <span className="tsviz-muted">—</span>}
           </span>
         </div>
       </div>

@@ -1,0 +1,8 @@
+{
+  "questionId": "4278",
+  "titleSlug": "maximum-value-of-concatenated-binary-segments",
+  "title": "Maximum Value of Concatenated Binary Segments",
+  "exampleTestcases": "[1,2]\n[1,0]\n[3,1]\n[0,3]",
+  "sampleTestCase": "[1,2]\n[1,0]",
+  "metaData": "{\n  \"name\": \"maxValue\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums0\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

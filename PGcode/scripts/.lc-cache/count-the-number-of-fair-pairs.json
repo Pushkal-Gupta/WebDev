@@ -1,0 +1,8 @@
+{
+  "questionId": "2699",
+  "titleSlug": "count-the-number-of-fair-pairs",
+  "title": "Count the Number of Fair Pairs",
+  "exampleTestcases": "[0,1,7,4,4,5]\n3\n6\n[1,7,9,2,5]\n11\n11",
+  "sampleTestCase": "[0,1,7,4,4,5]\n3\n6",
+  "metaData": "{\n  \"name\": \"countFairPairs\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"lower\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"upper\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

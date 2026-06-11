@@ -1,0 +1,8 @@
+{
+  "questionId": "2714",
+  "titleSlug": "left-and-right-sum-differences",
+  "title": "Left and Right Sum Differences",
+  "exampleTestcases": "[10,4,8,3]\n[1]",
+  "sampleTestCase": "[10,4,8,3]",
+  "metaData": "{\n  \"name\": \"leftRightDifference\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

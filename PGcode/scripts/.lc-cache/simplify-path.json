@@ -1,0 +1,8 @@
+{
+  "questionId": "71",
+  "titleSlug": "simplify-path",
+  "title": "Simplify Path",
+  "exampleTestcases": "\"/home/\"\n\"/home//foo/\"\n\"/home/user/Documents/../Pictures\"\n\"/../\"\n\"/.../a/../b/c/../d/./\"",
+  "sampleTestCase": "\"/home/\"",
+  "metaData": "{ \r\n  \"name\": \"simplifyPath\",\r\n  \"params\": [\r\n    { \r\n      \"name\": \"path\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}"
+}

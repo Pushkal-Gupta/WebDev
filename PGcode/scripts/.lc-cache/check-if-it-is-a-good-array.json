@@ -1,0 +1,8 @@
+{
+  "questionId": "1372",
+  "titleSlug": "check-if-it-is-a-good-array",
+  "title": "Check If It Is a Good Array",
+  "exampleTestcases": "[12,5,7,23]\n[29,6,10]\n[3,6]",
+  "sampleTestCase": "[12,5,7,23]",
+  "metaData": "{\n  \"name\": \"isGoodArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

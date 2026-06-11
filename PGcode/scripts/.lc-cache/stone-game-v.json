@@ -1,0 +1,8 @@
+{
+  "questionId": "1685",
+  "titleSlug": "stone-game-v",
+  "title": "Stone Game V",
+  "exampleTestcases": "[6,2,3,4,5,5]\n[7,7,7,7,7,7,7]\n[4]",
+  "sampleTestCase": "[6,2,3,4,5,5]",
+  "metaData": "{\n  \"name\": \"stoneGameV\",\n  \"params\": [\n    {\n      \"name\": \"stoneValue\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

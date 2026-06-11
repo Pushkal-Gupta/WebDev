@@ -1,0 +1,8 @@
+{
+  "questionId": "2478",
+  "titleSlug": "longest-nice-subarray",
+  "title": "Longest Nice Subarray",
+  "exampleTestcases": "[1,3,8,48,10]\n[3,1,5,11,13]",
+  "sampleTestCase": "[1,3,8,48,10]",
+  "metaData": "{\n  \"name\": \"longestNiceSubarray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

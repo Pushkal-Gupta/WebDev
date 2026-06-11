@@ -1,0 +1,8 @@
+{
+  "questionId": "3619",
+  "titleSlug": "adjacent-increasing-subarrays-detection-ii",
+  "title": "Adjacent Increasing Subarrays Detection II",
+  "exampleTestcases": "[2,5,7,8,9,2,3,4,3,1]\n[1,2,3,4,4,4,4,5,6,7]",
+  "sampleTestCase": "[2,5,7,8,9,2,3,4,3,1]",
+  "metaData": "{\n  \"name\": \"maxIncreasingSubarrays\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"list<integer>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

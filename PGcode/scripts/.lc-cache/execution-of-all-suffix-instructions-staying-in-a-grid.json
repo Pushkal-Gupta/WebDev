@@ -1,0 +1,8 @@
+{
+  "questionId": "2239",
+  "titleSlug": "execution-of-all-suffix-instructions-staying-in-a-grid",
+  "title": "Execution of All Suffix Instructions Staying in a Grid",
+  "exampleTestcases": "3\n[0,1]\n\"RRDDLU\"\n2\n[1,1]\n\"LURD\"\n1\n[0,0]\n\"LRUD\"",
+  "sampleTestCase": "3\n[0,1]\n\"RRDDLU\"",
+  "metaData": "{\n  \"name\": \"executeInstructions\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"startPos\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"s\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

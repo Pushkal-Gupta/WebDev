@@ -1,0 +1,8 @@
+{
+  "questionId": "1298",
+  "titleSlug": "reverse-substrings-between-each-pair-of-parentheses",
+  "title": "Reverse Substrings Between Each Pair of Parentheses",
+  "exampleTestcases": "\"(abcd)\"\n\"(u(love)i)\"\n\"(ed(et(oc))el)\"",
+  "sampleTestCase": "\"(abcd)\"",
+  "metaData": "{\n  \"name\": \"reverseParentheses\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1860",
+  "titleSlug": "find-kth-largest-xor-coordinate-value",
+  "title": "Find Kth Largest XOR Coordinate Value",
+  "exampleTestcases": "[[5,2],[1,6]]\n1\n[[5,2],[1,6]]\n2\n[[5,2],[1,6]]\n3",
+  "sampleTestCase": "[[5,2],[1,6]]\n1",
+  "metaData": "{\n  \"name\": \"kthLargestValue\",\n  \"params\": [\n    {\n      \"name\": \"matrix\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

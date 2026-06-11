@@ -137,27 +137,27 @@ export default function KnapsackViz() {
   const built = useMemo(() => buildSteps(items, W), [items, W]);
   const { steps, finalDp } = built;
   const [idx, setIdx] = useState(-1);
-  const [playing, setPlaying] = useState(false);
+  const [playingRaw, setPlaying] = useState(false);
   const timerRef = useRef(null);
 
-  useEffect(() => {
+  // Reset playhead when the input changes (prev-state-during-render pattern).
+  const [prevItems, setPrevItems] = useState(items);
+  const [prevW, setPrevW] = useState(W);
+  if (prevItems !== items || prevW !== W) {
+    setPrevItems(items);
+    setPrevW(W);
     setIdx(-1);
     setPlaying(false);
-  }, [items, W]);
+  }
 
   const total = steps.length;
   const current = idx >= 0 ? steps[idx] : null;
   const atEnd = idx >= total - 1;
   const finalAnswer = finalDp[items.length][W];
+  const playing = playingRaw && idx < total - 1;
 
   const next = useCallback(() => {
-    setIdx((i) => {
-      if (i >= total - 1) {
-        setPlaying(false);
-        return i;
-      }
-      return i + 1;
-    });
+    setIdx((i) => Math.min(i + 1, total - 1));
   }, [total]);
 
   useEffect(() => {
@@ -175,10 +175,6 @@ export default function KnapsackViz() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [playing, next]);
-
-  useEffect(() => {
-    if (idx >= total - 1 && playing) setPlaying(false);
-  }, [idx, total, playing]);
 
   const handleReset = () => {
     setPlaying(false);

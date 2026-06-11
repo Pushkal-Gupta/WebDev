@@ -1,0 +1,8 @@
+{
+  "questionId": "822",
+  "titleSlug": "unique-morse-code-words",
+  "title": "Unique Morse Code Words",
+  "exampleTestcases": "[\"gin\",\"zen\",\"gig\",\"msg\"]\n[\"a\"]",
+  "sampleTestCase": "[\"gin\",\"zen\",\"gig\",\"msg\"]",
+  "metaData": "{\r\n  \"name\": \"uniqueMorseRepresentations\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"words\",\r\n      \"type\": \"string[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

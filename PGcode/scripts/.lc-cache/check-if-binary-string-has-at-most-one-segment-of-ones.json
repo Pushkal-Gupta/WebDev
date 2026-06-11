@@ -1,0 +1,8 @@
+{
+  "questionId": "1910",
+  "titleSlug": "check-if-binary-string-has-at-most-one-segment-of-ones",
+  "title": "Check if Binary String Has at Most One Segment of Ones",
+  "exampleTestcases": "\"1001\"\n\"110\"",
+  "sampleTestCase": "\"1001\"",
+  "metaData": "{\n  \"name\": \"checkOnesSegment\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

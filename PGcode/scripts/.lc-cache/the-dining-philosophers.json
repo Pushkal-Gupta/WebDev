@@ -1,0 +1,8 @@
+{
+  "questionId": "1340",
+  "titleSlug": "the-dining-philosophers",
+  "title": "The Dining Philosophers",
+  "exampleTestcases": "1",
+  "sampleTestCase": "1",
+  "metaData": "{\n  \"name\": \"foobar\",\n  \"params\": [\n    {\n      \"name\": \"target\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"languages\": [\n    \"java\",\n    \"python\",\n    \"python3\",\n    \"cpp\",\n    \"golang\",\n    \"rust\"\n  ],\n  \"manual\": true\n}"
+}

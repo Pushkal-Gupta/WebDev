@@ -1,0 +1,8 @@
+{
+  "questionId": "630",
+  "titleSlug": "course-schedule-iii",
+  "title": "Course Schedule III",
+  "exampleTestcases": "[[100,200],[200,1300],[1000,1250],[2000,3200]]\n[[1,2]]\n[[3,2],[4,3]]",
+  "sampleTestCase": "[[100,200],[200,1300],[1000,1250],[2000,3200]]",
+  "metaData": "{\r\n  \"name\": \"scheduleCourse\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"courses\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

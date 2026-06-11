@@ -1,0 +1,8 @@
+{
+  "questionId": "3783",
+  "titleSlug": "permutations-iv",
+  "title": "Permutations IV",
+  "exampleTestcases": "4\n6\n3\n2\n2\n3",
+  "sampleTestCase": "4\n6",
+  "metaData": "{\n  \"name\": \"permute\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"long\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

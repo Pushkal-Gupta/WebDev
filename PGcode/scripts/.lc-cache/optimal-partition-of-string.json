@@ -1,0 +1,8 @@
+{
+  "questionId": "2487",
+  "titleSlug": "optimal-partition-of-string",
+  "title": "Optimal Partition of String",
+  "exampleTestcases": "\"abacaba\"\n\"ssssss\"",
+  "sampleTestCase": "\"abacaba\"",
+  "metaData": "{\n  \"name\": \"partitionString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"manual\": false\n}"
+}

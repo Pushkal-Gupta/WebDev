@@ -1,0 +1,8 @@
+{
+  "questionId": "3356",
+  "titleSlug": "shortest-uncommon-substring-in-an-array",
+  "title": "Shortest Uncommon Substring in an Array",
+  "exampleTestcases": "[\"cab\",\"ad\",\"bad\",\"c\"]\n[\"abc\",\"bcd\",\"abcd\"]",
+  "sampleTestCase": "[\"cab\",\"ad\",\"bad\",\"c\"]",
+  "metaData": "{\n  \"name\": \"shortestSubstrings\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string[]\"\n  }\n}"
+}

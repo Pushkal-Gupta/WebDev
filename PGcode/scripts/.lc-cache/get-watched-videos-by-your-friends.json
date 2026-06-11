@@ -1,0 +1,8 @@
+{
+  "questionId": "1436",
+  "titleSlug": "get-watched-videos-by-your-friends",
+  "title": "Get Watched Videos by Your Friends",
+  "exampleTestcases": "[[\"A\",\"B\"],[\"C\"],[\"B\",\"C\"],[\"D\"]]\n[[1,2],[0,3],[0,3],[1,2]]\n0\n1\n[[\"A\",\"B\"],[\"C\"],[\"B\",\"C\"],[\"D\"]]\n[[1,2],[0,3],[0,3],[1,2]]\n0\n2",
+  "sampleTestCase": "[[\"A\",\"B\"],[\"C\"],[\"B\",\"C\"],[\"D\"]]\n[[1,2],[0,3],[0,3],[1,2]]\n0\n1",
+  "metaData": "{\n  \"name\": \"watchedVideosByFriends\",\n  \"params\": [\n    {\n      \"name\": \"watchedVideos\",\n      \"type\": \"list<list<string>>\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"friends\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"id\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"level\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\"\n  },\n  \"manual\": false\n}"
+}

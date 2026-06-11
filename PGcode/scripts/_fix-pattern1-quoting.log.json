@@ -1,0 +1,113 @@
+{
+  "mode": "apply",
+  "started": "2026-06-10T17:49:32.270Z",
+  "totals": {
+    "rows_scanned": 1,
+    "candidates": 1,
+    "processed": 1,
+    "problems_fixed": 1,
+    "field_level_fixes": 13
+  },
+  "applied": [
+    {
+      "id": "excel-column-number",
+      "field_fixes": 13,
+      "changes": [
+        {
+          "kind": "input",
+          "case": 0,
+          "idx": 0,
+          "before": "\"A\"",
+          "after": "A"
+        },
+        {
+          "kind": "input",
+          "case": 1,
+          "idx": 0,
+          "before": "\"AB\"",
+          "after": "AB"
+        },
+        {
+          "kind": "input",
+          "case": 2,
+          "idx": 0,
+          "before": "\"ZY\"",
+          "after": "ZY"
+        },
+        {
+          "kind": "input",
+          "case": 3,
+          "idx": 0,
+          "before": "\"Z\"",
+          "after": "Z"
+        },
+        {
+          "kind": "input",
+          "case": 4,
+          "idx": 0,
+          "before": "\"AA\"",
+          "after": "AA"
+        },
+        {
+          "kind": "input",
+          "case": 5,
+          "idx": 0,
+          "before": "\"AZ\"",
+          "after": "AZ"
+        },
+        {
+          "kind": "input",
+          "case": 6,
+          "idx": 0,
+          "before": "\"BA\"",
+          "after": "BA"
+        },
+        {
+          "kind": "input",
+          "case": 7,
+          "idx": 0,
+          "before": "\"ZZ\"",
+          "after": "ZZ"
+        },
+        {
+          "kind": "input",
+          "case": 8,
+          "idx": 0,
+          "before": "\"AAA\"",
+          "after": "AAA"
+        },
+        {
+          "kind": "input",
+          "case": 9,
+          "idx": 0,
+          "before": "\"FXSHRXW\"",
+          "after": "FXSHRXW"
+        },
+        {
+          "kind": "input",
+          "case": 10,
+          "idx": 0,
+          "before": "\"AMZN\"",
+          "after": "AMZN"
+        },
+        {
+          "kind": "input",
+          "case": 11,
+          "idx": 0,
+          "before": "\"B\"",
+          "after": "B"
+        },
+        {
+          "kind": "input",
+          "case": 12,
+          "idx": 0,
+          "before": "\"DT\"",
+          "after": "DT"
+        }
+      ]
+    }
+  ],
+  "skipped_manual_review": [],
+  "dry_run": [],
+  "finished": "2026-06-10T17:49:37.557Z"
+}

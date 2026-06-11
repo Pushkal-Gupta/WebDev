@@ -1,0 +1,8 @@
+{
+  "questionId": "1407",
+  "titleSlug": "group-the-people-given-the-group-size-they-belong-to",
+  "title": "Group the People Given the Group Size They Belong To",
+  "exampleTestcases": "[3,3,3,3,3,1,3]\n[2,1,3,3,3,2]",
+  "sampleTestCase": "[3,3,3,3,3,1,3]",
+  "metaData": "{\n  \"name\": \"groupThePeople\",\n  \"params\": [\n    {\n      \"name\": \"groupSizes\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<list<integer>>\"\n  }\n}"
+}

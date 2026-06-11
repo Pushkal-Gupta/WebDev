@@ -1,0 +1,8 @@
+{
+  "questionId": "2657",
+  "titleSlug": "minimum-time-to-complete-all-tasks",
+  "title": "Minimum Time to Complete All Tasks",
+  "exampleTestcases": "[[2,3,1],[4,5,1],[1,5,2]]\n[[1,3,2],[2,5,3],[5,6,2]]",
+  "sampleTestCase": "[[2,3,1],[4,5,1],[1,5,2]]",
+  "metaData": "{\n  \"name\": \"findMinimumTime\",\n  \"params\": [\n    {\n      \"name\": \"tasks\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

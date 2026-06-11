@@ -1,0 +1,8 @@
+{
+  "questionId": "2058",
+  "titleSlug": "concatenation-of-array",
+  "title": "Concatenation of Array",
+  "exampleTestcases": "[1,2,1]\n[1,3,2,1]",
+  "sampleTestCase": "[1,2,1]",
+  "metaData": "{\n  \"name\": \"getConcatenation\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

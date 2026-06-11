@@ -1,0 +1,8 @@
+{
+  "questionId": "3183",
+  "titleSlug": "find-the-k-or-of-an-array",
+  "title": "Find the K-or of an Array",
+  "exampleTestcases": "[7,12,9,8,9,15]\n4",
+  "sampleTestCase": "[7,12,9,8,9,15]\n4",
+  "metaData": "{\n  \"name\": \"findKOr\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3264",
+  "titleSlug": "maximum-points-after-enemy-battles",
+  "title": "Maximum Points After Enemy Battles",
+  "exampleTestcases": "[3,2,2]\n2\n[2]\n10",
+  "sampleTestCase": "[3,2,2]\n2",
+  "metaData": "{\n  \"name\": \"maximumPoints\",\n  \"params\": [\n    {\n      \"name\": \"enemyEnergies\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"currentEnergy\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

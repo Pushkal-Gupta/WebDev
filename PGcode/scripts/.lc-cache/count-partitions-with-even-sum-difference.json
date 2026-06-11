@@ -1,0 +1,8 @@
+{
+  "questionId": "3704",
+  "titleSlug": "count-partitions-with-even-sum-difference",
+  "title": "Count Partitions with Even Sum Difference",
+  "exampleTestcases": "[10,10,3,7,6]\n[1,2,2]\n[2,4,6,8]",
+  "sampleTestCase": "[10,10,3,7,6]",
+  "metaData": "{\n  \"name\": \"countPartitions\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

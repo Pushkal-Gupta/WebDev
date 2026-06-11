@@ -1,0 +1,8 @@
+{
+  "questionId": "2154",
+  "titleSlug": "minimum-moves-to-convert-string",
+  "title": "Minimum Moves to Convert String",
+  "exampleTestcases": "\"XXX\"\n\"XXOX\"\n\"OOOO\"",
+  "sampleTestCase": "\"XXX\"",
+  "metaData": "{\n  \"name\": \"minimumMoves\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

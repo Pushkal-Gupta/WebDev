@@ -1,0 +1,8 @@
+{
+  "questionId": "4239",
+  "titleSlug": "sum-of-k-digit-numbers-in-a-range",
+  "title": "Sum of K-Digit Numbers in a Range",
+  "exampleTestcases": "1\n2\n2\n0\n1\n3\n5\n5\n10",
+  "sampleTestCase": "1\n2\n2",
+  "metaData": "{\n  \"name\": \"sumOfNumbers\",\n  \"params\": [\n    {\n      \"name\": \"l\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"r\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

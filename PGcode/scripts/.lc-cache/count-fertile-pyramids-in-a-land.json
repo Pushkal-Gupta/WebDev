@@ -1,0 +1,8 @@
+{
+  "questionId": "2193",
+  "titleSlug": "count-fertile-pyramids-in-a-land",
+  "title": "Count Fertile Pyramids in a Land",
+  "exampleTestcases": "[[0,1,1,0],[1,1,1,1]]\n[[1,1,1],[1,1,1]]\n[[1,1,1,1,0],[1,1,1,1,1],[1,1,1,1,1],[0,1,0,0,1]]",
+  "sampleTestCase": "[[0,1,1,0],[1,1,1,1]]",
+  "metaData": "{\n  \"name\": \"countPyramids\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

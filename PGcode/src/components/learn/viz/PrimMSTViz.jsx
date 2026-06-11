@@ -61,7 +61,7 @@ function buildSteps(start) {
 
   steps.push({
     kind: 'init',
-    current: null,
+    cur: null,
     picked: null,
     visited: [...visited],
     fringe: fringeSnapshot(fringe),
@@ -93,7 +93,7 @@ function buildSteps(start) {
 
     steps.push({
       kind: 'pick',
-      current: newNode,
+      cur: newNode,
       picked: { from: anchor, to: newNode, w: best.w, key: edgeKey(best.from, best.to) },
       visited: [...visited],
       fringe: fringeSnapshot(fringe),
@@ -123,7 +123,7 @@ function buildSteps(start) {
 
     steps.push({
       kind: 'add',
-      current: newNode,
+      cur: newNode,
       picked: null,
       visited: [...visited],
       fringe: fringeSnapshot(fringe),
@@ -135,7 +135,7 @@ function buildSteps(start) {
 
   steps.push({
     kind: 'done',
-    current: null,
+    cur: null,
     picked: null,
     visited: [...visited],
     fringe: [],
@@ -175,25 +175,23 @@ export default function PrimMSTViz() {
   const [start, setStart] = useState(0);
   const [steps, setSteps] = useState(() => buildSteps(0));
   const [idx, setIdx] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  const [playingRaw, setPlaying] = useState(false);
   const timerRef = useRef(null);
 
-  useEffect(() => {
+  // Reset state when start changes (prev-state-during-render pattern).
+  const [prevStart, setPrevStart] = useState(start);
+  if (prevStart !== start) {
+    setPrevStart(start);
     setSteps(buildSteps(start));
     setIdx(0);
     setPlaying(false);
-  }, [start]);
+  }
 
   const step = steps[idx];
+  const playing = playingRaw && idx < steps.length - 1;
 
   const next = useCallback(() => {
-    setIdx((i) => {
-      if (i >= steps.length - 1) {
-        setPlaying(false);
-        return i;
-      }
-      return i + 1;
-    });
+    setIdx((i) => Math.min(i + 1, steps.length - 1));
   }, [steps.length]);
 
   useEffect(() => {
@@ -211,10 +209,6 @@ export default function PrimMSTViz() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [playing, next]);
-
-  useEffect(() => {
-    if (idx >= steps.length - 1 && playing) setPlaying(false);
-  }, [idx, steps.length, playing]);
 
   const handleReset = () => {
     setPlaying(false);
@@ -240,14 +234,14 @@ export default function PrimMSTViz() {
     NODES.forEach((n) => {
       map[n.id] = visitedSet.has(n.id) ? 'visited' : 'unvisited';
     });
-    if (step.current && visitedSet.has(step.current)) {
-      map[step.current] = 'current';
+    if (step.cur && visitedSet.has(step.cur)) {
+      map[step.cur] = 'current';
     }
     if (step.picked) {
       map[step.picked.to] = 'incoming';
     }
     return map;
-  }, [visitedSet, step.current, step.picked]);
+  }, [visitedSet, step]);
 
   const atEnd = idx >= steps.length - 1;
   const isDone = step.kind === 'done';

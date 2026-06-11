@@ -1,0 +1,8 @@
+{
+  "questionId": "2124",
+  "titleSlug": "first-day-where-you-have-been-in-all-the-rooms",
+  "title": "First Day Where You Have Been in All the Rooms",
+  "exampleTestcases": "[0,0]\n[0,0,2]\n[0,1,2,0]",
+  "sampleTestCase": "[0,0]",
+  "metaData": "{\n  \"name\": \"firstDayBeenInAllRooms\",\n  \"params\": [\n    {\n      \"name\": \"nextVisit\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

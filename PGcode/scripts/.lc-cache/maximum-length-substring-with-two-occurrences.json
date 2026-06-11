@@ -1,0 +1,8 @@
+{
+  "questionId": "3349",
+  "titleSlug": "maximum-length-substring-with-two-occurrences",
+  "title": "Maximum Length Substring With Two Occurrences",
+  "exampleTestcases": "\"bcbbbcba\"\n\"aaaa\"",
+  "sampleTestCase": "\"bcbbbcba\"",
+  "metaData": "{\n  \"name\": \"maximumLengthSubstring\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

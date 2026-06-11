@@ -60,6 +60,79 @@ const PYTHON_LESSONS = [
   {
     id: "p3",
     title: "3. Loops",
+    viz: {
+      renderer: "array",
+      title: "for i in range(1, 6): total += i",
+      frames: [
+        {
+          array: [1, 2, 3, 4, 5],
+          chip: [
+            { label: "i", value: "—" },
+            { label: "total", value: "0" },
+          ],
+          caption: "Start. range(1, 6) yields 1..5. total starts at 0. The upper bound 6 is exclusive — the value you do not get.",
+        },
+        {
+          array: [1, 2, 3, 4, 5],
+          highlights: { 0: "current" },
+          pointers: { 0: "i" },
+          chip: [
+            { label: "i", value: "1" },
+            { label: "total", value: "1" },
+          ],
+          caption: "Iteration 1. i = 1. total becomes 0 + 1 = 1.",
+        },
+        {
+          array: [1, 2, 3, 4, 5],
+          highlights: { 0: "done", 1: "current" },
+          pointers: { 1: "i" },
+          chip: [
+            { label: "i", value: "2" },
+            { label: "total", value: "3" },
+          ],
+          caption: "Iteration 2. i = 2. total becomes 1 + 2 = 3.",
+        },
+        {
+          array: [1, 2, 3, 4, 5],
+          highlights: { 0: "done", 1: "done", 2: "current" },
+          pointers: { 2: "i" },
+          chip: [
+            { label: "i", value: "3" },
+            { label: "total", value: "6" },
+          ],
+          caption: "Iteration 3. i = 3. total becomes 3 + 3 = 6.",
+        },
+        {
+          array: [1, 2, 3, 4, 5],
+          highlights: { 0: "done", 1: "done", 2: "done", 3: "current" },
+          pointers: { 3: "i" },
+          chip: [
+            { label: "i", value: "4" },
+            { label: "total", value: "10" },
+          ],
+          caption: "Iteration 4. i = 4. total becomes 6 + 4 = 10.",
+        },
+        {
+          array: [1, 2, 3, 4, 5],
+          highlights: { 0: "done", 1: "done", 2: "done", 3: "done", 4: "current" },
+          pointers: { 4: "i" },
+          chip: [
+            { label: "i", value: "5" },
+            { label: "total", value: "15" },
+          ],
+          caption: "Iteration 5. i = 5. total becomes 10 + 5 = 15. The loop body runs once per value from range.",
+        },
+        {
+          array: [1, 2, 3, 4, 5],
+          highlights: { 0: "done", 1: "done", 2: "done", 3: "done", 4: "done" },
+          chip: [
+            { label: "total", value: "15" },
+            { label: "iterations", value: "5" },
+          ],
+          caption: "Done. range(1, 6) is exhausted, so the for loop exits naturally. Five iterations, never touched the value 6.",
+        },
+      ],
+    },
     intro: "Python has two looping constructs and a strong preference for one of them. `for x in iterable` is the workhorse: it walks anything that supports iteration — lists, tuples, strings, dicts, sets, files, generators, ranges, and any custom class implementing `__iter__`. `while cond:` repeats until the condition becomes falsy, used when the number of iterations is not known up front, typically driven by user input, polling, or convergence.\n\n`range(stop)`, `range(start, stop)`, and `range(start, stop, step)` produce a lazy integer sequence — they do not allocate a list of all the numbers, which matters when you write `for i in range(10_000_000)`. The stop value is exclusive, so `range(1, 5)` yields `1, 2, 3, 4`. Off-by-one errors here are the single most common loop bug; remind yourself the upper bound is the one you do not get.\n\nIf you find yourself writing `for i in range(len(arr)): x = arr[i]`, prefer `for x in arr:` directly, or `for i, x in enumerate(arr):` when you also need the index. To walk two sequences in lockstep, `zip(a, b)` pairs them and stops at the shorter; `itertools.zip_longest` fills the gap if you need to consume both fully. To iterate a dict's keys and values together, use `for k, v in d.items():`.\n\nThe `break` keyword exits the nearest enclosing loop immediately; `continue` skips to the next iteration. The lesser-known `for ... else` clause runs the `else` block only if the loop completed without hitting `break` — useful for search patterns like \"find first match, otherwise default.\" Many Python developers go their whole careers without using it; that is fine, but when it fits, it is elegant.\n\nA few traps. Mutating a list while iterating it (`for x in arr: arr.remove(x)`) silently skips elements because the indices shift under you — iterate a copy (`arr[:]`) or build a new list. Iterating a dict while inserting or deleting keys raises `RuntimeError: dictionary changed size during iteration` outright. And remember `while True:` with a clean `break` inside is preferred over flag variables; readers see the exit condition right where it triggers.",
     code: "total = 0\nfor i in range(1, 6):\n    total += i\nprint(total)  # 1+2+3+4+5 = 15",
     exercise: {
@@ -129,6 +202,86 @@ const PYTHON_LESSONS = [
   {
     id: "p6",
     title: "6. Dictionaries",
+    viz: {
+      renderer: "array",
+      title: "Count words in a list — counts[w] = counts.get(w, 0) + 1",
+      frames: [
+        {
+          array: ["apple", "banana", "apple", "cherry", "banana", "apple"],
+          chip: { label: "counts", value: "{ }" },
+          caption: "Empty dict. Walk the list left to right. For each word, increment counts[word] — defaulting to 0 if the key is new.",
+        },
+        {
+          array: ["apple", "banana", "apple", "cherry", "banana", "apple"],
+          highlights: { 0: "current" },
+          pointers: { 0: "w" },
+          chip: [
+            { label: "w", value: "apple" },
+            { label: "counts", value: "{ apple: 1 }" },
+          ],
+          caption: "w = 'apple'. counts.get('apple', 0) is 0, so counts['apple'] = 1. The key 'apple' is born.",
+        },
+        {
+          array: ["apple", "banana", "apple", "cherry", "banana", "apple"],
+          highlights: { 0: "done", 1: "current" },
+          pointers: { 1: "w" },
+          chip: [
+            { label: "w", value: "banana" },
+            { label: "counts", value: "{ apple: 1, banana: 1 }" },
+          ],
+          caption: "w = 'banana'. New key, appended after 'apple' — insertion order is preserved since Python 3.7.",
+        },
+        {
+          array: ["apple", "banana", "apple", "cherry", "banana", "apple"],
+          highlights: { 0: "done", 1: "done", 2: "current" },
+          pointers: { 2: "w" },
+          chip: [
+            { label: "w", value: "apple" },
+            { label: "counts", value: "{ apple: 2, banana: 1 }" },
+          ],
+          caption: "w = 'apple' again. counts.get('apple', 0) is 1, so counts['apple'] grows to 2. Key already exists — no reordering.",
+        },
+        {
+          array: ["apple", "banana", "apple", "cherry", "banana", "apple"],
+          highlights: { 0: "done", 1: "done", 2: "done", 3: "current" },
+          pointers: { 3: "w" },
+          chip: [
+            { label: "w", value: "cherry" },
+            { label: "counts", value: "{ apple: 2, banana: 1, cherry: 1 }" },
+          ],
+          caption: "w = 'cherry'. Third distinct key, slotted in at the tail of insertion order.",
+        },
+        {
+          array: ["apple", "banana", "apple", "cherry", "banana", "apple"],
+          highlights: { 0: "done", 1: "done", 2: "done", 3: "done", 4: "current" },
+          pointers: { 4: "w" },
+          chip: [
+            { label: "w", value: "banana" },
+            { label: "counts", value: "{ apple: 2, banana: 2, cherry: 1 }" },
+          ],
+          caption: "w = 'banana'. counts['banana'] grows to 2. Average O(1) hash lookup — the key is found in one step regardless of dict size.",
+        },
+        {
+          array: ["apple", "banana", "apple", "cherry", "banana", "apple"],
+          highlights: { 0: "done", 1: "done", 2: "done", 3: "done", 4: "done", 5: "current" },
+          pointers: { 5: "w" },
+          chip: [
+            { label: "w", value: "apple" },
+            { label: "counts", value: "{ apple: 3, banana: 2, cherry: 1 }" },
+          ],
+          caption: "w = 'apple'. counts['apple'] reaches 3. Last element of the list.",
+        },
+        {
+          array: ["apple", "banana", "apple", "cherry", "banana", "apple"],
+          highlights: { 0: "match", 1: "match", 2: "match", 3: "match", 4: "match", 5: "match" },
+          chip: [
+            { label: "size", value: "3" },
+            { label: "total", value: "6" },
+          ],
+          caption: "Done in one pass — O(n) time, O(k) space where k is the number of distinct words. Three keys, six total occurrences.",
+        },
+      ],
+    },
     intro: "A dict is Python's hash-map: an unordered (well, insertion-ordered since 3.7) collection of key-value pairs with average O(1) lookup, insert, and delete. It is the most useful data structure in the language and the one that appears in interview problems more than any other, because so many problems reduce to \"have I seen this key before?\" or \"count things by category.\"\n\nKeys must be hashable, which in practice means immutable — strings, numbers, and tuples of hashables work; lists, sets, and other dicts do not. The value is unrestricted. Build a dict with the literal `{\"a\": 1, \"b\": 2}`, the constructor `dict(a=1, b=2)`, or from pairs `dict([(\"a\", 1), (\"b\", 2)])`.\n\nReading with bracket syntax (`d[key]`) raises `KeyError` if the key is missing — fine when absence is a bug, dangerous when it is normal. The safer alternative is `d.get(key)` (returns `None` for missing) or `d.get(key, default)` (returns your default). For the very common \"upsert\" pattern of \"increment a counter or initialize it,\" `d[k] = d.get(k, 0) + 1` works, but `collections.defaultdict(int)` is cleaner because the missing key auto-initializes to `0` on first read. `collections.Counter` goes one step further with built-in `.most_common(n)` and arithmetic between counters.\n\nIteration defaults to keys: `for k in d:` and `if k in d:` both look at keys. `.keys()`, `.values()`, and `.items()` give you views — live, lightweight wrappers that update if the underlying dict changes. The view objects support set operations on keys (`d1.keys() & d2.keys()` for shared keys), which is occasionally exactly what you need.\n\nDict comprehensions mirror list comprehensions but use the colon-separated form: `{k: v for k, v in pairs}`. Merging dicts has matured over the years: in modern Python `merged = d1 | d2` does what you expect (right-side wins on duplicate keys), and `d1 |= d2` updates in place.\n\nThe most common bug is mutating a dict while iterating it, which raises `RuntimeError: dictionary changed size during iteration`. If you need to delete entries while iterating, iterate over a snapshot: `for k in list(d):`. And remember that since 3.7, insertion order is part of the language spec — you can rely on it when ordering matters.",
     code: "counts = {}\nfor ch in \"mississippi\":\n    counts[ch] = counts.get(ch, 0) + 1\nprint(counts)",
     exercise: {
@@ -593,6 +746,136 @@ const JAVASCRIPT_LESSONS = [
   {
     id: "j6",
     title: "6. Map for counts",
+    viz: {
+      renderer: "array",
+      title: "Count letters in 'mississippi' with a Map",
+      frames: [
+        {
+          array: ["m", "i", "s", "s", "i", "s", "s", "i", "p", "p", "i"],
+          chip: { label: "counts", value: "{ }" },
+          caption: "Empty Map. Walk the string left to right and increment counts[ch] for each character.",
+        },
+        {
+          array: ["m", "i", "s", "s", "i", "s", "s", "i", "p", "p", "i"],
+          highlights: { 0: "current" },
+          pointers: { 0: "i" },
+          chip: [
+            { label: "ch", value: "m" },
+            { label: "counts", value: "{ m: 1 }" },
+          ],
+          caption: "ch = 'm'. counts.get('m') is undefined, so (undefined || 0) + 1 = 1. Map now holds { m → 1 }.",
+        },
+        {
+          array: ["m", "i", "s", "s", "i", "s", "s", "i", "p", "p", "i"],
+          highlights: { 0: "done", 1: "current" },
+          pointers: { 1: "i" },
+          chip: [
+            { label: "ch", value: "i" },
+            { label: "counts", value: "{ m: 1, i: 1 }" },
+          ],
+          caption: "ch = 'i'. First time we have seen 'i', so it starts at 1.",
+        },
+        {
+          array: ["m", "i", "s", "s", "i", "s", "s", "i", "p", "p", "i"],
+          highlights: { 0: "done", 1: "done", 2: "current" },
+          pointers: { 2: "i" },
+          chip: [
+            { label: "ch", value: "s" },
+            { label: "counts", value: "{ m: 1, i: 1, s: 1 }" },
+          ],
+          caption: "ch = 's'. New key. Insertion order is preserved, so iteration later yields m, i, s, …",
+        },
+        {
+          array: ["m", "i", "s", "s", "i", "s", "s", "i", "p", "p", "i"],
+          highlights: { 0: "done", 1: "done", 2: "done", 3: "current" },
+          pointers: { 3: "i" },
+          chip: [
+            { label: "ch", value: "s" },
+            { label: "counts", value: "{ m: 1, i: 1, s: 2 }" },
+          ],
+          caption: "ch = 's' again. counts.get('s') is 1, so we set 2. The key already exists — order does not change.",
+        },
+        {
+          array: ["m", "i", "s", "s", "i", "s", "s", "i", "p", "p", "i"],
+          highlights: { 0: "done", 1: "done", 2: "done", 3: "done", 4: "current" },
+          pointers: { 4: "i" },
+          chip: [
+            { label: "ch", value: "i" },
+            { label: "counts", value: "{ m: 1, i: 2, s: 2 }" },
+          ],
+          caption: "ch = 'i'. counts['i'] grows to 2.",
+        },
+        {
+          array: ["m", "i", "s", "s", "i", "s", "s", "i", "p", "p", "i"],
+          highlights: { 0: "done", 1: "done", 2: "done", 3: "done", 4: "done", 5: "current" },
+          pointers: { 5: "i" },
+          chip: [
+            { label: "ch", value: "s" },
+            { label: "counts", value: "{ m: 1, i: 2, s: 3 }" },
+          ],
+          caption: "ch = 's'. counts['s'] grows to 3.",
+        },
+        {
+          array: ["m", "i", "s", "s", "i", "s", "s", "i", "p", "p", "i"],
+          highlights: { 0: "done", 1: "done", 2: "done", 3: "done", 4: "done", 5: "done", 6: "current" },
+          pointers: { 6: "i" },
+          chip: [
+            { label: "ch", value: "s" },
+            { label: "counts", value: "{ m: 1, i: 2, s: 4 }" },
+          ],
+          caption: "ch = 's'. counts['s'] grows to 4.",
+        },
+        {
+          array: ["m", "i", "s", "s", "i", "s", "s", "i", "p", "p", "i"],
+          highlights: { 0: "done", 1: "done", 2: "done", 3: "done", 4: "done", 5: "done", 6: "done", 7: "current" },
+          pointers: { 7: "i" },
+          chip: [
+            { label: "ch", value: "i" },
+            { label: "counts", value: "{ m: 1, i: 3, s: 4 }" },
+          ],
+          caption: "ch = 'i'. counts['i'] grows to 3.",
+        },
+        {
+          array: ["m", "i", "s", "s", "i", "s", "s", "i", "p", "p", "i"],
+          highlights: { 0: "done", 1: "done", 2: "done", 3: "done", 4: "done", 5: "done", 6: "done", 7: "done", 8: "current" },
+          pointers: { 8: "i" },
+          chip: [
+            { label: "ch", value: "p" },
+            { label: "counts", value: "{ m: 1, i: 3, s: 4, p: 1 }" },
+          ],
+          caption: "ch = 'p'. New key, appended to insertion order after m, i, s.",
+        },
+        {
+          array: ["m", "i", "s", "s", "i", "s", "s", "i", "p", "p", "i"],
+          highlights: { 0: "done", 1: "done", 2: "done", 3: "done", 4: "done", 5: "done", 6: "done", 7: "done", 8: "done", 9: "current" },
+          pointers: { 9: "i" },
+          chip: [
+            { label: "ch", value: "p" },
+            { label: "counts", value: "{ m: 1, i: 3, s: 4, p: 2 }" },
+          ],
+          caption: "ch = 'p'. counts['p'] grows to 2.",
+        },
+        {
+          array: ["m", "i", "s", "s", "i", "s", "s", "i", "p", "p", "i"],
+          highlights: { 0: "done", 1: "done", 2: "done", 3: "done", 4: "done", 5: "done", 6: "done", 7: "done", 8: "done", 9: "done", 10: "current" },
+          pointers: { 10: "i" },
+          chip: [
+            { label: "ch", value: "i" },
+            { label: "counts", value: "{ m: 1, i: 4, s: 4, p: 2 }" },
+          ],
+          caption: "ch = 'i'. counts['i'] grows to 4. Final pass complete.",
+        },
+        {
+          array: ["m", "i", "s", "s", "i", "s", "s", "i", "p", "p", "i"],
+          highlights: { 0: "match", 1: "match", 2: "match", 3: "match", 4: "match", 5: "match", 6: "match", 7: "match", 8: "match", 9: "match", 10: "match" },
+          chip: [
+            { label: "size", value: "4" },
+            { label: "mode", value: "i & s (4)" },
+          ],
+          caption: "Done in one pass — O(n) time, O(k) space where k is the alphabet. Two keys tie for the mode at four occurrences each.",
+        },
+      ],
+    },
     intro: "`Map` is JavaScript's purpose-built hash table. Where plain objects accept only string and symbol keys and inherit a pile of properties from `Object.prototype`, a `Map` accepts any value as a key — numbers, booleans, objects, functions, even other Maps — and starts genuinely empty. That difference matters more than it sounds: using `{}` as a dictionary can collide with inherited names like `toString` or `__proto__`, while `Map` is collision-free by construction.\n\nThe API is small and consistent. `map.set(key, value)` writes, returning the map for chaining. `map.get(key)` reads, returning `undefined` for missing keys. `map.has(key)` checks existence without coercing. `map.delete(key)` removes. `map.size` is a property, not a method. All four core operations are O(1) amortized.\n\nIteration order is insertion order, every time, on every engine. That guarantee — which plain objects only partially share — makes `Map` the right pick when ordering matters. The default iterator yields `[key, value]` pairs, so `for (const [k, v] of map)` destructures cleanly. `map.keys()`, `map.values()`, and `map.entries()` give you the same data in narrower slices. `[...map]` materializes the pairs into an array.\n\nThe canonical interview pattern is count-the-thing: walk an input, increment a counter per key. The one-line idiom is `map.set(key, (map.get(key) || 0) + 1)`. That `|| 0` defaults missing entries to zero so the first occurrence works. If your counts can legitimately be zero or negative, swap `||` for `??` to avoid the falsy trap. From a count map you can derive the mode (`[...map].reduce((a, b) => (b[1] > a[1] ? b : a))`), find duplicates, build frequency-sorted output, or test anagrams.\n\nObject keys compare by reference. Two distinct object literals `{ id: 1 }` and `{ id: 1 }` are different keys; storing them both leaves `map.size` at 2. If you need structural equality, serialize to a string (`JSON.stringify`) or use a tuple-key library. There is also `WeakMap`, which holds only object keys with weak references — entries vanish when the key has no other reference, which is useful for caching per-object metadata without leaking memory.\n\nFor a hot loop where you know all keys are short strings, a plain object created via `Object.create(null)` is marginally faster because V8 optimizes hidden classes. For everything else, default to `Map`.",
     code: "const counts = new Map();\nfor (const ch of \"mississippi\") {\n  counts.set(ch, (counts.get(ch) || 0) + 1);\n}\nfor (const [k, v] of counts) console.log(k, v);",
     exercise: {
@@ -708,6 +991,96 @@ const JAVASCRIPT_LESSONS = [
   {
     id: "j11",
     title: "11. Map, filter, reduce",
+    viz: {
+      renderer: "array",
+      title: "[1,2,3,4,5,6].reduce((acc, x) => acc + x, 0)",
+      frames: [
+        {
+          array: [1, 2, 3, 4, 5, 6],
+          chip: [
+            { label: "acc", value: "0" },
+            { label: "step", value: "init" },
+          ],
+          caption: "Start. The init value 0 seeds acc. The callback (acc, x) => acc + x will run once per element, threading acc forward.",
+        },
+        {
+          array: [1, 2, 3, 4, 5, 6],
+          highlights: { 0: "current" },
+          pointers: { 0: "x" },
+          chip: [
+            { label: "x", value: "1" },
+            { label: "acc", value: "1" },
+            { label: "callback", value: "0 + 1" },
+          ],
+          caption: "Call 1. x = 1. The callback fires: (0, 1) => 0 + 1 = 1. The returned value becomes the next acc.",
+        },
+        {
+          array: [1, 2, 3, 4, 5, 6],
+          highlights: { 0: "done", 1: "current" },
+          pointers: { 1: "x" },
+          chip: [
+            { label: "x", value: "2" },
+            { label: "acc", value: "3" },
+            { label: "callback", value: "1 + 2" },
+          ],
+          caption: "Call 2. x = 2. Previous acc (1) feeds in: (1, 2) => 3. acc is the only thing that threads between calls.",
+        },
+        {
+          array: [1, 2, 3, 4, 5, 6],
+          highlights: { 0: "done", 1: "done", 2: "current" },
+          pointers: { 2: "x" },
+          chip: [
+            { label: "x", value: "3" },
+            { label: "acc", value: "6" },
+            { label: "callback", value: "3 + 3" },
+          ],
+          caption: "Call 3. x = 3. acc = 3 + 3 = 6. Notice the array itself is never mutated — only acc moves.",
+        },
+        {
+          array: [1, 2, 3, 4, 5, 6],
+          highlights: { 0: "done", 1: "done", 2: "done", 3: "current" },
+          pointers: { 3: "x" },
+          chip: [
+            { label: "x", value: "4" },
+            { label: "acc", value: "10" },
+            { label: "callback", value: "6 + 4" },
+          ],
+          caption: "Call 4. x = 4. acc = 6 + 4 = 10. Halfway through; reduce makes no allocations of its own.",
+        },
+        {
+          array: [1, 2, 3, 4, 5, 6],
+          highlights: { 0: "done", 1: "done", 2: "done", 3: "done", 4: "current" },
+          pointers: { 4: "x" },
+          chip: [
+            { label: "x", value: "5" },
+            { label: "acc", value: "15" },
+            { label: "callback", value: "10 + 5" },
+          ],
+          caption: "Call 5. x = 5. acc = 10 + 5 = 15.",
+        },
+        {
+          array: [1, 2, 3, 4, 5, 6],
+          highlights: { 0: "done", 1: "done", 2: "done", 3: "done", 4: "done", 5: "current" },
+          pointers: { 5: "x" },
+          chip: [
+            { label: "x", value: "6" },
+            { label: "acc", value: "21" },
+            { label: "callback", value: "15 + 6" },
+          ],
+          caption: "Call 6 — the last. x = 6. acc = 15 + 6 = 21. The array is exhausted, so reduce returns acc.",
+        },
+        {
+          array: [1, 2, 3, 4, 5, 6],
+          highlights: { 0: "done", 1: "done", 2: "done", 3: "done", 4: "done", 5: "match" },
+          chip: [
+            { label: "result", value: "21" },
+            { label: "calls", value: "6" },
+            { label: "complexity", value: "O(n)" },
+          ],
+          caption: "Done. Six callback invocations collapsed the array to one value. Swap the callback for (a, b) => Math.max(a, b) and the same machinery gives you the max.",
+        },
+      ],
+    },
     intro: "The trio `map`, `filter`, `reduce` is the everyday vocabulary of functional array work. Together they cover transformation, selection, and aggregation — the three things you do to a list most often. Each is a method on `Array.prototype` that returns a new value without touching the original, so chaining never produces hidden side effects.\n\n`.map(fn)` runs `fn` on every element and collects the results into a new array of the same length. The callback receives `(element, index, array)`, though most calls use only the element. Use `.map` whenever you need a 1-to-1 transformation: extract a field (`users.map(u => u.email)`), apply a math operation, format strings. If your callback returns `undefined` because you forgot a `return` inside a block body, the resulting array is full of `undefined` — easy to miss.\n\n`.filter(pred)` runs the predicate on every element and keeps the ones where it returns truthy. The output array is shorter (or equal) to the input. Common patterns: removing falsy values (`arr.filter(Boolean)`), excluding by criterion (`users.filter(u => u.active)`), narrowing by type. Chain `.filter` before `.map` when you want to drop elements first and transform what survives — the second pass works on the smaller array.\n\n`.reduce((acc, x, i, arr) => newAcc, init)` folds the array into a single value of any type. The accumulator threads through the iteration, taking the predecessor's return as the next call's `acc`. The initial value determines the output type — sum starts at `0`, list-building starts at `[]`, grouping starts at `{}`. Skipping `init` makes `reduce` use the first element, which throws on empty arrays and forces same-type accumulation.\n\nReduce is the most general of the three and the easiest to misuse. If you can write the same thing with `.map` then `.filter`, do — it reads better. If a plain `for...of` loop with a mutable accumulator is clearer than a `reduce` whose callback returns `{...acc, [key]: value}`, use the loop. Conciseness is a means, not a goal.\n\nThe trio composes cleanly: `orders.filter(o => o.status === \"paid\").map(o => o.total).reduce((a, b) => a + b, 0)` reads top-to-bottom as \"of paid orders, take the total, then sum them.\" That readability is the payoff. The cost is allocation — each step builds a new array — so for million-element hot loops a single fused `for` wins. Profile before optimizing.",
     code: "const nums = [1, 2, 3, 4, 5, 6];\nconst doubled = nums.map(n => n * 2);\nconst evens = nums.filter(n => n % 2 === 0);\nconst sum = nums.reduce((a, b) => a + b, 0);\nconsole.log(doubled.join(\",\"));\nconsole.log(evens.join(\",\"));\nconsole.log(sum);",
     exercise: {
@@ -1429,6 +1802,84 @@ const CPP_LESSONS = [
   {
     id: "cpp3",
     title: "3. Vectors + loops",
+    viz: {
+      renderer: "array",
+      title: "sort(v.begin(), v.end()); then for (int x : v) sum += x;",
+      frames: [
+        {
+          array: [3, 1, 4, 1, 5],
+          chip: { label: "phase", value: "before sort" },
+          caption: "Unsorted vector v = {3, 1, 4, 1, 5}. Contiguous memory — elements sit next to each other, which is why the cache prefetcher loves vectors.",
+        },
+        {
+          array: [1, 1, 3, 4, 5],
+          chip: [
+            { label: "phase", value: "after sort" },
+            { label: "complexity", value: "O(n log n)" },
+          ],
+          caption: "sort(v.begin(), v.end()) runs intro-sort (quicksort with a heapsort fallback) and rearranges in place. Iterator range is half-open: begin() points at v[0], end() is one past the last.",
+        },
+        {
+          array: [1, 1, 3, 4, 5],
+          highlights: { 0: "current" },
+          pointers: { 0: "x" },
+          chip: [
+            { label: "x", value: "1" },
+            { label: "sum", value: "1" },
+          ],
+          caption: "Range-based for begins. x binds to v[0] = 1. sum += x → 1. The for (int x : v) form copies each element; for (int& x : v) would bind a reference and let you mutate in place.",
+        },
+        {
+          array: [1, 1, 3, 4, 5],
+          highlights: { 0: "done", 1: "current" },
+          pointers: { 1: "x" },
+          chip: [
+            { label: "x", value: "1" },
+            { label: "sum", value: "2" },
+          ],
+          caption: "x = v[1] = 1. sum becomes 2. Duplicates are preserved by sort — std::sort is not stable, but equal elements still appear adjacent.",
+        },
+        {
+          array: [1, 1, 3, 4, 5],
+          highlights: { 0: "done", 1: "done", 2: "current" },
+          pointers: { 2: "x" },
+          chip: [
+            { label: "x", value: "3" },
+            { label: "sum", value: "5" },
+          ],
+          caption: "x = v[2] = 3. sum becomes 5.",
+        },
+        {
+          array: [1, 1, 3, 4, 5],
+          highlights: { 0: "done", 1: "done", 2: "done", 3: "current" },
+          pointers: { 3: "x" },
+          chip: [
+            { label: "x", value: "4" },
+            { label: "sum", value: "9" },
+          ],
+          caption: "x = v[3] = 4. sum becomes 9.",
+        },
+        {
+          array: [1, 1, 3, 4, 5],
+          highlights: { 0: "done", 1: "done", 2: "done", 3: "done", 4: "current" },
+          pointers: { 4: "x" },
+          chip: [
+            { label: "x", value: "5" },
+            { label: "sum", value: "14" },
+          ],
+          caption: "x = v[4] = 5. sum becomes 14. Loop exits when the iterator reaches v.end().",
+        },
+        {
+          array: [1, 1, 3, 4, 5],
+          highlights: { 0: "done", 1: "done", 2: "done", 3: "done", 4: "done" },
+          chip: [
+            { label: "sum", value: "14" },
+            { label: "iterations", value: "5" },
+          ],
+          caption: "Done. Five elements, five touches — O(n) traversal over contiguous memory. cout << sum prints 14.",
+        },
+      ],
+    },
     intro: "`std::vector<T>` is the default container in modern C++ — a contiguous, dynamically-sized array that grows on demand. Contiguous matters: elements sit next to each other in memory, so the CPU prefetcher streams them into cache and tight loops over vectors are roughly an order of magnitude faster than the same code over a linked list with the same logical layout. Capacity doubles (or grows by some constant factor) when `push_back` runs out of room, so the amortized cost of an append is O(1), but any individual append can trigger an O(n) reallocation that copies (or moves) every existing element to a fresh buffer. When you know the final size ahead of time, call `v.reserve(n)` to allocate once and skip the copies entirely. Access elements through `v[i]` (no bounds check, fastest), `v.at(i)` (throws `std::out_of_range` on bad index), `v.front()`, `v.back()`. `v.size()` returns `size_t`, which is unsigned — comparing it to a signed `int i` triggers a warning and, more importantly, an `int i = -1; i < v.size()` evaluates `i` as a huge unsigned number and the comparison silently goes true. Use `size_t` for indices or use the range-based for. Range-based for is the cleanest iteration form: `for (int x : v)` copies each element, `for (int& x : v)` binds a reference (mutate in place), `for (const auto& x : v)` is the read-only default for non-trivial types since it avoids a copy per iteration. The classic `for (int i = 0; i < (int)v.size(); ++i)` cast trick avoids the signed/unsigned warning without giving up the index. Algorithms in `<algorithm>` operate on iterator ranges: `sort(v.begin(), v.end())` is the workhorse, intro-sort under the hood, O(n log n) worst case. Pair it with a comparator lambda for custom orderings: `sort(v.begin(), v.end(), [](int a, int b){ return a > b; })` sorts descending. The one rule that catches everyone: holding a pointer or iterator into a vector across a `push_back` is undefined — a reallocation may have moved the storage out from under you, and the dangling iterator points into freed memory. Re-index after mutation, or `reserve` enough capacity upfront so you know no reallocation can happen. The same warning applies to `insert` and `erase`, both of which can shift or invalidate everything after the affected position.",
     code: "#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\nint main() {\n  vector<int> nums = {3, 1, 4, 1, 5};\n  sort(nums.begin(), nums.end());\n  int sum = 0;\n  for (int x : nums) sum += x;\n  cout << sum << endl;\n}",
     exercise: {
@@ -1655,6 +2106,118 @@ const CPP_LESSONS = [
   {
     id: "cpp10",
     title: "10. STL algorithms + lambdas",
+    viz: {
+      renderer: "array",
+      title: "count_if(v.begin(), v.end(), [](int x){ return x % 2 == 0; })",
+      frames: [
+        {
+          array: [1, 2, 3, 4, 5, 6, 7, 8],
+          chip: [
+            { label: "lambda", value: "x % 2 == 0" },
+            { label: "count", value: "0" },
+          ],
+          caption: "count_if walks the range [begin, end). For each element x, the lambda runs and the count increments when it returns true.",
+        },
+        {
+          array: [1, 2, 3, 4, 5, 6, 7, 8],
+          highlights: { 0: "current" },
+          pointers: { 0: "it" },
+          chip: [
+            { label: "x", value: "1" },
+            { label: "x % 2", value: "1" },
+            { label: "count", value: "0" },
+          ],
+          caption: "x = 1. Lambda returns false (1 is odd). count stays at 0. Iterator advances.",
+        },
+        {
+          array: [1, 2, 3, 4, 5, 6, 7, 8],
+          highlights: { 0: "done", 1: "current" },
+          pointers: { 1: "it" },
+          chip: [
+            { label: "x", value: "2" },
+            { label: "x % 2", value: "0" },
+            { label: "count", value: "1" },
+          ],
+          caption: "x = 2. Lambda returns true — first even hit. count = 1.",
+        },
+        {
+          array: [1, 2, 3, 4, 5, 6, 7, 8],
+          highlights: { 0: "done", 1: "match", 2: "current" },
+          pointers: { 2: "it" },
+          chip: [
+            { label: "x", value: "3" },
+            { label: "x % 2", value: "1" },
+            { label: "count", value: "1" },
+          ],
+          caption: "x = 3. Lambda returns false. count holds at 1. The lambda is a small function-object inlined by the compiler — no virtual call overhead.",
+        },
+        {
+          array: [1, 2, 3, 4, 5, 6, 7, 8],
+          highlights: { 0: "done", 1: "match", 2: "done", 3: "current" },
+          pointers: { 3: "it" },
+          chip: [
+            { label: "x", value: "4" },
+            { label: "x % 2", value: "0" },
+            { label: "count", value: "2" },
+          ],
+          caption: "x = 4. Even. count = 2.",
+        },
+        {
+          array: [1, 2, 3, 4, 5, 6, 7, 8],
+          highlights: { 0: "done", 1: "match", 2: "done", 3: "match", 4: "current" },
+          pointers: { 4: "it" },
+          chip: [
+            { label: "x", value: "5" },
+            { label: "x % 2", value: "1" },
+            { label: "count", value: "2" },
+          ],
+          caption: "x = 5. Odd. count holds at 2.",
+        },
+        {
+          array: [1, 2, 3, 4, 5, 6, 7, 8],
+          highlights: { 0: "done", 1: "match", 2: "done", 3: "match", 4: "done", 5: "current" },
+          pointers: { 5: "it" },
+          chip: [
+            { label: "x", value: "6" },
+            { label: "x % 2", value: "0" },
+            { label: "count", value: "3" },
+          ],
+          caption: "x = 6. Even. count = 3.",
+        },
+        {
+          array: [1, 2, 3, 4, 5, 6, 7, 8],
+          highlights: { 0: "done", 1: "match", 2: "done", 3: "match", 4: "done", 5: "match", 6: "current" },
+          pointers: { 6: "it" },
+          chip: [
+            { label: "x", value: "7" },
+            { label: "x % 2", value: "1" },
+            { label: "count", value: "3" },
+          ],
+          caption: "x = 7. Odd. count holds at 3.",
+        },
+        {
+          array: [1, 2, 3, 4, 5, 6, 7, 8],
+          highlights: { 0: "done", 1: "match", 2: "done", 3: "match", 4: "done", 5: "match", 6: "done", 7: "current" },
+          pointers: { 7: "it" },
+          chip: [
+            { label: "x", value: "8" },
+            { label: "x % 2", value: "0" },
+            { label: "count", value: "4" },
+          ],
+          caption: "x = 8. Last element. Even — count climbs to 4. Iterator reaches end().",
+        },
+        {
+          array: [1, 2, 3, 4, 5, 6, 7, 8],
+          highlights: { 0: "done", 1: "match", 2: "done", 3: "match", 4: "done", 5: "match", 6: "done", 7: "match" },
+          chip: [
+            { label: "result", value: "4" },
+            { label: "predicate calls", value: "8" },
+            { label: "complexity", value: "O(n)" },
+          ],
+          caption: "Done. count_if visited every element exactly once and returned the running tally. Eight predicate invocations, four matches — the four highlighted even cells.",
+        },
+      ],
+    },
     intro: "The `<algorithm>` header treats every container the same way — through iterator ranges — and pairs naturally with lambdas to express most loops as a single line. `count_if(begin, end, pred)` counts elements where `pred` returns true. `find_if` returns the first matching iterator (or `end` if none). `transform(begin, end, out, fn)` writes `fn(x)` for each element into the output range, useful for mapping a vector through a function. `all_of`, `any_of`, `none_of` answer quantifier questions in one call. `for_each` runs a function on every element when you genuinely need a side effect that does not fit any of the more specific algorithms. A lambda is an unnamed function object: `[capture](params) -> ret { body }`. The compiler synthesizes a class behind the scenes with `operator()` defined; each lambda has its own unique type, which is why you usually store it in `auto` or pass it as a template parameter. The capture clause controls what state the lambda carries. `[]` captures nothing — pure function. `[=]` copies every variable it mentions from the enclosing scope. `[&]` captures everything by reference. `[x, &y]` mixes: `x` by value, `y` by reference. Capture is computed at lambda creation time, not at call time, so a `[=]` lambda freezes a snapshot of the surrounding values at the moment it is constructed. Return type is usually deduced; specify `-> T` when the body has multiple return statements with different types or when you want to force a conversion. Generic lambdas (C++14) accept `auto` parameters: `auto add = [](auto a, auto b) { return a + b; };` — useful for one-off generic operations without writing a full function template. Mutable lambdas (`mutable` keyword) let a by-value capture be modified inside the body, which is rare but occasionally useful for stateful operations like running counters. The danger lives in `[&]`: if the lambda outlives the scope of any reference it captured, dereferencing those references is undefined behaviour. Storing such a lambda in a `std::function` or returning it from a function turns a transient correctness issue into a crash that may not surface until much later. `std::function<R(Args...)>` is a type-erased holder that can store any callable matching the signature — convenient but it allocates on the heap and goes through indirect calls, so prefer passing the lambda type directly (via a template parameter) when performance matters. The composable trio — algorithm + iterator range + lambda — is the modern C++ vocabulary for data manipulation. Reach for it before writing a hand-rolled loop, and your code will tell the reader what it does rather than how it does it.",
     code: "#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\nint main() {\n  vector<int> v = {1, 2, 3, 4, 5, 6, 7, 8};\n  int evens = count_if(v.begin(), v.end(), [](int x) { return x % 2 == 0; });\n  cout << evens << endl;\n}",
     exercise: {
@@ -7150,7 +7713,7 @@ const ML_MATH_LESSONS = [
   {
     id: "mlm2",
     title: "2. Matrices: transforms, not just grids",
-    intro: "Stop thinking of a matrix as a rectangle of numbers and start thinking of it as a function. A matrix `A` of shape `(m, n)` is a linear map that takes an `n`-dimensional input vector and returns an `m`-dimensional output vector via `y = A @ x`. The columns of `A` are the images of the standard basis vectors — column `j` is where the `j`-th basis vector lands after the transform. Everything else falls out of that one fact.\n\nLinear means two things: scaling the input scales the output by the same factor, and adding two inputs produces the sum of their outputs. Translations are not linear (they move the origin), which is why graphics pipelines use affine transforms — a linear part plus a translation — and represent them as `(n+1) x (n+1)` matrices acting on homogeneous coordinates. In pure ML you mostly stay linear and let bias terms handle the offset.\n\nMatrix multiplication is composition of transforms. If `B` is shape `(p, m)` and `A` is shape `(m, n)`, the product `B @ A` has shape `(p, n)` and represents \"apply `A`, then apply `B`.\" Composition is not commutative: rotating then scaling is generally not the same as scaling then rotating. Inner dimensions must match — the `m` in `(m, n)` and `(p, m)` is shared. Mismatch and NumPy raises immediately.\n\nThe identity matrix `I` is the do-nothing transform. The inverse `A^-1`, when it exists, is the transform that undoes `A`. A matrix is invertible exactly when its columns are linearly independent, which is the same as saying its determinant is non-zero, which is the same as saying it maps a non-zero volume to a non-zero volume. Singular matrices flatten the input space — they project onto a lower-dimensional subspace and lose information. In ML you rarely invert matrices explicitly; you solve linear systems via `np.linalg.solve` or factorizations, which are faster and more numerically stable.\n\nThe transpose `A.T` swaps rows and columns. For real matrices, the transpose is the matrix of the adjoint map — it converts a transform that takes inputs in `R^n` to outputs in `R^m` into one going the other way. Symmetric matrices (`A == A.T`) have especially nice spectra (real eigenvalues, orthogonal eigenvectors) and show up everywhere — covariance matrices, Gram matrices, Hessians of scalar functions.",
+    intro: "Stop thinking of a matrix as a rectangle of numbers and start thinking of it as a function. A matrix `A` of shape `(m, n)` is a linear map that takes an `n`-dimensional input vector and returns an `m`-dimensional output vector via `y = A @ x`. The columns of `A` are the images of the standard basis vectors — column `j` is where the `j`-th basis vector lands after the transform. Everything else falls out of that one fact. To read a matrix, look at its columns one at a time: each one tells you the destination of a unit step along an input axis. Reconstructing the whole transform mentally then takes one linear-combination step — input `x = [x_1, ..., x_n]` lands at `x_1 (col 1) + x_2 (col 2) + ... + x_n (col n)`.\n\nLinear means two things: scaling the input scales the output by the same factor, and adding two inputs produces the sum of their outputs. Geometrically that pins the origin in place — `A @ 0 = 0` always — and forces every grid line in the input to come out as a straight, evenly spaced line in the output. Translations are not linear (they move the origin), which is why graphics pipelines use affine transforms — a linear part plus a translation — and represent them as `(n+1) x (n+1)` matrices acting on homogeneous coordinates. In pure ML you mostly stay linear and let bias terms handle the offset; that is the whole reason a dense layer is written `Wx + b` rather than just `Wx`.\n\nMatrix multiplication is composition of transforms. If `B` is shape `(p, m)` and `A` is shape `(m, n)`, the product `B @ A` has shape `(p, n)` and represents \"apply `A`, then apply `B`.\" Composition is not commutative: rotating then scaling is generally not the same as scaling then rotating. Inner dimensions must match — the `m` in `(m, n)` and `(p, m)` is shared. Mismatch and NumPy raises immediately. Reading dimensions left-to-right is the fastest way to catch a shape bug before a network refuses to train.\n\nThe identity matrix `I` is the do-nothing transform. The inverse `A^-1`, when it exists, is the transform that undoes `A`. A matrix is invertible exactly when its columns are linearly independent, which is the same as saying its determinant is non-zero, which is the same as saying it maps a non-zero volume to a non-zero volume. The determinant is the signed volume-scaling factor: `det(A) = 2` means areas double, `det(A) = -1` means the orientation flips, `det(A) = 0` means the transform collapses input volume to zero. Singular matrices flatten the input space — they project onto a lower-dimensional subspace and lose information. In ML you rarely invert matrices explicitly; you solve linear systems via `np.linalg.solve` or factorizations, which are faster and more numerically stable.\n\nThe transpose `A.T` swaps rows and columns. For real matrices, the transpose is the matrix of the adjoint map — it converts a transform that takes inputs in `R^n` to outputs in `R^m` into one going the other way. Symmetric matrices (`A == A.T`) have especially nice spectra (real eigenvalues, orthogonal eigenvectors) and show up everywhere — covariance matrices, Gram matrices, Hessians of scalar functions. Orthogonal matrices (`A.T @ A = I`) are the rigid motions of `R^n` — rotations and reflections that preserve all lengths and angles. They are the only matrices whose inverse is free: `A^-1 = A.T`. That property powers the QR factorization, every numerically stable least-squares solver, and the orthogonal-initialization schemes used to keep deep networks from blowing up at step zero.\n\nFour shapes are worth memorizing because every layer you build is one of them. Square `(n, n)` is a self-map of one space and can be invertible. Tall `(m, n)` with `m > n` is an embedding that adds dimensions but cannot fill them — its rank is at most `n`. Wide `(m, n)` with `m < n` is a projection that compresses information and cannot be inverted on full inputs. Diagonal matrices scale each coordinate independently and commute with each other freely; they are the only matrices whose multiplication is genuinely cheap. Most large-model engineering tricks — LoRA, low-rank adapters, mixture-of-experts gates — are about cramming the useful properties of small matrices into the budget of much larger ones.",
     code: "import numpy as np\n\n# Rotate the plane by 90 degrees counter-clockwise.\nR = np.array([[0.0, -1.0],\n              [1.0,  0.0]])\nx = np.array([1.0, 0.0])\nprint('R @ x =', R @ x)\n\n# Compose two transforms: rotate, then scale by 2.\nS = np.diag([2.0, 2.0])\nprint('(S @ R) @ x =', (S @ R) @ x)\nprint('shape       =', (S @ R).shape)",
     exercise: {
       prompt: "Build the 2x2 matrix that scales x by 3 and y by 5 (a diagonal). Apply it to `[1.0, 1.0]` and print the result. Expected: `[3. 5.]`.",
@@ -7196,7 +7759,7 @@ const ML_MATH_LESSONS = [
   {
     id: "mlm4",
     title: "4. Norms — L1, L2, L-inf, when to use which",
-    intro: "A norm is a function that assigns a non-negative length to a vector and satisfies three rules: it is zero only at the zero vector, scaling by `c` scales the norm by `|c|`, and the triangle inequality `||a + b|| <= ||a|| + ||b||` holds. Different choices of norm produce different geometries, and in ML each common choice corresponds to a particular regularizer or loss with a particular shape of solution.\n\nThe L2 norm, `||v||_2 = sqrt(sum_i v_i^2)`, is ordinary Euclidean length. Its unit ball is a sphere. L2 regularization (ridge / weight decay) penalizes the squared L2 norm; gradient descent on it pulls weights gently toward zero in proportion to their size. The result is a smooth shrinkage where small weights stay nonzero. L2 distance is also the loss of choice for regression on continuous targets that have Gaussian noise.\n\nThe L1 norm, `||v||_1 = sum_i |v_i|`, sums absolute values. Its unit ball is a diamond with corners on the axes — those corners are where many coordinates are exactly zero. L1 regularization (lasso) is what produces sparse solutions: the corners of the diamond touch the loss contours at axis-aligned points, so the optimum often has many zero entries. Use L1 when you want feature selection baked into training, or when you expect outliers (L1 loss is the absolute-error loss, much more robust than squared error).\n\nThe L-infinity norm, `||v||_inf = max_i |v_i|`, picks out the largest absolute component. Its unit ball is a cube. It shows up in adversarial robustness — the canonical attack bound is \"perturb each pixel by at most epsilon,\" which is an L-inf ball — and as the tightest bound in worst-case analysis. Numerical-stability arguments often use L-inf because it is easy to reason about per-component.\n\nA more general family is `||v||_p = (sum_i |v_i|^p)^(1/p)`. As `p` grows, the unit ball morphs from a diamond (p=1) through a circle (p=2) toward the cube (p=infinity). Fractional `p` with `p < 1` is not a norm in the strict sense (it violates the triangle inequality) but is sometimes used as a sparsity-inducing penalty in compressed sensing.\n\nIn NumPy `np.linalg.norm(v, ord=p)` covers all of these. Default is L2; pass `ord=1`, `ord=2`, or `ord=np.inf`. For matrices the same call computes operator norms (largest singular value for `ord=2`, max absolute row sum for `ord=np.inf`, Frobenius for default).",
+    intro: "A norm is a function that assigns a non-negative length to a vector and satisfies three rules: it is zero only at the zero vector, scaling by `c` scales the norm by `|c|`, and the triangle inequality `||a + b|| <= ||a|| + ||b||` holds. Different choices of norm produce different geometries, and in ML each common choice corresponds to a particular regularizer or loss with a particular shape of solution. The shape of the unit ball — the set of points with norm equal to one — is the cleanest way to picture a norm. It tells you which directions are treated as cheap and which are expensive, and that geometric picture predicts everything about what an optimizer using that norm will prefer.\n\nThe L2 norm, `||v||_2 = sqrt(sum_i v_i^2)`, is ordinary Euclidean length. Its unit ball is a sphere. L2 regularization (ridge / weight decay) penalizes the squared L2 norm; gradient descent on it pulls weights gently toward zero in proportion to their size, with the update `w <- w - eta * (grad_loss + lambda * w)`. The result is a smooth shrinkage where small weights stay nonzero. L2 distance is also the loss of choice for regression on continuous targets that have Gaussian noise, because minimizing squared error is equivalent to maximum-likelihood estimation under a Gaussian noise model. The squared L2 norm is differentiable everywhere — that smoothness is why it composes cleanly with autograd and why it dominates production weight-decay configs.\n\nThe L1 norm, `||v||_1 = sum_i |v_i|`, sums absolute values. Its unit ball is a diamond with corners on the axes — those corners are where many coordinates are exactly zero. L1 regularization (lasso) is what produces sparse solutions: the corners of the diamond touch the loss contours at axis-aligned points, so the optimum often has many zero entries. Use L1 when you want feature selection baked into training, or when you expect outliers (L1 loss is the absolute-error loss, much more robust than squared error). The catch is that `|x|` is not differentiable at zero, which is why pure gradient descent jitters near sparse solutions. Proximal-gradient methods (ISTA, FISTA) and coordinate descent solve this cleanly by using a soft-thresholding operator that zeroes out small components in closed form.\n\nThe L-infinity norm, `||v||_inf = max_i |v_i|`, picks out the largest absolute component. Its unit ball is a cube. It shows up in adversarial robustness — the canonical attack bound is \"perturb each pixel by at most epsilon,\" which is an L-inf ball — and as the tightest bound in worst-case analysis. Numerical-stability arguments often use L-inf because it is easy to reason about per-component: bounding `||v||_inf` bounds every entry simultaneously, which is exactly what gradient-clipping-by-value does to prevent explosions during training.\n\nA more general family is `||v||_p = (sum_i |v_i|^p)^(1/p)`. As `p` grows, the unit ball morphs from a diamond (p=1) through a circle (p=2) toward the cube (p=infinity). Fractional `p` with `p < 1` is not a norm in the strict sense (it violates the triangle inequality) but is sometimes used as a sparsity-inducing penalty in compressed sensing. Elastic-net regularization blends L1 and L2 with a convex combination, getting both shrinkage and sparsity from one penalty. Group norms — sum of L2 norms over disjoint groups of coordinates — give group sparsity, which is how structured pruning and group-lasso work.\n\nIn NumPy `np.linalg.norm(v, ord=p)` covers all of these. Default is L2; pass `ord=1`, `ord=2`, or `ord=np.inf`. For matrices the same call computes operator norms (largest singular value for `ord=2`, max absolute row sum for `ord=np.inf`, Frobenius for default). The Frobenius norm, `sqrt(sum_{i,j} A_{ij}^2)`, is just the L2 norm of the flattened matrix — it ignores structure but is the simplest matrix norm and the one weight decay actually penalizes. The operator-2 norm (largest singular value) measures the worst-case amplification of an input vector, which is the quantity that bounds gradient explosion through a linear layer. Knowing which one your loss uses changes how regularization actually behaves.",
     code: "import numpy as np\n\nv = np.array([3.0, -4.0, 0.5])\n\nprint('L1  =', np.linalg.norm(v, ord=1))\nprint('L2  =', np.linalg.norm(v, ord=2))\nprint('Inf =', np.linalg.norm(v, ord=np.inf))\n\n# Compare regularizers on a noisy parameter vector\nw = np.array([0.01, 1.5, -2.0, 0.001, 0.8])\nprint('L1 penalty =', np.sum(np.abs(w)))\nprint('L2 penalty =', np.sum(w**2))",
     exercise: {
       prompt: "For `v = np.array([1.0, -2.0, 3.0, -4.0])`, print the L1 norm, the L2 norm, and the L-inf norm on three lines. Expected: `10.0`, then the L2 value `5.477` (rounded to 3 dp), then `4.0`.",
@@ -7265,7 +7828,7 @@ const ML_MATH_LESSONS = [
   {
     id: "mlm7",
     title: "7. Calculus refresher: derivative as best linear approximation",
-    intro: "Forget tangent lines for a moment. The most useful definition of the derivative — the one that generalizes cleanly to vectors, matrices, and entire neural networks — is this: the derivative of `f` at `x` is the unique number `f'(x)` such that, near `x`, the function looks like `f(x + h) ~ f(x) + f'(x) * h` with error vanishing faster than `h`. The derivative is the slope of the best linear approximation. Everything else — tangent lines, instantaneous rates, optimization — flows from that one idea.\n\nThe formal definition is the limit `f'(x) = lim_{h -> 0} (f(x + h) - f(x)) / h`. Practically you never compute derivatives from the limit; you use the rule book: power rule, product rule, quotient rule, chain rule, and the table of derivatives for `exp`, `log`, `sin`, `cos`, and friends. Once you know `(x^n)' = n x^(n-1)`, `(e^x)' = e^x`, `(log x)' = 1 / x`, and how to compose them, you can differentiate almost any closed-form expression a textbook will throw at you.\n\nThe derivative is the optimization compass. To minimize `f`, head in the direction the derivative points away from. If `f'(x) > 0`, the function is increasing at `x`, so step left to decrease it; if `f'(x) < 0`, step right. Set the derivative to zero to find critical points: minima, maxima, or saddle points. The second derivative `f''(x)` distinguishes them — positive means cup-shaped local minimum, negative means cap-shaped local maximum, zero is inconclusive.\n\nTaylor expansion is the next layer up. Near `x`, `f(x + h) = f(x) + f'(x) h + (1/2) f''(x) h^2 + ...`. Truncating to first order gives the linear approximation; truncating to second order gives the quadratic approximation that Newton's method uses. Many ML optimizers are exactly second-order or quasi-Newton — they keep an estimate of `f''` and step toward the minimum of the local quadratic. Gradient descent, by contrast, is the first-order approximation: cheap, scalable, what every neural network is trained with.\n\nNumerical differentiation — `(f(x + eps) - f(x - eps)) / (2 eps)` — is the central difference formula. It is second-order accurate, easy to write, and the right way to sanity-check an analytical derivative you wrote by hand. Use it whenever you suspect a backprop bug; if the analytical gradient does not match the central-difference gradient to a few decimals, the bug is in the analytical form.",
+    intro: "Forget tangent lines for a moment. The most useful definition of the derivative — the one that generalizes cleanly to vectors, matrices, and entire neural networks — is this: the derivative of `f` at `x` is the unique number `f'(x)` such that, near `x`, the function looks like `f(x + h) ~ f(x) + f'(x) * h` with error vanishing faster than `h`. The derivative is the slope of the best linear approximation. Everything else — tangent lines, instantaneous rates, optimization — flows from that one idea. Holding the linear-approximation picture in mind also makes the multivariable case obvious later: replace the scalar `f'(x) * h` with a matrix-vector product `J(x) @ h` and almost nothing changes.\n\nThe formal definition is the limit `f'(x) = lim_{h -> 0} (f(x + h) - f(x)) / h`. Practically you never compute derivatives from the limit; you use the rule book: power rule, product rule, quotient rule, chain rule, and the table of derivatives for `exp`, `log`, `sin`, `cos`, and friends. Once you know `(x^n)' = n x^(n-1)`, `(e^x)' = e^x`, `(log x)' = 1 / x`, and how to compose them, you can differentiate almost any closed-form expression a textbook will throw at you. Two patterns are worth memorizing because they show up in every loss function: `(log(sigma(x)))' = 1 - sigma(x)`, and the softmax derivative `softmax(x)_i * (delta_ij - softmax(x)_j)`. Knowing those by sight lets you sanity-check any cross-entropy or attention-related expression at a glance.\n\nThe derivative is the optimization compass. To minimize `f`, head in the direction the derivative points away from. If `f'(x) > 0`, the function is increasing at `x`, so step left to decrease it; if `f'(x) < 0`, step right. Set the derivative to zero to find critical points: minima, maxima, or saddle points. The second derivative `f''(x)` distinguishes them — positive means cup-shaped local minimum, negative means cap-shaped local maximum, zero is inconclusive. A function whose second derivative is non-negative everywhere is convex, which is the property that guarantees gradient descent finds the global optimum. Most deep-network losses are non-convex but locally well-behaved, which is why first-order methods work even without convexity guarantees.\n\nTaylor expansion is the next layer up. Near `x`, `f(x + h) = f(x) + f'(x) h + (1/2) f''(x) h^2 + ...`. Truncating to first order gives the linear approximation; truncating to second order gives the quadratic approximation that Newton's method uses. Many ML optimizers are exactly second-order or quasi-Newton — they keep an estimate of `f''` and step toward the minimum of the local quadratic. Gradient descent, by contrast, is the first-order approximation: cheap, scalable, what every neural network is trained with. Adam and its descendants sit between the two extremes — they track per-coordinate variance of the gradient, which behaves like an extremely cheap diagonal Hessian estimate, and use it to scale the step on each parameter independently.\n\nNumerical differentiation — `(f(x + eps) - f(x - eps)) / (2 eps)` — is the central difference formula. It is second-order accurate, easy to write, and the right way to sanity-check an analytical derivative you wrote by hand. Use it whenever you suspect a backprop bug; if the analytical gradient does not match the central-difference gradient to a few decimals, the bug is in the analytical form. The right epsilon is roughly the cube root of machine epsilon, `1e-5` for `float64`, because the error has two competing sources: truncation (the `O(eps^2)` term you dropped) and floating-point cancellation (which dominates as `eps` shrinks). Picking `eps` too small is the most common reason a perfectly correct gradient looks wrong against a numerical check.\n\nOne piece of intuition closes the loop on this lesson: every optimization step you will write — SGD, momentum, Adam, RMSProp, Newton, L-BFGS — is some answer to the question \"given the local linear or quadratic approximation of the loss, what is the best step to take?\" The math you build here is the substrate that makes every one of those answers make sense.",
     code: "import numpy as np\n\ndef f(x):\n    return x**3 - 2*x + 1\n\ndef df_numeric(x, eps=1e-5):\n    return (f(x + eps) - f(x - eps)) / (2 * eps)\n\ndef df_exact(x):\n    return 3*x**2 - 2\n\nfor x in [-1.0, 0.0, 1.5]:\n    print(f'x={x:>4}  numeric={df_numeric(x):.6f}  exact={df_exact(x):.6f}')",
     exercise: {
       prompt: "For `f(x) = x**2`, compute the central-difference derivative at `x = 3.0` with `eps = 1e-5`. Print the result rounded to 6 decimals. Expected: `6.000000`.",

@@ -1,0 +1,8 @@
+{
+  "questionId": "489",
+  "titleSlug": "kth-smallest-instructions",
+  "title": "Kth Smallest Instructions",
+  "exampleTestcases": "[2,3]\n1\n[2,3]\n2\n[2,3]\n3",
+  "sampleTestCase": "[2,3]\n1",
+  "metaData": "{\n  \"name\": \"kthSmallestPath\",\n  \"params\": [\n    {\n      \"name\": \"destination\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

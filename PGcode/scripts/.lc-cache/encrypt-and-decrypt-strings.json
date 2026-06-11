@@ -1,0 +1,8 @@
+{
+  "questionId": "1433",
+  "titleSlug": "encrypt-and-decrypt-strings",
+  "title": "Encrypt and Decrypt Strings",
+  "exampleTestcases": "[\"Encrypter\",\"encrypt\",\"decrypt\"]\n[[[\"a\",\"b\",\"c\",\"d\"],[\"ei\",\"zf\",\"ei\",\"am\"],[\"abcd\",\"acbd\",\"adbc\",\"badc\",\"dacb\",\"cadb\",\"cbda\",\"abad\"]],[\"abcd\"],[\"eizfeiam\"]]",
+  "sampleTestCase": "[\"Encrypter\",\"encrypt\",\"decrypt\"]\n[[[\"a\",\"b\",\"c\",\"d\"],[\"ei\",\"zf\",\"ei\",\"am\"],[\"abcd\",\"acbd\",\"adbc\",\"badc\",\"dacb\",\"cadb\",\"cbda\",\"abad\"]],[\"abcd\"],[\"eizfeiam\"]]",
+  "metaData": "{\n  \"classname\": \"Encrypter\",\n  \"constructor\": {\n    \"params\": [\n      {\n        \"name\": \"keys\",\n        \"type\": \"character[]\"\n      },\n      {\n        \"type\": \"string[]\",\n        \"name\": \"values\"\n      },\n      {\n        \"name\": \"dictionary\",\n        \"type\": \"string[]\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"string\",\n          \"name\": \"word1\"\n        }\n      ],\n      \"name\": \"encrypt\",\n      \"return\": {\n        \"type\": \"string\"\n      }\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"string\",\n          \"name\": \"word2\"\n        }\n      ],\n      \"name\": \"decrypt\",\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true,\n  \"manual\": false\n}"
+}

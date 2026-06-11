@@ -59,7 +59,7 @@ function buildSteps(k) {
     steps.push({
       kind: 'init',
       colors: { ...colors },
-      current: null,
+      cur: null,
       tryColor: 0,
       stack: [],
       conflictWith: null,
@@ -87,7 +87,7 @@ function buildSteps(k) {
       steps.push({
         kind: 'done',
         colors: { ...colors },
-        current: null,
+        cur: null,
         tryColor: 0,
         stack: stack.map((s) => ({ ...s })),
         conflictWith: null,
@@ -105,7 +105,7 @@ function buildSteps(k) {
         steps.push({
           kind: 'fail',
           colors: { ...colors },
-          current: nodeId,
+          cur: nodeId,
           tryColor: 0,
           stack: [],
           conflictWith: null,
@@ -119,7 +119,7 @@ function buildSteps(k) {
       steps.push({
         kind: 'backtrack',
         colors: { ...colors },
-        current: top.nodeId,
+        cur: top.nodeId,
         tryColor: 0,
         stack: stack.map((s) => ({ ...s })),
         conflictWith: null,
@@ -134,7 +134,7 @@ function buildSteps(k) {
     steps.push({
       kind: 'try',
       colors: { ...colors },
-      current: nodeId,
+      cur: nodeId,
       tryColor,
       stack: stack.map((s) => ({ ...s })),
       conflictWith: null,
@@ -154,7 +154,7 @@ function buildSteps(k) {
       steps.push({
         kind: 'conflict',
         colors: { ...colors },
-        current: nodeId,
+        cur: nodeId,
         tryColor,
         stack: stack.map((s) => ({ ...s })),
         conflictWith,
@@ -170,7 +170,7 @@ function buildSteps(k) {
     steps.push({
       kind: 'ok',
       colors: { ...colors },
-      current: nodeId,
+      cur: nodeId,
       tryColor,
       stack: stack.map((s) => ({ ...s })),
       conflictWith: null,
@@ -185,27 +185,25 @@ function buildSteps(k) {
 
 export default function GraphColoringViz() {
   const [k, setK] = useState(3);
-  const [steps, setSteps] = useState(() => buildSteps(3));
+  const steps = useMemo(() => buildSteps(k), [k]);
   const [idx, setIdx] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  const [playingRaw, setPlaying] = useState(false);
   const timerRef = useRef(null);
 
-  useEffect(() => {
-    setSteps(buildSteps(k));
+  const [prevK, setPrevK] = useState(k);
+  if (prevK !== k) {
+    setPrevK(k);
     setIdx(0);
     setPlaying(false);
-  }, [k]);
+  }
 
   const step = steps[idx];
+  // Derive `playing` from the raw toggle + bounds so the auto-run effect never
+  // needs to call setPlaying(false) when we hit the end.
+  const playing = playingRaw && idx < steps.length - 1;
 
   const next = useCallback(() => {
-    setIdx((i) => {
-      if (i >= steps.length - 1) {
-        setPlaying(false);
-        return i;
-      }
-      return i + 1;
-    });
+    setIdx((i) => (i >= steps.length - 1 ? i : i + 1));
   }, [steps.length]);
 
   useEffect(() => {
@@ -224,10 +222,6 @@ export default function GraphColoringViz() {
     };
   }, [playing, next]);
 
-  useEffect(() => {
-    if (idx >= steps.length - 1 && playing) setPlaying(false);
-  }, [idx, steps.length, playing]);
-
   const handleReset = () => {
     setPlaying(false);
     setIdx(0);
@@ -240,15 +234,15 @@ export default function GraphColoringViz() {
   const edgeState = useMemo(() => {
     const map = {};
     EDGES.forEach(([u, v]) => { map[edgeKey(u, v)] = 'idle'; });
-    if (step.conflictWith && step.current) {
-      map[edgeKey(step.current, step.conflictWith)] = 'conflict';
+    if (step.conflictWith && step.cur) {
+      map[edgeKey(step.cur, step.conflictWith)] = 'conflict';
     }
     return map;
   }, [step]);
 
   const nodeFill = (id) => {
     // While trying / conflict, paint the current node with the candidate colour
-    if (step.current === id && (step.kind === 'try' || step.kind === 'conflict')) {
+    if (step.cur === id && (step.kind === 'try' || step.kind === 'conflict')) {
       return `var(${COLOR_TOKENS[step.tryColor - 1]})`;
     }
     const c = step.colors[id];
@@ -260,7 +254,7 @@ export default function GraphColoringViz() {
     const classes = ['gcviz-node'];
     if (step.colors[id] >= 1) classes.push('gcviz-node-colored');
     else classes.push('gcviz-node-empty');
-    if (step.current === id) {
+    if (step.cur === id) {
       classes.push('gcviz-node-current');
       if (step.kind === 'try') classes.push('gcviz-node-trying');
       if (step.kind === 'ok') classes.push('gcviz-node-ok');
@@ -337,7 +331,7 @@ export default function GraphColoringViz() {
             {NODES.map((n) => {
               const fill = nodeFill(n.id);
               const className = nodeClass(n.id);
-              const isCurrent = step.current === n.id;
+              const isCurrent = step.cur === n.id;
               return (
                 <g
                   key={n.id}
@@ -385,7 +379,7 @@ export default function GraphColoringViz() {
         <div className="gcviz-status-row">
           <span className="gcviz-status-label">Node</span>
           <span className="gcviz-status-value">
-            {step.current ?? <span className="gcviz-muted">—</span>}
+            {step.cur ?? <span className="gcviz-muted">—</span>}
           </span>
         </div>
         <div className="gcviz-status-row">

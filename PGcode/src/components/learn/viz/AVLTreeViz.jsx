@@ -55,13 +55,6 @@ function rotateLeft(x) {
   return y;
 }
 
-// findMin returns the in-order successor for delete.
-function findMin(n) {
-  let cur = n;
-  while (cur.left) cur = cur.left;
-  return cur;
-}
-
 // --- Frame builders -----------------------------------------------------
 // Each frame: { tree, caption, highlight: Set<id>, flash: Set<id>, fading: Set<id>, newId, op, step }
 
@@ -164,7 +157,6 @@ function rebalanceAlongPath(root, path, insertedValue, frames) {
 
     if (bf > 1 && insertedValue < node.left.value) {
       // LL
-      rotationLabel = `Imbalance at ${node.value} (LL) — right rotation.`;
       pushFrame(frames, root, `Imbalance detected at ${node.value} (left-left). Performing right rotation.`, {
         highlight: [node.id, node.left.id, node.left.left.id],
         flash: [node.id, node.left.id, node.left.left.id],
@@ -172,7 +164,6 @@ function rebalanceAlongPath(root, path, insertedValue, frames) {
       newSubRoot = rotateRight(node);
     } else if (bf < -1 && insertedValue > node.right.value) {
       // RR
-      rotationLabel = `Imbalance at ${node.value} (RR) — left rotation.`;
       pushFrame(frames, root, `Imbalance detected at ${node.value} (right-right). Performing left rotation.`, {
         highlight: [node.id, node.right.id, node.right.right.id],
         flash: [node.id, node.right.id, node.right.right.id],
@@ -180,7 +171,6 @@ function rebalanceAlongPath(root, path, insertedValue, frames) {
       newSubRoot = rotateLeft(node);
     } else if (bf > 1 && insertedValue > node.left.value) {
       // LR
-      rotationLabel = `Imbalance at ${node.value} (LR) — left-rotate child, then right-rotate self.`;
       pushFrame(frames, root, `Imbalance at ${node.value} (left-right). First, left-rotate child ${node.left.value}.`, {
         highlight: [node.id, node.left.id, node.left.right.id],
         flash: [node.left.id, node.left.right.id],
@@ -197,7 +187,6 @@ function rebalanceAlongPath(root, path, insertedValue, frames) {
       newSubRoot = rotateRight(node);
     } else if (bf < -1 && insertedValue < node.right.value) {
       // RL
-      rotationLabel = `Imbalance at ${node.value} (RL) — right-rotate child, then left-rotate self.`;
       pushFrame(frames, root, `Imbalance at ${node.value} (right-left). First, right-rotate child ${node.right.value}.`, {
         highlight: [node.id, node.right.id, node.right.left.id],
         flash: [node.right.id, node.right.left.id],
@@ -492,8 +481,9 @@ function collectEdges(root) {
 export default function AVLTreeViz() {
   const [tree, setTree] = useState(() => buildInitialTree(INITIAL_INSERTS));
   const [frames, setFrames] = useState([]);
+  const [, setPendingTree] = useState(null);
   const [idx, setIdx] = useState(-1);
-  const [playing, setPlaying] = useState(false);
+  const [playingRaw, setPlaying] = useState(false);
   const [insertVal, setInsertVal] = useState('15');
   const [deleteVal, setDeleteVal] = useState('30');
   const [opLabel, setOpLabel] = useState('Pre-loaded with [10, 20, 30, 40, 50, 25].');
@@ -501,6 +491,7 @@ export default function AVLTreeViz() {
 
   const currentFrame = idx >= 0 && idx < frames.length ? frames[idx] : null;
   const displayTree = currentFrame ? currentFrame.tree : tree;
+  const playing = playingRaw && idx >= 0 && idx < frames.length - 1;
 
   const runInsert = useCallback(() => {
     const n = Number(insertVal);
@@ -508,11 +499,9 @@ export default function AVLTreeViz() {
     const result = insertFrames(tree, n);
     setOpLabel(`Insert ${n}`);
     setFrames(result.frames);
+    setPendingTree(result.tree);
     setIdx(0);
     setPlaying(true);
-    // Commit final tree when playback ends (handled in effect below).
-    // Stash pending tree on a ref via closure:
-    pendingTreeRef.current = result.tree;
   }, [insertVal, tree]);
 
   const runDelete = useCallback(() => {
@@ -521,9 +510,9 @@ export default function AVLTreeViz() {
     const result = deleteFrames(tree, n);
     setOpLabel(`Delete ${n}`);
     setFrames(result.frames);
+    setPendingTree(result.tree);
     setIdx(0);
     setPlaying(true);
-    pendingTreeRef.current = result.tree;
   }, [deleteVal, tree]);
 
   const reset = useCallback(() => {
@@ -531,34 +520,35 @@ export default function AVLTreeViz() {
     const fresh = buildInitialTree(INITIAL_INSERTS);
     setTree(fresh);
     setFrames([]);
+    setPendingTree(null);
     setIdx(-1);
     setOpLabel('Pre-loaded with [10, 20, 30, 40, 50, 25].');
   }, []);
 
-  const pendingTreeRef = useRef(null);
+  const commitPendingTree = useCallback(() => {
+    setPendingTree((current) => {
+      if (current) setTree(current);
+      return null;
+    });
+  }, []);
 
   useEffect(() => {
     if (!playing) return;
-    if (idx < 0 || idx >= frames.length - 1) {
-      if (idx === frames.length - 1 && frames.length > 0 && pendingTreeRef.current) {
-        setTree(pendingTreeRef.current);
-        pendingTreeRef.current = null;
-      }
-      setPlaying(false);
-      return;
-    }
-    playRef.current = setTimeout(() => setIdx((i) => i + 1), STEP_MS);
+    playRef.current = setTimeout(() => {
+      setIdx((i) => {
+        const next = i + 1;
+        if (next === frames.length - 1) commitPendingTree();
+        return next;
+      });
+    }, STEP_MS);
     return () => clearTimeout(playRef.current);
-  }, [playing, idx, frames]);
+  }, [playing, frames.length, commitPendingTree]);
 
   const stepNext = () => {
     if (idx < frames.length - 1) {
       const next = idx + 1;
       setIdx(next);
-      if (next === frames.length - 1 && pendingTreeRef.current) {
-        setTree(pendingTreeRef.current);
-        pendingTreeRef.current = null;
-      }
+      if (next === frames.length - 1) commitPendingTree();
     }
   };
   const stepPrev = () => {

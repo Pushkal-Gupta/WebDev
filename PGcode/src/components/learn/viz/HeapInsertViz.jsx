@@ -94,11 +94,14 @@ export default function HeapInsertViz() {
   const [inputVal, setInputVal] = useState('3');
   const [frames, setFrames] = useState([]);
   const [idx, setIdx] = useState(-1);
-  const [playing, setPlaying] = useState(false);
+  const [playingRaw, setPlaying] = useState(false);
   const playRef = useRef(null);
 
   const currentFrame = idx >= 0 && idx < frames.length ? frames[idx] : null;
   const displayHeap = currentFrame ? currentFrame.heap : heap;
+  // Derive `playing` from the raw toggle + bounds so the auto-run effect never
+  // needs to call setPlaying(false) when we hit the end.
+  const playing = playingRaw && idx >= 0 && idx < frames.length - 1;
 
   const insert = useCallback(() => {
     const n = Number(inputVal);
@@ -117,17 +120,16 @@ export default function HeapInsertViz() {
     setInputVal('3');
   }, []);
 
-  // Play loop: when reaching the last frame, commit the final heap and stop.
+  // Play loop. `playing` is derived above from the raw toggle + bounds so the
+  // effect never needs to call setPlaying(false) at the end.
   useEffect(() => {
     if (!playing) return;
-    if (idx < 0 || idx >= frames.length - 1) {
-      if (idx === frames.length - 1 && frames.length > 0) {
-        setHeap(frames[frames.length - 1].heap);
-      }
-      setPlaying(false);
-      return;
-    }
-    playRef.current = setTimeout(() => setIdx((i) => i + 1), STEP_MS);
+    playRef.current = setTimeout(() => {
+      const nextIdx = idx + 1;
+      setIdx(nextIdx);
+      // Commit the final heap when the animation lands on the last frame.
+      if (nextIdx === frames.length - 1) setHeap(frames[nextIdx].heap);
+    }, STEP_MS);
     return () => clearTimeout(playRef.current);
   }, [playing, idx, frames]);
 

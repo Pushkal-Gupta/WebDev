@@ -174,27 +174,27 @@ export default function RegexDPViz() {
   const built = useMemo(() => buildSteps(effectiveS, effectiveP), [effectiveS, effectiveP]);
   const { steps, finalDp } = built;
   const [idx, setIdx] = useState(-1);
-  const [playing, setPlaying] = useState(false);
+  const [playingRaw, setPlaying] = useState(false);
   const timerRef = useRef(null);
 
-  useEffect(() => {
+  // Reset playhead when the input changes (prev-state-during-render pattern).
+  const [prevS, setPrevS] = useState(effectiveS);
+  const [prevP, setPrevP] = useState(effectiveP);
+  if (prevS !== effectiveS || prevP !== effectiveP) {
+    setPrevS(effectiveS);
+    setPrevP(effectiveP);
     setIdx(-1);
     setPlaying(false);
-  }, [effectiveS, effectiveP]);
+  }
 
   const total = steps.length;
   const current = idx >= 0 ? steps[idx] : null;
   const atEnd = idx >= total - 1;
   const finalAnswer = finalDp[effectiveS.length][effectiveP.length];
+  const playing = playingRaw && idx < total - 1;
 
   const next = useCallback(() => {
-    setIdx((i) => {
-      if (i >= total - 1) {
-        setPlaying(false);
-        return i;
-      }
-      return i + 1;
-    });
+    setIdx((i) => Math.min(i + 1, total - 1));
   }, [total]);
 
   useEffect(() => {
@@ -212,10 +212,6 @@ export default function RegexDPViz() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [playing, next]);
-
-  useEffect(() => {
-    if (idx >= total - 1 && playing) setPlaying(false);
-  }, [idx, total, playing]);
 
   const handleReset = () => {
     setPlaying(false);

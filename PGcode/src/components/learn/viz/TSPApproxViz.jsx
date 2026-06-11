@@ -355,7 +355,7 @@ export default function TSPApproxViz() {
   const [seed, setSeed] = useState(42);
   const [algo, setAlgo] = useState('nearest');
   const [idx, setIdx] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  const [playingRaw, setPlaying] = useState(false);
   const [results, setResults] = useState({}); // { nearest: len, christofides: len, twoopt: len }
   const timerRef = useRef(null);
 
@@ -380,31 +380,32 @@ export default function TSPApproxViz() {
   const atEnd = idx >= frames.length - 1;
 
   // Reset playhead when algo or seed changes.
-  useEffect(() => {
+  const [prevAlgoSeed, setPrevAlgoSeed] = useState({ algo, seed });
+  if (prevAlgoSeed.algo !== algo || prevAlgoSeed.seed !== seed) {
+    setPrevAlgoSeed({ algo, seed });
     setIdx(0);
     setPlaying(false);
-  }, [algo, seed]);
+  }
 
   // Auto-record result whenever a run finishes playback.
-  useEffect(() => {
-    if (atEnd) {
-      setResults((prev) => {
-        if (prev[algo] !== undefined && Math.abs(prev[algo] - activeRun.finalLength) < 1e-6) {
-          return prev;
-        }
-        return { ...prev, [algo]: activeRun.finalLength };
-      });
-    }
-  }, [atEnd, algo, activeRun.finalLength]);
+  const recordKey = atEnd ? `${algo}:${activeRun.finalLength}` : null;
+  const [prevRecordKey, setPrevRecordKey] = useState(null);
+  if (recordKey !== null && recordKey !== prevRecordKey) {
+    setPrevRecordKey(recordKey);
+    setResults((prev) => {
+      if (prev[algo] !== undefined && Math.abs(prev[algo] - activeRun.finalLength) < 1e-6) {
+        return prev;
+      }
+      return { ...prev, [algo]: activeRun.finalLength };
+    });
+  }
+
+  // Derive `playing` so the interval effect never has to call setPlaying(false)
+  // on reaching the last frame — avoids cascading-render lint.
+  const playing = playingRaw && idx < frames.length - 1;
 
   const advance = useCallback(() => {
-    setIdx((i) => {
-      if (i >= frames.length - 1) {
-        setPlaying(false);
-        return i;
-      }
-      return i + 1;
-    });
+    setIdx((i) => (i >= frames.length - 1 ? i : i + 1));
   }, [frames.length]);
 
   useEffect(() => {

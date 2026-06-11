@@ -1,0 +1,8 @@
+{
+  "questionId": "3303",
+  "titleSlug": "find-beautiful-indices-in-the-given-array-ii",
+  "title": "Find Beautiful Indices in the Given Array II",
+  "exampleTestcases": "\"isawsquirrelnearmysquirrelhouseohmy\"\n\"my\"\n\"squirrel\"\n15\n\"abcd\"\n\"a\"\n\"a\"\n4",
+  "sampleTestCase": "\"isawsquirrelnearmysquirrelhouseohmy\"\n\"my\"\n\"squirrel\"\n15",
+  "metaData": "{\n  \"name\": \"beautifulIndices\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"a\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"b\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
+}

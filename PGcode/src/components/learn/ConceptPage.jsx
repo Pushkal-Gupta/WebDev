@@ -65,9 +65,10 @@ function hasContent(value) {
 
 const MD_REMARK_PLUGINS = [remarkGfm];
 
-// Sentinels for math: pre-processor swaps \(EXPR\) → `​MATH​<EXPR>​` and \[EXPR\] → `​DMATH​<EXPR>​`
-// inside an inline code span so react-markdown leaves it intact; the code component
-// detects the sentinel and renders KaTeX HTML instead of normal inline code.
+// Sentinels for math: pre-processor swaps inline LaTeX delimiters into an inline
+// code span wrapped with zero-width-space-delimited MATH/DMATH markers so
+// react-markdown leaves it intact; the code component detects the sentinel and
+// renders KaTeX HTML instead of normal inline code.
 const MATH_SENTINEL = '​MATH​';
 const DMATH_SENTINEL = '​DMATH​';
 
@@ -140,16 +141,17 @@ function formatPowers(text) {
   for (let i = 0; i < parts.length; i++) {
     if (i % 2 === 1) continue; // inline code chunk, leave as-is
     parts[i] = parts[i].replace(
-      /([A-Za-z0-9\)\]])\^(-?[0-9]+|[nki])\b/g,
+      /([A-Za-z0-9)\]])\^(-?[0-9]+|[nki])\b/g,
       (_m, base, exp) => `${base}${toSuperscript(exp)}`,
     );
   }
   return parts.join('');
 }
 
-// Replace \(EXPR\) with `​MATH​EXPR​` and \[EXPR\] with `​DMATH​EXPR​` so react-markdown
-// treats them as inline code, then the custom `code` component renders them via KaTeX.
-// Skips matches inside backticks.
+// Replace LaTeX inline/display delimiters with zero-width-space-wrapped
+// MATH/DMATH sentinels inside an inline code span so react-markdown treats
+// them as inline code, then the custom `code` component renders them via
+// KaTeX. Skips matches inside backticks.
 function preprocessInlineMath(text) {
   if (typeof text !== 'string') return text;
   if (text.indexOf('\\(') === -1 && text.indexOf('\\[') === -1) return text;

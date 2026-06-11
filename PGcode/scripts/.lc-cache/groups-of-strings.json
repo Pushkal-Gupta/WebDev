@@ -1,0 +1,8 @@
+{
+  "questionId": "2276",
+  "titleSlug": "groups-of-strings",
+  "title": "Groups of Strings",
+  "exampleTestcases": "[\"a\",\"b\",\"ab\",\"cde\"]\n[\"a\",\"ab\",\"abc\"]",
+  "sampleTestCase": "[\"a\",\"b\",\"ab\",\"cde\"]",
+  "metaData": "{\n  \"name\": \"groupStrings\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

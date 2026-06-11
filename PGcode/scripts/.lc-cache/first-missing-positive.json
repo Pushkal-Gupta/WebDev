@@ -1,0 +1,8 @@
+{
+  "questionId": "41",
+  "titleSlug": "first-missing-positive",
+  "title": "First Missing Positive",
+  "exampleTestcases": "[1,2,0]\n[3,4,-1,1]\n[7,8,9,11,12]",
+  "sampleTestCase": "[1,2,0]",
+  "metaData": "{\r\n  \"name\": \"firstMissingPositive\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

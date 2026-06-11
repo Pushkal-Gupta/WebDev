@@ -1,0 +1,8 @@
+{
+  "questionId": "3033",
+  "titleSlug": "apply-operations-to-make-two-strings-equal",
+  "title": "Apply Operations to Make Two Strings Equal",
+  "exampleTestcases": "\"1100011000\"\n\"0101001010\"\n2\n\"10110\"\n\"00011\"\n4",
+  "sampleTestCase": "\"1100011000\"\n\"0101001010\"\n2",
+  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"s1\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"s2\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"x\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

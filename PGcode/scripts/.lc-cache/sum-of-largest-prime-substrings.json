@@ -1,0 +1,8 @@
+{
+  "questionId": "3815",
+  "titleSlug": "sum-of-largest-prime-substrings",
+  "title": "Sum of Largest Prime Substrings",
+  "exampleTestcases": "\"12234\"\n\"111\"",
+  "sampleTestCase": "\"12234\"",
+  "metaData": "{\n  \"name\": \"sumOfLargestPrimes\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

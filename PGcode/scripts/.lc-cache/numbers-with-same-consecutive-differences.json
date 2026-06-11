@@ -1,0 +1,8 @@
+{
+  "questionId": "1007",
+  "titleSlug": "numbers-with-same-consecutive-differences",
+  "title": "Numbers With Same Consecutive Differences",
+  "exampleTestcases": "3\n7\n2\n1",
+  "sampleTestCase": "3\n7",
+  "metaData": "{\n  \"name\": \"numsSameConsecDiff\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

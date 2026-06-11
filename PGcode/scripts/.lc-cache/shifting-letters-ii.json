@@ -1,0 +1,8 @@
+{
+  "questionId": "2465",
+  "titleSlug": "shifting-letters-ii",
+  "title": "Shifting Letters II",
+  "exampleTestcases": "\"abc\"\n[[0,1,0],[1,2,1],[0,2,1]]\n\"dztz\"\n[[0,0,0],[1,1,1]]",
+  "sampleTestCase": "\"abc\"\n[[0,1,0],[1,2,1],[0,2,1]]",
+  "metaData": "{\n  \"name\": \"shiftingLetters\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"shifts\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

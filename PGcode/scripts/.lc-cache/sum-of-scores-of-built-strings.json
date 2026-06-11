@@ -1,0 +1,8 @@
+{
+  "questionId": "2326",
+  "titleSlug": "sum-of-scores-of-built-strings",
+  "title": "Sum of Scores of Built Strings",
+  "exampleTestcases": "\"babab\"\n\"azbazbzaz\"",
+  "sampleTestCase": "\"babab\"",
+  "metaData": "{\n  \"name\": \"sumScores\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

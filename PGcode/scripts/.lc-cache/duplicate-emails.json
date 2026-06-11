@@ -1,0 +1,8 @@
+{
+  "questionId": "182",
+  "titleSlug": "duplicate-emails",
+  "title": "Duplicate Emails",
+  "exampleTestcases": "{\"headers\": {\"Person\": [\"id\", \"email\"]}, \"rows\": {\"Person\": [[1, \"a@b.com\"], [2, \"c@d.com\"], [3, \"a@b.com\"]]}}",
+  "sampleTestCase": "{\"headers\": {\"Person\": [\"id\", \"email\"]}, \"rows\": {\"Person\": [[1, \"a@b.com\"], [2, \"c@d.com\"], [3, \"a@b.com\"]]}}",
+  "metaData": "{\"mysql\": [\"Create table If Not Exists Person (id int, email varchar(255))\"], \"mssql\": [\"Create table Person (id int, email varchar(255))\"], \"oraclesql\": [\"Create table Person (id int, email varchar(255))\"], \"database\": true, \"name\": \"duplicate_emails\", \"pythondata\": [\"Person = pd.DataFrame([], columns=['id', 'email']).astype({'id':'Int64', 'email':'object'})\"], \"postgresql\": [\"Create table If Not Exists Person (id int, email varchar(255))\"], \"database_schema\": {\"Person\": {\"id\": \"INT\", \"email\": \"VARCHAR(255)\"}}}"
+}

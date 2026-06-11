@@ -1,0 +1,8 @@
+{
+  "questionId": "2401",
+  "titleSlug": "count-asterisks",
+  "title": "Count Asterisks",
+  "exampleTestcases": "\"l|*e*et|c**o|*de|\"\n\"iamprogrammer\"\n\"yo|uar|e**|b|e***au|tifu|l\"",
+  "sampleTestCase": "\"l|*e*et|c**o|*de|\"",
+  "metaData": "{\n  \"name\": \"countAsterisks\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

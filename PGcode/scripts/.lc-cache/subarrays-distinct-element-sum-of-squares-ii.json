@@ -1,0 +1,8 @@
+{
+  "questionId": "3139",
+  "titleSlug": "subarrays-distinct-element-sum-of-squares-ii",
+  "title": "Subarrays Distinct Element Sum of Squares II",
+  "exampleTestcases": "[1,2,1]\n[2,2]",
+  "sampleTestCase": "[1,2,1]",
+  "metaData": "{\n  \"name\": \"sumCounts\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

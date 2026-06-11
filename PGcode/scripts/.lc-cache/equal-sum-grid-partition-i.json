@@ -1,0 +1,8 @@
+{
+  "questionId": "3849",
+  "titleSlug": "equal-sum-grid-partition-i",
+  "title": "Equal Sum Grid Partition I",
+  "exampleTestcases": "[[1,4],[2,3]]\n[[1,3],[2,4]]",
+  "sampleTestCase": "[[1,4],[2,3]]",
+  "metaData": "{\n  \"name\": \"canPartitionGrid\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

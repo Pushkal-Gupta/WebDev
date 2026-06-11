@@ -1,0 +1,8 @@
+{
+  "questionId": "2050",
+  "titleSlug": "count-good-numbers",
+  "title": "Count Good Numbers",
+  "exampleTestcases": "1\n4\n50",
+  "sampleTestCase": "1",
+  "metaData": "{\n  \"name\": \"countGoodNumbers\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"long\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1645",
+  "titleSlug": "find-a-value-of-a-mysterious-function-closest-to-target",
+  "title": "Find a Value of a Mysterious Function Closest to Target",
+  "exampleTestcases": "[9,12,3,7,15]\n5\n[1000000,1000000,1000000]\n1\n[1,2,4,8,16]\n0",
+  "sampleTestCase": "[9,12,3,7,15]\n5",
+  "metaData": "{\n  \"name\": \"closestToTarget\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

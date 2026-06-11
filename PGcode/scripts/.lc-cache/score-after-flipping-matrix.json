@@ -1,0 +1,8 @@
+{
+  "questionId": "891",
+  "titleSlug": "score-after-flipping-matrix",
+  "title": "Score After Flipping Matrix",
+  "exampleTestcases": "[[0,0,1,1],[1,0,1,0],[1,1,0,0]]\n[[0]]",
+  "sampleTestCase": "[[0,0,1,1],[1,0,1,0],[1,1,0,0]]",
+  "metaData": "{\n  \"name\": \"matrixScore\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

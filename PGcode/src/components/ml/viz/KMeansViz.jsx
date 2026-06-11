@@ -202,10 +202,10 @@ export default function KMeansViz() {
     clearTimers();
   }, [clearTimers]);
 
-  const resetCentroids = useCallback((seed, kk) => {
-    runningRef.current = false;
+  // State-only reset (safe at render-phase); imperative ref/timer cleanup
+  // lives in a sibling effect below.
+  const resetCentroidsState = useCallback((seed, kk) => {
     setRunning(false);
-    clearTimers();
     const cs = generateCentroids(seed, kk);
     setCentroids(cs);
     setAssignments(new Array(N_POINTS).fill(-1));
@@ -213,17 +213,21 @@ export default function KMeansViz() {
     setPhase('init');
     setConverged(false);
     setTrails(cs.map(c => [c]));
-  }, [clearTimers]);
+  }, []);
 
-  // When k changes, regenerate centroids with current centroid seed.
-  useEffect(() => {
-    resetCentroids(centroidSeed, k);
-  }, [k, centroidSeed, resetCentroids]);
+  // Regenerate centroids when k / centroidSeed / dataSeed change. Tracked-dep
+  // render-phase reset (React's recommended pattern over setState-in-effect).
+  const resetKey = `${k}|${centroidSeed}|${dataSeed}`;
+  const [lastResetKey, setLastResetKey] = useState(resetKey);
+  if (resetKey !== lastResetKey) {
+    setLastResetKey(resetKey);
+    resetCentroidsState(centroidSeed, k);
+  }
 
-  // When data seed changes, also re-init centroids so assignments are fresh.
   useEffect(() => {
-    resetCentroids(centroidSeed, k);
-  }, [dataSeed]); // eslint-disable-line react-hooks/exhaustive-deps
+    runningRef.current = false;
+    clearTimers();
+  }, [k, centroidSeed, dataSeed, clearTimers]);
 
   // One full iteration: assign then update.
   const stepOnce = useCallback(() => {

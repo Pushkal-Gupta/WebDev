@@ -186,11 +186,15 @@ export default function AutoencoderViz() {
     return { encAct: e, zAct: z, decAct: d, outAct: o, mse: err / N_IN };
   }, [inputs]);
 
+  const [prevPhase, setPrevPhase] = useState(phase);
+  const isRestingPhase = phase === 0 || phase === 2 || phase === 4 || phase === 6 || phase === 8;
+  if (prevPhase !== phase) {
+    setPrevPhase(phase);
+    if (isRestingPhase) setPulseT(0);
+  }
+
   useEffect(() => {
-    if (phase === 0 || phase === 2 || phase === 4 || phase === 6 || phase === 8) {
-      setPulseT(0);
-      return;
-    }
+    if (isRestingPhase) return;
     phaseStartRef.current = performance.now();
     const tick = () => {
       const dt = (performance.now() - phaseStartRef.current) / PHASE_DURATIONS[phase];
@@ -207,7 +211,7 @@ export default function AutoencoderViz() {
         rafRef.current = null;
       }
     };
-  }, [phase]);
+  }, [phase, isRestingPhase]);
 
   const runForward = useCallback(() => {
     clearTimers();
@@ -258,17 +262,6 @@ export default function AutoencoderViz() {
   const showZ = phase >= 4;
   const showDec = phase >= 6;
   const showOut = phase >= 8;
-
-  const phaseEdges = (which) => {
-    // returns { active: bool, dim: bool } per edge group
-    const map = {
-      'in-enc': phase === 1,
-      'enc-z': phase === 3,
-      'z-dec': phase === 5,
-      'dec-out': phase === 7,
-    };
-    return map[which];
-  };
 
   const INPUT_BAR = { x: PAD_L - 18, y: PAD_T - 4, w: 90, h: H - PAD_T - PAD_B + 4 };
   const OUTPUT_BAR = { x: W - PAD_R - 72, y: PAD_T - 4, w: 90, h: H - PAD_T - PAD_B + 4 };

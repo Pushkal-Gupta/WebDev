@@ -97,8 +97,8 @@
   border-radius: 6px;
   padding: 0.45rem 0.6rem;
   letter-spacing: 0.18em;
-  overflow-x: auto;
-  white-space: nowrap;
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 
 .manacher-viz-metrics {
@@ -151,13 +151,13 @@
 
 .manacher-viz-stage {
   width: 100%;
-  overflow-x: auto;
   padding: 0.5rem 0.25rem 0.25rem;
 }
 
 .manacher-viz-svg {
   display: block;
-  min-width: 640px;
+  width: 100%;
+  height: auto;
 }
 
 .manacher-viz-row-label {

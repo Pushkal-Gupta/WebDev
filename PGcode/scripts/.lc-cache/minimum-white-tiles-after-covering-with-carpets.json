@@ -1,0 +1,8 @@
+{
+  "questionId": "2311",
+  "titleSlug": "minimum-white-tiles-after-covering-with-carpets",
+  "title": "Minimum White Tiles After Covering With Carpets",
+  "exampleTestcases": "\"10110101\"\n2\n2\n\"11111\"\n2\n3",
+  "sampleTestCase": "\"10110101\"\n2\n2",
+  "metaData": "{\n  \"name\": \"minimumWhiteTiles\",\n  \"params\": [\n    {\n      \"name\": \"floor\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"numCarpets\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"carpetLen\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

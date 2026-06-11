@@ -254,8 +254,10 @@ export default function SegmentTreeViz() {
   const [upv, setUpv] = useState('10');
   const [frames, setFrames] = useState([]);
   const [idx, setIdx] = useState(-1);
-  const [playing, setPlaying] = useState(false);
+  const [playingRaw, setPlaying] = useState(false);
   const playRef = useRef(null);
+
+  const playing = playingRaw && idx >= 0 && idx < frames.length - 1;
 
   const { tree: baseTree, range: baseRange, n } = useMemo(() => buildTree(arr), [arr]);
 
@@ -314,16 +316,14 @@ export default function SegmentTreeViz() {
 
   useEffect(() => {
     if (!playing) return;
-    if (idx < 0 || idx >= frames.length - 1) {
-      // Commit array state for updates when the animation completes.
-      if (idx === frames.length - 1 && frames.length > 0) {
-        const last = frames[frames.length - 1];
-        if (last.kind === 'update') setArr(last.arr);
+    playRef.current = setTimeout(() => {
+      const nextIdx = idx + 1;
+      setIdx(nextIdx);
+      if (nextIdx === frames.length - 1) {
+        const last = frames[nextIdx];
+        if (last && last.kind === 'update') setArr(last.arr);
       }
-      setPlaying(false);
-      return;
-    }
-    playRef.current = setTimeout(() => setIdx((i) => i + 1), STEP_MS);
+    }, STEP_MS);
     return () => clearTimeout(playRef.current);
   }, [playing, idx, frames]);
 

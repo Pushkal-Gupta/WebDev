@@ -1,0 +1,8 @@
+{
+  "questionId": "912",
+  "titleSlug": "random-pick-with-weight",
+  "title": "Random Pick with Weight",
+  "exampleTestcases": "[\"Solution\",\"pickIndex\"]\n[[[1]],[]]\n[\"Solution\",\"pickIndex\",\"pickIndex\",\"pickIndex\",\"pickIndex\",\"pickIndex\"]\n[[[1,3]],[],[],[],[],[]]",
+  "sampleTestCase": "[\"Solution\",\"pickIndex\"]\n[[[1]],[]]",
+  "metaData": "{\n    \"classname\": \"Solution\",\n    \"maxbytesperline\": 200000,\n    \"constructor\": {\n        \"params\": [\n            {\n                \"name\": \"w\",\n                \"type\": \"integer[]\"\n            },\n            {\n                \"name\": \"wSize\",\n                \"type\": \"integer\",\n                \"lang\": \"c\",\n                \"value\": \"size_1\"\n            }\n        ]\n    },\n    \"methods\": [\n        {\n            \"name\" : \"pickIndex\",\n            \"params\": [\n            ],\n            \"return\": {\n                \"type\": \"integer\"\n            }\n        }\n    ],\n    \"systemdesign\": true,\n    \"params\": [\n        {\n            \"name\": \"inputs\",\n            \"type\": \"integer[]\"\n        },\n        {\n            \"name\": \"inputs\",\n            \"type\": \"integer[]\"\n        }\n    ],\n    \"return\": {\n        \"type\": \"list<String>\",\n        \"dealloc\": true\n    }\n}"
+}

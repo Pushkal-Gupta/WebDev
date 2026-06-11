@@ -1,0 +1,8 @@
+{
+  "questionId": "4186",
+  "titleSlug": "count-residue-prefixes",
+  "title": "Count Residue Prefixes",
+  "exampleTestcases": "\"abc\"\n\"dd\"\n\"bob\"",
+  "sampleTestCase": "\"abc\"",
+  "metaData": "{\n  \"name\": \"residuePrefixes\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2610",
+  "titleSlug": "closest-prime-numbers-in-range",
+  "title": "Closest Prime Numbers in Range",
+  "exampleTestcases": "10\n19\n4\n6",
+  "sampleTestCase": "10\n19",
+  "metaData": "{\n  \"name\": \"closestPrimes\",\n  \"params\": [\n    {\n      \"name\": \"left\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"right\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

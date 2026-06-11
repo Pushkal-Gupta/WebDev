@@ -1,0 +1,8 @@
+{
+  "questionId": "929",
+  "titleSlug": "groups-of-special-equivalent-strings",
+  "title": "Groups of Special-Equivalent Strings",
+  "exampleTestcases": "[\"abcd\",\"cdab\",\"cbad\",\"xyzz\",\"zzxy\",\"zzyx\"]\n[\"abc\",\"acb\",\"bac\",\"bca\",\"cab\",\"cba\"]",
+  "sampleTestCase": "[\"abcd\",\"cdab\",\"cbad\",\"xyzz\",\"zzxy\",\"zzyx\"]",
+  "metaData": "{\n  \"name\": \"numSpecialEquivGroups\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

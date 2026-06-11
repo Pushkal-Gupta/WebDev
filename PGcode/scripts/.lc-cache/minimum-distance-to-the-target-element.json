@@ -1,0 +1,8 @@
+{
+  "questionId": "1975",
+  "titleSlug": "minimum-distance-to-the-target-element",
+  "title": "Minimum Distance to the Target Element",
+  "exampleTestcases": "[1,2,3,4,5]\n5\n3\n[1]\n1\n0\n[1,1,1,1,1,1,1,1,1,1]\n1\n0",
+  "sampleTestCase": "[1,2,3,4,5]\n5\n3",
+  "metaData": "{\n  \"name\": \"getMinDistance\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"target\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"start\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

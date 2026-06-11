@@ -1,0 +1,8 @@
+{
+  "questionId": "508",
+  "titleSlug": "most-frequent-subtree-sum",
+  "title": "Most Frequent Subtree Sum",
+  "exampleTestcases": "[5,2,-3]\n[5,2,-5]",
+  "sampleTestCase": "[5,2,-3]",
+  "metaData": "{\r\n  \"name\": \"findFrequentTreeSum\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"root\",\r\n      \"type\": \"TreeNode\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer[]\"\r\n  }\r\n}"
+}

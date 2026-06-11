@@ -1,0 +1,8 @@
+{
+  "questionId": "344",
+  "titleSlug": "reverse-string",
+  "title": "Reverse String",
+  "exampleTestcases": "[\"h\",\"e\",\"l\",\"l\",\"o\"]\n[\"H\",\"a\",\"n\",\"n\",\"a\",\"h\"]",
+  "sampleTestCase": "[\"h\",\"e\",\"l\",\"l\",\"o\"]",
+  "metaData": "{\n  \"name\": \"reverseString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"character[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"void\"\n  },\n  \"output\": {\n    \"paramindex\": 0\n  }\n}"
+}

@@ -345,7 +345,7 @@
 .hsv-array-cells {
   display: flex;
   gap: 6px;
-  overflow-x: auto;
+  flex-wrap: wrap;
   padding-bottom: 4px;
 }
 

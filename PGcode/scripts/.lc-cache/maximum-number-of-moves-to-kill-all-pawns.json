@@ -1,0 +1,8 @@
+{
+  "questionId": "3560",
+  "titleSlug": "maximum-number-of-moves-to-kill-all-pawns",
+  "title": "Maximum Number of Moves to Kill All Pawns",
+  "exampleTestcases": "1\n1\n[[0,0]]\n0\n2\n[[1,1],[2,2],[3,3]]\n0\n0\n[[1,2],[2,4]]",
+  "sampleTestCase": "1\n1\n[[0,0]]",
+  "metaData": "{\n  \"name\": \"maxMoves\",\n  \"params\": [\n    {\n      \"name\": \"kx\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"ky\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"positions\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

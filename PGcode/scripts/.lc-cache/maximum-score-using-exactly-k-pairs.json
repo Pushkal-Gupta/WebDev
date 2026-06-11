@@ -1,0 +1,8 @@
+{
+  "questionId": "4202",
+  "titleSlug": "maximum-score-using-exactly-k-pairs",
+  "title": "Maximum Score Using Exactly K Pairs",
+  "exampleTestcases": "[1,3,2]\n[4,5,1]\n2\n[-2,0,5]\n[-3,4,-1,2]\n2\n[-3,-2]\n[1,2]\n2",
+  "sampleTestCase": "[1,3,2]\n[4,5,1]\n2",
+  "metaData": "{\n  \"name\": \"maxScore\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

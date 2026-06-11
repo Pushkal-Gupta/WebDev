@@ -1,0 +1,8 @@
+{
+  "questionId": "1196",
+  "titleSlug": "filling-bookcase-shelves",
+  "title": "Filling Bookcase Shelves",
+  "exampleTestcases": "[[1,1],[2,3],[2,3],[1,1],[1,1],[1,1],[1,2]]\n4\n[[1,3],[2,4],[3,2]]\n6",
+  "sampleTestCase": "[[1,1],[2,3],[2,3],[1,1],[1,1],[1,1],[1,2]]\n4",
+  "metaData": "{\n  \"name\": \"minHeightShelves\",\n  \"params\": [\n    {\n      \"name\": \"books\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"shelfWidth\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

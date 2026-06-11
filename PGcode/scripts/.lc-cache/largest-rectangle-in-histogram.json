@@ -1,0 +1,8 @@
+{
+  "questionId": "84",
+  "titleSlug": "largest-rectangle-in-histogram",
+  "title": "Largest Rectangle in Histogram",
+  "exampleTestcases": "[2,1,5,6,2,3]\n[2,4]",
+  "sampleTestCase": "[2,1,5,6,2,3]",
+  "metaData": "{\r\n  \"name\": \"largestRectangleArea\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"heights\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

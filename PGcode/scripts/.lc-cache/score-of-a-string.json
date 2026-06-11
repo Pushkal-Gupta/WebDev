@@ -1,0 +1,8 @@
+{
+  "questionId": "3379",
+  "titleSlug": "score-of-a-string",
+  "title": "Score of a String",
+  "exampleTestcases": "\"hello\"\n\"zaz\"",
+  "sampleTestCase": "\"hello\"",
+  "metaData": "{\n  \"name\": \"scoreOfString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

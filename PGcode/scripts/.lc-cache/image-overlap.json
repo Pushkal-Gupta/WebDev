@@ -1,0 +1,8 @@
+{
+  "questionId": "864",
+  "titleSlug": "image-overlap",
+  "title": "Image Overlap",
+  "exampleTestcases": "[[1,1,0],[0,1,0],[0,1,0]]\n[[0,0,0],[0,1,1],[0,0,1]]\n[[1]]\n[[1]]\n[[0]]\n[[0]]",
+  "sampleTestCase": "[[1,1,0],[0,1,0],[0,1,0]]\n[[0,0,0],[0,1,1],[0,0,1]]",
+  "metaData": "{\n  \"name\": \"largestOverlap\",\n  \"params\": [\n    {\n      \"name\": \"img1\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"name\": \"img2\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

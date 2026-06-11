@@ -1,0 +1,8 @@
+{
+  "questionId": "1726",
+  "titleSlug": "coordinate-with-maximum-network-quality",
+  "title": "Coordinate With Maximum Network Quality",
+  "exampleTestcases": "[[1,2,5],[2,1,7],[3,1,9]]\n2\n[[23,11,21]]\n9\n[[1,2,13],[2,1,7],[0,1,9]]\n2",
+  "sampleTestCase": "[[1,2,5],[2,1,7],[3,1,9]]\n2",
+  "metaData": "{\n  \"name\": \"bestCoordinate\",\n  \"params\": [\n    {\n      \"name\": \"towers\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"radius\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

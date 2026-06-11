@@ -1,0 +1,8 @@
+{
+  "questionId": "507",
+  "titleSlug": "perfect-number",
+  "title": "Perfect Number",
+  "exampleTestcases": "28\n7",
+  "sampleTestCase": "28",
+  "metaData": "{\r\n  \"name\": \"checkPerfectNumber\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"num\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
+}

@@ -36,10 +36,22 @@ function inferRendererFromTags(tags) {
 // Tries (a) problem.viz_steps from the DB, (b) client-side RICH_CONTENT,
 // (c) generic test-case walkthrough generated from test_cases + params,
 // (d) friendly fallback when nothing is available.
-export default function ProblemVisualizer({ problem }) {
+//
+// `vizAnchor` (optional) names the variant the solution page wants to step
+// through. When `viz_steps` is shaped as a map of {anchorKey: {frames, ...}},
+// or carries a `variants` map, we pick the matching variant; otherwise it's a
+// no-op and the default viz renders.
+export default function ProblemVisualizer({ problem, vizAnchor = null }) {
   if (!problem) return null;
 
-  let viz = problem.viz_steps || RICH_CONTENT[problem.id]?.viz || null;
+  const baseViz = problem.viz_steps || RICH_CONTENT[problem.id]?.viz || null;
+  let viz = baseViz;
+  if (vizAnchor && baseViz && typeof baseViz === 'object') {
+    const variant = baseViz.variants?.[vizAnchor] || baseViz[vizAnchor];
+    if (variant && Array.isArray(variant.frames)) {
+      viz = variant;
+    }
+  }
 
   if (!viz || !viz.frames?.length) {
     const inferred = inferRendererFromTags(problem.tags);

@@ -169,7 +169,7 @@ export default function BinarySearchViz({
   const [targetInput, setTargetInput] = useState(String(initialTarget));
   const [appliedTarget, setAppliedTarget] = useState(initialTarget);
   const [stepIdx, setStepIdx] = useState(0);
-  const [isRunning, setIsRunning] = useState(false);
+  const [isRunningRaw, setIsRunning] = useState(false);
   const runTimer = useRef(null);
 
   const steps = useMemo(() => buildSteps(arr, appliedTarget), [arr, appliedTarget]);
@@ -204,13 +204,12 @@ export default function BinarySearchViz({
     setStepIdx(0);
   }, [stop]);
 
-  // Auto-run loop: queue successive steps on a fixed delay.
+  // Auto-run loop: queue successive steps on a fixed delay. Derive `isRunning`
+  // from the raw toggle + a bounds check so the effect never has to call
+  // setIsRunning(false) when we hit the end — avoids a cascading-render.
+  const isRunning = isRunningRaw && stepIdx < totalSteps - 1;
   useEffect(() => {
     if (!isRunning) return;
-    if (stepIdx >= totalSteps - 1) {
-      setIsRunning(false);
-      return;
-    }
     runTimer.current = setTimeout(() => {
       setStepIdx(i => Math.min(i + 1, totalSteps - 1));
     }, RUN_DELAY_MS);
@@ -220,7 +219,7 @@ export default function BinarySearchViz({
         runTimer.current = null;
       }
     };
-  }, [isRunning, stepIdx, totalSteps]);
+  }, [isRunning, totalSteps]);
 
   const handleRunToggle = () => {
     if (isRunning) { stop(); return; }

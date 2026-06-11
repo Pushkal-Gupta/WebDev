@@ -1,0 +1,8 @@
+{
+  "questionId": "3511",
+  "titleSlug": "find-the-winning-player-in-coin-game",
+  "title": "Find the Winning Player in Coin Game",
+  "exampleTestcases": "2\n7\n4\n11",
+  "sampleTestCase": "2\n7",
+  "metaData": "{\n  \"name\": \"winningPlayer\",\n  \"params\": [\n    {\n      \"name\": \"x\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"y\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

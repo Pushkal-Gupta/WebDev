@@ -1,0 +1,8 @@
+{
+  "questionId": "2083",
+  "titleSlug": "three-divisors",
+  "title": "Three Divisors",
+  "exampleTestcases": "2\n4",
+  "sampleTestCase": "2",
+  "metaData": "{\n  \"name\": \"isThree\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

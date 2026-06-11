@@ -1,0 +1,8 @@
+{
+  "questionId": "645",
+  "titleSlug": "set-mismatch",
+  "title": "Set Mismatch",
+  "exampleTestcases": "[1,2,2,4]\n[1,1]",
+  "sampleTestCase": "[1,2,2,4]",
+  "metaData": "{\r\n  \"name\": \"findErrorNums\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer[]\"\r\n  }\r\n}\r\n"
+}

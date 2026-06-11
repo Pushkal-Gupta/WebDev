@@ -1,0 +1,8 @@
+{
+  "questionId": "1636",
+  "titleSlug": "number-of-substrings-with-only-1s",
+  "title": "Number of Substrings With Only 1s",
+  "exampleTestcases": "\"0110111\"\n\"101\"\n\"111111\"",
+  "sampleTestCase": "\"0110111\"",
+  "metaData": "{\n  \"name\": \"numSub\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

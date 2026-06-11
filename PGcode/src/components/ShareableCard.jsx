@@ -11,19 +11,6 @@ import { useTopics, useProblemsCompact } from '../lib/queries';
 import { primaryTopicLabel } from '../lib/topicLabel';
 import './ShareableCard.css';
 
-// Map a personal-links URL to an icon component. Falls back to ExternalLink.
-function iconForLink(url, label) {
-  const u = String(url || '').toLowerCase();
-  const l = String(label || '').toLowerCase();
-  if (u.includes('github.com') || l.includes('github')) return GitBranch;
-  if (u.includes('linkedin.com') || l.includes('linkedin')) return Linkedin;
-  if (u.includes('twitter.com') || u.includes('x.com') || l.includes('twitter') || l === 'x') return Twitter;
-  if (u.includes('leetcode.com') || l.includes('leetcode')) return Code2;
-  if (u.includes('codeforces.com') || l.includes('codeforces')) return Code2;
-  if (u.includes('codolio.com') || l.includes('codolio')) return Code2;
-  return Globe;
-}
-
 // Public-read profile by username — same shape PublicProfile uses.
 function useProfileByUsername(username) {
   return useQuery({
@@ -131,9 +118,9 @@ function readToken(name, fallback) {
 
 // Render the card as a static SVG string — used for PNG export. Keeps tokens
 // resolved at export time so the downloaded image matches the active theme.
-function buildSvg({ displayName, handle, solved, totalProblems, streak, byDifficulty, topTopics, dateStr }) {
+function buildSvg({ displayName, handle, solved, totalProblems, streak, byDifficulty, topTopics, dateStr, learn, githubStats }) {
   const W = 1200;
-  const H = 630;
+  const H = 820;
   const bg = readToken('--bg', '#0b0b10');
   const surface = readToken('--surface', '#16161d');
   const accent = readToken('--accent', '#7c5cff');
@@ -165,6 +152,69 @@ function buildSvg({ displayName, handle, solved, totalProblems, streak, byDiffic
         <text x="194" y="28" font-family="Inter,system-ui,sans-serif" font-size="14" fill="${dim}" text-anchor="end">${t.count}</text>
       </g>`;
   }).join('');
+
+  // Learning row — three stats, full-width, sits below topics/diff block.
+  const learnSafe = learn || { mastered: 0, concepts: 0, achievements: 0 };
+  const learnY = 600;
+  const learnCols = [
+    { num: learnSafe.mastered ?? 0, label: 'concepts mastered' },
+    { num: learnSafe.concepts ?? 0, label: 'lessons opened' },
+    { num: learnSafe.achievements ?? 0, label: 'achievements' },
+  ];
+  const learnColW = 360;
+  const learnBlock = `
+    <text x="60" y="${learnY}" font-family="Inter,system-ui,sans-serif" font-size="13" fill="${dim}" font-weight="600" letter-spacing="2">LEARNING</text>
+    ${learnCols.map((c, i) => {
+      const x = 60 + i * learnColW;
+      return `
+        <text x="${x}" y="${learnY + 44}" font-family="Inter,system-ui,sans-serif" font-size="34" font-weight="800" fill="${text}">${c.num}</text>
+        <text x="${x}" y="${learnY + 68}" font-family="Inter,system-ui,sans-serif" font-size="14" fill="${dim}">${escapeXml(c.label)}</text>
+      `;
+    }).join('')}
+  `;
+
+  // GitHub row — eyebrow + 4 stats + language chips. Skip entirely if no stats.
+  let githubBlock = '';
+  if (githubStats) {
+    const ghY = 700;
+    const ghCols = [
+      { num: githubStats.publicRepos ?? 0, label: 'repos' },
+      { num: githubStats.stars ?? 0, label: 'stars' },
+      { num: githubStats.followers ?? 0, label: 'followers' },
+      { num: githubStats.following ?? 0, label: 'following' },
+    ];
+    const ghColW = 270;
+    const ghEyebrow = `GITHUB · @${escapeXml(githubStats.login || '')}`;
+    const statsSvg = ghCols.map((c, i) => {
+      const x = 60 + i * ghColW;
+      return `
+        <text x="${x}" y="${ghY + 40}" font-family="Inter,system-ui,sans-serif" font-size="30" font-weight="800" fill="${text}">${c.num}</text>
+        <text x="${x}" y="${ghY + 62}" font-family="Inter,system-ui,sans-serif" font-size="13" fill="${dim}">${escapeXml(c.label)}</text>
+      `;
+    }).join('');
+    let langSvg = '';
+    const langs = Array.isArray(githubStats.topLangs) ? githubStats.topLangs.slice(0, 6) : [];
+    if (langs.length > 0) {
+      let cx = 60;
+      const langChipY = ghY + 82;
+      langSvg = langs.map(l => {
+        const label = String(l || '').slice(0, 16);
+        const w = Math.max(70, 18 + label.length * 8);
+        const out = `
+          <g transform="translate(${cx},${langChipY})">
+            <rect width="${w}" height="28" rx="14" fill="${bg}" stroke="${border}" />
+            <text x="${w / 2}" y="19" font-family="Inter,system-ui,sans-serif" font-size="13" fill="${text}" text-anchor="middle">${escapeXml(label)}</text>
+          </g>`;
+        cx += w + 10;
+        return out;
+      }).join('');
+    }
+    githubBlock = `
+      <text x="60" y="${ghY}" font-family="Inter,system-ui,sans-serif" font-size="13" fill="${dim}" font-weight="600" letter-spacing="2">${ghEyebrow}</text>
+      ${statsSvg}
+      ${langSvg}
+    `;
+  }
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
@@ -226,10 +276,16 @@ function buildSvg({ displayName, handle, solved, totalProblems, streak, byDiffic
   <text x="60" y="450" font-family="Inter,system-ui,sans-serif" font-size="13" fill="${dim}" font-weight="600" letter-spacing="2">TOP TOPICS</text>
   ${chips}
 
+  <!-- Learning row -->
+  ${learnBlock}
+
+  <!-- GitHub row (skipped when githubStats is null) -->
+  ${githubBlock}
+
   <!-- Footer / branding -->
-  <text x="60" y="${H - 60}" font-family="Inter,system-ui,sans-serif" font-size="14" fill="${dim}">${escapeXml(dateStr)}</text>
-  <text x="${W - 60}" y="${H - 60}" font-family="Inter,system-ui,sans-serif" font-size="18" font-weight="700" fill="${accent}" text-anchor="end">PGcode</text>
-  <text x="${W - 60}" y="${H - 38}" font-family="Inter,system-ui,sans-serif" font-size="12" fill="${dim}" text-anchor="end">pushkalgupta.com/PGcode</text>
+  <text x="60" y="${H - 40}" font-family="Inter,system-ui,sans-serif" font-size="14" fill="${dim}">${escapeXml(dateStr)}</text>
+  <text x="${W - 60}" y="${H - 40}" font-family="Inter,system-ui,sans-serif" font-size="18" font-weight="700" fill="${accent}" text-anchor="end">PGcode</text>
+  <text x="${W - 60}" y="${H - 18}" font-family="Inter,system-ui,sans-serif" font-size="12" fill="${dim}" text-anchor="end">pushkalgupta.com/PGcode</text>
 </svg>`;
 }
 
@@ -255,9 +311,9 @@ async function downloadAsPng(svgString, filename) {
     });
     const canvas = document.createElement('canvas');
     canvas.width = 1200;
-    canvas.height = 630;
+    canvas.height = 820;
     const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, 1200, 630);
+    ctx.drawImage(img, 0, 0, 1200, 820);
     const pngUrl = canvas.toDataURL('image/png');
     const a = document.createElement('a');
     a.href = pngUrl;
@@ -309,7 +365,7 @@ export default function ShareableCard({ embedded = false, presetUsername = null,
   const cardRef = useRef(null);
 
   const handleDownload = async () => {
-    const svg = buildSvg({ displayName, handle, solved, totalProblems, streak, byDifficulty, topTopics, dateStr });
+    const svg = buildSvg({ displayName, handle, solved, totalProblems, streak, byDifficulty, topTopics, dateStr, learn, githubStats });
     await downloadAsPng(svg, `pgcode-${(profile?.username || username || 'card')}.png`);
   };
 
@@ -499,7 +555,7 @@ export default function ShareableCard({ embedded = false, presetUsername = null,
         </div>
       </div>
       <div className="sc-preview-wrap">{card}</div>
-      <p className="sc-hint">1200 by 630, the size LinkedIn and Twitter use for link previews. The downloaded PNG renders in your active theme.</p>
+      <p className="sc-hint">1200 by 820, ready for LinkedIn, X, and personal-site embeds. The downloaded PNG renders in your active theme.</p>
     </div>
   );
 }

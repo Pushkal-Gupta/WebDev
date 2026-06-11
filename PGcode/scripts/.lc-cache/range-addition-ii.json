@@ -1,0 +1,8 @@
+{
+  "questionId": "598",
+  "titleSlug": "range-addition-ii",
+  "title": "Range Addition II",
+  "exampleTestcases": "3\n3\n[[2,2],[3,3]]\n3\n3\n[[2,2],[3,3],[3,3],[3,3],[2,2],[3,3],[3,3],[3,3],[2,2],[3,3],[3,3],[3,3]]\n3\n3\n[]",
+  "sampleTestCase": "3\n3\n[[2,2],[3,3]]",
+  "metaData": "{\r\n  \"name\": \"maxCount\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"m\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"ops\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

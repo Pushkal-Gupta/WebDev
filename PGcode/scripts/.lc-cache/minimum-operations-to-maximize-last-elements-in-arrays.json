@@ -1,0 +1,8 @@
+{
+  "questionId": "3190",
+  "titleSlug": "minimum-operations-to-maximize-last-elements-in-arrays",
+  "title": "Minimum Operations to Maximize Last Elements in Arrays",
+  "exampleTestcases": "[1,2,7]\n[4,5,3]\n[2,3,4,5,9]\n[8,8,4,4,4]\n[1,5,4]\n[2,5,3]",
+  "sampleTestCase": "[1,2,7]\n[4,5,3]",
+  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

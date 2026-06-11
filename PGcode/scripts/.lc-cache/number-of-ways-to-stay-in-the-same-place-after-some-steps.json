@@ -1,0 +1,8 @@
+{
+  "questionId": "1398",
+  "titleSlug": "number-of-ways-to-stay-in-the-same-place-after-some-steps",
+  "title": "Number of Ways to Stay in the Same Place After Some Steps",
+  "exampleTestcases": "3\n2\n2\n4\n4\n2",
+  "sampleTestCase": "3\n2",
+  "metaData": "{\n  \"name\": \"numWays\",\n  \"params\": [\n    {\n      \"name\": \"steps\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"arrLen\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

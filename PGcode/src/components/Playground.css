@@ -1,13 +1,14 @@
 .pg-playground {
   display: flex;
   flex-direction: column;
-  width: 96%;
-  max-width: 1700px;
+  width: 100%;
+  max-width: var(--playground-w, 1520px);
   margin: 0 auto;
   height: calc(100vh - 100px);
-  padding: 1.25rem 0 1.5rem;
+  padding: 1.25rem var(--playground-gutter, 3rem) 1.5rem;
   gap: 1rem;
   min-height: 0;
+  box-sizing: border-box;
 }
 
 .pg-pg-header {

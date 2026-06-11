@@ -1,0 +1,8 @@
+{
+  "questionId": "3801",
+  "titleSlug": "count-beautiful-numbers",
+  "title": "Count Beautiful Numbers",
+  "exampleTestcases": "10\n20\n1\n15",
+  "sampleTestCase": "10\n20",
+  "metaData": "{\n  \"name\": \"beautifulNumbers\",\n  \"params\": [\n    {\n      \"name\": \"l\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"r\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

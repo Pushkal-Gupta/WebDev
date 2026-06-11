@@ -1,0 +1,8 @@
+{
+  "questionId": "4020",
+  "titleSlug": "lexicographically-smallest-permutation-greater-than-target",
+  "title": "Lexicographically Smallest Permutation Greater Than Target",
+  "exampleTestcases": "\"abc\"\n\"bba\"\n\"leet\"\n\"code\"\n\"baba\"\n\"bbaa\"",
+  "sampleTestCase": "\"abc\"\n\"bba\"",
+  "metaData": "{\n  \"name\": \"lexGreaterPermutation\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

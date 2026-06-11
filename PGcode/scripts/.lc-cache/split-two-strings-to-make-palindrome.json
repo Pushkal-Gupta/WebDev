@@ -1,0 +1,8 @@
+{
+  "questionId": "1739",
+  "titleSlug": "split-two-strings-to-make-palindrome",
+  "title": "Split Two Strings to Make Palindrome",
+  "exampleTestcases": "\"x\"\n\"y\"\n\"xbdef\"\n\"xecab\"\n\"ulacfd\"\n\"jizalu\"",
+  "sampleTestCase": "\"x\"\n\"y\"",
+  "metaData": "{\n  \"name\": \"checkPalindromeFormation\",\n  \"params\": [\n    {\n      \"name\": \"a\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"b\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

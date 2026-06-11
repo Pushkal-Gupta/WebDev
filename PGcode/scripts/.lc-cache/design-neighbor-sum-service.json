@@ -1,0 +1,8 @@
+{
+  "questionId": "3516",
+  "titleSlug": "design-neighbor-sum-service",
+  "title": "Design Neighbor Sum Service",
+  "exampleTestcases": "[\"NeighborSum\",\"adjacentSum\",\"adjacentSum\",\"diagonalSum\",\"diagonalSum\"]\n[[[[0,1,2],[3,4,5],[6,7,8]]],[1],[4],[4],[8]]\n[\"NeighborSum\",\"adjacentSum\",\"diagonalSum\"]\n[[[[1,2,0,3],[4,7,15,6],[8,9,10,11],[12,13,14,5]]],[15],[9]]",
+  "sampleTestCase": "[\"NeighborSum\",\"adjacentSum\",\"adjacentSum\",\"diagonalSum\",\"diagonalSum\"]\n[[[[0,1,2],[3,4,5],[6,7,8]]],[1],[4],[4],[8]]",
+  "metaData": "{\n  \"classname\": \"NeighborSum\",\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"integer[][]\",\n        \"name\": \"grid\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"value\"\n        }\n      ],\n      \"name\": \"adjacentSum\",\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"value\"\n        }\n      ],\n      \"name\": \"diagonalSum\",\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
+}

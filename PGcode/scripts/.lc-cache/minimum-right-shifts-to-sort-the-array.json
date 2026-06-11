@@ -1,0 +1,8 @@
+{
+  "questionId": "3045",
+  "titleSlug": "minimum-right-shifts-to-sort-the-array",
+  "title": "Minimum Right Shifts to Sort the Array",
+  "exampleTestcases": "[3,4,5,1,2]\n[1,3,5]\n[2,1,4]",
+  "sampleTestCase": "[3,4,5,1,2]",
+  "metaData": "{\n  \"name\": \"minimumRightShifts\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"list<integer>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

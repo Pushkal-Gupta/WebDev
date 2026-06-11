@@ -1,0 +1,8 @@
+{
+  "questionId": "3501",
+  "titleSlug": "delete-nodes-from-linked-list-present-in-array",
+  "title": "Delete Nodes From Linked List Present in Array",
+  "exampleTestcases": "[1,2,3]\n[1,2,3,4,5]\n[1]\n[1,2,1,2,1,2]\n[5]\n[1,2,3,4]",
+  "sampleTestCase": "[1,2,3]\n[1,2,3,4,5]",
+  "metaData": "{\n  \"name\": \"modifiedList\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"ListNode\",\n      \"name\": \"head\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"ListNode\"\n  }\n}"
+}

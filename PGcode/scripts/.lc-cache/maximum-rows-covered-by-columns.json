@@ -1,0 +1,8 @@
+{
+  "questionId": "2482",
+  "titleSlug": "maximum-rows-covered-by-columns",
+  "title": "Maximum Rows Covered by Columns",
+  "exampleTestcases": "[[0,0,0],[1,0,1],[0,1,1],[0,0,1]]\n2\n[[1],[0]]\n1",
+  "sampleTestCase": "[[0,0,0],[1,0,1],[0,1,1],[0,0,1]]\n2",
+  "metaData": "{\n  \"name\": \"maximumRows\",\n  \"params\": [\n    {\n      \"name\": \"matrix\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"numSelect\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

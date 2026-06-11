@@ -1,0 +1,8 @@
+{
+  "questionId": "3712",
+  "titleSlug": "minimum-cost-to-make-arrays-identical",
+  "title": "Minimum Cost to Make Arrays Identical",
+  "exampleTestcases": "[-7,9,5]\n[7,-2,-5]\n2\n[2,1]\n[2,1]\n0",
+  "sampleTestCase": "[-7,9,5]\n[7,-2,-5]\n2",
+  "metaData": "{\n  \"name\": \"minCost\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"brr\"\n    },\n    {\n      \"type\": \"long\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3638",
+  "titleSlug": "minimum-operations-to-make-character-frequencies-equal",
+  "title": "Minimum Operations to Make Character Frequencies Equal",
+  "exampleTestcases": "\"acab\"\n\"wddw\"\n\"aaabbc\"",
+  "sampleTestCase": "\"acab\"",
+  "metaData": "{\n  \"name\": \"makeStringGood\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1356",
+  "titleSlug": "minimum-number-of-moves-to-make-palindrome",
+  "title": "Minimum Number of Moves to Make Palindrome",
+  "exampleTestcases": "\"aabb\"\n\"letelt\"",
+  "sampleTestCase": "\"aabb\"",
+  "metaData": "{\n  \"name\": \"minMovesToMakePalindrome\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

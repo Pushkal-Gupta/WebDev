@@ -456,11 +456,16 @@ export default function SamplingViz() {
   }, []);
 
   // Reset both panels when seed changes — seed is the deterministic source.
+  // Tracked-dep render-phase reset for state; effect handles timer/ref cleanup.
+  const [lastSeed, setLastSeed] = useState(seed);
+  if (seed !== lastSeed) {
+    setLastSeed(seed);
+    setRejSamples([]); setRejTrail([]); setRejProposed(0); setRejProposal(null); setRejRunning(false);
+    setMcSamples([]); setMcTrail([]); setMcProposed(0); setMcAccepted(0); setMcProposal(null); setMcRunning(false);
+  }
   useEffect(() => {
     if (rejTimer.current) { clearInterval(rejTimer.current); rejTimer.current = null; }
     if (mcTimer.current) { clearInterval(mcTimer.current); mcTimer.current = null; }
-    setRejSamples([]); setRejTrail([]); setRejProposed(0); setRejProposal(null); setRejRunning(false);
-    setMcSamples([]); setMcTrail([]); setMcProposed(0); setMcAccepted(0); setMcProposal(null); setMcRunning(false);
     mcCurrentX.current = null;
     rejRngRef.current = null;
     mcRngRef.current = null;

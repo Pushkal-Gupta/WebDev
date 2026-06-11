@@ -147,25 +147,23 @@ export default function NQueensViz() {
   const [n, setN] = useState(5);
   const [steps, setSteps] = useState(() => buildSteps(5));
   const [idx, setIdx] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  const [playingRaw, setPlaying] = useState(false);
   const timerRef = useRef(null);
 
-  useEffect(() => {
+  // Reset state when n changes (prev-state-during-render pattern).
+  const [prevN, setPrevN] = useState(n);
+  if (prevN !== n) {
+    setPrevN(n);
     setSteps(buildSteps(n));
     setIdx(0);
     setPlaying(false);
-  }, [n]);
+  }
 
   const step = steps[idx];
+  const playing = playingRaw && idx < steps.length - 1;
 
   const next = useCallback(() => {
-    setIdx((i) => {
-      if (i >= steps.length - 1) {
-        setPlaying(false);
-        return i;
-      }
-      return i + 1;
-    });
+    setIdx((i) => Math.min(i + 1, steps.length - 1));
   }, [steps.length]);
 
   useEffect(() => {
@@ -183,10 +181,6 @@ export default function NQueensViz() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [playing, next]);
-
-  useEffect(() => {
-    if (idx >= steps.length - 1 && playing) setPlaying(false);
-  }, [idx, steps.length, playing]);
 
   const handleReset = () => {
     setPlaying(false);

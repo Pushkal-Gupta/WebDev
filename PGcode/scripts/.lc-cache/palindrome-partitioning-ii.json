@@ -1,0 +1,8 @@
+{
+  "questionId": "132",
+  "titleSlug": "palindrome-partitioning-ii",
+  "title": "Palindrome Partitioning II",
+  "exampleTestcases": "\"aab\"\n\"a\"\n\"ab\"",
+  "sampleTestCase": "\"aab\"",
+  "metaData": "{\r\n  \"name\": \"minCut\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

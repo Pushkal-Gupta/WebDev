@@ -140,8 +140,10 @@ export default function ConvolutionViz() {
 
   const runningRef = useRef(false);
   const timeoutRef = useRef(null);
-  const posRef = useRef({ r: 0, c: 0 });
-  posRef.current = pos;
+  const posRef = useRef(pos);
+  useEffect(() => {
+    posRef.current = pos;
+  }, [pos]);
 
   const fullOutput = useMemo(() => convolveAll(input, kernel), [input, kernel]);
   const maxAbsOut = useMemo(() => {
@@ -168,11 +170,16 @@ export default function ConvolutionViz() {
   }, [clearTimers]);
 
   // Re-blank computed cells when kernel changes.
-  useEffect(() => {
+  const [prevKernel, setPrevKernel] = useState(kernel);
+  if (prevKernel !== kernel) {
+    setPrevKernel(kernel);
     setComputed(Array.from({ length: OUT_N }, () => Array(OUT_N).fill(null)));
     setPos({ r: 0, c: 0 });
-    runningRef.current = false;
     setRunning(false);
+  }
+
+  useEffect(() => {
+    runningRef.current = false;
     clearTimers();
   }, [kernel, clearTimers]);
 

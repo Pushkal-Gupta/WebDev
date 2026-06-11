@@ -1,0 +1,8 @@
+{
+  "questionId": "1130",
+  "titleSlug": "last-stone-weight-ii",
+  "title": "Last Stone Weight II",
+  "exampleTestcases": "[2,7,4,1,8,1]\n[31,26,33,21,40]",
+  "sampleTestCase": "[2,7,4,1,8,1]",
+  "metaData": "{\r\n  \"name\": \"lastStoneWeightII\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"stones\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

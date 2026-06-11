@@ -1,0 +1,8 @@
+{
+  "questionId": "735",
+  "titleSlug": "asteroid-collision",
+  "title": "Asteroid Collision",
+  "exampleTestcases": "[5,10,-5]\n[8,-8]\n[10,2,-5]\n[3,5,-6,2,-1,4]",
+  "sampleTestCase": "[5,10,-5]",
+  "metaData": "{\r\n  \"name\": \"asteroidCollision\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"asteroids\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer[]\"\r\n  }\r\n}\r\n"
+}

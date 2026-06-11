@@ -1,0 +1,8 @@
+{
+  "questionId": "2272",
+  "titleSlug": "maximum-good-people-based-on-statements",
+  "title": "Maximum Good People Based on Statements",
+  "exampleTestcases": "[[2,1,2],[1,2,2],[2,0,2]]\n[[2,0],[0,2]]",
+  "sampleTestCase": "[[2,1,2],[1,2,2],[2,0,2]]",
+  "metaData": "{\n  \"name\": \"maximumGood\",\n  \"params\": [\n    {\n      \"name\": \"statements\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

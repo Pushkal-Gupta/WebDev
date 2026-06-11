@@ -1,0 +1,8 @@
+{
+  "questionId": "1825",
+  "titleSlug": "find-minimum-time-to-finish-all-jobs",
+  "title": "Find Minimum Time to Finish All Jobs",
+  "exampleTestcases": "[3,2,3]\n3\n[1,2,4,7,8]\n2",
+  "sampleTestCase": "[3,2,3]\n3",
+  "metaData": "{\n  \"name\": \"minimumTimeRequired\",\n  \"params\": [\n    {\n      \"name\": \"jobs\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

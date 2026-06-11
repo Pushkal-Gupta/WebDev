@@ -1,0 +1,8 @@
+{
+  "questionId": "2786",
+  "titleSlug": "find-the-longest-semi-repetitive-substring",
+  "title": "Find the Longest Semi-Repetitive Substring",
+  "exampleTestcases": "\"52233\"\n\"5494\"\n\"1111111\"",
+  "sampleTestCase": "\"52233\"",
+  "metaData": "{\n  \"name\": \"longestSemiRepetitiveSubstring\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

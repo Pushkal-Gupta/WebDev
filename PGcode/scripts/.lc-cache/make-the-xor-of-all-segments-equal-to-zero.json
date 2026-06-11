@@ -1,0 +1,8 @@
+{
+  "questionId": "1913",
+  "titleSlug": "make-the-xor-of-all-segments-equal-to-zero",
+  "title": "Make the XOR of All Segments Equal to Zero",
+  "exampleTestcases": "[1,2,0,3,0]\n1\n[3,4,5,2,1,7,3,4,7]\n3\n[1,2,4,1,2,5,1,2,6]\n3",
+  "sampleTestCase": "[1,2,0,3,0]\n1",
+  "metaData": "{\n  \"name\": \"minChanges\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

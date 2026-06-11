@@ -1,0 +1,8 @@
+{
+  "questionId": "1549",
+  "titleSlug": "longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit",
+  "title": "Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit",
+  "exampleTestcases": "[8,2,4,7]\n4\n[10,1,2,4,7,2]\n5\n[4,2,2,2,4,4,2,2]\n0",
+  "sampleTestCase": "[8,2,4,7]\n4",
+  "metaData": "{\n  \"name\": \"longestSubarray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"limit\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

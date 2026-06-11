@@ -1,0 +1,8 @@
+{
+  "questionId": "1363",
+  "titleSlug": "greatest-english-letter-in-upper-and-lower-case",
+  "title": "Greatest English Letter in Upper and Lower Case",
+  "exampleTestcases": "\"lEeTcOdE\"\n\"arRAzFif\"\n\"AbCdEfGhIjK\"",
+  "sampleTestCase": "\"lEeTcOdE\"",
+  "metaData": "{\n  \"name\": \"greatestLetter\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3654",
+  "titleSlug": "minimum-array-sum",
+  "title": "Minimum Array Sum",
+  "exampleTestcases": "[2,8,3,19,3]\n3\n1\n1\n[2,4,3]\n3\n2\n1",
+  "sampleTestCase": "[2,8,3,19,3]\n3\n1\n1",
+  "metaData": "{\n  \"name\": \"minArraySum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"op1\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"op2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1670",
+  "titleSlug": "patients-with-a-condition",
+  "title": "Patients With a Condition",
+  "exampleTestcases": "{\"headers\": {\"Patients\": [\"patient_id\", \"patient_name\", \"conditions\"]}, \"rows\": {\"Patients\": [[1, \"Daniel\", \"YFEV COUGH\"], [2, \"Alice\", \"\"], [3, \"Bob\", \"DIAB100 MYOP\"], [4, \"George\", \"ACNE DIAB100\"], [5, \"Alain\", \"DIAB201\"]]}}",
+  "sampleTestCase": "{\"headers\": {\"Patients\": [\"patient_id\", \"patient_name\", \"conditions\"]}, \"rows\": {\"Patients\": [[1, \"Daniel\", \"YFEV COUGH\"], [2, \"Alice\", \"\"], [3, \"Bob\", \"DIAB100 MYOP\"], [4, \"George\", \"ACNE DIAB100\"], [5, \"Alain\", \"DIAB201\"]]}}",
+  "metaData": "{\"mysql\": [\"Create table If Not Exists Patients (patient_id int, patient_name varchar(30), conditions varchar(100))\"], \"mssql\": [\"Create table Patients (patient_id int, patient_name varchar(30), conditions varchar(100))\"], \"oraclesql\": [\"Create table Patients (patient_id int, patient_name varchar(30), conditions varchar(100))\"], \"database\": true, \"name\": \"find_patients\", \"pythondata\": [\"Patients = pd.DataFrame([], columns=['patient_id', 'patient_name', 'conditions']).astype({'patient_id':'int64', 'patient_name':'object', 'conditions':'object'})\"], \"postgresql\": [\"\\nCreate table If Not Exists Patients (patient_id int, patient_name varchar(30), conditions varchar(100))\"], \"database_schema\": {\"Patients\": {\"patient_id\": \"INT\", \"patient_name\": \"VARCHAR(30)\", \"conditions\": \"VARCHAR(100)\"}}}"
+}

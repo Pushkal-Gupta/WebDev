@@ -182,14 +182,19 @@ export default function SuffixArrayViz() {
   const frames = useMemo(() => buildFrames(text), [text]);
 
   const [step, setStep] = useState(0);
-  const [running, setRunning] = useState(false);
+  const [runningRaw, setRunning] = useState(false);
   const timerRef = useRef(null);
 
-  useEffect(() => {
+  const [prevText, setPrevText] = useState(text);
+  if (prevText !== text) {
+    setPrevText(text);
     setStep(0);
     setRunning(false);
-  }, [text]);
+  }
 
+  // Derive `running` so the effect never has to call setRunning(false) when we
+  // hit the last frame — avoids cascading-render.
+  const running = runningRaw && step < frames.length - 1;
   useEffect(() => {
     if (!running) {
       if (timerRef.current) {
@@ -198,21 +203,13 @@ export default function SuffixArrayViz() {
       }
       return undefined;
     }
-    if (step >= frames.length - 1) {
-      setRunning(false);
-      return undefined;
-    }
     timerRef.current = setTimeout(() => {
-      setStep((s) => {
-        const next = Math.min(s + 1, frames.length - 1);
-        if (next >= frames.length - 1) setRunning(false);
-        return next;
-      });
+      setStep((s) => Math.min(s + 1, frames.length - 1));
     }, TICK_MS);
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [running, step, frames.length]);
+  }, [running, frames.length]);
 
   const handleStep = useCallback(() => {
     setRunning(false);

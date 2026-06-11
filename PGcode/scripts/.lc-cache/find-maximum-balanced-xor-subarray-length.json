@@ -1,0 +1,8 @@
+{
+  "questionId": "3946",
+  "titleSlug": "find-maximum-balanced-xor-subarray-length",
+  "title": "Find Maximum Balanced XOR Subarray Length",
+  "exampleTestcases": "[3,1,3,2,0]\n[3,2,8,5,4,14,9,15]\n[0]",
+  "sampleTestCase": "[3,1,3,2,0]",
+  "metaData": "{\n  \"name\": \"maxBalancedSubarray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

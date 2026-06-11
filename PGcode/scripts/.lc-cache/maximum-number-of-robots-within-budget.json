@@ -1,0 +1,8 @@
+{
+  "questionId": "2449",
+  "titleSlug": "maximum-number-of-robots-within-budget",
+  "title": "Maximum Number of Robots Within Budget",
+  "exampleTestcases": "[3,6,1,3,4]\n[2,1,3,4,5]\n25\n[11,12,19]\n[10,8,7]\n19",
+  "sampleTestCase": "[3,6,1,3,4]\n[2,1,3,4,5]\n25",
+  "metaData": "{\n  \"name\": \"maximumRobots\",\n  \"params\": [\n    {\n      \"name\": \"chargeTimes\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"runningCosts\"\n    },\n    {\n      \"type\": \"long\",\n      \"name\": \"budget\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

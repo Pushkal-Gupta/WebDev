@@ -1,0 +1,8 @@
+{
+  "questionId": "1900",
+  "titleSlug": "closest-dessert-cost",
+  "title": "Closest Dessert Cost",
+  "exampleTestcases": "[1,7]\n[3,4]\n10\n[2,3]\n[4,5,100]\n18\n[3,10]\n[2,5]\n9",
+  "sampleTestCase": "[1,7]\n[3,4]\n10",
+  "metaData": "{\n  \"name\": \"closestCost\",\n  \"params\": [\n    {\n      \"name\": \"baseCosts\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"toppingCosts\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

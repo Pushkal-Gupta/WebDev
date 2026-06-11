@@ -1,0 +1,8 @@
+{
+  "questionId": "4077",
+  "titleSlug": "lexicographically-smallest-negated-permutation-that-sums-to-target",
+  "title": "Lexicographically Smallest Negated Permutation that Sums to Target",
+  "exampleTestcases": "3\n0\n1\n10000000000",
+  "sampleTestCase": "3\n0",
+  "metaData": "{\n  \"name\": \"lexSmallestNegatedPerm\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"long\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2199",
+  "titleSlug": "two-furthest-houses-with-different-colors",
+  "title": "Two Furthest Houses With Different Colors",
+  "exampleTestcases": "[1,1,1,6,1,1,1]\n[1,8,3,8,3]\n[0,1]",
+  "sampleTestCase": "[1,1,1,6,1,1,1]",
+  "metaData": "{\n  \"name\": \"maxDistance\",\n  \"params\": [\n    {\n      \"name\": \"colors\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

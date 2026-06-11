@@ -1,0 +1,8 @@
+{
+  "questionId": "2828",
+  "titleSlug": "lexicographically-smallest-string-after-substring-operation",
+  "title": "Lexicographically Smallest String After Substring Operation",
+  "exampleTestcases": "\"cbabc\"\n\"aa\"\n\"acbbc\"\n\"leetcode\"",
+  "sampleTestCase": "\"cbabc\"",
+  "metaData": "{\n  \"name\": \"smallestString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

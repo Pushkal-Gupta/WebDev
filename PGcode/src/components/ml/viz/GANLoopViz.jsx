@@ -259,11 +259,6 @@ export default function GANLoopViz() {
   const cBorder = 'var(--border)';
   const cSurface = 'var(--surface)';
 
-  // Arrow style helper — lit arrows use accent + stroke pulse.
-  const edgeStroke = (key) => litEdges.has(key) ? cAccent : cDim;
-  const edgeWidth = (key) => litEdges.has(key) ? 2.4 : 1.4;
-  const edgeOpacity = (key) => litEdges.has(key) ? 1 : 0.45;
-
   return (
     <div className="mlviz-wrap">
       <div className="mlviz-stage">

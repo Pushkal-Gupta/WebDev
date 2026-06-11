@@ -1,0 +1,8 @@
+{
+  "questionId": "2033",
+  "titleSlug": "the-number-of-full-rounds-you-have-played",
+  "title": "The Number of Full Rounds You Have Played",
+  "exampleTestcases": "\"09:31\"\n\"10:14\"\n\"21:30\"\n\"03:00\"",
+  "sampleTestCase": "\"09:31\"\n\"10:14\"",
+  "metaData": "{\n  \"name\": \"numberOfRounds\",\n  \"params\": [\n    {\n      \"name\": \"loginTime\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"logoutTime\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

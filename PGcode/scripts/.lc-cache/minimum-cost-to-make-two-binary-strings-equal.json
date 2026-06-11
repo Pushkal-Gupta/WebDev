@@ -1,0 +1,8 @@
+{
+  "questionId": "4156",
+  "titleSlug": "minimum-cost-to-make-two-binary-strings-equal",
+  "title": "Minimum Cost to Make Two Binary Strings Equal",
+  "exampleTestcases": "\"01000\"\n\"10111\"\n10\n2\n2\n\"001\"\n\"110\"\n2\n100\n100\n\"1010\"\n\"1010\"\n5\n5\n5",
+  "sampleTestCase": "\"01000\"\n\"10111\"\n10\n2\n2",
+  "metaData": "{\n  \"name\": \"minimumCost\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"t\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"flipCost\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"swapCost\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"crossCost\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

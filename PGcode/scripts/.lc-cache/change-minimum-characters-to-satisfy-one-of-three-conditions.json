@@ -1,0 +1,8 @@
+{
+  "questionId": "1859",
+  "titleSlug": "change-minimum-characters-to-satisfy-one-of-three-conditions",
+  "title": "Change Minimum Characters to Satisfy One of Three Conditions",
+  "exampleTestcases": "\"aba\"\n\"caa\"\n\"dabadd\"\n\"cda\"",
+  "sampleTestCase": "\"aba\"\n\"caa\"",
+  "metaData": "{\n  \"name\": \"minCharacters\",\n  \"params\": [\n    {\n      \"name\": \"a\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"b\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "583",
+  "titleSlug": "delete-operation-for-two-strings",
+  "title": "Delete Operation for Two Strings",
+  "exampleTestcases": "\"sea\"\n\"eat\"\n\"leetcode\"\n\"etco\"",
+  "sampleTestCase": "\"sea\"\n\"eat\"",
+  "metaData": "{\r\n  \"name\": \"minDistance\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"word1\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"word2\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

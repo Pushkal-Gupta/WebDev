@@ -1,0 +1,8 @@
+{
+  "questionId": "4128",
+  "titleSlug": "total-waviness-of-numbers-in-range-ii",
+  "title": "Total Waviness of Numbers in Range II",
+  "exampleTestcases": "120\n130\n198\n202\n4848\n4848",
+  "sampleTestCase": "120\n130",
+  "metaData": "{\n  \"name\": \"totalWaviness\",\n  \"params\": [\n    {\n      \"name\": \"num1\",\n      \"type\": \"long\"\n    },\n    {\n      \"type\": \"long\",\n      \"name\": \"num2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

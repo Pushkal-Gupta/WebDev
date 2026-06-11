@@ -1,0 +1,8 @@
+{
+  "questionId": "4037",
+  "titleSlug": "lexicographically-smallest-palindromic-permutation-greater-than-target",
+  "title": "Lexicographically Smallest Palindromic Permutation Greater Than Target",
+  "exampleTestcases": "\"baba\"\n\"abba\"\n\"baba\"\n\"bbaa\"\n\"abc\"\n\"abb\"\n\"aac\"\n\"abb\"",
+  "sampleTestCase": "\"baba\"\n\"abba\"",
+  "metaData": "{\n  \"name\": \"lexPalindromicPermutation\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

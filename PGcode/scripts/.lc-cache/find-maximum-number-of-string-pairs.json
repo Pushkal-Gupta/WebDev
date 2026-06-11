@@ -1,0 +1,8 @@
+{
+  "questionId": "2847",
+  "titleSlug": "find-maximum-number-of-string-pairs",
+  "title": "Find Maximum Number of String Pairs",
+  "exampleTestcases": "[\"cd\",\"ac\",\"dc\",\"ca\",\"zz\"]\n[\"ab\",\"ba\",\"cc\"]\n[\"aa\",\"ab\"]",
+  "sampleTestCase": "[\"cd\",\"ac\",\"dc\",\"ca\",\"zz\"]",
+  "metaData": "{\n  \"name\": \"maximumNumberOfStringPairs\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

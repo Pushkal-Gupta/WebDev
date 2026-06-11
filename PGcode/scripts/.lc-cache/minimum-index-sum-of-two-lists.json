@@ -1,0 +1,8 @@
+{
+  "questionId": "599",
+  "titleSlug": "minimum-index-sum-of-two-lists",
+  "title": "Minimum Index Sum of Two Lists",
+  "exampleTestcases": "[\"Shogun\",\"Tapioca Express\",\"Burger King\",\"KFC\"]\n[\"Piatti\",\"The Grill at Torrey Pines\",\"Hungry Hunter Steakhouse\",\"Shogun\"]\n[\"Shogun\",\"Tapioca Express\",\"Burger King\",\"KFC\"]\n[\"KFC\",\"Shogun\",\"Burger King\"]\n[\"happy\",\"sad\",\"good\"]\n[\"sad\",\"happy\",\"good\"]",
+  "sampleTestCase": "[\"Shogun\",\"Tapioca Express\",\"Burger King\",\"KFC\"]\n[\"Piatti\",\"The Grill at Torrey Pines\",\"Hungry Hunter Steakhouse\",\"Shogun\"]",
+  "metaData": "{\r\n  \"name\": \"findRestaurant\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"list1\",\r\n      \"type\": \"string[]\"\r\n    },\r\n    {\r\n      \"name\": \"list2\",\r\n      \"type\": \"string[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string[]\"\r\n  }\r\n}\r\n"
+}

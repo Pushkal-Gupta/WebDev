@@ -1,0 +1,8 @@
+{
+  "questionId": "1770",
+  "titleSlug": "minimum-deletions-to-make-character-frequencies-unique",
+  "title": "Minimum Deletions to Make Character Frequencies Unique",
+  "exampleTestcases": "\"aab\"\n\"aaabbbcc\"\n\"ceabaacb\"",
+  "sampleTestCase": "\"aab\"",
+  "metaData": "{\n  \"name\": \"minDeletions\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2575",
+  "titleSlug": "minimum-cuts-to-divide-a-circle",
+  "title": "Minimum Cuts to Divide a Circle",
+  "exampleTestcases": "4\n3",
+  "sampleTestCase": "4",
+  "metaData": "{\n  \"name\": \"numberOfCuts\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

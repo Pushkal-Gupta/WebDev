@@ -1,0 +1,8 @@
+{
+  "questionId": "2723",
+  "titleSlug": "find-the-longest-balanced-substring-of-a-binary-string",
+  "title": "Find the Longest Balanced Substring of a Binary String",
+  "exampleTestcases": "\"01000111\"\n\"00111\"\n\"111\"",
+  "sampleTestCase": "\"01000111\"",
+  "metaData": "{\n  \"name\": \"findTheLongestBalancedSubstring\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

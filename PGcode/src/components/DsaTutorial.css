@@ -1086,11 +1086,13 @@
   background: transparent;
   border: none;
   border-radius: 0;
-  overflow-x: auto;
   font-family: var(--mono);
   font-size: 0.86rem;
   line-height: 1.7;
   color: var(--text-main);
+  /* Long lines wrap to keep the inner panel scroll-free. */
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 .tut-theory-pre code {
   font-family: inherit;
@@ -1099,7 +1101,8 @@
   background: transparent;
   border: none;
   padding: 0;
-  white-space: pre;
+  white-space: pre-wrap;
+  word-break: break-word;
   display: block;
 }
 
@@ -1873,4 +1876,429 @@
 .tut-topic-notfound p {
   margin: 0;
   font-size: 0.9rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Inline interactive visualizations rendered for ```tut-viz <name>``` fences.
+   Theme-token only, no inner scrollbars. All SVGs scale via preserveAspectRatio.
+--------------------------------------------------------------------------- */
+
+.tut-viz {
+  margin: 1.5rem 0;
+  padding: 1.1rem 1.2rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(var(--accent-rgb), 0.025);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.tut-viz-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+.tut-viz-svg-wrap {
+  width: 100%;
+  display: block;
+}
+.tut-viz-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.tut-viz-caption {
+  margin: 0;
+  font-family: var(--serif, var(--font-sans));
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--text-main);
+  padding: 0.55rem 0.85rem;
+  background: rgba(var(--accent-rgb), 0.05);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+}
+
+/* Step / slider control row */
+.tut-viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  padding-top: 0.2rem;
+}
+.tut-viz-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.tut-viz-btn:hover:not(:disabled) {
+  background: var(--hover-box, rgba(var(--accent-rgb), 0.08));
+  border-color: var(--accent);
+}
+.tut-viz-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.tut-viz-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.tut-viz-btn-primary:hover:not(:disabled) {
+  background: var(--accent);
+  filter: brightness(1.1);
+}
+.tut-viz-step-readout {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+  margin-left: 0.4rem;
+}
+
+/* Slider row */
+.tut-viz-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 0.1rem;
+}
+.tut-viz-slider-label {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  min-width: 48px;
+}
+.tut-viz-slider {
+  flex: 1 1 auto;
+  accent-color: var(--accent);
+  height: 4px;
+  cursor: pointer;
+}
+.tut-viz-slider-readout {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+  min-width: 24px;
+  text-align: right;
+}
+
+/* Tabs (two-pointer pattern switcher) */
+.tut-viz-tabs {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  width: max-content;
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+.tut-viz-tab {
+  appearance: none;
+  border: none;
+  padding: 0.4rem 0.85rem;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.tut-viz-tab:hover {
+  color: var(--text-main);
+  background: rgba(var(--accent-rgb), 0.06);
+}
+.tut-viz-tab.is-active {
+  background: rgba(var(--accent-rgb), 0.14);
+  color: var(--accent);
+}
+
+/* Hash input row */
+.tut-viz-hash-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.tut-viz-input {
+  appearance: none;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-main);
+  width: 8rem;
+  outline: none;
+  transition: border-color 0.12s ease;
+}
+.tut-viz-input:focus {
+  border-color: var(--accent);
+}
+.tut-viz-hash-arrow {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  font-family: var(--mono);
+}
+.tut-viz-hash-result {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 0.6rem;
+  border-radius: 6px;
+  background: rgba(var(--accent-rgb), 0.14);
+  color: var(--accent);
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* Formula readout (array memory) */
+.tut-viz-formula {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  font-family: var(--mono);
+  font-size: 0.88rem;
+  color: var(--text-main);
+}
+.tut-viz-formula-label { color: var(--text-dim); }
+.tut-viz-formula-eq { color: var(--text-dim); opacity: 0.6; }
+.tut-viz-formula-body { color: var(--text-main); }
+.tut-viz-formula-result {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* SVG cell + text styling */
+.tut-viz-cell {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.2;
+  transition: fill 0.18s ease, stroke 0.18s ease;
+}
+.tut-viz-cell.is-active {
+  fill: rgba(var(--accent-rgb), 0.22);
+  stroke: var(--accent);
+}
+.tut-viz-cell.is-window {
+  fill: rgba(var(--accent-rgb), 0.12);
+  stroke: var(--accent);
+}
+.tut-viz-cell-text {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: 600;
+  fill: var(--text-main);
+}
+.tut-viz-idx {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  fill: var(--text-dim);
+  letter-spacing: 0.04em;
+}
+.tut-viz-idx.is-active {
+  fill: var(--accent);
+  font-weight: 700;
+}
+.tut-viz-addr {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  fill: var(--text-dim);
+}
+.tut-viz-axis-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  fill: var(--text-dim);
+  text-transform: lowercase;
+  letter-spacing: 0.04em;
+}
+.tut-viz-pointer-line {
+  stroke: var(--accent);
+  stroke-width: 1.8;
+}
+.tut-viz-pointer-arrow {
+  fill: var(--accent);
+}
+.tut-viz-pointer-label {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  fill: var(--accent);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.tut-viz-pointer-line.is-alt {
+  stroke: var(--hue-violet, var(--accent));
+}
+.tut-viz-pointer-arrow.is-alt {
+  fill: var(--hue-violet, var(--accent));
+}
+.tut-viz-pointer-label.is-alt {
+  fill: var(--hue-violet, var(--accent));
+}
+
+/* Call-stack frames */
+.tut-viz-frame {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.2;
+  transition: fill 0.18s ease, stroke 0.18s ease;
+}
+.tut-viz-frame.is-top {
+  fill: rgba(var(--accent-rgb), 0.14);
+  stroke: var(--accent);
+}
+.tut-viz-frame.is-returning {
+  fill: rgba(var(--accent-rgb), 0.22);
+  stroke: var(--accent);
+}
+.tut-viz-frame-name {
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  font-weight: 700;
+  fill: var(--text-main);
+}
+.tut-viz-frame-meta {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  fill: var(--text-dim);
+}
+.tut-viz-frame-tag {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  fill: var(--accent);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+/* Hash buckets */
+.tut-viz-bucket {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.2;
+  transition: fill 0.18s ease, stroke 0.18s ease;
+}
+.tut-viz-bucket.is-active {
+  fill: rgba(var(--accent-rgb), 0.1);
+  stroke: var(--accent);
+}
+.tut-viz-bucket-empty {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  fill: var(--text-dim);
+  font-style: italic;
+}
+.tut-viz-chip {
+  fill: rgba(var(--accent-rgb), 0.18);
+  stroke: var(--accent);
+  stroke-width: 1;
+}
+.tut-viz-chip.is-pending {
+  fill: rgba(var(--accent-rgb), 0.4);
+  stroke: var(--accent);
+  stroke-dasharray: 3 3;
+}
+.tut-viz-chip-text {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  fill: var(--text-main);
+}
+.tut-viz-chip-text.is-pending {
+  fill: var(--accent);
+  font-weight: 700;
+}
+.tut-viz-chain-arrow {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  fill: var(--accent);
+}
+
+/* Knapsack DP table */
+.tut-viz-dp-cell {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1;
+  transition: fill 0.18s ease, stroke 0.18s ease;
+}
+.tut-viz-dp-cell.is-filled {
+  fill: rgba(var(--accent-rgb), 0.04);
+}
+.tut-viz-dp-cell.is-skip-dep {
+  fill: rgba(var(--hue-violet, var(--accent-rgb)), 0.18);
+  stroke: var(--hue-violet, var(--accent));
+}
+.tut-viz-dp-cell.is-take-dep {
+  fill: rgba(var(--hue-mint, var(--accent-rgb)), 0.18);
+  stroke: var(--hue-mint, var(--accent));
+}
+.tut-viz-dp-cell.is-current {
+  fill: rgba(var(--accent-rgb), 0.28);
+  stroke: var(--accent);
+  stroke-width: 1.6;
+}
+.tut-viz-dp-text {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  fill: var(--text-dim);
+}
+.tut-viz-dp-text.is-filled {
+  fill: var(--text-main);
+  font-weight: 600;
+}
+.tut-viz-legend-pill {
+  fill: rgba(var(--accent-rgb), 0.08);
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.tut-viz-legend-text {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  fill: var(--text-dim);
+}
+
+@media (max-width: 720px) {
+  .tut-viz {
+    padding: 0.85rem 0.9rem 1rem;
+  }
+  .tut-viz-hash-row { gap: 0.45rem; }
+  .tut-viz-input { width: 6.5rem; font-size: 0.85rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tut-viz-cell,
+  .tut-viz-frame,
+  .tut-viz-bucket,
+  .tut-viz-dp-cell {
+    transition: none;
+  }
 }

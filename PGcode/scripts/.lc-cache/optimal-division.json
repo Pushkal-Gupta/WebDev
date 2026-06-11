@@ -1,0 +1,8 @@
+{
+  "questionId": "553",
+  "titleSlug": "optimal-division",
+  "title": "Optimal Division",
+  "exampleTestcases": "[1000,100,10,2]\n[2,3,4]",
+  "sampleTestCase": "[1000,100,10,2]",
+  "metaData": "{\r\n  \"name\": \"optimalDivision\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}\r\n"
+}

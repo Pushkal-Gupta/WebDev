@@ -1,0 +1,8 @@
+{
+  "questionId": "1783",
+  "titleSlug": "ways-to-make-a-fair-array",
+  "title": "Ways to Make a Fair Array",
+  "exampleTestcases": "[2,1,6,4]\n[1,1,1]\n[1,2,3]",
+  "sampleTestCase": "[2,1,6,4]",
+  "metaData": "{\n  \"name\": \"waysToMakeFair\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3143",
+  "titleSlug": "longest-unequal-adjacent-groups-subsequence-i",
+  "title": "Longest Unequal Adjacent Groups Subsequence I",
+  "exampleTestcases": "[\"c\"]\n[0]\n[\"d\"]\n[1]",
+  "sampleTestCase": "[\"c\"]\n[0]",
+  "metaData": "{\n  \"name\": \"getLongestSubsequence\",\n  \"params\": [\n    {\n      \"type\": \"string[]\",\n      \"name\": \"words\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"groups\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\"\n  }\n}"
+}

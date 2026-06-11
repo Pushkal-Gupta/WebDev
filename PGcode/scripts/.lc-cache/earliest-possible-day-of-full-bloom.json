@@ -1,0 +1,8 @@
+{
+  "questionId": "2257",
+  "titleSlug": "earliest-possible-day-of-full-bloom",
+  "title": "Earliest Possible Day of Full Bloom",
+  "exampleTestcases": "[1,4,3]\n[2,3,1]\n[1,2,3,2]\n[2,1,2,1]\n[1]\n[1]",
+  "sampleTestCase": "[1,4,3]\n[2,3,1]",
+  "metaData": "{\n  \"name\": \"earliestFullBloom\",\n  \"params\": [\n    {\n      \"name\": \"plantTime\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"growTime\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

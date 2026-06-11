@@ -1,0 +1,8 @@
+{
+  "questionId": "3759",
+  "titleSlug": "choose-k-elements-with-maximum-sum",
+  "title": "Choose K Elements With Maximum Sum",
+  "exampleTestcases": "[4,2,1,5,3]\n[10,20,30,40,50]\n2\n[2,2,2,2]\n[3,1,2,3]\n1",
+  "sampleTestCase": "[4,2,1,5,3]\n[10,20,30,40,50]\n2",
+  "metaData": "{\n  \"name\": \"findMaxSum\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long[]\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1792",
+  "titleSlug": "find-the-most-competitive-subsequence",
+  "title": "Find the Most Competitive Subsequence",
+  "exampleTestcases": "[3,5,2,6]\n2\n[2,4,3,3,5,4,9,6]\n4",
+  "sampleTestCase": "[3,5,2,6]\n2",
+  "metaData": "{\n  \"name\": \"mostCompetitive\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

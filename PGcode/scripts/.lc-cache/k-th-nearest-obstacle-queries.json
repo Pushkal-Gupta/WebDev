@@ -1,0 +1,8 @@
+{
+  "questionId": "3495",
+  "titleSlug": "k-th-nearest-obstacle-queries",
+  "title": "K-th Nearest Obstacle Queries",
+  "exampleTestcases": "[[1,2],[3,4],[2,3],[-3,0]]\n2\n[[5,5],[4,4],[3,3]]\n1",
+  "sampleTestCase": "[[1,2],[3,4],[2,3],[-3,0]]\n2",
+  "metaData": "{\n  \"name\": \"resultsArray\",\n  \"params\": [\n    {\n      \"name\": \"queries\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

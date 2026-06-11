@@ -1,0 +1,8 @@
+{
+  "questionId": "888",
+  "titleSlug": "mirror-reflection",
+  "title": "Mirror Reflection",
+  "exampleTestcases": "2\n1\n3\n1",
+  "sampleTestCase": "2\n1",
+  "metaData": "{\r\n  \"name\": \"mirrorReflection\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"p\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"q\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

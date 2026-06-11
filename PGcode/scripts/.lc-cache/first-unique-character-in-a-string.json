@@ -1,0 +1,8 @@
+{
+  "questionId": "387",
+  "titleSlug": "first-unique-character-in-a-string",
+  "title": "First Unique Character in a String",
+  "exampleTestcases": "\"leetcode\"\n\"loveleetcode\"\n\"aabb\"",
+  "sampleTestCase": "\"leetcode\"",
+  "metaData": "{\r\n  \"name\": \"firstUniqChar\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

@@ -42,6 +42,15 @@ Filterable table across all topics with pattern tags, difficulty toggles, and st
 | Icons | Lucide React |
 | Styling | Custom CSS with design tokens (no framework) |
 
+## For AI coding assistants
+
+This repo runs with heavy AI-assisted development. Two files you should read before touching anything:
+
+- **`CLAUDE.md`** — hard rules: the thesis, voice conventions, the no-scrollbar rule, manager mode, and how to dispatch agents on this codebase.
+- **[`docs/llm-wiki/`](./docs/llm-wiki/README.md)** — a Karpathy-style knowledge base distilling what's been learned across hundreds of agent-sessions: large-file edit strategy, viz component patterns, scrollbar fixes, the explained-samples backfill recipe, and concrete anti-patterns ([inspired by this approach](https://www.mindstudio.ai/blog/andrej-karpathy-llm-wiki-knowledge-base-claude-code)).
+
+Start with `docs/llm-wiki/00-orient.md`. It routes you to the right page based on what you're about to do.
+
 ## Project Structure
 
 ```

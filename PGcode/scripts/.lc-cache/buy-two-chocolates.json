@@ -1,0 +1,8 @@
+{
+  "questionId": "2756",
+  "titleSlug": "buy-two-chocolates",
+  "title": "Buy Two Chocolates",
+  "exampleTestcases": "[1,2,2]\n3\n[3,2,3]\n3",
+  "sampleTestCase": "[1,2,2]\n3",
+  "metaData": "{\n  \"name\": \"buyChoco\",\n  \"params\": [\n    {\n      \"name\": \"prices\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"money\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3620",
+  "titleSlug": "maximum-number-of-distinct-elements-after-operations",
+  "title": "Maximum Number of Distinct Elements After Operations",
+  "exampleTestcases": "[1,2,2,3,3,4]\n2\n[4,4,4,4]\n1",
+  "sampleTestCase": "[1,2,2,3,3,4]\n2",
+  "metaData": "{\n  \"name\": \"maxDistinctElements\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

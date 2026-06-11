@@ -38,11 +38,6 @@ function ListReverseViz() {
   const [running, setRunning] = useState(false);
   const timerRef = useRef(null);
 
-  const valueOf = useCallback(
-    (idx) => (idx === NULL_INDEX ? null : state.values[idx]),
-    [state.values],
-  );
-
   const stepOnce = useCallback(() => {
     setState((prev) => {
       if (prev.status === 'done') return prev;

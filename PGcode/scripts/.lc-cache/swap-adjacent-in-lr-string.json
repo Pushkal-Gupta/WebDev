@@ -1,0 +1,8 @@
+{
+  "questionId": "793",
+  "titleSlug": "swap-adjacent-in-lr-string",
+  "title": "Swap Adjacent in LR String",
+  "exampleTestcases": "\"RXXLRXRXL\"\n\"XRLXXRRLX\"\n\"X\"\n\"L\"",
+  "sampleTestCase": "\"RXXLRXRXL\"\n\"XRLXXRRLX\"",
+  "metaData": "{\n  \"name\": \"canTransform\",\n  \"params\": [\n    {\n      \"name\": \"start\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"result\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

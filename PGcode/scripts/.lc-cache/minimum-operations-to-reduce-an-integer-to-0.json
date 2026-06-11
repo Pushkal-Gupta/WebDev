@@ -1,0 +1,8 @@
+{
+  "questionId": "2710",
+  "titleSlug": "minimum-operations-to-reduce-an-integer-to-0",
+  "title": "Minimum Operations to Reduce an Integer to 0",
+  "exampleTestcases": "39\n54",
+  "sampleTestCase": "39",
+  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

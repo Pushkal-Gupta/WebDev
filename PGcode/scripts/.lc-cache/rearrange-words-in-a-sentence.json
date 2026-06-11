@@ -1,0 +1,8 @@
+{
+  "questionId": "1561",
+  "titleSlug": "rearrange-words-in-a-sentence",
+  "title": "Rearrange Words in a Sentence",
+  "exampleTestcases": "\"Leetcode is cool\"\n\"Keep calm and code on\"\n\"To be or not to be\"",
+  "sampleTestCase": "\"Leetcode is cool\"",
+  "metaData": "{\n  \"name\": \"arrangeWords\",\n  \"params\": [\n    {\n      \"name\": \"text\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

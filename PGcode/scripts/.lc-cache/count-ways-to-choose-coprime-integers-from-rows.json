@@ -1,0 +1,8 @@
+{
+  "questionId": "4069",
+  "titleSlug": "count-ways-to-choose-coprime-integers-from-rows",
+  "title": "Count Ways to Choose Coprime Integers from Rows",
+  "exampleTestcases": "[[1,2],[3,4]]\n[[2,2],[2,2]]",
+  "sampleTestCase": "[[1,2],[3,4]]",
+  "metaData": "{\n  \"name\": \"countCoprime\",\n  \"params\": [\n    {\n      \"name\": \"mat\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

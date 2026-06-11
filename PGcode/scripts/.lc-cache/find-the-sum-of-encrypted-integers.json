@@ -1,0 +1,8 @@
+{
+  "questionId": "3367",
+  "titleSlug": "find-the-sum-of-encrypted-integers",
+  "title": "Find the Sum of Encrypted Integers",
+  "exampleTestcases": "[1,2,3]\n[10,21,31]",
+  "sampleTestCase": "[1,2,3]",
+  "metaData": "{\n  \"name\": \"sumOfEncryptedInt\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

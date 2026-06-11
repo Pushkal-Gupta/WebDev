@@ -394,7 +394,6 @@ export default function MDPGridworldViz() {
         setConverged(true);
         break;
       }
-      // eslint-disable-next-line no-await-in-loop
       await new Promise((res) => {
         timerRef.current = setTimeout(res, STEP_DELAY);
       });

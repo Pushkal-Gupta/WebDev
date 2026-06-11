@@ -1,0 +1,8 @@
+{
+  "questionId": "3535",
+  "titleSlug": "find-the-count-of-monotonic-pairs-i",
+  "title": "Find the Count of Monotonic Pairs I",
+  "exampleTestcases": "[2,3,2]\n[5,5,5,5]",
+  "sampleTestCase": "[2,3,2]",
+  "metaData": "{\n  \"name\": \"countOfPairs\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

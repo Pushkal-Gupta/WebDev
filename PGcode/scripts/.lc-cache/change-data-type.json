@@ -1,0 +1,8 @@
+{
+  "questionId": "3069",
+  "titleSlug": "change-data-type",
+  "title": "Change Data Type",
+  "exampleTestcases": "{\"headers\":{\"students\":[\"student_id\",\"name\",\"age\",\"grade\"]},\"rows\":{\"students\":[[1,\"Ava\",6,73.0],[2,\"Kate\",15,87.0]]}}",
+  "sampleTestCase": "{\"headers\":{\"students\":[\"student_id\",\"name\",\"age\",\"grade\"]},\"rows\":{\"students\":[[1,\"Ava\",6,73.0],[2,\"Kate\",15,87.0]]}}",
+  "metaData": "{\n  \"pythondata\": [\n    \"students = pd.DataFrame([], columns=['student_id', 'name', 'age', 'grade']).astype({'student_id':'Int64', 'name':'object', 'age':'Int64', 'grade':'Float64'})\"\n  ],\n  \"database\": true,\n  \"name\": \"changeDatatype\",\n  \"languages\": [\n    \"pythondata\"\n  ]\n}"
+}

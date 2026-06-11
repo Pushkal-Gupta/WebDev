@@ -1,0 +1,8 @@
+{
+  "questionId": "514",
+  "titleSlug": "freedom-trail",
+  "title": "Freedom Trail",
+  "exampleTestcases": "\"godding\"\n\"gd\"\n\"godding\"\n\"godding\"",
+  "sampleTestCase": "\"godding\"\n\"gd\"",
+  "metaData": "{\r\n  \"name\": \"findRotateSteps\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"ring\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"key\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

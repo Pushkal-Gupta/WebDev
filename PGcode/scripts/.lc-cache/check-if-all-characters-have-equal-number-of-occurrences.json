@@ -1,0 +1,8 @@
+{
+  "questionId": "2053",
+  "titleSlug": "check-if-all-characters-have-equal-number-of-occurrences",
+  "title": "Check if All Characters Have Equal Number of Occurrences",
+  "exampleTestcases": "\"abacbc\"\n\"aaabb\"",
+  "sampleTestCase": "\"abacbc\"",
+  "metaData": "{\n  \"name\": \"areOccurrencesEqual\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

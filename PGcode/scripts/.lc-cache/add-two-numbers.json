@@ -1,0 +1,8 @@
+{
+  "questionId": "2",
+  "titleSlug": "add-two-numbers",
+  "title": "Add Two Numbers",
+  "exampleTestcases": "[2,4,3]\n[5,6,4]\n[0]\n[0]\n[9,9,9,9,9,9,9]\n[9,9,9,9]",
+  "sampleTestCase": "[2,4,3]\n[5,6,4]",
+  "metaData": "{\r\n  \"name\": \"addTwoNumbers\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"l1\",\r\n      \"type\": \"ListNode\",\r\n      \"dealloc\": false\r\n    },\r\n    {\r\n      \"name\": \"l2\",\r\n      \"type\": \"ListNode\",\r\n      \"dealloc\": false\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"ListNode\",\r\n    \"dealloc\": true\r\n  }\r\n}"
+}

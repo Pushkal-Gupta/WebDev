@@ -61,16 +61,6 @@ function nearestRepresentable(x, mantissaBits) {
   return base + k * step;
 }
 
-function nextRepresentable(x, mantissaBits) {
-  const snapped = nearestRepresentable(x, mantissaBits);
-  return snapped + ulp(snapped, mantissaBits);
-}
-
-function prevRepresentable(x, mantissaBits) {
-  const snapped = nearestRepresentable(x, mantissaBits);
-  return snapped - ulp(snapped, mantissaBits);
-}
-
 // Map a normalized "warmth" in [0,1] (1 = warmest = largest gap) to a stop color.
 // We interpolate between three site palette hues so the user gets a clear
 // cool->warm read.

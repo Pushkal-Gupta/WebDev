@@ -1,0 +1,8 @@
+{
+  "questionId": "1307",
+  "titleSlug": "ugly-number-iii",
+  "title": "Ugly Number III",
+  "exampleTestcases": "3\n2\n3\n5\n4\n2\n3\n4\n5\n2\n11\n13",
+  "sampleTestCase": "3\n2\n3\n5",
+  "metaData": "{\n  \"name\": \"nthUglyNumber\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"a\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"b\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"c\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

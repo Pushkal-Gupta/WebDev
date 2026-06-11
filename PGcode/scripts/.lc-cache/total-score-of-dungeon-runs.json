@@ -1,0 +1,8 @@
+{
+  "questionId": "4146",
+  "titleSlug": "total-score-of-dungeon-runs",
+  "title": "Total Score of Dungeon Runs",
+  "exampleTestcases": "11\n[3,6,7]\n[4,2,5]\n2\n[10000,1]\n[1,1]",
+  "sampleTestCase": "11\n[3,6,7]\n[4,2,5]",
+  "metaData": "{\n  \"name\": \"totalScore\",\n  \"params\": [\n    {\n      \"name\": \"hp\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"damage\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"requirement\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1148",
+  "titleSlug": "adding-two-negabinary-numbers",
+  "title": "Adding Two Negabinary Numbers",
+  "exampleTestcases": "[1,1,1,1,1]\n[1,0,1]\n[0]\n[0]\n[0]\n[1]",
+  "sampleTestCase": "[1,1,1,1,1]\n[1,0,1]",
+  "metaData": "{\n  \"name\": \"addNegabinary\",\n  \"params\": [\n    {\n      \"name\": \"arr1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"arr2\",\n      \"type\": \"integer[]\"\n    }  \n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}\n"
+}

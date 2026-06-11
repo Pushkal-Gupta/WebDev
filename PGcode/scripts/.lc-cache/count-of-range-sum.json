@@ -1,0 +1,8 @@
+{
+  "questionId": "327",
+  "titleSlug": "count-of-range-sum",
+  "title": "Count of Range Sum",
+  "exampleTestcases": "[-2,5,-1]\n-2\n2\n[0]\n0\n0",
+  "sampleTestCase": "[-2,5,-1]\n-2\n2",
+  "metaData": "{\n  \"name\": \"countRangeSum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"lower\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"upper\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

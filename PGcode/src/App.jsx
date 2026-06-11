@@ -30,7 +30,8 @@ class RouteErrorBoundary extends React.Component {
           </p>
           <pre style={{
             background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8,
-            padding: '0.8rem 1rem', fontSize: '0.75rem', overflow: 'auto', color: 'var(--text-dim)',
+            padding: '0.8rem 1rem', fontSize: '0.75rem', color: 'var(--text-dim)',
+            whiteSpace: 'pre-wrap', wordBreak: 'break-word',
           }}>{String(this.state.err?.message || this.state.err)}</pre>
           <div style={{ display: 'flex', gap: '0.6rem', marginTop: '1rem' }}>
             <Link to="/" style={{ color: 'var(--accent)' }}>Back to roadmap</Link>
@@ -92,6 +93,55 @@ const ShareableCard = lazy(() => import('./components/ShareableCard'));
 
 const VALID_THEMES = ['dark', 'light', 'midnight', 'midnight-light', 'solarized', 'solarized-dark', 'dracula', 'dracula-light'];
 const normalizeTheme = (t) => (VALID_THEMES.includes(t) ? t : 'dark');
+
+// Intercept Supabase OAuth callback errors (?error=…&error_description=…) and
+// show a friendly explanation instead of leaving the user staring at a raw
+// query string. Strips the noise from the URL so reload doesn't show it again.
+function AuthErrorBanner() {
+  const [errMsg, setErrMsg] = useState(() => {
+    if (typeof window === 'undefined') return null;
+    const sp = new URLSearchParams(window.location.search);
+    const code = sp.get('error_code') || sp.get('error');
+    const desc = sp.get('error_description');
+    if (!code && !desc) return null;
+    const decoded = desc ? decodeURIComponent(desc.replace(/\+/g, ' ')) : code;
+    if (/multiple accounts.*same email/i.test(decoded)) {
+      return 'That email is already linked to a different sign-in method on this site. Sign in with the original method, then attach this one from Settings → Profile → Link.';
+    }
+    return decoded;
+  });
+
+  useEffect(() => {
+    if (!errMsg) return;
+    const url = new URL(window.location.href);
+    if (!url.search) return;
+    url.search = '';
+    window.history.replaceState({}, '', url.toString());
+  }, [errMsg]);
+
+  if (!errMsg) return null;
+  return (
+    <div role="alert" style={{
+      position: 'fixed', top: 0, left: 0, right: 0,
+      background: 'var(--hard)', color: '#fff',
+      padding: '0.7rem 1rem', zIndex: 10000,
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      gap: '1rem', fontFamily: 'var(--sans, system-ui, sans-serif)', fontSize: '0.88rem',
+      boxShadow: '0 2px 12px rgba(0,0,0,0.25)',
+    }}>
+      <span style={{ flex: 1 }}>{errMsg}</span>
+      <button
+        type="button"
+        onClick={() => setErrMsg(null)}
+        style={{
+          background: 'rgba(255,255,255,0.15)', color: '#fff',
+          border: '1px solid rgba(255,255,255,0.3)', borderRadius: 6,
+          padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 600, fontSize: '0.78rem',
+        }}
+      >Dismiss</button>
+    </div>
+  );
+}
 
 function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
   const location = useLocation();
@@ -162,6 +212,7 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
 
   return (
     <>
+      <AuthErrorBanner />
       <Navbar
         session={session}
         theme={theme}

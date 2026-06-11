@@ -1,0 +1,8 @@
+{
+  "questionId": "1742",
+  "titleSlug": "widest-vertical-area-between-two-points-containing-no-points",
+  "title": "Widest Vertical Area Between Two Points Containing No Points",
+  "exampleTestcases": "[[8,7],[9,9],[7,4],[9,7]]\n[[3,1],[9,0],[1,0],[1,4],[5,3],[8,8]]",
+  "sampleTestCase": "[[8,7],[9,9],[7,4],[9,7]]",
+  "metaData": "{\n  \"name\": \"maxWidthOfVerticalArea\",\n  \"params\": [\n    {\n      \"name\": \"points\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

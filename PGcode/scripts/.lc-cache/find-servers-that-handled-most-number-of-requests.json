@@ -1,0 +1,8 @@
+{
+  "questionId": "1710",
+  "titleSlug": "find-servers-that-handled-most-number-of-requests",
+  "title": "Find Servers That Handled Most Number of Requests",
+  "exampleTestcases": "3\n[1,2,3,4,5]\n[5,2,3,3,3]\n3\n[1,2,3,4]\n[1,2,1,2]\n3\n[1,2,3]\n[10,12,11]",
+  "sampleTestCase": "3\n[1,2,3,4,5]\n[5,2,3,3,3]",
+  "metaData": "{\n  \"name\": \"busiestServers\",\n  \"params\": [\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"arrival\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"load\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
+}

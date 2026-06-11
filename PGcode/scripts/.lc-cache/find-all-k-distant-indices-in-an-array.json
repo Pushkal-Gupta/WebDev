@@ -1,0 +1,8 @@
+{
+  "questionId": "2320",
+  "titleSlug": "find-all-k-distant-indices-in-an-array",
+  "title": "Find All K-Distant Indices in an Array",
+  "exampleTestcases": "[3,4,9,1,3,9,5]\n9\n1\n[2,2,2,2,2]\n2\n2",
+  "sampleTestCase": "[3,4,9,1,3,9,5]\n9\n1",
+  "metaData": "{\n  \"name\": \"findKDistantIndices\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"key\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
+}

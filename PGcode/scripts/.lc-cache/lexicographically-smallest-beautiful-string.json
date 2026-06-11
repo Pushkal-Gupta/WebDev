@@ -1,0 +1,8 @@
+{
+  "questionId": "2687",
+  "titleSlug": "lexicographically-smallest-beautiful-string",
+  "title": "Lexicographically Smallest Beautiful String",
+  "exampleTestcases": "\"abcz\"\n26\n\"dc\"\n4",
+  "sampleTestCase": "\"abcz\"\n26",
+  "metaData": "{\n  \"name\": \"smallestBeautifulString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

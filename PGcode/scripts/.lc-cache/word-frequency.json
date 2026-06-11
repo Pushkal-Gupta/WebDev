@@ -1,0 +1,8 @@
+{
+  "questionId": "192",
+  "titleSlug": "word-frequency",
+  "title": "Word Frequency",
+  "exampleTestcases": "a",
+  "sampleTestCase": "a",
+  "metaData": "{\n  \"shell\": true,\n  \"manual\": true\n}"
+}

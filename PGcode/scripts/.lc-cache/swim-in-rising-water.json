@@ -1,0 +1,8 @@
+{
+  "questionId": "794",
+  "titleSlug": "swim-in-rising-water",
+  "title": "Swim in Rising Water",
+  "exampleTestcases": "[[0,2],[1,3]]\n[[0,1,2,3,4],[24,23,22,21,5],[12,13,14,15,16],[11,17,18,19,20],[10,9,8,7,6]]",
+  "sampleTestCase": "[[0,2],[1,3]]",
+  "metaData": "{\r\n  \"name\": \"swimInWater\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"grid\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

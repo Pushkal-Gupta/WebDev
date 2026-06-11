@@ -466,8 +466,8 @@
   padding: 0.9rem 1rem;
   margin: 0;
   color: var(--text-main);
-  overflow-x: auto;
-  white-space: pre;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 .course-code-wrap {
   border: 1px solid var(--border);
@@ -581,8 +581,7 @@
   line-height: 1.6;
   color: var(--text-main);
   white-space: pre-wrap;
-  max-height: 280px;
-  overflow-y: auto;
+  word-break: break-word;
   background: var(--bg);
 }
 

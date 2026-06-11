@@ -1,0 +1,8 @@
+{
+  "questionId": "1938",
+  "titleSlug": "minimum-operations-to-make-the-array-increasing",
+  "title": "Minimum Operations to Make the Array Increasing",
+  "exampleTestcases": "[1,1,1]\n[1,5,2,4,1]\n[8]",
+  "sampleTestCase": "[1,1,1]",
+  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

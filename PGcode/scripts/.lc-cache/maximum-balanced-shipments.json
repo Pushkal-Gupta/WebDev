@@ -1,0 +1,8 @@
+{
+  "questionId": "3954",
+  "titleSlug": "maximum-balanced-shipments",
+  "title": "Maximum Balanced Shipments",
+  "exampleTestcases": "[2,5,1,4,3]\n[4,4]",
+  "sampleTestCase": "[2,5,1,4,3]",
+  "metaData": "{\n  \"name\": \"maxBalancedShipments\",\n  \"params\": [\n    {\n      \"name\": \"weight\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

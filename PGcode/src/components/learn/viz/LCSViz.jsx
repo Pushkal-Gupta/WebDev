@@ -143,27 +143,27 @@ export default function LCSViz() {
   const built = useMemo(() => buildSteps(a, b), [a, b]);
   const { steps, finalDp } = built;
   const [idx, setIdx] = useState(-1);
-  const [playing, setPlaying] = useState(false);
+  const [playingRaw, setPlaying] = useState(false);
   const timerRef = useRef(null);
 
-  useEffect(() => {
+  // Reset playhead when the input changes (prev-state-during-render pattern).
+  const [prevA, setPrevA] = useState(a);
+  const [prevB, setPrevB] = useState(b);
+  if (prevA !== a || prevB !== b) {
+    setPrevA(a);
+    setPrevB(b);
     setIdx(-1);
     setPlaying(false);
-  }, [a, b]);
+  }
 
   const total = steps.length;
   const current = idx >= 0 ? steps[idx] : null;
   const atEnd = idx >= total - 1;
   const finalAnswer = finalDp[a.length][b.length];
+  const playing = playingRaw && idx < total - 1;
 
   const next = useCallback(() => {
-    setIdx((i) => {
-      if (i >= total - 1) {
-        setPlaying(false);
-        return i;
-      }
-      return i + 1;
-    });
+    setIdx((i) => Math.min(i + 1, total - 1));
   }, [total]);
 
   useEffect(() => {
@@ -181,10 +181,6 @@ export default function LCSViz() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [playing, next]);
-
-  useEffect(() => {
-    if (idx >= total - 1 && playing) setPlaying(false);
-  }, [idx, total, playing]);
 
   const handleReset = () => {
     setPlaying(false);

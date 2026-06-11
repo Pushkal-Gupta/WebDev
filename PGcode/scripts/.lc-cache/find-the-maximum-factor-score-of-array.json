@@ -1,0 +1,8 @@
+{
+  "questionId": "3593",
+  "titleSlug": "find-the-maximum-factor-score-of-array",
+  "title": "Find the Maximum Factor Score of Array",
+  "exampleTestcases": "[2,4,8,16]\n[1,2,3,4,5]\n[3]",
+  "sampleTestCase": "[2,4,8,16]",
+  "metaData": "{\n  \"name\": \"maxScore\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

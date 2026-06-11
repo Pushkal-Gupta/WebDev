@@ -1,0 +1,8 @@
+{
+  "questionId": "1474",
+  "titleSlug": "longest-zigzag-path-in-a-binary-tree",
+  "title": "Longest ZigZag Path in a Binary Tree",
+  "exampleTestcases": "[1,null,1,1,1,null,null,1,1,null,1,null,null,null,1]\n[1,1,1,null,1,null,null,1,1,null,1]\n[1]",
+  "sampleTestCase": "[1,null,1,1,1,null,null,1,1,null,1,null,null,null,1]",
+  "metaData": "{\n  \"name\": \"longestZigZag\",\n  \"params\": [\n    {\n      \"name\": \"root\",\n      \"type\": \"TreeNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1733",
+  "titleSlug": "maximum-number-of-visible-points",
+  "title": "Maximum Number of Visible Points",
+  "exampleTestcases": "[[2,1],[2,2],[3,3]]\n90\n[1,1]\n[[2,1],[2,2],[3,4],[1,1]]\n90\n[1,1]\n[[1,0],[2,1]]\n13\n[1,1]",
+  "sampleTestCase": "[[2,1],[2,2],[3,3]]\n90\n[1,1]",
+  "metaData": "{\n  \"name\": \"visiblePoints\",\n  \"params\": [\n    {\n      \"name\": \"points\",\n      \"type\": \"list<list<integer>>\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"angle\"\n    },\n    {\n      \"type\": \"list<integer>\",\n      \"name\": \"location\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "4200",
+  "titleSlug": "reverse-letters-then-special-characters-in-a-string",
+  "title": "Reverse Letters Then Special Characters in a String",
+  "exampleTestcases": "\")ebc#da@f(\"\n\"z\"\n\"!@#$%^&*()\"",
+  "sampleTestCase": "\")ebc#da@f(\"",
+  "metaData": "{\n  \"name\": \"reverseByType\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

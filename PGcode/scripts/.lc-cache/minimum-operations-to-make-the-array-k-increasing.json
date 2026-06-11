@@ -1,0 +1,8 @@
+{
+  "questionId": "2234",
+  "titleSlug": "minimum-operations-to-make-the-array-k-increasing",
+  "title": "Minimum Operations to Make the Array K-Increasing",
+  "exampleTestcases": "[5,4,3,2,1]\n1\n[4,1,5,2,6,2]\n2\n[4,1,5,2,6,2]\n3",
+  "sampleTestCase": "[5,4,3,2,1]\n1",
+  "metaData": "{\n  \"name\": \"kIncreasing\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

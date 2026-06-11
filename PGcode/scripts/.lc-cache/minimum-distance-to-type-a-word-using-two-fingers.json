@@ -1,0 +1,8 @@
+{
+  "questionId": "1443",
+  "titleSlug": "minimum-distance-to-type-a-word-using-two-fingers",
+  "title": "Minimum Distance to Type a Word Using Two Fingers",
+  "exampleTestcases": "\"CAKE\"\n\"HAPPY\"",
+  "sampleTestCase": "\"CAKE\"",
+  "metaData": "{\n  \"name\": \"minimumDistance\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

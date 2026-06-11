@@ -1,0 +1,8 @@
+{
+  "questionId": "1839",
+  "titleSlug": "decode-xored-array",
+  "title": "Decode XORed Array",
+  "exampleTestcases": "[1,2,3]\n1\n[6,2,7,3]\n4",
+  "sampleTestCase": "[1,2,3]\n1",
+  "metaData": "{\n  \"name\": \"decode\",\n  \"params\": [\n    {\n      \"name\": \"encoded\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"first\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

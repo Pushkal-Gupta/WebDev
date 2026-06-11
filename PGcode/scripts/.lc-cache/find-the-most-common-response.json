@@ -1,0 +1,8 @@
+{
+  "questionId": "3707",
+  "titleSlug": "find-the-most-common-response",
+  "title": "Find the Most Common Response",
+  "exampleTestcases": "[[\"good\",\"ok\",\"good\",\"ok\"],[\"ok\",\"bad\",\"good\",\"ok\",\"ok\"],[\"good\"],[\"bad\"]]\n[[\"good\",\"ok\",\"good\"],[\"ok\",\"bad\"],[\"bad\",\"notsure\"],[\"great\",\"good\"]]",
+  "sampleTestCase": "[[\"good\",\"ok\",\"good\",\"ok\"],[\"ok\",\"bad\",\"good\",\"ok\",\"ok\"],[\"good\"],[\"bad\"]]",
+  "metaData": "{\n  \"name\": \"findCommonResponse\",\n  \"params\": [\n    {\n      \"name\": \"responses\",\n      \"type\": \"list<list<string>>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1350",
+  "titleSlug": "remove-sub-folders-from-the-filesystem",
+  "title": "Remove Sub-Folders from the Filesystem",
+  "exampleTestcases": "[\"/a\",\"/a/b\",\"/c/d\",\"/c/d/e\",\"/c/f\"]\n[\"/a\",\"/a/b/c\",\"/a/b/d\"]\n[\"/a/b/c\",\"/a/b/ca\",\"/a/b/d\"]",
+  "sampleTestCase": "[\"/a\",\"/a/b\",\"/c/d\",\"/c/d/e\",\"/c/f\"]",
+  "metaData": "{\n  \"name\": \"removeSubfolders\",\n  \"params\": [\n    {\n      \"name\": \"folder\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\"\n  }\n}"
+}

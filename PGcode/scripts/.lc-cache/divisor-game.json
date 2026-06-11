@@ -1,0 +1,8 @@
+{
+  "questionId": "1086",
+  "titleSlug": "divisor-game",
+  "title": "Divisor Game",
+  "exampleTestcases": "2\n3",
+  "sampleTestCase": "2",
+  "metaData": "{\n  \"name\": \"divisorGame\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

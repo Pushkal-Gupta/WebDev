@@ -1,0 +1,8 @@
+{
+  "questionId": "1362",
+  "titleSlug": "airplane-seat-assignment-probability",
+  "title": "Airplane Seat Assignment Probability",
+  "exampleTestcases": "1\n2",
+  "sampleTestCase": "1",
+  "metaData": "{\n  \"name\": \"nthPersonGetsNthSeat\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"double\"\n  }\n}"
+}

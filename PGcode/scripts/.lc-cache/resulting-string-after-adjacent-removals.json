@@ -1,0 +1,8 @@
+{
+  "questionId": "3860",
+  "titleSlug": "resulting-string-after-adjacent-removals",
+  "title": "Resulting String After Adjacent Removals",
+  "exampleTestcases": "\"abc\"\n\"adcb\"\n\"zadb\"",
+  "sampleTestCase": "\"abc\"",
+  "metaData": "{\n  \"name\": \"resultingString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

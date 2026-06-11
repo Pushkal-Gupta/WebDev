@@ -1,0 +1,8 @@
+{
+  "questionId": "1464",
+  "titleSlug": "reduce-array-size-to-the-half",
+  "title": "Reduce Array Size to The Half",
+  "exampleTestcases": "[3,3,3,3,5,5,5,2,2,7]\n[7,7,7,7,7,7]",
+  "sampleTestCase": "[3,3,3,3,5,5,5,2,2,7]",
+  "metaData": "{\n  \"name\": \"minSetSize\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

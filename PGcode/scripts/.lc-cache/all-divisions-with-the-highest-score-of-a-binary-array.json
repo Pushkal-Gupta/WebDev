@@ -1,0 +1,8 @@
+{
+  "questionId": "2261",
+  "titleSlug": "all-divisions-with-the-highest-score-of-a-binary-array",
+  "title": "All Divisions With the Highest Score of a Binary Array",
+  "exampleTestcases": "[0,0,1,0]\n[0,0,0]\n[1,1]",
+  "sampleTestCase": "[0,0,1,0]",
+  "metaData": "{\n  \"name\": \"maxScoreIndices\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
+}

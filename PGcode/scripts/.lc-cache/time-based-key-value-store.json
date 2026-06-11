@@ -1,0 +1,8 @@
+{
+  "questionId": "1023",
+  "titleSlug": "time-based-key-value-store",
+  "title": "Time Based Key-Value Store",
+  "exampleTestcases": "[\"TimeMap\",\"set\",\"get\",\"get\",\"set\",\"get\",\"get\"]\n[[],[\"foo\",\"bar\",1],[\"foo\",1],[\"foo\",3],[\"foo\",\"bar2\",4],[\"foo\",4],[\"foo\",5]]",
+  "sampleTestCase": "[\"TimeMap\",\"set\",\"get\",\"get\",\"set\",\"get\",\"get\"]\n[[],[\"foo\",\"bar\",1],[\"foo\",1],[\"foo\",3],[\"foo\",\"bar2\",4],[\"foo\",4],[\"foo\",5]]",
+  "metaData": "{\n  \"classname\": \"TimeMap\",\n  \"constructor\": {\n    \"params\": []\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"string\",\n          \"name\": \"key\"\n        },\n        {\n          \"type\": \"string\",\n          \"name\": \"value\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"timestamp\"\n        }\n      ],\n      \"return\": {\n        \"type\": \"void\"\n      },\n      \"name\": \"set\"\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"string\",\n          \"name\": \"key\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"timestamp\"\n        }\n      ],\n      \"return\": {\n        \"type\": \"string\"\n      },\n      \"name\": \"get\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
+}

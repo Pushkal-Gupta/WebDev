@@ -1,0 +1,8 @@
+{
+  "questionId": "3690",
+  "titleSlug": "smallest-substring-with-identical-characters-i",
+  "title": "Smallest Substring With Identical Characters I",
+  "exampleTestcases": "\"000001\"\n1\n\"0000\"\n2\n\"0101\"\n0",
+  "sampleTestCase": "\"000001\"\n1",
+  "metaData": "{\n  \"name\": \"minLength\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"numOps\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

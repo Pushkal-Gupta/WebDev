@@ -1,0 +1,8 @@
+{
+  "questionId": "2269",
+  "titleSlug": "count-elements-with-strictly-smaller-and-greater-elements",
+  "title": "Count Elements With Strictly Smaller and Greater Elements ",
+  "exampleTestcases": "[11,7,2,15]\n[-3,3,3,90]",
+  "sampleTestCase": "[11,7,2,15]",
+  "metaData": "{\n  \"name\": \"countElements\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

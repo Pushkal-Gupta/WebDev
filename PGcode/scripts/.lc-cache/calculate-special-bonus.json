@@ -1,0 +1,8 @@
+{
+  "questionId": "2024",
+  "titleSlug": "calculate-special-bonus",
+  "title": "Calculate Special Bonus",
+  "exampleTestcases": "{\"headers\":{\"Employees\":[\"employee_id\",\"name\",\"salary\"]},\"rows\":{\"Employees\":[[2,\"Meir\",3000],[3,\"Michael\",3800],[7,\"Addilyn\",7400],[8,\"Juan\",6100],[9,\"Kannon\",7700]]}}",
+  "sampleTestCase": "{\"headers\":{\"Employees\":[\"employee_id\",\"name\",\"salary\"]},\"rows\":{\"Employees\":[[2,\"Meir\",3000],[3,\"Michael\",3800],[7,\"Addilyn\",7400],[8,\"Juan\",6100],[9,\"Kannon\",7700]]}}",
+  "metaData": "{\"mysql\": [\"Create table If Not Exists Employees (employee_id int, name varchar(30), salary int)\"], \"mssql\": [\"Create table Employees (employee_id int, name varchar(30), salary int)\"], \"oraclesql\": [\"Create table Employees (employee_id int, name varchar(30), salary int)\"], \"database\": true, \"name\": \"calculate_special_bonus\", \"pythondata\": [\"Employees = pd.DataFrame([], columns=['employee_id', 'name', 'salary']).astype({'employee_id':'int64', 'name':'object', 'salary':'int64'})\"], \"manual\": false, \"postgresql\": [\"Create table If Not Exists Employees (employee_id int, name varchar(30), salary int)\"], \"database_schema\": {\"Employees\": {\"employee_id\": \"INT\", \"name\": \"VARCHAR(30)\", \"salary\": \"INT\"}}}"
+}

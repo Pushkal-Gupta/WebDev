@@ -1,0 +1,8 @@
+{
+  "questionId": "1983",
+  "titleSlug": "maximum-population-year",
+  "title": "Maximum Population Year",
+  "exampleTestcases": "[[1993,1999],[2000,2010]]\n[[1950,1961],[1960,1971],[1970,1981]]",
+  "sampleTestCase": "[[1993,1999],[2000,2010]]",
+  "metaData": "{\n  \"name\": \"maximumPopulation\",\n  \"params\": [\n    {\n      \"name\": \"logs\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

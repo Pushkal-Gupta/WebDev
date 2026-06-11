@@ -311,7 +311,7 @@ function BarPanel({ frame, maxVal, title, finished, finishedAt }) {
 export default function SortingRaceViz({ size = DEFAULT_N }) {
   const [seed, setSeed] = useState(() => randomArray(size));
   const [stepIdx, setStepIdx] = useState(0);
-  const [isRunning, setIsRunning] = useState(false);
+  const [isRunningRaw, setIsRunning] = useState(false);
   const runTimer = useRef(null);
 
   const bubble = useMemo(() => bubbleSortFrames(seed), [seed]);
@@ -377,12 +377,11 @@ export default function SortingRaceViz({ size = DEFAULT_N }) {
     setStepIdx(0);
   }, [stop]);
 
+  // Derive isRunning from the raw toggle + a bounds check so the effect never
+  // has to call setIsRunning(false) when we hit the end — avoids cascading render.
+  const isRunning = isRunningRaw && stepIdx < totalSteps - 1;
   useEffect(() => {
     if (!isRunning) return;
-    if (stepIdx >= totalSteps - 1) {
-      setIsRunning(false);
-      return;
-    }
     runTimer.current = setTimeout(() => {
       setStepIdx(i => Math.min(i + 1, totalSteps - 1));
     }, RUN_DELAY_MS);
@@ -392,7 +391,7 @@ export default function SortingRaceViz({ size = DEFAULT_N }) {
         runTimer.current = null;
       }
     };
-  }, [isRunning, stepIdx, totalSteps]);
+  }, [isRunning, totalSteps]);
 
   const handleRunToggle = () => {
     if (isRunning) { stop(); return; }

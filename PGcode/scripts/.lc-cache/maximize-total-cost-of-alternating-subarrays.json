@@ -1,0 +1,8 @@
+{
+  "questionId": "3464",
+  "titleSlug": "maximize-total-cost-of-alternating-subarrays",
+  "title": "Maximize Total Cost of Alternating Subarrays",
+  "exampleTestcases": "[1,-2,3,4]\n[1,-1,1,-1]\n[0]\n[1,-1]",
+  "sampleTestCase": "[1,-2,3,4]",
+  "metaData": "{\n  \"name\": \"maximumTotalCost\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

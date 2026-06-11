@@ -1,0 +1,8 @@
+{
+  "questionId": "3246",
+  "titleSlug": "check-if-bitwise-or-has-trailing-zeros",
+  "title": "Check if Bitwise OR Has Trailing Zeros",
+  "exampleTestcases": "[1,2,3,4,5]\n[2,4,8,16]\n[1,3,5,7,9]",
+  "sampleTestCase": "[1,2,3,4,5]",
+  "metaData": "{\n  \"name\": \"hasTrailingZeros\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

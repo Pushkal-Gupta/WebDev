@@ -1,0 +1,8 @@
+{
+  "questionId": "611",
+  "titleSlug": "valid-triangle-number",
+  "title": "Valid Triangle Number",
+  "exampleTestcases": "[2,2,3,4]\n[4,2,3,4]",
+  "sampleTestCase": "[2,2,3,4]",
+  "metaData": "{\r\n  \"name\": \"triangleNumber\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

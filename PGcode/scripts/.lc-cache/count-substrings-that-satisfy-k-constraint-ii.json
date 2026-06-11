@@ -1,0 +1,8 @@
+{
+  "questionId": "3546",
+  "titleSlug": "count-substrings-that-satisfy-k-constraint-ii",
+  "title": "Count Substrings That Satisfy K-Constraint II",
+  "exampleTestcases": "\"0001111\"\n2\n[[0,6]]\n\"010101\"\n1\n[[0,5],[1,4],[2,3]]",
+  "sampleTestCase": "\"0001111\"\n2\n[[0,6]]",
+  "metaData": "{\n  \"name\": \"countKConstraintSubstrings\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long[]\"\n  }\n}"
+}

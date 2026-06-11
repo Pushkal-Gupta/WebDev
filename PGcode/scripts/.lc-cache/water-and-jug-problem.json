@@ -1,0 +1,8 @@
+{
+  "questionId": "365",
+  "titleSlug": "water-and-jug-problem",
+  "title": "Water and Jug Problem",
+  "exampleTestcases": "3\n5\n4",
+  "sampleTestCase": "3\n5\n4",
+  "metaData": "{\n  \"name\": \"canMeasureWater\",\n  \"params\": [\n    {\n      \"name\": \"x\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"y\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"target\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

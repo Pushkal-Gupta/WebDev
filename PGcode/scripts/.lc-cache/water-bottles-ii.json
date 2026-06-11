@@ -1,0 +1,8 @@
+{
+  "questionId": "3336",
+  "titleSlug": "water-bottles-ii",
+  "title": "Water Bottles II",
+  "exampleTestcases": "13\n6\n10\n3",
+  "sampleTestCase": "13\n6",
+  "metaData": "{\n  \"name\": \"maxBottlesDrunk\",\n  \"params\": [\n    {\n      \"name\": \"numBottles\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"numExchange\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -110,7 +110,7 @@ function buildSteps(start, dest) {
 
   steps.push({
     kind: 'init',
-    current: null,
+    cur: null,
     activeEdge: null,
     dist: { ...dist },
     prev: { ...prev },
@@ -126,7 +126,7 @@ function buildSteps(start, dest) {
     if (settled.has(top.id) || top.d !== dist[top.id]) {
       steps.push({
         kind: 'stale',
-        current: top.id,
+        cur: top.id,
         activeEdge: null,
         dist: { ...dist },
         prev: { ...prev },
@@ -141,7 +141,7 @@ function buildSteps(start, dest) {
 
     steps.push({
       kind: 'pop',
-      current: top.id,
+      cur: top.id,
       activeEdge: null,
       dist: { ...dist },
       prev: { ...prev },
@@ -168,7 +168,7 @@ function buildSteps(start, dest) {
         inHeap.add(to);
         steps.push({
           kind: 'relax-improve',
-          current: top.id,
+          cur: top.id,
           activeEdge: edgeKey(top.id, to),
           dist: { ...dist },
           prev: { ...prev },
@@ -181,7 +181,7 @@ function buildSteps(start, dest) {
       } else {
         steps.push({
           kind: 'relax-skip',
-          current: top.id,
+          cur: top.id,
           activeEdge: edgeKey(top.id, to),
           dist: { ...dist },
           prev: { ...prev },
@@ -196,7 +196,7 @@ function buildSteps(start, dest) {
 
     steps.push({
       kind: 'settle',
-      current: top.id,
+      cur: top.id,
       activeEdge: null,
       dist: { ...dist },
       prev: { ...prev },
@@ -213,7 +213,7 @@ function buildSteps(start, dest) {
       while (cur) { path.unshift(cur); cur = prev[cur]; }
       steps.push({
         kind: 'done',
-        current: null,
+        cur: null,
         activeEdge: null,
         dist: { ...dist },
         prev: { ...prev },
@@ -236,7 +236,7 @@ function buildSteps(start, dest) {
   }
   steps.push({
     kind: 'done',
-    current: null,
+    cur: null,
     activeEdge: null,
     dist: { ...dist },
     prev: { ...prev },
@@ -299,27 +299,25 @@ export default function DijkstraFullViz() {
   const [dest, setDest] = useState('F');
   const [pickMode, setPickMode] = useState('start'); // 'start' | 'dest' | 'none'
   const [speed, setSpeed] = useState(900);
-  const [steps, setSteps] = useState(() => buildSteps('A', 'F'));
+  const steps = useMemo(() => buildSteps(start, dest), [start, dest]);
   const [idx, setIdx] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  const [playingRaw, setPlaying] = useState(false);
   const timerRef = useRef(null);
 
-  useEffect(() => {
-    setSteps(buildSteps(start, dest));
+  const [prevSteps, setPrevSteps] = useState(steps);
+  if (prevSteps !== steps) {
+    setPrevSteps(steps);
     setIdx(0);
     setPlaying(false);
-  }, [start, dest]);
+  }
 
   const step = steps[idx];
+  // Derive `playing` from the raw toggle + bounds so the auto-run effect never
+  // needs to call setPlaying(false) when we hit the end.
+  const playing = playingRaw && idx < steps.length - 1;
 
   const next = useCallback(() => {
-    setIdx((i) => {
-      if (i >= steps.length - 1) {
-        setPlaying(false);
-        return i;
-      }
-      return i + 1;
-    });
+    setIdx((i) => (i >= steps.length - 1 ? i : i + 1));
   }, [steps.length]);
 
   useEffect(() => {
@@ -335,10 +333,6 @@ export default function DijkstraFullViz() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [playing, next, speed]);
-
-  useEffect(() => {
-    if (idx >= steps.length - 1 && playing) setPlaying(false);
-  }, [idx, steps.length, playing]);
 
   const handleReset = () => {
     setPlaying(false);
@@ -380,7 +374,7 @@ export default function DijkstraFullViz() {
       if (step.dist[id] !== INF) map[id] = 'reached';
     });
     step.settled.forEach((id) => { map[id] = 'settled'; });
-    if (step.current) map[step.current] = 'current';
+    if (step.cur) map[step.cur] = 'current';
     return map;
   }, [step]);
 
@@ -391,11 +385,6 @@ export default function DijkstraFullViz() {
 
   const heapWidth = 320;
   const heapLayoutData = useMemo(() => heapLayout(step.heap, heapWidth), [step.heap]);
-  const heapPosById = useMemo(() => {
-    const m = {};
-    heapLayoutData.positions.forEach((p) => { m[`${p.item.id}-${p.item.d}-${p.indexInLevel}-${p.level}`] = p; });
-    return m;
-  }, [heapLayoutData]);
 
   const heapSvgHeight = Math.max(160, heapLayoutData.height || 160);
 
@@ -630,7 +619,7 @@ export default function DijkstraFullViz() {
         <div className="dfviz-status-row">
           <span className="dfviz-status-label">Processing</span>
           <span className="dfviz-status-value">
-            {step.current ? <>Node {step.current}</> : <span className="dfviz-muted">{isDone ? 'finished' : 'idle'}</span>}
+            {step.cur ? <>Node {step.cur}</> : <span className="dfviz-muted">{isDone ? 'finished' : 'idle'}</span>}
           </span>
         </div>
         <div className="dfviz-status-row">

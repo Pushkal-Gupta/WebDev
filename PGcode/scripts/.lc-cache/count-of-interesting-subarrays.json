@@ -1,0 +1,8 @@
+{
+  "questionId": "2915",
+  "titleSlug": "count-of-interesting-subarrays",
+  "title": "Count of Interesting Subarrays",
+  "exampleTestcases": "[3,2,4]\n2\n1\n[3,1,9,6]\n3\n0",
+  "sampleTestCase": "[3,2,4]\n2\n1",
+  "metaData": "{\n  \"name\": \"countInterestingSubarrays\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"list<integer>\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"modulo\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

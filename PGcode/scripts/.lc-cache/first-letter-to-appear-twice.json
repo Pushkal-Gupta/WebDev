@@ -1,0 +1,8 @@
+{
+  "questionId": "2427",
+  "titleSlug": "first-letter-to-appear-twice",
+  "title": "First Letter to Appear Twice",
+  "exampleTestcases": "\"abccbaacz\"\n\"abcdd\"",
+  "sampleTestCase": "\"abccbaacz\"",
+  "metaData": "{\n  \"name\": \"repeatedCharacter\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"character\"\n  }\n}"
+}

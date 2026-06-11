@@ -1,0 +1,8 @@
+{
+  "questionId": "972",
+  "titleSlug": "knight-dialer",
+  "title": "Knight Dialer",
+  "exampleTestcases": "1\n2\n3131",
+  "sampleTestCase": "1",
+  "metaData": "{\n  \"name\": \"knightDialer\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

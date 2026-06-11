@@ -1,0 +1,8 @@
+{
+  "questionId": "870",
+  "titleSlug": "magic-squares-in-grid",
+  "title": "Magic Squares In Grid",
+  "exampleTestcases": "[[4,3,8,4],[9,5,1,9],[2,7,6,2]]\n[[8]]",
+  "sampleTestCase": "[[4,3,8,4],[9,5,1,9],[2,7,6,2]]",
+  "metaData": "{\r\n  \"name\": \"numMagicSquaresInside\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"grid\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

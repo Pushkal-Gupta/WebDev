@@ -1,0 +1,8 @@
+{
+  "questionId": "3195",
+  "titleSlug": "separate-black-and-white-balls",
+  "title": "Separate Black and White Balls",
+  "exampleTestcases": "\"101\"\n\"100\"\n\"0111\"",
+  "sampleTestCase": "\"101\"",
+  "metaData": "{\n  \"name\": \"minimumSteps\",\n  \"params\": [\n    {\n      \"type\": \"string\",\n      \"name\": \"s\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

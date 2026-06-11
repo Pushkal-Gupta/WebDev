@@ -1,0 +1,8 @@
+{
+  "questionId": "2594",
+  "titleSlug": "count-pairs-of-similar-strings",
+  "title": "Count Pairs Of Similar Strings",
+  "exampleTestcases": "[\"aba\",\"aabb\",\"abcd\",\"bac\",\"aabc\"]\n[\"aabb\",\"ab\",\"ba\"]\n[\"nba\",\"cba\",\"dba\"]",
+  "sampleTestCase": "[\"aba\",\"aabb\",\"abcd\",\"bac\",\"aabc\"]",
+  "metaData": "{\n  \"name\": \"similarPairs\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "402",
+  "titleSlug": "remove-k-digits",
+  "title": "Remove K Digits",
+  "exampleTestcases": "\"1432219\"\n3\n\"10200\"\n1\n\"10\"\n2",
+  "sampleTestCase": "\"1432219\"\n3",
+  "metaData": "{\r\n  \"name\": \"removeKdigits\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"num\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n        \"name\": \"k\",\r\n        \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}"
+}

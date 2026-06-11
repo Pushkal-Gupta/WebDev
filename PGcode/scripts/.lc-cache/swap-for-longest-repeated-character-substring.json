@@ -1,0 +1,8 @@
+{
+  "questionId": "1261",
+  "titleSlug": "swap-for-longest-repeated-character-substring",
+  "title": "Swap For Longest Repeated Character Substring",
+  "exampleTestcases": "\"ababa\"\n\"aaabaaa\"\n\"aaaaa\"",
+  "sampleTestCase": "\"ababa\"",
+  "metaData": "{\n  \"name\": \"maxRepOpt1\",\n  \"params\": [\n    {\n      \"name\": \"text\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

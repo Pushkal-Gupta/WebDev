@@ -1,0 +1,8 @@
+{
+  "questionId": "3714",
+  "titleSlug": "maximum-and-minimum-sums-of-at-most-size-k-subsequences",
+  "title": "Maximum and Minimum Sums of at Most Size K Subsequences",
+  "exampleTestcases": "[1,2,3]\n2\n[5,0,6]\n1\n[1,1,1]\n2",
+  "sampleTestCase": "[1,2,3]\n2",
+  "metaData": "{\n  \"name\": \"minMaxSums\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

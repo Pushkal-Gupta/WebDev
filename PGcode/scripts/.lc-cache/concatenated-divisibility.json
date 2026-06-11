@@ -1,0 +1,8 @@
+{
+  "questionId": "3841",
+  "titleSlug": "concatenated-divisibility",
+  "title": "Concatenated Divisibility",
+  "exampleTestcases": "[3,12,45]\n5\n[10,5]\n10\n[1,2,3]\n5",
+  "sampleTestCase": "[3,12,45]\n5",
+  "metaData": "{\n  \"name\": \"concatenatedDivisibility\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2664",
+  "titleSlug": "maximize-greatness-of-an-array",
+  "title": "Maximize Greatness of an Array",
+  "exampleTestcases": "[1,3,5,2,1,3,1]\n[1,2,3,4]",
+  "sampleTestCase": "[1,3,5,2,1,3,1]",
+  "metaData": "{\n  \"name\": \"maximizeGreatness\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

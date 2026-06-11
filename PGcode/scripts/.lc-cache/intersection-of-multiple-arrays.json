@@ -1,0 +1,8 @@
+{
+  "questionId": "2331",
+  "titleSlug": "intersection-of-multiple-arrays",
+  "title": "Intersection of Multiple Arrays",
+  "exampleTestcases": "[[3,1,2,4,5],[1,2,3,4],[3,4,5,6]]\n[[1,2,3],[4,5,6]]",
+  "sampleTestCase": "[[3,1,2,4,5],[1,2,3,4],[3,4,5,6]]",
+  "metaData": "{\n  \"name\": \"intersection\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
+}

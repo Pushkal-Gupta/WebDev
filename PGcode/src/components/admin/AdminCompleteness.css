@@ -91,12 +91,11 @@
 }
 
 .comp-table-wrap {
-  overflow-x: auto;
   padding: 0.4rem 0.6rem;
 }
 
 .comp-table {
-  min-width: 920px;
+  width: 100%;
 }
 
 .comp-table th {

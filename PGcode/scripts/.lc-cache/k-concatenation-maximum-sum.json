@@ -1,0 +1,8 @@
+{
+  "questionId": "1299",
+  "titleSlug": "k-concatenation-maximum-sum",
+  "title": "K-Concatenation Maximum Sum",
+  "exampleTestcases": "[1,2]\n3\n[1,-2,1]\n5\n[-1,-2]\n7",
+  "sampleTestCase": "[1,2]\n3",
+  "metaData": "{\n  \"name\": \"kConcatenationMaxSum\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

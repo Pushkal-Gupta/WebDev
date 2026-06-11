@@ -1,0 +1,8 @@
+{
+  "questionId": "3422",
+  "titleSlug": "find-the-n-th-value-after-k-seconds",
+  "title": "Find the N-th Value After K Seconds",
+  "exampleTestcases": "4\n5\n5\n3",
+  "sampleTestCase": "4\n5",
+  "metaData": "{\n  \"name\": \"valueAfterKSeconds\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3066",
+  "titleSlug": "create-a-new-column",
+  "title": "Create a New Column",
+  "exampleTestcases": "{\"headers\":{\"employees\":[\"name\",\"salary\"]},\"rows\":{\"employees\":[[\"Piper\",4548],[\"Grace\",28150],[\"Georgia\",1103],[\"Willow\",6593],[\"Finn\",74576],[\"Thomas\",24433]]}}",
+  "sampleTestCase": "{\"headers\":{\"employees\":[\"name\",\"salary\"]},\"rows\":{\"employees\":[[\"Piper\",4548],[\"Grace\",28150],[\"Georgia\",1103],[\"Willow\",6593],[\"Finn\",74576],[\"Thomas\",24433]]}}",
+  "metaData": "{\n  \"pythondata\": [\n    \"employees = pd.DataFrame([], columns=['name', 'salary']).astype({'name':'object', 'salary':'Int64'})\"\n  ],\n  \"database\": true,\n  \"name\": \"createBonusColumn\",\n  \"languages\": [\n    \"pythondata\"\n  ]\n}"
+}

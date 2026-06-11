@@ -1,0 +1,8 @@
+{
+  "questionId": "2123",
+  "titleSlug": "the-number-of-weak-characters-in-the-game",
+  "title": "The Number of Weak Characters in the Game",
+  "exampleTestcases": "[[5,5],[6,3],[3,6]]\n[[2,2],[3,3]]\n[[1,5],[10,4],[4,3]]",
+  "sampleTestCase": "[[5,5],[6,3],[3,6]]",
+  "metaData": "{\n  \"name\": \"numberOfWeakCharacters\",\n  \"params\": [\n    {\n      \"name\": \"properties\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

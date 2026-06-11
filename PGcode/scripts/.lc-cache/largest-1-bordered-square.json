@@ -1,0 +1,8 @@
+{
+  "questionId": "1239",
+  "titleSlug": "largest-1-bordered-square",
+  "title": "Largest 1-Bordered Square",
+  "exampleTestcases": "[[1,1,1],[1,0,1],[1,1,1]]\n[[1,1,0,0]]",
+  "sampleTestCase": "[[1,1,1],[1,0,1],[1,1,1]]",
+  "metaData": "{\n  \"name\": \"largest1BorderedSquare\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

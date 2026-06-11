@@ -1,0 +1,8 @@
+{
+  "questionId": "1343",
+  "titleSlug": "dice-roll-simulation",
+  "title": "Dice Roll Simulation",
+  "exampleTestcases": "2\n[1,1,2,2,2,3]\n2\n[1,1,1,1,1,1]\n3\n[1,1,1,2,2,3]",
+  "sampleTestCase": "2\n[1,1,2,2,2,3]",
+  "metaData": "{\n  \"name\": \"dieSimulator\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"rollMax\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

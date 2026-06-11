@@ -1,0 +1,8 @@
+{
+  "questionId": "2422",
+  "titleSlug": "query-kth-smallest-trimmed-number",
+  "title": "Query Kth Smallest Trimmed Number",
+  "exampleTestcases": "[\"102\",\"473\",\"251\",\"814\"]\n[[1,1],[2,3],[4,2],[1,2]]\n[\"24\",\"37\",\"96\",\"04\"]\n[[2,1],[2,2]]",
+  "sampleTestCase": "[\"102\",\"473\",\"251\",\"814\"]\n[[1,1],[2,3],[4,2],[1,2]]",
+  "metaData": "{\n  \"name\": \"smallestTrimmedNumbers\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

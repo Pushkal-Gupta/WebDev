@@ -1,0 +1,8 @@
+{
+  "questionId": "3859",
+  "titleSlug": "maximum-product-of-two-digits",
+  "title": "Maximum Product of Two Digits",
+  "exampleTestcases": "31\n22\n124",
+  "sampleTestCase": "31",
+  "metaData": "{\n  \"name\": \"maxProduct\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

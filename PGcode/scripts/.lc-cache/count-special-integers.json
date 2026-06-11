@@ -1,0 +1,8 @@
+{
+  "questionId": "2457",
+  "titleSlug": "count-special-integers",
+  "title": "Count Special Integers",
+  "exampleTestcases": "20\n5\n135",
+  "sampleTestCase": "20",
+  "metaData": "{\n  \"name\": \"countSpecialNumbers\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

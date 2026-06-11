@@ -1,0 +1,8 @@
+{
+  "questionId": "9",
+  "titleSlug": "palindrome-number",
+  "title": "Palindrome Number",
+  "exampleTestcases": "121\n-121\n10",
+  "sampleTestCase": "121",
+  "metaData": "{\r\n  \"name\": \"isPalindrome\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"x\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
+}

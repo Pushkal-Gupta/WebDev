@@ -1,0 +1,8 @@
+{
+  "questionId": "3026",
+  "titleSlug": "find-the-minimum-possible-sum-of-a-beautiful-array",
+  "title": "Find the Minimum Possible Sum of a Beautiful Array",
+  "exampleTestcases": "2\n3\n3\n3\n1\n1",
+  "sampleTestCase": "2\n3",
+  "metaData": "{\n  \"name\": \"minimumPossibleSum\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

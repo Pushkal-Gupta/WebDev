@@ -1,0 +1,8 @@
+{
+  "questionId": "1715",
+  "titleSlug": "split-a-string-into-the-max-number-of-unique-substrings",
+  "title": "Split a String Into the Max Number of Unique Substrings",
+  "exampleTestcases": "\"ababccc\"\n\"aba\"\n\"aa\"",
+  "sampleTestCase": "\"ababccc\"",
+  "metaData": "{\n  \"name\": \"maxUniqueSplit\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

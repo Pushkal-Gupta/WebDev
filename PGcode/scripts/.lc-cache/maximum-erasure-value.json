@@ -1,0 +1,8 @@
+{
+  "questionId": "1813",
+  "titleSlug": "maximum-erasure-value",
+  "title": "Maximum Erasure Value",
+  "exampleTestcases": "[4,2,4,5,6]\n[5,2,1,2,5,2,1,2,5]",
+  "sampleTestCase": "[4,2,4,5,6]",
+  "metaData": "{\n  \"name\": \"maximumUniqueSubarray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

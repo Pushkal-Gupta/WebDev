@@ -1,0 +1,8 @@
+{
+  "questionId": "4231",
+  "titleSlug": "smallest-pair-with-different-frequencies",
+  "title": "Smallest Pair With Different Frequencies",
+  "exampleTestcases": "[1,1,2,2,3,4]\n[1,5]\n[7]",
+  "sampleTestCase": "[1,1,2,2,3,4]",
+  "metaData": "{\n  \"name\": \"minDistinctFreqPair\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

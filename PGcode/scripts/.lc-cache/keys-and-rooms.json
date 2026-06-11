@@ -1,0 +1,8 @@
+{
+  "questionId": "871",
+  "titleSlug": "keys-and-rooms",
+  "title": "Keys and Rooms",
+  "exampleTestcases": "[[1],[2],[3],[]]\n[[1,3],[3,0,1],[2],[0]]",
+  "sampleTestCase": "[[1],[2],[3],[]]",
+  "metaData": "{\r\n  \"name\": \"canVisitAllRooms\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"rooms\",\r\n      \"type\": \"list<list<integer>>\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
+}

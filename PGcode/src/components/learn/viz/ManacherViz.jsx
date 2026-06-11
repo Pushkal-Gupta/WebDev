@@ -224,14 +224,18 @@ export default function ManacherViz() {
   const { frames, t } = useMemo(() => buildFrames(raw), [raw]);
 
   const [step, setStep] = useState(0);
-  const [running, setRunning] = useState(false);
+  const [runningRaw, setRunning] = useState(false);
   const timerRef = useRef(null);
 
-  useEffect(() => {
+  // Reset playhead when the input changes (prev-state-during-render pattern).
+  const [prevRaw, setPrevRaw] = useState(raw);
+  if (prevRaw !== raw) {
+    setPrevRaw(raw);
     setStep(0);
     setRunning(false);
-  }, [raw]);
+  }
 
+  const running = runningRaw && step < frames.length - 1;
   useEffect(() => {
     if (!running) {
       if (timerRef.current) {
@@ -240,21 +244,13 @@ export default function ManacherViz() {
       }
       return undefined;
     }
-    if (step >= frames.length - 1) {
-      setRunning(false);
-      return undefined;
-    }
     timerRef.current = setTimeout(() => {
-      setStep((s) => {
-        const next = Math.min(s + 1, frames.length - 1);
-        if (next >= frames.length - 1) setRunning(false);
-        return next;
-      });
+      setStep((s) => Math.min(s + 1, frames.length - 1));
     }, TICK_MS);
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [running, step, frames.length]);
+  }, [running, frames.length]);
 
   const handleStep = useCallback(() => {
     setRunning(false);

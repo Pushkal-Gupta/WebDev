@@ -1,0 +1,8 @@
+{
+  "questionId": "738",
+  "titleSlug": "monotone-increasing-digits",
+  "title": "Monotone Increasing Digits",
+  "exampleTestcases": "10\n1234\n332",
+  "sampleTestCase": "10",
+  "metaData": "{\n  \"name\": \"monotoneIncreasingDigits\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "748",
+  "titleSlug": "largest-number-at-least-twice-of-others",
+  "title": "Largest Number At Least Twice of Others",
+  "exampleTestcases": "[3,6,1,0]\n[1,2,3,4]",
+  "sampleTestCase": "[3,6,1,0]",
+  "metaData": "{\r\n  \"name\": \"dominantIndex\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

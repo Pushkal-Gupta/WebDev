@@ -183,7 +183,7 @@ export default function BloomFilterViz() {
   const [queryInput, setQueryInput] = useState('beta');
   const [frames, setFrames] = useState([]);
   const [frameIdx, setFrameIdx] = useState(-1);
-  const [pendingKey, setPendingKey] = useState(null);
+  const [, setPendingKey] = useState(null);
   const [operation, setOperation] = useState('Pre-loaded with 3 keys');
   const [verdict, setVerdict] = useState(null);
   const [truePos, setTruePos] = useState(0);
@@ -211,25 +211,33 @@ export default function BloomFilterViz() {
     return Math.pow(1 - p, k);
   }, [size, k, n]);
 
-  // Animation loop
+  const commitPendingKey = useCallback(() => {
+    setPendingKey((current) => {
+      if (current !== null) {
+        setInsertedKeys((prev) => (prev.includes(current) ? prev : [...prev, current]));
+      }
+      return null;
+    });
+  }, []);
+
+  // Animation loop. Commit pending key when we land on the final frame.
   useEffect(() => {
     if (frameIdx < 0 || frameIdx >= frames.length - 1) return;
-    playRef.current = setTimeout(() => setFrameIdx((i) => i + 1), STEP_MS);
+    playRef.current = setTimeout(() => {
+      setFrameIdx((i) => {
+        const next = i + 1;
+        if (next === frames.length - 1) commitPendingKey();
+        return next;
+      });
+    }, STEP_MS);
     return () => clearTimeout(playRef.current);
-  }, [frameIdx, frames]);
+  }, [frameIdx, frames, commitPendingKey]);
 
-  // Commit insert once animation lands on final frame
-  useEffect(() => {
-    if (frames.length === 0 || pendingKey === null) return;
-    if (frameIdx !== frames.length - 1) return;
-    setInsertedKeys((prev) => (prev.includes(pendingKey) ? prev : [...prev, pendingKey]));
-    setPendingKey(null);
-  }, [frameIdx, frames, pendingKey]);
-
-  const startFrames = (newFrames) => {
+  const startFrames = useCallback((newFrames) => {
     setFrames(newFrames);
     setFrameIdx(0);
-  };
+    if (newFrames.length <= 1) commitPendingKey();
+  }, [commitPendingKey]);
 
   const normalizeKey = (raw) => String(raw).trim();
 
@@ -251,7 +259,7 @@ export default function BloomFilterViz() {
     setOperation(`Insert "${key}"`);
     setVerdict({ kind: 'ok', text: 'Inserted' });
     startFrames(fs);
-  }, [insertInput, insertedKeys, k, size, liveBits]);
+  }, [insertInput, insertedKeys, k, size, liveBits, startFrames]);
 
   const onQuery = useCallback(() => {
     const key = normalizeKey(queryInput);
@@ -276,7 +284,7 @@ export default function BloomFilterViz() {
       setTrueNeg((c) => c + 1);
     }
     startFrames(fs);
-  }, [queryInput, k, size, liveBits, insertedKeys]);
+  }, [queryInput, k, size, liveBits, insertedKeys, startFrames]);
 
   const onFindFalsePositive = useCallback(() => {
     // Brute-force search for a short token that is NOT in inserted set but whose k hashes
@@ -317,7 +325,7 @@ export default function BloomFilterViz() {
     }
     setOperation('No false-positive candidate found in the search budget — try inserting more keys');
     setVerdict({ kind: 'warn', text: 'No FP found' });
-  }, [insertedKeys, k, size, liveBits]);
+  }, [insertedKeys, k, size, liveBits, startFrames]);
 
   const onReset = useCallback(() => {
     setInsertedKeys([]);

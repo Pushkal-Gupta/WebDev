@@ -1,0 +1,8 @@
+{
+  "questionId": "3782",
+  "titleSlug": "find-valid-emails",
+  "title": "Find Valid Emails",
+  "exampleTestcases": "{\"headers\":{\"Users\":[\"user_id\",\"email\"]},\"rows\":{\"Users\":[[1,\"alice@example.com\"],[2,\"bob_at_example.com\"],[3,\"charlie@example.net\"],[4,\"david@domain.com\"],[5,\"eve@invalid\"]]}}",
+  "sampleTestCase": "{\"headers\":{\"Users\":[\"user_id\",\"email\"]},\"rows\":{\"Users\":[[1,\"alice@example.com\"],[2,\"bob_at_example.com\"],[3,\"charlie@example.net\"],[4,\"david@domain.com\"],[5,\"eve@invalid\"]]}}",
+  "metaData": "{\"mysql\": [\"CREATE TABLE If not Exists Users (\\n    user_id INT,\\n    email VARCHAR(255)\\n)\"], \"mssql\": [\"CREATE TABLE Users (\\n    user_id INT,\\n    email VARCHAR(255)\\n)\"], \"oraclesql\": [\"CREATE TABLE Users (\\n    user_id NUMBER,\\n    email VARCHAR2(255)\\n)\"], \"database\": true, \"name\": \"find_valid_emails\", \"postgresql\": [\"CREATE TABLE IF NOT EXISTS users (\\n    user_id INT,\\n    email VARCHAR(255)\\n);\\n\"], \"pythondata\": [\"Users = pd.DataFrame(columns=[\\\"user_id\\\", \\\"email\\\"]).astype({\\\"user_id\\\": \\\"int32\\\", \\\"email\\\": \\\"string\\\"})\\n\"], \"database_schema\": {\"Users\": {\"user_id\": \"INT\", \"email\": \"VARCHAR(255)\"}}}"
+}

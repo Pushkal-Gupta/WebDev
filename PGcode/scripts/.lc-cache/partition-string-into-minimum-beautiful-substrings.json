@@ -1,0 +1,8 @@
+{
+  "questionId": "2883",
+  "titleSlug": "partition-string-into-minimum-beautiful-substrings",
+  "title": "Partition String Into Minimum Beautiful Substrings",
+  "exampleTestcases": "\"1011\"\n\"111\"\n\"0\"",
+  "sampleTestCase": "\"1011\"",
+  "metaData": "{\n  \"name\": \"minimumBeautifulSubstrings\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

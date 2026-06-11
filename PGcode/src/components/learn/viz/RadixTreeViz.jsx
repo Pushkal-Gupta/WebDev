@@ -393,8 +393,7 @@ export default function RadixTreeViz() {
   const [frames, setFrames] = useState([]);
   const [frameIdx, setFrameIdx] = useState(-1);
   const [mode, setMode] = useState('idle'); // 'idle' | 'insert' | 'search'
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [searchResult, setSearchResult] = useState(null); // 'found'|'not_found'|null
+  const [isPlayingRaw, setIsPlaying] = useState(false);
 
   // The layout we render: during INSERT we render the "after" layout the
   // whole time so the reader watches the new structure appear; during SEARCH
@@ -408,32 +407,24 @@ export default function RadixTreeViz() {
   const currentFrame =
     frameIdx >= 0 && frameIdx < frames.length ? frames[frameIdx] : null;
 
+  const isPlaying = isPlayingRaw && frameIdx >= 0 && frameIdx < frames.length - 1;
+
   // Auto-advance frames when playing.
   useEffect(() => {
     if (!isPlaying) return;
-    if (frameIdx < 0 || frameIdx >= frames.length - 1) {
-      setIsPlaying(false);
-      return;
-    }
     playRef.current = setTimeout(() => setFrameIdx((i) => i + 1), STEP_MS);
     return () => clearTimeout(playRef.current);
-  }, [isPlaying, frameIdx, frames]);
+  }, [isPlaying]);
 
-  // Track search result on completion.
-  useEffect(() => {
-    if (mode !== 'search') return;
-    if (frames.length === 0) return;
-    if (frameIdx !== frames.length - 1) return;
+  // Derive the search result from the final frame instead of mirroring it in
+  // state — avoids a setState-in-effect cascade after the animation lands.
+  const searchResult = (() => {
+    if (mode !== 'search') return null;
+    if (frames.length === 0) return null;
+    if (frameIdx !== frames.length - 1) return null;
     const last = frames[frames.length - 1];
-    setSearchResult(last.status === 'found' ? 'found' : 'not_found');
-  }, [mode, frameIdx, frames]);
-
-  // When an insert animation reaches its final frame, commit the word.
-  useEffect(() => {
-    if (mode !== 'insert') return;
-    if (frames.length === 0) return;
-    if (frameIdx !== frames.length - 1) return;
-  }, [mode, frameIdx, frames]);
+    return last.status === 'found' ? 'found' : 'not_found';
+  })();
 
   const sanitize = (raw) => raw.toLowerCase().replace(/[^a-z]/g, '');
 
@@ -453,7 +444,6 @@ export default function RadixTreeViz() {
       setFrames(built.frames);
       setFrameIdx(0);
       setMode('insert');
-      setSearchResult(null);
       setIsPlaying(true);
       setOperation(`Inserting "${w}"`);
     },
@@ -485,7 +475,6 @@ export default function RadixTreeViz() {
     setFrames(f);
     setFrameIdx(0);
     setMode('search');
-    setSearchResult(null);
     setIsPlaying(true);
     setOperation(`Searching "${w}"`);
   }, [searchInput, words]);
@@ -516,7 +505,6 @@ export default function RadixTreeViz() {
     setMode('idle');
     setIsPlaying(false);
     setOverrideLayout(null);
-    setSearchResult(null);
     setOperation('Reset. Empty tree');
     if (playRef.current) clearTimeout(playRef.current);
   }, []);
@@ -529,7 +517,6 @@ export default function RadixTreeViz() {
     setMode('idle');
     setIsPlaying(false);
     setOverrideLayout(null);
-    setSearchResult(null);
     setOperation('Loaded default sequence');
   }, []);
 

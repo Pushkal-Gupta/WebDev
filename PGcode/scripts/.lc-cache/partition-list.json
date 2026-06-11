@@ -1,0 +1,8 @@
+{
+  "questionId": "86",
+  "titleSlug": "partition-list",
+  "title": "Partition List",
+  "exampleTestcases": "[1,4,3,2,5,2]\n3\n[2,1]\n2",
+  "sampleTestCase": "[1,4,3,2,5,2]\n3",
+  "metaData": "{\r\n  \"name\": \"partition\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"head\",\r\n      \"type\": \"ListNode\",\r\n      \"dealloc\": false\r\n    },\r\n    {\r\n      \"name\": \"x\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"ListNode\",\r\n    \"dealloc\": true\r\n  }\r\n}"
+}

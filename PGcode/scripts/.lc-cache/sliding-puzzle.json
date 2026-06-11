@@ -1,0 +1,8 @@
+{
+  "questionId": "787",
+  "titleSlug": "sliding-puzzle",
+  "title": "Sliding Puzzle",
+  "exampleTestcases": "[[1,2,3],[4,0,5]]\n[[1,2,3],[5,4,0]]\n[[4,1,2],[5,0,3]]",
+  "sampleTestCase": "[[1,2,3],[4,0,5]]",
+  "metaData": "{\r\n  \"name\": \"slidingPuzzle\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"board\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

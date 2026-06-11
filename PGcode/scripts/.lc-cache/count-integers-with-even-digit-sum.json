@@ -1,0 +1,8 @@
+{
+  "questionId": "2298",
+  "titleSlug": "count-integers-with-even-digit-sum",
+  "title": "Count Integers With Even Digit Sum",
+  "exampleTestcases": "4\n30",
+  "sampleTestCase": "4",
+  "metaData": "{\n  \"name\": \"countEven\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

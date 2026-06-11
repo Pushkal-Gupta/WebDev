@@ -1,0 +1,8 @@
+{
+  "questionId": "2886",
+  "titleSlug": "faulty-keyboard",
+  "title": "Faulty Keyboard",
+  "exampleTestcases": "\"string\"\n\"poiinter\"",
+  "sampleTestCase": "\"string\"",
+  "metaData": "{\n  \"name\": \"finalString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "227",
+  "titleSlug": "basic-calculator-ii",
+  "title": "Basic Calculator II",
+  "exampleTestcases": "\"3+2*2\"\n\" 3/2 \"\n\" 3+5 / 2 \"",
+  "sampleTestCase": "\"3+2*2\"",
+  "metaData": "{\r\n  \"name\": \"calculate\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

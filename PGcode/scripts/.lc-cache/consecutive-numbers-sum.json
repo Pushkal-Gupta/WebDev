@@ -1,0 +1,8 @@
+{
+  "questionId": "856",
+  "titleSlug": "consecutive-numbers-sum",
+  "title": "Consecutive Numbers Sum",
+  "exampleTestcases": "5\n9\n15",
+  "sampleTestCase": "5",
+  "metaData": "{\n  \"name\": \"consecutiveNumbersSum\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "4192",
+  "titleSlug": "minimum-cost-to-partition-a-binary-string",
+  "title": "Minimum Cost to Partition a Binary String",
+  "exampleTestcases": "\"1010\"\n2\n1\n\"1010\"\n3\n10\n\"00\"\n1\n2",
+  "sampleTestCase": "\"1010\"\n2\n1",
+  "metaData": "{\n  \"name\": \"minCost\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"encCost\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"flatCost\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

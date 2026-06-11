@@ -1,0 +1,8 @@
+{
+  "questionId": "2348",
+  "titleSlug": "count-number-of-texts",
+  "title": "Count Number of Texts",
+  "exampleTestcases": "\"22233\"\n\"222222222222222222222222222222222222\"",
+  "sampleTestCase": "\"22233\"",
+  "metaData": "{\n  \"name\": \"countTexts\",\n  \"params\": [\n    {\n      \"name\": \"pressedKeys\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

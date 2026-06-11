@@ -1,0 +1,8 @@
+{
+  "questionId": "1934",
+  "titleSlug": "evaluate-the-bracket-pairs-of-a-string",
+  "title": "Evaluate the Bracket Pairs of a String",
+  "exampleTestcases": "\"(name)is(age)yearsold\"\n[[\"name\",\"bob\"],[\"age\",\"two\"]]\n\"hi(name)\"\n[[\"a\",\"b\"]]\n\"(a)(a)(a)aaa\"\n[[\"a\",\"yes\"]]",
+  "sampleTestCase": "\"(name)is(age)yearsold\"\n[[\"name\",\"bob\"],[\"age\",\"two\"]]",
+  "metaData": "{\n  \"name\": \"evaluate\",\n  \"params\": [\n    {\n      \"type\": \"string\",\n      \"name\": \"s\"\n    },\n    {\n      \"type\": \"list<list<string>>\",\n      \"name\": \"knowledge\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

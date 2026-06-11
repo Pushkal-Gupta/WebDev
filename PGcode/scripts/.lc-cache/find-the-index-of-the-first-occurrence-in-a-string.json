@@ -1,0 +1,8 @@
+{
+  "questionId": "28",
+  "titleSlug": "find-the-index-of-the-first-occurrence-in-a-string",
+  "title": "Find the Index of the First Occurrence in a String",
+  "exampleTestcases": "\"sadbutsad\"\n\"sad\"\n\"leetcode\"\n\"leeto\"",
+  "sampleTestCase": "\"sadbutsad\"\n\"sad\"",
+  "metaData": "{ \r\n  \"name\": \"strStr\",\r\n  \"params\": [\r\n    { \r\n      \"name\": \"haystack\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"needle\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

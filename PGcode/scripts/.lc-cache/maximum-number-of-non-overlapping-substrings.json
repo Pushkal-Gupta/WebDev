@@ -1,0 +1,8 @@
+{
+  "questionId": "1644",
+  "titleSlug": "maximum-number-of-non-overlapping-substrings",
+  "title": "Maximum Number of Non-Overlapping Substrings",
+  "exampleTestcases": "\"adefaddaccc\"\n\"abbaccd\"",
+  "sampleTestCase": "\"adefaddaccc\"",
+  "metaData": "{\n  \"name\": \"maxNumOfSubstrings\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\"\n  }\n}"
+}

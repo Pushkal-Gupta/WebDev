@@ -1,0 +1,8 @@
+{
+  "questionId": "2233",
+  "titleSlug": "number-of-smooth-descent-periods-of-a-stock",
+  "title": "Number of Smooth Descent Periods of a Stock",
+  "exampleTestcases": "[3,2,1,4]\n[8,6,7,7]\n[1]",
+  "sampleTestCase": "[3,2,1,4]",
+  "metaData": "{\n  \"name\": \"getDescentPeriods\",\n  \"params\": [\n    {\n      \"name\": \"prices\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

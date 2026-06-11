@@ -1,0 +1,8 @@
+{
+  "questionId": "1861",
+  "titleSlug": "building-boxes",
+  "title": "Building Boxes",
+  "exampleTestcases": "3\n4\n10",
+  "sampleTestCase": "3",
+  "metaData": "{\n  \"name\": \"minimumBoxes\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

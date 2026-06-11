@@ -1,0 +1,8 @@
+{
+  "questionId": "698",
+  "titleSlug": "partition-to-k-equal-sum-subsets",
+  "title": "Partition to K Equal Sum Subsets",
+  "exampleTestcases": "[4,3,2,3,5,2,1]\n4\n[1,2,3,4]\n3",
+  "sampleTestCase": "[4,3,2,3,5,2,1]\n4",
+  "metaData": "{\r\n  \"name\": \"canPartitionKSubsets\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"k\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
+}

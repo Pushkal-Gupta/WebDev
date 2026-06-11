@@ -1,0 +1,8 @@
+{
+  "questionId": "2109",
+  "titleSlug": "find-array-given-subset-sums",
+  "title": "Find Array Given Subset Sums",
+  "exampleTestcases": "3\n[-3,-2,-1,0,0,1,2,3]\n2\n[0,0,0,0]\n4\n[0,0,5,5,4,-1,4,9,9,-1,4,3,4,8,3,8]",
+  "sampleTestCase": "3\n[-3,-2,-1,0,0,1,2,3]",
+  "metaData": "{\n  \"name\": \"recoverArray\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"sums\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  },\n  \"manual\": false\n}"
+}

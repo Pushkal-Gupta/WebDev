@@ -1,0 +1,8 @@
+{
+  "questionId": "2488",
+  "titleSlug": "divide-intervals-into-minimum-number-of-groups",
+  "title": "Divide Intervals Into Minimum Number of Groups",
+  "exampleTestcases": "[[5,10],[6,8],[1,5],[2,3],[1,10]]\n[[1,3],[5,6],[8,10],[11,13]]",
+  "sampleTestCase": "[[5,10],[6,8],[1,5],[2,3],[1,10]]",
+  "metaData": "{\n  \"name\": \"minGroups\",\n  \"params\": [\n    {\n      \"name\": \"intervals\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

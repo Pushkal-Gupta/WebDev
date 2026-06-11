@@ -1,0 +1,8 @@
+{
+  "questionId": "2306",
+  "titleSlug": "create-binary-tree-from-descriptions",
+  "title": "Create Binary Tree From Descriptions",
+  "exampleTestcases": "[[20,15,1],[20,17,0],[50,20,1],[50,80,0],[80,19,1]]\n[[1,2,1],[2,3,0],[3,4,1]]",
+  "sampleTestCase": "[[20,15,1],[20,17,0],[50,20,1],[50,80,0],[80,19,1]]",
+  "metaData": "{\n  \"name\": \"createBinaryTree\",\n  \"params\": [\n    {\n      \"name\": \"descriptions\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"TreeNode\"\n  }\n}"
+}

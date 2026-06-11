@@ -428,28 +428,36 @@ export default function EMAlgorithmViz() {
     [cancelAnim]
   );
 
-  const hardReset = useCallback(
-    (seed) => {
-      runningRef.current = false;
-      setRunning(false);
-      cancelAnim();
-      cancelRef.current = false;
-      const c0 = initComponents(seed);
-      setComps(c0);
-      setRenderComps(c0);
-      setResp(Array.from({ length: N_POINTS }, () => new Array(K).fill(1 / K)));
-      setIter(0);
-      setPhase('init');
-      setConverged(false);
-      setLlHistory([]);
-      setLastDelta(null);
-    },
-    [cancelAnim]
-  );
+  // State-only reset (safe at render-phase); imperative ref/anim cleanup lives
+  // in a sibling effect below.
+  const hardResetState = useCallback((seed) => {
+    setRunning(false);
+    const c0 = initComponents(seed);
+    setComps(c0);
+    setRenderComps(c0);
+    setResp(Array.from({ length: N_POINTS }, () => new Array(K).fill(1 / K)));
+    setIter(0);
+    setPhase('init');
+    setConverged(false);
+    setLlHistory([]);
+    setLastDelta(null);
+  }, []);
+
+  // Reset on seed changes. Tracked-dep render-phase reset for state; effect
+  // handles ref/animation cancellation (React's recommended pattern over
+  // setState-in-effect cascades).
+  const [lastSeedKey, setLastSeedKey] = useState(`${initSeed}|${dataSeed}`);
+  const seedKey = `${initSeed}|${dataSeed}`;
+  if (seedKey !== lastSeedKey) {
+    setLastSeedKey(seedKey);
+    hardResetState(initSeed);
+  }
 
   useEffect(() => {
-    hardReset(initSeed);
-  }, [initSeed, dataSeed, hardReset]);
+    runningRef.current = false;
+    cancelAnim();
+    cancelRef.current = false;
+  }, [initSeed, dataSeed, cancelAnim]);
 
   const animateComps = useCallback(
     (from, to) =>

@@ -1,0 +1,8 @@
+{
+  "questionId": "2553",
+  "titleSlug": "total-cost-to-hire-k-workers",
+  "title": "Total Cost to Hire K Workers",
+  "exampleTestcases": "[17,12,10,2,7,2,11,20,8]\n3\n4\n[1,2,4,1]\n3\n3",
+  "sampleTestCase": "[17,12,10,2,7,2,11,20,8]\n3\n4",
+  "metaData": "{\n  \"name\": \"totalCost\",\n  \"params\": [\n    {\n      \"name\": \"costs\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"candidates\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

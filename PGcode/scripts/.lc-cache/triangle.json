@@ -1,0 +1,8 @@
+{
+  "questionId": "120",
+  "titleSlug": "triangle",
+  "title": "Triangle",
+  "exampleTestcases": "[[2],[3,4],[6,5,7],[4,1,8,3]]\n[[-10]]",
+  "sampleTestCase": "[[2],[3,4],[6,5,7],[4,1,8,3]]",
+  "metaData": "{\r\n  \"name\": \"minimumTotal\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"triangle\",\r\n      \"type\": \"list<list<integer>>\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

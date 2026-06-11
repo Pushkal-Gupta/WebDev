@@ -1,0 +1,8 @@
+{
+  "questionId": "1987",
+  "titleSlug": "substrings-of-size-three-with-distinct-characters",
+  "title": "Substrings of Size Three with Distinct Characters",
+  "exampleTestcases": "\"xyzzaz\"\n\"aababcabc\"",
+  "sampleTestCase": "\"xyzzaz\"",
+  "metaData": "{\n  \"name\": \"countGoodSubstrings\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3582",
+  "titleSlug": "find-indices-of-stable-mountains",
+  "title": "Find Indices of Stable Mountains",
+  "exampleTestcases": "[1,2,3,4,5]\n2\n[10,1,10,1,10]\n3\n[10,1,10,1,10]\n10",
+  "sampleTestCase": "[1,2,3,4,5]\n2",
+  "metaData": "{\n  \"name\": \"stableMountains\",\n  \"params\": [\n    {\n      \"name\": \"height\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"threshold\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
+}

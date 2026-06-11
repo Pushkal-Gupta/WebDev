@@ -1,0 +1,8 @@
+{
+  "questionId": "609",
+  "titleSlug": "find-duplicate-file-in-system",
+  "title": "Find Duplicate File in System",
+  "exampleTestcases": "[\"root/a 1.txt(abcd) 2.txt(efgh)\",\"root/c 3.txt(abcd)\",\"root/c/d 4.txt(efgh)\",\"root 4.txt(efgh)\"]\n[\"root/a 1.txt(abcd) 2.txt(efgh)\",\"root/c 3.txt(abcd)\",\"root/c/d 4.txt(efgh)\"]",
+  "sampleTestCase": "[\"root/a 1.txt(abcd) 2.txt(efgh)\",\"root/c 3.txt(abcd)\",\"root/c/d 4.txt(efgh)\",\"root 4.txt(efgh)\"]",
+  "metaData": "{\r\n  \"name\": \"findDuplicate\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"paths\",\r\n      \"type\": \"string[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<list<string>>\"\r\n  }\r\n}\r\n"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2752",
+  "titleSlug": "sum-multiples",
+  "title": "Sum Multiples",
+  "exampleTestcases": "7\n10\n9",
+  "sampleTestCase": "7",
+  "metaData": "{\n  \"name\": \"sumOfMultiples\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

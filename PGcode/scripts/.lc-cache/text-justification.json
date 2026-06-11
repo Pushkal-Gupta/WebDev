@@ -1,0 +1,8 @@
+{
+  "questionId": "68",
+  "titleSlug": "text-justification",
+  "title": "Text Justification",
+  "exampleTestcases": "[\"This\", \"is\", \"an\", \"example\", \"of\", \"text\", \"justification.\"]\n16\n[\"What\",\"must\",\"be\",\"acknowledgment\",\"shall\",\"be\"]\n16\n[\"Science\",\"is\",\"what\",\"we\",\"understand\",\"well\",\"enough\",\"to\",\"explain\",\"to\",\"a\",\"computer.\",\"Art\",\"is\",\"everything\",\"else\",\"we\",\"do\"]\n20",
+  "sampleTestCase": "[\"This\", \"is\", \"an\", \"example\", \"of\", \"text\", \"justification.\"]\n16",
+  "metaData": "{\r\n  \"name\": \"fullJustify\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"words\",\r\n      \"type\": \"string[]\"\r\n    },\r\n    {\r\n      \"name\": \"maxWidth\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<string>\"\r\n  }\r\n}"
+}

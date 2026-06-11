@@ -1,0 +1,8 @@
+{
+  "questionId": "1252",
+  "titleSlug": "break-a-palindrome",
+  "title": "Break a Palindrome",
+  "exampleTestcases": "\"abccba\"\n\"a\"",
+  "sampleTestCase": "\"abccba\"",
+  "metaData": "{\n  \"name\": \"breakPalindrome\",\n  \"params\": [\n    {\n      \"name\": \"palindrome\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

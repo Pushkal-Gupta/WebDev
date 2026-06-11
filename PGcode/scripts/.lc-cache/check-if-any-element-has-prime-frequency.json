@@ -1,0 +1,8 @@
+{
+  "questionId": "3914",
+  "titleSlug": "check-if-any-element-has-prime-frequency",
+  "title": "Check if Any Element Has Prime Frequency",
+  "exampleTestcases": "[1,2,3,4,5,4]\n[1,2,3,4,5]\n[2,2,2,4,4]",
+  "sampleTestCase": "[1,2,3,4,5,4]",
+  "metaData": "{\n  \"name\": \"checkPrimeFrequency\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

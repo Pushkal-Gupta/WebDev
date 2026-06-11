@@ -1,0 +1,8 @@
+{
+  "questionId": "1488",
+  "titleSlug": "sort-integers-by-the-power-value",
+  "title": "Sort Integers by The Power Value",
+  "exampleTestcases": "12\n15\n2\n7\n11\n4",
+  "sampleTestCase": "12\n15\n2",
+  "metaData": "{\n  \"name\": \"getKth\",\n  \"params\": [\n    {\n      \"name\": \"lo\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"hi\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

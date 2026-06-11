@@ -1,0 +1,8 @@
+{
+  "questionId": "481",
+  "titleSlug": "magical-string",
+  "title": "Magical String",
+  "exampleTestcases": "6\n1",
+  "sampleTestCase": "6",
+  "metaData": "{\r\n  \"name\": \"magicalString\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

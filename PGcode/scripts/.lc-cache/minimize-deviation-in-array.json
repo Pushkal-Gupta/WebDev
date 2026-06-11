@@ -1,0 +1,8 @@
+{
+  "questionId": "1794",
+  "titleSlug": "minimize-deviation-in-array",
+  "title": "Minimize Deviation in Array",
+  "exampleTestcases": "[1,2,3,4]\n[4,1,5,20,3]\n[2,10,8]",
+  "sampleTestCase": "[1,2,3,4]",
+  "metaData": "{\n  \"name\": \"minimumDeviation\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

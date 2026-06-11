@@ -1,0 +1,8 @@
+{
+  "questionId": "2704",
+  "titleSlug": "maximum-difference-by-remapping-a-digit",
+  "title": "Maximum Difference by Remapping a Digit",
+  "exampleTestcases": "11891\n90",
+  "sampleTestCase": "11891",
+  "metaData": "{\n  \"name\": \"minMaxDifference\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

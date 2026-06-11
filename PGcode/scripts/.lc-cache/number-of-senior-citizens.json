@@ -1,0 +1,8 @@
+{
+  "questionId": "2727",
+  "titleSlug": "number-of-senior-citizens",
+  "title": "Number of Senior Citizens",
+  "exampleTestcases": "[\"7868190130M7522\",\"5303914400F9211\",\"9273338290F4010\"]\n[\"1313579440F2036\",\"2921522980M5644\"]",
+  "sampleTestCase": "[\"7868190130M7522\",\"5303914400F9211\",\"9273338290F4010\"]",
+  "metaData": "{\n  \"name\": \"countSeniors\",\n  \"params\": [\n    {\n      \"name\": \"details\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

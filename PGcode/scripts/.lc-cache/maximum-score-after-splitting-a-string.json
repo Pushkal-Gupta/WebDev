@@ -1,0 +1,8 @@
+{
+  "questionId": "1537",
+  "titleSlug": "maximum-score-after-splitting-a-string",
+  "title": "Maximum Score After Splitting a String",
+  "exampleTestcases": "\"011101\"\n\"00111\"\n\"1111\"",
+  "sampleTestCase": "\"011101\"",
+  "metaData": "{\n  \"name\": \"maxScore\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

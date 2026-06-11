@@ -1,0 +1,8 @@
+{
+  "questionId": "923",
+  "titleSlug": "super-egg-drop",
+  "title": "Super Egg Drop",
+  "exampleTestcases": "1\n2\n2\n6\n3\n14",
+  "sampleTestCase": "1\n2",
+  "metaData": "{\n  \"name\": \"superEggDrop\",\n  \"params\": [\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

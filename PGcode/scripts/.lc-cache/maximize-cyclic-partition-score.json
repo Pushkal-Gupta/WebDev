@@ -1,0 +1,8 @@
+{
+  "questionId": "4030",
+  "titleSlug": "maximize-cyclic-partition-score",
+  "title": "Maximize Cyclic Partition Score",
+  "exampleTestcases": "[1,3,4]\n2\n[1,1000000000,1000000000]\n3\n[1]\n1",
+  "sampleTestCase": "[1,3,4]\n2",
+  "metaData": "{\n  \"name\": \"maximumScore\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

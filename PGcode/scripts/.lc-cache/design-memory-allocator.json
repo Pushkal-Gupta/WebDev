@@ -1,0 +1,8 @@
+{
+  "questionId": "2587",
+  "titleSlug": "design-memory-allocator",
+  "title": "Design Memory Allocator",
+  "exampleTestcases": "[\"Allocator\",\"allocate\",\"allocate\",\"allocate\",\"freeMemory\",\"allocate\",\"allocate\",\"allocate\",\"freeMemory\",\"allocate\",\"freeMemory\"]\n[[10],[1,1],[1,2],[1,3],[2],[3,4],[1,1],[1,1],[1],[10,2],[7]]",
+  "sampleTestCase": "[\"Allocator\",\"allocate\",\"allocate\",\"allocate\",\"freeMemory\",\"allocate\",\"allocate\",\"allocate\",\"freeMemory\",\"allocate\",\"freeMemory\"]\n[[10],[1,1],[1,2],[1,3],[2],[3,4],[1,1],[1,1],[1],[10,2],[7]]",
+  "metaData": "{\n  \"classname\": \"Allocator\",\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"integer\",\n        \"name\": \"n\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"size\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"mID\"\n        }\n      ],\n      \"name\": \"allocate\",\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"mID\"\n        }\n      ],\n      \"name\": \"freeMemory\",\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
+}

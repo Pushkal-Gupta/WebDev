@@ -1,0 +1,8 @@
+{
+  "questionId": "196",
+  "titleSlug": "delete-duplicate-emails",
+  "title": "Delete Duplicate Emails",
+  "exampleTestcases": "{\"headers\": {\"Person\": [\"id\", \"email\"]}, \"rows\": {\"Person\": [[1, \"john@example.com\"], [2, \"bob@example.com\"], [3, \"john@example.com\"]]}}",
+  "sampleTestCase": "{\"headers\": {\"Person\": [\"id\", \"email\"]}, \"rows\": {\"Person\": [[1, \"john@example.com\"], [2, \"bob@example.com\"], [3, \"john@example.com\"]]}}",
+  "metaData": "{\"mysql\": [\"Create table If Not Exists Person (Id int, Email varchar(255))\"], \"mssql\": [\"Create table Person (Id int, Email varchar(255))\"], \"oraclesql\": [\"Create table Person (Id int, Email varchar(255))\"], \"database\": true, \"manual\": true, \"name\": \"delete_duplicate_emails\", \"pythondata\": [\"Person = pd.DataFrame([], columns=['id', 'email']).astype({'id':'int64', 'email':'object'})\"], \"postgresql\": [\"Create table If Not Exists Person (Id int, Email varchar(255))\\n\"], \"database_schema\": {\"Person\": {\"Id\": \"INT\", \"Email\": \"VARCHAR(255)\"}}}"
+}

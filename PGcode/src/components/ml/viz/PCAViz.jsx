@@ -279,13 +279,19 @@ export default function PCAViz() {
 
   useEffect(() => () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); }, []);
 
-  /* reset animation when parameters change */
-  useEffect(() => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+  /* reset animation when parameters change. Tracked-dep render-phase reset
+   * for state; effect handles RAF cancellation. */
+  const paramKey = `${theta}|${stretch}|${shrink}`;
+  const [lastParamKey, setLastParamKey] = useState(paramKey);
+  if (paramKey !== lastParamKey) {
+    setLastParamKey(paramKey);
     setAnimating(false);
     setPhase(0);
     setAnimProgress(0);
     setShow1D(false);
+  }
+  useEffect(() => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
   }, [theta, stretch, shrink]);
 
   const toggle1D = () => {

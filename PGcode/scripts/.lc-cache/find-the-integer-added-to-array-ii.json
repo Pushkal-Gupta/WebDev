@@ -1,0 +1,8 @@
+{
+  "questionId": "3399",
+  "titleSlug": "find-the-integer-added-to-array-ii",
+  "title": "Find the Integer Added to Array II",
+  "exampleTestcases": "[4,20,16,12,8]\n[14,18,10]\n[3,5,5,3]\n[7,7]",
+  "sampleTestCase": "[4,20,16,12,8]\n[14,18,10]",
+  "metaData": "{\n  \"name\": \"minimumAddedInteger\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2183",
+  "titleSlug": "minimum-operations-to-convert-number",
+  "title": "Minimum Operations to Convert Number",
+  "exampleTestcases": "[2,4,12]\n2\n12\n[3,5,7]\n0\n-4\n[2,8,16]\n0\n1",
+  "sampleTestCase": "[2,4,12]\n2\n12",
+  "metaData": "{\n  \"name\": \"minimumOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"start\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"goal\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

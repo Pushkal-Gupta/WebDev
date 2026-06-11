@@ -1,0 +1,8 @@
+{
+  "questionId": "2749",
+  "titleSlug": "promise-time-limit",
+  "title": "Promise Time Limit",
+  "exampleTestcases": "async (n) => { await new Promise(res => setTimeout(res, 100)); return n * n; }\n[5]\n50\nasync (n) => { await new Promise(res => setTimeout(res, 100)); return n * n; }\n[5]\n150\nasync (a, b) => { await new Promise(res => setTimeout(res, 120)); return a + b; }\n[5,10]\n150\nasync () => { throw \"Error\"; }\n[]\n1000",
+  "sampleTestCase": "async (n) => { await new Promise(res => setTimeout(res, 100)); return n * n; }\n[5]\n50",
+  "metaData": "{\n  \"name\": \"timeLimit\",\n  \"params\": [\n    {\n      \"name\": \"fn\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"inputs\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"t\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  },\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
+}

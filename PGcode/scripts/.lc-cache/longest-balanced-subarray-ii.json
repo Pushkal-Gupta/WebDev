@@ -1,0 +1,8 @@
+{
+  "questionId": "4047",
+  "titleSlug": "longest-balanced-subarray-ii",
+  "title": "Longest Balanced Subarray II",
+  "exampleTestcases": "[2,5,4,3]\n[3,2,2,5,4]\n[1,2,3,2]",
+  "sampleTestCase": "[2,5,4,3]",
+  "metaData": "{\n  \"name\": \"longestBalanced\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

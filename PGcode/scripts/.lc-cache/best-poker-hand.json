@@ -1,0 +1,8 @@
+{
+  "questionId": "2433",
+  "titleSlug": "best-poker-hand",
+  "title": "Best Poker Hand",
+  "exampleTestcases": "[13,2,3,1,9]\n[\"a\",\"a\",\"a\",\"a\",\"a\"]\n[4,4,2,4,4]\n[\"d\",\"a\",\"a\",\"b\",\"c\"]\n[10,10,2,12,9]\n[\"a\",\"b\",\"c\",\"a\",\"d\"]",
+  "sampleTestCase": "[13,2,3,1,9]\n[\"a\",\"a\",\"a\",\"a\",\"a\"]",
+  "metaData": "{\n  \"name\": \"bestHand\",\n  \"params\": [\n    {\n      \"name\": \"ranks\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"character[]\",\n      \"name\": \"suits\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

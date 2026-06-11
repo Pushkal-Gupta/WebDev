@@ -1,0 +1,8 @@
+{
+  "questionId": "1557",
+  "titleSlug": "check-if-a-string-contains-all-binary-codes-of-size-k",
+  "title": "Check If a String Contains All Binary Codes of Size K",
+  "exampleTestcases": "\"00110110\"\n2\n\"0110\"\n1\n\"0110\"\n2",
+  "sampleTestCase": "\"00110110\"\n2",
+  "metaData": "{\n  \"name\": \"hasAllCodes\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

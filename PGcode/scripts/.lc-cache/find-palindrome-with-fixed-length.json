@@ -1,0 +1,8 @@
+{
+  "questionId": "1375",
+  "titleSlug": "find-palindrome-with-fixed-length",
+  "title": "Find Palindrome With Fixed Length",
+  "exampleTestcases": "[1,2,3,4,5,90]\n3\n[2,4,6]\n4",
+  "sampleTestCase": "[1,2,3,4,5,90]\n3",
+  "metaData": "{\n  \"name\": \"kthPalindrome\",\n  \"params\": [\n    {\n      \"name\": \"queries\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"intLength\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long[]\"\n  }\n}"
+}

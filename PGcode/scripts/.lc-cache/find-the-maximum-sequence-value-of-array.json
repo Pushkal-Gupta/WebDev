@@ -1,0 +1,8 @@
+{
+  "questionId": "3575",
+  "titleSlug": "find-the-maximum-sequence-value-of-array",
+  "title": "Find the Maximum Sequence Value of Array",
+  "exampleTestcases": "[2,6,7]\n1\n[4,2,5,6,7]\n2",
+  "sampleTestCase": "[2,6,7]\n1",
+  "metaData": "{\n  \"name\": \"maxValue\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

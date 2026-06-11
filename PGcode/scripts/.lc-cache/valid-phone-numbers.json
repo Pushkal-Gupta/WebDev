@@ -1,0 +1,8 @@
+{
+  "questionId": "193",
+  "titleSlug": "valid-phone-numbers",
+  "title": "Valid Phone Numbers",
+  "exampleTestcases": "0",
+  "sampleTestCase": "0",
+  "metaData": "{\n  \"shell\": true,\n  \"manual\": true\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "542",
+  "titleSlug": "01-matrix",
+  "title": "01 Matrix",
+  "exampleTestcases": "[[0,0,0],[0,1,0],[0,0,0]]\n[[0,0,0],[0,1,0],[1,1,1]]",
+  "sampleTestCase": "[[0,0,0],[0,1,0],[0,0,0]]",
+  "metaData": "{\n  \"name\": \"updateMatrix\",\n  \"params\": [\n    {\n      \"name\": \"mat\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  }\n}"
+}

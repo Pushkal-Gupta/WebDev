@@ -1,0 +1,8 @@
+{
+  "questionId": "1807",
+  "titleSlug": "partitioning-into-minimum-number-of-deci-binary-numbers",
+  "title": "Partitioning Into Minimum Number Of Deci-Binary Numbers",
+  "exampleTestcases": "\"32\"\n\"82734\"\n\"27346209830709182346\"",
+  "sampleTestCase": "\"32\"",
+  "metaData": "{\n  \"name\": \"minPartitions\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

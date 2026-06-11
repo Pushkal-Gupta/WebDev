@@ -1,0 +1,8 @@
+{
+  "questionId": "1648",
+  "titleSlug": "minimum-insertions-to-balance-a-parentheses-string",
+  "title": "Minimum Insertions to Balance a Parentheses String",
+  "exampleTestcases": "\"(()))\"\n\"())\"\n\"))())(\"",
+  "sampleTestCase": "\"(()))\"",
+  "metaData": "{\n  \"name\": \"minInsertions\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

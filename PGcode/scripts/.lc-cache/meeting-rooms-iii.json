@@ -1,0 +1,8 @@
+{
+  "questionId": "2479",
+  "titleSlug": "meeting-rooms-iii",
+  "title": "Meeting Rooms III",
+  "exampleTestcases": "2\n[[0,10],[1,5],[2,7],[3,4]]\n3\n[[1,20],[2,10],[3,5],[4,9],[6,8]]",
+  "sampleTestCase": "2\n[[0,10],[1,5],[2,7],[3,4]]",
+  "metaData": "{\n  \"name\": \"mostBooked\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"meetings\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

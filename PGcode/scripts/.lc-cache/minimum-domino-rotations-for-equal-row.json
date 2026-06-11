@@ -1,0 +1,8 @@
+{
+  "questionId": "1049",
+  "titleSlug": "minimum-domino-rotations-for-equal-row",
+  "title": "Minimum Domino Rotations For Equal Row",
+  "exampleTestcases": "[2,1,2,4,2,2]\n[5,2,6,2,3,2]\n[3,5,1,2,3]\n[3,6,3,3,4]",
+  "sampleTestCase": "[2,1,2,4,2,2]\n[5,2,6,2,3,2]",
+  "metaData": "{\n  \"name\": \"minDominoRotations\",\n  \"params\": [\n    {\n      \"name\": \"tops\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"bottoms\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

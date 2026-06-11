@@ -1,0 +1,8 @@
+{
+  "questionId": "475",
+  "titleSlug": "heaters",
+  "title": "Heaters",
+  "exampleTestcases": "[1,2,3]\n[2]\n[1,2,3,4]\n[1,4]\n[1,5]\n[2]",
+  "sampleTestCase": "[1,2,3]\n[2]",
+  "metaData": "{\r\n  \"name\": \"findRadius\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"houses\",\r\n      \"type\": \"integer[]\"\r\n  \r\n    }, \r\n    {\r\n            \"name\": \"heaters\",\r\n            \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

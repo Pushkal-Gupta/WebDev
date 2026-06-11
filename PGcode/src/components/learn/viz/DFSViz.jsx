@@ -98,29 +98,30 @@ function computeFrames(start) {
 export default function DFSViz() {
   const [start, setStart] = useState('A');
   const [step, setStep] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  const [playingRaw, setPlaying] = useState(false);
   const timer = useRef(null);
 
   const frames = useMemo(() => computeFrames(start), [start]);
   const safeStep = Math.min(step, frames.length - 1);
   const frame = frames[safeStep];
+  // Derive `playing` from the raw toggle + bounds so the auto-run effect never
+  // needs to call setPlaying(false) when we hit the end.
+  const playing = playingRaw && safeStep < frames.length - 1;
 
   // Reset cursor whenever the start node (and therefore frames) changes.
-  useEffect(() => {
+  const [prevStart, setPrevStart] = useState(start);
+  if (prevStart !== start) {
+    setPrevStart(start);
     setStep(0);
     setPlaying(false);
-  }, [start]);
+  }
 
   // Auto-advance loop. Stops at the final frame.
   useEffect(() => {
     if (!playing) return;
-    if (safeStep >= frames.length - 1) {
-      setPlaying(false);
-      return;
-    }
     timer.current = setTimeout(() => setStep(s => s + 1), 700);
     return () => clearTimeout(timer.current);
-  }, [playing, safeStep, frames.length]);
+  }, [playing, frames.length]);
 
   const handleStep = () => {
     setPlaying(false);

@@ -13,6 +13,8 @@ import AlgoVisualizer, {
   NumberGridRenderer, TreeRenderer,
 } from './learn/AlgoVisualizer';
 import { VISUALIZATIONS } from './learn/conceptVisualizations';
+import TutorialViz from './dsaTutorialViz';
+import { TUT_VIZ_NAMES } from './dsaTutorialVizRegistry';
 
 // Cache a normalized-label -> viz-slug map so theory items without an explicit
 // `conceptSlug` can still resolve to a registered visualization.
@@ -350,6 +352,7 @@ function renderBlock(text, keyPrefix) {
   let buf = [];
   let inFence = false;
   let fenceLang = '';
+  let fenceVizArg = '';
   let fenceBuf = [];
 
   const flushBuf = () => {
@@ -375,23 +378,36 @@ function renderBlock(text, keyPrefix) {
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    const fenceMatch = /^```(\w*)\s*$/.exec(line);
+    const fenceMatch = /^```([\w-]*)\s*(\S*)\s*$/.exec(line);
     if (fenceMatch) {
       if (inFence) {
-        out.push(
-          <CodeBlock
-            key={`${keyPrefix}-pre-${out.length}`}
-            lang={fenceLang}
-            code={fenceBuf.join('\n')}
-          />
-        );
+        if (fenceLang === 'tut-viz') {
+          const vizName = fenceBuf.join('').trim() || fenceVizArg;
+          if (TUT_VIZ_NAMES.has(vizName)) {
+            out.push(
+              <div key={`${keyPrefix}-viz-${out.length}`} className="tut-theory-viz">
+                <TutorialViz name={vizName} />
+              </div>
+            );
+          }
+        } else {
+          out.push(
+            <CodeBlock
+              key={`${keyPrefix}-pre-${out.length}`}
+              lang={fenceLang}
+              code={fenceBuf.join('\n')}
+            />
+          );
+        }
         inFence = false;
         fenceLang = '';
+        fenceVizArg = '';
         fenceBuf = [];
       } else {
         flushBuf();
         inFence = true;
         fenceLang = fenceMatch[1] || '';
+        fenceVizArg = fenceMatch[2] || '';
       }
       continue;
     }
@@ -399,13 +415,24 @@ function renderBlock(text, keyPrefix) {
     buf.push(line);
   }
   if (inFence) {
-    out.push(
-      <CodeBlock
-        key={`${keyPrefix}-pre-${out.length}`}
-        lang={fenceLang}
-        code={fenceBuf.join('\n')}
-      />
-    );
+    if (fenceLang === 'tut-viz') {
+      const vizName = fenceBuf.join('').trim() || fenceVizArg;
+      if (TUT_VIZ_NAMES.has(vizName)) {
+        out.push(
+          <div key={`${keyPrefix}-viz-${out.length}`} className="tut-theory-viz">
+            <TutorialViz name={vizName} />
+          </div>
+        );
+      }
+    } else {
+      out.push(
+        <CodeBlock
+          key={`${keyPrefix}-pre-${out.length}`}
+          lang={fenceLang}
+          code={fenceBuf.join('\n')}
+        />
+      );
+    }
   }
   flushBuf();
   return out;

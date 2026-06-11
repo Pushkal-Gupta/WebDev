@@ -1,0 +1,8 @@
+{
+  "questionId": "93",
+  "titleSlug": "restore-ip-addresses",
+  "title": "Restore IP Addresses",
+  "exampleTestcases": "\"25525511135\"\n\"0000\"\n\"101023\"",
+  "sampleTestCase": "\"25525511135\"",
+  "metaData": "{ \r\n  \"name\": \"restoreIpAddresses\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<string>\"\r\n  }\r\n}"
+}

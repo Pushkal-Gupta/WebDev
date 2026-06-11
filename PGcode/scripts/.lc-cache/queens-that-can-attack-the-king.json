@@ -1,0 +1,8 @@
+{
+  "questionId": "1342",
+  "titleSlug": "queens-that-can-attack-the-king",
+  "title": "Queens That Can Attack the King",
+  "exampleTestcases": "[[0,1],[1,0],[4,0],[0,4],[3,3],[2,4]]\n[0,0]\n[[0,0],[1,1],[2,2],[3,4],[3,5],[4,4],[4,5]]\n[3,3]",
+  "sampleTestCase": "[[0,1],[1,0],[4,0],[0,4],[3,3],[2,4]]\n[0,0]",
+  "metaData": "{\n  \"name\": \"queensAttacktheKing\",\n  \"params\": [\n    {\n      \"name\": \"queens\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"king\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<list<integer>>\"\n  }\n}"
+}

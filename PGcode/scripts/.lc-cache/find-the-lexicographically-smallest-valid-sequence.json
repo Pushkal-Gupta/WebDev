@@ -1,0 +1,8 @@
+{
+  "questionId": "3584",
+  "titleSlug": "find-the-lexicographically-smallest-valid-sequence",
+  "title": "Find the Lexicographically Smallest Valid Sequence",
+  "exampleTestcases": "\"vbcca\"\n\"abc\"\n\"bacdc\"\n\"abc\"\n\"aaaaaa\"\n\"aaabc\"\n\"abc\"\n\"ab\"",
+  "sampleTestCase": "\"vbcca\"\n\"abc\"",
+  "metaData": "{\n  \"name\": \"validSequence\",\n  \"params\": [\n    {\n      \"name\": \"word1\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"word2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

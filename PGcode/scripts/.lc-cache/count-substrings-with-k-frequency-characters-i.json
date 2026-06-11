@@ -1,0 +1,8 @@
+{
+  "questionId": "3502",
+  "titleSlug": "count-substrings-with-k-frequency-characters-i",
+  "title": "Count Substrings With K-Frequency Characters I",
+  "exampleTestcases": "\"abacb\"\n2\n\"abcde\"\n1",
+  "sampleTestCase": "\"abacb\"\n2",
+  "metaData": "{\n  \"name\": \"numberOfSubstrings\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -205,7 +205,7 @@ function SieveGrid({ frame, n }) {
 export default function SieveOfEratosthenesViz() {
   const [n, setN] = useState(50);
   const [stepIdx, setStepIdx] = useState(0);
-  const [isRunning, setIsRunning] = useState(false);
+  const [isRunningRaw, setIsRunning] = useState(false);
   const runTimer = useRef(null);
 
   const { frames, primes } = useMemo(() => sieveFrames(n), [n]);
@@ -214,6 +214,7 @@ export default function SieveOfEratosthenesViz() {
   const safeStep = Math.min(stepIdx, totalSteps - 1);
   const frame = frames[safeStep];
   const isTerminal = safeStep >= totalSteps - 1;
+  const isRunning = isRunningRaw && stepIdx < totalSteps - 1;
 
   // Count primes so far at the current frame, by looking at confirmed primes.
   const primesSoFar = useMemo(() => {
@@ -236,22 +237,17 @@ export default function SieveOfEratosthenesViz() {
     };
   }, []);
 
-  // Reset playhead whenever n changes.
-  useEffect(() => {
+  // Reset playhead when n changes (prev-state-during-render pattern).
+  // The active run-loop effect's cleanup handles the timer; no need to touch it here.
+  const [prevN, setPrevN] = useState(n);
+  if (prevN !== n) {
+    setPrevN(n);
     setStepIdx(0);
     setIsRunning(false);
-    if (runTimer.current) {
-      clearTimeout(runTimer.current);
-      runTimer.current = null;
-    }
-  }, [n]);
+  }
 
   useEffect(() => {
     if (!isRunning) return;
-    if (stepIdx >= totalSteps - 1) {
-      setIsRunning(false);
-      return;
-    }
     runTimer.current = setTimeout(() => {
       setStepIdx((i) => Math.min(i + 1, totalSteps - 1));
     }, RUN_DELAY_MS);
@@ -259,7 +255,7 @@ export default function SieveOfEratosthenesViz() {
       if (runTimer.current) clearTimeout(runTimer.current);
       runTimer.current = null;
     };
-  }, [isRunning, stepIdx, totalSteps]);
+  }, [isRunning, totalSteps]);
 
   const stop = useCallback(() => {
     if (runTimer.current) {

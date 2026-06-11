@@ -1,0 +1,8 @@
+{
+  "questionId": "2789",
+  "titleSlug": "counter-ii",
+  "title": "Counter II",
+  "exampleTestcases": "5\n[\"increment\",\"reset\",\"decrement\"]\n0\n[\"increment\",\"increment\",\"decrement\",\"reset\",\"reset\"]",
+  "sampleTestCase": "5\n[\"increment\",\"reset\",\"decrement\"]",
+  "metaData": "{\n  \"name\": \"createCounter\",\n  \"params\": [\n    {\n      \"name\": \"init\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"string[]\",\n      \"name\": \"calls\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3869",
+  "titleSlug": "smallest-index-with-digit-sum-equal-to-index",
+  "title": "Smallest Index With Digit Sum Equal to Index",
+  "exampleTestcases": "[1,3,2]\n[1,10,11]\n[1,2,3]",
+  "sampleTestCase": "[1,3,2]",
+  "metaData": "{\n  \"name\": \"smallestIndex\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

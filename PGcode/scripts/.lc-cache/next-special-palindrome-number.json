@@ -1,0 +1,8 @@
+{
+  "questionId": "3951",
+  "titleSlug": "next-special-palindrome-number",
+  "title": "Next Special Palindrome Number",
+  "exampleTestcases": "2\n33",
+  "sampleTestCase": "2",
+  "metaData": "{\n  \"name\": \"specialPalindrome\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"long\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

@@ -154,7 +154,7 @@ function bestLinear2DAcc(points) {
 // Convert a feature-space point (fx, fy, fz) into screen coords inside the 3D panel.
 // Simple oblique projection: x' = fx + fz * cos(theta) * tilt, y' = fy + fz * sin(theta) * tilt.
 function project3D(fx, fy, fz, opts) {
-  const { theta, zScale, panel } = opts;
+  const { zScale, panel } = opts;
   // Rotate around the vertical axis a touch so the floor reads as a plane.
   const yawCos = Math.cos(opts.yaw);
   const yawSin = Math.sin(opts.yaw);
@@ -213,11 +213,18 @@ export default function KernelTrickViz() {
   const kernel = KERNELS[kernelIdx].id;
 
   // Stop any active animation when the kernel or dataset changes — otherwise the
-  // ease-in interpolates between two unrelated lifts and looks broken.
-  useEffect(() => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+  // ease-in interpolates between two unrelated lifts and looks broken. Tracked-
+  // dep render-phase reset for state; effect handles RAF cancellation.
+  const animKey = `${kernel}|${seed}`;
+  const [lastAnimKey, setLastAnimKey] = useState(animKey);
+  if (animKey !== lastAnimKey) {
+    setLastAnimKey(animKey);
     setAnimating(false);
     setProgress(1);
+  }
+
+  useEffect(() => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
   }, [kernel, seed]);
 
   const lifted = useMemo(

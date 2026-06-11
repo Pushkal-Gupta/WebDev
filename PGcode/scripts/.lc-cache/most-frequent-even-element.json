@@ -1,0 +1,8 @@
+{
+  "questionId": "2486",
+  "titleSlug": "most-frequent-even-element",
+  "title": "Most Frequent Even Element",
+  "exampleTestcases": "[0,1,2,2,4,4,1]\n[4,4,4,9,2,4]\n[29,47,21,41,13,37,25,7]",
+  "sampleTestCase": "[0,1,2,2,4,4,1]",
+  "metaData": "{\n  \"name\": \"mostFrequentEven\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

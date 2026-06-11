@@ -1,0 +1,8 @@
+{
+  "questionId": "828",
+  "titleSlug": "chalkboard-xor-game",
+  "title": "Chalkboard XOR Game",
+  "exampleTestcases": "[1,1,2]\n[0,1]\n[1,2,3]",
+  "sampleTestCase": "[1,1,2]",
+  "metaData": "{\r\n  \"name\": \"xorGame\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
+}

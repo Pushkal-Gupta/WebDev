@@ -1,0 +1,8 @@
+{
+  "questionId": "2809",
+  "titleSlug": "create-hello-world-function",
+  "title": "Create Hello World Function",
+  "exampleTestcases": "[]\n[{},null,42]",
+  "sampleTestCase": "[]",
+  "metaData": "{\n  \"name\": \"createHelloWorld\",\n  \"params\": [\n    {\n      \"name\": \"args\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  },\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
+}

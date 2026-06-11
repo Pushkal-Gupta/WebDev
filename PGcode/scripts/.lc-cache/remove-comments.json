@@ -1,0 +1,8 @@
+{
+  "questionId": "722",
+  "titleSlug": "remove-comments",
+  "title": "Remove Comments",
+  "exampleTestcases": "[\"/*Test program */\", \"int main()\", \"{ \", \"  // variable declaration \", \"int a, b, c;\", \"/* This is a test\", \"   multiline  \", \"   comment for \", \"   testing */\", \"a = b + c;\", \"}\"]\n[\"a/*comment\", \"line\", \"more_comment*/b\"]",
+  "sampleTestCase": "[\"/*Test program */\", \"int main()\", \"{ \", \"  // variable declaration \", \"int a, b, c;\", \"/* This is a test\", \"   multiline  \", \"   comment for \", \"   testing */\", \"a = b + c;\", \"}\"]",
+  "metaData": "{\r\n  \"name\": \"removeComments\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"source\",\r\n      \"type\": \"string[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<string>\"\r\n  }\r\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2797",
+  "titleSlug": "event-emitter",
+  "title": "Event Emitter",
+  "exampleTestcases": "[\"EventEmitter\", \"emit\", \"subscribe\", \"subscribe\", \"emit\"]\n[[], [\"firstEvent\"], [\"firstEvent\", \"function cb1() { return 5; }\"],  [\"firstEvent\", \"function cb1() { return 6; }\"], [\"firstEvent\"]]\n[\"EventEmitter\", \"subscribe\", \"emit\", \"emit\"]\n[[], [\"firstEvent\", \"function cb1(...args) { return args.join(','); }\"], [\"firstEvent\", [1,2,3]], [\"firstEvent\", [3,4,6]]]\n[\"EventEmitter\", \"subscribe\", \"emit\", \"unsubscribe\", \"emit\"]\n[[], [\"firstEvent\", \"(...args) => args.join(',')\"], [\"firstEvent\", [1,2,3]], [0], [\"firstEvent\", [4,5,6]]]\n[\"EventEmitter\", \"subscribe\", \"subscribe\", \"unsubscribe\", \"emit\"]\n[[], [\"firstEvent\", \"x => x + 1\"], [\"firstEvent\", \"x => x + 2\"], [0], [\"firstEvent\", [5]]]",
+  "sampleTestCase": "[\"EventEmitter\", \"emit\", \"subscribe\", \"subscribe\", \"emit\"]\n[[], [\"firstEvent\"], [\"firstEvent\", \"function cb1() { return 5; }\"],  [\"firstEvent\", \"function cb1() { return 6; }\"], [\"firstEvent\"]]",
+  "metaData": "{\n  \"name\": \"EventEmitter\",\n  \"params\": [\n    {\n      \"type\": \"string[]\",\n      \"name\": \"actions\"\n    },\n    {\n      \"type\": \"character[][]\",\n      \"name\": \"values\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"void\"\n  },\n  \"languages\": [\n    \"typescript\",\n    \"javascript\"\n  ],\n  \"manual\": true\n}"
+}

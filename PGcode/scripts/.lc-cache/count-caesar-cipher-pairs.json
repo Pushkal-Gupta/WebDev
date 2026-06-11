@@ -1,0 +1,8 @@
+{
+  "questionId": "4183",
+  "titleSlug": "count-caesar-cipher-pairs",
+  "title": "Count Caesar Cipher Pairs",
+  "exampleTestcases": "[\"fusion\",\"layout\"]\n[\"ab\",\"aa\",\"za\",\"aa\"]",
+  "sampleTestCase": "[\"fusion\",\"layout\"]",
+  "metaData": "{\n  \"name\": \"countPairs\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

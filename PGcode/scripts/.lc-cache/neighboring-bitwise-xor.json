@@ -1,0 +1,8 @@
+{
+  "questionId": "2792",
+  "titleSlug": "neighboring-bitwise-xor",
+  "title": "Neighboring Bitwise XOR",
+  "exampleTestcases": "[1,1,0]\n[1,1]\n[1,0]",
+  "sampleTestCase": "[1,1,0]",
+  "metaData": "{\n  \"name\": \"doesValidArrayExist\",\n  \"params\": [\n    {\n      \"name\": \"derived\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

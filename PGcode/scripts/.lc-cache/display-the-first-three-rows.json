@@ -1,0 +1,8 @@
+{
+  "questionId": "3065",
+  "titleSlug": "display-the-first-three-rows",
+  "title": "Display the First Three Rows",
+  "exampleTestcases": "{\"headers\":{\"employees\":[\"employee_id\",\"name\",\"department\",\"salary\"]},\"rows\":{\"employees\":[[3,\"Bob\",\"Operations\",48675],[90,\"Alice\",\"Sales\",11096],[9,\"Tatiana\",\"Engineering\",33805],[60,\"Annabelle\",\"InformationTechnology\",37678],[49,\"Jonathan\",\"HumanResources\",23793],[43,\"Khaled\",\"Administration\",40454]]}}",
+  "sampleTestCase": "{\"headers\":{\"employees\":[\"employee_id\",\"name\",\"department\",\"salary\"]},\"rows\":{\"employees\":[[3,\"Bob\",\"Operations\",48675],[90,\"Alice\",\"Sales\",11096],[9,\"Tatiana\",\"Engineering\",33805],[60,\"Annabelle\",\"InformationTechnology\",37678],[49,\"Jonathan\",\"HumanResources\",23793],[43,\"Khaled\",\"Administration\",40454]]}}",
+  "metaData": "{\n  \"pythondata\": [\n    \"employees = pd.DataFrame([], columns=['employee_id', 'name', 'department', 'salary']).astype({'employee_id':'Int64', 'name':'object', 'department':'object', 'salary':'Int64'})\"\n  ],\n  \"database\": true,\n  \"name\": \"selectFirstRows\",\n  \"languages\": [\n    \"pythondata\"\n  ]\n}"
+}

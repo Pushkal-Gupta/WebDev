@@ -1,0 +1,8 @@
+{
+  "questionId": "2274",
+  "titleSlug": "keep-multiplying-found-values-by-two",
+  "title": "Keep Multiplying Found Values by Two",
+  "exampleTestcases": "[5,3,6,1,12]\n3\n[2,7,9]\n4",
+  "sampleTestCase": "[5,3,6,1,12]\n3",
+  "metaData": "{\n  \"name\": \"findFinalValue\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"original\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

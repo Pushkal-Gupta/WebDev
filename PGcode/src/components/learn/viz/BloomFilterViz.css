@@ -254,15 +254,12 @@
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 8px;
-  overflow-x: auto;
-  overflow-y: hidden;
 }
 
 .bf-svg {
   display: block;
   width: 100%;
   height: auto;
-  min-width: 480px;
   max-height: 320px;
 }
 
@@ -385,7 +382,7 @@
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 10px;
-  overflow-x: auto;
+  flex-wrap: wrap;
 }
 
 .bf-key-row-label {

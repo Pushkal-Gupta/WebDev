@@ -1,0 +1,8 @@
+{
+  "questionId": "498",
+  "titleSlug": "diagonal-traverse",
+  "title": "Diagonal Traverse",
+  "exampleTestcases": "[[1,2,3],[4,5,6],[7,8,9]]\n[[1,2],[3,4]]",
+  "sampleTestCase": "[[1,2,3],[4,5,6],[7,8,9]]",
+  "metaData": "{\n  \"name\": \"findDiagonalOrder\",\n  \"params\": [\n    {\n      \"name\": \"mat\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

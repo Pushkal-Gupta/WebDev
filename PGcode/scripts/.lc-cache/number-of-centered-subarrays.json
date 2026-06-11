@@ -1,0 +1,8 @@
+{
+  "questionId": "4129",
+  "titleSlug": "number-of-centered-subarrays",
+  "title": "Number of Centered Subarrays",
+  "exampleTestcases": "[-1,1,0]\n[2,-3]",
+  "sampleTestCase": "[-1,1,0]",
+  "metaData": "{\n  \"name\": \"centeredSubarrays\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

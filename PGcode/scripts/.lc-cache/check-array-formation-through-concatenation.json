@@ -1,0 +1,8 @@
+{
+  "questionId": "1760",
+  "titleSlug": "check-array-formation-through-concatenation",
+  "title": "Check Array Formation Through Concatenation",
+  "exampleTestcases": "[15,88]\n[[88],[15]]\n[49,18,16]\n[[16,18,49]]\n[91,4,64,78]\n[[78],[4,64],[91]]",
+  "sampleTestCase": "[15,88]\n[[88],[15]]",
+  "metaData": "{\n  \"name\": \"canFormArray\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"pieces\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

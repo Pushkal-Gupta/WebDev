@@ -1,0 +1,8 @@
+{
+  "questionId": "2689",
+  "titleSlug": "rearranging-fruits",
+  "title": "Rearranging Fruits",
+  "exampleTestcases": "[4,2,2,2]\n[1,4,1,2]\n[2,3,4,1]\n[3,2,5,1]",
+  "sampleTestCase": "[4,2,2,2]\n[1,4,1,2]",
+  "metaData": "{\n  \"name\": \"minCost\",\n  \"params\": [\n    {\n      \"name\": \"basket1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"basket2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

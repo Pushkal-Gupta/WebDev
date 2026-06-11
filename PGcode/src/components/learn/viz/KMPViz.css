@@ -134,13 +134,13 @@
 
 .kmp-viz-stage {
   width: 100%;
-  overflow-x: auto;
   padding: 0.5rem 0.25rem 0.25rem;
 }
 
 .kmp-viz-svg {
   display: block;
-  min-width: 640px;
+  width: 100%;
+  height: auto;
 }
 
 .kmp-viz-row-label {

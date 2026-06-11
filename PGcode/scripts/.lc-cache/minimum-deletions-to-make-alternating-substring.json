@@ -1,0 +1,8 @@
+{
+  "questionId": "4064",
+  "titleSlug": "minimum-deletions-to-make-alternating-substring",
+  "title": "Minimum Deletions to Make Alternating Substring",
+  "exampleTestcases": "\"ABA\"\n[[2,1,2],[1,1],[2,0,2]]\n\"ABB\"\n[[2,0,2],[1,2],[2,0,2]]\n\"BABA\"\n[[2,0,3],[1,1],[2,1,3]]",
+  "sampleTestCase": "\"ABA\"\n[[2,1,2],[1,1],[2,0,2]]",
+  "metaData": "{\n  \"name\": \"minDeletions\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

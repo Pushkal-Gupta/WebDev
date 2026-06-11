@@ -224,7 +224,7 @@ export default function HashTableViz() {
   const [deleteInput, setDeleteInput] = useState('3');
   const [frames, setFrames] = useState([]);
   const [frameIdx, setFrameIdx] = useState(-1);
-  const [pendingTable, setPendingTable] = useState(null);
+  const [, setPendingTable] = useState(null);
   const [resultPill, setResultPill] = useState(null);
   const [operation, setOperation] = useState('Pre-loaded with 5 keys');
   const playRef = useRef(null);
@@ -244,22 +244,26 @@ export default function HashTableViz() {
   const stats = useMemo(() => tableStats(renderTable), [renderTable]);
   const dims = useMemo(() => svgDims(renderTable), [renderTable]);
 
+  // Commit the pending table once the animation reaches its final frame.
+  const commitPendingTable = useCallback(() => {
+    setPendingTable((current) => {
+      if (current) setKeys(current.flat());
+      return null;
+    });
+  }, []);
+
   // Animation loop.
   useEffect(() => {
     if (frameIdx < 0 || frameIdx >= frames.length - 1) return;
-    playRef.current = setTimeout(() => setFrameIdx((i) => i + 1), STEP_MS);
+    playRef.current = setTimeout(() => {
+      setFrameIdx((i) => {
+        const next = i + 1;
+        if (next === frames.length - 1) commitPendingTable();
+        return next;
+      });
+    }, STEP_MS);
     return () => clearTimeout(playRef.current);
-  }, [frameIdx, frames]);
-
-  // Commit the pending table once the animation reaches its final frame.
-  useEffect(() => {
-    if (frames.length === 0 || pendingTable === null) return;
-    if (frameIdx !== frames.length - 1) return;
-    // Derive the new key list from the final table so React state stays the source of truth.
-    const flat = pendingTable.flat();
-    setKeys(flat);
-    setPendingTable(null);
-  }, [frameIdx, frames, pendingTable]);
+  }, [frameIdx, frames, commitPendingTable]);
 
   const parseKey = (raw) => {
     const trimmed = String(raw).trim();
@@ -275,6 +279,10 @@ export default function HashTableViz() {
     setPendingTable(finalTable);
     setResultPill(result);
     setOperation(opLabel);
+    if (frames.length <= 1 && finalTable) {
+      setPendingTable(null);
+      setKeys(finalTable.flat());
+    }
   };
 
   const onInsert = useCallback(() => {

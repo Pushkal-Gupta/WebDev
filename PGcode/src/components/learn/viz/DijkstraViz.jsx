@@ -69,7 +69,7 @@ function buildSteps(start) {
 
   steps.push({
     kind: 'init',
-    current: null,
+    cur: null,
     dist: { ...dist },
     visited: [...visited],
     pq: pqSnapshot(dist, visited),
@@ -91,7 +91,7 @@ function buildSteps(start) {
 
     steps.push({
       kind: 'pick',
-      current: pick,
+      cur: pick,
       dist: { ...dist },
       visited: [...visited],
       pq: pqSnapshot(dist, visited),
@@ -121,7 +121,7 @@ function buildSteps(start) {
         .join(', ');
       steps.push({
         kind: 'relax',
-        current: pick,
+        cur: pick,
         dist: { ...dist },
         visited: [...visited],
         pq: pqSnapshot(dist, visited),
@@ -132,7 +132,7 @@ function buildSteps(start) {
     } else {
       steps.push({
         kind: 'noop',
-        current: pick,
+        cur: pick,
         dist: { ...dist },
         visited: [...visited],
         pq: pqSnapshot(dist, visited),
@@ -146,7 +146,7 @@ function buildSteps(start) {
   const reached = Object.keys(dist).filter((id) => dist[id] !== INF).length;
   steps.push({
     kind: 'done',
-    current: null,
+    cur: null,
     dist: { ...dist },
     visited: [...visited],
     pq: [],
@@ -184,27 +184,25 @@ function edgeGeometry(a, b) {
 
 export default function DijkstraViz() {
   const [start, setStart] = useState('A');
-  const [steps, setSteps] = useState(() => buildSteps('A'));
+  const steps = useMemo(() => buildSteps(start), [start]);
   const [idx, setIdx] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  const [playingRaw, setPlaying] = useState(false);
   const timerRef = useRef(null);
 
-  useEffect(() => {
-    setSteps(buildSteps(start));
+  const [prevStart, setPrevStart] = useState(start);
+  if (prevStart !== start) {
+    setPrevStart(start);
     setIdx(0);
     setPlaying(false);
-  }, [start]);
+  }
 
   const step = steps[idx];
+  // Derive `playing` from the raw toggle + bounds so the auto-run effect never
+  // needs to call setPlaying(false) when we hit the end.
+  const playing = playingRaw && idx < steps.length - 1;
 
   const next = useCallback(() => {
-    setIdx((i) => {
-      if (i >= steps.length - 1) {
-        setPlaying(false);
-        return i;
-      }
-      return i + 1;
-    });
+    setIdx((i) => (i >= steps.length - 1 ? i : i + 1));
   }, [steps.length]);
 
   useEffect(() => {
@@ -223,10 +221,6 @@ export default function DijkstraViz() {
     };
   }, [playing, next]);
 
-  useEffect(() => {
-    if (idx >= steps.length - 1 && playing) setPlaying(false);
-  }, [idx, steps.length, playing]);
-
   const handleReset = () => {
     setPlaying(false);
     setIdx(0);
@@ -244,7 +238,7 @@ export default function DijkstraViz() {
       if (step.dist[id] !== INF) map[id] = 'reached';
     });
     step.visited.forEach((id) => { map[id] = 'visited'; });
-    if (step.current) map[step.current] = 'current';
+    if (step.cur) map[step.cur] = 'current';
     return map;
   }, [step]);
 
@@ -439,8 +433,8 @@ export default function DijkstraViz() {
         <div className="dijkviz-status-row">
           <span className="dijkviz-status-label">Processing</span>
           <span className="dijkviz-status-value">
-            {step.current
-              ? <>Node {step.current}</>
+            {step.cur
+              ? <>Node {step.cur}</>
               : <span className="dijkviz-muted">{isDone ? 'finished' : 'idle'}</span>}
           </span>
         </div>

@@ -1,0 +1,8 @@
+{
+  "questionId": "2377",
+  "titleSlug": "check-if-number-has-equal-digit-count-and-digit-value",
+  "title": "Check if Number Has Equal Digit Count and Digit Value",
+  "exampleTestcases": "\"1210\"\n\"030\"",
+  "sampleTestCase": "\"1210\"",
+  "metaData": "{\n  \"name\": \"digitCount\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

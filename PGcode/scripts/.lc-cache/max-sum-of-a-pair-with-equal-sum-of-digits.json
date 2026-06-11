@@ -1,0 +1,8 @@
+{
+  "questionId": "2473",
+  "titleSlug": "max-sum-of-a-pair-with-equal-sum-of-digits",
+  "title": "Max Sum of a Pair With Equal Sum of Digits",
+  "exampleTestcases": "[18,43,36,13,7]\n[10,12,19,14]",
+  "sampleTestCase": "[18,43,36,13,7]",
+  "metaData": "{\n  \"name\": \"maximumSum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

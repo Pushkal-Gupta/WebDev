@@ -1,0 +1,8 @@
+{
+  "questionId": "1513",
+  "titleSlug": "find-all-good-strings",
+  "title": "Find All Good Strings",
+  "exampleTestcases": "2\n\"aa\"\n\"da\"\n\"b\"\n8\n\"leetcode\"\n\"leetgoes\"\n\"leet\"\n2\n\"gx\"\n\"gz\"\n\"x\"",
+  "sampleTestCase": "2\n\"aa\"\n\"da\"\n\"b\"",
+  "metaData": "{\n  \"name\": \"findGoodStrings\",\n  \"params\": [\n    {\n      \"type\": \"integer\",\n      \"name\": \"n\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"s1\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"s2\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"evil\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

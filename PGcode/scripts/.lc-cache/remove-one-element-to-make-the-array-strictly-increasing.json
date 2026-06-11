@@ -1,0 +1,8 @@
+{
+  "questionId": "2020",
+  "titleSlug": "remove-one-element-to-make-the-array-strictly-increasing",
+  "title": "Remove One Element to Make the Array Strictly Increasing",
+  "exampleTestcases": "[1,2,10,5,7]\n[2,3,1,2]\n[1,1,1]",
+  "sampleTestCase": "[1,2,10,5,7]",
+  "metaData": "{\n  \"name\": \"canBeIncreasing\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

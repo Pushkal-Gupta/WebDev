@@ -1,0 +1,8 @@
+{
+  "questionId": "3463",
+  "titleSlug": "alternating-groups-i",
+  "title": "Alternating Groups I",
+  "exampleTestcases": "[1,1,1]\n[0,1,0,0,1]",
+  "sampleTestCase": "[1,1,1]",
+  "metaData": "{\n  \"name\": \"numberOfAlternatingGroups\",\n  \"params\": [\n    {\n      \"name\": \"colors\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

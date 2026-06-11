@@ -1,0 +1,8 @@
+{
+  "questionId": "1006",
+  "titleSlug": "vowel-spellchecker",
+  "title": "Vowel Spellchecker",
+  "exampleTestcases": "[\"KiTe\",\"kite\",\"hare\",\"Hare\"]\n[\"kite\",\"Kite\",\"KiTe\",\"Hare\",\"HARE\",\"Hear\",\"hear\",\"keti\",\"keet\",\"keto\"]\n[\"yellow\"]\n[\"YellOw\"]",
+  "sampleTestCase": "[\"KiTe\",\"kite\",\"hare\",\"Hare\"]\n[\"kite\",\"Kite\",\"KiTe\",\"Hare\",\"HARE\",\"Hear\",\"hear\",\"keti\",\"keet\",\"keto\"]",
+  "metaData": "{\r\n  \"name\": \"spellchecker\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"wordlist\",\r\n      \"type\": \"string[]\"\r\n    },\r\n    {\r\n      \"name\": \"queries\",\r\n      \"type\": \"string[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string[]\"\r\n  }\r\n}\r\n"
+}

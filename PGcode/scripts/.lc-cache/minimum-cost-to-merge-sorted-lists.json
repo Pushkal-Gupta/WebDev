@@ -1,0 +1,8 @@
+{
+  "questionId": "4144",
+  "titleSlug": "minimum-cost-to-merge-sorted-lists",
+  "title": "Minimum Cost to Merge Sorted Lists",
+  "exampleTestcases": "[[1,3,5],[2,4],[6,7,8]]\n[[1,1,5],[1,4,7,8]]\n[[1],[3]]\n[[1],[1]]",
+  "sampleTestCase": "[[1,3,5],[2,4],[6,7,8]]",
+  "metaData": "{\n  \"name\": \"minMergeCost\",\n  \"params\": [\n    {\n      \"name\": \"lists\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "350",
+  "titleSlug": "intersection-of-two-arrays-ii",
+  "title": "Intersection of Two Arrays II",
+  "exampleTestcases": "[1,2,2,1]\n[2,2]\n[4,9,5]\n[9,4,9,8,4]",
+  "sampleTestCase": "[1,2,2,1]\n[2,2]",
+  "metaData": "{\r\n  \"name\": \"intersect\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums1\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"nums2\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer[]\"\r\n  }\r\n}"
+}

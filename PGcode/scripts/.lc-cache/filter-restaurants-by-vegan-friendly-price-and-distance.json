@@ -1,0 +1,8 @@
+{
+  "questionId": "1455",
+  "titleSlug": "filter-restaurants-by-vegan-friendly-price-and-distance",
+  "title": "Filter Restaurants by Vegan-Friendly, Price and Distance",
+  "exampleTestcases": "[[1,4,1,40,10],[2,8,0,50,5],[3,8,1,30,4],[4,10,0,10,3],[5,1,1,15,1]]\n1\n50\n10\n[[1,4,1,40,10],[2,8,0,50,5],[3,8,1,30,4],[4,10,0,10,3],[5,1,1,15,1]]\n0\n50\n10\n[[1,4,1,40,10],[2,8,0,50,5],[3,8,1,30,4],[4,10,0,10,3],[5,1,1,15,1]]\n0\n30\n3",
+  "sampleTestCase": "[[1,4,1,40,10],[2,8,0,50,5],[3,8,1,30,4],[4,10,0,10,3],[5,1,1,15,1]]\n1\n50\n10",
+  "metaData": "{\n  \"name\": \"filterRestaurants\",\n  \"params\": [\n    {\n      \"name\": \"restaurants\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"veganFriendly\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"maxPrice\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"maxDistance\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
+}

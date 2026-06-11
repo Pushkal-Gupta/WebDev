@@ -1,0 +1,8 @@
+{
+  "questionId": "2166",
+  "titleSlug": "number-of-valid-move-combinations-on-chessboard",
+  "title": "Number of Valid Move Combinations On Chessboard",
+  "exampleTestcases": "[\"rook\"]\n[[1,1]]\n[\"queen\"]\n[[1,1]]\n[\"bishop\"]\n[[4,3]]",
+  "sampleTestCase": "[\"rook\"]\n[[1,1]]",
+  "metaData": "{\n  \"name\": \"countCombinations\",\n  \"params\": [\n    {\n      \"name\": \"pieces\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"positions\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

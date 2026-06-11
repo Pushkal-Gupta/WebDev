@@ -1,0 +1,8 @@
+{
+  "questionId": "813",
+  "titleSlug": "all-paths-from-source-to-target",
+  "title": "All Paths From Source to Target",
+  "exampleTestcases": "[[1,2],[3],[3],[]]\n[[4,3,1],[3,2,4],[3],[4],[]]",
+  "sampleTestCase": "[[1,2],[3],[3],[]]",
+  "metaData": "{\r\n  \"name\": \"allPathsSourceTarget\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"graph\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<list<integer>>\"\r\n  }\r\n}\r\n"
+}

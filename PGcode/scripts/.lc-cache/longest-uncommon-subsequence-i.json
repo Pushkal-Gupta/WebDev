@@ -1,0 +1,8 @@
+{
+  "questionId": "521",
+  "titleSlug": "longest-uncommon-subsequence-i",
+  "title": "Longest Uncommon Subsequence I",
+  "exampleTestcases": "\"aba\"\n\"cdc\"\n\"aaa\"\n\"bbb\"\n\"aaa\"\n\"aaa\"",
+  "sampleTestCase": "\"aba\"\n\"cdc\"",
+  "metaData": "{\r\n  \"name\": \"findLUSlength\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"a\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"b\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

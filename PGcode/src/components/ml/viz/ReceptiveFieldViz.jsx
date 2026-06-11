@@ -148,7 +148,7 @@ export default function ReceptiveFieldViz() {
       const xLeft = FEATURE_AREA_X + (FEATURE_AREA_W - mapPx) / 2;
       return { cell, mapPx, yTop, xLeft, sz, layerIdx: i + 1, ...fm };
     });
-  }, [featureMaps, inputSizePx]);
+  }, [featureMaps, inputSizePx, inputY0]);
 
   const stageH = Math.max(STAGE_H, inputY0 + inputSizePx + 40);
 
@@ -264,7 +264,7 @@ export default function ReceptiveFieldViz() {
 
           {/* Feature maps on right */}
           {featureLayout.map((fl) => {
-            const { cell, mapPx, yTop, xLeft, sz, layerIdx, k, s, d, effK, rf, jump } = fl;
+            const { cell, mapPx, yTop, xLeft, sz, layerIdx, k, s, d, rf } = fl;
             const isLayerSelected = clampedSelected.layer === layerIdx;
             return (
               <g key={`fl-${layerIdx}`}>

@@ -1,0 +1,8 @@
+{
+  "questionId": "1466",
+  "titleSlug": "jump-game-v",
+  "title": "Jump Game V",
+  "exampleTestcases": "[6,4,14,6,8,13,9,7,10,6,12]\n2\n[3,3,3,3,3]\n3\n[7,6,5,4,3,2,1]\n1",
+  "sampleTestCase": "[6,4,14,6,8,13,9,7,10,6,12]\n2",
+  "metaData": "{\n  \"name\": \"maxJumps\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"d\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

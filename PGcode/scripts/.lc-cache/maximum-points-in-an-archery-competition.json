@@ -1,0 +1,8 @@
+{
+  "questionId": "2318",
+  "titleSlug": "maximum-points-in-an-archery-competition",
+  "title": "Maximum Points in an Archery Competition",
+  "exampleTestcases": "9\n[1,1,0,1,0,0,2,1,0,1,2,0]\n3\n[0,0,1,0,0,0,0,0,0,0,0,2]",
+  "sampleTestCase": "9\n[1,1,0,1,0,0,2,1,0,1,2,0]",
+  "metaData": "{\n  \"name\": \"maximumBobPoints\",\n  \"params\": [\n    {\n      \"name\": \"numArrows\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"aliceArrows\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

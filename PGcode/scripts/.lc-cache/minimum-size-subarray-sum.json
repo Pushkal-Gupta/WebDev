@@ -1,0 +1,8 @@
+{
+  "questionId": "209",
+  "titleSlug": "minimum-size-subarray-sum",
+  "title": "Minimum Size Subarray Sum",
+  "exampleTestcases": "7\n[2,3,1,2,4,3]\n4\n[1,4,4]\n11\n[1,1,1,1,1,1,1,1]",
+  "sampleTestCase": "7\n[2,3,1,2,4,3]",
+  "metaData": "{\n  \"name\": \"minSubArrayLen\",\n  \"params\": [\n    {\n      \"name\": \"target\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

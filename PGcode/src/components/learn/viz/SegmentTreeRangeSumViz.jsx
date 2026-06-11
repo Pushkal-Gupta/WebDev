@@ -423,7 +423,6 @@ export default function SegmentTreeRangeSumViz() {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         if (last.kind === 'update') setArr(last.arr);
       }
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPlaying(false);
       return;
     }

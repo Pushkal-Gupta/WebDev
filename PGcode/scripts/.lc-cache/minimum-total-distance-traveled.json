@@ -1,0 +1,8 @@
+{
+  "questionId": "2554",
+  "titleSlug": "minimum-total-distance-traveled",
+  "title": "Minimum Total Distance Traveled",
+  "exampleTestcases": "[0,4,6]\n[[2,2],[6,2]]\n[1,-1]\n[[-2,1],[2,1]]",
+  "sampleTestCase": "[0,4,6]\n[[2,2],[6,2]]",
+  "metaData": "{\n  \"name\": \"minimumTotalDistance\",\n  \"params\": [\n    {\n      \"name\": \"robot\",\n      \"type\": \"list<integer>\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"factory\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

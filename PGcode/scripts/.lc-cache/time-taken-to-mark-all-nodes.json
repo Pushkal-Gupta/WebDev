@@ -1,0 +1,8 @@
+{
+  "questionId": "3532",
+  "titleSlug": "time-taken-to-mark-all-nodes",
+  "title": "Time Taken to Mark All Nodes",
+  "exampleTestcases": "[[0,1],[0,2]]\n[[0,1]]\n[[2,4],[0,1],[2,3],[0,2]]",
+  "sampleTestCase": "[[0,1],[0,2]]",
+  "metaData": "{\n  \"name\": \"timeTaken\",\n  \"params\": [\n    {\n      \"name\": \"edges\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

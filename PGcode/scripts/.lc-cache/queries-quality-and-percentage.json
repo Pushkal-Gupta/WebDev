@@ -1,0 +1,8 @@
+{
+  "questionId": "1338",
+  "titleSlug": "queries-quality-and-percentage",
+  "title": "Queries Quality and Percentage",
+  "exampleTestcases": "{\"headers\":{\"Queries\":[\"query_name\",\"result\",\"position\",\"rating\"]},\"rows\":{\"Queries\":[[\"Dog\",\"Golden Retriever\",1,5],[\"Dog\",\"German Shepherd\",2,5],[\"Dog\",\"Mule\",200,1],[\"Cat\",\"Shirazi\",5,2],[\"Cat\",\"Siamese\",3,3],[\"Cat\",\"Sphynx\",7,4]]}}",
+  "sampleTestCase": "{\"headers\":{\"Queries\":[\"query_name\",\"result\",\"position\",\"rating\"]},\"rows\":{\"Queries\":[[\"Dog\",\"Golden Retriever\",1,5],[\"Dog\",\"German Shepherd\",2,5],[\"Dog\",\"Mule\",200,1],[\"Cat\",\"Shirazi\",5,2],[\"Cat\",\"Siamese\",3,3],[\"Cat\",\"Sphynx\",7,4]]}}",
+  "metaData": "{\"mysql\": [\"Create table If Not Exists Queries (query_name varchar(30), result varchar(50), position int, rating int)\"], \"mssql\": [\"create table Queries (query_name varchar(30), result varchar(50), position int, rating int)\"], \"oraclesql\": [\"create table Queries (query_name varchar(30), result varchar(50), position int, rating int)\"], \"database\": true, \"name\": \"queries_stats\", \"pythondata\": [\"Queries = pd.DataFrame([], columns=['query_name', 'result', 'position', 'rating']).astype({'query_name':'object', 'result':'object', 'position':'Int64', 'rating':'Int64'})\"], \"postgresql\": [\"\\nCreate table If Not Exists Queries (query_name varchar(30), result varchar(50), position int, rating int)\"], \"database_schema\": {\"Queries\": {\"query_name\": \"VARCHAR(30)\", \"result\": \"VARCHAR(50)\", \"position\": \"INT\", \"rating\": \"INT\"}}}"
+}

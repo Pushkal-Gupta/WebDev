@@ -1,0 +1,8 @@
+{
+  "questionId": "862",
+  "titleSlug": "find-and-replace-in-string",
+  "title": "Find And Replace in String",
+  "exampleTestcases": "\"abcd\"\n[0, 2]\n[\"a\", \"cd\"]\n[\"eee\", \"ffff\"]\n\"abcd\"\n[0, 2]\n[\"ab\",\"ec\"]\n[\"eee\",\"ffff\"]",
+  "sampleTestCase": "\"abcd\"\n[0, 2]\n[\"a\", \"cd\"]\n[\"eee\", \"ffff\"]",
+  "metaData": "{\n  \"name\": \"findReplaceString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"indices\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"sources\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"name\": \"targets\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

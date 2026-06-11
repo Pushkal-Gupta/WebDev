@@ -1,0 +1,8 @@
+{
+  "questionId": "4018",
+  "titleSlug": "minimum-moves-to-balance-circular-array",
+  "title": "Minimum Moves to Balance Circular Array",
+  "exampleTestcases": "[5,1,-4]\n[1,2,-5,2]\n[-3,2]",
+  "sampleTestCase": "[5,1,-4]",
+  "metaData": "{\n  \"name\": \"minMoves\",\n  \"params\": [\n    {\n      \"name\": \"balance\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

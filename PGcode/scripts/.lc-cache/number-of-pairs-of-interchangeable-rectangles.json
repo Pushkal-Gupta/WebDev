@@ -1,0 +1,8 @@
+{
+  "questionId": "2129",
+  "titleSlug": "number-of-pairs-of-interchangeable-rectangles",
+  "title": "Number of Pairs of Interchangeable Rectangles",
+  "exampleTestcases": "[[4,8],[3,6],[10,20],[15,30]]\n[[4,5],[7,8]]",
+  "sampleTestCase": "[[4,8],[3,6],[10,20],[15,30]]",
+  "metaData": "{\n  \"name\": \"interchangeableRectangles\",\n  \"params\": [\n    {\n      \"name\": \"rectangles\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

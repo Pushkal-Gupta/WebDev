@@ -1,0 +1,8 @@
+{
+  "questionId": "1065",
+  "titleSlug": "binary-string-with-substrings-representing-1-to-n",
+  "title": "Binary String With Substrings Representing 1 To N",
+  "exampleTestcases": "\"0110\"\n3\n\"0110\"\n4",
+  "sampleTestCase": "\"0110\"\n3",
+  "metaData": "{\n  \"name\": \"queryString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

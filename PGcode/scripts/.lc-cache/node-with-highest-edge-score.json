@@ -1,0 +1,8 @@
+{
+  "questionId": "2455",
+  "titleSlug": "node-with-highest-edge-score",
+  "title": "Node With Highest Edge Score",
+  "exampleTestcases": "[1,0,0,0,0,7,7,5]\n[2,0,0,2]",
+  "sampleTestCase": "[1,0,0,0,0,7,7,5]",
+  "metaData": "{\n  \"name\": \"edgeScore\",\n  \"params\": [\n    {\n      \"name\": \"edges\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

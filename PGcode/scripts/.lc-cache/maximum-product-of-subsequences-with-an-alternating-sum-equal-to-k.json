@@ -1,0 +1,8 @@
+{
+  "questionId": "3777",
+  "titleSlug": "maximum-product-of-subsequences-with-an-alternating-sum-equal-to-k",
+  "title": "Maximum Product of Subsequences With an Alternating Sum Equal to K",
+  "exampleTestcases": "[1,2,3]\n2\n10\n[0,2,3]\n-5\n12\n[2,2,3,3]\n0\n9",
+  "sampleTestCase": "[1,2,3]\n2\n10",
+  "metaData": "{\n  \"name\": \"maxProduct\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"limit\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

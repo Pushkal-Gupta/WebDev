@@ -1,0 +1,8 @@
+{
+  "questionId": "1764",
+  "titleSlug": "maximum-repeating-substring",
+  "title": "Maximum Repeating Substring",
+  "exampleTestcases": "\"ababc\"\n\"ab\"\n\"ababc\"\n\"ba\"\n\"ababc\"\n\"ac\"",
+  "sampleTestCase": "\"ababc\"\n\"ab\"",
+  "metaData": "{\n  \"name\": \"maxRepeating\",\n  \"params\": [\n    {\n      \"name\": \"sequence\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"word\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

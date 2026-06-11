@@ -1,0 +1,8 @@
+{
+  "questionId": "2140",
+  "titleSlug": "longest-subsequence-repeated-k-times",
+  "title": "Longest Subsequence Repeated k Times",
+  "exampleTestcases": "\"letsleetcode\"\n2\n\"bb\"\n2\n\"ab\"\n2",
+  "sampleTestCase": "\"letsleetcode\"\n2",
+  "metaData": "{\n  \"name\": \"longestSubsequenceRepeatedK\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

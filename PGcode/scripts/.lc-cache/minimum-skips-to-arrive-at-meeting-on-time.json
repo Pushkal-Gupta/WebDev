@@ -1,0 +1,8 @@
+{
+  "questionId": "2013",
+  "titleSlug": "minimum-skips-to-arrive-at-meeting-on-time",
+  "title": "Minimum Skips to Arrive at Meeting On Time",
+  "exampleTestcases": "[1,3,2]\n4\n2\n[7,3,5,5]\n2\n10\n[7,3,5,5]\n1\n10",
+  "sampleTestCase": "[1,3,2]\n4\n2",
+  "metaData": "{\n  \"name\": \"minSkips\",\n  \"params\": [\n    {\n      \"name\": \"dist\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"speed\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"hoursBefore\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

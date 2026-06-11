@@ -1,0 +1,8 @@
+{
+  "questionId": "3338",
+  "titleSlug": "count-submatrices-with-top-left-element-and-sum-less-than-k",
+  "title": "Count Submatrices with Top-Left Element and Sum Less Than k",
+  "exampleTestcases": "[[7,6,3],[6,6,1]]\n18\n[[7,2,9],[1,5,0],[2,6,6]]\n20",
+  "sampleTestCase": "[[7,6,3],[6,6,1]]\n18",
+  "metaData": "{\n  \"name\": \"countSubmatrices\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

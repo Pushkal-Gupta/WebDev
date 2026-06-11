@@ -1,0 +1,8 @@
+{
+  "questionId": "714",
+  "titleSlug": "best-time-to-buy-and-sell-stock-with-transaction-fee",
+  "title": "Best Time to Buy and Sell Stock with Transaction Fee",
+  "exampleTestcases": "[1,3,2,8,4,9]\n2\n[1,3,7,5,10,3]\n3",
+  "sampleTestCase": "[1,3,2,8,4,9]\n2",
+  "metaData": "{\r\n  \"name\": \"maxProfit\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"prices\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"fee\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1435",
+  "titleSlug": "xor-queries-of-a-subarray",
+  "title": "XOR Queries of a Subarray",
+  "exampleTestcases": "[1,3,4,8]\n[[0,1],[1,2],[0,3],[3,3]]\n[4,8,2,10]\n[[2,3],[1,3],[0,0],[0,3]]",
+  "sampleTestCase": "[1,3,4,8]\n[[0,1],[1,2],[0,3],[3,3]]",
+  "metaData": "{\n  \"name\": \"xorQueries\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

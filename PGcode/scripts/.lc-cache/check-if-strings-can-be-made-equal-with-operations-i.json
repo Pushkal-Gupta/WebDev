@@ -1,0 +1,8 @@
+{
+  "questionId": "2999",
+  "titleSlug": "check-if-strings-can-be-made-equal-with-operations-i",
+  "title": "Check if Strings Can be Made Equal With Operations I",
+  "exampleTestcases": "\"abcd\"\n\"cdab\"\n\"abcd\"\n\"dacb\"",
+  "sampleTestCase": "\"abcd\"\n\"cdab\"",
+  "metaData": "{\n  \"name\": \"canBeEqual\",\n  \"params\": [\n    {\n      \"name\": \"s1\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"s2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

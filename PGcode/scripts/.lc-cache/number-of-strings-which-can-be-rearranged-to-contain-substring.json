@@ -1,0 +1,8 @@
+{
+  "questionId": "3200",
+  "titleSlug": "number-of-strings-which-can-be-rearranged-to-contain-substring",
+  "title": "Number of Strings Which Can Be Rearranged to Contain Substring",
+  "exampleTestcases": "4\n10",
+  "sampleTestCase": "4",
+  "metaData": "{\n  \"name\": \"stringCount\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

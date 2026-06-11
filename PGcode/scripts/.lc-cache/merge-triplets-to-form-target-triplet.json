@@ -1,0 +1,8 @@
+{
+  "questionId": "2026",
+  "titleSlug": "merge-triplets-to-form-target-triplet",
+  "title": "Merge Triplets to Form Target Triplet",
+  "exampleTestcases": "[[2,5,3],[1,8,4],[1,7,5]]\n[2,7,5]\n[[3,4,5],[4,5,6]]\n[3,2,5]\n[[2,5,3],[2,3,4],[1,2,5],[5,2,3]]\n[5,5,5]",
+  "sampleTestCase": "[[2,5,3],[1,8,4],[1,7,5]]\n[2,7,5]",
+  "metaData": "{\n  \"name\": \"mergeTriplets\",\n  \"params\": [\n    {\n      \"name\": \"triplets\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

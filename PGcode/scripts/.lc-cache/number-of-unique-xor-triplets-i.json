@@ -1,0 +1,8 @@
+{
+  "questionId": "3824",
+  "titleSlug": "number-of-unique-xor-triplets-i",
+  "title": "Number of Unique XOR Triplets I",
+  "exampleTestcases": "[1,2]\n[3,1,2]",
+  "sampleTestCase": "[1,2]",
+  "metaData": "{\n  \"name\": \"uniqueXorTriplets\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

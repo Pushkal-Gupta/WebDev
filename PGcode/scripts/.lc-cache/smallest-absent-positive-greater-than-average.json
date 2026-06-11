@@ -1,0 +1,8 @@
+{
+  "questionId": "4011",
+  "titleSlug": "smallest-absent-positive-greater-than-average",
+  "title": "Smallest Absent Positive Greater Than Average",
+  "exampleTestcases": "[3,5]\n[-1,1,2]\n[4,-1]",
+  "sampleTestCase": "[3,5]",
+  "metaData": "{\n  \"name\": \"smallestAbsent\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

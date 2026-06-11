@@ -1,0 +1,8 @@
+{
+  "questionId": "2211",
+  "titleSlug": "k-radius-subarray-averages",
+  "title": "K Radius Subarray Averages",
+  "exampleTestcases": "[7,4,3,9,1,8,5,2,6]\n3\n[100000]\n0\n[8]\n100000",
+  "sampleTestCase": "[7,4,3,9,1,8,5,2,6]\n3",
+  "metaData": "{\n  \"name\": \"getAverages\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2015",
+  "titleSlug": "determine-whether-matrix-can-be-obtained-by-rotation",
+  "title": "Determine Whether Matrix Can Be Obtained By Rotation",
+  "exampleTestcases": "[[0,1],[1,0]]\n[[1,0],[0,1]]\n[[0,1],[1,1]]\n[[1,0],[0,1]]\n[[0,0,0],[0,1,0],[1,1,1]]\n[[1,1,1],[0,1,0],[0,0,0]]",
+  "sampleTestCase": "[[0,1],[1,0]]\n[[1,0],[0,1]]",
+  "metaData": "{\n  \"name\": \"findRotation\",\n  \"params\": [\n    {\n      \"name\": \"mat\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

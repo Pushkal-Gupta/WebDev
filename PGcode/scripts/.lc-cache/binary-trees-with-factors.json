@@ -1,0 +1,8 @@
+{
+  "questionId": "843",
+  "titleSlug": "binary-trees-with-factors",
+  "title": "Binary Trees With Factors",
+  "exampleTestcases": "[2,4]\n[2,4,5,10]",
+  "sampleTestCase": "[2,4]",
+  "metaData": "{\n  \"name\": \"numFactoredBinaryTrees\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

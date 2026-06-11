@@ -279,13 +279,13 @@ export default function UnionFindViz() {
   const [committedState, setCommittedState] = useState(makeInitialState);
   const [frames, setFrames] = useState([]);
   const [idx, setIdx] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  const [playingRaw, setPlaying] = useState(false);
   const [log, setLog] = useState([]);
   const [unionA, setUnionA] = useState('0');
   const [unionB, setUnionB] = useState('1');
   const [findVal, setFindVal] = useState('0');
+  const [, setPendingCommit] = useState(null);
   const timerRef = useRef(null);
-  const pendingCommitRef = useRef(null);
 
   const currentFrame = frames.length > 0 ? frames[idx] : null;
   const displayState = currentFrame ? currentFrame.state : committedState;
@@ -296,15 +296,28 @@ export default function UnionFindViz() {
 
   const atEnd = frames.length === 0 || idx >= frames.length - 1;
 
+  // Derive `playing` so the interval effect never has to call setPlaying(false)
+  // when we reach the last frame — avoids cascading-render lint.
+  const playing = playingRaw && frames.length > 0 && idx < frames.length - 1;
+
+  const commitPending = useCallback(() => {
+    setPendingCommit((current) => {
+      if (current !== null && frames.length > 0) {
+        const final = frames[frames.length - 1].state;
+        setCommittedState({ parent: [...final.parent], rank: [...final.rank] });
+      }
+      return null;
+    });
+  }, [frames]);
+
   const next = useCallback(() => {
     setIdx((i) => {
-      if (i >= frames.length - 1) {
-        setPlaying(false);
-        return i;
-      }
-      return i + 1;
+      if (i >= frames.length - 1) return i;
+      const nextIdx = i + 1;
+      if (nextIdx === frames.length - 1) commitPending();
+      return nextIdx;
     });
-  }, [frames.length]);
+  }, [frames.length, commitPending]);
 
   useEffect(() => {
     if (!playing) {
@@ -321,18 +334,6 @@ export default function UnionFindViz() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [playing, next]);
-
-  // When the animation reaches the final frame, commit its state so future ops continue from there.
-  useEffect(() => {
-    if (frames.length > 0 && idx === frames.length - 1) {
-      const final = frames[frames.length - 1].state;
-      if (pendingCommitRef.current !== null) {
-        setCommittedState({ parent: [...final.parent], rank: [...final.rank] });
-        pendingCommitRef.current = null;
-      }
-      if (playing) setPlaying(false);
-    }
-  }, [idx, frames, playing]);
 
   const pushLog = (line) => {
     setLog((prev) => {
@@ -356,11 +357,16 @@ export default function UnionFindViz() {
     }
     const built = buildUnionFrames(committedState, a, b);
     if (built.frames.length === 0) return;
-    pendingCommitRef.current = 'union';
+    setPendingCommit('union');
     setFrames(built.frames);
     setIdx(0);
     setPlaying(true);
     pushLog(built.merged ? `union(${a}, ${b}) -> merged` : `union(${a}, ${b}) -> same set`);
+    if (built.frames.length === 1) {
+      const final = built.frames[0].state;
+      setCommittedState({ parent: [...final.parent], rank: [...final.rank] });
+      setPendingCommit(null);
+    }
   };
 
   const handleFind = () => {
@@ -370,11 +376,16 @@ export default function UnionFindViz() {
       return;
     }
     const built = buildFindFrames(committedState, a);
-    pendingCommitRef.current = 'find';
+    setPendingCommit('find');
     setFrames(built.frames);
     setIdx(0);
     setPlaying(true);
     pushLog(`find(${a}) = ${built.root}`);
+    if (built.frames.length === 1) {
+      const final = built.frames[0].state;
+      setCommittedState({ parent: [...final.parent], rank: [...final.rank] });
+      setPendingCommit(null);
+    }
   };
 
   const handleReset = () => {
@@ -383,7 +394,7 @@ export default function UnionFindViz() {
     setIdx(0);
     setCommittedState(makeInitialState());
     setLog([]);
-    pendingCommitRef.current = null;
+    setPendingCommit(null);
   };
 
   // Build edge list for rendering: each non-root node has an edge child -> parent.

@@ -1,0 +1,8 @@
+{
+  "questionId": "803",
+  "titleSlug": "cheapest-flights-within-k-stops",
+  "title": "Cheapest Flights Within K Stops",
+  "exampleTestcases": "4\n[[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]]\n0\n3\n1\n3\n[[0,1,100],[1,2,100],[0,2,500]]\n0\n2\n1\n3\n[[0,1,100],[1,2,100],[0,2,500]]\n0\n2\n0",
+  "sampleTestCase": "4\n[[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]]\n0\n3\n1",
+  "metaData": "{\n  \"name\": \"findCheapestPrice\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"flights\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"name\": \"src\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"dst\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -327,12 +327,11 @@ export default function KMeansFullViz() {
     [cancelAnim]
   );
 
-  const hardReset = useCallback(
+  // State-only reset (safe at render-phase); imperative ref/anim cleanup lives
+  // in a sibling effect below.
+  const hardResetState = useCallback(
     (seed, kk, mode) => {
-      runningRef.current = false;
       setRunning(false);
-      cancelAnim();
-      cancelRef.current = false;
       const cs = mode === 'kmeans++'
         ? kmeansPlusPlusInit(points, kk, seed)
         : randomInit(seed, kk);
@@ -345,13 +344,23 @@ export default function KMeansFullViz() {
       setTrails(cs.map((c) => [c]));
       setLossHistory([]);
     },
-    [cancelAnim, points]
+    [points]
   );
 
-  // Re-init when k / seed / mode / data changes.
+  // Re-init when k / seed / mode / data changes. Tracked-dep render-phase reset
+  // (React's recommended pattern over setState-in-effect cascades).
+  const resetKey = `${k}|${centroidSeed}|${initMode}|${dataSeed}`;
+  const [lastResetKey, setLastResetKey] = useState(resetKey);
+  if (resetKey !== lastResetKey) {
+    setLastResetKey(resetKey);
+    hardResetState(centroidSeed, k, initMode);
+  }
+
   useEffect(() => {
-    hardReset(centroidSeed, k, initMode);
-  }, [k, centroidSeed, initMode, dataSeed, hardReset]);
+    runningRef.current = false;
+    cancelAnim();
+    cancelRef.current = false;
+  }, [k, centroidSeed, initMode, dataSeed, cancelAnim]);
 
   // Animate centroids from `from` to `to` over ANIM_FRAMES.
   const animateMove = useCallback(

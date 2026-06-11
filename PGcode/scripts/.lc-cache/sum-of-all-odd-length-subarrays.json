@@ -1,0 +1,8 @@
+{
+  "questionId": "1693",
+  "titleSlug": "sum-of-all-odd-length-subarrays",
+  "title": "Sum of All Odd Length Subarrays",
+  "exampleTestcases": "[1,4,2,5,3]\n[1,2]\n[10,11,12]",
+  "sampleTestCase": "[1,4,2,5,3]",
+  "metaData": "{\n  \"name\": \"sumOddLengthSubarrays\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

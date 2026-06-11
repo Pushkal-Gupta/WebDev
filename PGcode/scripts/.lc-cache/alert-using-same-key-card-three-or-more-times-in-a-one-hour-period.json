@@ -1,0 +1,8 @@
+{
+  "questionId": "1709",
+  "titleSlug": "alert-using-same-key-card-three-or-more-times-in-a-one-hour-period",
+  "title": "Alert Using Same Key-Card Three or More Times in a One Hour Period",
+  "exampleTestcases": "[\"daniel\",\"daniel\",\"daniel\",\"luis\",\"luis\",\"luis\",\"luis\"]\n[\"10:00\",\"10:40\",\"11:00\",\"09:00\",\"11:00\",\"13:00\",\"15:00\"]\n[\"alice\",\"alice\",\"alice\",\"bob\",\"bob\",\"bob\",\"bob\"]\n[\"12:01\",\"12:00\",\"18:00\",\"21:00\",\"21:20\",\"21:30\",\"23:00\"]",
+  "sampleTestCase": "[\"daniel\",\"daniel\",\"daniel\",\"luis\",\"luis\",\"luis\",\"luis\"]\n[\"10:00\",\"10:40\",\"11:00\",\"09:00\",\"11:00\",\"13:00\",\"15:00\"]",
+  "metaData": "{\n  \"name\": \"alertNames\",\n  \"params\": [\n    {\n      \"name\": \"keyName\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"string[]\",\n      \"name\": \"keyTime\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\"\n  }\n}"
+}

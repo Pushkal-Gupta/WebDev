@@ -1,0 +1,8 @@
+{
+  "questionId": "1625",
+  "titleSlug": "group-sold-products-by-the-date",
+  "title": "Group Sold Products By The Date",
+  "exampleTestcases": "{\"headers\":{\"Activities\":[\"sell_date\",\"product\"]},\"rows\":{\"Activities\":[[\"2020-05-30\",\"Headphone\"],[\"2020-06-01\",\"Pencil\"],[\"2020-06-02\",\"Mask\"],[\"2020-05-30\",\"Basketball\"],[\"2020-06-01\",\"Bible\"],[\"2020-06-02\",\"Mask\"],[\"2020-05-30\",\"T-Shirt\"]]}}",
+  "sampleTestCase": "{\"headers\":{\"Activities\":[\"sell_date\",\"product\"]},\"rows\":{\"Activities\":[[\"2020-05-30\",\"Headphone\"],[\"2020-06-01\",\"Pencil\"],[\"2020-06-02\",\"Mask\"],[\"2020-05-30\",\"Basketball\"],[\"2020-06-01\",\"Bible\"],[\"2020-06-02\",\"Mask\"],[\"2020-05-30\",\"T-Shirt\"]]}}",
+  "metaData": "{\"mysql\": [\"Create table If Not Exists Activities (sell_date date, product varchar(20))\"], \"mssql\": [\"Create table Activities (sell_date date, product varchar(20))\"], \"oraclesql\": [\"Create table Activities (sell_date date, product varchar(20))\", \"ALTER SESSION SET nls_date_format='YYYY-MM-DD'\"], \"database\": true, \"name\": \"categorize_products\", \"pythondata\": [\"Activities = pd.DataFrame([], columns=['sell_date', 'product']).astype({'sell_date':'datetime64[ns]', 'product':'object'})\"], \"manual\": false, \"postgresql\": [\"\\nCreate table If Not Exists Activities (sell_date date, product varchar(20))\"], \"database_schema\": {\"Activities\": {\"sell_date\": \"DATE\", \"product\": \"VARCHAR(20)\"}}}"
+}

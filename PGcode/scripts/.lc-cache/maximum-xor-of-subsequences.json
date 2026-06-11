@@ -1,0 +1,8 @@
+{
+  "questionId": "3990",
+  "titleSlug": "maximum-xor-of-subsequences",
+  "title": "Maximum XOR of Subsequences",
+  "exampleTestcases": "[1,2,3]\n[5,2]",
+  "sampleTestCase": "[1,2,3]",
+  "metaData": "{\n  \"name\": \"maxXorSubsequences\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

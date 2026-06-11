@@ -1,0 +1,8 @@
+{
+  "questionId": "4173",
+  "titleSlug": "maximum-score-of-a-split",
+  "title": "Maximum Score of a Split",
+  "exampleTestcases": "[10,-1,3,-4,-5]\n[-7,-5,3]\n[1,1]",
+  "sampleTestCase": "[10,-1,3,-4,-5]",
+  "metaData": "{\n  \"name\": \"maximumScore\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

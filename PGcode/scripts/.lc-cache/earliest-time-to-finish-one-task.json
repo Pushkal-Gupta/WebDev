@@ -1,0 +1,8 @@
+{
+  "questionId": "4012",
+  "titleSlug": "earliest-time-to-finish-one-task",
+  "title": "Earliest Time to Finish One Task",
+  "exampleTestcases": "[[1,6],[2,3]]\n[[100,100],[100,100],[100,100]]",
+  "sampleTestCase": "[[1,6],[2,3]]",
+  "metaData": "{\n  \"name\": \"earliestTime\",\n  \"params\": [\n    {\n      \"name\": \"tasks\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

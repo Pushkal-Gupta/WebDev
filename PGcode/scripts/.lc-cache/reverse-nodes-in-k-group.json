@@ -1,0 +1,8 @@
+{
+  "questionId": "25",
+  "titleSlug": "reverse-nodes-in-k-group",
+  "title": "Reverse Nodes in k-Group",
+  "exampleTestcases": "[1,2,3,4,5]\n2\n[1,2,3,4,5]\n3",
+  "sampleTestCase": "[1,2,3,4,5]\n2",
+  "metaData": "{\r\n  \"name\": \"reverseKGroup\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"head\",\r\n      \"type\": \"ListNode\"\r\n    },\r\n    {\r\n      \"name\": \"k\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"ListNode\"\r\n  }\r\n}"
+}

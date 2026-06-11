@@ -1,0 +1,8 @@
+{
+  "questionId": "216",
+  "titleSlug": "combination-sum-iii",
+  "title": "Combination Sum III",
+  "exampleTestcases": "3\n7\n3\n9\n4\n1",
+  "sampleTestCase": "3\n7",
+  "metaData": "{\r\n  \"name\": \"combinationSum3\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"k\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<list<integer>>\",\r\n    \"dealloc\": true\r\n  }\r\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "12",
+  "titleSlug": "integer-to-roman",
+  "title": "Integer to Roman",
+  "exampleTestcases": "3749\n58\n1994",
+  "sampleTestCase": "3749",
+  "metaData": "{\r\n  \"name\": \"intToRoman\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"num\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}"
+}

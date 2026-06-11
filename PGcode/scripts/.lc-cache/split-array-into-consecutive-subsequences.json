@@ -1,0 +1,8 @@
+{
+  "questionId": "659",
+  "titleSlug": "split-array-into-consecutive-subsequences",
+  "title": "Split Array into Consecutive Subsequences",
+  "exampleTestcases": "[1,2,3,3,4,5]\n[1,2,3,3,4,4,5,5]\n[1,2,3,4,4,5]",
+  "sampleTestCase": "[1,2,3,3,4,5]",
+  "metaData": "{\r\n  \"name\": \"isPossible\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
+}

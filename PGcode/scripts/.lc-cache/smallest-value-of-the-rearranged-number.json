@@ -1,0 +1,8 @@
+{
+  "questionId": "2284",
+  "titleSlug": "smallest-value-of-the-rearranged-number",
+  "title": "Smallest Value of the Rearranged Number",
+  "exampleTestcases": "310\n-7605",
+  "sampleTestCase": "310",
+  "metaData": "{\n  \"name\": \"smallestNumber\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"long\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

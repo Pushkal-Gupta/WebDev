@@ -1,0 +1,8 @@
+{
+  "questionId": "3327",
+  "titleSlug": "minimum-moves-to-pick-k-ones",
+  "title": "Minimum Moves to Pick K Ones",
+  "exampleTestcases": "[1,1,0,0,0,1,1,0,0,1]\n3\n1\n[0,0,0,0]\n2\n3",
+  "sampleTestCase": "[1,1,0,0,0,1,1,0,0,1]\n3\n1",
+  "metaData": "{\n  \"name\": \"minimumMoves\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"maxChanges\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

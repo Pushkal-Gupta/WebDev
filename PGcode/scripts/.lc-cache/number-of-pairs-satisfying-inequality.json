@@ -1,0 +1,8 @@
+{
+  "questionId": "2513",
+  "titleSlug": "number-of-pairs-satisfying-inequality",
+  "title": "Number of Pairs Satisfying Inequality",
+  "exampleTestcases": "[3,2,5]\n[2,2,1]\n1\n[3,-1]\n[-2,2]\n-1",
+  "sampleTestCase": "[3,2,5]\n[2,2,1]\n1",
+  "metaData": "{\n  \"name\": \"numberOfPairs\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"diff\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

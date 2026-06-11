@@ -1,0 +1,8 @@
+{
+  "questionId": "2597",
+  "titleSlug": "cycle-length-queries-in-a-tree",
+  "title": "Cycle Length Queries in a Tree",
+  "exampleTestcases": "3\n[[5,3],[4,7],[2,3]]\n2\n[[1,2]]",
+  "sampleTestCase": "3\n[[5,3],[4,7],[2,3]]",
+  "metaData": "{\n  \"name\": \"cycleLengthQueries\",\n  \"params\": [\n    {\n      \"type\": \"integer\",\n      \"name\": \"n\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

@@ -5,6 +5,11 @@
   --sans: "Inter", sans-serif;
   --t: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
+  /* Playground page widths — Compiler / Web / SQL share these tokens so
+     adjusting in one place updates all three pages. */
+  --playground-w: 1520px;
+  --playground-gutter: 3rem;
+
   /* Dark mode (default) — matches blog exactly */
   --bg: #030a0a;
   --surface: #061010;

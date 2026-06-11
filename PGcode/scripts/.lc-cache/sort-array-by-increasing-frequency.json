@@ -1,0 +1,8 @@
+{
+  "questionId": "1741",
+  "titleSlug": "sort-array-by-increasing-frequency",
+  "title": "Sort Array by Increasing Frequency",
+  "exampleTestcases": "[1,1,2,2,2,3]\n[2,3,1,3,2]\n[-1,1,-6,4,5,-6,1,4,1]",
+  "sampleTestCase": "[1,1,2,2,2,3]",
+  "metaData": "{\n  \"name\": \"frequencySort\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

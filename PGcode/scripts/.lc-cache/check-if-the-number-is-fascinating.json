@@ -1,0 +1,8 @@
+{
+  "questionId": "2824",
+  "titleSlug": "check-if-the-number-is-fascinating",
+  "title": "Check if The Number is Fascinating",
+  "exampleTestcases": "192\n100",
+  "sampleTestCase": "192",
+  "metaData": "{\n  \"name\": \"isFascinating\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

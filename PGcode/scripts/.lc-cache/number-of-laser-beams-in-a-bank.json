@@ -1,0 +1,8 @@
+{
+  "questionId": "2244",
+  "titleSlug": "number-of-laser-beams-in-a-bank",
+  "title": "Number of Laser Beams in a Bank",
+  "exampleTestcases": "[\"011001\",\"000000\",\"010100\",\"001000\"]\n[\"000\",\"111\",\"000\"]",
+  "sampleTestCase": "[\"011001\",\"000000\",\"010100\",\"001000\"]",
+  "metaData": "{\n  \"name\": \"numberOfBeams\",\n  \"params\": [\n    {\n      \"name\": \"bank\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

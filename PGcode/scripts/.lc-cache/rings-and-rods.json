@@ -1,0 +1,8 @@
+{
+  "questionId": "2226",
+  "titleSlug": "rings-and-rods",
+  "title": "Rings and Rods",
+  "exampleTestcases": "\"B0B6G0R6R0R6G9\"\n\"B0R0G0R9R0B0G0\"\n\"G4\"",
+  "sampleTestCase": "\"B0B6G0R6R0R6G9\"",
+  "metaData": "{\n  \"name\": \"countPoints\",\n  \"params\": [\n    {\n      \"name\": \"rings\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

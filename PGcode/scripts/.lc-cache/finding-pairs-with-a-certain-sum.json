@@ -1,0 +1,8 @@
+{
+  "questionId": "1995",
+  "titleSlug": "finding-pairs-with-a-certain-sum",
+  "title": "Finding Pairs With a Certain Sum",
+  "exampleTestcases": "[\"FindSumPairs\",\"count\",\"add\",\"count\",\"count\",\"add\",\"add\",\"count\"]\n[[[1,1,2,2,2,3],[1,4,5,2,5,4]],[7],[3,2],[8],[4],[0,1],[1,1],[7]]",
+  "sampleTestCase": "[\"FindSumPairs\",\"count\",\"add\",\"count\",\"count\",\"add\",\"add\",\"count\"]\n[[[1,1,2,2,2,3],[1,4,5,2,5,4]],[7],[3,2],[8],[4],[0,1],[1,1],[7]]",
+  "metaData": "{\n  \"classname\": \"FindSumPairs\",\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"integer[]\",\n        \"name\": \"nums1\"\n      },\n      {\n        \"name\": \"nums2\",\n        \"type\": \"integer[]\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"index\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"val\"\n        }\n      ],\n      \"name\": \"add\",\n      \"return\": {\n        \"type\": \"void\"\n      }\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"tot\"\n        }\n      ],\n      \"name\": \"count\",\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
+}

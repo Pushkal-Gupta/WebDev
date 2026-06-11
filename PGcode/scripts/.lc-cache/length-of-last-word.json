@@ -1,0 +1,8 @@
+{
+  "questionId": "58",
+  "titleSlug": "length-of-last-word",
+  "title": "Length of Last Word",
+  "exampleTestcases": "\"Hello World\"\n\"   fly me   to   the moon  \"\n\"luffy is still joyboy\"",
+  "sampleTestCase": "\"Hello World\"",
+  "metaData": "{ \r\n  \"name\": \"lengthOfLastWord\",\r\n  \"params\": [\r\n    { \r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

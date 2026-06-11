@@ -1,0 +1,8 @@
+{
+  "questionId": "1908",
+  "titleSlug": "recyclable-and-low-fat-products",
+  "title": "Recyclable and Low Fat Products",
+  "exampleTestcases": "{\"headers\":{\"Products\":[\"product_id\",\"low_fats\",\"recyclable\"]},\"rows\":{\"Products\":[[\"0\",\"Y\",\"N\"],[\"1\",\"Y\",\"Y\"],[\"2\",\"N\",\"Y\"],[\"3\",\"Y\",\"Y\"],[\"4\",\"N\",\"N\"]]}}",
+  "sampleTestCase": "{\"headers\":{\"Products\":[\"product_id\",\"low_fats\",\"recyclable\"]},\"rows\":{\"Products\":[[\"0\",\"Y\",\"N\"],[\"1\",\"Y\",\"Y\"],[\"2\",\"N\",\"Y\"],[\"3\",\"Y\",\"Y\"],[\"4\",\"N\",\"N\"]]}}",
+  "metaData": "{\"mysql\": [\"Create table If Not Exists Products (product_id int, low_fats ENUM('Y', 'N'), recyclable ENUM('Y','N'))\"], \"mssql\": [\"Create table Products (product_id int, low_fats varchar(1) not null check(low_fats in ('Y', 'N')), recyclable varchar(1) not null check(recyclable in ('Y', 'N')))\"], \"oraclesql\": [\"Create table Products (product_id int, low_fats varchar(1) not null check(low_fats in ('Y', 'N')), recyclable varchar(1) not null check(recyclable in ('Y', 'N')))\"], \"database\": true, \"name\": \"find_products\", \"pythondata\": [\"Products = pd.DataFrame([], columns=['product_id', 'low_fats', 'recyclable']).astype({'product_id':'int64', 'low_fats':'category', 'recyclable':'category'})\"], \"postgresql\": [\"Create table If Not Exists Products (product_id int, low_fats VARCHAR(30) CHECK (low_fats IN ('Y', 'N')), recyclable VARCHAR(30) CHECK (recyclable IN ('Y','N')))\\n\"], \"database_schema\": {\"Products\": {\"product_id\": \"INT\", \"low_fats\": \"ENUM('Y', 'N')\", \"recyclable\": \"ENUM('Y', 'N')\"}}}"
+}

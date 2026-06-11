@@ -1,0 +1,8 @@
+{
+  "questionId": "2028",
+  "titleSlug": "the-earliest-and-latest-rounds-where-players-compete",
+  "title": "The Earliest and Latest Rounds Where Players Compete",
+  "exampleTestcases": "11\n2\n4\n5\n1\n5",
+  "sampleTestCase": "11\n2\n4",
+  "metaData": "{\n  \"name\": \"earliestAndLatest\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"firstPlayer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"secondPlayer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

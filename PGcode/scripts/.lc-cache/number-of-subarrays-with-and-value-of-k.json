@@ -1,0 +1,8 @@
+{
+  "questionId": "3466",
+  "titleSlug": "number-of-subarrays-with-and-value-of-k",
+  "title": "Number of Subarrays With AND Value of K",
+  "exampleTestcases": "[1,1,1]\n1\n[1,1,2]\n1\n[1,2,3]\n2",
+  "sampleTestCase": "[1,1,1]\n1",
+  "metaData": "{\n  \"name\": \"countSubarrays\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

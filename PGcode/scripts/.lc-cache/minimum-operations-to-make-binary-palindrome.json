@@ -1,0 +1,8 @@
+{
+  "questionId": "4099",
+  "titleSlug": "minimum-operations-to-make-binary-palindrome",
+  "title": "Minimum Operations to Make Binary Palindrome",
+  "exampleTestcases": "[1,2,4]\n[6,7,12]",
+  "sampleTestCase": "[1,2,4]",
+  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

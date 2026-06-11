@@ -1,0 +1,8 @@
+{
+  "questionId": "2439",
+  "titleSlug": "longest-cycle-in-a-graph",
+  "title": "Longest Cycle in a Graph",
+  "exampleTestcases": "[3,3,4,2,3]\n[2,-1,3,1]",
+  "sampleTestCase": "[3,3,4,2,3]",
+  "metaData": "{\n  \"name\": \"longestCycle\",\n  \"params\": [\n    {\n      \"name\": \"edges\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

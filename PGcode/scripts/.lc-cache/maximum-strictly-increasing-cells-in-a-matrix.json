@@ -1,0 +1,8 @@
+{
+  "questionId": "2818",
+  "titleSlug": "maximum-strictly-increasing-cells-in-a-matrix",
+  "title": "Maximum Strictly Increasing Cells in a Matrix",
+  "exampleTestcases": "[[3,1],[3,4]]\n[[1,1],[1,1]]\n[[3,1,6],[-9,5,7]]",
+  "sampleTestCase": "[[3,1],[3,4]]",
+  "metaData": "{\n  \"name\": \"maxIncreasingCells\",\n  \"params\": [\n    {\n      \"name\": \"mat\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

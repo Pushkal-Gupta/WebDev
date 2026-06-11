@@ -1,0 +1,8 @@
+{
+  "questionId": "1535",
+  "titleSlug": "build-array-where-you-can-find-the-maximum-exactly-k-comparisons",
+  "title": "Build Array Where You Can Find The Maximum Exactly K Comparisons",
+  "exampleTestcases": "2\n3\n1\n5\n2\n3\n9\n1\n1",
+  "sampleTestCase": "2\n3\n1",
+  "metaData": "{\n  \"name\": \"numOfArrays\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"m\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

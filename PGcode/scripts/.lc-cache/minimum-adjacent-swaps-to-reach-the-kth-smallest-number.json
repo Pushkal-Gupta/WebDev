@@ -1,0 +1,8 @@
+{
+  "questionId": "1978",
+  "titleSlug": "minimum-adjacent-swaps-to-reach-the-kth-smallest-number",
+  "title": "Minimum Adjacent Swaps to Reach the Kth Smallest Number",
+  "exampleTestcases": "\"5489355142\"\n4\n\"11112\"\n4\n\"00123\"\n1",
+  "sampleTestCase": "\"5489355142\"\n4",
+  "metaData": "{\n  \"name\": \"getMinSwaps\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

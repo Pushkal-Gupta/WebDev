@@ -1,0 +1,8 @@
+{
+  "questionId": "3233",
+  "titleSlug": "maximize-the-number-of-partitions-after-operations",
+  "title": "Maximize the Number of Partitions After Operations",
+  "exampleTestcases": "\"accca\"\n2\n\"aabaab\"\n3\n\"xxyz\"\n1",
+  "sampleTestCase": "\"accca\"\n2",
+  "metaData": "{\n  \"name\": \"maxPartitionsAfterOperations\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2698",
+  "titleSlug": "find-the-array-concatenation-value",
+  "title": "Find the Array Concatenation Value",
+  "exampleTestcases": "[7,52,2,4]\n[5,14,13,8,12]",
+  "sampleTestCase": "[7,52,2,4]",
+  "metaData": "{\n  \"name\": \"findTheArrayConcVal\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

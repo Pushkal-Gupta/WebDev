@@ -1,0 +1,8 @@
+{
+  "questionId": "3605",
+  "titleSlug": "construct-the-minimum-bitwise-array-i",
+  "title": "Construct the Minimum Bitwise Array I",
+  "exampleTestcases": "[2,3,5,7]\n[11,13,31]",
+  "sampleTestCase": "[2,3,5,7]",
+  "metaData": "{\n  \"name\": \"minBitwiseArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"list<integer>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

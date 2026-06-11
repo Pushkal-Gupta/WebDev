@@ -1,0 +1,8 @@
+{
+  "questionId": "3551",
+  "titleSlug": "maximum-xor-score-subarray-queries",
+  "title": "Maximum XOR Score Subarray Queries",
+  "exampleTestcases": "[2,8,4,32,16,1]\n[[0,2],[1,4],[0,5]]\n[0,7,3,2,8,5,1]\n[[0,3],[1,5],[2,4],[2,6],[5,6]]",
+  "sampleTestCase": "[2,8,4,32,16,1]\n[[0,2],[1,4],[0,5]]",
+  "metaData": "{\n  \"name\": \"maximumSubarrayXor\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

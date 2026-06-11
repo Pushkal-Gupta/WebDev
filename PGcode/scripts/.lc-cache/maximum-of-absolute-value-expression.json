@@ -1,0 +1,8 @@
+{
+  "questionId": "1230",
+  "titleSlug": "maximum-of-absolute-value-expression",
+  "title": "Maximum of Absolute Value Expression",
+  "exampleTestcases": "[1,2,3,4]\n[-1,4,5,6]\n[1,-2,-5,0,10]\n[0,-2,-1,-7,-4]",
+  "sampleTestCase": "[1,2,3,4]\n[-1,4,5,6]",
+  "metaData": "{\r\n  \"name\": \"maxAbsValExpr\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"arr1\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"type\": \"integer[]\",\r\n      \"name\": \"arr2\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

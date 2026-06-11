@@ -1,0 +1,8 @@
+{
+  "questionId": "433",
+  "titleSlug": "minimum-genetic-mutation",
+  "title": "Minimum Genetic Mutation",
+  "exampleTestcases": "\"AACCGGTT\"\n\"AACCGGTA\"\n[\"AACCGGTA\"]\n\"AACCGGTT\"\n\"AAACGGTA\"\n[\"AACCGGTA\",\"AACCGCTA\",\"AAACGGTA\"]",
+  "sampleTestCase": "\"AACCGGTT\"\n\"AACCGGTA\"\n[\"AACCGGTA\"]",
+  "metaData": "{\n  \"name\": \"minMutation\",\n  \"params\": [\n    {\n      \"name\": \"startGene\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"endGene\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"bank\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

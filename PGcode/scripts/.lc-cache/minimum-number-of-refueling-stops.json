@@ -1,0 +1,8 @@
+{
+  "questionId": "902",
+  "titleSlug": "minimum-number-of-refueling-stops",
+  "title": "Minimum Number of Refueling Stops",
+  "exampleTestcases": "1\n1\n[]\n100\n1\n[[10,100]]\n100\n10\n[[10,60],[20,30],[30,30],[60,40]]",
+  "sampleTestCase": "1\n1\n[]",
+  "metaData": "{\r\n  \"name\": \"minRefuelStops\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"target\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"startFuel\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"stations\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

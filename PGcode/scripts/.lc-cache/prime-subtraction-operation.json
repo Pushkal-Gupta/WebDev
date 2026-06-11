@@ -1,0 +1,8 @@
+{
+  "questionId": "2716",
+  "titleSlug": "prime-subtraction-operation",
+  "title": "Prime Subtraction Operation",
+  "exampleTestcases": "[4,9,6,10]\n[6,8,11,12]\n[5,8,3]",
+  "sampleTestCase": "[4,9,6,10]",
+  "metaData": "{\n  \"name\": \"primeSubOperation\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

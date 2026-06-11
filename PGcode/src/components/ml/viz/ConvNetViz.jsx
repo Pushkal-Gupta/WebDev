@@ -189,12 +189,6 @@ function softmax(arr) {
   return e.map((v) => v / s);
 }
 
-function normMax(maps) {
-  let m = 0;
-  for (const map of maps) for (const row of map) for (const v of row) if (Math.abs(v) > m) m = Math.abs(v);
-  return m || 1;
-}
-
 /* ---------- Layout ---------- */
 const STAGE_W = 1080;
 const STAGE_H = 380;
@@ -365,11 +359,6 @@ export default function ConvNetViz({ seed = 7 }) {
     const probs = softmax(Array.from(logits));
     return { c1, p1, c2, p2, flat, logits, probs };
   }, [inputGrid, kernels1, kernels2, dense]);
-
-  const maxC1 = useMemo(() => normMax(full.c1), [full.c1]);
-  const maxP1 = useMemo(() => normMax(full.p1), [full.p1]);
-  const maxC2 = useMemo(() => normMax(full.c2), [full.c2]);
-  const maxP2 = useMemo(() => normMax(full.p2), [full.p2]);
 
   // Reveal phase: 0 = input only, 1 = +conv1, 2 = +pool1, 3 = +conv2, 4 = +pool2, 5 = +dense
   const [phase, setPhase] = useState(0);
@@ -654,7 +643,6 @@ export default function ConvNetViz({ seed = 7 }) {
   // Receptive-field rect overlay on input
   const rfOverlay = useMemo(() => {
     if (!rfRect) return null;
-    const inputDef = LAYER_DEFS[0];
     const origin = mapOriginXY(0, 0);
     const cellW = origin.w / IN_SIZE;
     const cellH = origin.h / IN_SIZE;

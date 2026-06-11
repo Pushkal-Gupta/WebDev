@@ -1,0 +1,8 @@
+{
+  "questionId": "3610",
+  "titleSlug": "find-x-sum-of-all-k-long-subarrays-i",
+  "title": "Find X-Sum of All K-Long Subarrays I",
+  "exampleTestcases": "[1,1,2,2,3,4,2,3]\n6\n2\n[3,8,7,8,7,5]\n2\n2",
+  "sampleTestCase": "[1,1,2,2,3,4,2,3]\n6\n2",
+  "metaData": "{\n  \"name\": \"findXSum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"x\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

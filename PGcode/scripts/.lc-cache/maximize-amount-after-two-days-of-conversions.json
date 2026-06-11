@@ -1,0 +1,8 @@
+{
+  "questionId": "3613",
+  "titleSlug": "maximize-amount-after-two-days-of-conversions",
+  "title": "Maximize Amount After Two Days of Conversions",
+  "exampleTestcases": "\"EUR\"\n[[\"EUR\",\"USD\"],[\"USD\",\"JPY\"]]\n[2.0,3.0]\n[[\"JPY\",\"USD\"],[\"USD\",\"CHF\"],[\"CHF\",\"EUR\"]]\n[4.0,5.0,6.0]\n\"NGN\"\n[[\"NGN\",\"EUR\"]]\n[9.0]\n[[\"NGN\",\"EUR\"]]\n[6.0]\n\"USD\"\n[[\"USD\",\"EUR\"]]\n[1.0]\n[[\"EUR\",\"JPY\"]]\n[10.0]",
+  "sampleTestCase": "\"EUR\"\n[[\"EUR\",\"USD\"],[\"USD\",\"JPY\"]]\n[2.0,3.0]\n[[\"JPY\",\"USD\"],[\"USD\",\"CHF\"],[\"CHF\",\"EUR\"]]\n[4.0,5.0,6.0]",
+  "metaData": "{\n  \"name\": \"maxAmount\",\n  \"params\": [\n    {\n      \"name\": \"initialCurrency\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"list<list<string>>\",\n      \"name\": \"pairs1\"\n    },\n    {\n      \"type\": \"double[]\",\n      \"name\": \"rates1\"\n    },\n    {\n      \"type\": \"list<list<string>>\",\n      \"name\": \"pairs2\"\n    },\n    {\n      \"type\": \"double[]\",\n      \"name\": \"rates2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"double\"\n  }\n}"
+}

@@ -142,11 +142,17 @@ export default function WeightDecayViz() {
   }, [w0, lr, lambda]);
 
   // Reset shown step whenever a parameter changes — start fresh, but auto-snap
-  // to the end so static viewing still shows the final result.
-  useEffect(() => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+  // to the end so static viewing still shows the final result. Tracked-dep
+  // render-phase reset for state; effect handles RAF cancellation.
+  const paramKey = `${w0}|${lr}|${lambda}`;
+  const [lastParamKey, setLastParamKey] = useState(paramKey);
+  if (paramKey !== lastParamKey) {
+    setLastParamKey(paramKey);
     setAnimating(false);
     setStepShown(MAX_STEPS);
+  }
+  useEffect(() => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
   }, [w0, lr, lambda]);
 
   const lossMax = useMemo(() => {

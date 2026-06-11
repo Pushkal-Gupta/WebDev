@@ -1,0 +1,8 @@
+{
+  "questionId": "1649",
+  "titleSlug": "maximum-number-of-non-overlapping-subarrays-with-sum-equals-target",
+  "title": "Maximum Number of Non-Overlapping Subarrays With Sum Equals Target",
+  "exampleTestcases": "[1,1,1,1,1]\n2\n[-1,3,5,1,4,2,-9]\n6",
+  "sampleTestCase": "[1,1,1,1,1]\n2",
+  "metaData": "{\n  \"name\": \"maxNonOverlapping\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

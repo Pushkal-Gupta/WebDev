@@ -1,0 +1,8 @@
+{
+  "questionId": "2728",
+  "titleSlug": "sum-in-a-matrix",
+  "title": "Sum in a Matrix",
+  "exampleTestcases": "[[7,2,1],[6,4,2],[6,5,3],[3,2,1]]\n[[1]]",
+  "sampleTestCase": "[[7,2,1],[6,4,2],[6,5,3],[3,2,1]]",
+  "metaData": "{\n  \"name\": \"matrixSum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

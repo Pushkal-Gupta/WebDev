@@ -374,11 +374,6 @@ export default function QLearningViz() {
   const [running, setRunning] = useState(false);
   const [fastRunning, setFastRunning] = useState(false);
 
-  const nextRand = useCallback(() => {
-    seedRef.current = (seedRef.current + 0x9e3779b1) >>> 0;
-    return rngFrom(seedRef.current);
-  }, []);
-
   const randRef = useRef(rngFrom(7));
 
   const clearTimer = useCallback(() => {
@@ -479,7 +474,6 @@ export default function QLearningViz() {
           setEpisodeReturn(total);
           setTotalSteps((s) => s + 1);
           setTrail((t) => t.concat([pos]));
-          // eslint-disable-next-line no-await-in-loop
           await new Promise((r) => {
             timerRef.current = setTimeout(r, STEP_DELAY);
           });
@@ -569,7 +563,6 @@ export default function QLearningViz() {
       avgEMA = avgEMA === null ? total : avgEMA * 0.9 + total * 0.1;
       // Yield occasionally so UI stays responsive.
       if ((ep & 7) === 7) {
-        // eslint-disable-next-line no-await-in-loop
         await new Promise((r) => {
           timerRef.current = setTimeout(r, 0);
         });

@@ -1,0 +1,8 @@
+{
+  "questionId": "3468",
+  "titleSlug": "find-the-encrypted-string",
+  "title": "Find the Encrypted String",
+  "exampleTestcases": "\"dart\"\n3\n\"aaa\"\n1",
+  "sampleTestCase": "\"dart\"\n3",
+  "metaData": "{\n  \"name\": \"getEncryptedString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

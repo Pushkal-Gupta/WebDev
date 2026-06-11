@@ -1,0 +1,8 @@
+{
+  "questionId": "1238",
+  "titleSlug": "alphabet-board-path",
+  "title": "Alphabet Board Path",
+  "exampleTestcases": "\"leet\"\n\"code\"",
+  "sampleTestCase": "\"leet\"",
+  "metaData": "{\n  \"name\": \"alphabetBoardPath\",\n  \"params\": [\n    {\n      \"name\": \"target\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

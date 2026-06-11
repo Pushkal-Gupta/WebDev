@@ -1,0 +1,8 @@
+{
+  "questionId": "506",
+  "titleSlug": "relative-ranks",
+  "title": "Relative Ranks",
+  "exampleTestcases": "[5,4,3,2,1]\n[10,3,8,9,4]",
+  "sampleTestCase": "[5,4,3,2,1]",
+  "metaData": "{\n  \"name\": \"findRelativeRanks\",\n  \"params\": [\n    {\n      \"name\": \"score\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string[]\"\n  }\n}"
+}

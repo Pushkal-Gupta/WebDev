@@ -1,0 +1,8 @@
+{
+  "questionId": "3748",
+  "titleSlug": "sort-matrix-by-diagonals",
+  "title": "Sort Matrix by Diagonals",
+  "exampleTestcases": "[[1,7,3],[9,8,2],[4,5,6]]\n[[0,1],[1,2]]\n[[1]]",
+  "sampleTestCase": "[[1,7,3],[9,8,2],[4,5,6]]",
+  "metaData": "{\n  \"name\": \"sortMatrix\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  }\n}"
+}

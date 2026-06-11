@@ -1,0 +1,8 @@
+{
+  "questionId": "2076",
+  "titleSlug": "sum-of-digits-of-string-after-convert",
+  "title": "Sum of Digits of String After Convert",
+  "exampleTestcases": "\"iiii\"\n1\n\"leetcode\"\n2\n\"zbax\"\n2",
+  "sampleTestCase": "\"iiii\"\n1",
+  "metaData": "{\n  \"name\": \"getLucky\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}
