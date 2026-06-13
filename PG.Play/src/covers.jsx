@@ -1214,6 +1214,7 @@ export const GAME_COVERS = {
   cutrope: Cover_CutRope, bloons: Cover_Bloons, happywheels: Cover_HappyWheels,
   fps: Cover_FPS, arena: Cover_Arena,
   hook: Cover_Swingwire,
+  'stickman-hook': Cover_Hook,
   bricklands: Cover_Bricklands,
   // The four originals — replaced with bespoke key art (responsive WebP).
   grudgewood: Cover_GrudgewoodPhoto,

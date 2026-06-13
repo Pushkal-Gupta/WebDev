@@ -6,7 +6,7 @@
   width: 100%;
   max-width: 1680px;
   margin: 0 auto;
-  padding: 1.2rem 2rem 4rem;
+  padding: 1.2rem clamp(1.5rem, 4vw, 4rem) 4rem;
   font-family: var(--mono);
 }
 

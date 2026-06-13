@@ -1,13 +1,13 @@
 .tut-container {
-  width: 94%;
-  max-width: var(--container-w);
+  width: 100%;
+  max-width: 1280px;
   margin: 0 auto;
   flex: 1 1 auto;
   min-height: 0;
   max-height: calc(100dvh - 80px);
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 1.5rem 0 3rem;
+  padding: 1.5rem clamp(1.5rem, 4vw, 4rem) 3rem;
   position: relative;
 }
 
@@ -855,8 +855,24 @@
   line-height: 1.75;
   color: var(--text-main);
   min-width: 0;
-  max-width: 720px;
+  max-width: 72ch;
   margin-inline: auto;
+  width: 100%;
+}
+
+/* Prose-only elements stay at the natural reading width (72ch on the parent);
+   code blocks, viz, callouts, complexity cards, and tables can break out to
+   88ch so they read as their own band without feeling boxed in. */
+.tut-theory-content > .tut-codeblock,
+.tut-theory-content > .tut-callout,
+.tut-theory-content > .tut-theory-cx-card,
+.tut-theory-content > .tut-theory-complexity,
+.tut-theory-card-body > .tut-codeblock,
+.tut-theory-card-body > .tut-callout,
+.tut-theory-card-body > .tut-theory-cx-card {
+  max-width: 88ch;
+  margin-left: auto;
+  margin-right: auto;
   width: 100%;
 }
 .tut-theory-content > * + * { margin-top: 1.5rem; }
@@ -1670,10 +1686,10 @@
    ────────────────────────────────────────────────────────────────── */
 
 .tut-topic {
-  width: 94%;
-  max-width: var(--container-w);
+  width: 100%;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 0 0 3rem;
+  padding: 0 clamp(1.5rem, 4vw, 4rem) 3rem;
   flex: 1 1 auto;
   min-height: 0;
   max-height: calc(100dvh - 80px);
@@ -2301,4 +2317,139 @@
   .tut-viz-dp-cell {
     transition: none;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Static SVG tutorial diagrams (rendered for ```tut-diagram <Name>``` fences).
+   Theme tokens only. Shared with .tut-viz wrapper for the outer frame.
+--------------------------------------------------------------------------- */
+
+.tut-diagram-svg {
+  font-family: var(--font-sans);
+}
+
+.tut-diagram-node {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.4;
+}
+.tut-diagram-node.accent {
+  fill: rgba(var(--accent-rgb), 0.12);
+  stroke: var(--accent);
+  stroke-width: 1.6;
+}
+.tut-diagram-node.dim {
+  fill: var(--bg);
+  stroke: var(--border);
+  stroke-dasharray: 4 3;
+}
+
+.tut-diagram-node-label {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  fill: var(--text-main);
+}
+.tut-diagram-node-sub {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  fill: var(--text-dim);
+}
+
+.tut-diagram-line {
+  stroke: var(--border);
+  stroke-width: 1.6;
+  fill: none;
+}
+.tut-diagram-line.accent {
+  stroke: var(--accent);
+  stroke-width: 1.8;
+}
+.tut-diagram-line.dim {
+  stroke: var(--text-dim);
+  stroke-width: 1.2;
+  opacity: 0.55;
+}
+
+.tut-diagram-arrow-head {
+  fill: var(--text-dim);
+}
+.tut-diagram-arrow-head.accent {
+  fill: var(--accent);
+}
+
+.tut-diagram-circle {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.4;
+}
+.tut-diagram-circle.accent {
+  fill: rgba(var(--accent-rgb), 0.14);
+  stroke: var(--accent);
+  stroke-width: 1.6;
+}
+.tut-diagram-circle.dim {
+  fill: var(--bg);
+  stroke: var(--border);
+  stroke-dasharray: 3 3;
+}
+
+.tut-diagram-cell {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.2;
+}
+.tut-diagram-cell.accent {
+  fill: rgba(var(--accent-rgb), 0.18);
+  stroke: var(--accent);
+  stroke-width: 1.6;
+}
+.tut-diagram-cell.highlight {
+  fill: rgba(var(--accent-rgb), 0.08);
+  stroke: var(--accent);
+  stroke-width: 1.2;
+}
+.tut-diagram-cell.dim {
+  fill: var(--bg);
+  stroke: var(--border);
+  opacity: 0.75;
+}
+
+.tut-diagram-cell-text {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  fill: var(--text-main);
+}
+
+.tut-diagram-caption {
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  fill: var(--text-dim);
+}
+.tut-diagram-caption.accent { fill: var(--accent); font-weight: 600; }
+
+.tut-diagram-caption-sub {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  fill: var(--text-dim);
+  opacity: 0.85;
+}
+
+.tut-diagram-subhead {
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  fill: var(--text-main);
+}
+
+/* Chess tiles for the N-Queens board. */
+.tut-diagram-tile.light { fill: var(--surface); stroke: var(--border); stroke-width: 1; }
+.tut-diagram-tile.dark  { fill: rgba(var(--accent-rgb), 0.08); stroke: var(--border); stroke-width: 1; }
+.tut-diagram-queen {
+  fill: var(--accent);
+  stroke: var(--bg);
+  stroke-width: 1.5;
 }

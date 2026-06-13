@@ -75,6 +75,13 @@ export const GAMES = [
     mobileSupport:'touch-ok', inputs:['mouse','touch','keyboard'], orientation:'landscape',
     skillTags:['timing','reflex','physics','movement'], sessionLength:'short' },
 
+  { id:'stickman-hook', name:'Stickman Hook', cat:'Physics', kind:'story', players:'1P', levels:6,
+    tagline:'Grab. Swing. Let go at the top.',
+    story:'A sky full of anchors and nothing underneath. Hold to grab the nearest one, swing through the arc, and release at the peak to carry the speed forward. Let go early and you land short. Let go late and you fly.',
+    playable:true, badge:'new', updated:true,
+    mobileSupport:'touch-ok', inputs:['mouse','touch','keyboard'], orientation:'landscape',
+    skillTags:['timing','physics','reflex'], sessionLength:'short' },
+
   { id:'g2048', name:'2048', cat:'Puzzle', kind:'story', players:'1P', levels:'∞',
     tagline:'Numbers, merged.',
     story:'Slide the board, fuse the matches, chase that 2048 tile. Then keep going, because pride. The good run is always one move away.',

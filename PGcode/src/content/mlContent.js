@@ -2489,6 +2489,11 @@ In practice it works anyway, for two reasons. First, in very high dimensions, tr
 The noise is not just tolerated; it is sometimes useful. A noisy step can knock you out of a shallow local minimum or off a saddle point that a clean full-batch step would have stalled on. Most modern optimizers — Adam, AdamW — are SGD variants with adaptive per-parameter learning rates layered on top. The "stochastic" part is non-negotiable; the rest is engineering on top.`,
           },
           {
+            kind: 'viz',
+            heading: 'Gradient accumulation — a big batch on a small GPU, one micro-batch at a time',
+            component: 'GradientAccumulationViz',
+          },
+          {
             kind: 'prose',
             heading: 'When gradient descent fails',
             body: `Three failure modes show up often enough that recognising them is half the battle:
@@ -4111,6 +4116,11 @@ The fix is the **KV cache**: store the key and value vectors for every past toke
 This is also why long-context LLMs are memory-hungry. The KV cache scales linearly with sequence length, number of layers, and number of heads. For a 70B-parameter model at 100k context, the KV cache can be tens of gigabytes — larger than the model weights themselves. Most of the recent work on efficient LLM serving (paged attention, grouped-query attention, multi-query attention, sliding-window attention) is about shrinking or sharing this cache. Attention dominates inference because *the cache* dominates inference, and the cache exists because attention needs every past key and value to compute the next output.`,
           },
           {
+            kind: 'viz',
+            heading: 'Flash attention — sweep the score matrix one SRAM tile at a time',
+            component: 'FlashAttentionTilingViz',
+          },
+          {
             kind: 'prose',
             heading: 'What to take away',
             body: `Attention is a softmax over scaled dot products, followed by a weighted average of value vectors. Every token splits itself into three roles — query, key, value — and queries get matched to keys to decide how much of each value to mix into the output. Scaling by \\(\\sqrt{d_k}\\) keeps the softmax in a workable regime. Multi-head attention runs the same machinery in parallel subspaces so each head can specialise. Causal masking turns the encoder version into the decoder version without changing a single matrix multiply.
@@ -4536,6 +4546,11 @@ Apply the analogous rotation to \\(k_j\\). Now look at the dot product between a
 \\]
 
 The matrix that survives is parameterised by the *offset* \\(j - i\\), not by either absolute position. Sum across all pairs and the full attention score \\(q_i \\cdot k_j\\) is a function of the content of \\(q\\), the content of \\(k\\), and the offset between them — never of where in the sequence they happen to sit. This is exactly the property T5's relative bias engineered into the score, but RoPE gets it for free out of a rotation that costs only \\(O(d)\\) extra multiplies per token.`,
+          },
+          {
+            kind: 'viz',
+            heading: 'RoPE — slide the positions, watch the dot product read only the offset',
+            component: 'RotaryEmbeddingViz',
           },
           {
             kind: 'callout',

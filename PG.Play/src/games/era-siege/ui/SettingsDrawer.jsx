@@ -132,6 +132,7 @@ export default function SettingsDrawer({ open, onClose }) {
         <Row label="Theme" hint="Same mechanics — different troops, bases, and backdrops.">
           <div className="es-segmented" role="radiogroup" aria-label="Theme">
             {[
+              { v: '3d',      label: '3D' },
               { v: 'classic', label: 'Procedural' },
               { v: 'v1',      label: 'Painted I' },
               { v: 'v2',      label: 'Painted II' },

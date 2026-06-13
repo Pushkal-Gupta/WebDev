@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import katex from 'katex';
@@ -417,6 +417,9 @@ export default function ConceptPage({ session }) {
   }
 
   if (!concept) {
+    if (conceptSlug && VISUALIZATIONS[conceptSlug]) {
+      return <Navigate to={`/visualize/${conceptSlug}`} replace />;
+    }
     return (
       <div className="learn-container">
         <div className="learn-empty">

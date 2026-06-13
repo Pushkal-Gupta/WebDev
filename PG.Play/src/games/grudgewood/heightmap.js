@@ -47,6 +47,17 @@ export function cellHasPlatform(cx, cz) {
   return cz % 4 === 2;
 }
 
+// Deeper platform cells (level 3+, cz >= 14) get a SECOND tier — a
+// smaller upper deck reached by a side stair on the east edge. The
+// ground route past these towers is trap-taxed by spawn.js, so taking
+// the stairs is a genuine route choice, not scenery.
+const TIER2_HEIGHT = 2.4;
+const TIER2_HALF = 1.3;
+const STAIR_W = 1.2;                // east-side stair width
+export function cellHasTier2(cx, cz) {
+  return cellHasPlatform(cx, cz) && cz >= 14;
+}
+
 // Elevation contribution from a platform — 0 outside the cell-centred
 // deck/ramp, ramps smoothly to PLATFORM_HEIGHT inside it. Continuous
 // across cell boundaries so the player walks up/down without snapping.
@@ -56,13 +67,28 @@ function platformElevationAt(x, z) {
   const cc = cellCenter(cx, cz);
   const dx = Math.abs(x - cc.x);
   const dz = Math.abs(z - cc.z);
-  if (dx > PLATFORM_HALF) return 0;
-  if (dz <= PLATFORM_HALF) return PLATFORM_HEIGHT;
-  if (dz <= PLATFORM_HALF + RAMP_LENGTH) {
-    const t = 1 - (dz - PLATFORM_HALF) / RAMP_LENGTH;
-    return PLATFORM_HEIGHT * t;
+  let h = 0;
+  if (dx <= PLATFORM_HALF) {
+    if (dz <= PLATFORM_HALF) h = PLATFORM_HEIGHT;
+    else if (dz <= PLATFORM_HALF + RAMP_LENGTH) {
+      h = PLATFORM_HEIGHT * (1 - (dz - PLATFORM_HALF) / RAMP_LENGTH);
+    }
   }
-  return 0;
+  if (!cellHasTier2(cx, cz)) return h;
+
+  // Upper deck — centred on the cell like the base deck.
+  if (dx <= TIER2_HALF && dz <= TIER2_HALF) {
+    h = Math.max(h, TIER2_HEIGHT);
+  } else {
+    // East stair: a straight run along +X from the base deck edge up to
+    // the upper deck, rising over the gap between the two deck edges.
+    const sx = x - cc.x;            // signed; stair lives at +X
+    if (Math.abs(z - cc.z) <= STAIR_W / 2 && sx > TIER2_HALF && sx <= PLATFORM_HALF) {
+      const t = 1 - (sx - TIER2_HALF) / (PLATFORM_HALF - TIER2_HALF);
+      h = Math.max(h, PLATFORM_HEIGHT + (TIER2_HEIGHT - PLATFORM_HEIGHT) * t);
+    }
+  }
+  return h;
 }
 
 // Ground height at world (x, z). Flat with subtle noise, plus the
@@ -72,7 +98,10 @@ export function sampleHeight(x, z) {
   return -0.04 + grain + platformElevationAt(x, z);
 }
 
-export const PLATFORM = { HEIGHT: PLATFORM_HEIGHT, HALF: PLATFORM_HALF, RAMP_LENGTH };
+export const PLATFORM = {
+  HEIGHT: PLATFORM_HEIGHT, HALF: PLATFORM_HALF, RAMP_LENGTH,
+  T2_HEIGHT: TIER2_HEIGHT, T2_HALF: TIER2_HALF, STAIR_W,
+};
 
 export function noise2D(x, z) { return valueNoise(x, z); }
 

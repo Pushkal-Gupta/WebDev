@@ -67,7 +67,7 @@ export default function GrudgewoodGame() {
     const cam = new ChaseCamera(engine.camera);
     cam.setShakeMultiplier((s.settings.reducedMotion ? 0.25 : 1) * (s.settings.cameraShake ?? 1));
 
-    const chunks = new ChunkManager(engine.scene);
+    const chunks = new ChunkManager(engine.scene, { foliage: engine.q.foliage });
     const playerRig = makePlayer();
     playerRig.setHat(s.equippedHat || 'leaf-crown');
     engine.scene.add(playerRig.root);
@@ -131,6 +131,8 @@ export default function GrudgewoodGame() {
         gameState.furthestDistance = 0;
         gameState.lastDistancePulse = 0;
         gameState.sessionDeaths = 0;
+        gameState.wisps = 0;
+        chunks.collectedWisps = new Set();
         gameState.runStartTime = performance.now() / 1000;
         gameState.runtime = 0;
         gameState.respawnAnchor = { x: 12, z: 12 };
@@ -155,6 +157,8 @@ export default function GrudgewoodGame() {
         gameState.furthestDistance = sNow.furthestDistance || 0;
         gameState.lastDistancePulse = 0;
         gameState.sessionDeaths = 0;
+        gameState.wisps = 0;
+        chunks.collectedWisps = new Set();
         gameState.runStartTime = performance.now() / 1000;
         gameState.runtime = 0;
         const a = sNow.respawnAnchor || { x: 12, z: 12 };
@@ -223,8 +227,10 @@ export default function GrudgewoodGame() {
         cam.bump(1.4);
         setPhase('death');
         const distance = Math.round(gameState.furthestDistance);
-        submitScore('grudgewood', Math.max(1, distance), {
+        const wisps = gameState.wisps || 0;
+        submitScore('grudgewood', Math.max(1, distance + wisps * 25), {
           distance,
+          wisps,
           deaths: gameState.sessionDeaths,
           deathKind: kind,
         });
@@ -247,6 +253,20 @@ export default function GrudgewoodGame() {
       setHat(id) { playerRig.setHat(id); },
     };
     stateRef.current = gameState;
+
+    // Dev-only debug handle — lets tooling teleport the player and poke
+    // the scene (used by the screenshot harness). Stripped from builds.
+    if (import.meta.env.DEV) {
+      window.__gw = {
+        engine, chunks, player, cam, gameState,
+        teleport(x, z) {
+          const y = chunks.sampleHeight(x, z);
+          chunks.ensureLoadedAround(x, z);
+          player.reset(new THREE.Vector3(x, y, z), 0);
+          cam.snapTo(new THREE.Vector3(x, y + 5.5, z - 6.0), new THREE.Vector3(x, y + 1.4, z));
+        },
+      };
+    }
 
     let raf = 0;
     let lastT = performance.now() / 1000;
@@ -291,6 +311,12 @@ export default function GrudgewoodGame() {
           sampleHeight: (x, z) => chunks.sampleHeight(x, z),
           casualMode: casual,
           walls: wallList,
+          // Footstep + landing dust. Sprinting kicks a bigger puff.
+          onStep: (p) => engine.spawnPuff(
+            p.pos.x, p.pos.y, p.pos.z,
+            { scale: p.speedXZ() > 7 ? 1.25 : 0.8 },
+          ),
+          onLand: (p) => engine.spawnPuff(p.pos.x, p.pos.y, p.pos.z, { scale: 1.7 }),
         });
 
         // Tick traps with the player context. applySlow lets area-effect
@@ -354,6 +380,17 @@ export default function GrudgewoodGame() {
           }
         }
 
+        // Grudge wisp pickups — off-spine collectibles. Each banks +25
+        // score; the side rooms finally pay for their danger.
+        for (const w of chunks.wispsNear(player.pos.x, player.pos.z)) {
+          if (chunks.collectWisp(w.id)) {
+            gameState.wisps = (gameState.wisps || 0) + 1;
+            sfx.checkpoint();
+            cam.bump(0.25);
+            gameState.toast(`Grudge wisp claimed — ${gameState.wisps} this walk (+25 each)`);
+          }
+        }
+
         // Track furthest Euclidean distance reached for the leaderboard.
         const distNow = distanceFromSpawn(player.pos.x, player.pos.z);
         if (distNow > gameState.furthestDistance) {
@@ -405,6 +442,11 @@ export default function GrudgewoodGame() {
         deathKind: player.deathKind,
       }, Array.from(chunks.wallAABBs()));
 
+      // Ambient FX run on real time so the mote field keeps drifting
+      // through pause, menu, and the death slow-mo — the forest never
+      // holds its breath just because the sim does.
+      engine.tickFx(realDt, player.pos);
+
       engine.renderer.render(engine.scene, engine.camera);
 
       // HUD ~12 Hz. Distance is Euclidean from spawn; we also push a
@@ -422,6 +464,7 @@ export default function GrudgewoodGame() {
         const angleDeg = (Math.atan2(-dx, dz) * 180) / Math.PI;
         setHud({
           biomeName: biome.name,
+          vignette: biome.vignette ?? 0.18,
           level: gameState.level,
           nextLevel,
           toNextFlag: distToFlag,
@@ -482,6 +525,15 @@ export default function GrudgewoodGame() {
   return (
     <div ref={wrapRef} className="gw-wrap" data-deathcam={phase === 'death' ? '1' : '0'}>
       <canvas ref={canvasRef} className="gw-canvas" />
+
+      {/* Biome vignette — softly frames the scene; intensity per biome. */}
+      <div
+        className="gw-vignette"
+        style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          background: `radial-gradient(ellipse at center, transparent 52%, rgba(8,6,4,${hudData.vignette ?? 0.18}) 100%)`,
+        }}
+      />
 
       {!loaded ? (
         <div className="gw-loading">

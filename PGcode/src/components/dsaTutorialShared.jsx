@@ -15,6 +15,8 @@ import AlgoVisualizer, {
 import { VISUALIZATIONS } from './learn/conceptVisualizations';
 import TutorialViz from './dsaTutorialViz';
 import { TUT_VIZ_NAMES } from './dsaTutorialVizRegistry';
+import TutorialDiagram from './tutorials/tutorialDiagrams';
+import { TUT_DIAGRAM_NAMES } from './tutorials/tutorialDiagramsRegistry';
 
 // Cache a normalized-label -> viz-slug map so theory items without an explicit
 // `conceptSlug` can still resolve to a registered visualization.
@@ -390,6 +392,15 @@ function renderBlock(text, keyPrefix) {
               </div>
             );
           }
+        } else if (fenceLang === 'tut-diagram') {
+          const diagramName = fenceBuf.join('').trim() || fenceVizArg;
+          if (TUT_DIAGRAM_NAMES.has(diagramName)) {
+            out.push(
+              <div key={`${keyPrefix}-diag-${out.length}`} className="tut-theory-viz">
+                <TutorialDiagram name={diagramName} />
+              </div>
+            );
+          }
         } else {
           out.push(
             <CodeBlock
@@ -421,6 +432,15 @@ function renderBlock(text, keyPrefix) {
         out.push(
           <div key={`${keyPrefix}-viz-${out.length}`} className="tut-theory-viz">
             <TutorialViz name={vizName} />
+          </div>
+        );
+      }
+    } else if (fenceLang === 'tut-diagram') {
+      const diagramName = fenceBuf.join('').trim() || fenceVizArg;
+      if (TUT_DIAGRAM_NAMES.has(diagramName)) {
+        out.push(
+          <div key={`${keyPrefix}-diag-${out.length}`} className="tut-theory-viz">
+            <TutorialDiagram name={diagramName} />
           </div>
         );
       }

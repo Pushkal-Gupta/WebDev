@@ -142,6 +142,135 @@ export const sfx = {
     setTimeout(() => blip(880, 1100, 0.10, 'triangle', 0.10), 70);
     setTimeout(() => blip(1100, 1480, 0.16, 'triangle', 0.10), 140);
   },
+  // ── Hoop Shot ────────────────────────────────────────────────
+  // Ball bounce — pitch and gain scale with impact strength (0..1).
+  hoopBounce: (strength = 0.5) => {
+    const s = Math.max(0, Math.min(1, strength));
+    blip(240 + s * 200, 110, 0.07, 'sine', 0.04 + s * 0.07);
+  },
+  // Rim clang — short metallic ping over a falling body tone.
+  hoopRim:    () => { envTone(2400, 0.04, 'square', 0.045); blip(440, 170, 0.13, 'triangle', 0.09); },
+  // Backboard thud — woody square knock + pinch of noise.
+  hoopBoard:  () => { blip(200, 95, 0.08, 'square', 0.09); noise(0.05, 0.04); },
+  // Swish — soft net noise wash with a rising shimmer.
+  hoopSwish:  () => {
+    noise(0.16, 0.05);
+    blip(880, 1320, 0.12, 'sine', 0.07);
+    setTimeout(() => blip(1320, 1760, 0.10, 'sine', 0.05), 60);
+  },
+  // Streak-up — pitched per consecutive make so a run audibly climbs.
+  hoopStreak: (k = 1) => {
+    const f = 523 * Math.pow(1.122, Math.min(Math.max(1, k), 8));
+    blip(f, f * 1.5, 0.12, 'triangle', 0.10);
+  },
+  // Fire-mode ignition — rising sawtooth roar + crackle + bright sting.
+  hoopFire:   () => {
+    blip(180, 880, 0.28, 'sawtooth', 0.10);
+    noise(0.30, 0.06);
+    setTimeout(() => blip(660, 1320, 0.22, 'triangle', 0.12), 130);
+  },
+  // End-of-run buzzer — flat detuned blare, arena style.
+  hoopBuzzer: () => { envTone(178, 0.7, 'sawtooth', 0.13); envTone(183, 0.7, 'square', 0.07); },
+
+  // ── Faceplant ────────────────────────────────────────────────
+  // Landing thud — pitch and weight scale with impact strength (0..1).
+  faceLand: (strength = 0.5) => {
+    const s = Math.max(0, Math.min(1, strength));
+    blip(140 + s * 110, 55, 0.09, 'sine', 0.05 + s * 0.09);
+    noise(0.04 + s * 0.06, 0.03 + s * 0.05);
+  },
+  // Crash crunch — low sawtooth drop + noise burst, then a clatter tail
+  // as the bike parts bounce away.
+  faceCrash: () => {
+    blip(220, 50, 0.30, 'sawtooth', 0.14);
+    noise(0.22, 0.10);
+    setTimeout(() => { blip(170, 70, 0.14, 'square', 0.08); noise(0.10, 0.05); }, 150);
+    setTimeout(() => noise(0.08, 0.04), 330);
+  },
+  // Air whoosh — soft rising sine under a noise wash; fires once per jump.
+  faceAir: () => { blip(280, 880, 0.34, 'sine', 0.045); noise(0.28, 0.025); },
+  // Big-air landing reward — quick two-step bright sting.
+  faceBigAir: () => {
+    blip(660, 990, 0.12, 'triangle', 0.10);
+    setTimeout(() => blip(880, 1320, 0.16, 'triangle', 0.10), 70);
+  },
+  // Finish fanfare — three rising notes + a pinch of crowd noise.
+  faceWin: () => {
+    blip(523, 659, 0.14, 'triangle', 0.12);
+    setTimeout(() => blip(659, 784, 0.14, 'triangle', 0.12), 110);
+    setTimeout(() => { blip(784, 1046, 0.30, 'triangle', 0.14); noise(0.20, 0.04); }, 220);
+  },
+
+  // ── Raycaster FPS ────────────────────────────────────────────
+  // Fire — sharper crack than the generic shot, with a noise tail.
+  fpsFire:  () => { blip(440, 70, 0.09, 'sawtooth', 0.10); noise(0.07, 0.06); },
+  // Enemy hit (non-fatal) — short mid-range thunk.
+  fpsHit:   () => blip(300, 170, 0.06, 'square', 0.08),
+  // Enemy kill — low thud + descending growl.
+  fpsKill:  () => { blip(190, 60, 0.16, 'sawtooth', 0.10); noise(0.10, 0.05); },
+  // Player hurt — dissonant low buzz, throttled by the game loop.
+  fpsHurt:  () => { blip(160, 90, 0.18, 'square', 0.09); noise(0.08, 0.04); },
+  // Wave cleared — two-step rising sting, shorter than the full win.
+  fpsWave:  () => { blip(523, 784, 0.14, 'triangle', 0.12); setTimeout(() => blip(659, 1046, 0.20, 'triangle', 0.12), 90); },
+  // Dry fire — tiny mechanical click.
+  fpsDry:   () => envTone(900, 0.04, 'square', 0.04),
+
+  // ── Night Shift ──────────────────────────────────────────────
+  // Footstep — dull floor tap; tiptoe variant is shorter and much quieter.
+  nightStep: (soft = false) => {
+    if (soft) { blip(150, 95, 0.04, 'sine', 0.020); return; }
+    blip(205, 115, 0.06, 'sine', 0.055);
+    noise(0.03, 0.015);
+  },
+  // Heartbeat — lub-dub of two low sine thumps; gain scales with tension
+  // (0..1) so the pulse gets physically louder as the meter fills.
+  nightHeart: (k = 0.5) => {
+    const g = 0.05 + Math.max(0, Math.min(1, k)) * 0.07;
+    blip(95, 58, 0.10, 'sine', g);
+    setTimeout(() => blip(78, 52, 0.09, 'sine', g * 0.8), 140);
+  },
+  // Alert sting — sharp two-step square stab when a guard fully spots you.
+  nightAlert: () => {
+    blip(740, 1180, 0.10, 'square', 0.10);
+    setTimeout(() => blip(1180, 880, 0.16, 'square', 0.08), 100);
+  },
+  // Loot collect — bright chime with a sparkle tail.
+  nightCollect: () => {
+    blip(1046, 1568, 0.09, 'triangle', 0.09);
+    setTimeout(() => envTone(2093, 0.10, 'sine', 0.06), 55);
+  },
+  // Night clear — short three-note ascending fanfare, softer than the
+  // full win sting (which only plays on the final night).
+  nightClear: () => {
+    blip(587, 784, 0.10, 'triangle', 0.10);
+    setTimeout(() => blip(784, 988, 0.10, 'triangle', 0.10), 80);
+    setTimeout(() => blip(988, 1318, 0.18, 'triangle', 0.11), 160);
+  },
+
+  // ── Eight Ball ───────────────────────────────────────────────
+  // Cue strike — woody tap; pitch and gain ride the shot power (0..1).
+  poolStrike: (p = 0.5) => {
+    const k = Math.max(0, Math.min(1, p));
+    blip(200 + k * 180, 70, 0.07, 'square', 0.05 + k * 0.09);
+    noise(0.04 + k * 0.04, 0.02 + k * 0.05);
+  },
+  // Ball-ball clack — bright phenolic click, scaled by impact speed (0..1).
+  poolClack: (s = 0.5) => {
+    const k = Math.max(0, Math.min(1, s));
+    envTone(1700 + k * 900, 0.03, 'square', 0.015 + k * 0.05);
+    blip(420 + k * 360, 180, 0.05, 'triangle', 0.02 + k * 0.07);
+  },
+  // Cushion thunk — low rubbery knock, scaled by approach speed (0..1).
+  poolRail: (s = 0.5) => {
+    const k = Math.max(0, Math.min(1, s));
+    blip(170 + k * 90, 70, 0.07, 'square', 0.03 + k * 0.05);
+  },
+  // Pocket drop — hollow descending plop + leather thud.
+  poolPocket: () => {
+    blip(340, 120, 0.10, 'sine', 0.10);
+    setTimeout(() => { envTone(150, 0.12, 'sine', 0.08); noise(0.06, 0.03); }, 70);
+  },
+
   // Room intro sting — a soft minor-third pad that rises and falls,
   // pitched per-room so each level entrance has its own tonal hint.
   // Roots: Pantry C5, Cold Room A4, The Aisle G4 — each minor-third

@@ -2,6 +2,8 @@
 
 A hand-built arcade. React + Vite + Three.js. One repo, ~22 self-contained games, a single home screen, no required login.
 
+**Read `docs/llm-wiki.md` before exploring.** It carries the game id↔folder map, renderer contracts, the puppeteer verify harness, debug handles, and hard-won gotchas. Keep it updated when contracts change.
+
 ## Golden rules
 
 - **Don't destroy what's been built.** Prefer minimum-risk refactors. If a public file path or import is load-bearing, keep it stable and move implementation behind it (see the shim pattern below).
