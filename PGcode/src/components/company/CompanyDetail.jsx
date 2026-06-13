@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ChevronRight, ArrowLeft, Building2, Flame, MapPin } from 'lucide-react';
-import { useCompany, useCompanyProblems, useUserProgress } from '../../lib/queries';
+import { ChevronRight, ArrowLeft, Building2, Flame, MapPin, BookOpen, Layers, GraduationCap, ArrowRight } from 'lucide-react';
+import { useCompany, useCompanyProblems, useUserProgress, useAllConceptsCompact } from '../../lib/queries';
 import StatusPill from '../StatusPill';
 import { legacyToStatus } from '../../lib/status';
+import { topTopics, pickConcepts, pickTutorials, pickCourses, readableTopic } from './companyContent';
 import './Companies.css';
 
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
@@ -13,6 +14,7 @@ export default function CompanyDetail({ session }) {
   const { data: company, isLoading } = useCompany(slug);
   const { data: problems = [] } = useCompanyProblems(slug);
   const { data: progressBundle } = useUserProgress(session?.user?.id);
+  const { data: allConcepts = [] } = useAllConceptsCompact();
 
   const [diffFilter, setDiffFilter] = useState(new Set(DIFFICULTIES));
 
@@ -26,11 +28,15 @@ export default function CompanyDetail({ session }) {
     return c;
   }, [problems]);
 
-  const topicCounts = useMemo(() => {
-    const m = {};
-    problems.forEach(p => { m[p.topic_id] = (m[p.topic_id] || 0) + 1; });
-    return Object.entries(m).sort((a, b) => b[1] - a[1]).slice(0, 6);
-  }, [problems]);
+  const rankedTopics = useMemo(() => topTopics(problems, 8), [problems]);
+  const topicCounts = useMemo(() => rankedTopics.slice(0, 6).map(t => [t.topic_id, t.count]), [rankedTopics]);
+
+  const relatedConcepts = useMemo(
+    () => pickConcepts(rankedTopics, allConcepts, 10),
+    [rankedTopics, allConcepts],
+  );
+  const relatedTutorials = useMemo(() => pickTutorials(rankedTopics, 6), [rankedTopics]);
+  const relatedCourses = useMemo(() => pickCourses(rankedTopics, 4), [rankedTopics]);
 
   const solvedCount = problems.filter(p => byId[p.id]?.is_completed).length;
 
@@ -119,7 +125,7 @@ export default function CompanyDetail({ session }) {
               <div className="comp-topic-chips">
                 <span className="comp-topic-chips-label">Top topics:</span>
                 {topicCounts.map(([t, n]) => (
-                  <span key={t} className="comp-topic-chip">{t} · {n}</span>
+                  <span key={t} className="comp-topic-chip">{readableTopic(t)} · {n}</span>
                 ))}
               </div>
             )}
@@ -156,6 +162,79 @@ export default function CompanyDetail({ session }) {
               </li>
             ))}
           </ol>
+
+          {relatedConcepts.length > 0 && (
+            <section className="comp-study-section">
+              <header className="comp-study-head">
+                <BookOpen size={14} className="comp-study-icon" />
+                <h2 className="comp-study-title">Concepts asked here</h2>
+                <span className="comp-study-sub">Read these first — the ideas behind the problems above.</span>
+              </header>
+              <div className="comp-study-grid">
+                {relatedConcepts.map((c) => (
+                  <Link
+                    key={c.slug}
+                    to={`/learn/${c.module_slug}/${c.slug}`}
+                    className="comp-study-card"
+                  >
+                    <span className="comp-study-card-title">{c.title}</span>
+                    {c.subtitle && <span className="comp-study-card-desc">{c.subtitle}</span>}
+                    <span className="comp-study-card-foot">
+                      <span className="comp-study-card-chip">{c.module_slug.replace(/-/g, ' ')}</span>
+                      <ArrowRight size={12} className="comp-study-card-arrow" />
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {relatedTutorials.length > 0 && (
+            <section className="comp-study-section">
+              <header className="comp-study-head">
+                <Layers size={14} className="comp-study-icon" />
+                <h2 className="comp-study-title">Tutorial topics worth reviewing</h2>
+                <span className="comp-study-sub">Walk through the patterns interviewers reach for at {company.name}.</span>
+              </header>
+              <div className="comp-study-grid">
+                {relatedTutorials.map((t) => (
+                  <Link key={t.slug} to={`/tutorial/${t.slug}`} className="comp-study-card">
+                    <span className="comp-study-card-title">{t.title}</span>
+                    {t.note && <span className="comp-study-card-desc">{t.note}</span>}
+                    <span className="comp-study-card-foot">
+                      <span className="comp-study-card-chip">{readableTopic(t.topic_id)} · {t.count}</span>
+                      <ArrowRight size={12} className="comp-study-card-arrow" />
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {relatedCourses.length > 0 && (
+            <section className="comp-study-section">
+              <header className="comp-study-head">
+                <GraduationCap size={14} className="comp-study-icon" />
+                <h2 className="comp-study-title">Courses to drill</h2>
+                <span className="comp-study-sub">Hands-on courses that build the muscle for this stack.</span>
+              </header>
+              <div className="comp-study-grid">
+                {relatedCourses.map((c) => (
+                  <Link key={c.id} to={`/courses/${c.id}`} className="comp-study-card">
+                    <span className="comp-study-card-title">{c.title}</span>
+                    {c.blurb && <span className="comp-study-card-desc">{c.blurb}</span>}
+                    <span className="comp-study-card-foot">
+                      <span className="comp-study-card-chip">
+                        {c.lessonCount} lesson{c.lessonCount === 1 ? '' : 's'}
+                        {c.estimatedHours ? ` · ~${c.estimatedHours}h` : ''}
+                      </span>
+                      <ArrowRight size={12} className="comp-study-card-arrow" />
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
         </>
       )}
     </div>

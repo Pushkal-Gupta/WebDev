@@ -29,6 +29,7 @@ import { createMatch, tick, setView, teardownMatch, scoreMatch } from './sim/wor
 import { readGameSave, writeGameSave, clearGameSave, applyGameSave, AUTOSAVE_INTERVAL_MS } from './utils/gameSave.js';
 import { startLoop } from './engine/loop.js';
 import { makeRenderer } from './engine/renderer.js';
+import { makeRenderer3D } from './engine/renderer3d.js';
 import { makeIntents, clearIntents, attachKeyboard } from './engine/input.js';
 import { attachAudio } from './engine/audio.js';
 import { esMusic } from './engine/music.js';
@@ -117,6 +118,13 @@ export default function EraSiegeGame({ mode }) {
   const perfMonRef = useRef(null);
   const deviceClassRef = useRef('desktop');
   const settingsRef = useRef(readSettings());
+  // Render mode — '3d' drives the Three.js renderer, anything else the
+  // Canvas2D one. Held in state (the <canvas> is keyed on it so the
+  // element is recreated — a canvas can only ever hold one context
+  // type) and mirrored into a ref for the RAF loop's render dispatch.
+  const [renderMode, setRenderMode] = useState(() => (readSettings().artPack === '3d' ? '3d' : '2d'));
+  const renderModeRef = useRef(renderMode);
+  const ctx2dRef = useRef(null);
 
   const [paused, setPaused] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -172,6 +180,7 @@ export default function EraSiegeGame({ mode }) {
       if (s.artPack && s.artPack !== prevPack) {
         try { assets.setArtPack(s.artPack); } catch { /* swallow */ }
       }
+      setRenderMode(s.artPack === '3d' ? '3d' : '2d');
       setSettingsRev((n) => n + 1);
     });
   }, []);
@@ -227,7 +236,6 @@ export default function EraSiegeGame({ mode }) {
     const wrap = wrapRef.current;
     const canvas = canvasRef.current;
     if (!wrap || !canvas) return;
-    const ctx = canvas.getContext('2d');
     const difficulty = modeToDifficulty(mode);
     const isDaily = modeIsDaily(mode);
     const isEndless = modeIsEndless(mode);
@@ -261,15 +269,9 @@ export default function EraSiegeGame({ mode }) {
     }, AUTOSAVE_INTERVAL_MS) : null;
     const stopAutoSave = () => { if (autoSaveTimer) window.clearInterval(autoSaveTimer); };
 
-    // Hook view sizing.
-    const disposeFluid = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
-      setView(match, cssW, cssH);
-      rendererRef.current?.clearCache();
-    });
-
-    // Renderer + perf monitor.
-    const renderer = makeRenderer();
-    rendererRef.current = renderer;
+    // Renderer creation + view sizing live in the renderer effect below
+    // (keyed on renderMode) so a 2D/3D art-pack switch swaps the
+    // presentation live without resetting the match.
     deviceClassRef.current = detectDeviceClass();
     perfMonRef.current = makePerfMon({ deviceClass: deviceClassRef.current });
 
@@ -464,7 +466,13 @@ export default function EraSiegeGame({ mode }) {
         return drained;
       },
       render:    (m, dt) => {
-        renderer.render(ctx, m, dt);
+        // Dispatch through refs — the renderer effect owns which
+        // renderer (and which context type) is live at any moment.
+        const r = rendererRef.current;
+        if (r) {
+          if (renderModeRef.current === '3d') r.render(m, dt);
+          else if (ctx2dRef.current) r.render(ctx2dRef.current, m, dt);
+        }
         syncHud(m);
       },
       onFrame: (dt) => {
@@ -518,14 +526,88 @@ export default function EraSiegeGame({ mode }) {
       try { audioStopRef.current?.(); } catch { /* ignore */ }
       try { kbStopRef.current?.(); } catch { /* ignore */ }
       try { loopStopRef.current?.(); } catch { /* ignore */ }
-      try { disposeFluid?.(); } catch { /* ignore */ }
       try { teardownMatch(matchRef.current); } catch { /* ignore */ }
       matchRef.current = null;
       setMatchReady(false);
-      rendererRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [restartKey, mode]);
+
+  // ── Renderer lifecycle ─────────────────────────────────────────────
+  // Separate from the match effect so switching the art pack between
+  // 2D and 3D swaps the presentation live without resetting the battle.
+  // The <canvas> is keyed on `renderMode` because a canvas can only
+  // ever hold one context type (2d vs webgl) — React recreates the
+  // element, this effect builds the matching renderer on it.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!matchReady) return;
+    const wrap = wrapRef.current;
+    const canvas = canvasRef.current;
+    if (!wrap || !canvas) return;
+    renderModeRef.current = renderMode;
+    let renderer = null;
+    let disposeFluid = null;
+    if (renderMode === '3d') {
+      // WebGL can be unavailable (old GPU, blocked context) — fall
+      // through to the 2D renderer rather than show a dead canvas.
+      try { renderer = makeRenderer3D({ canvas }); }
+      catch { renderer = null; }
+    }
+    if (renderer) {
+      rendererRef.current = renderer;
+      // Fluid sizing without sizeCanvasFluid — that helper grabs a
+      // '2d' context, which would lock the canvas out of WebGL.
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      const fit = () => {
+        const cssW = Math.max(1, wrap.clientWidth);
+        const cssH = Math.max(1, wrap.clientHeight);
+        if (matchRef.current) setView(matchRef.current, cssW, cssH);
+        renderer.resize(cssW, cssH);
+      };
+      fit();
+      const ro = new ResizeObserver(fit);
+      ro.observe(wrap);
+      const onOrient = () => fit();
+      window.addEventListener('orientationchange', onOrient);
+      // In-world turret interaction: clicking a pylon on the battlefield
+      // opens the same build/manage flow as the side rack. Pointer
+      // feedback: cursor flips while hovering a clickable pylon.
+      const onCanvasClick = (e) => {
+        const slot = renderer.pickPlayerSlot?.(e.clientX, e.clientY);
+        if (slot != null) onSlotClickRef.current?.(slot);
+      };
+      const onCanvasMove = (e) => {
+        const slot = renderer.pickPlayerSlot?.(e.clientX, e.clientY);
+        canvas.style.cursor = slot != null ? 'pointer' : '';
+      };
+      canvas.addEventListener('click', onCanvasClick);
+      canvas.addEventListener('pointermove', onCanvasMove);
+      disposeFluid = () => {
+        try { ro.disconnect(); } catch { /* ignore */ }
+        window.removeEventListener('orientationchange', onOrient);
+        canvas.removeEventListener('click', onCanvasClick);
+        canvas.removeEventListener('pointermove', onCanvasMove);
+        canvas.style.cursor = '';
+      };
+    } else {
+      renderModeRef.current = '2d';
+      ctx2dRef.current = canvas.getContext('2d');
+      renderer = makeRenderer();
+      rendererRef.current = renderer;
+      disposeFluid = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
+        if (matchRef.current) setView(matchRef.current, cssW, cssH);
+        rendererRef.current?.clearCache();
+      });
+    }
+    return () => {
+      try { disposeFluid?.(); } catch { /* ignore */ }
+      try { renderer.dispose?.(); } catch { /* ignore */ }
+      if (rendererRef.current === renderer) rendererRef.current = null;
+      ctx2dRef.current = null;
+    };
+  }, [renderMode, matchReady, restartKey]);
 
   function setRootAccent(wrap, eraId) {
     const pal = paletteFor(eraId);
@@ -633,6 +715,10 @@ export default function EraSiegeGame({ mode }) {
     if (t) setTurretManageSlot(t);
     else   setTurretBuildSlot(i);   // modal handles spot-vs-turret state
   };
+  // Stable ref so the canvas click handler (bound once per renderer
+  // mount) always reaches the live handler.
+  const onSlotClickRef = useRef(onSlotClick);
+  onSlotClickRef.current = onSlotClick;
   // Single-modal flow: stays open across spot-lay → tier-pick → build,
   // so the player never loses context. The sim handles each intent
   // independently; the modal just keeps showing the same slot.
@@ -728,7 +814,7 @@ export default function EraSiegeGame({ mode }) {
         onOpenStats={() => setStatsOpen(true)}
       />
       <div className="es-stage">
-        <canvas ref={canvasRef} className="es-canvas" aria-label="Era Siege battlefield"/>
+        <canvas key={renderMode} ref={canvasRef} className="es-canvas" aria-label="Era Siege battlefield"/>
 
         <DifficultyChip difficultyId={difficulty}/>
         {isDaily && (

@@ -9,10 +9,10 @@
 
 import * as THREE from 'three';
 import { CELL_SIZE, cellOf, cellOrigin, cellCenter } from './mazeGrid.js';
-import { sampleHeight as sampleHeightGlobal, cellHasPlatform, PLATFORM } from './heightmap.js';
+import { sampleHeight as sampleHeightGlobal, cellHasPlatform, cellHasTier2, PLATFORM } from './heightmap.js';
 import { biomeAt, biomeForCell } from './biomeProgression.js';
 import { spawnCellContent } from './spawn.js';
-import { buildCellWalls } from './walls.js';
+import { buildCellWalls, buildMossyBox } from './walls.js';
 import { flagLevelInCell, flagAnchorFor, makeFlag, tickFlag, FLAG_TOUCH_RADIUS } from './flags.js';
 import {
   makeTree, makePine, makeShrub, makeRock, makeStump, makeMushroom,
@@ -71,6 +71,16 @@ const idle = (cb) => {
   }
 };
 
+// Cheap deterministic 2D value-noise stand-in. Smooth-ish, tileable
+// enough for colour patches, and stable across cell rebuilds.
+function patchNoise(x, z) {
+  return (
+    Math.sin(x * 0.37 + z * 0.21) * 0.5 +
+    Math.sin(x * 0.13 - z * 0.31 + 1.7) * 0.3 +
+    Math.sin(x * 0.71 + z * 0.53 + 4.1) * 0.2
+  ) * 0.5 + 0.5;
+}
+
 function buildCellFloor(biome, cx, cz) {
   const o = cellOrigin(cx, cz);
   const geo = new THREE.PlaneGeometry(CELL_SIZE, CELL_SIZE, TERRAIN_RES, TERRAIN_RES);
@@ -83,20 +93,22 @@ function buildCellFloor(biome, cx, cz) {
   const cGround = biome.ground.color;
   const cGrass = biome.grass.color;
   const cGrassLt = biome.grass.light;
+  const cDark = biome.ground.darken;
   for (let i = 0; i < pos.count; i++) {
     const x = pos.getX(i);
     const z = pos.getZ(i);
     const y = sampleHeightGlobal(x, z);
     pos.setY(i, y);
-    // Smooth ground → grass blend with cell-local random patches so the
-    // floor doesn't look flat-shaded uniform. No path stripe — the
-    // forest reads cleaner without an explicit "go this way" marker;
-    // we steer the player by walling off the wrong directions instead.
-    const dx = x - (o.x + CELL_SIZE / 2);
-    const dz = z - (o.z + CELL_SIZE / 2);
-    const r = Math.hypot(dx, dz) / (CELL_SIZE * 0.7);
-    const t = Math.max(0, 1 - r) * 0.6;
-    tmp.copy(cGround).lerp(cGrass, t).lerp(cGrassLt, t * 0.4);
+    // Noise-driven meadow patches: drifts of grass over bare ground with
+    // occasional sunlit highlights and shadowed hollows. World-space
+    // noise means patches flow seamlessly across cell seams. No path
+    // stripe — the forest reads cleaner without an explicit "go this
+    // way" marker; we steer the player by walling off wrong directions.
+    const n = patchNoise(x, z);
+    const n2 = patchNoise(x * 2.3 + 11, z * 2.3 - 7);
+    tmp.copy(cGround).lerp(cGrass, Math.min(1, n * 1.3));
+    if (n2 > 0.72) tmp.lerp(cGrassLt, (n2 - 0.72) * 2.2);   // sunlit drifts
+    if (n < 0.22) tmp.lerp(cDark, (0.22 - n) * 2.0);        // hollows
     colors[i * 3] = tmp.r; colors[i * 3 + 1] = tmp.g; colors[i * 3 + 2] = tmp.b;
   }
   geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
@@ -110,60 +122,84 @@ function buildCellFloor(biome, cx, cz) {
   return mesh;
 }
 
+// Scatter of low-poly grass tufts — one InstancedMesh per cell, so the
+// whole scatter costs a single draw call. Placement is seeded from the
+// cell coordinate (stable across rebuilds) and biased toward the grassy
+// noise patches the floor colouring paints.
+const TUFT_GEO = new THREE.ConeGeometry(0.09, 0.42, 4);
+TUFT_GEO.translate(0, 0.2, 0);
+function buildGrassTufts(biome, cx, cz, density = 1) {
+  const o = cellOrigin(cx, cz);
+  let seed = (Math.imul(cx, 374761393) + Math.imul(cz, 668265263)) | 0;
+  const rng = () => {
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+
+  const count = Math.round(64 * density);
+  const mat = new THREE.MeshStandardMaterial({ roughness: 0.9, flatShading: true });
+  const inst = new THREE.InstancedMesh(TUFT_GEO, mat, count);
+  inst.userData.sharedGeo = true;    // module-level geometry — never dispose per-cell
+  const m = new THREE.Matrix4();
+  const q = new THREE.Quaternion();
+  const s = new THREE.Vector3();
+  const p = new THREE.Vector3();
+  const e = new THREE.Euler();
+  const col = new THREE.Color();
+  let placed = 0;
+  for (let i = 0; i < count * 3 && placed < count; i++) {
+    const x = o.x + rng() * CELL_SIZE;
+    const z = o.z + rng() * CELL_SIZE;
+    if (patchNoise(x, z) < 0.42) continue;     // only in grassy patches
+    p.set(x, sampleHeightGlobal(x, z), z);
+    e.set((rng() - 0.5) * 0.3, rng() * Math.PI, (rng() - 0.5) * 0.3);
+    q.setFromEuler(e);
+    const sc = 0.7 + rng() * 0.9;
+    s.set(sc, sc * (0.8 + rng() * 0.7), sc);
+    m.compose(p, q, s);
+    inst.setMatrixAt(placed, m);
+    col.copy(biome.grass.color).lerp(biome.grass.light, rng() * 0.8);
+    inst.setColorAt(placed, col);
+    placed++;
+  }
+  inst.count = placed;
+  inst.instanceMatrix.needsUpdate = true;
+  if (inst.instanceColor) inst.instanceColor.needsUpdate = true;
+  return inst;
+}
+
 // Builds the visual deck + ramps for a platform cell. Heights match
 // PLATFORM constants so the mesh sits exactly on the heightmap surface.
 // Returned group can be added to the cell as a single child.
 function buildPlatformMesh(biome, cx, cz) {
   const g = new THREE.Group();
   const cc = cellCenter(cx, cz);
-  const stoneMat = new THREE.MeshStandardMaterial({
-    color: biome.rock, roughness: 0.95, metalness: 0.0, flatShading: true,
-  });
-  const capMat = new THREE.MeshStandardMaterial({
-    color: biome.rock.clone().lerp(new THREE.Color('#ffffff'), 0.16),
-    roughness: 0.9, flatShading: true,
-  });
 
-  // Deck — 4×4 box at +0.6 (centered on the platform's interior
-  // mid-height). Top sits at PLATFORM.HEIGHT to match the heightmap.
-  const deck = new THREE.Mesh(
-    new THREE.BoxGeometry(PLATFORM.HALF * 2, PLATFORM.HEIGHT, PLATFORM.HALF * 2),
-    stoneMat,
-  );
-  deck.position.set(cc.x, PLATFORM.HEIGHT / 2, cc.z);
-  deck.castShadow = true;
-  deck.receiveShadow = true;
-  g.add(deck);
-  // Cap stripe on the deck edges for a subtle step-line read.
-  const cap = new THREE.Mesh(
-    new THREE.BoxGeometry(PLATFORM.HALF * 2 + 0.06, 0.12, PLATFORM.HALF * 2 + 0.06),
-    capMat,
-  );
-  cap.position.set(cc.x, PLATFORM.HEIGHT - 0.06, cc.z);
-  cap.castShadow = true;
-  g.add(cap);
+  // Deck — mossy-stone treatment shared with the maze walls so the
+  // platform reads as part of the same overgrown ruin set, not a slab.
+  g.add(buildMossyBox(biome, {
+    x: cc.x, y: PLATFORM.HEIGHT / 2, z: cc.z,
+    sx: PLATFORM.HALF * 2, sy: PLATFORM.HEIGHT, sz: PLATFORM.HALF * 2,
+    segs: [6, 2, 6],
+  }));
 
-  // South ramp — sloped triangular prism. Built as a thin box tilted
-  // around its top-edge so the bottom touches y=0 and the top meets the
-  // deck at y=PLATFORM.HEIGHT. Width matches the deck.
+  // Ramps — thin mossy boxes tilted so the bottom touches y=0 and the
+  // top meets the deck at y=PLATFORM.HEIGHT. Width matches the deck.
   const rampW = PLATFORM.HALF * 2;
   const rampLen = PLATFORM.RAMP_LENGTH;
   const slopeLen = Math.hypot(rampLen, PLATFORM.HEIGHT);
   const slopeAngle = Math.atan2(PLATFORM.HEIGHT, rampLen);
-  // The ramp is a thin box rotated about X so its top edge sits at the
-  // deck top and bottom edge sits on the ground rampLen away.
   function buildRamp(zOffsetSign) {
-    const m = new THREE.Mesh(
-      new THREE.BoxGeometry(rampW, 0.18, slopeLen),
-      stoneMat,
-    );
-    m.castShadow = true;
-    m.receiveShadow = true;
+    const m = buildMossyBox(biome, {
+      x: 0, y: 0, z: 0,
+      sx: rampW, sy: 0.18, sz: slopeLen,
+      segs: [6, 1, 4], topMoss: false,
+    });
     // The ramp's local +Z extends from the deck edge outward by rampLen
     // toward the ground. Rotate so the slope matches the elevation drop.
     m.rotation.x = zOffsetSign * slopeAngle;
-    // Position centre: midway between deck edge (at cc.z ± HALF) and
-    // ground edge (at cc.z ± HALF ± rampLen), at half the elevation.
     const mid = PLATFORM.HALF + rampLen / 2;
     m.position.set(cc.x, PLATFORM.HEIGHT / 2, cc.z + zOffsetSign * mid);
     g.add(m);
@@ -171,15 +207,64 @@ function buildPlatformMesh(biome, cx, cz) {
   buildRamp(1);   // north
   buildRamp(-1);  // south
 
+  // Tier-2 watchtower — smaller upper deck + east-side stair. The
+  // heightmap already carries the elevation; these meshes just paint it.
+  if (cellHasTier2(cx, cz)) {
+    g.add(buildMossyBox(biome, {
+      x: cc.x, y: (PLATFORM.T2_HEIGHT + PLATFORM.HEIGHT) / 2, z: cc.z,
+      sx: PLATFORM.T2_HALF * 2, sy: PLATFORM.T2_HEIGHT - PLATFORM.HEIGHT, sz: PLATFORM.T2_HALF * 2,
+      segs: [4, 2, 4],
+    }));
+    // Stair — stepped boxes from the base deck up to the upper deck.
+    const run = PLATFORM.HALF - PLATFORM.T2_HALF;
+    const rise = PLATFORM.T2_HEIGHT - PLATFORM.HEIGHT;
+    const STEPS = 4;
+    for (let i = 0; i < STEPS; i++) {
+      const t = (i + 0.5) / STEPS;
+      const stepH = PLATFORM.HEIGHT + rise * (1 - t);
+      g.add(buildMossyBox(biome, {
+        x: cc.x + PLATFORM.T2_HALF + run * t,
+        y: stepH / 2 + 0.01,
+        z: cc.z,
+        sx: run / STEPS + 0.04, sy: stepH, sz: PLATFORM.STAIR_W,
+        segs: [1, 1, 2], topMoss: false,
+      }));
+    }
+  }
+
   return g;
 }
 
-function buildCell(scene, cx, cz, raisedFlags) {
+// Grudge wisp — a small glowing pickup hovering over a faint ring.
+// Off-spine rooms only (see spawn.js); collecting one banks bonus score.
+function buildWisp(biome, x, z) {
+  const g = new THREE.Group();
+  const coreMat = new THREE.MeshStandardMaterial({
+    color: '#1a2410', emissive: biome.accent, emissiveIntensity: 2.2, flatShading: true,
+  });
+  const core = new THREE.Mesh(new THREE.OctahedronGeometry(0.22, 0), coreMat);
+  core.position.y = 1.0;
+  g.add(core);
+  const ringMat = new THREE.MeshBasicMaterial({
+    color: biome.accent, transparent: true, opacity: 0.45,
+    blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide,
+  });
+  const ring = new THREE.Mesh(new THREE.RingGeometry(0.32, 0.46, 20).rotateX(-Math.PI / 2), ringMat);
+  ring.position.y = 0.05;
+  g.add(ring);
+  const y = sampleHeightGlobal(x, z);
+  g.position.set(x, y, z);
+  g.userData.core = core;
+  return g;
+}
+
+function buildCell(scene, cx, cz, raisedFlags, foliage = 1, collectedWisps = null) {
   const biome = biomeForCell(cx, cz);
   const group = new THREE.Group();
   scene.add(group);
 
   group.add(buildCellFloor(biome, cx, cz));
+  if (foliage > 0.05) group.add(buildGrassTufts(biome, cx, cz, foliage));
 
   // Walls are shared across cells (this cell builds N + E only). The
   // collision AABBs land in the chunk's `wallAABBs` list so player.js
@@ -194,7 +279,20 @@ function buildCell(scene, cx, cz, raisedFlags) {
     group.add(buildPlatformMesh(biome, cx, cz));
   }
 
-  const { traps: trapDefs, props: propDefs } = spawnCellContent(cx, cz, biome);
+  const { traps: trapDefs, props: propDefs, pickups: pickupDefs = [] } = spawnCellContent(cx, cz, biome);
+
+  // Wisp pickups — skipped if already collected this run (the set is
+  // keyed by cell+index so cells that stream out and back stay honest).
+  const wisps = [];
+  for (let wi = 0; wi < pickupDefs.length; wi++) {
+    const p = pickupDefs[wi];
+    if (p.kind !== 'wisp') continue;
+    const id = `${cx},${cz}:${wi}`;
+    if (collectedWisps && collectedWisps.has(id)) continue;
+    const m = buildWisp(biome, p.x, p.z);
+    group.add(m);
+    wisps.push({ id, mesh: m, x: p.x, z: p.z });
+  }
 
   const props = [];
   for (const e of propDefs) {
@@ -232,7 +330,7 @@ function buildCell(scene, cx, cz, raisedFlags) {
     flag = { level, mesh: m, anchor };
   }
 
-  return { cx, cz, group, props, traps, biome, wallAABBs: wallResult.aabbs, flag, _lodLevel: 'near' };
+  return { cx, cz, group, props, traps, wisps, biome, wallAABBs: wallResult.aabbs, flag, _lodLevel: 'near' };
 }
 
 function applyCellLOD(cell, level) {
@@ -254,7 +352,7 @@ function disposeCell(scene, cell) {
   for (const t of cell.traps) t.dispose?.();
   scene.remove(cell.group);
   cell.group.traverse((o) => {
-    if (o.geometry) o.geometry.dispose?.();
+    if (o.geometry && !o.userData?.sharedGeo) o.geometry.dispose?.();
     if (o.material) {
       if (Array.isArray(o.material)) o.material.forEach((m) => m.dispose?.());
       else o.material.dispose?.();
@@ -265,12 +363,14 @@ function disposeCell(scene, cell) {
 const cellKey = (cx, cz) => `${cx},${cz}`;
 
 export class ChunkManager {
-  constructor(scene) {
+  constructor(scene, { foliage = 1 } = {}) {
     this.scene = scene;
+    this.foliage = foliage;          // grass-tuft density from quality preset
     this.cells = new Map();          // key -> cell record
     this._lastPlayerCell = null;
     this._building = new Set();      // keys currently scheduled but not built
     this.raisedFlags = new Set();    // level indices that are currently raised
+    this.collectedWisps = new Set(); // wisp ids collected this run
   }
 
   // Mark a flag level as raised. Called from index.jsx when the player's
@@ -304,14 +404,14 @@ export class ChunkManager {
         wanted.add(k);
         if (this.cells.has(k) || this._building.has(k)) continue;
         if (this.cells.size === 0) {
-          this.cells.set(k, buildCell(this.scene, cx, cz, this.raisedFlags));
+          this.cells.set(k, buildCell(this.scene, cx, cz, this.raisedFlags, this.foliage, this.collectedWisps));
         } else {
           this._building.add(k);
           idle(() => {
             if (!this._building.has(k)) return;
             this._building.delete(k);
             if (this.cells.has(k)) return;
-            this.cells.set(k, buildCell(this.scene, cx, cz, this.raisedFlags));
+            this.cells.set(k, buildCell(this.scene, cx, cz, this.raisedFlags, this.foliage, this.collectedWisps));
           });
         }
       }
@@ -328,13 +428,44 @@ export class ChunkManager {
   }
 
   tickTraps(dt, ctx) {
+    this._wispT = (this._wispT || 0) + dt;
     for (const cell of this.cells.values()) {
       for (const trap of cell.traps) trap.tick(dt, ctx);
       if (cell.flag) {
         const want = this.raisedFlags.has(cell.flag.level);
         tickFlag(cell.flag.mesh, dt, want);
       }
+      // Wisp idle — hover bob + slow spin, cheap enough to run always.
+      for (const w of cell.wisps) {
+        const core = w.mesh.userData.core;
+        core.position.y = 1.0 + Math.sin(this._wispT * 2.4 + w.x) * 0.12;
+        core.rotation.y = this._wispT * 1.8;
+      }
     }
+  }
+
+  // Uncollected wisps within `radius` of the player. The caller collects
+  // via collectWisp(id) which latches the run-wide set and hides the mesh.
+  *wispsNear(playerX, playerZ, radius = 1.2) {
+    const r2 = radius * radius;
+    for (const cell of this.cells.values()) {
+      for (const w of cell.wisps) {
+        if (this.collectedWisps.has(w.id)) continue;
+        const dx = playerX - w.x;
+        const dz = playerZ - w.z;
+        if (dx * dx + dz * dz <= r2) yield w;
+      }
+    }
+  }
+
+  collectWisp(id) {
+    if (this.collectedWisps.has(id)) return false;
+    this.collectedWisps.add(id);
+    for (const cell of this.cells.values()) {
+      const w = cell.wisps.find((x) => x.id === id);
+      if (w) { w.mesh.visible = false; break; }
+    }
+    return true;
   }
 
   // Loaded flags whose anchor is within `radius` metres of the player.

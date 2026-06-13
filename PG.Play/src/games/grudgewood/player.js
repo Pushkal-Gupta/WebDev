@@ -44,6 +44,34 @@ export function makePlayer() {
   head.castShadow = true;
   hips.add(head);
 
+  // Face — two dark eyes and a hair fringe under the hat line. Forward
+  // is +Z (facing angle 0), matching the controller's facing convention.
+  const eyeMat = new THREE.MeshStandardMaterial({ color: 0x1a140e, roughness: 0.6 });
+  const hairMat = new THREE.MeshStandardMaterial({ color: 0x4a2e16, roughness: 0.9, flatShading: true });
+  const eyeL = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.07, 0.02), eyeMat);
+  const eyeR = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.07, 0.02), eyeMat);
+  eyeL.position.set(-0.08, 1.0, 0.165);
+  eyeR.position.set(0.08, 1.0, 0.165);
+  hips.add(eyeL); hips.add(eyeR);
+  const fringe = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.09, 0.34), hairMat);
+  fringe.position.set(0, 1.15, 0);
+  hips.add(fringe);
+
+  // Backpack — small explorer pack so the silhouette reads "traveller"
+  // from the chase camera's default behind-view.
+  const packMat = new THREE.MeshStandardMaterial({ color: 0x6e4f28, roughness: 0.9, flatShading: true });
+  const pack = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.42, 0.16), packMat);
+  pack.position.set(0, 0.52, -0.24);
+  pack.castShadow = true;
+  hips.add(pack);
+  const bedroll = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.07, 0.07, 0.4, 8),
+    new THREE.MeshStandardMaterial({ color: 0x8a3a2e, roughness: 0.9, flatShading: true }),
+  );
+  bedroll.rotation.z = Math.PI / 2;
+  bedroll.position.set(0, 0.78, -0.24);
+  hips.add(bedroll);
+
   // Hat slot.
   const hatSlot = new THREE.Group();
   hatSlot.position.set(0, 1.18, 0);
@@ -154,6 +182,7 @@ export class PlayerController {
     this.stumble = 0;       // post-near-miss flinch
     this.slowFactor = 1;    // movement multiplier from area effects (spores etc)
     this.slowTimer = 0;     // seconds remaining of slow
+    this.landSquash = 0;    // seconds remaining of landing squash
   }
 
   // Call from a trap's tick() via ctx.applySlow(factor, duration). The
@@ -240,7 +269,7 @@ export class PlayerController {
     }
   }
 
-  update(dt, { input, sampleHeight, casualMode, walls }) {
+  update(dt, { input, sampleHeight, casualMode, walls, onStep, onLand }) {
     // Death animation only.
     if (!this.alive) {
       this.deathT += dt;
@@ -339,7 +368,11 @@ export class PlayerController {
     if (this.pos.y <= groundY + 0.001) {
       const wasAir = !this.grounded;
       this.pos.y = groundY;
-      if (this.vel.y < -2 && wasAir) sfx.land();
+      if (this.vel.y < -2 && wasAir) {
+        sfx.land();
+        onLand?.(this);
+        this.landSquash = 0.16;     // brief squash sells the impact
+      }
       this.vel.y = 0;
       this.grounded = true;
       this.coyote = COYOTE;
@@ -364,12 +397,31 @@ export class PlayerController {
     const bounce = moving ? Math.abs(Math.sin(this.gait * 2)) * 0.04 : 0;
     this.rig.hips.position.y = 0.9 + bounce;
 
+    // Landing squash-and-stretch — compress on touchdown, ease back.
+    if (this.landSquash > 0) {
+      this.landSquash = Math.max(0, this.landSquash - dt);
+      const k = this.landSquash / 0.16;
+      this.rig.hips.scale.set(1 + k * 0.18, 1 - k * 0.22, 1 + k * 0.18);
+    } else if (!this.grounded) {
+      // Subtle stretch while airborne.
+      const st = Math.min(0.1, Math.abs(this.vel.y) * 0.006);
+      this.rig.hips.scale.set(1 - st * 0.5, 1 + st, 1 - st * 0.5);
+    } else {
+      this.rig.hips.scale.set(1, 1, 1);
+    }
+
     // Footstep audio.
     const stepKey = Math.floor(this.gait / Math.PI);
     if (moving && this.grounded && stepKey !== this.lastStep) {
       this.lastStep = stepKey;
       sfx.step();
+      onStep?.(this);
     }
+
+    // Lean into motion — the body tips forward with speed so sprinting
+    // reads as urgency rather than a gliding mannequin.
+    const targetLean = moving ? (speed / SPRINT_MAX) * 0.22 : 0;
+    this.rig.hips.rotation.x += (targetLean - this.rig.hips.rotation.x) * Math.min(1, dt * 10);
 
     // Stumble overlay (set externally on near-miss).
     if (this.stumble > 0) this.rig.body.rotation.z = Math.sin(this.stumble * 30) * 0.08;

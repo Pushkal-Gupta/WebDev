@@ -71,7 +71,8 @@ if (playable.length < MIN_CATALOG_SIZE) {
 // 2. Lazy imports
 const introSrc = read('src/components/GameIntro.jsx');
 for (const g of playable) {
-  const re = new RegExp(`\\b${g.id}\\s*:\\s*lazy\\(`);
+  // Hyphenated ids appear as quoted keys ('stickman-hook': lazy(...)).
+  const re = new RegExp(`['"\`]?\\b${g.id}\\b['"\`]?\\s*:\\s*lazy\\(`);
   if (!re.test(introSrc)) {
     errors.push(`${g.id}: playable but not registered in PLAYABLE (GameIntro.jsx)`);
   }

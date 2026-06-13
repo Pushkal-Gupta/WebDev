@@ -442,5 +442,22 @@ export function spawnCellContent(cx, cz, biome) {
     props = spawnDecor(rng, biome, cx, cz);
     if (isSanctuaryCell) props = props.filter((p) => p.kind === 'shrub' || p.kind === 'rock').slice(0, 3);
   }
-  return { traps, props };
+
+  // Grudge wisps — collectible score pickups that ONLY spawn off the
+  // spine. They're the reason to risk a side room: the spine is the way
+  // forward, the flanks are where the forest keeps its treasure. Deeper
+  // cells roll more often. Sanctuaries and sealed rooms never hold them.
+  const pickups = [];
+  if (cx !== 0 && openCount > 0 && !isSanctuaryCell && cz >= 6) {
+    const roll = rng();
+    if (roll < 0.4) {
+      const o = cellOrigin(cx, cz);
+      pickups.push({
+        kind: 'wisp',
+        x: o.x + CELL_SIZE * (0.3 + rng() * 0.4),
+        z: o.z + CELL_SIZE * (0.3 + rng() * 0.4),
+      });
+    }
+  }
+  return { traps, props, pickups };
 }

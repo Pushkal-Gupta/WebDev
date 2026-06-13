@@ -924,6 +924,76 @@ function heapSiftDownFrames(input = [3, 10, 8, 5, 7, 6, 1]) {
   return frames;
 }
 
+// Full heap sort: build-max-heap (sift-down from the last parent up to the
+// root), then repeatedly swap the max to the shrinking tail and re-sift.
+// The sorted tail is marked `eliminated` so the live heap boundary is visible.
+function heapSortFrames(input = [4, 10, 3, 5, 1, 8, 7]) {
+  if (!Array.isArray(input) || !input.length) return [{ array: [], caption: 'Empty array — nothing to sort.' }];
+  const a = [...input];
+  const n = a.length;
+  const frames = [];
+  const sortedTail = (heapSize) => new Set(Array.from({ length: n - heapSize }, (_, k) => heapSize + k));
+
+  const siftDown = (start, heapSize, phaseLabel) => {
+    let i = start;
+    while (true) {
+      const l = 2 * i + 1, r = 2 * i + 2;
+      let largest = i;
+      if (l < heapSize && a[l] > a[largest]) largest = l;
+      if (r < heapSize && a[r] > a[largest]) largest = r;
+      const hl = { [i]: 'mid' };
+      if (l < heapSize) hl[l] = 'low';
+      if (r < heapSize) hl[r] = 'high';
+      frames.push({
+        array: [...a],
+        highlights: hl,
+        eliminated: sortedTail(heapSize),
+        caption: `${phaseLabel}: parent ${a[i]} at index ${i} vs children [${l < heapSize ? a[l] : '-'}, ${r < heapSize ? a[r] : '-'}]. ${largest === i ? `${a[i]} already dominates — this subtree is a valid heap.` : `Child ${a[largest]} is larger, so they trade places.`}`,
+      });
+      if (largest === i) break;
+      [a[i], a[largest]] = [a[largest], a[i]];
+      frames.push({
+        array: [...a],
+        highlights: { [i]: 'match', [largest]: 'match' },
+        eliminated: sortedTail(heapSize),
+        caption: `${a[i]} rises to index ${i}; ${a[largest]} sinks to index ${largest} and keeps sifting down.`,
+      });
+      i = largest;
+    }
+  };
+
+  frames.push({ array: [...a], caption: `Heap sort, phase 1: turn the array into a max-heap. Sift down every parent, starting from the last one (index ${Math.floor(n / 2) - 1}) back to the root.` });
+  for (let i = Math.floor(n / 2) - 1; i >= 0; i--) siftDown(i, n, `Build heap, node ${i}`);
+  frames.push({
+    array: [...a],
+    highlights: { 0: 'match' },
+    caption: `Max-heap built: ${a[0]} sits at the root, every parent ≥ its children. Phase 2: extract the max ${n - 1} times.`,
+  });
+
+  for (let end = n - 1; end >= 1; end--) {
+    frames.push({
+      array: [...a],
+      highlights: { 0: 'mid', [end]: 'high' },
+      eliminated: sortedTail(end + 1),
+      caption: `The root ${a[0]} is the largest of the remaining ${end + 1} elements. It trades places with ${a[end]}, the last slot of the heap.`,
+    });
+    [a[0], a[end]] = [a[end], a[0]];
+    frames.push({
+      array: [...a],
+      highlights: { [end]: 'match' },
+      eliminated: sortedTail(end),
+      caption: `${a[end]} is locked into its final position ${end}. ${end > 1 ? `The heap shrinks to ${end} elements; the new root ${a[0]} must sift back down.` : `Only ${a[0]} remains — it is already in place.`}`,
+    });
+    if (end > 1) siftDown(0, end, `Re-sift (heap size ${end})`);
+  }
+  frames.push({
+    array: [...a],
+    highlights: Object.fromEntries(a.map((_, k) => [k, 'match'])),
+    caption: `Sorted: [${a.join(', ')}]. Build-heap costs O(n); each of the n extractions costs O(log n) — O(n log n) total, in place.`,
+  });
+  return frames;
+}
+
 // Dijkstra (binary-heap variant) with explicit PQ + distance table + stale-pop
 // annotation in every caption. Models the "lazy deletion" pattern: instead of
 // decrease-key we push a fresh (newDist, node) entry and skip stale pops.
@@ -1072,6 +1142,133 @@ function selectionSortFrames(input = [29, 10, 14, 37, 13, 5]) {
     array: [...a],
     highlights: Object.fromEntries(a.map((_, i) => [i, 'match'])),
     caption: `Done. Selection sort is O(n²) but does at most n−1 swaps — useful when writes are expensive.`,
+  });
+  return frames;
+}
+
+// Counting sort: tally occurrences, prefix-sum the tallies into end positions,
+// then walk the input right-to-left placing each value stably into the output.
+// Frames alternate which array is on screen; captions say which one you see.
+function countingSortFrames(input = [4, 2, 2, 8, 3, 3, 1]) {
+  if (!Array.isArray(input) || !input.length) return [{ array: [], caption: 'Empty array — nothing to sort.' }];
+  const a = [...input];
+  const n = a.length;
+  const k = Math.max(...a);
+  const count = Array(k + 1).fill(0);
+  const frames = [];
+
+  frames.push({ array: [...a], caption: `Counting sort: no comparisons. Values live in 0..${k}, so a tally of ${k + 1} buckets replaces sorting entirely.` });
+  for (let i = 0; i < n; i++) {
+    count[a[i]] += 1;
+    frames.push({
+      array: [...a],
+      highlights: { [i]: 'mid' },
+      eliminated: new Set(Array.from({ length: i }, (_, x) => x)),
+      caption: `Tally ${a[i]}: bucket ${a[i]} rises to ${count[a[i]]}. Counts so far: [${count.join(', ')}].`,
+    });
+  }
+  frames.push({
+    array: [...count],
+    highlights: Object.fromEntries(count.map((c, idx) => [idx, c ? 'low' : undefined])),
+    caption: `Now showing the count array, indexed by value 0..${k}. count[v] = how many times v appears in the input.`,
+  });
+  for (let v = 1; v <= k; v++) {
+    count[v] += count[v - 1];
+    frames.push({
+      array: [...count],
+      highlights: { [v]: 'mid', [v - 1]: 'low' },
+      caption: `Prefix sum: count[${v}] absorbs count[${v - 1}] and becomes ${count[v]} — the number of elements ≤ ${v}, i.e. where the last ${v} ends in sorted order.`,
+    });
+  }
+  const out = Array(n).fill('·');
+  frames.push({
+    array: [...out],
+    caption: `Now showing the output array, all ${n} slots empty. Walk the input right-to-left so equal values keep their original order — that is what makes counting sort stable.`,
+  });
+  for (let i = n - 1; i >= 0; i--) {
+    const v = a[i];
+    count[v] -= 1;
+    out[count[v]] = v;
+    frames.push({
+      array: [...out],
+      highlights: { [count[v]]: 'match' },
+      caption: `Input[${i}] = ${v}: count[${v}] says elements ≤ ${v} end at position ${count[v] + 1}, so ${v} drops into slot ${count[v]}. Decrement count[${v}] to ${count[v]} for the next ${v}.`,
+    });
+  }
+  frames.push({
+    array: [...out],
+    highlights: Object.fromEntries(out.map((_, idx) => [idx, 'match'])),
+    caption: `Sorted: [${out.join(', ')}]. O(n + k) time, O(k) extra space — beats O(n log n) whenever the value range k stays small.`,
+  });
+  return frames;
+}
+
+// Shell sort: insertion sort over gapped subsequences with a shrinking gap.
+// Each pass leaves the array gap-sorted, so the final gap=1 pass (plain
+// insertion sort) faces almost-sorted input and finishes in near-linear time.
+function shellSortFrames(input = [23, 12, 1, 8, 34, 54, 2, 3]) {
+  if (!Array.isArray(input) || !input.length) return [{ array: [], caption: 'Empty array — nothing to sort.' }];
+  const a = [...input];
+  const n = a.length;
+  const frames = [];
+  const gaps = [];
+  for (let g = Math.floor(n / 2); g >= 1; g = Math.floor(g / 2)) gaps.push(g);
+
+  frames.push({ array: [...a], caption: `Shell sort: insertion sort, but on far-apart elements first. Gap sequence here: ${gaps.join(' → ')}. Big gaps move stragglers long distances in one hop.` });
+  for (const gap of gaps) {
+    const chainHl = {};
+    for (let s = 0; s < Math.min(gap, n); s++) {
+      for (let idx = s; idx < n; idx += gap) chainHl[idx] = s % 2 === 0 ? 'low' : 'high';
+    }
+    frames.push({
+      array: [...a],
+      highlights: gap === 1 ? undefined : chainHl,
+      caption: gap === 1
+        ? `Final pass, gap=1: plain insertion sort. Earlier passes already herded every element near its home, so few shifts remain.`
+        : `Gap = ${gap}: the array splits into ${gap} interleaved chains (elements ${gap} apart, shown in alternating colors). Each chain gets insertion-sorted independently.`,
+    });
+    for (let i = gap; i < n; i++) {
+      const key = a[i];
+      let j = i;
+      if (a[j - gap] > key) {
+        frames.push({
+          array: [...a],
+          highlights: { [i]: 'mid', [i - gap]: 'high' },
+          caption: `The key ${key} at index ${i} is smaller than its gap-neighbour ${a[i - gap]} at index ${i - gap} — it must hop left along its chain.`,
+        });
+      }
+      let moved = false;
+      while (j >= gap && a[j - gap] > key) {
+        a[j] = a[j - gap];
+        j -= gap;
+        moved = true;
+        const display = [...a];
+        display[j] = key;
+        frames.push({
+          array: display,
+          highlights: { [j]: 'mid', [j + gap]: 'low' },
+          caption: `${a[j + gap]} slides ${gap} slot${gap === 1 ? '' : 's'} right; the key ${key} hops to index ${j}${j >= gap && a[j - gap] > key ? ` and keeps comparing against ${a[j - gap]}` : ''}.`,
+        });
+      }
+      a[j] = key;
+      if (moved) {
+        frames.push({
+          array: [...a],
+          highlights: { [j]: 'match' },
+          caption: `The key ${key} settles at index ${j} — its chain is sorted up to here.`,
+        });
+      }
+    }
+    frames.push({
+      array: [...a],
+      highlights: Object.fromEntries(a.map((_, idx) => [idx, 'low'])),
+      caption: `Gap-${gap} pass done: every chain of stride ${gap} is sorted. Array: [${a.join(', ')}].`,
+    });
+  }
+  frames.push({
+    array: [...a],
+    highlights: Object.fromEntries(a.map((_, idx) => [idx, 'match'])),
+    caption: `Sorted: [${a.join(', ')}]. Worst case depends on the gap sequence — O(n²) for halving gaps, O(n^1.5) and better for refined sequences. In place, no recursion.`,
   });
   return frames;
 }
@@ -9507,6 +9704,268 @@ function segmentTreeRangeSumFrames(arr = [1, 3, 5, 7, 9, 11], qL = 1, qR = 4) {
 
 // ----------------------------------------------------------------------------
 
+// Prim's MST — grow a single tree from a start vertex; each step accept the
+// cheapest edge crossing the cut between tree and non-tree vertices.
+function primFrames(variant = 'default') {
+  let nodes, edges;
+  if (variant === 'dense') {
+    nodes = [
+      { id: 0, label: '0' }, { id: 1, label: '1' }, { id: 2, label: '2' },
+      { id: 3, label: '3' }, { id: 4, label: '4' },
+    ];
+    edges = [
+      { a: 0, b: 1, w: 2 }, { a: 0, b: 2, w: 3 }, { a: 0, b: 3, w: 8 },
+      { a: 1, b: 2, w: 1 }, { a: 1, b: 3, w: 6 }, { a: 1, b: 4, w: 7 },
+      { a: 2, b: 3, w: 4 }, { a: 2, b: 4, w: 5 }, { a: 3, b: 4, w: 9 },
+    ];
+  } else if (variant === 'chain') {
+    nodes = Array.from({ length: 6 }, (_, i) => ({ id: i, label: String(i) }));
+    edges = [
+      { a: 0, b: 1, w: 5 }, { a: 1, b: 2, w: 3 }, { a: 2, b: 3, w: 6 },
+      { a: 3, b: 4, w: 2 }, { a: 4, b: 5, w: 4 },
+    ];
+  } else {
+    nodes = Array.from({ length: 6 }, (_, i) => ({ id: i, label: String(i) }));
+    edges = [
+      { a: 0, b: 1, w: 4 }, { a: 0, b: 2, w: 3 }, { a: 1, b: 2, w: 2 },
+      { a: 1, b: 3, w: 5 }, { a: 2, b: 3, w: 7 }, { a: 2, b: 4, w: 8 },
+      { a: 3, b: 4, w: 2 }, { a: 3, b: 5, w: 6 }, { a: 4, b: 5, w: 1 },
+    ];
+  }
+
+  const frames = [];
+  const start = 0;
+  const inTree = new Set();
+  const treeEdges = new Set();
+  const internalEdges = new Set();
+
+  const crossingIdx = () => edges
+    .map((e, i) => i)
+    .filter(i => !treeEdges.has(i) && !internalEdges.has(i) && (inTree.has(edges[i].a) !== inTree.has(edges[i].b)));
+
+  const snapshot = (currentIdx, caption) => {
+    const cross = new Set(crossingIdx());
+    const frontierNodes = new Set();
+    cross.forEach(i => {
+      const e = edges[i];
+      frontierNodes.add(inTree.has(e.a) ? e.b : e.a);
+    });
+    const ns = nodes.map(n => {
+      let state;
+      if (currentIdx != null && (edges[currentIdx].a === n.id || edges[currentIdx].b === n.id) && !inTree.has(n.id)) state = 'current';
+      else if (inTree.has(n.id)) state = 'visited';
+      else if (frontierNodes.has(n.id)) state = 'frontier';
+      return { ...n, state };
+    });
+    const es = edges.map((e, i) => {
+      if (treeEdges.has(i)) return { ...e, state: 'tree' };
+      if (i === currentIdx) return { ...e, state: 'current' };
+      if (internalEdges.has(i)) return { ...e, state: 'rejected' };
+      if (cross.has(i)) return { ...e, state: 'frontier' };
+      return e;
+    });
+    frames.push({ nodes: ns, edges: es, caption });
+  };
+
+  snapshot(null, `Prim's MST: grow one tree from a start vertex. Each step, take the CHEAPEST edge that crosses from the tree to an outside vertex — the cut property guarantees it belongs to some MST.`);
+  inTree.add(start);
+  snapshot(null, `Start at vertex ${start}. Dashed sky edges form the frontier: edges with exactly one endpoint inside the tree. They are the only candidates.`);
+
+  let total = 0;
+  let stepNum = 0;
+  while (inTree.size < nodes.length) {
+    const cands = crossingIdx();
+    if (!cands.length) {
+      snapshot(null, `No crossing edges remain but ${nodes.length - inTree.size} vertices are unreached — the graph is disconnected, so no spanning tree exists.`);
+      return frames;
+    }
+    const bestI = cands.reduce((m, i) => (edges[i].w < edges[m].w ? i : m));
+    const best = edges[bestI];
+    stepNum += 1;
+    snapshot(bestI, `Step ${stepNum} — frontier: ${cands.map(i => `(${edges[i].a}-${edges[i].b}, w=${edges[i].w})`).join(', ')}. Cheapest crossing edge is (${best.a}-${best.b}) with weight ${best.w}.`);
+    const newV = inTree.has(best.a) ? best.b : best.a;
+    treeEdges.add(bestI);
+    inTree.add(newV);
+    total += best.w;
+    edges.forEach((e, i) => {
+      if (!treeEdges.has(i) && inTree.has(e.a) && inTree.has(e.b)) internalEdges.add(i);
+    });
+    snapshot(null, `Step ${stepNum} — accept (${best.a}-${best.b}): vertex ${newV} joins the tree. Running MST weight = ${total}. Edges with both ends inside fade out — adding one would close a cycle.`);
+  }
+  snapshot(null, `Done: ${treeEdges.size} tree edges connect all ${nodes.length} vertices, total weight ${total}. With a priority queue of frontier edges this runs in O((V + E) log V).`);
+  return frames;
+}
+
+// LSD radix sort — one stable bucket pass per digit, least-significant first.
+function radixSortFrames(input = [170, 45, 75, 90, 802, 24, 2, 66]) {
+  const arr = (Array.isArray(input) ? input : [])
+    .map(Number)
+    .filter(n => Number.isFinite(n) && n >= 0)
+    .map(n => Math.floor(n))
+    .slice(0, 12);
+  if (!arr.length) return [{ array: [], caption: 'Empty array — nothing to sort.' }];
+
+  const frames = [];
+  const maxVal = Math.max(...arr);
+  const numDigits = String(maxVal).length;
+  let work = [...arr];
+
+  frames.push({
+    array: [...work],
+    caption: `Radix sort (LSD): sort by the ones digit first, then tens, then hundreds — each pass is a STABLE bucket pass on one digit, never a comparison.`,
+  });
+  frames.push({
+    array: [...work],
+    caption: `Largest value ${maxVal} has ${numDigits} digit${numDigits === 1 ? '' : 's'}, so we need ${numDigits} pass${numDigits === 1 ? '' : 'es'}. Total cost O(d·(n + 10)) — linear in n for fixed-width keys.`,
+  });
+
+  for (let d = 0, exp = 1; d < numDigits; d++, exp *= 10) {
+    const place = d === 0 ? 'ones' : d === 1 ? 'tens' : d === 2 ? 'hundreds' : `10^${d}`;
+    const digitOf = (v) => Math.floor(v / exp) % 10;
+    const digitRow = () => ({ values: work.map(v => String(digitOf(v))), label: `${place} digit` });
+
+    frames.push({
+      array: [...work],
+      subRow: digitRow(),
+      caption: `Pass ${d + 1} — look ONLY at each element's ${place} digit (row below). Higher digits are ignored this pass.`,
+    });
+
+    const buckets = Array.from({ length: 10 }, () => []);
+    for (let i = 0; i < work.length; i++) {
+      const dg = digitOf(work[i]);
+      buckets[dg].push(work[i]);
+      frames.push({
+        array: [...work],
+        highlights: { [i]: 'current' },
+        subRow: digitRow(),
+        caption: `Pass ${d + 1}: ${work[i]} has ${place} digit ${dg} — append to bucket ${dg}. Stable: it lands BEHIND anything already in bucket ${dg}.`,
+      });
+    }
+
+    const bucketDesc = buckets
+      .map((b, di) => (b.length ? `${di}:[${b.join(',')}]` : null))
+      .filter(Boolean)
+      .join('  ');
+    work = buckets.flat();
+    frames.push({
+      array: [...work],
+      subRow: digitRow(),
+      caption: `Pass ${d + 1} done — concatenate buckets 0 → 9: ${bucketDesc}. The array is now sorted by its last ${d + 1} digit${d === 0 ? '' : 's'}.`,
+    });
+  }
+
+  frames.push({
+    array: [...work],
+    highlights: Object.fromEntries(work.map((_, i) => [i, 'done'])),
+    caption: `Fully sorted after the most-significant pass. Stability is the whole trick: ties on the current digit keep their earlier-pass order, so lower digits stay sorted.`,
+  });
+  return frames;
+}
+
+// Boyer-Moore substring search using the bad-character rule: compare the
+// pattern right-to-left, and on mismatch slide it past positions that
+// provably cannot match.
+function boyerMooreSearchFrames(text = 'HERE-IS-A-SIMPLE-EXAMPLE', pattern = 'EXAMPLE') {
+  const t = String(text ?? '');
+  const p = String(pattern ?? '');
+  if (!t.length || !p.length || p.length > t.length) {
+    return [{ array: t.split(''), caption: 'Pattern is empty or longer than the text — nothing to search.' }];
+  }
+  const arr = t.split('');
+  const frames = [];
+
+  const last = {};
+  for (let i = 0; i < p.length; i++) last[p[i]] = i;
+  const subFor = (s) => ({
+    values: arr.map((_, i) => (i >= s && i < s + p.length ? p[i - s] : '')),
+    label: 'pattern',
+  });
+
+  frames.push({
+    array: arr,
+    subRow: subFor(0),
+    caption: `Boyer-Moore: align "${p}" under the text and compare RIGHT to LEFT. A mismatch lets us slide the pattern several cells at once instead of by 1.`,
+  });
+  frames.push({
+    array: arr,
+    subRow: subFor(0),
+    caption: `Bad-character table — last index of each char in "${p}": ${Object.entries(last).map(([c, i]) => `'${c}'→${i}`).join(', ')}. A text char absent from the pattern shifts the whole pattern past it.`,
+  });
+
+  const eliminated = new Set();
+  let s = 0;
+  let alignment = 0;
+  while (s <= arr.length - p.length) {
+    alignment += 1;
+    frames.push({
+      array: arr,
+      subRow: subFor(s),
+      pointers: { [s]: 's', [s + p.length - 1]: 'j' },
+      eliminated: new Set(eliminated),
+      caption: `Alignment ${alignment}: pattern sits at shift ${s}. Start comparing at the RIGHT end, text index ${s + p.length - 1}.`,
+    });
+    let j = p.length - 1;
+    while (j >= 0 && p[j] === arr[s + j]) {
+      const matched = {};
+      for (let k = j; k < p.length; k++) matched[s + k] = 'match';
+      frames.push({
+        array: arr,
+        subRow: subFor(s),
+        highlights: matched,
+        eliminated: new Set(eliminated),
+        caption: `Compare text[${s + j}]='${arr[s + j]}' with pattern[${j}]='${p[j]}' — match. Step left.`,
+      });
+      j -= 1;
+    }
+    if (j < 0) {
+      const allMatch = {};
+      for (let k = 0; k < p.length; k++) allMatch[s + k] = 'match';
+      frames.push({
+        array: arr,
+        subRow: subFor(s),
+        highlights: allMatch,
+        eliminated: new Set(eliminated),
+        caption: `All ${p.length} characters matched — "${p}" found at text index ${s}.`,
+      });
+      frames.push({
+        array: arr,
+        subRow: subFor(s),
+        highlights: allMatch,
+        eliminated: new Set(eliminated),
+        caption: `Done in ${alignment} alignment${alignment === 1 ? '' : 's'}. The grayed cells were skipped without ever being read — that is the sublinear magic.`,
+      });
+      return frames;
+    }
+    const bad = arr[s + j];
+    const lastIdx = Object.prototype.hasOwnProperty.call(last, bad) ? last[bad] : -1;
+    const shift = Math.max(1, j - lastIdx);
+    frames.push({
+      array: arr,
+      subRow: subFor(s),
+      highlights: { [s + j]: 'pivot' },
+      pointers: { [s + j]: 'j' },
+      eliminated: new Set(eliminated),
+      caption: `Mismatch: text[${s + j}]='${bad}' vs pattern[${j}]='${p[j]}'. '${bad}' ${lastIdx >= 0 ? `last occurs at pattern index ${lastIdx}` : 'never occurs in the pattern'} → shift by max(1, ${j} − ${lastIdx}) = ${shift}.`,
+    });
+    for (let k = s; k < Math.min(s + shift, arr.length); k++) eliminated.add(k);
+    s += shift;
+    if (s <= arr.length - p.length) {
+      frames.push({
+        array: arr,
+        subRow: subFor(s),
+        eliminated: new Set(eliminated),
+        caption: `Slide the pattern right by ${shift} — every alignment in between would hit the same bad character, so we skip them all.`,
+      });
+    }
+  }
+  frames.push({
+    array: arr,
+    eliminated: new Set(eliminated),
+    caption: `The pattern slid past the end of the text — "${p}" does not occur. Mismatches did most of the work for us.`,
+  });
+  return frames;
+}
+
 export const VISUALIZATIONS = {
   'binary-search': {
     title: 'Binary search walkthrough', renderer: 'array',
@@ -9637,16 +10096,42 @@ export const VISUALIZATIONS = {
     },
   },
   'heap-sort': {
-    title: 'Heap sift-down walkthrough', renderer: 'array',
+    title: 'Heap sort walkthrough', renderer: 'array',
     cases: [
-      { label: 'Random',         frames: heapSiftDownFrames([3, 10, 8, 5, 7, 6, 1]) },
-      { label: 'Already a heap', frames: heapSiftDownFrames([10, 8, 6, 5, 7, 3, 1]) },
-      { label: 'Reverse sorted', frames: heapSiftDownFrames([1, 3, 5, 6, 7, 8, 10]) },
+      { label: 'Random',            frames: heapSortFrames([4, 10, 3, 5, 1, 8, 7]) },
+      { label: 'Reverse sorted',    frames: heapSortFrames([7, 6, 5, 4, 3, 2, 1]) },
+      { label: 'Single sift-down',  frames: heapSiftDownFrames([3, 10, 8, 5, 7, 6, 1]) },
     ],
-    build: ({ array }) => heapSiftDownFrames(array),
+    build: ({ array }) => heapSortFrames(array),
     inputSchema: {
       fields: [
-        { name: 'array', label: 'Array', type: 'intArray', default: [3, 10, 8, 5, 7, 6, 1], placeholder: '3, 10, 8…' },
+        { name: 'array', label: 'Array', type: 'intArray', default: [4, 10, 3, 5, 1, 8, 7], placeholder: '4, 10, 3…' },
+      ],
+    },
+  },
+  'counting-sort': {
+    title: 'Counting sort walkthrough', renderer: 'array',
+    cases: [
+      { label: 'Default',         frames: countingSortFrames([4, 2, 2, 8, 3, 3, 1]) },
+      { label: 'Many duplicates', frames: countingSortFrames([2, 5, 2, 1, 5, 2, 1, 5]) },
+    ],
+    build: ({ array }) => countingSortFrames(array),
+    inputSchema: {
+      fields: [
+        { name: 'array', label: 'Array (small non-negative ints)', type: 'intArray', default: [4, 2, 2, 8, 3, 3, 1], placeholder: '4, 2, 2…' },
+      ],
+    },
+  },
+  'shell-sort': {
+    title: 'Shell sort walkthrough', renderer: 'array',
+    cases: [
+      { label: 'Default',        frames: shellSortFrames([23, 12, 1, 8, 34, 54, 2, 3]) },
+      { label: 'Reverse sorted', frames: shellSortFrames([8, 7, 6, 5, 4, 3, 2, 1]) },
+    ],
+    build: ({ array }) => shellSortFrames(array),
+    inputSchema: {
+      fields: [
+        { name: 'array', label: 'Array', type: 'intArray', default: [23, 12, 1, 8, 34, 54, 2, 3], placeholder: '23, 12, 1…' },
       ],
     },
   },
@@ -10914,6 +11399,43 @@ export const VISUALIZATIONS = {
         { name: 'array', label: 'Array', type: 'intArray', default: [1, 3, 5, 7, 9, 11], placeholder: '1, 3, 5, 7, 9, 11' },
         { name: 'qL', label: 'Query left index', type: 'int', default: 1 },
         { name: 'qR', label: 'Query right index', type: 'int', default: 4 },
+      ],
+    },
+  },
+  'prims-algorithm': {
+    title: "Prim's MST walkthrough", renderer: 'graph',
+    cases: [
+      { label: '6-node graph (default)', frames: primFrames() },
+      { label: 'Dense 5-node graph',     frames: primFrames('dense') },
+      { label: 'Linear chain',           frames: primFrames('chain') },
+    ],
+  },
+  'radix-sort-algorithm': {
+    title: 'Radix sort: digit-by-digit bucket passes', renderer: 'array',
+    cases: [
+      { label: '3-digit mix (default)', frames: radixSortFrames([170, 45, 75, 90, 802, 24, 2, 66]) },
+      { label: 'Single digit (1 pass)', frames: radixSortFrames([9, 3, 7, 1, 5, 2, 8, 4]) },
+      { label: 'Mixed widths',          frames: radixSortFrames([3, 121, 7, 45, 9, 230, 18, 6]) },
+    ],
+    build: ({ array }) => radixSortFrames(array),
+    inputSchema: {
+      fields: [
+        { name: 'array', label: 'Non-negative integers', type: 'intArray', default: [170, 45, 75, 90, 802, 24, 2, 66], placeholder: '170, 45, 75…' },
+      ],
+    },
+  },
+  'boyer-moore-string-search': {
+    title: 'Boyer-Moore: bad-character skips', renderer: 'array',
+    cases: [
+      { label: 'Classic EXAMPLE (found)', frames: boyerMooreSearchFrames('HERE-IS-A-SIMPLE-EXAMPLE', 'EXAMPLE') },
+      { label: 'Big jumps (FOX)',         frames: boyerMooreSearchFrames('THE-QUICK-BROWN-FOX', 'FOX') },
+      { label: 'Not found',               frames: boyerMooreSearchFrames('ABCDABCEABCFABCD', 'ABCG') },
+    ],
+    build: ({ text, pattern }) => boyerMooreSearchFrames(text, pattern),
+    inputSchema: {
+      fields: [
+        { name: 'text', label: 'Text', type: 'string', default: 'HERE-IS-A-SIMPLE-EXAMPLE', max: 40, placeholder: 'HERE-IS-A-SIMPLE-EXAMPLE' },
+        { name: 'pattern', label: 'Pattern', type: 'string', default: 'EXAMPLE', max: 12, placeholder: 'EXAMPLE' },
       ],
     },
   },

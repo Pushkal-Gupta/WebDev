@@ -47,6 +47,7 @@ const PLAYABLE = {
   g2048:       lazy(() => import('../games/Game2048.jsx')),
   cutrope:     lazy(() => import('../games/CutRopeGame.jsx')),
   hook:        lazy(() => import('../games/SwingwireGame.jsx')),
+  'stickman-hook': lazy(() => import('../games/StickmanHookGame.jsx')),
   fps:         lazy(() => import('../games/RaycasterFPS.jsx')),
   grudgewood:  lazy(() => import('../games/GrudgewoodGame.jsx')),
   arena:       lazy(() => import('../games/ArenaGame.jsx')),

@@ -452,3 +452,109 @@
 .comp-problem-diff.comp-diff-easy   { color: var(--easy);   background: var(--easy-bg); }
 .comp-problem-diff.comp-diff-medium { color: var(--medium); background: var(--medium-bg); }
 .comp-problem-diff.comp-diff-hard   { color: var(--hard);   background: var(--hard-bg); }
+
+/* ── Study material sections (Concepts / Tutorial / Courses) ── */
+.comp-study-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.comp-study-head {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.85rem;
+}
+
+.comp-study-icon { color: var(--accent); flex-shrink: 0; }
+
+.comp-study-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+}
+
+.comp-study-sub {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  flex: 1;
+  min-width: 220px;
+}
+
+.comp-study-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0.6rem;
+}
+
+.comp-study-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color var(--t), transform var(--t), box-shadow var(--t);
+  min-height: 110px;
+}
+
+.comp-study-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+}
+
+.comp-study-card-title {
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+  line-height: 1.3;
+}
+.comp-study-card:hover .comp-study-card-title { color: var(--accent); }
+
+.comp-study-card-desc {
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  line-height: 1.45;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.comp-study-card-foot {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: auto;
+}
+
+.comp-study-card-chip {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--accent);
+  padding: 0.18rem 0.5rem;
+  background: var(--hover-box);
+  border-radius: 999px;
+  text-transform: lowercase;
+  letter-spacing: 0.03em;
+}
+
+.comp-study-card-arrow {
+  margin-left: auto;
+  color: var(--text-dim);
+  transition: color var(--t), transform var(--t);
+}
+.comp-study-card:hover .comp-study-card-arrow {
+  color: var(--accent);
+  transform: translateX(2px);
+}

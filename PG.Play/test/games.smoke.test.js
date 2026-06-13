@@ -17,6 +17,7 @@ const GAME_MODULES = {
   g2048:       () => import('../src/games/Game2048.jsx'),
   cutrope:     () => import('../src/games/CutRopeGame.jsx'),
   hook:        () => import('../src/games/SwingwireGame.jsx'),
+  'stickman-hook': () => import('../src/games/StickmanHookGame.jsx'),
   fps:         () => import('../src/games/RaycasterFPS.jsx'),
   grudgewood:  () => import('../src/games/GrudgewoodGame.jsx'),
   arena:       () => import('../src/games/ArenaGame.jsx'),

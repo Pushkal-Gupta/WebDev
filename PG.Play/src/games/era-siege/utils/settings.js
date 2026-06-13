@@ -16,7 +16,11 @@ const DEFAULTS = {
   lowFxOverride: null,  // null = follow auto-detect; true/false override
   speed: 1,             // 1, 2, or 3 — sim-tick multiplier
   cbSafePalette: false, // color-blind safe HP palette
-  artPack: 'classic',   // 'classic' (original procedural+baked) or 'v2' (hand-painted sheets)
+  // '3d' (Three.js battlefield, default for new players), 'classic'
+  // (original procedural+baked) or 'v2' (hand-painted sheets). Existing
+  // saved settings keep whatever pack they already chose — the persisted
+  // blob always carries artPack, so this default only reaches new saves.
+  artPack: '3d',
   volumes: { master: 0.8, music: 0.5, sfx: 0.9 }, // 0..1 per bus
 };
 
