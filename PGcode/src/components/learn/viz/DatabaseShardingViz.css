@@ -1,0 +1,433 @@
+.dsv {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.dsv-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.dsv-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.dsv-sub {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.dsv-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.dsv-modes,
+.dsv-workload {
+  display: inline-flex;
+  gap: 0.3rem;
+  padding: 0.2rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+}
+
+.dsv-mode,
+.dsv-wl {
+  padding: 0.35rem 0.7rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: transparent;
+  color: var(--text-dim);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.dsv-mode:hover,
+.dsv-wl:hover {
+  color: var(--text-main);
+}
+.dsv-mode.is-on,
+.dsv-wl.is-on {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.dsv-input-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.dsv-shards {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.dsv-shards-val {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-main);
+  min-width: 1.2em;
+  text-align: center;
+}
+
+.dsv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.dsv-btn:hover:not(:disabled) {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.dsv-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.dsv-btn-step {
+  padding: 0.35rem 0.45rem;
+}
+
+.dsv-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.dsv-btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  background: var(--accent);
+}
+
+.dsv-buttons {
+  display: inline-flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.dsv-speed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.dsv-speed-range {
+  width: 100px;
+  accent-color: var(--accent);
+}
+.dsv-speed-value {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--text-main);
+  min-width: 2.6em;
+  text-align: right;
+}
+
+.dsv-spacer {
+  flex: 1 1 auto;
+}
+
+.dsv-stepcount {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+.dsv-stepcount strong {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.dsv-stage {
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.dsv-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.dsv-source {
+  fill: var(--surface);
+  stroke: var(--accent);
+  stroke-width: 1.8;
+}
+.dsv-source-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 700;
+  fill: var(--text-main);
+}
+.dsv-source-sub {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+}
+.dsv-source-key {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--accent);
+}
+.dsv-source-strat {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  fill: var(--text-dim);
+}
+
+.dsv-dir {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.4;
+}
+.dsv-dir-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+}
+.dsv-dir-rule {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.dsv-dir-row {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--text-main);
+}
+
+.dsv-link {
+  stroke: var(--border);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 5;
+  opacity: 0.5;
+}
+.dsv-link.is-active {
+  opacity: 0;
+}
+
+.dsv-flight-path {
+  stroke: var(--accent);
+  stroke-width: 2.4;
+}
+
+.dsv-flight-token rect {
+  stroke: var(--bg);
+  stroke-width: 1.5;
+}
+.dsv-flight-key {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--bg);
+}
+
+.dsv-shard {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.6;
+  transition: fill 0.2s, stroke 0.2s, stroke-width 0.2s;
+}
+.dsv-shard.is-target {
+  fill: rgba(var(--accent-rgb), 0.1);
+  stroke-width: 2.6;
+}
+.dsv-shard.is-hot {
+  fill: var(--hard-bg);
+  stroke: var(--hard);
+  stroke-width: 2.6;
+}
+
+.dsv-shard-label {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--text-main);
+}
+.dsv-shard-range {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  fill: var(--text-dim);
+}
+.dsv-shard-hot {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  fill: var(--hard);
+}
+
+.dsv-bar-bg {
+  fill: var(--bg);
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.dsv-bar {
+  transition: width 0.25s ease;
+}
+.dsv-bar-count {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--text-main);
+}
+
+.dsv-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.6rem;
+}
+
+.dsv-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  min-width: 0;
+}
+
+.dsv-metric-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.dsv-metric-value {
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--accent);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.dsv-metric-value.is-hot {
+  color: var(--hard);
+}
+
+.dsv-warn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--hard-bg);
+  border: 1px solid var(--hard);
+  border-radius: 6px;
+}
+.dsv-warn-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hard);
+  font-weight: 700;
+}
+.dsv-warn-body {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--text-main);
+}
+
+.dsv-reshard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--hue-violet);
+  border-radius: 6px;
+}
+.dsv-reshard-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hue-violet);
+  font-weight: 700;
+}
+.dsv-reshard-body {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--text-main);
+}
+
+.dsv-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+.dsv-narration-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.dsv-narration-body {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-main);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dsv-btn,
+  .dsv-mode,
+  .dsv-wl,
+  .dsv-shard,
+  .dsv-bar {
+    transition: none;
+  }
+}

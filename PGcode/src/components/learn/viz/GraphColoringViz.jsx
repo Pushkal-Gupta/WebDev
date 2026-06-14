@@ -1,457 +1,427 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Play, Pause, RotateCcw, SkipForward } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Play, Pause, RotateCcw, ChevronRight, SkipForward } from 'lucide-react';
 import './GraphColoringViz.css';
 
+// A crown-style graph (2-colorable). The L set {A,C,E} and the R set {B,D,F}
+// are fully cross-connected except matching pairs; hub G links the L side.
+// Node IDS alternate L,R so the NATURAL id-order is the adversarial one:
+// pairing A-B, C-D, E-F early forces greedy up to 4 colors, while the
+// by-degree (Welsh-Powell) order recovers the optimal 2-coloring.
 const NODES = [
-  { id: 'A', x: 280, y: 60 },
-  { id: 'B', x: 460, y: 140 },
-  { id: 'C', x: 440, y: 310 },
-  { id: 'D', x: 280, y: 380 },
-  { id: 'E', x: 120, y: 310 },
-  { id: 'F', x: 100, y: 140 },
-  { id: 'G', x: 280, y: 220 },
+  { id: 0, label: 'A', x: 140, y: 80 },  // L0
+  { id: 1, label: 'B', x: 430, y: 80 },  // R0
+  { id: 2, label: 'C', x: 140, y: 185 }, // L1
+  { id: 3, label: 'D', x: 430, y: 185 }, // R1
+  { id: 4, label: 'E', x: 140, y: 290 }, // L2
+  { id: 5, label: 'F', x: 430, y: 290 }, // R2
+  { id: 6, label: 'G', x: 285, y: 185 }, // hub
 ];
 
+// Crown edges: Li -- Rj for i != j, plus hub G -- each Li.
 const EDGES = [
-  ['A', 'B'],
-  ['B', 'C'],
-  ['C', 'D'],
-  ['D', 'E'],
-  ['E', 'F'],
-  ['F', 'A'],
-  ['A', 'G'],
-  ['C', 'G'],
-  ['E', 'G'],
-  ['B', 'D'],
-];
-
-const ADJ = (() => {
-  const map = {};
-  NODES.forEach((n) => { map[n.id] = []; });
-  EDGES.forEach(([u, v]) => {
-    map[u].push(v);
-    map[v].push(u);
-  });
-  Object.values(map).forEach((list) => list.sort());
-  return map;
-})();
-
-const ORDER = NODES.map((n) => n.id);
+  { u: 0, v: 3 }, // A-D
+  { u: 0, v: 5 }, // A-F
+  { u: 2, v: 1 }, // C-B
+  { u: 2, v: 5 }, // C-F
+  { u: 4, v: 1 }, // E-B
+  { u: 4, v: 3 }, // E-D
+  { u: 6, v: 0 }, // G-A
+  { u: 6, v: 2 }, // G-C
+  { u: 6, v: 4 }, // G-E
+].map((e, i) => ({ ...e, id: i }));
 
 const COLOR_TOKENS = [
-  '--hue-sky',
-  '--hue-pink',
-  '--hue-mint',
-  '--warning',
-  '--easy',
+  'var(--hue-sky)',
+  'var(--hue-pink)',
+  'var(--hue-mint)',
+  'var(--hue-violet)',
+  'var(--medium)',
+  'var(--accent)',
 ];
 
-const COLOR_LABELS = ['C1', 'C2', 'C3', 'C4', 'C5'];
-
-const edgeKey = (u, v) => (u < v ? `${u}-${v}` : `${v}-${u}`);
-
-function buildSteps(k) {
-  const steps = [];
-  const colors = {};
-  ORDER.forEach((id) => { colors[id] = 0; });
-
-  const pushStep = (over) => {
-    steps.push({
-      kind: 'init',
-      colors: { ...colors },
-      cur: null,
-      tryColor: 0,
-      stack: [],
-      conflictWith: null,
-      caption: `Initialize: ${ORDER.length} nodes uncoloured, k = ${k} colours available. Begin with node ${ORDER[0]}.`,
-      ...over,
-    });
-  };
-
-  pushStep({});
-
-  // Iterative backtracking simulation that emits one step per micro-action.
-  const stack = [];
-  let pos = 0;
-  let tryColor = 1;
-  let solved = false;
-  let exhausted = false;
-  let guard = 0;
-  const GUARD_MAX = 5000;
-
-  while (!solved && !exhausted) {
-    guard += 1;
-    if (guard > GUARD_MAX) break;
-
-    if (pos === ORDER.length) {
-      steps.push({
-        kind: 'done',
-        colors: { ...colors },
-        cur: null,
-        tryColor: 0,
-        stack: stack.map((s) => ({ ...s })),
-        conflictWith: null,
-        caption: `All ${ORDER.length} nodes coloured with ${k} colours. Valid colouring found.`,
-      });
-      solved = true;
-      break;
-    }
-
-    const nodeId = ORDER[pos];
-
-    if (tryColor > k) {
-      // exhausted at this node — backtrack
-      if (stack.length === 0) {
-        steps.push({
-          kind: 'fail',
-          colors: { ...colors },
-          cur: nodeId,
-          tryColor: 0,
-          stack: [],
-          conflictWith: null,
-          caption: `No colour 1..${k} works for ${nodeId} and the stack is empty. Graph is not ${k}-colourable.`,
-        });
-        exhausted = true;
-        break;
-      }
-      const top = stack.pop();
-      colors[top.nodeId] = 0;
-      steps.push({
-        kind: 'backtrack',
-        colors: { ...colors },
-        cur: top.nodeId,
-        tryColor: 0,
-        stack: stack.map((s) => ({ ...s })),
-        conflictWith: null,
-        caption: `Node ${nodeId} has no colour left to try. Backtrack: clear ${top.nodeId} and try the next colour there.`,
-      });
-      pos = ORDER.indexOf(top.nodeId);
-      tryColor = top.color + 1;
-      continue;
-    }
-
-    // Announce the attempt
-    steps.push({
-      kind: 'try',
-      colors: { ...colors },
-      cur: nodeId,
-      tryColor,
-      stack: stack.map((s) => ({ ...s })),
-      conflictWith: null,
-      caption: `Trying colour ${COLOR_LABELS[tryColor - 1]} on node ${nodeId}. Check its neighbours for a clash.`,
-    });
-
-    // Check conflicts
-    let conflictWith = null;
-    for (const nb of ADJ[nodeId]) {
-      if (colors[nb] === tryColor) {
-        conflictWith = nb;
-        break;
-      }
-    }
-
-    if (conflictWith) {
-      steps.push({
-        kind: 'conflict',
-        colors: { ...colors },
-        cur: nodeId,
-        tryColor,
-        stack: stack.map((s) => ({ ...s })),
-        conflictWith,
-        caption: `Conflict: neighbour ${conflictWith} already has ${COLOR_LABELS[tryColor - 1]}. Try the next colour on ${nodeId}.`,
-      });
-      tryColor += 1;
-      continue;
-    }
-
-    // OK — commit colour and advance
-    colors[nodeId] = tryColor;
-    stack.push({ nodeId, color: tryColor });
-    steps.push({
-      kind: 'ok',
-      colors: { ...colors },
-      cur: nodeId,
-      tryColor,
-      stack: stack.map((s) => ({ ...s })),
-      conflictWith: null,
-      caption: `OK: ${COLOR_LABELS[tryColor - 1]} is safe on ${nodeId}. Push onto the stack and recurse to ${ORDER[pos + 1] ?? 'finish'}.`,
-    });
-    pos += 1;
-    tryColor = 1;
+function buildAdj() {
+  const adj = NODES.map(() => []);
+  for (const e of EDGES) {
+    adj[e.u].push(e.v);
+    adj[e.v].push(e.u);
   }
-
-  return steps;
+  return adj;
 }
 
-export default function GraphColoringViz() {
-  const [k, setK] = useState(3);
-  const steps = useMemo(() => buildSteps(k), [k]);
-  const [idx, setIdx] = useState(0);
-  const [playingRaw, setPlaying] = useState(false);
-  const timerRef = useRef(null);
+function degrees(adj) {
+  return adj.map((a) => a.length);
+}
 
-  const [prevK, setPrevK] = useState(k);
-  if (prevK !== k) {
-    setPrevK(k);
-    setIdx(0);
-    setPlaying(false);
+// Welsh-Powell: vertices in descending degree order (ties broken by id).
+function welshPowellOrder(adj) {
+  const deg = degrees(adj);
+  return NODES.map((n) => n.id).sort((a, b) => deg[b] - deg[a] || a - b);
+}
+
+function naturalOrder() {
+  return NODES.map((n) => n.id);
+}
+
+const lbl = (id) => NODES[id].label;
+
+function buildFrames(order) {
+  const adj = buildAdj();
+  const color = new Array(NODES.length).fill(-1);
+  const frames = [];
+
+  const usedColorCount = () => {
+    const s = new Set();
+    color.forEach((c) => { if (c >= 0) s.add(c); });
+    return s.size;
+  };
+
+  const snap = (extra) => ({
+    color: [...color],
+    activeNode: -1,
+    forbidden: [],
+    chosen: -1,
+    scanNeighbour: -1,
+    usedCount: usedColorCount(),
+    note: '',
+    ...extra,
+  });
+
+  frames.push(snap({
+    note: `Order: ${order.map(lbl).join(' -> ')}. Each vertex takes the smallest color none of its already-colored neighbours use.`,
+  }));
+
+  for (const u of order) {
+    frames.push(snap({
+      activeNode: u,
+      note: `Pick ${lbl(u)}. Scan its neighbours to collect the colors it may NOT use.`,
+    }));
+
+    const forbidden = new Set();
+    for (const v of adj[u]) {
+      if (color[v] >= 0) {
+        forbidden.add(color[v]);
+        frames.push(snap({
+          activeNode: u,
+          scanNeighbour: v,
+          forbidden: [...forbidden],
+          note: `Neighbour ${lbl(v)} has color ${color[v] + 1} -> forbidden set = {${[...forbidden].map((c) => c + 1).sort((a, b) => a - b).join(', ')}}.`,
+        }));
+      } else {
+        frames.push(snap({
+          activeNode: u,
+          scanNeighbour: v,
+          forbidden: [...forbidden],
+          note: `Neighbour ${lbl(v)} is still uncolored -> it does not constrain ${lbl(u)}.`,
+        }));
+      }
+    }
+
+    let c = 0;
+    while (forbidden.has(c)) c += 1;
+    color[u] = c;
+
+    const fset = [...forbidden].map((x) => x + 1).sort((a, b) => a - b);
+    frames.push(snap({
+      activeNode: u,
+      forbidden: [...forbidden],
+      chosen: c,
+      note: fset.length
+        ? `${lbl(u)}: neighbours use {${fset.join(', ')}} -> smallest free color is ${c + 1}. Assign color ${c + 1}.`
+        : `${lbl(u)}: no colored neighbours -> take color 1. Assign color 1.`,
+    }));
   }
 
-  const step = steps[idx];
-  // Derive `playing` from the raw toggle + bounds so the auto-run effect never
-  // needs to call setPlaying(false) when we hit the end.
-  const playing = playingRaw && idx < steps.length - 1;
+  const total = usedColorCount();
+  frames.push(snap({
+    note: `Done. Proper coloring uses ${total} color${total === 1 ? '' : 's'}. Greedy never exceeds maxDegree + 1.`,
+  }));
 
-  const next = useCallback(() => {
-    setIdx((i) => (i >= steps.length - 1 ? i : i + 1));
-  }, [steps.length]);
+  return { frames, finalColors: [...color], colorsUsed: total };
+}
+
+const ORDERINGS = [
+  { key: 'natural', label: 'Natural (A..G)', make: () => naturalOrder() },
+  { key: 'welsh', label: 'By degree (Welsh-Powell)', make: (adj) => welshPowellOrder(adj) },
+];
+
+export default function GraphColoringViz() {
+  const [orderKey, setOrderKey] = useState('natural');
+  const [step, setStep] = useState(0);
+  const [isRunningRaw, setIsRunningRaw] = useState(false);
+  const [speed, setSpeed] = useState(2);
+  const runTimer = useRef(null);
+
+  const maxDegree = useMemo(() => Math.max(...degrees(buildAdj())), []);
+
+  const { frames, colorsUsed } = useMemo(() => {
+    const adj = buildAdj();
+    const ord = ORDERINGS.find((o) => o.key === orderKey).make(adj);
+    return buildFrames(ord);
+  }, [orderKey]);
+
+  const totalSteps = frames.length;
+  const current = frames[Math.min(step, totalSteps - 1)];
+  const isRunning = isRunningRaw && step < totalSteps - 1;
+  const delay = Math.round(950 / speed);
 
   useEffect(() => {
-    if (!playing) {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-      return;
-    }
-    timerRef.current = setInterval(() => {
-      next();
-    }, 800);
+    if (!isRunning) return undefined;
+    runTimer.current = setTimeout(() => {
+      setStep((s) => Math.min(s + 1, totalSteps - 1));
+    }, delay);
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (runTimer.current) {
+        clearTimeout(runTimer.current);
+        runTimer.current = null;
+      }
     };
-  }, [playing, next]);
+  }, [isRunning, step, delay, totalSteps]);
 
-  const handleReset = () => {
-    setPlaying(false);
-    setIdx(0);
+  const reset = () => {
+    setIsRunningRaw(false);
+    setStep(0);
   };
 
-  const atEnd = idx >= steps.length - 1;
-  const isDone = step.kind === 'done';
-  const isFail = step.kind === 'fail';
-
-  const edgeState = useMemo(() => {
-    const map = {};
-    EDGES.forEach(([u, v]) => { map[edgeKey(u, v)] = 'idle'; });
-    if (step.conflictWith && step.cur) {
-      map[edgeKey(step.cur, step.conflictWith)] = 'conflict';
-    }
-    return map;
-  }, [step]);
-
-  const nodeFill = (id) => {
-    // While trying / conflict, paint the current node with the candidate colour
-    if (step.cur === id && (step.kind === 'try' || step.kind === 'conflict')) {
-      return `var(${COLOR_TOKENS[step.tryColor - 1]})`;
-    }
-    const c = step.colors[id];
-    if (c >= 1) return `var(${COLOR_TOKENS[c - 1]})`;
-    return 'var(--surface)';
+  const pickOrder = (key) => {
+    setOrderKey(key);
+    setIsRunningRaw(false);
+    setStep(0);
   };
 
-  const nodeClass = (id) => {
-    const classes = ['gcviz-node'];
-    if (step.colors[id] >= 1) classes.push('gcviz-node-colored');
-    else classes.push('gcviz-node-empty');
-    if (step.cur === id) {
-      classes.push('gcviz-node-current');
-      if (step.kind === 'try') classes.push('gcviz-node-trying');
-      if (step.kind === 'ok') classes.push('gcviz-node-ok');
-      if (step.kind === 'conflict') classes.push('gcviz-node-conflict');
-      if (step.kind === 'backtrack') classes.push('gcviz-node-backtrack');
-      if (step.kind === 'fail') classes.push('gcviz-node-conflict');
-    }
-    return classes.join(' ');
-  };
+  const W = 720;
+  const H = 360;
+  const panelX = 530;
+  const panelW = W - panelX - 20;
+  const NR = 22;
+
+  const colorFill = (c) => (c < 0 ? null : COLOR_TOKENS[c % COLOR_TOKENS.length]);
+
+  // Palette legend: span colors actually used so far plus a hint of headroom.
+  const legendColors = useMemo(() => {
+    const maxUsed = current.color.reduce((m, c) => Math.max(m, c + 1), 0);
+    const span = Math.max(maxUsed, Math.min(current.chosen + 1, COLOR_TOKENS.length), 3);
+    return Array.from({ length: span }, (_, i) => i);
+  }, [current.color, current.chosen]);
 
   return (
-    <div className="gcviz">
-      <div className="gcviz-header">
-        <div className="gcviz-title">Graph colouring (backtracking)</div>
-        <div className="gcviz-k">
-          <label htmlFor="gcviz-k-range">k = {k}</label>
-          <input
-            id="gcviz-k-range"
-            type="range"
-            min={2}
-            max={5}
-            step={1}
-            value={k}
-            onChange={(e) => setK(Number(e.target.value))}
-            aria-label="Number of colours"
-          />
+    <div className="gcv">
+      <div className="gcv-head">
+        <h3 className="gcv-title">Greedy graph coloring</h3>
+        <p className="gcv-sub">
+          Walk the vertices in some order; give each the smallest color no already-colored neighbour uses.
+          Switch the order to watch the color count change — greedy never needs more than maxDegree + 1.
+        </p>
+      </div>
+
+      <div className="gcv-controls">
+        <div className="gcv-actions">
+          <div className="gcv-buttons">
+            <button
+              type="button"
+              className="gcv-btn gcv-btn-primary"
+              onClick={() => {
+                if (step >= totalSteps - 1) setStep(0);
+                setIsRunningRaw((v) => !v);
+              }}
+            >
+              {isRunningRaw && step < totalSteps - 1 ? <Pause size={14} /> : <Play size={14} />}
+              {isRunningRaw && step < totalSteps - 1 ? 'Pause' : 'Play'}
+            </button>
+            <button
+              type="button"
+              className="gcv-btn"
+              onClick={() => setStep((s) => Math.min(s + 1, totalSteps - 1))}
+              disabled={step >= totalSteps - 1}
+            >
+              <ChevronRight size={14} /> Step
+            </button>
+            <button
+              type="button"
+              className="gcv-btn"
+              onClick={() => setStep(totalSteps - 1)}
+              disabled={step >= totalSteps - 1}
+            >
+              <SkipForward size={14} /> Skip
+            </button>
+            <button type="button" className="gcv-btn" onClick={reset}>
+              <RotateCcw size={14} /> Reset
+            </button>
+          </div>
+          <label className="gcv-speed">
+            <span className="gcv-speed-label">speed</span>
+            <input
+              type="range"
+              min={0.5}
+              max={5}
+              step={0.5}
+              value={speed}
+              onChange={(e) => setSpeed(Number(e.target.value))}
+              className="gcv-speed-range"
+            />
+            <span className="gcv-speed-value">{speed.toFixed(1)}×</span>
+          </label>
+          <div className="gcv-stepcount">
+            step <strong>{step + 1}</strong> / {totalSteps}
+          </div>
+        </div>
+        <div className="gcv-orders">
+          <span className="gcv-orders-label">vertex order</span>
+          {ORDERINGS.map((o) => (
+            <button
+              key={o.key}
+              type="button"
+              className={`gcv-chip${orderKey === o.key ? ' gcv-chip-active' : ''}`}
+              onClick={() => pickOrder(o.key)}
+            >
+              {o.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="gcviz-legend">
-        {COLOR_TOKENS.slice(0, k).map((token, i) => (
-          <span key={token} className="gcviz-legend-item">
-            <span
-              className="gcviz-dot"
-              style={{ background: `var(${token})`, borderColor: `var(${token})` }}
-            />
-            {COLOR_LABELS[i]}
-          </span>
-        ))}
-        <span className="gcviz-legend-item">
-          <span className="gcviz-dot gcviz-dot-empty" /> uncoloured
-        </span>
-        <span className="gcviz-legend-item">
-          <span className="gcviz-dot gcviz-dot-current" /> considering
-        </span>
-      </div>
+      <div className="gcv-stage">
+        <svg viewBox={`0 0 ${W} ${H}`} className="gcv-svg" preserveAspectRatio="xMidYMid meet">
+          <rect x={16} y={16} width={panelX - 36} height={H - 32} fill="var(--bg)" stroke="var(--border)" rx={6} />
+          <text x={30} y={36} className="gcv-col-label">undirected graph</text>
 
-      <div className="gcviz-stage">
-        <svg
-          className="gcviz-svg"
-          viewBox="0 0 560 440"
-          role="img"
-          aria-label="Graph colouring backtracking visualization"
-        >
-          <g className="gcviz-edges">
-            {EDGES.map(([u, v]) => {
-              const a = NODES.find((n) => n.id === u);
-              const b = NODES.find((n) => n.id === v);
-              const key = edgeKey(u, v);
-              const state = edgeState[key];
-              return (
-                <line
-                  key={key}
-                  className={`gcviz-edge gcviz-edge-${state}`}
-                  x1={a.x}
-                  y1={a.y}
-                  x2={b.x}
-                  y2={b.y}
+          {EDGES.map((e) => {
+            const a = NODES[e.u];
+            const b = NODES[e.v];
+            const touchesActive = e.u === current.activeNode || e.v === current.activeNode;
+            const scanEdge = (e.u === current.activeNode && e.v === current.scanNeighbour)
+              || (e.v === current.activeNode && e.u === current.scanNeighbour);
+            const stroke = scanEdge ? 'var(--accent)' : 'var(--text-dim)';
+            const sw = scanEdge ? 3 : touchesActive ? 1.8 : 1.2;
+            const op = scanEdge ? 1 : touchesActive ? 0.7 : 0.4;
+            return (
+              <line
+                key={`e-${e.id}`}
+                x1={a.x} y1={a.y} x2={b.x} y2={b.y}
+                stroke={stroke} strokeWidth={sw} opacity={op}
+                strokeDasharray={scanEdge ? '6 4' : undefined}
+              />
+            );
+          })}
+
+          {NODES.map((nd) => {
+            const c = current.color[nd.id];
+            const isActive = nd.id === current.activeNode;
+            const isScan = nd.id === current.scanNeighbour;
+            const fill = c >= 0 ? colorFill(c) : 'var(--surface)';
+            const stroke = isActive ? 'var(--accent)'
+              : isScan ? 'var(--accent)'
+              : c >= 0 ? colorFill(c)
+              : 'var(--border)';
+            const labelDark = c >= 0;
+            return (
+              <g key={`n-${nd.id}`}>
+                <circle
+                  cx={nd.x} cy={nd.y} r={NR}
+                  fill={fill}
+                  stroke={stroke}
+                  strokeWidth={isActive ? 4 : isScan ? 3 : 2}
+                  strokeDasharray={isScan && c < 0 ? '4 3' : undefined}
                 />
-              );
-            })}
+                <text x={nd.x} y={nd.y + 5} className="gcv-node-label" style={{ fill: labelDark ? 'var(--bg)' : 'var(--text-main)' }}>
+                  {nd.label}
+                </text>
+                {c >= 0 && (
+                  <text x={nd.x} y={nd.y - NR - 6} className="gcv-node-meta">c{c + 1}</text>
+                )}
+              </g>
+            );
+          })}
+
+          {/* state panel */}
+          <rect x={panelX - 8} y={16} width={panelW + 16} height={H - 32} fill="var(--surface)" stroke="var(--border)" rx={6} />
+          <text x={panelX} y={36} className="gcv-col-label">current vertex</text>
+          <text x={panelX} y={64} className="gcv-readout-big">
+            {current.activeNode < 0 ? '—' : lbl(current.activeNode)}
+          </text>
+
+          <text x={panelX} y={96} className="gcv-col-label">forbidden colors</text>
+          <g>
+            {current.forbidden.length === 0 ? (
+              <text x={panelX} y={118} className="gcv-row-meta">none</text>
+            ) : (
+              [...current.forbidden].sort((a, b) => a - b).map((fc, i) => (
+                <g key={`fb-${fc}`}>
+                  <rect x={panelX + i * 30} y={104} width={24} height={20} rx={4} fill={colorFill(fc)} opacity={0.85} />
+                  <text x={panelX + i * 30 + 12} y={118} className="gcv-swatch-text">{fc + 1}</text>
+                </g>
+              ))
+            )}
           </g>
-          <g className="gcviz-nodes">
-            {NODES.map((n) => {
-              const fill = nodeFill(n.id);
-              const className = nodeClass(n.id);
-              const isCurrent = step.cur === n.id;
+
+          <text x={panelX} y={150} className="gcv-col-label">chosen color</text>
+          {current.chosen >= 0 ? (
+            <g>
+              <rect x={panelX} y={158} width={26} height={22} rx={4} fill={colorFill(current.chosen)} />
+              <text x={panelX + 13} y={174} className="gcv-swatch-text">{current.chosen + 1}</text>
+            </g>
+          ) : (
+            <text x={panelX} y={174} className="gcv-row-meta">—</text>
+          )}
+
+          <line x1={panelX} y1={194} x2={panelX + panelW} y2={194} stroke="var(--border)" strokeWidth={1} />
+
+          <text x={panelX} y={216} className="gcv-col-label">colors used</text>
+          <text x={panelX} y={246} className="gcv-readout-big">
+            {current.usedCount}
+          </text>
+          <text x={panelX} y={272} className="gcv-col-label">palette</text>
+          <g>
+            {legendColors.map((ci, i) => {
+              const inUse = current.color.includes(ci);
               return (
-                <g
-                  key={n.id}
-                  className={className}
-                  transform={`translate(${n.x},${n.y})`}
-                  aria-label={`Node ${n.id}`}
-                >
-                  {isCurrent && (
-                    <circle className="gcviz-node-ring" r="30" />
-                  )}
-                  {isCurrent && step.kind === 'ok' && (
-                    <circle className="gcviz-flash gcviz-flash-ok" r="26" />
-                  )}
-                  {isCurrent && (step.kind === 'conflict' || step.kind === 'fail') && (
-                    <circle className="gcviz-flash gcviz-flash-bad" r="26" />
-                  )}
-                  <circle
-                    className="gcviz-node-circle"
-                    r="22"
-                    style={{ fill }}
+                <g key={`lg-${ci}`}>
+                  <rect
+                    x={panelX + i * 28} y={280} width={22} height={22} rx={4}
+                    fill={colorFill(ci)}
+                    opacity={inUse ? 1 : 0.3}
+                    stroke={inUse ? 'var(--text-main)' : 'var(--border)'}
+                    strokeWidth={inUse ? 1.5 : 1}
                   />
-                  <text textAnchor="middle" dominantBaseline="central">{n.id}</text>
+                  <text x={panelX + i * 28 + 11} y={295} className="gcv-swatch-text">{ci + 1}</text>
                 </g>
               );
             })}
           </g>
         </svg>
-        {isDone && (
-          <div className="gcviz-banner gcviz-banner-ok" role="status">
-            Valid {k}-colouring found in {idx} steps.
-          </div>
-        )}
-        {isFail && (
-          <div className="gcviz-banner gcviz-banner-bad" role="status">
-            Graph is not {k}-colourable. Raise k and try again.
-          </div>
-        )}
       </div>
 
-      <div className="gcviz-status">
-        <div className="gcviz-status-row">
-          <span className="gcviz-status-label">Step</span>
-          <span className="gcviz-status-value">{idx} / {steps.length - 1}</span>
+      <div className="gcv-metrics">
+        <div className="gcv-metric">
+          <span className="gcv-metric-label">current vertex</span>
+          <span className="gcv-metric-value">{current.activeNode < 0 ? '—' : lbl(current.activeNode)}</span>
         </div>
-        <div className="gcviz-status-row">
-          <span className="gcviz-status-label">Node</span>
-          <span className="gcviz-status-value">
-            {step.cur ?? <span className="gcviz-muted">—</span>}
+        <div className="gcv-metric">
+          <span className="gcv-metric-label">neighbour colors</span>
+          <span className="gcv-metric-value">
+            {current.forbidden.length === 0 ? '∅' : `{${[...current.forbidden].map((c) => c + 1).sort((a, b) => a - b).join(', ')}}`}
           </span>
         </div>
-        <div className="gcviz-status-row">
-          <span className="gcviz-status-label">Try</span>
-          <span className="gcviz-status-value">
-            {step.tryColor >= 1
-              ? COLOR_LABELS[step.tryColor - 1]
-              : <span className="gcviz-muted">—</span>}
-          </span>
+        <div className="gcv-metric">
+          <span className="gcv-metric-label">chosen color</span>
+          <span className="gcv-metric-value">{current.chosen < 0 ? '—' : current.chosen + 1}</span>
+        </div>
+        <div className="gcv-metric">
+          <span className="gcv-metric-label">colors used</span>
+          <span className="gcv-metric-value">{current.usedCount}</span>
+        </div>
+        <div className="gcv-metric gcv-metric-dim">
+          <span className="gcv-metric-label">bound</span>
+          <span className="gcv-metric-value gcv-metric-dimval">&le; &Delta;+1 = {maxDegree + 1}</span>
+        </div>
+        <div className="gcv-metric gcv-metric-dim">
+          <span className="gcv-metric-label">final (this order)</span>
+          <span className="gcv-metric-value gcv-metric-dimval">{colorsUsed} colors</span>
         </div>
       </div>
 
-      <div className="gcviz-stack">
-        <div className="gcviz-stack-label">Recursion stack (bottom → top)</div>
-        <div className="gcviz-stack-chips">
-          {step.stack.length === 0 ? (
-            <span className="gcviz-muted">empty</span>
-          ) : (
-            step.stack.map((frame, i) => (
-              <span
-                key={`${frame.nodeId}-${i}`}
-                className={`gcviz-chip ${i === step.stack.length - 1 ? 'gcviz-chip-top' : ''}`}
-                style={{
-                  borderColor: `var(${COLOR_TOKENS[frame.color - 1]})`,
-                  color: `var(${COLOR_TOKENS[frame.color - 1]})`,
-                }}
-              >
-                {frame.nodeId}:{COLOR_LABELS[frame.color - 1]}
-              </span>
-            ))
-          )}
-        </div>
-      </div>
-
-      <p className="gcviz-caption">{step.caption}</p>
-
-      <div className="gcviz-controls">
-        <button
-          type="button"
-          className="gcviz-btn gcviz-btn-secondary"
-          onClick={handleReset}
-          aria-label="Reset"
-        >
-          <RotateCcw size={16} />
-          <span>Reset</span>
-        </button>
-        <button
-          type="button"
-          className="gcviz-btn gcviz-btn-primary"
-          onClick={() => {
-            if (atEnd) {
-              setIdx(0);
-              setPlaying(true);
-              return;
-            }
-            setPlaying((p) => !p);
-          }}
-          aria-label={playing ? 'Pause' : 'Run'}
-        >
-          {playing ? <Pause size={16} /> : <Play size={16} />}
-          <span>{playing ? 'Pause' : atEnd ? 'Replay' : 'Run'}</span>
-        </button>
-        <button
-          type="button"
-          className="gcviz-btn gcviz-btn-secondary"
-          onClick={next}
-          disabled={atEnd}
-          aria-label="Step"
-        >
-          <SkipForward size={16} />
-          <span>Step</span>
-        </button>
+      <div className="gcv-arith">
+        <span className="gcv-arith-label">trace</span>
+        <span className="gcv-arith-vals">{current.note}</span>
       </div>
     </div>
   );

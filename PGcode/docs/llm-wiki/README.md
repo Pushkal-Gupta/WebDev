@@ -38,6 +38,8 @@ When you notice an agent stalling, repeating a mistake, or producing the same bu
 | `judge0-and-backgrounds.md` | When to launch background processes + how to monitor them |
 | `agent-dispatch-recipes.md` | Wave templates that have worked (and ones that haven't) |
 | `pattern-1-quoting-bug.md` | The JSON-double-quoting storage bug + fix recipe |
+| `entranthub-visualgo-integration.md` | EntrantHub contest-aggregation + VisuAlgo visualize-overhaul plan (and the "delete the references" rule) |
+| `page-must-scroll.md` | The recurring "new page can't scroll" bug + the route-container fix + 5-pass UI verify |
 
 ## Authoring rules for wiki pages
 

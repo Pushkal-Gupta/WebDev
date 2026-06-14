@@ -1,0 +1,569 @@
+[
+  {
+    "slug": "longest-consecutive-sequence",
+    "verdict": "PASS",
+    "passed": 32,
+    "total": 32,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "shortest-unsorted-continuous-subarray",
+    "verdict": "PASS",
+    "passed": 32,
+    "total": 32,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "max-points-on-a-line",
+    "verdict": "PARTIAL",
+    "passed": 27,
+    "total": 28,
+    "returnsStr": false,
+    "firstFails": [
+      {
+        "i": 20,
+        "expected": "2",
+        "actual": "",
+        "status": "err:This operation was aborted"
+      }
+    ]
+  },
+  {
+    "slug": "two-sum-iv-input-is-a-bst",
+    "verdict": "PASS",
+    "passed": 28,
+    "total": 28,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "min-stack",
+    "verdict": "PASS",
+    "passed": 32,
+    "total": 32,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "design-circular-queue",
+    "verdict": "PASS",
+    "passed": 30,
+    "total": 30,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "design-add-and-search-words-data-structure",
+    "verdict": "PASS",
+    "passed": 30,
+    "total": 30,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "implement-trie-prefix-tree",
+    "verdict": "PASS",
+    "passed": 30,
+    "total": 30,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "word-break-ii",
+    "verdict": "PASS",
+    "passed": 28,
+    "total": 28,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "longest-zigzag-subsequence",
+    "verdict": "PASS",
+    "passed": 32,
+    "total": 32,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "maximum-product-of-three-numbers",
+    "verdict": "PASS",
+    "passed": 32,
+    "total": 32,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "peeking-iterator",
+    "verdict": "PASS",
+    "passed": 28,
+    "total": 28,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "binary-search-tree-iterator",
+    "verdict": "PASS",
+    "passed": 28,
+    "total": 28,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "roman-to-integer",
+    "verdict": "PASS",
+    "passed": 30,
+    "total": 30,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "merge-k-sorted-lists",
+    "verdict": "PARTIAL",
+    "passed": 25,
+    "total": 28,
+    "returnsStr": false,
+    "firstFails": [
+      {
+        "i": 7,
+        "expected": "[1,2,3]",
+        "actual": "",
+        "status": "err:This operation was aborted"
+      },
+      {
+        "i": 13,
+        "expected": "[0,1,2,3,4,5,6,7,8,9,10]",
+        "actual": "",
+        "status": "err:This operation was aborted"
+      },
+      {
+        "i": 19,
+        "expected": "[-2147483648,0,2147483647]",
+        "actual": "",
+        "status": "err:This operation was aborted"
+      }
+    ]
+  },
+  {
+    "slug": "4sum",
+    "verdict": "PASS",
+    "passed": 28,
+    "total": 28,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "find-median-from-data-stream",
+    "verdict": "PASS",
+    "passed": 28,
+    "total": 28,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "serialize-deserialize-bst",
+    "verdict": "PASS",
+    "passed": 28,
+    "total": 28,
+    "returnsStr": true,
+    "firstFails": []
+  },
+  {
+    "slug": "palindrome-pairs",
+    "verdict": "PASS",
+    "passed": 28,
+    "total": 28,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "shortest-palindrome",
+    "verdict": "PASS",
+    "passed": 28,
+    "total": 28,
+    "returnsStr": true,
+    "firstFails": []
+  },
+  {
+    "slug": "insert-delete-getrandom-o1",
+    "verdict": "PASS",
+    "passed": 28,
+    "total": 28,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "lru-cache-design",
+    "verdict": "PARTIAL",
+    "passed": 27,
+    "total": 28,
+    "returnsStr": false,
+    "firstFails": [
+      {
+        "i": 14,
+        "expected": "[-1,-1,-1]",
+        "actual": "",
+        "status": "err:This operation was aborted"
+      }
+    ]
+  },
+  {
+    "slug": "valid-anagram",
+    "verdict": "PARTIAL",
+    "passed": 27,
+    "total": 28,
+    "returnsStr": false,
+    "firstFails": [
+      {
+        "i": 21,
+        "expected": "true",
+        "actual": "Traceback (most recent call la",
+        "status": "runtime_error"
+      }
+    ]
+  },
+  {
+    "slug": "valid-parentheses",
+    "verdict": "PARTIAL",
+    "passed": 31,
+    "total": 33,
+    "returnsStr": false,
+    "firstFails": [
+      {
+        "i": 21,
+        "expected": "true",
+        "actual": "",
+        "status": "err:This operation was aborted"
+      },
+      {
+        "i": 27,
+        "expected": "true",
+        "actual": "",
+        "status": "err:This operation was aborted"
+      }
+    ]
+  },
+  {
+    "slug": "add-two-numbers-ii",
+    "verdict": "PASS",
+    "passed": 28,
+    "total": 28,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "design-linked-list",
+    "verdict": "PASS",
+    "passed": 28,
+    "total": 28,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "letter-case-permutation",
+    "verdict": "PASS",
+    "passed": 26,
+    "total": 26,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "shortest-word-distance",
+    "verdict": "PARTIAL",
+    "passed": 25,
+    "total": 26,
+    "returnsStr": false,
+    "firstFails": [
+      {
+        "i": 3,
+        "expected": "1",
+        "actual": "",
+        "status": "err:This operation was aborted"
+      }
+    ]
+  },
+  {
+    "slug": "maximum-binary-tree",
+    "verdict": "PASS",
+    "passed": 26,
+    "total": 26,
+    "returnsStr": true,
+    "firstFails": []
+  },
+  {
+    "slug": "binary-tree-pruning",
+    "verdict": "PASS",
+    "passed": 26,
+    "total": 26,
+    "returnsStr": true,
+    "firstFails": []
+  },
+  {
+    "slug": "best-time-to-buy-and-sell-stock-iv",
+    "verdict": "PASS",
+    "passed": 26,
+    "total": 26,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "best-time-to-buy-and-sell-stock-with-transaction-fee",
+    "verdict": "PASS",
+    "passed": 26,
+    "total": 26,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "making-a-large-island",
+    "verdict": "PASS",
+    "passed": 26,
+    "total": 26,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "shortest-path-with-alternating-colors",
+    "verdict": "PASS",
+    "passed": 26,
+    "total": 26,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "minimum-window-subsequence",
+    "verdict": "PASS",
+    "passed": 26,
+    "total": 26,
+    "returnsStr": true,
+    "firstFails": []
+  },
+  {
+    "slug": "next-greater-element-iii",
+    "verdict": "PASS",
+    "passed": 32,
+    "total": 32,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "count-complete-tree-nodes",
+    "verdict": "PARTIAL",
+    "passed": 1,
+    "total": 26,
+    "returnsStr": false,
+    "firstFails": [
+      {
+        "i": 0,
+        "expected": "6",
+        "actual": "Traceback (most recent call la",
+        "status": "runtime_error"
+      },
+      {
+        "i": 2,
+        "expected": "1",
+        "actual": "Traceback (most recent call la",
+        "status": "runtime_error"
+      },
+      {
+        "i": 3,
+        "expected": "2",
+        "actual": "Traceback (most recent call la",
+        "status": "runtime_error"
+      }
+    ]
+  },
+  {
+    "slug": "find-leaves-of-binary-tree",
+    "verdict": "PARTIAL",
+    "passed": 1,
+    "total": 26,
+    "returnsStr": false,
+    "firstFails": [
+      {
+        "i": 0,
+        "expected": "[[4,5,3],[2],[1]]",
+        "actual": "Traceback (most recent call la",
+        "status": "runtime_error"
+      },
+      {
+        "i": 1,
+        "expected": "[[1]]",
+        "actual": "Traceback (most recent call la",
+        "status": "runtime_error"
+      },
+      {
+        "i": 3,
+        "expected": "[[2],[1]]",
+        "actual": "Traceback (most recent call la",
+        "status": "runtime_error"
+      }
+    ]
+  },
+  {
+    "slug": "minimum-cost-to-connect-sticks",
+    "verdict": "PARTIAL",
+    "passed": 25,
+    "total": 26,
+    "returnsStr": false,
+    "firstFails": [
+      {
+        "i": 7,
+        "expected": "8",
+        "actual": "",
+        "status": "err:This operation was aborted"
+      }
+    ]
+  },
+  {
+    "slug": "the-skyline-problem",
+    "verdict": "PASS",
+    "passed": 26,
+    "total": 26,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "minimum-insertion-steps-to-make-string-palindrome",
+    "verdict": "PASS",
+    "passed": 26,
+    "total": 26,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "delete-operation-for-two-strings",
+    "verdict": "PASS",
+    "passed": 26,
+    "total": 26,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "arithmetic-slices-ii-subsequence",
+    "verdict": "PASS",
+    "passed": 26,
+    "total": 26,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "minimum-time-difference",
+    "verdict": "PARTIAL",
+    "passed": 25,
+    "total": 26,
+    "returnsStr": false,
+    "firstFails": [
+      {
+        "i": 8,
+        "expected": "0",
+        "actual": "",
+        "status": "err:This operation was aborted"
+      }
+    ]
+  },
+  {
+    "slug": "pow-x-n",
+    "verdict": "PASS",
+    "passed": 26,
+    "total": 26,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "divide-two-integers",
+    "verdict": "PASS",
+    "passed": 26,
+    "total": 26,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "design-hashset",
+    "verdict": "PASS",
+    "passed": 25,
+    "total": 25,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "design-hashmap",
+    "verdict": "PASS",
+    "passed": 25,
+    "total": 25,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "can-place-flowers",
+    "verdict": "PASS",
+    "passed": 28,
+    "total": 28,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "best-sightseeing-pair",
+    "verdict": "PASS",
+    "passed": 28,
+    "total": 28,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "subarray-sums-divisible-by-k",
+    "verdict": "PARTIAL",
+    "passed": 27,
+    "total": 28,
+    "returnsStr": false,
+    "firstFails": [
+      {
+        "i": 16,
+        "expected": "25",
+        "actual": "",
+        "status": "err:This operation was aborted"
+      }
+    ]
+  },
+  {
+    "slug": "maximum-size-subarray-sum-equals-k",
+    "verdict": "PASS",
+    "passed": 28,
+    "total": 28,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "check-if-string-contains-all-binary-codes-of-size-k",
+    "verdict": "PASS",
+    "passed": 28,
+    "total": 28,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "minimum-deletions-to-make-string-balanced",
+    "verdict": "PASS",
+    "passed": 30,
+    "total": 30,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "game-of-life",
+    "verdict": "PASS",
+    "passed": 28,
+    "total": 28,
+    "returnsStr": false,
+    "firstFails": []
+  },
+  {
+    "slug": "spiral-matrix-ii",
+    "verdict": "PASS",
+    "passed": 20,
+    "total": 20,
+    "returnsStr": false,
+    "firstFails": []
+  }
+]

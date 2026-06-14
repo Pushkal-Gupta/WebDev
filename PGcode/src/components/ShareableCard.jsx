@@ -1,13 +1,13 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Flame, Trophy, ArrowLeft, Download, Link2, Check, GitBranch, Globe, Code2, ExternalLink } from 'lucide-react';
+import { Flame, Trophy, ArrowLeft, Download, Link2, Check, GitBranch, Globe, Code2, ExternalLink, Award, TrendingUp } from 'lucide-react';
 // Lucide dropped brand icons (Linkedin, Twitter, Github) in recent versions —
 // fall back to Globe so the link still renders cleanly.
 const Linkedin = Globe;
 const Twitter = Globe;
 import { supabase } from '../lib/supabase';
-import { useTopics, useProblemsCompact } from '../lib/queries';
+import { useTopics, useProblemsCompact, useLeetCodeUser } from '../lib/queries';
 import { primaryTopicLabel } from '../lib/topicLabel';
 import './ShareableCard.css';
 
@@ -118,9 +118,9 @@ function readToken(name, fallback) {
 
 // Render the card as a static SVG string — used for PNG export. Keeps tokens
 // resolved at export time so the downloaded image matches the active theme.
-function buildSvg({ displayName, handle, solved, totalProblems, streak, byDifficulty, topTopics, dateStr, learn, githubStats }) {
+function buildSvg({ displayName, handle, solved, totalProblems, streak, byDifficulty, topTopics, dateStr, learn, githubStats, leetcodeStats, leetcodeSpark, leetcodeTopPct, leetcodeHandle }) {
   const W = 1200;
-  const H = 820;
+  const H = leetcodeStats ? 1000 : 820;
   const bg = readToken('--bg', '#0b0b10');
   const surface = readToken('--surface', '#16161d');
   const accent = readToken('--accent', '#7c5cff');
@@ -216,6 +216,53 @@ function buildSvg({ displayName, handle, solved, totalProblems, streak, byDiffic
     `;
   }
 
+  // LeetCode row — eyebrow + big rating + 4 stats + rating sparkline.
+  let leetcodeBlock = '';
+  if (leetcodeStats) {
+    const lcY = githubStats ? 850 : 700;
+    const lcEyebrow = `LEETCODE · @${escapeXml(leetcodeStats.username || leetcodeHandle || '')}`;
+    const rating = formatRating(leetcodeStats.rating);
+    const lcCols = [
+      { val: typeof leetcodeStats.globalRanking === 'number' ? `#${leetcodeStats.globalRanking.toLocaleString()}` : '—', label: 'global rank' },
+      { val: leetcodeTopPct || '—', label: 'top percentile' },
+      { val: String(leetcodeStats.attendedContestsCount ?? 0), label: 'contests' },
+      { val: leetcodeStats.submitStats?.total != null ? String(leetcodeStats.submitStats.total) : '—', label: 'solved' },
+    ];
+    const lcStatsSvg = lcCols.map((c, i) => {
+      const x = 360 + i * 200;
+      return `
+        <text x="${x}" y="${lcY + 44}" font-family="Inter,system-ui,sans-serif" font-size="26" font-weight="800" fill="${text}">${escapeXml(c.val)}</text>
+        <text x="${x}" y="${lcY + 66}" font-family="Inter,system-ui,sans-serif" font-size="13" fill="${dim}">${escapeXml(c.label)}</text>
+      `;
+    }).join('');
+    const badgeSvg = leetcodeStats.badge?.name
+      ? `<text x="60" y="${lcY + 92}" font-family="Inter,system-ui,sans-serif" font-size="14" fill="${accent}" font-weight="600">${escapeXml(leetcodeStats.badge.name)}</text>`
+      : '';
+    let sparkSvg = '';
+    if (leetcodeSpark) {
+      const sx = 360;
+      const sy = lcY + 78;
+      const sw = 740;
+      const sh = 40;
+      // Re-scale the normalized polyline (built over its own viewBox) into place.
+      const pts = leetcodeSpark.line.split(' ').map(p => {
+        const [px, py] = p.split(',').map(Number);
+        const nx = sx + (px / leetcodeSpark.w) * sw;
+        const ny = sy + (py / leetcodeSpark.h) * sh;
+        return `${nx.toFixed(1)},${ny.toFixed(1)}`;
+      }).join(' ');
+      sparkSvg = `<polyline points="${pts}" fill="none" stroke="${accent}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" />`;
+    }
+    leetcodeBlock = `
+      <text x="60" y="${lcY}" font-family="Inter,system-ui,sans-serif" font-size="13" fill="${dim}" font-weight="600" letter-spacing="2">${lcEyebrow}</text>
+      <text x="60" y="${lcY + 54}" font-family="Inter,system-ui,sans-serif" font-size="56" font-weight="800" fill="url(#accentGrad)">${escapeXml(rating)}</text>
+      <text x="60" y="${lcY + 76}" font-family="Inter,system-ui,sans-serif" font-size="14" fill="${dim}">contest rating</text>
+      ${badgeSvg}
+      ${lcStatsSvg}
+      ${sparkSvg}
+    `;
+  }
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
   <defs>
@@ -282,6 +329,9 @@ function buildSvg({ displayName, handle, solved, totalProblems, streak, byDiffic
   <!-- GitHub row (skipped when githubStats is null) -->
   ${githubBlock}
 
+  <!-- LeetCode row (skipped when leetcodeStats is null) -->
+  ${leetcodeBlock}
+
   <!-- Footer / branding -->
   <text x="60" y="${H - 40}" font-family="Inter,system-ui,sans-serif" font-size="14" fill="${dim}">${escapeXml(dateStr)}</text>
   <text x="${W - 60}" y="${H - 40}" font-family="Inter,system-ui,sans-serif" font-size="18" font-weight="700" fill="${accent}" text-anchor="end">PGcode</text>
@@ -297,6 +347,35 @@ function initialFor(name) {
   return s ? s.charAt(0).toUpperCase() : '?';
 }
 
+// Build a normalized polyline path for a rating sparkline over a fixed viewBox.
+// Returns null when there aren't enough attended contests to draw a trend.
+function sparklinePath(history, w = 200, h = 44, pad = 4) {
+  const pts = (Array.isArray(history) ? history : [])
+    .filter(p => p && p.attended && typeof p.rating === 'number')
+    .map(p => p.rating);
+  if (pts.length < 2) return null;
+  const min = Math.min(...pts);
+  const max = Math.max(...pts);
+  const span = max - min || 1;
+  const stepX = (w - pad * 2) / (pts.length - 1);
+  const coords = pts.map((r, i) => {
+    const x = pad + i * stepX;
+    const y = h - pad - ((r - min) / span) * (h - pad * 2);
+    return [Number(x.toFixed(1)), Number(y.toFixed(1))];
+  });
+  const line = coords.map(([x, y]) => `${x},${y}`).join(' ');
+  const last = coords[coords.length - 1];
+  return { line, last, w, h };
+}
+
+function formatRating(n) {
+  return typeof n === 'number' ? Math.round(n).toLocaleString() : '—';
+}
+function formatTopPct(n) {
+  if (typeof n !== 'number' || n <= 0) return null;
+  return `${n < 1 ? n.toFixed(2) : n.toFixed(1)}%`;
+}
+
 // Convert the SVG string into a PNG download via a hidden canvas.
 async function downloadAsPng(svgString, filename) {
   const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
@@ -309,11 +388,14 @@ async function downloadAsPng(svgString, filename) {
       img.onerror = reject;
       img.src = url;
     });
+    const vb = svgString.match(/viewBox="0 0 (\d+) (\d+)"/);
+    const w = vb ? Number(vb[1]) : 1200;
+    const h = vb ? Number(vb[2]) : 820;
     const canvas = document.createElement('canvas');
-    canvas.width = 1200;
-    canvas.height = 820;
+    canvas.width = w;
+    canvas.height = h;
     const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, 1200, 820);
+    ctx.drawImage(img, 0, 0, w, h);
     const pngUrl = canvas.toDataURL('image/png');
     const a = document.createElement('a');
     a.href = pngUrl;
@@ -326,7 +408,7 @@ async function downloadAsPng(svgString, filename) {
   }
 }
 
-export default function ShareableCard({ embedded = false, presetUsername = null, presetUserId = null, presetDisplayName = null, githubStats = null }) {
+export default function ShareableCard({ embedded = false, presetUsername = null, presetUserId = null, presetDisplayName = null, githubStats = null, leetcodeHandle = null }) {
   const params = useParams();
   const username = presetUsername || params.username;
 
@@ -338,6 +420,12 @@ export default function ShareableCard({ embedded = false, presetUsername = null,
   const { data: learn } = useProfileLearn(ownerId);
   const { data: topics = [] } = useTopics();
   const { data: allProblems = [] } = useProblemsCompact();
+
+  // Prefer an explicit prop (live settings preview) over the stored handle.
+  const lcHandle = ((leetcodeHandle ?? profile?.leetcode_handle) || '').trim();
+  const { data: lcData } = useLeetCodeUser(lcHandle || undefined);
+  // Only render the block when we have a contest rating to show.
+  const lcStats = lcData && typeof lcData.rating === 'number' ? lcData : null;
 
   const topicLabelById = useMemo(() => {
     const m = {};
@@ -353,6 +441,9 @@ export default function ShareableCard({ embedded = false, presetUsername = null,
       .slice(0, 5);
   }, [solves, topicLabelById]);
 
+  const lcSpark = useMemo(() => (lcStats ? sparklinePath(lcStats.history) : null), [lcStats]);
+  const lcTopPct = lcStats ? formatTopPct(lcStats.topPercentage) : null;
+
   const displayName = presetDisplayName || profile?.display_name || (username ? `@${username}` : 'PGcoder');
   const handle = profile?.username ? `@${profile.username}` : (username ? `@${username}` : '@anonymous');
   const solved = solves?.total ?? 0;
@@ -365,7 +456,7 @@ export default function ShareableCard({ embedded = false, presetUsername = null,
   const cardRef = useRef(null);
 
   const handleDownload = async () => {
-    const svg = buildSvg({ displayName, handle, solved, totalProblems, streak, byDifficulty, topTopics, dateStr, learn, githubStats });
+    const svg = buildSvg({ displayName, handle, solved, totalProblems, streak, byDifficulty, topTopics, dateStr, learn, githubStats, leetcodeStats: lcStats, leetcodeSpark: lcSpark, leetcodeTopPct: lcTopPct, leetcodeHandle: lcHandle });
     await downloadAsPng(svg, `pgcode-${(profile?.username || username || 'card')}.png`);
   };
 
@@ -404,7 +495,7 @@ export default function ShareableCard({ embedded = false, presetUsername = null,
   }
 
   const card = (
-    <div className="sc-card" ref={cardRef} style={{ '--easy-h': '142', '--med-h': '45', '--hard-h': '0' }}>
+    <div className={`sc-card${lcStats ? ' sc-card--lc' : ''}`} ref={cardRef} style={{ '--easy-h': '142', '--med-h': '45', '--hard-h': '0' }}>
       <div className="sc-card-bg" aria-hidden="true" />
       <div className="sc-card-head">
         <div className="sc-avatar">{initialFor(displayName)}</div>
@@ -498,6 +589,65 @@ export default function ShareableCard({ embedded = false, presetUsername = null,
               {githubStats.topLangs.map(l => <span key={l} className="sc-gh-lang">{l}</span>)}
             </div>
           )}
+        </div>
+      )}
+
+      {lcStats && (
+        <div className="sc-lc">
+          <div className="sc-eyebrow">
+            <Code2 size={11} style={{ verticalAlign: '-1px', marginRight: 4 }} />
+            LeetCode · @{lcStats.username || lcHandle}
+          </div>
+          <div className="sc-lc-grid">
+            <div className="sc-lc-rating">
+              <div className="sc-lc-rating-num">{formatRating(lcStats.rating)}</div>
+              <div className="sc-lc-rating-label">contest rating</div>
+              {lcStats.badge?.name && (
+                <div className="sc-lc-badge"><Award size={13} /> {lcStats.badge.name}</div>
+              )}
+            </div>
+            <div className="sc-lc-stats">
+              <div className="sc-lc-stat">
+                <strong>{typeof lcStats.globalRanking === 'number' ? `#${lcStats.globalRanking.toLocaleString()}` : '—'}</strong>
+                <span>global rank</span>
+              </div>
+              <div className="sc-lc-stat">
+                <strong>{lcTopPct || '—'}</strong>
+                <span>top percentile</span>
+              </div>
+              <div className="sc-lc-stat">
+                <strong>{lcStats.attendedContestsCount ?? 0}</strong>
+                <span>contests</span>
+              </div>
+              <div className="sc-lc-stat">
+                <strong>{lcStats.submitStats?.total ?? '—'}</strong>
+                <span>solved</span>
+              </div>
+            </div>
+            <div className="sc-lc-spark">
+              <div className="sc-lc-spark-head"><TrendingUp size={12} /> rating history</div>
+              {lcSpark ? (
+                <svg
+                  className="sc-lc-spark-svg"
+                  viewBox={`0 0 ${lcSpark.w} ${lcSpark.h}`}
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <polyline
+                    points={lcSpark.line}
+                    fill="none"
+                    stroke="var(--accent)"
+                    strokeWidth="2"
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                  />
+                  <circle cx={lcSpark.last[0]} cy={lcSpark.last[1]} r="3" fill="var(--accent)" />
+                </svg>
+              ) : (
+                <div className="sc-lc-spark-empty">Not enough contests yet</div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 

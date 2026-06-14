@@ -1,0 +1,320 @@
+.cpuv {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.cpuv-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.cpuv-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.cpuv-sub {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.cpuv-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.cpuv-modes {
+  display: inline-flex;
+  gap: 0.3rem;
+  padding: 0.2rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  flex-wrap: wrap;
+}
+
+.cpuv-mode {
+  padding: 0.35rem 0.7rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: transparent;
+  color: var(--text-dim);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.cpuv-mode:hover {
+  color: var(--text-main);
+}
+.cpuv-mode.is-on {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.cpuv-slider {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: opacity 0.15s;
+}
+.cpuv-slider.is-disabled {
+  opacity: 0.4;
+}
+
+.cpuv-input-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.cpuv-range {
+  width: 100px;
+  accent-color: var(--accent);
+}
+
+.cpuv-slider-val {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 1.6em;
+  text-align: right;
+}
+
+.cpuv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.cpuv-btn:hover:not(:disabled) {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+
+.cpuv-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.cpuv-btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  background: var(--accent);
+}
+
+.cpuv-spacer {
+  flex: 1 1 auto;
+}
+
+.cpuv-stage {
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.cpuv-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.cpuv-row-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+}
+
+.cpuv-block {
+  fill: var(--accent);
+  stroke: var(--accent);
+  stroke-width: 1.4;
+  fill-opacity: 0.85;
+  transition: x 0.3s ease, width 0.3s ease, fill 0.2s ease;
+}
+.cpuv-block.is-idle {
+  fill: var(--surface);
+  stroke: var(--border);
+  fill-opacity: 1;
+  stroke-dasharray: 5 4;
+}
+
+.cpuv-block-label {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--bg);
+  text-anchor: middle;
+  pointer-events: none;
+}
+.cpuv-block-label.is-idle {
+  fill: var(--text-dim);
+}
+
+.cpuv-axis {
+  stroke: var(--border);
+  stroke-width: 1.6;
+}
+
+.cpuv-tick {
+  stroke: var(--border);
+  stroke-width: 1.2;
+}
+
+.cpuv-tick-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+.cpuv-axis-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+}
+
+.cpuv-th {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+}
+
+.cpuv-trow {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.cpuv-td-name {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: start;
+}
+
+.cpuv-td {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  fill: var(--text-main);
+}
+.cpuv-td.is-wait {
+  fill: var(--warning);
+}
+
+.cpuv-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.6rem;
+}
+
+.cpuv-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.cpuv-metric-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.cpuv-metric-value {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.cpuv-metric-value.is-ok { color: var(--easy); }
+.cpuv-metric-value.is-wait { color: var(--warning); }
+
+.cpuv-metric-dim {
+  background: var(--bg);
+}
+
+.cpuv-metric-dimval {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.cpuv-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.cpuv-narration-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.cpuv-narration-body {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text-main);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cpuv-btn,
+  .cpuv-mode,
+  .cpuv-slider,
+  .cpuv-block {
+    transition: none;
+  }
+}

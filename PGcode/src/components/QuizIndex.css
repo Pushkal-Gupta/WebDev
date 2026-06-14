@@ -275,6 +275,14 @@
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
 }
 
+.quiz-card-topic {
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--card-accent, var(--accent));
+}
+
 .quiz-card-head {
   display: flex;
   align-items: baseline;

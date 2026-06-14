@@ -58,9 +58,11 @@ const WebSandbox = lazy(() => import('./components/WebSandbox'));
 const SqlPlayground = lazy(() => import('./components/SqlPlayground'));
 const CompaniesIndex = lazy(() => import('./components/company/CompaniesIndex'));
 const CompanyDetail = lazy(() => import('./components/company/CompanyDetail'));
+const CompanyGroup = lazy(() => import('./components/company/CompanyGroup'));
 const AdminPanel = lazy(() => import('./components/admin/AdminPanel'));
 const AdminCompleteness = lazy(() => import('./components/admin/AdminCompleteness'));
 const ContestsIndex = lazy(() => import('./components/contests/ContestsIndex'));
+const CompeteHub = lazy(() => import('./components/compete/CompeteHub'));
 const ContestDetail = lazy(() => import('./components/contests/ContestDetail'));
 const PracticeHistory = lazy(() => import('./components/PracticeHistory'));
 const MyLists = lazy(() => import('./components/MyLists'));
@@ -255,6 +257,7 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
           <Route path="/learn/:moduleSlug" element={<LearnIndex session={session} />} />
           <Route path="/learn/:moduleSlug/:conceptSlug" element={<ConceptPage session={session} />} />
           <Route path="/visualize" element={<VisualizeIndex />} />
+          <Route path="/visualize/c/:category" element={<VisualizeIndex />} />
           <Route path="/visualize/:slug" element={<VisualizeIndex />} />
           <Route path="/courses" element={<CoursesIndex />} />
           <Route path="/courses/:slug" element={<CoursePage />} />
@@ -271,8 +274,10 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
           <Route path="/playground/sql" element={<SqlPlayground theme={theme} />} />
           <Route path="/playground/sql/:courseSlug" element={<SqlPlayground theme={theme} />} />
           <Route path="/company" element={<CompaniesIndex />} />
+          <Route path="/company/g/:groupSlug" element={<CompanyGroup />} />
           <Route path="/company/:slug" element={<CompanyDetail session={session} />} />
           <Route path="/contests" element={<ContestsIndex />} />
+          <Route path="/compete" element={<CompeteHub />} />
           <Route path="/contests/:slug" element={<ContestDetail session={session} />} />
           <Route path="/history" element={<PracticeHistory session={session} roadmapMode={roadmapMode} />} />
           <Route path="/lists" element={<MyLists session={session} />} />

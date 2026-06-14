@@ -587,6 +587,7 @@ export default function FenwickTreeViz() {
         <svg
           className="ftv-svg"
           viewBox={`0 0 ${SVG_W} ${SVG_H}`}
+          preserveAspectRatio="xMidYMid meet"
           role="img"
           aria-label="Fenwick tree visualization"
         >

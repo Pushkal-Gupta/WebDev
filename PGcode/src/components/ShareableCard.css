@@ -95,21 +95,28 @@
   transform: scale(var(--sc-scale, 1));
 }
 
-/* Down-scale the 1200-wide card to fit narrower viewports without distorting. */
+/* Down-scale the 1200-wide card to fit narrower viewports without distorting.
+   margin-bottom cancels the empty space left by transform: scale (which doesn't
+   reflow layout). The --lc variant is 1000px tall, so it needs a deeper pull. */
 @media (max-width: 1280px) {
   .sc-card { --sc-scale: 0.88; margin-bottom: -98px; }
+  .sc-card--lc { margin-bottom: -120px; }
 }
 @media (max-width: 1100px) {
   .sc-card { --sc-scale: 0.74; margin-bottom: -213px; }
+  .sc-card--lc { margin-bottom: -260px; }
 }
 @media (max-width: 900px) {
   .sc-card { --sc-scale: 0.58; margin-bottom: -344px; }
+  .sc-card--lc { margin-bottom: -420px; }
 }
 @media (max-width: 700px) {
   .sc-card { --sc-scale: 0.42; margin-bottom: -476px; }
+  .sc-card--lc { margin-bottom: -580px; }
 }
 @media (max-width: 500px) {
   .sc-card { --sc-scale: 0.3; margin-bottom: -574px; }
+  .sc-card--lc { margin-bottom: -700px; }
 }
 
 .sc-card-bg {
@@ -339,6 +346,117 @@
   font-weight: 600;
 }
 
+/* LeetCode block — full-width row, only present when a handle resolves. */
+.sc-card--lc {
+  height: 1000px;
+  grid-template-areas:
+    "head head"
+    "big streak"
+    "diff topics"
+    "learn github"
+    "leetcode leetcode"
+    "foot foot";
+}
+.sc-lc {
+  grid-area: leetcode;
+  position: relative;
+  z-index: 1;
+  align-self: start;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+.sc-lc-grid {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 28px;
+}
+.sc-lc-rating {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sc-lc-rating-num {
+  font-family: var(--serif);
+  font-size: 52px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  background: linear-gradient(120deg, var(--accent), rgba(var(--accent-rgb), 0.55));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.sc-lc-rating-label {
+  font-size: 13px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.sc-lc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.sc-lc-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px 18px;
+}
+.sc-lc-stat {
+  display: flex;
+  flex-direction: column;
+}
+.sc-lc-stat strong {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.05;
+}
+.sc-lc-stat span {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+.sc-lc-spark {
+  width: 230px;
+  flex-shrink: 0;
+}
+.sc-lc-spark-head {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+.sc-lc-spark-svg {
+  display: block;
+  width: 100%;
+  height: 48px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 6px;
+}
+.sc-lc-spark-empty {
+  font-size: 12px;
+  color: var(--text-dim);
+  padding: 14px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
 .sc-foot {
   grid-area: foot;
   display: flex;
@@ -373,11 +491,14 @@
   gap: 20px;
 }
 .sc-embed .sc-card { --sc-scale: 0.55; margin-bottom: -369px; }
+.sc-embed .sc-card--lc { margin-bottom: -450px; }
 @media (max-width: 900px) {
   .sc-embed .sc-card { --sc-scale: 0.45; margin-bottom: -451px; }
+  .sc-embed .sc-card--lc { margin-bottom: -550px; }
 }
 @media (max-width: 600px) {
   .sc-embed .sc-card { --sc-scale: 0.3; margin-bottom: -574px; }
+  .sc-embed .sc-card--lc { margin-bottom: -700px; }
 }
 
 .sc-actions {

@@ -1,8 +1,8 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
-  Map, BookOpen, List, RotateCcw, Terminal, TrendingUp, Building2, Trophy,
-  ListPlus, Play, GraduationCap, Brain,
+  Map, BookOpen, List, RotateCcw, Terminal, TrendingUp, Building2, Trophy, Swords,
+  ListPlus, GraduationCap, Brain,
   Notebook as NotebookIcon,
 } from 'lucide-react';
 import { usePrefetch } from '../lib/queries';
@@ -23,10 +23,10 @@ const TABS = [
     // anywhere under those routes too.
     matches: ['/learning', '/tutorial', '/learn', '/courses'] },
   { to: '/ml',                      icon: Brain,         label: 'ML-DL-AI' },
-  { to: '/visualize',               icon: Play,          label: 'Visualize' },
   { to: '/review',                  icon: RotateCcw,     label: 'Review', badge: true },
   { to: '/company',                 icon: Building2,     label: 'Companies' },
   { to: '/contests',                icon: Trophy,        label: 'Contests' },
+  { to: '/compete',                 icon: Swords,        label: 'Compete' },
   { to: '/lists',                   icon: ListPlus,      label: 'Lists' },
   { to: '/notebook',                icon: NotebookIcon,  label: 'Notes' },
   { to: '/progress',                icon: TrendingUp,    label: 'Progress' },

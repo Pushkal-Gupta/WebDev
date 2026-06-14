@@ -226,6 +226,8 @@ export const qk = {
   randomUnsolved: (userId, diff) => ['randomUnsolved', userId || 'anon', diff || 'any'],
   comments: (kind, id, userId) => ['comments', kind, id, userId || 'anon'],
   submissionsForProblem: (userId, problemId) => ['submissionsForProblem', userId || 'anon', problemId || 'none'],
+  externalContests: ['externalContests'],
+  leetcodeUser: (handle) => ['leetcodeUser', (handle || '').toLowerCase()],
 };
 
 // ---- Home dashboard RPCs (migrate-29) --------------------------------------
@@ -455,6 +457,41 @@ export function useContests() {
     // Short staleTime so an empty result (e.g., pre-seed) doesn't persist for
     // an hour after the data lands.
     staleTime: 30 * 1000,
+  });
+}
+
+export function useExternalContests() {
+  return useQuery({
+    queryKey: qk.externalContests,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('PGcode_external_contests')
+        .select('*')
+        .order('start_time', { ascending: true });
+      if (error) throw error;
+      return data || [];
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+// Looks up a LeetCode user's contest ranking + history via the lc-user edge
+// function (proxies leetcode.com/graphql). Enabled only when a handle is set.
+// Throws on function error so the component can render its graceful fallback.
+export function useLeetCodeUser(handle) {
+  return useQuery({
+    queryKey: qk.leetcodeUser(handle),
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke('lc-user', {
+        body: { username: handle },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data;
+    },
+    enabled: !!handle,
+    retry: false,
+    staleTime: 10 * 60 * 1000,
   });
 }
 

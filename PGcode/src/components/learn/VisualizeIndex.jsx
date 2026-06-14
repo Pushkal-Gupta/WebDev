@@ -1,9 +1,10 @@
-import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowRight, Play, Search, X, Code2, Film, ArrowLeft } from 'lucide-react';
+import { ArrowRight, Play, Search, X, Code2, Film, ArrowLeft, Zap, Sparkles } from 'lucide-react';
 import AlgoVisualizer, { ArrayBarRenderer, GraphRenderer, SlidingWindowRenderer, NumberGridRenderer, TreeRenderer } from './AlgoVisualizer';
 import { VISUALIZATIONS } from './conceptVisualizations';
 import { INTERACTIVE_TEMPLATES } from './interactiveTemplates';
+import { INTERACTIVE_VIZ } from './interactiveViz';
 import { recordLocalVisit } from '../../lib/achievements';
 import './Learn.css';
 
@@ -39,6 +40,37 @@ const STATIC_TO_INTERACTIVE = {
   'bellman-ford':          'bellman-ford',
   'floyd-warshall':        'floyd-warshall',
 };
+
+// Walkthrough slug ↔ rich INTERACTIVE_VIZ React component key.
+// Direct name matches (e.g. 'binary-search', 'two-pointers') resolve without
+// an entry here; this map only covers slugs whose names diverged from the
+// rich-viz registry. A slug that resolves here HEROES the full React viz.
+const STATIC_TO_RICHVIZ = {
+  'bubble-sort':                'bubble-sort-algorithm',
+  'merge-sort':                 'merge-sort-algorithm',
+  'quicksort-partition':        'quicksort-algorithm',
+  'a-star-search':              'astar-search',
+  'lca-binary-lifting':         'binary-lifting-lca',
+  'binary-lifting-general':     'binary-lifting-lca',
+  'bloom-filter':               'bloom-filter-tuning',
+  'boyer-moore-majority':       'boyer-moore-voting-extended',
+  'boyer-moore-string-search':  'boyer-moore-bad-char',
+  'bst-insertion':              'binary-search-tree-operations',
+  'bst-inorder':                'bst-iterator-inorder',
+  'xor-tricks':                 'bitwise-xor-properties',
+  'aho-corasick':               'aho-corasick-failure',
+  'fenwick-tree':               'fenwick-bit',
+  'lru-cache':                  'cache-eviction-policies',
+  'lru-cache-design':           'cache-eviction-policies',
+  'mos-algorithm':              'mo-algorithm',
+  'topological-sort-kahn':      'kahn-topological-sort',
+};
+
+// Resolve the best rich (full React) interactive viz for a walkthrough slug:
+// prefer a same-named INTERACTIVE_VIZ entry, then the divergent-name alias.
+function richVizForSlug(slug) {
+  return INTERACTIVE_VIZ[slug] || INTERACTIVE_VIZ[STATIC_TO_RICHVIZ[slug]] || null;
+}
 
 const META = {
   'a-star-search':                  { module: 'graphs-shortest-paths',      blurb: 'Greedy best-first with a heuristic guiding relaxation toward the goal.' },
@@ -197,227 +229,638 @@ function renderForSlug(slug, frame) {
 }
 
 export default function VisualizeIndex() {
-  const { slug } = useParams();
-  const [mode, setMode] = useState('walkthrough');
+  const { slug, category } = useParams();
 
   useEffect(() => {
     if (slug) recordLocalVisit('viz', slug);
-    // Default back to the walkthrough tab when navigating to a different viz.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMode('walkthrough');
   }, [slug]);
 
-  if (slug) {
-    const viz = VISUALIZATIONS[slug];
-    if (!viz) {
-      return (
-        <div className="learn-container">
-          <div className="learn-header">
-            <h1 className="learn-title">Not found</h1>
-            <p className="learn-sub">No visualization exists for "{slug}".</p>
-          </div>
-          <div className="learn-breadcrumbs">
-            <Link to="/visualize">All visualizations</Link>
-          </div>
-        </div>
-      );
-    }
-    const meta = META[slug] || {};
-    const interactiveSlug = STATIC_TO_INTERACTIVE[slug];
-    const hasInteractive = Boolean(interactiveSlug && INTERACTIVE_TEMPLATES[interactiveSlug]);
+  if (slug) return <VizDetail slug={slug} />;
+  if (category) return <VizCategory category={category} />;
+  return <VisualizeIndexList />;
+}
 
+// ── Detail / walkthrough page ──────────────────────────────────────────────
+// Heroes the BEST available visual for the slug: a rich interactive React viz
+// when one exists, otherwise the frame-based walkthrough. The frame walkthrough
+// becomes a complementary section beneath the hero, and the code-editor mode is
+// an optional "write your own" disclosure rather than an empty default tab.
+
+function VizDetail({ slug }) {
+  const [showEditor, setShowEditor] = useState(false);
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { setShowEditor(false); }, [slug]);
+
+  const viz = VISUALIZATIONS[slug];
+  if (!viz) {
     return (
       <div className="learn-container">
         <div className="learn-breadcrumbs">
           <Link to="/visualize">Visualizations</Link>
-          <span>/</span>
-          <span>{viz.title}</span>
         </div>
         <div className="learn-header">
-          <h1 className="learn-title">{viz.title}</h1>
-          {meta.blurb && <p className="learn-sub">{meta.blurb}</p>}
-          {hasInteractive && (
-            <div className="viz-mode-tabs" role="tablist" aria-label="Visualization mode">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={mode === 'walkthrough'}
-                className={`viz-mode-tab${mode === 'walkthrough' ? ' active' : ''}`}
-                onClick={() => setMode('walkthrough')}
-              >
-                <Film size={13} /> Walkthrough
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={mode === 'interactive'}
-                className={`viz-mode-tab${mode === 'interactive' ? ' active' : ''}`}
-                onClick={() => setMode('interactive')}
-              >
-                <Code2 size={13} /> Interactive
-              </button>
-            </div>
-          )}
+          <h1 className="learn-title">Not found</h1>
+          <p className="learn-sub">No visualization exists for "{slug}".</p>
         </div>
-
-        {mode === 'walkthrough' && (
-          <AlgoVisualizer
-            frames={viz.frames}
-            cases={viz.cases}
-            build={viz.build}
-            inputSchema={viz.inputSchema}
-            render={(frame) => renderForSlug(slug, frame)}
-            autoPlay
-          />
-        )}
-        {mode === 'interactive' && hasInteractive && (
-          <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-dim)' }}>Loading editor…</div>}>
-            <InteractiveVisualizer slug={interactiveSlug} />
-          </Suspense>
-        )}
-
-        {meta.module && (
-          <p style={{ marginTop: '1.25rem', fontFamily: 'var(--mono)', fontSize: '0.75rem', color: 'var(--text-dim)' }}>
-            See the full concept page —{' '}
-            <Link to={`/learn/${meta.module}/${slug}`} style={{ color: 'var(--accent)' }}>
-              /learn/{meta.module}/{slug} <ArrowRight size={12} style={{ verticalAlign: 'middle' }} />
-            </Link>
-          </p>
-        )}
       </div>
     );
   }
 
-  return <VisualizeIndexList />;
+  const meta = META[slug] || {};
+  const cat = categoryForSlug(slug);
+  const catDef = CAT_BY_KEY[cat];
+  const RichViz = INTERACTIVE_VIZ[slug] || INTERACTIVE_VIZ[STATIC_TO_RICHVIZ[slug]] || null;
+  const editorSlug = INTERACTIVE_TEMPLATES[slug]
+    ? slug
+    : (STATIC_TO_INTERACTIVE[slug] && INTERACTIVE_TEMPLATES[STATIC_TO_INTERACTIVE[slug]]
+      ? STATIC_TO_INTERACTIVE[slug]
+      : null);
+  const hasEditor = Boolean(editorSlug);
+  const hasWalkthrough = vizStepCount(viz) > 0;
+
+  const walkthrough = hasWalkthrough ? (
+    <AlgoVisualizer
+      frames={viz.frames}
+      cases={viz.cases}
+      build={viz.build}
+      inputSchema={viz.inputSchema}
+      render={(frame) => renderForSlug(slug, frame)}
+      autoPlay
+    />
+  ) : null;
+
+  return (
+    <div className="learn-container viz-detail">
+      <div className="learn-breadcrumbs">
+        <Link to="/visualize">Visualize</Link>
+        {catDef && (
+          <>
+            <span>/</span>
+            <Link to={`/visualize/c/${cat}`}>{catDef.label}</Link>
+          </>
+        )}
+        <span>/</span>
+        <span>{viz.title}</span>
+      </div>
+
+      <header className="viz-detail-hero">
+        <div className="viz-detail-hero-text">
+          <h1 className="viz-detail-title">{viz.title}</h1>
+          {meta.blurb && <p className="viz-detail-blurb">{meta.blurb}</p>}
+        </div>
+        <div className="viz-detail-chips">
+          {RichViz && <span className="viz-detail-chip primary"><Sparkles size={12} /> Interactive</span>}
+          {hasWalkthrough && <span className="viz-detail-chip"><Film size={12} /> {vizStepCount(viz)}-step walkthrough</span>}
+          {hasEditor && <span className="viz-detail-chip"><Code2 size={12} /> Editable code</span>}
+        </div>
+      </header>
+
+      {RichViz ? (
+        <>
+          <section className="viz-detail-stage" aria-label="Interactive visualization">
+            <RichViz />
+          </section>
+          {walkthrough && (
+            <section className="viz-detail-section" aria-label="Step-by-step walkthrough">
+              <div className="viz-detail-section-head">
+                <Film size={14} />
+                <span>Step-by-step walkthrough</span>
+              </div>
+              {walkthrough}
+            </section>
+          )}
+        </>
+      ) : (
+        <section className="viz-detail-stage" aria-label="Step-by-step walkthrough">
+          {walkthrough || (
+            <p className="viz-detail-empty">This visualization has no frames yet.</p>
+          )}
+        </section>
+      )}
+
+      {hasEditor && (
+        <details className="viz-detail-advanced" open={showEditor} onToggle={(e) => setShowEditor(e.currentTarget.open)}>
+          <summary className="viz-detail-advanced-summary">
+            <Code2 size={14} />
+            <span>Advanced — edit and run your own implementation</span>
+            <span className="viz-detail-advanced-hint">JavaScript, runs in your browser</span>
+          </summary>
+          <div className="viz-detail-advanced-body">
+            {showEditor && (
+              <Suspense fallback={<div className="viz-detail-empty">Loading editor…</div>}>
+                <InteractiveVisualizer slug={editorSlug} />
+              </Suspense>
+            )}
+          </div>
+        </details>
+      )}
+
+      {meta.module && (
+        <Link to={`/learn/${meta.module}/${slug}`} className="viz-detail-concept-link">
+          <span>Read the full concept — intuition, complexity, and code in four languages</span>
+          <ArrowRight size={14} />
+        </Link>
+      )}
+    </div>
+  );
 }
 
-const MODULE_LABEL = {
-  'arrays-searching': 'Arrays & Searching',
-  'arrays-binary-search': 'Binary Search',
-  'arrays-counting-select': 'Counting & Selection',
-  'arrays-pointers-windows': 'Two Pointers & Sliding Window',
-  'arrays-range-structures': 'Range Structures',
-  'bitwise': 'Bitwise',
-  'cs-core': 'CS Core',
-  'cs-db-transactions': 'Databases & Transactions',
-  'cs-network-protocols': 'Network Protocols',
-  'cs-os-concurrency': 'OS & Concurrency',
-  'cs-tools-encodings': 'Tools & Encodings',
-  'dp': 'Dynamic Programming',
-  'dp-advanced': 'Dynamic Programming — Advanced',
-  'dp-classical': 'Dynamic Programming — Classical',
-  'foundations': 'Foundations',
-  'foundations-analysis': 'Foundations — Analysis',
-  'foundations-patterns': 'Foundations — Patterns',
-  'graphs': 'Graphs',
-  'graphs-advanced': 'Graphs — Advanced',
-  'graphs-flow-grids': 'Graphs — Flow & Grids',
-  'graphs-mst': 'Graphs — MST',
-  'graphs-shortest-paths': 'Graphs — Shortest Paths',
-  'graphs-traversal': 'Graphs — Traversal',
-  'graphs-union-find': 'Graphs — Union-Find',
-  'greedy': 'Greedy',
-  'hashing': 'Hashing',
-  'heaps': 'Heaps',
-  'linked-lists': 'Linked Lists',
-  'math': 'Math',
-  'math-geom-sampling': 'Math — Geometry & Sampling',
-  'math-number-theory': 'Math — Number Theory',
-  'recursion-bt': 'Recursion & Backtracking',
-  'sorting-strings': 'Sorting & Strings',
-  'stacks-queues': 'Stacks & Queues',
-  'strings-advanced': 'Strings — Advanced',
-  'strings-matching': 'Strings — Pattern Matching',
-  'system-design': 'System Design',
-  'trees': 'Trees',
-  'trees-advanced-queries': 'Trees — Advanced Queries',
-  'trees-balanced-disk': 'Balanced & Disk-backed Trees',
-  'trees-traversal-bst': 'Trees & BST',
-  other: 'Other',
+// ── Category model ─────────────────────────────────────────────────────────
+// Each viz slug carries a `module` in META. We fold those modules into a
+// smaller set of structure/algorithm CATEGORIES. New viz auto-appear: a slug
+// whose module isn't mapped lands in 'misc', as does a slug with no META.
+// Each category declares a `preview` kind that drives a tiny animated SVG.
+
+const CATEGORIES = [
+  { key: 'sorting',     label: 'Sorting',                 preview: 'bars',    blurb: 'Compare, swap, partition — watch order emerge from chaos.' },
+  { key: 'searching',   label: 'Searching',               preview: 'search',  blurb: 'Halve the space, probe the midpoint, converge on the target.' },
+  { key: 'arrays',      label: 'Arrays & Windows',        preview: 'window',  blurb: 'Two pointers, sliding windows, prefix sums over a flat sequence.' },
+  { key: 'stacks',      label: 'Stacks & Queues',         preview: 'stack',   blurb: 'LIFO pushes, FIFO drains, and the monotonic structures built on them.' },
+  { key: 'linked',      label: 'Linked Lists',            preview: 'list',    blurb: 'Pointer chasing, cycle detection, and in-place rewiring.' },
+  { key: 'trees',       label: 'Trees & BST',             preview: 'tree',    blurb: 'Ordered insertion, traversal orders, and self-balancing rotations.' },
+  { key: 'heaps',       label: 'Heaps',                   preview: 'heap',    blurb: 'The shape + heap property that make the min or max an O(1) peek.' },
+  { key: 'hashing',     label: 'Hashing',                 preview: 'ring',    blurb: 'Buckets, collisions, probing rings, and membership filters.' },
+  { key: 'range',       label: 'Range Structures',        preview: 'segbars', blurb: 'Segment trees, Fenwick trees, sparse tables for range queries.' },
+  { key: 'graphs',      label: 'Graph Traversal',         preview: 'graph',   blurb: 'BFS frontiers, DFS spanning trees, topological order, cycles.' },
+  { key: 'shortest',    label: 'Shortest Paths',          preview: 'paths',   blurb: 'Relax edges with Dijkstra, Bellman-Ford, Floyd-Warshall, A*.' },
+  { key: 'mst',         label: 'Minimum Spanning Tree',   preview: 'mst',     blurb: 'Grow or merge the cheapest cycle-free edge set with Prim / Kruskal.' },
+  { key: 'unionfind',   label: 'Union-Find (DSU)',        preview: 'dsu',     blurb: 'Disjoint sets with path compression and union by rank.' },
+  { key: 'graphsadv',   label: 'Advanced Graphs',         preview: 'graph',   blurb: 'Flow, matching, SCCs, articulation points, 2-SAT.' },
+  { key: 'dp',          label: 'Dynamic Programming',     preview: 'grid',    blurb: 'Fill a table cell by cell; each answer reuses the ones before it.' },
+  { key: 'recursion',   label: 'Recursion & Backtracking',preview: 'rectree', blurb: 'Branch the search space, prune dead ends, unwind the call tree.' },
+  { key: 'strings',     label: 'Strings & Matching',      preview: 'text',    blurb: 'Failure functions, rolling hashes, suffix structures for matching.' },
+  { key: 'bitwise',     label: 'Bit Manipulation',        preview: 'bits',    blurb: 'XOR cancellation, masks, and subset enumeration over bits.' },
+  { key: 'math',        label: 'Math & Geometry',         preview: 'numline', blurb: 'Number theory, sampling, sweep lines, and convex hulls.' },
+  { key: 'systems',     label: 'Systems & Encodings',     preview: 'nodes',   blurb: 'Caches, consensus, hashing rings, and the structures behind them.' },
+  { key: 'misc',        label: 'More',                    preview: 'cells',   blurb: 'Foundations, analysis, and everything else worth stepping through.' },
+];
+
+const CAT_ORDER = CATEGORIES.map(c => c.key);
+const CAT_BY_KEY = Object.fromEntries(CATEGORIES.map(c => [c.key, c]));
+
+// Module slug -> category key. Modules not listed fall through MODULE_PREFIX
+// matching, then to 'misc'. This is the single place to retune grouping.
+const MODULE_TO_CAT = {
+  'sorting-strings':           'sorting',
+  'arrays-binary-search':      'searching',
+  'arrays-searching':          'searching',
+  'arrays-pointers-windows':   'arrays',
+  'arrays-range-structures':   'range',
+  'arrays-counting-select':    'sorting',
+  'stacks-queues':             'stacks',
+  'linked-lists':              'linked',
+  'trees':                     'trees',
+  'trees-traversal-bst':       'trees',
+  'trees-balanced-disk':       'trees',
+  'trees-advanced-queries':    'range',
+  'heaps':                     'heaps',
+  'hashing':                   'hashing',
+  'graphs':                    'graphs',
+  'graphs-traversal':          'graphs',
+  'graphs-shortest-paths':     'shortest',
+  'graphs-mst':                'mst',
+  'graphs-union-find':         'unionfind',
+  'graphs-flow-grids':         'graphsadv',
+  'graphs-advanced':           'graphsadv',
+  'dp':                        'dp',
+  'dp-classical':              'dp',
+  'dp-advanced':               'dp',
+  'recursion-bt':              'recursion',
+  'strings-matching':          'strings',
+  'strings-advanced':          'strings',
+  'bitwise':                   'bitwise',
+  'math':                      'math',
+  'math-number-theory':        'math',
+  'math-geom-sampling':        'math',
+  'cs-tools-encodings':        'systems',
+  'system-design':             'systems',
+  'foundations':               'misc',
+  'foundations-analysis':      'misc',
+  'foundations-patterns':      'misc',
+  'greedy':                    'misc',
+  'cs-core':                   'systems',
+  'cs-db-transactions':        'systems',
+  'cs-network-protocols':      'systems',
+  'cs-os-concurrency':         'systems',
 };
+
+// A handful of un-moduled slugs (module:null in META) get a direct category.
+const SLUG_TO_CAT = {
+  'fibonacci-recursion': 'recursion',
+  'hash-collision':      'hashing',
+  'trie-insert':         'strings',
+};
+
+function categoryForSlug(slug) {
+  if (SLUG_TO_CAT[slug]) return SLUG_TO_CAT[slug];
+  const mod = META[slug]?.module;
+  if (mod && MODULE_TO_CAT[mod]) return MODULE_TO_CAT[mod];
+  if (mod) {
+    // prefix fallback: e.g. an unseen 'graphs-foo' module still lands in graphs
+    if (mod.startsWith('graphs')) return 'graphs';
+    if (mod.startsWith('trees'))  return 'trees';
+    if (mod.startsWith('dp'))     return 'dp';
+    if (mod.startsWith('arrays')) return 'arrays';
+    if (mod.startsWith('strings'))return 'strings';
+    if (mod.startsWith('math'))   return 'math';
+    if (mod.startsWith('sorting'))return 'sorting';
+    if (mod.startsWith('cs-'))    return 'systems';
+  }
+  return 'misc';
+}
 
 const HUE_TOKENS = ['var(--hue-violet)', 'var(--hue-sky)', 'var(--hue-pink)', 'var(--hue-mint)'];
 
+function hasLive(slug) {
+  return Boolean(
+    (STATIC_TO_INTERACTIVE[slug] && INTERACTIVE_TEMPLATES[STATIC_TO_INTERACTIVE[slug]]) ||
+    richVizForSlug(slug),
+  );
+}
+
+// Does this slug surface the editable-code "Advanced" panel? Mirrors the
+// editorSlug resolution inside VizDetail.
+function hasEditor(slug) {
+  return Boolean(
+    INTERACTIVE_TEMPLATES[slug] ||
+    (STATIC_TO_INTERACTIVE[slug] && INTERACTIVE_TEMPLATES[STATIC_TO_INTERACTIVE[slug]]),
+  );
+}
+
+// ── Mini animated SVG previews ─────────────────────────────────────────────
+// Each is a self-contained, theme-token-coloured, viewBox-scaled loop. The
+// accent CSS var is set on the wrapper so each card tints to its hue. No
+// external deps, no emoji. width:100% + preserveAspectRatio keeps them fluid.
+
+function Preview({ kind, accent }) {
+  const a = accent;
+  const dim = 'var(--text-dim)';
+  const common = {
+    width: '100%',
+    height: '100%',
+    preserveAspectRatio: 'xMidYMid meet',
+    'aria-hidden': true,
+  };
+  switch (kind) {
+    case 'bars': {
+      const hs = [22, 38, 14, 46, 30, 52, 18, 42];
+      return (
+        <svg viewBox="0 0 120 60" {...common}>
+          {hs.map((h, i) => (
+            <rect key={i} x={6 + i * 14} y={56 - h} width="9" height={h} rx="1.5"
+              fill={i % 2 ? a : dim} opacity={i % 2 ? 0.9 : 0.45}>
+              <animate attributeName="height" values={`${h};${h * 0.5};${h}`} dur="2.4s" begin={`${i * 0.12}s`} repeatCount="indefinite" />
+              <animate attributeName="y" values={`${56 - h};${56 - h * 0.5};${56 - h}`} dur="2.4s" begin={`${i * 0.12}s`} repeatCount="indefinite" />
+            </rect>
+          ))}
+        </svg>
+      );
+    }
+    case 'search': {
+      const xs = [10, 24, 38, 52, 66, 80, 94, 108];
+      return (
+        <svg viewBox="0 0 120 60" {...common}>
+          {xs.map((x, i) => (
+            <rect key={i} x={x} y={24} width="10" height="12" rx="2" fill={dim} opacity="0.4" />
+          ))}
+          <rect x="52" y="22" width="10" height="16" rx="2" fill={a}>
+            <animate attributeName="x" values="10;108;52" dur="3s" repeatCount="indefinite" />
+          </rect>
+          <path d="M10 48 H108" stroke={dim} strokeWidth="1" opacity="0.3" />
+        </svg>
+      );
+    }
+    case 'window': {
+      return (
+        <svg viewBox="0 0 120 60" {...common}>
+          {[...Array(8)].map((_, i) => (
+            <rect key={i} x={8 + i * 14} y={22} width="10" height="16" rx="2" fill={dim} opacity="0.4" />
+          ))}
+          <rect x="8" y="18" width="38" height="24" rx="4" fill="none" stroke={a} strokeWidth="2">
+            <animate attributeName="x" values="8;64;8" dur="3.2s" repeatCount="indefinite" />
+          </rect>
+        </svg>
+      );
+    }
+    case 'stack': {
+      return (
+        <svg viewBox="0 0 120 60" {...common}>
+          {[0, 1, 2, 3].map((i) => (
+            <rect key={i} x={38} y={44 - i * 11} width="44" height="9" rx="2"
+              fill={i === 3 ? a : dim} opacity={i === 3 ? 0.95 : 0.5}>
+              {i === 3 && <animate attributeName="y" values="-10;11;11" dur="2.6s" repeatCount="indefinite" />}
+            </rect>
+          ))}
+        </svg>
+      );
+    }
+    case 'list': {
+      const xs = [8, 38, 68, 98];
+      return (
+        <svg viewBox="0 0 120 60" {...common}>
+          {xs.map((x, i) => (
+            <g key={i}>
+              <rect x={x} y={22} width="18" height="16" rx="3" fill={i === 0 ? a : dim} opacity={i === 0 ? 0.95 : 0.55} />
+              {i < 3 && <path d={`M${x + 18} 30 H${x + 30}`} stroke={a} strokeWidth="1.6" opacity="0.8" />}
+            </g>
+          ))}
+          <circle cx="6" cy="30" r="3" fill={a}>
+            <animate attributeName="cx" values="6;112;6" dur="3s" repeatCount="indefinite" />
+          </circle>
+        </svg>
+      );
+    }
+    case 'tree': {
+      const nodes = [[60, 12], [34, 32], [86, 32], [20, 52], [48, 52], [100, 52]];
+      const edges = [[0, 1], [0, 2], [1, 3], [1, 4], [2, 5]];
+      return (
+        <svg viewBox="0 0 120 60" {...common}>
+          {edges.map(([u, v], i) => (
+            <line key={i} x1={nodes[u][0]} y1={nodes[u][1]} x2={nodes[v][0]} y2={nodes[v][1]} stroke={dim} strokeWidth="1.4" opacity="0.5" />
+          ))}
+          {nodes.map(([x, y], i) => (
+            <circle key={i} cx={x} cy={y} r="6" fill={i === 0 ? a : dim} opacity={i === 0 ? 0.95 : 0.6}>
+              <animate attributeName="r" values="6;7.5;6" dur="2.4s" begin={`${i * 0.2}s`} repeatCount="indefinite" />
+            </circle>
+          ))}
+        </svg>
+      );
+    }
+    case 'heap': {
+      const nodes = [[60, 12], [38, 34], [82, 34], [24, 54], [52, 54], [96, 54]];
+      const edges = [[0, 1], [0, 2], [1, 3], [1, 4], [2, 5]];
+      return (
+        <svg viewBox="0 0 120 60" {...common}>
+          {edges.map(([u, v], i) => (
+            <line key={i} x1={nodes[u][0]} y1={nodes[u][1]} x2={nodes[v][0]} y2={nodes[v][1]} stroke={dim} strokeWidth="1.4" opacity="0.5" />
+          ))}
+          {nodes.map(([x, y], i) => (
+            <circle key={i} cx={x} cy={y} r="7" fill={i === 0 ? a : dim} opacity={i === 0 ? 0.95 : 0.55} />
+          ))}
+          <circle cx={60} cy={12} r="7" fill="none" stroke={a} strokeWidth="2">
+            <animate attributeName="r" values="7;11;7" dur="2.2s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0.9;0;0.9" dur="2.2s" repeatCount="indefinite" />
+          </circle>
+        </svg>
+      );
+    }
+    case 'ring': {
+      const N = 8;
+      const cx = 60, cy = 30, r = 20;
+      return (
+        <svg viewBox="0 0 120 60" {...common}>
+          <circle cx={cx} cy={cy} r={r} fill="none" stroke={dim} strokeWidth="1.4" opacity="0.4" />
+          {[...Array(N)].map((_, i) => {
+            const ang = (i / N) * Math.PI * 2 - Math.PI / 2;
+            return <circle key={i} cx={cx + Math.cos(ang) * r} cy={cy + Math.sin(ang) * r} r="4" fill={i % 3 === 0 ? a : dim} opacity={i % 3 === 0 ? 0.9 : 0.5} />;
+          })}
+          <circle cx={cx + r} cy={cy} r="4.5" fill={a}>
+            <animateTransform attributeName="transform" type="rotate" from={`0 ${cx} ${cy}`} to={`360 ${cx} ${cy}`} dur="4s" repeatCount="indefinite" />
+          </circle>
+        </svg>
+      );
+    }
+    case 'segbars': {
+      return (
+        <svg viewBox="0 0 120 60" {...common}>
+          {[...Array(8)].map((_, i) => (
+            <rect key={i} x={6 + i * 14} y={44} width="10" height="10" rx="1.5" fill={dim} opacity="0.5" />
+          ))}
+          {[...Array(4)].map((_, i) => (
+            <rect key={i} x={6 + i * 28} y={28} width="24" height="10" rx="1.5" fill={dim} opacity="0.4" />
+          ))}
+          <rect x="6" y="12" width="108" height="10" rx="1.5" fill={a} opacity="0.85">
+            <animate attributeName="opacity" values="0.4;0.9;0.4" dur="2.4s" repeatCount="indefinite" />
+          </rect>
+        </svg>
+      );
+    }
+    case 'graph': {
+      const nodes = [[24, 16], [62, 12], [98, 26], [40, 44], [82, 48]];
+      const edges = [[0, 1], [1, 2], [0, 3], [1, 3], [2, 4], [3, 4]];
+      return (
+        <svg viewBox="0 0 120 60" {...common}>
+          {edges.map(([u, v], i) => (
+            <line key={i} x1={nodes[u][0]} y1={nodes[u][1]} x2={nodes[v][0]} y2={nodes[v][1]} stroke={dim} strokeWidth="1.4" opacity="0.5" />
+          ))}
+          {nodes.map(([x, y], i) => (
+            <circle key={i} cx={x} cy={y} r="6" fill={i === 0 ? a : dim} opacity={i === 0 ? 0.95 : 0.6}>
+              <animate attributeName="fill" values={`${dim};${a};${dim}`} dur="3s" begin={`${i * 0.5}s`} repeatCount="indefinite" />
+            </circle>
+          ))}
+        </svg>
+      );
+    }
+    case 'paths': {
+      const nodes = [[14, 30], [44, 14], [44, 46], [78, 30], [106, 30]];
+      const edges = [[0, 1], [0, 2], [1, 3], [2, 3], [3, 4]];
+      return (
+        <svg viewBox="0 0 120 60" {...common}>
+          {edges.map(([u, v], i) => (
+            <line key={i} x1={nodes[u][0]} y1={nodes[u][1]} x2={nodes[v][0]} y2={nodes[v][1]} stroke={dim} strokeWidth="1.4" opacity="0.45" />
+          ))}
+          <polyline points={[nodes[0], nodes[1], nodes[3], nodes[4]].map(([x, y]) => `${x},${y}`).join(' ')} fill="none" stroke={a} strokeWidth="2.4" strokeLinecap="round" strokeDasharray="80" strokeDashoffset="80">
+            <animate attributeName="stroke-dashoffset" values="80;0;0;80" dur="3.4s" repeatCount="indefinite" />
+          </polyline>
+          {nodes.map(([x, y], i) => (
+            <circle key={i} cx={x} cy={y} r="5" fill={i === 0 || i === 4 ? a : dim} opacity={i === 0 || i === 4 ? 0.95 : 0.55} />
+          ))}
+        </svg>
+      );
+    }
+    case 'mst': {
+      const nodes = [[20, 18], [58, 12], [96, 22], [34, 48], [80, 50]];
+      const tree = [[0, 1], [1, 2], [0, 3], [2, 4]];
+      const extra = [[1, 3], [3, 4]];
+      return (
+        <svg viewBox="0 0 120 60" {...common}>
+          {extra.map(([u, v], i) => (
+            <line key={`e${i}`} x1={nodes[u][0]} y1={nodes[u][1]} x2={nodes[v][0]} y2={nodes[v][1]} stroke={dim} strokeWidth="1.2" opacity="0.3" strokeDasharray="3 3" />
+          ))}
+          {tree.map(([u, v], i) => (
+            <line key={`t${i}`} x1={nodes[u][0]} y1={nodes[u][1]} x2={nodes[v][0]} y2={nodes[v][1]} stroke={a} strokeWidth="2.2" opacity="0.85">
+              <animate attributeName="opacity" values="0.15;0.9;0.85" dur="2.8s" begin={`${i * 0.35}s`} repeatCount="indefinite" />
+            </line>
+          ))}
+          {nodes.map(([x, y], i) => (
+            <circle key={i} cx={x} cy={y} r="5.5" fill={a} opacity="0.85" />
+          ))}
+        </svg>
+      );
+    }
+    case 'dsu': {
+      const roots = [[28, 16], [92, 16]];
+      const kids = [[14, 44], [40, 44], [78, 44], [106, 44]];
+      return (
+        <svg viewBox="0 0 120 60" {...common}>
+          <line x1={28} y1={16} x2={14} y2={44} stroke={a} strokeWidth="1.8" opacity="0.7" />
+          <line x1={28} y1={16} x2={40} y2={44} stroke={a} strokeWidth="1.8" opacity="0.7" />
+          <line x1={92} y1={16} x2={78} y2={44} stroke={dim} strokeWidth="1.8" opacity="0.5" />
+          <line x1={92} y1={16} x2={106} y2={44} stroke={dim} strokeWidth="1.8" opacity="0.5" />
+          {roots.map(([x, y], i) => <circle key={`r${i}`} cx={x} cy={y} r="6.5" fill={i === 0 ? a : dim} opacity={i === 0 ? 0.95 : 0.6} />)}
+          {kids.map(([x, y], i) => <circle key={`k${i}`} cx={x} cy={y} r="5" fill={i < 2 ? a : dim} opacity={i < 2 ? 0.7 : 0.5} />)}
+          <line x1={40} y1={44} x2={78} y2={44} stroke={a} strokeWidth="1.6" strokeDasharray="3 3" opacity="0">
+            <animate attributeName="opacity" values="0;0.9;0" dur="3s" repeatCount="indefinite" />
+          </line>
+        </svg>
+      );
+    }
+    case 'grid': {
+      return (
+        <svg viewBox="0 0 120 60" {...common}>
+          {[...Array(4)].map((_, r) => [...Array(7)].map((__, c) => {
+            const on = r === 0 || c === 0 || (r <= c && (r + c) % 3 === 0);
+            return <rect key={`${r}-${c}`} x={6 + c * 16} y={4 + r * 14} width="13" height="11" rx="2"
+              fill={on ? a : dim} opacity={on ? 0.85 : 0.3}>
+              {on && <animate attributeName="opacity" values="0.2;0.85;0.85" dur="2.6s" begin={`${(r + c) * 0.1}s`} repeatCount="indefinite" />}
+            </rect>;
+          }))}
+        </svg>
+      );
+    }
+    case 'rectree': {
+      const nodes = [[60, 10], [34, 30], [86, 30], [20, 50], [48, 50], [74, 50], [100, 50]];
+      const edges = [[0, 1], [0, 2], [1, 3], [1, 4], [2, 5], [2, 6]];
+      return (
+        <svg viewBox="0 0 120 60" {...common}>
+          {edges.map(([u, v], i) => (
+            <line key={i} x1={nodes[u][0]} y1={nodes[u][1]} x2={nodes[v][0]} y2={nodes[v][1]} stroke={a} strokeWidth="1.4" opacity="0.4">
+              <animate attributeName="opacity" values="0.1;0.8;0.1" dur="2.8s" begin={`${i * 0.18}s`} repeatCount="indefinite" />
+            </line>
+          ))}
+          {nodes.map(([x, y], i) => (
+            <circle key={i} cx={x} cy={y} r="4.5" fill={i === 0 ? a : dim} opacity={i === 0 ? 0.95 : 0.55} />
+          ))}
+        </svg>
+      );
+    }
+    case 'text': {
+      const cells = ['A', 'B', 'A', 'B', 'A', 'C', 'A', 'B'];
+      return (
+        <svg viewBox="0 0 120 60" {...common}>
+          {cells.map((ch, i) => (
+            <g key={i}>
+              <rect x={6 + i * 14} y={20} width="11" height="16" rx="2" fill={dim} opacity="0.25" />
+              <text x={11.5 + i * 14} y={32} fontSize="9" fontFamily="var(--mono)" textAnchor="middle" fill={dim} opacity="0.8">{ch}</text>
+            </g>
+          ))}
+          <rect x="6" y="18" width="25" height="20" rx="3" fill="none" stroke={a} strokeWidth="2">
+            <animate attributeName="x" values="6;81;6" dur="3.4s" repeatCount="indefinite" />
+          </rect>
+        </svg>
+      );
+    }
+    case 'bits': {
+      const bits = [1, 0, 1, 1, 0, 0, 1, 0];
+      return (
+        <svg viewBox="0 0 120 60" {...common}>
+          {bits.map((b, i) => (
+            <g key={i}>
+              <rect x={6 + i * 14} y={20} width="11" height="18" rx="2" fill={b ? a : dim} opacity={b ? 0.85 : 0.3}>
+                <animate attributeName="opacity" values={b ? '0.85;0.35;0.85' : '0.3;0.6;0.3'} dur="2.6s" begin={`${i * 0.15}s`} repeatCount="indefinite" />
+              </rect>
+              <text x={11.5 + i * 14} y={33} fontSize="9" fontFamily="var(--mono)" textAnchor="middle" fill="var(--bg)" opacity={b ? 0.9 : 0}>{b}</text>
+            </g>
+          ))}
+        </svg>
+      );
+    }
+    case 'numline': {
+      return (
+        <svg viewBox="0 0 120 60" {...common}>
+          <line x1="8" y1="30" x2="112" y2="30" stroke={dim} strokeWidth="1.4" opacity="0.5" />
+          {[...Array(8)].map((_, i) => (
+            <g key={i}>
+              <line x1={12 + i * 13} y1="26" x2={12 + i * 13} y2="34" stroke={dim} strokeWidth="1.2" opacity="0.5" />
+              {(i === 2 || i === 3 || i === 5 || i === 7) && (
+                <circle cx={12 + i * 13} cy="30" r="4" fill={a} opacity="0.9">
+                  <animate attributeName="r" values="2;5;2" dur="2.4s" begin={`${i * 0.2}s`} repeatCount="indefinite" />
+                </circle>
+              )}
+            </g>
+          ))}
+        </svg>
+      );
+    }
+    case 'nodes': {
+      const cx = 60, cy = 30, r = 20, N = 6;
+      const pts = [...Array(N)].map((_, i) => {
+        const ang = (i / N) * Math.PI * 2;
+        return [cx + Math.cos(ang) * r, cy + Math.sin(ang) * r];
+      });
+      return (
+        <svg viewBox="0 0 120 60" {...common}>
+          {pts.map(([x, y], i) => (
+            <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke={dim} strokeWidth="1.2" opacity="0.4" />
+          ))}
+          {pts.map(([x, y], i) => (
+            <circle key={i} cx={x} cy={y} r="4.5" fill={dim} opacity="0.6">
+              <animate attributeName="fill" values={`${dim};${a};${dim}`} dur="3s" begin={`${i * 0.4}s`} repeatCount="indefinite" />
+            </circle>
+          ))}
+          <circle cx={cx} cy={cy} r="6" fill={a} opacity="0.95" />
+        </svg>
+      );
+    }
+    case 'cells':
+    default: {
+      return (
+        <svg viewBox="0 0 120 60" {...common}>
+          {[...Array(8)].map((_, i) => (
+            <rect key={i} x={6 + i * 14} y={22} width="11" height="16" rx="2"
+              fill={i % 3 === 0 ? a : dim} opacity={i % 3 === 0 ? 0.85 : 0.4}>
+              <animate attributeName="opacity" values="0.3;0.85;0.3" dur="2.6s" begin={`${i * 0.12}s`} repeatCount="indefinite" />
+            </rect>
+          ))}
+        </svg>
+      );
+    }
+  }
+}
+
+// Fold every registered viz into its category. Newly-registered slugs (added
+// to VISUALIZATIONS) auto-appear without touching call sites.
+function buildByCat() {
+  const m = {};
+  for (const [s, viz] of Object.entries(VISUALIZATIONS)) {
+    const cat = categoryForSlug(s);
+    (m[cat] ||= []).push([s, viz]);
+  }
+  for (const cat of Object.keys(m)) {
+    m[cat].sort((x, y) => (x[1].title || '').localeCompare(y[1].title || ''));
+  }
+  return m;
+}
+
 function VisualizeIndexList() {
   const [query, setQuery] = useState('');
-  const [activeMod, setActiveMod] = useState(null);
-  const containerRef = useRef(null);
 
-  const { groups, orderedKeys } = useMemo(() => {
-    const entries = Object.entries(VISUALIZATIONS);
-    const g = {};
-    for (const [s, viz] of entries) {
-      const mod = META[s]?.module || 'other';
-      if (!g[mod]) g[mod] = [];
-      g[mod].push([s, viz]);
-    }
-    const keys = Object.keys(MODULE_LABEL).filter(k => g[k]?.length);
-    return { groups: g, orderedKeys: keys };
-  }, []);
+  const byCat = useMemo(() => buildByCat(), []);
+
+  const orderedCats = useMemo(
+    () => CAT_ORDER.filter(k => byCat[k]?.length),
+    [byCat],
+  );
 
   const q = query.trim().toLowerCase();
-  const filteredGroups = useMemo(() => {
-    if (!q) return groups;
-    const out = {};
-    for (const mod of orderedKeys) {
-      const matches = groups[mod].filter(([s, viz]) => {
+
+  // When searching, flatten to matching viz across all categories.
+  const searchHits = useMemo(() => {
+    if (!q) return null;
+    const hits = [];
+    for (const cat of orderedCats) {
+      for (const [s, viz] of byCat[cat]) {
         const blurb = (META[s]?.blurb || '').toLowerCase();
         const title = (viz.title || '').toLowerCase();
-        return title.includes(q) || blurb.includes(q) || s.includes(q);
-      });
-      if (matches.length) out[mod] = matches;
+        if (title.includes(q) || blurb.includes(q) || s.includes(q)) hits.push([cat, s, viz]);
+      }
     }
-    return out;
-  }, [q, groups, orderedKeys]);
-
-  const visibleKeys = useMemo(
-    () => orderedKeys.filter(k => filteredGroups[k]?.length),
-    [orderedKeys, filteredGroups],
-  );
-  const filteredTotal = visibleKeys.reduce((n, k) => n + filteredGroups[k].length, 0);
-  const visibleKey = visibleKeys.join('|');
-
-  const currentActive = activeMod && visibleKeys.includes(activeMod) ? activeMod : visibleKeys[0] || null;
-
-  useEffect(() => {
-    if (!visibleKeys.length) return undefined;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter(e => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visible[0]) setActiveMod(visible[0].target.dataset.mod);
-      },
-      {
-        root: containerRef.current || null,
-        rootMargin: '-30% 0px -55% 0px',
-        threshold: [0, 0.1, 0.5, 1],
-      },
-    );
-    visibleKeys.forEach(k => {
-      const el = document.getElementById(`viz-group-${k}`);
-      if (el) observer.observe(el);
-    });
-    return () => observer.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visibleKey]);
-
-  const handleJump = (mod) => (e) => {
-    e.preventDefault();
-    const el = document.getElementById(`viz-group-${mod}`);
-    if (!el) return;
-    const scroller = containerRef.current;
-    if (scroller) {
-      const top = el.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - 12;
-      scroller.scrollTo({ top, behavior: 'smooth' });
-    } else {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-    setActiveMod(mod);
-  };
+    return hits;
+  }, [q, orderedCats, byCat]);
 
   return (
-    <div className="learn-container viz-index-container" ref={containerRef}>
+    <div className="learn-container viz-gallery-container">
       <div className="learn-header">
         <Link to="/learning" className="learn-crumb">
           <ArrowLeft size={13} /> <span>Learning</span>
@@ -425,14 +868,14 @@ function VisualizeIndexList() {
           <span className="learn-crumb-here">Visualize</span>
         </Link>
         <h1 className="learn-title">Visualize</h1>
-        <p className="learn-sub">Step through algorithms frame by frame.</p>
+        <p className="learn-sub">Pick a data structure or algorithm family and step through it frame by frame.</p>
         <div className="viz-search">
           <Search size={14} className="viz-search-icon" aria-hidden="true" />
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by title or description…"
+            placeholder="Search every visualization…"
             className="viz-search-input"
             aria-label="Filter visualizations"
           />
@@ -444,121 +887,135 @@ function VisualizeIndexList() {
         </div>
         {q && (
           <p className="viz-search-meta">
-            {filteredTotal} match{filteredTotal === 1 ? '' : 'es'} across {visibleKeys.length} group{visibleKeys.length === 1 ? '' : 's'}.
+            {searchHits.length} match{searchHits.length === 1 ? '' : 'es'} across {new Set(searchHits.map(h => h[0])).size} categor{new Set(searchHits.map(h => h[0])).size === 1 ? 'y' : 'ies'}.
           </p>
         )}
       </div>
 
-      <nav className="viz-chip-bar" aria-label="Jump to group">
-        {visibleKeys.map((mod, i) => (
-          <button
-            key={mod}
-            type="button"
-            onClick={handleJump(mod)}
-            className={`viz-chip${currentActive === mod ? ' active' : ''}`}
-            style={{ '--chip-accent': HUE_TOKENS[i % HUE_TOKENS.length] }}
-          >
-            <span className="viz-chip-dot" aria-hidden="true" />
-            <span className="viz-chip-label">{MODULE_LABEL[mod]}</span>
-            <span className="viz-chip-count">{filteredGroups[mod].length}</span>
-          </button>
-        ))}
-      </nav>
+      {q ? (
+        searchHits.length === 0 ? (
+          <div className="viz-empty">
+            <p>No visualizations match "{query}".</p>
+            <button type="button" className="viz-empty-clear" onClick={() => setQuery('')}>Clear search</button>
+          </div>
+        ) : (
+          <div className="viz-result-grid">
+            {searchHits.map(([cat, s, viz]) => {
+              const accent = HUE_TOKENS[CAT_ORDER.indexOf(cat) % HUE_TOKENS.length];
+              return (
+                <Link key={s} to={`/visualize/${s}`} className="viz-result-card" style={{ '--card-accent': accent }}>
+                  <Play size={15} />
+                  <span className="viz-result-title">{viz.title}</span>
+                  <span className="viz-result-cat">{CAT_BY_KEY[cat]?.label}</span>
+                  {hasLive(s) && <span className="viz-live-tag"><Zap size={9} /> Live</span>}
+                  <ArrowRight size={14} className="viz-result-arrow" />
+                </Link>
+              );
+            })}
+          </div>
+        )
+      ) : (
+        <div className="viz-cat-grid">
+          {orderedCats.map((cat) => {
+            const def = CAT_BY_KEY[cat];
+            const members = byCat[cat];
+            const accent = HUE_TOKENS[CAT_ORDER.indexOf(cat) % HUE_TOKENS.length];
+            const liveCount = members.filter(([s]) => hasLive(s)).length;
+            return (
+              <Link
+                key={cat}
+                to={`/visualize/c/${cat}`}
+                className="viz-cat-card"
+                style={{ '--card-accent': accent }}
+              >
+                <span className="viz-cat-head">
+                  <span className="viz-cat-preview">
+                    <Preview kind={def.preview} accent={accent} />
+                  </span>
+                  <span className="viz-cat-body">
+                    <span className="viz-cat-title">{def.label}</span>
+                    <span className="viz-cat-blurb">{def.blurb}</span>
+                    <span className="viz-cat-tags">
+                      <span className="viz-cat-tag">{members.length} viz</span>
+                      {liveCount > 0 && <span className="viz-cat-tag live"><Zap size={9} /> {liveCount} interactive</span>}
+                      <span className="viz-cat-cta"><ArrowRight size={13} /></span>
+                    </span>
+                  </span>
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
-      <div className="viz-index-layout">
-        <aside className="viz-side" aria-label="Groups">
-          <nav className="viz-side-nav">
-            <h3 className="viz-side-title">Groups</h3>
-            <ul className="viz-side-list">
-              {visibleKeys.map((mod, i) => (
-                <li key={mod}>
-                  <a
-                    href={`#viz-group-${mod}`}
-                    onClick={handleJump(mod)}
-                    className={`viz-side-link${currentActive === mod ? ' active' : ''}`}
-                    style={{ '--side-accent': HUE_TOKENS[i % HUE_TOKENS.length] }}
-                  >
-                    <span className="viz-side-rail" aria-hidden="true" />
-                    <span className="viz-side-label">{MODULE_LABEL[mod]}</span>
-                    <span className="viz-side-count">{filteredGroups[mod].length}</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        </aside>
+// ── Category / module page ─────────────────────────────────────────────────
+// /visualize/c/:category — header (title + one-line blurb) plus a grid of viz
+// cards, each a mini preview + title + tags, linking to the viz detail page.
 
-        <div className="viz-index-main">
-          {visibleKeys.length === 0 && (
-            <div className="viz-empty">
-              <p>No visualizations match "{query}".</p>
-              <button type="button" className="viz-empty-clear" onClick={() => setQuery('')}>Clear search</button>
-            </div>
-          )}
-          {visibleKeys.map((mod, i) => (
-            <section
-              key={mod}
-              id={`viz-group-${mod}`}
-              data-mod={mod}
-              className="learn-group viz-group"
-              style={{ '--group-accent': HUE_TOKENS[i % HUE_TOKENS.length] }}
-            >
-              <h2 className="learn-group-title viz-group-title">
-                <span className="viz-group-dot" aria-hidden="true" />
-                {MODULE_LABEL[mod]}
-                <span className="learn-group-count">({filteredGroups[mod].length})</span>
-              </h2>
-              <div className="learn-module-grid">
-                {filteredGroups[mod].map(([s, viz]) => {
-                  const meta = META[s] || {};
-                  const hasInteractive = Boolean(STATIC_TO_INTERACTIVE[s] && INTERACTIVE_TEMPLATES[STATIC_TO_INTERACTIVE[s]]);
-                  return (
-                    <Link
-                      key={s}
-                      to={`/visualize/${s}`}
-                      className="learn-module-card viz-card"
-                      style={{ '--card-accent': HUE_TOKENS[i % HUE_TOKENS.length] }}
-                    >
-                      <div className="learn-module-card-head">
-                        <Play size={16} />
-                        <span className="learn-module-card-title">{viz.title}</span>
-                        {hasInteractive && (
-                          <span
-                            title="Has Interactive mode — edit the code and re-run"
-                            style={{
-                              marginLeft: 'auto',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '0.25rem',
-                              fontFamily: 'var(--mono)',
-                              fontSize: '0.62rem',
-                              fontWeight: 700,
-                              padding: '0.12rem 0.42rem',
-                              borderRadius: '4px',
-                              background: 'rgba(var(--accent-rgb), 0.12)',
-                              color: 'var(--accent)',
-                              border: '1px solid rgba(var(--accent-rgb), 0.35)',
-                              letterSpacing: '0.04em',
-                              textTransform: 'uppercase',
-                            }}
-                          >
-                            <Code2 size={10} /> Live
-                          </span>
-                        )}
-                      </div>
-                      <p className="learn-module-card-desc">{meta.blurb || `${vizStepCount(viz)} steps.`}</p>
-                      <div className="learn-module-card-foot">
-                        <span className="learn-module-count">{vizStepCount(viz)} steps</span>
-                        <ArrowRight size={14} />
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            </section>
-          ))}
+function VizCategory({ category }) {
+  const def = CAT_BY_KEY[category];
+  const byCat = useMemo(() => buildByCat(), []);
+  const members = byCat[category] || [];
+  const catIndex = CAT_ORDER.indexOf(category);
+  const accent = HUE_TOKENS[(catIndex < 0 ? 0 : catIndex) % HUE_TOKENS.length];
+
+  if (!def) {
+    return (
+      <div className="learn-container viz-gallery-container">
+        <div className="learn-header">
+          <Link to="/visualize" className="learn-crumb">
+            <ArrowLeft size={13} /> <span>Visualize</span>
+            <span className="learn-crumb-sep">/</span>
+            <span className="learn-crumb-here">Not found</span>
+          </Link>
+          <h1 className="learn-title">Not found</h1>
+          <p className="learn-sub">No category matches "{category}".</p>
         </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="learn-container viz-gallery-container" style={{ '--card-accent': accent }}>
+      <div className="learn-header">
+        <Link to="/visualize" className="learn-crumb">
+          <ArrowLeft size={13} /> <span>Visualize</span>
+          <span className="learn-crumb-sep">/</span>
+          <span className="learn-crumb-here">{def.label}</span>
+        </Link>
+        <h1 className="learn-title">{def.label}</h1>
+        <p className="learn-sub">{def.blurb}</p>
+      </div>
+
+      {members.length === 0 ? (
+        <div className="viz-empty">
+          <p>No visualizations in this category yet.</p>
+          <Link to="/visualize" className="viz-empty-clear">Back to all categories</Link>
+        </div>
+      ) : (
+        <div className="viz-member-grid">
+          {members.map(([s, viz]) => (
+            <Link key={s} to={`/visualize/${s}`} className="viz-member-card" style={{ '--card-accent': accent }}>
+              <span className="viz-member-preview">
+                <Preview kind={def.preview} accent={accent} />
+              </span>
+              <span className="viz-member-body">
+                <span className="viz-member-title">{viz.title}</span>
+                {META[s]?.blurb && <span className="viz-member-blurb">{META[s].blurb}</span>}
+                <span className="viz-member-tags">
+                  {hasLive(s) && <span className="viz-cat-tag live"><Sparkles size={9} /> Interactive</span>}
+                  {hasEditor(s) && <span className="viz-cat-tag"><Code2 size={9} /> Editable code</span>}
+                  {vizStepCount(viz) > 0 && <span className="viz-cat-tag">{vizStepCount(viz)} steps</span>}
+                </span>
+              </span>
+              <ArrowRight size={15} className="viz-member-arrow" />
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

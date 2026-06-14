@@ -11,6 +11,12 @@
      }
 */
 
+import { OPTIMIZATION_EXTRA } from './ml-extra/optimization.js';
+import { REGULARIZATION_EXTRA } from './ml-extra/regularization.js';
+import { RL_EXTRA } from './ml-extra/rl.js';
+import { NUMERICAL_EXTRA } from './ml-extra/numerical.js';
+import { ARCHITECTURES_EXTRA } from './ml-extra/architectures.js';
+
 export const PILLARS = {
   foundations: {
     title: 'Linear Algebra & Calculus',
@@ -7127,3 +7133,10 @@ export function getLesson(pillarSlug, lessonSlug) {
   if (!p) return null;
   return p.lessons.find(l => l.slug === lessonSlug) || null;
 }
+
+// Extra lessons authored as standalone modules, merged into their pillars.
+PILLARS.optimization.lessons.push(...OPTIMIZATION_EXTRA);
+PILLARS.regularization.lessons.push(...REGULARIZATION_EXTRA);
+PILLARS.rl.lessons.push(...RL_EXTRA);
+PILLARS.numerical.lessons.push(...NUMERICAL_EXTRA);
+PILLARS.architectures.lessons.push(...ARCHITECTURES_EXTRA);

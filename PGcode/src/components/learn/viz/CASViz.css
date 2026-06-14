@@ -1,0 +1,350 @@
+.casv {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.casv-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.casv-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.casv-sub {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.casv-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.casv-modes {
+  display: inline-flex;
+  gap: 0.3rem;
+  padding: 0.2rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  flex-wrap: wrap;
+}
+
+.casv-mode {
+  padding: 0.35rem 0.7rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: transparent;
+  color: var(--text-dim);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.casv-mode:hover {
+  color: var(--text-main);
+}
+.casv-mode.is-on {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.casv-input-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.casv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.casv-btn:hover:not(:disabled) {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.casv-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.casv-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.casv-btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  background: var(--accent);
+}
+
+.casv-buttons {
+  display: inline-flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.casv-speed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.casv-speed-range {
+  width: 100px;
+  accent-color: var(--accent);
+}
+.casv-speed-value {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--text-main);
+  min-width: 2.6em;
+  text-align: right;
+}
+
+.casv-spacer {
+  flex: 1 1 auto;
+}
+
+.casv-stepcount {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+.casv-stepcount strong {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.casv-stage {
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.casv-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.casv-row-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+}
+
+.casv-mem {
+  fill: var(--surface);
+  stroke: var(--accent);
+  stroke-width: 2;
+  transition: fill 0.2s, stroke 0.2s;
+}
+.casv-mem.is-write {
+  fill: rgba(var(--accent-rgb), 0.16);
+  stroke: var(--easy);
+  stroke-width: 3;
+}
+.casv-mem.is-fail {
+  stroke: var(--hard);
+  stroke-width: 3;
+}
+
+.casv-mem-val {
+  font-family: var(--mono);
+  font-size: 34px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: middle;
+}
+
+.casv-mem-cap {
+  font-family: var(--mono);
+  font-size: 11px;
+  fill: var(--text-dim);
+}
+
+.casv-link {
+  stroke-width: 2.4;
+  stroke-dasharray: 6 5;
+  opacity: 0.85;
+}
+.casv-link.is-read { stroke: var(--text-dim); }
+.casv-link.is-write { stroke: var(--easy); }
+.casv-link.is-fail { stroke: var(--hard); }
+
+.casv-lane {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.4;
+  transition: stroke 0.2s, fill 0.2s;
+}
+.casv-lane.is-active {
+  fill: rgba(var(--accent-rgb), 0.08);
+  stroke-width: 2.6;
+}
+.casv-lane.is-done {
+  fill: rgba(var(--accent-rgb), 0.06);
+}
+
+.casv-thread-tag {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--bg);
+  text-anchor: middle;
+}
+
+.casv-lane-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  fill: var(--text-dim);
+  text-anchor: start;
+}
+
+.casv-reg-k {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+  text-anchor: start;
+}
+
+.casv-reg-v {
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: start;
+}
+
+.casv-reg-cas {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  fill: var(--text-dim);
+  text-anchor: start;
+}
+.casv-reg-cas.is-ok { fill: var(--easy); }
+.casv-reg-cas.is-fail { fill: var(--hard); }
+
+.casv-cas-expr {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  text-anchor: end;
+}
+.casv-cas-expr.is-ok { fill: var(--easy); }
+.casv-cas-expr.is-fail { fill: var(--hard); }
+
+.casv-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.6rem;
+}
+
+.casv-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.casv-metric-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.casv-metric-value {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.casv-metric-value.is-ok { color: var(--easy); }
+
+.casv-metric-dim {
+  background: var(--bg);
+}
+
+.casv-metric-dimval {
+  color: var(--easy);
+  font-weight: 700;
+}
+
+.casv-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.casv-narration-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.casv-narration-body {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-main);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .casv-btn,
+  .casv-mode,
+  .casv-lane,
+  .casv-mem {
+    transition: none;
+  }
+}
